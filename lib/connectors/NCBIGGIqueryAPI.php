@@ -48,7 +48,7 @@ class NCBIGGIqueryAPI
         
         //GBIF services
         $this->gbif_taxon_info = "http://api.gbif.org/v0.9/species/match?name="; //http://api.gbif.org/v0.9/species/match?name=felidae&kingdom=Animalia
-        $this->gbif_record_count = "http://api.gbif.org/v0.9/occurrence/count?nubKey=";
+        $this->gbif_record_count = "http://api.gbif.org/v0.9/occurrence/count?taxonKey=";
         
         // BHL services
         $this->bhl_taxon_page = "http://www.biodiversitylibrary.org/name/";
@@ -65,11 +65,13 @@ class NCBIGGIqueryAPI
 
     function get_all_taxa()
     {
-        $families = array();
-        /* $families = self::get_families_from_google_spreadsheet(); Google spreadsheets are very slow, it is better to use Dropbox for our online spreadsheets */
-        if(!$families) $families = self::get_families_xlsx();
-        if(!$families) $families = self::get_families(); // use to read a plain text file
-        if($families)
+        /* 
+        $families = self::get_families_from_google_spreadsheet(); Google spreadsheets are very slow, it is better to use Dropbox for our online spreadsheets
+        $families = self::get_families(); use to read a plain text file
+        $families = self::get_families_with_missing_data_xlsx(); - utility
+        */
+
+        if($families = self::get_families_xlsx())
         {
             self::create_instances_from_taxon_object($families);
             $this->create_archive();
@@ -152,7 +154,7 @@ class NCBIGGIqueryAPI
         unlink($temp_path_filename);
         return array_keys($families);
     }
-    
+
     private function create_instances_from_taxon_object($families)
     {
         $i = 0;
@@ -182,6 +184,7 @@ class NCBIGGIqueryAPI
             */
             
             if($family == "Family Unassigned") continue;
+            echo "\n $i of $total - [$family]\n";
             
             if    ($this->query == "ncbi_sequence_info")     self::query_family_NCBI_info($family);
             elseif($this->query == "ggbn_dna_specimen_info") self::query_family_GGBN_info($family);
@@ -189,7 +192,6 @@ class NCBIGGIqueryAPI
             elseif($this->query == "bhl_info")               self::query_family_BHL_info($family, $names_no_entry_from_partner);
             elseif($this->query == "bolds_info")             self::query_family_BOLDS_info($family, $names_no_entry_from_partner);
             
-            echo "\n $i of $total - [$family]";
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID         = $family;
             $taxon->scientificName  = $family;
@@ -368,28 +370,39 @@ class NCBIGGIqueryAPI
         if($json = Functions::lookup_with_cache($this->gbif_taxon_info . $family, $this->download_options))
         {
             $json = json_decode($json);
-            if(!isset($json->usageKey)) return;
-            if($count = Functions::lookup_with_cache($this->gbif_record_count . $json->usageKey, $this->download_options))
+            $usageKey = false;
+            if(!isset($json->usageKey))
             {
-                $rec["source"] = $this->gbif_record_count . $json->usageKey;
-                if($count > 0)
+                if(isset($json->note)) $usageKey = self::get_usage_key($family);
+                else {} // e.g. Fervidicoccaceae
+            }
+            else $usageKey = trim((string) $json->usageKey);
+            
+            if($usageKey)
+            {
+                if($count = Functions::lookup_with_cache($this->gbif_record_count . $usageKey, $this->download_options))
                 {
-                    $rec["object_id"] = "_no_of_rec_in_gbif";
-                    self::add_string_types($rec, "Number records in GBIF", $count, "http://eol.org/schema/terms/NumberRecordsInGBIF", $family);
-                    $rec["object_id"] = "_rec_in_gbif";
-                    self::add_string_types($rec, "Records in GBIF", "http://eol.org/schema/terms/yes", "http://eol.org/schema/terms/RecordInGBIF", $family);
-                    return;
+                    $rec["source"] = $this->gbif_record_count . $usageKey;
+                    if($count > 0)
+                    {
+                        $rec["object_id"] = "_no_of_rec_in_gbif";
+                        self::add_string_types($rec, "Number records in GBIF", $count, "http://eol.org/schema/terms/NumberRecordsInGBIF", $family);
+                        $rec["object_id"] = "_rec_in_gbif";
+                        self::add_string_types($rec, "Records in GBIF", "http://eol.org/schema/terms/yes", "http://eol.org/schema/terms/RecordInGBIF", $family);
+                        return;
+                    }
+                }
+                else
+                {
+                    echo "\n no result - cannot access count service: [$count][$family] key:[$usageKey]\n";
+                    self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
                 }
             }
-            else
-            {
-                echo "\n no result for 1: [$family][$json->usageKey]\n";
-                self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
-            }
+
         }
         else
         {
-            echo "\n no result for 2: [$family][$json->usageKey]\n";
+            echo "\n no result - cannot access taxon service: [$family][$usageKey]\n";
             self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
         }
 
@@ -397,6 +410,31 @@ class NCBIGGIqueryAPI
         self::add_string_types($rec, "Records in GBIF", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/RecordInGBIF", $family);
     }
 
+    private function get_usage_key($family)
+    {
+        if($json = Functions::lookup_with_cache($this->gbif_taxon_info . $family . "&verbose=true", $this->download_options))
+        {
+            $usagekeys = array();
+            $options = array();
+            $json = json_decode($json);
+            if(!isset($json->alternatives)) return false;
+            foreach($json->alternatives as $rec)
+            {
+                if($rec->canonicalName == $family)
+                {
+                    $options[$rec->rank][] = $rec->usageKey;
+                    $usagekeys[] = $rec->usageKey;
+                }
+            }
+            if($options)
+            {
+                if(isset($options["FAMILY"])) return min($options["FAMILY"]);
+                else return min($usagekeys);
+            }
+        }
+        return false;
+    }
+    
     private function get_names_no_entry_from_partner()
     {
         $names = array();
@@ -418,29 +456,6 @@ class NCBIGGIqueryAPI
 
     private function query_family_GGBN_info($family)
     {
-        /*<tr class='head'><td colspan='7' align='center'></td></tr>
-        <tr><td colspan='7'><hr /></td></tr>
-        <table border='0' id='TableWrapper2'>
-        <tr><td></td>
-            <td class='head2' width='130'><a href='query.php?hitlist=true&sort=SU'><img src='images/upg.jpg' border='0'/></a> Species <a href='query.php?hitlist=true&sort=SD'><img src='images/down.jpg' border='0'/></a></td>
-            <td class='head2'><a href='query.php?hitlist=true&sort=CU'><img src='images/up.jpg' border='0'/></a> Country <a href='query.php?hitlist=true&sort=CD'><img src='images/down.jpg' border='0'/></a></td>
-            <td class='head2'><a href='query.php?hitlist=true&sort=DU'><img src='images/up.jpg' border='0'/></a> DNA No. <a href='query.php?hitlist=true&sort=DD'><img src='images/down.jpg' border='0'/></a></td>
-            <td class='head2'><a href='query.php?hitlist=true&sort=VU'><img src='images/up.jpg' border='0'/></a> Specimen No. <a href='query.php?hitlist=true&sort=VD'><img src='images/down.jpg' border='0'/></a></td>
-        </tr>
-            <tr style='border-top-width:1px;border-top-style:solid;border-color:#CCCCCC'>
-                <td width='40%' valign='top' colspan='2'><b><a class='hitlist' href="Query.php?sqlType=Detail&UnitID=E00012&CollCode=DNA bank&InstCode=Ocean 
-                Genome Legacy&UnitIDS=S00031&CollCodeS=OGL&InstCodeS=Bermuda Aquarium, Museum, and Zoo&ID_Cache=121902">
-                <img src='images/Zoom.jpg' border='0'> Gadus morhua Linnaeus, 1758</a></td><td valign='top'>Unknown or unspecified country</td>
-                <td valign='top'>E00012</b></td><td valign='top'>S00031</td></tr>
-            <tr style='border-top-width:1px;border-top-style:solid;border-color:#CCCCCC'>
-                <td width='40%' valign='top' colspan='2'><b><a class='hitlist' href="Query.php?sqlType=Detail&UnitID=E00006&CollCode=DNA bank&InstCode=Ocean 
-                Genome Legacy&UnitIDS=S00031&CollCodeS=OGL&InstCodeS=Bermuda Aquarium, Museum, and Zoo&ID_Cache=121901">
-                <img src='images/Zoom.jpg' border='0'> Gadus morhua Linnaeus, 1758</a></td>
-                <td valign='top'>Unknown or unspecified country</td>
-                <td valign='top'>E00006</b></td><td valign='top'>S00031</td></tr>
-                <tr style='border-top-width:1px;border-top-style:solid;border-color:#CCCCCC'><td width='40%' valign='top' colspan='2'><b><a class='hitlist' href="Query.php?sqlType=Detail&UnitID=E00004&CollCode=DNA bank&InstCode=Ocean Genome Legacy&UnitIDS=S00031&CollCodeS=OGL&InstCodeS=Bermuda Aquarium, Museum, and Zoo&ID_Cache=121900"><img src='images/Zoom.jpg' border='0'> Gadus morhua Linnaeus, 1758</a></td><td valign='top'>Unknown or unspecified country</td><td valign='top'>E00004</b></td><td valign='top'>S00031</td></tr><tr style='border-top-width:1px;border-top-style:solid;border-color:#CCCCCC'><td width='40%' valign='top' colspan='2'><b><a class='hitlist' href="Query.php?sqlType=Detail&UnitID=E00221&CollCode=DNA bank&InstCode=Ocean Genome Legacy&UnitIDS=S00552&CollCodeS=OGL&InstCodeS=Bermuda Aquarium, Museum, and Zoo&ID_Cache=122122"><img src='images/Zoom.jpg' border='0'> Gadus morhua Linnaeus, 1758</a></td><td valign='top'>Iceland</td><td valign='top'>E00221</b></td><td valign='top'>S00552</td></tr><tr style='border-top-width:1px;border-top-style:solid;border-color:#CCCCCC'><td width='40%' valign='top' colspan='2'><b><a class='hitlist' href="Query.php?sqlType=Detail&UnitID=E00066&CollCode=DNA bank&InstCode=Ocean Genome Legacy&UnitIDS=S00019&CollCodeS=OGL&InstCodeS=Bermuda Aquarium, Museum, and Zoo&ID_Cache=121945"><img src='images/Zoom.jpg' border='0'> Gadus morhua Linnaeus, 1758</a></td><td valign='top'>Unknown or unspecified country</td><td valign='top'>E00066</b></td><td valign='top'>S00019</td></tr><tr style='border-top-width:1px;border-top-style:solid;border-color:#CCCCCC'><td width='40%' valign='top' colspan='2'><b><a class='hitlist' href="Query.php?sqlType=Detail&UnitID=E00065&CollCode=DNA bank&InstCode=Ocean Genome Legacy&UnitIDS=S00019&CollCodeS=OGL&InstCodeS=Bermuda Aquarium, Museum, and Zoo&ID_Cache=121944"><img src='images/Zoom.jpg' border='0'> Gadus morhua Linnaeus, 1758</a></td><td valign='top'>Unknown or unspecified country</td><td valign='top'>E00065</b></td><td valign='top'>S00019</td></tr><tr style='border-top-width:1px;border-top-style:solid;border-color:#CCCCCC'><td width='40%' valign='top' colspan='2'><b><a class='hitlist' href="Query.php?sqlType=Detail&UnitID=E00222&CollCode=DNA bank&InstCode=Ocean Genome Legacy&UnitIDS=S00552&CollCodeS=OGL&InstCodeS=Bermuda Aquarium, Museum, and Zoo&ID_Cache=122123"><img src='images/Zoom.jpg' border='0'> Melanogrammus aeglefinus (Linnaeus, 1758)</a></td><td valign='top'>Canada</td><td valign='top'>E00222</b></td><td valign='top'>S00552</td></tr><tr style='border-top-width:1px;border-top-style:solid;border-color:#CCCCCC'><td width='40%' valign='top' colspan='2'><b><a class='hitlist' href="Query.php?sqlType=Detail&UnitID=E00003&CollCode=DNA bank&InstCode=Ocean Genome Legacy&UnitIDS=S00031&CollCodeS=OGL&InstCodeS=Bermuda Aquarium, Museum, and Zoo&ID_Cache=121928"><img src='images/Zoom.jpg' border='0'> Pollachius virens (Linnaeus, 1758)</a></td><td valign='top'>Unknown or unspecified country</td><td valign='top'>E00003</b></td><td valign='top'>S00031</td></tr><tr style='border-top-width:1px;border-top-style:solid;border-color:#CCCCCC'><td width='40%' valign='top' colspan='2'><b><a class='hitlist' href="Query.php?sqlType=Detail&UnitID=E00002&CollCode=DNA bank&InstCode=Ocean Genome Legacy&UnitIDS=S00031&CollCodeS=OGL&InstCodeS=Bermuda Aquarium, Museum, and Zoo&ID_Cache=121927"><img src='images/Zoom.jpg' border='0'> Pollachius virens (Linnaeus, 1758)</a></td><td valign='top'>Unknown or unspecified country</td><td valign='top'>E00002</b></td><td valign='top'>S00031</td></tr><tr style='border-top-width:1px;border-top-style:solid;border-color:#CCCCCC'><td width='40%' valign='top' colspan='2'><b><a class='hitlist' href="Query.php?sqlType=Detail&UnitID=E02862&CollCode=DNA bank&InstCode=Ocean Genome Legacy&UnitIDS=S00026&CollCodeS=OGL&InstCodeS=Bermuda Aquarium, Museum, and Zoo&ID_Cache=123184"><img src='images/Zoom.jpg' border='0'> Pollachius virens (Linnaeus, 1758)</a></td><td valign='top'>Unknown or unspecified country</td><td valign='top'>E02862</b></td><td valign='top'>S00026</td></tr><tr style='border-top-width:1px;border-top-style:solid;border-color:#CCCCCC'><td width='40%' valign='top' colspan='2'><b><a class='hitlist' href="Query.php?sqlType=Detail&UnitID=E00157&CollCode=DNA bank&InstCode=Ocean Genome Legacy&UnitIDS=S00032&CollCodeS=OGL&InstCodeS=Bermuda Aquarium, Museum, and Zoo&ID_Cache=122036"><img src='images/Zoom.jpg' border='0'> Pollachius virens (Linnaeus, 1758)</a></td><td valign='top'>Unknown or unspecified country</td><td valign='top'>E00157</b></td><td valign='top'>S00032</td></tr><tr style='border-top-width:1px;border-top-style:solid;border-color:#CCCCCC'><td width='40%' valign='top' colspan='2'><b><a class='hitlist' href="Query.php?sqlType=Detail&UnitID=E00156&CollCode=DNA bank&InstCode=Ocean Genome Legacy&UnitIDS=S00032&CollCodeS=OGL&InstCodeS=Bermuda Aquarium, Museum, and Zoo&ID_Cache=122035"><img src='images/Zoom.jpg' border='0'> Pollachius virens (Linnaeus, 1758)</a></td><td valign='top'>Unknown or unspecified country</td><td valign='top'>E00156</b></td><td valign='top'>S00032</td></tr><tr style='border-top-width:1px;border-top-style:solid;border-color:#CCCCCC'><td width='40%' valign='top' colspan='2'><b><a class='hitlist' href="Query.php?sqlType=Detail&UnitID=E00155&CollCode=DNA bank&InstCode=Ocean Genome Legacy&UnitIDS=S00032&CollCodeS=OGL&InstCodeS=Bermuda Aquarium, Museum, and Zoo&ID_Cache=122034"><img src='images/Zoom.jpg' border='0'> Pollachius virens (Linnaeus, 1758)</a></td><td valign='top'>Unknown or unspecified country</td><td valign='top'>E00155</b></td><td valign='top'>S00032</td></tr><tr style='border-top-width:1px;border-top-style:solid;border-color:#CCCCCC'><td width='40%' valign='top' colspan='2'><b><a class='hitlist' href="Query.php?sqlType=Detail&UnitID=E00109&CollCode=DNA bank&InstCode=Ocean Genome Legacy&UnitIDS=S00030&CollCodeS=OGL&InstCodeS=Bermuda Aquarium, Museum, and Zoo&ID_Cache=122014"><img src='images/Zoom.jpg' border='0'> Pollachius virens (Linnaeus, 1758)</a></td><td valign='top'>Unknown or unspecified country</td><td valign='top'>E00109</b></td><td valign='top'>S00030</td></tr><tr style='border-top-width:1px;border-top-style:solid;border-color:#CCCCCC'><td width='40%' valign='top' colspan='2'><b><a class='hitlist' href="Query.php?sqlType=Detail&UnitID=E00108&CollCode=DNA bank&InstCode=Ocean Genome Legacy&UnitIDS=S00030&CollCodeS=OGL&InstCodeS=Bermuda Aquarium, Museum, and Zoo&ID_Cache=122013"><img src='images/Zoom.jpg' border='0'> Pollachius virens (Linnaeus, 1758)</a></td><td valign='top'>Unknown or unspecified country</td><td valign='top'>E00108</b></td><td valign='top'>S00030</td></tr><tr style='border-top-width:1px;border-top-style:solid;border-color:#CCCCCC'><td width='40%' valign='top' colspan='2'><b><a class='hitlist' href="Query.php?sqlType=Detail&UnitID=E00107&CollCode=DNA bank&InstCode=Ocean Genome Legacy&UnitIDS=S00030&CollCodeS=OGL&InstCodeS=Bermuda Aquarium, Museum, and Zoo&ID_Cache=122012"><img src='images/Zoom.jpg' border='0'> Pollachius virens (Linnaeus, 1758)</a></td><td valign='top'>Unknown or unspecified country</td><td valign='top'>E00107</b></td><td valign='top'>S00030</td></tr><tr style='border-top-width:1px;border-top-style:solid;border-color:#CCCCCC'><td width='40%' valign='top' colspan='2'><b><a class='hitlist' href="Query.php?sqlType=Detail&UnitID=E00085&CollCode=DNA bank&InstCode=Ocean Genome Legacy&UnitIDS=S00275&CollCodeS=OGL&InstCodeS=Ocean Genome Legacy&ID_Cache=121967"><img src='images/Zoom.jpg' border='0'> Pollachius virens (Linnaeus, 1758)</a></td><td valign='top'>Unknown or unspecified country</td><td valign='top'>E00085</b></td><td valign='top'>S00275</td></tr><tr style='border-top-width:1px;border-top-style:solid;border-color:#CCCCCC'><td width='40%' valign='top' colspan='2'><b><a class='hitlist' href="Query.php?sqlType=Detail&UnitID=E00084&CollCode=DNA bank&InstCode=Ocean Genome Legacy&UnitIDS=S00275&CollCodeS=OGL&InstCodeS=Ocean Genome Legacy&ID_Cache=121966"><img src='images/Zoom.jpg' border='0'> Pollachius virens (Linnaeus, 1758)</a></td><td valign='top'>Unknown or unspecified country</td><td valign='top'>E00084</b></td><td valign='top'>S00275</td></tr><tr><td colspan='7'><hr /></td></tr><tr class='head'><td colspan
-                ='7' align='center'></td></tr>
-        </table></form>*/
         $records = array();
         $rec["source"] = $this->family_service_ggbn . $family;
         if($html = Functions::lookup_with_cache($rec["source"], $this->download_options))
@@ -538,6 +553,34 @@ class NCBIGGIqueryAPI
     {
         foreach($this->taxa as $t) $this->archive_builder->write_object_to_file($t);
         $this->archive_builder->finalize(TRUE);
+    }
+
+    private function get_families_with_missing_data_xlsx() // utility
+    {
+        require_library('XLSParser');
+        $parser = new XLSParser();
+        $families = array();
+        $dropbox_xlsx[] = "http://localhost/~eolit/cp/NCBIGGI/missing from GBIF.xlsx";
+        foreach($dropbox_xlsx as $doc)
+        {
+            echo "\n processing [$doc]...\n";
+            if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2)))
+            {
+                $arr = $parser->convert_sheet_to_array($path);
+                foreach($arr as $key => $fams)
+                {
+                    $fams[] = "Cenarchaeaceae";
+                    foreach($fams as $family)
+                    {
+                        if($family) $families[$family] = 1;
+                    }
+                }
+                unlink($path);
+                break;
+            }
+            else echo "\n [$doc] unavailable! \n";
+        }
+        return array_keys($families);
     }
 
 }

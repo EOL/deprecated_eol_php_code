@@ -3,7 +3,7 @@ namespace php_active_record;
 /* connector: [737] */
 class IUCNRedlistDataConnector
 {
-    function __construct($folder)
+    function __construct($folder = null)
     {
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
@@ -29,9 +29,11 @@ class IUCNRedlistDataConnector
                                   "LR/cd" => "Lower Risk/conservation dependent (LR/cd)");
         $this->iucn_taxon_page = "http://www.iucnredlist.org/apps/redlist/details/";
 
+        /*
         // stats
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->names_no_entry_from_partner_dump_file = $this->TEMP_DIR . "names_no_entry_from_partner.txt";
+        */
     }
 
     function generate_IUCN_data()
@@ -368,7 +370,7 @@ class IUCNRedlistDataConnector
         return $o;
     }
 
-    private function load_zip_contents($zip_path, $download_options, $files, $extension)
+    function load_zip_contents($zip_path, $download_options, $files, $extension)
     {
         $text_path = array();
         $temp_path = create_temp_dir();

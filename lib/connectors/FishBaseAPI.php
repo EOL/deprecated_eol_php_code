@@ -157,6 +157,10 @@ class FishBaseAPI
 
     function make_array($filename, $fields, $index_key="", $excluded_fields=array(), $separator="\t")
     {
+        /*
+        $excluded_fields can be array of fieldnames e.g. array("taxonID", "scientificName");
+        or can be array of index values of the fields array e.g. array("0", "1", "3")
+        */
         $data = array();
         $included_fields = array();
         foreach(new FileIterator($filename) as $line_number => $line)
@@ -168,12 +172,13 @@ class FishBaseAPI
                 $i = 0;
                 $temp = array();
                 $continue_save = false;
+                if(!$fields) $fields = array_map('trim', $values);
                 foreach($fields as $field)
                 {
-                    if(!in_array($i, $excluded_fields))
+                    if(!in_array("$i", $excluded_fields) && !in_array($field, $excluded_fields))
                     {
                         $temp[$field] = trim(@$values[$i]);
-                        $included_fields[] = $field;
+                        $included_fields[$field] = 1;
                         if($temp[$field] != "") $continue_save = true; // as long as there is a single field with value then the row will be saved
                     }
                     $i++;
@@ -181,7 +186,7 @@ class FishBaseAPI
                 if($continue_save) $data[] = $temp;
             }
         }
-        $included_fields = array_unique($included_fields);
+        $included_fields = array_keys($included_fields);
         if($index_key)
         {
             $included_fields = array_unique($included_fields);
