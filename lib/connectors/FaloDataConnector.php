@@ -23,7 +23,7 @@ class FaloDataConnector {
 
   public function __construct($resource_id) {
     $this->resource_id = $resource_id;
-    $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id;
+    $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . '/';
     $this->source_url = 'https://www.dropbox.com/sh/tztpvzenmuyy00j/gz692ofxSR/FALO.xlsx?dl=1';
   }
 
