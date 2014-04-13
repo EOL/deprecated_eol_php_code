@@ -1,0 +1,228 @@
+<?php
+namespace php_active_record;
+
+class FaloDataConnector {
+
+  private static $ranks = array(
+    'superkingdom', 'kingdom', 'subkingdom', 'infrakingdom',
+    'superphylum', 'phylum', 'subphylum', 'infraphylum', 'parvphylum',
+    'superclass', 'class', 'subclass', 'infraclass',
+    'superorder', 'order', 'family');
+  private static $columns_to_extract = array(
+    'sapk', 'k','sbk','ik',
+    'spp','p','sbp','ip', 'pvp',
+    'spc','c','sbc','ic',
+    'spo','o','family',
+    'uuid');
+  private $source_url;
+  private $source_file_path;
+  private $source_loaded;
+  private $taxa;
+  private $path_to_archive_directory;
+  private $archive_builder;
+
+  public function __construct($resource_id) {
+    $this->resource_id = $resource_id;
+    $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . '/';
+    $this->source_url = 'https://www.dropbox.com/sh/tztpvzenmuyy00j/gz692ofxSR/FALO.xlsx?dl=1';
+  }
+
+  public function __destruct() {
+    try {
+      if (! empty($this->source_file_path)) {
+        debug("Deleting temporary source file {$this->source_file_path}");
+        unlink($this->source_file_path); // Delete temporary file
+      }
+    }
+    catch (Exception $e) {
+      debug("Error deleting temporary file {$this->source_file_path}: {$e->getMessage()}");
+    }
+  }
+
+
+  /**
+   * Harvest process for this connector.
+   * @see update_resources/connectors/falo.php
+   */
+  public function begin() {
+    $this->download_source_data_file();
+    $this->load_source_data_from_file();
+    $this->extract_data_from_loaded_source();
+    unset($this->source_loaded);
+    $this->assign_parent_identifiers();
+    $this->build_archive();
+    debug('Peak memory usage: ' . (memory_get_peak_usage(true) / 1024 / 1024) . 'MB');
+  }
+
+  /**
+   * Output time and memory profile information.
+   * @param started microtime of start of profile period.
+   */
+  private function profile($started) {
+    $end = microtime(true);
+    debug('Finished ' .  sprintf('%.4f', $end - $started) . ' seconds');
+    debug('Current memory usage: ' . (memory_get_usage(true) / 1024 / 1024) . ' MB');
+  }
+
+  /**
+   * Download source data from URL to temporary location on local file system.
+   */
+  private function download_source_data_file() {
+    $start = microtime(true);
+    debug("Downloading source file.");
+    $download_options = array(
+      'file_extension' => pathinfo($this->source_url, PATHINFO_EXTENSION)
+    );
+    $this->source_file_path = Functions::save_remote_file_to_local($this->source_url, $download_options);
+    if (! file_exists($this->source_file_path)) debug('Error downloading source file.');
+    $this->profile($start);
+  }
+
+  /**
+   * Loads source data from local file into memory.
+   */
+  private function load_source_data_from_file() {
+    require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel.php';
+    // NOTE: In development it takes 24 Seconds to load and uses 318 MB of memory.
+    $start = microtime(true);
+    debug('Loading source file.');
+    try {
+      $reader = new \PHPExcel_Reader_Excel2007();
+      $reader->setReadDataOnly(true);
+      $this->source_loaded = $reader->load($this->source_file_path);
+      unset($reader);
+    }
+    catch (Exception $e) {
+      debug("Error loading source data from {$this->source_file_path}: {$e->getMessage()}");
+    }
+    $this->profile($start);
+  }
+
+  /**
+   * Extract relevant data from loaded source.
+   */
+  private function extract_data_from_loaded_source() {
+    require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel.php';
+    $start = microtime(true);
+    debug('Extracting taxa.');
+    $column_letters = array(); // Columns we want to extract
+    $row_iterator = $this->source_loaded->getActiveSheet()->getRowIterator();
+    $this->taxa = array();
+    foreach ($row_iterator as $row) {
+      $ri = $row->getRowIndex();
+      $t = array();
+      $cell_iterator = $row->getCellIterator();
+      foreach ($cell_iterator as $cell) {
+        $column_letter = $cell->getColumn();
+        if ($ri == 1) {
+          // Store letters of columns we want to extract
+          if (($column_label = strtolower($cell->getValue())) && in_array($column_label, self::$columns_to_extract)) {
+            $column_letters[$column_letter] = $column_label;
+          }
+        }
+        elseif (in_array($column_letter, array_keys($column_letters)) && ($value = trim($cell->getValue()))) {
+          try {
+            if ($column_letters[$column_letter] == 'uuid') {
+              $t['taxonID'] = $value;
+            }
+            else {
+              list($rank, $name) = explode(' ', $value);
+              $rank = strtolower(trim($rank));
+              $name = preg_replace('/[^A-z]/', '', $name); // Remove quotes
+              if (! in_array($rank, self::$ranks)) debug("Error unknown rank at row index: $ri");
+              $t[$rank] = $name;
+              unset($rank);
+              unset($name);
+            }
+          }
+          catch (Exception $e) {
+            debug("Error parsing spreadsheet at row index: {$ri}: {$e->getMessage()}");
+          }
+        }
+        unset($column_letter);
+      }
+      // Skip header row
+      if ($ri == 1) continue;
+
+      // Bail if we've got a problem parsing the spreadsheet.
+      if (empty($t) || ! isset($t['taxonID'])) debug("Error extracting taxon at row index: {$ri}");
+
+      // Sort taxon array by rank
+      uksort($t, 'self::sort_by_rank');
+
+      // Set tree paths and extract last node
+      $classification = array_slice($t, 1);
+      if (empty($classification)) debug("Error extracting classificiation at row index: {$ri}");
+      $t['classificationHash'] = md5(implode(';', $classification));
+      if (count($classification) > 1) {
+        $t['higherClassification'] = implode(';', array_slice($classification, 0, -1));
+        $t['higherClassificationHash'] = md5($t['higherClassification']);
+      }
+      $t['scientificName'] = end($classification);
+      $t['taxonRank'] = key($classification);
+      unset($classification);
+
+      $this->taxa[] = $t;
+    }
+    $this->profile($start);
+  }
+
+  /**
+   * Sort array keys by rank.
+   */
+  private static function sort_by_rank($a, $b) {
+    $x = array_search($a, self::$ranks);
+    $y = array_search($b, self::$ranks);
+    if ($x === false) $x = -1;
+    if ($y === false) $y = -1;
+    if ($x == $y) return 0;
+    return ($x < $y) ? -1 : 1;
+  }
+
+
+  /**
+   * Determine and add parent identifiers to taxa in extracted data.
+   */
+  private function assign_parent_identifiers() {
+    $start = microtime(true);
+    debug('Assigning parent identifiers.');
+    foreach ($this->taxa as &$taxon) {
+      if (isset($taxon['higherClassificationHash'])) {
+        foreach ($this->taxa as $parent) {
+          if ($taxon['higherClassificationHash'] == $parent['classificationHash']) {
+            $taxon['parentNameUsageID'] = $parent['taxonID'];
+            break;
+          }
+        }
+      }
+    }
+    $this->profile($start);
+  }
+
+  /**
+   * Build darwin core archive for harvest.
+   */
+  private function build_archive() {
+    $start = microtime(true);
+    debug("Building archive {$this->path_to_archive_directory}.");
+    $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+    foreach ($this->taxa as $taxon) {
+      $t = new \eol_schema\Taxon();
+      $archive_properties = array(
+        'taxonID', 'scientificName', 'rank', 'parentNameUsageID',
+        'higherClassification'
+      );
+      foreach ($archive_properties as $property) {
+        if (isset($taxon[$property])) {
+          $t->{$property} = $taxon[$property];
+        }
+      }
+      $this->archive_builder->write_object_to_file($t);
+    }
+    $this->archive_builder->finalize(true);
+    $this->profile($start);
+  }
+
+}
+
+
