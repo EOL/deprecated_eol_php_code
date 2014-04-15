@@ -4,6 +4,12 @@ namespace php_active_record;
 class ContentManager
 {
     private $unique_key;
+    private static $valid_image_extensions = array(
+        'jpg', 'png', 'gif', 'tiff', 'tif', 'svg', 'bmp');
+    private static $valid_video_extensions = array(
+        'flv', 'mov', 'avi', 'mp4', 'wmv', 'flc', 'ogg', 'mpeg');
+    private static $valid_sound_extensions = array(
+        'wav', 'aif', 'mp3', 'ogg', 'flac', 'au', 'aac', 'wma');
 
     function __construct()
     {
@@ -23,6 +29,7 @@ class ContentManager
     function grab_file($file, $type, $options = array())
     {
         if(@!$options['timeout']) $options['timeout'] = DOWNLOAD_TIMEOUT_SECONDS;
+        $options['type'] = $type;
         if($temp_file_path = self::download_temp_file_and_assign_extension($file, array_merge($options, array('unique_key' => $this->unique_key, 'is_resource' => ($type == "resource")))))
         {
             $suffix = null;
@@ -98,7 +105,7 @@ class ContentManager
         }
 
         if(file_exists($temp_file_path)) unlink($temp_file_path);
-        if(isset($new_file_path)) return $new_file_path;
+        if(isset($new_file_path) && $new_file_path) return $new_file_path;
         return null;
     }
 
@@ -136,7 +143,24 @@ class ContentManager
                 fclose($TMP);
             }
         }
-        return self::give_temp_file_right_extension($temp_file_path, $suffix, $options['unique_key']);
+        $temp_file_path_with_extension = self::give_temp_file_right_extension($temp_file_path, $suffix, $options['unique_key']);
+        $temp_file_path_with_extension = self::enforce_extentions_for_type($temp_file_path_with_extension, $options['type']);
+        return $temp_file_path_with_extension;
+    }
+
+    public static function enforce_extentions_for_type($temp_file_path_with_extension, $type)
+    {
+        $pathinfo = pathinfo($temp_file_path_with_extension);
+        $extension = strtolower($pathinfo['extension']);
+        if(($type == 'image' && !in_array($extension, self::$valid_image_extensions)) ||
+           ($type == 'video' && !in_array($extension, self::$valid_video_extensions)) ||
+           ($type == 'sound' && !in_array($extension, self::$valid_sound_extensions)))
+        {
+            unlink($temp_file_path_with_extension);
+            return false;
+        }
+
+        return $temp_file_path_with_extension;
     }
 
     public static function give_temp_file_right_extension($temp_file_path, $original_suffix, $unique_key)
