@@ -219,15 +219,13 @@ class CoralReefFishAPI
             $rec = array();
             $rec["taxon_id"] = $r["taxon_id"];
             $rec["source"] = $this->gobiidae_page;
-            // - lifestage
-            $rec["catnum"] = "lifestage";
-            self::add_string_types("true", $rec, "life stage", "http://purl.obolibrary.org/obo/PATO_0001185", "http://rs.tdwg.org/dwc/terms/lifeStage");
             // - pelvic fins
             if($info = self::format_pelvic_fin_form($record["Pelvic fins"]))
             {
                 $rec["catnum"] = $info["basename"];
                 $pelvic_fin_form = $info["uri"];
                 self::add_string_types("true", $rec, "Pelvic fins", $pelvic_fin_form, "http://eol.org/schema/terms/PelvicFinForm");
+                self::add_string_types("false", $rec, "life stage", "http://purl.obolibrary.org/obo/PATO_0001185", "http://rs.tdwg.org/dwc/terms/lifeStage");
             }
             // - anal-fin elements
             if($val = $record["anal-fin elements"])
@@ -237,22 +235,27 @@ class CoralReefFishAPI
                 {
                     $rec["catnum"] = "AnalFinElements";
                     self::add_string_types("true", $rec, "anal-fin elements", $val, "http://eol.org/schema/terms/NumberOfAnalFinElements");
+                    self::add_string_types("false", $rec, "life stage", "http://purl.obolibrary.org/obo/PATO_0001185", "http://rs.tdwg.org/dwc/terms/lifeStage");
                 }
                 else
                 {
                     $rec["catnum"] = "AnalFinElements_min";
                     $rec["statistical_method"] = "http://semanticscience.org/resource/SIO_001113";
                     self::add_string_types("true", $rec, "anal-fin elements", $arr[0], "http://eol.org/schema/terms/NumberOfAnalFinElements");
+                    self::add_string_types("false", $rec, "life stage", "http://purl.obolibrary.org/obo/PATO_0001185", "http://rs.tdwg.org/dwc/terms/lifeStage");
                     $rec["catnum"] = "AnalFinElements_max";
                     $rec["statistical_method"] = "http://semanticscience.org/resource/SIO_001114";
                     self::add_string_types("true", $rec, "anal-fin elements", $arr[1], "http://eol.org/schema/terms/NumberOfAnalFinElements");
+                    self::add_string_types("false", $rec, "life stage", "http://purl.obolibrary.org/obo/PATO_0001185", "http://rs.tdwg.org/dwc/terms/lifeStage");
                 }
             }
             // - 1st dorsal spines
             if($val = $record["1st dorsal spines"])
             {
+                $rec["statistical_method"] = "";
                 $rec["catnum"] = "NumberOfSpinesFirstDorsalFin";
                 self::add_string_types("true", $rec, "1st dorsal spines", $val, "http://eol.org/schema/terms/NumberOfSpinesFirstDorsalFin");
+                self::add_string_types("false", $rec, "life stage", "http://purl.obolibrary.org/obo/PATO_0001185", "http://rs.tdwg.org/dwc/terms/lifeStage");
             }
         }
     }
