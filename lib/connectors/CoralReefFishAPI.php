@@ -22,6 +22,12 @@ class CoralReefFishAPI
     function get_all_taxa()
     {
         $families = self::get_family_list_urls();
+        // Gobiidae pages:
+        $families[] = "http://www.coralreeffish.com/gobiidae1.html";
+        $families[] = "http://www.coralreeffish.com/gobiidae2.html";
+        $families[] = "http://www.coralreeffish.com/gobiidae3.html";
+        $families[] = "http://www.coralreeffish.com/gobiidae4.html";
+        $families[] = "http://www.coralreeffish.com/gobiidae5.html";
         foreach($families as $name => $url)
         {
             $name = self::clean_string($name);
@@ -43,7 +49,13 @@ class CoralReefFishAPI
                 if(in_array($taxon, array("Starksia sluiteri complex S. sluiteri S. fasciata S. langi S. greenfieldi S. y-lineata S. smithvanizi", "Starksia lepicoelia complex S. lepicoelia S. robertsoni S. weigti S. williamsi", "Starksia ocellata complex S. ocellata S. occidentalis S. culebrae S. guttata S. variabilis &nbsp;", "Starksia atlantica complex S. atlantica S. springeri S. sangreyae &nbsp;"))) $taxon = "Starksia";
                 if($taxon == "Ocyurus chrysurus (Lutjanus chrysurus)") $taxon = "Ocyurus chrysurus";
                 $taxon = trim(str_ireplace(array("Notes on", "Early", "Identifying transitional", "The 14-rayed", "The 12-rayed", "+", "type 2", "sp. A,", "sp.", "subfamily", "larva,", "?", " species"), "", $taxon));
-                echo "\n[$taxon]";
+                if($taxon == "Sicydium gymnogaster/plumieri") $taxon = "Sicydium gymnogaster";
+                if(in_array($taxon, array("Chriolepis/Psilotris  23 ()", "Lythrypnus vs. Coryphopterus", "Elacatinus/Gobiosoma vs. the six-spined gobies"))) continue;
+                if($taxon == "Lythrypnus  223") $taxon = "Lythrypnus";
+                if($taxon == "Tigrigobius multifasciatus, panamensis, rubrigenis") $taxon = "Tigrigobius multifasciatus";
+                if($taxon == "the Elacatinus cleaner/sponge gobies (neon gobies)") $taxon = "Elacatinus";
+                if(in_array($taxon, array("Gobiidae1", "Gobiidae2", "Gobiidae3", "Gobiidae4", "Gobiidae5"))) $taxon = "Gobiidae";
+                echo "\n taxon:[$taxon]";
                 $rec["sciname"] = $taxon;
                 $rec["taxon_id"] = str_replace(" ", "_", $taxon);
                 self::create_instances_from_taxon_object($rec);
@@ -330,7 +342,12 @@ class CoralReefFishAPI
     
     private function process_family($name, $url)
     {
-        if($html = Functions::lookup_with_cache($url, $this->download_options))
+        /*
+        if(stripos($url, "gobiidae") === false)    $options = $this->download_options; // not found, will use cache
+        else                                       $options = $this->download_options2; // will not use cache
+        */
+        $options = $this->download_options;
+        if($html = Functions::lookup_with_cache($url, $options))
         {
             if($url == "http://www.coralreeffish.com/microdesmidae.html") $html = str_ireplace('<span class="speciesheading">Cerdale floridana</span>', '<td height="1" bgcolor="#373B4A"></td><span class="speciesheading">Cerdale floridana</span>', $html);
             $html = str_ireplace('<td height="1" bgcolor="#373B4A"> </td>', '<td height="1" bgcolor="#373B4A"></td>', $html);
@@ -394,7 +411,29 @@ class CoralReefFishAPI
                         if($url == "http://www.coralreeffish.com/gobiidae.html" && substr($t,0,6) == "Group ") continue;
                         if(!$t) continue;
                         // echo "\n-----------------------------------------------------------\n" . $t;
-                        if(in_array($t, array("Species of <i>Serranus</i> are listed in order of increasing pectoral-fin ray counts", "Serranus tortugarum early transitional larva", "Microdesmus luscus larva", "Microdesmus carri larva", "Cerdale floridana larva", "Cerdale floridana larva", "Cerdale floridana larvae", "Cerdale floridana larva"))) continue;
+                        if(in_array($t, array("Species of <i>Serranus</i> are listed in order of increasing pectoral-fin ray counts", "Serranus tortugarum early transitional larva", 
+                            "Cerdale floridana larvae", "Cerdale floridana larva", "Chriolepis/Psilotris sp. larva", "7.4 mm SL", "San Blas, Panama, SB81-196", "Description: Larvae not identified.", "Photo by JT Williams",
+                            "Microgobius carri transitional recruit", "Bollmannia boqueronensis  larvae", "Ginsburgellus novemlineatus? larva", "Nes longus larvae",
+                            "Ctenogobius saepepallens  larvae", "Ctenogobius saepepallens  larvae", "Ctenogobius saepepallens  juvenile", "Ctenogobius boleosoma transitional larvae", "Ctenogobius boleosoma  recruit", "Evorthodus lyricus transitional recruit", "Priolepis hipoliti transitional larva", "Priolepis dawsoni recruit", "Tigrigobius pallens  recruit"
+                        ))) continue;
+
+                        if(preg_match("/xxxNes longus(.*?)larvayyy/ims", "xxx".$t."yyy", $arr)) continue;
+                        elseif(preg_match("/xxxCtenogobius(.*?)larvayyy/ims", "xxx".$t."yyy", $arr)) continue;
+                        elseif(preg_match("/xxxEvorthodus lyricus(.*?)larvayyy/ims", "xxx".$t."yyy", $arr)) continue;
+                        elseif(preg_match("/xxxEvermannichthys metzelaari(.*?)larvayyy/ims", "xxx".$t."yyy", $arr)) continue;
+                        elseif(preg_match("/xxxGobionellus oceanicus(.*?)larvayyy/ims", "xxx".$t."yyy", $arr)) continue;
+                        elseif(preg_match("/xxxBollmannia boqueronensis(.*?)larvayyy/ims", "xxx".$t."yyy", $arr)) continue;
+                        elseif(preg_match("/xxxMicrogobius(.*?)larvayyy/ims", "xxx".$t."yyy", $arr)) continue;
+                        elseif(preg_match("/xxxMicrodesmus(.*?)larvayyy/ims", "xxx".$t."yyy", $arr)) continue;
+                        elseif(preg_match("/xxxCerdale(.*?)larvayyy/ims", "xxx".$t."yyy", $arr)) continue;
+                        elseif(preg_match("/xxxTigrigobius(.*?)larvayyy/ims", "xxx".$t."yyy", $arr)) continue;
+                        elseif(preg_match("/xxxSicydium(.*?)yyy/ims", "xxx".$t."yyy", $arr)) continue;
+                        elseif(preg_match("/xxxBarbulifer(.*?)larvayyy/ims", "xxx".$t."yyy", $arr)) continue;
+                        elseif(preg_match("/xxxElacatinus(.*?)yyy/ims", "xxx".$t."yyy", $arr)) continue;
+                        elseif(preg_match("/xxxRisor ruber(.*?)yyy/ims", "xxx".$t."yyy", $arr)) continue;
+                        elseif(preg_match("/xxx<i>Tigrigobius gemmatus(.*?)yyy/ims", "xxx".$t."yyy", $arr)) continue;
+                        elseif(preg_match("/xxxGobiosoma(.*?)yyy/ims", "xxx".$t."yyy", $arr)) continue;
+
                         if    (is_numeric(stripos($t, "Diagnosis:")))   $texts["Diagnosis"][] = $t;
                         elseif(is_numeric(stripos($t, "Analogues:")))   $texts["Analogues"][] = $t;
                         elseif(is_numeric(stripos($t, "Description:"))) $texts["Description"][] = $t;
