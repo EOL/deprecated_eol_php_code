@@ -13,7 +13,7 @@ class FaloDataConnector {
     'spp','p','sbp','ip', 'pvp',
     'spc','c','sbc','ic',
     'spo','o','family',
-    'uuid');
+    'reference', 'uuid');
   private $source_url;
   private $source_file_path;
   private $source_loaded;
@@ -111,11 +111,12 @@ class FaloDataConnector {
     foreach ($row_iterator as $row) {
       $ri = $row->getRowIndex();
       $t = array();
+      $t['uncertain'] = array();
       $cell_iterator = $row->getCellIterator();
       foreach ($cell_iterator as $cell) {
         $column_letter = $cell->getColumn();
         if ($ri == 1) {
-          // Store letters of columns we want to extract
+          // Store letters (A, B, C etc) of columns we want to extract
           if (($column_label = strtolower($cell->getValue())) && in_array($column_label, self::$columns_to_extract)) {
             $column_letters[$column_letter] = $column_label;
           }
@@ -125,10 +126,16 @@ class FaloDataConnector {
             if ($column_letters[$column_letter] == 'uuid') {
               $t['taxonID'] = $value;
             }
+            elseif ($column_letters[$column_letter] == 'reference') {
+              $t['bibliographicCitation'] = $value;
+            }
             else {
               list($rank, $name) = explode(' ', $value);
               $rank = strtolower(trim($rank));
-              $name = preg_replace('/[^A-z]/', '', $name); // Remove quotes
+              if (strpos($name, '"') !== FALSE) {
+                $name = preg_replace('/[^A-z]/', '', $name); // Remove quotes
+                $t['uncertain'][$rank] = $value;
+              }
               if (! in_array($rank, self::$ranks)) debug("Error unknown rank at row index: $ri");
               $t[$rank] = $name;
               unset($rank);
@@ -147,20 +154,32 @@ class FaloDataConnector {
       // Bail if we've got a problem parsing the spreadsheet.
       if (empty($t) || ! isset($t['taxonID'])) debug("Error extracting taxon at row index: {$ri}");
 
-      // Sort taxon array by rank
-      uksort($t, 'self::sort_by_rank');
-
-      // Set tree paths and extract last node
-      $classification = array_slice($t, 1);
+      // Extract the classification and sort by rank
+      $classification = array();
+      foreach ($t as $k => $v) {
+        if (in_array($k, self::$ranks)) {
+          $classification[$k] = $v;
+        }
+      }
+      uksort($classification, 'self::sort_by_rank');
       if (empty($classification)) debug("Error extracting classificiation at row index: {$ri}");
+
+      // Set classificaiton tree paths and extract last taxon
       $t['classificationHash'] = md5(implode(';', $classification));
       if (count($classification) > 1) {
+        // higherClassification is useful for debugging but not required for harvest
         $t['higherClassification'] = implode(';', array_slice($classification, 0, -1));
         $t['higherClassificationHash'] = md5($t['higherClassification']);
       }
       $t['scientificName'] = end($classification);
       $t['taxonRank'] = key($classification);
       unset($classification);
+
+      $t['taxonRemarks'] = '';
+      if (isset($t['uncertain'][$t['taxonRank']])) {
+        $t['taxonRemarks'] = "{$t['uncertain'][$t['taxonRank']]} uncertain";
+      }
+      unset($t['uncertain']);
 
       $this->taxa[] = $t;
     }
@@ -209,8 +228,8 @@ class FaloDataConnector {
     foreach ($this->taxa as $taxon) {
       $t = new \eol_schema\Taxon();
       $archive_properties = array(
-        'taxonID', 'scientificName', 'rank', 'parentNameUsageID',
-        'higherClassification'
+        'taxonID', 'scientificName', 'taxonRank', 'parentNameUsageID',
+        'bibliographicCitation', 'taxonRemarks'
       );
       foreach ($archive_properties as $property) {
         if (isset($taxon[$property])) {
