@@ -104,9 +104,11 @@ class Taxon extends DarwinCoreExtensionBase
     
     static $ranks = array(
         'species',
+        'superkingdom',
         'kingdom',
         'regnum',
         'subkingdom',
+        'infrakingdom',
         'subregnum',
         'division',
         'superphylum',
@@ -114,6 +116,8 @@ class Taxon extends DarwinCoreExtensionBase
         'divisio',
         'subdivision',
         'subphylum',
+        'infraphylum',
+        'parvphylum',
         'subdivisio',
         'superclass',
         'class',
