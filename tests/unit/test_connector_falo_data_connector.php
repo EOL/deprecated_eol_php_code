@@ -51,17 +51,63 @@ class test_connector_falo_data_connector extends SimpletestUnitBase {
     foreach($private_properties['taxa']->getValue($connector) as $taxon) {
       $taxa[$taxon['scientificName']] = $taxon;
     }
-    $parent_child = array(
-      'Solanales' => 'Solanaceae',
-      'Animalia' => 'Bilateria',
-      'Mammalia' => 'Theria',
-      'Carnivora' => 'Felidae'
+    $test_taxa = array(
+      'Solanaceae' => array(
+        'parent' => 'Solanales',
+        'rank' => 'family',
+        'citation' => 'Stevens, 2013',
+        'taxonRemarks' => ''
+      ),
+      'Bilateria' => array(
+        'parent' => 'Animalia',
+        'rank' => 'subkingdom',
+        'citation' => 'Ruggiero & Gordon (Eds.), 2013',
+        'taxonRemarks' => ''
+      ),
+      'Theria' => array(
+        'parent' => 'Mammalia',
+        'rank' => 'subclass',
+        'citation' => 'Ruggiero & Gordon (Eds.), 2013',
+        'taxonRemarks' => ''
+      ),
+      'Felidae' => array(
+        'parent' => 'Carnivora',
+        'rank' => 'family',
+        'citation' => 'Wilson & Reeder, 2011',
+        'taxonRemarks' => ''
+      ),
+      'Angiospermae' => array(
+        'parent' => 'Spermatophytina',
+        'rank' => 'superclass',
+        'citation' => 'Ruggiero & Gordon (Eds.), 2013',
+        'taxonRemarks' => 'Superclass "Angiospermae" uncertain'
+      )
     );
-    foreach ($parent_child as $parent => $child) {
+    foreach ($test_taxa as $name => $data) {
       $this->assertEqual(
-        $taxa[$parent]['taxonID'],
-        $taxa[$child]['parentNameUsageID'],
-        "{$child} should have parent {$parent}.");
+        $taxa[$data['parent']]['taxonID'],
+        $taxa[$name]['parentNameUsageID'],
+        "{$name} should have parent {$data['parent']}.");
+      $this->assertEqual(
+        $taxa[$name]['taxonRank'],
+        $data['rank'],
+        "{$name} should have rank {$data['rank']}.");
+      $this->assertEqual(
+        $taxa[$name]['bibliographicCitation'],
+        $data['citation'],
+        "{$name} should have citation {$data['citation']}.");
+      if (empty($data['taxonRemarks'])) {
+        $this->assertEqual(
+          $taxa[$name]['taxonRemarks'],
+          $data['taxonRemarks'],
+          "{$name} should not have any taxonRemarks.");
+      }
+      else {
+        $this->assertEqual(
+          $taxa[$name]['taxonRemarks'],
+          $data['taxonRemarks'],
+          "{$name} should have taxonRemarks {$data['taxonRemarks']}.");
+      }
     }
 
     unset($connector);
