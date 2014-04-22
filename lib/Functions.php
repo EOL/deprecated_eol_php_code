@@ -222,7 +222,9 @@ class Functions
         if(isset($options['file_extension'])) $temp_path .= "." . $options['file_extension'];
         debug("\n\n Saving remote file: " . $url);
         debug("\n\n Temporary file: " . $temp_path);
-        if($file_contents = self::get_remote_file($url, $options))
+        if($options['cache']) $file_contents = self::lookup_with_cache($url, $options);
+        else $file_contents = self::get_remote_file($url, $options);
+        if($file_contents)
         {
             $file = fopen($temp_path, "w");
             fwrite($file, $file_contents);
