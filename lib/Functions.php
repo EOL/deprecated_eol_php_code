@@ -94,7 +94,7 @@ class Functions
             debug("Grabbing $remote_url: attempt " . $attempts);
             $file = @self::fake_user_agent_http_get($remote_url, $options);
             usleep($options['download_wait_time']);
-            if($file)
+            if($file || strval($file) == "0") // e.g. file is valid with value of '0' http://api.gbif.org/v0.9/occurrence/count?taxonKey=4896414
             {
                 debug("received file");
                 return $file;
@@ -139,7 +139,7 @@ class Functions
             {
                 $cache_is_valid = false;
             }
-            if($file_contents && $cache_is_valid)
+            if(($file_contents && $cache_is_valid) || (strval($file_contents) == "0" && $cache_is_valid))
             {
                 $file_age_in_seconds = time() - filemtime($cache_path);
                 if($file_age_in_seconds < $options['expire_seconds']) return $file_contents;
