@@ -11,7 +11,7 @@ $timestart = time_elapsed();
 $resource_id = 723;
 $func = new NCBIGGIqueryAPI($resource_id, "ncbi_sequence_info");
 $func->get_all_taxa();
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1) // orig 1000
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
     if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
     {
