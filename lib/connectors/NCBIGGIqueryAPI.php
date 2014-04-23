@@ -525,7 +525,7 @@ class NCBIGGIqueryAPI
 
     private function add_occurrence($taxon_id, $object_id)
     {
-        $occurrence_id = $taxon_id . '' . $object_id;
+        $occurrence_id = $taxon_id . 'O' . $object_id;
         if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
