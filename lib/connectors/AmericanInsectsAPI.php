@@ -56,11 +56,13 @@ class AmericanInsectsAPI
             
             if($html = Functions::lookup_with_cache($url, $this->download_options))
             {
-                $html = str_ireplace('<h1 align="center">', '<h1>', $html);
+                $html = trim(str_ireplace(array(' align="center"', ' class="style1"', ' class="style2"'), "", $html));
                 if(preg_match("/>Family: (.*?)xxx/ims", $html . "xxx", $arr))
                 {
                     $rec["source"] = $url;
-                    if(preg_match("/<h1>(.*?)<\/h1>/ims", $html, $arr))
+                    if(preg_match("/<h1>(.*?)<\/h1>/ims", $html, $arr) ||
+                       preg_match("/<FONT FACE=\"Arial\">(.*?)<\/FONT>/ims", $html, $arr) ||
+                       preg_match("/<h2>(.*?)<\/h2>/ims", $html, $arr))
                     {
                         $sciname = Functions::remove_whitespace(strip_tags($arr[1]));
                         $sciname = trim(str_replace(array(chr(13), chr(10)), " ", $sciname));
