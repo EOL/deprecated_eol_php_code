@@ -427,22 +427,22 @@ class AmericanInsectsAPI
                 $arr = explode("-", $length);
                 $rec["catnum"] = "length";
                 $rec["statistical_method"] = "http://eol.org/schema/terms/average";
-                $rec["measurementUnit"] = "mm";
-                self::add_string_types("true", $rec, "length", $length, "http://www.owl-ontologies.com/unnamed.owl#Length");
+                $rec["measurementUnit"] = "http://purl.obolibrary.org/obo/UO_0000016";
+                self::add_string_types("true", $rec, "length", $length, "http://purl.obolibrary.org/obo/CMO_0000013");
                 // to be used for ranges
                 // if(count($arr) == 1)
                 // {
                 //     $rec["catnum"] = "length";
-                //     self::add_string_types("true", $rec, "length", $length, "http://www.owl-ontologies.com/unnamed.owl#Length");
+                //     self::add_string_types("true", $rec, "length", $length, "http://purl.obolibrary.org/obo/CMO_0000013");
                 // }
                 // else
                 // {
                 //     $rec["catnum"] = "length_min";
                 //     $rec["statistical_method"] = "http://semanticscience.org/resource/SIO_001113";
-                //     self::add_string_types("true", $rec, "length min", $arr[0], "http://www.owl-ontologies.com/unnamed.owl#Length");
+                //     self::add_string_types("true", $rec, "length min", $arr[0], "http://purl.obolibrary.org/obo/CMO_0000013");
                 //     $rec["catnum"] = "length_max";
                 //     $rec["statistical_method"] = "http://semanticscience.org/resource/SIO_001114";
-                //     self::add_string_types("true", $rec, "length max", $arr[1], "http://www.owl-ontologies.com/unnamed.owl#Length");
+                //     self::add_string_types("true", $rec, "length max", $arr[1], "http://purl.obolibrary.org/obo/CMO_0000013");
                 // }
             }
         }
