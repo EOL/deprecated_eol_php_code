@@ -584,7 +584,7 @@ class MycoBankAPI
             {
                 foreach($letters3 as $L3)
                 {
-                    $params[] = "$L1$L2$L3";
+                    $params[] = ucfirst(strtolower("$L1$L2$L3"));
                 }
             }
         }
