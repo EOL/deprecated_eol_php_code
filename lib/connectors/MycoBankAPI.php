@@ -8,226 +8,188 @@ class MycoBankAPI
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        $this->resource_reference_ids = array();
-        $this->resource_agent_ids = array();
-        $this->taxon_ids = array();
-
-        $this->service = 'http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&limit=0&filter=NameStatus_="Legitimate" AND Name STARTSWITH ';
+        $this->synonym_ids = array();
+        $this->name_id = array();
+        $this->invalid_statuses = array("Orthographic variant", "Invalid", "Illegitimate", "Uncertain", "Unavailable", "Deleted");
+        // $this->service =            'http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&limit=0&filter=NameStatus_="Legitimate" AND Name STARTSWITH ';
+        $this->service =            'http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&limit=0&filter=Name STARTSWITH ';
+        $this->service_exact_name = 'http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&limit=0&filter=Name=';
+        //for stats
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->dump_file = $this->TEMP_DIR . "mycobank_dump.txt";
-        $this->names_not_yet_entered_dump_file = $this->TEMP_DIR . "names_not_yet_entered.txt";
-        $this->names_no_entry_from_partner_dump_file = $this->TEMP_DIR . "names_no_entry_from_partner.txt";
-        
-        /* not implemented
-        $this->dump_file_raw_classification = $this->TEMP_DIR . "raw_classification.txt";
-        $this->raw_classification = array();
-        */
-        
-        $this->name_id = array();
-        $this->names_not_yet_entered = array();
-        $this->no_entry_parent = array();
-        $this->no_entry_current_name = array();
-        
-        /*
-        http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&limit=0&filter=NameStatus_="Legitimate" AND Name STARTSWITH "Montagnula perforans"
-        http://www.mycobank.org/BioloMICS.aspx?Link=T&amp;Table=Mycobank&amp;Rec=424975&amp;Fields=All
-        old: 412911 before Aug19
-        new: 395841
-
-        to be reported to partner:
-        Cryptococcus, Bensingtonia,  Ceratocystis Dendrothele Penicillium vi, Corticium am -- xml explodes
+        $this->names_not_yet_entered_dump_file  = $this->TEMP_DIR . "names_not_yet_entered.txt";
+        $this->names_with_error_dump_file       = $this->TEMP_DIR . "names_with_error.txt";
+        $this->no_entry_parent          = array();
+        $this->no_entry_current_name    = array();
+        $this->names_not_yet_entered    = array();
+        $this->debug                    = array();
+        /*  as of Apr 28 2014
+            type:
+                [Basionym] => 239143
+                [Combination] => 122550
+                [Nomen novum] => 4203
+            status:
+                [Legitimate] => 365896
         */
     }
 
     function get_all_taxa()
     {
-        echo "\n[$this->TEMP_DIR]\n";
-
-        /* to be used if you already have generated dump files.
+        /* to be used if you ALREADY HAVE generated dump files.
         $file = "/Users/eolit/Sites/eli/eol_php_code/tmp/mycobank/mycobank_dump.txt";
         $this->retrieve_data_and_save_to_array($file);
-        // obsolete
-        // $file = "/Users/eolit/Sites/eli/eol_php_code/tmp/mycobank/raw_classification.txt";
-        // $this->process_raw_classification($file);
+        $this->retrieve_data_and_save_to_array2($file);
         */
         
         // /* to be used if you HAVE NOT yet generated dump files
-        $this->save_data_to_text(); //exit;
+        $this->save_data_to_text();
         $this->retrieve_data_and_save_to_array();
-        // $this->process_raw_classification(); obsolete, we will no longer add higher taxa from classification, these taxa should have been added in the main call.
+        $this->retrieve_data_and_save_to_array2();
         // */
 
-        // $this->remove_taxon_for_illegitimate_parent(); // may not be needed anymore
-        // $this->check_if_all_parents_have_entries(); // a utility; check if all perents have its own taxon entry, can proceed without it
-
+        $this->check_if_all_parents_have_entries();
         $this->create_instances_from_taxon_object();
+        $this->prepare_synonyms(); 
         $this->create_archive();
-        
-        // remove temp dir
-        recursive_rmdir($this->TEMP_DIR);
-        echo ("\n temporary directory removed: " . $this->TEMP_DIR);
         
         // stats
         $this->names_not_yet_entered = array_keys($this->names_not_yet_entered);
         echo "\n names_not_yet_entered: " . count($this->names_not_yet_entered);
-        self::save_to_dump($this->names_not_yet_entered, $this->names_not_yet_entered_dump_file);
-
+        echo "\n saved in: [$this->names_not_yet_entered_dump_file]\n";
+        if($this->names_not_yet_entered) self::save_to_dump($this->names_not_yet_entered, $this->names_not_yet_entered_dump_file);
         echo "\n\n no entry parent: " . count($this->no_entry_parent);
         echo "\n no entry current: " . count($this->no_entry_current_name) . "\n";
-        
         $temp = array_merge(array_keys($this->no_entry_parent), array_keys($this->no_entry_current_name));
         $temp = array_unique($temp);
-        echo "\n total: " . count($temp) . "\n";
+        echo "\n total no entry: " . count($temp) . "\n";
+        echo "\n\n some stats:";
+        print_r($this->debug["name_type"]);
+        print_r($this->debug["name_status"]);
+
+        // remove temp dir
+        recursive_rmdir($this->TEMP_DIR);
+        echo ("\n temporary directory removed: " . $this->TEMP_DIR);
     }
 
-    private function get_strings_already_searched($dump_file = false)
-    {
-        $dump_file = "/Users/eolit/Sites/eli/eol_php_code/tmp/mycobank/mycobank_dump.txt";
-        $strings_searched = array();
-        foreach(new FileIterator($dump_file) as $line_number => $line)
-        {
-            if($line)
-            {
-                $line = trim($line);
-                $records = json_decode($line, true);
-                foreach($records as $key => $recs) // $key is the string param used in the search
-                {
-                    $strings_searched[$key] = "";
-                }
-            }
-        }
-        return $strings_searched;
-    }
-    
-    private function get_names_no_entry_from_partner()
-    {
-        $names = array();
-        $dump_file = "/Users/eolit/Sites/eli/eol_php_code/tmp/mycobank/names_no_entry_from_partner.txt";
-        foreach(new FileIterator($dump_file) as $line_number => $line)
-        {
-            if($line) $names[$line] = "";
-        }
-        return array_keys($names);
-    }
-    
     private function save_data_to_text($params = false)
     {
-        $names_no_entry_from_partner = self::get_names_no_entry_from_partner();
-        $strings_searched = self::get_strings_already_searched();
-        if(!$params)
-        {
-            $params = self::get_params_for_webservice();
-            // $params = array("Aspergillus");  //debug
-        }
-        
-        /* debug - a utility, commented in real operation
-        $filename = "/Users/eolit/Sites/eli/eol_php_code/tmp/mycobank/names_not_yet_entered.txt";
-        $READ = fopen($filename, "r");
-        $contents = fread($READ, filesize($filename));
-        fclose($READ);
-        $params = json_decode($contents, true);
-        */
-        
+        /* stats $names_with_error = self::get_names_no_entry_from_partner("names_with_error"); */
+        $names_with_error = array();
+        if(!$params) $params = self::get_params_for_webservice();
         $total_params = count($params);
         self::initialize_dump_file();
         $i = 0;
         foreach($params as $param)
         {
+            $param = ucfirst($param);
+            print "\n $param";
             $i++;
-            $no_of_results = 0;
-            $param = ucfirst(strtolower($param));
             
-            if(in_array($param, $names_no_entry_from_partner)) continue;    // [$param] -> name_no_entry_from_partner";
-            if(isset($strings_searched[$param])) continue;                  // [$param] -> was already searched";
+            /* 
+            $cont = false;
+            // if($i >= 1 && $i < 100) $cont = true;
+            // if($i >= 100 && $i < 1000) $cont = true;
+            // if($i >= 200 && $i < 15000) $cont = true;
+            // if($i >= 15000 && $i < 20000) $cont = true;
+            // if($i >= 20000 && $i < 90000) $cont = true;
+            if(!$cont) continue;
+            */
             
-            $url = $this->service . '"' . $param . '"';
-            echo "\n[$param] $i of $total_params \n";
+            // if(in_array($param, $names_with_error)) continue;
 
-            if($response = Functions::get_hashed_response($url, array('timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 2))) // 6hrs timeout
+            $no_of_results = 0;            
+            $url = $this->service . '"' . $param . '"';
+            // $url = $this->service_exact_name . '"' . $param . '"';
+            echo "\n[$param] $i of $total_params \n";
+            if($contents = Functions::lookup_with_cache($url, array('timeout' => 7200, 'download_attempts' => 1)))
             {
-                if(isset($response->Error->ErrorMessage))
+                if($response = simplexml_load_string($contents))
                 {
-                    echo "\n investigate error [$param]: " . $response->Error->ErrorMessage . "\n";
-                    sleep(300); // 5mins
-                    continue;
-                }
-                $no_of_results = count($response);
-                if($no_of_results > 0)
-                {
-                    echo " - count: $no_of_results";
-                    $records = array();
-                    foreach($response as $rec)
+                    if(isset($response->ErrorMessage))
                     {
-                        $hierarchy = "";
-                        $source_url = "";
-                        $parent = "";
-                        if(preg_match("/title\='(.*?)'/ims", $rec->Classification_, $arr))
-                        {
-                            $hierarchy = $arr[1];
-                            // $this->raw_classification[$hierarchy] = ""; not implemented
-                            $parent = self::get_parent_from_hierarchy($hierarchy);
-                        }
-                        if(preg_match("/href\='(.*?)'/ims", $rec->Classification_, $arr)) $source_url = $arr[1];
-                        $records[] = array("n"  => (string) $rec->Name,
-                                           "cn" => (string) $rec->CurrentName_Pt_,
-                                           "r"  => (string) $rec->Rank_Pt_,
-                                           "nt" => (string) $rec->NameType_,
-                                           "ns" => (string) $rec->NameStatus_,
-                                           "a"  => (string) $rec->Authors_,
-                                           "p"  => $parent,
-                                           "s"  => $source_url,
-                                           "t"  => (string) $rec->MycoBankNr_,
-                                           "y"  => (string) $rec->NameYear_,
-                                           "e3" => (string) $rec->E3787,
-                                           "e4" => (string) $rec->E4060,
-                                           "so" => (string) $rec->ObligateSynonyms_Pt_,
-                                           "sf" => (string) $rec->FacultativeSynonyms_Pt_);
+                        echo "\n investigate error [$param]: " . $response->ErrorMessage . "\n";
+                        sleep(120); // 2mins
+                        echo "\n access failed [$param] ... \n";
+                        self::save_to_dump($param, $this->names_with_error_dump_file);
+                        continue;
                     }
-                    $temp = array();
-                    $temp[$param] = $records;
-                    self::save_to_dump($temp, $this->dump_file);
+
+                    $no_of_results = count($response);
+                    if($no_of_results > 0)
+                    {
+                        echo " - count: $no_of_results";
+                        $records = array();
+                        foreach($response as $rec)
+                        {
+                            $hierarchy = "";
+                            $source_url = "";
+                            $parent = "";
+                            if(preg_match("/title\='(.*?)'/ims", $rec->Classification_, $arr))
+                            {
+                                $hierarchy = $arr[1];
+                                $parent = self::get_parent_from_hierarchy($hierarchy);
+                            }
+                            
+                            $rec_id = "";
+                            if(preg_match("/;Rec\=(.*?)\&/ims", $rec->Classification_, $arr)) $rec_id = $arr[1];
+                            if(preg_match("/href\='(.*?)'/ims", $rec->Classification_, $arr)) $source_url = $arr[1];
+                            $records[] = array("n"  => (string) $rec->Name,
+                                               "cn" => (string) $rec->CurrentName_Pt_,
+                                               "r"  => (string) $rec->Rank_Pt_,
+                                               "nt" => (string) $rec->NameType_,
+                                               "ns" => (string) $rec->NameStatus_,
+                                               "a"  => (string) $rec->Authors_,
+                                               "p"  => $parent,
+                                               "h"  => $hierarchy,
+                                               "s"  => $source_url,
+                                               "t"  => (string) $rec->MycoBankNr_,
+                                               "d"  => (string) $rec_id,
+                                               "y"  => (string) $rec->NameYear_,
+                                               "e3" => (string) $rec->E3787,
+                                               "e4" => (string) $rec->E4060,
+                                               "so" => (string) $rec->ObligateSynonyms_Pt_,
+                                               "sf" => (string) $rec->FacultativeSynonyms_Pt_);
+                        }
+                        $temp = array();
+                        $temp[$param] = $records;
+                        self::save_to_dump($temp, $this->dump_file);
+                    }
+                    else
+                    {
+                        echo "\n no result for: [$param]\n";
+                        // save even with no records, so it won't be searched again...
+                        $temp = array();
+                        $temp[$param] = array();
+                        self::save_to_dump($temp, $this->dump_file);
+                    }
                 }
-                else
-                {
-                    echo "\n no result for: [$param]\n";
-                    self::save_to_dump($param, $this->names_no_entry_from_partner_dump_file);
-                }
+            }
+            else
+            {
+                echo "\n access failed [$param] ... \n";
+                self::save_to_dump($param, $this->names_with_error_dump_file);
             }
             self::sleep_now($no_of_results);
         }
-        // self::save_to_dump(array_keys($this->raw_classification), $this->dump_file_raw_classification); not implemented
     }
 
     private function get_pt_value($string, $return = false)
     {
-        /*
-        <Rank_Pt_><TargetRecord><Id>20</Id><Name>sp.</Name></TargetRecord></Rank_Pt_>
-        [CurrentName_Pt_] => <TargetRecord><Id>46034</Id><Name>Aspergillus zhaoqingensis</Name></TargetRecord>
-        <ObligateSynonyms_Pt_><TargetRecord><Id>404707</Id><Name>Aspergillus</Name></TargetRecord></ObligateSynonyms_Pt_>
-        <FacultativeSynonyms_Pt_>
-            <TargetRecord><Id>99120</Id><Name>Acmosporium</Name></TargetRecord>
-            <TargetRecord><Id>99201</Id><Name>Alliospora</Name></TargetRecord>
-            ...
-        </FacultativeSynonyms_Pt_>
-        */
         $records = array();
         if(preg_match_all("/<TargetRecord>(.*?)<\/TargetRecord>/ims", $string, $arr))
         {
             foreach($arr[1] as $line)
             {
                 $id = ""; $name = "";
-                // if(preg_match("/<Id>(.*?)<\/Id>/ims", $line, $arr2)) $id = trim($arr2[1]); - this is not the correct Id
-                if(preg_match("/<Name>(.*?)<\/Name>/ims", $line, $arr2))
-                {
-                    $name = trim($arr2[1]);
-                    $records[] = array("Id" => "", "Name" => $name);
-                }
+                if(preg_match("/<Name>(.*?)<\/Name>/ims", $line, $arr2)) $name = trim($arr2[1]);
+                if(preg_match("/<Id>(.*?)<\/Id>/ims", $line, $arr2)) $id = trim($arr2[1]);
+                if($name && $id) $records[] = array("Id" => $id, "Name" => $name);
             }
         }
         if($return) return @$records[0][$return];
         else return $records;
     }
-
+    
     private function retrieve_data_and_save_to_array($dump_file = false)
     {
         if(!$dump_file) $dump_file = $this->dump_file;
@@ -237,80 +199,106 @@ class MycoBankAPI
             {
                 $line = trim($line);
                 $records = json_decode($line, true);
+                if(!$records) continue;
                 foreach($records as $key => $recs) // $key is the string param used in the search
                 {
                     foreach($recs as $rec)
                     {
                         $rec = array_map('trim', $rec);
                         $name = (string) $rec["n"];
+                        $status = $rec["ns"];
                         if(!$name) continue;
-                        if(!isset($this->name_id[$name]))
+                        if(!isset($this->name_id[$name][$status])) self::assign_record_to_array($rec);
+                        else
                         {
-                            $this->name_id[$name]["a"] = $rec["a"];
-                            $this->name_id[$name]["p"] = $rec["p"];
-                            $this->name_id[$name]["s"] = $rec["s"];
-                            $this->name_id[$name]["t"] = $rec["t"];
-                            $this->name_id[$name]["y"] = $rec["y"];
-                            // good source for taxon remarks
-                            $this->name_id[$name]["e3"] = $rec["e3"];
-                            $this->name_id[$name]["e4"] = $rec["e4"];
-                            $this->name_id[$name]["cn"] = $rec["cn"];
-                            $this->name_id[$name]["r"]  = $rec["r"];
-                            $this->name_id[$name]["nt"] = $rec["nt"];
-                            $this->name_id[$name]["so"] = $rec["so"];
-                            $this->name_id[$name]["sf"] = $rec["sf"];
+                            if($rec["y"] > $this->name_id[$name][$status]["y"] || in_array($this->name_id[$name][$status]["p"], array("-", "?", ""))) self::assign_record_to_array($rec);
                         }
                     }
                 }
             }
         }
     }
-    
-    private function remove_taxon_for_illegitimate_parent() // you will only run this during real-time, not when developing; bec when developing ur working with just a subset of the entire taxa
+
+    private function assign_record_to_array($rec)
     {
-        /* This will remove taxa with illegitimate parent, even if the taxa itself is legitimate. 
-           DATA-863:  Nathan Wilson added a comment - 20/Aug/13 7:52 AM
-           Another possibility/option is to just remove the parent information if parent is illegitimate and leave the taxon, but we're not doing that here. 
-        */
-        echo "\n\n orig count: " . count($this->name_id);
-        $to_be_removed = array();
-        foreach($this->name_id as $taxon => $value)
+        $name = (string) $rec["n"];
+        $status = $rec["ns"];
+        $this->name_id[$name][$status]["a"] = $rec["a"];
+        $this->name_id[$name][$status]["p"] = $rec["p"];
+        $this->name_id[$name][$status]["s"] = $rec["s"];
+        $this->name_id[$name][$status]["t"] = $rec["t"];
+        $this->name_id[$name][$status]["y"] = $rec["y"];
+        $this->name_id[$name][$status]["d"] = $rec["d"];
+        // good source for taxon remarks
+        // $this->name_id[$name][$status]["e3"] = $rec["e3"];
+        // $this->name_id[$name][$status]["e4"] = $rec["e4"];
+        $this->name_id[$name][$status]["cn"] = $rec["cn"];
+        $this->name_id[$name][$status]["r"]  = $rec["r"];
+        $this->name_id[$name][$status]["nt"] = $rec["nt"];
+        $this->name_id[$name][$status]["ns"] = $rec["ns"];
+        $this->name_id[$name][$status]["so"] = $rec["so"];
+        $this->name_id[$name][$status]["sf"] = $rec["sf"];
+        // $this->name_id[$name][$status]["h"] = $rec["h"]; // good to cache hierarchy info, access it only when needed
+    }
+
+    private function retrieve_data_and_save_to_array2($dump_file = false)
+    {
+        $this->id_rec = array();
+        if(!$dump_file) $dump_file = $this->dump_file;
+        foreach(new FileIterator($dump_file) as $line_number => $line)
         {
-            $parent = (string) trim($value["p"]);
-            if(!in_array($parent, array("-", "?")))
+            if($line)
             {
-                if(!isset($this->name_id[$parent]))
+                $line = trim($line);
+                $records = json_decode($line, true);
+                if(!$records) continue;
+                foreach($records as $key => $recs) // $key is the string param used in the search
                 {
-                    $this->no_entry_parent[$parent] = 1;
-                    $to_be_removed[$taxon] = "";
-                    // for checking
-                    $genus_part = explode(" ", $parent);
-                    $genus_part = trim($genus_part[0] . " " . substr(@$genus_part[1], 0, 2));
-                    $this->names_not_yet_entered[$genus_part] = 1;
+                    foreach($recs as $rec)
+                    {
+                        $rec = array_map('trim', $rec);
+                        $rec_id = $rec["d"];
+                        $t      = $rec["t"]; //MycoBank id
+                        $n      = $rec["n"];
+                        if(!$rec_id || !$t)
+                        {
+                            echo "\n investigate: invalid rec_id: [$rec_id][$t][$n]";
+                            continue;
+                        }
+                        if(!isset($this->id_rec[$rec_id])) self::assign_record_to_array2($rec);
+                    }
                 }
             }
         }
-        $to_be_removed = array_keys($to_be_removed);
-        echo "\n to_be_removed: " . count($to_be_removed) . "\n";
-        foreach($to_be_removed as $taxon) $this->name_id[$taxon] = null;
-        $this->name_id = array_filter($this->name_id); //remove null arrays
-        echo "\n\n new count: " . count($this->name_id) . "\n";
-        echo "\n\n parent with no entry: " . count($this->names_not_yet_entered) . "\n";
+        echo "\n count:" . count($this->id_rec) . "\n";
+    }
+
+    private function assign_record_to_array2($rec)
+    {
+        $rec_id = $rec["d"];
+        $this->id_rec[$rec_id]["a"] = $rec["a"];
+        $this->id_rec[$rec_id]["t"] = $rec["t"];
+        if($rec["ns"] == "Legitimate") $ns = "L";
+        else $ns = "";
+        $this->id_rec[$rec_id]["ns"] = $ns;
     }
     
     private function check_if_all_parents_have_entries() // a utility
     {
-        echo "\n\n start of report: taxa that are 'invalid/illegitimate/wrong' \n";
+        echo "\n start of report: taxa that are 'invalid/illegitimate/wrong'";
         $invalid_species = array();
         $invalid_higher_taxa = array();
-        foreach($this->name_id as $taxon => $value)
+        foreach($this->name_id as $taxon => $record)
         {
+            $value = array();
+            if($val = @$record["Legitimate"]) $value = $val;
+            if(!$value) continue;
             $parent = (string) trim($value["p"]);
-            if(!in_array($parent, array("-", "?")))
+            if(!in_array($parent, array("-", "?", "")))
             {
                 if(!isset($this->name_id[$parent]))
                 {
-                    // echo "\n investigate: $taxon [$parent] no entry for this parent taxon";
+                    echo "\n investigate: $taxon [$parent] no entry for this parent taxon";
                     $parent = trim($parent);
                     $this->no_entry_parent[$parent] = 1;
                     $parts = explode(" ", $parent);
@@ -319,105 +307,156 @@ class MycoBankAPI
                     $this->names_not_yet_entered[$parent] = 1;
                 }
             }
+            if($parent == "?") echo "\n investigate parent is ? for [$taxon][" . $value["t"] . "]";
         }
         echo "\n count of invalid species: " . count($invalid_species);
-        echo "\n count of invalid higher taxa: " . count($invalid_higher_taxa) . "\n";
-        echo "\n\n - end of report -\n";
-    }
-
-    private function fill_up_missing_name($name)
-    {
-        $this->name_id[$name]["a"] = "";
-        $this->name_id[$name]["p"] = "";
-        $this->name_id[$name]["s"] = "";
-        $this->name_id[$name]["t"] = str_replace(" ", "_", $name);
-        $this->name_id[$name]["y"] = "";
-        $this->name_id[$name]["e3"] = "";
-        $this->name_id[$name]["e4"] = "";
-        $this->name_id[$name]["cn"] = "";
-        $this->name_id[$name]["r"]  = "";
-        $this->name_id[$name]["nt"] = "";
-        $this->name_id[$name]["so"] = "";
-        $this->name_id[$name]["sf"] = "";
-        
-        $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID         = str_replace(" ", "_", $name);
-        $taxon->scientificName  = $name;
-        if(!isset($this->taxon_ids[$taxon->taxonID]))
-        {
-            $this->taxa[$taxon->taxonID] = $taxon;
-            $this->taxon_ids[$taxon->taxonID] = 1;
-        }
+        echo "\n count of invalid higher taxa: " . count($invalid_higher_taxa);
+        echo "\n - end of report -\n\n";
     }
     
-    function create_instances_from_taxon_object() //names_not_yet_entered
+    function create_instances_from_taxon_object()
     {
-        foreach($this->name_id as $sciname => $rec)
+        foreach($this->name_id as $sciname => $record)
         {
+            $rec = array();
+            if($val = @$record["Legitimate"]) $rec = $val;
+            if(!$rec) continue;
             $parent = "";
             $taxon_id = "";
             $parentNameUsageID = "";
-            
             if(!$taxon_id = @$rec["t"])
             {
                 echo "\n investigate: no taxon_id for [$sciname]";
                 continue;
             }
             if(in_array($sciname, array("-", "?"))) continue;
-
+            $rank = self::get_rank($rec["r"], $sciname);
+            if(in_array(@$rec["ns"], $this->invalid_statuses) && in_array($rank, array("species", "subspecies"))) continue; //exclude invalid taxa for 'species' and 'subspecies'
             $taxon = new \eol_schema\Taxon();
-            $taxon->taxonID                     = (string) $taxon_id;
+            $taxon->taxonID                     = $taxon_id;
             $taxon->scientificName              = $sciname;
-            $taxon->scientificNameAuthorship    = (string) @$rec["a"];
-            $taxon->taxonRank                   = self::get_rank($rec["r"], $sciname);
-            $taxon->furtherInformationURL       = (string) @$rec["s"];
+            $taxon->scientificNameAuthorship    = @$rec["a"];
+            $taxon->taxonRank                   = $rank;
+            $taxon->acceptedNameUsageID         = "";
+            /*
+            $taxon->taxonomicStatus             = self::get_taxonomic_status(@$rec["ns"]);
+            $taxon->furtherInformationURL       = @$rec["s"];
             $taxon->taxonRemarks                = self::get_taxon_remark($rec);
-            
-            if(!in_array(trim($rec["p"]), array("-", "?", "")))
+            */
+            //stats
+            if(isset($this->debug["name_status"][@$rec["ns"]])) $this->debug["name_status"][@$rec["ns"]]++;
+            else                                                $this->debug["name_status"][@$rec["ns"]] = 1;
+            if(isset($this->debug["name_type"][@$rec["nt"]]))   $this->debug["name_type"][@$rec["nt"]]++;
+            else                                                $this->debug["name_type"][@$rec["nt"]] = 1;
+
+            $parent_info = self::get_parent_info($rec);
+            $parentNameUsageID  = $parent_info["parentNameUsageID"];
+            $parent_status      = $parent_info["parent_status"]; // to be used below
+            if(!in_array(trim($parentNameUsageID), array("-", "?", ""))) $taxon->parentNameUsageID = $parentNameUsageID;
+
+            $current_name_rec_id    = self::get_pt_value($rec["cn"], "Id");
+            $current_name           = self::get_pt_value($rec["cn"], "Name");
+            if($current_name_id = @$this->id_rec[$current_name_rec_id]["t"]) $taxon->acceptedNameUsageID = $current_name_id;
+            else
             {
-                if($parent = $rec["p"]) $parentNameUsageID = @$this->name_id[$parent]["t"];
-                if(!$parentNameUsageID)
+                if($sciname != $current_name && $current_name != "")
                 {
-                    // /* enable this once there is a complete acquisition of names using the main call/routine
-                    $parentNameUsageID = str_replace(" ", "_", $parent);
-                    self::fill_up_missing_name($parent);
-                    // for checking
-                    $genus_part = explode(" ", $parent);
-                    $genus_part = trim($genus_part[0] . " " . substr(@$genus_part[1], 0, 2));
-                    $this->names_not_yet_entered[$genus_part] = 1;
-                    $this->no_entry_parent[$genus_part] = 1;
-                    // */
-                }
-                if(!in_array(trim($parentNameUsageID), array("-", "?", ""))) $taxon->parentNameUsageID = $parentNameUsageID;
-            }
-            
-            $current_name = self::get_pt_value($rec["cn"], "Name"); // current name
-            if($sciname != $current_name && $current_name != "")
-            {
-                if($current_name_id = @$this->name_id[$current_name]["t"]) $taxon->acceptedNameUsageID = $current_name_id;
-                else
-                {
+                    echo "\n investigate will fill up missing current_name [$current_name_rec_id][$current_name]"; //should not go here
+                    echo "\n orig: [$taxon->taxonID][$taxon->scientificName]\n";
                     $taxon->acceptedNameUsageID = str_replace(" ", "_", $current_name);
-                    self::fill_up_missing_name($current_name);
                     $this->no_entry_current_name[$current_name] = 1;
                     $this->names_not_yet_entered[$current_name] = 1;
                 }
             }
 
-            if(!isset($this->taxon_ids[$taxon->taxonID]))
+            $this->name_id[$sciname]["Legitimate"]["syn"] = 0;
+            if($sciname != $current_name && $current_name != "")
             {
-                $this->taxa[$taxon->taxonID] = $taxon;
-                $this->taxon_ids[$taxon->taxonID] = 1;
+                /* if sciname != current_name and current_name not blank - then if sciname's parent is Illegitimate - ignore sciname */
+                if(in_array($parent_status, $this->invalid_statuses)) continue;
+                // e.g. Selenia perforans will be ignored since the genus Selenia is Illegitimate and current_name anyway exists Montagnula perforans
+                $this->name_id[$sciname]["Legitimate"]["syn"] = 1;
             }
-            else
+            
+            if(!isset($this->taxa[$taxon->taxonID])) $this->taxa[$taxon->taxonID] = $taxon;
+        }
+    }
+    
+    private function get_taxonomic_status($status) // only Legitimate should pass through here
+    {
+        if($status == "Legitimate") return "valid";
+        else echo "\n investigate: status undefined [$status]\n";
+    }
+    
+    private function get_parent_info($rec)
+    {
+        if(!in_array(trim($rec["p"]), array("-", "?", "")))
+        {
+            $parentNameUsageID  = "";
+            $parent_status      = "";
+            if($parent = $rec["p"])
             {
-                if(!isset($this->taxa[$taxon->taxonID])) continue; //no need to investigate, meaning this might be a synonym used/entered already
-                echo "\n investigate 03 [$sciname] \n"; // this means that a 'legitimate' taxon using this id is already entered, acceptable case when checked
-                print_r($rec);
-                print_r($this->taxa[$taxon->taxonID]);
+                if    ($val = @$this->name_id[$parent]["Legitimate"]["t"])
+                {
+                    $parentNameUsageID = $val;
+                    $parent_status = @$this->name_id[$parent]["Legitimate"]["ns"];
+                }
+                elseif($val = @$this->name_id[$parent]["Orthographic variant"]["t"])
+                {
+                    $parentNameUsageID = $val;
+                    $parent_status = @$this->name_id[$parent]["Orthographic variant"]["ns"];
+                }
+                elseif($val = @$this->name_id[$parent]["Invalid"]["t"])
+                {
+                    $parentNameUsageID = $val;
+                    $parent_status = @$this->name_id[$parent]["Invalid"]["ns"];
+                }
+                elseif($val = @$this->name_id[$parent]["Illegitimate"]["t"])
+                {
+                    $parentNameUsageID = $val;
+                    $parent_status = @$this->name_id[$parent]["Illegitimate"]["ns"];
+                    
+                }
+                elseif($val = @$this->name_id[$parent]["Uncertain"]["t"])
+                {
+                    $parentNameUsageID = $val;
+                    $parent_status = @$this->name_id[$parent]["Uncertain"]["ns"];
+                }
+                elseif($val = @$this->name_id[$parent]["Unavailable"]["t"])
+                {
+                    $parentNameUsageID = $val;
+                    $parent_status = @$this->name_id[$parent]["Unavailable"]["ns"];
+                }
+                return array("parentNameUsageID" => $parentNameUsageID, "parent_status" => $parent_status);
             }
-            self::create_synonyms($rec["sf"], $taxon->taxonID, "Facultative synonym of $sciname");
-            self::create_synonyms($rec["so"], $taxon->taxonID, "Obligate synonym of $sciname");
+            if(!$parentNameUsageID)
+            {
+                // for checking
+                $this->names_not_yet_entered[$parent] = 1;
+                $this->no_entry_parent[$parent] = 1;
+            }
+        }
+    }
+    
+    private function prepare_synonyms()
+    {
+        foreach($this->name_id as $sciname => $record)
+        {
+            if($rec = @$record["Legitimate"])
+            {
+                if(!in_array(@$rec["ns"], $this->invalid_statuses)) // create synonyms only for Legitimate taxa
+                {
+                    if(!$rec["syn"]) // we will not be getting synonyms of known synonyms. e.g. won't get synonyms of Selenia perforans, since it is already a synonym of Montagnula perforans
+                    {
+                        if($taxon_id = @$rec["t"])
+                        {
+                            if($rec["sf"]) self::create_synonyms($rec["sf"], $taxon_id, "Facultative synonym of $sciname");
+                            if($rec["so"]) self::create_synonyms($rec["so"], $taxon_id, "Obligate synonym of $sciname");
+                        }
+                    }
+                }
+            }
+            else continue;
         }
     }
 
@@ -426,50 +465,61 @@ class MycoBankAPI
         $records = self::get_pt_value($records);
         foreach($records as $rec)
         {
-            if($syn_id = @$this->name_id[$rec["Name"]]["t"])
+            if($syn_id =  @$this->id_rec[$rec["Id"]]["t"])
             {
+                if(@$this->id_rec[$rec["Id"]]["ns"] != "L") continue;
                 $synonym = new \eol_schema\Taxon();
                 $synonym->taxonID                       = $syn_id;
-                $synonym->scientificName                = (string) $rec["Name"];
-                $synonym->scientificNameAuthorship      = "";
-                $synonym->taxonRank                     = "";
-                $synonym->acceptedNameUsageID           = (string) $taxon_id;
-                $synonym->taxonomicStatus               = (string) "synonym";
-                $synonym->taxonRemarks                  = (string) $taxon_remarks;
+                $synonym->scientificName                = $rec["Name"];
+                $synonym->scientificNameAuthorship      = @$this->id_rec[$rec["Id"]]["a"];
+                // $synonym->taxonRank                     = self::get_rank(@$this->id_rec[$rec["Id"]]["r"]);
+                $synonym->acceptedNameUsageID           = $taxon_id;
+                $synonym->taxonomicStatus               = "synonym";
+                $synonym->taxonRemarks                  = $taxon_remarks;
                 if(!$synonym->scientificName) continue;
-                if(!isset($this->taxon_ids[$synonym->taxonID]))
+                if(isset($this->taxa[$synonym->taxonID])) // this means that a Legitimate taxon has already been entered
                 {
-                    $this->archive_builder->write_object_to_file($synonym);
-                    $this->taxon_ids[$synonym->taxonID] = 1;
-                    $this->syn_count++;
+                    $taxon = $this->taxa[$synonym->taxonID];
+                    if($taxon->acceptedNameUsageID == "")
+                    {
+                        // no need to investigate, synonym without current_name from service: ";
+                        // echo "[$taxon->taxonID] - [$taxon->scientificName][$taxon->acceptedNameUsageID][$taxon_id][$taxon_remarks]" . $rec["Id"] . "\n";
+                        $taxon->acceptedNameUsageID = $taxon_id;
+                        $taxon->taxonomicStatus = "synonym";
+                        $this->taxa[$synonym->taxonID] = $taxon;
+                    }
+                    // else...here we leave it alone
+                }
+                else
+                {
+                    if(!isset($this->synonym_ids[$synonym->taxonID]))
+                    {
+                        $this->archive_builder->write_object_to_file($synonym);
+                        $this->synonym_ids[$synonym->taxonID] = '';
+                    }
                 }
             }
             else
-            {
-                /* decided not to add a synonym if it has no entry
-                $synonym->taxonID = str_replace(" ", "_", $rec["Name"]);
-                // for checking
-                $genus_part = explode(" ", $rec["Name"]);
-                $genus_part = trim($genus_part[0] . " " . substr(@$genus_part[1], 0, 2));
-                $this->names_not_yet_entered[$genus_part] = 1;
-                echo "\n investigate synonym [" . $rec["Name"] . "] [" . $genus_part . "] is not in this->name_id yet \n";
-                */
+            {   //  decided not to add a synonym if it has no entry
+                $this->names_not_yet_entered[$rec["Name"]] = 1;
+                echo "\n investigate synonym [" . $rec["Name"] . "] is not in this->id_rec yet \n";
                 continue;
             }
         }
     }
-
+    
     private function get_taxon_remark($rec)
     {
         $rem = "";
-        if($rec["y"])  $rem .= "Name year: " . $rec["y"] . "<br>";
-        if($rec["nt"]) $rem .= "Name type: " . $rec["nt"] . "<br>";
-        if($rec["e3"]) $rem .= "<br>" . $rec["e3"] . "<br>";
-        if($rec["e4"]) $rem .= "<br>" . $rec["e4"] . "<br>";
+        if($val = $rec["y"])  $rem .= "Name year: " . $val . "<br>";
+        if($val = $rec["nt"]) $rem .= "Name type: " . $val . "<br>";
+        if($val = $rec["ns"]) $rem .= "Name status: " . $val . "<br>";
+        if($val = $rec["e3"]) $rem .= "<br>" . $val . "<br>";
+        if($val = $rec["e4"]) $rem .= "<br>" . $val . "<br>";
         return $rem;
     }
     
-    private function get_rank($rank, $sciname)
+    private function get_rank($rank, $sciname = null)
     {
         $rank = self::get_pt_value($rank, "Name");
         switch ($rank) 
@@ -514,18 +564,96 @@ class MycoBankAPI
         }
     }
     
-    private function save_to_dump($data, $filename)
+    private function get_params_for_webservice()
     {
-        $WRITE = fopen($filename, "a");
-        if($data && is_array($data)) fwrite($WRITE, json_encode($data) . "\n");
-        else                         fwrite($WRITE, $data . "\n");
-        fclose($WRITE);
+        $params = array();
+        $letters = "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z";
+        $letters1 = explode(",", $letters);
+
+        // use this to divide 3 batches
+        // $l = "A,B,C,D,E,F,G,H";          // 1st batch
+        // $l = "I,J,K,L,M,N,O,P,Q";        // 2nd
+        // $l = "R,S,T,U,V,W,X,Y,Z";        // 3rd
+        // $letters1 = explode(",", $l);
+        
+        $letters2 = explode(",", $letters);
+        $letters3 = explode(",", $letters);
+        foreach($letters1 as $L1)
+        {
+            foreach($letters2 as $L2)
+            {
+                foreach($letters3 as $L3)
+                {
+                    $params[] = "$L1$L2$L3";
+                }
+            }
+        }
+        return $params;
+        
+        /* debug - a utility, commented in real operation
+        $params = array();
+        $letters = "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z";
+        $letters1 = self::get_names_no_entry_from_partner("names_with_error");
+        $letters2 = explode(",", $letters);
+        foreach($letters1 as $L1)
+        {
+            foreach($letters2 as $L2)
+            {
+                $term = ucfirst(strtolower("$L1$L2"));
+                $params[] = "$term";
+            }
+        }
+        return $params;
+        */
+
+        /* debug - a utility, commented in real operation
+        $filename = "/Users/eolit/Sites/eli/eol_php_code/tmp/mycobank/names_not_yet_entered.txt";
+        $READ = fopen($filename, "r");
+        $contents = fread($READ, filesize($filename));
+        $contents = utf8_encode($contents);
+        fclose($READ);
+        $params = json_decode($contents, true);
+        return $params;
+        */
+    }
+    
+    private function retrieve_names_searched($dump_file = false)
+    {
+        $names = array();
+        if(!$dump_file) $dump_file = $this->dump_file;
+        foreach(new FileIterator($dump_file) as $line_number => $line)
+        {
+            if($line)
+            {
+                $line = trim($line);
+                $records = json_decode($line, true);
+                if(!$records) continue;
+                foreach($records as $key => $recs) $names[$key] = ""; // $key is the string param used in the search
+            }
+        }
+        return array_keys($names);
+    }
+    
+    private function get_parent_from_hierarchy($hierarchy)
+    {
+        $hierarchy = explode(",", $hierarchy);
+        $count = count($hierarchy);
+        for($i = $count-1; $i >= 0; $i--)
+        {
+            if(!in_array(trim($hierarchy[$i]), array("?", "-", ""))) return trim($hierarchy[$i]);
+        }
+        return trim(@$hierarchy[$i]);
     }
 
-    private function initialize_dump_file()
+    private function get_names_no_entry_from_partner($type) // utility
     {
-        $WRITE = fopen($this->dump_file, "w");
-        fclose($WRITE);
+        $names = array();
+        $dump_file = "/Users/eolit/Sites/eli/eol_php_code/tmp/mycobank/" . $type . ".txt";
+        foreach(new FileIterator($dump_file) as $line_number => $line)
+        {
+            if($line) $names[$line] = "";
+        }
+        return array_keys($names);
     }
 
     private function sleep_now($results)
@@ -540,64 +668,50 @@ class MycoBankAPI
         elseif($results == 0) usleep(500000);
     }
 
-    private function get_params_for_webservice()
+    private function create_archive()
     {
-        $params = array();
-        $letters = "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z";
-        $letters1 = explode(",", $letters);
-        $letters2 = $letters1;
-        $letters3 = $letters1;
-        foreach($letters1 as $L1)
-        {
-            foreach($letters2 as $L2)
-            {
-                foreach($letters3 as $L3)
-                {
-                    $params[] = "$L1$L2$L3";
-                }
-            }
-        }
-        return $params;
-    }
-
-    private function get_parent_from_hierarchy($hierarchy)
-    {
-        $hierarchy = explode(",", $hierarchy);
-        return trim(array_pop($hierarchy));
-    }
-
-    function create_archive()
-    {
-        foreach($this->taxa as $t)
-        {
-            $this->archive_builder->write_object_to_file($t);
-        }
+        foreach($this->taxa as $t) $this->archive_builder->write_object_to_file($t);
         $this->archive_builder->finalize(TRUE);
     }
 
-    // private function process_raw_classification($filename = false)
+    private function save_to_dump($data, $filename)
+    {
+        $WRITE = fopen($filename, "a");
+        if($data && is_array($data)) fwrite($WRITE, json_encode($data) . "\n");
+        else                         fwrite($WRITE, $data . "\n");
+        fclose($WRITE);
+    }
+
+    private function initialize_dump_file()
+    {
+        $WRITE = fopen($this->dump_file, "w");
+        fclose($WRITE);
+    }
+
+    // private function fill_up_missing_name($name)
     // {
-    //     if(!$filename) $filename = $this->dump_file_raw_classification;
-    //     $READ = fopen($filename, "r");
-    //     $contents = fread($READ, filesize($filename));
-    //     fclose($READ);
-    //     $hierarchies = json_decode($contents, true);
-    //     print_r($hierarchies);
-    //     foreach($hierarchies as $hierarchy)
+    //     echo "\n manually entered: [$name]";
+    //     $this->name_id[$name]["a"] = "";
+    //     $this->name_id[$name]["p"] = "";
+    //     $this->name_id[$name]["s"] = "";
+    //     $this->name_id[$name]["t"] = str_replace(" ", "_", $name);
+    //     $this->name_id[$name]["y"] = "";
+    //     $this->name_id[$name]["e3"] = "";
+    //     $this->name_id[$name]["e4"] = "";
+    //     $this->name_id[$name]["cn"] = "";
+    //     $this->name_id[$name]["r"]  = "";
+    //     $this->name_id[$name]["nt"] = "";
+    //     $this->name_id[$name]["ns"] = "";
+    //     $this->name_id[$name]["so"] = "";
+    //     $this->name_id[$name]["sf"] = "";
+    //     $taxon = new \eol_schema\Taxon();
+    //     $taxon->taxonID         = str_replace(" ", "_", $name);
+    //     $taxon->scientificName  = $name;
+    //     if(!isset($this->taxon_ids[$taxon->taxonID]))
     //     {
-    //         $names = explode(",", $hierarchy);
-    //         $names = array_map('trim', $names);
-    //         $i = 0;
-    //         foreach($names as $name)
-    //         {
-    //             if(!isset($this->name_id[$name]))
-    //             {
-    //                 $this->name_id[$name]["p"] = @$names[$i-1];
-    //             }
-    //             $i++;
-    //         }
+    //         $this->archive_builder->write_object_to_file($taxon);
+    //         $this->taxon_ids[$taxon->taxonID] = 1;
     //     }
-    //     print_r($this->name_id);
     // }
 
 }
