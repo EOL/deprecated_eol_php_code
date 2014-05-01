@@ -9,13 +9,16 @@ class PaleoDBAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
+        $this->resource_reference_ids = array();
         $this->download_options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->occurrence_ids = array();
         $this->invalid_names_status = array("replaced by", "invalid subgroup of", "nomen dubium", "nomen nudum", "nomen vanum", "nomen oblitum");
         $this->service["taxon"] = "http://paleobiodb.org/data1.1/taxa/list.csv?rel=all_taxa&status=valid&show=attr,app,size,phylo,ent,entname,crmod&limit=1000000";
+        // $this->service["taxon"] = "https://dl.dropboxusercontent.com/u/7597512/PaleoDB/paleobiodb.csv";
         // $this->service["taxon"] = "http://localhost/~eolit/cp/PaleoDB/paleobiodb.csv";
         $this->service["collection"] = "http://paleobiodb.org/data1.1/colls/list.csv?vocab=pbdb&limit=10&show=bin,attr,ref,loc,paleoloc,prot,time,strat,stratext,lith,lithext,geo,rem,ent,entname,crmod&taxon_name=";
         $this->service["occurrence"] = "http://paleobiodb.org/data1.1/occs/list.csv?show=loc,time&limit=10&base_name=";
+        $this->service["reference"] = "http://paleobiodb.org/cgi-bin/bridge.pl?a=displayRefResults&type=view&reference_no=";
         /*
         ranks so far:
             [kingdom] => 
@@ -47,10 +50,6 @@ class PaleoDBAPI
             [subjective synonym of]
             [objective synonym of]
             [belongs to]
-
-        later on can implement references using the reference_no: e.g. 33104
-            - get reference string scraped from: http://paleobiodb.org/cgi-bin/bridge.pl?a=displayRefResults&type=view&reference_no=33104
-            - add a reference citation in the EOL archive
         */
     }
 
@@ -155,6 +154,7 @@ class PaleoDBAPI
         $taxon->parentNameUsageID           = $rec["parent_no"];
         if($rec["senior_no"] != $rec["orig_no"]) $taxon->acceptedNameUsageID = $rec["senior_no"];
         $taxon->taxonomicStatus             = self::process_status($rec["status"]);
+        if($reference_ids = self::get_reference_ids(trim($rec["reference_no"]))) $taxon->referenceID = implode("; ", $reference_ids);
         // if($taxon->taxonomicStatus == "synonym") return; //debug - exclude synonyms during preview phase
         if(!isset($this->taxon_ids[$taxon->taxonID]))
         {
@@ -178,6 +178,37 @@ class PaleoDBAPI
             // self::parse_csv_file("collection", $rec);
             // self::parse_csv_file("occurrence", $rec);
         }
+    }
+
+    private function get_reference_ids($ref_nos)
+    {
+        $ref_nos = explode(",", $ref_nos);
+        if(!$ref_nos) return array();
+        $ref_nos = array_map('trim', $ref_nos);
+        $reference_ids = array();
+        foreach($ref_nos as $ref_no)
+        {
+            $url = $this->service["reference"] . $ref_no;
+            if($html = Functions::lookup_with_cache($url, $this->download_options))
+            {
+                if(preg_match("/Full reference<\/span>(.*?)<span/ims", $html, $arr))
+                {
+                    $full_ref = strip_tags($arr[1], "<i>");
+                    print "\n[$full_ref]\n";
+                    $r = new \eol_schema\Reference();
+                    $r->full_reference = $full_ref;
+                    $r->identifier = md5($r->full_reference);
+                    $r->uri = $url;
+                    $reference_ids[] = $r->identifier;
+                    if(!isset($this->resource_reference_ids[$r->identifier]))
+                    {
+                       $this->resource_reference_ids[$r->identifier] = '';
+                       $this->archive_builder->write_object_to_file($r);
+                    }
+                }
+            }
+        }
+        return $reference_ids;
     }
 
     private function process_taxon_occurrence($rec, $taxon_id, $source_url)
