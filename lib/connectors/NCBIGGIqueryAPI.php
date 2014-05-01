@@ -176,12 +176,29 @@ class NCBIGGIqueryAPI
                     $rec["object_id"] = "_rec_in_bolds";
                     self::add_string_types($rec, "Records in BOLDS", "http://eol.org/schema/terms/yes", "http://eol.org/schema/terms/RecordInBOLD", $family);
                 }
+                else
+                {
+                    if(!$is_subfamily)
+                    {
+                        $rec["object_id"] = "_no_of_rec_in_bolds";
+                        self::add_string_types($rec, "Number records in BOLDS", 0, "http://eol.org/schema/terms/NumberRecordsInBOLD", $family);
+                        $rec["object_id"] = "_rec_in_bolds";
+                        self::add_string_types($rec, "Records in BOLDS", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/RecordInBOLD", $family);
+                    }
+                }
                 if(@$info["public records"] > 0)
                 {
                     $rec["object_id"] = "_no_of_public_rec_in_bolds";
                     self::add_string_types($rec, "Number public records in BOLDS", $info["public records"], "http://eol.org/schema/terms/NumberPublicRecordsInBOLD", $family);
                 }
-                
+                else
+                {
+                    if(!$is_subfamily)
+                    {
+                        $rec["object_id"] = "_no_of_public_rec_in_bolds";
+                        self::add_string_types($rec, "Number public records in BOLDS", 0, "http://eol.org/schema/terms/NumberPublicRecordsInBOLD", $family);
+                    }
+                }
                 if(@$info["specimens"] > 0 || @$info["public records"] > 0) return true;
             }
             else
@@ -195,11 +212,15 @@ class NCBIGGIqueryAPI
             echo "\n no result for 2: [$family][" . $rec["source"] . "]\n";
             self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
         }
-        
+
         if(!$is_subfamily)
         {
+            $rec["object_id"] = "_no_of_rec_in_bolds";
+            self::add_string_types($rec, "Number records in BOLDS", 0, "http://eol.org/schema/terms/NumberRecordsInBOLD", $family);
             $rec["object_id"] = "_rec_in_bolds";
             self::add_string_types($rec, "Records in BOLDS", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/RecordInBOLD", $family);
+            $rec["object_id"] = "_no_of_public_rec_in_bolds";
+            self::add_string_types($rec, "Number public records in BOLDS", 0, "http://eol.org/schema/terms/NumberPublicRecordsInBOLD", $family);
         }
         if(substr($family, -3) == "dae")
         {
@@ -265,6 +286,8 @@ class NCBIGGIqueryAPI
 
         if(!$is_subfamily)
         {
+            $rec["object_id"] = "_no_of_page_in_bhl";
+            self::add_string_types($rec, "Number pages in BHL", 0, "http://eol.org/schema/terms/NumberReferencesInBHL", $family);
             $rec["object_id"] = "_page_in_bhl";
             self::add_string_types($rec, "Pages in BHL", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/ReferenceInBHL", $family);
         }
@@ -364,6 +387,8 @@ class NCBIGGIqueryAPI
 
         if(!$is_subfamily)
         {
+            $rec["object_id"] = "_no_of_rec_in_gbif";
+            self::add_string_types($rec, "Number records in GBIF", 0, "http://eol.org/schema/terms/NumberRecordsInGBIF", $family);
             $rec["object_id"] = "_rec_in_gbif";
             self::add_string_types($rec, "Records in GBIF", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/RecordInGBIF", $family);
         }
@@ -453,6 +478,8 @@ class NCBIGGIqueryAPI
         }
         if(!$is_subfamily)
         {
+            $rec["object_id"] = "NumberSpecimensInGGBN";
+            self::add_string_types($rec, "NumberSpecimensInGGBN", 0, "http://eol.org/schema/terms/NumberSpecimensInGGBN", $family);
             $rec["object_id"] = "SpecimensInGGBN";
             self::add_string_types($rec, "SpecimensInGGBN", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/SpecimensInGGBN", $family);
         }
@@ -488,17 +515,18 @@ class NCBIGGIqueryAPI
     private function query_family_NCBI_info($family, $is_subfamily)
     {
         $rec["source"] = $this->family_service_ncbi . $family;
+        $rec["taxon_id"] = $family;
+        $rec["object_id"] = "_no_of_seq_in_genbank";
         $contents = Functions::lookup_with_cache($rec["source"], $this->download_options);
         if($xml = simplexml_load_string($contents))
         {
-            if($xml->Count > 0) 
+            if($xml->Count > 0)
             {
-                $rec["taxon_id"] = $family;
-                $rec["object_id"] = "_no_of_seq_in_genbank";
                 self::add_string_types($rec, "Number Of Sequences In GenBank", $xml->Count, "http://eol.org/schema/terms/NumberOfSequencesInGenBank", $family);
                 return true;
             }
         }
+        if(!$is_subfamily) self::add_string_types($rec, "Number Of Sequences In GenBank", 0, "http://eol.org/schema/terms/NumberOfSequencesInGenBank", $family);
         if(substr($family, -3) == "dae")
         {
             $family = str_replace("dae" . "xxx", "nae", $family . "xxx");
