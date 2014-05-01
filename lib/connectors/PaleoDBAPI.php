@@ -154,7 +154,6 @@ class PaleoDBAPI
         $taxon->parentNameUsageID           = $rec["parent_no"];
         if($rec["senior_no"] != $rec["orig_no"]) $taxon->acceptedNameUsageID = $rec["senior_no"];
         $taxon->taxonomicStatus             = self::process_status($rec["status"]);
-        if($reference_ids = self::get_reference_ids(trim($rec["reference_no"]))) $taxon->referenceID = implode("; ", $reference_ids);
         // if($taxon->taxonomicStatus == "synonym") return; //debug - exclude synonyms during preview phase
         if(!isset($this->taxon_ids[$taxon->taxonID]))
         {
@@ -194,7 +193,6 @@ class PaleoDBAPI
                 if(preg_match("/Full reference<\/span>(.*?)<span/ims", $html, $arr))
                 {
                     $full_ref = strip_tags($arr[1], "<i>");
-                    print "\n[$full_ref]\n";
                     $r = new \eol_schema\Reference();
                     $r->full_reference = $full_ref;
                     $r->identifier = md5($r->full_reference);
@@ -266,6 +264,10 @@ class PaleoDBAPI
         $m->measurementType = $measurementType;
         $m->measurementValue = $value;
         if($val = @$rec["source_url"]) $m->source = $val;
+        if($label == "is_extant")
+        {
+            if($reference_ids = self::get_reference_ids(trim($rec["reference_no"]))) $m->referenceID = implode("; ", $reference_ids);
+        }
         // $m->measurementRemarks = '';
         // $m->measurementMethod = '';
         // $m->contributor = '';
