@@ -461,6 +461,14 @@ class NCBIGGIqueryAPI
                     $has_data = true;
                 }
             }
+            if(!$has_data)
+            {
+                if(!$is_subfamily)
+                {
+                    $rec["object_id"] = "NumberDNAInGGBN";
+                    self::add_string_types($rec, "Number of DNA records in GGBN", 0, "http://eol.org/schema/terms/NumberDNARecordsInGGBN", $family);
+                }
+            }
             $pages = self::get_number_of_pages($html);
             for ($i = 1; $i <= $pages; $i++)
             {
@@ -474,6 +482,16 @@ class NCBIGGIqueryAPI
                 $rec["object_id"] = "SpecimensInGGBN";
                 self::add_string_types($rec, "SpecimensInGGBN", "http://eol.org/schema/terms/yes", "http://eol.org/schema/terms/SpecimensInGGBN", $family);
             }
+            else
+            {
+                if(!$is_subfamily)
+                {
+                    $rec["object_id"] = "NumberSpecimensInGGBN";
+                    self::add_string_types($rec, "NumberSpecimensInGGBN", 0, "http://eol.org/schema/terms/NumberSpecimensInGGBN", $family);
+                    $rec["object_id"] = "SpecimensInGGBN";
+                    self::add_string_types($rec, "SpecimensInGGBN", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/SpecimensInGGBN", $family);
+                }
+            }
             if($records || $has_data) return true;
         }
         if(!$is_subfamily)
@@ -482,6 +500,8 @@ class NCBIGGIqueryAPI
             self::add_string_types($rec, "NumberSpecimensInGGBN", 0, "http://eol.org/schema/terms/NumberSpecimensInGGBN", $family);
             $rec["object_id"] = "SpecimensInGGBN";
             self::add_string_types($rec, "SpecimensInGGBN", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/SpecimensInGGBN", $family);
+            $rec["object_id"] = "NumberDNAInGGBN";
+            self::add_string_types($rec, "Number of DNA records in GGBN", 0, "http://eol.org/schema/terms/NumberDNARecordsInGGBN", $family);
         }
         if(substr($family, -3) == "dae")
         {
