@@ -152,12 +152,6 @@ class AmericanInsectsAPI
                     else return array();
                 }
                 
-                /*
-                "to apex of the wings", "to abdominal apex",
-                "to apex of abdomen", "to the apex of the closed wings", "body length",
-                "to apex of wings", "to wing apex", "Wingspan", "to wingtips", "to wingtip",
-                */
-                
                 $length = trim(str_ireplace(array("females are a little larger than males", "Males usually smaller than the females", 
                 "males average smaller than females", "males tend  to be smaller than females", "Both sexes somewhat larger in  western North America",
                 "some in the tribe are", "most in tribe", "most commonly", "adults are", "most in this genus", 
@@ -428,22 +422,10 @@ class AmericanInsectsAPI
                 $rec["catnum"] = "length";
                 $rec["statistical_method"] = "http://eol.org/schema/terms/average";
                 $rec["measurementUnit"] = "http://purl.obolibrary.org/obo/UO_0000016";
-                self::add_string_types("true", $rec, "length", $length, "http://purl.obolibrary.org/obo/CMO_0000013");
-                // to be used for ranges
-                // if(count($arr) == 1)
-                // {
-                //     $rec["catnum"] = "length";
-                //     self::add_string_types("true", $rec, "length", $length, "http://purl.obolibrary.org/obo/CMO_0000013");
-                // }
-                // else
-                // {
-                //     $rec["catnum"] = "length_min";
-                //     $rec["statistical_method"] = "http://semanticscience.org/resource/SIO_001113";
-                //     self::add_string_types("true", $rec, "length min", $arr[0], "http://purl.obolibrary.org/obo/CMO_0000013");
-                //     $rec["catnum"] = "length_max";
-                //     $rec["statistical_method"] = "http://semanticscience.org/resource/SIO_001114";
-                //     self::add_string_types("true", $rec, "length max", $arr[1], "http://purl.obolibrary.org/obo/CMO_0000013");
-                // }
+                
+                $length_measurement = "http://purl.obolibrary.org/obo/CMO_0000013";
+                if(is_numeric(stripos($length, "wingspan"))) $length_measurement = "http://www.owl-ontologies.com/unnamed.owl#Wingspan";
+                self::add_string_types("true", $rec, "length", $length, $length_measurement);
             }
         }
     }
