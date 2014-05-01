@@ -8,6 +8,8 @@ class NCBIConnector
     public function __construct($resource_id)
     {
         $this->resource_id = $resource_id;
+        $this->invalid_synonym_types = array(
+            'includes', 'type material', 'in-part', 'misnomer', 'acronym', 'genbank acronym');
     }
 
     public function build_archive()
@@ -57,7 +59,7 @@ class NCBIConnector
             while(preg_match("/  /", $name)) $name = str_replace("  ", " ", $name);
 
             if($name_class == "scientific name") $this->taxon_names[$tax_id] = $name;
-            else $this->taxon_synonyms[$tax_id][$name_class][$name] = true;
+            elseif(!in_array($name_class, $this->invalid_synonym_types)) $this->taxon_synonyms[$tax_id][$name_class][$name] = true;
         }
     }
 
@@ -94,7 +96,7 @@ class NCBIConnector
                 {
                     foreach($this->taxon_synonyms[$tax_id] as $name_class => $names)
                     {
-                        if(in_array($name_class, array("genbank common name", "common name")))
+                        if(in_array($name_class, array("genbank common name", "common name", "blast name")))
                         {
                             foreach($names as $name => $junk)
                             {
