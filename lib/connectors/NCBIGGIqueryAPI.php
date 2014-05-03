@@ -101,7 +101,7 @@ class NCBIGGIqueryAPI
         foreach($dropbox_xlsx as $doc)
         {
             echo "\n processing [$doc]...\n";
-            if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2)))
+            if($path = Functions::save_remote_file_to_local($doc, array("cache" => 1, "timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2)))
             {
                 $arr = $parser->convert_sheet_to_array($path);
                 foreach($arr["FAMILY"] as $family)
@@ -222,11 +222,7 @@ class NCBIGGIqueryAPI
             $rec["object_id"] = "_no_of_public_rec_in_bolds";
             self::add_string_types($rec, "Number public records in BOLDS", 0, "http://eol.org/schema/terms/NumberPublicRecordsInBOLD", $family);
         }
-        if(substr($family, -3) == "dae")
-        {
-            $family = str_replace("dae" . "xxx", "nae", $family . "xxx");
-            $this->families_with_no_data[$family] = 1;
-        }
+        self::check_for_sub_family($family);
         return false;
     }
     
@@ -291,11 +287,7 @@ class NCBIGGIqueryAPI
             $rec["object_id"] = "_page_in_bhl";
             self::add_string_types($rec, "Pages in BHL", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/ReferenceInBHL", $family);
         }
-        if(substr($family, -3) == "dae")
-        {
-            $family = str_replace("dae" . "xxx", "nae", $family . "xxx");
-            $this->families_with_no_data[$family] = 1;
-        }
+        self::check_for_sub_family($family);
         return false;
     }
 
@@ -392,11 +384,7 @@ class NCBIGGIqueryAPI
             $rec["object_id"] = "_rec_in_gbif";
             self::add_string_types($rec, "Records in GBIF", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/RecordInGBIF", $family);
         }
-        if(substr($family, -3) == "dae")
-        {
-            $family = str_replace("dae" . "xxx", "nae", $family . "xxx");
-            $this->families_with_no_data[$family] = 1;
-        }
+        self::check_for_sub_family($family);
         return false;
     }
 
@@ -503,11 +491,7 @@ class NCBIGGIqueryAPI
             $rec["object_id"] = "NumberDNAInGGBN";
             self::add_string_types($rec, "Number of DNA records in GGBN", 0, "http://eol.org/schema/terms/NumberDNARecordsInGGBN", $family);
         }
-        if(substr($family, -3) == "dae")
-        {
-            $family = str_replace("dae" . "xxx", "nae", $family . "xxx");
-            $this->families_with_no_data[$family] = 1;
-        }
+        self::check_for_sub_family($family);
         return false;
     }
 
@@ -547,11 +531,7 @@ class NCBIGGIqueryAPI
             }
         }
         if(!$is_subfamily) self::add_string_types($rec, "Number Of Sequences In GenBank", 0, "http://eol.org/schema/terms/NumberOfSequencesInGenBank", $family);
-        if(substr($family, -3) == "dae")
-        {
-            $family = str_replace("dae" . "xxx", "nae", $family . "xxx");
-            $this->families_with_no_data[$family] = 1;
-        }
+        self::check_for_sub_family($family);
         return false;
     }
 
@@ -690,6 +670,15 @@ class NCBIGGIqueryAPI
     private function save_as_tab_delimited($names, $file)
     {
         foreach($names as $name) self::save_to_dump($name, $file);
+    }
+
+    private function check_for_sub_family($family)
+    {
+        if(substr($family, -3) == "dae")
+        {
+            $family = str_replace("dae" . "xxx", "nae", $family . "xxx");
+            $this->families_with_no_data[$family] = 1;
+        }
     }
 
 }
