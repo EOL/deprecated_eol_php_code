@@ -68,10 +68,14 @@ class NCBIGGIqueryAPI
         $this->names_in_falo_but_not_in_irmng = $this->TEMP_DIR . "families_in_falo_but_not_in_irmng.txt";
         $this->names_in_irmng_but_not_in_falo = $this->TEMP_DIR . "families_in_irmng_but_not_in_falo.txt";
         */
+        
+        $this->ggi_databases = array("ncbi", "ggbn", "gbif", "bhl", "bolds");
+        $this->ggi_path = DOC_ROOT . "temp/GGI/";
     }
 
     function get_all_taxa()
     {
+        self::initialize_files();
         /* 
         $families = self::get_families_from_google_spreadsheet(); Google spreadsheets are very slow, it is better to use Dropbox for our online spreadsheets
         $families = self::get_families(); use to read a plain text file
@@ -79,9 +83,13 @@ class NCBIGGIqueryAPI
         */
         if($families = self::get_families_xlsx())
         {
-            self::create_instances_from_taxon_object($families);
-            $this->families_with_no_data = array_keys($this->families_with_no_data);
-            if($this->families_with_no_data) self::create_instances_from_taxon_object($this->families_with_no_data, true);
+            foreach($this->ggi_databases as $database)
+            {
+                self::create_instances_from_taxon_object($families, false, $database);
+                $this->families_with_no_data = array_keys($this->families_with_no_data);
+                if($this->families_with_no_data) self::create_instances_from_taxon_object($this->families_with_no_data, true, $database);
+            }
+            self::compare_previuos_and_current_dumps();
             $this->create_archive();
         }
         // remove temp dir
@@ -89,36 +97,88 @@ class NCBIGGIqueryAPI
         debug("\n temporary directory removed: " . $this->TEMP_DIR);
     }
 
-    private function get_families_xlsx()
+    private function initialize_files()
     {
-        require_library('XLSParser');
-        $parser = new XLSParser();
-        $families = array();
-        $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/s/kqhru8pyc9ujktb/FALO.xlsx?dl=1&token_hash=AAEzlUqBxtGt8_iPX-1soVQ7m61K10w9LyxQIABeMg4LeQ"; // from Cyndy's Dropbox
-        // $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/s/9x3q0f7burh465k/FALO.xlsx?dl=1&token_hash=AAH94jgsY0_nI3F0MgaieWyU-2NpGpZFUCpQXER-dqZieg"; // from Eli's Dropbox
-        // $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/FALO.xlsx"; // again from Eli's Dropbox
-        // $dropbox_xlsx[] = "http://localhost/~eolit/cp/NCBIGGI/FALO.xlsx"; // local
-        foreach($dropbox_xlsx as $doc)
+        if(!file_exists($this->ggi_path)) mkdir($this->ggi_path);
+        foreach($this->ggi_databases as $database)
         {
-            echo "\n processing [$doc]...\n";
-            if($path = Functions::save_remote_file_to_local($doc, array("cache" => 1, "timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2)))
-            {
-                $arr = $parser->convert_sheet_to_array($path);
-                foreach($arr["FAMILY"] as $family)
-                {
-                    $family = trim(str_ireplace(array("Family ", '"', "FAMILY"), "", $family));
-                    if(is_numeric($family)) continue;
-                    if($family) $families[$family] = 1;
-                }
-                unlink($path);
-                break;
-            }
-            else echo "\n [$doc] unavailable! \n";
+            $this->ggi_text_file[$database]["previous"] = $this->ggi_path . $database  . ".txt";
+            if(!file_exists($this->ggi_text_file[$database]["previous"])) self::initialize_dump_file($this->ggi_text_file[$database]["previous"]);
+            //initialize current batch
+            $this->ggi_text_file[$database]["current"] = $this->ggi_path . $database  . "_working.txt";
+            self::initialize_dump_file($this->ggi_text_file[$database]["current"]);
         }
-        return array_keys($families);
+    }
+    
+    private function initialize_dump_file($file)
+    {
+        echo "\n initialize file:[$file]\n";
+        $WRITE = fopen($file, "w");
+        fclose($WRITE);
+    }
+    
+    private function compare_previuos_and_current_dumps()
+    {
+        foreach($this->ggi_databases as $database)
+        {
+            $previous = $this->ggi_text_file[$database]["previous"];
+            $current = $this->ggi_text_file[$database]["current"];
+            if(self::count_rows($current) >= self::count_rows($previous))
+            {
+                self::process_text_file($current, $database);
+                unlink($previous);
+                rename($current, $previous);
+            }
+            else self::process_text_file($previous, $database);
+        }
     }
 
-    private function create_instances_from_taxon_object($families, $is_subfamily = false)
+    private function count_rows($file)
+    {
+        echo "\n counting: [$file]";
+        $i = 0;
+        if($handle = fopen($file, "r"))
+        {
+            while(!feof($handle))
+            {
+                $line = fgets($handle);
+                $i++;
+            }
+            fclose($handle);
+        }
+        echo "\n total: [$i]\n";
+        return $i-1;
+    }
+
+    private function process_text_file($filename, $database)
+    {
+        foreach(new FileIterator($filename) as $line_number => $line)
+        {
+            if($line)
+            {
+                $line = trim($line);
+                $values = explode("\t", $line);
+                if(count($values) != 7)
+                {
+                    echo "\n investigate: wrong no. of tabs";
+                    print_r($values);
+                }
+                else
+                {
+                    $family             = $values[0];
+                    $count              = $values[1];
+                    $rec["taxon_id"]    = $values[2];
+                    $rec["object_id"]   = $values[3];
+                    $rec["source"]      = $values[4];
+                    $label              = $values[5];
+                    $measurement        = $values[6];
+                    self::add_string_types($rec, $label, $count, $measurement, $family);
+                }
+            }
+        }
+    }
+    
+    private function create_instances_from_taxon_object($families, $is_subfamily = false, $database)
     {
         $this->families_with_no_data = array();
         $i = 0;
@@ -126,32 +186,31 @@ class NCBIGGIqueryAPI
         foreach($families as $family)
         {
             $i++;
-            
             /* breakdown when caching
             $cont = false;
-            if($i >= 1 && $i < 1000)     $cont = true;
-            if($i >= 1000 && $i < 2000)  $cont = true;
-            if($i >= 2000 && $i < 3000)  $cont = true;
-            if($i >= 3000 && $i < 4000)  $cont = true;
-            if($i >= 4000 && $i < 5000)  $cont = true;
-            if($i >= 5000 && $i < 6000)  $cont = true;
-            if($i >= 6000 && $i < 7000)  $cont = true;
-            if($i >= 7000 && $i < 8000)  $cont = true;
-            if($i >= 8000 && $i < 9000)  $cont = true;
-            if($i >= 9000 && $i < 10000) $cont = true;
+            // if($i >= 1 && $i < 1000)     $cont = true;
+            // if($i >= 1000 && $i < 2000)  $cont = true;
+            // if($i >= 2000 && $i < 3000)  $cont = true;
+            // if($i >= 3000 && $i < 4000)  $cont = true;
+            // if($i >= 4000 && $i < 5000)  $cont = true;
+            // if($i >= 5000 && $i < 6000)  $cont = true;
+            // if($i >= 6000 && $i < 7000)  $cont = true;
+            // if($i >= 7000 && $i < 8000)  $cont = true;
+            // if($i >= 8000 && $i < 9000)  $cont = true;
+            // if($i >= 9000 && $i < 10000) $cont = true;
+            // if(in_array($database, array("bhl", "bolds"))) { if($i >= 1 && $i < 100) $cont = true; }
+            // else                                           { if($i >= 1 && $i < 10) $cont = true; }
             if(!$cont) continue;
             */
-            
             echo "\n $i of $total - [$family]\n";
-            if    ($this->query == "ncbi_sequence_info")     $with_data = self::query_family_NCBI_info($family, $is_subfamily);
-            elseif($this->query == "ggbn_dna_specimen_info") $with_data = self::query_family_GGBN_info($family, $is_subfamily);
-            elseif($this->query == "gbif_info")              $with_data = self::query_family_GBIF_info($family, $is_subfamily);
-            elseif($this->query == "bhl_info")               $with_data = self::query_family_BHL_info($family, $is_subfamily);
-            elseif($this->query == "bolds_info")             $with_data = self::query_family_BOLDS_info($family, $is_subfamily);
+            if    ($database == "ncbi")  $with_data = self::query_family_NCBI_info($family, $is_subfamily, $database);
+            elseif($database == "ggbn")  $with_data = self::query_family_GGBN_info($family, $is_subfamily, $database);
+            elseif($database == "gbif")  $with_data = self::query_family_GBIF_info($family, $is_subfamily, $database);
+            elseif($database == "bhl")   $with_data = self::query_family_BHL_info($family, $is_subfamily, $database);
+            elseif($database == "bolds") $with_data = self::query_family_BOLDS_info($family, $is_subfamily, $database);
             
             if(($is_subfamily && $with_data) || !$is_subfamily)
             {
-                echo "\n[$family][$is_subfamily][$with_data]";
                 $taxon = new \eol_schema\Taxon();
                 $taxon->taxonID         = $family;
                 $taxon->scientificName  = $family;
@@ -161,8 +220,9 @@ class NCBIGGIqueryAPI
         }
     }
 
-    private function query_family_BOLDS_info($family, $is_subfamily)
+    private function query_family_BOLDS_info($family, $is_subfamily, $database)
     {
+        $rec["family"] = $family;
         $rec["taxon_id"] = $family;
         $rec["source"] = $this->bolds_taxon_page . $family;
         if($contents = Functions::lookup_with_cache($rec["source"], $this->download_options))
@@ -171,10 +231,16 @@ class NCBIGGIqueryAPI
             {
                 if(@$info["specimens"] > 0)
                 {
-                    $rec["object_id"] = "_no_of_rec_in_bolds";
-                    self::add_string_types($rec, "Number records in BOLDS", $info["specimens"], "http://eol.org/schema/terms/NumberRecordsInBOLD", $family);
-                    $rec["object_id"] = "_rec_in_bolds";
-                    self::add_string_types($rec, "Records in BOLDS", "http://eol.org/schema/terms/yes", "http://eol.org/schema/terms/RecordInBOLD", $family);
+                    $rec["object_id"]   = "_no_of_rec_in_bolds";
+                    $rec["count"]       = $info["specimens"];
+                    $rec["label"]       = "Number records in BOLDS";
+                    $rec["measurement"] = "http://eol.org/schema/terms/NumberRecordsInBOLD";
+                    self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
+                    $rec["object_id"]   = "_rec_in_bolds";
+                    $rec["count"]       = "http://eol.org/schema/terms/yes";
+                    $rec["label"]       = "Records in BOLDS";
+                    $rec["measurement"] = "http://eol.org/schema/terms/RecordInBOLD";
+                    self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
                 }
                 else
                 {
@@ -188,8 +254,11 @@ class NCBIGGIqueryAPI
                 }
                 if(@$info["public records"] > 0)
                 {
-                    $rec["object_id"] = "_no_of_public_rec_in_bolds";
-                    self::add_string_types($rec, "Number public records in BOLDS", $info["public records"], "http://eol.org/schema/terms/NumberPublicRecordsInBOLD", $family);
+                    $rec["object_id"]   = "_no_of_public_rec_in_bolds";
+                    $rec["count"]       = $info["public records"];
+                    $rec["label"]       = "Number public records in BOLDS";
+                    $rec["measurement"] = "http://eol.org/schema/terms/NumberPublicRecordsInBOLD";
+                    self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
                 }
                 else
                 {
@@ -201,17 +270,9 @@ class NCBIGGIqueryAPI
                 }
                 if(@$info["specimens"] > 0 || @$info["public records"] > 0) return true;
             }
-            else
-            {
-                echo "\n no result for 2: [$family][" . $rec["source"] . "]\n";
-                self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
-            }
+            else self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
         }
-        else
-        {
-            echo "\n no result for 2: [$family][" . $rec["source"] . "]\n";
-            self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
-        }
+        else self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
 
         if(!$is_subfamily)
         {
@@ -234,8 +295,9 @@ class NCBIGGIqueryAPI
         return $info;
     }
     
-    private function query_family_BHL_info($family, $is_subfamily)
+    private function query_family_BHL_info($family, $is_subfamily, $database)
     {
+        $rec["family"] = $family;
         $rec["taxon_id"] = $family;
         $rec["source"] = $this->bhl_taxon_page . $family;
         if($contents = Functions::lookup_with_cache($this->bhl_taxon_in_xml . $family, $this->download_options))
@@ -244,10 +306,16 @@ class NCBIGGIqueryAPI
             {
                 if($count > 0)
                 {
-                    $rec["object_id"] = "_no_of_page_in_bhl";
-                    self::add_string_types($rec, "Number pages in BHL", $count, "http://eol.org/schema/terms/NumberReferencesInBHL", $family);
-                    $rec["object_id"] = "_page_in_bhl";
-                    self::add_string_types($rec, "Pages in BHL", "http://eol.org/schema/terms/yes", "http://eol.org/schema/terms/ReferenceInBHL", $family);
+                    $rec["object_id"]   = "_no_of_page_in_bhl";
+                    $rec["count"]       = $count;
+                    $rec["label"]       = "Number pages in BHL";
+                    $rec["measurement"] = "http://eol.org/schema/terms/NumberReferencesInBHL";
+                    self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
+                    $rec["object_id"]   = "_page_in_bhl";
+                    $rec["count"]       = "http://eol.org/schema/terms/yes";
+                    $rec["label"]       = "Pages in BHL";
+                    $rec["measurement"] = "http://eol.org/schema/terms/ReferenceInBHL";
+                    self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
                     return true;
                 }
             }
@@ -260,25 +328,23 @@ class NCBIGGIqueryAPI
                         if($count > 0)
                         {
                             $rec["object_id"] = "_no_of_page_in_bhl";
-                            self::add_string_types($rec, "Number pages in BHL", $count, "http://eol.org/schema/terms/NumberReferencesInBHL", $family);
-                            $rec["object_id"] = "_page_in_bhl";
-                            self::add_string_types($rec, "Pages in BHL", "http://eol.org/schema/terms/yes", "http://eol.org/schema/terms/ReferenceInBHL", $family);
+                            $rec["count"]       = $count;
+                            $rec["label"]       = "Number pages in BHL";
+                            $rec["measurement"] = "http://eol.org/schema/terms/NumberReferencesInBHL";
+                            self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
+                            $rec["object_id"]   = "_page_in_bhl";
+                            $rec["count"]       = "http://eol.org/schema/terms/yes";
+                            $rec["label"]       = "Pages in BHL";
+                            $rec["measurement"] = "http://eol.org/schema/terms/ReferenceInBHL";
+                            self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
                             return true;
                         }
                     }
-                    else
-                    {
-                        echo "\n no result for 1: [$family][" . $rec["source"] . "]\n";
-                        self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
-                    }
+                    else self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
                 }
             }
         }
-        else
-        {
-            echo "\n no result for 2: [$family][" . $rec["source"] . "]\n";
-            self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
-        }
+        else self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
 
         if(!$is_subfamily)
         {
@@ -333,11 +399,11 @@ class NCBIGGIqueryAPI
         return count(array_keys($page_ids));
     }
 
-    private function query_family_GBIF_info($family, $is_subfamily)
+    private function query_family_GBIF_info($family, $is_subfamily, $database)
     {
+        $rec["family"] = $family;
         $rec["taxon_id"] = $family;
         $rec["source"] = $this->gbif_taxon_info . $family;
-
         if($json = Functions::lookup_with_cache($this->gbif_taxon_info . $family, $this->download_options))
         {
             $json = json_decode($json);
@@ -357,25 +423,23 @@ class NCBIGGIqueryAPI
                     $rec["source"] = $this->gbif_record_count . $usageKey;
                     if($count > 0)
                     {
-                        $rec["object_id"] = "_no_of_rec_in_gbif";
-                        self::add_string_types($rec, "Number records in GBIF", $count, "http://eol.org/schema/terms/NumberRecordsInGBIF", $family);
-                        $rec["object_id"] = "_rec_in_gbif";
-                        self::add_string_types($rec, "Records in GBIF", "http://eol.org/schema/terms/yes", "http://eol.org/schema/terms/RecordInGBIF", $family);
+                        $rec["object_id"]   = "_no_of_rec_in_gbif";
+                        $rec["count"]       = $count;
+                        $rec["label"]       = "Number records in GBIF";
+                        $rec["measurement"] = "http://eol.org/schema/terms/NumberRecordsInGBIF";
+                        self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
+                        $rec["object_id"]   = "_rec_in_gbif";
+                        $rec["count"]       = "http://eol.org/schema/terms/yes";
+                        $rec["label"]       = "Records in GBIF";
+                        $rec["measurement"] = "http://eol.org/schema/terms/RecordInGBIF";
+                        self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
                         return true;
                     }
                 }
-                else
-                {
-                    echo "\n no result - cannot access count service: [$count][$family] key:[$usageKey]\n";
-                    self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
-                }
+                else self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
             }
         }
-        else
-        {
-            echo "\n no result - cannot access taxon service: [$family][$usageKey]\n";
-            self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
-        }
+        else self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
 
         if(!$is_subfamily)
         {
@@ -424,17 +488,30 @@ class NCBIGGIqueryAPI
         return array_keys($names);
     }
 
-    private function save_to_dump($data, $filename)
+    private function save_to_dump($rec, $filename)
     {
-        $WRITE = fopen($filename, "a");
-        if($data && is_array($data)) fwrite($WRITE, json_encode($data) . "\n");
-        else                         fwrite($WRITE, $data . "\n");
-        fclose($WRITE);
+        if(isset($rec["family"]))
+        {
+            $fields = array("family", "count", "taxon_id", "object_id", "source", "label", "measurement");
+            $data = "";
+            foreach($fields as $field) $data .= $rec[$field] . "\t";
+            $WRITE = fopen($filename, "a");
+            fwrite($WRITE, $data . "\n");
+            fclose($WRITE);
+        }
+        else
+        {
+            $WRITE = fopen($filename, "a");
+            if($rec && is_array($rec)) fwrite($WRITE, json_encode($rec) . "\n");
+            else                       fwrite($WRITE, $rec . "\n");
+            fclose($WRITE);
+        }
     }
 
-    private function query_family_GGBN_info($family, $is_subfamily)
+    private function query_family_GGBN_info($family, $is_subfamily, $database)
     {
         $records = array();
+        $rec["family"] = $family;
         $rec["source"] = $this->family_service_ggbn . $family;
         if($html = Functions::lookup_with_cache($rec["source"], $this->download_options))
         {
@@ -444,8 +521,11 @@ class NCBIGGIqueryAPI
             {
                 if($arr[1] > 0)
                 {
-                    $rec["object_id"] = "NumberDNAInGGBN";
-                    self::add_string_types($rec, "Number of DNA records in GGBN", $arr[1], "http://eol.org/schema/terms/NumberDNARecordsInGGBN", $family);
+                    $rec["object_id"]   = "NumberDNAInGGBN";
+                    $rec["count"]       = $arr[1];
+                    $rec["label"]       = "Number of DNA records in GGBN";
+                    $rec["measurement"] = "http://eol.org/schema/terms/NumberDNARecordsInGGBN";
+                    self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
                     $has_data = true;
                 }
             }
@@ -466,9 +546,16 @@ class NCBIGGIqueryAPI
             if($records)
             {
                 $rec["object_id"] = "NumberSpecimensInGGBN";
-                self::add_string_types($rec, "NumberSpecimensInGGBN", count($records), "http://eol.org/schema/terms/NumberSpecimensInGGBN", $family);
+                $rec["count"] = count($records);
+                $rec["label"] = "NumberSpecimensInGGBN";
+                $rec["measurement"] = "http://eol.org/schema/terms/NumberSpecimensInGGBN";
+                self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
+
                 $rec["object_id"] = "SpecimensInGGBN";
-                self::add_string_types($rec, "SpecimensInGGBN", "http://eol.org/schema/terms/yes", "http://eol.org/schema/terms/SpecimensInGGBN", $family);
+                $rec["count"] = "http://eol.org/schema/terms/yes";
+                $rec["label"] = "SpecimensInGGBN";
+                $rec["measurement"] = "http://eol.org/schema/terms/SpecimensInGGBN";
+                self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
             }
             else
             {
@@ -516,8 +603,9 @@ class NCBIGGIqueryAPI
         return array_unique($temp);
     }
 
-    private function query_family_NCBI_info($family, $is_subfamily)
+    private function query_family_NCBI_info($family, $is_subfamily, $database)
     {
+        $rec["family"] = $family;
         $rec["source"] = $this->family_service_ncbi . $family;
         $rec["taxon_id"] = $family;
         $rec["object_id"] = "_no_of_seq_in_genbank";
@@ -526,7 +614,10 @@ class NCBIGGIqueryAPI
         {
             if($xml->Count > 0)
             {
-                self::add_string_types($rec, "Number Of Sequences In GenBank", $xml->Count, "http://eol.org/schema/terms/NumberOfSequencesInGenBank", $family);
+                $rec["count"]       = $xml->Count;
+                $rec["label"]       = "Number Of Sequences In GenBank";
+                $rec["measurement"] = "http://eol.org/schema/terms/NumberOfSequencesInGenBank";
+                self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
                 return true;
             }
         }
@@ -537,7 +628,6 @@ class NCBIGGIqueryAPI
 
     private function add_string_types($rec, $label, $value, $measurementType, $family)
     {
-        echo "\n [$label]:[$value]\n";
         $taxon_id = (string) $rec["taxon_id"];
         $object_id = (string) $rec["object_id"];
         $m = new \eol_schema\MeasurementOrFact();
@@ -679,6 +769,35 @@ class NCBIGGIqueryAPI
             $family = str_replace("dae" . "xxx", "nae", $family . "xxx");
             $this->families_with_no_data[$family] = 1;
         }
+    }
+
+    private function get_families_xlsx()
+    {
+        require_library('XLSParser');
+        $parser = new XLSParser();
+        $families = array();
+        // $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/s/kqhru8pyc9ujktb/FALO.xlsx?dl=1&token_hash=AAEzlUqBxtGt8_iPX-1soVQ7m61K10w9LyxQIABeMg4LeQ"; // from Cyndy's Dropbox
+        // $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/s/9x3q0f7burh465k/FALO.xlsx?dl=1&token_hash=AAH94jgsY0_nI3F0MgaieWyU-2NpGpZFUCpQXER-dqZieg"; // from Eli's Dropbox
+        // $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/FALO.xlsx"; // again from Eli's Dropbox
+        $dropbox_xlsx[] = "http://localhost/~eolit/cp/NCBIGGI/FALO.xlsx"; // local
+        foreach($dropbox_xlsx as $doc)
+        {
+            echo "\n processing [$doc]...\n";
+            if($path = Functions::save_remote_file_to_local($doc, array("cache" => 1, "timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2)))
+            {
+                $arr = $parser->convert_sheet_to_array($path);
+                foreach($arr["FAMILY"] as $family)
+                {
+                    $family = trim(str_ireplace(array("Family ", '"', "FAMILY"), "", $family));
+                    if(is_numeric($family)) continue;
+                    if($family) $families[$family] = 1;
+                }
+                unlink($path);
+                break;
+            }
+            else echo "\n [$doc] unavailable! \n";
+        }
+        return array_keys($families);
     }
 
 }

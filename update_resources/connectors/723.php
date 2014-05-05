@@ -1,15 +1,14 @@
 <?php
 namespace php_active_record;
 /*
-NCBI GGI queries (DATA-1369)
-Partner provides a service to query their data using family names
-estimated execution time: 19 hours
+NCBI, GGBN, GBIF, BHL, BOLDS database coverages
+estimated execution time: ~3 days
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/NCBIGGIqueryAPI');
 $timestart = time_elapsed();
 $resource_id = 723;
-$func = new NCBIGGIqueryAPI($resource_id, "ncbi_sequence_info");
+$func = new NCBIGGIqueryAPI($resource_id);
 $func->get_all_taxa();
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {

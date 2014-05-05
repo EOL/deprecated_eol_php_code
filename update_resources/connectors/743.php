@@ -5,6 +5,7 @@ Need structured data connector for BHL number of records per family for GGI  (DA
 Partner provides services for us to get the total number of records per family
 estimated execution time:
 */
+return;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/NCBIGGIqueryAPI');
 $timestart = time_elapsed();

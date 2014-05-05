@@ -49,7 +49,7 @@ class MycoBankAPI
 
         $this->check_if_all_parents_have_entries();
         $this->create_instances_from_taxon_object();
-        $this->prepare_synonyms(); 
+        $this->prepare_synonyms();
         $this->create_archive();
         
         // stats
@@ -670,7 +670,11 @@ class MycoBankAPI
 
     private function create_archive()
     {
-        foreach($this->taxa as $t) $this->archive_builder->write_object_to_file($t);
+        foreach($this->taxa as $t)
+        {
+            if($t->acceptedNameUsageID == $t->taxonID) $t->acceptedNameUsageID = "";
+            $this->archive_builder->write_object_to_file($t);
+        }
         $this->archive_builder->finalize(TRUE);
     }
 
