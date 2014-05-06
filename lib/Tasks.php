@@ -113,6 +113,7 @@ class Tasks
         $batches = array_chunk($taxon_concept_ids, 500);
         foreach($batches as $batch_ids)
         {
+            usleep(500000);
             $name_ids = array();
             $matching_ids = array();
             

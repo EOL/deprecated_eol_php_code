@@ -143,15 +143,15 @@ class ContentManager
                 fclose($TMP);
             }
         }
-        $temp_file_path_with_extension = self::give_temp_file_right_extension($temp_file_path, $suffix, $options['unique_key']);
-        $temp_file_path_with_extension = self::enforce_extentions_for_type($temp_file_path_with_extension, $options['type']);
+        $temp_file_path_with_extension = self::give_temp_file_right_extension($temp_file_path, $suffix, @$options['unique_key']);
+        $temp_file_path_with_extension = self::enforce_extentions_for_type($temp_file_path_with_extension, @$options['type']);
         return $temp_file_path_with_extension;
     }
 
     public static function enforce_extentions_for_type($temp_file_path_with_extension, $type)
     {
         $pathinfo = pathinfo($temp_file_path_with_extension);
-        $extension = strtolower($pathinfo['extension']);
+        $extension = strtolower(@$pathinfo['extension']);
         if(($type == 'image' && !in_array($extension, self::$valid_image_extensions)) ||
            ($type == 'video' && !in_array($extension, self::$valid_video_extensions)) ||
            ($type == 'sound' && !in_array($extension, self::$valid_sound_extensions)))
