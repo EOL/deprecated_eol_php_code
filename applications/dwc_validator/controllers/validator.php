@@ -32,11 +32,12 @@ class dwc_validator_controller extends ControllerBase
         if($format == 'json')
         {
             header('Content-Type: application/json');
+            header('Access-Control-Allow-Origin: *');
             $json = array();
             if($structural_errors) $json['status'] = 'invalid';
             elseif($errors) $json['status'] = 'partially valid';
             else $json['status'] = 'valid';
-            dwc_validator_controller::add_errors_to_json($structural_errors, $json, 'structural_errors');
+            dwc_validator_controller::add_errors_to_json($structural_errors, $json, 'errors');
             dwc_validator_controller::add_errors_to_json($errors, $json, 'errors');
             dwc_validator_controller::add_errors_to_json($warnings, $json, 'warnings');
             $json['stats'] = $stats;
@@ -52,7 +53,7 @@ class dwc_validator_controller extends ControllerBase
     {
         if($errors)
         {
-            $json[$index] = array();
+            if(!isset($json[$index])) $json[$index] = array();
             foreach($errors as $error)
             {
                  $error_hash = (array) $error;

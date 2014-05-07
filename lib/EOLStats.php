@@ -141,22 +141,10 @@ class EOLStats
 
         // Marine stats
         $time_start = time_elapsed();
-        if(self::get_marine_stats())
-        {
-            $stats['marine_pages'] = $this->marine_pages();
-            $stats['marine_pages_in_col'] = $this->marine_pages_in_col();
-            $stats['marine_pages_with_objects'] = $this->marine_pages_with_objects();
-            $stats['marine_pages_with_objects_vetted'] = $this->marine_pages_with_objects($this->trusted_id);
-        }
-        else
-        {
-            print "\n No need to compute Marine stats now as there is no new WORMS harvest yet \n";
-            $marine_stats = self::get_values_from_last_recorded_marine_stats();
-            $stats['marine_pages'] = $marine_stats['marine_pages'];
-            $stats['marine_pages_in_col'] = $marine_stats['marine_pages_in_col'];
-            $stats['marine_pages_with_objects'] = $marine_stats['marine_pages_with_objects'];
-            $stats['marine_pages_with_objects_vetted'] = $marine_stats['marine_pages_with_objects_vetted'];
-        }
+        $stats['marine_pages'] = $this->marine_pages();
+        $stats['marine_pages_in_col'] = $this->marine_pages_in_col();
+        $stats['marine_pages_with_objects'] = $this->marine_pages_with_objects();
+        $stats['marine_pages_with_objects_vetted'] = $this->marine_pages_with_objects($this->trusted_id);
         print "\n Marine stats: " . (time_elapsed()-$time_start)/60 . " minutes";
 
         // User-submitted text
@@ -200,23 +188,16 @@ class EOLStats
 
     public function get_marine_stats()
     {
-        $result = $this->mysqli_slave->query("
-            SELECT MAX(he.id) id, MAX(he.published_at) published_at
-            FROM resources r
-            JOIN harvest_events he ON (r.id = he.resource_id)
-            JOIN content_partners cp ON (r.content_partner_id = cp.id)
-            WHERE he.published_at IS NOT NULL
-                AND cp.id = " . $this->worms_content_partner_id);
-        if($result && $row=$result->fetch_assoc())
-        {
-            $latest_harvest_event_id = $row['id'];
-            $latest_harvest = $row['published_at'];
-        }
+        if(!$this->worms_latest_harvest_event_id) return false;
+        $latest_harvest_event = HarvestEvent::find($this->worms_latest_harvest_event_id);
         $result = $this->mysqli_slave->query("SELECT e.created_at FROM eol_statistics e ORDER BY e.id DESC LIMIT 1");
         if($result && $row=$result->fetch_assoc()) $latest_stats = $row['created_at'];
         else return true;
-        $date = new \DateTime($latest_harvest); $latest_harvest = $date->format('Y-m-d');
-        $date = new \DateTime($latest_stats);   $latest_stats = $date->format('Y-m-d');
+        $latest_harvest = $latest_harvest_event->published_at;
+        $date = new \DateTime($latest_harvest);
+        $latest_harvest = $date->format('Y-m-d');
+        $date = new \DateTime($latest_stats);
+        $latest_stats = $date->format('Y-m-d');
         print "\n\n $latest_stats -- $latest_harvest";
         if($latest_harvest >= $latest_stats) return true; // Calculate marine stats
         else return false; // No need to calculate marine stats
@@ -302,14 +283,15 @@ class EOLStats
     public function worms_latest_harvest_event_id()
     {
         if(isset($this->worms_latest_harvest_event_id)) return $this->worms_latest_harvest_event_id;
-        $this->worms_latest_harvest_event_id = 0;
-        return $this->mysqli_slave->select_value("
+        $this->worms_latest_harvest_event_id = $this->mysqli_slave->select_value("
             SELECT MAX(he.id) id
             FROM resources r
             JOIN harvest_events he ON (r.id = he.resource_id)
             JOIN content_partners cp ON (r.content_partner_id = cp.id)
             WHERE he.published_at IS NOT NULL
-                AND cp.id = " . $this->worms_content_partner_id);
+            AND r.id = (SELECT MIN(id) FROM resources WHERE content_partner_id = $this->worms_content_partner_id)
+            AND cp.id = $this->worms_content_partner_id");
+        return $this->worms_latest_harvest_event_id;
     }
 
     public function lifedesk_taxa()
@@ -1086,3 +1068,4 @@ class EOLStats
     }
 }
 ?>
+

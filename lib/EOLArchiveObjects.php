@@ -446,7 +446,8 @@ class EOLArchiveObjects
         $this->all_resources = array();
         $query = "SELECT r.id, r.title, r.content_partner_id, cp.full_name
             FROM resources r
-            JOIN content_partners cp ON (r.content_partner_id = cp.id)";
+            JOIN content_partners cp ON (r.content_partner_id = cp.id)
+            WHERE r.content_partner_id NOT IN (2, 6, 13, 14, 23, 165, 366, 166, 67, 133, 82, 30)";
         foreach($this->mysqli_slave->iterate($query) as $row)
         {
             $label = $row['full_name'];

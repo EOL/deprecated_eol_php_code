@@ -132,14 +132,14 @@ namespace php_active_record;
       <input type='submit' value='Calculate'/>
       <input type='hidden' name='ENV_NAME' value='<?php echo $GLOBALS['ENV_NAME']; ?>'/>
       <hr/>
-      <? show_results_for($taxon_concept_id); ?>
+      <?php show_results_for($taxon_concept_id); ?>
   </td><td class='second'>
       PageID to evaluate: <input type='text' size='20' name='taxon_concept_id2' value='<?php echo $taxon_concept_id2 ?>'/>
       <input type='submit' value='Calculate'/>
       <input type='hidden' name='ENV_NAME' value='<?php echo $GLOBALS['ENV_NAME']; ?>'/>
       </form>
       <hr/>
-      <? show_results_for($taxon_concept_id2); ?>
+      <?php show_results_for($taxon_concept_id2); ?>
   </td></tr></table>
   </form>
 </body>

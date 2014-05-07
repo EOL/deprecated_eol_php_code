@@ -244,7 +244,7 @@ class Resource extends ActiveRecord
     {
         if($last_id = $this->most_recent_published_harvest_event_id())
         {
-            $this->mysqli->update_where("data_objects", "id", "SELECT do.id FROM data_objects_harvest_events dohe JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE harvest_event_id=$last_id AND do.published=1", "published=0", 2000000, 5000);
+            $this->mysqli->update_where("data_objects", "id", "SELECT do.id FROM data_objects_harvest_events dohe JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE harvest_event_id=$last_id AND do.published=1", "published=0", 2000000, 2500);
         }
     }
     

@@ -54,7 +54,9 @@ class SparqlClient
 
     public static function to_underscore($string)
     {
-        return self::convert(str_replace(' ', '_', strtolower($string)));
+        $string = str_replace(' ', '_', strtolower($string));
+        $string = str_replace('`', '', $string);
+        return self::convert($string);
     }
 
     public static function is_uri($string)
