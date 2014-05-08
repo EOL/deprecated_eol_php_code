@@ -1,14 +1,14 @@
 <?php
 namespace php_active_record;
-/*
-NCBI, GGBN, GBIF, BHL, BOLDS database coverages
-estimated execution time: ~3 days
+/* PaleoDB connector - we use their data services to assemble their data and ingest it as structured data
+estimated execution time: 40 minutes
 */
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/NCBIGGIqueryAPI');
+require_library('connectors/PaleoDBAPI');
 $timestart = time_elapsed();
-$resource_id = 723;
-$func = new NCBIGGIqueryAPI($resource_id);
+$resource_id = 719;
+$func = new PaleoDBAPI($resource_id);
 $func->get_all_taxa();
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
@@ -23,7 +23,8 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") >
 }
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
-echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
-echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
-echo "\n Done processing.\n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
+echo "\nDone processing.\n";
+
 ?>

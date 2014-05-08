@@ -5,6 +5,7 @@ Need structured data connector for BOLDS number of specimens with sequence per f
 Partner has a portal where we search and scrape the site to get the numbers.
 estimated execution time:
 */
+return;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/NCBIGGIqueryAPI');
 $timestart = time_elapsed();

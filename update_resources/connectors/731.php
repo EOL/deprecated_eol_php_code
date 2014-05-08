@@ -5,13 +5,14 @@ Need structured data connector for GBIF number of records per family for GGI  (D
 Partner provides services for us to get the total number of records per family
 estimated execution time:
 */
+return;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/NCBIGGIqueryAPI');
 $timestart = time_elapsed();
 $resource_id = 731;
 $func = new NCBIGGIqueryAPI($resource_id, "gbif_info");
 $func->get_all_taxa();
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1) // orig 1000
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
     if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
     {

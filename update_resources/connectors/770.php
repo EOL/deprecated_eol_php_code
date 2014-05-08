@@ -1,14 +1,13 @@
 <?php
 namespace php_active_record;
-/*
-NCBI, GGBN, GBIF, BHL, BOLDS database coverages
-estimated execution time: ~3 days
+/* americaninsects.net - length: structured data
+estimated execution time:
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/NCBIGGIqueryAPI');
+require_library('connectors/AmericanInsectsAPI');
 $timestart = time_elapsed();
-$resource_id = 723;
-$func = new NCBIGGIqueryAPI($resource_id);
+$resource_id = 770;
+$func = new AmericanInsectsAPI($resource_id);
 $func->get_all_taxa();
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
@@ -23,7 +22,7 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") >
 }
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
-echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
-echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
-echo "\n Done processing.\n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
+echo "\nDone processing.\n";
 ?>

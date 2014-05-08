@@ -6,11 +6,14 @@ Connector downloads the zip file, extracts, reads, assembles the data and genera
 */
 class IrmngAPI
 {
-    function __construct($folder)
+    function __construct($folder = null)
     {
-        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
-        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        $this->occurrence_ids = array();
+        if($folder)
+        {
+            $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
+            $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+            $this->occurrence_ids = array();
+        }
 
         // $this->zip_path = "http://localhost/~eolit/cp/IRMNG/IRMNG_DWC.zip";
         // $this->zip_path = "https://dl.dropboxusercontent.com/u/7597512/IRMNG/IRMNG_DWC.zip";
@@ -44,6 +47,15 @@ class IrmngAPI
         */
     }
 
+    function get_irmng_families() // utility for WEB-5220 Comparison of FALO classification to others that we have
+    {
+        if(!self::load_zip_contents()) return;
+        print_r($this->text_path);
+        $records = self::csv_to_array($this->text_path["IRMNG_DWC"], "families");
+        self::remove_temp_dir();
+        return $records;
+    }
+    
     function get_all_taxa()
     {
         if(!self::load_zip_contents()) return;
@@ -51,6 +63,11 @@ class IrmngAPI
         self::csv_to_array($this->text_path["IRMNG_DWC"], "classification");
         self::csv_to_array($this->text_path["IRMNG_DWC_SP_PROFILE"], "extant_habitat_data");
         $this->archive_builder->finalize(TRUE);
+        self::remove_temp_dir();
+    }
+    
+    private function remove_temp_dir()
+    {
         // remove temp dir
         $path = $this->text_path["IRMNG_DWC"];
         $parts = pathinfo($path);
@@ -61,8 +78,13 @@ class IrmngAPI
     
     private function csv_to_array($csv_file, $type)
     {
-        if($val = $this->taxa_ids_with_blank_taxonomicStatus) $taxa_ids_with_blank_taxonomicStatus = $val;
-        else $taxa_ids_with_blank_taxonomicStatus = self::get_taxa_ids_with_blank_taxonomicStatus();
+        if($type != "families")
+        {
+            if($val = $this->taxa_ids_with_blank_taxonomicStatus) $taxa_ids_with_blank_taxonomicStatus = $val;
+            else $taxa_ids_with_blank_taxonomicStatus = self::get_taxa_ids_with_blank_taxonomicStatus();
+        }
+        else $taxa_ids_with_blank_taxonomicStatus = array();
+        
         $i = 0;
         $file = fopen($csv_file, "r");
         while(!feof($file))
@@ -89,10 +111,15 @@ class IrmngAPI
                 
                 if    ($type == "classification")           $this->create_instances_from_taxon_object($rec);
                 elseif($type == "extant_habitat_data")      self::process_profile($rec);
+                elseif($type == "families")
+                {
+                    if($rec["TAXONRANK"] == "family") $records[] = Functions::canonical_form($rec["SCIENTIFICNAME"]);
+                }
             }
         }
         fclose($file);
         if($type == "get_taxa_ids_with_data") return $taxon_ids;
+        if($type == "families") return array_unique($records);
     }
 
     private function create_instances_from_taxon_object($rec)
