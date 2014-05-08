@@ -14,7 +14,7 @@ class AmericanInsectsAPI
         $this->to_exclude = array("index.", "glossary.", "maps.", "acknowledgment", "about.html", "faq.html", "works-consulted", "23", "24", "periplaneta-americana", "/http:");
         $this->stored_offline_urls_dump_file = "http://localhost/~eolit/cp/AmericanInsects/offline_urls.txt";
         $this->stored_offline_urls_dump_file = "https://dl.dropboxusercontent.com/u/7597512/AmericanInsects/offline_urls.txt";
-        $this->download_options = array("download_wait_time" => 1000000, "timeout" => 1800, "download_attempts" => 1); // "expire_seconds" => 0 , "delay_in_minutes" => 2
+        $this->download_options = array("download_wait_time" => 1000000, "timeout" => 1800, "download_attempts" => 1, "cache" => 1); // "expire_seconds" => 0 , "delay_in_minutes" => 2
         $this->debug = array();
         
         //for stats
@@ -75,8 +75,7 @@ class AmericanInsectsAPI
                         $include = true;
                         foreach($to_exclude as $exclude)
                         {
-                            if(stripos($sciname, $exclude) === false) {}
-                            else $include = false;
+                            if(is_numeric(stripos($sciname, $exclude))) $include = false;
                         }
                         if(!$include) continue;
 
@@ -84,7 +83,6 @@ class AmericanInsectsAPI
                         // only species-level
                         if(stripos($sciname, " ") === false) continue;
 
-                        echo "\n sciname: [$sciname]";
                         // $images = self::parse_images($html, $url); working... temporarily commented
                         $images = array();
                         $lengths = self::parse_texts($html, $url);
@@ -107,6 +105,7 @@ class AmericanInsectsAPI
             else self::save_to_dump($url, $this->current_offline_urls_dump_file);
         }
         // print_r($this->debug);
+        print "\n count:" . count($this->debug) . "\n";
     }
 
     private function manuall_add_taxon()
@@ -148,8 +147,7 @@ class AmericanInsectsAPI
                 "Cantharini", "the right");
                 foreach($to_exclude as $exclude)
                 {
-                    if(stripos($length, $exclude) === false) {}
-                    else return array();
+                    if(is_numeric(stripos($length, $exclude))) return array();
                 }
                 
                 $length = trim(str_ireplace(array("females are a little larger than males", "Males usually smaller than the females", 
@@ -172,9 +170,8 @@ class AmericanInsectsAPI
                     if(substr($length, -1) == $char) $length = substr($length, 0, strlen($length)-1);
                 }
                 echo "\n[$length]\n";
-                $texts[] = $length;   
+                $texts[] = $length;
             }
-            $this->debug[$length] = "";
         }
         return $texts;
     }
@@ -274,8 +271,7 @@ class AmericanInsectsAPI
         if(isset($this->stored_offline_urls[$url])) return array();
         foreach($this->to_exclude as $exclude)
         {
-            if(stripos($url, $exclude) === false) {}
-            else return array();
+            if(is_numeric(stripos($url, $exclude))) return array();
         }
         echo "\n processing [$url]\n";
         $temp = array();
@@ -395,16 +391,6 @@ class AmericanInsectsAPI
         $mr->description            = $rec["description"];
         $mr->UsageTerms             = 'http://creativecommons.org/licenses/by/3.0/';
         $mr->Owner                  = '';
-
-        /*
-        $mr->title                  = '';
-        $mr->creator                = '';
-        $mr->CreateDate             = '';
-        $mr->modified               = '';
-        $mr->publisher              = '';
-        $mr->bibliographicCitation  = '';
-        */
-        
         if(!isset($this->object_ids[$mr->identifier]))
         {
             $this->object_ids[$mr->identifier] = 1;
@@ -414,20 +400,75 @@ class AmericanInsectsAPI
 
     private function prepare_length_structured_data($rec)
     {
-        foreach($rec["lengths"] as $length)
+        foreach($rec["lengths"] as $len)
         {
-            if($length)
+            if($len)
             {
-                $arr = explode("-", $length);
-                $rec["catnum"] = "length";
-                $rec["statistical_method"] = "http://eol.org/schema/terms/average";
-                $rec["measurementUnit"] = "http://purl.obolibrary.org/obo/UO_0000016";
-                
-                $length_measurement = "http://purl.obolibrary.org/obo/CMO_0000013";
-                if(is_numeric(stripos($length, "wingspan"))) $length_measurement = "http://www.owl-ontologies.com/unnamed.owl#Wingspan";
-                self::add_string_types("true", $rec, "length", $length, $length_measurement);
+                $length = self::clean_length_value($len);
+                $lengths = explode(";", $length);
+                $lengths = array_map('trim', $lengths);
+                $ctr = 0;
+                foreach($lengths as $length)
+                {
+                    $rec["remark"] = $length;
+                    $length_no = trim(str_replace(array("female", "male", "worker", "queen", "drone", "mm", "to apex of abdomen", "greater than"), "", $length));
+                    if(!$length_no) continue;
+                    if($val = self::is_range($length_no)) $length_no = $val; // "3.50 to 4.0"
+                    $arr = explode("-", $length_no);
+                    $arr = array_map('trim', $arr);
+                    if(count($arr) == 1)
+                    {
+                        $final = $length_no;
+                        if(count(explode(" ", $length_no)) > 1) $rec["measurementRemarks"] = trim($length) . " (mm)";
+                    }
+                    else
+                    {
+                        $final = self::get_average($arr[0], $arr[1]);
+                        $rec["measurementRemarks"] = "Source data are expressed as a range: " . trim($length) . " mm.";
+                    }
+                    $final = trim(preg_replace('/\s*\([^)]*\)/', '', $final)); //remove parenthesis
+                    if(preg_match('!\d+\.*\d*!', $final, $match)) $final = $match[0]; //remove letters
+                    $rec["catnum"] = "length";
+                    if($ctr) $rec["catnum"] .= $ctr;
+                    $rec["statistical_method"] = "http://eol.org/schema/terms/average";
+                    $rec["measurementUnit"] = "http://purl.obolibrary.org/obo/UO_0000016";
+                    $length_measurement = "http://purl.obolibrary.org/obo/CMO_0000013";
+                    if(is_numeric(stripos($length, "wingspan"))) $length_measurement = "http://www.owl-ontologies.com/unnamed.owl#Wingspan";
+                    self::add_string_types("true", $rec, "length", $final, $length_measurement);
+                    $this->debug[$final] = @$rec["measurementRemarks"];
+                    $ctr++;
+                }
             }
         }
+    }
+    
+    private function clean_length_value($length)
+    {
+        $length = strtolower($length);
+        $length = str_replace(array("\t", "\n"), "", $length);
+        $length = str_replace("&gt;", "greater than", $length);
+        $length = str_replace("workers", "worker", $length);
+        $length = str_replace(". female", "; female", $length);
+        $length = str_replace(". male", "; male", $length);
+        $length = str_replace(". work", "; work", $length);
+        return $length;
+    }
+    
+    private function get_average($num1, $num2)
+    {
+        if(preg_match('!\d+\.*\d*!', $num1, $match)) $num1 = $match[0]; //remove letters
+        if(preg_match('!\d+\.*\d*!', $num2, $match)) $num2 = $match[0];
+        return round(($num1+$num2)/2, 1);
+    }
+    
+    private function is_range($str)
+    {
+        $arr = explode(" to ", $str);
+        if(count($arr) == 2)
+        {
+            if(is_numeric($arr[0]) && is_numeric($arr[1])) return str_replace(" to ", "-", $str);
+        }
+        return false;
     }
 
     private function create_instances_from_taxon_object($rec)
@@ -457,6 +498,7 @@ class AmericanInsectsAPI
         $m->referenceID = $this->reference_id;
         if($val = @$rec["statistical_method"]) $m->statisticalMethod = $val;
         if($val = @$rec["measurementUnit"]) $m->measurementUnit = $val;
+        if($val = @$rec["measurementRemarks"]) $m->measurementRemarks = $val;
         $this->archive_builder->write_object_to_file($m);
     }
     
