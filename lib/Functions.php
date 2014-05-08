@@ -1414,33 +1414,38 @@ class Functions
         echo $str;
     }
     
-    /* Given the file path, get the MIME type */
-    public static function get_mimetype($file_path)
+    /* Given the file path (or just the extension, if $is_extension == true) get the MIME type */
+    public static function get_mimetype($file_path, $is_extension=false)
     {
-        $path_info = pathinfo($file_path);
-        $extension = strtolower($path_info['extension']);
+        if ($is_extension)
+        {
+            $extension = strtolower($file_path);
+        } else {
+            $path_info = pathinfo($file_path);
+            $extension = strtolower($path_info['extension']);
+        }
         $mimetype = "";
         $mpg = array("mpg", "mpeg");
-        if     ($extension == "wmv")        $mimetype = "video/x-ms-wmv";
-        elseif ($extension == "avi")        $mimetype = "video/x-msvideo";
-        elseif ($extension == "mp4")        $mimetype = "video/mp4";
-        elseif ($extension == "mov")        $mimetype = "video/quicktime";
+        if     ($extension === "wmv")        $mimetype = "video/x-ms-wmv";
+        elseif ($extension === "avi")        $mimetype = "video/x-msvideo";
+        elseif ($extension === "mp4")        $mimetype = "video/mp4";
+        elseif ($extension === "mov")        $mimetype = "video/quicktime";
         elseif (in_array($extension, $mpg)) $mimetype = "video/mpeg";
-        elseif ($extension == "flv")        $mimetype = "video/x-flv";
-        elseif ($extension == "ogv")        $mimetype = "video/ogg";
-        elseif ($extension == "webm")       $mimetype = "video/webm";
-        elseif ($extension == "bmp")        $mimetype = "image/bmp";
-        elseif ($extension == "gif")        $mimetype = "image/gif";
-        elseif ($extension == "jpg")        $mimetype = "image/jpeg";
-        elseif ($extension == "jpeg")       $mimetype = "image/jpeg";
-        elseif ($extension == "png")        $mimetype = "image/png";
-        elseif ($extension == "tif")        $mimetype = "image/tiff";
-        elseif ($extension == "svg")        $mimetype = "image/svg+xml";
-        elseif ($extension == "mp3")        $mimetype = "audio/mpeg";
-        elseif ($extension == "wav")        $mimetype = "audio/x-wav";
-        elseif ($extension == "ogg")        $mimetype = "audio/ogg";
-        elseif ($extension == "oga")        $mimetype = "audio/ogg";
-        elseif ($extension == "ogx")        $mimetype = "application/ogg";
+        elseif ($extension === "flv")        $mimetype = "video/x-flv";
+        elseif ($extension === "ogv")        $mimetype = "video/ogg";
+        elseif ($extension === "webm")       $mimetype = "video/webm";
+        elseif ($extension === "bmp")        $mimetype = "image/bmp";
+        elseif ($extension === "gif")        $mimetype = "image/gif";
+        elseif ($extension === "jpg")        $mimetype = "image/jpeg";
+        elseif ($extension === "jpeg")       $mimetype = "image/jpeg";
+        elseif ($extension === "png")        $mimetype = "image/png";
+        elseif ($extension === "tif")        $mimetype = "image/tiff";
+        elseif ($extension === "svg")        $mimetype = "image/svg+xml";
+        elseif ($extension === "mp3")        $mimetype = "audio/mpeg";
+        elseif ($extension === "wav")        $mimetype = "audio/x-wav";
+        elseif ($extension === "ogg")        $mimetype = "audio/ogg";
+        elseif ($extension === "oga")        $mimetype = "audio/ogg";
+        elseif ($extension === "ogx")        $mimetype = "application/ogg";
         return $mimetype;
     }
     
