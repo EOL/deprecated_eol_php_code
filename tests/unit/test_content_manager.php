@@ -67,7 +67,7 @@ class test_content_manager extends SimpletestUnitBase
 
     function testGrabContentAudio()
     {
-        $file = $this->content_manager->grab_file('http://people.sc.fsu.edu/~jburkardt/data/wav/thermo.wav', 'audio');
+        $file = $this->content_manager->grab_file('http://www.nch.com.au/acm/8kmp38.wav', 'audio');
         $cache_path = ContentManager::cache_path($file);
         $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'.wav'), 'Should be an wav file');
         self::delete_content(CONTENT_LOCAL_PATH . $cache_path);
