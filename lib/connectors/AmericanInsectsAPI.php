@@ -428,6 +428,7 @@ class AmericanInsectsAPI
                     }
                     $final = trim(preg_replace('/\s*\([^)]*\)/', '', $final)); //remove parenthesis
                     if(preg_match('!\d+\.*\d*!', $final, $match)) $final = $match[0]; //remove letters
+                    if(is_numeric(strpos(@$rec["measurementRemarks"], "Source data are expressed as a range:"))) $rec["measurementRemarks"] .= " ($final mm. average).";
                     $rec["catnum"] = "length";
                     if($ctr) $rec["catnum"] .= $ctr;
                     $rec["statistical_method"] = "http://eol.org/schema/terms/average";
