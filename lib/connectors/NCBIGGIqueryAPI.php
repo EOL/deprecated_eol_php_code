@@ -411,7 +411,6 @@ class NCBIGGIqueryAPI
 
     private function has_diff_family_name_in_eol_api($family, $database)
     {
-        return false; // this function won't be used yet...until it is proven to increase coverage
         $canonical = "";
         if($json = Functions::lookup_with_cache($this->eol_api["search"] . $family, $this->download_options))
         {
@@ -466,7 +465,7 @@ class NCBIGGIqueryAPI
         {
             echo "\n has diff name in eol api:[$canonical]\n";
             $this->families_with_no_data[$canonical] = 1;
-            self::save_to_dump($canonical . "\t" . $database, $this->name_from_eol_api_dump_file);
+            self::save_to_dump($family . "\t" . $canonical . "\t" . $database, $this->name_from_eol_api_dump_file);
             return true;
         }
         elseif($canonical == $family) echo "\n Result: Same name in FALO. \n";
@@ -858,10 +857,10 @@ class NCBIGGIqueryAPI
         require_library('XLSParser');
         $parser = new XLSParser();
         $families = array();
-        $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/s/23em67jtf12gbe2/FALO.xlsx?dl=1&token_hash=AAGX4c2ontzzZDj57Ez6EFeDQPm_LrN7Ol85l_LOEMliJw&expiry=1399589083";
+        $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/s/23em67jtf12gbe2/FALO.xlsx?dl=1&token_hash=AAEXfiSf_Ey3V1FkBM9G5R8WZOvQQdhdztulgzmcewLYeQ&expiry=1399695845";
+        // $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/s/23em67jtf12gbe2/FALO.xlsx?dl=1&token_hash=AAGX4c2ontzzZDj57Ez6EFeDQPm_LrN7Ol85l_LOEMliJw&expiry=1399589083";
         // $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/s/kqhru8pyc9ujktb/FALO.xlsx?dl=1&token_hash=AAEzlUqBxtGt8_iPX-1soVQ7m61K10w9LyxQIABeMg4LeQ"; // from Cyndy's Dropbox
-        // $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/s/9x3q0f7burh465k/FALO.xlsx?dl=1&token_hash=AAH94jgsY0_nI3F0MgaieWyU-2NpGpZFUCpQXER-dqZieg"; // from Eli's Dropbox
-        // $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/FALO.xlsx"; // again from Eli's Dropbox
+        // $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/FALO.xlsx"; // from Eli's Dropbox
         // $dropbox_xlsx[] = "http://localhost/~eolit/cp/NCBIGGI/FALO.xlsx"; // local
         foreach($dropbox_xlsx as $doc)
         {
@@ -871,7 +870,7 @@ class NCBIGGIqueryAPI
                 $arr = $parser->convert_sheet_to_array($path);
                 foreach($arr["FAMILY"] as $family)
                 {
-                    $family = trim(str_ireplace(array("Family ", '"', "FAMILY"), "", $family));
+                    $family = trim(str_ireplace(array("Family", '"'), "", $family));
                     if(is_numeric($family)) continue;
                     if($family) $families[$family] = 1;
                 }
