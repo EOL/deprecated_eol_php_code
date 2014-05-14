@@ -9,7 +9,7 @@ class FaloDataConnector {
     'superclass', 'class', 'subclass', 'infraclass',
     'superorder', 'order', 'family');
   private static $columns_to_extract = array(
-    'sapk', 'k','sbk','ik',
+    'spk', 'k','sbk','ik',
     'spp','p','sbp','ip', 'pvp',
     'spc','c','sbc','ic',
     'spo','o','family',
@@ -21,10 +21,10 @@ class FaloDataConnector {
   private $path_to_archive_directory;
   private $archive_builder;
 
-  public function __construct($resource_id) {
+  public function __construct($resource_id, $source_url) {
     $this->resource_id = $resource_id;
     $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . '/';
-    $this->source_url = 'https://www.dropbox.com/sh/tztpvzenmuyy00j/gz692ofxSR/FALO.xlsx?dl=1';
+    $this->source_url = $source_url;
   }
 
   public function __destruct() {
@@ -34,7 +34,7 @@ class FaloDataConnector {
         unlink($this->source_file_path); // Delete temporary file
       }
     }
-    catch (Exception $e) {
+    catch (\Exception $e) {
       debug("Error deleting temporary file {$this->source_file_path}: {$e->getMessage()}");
     }
   }
@@ -75,7 +75,9 @@ class FaloDataConnector {
       'cache'          => true
     );
     $this->source_file_path = Functions::save_remote_file_to_local($this->source_url, $download_options);
-    if (! file_exists($this->source_file_path)) debug('Error downloading source file.');
+    if (! file_exists($this->source_file_path)) {
+      throw new \Exception('Error downloading source file.');
+    }
     $this->profile($start);
   }
 
@@ -93,8 +95,9 @@ class FaloDataConnector {
       $this->source_loaded = $reader->load($this->source_file_path);
       unset($reader);
     }
-    catch (Exception $e) {
-      debug("Error loading source data from {$this->source_file_path}: {$e->getMessage()}");
+    catch (\Exception $e) {
+      throw new \Exception('Error loading source data from '
+        . "{$this->source_file_path}: {$e->getMessage()}");
     }
     $this->profile($start);
   }
@@ -106,7 +109,8 @@ class FaloDataConnector {
     require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel.php';
     $start = microtime(true);
     debug('Extracting taxa.');
-    $column_letters = array(); // Columns we want to extract
+    $columns_by_letter = array(); // Columns we want to extract
+    $last_row = $this->source_loaded->getActiveSheet()->getHighestRow();
     $row_iterator = $this->source_loaded->getActiveSheet()->getRowIterator();
     $this->taxa = array();
     foreach ($row_iterator as $row) {
@@ -119,15 +123,15 @@ class FaloDataConnector {
         if ($ri == 1) {
           // Store letters (A, B, C etc) of columns we want to extract
           if (($column_label = strtolower($cell->getValue())) && in_array($column_label, self::$columns_to_extract)) {
-            $column_letters[$column_letter] = $column_label;
+            $columns_by_letter[$column_letter] = $column_label;
           }
         }
-        elseif (in_array($column_letter, array_keys($column_letters)) && ($value = trim($cell->getValue()))) {
+        elseif (in_array($column_letter, array_keys($columns_by_letter)) && ($value = trim($cell->getValue()))) {
           try {
-            if ($column_letters[$column_letter] == 'uuid') {
+            if ($columns_by_letter[$column_letter] == 'uuid') {
               $t['taxonID'] = $value;
             }
-            elseif ($column_letters[$column_letter] == 'reference') {
+            elseif ($columns_by_letter[$column_letter] == 'reference') {
               $t['bibliographicCitation'] = $value;
             }
             else {
@@ -137,23 +141,40 @@ class FaloDataConnector {
                 $name = preg_replace('/[^A-z]/', '', $name); // Remove quotes
                 $t['uncertain'][$rank] = $value;
               }
-              if (! in_array($rank, self::$ranks)) debug("Error unknown rank at row index: $ri");
+              if (! in_array($rank, self::$ranks)) {
+                throw new \Exception("Error unknown rank at row index: $ri");
+              }
               $t[$rank] = $name;
               unset($rank);
               unset($name);
             }
           }
-          catch (Exception $e) {
-            debug("Error parsing spreadsheet at row index: {$ri}: {$e->getMessage()}");
+          catch (\Exception $e) {
+            throw new \Exception('Error parsing spreadsheet at row index: '
+              . "{$ri}: {$e->getMessage()}");
           }
         }
         unset($column_letter);
       }
-      // Skip header row
-      if ($ri == 1) continue;
+
+      // Treat header row differently from other rows
+      if ($ri == 1) {
+        if (!$this->validate_columns($columns_by_letter)) {
+          throw new \Exception('Unexpected or missing columns in FALO source file.');
+        }
+        // Everything is okay with the header row, move on to next row.
+        continue;
+      }
 
       // Bail if we've got a problem parsing the spreadsheet.
-      if (empty($t) || ! isset($t['taxonID'])) debug("Error extracting taxon at row index: {$ri}");
+      if (empty($t) || !isset($t['taxonID'])) {
+        if ($ri == $last_row) {
+          debug("Ignoring incomplete last row at index: {$ri}");
+        }
+        else {
+          throw new \Exception("Error extracting taxon at row index: {$ri}");
+        }
+      }
 
       // Extract the classification and sort by rank
       $classification = array();
@@ -163,7 +184,9 @@ class FaloDataConnector {
         }
       }
       uksort($classification, 'self::sort_by_rank');
-      if (empty($classification)) debug("Error extracting classificiation at row index: {$ri}");
+      if (empty($classification)) {
+        throw new \Exception("Error extracting classificiation at row index: {$ri}");
+      }
 
       // Set classificaiton tree paths and extract last taxon
       $t['classificationHash'] = md5(implode(';', $classification));
@@ -243,6 +266,12 @@ class FaloDataConnector {
     $this->profile($start);
   }
 
+  /**
+   * Check column names match expected values.
+   */
+  private function validate_columns($columns) {
+    return ( count($columns) == count(self::$columns_to_extract) &&
+      !array_diff($columns, self::$columns_to_extract) );
+  }
+
 }
-
-
