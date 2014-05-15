@@ -7,14 +7,11 @@ class WikimediaHarvester
     private $resource_file;
     private $resource;
 
-    function __construct($resource, $files_subdir)
+    function __construct($resource)
     {
         $this->mysqli =& $GLOBALS['mysqli_connection'];
         $this->validMIMEtypes = array('image/png', 'image/jpeg', 'image/gif', 'image/svg+xml', 'image/tiff', 'application/ogg', 'audio/ogg', 'video/ogg');
         $this->resource = $resource;
-        $this->base_directory_path = DOC_ROOT . $files_subdir;
-        $this->part_files = array('base' => $this->base_directory_path, 'subdir' => 'wikimedia', 'prefix' => 'part_');
-        $this->part_path = implode(DIRECTORY_SEPARATOR, $this->part_files);
         // allows for splitting the file into max 26^n parts, e.g. n=3, parts=300Mb, copes with xml files < 4.2Tb
         $this->part_file_suffix_chars = 3;
         $this->number_of_separate_taxa = 0;
@@ -23,7 +20,7 @@ class WikimediaHarvester
         $this->galleries_for_file = array();  // key=media-filename, value = array of gallery names (usually just one name)
         $this->taxonomies_for_file = array(); // key=media-filename, value = count of taxonomies for this file (just for info)
         $this->taxonomy_pagenames = array();  // key=media-filename, value = array of redirects (used as temp name store)
-        $this->map_categories = self::get_map_categories($this->base_directory_path);
+        $this->map_categories = null;
         // TODO - add blacklist of "unwanted" categories, so that if an image falls into one of these (or a child thereof),
         // it is not harvested. E.g. a suggested "unwanted" category might be
         // Category:Uploaded_with_Open_Access_Media_Importer_and_needing_category_review
@@ -31,16 +28,24 @@ class WikimediaHarvester
         $this->queue_of_pages_to_process = array();
 
         $this->resource_file_path = CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id . "_temp.xml";
-        $this->resource_file = new \SchemaDocument($this->resource_file_path);
     }
 
-    public function begin_wikipedia_harvest()
+    public function begin_wikimedia_harvest($files_subdir)
     {
+        $base_directory_path = DOC_ROOT . $files_subdir . DIRECTORY_SEPARATOR;
+        $part_files = array('base' => $this->base_directory_path, 'subdir' => 'wikimedia', 'prefix' => 'part_');
+        $part_path = implode(DIRECTORY_SEPARATOR, $this->part_files);
+
+        $this->resource_file = new \SchemaDocument($this->resource_file_path);
+
+        //Get categories that tag an image as a distribution map.
+        $this->map_categories = self::get_map_categories($base_directory_path);
+
         //set encoding for the xml dump file - important for things like WikiParser::mb_ucfirst
         mb_internal_encoding("UTF-8");
         // delete the downloaded files
-        $this->cleanup_dump();
-        $this->download_dump();
+        $this->cleanup_dump($base_directory_path, $part_path);
+        $this->download_dump($base_directory_path, $part_path);
 
         // FIRST PASS: parse TaxonavigationIncluded* pages (e.g. https://commons.wikimedia.org/wiki/Template:Aves)
         // simultaneously locate galleries and categories with potential taxonomic information (i.e. a Taxonavigation template)
@@ -53,7 +58,7 @@ class WikimediaHarvester
         $this->iterate_files(array($this, 'check_taxonomy_and_redirects'));
 
         // FINAL PASS: check files for categories, grab file information for scientific media pages and save to file
-        $this->iterate_files(array($this, 'get_media_pages'));
+        $this->iterate_files(array($this, 'get_media_pages'), $part_path);
 
         echo "\n(processing last ". count($this->queue_of_pages_to_process) ." media)\n";
         $this->process_page_queue();
@@ -68,38 +73,38 @@ class WikimediaHarvester
         self::print_memory_and_time();
     }
 
-    private function download_dump()
+    private function download_dump($dir, $part_path)
     {
         // download latest Wikimedia Commons export
         echo "Downloading ".$this->resource->accesspoint_url." ...\n";
-        shell_exec("curl ".escapeshellarg($this->resource->accesspoint_url)." -o ". escapeshellarg($this->base_directory_path . "wikimedia.xml.bz2"));
+        shell_exec("curl ".escapeshellarg($this->resource->accesspoint_url)." -o ". escapeshellarg($dir . "wikimedia.xml.bz2"));
         // unzip the download
         echo "... unpacking downloaded file ...\n";
-        shell_exec("bunzip2 --force ". escapeshellarg($this->base_directory_path . "wikimedia.xml.bz2"));
+        shell_exec("bunzip2 --force ". escapeshellarg($dir . "wikimedia.xml.bz2"));
         // split the huge file into 300M chunks
         echo "... splitting file into parts ...\n";
-        shell_exec("split -a ". $this->part_file_suffix_chars ." -b 300m ". escapeshellarg($this->base_directory_path . "wikimedia.xml")." ". escapeshellarg($this->part_path));
+        shell_exec("split -a ". $this->part_file_suffix_chars ." -b 300m ". escapeshellarg($dir . "wikimedia.xml")." ". escapeshellarg($part_path));
         echo "... done.\n";
     }
 
-    private function cleanup_dump()
+    private function cleanup_dump($dir, $part_path)
     {
         // cleaning up downloaded files
         echo "Removing old wikimedia dump files ...\n";
-        shell_exec("rm -f ". escapeshellarg($this->part_path)."*");
-        shell_exec("rm -f ". escapeshellarg($this->base_directory_path . "wikimedia.xml"));
-        shell_exec("rm -f ". escapeshellarg($this->base_directory_path . "wikimedia.xml.bz2"));
+        shell_exec("rm -f ". escapeshellarg($part_path)."*");
+        shell_exec("rm -f ". escapeshellarg($dir . "wikimedia.xml"));
+        shell_exec("rm -f ". escapeshellarg($dir . "wikimedia.xml.bz2"));
         echo "... done.\n";
     }
 
-    private function iterate_files($callback)
+    private function iterate_files($callback, $part_files)
     {
         $total_pages_processed = 0;
         $this->page_iteration_left_overs = "";
         $suffix = str_repeat('a', $this->part_file_suffix_chars);
         while((strlen($suffix) == $this->part_file_suffix_chars))
         {
-            $filename = $this->part_path . $suffix;
+            $filename = $part_files . $suffix;
             if(!file_exists($filename))
             {
                 echo "Assuming no more part files to process (as ". basename($filename) ." doesn't exist)\n";
@@ -147,7 +152,7 @@ class WikimediaHarvester
         return $pages_processed;
     }
 
-    private function locate_taxonomic_pages($xml)
+    function locate_taxonomic_pages($xml)
     {
         $this->debug_locate_taxonomic_pages();
         // make sure we don't include cases with {{Taxonavigation in the comments field, etc.
@@ -155,6 +160,7 @@ class WikimediaHarvester
         if(!($text_start = strpos($xml, "<text"))) return false;
         if(strpos($xml, "{{Taxonavigation", $text_start) === false) return false;
         $page = new \WikimediaPage($xml);
+
         if($page->is_template())
         {
             // should check here for template redirects
@@ -183,13 +189,13 @@ class WikimediaHarvester
             if(!$page->is_gallery()) return false;
             foreach($page->media_on_page() as $file)
             {
-                $this->galleries_for_file["File:".$file][] = $page->title;
+                $this->galleries_for_file["File:".\WikiParser::make_valid_pagetitle($file)][] = $page->title;
             }
         }
     }
 
 
-    private function check_taxonomy_and_redirects($xml)
+    function check_taxonomy_and_redirects($xml)
     {
         $this->debug_check_taxonomy_and_redirects();
         // Phew, we don't need to worry about multiple redirects: http://en.wikipedia.org/wiki/Wikipedia:Double_redirects
@@ -450,7 +456,7 @@ class WikimediaHarvester
         }
     }
 
-    private static function get_map_categories($base_directory_path, $contact_sites = true)
+    private static function get_map_categories($save_to_dir, $contact_sites = true)
     {
         // Try to get latest list of map categories. It's hard to use the MediaWiki API to recursively descend categories
         // but there are 2 online tools which can do it. Try both of these, and if it fails, just use a previously saved version
@@ -461,13 +467,13 @@ class WikimediaHarvester
         if(count($mapcats) > 1) // will always have the base category present
         {
             // overwrite previous
-            @rename($base_directory_path."MapCategories.txt", $base_directory_path."MapCategories_previous.txt");
-            file_put_contents($base_directory_path."MapCategories.txt", implode("\n",array_keys($mapcats)));
+            @rename($save_to_dir."MapCategories.txt", $save_to_dir."MapCategories_previous.txt");
+            file_put_contents($save_to_dir."MapCategories.txt", implode("\n",array_keys($mapcats)));
             return $mapcats;
         }else
         {
             echo "Didn't download new list of map categories: using old version.\n";
-            $mapcats = file($base_directory_path."MapCategories.txt", FILE_IGNORE_NEW_LINES);
+            $mapcats = file($save_to_dir."MapCategories.txt", FILE_IGNORE_NEW_LINES);
             return(array_fill_keys($mapcats, 1));
         }
     }

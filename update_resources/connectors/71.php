@@ -9,8 +9,8 @@ define("WIKI_PREFIX", "http://commons.wikimedia.org/wiki/");
 require_vendor("wikipedia");
 
 
-$w = new WikimediaHarvester(Resource::find(71), "update_resources/connectors/files/");
-$w->begin_wikipedia_harvest();
+$w = new WikimediaHarvester(Resource::find(71));
+$w->begin_wikimedia_harvest("update_resources/connectors/files/");
 
 
 ?>
