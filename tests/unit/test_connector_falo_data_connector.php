@@ -4,7 +4,11 @@ require_library('connectors/FaloDataConnector');
 class test_connector_falo_data_connector extends SimpletestUnitBase {
 
   function testFaloDataConnector() {
-    $connector = new FaloDataConnector('falotest');
+    // NOTE: We are testing whether the real FALO file can be downloaded
+    //       but we actually use a test file for the other tests. So we could
+    //       remove or somehow stub the download test.
+    $source_url = 'http://tiny.cc/FALO';
+    $connector = new FaloDataConnector('falotest', $source_url);
     $reflector = new \ReflectionClass('\php_active_record\FaloDataConnector');
 
     $private_properties = array(
@@ -43,7 +47,7 @@ class test_connector_falo_data_connector extends SimpletestUnitBase {
     $private_properties['source_file_path']->setValue($connector, $downloaded_file);
 
     $private_methods['extract_data_from_loaded_source']->invoke($connector);
-    $this->assertEqual(count($private_properties['taxa']->getValue($connector)), 42,
+    $this->assertEqual(count($private_properties['taxa']->getValue($connector)), 65,
       'Taxa should be extracted from source data.');
 
     $private_methods['assign_parent_identifiers']->invoke($connector);
