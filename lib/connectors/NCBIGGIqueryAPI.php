@@ -452,7 +452,10 @@ class NCBIGGIqueryAPI
                             {
                                 if(in_array($database, array("ncbi", "gbif")))
                                 {
-                                    if($this->databases_to_check_eol_api[$database] == $tc["nameAccordingTo"]) $canonical = $tc["canonicalForm"];
+                                    if($this->databases_to_check_eol_api[$database] == $tc["nameAccordingTo"])
+                                    {
+                                        if($family != $tc["canonicalForm"]) $canonical = $tc["canonicalForm"];
+                                    }
                                 }
                                 elseif($database == "ggbn")
                                 {
