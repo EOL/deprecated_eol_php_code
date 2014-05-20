@@ -34,7 +34,7 @@ class WikimediaHarvester
     {
         $base_directory_path = DOC_ROOT . $files_subdir . DIRECTORY_SEPARATOR;
         $part_files = array('base' => $this->base_directory_path, 'subdir' => 'wikimedia', 'prefix' => 'part_');
-        $part_path = implode(DIRECTORY_SEPARATOR, $this->part_files);
+        $part_path = implode(DIRECTORY_SEPARATOR, $part_files);
 
         $this->resource_file = new \SchemaDocument($this->resource_file_path);
 
