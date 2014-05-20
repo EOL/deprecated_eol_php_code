@@ -32,8 +32,9 @@ class NCBIGGIqueryAPI
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
             $this->occurrence_ids = array();
+            $this->measurement_ids = array();
         }
-        $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1);
+        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1);
 
         // local
         $this->families_list = "http://localhost/~eolit/cp/NCBIGGI/falo2.in";
@@ -63,6 +64,7 @@ class NCBIGGIqueryAPI
         // stats
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->names_no_entry_from_partner_dump_file = $this->TEMP_DIR . "names_no_entry_from_partner.txt";
+        $this->name_from_eol_api_dump_file = $this->TEMP_DIR . "name_from_eol_api.txt";
         
         /* // FALO report
         $this->names_in_falo_but_not_in_irmng = $this->TEMP_DIR . "families_in_falo_but_not_in_irmng.txt";
@@ -71,6 +73,14 @@ class NCBIGGIqueryAPI
         
         $this->ggi_databases = array("ncbi", "ggbn", "gbif", "bhl", "bolds");
         $this->ggi_path = DOC_ROOT . "temp/GGI/";
+        
+        $this->eol_api["search"]    = "http://eol.org/api/search/1.0.json?page=1&exact=true&filter_by_taxon_concept_id=&filter_by_hierarchy_entry_id=&filter_by_string=&cache_ttl=&q=";
+        $this->eol_api["page"][0]   = "http://eol.org/api/pages/1.0/";
+        $this->eol_api["page"][1]   = ".json?images=0&videos=0&sounds=0&maps=0&text=0&iucn=false&subjects=overview&licenses=all&details=true&common_names=false&synonyms=false&references=false&vetted=1&cache_ttl=";
+        $this->databases_to_check_eol_api["ncbi"] = "NCBI Taxonomy";
+        $this->databases_to_check_eol_api["gbif"] = "GBIF Nub Taxonomy";
+        $this->databases_to_check_eol_api["ggbn"] = "ITIS Catalogue of Life";
+        $this->databases_to_check_eol_api["bolds"] = "-BOLDS-";
     }
 
     function get_all_taxa()
@@ -92,8 +102,9 @@ class NCBIGGIqueryAPI
             self::compare_previuos_and_current_dumps();
             $this->create_archive();
         }
+        echo "\n temp dir: " . $this->TEMP_DIR . "\n";
         // remove temp dir
-        recursive_rmdir($this->TEMP_DIR);
+        recursive_rmdir($this->TEMP_DIR); // debug - comment to check "name_from_eol_api.txt"
         debug("\n temporary directory removed: " . $this->TEMP_DIR);
     }
 
@@ -146,8 +157,9 @@ class NCBIGGIqueryAPI
             }
             fclose($handle);
         }
+        $i = $i - 1;
         echo "\n total: [$i]\n";
-        return $i-1;
+        return $i;
     }
 
     private function process_text_file($filename, $database)
@@ -282,6 +294,7 @@ class NCBIGGIqueryAPI
             self::add_string_types($rec, "Records in BOLDS", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/RecordInBOLD", $family);
             $rec["object_id"] = "_no_of_public_rec_in_bolds";
             self::add_string_types($rec, "Number public records in BOLDS", 0, "http://eol.org/schema/terms/NumberPublicRecordsInBOLD", $family);
+            self::has_diff_family_name_in_eol_api($family, $database);
         }
         self::check_for_sub_family($family);
         return false;
@@ -399,6 +412,76 @@ class NCBIGGIqueryAPI
         return count(array_keys($page_ids));
     }
 
+    private function has_diff_family_name_in_eol_api($family, $database)
+    {
+        $canonical = "";
+        if($json = Functions::lookup_with_cache($this->eol_api["search"] . $family, $this->download_options))
+        {
+            $json = json_decode($json, true);
+            if($json["results"])
+            {
+                if($id = $json["results"][0]["id"])
+                {
+                    if($database == "bolds")
+                    {
+                        if($html = Functions::lookup_with_cache("http://eol.org/pages/$id/resources/partner_links", $this->download_options))
+                        {
+                            if(preg_match("/boldsystems\.org\/index.php\/Taxbrowser_Taxonpage\?taxid=(.*?)\"/ims", $html, $arr))
+                            {
+                                echo "\n bolds id: " . $arr[1] . "\n";
+                                if($html = Functions::lookup_with_cache("http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=" . $arr[1], $this->download_options))
+                                {
+                                    if(preg_match("/BOLD Systems: Taxonomy Browser -(.*?)\{/ims", $html, $arr))
+                                    {
+                                        $canonical = trim($arr[1]);
+                                        echo "\n Got from bolds.org: [" . $canonical . "]\n";
+                                    }
+                                    // else echo "\n Nothing from bolds.org \n";
+                                }
+                                // else echo "\n investigate bolds.org taxid:[" . $arr[1] . "]\n";
+                            }
+                            // else echo "\n Nothing in Partner Links tab.";
+                        }
+                    }
+                    else // ncbi, gbif, ggbn
+                    {
+                        if($json = Functions::lookup_with_cache($this->eol_api["page"][0] . $id . $this->eol_api["page"][1], $this->download_options))
+                        {
+                            $json = json_decode($json, true);
+                            foreach($json["taxonConcepts"] as $tc)
+                            {
+                                if(in_array($database, array("ncbi", "gbif")))
+                                {
+                                    if($this->databases_to_check_eol_api[$database] == $tc["nameAccordingTo"])
+                                    {
+                                        if($family != $tc["canonicalForm"]) $canonical = $tc["canonicalForm"];
+                                    }
+                                }
+                                elseif($database == "ggbn")
+                                {
+                                    if(is_numeric(stripos($tc["nameAccordingTo"], $this->databases_to_check_eol_api[$database]))) $canonical = $tc["canonicalForm"];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        echo "\n [$database] taxonomy:[" . $this->databases_to_check_eol_api[$database] . "]\n";
+        if($canonical) $canonical = ucfirst(strtolower($canonical));
+        echo "\n canonical:[$canonical]\n";
+        if($canonical && $canonical != $family)
+        {
+            echo "\n has diff name in eol api:[$canonical]\n";
+            $this->families_with_no_data[$canonical] = 1;
+            self::save_to_dump($family . "\t" . $canonical . "\t" . $database, $this->name_from_eol_api_dump_file);
+            return true;
+        }
+        // elseif($canonical == $family) echo "\n Result: Same name in FALO. \n";
+        // else echo "\n Result: No name found in EOL API or Partner Links tab. \n";
+        return false;
+    }
+
     private function query_family_GBIF_info($family, $is_subfamily, $database)
     {
         $rec["family"] = $family;
@@ -447,6 +530,7 @@ class NCBIGGIqueryAPI
             self::add_string_types($rec, "Number records in GBIF", 0, "http://eol.org/schema/terms/NumberRecordsInGBIF", $family);
             $rec["object_id"] = "_rec_in_gbif";
             self::add_string_types($rec, "Records in GBIF", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/RecordInGBIF", $family);
+            self::has_diff_family_name_in_eol_api($family, $database);
         }
         self::check_for_sub_family($family);
         return false;
@@ -490,7 +574,7 @@ class NCBIGGIqueryAPI
 
     private function save_to_dump($rec, $filename)
     {
-        if(isset($rec["family"]))
+        if(isset($rec["measurement"]) && is_array($rec))
         {
             $fields = array("family", "count", "taxon_id", "object_id", "source", "label", "measurement");
             $data = "";
@@ -577,6 +661,7 @@ class NCBIGGIqueryAPI
             self::add_string_types($rec, "SpecimensInGGBN", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/SpecimensInGGBN", $family);
             $rec["object_id"] = "NumberDNAInGGBN";
             self::add_string_types($rec, "Number of DNA records in GGBN", 0, "http://eol.org/schema/terms/NumberDNARecordsInGGBN", $family);
+            self::has_diff_family_name_in_eol_api($family, $database);
         }
         self::check_for_sub_family($family);
         return false;
@@ -621,7 +706,11 @@ class NCBIGGIqueryAPI
                 return true;
             }
         }
-        if(!$is_subfamily) self::add_string_types($rec, "Number Of Sequences In GenBank", 0, "http://eol.org/schema/terms/NumberOfSequencesInGenBank", $family);
+        if(!$is_subfamily)
+        {
+            self::add_string_types($rec, "Number Of Sequences In GenBank", 0, "http://eol.org/schema/terms/NumberOfSequencesInGenBank", $family);
+            self::has_diff_family_name_in_eol_api($family, $database);
+        }
         self::check_for_sub_family($family);
         return false;
     }
@@ -638,7 +727,11 @@ class NCBIGGIqueryAPI
         if($val = $measurementType) $m->measurementType = $val;
         else                        $m->measurementType = "http://ggbn.org/". SparqlClient::to_underscore($label);
         $m->measurementValue = (string) $value;
-        $this->archive_builder->write_object_to_file($m);
+        if(!isset($this->measurement_ids[$m->occurrenceID]))
+        {
+            $this->archive_builder->write_object_to_file($m);
+            $this->measurement_ids[$m->occurrenceID] = '';
+        }
     }
 
     private function add_occurrence($taxon_id, $object_id)
@@ -769,6 +862,13 @@ class NCBIGGIqueryAPI
             $family = str_replace("dae" . "xxx", "nae", $family . "xxx");
             $this->families_with_no_data[$family] = 1;
         }
+        /* commented for now bec it is not improving the no. of records
+        elseif(substr($family, -4) == "ceae")
+        {
+            $family = str_replace("ceae" . "xxx", "deae", $family . "xxx");
+            $this->families_with_no_data[$family] = 1;
+        }
+        */
     }
 
     private function get_families_xlsx()
@@ -776,19 +876,18 @@ class NCBIGGIqueryAPI
         require_library('XLSParser');
         $parser = new XLSParser();
         $families = array();
-        // $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/s/kqhru8pyc9ujktb/FALO.xlsx?dl=1&token_hash=AAEzlUqBxtGt8_iPX-1soVQ7m61K10w9LyxQIABeMg4LeQ"; // from Cyndy's Dropbox
-        // $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/s/9x3q0f7burh465k/FALO.xlsx?dl=1&token_hash=AAH94jgsY0_nI3F0MgaieWyU-2NpGpZFUCpQXER-dqZieg"; // from Eli's Dropbox
-        // $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/FALO.xlsx"; // again from Eli's Dropbox
-        $dropbox_xlsx[] = "http://localhost/~eolit/cp/NCBIGGI/FALO.xlsx"; // local
+        $dropbox_xlsx[] = "http://tiny.cc/FALO"; // from Cyndy's Dropbox
+        // $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/FALO.xlsx"; // from Eli's Dropbox
+        // $dropbox_xlsx[] = "http://localhost/~eolit/cp/NCBIGGI/FALO.xlsx"; // local
         foreach($dropbox_xlsx as $doc)
         {
             echo "\n processing [$doc]...\n";
-            if($path = Functions::save_remote_file_to_local($doc, array("cache" => 1, "timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2)))
+            if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2)))
             {
                 $arr = $parser->convert_sheet_to_array($path);
                 foreach($arr["FAMILY"] as $family)
                 {
-                    $family = trim(str_ireplace(array("Family ", '"', "FAMILY"), "", $family));
+                    $family = trim(str_ireplace(array("Family", '"'), "", $family));
                     if(is_numeric($family)) continue;
                     if($family) $families[$family] = 1;
                 }

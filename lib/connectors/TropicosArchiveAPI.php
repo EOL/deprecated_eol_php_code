@@ -16,9 +16,6 @@ http://services.tropicos.org/Name/25510055/HigherTaxa?format=xml&apikey=2810ce68
 
 * Tropicos web service goes down daily between 7-8am Eastern. So the connector process sleeps for an hour during this downtime.
 * Connector runs for a long time because the sheer number of server requests to get all data for all taxa.
-Last collection numbers: taxa=260,738; articles=345,414; images=80,125
-
-Take note of these sample ID's which generated resource without <dwc:ScientificName> last time connector was run: 13000069 13000165 50335886
 */
 
 define("TROPICOS_DOMAIN", "http://www.tropicos.org");
@@ -30,9 +27,8 @@ define("TROPICOS_API_SERVICE", "http://services.tropicos.org/Name/");
 class TropicosArchiveAPI
 {
 
-    // const TEMP_FILE_PATH = "/Volumes/Seagate Backup Plus Drive/TropicosArchive_cache/";
-    // const TEMP_FILE_PATH  = DOC_ROOT . "/update_resources/connectors/files/TropicosArchive_cache/";
-    const TEMP_FILE_PATH = "/Users/eolit/EOL/TropicosArchive_cache/";
+    // const TEMP_FILE_PATH = "/Users/eolit/EOL/TropicosArchive_cache/";
+    const TEMP_FILE_PATH = "/Users/EOL_TropicosArchive_cache/";
     
     function __construct($folder)
     {
@@ -79,15 +75,29 @@ class TropicosArchiveAPI
         $i = 0;
         foreach(new FileIterator($this->tropicos_ids_list_file) as $line_number => $taxon_id)
         {
-            // self::check_server_downtime(); -- temporarily disabled as we get latest schedule for downtime
+            self::check_server_downtime();
             if($taxon_id)
             {
-                $i++; echo "\n$i. [$taxon_id]";
-                // if($i <= 650000) continue; // debug
+                $i++;
+                /* breakdown when caching
+                $cont = false;
+                // if($i >=      1 && $i <  30000) $cont = true;
+                // if($i >=  30000 && $i <  60000) $cont = true;
+                // if($i >=  60000 && $i <  90000) $cont = true;
+                // if($i >=  90000 && $i < 120000) $cont = true;
+                // if($i >= 120000 && $i < 150000) $cont = true;
+                // if($i >= 150000 && $i < 180000) $cont = true;
+                // if($i >= 180000 && $i < 210000) $cont = true;
+                // if($i >= 210000 && $i < 240000) $cont = true;
+                // if($i >= 240000 && $i < 270000) $cont = true;
+                // if($i >= 270000 && $i < 300000) $cont = true;
+                if(!$cont) continue;
+                */
+                echo "\n$i. [$taxon_id]";
                 self::process_taxon($taxon_id);
             }
         }
-
+        
         /* during preview mode -- debug
         $ids = array("100184", "100423", "21300106", "21300477", "21300646", "21300647", "21301287", "21301354", "21301544");
         foreach($ids as $taxon_id)
@@ -144,8 +154,6 @@ class TropicosArchiveAPI
     private function get_images($taxon_id)
     {
         if(!$xml = self::check_cache("images", $taxon_id)) $xml = self::create_cache("images", $taxon_id);
-        else return true;
-        
         $xml = simplexml_load_string($xml);
         $with_image = 0;
         foreach($xml->Image as $rec)
@@ -238,7 +246,7 @@ class TropicosArchiveAPI
             // $agents[] = array("role" => "source", "homepage" => "http://www.tropicos.org", "fullName" => "Tropicos");
             // $agent_ids = self::create_agents($agents);
 
-            $text_id = $taxon_id . "_" . $rec->Location->LocationID;
+            $text_id = $rec->Location->LocationID;
             
             $region = "";
             if($RegionName = trim($rec->Location->RegionName)) $region .= $RegionName;
@@ -268,20 +276,19 @@ class TropicosArchiveAPI
         if($mtaxon)
         {
             $m->measurementOfTaxon = 'true';
+            $m->source = TROPICOS_DOMAIN . "/Name/" . $taxon_id . "?tab=distribution";
+            /* temporarily excluded to reduce size of measurement tab
             $m->measurementRemarks = "Note: This information is based on publications available through <a href='http://tropicos.org/'>Tropicos</a> and may not represent the entire distribution. Tropicos does not categorize distributions as native or non-native.";
+            */
         }
         $m->measurementType = $mtype;
-        $m->source = TROPICOS_DOMAIN . "/Name/" . $taxon_id . "?tab=distribution";
         $m->measurementValue = (string) $value;
-        // $m->measurementMethod = '';
-        // $m->contributor = '';
         $this->archive_builder->write_object_to_file($m);
     }
 
     private function add_occurrence($taxon_id, $catnum)
     {
-        $occurrence_id = md5($taxon_id . 'o' . $catnum);
-        $occurrence_id = $taxon_id . 'O' . $catnum;
+        $occurrence_id = $taxon_id . '_' . $catnum;
         if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
@@ -304,9 +311,9 @@ class TropicosArchiveAPI
             $r->agentRole = $rec["role"];
             $r->term_homepage = $rec["homepage"];
             $agent_ids[] = $r->identifier;
-            if(!in_array($r->identifier, $this->resource_agent_ids))
+            if(!isset($this->resource_agent_ids[$r->identifier]))
             {
-               $this->resource_agent_ids[] = $r->identifier;
+               $this->resource_agent_ids[$r->identifier] = '';
                $this->archive_builder->write_object_to_file($r);
             }
         }
@@ -477,7 +484,7 @@ class TropicosArchiveAPI
             if($contents)
             {
                 $ids = json_decode($contents, true);
-                echo "\n count: " . count($ids);
+                echo "\n count:[$count] " . count($ids);
                 $str = "";
                 foreach($ids as $id)
                 {
@@ -505,20 +512,9 @@ class TropicosArchiveAPI
     private function check_cache($dir_name, $id, $last_update = null)
     {
         $file_path = self::TEMP_FILE_PATH . $dir_name . "/" . $id . ".txt";
-        echo "\n type: [$dir_name][$file_path]";
         if(file_exists($file_path))
         {
             $file_contents = file_get_contents($file_path);
-            /*
-            // if we're checking the cache for GetInfo and there is a later copy, then
-            // delete BOTH the GetInfo and GetSizes calls for that media
-            if($dir_name == 'photosGetInfo' && (!$last_update || @$json_object->photo->dates->lastupdate != $last_update))
-            {
-                unlink($file_path);
-                $sizes_path = DOC_ROOT . "/update_resources/connectors/files/flickr_cache/photosGetSizes/$filter_dir/$photo_id.json";
-                @unlink($sizes_path);
-            }else return $json_object;
-            */
             return $file_contents;
         }
         return false;
@@ -528,11 +524,9 @@ class TropicosArchiveAPI
     {
         if($type == "id_list") // $id here is the startid
         {
-            $pagesize = 5;
             $pagesize = 1000; // debug orig value max size is 1000; pagesize is the no. of records returned from Tropicos master list service
             $url = TROPICOS_API_SERVICE . "List?startid=$id&PageSize=$pagesize&apikey=" . TROPICOS_API_KEY . "&format=json";
         }
-        
         // $id here is the taxon_id
         elseif($type == "taxon_name")   $url = TROPICOS_API_SERVICE . $id . "?format=json&apikey=" . TROPICOS_API_KEY;
         elseif($type == "taxonomy")     $url = TROPICOS_API_SERVICE . $id . "/HigherTaxa?format=xml&apikey=" . TROPICOS_API_KEY;
@@ -541,8 +535,7 @@ class TropicosArchiveAPI
         elseif($type == "distribution") $url = TROPICOS_API_SERVICE . $id . "/Distributions?format=xml&apikey=" . TROPICOS_API_KEY;
         elseif($type == "images")       $url = TROPICOS_API_SERVICE . $id . "/Images?format=xml&apikey=" . TROPICOS_API_KEY;
         elseif($type == "chromosome")   $url = TROPICOS_API_SERVICE . $id . "/ChromosomeCounts?format=xml&apikey=" . TROPICOS_API_KEY;
-        
-        if($contents = Functions::get_remote_file($url, $this->download_options))
+        if($contents = Functions::lookup_with_cache($url, $this->download_options))
         {
             self::add_to_cache($type, $id, $contents);
             return $contents;
@@ -564,6 +557,7 @@ class TropicosArchiveAPI
         fclose($FILE);
     }
 
+    /*
     private function get_texts($description, $taxon_id, $title, $subject, $code, $reference_ids = null, $agent_ids = null)
     {
             $description = str_ireplace("&", "", $description);
@@ -589,7 +583,8 @@ class TropicosArchiveAPI
             $mr->bibliographicCitation = '';
             $this->archive_builder->write_object_to_file($mr);
     }
-
+    */
+    
     private function check_server_downtime()
     {
         $time = date('H:i:s', time());

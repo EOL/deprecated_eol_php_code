@@ -85,7 +85,10 @@ class AmericanInsectsAPI
 
                         // $images = self::parse_images($html, $url); working... temporarily commented
                         $images = array();
-                        $lengths = self::parse_texts($html, $url);
+                        $info = self::parse_texts($html, $url);
+                        $lengths = @$info["lengths"];
+                        $wingspan = @$info["wingspan"];
+                        
                         if($images || $lengths)
                         {
                             $r = array();
@@ -95,6 +98,7 @@ class AmericanInsectsAPI
                             self::create_instances_from_taxon_object($r);
                             $r["images"] = $images;
                             $r["lengths"] = $lengths;
+                            $r["wingspan"] = $wingspan;
                             if($lengths) self::prepare_length_structured_data($r);
                             if($images) self::prepare_image_objects($r);
                         }
@@ -139,6 +143,12 @@ class AmericanInsectsAPI
     {
         $texts = array();
         $length = "";
+        $wingspan = false;
+        if(preg_match("/>Wingspan: (.*?)</ims", $html, $arr))
+        {
+            $wingspan = true;
+            $html = str_replace("Wingspan: ", "Length: ", $html);
+        }
         if(preg_match("/>Length: (.*?)</ims", $html, $arr))
         {
             if($length = $arr[1])
@@ -173,7 +183,7 @@ class AmericanInsectsAPI
                 $texts[] = $length;
             }
         }
-        return $texts;
+        return array("lengths" => $texts, "wingspan" => $wingspan);
     }
     
     private function parse_images($html, $url)
@@ -428,12 +438,13 @@ class AmericanInsectsAPI
                     }
                     $final = trim(preg_replace('/\s*\([^)]*\)/', '', $final)); //remove parenthesis
                     if(preg_match('!\d+\.*\d*!', $final, $match)) $final = $match[0]; //remove letters
+                    if(is_numeric(strpos(@$rec["measurementRemarks"], "Source data are expressed as a range:"))) $rec["measurementRemarks"] .= " ($final mm. average).";
                     $rec["catnum"] = "length";
                     if($ctr) $rec["catnum"] .= $ctr;
                     $rec["statistical_method"] = "http://eol.org/schema/terms/average";
                     $rec["measurementUnit"] = "http://purl.obolibrary.org/obo/UO_0000016";
                     $length_measurement = "http://purl.obolibrary.org/obo/CMO_0000013";
-                    if(is_numeric(stripos($length, "wingspan"))) $length_measurement = "http://www.owl-ontologies.com/unnamed.owl#Wingspan";
+                    if(is_numeric(stripos($length, "wingspan")) || @$rec["wingspan"]) $length_measurement = "http://www.owl-ontologies.com/unnamed.owl#Wingspan";
                     self::add_string_types("true", $rec, "length", $final, $length_measurement);
                     $this->debug[$final] = @$rec["measurementRemarks"];
                     $ctr++;
@@ -445,7 +456,7 @@ class AmericanInsectsAPI
     private function clean_length_value($length)
     {
         $length = strtolower($length);
-        $length = str_replace(array("\t", "\n"), "", $length);
+        $length = str_replace(array("\t", "\n", "males are smaller than females", "midilinae"), "", $length);
         $length = str_replace("&gt;", "greater than", $length);
         $length = str_replace("workers", "worker", $length);
         $length = str_replace(". female", "; female", $length);
