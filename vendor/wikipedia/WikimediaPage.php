@@ -163,7 +163,7 @@ class WikimediaPage
         }
         // remove the template name
         array_shift($this->information);
-        // For template {{Flickr}} put "photographer" as "author": see http://commons.wikimedia.org/wiki/Template:Flickr
+        // Some templates, e.g. http://commons.wikimedia.org/wiki/Template:Flickr have "photographer" not (as we normally expect) "author"
         if (!(array_key_exists('author', $this->information) || array_key_exists('Author', $this->information)) && array_key_exists('photographer', $this->information))
             $this->information['author'] = $this->information['photographer'];
         return $this->information;
@@ -678,7 +678,7 @@ class WikimediaPage
         $this->location = false;
         if(count($location = WikiParser::template_as_array($this->active_wikitext(), "(?:[Oo]bject )?[Ll]ocation(?: dec)?")))
         {
-            if(substr($location[0], -3) === "dec")
+            if(!isset($location[8]))
             {
                 // see http://commons.wikimedia.org/wiki/Template:Location_dec
                 if(isset($location[1]) && isset($location[2]) && is_numeric($location[1]) && is_numeric($location[2]))
@@ -692,15 +692,12 @@ class WikimediaPage
                 }
             }else
             {
-                // see http://commons.wikimedia.org/wiki/Template:Location
-                // lazy - assume 1-7 are also set if so
-                if(isset($location[8]))
-                {
-                    $this->georef["latitude"] = $location[1] + ((($location[2] * 60) + ($location[3])) / 3600);
-                    if(stripos($location[4], "N") === false) $this->georef["latitude"] *= -1;
-                    $this->georef["longitude"] = $location[5] + ((($location[6] * 60) + ($location[7])) / 3600);
-                    if(stripos($location[8], "W") === false) $this->georef["longitude"] *= -1;
-                }
+                // lazy - assume parameters 1-7 are set too
+                $this->georef["latitude"] = $location[1] + ((($location[2] * 60) + ($location[3])) / 3600);
+                if(stripos($location[4], "N") === false) $this->georef["latitude"] *= -1;
+                $this->georef["longitude"] = $location[5] + ((($location[6] * 60) + ($location[7])) / 3600);
+                if(stripos($location[8], "W") === false) $this->georef["longitude"] *= -1;
+                
                 if(isset($location[9]))
                 {
                     $this->location = $location[9];
