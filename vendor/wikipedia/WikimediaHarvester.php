@@ -30,7 +30,7 @@ class WikimediaHarvester
         $this->resource_file_path = CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id . "_temp.xml";
     }
 
-    public function begin_wikimedia_harvest($files_subdir)
+    public function begin_wikimedia_harvest($files_subdir, $download=true)
     {
         $base_directory_path = DOC_ROOT . $files_subdir . DIRECTORY_SEPARATOR;
         $part_files = array('base' => $base_directory_path, 'subdir' => 'wikimedia', 'prefix' => 'part_');
@@ -43,9 +43,13 @@ class WikimediaHarvester
 
         //set encoding for the xml dump file - important for things like WikiParser::mb_ucfirst
         mb_internal_encoding("UTF-8");
-        // delete the downloaded files
-        $this->cleanup_dump($base_directory_path, $part_path);
-        $this->download_dump($base_directory_path, $part_path);
+
+        if ($download)
+        {
+            // delete then re-download the huge wikimedia commons dump files
+            $this->cleanup_dump($base_directory_path, $part_path);
+            $this->download_dump($base_directory_path, $part_path);
+        }
 
         // FIRST PASS: parse TaxonavigationIncluded* pages (e.g. https://commons.wikimedia.org/wiki/Template:Aves)
         // simultaneously locate galleries and categories with potential taxonomic information (i.e. a Taxonavigation template)
