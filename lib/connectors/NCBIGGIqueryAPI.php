@@ -597,9 +597,9 @@ class NCBIGGIqueryAPI
         $records = array();
         $rec["family"] = $family;
         $rec["source"] = $this->family_service_ggbn . $family;
+        $rec["taxon_id"] = $family;
         if($html = Functions::lookup_with_cache($rec["source"], $this->download_options))
         {
-            $rec["taxon_id"] = $family;
             $has_data = false;
             if(preg_match("/<b>(.*?) entries found/ims", $html, $arr) || preg_match("/<b>(.*?) entry found/ims", $html, $arr))
             {
