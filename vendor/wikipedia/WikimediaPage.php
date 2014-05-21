@@ -1093,6 +1093,11 @@ class TaxonomyParameters
                     $this->taxon_params['genus'] = $arr[1];
                     if($GLOBALS['ENV_DEBUG']) $return_message = "Genus ".$this->taxon_params['genus']." initially set from $rank name ('$name'). ";
                 }
+                if (($rank === 'subspecies')
+                {
+                    //sometimes people forget to put the dot after subsp. Put it in if necessary
+                    $name = preg_replace("/\ssubsp\s/iu", " subsp. ", $name);
+                }
             }
             // single word in 'species' or 'subspecies' - this could be an epithet
             else
