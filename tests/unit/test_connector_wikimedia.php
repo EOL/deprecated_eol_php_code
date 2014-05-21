@@ -307,6 +307,130 @@ XML;
         foreach($names as $name) $this->assertFalse($name === "Passeriformes");
 
     }
+    
+    function testSubspeciesNames()
+    {
+        $include_xml = <<<XML
+  <page>
+    <title>Template:Mammalia</title>
+    <ns>10</ns>
+    <id>13244701</id>
+    <revision>
+      <id>78620131</id>
+      <parentid>60631199</parentid>
+      <timestamp>2012-09-20T11:52:39Z</timestamp>
+      <contributor>
+        <username>Liné1</username>
+        <id>80857</id>
+      </contributor>
+      <comment>simplification</comment>
+      <text xml:space="preserve">{{TaxonavigationIncluded|
+Domain|Eukaryota|
+Regnum|Animalia|
+Phylum|Chordata|
+Subphylum|Vertebrata|
+Infraphylum|Gnathostomata|
+Superclassis|Tetrapoda|
+Classis|Mammalia|
+rank={{{rank|}}}|
+categorizeGeneraIn=Mammalia|
+categorizeFamiliesIn=Mammalia}}</text>
+      <sha1>tj2nr20bh5j00k74iemm49i759n5knp</sha1>
+      <model>wikitext</model>
+      <format>text/x-wiki</format>
+    </revision>
+  </page>
+XML;
+
+        $gallery_xml = <<<XML
+  <page>
+    <title>Felis silvestris catus</title>
+    <ns>0</ns>
+    <id>948</id>
+    <revision>
+      <id>106208885</id>
+      <parentid>105140410</parentid>
+      <timestamp>2013-10-03T20:53:07Z</timestamp>
+      <contributor>
+        <ip>50.90.120.159</ip>
+      </contributor>
+      <text xml:space="preserve">{{Taxonavigation|
+include=Mammalia|
+Subclassis|Theria|
+Infraclassis|Eutheria|
+Ordo|Carnivora|
+Subordo|Feliformia|
+Familia|Felidae|
+Subfamilia|Felinae|
+Genus|Felis|
+Species|Felis silvestris|
+Subspecies|catus|
+authority=([[Carl von Linné|Linnaeus]], 1758)}}
+...I have changed the subspecies to a single word to test this...
+[[Category:Felis silvestris catus| ]]</text>
+      <sha1>l5lqc3694hslenle4u93gypbbuas7sy</sha1>
+      <model>wikitext</model>
+      <format>text/x-wiki</format>
+    </revision>
+  </page>
+XML;
+
+       $CATegory_xml = <<<XML
+  <page>
+    <title>Category:Felis silvestris catus</title>
+    <ns>14</ns>
+    <id>27579</id>
+    <revision>
+      <id>101234455</id>
+      <parentid>101234144</parentid>
+      <timestamp>2013-08-04T07:55:34Z</timestamp>
+      <contributor>
+        <username>Pitke</username>
+        <id>137043</id>
+      </contributor>
+      <comment>/* How to categorize your cat photograph */ additions</comment>
+      <text xml:space="preserve">{{Taxonavigation|
+include=Mammalia|
+Subclassis|Theria|
+Infraclassis|Eutheria|
+Ordo|Carnivora|
+Subordo|Feliformia|
+Familia|Felidae|
+Subfamilia|Felinae|
+Genus|Felis|
+Species|Felis silvestris|
+Subspecies|Felis silvestris catus|
+authority=([[Carl von Linné|Linnaeus]], 1758)}}
+Anytime you don't know how to categorise your photo, just put it in this category directly, and someone else will subcategorise it for you.
+&lt;/div&gt;
+
+[[Category:Felis silvestris|catus]]
+</text>
+      <sha1>r8o2z4d66n32w1ougacq1wh3isal2aa</sha1>
+      <model>wikitext</model>
+      <format>text/x-wiki</format>
+    </revision>
+  </page>
+XML;
+
+        $dummy_resource = null;
+        $dummy_harvester = new WikimediaHarvester($dummy_resource);
+
+        $dummy_harvester->locate_taxonomic_pages($include_xml);
+        $dummy_harvester->locate_taxonomic_pages($gallery_xml);
+        $dummy_harvester->locate_taxonomic_pages($CATegory_xml);
+
+        $dummy_harvester->check_taxonomy_and_redirects($gallery_xml);
+        $dummy_harvester->check_taxonomy_and_redirects($CATegory_xml);
+
+        $this->assertTrue($dummy_harvester->taxa["Felis silvestris catus"]->scientificName() === "Felis silvestris catus (Linnaeus, 1758)");
+        $this->assertTrue($dummy_harvester->taxa["Category:Felis silvestris catus"]->scientificName() === "Felis silvestris catus (Linnaeus, 1758)");
+        $names = array_keys($dummy_harvester->taxa);
+        $dummy_harvester->remove_duplicate_taxonomies($names);
+        //These should be identical, save that gallery is newer than the category in this case, so check that category has been deleted
+        foreach($names as $name) $this->assertFalse($name === "Category:Felis silvestris catus");
+    }
+
 
 }
 

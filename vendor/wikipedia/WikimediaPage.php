@@ -995,8 +995,9 @@ class WikimediaPage
 class TaxonomyParameters
 {
     // listed as most precise to least precise
-    // 'species' is not part of the EoL output, but may be used to construct scientificName later
+    // 'subspecies' and 'species' are not part of the EoL output, but may be used to construct scientificName later
     public static $wiki_to_standard = array(
+            "Subspecies"=> "subspecies",
             "Species"   => "species",
             "Genus"     => "genus",
             "Familia"   => "family",
@@ -1076,32 +1077,38 @@ class TaxonomyParameters
                 $this->taxon_params['species'] = $name . ' ' . $this->taxon_params['species'];
             }
         }
-        if($rank === 'species')
+        if(($rank === 'species') || ($rank === 'subspecies'))
         {
             /* TODO - caution here with virus species names, which can contain multiple words and capitals, something like
                   if ($this->taxon_params['domain'] != "Viruses") ...
-               only we don't currently store the domain name
+               only we don't currently store the domain name, so we can't check. 
+               Only a problem if Species field contains an multi-word epithet that happens to start with a capital letter, and
+               we haven't yet defined a genus (pretty rare!), or if Species field contains a single-word epithet with caps.
             */
-            // multiple words in species (this is the norm)
+            // multiple words in (sub)species (this is the norm)
             if(preg_match("/ /", $name))
             {
                 if(empty($this->taxon_params['genus']) && preg_match("/^([A-Z][^ ]+) [a-z]/", $name, $arr))
                 {
                     $this->taxon_params['genus'] = $arr[1];
-                    if($GLOBALS['ENV_DEBUG']) $return_message = "Genus ".$this->taxon_params['genus']." initially set from species name ('$name'). ";
+                    if($GLOBALS['ENV_DEBUG']) $return_message = "Genus ".$this->taxon_params['genus']." initially set from $rank name ('$name'). ";
                 }
             }
-            // single word in 'species' - this could be an epithet
+            // single word in 'species' or 'subspecies' - this could be an epithet
             else
             {
                 if(mb_strtolower($name, "UTF-8") != $name)
                 {
-                    $return_message = "Single-word species ('$name') has CaPs: ignoring this part of the classification. ";
+                    $return_message = "Single-word $rank ('$name') has CaPs: ignoring this part of the classification. ";
                     return $return_message;
                 }
-                if(!empty($this->taxon_params['genus']))
+                if (($rank === 'species') && (!empty($this->taxon_params['genus'])))
                 {
                     $name = $this->taxon_params['genus'] . ' ' . $name;
+                }
+                if (($rank === 'subspecies') && (!empty($this->taxon_params['species'])))
+                {
+                    $name = $this->taxon_params['species'] . ' ' . $name;
                 }
             }
         }else
@@ -1150,8 +1157,10 @@ class TaxonomyParameters
     public function asEoLtaxonObject()
     {
         // calculate what EoL needs from the levels that we know about
-        static $spp = array('species' => null);
-        $array_to_return = array_diff_key($this->taxon_params, $spp); // "species" level detail in EoL is contained in scientificName
+
+        static $not_returned = array('species' => null, 'subspecies' => null);
+        // "species & subspp" level detail in EoL is contained in scientificName, so we don't return these fields
+        $array_to_return = array_diff_key($this->taxon_params, $not_returned);
         $array_to_return['scientificName'] = $this->scientificName();
         $array_to_return['dataObjects'] = array();
         return $array_to_return;
