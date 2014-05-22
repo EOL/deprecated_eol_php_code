@@ -1074,7 +1074,7 @@ class TaxonomyParameters
 
         if($rank === 'genus')
         {
-            if(preg_match("/^([A-Z×][^ ]+) [a-z]/u", $name, $arr))
+            if(preg_match("/^([A-Z×][^ ]+) [a-z×]/u", $name, $arr))
             {
                 // careful with e.g. Category:Rosa_laxa which has Genus = 'Rosa species'
                 $return_message = "Multi-word genus ($name) getting shortened to ". $arr[1];
