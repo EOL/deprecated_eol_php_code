@@ -693,22 +693,32 @@ class NCBIGGIqueryAPI
         $rec["family"] = $family;
         $rec["source"] = $this->family_service_ncbi . $family;
         $rec["taxon_id"] = $family;
-        $rec["object_id"] = "_no_of_seq_in_genbank";
         $contents = Functions::lookup_with_cache($rec["source"], $this->download_options);
         if($xml = simplexml_load_string($contents))
         {
             if($xml->Count > 0)
             {
+                $rec["object_id"] = "_no_of_seq_in_genbank";
                 $rec["count"]       = $xml->Count;
                 $rec["label"]       = "Number Of Sequences In GenBank";
                 $rec["measurement"] = "http://eol.org/schema/terms/NumberOfSequencesInGenBank";
                 self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
+                
+                $rec["object_id"] = "SequenceInGenBank";
+                $rec["count"] = "http://eol.org/schema/terms/yes";
+                $rec["label"] = "SequenceInGenBank";
+                $rec["measurement"] = "http://eol.org/schema/terms/SequenceInGenBank";
+                self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
+                
                 return true;
             }
         }
         if(!$is_subfamily)
         {
+            $rec["object_id"] = "_no_of_seq_in_genbank";
             self::add_string_types($rec, "Number Of Sequences In GenBank", 0, "http://eol.org/schema/terms/NumberOfSequencesInGenBank", $family);
+            $rec["object_id"] = "SequenceInGenBank";
+            self::add_string_types($rec, "SequenceInGenBank", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/SequenceInGenBank", $family);
             self::has_diff_family_name_in_eol_api($family, $database);
         }
         self::check_for_sub_family($family);
