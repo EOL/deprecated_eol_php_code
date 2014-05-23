@@ -325,8 +325,8 @@ class WikimediaPage
         $identified_licenses = array();
         foreach($potential_licenses as $potential_license)
         {
-            // PD-USGov-CIA-WF
-            if(preg_match("/^(PD|Public domain.*|CC-PD|usaid|nih|noaa|CopyrightedFreeUse|Copyrighted Free Use)($| |-)/mui", $potential_license))
+            // catch e.g. PD-USGov-CIA-WF, etc and Copyrighted_free_use (but *not* "Copyrighted free use provided that")
+            if(preg_match("/^(PD|Public[ _]domain.*|CC-PD|usaid|nih|noaa|CopyrightedFreeUse|Copyrighted[ _]Free[ _]Use(?![ _]provided[ _]that))($| |-)/mui", $potential_license))
             {
                 $identified_licenses[] = array(
                     'license'   => 'public domain',
@@ -1066,11 +1066,11 @@ class TaxonomyParameters
         // don't set anything if the string is empty
         if($name === '') return $return_message;
 
-        /* Make hybrid names a single word, removing space after the × sign as recommended by ICBN
-            http://ibot.sav.sk/icbn/frameset/0071AppendixINoHa003.htm
+        /* Make hybrid names a single word, replacing space after the × sign with a non-breaking space
            Treat X, x or × as hybrid indicators if they are at the start or preceeded by a space, e.g. "X Cleistoza" becomes 
            ×Cleistoza and Salix × pendulina becomes Salix ×pendulina. This also helps us delimit species and genera names */
-        $name = preg_replace("/(?<=^| )[×x] +/iu", "×", $name);
+        static $multiply_sign_and_nonbreaking_space = "× "; //make sure the "space" in this string is actually a NBSP
+        $name = preg_replace("/(?<=^| )[×x] +/iu", $multiply_sign_and_nonbreaking_space, $name);
 
         if($rank === 'genus')
         {
@@ -1096,11 +1096,11 @@ class TaxonomyParameters
         {
             /* TODO - caution here with virus species names, which can contain multiple words and capitals. We need something like
                   if ($this->taxon_params['domain'] != "Viruses") ...
-               only we don't currently store the domain name, so we can't check. 
-               Only a problem if Species field contains an multi-word epithet that happens to start with a capital letter, and
-               we haven't yet defined a genus (pretty rare!), in which case we will assume a genus name from the first word of the epithet,
-               or if Species field contains a single-word epithet with caps, in which case the epithet will be ignored and a warning given
-            */
+               only we don't currently store the domain name, so we can't check. This is only a problem if the Species field contains a
+               multi-word epithet that happens to start with a capital letter, and we haven't yet defined a genus (pretty rare), in which case we will
+               assume a genus name from the first word of the epithet, or if Species field contains a single-word epithet with caps, in which case
+               the epithet will be ignored and a warning given (so e.g. we currently miss https://commons.wikimedia.org/wiki/Category:Theilovirus) */
+
             // multiple words in (sub)species (this is the norm)
             if(preg_match("/ /", $name))
             {
