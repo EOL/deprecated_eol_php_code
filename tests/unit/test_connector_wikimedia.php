@@ -210,8 +210,8 @@ Nothovarietas|dummy|}}";
         $this->assertTrue($taxonomy1->asEoLtaxonObject()["genus"] == "Anacamptis");
 
         //test whether the scientific name is properly formed, e.g. ssp replaced with subsp.
-        $this->assertTrue($taxonomy1->scientificName() == "Anacamptis ×gennarii subsp. bornemanniae (Asch.) H.Kretzschmar, Eccarius & H.Dietr. (2007)");
-        $this->assertTrue($taxonomy2->scientificName() == "×Anacamptis gennarii var. dummy");
+        $this->assertTrue($taxonomy1->scientificName() == html_entity_decode("Anacamptis &times;&nbsp;gennarii subsp. bornemanniae (Asch.) H.Kretzschmar, Eccarius & H.Dietr. (2007)"));
+        $this->assertTrue($taxonomy2->scientificName() == html_entity_decode("&times;&nbsp;Anacamptis gennarii var. dummy"));
     }
 
     function testTaxonomyConflict()
