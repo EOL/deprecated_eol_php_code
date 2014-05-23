@@ -191,7 +191,7 @@ class IrmngAPI
         if($record["ISMARINE"] == "TRUE")       $habitat = "http://purl.obolibrary.org/obo/ENVO_00000569";
         elseif($record["ISMARINE"] == "FALSE")  $habitat = "http://purl.obolibrary.org/obo/ENVO_00002037";
         $rec["catnum"] = "cs"; //conservation status
-        if($val = $conservation_status) self::add_string_types($rec, "Conservation status", $val, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus");
+        if($val = $conservation_status) self::add_string_types($rec, "Conservation status", $val, "http://eol.org/schema/terms/ExtinctionStatus");
         $rec["catnum"] = "h"; //habitat
         if($val = $habitat)             self::add_string_types($rec, "Habitat", $val, "http://rs.tdwg.org/dwc/terms/habitat");
     }
