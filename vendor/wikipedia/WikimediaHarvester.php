@@ -30,11 +30,11 @@ class WikimediaHarvester
         $this->resource_file_path = CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id . "_temp.xml";
     }
 
-    public function begin_wikimedia_harvest($files_subdir)
+    public function begin_wikimedia_harvest($files_subdir, $download=true)
     {
         $base_directory_path = DOC_ROOT . $files_subdir . DIRECTORY_SEPARATOR;
-        $part_files = array('base' => $this->base_directory_path, 'subdir' => 'wikimedia', 'prefix' => 'part_');
-        $part_path = implode(DIRECTORY_SEPARATOR, $this->part_files);
+        $part_files = array('base' => $base_directory_path, 'subdir' => 'wikimedia', 'prefix' => 'part_');
+        $part_path = implode(DIRECTORY_SEPARATOR, $part_files);
 
         $this->resource_file = new \SchemaDocument($this->resource_file_path);
 
@@ -43,19 +43,23 @@ class WikimediaHarvester
 
         //set encoding for the xml dump file - important for things like WikiParser::mb_ucfirst
         mb_internal_encoding("UTF-8");
-        // delete the downloaded files
-        $this->cleanup_dump($base_directory_path, $part_path);
-        $this->download_dump($base_directory_path, $part_path);
+
+        if ($download)
+        {
+            // delete then re-download the huge wikimedia commons dump files
+            $this->cleanup_dump($base_directory_path, $part_path);
+            $this->download_dump($base_directory_path, $part_path);
+        }
 
         // FIRST PASS: parse TaxonavigationIncluded* pages (e.g. https://commons.wikimedia.org/wiki/Template:Aves)
         // simultaneously locate galleries and categories with potential taxonomic information (i.e. a Taxonavigation template)
         // also make a list of "gallery media" (files listed in taxonomic galleries)
-        $this->iterate_files(array($this, 'locate_taxonomic_pages'));
+        $this->iterate_files(array($this, 'locate_taxonomic_pages'), $part_path);
 
         // SECOND PASS: parse & validate taxonomic information in galleries + categories - place in 'taxa' array
         // simutaneously link to 'taxa' any pages which redirect to these taxonomic pages
         // also if any gallery media are redirects, replace their name with the proper (redirected) name.
-        $this->iterate_files(array($this, 'check_taxonomy_and_redirects'));
+        $this->iterate_files(array($this, 'check_taxonomy_and_redirects'), $part_path);
 
         // FINAL PASS: check files for categories, grab file information for scientific media pages and save to file
         $this->iterate_files(array($this, 'get_media_pages'), $part_path);
