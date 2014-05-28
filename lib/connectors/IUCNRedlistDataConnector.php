@@ -83,52 +83,50 @@ class IUCNRedlistDataConnector
             }
             else
             {
-                // if($i >= 1 && $i <= 10000)
-                // if($i > 10000 && $i <= 20000)
-                // if($i > 20000 && $i <= 30000)
-                // if($i > 30000 && $i <= 40000)
-                // if($i > 40000 && $i <= 50000)
-                // if($i > 50000 && $i <= 60000)
-                // if($i > 60000 && $i <= 80000)
-                
-                if(true)
-                {
-                    $rec = array();
-                    $k = 0;
-                    // 2 checks if valid record
-                    if(!$temp) continue;
-                    if(count($temp) != 23)
-                    {
-                        $this->debug["not23"][$temp[0]] = 1;
-                        continue;
-                    }
-                    
-                    foreach($temp as $t)
-                    {
-                        $rec[$fields[$k]] = $t;
-                        $k++;
-                    }
+                /* breakdown when caching
+                $cont = false;
+                // if($i >= 1     && $i < 20000)    $cont = true;
+                // if($i >= 20000 && $i < 40000)    $cont = true;
+                // if($i >= 40000 && $i < 60000)    $cont = true;
+                // if($i >= 60000 && $i <= 80000)   $cont = true;
+                if(!$cont) continue;
+                */
 
-                    if(in_array($rec["Species ID"], $names_no_entry_from_partner))
-                    {
-                        // self::process_profile_using_csv($rec);
-                        continue;
-                    }
-                    
-                    // $rec["Species ID"] = 187809; //debug
-                    
-                    if($taxon = $func->get_taxa_for_species(null, $rec["Species ID"]))
-                    {
-                        $this->create_instances_from_taxon_object($taxon);
-                        $this->process_profile_using_xml($taxon);
-                    }
-                    else
-                    {
-                        echo "\n no result for: " . $rec["Species ID"] . "\n";
-                        self::save_to_dump($rec["Species ID"], $this->names_no_entry_from_partner_dump_file);
-                        // self::process_profile_using_csv($rec);
-                    }
-                }// end debug
+                $rec = array();
+                $k = 0;
+                // 2 checks if valid record
+                if(!$temp) continue;
+                if(count($temp) != 23)
+                {
+                    $this->debug["not23"][$temp[0]] = 1;
+                    continue;
+                }
+                
+                foreach($temp as $t)
+                {
+                    $rec[$fields[$k]] = $t;
+                    $k++;
+                }
+
+                if(in_array($rec["Species ID"], $names_no_entry_from_partner))
+                {
+                    // self::process_profile_using_csv($rec);
+                    continue;
+                }
+                
+                // $rec["Species ID"] = 187809; //debug
+                
+                if($taxon = $func->get_taxa_for_species(null, $rec["Species ID"]))
+                {
+                    $this->create_instances_from_taxon_object($taxon);
+                    $this->process_profile_using_xml($taxon);
+                }
+                else
+                {
+                    echo "\n no result for: " . $rec["Species ID"] . "\n";
+                    self::save_to_dump($rec["Species ID"], $this->names_no_entry_from_partner_dump_file);
+                    // self::process_profile_using_csv($rec);
+                }
             }
         } // end while{}
         fclose($file);
@@ -210,7 +208,7 @@ class IUCNRedlistDataConnector
             $val = self::format_category($val);
             $remarks = self::get_remarks_for_old_designation($val);
             $rec["catnum"] = "_rlc";
-            self::add_string_types("true", $rec, "Red List Category", $val, "http://eol.org/schema/terms/RedListCategory", $remarks);
+            self::add_string_types("true", $rec, "Red List Category", $val, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus", $remarks);
         }
 
         if($texts = @$details["texts"])

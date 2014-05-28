@@ -19,6 +19,7 @@ class PaleoDBAPI
         $this->service["collection"] = "http://paleobiodb.org/data1.1/colls/list.csv?vocab=pbdb&limit=10&show=bin,attr,ref,loc,paleoloc,prot,time,strat,stratext,lith,lithext,geo,rem,ent,entname,crmod&taxon_name=";
         $this->service["occurrence"] = "http://paleobiodb.org/data1.1/occs/list.csv?show=loc,time&limit=10&base_name=";
         $this->service["reference"] = "http://paleobiodb.org/cgi-bin/bridge.pl?a=displayRefResults&type=view&reference_no=";
+        $this->service["source"] = "http://paleobiodb.org/cgi-bin/bridge.pl?a=checkTaxonInfo&is_real_user=1&taxon_no=";
         /*
         ranks so far:
             [kingdom] => 
@@ -266,11 +267,10 @@ class PaleoDBAPI
         if($val = @$rec["source_url"]) $m->source = $val;
         if($label == "is_extant")
         {
-            if($reference_ids = self::get_reference_ids(trim($rec["reference_no"]))) $m->referenceID = implode("; ", $reference_ids);
+            // if($reference_ids = self::get_reference_ids(trim($rec["reference_no"]))) $m->referenceID = implode("; ", $reference_ids); deliberately commented for now.
         }
-        // $m->measurementRemarks = '';
-        // $m->measurementMethod = '';
-        // $m->contributor = '';
+        if($measurementOfTaxon == "true") $m->source = $this->service["source"] . $taxon_id;
+        if(in_array($label, array("firstapp_ea", "firstapp_la", "lastapp_ea", "lastapp_la"))) $m->measurementUnit = "http://eol.org/schema/terms/paleo_megaannum";
         $this->archive_builder->write_object_to_file($m);
     }
 
