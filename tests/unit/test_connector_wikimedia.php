@@ -46,12 +46,14 @@ class test_connector_wikimedia extends SimpletestUnitBase
 
 [[Category:Macaca sylvanus]]";
 
-$this->assertTrue($p->information()['author'] == 'Karyn Sig');
-$this->assertTrue($p->point()['latitude'] === "36.13274");
+    $author = $p->information();
+    $this->assertTrue($author['author'] == 'Karyn Sig');
+    $point = $p->point();
+    $this->assertTrue($point['latitude'] === "36.13274");
 
-// We should probably check here that $p->get_data_object_parameters()['agents'][0]->role == 'photographer', and
-// $p->get_data_object_parameters()['agents'][0]->fullName == 'Karyn Sig' but that relies filling data_object_parameters with
-// the results of an online API query using something like $pages = array($p); \WikimediaPage::process_pages_using_API($pages);
+    // We should probably check here that $p->get_data_object_parameters()['agents'][0]->role == 'photographer', and
+    // $p->get_data_object_parameters()['agents'][0]->fullName == 'Karyn Sig' but that relies filling data_object_parameters with
+    // the results of an online API query using something like $pages = array($p); \WikimediaPage::process_pages_using_API($pages);
 
     }
 
@@ -280,7 +282,7 @@ File:Corydon sumatranus 1.jpg|''[[Eurylaimidae]]'' ([[:Category:Eurylaimidae|cat
   </page>
 XML;
 
-        $dummy_resource = null;
+        $dummy_resource = self::create_resource();
         $dummy_harvester = new WikimediaHarvester($dummy_resource);
 
         $dummy_harvester->locate_taxonomic_pages($include1_xml);
@@ -306,6 +308,24 @@ XML;
         //check that we have deleted Passeriformes (as it is a taxonomic subset of Category:Spizella passerina)
         foreach($names as $name) $this->assertFalse($name === "Passeriformes");
 
+    }
+
+    private static function create_resource($args = array())
+    {
+        // create the user
+        $agent = Agent::find_or_create(array('full_name' => 'Test Content Partner'));
+        $user = User::find_or_create(array('display_name' => 'Test Content Partner', 'agent_id' => $agent->id));
+        // create the partner
+        $content_partner = ContentPartner::find_or_create(array('user_id' => $user->id));
+        $hierarchy = Hierarchy::find_or_create(array('agent_id' => $agent->id, 'label' => 'Test Content Partner Hierarchy'));
+        // create the resource
+        $attr = array(  'content_partner_id'    => $content_partner->id,
+                        'service_type'          => ServiceType::find_or_create_by_translated_label('EOL Transfer Schema'),
+                        'refresh_period_hours'  => 1,
+                        'hierarchy_id'          => $hierarchy->id,
+                        'resource_status'       => ResourceStatus::validated());
+        $resource = Resource::find_or_create($attr);
+        return $resource;
     }
 
 }
