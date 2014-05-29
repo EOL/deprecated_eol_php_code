@@ -1,10 +1,12 @@
 === Requirements
 
-  PHP version 5.3.0 or later
+  PHP version 5.3.X (there are known issues with 5.4.0 and above)
   ImageMagick
-  Access to an installation of Apache Solr
-  (recommended) An installation of the EOL Ruby on Rails codebase (http://github.com/EncyclopediaOfLife/eol)
-  'biodiversity' Ruby gem
+  'biodiversity' Ruby gem, as defined in the Gemfile
+  An installation of the EOL Ruby on Rails codebase (https://github.com/EOL/eol), with all specs passing. This will ensure you have such things as:
+    A working installation of MySQL
+    A working installation of Apache Solr
+    A working instance of Virtuoso
 
 
 === Installation
