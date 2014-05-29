@@ -12,7 +12,7 @@ class test_flickr_api extends SimpletestUnitBase
             echo "      **SKIPPING FLICKR TEST. NEED TO DEFINE FLICKR_API_KEY, FLICKR_EOL_GROUP_ID ETC.**\n";
             return;
         }
-        $response = FlickrAPI::pools_get_photos(FLICKR_EOL_GROUP_ID, "", 1, 1, FLICKR_PLEARY_AUTH_TOKEN);
+        $response = FlickrAPI::pools_get_photos(FLICKR_EOL_GROUP_ID, "", 1, 1, FLICKR_AUTH_TOKEN);
         $this->assertTrue($response->stat == 'ok', 'pools_get_photos should return a stat of OK');
         $this->assertTrue($response->photos->pages > 45000, 'EOL pool should have more than 45000 photos');
     }
@@ -24,11 +24,11 @@ class test_flickr_api extends SimpletestUnitBase
             echo "      **SKIPPING FLICKR TEST. NEED TO DEFINE FLICKR_API_KEY, FLICKR_EOL_GROUP_ID ETC.**\n";
             return;
         }
-        $response = FlickrAPI::pools_get_photos(FLICKR_EOL_GROUP_ID, "", 5, 1, FLICKR_PLEARY_AUTH_TOKEN, FLICKR_PLEARY_USER_ID);
+        $response = FlickrAPI::pools_get_photos(FLICKR_EOL_GROUP_ID, "", 5, 1, FLICKR_AUTH_TOKEN, FLICKR_PLEARY_USER_ID);
         $this->assertTrue($response->photos->total == 4, 'Patrick should have submitted only 4 photos');
         
         $first_photo = $response->photos->photo[3];
-        $taxa = FlickrApi::get_taxa_for_photo($first_photo->id, $first_photo->secret, FLICKR_PLEARY_AUTH_TOKEN);
+        $taxa = FlickrApi::get_taxa_for_photo($first_photo->id, $first_photo->secret, FLICKR_AUTH_TOKEN);
         $this->assertTrue(is_array($taxa), 'Taxa should be an array');
         
         $taxon = $taxa[0];

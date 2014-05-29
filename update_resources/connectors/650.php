@@ -21,7 +21,7 @@ $start_year = 2001;
 $max_photos_per_taxon = 20;
 
 $auth_token = NULL;
-if(FlickrAPI::valid_auth_token(FLICKR_PLEARY_AUTH_TOKEN)) $auth_token = FLICKR_PLEARY_AUTH_TOKEN;
+if(FlickrAPI::valid_auth_token(FLICKR_AUTH_TOKEN)) $auth_token = FLICKR_AUTH_TOKEN;
 
 // create new _temp file
 $resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", "w+");
