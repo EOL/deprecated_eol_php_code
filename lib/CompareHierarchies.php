@@ -28,6 +28,7 @@ class CompareHierarchies
         $result = $mysqli->query("SELECT h.id, count(*) as count FROM hierarchies h LEFT JOIN hierarchy_entries he ON (h.id=he.hierarchy_id and he.published=1) GROUP BY h.id");
         while($result && $row=$result->fetch_assoc())
         {
+            // TODO - is this GBIF going away?
             if($row['id'] == 129) continue;
             $hierarchy_lookup_ids2[$row['id']] = $row['count'];
         }
