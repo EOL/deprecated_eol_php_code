@@ -34,9 +34,9 @@ if(!isset($GLOBALS['ENV_DEBUG_FILE_FLUSH'])) $GLOBALS['ENV_DEBUG_FILE_FLUSH'] = 
 if(!isset($GLOBALS['ENV_ENABLE_CACHING'])) $GLOBALS['ENV_ENABLE_CACHING'] = true;
 
 if(!defined('SPARQL_ENDPOINT')) define("SPARQL_ENDPOINT", "http://localhost:8890/sparql");
-if(!defined('SPARQL_UPLOAD_ENDPOINT')) define("SPARQL_UPLOAD_ENDPOINT", "http://localhost:8890/DAV/xx/yy");
-if(!defined('SPARQL_USERNAME')) define("SPARQL_USERNAME", "username");
-if(!defined('SPARQL_PASSWORD')) define("SPARQL_PASSWORD", "password");
+if(!defined('SPARQL_UPLOAD_ENDPOINT')) define("SPARQL_UPLOAD_ENDPOINT", "http://localhost:8890/DAV/home/dba/upload");
+if(!defined('SPARQL_USERNAME')) define("SPARQL_USERNAME", "dba");
+if(!defined('SPARQL_PASSWORD')) define("SPARQL_PASSWORD", "dba");
 
 /* Initialize app - this should be towards the top of environment.php,
    but declare the WEB_ROOT and caching settings first.

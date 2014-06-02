@@ -138,11 +138,6 @@ class ArchiveDataIngester
     {
         self::debug_iterations("Inserting taxon");
         self::commit_iterations("Taxa", 500);
-        // // if($branch_kingdom != 'cellular organisms') return;
-        // if(!isset($GLOBALS['kingdom_counts'])) $GLOBALS['kingdom_counts'] = array();
-        // if(!isset($GLOBALS['kingdom_counts'][$branch_kingdom])) $GLOBALS['kingdom_counts'][$branch_kingdom] = 0;
-        // $GLOBALS['kingdom_counts'][$branch_kingdom]++;
-        // if($GLOBALS['kingdom_counts'][$branch_kingdom] > 20000) return;
         if($this->archive_validator->has_error_by_line('http://rs.tdwg.org/dwc/terms/taxon', $row['archive_file_location'], $row['archive_line_number'])) return false;
 
         // make sure this taxon has a name, otherwise skip this branch
@@ -151,11 +146,13 @@ class ArchiveDataIngester
         $kingdom = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/kingdom']);
         $genus = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/genus']);
         $rank_label = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonRank']);
+        // COL exception
         if(strtolower($kingdom) == 'viruses')
         {
             if(substr($scientific_name, -1) == ":") $scientific_name = substr($scientific_name, 0, -1);
             if(preg_match("/^(.*) ICTV$/i", $scientific_name, $arr)) $scientific_name = $arr[1];
         }
+        // COL exception
         if(strtolower($kingdom) == 'viruses' && $genus && strtolower($rank_label) != 'genus')
         {
             if(stripos($scientific_name, $genus) == 0)
@@ -302,6 +299,7 @@ class ArchiveDataIngester
             unset($this->synonyms[$taxon_id]);
         }
 
+        // COL exception
         if($dataset_id && isset($this->dataset_metadata[$dataset_id]) && $metadata = $this->dataset_metadata[$dataset_id])
         {
             $hierarchy_entry->delete_agents();

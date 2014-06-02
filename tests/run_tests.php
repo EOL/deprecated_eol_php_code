@@ -19,7 +19,7 @@ $test_name = @$_GET["test"];
 if(!$test_name && @$argv[1]) $test_name = $argv[1];
 
 debug('Starting tests');
-$start_time = microtime(true);
+$start_time = time_elapsed();
 
 $group_test = new \GroupTest('All tests');
 
@@ -54,7 +54,7 @@ if(preg_match("/^([a-z_]+)\/?$/i", $test_name, $arr))
 if(!isset($_SERVER['HTTP_USER_AGENT'])) $group_test->run(new \TextReporter());
 else $group_test->run(new \HtmlReporter());
 
-$end_time = microtime(true);
+$end_time = time_elapsed();
 
 echo "Tests ran in ". round($end_time-$start_time, 6) ." seconds\n\n";
 

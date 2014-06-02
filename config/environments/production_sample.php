@@ -25,7 +25,7 @@ define("LOGGING_DB", "eol_logging_production");
 
 define("FLICKR_API_KEY", "xxx");
 define("FLICKR_SHARED_SECRET", "xxx");
-define("FLICKR_PLEARY_AUTH_TOKEN", "xxx");
+define("FLICKR_AUTH_TOKEN", "xxx");
 define("FLICKR_PLEARY_USER_ID", "xxx");
 
 define("GOOGLE_ANALYTICS_API_USERNAME", "xxx");

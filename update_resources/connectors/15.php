@@ -10,9 +10,9 @@ $GLOBALS['ENV_DEBUG'] = false;
 
 
 $auth_token = NULL;
-if(FlickrAPI::valid_auth_token(FLICKR_PLEARY_AUTH_TOKEN))
+if(FlickrAPI::valid_auth_token(FLICKR_AUTH_TOKEN))
 {
-    $auth_token = FLICKR_PLEARY_AUTH_TOKEN;
+    $auth_token = FLICKR_AUTH_TOKEN;
 }
 
 
