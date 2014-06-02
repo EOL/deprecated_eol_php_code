@@ -1,18 +1,18 @@
 <?php
 namespace php_active_record;
-/* connector: [femorale]: at this point it is a one-time export */
+/* connector: [793]: at this point it is a one-time export 
+Partner gave us spreadsheets (4). There is structured data (body length), and images. We scrape the mediaURLs from the site.
+*/
 class FemoraleAPI
 {
     function __construct($folder = null)
     {
-        if($folder)
-        {
-            $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
-            $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-            $this->taxon_ids = array();
-            $this->occurrence_ids = array();
-            $this->measurement_ids = array();
-        }
+        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
+        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        $this->taxon_ids = array();
+        $this->occurrence_ids = array();
+        $this->measurement_ids = array();
+        $this->object_ids = array();
         $this->download_options = array('download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1);
         $this->url_path = "http://localhost/~eolit/cp/Femorale/";
         $this->url_path = "https://dl.dropboxusercontent.com/u/7597512/Femorale/";
@@ -77,8 +77,8 @@ class FemoraleAPI
     private function prepare_data($rec)
     {
         $rec["object_id"] = "size";
-        $val = str_replace(array("mm", " up"), "", $rec["Size"]);
-        self::add_string_types($rec, "size", $val, "http://purl.obolibrary.org/obo/UO_0000016", "true");
+        $val = trim(str_replace(array("mm", " up"), "", $rec["Size"]));
+        if($val) self::add_string_types($rec, "size", $val, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
         // commented for now
         // $rec["object_id"] = "locality";
         // self::add_string_types($rec, "locality", $rec["Locality"], "http://rs.tdwg.org/dwc/terms/locality", "false");
@@ -107,7 +107,11 @@ class FemoraleAPI
                 $mr->UsageTerms     = "http://creativecommons.org/licenses/by-nc/3.0/";
                 $mr->accessURI      = $mediaURL;
                 $mr->furtherInformationURL = $rec["Expr1"];
-                $this->archive_builder->write_object_to_file($mr);
+                if(!isset($this->object_ids[$mr->identifier]))
+                {
+                    $this->archive_builder->write_object_to_file($mr);
+                    $this->object_ids[$mr->identifier] = '';
+                }
             }
         }
     }
@@ -163,7 +167,7 @@ class FemoraleAPI
         if($label == "size")
         {
             $m->source              = $rec["Expr1"];
-            // $m->measurementUnit     = "http://purl.obolibrary.org/obo/UO_0000016"; //mm - millimeter
+            $m->measurementUnit     = "http://purl.obolibrary.org/obo/UO_0000016"; //mm - millimeter
             $m->measurementRemarks  = "maximum shell dimension";
         }
         $m->measurementType     = $measurementType;
