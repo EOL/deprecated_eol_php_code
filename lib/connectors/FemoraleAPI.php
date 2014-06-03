@@ -60,7 +60,8 @@ class FemoraleAPI
                     */
                     
                     print "\n [$doc_count of $docs][" . ($i+1) . " of $rows] " . $rec["Species"] . "\n";
-                    $taxon_id = trim(preg_replace('/\s*\([^)]*\)/', '', $rec["Species"])); // remove parenthesis
+                    $rec = self::clean_taxon_name($rec);
+                    $taxon_id = trim(preg_replace('/\s*\([^)]*\)/', '', $rec["sciname"])); // remove parenthesis
                     $taxon_id = str_replace(" ", "_", $taxon_id);
                     $rec["taxon_id"] = md5($taxon_id);
                     self::create_instances_from_taxon_object($rec);
@@ -106,7 +107,7 @@ class FemoraleAPI
                 $mr->Owner          = "Femorale";
                 $mr->UsageTerms     = "http://creativecommons.org/licenses/by-nc/3.0/";
                 $mr->accessURI      = $mediaURL;
-                $mr->furtherInformationURL = $rec["Expr1"];
+                $mr->furtherInformationURL = str_replace(" ", "%20", $rec["Expr1"]);
                 if(!isset($this->object_ids[$mr->identifier]))
                 {
                     $this->archive_builder->write_object_to_file($mr);
@@ -146,8 +147,8 @@ class FemoraleAPI
     {
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = $rec["taxon_id"];
-        $taxon->scientificName  = $rec["Species"];
-        $taxon->taxonRank       = "species";
+        $taxon->scientificName  = $rec["sciname"];
+        $taxon->taxonRank       = $rec["rank"];
         $taxon->family          = ucfirst(strtolower($rec["Family"]));
         if(!isset($this->taxon_ids[$taxon->taxonID]))
         {
@@ -156,6 +157,27 @@ class FemoraleAPI
         }
     }
 
+    private function clean_taxon_name($rec)
+    {
+        $strings = array(" sp ", " sp.");
+        $found = false;
+        foreach($strings as $string)
+        {
+            if(is_numeric(stripos($rec["Species"], $string))) $found = true;
+        }
+        if($found)
+        {
+            $rec["sciname"] = Functions::canonical_form($rec["Species"]);
+            $rec["rank"] = "genus";
+        }
+        else
+        {
+            $rec["sciname"] = $rec["Species"];
+            $rec["rank"] = "species";
+        }
+        return $rec;
+    }
+    
     private function add_string_types($rec, $label, $value, $measurementType, $measurementOfTaxon)
     {
         $taxon_id = $rec["taxon_id"];
@@ -166,7 +188,7 @@ class FemoraleAPI
         $m->measurementOfTaxon  = $measurementOfTaxon;
         if($label == "size")
         {
-            $m->source              = $rec["Expr1"];
+            $m->source              = str_replace(" ", "%20", $rec["Expr1"]);
             $m->measurementUnit     = "http://purl.obolibrary.org/obo/UO_0000016"; //mm - millimeter
             $m->measurementRemarks  = "maximum shell dimension";
         }
