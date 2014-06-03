@@ -5,6 +5,29 @@ http://www.illinoiswildflowers.info/
 */
 class IllinoisWildflowersAPI
 {
+    /* numbers from last connector run:
+    taxon = 1243
+    dwc:ScientificName = 1243
+    taxon reference = 0
+    synonym = 0
+    commonName = 1244
+    
+    DataObjects = 9551 - 9709
+    reference = 9551 - 9709
+    
+    DataObjects breakdown
+    texts = 5801 - 5959
+    images = 3750
+    videos = 0
+    sounds = 0
+    
+    SPM breakdown
+    GeneralDescription = 1914 - 2072
+    Uses = 884
+    Distribution = 1058
+    Habitat = 1058
+    Associations = 887
+    */
     public function __construct()
     {
         $this->path = 'http://www.illinoiswildflowers.info/';
@@ -159,11 +182,13 @@ class IllinoisWildflowersAPI
     {
         $html = self::clean_str($html);
         self::get_images($html, $type, $taxon_name);
-        $html = str_ireplace('<span style="font-weight: bold; color: rgb(51, 204, 51);">', 'zzz xxxyyy', $html);
+        $html = str_ireplace('<span style="font-weight: bold; color: rgb(51, 204, 51);"><br>', 'zzz xxxyyy', $html);
         $html = str_ireplace('<span style="font-weight: bold; color: rgb(51, 204, 51); font-family: Times New Roman;">', 'zzz xxxyyy', $html);
+        $html = str_ireplace('<span style="font-weight: bold; color: rgb(51, 204, 51);">', 'zzz xxxyyy', $html);
         $html = str_ireplace('<span style="font-weight: bold; color: rgb(51, 204, 0); font-family: Times New Roman;">', 'zzz xxxyyy', $html);
         $html = str_ireplace('<span style="font-weight: bold; color: rgb(51, 204, 0);">', 'zzz xxxyyy', $html);
         $html = str_ireplace('<span style="color: rgb(51, 204, 0); font-weight: bold;">', 'zzz xxxyyy', $html);
+        $html = str_ireplace('<span style="font-family: Times New Roman;">Return</span>', 'zzz xxxyyy', $html);
         if(preg_match_all("/xxxyyy(.*?)zzz/ims", $html, $matches))
         {
             echo "\n 2nd-try successful - $type - $taxon_name \n";
