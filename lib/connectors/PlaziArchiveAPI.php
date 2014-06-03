@@ -29,6 +29,18 @@ class PlaziArchiveAPI
                 // creating the archive file
                 $command_line = "tar -czf " . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz --directory=" . $paths['archive_path'] . " .";
                 $output = shell_exec($command_line);
+                
+                // moving files to /resources/
+                recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
+                if(!file_exists(CONTENT_RESOURCE_LOCAL_PATH . $resource_id)) mkdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
+                $src = $paths['archive_path'];
+                $dst = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/";
+                $files = glob($paths['archive_path'] . "*.*");
+                foreach($files as $file)
+                {
+                    $file_to_go = str_replace($src, $dst, $file);
+                    copy($file, $file_to_go);
+                }
             }
             // remove temp dir
             recursive_rmdir($paths['archive_path']);

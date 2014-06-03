@@ -12,7 +12,13 @@ $timestart = time_elapsed();
 $resource_id = 143;
 $func = new InsectVisitorsAPI();
 $func->get_all_taxa($resource_id);
-Functions::set_resource_status_to_force_harvest($resource_id);
+
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 1000)
+{
+    Functions::set_resource_status_to_force_harvest($resource_id);
+    $command_line = "gzip -c " . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml >" . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml.gz";
+    $output = shell_exec($command_line);
+}
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";

@@ -189,7 +189,7 @@ class IrmngAPI
         elseif($record["ISEXTINCT"] == "FALSE") $conservation_status = "http://eol.org/schema/terms/extant";
         $habitat = false;
         if($record["ISMARINE"] == "TRUE")       $habitat = "http://purl.obolibrary.org/obo/ENVO_00000569";
-        elseif($record["ISMARINE"] == "FALSE")  $habitat = "http://purl.obolibrary.org/obo/ENVO_00002037";
+        elseif($record["ISMARINE"] == "FALSE")  $habitat = "http://eol.org/schema/terms/nonMarine";
         $rec["catnum"] = "cs"; //conservation status
         if($val = $conservation_status) self::add_string_types($rec, "Conservation status", $val, "http://eol.org/schema/terms/ExtinctionStatus");
         $rec["catnum"] = "h"; //habitat
