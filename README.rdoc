@@ -1,3 +1,183 @@
+= Encyclopedia of Life - PHP Backend
+
+=== http://www.eol.org
+
+== INTRODUCTION
+
+Welcome to the Encyclopedia of Life project.  This project contains the PHP 
+code used to harvest and manage the data made available through the
+http://www.eol.org website. The is the right place to be if you want to
+understand or expand this data. If you are interested in the frontend
+website code you should focus on http://github.com/EOL/eol.  All code for
+both projects is made available to anyone for re-use, repurposing or for 
+improvement.  This is both an ambitious project and an ambitious codebase 
+and we are excited to share it with the opensource community.  The code has 
+been under development since approximately September 2007, but has undergone 
+many revisions and updates.  There is much work to be done, both in adding new 
+features, and in the ongoing process of code refactoring and performance
+improvements.  If you see something you like, share it with your colleagues and
+friends and reuse it in your own projects.  If you see something you don't
+like, help us fix it or join the discussion on GitHub.
+
+== LICENSE
+
+The full code base is released under the MIT License.  Details are available in
+the "MIT-LICENSE.txt" file at the root of the code folder.
+
+=== INSTALLATION
+
+To get things up and running, these are the steps you need to take.  If you 
+actually run through this process, please update this list with any changes 
+you find necessary!
+
+Note that many of these steps require root access on your machine.  You have 
+been warned and may need to run them as "sudo" on a Mac/Linux or as an 
+administrator on Windows.
+
+=== FIRST THINGS FIRST
+
+Things you need to do:
+
+1. Install the EOL Ruby on Rails Code Base
+3. Install Correct Version of PHP
+4. Install ImageMagick
+5. Get EOL PHP Code Base
+6. Get Backend Specific Ruby gems
+7. Create database.yml
+8. Tweak MySQL Options
+9. Configure Apache
+10. Add Webserver
+11. Check It's Alive
+12. Tweak Your Local Environment
+13. Get EOL Private Config
+14. Run Tests
+
+=== Install the EOL Ruby on Rails Code Base
+
+The backend currently depends on much of the infrastructure needed to run our
+frontend, so you should start with the installation process described here:
+
+http://github.com/EOL/eol
+
+=== Install Correct Version of PHP
+
+  brew unlink virtuoso # Avoids conflict over isql in /usr/local/bin
+  brew install homebrew/php/php53
+
+You should now tweak you shell environment so it runs the php in
+/usr/local/bin.  For bash you can do this by adding this line to
+your .bash\_profile:
+
+  export PATH="/usr/local/bin:$PATH"
+
+=== Install ImageMagick
+
+  brew install imagemagick --build-from-source
+
+=== Get EOL PHP Code Base
+
+  cd $ROOT # From EOL/eol install
+  git clone https://github.com/EOL/eol_php_code.git
+
+=== Get Backend Specific Ruby gems
+
+  cd $ROOT/eol_php_code
+  bundle install
+  
+=== Create database.yml
+
+To create the database.yml file in the config copy the handy 
+template to start with:
+
+  cp $ROOT/eol_php_code/config/database.sample.yml $ROOT/eol_php_code/config/database.yml
+
+Edit the database.yml and use the root user and password from your
+MySQL install for all blocks.
+
+=== Tweak MySQL Options
+
+  vim /usr/local/Cellar/mysql/5.6.17_1/my.cnf
+
+Remove the “STRICT\_TRANS\_TABLES” from “sql\_mode”.
+
+Restart your MySQL server.  We recommend doing a reboot just to be sure.
+
+=== Configure Apache
+
+  cd /etc/apache2/
+  sudo cp httpd.conf httpd.conf.bak
+  
+Edit httpd.conf by uncommenting (or adding) the php load module line and 
+setting it to the appropriate value.  If you used brew to install PHP 5.3
+the line should be:
+  
+  LoadModule php5_module /usr/local/opt/php53/libexec/apache2/libphp5.so
+
+=== Add Webserver
+
+The simplest approach is to provide a symbolic link in your Apache
+DocumentRoot, e.g.:
+
+  sudo ln -s $ROOT/eol_php_code /Library/WebServer/Documents/eol_php_code
+
+This will allow you to test the local install using:
+
+http://localhost/eol_php_code
+
+Other approaches include confirguing Apache VirtualHosts in the http.conf to 
+put the EOL PHP code on another port.
+
+Whenever you change the http.conf remember to restart Apache with:
+  
+  sudo apachectl stop
+  sudo apachectl start
+
+=== Check It's Alive
+
+You should now be able to go to:
+
+http://localhost/eol_php_code/README.rdoc
+
+and see this file.
+
+=== Tweak Your Local Environment
+
+  cd $ROOT/eol_php_code
+  chmod -R a+w log temp tmp applications/content_server/
+
+Make this your config/environments/local.rb file:
+
+  Eol::Application.configure do
+    config.after_initialize do
+      $CONTENT_SERVER = 'http://media.eol.org/'
+  
+      $IP_ADDRESS_OF_SERVER = "localhost:3000" if Rails.env.development? || Rails.env.bocce_demo_dev?
+      $WEB_SERVICE_BASE_URL = "http://localhost/eol_php_code/applications/content_server/service.php?" unless Rails.env.bocce_demo_dev?
+    end
+  end
+
+=== Get EOL Private Config
+
+Currently this requires you have access to the private mbl-cli GitHub
+community.  You must then create an SSH key and register it on GitHub as
+described here: https://help.github.com/articles/generating-ssh-keys
+
+We plan to at least make this step unnecessary to get the tests
+passing.
+
+  cd $ROOT/eol_php_code/config/environments
+  git clone git@github.com:mbl-cli/eol-private.git
+  cp eol-private/php_config/environments/test.php test.php
+  cp test.php development.php
+  rm -rf eol-private
+
+=== Run Tests
+
+  cd $ROOT/eol_php_code
+  php tests/run_tests.php
+
+== TEXT PAST THIS POINT HAS NOT BEEN RECENTLY REVIEWED
+
 === Requirements
 
   PHP version 5.3.X (there are known issues with 5.4.0 and above)
