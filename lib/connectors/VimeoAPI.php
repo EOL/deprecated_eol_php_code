@@ -209,6 +209,8 @@ class VimeoAPI
             //end data objects //----------------------------------------------------------------------------------------
 
             $taxon_id   = str_ireplace(" ", "_", $sciname) . "_" . $rec->id;
+            if($val = self::adjust_sciname($arr_sciname, $sciname)) $new_sciname = $val;
+            else                                                    $new_sciname = $sciname;
             $arr_data[]=array(  "identifier"   => "",
                                 "source"       => "",
                                 "kingdom"      => $arr_sciname[$sciname]['kingdom'],
@@ -217,7 +219,7 @@ class VimeoAPI
                                 "order"        => $arr_sciname[$sciname]['order'],
                                 "family"       => $arr_sciname[$sciname]['family'],
                                 "genus"        => $arr_sciname[$sciname]['genus'],
-                                "sciname"      => $sciname,
+                                "sciname"      => $new_sciname,
                                 "taxon_id"     => $taxon_id,
                                 "commonNames"  => @$arr_sciname[$sciname]['commonNames'],
                                 "arr_objects"  => $arr_objects
@@ -226,6 +228,21 @@ class VimeoAPI
         return $arr_data;
     }
 
+    private function adjust_sciname($arr_sciname, $sciname)
+    {
+        /* if there is genus e.g. "Testudo", and species e.g. "T. marginata", then it will return "Testudo marginata" */
+        if(@$arr_sciname[$sciname]['genus'])
+        {
+            $string = substr($sciname,0,2);
+            if($string == substr($arr_sciname[$sciname]['genus'],0,1) . ".")
+            {
+                $parts = explode(" ", $sciname);
+                if(count($parts) == 2) return trim($arr_sciname[$sciname]['genus'] . " " . $parts[1]);
+            }
+        }
+        return false;
+    }
+    
     function initialize($sciname, $arr_sciname=NULL)
     {
         $arr_sciname[$sciname]['binomial']    = "";
@@ -262,14 +279,14 @@ class VimeoAPI
         /*
           [0] => taxonomy:order=Lepidoptera&nbsp;[taxonomy:family=Lymantriidae
         */
-        $rank_id = array("trinomial" => 1, "binomial" => 2, "genus" => 3, "family" => 4, "order" => 5, "class" => 6, "phylum" => 7, "kingdom" => 8);
-        $smallest_rank_id = 9;
+        $rank_id = array("trinomial" => 1, "binomial" => 2, "species" => 3, "genus" => 4, "family" => 5, "order" => 6, "class" => 7, "phylum" => 8, "kingdom" => 9);
+        $smallest_rank_id = 10;
         $smallest_rank = "";
         foreach($match as $tag)
         {
             if(preg_match("/^taxonomy:(.*)\=/i", $tag, $arr))
             {
-                $rank = trim($arr[1]);
+                $rank = strtolower(trim($arr[1]));
                 if(in_array($rank, array_keys($rank_id)))
                 {
                     if($rank_id[$rank] < $smallest_rank_id)
