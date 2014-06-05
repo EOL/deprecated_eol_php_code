@@ -2,7 +2,6 @@
 namespace php_active_record;
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('CyberSource');
 $GLOBALS['ENV_DEBUG'] = false;
 
 $function = @$_GET["function"];
@@ -31,15 +30,6 @@ if(!$data_object_id) $data_object_id = @$_POST["data_object_id"];
 if(!$x) $x = @$_POST["x"];
 if(!$y) $y = @$_POST["y"];
 if(!$w) $w = @$_POST["w"];
-
-/* Cybersource API is special */
-if($function=="InsertSignature3")
-{
-    header('Content-type: text/plain');
-    CyberSource::InsertSignature3($amount,$currecny,$type);
-    exit;
-}
-
 
 
 header('Content-type: text/xml');

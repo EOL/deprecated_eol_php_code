@@ -16,11 +16,6 @@ if(!defined('DOWNLOAD_TIMEOUT_SECONDS')) define('DOWNLOAD_TIMEOUT_SECONDS', '30'
 
 define('SOLR_SERVER', 'http:// *PRODUCTION_SOLR_IP* :8080/solr');
 
-define("CYBERSOURCE_PUBLIC_KEY", "xxx");
-define("CYBERSOURCE_PRIVATE_KEY", "xxx");
-define("CYBERSOURCE_SERIAL_NUMBER", "xxx");
-define("CYBERSOURCE_MERCHANT_ID", "xxx");
-
 define("LOGGING_DB", "eol_logging_production");
 
 define("FLICKR_API_KEY", "xxx");
@@ -28,8 +23,9 @@ define("FLICKR_SHARED_SECRET", "xxx");
 define("FLICKR_AUTH_TOKEN", "xxx");
 define("FLICKR_PLEARY_USER_ID", "xxx");
 
-define("GOOGLE_ANALYTICS_API_USERNAME", "xxx");
-define("GOOGLE_ANALYTICS_API_PASSWORD", "xxx");
+define('GOOGLE_API_CLIENT_ID', 'xxx');
+define('GOOGLE_API_ACCOUNT_NAME', 'xxx');
+define('GOOGLE_API_KEY_FILE', 'xxx/google-privatekey.p12');
 
 
 ?>

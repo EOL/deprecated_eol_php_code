@@ -17,7 +17,8 @@ insert_items();
 insert_pages();
 insert_page_names();
 
-
+$indexer = new BHLIndexer();
+$indexer->index_all_pages();
 
 
 
@@ -183,4 +184,3 @@ function insert_page_names()
 }
 
 ?>
-
