@@ -94,7 +94,6 @@ class BHLIndexer
                 $fields['year'] = $arr[1];
             }else
             {
-                if($fields['year']) echo $fields['year'] ."\n";
                 $fields['year'] = 0;
             }
 
