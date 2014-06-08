@@ -26,4 +26,14 @@ echo "\n\n";
 echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
 echo "\n Done processing.\n";
+
+function count_subfamily_per_database() // call this function above to run the report
+{
+    $databases = array("bhl", "ncbi", "gbif", "bolds"); // nothing for ggbn
+    foreach($databases as $database)
+    {
+        $func->count_subfamily_per_database(DOC_ROOT . "/tmp/dir_" . $database . "/" . $database . ".txt", $database);
+    }
+}
+
 ?>

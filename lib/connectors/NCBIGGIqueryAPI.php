@@ -65,6 +65,7 @@ class NCBIGGIqueryAPI
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->names_no_entry_from_partner_dump_file = $this->TEMP_DIR . "names_no_entry_from_partner.txt";
         $this->name_from_eol_api_dump_file = $this->TEMP_DIR . "name_from_eol_api.txt";
+        $this->names_dae_to_nae_dump_file = $this->TEMP_DIR . "names_dae_to_nae.txt";
         
         /* // FALO report
         $this->names_in_falo_but_not_in_irmng = $this->TEMP_DIR . "families_in_falo_but_not_in_irmng.txt";
@@ -621,7 +622,7 @@ class NCBIGGIqueryAPI
                     self::add_string_types($rec, "Number of DNA records in GGBN", 0, "http://eol.org/schema/terms/NumberDNARecordsInGGBN", $family);
                 }
             }
-            $pages = self::get_number_of_pages($html);
+            $pages = self::get_number_of_pages($html, @$arr[1]);
             for ($i = 1; $i <= $pages; $i++)
             {
                 if($i > 1) $html = Functions::lookup_with_cache($this->family_service_ggbn . $family . "&page=$i", $this->download_options);
@@ -667,9 +668,9 @@ class NCBIGGIqueryAPI
         return false;
     }
 
-    private function get_number_of_pages($html)
+    private function get_number_of_pages($html, $num)
     {
-        if(preg_match_all("/hitlist=true&page=(.*?)\"/ims", $html, $arr)) return array_pop(array_unique($arr[1]));
+        if($num) return ceil($num/50);
         return 1;
     }
     
@@ -869,8 +870,10 @@ class NCBIGGIqueryAPI
     {
         if(substr($family, -3) == "dae")
         {
+            $orig = $family;
             $family = str_replace("dae" . "xxx", "nae", $family . "xxx");
             $this->families_with_no_data[$family] = 1;
+            self::save_to_dump($orig . "\t" . $family, $this->names_dae_to_nae_dump_file);
         }
         /* commented for now bec it is not improving the no. of records
         elseif(substr($family, -4) == "ceae")
@@ -907,6 +910,22 @@ class NCBIGGIqueryAPI
             else echo "\n [$doc] unavailable! \n";
         }
         return array_keys($families);
+    }
+    
+    function count_subfamily_per_database($file, $database)
+    {
+        $subfamilies = array();
+        foreach(new FileIterator($file) as $line_number => $line)
+        {
+            if($line)
+            {
+                $line = trim($line);
+                $temp = explode("\t", $line);
+                $str = explode("naeO", $temp[0]);
+                if(count($str) > 1) $subfamilies[$str[0] . "nae"] = '';
+            }
+        }
+        print "\n $database: " . count($subfamilies) . "\n";
     }
 
 }
