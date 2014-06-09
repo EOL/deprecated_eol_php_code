@@ -6,15 +6,15 @@ class EolStatsDataConnector
     private static $all_ranks = array('superkingdom', 'kingdom', 'subkingdom', 'infrakingdom', 'superdivision', 'superphylum',
         'division', 'phylum', 'subdivision', 'subphylum', 'infraphylum', 'parvphylum', 'superclass', 'infraphylum',
         'class', 'subclass', 'infraclass', 'superorder', 'order', 'family');
-    private static $column_ranks = array('kingdom', 'subkingdom', 'infrakingdom', 'superphylum',
-            'phylum', 'subphylum', 'infraphylum', 'superclass',
+    private static $column_ranks = array(null, null, 'kingdom', 'subkingdom', 'infrakingdom', 'superphylum',
+            'phylum', 'subphylum', 'infraphylum', 'parvphylum', 'superclass',
             'class', 'subclass', 'infraclass', 'superorder', 'order', 'family');
 
     public function __construct($resource_id)
     {
         $this->resource_id = $resource_id;
         $this->mysqli =& $GLOBALS['mysqli_connection'];
-        $this->source_file_path = DOC_ROOT . "temp/falo.txt";
+        $this->source_file_path = DOC_ROOT . "temp/FALO3.txt";
     }
 
     public function begin()
@@ -42,9 +42,10 @@ class EolStatsDataConnector
                 {
                     $name = $name_info['name'];
                     $rank = isset($name_info['rank']) ? $name_info['rank'] : $rank;
+                    if(!$rank) continue;
                     $synonyms = isset($name_info['synonyms']) ? $name_info['synonyms'] : array();
                     // names should be one word with normal characters. Stop completely if this occurs
-                    if(preg_match("/( |[^a-z])/i", $name))
+                    if(preg_match("/( |[^a-z-])/i", $name))
                     {
                         echo "This is a line that isn't being handled properly:\n$line_number: $line :: |$name|\n\n\n";
                         return;
@@ -152,9 +153,9 @@ class EolStatsDataConnector
 
     private function lookup_family($name, $synonyms, $ancestors)
     {
-        $order = @$ancestors[12];
-        $class = @$ancestors[8];
-        $phylum = @$ancestors[4];
+        $order = @$ancestors[15];
+        $class = @$ancestors[11];
+        $phylum = @$ancestors[6];
         if(!$order && !$class && !$phylum)
         {
             echo "This is a line that doesnt have a order, class or phylum:\n$line_number: $line :: $name\n\n\n";

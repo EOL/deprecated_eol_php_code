@@ -11,6 +11,6 @@ require_vendor("wikipedia");
 
 $w = new WikimediaHarvester(Resource::find(71));
 $w->begin_wikimedia_harvest("update_resources/connectors/files/");
-
+Functions::set_resource_status_to_force_harvest(71);
 
 ?>
