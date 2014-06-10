@@ -60,6 +60,9 @@ class NCBIGGIqueryAPI
         
         // BOLDS portal
         $this->bolds_taxon_page = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?searchTax=&taxon=";
+        $this->bolds_taxon_page_id = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
+        $this->bolds["TaxonSearch"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonSearch?taxName=";
+        $this->bolds["TaxonData"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=basic,stats&taxId=";
         
         // stats
         $this->TEMP_DIR = create_temp_dir() . "/";
@@ -238,10 +241,11 @@ class NCBIGGIqueryAPI
         $rec["family"] = $family;
         $rec["taxon_id"] = $family;
         $rec["source"] = $this->bolds_taxon_page . $family;
-        if($contents = Functions::lookup_with_cache($rec["source"], $this->download_options))
+        if($json = Functions::lookup_with_cache($this->bolds["TaxonSearch"] . $family, $this->download_options))
         {
-            if($info = self::get_page_count_from_BOLDS_page($contents))
+            if($info = self::parse_bolds_taxon_search($json))
             {
+                $rec["source"] = $this->bolds_taxon_page_id . $info["taxid"];
                 if(@$info["specimens"] > 0)
                 {
                     $rec["object_id"]   = "_no_of_rec_in_bolds";
@@ -301,14 +305,37 @@ class NCBIGGIqueryAPI
         return false;
     }
     
-    private function get_page_count_from_BOLDS_page($contents)
+    private function parse_bolds_taxon_search($json)
     {
-        $info = array();
-        if(preg_match("/Specimens with Sequences:<\/td>(.*?)<\/td>/ims", $contents, $arr))  $info["specimens"] = trim(strip_tags($arr[1]));
-        if(preg_match("/Public Records:<\/td>(.*?)<\/td>/ims", $contents, $arr))            $info["public records"] = trim(strip_tags($arr[1]));
-        return $info;
+        if($taxid = self::get_best_bolds_taxid($json))
+        {
+            if($json = Functions::lookup_with_cache($this->bolds["TaxonData"] . $taxid, $this->download_options))
+            {
+                $arr = json_decode($json); 
+                return array("taxid" => $taxid, "public records" => $arr->stats->publicrecords, "specimens" => $arr->stats->sequencedspecimens);
+            }
+        }
+        else return false;
     }
-    
+        
+    private function get_best_bolds_taxid($json)
+    {
+        $ranks = array("family", "subfamily", "genus", "order"); // best rank for FALO family, in this order
+        if($arr = json_decode($json))
+        {
+            foreach($ranks as $rank)
+            {
+                foreach($arr as $taxid => $rec)
+                {
+                    if(!$rec) return false;
+                    if($rec->tax_rank == $rank) return $taxid;
+                }
+            }
+            foreach($arr as $taxid => $rec) return $taxid;
+        }
+        return false;
+    }
+
     private function query_family_BHL_info($family, $is_subfamily, $database)
     {
         $rec["family"] = $family;
@@ -430,18 +457,23 @@ class NCBIGGIqueryAPI
                             if(preg_match("/boldsystems\.org\/index.php\/Taxbrowser_Taxonpage\?taxid=(.*?)\"/ims", $html, $arr))
                             {
                                 echo "\n bolds id: " . $arr[1] . "\n";
-                                if($html = Functions::lookup_with_cache("http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=" . $arr[1], $this->download_options))
+                                if($json = Functions::lookup_with_cache($this->bolds["TaxonData"] . $arr[1], $this->download_options))
+                                {
+                                    if($arr = json_decode($json))
+                                    {
+                                        $canonical = trim($arr->taxon);
+                                        echo "\n Got from bolds.org: [" . $canonical . "]\n";
+                                    }
+                                }
+                                elseif($html = Functions::lookup_with_cache($this->bolds_taxon_page_id . $arr[1], $this->download_options)) // original means, more or less it won't go here anymore
                                 {
                                     if(preg_match("/BOLD Systems: Taxonomy Browser -(.*?)\{/ims", $html, $arr))
                                     {
                                         $canonical = trim($arr[1]);
-                                        echo "\n Got from bolds.org: [" . $canonical . "]\n";
+                                        echo "\n Got from bolds.org 2: [" . $canonical . "]\n";
                                     }
-                                    // else echo "\n Nothing from bolds.org \n";
                                 }
-                                // else echo "\n investigate bolds.org taxid:[" . $arr[1] . "]\n";
                             }
-                            // else echo "\n Nothing in Partner Links tab.";
                         }
                     }
                     else // ncbi, gbif, ggbn
