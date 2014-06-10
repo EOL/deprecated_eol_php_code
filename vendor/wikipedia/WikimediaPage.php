@@ -10,7 +10,7 @@ class WikimediaPage
     /* see  http://www.mediawiki.org/wiki/Manual:MIME_type_detection
             http://dublincore.org/documents/dcmi-type-vocabulary/#H7
             http://dublincore.org/usage/meetings/2004/03/Relator-codes.html */
-    private static $default_role = 'Creator';
+    private static $default_role = 'creator';
     private static $mediatypes = array(
         'BITMAP'  => array('dcmitype'=>'http://purl.org/dc/dcmitype/StillImage', 'role'=>'photographer'),
         'DRAWING' => array('dcmitype'=>'http://purl.org/dc/dcmitype/StillImage', 'role'=>'illustrator'),
@@ -697,14 +697,16 @@ class WikimediaPage
                 if(stripos($location[4], "N") === false) $this->georef["latitude"] *= -1;
                 $this->georef["longitude"] = $location[5] + ((($location[6] * 60) + ($location[7])) / 3600);
                 if(stripos($location[8], "W") === false) $this->georef["longitude"] *= -1;
-                
                 if(isset($location[9]))
                 {
                     $this->location = $location[9];
                 }
             }
-         }
-
+        }
+        if($this->georef && (! is_numeric($this->georef["latitude"]) || ! is_numeric($this->georef["longitude"]) || ! $this->georef["latitude"] || ! $this->georef["longitude"]))
+        {
+            $this->georef = false;
+        }
         return $this->georef;
     }
 

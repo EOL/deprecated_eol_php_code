@@ -2,6 +2,8 @@
 namespace php_active_record;
 
 require_library('FlickrAPI');
+// this is used to test the API for getting users' photos
+define("FLICKR_PLEARY_USER_ID", "11571226@N04");
 
 class test_flickr_api extends SimpletestUnitBase
 {
