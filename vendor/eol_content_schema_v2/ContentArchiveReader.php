@@ -18,6 +18,7 @@ class ContentArchiveReader
             $this->archive_is_local = true;
             $this->load_from_directory($directory);
         }
+        // Loads all table_definitions, including core, extensions, and tables.
         $this->load_metadata();
     }
     
@@ -31,6 +32,7 @@ class ContentArchiveReader
         $this->archive_directory = $directory;
     }
     
+    // TODO - rename: load_from_uri 
     function load_archive($uri)
     {
         // currently only recognizing tarred and gzipped files
@@ -39,7 +41,7 @@ class ContentArchiveReader
         if(!$file_contents) throw new \Exception("Cannot access DarwinCore Archive at $uri");
         $directory_name = $arr[1];
         
-        // // make temp dir
+        // make temp dir
         $this->archive_directory = create_temp_dir();
         
         // copy contents to temp gzip file
@@ -48,10 +50,14 @@ class ContentArchiveReader
         fwrite($TMP, $file_contents);
         fclose($TMP);
         
+        // TODO - this is probably tiny, but it's probably worth either using http://www.php.net/manual/en/class.phardata.php or making tar a config
+        // variable. ...Also, worth extracting to its own class to handle gtar extraction.
         // extract contents of temp gzip file to temp dir
         $output = shell_exec("tar -xzf $temp_file_path -C $this->archive_directory");
     }
     
+    // TODO - re-enable; we currently have no way of remembering where we put it last time, so we're always creating a dir anyway, might as well not eat up
+    // more space with it, yeah?
     function cleanup()
     {
         // remove tmp dir
@@ -60,17 +66,22 @@ class ContentArchiveReader
     
     function load_metadata()
     {
+        // TODO - get_hashed_response actually looks remotely, but I think we're now local. Could we just use simplexml_load_file ?
         $metadata_xml = Functions::get_hashed_response($this->archive_directory."/meta.xml");
         
         $this->tables = array();
+        // TODO - extract a method for these "load if exist" blocks below:
         // load the CORE if it exists
         if(isset($metadata_xml->core))
         {
             foreach($metadata_xml->core as $core_xml)
             {
+                // A hash of all the fields in the data, including default values:
                 $table_definition = $this->load_table_definition($core_xml);
+                // TODO - looks like we use strtolower($table_definition->row_type) enough to give it a variable, probably $table_name
                 if(!isset($this->tables[strtolower($table_definition->row_type)])) $this->tables[strtolower($table_definition->row_type)] = array();
                 $this->tables[strtolower($table_definition->row_type)][] = $table_definition;
+                // TODO - this is the one odd line out of the other "load if exist" blocks, account for that:
                 $this->core = $table_definition;
             }
         }
@@ -80,6 +91,7 @@ class ContentArchiveReader
         {
             foreach($metadata_xml->extension as $extension_xml)
             {
+                // A hash of all the fields in the data, including default values:
                 $table_definition = $this->load_table_definition($extension_xml);
                 if(!isset($this->tables[strtolower($table_definition->row_type)])) $this->tables[strtolower($table_definition->row_type)] = array();
                 $this->tables[strtolower($table_definition->row_type)][] = $table_definition;
@@ -91,6 +103,7 @@ class ContentArchiveReader
         {
             foreach($metadata_xml->table as $table_xml)
             {
+                // A hash of all the fields in the data, including default values:
                 $table_definition = $this->load_table_definition($table_xml);
                 if(!isset($this->tables[strtolower($table_definition->row_type)])) $this->tables[strtolower($table_definition->row_type)] = array();
                 $this->tables[strtolower($table_definition->row_type)][] = $table_definition;
@@ -134,6 +147,7 @@ class ContentArchiveReader
         $table_definition->location = (string) $metadata_xml->files->location;
         $table_definition->file_uri = $table_definition->location;
         // the URI is relative so add the path to the temp directory
+        // TODO - if(!strpos($table_definition->file_uri, "/"))
         if(strpos($table_definition->file_uri, "/") === false)
         {
             $table_definition->file_uri = $this->archive_directory ."/". $table_definition->file_uri;
@@ -147,6 +161,7 @@ class ContentArchiveReader
         // grabbing the ID if it exists
         if($id = $metadata_xml->id)
         {
+            // The 'index' seems to be telling us which column number (of the fields) contains the ID.
             $index = (int) @$id['index'];
             $term = (string) @$id['term'];
             if(!$term && $table_definition->row_type == 'http://rs.tdwg.org/dwc/terms/Taxon') $term = 'http://rs.tdwg.org/dwc/terms/taxonID';
@@ -158,6 +173,8 @@ class ContentArchiveReader
         // grabbing the coreID if it exists
         $id = $metadata_xml->coreid;
         # just in case people use the wrong case, as GBIF did in some documentation
+        // TODO - warning if this happens (really, the source file should be fixed.)
+        // TODO - would be nice if our validator checked for this.
         if(!$id) $id = $metadata_xml->coreId;
         if($id)
         {
@@ -166,6 +183,7 @@ class ContentArchiveReader
             if(!$term && isset($this->core->id['term'])) $term = $this->core->id['term'];
             $table_definition->fields[$index] = array(  'term'      => $term,
                                                         'default'   => '');
+            // NOTE this is stored with an underscore in the name core_id.
             $table_definition->core_id = $table_definition->fields[$index];
         }
         
@@ -175,6 +193,7 @@ class ContentArchiveReader
             $index = (int) @$foreign_key['index'];
             $rowType = (string) @$foreign_key['rowType'];
             $table_definition->foreign_keys[$index] = $rowType;
+            // Q: Why isn't this put into $table_definition->fields?
         }
         
         // now all other fields
@@ -184,9 +203,11 @@ class ContentArchiveReader
             $field_meta = array('term'      => (string) @$field['term'],
                                 'type'      => (string) @$field['type'],
                                 'default'   => (string) @$field['default']);
+            // Q: Aren't we at all worried about this trumping the coreid or the ID we captured above?
             if(isset($field['index'])) $table_definition->fields[$index] = $field_meta;
             else $table_definition->constants[] = $field_meta;
         }
+        // TODO - couldn't this be a method on $table_definition ?
         $table_definition->column_count = count($table_definition->fields);
         
         return $table_definition;
@@ -201,6 +222,7 @@ class ContentArchiveReader
             $all_rows = array();
             foreach($this->tables[strtolower($row_type)] as $table_definition)
             {
+                // file_iterator_index is used to get usable line numbers for errors:
                 $this->file_iterator_index = 0;
                 // rows are on newlines, so we can stream the file with an iterator
                 if($table_definition->lines_terminated_by == "\n")
@@ -209,7 +231,9 @@ class ContentArchiveReader
                     foreach(new FileIterator($table_definition->file_uri) as $line_number => $line)
                     {
                         $parameters['archive_line_number'] = $line_number;
+                        // NOTE - we're not storing this number, we're stealing it from $line_number, so it needs to be incremented every time:
                         if($table_definition->ignore_header_lines) $parameters['archive_line_number'] += 1;
+                        # YOU_WERE_HERE 5
                         $fields = $this->parse_table_row($table_definition, $line, $parameters);
                         if($fields == "this is the break message") break;
                         if($fields && $callback) call_user_func($callback, $fields, $parameters);

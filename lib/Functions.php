@@ -70,6 +70,7 @@ class Functions
         if (defined('PS_LITE_CMD')) {
           @exec(PS_LITE_CMD, $ps);
         } else {
+          // We may not really need the -f, but hey.
           @exec('ps -ef', $ps);
         }
         foreach($ps as $process)
@@ -199,9 +200,11 @@ class Functions
         return $file;
     }
     
+    // TODO - this gets used a lot, so, PITA, but: rename to simplexml_load_from_url to make intent clearer.
     public static function get_hashed_response($url, $options = array())
     {
         $response = self::get_remote_file($url, $options);
+        // TODO - return simplexml_load_string($response);
         $hash = simplexml_load_string($response);
         return $hash;
     }
@@ -708,15 +711,19 @@ class Functions
     {
         if($decode)
         {
+            // TODO - really? html_entity_decode doesn't handle nbsp? Test.
             $string = str_replace('&nbsp;',  ' ', $string);
             $string = htmlspecialchars_decode(html_entity_decode($string, ENT_COMPAT, 'UTF-8'));
         }
         
+        // Q: What does this do?
         $string = str_replace(" ", " ", $string);
         //utf-8 0x0A (nobreak space) does not get inserted into mysql properly, we change it back to &nbsp; 
+        // TODO - this looks like it was a typo; why keep it?
         //$string = str_replace("\xA0", "&nbsp;", $string);
         $string = str_replace("\x0A", "&nbsp;", $string);
         
+        // TODO - change to a return (the remove_whitespace method will trim the string)
         if($remove_shitespace) $string = self::remove_whitespace($string);
         return trim($string);
     }

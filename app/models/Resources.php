@@ -88,6 +88,8 @@ class Resource extends ActiveRecord
         return false;
     }
     
+    // TODO - rename/alias: does_meta_xml_exist (makes the nature of the test clearer.)
+    // Checks whether the archive_path attribute actually leads to a meta.xml file.
     public function is_archive_resource()
     {
         if(!is_dir($this->archive_path())) return false;
@@ -170,15 +172,28 @@ class Resource extends ActiveRecord
     // static method to find ALL resources ready
     public static function ready_for_harvesting($hours_ahead_of_time = null)
     {
+        // NOTE we're setting it equal to the reference of the variable.
+        // TODO - since we only use it once, should we just dereference it inline, below?
         $mysqli =& $GLOBALS['mysqli_connection'];
         
+        // TODO - move this closer to its scope
         $resources = array();
         $extra_hours_clause = "";
         if($hours_ahead_of_time) $extra_hours_clause = " - $hours_ahead_of_time";
         
+        // TODO - we reall want to pick up unharvested resources where validation failed?
+        // TODO - what are the states for refresh_period_hours that AREN'T picked up, and why?
+        // Looks for resources which are:
+        //   - In "force harvest" state
+        //   OR
+        //   - Never been harvested, and the status is "validated", "validation failed", or "processing failed"
+        //   OR
+        //   - The resource's "refresh_period_hours" is up and the status is "upload failed", "validated", "validation failed", "processed", "processing
+        //   failed", or "published".
         $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=".ResourceStatus::force_harvest()->id." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::validated()->id." OR resource_status_id=".ResourceStatus::validation_failed()->id." OR resource_status_id=".ResourceStatus::processing_failed()->id.")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL (refresh_period_hours $extra_hours_clause) HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::upload_failed()->id.", ".ResourceStatus::validated()->id.", ".ResourceStatus::validation_failed()->id.", ". ResourceStatus::processed()->id .", ".ResourceStatus::processing_failed()->id.", ".ResourceStatus::published()->id."))");
         while($result && $row=$result->fetch_assoc())
         {
+            // TODO - when is $resource used?  Remove?
             $resources[] = $resource = Resource::find($row["id"]);
         }
         
@@ -344,6 +359,7 @@ class Resource extends ActiveRecord
         debug("Starting harvest of resource: $this->id");
         
         debug("Validating resource: $this->id");
+        // YOU_WERE_HERE 2
         $valid = $validate ? $this->validate() : true;
         debug("Validated resource: $this->id");
         if($valid)
@@ -653,10 +669,15 @@ class Resource extends ActiveRecord
         }
     }
     
+    // TODO - couldn't we make the archive_validator method a singleton?
     public function create_archive_validator()
     {
+        // TODO - I'm sure it will never matter, but perhaps this conditional should check that archive_reader's archive_path is the same as
+        // $this->archive_path().
         if(isset($this->archive_validator)) return $this->archive_validator;
+        // Puts everything in a dir (if needed), then loads table definitions into a hash:
         $this->archive_reader = new ContentArchiveReader(null, $this->archive_path());
+        // NOTE this doesn't actually validate anything right away, of course...
         $this->archive_validator = new ContentArchiveValidator($this->archive_reader, $this);
     }
     
@@ -667,6 +688,7 @@ class Resource extends ActiveRecord
         if($this->is_archive_resource())
         {
             $this->create_archive_validator();
+            // TODO $valid = $this->archive_validator->is_valid(true));
             if($this->archive_validator->is_valid(true)) $valid = true;  // valid
             $errors = array_merge($this->archive_validator->structural_errors(), $this->archive_validator->display_errors());
             if($errors)
@@ -680,8 +702,10 @@ class Resource extends ActiveRecord
             }
         }else
         {
+            // TODO - I believe { $valid = SchemaValidator::validate($this->resource_path()) } would work, but check.
             $validation_result = SchemaValidator::validate($this->resource_path());
             if($validation_result===true) $valid = true;  // valid
+            // TODO - of course, this would then have to change "else" to "if (!$valid)"
             else $error_string = $this->mysqli->escape(implode("<br>", $validation_result));
         }
         if($error_string)

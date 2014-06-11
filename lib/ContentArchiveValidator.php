@@ -13,15 +13,18 @@ class ContentArchiveValidator
 
     public function __construct($content_archive_reader, $resource = NULL)
     {
+        // Q: Why is this line necessary? Shouldn't it throw an error?  Seems it would only be caused by an improper call...
         if(get_class($content_archive_reader) != 'php_active_record\ContentArchiveReader') return null;
         $this->content_archive_reader = $content_archive_reader;
         $this->validation_has_run = false;
+        // archive_resource is used to tweak licenses, if present (and if it has the right data):
         $this->archive_resource = $resource;
         $this->skip_warnings = false;
     }
 
     public function is_valid($skip_warnings = false)
     {
+        // YOU_WERE_HERE 3
         $this->get_validation_errors($skip_warnings);
         if($this->structural_errors) return false;
         return true;
@@ -96,10 +99,13 @@ class ContentArchiveValidator
 
     public function get_validation_errors($skip_warnings = false)
     {
+        // NOTE when skip_warnings is set with this method, it will be on for this object henceforth.
         $this->skip_warnings = $skip_warnings;
         if($this->validation_has_run) return;
+        // TODO - technically speaking, best to move this to the end of the method (in case a future change calls a return)
         $this->validation_has_run = true;
 
+        // TODO - seems to make sense to set these in the constructor, even.
         $this->structural_errors = array();
         $this->errors_by_line = array();
         $this->warnings_by_line = array();
@@ -107,11 +113,16 @@ class ContentArchiveValidator
         $this->stats = array();
         if(!$this->content_archive_reader->tables)
         {
+            // TODO - this seems to be a pattern that could be extracted to a method: add_structural_error(message)
             $error = new \eol_schema\ContentArchiveError();
             $error->message = 'Cannot read meta.xml. There may be a structural problem with this archive.';
             $this->structural_errors[] = $error;
         }
 
+        // NOTE - this seems slightly strange to me. We have a list of classes that (technically) *might* implement validation_rules and ROW_TYPE. Seems
+        // like this logic belongs somewhere else; too add a new class of validations, you would have to edit the class *and* this file, which violates the
+        // single responsibility principle. (And, minor detail, it seems really weird for us to strtolower that value, as if we don't trust the class, but
+        // perhaps we need different cases in different places...)
         $classes_to_validate = array(
             '\eol_schema\MediaResource',
             '\eol_schema\Taxon',
@@ -129,12 +140,17 @@ class ContentArchiveValidator
             if($class_name::validation_rules()) $row_types_to_validate[] = strtolower($class_name::ROW_TYPE);
         }
 
+        // Q: What do these TODOs mean?  :)
+        // TODO: duplicate primary keys
+        // TODO: referential integrity
         foreach($this->content_archive_reader->tables as $row_type => $tables)
         {
-            // TODO: duplicate primary keys
-            // TODO: referential integrity
+            // Skip row_types that we don't know how to validate:
             if(!in_array(strtolower($row_type), $row_types_to_validate)) continue;
+            // TODO - extract method for this kind of debugging (or perhaps there already is one; use it).
             if($GLOBALS['ENV_DEBUG']) echo "Processing $row_type\n";
+            // YOU_WERE_HERE 4
+            // NOTE array($this, 'validate_row') is a callback to that method in this class.
             $this->content_archive_reader->process_row_type($row_type, array($this, 'validate_row'), array('row_type' => $row_type));
             if($row_type == 'http://rs.tdwg.org/dwc/terms/taxon')
             {
