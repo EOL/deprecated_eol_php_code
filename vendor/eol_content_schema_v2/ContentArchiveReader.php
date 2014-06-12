@@ -188,12 +188,13 @@ class ContentArchiveReader
         }
         
         // grabbing the foreignKeys if they exists
+        // NOTE - this is probably never used... GBIF wasn't going to change the DWCa format.
         foreach($metadata_xml->foreignKey as $foreign_key)
         {
             $index = (int) @$foreign_key['index'];
             $rowType = (string) @$foreign_key['rowType'];
             $table_definition->foreign_keys[$index] = $rowType;
-            // Q: Why isn't this put into $table_definition->fields?
+            // NOTE this isn't in $table_definition->fields because a FK isn't really an attribute on a class (which the fields could be thought of as.)
         }
         
         // now all other fields
@@ -203,7 +204,8 @@ class ContentArchiveReader
             $field_meta = array('term'      => (string) @$field['term'],
                                 'type'      => (string) @$field['type'],
                                 'default'   => (string) @$field['default']);
-            // Q: Aren't we at all worried about this trumping the coreid or the ID we captured above?
+            // We aren't worried about this trumping the coreid or the ID we captured above... if they actually did that, we would actually honor it... but
+            // that would be silly.
             if(isset($field['index'])) $table_definition->fields[$index] = $field_meta;
             else $table_definition->constants[] = $field_meta;
         }
@@ -219,6 +221,7 @@ class ContentArchiveReader
     {
         if(isset($this->tables[strtolower($row_type)]))
         {
+            // NOTE - $all_rows is only used if there is NOT a callback function supplied:
             $all_rows = array();
             foreach($this->tables[strtolower($row_type)] as $table_definition)
             {
@@ -230,11 +233,13 @@ class ContentArchiveReader
                     $parameters['archive_table_definition'] =& $table_definition;
                     foreach(new FileIterator($table_definition->file_uri) as $line_number => $line)
                     {
+                        // TODO - this block duplicated in the block below. Extract.
                         $parameters['archive_line_number'] = $line_number;
-                        // NOTE - we're not storing this number, we're stealing it from $line_number, so it needs to be incremented every time:
+                        // NOTE we're not storing this number, we're stealing it from $line_number, so it needs to be incremented every time:
                         if($table_definition->ignore_header_lines) $parameters['archive_line_number'] += 1;
-                        # YOU_WERE_HERE 5
                         $fields = $this->parse_table_row($table_definition, $line, $parameters);
+                        // NOTE this message is returned by parse_table_row when the file exceeds the parse_row_limit.
+                        // TODO - might be better to set an instance variable. But hey.
                         if($fields == "this is the break message") break;
                         if($fields && $callback) call_user_func($callback, $fields, $parameters);
                         elseif($fields) $all_rows[] = $fields;
@@ -247,6 +252,7 @@ class ContentArchiveReader
                     $lines = explode($table_definition->lines_terminated_by, $file_contents);
                     foreach($lines as $line_number => $line)
                     {
+                        // TODO - this block duplicated in the block above. Extract.
                         $parameters['archive_line_number'] = $line_number;
                         if($table_definition->ignore_header_lines) $parameters['archive_line_number'] += 1;
                         $fields = $this->parse_table_row($table_definition, $line, $parameters);
@@ -256,6 +262,7 @@ class ContentArchiveReader
                     }
                 }
             }
+            // NOTE this return value is only useful when they didn't pass in a callback:
             return $all_rows;
         }
     }
@@ -266,16 +273,29 @@ class ContentArchiveReader
     {
         // if($this->file_iterator_index % 10000 == 0) echo "Parsing table row $this->file_iterator_index: ".memory_get_usage()."\n";
         $this->file_iterator_index++;
+        // TODO - might be better to set an instance variable. But hey.
         if(isset($parameters['parse_row_limit']) && $this->file_iterator_index > $parameters['parse_row_limit']) return "this is the break message";
+        // Ignore headers by returning an empty array:
         if($table_definition->ignore_header_lines && $this->file_iterator_index <= $table_definition->ignore_header_lines) return array();
-        
+        // Ignore empty lines by returning an empty array:
         if(!trim($line)) return array();
         $fields = self::line_to_array($line, $table_definition->terminator, $table_definition->enclosure);
         return self::assign_field_types($table_definition, $fields);
     }
     
+    // TODO - consider using a library to parse the files, this is a *bit* convoluted... 
+    // This method handles meta-quoting and breaks up the string into fields.
+    // TODO - rename terminate to delimiter (more standard).
     static function line_to_array($line, $terminate = "\t", $enclosure = null)
     {
+        // if we DO keep this method, we should add a routine to check whether
+        // |-|-| and |+|+| are present in the line before filtering it.
+        // ...Unlikely, but it would blow things up if they were.
+        // 
+        // NOTE - I'm a bit surprised this works on fields with an enclosure 
+        // in the first or last field, since I (don't think) $terminate would
+        // naturally match ^ or $. Maybe this just doesn't happen, or perhaps
+        // there's some magic here that I'm not noticing.
         if($enclosure)
         {
             // swap out any $enclosure not next to a $terminate
@@ -307,18 +327,27 @@ class ContentArchiveReader
         return $fields;
     }
     
+    // Adds default values and constant values, if they are blank (specifically '', at the time of this writing).
+    // Also turns single newlines to null values.
+    // TODO - rename for more clarity
     static function assign_field_types($table_definition, $fields)
     {
         $row_field_types = array();
+        // TODO - should check all of the fields for "||||" before doing this; unlikely, but would have nasty results and it's easy to check.
+        // ...or ...just don't do it all at once. That does seem slightly odd.
         // unescape all fields at once
         $fields = implode("||||", $fields);
         $fields = self::unescape_string($fields);
         $fields = explode("||||", $fields);
         foreach($fields as $index => $value)
         {
+            // NOTE - not sure strcasecmp is needed here (vs strcmp).
+            // TODO - Perhaps this should actually be looking for ANY whitespace, a'la /^\s$/
             if(strcasecmp($value, "/n") == 0) $value = null;
+            // TODO - should use is_set
             if($f = @$table_definition->fields[$index])
             {
+                // NOTE that the check for '' also checks for Null and the like.
                 if($value == '' && isset($f['default']))
                 {
                     $row_field_types[$f['term']] = $f['default'];
@@ -332,6 +361,7 @@ class ContentArchiveReader
         {
             if($value = self::convert_escaped_chars($field_metadata['default']))
             {
+                // NOTE: This ONLY checks if value is '' ... but since this is in constants, I assume it's controlled.
                 if(!isset($row_field_types[$field_metadata['term']]) || $row_field_types[$field_metadata['term']] == '')
                 {
                     $row_field_types[$field_metadata['term']] = $value;

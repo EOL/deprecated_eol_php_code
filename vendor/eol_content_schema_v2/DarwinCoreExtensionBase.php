@@ -26,12 +26,15 @@ class DarwinCoreExtensionBase
             foreach($rules as $rule)
             {
                 if($skip_warnings && $rule->failure_type == 'warning') continue;
+                // NOTE - there are two types of rules, one for fields, the other for the row itself. This is the field type:
+                // TODO - ducktype the two classes to respond to rule_type and return :field or :row, to make this clearer.
                 if(get_class($rule) == 'eol_schema\ContentArchiveFieldValidationRule')
                 {
                     $test_value = NULL;
                     $test_uri = NULL;
                     if(is_array($rule->field_uri))
                     {
+                        // TODO - extract this block as a method: build_test_data
                         $test_data = array();
                         foreach($rule->field_uri as $field_uri)
                         {
@@ -40,10 +43,14 @@ class DarwinCoreExtensionBase
                                 $test_data[] = array('value' => $fields[$field_uri], 'uri' => $field_uri);
                             }else $test_data[] = array('value' => NULL, 'uri' => NULL);
                         }
+                        // NOTE - user sort, using the sort_fields_by_value function (in this class).
                         usort($test_data, array('\eol_schema\DarwinCoreExtensionBase', 'sort_fields_by_value'));
                         foreach($test_data as $data)
                         {
+                            # YOU_WERE_HERE 6
                             $success_or_error = $rule->validate($data['value'], $data['uri']);
+                            // NOTE that we break because a list of fields is only provided when ONE will be used (and not more than one), so there's no
+                            // need to keep running if we've found data:
                             if($data['value']) break;
                         }
                     }else
@@ -52,6 +59,7 @@ class DarwinCoreExtensionBase
                         $test_uri = $rule->field_uri;
                         $success_or_error = $rule->validate($test_value, $test_uri);
                     }
+                // ...and this is the validation of the row:
                 }elseif(get_class($rule) == 'eol_schema\ContentArchiveRowValidationRule')
                 {
                     $success_or_error = $rule->validate($fields);

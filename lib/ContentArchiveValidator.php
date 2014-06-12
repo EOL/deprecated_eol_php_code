@@ -13,7 +13,7 @@ class ContentArchiveValidator
 
     public function __construct($content_archive_reader, $resource = NULL)
     {
-        // Q: Why is this line necessary? Shouldn't it throw an error?  Seems it would only be caused by an improper call...
+        // TODO - this should throw an error and the caller should do a try/catch kind of thing: but note that that resource just won't be harvested.
         if(get_class($content_archive_reader) != 'php_active_record\ContentArchiveReader') return null;
         $this->content_archive_reader = $content_archive_reader;
         $this->validation_has_run = false;
@@ -140,9 +140,10 @@ class ContentArchiveValidator
             if($class_name::validation_rules()) $row_types_to_validate[] = strtolower($class_name::ROW_TYPE);
         }
 
-        // Q: What do these TODOs mean?  :)
-        // TODO: duplicate primary keys
-        // TODO: referential integrity
+        // TODO - referential integrity - check that foreign keys are correct; if you have a media file with a taxon id, but the id is not in the file, then
+        // alert them that the references don't hold up... so anywhere there's a possible FK, we would have to check that it resolves. ...This could be
+        // reference id, taxon ids, etc... 
+        // TODO - giving them a hint about the number of taxa/images/references/etc would result would also be keen.
         foreach($this->content_archive_reader->tables as $row_type => $tables)
         {
             // Skip row_types that we don't know how to validate:
@@ -150,7 +151,7 @@ class ContentArchiveValidator
             // TODO - extract method for this kind of debugging (or perhaps there already is one; use it).
             if($GLOBALS['ENV_DEBUG']) echo "Processing $row_type\n";
             // YOU_WERE_HERE 4
-            // NOTE array($this, 'validate_row') is a callback to that method in this class.
+            // NOTE array($this, 'validate_row') is a callback to that method in this class, called on each row.
             $this->content_archive_reader->process_row_type($row_type, array($this, 'validate_row'), array('row_type' => $row_type));
             if($row_type == 'http://rs.tdwg.org/dwc/terms/taxon')
             {
@@ -169,24 +170,37 @@ class ContentArchiveValidator
     {
         static $i = 0;
         $i++;
+        // TODO - make this message clearer
         if($i % 10000 == 0 && $GLOBALS['ENV_DEBUG']) echo "$i: ". time_elapsed() ." :: ". memory_get_usage() ."\n";
 
         $file_location = $parameters['archive_table_definition']->location;
         $new_exceptions = array();
+        // TODO - extract this URI and make something like Uri::is_document($parameters['row_type'])
         if($parameters['row_type'] == 'http://eol.org/schema/media/document')
         {
+            // NOTE = '@' here suppresses errors, so you don't get excpetions if they are unset.
+            // TODO - better to say if(isset($row['http://purl.org/dc/terms/license']) && !$row['http://purl.org/dc/terms/license']) ...
+            // TODO - would be clearer to be able to say if(!$row->has_license_or_terms)
             if(@!$row['http://purl.org/dc/terms/license'] && @!$row['http://ns.adobe.com/xap/1.0/rights/UsageTerms'])
             {
+                // TODO - would be clearer to say $this->has_resource_licence_source
                 if($this->archive_resource && $this->archive_resource->license && $this->archive_resource->license->source_url)
                 {
+                    // TODO - extract this URI, use something like $row[Uri::usage_terms]
                     $row['http://ns.adobe.com/xap/1.0/rights/UsageTerms'] = $this->archive_resource->license->source_url;
+                    // NOTE - this may be unecessary, but this just cleans things up:
                     unset($row['http://purl.org/dc/terms/license']);
                 }
             }
+            // TODO - these two lines are quite redundant with the blocks below. ...Extract, or not worth it?
+            // YOU_WERE_HERE 5
             $new_exceptions = \eol_schema\MediaResource::validate_by_hash($row, $this->skip_warnings);
             $this->append_identifier_error($row, 'http://purl.org/dc/terms/identifier', $parameters, $new_exceptions);
             if(!self::any_exceptions_of_type_error($new_exceptions))
             {
+                // TODO - all of these should be written with is_set()...
+                // TODO - all of these URIs should be extracted into a Uri object.
+                // TODO - this looks like it could be written with an iterator over a known list of row URIs.
                 if(@$v = $row['http://purl.org/dc/terms/type']) $this->add_stat('type', $parameters['row_type'], $file_location, $v);
                 if(@$v = $row['http://rs.tdwg.org/audubon_core/subtype']) $this->add_stat('subtype', $parameters['row_type'], $file_location, $v);
                 if(@$v = $row['http://ns.adobe.com/xap/1.0/rights/UsageTerms']) $this->add_stat('license', $parameters['row_type'], $file_location, $v);
@@ -194,29 +208,36 @@ class ContentArchiveValidator
                 if(@$v = $row['http://purl.org/dc/terms/language']) $this->add_stat('language', $parameters['row_type'], $file_location, $v);
                 if(@$v = $row['http://purl.org/dc/terms/format']) $this->add_stat('format', $parameters['row_type'], $file_location, $v);
             }
+        // TODO - extract this URI and make something like Uri::is_taxon($parameters['row_type'])
         }elseif($parameters['row_type'] == 'http://rs.tdwg.org/dwc/terms/taxon')
         {
             $new_exceptions = \eol_schema\Taxon::validate_by_hash($row, $this->skip_warnings);
             $this->append_identifier_error($row, 'http://rs.tdwg.org/dwc/terms/taxonID', $parameters, $new_exceptions);
+        // TODO - extract this URI and make something like Uri::is_vernacular($parameters['row_type'])
         }elseif($parameters['row_type'] == 'http://rs.gbif.org/terms/1.0/vernacularname')
         {
             $new_exceptions = \eol_schema\VernacularName::validate_by_hash($row, $this->skip_warnings);
+            // NOTE vernacular names don't have an ID so there is no need to append the identifier error.
             if(!self::any_exceptions_of_type_error($new_exceptions))
             {
                 if(@$v = $row['http://purl.org/dc/terms/language']) $this->add_stat('language', $parameters['row_type'], $file_location, $v);
             }
+        // TODO - extract this URI and make something like Uri::is_reference($parameters['row_type'])
         }elseif($parameters['row_type'] == 'http://eol.org/schema/reference/reference')
         {
             $new_exceptions = \eol_schema\Reference::validate_by_hash($row, $this->skip_warnings);
             $this->append_identifier_error($row, 'http://purl.org/dc/terms/identifier', $parameters, $new_exceptions);
+        // TODO - extract this URI and make something like Uri::is_agent($parameters['row_type'])
         }elseif($parameters['row_type'] == 'http://eol.org/schema/agent/agent')
         {
             $new_exceptions = \eol_schema\Agent::validate_by_hash($row, $this->skip_warnings);
             $this->append_identifier_error($row, 'http://purl.org/dc/terms/identifier', $parameters, $new_exceptions);
+        // TODO - extract this URI and make something like Uri::is_measurement($parameters['row_type'])
         }elseif($parameters['row_type'] == 'http://rs.tdwg.org/dwc/terms/measurementorfact')
         {
             $new_exceptions = \eol_schema\MeasurementOrFact::validate_by_hash($row, $this->skip_warnings);
             $this->append_identifier_error($row, 'http://rs.tdwg.org/dwc/terms/measurementID', $parameters, $new_exceptions);
+        // TODO - extract this URI and make something like Uri::is_association($parameters['row_type'])
         }elseif($parameters['row_type'] == 'http://eol.org/schema/association')
         {
             $new_exceptions = \eol_schema\Association::validate_by_hash($row, $this->skip_warnings);
@@ -225,12 +246,14 @@ class ContentArchiveValidator
 
         if(!self::any_exceptions_of_type_error($new_exceptions))
         {
+            // TODO - extract update_stats($parameters['row_type'])
             if(!isset($this->stats[$parameters['row_type']])) $this->stats[$parameters['row_type']] = array();
             if(!isset($this->stats[$parameters['row_type']]['Total'])) $this->stats[$parameters['row_type']]['Total'] = 0;
             $this->stats[$parameters['row_type']]['Total']++;
         }
         if($new_exceptions)
         {
+            // TODO - extract log_exceptions($new_exceptions)
             foreach($new_exceptions as $exception)
             {
                 $exception->file = $parameters['archive_table_definition']->location;
@@ -363,8 +386,10 @@ class ContentArchiveValidator
         return $return;
     }
 
+    // TODO - would be more succint to rename this to has_errors
     public static function any_exceptions_of_type_error($exceptions)
     {
+        // TODO - could be re-written with array_map and/or in_array ?
         foreach($exceptions as $exception)
         {
             if(get_class($exception) == 'eol_schema\ContentArchiveError') return true;

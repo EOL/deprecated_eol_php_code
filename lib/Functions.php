@@ -716,7 +716,7 @@ class Functions
             $string = htmlspecialchars_decode(html_entity_decode($string, ENT_COMPAT, 'UTF-8'));
         }
         
-        // Q: What does this do?
+        // NOTE - the first string here is a funky character (0xA0) which we're replacing with a space.
         $string = str_replace(" ", " ", $string);
         //utf-8 0x0A (nobreak space) does not get inserted into mysql properly, we change it back to &nbsp; 
         // TODO - this looks like it was a typo; why keep it?
