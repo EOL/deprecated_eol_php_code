@@ -3,8 +3,8 @@ namespace php_active_record;
 
 class SparqlClient
 {
-    const BASIC_URI_REGEX       = "/^http:\/\/[^ ]+$/i";
-    const ENCLOSED_URI_REGEX    = "/^<(http:\/\/[^ ]+)>$/i";
+    const BASIC_URI_REGEX       = "/^http:\/\/[^ <>]+$/i";
+    const ENCLOSED_URI_REGEX    = "/^<(http:\/\/[^ <>]+)>$/i";
     const NAMESPACED_URI_REGEX  = "/^([a-z0-9_-]{1,30}):([a-z0-9_-]+)$/i";
 
     function __construct($options = array())

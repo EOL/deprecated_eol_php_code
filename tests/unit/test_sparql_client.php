@@ -32,6 +32,7 @@ class test_sparql_client extends SimpletestUnitBase
         $this->assertTrue(SparqlClient::is_uri("http://eol.org"));
         $this->assertTrue(SparqlClient::is_uri("http://a"));
         $this->assertFalse(SparqlClient::is_uri("http://"));
+        $this->assertFalse(SparqlClient::is_uri("http://eol.org<somethingelse>adf"));
 
         $this->assertTrue(SparqlClient::is_uri("<http://eol.org>"));
         $this->assertTrue(SparqlClient::is_uri("<http://a>"));
