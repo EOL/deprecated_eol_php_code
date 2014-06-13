@@ -60,11 +60,15 @@ class NCBIGGIqueryAPI
         
         // BOLDS portal
         $this->bolds_taxon_page = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?searchTax=&taxon=";
+        $this->bolds_taxon_page_id = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
+        $this->bolds["TaxonSearch"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonSearch?taxName=";
+        $this->bolds["TaxonData"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=basic,stats&taxId=";
         
         // stats
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->names_no_entry_from_partner_dump_file = $this->TEMP_DIR . "names_no_entry_from_partner.txt";
         $this->name_from_eol_api_dump_file = $this->TEMP_DIR . "name_from_eol_api.txt";
+        $this->names_dae_to_nae_dump_file = $this->TEMP_DIR . "names_dae_to_nae.txt";
         
         /* // FALO report
         $this->names_in_falo_but_not_in_irmng = $this->TEMP_DIR . "families_in_falo_but_not_in_irmng.txt";
@@ -237,10 +241,11 @@ class NCBIGGIqueryAPI
         $rec["family"] = $family;
         $rec["taxon_id"] = $family;
         $rec["source"] = $this->bolds_taxon_page . $family;
-        if($contents = Functions::lookup_with_cache($rec["source"], $this->download_options))
+        if($json = Functions::lookup_with_cache($this->bolds["TaxonSearch"] . $family, $this->download_options))
         {
-            if($info = self::get_page_count_from_BOLDS_page($contents))
+            if($info = self::parse_bolds_taxon_search($json))
             {
+                $rec["source"] = $this->bolds_taxon_page_id . $info["taxid"];
                 if(@$info["specimens"] > 0)
                 {
                     $rec["object_id"]   = "_no_of_rec_in_bolds";
@@ -300,14 +305,37 @@ class NCBIGGIqueryAPI
         return false;
     }
     
-    private function get_page_count_from_BOLDS_page($contents)
+    private function parse_bolds_taxon_search($json)
     {
-        $info = array();
-        if(preg_match("/Specimens with Sequences:<\/td>(.*?)<\/td>/ims", $contents, $arr))  $info["specimens"] = trim(strip_tags($arr[1]));
-        if(preg_match("/Public Records:<\/td>(.*?)<\/td>/ims", $contents, $arr))            $info["public records"] = trim(strip_tags($arr[1]));
-        return $info;
+        if($taxid = self::get_best_bolds_taxid($json))
+        {
+            if($json = Functions::lookup_with_cache($this->bolds["TaxonData"] . $taxid, $this->download_options))
+            {
+                $arr = json_decode($json); 
+                return array("taxid" => $taxid, "public records" => $arr->stats->publicrecords, "specimens" => $arr->stats->sequencedspecimens);
+            }
+        }
+        else return false;
     }
-    
+        
+    private function get_best_bolds_taxid($json)
+    {
+        $ranks = array("family", "subfamily", "genus", "order"); // best rank for FALO family, in this order
+        if($arr = json_decode($json))
+        {
+            foreach($ranks as $rank)
+            {
+                foreach($arr as $taxid => $rec)
+                {
+                    if(!$rec) return false;
+                    if($rec->tax_rank == $rank) return $taxid;
+                }
+            }
+            foreach($arr as $taxid => $rec) return $taxid;
+        }
+        return false;
+    }
+
     private function query_family_BHL_info($family, $is_subfamily, $database)
     {
         $rec["family"] = $family;
@@ -429,18 +457,23 @@ class NCBIGGIqueryAPI
                             if(preg_match("/boldsystems\.org\/index.php\/Taxbrowser_Taxonpage\?taxid=(.*?)\"/ims", $html, $arr))
                             {
                                 echo "\n bolds id: " . $arr[1] . "\n";
-                                if($html = Functions::lookup_with_cache("http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=" . $arr[1], $this->download_options))
+                                if($json = Functions::lookup_with_cache($this->bolds["TaxonData"] . $arr[1], $this->download_options))
+                                {
+                                    if($arr = json_decode($json))
+                                    {
+                                        $canonical = trim($arr->taxon);
+                                        echo "\n Got from bolds.org: [" . $canonical . "]\n";
+                                    }
+                                }
+                                elseif($html = Functions::lookup_with_cache($this->bolds_taxon_page_id . $arr[1], $this->download_options)) // original means, more or less it won't go here anymore
                                 {
                                     if(preg_match("/BOLD Systems: Taxonomy Browser -(.*?)\{/ims", $html, $arr))
                                     {
                                         $canonical = trim($arr[1]);
-                                        echo "\n Got from bolds.org: [" . $canonical . "]\n";
+                                        echo "\n Got from bolds.org 2: [" . $canonical . "]\n";
                                     }
-                                    // else echo "\n Nothing from bolds.org \n";
                                 }
-                                // else echo "\n investigate bolds.org taxid:[" . $arr[1] . "]\n";
                             }
-                            // else echo "\n Nothing in Partner Links tab.";
                         }
                     }
                     else // ncbi, gbif, ggbn
@@ -621,7 +654,7 @@ class NCBIGGIqueryAPI
                     self::add_string_types($rec, "Number of DNA records in GGBN", 0, "http://eol.org/schema/terms/NumberDNARecordsInGGBN", $family);
                 }
             }
-            $pages = self::get_number_of_pages($html);
+            $pages = self::get_number_of_pages($html, @$arr[1]);
             for ($i = 1; $i <= $pages; $i++)
             {
                 if($i > 1) $html = Functions::lookup_with_cache($this->family_service_ggbn . $family . "&page=$i", $this->download_options);
@@ -667,9 +700,9 @@ class NCBIGGIqueryAPI
         return false;
     }
 
-    private function get_number_of_pages($html)
+    private function get_number_of_pages($html, $num)
     {
-        if(preg_match_all("/hitlist=true&page=(.*?)\"/ims", $html, $arr)) return array_pop(array_unique($arr[1]));
+        if($num) return ceil($num/50);
         return 1;
     }
     
@@ -869,8 +902,10 @@ class NCBIGGIqueryAPI
     {
         if(substr($family, -3) == "dae")
         {
+            $orig = $family;
             $family = str_replace("dae" . "xxx", "nae", $family . "xxx");
             $this->families_with_no_data[$family] = 1;
+            self::save_to_dump($orig . "\t" . $family, $this->names_dae_to_nae_dump_file);
         }
         /* commented for now bec it is not improving the no. of records
         elseif(substr($family, -4) == "ceae")
@@ -907,6 +942,22 @@ class NCBIGGIqueryAPI
             else echo "\n [$doc] unavailable! \n";
         }
         return array_keys($families);
+    }
+    
+    function count_subfamily_per_database($file, $database)
+    {
+        $subfamilies = array();
+        foreach(new FileIterator($file) as $line_number => $line)
+        {
+            if($line)
+            {
+                $line = trim($line);
+                $temp = explode("\t", $line);
+                $str = explode("naeO", $temp[0]);
+                if(count($str) > 1) $subfamilies[$str[0] . "nae"] = '';
+            }
+        }
+        print "\n $database: " . count($subfamilies) . "\n";
     }
 
 }

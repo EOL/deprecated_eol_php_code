@@ -154,6 +154,7 @@ class PaleoDBAPI
         $taxon->family                      = $rec["family"];
         $taxon->parentNameUsageID           = $rec["parent_no"];
         if($rec["senior_no"] != $rec["orig_no"]) $taxon->acceptedNameUsageID = $rec["senior_no"];
+        else                                     $taxon->acceptedNameUsageID = '';
         $taxon->taxonomicStatus             = self::process_status($rec["status"]);
         // if($taxon->taxonomicStatus == "synonym") return; //debug - exclude synonyms during preview phase
         if(!isset($this->taxon_ids[$taxon->taxonID]))
@@ -289,7 +290,12 @@ class PaleoDBAPI
     function create_archive()
     {
         echo "\n Creating archive...\n";
-        foreach($this->taxa as $t) $this->archive_builder->write_object_to_file($t);
+        foreach($this->taxa as $t)
+        {
+            if(!isset($this->taxon_ids[$t->parentNameUsageID])) $t->parentNameUsageID = '';
+            if(!isset($this->taxon_ids[$t->acceptedNameUsageID])) $t->acceptedNameUsageID = '';
+            $this->archive_builder->write_object_to_file($t);
+        }
         $this->archive_builder->finalize(TRUE);
     }
 
