@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* PaleoDB connector - we use their data services to assemble their data and ingest it as structured data
-estimated execution time: 40 minutes
+estimated execution time: 40 minutes | 1.9 hours
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
