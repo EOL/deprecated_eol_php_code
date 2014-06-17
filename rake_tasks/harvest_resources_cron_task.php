@@ -13,7 +13,7 @@ else $fast_for_testing = false;
 // if there are more than one then it means we're still harvesting something from yesterday
 if(Functions::grep_processlist('harvest_resources') > 2)
 {
-    $to      = PLEARY_EMAIL_ADDRESS;
+    $to      = EOL_DEV_EMAIL_ADDRESS;
     $subject = 'Skipped Harvest';
     $message = 'We just skipped a scheduled harvest due to a previous one running long.';
     $headers = 'From: no-reply@eol.org' . "\r\n" .

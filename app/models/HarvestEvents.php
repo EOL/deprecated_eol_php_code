@@ -572,7 +572,7 @@ class HarvestEvent extends ActiveRecord
 
     function send_emails_about_outlier_harvests()
     {
-        if(defined('SPG_EMAIL_ADDRESS') && defined('PLEARY_EMAIL_ADDRESS') && defined('ELI_EMAIL_ADDRESS'))
+        if(defined('SPG_EMAIL_ADDRESS') && defined('EOL_DEV_EMAIL_ADDRESS') && defined('ELI_EMAIL_ADDRESS'))
         {
             if(abs($this->percent_different_data_objects()) > 10 ||
                 abs($this->percent_different_hierarchy_entries()) > 10)
@@ -601,7 +601,7 @@ class HarvestEvent extends ActiveRecord
                 $headers = 'From: no-reply@eol.org' . "\r\n" .
                     'Reply-To: no-reply@eol.org' . "\r\n" .
                     'X-Mailer: PHP/' . phpversion();
-                $to      = implode(", ", array(SPG_EMAIL_ADDRESS, PLEARY_EMAIL_ADDRESS, ELI_EMAIL_ADDRESS));
+                $to      = implode(", ", array(SPG_EMAIL_ADDRESS, EOL_DEV_EMAIL_ADDRESS, ELI_EMAIL_ADDRESS));
                 mail($to, $subject, $message, $headers);
             }
         }
