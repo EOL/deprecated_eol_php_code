@@ -74,8 +74,8 @@ class LifeDeskToScratchpadAPI
             $i++;
             $t_dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
             $t_dc = $t->children("http://purl.org/dc/elements/1.1/");
-            $identifier = Functions::import_decode($t_dc->identifier);
-            $sciname    = Functions::import_decode($t_dwc->ScientificName);
+            $identifier = (string) $t_dc->identifier;
+            $sciname    = (string) $t_dwc->ScientificName;
             foreach($t->reference as $ref)
             {
                 if(preg_match("/lifedesks.org\/biblio\/view\/(.*?)\"/ims", $ref, $arr)) $this->booklet_taxa_list[$arr[1]][$sciname] = '';
@@ -88,11 +88,12 @@ class LifeDeskToScratchpadAPI
                 $t_dcterms  = $do->children("http://purl.org/dc/terms/");
                 $rec = array();
                 $rec["Taxonomic name (Name)"] = $sciname;
+                $rec["GUID"] = md5($t_dc2->identifier);
                 if($do->dataType == "http://purl.org/dc/dcmitype/StillImage")
                 {
                     if($val = self::get_mediaURL($t_dc2, $do)) $rec["Filename"] = $val;
                     else continue;
-                    $rec["Licence"] = (string) $do->license;
+                    $rec["Licence"] = self::get_license((string) $do->license);
                     $rec["Description"] = self::get_description($t_dc2, $do, "image");
                     $rec["Creator"] = self::get_creator($t_dcterms, $do, "image");
                     self::save_to_template($rec, $this->text_path["image"], "image");
@@ -109,6 +110,17 @@ class LifeDeskToScratchpadAPI
             }
             // if($i > 5) break; //debug
         }
+    }
+    
+    private function get_license($path)
+    {
+        if(is_numeric(stripos($path, "licenses/publicdomain/"))) return "Public Domain";
+        elseif(is_numeric(stripos($path, "licenses/by/")))       return "Attribution CC BY";
+        elseif(is_numeric(stripos($path, "licenses/by-nc/")))    return "Attribution, Non-Commercial CC BY-NC";
+        elseif(is_numeric(stripos($path, "licenses/by-sa/")))    return "Attribution, Share Alike CC BY-SA";
+        elseif(is_numeric(stripos($path, "licenses/by-nc-sa/"))) return "Attribution, Non-Commercial, Share Alike CC BY-NC-SA";
+        echo "\n investigate: no license \n";
+        return false;
     }
     
     private function get_description($dc, $do, $data_type = null)
@@ -165,7 +177,12 @@ class LifeDeskToScratchpadAPI
             {
                 $image_extension = self::get_image_extension($do->mimeType);
                 $str = ".preview." . $image_extension;
-                if(preg_match("/class=\"jqzoom\"><img src=\"(.*?)" . $str . "/ims", $html, $arr)) return $arr[1] . ".$image_extension";
+                if(preg_match("/class=\"jqzoom\"><img src=\"(.*?)" . $str . "/ims", $html, $arr))
+                {
+                    $path = $arr[1] . ".$image_extension";
+                    $parts = pathinfo($path);
+                    return $parts["basename"];
+                }
             }
         }
         return false;
