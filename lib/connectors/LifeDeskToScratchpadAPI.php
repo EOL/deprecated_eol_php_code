@@ -8,6 +8,9 @@ class LifeDeskToScratchpadAPI
         $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1);
         $this->text_path = array();
         $this->booklet_taxa_list = array();
+        $this->lifedesk_fields = array();
+        $this->scratchpad_image_taxon_list = array();
+        $this->used_GUID = array();
         /*
         $this->file_importer_xls["image"] = "http://localhost/~eolit/cp/LD2Scratchpad/file_importer_image_xls.xls";
         $this->file_importer_xls["text"] = "http://localhost/~eolit/cp/LD2Scratchpad/TEMPLATE-import_into_taxon_description_xls.xls";
@@ -21,7 +24,9 @@ class LifeDeskToScratchpadAPI
         if(self::load_zip_contents($params["lifedesk"]))
         {
             self::prepare_tab_delimited_text_files();
+            self::get_scratchpad_image_taxon_list($params["scratchpad_images"], "0"); // "0" here means to open the 1st worksheet from the spreadsheet
             self::parse_eol_xml();
+            self::add_images_without_taxa_to_export_file();
         }
         print_r($this->booklet_taxa_list);
         self::initialize_dump_file($this->text_path["bibtex"]);
@@ -49,20 +54,44 @@ class LifeDeskToScratchpadAPI
         }
     }
 
+    private function get_scratchpad_image_taxon_list($spreadsheet, $worksheet)
+    {
+        if($arr = self::convert_spreadsheet($spreadsheet, $worksheet))
+        {
+            $i = 0;
+            foreach($arr["GUID"] as $guid)
+            {
+                $this->scratchpad_image_taxon_list[$arr["Filename"][$i]]["guid"] = $guid;
+                $this->scratchpad_image_taxon_list[$arr["Filename"][$i]]["taxon"] = $arr["Taxonomic name (Name)"][$i];
+                // we are not sure if these 3 fiels will be provided by the scratchpad file
+                $this->scratchpad_image_taxon_list[$arr["Filename"][$i]]["license"]     = $arr["Licence"][$i];
+                $this->scratchpad_image_taxon_list[$arr["Filename"][$i]]["description"] = $arr["Description"][$i];
+                $this->scratchpad_image_taxon_list[$arr["Filename"][$i]]["creator"]     = $arr["Creator"][$i];
+                $i++;
+            }
+        }
+    }
+    
     private function get_column_headers($spreadsheet)
+    {
+        $fields = array();
+        if($arr = self::convert_spreadsheet($spreadsheet)) $fields = array_keys($arr);
+        return $fields;
+    }
+    
+    private function convert_spreadsheet($spreadsheet, $worksheet = null)
     {
         require_library('XLSParser');
         $parser = new XLSParser();
-        $fields = array();
         echo "\n processing [$spreadsheet]...\n";
         if($path = Functions::save_remote_file_to_local($spreadsheet, array("cache" => 1, "timeout" => 3600, "file_extension" => "xls", 'download_attempts' => 2, 'delay_in_minutes' => 2)))
         {
-            $arr = $parser->convert_sheet_to_array($path);
-            $fields = array_keys($arr);
+            $arr = $parser->convert_sheet_to_array($path, $worksheet);
             unlink($path);
+            return $arr;
         }
         else echo "\n [$spreadsheet] unavailable! \n";
-        return $fields;
+        return false;
     }
     
     private function parse_eol_xml()
@@ -88,14 +117,21 @@ class LifeDeskToScratchpadAPI
                 $t_dcterms  = $do->children("http://purl.org/dc/terms/");
                 $rec = array();
                 $rec["Taxonomic name (Name)"] = $sciname;
-                $rec["GUID"] = md5($t_dc2->identifier);
                 if($do->dataType == "http://purl.org/dc/dcmitype/StillImage")
                 {
-                    if($val = self::get_mediaURL($t_dc2, $do)) $rec["Filename"] = $val;
+                    if($filename = self::get_mediaURL($t_dc2, $do)) $rec["Filename"] = $filename;
                     else continue;
                     $rec["Licence"] = self::get_license((string) $do->license);
                     $rec["Description"] = self::get_description($t_dc2, $do, "image");
                     $rec["Creator"] = self::get_creator($t_dcterms, $do, "image");
+                    
+                    if($guid = @$this->scratchpad_image_taxon_list[$filename]["guid"])
+                    {
+                        $rec["GUID"] = $guid;
+                        $this->used_GUID[$guid] = '';
+                    }
+                    else echo "\ninvestigate: no guid\n";
+                    
                     self::save_to_template($rec, $this->text_path["image"], "image");
                 }
                 elseif($do->dataType == "http://purl.org/dc/dcmitype/Text")
@@ -109,6 +145,24 @@ class LifeDeskToScratchpadAPI
                 }
             }
             // if($i > 5) break; //debug
+        }
+    }
+    
+    private function add_images_without_taxa_to_export_file()
+    {
+        foreach($this->scratchpad_image_taxon_list as $filename => $value)
+        {
+            $rec = array();
+            if(!isset($this->used_GUID[$value["guid"]]))
+            {
+                $rec["GUID"] = $value["guid"];
+                $rec["Filename"] = $filename;
+                $rec["Taxonomic name (Name)"] = $value["taxon"];
+                $rec["Licence"]     = @$value["license"];
+                $rec["Description"] = @$value["description"];
+                $rec["Creator"]     = @$value["creator"];
+                self::save_to_template($rec, $this->text_path["image"], "image");
+            }
         }
     }
     
@@ -200,28 +254,28 @@ class LifeDeskToScratchpadAPI
     
     private function load_zip_contents($zip_file)
     {
-        $this->TEMP_FILE_PATH = create_temp_dir() . "/";
+        $temp_dir = create_temp_dir() . "/";
         if($file_contents = Functions::lookup_with_cache($zip_file, array('timeout' => 172800, 'download_attempts' => 5)))
         {
             $parts = pathinfo($zip_file);
-            $temp_file_path = $this->TEMP_FILE_PATH . "/" . $parts["basename"];
+            $temp_file_path = $temp_dir . "/" . $parts["basename"];
             $TMP = fopen($temp_file_path, "w");
             fwrite($TMP, $file_contents);
             fclose($TMP);
             
-            if(is_numeric(stripos($zip_file, ".tar.gz"))) $output = shell_exec("tar -xzf $temp_file_path -C $this->TEMP_FILE_PATH");
-            elseif(is_numeric(stripos($zip_file, ".xml.gz"))) $output = shell_exec("gzip -d $temp_file_path -q "); //$this->TEMP_FILE_PATH
+            if(is_numeric(stripos($zip_file, ".tar.gz"))) $output = shell_exec("tar -xzf $temp_file_path -C $temp_dir");
+            elseif(is_numeric(stripos($zip_file, ".xml.gz"))) $output = shell_exec("gzip -d $temp_file_path -q "); //$temp_dir
             
-            if(!file_exists($this->TEMP_FILE_PATH . "/eol-partnership.xml")) 
+            if(!file_exists($temp_dir . "/eol-partnership.xml")) 
             {
-                $this->TEMP_FILE_PATH = str_ireplace(".zip", "", $temp_file_path);
-                if(!file_exists($this->TEMP_FILE_PATH . "/eol-partnership.xml")) return false;
+                $temp_dir = str_ireplace(".zip", "", $temp_file_path);
+                if(!file_exists($temp_dir . "/eol-partnership.xml")) return false;
             }
-            $this->text_path["eol_xml"] = $this->TEMP_FILE_PATH . "eol-partnership.xml";
+            $this->text_path["eol_xml"] = $temp_dir . "eol-partnership.xml";
             // initialize tab-delimited text files to be used
-            $this->text_path["image"] = $this->TEMP_FILE_PATH . "file_importer_image_xls.txt";
-            $this->text_path["text"] = $this->TEMP_FILE_PATH . "TEMPLATE-import_into_taxon_description_xls.txt";
-            $this->text_path["bibtex"] = $this->TEMP_FILE_PATH . "Biblio-Bibtex.bib";
+            $this->text_path["image"] = $temp_dir . "file_importer_image_xls.txt";
+            $this->text_path["text"] = $temp_dir . "TEMPLATE-import_into_taxon_description_xls.txt";
+            $this->text_path["bibtex"] = $temp_dir . "Biblio-Bibtex.bib";
             return true;
         }
         else
