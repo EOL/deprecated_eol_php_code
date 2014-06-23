@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector for Vimeo 
-estimated execution time: 20 minutes
+estimated execution time: 46 minutes
 */
 
 $timestart = microtime(1);
