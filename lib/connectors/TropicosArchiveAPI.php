@@ -26,10 +26,6 @@ define("TROPICOS_API_SERVICE", "http://services.tropicos.org/Name/");
 
 class TropicosArchiveAPI
 {
-
-    // const TEMP_FILE_PATH = "/Users/eolit/EOL/TropicosArchive_cache/";
-    const TEMP_FILE_PATH = "/Users/EOL_TropicosArchive_cache/";
-    
     function __construct($folder)
     {
         $this->taxa = array();
@@ -41,8 +37,10 @@ class TropicosArchiveAPI
         $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
         $this->occurrence_ids = array();
         $this->taxon_ids = array();
-        $this->tropicos_ids_list_file = self::TEMP_FILE_PATH . "tropicos_ids.txt";
-        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 2);
+        $this->TEMP_DIR = create_temp_dir() . "/";
+        $this->tropicos_ids_list_file = $this->TEMP_DIR . "tropicos_ids.txt";
+        // replace expire_seconds to 999999999 get last cache, no expire
+        $this->download_options = array('expire_seconds' => 2592000, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 2);
     }
 
     function get_all_taxa()
@@ -64,10 +62,13 @@ class TropicosArchiveAPI
         exit;
         */
 
-        if(!file_exists(self::TEMP_FILE_PATH)) mkdir(self::TEMP_FILE_PATH); // make sure cache directory exists
         self::assemble_id_list();
         self::process_taxa();
         $this->archive_builder->finalize(TRUE);
+        
+        // remove temp dir
+        recursive_rmdir($this->TEMP_DIR);
+        echo ("\n temporary directory removed: " . $this->TEMP_DIR);
     }
 
     private function process_taxa()
@@ -91,6 +92,28 @@ class TropicosArchiveAPI
                 // if($i >= 210000 && $i < 240000) $cont = true;
                 // if($i >= 240000 && $i < 270000) $cont = true;
                 // if($i >= 270000 && $i < 300000) $cont = true;
+                // if($i >= 300000 && $i < 330000) $cont = true;
+                // if($i >= 330000 && $i < 360000) $cont = true;
+                // if($i >= 360000 && $i < 390000) $cont = true;
+                // if($i >= 390000 && $i < 420000) $cont = true;
+                // if($i >= 420000 && $i < 450000) $cont = true;
+                // if($i >= 450000 && $i < 480000) $cont = true;
+                // if($i >= 480000 && $i < 510000) $cont = true;
+                // if($i >= 510000 && $i < 540000) $cont = true;
+                // if($i >= 540000 && $i < 570000) $cont = true;
+                // if($i >= 570000 && $i < 600000) $cont = true;
+                // if($i >= 600000 && $i < 630000) $cont = true;
+                // if($i >= 630000 && $i < 660000) $cont = true;
+                // if($i >= 660000 && $i < 690000) $cont = true;
+                // if($i >= 690000 && $i < 720000) $cont = true;
+                // if($i >= 720000 && $i < 750000) $cont = true;
+                // if($i >= 750000 && $i < 780000) $cont = true;
+                // if($i >= 780000 && $i < 810000) $cont = true;
+                // if($i >= 810000 && $i < 840000) $cont = true;
+                // if($i >= 840000 && $i < 870000) $cont = true;
+                // if($i >= 870000 && $i < 900000) $cont = true;
+                // if($i >= 900000 && $i < 930000) $cont = true;
+                // if($i >= 930000 && $i < 960000) $cont = true;
                 if(!$cont) continue;
                 */
                 echo "\n$i. [$taxon_id]";
@@ -110,7 +133,7 @@ class TropicosArchiveAPI
     function process_taxon($taxon_id)
     {
         self::get_images($taxon_id);
-        if(!$name = self::check_cache("taxon_name", $taxon_id)) $name = self::create_cache("taxon_name", $taxon_id);
+        $name = self::create_cache("taxon_name", $taxon_id);
         $name = json_decode($name, true);
         $sciname = @$name['ScientificName'];
         
@@ -153,7 +176,7 @@ class TropicosArchiveAPI
 
     private function get_images($taxon_id)
     {
-        if(!$xml = self::check_cache("images", $taxon_id)) $xml = self::create_cache("images", $taxon_id);
+        $xml = self::create_cache("images", $taxon_id);
         $xml = simplexml_load_string($xml);
         $with_image = 0;
         foreach($xml->Image as $rec)
@@ -228,7 +251,7 @@ class TropicosArchiveAPI
 
     private function get_distributions($taxon_id, $sciname)
     {
-        if(!$xml = self::check_cache("distribution", $taxon_id)) $xml = self::create_cache("distribution", $taxon_id);
+        $xml = self::create_cache("distribution", $taxon_id);
         $xml = simplexml_load_string($xml);
         $lines = array();
         foreach($xml->Distribution as $rec)
@@ -322,7 +345,7 @@ class TropicosArchiveAPI
 
     private function get_taxon_ref($taxon_id)
     {
-        if(!$xml = self::check_cache("taxon_ref", $taxon_id)) $xml = self::create_cache("taxon_ref", $taxon_id);
+        $xml = self::create_cache("taxon_ref", $taxon_id);
         $xml = simplexml_load_string($xml);
         $reference_ids = array();
         foreach($xml->NameReference as $rec)
@@ -341,7 +364,7 @@ class TropicosArchiveAPI
     private function get_synonyms($taxon_id)
     {
         $records = array();
-        if(!$xml = self::check_cache("synonyms", $taxon_id)) $xml = self::create_cache("synonyms", $taxon_id);
+        $xml = self::create_cache("synonyms", $taxon_id);
         $xml = simplexml_load_string($xml);
         foreach($xml->Synonym as $syn)
         {
@@ -405,7 +428,7 @@ class TropicosArchiveAPI
     function get_taxonomy($taxon_id)
     {
         $taxonomy = array();
-        if(!$xml = self::check_cache("taxonomy", $taxon_id)) $xml = self::create_cache("taxonomy", $taxon_id);
+        $xml = self::create_cache("taxonomy", $taxon_id);
         $xml = simplexml_load_string($xml);
         foreach($xml->Name as $rec)
         {
@@ -421,7 +444,7 @@ class TropicosArchiveAPI
 
     function get_chromosome_count($taxon_id)
     {
-        if(!$xml = self::check_cache("chromosome", $taxon_id)) $xml = self::create_cache("chromosome", $taxon_id);
+        $xml = self::create_cache("chromosome", $taxon_id);
         $xml = simplexml_load_string($xml);
 
         $refs = array();
@@ -480,7 +503,7 @@ class TropicosArchiveAPI
         while(true)
         {
             $count++;
-            if(!$contents = self::check_cache("id_list", $startid)) $contents = self::create_cache("id_list", $startid);
+            $contents = self::create_cache("id_list", $startid);
             if($contents)
             {
                 $ids = json_decode($contents, true);
@@ -509,17 +532,6 @@ class TropicosArchiveAPI
         fclose($OUT);
     }
 
-    private function check_cache($dir_name, $id, $last_update = null)
-    {
-        $file_path = self::TEMP_FILE_PATH . $dir_name . "/" . $id . ".txt";
-        if(file_exists($file_path))
-        {
-            $file_contents = file_get_contents($file_path);
-            return $file_contents;
-        }
-        return false;
-    }
-
     private function create_cache($type, $id)
     {
         if($type == "id_list") // $id here is the startid
@@ -535,26 +547,8 @@ class TropicosArchiveAPI
         elseif($type == "distribution") $url = TROPICOS_API_SERVICE . $id . "/Distributions?format=xml&apikey=" . TROPICOS_API_KEY;
         elseif($type == "images")       $url = TROPICOS_API_SERVICE . $id . "/Images?format=xml&apikey=" . TROPICOS_API_KEY;
         elseif($type == "chromosome")   $url = TROPICOS_API_SERVICE . $id . "/ChromosomeCounts?format=xml&apikey=" . TROPICOS_API_KEY;
-        if($contents = Functions::lookup_with_cache($url, $this->download_options))
-        {
-            self::add_to_cache($type, $id, $contents);
-            return $contents;
-        }
+        if($contents = Functions::lookup_with_cache($url, $this->download_options)) return $contents;
         else return false;
-    }
-
-    private function add_to_cache($dir_name, $id, $contents)
-    {
-        $dir_path = self::TEMP_FILE_PATH . $dir_name;
-        $file_path = $dir_path . "/" . $id . ".txt";
-        
-        // make sure cache directory exists
-        if(!file_exists($dir_path)) mkdir($dir_path);
-        
-        // write to cache file
-        $FILE = fopen($file_path, "w+");
-        fwrite($FILE, $contents);
-        fclose($FILE);
     }
 
     /*
