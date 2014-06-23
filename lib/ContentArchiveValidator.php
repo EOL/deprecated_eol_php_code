@@ -24,7 +24,7 @@ class ContentArchiveValidator
 
     public function is_valid($skip_warnings = false)
     {
-        // YOU_WERE_HERE 3
+        // This cycles through a different set of checks for each row type and stores all errors (and, optionally, warnings) for later use:
         $this->get_validation_errors($skip_warnings);
         if($this->structural_errors) return false;
         return true;
@@ -34,6 +34,8 @@ class ContentArchiveValidator
     {
         return $this->structural_errors;
     }
+
+    // A record of how many rows of each type have been processed:
     public function stats()
     {
         return $this->stats;
@@ -150,12 +152,15 @@ class ContentArchiveValidator
             if(!in_array(strtolower($row_type), $row_types_to_validate)) continue;
             // TODO - extract method for this kind of debugging (or perhaps there already is one; use it).
             if($GLOBALS['ENV_DEBUG']) echo "Processing $row_type\n";
-            // YOU_WERE_HERE 4
             // NOTE array($this, 'validate_row') is a callback to that method in this class, called on each row.
             $this->content_archive_reader->process_row_type($row_type, array($this, 'validate_row'), array('row_type' => $row_type));
             if($row_type == 'http://rs.tdwg.org/dwc/terms/taxon')
             {
+                // TODO - skip temp variable; use is_set
                 $count_of_all_taxa = @$this->stats[$row_type]['Total'];
+                // Q: We're only checking this when the row type *is* a taxon, so... would this ever get thrown? ...I suppose it would, if all of the taxa
+                // up to this point were invalid (because it only counts rows that are valid). But we would have this error thrown for every invalid row
+                // from the start of the file until the first valid taxon.  ...Anyway, seems like this should be at the end of the loop.
                 if(!$count_of_all_taxa)
                 {
                     $error = new \eol_schema\ContentArchiveError();
@@ -193,7 +198,6 @@ class ContentArchiveValidator
                 }
             }
             // TODO - these two lines are quite redundant with the blocks below. ...Extract, or not worth it?
-            // YOU_WERE_HERE 5
             $new_exceptions = \eol_schema\MediaResource::validate_by_hash($row, $this->skip_warnings);
             $this->append_identifier_error($row, 'http://purl.org/dc/terms/identifier', $parameters, $new_exceptions);
             if(!self::any_exceptions_of_type_error($new_exceptions))
@@ -205,6 +209,7 @@ class ContentArchiveValidator
                 if(@$v = $row['http://rs.tdwg.org/audubon_core/subtype']) $this->add_stat('subtype', $parameters['row_type'], $file_location, $v);
                 if(@$v = $row['http://ns.adobe.com/xap/1.0/rights/UsageTerms']) $this->add_stat('license', $parameters['row_type'], $file_location, $v);
                 if(@$v = $row['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm']) $this->add_stat('subject', $parameters['row_type'], $file_location, $v);
+                // TODO - DRY this up with the same call below.
                 if(@$v = $row['http://purl.org/dc/terms/language']) $this->add_stat('language', $parameters['row_type'], $file_location, $v);
                 if(@$v = $row['http://purl.org/dc/terms/format']) $this->add_stat('format', $parameters['row_type'], $file_location, $v);
             }
@@ -217,9 +222,11 @@ class ContentArchiveValidator
         }elseif($parameters['row_type'] == 'http://rs.gbif.org/terms/1.0/vernacularname')
         {
             $new_exceptions = \eol_schema\VernacularName::validate_by_hash($row, $this->skip_warnings);
-            // NOTE vernacular names don't have an ID so there is no need to append the identifier error.
+            // NOTE vernacular names don't have an ID so there is no need to append_identifier_error.
             if(!self::any_exceptions_of_type_error($new_exceptions))
             {
+                // TODO - use is_set
+                // TODO - DRY this up with the same call above.
                 if(@$v = $row['http://purl.org/dc/terms/language']) $this->add_stat('language', $parameters['row_type'], $file_location, $v);
             }
         // TODO - extract this URI and make something like Uri::is_reference($parameters['row_type'])
@@ -246,7 +253,7 @@ class ContentArchiveValidator
 
         if(!self::any_exceptions_of_type_error($new_exceptions))
         {
-            // TODO - extract update_stats($parameters['row_type'])
+            // TODO - extract to update_row_stats($parameters['row_type'])
             if(!isset($this->stats[$parameters['row_type']])) $this->stats[$parameters['row_type']] = array();
             if(!isset($this->stats[$parameters['row_type']]['Total'])) $this->stats[$parameters['row_type']]['Total'] = 0;
             $this->stats[$parameters['row_type']]['Total']++;
@@ -260,6 +267,7 @@ class ContentArchiveValidator
                 $exception->line = $parameters['archive_line_number'];
                 if(get_class($exception) == 'eol_schema\ContentArchiveError')
                 {
+                    // NOTE - it looks like you can skip certain types of errors. Not sure (as of now) where that's set.
                     if(!isset($this->errors_by_line[$parameters['row_type']][$file_location][$exception->line]))
                     {
                         $this->errors_by_line[$parameters['row_type']][$file_location][$exception->line] = array();
@@ -267,6 +275,7 @@ class ContentArchiveValidator
                     $this->errors_by_line[$parameters['row_type']][$file_location][$exception->line][] = $exception;
                 }elseif(!$this->skip_warnings)
                 {
+                    // NOTE - it looks like you can skip certain types of warnings. Not sure (as of now) where that's set.
                     if(!isset($this->warnings_by_line[$parameters['row_type']][$file_location][$exception->line]))
                     {
                         $this->warnings_by_line[$parameters['row_type']][$file_location][$exception->line] = array();

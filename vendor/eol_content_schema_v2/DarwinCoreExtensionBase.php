@@ -32,6 +32,7 @@ class DarwinCoreExtensionBase
                 {
                     $test_value = NULL;
                     $test_uri = NULL;
+                    // NOTE that using an array for testing is a new feature, built to handle cases where the rule could apply to one field type or another.
                     if(is_array($rule->field_uri))
                     {
                         // TODO - extract this block as a method: build_test_data
@@ -47,7 +48,6 @@ class DarwinCoreExtensionBase
                         usort($test_data, array('\eol_schema\DarwinCoreExtensionBase', 'sort_fields_by_value'));
                         foreach($test_data as $data)
                         {
-                            # YOU_WERE_HERE 6
                             $success_or_error = $rule->validate($data['value'], $data['uri']);
                             // NOTE that we break because a list of fields is only provided when ONE will be used (and not more than one), so there's no
                             // need to keep running if we've found data:
@@ -55,6 +55,8 @@ class DarwinCoreExtensionBase
                         }
                     }else
                     {
+                        // NOTE this is the "usual" form for a rule...
+                        // NOTE the assigns are overrides (see above).
                         $test_value = @$fields[$rule->field_uri];
                         $test_uri = $rule->field_uri;
                         $success_or_error = $rule->validate($test_value, $test_uri);
