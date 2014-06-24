@@ -2,12 +2,13 @@
 namespace php_active_record;
 /* PaleoDB connector - we use their data services to assemble their data and ingest it as structured data
 estimated execution time: 40 minutes | 1.9 hours
+This resource is formerly id = 719
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/PaleoDBAPI');
 $timestart = time_elapsed();
-$resource_id = 719;
+$resource_id = 368;
 $func = new PaleoDBAPI($resource_id);
 $func->get_all_taxa();
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)

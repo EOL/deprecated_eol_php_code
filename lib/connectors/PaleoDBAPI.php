@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-// connector: [719]
+// connector: [368]; formerly [719]
 class PaleoDBAPI
 {
     function __construct($folder)
@@ -48,9 +48,9 @@ class PaleoDBAPI
             [subspecies] => 
             
         valid status:
-            [subjective synonym of]
-            [objective synonym of]
-            [belongs to]
+            [subjective synonym of] - 16,223
+            [objective synonym of]  - 399
+            [belongs to]            - 210,214
         */
     }
 
@@ -60,8 +60,11 @@ class PaleoDBAPI
         $this->create_archive();
         // stats
         print_r($this->debug["rank"]);
-        print_r($this->debug["status"]);
         print_r($this->debug["is_extant"]);
+        $statuses = array_keys($this->debug["status"]);
+        print_r($statuses);
+        foreach($statuses as $status) echo "\n $status: " . count($this->debug["status"][$status]);
+        echo "\n";
     }
 
     private function parse_csv_file($type, $taxon = array())
@@ -139,7 +142,7 @@ class PaleoDBAPI
     {
         // for stats
         $this->debug["rank"][$rec["rank"]] = '';
-        $this->debug["status"][$rec["status"]] = '';
+        $this->debug["status"][$rec["status"]][$rec["orig_no"]] = '';
         $this->debug["is_extant"][$rec["is_extant"]] = '';
 
         $taxon = new \eol_schema\Taxon();
