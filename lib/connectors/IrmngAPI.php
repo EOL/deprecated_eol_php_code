@@ -3,6 +3,11 @@ namespace php_active_record;
 /* connector: [741] IRMNG data and classification
 Connector processes the DWC-A file from partner (CSV files).
 Connector downloads the zip file, extracts, reads, assembles the data and generates the EOL DWC-A resource.
+
+for blank taxonomic_status - we first check if the name is already in EOL
+- if in EOL already -- we included/accepted them
+- if not in EOL -- we exclude them as we don't want to create new pages for them
+
 */
 class IrmngAPI
 {
