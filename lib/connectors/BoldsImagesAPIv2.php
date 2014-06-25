@@ -452,12 +452,14 @@ class BoldsImagesAPIv2
         foreach(new FileIterator($temp_filepath, true) as $line_number => $line) // 'true' will auto delete temp_filepath
         {
             $split = explode("\t", trim($line));
-            $sciname = $split[1];
-            $id = $split[0];
-            if(!isset($hl_taxa["$sciname"]["taxon_id"]))
+            if($sciname = @$split[1])
             {
-                echo "\n to be added: [$sciname - {$id}]";
-                fwrite($write, $id . "\t" . $sciname . "\t" . "" . "\n");
+                $id = $split[0];
+                if(!isset($hl_taxa[$sciname]["taxon_id"]))
+                {
+                    // echo "\n to be added: [$sciname - $id]";
+                    fwrite($write, $id . "\t" . $sciname . "\t" . "" . "\n");
+                }
             }
         }
         fclose($write);
