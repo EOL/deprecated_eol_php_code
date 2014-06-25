@@ -1,26 +1,31 @@
 <?php
 namespace php_active_record;
+/* connector: [692] One-time import.
+Partner provides two CSV files, connector parses these files and generates the EOL archive.
+We use WORMS taxonomy to get the rank info and remove those OBIS taxa with rank higher than family.
+*/
 
 class ObisDataConnector
 {
-    // const TAXA_FILE_PATH = "/Users/pleary/Downloads/datasets/OBIS_nov_2011/tnames_OBIS.csv";
-    // const DATA_FILE_PATH = "/Users/pleary/Downloads/datasets/OBIS_nov_2011/ranges_OBIS.csv";
-
     public function __construct($resource_id)
     {
         $this->resource_id = $resource_id;
-        $this->obis_csv_zip_file = "http://localhost/~eolit/cp/OBIS/OBIS_ranges.zip";
-        $this->worms_taxon_tab_zip_file = "http://localhost/~eolit/cp/OBIS/worms_taxon.tab.zip";
+        
+        // $this->obis_csv_zip_file = "http://localhost/~eolit/cp/OBIS/OBIS_ranges.zip";
+        // $this->worms_taxon_tab_zip_file = "http://localhost/~eolit/cp/OBIS/worms_taxon.tab.zip";
+        $this->obis_csv_zip_file = "https://dl.dropboxusercontent.com/u/7597512/OBIS/OBIS_ranges.zip";
+        $this->worms_taxon_tab_zip_file = "https://dl.dropboxusercontent.com/u/7597512/OBIS/worms_taxon.tab.zip";
+        
         $this->text_path = array();
         $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-        $this->excluded_ranks = array("kingdom", "subkingdom", "phylum", "order", "class", "subclass", "suborder", "subphylum", "infraorder", "superorder", "superclass");
+        $this->excluded_ranks = array("kingdom", "subkingdom", "phylum", "subphylum", "class", "subclass", "infraclass", "superclass", "order", "suborder", "infraorder", "superorder");
     }
 
     public function build_archive()
     {
         $this->access_raw_data();
         
-        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . "/$this->resource_id/";
+        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
 
         $this->setup();
@@ -289,6 +294,7 @@ class ObisDataConnector
                 return false;
             }
         }
+        if(in_array($canonical, array("Eutheria"))) return false; // based on DATA-1435, Jen's comment Jun 24, 2014
         return true;
     }
 
