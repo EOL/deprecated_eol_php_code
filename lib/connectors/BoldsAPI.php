@@ -10,6 +10,8 @@ Before running the connector, it is assumed that this file has already been crea
 might creep in. You just need to open the 212.xml file and delete the <dataObject> with the wrong encoding. When I last ran this in July 2012 
 I had to delete one <dataObject> for taxon Anopheles longirostris B NWB-2009 - http://v2.boldsystems.org/views/taxbrowser.php?taxid=303232
 but when I ran the connector again I didn't get the encoding problem anymore. Anyway, just a heads-up.
+
+Main API page: http://www.boldsystems.org/index.php/Resources
 */
 
 class BoldsAPI
@@ -27,6 +29,7 @@ class BoldsAPI
         $this->INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_initial_process_status.txt";
         $this->MASTER_LIST            = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt";
         // $this->MASTER_LIST            = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list_small.txt"; // debug
+        $this->service["id"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=basic,stats,geo&includeTree=true&taxId=";
     }
 
     function initialize_text_files()
@@ -76,6 +79,7 @@ class BoldsAPI
         foreach(new FileIterator($filename) as $line_number => $line)
         {
             $split = explode("\t", trim($line));
+            if(!@$split[0]) continue;
             $taxon = array("sciname" => $split[1] , "id" => $split[0], "rank" => @$split[2]);
             $i++;
             echo "\n $i -- " . $taxon['sciname'] . " $taxon[id] \n";
@@ -116,7 +120,7 @@ class BoldsAPI
         $arr_taxa = array();
         $arr_objects = array();
 
-        $arr = self::get_taxon_details($taxon_rec["id"]);
+        $arr = self::get_taxon_details_via_api($taxon_rec["id"]);
         $taxa = @$arr[0];
         $bold_stats = @$arr[1];
         $species_level = @$arr[2];
@@ -207,6 +211,60 @@ class BoldsAPI
         return $arr_taxa;
     }
 
+    private function get_taxon_details_via_api($taxid)
+    {
+        /* this function will get:
+            taxonomy
+            BOLD stats
+            boolean if species-level taxa
+            if id/url is resolvable
+            boolean if taxon has map (collections sites)
+        */
+
+        // $taxid = 26136; //20; //8078;
+        
+        $arr = array();
+        $file = $this->service["id"] . $taxid;
+        if($json = Functions::lookup_with_cache($file, array('download_wait_time' => 1000000, 'timeout' => 1200, 'download_attempts' => 5)))
+        {
+            $rec = json_decode($json, true);
+            // print_r($rec);
+            if(@$rec[$taxid]["sitemap"]) $with_map = true;
+            else                         $with_map = false;
+            if(@$rec[$taxid]["tax_rank"] == "species") $species_level = true;
+            else                                       $species_level = false;
+            $public_records = @$rec[$taxid]["stats"]["publicrecords"];
+            //get tree
+            $taxa = array();
+            $keys = array_keys($rec);
+            foreach($keys as $key)
+            {
+                if($key == $taxid) continue;
+                $taxa[$rec[$key]["tax_rank"]] = $rec[$key]["taxon"];
+            }
+            //get stats
+            $str = "";
+            if(@$rec[$taxid]["stats"])
+            {
+                if($val = @$rec[$taxid]["stats"]["specimenrecords"])    $str .= "Specimen Records: $val<br>";
+                if($val = @$rec[$taxid]["stats"]["sequencedspecimens"]) $str .= "Specimens with Sequences: $val<br>";
+                if($val = @$rec[$taxid]["stats"]["barcodespecimens"])   $str .= "Specimens with Barcodes: $val<br>";
+                if($val = @$rec[$taxid]["stats"]["species"])            $str .= "Species: $val<br>";
+                if($val = @$rec[$taxid]["stats"]["barcodespecies"])     $str .= "Species With Barcodes: $val<br>";
+                if($val = @$rec[$taxid]["stats"]["publicrecords"])      $str .= "Public Records: $val<br>";
+                if($val = @$rec[$taxid]["stats"]["publicspecies"])      $str .= "Public Species: $val<br>";
+                if($val = @$rec[$taxid]["stats"]["publicbins"])         $str .= "Public BINs: $val<br>";
+                // "publicmarkersequences":{"CYTB":8,"COXIII":8,"COII":8,"COI-5P":613,"atp6":3} -- available in api 
+            }
+        }
+        else
+        {
+            echo " -Taxonomy Browser - No Match- [$taxid]";
+            return array(false, false, false, false, false);
+        }
+        return array($taxa, $str, $species_level, $public_records, $with_map);
+    }
+
     private function get_taxon_details($taxid)
     {
         /* this function will get:
@@ -235,7 +293,7 @@ class BoldsAPI
 
         $arr = array();
         $file = self::SPECIES_SERVICE_URL . $taxid;
-        $orig_str = Functions::get_remote_file($file, array('timeout' => 1200, 'download_attempts' => 5));
+        $orig_str = Functions::lookup_with_cache($file, array('download_wait_time' => 1000000, 'timeout' => 1200, 'download_attempts' => 5));
         
         if(is_numeric(stripos($orig_str, "Taxonomy Browser - No Match")))
         {

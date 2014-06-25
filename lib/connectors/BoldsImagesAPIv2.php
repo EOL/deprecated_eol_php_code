@@ -10,8 +10,8 @@ class BoldsImagesAPIv2
     {
         $this->max_images_per_taxon = 10;
         $this->data_dump_url = "http://www.boldsystems.org/export/boldrecords.xml.gz";
-        // $this->data_dump_url = "http://localhost/~eolit/xml_parser/boldrecords.xml.gz"; // debug
-        // $this->data_dump_url = "http://localhost/~eolit/xml_parser/bolds_sample_data.xml.gz"; // debug
+        // $this->data_dump_url = "http://localhost/~eolit/cp/BOLDS/boldrecords.xml.gz"; // debug
+        // $this->data_dump_url = "http://localhost/~eolit/cp/BOLDS/bolds_sample_data.xml.gz"; // debug
 
         $this->sourceURL = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
         $this->taxa = array();
@@ -86,7 +86,7 @@ class BoldsImagesAPIv2
     function download_and_extract_remote_file($file = false)
     {
         if(!$file) $file = $this->data_dump_url; // used when this function is called elsewhere
-        $temp_path = Functions::save_remote_file_to_local($file, array('timeout' => 172800, 'download_attempts' => 5, 'file_extension' => 'xml.gz'));
+        $temp_path = Functions::save_remote_file_to_local($file, array('cache' => 1, 'timeout' => 172800, 'download_attempts' => 5, 'file_extension' => 'xml.gz'));
         echo "\n [$temp_path] \n";
         shell_exec("gzip -d " . $temp_path);
         return str_ireplace(".xml.gz", ".xml", $temp_path);
@@ -442,13 +442,13 @@ class BoldsImagesAPIv2
         echo "\n\n species-level taxa count: " . count($sl_taxa);
         echo "\n higher-level taxa count: " . count($hl_taxa);
         fclose($fn);
-        self::reconcile_with_old_master_list($hl_taxa);
+        self::reconcile_with_old_master_list($hl_taxa); // debug - uncomment in normal operation, comment when developing for quick processing
     }
 
     private function reconcile_with_old_master_list($hl_taxa)
     {
         $write = fopen($this->MASTER_LIST, "a");
-        $temp_filepath = Functions::save_remote_file_to_local($this->OLD_MASTER_LIST, array('timeout' => 2400, 'download_attempts' => 5));
+        $temp_filepath = Functions::save_remote_file_to_local($this->OLD_MASTER_LIST, array('cache' => 1, 'timeout' => 2400, 'download_attempts' => 5));
         foreach(new FileIterator($temp_filepath, true) as $line_number => $line) // 'true' will auto delete temp_filepath
         {
             $split = explode("\t", trim($line));
