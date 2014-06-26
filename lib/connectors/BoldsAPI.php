@@ -53,11 +53,11 @@ class BoldsAPI
             {
                 // Divide the big list of ids into small files
                 Functions::add_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);
-                Functions::create_work_list_from_master_file($this->MASTER_LIST, 5000, $this->TEMP_FILE_PATH, "batch_", $this->WORK_LIST); //debug orig value 5000
+                $batch = Functions::create_work_list_from_master_file($this->MASTER_LIST, 5000, $this->TEMP_FILE_PATH, "batch_", $this->WORK_LIST); //debug orig value 5000
                 Functions::delete_a_task("Initial process start", $this->INITIAL_PROCESS_STATUS);
             }
         }
-        Functions::process_work_list($this);
+        Functions::process_work_list($this, $batch);
         if(!$task = trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST))) //don't do this if there are task(s) in progress
         {
             // Combine all XML files.
@@ -68,7 +68,7 @@ class BoldsAPI
         }
     }
 
-    function get_all_taxa($task)
+    function get_all_taxa($task, $temp_path = null, $info = array())
     {
         $all_taxa = array();
         $used_collection_ids = array();
@@ -76,13 +76,15 @@ class BoldsAPI
         $i = 0;
         $save_count = 0;
         $no_eol_page = 0;
+        $total = Functions::count_rows_from_text_file($filename);
         foreach(new FileIterator($filename) as $line_number => $line)
         {
             $split = explode("\t", trim($line));
             if(!@$split[0]) continue;
             $taxon = array("sciname" => $split[1] , "id" => $split[0], "rank" => @$split[2]);
             $i++;
-            echo "\n $i -- " . $taxon['sciname'] . " $taxon[id] \n";
+            echo "\n $info[1] of $info[0]";
+            echo "\n $i of $total -- " . $taxon['sciname'] . " $taxon[id] \n";
             $arr = self::get_Bolds_taxa($taxon, $used_collection_ids);
             $page_taxa              = $arr[0];
             $used_collection_ids    = $arr[1];
@@ -181,7 +183,7 @@ class BoldsAPI
             $location   = "";
             $refs       = array();
             $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject);
-            echo "\n map exists: $map_url \n";
+            // echo "\n map exists: $map_url \n";
 
             // map as image object
             $identifier  = $taxon_rec["id"] . "_image_map";
@@ -225,7 +227,7 @@ class BoldsAPI
         
         $arr = array();
         $file = $this->service["id"] . $taxid;
-        if($json = Functions::lookup_with_cache($file, array('download_wait_time' => 1000000, 'timeout' => 1200, 'download_attempts' => 5)))
+        if($json = Functions::lookup_with_cache($file, array('expire_seconds' => 5184000, 'download_wait_time' => 500000, 'timeout' => 1200, 'download_attempts' => 2))) // expire_seconds is 2 months
         {
             $rec = json_decode($json, true);
             // print_r($rec);

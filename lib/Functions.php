@@ -234,6 +234,22 @@ class Functions
         return false;
     }
 
+    public static function count_rows_from_text_file($file)
+    {
+        debug("\n counting: [$file]");
+        $i = 0;
+        if($handle = fopen($file, "r"))
+        {
+            while(!feof($handle))
+            {
+                if($line = fgets($handle)) $i++;
+            }
+            fclose($handle);
+        }
+        debug("\n total: [$i]\n");
+        return $i;
+    }
+
     // see http://www.php.net/manual/en/function.filesize.php#92462
     public static function remote_file_size($uri)
     {
@@ -1684,7 +1700,7 @@ class Functions
         }
     }
 
-    public static function process_work_list($class)
+    public static function process_work_list($class, $batch = null)
     {
         while(true)
         {
@@ -1701,7 +1717,7 @@ class Functions
                     Functions::run_another_connector_instance($class->resource_id, $class->connectors_to_run);
                     $class->call_multiple_instance = 0;
                 }
-                $class->get_all_taxa($task, $class->TEMP_FILE_PATH); //main connector body
+                $class->get_all_taxa($task, $class->TEMP_FILE_PATH, array($batch, $task)); //main connector body
                 print"\n Task $task is done. \n";
                 Functions::delete_a_task("$task\n", $class->WORK_IN_PROGRESS_LIST);//remove a task from task list
             }
@@ -1788,6 +1804,7 @@ class Functions
             fwrite($fp, $str);
             fclose($fp);
         }
+        return $file_ctr; // total number of work tasks
     }
 
     function combine_all_eol_resource_xmls($resource_id, $files)

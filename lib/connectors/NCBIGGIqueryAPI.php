@@ -34,7 +34,7 @@ class NCBIGGIqueryAPI
             $this->occurrence_ids = array();
             $this->measurement_ids = array();
         }
-        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1);
+        $this->download_options = array('expire_seconds' => 5184000, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1);
 
         // local
         $this->families_list = "http://localhost/~eolit/cp/NCBIGGI/falo2.in";
@@ -138,7 +138,7 @@ class NCBIGGIqueryAPI
         {
             $previous = $this->ggi_text_file[$database]["previous"];
             $current = $this->ggi_text_file[$database]["current"];
-            if(self::count_rows($current) >= self::count_rows($previous))
+            if(Functions::count_rows_from_text_file($current) >= Functions::count_rows_from_text_file($previous))
             {
                 self::process_text_file($current, $database);
                 unlink($previous);
@@ -146,24 +146,6 @@ class NCBIGGIqueryAPI
             }
             else self::process_text_file($previous, $database);
         }
-    }
-
-    private function count_rows($file)
-    {
-        echo "\n counting: [$file]";
-        $i = 0;
-        if($handle = fopen($file, "r"))
-        {
-            while(!feof($handle))
-            {
-                $line = fgets($handle);
-                $i++;
-            }
-            fclose($handle);
-        }
-        $i = $i - 1;
-        echo "\n total: [$i]\n";
-        return $i;
     }
 
     private function process_text_file($filename, $database)

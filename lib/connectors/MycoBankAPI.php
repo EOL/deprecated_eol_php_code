@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-// connector: [671]
+// connector: [671] main API page: http://www.mycobank.org/Services/Generic/Help.aspx?s=searchservice
 class MycoBankAPI
 {
     function __construct($folder)
@@ -11,9 +11,14 @@ class MycoBankAPI
         $this->synonym_ids = array();
         $this->name_id = array();
         $this->invalid_statuses = array("Orthographic variant", "Invalid", "Illegitimate", "Uncertain", "Unavailable", "Deleted");
-        // $this->service =            'http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&limit=0&filter=NameStatus_="Legitimate" AND Name STARTSWITH ';
-        $this->service =            'http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&limit=0&filter=Name STARTSWITH ';
-        $this->service_exact_name = 'http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&limit=0&filter=Name=';
+        $this->service_search["startswith_legitimate"] = 'http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&limit=0&filter=NameStatus_="Legitimate" AND Name STARTSWITH ';
+        $this->service_search["startswith"] = 'http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&limit=0&filter=Name STARTSWITH ';
+        $this->service_search["exact"]      = 'http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&limit=0&filter=Name=';
+        $this->download_options = array('expire_seconds' => 5184000, 'timeout' => 7200, 'download_attempts' => 1); // 2 months expire_seconds
+        $this->mycobank_taxa_list = "http://localhost/~eolit/cp/MycoBank/mycobank_taxon.tab";
+        $this->mycobank_taxa_list = "https://dl.dropboxusercontent.com/u/7597512/MycoBank/mycobank_taxon.tab";
+        $this->dont_search_these_strings = array("Cercospora ");
+        
         //for stats
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->dump_file = $this->TEMP_DIR . "mycobank_dump.txt";
@@ -35,18 +40,18 @@ class MycoBankAPI
 
     function get_all_taxa()
     {
-        /* to be used if you ALREADY HAVE generated dump files.
-        $file = "/Users/eolit/Sites/eli/eol_php_code/tmp/mycobank/mycobank_dump.txt";
-        $this->retrieve_data_and_save_to_array($file);
-        $this->retrieve_data_and_save_to_array2($file);
-        */
-        
-        // /* to be used if you HAVE NOT yet generated dump files
-        $this->save_data_to_text();
+        self::initialize_dump_file();
+        $genus_list = self::get_genus_list();
+        // $genus_list = array("Amanita"); //debug
+        $this->save_data_to_text($genus_list, $this->service_search["exact"]);
+        $genus_list = self::append_space_in_string($genus_list);
+        $this->save_data_to_text($genus_list, $this->service_search["startswith"]);
+        // follow-up params to search
+        $this->save_data_to_text(self::get_special_params($this->dont_search_these_strings));
+
+        // from original
         $this->retrieve_data_and_save_to_array();
         $this->retrieve_data_and_save_to_array2();
-        // */
-
         $this->check_if_all_parents_have_entries();
         $this->create_instances_from_taxon_object();
         $this->prepare_synonyms();
@@ -71,18 +76,17 @@ class MycoBankAPI
         echo ("\n temporary directory removed: " . $this->TEMP_DIR);
     }
 
-    private function save_data_to_text($params = false)
+    private function save_data_to_text($params = false, $search_service = false)
     {
         /* stats $names_with_error = self::get_names_no_entry_from_partner("names_with_error"); */
         $names_with_error = array();
         if(!$params) $params = self::get_params_for_webservice();
         $total_params = count($params);
-        self::initialize_dump_file();
         $i = 0;
         foreach($params as $param)
         {
             $param = ucfirst($param);
-            print "\n $param";
+            print "\n searching:[$param]";
             $i++;
             
             /* 
@@ -95,13 +99,19 @@ class MycoBankAPI
             if(!$cont) continue;
             */
             
+            if(in_array($param, $this->dont_search_these_strings))
+            {
+                print "\n [$param] must not be searched... \n";
+                continue;
+            }
+            
             // if(in_array($param, $names_with_error)) continue;
 
-            $no_of_results = 0;            
-            $url = $this->service . '"' . $param . '"';
-            // $url = $this->service_exact_name . '"' . $param . '"';
+            $no_of_results = 0;
+            if($val = $search_service) $url = $val . '"' . $param . '"';
+            else                       $url = $this->service_search["startswith"] . '"' . $param . '"';
             echo "\n[$param] $i of $total_params \n";
-            if($contents = Functions::lookup_with_cache($url, array('timeout' => 7200, 'download_attempts' => 1)))
+            if($contents = Functions::lookup_with_cache($url, $this->download_options))
             {
                 if($response = simplexml_load_string($contents))
                 {
@@ -617,7 +627,7 @@ class MycoBankAPI
         */
     }
     
-    private function retrieve_names_searched($dump_file = false)
+    private function retrieve_names_searched($dump_file = false) // a utility, may not be needed anymore
     {
         $names = array();
         if(!$dump_file) $dump_file = $this->dump_file;
@@ -663,9 +673,7 @@ class MycoBankAPI
         elseif($results > 250) sleep(10);
         elseif($results > 100) sleep(5);
         elseif($results > 50) sleep(5);
-        elseif($results > 25) sleep(2);
-        elseif($results > 0) sleep(1);
-        elseif($results == 0) usleep(500000);
+        else usleep(500000);
     }
 
     private function create_archive()
@@ -717,6 +725,54 @@ class MycoBankAPI
     //         $this->taxon_ids[$taxon->taxonID] = 1;
     //     }
     // }
+
+    private function append_space_in_string($names)
+    {
+        $list = array();
+        foreach($names as $name) $list[] = $name . " ";
+        return $list;
+    }
+
+    private function get_genus_list()
+    {
+        $genus = array();
+        $options = $this->download_options;
+        $options['cache'] = 1;
+        if($filename = Functions::save_remote_file_to_local($this->mycobank_taxa_list, $options))
+        {
+            foreach(new FileIterator($filename) as $line_number => $line)
+            {
+                if($line)
+                {
+                    $line = trim($line);
+                    $values = explode("\t", $line);
+                    $parts = explode(" ", $values[2]);
+                    if($val = @$parts[0]) $genus[$val] = '';
+                }
+            }
+            unlink($filename);
+        }
+        $genus = array_keys($genus);
+        array_shift($genus);
+        return $genus;
+    }
+
+    private function get_special_params($arr)
+    {
+        $params = array();
+        $letters = "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z";
+        $letters1 = $arr;
+        $letters2 = explode(",", $letters);
+        foreach($letters1 as $L1)
+        {
+            foreach($letters2 as $L2)
+            {
+                $term = ucfirst(strtolower("$L1$L2"));
+                $params[] = "$term";
+            }
+        }
+        return $params;
+    }
 
 }
 ?>
