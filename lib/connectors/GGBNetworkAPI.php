@@ -10,9 +10,9 @@ class GGBNetworkAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->occurrence_ids = array();
         $this->measurement_ids = array();
-        $this->download_options = array('expire_seconds' => 2592000, 'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1);
+        $this->download_options = array('expire_seconds' => 2592000, 'download_wait_time' => 4000000, 'timeout' => 10800, 'download_attempts' => 2);
         // GGBN data portal:
-        $this->kingdom_service_ggbn = "http://www.dnabank-network.org/Query.php?kingdom=";
+        $this->ggbn_domain = "http://www.dnabank-network.org/"; // alternate domain
         $this->ggbn_domain = "http://data.ggbn.org/";
         $this->kingdom_service_ggbn = $this->ggbn_domain . "Query.php?kingdom=";
     }
@@ -29,8 +29,6 @@ class GGBNetworkAPI
         Protozoa: 5         pages to access: [1]
         */
         $kingdoms = array("Animalia", "Archaea", "Bacteria", "Chromista", "Fungi", "Plantae", "Protozoa");
-        $kingdoms = array("Chromista");
-
         foreach($kingdoms as $kingdom) self::query_kingdom_GGBN_info($kingdom);
         $this->create_archive();
     }
