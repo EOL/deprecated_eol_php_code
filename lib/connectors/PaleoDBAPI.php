@@ -6,9 +6,9 @@ class PaleoDBAPI
     function __construct($folder)
     {
         $this->taxa = array();
+        $this->name_id = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        $this->taxon_ids = array();
         $this->resource_reference_ids = array();
         $this->download_options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->occurrence_ids = array();
@@ -16,6 +16,8 @@ class PaleoDBAPI
         $this->service["taxon"] = "http://paleobiodb.org/data1.1/taxa/list.csv?rel=all_taxa&status=valid&show=attr,app,size,phylo,ent,entname,crmod&limit=1000000";
         // $this->service["taxon"] = "https://dl.dropboxusercontent.com/u/7597512/PaleoDB/paleobiodb.csv";
         // $this->service["taxon"] = "http://localhost/~eolit/cp/PaleoDB/paleobiodb.csv";
+        // $this->service["taxon"] = "http://localhost/~eolit/cp/PaleoDB/paleobiodb_small.csv";
+
         $this->service["collection"] = "http://paleobiodb.org/data1.1/colls/list.csv?vocab=pbdb&limit=10&show=bin,attr,ref,loc,paleoloc,prot,time,strat,stratext,lith,lithext,geo,rem,ent,entname,crmod&taxon_name=";
         $this->service["occurrence"] = "http://paleobiodb.org/data1.1/occs/list.csv?show=loc,time&limit=10&base_name=";
         $this->service["reference"] = "http://paleobiodb.org/cgi-bin/bridge.pl?a=displayRefResults&type=view&reference_no=";
@@ -89,7 +91,7 @@ class PaleoDBAPI
         elseif($type == "taxon")
         {
             $no_of_fields = 32;
-            $path = Functions::save_remote_file_to_local($this->service["taxon"], array("timeout" => 999999, "cache" => 1));
+            $path = Functions::save_remote_file_to_local($this->service["taxon"], array("timeout" => 999999, "cache" => 0)); // debug cache should be 0; only when debugging should be 1
         }
 
         $j = 0;
@@ -160,10 +162,11 @@ class PaleoDBAPI
         else                                     $taxon->acceptedNameUsageID = '';
         $taxon->taxonomicStatus             = self::process_status($rec["status"]);
         // if($taxon->taxonomicStatus == "synonym") return; //debug - exclude synonyms during preview phase
-        if(!isset($this->taxon_ids[$taxon->taxonID]))
+        if(!isset($this->taxa[$taxon->taxonID]))
         {
             $this->taxa[$taxon->taxonID] = $taxon;
-            $this->taxon_ids[$taxon->taxonID] = 1;
+            $this->name_id[$taxon->scientificName] = $taxon->taxonID;
+            
             if($v = $rec["common_name"])
             {
                 $vernacular = new \eol_schema\VernacularName();
@@ -295,11 +298,59 @@ class PaleoDBAPI
         echo "\n Creating archive...\n";
         foreach($this->taxa as $t)
         {
-            if(!isset($this->taxon_ids[$t->parentNameUsageID])) $t->parentNameUsageID = '';
-            if(!isset($this->taxon_ids[$t->acceptedNameUsageID])) $t->acceptedNameUsageID = '';
+            if(!isset($this->taxa[$t->parentNameUsageID]) && $t->parentNameUsageID)
+            {
+                print "\n parent_id of $t->taxonID does not exist:[$t->parentNameUsageID]";
+                if($id = self::create_missing_taxon($t)) $t->parentNameUsageID = $id;
+                else                                     $t->parentNameUsageID = "";
+            }
+            if(!isset($this->taxa[$t->acceptedNameUsageID]) && $t->acceptedNameUsageID)
+            {
+                print "\n acceptedNameUsageID of $t->taxonID does not exist:[$t->acceptedNameUsageID]";
+                $t->acceptedNameUsageID = '';
+            }
+            
+            // check if parent_id is a synonym, if yes get the acceptedNameUsageID of the synonym taxon as parent_id
+            if($taxon_id = $t->parentNameUsageID)
+            {
+                if(@$this->taxa[$taxon_id]->taxonomicStatus == "synonym")
+                {
+                    $t->parentNameUsageID = $this->taxa[$taxon_id]->acceptedNameUsageID;
+                    echo "\n parent_id of $t->taxonID is replaced from: [$taxon_id] to: [$t->parentNameUsageID]\n";
+                }
+            }
+            
             $this->archive_builder->write_object_to_file($t);
         }
         $this->archive_builder->finalize(TRUE);
+    }
+    
+    private function create_missing_taxon($t)
+    {
+        if(    $t->family  && $t->scientificName != $t->family)    $info = array("sciname" => $t->family, "rank" => "family");
+        elseif($t->order   && $t->scientificName != $t->order)     $info = array("sciname" => $t->order, "rank" => "order");
+        elseif($t->class   && $t->scientificName != $t->class)     $info = array("sciname" => $t->class, "rank" => "class");
+        elseif($t->phylum  && $t->scientificName != $t->phylum)    $info = array("sciname" => $t->phylum, "rank" => "phylum");
+        elseif($t->kingdom && $t->scientificName != $t->kingdom)   $info = array("sciname" => $t->kingdom, "rank" => "kingdom");
+        else return false;
+        if($id = @$this->name_id[$info["sciname"]]) // there is an existing taxon for the parent either from k.p.c.o.f.
+        {
+            echo " --- $id used as parent 01 \n";
+            return $id;
+        }
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID         = str_replace(" ", "_", $info["sciname"]);
+        $taxon->scientificName  = $info["sciname"];
+        $taxon->taxonRank       = $info["rank"];
+        $taxon->taxonomicStatus = "valid";
+        if(!isset($this->taxa[$taxon->taxonID]))
+        {
+            $this->taxa[$taxon->taxonID] = '';
+            $this->archive_builder->write_object_to_file($taxon);
+            $this->name_id[$taxon->scientificName] = $taxon->taxonID;
+        }
+        echo " --- $taxon->taxonID used as parent 02 \n";
+        return $taxon->taxonID;
     }
 
 }
