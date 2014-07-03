@@ -49,8 +49,12 @@ class GGBNetworkAPI
                 for ($i = 1; $i <= $pages; $i++)
                 {
                     echo "\n $i of $pages ";
-                    if($i > 1) $html = Functions::lookup_with_cache($this->kingdom_service_ggbn . $kingdom . "&page=$i", $this->download_options);
-                    if($temp = self::process_html($html)) $records = array_merge($records, $temp);
+                    if($i > 1)
+                    {
+                        $rec["source"] = $this->kingdom_service_ggbn . $kingdom . "&page=$i";
+                        $html = Functions::lookup_with_cache($rec["source"], $this->download_options);
+                    }
+                    if($temp = self::process_html($html, $rec["source"])) $records = array_merge($records, $temp);
                 }
             }
         }
@@ -62,7 +66,7 @@ class GGBNetworkAPI
         return ceil($num/50);
     }
 
-    private function process_html($html)
+    private function process_html($html, $source_link)
     {
         $temp = array();
         $html = str_ireplace("<tr style='border-top-width:1px;border-top-style:solid;border-color:#CCCCCC'>", "<tr style='elix'>", $html);
@@ -78,7 +82,15 @@ class GGBNetworkAPI
                 {
                     $col = array_map('trim', $arr2[1]);
                     $sciname = @$col[0];
-                    $temp[$sciname][] = array("country" => @$col[1], "dna_no" => @$col[2], "specimen_no" => @$col[3], "href" => $href);
+                    
+                    $rec_id = md5(implode("_", $col));
+                    
+                    if    ($val = @$col[2]) $dna_no = $val;
+                    elseif($val = @$col[3]) $dna_no = $val;
+                    else                    $dna_no = "not defined";
+                    
+                    $temp[$sciname]["rekords"][] = array("rec_id" => $rec_id, "country" => @$col[1], "dna_no" => $dna_no, "specimen_no" => @$col[3], "href" => $href);
+                    $temp[$sciname]["source"] = $source_link;
                 }
             }
         }
@@ -93,24 +105,26 @@ class GGBNetworkAPI
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID                 = strtolower(str_replace(" ", "_", Functions::canonical_form($sciname)));
             $taxon->scientificName          = $sciname;
-            $this->taxa[$taxon->taxonID]    = $taxon;
-            foreach($taxon_dna_records as $record)
+            $taxon->furtherInformationURL   = $taxon_dna_records["source"];
+            $this->taxa[$taxon->taxonID] = $taxon;
+            continue; // debug - comment to exclude structured data
+            foreach($taxon_dna_records["rekords"] as $record)
             {
                 $rec = array();
                 $rec["taxon_id"]    = $taxon->taxonID;
                 $rec["source"]      = $this->ggbn_domain . $record["href"];
-                
-                $rec["object_id"]   = $record["dna_no"];
+
+                $rec["object_id"]   = $record["rec_id"] . "_dna_no";
                 $measurement        = "http://rs.tdwg.org/dwc/terms/catalogNumber";
                 self::add_string_types($rec, "dna_no", $record["dna_no"], $measurement, $sciname, "true");
 
-                $rec["object_id"]   = $record["dna_no"] . "_specimen_no";
+                $rec["object_id"]   = $record["rec_id"] . "_specimen_no";
                 $measurement        = "http://rs.tdwg.org/ontology/voc/Specimen#specimenID";
                 self::add_string_types($rec, "specimen_no", $record["specimen_no"], $measurement, $sciname, "false");
 
                 if(!is_numeric(stripos($record["country"], "unknown")))
                 {
-                    $rec["object_id"]   = $record["dna_no"] . "_country";
+                    $rec["object_id"]   = $record["rec_id"] . "_country";
                     $measurement        = "http://rs.tdwg.org/dwc/terms/country";
                     self::add_string_types($rec, "country", $record["country"], $measurement, $sciname, "false");
                 }
