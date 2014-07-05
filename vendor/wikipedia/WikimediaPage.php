@@ -1121,13 +1121,17 @@ class TaxonomyParameters
             }
         }else
         {
-            while(preg_match("/( \(.*?\))/", $name, $arr)) $name = str_replace($arr[1], '', $name);
+            /* By wikimedia commons convention, taxon names like "Zeus", "Viola", or "Turbo" that already have unrelated wikimedia pages
+            are give gallery and category names like "Zeus (fish)", "Viola (Violaceae)" and "Turbo (genus)" which appear as Taxonavigation names.
+            So we should remove any terminal part of the name that is bracketed */
+            $name = preg_replace("/ \(.*?\)/u", "", $name);
+
             if(preg_match("/[ \(\)]/", $name))
             {
                 // We make an exception here for classes 'Gamma Proteobacteria', 'Alpha Proteobacteria' etc.
                 if(!preg_match("/^\w+ proteobacteria$/i", $name))
                 {
-                    $return_message .= "A classification level above that of species ($rank = '$name') has issues with brackets or spaces. ";
+                    $return_message .= "A classification level above that of species ($rank = '$name') has brackets or spaces: ignoring it. ";
                     return $return_message;
                 }
             }
