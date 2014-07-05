@@ -76,15 +76,15 @@ XML;
 |permission={{User:Flickr upload bot/upload|date=13:56, 21 September 2007 (UTC)|reviewer=Dongio}}
 {{cc-by-2.0}}
 }}
-{{Location dec|36.13274|-5.348888}}
+{{Location|36|7|57.8634|N|5|20|55.9962|E}}
 
 [[Category:Macaca sylvanus]]";
 
     $author = $p->information();
     $this->assertTrue($author['author'] == 'Karyn Sig');
     $point = $p->point();
-    $this->assertTrue($point['latitude'] === "36.13274");
-
+    $this->assertTrue(number_format($p->point()['latitude'], 5) === "36.13274");
+    $this->assertTrue(number_format($p->point()['longitude'], 6) === "-5.348888");
     // We should probably check here that $p->get_data_object_parameters()['agents'][0]->role == 'photographer', and
     // $p->get_data_object_parameters()['agents'][0]->fullName == 'Karyn Sig' but that relies filling data_object_parameters with
     // the results of an online API query using something like $pages = array($p); \WikimediaPage::process_pages_using_API($pages);
@@ -118,12 +118,7 @@ XML;
 |Author      = [[:pl:Wikipedysta:Aisog|Aisog]]
 |Permission= / Creative Commons 2.5 Attribution
 |other_versions = 
-}}
-
-== {{int:license-header}} ==
-{{self2|GFDL|cc-by-2.5-pl|migration=redundant}}
-{{Self|GFDL|Cc-by-sa-3.0-migrated}}
-[[Category:Viola × wittrockiana]]</text>
+}}</text>
       <sha1>o8m7xztilhi61i3yk2fgcvxx6xr2ej6</sha1>
       <model>wikitext</model>
       <format>text/x-wiki</format>
@@ -155,18 +150,7 @@ XML;
 |permission=
 |other_versions=
 |other_fields=
-}}
-
-=={{int:license-header}}==
-{{self|cc-by-sa-3.0}}
-
-
-[[Category:Uploaded with UploadWizard]]
-[[Category:Malayalam Wikipedian's Upload]]
-[[Category:Pests on fruit and vegetables]]
-[[Category:Snails]]
-[[Category:Achatina fulica]]
-[[Category:Uploads by Ajay]]</text>
+}}</text>
       <sha1>44v0txnedfh5gk011ki9syyvi8llcgd</sha1>
       <model>wikitext</model>
       <format>text/x-wiki</format>
@@ -177,10 +161,13 @@ XML;
 
         $page1 = new \WikimediaPage($xml1);
         $page2 = new \WikimediaPage($xml2);
+        //check capitalization doesn't mangle unicode filenames
         $this->assertTrue(\WikiParser::make_valid_pagetitle($page1->title) === $page1->title);
+        $this->assertTrue(\WikiParser::make_valid_pagetitle($page2->title) === $page2->title);
+
+        //check unicode makes it through to description field
         $this->assertTrue(Functions::is_utf8($page1->description()));
         $this->assertTrue(preg_match("/fiołek/u", $page1->description()));
-        $this->assertTrue(\WikiParser::make_valid_pagetitle($page2->title) === $page2->title);
     }
 
     function testTrancludedCategoriesAndGalleries()
@@ -398,7 +385,5 @@ XML;
         $resource = Resource::find_or_create($attr);
         return $resource;
     }
-
 }
-
 ?>
