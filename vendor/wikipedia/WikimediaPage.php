@@ -325,8 +325,8 @@ class WikimediaPage
         $identified_licenses = array();
         foreach($potential_licenses as $potential_license)
         {
-            // PD-USGov-CIA-WF
-            if(preg_match("/^(PD|Public domain.*|CC-PD|usaid|nih|noaa|CopyrightedFreeUse|Copyrighted Free Use)($| |-)/mui", $potential_license))
+            // catch e.g. PD-USGov-CIA-WF, etc and Copyrighted_free_use (but *not* "Copyrighted free use provided that")
+            if(preg_match("/^(PD|Public[ _]domain.*|CC-PD|usaid|nih|noaa|CopyrightedFreeUse|Copyrighted[ _]Free[ _]Use(?![ _]provided[ _]that))($| |-)/mui", $potential_license))
             {
                 $identified_licenses[] = array(
                     'license'   => 'public domain',
