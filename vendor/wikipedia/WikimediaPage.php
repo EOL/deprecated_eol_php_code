@@ -1085,7 +1085,7 @@ class TaxonomyParameters
         /* Make hybrid names a single word, replacing space after the × sign with a non-breaking space
            Treat X, x or × as hybrid indicators if they are at the start or preceeded by a space, e.g. "X Cleistoza" becomes 
            ×_nbsp_Cleistoza and Salix × pendulina becomes Salix ×_nbsp_pendulina. This also helps us delimit species and genera names */
-        static $multiply_sign_and_nonbreaking_space = "× "; //make sure the "space" in this string is actually a NBSP
+        static $multiply_sign_and_nonbreaking_space = "× "; //make sure the "space" in this string is actually a NBSP
         $name = preg_replace("/(?<=^| )[×x] +/iu", $multiply_sign_and_nonbreaking_space, $name);
 
         if($rank === 'genus')
