@@ -35,7 +35,7 @@ class MycoBankAPI
         "Lecidea c", "Lecidea p", "Lecidea s", "Sphaeria c", "Oidium ", "Stagonospora ", "Didymosphaeria ", "Diplodina ", "Didymella ", "Mycena ", "Agaricus s", 
         "Montagnellaceae ", "Cantharellus ", "Conocybe ", "Lachnum ", "Allantoporthe ", "Eccilia ", "Phaeangium ", "Hypochnus ", "Hypocline ", "Hypocopra ", 
         "Melaspilea ", "Pseudomicrocera ", "Pseudonectria ", "Hypocrea ", "Asteridiella ", "Fungus ", "Cortinarius c", "Cortinarius p", "Cortinarius s");
-        $this->dont_search_these_strings_as_well = array(""); // "Caloplaca f"
+        $this->dont_search_these_strings_as_well = array("");
         $this->dump_no = 0;
 
         //for stats
@@ -63,8 +63,11 @@ class MycoBankAPI
 
     function get_all_taxa()
     {
+        $not_found_in_last_mycobank_taxon_tab = array("Orthosoma", "Pilophorum", "Piptostroma", "Theloschistes", "Ulea", "Ambisporaceae", "Sistotremataceae", "Hydnum", 
+        "Holosporomyces", "Hemiscyphe", "Pseudhaplosporella", "Pubigera", "Oceanites", "Oichitonium", "Azymoprocandida", "Azymocandida");
+        
         $genus_list = self::get_genus_list();
-        $genus_list = array("Hydnum", "Azymocandida");
+        $genus_list = array_merge($genus_list, $not_found_in_last_mycobank_taxon_tab);
         $this->save_data_to_text($genus_list, $this->service_search["exact"], 1000);
         $genus_list = self::append_space_in_string($genus_list);
         $this->save_data_to_text($genus_list, $this->service_search["startswith"], 200);
