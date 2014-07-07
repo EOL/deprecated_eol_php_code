@@ -136,6 +136,86 @@ XML;
         $this->assertTrue(preg_match("/fiołek/u", $page1->description()));
     }
 
+    function testRecursiveIncludesPlusSubspeciesVarietiesAndHybrids()
+    {
+         $include1_xml = <<<XML
+  <page>
+    <title>Template:Orchidaceae (APG)</title>
+    <ns>10</ns>
+    <id>14618876</id>
+    <revision>
+      <id>105760723</id>
+      <parentid>78475379</parentid>
+      <timestamp>2013-09-29T16:24:22Z</timestamp>
+      <contributor>
+        <username>Liné1</username>
+        <id>80857</id>
+      </contributor>
+      <comment>| mustBeEmpty={{{classification|}}}{{{genus|}}}}}</comment>
+      <text xml:space="preserve">{{TaxonavigationIncluded2|
+classification=APG III|include=Angiosperms|Cladus|monocots|Ordo|Asparagales|Familia|Orchidaceae|rank={{{rank|}}}|
+categorizeSubtribesIn=Orchidaceae|&lt;!--categorizeSpeciesIn &amp; categorizeGeneraIn are subtily managed--&gt;categorizeTribesIn=Orchidaceae|
+mustBeEmpty={{{classification|}}}{{{genus|}}}}}</text>
+      <sha1>2r711pfbmrznvqwr6ntf4jlnlx8rua2</sha1>
+      <model>wikitext</model>
+      <format>text/x-wiki</format>
+    </revision>
+  </page>
+XML;
+         $include2_xml = <<<XML
+  <page>
+    <title>Template:Angiosperms</title>
+    <ns>10</ns>
+    <id>13862146</id>
+    <revision>
+      <id>123628829</id>
+      <parentid>78733139</parentid>
+      <timestamp>2014-05-10T12:13:25Z</timestamp>
+      <contributor>
+        <username>FrescoBot</username>
+        <id>1047183</id>
+      </contributor>
+      <minor />
+      <comment>Bot: [[User:FrescoBot/link syntax|link syntax]]</comment>
+      <text xml:space="preserve">{{TaxonavigationIncluded|Domain|Eukaryota|(unranked)|Archaeplastida|Regnum|Plantae|Cladus|angiosperms|rank={{{rank|}}}|
+      categorizeFamiliesIn=Plantae|documentTemplate={{{documentTemplate|yes}}}|documentTemplateWithClassification=APG III|categorizeTemplate={{{categorizeTemplate|yes}}} }}</text>
+      <sha1>kxneoukzggybsv69lat0npg8aexxwx9</sha1>
+      <model>wikitext</model>
+      <format>text/x-wiki</format>
+    </revision>
+  </page>
+XML;
+
+        $p1 = new \WikimediaPage('<xml/>');
+        $p1->text = "{{Taxonavigation|include=Orchidaceae (APG)|Subfamilia|Orchidoideae|Tribus|Orchideae|Subtribus|Orchidinae|
+Nothospecies|Anacamptis × gennarii|
+Nothosubspecies|Anacamptis × gennarii ssp bornemanniae|
+authority=(Asch.) H.Kretzschmar, Eccarius & H.Dietr. (2007)}}";
+
+        //this is a fake example, not many wikimedia entries are formatted like this, but we should be able to cope with them
+        $p2 = new \WikimediaPage('<xml/>');
+        $p2->text = "{{Taxonavigation|include=Orchidaceae (APG)|Subfamilia|Orchidoideae|Tribus|Orchideae|Subtribus|Orchidinae|
+Nothogenus|× Anacamptis|
+Nothospecies|gennarii|
+Nothovarietas|dummy|}}";
+
+        $dummy_resource = self::create_resource();
+        $dummy_harvester = new WikimediaHarvester($dummy_resource);
+        $dummy_harvester->locate_taxonomic_pages($include1_xml);
+        $dummy_harvester->locate_taxonomic_pages($include2_xml);
+        $taxonomy1 = $p1->taxonomy($dummy_harvester->taxonav_includes);
+        $taxonomy2 = $p2->taxonomy($dummy_harvester->taxonav_includes);
+
+        //test whether recursive includes have managed to find the kingdom name
+        $this->assertTrue($taxonomy1->asEoLtaxonObject()["kingdom"] == "Plantae");
+
+        //test if we have managed to reconstruct the genus name from the species name
+        $this->assertTrue($taxonomy1->asEoLtaxonObject()["genus"] == "Anacamptis");
+
+        //test whether the scientific name is properly formed, e.g. ssp replaced with subsp.
+        $this->assertTrue($taxonomy1->scientificName() == html_entity_decode("Anacamptis &times;&nbsp;gennarii subsp. bornemanniae (Asch.) H.Kretzschmar, Eccarius & H.Dietr. (2007)"));
+        $this->assertTrue($taxonomy2->scientificName() == html_entity_decode("&times;&nbsp;Anacamptis gennarii var. dummy"));
+    }
 
 
     function testTaxonomyConflict()
