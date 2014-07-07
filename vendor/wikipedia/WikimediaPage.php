@@ -1009,9 +1009,11 @@ class WikimediaPage
 
 class TaxonomyParameters
 {
-    // listed as most precise to least precise
-    // 'species' is not part of the EoL output, but may be used to construct scientificName later
+    // Wiki names from https://commons.wikimedia.org/wiki/Template:Taxonavigation, listed here from most precise to least precise
+    // 'subspecies' and 'species' are not part of the EoL output, but may be used to construct scientificName later
     public static $wiki_to_standard = array(
+            "Varietas"  => "variety",
+            "Subspecies"=> "subspecies",
             "Species"   => "species",
             "Genus"     => "genus",
             "Familia"   => "family",
@@ -1019,6 +1021,7 @@ class TaxonomyParameters
             "Classis"   => "class",
             "Phylum"    => "phylum",
             "Regnum"    => "kingdom");
+    public static $extra_params = array("Authority" => "authority");
     private $taxon_params = array();
     private $page_timestamp;
     public  $authority;
@@ -1038,12 +1041,19 @@ class TaxonomyParameters
 
     public function add_wiki_info($wiki_rank, $wikitext)
     {
-        $wiki_rank = WikiParser::mb_ucfirst(WikiParser::mb_trim($wiki_rank));
+        $wiki_rank = WikiParser::mb_trim($wiki_rank);
+        //remove notho- designation, see http://ibot.sav.sk/icbn/frameset/0071AppendixINoHa003.htm
+        $wiki_rank = preg_replace("/^notho/i", "", $wiki_rank);
+        $wiki_rank = WikiParser::mb_ucfirst($wiki_rank);
         $text = strip_tags(WikiParser::strip_syntax($wikitext));
 
-        if($wiki_rank === 'Authority') return $this->add_info('authority', $text);
-        if(empty(self::$wiki_to_standard[$wiki_rank])) return "";
-        return $this->add_info(self::$wiki_to_standard[$wiki_rank], $text);
+        //translate all listed in $wiki_to_standard, plus the Authority field
+        $allowed_params = self::$wiki_to_standard + self::$extra_params;
+        if (array_key_exists($wiki_rank, $allowed_params))
+        {
+            return $this->add_info($allowed_params[$wiki_rank], $text);
+        }
+        return "";
     }
 
     public function add_info($rank, $text)
@@ -1071,9 +1081,16 @@ class TaxonomyParameters
         if(preg_match("/^fossil (.*)$/i", $name, $arr)) $name = WikiParser::mb_ucfirst(trim($arr[1]));
         // don't set anything if the string is empty
         if($name === '') return $return_message;
+
+        /* Make hybrid names a single word, replacing space after the × sign with a non-breaking space
+           Treat X, x or × as hybrid indicators if they are at the start or preceeded by a space, e.g. "X Cleistoza" becomes 
+           ×_nbsp_Cleistoza and Salix × pendulina becomes Salix ×_nbsp_pendulina. This also helps us delimit species and genera names */
+        static $multiply_sign_and_nonbreaking_space = "× "; //make sure the "space" in this string is actually a NBSP
+        $name = preg_replace("/(?<=^| )[×x] +/iu", $multiply_sign_and_nonbreaking_space, $name);
+
         if($rank === 'genus')
         {
-            if(preg_match("/^([A-Z][^ ]+) [a-z]/", $name, $arr))
+            if(preg_match("/^([A-Z×][^ ]+) [a-z×]/u", $name, $arr))
             {
                 // careful with e.g. Category:Rosa_laxa which has Genus = 'Rosa species'
                 $return_message = "Multi-word genus ($name) getting shortened to ". $arr[1];
@@ -1086,37 +1103,83 @@ class TaxonomyParameters
                 $name = $arr[1];
             }
             // species was set with just the epithet
-            if(!empty($this->taxon_params['species']) && !preg_match("/\s/", $this->taxon_params['species']))
+            if(!empty($this->taxon_params['species']) && !preg_match("/ /", $this->taxon_params['species']))
             {
                 $this->taxon_params['species'] = $name . ' ' . $this->taxon_params['species'];
             }
         }
-        if($rank === 'species')
+        if(($rank === 'species') || ($rank === 'subspecies') || ($rank === 'variety'))
         {
-            /* TODO - caution here with virus species names, which can contain multiple words and capitals, something like
+            /* TODO - caution here with virus species names, which can contain multiple words and capitals. We need something like
                   if ($this->taxon_params['domain'] != "Viruses") ...
-               only we don't currently store the domain name
-            */
-            // multiple words in species (this is the norm)
+               only we don't currently store the domain name, so we can't check. This is only a problem if the Species field contains a
+               multi-word epithet that happens to start with a capital letter, and we haven't yet defined a genus (pretty rare), in which case we will
+               assume a genus name from the first word of the epithet, or if Species field contains a single-word epithet with caps, in which case
+               the epithet will be ignored and a warning given (so e.g. we currently miss https://commons.wikimedia.org/wiki/Category:Theilovirus) */
+
+            // multiple words in (sub)species (this is the norm)
             if(preg_match("/ /", $name))
             {
-                if(empty($this->taxon_params['genus']) && preg_match("/^([A-Z][^ ]+) [a-z]/", $name, $arr))
+                if(empty($this->taxon_params['genus']) && preg_match("/^([A-Z×][^ ]+) [a-z×]/u", $name, $arr))
                 {
                     $this->taxon_params['genus'] = $arr[1];
-                    if($GLOBALS['ENV_DEBUG']) $return_message = "Genus ".$this->taxon_params['genus']." initially set from species name ('$name'). ";
+                    if($GLOBALS['ENV_DEBUG']) $return_message = "Genus ".$this->taxon_params['genus']." initially set from $rank name ('$name'). ";
+                }
+                if ($rank === 'subspecies')
+                {
+                    //sometimes people forget to put the dot after subsp. or have ssp instead. Standardise these
+                    $name = preg_replace("/ (subsp|ssp\.?) /i", " subsp. ", $name);
+                }
+                if ($rank === 'variety')
+                {
+                    //sometimes people forget to put the dot after subsp. or var. Standardise these
+                    $name = preg_replace("/ (subsp|ssp\.?) /i", " subsp. ", $name);
+                    $name = preg_replace("/ var /i", " var. ", $name);
+                    //TODO - we don't cope with multi-word varieties which are epithets, most likely seen incorrectly in 
+                    //cultivars, e.g. Varietas='my variety name'.
                 }
             }
-            // single word in 'species' - this could be an epithet
+            // single word in 'species', 'subspecies', or variety - this could be an epithet
             else
             {
                 if(mb_strtolower($name, "UTF-8") != $name)
                 {
-                    $return_message = "Single-word species ('$name') has CaPs: ignoring this part of the classification. ";
+                    $return_message = "Single-word $rank ('$name') has CaPs: ignoring this part of the classification. ";
                     return $return_message;
                 }
-                if(!empty($this->taxon_params['genus']))
+                if ($rank === 'species')
                 {
+                    if (empty($this->taxon_params['genus']))
+                    {
+                        $return_message .= "Single word specific name, but no genus given: ignoring the species information. ";
+                        return $return_message;
+                    }
                     $name = $this->taxon_params['genus'] . ' ' . $name;
+                }
+                if ($rank === 'subspecies')
+                {
+                    if (empty($this->taxon_params['species']))
+                    {
+                        $return_message .= "Single word subspecific name, but no species given: ignoring the subspecific information. ";
+                        return $return_message;
+                    }
+                    $name = $this->taxon_params['species'] . ' ' . $name;
+                }
+                if ($rank === 'variety')
+                {
+                    //this can exist alongside a subspecies, e.g. Category:Brassica rapa subsp. nipposinica var. perviridis
+                    //only in plants, where we must insert a 'var.'
+                    if (empty($this->taxon_params['subspecies']))
+                    {
+                        if (empty($this->taxon_params['species']))
+                        {
+                            $return_message .= "Single word variety name, but neither species nor subspecies given: ignoring the variety information. ";
+                            return $return_message;
+                        }
+                        $name = $this->taxon_params['species'] . ' var. ' . $name;
+                    } else {
+                        $name = $this->taxon_params['subspecies'] . ' var. ' . $name;
+                    }
                 }
             }
         }else
@@ -1169,8 +1232,9 @@ class TaxonomyParameters
     public function asEoLtaxonObject()
     {
         // calculate what EoL needs from the levels that we know about
-        static $spp = array('species' => null);
-        $array_to_return = array_diff_key($this->taxon_params, $spp); // "species" level detail in EoL is contained in scientificName
+        static $not_returned = array('species' => null, 'subspecies' => null, 'variety' => null);
+        // species and lower level detail in EoL is contained in scientificName, so we don't return these fields
+        $array_to_return = array_diff_key($this->taxon_params, $not_returned);
         $array_to_return['scientificName'] = $this->scientificName();
         $array_to_return['dataObjects'] = array();
         return $array_to_return;
