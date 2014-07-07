@@ -32,7 +32,8 @@ class BoldsAPI
         $this->service["id"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=basic,stats,geo&includeTree=true&taxId=";
         // for stats
         $this->TEMP_DIR = create_temp_dir() . "/";
-        $this->dump_file = $this->TEMP_DIR . "erroneous_ids.txt";
+        $this->erroneous_ids = $this->TEMP_DIR . "erroneous_ids.txt";
+        $this->does_not_exist_anymore = $this->TEMP_DIR . "does_not_exist_anymore.txt";
     }
 
     function initialize_text_files()
@@ -237,7 +238,7 @@ class BoldsAPI
         $public_records = "";
         $taxa = array();
         $str = "";
-        if($json = Functions::lookup_with_cache($file, array('expire_seconds' => 5184000, 'download_wait_time' => 500000, 'timeout' => 1200, 'download_attempts' => 2))) // expire_seconds is 2 months
+        if($json = Functions::lookup_with_cache($file, array('expire_seconds' => 5184000, 'download_wait_time' => 500000, 'timeout' => 1200, 'download_attempts' => 1))) // expire_seconds is 2 months
         {
             $rec = json_decode($json, true);
             if(@$rec[$taxid]["sitemap"]) $with_map = true;
@@ -267,7 +268,7 @@ class BoldsAPI
                 // "publicmarkersequences":{"CYTB":8,"COXIII":8,"COII":8,"COI-5P":613,"atp6":3} -- available in api 
             }
         }
-        else // fail in lookup_with_cache()
+        else // fail in lookup_with_cache() but found in website, e.g. taxid = 246761
         {
             echo " -Taxonomy Browser - No Match in API 01 - [$taxid]";
             $arr = self::get_taxon_details($taxid);
@@ -324,11 +325,15 @@ class BoldsAPI
         
         if(is_numeric(stripos($orig_str, "Taxonomy Browser - No Match")))
         {
+            self::save_to_dump($taxid, $this->does_not_exist_anymore);
             echo " -Taxonomy Browser - No Match in website either- [$taxid]";
-            self::save_to_dump($taxid, $this->dump_file);
             return array(false, false, false, false, false);
         }
-        else echo "\n Found in website...\n";
+        else // report these taxids to BOLDS
+        {
+            echo "\n Found in website...\n";
+            self::save_to_dump($taxid, $this->erroneous_ids);
+        }
         
         //check if there is map:
         $pos = stripos($orig_str, self::MAP_PARTIAL_URL);
