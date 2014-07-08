@@ -12,9 +12,9 @@ $GLOBALS['flickr_licenses'][5] = "http://creativecommons.org/licenses/by-sa/2.0/
 //$GLOBALS['flickr_licenses'][6] = "http://creativecommons.org/licenses/by-nd/2.0/";
 $GLOBALS['flickr_licenses'][7] = "http://www.flickr.com/commons/usage/";
 
-define("FLICKR_REST_PREFIX", "http://api.flickr.com/services/rest/?");
-define("FLICKR_AUTH_PREFIX", "http://api.flickr.com/services/auth/?");
-define("FLICKR_UPLOAD_URL", "http://www.flickr.com/services/upload/");
+define("FLICKR_REST_PREFIX", "https://api.flickr.com/services/rest/?");
+define("FLICKR_AUTH_PREFIX", "https://api.flickr.com/services/auth/?");
+define("FLICKR_UPLOAD_URL", "https://www.flickr.com/services/upload/");
 define("FLICKR_EOL_GROUP_ID", "806927@N20");
 define("FLICKR_BHL_ID", "61021753@N02"); // BHL: BioDivLibrary's photostream - http://www.flickr.com/photos/61021753@N02
 define("FLICKR_SMITHSONIAN_ID", "51045845@N08"); // Smithsonian Wild's photostream - http://www.flickr.com/photos/51045845@N08
@@ -55,6 +55,10 @@ class FlickrAPI
                 }
             }
         }
+        else
+        {
+            if(isset($response->stat)) print_r($response);
+        }
         
         return $all_taxa;
     }
@@ -64,9 +68,19 @@ class FlickrAPI
         global $used_image_ids;
         
         $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", $per_page, $page, $auth_token, $user_id, $start_date, $end_date);
-        echo "\n page " . $response->photos->page . " of " . $response->photos->pages . " | total taxa =  " . $response->photos->total . "\n";
-        echo "\n -- response count: " . count($response);
-        echo "\n -- response photos count per page: " . count($response->photos->photo) . "\n";
+        
+        if(isset($response->photos->photo))
+        {
+            echo "\n page " . $response->photos->page . " of " . $response->photos->pages . " | total taxa =  " . $response->photos->total . "\n";
+            echo "\n -- response count: " . count($response);
+            echo "\n -- response photos count per page: " . count($response->photos->photo) . "\n";
+        }
+        else
+        {
+            echo "\n Access failed. Will try again in 2 minutes";
+            sleep(120);
+            $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", $per_page, $page, $auth_token, $user_id, $start_date, $end_date);
+        }
         
         static $count_taxa = 0;
         $page_taxa = array();
@@ -427,7 +441,7 @@ class FlickrAPI
         $url = FLICKR_REST_PREFIX.implode("&", $encoded_paramameters);
         
         if($sign) $url.="&api_sig=".self::generate_signature($parameters);
-        
+        $url = str_ireplace("http://", "https://", $url);
         return $url;
     }
     
