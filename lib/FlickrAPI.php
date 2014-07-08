@@ -84,21 +84,28 @@ class FlickrAPI
         
         static $count_taxa = 0;
         $page_taxa = array();
-        foreach($response->photos->photo as $photo)
+        if(isset($response->photos->photo))
         {
-            if(@$used_image_ids[$photo->id]) continue;
-            $count_taxa++;
-            echo "taxon $count_taxa ($photo->id): ".time_elapsed()."\n";
-            
-            $taxa = self::get_taxa_for_photo($photo->id, $photo->secret, $photo->lastupdate, $auth_token, $user_id);
-            if($taxa)
+            foreach($response->photos->photo as $photo)
             {
-                foreach($taxa as $t) $page_taxa[] = $t;
+                if(@$used_image_ids[$photo->id]) continue;
+                $count_taxa++;
+                echo "taxon $count_taxa ($photo->id): ".time_elapsed()."\n";
+
+                $taxa = self::get_taxa_for_photo($photo->id, $photo->secret, $photo->lastupdate, $auth_token, $user_id);
+                if($taxa)
+                {
+                    foreach($taxa as $t) $page_taxa[] = $t;
+                }
+
+                $used_image_ids[$photo->id] = true;
             }
-            
-            $used_image_ids[$photo->id] = true;
         }
-        
+        else
+        {
+            echo "\nAccess failed. Will continue next page or you can stop process and try again later.\n";
+            sleep(60);
+        }
         return $page_taxa;
     }
     
