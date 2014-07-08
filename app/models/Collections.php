@@ -26,6 +26,20 @@ class Collection extends ActiveRecord
         $indexer = new SiteSearchIndexer();
         $indexer->index_collection($this->id);
     }
+
+    public function set_item_count()
+    {
+        $this->mysqli->query("
+            UPDATE collections c
+            INNER JOIN (
+                SELECT collection_id, count(*) AS num_items
+                FROM collection_items
+                WHERE collection_id = $this->id
+            ) ci ON c.id = ci.collection_id
+            SET collection_items_count = num_items WHERE collection_id = $this->id
+        ");
+    }
+    
 }
 
 ?>

@@ -309,8 +309,9 @@ class HarvestEvent extends ActiveRecord
             $indexer = new CollectionItemIndexer();
             $indexer->index_collection_items($collection_items_to_index);
         }
+        $collection->set_item_count();
     }
-    
+
     private function remove_collection_items_not_in_harvest($collection)
     {
         $collection_items_to_delete = array();
