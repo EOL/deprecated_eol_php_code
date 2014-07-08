@@ -50,9 +50,9 @@ class PaleoDBAPI
             [subspecies] => 
             
         valid status:
-            [subjective synonym of] - 16,223
-            [objective synonym of]  - 399
-            [belongs to]            - 210,214
+            [subjective synonym of] - 16,223 | 16,409
+            [objective synonym of]  - 399 | 407
+            [belongs to]            - 210,214 | 211,733
         */
     }
 

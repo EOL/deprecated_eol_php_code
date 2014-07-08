@@ -30,6 +30,10 @@ class BoldsAPI
         $this->MASTER_LIST            = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt";
         // $this->MASTER_LIST            = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list_small.txt"; // debug
         $this->service["id"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=basic,stats,geo&includeTree=true&taxId=";
+        // for stats
+        $this->TEMP_DIR = create_temp_dir() . "/";
+        $this->erroneous_ids = $this->TEMP_DIR . "erroneous_ids.txt";
+        $this->does_not_exist_anymore = $this->TEMP_DIR . "does_not_exist_anymore.txt";
     }
 
     function initialize_text_files()
@@ -100,6 +104,10 @@ class BoldsAPI
         fwrite($OUT, $xml); 
         fclose($OUT);
         echo "\n\n total = $i \n\n";
+        
+        // remove temp dir
+        recursive_rmdir($this->TEMP_DIR); // debug - uncomment in real operation
+        echo ("\n temporary directory removed: " . $this->TEMP_DIR);
     }
 
     function get_Bolds_taxa($taxon, $used_collection_ids)
@@ -222,30 +230,31 @@ class BoldsAPI
             if id/url is resolvable
             boolean if taxon has map (collections sites)
         */
-
-        // $taxid = 26136; //20; //8078;
-        
         $arr = array();
         $file = $this->service["id"] . $taxid;
-        if($json = Functions::lookup_with_cache($file, array('expire_seconds' => 5184000, 'download_wait_time' => 500000, 'timeout' => 1200, 'download_attempts' => 2))) // expire_seconds is 2 months
+        
+        $with_map = false;
+        $species_level = false;
+        $public_records = "";
+        $taxa = array();
+        $str = "";
+        if($json = Functions::lookup_with_cache($file, array('expire_seconds' => 5184000, 'download_wait_time' => 500000, 'timeout' => 1200, 'download_attempts' => 1))) // expire_seconds is 2 months
         {
             $rec = json_decode($json, true);
-            // print_r($rec);
             if(@$rec[$taxid]["sitemap"]) $with_map = true;
-            else                         $with_map = false;
             if(@$rec[$taxid]["tax_rank"] == "species") $species_level = true;
-            else                                       $species_level = false;
             $public_records = @$rec[$taxid]["stats"]["publicrecords"];
             //get tree
-            $taxa = array();
-            $keys = array_keys($rec);
-            foreach($keys as $key)
+            if($rec)
             {
-                if($key == $taxid) continue;
-                $taxa[$rec[$key]["tax_rank"]] = $rec[$key]["taxon"];
+                $keys = array_keys($rec);
+                foreach($keys as $key)
+                {
+                    if($key == $taxid) continue;
+                    $taxa[$rec[$key]["tax_rank"]] = $rec[$key]["taxon"];
+                }
             }
             //get stats
-            $str = "";
             if(@$rec[$taxid]["stats"])
             {
                 if($val = @$rec[$taxid]["stats"]["specimenrecords"])    $str .= "Specimen Records: $val<br>";
@@ -259,16 +268,33 @@ class BoldsAPI
                 // "publicmarkersequences":{"CYTB":8,"COXIII":8,"COII":8,"COI-5P":613,"atp6":3} -- available in api 
             }
         }
-        else
+        else // fail in lookup_with_cache() but found in website, e.g. taxid = 246761
         {
-            echo " -Taxonomy Browser - No Match- [$taxid]";
-            return array(false, false, false, false, false);
+            echo " -Taxonomy Browser - No Match in API 01 - [$taxid]";
+            $arr = self::get_taxon_details($taxid);
+            return $arr;
+        }
+
+        if(!$taxa && !$str) // found in API but no valid record, e.g taxid = 251768
+        {
+            echo " -Taxonomy Browser - No Match in API 02 - [$taxid]";
+            $arr = self::get_taxon_details($taxid);
+            return $arr;
         }
         return array($taxa, $str, $species_level, $public_records, $with_map);
     }
 
+    private function save_to_dump($data, $filename)
+    {
+        $WRITE = fopen($filename, "a");
+        if($data && is_array($data)) fwrite($WRITE, json_encode($data) . "\n");
+        else                         fwrite($WRITE, $data . "\n");
+        fclose($WRITE);
+    }
+
     private function get_taxon_details($taxid)
     {
+        echo "\n Will try the website...\n";
         /* this function will get:
             taxonomy
             BOLD stats
@@ -299,8 +325,14 @@ class BoldsAPI
         
         if(is_numeric(stripos($orig_str, "Taxonomy Browser - No Match")))
         {
-            echo " -Taxonomy Browser - No Match- [$taxid]";
+            self::save_to_dump($taxid, $this->does_not_exist_anymore);
+            echo " -Taxonomy Browser - No Match in website either- [$taxid]";
             return array(false, false, false, false, false);
+        }
+        else // report these taxids to BOLDS
+        {
+            echo "\n Found in website...\n";
+            self::save_to_dump($taxid, $this->erroneous_ids);
         }
         
         //check if there is map:
@@ -352,7 +384,7 @@ class BoldsAPI
             if(preg_match("/public records:(.*?)<\/tr>/ims", $str, $matches)) 
             {
                 $public_records = intval(str_ireplace(",", "", trim(strip_tags($matches[1]))));
-                echo "\n[$public_records]\n";
+                echo "\npublic records:[$public_records]\n";
             }
         }
         //=========================================================================
