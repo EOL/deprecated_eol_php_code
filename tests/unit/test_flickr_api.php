@@ -54,8 +54,8 @@ class test_flickr_api extends SimpletestUnitBase
         $this->assertTrue($dataObject->created == '2008-06-21 07:08:49', 'Data object should have the right created');
         $this->assertTrue($dataObject->title == 'P1030143', 'Data object should have the right title');
         $this->assertTrue($dataObject->license == 'http://creativecommons.org/licenses/by-nc-sa/2.0/', 'Data object should have the right license');
-        $this->assertTrue($dataObject->source == 'http://www.flickr.com/photos/pleary/2687301130/', 'Data object should have the right source');
-        $this->assertTrue($dataObject->mediaURL == 'http://farm4.staticflickr.com/3057/2687301130_c12f33ac24_o.jpg', 'Data object should have the right mediaURL');
+        $this->assertTrue($dataObject->source == 'https://www.flickr.com/photos/pleary/2687301130/', "Data object source $dataObject->source should be https://www.flickr.com/photos/pleary/2687301130/");
+        $this->assertTrue($dataObject->mediaURL == 'https://farm4.staticflickr.com/3057/2687301130_c12f33ac24_o.jpg', 'Data object should have the right mediaURL');
         // 3.15.13 - it seems Flickr moved place names to a separate place API
         // $this->assertTrue($dataObject->location == 'Copenhagen, Hovedstaden, Denmark', 'Data object should have the right location');
         
