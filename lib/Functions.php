@@ -304,6 +304,7 @@ class Functions
         return false;
     }
     
+    // NOTE - This isn't a fake get, it's a fake user agent.  ;)
     public static function fake_user_agent_http_get($url, $options = array())
     {
         if(!isset($options['timeout'])) $options['timeout'] = DOWNLOAD_TIMEOUT_SECONDS;

@@ -114,6 +114,8 @@ class SparqlClient
         return $query;
     }
 
+    // NOTE that a consequence of this is that when we're inserting data in bulk, we *could* have an error in one "block" of data but not the others, and
+    // end up with a strangely incomplete set of data (for example, 10,000 lines of data, but lines 2,000-4,000 are missing because of *1* line of errors).
     public function insert_data_in_bulk($options = array())
     {
         if(!isset($this->data_waiting_for_insert[$options['graph_name']])) $this->data_waiting_for_insert[$options['graph_name']] = array();
