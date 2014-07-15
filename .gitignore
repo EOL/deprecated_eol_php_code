@@ -1,3 +1,4 @@
+tags
 applications/content_server/content/*
 !applications/content_server/content/.gitignore
 applications/content_server/content_partners/*
