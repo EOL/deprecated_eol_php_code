@@ -1166,7 +1166,7 @@ class TaxonomyParameters
                 }
                 if ($rank === 'variety')
                 {
-                    //In plants, a single-word variety name might exist alongside a subspecies, e.g. subspecies|Brassica rapa subsp. nipposinica|variatas|perviridis
+                    //In plants, a single-word variety name might exist alongside a subspecies, e.g. subspecies|Brassica rapa subsp. nipposinica|varietas|perviridis
                     //At this point, we assume that any single-word species or subspecies names have already been fully filled out by previous calls to this code 
                     if (empty($this->taxon_params['subspecies']))
                     {
