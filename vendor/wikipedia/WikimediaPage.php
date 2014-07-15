@@ -1073,7 +1073,7 @@ class TaxonomyParameters
            Treat X, x or × as hybrid indicators if they are at the start or preceeded by a space, e.g. "X Cleistoza" becomes 
            ×_nbsp_Cleistoza and Salix × pendulina becomes Salix ×_nbsp_pendulina. This also helps us delimit species and genera names */
         static $multiply_sign_and_nonbreaking_space = "× "; //make sure the "space" in this string is actually a NBSP
-        $name = preg_replace("/(?<=^| )[×x] +/iu", $multiply_sign_and_nonbreaking_space, $name);
+        $name = preg_replace("/(?<=^| )(× *|x +)/iu", $multiply_sign_and_nonbreaking_space, $name);
 
         if($rank === 'genus')
         {
@@ -1112,15 +1112,14 @@ class TaxonomyParameters
                     $this->taxon_params['genus'] = $arr[1];
                     if($GLOBALS['ENV_DEBUG']) $return_message = "Genus ".$this->taxon_params['genus']." initially set from $rank name ('$name'). ";
                 }
-                if ($rank === 'subspecies')
+                if (($rank === 'subspecies') || ($rank === 'variety'))
                 {
-                    //sometimes people forget to put the dot after subsp. or have ssp instead. Standardise these
+                    //sometimes in longer subspecies or varietie names, people forget to put the dot after subsp. or have ssp instead. Standardise these
                     $name = preg_replace("/ (subsp|ssp\.?) /i", " subsp. ", $name);
                 }
                 if ($rank === 'variety')
                 {
-                    //sometimes people forget to put the dot after subsp. or var. Standardise these
-                    $name = preg_replace("/ (subsp|ssp\.?) /i", " subsp. ", $name);
+                    //sometimes people forget to put the dot after var. Standardise these
                     $name = preg_replace("/ var /i", " var. ", $name);
                     //TODO - we don't cope with multi-word varieties which are epithets, most likely seen incorrectly in 
                     //cultivars, e.g. Varietas='my variety name'.
@@ -1154,10 +1153,11 @@ class TaxonomyParameters
                 }
                 if ($rank === 'variety')
                 {
-                    //this can exist alongside a subspecies, e.g. Category:Brassica rapa subsp. nipposinica var. perviridis
-                    //only in plants, where we must insert a 'var.'
+                    //In plants, a single-word variety name might exist alongside a subspecies, e.g. subspecies|Brassica rapa subsp. nipposinica|variatas|perviridis
+                    //At this point, we assume that any single-word species or subspecies names have already been fully filled out by previous calls to this code 
                     if (empty($this->taxon_params['subspecies']))
                     {
+                    	// We have a single word variety, but no trinomial to append it to => look for a binomial instead
                         if (empty($this->taxon_params['species']))
                         {
                             $return_message .= "Single word variety name, but neither species nor subspecies given: ignoring the variety information. ";
@@ -1172,9 +1172,9 @@ class TaxonomyParameters
         }else
         {
             /* By wikimedia commons convention, taxon names like "Zeus", "Viola", or "Turbo" that already have unrelated wikimedia pages
-            are give gallery and category names like "Zeus (fish)", "Viola (Violaceae)" and "Turbo (genus)" which appear as Taxonavigation names.
-            So we should remove any terminal part of the name that is bracketed */
-            $name = preg_replace("/ \(.*?\)/u", "", $name);
+            are given gallery and category names like "Zeus (fish)", "Viola (Violaceae)" and "Turbo (genus)" which appear as Taxonavigation names.
+            So we should remove any terminal part of the name that is in (round) parentheses */
+            $name = preg_replace("/ \(.*?\) *$/u", "", $name);
 
             if(preg_match("/[ \(\)]/", $name))
             {
