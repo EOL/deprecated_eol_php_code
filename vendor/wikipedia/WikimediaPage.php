@@ -754,6 +754,19 @@ class WikimediaPage
         return preg_match("/\{\{".$template."\s*[\|\}]/u", $this->active_wikitext());
     }
 
+    public function transcluded_categories()
+    {
+        //look for transclusions like {{:Category:Homo sapiens}} or {{Category:Homo sapiens}}
+        if(preg_match_all("/\{\{:?Category:([^\}]+)\s*\}\}/u", $this->active_wikitext(), $arr))
+        {
+            return array_map(function($cat) { return "Category:".\WikiParser::make_valid_pagetitle($cat);}, $arr[1]);
+        } else
+        {
+            return array();
+        }
+    }
+
+
     public function taxonav_as_array($template_name, $strip_syntax = true)
     {
         // A special format for Taxonavigations, where e.g. param[1] is "Cladus" and param[2] is "magnoliids"

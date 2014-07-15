@@ -239,12 +239,27 @@ class WikimediaHarvester
             {
                 $this->taxa[$page->title] = $params;
                 $this->number_of_separate_taxa++;
-                foreach($this->taxonomy_pagenames[$page->title] as $redirect_title)
+                foreach($this->taxonomy_pagenames[$page->title] as $duplicate_page)
                 {
-                    if(isset($this->taxa[$redirect_title])) echo("ERROR: taxonomy already set for <$page->title>!\n");
-                    $this->taxa[$redirect_title] = &$this->taxa[$page->title];
+                    if(isset($this->taxa[$duplicate_page])) echo("ERROR: taxonomy already set for <$duplicate_page>!\n");
+                    $this->taxa[$duplicate_page] = &$this->taxa[$page->title];
                 }
             }else echo "Couldn't get sensible taxonomy from <$page->title>.\n";
+        } else {
+            // catch pages which directly transclude a taxonomic category
+            foreach($page->transcluded_categories() as $potential_category) {
+                if (array_key_exists($potential_category, $this->taxonomy_pagenames)) {
+                    //we may or may not have yet parsed the category page which is transcluded here
+                    if(isset($this->taxa[$potential_category])) {
+                        // we've already parsed the taxonomic page, so simply duplicate the info
+                        $this->taxa[$page->title] = &$this->taxa[$potential_category];
+                    } else
+                    {
+                        // not parsed it yet: set it up so that when we encounter the other name, we know to duplicate it
+                        $this->taxonomy_pagenames[$potential_category][] = $page->title;
+                    }
+                }
+            }
         }
     }
 
