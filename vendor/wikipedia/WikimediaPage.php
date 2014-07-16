@@ -1127,7 +1127,7 @@ class TaxonomyParameters
                 }
                 if (($rank === 'subspecies') || ($rank === 'variety'))
                 {
-                    //sometimes in longer subspecies or varietie names, people forget to put the dot after subsp. or have ssp instead. Standardise these
+                    //sometimes in longer subspecies or variety names, people forget to put the dot after subsp. or have ssp instead. Standardise these
                     $name = preg_replace("/ (subsp|ssp\.?) /i", " subsp. ", $name);
                 }
                 if ($rank === 'variety')
