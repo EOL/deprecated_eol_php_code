@@ -69,6 +69,9 @@ class WikimediaPage
                 {
                     $this->redirect = (string) $this->simple_xml->redirect->attributes()->title;
                 }
+            } else
+            {
+                $this->text = $this->title = $this->ns = $this->contributor = $this->timestamp = "";
             }
         }
     }

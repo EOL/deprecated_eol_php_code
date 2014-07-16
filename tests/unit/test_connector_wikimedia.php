@@ -83,8 +83,8 @@ XML;
     $author = $p->information();
     $this->assertTrue($author['author'] == 'Karyn Sig');
     $point = $p->point();
-    $this->assertTrue(number_format($p->point()['latitude'], 5) === "36.13274");
-    $this->assertTrue(number_format($p->point()['longitude'], 6) === "-5.348888");
+    $this->assertTrue(number_format($point['latitude'], 5) === "36.13274");
+    $this->assertTrue(number_format($point['longitude'], 6) === "-5.348888");
     // We should probably check here that $p->get_data_object_parameters()['agents'][0]->role == 'photographer', and
     // $p->get_data_object_parameters()['agents'][0]->fullName == 'Karyn Sig' but that relies filling data_object_parameters with
     // the results of an online API query using something like $pages = array($p); \WikimediaPage::process_pages_using_API($pages);
@@ -218,14 +218,17 @@ Nothovarietas|dummy|}}";
         $taxonomy2 = $p2->taxonomy($dummy_harvester->taxonav_includes);
 
         //test whether recursive includes have managed to find the kingdom name
-        $this->assertTrue($taxonomy1->asEoLtaxonObject()["kingdom"] == "Plantae");
+        $asTaxonObj = $taxonomy1->asEoLtaxonObject();
+        $this->assertTrue($asTaxonObj["kingdom"] == "Plantae");
 
         //test if we have managed to reconstruct the genus name from the species name
-        $this->assertTrue($taxonomy1->asEoLtaxonObject()["genus"] == "Anacamptis");
+        $this->assertTrue($asTaxonObj["genus"] == "Anacamptis");
 
         //test whether the scientific name is properly formed, e.g. ssp replaced with subsp.
-        $this->assertTrue($taxonomy1->scientificName() == html_entity_decode("Anacamptis &times;&nbsp;gennarii subsp. bornemanniae (Asch.) H.Kretzschmar, Eccarius & H.Dietr. (2007)"));
-        $this->assertTrue($taxonomy2->scientificName() == html_entity_decode("&times;&nbsp;Anacamptis gennarii var. dummy"));
+        $scientificName1 = $taxonomy1->scientificName();
+        $this->assertTrue($scientificName1 === html_entity_decode("Anacamptis &times;&nbsp;gennarii subsp. bornemanniae (Asch.) H.Kretzschmar, Eccarius & H.Dietr. (2007)"));
+        $scientificName2 = $taxonomy2->scientificName();
+        $this->assertTrue($scientificName2 === html_entity_decode("&times;&nbsp;Anacamptis gennarii var. dummy"));
     }
 
     function testTrancludedCategoriesAndGalleries()
