@@ -212,7 +212,7 @@ Nothovarietas|dummy|}}";
 
         $dummy_resource = self::create_resource();
         $dummy_harvester = new WikimediaHarvester($dummy_resource);
-        $dummy_harvester->locate_taxonomic_pages(self::$Angiosperms_include);
+        $dummy_harvester->locate_taxonomic_pages(self:$Angiosperms_include);
         $dummy_harvester->locate_taxonomic_pages($include_xml);
         $taxonomy1 = $p1->taxonomy($dummy_harvester->taxonav_includes);
         $taxonomy2 = $p2->taxonomy($dummy_harvester->taxonav_includes);
@@ -227,7 +227,6 @@ Nothovarietas|dummy|}}";
         $this->assertTrue($taxonomy1->scientificName() == html_entity_decode("Anacamptis &times;&nbsp;gennarii subsp. bornemanniae (Asch.) H.Kretzschmar, Eccarius & H.Dietr. (2007)"));
         $this->assertTrue($taxonomy2->scientificName() == html_entity_decode("&times;&nbsp;Anacamptis gennarii var. dummy"));
     }
-
 
     function testTrancludedCategoriesAndGalleries()
     {
