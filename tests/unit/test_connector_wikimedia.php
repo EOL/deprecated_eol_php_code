@@ -212,7 +212,7 @@ Nothovarietas|dummy|}}";
 
         $dummy_resource = self::create_resource();
         $dummy_harvester = new WikimediaHarvester($dummy_resource);
-        $dummy_harvester->locate_taxonomic_pages(self:$Angiosperms_include);
+        $dummy_harvester->locate_taxonomic_pages(self::$Angiosperms_include);
         $dummy_harvester->locate_taxonomic_pages($include_xml);
         $taxonomy1 = $p1->taxonomy($dummy_harvester->taxonav_includes);
         $taxonomy2 = $p2->taxonomy($dummy_harvester->taxonav_includes);
