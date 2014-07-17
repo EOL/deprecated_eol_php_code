@@ -5,7 +5,8 @@ class LifeDeskToScratchpadAPI
 {
     function __construct()
     {
-        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1);
+        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 172800, 'download_attempts' => 3);
+        // $this->download_options['expire_seconds'] = 0;
         $this->text_path = array();
         $this->booklet_taxa_list = array();
         $this->lifedesk_fields = array();
@@ -102,6 +103,10 @@ class LifeDeskToScratchpadAPI
     
     private function parse_eol_xml()
     {
+        // for stats
+        $parts = pathinfo($this->text_path["eol_xml"]);
+        $dump_file = $parts["dirname"] . "/images_not_in_xls.txt";
+
         $xml = simplexml_load_file($this->text_path["eol_xml"]);
         $i = 0;
         foreach($xml->taxon as $t)
@@ -136,7 +141,11 @@ class LifeDeskToScratchpadAPI
                         $rec["GUID"] = $guid;
                         $this->used_GUID[$guid] = '';
                     }
-                    else echo "\ninvestigate: no guid\n";
+                    else
+                    {
+                        echo "\n alert: no guid [$filename]\n"; // this means that an image file in XML is not found in the image XLS submitted by SPG
+                        self::save_to_dump($sciname . "\t" . $filename, $dump_file);
+                    }
                     
                     self::save_to_template($rec, $this->text_path["image"], "image");
                 }
@@ -265,7 +274,7 @@ class LifeDeskToScratchpadAPI
     private function load_zip_contents($zip_file)
     {
         $temp_dir = create_temp_dir() . "/";
-        if($file_contents = Functions::lookup_with_cache($zip_file, array('timeout' => 172800, 'download_attempts' => 5)))
+        if($file_contents = Functions::lookup_with_cache($zip_file, $this->download_options))
         {
             $parts = pathinfo($zip_file);
             $temp_file_path = $temp_dir . "/" . $parts["basename"];
@@ -286,6 +295,7 @@ class LifeDeskToScratchpadAPI
             $this->text_path["image"] = $temp_dir . "file_importer_image_xls.txt";
             $this->text_path["text"] = $temp_dir . "TEMPLATE-import_into_taxon_description_xls.txt";
             $this->text_path["bibtex"] = $temp_dir . "Biblio-Bibtex.bib";
+            print_r($this->text_path);
             return true;
         }
         else
@@ -335,7 +345,7 @@ class LifeDeskToScratchpadAPI
 
     public function convert_bibtex_file($file)
     {
-        if($contents = Functions::lookup_with_cache($file, array('timeout' => 172800, 'download_attempts' => 5)))
+        if($contents = Functions::lookup_with_cache($file, $this->download_options))
         {
             $contents = str_replace("@", "xxxyyy@", $contents."@");
             if(preg_match_all("/\@(.*?)xxxyyy/ims", $contents, $arr))
@@ -381,7 +391,7 @@ class LifeDeskToScratchpadAPI
                     }
                     // save to text file
                     $rec = implode(chr(9), $rec);
-                    self::save_to_dump($rec, $this->text_path["bibtex"], "");
+                    self::save_to_dump($rec, $this->text_path["bibtex"], ""); // no line separator, deliberately done for bibtex purposes
                 }
             }
         }
@@ -457,7 +467,7 @@ class LifeDeskToScratchpadAPI
 
     private function clean_desc($desc)
     {
-        $desc = strip_tags($desc, "<br><p><i>");
+        $desc = strip_tags($desc, "<br><p><i><em>");
         return $desc;
     }
 

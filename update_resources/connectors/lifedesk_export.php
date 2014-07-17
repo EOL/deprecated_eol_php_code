@@ -58,6 +58,26 @@ $params["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/peracar
 $params["name"]              = "peracarida";
 */
 
+/*
+// Syrphidae remote
+$params["lifedesk"]          = "http://syrphidae.lifedesks.org/eol-partnership.xml.gz";
+$params["bibtex_file"]       = "http://syrphidae.lifedesks.org/biblio/export/bibtex/"
+$params["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/syrphidae/file_importer_image_xls%20(2).xls";
+$params["name"]              = "syrphidae";
+
+// Syrphidae Dropbox
+$params["lifedesk"]          = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/syrphidae/eol-partnership.xml.gz";
+$params["bibtex_file"]       = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/syrphidae/Biblio-Bibtex.bib";
+$params["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/syrphidae/file_importer_image_xls%20(2).xls";
+$params["name"]              = "syrphidae";
+
+// Syrphidae local
+$params["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/syrphidae/eol-partnership.xml.gz";
+$params["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/syrphidae/Biblio-Bibtex.bib";
+$params["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/syrphidae/file_importer_image_xls%20(2).xls";
+$params["name"]              = "syrphidae";
+*/
+
 $params = array();
 /* 
 paste here which Lifedesk you want to export 

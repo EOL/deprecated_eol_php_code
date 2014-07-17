@@ -26,9 +26,10 @@ class MCZHarvardArchiveAPI
     }
 
     /*
-    images: 74609 | 75330 | 82,083 | 90,371
+    images: 74609 | 75330 | 82,083 | 90,371 |   94,261  114,658
     text: 21129
-    taxa: 11440 | 12,185 | 13,464
+    measurementorfact:                          166,888 201,088
+    taxa: 11440 | 12,185 | 13,464 |             14,214  17,499
     */
 
     function get_all_taxa()
@@ -121,6 +122,7 @@ class MCZHarvardArchiveAPI
             $mr->accessURI      = $mediaURL;
             $mr->thumbnailURL   = $thumbnailURL;
             $mr->furtherInformationURL = (string) $rec["http://rs.tdwg.org/ac/terms/furtherInformationURL"];
+            if((string) $mr->accessURI == $mr->furtherInformationURL) continue;
             if(!in_array($mr->identifier, $this->object_ids)) 
             {
                $this->object_ids[] = $mr->identifier;
@@ -257,7 +259,7 @@ class MCZHarvardArchiveAPI
     private function get_first40k_images()
     {
         $first40k = array();
-        if($temp_filepath = Functions::save_remote_file_to_local($this->first40k, array('timeout' => 4800, 'download_attempts' => 2, 'delay_in_minutes' => 2)))
+        if($temp_filepath = Functions::save_remote_file_to_local($this->first40k, array('cache' => 1, 'timeout' => 4800, 'download_attempts' => 2, 'delay_in_minutes' => 2)))
         {
             require_library('connectors/BOLDSysAPI');
             $func = new BOLDSysAPI();

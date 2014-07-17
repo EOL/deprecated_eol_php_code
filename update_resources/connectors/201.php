@@ -5,7 +5,10 @@ Before partner provides a TSV file:
 estimated execution time: 14 minutes: 40k images | 50 minutes: 72k images
 
 Now partner provides/hosts a DWC-A file. Together with images they also now share text objects as well.
-estimated execution time: 30 minutes
+estimated execution time: 55 minutes for:
+ images:                114,658
+ measurementorfact:     201,088
+ taxa:                  17,499
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

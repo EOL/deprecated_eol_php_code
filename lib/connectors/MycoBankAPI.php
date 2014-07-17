@@ -851,7 +851,7 @@ class MycoBankAPI
                 {
                     $line = trim($line);
                     $values = explode("\t", $line);
-                    $parts = explode(" ", $values[3]);
+                    $parts = explode(" ", $values[3]); // scientificName is 4th column thus index key = 3
                     if($type == "genus")
                     {
                         if(@$parts[0] && count($parts) > 1) $names[$parts[0]] = '';
