@@ -35,7 +35,8 @@ class NCBIGGIqueryAPI
             $this->measurement_ids = array();
         }
         $this->download_options = array('expire_seconds' => 5184000, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1);
-
+        // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/"; // use cache_path to assign a different directory for the cache files
+        
         // local
         $this->families_list = "http://localhost/~eolit/cp/NCBIGGI/falo2.in";
         $this->families_list = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/falo2.in";
@@ -50,8 +51,8 @@ class NCBIGGIqueryAPI
         $this->family_service_ggbn = "http://data.ggbn.org/Query.php?family="; // "Dröge, Gabriele" <g.droege@bgbm.org> advised to use this instead, Apr 17, 2014
         
         //GBIF services
-        $this->gbif_taxon_info = "http://api.gbif.org/v0.9/species/match?name="; //http://api.gbif.org/v0.9/species/match?name=felidae&kingdom=Animalia
-        $this->gbif_record_count = "http://api.gbif.org/v0.9/occurrence/count?taxonKey=";
+        $this->gbif_taxon_info = "http://api.gbif.org/v1/species/match?name="; //http://api.gbif.org/v1/species/match?name=felidae&kingdom=Animalia
+        $this->gbif_record_count = "http://api.gbif.org/v1/occurrence/count?taxonKey=";
         
         // BHL services
         $this->bhl_taxon_page = "http://www.biodiversitylibrary.org/name/";
