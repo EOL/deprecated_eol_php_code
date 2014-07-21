@@ -7,17 +7,19 @@ class LifeDeskToScratchpadAPI
     {
         $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 172800, 'download_attempts' => 3);
         // $this->download_options['expire_seconds'] = 0;
+        // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/"; // use cache_path to assign a different directory for the cache files
+        
         $this->text_path = array();
         $this->booklet_taxa_list = array();
         $this->lifedesk_fields = array();
         $this->scratchpad_image_taxon_list = array();
         $this->used_GUID = array();
         /*
-        $this->file_importer_xls["image"] = "http://localhost/~eolit/cp/LD2Scratchpad/file_importer_image_xls.xls";
-        $this->file_importer_xls["text"] = "http://localhost/~eolit/cp/LD2Scratchpad/TEMPLATE-import_into_taxon_description_xls.xls";
+        $this->file_importer_xls["image"] = "http://localhost/~eolit/cp/LD2Scratchpad/templates/file_importer_image_xls.xls";
+        $this->file_importer_xls["text"] = "http://localhost/~eolit/cp/LD2Scratchpad/templates/TEMPLATE-import_into_taxon_description_xls.xls";
         */
-        $this->file_importer_xls["image"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/file_importer_image_xls.xls";
-        $this->file_importer_xls["text"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/TEMPLATE-import_into_taxon_description_xls.xls";
+        $this->file_importer_xls["image"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/templates/file_importer_image_xls.xls";
+        $this->file_importer_xls["text"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/templates/TEMPLATE-import_into_taxon_description_xls.xls";
     }
 
     function export_lifedesk_to_scratchpad($params)
@@ -35,7 +37,7 @@ class LifeDeskToScratchpadAPI
         self::convert_tab_to_xls($params);
         // remove temp dir
         $parts = pathinfo($this->text_path["eol_xml"]);
-        recursive_rmdir($parts["dirname"]);
+        recursive_rmdir($parts["dirname"]); //debug - comment if you want to see: images_not_in_xls.txt
         debug("\n temporary directory removed: " . $parts["dirname"]);
     }
 
@@ -62,12 +64,13 @@ class LifeDeskToScratchpadAPI
             $i = 0;
             foreach($arr["GUID"] as $guid)
             {
-                $this->scratchpad_image_taxon_list[$arr["Filename"][$i]]["guid"]        = self::clean_str($guid);
-                $this->scratchpad_image_taxon_list[$arr["Filename"][$i]]["taxon"]       = self::clean_str($arr["Taxonomic name (Name)"][$i]);
+                $filename = strtolower($arr["Filename"][$i]);
+                $this->scratchpad_image_taxon_list[$filename]["guid"]        = self::clean_str($guid);
+                $this->scratchpad_image_taxon_list[$filename]["taxon"]       = self::clean_str($arr["Taxonomic name (Name)"][$i]);
                 // we are not sure if these 3 fiels will be provided by the scratchpad file
-                $this->scratchpad_image_taxon_list[$arr["Filename"][$i]]["license"]     = self::clean_str($arr["Licence"][$i]);
-                $this->scratchpad_image_taxon_list[$arr["Filename"][$i]]["description"] = self::clean_str($arr["Description"][$i]);
-                $this->scratchpad_image_taxon_list[$arr["Filename"][$i]]["creator"]     = self::clean_str($arr["Creator"][$i]);
+                $this->scratchpad_image_taxon_list[$filename]["license"]     = self::clean_str($arr["Licence"][$i]);
+                $this->scratchpad_image_taxon_list[$filename]["description"] = self::clean_str($arr["Description"][$i]);
+                $this->scratchpad_image_taxon_list[$filename]["creator"]     = self::clean_str($arr["Creator"][$i]);
                 $i++;
             }
         }
@@ -203,8 +206,9 @@ class LifeDeskToScratchpadAPI
         $desc = self::set_desc_separator($desc);
         if($data_type == "image")
         {
-            if($val = self::get_photographers($do->agent, "photographer")) $desc .= "Photographer: " . implode(";", $val) . ". ";
-            if($val = self::get_photographers($do->agent, "publisher")) $desc .= "Publisher: " . implode(";", $val) . ". ";
+            if($val = self::get_agent_by_type($do->agent, "photographer")) $desc .= "Photographer: " . implode(";", $val) . ". ";
+            if($val = self::get_agent_by_type($do->agent, "author")) $desc .= "Author: " . implode(";", $val) . ". ";
+            if($val = self::get_agent_by_type($do->agent, "publisher")) $desc .= "Publisher: " . implode(";", $val) . ". ";
         }
         return $desc;
     }
@@ -216,14 +220,14 @@ class LifeDeskToScratchpadAPI
         else return $desc .= ". ";
     }
     
-    private function get_photographers($agents, $agent_type)
+    private function get_agent_by_type($agents, $agent_type)
     {
-        $photographers = array();
+        $agent_names = array();
         foreach($agents as $agent)
         {
-            if(is_numeric(stripos($agent{"role"}, $agent_type))) $photographers[(string) $agent] = '';
+            if(is_numeric(stripos($agent{"role"}, $agent_type))) $agent_names[(string) $agent] = '';
         }
-        return array_keys($photographers);
+        return array_keys($agent_names);
     }
     
     private function get_creator($dcterms, $do, $data_type = null)
@@ -234,11 +238,22 @@ class LifeDeskToScratchpadAPI
         {
             if($data_type == "image")
             {
-                $photographers = self::get_photographers($do->agent, "photographer");
-                $creator = implode(",", $photographers);
+                $agent_names = self::get_agent_by_type($do->agent, "photographer");
+                if(!$agent_names) $agent_names = self::get_agent_by_type($do->agent, "author");
+                $creator = implode(",", $agent_names);
+            }
+            else
+            {
+                $agent_names = self::get_agent_by_type($do->agent, "author");
+                if(!$agent_names) $agent_names = self::get_agent_by_type($do->agent, "publisher");
+                $creator = implode(",", $agent_names);
             }
         }
-        if(!$creator && !is_numeric(stripos($do->license, "publicdomain"))) echo "\n[investigate: no creator and not public domain!]\n";
+        if(!$creator && !is_numeric(stripos($do->license, "publicdomain")))
+        {
+            echo "\n[investigate: no creator and not public domain!]\n";
+            print_r($agent_names);
+        }
         return $creator;
     }
     
@@ -254,7 +269,7 @@ class LifeDeskToScratchpadAPI
                 {
                     $path = $arr[1] . ".$image_extension";
                     $parts = pathinfo($path);
-                    return $parts["basename"];
+                    return strtolower($parts["basename"]);
                 }
             }
         }
@@ -387,7 +402,7 @@ class LifeDeskToScratchpadAPI
                         $rec[$i-1] = str_replace(chr(10), "", $rec[$i-1]);
                         $rec[$i-1] = substr($rec[$i-1], 0, strlen($rec[$i-1])-1);
                         $rec[$i-1] .= "," . chr(10);
-                        echo "\n to be inserted: [" . $rec[$i-1] . "]\n";
+                        // echo "\n to be inserted: [" . $rec[$i-1] . "]\n";
                     }
                     // save to text file
                     $rec = implode(chr(9), $rec);
