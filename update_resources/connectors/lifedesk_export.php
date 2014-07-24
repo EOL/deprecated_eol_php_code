@@ -90,9 +90,43 @@ $params["leptogastrinae"]["local"]["bibtex_file"]       = "http://localhost/~eol
 $params["leptogastrinae"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/leptogastrinae/file_importer_image_xls%20%25281%2529.xls";
 $params["leptogastrinae"]["local"]["name"]              = "leptogastrinae";
 // ==================================================================================================
+// continenticola remote
+$params["continenticola"]["remote"]["lifedesk"]          = "http://continenticola.lifedesks.org/eol-partnership.xml.gz";
+$params["continenticola"]["remote"]["bibtex_file"]       = "http://continenticola.lifedesks.org/biblio/export/bibtex/";
+$params["continenticola"]["remote"]["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/continenticola/file_importer_image_xls.xls";
+$params["continenticola"]["remote"]["name"]              = "continenticola";
+// continenticola Dropbox
+$params["continenticola"]["dropbox"]["lifedesk"]          = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/continenticola/eol-partnership.xml.gz";
+$params["continenticola"]["dropbox"]["bibtex_file"]       = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/continenticola/Biblio-Bibtex.bib";
+$params["continenticola"]["dropbox"]["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/continenticola/file_importer_image_xls.xls";
+$params["continenticola"]["dropbox"]["name"]              = "continenticola";
+// continenticola local
+$params["continenticola"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/continenticola/eol-partnership.xml.gz";
+$params["continenticola"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/continenticola/Biblio-Bibtex.bib";
+$params["continenticola"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/continenticola/file_importer_image_xls.xls";
+$params["continenticola"]["local"]["name"]              = "continenticola";
+// ==================================================================================================
+// pelagics remote
+$params["pelagics"]["remote"]["lifedesk"]          = "http://pelagics.lifedesks.org/eol-partnership.xml.gz";
+$params["pelagics"]["remote"]["bibtex_file"]       = "http://pelagics.lifedesks.org/biblio/export/bibtex/";
+$params["pelagics"]["remote"]["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/pelagics/file_importer_image_xls%20(1).xls";
+$params["pelagics"]["remote"]["name"]              = "pelagics";
+// pelagics Dropbox
+$params["pelagics"]["dropbox"]["lifedesk"]          = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/pelagics/eol-partnership.xml.gz";
+$params["pelagics"]["dropbox"]["bibtex_file"]       = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/pelagics/Biblio-Bibtex.bib";
+$params["pelagics"]["dropbox"]["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/pelagics/file_importer_image_xls%20(1).xls";
+$params["pelagics"]["dropbox"]["name"]              = "pelagics";
+// pelagics local
+$params["pelagics"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/pelagics/eol-partnership.xml.gz";
+$params["pelagics"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/pelagics/Biblio-Bibtex.bib";
+$params["pelagics"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/pelagics/file_importer_image_xls%20(1).xls";
+$params["pelagics"]["local"]["name"]              = "pelagics";
+// ==================================================================================================
 
-/* paste here which Lifedesk you want to export: e.g. $parameters = $params["leptogastrinae"]["local"]; */
-$parameters = $params["leptogastrinae"]["dropbox"];
+/* paste here which Lifedesk you want to export: e.g. $parameters = $params["leptogastrinae"]["dropbox"];
+the export files will be found in: DOC_ROOT/tmp/leptogastrinae_LD_to_Scratchpad_export.tar.gz
+*/
+$parameters = $params["pelagics"]["dropbox"];
 if($parameters) $func->export_lifedesk_to_scratchpad($parameters);
 else echo "\nNothing to process. Program will terminate\n";
 

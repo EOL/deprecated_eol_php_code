@@ -39,6 +39,8 @@ class LifeDeskToScratchpadAPI
         $parts = pathinfo($this->text_path["eol_xml"]);
         recursive_rmdir($parts["dirname"]); //debug - comment if you want to see: images_not_in_xls.txt
         debug("\n temporary directory removed: " . $parts["dirname"]);
+        print_r($params);
+        echo "\n cache_path: [" . @$this->download_options['cache_path'] . "]\n";
     }
 
     private function prepare_tab_delimited_text_files()
