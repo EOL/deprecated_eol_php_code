@@ -13,7 +13,7 @@ $func = new LifeDeskToScratchpadAPI();
 // Nemertea remote
 $params["nemertea"]["remote"]["lifedesk"]          = "http://nemertea.lifedesks.org/eol-partnership.xml.gz";
 $params["nemertea"]["remote"]["bibtex_file"]       = "http://nemertea.lifedesks.org/biblio/export/bibtex/";
-$params["nemertea"]["remote"]["scratchpad_images"] = "";
+$params["nemertea"]["remote"]["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/nemertea/file_importer_image_xls%20(1).xls";
 $params["nemertea"]["remote"]["name"]              = "nemertea";
 // Nemertea Dropbox
 $params["nemertea"]["dropbox"]["lifedesk"]          = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/nemertea/eol-partnership.xml.gz";
@@ -122,11 +122,27 @@ $params["pelagics"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/
 $params["pelagics"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/pelagics/file_importer_image_xls%20(1).xls";
 $params["pelagics"]["local"]["name"]              = "pelagics";
 // ==================================================================================================
+// parmotrema remote
+$params["parmotrema"]["remote"]["lifedesk"]          = "http://parmotrema.lifedesks.org/eol-partnership.xml.gz";
+$params["parmotrema"]["remote"]["bibtex_file"]       = "http://parmotrema.lifedesks.org/biblio/export/bibtex/";
+$params["parmotrema"]["remote"]["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/parmotrema/file_importer_image_xls%20(1).xls";
+$params["parmotrema"]["remote"]["name"]              = "parmotrema";
+// parmotrema Dropbox
+$params["parmotrema"]["dropbox"]["lifedesk"]          = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/parmotrema/eol-partnership.xml.gz";
+$params["parmotrema"]["dropbox"]["bibtex_file"]       = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/parmotrema/Biblio-Bibtex.bib";
+$params["parmotrema"]["dropbox"]["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/parmotrema/file_importer_image_xls%20(1).xls";
+$params["parmotrema"]["dropbox"]["name"]              = "parmotrema";
+// parmotrema local
+$params["parmotrema"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/parmotrema/eol-partnership.xml.gz";
+$params["parmotrema"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/parmotrema/Biblio-Bibtex.bib";
+$params["parmotrema"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/parmotrema/file_importer_image_xls%20(1).xls";
+$params["parmotrema"]["local"]["name"]              = "parmotrema";
+// ==================================================================================================
 
 /* paste here which Lifedesk you want to export: e.g. $parameters = $params["leptogastrinae"]["dropbox"];
-the export files will be found in: DOC_ROOT/tmp/leptogastrinae_LD_to_Scratchpad_export.tar.gz
+the export files (in .tar.gz) will be found in: DOC_ROOT/tmp/leptogastrinae_LD_to_Scratchpad_export.tar.gz
 */
-$parameters = $params["pelagics"]["dropbox"];
+$parameters = $params["parmotrema"]["dropbox"];
 if($parameters) $func->export_lifedesk_to_scratchpad($parameters);
 else echo "\nNothing to process. Program will terminate\n";
 
