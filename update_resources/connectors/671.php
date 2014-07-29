@@ -2,6 +2,13 @@
 namespace php_active_record;
 /* MycoBank Classification - uses their webservice to get their entire classification of > 400k current name and synonyms
 estimated execution time: 
+
+fixed invalid parent_id: 
+http://rs.tdwg.org/dwc/terms/taxon: Total: 413135
+
+$names = array("Fungi", "Ascomycota", "Pezizomycotina", "Dothideomycetes", "Dothideomycetidae", "Capnodiales", "Mycosphaerellaceae", "Sphaerella", "Sphaerella tini");
+$names = array("Fungi", "Basidiomycota", "Agaricomycotina", "Agaricomycetes", "Agaricomycetidae", "Agaricales", "Marasmiaceae", "Chamaeceras", "Chamaeceras brasiliensis", "Marasmius");
+$names = array("Selenia perforans", "Selenia", "Montagnula perforans");
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

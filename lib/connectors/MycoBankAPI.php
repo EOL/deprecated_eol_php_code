@@ -15,6 +15,7 @@ class MycoBankAPI
         $this->service_search["startswith"] = 'http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&limit=0&filter=Name STARTSWITH ';
         $this->service_search["exact"]      = 'http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&limit=0&filter=Name=';
         $this->download_options = array('expire_seconds' => 5184000, 'timeout' => 7200); // 2 months expire_seconds
+        // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/";
         /*
         $this->mycobank_taxa_list              = "http://localhost/~eolit/cp/MycoBank/mycobank_taxon.tab";
         $this->not_found_from_previous_harvest = "http://localhost/~eolit/cp/MycoBank/not_found_from_previous_harvest.txt"; // alias names_not_yet_entered.txt
@@ -346,7 +347,7 @@ class MycoBankAPI
         $this->name_id[$name][$status]["ns"] = $rec["ns"];
         $this->name_id[$name][$status]["so"] = $rec["so"];
         $this->name_id[$name][$status]["sf"] = $rec["sf"];
-        // $this->name_id[$name][$status]["h"] = $rec["h"]; // good to cache hierarchy info, access it only when needed
+        $this->name_id[$name][$status]["h"] = $rec["h"]; // good to cache hierarchy info, access it only when needed
     }
 
     private function retrieve_data_and_save_to_array2($dump_file = false)
@@ -406,7 +407,7 @@ class MycoBankAPI
                 {
                     echo "\n investigate: $taxon [$parent] no entry for this parent taxon";
                     $parent = trim($parent);
-                    $this->no_entry_parent[$parent] = 1;
+                    $this->no_entry_parent[$parent] = '';
                 }
             }
             if($parent == "?") echo "\n investigate parent is ? for [$taxon][" . $value["t"] . "]";
@@ -478,17 +479,17 @@ class MycoBankAPI
                     echo "\n investigate missing current_name [$current_name_rec_id][$current_name]"; //should not go here
                     echo "\n orig: [$taxon->taxonID][$taxon->scientificName]\n";
                     $taxon->acceptedNameUsageID = "";
-                    $this->no_entry_current[$current_name] = 1;
+                    $this->no_entry_current[$current_name] = '';
                 }
             }
 
-            $this->name_id[$sciname]["Legitimate"]["syn"] = 0;
+            $this->name_id[$sciname]["Legitimate"]["syn"] = false;
             if($sciname != $current_name && $current_name != "")
             {
                 /* if sciname != current_name and current_name not blank - then if sciname's parent is Illegitimate - ignore sciname */
                 if(in_array($parent_status, $this->invalid_statuses)) continue;
                 // e.g. Selenia perforans will be ignored since the genus Selenia is Illegitimate and current_name anyway exists Montagnula perforans
-                $this->name_id[$sciname]["Legitimate"]["syn"] = 1;
+                $this->name_id[$sciname]["Legitimate"]["syn"] = true;
             }
             
             if(!isset($this->taxa[$taxon->taxonID]))
@@ -517,47 +518,76 @@ class MycoBankAPI
     
     private function get_parent_info($rec)
     {
-        if(!in_array(trim($rec["p"]), array("-", "?", "")))
+        $hierarchy = $rec["h"];
+        $hierarchy = explode(",", $hierarchy);
+        $count = count($hierarchy);
+        $parents = array();
+        for($i = $count-1; $i >= 0; $i--)
+        {
+            if(!in_array(trim($hierarchy[$i]), array("?", "-", "")))
+            {
+                $parent = trim($hierarchy[$i]);
+                $parents[] = $parent; // to be used below
+                if($val = self::get_parent_info_detail($parent)) return $val;
+            }
+        }
+        
+        // try all other invalid statuses
+        if($parents)
+        {
+            foreach($parents as $parent)
+            {
+                foreach($this->invalid_statuses as $invalid_status)
+                {
+                    if($val = @$this->name_id[$parent][$invalid_status]["t"])
+                    {
+                        $parentNameUsageID = $val;
+                        $parent_status = @$this->name_id[$parent][$invalid_status]["ns"];
+                        return array("parentNameUsageID" => $parentNameUsageID, "parent_status" => $parent_status);
+                    }
+                }
+            }
+            $this->no_entry_parent[$parents[0]] = ''; // for checking - stats
+        }
+        
+    }
+    
+    private function get_parent_info_detail($parent)
+    {
+        if(!in_array(trim($parent), array("-", "?", ""))) // this filter maybe done already above
         {
             $parentNameUsageID  = "";
             $parent_status      = "";
-            if($parent = $rec["p"])
+            
+            if    ($val = @$this->name_id[$parent]["Legitimate"]["t"])
             {
-                if    ($val = @$this->name_id[$parent]["Legitimate"]["t"])
-                {
-                    $parentNameUsageID = $val;
-                    $parent_status = @$this->name_id[$parent]["Legitimate"]["ns"];
-                }
-                elseif($val = @$this->name_id[$parent]["Orthographic variant"]["t"])
-                {
-                    $parentNameUsageID = $val;
-                    $parent_status = @$this->name_id[$parent]["Orthographic variant"]["ns"];
-                }
-                elseif($val = @$this->name_id[$parent]["Invalid"]["t"])
-                {
-                    $parentNameUsageID = $val;
-                    $parent_status = @$this->name_id[$parent]["Invalid"]["ns"];
-                }
-                elseif($val = @$this->name_id[$parent]["Illegitimate"]["t"])
-                {
-                    $parentNameUsageID = $val;
-                    $parent_status = @$this->name_id[$parent]["Illegitimate"]["ns"];
-                    
-                }
-                elseif($val = @$this->name_id[$parent]["Uncertain"]["t"])
-                {
-                    $parentNameUsageID = $val;
-                    $parent_status = @$this->name_id[$parent]["Uncertain"]["ns"];
-                }
-                elseif($val = @$this->name_id[$parent]["Unavailable"]["t"])
-                {
-                    $parentNameUsageID = $val;
-                    $parent_status = @$this->name_id[$parent]["Unavailable"]["ns"];
-                }
+                $parentNameUsageID = $val;
+                $parent_status = @$this->name_id[$parent]["Legitimate"]["ns"];
                 return array("parentNameUsageID" => $parentNameUsageID, "parent_status" => $parent_status);
             }
-            if(!$parentNameUsageID) $this->no_entry_parent[$parent] = 1; // for checking - stats
+            else // if parent is not legit, then check if current_name of parent is good
+            {
+                /* 
+                e.g. species "Chamaeceras brasiliensis" has a parent = "Chamaeceras" which is invalid, so we got the current_name of "Chamaeceras" which is "Marasmius"
+                e.g. species "Sphaerella tini" has a parent = "Sphaerella" but is invalid and there is no current_name. So we move to the next parent which is "Mycosphaerellaceae"
+                */
+                foreach($this->invalid_statuses as $invalid_status)
+                {
+                    if($current_name = @$this->name_id[$parent][$invalid_status]["cn"])
+                    {
+                        $current_name = self::get_pt_value($current_name, "Name");
+                        if($val = @$this->name_id[$current_name]["Legitimate"]["t"])
+                        {
+                            $parentNameUsageID = $val;
+                            $parent_status = @$this->name_id[$current_name]["Legitimate"]["ns"];
+                            return array("parentNameUsageID" => $parentNameUsageID, "parent_status" => $parent_status);
+                        }
+                    }
+                }
+            }
+            
         }
+        return false;
     }
     
     private function prepare_synonyms()
@@ -635,7 +665,7 @@ class MycoBankAPI
             }
             else
             {   //  decided not to add a synonym if it has no entry
-                $this->no_entry_synonym[$rec["Name"]] = 1;
+                $this->no_entry_synonym[$rec["Name"]] = '';
                 echo "\n investigate synonym [" . $rec["Name"] . "] is not in this->id_rec yet \n";
                 continue;
             }
