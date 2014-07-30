@@ -18,7 +18,7 @@ class MCZHarvardArchiveAPI
         $this->first40k = "https://dl.dropboxusercontent.com/u/7597512/MCZHarvard/First40k.txt";
         /* 
         $this->dwca_file = "http://localhost/~eolit/cp/MCZ/dwca-mcz_for_eol.zip";
-        $this->first40k = "http://localhost/~eolit/eli/eol_php_code/update_resources/connectors/files/MCZ_Harvard/First40k.txt";
+        $this->first40k  = "http://localhost/~eolit/cp/MCZ/First40k.txt";
         */
         $this->occurrence_ids = array();
         $this->types = array(); // for stats
@@ -93,6 +93,8 @@ class MCZHarvardArchiveAPI
 
             $mediaURL = (string) $rec["http://rs.tdwg.org/ac/terms/accessURI"];
             if(substr($mediaURL, 0, 4) != "http") $mediaURL = "http://" . $mediaURL;
+            
+            if(!is_numeric(stripos($mediaURL, "mcz.harvard.edu"))) continue;
             
             $thumbnailURL = (string) $rec["http://eol.org/schema/media/thumbnailURL"];
             if($thumbnailURL == "undefined") $thumbnailURL = "";
