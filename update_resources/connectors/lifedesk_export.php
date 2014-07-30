@@ -138,11 +138,43 @@ $params["parmotrema"]["local"]["bibtex_file"]       = "http://localhost/~eolit/c
 $params["parmotrema"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/parmotrema/file_importer_image_xls%20(1).xls";
 $params["parmotrema"]["local"]["name"]              = "parmotrema";
 // ==================================================================================================
+// liquensbr remote
+$params["liquensbr"]["remote"]["lifedesk"]          = "http://liquensbr.lifedesks.org/eol-partnership.xml.gz";
+$params["liquensbr"]["remote"]["bibtex_file"]       = ""; // no bibtex
+$params["liquensbr"]["remote"]["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/liquensbr/file_importer_image_xls%20(1).xls";
+$params["liquensbr"]["remote"]["name"]              = "liquensbr";
+// liquensbr Dropbox
+$params["liquensbr"]["dropbox"]["lifedesk"]          = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/liquensbr/eol-partnership.xml.gz";
+$params["liquensbr"]["dropbox"]["bibtex_file"]       = ""; // no bibtex
+$params["liquensbr"]["dropbox"]["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/liquensbr/file_importer_image_xls%20(1).xls";
+$params["liquensbr"]["dropbox"]["name"]              = "liquensbr";
+// liquensbr local
+$params["liquensbr"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/liquensbr/eol-partnership.xml.gz";
+$params["liquensbr"]["local"]["bibtex_file"]       = ""; // no bibtex
+$params["liquensbr"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/liquensbr/file_importer_image_xls%20(1).xls";
+$params["liquensbr"]["local"]["name"]              = "liquensbr";
+// ==================================================================================================
+// liquensms remote
+$params["liquensms"]["remote"]["lifedesk"]          = "http://liquensms.lifedesks.org/eol-partnership.xml.gz";
+$params["liquensms"]["remote"]["bibtex_file"]       = ""; // no bibtex
+$params["liquensms"]["remote"]["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/liquensms/file_importer_image_xls%20(2).xls";
+$params["liquensms"]["remote"]["name"]              = "liquensms";
+// liquensms Dropbox
+$params["liquensms"]["dropbox"]["lifedesk"]          = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/liquensms/eol-partnership.xml.gz";
+$params["liquensms"]["dropbox"]["bibtex_file"]       = ""; // no bibtex
+$params["liquensms"]["dropbox"]["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/liquensms/file_importer_image_xls%20(2).xls";
+$params["liquensms"]["dropbox"]["name"]              = "liquensms";
+// liquensms local
+$params["liquensms"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/liquensms/eol-partnership.xml.gz";
+$params["liquensms"]["local"]["bibtex_file"]       = ""; // no bibtex
+$params["liquensms"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/liquensms/file_importer_image_xls%20(2).xls";
+$params["liquensms"]["local"]["name"]              = "liquensms";
+// ==================================================================================================
 
 /* paste here which Lifedesk you want to export: e.g. $parameters = $params["leptogastrinae"]["dropbox"];
 the export files (in .tar.gz) will be found in: DOC_ROOT/tmp/leptogastrinae_LD_to_Scratchpad_export.tar.gz
 */
-$parameters = $params["parmotrema"]["dropbox"];
+$parameters = $params["liquensms"]["dropbox"];
 if($parameters) $func->export_lifedesk_to_scratchpad($parameters);
 else echo "\nNothing to process. Program will terminate\n";
 

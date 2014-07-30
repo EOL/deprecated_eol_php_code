@@ -208,9 +208,11 @@ class LifeDeskToScratchpadAPI
         $desc = self::set_desc_separator($desc);
         if($data_type == "image")
         {
-            if($val = self::get_agent_by_type($do->agent, "photographer")) $desc .= "Photographer: " . implode(";", $val) . ". ";
-            if($val = self::get_agent_by_type($do->agent, "author")) $desc .= "Author: " . implode(";", $val) . ". ";
-            if($val = self::get_agent_by_type($do->agent, "publisher")) $desc .= "Publisher: " . implode(";", $val) . ". ";
+            $agent_types = array("photographer", "author", "creator", "composer", "source", "publisher", "compiler", "editor", "project", "recorder", "animator", "illustrator", "director");
+            foreach($agent_types as $agent_type)
+            {
+                if($val = self::get_agent_by_type($do->agent, $agent_type)) $desc .= ucfirst($agent_type) . ": " . implode(";", $val) . ". ";
+            }
         }
         return $desc;
     }
@@ -238,18 +240,15 @@ class LifeDeskToScratchpadAPI
         if($val = $dcterms->rightsHolder) $creator .= $val;
         else
         {
-            if($data_type == "image")
+            if($data_type == "image") $agent_types = array("photographer", "author", "creator", "composer", "source", "publisher", "compiler", "editor", "project", "recorder", "animator", "illustrator", "director");
+            else                      $agent_types = array("author", "creator", "composer", "source", "publisher", "compiler", "editor", "project", "recorder", "photographer", "animator", "illustrator", "director");
+            foreach($agent_types as $agent_type)
             {
-                $agent_names = self::get_agent_by_type($do->agent, "photographer");
-                if(!$agent_names) $agent_names = self::get_agent_by_type($do->agent, "author");
-                $creator = implode(",", $agent_names);
+                $agent_names = array();
+                $agent_names = self::get_agent_by_type($do->agent, $agent_type);
+                if($agent_names) break;
             }
-            else
-            {
-                $agent_names = self::get_agent_by_type($do->agent, "author");
-                if(!$agent_names) $agent_names = self::get_agent_by_type($do->agent, "publisher");
-                $creator = implode(",", $agent_names);
-            }
+            $creator = implode(",", $agent_names);
         }
         if(!$creator && !is_numeric(stripos($do->license, "publicdomain")))
         {
