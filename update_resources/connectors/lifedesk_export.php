@@ -170,11 +170,43 @@ $params["liquensms"]["local"]["bibtex_file"]       = ""; // no bibtex
 $params["liquensms"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/liquensms/file_importer_image_xls%20(2).xls";
 $params["liquensms"]["local"]["name"]              = "liquensms";
 // ==================================================================================================
+// staurozoa remote
+$params["staurozoa"]["remote"]["lifedesk"]          = "http://staurozoa.lifedesks.org/eol-partnership.xml.gz";
+$params["staurozoa"]["remote"]["bibtex_file"]       = "http://staurozoa.lifedesks.org/biblio/export/bibtex/";
+$params["staurozoa"]["remote"]["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/staurozoa/file_importer_image_xls%20(1).xls";
+$params["staurozoa"]["remote"]["name"]              = "staurozoa";
+// staurozoa Dropbox
+$params["staurozoa"]["dropbox"]["lifedesk"]          = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/staurozoa/eol-partnership.xml.gz";
+$params["staurozoa"]["dropbox"]["bibtex_file"]       = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/staurozoa/Biblio-Bibtex.bib";
+$params["staurozoa"]["dropbox"]["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/staurozoa/file_importer_image_xls%20(1).xls";
+$params["staurozoa"]["dropbox"]["name"]              = "staurozoa";
+// staurozoa local
+$params["staurozoa"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/staurozoa/eol-partnership.xml.gz";
+$params["staurozoa"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/staurozoa/Biblio-Bibtex.bib";
+$params["staurozoa"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/staurozoa/file_importer_image_xls%20(1).xls";
+$params["staurozoa"]["local"]["name"]              = "staurozoa";
+// ==================================================================================================
+// cnidaria remote
+$params["cnidaria"]["remote"]["lifedesk"]          = "http://cnidaria.lifedesks.org/eol-partnership.xml.gz";
+$params["cnidaria"]["remote"]["bibtex_file"]       = "http://cnidaria.lifedesks.org/biblio/export/bibtex/";
+$params["cnidaria"]["remote"]["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/cnidaria/file_importer_image_xls%20(2).xls";
+$params["cnidaria"]["remote"]["name"]              = "cnidaria";
+// cnidaria Dropbox
+$params["cnidaria"]["dropbox"]["lifedesk"]          = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/cnidaria/eol-partnership.xml.gz";
+$params["cnidaria"]["dropbox"]["bibtex_file"]       = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/cnidaria/Biblio-Bibtex.bib";
+$params["cnidaria"]["dropbox"]["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/cnidaria/file_importer_image_xls%20(2).xls";
+$params["cnidaria"]["dropbox"]["name"]              = "cnidaria";
+// cnidaria local
+$params["cnidaria"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/cnidaria/eol-partnership.xml.gz";
+$params["cnidaria"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/cnidaria/Biblio-Bibtex.bib";
+$params["cnidaria"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/cnidaria/file_importer_image_xls%20(2).xls";
+$params["cnidaria"]["local"]["name"]              = "cnidaria";
+// ==================================================================================================
 
 /* paste here which Lifedesk you want to export: e.g. $parameters = $params["leptogastrinae"]["dropbox"];
 the export files (in .tar.gz) will be found in: DOC_ROOT/tmp/leptogastrinae_LD_to_Scratchpad_export.tar.gz
 */
-$parameters = $params["liquensms"]["dropbox"];
+$parameters = $params["staurozoa"]["dropbox"];
 if($parameters) $func->export_lifedesk_to_scratchpad($parameters);
 else echo "\nNothing to process. Program will terminate\n";
 
