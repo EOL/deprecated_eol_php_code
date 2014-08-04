@@ -18,8 +18,10 @@ class ConabioAPI
 
     function combine_all_xmls($resource_id)
     {
+        $this->download_options["expire_seconds"] = 0;
         if($resource_id == 100) $species_urls = self::get_CONABIO_species_urls();
         if($resource_id == 106) $species_urls = self::get_Tamborine_species_urls();
+        $this->download_options["expire_seconds"] = null;
         if(!$species_urls) return;
         debug("\n\n Start compiling all XML...");
         $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
