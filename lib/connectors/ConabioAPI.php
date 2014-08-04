@@ -10,6 +10,12 @@ define("TAMBORINE_SPECIES_LIST", "http://www.biodiversity.com.au/eol_xml/");
 
 class ConabioAPI
 {
+    function __construct()
+    {
+        $this->download_options = array("download_wait_time" => 1000000, "timeout" => 3600, "delay_in_minutes" => 2);
+        // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/";
+    }
+
     function combine_all_xmls($resource_id)
     {
         if($resource_id == 100) $species_urls = self::get_CONABIO_species_urls();
@@ -34,8 +40,8 @@ class ConabioAPI
         foreach($species_urls as $filename)
         {
             $i++;
-            print "\n $i of $total \n";
-            if($contents = Functions::lookup_with_cache($filename, array("download_wait_time" => 1000000, "timeout" => 1800, "delay_in_minutes" => 2))) // "expire_seconds" => 0
+            print "\n $i of $total ";
+            if($contents = Functions::lookup_with_cache($filename, $this->download_options))
             {
                 // manual adjustments
                 if($resource_id == 106) $contents = str_ireplace(array("*"), "", $contents); // tamborine mt.
@@ -67,7 +73,7 @@ class ConabioAPI
     private function get_Tamborine_species_urls()
     {
         $species_urls = array();
-        if($contents = Functions::lookup_with_cache(TAMBORINE_SPECIES_LIST . "list.xml", array("timeout" => 3600, "delay_in_minutes" => 2)))
+        if($contents = Functions::lookup_with_cache(TAMBORINE_SPECIES_LIST . "list.xml", $this->download_options))
         {
             if($xml = simplexml_load_string($contents))
             {
@@ -80,7 +86,7 @@ class ConabioAPI
     private function get_CONABIO_species_urls()
     {
         $species_urls = array();
-        if($contents = Functions::lookup_with_cache(CONABIO_SPECIES_LIST, array("timeout" => 3600, "delay_in_minutes" => 2)))
+        if($contents = Functions::lookup_with_cache(CONABIO_SPECIES_LIST, $this->download_options))
         {
             if($xml = simplexml_load_string($contents))
             {

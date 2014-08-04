@@ -10,7 +10,8 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 require_library('connectors/ConabioAPI');
 $resource_id = 106;
-ConabioAPI::combine_all_xmls($resource_id);
+$func = new ConabioAPI();
+$func->combine_all_xmls($resource_id);
 
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 1000)
 {
