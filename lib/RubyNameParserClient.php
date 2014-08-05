@@ -21,7 +21,7 @@ class RubyNameParserClient
         $reconnect_attempts = 0;
         while(!self::is_parserver_running() && $reconnect_attempts < $maximum_attempts)
         {
-            shell_exec(PARSE_SERVER_BIN_PATH . ' -r --output=canonical > /dev/null 2>/dev/null &');
+            shell_exec(rtrim($gem_is_installed) . ' -r --output=canonical > /dev/null 2>/dev/null &');
             sleep(10);
             $reconnect_attempts++;
         }
@@ -33,7 +33,12 @@ class RubyNameParserClient
     
     public static function is_parserver_running()
     {
-        $processlist = explode("\n", shell_exec('ps -e'));
+	return (self::parserver_check('ps -e') or self::parserver_check('ps -e x'));
+    }
+
+    public static function parserver_check($ps_cmd)
+    {
+        $processlist = explode("\n", shell_exec($ps_cmd));
         foreach($processlist as $line)
         {
             if(preg_match("/:[0-9]{2}:[0-9]{2} parserver$/", trim($line))) return true;
