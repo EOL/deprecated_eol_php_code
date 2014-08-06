@@ -144,6 +144,7 @@ class Functions
             {
                 $file_age_in_seconds = time() - filemtime($cache_path);
                 if($file_age_in_seconds < $options['expire_seconds']) return $file_contents;
+                if($options['expire_seconds'] === false) return $file_contents;
             }
             @unlink($cache_path);
         }
