@@ -18,6 +18,13 @@ As suggested by Sujeevan, I've also now excluded DNA sequences for Plants and Pr
 apparently we won't. Those text objects with sequence also have other parts, like the barcode image and the 'Download Fasta file' link. 
 So for those non-animal text objects, the DNA sequence will be removed but the other items will still be there. 
 So in effect we're not going to lose text objects in the exclusion of plant DNA sequences. e.g. http://eol.org/data_objects/24591010
+
+as of 5-Aug-2014
+taxon = 241347
+dataObjects = 449425
+texts = 340290
+images = 109135
+
 */
 
 define("PHYLUM_SERVICE_URL", "http://v2.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=");
@@ -362,7 +369,7 @@ class BOLDSysAPI
         return $phylum;
     }
     
-    private function create_master_list()
+    function create_master_list()
     {
         if($html = Functions::lookup_with_cache(self::BOLDS_DOMAIN . self::TAXONOMY_BROWSER, $this->download_options))
         {
