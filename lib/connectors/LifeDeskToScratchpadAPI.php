@@ -5,18 +5,21 @@ class LifeDeskToScratchpadAPI
 {
     function __construct()
     {
-        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1);
+        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 172800, 'download_attempts' => 3);
+        // $this->download_options['expire_seconds'] = 0;
+        // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/"; // use cache_path to assign a different directory for the cache files
+        
         $this->text_path = array();
         $this->booklet_taxa_list = array();
         $this->lifedesk_fields = array();
         $this->scratchpad_image_taxon_list = array();
         $this->used_GUID = array();
         /*
-        $this->file_importer_xls["image"] = "http://localhost/~eolit/cp/LD2Scratchpad/file_importer_image_xls.xls";
-        $this->file_importer_xls["text"] = "http://localhost/~eolit/cp/LD2Scratchpad/TEMPLATE-import_into_taxon_description_xls.xls";
+        $this->file_importer_xls["image"] = "http://localhost/~eolit/cp/LD2Scratchpad/templates/file_importer_image_xls.xls";
+        $this->file_importer_xls["text"] = "http://localhost/~eolit/cp/LD2Scratchpad/templates/TEMPLATE-import_into_taxon_description_xls.xls";
         */
-        $this->file_importer_xls["image"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/file_importer_image_xls.xls";
-        $this->file_importer_xls["text"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/TEMPLATE-import_into_taxon_description_xls.xls";
+        $this->file_importer_xls["image"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/templates/file_importer_image_xls.xls";
+        $this->file_importer_xls["text"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/templates/TEMPLATE-import_into_taxon_description_xls.xls";
     }
 
     function export_lifedesk_to_scratchpad($params)
@@ -30,12 +33,14 @@ class LifeDeskToScratchpadAPI
         }
         print_r($this->booklet_taxa_list);
         self::initialize_dump_file($this->text_path["bibtex"]);
-        self::convert_bibtex_file($params["bibtex_file"]);
-        self::convert_tab_to_xls($params["name"]);
+        if($val = @$params["bibtex_file"]) self::convert_bibtex_file($val);
+        self::convert_tab_to_xls($params);
         // remove temp dir
         $parts = pathinfo($this->text_path["eol_xml"]);
-        recursive_rmdir($parts["dirname"]);
+        recursive_rmdir($parts["dirname"]); //debug - comment if you want to see: images_not_in_xls.txt
         debug("\n temporary directory removed: " . $parts["dirname"]);
+        print_r($params);
+        echo "\n cache_path: [" . @$this->download_options['cache_path'] . "]\n";
     }
 
     private function prepare_tab_delimited_text_files()
@@ -61,15 +66,22 @@ class LifeDeskToScratchpadAPI
             $i = 0;
             foreach($arr["GUID"] as $guid)
             {
-                $this->scratchpad_image_taxon_list[$arr["Filename"][$i]]["guid"] = $guid;
-                $this->scratchpad_image_taxon_list[$arr["Filename"][$i]]["taxon"] = $arr["Taxonomic name (Name)"][$i];
+                $filename = strtolower($arr["Filename"][$i]);
+                $this->scratchpad_image_taxon_list[$filename]["guid"]        = self::clean_str($guid);
+                $this->scratchpad_image_taxon_list[$filename]["taxon"]       = self::clean_str($arr["Taxonomic name (Name)"][$i]);
                 // we are not sure if these 3 fiels will be provided by the scratchpad file
-                $this->scratchpad_image_taxon_list[$arr["Filename"][$i]]["license"]     = $arr["Licence"][$i];
-                $this->scratchpad_image_taxon_list[$arr["Filename"][$i]]["description"] = $arr["Description"][$i];
-                $this->scratchpad_image_taxon_list[$arr["Filename"][$i]]["creator"]     = $arr["Creator"][$i];
+                $this->scratchpad_image_taxon_list[$filename]["license"]     = self::clean_str($arr["Licence"][$i]);
+                $this->scratchpad_image_taxon_list[$filename]["description"] = self::clean_str($arr["Description"][$i]);
+                $this->scratchpad_image_taxon_list[$filename]["creator"]     = self::clean_str($arr["Creator"][$i]);
                 $i++;
             }
         }
+    }
+    
+    private function clean_str($str)
+    {
+        $str = str_replace(array("\t", chr(9), "\n", chr(10)), "", $str);
+        return $str;
     }
     
     private function get_column_headers($spreadsheet)
@@ -96,6 +108,10 @@ class LifeDeskToScratchpadAPI
     
     private function parse_eol_xml()
     {
+        // for stats
+        $parts = pathinfo($this->text_path["eol_xml"]);
+        $dump_file = $parts["dirname"] . "/images_not_in_xls.txt";
+
         $xml = simplexml_load_file($this->text_path["eol_xml"]);
         $i = 0;
         foreach($xml->taxon as $t)
@@ -130,7 +146,11 @@ class LifeDeskToScratchpadAPI
                         $rec["GUID"] = $guid;
                         $this->used_GUID[$guid] = '';
                     }
-                    else echo "\ninvestigate: no guid\n";
+                    else
+                    {
+                        echo "\n alert: no guid [$filename]\n"; // this means that an image file in XML is not found in the image XLS submitted by SPG
+                        self::save_to_dump($sciname . "\t" . $filename, $dump_file);
+                    }
                     
                     self::save_to_template($rec, $this->text_path["image"], "image");
                 }
@@ -138,9 +158,11 @@ class LifeDeskToScratchpadAPI
                 {
                     if($val = self::get_subject($do))
                     {
-                        $rec[$val] = self::get_description($t_dc2, $do);
-                        $rec["Creator"] = self::get_creator($t_dcterms, $do); // not yet implemented in the xls template
-                        self::save_to_template($rec, $this->text_path["text"], "text");
+                        if($rec[$val] = self::get_description($t_dc2, $do))
+                        {
+                            $rec["Creator"] = self::get_creator($t_dcterms, $do); // not yet implemented in the xls template
+                            self::save_to_template($rec, $this->text_path["text"], "text");
+                        }
                     }
                 }
             }
@@ -181,30 +203,35 @@ class LifeDeskToScratchpadAPI
     {
         $desc = "";
         if($val = $dc->description) $desc .= trim($val);
+        else return $desc;
+        $desc = self::clean_desc($desc);
         $desc = self::set_desc_separator($desc);
         if($data_type == "image")
         {
-            if($photographers = self::get_photographers($do->agent)) $desc .= "Photographer: " . implode(";", $photographers) . ". ";
+            $agent_types = array("photographer", "author", "creator", "composer", "source", "publisher", "compiler", "editor", "project", "recorder", "animator", "illustrator", "director");
+            foreach($agent_types as $agent_type)
+            {
+                if($val = self::get_agent_by_type($do->agent, $agent_type)) $desc .= ucfirst($agent_type) . ": " . implode(";", $val) . ". ";
+            }
         }
         return $desc;
     }
     
     private function set_desc_separator($desc)
     {
-        if(substr($desc, -4) == "<br>") return $desc;
-        elseif(substr($desc, -2) == ". ") return $desc;
-        elseif(substr($desc, -1) == ".") return $desc .= " ";
-        return $desc;
+        if(!$desc) return $desc;
+        if(substr($desc, -1) == ".") return $desc .= " ";
+        else return $desc .= ". ";
     }
     
-    private function get_photographers($agents)
+    private function get_agent_by_type($agents, $agent_type)
     {
-        $photographers = array();
+        $agent_names = array();
         foreach($agents as $agent)
         {
-            if(is_numeric(stripos($agent{"role"}, "photographer"))) $photographers[(string) $agent] = '';
+            if(is_numeric(stripos($agent{"role"}, $agent_type))) $agent_names[(string) $agent] = '';
         }
-        return array_keys($photographers);
+        return array_keys($agent_names);
     }
     
     private function get_creator($dcterms, $do, $data_type = null)
@@ -213,13 +240,21 @@ class LifeDeskToScratchpadAPI
         if($val = $dcterms->rightsHolder) $creator .= $val;
         else
         {
-            if($data_type == "image")
+            if($data_type == "image") $agent_types = array("photographer", "author", "creator", "composer", "source", "publisher", "compiler", "editor", "project", "recorder", "animator", "illustrator", "director");
+            else                      $agent_types = array("author", "creator", "composer", "source", "publisher", "compiler", "editor", "project", "recorder", "photographer", "animator", "illustrator", "director");
+            foreach($agent_types as $agent_type)
             {
-                $photographers = self::get_photographers($do->agent);
-                $creator = implode(",", $photographers);
+                $agent_names = array();
+                $agent_names = self::get_agent_by_type($do->agent, $agent_type);
+                if($agent_names) break;
             }
+            $creator = implode(",", $agent_names);
         }
-        if(!$creator && !is_numeric(stripos($do->license, "publicdomain"))) echo "\n[investigate: no creator and not public domain!]\n";
+        if(!$creator && !is_numeric(stripos($do->license, "publicdomain")))
+        {
+            echo "\n[investigate: no creator and not public domain!]\n";
+            print_r($agent_names);
+        }
         return $creator;
     }
     
@@ -235,7 +270,7 @@ class LifeDeskToScratchpadAPI
                 {
                     $path = $arr[1] . ".$image_extension";
                     $parts = pathinfo($path);
-                    return $parts["basename"];
+                    return strtolower($parts["basename"]);
                 }
             }
         }
@@ -255,7 +290,7 @@ class LifeDeskToScratchpadAPI
     private function load_zip_contents($zip_file)
     {
         $temp_dir = create_temp_dir() . "/";
-        if($file_contents = Functions::lookup_with_cache($zip_file, array('timeout' => 172800, 'download_attempts' => 5)))
+        if($file_contents = Functions::lookup_with_cache($zip_file, $this->download_options))
         {
             $parts = pathinfo($zip_file);
             $temp_file_path = $temp_dir . "/" . $parts["basename"];
@@ -266,7 +301,7 @@ class LifeDeskToScratchpadAPI
             if(is_numeric(stripos($zip_file, ".tar.gz"))) $output = shell_exec("tar -xzf $temp_file_path -C $temp_dir");
             elseif(is_numeric(stripos($zip_file, ".xml.gz"))) $output = shell_exec("gzip -d $temp_file_path -q "); //$temp_dir
             
-            if(!file_exists($temp_dir . "/eol-partnership.xml")) 
+            if(!file_exists($temp_dir . "/eol-partnership.xml"))
             {
                 $temp_dir = str_ireplace(".zip", "", $temp_file_path);
                 if(!file_exists($temp_dir . "/eol-partnership.xml")) return false;
@@ -276,6 +311,7 @@ class LifeDeskToScratchpadAPI
             $this->text_path["image"] = $temp_dir . "file_importer_image_xls.txt";
             $this->text_path["text"] = $temp_dir . "TEMPLATE-import_into_taxon_description_xls.txt";
             $this->text_path["bibtex"] = $temp_dir . "Biblio-Bibtex.bib";
+            print_r($this->text_path);
             return true;
         }
         else
@@ -285,7 +321,7 @@ class LifeDeskToScratchpadAPI
         }
     }
 
-    public function convert_tab_to_xls($lifedesk)
+    public function convert_tab_to_xls($params)
     {
         require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel/IOFactory.php';
         $destination_folder = create_temp_dir() . "/";
@@ -312,17 +348,20 @@ class LifeDeskToScratchpadAPI
             copy($outputFileName, $destination_folder . $parts["basename"]);
         }
         // move file to temp folder for compressing
-        $parts = pathinfo($this->text_path["bibtex"]);
-        copy($this->text_path["bibtex"], $destination_folder . $parts["basename"]);
+        if(@$params["bibtex_file"])
+        {
+            $parts = pathinfo($this->text_path["bibtex"]);
+            copy($this->text_path["bibtex"], $destination_folder . $parts["basename"]);
+        }
         // compress export files
-        $command_line = "tar -czf " . DOC_ROOT . "/tmp/" . $lifedesk . "_LD_to_Scratchpad_export.tar.gz --directory=" . $destination_folder . " .";
+        $command_line = "tar -czf " . DOC_ROOT . "/tmp/" . $params["name"] . "_LD_to_Scratchpad_export.tar.gz --directory=" . $destination_folder . " .";
         $output = shell_exec($command_line);
         recursive_rmdir($destination_folder);
     }
 
     public function convert_bibtex_file($file)
     {
-        if($contents = Functions::lookup_with_cache($file, array('timeout' => 172800, 'download_attempts' => 5)))
+        if($contents = Functions::lookup_with_cache($file, $this->download_options))
         {
             $contents = str_replace("@", "xxxyyy@", $contents."@");
             if(preg_match_all("/\@(.*?)xxxyyy/ims", $contents, $arr))
@@ -364,11 +403,11 @@ class LifeDeskToScratchpadAPI
                         $rec[$i-1] = str_replace(chr(10), "", $rec[$i-1]);
                         $rec[$i-1] = substr($rec[$i-1], 0, strlen($rec[$i-1])-1);
                         $rec[$i-1] .= "," . chr(10);
-                        echo "\n to be inserted: [" . $rec[$i-1] . "]\n";
+                        // echo "\n to be inserted: [" . $rec[$i-1] . "]\n";
                     }
                     // save to text file
                     $rec = implode(chr(9), $rec);
-                    self::save_to_dump($rec, $this->text_path["bibtex"], "");
+                    self::save_to_dump($rec, $this->text_path["bibtex"], ""); // no line separator, deliberately done for bibtex purposes
                 }
             }
         }
@@ -440,6 +479,12 @@ class LifeDeskToScratchpadAPI
             [26] => Phylogeny
             [27] => Map
         */
+    }
+
+    private function clean_desc($desc)
+    {
+        $desc = strip_tags($desc, "<br><p><i><em>");
+        return $desc;
     }
 
 }

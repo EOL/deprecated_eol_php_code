@@ -2,13 +2,29 @@
 namespace php_active_record;
 /* connector: 212 
 --- BOLDS resource for species-level taxa [212]. This is now scheduled as a cron task.
-Connector uses BOLDS service for most of the info but still scrapes the nucleotides sequence for species level taxa.
 The service is per phylum level e.g.: http://v2.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Annelida
 This service will then list all the species under this phylum. The list of phylum names at the moment is hard-coded.
 The connector runs all the phylum taxa, assembles each of the taxon info and generates the final EOL XML.
 
 With the availability of the BOLDS big XML file (http://www.boldsystems.org/export/boldrecords.xml.gz),
 the nucleotides sequence is no longer scraped from the site.
+
+as of latest:
+There is no more screen scraping procedure in the connector, which is a big relief. Data is now coming from 2 sources:
+1st: the phylum driven webservice (e.g. http://v2.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=Annelida)
+2nd: and the big XML dump (http://www.boldsystems.org/export/boldrecords.xml.gz)
+
+As suggested by Sujeevan, I've also now excluded DNA sequences for Plants and Protists. With this, I initially thought we will be losing thousands of text objects, 
+apparently we won't. Those text objects with sequence also have other parts, like the barcode image and the 'Download Fasta file' link. 
+So for those non-animal text objects, the DNA sequence will be removed but the other items will still be there. 
+So in effect we're not going to lose text objects in the exclusion of plant DNA sequences. e.g. http://eol.org/data_objects/24591010
+
+as of 5-Aug-2014
+taxon = 241347
+dataObjects = 449425
+texts = 340290
+images = 109135
+
 */
 
 define("PHYLUM_SERVICE_URL", "http://v2.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=");
@@ -19,6 +35,7 @@ class BOLDSysAPI
     const MAP_SCALE = "/libhtml/icons/mapScale_BOLD.png";
     const BOLDS_DOMAIN = "http://www.boldsystems.org";
     const BOLDS_DOMAIN_NEW = "http://v2.boldsystems.org";
+    const TAXONOMY_BROWSER = "/index.php/TaxBrowser_Home";
 
     private static $saved_sequences;
 
@@ -31,6 +48,8 @@ class BOLDSysAPI
         $this->LOG_FILE               = $this->TEMP_FILE_PATH . "cannot_access_phylum.txt";
         $this->SAVED_SEQUENCES_FILE   = $this->TEMP_FILE_PATH . "taxa_sequences.txt";
         $this->phylum_without_sequence = array();
+        $this->download_options = array('timeout' => 15000, 'download_attempts' => 5, 'expire_seconds' => 5184000);  // 40 mins. timeout; expire 2 months
+        // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/";
     }
     
     /* Some stats as of Aug 22, 2013
@@ -332,66 +351,48 @@ class BOLDSysAPI
                      "agent"        => $agent);
     }
 
-    private function create_master_list()
+    private function get_phylum_list($html)
     {
-        //Animals
-        $arr_phylum = array(0 => array( "name" => "Acanthocephala"   , "id" => 11),
-                            1 => array( "name" => "Annelida"         , "id" => 2),
-                            2 => array( "name" => "Arthropoda"       , "id" => 20),
-                            3 => array( "name" => "Brachiopoda"      , "id" => 9),
-                            4 => array( "name" => "Bryozoa"          , "id" => 7),
-                            5 => array( "name" => "Chaetognatha"     , "id" => 13),
-                            6 => array( "name" => "Chordata"         , "id" => 18),
-                            7 => array( "name" => "Cnidaria"         , "id" => 3),
-                            8 => array( "name" => "Cycliophora"      , "id" => 79455),
-                            9 => array( "name" => "Echinodermata"    , "id" => 4),
-                            10 => array( "name" => "Echiura"         , "id" => 27333),
-                            11 => array( "name" => "Gnathostomulida" , "id" => 78956),
-                            12 => array( "name" => "Hemichordata"    , "id" => 21),
-                            13 => array( "name" => "Mollusca"        , "id" => 23),
-                            14 => array( "name" => "Nematoda"        , "id" => 19),
-                            15 => array( "name" => "Nemertea"        , "id" => 497163),
-                            16 => array( "name" => "Onychophora"     , "id" => 10),
-                            17 => array( "name" => "Platyhelminthes" , "id" => 5),
-                            18 => array( "name" => "Porifera"        , "id" => 24818),
-                            19 => array( "name" => "Priapulida"      , "id" => 392644),
-                            20 => array( "name" => "Rotifera"        , "id" => 16),
-                            21 => array( "name" => "Sipuncula"       , "id" => 15),
-                            22 => array( "name" => "Tardigrada"      , "id" => 26033),
-                            23 => array( "name" => "Xenoturbellida"  , "id" => 88647));
+        $phylum = array();
+        // <li><a href="/index.php/Taxbrowser_Taxonpage?taxid=11">Acanthocephala [429]</a></li>
+        if(preg_match_all("/Taxbrowser_Taxonpage\?taxid\=(.*?)\[/ims", $html, $arr))
+        {
+            foreach($arr[1] as $row)
+            {
+                $id = false;
+                $name = false;
+                if(preg_match("/xxx(.*?)\"/ims", "xxx".$row, $arr2)) $id = $arr2[1];
+                if(preg_match("/>(.*?)xxx/ims", $row."xxx", $arr2)) $name = trim($arr2[1]);
+                if($id && $name) $phylum[] = array("name" => $name, "id" => $id);
+            }
+        }
+        return $phylum;
+    }
+    
+    function create_master_list()
+    {
+        if($html = Functions::lookup_with_cache(self::BOLDS_DOMAIN . self::TAXONOMY_BROWSER, $this->download_options))
+        {
+            $arr_phylum = self::get_phylum_list($html);
+            if(preg_match("/<div id=\"PlantDiv\">(.*?)<\/div>/ims", $html, $arr)) $plants = self::get_phylum_list($arr[1]);
+            if(preg_match("/<div id=\"ProtistDiv\">(.*?)<\/div>/ims", $html, $arr)) $protists = self::get_phylum_list($arr[1]);
+            // print_r($arr_phylum);
+            // print_r($plants);
+            // print_r($protists);
+            $this->phylum_without_sequence = self::get_phylum($plants, $this->phylum_without_sequence);
+            $this->phylum_without_sequence = self::get_phylum($protists, $this->phylum_without_sequence);
+        }
 
-        //Fungi 
-        $temp = array(0 => array( "name" => "Ascomycota"      , "id" => 34),
-                      1 => array( "name" => "Basidiomycota"   , "id" => 23675),
-                      2 => array( "name" => "Chytridiomycota" , "id" => 23691),
-                      3 => array( "name" => "Myxomycota"      , "id" => 83947),
-                      4 => array( "name" => "Zygomycota"      , "id" => 23738));
-        $arr_phylum = array_merge($arr_phylum, $temp);
-        
+        /* just for the record
         //Plants 
-        $temp = array(0 => array( "name" => "Bryophyta"      , "id" => 176192),
-                      1 => array( "name" => "Chlorophyta"    , "id" => 112296),
-                      2 => array( "name" => "Lycopodiophyta" , "id" => 38696),
-                      3 => array( "name" => "Magnoliophyta"  , "id" => 12),
-                      4 => array( "name" => "Pinophyta"      , "id" => 251587),
-                      5 => array( "name" => "Pteridophyta"   , "id" => 38074),
-                      6 => array( "name" => "Rhodophyta"     , "id" => 48327),
-                      7 => array( "name" => "Stramenopiles"  , "id" => 109924)); // as 1May2013 doesn't exist in BOLDS' home page
-        $arr_phylum = array_merge($arr_phylum, $temp);
-        $this->phylum_without_sequence = self::get_phylum($temp, $this->phylum_without_sequence);
-        
+            array( "name" => "Stramenopiles"  , "id" => 109924)); // as 1May2013 doesn't exist in BOLDS' home page
         //Protists
-        $temp = array(0 => array( "name" => "Bacillariophyta"    , "id" => 74445), // as 1May2013 doesn't exist in BOLDS' home page
-                      1 => array( "name" => "Ciliophora"         , "id" => 72834),
-                      2 => array( "name" => "Dinozoa"            , "id" => 70855), // as 1May2013 doesn't exist in BOLDS' home page
-                      3 => array( "name" => "Heterokontophyta"   , "id" => 53944),
-                      4 => array( "name" => "Opalozoa"           , "id" => 72171), // as 1May2013 doesn't exist in BOLDS' home page
-                      5 => array( "name" => "Straminipila"       , "id" => 23715), // as 1May2013 doesn't exist in BOLDS' home page
-                      6 => array( "name" => "Chlorarachniophyta" , "id" => 316986),
-                      7 => array( "name" => "Pyrrophycophyta"    , "id" => 317010));
-        $arr_phylum = array_merge($arr_phylum, $temp);
-        $this->phylum_without_sequence = self::get_phylum($temp, $this->phylum_without_sequence);
-
+            array( "name" => "Bacillariophyta"    , "id" => 74445), // as 1May2013 doesn't exist in BOLDS' home page
+            array( "name" => "Dinozoa"            , "id" => 70855), // as 1May2013 doesn't exist in BOLDS' home page
+            array( "name" => "Opalozoa"           , "id" => 72171), // as 1May2013 doesn't exist in BOLDS' home page
+            array( "name" => "Straminipila"       , "id" => 23715), // as 1May2013 doesn't exist in BOLDS' home page
+        */
+        
         /* //debug
         $arr_phylum = array();
         // $arr_phylum[] = array( "name" => "Chordata", "id" => 18);
@@ -420,7 +421,8 @@ class BOLDSysAPI
             $phylum_path = PHYLUM_SERVICE_URL . $phylum['name'];
             // $phylum_path = "http://localhost/~eolit/eli/eol_php_code/update_resources/connectors/files/BOLD/Annelida.xml"; // debug
             echo "\n\nphylum service: " . $phylum_path . "\n";
-            if($xml = Functions::get_hashed_response($phylum_path, array('timeout' => 15000, 'download_attempts' => 5))) //about 4 hours before it timesout
+            $response = Functions::lookup_with_cache($phylum_path, $this->download_options);
+            if($xml = simplexml_load_string($response)) //about 4 hours before it timesout
             {
                 echo "\n [$p of $total_phylum] $phylum[name] $phylum[id] -- [" . sizeof($xml->record) . "]";
                 $i = 0;
@@ -618,7 +620,7 @@ class BOLDSysAPI
 
     private function barcode_image_available($src)
     {
-        $str = Functions::get_remote_file($src, array('timeout' => 2400, 'download_attempts' => 5)); // 40 mins. timeout
+        $str = Functions::lookup_with_cache($src, $this->download_options);
         /*
         ERROR: Only species level taxids are accepted
         ERROR: Unable to retrieve sequence

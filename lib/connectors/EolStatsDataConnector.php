@@ -14,15 +14,42 @@ class EolStatsDataConnector
     {
         $this->resource_id = $resource_id;
         $this->mysqli =& $GLOBALS['mysqli_connection'];
-        $this->source_file_path = DOC_ROOT . "temp/FALO3.txt";
+        $this->source_file_path = "http://tiny.cc/FALO"; // from Cyndy's Dropbox
     }
 
     public function begin()
     {
-        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . "/$this->resource_id/";
+        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        $this->prepare_files();
         $this->process_export();
         $this->archive_builder->finalize(true);
+        //remove temp dir
+        $parts = pathinfo($this->source_file_path);
+        recursive_rmdir($parts["dirname"]);
+        debug("\n temporary directory removed: " . $parts["dirname"]);
+    }
+
+    private function prepare_files()
+    {
+        if($input_file = Functions::save_remote_file_to_local($this->source_file_path, array("cache" => 1, "timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2)))
+        {
+            $temp_dir = create_temp_dir() . "/";
+            $this->source_file_path = $temp_dir . "spg_falo.txt";
+            self::convert_xlsx_to_tab($input_file, $this->source_file_path);
+            unlink($input_file);
+        }
+    }
+
+    private function convert_xlsx_to_tab($input_file, $output_file) // $input_file .xlsx, $output_file .txt
+    {
+        require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel/IOFactory.php';
+        $objPHPExcel = \PHPExcel_IOFactory::load($input_file);
+        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'CSV');
+        $objWriter->setDelimiter("\t");
+        $objWriter->setEnclosure("");
+        $objWriter->setLineEnding("\n");
+        $objWriter->save($output_file);
     }
 
     private function process_export()

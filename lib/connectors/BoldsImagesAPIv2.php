@@ -23,8 +23,8 @@ class BoldsImagesAPIv2
         $this->taxon_ids = array();
         $this->do_ids = array();
 
-        $this->old_bolds_image_ids_path = "http://dl.dropbox.com/u/7597512/BOLDS/old_BOLDS_image_ids.txt"; // image IDs of the 1st BOLDS image resource
-        // $this->old_bolds_image_ids_path = "http://localhost/~eolit/eli/eol_php_code/applications/content_server/resources/old_BOLDS_image_ids.txt"; // debug
+        $this->old_bolds_image_ids_path = "https://dl.dropboxusercontent.com/u/7597512/BOLDS/old_BOLDS_image_ids.txt"; // image IDs of the 1st BOLDS image resource
+        // $this->old_bolds_image_ids_path = "http://localhost/~eolit/cp/BOLDS/old_BOLDS_image_ids.txt"; // debug
         $this->old_bolds_image_ids = array();
         $this->old_bolds_image_ids_count = 0;
         $this->info = array();
@@ -32,7 +32,10 @@ class BoldsImagesAPIv2
         // for generating the higher-level taxa list
         $this->MASTER_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt";
         // $this->OLD_MASTER_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list 2011 09 25.txt"; // debug
-        $this->OLD_MASTER_LIST = "http://dl.dropbox.com/u/7597512/BOLDS/hl_master_list 2011 09 25.txt";
+        $this->OLD_MASTER_LIST = "https://dl.dropboxusercontent.com/u/7597512/BOLDS/hl_master_list 2011 09 25.txt";
+        
+        $this->download_options = array('cache' => 1, 'timeout' => 2400, 'download_attempts' => 5);
+        // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/";
     }
 
     function get_all_taxa($data_dump_url = false)
@@ -45,7 +48,7 @@ class BoldsImagesAPIv2
         $i = 0;
 
         // retrive all image_ids from the first/original BOLDS images resource
-        $this->old_bolds_image_ids_path = Functions::save_remote_file_to_local($this->old_bolds_image_ids_path, array('timeout' => 2400, 'download_attempts' => 5));
+        $this->old_bolds_image_ids_path = Functions::save_remote_file_to_local($this->old_bolds_image_ids_path, $this->download_options);
         $READ = fopen($this->old_bolds_image_ids_path, "r");
         $contents = fread($READ, filesize($this->old_bolds_image_ids_path));
         fclose($READ);
@@ -77,7 +80,7 @@ class BoldsImagesAPIv2
 
             }
         }
-        $this->create_archive();
+        $this->archive_builder->finalize(true);
         unlink($path);
         unlink($this->old_bolds_image_ids_path);
         echo "\n\n total old ids: " . $this->old_bolds_image_ids_count . "\n\n";
@@ -86,7 +89,11 @@ class BoldsImagesAPIv2
     function download_and_extract_remote_file($file = false)
     {
         if(!$file) $file = $this->data_dump_url; // used when this function is called elsewhere
-        $temp_path = Functions::save_remote_file_to_local($file, array('cache' => 1, 'timeout' => 172800, 'download_attempts' => 5, 'file_extension' => 'xml.gz'));
+        $download_options = $this->download_options;
+        $download_options['timeout'] = 172800;
+        $download_options['file_extension'] = 'xml.gz';
+        // $download_options['cache'] = 0; // 0 only when developing //debug - comment in real operation
+        $temp_path = Functions::save_remote_file_to_local($file, $download_options);
         echo "\n [$temp_path] \n";
         shell_exec("gzip -d " . $temp_path);
         return str_ireplace(".xml.gz", ".xml", $temp_path);
@@ -217,17 +224,8 @@ class BoldsImagesAPIv2
                     $mr->format                 = (string) Functions::get_mimetype($media->image_link);
                     $mr->furtherInformationURL  = (string) $this->sourceURL . $rec->taxon_id;
                     $mr->description            = (string) $description;
-                    $mr->CVterm                 = ""; // subject
-                    $mr->title                  = "";
-                    $mr->creator                = "";
-                    $mr->CreateDate             = "";
-                    $mr->modified               = "";
-                    $mr->LocationCreated        = "";
                     $mr->UsageTerms             = (string) $license;
                     $mr->Owner                  = (string) $rightsHolder;
-                    $mr->publisher              = "";
-                    $mr->audience               = "";
-                    $mr->bibliographicCitation  = "";
                     $mr->rights                 = (string) $rights;
                     $mr->accessURI              = (string) $media->image_link;
                     $mr->Rating                 = 2;
@@ -258,26 +256,19 @@ class BoldsImagesAPIv2
         $taxon->taxonID                     = (string) $taxon_id;
         $taxon->taxonRank                   = (string) $rank;
         $taxon->scientificName              = (string) $sciname;
-        $taxon->scientificNameAuthorship    = "";
-        $taxon->vernacularName              = "";
         $taxon->kingdom                     = (string) @$ancestry->kingdom->taxon->name;
         $taxon->phylum                      = (string) @$ancestry->phylum->taxon->name;
         $taxon->class                       = (string) @$ancestry->class->taxon->name;
         $taxon->order                       = (string) @$ancestry->order->taxon->name;
         $taxon->family                      = (string) @$ancestry->family->taxon->name;
         $taxon->genus                       = (string) @$ancestry->genus->taxon->name;
-        $taxon->furtherInformationURL       = "";
-        $taxon->specificEpithet             = "";
-        $taxon->taxonomicStatus             = "";
-        $taxon->nomenclaturalCode           = "";
-        $taxon->nomenclaturalStatus         = "";
-        $taxon->acceptedNameUsage           = "";
-        $taxon->acceptedNameUsageID         = "";
-        $taxon->parentNameUsageID           = "";
-        $taxon->namePublishedIn             = "";
         $taxon->taxonRemarks                = (string) @$rec->taxonomy->identification_provided_by ? "Taxonomy identification provided by " . $rec->taxonomy->identification_provided_by : '';
-        $taxon->infraspecificEpithet        = "";
-        $this->taxa[$taxon_id] = $taxon;
+        
+        if(!isset($this->taxa[$taxon_id]))
+        {
+            $this->taxa[$taxon_id] = '';
+            $this->archive_builder->write_object_to_file($taxon);
+        }
         return $rec;
     }
 
@@ -357,15 +348,6 @@ class BoldsImagesAPIv2
         }
         if(@$taxon_name) return array("taxon_name" => $taxon_name, "taxon_id" => $taxon_id, "rank" => $rank, "ancestry" => $name);
         else return false;
-    }
-
-    function create_archive()
-    {
-        foreach($this->taxa as $t)
-        {
-            $this->archive_builder->write_object_to_file($t);
-        }
-        $this->archive_builder->finalize(true);
     }
 
     function generate_higher_level_taxa_list($data_dump_url = false)
@@ -448,7 +430,7 @@ class BoldsImagesAPIv2
     private function reconcile_with_old_master_list($hl_taxa)
     {
         $write = fopen($this->MASTER_LIST, "a");
-        $temp_filepath = Functions::save_remote_file_to_local($this->OLD_MASTER_LIST, array('cache' => 1, 'timeout' => 2400, 'download_attempts' => 5));
+        $temp_filepath = Functions::save_remote_file_to_local($this->OLD_MASTER_LIST, $this->download_options);
         foreach(new FileIterator($temp_filepath, true) as $line_number => $line) // 'true' will auto delete temp_filepath
         {
             $split = explode("\t", trim($line));

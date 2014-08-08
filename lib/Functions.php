@@ -125,12 +125,13 @@ class Functions
         // default expire time is 30 days
         if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 2592000;
         if(!isset($options['timeout'])) $options['timeout'] = 120;
+        if(!isset($options['cache_path'])) $options['cache_path'] = DOC_ROOT . "tmp/cache/";
         $md5 = md5($url);
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
-        if(!file_exists(DOC_ROOT . "tmp/cache/$cache1")) mkdir(DOC_ROOT . "tmp/cache/$cache1");
-        if(!file_exists(DOC_ROOT . "tmp/cache/$cache1/$cache2")) mkdir(DOC_ROOT . "tmp/cache/$cache1/$cache2");
-        $cache_path = DOC_ROOT . "tmp/cache/$cache1/$cache2/$md5.cache";
+        if(!file_exists($options['cache_path'] . $cache1)) mkdir($options['cache_path'] . $cache1);
+        if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
+        $cache_path = $options['cache_path'] . "$cache1/$cache2/$md5.cache";
         if(file_exists($cache_path))
         {
             $file_contents = file_get_contents($cache_path);
@@ -143,6 +144,7 @@ class Functions
             {
                 $file_age_in_seconds = time() - filemtime($cache_path);
                 if($file_age_in_seconds < $options['expire_seconds']) return $file_contents;
+                if($options['expire_seconds'] === false) return $file_contents;
             }
             @unlink($cache_path);
         }

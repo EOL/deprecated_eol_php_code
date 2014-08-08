@@ -18,7 +18,7 @@ class MCZHarvardArchiveAPI
         $this->first40k = "https://dl.dropboxusercontent.com/u/7597512/MCZHarvard/First40k.txt";
         /* 
         $this->dwca_file = "http://localhost/~eolit/cp/MCZ/dwca-mcz_for_eol.zip";
-        $this->first40k = "http://localhost/~eolit/eli/eol_php_code/update_resources/connectors/files/MCZ_Harvard/First40k.txt";
+        $this->first40k  = "http://localhost/~eolit/cp/MCZ/First40k.txt";
         */
         $this->occurrence_ids = array();
         $this->types = array(); // for stats
@@ -26,9 +26,10 @@ class MCZHarvardArchiveAPI
     }
 
     /*
-    images: 74609 | 75330 | 82,083 | 90,371
+    images: 74609 | 75330 | 82,083 | 90,371 |   94,261  114,658
     text: 21129
-    taxa: 11440 | 12,185 | 13,464
+    measurementorfact:                          166,888 201,088
+    taxa: 11440 | 12,185 | 13,464 |             14,214  17,499
     */
 
     function get_all_taxa()
@@ -93,6 +94,8 @@ class MCZHarvardArchiveAPI
             $mediaURL = (string) $rec["http://rs.tdwg.org/ac/terms/accessURI"];
             if(substr($mediaURL, 0, 4) != "http") $mediaURL = "http://" . $mediaURL;
             
+            if(!is_numeric(stripos($mediaURL, "mcz.harvard.edu"))) continue;
+            
             $thumbnailURL = (string) $rec["http://eol.org/schema/media/thumbnailURL"];
             if($thumbnailURL == "undefined") $thumbnailURL = "";
             
@@ -121,6 +124,7 @@ class MCZHarvardArchiveAPI
             $mr->accessURI      = $mediaURL;
             $mr->thumbnailURL   = $thumbnailURL;
             $mr->furtherInformationURL = (string) $rec["http://rs.tdwg.org/ac/terms/furtherInformationURL"];
+            if((string) $mr->accessURI == $mr->furtherInformationURL) continue;
             if(!in_array($mr->identifier, $this->object_ids)) 
             {
                $this->object_ids[] = $mr->identifier;
@@ -257,7 +261,7 @@ class MCZHarvardArchiveAPI
     private function get_first40k_images()
     {
         $first40k = array();
-        if($temp_filepath = Functions::save_remote_file_to_local($this->first40k, array('timeout' => 4800, 'download_attempts' => 2, 'delay_in_minutes' => 2)))
+        if($temp_filepath = Functions::save_remote_file_to_local($this->first40k, array('cache' => 1, 'timeout' => 4800, 'download_attempts' => 2, 'delay_in_minutes' => 2)))
         {
             require_library('connectors/BOLDSysAPI');
             $func = new BOLDSysAPI();
