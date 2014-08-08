@@ -1,21 +1,16 @@
 <?php
 namespace php_active_record;
-/* This is BOLDS 2nd image resource, gets the data from BOLDS big XML file but excluding those images from the original image resource.
-estimated execution time: 7.5 hours
-
-as of 5-Aug-2014
-http://rs.tdwg.org/dwc/terms/taxon: Total: 99728
-http://eol.org/schema/agent/agent:  Total: 119
-http://purl.org/dc/dcmitype/StillImage: 90982
+/* EOL Metrics
+estimated execution time:
+http://eol.org/content_partners/641/resources/736
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/BoldsImagesAPIv2');
-
+require_library('connectors/EolStatsDataConnector');
 $timestart = time_elapsed();
-$resource_id = 546;
-$func = new BoldsImagesAPIv2($resource_id);
-$func->get_all_taxa();
+$resource_id = 736;
+$func = new EolStatsDataConnector($resource_id);
+$func->begin();
 
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
@@ -30,7 +25,8 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") >
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
-echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
-echo "\n Done processing.\n";
+echo "\n\n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
+echo "\nDone processing.\n";
 ?>

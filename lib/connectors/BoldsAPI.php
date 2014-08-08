@@ -34,6 +34,8 @@ class BoldsAPI
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->erroneous_ids = $this->TEMP_DIR . "erroneous_ids.txt";
         $this->does_not_exist_anymore = $this->TEMP_DIR . "does_not_exist_anymore.txt";
+        $this->download_options = array('expire_seconds' => 7776000, 'download_wait_time' => 500000, 'timeout' => 1200, 'download_attempts' => 2);
+        // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/";
     }
 
     function initialize_text_files()
@@ -238,7 +240,7 @@ class BoldsAPI
         $public_records = "";
         $taxa = array();
         $str = "";
-        if($json = Functions::lookup_with_cache($file, array('expire_seconds' => 5184000, 'download_wait_time' => 500000, 'timeout' => 1200, 'download_attempts' => 1))) // expire_seconds is 2 months
+        if($json = Functions::lookup_with_cache($file, $this->download_options))
         {
             $rec = json_decode($json, true);
             if(@$rec[$taxid]["sitemap"]) $with_map = true;
@@ -321,8 +323,8 @@ class BoldsAPI
 
         $arr = array();
         $file = self::SPECIES_SERVICE_URL . $taxid;
-        $orig_str = Functions::lookup_with_cache($file, array('download_wait_time' => 1000000, 'timeout' => 1200, 'download_attempts' => 5));
-        
+        $orig_str = Functions::lookup_with_cache($file, $this->download_options);
+
         if(is_numeric(stripos($orig_str, "Taxonomy Browser - No Match")))
         {
             self::save_to_dump($taxid, $this->does_not_exist_anymore);
