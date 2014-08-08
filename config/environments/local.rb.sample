@@ -1,0 +1,8 @@
+Eol::Application.configure do
+  config.after_initialize do
+    $CONTENT_SERVER = 'http://media.eol.org/'
+
+    $IP_ADDRESS_OF_SERVER = "localhost:3000" if Rails.env.development? || Rails.env.bocce_demo_dev?
+    $WEB_SERVICE_BASE_URL = "http://localhost/eol_php_code/applications/content_server/service.php?" unless Rails.env.bocce_demo_dev?
+  end
+end
