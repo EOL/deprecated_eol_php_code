@@ -72,7 +72,8 @@ class FaloDataConnector {
     debug("Downloading source file.");
     $download_options = array(
       'file_extension' => pathinfo($this->source_url, PATHINFO_EXTENSION),
-      'cache'          => true
+      'cache'          => true,
+      'timeout'        => 172800
     );
     $this->source_file_path = Functions::save_remote_file_to_local($this->source_url, $download_options);
     if (! file_exists($this->source_file_path)) {
