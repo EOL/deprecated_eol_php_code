@@ -3,6 +3,9 @@ namespace php_active_record;
 /* connector: [737] */
 class IUCNRedlistDataConnector
 {
+    const IUCN_DOMAIN = "http://www.iucnredlist.org";
+    const IUCN_EXPORT_DOWNLOAD_PAGE = "/search/saved?id=47427";
+    
     function __construct($folder = null)
     {
         $this->taxa = array();
@@ -15,6 +18,10 @@ class IUCNRedlistDataConnector
         $this->export_basename = "export-47427";
         // $this->species_list_export = "http://localhost/~eolit/cp/IUCN/" . $this->export_basename . ".csv.zip";
         $this->species_list_export = "https://dl.dropboxusercontent.com/u/7597512/IUCN/" . $this->export_basename . ".csv.zip";
+        
+        $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/";
+        // $this->download_options['expire_seconds'] = false;
 
         $this->categories = array("CR" => "Critically Endangered (CR)",
                                   "EN" => "Endangered (EN)",
@@ -39,7 +46,7 @@ class IUCNRedlistDataConnector
     function generate_IUCN_data()
     {
         $basename = $this->export_basename;
-        $text_path = self::load_zip_contents($this->species_list_export, array('timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 1), array($basename), ".csv");
+        $text_path = self::load_zip_contents($this->species_list_export, $this->download_options, array($basename), ".csv");
         print_r($text_path);
         
         self::csv_to_array($text_path[$basename]);
@@ -64,7 +71,7 @@ class IUCNRedlistDataConnector
         $names_no_entry_from_partner = array();
         
         $i = 0;
-        $file = fopen($csv_file, "r");
+        if(!$file = fopen($csv_file, "r")) return;
         while(!feof($file))
         {
             $temp = fgetcsv($file);
@@ -372,7 +379,7 @@ class IUCNRedlistDataConnector
     {
         $text_path = array();
         $temp_path = create_temp_dir();
-        if($file_contents = Functions::get_remote_file($zip_path, $download_options))
+        if($file_contents = Functions::lookup_with_cache($zip_path, $download_options)) // resource is set to harvest quarterly and the cache expires by default in a month
         {
             $parts = pathinfo($zip_path);
             $temp_file_path = $temp_path . "/" . $parts["basename"];
@@ -390,6 +397,50 @@ class IUCNRedlistDataConnector
         }
         else debug("\n\n Connector terminated. Remote files are not ready.\n\n");
         return $text_path;
+    }
+
+    private function get_species_list_export_file() // not currently used
+    {
+        if($html = Functions::lookup_with_cache(self::IUCN_DOMAIN . self::IUCN_EXPORT_DOWNLOAD_PAGE, $this->download_options))
+        {
+            //<li><a href="/search/download/38992.csv">Comma-Separated Values (CSV)</a>
+            if(preg_match("/<li><a href=\"\/search\/download\/(.*?)\">Comma-Separated Values/ims", $html, $arr))
+            {
+                // must login
+                /*
+                <form action="/users/sign_in" class="formtastic user" id="new_user" method="post" novalidate="novalidate">
+                <input name="utf8" type="hidden" value="✓">
+                <input name="authenticity_token" type="hidden" value="zU0AeC1jKqea4XxZ38cV6VMQgLtBjvFyGd7EhnOkTgM=">
+                <input id="user_email" maxlength="255" name="user[email]" type="email" value="">
+                <input id="user_password" maxlength="128" name="user[password]" type="password">
+                <input name="user[remember_me]" type="hidden" value="0">
+                <input id="user_remember_me" name="user[remember_me]" type="checkbox" value="1">Remember me</label>
+                <input name="commit" type="submit" value="Login">
+                </form>
+                */
+                $authenticity_token = self::get_token();
+                $url = "http://www.iucnredlist.org/users/sign_in";
+                $params = array("user[email]" => "eli@eol.org", "user[password]" => "jijamali", "authenticity_token" => $authenticity_token, 
+                                "commit" => "Login", "user[remember_me]" => "1", "utf8" => "✓");
+                $x = Functions::curl_post_request($url, $params);
+                
+                return self::IUCN_DOMAIN . "/search/download/" . $arr[1];
+            }
+        }
+        return false;
+    }
+
+    private function get_token()
+    {
+        $download_options = $this->download_options;
+        $download_options['expire_seconds'] = 0;
+        if($html = Functions::lookup_with_cache("http://www.iucnredlist.org/users/sign_in", $download_options))
+        {
+            if(preg_match("/<input name=\"authenticity_token\" type=\"hidden\" value=\"(.*?)\"/ims", $html, $arr))
+            {
+                return $arr[1];
+            }
+        }
     }
 
 }

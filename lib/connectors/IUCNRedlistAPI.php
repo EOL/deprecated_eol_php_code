@@ -12,6 +12,8 @@ class IUCNRedlistAPI
         $this->export_basename = "export-47427";
         // $this->species_list_export = "http://localhost/~eolit/cp/IUCN/" . $this->export_basename . ".csv.zip";
         $this->species_list_export = "https://dl.dropboxusercontent.com/u/7597512/IUCN/" . $this->export_basename . ".csv.zip";
+        $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/";
     }
     
     public function get_taxon_xml($resource_file = null, $type = null)
@@ -25,7 +27,7 @@ class IUCNRedlistAPI
     private function get_all_taxa_v2($resource_file = null) // this is using the IUCN CSV export
     {
         $basename = $this->export_basename;
-        $text_path = self::load_zip_contents($this->species_list_export, array('timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 1), array($basename), ".csv");
+        $text_path = self::load_zip_contents($this->species_list_export, $this->download_options, array($basename), ".csv");
         print_r($text_path);
         $taxon_ids = self::csv_to_array($text_path[$basename]);
         $all_taxa = array();
@@ -76,7 +78,7 @@ class IUCNRedlistAPI
     {
         $text_path = array();
         $temp_path = create_temp_dir();
-        if($file_contents = Functions::get_remote_file($zip_path, $download_options))
+        if($file_contents = Functions::lookup_with_cache($zip_path, $download_options))
         {
             $parts = pathinfo($zip_path);
             $temp_file_path = $temp_path . "/" . $parts["basename"];
@@ -137,10 +139,14 @@ class IUCNRedlistAPI
         return $all_taxa;
     }
     
-    public static function get_taxa_for_species($species_json, $species_id = NULL)
+    public function get_taxa_for_species($species_json, $species_id = NULL)
     {
         if($species_json) $species_id = $species_json->species_id;
-        $details_html = Functions::lookup_with_cache(self::API_PREFIX . $species_id, array('validation_regex' => 'x_section', 'download_attempts' => 1));
+
+        $download_options = $this->download_options;
+        $download_options['validation_regex'] = 'x_section';
+        $details_html = Functions::lookup_with_cache(self::API_PREFIX . $species_id, $download_options);
+
         if(!$details_html) return array();
         $details_html = utf8_encode($details_html);
         if(!Functions::is_utf8($details_html)) return array();
