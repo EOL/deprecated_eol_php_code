@@ -12,7 +12,7 @@ class IUCNRedlistAPI
         $this->export_basename = "export-47427";
         // $this->species_list_export = "http://localhost/~eolit/cp/IUCN/" . $this->export_basename . ".csv.zip";
         $this->species_list_export = "https://dl.dropboxusercontent.com/u/7597512/IUCN/" . $this->export_basename . ".csv.zip";
-        $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->download_options = array('timeout' => 3600, 'download_attempts' => 1);
         // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/";
     }
     

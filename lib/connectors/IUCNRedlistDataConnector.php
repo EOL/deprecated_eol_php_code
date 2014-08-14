@@ -19,9 +19,8 @@ class IUCNRedlistDataConnector
         // $this->species_list_export = "http://localhost/~eolit/cp/IUCN/" . $this->export_basename . ".csv.zip";
         $this->species_list_export = "https://dl.dropboxusercontent.com/u/7597512/IUCN/" . $this->export_basename . ".csv.zip";
         
-        $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 2592000 * 3);
         // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/";
-        // $this->download_options['expire_seconds'] = false;
 
         $this->categories = array("CR" => "Critically Endangered (CR)",
                                   "EN" => "Endangered (EN)",

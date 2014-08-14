@@ -10,6 +10,8 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 $resource_id = 212;
 
+/* utility Functions::count_rows_from_text_file(DOC_ROOT . "temp/media_resource.tab"); */
+
 $folder = DOC_ROOT . "update_resources/connectors/files/BOLD";
 if(!file_exists($folder)) mkdir($folder , 0777);
 

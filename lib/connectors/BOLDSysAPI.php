@@ -19,12 +19,15 @@ apparently we won't. Those text objects with sequence also have other parts, lik
 So for those non-animal text objects, the DNA sequence will be removed but the other items will still be there. 
 So in effect we're not going to lose text objects in the exclusion of plant DNA sequences. e.g. http://eol.org/data_objects/24591010
 
-as of 5-Aug-2014
-taxon = 241347
-dataObjects = 449425
-texts = 340290
-images = 109135
+Using the EOL XML (as of 5-Aug-2014)
+taxon = 241,347
+dataObjects = 449,425
+texts = 340,290
+images = 109,135
 
+Using the DWC-A file (DATA-1486)
+taxa = 241,349
+dataObjects = 449,431
 */
 
 define("PHYLUM_SERVICE_URL", "http://v2.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=");
