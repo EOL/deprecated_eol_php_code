@@ -48,7 +48,9 @@ class BoldsImagesAPIv2
         $i = 0;
 
         // retrive all image_ids from the first/original BOLDS images resource
-        $this->old_bolds_image_ids_path = Functions::save_remote_file_to_local($this->old_bolds_image_ids_path, $this->download_options);
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        $this->old_bolds_image_ids_path = Functions::save_remote_file_to_local($this->old_bolds_image_ids_path, $options);
         $READ = fopen($this->old_bolds_image_ids_path, "r");
         $contents = fread($READ, filesize($this->old_bolds_image_ids_path));
         fclose($READ);
@@ -430,7 +432,9 @@ class BoldsImagesAPIv2
     private function reconcile_with_old_master_list($hl_taxa)
     {
         $write = fopen($this->MASTER_LIST, "a");
-        $temp_filepath = Functions::save_remote_file_to_local($this->OLD_MASTER_LIST, $this->download_options);
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        $temp_filepath = Functions::save_remote_file_to_local($this->OLD_MASTER_LIST, $options);
         foreach(new FileIterator($temp_filepath, true) as $line_number => $line) // 'true' will auto delete temp_filepath
         {
             $split = explode("\t", trim($line));

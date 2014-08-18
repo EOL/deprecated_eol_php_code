@@ -2,16 +2,16 @@
 namespace php_active_record;
 /* connector: 81 
 --- BOLDS resource for higher-level taxa [81]. This is now scheduled as a cron task.
-Connector scrapes data from BOLDS website for higher level taxa. 
-The partner doesn't have any service for their higher-level taxa.
+Connector uses an API for the higher-level taxon info. If it fails, it scrapes data from BOLDS website.
 Before running the connector, it is assumed that this file has already been created: DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt"
 
-* Due to the long processing time, there might be some network problems along the way and some encoding problems 
-might creep in. You just need to open the 212.xml file and delete the <dataObject> with the wrong encoding. When I last ran this in July 2012 
-I had to delete one <dataObject> for taxon Anopheles longirostris B NWB-2009 - http://v2.boldsystems.org/views/taxbrowser.php?taxid=303232
-but when I ran the connector again I didn't get the encoding problem anymore. Anyway, just a heads-up.
-
 Main API page: http://www.boldsystems.org/index.php/Resources
+
+as of 14 Aug 2014
+dwc:ScientificName  = 47995
+dataObjects         = 134250
+texts               = 86438
+images              = 47812
 */
 
 class BoldsAPI
@@ -192,8 +192,9 @@ class BoldsAPI
             $mediaURL   = "";
             $location   = "";
             $refs       = array();
+            /* DATA-1491 Remove map text objects from BOLDS
             $arr_objects[] = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject);
-            // echo "\n map exists: $map_url \n";
+            */
 
             // map as image object
             $identifier  = $taxon_rec["id"] . "_image_map";
@@ -244,6 +245,11 @@ class BoldsAPI
         {
             $rec = json_decode($json, true);
             if(@$rec[$taxid]["sitemap"]) $with_map = true;
+            
+            if(@$rec[$taxid]["stats"]["publicrecords"] == 0 &&
+               @$rec[$taxid]["stats"]["publicspecies"] == 0 &&
+               @$rec[$taxid]["stats"]["publicbins"]    == 0) $with_map = false;
+            
             if(@$rec[$taxid]["tax_rank"] == "species") $species_level = true;
             $public_records = @$rec[$taxid]["stats"]["publicrecords"];
             //get tree
@@ -259,14 +265,14 @@ class BoldsAPI
             //get stats
             if(@$rec[$taxid]["stats"])
             {
-                if($val = @$rec[$taxid]["stats"]["specimenrecords"])    $str .= "Specimen Records: $val<br>";
-                if($val = @$rec[$taxid]["stats"]["sequencedspecimens"]) $str .= "Specimens with Sequences: $val<br>";
-                if($val = @$rec[$taxid]["stats"]["barcodespecimens"])   $str .= "Specimens with Barcodes: $val<br>";
-                if($val = @$rec[$taxid]["stats"]["species"])            $str .= "Species: $val<br>";
-                if($val = @$rec[$taxid]["stats"]["barcodespecies"])     $str .= "Species With Barcodes: $val<br>";
-                if($val = @$rec[$taxid]["stats"]["publicrecords"])      $str .= "Public Records: $val<br>";
-                if($val = @$rec[$taxid]["stats"]["publicspecies"])      $str .= "Public Species: $val<br>";
-                if($val = @$rec[$taxid]["stats"]["publicbins"])         $str .= "Public BINs: $val<br>";
+                $str .= "Specimen Records:"         . @$rec[$taxid]["stats"]["specimenrecords"]     . "<br>";
+                $str .= "Specimens with Sequences:" . @$rec[$taxid]["stats"]["sequencedspecimens"]  . "<br>";
+                $str .= "Specimens with Barcodes:"  . @$rec[$taxid]["stats"]["barcodespecimens"]    . "<br>";
+                $str .= "Species:"                  . @$rec[$taxid]["stats"]["species"]             . "<br>";
+                $str .= "Species With Barcodes:"    . @$rec[$taxid]["stats"]["barcodespecies"]      . "<br>";
+                $str .= "Public Records:"           . @$rec[$taxid]["stats"]["publicrecords"]       . "<br>";
+                $str .= "Public Species:"           . @$rec[$taxid]["stats"]["publicspecies"]       . "<br>";
+                $str .= "Public BINs:"              . @$rec[$taxid]["stats"]["publicbins"]          . "<br>";
                 // "publicmarkersequences":{"CYTB":8,"COXIII":8,"COII":8,"COI-5P":613,"atp6":3} -- available in api 
             }
         }
