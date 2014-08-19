@@ -7,11 +7,11 @@ Before running the connector, it is assumed that this file has already been crea
 
 Main API page: http://www.boldsystems.org/index.php/Resources
 
-as of 14 Aug 2014
-dwc:ScientificName  = 47995
-dataObjects         = 134250
-texts               = 86438
-images              = 47812
+published:  true        false
+as of:      14Aug2014   19Aug2014
+taxa:       47995       47995
+texts       86438       86438
+images      47812       38443
 */
 
 class BoldsAPI

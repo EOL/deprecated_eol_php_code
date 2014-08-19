@@ -5,7 +5,7 @@ class LifeDeskToScratchpadAPI
 {
     function __construct()
     {
-        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 172800, 'download_attempts' => 3);
+        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 2); // 15mins timeout
         // $this->download_options['expire_seconds'] = 0;
         // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/"; // use cache_path to assign a different directory for the cache files
         
@@ -31,7 +31,6 @@ class LifeDeskToScratchpadAPI
             self::parse_eol_xml();
             self::add_images_without_taxa_to_export_file();
         }
-        print_r($this->booklet_taxa_list);
         self::initialize_dump_file($this->text_path["bibtex"]);
         if($val = @$params["bibtex_file"]) self::convert_bibtex_file($val);
         self::convert_tab_to_xls($params);

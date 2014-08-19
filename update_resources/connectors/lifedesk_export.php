@@ -202,6 +202,22 @@ $params["cnidaria"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/
 $params["cnidaria"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/cnidaria/file_importer_image_xls%20(2).xls";
 $params["cnidaria"]["local"]["name"]              = "cnidaria";
 // ==================================================================================================
+// porifera remote
+$params["porifera"]["remote"]["lifedesk"]          = "http://porifera.lifedesks.org/eol-partnership.xml.gz";
+$params["porifera"]["remote"]["bibtex_file"]       = "http://porifera.lifedesks.org/biblio/export/bibtex/";
+$params["porifera"]["remote"]["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/porifera/file_importer_image_xls%20(1).xls";
+$params["porifera"]["remote"]["name"]              = "porifera";
+// porifera Dropbox
+$params["porifera"]["dropbox"]["lifedesk"]          = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/porifera/eol-partnership.xml.gz";
+$params["porifera"]["dropbox"]["bibtex_file"]       = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/porifera/Biblio-Bibtex.bib";
+$params["porifera"]["dropbox"]["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/porifera/file_importer_image_xls%20(1).xls";
+$params["porifera"]["dropbox"]["name"]              = "porifera";
+// porifera local
+$params["porifera"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/porifera/eol-partnership.xml.gz";
+$params["porifera"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/porifera/Biblio-Bibtex.bib";
+$params["porifera"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/porifera/file_importer_image_xls%20(1).xls";
+$params["porifera"]["local"]["name"]              = "porifera";
+// ==================================================================================================
 
 /* paste here which Lifedesk you want to export: e.g. $parameters = $params["leptogastrinae"]["dropbox"];
 the export files (in .tar.gz) will be found in: DOC_ROOT/tmp/leptogastrinae_LD_to_Scratchpad_export.tar.gz
