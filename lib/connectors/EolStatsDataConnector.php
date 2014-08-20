@@ -64,7 +64,7 @@ class EolStatsDataConnector
             foreach($all_names_in_row as $key => $name)
             {
                 $synonyms = array();
-                $rank = self::$column_ranks[$key];
+                $rank = @self::$column_ranks[$key];
                 if($name_info = $this->parse_name_information($name))
                 {
                     $name = $name_info['name'];
