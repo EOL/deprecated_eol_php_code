@@ -482,6 +482,7 @@ class LifeDeskToScratchpadAPI
 
     private function clean_desc($desc)
     {
+        $desc = str_ireplace(array("<em></em>", "<p>.</p>"), "", $desc);
         $desc = strip_tags($desc, "<br><p><i><em>");
         return $desc;
     }

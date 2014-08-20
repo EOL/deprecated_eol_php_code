@@ -218,6 +218,38 @@ $params["porifera"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/
 $params["porifera"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/porifera/file_importer_image_xls%20(1).xls";
 $params["porifera"]["local"]["name"]              = "porifera";
 // ==================================================================================================
+// sacoglossa remote
+$params["sacoglossa"]["remote"]["lifedesk"]          = "http://sacoglossa.lifedesks.org/eol-partnership.xml.gz";
+$params["sacoglossa"]["remote"]["bibtex_file"]       = "http://sacoglossa.lifedesks.org/biblio/export/bibtex/";
+$params["sacoglossa"]["remote"]["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/sacoglossa/file_importer_image_xls%20(2).xls";
+$params["sacoglossa"]["remote"]["name"]              = "sacoglossa";
+// sacoglossa Dropbox
+$params["sacoglossa"]["dropbox"]["lifedesk"]          = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/sacoglossa/eol-partnership.xml.gz";
+$params["sacoglossa"]["dropbox"]["bibtex_file"]       = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/sacoglossa/Biblio-Bibtex.bib";
+$params["sacoglossa"]["dropbox"]["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/sacoglossa/file_importer_image_xls%20(2).xls";
+$params["sacoglossa"]["dropbox"]["name"]              = "sacoglossa";
+// sacoglossa local
+$params["sacoglossa"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/sacoglossa/eol-partnership.xml.gz";
+$params["sacoglossa"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/sacoglossa/Biblio-Bibtex.bib";
+$params["sacoglossa"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/sacoglossa/file_importer_image_xls (2).xls";
+$params["sacoglossa"]["local"]["name"]              = "sacoglossa";
+// ==================================================================================================
+// buccinids remote
+$params["buccinids"]["remote"]["lifedesk"]          = "http://buccinids.lifedesks.org/eol-partnership.xml.gz";
+$params["buccinids"]["remote"]["bibtex_file"]       = "http://buccinids.lifedesks.org/biblio/export/bibtex/";
+$params["buccinids"]["remote"]["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/buccinids/file_importer_image_xls%20(1).xls";
+$params["buccinids"]["remote"]["name"]              = "buccinids";
+// buccinids Dropbox
+$params["buccinids"]["dropbox"]["lifedesk"]          = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/buccinids/eol-partnership.xml.gz";
+$params["buccinids"]["dropbox"]["bibtex_file"]       = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/buccinids/Biblio-Bibtex.bib";
+$params["buccinids"]["dropbox"]["scratchpad_images"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/buccinids/file_importer_image_xls%20(1).xls";
+$params["buccinids"]["dropbox"]["name"]              = "buccinids";
+// buccinids local
+$params["buccinids"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/buccinids/eol-partnership.xml.gz";
+$params["buccinids"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/buccinids/Biblio-Bibtex.bib";
+$params["buccinids"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/buccinids/file_importer_image_xls%20(1).xls";
+$params["buccinids"]["local"]["name"]              = "buccinids";
+// ==================================================================================================
 
 /* paste here which Lifedesk you want to export: e.g. $parameters = $params["leptogastrinae"]["dropbox"];
 the export files (in .tar.gz) will be found in: DOC_ROOT/tmp/leptogastrinae_LD_to_Scratchpad_export.tar.gz
