@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [819] */
+/* connector: [708] */
 class EnvironmentsEOLDataConnector
 {
     function __construct($folder = null)
@@ -14,6 +14,7 @@ class EnvironmentsEOLDataConnector
         $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->download_options['expire_seconds'] = false; // since taxon_concept_id and hierarchy_entry_id won't change the resulting API response won't also change
         // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/";
+        // $this->download_options['expire_seconds'] = 0;
         // stats
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->need_to_check_tc_id_dump_file = $this->TEMP_DIR . "need_to_check_tc_id.txt";
@@ -75,8 +76,7 @@ class EnvironmentsEOLDataConnector
                 $rec[$fields[$k]] = $t;
                 $k++;
             }
-            $rec["taxon_id"] = str_replace('EOL:', '', $rec["taxon_id"]);
-            // $rec['taxon_id'] = 5120375; //debug
+            // $rec['taxon_id'] = "EOL:7225673"; //debug
             if($taxon = self::prepare_taxon($rec))
             {
                 print_r($taxon);
@@ -84,8 +84,7 @@ class EnvironmentsEOLDataConnector
                 self::create_data($taxon, $rec);
             }
             // if($i >= 31) break; //debug
-            // break; //debug
-        } // end while{}
+        } // end foreach
     }
 
     private function prepare_taxon($rec)
@@ -99,7 +98,7 @@ class EnvironmentsEOLDataConnector
         $taxon_id = $rec["taxon_id"];
         $included_ranks = array("kingdom", "phylum", "class", "order", "family", "genus");
         $taxon = array();
-        $url = "http://eol.org/api/pages/1.0/" . $taxon_id . ".json?images=0&videos=0&sounds=0&maps=0&text=0&iucn=false&subjects=overview&licenses=all&details=true&common_names=false&synonyms=false&references=false&vetted=0&cache_ttl=";
+        $url = "http://eol.org/api/pages/1.0/" . str_replace('EOL:', '', $taxon_id) . ".json?images=0&videos=0&sounds=0&maps=0&text=0&iucn=false&subjects=overview&licenses=all&details=true&common_names=false&synonyms=false&references=false&vetted=0&cache_ttl=";
         $options = $this->download_options;
         if($json = Functions::lookup_with_cache($url, $options))
         {
@@ -191,12 +190,14 @@ class EnvironmentsEOLDataConnector
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                 = $rec['taxon_id'];
         $taxon->scientificName          = $rec['scientificName'];
-        $taxon->furtherInformationURL   = "";
         if(!isset($rec['ancestry'])) self::save_to_dump($taxon->taxonID, $this->need_to_check_tc_id_dump_file);
-        foreach(@$rec['ancestry'] as $rank => $name)
+        else
         {
-            if(!$rank) continue;
-            $taxon->$rank = $name;
+            foreach(@$rec['ancestry'] as $rank => $name)
+            {
+                if(!$rank) continue;
+                $taxon->$rank = $name;
+            }
         }
         echo " - $taxon->scientificName [$taxon->taxonID]";
         if(!isset($this->taxon_ids[$taxon->taxonID]))
@@ -231,7 +232,7 @@ class EnvironmentsEOLDataConnector
         $rec['measurementValue']    = $uri;
         $rec['measurementMethod']   = 'text mining';
         $rec["contributor"]         = '<a href="http://environments-eol.blogspot.com/2013/03/welcome-to-environments-eol-few-words.html">Environments-EOL</a>';
-        $rec["source"]              = "http://eol.org/pages/" . $rec["taxon_id"] . "/details#". $subject;
+        $rec["source"]              = "http://eol.org/pages/" . str_replace('EOL:', '', $rec["taxon_id"]) . "/details#". $subject;
         $rec['measurementRemarks']  = "source text: \"" . $line['text'] . "\"";
         self::add_string_types($rec);
     }
@@ -252,7 +253,7 @@ class EnvironmentsEOLDataConnector
 
     private function add_occurrence($taxon_id, $catnum)
     {
-        $occurrence_id = $taxon_id . $catnum;
+        $occurrence_id = str_replace('EOL:', '', $taxon_id) . $catnum;
         // since all measurements have measurementOfTaxon = 'true' then the occurrence_id will not be used twice
         if(isset($this->occurrence_ids[$occurrence_id])) return false;
         $o = new \eol_schema\Occurrence();
@@ -283,7 +284,7 @@ class EnvironmentsEOLDataConnector
         }
     }
     
-    private function get_dump()
+    private function get_dump() // utility
     {
         $names = array();
         $dump_file = DOC_ROOT . "/temp/need_to_check_tc_id.txt";
@@ -292,6 +293,19 @@ class EnvironmentsEOLDataConnector
             if($line) $names[$line] = "";
         }
         return array_keys($names);
+    }
+
+    function delete_folders_with_corrupt_files() // utility
+    {
+        $folders = array();
+        foreach(new FileIterator(DOC_ROOT . "/temp/cant_delete.txt") as $line_number => $line)
+        {
+            $parts = pathinfo($line);
+            $folders[@$parts["dirname"]] = '';
+        }
+        $folders = array_keys($folders);
+        $folders = array_filter(array_map('trim', $folders));
+        print_r($folders);
     }
 
 }
