@@ -977,7 +977,8 @@ class WikimediaPage
             $role = self::$mediatypes[$mediatype]['role'];
         }
 
-        $this->initialize_data_object($url, $mimetype, $dcmi, $role);
+        if($dcmi) $this->initialize_data_object($url, $mimetype, $dcmi, $role);
+        else echo "\nWill not create object. \n url=[$url], \n mimetype=[$mimetype], \n dcmi=[$dcmi], role=[$role]\n";
     }
 
     private function initialize_categories_from_api_response($json_info, $reference_url)
