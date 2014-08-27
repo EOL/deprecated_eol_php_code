@@ -88,12 +88,13 @@ class BoldsImagesAPIv2
         echo "\n\n total old ids: " . $this->old_bolds_image_ids_count . "\n\n";
     }
 
-    function download_and_extract_remote_file($file = false)
+    function download_and_extract_remote_file($file = false, $use_cache = false)
     {
         if(!$file) $file = $this->data_dump_url; // used when this function is called elsewhere
         $download_options = $this->download_options;
         $download_options['timeout'] = 172800;
         $download_options['file_extension'] = 'xml.gz';
+        if($use_cache) $download_options['cache'] = 1; // this pertains to the generation of higher-level-taxa list
         // $download_options['cache'] = 0; // 0 only when developing //debug - comment in real operation
         $temp_path = Functions::save_remote_file_to_local($file, $download_options);
         echo "\n [$temp_path] \n";
@@ -355,7 +356,7 @@ class BoldsImagesAPIv2
     function generate_higher_level_taxa_list($data_dump_url = false)
     {
         if(!$data_dump_url) $data_dump_url = $this->data_dump_url;
-        $path = self::download_and_extract_remote_file($data_dump_url);
+        $path = self::download_and_extract_remote_file($data_dump_url, true); // true means it will use cache
         echo "\n xml file: [$path] \n";
         $reader = new \XMLReader();
         $reader->open($path);
