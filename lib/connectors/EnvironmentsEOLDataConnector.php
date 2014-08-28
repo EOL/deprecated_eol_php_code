@@ -79,7 +79,7 @@ class EnvironmentsEOLDataConnector
             // $rec['taxon_id'] = "EOL:7225673"; //debug
             if($taxon = self::prepare_taxon($rec))
             {
-                print_r($taxon);
+                print_r($taxon); // good thing to show
                 self::create_instances_from_taxon_object($taxon);
                 self::create_data($taxon, $rec);
             }
@@ -111,7 +111,7 @@ class EnvironmentsEOLDataConnector
                 $match = true;
                 if($he_id = $tc['identifier'])
                 {
-                    echo "\n chosen tc: [$he_id]\n";
+                    // echo "\n chosen tc: [$he_id]\n";
                     $taxon['taxon_id']       = $taxon_id;
                     $taxon['scientificName'] = $tc['scientificName']; // this is equal to $sciname
                     $taxon['rank']           = @$tc['taxonRank'];
@@ -228,7 +228,7 @@ class EnvironmentsEOLDataConnector
         $rec["taxon_id"]            = $line['taxon_id'];
         $rec["catnum"]              = "_" . str_replace(" ", "_", $line['text']);
         $rec['measurementOfTaxon']  = "true";
-        $rec['measurementType']     = "http://eol.org/schema/terms/Habitat";
+        $rec['measurementType']     = "http://rs.tdwg.org/dwc/terms/habitat";
         $rec['measurementValue']    = $uri;
         $rec['measurementMethod']   = 'text mining';
         $rec["contributor"]         = '<a href="http://environments-eol.blogspot.com/2013/03/welcome-to-environments-eol-few-words.html">Environments-EOL</a>';
