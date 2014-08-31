@@ -41,6 +41,8 @@ class IrmngAPI
         $this->source_links["species"] = "http://www.marine.csiro.au/mirrorsearch/ir_search.go?groupchoice=any&cSub=Check+species+name%28s%29&match_type=normal&response_format=html&searchtxt=";
         $this->taxa_ids_with_blank_taxonomicStatus = array();
 
+        $this->download_options = array('timeout' => 172800, 'download_attempts' => 2, 'delay_in_minutes' => 2);
+        $this->debug = array();
         /*
         // utility 1 of 2 - saving to dump file
         // $this->TEMP_DIR = create_temp_dir() . "/";
@@ -66,6 +68,12 @@ class IrmngAPI
         if(!self::load_zip_contents()) return;
         print_r($this->text_path);
         self::csv_to_array($this->text_path["IRMNG_DWC"], "classification");
+        /* stats
+        // $a = array_keys($this->debug["TAXONOMICSTATUS"]);
+        // $b = array_keys($this->debug["NOMENCLATURALSTATUS"]);
+        // $c = array_keys($this->debug["TAXONRANK"]);
+        // print_r($this->debug);
+        */
         self::csv_to_array($this->text_path["IRMNG_DWC_SP_PROFILE"], "extant_habitat_data");
         $this->archive_builder->finalize(TRUE);
         self::remove_temp_dir();
@@ -109,6 +117,13 @@ class IrmngAPI
                     $k++;
                 }
                 
+                /* stats
+                $this->debug["TAXONOMICSTATUS"][$rec["TAXONOMICSTATUS"]] = '';
+                $this->debug["NOMENCLATURALSTATUS"][$rec["NOMENCLATURALSTATUS"]] = '';
+                $this->debug["TAXONRANK"][$rec["TAXONRANK"]] = '';
+                continue;
+                */
+                
                 if(in_array($type, array("get_taxa_ids_with_data", "extant_habitat_data"))) $taxon_id = $rec["TAXON_ID"];
                 else                                                                        $taxon_id = $rec["TAXONID"];
                 
@@ -129,6 +144,31 @@ class IrmngAPI
 
     private function create_instances_from_taxon_object($rec)
     {
+        // if($rec["TAXONOMICSTATUS"] == "") return; --- commented this bec. it created many orphans, thus breaking the tree
+        if($rec["TAXONOMICSTATUS"] != "valid")
+        {
+            if(is_numeric(stripos($rec["TAXONREMARKS"], "nomen nudum"))) return; // taxon excluded
+            if(is_numeric(stripos($rec["TAXONREMARKS"], "unavailable name"))) return; // taxon excluded
+        }
+        if($rec["TAXONOMICSTATUS"] == "synonym")
+        {
+            if($rec["TAXONRANK"] != "species") return; // won't get synonyms for level higher than species
+            /* stats
+            if(isset($this->debug['syn'][$rec["NOMENCLATURALSTATUS"]])) $this->debug['syn'][$rec["NOMENCLATURALSTATUS"]]++;
+            else                                                        $this->debug['syn'][$rec["NOMENCLATURALSTATUS"]] = 1;
+            [syn] => [] => 485688
+                     [orthographia] => 21539
+            */
+        }
+        /* stats
+        if(isset($this->debug['s'][$rec["TAXONOMICSTATUS"]])) $this->debug['s'][$rec["TAXONOMICSTATUS"]]++;
+        else                                                  $this->debug['s'][$rec["TAXONOMICSTATUS"]] = 1;
+        $temp = $rec["TAXONOMICSTATUS"]."_".$rec["NOMENCLATURALSTATUS"];
+        if(isset($this->debug[$temp])) $this->debug[$temp]++;
+        else                           $this->debug[$temp] = 1;
+        return;
+        */
+        
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                  = $rec["TAXONID"];
         if($val = trim($rec["SCIENTIFICNAMEAUTHORSHIP"])) $taxon->scientificName = str_replace($val, "", $rec["SCIENTIFICNAME"]);
@@ -142,25 +182,24 @@ class IrmngAPI
         $taxon->namePublishedIn          = $rec["NAMEPUBLISHEDIN"];
         $taxon->scientificNameAuthorship = $rec["SCIENTIFICNAMEAUTHORSHIP"];
         $taxon->parentNameUsageID        = $rec["PARENTNAMEUSAGEID"];
+        if($rec["TAXONID"] != $rec["ACCEPTEDNAMEUSAGEID"]) $taxon->acceptedNameUsageID = $rec["ACCEPTEDNAMEUSAGEID"];
 
         // used so that MeasurementOrFact will have source link
         if(!in_array($taxon->taxonRank, array("family", "genus"))) $this->names[$taxon->taxonID]["n"] = $taxon->scientificName; // save only K,P,C,O & S; excludes family & genus
         $this->names[$taxon->taxonID]["r"] = $taxon->taxonRank;
 
         $this->archive_builder->write_object_to_file($taxon);
-        return true;
         
         /* allowed in EOL, but IRMNG doesn't have these 2 fields:
             http://rs.tdwg.org/ac/terms/furtherInformationURL
             http://eol.org/schema/media/referenceID
         
-        not allowed in EOL, but IRMNG have these 8 fields:
+        not allowed in EOL, but IRMNG have these 7 fields:
             $taxon->specificEpithet          = $rec["SPECIFICEPITHET"];
             $taxon->nomenclaturalStatus      = $rec["NOMENCLATURALSTATUS"];
             $taxon->nameAccordingTo          = $rec["NAMEACCORDINGTO"];
             $taxon->parentNameUsage          = $rec["PARENTNAMEUSAGE"];
             $taxon->originalNameUsageID      = $rec["ORIGINALNAMEUSAGEID"];
-            $taxon->acceptedNameUsageID      = $rec["ACCEPTEDNAMEUSAGEID"];
             $taxon->modified                 = $rec["MODIFIED"];
             $taxon->nomenclaturalCode        = $rec["NOMENCLATURALCODE"];
         */
@@ -236,7 +275,9 @@ class IrmngAPI
     private function load_zip_contents()
     {
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
-        if($file_contents = Functions::get_remote_file($this->zip_path, array('timeout' => 999999, 'download_attempts' => 2, 'delay_in_minutes' => 2)))
+        $options = $this->download_options;
+        $options['timeout'] = 999999;
+        if($file_contents = Functions::get_remote_file($this->zip_path, $options))
         {
             $parts = pathinfo($this->zip_path);
             $temp_file_path = $this->TEMP_FILE_PATH . "/" . $parts["basename"];
@@ -273,7 +314,9 @@ class IrmngAPI
         $names_with_blank_status_but_with_eol_page = self::get_names_with_blank_status_but_with_eol_page();
         $taxa_ids = array();
         // [taxa_with_blank_status_dump_file] was generated by a utility function
-        if($filename = Functions::save_remote_file_to_local($this->taxa_with_blank_status_dump_file, array('timeout' => 172800, 'download_attempts' => 2, 'delay_in_minutes' => 2)))
+        $options = $this->download_options;
+        $options['cache'] = 1;
+        if($filename = Functions::save_remote_file_to_local($this->taxa_with_blank_status_dump_file, $options))
         {
             foreach(new FileIterator($filename) as $line_number => $line)
             {
@@ -294,7 +337,9 @@ class IrmngAPI
     private function get_names_with_blank_status_but_with_eol_page()
     {
         $names = array();
-        if($filename = Functions::save_remote_file_to_local($this->taxa_with_blank_status_but_with_eol_page_dump_file, array('timeout' => 172800, 'download_attempts' => 2, 'delay_in_minutes' => 2)))
+        $options = $this->download_options;
+        $options['cache'] = 1;
+        if($filename = Functions::save_remote_file_to_local($this->taxa_with_blank_status_but_with_eol_page_dump_file, $options))
         {
             foreach(new FileIterator($filename) as $line_number => $line)
             {
@@ -308,7 +353,7 @@ class IrmngAPI
     /*
     public function get_taxa_without_status_but_with_eol_page() // utility
     {
-        $filename = Functions::save_remote_file_to_local($this->taxa_with_blank_status_dump_file, array('timeout' => 172800, 'download_attempts' => 2, 'delay_in_minutes' => 2)); // this was generated by a utility function
+        $filename = Functions::save_remote_file_to_local($this->taxa_with_blank_status_dump_file, $this->download_options); // this was generated by a utility function
         $eol_api = "http://eol.org/api/search/1.0.json?exact=true&q=";
         $download_options = array('download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1); //, 'expire_seconds' => 0);
         $i = 0;
