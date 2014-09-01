@@ -112,6 +112,16 @@ class LifeDeskToScratchpadAPI
         $dump_file = $parts["dirname"] . "/images_not_in_xls.txt";
 
         $xml = simplexml_load_file($this->text_path["eol_xml"]);
+        if(!$xml)
+        {
+            $xml = file_get_contents($this->text_path["eol_xml"]);
+            $xml = str_replace("", "", $xml);
+            if(!$xml = simplexml_load_string($xml))
+            {
+                echo "\nLifeDesk XML is invalid\n";
+                return;
+            }
+        }
         $i = 0;
         foreach($xml->taxon as $t)
         {

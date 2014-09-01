@@ -16,6 +16,14 @@ There are 7 instances where an image dataObject id is repeated (used twice), but
     warning: has duplicates do_id: [150140-1.jpg][Platostoma strictum (Hiern) A.J. Paton]
     warning: has duplicates do_id: [150140-2.jpg][Platostoma strictum (Hiern) A.J. Paton]
     warning: has duplicates do_id: [150140-3.jpg][Platostoma strictum (Hiern) A.J. Paton]
+    
+taxon:      11082   11435
+reference:  4659    7738
+synonym:    5194    6128
+commonName: 4574    5386
+texts:      28110   30028
+images:     12129   17938
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

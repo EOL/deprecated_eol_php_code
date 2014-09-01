@@ -79,7 +79,7 @@ class EnvironmentsEOLDataConnector
             // $rec['taxon_id'] = "EOL:7225673"; //debug
             if($taxon = self::prepare_taxon($rec))
             {
-                print_r($taxon); // good thing to show
+                // print_r($taxon); // good thing to show
                 self::create_instances_from_taxon_object($taxon);
                 self::create_data($taxon, $rec);
             }
@@ -295,7 +295,7 @@ class EnvironmentsEOLDataConnector
         return array_keys($names);
     }
 
-    function delete_folders_with_corrupt_files() // utility
+    function list_folders_with_corrupt_files() // utility
     {
         $folders = array();
         foreach(new FileIterator(DOC_ROOT . "/temp/cant_delete.txt") as $line_number => $line)

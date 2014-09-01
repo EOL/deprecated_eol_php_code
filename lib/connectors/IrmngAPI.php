@@ -103,7 +103,7 @@ class IrmngAPI
         while(!feof($file))
         {
             $i++;
-            echo "\n [$type] $i - ";
+            if(($i % 50000) == 0) echo "\n [$type] $i - ";
             if($i == 1) $fields = fgetcsv($file);
             else
             {
@@ -173,7 +173,6 @@ class IrmngAPI
         $taxon->taxonID                  = $rec["TAXONID"];
         if($val = trim($rec["SCIENTIFICNAMEAUTHORSHIP"])) $taxon->scientificName = str_replace($val, "", $rec["SCIENTIFICNAME"]);
         else                                              $taxon->scientificName = $rec["SCIENTIFICNAME"];
-        echo " - " . $taxon->scientificName . " [$taxon->taxonID]";
         $taxon->family                   = $rec["FAMILY"];
         $taxon->genus                    = $rec["GENUS"];
         $taxon->taxonRank                = $rec["TAXONRANK"];
