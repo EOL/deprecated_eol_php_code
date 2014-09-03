@@ -14,10 +14,10 @@ class FishBaseAPI
     public function __construct($test_run = false)
     {
         $this->test_run = $test_run;
-        // $this->fishbase_data = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/fishbase_in_folder.zip";
-        // $this->fishbase_data = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/FishBase/fishbase_not_in_folder.zip";
+        // $this->fishbase_data = "http://localhost/~eolit/cp/FishBase/fishbase_in_folder.zip";
+        // $this->fishbase_data = "http://localhost/~eolit/cp/FishBase/fishbase_not_in_folder.zip";
         // $this->fishbase_data = "http://localhost/~eolit/mtce2/GenerateEOLdata_from_stacy/GenerateEOLdata/txt/Archive.zip";
-        // $this->fishbase_data = "http://localhost/~eolit/fishbase.zip";
+        // $this->fishbase_data = "http://localhost/~eolit/cp/FishBase/fishbase.zip";
         $this->fishbase_data = "http://www.fishbase.us/FB_data_for_EOL/fishbase.zip";
         if($this->test_run) $this->fishbase_data = "http://dl.dropbox.com/u/7597512/FishBase/fishbase_not_in_folder.zip";
         $this->TAXON_PATH                       = "";
@@ -175,7 +175,9 @@ class FishBaseAPI
                 if(!$fields) $fields = array_map('trim', $values);
                 foreach($fields as $field)
                 {
-                    if(!in_array("$i", $excluded_fields) && !in_array($field, $excluded_fields))
+                    if(is_int(@$excluded_fields[0])) $compare = $i;
+                    else                             $compare = $field;
+                    if(!in_array($compare, $excluded_fields))
                     {
                         $temp[$field] = trim(@$values[$i]);
                         $included_fields[$field] = 1;
