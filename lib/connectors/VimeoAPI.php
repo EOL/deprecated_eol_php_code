@@ -34,7 +34,7 @@ class VimeoAPI
             $count_of_videos = 0;
             while($page == 1 || $count_of_videos == 50) //if $count_of_videos < 50 it means that this current page is the last page; default per_page = 50
             {
-                sleep(3);
+                sleep(1);
                 if($return = self::vimeo_call_with_retry($vimeo, 'vimeo.videos.getUploaded', array('user_id' => $user_id, 'page' => $page, "full_response" => true)))
                 {
                     $count_of_videos = count($return->videos->video);
@@ -82,7 +82,10 @@ class VimeoAPI
             debug("\npage: $page");
             $return = self::vimeo_call_with_retry($vimeo, 'vimeo.groups.getMembers', array('group_id' => "encyclopediaoflife", 'page' => $page, 'per_page' => 20));
             debug(" - " . count($return->members->member) . " members");
-            foreach($return->members->member as $member) $user_ids[(string) $member->id] = 1;
+            $loop = array();
+            if(count($return->members->member) == 1) $loop[] = $return->members->member;
+            else                                     $loop = $return->members->member;
+            foreach($loop as $member) $user_ids[(string) $member->id] = 1;
             $page++;
         }
         //get the moderators of the group
@@ -415,7 +418,7 @@ class VimeoAPI
 
     function get_license_from_page($video_page_url)
     {
-        $html = Functions::get_remote_file($video_page_url);
+        $html = Functions::lookup_with_cache($video_page_url, array('expire_seconds' => 1296000)); // 15 days until cache expires
         if(preg_match("/<a href=\"http:\/\/creativecommons.org\/licenses\/(.*?)\//ims", $html, $matches)) return self::get_cc_license("cc-" . trim($matches[1]));
         return false;
     }
