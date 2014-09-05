@@ -157,8 +157,9 @@ class LifeDeskToScratchpadAPI
                     }
                     else
                     {
-                        echo "\n alert: no guid [$filename]\n"; // this means that an image file in XML is not found in the image XLS submitted by SPG
-                        self::save_to_dump($sciname . "\t" . $filename, $dump_file);
+                        echo "\n alert: no guid [$filename][$t_dc2->identifier]\n"; // this means that an image file in XML is not found in the image XLS submitted by SPG
+                        self::save_to_dump($sciname . "\t" . $t_dc2->identifier . "\t" . $filename, $dump_file);
+                        exit("\n-stopped- Will need to notify SPG\n");
                     }
                     
                     self::save_to_template($rec, $this->text_path["image"], "image");
@@ -271,7 +272,9 @@ class LifeDeskToScratchpadAPI
     {
         if($dc->source && $do->mediaURL)
         {
-            if($html = Functions::lookup_with_cache($dc->source, $this->download_options))
+            $options = $this->download_options;
+            $options['expire_seconds'] = false; // lookup to LifeDesk page should not expire unless requested to have a fresh export to scratchpad
+            if($html = Functions::lookup_with_cache($dc->source, $options))
             {
                 $image_extension = self::get_image_extension($do->mimeType);
                 $str = ".preview." . $image_extension;

@@ -23,7 +23,7 @@ class ConservationBiologyTurtlesAPI
 
     private function prepare_taxa_urls()
     {
-        if($html = Functions::get_remote_file($this->turtles_site, array('download_wait_time' => 1000000, 'timeout' => 240, 'download_attempts' => 5)))
+        if($html = Functions::lookup_with_cache($this->turtles_site, array('download_wait_time' => 1000000, 'timeout' => 240, 'download_attempts' => 5)))
         {
             if(preg_match_all("/href=\"http:\/\/www.iucn\-tftsg\.org\/cbftt\/toc\-ind\/toc\/(.*?)<\/a>/ims", $html, $arr))
             {
@@ -121,6 +121,7 @@ class ConservationBiologyTurtlesAPI
             debug("\n $i of $total");
             // if($record['url'] != "http://www.iucn-tftsg.org/cbftt/kinosternon-scorpioides-albogulare-064") continue; //debug
             self::prepare_data($record);
+            // if($i >= 10) break; // debug
         }
         $this->create_archive();
     }
@@ -129,7 +130,7 @@ class ConservationBiologyTurtlesAPI
     {
         $descriptions = array();
         debug("\n\n" . " - " . $rec['sciname'] . " - " . $rec['taxonID'] . " - " . $rec['url'] . "\n");
-        if($html = Functions::get_remote_file($rec['url'], array('download_wait_time' => 3000000, 'timeout' => 240, 'download_attempts' => 5)))
+        if($html = Functions::lookup_with_cache($rec['url'], array('download_wait_time' => 3000000, 'timeout' => 240, 'download_attempts' => 5)))
         {
             $html = str_ireplace("www.iucn&ndash;tftsg.org", "www.iucn-tftsg.org", $html);
             $agent_ids = self::get_object_agents($html, $rec);
