@@ -12,8 +12,17 @@ require_library('connectors/ConabioAPI');
 $resource_id = 106;
 $func = new ConabioAPI();
 $func->combine_all_xmls($resource_id);
+$resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
 
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 1000)
+// /* working well - replaces Class='Insecta' to 'Reptilia' if Order=='Squamata' --- WEB-5509
+require_library('ResourceDataObjectElementsSetting');
+$func = new ResourceDataObjectElementsSetting($resource_id, $resource_path);
+$xml = file_get_contents($resource_path);
+$xml = $func->replace_taxon_element_value_with_condition("dwc:Class", "Insecta", "Reptilia", $xml, "dwc:Order", "Squamata");
+$func->save_resource_document($xml);
+// */
+
+if(filesize($resource_path) > 1000)
 {
     Functions::set_resource_status_to_force_harvest($resource_id);
     $command_line = "gzip -c " . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml >" . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml.gz";

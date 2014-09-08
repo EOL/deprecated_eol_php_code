@@ -173,12 +173,16 @@ class ResourceDataObjectElementsSetting
     {
         if(substr($field,0,3) == "dc:")             return $dataObject->children("http://purl.org/dc/elements/1.1/");
         elseif(substr($field,0,8) == "dcterms:")    return $dataObject->children("http://purl.org/dc/terms/");
+        elseif(substr($field,0,4) == "dwc:")        return $dataObject->children("http://rs.tdwg.org/dwc/dwcore/");
         else                                        return $dataObject;
     }
 
     function get_field_name($field)
     {
-        if(substr($field,0,3) == "dc:" || substr($field,0,8) == "dcterms:") return str_ireplace(array("dc:", "dcterms:"), "", $field);
+        if(substr($field,0,3) == "dc:" || 
+           substr($field,0,8) == "dcterms:" ||
+           substr($field,0,4) == "dwc:"
+           ) return str_ireplace(array("dc:", "dcterms:", "dwc:"), "", $field);
         return $field;
     }
 
@@ -227,6 +231,41 @@ class ResourceDataObjectElementsSetting
             $xml_string = str_ireplace(array("<taxon></taxon>", "<taxon/>"), "", $xml_string);
             return $xml_string;
         }
+    }
+
+    public function replace_taxon_element_value_with_condition($field, $old_value, $new_value, $xml_string, $condition_field, $condition_value, $compare = true)
+    {
+        /* e.g. working well e.g 106.php
+            This will replace all <dwc:Class> elements with original value of "Insecta" to "Reptilia" only if <dwc:Order> is "Squamata"
+            replace_taxon_element_value_with_condition("dwc:Class", "Insecta", "Reptilia", $xml, "dwc:Order", "Squamata");
+        */
+        $xml = simplexml_load_string($xml_string);
+        debug("replace_taxon_element_value_with_condition " . count($xml->taxon) . "-- please wait...");
+        foreach($xml->taxon as $taxon)
+        {
+            $t = self::get_dataObject_namespace($field, $taxon);
+            $use_field = self::get_field_name($field);
+            if($compare)
+            {
+                if(@$t->$use_field == $old_value)
+                {
+                    $condition_do = self::get_dataObject_namespace($condition_field, $taxon);
+                    $use_condition_field = self::get_field_name($condition_field);
+                    if(trim(@$condition_do->$use_condition_field) == $condition_value)
+                    {
+                        $t->$use_field = $new_value; // here is where the assignment operation takes place -- if $compare == true
+                    }
+                }
+            }
+            else
+            {
+                $condition_do = self::get_dataObject_namespace($condition_field, $taxon);
+                $use_condition_field = self::get_field_name($condition_field);
+                if(trim(@$condition_do->$use_condition_field) == $condition_value) $t->$use_field = $new_value;
+            }
+        }
+        debug("replace_taxon_element_value_with_condition -- done.");
+        return $xml->asXML();
     }
 
 }
