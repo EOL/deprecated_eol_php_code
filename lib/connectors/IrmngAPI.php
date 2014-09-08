@@ -52,6 +52,7 @@ class IrmngAPI
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->taxa_with_blank_status_but_with_eol_page_dump_file = $this->TEMP_DIR . "taxa_with_blank_status_but_with_eol_page.txt";
         */
+        $this->list_of_taxon_ids = array();
     }
 
     function get_irmng_families() // utility for WEB-5220 Comparison of FALO classification to others that we have
@@ -67,6 +68,7 @@ class IrmngAPI
     {
         if(!self::load_zip_contents()) return;
         print_r($this->text_path);
+        self::csv_to_array($this->text_path["IRMNG_DWC"], "classification2"); // to get the list of taxon_ids
         self::csv_to_array($this->text_path["IRMNG_DWC"], "classification");
         /* stats
         // $a = array_keys($this->debug["TAXONOMICSTATUS"]);
@@ -116,7 +118,7 @@ class IrmngAPI
                     $rec[$fields[$k]] = $t;
                     $k++;
                 }
-                
+                $rec = array_map('trim', $rec);
                 /* stats
                 $this->debug["TAXONOMICSTATUS"][$rec["TAXONOMICSTATUS"]] = '';
                 $this->debug["NOMENCLATURALSTATUS"][$rec["NOMENCLATURALSTATUS"]] = '';
@@ -130,6 +132,7 @@ class IrmngAPI
                 if(isset($taxa_ids_with_blank_taxonomicStatus[$taxon_id])) continue;
                 
                 if    ($type == "classification")           $this->create_instances_from_taxon_object($rec);
+                elseif($type == "classification2")          self::get_list_of_taxon_ids($rec);
                 elseif($type == "extant_habitat_data")      self::process_profile($rec);
                 elseif($type == "families")
                 {
@@ -142,6 +145,23 @@ class IrmngAPI
         if($type == "families") return array_unique($records);
     }
 
+    private function get_list_of_taxon_ids($rec)
+    {
+        if($rec["TAXONOMICSTATUS"] != "valid")
+        {
+            if(is_numeric(stripos($rec["TAXONREMARKS"], "nomen nudum"))) return; // taxon excluded
+            if(is_numeric(stripos($rec["TAXONREMARKS"], "unavailable name"))) return; // taxon excluded
+        }
+        if($rec["TAXONOMICSTATUS"] == "synonym")
+        {
+            if($rec["TAXONRANK"] != "species")  return; // won't get synonyms for level higher than species
+            if(!$rec["TAXONRANK"])              return; // won't get synonyms for blank ranks
+            if(!$rec["ACCEPTEDNAMEUSAGEID"])    return; // won't get synonyms for blank acceptedNameUsageID
+        }
+        $this->list_of_taxon_ids[$rec["TAXONID"]] = '';
+    }
+
+
     private function create_instances_from_taxon_object($rec)
     {
         // if($rec["TAXONOMICSTATUS"] == "") return; --- commented this bec. it created many orphans, thus breaking the tree
@@ -152,7 +172,10 @@ class IrmngAPI
         }
         if($rec["TAXONOMICSTATUS"] == "synonym")
         {
-            if($rec["TAXONRANK"] != "species") return; // won't get synonyms for level higher than species
+            if($rec["TAXONRANK"] != "species")  return; // won't get synonyms for level higher than species
+            if(!$rec["TAXONRANK"])              return; // won't get synonyms for blank ranks
+            if(!$rec["ACCEPTEDNAMEUSAGEID"])    return; // won't get synonyms for blank acceptedNameUsageID
+            if(!isset($this->list_of_taxon_ids[$rec["ACCEPTEDNAMEUSAGEID"]])) return; // won't get a synonym if acceptedNameUsageID doesn't exist
             /* stats
             if(isset($this->debug['syn'][$rec["NOMENCLATURALSTATUS"]])) $this->debug['syn'][$rec["NOMENCLATURALSTATUS"]]++;
             else                                                        $this->debug['syn'][$rec["NOMENCLATURALSTATUS"]] = 1;
@@ -168,6 +191,14 @@ class IrmngAPI
         else                           $this->debug[$temp] = 1;
         return;
         */
+        
+        /* changes as of 7-Sep-2014
+        - if taxon_rank is genus -- then let genus entry be blank
+        - if taxon_rank is family -- then let family entry be blank
+        - if taxon is a synonym but if acceptedNameUsageID doesn't exist then ignore the taxon
+        */
+        if($rec["TAXONRANK"] == 'genus') $rec["GENUS"] = "";
+        if($rec["TAXONRANK"] == 'family') $rec["FAMILY"] = "";
         
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                  = $rec["TAXONID"];
@@ -219,7 +250,6 @@ class IrmngAPI
 
     private function process_profile($record)
     {
-        echo " - " . $record["TAXON_ID"];
         $rec = array();
         $rec["taxon_id"] = $record["TAXON_ID"];
         if(isset($this->names[$record["TAXON_ID"]]))

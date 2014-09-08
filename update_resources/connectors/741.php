@@ -4,10 +4,11 @@ namespace php_active_record;
    execution time: 2.23 hours; 2,032,569 records to process
 
             excl '' status  fixed parent-child
-as of:      Aug28           Aug31
-taxon       1,925,615       1,933,060
-occurrence  3,938,768       3,938,768
-measurement 3,938,768       3,938,768
+as of:      Aug28       Aug31       Sep7
+taxon       1,925,615   1,933,060   1,878,575
+occurrence  3,938,768   3,938,768   3,938,768
+measurement 3,938,768   3,938,768   3,938,768
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
