@@ -20,30 +20,33 @@ class SoundcloudAPI
         $this->EOL_group_id = "60615";
         $this->soundcloud_domain = "http://api.soundcloud.com";
         $this->EOL_members = $this->soundcloud_domain . "/groups/" . $this->EOL_group_id . "/members?client_id=" . $this->soundcloud_api_client_id;
+        $this->download_options = array('expire_seconds' => 518400, 'download_wait_time' => 1000000, 'timeout' => 300, 'download_attempts' => 2, 'delay_in_minutes' => 1);
+        // since soundcloud is harvested weekly, i've set cache to expire every 6 days = 518400
     }
 
     function get_all_taxa()
     {
-        $inaccessible_tries = 0;
         $all_taxa = array();
         $used_collection_ids = array();
         $user_ids = self::get_list_of_user_ids();
         $count_of_users = count($user_ids);
         $i = 0;
+        $options = $this->download_options;
+        $options['download_wait_time'] = 3000000;
         foreach($user_ids as $user_id)
         {
             $i++;
             $offset = 0;
-            $limit = 100;
+            $limit = 50;
             $audio_list_url = $this->soundcloud_domain . "/users/" . $user_id . "/tracks?client_id=" . $this->soundcloud_api_client_id . "&limit=$limit&offset=$offset&downloadable=true";
             debug("\n audio_list_url: " . $audio_list_url);
             $count_of_tracks = 0;
             $page = 1;
             while($page == 1 || $count_of_tracks > 0)
             {
-                if($xml = Functions::get_hashed_response($audio_list_url, array('download_wait_time' => 5000000, 'timeout' => 240, 'download_attempts' => 5)))
+                if($xml = Functions::lookup_with_cache($audio_list_url, $options))
                 {
-                    $inaccessible_tries = 0;
+                    $xml = simplexml_load_string($xml);
                     $count_of_tracks = count($xml->track);
                     $j = 0;
                     foreach($xml->track as $track)
@@ -56,13 +59,6 @@ class SoundcloudAPI
                         if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
                     }
                 }
-                // else
-                // {
-                //     sleep(30);
-                //     $inaccessible_tries++;
-                //     if($inaccessible_tries > 3) return $all_taxa; // whatever is stored in $all_taxa
-                //     continue;
-                // }
                 $page++;
                 $offset += $limit;
                 $audio_list_url = $this->soundcloud_domain . "/users/" . $user_id . "/tracks?client_id=" . $this->soundcloud_api_client_id . "&limit=$limit&offset=$offset&downloadable=true";
@@ -76,19 +72,26 @@ class SoundcloudAPI
         // return array("30860816", "5810611"); // Laura F. [5810611], Eli Agbayani [30860816] , (User: [70505] - Ben Fawkes) has 100+ audio files
         $user_ids = array();
         debug("\n Getting all members... " . $this->EOL_members);
-        if($xml = Functions::get_hashed_response($this->EOL_members, array('download_wait_time' => 1000000, 'timeout' => 240, 'download_attempts' => 5)))
+        $offset = 0;
+        while(true)
         {
-            debug("\n members: " . count($xml->user));
-            foreach($xml->user as $user)
+            if($xml = Functions::lookup_with_cache($this->EOL_members . "&offset=$offset", $this->download_options))
             {
-                $user_ids[(string) $user->id] = 1;
-                debug("\n $user->username [$user->id]");
+                $offset += 50; 
+                $xml = simplexml_load_string($xml);
+                debug("\n members: " . count($xml->user));
+                if(!$xml->user) break;
+                foreach($xml->user as $user)
+                {
+                    $user_ids[(string) $user->id] = 1;
+                    debug("\n $user->username [$user->id]");
+                }
             }
-        }
-        else
-        {
-            debug("\n Connector terminated. Down: " . $this->EOL_members . "\n");
-            return array();
+            else
+            {
+                debug("\n Connector terminated. Down: " . $this->EOL_members . "\n");
+                return array();
+            }
         }
         return array_keys($user_ids);
     }

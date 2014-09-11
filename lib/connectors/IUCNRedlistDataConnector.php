@@ -398,6 +398,7 @@ class IUCNRedlistDataConnector
         return $text_path;
     }
 
+    /*
     private function get_species_list_export_file() // not currently used
     {
         if($html = Functions::lookup_with_cache(self::IUCN_DOMAIN . self::IUCN_EXPORT_DOWNLOAD_PAGE, $this->download_options))
@@ -406,7 +407,6 @@ class IUCNRedlistDataConnector
             if(preg_match("/<li><a href=\"\/search\/download\/(.*?)\">Comma-Separated Values/ims", $html, $arr))
             {
                 // must login
-                /*
                 <form action="/users/sign_in" class="formtastic user" id="new_user" method="post" novalidate="novalidate">
                 <input name="utf8" type="hidden" value="✓">
                 <input name="authenticity_token" type="hidden" value="zU0AeC1jKqea4XxZ38cV6VMQgLtBjvFyGd7EhnOkTgM=">
@@ -416,7 +416,7 @@ class IUCNRedlistDataConnector
                 <input id="user_remember_me" name="user[remember_me]" type="checkbox" value="1">Remember me</label>
                 <input name="commit" type="submit" value="Login">
                 </form>
-                */
+
                 $authenticity_token = self::get_token();
                 $url = "http://www.iucnredlist.org/users/sign_in";
                 $params = array("user[email]" => "eli@eol.org", "user[password]" => "jijamali", "authenticity_token" => $authenticity_token, 
@@ -441,6 +441,7 @@ class IUCNRedlistDataConnector
             }
         }
     }
+    */
 
 }
 ?>
