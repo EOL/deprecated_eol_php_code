@@ -14,7 +14,7 @@ $resource_id = 71;
 $w = new WikimediaHarvester(Resource::find($resource_id));
 $w->begin_wikimedia_harvest("update_resources/connectors/files/");
 
-sleep(120) // delay 2 mins.
+sleep(120); // delay 2 mins.
 require_library('ResourceDataObjectElementsSetting');
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
 $func = new ResourceDataObjectElementsSetting($resource_id, $resource_path);
