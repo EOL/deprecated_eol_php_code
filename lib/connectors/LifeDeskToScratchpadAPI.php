@@ -399,8 +399,9 @@ class LifeDeskToScratchpadAPI
                         {
                             if(is_numeric(stripos($item, "keywords = {")) && @$this->booklet_taxa_list[$id])
                             {
+                                $this->booklet_taxa_list[$id] = self::enclose_array_values_with_quotes($this->booklet_taxa_list[$id]);
                                 echo "\n[$item]\n";
-                                $item = str_replace("}", ", " . implode(", ", array_keys($this->booklet_taxa_list[$id]))."}", $item);
+                                $item = str_replace("}", ", " . implode(", ", $this->booklet_taxa_list[$id])."}", $item);
                                 echo "\ninserted:";
                                 echo "\n[$item]\n";
                                 $rec[$i] = $item;
@@ -411,7 +412,8 @@ class LifeDeskToScratchpadAPI
                     }
                     if(!$with_keyword && @$this->booklet_taxa_list[$id])
                     {
-                        $rec[] = "keywords = {" . implode(", ", array_keys($this->booklet_taxa_list[$id])) . "}" . chr(10) . "}" . "\n";
+                        $this->booklet_taxa_list[$id] = self::enclose_array_values_with_quotes($this->booklet_taxa_list[$id]);
+                        $rec[] = "keywords = {" . implode(", ", $this->booklet_taxa_list[$id]) . "}" . chr(10) . "}" . "\n";
                         $rec[$i-1] = str_replace(chr(10), "", $rec[$i-1]);
                         $rec[$i-1] = substr($rec[$i-1], 0, strlen($rec[$i-1])-1);
                         $rec[$i-1] .= "," . chr(10);
@@ -424,6 +426,18 @@ class LifeDeskToScratchpadAPI
             }
         }
         else echo "\n investigate: [$file] not found... \n";
+    }
+
+    private function enclose_array_values_with_quotes($arr)
+    {
+        $arr = array_keys($arr);
+        $i = 0;
+        foreach($arr as $r)
+        {
+            $arr[$i] = '"' . $r . '"';
+            $i++;
+        }
+        return $arr;
     }
     
     private function save_to_template($rec, $filename, $type)

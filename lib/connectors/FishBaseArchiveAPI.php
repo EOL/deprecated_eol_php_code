@@ -114,7 +114,8 @@ class FishBaseArchiveAPI
                 $taxon = new \eol_schema\Taxon();
                 $taxon->taxonID             = md5($s['synonym']);
                 $taxon->scientificName      = utf8_encode($s['synonym']);
-                $taxon->acceptedNameUsageID = $this->taxa_ids[$taxon_id];
+                if($val = @$this->taxa_ids[$taxon_id]) $taxon->acceptedNameUsageID = $val;
+                else continue;
                 if($s['relationship'] == 'valid name') $s['relationship'] = 'synonym';
                 if(strtolower($s['relationship']) != 'xxx') $taxon->taxonomicStatus = $s['relationship'];
                 if(!isset($this->synonym_ids[$taxon->taxonID]))
@@ -233,7 +234,8 @@ class FishBaseArchiveAPI
             {
                 foreach($o as $key => $value) $o[$key] = str_replace("\N", "", $value);
                 $mr = new \eol_schema\MediaResource();
-                $mr->taxonID        = $this->taxa_ids[$taxon_id];
+                if($val = @$this->taxa_ids[$taxon_id]) $mr->taxonID = $val;
+                else continue;
                 $mr->identifier     = $o['dc_identifier'];
                 $mr->type           = $o['dataType'];
                 $mr->language       = 'en';
