@@ -132,7 +132,7 @@ class LifeDeskToScratchpadAPI
             $sciname    = (string) $t_dwc->ScientificName;
             foreach($t->reference as $ref)
             {
-                if(preg_match("/lifedesks.org\/biblio\/view\/(.*?)\"/ims", $ref, $arr)) $this->booklet_taxa_list[$arr[1]][$sciname] = '';
+                if(preg_match("/lifedesks.org\/biblio\/view\/(.*?)\"/ims", $ref, $arr)) $this->booklet_taxa_list[$arr[1]][Functions::canonical_form($sciname)] = '';
             }
             echo "\n [$identifier][$sciname]";
             $objects = $t->dataObject;
@@ -299,7 +299,7 @@ class LifeDeskToScratchpadAPI
         return false;
     }
     
-    private function load_zip_contents($zip_file)
+    function load_zip_contents($zip_file)
     {
         $temp_dir = create_temp_dir() . "/";
         if($file_contents = Functions::lookup_with_cache($zip_file, $this->download_options))
@@ -324,7 +324,7 @@ class LifeDeskToScratchpadAPI
             $this->text_path["text"] = $temp_dir . "TEMPLATE-import_into_taxon_description_xls.txt";
             $this->text_path["bibtex"] = $temp_dir . "Biblio-Bibtex.bib";
             print_r($this->text_path);
-            return true;
+            return $this->text_path;
         }
         else
         {
@@ -430,14 +430,7 @@ class LifeDeskToScratchpadAPI
 
     private function enclose_array_values_with_quotes($arr)
     {
-        $arr = array_keys($arr);
-        $i = 0;
-        foreach($arr as $r)
-        {
-            $arr[$i] = '"' . $r . '"';
-            $i++;
-        }
-        return $arr;
+        return array_keys($arr);
     }
     
     private function save_to_template($rec, $filename, $type)
