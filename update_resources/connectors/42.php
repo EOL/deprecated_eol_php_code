@@ -29,11 +29,7 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") >
     rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
     rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
     Functions::set_resource_status_to_force_harvest($resource_id);
-    Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/taxon.tab");
-    Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/media_resource.tab");
-    Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/vernacular_name.tab");
-    Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/agent.tab");
-    Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/reference.tab");
+    Functions::count_resource_tab_files($resource_id);
 }
 
 /* Generating the EOL XML

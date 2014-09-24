@@ -149,9 +149,17 @@ class Functions
             @unlink($cache_path);
         }
         $file_contents = Functions::get_remote_file($url, $options);
-        $FILE = fopen($cache_path, 'w+');
-        fwrite($FILE, $file_contents);
-        fclose($FILE);
+        if($FILE = fopen($cache_path, 'w+')) // normal
+        {
+            fwrite($FILE, $file_contents);
+            fclose($FILE);
+        }
+        else // can happen when cache_path is from external drive with corrupt dir/file
+        {
+            $h = fopen(DOC_ROOT . "/temp/cant_delete.txt", 'a');
+            fwrite($h, $cache_path . "\n");
+            fclose($h);
+        }
         return $file_contents;
     }
 
@@ -236,6 +244,18 @@ class Functions
         return false;
     }
 
+    public static function gzip_resource_xml($resource_id)
+    {
+        $command_line = "gzip -c " . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml >" . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml.gz";
+        $output = shell_exec($command_line);
+    }
+    
+    public static function count_resource_tab_files($resource_id)
+    {
+        foreach(glob(CONTENT_RESOURCE_LOCAL_PATH . "/$resource_id/*.tab") as $filename) self::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/" . pathinfo($filename, PATHINFO_BASENAME));
+    }
+    
+    
     public static function count_rows_from_text_file($file)
     {
         debug("\n counting: [$file]");

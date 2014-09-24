@@ -25,8 +25,7 @@ $func->save_resource_document($xml);
 if(filesize($resource_path) > 1000)
 {
     Functions::set_resource_status_to_force_harvest($resource_id);
-    $command_line = "gzip -c " . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml >" . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml.gz";
-    $output = shell_exec($command_line);
+    Functions::gzip_resource_xml($resource_id);
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;
