@@ -8,7 +8,6 @@ class WormsArchiveAPI
 {
     function __construct($folder)
     {
-        $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
@@ -42,7 +41,7 @@ class WormsArchiveAPI
         self::get_references($harvester->process_row_type('http://rs.gbif.org/terms/1.0/Reference'));
         self::get_agents($harvester->process_row_type('http://eol.org/schema/agent/Agent'));
         self::get_vernaculars($harvester->process_row_type('http://rs.gbif.org/terms/1.0/VernacularName'));
-        $this->create_archive();
+        $this->archive_builder->finalize(TRUE);
 
         // remove temp dir
         recursive_rmdir($temp_dir);
@@ -96,7 +95,12 @@ class WormsArchiveAPI
             $taxon->rightsHolder    = (string) $rec["http://purl.org/dc/terms/rightsHolder"];
             $taxon->furtherInformationURL = (string) $rec["http://rs.tdwg.org/ac/terms/furtherInformationURL"];
             if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/media/referenceID"])) $taxon->referenceID = $referenceID;
-            $this->taxa[$taxon->taxonID] = $taxon;
+
+            if(!isset($this->taxon_ids[$taxon->taxonID]))
+            {
+                $this->taxon_ids[$taxon->taxonID] = '';
+                $this->archive_builder->write_object_to_file($taxon);
+            }
 
             /* not used:
             <field index="15" default="http://creativecommons.org/licenses/by/3.0/" term="http://purl.org/dc/terms/accessRights"/>
@@ -177,10 +181,10 @@ class WormsArchiveAPI
             if($source = (string) $rec["http://rs.tdwg.org/ac/terms/furtherInformationURL"]) $mr->furtherInformationURL = $source;
             else                                                                             $mr->furtherInformationURL = $this->taxon_page . $mr->taxonID;
             
-            if(!in_array($mr->identifier, $this->object_ids)) 
+            if(!isset($this->object_ids[$mr->identifier]))
             {
-               $this->object_ids[] = $mr->identifier;
-               $this->archive_builder->write_object_to_file($mr);
+                $this->object_ids[$mr->identifier] = '';
+                $this->archive_builder->write_object_to_file($mr);
             }
         }
     }
@@ -284,12 +288,6 @@ class WormsArchiveAPI
         $this->archive_builder->write_object_to_file($o);
         $this->occurrence_ids[$occurrence_id] = $o;
         return $o;
-    }
-
-    private function create_archive()
-    {
-        foreach($this->taxa as $t) $this->archive_builder->write_object_to_file($t);
-        $this->archive_builder->finalize(TRUE);
     }
 
     private function get_vernaculars($records)
