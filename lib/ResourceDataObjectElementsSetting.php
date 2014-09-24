@@ -268,5 +268,26 @@ class ResourceDataObjectElementsSetting
         return $xml->asXML();
     }
 
+    public function replace_taxon_element_value($field, $old_value, $new_value, $xml_string, $compare = true)
+    {
+        /*
+            replace_taxon_element_value("dc:source", "any value", "", $xml);
+        */
+        $xml = simplexml_load_string($xml_string);
+        debug("replace_taxon_element_value_with_condition " . count($xml->taxon) . "-- please wait...");
+        foreach($xml->taxon as $taxon)
+        {
+            $t = self::get_dataObject_namespace($field, $taxon);
+            $use_field = self::get_field_name($field);
+            if($compare)
+            {
+                if(@$t->$use_field == $old_value) $t->$use_field = $new_value;
+            }
+            else $t->$use_field = $new_value;
+        }
+        debug("replace_taxon_element_value_with_condition -- done.");
+        return $xml->asXML();
+    }
+
 }
 ?>
