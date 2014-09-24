@@ -13,7 +13,7 @@ class IUCNRedlistAPI
         // $this->species_list_export = "http://localhost/~eolit/cp/IUCN/" . $this->export_basename . ".csv.zip";
         $this->species_list_export = "https://dl.dropboxusercontent.com/u/7597512/IUCN/" . $this->export_basename . ".csv.zip";
         $this->download_options = array('timeout' => 3600, 'download_attempts' => 1);
-        // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/";
+        // $this->download_options['expire_seconds'] = false;
     }
     
     public function get_taxon_xml($resource_file = null, $type = null)
@@ -35,13 +35,16 @@ class IUCNRedlistAPI
         foreach($taxon_ids as $taxon_id)
         {
             $i++;
-            echo "\n $i. [$taxon_id]";
+            if(($i % 1000) == 0) echo "\n$i.";
             $taxon = self::get_taxa_for_species(null, $taxon_id);
             if(!$taxon) continue;
             $taxon_xml = $taxon->__toXML();
             $taxon_xml = preg_replace("/\xE3\xBC/", "ü", $taxon_xml);
             $taxon_xml = preg_replace("/\xE3\xA9/", "é", $taxon_xml);
             $taxon_xml = preg_replace("/\xE3\x80/", "À", $taxon_xml);
+            $taxon_xml = utf8_encode($taxon_xml);
+            $taxon_xml = utf8_decode($taxon_xml);
+            if(!Functions::is_utf8($taxon_xml)) continue;
             if($resource_file) fwrite($resource_file, $taxon_xml);
             else $all_taxa[] = $taxon;
         }
@@ -149,6 +152,7 @@ class IUCNRedlistAPI
 
         if(!$details_html) return array();
         $details_html = utf8_encode($details_html);
+        $details_html = utf8_decode($details_html);
         if(!Functions::is_utf8($details_html)) return array();
         
         // this is a hack to get the document to load as UTF8. Nothing else seemed to work when using DOMDocument
@@ -216,6 +220,7 @@ class IUCNRedlistAPI
             {
                 $common_name = @ucfirst(strtolower(trim($language_name->nodeValue)));
                 $common_name = utf8_encode($common_name);
+                $common_name = utf8_decode($common_name);
                 if(Functions::is_utf8($common_name)) $taxon_parameters['commonNames'][] = new \SchemaCommonName(array('name' => $common_name, 'language' => $language));
             }
         }
@@ -297,6 +302,15 @@ class IUCNRedlistAPI
         
         if($section_html)
         {
+            $section_html = str_ireplace("background-color: yellow", "", $section_html); // will remove the weird yellow background
+            $section_html = utf8_encode($section_html);
+            $section_html = utf8_decode($section_html);
+            if(!Functions::is_utf8($section_html))
+            {
+                echo "\n\n[-not utf8-]";
+                echo "\n\n[$section_html]\n\n";
+                return null;
+            }
             $identifier = $species_id ."/". $div_id;
             $object_parameters = array();
             $object_parameters['identifier'] = $identifier;

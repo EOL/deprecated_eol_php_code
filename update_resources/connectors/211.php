@@ -5,11 +5,17 @@ define('DOWNLOAD_WAIT_TIME', '300000'); // .3 seconds wait time
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/IUCNRedlistAPI');
 $GLOBALS['ENV_DEBUG'] = false;
-
-
+$resource_id = 211;
+/*
+taxon =      73472  76022
+reference =  10065  10425
+synonym =    40378  43890
+commonName = 64921  68029
+texts =      452501 470240
+*/
 
 // create new _temp file
-$resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . "211_temp.xml", "w+");
+$resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", "w+");
 
 // start the resource file with the XML header
 fwrite($resource_file, \SchemaDocument::xml_header());
@@ -25,14 +31,14 @@ fwrite($resource_file, \SchemaDocument::xml_footer());
 fclose($resource_file);
 
 // cache the previous version and make this new version the current version
-@unlink(CONTENT_RESOURCE_LOCAL_PATH . "211_previous.xml");
-@rename(CONTENT_RESOURCE_LOCAL_PATH . "211.xml", CONTENT_RESOURCE_LOCAL_PATH . "211_previous.xml");
-rename(CONTENT_RESOURCE_LOCAL_PATH . "211_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . "211.xml");
+@unlink(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous.xml");
+@rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous.xml");
+rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");
 
 // set to force harvest
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "211.xml") > 600)
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 600)
 {
-    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=211");
+    Functions::set_resource_status_to_force_harvest($resource_id);
+    Functions::gzip_resource_xml($resource_id);
 }
-
 ?>
