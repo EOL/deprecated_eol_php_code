@@ -216,7 +216,7 @@ class PaleoDBAPI
         }
         return $reference_ids;
     }
-
+    /* disabled for now
     private function process_taxon_occurrence($rec, $taxon_id, $source_url)
     {
         $rec["orig_no"] = $taxon_id;
@@ -242,7 +242,7 @@ class PaleoDBAPI
         if($val = $rec["early_int_no"])     self::add_string_types($rec, "early_int_no", $val, "http://eol.org/schema/terms/paleo_firstapp_ei", "false", $type);
         if($val = $rec["late_int_no"])      self::add_string_types($rec, "late_int_no", $val, "http://eol.org/schema/terms/paleo_firstapp_li", "false", $type);
     }
-    
+    */
     private function process_status($status)
     {
         if($status == "belongs to") return "valid";
@@ -266,8 +266,8 @@ class PaleoDBAPI
         if($type == "occurrence") $id = $rec["occurrence_no"];
         else            $id = $label;
         $m = new \eol_schema\MeasurementOrFact();
-        $occurrence = $this->add_occurrence($taxon_id,  $id);
-        $m->occurrenceID = $occurrence->occurrenceID;
+        $occurrence_id = $this->add_occurrence($taxon_id,  $id);
+        $m->occurrenceID = $occurrence_id;
         $m->measurementOfTaxon = $measurementOfTaxon;
         $m->measurementType = $measurementType;
         $m->measurementValue = $value;
@@ -284,13 +284,13 @@ class PaleoDBAPI
     private function add_occurrence($taxon_id, $id)
     {
         $occurrence_id = $taxon_id . '_' .  $id;
-        if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
+        if(isset($this->occurrence_ids[$occurrence_id])) return $occurrence_id;
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
         $this->archive_builder->write_object_to_file($o);
-        $this->occurrence_ids[$occurrence_id] = $o;
-        return $o;
+        $this->occurrence_ids[$occurrence_id] = '';
+        return $occurrence_id;
     }
 
     function create_archive()

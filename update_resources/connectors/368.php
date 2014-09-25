@@ -8,6 +8,7 @@ This resource is formerly id = 719
 taxon       [234423]
 occurrence  [972262]
 measurement [972262]
+vernacular  [3753]
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -26,9 +27,7 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") >
     rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
     rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
     Functions::set_resource_status_to_force_harvest($resource_id);
-    Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/taxon.tab");
-    Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/occurrence.tab");
-    Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/measurement_or_fact.tab");
+    Functions::count_resource_tab_files($resource_id);
 }
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
