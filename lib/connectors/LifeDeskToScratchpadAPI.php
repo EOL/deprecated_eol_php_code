@@ -6,11 +6,9 @@ class LifeDeskToScratchpadAPI
     function __construct()
     {
         $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 2); // 15mins timeout
-        // $this->download_options['expire_seconds'] = 0;
-        // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/"; // use cache_path to assign a different directory for the cache files
-        
         $this->text_path = array();
         $this->booklet_taxa_list = array();
+        $this->booklet_title_list = array();
         $this->lifedesk_fields = array();
         $this->scratchpad_image_taxon_list = array();
         $this->used_GUID = array();
@@ -24,6 +22,7 @@ class LifeDeskToScratchpadAPI
 
     function export_lifedesk_to_scratchpad($params)
     {
+        $this->file_importer_xls["biblio"] = @$params["scratchpad_biblio"];
         if(self::load_zip_contents($params["lifedesk"]))
         {
             self::prepare_tab_delimited_text_files();
@@ -32,19 +31,122 @@ class LifeDeskToScratchpadAPI
             self::add_images_without_taxa_to_export_file();
         }
         self::initialize_dump_file($this->text_path["bibtex"]);
-        if($val = @$params["bibtex_file"]) self::convert_bibtex_file($val);
+        if($val = @$params["bibtex_file"])
+        {
+            self::convert_bibtex_file($val);
+            if($val = @$params["scratchpad_biblio"]) self::fill_up_biblio_spreadsheet($params);
+        }
+        
         self::convert_tab_to_xls($params);
         // remove temp dir
         $parts = pathinfo($this->text_path["eol_xml"]);
         recursive_rmdir($parts["dirname"]); //debug - comment if you want to see: images_not_in_xls.txt
         debug("\n temporary directory removed: " . $parts["dirname"]);
         print_r($params);
-        echo "\n cache_path: [" . @$this->download_options['cache_path'] . "]\n";
     }
+
+    private function fill_up_biblio_spreadsheet($params)
+    {
+        if($this->booklet_title_list)
+        {
+            self::write_biblio_text($params['scratchpad_biblio']);
+        }
+    }
+
+    private function write_biblio_text($spreadsheet)
+    {
+        $headers = self::get_column_headers($spreadsheet);
+        if($arr = self::convert_spreadsheet($spreadsheet, 0))
+        {
+            print "\n spreadsheet: " . count($arr[$headers[0]]) . "\n";
+            $i = 0;
+            foreach($arr['GUID'] as $guid)
+            {
+                if($scinames = self::get_scinames_from_booklet_title_list($arr['Title'][$i]))
+                {
+                    $rec = array();
+                    foreach($headers as $header)
+                    {
+                        if($header == "Taxonomic name (Name)") $rec[$header] = $scinames;
+                        else $rec[$header] = $arr[$header][$i];
+                    }
+                    if($rec) self::save_to_template($rec, $this->text_path["biblio"], "biblio");
+                }
+                else
+                {
+                    $rec = array();
+                    foreach($headers as $header) $rec[$header] = $arr[$header][$i];
+                    if($rec) self::save_to_template($rec, $this->text_path["biblio"], "biblio");
+                }
+                $i++;
+            }
+            /*
+            [0] => GUID
+            [1] => Title
+            [2] => Body
+            [3] => Taxonomic name (Name)
+            [4] => Taxonomic name (TID)
+            [5] => Taxonomic name (GUID)
+            [6] => File attachments (Filename)
+            [7] => File attachments (URL)
+            [8] => Node Author (UID)
+            */
+        }
+    }
+    
+    private function get_scinames_from_booklet_title_list($title)
+    {
+        // manual adjustments
+        $title = str_ireplace("’", "'", $title);
+        $title = str_ireplace("&", "&amp;", $title);
+        $title = str_ireplace("{\'ı", "í", $title);
+        
+        foreach($this->booklet_title_list as $biblio_title => $scinames)
+        {
+            if($biblio_title == $title) return implode("|", $scinames);
+        }
+        foreach($this->booklet_title_list as $biblio_title => $scinames)
+        {
+            if($title == substr($biblio_title, 0, strlen($title))) return implode("|", $scinames);
+        }
+        return false;
+    }
+    
+    // private function get_biblio_titles_from_LD_xml($params)
+    // {
+    //     $titles = array();
+    //     $response = Functions::lookup_with_cache($params['biblio_xml_file'], $this->download_options);
+    //     $xml = simplexml_load_string($response);
+    //     foreach($xml->records->record as $rec)
+    //     {
+    //         $titles[(string) $rec->titles->title->style] = '';
+    //     }
+    //     print_r($titles);
+    //     return array_keys($titles);
+    // }
+    
+    // private function download_bibtex_xml($params)
+    // {
+    //     if(@$params['bibtex_file'])
+    //     {
+    //         $file = "http://" . $params['name'] . ".lifedesks.org/biblio/export/xml/";
+    //         if($xml = Functions::lookup_with_cache($file, $this->download_options))
+    //         {
+    //             $destination = "/Users/eolit/Sites/cp/LD2Scratchpad/" . $params['name'] . "/biblio_xml.xml";
+    //             if($TMP = fopen($destination, "w"))
+    //             {
+    //                 fwrite($TMP, $xml);
+    //                 fclose($TMP);
+    //                 echo "\n saved...$destination\n";
+    //             }
+    //             else exit("\n cannot access path... \n");
+    //         }
+    //     }
+    // }
 
     private function prepare_tab_delimited_text_files()
     {
-        $types = array("image", "text");
+        $types = array("image", "text", "biblio");
         foreach($types as $type)
         {
             self::initialize_dump_file($this->text_path[$type]);
@@ -86,7 +188,7 @@ class LifeDeskToScratchpadAPI
     private function get_column_headers($spreadsheet)
     {
         $fields = array();
-        if($arr = self::convert_spreadsheet($spreadsheet)) $fields = array_keys($arr);
+        if($arr = self::convert_spreadsheet($spreadsheet, 0)) $fields = array_keys($arr);
         return $fields;
     }
     
@@ -132,7 +234,17 @@ class LifeDeskToScratchpadAPI
             $sciname    = (string) $t_dwc->ScientificName;
             foreach($t->reference as $ref)
             {
-                if(preg_match("/lifedesks.org\/biblio\/view\/(.*?)\"/ims", $ref, $arr)) $this->booklet_taxa_list[$arr[1]][Functions::canonical_form($sciname)] = '';
+                if(preg_match("/lifedesks.org\/biblio\/view\/(.*?)\"/ims", $ref, $arr)) $this->booklet_taxa_list[$arr[1]][$sciname] = '';
+
+                /* lifedesks.org/biblio/view/55">biblio title goes here</a> --- get title */
+                if(preg_match("/lifedesks.org\/biblio\/view\/(.*?)<\/a>/ims", $ref, $arr))
+                {
+                    if(preg_match("/>(.*?)xxx/ims", $arr[1]."xxx", $arr))
+                    {
+                        $this->booklet_title_list[Functions::remove_whitespace($arr[1])][] = $sciname;
+                    }
+                }
+                
             }
             echo "\n [$identifier][$sciname]";
             $objects = $t->dataObject;
@@ -323,6 +435,7 @@ class LifeDeskToScratchpadAPI
             $this->text_path["image"] = $temp_dir . "file_importer_image_xls.txt";
             $this->text_path["text"] = $temp_dir . "TEMPLATE-import_into_taxon_description_xls.txt";
             $this->text_path["bibtex"] = $temp_dir . "Biblio-Bibtex.bib";
+            $this->text_path["biblio"] = $temp_dir . "filled_node_importer_biblio_xls.txt";
             print_r($this->text_path);
             return $this->text_path;
         }
@@ -337,7 +450,7 @@ class LifeDeskToScratchpadAPI
     {
         require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel/IOFactory.php';
         $destination_folder = create_temp_dir() . "/";
-        $types = array("image", "text");
+        $types = array("image", "text", "biblio");
         foreach($types as $type)
         {
             $inputFileName = $this->text_path[$type];
@@ -428,9 +541,31 @@ class LifeDeskToScratchpadAPI
         else echo "\n investigate: [$file] not found... \n";
     }
 
+    private function get_title($rec)
+    {
+        foreach($rec as $item)
+        {
+            if(is_numeric(stripos($item, "title =")))
+            {
+                $str = trim(str_ireplace(array("title = {"), "", $item));
+                if(substr($str, -1) == ",") $str = trim(substr($str, 0, strlen($str)-1));
+                if(substr($str, -1) == "}") $str = trim(substr($str, 0, strlen($str)-1));
+                return $str;
+            }
+        }
+        return '';
+    }
+    
     private function enclose_array_values_with_quotes($arr)
     {
-        return array_keys($arr);
+        $final = array_keys($arr);
+        $i = 0;
+        foreach($final as $name)
+        {
+            $final[$i] = '"' . $name . '"';
+            $i++;
+        }
+        return $final;
     }
     
     private function save_to_template($rec, $filename, $type)

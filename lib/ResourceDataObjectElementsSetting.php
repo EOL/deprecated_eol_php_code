@@ -82,28 +82,35 @@ class ResourceDataObjectElementsSetting
             valid elements to handle are those without namespace e.g. :
             [dataType], [mimeType], [license], [subject]
         */
-        $xml = simplexml_load_string($xml_string);
-        debug("remove_data_object_of_certain_element_value " . count($xml->taxon) . "-- please wait...");
-        $t = -1;
-        foreach($xml->taxon as $taxon)
+        if($xml = simplexml_load_string($xml_string))
         {
-            $t++;
-            $obj = -1;
-            foreach($taxon->dataObject as $dataObject)
+            debug("remove_data_object_of_certain_element_value " . count($xml->taxon) . "-- please wait...");
+            $t = -1;
+            foreach($xml->taxon as $taxon)
             {
-                $obj++;
-                $do = self::get_dataObject_namespace($field, $dataObject);
-                $use_field = self::get_field_name($field);
-                if(@$do->$use_field == $value) 
+                $t++;
+                $obj = -1;
+                foreach($taxon->dataObject as $dataObject)
                 {
-                    debug("this <dataObject> will not be ingested -- $use_field = $value");
-                    $xml->taxon[$t]->dataObject[$obj] = NULL;
+                    $obj++;
+                    $do = self::get_dataObject_namespace($field, $dataObject);
+                    $use_field = self::get_field_name($field);
+                    if(@$do->$use_field == $value) 
+                    {
+                        debug("this <dataObject> will not be ingested -- $use_field = $value");
+                        $xml->taxon[$t]->dataObject[$obj] = NULL;
+                    }
                 }
             }
+            debug("remove_data_object_of_certain_element_value -- done.");
+            $xml = str_replace("<dataObject></dataObject>", "", $xml->asXML());
+            return $xml; 
         }
-        debug("remove_data_object_of_certain_element_value -- done.");
-        $xml = str_replace("<dataObject></dataObject>", "", $xml->asXML());
-        return $xml;
+        else
+        {
+            echo "\nXML is invalid.\n";
+            return $xml_string;
+        }
     }
 
     public function replace_data_object_element_value($field, $old_value, $new_value, $xml_string, $compare = true)
@@ -112,23 +119,30 @@ class ResourceDataObjectElementsSetting
             replace_data_object_element_value("mimeType", "audio/wav", "audio/x-wav", $xml);
             replace_data_object_element_value("dcterms:modified", "", "07/13/1972", $xml, false);
         */
-        $xml = simplexml_load_string($xml_string);
-        debug("replace_data_object_element_value " . count($xml->taxon) . "-- please wait...");
-        foreach($xml->taxon as $taxon)
+        if($xml = simplexml_load_string($xml_string))
         {
-            foreach($taxon->dataObject as $dataObject)
+            debug("replace_data_object_element_value " . count($xml->taxon) . "-- please wait...");
+            foreach($xml->taxon as $taxon)
             {
-                $do = self::get_dataObject_namespace($field, $dataObject);
-                $use_field = self::get_field_name($field);
-                if($compare) 
+                foreach($taxon->dataObject as $dataObject)
                 {
-                    if(@$do->$use_field == $old_value) $do->$use_field = $new_value;
+                    $do = self::get_dataObject_namespace($field, $dataObject);
+                    $use_field = self::get_field_name($field);
+                    if($compare) 
+                    {
+                        if(@$do->$use_field == $old_value) $do->$use_field = $new_value;
+                    }
+                    else $do->$use_field = $new_value;
                 }
-                else $do->$use_field = $new_value;
             }
+            debug("replace_data_object_element_value -- done.");
+            return $xml->asXML();
         }
-        debug("replace_data_object_element_value -- done.");
-        return $xml->asXML();
+        else
+        {
+            echo "\nXML is invalid.\n";
+            return $xml_string;
+        }
     }
 
     public function replace_data_object_element_value_with_condition($field, $old_value, $new_value, $xml_string, $condition_field, $condition_value, $compare = true)
@@ -140,33 +154,40 @@ class ResourceDataObjectElementsSetting
             This will replace all <subject> elements to "#Distribution" only if <dc:title> is "Distribution Information".
             replace_data_object_element_value_with_condition("subject", "", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution", $xml, "dc:title", "Distribution Information", false);
         */
-        $xml = simplexml_load_string($xml_string);
-        debug("replace_data_object_element_value_with_condition " . count($xml->taxon) . "-- please wait...");
-        foreach($xml->taxon as $taxon)
+        if($xml = simplexml_load_string($xml_string))
         {
-            foreach($taxon->dataObject as $dataObject)
+            debug("replace_data_object_element_value_with_condition " . count($xml->taxon) . "-- please wait...");
+            foreach($xml->taxon as $taxon)
             {
-                $do = self::get_dataObject_namespace($field, $dataObject);
-                $use_field = self::get_field_name($field);
-                if($compare) 
+                foreach($taxon->dataObject as $dataObject)
                 {
-                    if(@$do->$use_field == $old_value) 
+                    $do = self::get_dataObject_namespace($field, $dataObject);
+                    $use_field = self::get_field_name($field);
+                    if($compare) 
+                    {
+                        if(@$do->$use_field == $old_value) 
+                        {
+                            $condition_do = self::get_dataObject_namespace($condition_field, $dataObject);
+                            $use_condition_field = self::get_field_name($condition_field);
+                            if(trim(@$condition_do->$use_condition_field) == $condition_value) $do->$use_field = $new_value;
+                        }
+                    }
+                    else
                     {
                         $condition_do = self::get_dataObject_namespace($condition_field, $dataObject);
                         $use_condition_field = self::get_field_name($condition_field);
                         if(trim(@$condition_do->$use_condition_field) == $condition_value) $do->$use_field = $new_value;
                     }
                 }
-                else
-                {
-                    $condition_do = self::get_dataObject_namespace($condition_field, $dataObject);
-                    $use_condition_field = self::get_field_name($condition_field);
-                    if(trim(@$condition_do->$use_condition_field) == $condition_value) $do->$use_field = $new_value;
-                }
             }
+            debug("replace_data_object_element_value_with_condition -- done.");
+            return $xml->asXML();
         }
-        debug("replace_data_object_element_value_with_condition -- done.");
-        return $xml->asXML();
+        else
+        {
+            echo "\nXML is invalid.\n";
+            return $xml_string;
+        }
     }
 
     function get_dataObject_namespace($field, $dataObject)
@@ -231,6 +252,11 @@ class ResourceDataObjectElementsSetting
             $xml_string = str_ireplace(array("<taxon></taxon>", "<taxon/>"), "", $xml_string);
             return $xml_string;
         }
+        else
+        {
+            echo "\nXML is invalid.\n";
+            return $xml_string;
+        }
     }
 
     public function replace_taxon_element_value_with_condition($field, $old_value, $new_value, $xml_string, $condition_field, $condition_value, $compare = true)
@@ -239,33 +265,40 @@ class ResourceDataObjectElementsSetting
             This will replace all <dwc:Class> elements with original value of "Insecta" to "Reptilia" only if <dwc:Order> is "Squamata"
             replace_taxon_element_value_with_condition("dwc:Class", "Insecta", "Reptilia", $xml, "dwc:Order", "Squamata");
         */
-        $xml = simplexml_load_string($xml_string);
-        debug("replace_taxon_element_value_with_condition " . count($xml->taxon) . "-- please wait...");
-        foreach($xml->taxon as $taxon)
+        if($xml = simplexml_load_string($xml_string))
         {
-            $t = self::get_dataObject_namespace($field, $taxon);
-            $use_field = self::get_field_name($field);
-            if($compare)
+            debug("replace_taxon_element_value_with_condition " . count($xml->taxon) . "-- please wait...");
+            foreach($xml->taxon as $taxon)
             {
-                if(@$t->$use_field == $old_value)
+                $t = self::get_dataObject_namespace($field, $taxon);
+                $use_field = self::get_field_name($field);
+                if($compare)
+                {
+                    if(@$t->$use_field == $old_value)
+                    {
+                        $condition_do = self::get_dataObject_namespace($condition_field, $taxon);
+                        $use_condition_field = self::get_field_name($condition_field);
+                        if(trim(@$condition_do->$use_condition_field) == $condition_value)
+                        {
+                            $t->$use_field = $new_value; // here is where the assignment operation takes place -- if $compare == true
+                        }
+                    }
+                }
+                else
                 {
                     $condition_do = self::get_dataObject_namespace($condition_field, $taxon);
                     $use_condition_field = self::get_field_name($condition_field);
-                    if(trim(@$condition_do->$use_condition_field) == $condition_value)
-                    {
-                        $t->$use_field = $new_value; // here is where the assignment operation takes place -- if $compare == true
-                    }
+                    if(trim(@$condition_do->$use_condition_field) == $condition_value) $t->$use_field = $new_value;
                 }
             }
-            else
-            {
-                $condition_do = self::get_dataObject_namespace($condition_field, $taxon);
-                $use_condition_field = self::get_field_name($condition_field);
-                if(trim(@$condition_do->$use_condition_field) == $condition_value) $t->$use_field = $new_value;
-            }
+            debug("replace_taxon_element_value_with_condition -- done.");
+            return $xml->asXML();
         }
-        debug("replace_taxon_element_value_with_condition -- done.");
-        return $xml->asXML();
+        else
+        {
+            echo "\nXML is invalid.\n";
+            return $xml_string;
+        }
     }
 
     public function replace_taxon_element_value($field, $old_value, $new_value, $xml_string, $compare = true)
@@ -273,20 +306,27 @@ class ResourceDataObjectElementsSetting
         /*
             replace_taxon_element_value("dc:source", "any value", "", $xml);
         */
-        $xml = simplexml_load_string($xml_string);
-        debug("replace_taxon_element_value_with_condition " . count($xml->taxon) . "-- please wait...");
-        foreach($xml->taxon as $taxon)
+        if($xml = simplexml_load_string($xml_string))
         {
-            $t = self::get_dataObject_namespace($field, $taxon);
-            $use_field = self::get_field_name($field);
-            if($compare)
+            debug("replace_taxon_element_value_with_condition " . count($xml->taxon) . "-- please wait...");
+            foreach($xml->taxon as $taxon)
             {
-                if(@$t->$use_field == $old_value) $t->$use_field = $new_value;
+                $t = self::get_dataObject_namespace($field, $taxon);
+                $use_field = self::get_field_name($field);
+                if($compare)
+                {
+                    if(@$t->$use_field == $old_value) $t->$use_field = $new_value;
+                }
+                else $t->$use_field = $new_value;
             }
-            else $t->$use_field = $new_value;
+            debug("replace_taxon_element_value_with_condition -- done.");
+            return $xml->asXML();
         }
-        debug("replace_taxon_element_value_with_condition -- done.");
-        return $xml->asXML();
+        else
+        {
+            echo "\nXML is invalid.\n";
+            return $xml_string;
+        }
     }
 
 }

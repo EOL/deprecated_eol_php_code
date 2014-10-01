@@ -441,6 +441,8 @@ $params["terrslugs"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp
 $params["terrslugs"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/terrslugs/Biblio-Bibtex.bib";
 $params["terrslugs"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/terrslugs/file_importer_image_xls%20(2).xls";
 $params["terrslugs"]["local"]["name"]              = "terrslugs";
+$params["terrslugs"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/terrslugs/node_importer_biblio_xls.xls";
+// $params["terrslugs"]["local"]["biblio_xml_file"] = "http://localhost/~eolit/cp/LD2Scratchpad/terrslugs/terrslugs_Biblio-EndNote8.xml";
 // ==================================================================================================
 // agrilus remote
 $params["agrilus"]["remote"]["lifedesk"]          = "http://agrilus.lifedesks.org/eol-partnership.xml.gz";

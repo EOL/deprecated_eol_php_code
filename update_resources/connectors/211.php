@@ -7,11 +7,11 @@ require_library('connectors/IUCNRedlistAPI');
 $GLOBALS['ENV_DEBUG'] = false;
 $resource_id = 211;
 /*
-taxon =      73472  76022
+taxon =      73472  76021
 reference =  10065  10425
-synonym =    40378  43890
-commonName = 64921  68029
-texts =      452501 470240
+synonym =    40378  43889
+commonName = 64921  62781
+texts =      452501 470233
 */
 
 // create new _temp file
