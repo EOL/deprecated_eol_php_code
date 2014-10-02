@@ -1,22 +1,24 @@
 <?php
 namespace php_active_record;
-/* estimated execution time: 5 minutes 
+/* estimated execution time: 6 minutes
 
-Note:
-The spreadsheet has this subspecies: Edolisoma ceramensis hoogerwerfi
-but it doesn't have the species: Edolisoma ceramensis
+                      old       Oct2
+reference:          : 1         1
+Text                : 26220     26205
+#Distribution       : 26187     26205
+#ConservationStatus : 33        
+taxon:              : 33590     33641
+measurementorfact               31339
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/ClementsAPI');
+require_library('connectors/ClementsAPIv2');
 
 $timestart = time_elapsed();
 $resource_id = 527;
-$func = new ClementsAPI($resource_id);
-
-$data_dump_url = DOC_ROOT . "/update_resources/connectors/files/Clements/Clements Checklist 6.7 small.xls";
-
-$func->get_all_taxa(); // you can pass $data_dump_url
+$func = new ClementsAPIv2($resource_id);
+$func->get_all_taxa();
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
     if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
