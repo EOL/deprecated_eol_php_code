@@ -57,6 +57,7 @@ $params["syrphidae"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp
 $params["syrphidae"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/syrphidae/Biblio-Bibtex.bib";
 $params["syrphidae"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/syrphidae/file_importer_image_xls.xls";
 $params["syrphidae"]["local"]["name"]              = "syrphidae";
+$params["syrphidae"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/syrphidae/syrphidae.xls";
 // ==================================================================================================
 // Tunicata remote
 $params["tunicata"]["remote"]["lifedesk"]          = "http://tunicata.lifedesks.org/eol-partnership.xml.gz";
@@ -73,6 +74,7 @@ $params["tunicata"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/
 $params["tunicata"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/tunicata/Biblio-Bibtex.bib";
 $params["tunicata"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/tunicata/file_importer_image_xls%20%25281%2529%20(1).xls";
 $params["tunicata"]["local"]["name"]              = "tunicata";
+$params["tunicata"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/tunicata/tunicata.xls";
 // ==================================================================================================
 // Leptogastrinae remote
 $params["leptogastrinae"]["remote"]["lifedesk"]          = "http://leptogastrinae.lifedesks.org/eol-partnership.xml.gz";
@@ -89,6 +91,7 @@ $params["leptogastrinae"]["local"]["lifedesk"]          = "http://localhost/~eol
 $params["leptogastrinae"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/leptogastrinae/Biblio-Bibtex.bib";
 $params["leptogastrinae"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/leptogastrinae/file_importer_image_xls%20%25281%2529.xls";
 $params["leptogastrinae"]["local"]["name"]              = "leptogastrinae";
+$params["leptogastrinae"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/leptogastrinae/leptogastrinae.xls";
 // ==================================================================================================
 // continenticola remote
 $params["continenticola"]["remote"]["lifedesk"]          = "http://continenticola.lifedesks.org/eol-partnership.xml.gz";
@@ -105,6 +108,7 @@ $params["continenticola"]["local"]["lifedesk"]          = "http://localhost/~eol
 $params["continenticola"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/continenticola/Biblio-Bibtex.bib";
 $params["continenticola"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/continenticola/file_importer_image_xls.xls";
 $params["continenticola"]["local"]["name"]              = "continenticola";
+$params["continenticola"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/continenticola/continenticola.xls";
 // ==================================================================================================
 // pelagics remote
 $params["pelagics"]["remote"]["lifedesk"]          = "http://pelagics.lifedesks.org/eol-partnership.xml.gz";
@@ -121,6 +125,7 @@ $params["pelagics"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/
 $params["pelagics"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/pelagics/Biblio-Bibtex.bib";
 $params["pelagics"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/pelagics/file_importer_image_xls%20(1).xls";
 $params["pelagics"]["local"]["name"]              = "pelagics";
+$params["pelagics"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/pelagics/pelagics.xls";
 // ==================================================================================================
 // parmotrema remote
 $params["parmotrema"]["remote"]["lifedesk"]          = "http://parmotrema.lifedesks.org/eol-partnership.xml.gz";
@@ -185,6 +190,7 @@ $params["staurozoa"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp
 $params["staurozoa"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/staurozoa/Biblio-Bibtex.bib";
 $params["staurozoa"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/staurozoa/file_importer_image_xls%20(1).xls";
 $params["staurozoa"]["local"]["name"]              = "staurozoa";
+$params["staurozoa"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/staurozoa/staurozoa.xls";
 // ==================================================================================================
 // cnidaria remote
 $params["cnidaria"]["remote"]["lifedesk"]          = "http://cnidaria.lifedesks.org/eol-partnership.xml.gz";
@@ -201,6 +207,7 @@ $params["cnidaria"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/
 $params["cnidaria"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/cnidaria/Biblio-Bibtex.bib";
 $params["cnidaria"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/cnidaria/file_importer_image_xls%20(2).xls";
 $params["cnidaria"]["local"]["name"]              = "cnidaria";
+$params["cnidaria"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/cnidaria/cnidaria.xls";
 // ==================================================================================================
 // porifera remote
 $params["porifera"]["remote"]["lifedesk"]          = "http://porifera.lifedesks.org/eol-partnership.xml.gz";
@@ -217,6 +224,7 @@ $params["porifera"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/
 $params["porifera"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/porifera/Biblio-Bibtex.bib";
 $params["porifera"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/porifera/file_importer_image_xls%20(1).xls";
 $params["porifera"]["local"]["name"]              = "porifera";
+$params["porifera"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/porifera/porifera.xls";
 // ==================================================================================================
 // sacoglossa remote
 $params["sacoglossa"]["remote"]["lifedesk"]          = "http://sacoglossa.lifedesks.org/eol-partnership.xml.gz";
@@ -265,6 +273,7 @@ $params["apoidea"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/L
 $params["apoidea"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/apoidea/Biblio-Bibtex.bib";
 $params["apoidea"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/apoidea/file_importer_image_xls.xls";
 $params["apoidea"]["local"]["name"]              = "apoidea";
+$params["apoidea"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/apoidea/apoidea.xls";
 // ==================================================================================================
 // opisthostoma remote
 $params["opisthostoma"]["remote"]["lifedesk"]          = "http://opisthostoma.lifedesks.org/eol-partnership.xml.gz";
@@ -281,6 +290,7 @@ $params["opisthostoma"]["local"]["lifedesk"]          = "http://localhost/~eolit
 $params["opisthostoma"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/opisthostoma/Biblio-Bibtex.bib";
 $params["opisthostoma"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/opisthostoma/file_importer_image_xls (1).xls";
 $params["opisthostoma"]["local"]["name"]              = "opisthostoma";
+$params["opisthostoma"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/opisthostoma/opisthostoma.xls";
 // ==================================================================================================
 // borneanlandsnails remote
 $params["borneanlandsnails"]["remote"]["lifedesk"]          = "http://borneanlandsnails.lifedesks.org/eol-partnership.xml.gz";
@@ -297,6 +307,7 @@ $params["borneanlandsnails"]["local"]["lifedesk"]          = "http://localhost/~
 $params["borneanlandsnails"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/borneanlandsnails/Biblio-Bibtex.bib";
 $params["borneanlandsnails"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/borneanlandsnails/file_importer_image_xls%20(2).xls";
 $params["borneanlandsnails"]["local"]["name"]              = "borneanlandsnails";
+$params["borneanlandsnails"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/borneanlandsnails/borneanlandsnails.xls";
 // ==================================================================================================
 // malaypeninsularsnail remote
 $params["malaypeninsularsnail"]["remote"]["lifedesk"]          = "http://malaypeninsularsnail.lifedesks.org/eol-partnership.xml.gz";
@@ -313,6 +324,7 @@ $params["malaypeninsularsnail"]["local"]["lifedesk"]          = "http://localhos
 $params["malaypeninsularsnail"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/malaypeninsularsnail/Biblio-Bibtex.bib";
 $params["malaypeninsularsnail"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/malaypeninsularsnail/file_importer_image_xls.xls";
 $params["malaypeninsularsnail"]["local"]["name"]              = "malaypeninsularsnail";
+$params["malaypeninsularsnail"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/malaypeninsularsnail/malaypeninsularsnail.xls";
 // ==================================================================================================
 // sipuncula remote
 $params["sipuncula"]["remote"]["lifedesk"]          = "http://sipuncula.lifedesks.org/eol-partnership.xml.gz";
@@ -329,6 +341,7 @@ $params["sipuncula"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp
 $params["sipuncula"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/sipuncula/Biblio-Bibtex.bib";
 $params["sipuncula"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/sipuncula/file_importer_image_xls.xls";
 $params["sipuncula"]["local"]["name"]              = "sipuncula";
+$params["sipuncula"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/sipuncula/sipuncula.xls";
 // ==================================================================================================
 // hawaiilandsnails remote
 $params["hawaiilandsnails"]["remote"]["lifedesk"]          = "http://hawaiilandsnails.lifedesks.org/eol-partnership.xml.gz";
@@ -377,6 +390,7 @@ $params["ampullariidae"]["local"]["lifedesk"]          = "http://localhost/~eoli
 $params["ampullariidae"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/ampullariidae/Biblio-Bibtex.bib";
 $params["ampullariidae"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/ampullariidae/file_importer_image_xls.xls";
 $params["ampullariidae"]["local"]["name"]              = "ampullariidae";
+$params["ampullariidae"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/ampullariidae/ampullariidae.xls";
 // ==================================================================================================
 // cephaloleia remote
 $params["cephaloleia"]["remote"]["lifedesk"]          = "http://cephaloleia.lifedesks.org/eol-partnership.xml.gz";
@@ -409,6 +423,7 @@ $params["africanamphibians"]["local"]["lifedesk"]          = "http://localhost/~
 $params["africanamphibians"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/africanamphibians/Biblio-Bibtex.bib";
 $params["africanamphibians"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/africanamphibians/file_importer_image_xls.xls";
 $params["africanamphibians"]["local"]["name"]              = "africanamphibians";
+$params["africanamphibians"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/africanamphibians/africanamphibians.xls";
 // ==================================================================================================
 // mormyrids remote
 $params["mormyrids"]["remote"]["lifedesk"]          = "http://mormyrids.lifedesks.org/eol-partnership.xml.gz";
@@ -425,6 +440,7 @@ $params["mormyrids"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp
 $params["mormyrids"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/mormyrids/Biblio-Bibtex.bib";
 $params["mormyrids"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/mormyrids/file_importer_image_xls%20(1).xls";
 $params["mormyrids"]["local"]["name"]              = "mormyrids";
+$params["mormyrids"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/mormyrids/mormyrids.xls";
 // ==================================================================================================
 // terrslugs remote
 $params["terrslugs"]["remote"]["lifedesk"]          = "http://terrslugs.lifedesks.org/eol-partnership.xml.gz";
@@ -441,8 +457,7 @@ $params["terrslugs"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp
 $params["terrslugs"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/terrslugs/Biblio-Bibtex.bib";
 $params["terrslugs"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/terrslugs/file_importer_image_xls%20(2).xls";
 $params["terrslugs"]["local"]["name"]              = "terrslugs";
-$params["terrslugs"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/terrslugs/node_importer_biblio_xls.xls";
-// $params["terrslugs"]["local"]["biblio_xml_file"] = "http://localhost/~eolit/cp/LD2Scratchpad/terrslugs/terrslugs_Biblio-EndNote8.xml";
+$params["terrslugs"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/terrslugs/terrslugs.xls";
 // ==================================================================================================
 // agrilus remote
 $params["agrilus"]["remote"]["lifedesk"]          = "http://agrilus.lifedesks.org/eol-partnership.xml.gz";
@@ -475,6 +490,7 @@ $params["camptosomata"]["local"]["lifedesk"]          = "http://localhost/~eolit
 $params["camptosomata"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/camptosomata/Biblio-Bibtex.bib";
 $params["camptosomata"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/camptosomata/file_importer_image_xls%20(1).xls";
 $params["camptosomata"]["local"]["name"]              = "camptosomata";
+$params["camptosomata"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/camptosomata/camptosomata.xls";
 // ==================================================================================================
 // urbanfloranyc remote
 $params["urbanfloranyc"]["remote"]["lifedesk"]          = "http://urbanfloranyc.lifedesks.org/eol-partnership.xml.gz";

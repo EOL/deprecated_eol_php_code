@@ -22,7 +22,7 @@ class LifeDeskToScratchpadAPI
 
     function export_lifedesk_to_scratchpad($params)
     {
-        $this->file_importer_xls["biblio"] = @$params["scratchpad_biblio"];
+        if($val = @$params["scratchpad_biblio"]) $this->file_importer_xls["biblio"] = $val;
         if(self::load_zip_contents($params["lifedesk"]))
         {
             self::prepare_tab_delimited_text_files();
@@ -146,7 +146,8 @@ class LifeDeskToScratchpadAPI
 
     private function prepare_tab_delimited_text_files()
     {
-        $types = array("image", "text", "biblio");
+        $types = array("image", "text");
+        if(@$this->file_importer_xls["biblio"]) $types[] = "biblio";
         foreach($types as $type)
         {
             self::initialize_dump_file($this->text_path[$type]);
@@ -213,17 +214,10 @@ class LifeDeskToScratchpadAPI
         $parts = pathinfo($this->text_path["eol_xml"]);
         $dump_file = $parts["dirname"] . "/images_not_in_xls.txt";
 
-        $xml = simplexml_load_file($this->text_path["eol_xml"]);
-        if(!$xml)
-        {
-            $xml = file_get_contents($this->text_path["eol_xml"]);
-            $xml = str_replace("", "", $xml);
-            if(!$xml = simplexml_load_string($xml))
-            {
-                echo "\nLifeDesk XML is invalid\n";
-                return;
-            }
-        }
+        $xml_str = file_get_contents($this->text_path["eol_xml"]);
+        $xml_str = str_replace("", "", $xml_str);
+        if(!$xml = simplexml_load_string($xml_str)) exit("\nLifeDesk XML is invalid\n\n");
+
         $i = 0;
         foreach($xml->taxon as $t)
         {
@@ -450,7 +444,8 @@ class LifeDeskToScratchpadAPI
     {
         require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel/IOFactory.php';
         $destination_folder = create_temp_dir() . "/";
-        $types = array("image", "text", "biblio");
+        $types = array("image", "text");
+        if(@$this->file_importer_xls["biblio"]) $types[] = "biblio";
         foreach($types as $type)
         {
             $inputFileName = $this->text_path[$type];
