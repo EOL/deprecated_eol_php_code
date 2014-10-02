@@ -14,6 +14,7 @@ class FemoraleAPI
         $this->measurement_ids = array();
         $this->object_ids = array();
         $this->download_options = array('download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1);
+        // $this->download_options['expire_seconds'] = false;
         $this->url_path = "http://localhost/~eolit/cp/Femorale/";
         $this->url_path = "https://dl.dropboxusercontent.com/u/7597512/Femorale/";
         $this->images_path = "http://www.femorale.com/shellphotos/detmore.asp?&localidade=&url=";
@@ -194,6 +195,7 @@ class FemoraleAPI
         }
         $m->measurementType     = $measurementType;
         $m->measurementValue    = $value;
+        $m->statisticalMethod   = "http://www.ebi.ac.uk/efo/EFO_0001444";
         if(!isset($this->measurement_ids[$m->occurrenceID]))
         {
             $this->archive_builder->write_object_to_file($m);
