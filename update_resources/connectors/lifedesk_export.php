@@ -508,11 +508,62 @@ $params["urbanfloranyc"]["local"]["bibtex_file"]       = ""; // no bibtex file
 $params["urbanfloranyc"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/urbanfloranyc/file_importer_image_xls.xls";
 $params["urbanfloranyc"]["local"]["name"]              = "urbanfloranyc";
 // ==================================================================================================
+// marineinvaders remote
+$params["marineinvaders"]["remote"]["lifedesk"]          = "http://marineinvaders.lifedesks.org/eol-partnership.xml.gz";
+$params["marineinvaders"]["remote"]["bibtex_file"]       = "";
+$params["marineinvaders"]["remote"]["scratchpad_images"] = "";
+$params["marineinvaders"]["remote"]["name"]              = "marineinvaders";
+// marineinvaders Dropbox
+$params["marineinvaders"]["dropbox"]["lifedesk"]          = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/marineinvaders/eol-partnership.xml.gz";
+$params["marineinvaders"]["dropbox"]["bibtex_file"]       = "";
+$params["marineinvaders"]["dropbox"]["scratchpad_images"] = "";
+$params["marineinvaders"]["dropbox"]["name"]              = "marineinvaders";
+// marineinvaders local
+$params["marineinvaders"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/marineinvaders/eol-partnership.xml.gz";
+$params["marineinvaders"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/marineinvaders/Biblio-Bibtex.bib";
+$params["marineinvaders"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/marineinvaders/file_importer_image_xls.xls";
+$params["marineinvaders"]["local"]["name"]              = "marineinvaders";
+$params["marineinvaders"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/marineinvaders/node_importer_biblio_xls.xls";
+// ==================================================================================================
+// neritopsine remote
+$params["neritopsine"]["remote"]["lifedesk"]          = "http://neritopsine.lifedesks.org/eol-partnership.xml.gz";
+$params["neritopsine"]["remote"]["bibtex_file"]       = "";
+$params["neritopsine"]["remote"]["scratchpad_images"] = "";
+$params["neritopsine"]["remote"]["name"]              = "neritopsine";
+// neritopsine Dropbox
+$params["neritopsine"]["dropbox"]["lifedesk"]          = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/neritopsine/eol-partnership.xml.gz";
+$params["neritopsine"]["dropbox"]["bibtex_file"]       = "";
+$params["neritopsine"]["dropbox"]["scratchpad_images"] = "";
+$params["neritopsine"]["dropbox"]["name"]              = "neritopsine";
+// neritopsine local
+$params["neritopsine"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/neritopsine/eol-partnership.xml.gz";
+$params["neritopsine"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/neritopsine/Biblio-Bibtex.bib";
+$params["neritopsine"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/neritopsine/file_importer_image_xls.xls";
+$params["neritopsine"]["local"]["name"]              = "neritopsine";
+$params["neritopsine"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/neritopsine/node_importer_biblio_xls.xls";
+// ==================================================================================================
+// polycladida remote
+$params["polycladida"]["remote"]["lifedesk"]          = "http://polycladida.lifedesks.org/eol-partnership.xml.gz";
+$params["polycladida"]["remote"]["bibtex_file"]       = "";
+$params["polycladida"]["remote"]["scratchpad_images"] = "";
+$params["polycladida"]["remote"]["name"]              = "polycladida";
+// polycladida Dropbox
+$params["polycladida"]["dropbox"]["lifedesk"]          = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/polycladida/eol-partnership.xml.gz";
+$params["polycladida"]["dropbox"]["bibtex_file"]       = "";
+$params["polycladida"]["dropbox"]["scratchpad_images"] = "";
+$params["polycladida"]["dropbox"]["name"]              = "polycladida";
+// polycladida local
+$params["polycladida"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/polycladida/eol-partnership.xml.gz";
+$params["polycladida"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/polycladida/Biblio-Bibtex.bib";
+$params["polycladida"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/polycladida/file_importer_image_xls.xls";
+$params["polycladida"]["local"]["name"]              = "polycladida";
+$params["polycladida"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/polycladida/node_importer_biblio_xls.xls";
+// ==================================================================================================
 
 /* paste here which Lifedesk you want to export: e.g. $parameters = $params["leptogastrinae"]["dropbox"];
 the export files (in .tar.gz) will be found in: DOC_ROOT/tmp/leptogastrinae_LD_to_Scratchpad_export.tar.gz
 */
-$parameters = $params["africanamphibians"]["local"];
+$parameters = $params["polycladida"]["local"];
 if($parameters) $func->export_lifedesk_to_scratchpad($parameters);
 else echo "\nNothing to process. Program will terminate\n";
 
@@ -520,7 +571,8 @@ else echo "\nNothing to process. Program will terminate\n";
 // "terrslugs" ***
 $lifedesks = array("parmotrema", "pelagics", "continenticola", "leptogastrinae", "tunicata", "syrphidae", "peracarida", "nemertea","ostracoda", "hawaiilandsnails", 
                    "sipuncula", "malaypeninsularsnail", "borneanlandsnails", "opisthostoma", "apoidea", "buccinids", "sacoglossa", "porifera", "cnidaria", 
-                   "staurozoa", "liquensms", "liquensbr", "africanamphibians", "cephaloleia", "ampullariidae", "agrilus", "mormyrids", "camptosomata", "urbanfloranyc");
+                   "staurozoa", "liquensms", "liquensbr", "africanamphibians", "cephaloleia", "ampullariidae", "agrilus", "mormyrids", "camptosomata", "urbanfloranyc", 
+                   "marineinvaders", "neritopsine", "polycladida");
 foreach($lifedesks as $lifedesk) $func->export_lifedesk_to_scratchpad($params[$lifedesk]["local"]);
 */
 

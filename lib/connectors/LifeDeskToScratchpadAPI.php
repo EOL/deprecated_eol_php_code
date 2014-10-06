@@ -18,10 +18,12 @@ class LifeDeskToScratchpadAPI
         */
         $this->file_importer_xls["image"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/templates/file_importer_image_xls.xls";
         $this->file_importer_xls["text"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/templates/TEMPLATE-import_into_taxon_description_xls.xls";
+        $this->taxon_description = array();
     }
 
     function export_lifedesk_to_scratchpad($params)
     {
+        $this->taxon_description = array();
         if($val = @$params["scratchpad_biblio"]) $this->file_importer_xls["biblio"] = $val;
         if(self::load_zip_contents($params["lifedesk"]))
         {
@@ -43,14 +45,12 @@ class LifeDeskToScratchpadAPI
         recursive_rmdir($parts["dirname"]); //debug - comment if you want to see: images_not_in_xls.txt
         debug("\n temporary directory removed: " . $parts["dirname"]);
         print_r($params);
+        print "\ntaxon_description: " . count($this->taxon_description) . "\n\n";
     }
 
     private function fill_up_biblio_spreadsheet($params)
     {
-        if($this->booklet_title_list)
-        {
-            self::write_biblio_text($params['scratchpad_biblio']);
-        }
+        if($this->booklet_title_list) self::write_biblio_text($params['scratchpad_biblio']);
     }
 
     private function write_biblio_text($spreadsheet)
@@ -210,7 +210,6 @@ class LifeDeskToScratchpadAPI
     {
         require_library('XLSParser');
         $parser = new XLSParser();
-        echo "\n processing [$spreadsheet]...\n";
         if($path = Functions::save_remote_file_to_local($spreadsheet, array("cache" => 1, "timeout" => 3600, "file_extension" => "xls", 'download_attempts' => 2, 'delay_in_minutes' => 2)))
         {
             $arr = $parser->convert_sheet_to_array($path, $worksheet);
@@ -253,7 +252,7 @@ class LifeDeskToScratchpadAPI
                 }
                 
             }
-            echo "\n [$identifier][$sciname]";
+            if(($i % 100) == 0) echo "\n$i. [$identifier][$sciname]";
             $objects = $t->dataObject;
             foreach($objects as $do)
             {
@@ -601,7 +600,6 @@ class LifeDeskToScratchpadAPI
 
     private function initialize_dump_file($file)
     {
-        echo "\n initialize file:[$file]\n";
         $f=fopen($file,"w"); 
         # Now UTF-8 - Add byte order mark 
         fwrite($f, pack("CCC",0xef,0xbb,0xbf));
