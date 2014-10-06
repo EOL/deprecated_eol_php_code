@@ -94,6 +94,18 @@ class LifeDeskToScratchpadAPI
         }
     }
     
+    private function get_scinames_from_taxon_description($title)
+    {
+        foreach($this->taxon_description as $sciname => $rec)
+        {
+            foreach(array_keys($rec) as $desc)
+            {
+                if(is_numeric(stripos($desc, $title))) return $sciname;
+            }
+        }
+        return false;
+    }
+    
     private function get_scinames_from_booklet_title_list($title)
     {
         // manual adjustments
@@ -109,6 +121,7 @@ class LifeDeskToScratchpadAPI
         {
             if($title == substr($biblio_title, 0, strlen($title))) return implode("|", $scinames);
         }
+        if($scinames = self::get_scinames_from_taxon_description($title)) return $scinames;
         return false;
     }
     
@@ -246,6 +259,9 @@ class LifeDeskToScratchpadAPI
             {
                 $t_dc2      = $do->children("http://purl.org/dc/elements/1.1/");
                 $t_dcterms  = $do->children("http://purl.org/dc/terms/");
+                
+                $this->taxon_description[$sciname][(string) $t_dc2->description] = '';
+                
                 $rec = array();
                 $rec["Taxonomic name (Name)"] = $sciname;
                 if($do->dataType == "http://purl.org/dc/dcmitype/StillImage")
