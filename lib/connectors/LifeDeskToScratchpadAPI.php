@@ -6,24 +6,24 @@ class LifeDeskToScratchpadAPI
     function __construct()
     {
         $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 2); // 15mins timeout
-        $this->text_path = array();
-        $this->booklet_taxa_list = array();
-        $this->booklet_title_list = array();
-        $this->lifedesk_fields = array();
-        $this->scratchpad_image_taxon_list = array();
-        $this->used_GUID = array();
         /*
         $this->file_importer_xls["image"] = "http://localhost/~eolit/cp/LD2Scratchpad/templates/file_importer_image_xls.xls";
         $this->file_importer_xls["text"] = "http://localhost/~eolit/cp/LD2Scratchpad/templates/TEMPLATE-import_into_taxon_description_xls.xls";
         */
         $this->file_importer_xls["image"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/templates/file_importer_image_xls.xls";
         $this->file_importer_xls["text"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/templates/TEMPLATE-import_into_taxon_description_xls.xls";
-        $this->taxon_description = array();
     }
 
     function export_lifedesk_to_scratchpad($params)
     {
+        $this->text_path = array();
+        $this->booklet_taxa_list = array();
+        $this->booklet_title_list = array();
+        $this->lifedesk_fields = array();
+        $this->scratchpad_image_taxon_list = array();
+        $this->used_GUID = array();
         $this->taxon_description = array();
+        
         if($val = @$params["scratchpad_biblio"]) $this->file_importer_xls["biblio"] = $val;
         if(self::load_zip_contents($params["lifedesk"]))
         {
