@@ -190,6 +190,7 @@ class FemoraleAPI
         if($label == "size")
         {
             $m->source              = str_replace(" ", "%20", $rec["Expr1"]);
+            $m->source              = str_replace(",", "%2c", $m->source);
             $m->measurementUnit     = "http://purl.obolibrary.org/obo/UO_0000016"; //mm - millimeter
             $m->measurementRemarks  = "maximum shell dimension";
         }

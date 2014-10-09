@@ -145,7 +145,7 @@ class ClementsAPIv2
         $rek["catnum"] = "es"; //extinction status
         self::add_string_types($rek, $extinction_status, "http://eol.org/schema/terms/ExtinctionStatus", "true", $ref_ids);
 
-        $rek["catnum"] = "yr";
+        /* $rek["catnum"] = "yr"; -- comment this so year can become metadata for 'extinction_status' */
         if(is_numeric($rec["Extinction Year"]) && $rec["Extinction Year"] > 0)
         {
             self::add_string_types($rek, $rec["Extinction Year"], "http://eol.org/schema/terms/TimeOfExtinction", "false");
@@ -166,7 +166,7 @@ class ClementsAPIv2
         $m->measurementType = $mtype;
         $m->measurementValue = $value;
         $m->measurementOfTaxon = $measurementOfTaxon;
-        if($measurementOfTaxon)
+        if($measurementOfTaxon == "true")
         {
             $m->contributor = 'The Cornell Lab of Ornithology: Clements Checklist'; 
             if($reference_ids) $m->referenceID = implode("; ", $reference_ids);
