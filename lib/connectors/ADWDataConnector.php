@@ -3,7 +3,8 @@ namespace php_active_record;
 
 class ADWDataConnector
 {
-    const DUMP_URL = "/Users/pleary/Downloads/datasets/adw_new.txt";
+    // const DUMP_URL = "/Users/pleary/Downloads/datasets/adw_new.txt";
+    const DUMP_URL = "/Users/eolit/Sites/cp/ADW/adw_new.txt";
 
     public function __construct($resource_id)
     {
