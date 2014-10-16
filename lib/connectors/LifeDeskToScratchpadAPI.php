@@ -28,7 +28,7 @@ class LifeDeskToScratchpadAPI
         if(self::load_zip_contents($params["lifedesk"]))
         {
             self::prepare_tab_delimited_text_files();
-            self::get_scratchpad_image_taxon_list($params["scratchpad_images"], "0"); // "0" here means to open the 1st worksheet from the spreadsheet
+            if($val = $params["scratchpad_images"]) self::get_scratchpad_image_taxon_list($val, "0"); // "0" here means to open the 1st worksheet from the spreadsheet
             self::parse_eol_xml();
             self::add_images_without_taxa_to_export_file();
         }
@@ -271,16 +271,19 @@ class LifeDeskToScratchpadAPI
                     $rec["Description"] = self::get_description($t_dc2, $do, "image");
                     $rec["Creator"] = self::get_creator($t_dcterms, $do, "image");
                     
-                    if($guid = @$this->scratchpad_image_taxon_list[$filename]["guid"])
+                    if($this->scratchpad_image_taxon_list)
                     {
-                        $rec["GUID"] = $guid;
-                        $this->used_GUID[$guid] = '';
-                    }
-                    else
-                    {
-                        echo "\n alert: no guid [$filename][$t_dc2->identifier]\n"; // this means that an image file in XML is not found in the image XLS submitted by SPG
-                        self::save_to_dump($sciname . "\t" . $t_dc2->identifier . "\t" . $filename, $dump_file);
-                        exit("\n-stopped- Will need to notify SPG\n");
+                        if($guid = @$this->scratchpad_image_taxon_list[$filename]["guid"])
+                        {
+                            $rec["GUID"] = $guid;
+                            $this->used_GUID[$guid] = '';
+                        }
+                        else
+                        {
+                            echo "\n alert: no guid [$filename][$t_dc2->identifier]\n"; // this means that an image file in XML is not found in the image XLS submitted by SPG
+                            self::save_to_dump($sciname . "\t" . $t_dc2->identifier . "\t" . $filename, $dump_file);
+                            exit("\n-stopped- Will need to notify SPG\n");
+                        }
                     }
                     
                     self::save_to_template($rec, $this->text_path["image"], "image");
