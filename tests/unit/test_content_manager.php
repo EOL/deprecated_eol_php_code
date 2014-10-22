@@ -34,7 +34,7 @@ class test_content_manager extends SimpletestUnitBase
         $file = $this->content_manager->grab_file('http://eol.org/assets/v2/icon_taxon.png', 'image');
         $cache_path = ContentManager::cache_path($file);
         $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'.png'), 'Should upload the image');
-        $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_orig.jpg'), 'Should be an orignial size converted to jpeg');
+        $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_orig.jpg'), 'Should be an original size converted to jpeg');
         $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_580_360.jpg'), 'Should create thumbnail');
         $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_260_190.jpg'), 'Should create thumbnail');
         $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_98_68.jpg'), 'Should create thumbnail');
@@ -70,6 +70,14 @@ class test_content_manager extends SimpletestUnitBase
         $file = $this->content_manager->grab_file('http://www.nch.com.au/acm/8kmp38.wav', 'audio');
         $cache_path = ContentManager::cache_path($file);
         $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'.wav'), 'Should be an wav file');
+        if (defined('SOX_BIN_PATH')) {
+            $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_orig.png'), 'Should be a spectrogram of the audio, ');
+            $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_580_360.png'), 'Should create thumbnail');
+            $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_260_190.png'), 'Should create thumbnail');
+            $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_98_68.png'), 'Should create thumbnail');
+            $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_130_130.png'), 'Should create thumbnail');
+            $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_88_88.png'), 'Should create thumbnail');
+        }
         self::delete_content(CONTENT_LOCAL_PATH . $cache_path);
     }
 
