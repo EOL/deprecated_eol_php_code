@@ -21,10 +21,16 @@ class RotifersTypeSpecimenAPI
         $this->text_path = array();
         $this->identified_by = array();
         $this->habitats = array();
+        $this->institution_codes = array();
+        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 2); // 15mins timeout
+        $this->institutions_xls = "http://localhost/~eolit/cp/Rotifers/World_Rotifer_institutionsURIS.xls";
+        $this->institutions_xls = "https://dl.dropboxusercontent.com/u/7597512/Rotifers/World_Rotifer_institutionsURIS.xls";
     }
 
     function get_all_taxa()
     {
+        $this->institution_uris = self::get_institution_uris();
+        
         self::load_zip_contents();
         print_r($this->text_path);
 
@@ -61,10 +67,27 @@ class RotifersTypeSpecimenAPI
         debug("\n temporary directory removed: " . $parts["dirname"]);
     }
 
+    private function get_institution_uris()
+    {
+        require_library('connectors/LifeDeskToScratchpadAPI');
+        $func = new LifeDeskToScratchpadAPI();
+        $arr = $func->convert_spreadsheet($this->institutions_xls, 0);
+        $institutions = array();
+        $k = 0;
+        foreach($arr["Code"] as $code)
+        {
+            $institutions[$code] = $arr["URI"][$k];
+            $k++;
+        }
+        echo "\nInstitutions from spreadsheet [$this->institutions_xls]:" . count($institutions) . "\n";
+        return $institutions;
+    }
+    
     private function assemble_identified_by($records_specimen)
     {
         foreach($records_specimen as $rec)
         {
+            $rec = self::clean_record($rec);
             $id = $rec["lngSpecimen_ID"];
             if($identifier = $rec["lngPersIdent_ID"])
             {
@@ -289,8 +312,19 @@ class RotifersTypeSpecimenAPI
         if($val = $field_notes)         self::add_string_types($rec, "Field notes", $val, "http://rs.tdwg.org/dwc/terms/fieldNotes");
     }
 
+    private function clean_record($rec)
+    {
+        foreach(array_keys($rec) as $field)
+        {
+            if(is_numeric(stripos($rec[$field], "n.s."))) $rec[$field] = "";
+        }
+        return $rec;
+    }
+    
     private function process_specimen($rec)
     {
+        $rec = self::clean_record($rec);
+        
         /*
         In tblSpecimen
         IngRepository->Institution Code
@@ -368,13 +402,19 @@ class RotifersTypeSpecimenAPI
         }
         $recorded_by = str_replace('"', '', $recorded_by);
         
-        $type = self::format_type_data($rec["strTypeStat"], $rec);
-        
-        if($val = $type)
+        if($type = self::format_type_data($rec["strTypeStat"], $rec))
         {
-                                                self::add_string_types($rec, "Type information", $val, "http://eol.org/schema/terms/TypeInformation", $remarks);
+            if($institution_code && $institution_code != "- n.s. -") $TSR = self::get_institution_uri($institution_code);
+            else
+            {
+                $TSR = "http://eol.org/schema/terms/unknown";
+                $institution_code = $TSR;
+            }
+            self::add_string_types($rec, "TSR", $TSR, "http://eol.org/schema/terms/TypeSpecimenRepository", $remarks);
+            self::add_string_types($rec, "Institution code", $institution_code, "http://rs.tdwg.org/dwc/terms/institutionCode");
+            self::add_string_types($rec, "Type information", $type, "http://eol.org/schema/terms/TypeInformation");
+            
             if($val = $preparations)            self::add_string_types($rec, "Preparations", $val, "http://rs.tdwg.org/dwc/terms/preparations");
-            if($val = $institution_code)        self::add_string_types($rec, "Institution code", $val, "http://rs.tdwg.org/dwc/terms/institutionCode");
             if($val = $catalog_no)              self::add_string_types($rec, "Catalog number", $val, "http://rs.tdwg.org/dwc/terms/catalogNumber");
             if($val = $count_of_individuals)    self::add_string_types($rec, "Count of individuals", $val, "http://rs.tdwg.org/dwc/terms/individualCount");
             if($val = $identified_by)           self::add_string_types($rec, "Identified by", $val, "http://rs.tdwg.org/dwc/terms/identifiedBy");
@@ -384,6 +424,68 @@ class RotifersTypeSpecimenAPI
         }
     }
 
+    private function get_institution_uri($code) // get URI from biocol.org if available
+    {
+        /* working but not needed anymore
+        $url = "http://biocol.org/find-biorepositories?title=&combine=&field_institution_acronym_value=" . $code;
+        if($html = Functions::lookup_with_cache($url, $this->download_options))
+        {
+            if(preg_match("/<tbody>(.*?)<\/tbody>/ims", $html, $arr))
+            {
+                if(preg_match_all("/<tr(.*?)<\/tr>/ims", $arr[1], $arr))
+                {
+                    if(preg_match("/<td class=\"views-field views-field-field-institution-acronym active\" >(.*?)<\/td>/ims", $arr[1][0], $arr2))
+                    {
+                        $inst_code = Functions::remove_whitespace($arr2[1]);
+                        if($code == $inst_code)
+                        {
+                            if(preg_match("/<td class=\"views-field views-field-title\" >(.*?)<\/td>/ims", $arr[1][0], $arr))
+                            {
+                                if(preg_match("/href=\"(.*?)\"/ims", $arr[1], $arr)) return "http://biocol.org/" . $arr[1];
+                            }
+                        }
+                    }
+                }
+            }
+            else $this->institution_codes[$code] = ''; // institutions not found in biocol.org
+        }
+        return "http://eol.org/schema/terms/institution_" . strtoupper($code);
+        */
+        
+        if($code == "PMNH") $code = "YPM"; // Peabody Museum of Natural History, Yale University, USA
+        if($code == "OÖLM") $code = "OLML"; // Oberösterreichisches Landesmuseum, Linz, Austria
+        if($code == "SIZ") $code = "SIZK"; // I. I. Schmalhausen Institute of Zoology, Kiev, Ukraine
+        if($code == "NMCIC") $code = "CMN"; // National Museum of Natural Sciences, Ottawa, Ontario, Canada
+        if($code == "BM") $code = "BMKB"; // Brunei Museum (Natural History Section), Darussalam, Brunei
+        if($code == "NHM") $code = "NHMUK"; // Natural History Museum, South Kensington, London, UK
+        if($code == "PSUZC") $code = "PSU"; // Prince of Songkla University Zoological Collection, Princess Maha Chakri Sirindhorn Natural History Museum, Thailand
+        if($code == "RUG") $code = "UGMD"; // Ghent University, Institute of Animal Ecology, Belgium
+        if($code == "Lund") $code = "MZLU"; // University of Lund, Limnological Institute, Sweden
+        if($code == "ZIN-RAS") $code = "ZISP"; // Zoological Institute, Russian Academy of Science, St. Petersburg, Russia
+        if($code == "SAM-A") $code = "SAMA"; // South Australian Museum, Adelaide, Australia
+        if($code == "MNHNP") $code = "MNHN"; // Museum National d'Histoire Naturelle, Paris, France
+        if($code == "UWDB") $code = "BDUW"; // University of Waterloo, Department of Biology, Waterloo, Ontario, Canada
+        if($code == "ZSI") $code = "ZSIC"; // Zoological Survey of India, National Zoological Collections, Calcutta, India
+        if($code == "SAM-CT") $code = "SAM"; // South African Museum, Cape Town, South Africa
+        if($code == "UZAS-IZP") $code = "TASH"; // Uzbekistan Academy of Sciences, Institute of Zoology and Parasitology, Tashkent, Uzbekistan
+        if($code == "CRUB") $code = "CRP"; // Centro Regional Universitario Bariloche, Universidad Nacional del Comahue, Bariloche, Argentina
+        if($code == "ZITKD") $code = "TKU"; // Tokyo Kyoiku University (now Tsukuba University), Zoological Institute, Tokyo, Japan
+        if($code == "IHB-CAS") $code = "IHB"; // Institute of Hydrobiology, Chinese Academy of Sciences, Wuhan, China
+        if($code == "IBVV") $code = "IBIW"; // Papanin Institute of the Biology of Inland Waters, Russian Academy of Sciences, Borok, Russia
+        if($code == "IMC") $code = "IM"; // Indian Museum, Calcutta, India
+        if($code == "HRBNU") $code = "HANU"; // Harbin Normal University, Harbin, China
+        if($code == "SYSU") $code = "SYS"; // Biology Museum, Sun Yat-sen University, Guangdong, China
+        if($code == "MSU-KS") $code = "MSUT"; // Mahasarakham University, Science Museum, Thailand
+        
+        if($val = $this->institution_uris[$code]) return $val;
+        else
+        {
+            echo "\nInvestigate: [$code] no URI from spreadsheet\n";
+            echo "\n will try: " . "http://eol.org/schema/terms/institution_" . strtoupper($code);
+            exit;
+        }
+    }
+    
     private function add_string_types($rec, $label, $value, $mtype, $measurementRemarks = null, $value_uri = false)
     {
         $taxon_id = $rec["taxon_id"];
@@ -392,11 +494,11 @@ class RotifersTypeSpecimenAPI
         $occurrence = $this->add_occurrence($taxon_id, $catnum);
         $m->occurrenceID = $occurrence->occurrenceID;
 
-        if(in_array($label, array("Type information", "Habitat")))
+        if(in_array($label, array("TSR", "Habitat")))
         {
             $m->measurementOfTaxon = 'true';
             $m->measurementRemarks = $measurementRemarks;
-            if($label == "Type information") $m->source = $this->specimen_page_by_guid . $rec["lngSpecimen_ID"];
+            if($label == "TSR") $m->source = $this->specimen_page_by_guid . $rec["lngSpecimen_ID"];
             elseif($label == "Habitat") $m->source = $this->species_page_by_guid . $rec["lngSpecies_ID"];
             $m->contributor = 'Rotifer World Catalog';
         }
@@ -464,7 +566,7 @@ class RotifersTypeSpecimenAPI
     private function load_zip_contents()
     {
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
-        if($file_contents = Functions::get_remote_file($this->zip_path, array('timeout' => 3600, 'download_attempts' => 2, 'delay_in_minutes' => 1)))
+        if($file_contents = Functions::lookup_with_cache($this->zip_path, array('timeout' => 3600, 'download_attempts' => 2, 'delay_in_minutes' => 1)))
         {
             $parts = pathinfo($this->zip_path);
             $temp_file_path = $this->TEMP_FILE_PATH . "/" . $parts["basename"];
