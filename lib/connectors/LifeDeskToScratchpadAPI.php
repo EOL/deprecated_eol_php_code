@@ -9,11 +9,88 @@ class LifeDeskToScratchpadAPI
         /*
         $this->file_importer_xls["image"] = "http://localhost/~eolit/cp/LD2Scratchpad/templates/file_importer_image_xls.xls";
         $this->file_importer_xls["text"] = "http://localhost/~eolit/cp/LD2Scratchpad/templates/TEMPLATE-import_into_taxon_description_xls.xls";
+        $this->file_importer_xls["parent_child"]= "http://localhost/~eolit/cp/LD2Scratchpad/templates/template_parent_child.xls";
         */
         $this->file_importer_xls["image"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/templates/file_importer_image_xls.xls";
         $this->file_importer_xls["text"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/templates/TEMPLATE-import_into_taxon_description_xls.xls";
+        $this->file_importer_xls["parent_child"]= "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/templates/template_parent_child.xls";
     }
 
+    function export_lifedesk_taxonomy($params)
+    {
+        $this->text_path = array();
+        if(self::load_zip_contents($params["lifedesk"]))
+        {
+            // initialize
+            $type = "parent_child";
+            self::initialize_dump_file($this->text_path[$type]);
+            $headers = self::get_column_headers($this->file_importer_xls[$type]);
+            print_r($headers);
+            $this->lifedesk_fields[$type] = $headers;
+            self::save_to_dump(implode("\t", $headers), $this->text_path[$type]);
+            
+            /* fields from template
+            [0] => Identifier
+            [1] => Parent
+            [2] => Child
+            [3] => Rank
+            [4] => Synonyms
+            [5] => Vernaculars
+            [6] => VernacularsLanguage
+            [7] => Description
+            */
+            
+            // loop xml
+            if(!$xml = self::load_xml()) exit("\nLifeDesk XML is invalid\n\n");
+            foreach($xml->taxon as $t)
+            {
+                $dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
+                $dc = $t->children("http://purl.org/dc/elements/1.1/");
+                $rec = array();
+                if(preg_match("/tid:(.*?)xxx/ims", (string) $dc->identifier."xxx", $arr)) $rec["Identifier"] = $arr[1];
+                if($val = $dwc->Genus) $rec["Parent"] = (string) $val;
+                elseif($val = $dwc->Family) $rec["Parent"] = (string) $val;
+                elseif($val = $dwc->Order) $rec["Parent"] = (string) $val;
+                elseif($val = $dwc->Class) $rec["Parent"] = (string) $val;
+                elseif($val = $dwc->Phylum) $rec["Parent"] = (string) $val;
+                elseif($val = $dwc->Kingdom) $rec["Parent"] = (string) $val;
+                $rec["Child"] = (string) $dwc->ScientificName;
+                $rec["Rank"] = ""; // ???
+                
+                $temp = array();
+                foreach($t->synonym as $name) $temp[] = (string) $name;
+                $rec["Synonyms"] = implode("|", $temp);
+                
+                $temp = array();
+                foreach($t->commonName as $name) $temp[] = (string) $name;
+                $rec["Vernaculars"] = implode(",", $temp);
+                
+                $rec["VernacularsLanguage"] = "";
+                $rec["Description"] = "";
+                self::save_to_template($rec, $this->text_path[$type], $type);
+            }
+            
+            // compress
+            $destination_folder = create_temp_dir() . "/";
+            // move file to temp folder for compressing
+            if($path = $this->text_path[$type])
+            {
+                $parts = pathinfo($path);
+                copy($this->text_path[$type], $destination_folder . $parts["basename"]);
+            }
+
+            // compress export files
+            $command_line = "tar -czf " . DOC_ROOT . "/tmp/" . $params["name"] . "_parent_child.tar.gz --directory=" . $destination_folder . " .";
+            $output = shell_exec($command_line);
+            recursive_rmdir($destination_folder);
+        }
+        
+        // remove temp dir
+        $parts = pathinfo($this->text_path["eol_xml"]);
+        recursive_rmdir($parts["dirname"]); //debug - comment if you want to see: images_not_in_xls.txt
+        debug("\n temporary directory removed: " . $parts["dirname"]);
+    }
+    
     function export_lifedesk_to_scratchpad($params)
     {
         $this->text_path = array();
@@ -206,11 +283,12 @@ class LifeDeskToScratchpadAPI
         return $fields;
     }
     
-    private function convert_spreadsheet($spreadsheet, $worksheet = null)
+    public function convert_spreadsheet($spreadsheet, $worksheet = null)
     {
         require_library('XLSParser');
         $parser = new XLSParser();
-        if($path = Functions::save_remote_file_to_local($spreadsheet, array("cache" => 1, "timeout" => 3600, "file_extension" => "xls", 'download_attempts' => 2, 'delay_in_minutes' => 2)))
+        $options = array("cache" => 1, "timeout" => 3600, "file_extension" => "xls", 'download_attempts' => 2, 'delay_in_minutes' => 2);
+        if($path = Functions::save_remote_file_to_local($spreadsheet, $options))
         {
             $arr = $parser->convert_sheet_to_array($path, $worksheet);
             unlink($path);
@@ -220,15 +298,21 @@ class LifeDeskToScratchpadAPI
         return false;
     }
     
+    private function load_xml()
+    {
+        $xml_str = file_get_contents($this->text_path["eol_xml"]);
+        $xml_str = str_replace("", "", $xml_str);
+        if($xml = simplexml_load_string($xml_str)) return $xml;
+        return false;
+    }
+    
     private function parse_eol_xml()
     {
         // for stats
         $parts = pathinfo($this->text_path["eol_xml"]);
         $dump_file = $parts["dirname"] . "/images_not_in_xls.txt";
 
-        $xml_str = file_get_contents($this->text_path["eol_xml"]);
-        $xml_str = str_replace("", "", $xml_str);
-        if(!$xml = simplexml_load_string($xml_str)) exit("\nLifeDesk XML is invalid\n\n");
+        if(!$xml = self::load_xml()) exit("\nLifeDesk XML is invalid\n\n");
 
         $i = 0;
         foreach($xml->taxon as $t)
@@ -444,10 +528,11 @@ class LifeDeskToScratchpadAPI
             }
             $this->text_path["eol_xml"] = $temp_dir . "eol-partnership.xml";
             // initialize tab-delimited text files to be used
-            $this->text_path["image"] = $temp_dir . "file_importer_image_xls.txt";
-            $this->text_path["text"] = $temp_dir . "TEMPLATE-import_into_taxon_description_xls.txt";
-            $this->text_path["bibtex"] = $temp_dir . "Biblio-Bibtex.bib";
-            $this->text_path["biblio"] = $temp_dir . "filled_node_importer_biblio_xls.txt";
+            $this->text_path["image"]        = $temp_dir . "file_importer_image_xls.txt";
+            $this->text_path["text"]         = $temp_dir . "TEMPLATE-import_into_taxon_description_xls.txt";
+            $this->text_path["bibtex"]       = $temp_dir . "Biblio-Bibtex.bib";
+            $this->text_path["biblio"]       = $temp_dir . "filled_node_importer_biblio_xls.txt";
+            $this->text_path["parent_child"] = $temp_dir . "parent_child.txt"; // for export_lifedesk_taxonomy()
             print_r($this->text_path);
             return $this->text_path;
         }

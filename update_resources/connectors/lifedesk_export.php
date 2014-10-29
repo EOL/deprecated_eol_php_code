@@ -797,13 +797,50 @@ $params["congofishes"]["local"]["scratchpad_images"] = "";
 $params["congofishes"]["local"]["name"]              = "congofishes";
 $params["congofishes"]["local"]["scratchpad_biblio"] = "";
 // ==================================================================================================
+// indiareeffishes remote
+$params["indiareeffishes"]["remote"]["lifedesk"]          = "http://indiareeffishes.lifedesks.org/eol-partnership.xml.gz";
+$params["indiareeffishes"]["remote"]["bibtex_file"]       = "";
+$params["indiareeffishes"]["remote"]["scratchpad_images"] = "";
+$params["indiareeffishes"]["remote"]["name"]              = "indiareeffishes";
+// indiareeffishes Dropbox
+$params["indiareeffishes"]["dropbox"]["lifedesk"]          = "";
+$params["indiareeffishes"]["dropbox"]["bibtex_file"]       = "";
+$params["indiareeffishes"]["dropbox"]["scratchpad_images"] = "";
+$params["indiareeffishes"]["dropbox"]["name"]              = "indiareeffishes";
+// indiareeffishes local
+$params["indiareeffishes"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/indiareeffishes/eol-partnership.xml.gz";
+$params["indiareeffishes"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/indiareeffishes/Biblio-Bibtex.bib";
+$params["indiareeffishes"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/indiareeffishes/file_importer_image_xls.xls";
+$params["indiareeffishes"]["local"]["name"]              = "indiareeffishes";
+$params["indiareeffishes"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/indiareeffishes/node_importer_biblio_xls.xls";
+// ==================================================================================================
+// olivirv remote
+$params["olivirv"]["remote"]["lifedesk"]          = "http://olivirv.lifedesks.org/eol-partnership.xml.gz";
+$params["olivirv"]["remote"]["bibtex_file"]       = "";
+$params["olivirv"]["remote"]["scratchpad_images"] = "";
+$params["olivirv"]["remote"]["name"]              = "olivirv";
+// olivirv Dropbox
+$params["olivirv"]["dropbox"]["lifedesk"]          = "";
+$params["olivirv"]["dropbox"]["bibtex_file"]       = "";
+$params["olivirv"]["dropbox"]["scratchpad_images"] = "";
+$params["olivirv"]["dropbox"]["name"]              = "olivirv";
+// olivirv local
+$params["olivirv"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/olivirv/eol-partnership.xml.gz";
+$params["olivirv"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/olivirv/Biblio-Bibtex.bib";
+$params["olivirv"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/olivirv/file_importer_image_xls.xls";
+$params["olivirv"]["local"]["name"]              = "olivirv";
+$params["olivirv"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/olivirv/node_importer_biblio_xls.xls";
+// ==================================================================================================
 
 /* paste here which Lifedesk you want to export: e.g. $parameters = $params["leptogastrinae"]["dropbox"];
 the export files (in .tar.gz) will be found in: DOC_ROOT/tmp/leptogastrinae_LD_to_Scratchpad_export.tar.gz
 */
-$parameters = $params["congofishes"]["local"];
+
+/* To run single LifeDesk:
+$parameters = $params["olivirv"]["local"];
 if($parameters) $func->export_lifedesk_to_scratchpad($parameters);
 else echo "\nNothing to process. Program will terminate\n";
+*/
 
 /* To run them all:
 // "terrslugs" ***
@@ -812,9 +849,18 @@ $lifedesks = array("parmotrema", "pelagics", "continenticola", "leptogastrinae",
                    "staurozoa", "liquensms", "liquensbr", "africanamphibians", "cephaloleia", "ampullariidae", "agrilus", "mormyrids", "camptosomata", "urbanfloranyc", 
                    "marineinvaders", "neritopsine", "polycladida", "tabanidae", "squatlobsters", "simuliidae", "proctotrupidae", "opisthobranchia",
                    "katydidsfrombrazil", "hypogymnia", "salamandersofchina", "ebasidiolichens", "hundrednewlichens", "molluscacolombia", "lincolnsflorafauna",
-                   "arachnids", "congofishes");
+                   "arachnids", "congofishes", "indiareeffishes", "olivirv");
 foreach($lifedesks as $lifedesk) $func->export_lifedesk_to_scratchpad($params[$lifedesk]["local"]);
 */
+
+// /* start: Generate taxonomy of a LifeDesk 
+// neotropicalfishes local
+$params = array();
+$params["neotropicalfishes"]["local"]["lifedesk"]   = "http://localhost/~eolit/cp/LD2Scratchpad/neotropicalfishes/eol-partnership.xml.gz";
+$params["neotropicalfishes"]["local"]["name"]       = "neotropicalfishes";
+$parameters = $params["neotropicalfishes"]["local"];
+$func->export_lifedesk_taxonomy($parameters);
+// */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
