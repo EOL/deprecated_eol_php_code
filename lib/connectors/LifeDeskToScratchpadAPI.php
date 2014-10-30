@@ -334,7 +334,7 @@ class LifeDeskToScratchpadAPI
                         $this->booklet_title_list[Functions::remove_whitespace($arr[1])][] = $sciname;
                     }
                 }
-                
+
             }
             if(($i % 100) == 0) echo "\n$i. [$identifier][$sciname]";
             $objects = $t->dataObject;
