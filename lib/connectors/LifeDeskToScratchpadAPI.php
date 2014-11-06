@@ -107,6 +107,7 @@ class LifeDeskToScratchpadAPI
             self::prepare_tab_delimited_text_files();
             if($val = $params["scratchpad_images"]) self::get_scratchpad_image_taxon_list($val, "0"); // "0" here means to open the 1st worksheet from the spreadsheet
             self::parse_eol_xml();
+            self::get_images_from_LD_image_gallery($params);
             self::add_images_without_taxa_to_export_file();
         }
         self::initialize_dump_file($this->text_path["bibtex"]);
@@ -369,7 +370,13 @@ class LifeDeskToScratchpadAPI
                             exit("\n-stopped- Will need to notify SPG\n");
                         }
                     }
-                    
+                    // print_r($rec);
+                    // [Taxonomic name (Name)] => Olivella tehuelchana (Orbigny, 1839)
+                    // [Filename] => oliva_tehuelchana_tf.jpg
+                    // [Licence] => Public Domain
+                    // [Description] => Type figures of Oliva tehuelchana Orbigny, 1839. Recent.<br>. Photographer: Original images. Publisher: Voskuil, Ron. 
+                    // [Creator] => Original images
+                    // [GUID] => 43d9a637-f773-4ab7-b16f-d33356b19154
                     self::save_to_template($rec, $this->text_path["image"], "image");
                 }
                 elseif($do->dataType == "http://purl.org/dc/dcmitype/Text")
@@ -385,6 +392,113 @@ class LifeDeskToScratchpadAPI
                 }
             }
             // if($i > 5) break; //debug
+        }
+    }
+    
+    private function get_images_from_LD_image_gallery($params)
+    {
+        // for stats
+        $parts = pathinfo($this->text_path["eol_xml"]);
+        $dump_file = $parts["dirname"] . "/images_not_in_xls2.txt";
+        
+        // [lifedesk]           => http://localhost/~eolit/cp/LD2Scratchpad/olivirv/eol-partnership.xml.gz
+        // [bibtex_file]        => http://localhost/~eolit/cp/LD2Scratchpad/olivirv/Biblio-Bibtex.bib
+        // [scratchpad_images]  => http://localhost/~eolit/cp/LD2Scratchpad/olivirv/file_importer_image_xls.xls
+        // [name]               => olivirv
+        // [scratchpad_biblio]  => http://localhost/~eolit/cp/LD2Scratchpad/olivirv/node_importer_biblio_xls.xls
+        $url = "http://" . $params["name"] . ".lifedesks.org/image";
+        $options = $this->download_options;
+        $options['expire_seconds'] = false; // lookup to LifeDesk page should not expire unless requested to have a fresh export to scratchpad
+        $options['download_wait_time'] = 2000000;
+        if($html = Functions::lookup_with_cache($url, $options))
+        {
+            // "pager-last last"><a href="/image?page=81"
+            if(preg_match("/\"pager-last last\"><a href=\"\/image\?page=(.*?)\"/ims", $html, $arr)) $last_page = $arr[1];
+            else $last_page = 0;
+
+            echo "\n[$last_page]\n";
+            $nodes = array();
+            $page = 0;
+            for($page = 0; $page <= $last_page; $page++)
+            {
+                if($page > 0) $url = "http://" . $params["name"] . ".lifedesks.org/image?page=" . $page;
+                if($html = Functions::lookup_with_cache($url, $options)) // start accessing Image Gallery pages
+                {
+                    // <span class="field-content"><a href="/node/4485"
+                    if(preg_match_all("/<span class=\"field-content\"><a href=\"\/node\/(.*?)\"/ims", $html, $arr)) $nodes = array_merge($nodes, array_unique($arr[1]));
+                }
+            }
+            //start accessing individual image page in LD
+            $nodes = array_unique($nodes);
+            echo "\n" . count($nodes) . "\n";
+            foreach($nodes as $node)
+            {
+                $proceed_save = false;
+                $rec = array();
+                if($html = Functions::lookup_with_cache("http://" . $params["name"] . ".lifedesks.org/node/$node", $options))
+                {
+                    /*
+                    [Taxonomic name (Name)] => Olivella tehuelchana (Orbigny, 1839)
+                    [Filename] => oliva_tehuelchana_tf.jpg
+                    [Licence] => Public Domain
+                    [Description] => Type figures of Oliva tehuelchana Orbigny, 1839. Recent.<br>. Photographer: Original images. Publisher: Voskuil, Ron. 
+                    [Creator] => Original images
+                    [GUID] => 43d9a637-f773-4ab7-b16f-d33356b19154
+                    */
+
+                    //Taxonomic name (Name)
+                    //<h3>Taxa</h3><ul class="vocabulary-list"><li class="first last"><a href="/pages/4028">Ancillaria conus Andrzeiovski, 1833</a></li>
+                    if(preg_match("/<h3>Taxa<\/h3>(.*?)<\/li>/ims", $html, $arr)) $rec["Taxonomic name (Name)"] = strip_tags($arr[1]);
+                    
+                    //Filename: ancillaria_conus__and_tf.preview.jpg
+                    $str = ".preview.";// . $image_extension;
+                    if(preg_match("/class=\"jqzoom\"><img src=\"(.*?)\"/ims", $html, $arr))
+                    {
+                        $path = $arr[1];
+                        $parts = pathinfo($path);
+                        $rec["Filename"] = str_replace(".preview.", ".", strtolower($parts["basename"]));
+                    }
+                    
+                    //Licence
+                    //<strong>Photographer:</strong> Original image</span><span><a href="http://creativecommons.org/licenses/publicdomain/3.0/"
+                    if(preg_match("/href=\"http:\/\/creativecommons.org(.*?)\"/ims", $html, $arr)) $rec["Licence"] = self::get_license($arr[1]);
+                    
+                    //Description
+                    if(preg_match("/<title>(.*?)<\/title>/ims", $html, $arr)) $rec["Description"] = $arr[1];
+                    
+                    //Creator
+                    if(preg_match("/<strong>Photographer:<\/strong>(.*?)<\/span>/ims", $html, $arr)) $rec["Creator"] = $arr[1];
+                    
+                    //GUID
+                    if($guid = @$this->scratchpad_image_taxon_list[$rec["Filename"]]["guid"])
+                    {
+                        $rec["GUID"] = $guid;
+                        if(!isset($this->used_GUID[$guid]))
+                        {
+                            $this->used_GUID[$guid] = '';
+                            $proceed_save = true;
+                        }
+                    }
+                    else
+                    {
+                        if(isset($rec["Filename"]))
+                        {
+                            // this means that an image file in XML is not found in the image XLS submitted by SPG
+                            self::save_to_dump($rec["Taxonomic name (Name)"] . "\t" . "" . "\t" . $rec["Filename"], $dump_file);
+                            echo "\n no guid node:[$node] \n";
+                            print_r($rec);
+                            // exit("\n-stopped- NO GUID: Will need to notify SPG\n");
+                        }
+                        else echo "\n blank filename in the page \n"; //e.g. http://africanamphibians.lifedesks.org/node/807
+                    }
+                    if($proceed_save)
+                    {
+                        $rec = array_map('trim', $rec);
+                        print_r($rec);
+                        self::save_to_template($rec, $this->text_path["image"], "image");
+                    }
+                }
+            }// for loop
         }
     }
     
