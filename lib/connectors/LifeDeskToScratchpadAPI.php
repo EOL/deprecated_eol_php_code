@@ -100,6 +100,7 @@ class LifeDeskToScratchpadAPI
         $this->scratchpad_image_taxon_list = array();
         $this->used_GUID = array();
         $this->taxon_description = array();
+        $this->creators_for_pages = array(); // used when adding text from LD taxon pages
         
         if($val = @$params["scratchpad_biblio"]) $this->file_importer_xls["biblio"] = $val;
         if(self::load_zip_contents($params["lifedesk"]))
@@ -107,7 +108,8 @@ class LifeDeskToScratchpadAPI
             self::prepare_tab_delimited_text_files();
             if($val = $params["scratchpad_images"]) self::get_scratchpad_image_taxon_list($val, "0"); // "0" here means to open the 1st worksheet from the spreadsheet
             self::parse_eol_xml();
-            self::get_images_from_LD_image_gallery($params);
+            self::get_taxon_descriptions_from_LD_taxon_pages($params);  //new
+            self::get_images_from_LD_image_gallery($params);            //new
             self::add_images_without_taxa_to_export_file();
         }
         self::initialize_dump_file($this->text_path["bibtex"]);
@@ -124,6 +126,7 @@ class LifeDeskToScratchpadAPI
         debug("\n temporary directory removed: " . $parts["dirname"]);
         print_r($params);
         print "\ntaxon_description: " . count($this->taxon_description) . "\n\n";
+        print_r(@$this->debug["undefined subjects"]);
     }
 
     private function fill_up_biblio_spreadsheet($params)
@@ -245,6 +248,8 @@ class LifeDeskToScratchpadAPI
             $headers = self::get_column_headers($this->file_importer_xls[$type]);
             if($type == "text")
             {
+                if(!in_array("Taxonomy", $headers)) $headers[] = "Taxonomy";
+                if(!in_array("TypeInformation", $headers)) $headers[] = "TypeInformation";                
                 if(!in_array("Creator", $headers)) $headers[] = "Creator";
             }
             self::save_to_dump(implode("\t", $headers), $this->text_path[$type]);
@@ -367,7 +372,7 @@ class LifeDeskToScratchpadAPI
                         {
                             echo "\n alert: no guid [$filename][$t_dc2->identifier]\n"; // this means that an image file in XML is not found in the image XLS submitted by SPG
                             self::save_to_dump($sciname . "\t" . $t_dc2->identifier . "\t" . $filename, $dump_file);
-                            exit("\n-stopped- Will need to notify SPG\n");
+                            // exit("\n-stopped- Will need to notify SPG\n");
                         }
                     }
                     // print_r($rec);
@@ -395,6 +400,102 @@ class LifeDeskToScratchpadAPI
         }
     }
     
+    private function get_taxon_descriptions_from_LD_taxon_pages($params)
+    {
+        // $headers = self::get_column_headers($this->file_importer_xls["text"]);
+        $headers = $this->lifedesk_fields["text"];
+        
+        // for stats
+        $parts = pathinfo($this->text_path["eol_xml"]);
+        $dump_file = $parts["dirname"] . "/images_not_in_xls2.txt";
+        
+        $options = $this->download_options;
+        $options['expire_seconds'] = false; // lookup to LifeDesk page should not expire unless requested to have a fresh export to scratchpad
+        $options['download_wait_time'] = 2000000;
+
+        $topics = array();
+        $records = array();
+        //start accessing individual taxon page in LD
+        if($pages = self::get_nodes_or_pages("taxa", $params, $options))
+        {
+            foreach($pages as $page)
+            {
+                // <h3 class="taxonpage">Distribution</h3>
+                if($html = Functions::lookup_with_cache("http://" . $params["name"] . ".lifedesks.org/pages/$page", $options))
+                {
+                    /* getting just topics -- working
+                    if(preg_match_all("/<h3 class=\"taxonpage\">(.*?)<\/h3>/ims", $html, $arr))
+                    {
+                        $topics = array_merge($topics, $arr[1]);
+                        $topics = array_unique($topics);
+                    }
+                    */
+                    
+                    // /*
+                    $html = str_ireplace('<div class="taxonpage-children">', '<div class="sub-chapter"><div class="taxonpage-children">', $html);
+                    if(preg_match_all("/<h3 class=\"taxonpage\">(.*?)<div class=\"sub-chapter\">/ims", $html, $arr))
+                    {
+                        $sections = $arr[1];
+                        $rec = array();
+                        foreach($sections as $section)
+                        {
+                            $str = strip_tags($section, "<p><em><h3>");
+                            $str = str_ireplace(array('Comment (0)',"\n"), '', $str);
+                            $str = Functions::remove_whitespace($str);
+                            $parts = explode("</h3>", $str);
+                            $parts = array_map('trim', $parts);
+                            $rec[$parts[0]] = $parts[1];
+                        }
+                    }
+                    else echo "\nno articles\n";
+                    if(preg_match("/<h1 class=\"taxonpage\">(.*?)<\/h1>/ims", $html, $arr)) // getting sciname
+                    {
+                        $sciname = trim(strip_tags($arr[1]));
+                        $records[$sciname]["articles"] = $rec; // assigning objects to sciname
+                        $records[$sciname]["page"] = $page; // assigning page to sciname
+                    }
+                    // */
+                    
+                }
+            } //foreach page
+        }
+        $topics = array_unique($topics);
+        if($records) self::save_taxon_articles_to_text($records, $headers);
+    }
+    
+    private function save_taxon_articles_to_text($records, $headers)
+    {
+        foreach($records as $sciname => $rec)
+        {
+            // echo "\n[$sciname]";
+            foreach($rec["articles"] as $topic => $text)
+            {
+                // echo "-$topic ";
+                if    ($topic == "Look Alikes")                                             $topic = "Look alikes";
+                elseif($topic == "Diagnostic Description")                                  $topic = "Diagnostic description";
+                elseif($topic == "Risk Statement")                                          $topic = "Risk statement";
+                elseif(in_array($topic, array("Description", "Original description(s)")))   $topic = "General description";
+                elseif($topic == "Name-Bearing Type")                                       $topic = "Taxonomy";
+                elseif($topic == "Type material")                                           $topic = "TypeInformation";
+
+                if(!in_array($topic, $headers))
+                {
+                    echo "\nundefined subject: [$topic]\n";
+                    $this->debug["undefined subjects"][$topic] = '';
+                    continue;
+                }
+                if($topic && $text && $sciname)
+                {
+                    $rekord = array();
+                    $rekord["Taxonomic name (Name)"] = $sciname;
+                    $rekord["Creator"] = $this->creators_for_pages[$rec["page"]];
+                    $rekord[$topic] = $text;
+                    self::save_to_template($rekord, $this->text_path["text"], "text");
+                }
+            }
+        }
+    }
+    
     private function get_images_from_LD_image_gallery($params)
     {
         // for stats
@@ -406,31 +507,15 @@ class LifeDeskToScratchpadAPI
         // [scratchpad_images]  => http://localhost/~eolit/cp/LD2Scratchpad/olivirv/file_importer_image_xls.xls
         // [name]               => olivirv
         // [scratchpad_biblio]  => http://localhost/~eolit/cp/LD2Scratchpad/olivirv/node_importer_biblio_xls.xls
-        $url = "http://" . $params["name"] . ".lifedesks.org/image";
+
         $options = $this->download_options;
         $options['expire_seconds'] = false; // lookup to LifeDesk page should not expire unless requested to have a fresh export to scratchpad
         $options['download_wait_time'] = 2000000;
-        if($html = Functions::lookup_with_cache($url, $options))
-        {
-            // "pager-last last"><a href="/image?page=81"
-            if(preg_match("/\"pager-last last\"><a href=\"\/image\?page=(.*?)\"/ims", $html, $arr)) $last_page = $arr[1];
-            else $last_page = 0;
 
-            echo "\n[$last_page]\n";
-            $nodes = array();
-            $page = 0;
-            for($page = 0; $page <= $last_page; $page++)
-            {
-                if($page > 0) $url = "http://" . $params["name"] . ".lifedesks.org/image?page=" . $page;
-                if($html = Functions::lookup_with_cache($url, $options)) // start accessing Image Gallery pages
-                {
-                    // <span class="field-content"><a href="/node/4485"
-                    if(preg_match_all("/<span class=\"field-content\"><a href=\"\/node\/(.*?)\"/ims", $html, $arr)) $nodes = array_merge($nodes, array_unique($arr[1]));
-                }
-            }
-            //start accessing individual image page in LD
-            $nodes = array_unique($nodes);
-            echo "\n" . count($nodes) . "\n";
+        //start accessing individual image page in LD
+        if($nodes = self::get_nodes_or_pages("image", $params, $options))
+        {
+            echo "\nnodes: " . count($nodes) . "\n";
             foreach($nodes as $node)
             {
                 $proceed_save = false;
@@ -494,12 +579,81 @@ class LifeDeskToScratchpadAPI
                     if($proceed_save)
                     {
                         $rec = array_map('trim', $rec);
-                        print_r($rec);
                         self::save_to_template($rec, $this->text_path["image"], "image");
                     }
                 }
             }// for loop
         }
+    }
+    
+    private function get_nodes_or_pages($what, $params, $options)
+    {
+        if($what == "image") $var = "node";
+        if($what == "taxa") $var = "pages";
+        
+        $url = "http://" . $params["name"] . ".lifedesks.org/$what";
+        if($html = Functions::lookup_with_cache($url, $options))
+        {
+            // "pager-last last"><a href="/image?page=81"
+            if(preg_match("/\"pager-last last\"><a href=\"\/" . $what . "\?page=(.*?)\"/ims", $html, $arr)) $last_page = $arr[1];
+            else $last_page = 0;
+
+            echo "\n last page: [$last_page]\n";
+            $nodes = array();
+            $page = 0;
+            for($page = 0; $page <= $last_page; $page++)
+            {
+                if($page > 0) $url = "http://" . $params["name"] . ".lifedesks.org/" . $what . "?page=" . $page;
+                if($html = Functions::lookup_with_cache($url, $options)) // start accessing pages
+                {
+                    // echo "\n[$url]\n";
+                    if($what == "image")
+                    {
+                        // <span class="field-content"><a href="/node/4485"
+                        if(preg_match_all("/<span class=\"field-content\"><a href=\"\/" . $var . "\/(.*?)\"/ims", $html, $arr)) $nodes = array_merge($nodes, array_unique($arr[1]));
+                    }
+                    elseif($what == "taxa")
+                    {
+                        if(preg_match("/<tbody>(.*?)<\/tbody>/ims", $html, $arr))
+                        {
+                            $html = str_ireplace(array(' class="odd"', ' class="even"', ' class="active"'), "", $arr[1]);
+                            if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $html, $arr))
+                            {
+                                $rows = $arr[1];
+                                foreach($rows as $row)
+                                {
+                                    if(preg_match_all("/<td>(.*?)<\/td>/ims", $row, $arr))
+                                    {
+                                        $tds = $arr[1];
+                                        // <span class="taxon-list taxon_description_missing">&nbsp;</span>
+                                        if(count($tds) != 4) exit("\nInvestigate: wrong no. of columns\n");
+                                        if(!is_numeric(stripos($tds[1], "taxon-list taxon_description_missing")))
+                                        {
+                                            // <a href="/pages/3095">
+                                            if(preg_match("/<a href=\"\/pages\/(.*?)\"/ims", $tds[0], $arr))
+                                            {
+                                                $nodes[] = $arr[1];
+                                                $this->creators_for_pages[$arr[1]] = self::get_creator_from_column($tds[2]);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                // break; //debug
+            }
+        }
+        $nodes = array_unique($nodes);
+        return $nodes;
+    }
+    
+    private function get_creator_from_column($str)
+    {
+        // title="View user profile.">Voskuil, Ron</a>
+        if(preg_match("/title=\"View user profile.\">(.*?)<\/a>/ims", $str, $arr)) return trim($arr[1]);
+        return false;
     }
     
     private function add_images_without_taxa_to_export_file()
@@ -725,10 +879,10 @@ class LifeDeskToScratchpadAPI
                             if(is_numeric(stripos($item, "keywords = {")) && @$this->booklet_taxa_list[$id])
                             {
                                 $this->booklet_taxa_list[$id] = self::enclose_array_values_with_quotes($this->booklet_taxa_list[$id]);
-                                echo "\n[$item]\n";
+                                // echo "\n[$item]\n";
                                 $item = str_replace("}", ", " . implode(", ", $this->booklet_taxa_list[$id])."}", $item);
-                                echo "\ninserted:";
-                                echo "\n[$item]\n";
+                                // echo "\ninserted:";
+                                // echo "\n[$item]\n";
                                 $rec[$i] = $item;
                                 $with_keyword = true;
                             }
@@ -833,6 +987,7 @@ class LifeDeskToScratchpadAPI
         else
         {
             echo "\n investigate: no subject\n";
+            exit;
             print_r($do);
         }
         /* Reminders:
