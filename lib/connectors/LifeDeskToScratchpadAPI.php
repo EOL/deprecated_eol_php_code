@@ -16,81 +16,6 @@ class LifeDeskToScratchpadAPI
         $this->file_importer_xls["parent_child"]= "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/templates/template_parent_child.xls";
     }
 
-    function export_lifedesk_taxonomy($params)
-    {
-        $this->text_path = array();
-        if(self::load_zip_contents($params["lifedesk"]))
-        {
-            // initialize
-            $type = "parent_child";
-            self::initialize_dump_file($this->text_path[$type]);
-            $headers = self::get_column_headers($this->file_importer_xls[$type]);
-            print_r($headers);
-            $this->lifedesk_fields[$type] = $headers;
-            self::save_to_dump(implode("\t", $headers), $this->text_path[$type]);
-            
-            /* fields from template
-            [0] => Identifier
-            [1] => Parent
-            [2] => Child
-            [3] => Rank
-            [4] => Synonyms
-            [5] => Vernaculars
-            [6] => VernacularsLanguage
-            [7] => Description
-            */
-            
-            // loop xml
-            if(!$xml = self::load_xml()) exit("\nLifeDesk XML is invalid\n\n");
-            foreach($xml->taxon as $t)
-            {
-                $dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
-                $dc = $t->children("http://purl.org/dc/elements/1.1/");
-                $rec = array();
-                if(preg_match("/tid:(.*?)xxx/ims", (string) $dc->identifier."xxx", $arr)) $rec["Identifier"] = $arr[1];
-                if($val = $dwc->Genus) $rec["Parent"] = (string) $val;
-                elseif($val = $dwc->Family) $rec["Parent"] = (string) $val;
-                elseif($val = $dwc->Order) $rec["Parent"] = (string) $val;
-                elseif($val = $dwc->Class) $rec["Parent"] = (string) $val;
-                elseif($val = $dwc->Phylum) $rec["Parent"] = (string) $val;
-                elseif($val = $dwc->Kingdom) $rec["Parent"] = (string) $val;
-                $rec["Child"] = (string) $dwc->ScientificName;
-                $rec["Rank"] = ""; // ???
-                
-                $temp = array();
-                foreach($t->synonym as $name) $temp[] = (string) $name;
-                $rec["Synonyms"] = implode("|", $temp);
-                
-                $temp = array();
-                foreach($t->commonName as $name) $temp[] = (string) $name;
-                $rec["Vernaculars"] = implode(",", $temp);
-                
-                $rec["VernacularsLanguage"] = "";
-                $rec["Description"] = "";
-                self::save_to_template($rec, $this->text_path[$type], $type);
-            }
-            
-            // compress
-            $destination_folder = create_temp_dir() . "/";
-            // move file to temp folder for compressing
-            if($path = $this->text_path[$type])
-            {
-                $parts = pathinfo($path);
-                copy($this->text_path[$type], $destination_folder . $parts["basename"]);
-            }
-
-            // compress export files
-            $command_line = "tar -czf " . DOC_ROOT . "/tmp/" . $params["name"] . "_parent_child.tar.gz --directory=" . $destination_folder . " .";
-            $output = shell_exec($command_line);
-            recursive_rmdir($destination_folder);
-        }
-        
-        // remove temp dir
-        $parts = pathinfo($this->text_path["eol_xml"]);
-        recursive_rmdir($parts["dirname"]); //debug - comment if you want to see: images_not_in_xls.txt
-        debug("\n temporary directory removed: " . $parts["dirname"]);
-    }
-    
     function export_lifedesk_to_scratchpad($params)
     {
         $this->text_path = array();
@@ -100,7 +25,8 @@ class LifeDeskToScratchpadAPI
         $this->scratchpad_image_taxon_list = array();
         $this->used_GUID = array();
         $this->taxon_description = array();
-        $this->creators_for_pages = array(); // used when adding text from LD taxon pages
+        $this->creators_for_pages = array();    // used when adding text from LD taxon pages
+        $this->biblio_taxa = array();           // used when searching which taxa are related to which biblio, searches are in the taxon pages.
         
         if($val = @$params["scratchpad_biblio"]) $this->file_importer_xls["biblio"] = $val;
         if(self::load_zip_contents($params["lifedesk"]))
@@ -112,21 +38,37 @@ class LifeDeskToScratchpadAPI
             self::get_images_from_LD_image_gallery($params);            //new
             self::add_images_without_taxa_to_export_file();
         }
+
+        unset($this->used_GUID);
+        unset($this->scratchpad_image_taxon_list);
+        unset($this->creators_for_pages);
+        
         self::initialize_dump_file($this->text_path["bibtex"]);
         if($val = @$params["bibtex_file"])
         {
             self::convert_bibtex_file($val);
             if($val = @$params["scratchpad_biblio"]) self::fill_up_biblio_spreadsheet($params);
         }
-        
+
+        unset($this->taxon_description);
+        unset($this->booklet_taxa_list);
+        unset($this->booklet_title_list);
+        unset($this->lifedesk_fields);
+        unset($this->biblio_taxa);
+
         self::convert_tab_to_xls($params);
         // remove temp dir
         $parts = pathinfo($this->text_path["eol_xml"]);
         recursive_rmdir($parts["dirname"]); //debug - comment if you want to see: images_not_in_xls.txt
         debug("\n temporary directory removed: " . $parts["dirname"]);
         print_r($params);
-        print "\ntaxon_description: " . count($this->taxon_description) . "\n\n";
-        print_r(@$this->debug["undefined subjects"]);
+
+        if($val = @$this->debug["undefined subjects"])
+        {
+            echo "\n undefined subjects: ";
+            print_r($val);
+            exit;
+        }
     }
 
     private function fill_up_biblio_spreadsheet($params)
@@ -136,6 +78,7 @@ class LifeDeskToScratchpadAPI
 
     private function write_biblio_text($spreadsheet)
     {
+        self::prepare_biblio_taxa_list();
         $headers = self::get_column_headers($spreadsheet);
         if($arr = self::convert_spreadsheet($spreadsheet, 0))
         {
@@ -143,22 +86,20 @@ class LifeDeskToScratchpadAPI
             $i = 0;
             foreach($arr['GUID'] as $guid)
             {
-                if($scinames = self::get_scinames_from_booklet_title_list($arr['Title'][$i]))
+                $scinames = self::get_scinames_from_booklet_title_list($arr['Title'][$i]);
+                if($scinames2 = @$this->biblio_taxa[$arr['Title'][$i]])
                 {
-                    $rec = array();
-                    foreach($headers as $header)
-                    {
-                        if($header == "Taxonomic name (Name)") $rec[$header] = $scinames;
-                        else $rec[$header] = $arr[$header][$i];
-                    }
-                    if($rec) self::save_to_template($rec, $this->text_path["biblio"], "biblio");
+                    if($scinames) $scinames .= "|" . $scinames2;
+                    else $scinames = $scinames2;
                 }
-                else
+                
+                $rec = array();
+                foreach($headers as $header)
                 {
-                    $rec = array();
-                    foreach($headers as $header) $rec[$header] = $arr[$header][$i];
-                    if($rec) self::save_to_template($rec, $this->text_path["biblio"], "biblio");
+                    if($header == "Taxonomic name (Name)") $rec[$header] = $scinames;
+                    else $rec[$header] = $arr[$header][$i];
                 }
+                if($rec) self::save_to_template($rec, $this->text_path["biblio"], "biblio");
                 $i++;
             }
             /*
@@ -175,6 +116,17 @@ class LifeDeskToScratchpadAPI
         }
     }
     
+    private function prepare_biblio_taxa_list()
+    {
+        foreach($this->biblio_taxa as $biblio => $taxa) $this->biblio_taxa[$biblio] = implode("|", array_unique($taxa));
+    }
+    
+    private function get_biblio_from_spreadsheet($params)
+    {
+        if($arr = self::convert_spreadsheet($params['scratchpad_biblio'], 0)) return $arr['Title'];
+        return false;
+    }
+    
     private function get_scinames_from_taxon_description($title)
     {
         foreach($this->taxon_description as $sciname => $rec)
@@ -189,6 +141,7 @@ class LifeDeskToScratchpadAPI
     
     private function get_scinames_from_booklet_title_list($title)
     {
+        $orig_title = $title;
         // manual adjustments
         $title = str_ireplace("’", "'", $title);
         $title = str_ireplace("&", "&amp;", $title);
@@ -200,10 +153,14 @@ class LifeDeskToScratchpadAPI
         }
         foreach($this->booklet_title_list as $biblio_title => $scinames)
         {
+            if($biblio_title == $orig_title) return implode("|", $scinames);
+        }
+        foreach($this->booklet_title_list as $biblio_title => $scinames)
+        {
             if($title == substr($biblio_title, 0, strlen($title))) return implode("|", $scinames);
         }
         if($scinames = self::get_scinames_from_taxon_description($title)) return $scinames;
-        return false;
+        return "";
     }
     
     // private function get_biblio_titles_from_LD_xml($params)
@@ -249,7 +206,12 @@ class LifeDeskToScratchpadAPI
             if($type == "text")
             {
                 if(!in_array("Taxonomy", $headers)) $headers[] = "Taxonomy";
-                if(!in_array("TypeInformation", $headers)) $headers[] = "TypeInformation";                
+                if(!in_array("TypeInformation", $headers)) $headers[] = "TypeInformation";
+                if(!in_array("Key", $headers)) $headers[] = "Key";
+                if(!in_array("Notes", $headers)) $headers[] = "Notes";
+                if(!in_array("Citation", $headers)) $headers[] = "Citation";
+                if(!in_array("Bibliography", $headers)) $headers[] = "Bibliography";
+                if(!in_array("References", $headers)) $headers[] = "References";
                 if(!in_array("Creator", $headers)) $headers[] = "Creator";
             }
             self::save_to_dump(implode("\t", $headers), $this->text_path[$type]);
@@ -335,7 +297,7 @@ class LifeDeskToScratchpadAPI
                 /* lifedesks.org/biblio/view/55">biblio title goes here</a> --- get title */
                 if(preg_match("/lifedesks.org\/biblio\/view\/(.*?)<\/a>/ims", $ref, $arr))
                 {
-                    if(preg_match("/>(.*?)xxx/ims", $arr[1]."xxx", $arr))
+                    if(preg_match("/>(.*?)_xxx/ims", $arr[1]."_xxx", $arr))
                     {
                         $this->booklet_title_list[Functions::remove_whitespace($arr[1])][] = $sciname;
                     }
@@ -402,6 +364,9 @@ class LifeDeskToScratchpadAPI
     
     private function get_taxon_descriptions_from_LD_taxon_pages($params)
     {
+        // for biblio spreadsheet
+        $biblios = self::get_biblio_from_spreadsheet($params);
+        
         // $headers = self::get_column_headers($this->file_importer_xls["text"]);
         $headers = $this->lifedesk_fields["text"];
         
@@ -456,9 +421,23 @@ class LifeDeskToScratchpadAPI
                     }
                     // */
                     
+                    
+                    // /*
+                    // DATA-1552
+                    if(preg_match("/<h2 class=\"taxonpage\">References<\/h2>(.*?)title=\"About this site\">About this site<\/a>/ims", $html, $arr))
+                    {
+                        $html = $arr[1];
+                        foreach($biblios as $biblio)
+                        {
+                            if(is_numeric(stripos($html, $biblio))) $this->biblio_taxa[$biblio][] = $sciname;
+                        }
+                    }
+                    // */
+                    
                 }
             } //foreach page
         }
+
         $topics = array_unique($topics);
         if($records) self::save_taxon_articles_to_text($records, $headers);
     }
@@ -471,16 +450,94 @@ class LifeDeskToScratchpadAPI
             foreach($rec["articles"] as $topic => $text)
             {
                 // echo "-$topic ";
-                if    ($topic == "Look Alikes")                                             $topic = "Look alikes";
-                elseif($topic == "Diagnostic Description")                                  $topic = "Diagnostic description";
-                elseif($topic == "Risk Statement")                                          $topic = "Risk statement";
-                elseif(in_array($topic, array("Description", "Original description(s)")))   $topic = "General description";
-                elseif($topic == "Name-Bearing Type")                                       $topic = "Taxonomy";
-                elseif($topic == "Type material")                                           $topic = "TypeInformation";
+                if($topic == "Risk Statement")                  $topic = "Risk statement";
+                elseif($topic == "Molecular Biology")           $topic = "Molecular biology";
+                elseif($topic == "Taxon Biology")               $topic = "Taxon biology";
+                elseif($topic == "Life Cycle")                  $topic = "Life cycle";
+                elseif($topic == "Life Expectancy")             $topic = "Life expectancy";
+                elseif($topic == "Population Biology")          $topic = "Population biology";
+                elseif($topic == "Trophic Strategy")            $topic = "Trophic strategy";
+                elseif(in_array($topic, array("General comments", "Original description", "Original Published Description", "Description générale", "Summary", "Detailed Description", "Liew Manuscript Discussion", "Liew Manuscript Description", "General Description", "Description", "Synoptic Description", "Original description(s)", "Technical Description", "Records &amp; General Information on the taxon", "The information shown herein was extracted from the following publications"))) $topic = "General description";
+                elseif(in_array($topic, array("Look Alikes", "Looks Alike", "Similar Species", "Comparisons"))) $topic = "Look alikes";
+                elseif(in_array($topic, array("Concepts and synonymy", "Common and Local Names", "Taxonomic History", "Local Names", "Taxonomic Notes", "Taxonomic Discussion", "Floral Records", "notes for taxonomic status", "Name-Bearing Type", "Taxonomic Remarks", "Etymology", "Nomenclature and Synonymy", "Synonyms", "Synonymy", "Abbreviations", "Nomenclature", "Additional species, genera..."))) $topic = "Taxonomy";
+                elseif(in_array($topic, array("Type Citation", "Specimens Examined", "Type Data", "Type locality", "Type Information", "Type material location", "Liew Manuscript Type material", "Type material", "Type Material", "Type Locality", "Type specimens", "Type species, type genus..."))) $topic = "TypeInformation";
+                elseif(in_array($topic, array("Conservation Actions and Management", "Conservation", "Conservation Status", "Liew Manuscript Conservation status", "IUCN Red List Category and Justification of Conservation Status"))) $topic = "Conservation status";
+                elseif(in_array($topic, array("Latin Diagnosis", "Diagnostic Features", "Liew Manuscript Diagnosis", "Diagnostic Description", "Differential diagnosis", "Diagnosis"))) $topic = "Diagnostic description";
+                elseif(in_array($topic, array("Foodplant Associations", "Parasitoid Associations", "Predator Associations", "Host species", "Prey", "Pollination Ecology", "Diseases and Parasites", "Enemies and parasitoids", "Known Prey Organisms", "Known Predators", "Known host plants"))) $topic = "Associations";
+                elseif(in_array($topic, array("Fishery information", "Gaps in our knowledge", "Related literature", "Useful Links", "Other Remarks", "Additional Resources", "Other Databases", "Additional links", "Liew Manuscript Other material examined", "General notes", "Other material", "Additional Information", "Systematic Discussion", "Material Examined", "Remarks"))) $topic = "Notes";
+                elseif(in_array($topic, array("Color", "Egg, larval, pupal and adult morphology", "Tadpole morphology", "External Appearance", "Sensory Organs", "Proboscis and Rhynchocoel System", "Blood Vascular System", "Excretory System", "Nervous System", "Body Wall", "Glands", "morphological description", "Osteology"))) $topic = "Morphology";
+                elseif(in_array($topic, array("Digestive System", "Herbivores"))) $topic = "Trophic strategy";
+                elseif(in_array($topic, array("Reproduction and Development", "Reproductive System"))) $topic = "Reproduction";
+                elseif(in_array($topic, array("Adult behavior", "Larval morphology and behavior", "Nesting behavior", "Nestling description", "Nesting Biology", "Behavior", "Repository", "Adult chaetotaxy", "Advertisement Call", "Modes and Mechanisms of Locomotion", "Activity and Special Behaviors"))) $topic = "Behaviour";
+                elseif(in_array($topic, array("Life History", "Metamorphosis"))) $topic = "Life cycle";
+                elseif(in_array($topic, array("Altitudinal Range", "Geographic Range", "Introduction", "Distribution and Habitat", "Occurrence", "Liew Manuscript Distribution", "Known distribution"))) $topic = "Distribution";
+                elseif(in_array($topic, array("Ecology and Behaviour", "Urban Ecology"))) $topic = "Ecology";
+                elseif(in_array($topic, array("Phylogenetics", "Systematics and Phylogenetics", "Phylogenetic Relationships"))) $topic = "Genetics";
+                elseif(in_array($topic, array("Toxicity", "Research Use"))) $topic = "Uses";
+                elseif(in_array($topic, array("Please cite this taxon page as"))) $topic = "Citation";
+                elseif(in_array($topic, array("Description compiled by", "Edited by"))) $topic = "Creator";
+                elseif(in_array($topic, array("Electric Organ Discharge", "Egg description"))) $topic = "Biology";
+                elseif(in_array($topic, array("Habitat and Ecology", "Nest description", "Nesting habitat"))) $topic = "Habitat";
+                elseif(in_array($topic, array("Seasonality"))) $topic = "Cyclicity";
+                elseif(in_array($topic, array("Key to Species"))) $topic = "Key";
+
+
+/*
+if(!in_array("Taxonomy", $headers))         $headers[] = "Taxonomy";
+if(!in_array("TypeInformation", $headers))  $headers[] = "TypeInformation";
+if(!in_array("Key", $headers))              $headers[] = "Key";
+if(!in_array("Notes", $headers))            $headers[] = "Notes";
+if(!in_array("Citation", $headers))         $headers[] = "Citation";
+if(!in_array("Bibliography", $headers))     $headers[] = "Bibliography";
+if(!in_array("References", $headers))       $headers[] = "References";
+if(!in_array("Creator", $headers))          $headers[] = "Creator";
+
+    [4] => General description
+    [5] => Biology
+    [6] => Media (Filename)
+    [7] => Media (URL)
+    [8] => Conservation status
+    [9] => Legislation
+    [10] => Management
+    [11] => Procedures
+    [12] => Threats
+    [13] => Trends
+    [14] => Behaviour
+    [15] => Cytology
+    [16] => Diagnostic description
+    [17] => Genetics
+    [18] => Growth
+    [19] => Look alikes
+    [20] => Molecular biology
+    [21] => Morphology
+    [22] => Physiology
+    [23] => Size
+    [24] => Taxon biology
+    [25] => Evolution
+    [26] => Phylogeny
+    [27] => Map
+    [28] => Associations
+    [29] => Cyclicity
+    [30] => Dispersal
+    [31] => Distribution
+    [32] => Ecology
+    [33] => Habitat
+    [34] => Life cycle
+    [35] => Life expectancy
+    [36] => Migration
+    [37] => Trophic strategy
+    [38] => Population biology
+    [39] => Reproduction
+    [40] => Diseases
+    [41] => Risk statement
+    [42] => Uses
+    [43] => Taxonomy
+    [44] => TypeInformation
+    [45] => Creator
+*/
 
                 if(!in_array($topic, $headers))
                 {
-                    echo "\nundefined subject: [$topic]\n";
                     $this->debug["undefined subjects"][$topic] = '';
                     continue;
                 }
@@ -854,8 +911,8 @@ class LifeDeskToScratchpadAPI
     {
         if($contents = Functions::lookup_with_cache($file, $this->download_options))
         {
-            $contents = str_replace("@", "xxxyyy@", $contents."@");
-            if(preg_match_all("/\@(.*?)xxxyyy/ims", $contents, $arr))
+            $contents = str_replace("@", "_xxxyyy@", $contents."@");
+            if(preg_match_all("/\@(.*?)_xxxyyy/ims", $contents, $arr))
             {
                 foreach($arr[1] as $r) // loop each booklet or article
                 {
@@ -986,7 +1043,7 @@ class LifeDeskToScratchpadAPI
         }
         else
         {
-            echo "\n investigate: no subject\n";
+            echo "\n investigate: no subject [$subject]\n";
             exit;
             print_r($do);
         }
@@ -1006,6 +1063,81 @@ class LifeDeskToScratchpadAPI
         $desc = str_ireplace(array("<em></em>", "<p>.</p>"), "", $desc);
         $desc = strip_tags($desc, "<br><p><i><em>");
         return $desc;
+    }
+
+    function export_lifedesk_taxonomy($params)
+    {
+        $this->text_path = array();
+        if(self::load_zip_contents($params["lifedesk"]))
+        {
+            // initialize
+            $type = "parent_child";
+            self::initialize_dump_file($this->text_path[$type]);
+            $headers = self::get_column_headers($this->file_importer_xls[$type]);
+            print_r($headers);
+            $this->lifedesk_fields[$type] = $headers;
+            self::save_to_dump(implode("\t", $headers), $this->text_path[$type]);
+            
+            /* fields from template
+            [0] => Identifier
+            [1] => Parent
+            [2] => Child
+            [3] => Rank
+            [4] => Synonyms
+            [5] => Vernaculars
+            [6] => VernacularsLanguage
+            [7] => Description
+            */
+            
+            // loop xml
+            if(!$xml = self::load_xml()) exit("\nLifeDesk XML is invalid\n\n");
+            foreach($xml->taxon as $t)
+            {
+                $dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
+                $dc = $t->children("http://purl.org/dc/elements/1.1/");
+                $rec = array();
+                if(preg_match("/tid:(.*?)_xxx/ims", (string) $dc->identifier."_xxx", $arr)) $rec["Identifier"] = $arr[1];
+                if($val = $dwc->Genus) $rec["Parent"] = (string) $val;
+                elseif($val = $dwc->Family) $rec["Parent"] = (string) $val;
+                elseif($val = $dwc->Order) $rec["Parent"] = (string) $val;
+                elseif($val = $dwc->Class) $rec["Parent"] = (string) $val;
+                elseif($val = $dwc->Phylum) $rec["Parent"] = (string) $val;
+                elseif($val = $dwc->Kingdom) $rec["Parent"] = (string) $val;
+                $rec["Child"] = (string) $dwc->ScientificName;
+                $rec["Rank"] = ""; // ???
+                
+                $temp = array();
+                foreach($t->synonym as $name) $temp[] = (string) $name;
+                $rec["Synonyms"] = implode("|", $temp);
+                
+                $temp = array();
+                foreach($t->commonName as $name) $temp[] = (string) $name;
+                $rec["Vernaculars"] = implode(",", $temp);
+                
+                $rec["VernacularsLanguage"] = "";
+                $rec["Description"] = "";
+                self::save_to_template($rec, $this->text_path[$type], $type);
+            }
+            
+            // compress
+            $destination_folder = create_temp_dir() . "/";
+            // move file to temp folder for compressing
+            if($path = $this->text_path[$type])
+            {
+                $parts = pathinfo($path);
+                copy($this->text_path[$type], $destination_folder . $parts["basename"]);
+            }
+
+            // compress export files
+            $command_line = "tar -czf " . DOC_ROOT . "/tmp/" . $params["name"] . "_parent_child.tar.gz --directory=" . $destination_folder . " .";
+            $output = shell_exec($command_line);
+            recursive_rmdir($destination_folder);
+        }
+        
+        // remove temp dir
+        $parts = pathinfo($this->text_path["eol_xml"]);
+        recursive_rmdir($parts["dirname"]); //debug - comment if you want to see: images_not_in_xls.txt
+        debug("\n temporary directory removed: " . $parts["dirname"]);
     }
 
 }
