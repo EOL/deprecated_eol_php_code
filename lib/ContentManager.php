@@ -427,18 +427,18 @@ class ContentManager
 
     function create_crops($path, $list_of_square_sizes, $prefix, $options = array())
     {
-        $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quiet -quality 80"
-        
+        $command_start = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quiet -quality 80"
+        // default latter part of command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill 
+        // any %1$u characters will be substituted by the crop size using sprintf
+        $command_end = "-resize %1$ux%1$u^ -gravity NorthWest -crop %1$ux%1$u+0+0 +repage";
+
         if(isset($options['crop_width']))
         {
             // we have a bespoke crop region, with x & y offsets, plus a crop width
             // offsets are from the 580 x 360 version (but CSS scales them to 540 X 360. The crop will be taken from the original
             // full-sized image, so the offsets and width need to be converted to match the dimensions
             $sizes = getimagesize($path); //this is the full-sized _orig image, properly rotated
-            if(@!$sizes[1])
-            {
-                trigger_error("ContentManager: Unable to determine image dimensions $file, using default crop", E_USER_NOTICE);
-            } else
+            if(count($sizes)>=2 and $sizes[0]>0 and $sizes[1]>0)
             {
                 $width = $sizes[0];
                 $height = $sizes[1];
@@ -455,22 +455,16 @@ class ContentManager
                 $crop_width = floatval($options['crop_width']) * $offset_factor;
                 $x_offset = floatval($options['x_offset']) * $offset_factor;
                 $y_offset = floatval($options['y_offset']) * $offset_factor;
-
-                
-
-                $command .= " -gravity NorthWest -crop ".$crop_width."x".$crop_width."+".$x_offset."+".$y_offset." +repage -resize %1$ux%1$u";
+                $command_end = "-gravity NorthWest -crop ".$crop_width."x".$crop_width."+".$x_offset."+".$y_offset." +repage -resize %1$ux%1$u";
+            } else {
+                trigger_error("ContentManager: Unable to determine image dimensions $file, using default crop", E_USER_NOTICE);
             }
-        }else
-        {
-            // default command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill
-            $command .= " -resize %1$ux%1$u^ -gravity NorthWest -crop %1$ux%1$u+0+0 +repage";
         }
         
         foreach ($sq_dim as $list_of_square_sizes) {
-            $new_image_path = $prefix."_%1$u_%1$u.jpg";
-            //substitute in the square size (%1$u -> $sq_dim)
-            $command = sprintf($command." ".$new_image_path, $sq_dim);
-            shell_exec($command);
+            $command_end = sprintf($command_end, $sq_dim)
+            $new_image_path = $prefix."_".$sq_dim."_".$sq_dim.".jpg";
+            shell_exec($command_start." ".$command_end." ".$new_image_path);
             self::create_checksum($new_image_path);
         }
         return array($new_x_offset, $new_y_offset, $new_crop_width, $new_crop_width);
