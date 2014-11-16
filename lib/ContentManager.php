@@ -435,7 +435,7 @@ class ContentManager
         // default latter part of command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill 
         // any %1$u characters will be substituted by the crop size using sprintf
         $command_end = "-resize %1$ux%1$u^ -gravity NorthWest -crop %1$ux%1$u+0+0 +repage";
-
+        array_walk($crop_percentages, array("Functions", "truncate_from_0_100"));
         if(count($crop_percentages)>=4)
         {
             $sizes = getimagesize($path);
@@ -564,10 +564,10 @@ class ContentManager
                     //smaller height, so scaling only happens if width exceeds max
                     if($width > 540) $scale_factor = $width / 540;
                 }
-                $x_pct = $x * $offset_factor/$width
-                $y_pct = $y * $offset_factor/$height
-                $w_pct = $w * $offset_factor/$width
-                $h_pct = $h * $offset_factor/$height
+                $x_pct = 100.0 * $x * $scale_factor/$width
+                $y_pct = 100.0 * $y * $scale_factor/$height
+                $w_pct = 100.0 * $w * $scale_factor/$width
+                $h_pct = 100.0 * $h * $scale_factor/$height
                 return $this->grab_file($image_url, "image", array('crop_pct' => array($x_pct, $y_pct, $w_pct, $h_pct), 'data_object_id' = $data_object_id);
             } else {
                 trigger_error("ContentManager: Unable to determine image dimensions of $file, using default crop", E_USER_NOTICE);
