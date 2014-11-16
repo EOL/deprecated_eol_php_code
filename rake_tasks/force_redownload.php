@@ -43,7 +43,12 @@ if($result && $row=$result->fetch_assoc())
         }
     }else
     {
-        if($new_object_cache_url = $content_manager->grab_file($row["object_url"], "image"))
+        //must impose old crop locations on the new image to grab
+        $crop = $mysqli->query("SELECT crop_x_pct, crop_y_pct, crop_width_pct, crop_height_pct FROM image_sizes WHERE id=$data_object_id LIMIT 1");
+        if($crop && $row=$crop->fetch_row()) {
+            $options = array('crop_pct' => $row)
+        } else $options = NULL;
+        if($new_object_cache_url = $content_manager->grab_file($row["object_url"], "image", $options)))
         {
             //echo "UPDATE data_objects SET object_cache_url=$object_cache_url WHERE object_cache_url=$object_cache_url";
             $mysqli->query("UPDATE data_objects SET object_cache_url=$new_object_cache_url WHERE id=$data_object_id");
