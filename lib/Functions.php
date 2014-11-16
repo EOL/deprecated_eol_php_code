@@ -23,6 +23,12 @@ class Functions
         return $str;
     }
     
+    public static function truncate_from_0_100(&$value) {
+        if ($value < 0) $value = 0;
+        elseif (value > 100) $value = 100;
+    }
+
+    
     public static function array_to_xml($array, $prefix = "  ")
     {
         $xml = "";
