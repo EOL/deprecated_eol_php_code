@@ -389,26 +389,43 @@ class ContentManager
             $this->create_smaller_version($fullsize_jpg, ContentManager::medium_image_dimensions(), $prefix, implode(ContentManager::medium_image_dimensions(), '_'));
             $this->create_smaller_version($fullsize_jpg, ContentManager::small_image_dimensions(), $prefix, implode(ContentManager::small_image_dimensions(), '_'));
 
-            if (isset($options['crop_pct']) {
+            if (isset($options['data_object_id'])) {
+                $data_object_id=$options['data_object_id'];
+                $crop = @$options['crop_pct'];
+
+                // Check if the image_size db entry exists
+                $resp = $mysqli->query("SELECT crop_x_pct, crop_y_pct, crop_width_pct, crop_height_pct FROM image_sizes WHERE id=$data_object_id LIMIT 1");
+                if ($resp->num_rows)) {
+                    if (is_null($crop)) {
+                        // we haven't been called with a new crop location: do we have an old one to use?
+                        $crop = $resp->fetch_row();
+                        if (count($crop)<4 or is_null($crop[0]) or is_null($crop[1]) or is_null($crop[2]) or is_null($crop[3])) $crop = NULL
+                    }
+                } else {
+                    //DB entry for this data_obj_id doesn't exist: create the image_size entry in the DB (height, etc may be filled in later)
+                    $mysqli->insert("INSERT IGNORE INTO image_sizes (data_object_id) VALUES ($data_object_id)");
+                }
+            }
+            
+            if ($crop) {
                 //if this image has a custom crop, it could be of a tiny region, so use the full size image, to avoid pixellation
-                $crop = $this->create_crops($fullsize_jpg, ContentManager::square_sizes(), $prefix, @$sizes[0], @$sizes[1], $options['crop_pct']);
+                $crop = $this->create_crops($fullsize_jpg, ContentManager::square_sizes(), $prefix, @$sizes[0], @$sizes[1], $crop);
             } else {
                 //we are taking the default big crop, so to save cpu time, don't bother cropping the full size image, just use the 580_360 version
                 $crop = $this->create_crops($big_jpg, ContentManager::square_sizes(), $prefix);
             }
-            
+                        
             if (count($sizes) < 2 or $sizes[0]<=0 or $sizes[1]<=0)
             {
-                trigger_error("ContentManager: Unable to getimagesize for $file: used default crop without recording image dimensions", E_USER_NOTICE);
+                trigger_error("ContentManager: Unable to getimagesize for $file: used default crop and not recording image dimensions", E_USER_NOTICE);
             } else {
-                if (isset($options['data_objects_id'])) {
-                    //assume a row for this data_object_id has already been created in image_sizes (should have been done in DataObjects::cache_object)
+                if (isset($data_object_id)) {
                     $sql = sprintf("SET width=%u,height=%u", $width, $height)
                     if (count($crop)>=4) {
                         //also set the crop values at the same time
                         $sql .= sprintf(",crop_x_pct=%.2F,crop_y_pct=%.2F,crop_width_pct=%.2F,crop_height_pct=%.2F", $crop[0],$crop[1],$crop[2],$crop[3]);
                     }
-                    $GLOBALS['mysqli_connection']->update("UPDATE image_sizes ".$sql." WHERE data_object_id=".intval($options['data_objects_id']));
+                    $GLOBALS['mysqli_connection']->update("UPDATE image_sizes ".$sql." WHERE data_object_id=$data_object_id");
                 }
             }
         }
