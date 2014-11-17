@@ -82,7 +82,7 @@ class ContentManager
             }
 
             // create thumbnails of website content and agent logos
-            if($type=="image") $this->create_content_thumbnails($new_file_path, $new_file_prefix, $options);
+            if($type=="image") $this->create_local_files_and_thumbnails($new_file_path, $new_file_prefix, $options);
             elseif($type=="partner") $this->create_agent_thumbnails($new_file_path, $new_file_prefix);
             elseif($type=="dataset")
             {
@@ -373,12 +373,13 @@ class ContentManager
         return $list_of_sizes;
     }
 
-    function create_content_thumbnails($file, $prefix, $options = array())
+    function create_local_files_and_thumbnails($file, $prefix, $options = array())
     {
         $fullsize_jpg = $this->reduce_original($file, $prefix, $options);
         
         if(file_exists($fullsize_jpg)) {
-            //we have been able to make a new local copy
+            $sizes = getimagesize($fullsize_jpg);
+
             // we make an exception
             if(isset($options['large_image_dimensions']) && is_array($options['large_image_dimensions']))
             {
@@ -387,16 +388,27 @@ class ContentManager
             $big_jpg = $this->create_smaller_version($fullsize_jpg, $large_image_dimensions, $prefix, implode(ContentManager::large_image_dimensions(), '_'));
             $this->create_smaller_version($fullsize_jpg, ContentManager::medium_image_dimensions(), $prefix, implode(ContentManager::medium_image_dimensions(), '_'));
             $this->create_smaller_version($fullsize_jpg, ContentManager::small_image_dimensions(), $prefix, implode(ContentManager::small_image_dimensions(), '_'));
+
             if (isset($options['crop_pct']) {
                 //if this image has a custom crop, it could be of a tiny region, so use the full size image, to avoid pixellation
-                $v = $this->create_crops($fullsize_jpg, ContentManager::square_sizes(), $prefix, crop_percentage = $options['crop_pct']);
-                if (isset($options['data_objects_id']) && $v) {
-                    $sql = "UPDATE image_sizes SET crop_x_pct=%.2F,crop_y_pct=%.2F,crop_width_pct=%.2F,crop_height_pct=%.2F,width=%u,height=%u WHERE data_object_id=%u";
-                    $GLOBALS['mysqli_connection']->update(sprintf($sql,$v[0],$v[1],$v[2],$v[3],$v[4],$v[5],$options['data_objects_id']));
-                }
+                $crop = $this->create_crops($fullsize_jpg, ContentManager::square_sizes(), $prefix, @$sizes[0], @$sizes[1], $options['crop_pct']);
             } else {
                 //we are taking the default big crop, so to save cpu time, don't bother cropping the full size image, just use the 580_360 version
-                $this->create_crops($big_jpg, ContentManager::square_sizes(), $prefix);
+                $crop = $this->create_crops($big_jpg, ContentManager::square_sizes(), $prefix);
+            }
+            
+            if (count($sizes) < 2 or $sizes[0]<=0 or $sizes[1]<=0)
+            {
+                trigger_error("ContentManager: Unable to getimagesize for $file: used default crop without recording image dimensions", E_USER_NOTICE);
+            } else {
+                if (isset($options['data_objects_id'])) {
+                    $sql = sprintf("SET width=%u,height=%u", $width, $height)
+                    if (count($crop)>=4) {
+                        //also set the crop values at the same time
+                        $sql .= sprintf(",crop_x_pct=%.2F,crop_y_pct=%.2F,crop_width_pct=%.2F,crop_height_pct=%.2F", $crop[0],$crop[1],$crop[2],$crop[3]);
+                    }
+                    $GLOBALS['mysqli_connection']->update("UPDATE image_sizes ".$sql." WHERE data_object_id=".intval($options['data_objects_id']));
+                }
             }
         }
     }
@@ -428,32 +440,21 @@ class ContentManager
         return $new_image_path;
     }
 
-    function create_crops($path, $list_of_square_sizes, $prefix, $crop_percentages=NULL)
+    function create_crops($path, $list_of_square_sizes, $prefix, $width=NULL, $height=NULL, $crop_percentages=NULL)
     {
         //if called with $crop != NULL, returns the crop area in percentages, and the image size
         $command_start = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quiet -quality 80"
         // default latter part of command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill 
         // any %1$u characters will be substituted by the crop size using sprintf
         $command_end = "-resize %1$ux%1$u^ -gravity NorthWest -crop %1$ux%1$u+0+0 +repage";
-        array_walk($crop_percentages, array("Functions", "truncate_from_0_100"));
-        if(count($crop_percentages)>=4)
+        if($width && $height && count($crop_percentages)>=4)
         {
-            $sizes = getimagesize($path);
-            if(count($sizes)>=2 and $sizes[0]>0 and $sizes[1]>0)
-            {
-                $width = $sizes[0];
-                $height = $sizes[1];
-                $x = intval(round($crop_percentages[0]/100.0*$width));
-                $y = intval(round($crop_percentages[1]/100.0*$height));
-                $w = intval(round($crop_percentages[2]/100.0*$width));
-                $h = intval(round($crop_percentages[3]/100.0*$height));
-                $command_end = "-gravity NorthWest -crop $wx$h+$x+$y +repage -resize %1$ux%1$u";
-                //add the image width and height to save in the database, since we have calculated it here
-                $crop_percentages[]=$width;
-                $crop_percentages[]=$height;
-            } else {
-                trigger_error("ContentManager: Unable to determine image dimensions $file, using default crop", E_USER_NOTICE);
-            }
+            array_walk($crop_percentages, array("Functions", "truncate_from_0_100"));
+            $x = intval(round($crop_percentages[0]/100.0*$width));
+            $y = intval(round($crop_percentages[1]/100.0*$height));
+            $w = intval(round($crop_percentages[2]/100.0*$width));
+            $h = intval(round($crop_percentages[3]/100.0*$height));
+            $command_end = "-gravity NorthWest -crop $wx$h+$x+$y +repage -resize %1$ux%1$u";
         }
         
         foreach ($sq_dim as $list_of_square_sizes) {
