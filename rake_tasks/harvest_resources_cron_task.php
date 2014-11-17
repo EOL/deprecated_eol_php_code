@@ -57,10 +57,10 @@ foreach($resources as $resource)
     // IF YOU WANT TO RUN ONLY ONE RESOURCE ON A GIVEN NIGHT, use this line:
     // if(!in_array($resource->id, array(324))) continue;
     if($GLOBALS['ENV_DEBUG']) echo $resource->id."\n";
-    
+
     $validate = true;
     if($GLOBALS['ENV_NAME'] == 'test') $validate = false;
-    // YOU_WERE_HERE
+    // YOU WERE HERE 1
     $resource->harvest($validate, false, $fast_for_testing);
 }
 $log->finished();
@@ -70,24 +70,24 @@ if(!$fast_for_testing)
 {
     // publish all pending resources
     shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/publish_resources.php ENV_NAME=". $GLOBALS['ENV_NAME']);
-    
+
     // setting appropriate TaxonConcept publish flag
     Hierarchy::fix_published_flags_for_taxon_concepts();
     Hierarchy::fix_improperly_trusted_concepts();
-    
+
     // update collection items which reference superceded concepts
     shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/remove_superceded_collection_items.php ENV_NAME=". $GLOBALS['ENV_NAME']);
-    
+
     if(!$specified_id)
     {
         // denormalize tables
         shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/denormalize_tables.php ENV_NAME=". $GLOBALS['ENV_NAME']);
-        
+
         if(defined('SOLR_SERVER'))
         {
             // TODO - Change this conditional to something like run_post_harvest_cleanup?, and have that method check the day; we can then override it when
             // testing.
-            // If we're in the test environment 
+            // If we're in the test environment
             // OR if today is Saturday:
             if($GLOBALS["ENV_NAME"] == 'test' || date('w') == 6)
             {
@@ -99,25 +99,25 @@ if(!$fast_for_testing)
                     $solr = new SolrAPI(SOLR_SERVER, 'site_search');
                     $solr->optimize();
                 }
-                
+
                 if(SolrAPI::ping(SOLR_SERVER, 'data_objects'))
                 {
                     $solr = new SolrAPI(SOLR_SERVER, 'data_objects');
                     $solr->optimize();
                 }
-                
+
                 if(SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries'))
                 {
                     $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entries');
                     $solr->optimize();
                 }
-                
+
                 if(SolrAPI::ping(SOLR_SERVER, 'hierarchy_entry_relationship'))
                 {
                     $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entry_relationship');
                     $solr->optimize();
                 }
-                
+
                 if(SolrAPI::ping(SOLR_SERVER, 'collection_items'))
                 {
                     $solr = new SolrAPI(SOLR_SERVER, 'collection_items');
