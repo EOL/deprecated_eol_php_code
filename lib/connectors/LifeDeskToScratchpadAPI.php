@@ -6,6 +6,7 @@ class LifeDeskToScratchpadAPI
     function __construct()
     {
         $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 2); // 15mins timeout
+        $this->download_options["expire_seconds"] = 0; // zip file, bibtex
         /*
         $this->file_importer_xls["image"] = "http://localhost/~eolit/cp/LD2Scratchpad/templates/file_importer_image_xls.xls";
         $this->file_importer_xls["text"] = "http://localhost/~eolit/cp/LD2Scratchpad/templates/TEMPLATE-import_into_taxon_description_xls.xls";
@@ -14,6 +15,10 @@ class LifeDeskToScratchpadAPI
         $this->file_importer_xls["image"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/templates/file_importer_image_xls.xls";
         $this->file_importer_xls["text"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/templates/TEMPLATE-import_into_taxon_description_xls.xls";
         $this->file_importer_xls["parent_child"]= "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/templates/template_parent_child.xls";
+        
+        $this->spreadsheet_cache = 0;                   // 1 => will use caching or 0 => won't use caching
+        $this->LD_image_source_expire_seconds = false;  // false => won't expire; 0 => expires now
+        $this->LD_nodes_pages_expire_seconds = false;   // false => won't expire; 0 => expires now
     }
 
     function export_lifedesk_to_scratchpad($params)
@@ -36,7 +41,7 @@ class LifeDeskToScratchpadAPI
             self::parse_eol_xml();
             self::get_taxon_descriptions_from_LD_taxon_pages($params);  //new
             self::get_images_from_LD_image_gallery($params);            //new
-            self::add_images_without_taxa_to_export_file();
+            self::add_images_without_taxa_to_export_file($params);
         }
 
         unset($this->used_GUID);
@@ -93,6 +98,17 @@ class LifeDeskToScratchpadAPI
                     else $scinames = $scinames2;
                 }
                 
+                // will try when title is stripped of tags
+                if(!$scinames)
+                {
+                    $scinames = self::get_scinames_from_booklet_title_list(strip_tags($arr['Title'][$i]));
+                    if($scinames2 = @$this->biblio_taxa[strip_tags($arr['Title'][$i])])
+                    {
+                        if($scinames) $scinames .= "|" . $scinames2;
+                        else $scinames = $scinames2;
+                    }
+                }
+                
                 $rec = array();
                 foreach($headers as $header)
                 {
@@ -123,7 +139,10 @@ class LifeDeskToScratchpadAPI
     
     private function get_biblio_from_spreadsheet($params)
     {
-        if($arr = self::convert_spreadsheet($params['scratchpad_biblio'], 0)) return $arr['Title'];
+        if($val = @$params['scratchpad_biblio'])
+        {
+            if($arr = self::convert_spreadsheet($val, 0)) return $arr['Title'];
+        }
         return false;
     }
     
@@ -223,19 +242,41 @@ class LifeDeskToScratchpadAPI
     {
         if($arr = self::convert_spreadsheet($spreadsheet, $worksheet))
         {
+            $headers = array_keys($arr);
             $i = 0;
             foreach($arr["GUID"] as $guid)
             {
                 $filename = strtolower($arr["Filename"][$i]);
+                
+                /*
                 $this->scratchpad_image_taxon_list[$filename]["guid"]        = self::clean_str($guid);
                 $this->scratchpad_image_taxon_list[$filename]["taxon"]       = self::clean_str($arr["Taxonomic name (Name)"][$i]);
                 // we are not sure if these 3 fiels will be provided by the scratchpad file
                 $this->scratchpad_image_taxon_list[$filename]["license"]     = self::clean_str($arr["Licence"][$i]);
                 $this->scratchpad_image_taxon_list[$filename]["description"] = self::clean_str($arr["Description"][$i]);
                 $this->scratchpad_image_taxon_list[$filename]["creator"]     = self::clean_str($arr["Creator"][$i]);
+                */
+                foreach($headers as $header)
+                {
+                    $this->scratchpad_image_taxon_list[$filename][$header]     = self::clean_str($arr[$header][$i]);
+                }
+                $this->scratchpad_image_taxon_list[$filename]["guid"]        = self::clean_str($guid);
+                $this->scratchpad_image_taxon_list[$filename]["taxon"]       = self::clean_str($arr["Taxonomic name (Name)"][$i]);
+                
+                
                 $i++;
             }
         }
+        /*
+        Array
+                (
+                    [guid] => 69bb0ba4-2294-4d09-9dd8-5c2e7b6e1f5b
+                    [taxon] => 
+                    [license] => Attribution CC BY
+                    [description] => 
+                    [creator] => 
+                )
+        */
     }
     
     private function clean_str($str)
@@ -255,7 +296,7 @@ class LifeDeskToScratchpadAPI
     {
         require_library('XLSParser');
         $parser = new XLSParser();
-        $options = array("cache" => 1, "timeout" => 3600, "file_extension" => "xls", 'download_attempts' => 2, 'delay_in_minutes' => 2);
+        $options = array("cache" => $this->spreadsheet_cache, "timeout" => 3600, "file_extension" => "xls", 'download_attempts' => 2, 'delay_in_minutes' => 2);
         if($path = Functions::save_remote_file_to_local($spreadsheet, $options))
         {
             $arr = $parser->convert_sheet_to_array($path, $worksheet);
@@ -330,11 +371,33 @@ class LifeDeskToScratchpadAPI
                             $rec["GUID"] = $guid;
                             $this->used_GUID[$guid] = '';
                         }
-                        else
+                        else // this may not be needed anymore...
                         {
-                            echo "\n alert: no guid [$filename][$t_dc2->identifier]\n"; // this means that an image file in XML is not found in the image XLS submitted by SPG
-                            self::save_to_dump($sciname . "\t" . $t_dc2->identifier . "\t" . $filename, $dump_file);
-                            // exit("\n-stopped- Will need to notify SPG\n");
+                            // let us try exchanging jpeg to jpg and vice versa
+                            if(is_numeric(stripos($filename, ".jpg")))
+                            {
+                                $filename = str_ireplace(".jpg", ".jpeg", $filename);
+                                if($guid = @$this->scratchpad_image_taxon_list[$filename]["guid"])
+                                {
+                                    $rec["GUID"] = $guid;
+                                    $this->used_GUID[$guid] = '';
+                                }
+                            }
+                            elseif(is_numeric(stripos($filename, ".jpeg")))
+                            {
+                                $filename = str_ireplace(".jpeg", ".jpg", $filename);
+                                if($guid = @$this->scratchpad_image_taxon_list[$filename]["guid"])
+                                {
+                                    $rec["GUID"] = $guid;
+                                    $this->used_GUID[$guid] = '';
+                                }
+                            }
+                            else
+                            {
+                                echo "\n alert: no guid [$filename][$t_dc2->identifier]\n"; // this means that an image file in XML is not found in the image XLS submitted by SPG
+                                self::save_to_dump($sciname . "\t" . $t_dc2->identifier . "\t" . $filename, $dump_file);
+                                // exit("\n-stopped- Will need to notify SPG\n");
+                            }
                         }
                     }
                     // print_r($rec);
@@ -375,7 +438,7 @@ class LifeDeskToScratchpadAPI
         $dump_file = $parts["dirname"] . "/images_not_in_xls2.txt";
         
         $options = $this->download_options;
-        $options['expire_seconds'] = false; // lookup to LifeDesk page should not expire unless requested to have a fresh export to scratchpad
+        $options['expire_seconds'] = $this->LD_nodes_pages_expire_seconds; // lookup to LifeDesk page should not expire unless requested to have a fresh export to scratchpad
         $options['download_wait_time'] = 2000000;
 
         $topics = array();
@@ -412,7 +475,7 @@ class LifeDeskToScratchpadAPI
                             $rec[$parts[0]] = $parts[1];
                         }
                     }
-                    else echo "\nno articles\n";
+                    // else echo "\nno articles\n"; working...
                     if(preg_match("/<h1 class=\"taxonpage\">(.*?)<\/h1>/ims", $html, $arr)) // getting sciname
                     {
                         $sciname = trim(strip_tags($arr[1]));
@@ -426,14 +489,28 @@ class LifeDeskToScratchpadAPI
                     // DATA-1552
                     if(preg_match("/<h2 class=\"taxonpage\">References<\/h2>(.*?)title=\"About this site\">About this site<\/a>/ims", $html, $arr))
                     {
+                        $with_biblio_taxa = false;
                         $html = $arr[1];
                         foreach($biblios as $biblio)
                         {
-                            if(is_numeric(stripos($html, $biblio))) $this->biblio_taxa[$biblio][] = $sciname;
+                            if(is_numeric(stripos($html, $biblio)) || is_numeric(stripos(strip_tags($html), $biblio)) || is_numeric(stripos($html, strip_tags($biblio))) || is_numeric(stripos(strip_tags($html), strip_tags($biblio))))
+                            {
+                                $this->biblio_taxa[$biblio][] = $sciname;
+                                $with_biblio_taxa = true;
+                            }
+                            else // this may not be needed anymore...
+                            {
+                                $html = str_ireplace(array("\n"), "", $html);
+                                if(is_numeric(stripos($html, $biblio)) || is_numeric(stripos(strip_tags($html), $biblio)) || is_numeric(stripos($html, strip_tags($biblio))) || is_numeric(stripos(strip_tags($html), strip_tags($biblio))))
+                                {
+                                    $this->biblio_taxa[$biblio][] = $sciname;
+                                    $with_biblio_taxa = true;
+                                }
+                            }
                         }
+                        if($with_biblio_taxa) echo "\nwith biblio taxa\n";
                     }
                     // */
-                    
                 }
             } //foreach page
         }
@@ -566,7 +643,7 @@ if(!in_array("Creator", $headers))          $headers[] = "Creator";
         // [scratchpad_biblio]  => http://localhost/~eolit/cp/LD2Scratchpad/olivirv/node_importer_biblio_xls.xls
 
         $options = $this->download_options;
-        $options['expire_seconds'] = false; // lookup to LifeDesk page should not expire unless requested to have a fresh export to scratchpad
+        $options['expire_seconds'] = $this->LD_nodes_pages_expire_seconds; // lookup to LifeDesk page should not expire unless requested to have a fresh export to scratchpad
         $options['download_wait_time'] = 2000000;
 
         //start accessing individual image page in LD
@@ -623,7 +700,7 @@ if(!in_array("Creator", $headers))          $headers[] = "Creator";
                     }
                     else
                     {
-                        if(isset($rec["Filename"]))
+                        if(isset($rec["Filename"]) && isset($rec["Taxonomic name (Name)"]))
                         {
                             // this means that an image file in XML is not found in the image XLS submitted by SPG
                             self::save_to_dump($rec["Taxonomic name (Name)"] . "\t" . "" . "\t" . $rec["Filename"], $dump_file);
@@ -684,7 +761,9 @@ if(!in_array("Creator", $headers))          $headers[] = "Creator";
                                         $tds = $arr[1];
                                         // <span class="taxon-list taxon_description_missing">&nbsp;</span>
                                         if(count($tds) != 4) exit("\nInvestigate: wrong no. of columns\n");
-                                        if(!is_numeric(stripos($tds[1], "taxon-list taxon_description_missing")))
+                                        if(@$params['scratchpad_biblio']) $condition = is_numeric(stripos($tds[1], 'class="taxon-list taxon_description"')) || is_numeric(stripos($tds[1], 'class="taxon-list biblio"'));
+                                        else                              $condition = is_numeric(stripos($tds[1], 'class="taxon-list taxon_description"'));
+                                        if($condition)
                                         {
                                             // <a href="/pages/3095">
                                             if(preg_match("/<a href=\"\/pages\/(.*?)\"/ims", $tds[0], $arr))
@@ -713,19 +792,31 @@ if(!in_array("Creator", $headers))          $headers[] = "Creator";
         return false;
     }
     
-    private function add_images_without_taxa_to_export_file()
+    private function add_images_without_taxa_to_export_file($params)
     {
+        $headers = self::get_column_headers($params["scratchpad_images"]);
         foreach($this->scratchpad_image_taxon_list as $filename => $value)
         {
             $rec = array();
             if(!isset($this->used_GUID[$value["guid"]]))
             {
-                $rec["GUID"] = $value["guid"];
-                $rec["Filename"] = $filename;
-                $rec["Taxonomic name (Name)"] = $value["taxon"];
+                /*
+                $rec["GUID"]                    = $value["guid"];
+                $rec["Filename"]                = $filename;
+                $rec["Taxonomic name (Name)"]   = $value["taxon"];
                 $rec["Licence"]     = @$value["license"];
                 $rec["Description"] = @$value["description"];
                 $rec["Creator"]     = @$value["creator"];
+                */
+                
+                foreach($headers as $header)
+                {
+                    $rec[$header] = @$value[$header];
+                }
+                $rec["GUID"]                    = $value["guid"];
+                $rec["Filename"]                = $filename;
+                $rec["Taxonomic name (Name)"]   = $value["taxon"];
+                
                 self::save_to_template($rec, $this->text_path["image"], "image");
             }
         }
@@ -806,10 +897,11 @@ if(!in_array("Creator", $headers))          $headers[] = "Creator";
         if($dc->source && $do->mediaURL)
         {
             $options = $this->download_options;
-            $options['expire_seconds'] = false; // lookup to LifeDesk page should not expire unless requested to have a fresh export to scratchpad
+            $options['expire_seconds'] = $this->LD_image_source_expire_seconds; // lookup to LifeDesk page should not expire unless requested to have a fresh export to scratchpad
             if($html = Functions::lookup_with_cache($dc->source, $options))
             {
-                $image_extension = self::get_image_extension($do->mimeType);
+                if(preg_match("/\.preview\.(.*?)\"/ims", $html, $arr)) $image_extension = $arr[1];
+                else $image_extension = self::get_image_extension($do->mimeType);
                 $str = ".preview." . $image_extension;
                 if(preg_match("/class=\"jqzoom\"><img src=\"(.*?)" . $str . "/ims", $html, $arr))
                 {
