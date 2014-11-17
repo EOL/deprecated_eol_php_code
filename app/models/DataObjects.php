@@ -213,16 +213,6 @@ class DataObject extends ActiveRecord
                 {
                     $image_options['rotation'] = $this->additional_information['rotation'];
                 }
-                // Use the previous crop info if it exists
-                $crop = $mysqli->query("SELECT crop_x_pct, crop_y_pct, crop_width_pct, crop_height_pct FROM image_sizes WHERE id=$this->id LIMIT 1");
-                if($crop) {
-                    if ($crop->num_rows)) {
-                        $image_options['crop_pct'] = $crop->fetch_row();
-                    } else {
-                        //Row doesn't exist: create the image_size entry in the DB, height, etc will be filled in later
-                        $crop = $mysqli->insert("INSERT IGNORE INTO image_sizes (data_object_id) VALUES ($this->id)");
-                    }
-                }
                 $this->object_cache_url = $content_manager->grab_file($this->object_url, "image", $image_options);
                 if(@!$this->object_cache_url) return false;
             }else return false;
