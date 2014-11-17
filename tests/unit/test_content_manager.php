@@ -34,7 +34,7 @@ class test_content_manager extends SimpletestUnitBase
         $file = $this->content_manager->grab_file('http://eol.org/assets/v2/icon_taxon.png', 'image');
         $cache_path = ContentManager::cache_path($file);
         $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'.png'), 'Should upload the image');
-        $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_orig.jpg'), 'Should be an orignial size converted to jpeg');
+        $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_orig.jpg'), 'Should be an original size converted to jpeg');
         $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_580_360.jpg'), 'Should create thumbnail');
         $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_260_190.jpg'), 'Should create thumbnail');
         $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_98_68.jpg'), 'Should create thumbnail');
@@ -111,6 +111,18 @@ class test_content_manager extends SimpletestUnitBase
         self::delete_content(CONTENT_LOCAL_PATH . $cache_path);
     }
 
+    function testCustomCropping()
+    {
+        $image_options = array('data_object_id' => 0, 'crop_pct'=>array(1.111,2.222,3.333,4.444))
+        $file = $this->content_manager->grab_file('http://eol.org/assets/v2/icon_taxon.png', 'image', );
+        $cache_path = ContentManager::cache_path($file);
+        $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'.png'), 'Should upload the image');
+        $size = imagesize(CONTENT_LOCAL_PATH . $cache_path .'.png')
+        $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_130_130.jpg'), 'Should create');
+        $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_88_88.jpg'), 'Should create thumbnail');
+        self::delete_content(CONTENT_LOCAL_PATH . $cache_path);
+    }
+
     function testEnforcingExtensions()
     {
         $file = $this->content_manager->grab_file('http://www.wikipedia.org/', 'image');
@@ -121,6 +133,7 @@ class test_content_manager extends SimpletestUnitBase
 
     private static function delete_content($prefix)
     {
+        $prefix = trim($prefix);
         if(!$prefix || $prefix == '/') return;
         foreach(glob($prefix. '*') as $filename) unlink($filename);
     }
