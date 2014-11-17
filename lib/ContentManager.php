@@ -389,45 +389,19 @@ class ContentManager
             $this->create_smaller_version($fullsize_jpg, ContentManager::medium_image_dimensions(), $prefix, implode(ContentManager::medium_image_dimensions(), '_'));
             $this->create_smaller_version($fullsize_jpg, ContentManager::small_image_dimensions(), $prefix, implode(ContentManager::small_image_dimensions(), '_'));
 
-            if (isset($options['data_object_id'])) {
-                $data_object_id=$options['data_object_id'];
-                $crop = @$options['crop_pct'];
+            $crop = $this->get_saved_crop_or_initialize(@$options['data_object_id']);
+            if (!empty($options['crop_pct'])) $crop = $options['crop_pct'];
 
-                // Check if the image_size db entry exists
-                $resp = $mysqli->query("SELECT crop_x_pct, crop_y_pct, crop_width_pct, crop_height_pct FROM image_sizes WHERE id=$data_object_id LIMIT 1");
-                if ($resp->num_rows)) {
-                    if (is_null($crop)) {
-                        // we haven't been called with a new crop location: do we have an old one to use?
-                        $crop = $resp->fetch_row();
-                        if (count($crop)<4 or is_null($crop[0]) or is_null($crop[1]) or is_null($crop[2]) or is_null($crop[3])) $crop = NULL
-                    }
-                } else {
-                    //DB entry for this data_obj_id doesn't exist: create the image_size entry in the DB (height, etc may be filled in later)
-                    $mysqli->insert("INSERT IGNORE INTO image_sizes (data_object_id) VALUES ($data_object_id)");
-                }
-            }
-            
-            if ($crop) {
+            if (count($crop)>=4)
+            {
                 //if this image has a custom crop, it could be of a tiny region, so use the full size image, to avoid pixellation
-                $crop = $this->create_crops($fullsize_jpg, ContentManager::square_sizes(), $prefix, @$sizes[0], @$sizes[1], $crop);
+                $this->create_crops($fullsize_jpg, ContentManager::square_sizes(), $prefix, @$sizes[0], @$sizes[1], $crop);
             } else {
                 //we are taking the default big crop, so to save cpu time, don't bother cropping the full size image, just use the 580_360 version
-                $crop = $this->create_crops($big_jpg, ContentManager::square_sizes(), $prefix);
+                $this->create_crops($big_jpg, ContentManager::square_sizes(), $prefix);
             }
-                        
-            if (count($sizes) < 2 or $sizes[0]<=0 or $sizes[1]<=0)
-            {
-                trigger_error("ContentManager: Unable to getimagesize for $file: used default crop and not recording image dimensions", E_USER_NOTICE);
-            } else {
-                if (isset($data_object_id)) {
-                    $sql = sprintf("SET width=%u,height=%u", $width, $height)
-                    if (count($crop)>=4) {
-                        //also set the crop values at the same time
-                        $sql .= sprintf(",crop_x_pct=%.2F,crop_y_pct=%.2F,crop_width_pct=%.2F,crop_height_pct=%.2F", $crop[0],$crop[1],$crop[2],$crop[3]);
-                    }
-                    $GLOBALS['mysqli_connection']->update("UPDATE image_sizes ".$sql." WHERE data_object_id=$data_object_id");
-                }
-            }
+            
+            $this->save_image_size_data(@$options['data_object_id'], @$sizes[0], @$sizes[1], $crop);
         }
     }
 
@@ -435,6 +409,46 @@ class ContentManager
     {
         $this->create_constrained_square_crops($file, ContentManager::square_sizes(), $prefix);
     }
+
+    function get_saved_crop_or_initialize($data_object_id)
+    {
+        if (isset($data_object_id) {
+            // Check if the image_size db entry exists
+            $resp = $mysqli->query("SELECT crop_x_pct, crop_y_pct, crop_width_pct, crop_height_pct FROM image_sizes WHERE id=$data_object_id LIMIT 1");
+            if ($resp) {
+                if ($resp->num_rows) {
+                    $crop = $resp->fetch_row()
+                    if (isset($crop[0]) and isset($crop[1]) and isset($crop[2]) and isset($crop[3]))
+                        return $crop;
+                } else {
+                    //DB entry for this data_obj_id doesn't exist: create the image_size entry in the DB (height, etc may be filled in later)
+                    $mysqli->insert("INSERT IGNORE INTO image_sizes (data_object_id) VALUES ($data_object_id)");
+                }
+            } else {
+                trigger_error("ContentManager: Database error while getting data_object $data_object_id from image_sizes table", E_USER_NOTICE);
+            }
+        }
+        return NULL;
+    }
+
+    function save_image_size_data($data_object_id, $width, $height, $crop_percentages=NULL)
+    {
+        if (empty($width) or empty($height))
+        {
+            trigger_error("ContentManager: Unable to getimagesize for $file: used default crop and not recording image_size data", E_USER_NOTICE);
+        } else {
+            if (isset($data_object_id)) {
+                $sql = sprintf("SET width=%u,height=%u", $width, $height)
+                if (count($crop_percentages)>=4) {
+                    //also set the crop values at the same time
+                    $sql .= sprintf(",crop_x_pct=%.2F,crop_y_pct=%.2F,crop_width_pct=%.2F,crop_height_pct=%.2F", $crop[0],$crop[1],$crop[2],$crop[3]);
+                }
+                $GLOBALS['mysqli_connection']->update("UPDATE image_sizes ".$sql." WHERE data_object_id=$data_object_id");
+            }
+            //if we called this without a data_object_id, just don't bother saving the info (useful e.g. for testing)
+        }
+    }
+
 
     function reduce_original($path, $prefix, $options = array())
     {
@@ -458,7 +472,7 @@ class ContentManager
         return $new_image_path;
     }
 
-    function create_crops($path, $list_of_square_sizes, $prefix, $width=NULL, $height=NULL, $crop_percentages=NULL)
+    function create_crops($path, $list_of_square_sizes, $prefix, $width=NULL, $height=NULL, &$crop_percentages=NULL)
     {
         //if called with $crop != NULL, returns the crop area in percentages, and the image size
         $command_start = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quiet -quality 80"
@@ -481,7 +495,6 @@ class ContentManager
             shell_exec($command_start." ".$command_end." ".$new_image_path);
             self::create_checksum($new_image_path);
         }
-        return $crop_percentages;
     }
 
     function create_constrained_square_crops($path, $list_of_square_sizes, $prefix)
