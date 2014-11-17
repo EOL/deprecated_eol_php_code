@@ -44,6 +44,7 @@ class DataObject extends ActiveRecord
         $GLOBALS['mysqli_connection']->delete("DELETE FROM data_objects_info_items WHERE $where_clause");
         $GLOBALS['mysqli_connection']->delete("DELETE FROM data_objects_table_of_contents WHERE $where_clause");
         $GLOBALS['mysqli_connection']->delete("DELETE FROM data_objects_harvest_events WHERE $where_clause");
+        $GLOBALS['mysqli_connection']->delete("DELETE FROM image_sizes WHERE $where_clause");
         
         
         $where_clause = "id=$id";
@@ -218,7 +219,7 @@ class DataObject extends ActiveRecord
                     if ($crop->num_rows)) {
                         $image_options['crop_pct'] = $crop->fetch_row();
                     } else {
-                        //create the image_size entry in the DB, height, etc will be filled in later
+                        //Row doesn't exist: create the image_size entry in the DB, height, etc will be filled in later
                         $crop = $mysqli->insert("INSERT IGNORE INTO image_sizes (data_object_id) VALUES ($this->id)");
                     }
                 }
