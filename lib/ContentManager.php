@@ -402,6 +402,7 @@ class ContentManager
                 trigger_error("ContentManager: Unable to getimagesize for $file: used default crop without recording image dimensions", E_USER_NOTICE);
             } else {
                 if (isset($options['data_objects_id'])) {
+                    //assume a row for this data_object_id has already been created in image_sizes (should have been done in DataObjects::cache_object)
                     $sql = sprintf("SET width=%u,height=%u", $width, $height)
                     if (count($crop)>=4) {
                         //also set the crop values at the same time
