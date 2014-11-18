@@ -30,6 +30,8 @@ class ContentManager
     {
         if(@!$options['timeout']) $options['timeout'] = DOWNLOAD_TIMEOUT_SECONDS;
         $options['type'] = $type;
+        //should check here if $file is local. If so, just make a hard link to save space
+        // (note that the PHP docs wrongly claim link() requires extra privileges on Windows 
         if($temp_file_path = self::download_temp_file_and_assign_extension($file, array_merge($options, array('unique_key' => $this->unique_key, 'is_resource' => ($type == "resource")))))
         {
             $suffix = null;
@@ -102,10 +104,10 @@ class ContentManager
               preg_match("/^".preg_quote(CONTENT_RESOURCE_LOCAL_PATH, "/")."(.*)$/", $new_file_path, $arr))  $new_file_path = $arr[1];
             elseif($type=="dataset" &&
               preg_match("/^".preg_quote(CONTENT_DATASET_PATH, "/")."(.*)$/", $new_file_path, $arr))  $new_file_path = $arr[1];
-        }
 
-        if(file_exists($temp_file_path)) unlink($temp_file_path);
-        if(isset($new_file_path) && $new_file_path) return $new_file_path;
+            if(file_exists($temp_file_path)) unlink($temp_file_path);
+            if(isset($new_file_path) && $new_file_path) return $new_file_path;
+        }
         return null;
     }
 
