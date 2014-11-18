@@ -92,7 +92,7 @@ class ContentManager
 
             if(in_array($type, array("image", "video", "audio", "upload", "partner"))) self::create_checksum($new_file_path);
 
-            // Take the substring of the new file path to return via the webservice
+            // Take the substring of the new file path to return via the webservice, so that /content/2009/05/19/23/85866.png -> 200905192385866
             if(($type=="image" || $type=="video" || $type=="audio" || $type=="partner" || $type=="upload") &&
               preg_match("/^".preg_quote(CONTENT_LOCAL_PATH, "/")."(.*)\.[^\.]+$/", $new_file_path, $arr))
             {
@@ -378,7 +378,11 @@ class ContentManager
         $fullsize_jpg = $this->reduce_original($file, $prefix, $options);
         
         if(file_exists($fullsize_jpg)) {
-            $sizes = getimagesize($fullsize_jpg);
+            $sizes = getimagesize($file);
+            $width = @$sizes[0];
+            $height = @$sizes[1];
+            if (empty($width) && empty($height))
+                trigger_error("ContentManager: Unable to getimagesize for $file: using default crop and not recording image_size data", E_USER_NOTICE);
 
             // we make an exception
             if(isset($options['large_image_dimensions']) && is_array($options['large_image_dimensions']))
@@ -394,14 +398,14 @@ class ContentManager
 
             if (count($crop)>=4)
             {
-                //if this image has a custom crop, it could be of a tiny region, so use the full size image, to avoid pixellation
-                $this->create_crops($fullsize_jpg, ContentManager::square_sizes(), $prefix, @$sizes[0], @$sizes[1], $crop);
+                //if this image has a custom crop, it could be of a tiny region, so use the original image, to avoid pixellation & jpeg artifacts
+                $this->create_crops($file, ContentManager::square_sizes(), $prefix, @$sizes[0], @$sizes[1], $crop);
             } else {
                 //we are taking the default big crop, so to save cpu time, don't bother cropping the full size image, just use the 580_360 version
                 $this->create_crops($big_jpg, ContentManager::square_sizes(), $prefix);
             }
             
-            $this->save_image_size_data(@$options['data_object_id'], @$sizes[0], @$sizes[1], $crop);
+            $this->save_image_size_data(@$options['data_object_id'], $width, $height, $crop);
         }
     }
 
@@ -412,12 +416,12 @@ class ContentManager
 
     function get_saved_crop_or_initialize($data_object_id)
     {
-        if (isset($data_object_id) {
+        if (isset($data_object_id)) {
             // Check if the image_size db entry exists
             $resp = $mysqli->query("SELECT crop_x_pct, crop_y_pct, crop_width_pct, crop_height_pct FROM image_sizes WHERE id=$data_object_id LIMIT 1");
             if ($resp) {
                 if ($resp->num_rows) {
-                    $crop = $resp->fetch_row()
+                    $crop = $resp->fetch_row();
                     if (isset($crop[0]) and isset($crop[1]) and isset($crop[2]) and isset($crop[3]))
                         return $crop;
                 } else {
@@ -433,19 +437,13 @@ class ContentManager
 
     function save_image_size_data($data_object_id, $width, $height, $crop_percentages=NULL)
     {
-        if (empty($width) or empty($height))
-        {
-            trigger_error("ContentManager: Unable to getimagesize for $file: used default crop and not recording image_size data", E_USER_NOTICE);
-        } else {
-            if (isset($data_object_id)) {
-                $sql = sprintf("SET width=%u,height=%u", $width, $height)
-                if (count($crop_percentages)>=4) {
-                    //also set the crop values at the same time
-                    $sql .= sprintf(",crop_x_pct=%.2F,crop_y_pct=%.2F,crop_width_pct=%.2F,crop_height_pct=%.2F", $crop[0],$crop[1],$crop[2],$crop[3]);
-                }
-                $GLOBALS['mysqli_connection']->update("UPDATE image_sizes ".$sql." WHERE data_object_id=$data_object_id");
+        if (!empty($width) and !empty($height) and isset($data_object_id)) {
+            $sql = sprintf("SET width=%u,height=%u", $width, $height);
+            if (count($crop_percentages) >= 4) {
+                //also set the crop values at the same time
+                $sql .= sprintf(",crop_x_pct=%.2F,crop_y_pct=%.2F,crop_width_pct=%.2F,crop_height_pct=%.2F", $crop[0],$crop[1],$crop[2],$crop[3]);
             }
-            //if we called this without a data_object_id, just don't bother saving the info (useful e.g. for testing)
+            $GLOBALS['mysqli_connection']->update("UPDATE image_sizes ".$sql." WHERE data_object_id=$data_object_id");
         }
     }
 
@@ -475,10 +473,10 @@ class ContentManager
     function create_crops($path, $list_of_square_sizes, $prefix, $width=NULL, $height=NULL, &$crop_percentages=NULL)
     {
         //if called with $crop != NULL, returns the crop area in percentages, and the image size
-        $command_start = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quiet -quality 80"
+        $command_start = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quiet -quality 80";
         // default latter part of command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill 
         // any %1$u characters will be substituted by the crop size using sprintf
-        $command_end = "-resize %1$ux%1$u^ -gravity NorthWest -crop %1$ux%1$u+0+0 +repage";
+        $command_end = '-resize %1$ux%1$u^ -gravity NorthWest -crop %1$ux%1$u+0+0 +repage';
         if($width && $height && count($crop_percentages)>=4)
         {
             array_walk($crop_percentages, array("Functions", "truncate_from_0_100"));
@@ -486,11 +484,11 @@ class ContentManager
             $y = intval(round($crop_percentages[1]/100.0*$height));
             $w = intval(round($crop_percentages[2]/100.0*$width));
             $h = intval(round($crop_percentages[3]/100.0*$height));
-            $command_end = "-gravity NorthWest -crop $wx$h+$x+$y +repage -resize %1$ux%1$u";
+            $command_end = "-gravity NorthWest -crop $wx$h+$x+$y +repage ".'-resize %1$ux%1$u';
         }
         
-        foreach ($sq_dim as $list_of_square_sizes) {
-            $command_end = sprintf($command_end, $sq_dim)
+        foreach ($list_of_square_sizes as $sq_dim) {
+            $command_end = sprintf($command_end, $sq_dim);
             $new_image_path = $prefix."_".$sq_dim."_".$sq_dim.".jpg";
             shell_exec($command_start." ".$command_end." ".$new_image_path);
             self::create_checksum($new_image_path);
@@ -568,11 +566,14 @@ class ContentManager
         $data_object = DataObject::find($data_object_id);
         if(!$data_object)
         {
-            trigger_error("ContentManager: Invalid data object ID $data_object_id", E_USER_NOTICE);
+            trigger_error("ContentManager: Cropping invalid data object ID $data_object_id", E_USER_NOTICE);
         } elseif($data_object->is_image() && $data_object->object_cache_url)
         {
+            /* why can't we just use $data_object->object_cache_url which should give a link to the original image, not the jpg version */
+            echo $data_object->object_cache_url;
             $cache_path = self::cache_path($data_object->object_cache_url);
             $image_url = CONTENT_LOCAL_PATH . $cache_path ."_orig.jpg";
+            echo $image_url;
             if(!file_exists($image_url)) $image_url = "http://content71.eol.org/content/" . $cache_path ."_orig.jpg";
             if (is_null($h)) $h=$w;
             
@@ -596,11 +597,11 @@ class ContentManager
                     //smaller height, so scaling only happens if width exceeds max
                     if($width > 540) $scale_factor = $width / 540;
                 }
-                $x_pct = 100.0 * $x * $scale_factor/$width
-                $y_pct = 100.0 * $y * $scale_factor/$height
-                $w_pct = 100.0 * $w * $scale_factor/$width
-                $h_pct = 100.0 * $h * $scale_factor/$height
-                return $this->grab_file($image_url, "image", array('crop_pct' => array($x_pct, $y_pct, $w_pct, $h_pct), 'data_object_id' = $data_object_id);
+                $x_pct = 100.0 * $x * $scale_factor/$width;
+                $y_pct = 100.0 * $y * $scale_factor/$height;
+                $w_pct = 100.0 * $w * $scale_factor/$width;
+                $h_pct = 100.0 * $h * $scale_factor/$height;
+                return $this->grab_file($image_url, "image", array('crop_pct' => array($x_pct, $y_pct, $w_pct, $h_pct), 'data_object_id' => $data_object_id));
             } else {
                 trigger_error("ContentManager: Unable to determine image dimensions of $file, using default crop", E_USER_NOTICE);
             }
