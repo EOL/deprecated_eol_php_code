@@ -546,7 +546,7 @@ class ContentManager
         }
         
         $new_image_path = $prefix."_".$dimensions[0].'_'.$dimensions[1].".jpg";
-        shell_exec($command_start." ".$new_image_path);
+        shell_exec($command." ".$new_image_path);
         self::create_checksum($new_image_path);
     }
 
