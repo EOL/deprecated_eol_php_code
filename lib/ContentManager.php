@@ -47,7 +47,7 @@ class ContentManager
             if (strlen($extension)) $permanent_file_path .= '.'.$extension;
             if (link($file, $permanent_file_path)) {
                 $cache_file_path = $file;
-                if($GLOBALS['ENV_DEBUG']) echo "Hard link created (old file is $file, now linked at $new_file)\n";
+                if($GLOBALS['ENV_DEBUG']) echo "Hard link created (old file is $file, now linked at $permanent_file_path)\n";
             }
         }
         
