@@ -444,7 +444,8 @@ class ContentManager
 
     function create_agent_thumbnails($file, $prefix)
     {
-        $this->create_constrained_square_crops($file, ContentManager::square_sizes(), $prefix);
+        $this->create_constrained_square_crops($file, ContentManager::large_square_dimensions(), $prefix);
+        $this->create_constrained_square_crops($file, ContentManager::small_square_dimensions(), $prefix);
     }
 
     function get_saved_crop_or_initialize($data_object_id)
@@ -555,15 +556,13 @@ class ContentManager
 
     function create_constrained_square_crops($path, $list_of_square_sizes, $prefix)
     {
-        foreach ($sq_dim as $list_of_square_sizes) {
-            // requires "convert" to support -gravity center -extent: ImageMagick >= 6.3.2
-            $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quiet -quality 80 \
-                            -resize '".$sq_dim."x".$sq_dim."' -gravity center \
-                            -extent '".$sq_dim."x".$sq_dim."' +repage";
-            $new_image_path = $prefix."_".$sq_dim."_".$sq_dim.".jpg";
-            shell_exec($command." ".$new_image_path);
-            self::create_checksum($new_image_path);
-        }
+        // requires "convert" to support -gravity center -extent: ImageMagick >= 6.3.2
+        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quiet -quality 80 \
+                        -resize '".$dimensions[0]."x".$dimensions[1]."' -gravity center \
+                        -extent '".$dimensions[0]."x".$dimensions[1]."' +repage";
+        $new_image_path = $prefix."_".$dimensions[0]."_".$dimensions[0].".jpg";
+        shell_exec($command." ".$new_image_path);
+        self::create_checksum($new_image_path);
     }
 
     function new_content_file_name()
