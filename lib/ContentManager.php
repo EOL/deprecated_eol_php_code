@@ -389,10 +389,16 @@ class ContentManager
         return $dimensions;
     }
 
-    static function square_sizes()
+    static function large_square_dimensions()
     {
-        static $list_of_sizes = array(88, 130);
-        return $list_of_sizes;
+        static $dimensions = array(130, 130);
+        return $dimensions;
+    }
+
+    static function small_square_dimensions()
+    {
+        static $dimensions = array(88, 88);
+        return $dimensions;
     }
 
     function create_local_files_and_thumbnails($original_file, $prefix, $options = array())
@@ -423,10 +429,12 @@ class ContentManager
         if (count($crop)>=4)
         {
             //if this image has a custom crop, it could be of a tiny region, so use the original image, to avoid pixellation & jpeg artifacts
-            $this->create_crops($original_file, ContentManager::square_sizes(), $prefix, $width, $height, $crop);
+            $this->create_crop($original_file, ContentManager::large_square_dimensions(), $prefix, $width, $height, $crop);
+            $this->create_crop($original_file, ContentManager::small_square_dimensions(), $prefix, $width, $height, $crop);
         } else {
             //we are taking the default big crop, so to save cpu time, don't bother cropping the full size image, just use the 580_360 version
-            $this->create_crops($big_jpg, ContentManager::square_sizes(), $prefix);
+            $this->create_crop($big_jpg, ContentManager::large_square_dimensions(), $prefix);
+            $this->create_crop($big_jpg, ContentManager::small_square_dimensions(), $prefix);
         }
         $this->save_image_size_data(@$options['data_object_id'], $width, $height, $crop);
     }
@@ -517,14 +525,13 @@ class ContentManager
         return $new_image_path;
     }
 
-    function create_crops($path, $list_of_square_sizes, $prefix, $width=NULL, $height=NULL, &$crop_percentages=NULL)
+    function create_crop($path, $dimensions, $prefix, $width=NULL, $height=NULL, &$crop_percentages=NULL)
     {
-        //never link to old versions, as the crop size may have changed.
+        //never look to hard link to old versions, as the crop size may have changed.
         //if called with $crop != NULL, returns the crop area in percentages, and the image size
-        $command_start = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quiet -quality 80";
+        $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quiet -quality 80";
         // default latter part of command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill 
         // any %1$u characters will be substituted by the crop size using sprintf
-        $command_end = '-resize %1$ux%1$u^ -gravity NorthWest -crop %1$ux%1$u+0+0 +repage';
         if($width && $height && count($crop_percentages)>=4)
         {
             foreach($crop_percentages as &$p) if ($p < 0) $p = 0; elseif ($p > 100) $p = 100;
@@ -533,15 +540,14 @@ class ContentManager
             $y = intval(round($crop_percentages[1]/100.0*$height));
             $w = intval(round($crop_percentages[2]/100.0*$width));
             $h = intval(round($crop_percentages[3]/100.0*$height));
-            $command_end = '-gravity NorthWest -crop '.$w.'x'.$h.'+'.$x.'+'.$y.' +repage -resize %1$ux%1$u';
+            $command .= ' -gravity NorthWest -crop '.$w.'x'.$h.'+'.$x.'+'.$y.' +repage -resize '.$dimensions[0].'x'.$dimensions[1];
+        } else {
+            $command .= ' -resize '.$dimensions[0].'x'.$dimensions[1].'^ -gravity NorthWest -crop '.$dimensions[0]."x".$dimensions[1].'+0+0 +repage';
         }
         
-        foreach ($list_of_square_sizes as $sq_dim) {
-            $command_end = sprintf($command_end, $sq_dim);
-            $new_image_path = $prefix."_".$sq_dim."_".$sq_dim.".jpg";
-            shell_exec($command_start." ".$command_end." ".$new_image_path);
-            self::create_checksum($new_image_path);
-        }
+        $new_image_path = $prefix."_".$dimensions[0].'_'.$dimensions[1].".jpg";
+        shell_exec($command_start." ".$new_image_path);
+        self::create_checksum($new_image_path);
     }
 
     function create_constrained_square_crops($path, $list_of_square_sizes, $prefix)
