@@ -425,10 +425,11 @@ class ContentManager
         $this->create_smaller_version($fullsize_jpg, ContentManager::small_image_dimensions(), $prefix, implode(ContentManager::small_image_dimensions(), '_'));
 
         $crop = $this->get_saved_crop_or_initialize(@$options['data_object_id']);
-        if (!empty($options['crop_pct'])) $crop = $options['crop_pct'];
+        $new_crop = @$options['crop_pct'];
 
-        if (count($crop)>=4)
+        if ((count($new_crop)>=4) || (count($crop) >= 4))
         {
+            if (count($new_crop)>=4) $crop=$new_crop;
             //if this image has a custom crop, it could be of a tiny region, so use the original image, to avoid pixellation & jpeg artifacts
             $this->create_crop($original_file, ContentManager::large_square_dimensions(), $prefix, $width, $height, $crop);
             $this->create_crop($original_file, ContentManager::small_square_dimensions(), $prefix, $width, $height, $crop);
@@ -437,6 +438,7 @@ class ContentManager
             $this->create_crop($big_jpg, ContentManager::large_square_dimensions(), $prefix);
             $this->create_crop($big_jpg, ContentManager::small_square_dimensions(), $prefix);
         }
+        //update width & height in case they have changed, but only change % crop values if we have a $new_crop
         $this->save_image_size_data(@$options['data_object_id'], $width, $height, $crop);
     }
 
