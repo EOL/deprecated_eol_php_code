@@ -13,6 +13,9 @@ class ContentManager
 
     function __construct()
     {
+        /* Construct a unique_key for each instance of a ContentManager, passed as an option to the function
+         download_temp_file_and_assign_extension(), and used as a unique temporary name for the downloaded file.
+         This means a single ContentManager instance may overwrite previously downloaded temp files. */
         $this->unique_key = Functions::generate_guid();
     }
 
@@ -33,15 +36,18 @@ class ContentManager
         $permanent_prefix = $this->permanent_file_prefix($type, $options);
         if(empty($permanent_prefix)) return false;
         
+        $extension = strtolower(trim(pathinfo($file, PATHINFO_EXTENSION)));
         //Try hard linking to a local version of the file if it exists, to save space (especially relevant for cropping images)
-        //Note that the PHP docs wrongly claim link() requires extra privileges on Windows. We can't hard link to directories.
-        if ((preg_match("/^\//", $file)) && is_file($file)) {
-            //hack: give the new version the same extension as the old one
-            $extension = strtolower(trim(pathinfo($file, PATHINFO_EXTENSION)));
+        //Note that the PHP docs wrongly claim that link() requires extra privileges on Windows.
+        //But is *is* true that we can't hard link to directories, so check this via is_file(). 
+        //Don't link to archive files, but force download them again, so that they are unpacked in the correct manner.
+        if ((preg_match("/^\//", $file)) && is_file($file) && !in_array($extension, array('gz', 'gzip', 'zip', 'tar'), true)) {
+            //hack required because we don't have the originally downloaded file extension, so simply give the new version the same extension as the old one
             $permanent_file_path = $permanent_prefix;
-            if (strlen($extension)) $permanent_file_path .= $extension;
+            if (strlen($extension)) $permanent_file_path .= '.'.$extension;
             if (link($file, $permanent_file_path)) {
                 $cache_file_path = $file;
+                if($GLOBALS['ENV_DEBUG']) echo "Hard link created (old file is $file, now linked at $new_file)\n";
             }
         }
         
@@ -60,6 +66,7 @@ class ContentManager
                 copy($temp_file_path, $permanent_file_path);
                 if(file_exists($temp_file_path)) unlink($temp_file_path);
             } else {
+                //no suffix
                 if ($type != 'resource') return false;
                 $cache_file_path = $permanent_file_path = $permanent_prefix;
                 // first delete the archive directory that currently exists
@@ -97,6 +104,7 @@ class ContentManager
                 // Take the substring of the new file path to return via the webservice, so that /content/2009/05/19/23/85866.png -> 200905192385866
                 return self::cache_path2num($permanent_file_path);
             case "resource":
+                if (!$suffix) return($permanent_file_path);
                 if (preg_match("/^".preg_quote(CONTENT_RESOURCE_LOCAL_PATH, "/")."(.*)$/", $permanent_file_path, $arr)) return($arr[1]);
             case "dataset":
                 if (preg_match("/^".preg_quote(CONTENT_DATASET_PATH, "/")."(.*)$/", $permanent_file_path, $arr)) return($arr[1]);
@@ -155,12 +163,14 @@ class ContentManager
                 fclose($TMP);
             }
         }
-        $temp_file_path_with_extension = self::give_temp_file_right_extension($temp_file_path, $suffix, @$options['unique_key']);
-        $temp_file_path_with_extension = self::enforce_extentions_for_type($temp_file_path_with_extension, $type);
-        return $temp_file_path_with_extension;
+        if (is_file($temp_file_path)) {
+            $temp_file_path_with_extension = self::give_temp_file_right_extension($temp_file_path, $suffix, @$options['unique_key']);
+            $temp_file_path_with_extension = self::enforce_extensions_for_type($temp_file_path_with_extension, $type);
+            return $temp_file_path_with_extension;
+        } else return null;
     }
 
-    public static function enforce_extentions_for_type($temp_file_path_with_extension, $type)
+    public static function enforce_extensions_for_type($temp_file_path_with_extension, $type)
     {
         $pathinfo = pathinfo($temp_file_path_with_extension);
         $extension = strtolower(@$pathinfo['extension']);
@@ -201,7 +211,7 @@ class ContentManager
                     shell_exec(GUNZIP_BIN_PATH . " -f $new_temp_file_path");
                     $new_temp_file_path = $arr[1];
                     return self::give_temp_file_right_extension($new_temp_file_path, $original_suffix, $unique_key);
-                    self::move_up_if_only_directory($new_temp_file_path);
+                    self::move_up_if_only_directory($new_temp_file_path); //Comment by Yan: this seems redundent.
                 }
                 if(preg_match("/^(.*)\.(tar)$/", $new_temp_file_path, $arr))
                 {
@@ -430,7 +440,7 @@ class ContentManager
     {
         if (isset($data_object_id)) {
             // Check if the image_size db entry exists
-            $resp = $mysqli->query("SELECT crop_x_pct, crop_y_pct, crop_width_pct, crop_height_pct FROM image_sizes WHERE id=$data_object_id LIMIT 1");
+            $resp = $GLOBALS['mysqli_connection']->query("SELECT crop_x_pct, crop_y_pct, crop_width_pct, crop_height_pct FROM image_sizes WHERE data_object_id=$data_object_id LIMIT 1");
             if ($resp) {
                 if ($resp->num_rows) {
                     $crop = $resp->fetch_row();
@@ -438,7 +448,7 @@ class ContentManager
                         return $crop;
                 } else {
                     //DB entry for this data_obj_id doesn't exist: create the image_size entry in the DB (height, etc may be filled in later)
-                    $mysqli->insert("INSERT IGNORE INTO image_sizes (data_object_id) VALUES ($data_object_id)");
+                    $GLOBALS['mysqli_connection']->insert("INSERT IGNORE INTO image_sizes (data_object_id) VALUES ($data_object_id)");
                 }
             } else {
                 trigger_error("ContentManager: Database error while getting data_object $data_object_id from image_sizes table", E_USER_NOTICE);
@@ -453,7 +463,7 @@ class ContentManager
             $sql = sprintf("SET width=%u,height=%u", $width, $height);
             if (count($crop_percentages) >= 4) {
                 //also set the crop values at the same time
-                $sql .= sprintf(",crop_x_pct=%.2F,crop_y_pct=%.2F,crop_width_pct=%.2F,crop_height_pct=%.2F", $crop[0],$crop[1],$crop[2],$crop[3]);
+                $sql .= vsprintf(",crop_x_pct=%.2F,crop_y_pct=%.2F,crop_width_pct=%.2F,crop_height_pct=%.2F", $crop_percentages);
             }
             $GLOBALS['mysqli_connection']->update("UPDATE image_sizes ".$sql." WHERE data_object_id=$data_object_id");
         }
@@ -467,8 +477,9 @@ class ContentManager
         $old_file_prefix = self::cache_prefix($old_file);
         if ($old_file_prefix != $prefix) {
             //look for an already existing equivalent of $old_file with the new suffix we can link to
-            if (file_exists($old_equivalent = $original_prefix.$new_suffix)) {
+            if (file_exists($old_equivalent = $old_file_prefix.$new_suffix)) {
                 if (link($old_equivalent, $new_file)) {
+                    if($GLOBALS['ENV_DEBUG']) echo "Hard link created (old file is $old_equivalent, now linked at $new_file)\n";
                     self::create_checksum($new_file);
                     //return the old version, to indicate to future calls that other cached files may be available
                     return $old_equivalent;
@@ -516,12 +527,13 @@ class ContentManager
         $command_end = '-resize %1$ux%1$u^ -gravity NorthWest -crop %1$ux%1$u+0+0 +repage';
         if($width && $height && count($crop_percentages)>=4)
         {
-            array_walk($crop_percentages, array("Functions", "truncate_from_0_100"));
+            foreach($crop_percentages as &$p) if ($p < 0) $p = 0; elseif ($p > 100) $p = 100;
+
             $x = intval(round($crop_percentages[0]/100.0*$width));
             $y = intval(round($crop_percentages[1]/100.0*$height));
             $w = intval(round($crop_percentages[2]/100.0*$width));
             $h = intval(round($crop_percentages[3]/100.0*$height));
-            $command_end = "-gravity NorthWest -crop $wx$h+$x+$y +repage ".'-resize %1$ux%1$u';
+            $command_end = '-gravity NorthWest -crop '.$w.'x'.$h.'+'.$x.'+'.$y.' +repage -resize %1$ux%1$u';
         }
         
         foreach ($list_of_square_sizes as $sq_dim) {
@@ -611,15 +623,15 @@ class ContentManager
     public static function cache_path2num($path)
     {
         //return the last 15 digits to store in the $object_cache_url field
-        return substr(str_replace("/", "",$path), -15);
+        return substr(str_replace("/", "",self::cache_prefix($path)), -15);
     }
 
 
 
-    public function crop_image($data_object_id, $x, $y, $w, $h=NULL)
+    public function crop_image($data_object_id, $data_object, $x, $y, $w, $h=NULL)
     {
         //function called by a user interaction (custom crop)
-        $data_object = DataObject::find($data_object_id);
+/*        $data_object = DataObject::find($data_object_id);
         if(!$data_object)
         {
             trigger_error("ContentManager: Cropping invalid data object ID $data_object_id", E_USER_NOTICE);
@@ -628,9 +640,10 @@ class ContentManager
             
             /* we have problems because we don't actually save the filename extension of the original file. Until we can get this from the database, 
             we hack around this as follows */
-            
-            $cache_path = self::cache_num2path($data_object->object_cache_url);
-            foreach ($valid_image_extensions as $ext) {
+{            
+//            $cache_path = self::cache_num2path($data_object->object_cache_url);
+            $cache_path = self::cache_num2path($data_object);
+            foreach (self::$valid_image_extensions as $ext) {
                 $image_url = CONTENT_LOCAL_PATH . $cache_path . "." . $ext;
                 if(is_file($image_url)) break;
             }
@@ -641,10 +654,10 @@ class ContentManager
             // user has defined a bespoke crop region, with crop given as x & y offsets, plus a crop width & poss height.
             // Offsets are from the 580 x 360 version. However, if they are wider than 
             // 540px, CSS scales the image proportionally to fit into a max width of 540.
-            // The passed-in image may either be the 580_360 version or the original full-sized image, properly rotated.
             // The offsets and width need to be scaled to match the image dimensions
             //
-            // Perhaps we should do this calculation in the Ruby front-end code (nearer to the css layout) rather than in php, and pass percentages in to this function?
+            // Perhaps we should do this calculation in the Ruby front-end code (nearer to the css layout) rather than in php, 
+            // and simply pass percentages into this function? That would also stop doing a getimagesize() on a (potentially remote) file
             $sizes = getimagesize($image_url);
             if(count($sizes)>=2 and $sizes[0]>0 and $sizes[1]>0)
             {
