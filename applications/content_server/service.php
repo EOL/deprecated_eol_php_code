@@ -171,7 +171,7 @@ switch($function)
 
     case "upload_content":
         $manager = new ContentManager();
-        $new_file_path = $manager->grab_file($file_path, "image");
+        $new_file_path = $manager->grab_file($file_path, "image", array('data_object_id' => $data_object_id));
         if($new_file_path) echo "  <file_path>$new_file_path</file_path>\n";
         else echo "  <error type='fatal'>Upload failed</error>\n";
         break;
