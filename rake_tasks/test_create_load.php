@@ -11,6 +11,7 @@ $i = 0;
 while($i < 1000)
 {
     $i++;
+    //don't give a data_object_id to this image, so that details don't get saved on any database
     $file = $content_manager->grab_file($big_image_url, "image");
     // $file = $content_manager->grab_file($small_image_url, "image");
     echo "$i - $file\n";
