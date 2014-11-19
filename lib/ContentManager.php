@@ -25,95 +25,105 @@ class ContentManager
     // upload - what is this for?
     // partner - this type means we are downloading a logo for a content partner
     // resource - this means we are downloading an XML or zipped file of the EOL schema for processing
+    // dataset - we create a zip file of the dataset provided
 
     function grab_file($file, $type, $options = array())
     {
-        if(@!$options['timeout']) $options['timeout'] = DOWNLOAD_TIMEOUT_SECONDS;
-        $options['type'] = $type;
-        //should check here if $file is local. If so, just make a hard link to save space
-        // (note that the PHP docs wrongly claim link() requires extra privileges on Windows 
-        if($temp_file_path = self::download_temp_file_and_assign_extension($file, array_merge($options, array('unique_key' => $this->unique_key, 'is_resource' => ($type == "resource")))))
-        {
-            $suffix = null;
-            if(preg_match("/\.(.*)$/", $temp_file_path, $arr)) $suffix = strtolower(trim($arr[1]));
-            if(!$suffix && $type != 'resource') return false;
-
-            switch($type) {
-                case "resource":
-                    if(!isset($options['resource_id']) || !$options['resource_id']) {
-                        trigger_error("ContentManager: type is 'resource' but no resource id given", E_USER_NOTICE);
-                        return false;
-                    }
-                    if(!$suffix)
-                    {   // this would be a DwC-A resource
-                        $resource_archive_directory = $this->new_resource_file_name($options['resource_id']);
-                        // first delete the archive directory that currently exists
-                        recursive_rmdir($resource_archive_directory);
-                        // move the temp, uncompressed directory to its new home with the resources
-                        rename($temp_file_path, $resource_archive_directory);
-                        return $resource_archive_directory;
-                    }
-
-                    $new_file_prefix = $this->new_resource_file_name($options['resource_id']);
-                    break;
-                case "image":
-                case "video":
-                case "audio":
-                case "upload":
-                case "partner":
-                    $new_file_prefix = $this->new_content_file_name();
-                    break;
-                case "dataset":
-                    $new_file_prefix = $this->new_dataset_file_name($options);
-                    break;
-                default:
-                    trigger_error("ContentManager: non-valid type (".$type.")", E_USER_NOTICE);
-                    return false;
+        
+        $permanent_prefix = $this->permanent_file_prefix($type, $options);
+        if(empty($permanent_prefix)) return false;
+        
+        //Try hard linking to a local version of the file if it exists, to save space (especially relevant for cropping images)
+        //Note that the PHP docs wrongly claim link() requires extra privileges on Windows. We can't hard link to directories.
+        if ((preg_match("/^\//", $file)) && is_file($file)) {
+            //hack: give the new version the same extension as the old one
+            $extension = strtolower(trim(pathinfo($file, PATHINFO_EXTENSION)));
+            $permanent_file_path = $permanent_prefix;
+            if (strlen($extension)) $permanent_file_path .= $extension;
+            if (link($file, $permanent_file_path)) {
+                $cache_file_path = $file;
             }
-            if(!$new_file_prefix) return false;
-            $new_file_path = $new_file_prefix . "." . $suffix;
+        }
+        
+        //If we couldn't hard link, download the file from scratch
+        if (!isset($cache_file_path))
+        {
+            if(@!$options['timeout']) $options['timeout'] = DOWNLOAD_TIMEOUT_SECONDS;
+            $temp_file_path = self::download_temp_file_and_assign_extension($file, $type, array_merge($options, array('unique_key' => $this->unique_key)));
+            if (empty($temp_file_path)) return null;
 
-            // copy temporary file into its new home
-            copy($temp_file_path, $new_file_path);
-            // fail if for some reason there is still no file at the new path
-            if(!file_exists($new_file_path))
+            //if suffix, require lowercase
+            if ($suffix = strtolower(trim(pathinfo($temp_file_path, PATHINFO_EXTENSION))))
             {
+                $cache_file_path = $permanent_file_path = $permanent_prefix . "." . $suffix;
+                //perhaps the two following lines should be simply a "rename"?
+                copy($temp_file_path, $permanent_file_path);
                 if(file_exists($temp_file_path)) unlink($temp_file_path);
+            } else {
+                if ($type != 'resource') return false;
+                $cache_file_path = $permanent_file_path = $permanent_prefix;
+                // first delete the archive directory that currently exists
+                recursive_rmdir($permanent_file_path);
+                // move the temp, uncompressed directory to its new home with the resources
+                rename($temp_file_path, $permanent_file_path);
+            }
+
+            // fail if for some reason there is still no file at the new path
+            if(!file_exists($permanent_file_path))
+            {
                 trigger_error("ContentManager: Unable to download file $file", E_USER_NOTICE);
                 return false;
             }
+        }
+        
+        // create thumbnails of website content and agent logos
+        if    ($type=="image")   $this->create_local_files_and_thumbnails($cache_file_path, $permanent_prefix, $options);
+        elseif($type=="partner") $this->create_agent_thumbnails($cache_file_path, $permanent_prefix);
+        elseif($type=="dataset")
+        {
+            $permanent_file_path = $this->zip_file($cache_file_path);
+            $this->delete_old_datasets();
+        }
 
-            // create thumbnails of website content and agent logos
-            if($type=="image") $this->create_local_files_and_thumbnails($new_file_path, $new_file_prefix, $options);
-            elseif($type=="partner") $this->create_agent_thumbnails($new_file_path, $new_file_prefix);
-            elseif($type=="dataset")
-            {
-                $new_file_path = $this->zip_file($new_file_path);
-                $this->delete_old_datasets();
-            }
-
-            if(in_array($type, array("image", "video", "audio", "upload", "partner"))) self::create_checksum($new_file_path);
-
-            // Take the substring of the new file path to return via the webservice, so that /content/2009/05/19/23/85866.png -> 200905192385866
-            if(($type=="image" || $type=="video" || $type=="audio" || $type=="partner" || $type=="upload") &&
-              preg_match("/^".preg_quote(CONTENT_LOCAL_PATH, "/")."(.*)\.[^\.]+$/", $new_file_path, $arr))
-            {
-                $new_file_path = str_replace("/", "", $arr[1]);
-            }
-            elseif($type=="resource" &&
-              preg_match("/^".preg_quote(CONTENT_RESOURCE_LOCAL_PATH, "/")."(.*)$/", $new_file_path, $arr))  $new_file_path = $arr[1];
-            elseif($type=="dataset" &&
-              preg_match("/^".preg_quote(CONTENT_DATASET_PATH, "/")."(.*)$/", $new_file_path, $arr))  $new_file_path = $arr[1];
-
-            if(file_exists($temp_file_path)) unlink($temp_file_path);
-            if(isset($new_file_path) && $new_file_path) return $new_file_path;
+        //return the cache file location: for most object this is the concatenated numbers in the cache dirs, so we lose the file extension
+        //in this case we should probably return an array of the number plus extension, so we can access the original downloaded file.
+        switch($type) {
+            case "image":
+            case "video":
+            case "audio":
+            case "upload":
+            case "partner":
+                self::create_checksum($permanent_file_path);
+                // Take the substring of the new file path to return via the webservice, so that /content/2009/05/19/23/85866.png -> 200905192385866
+                return self::cache_path2num($permanent_file_path);
+            case "resource":
+                if (preg_match("/^".preg_quote(CONTENT_RESOURCE_LOCAL_PATH, "/")."(.*)$/", $permanent_file_path, $arr)) return($arr[1]);
+            case "dataset":
+                if (preg_match("/^".preg_quote(CONTENT_DATASET_PATH, "/")."(.*)$/", $permanent_file_path, $arr)) return($arr[1]);
         }
         return null;
     }
 
-    public static function download_temp_file_and_assign_extension($file_path_or_uri, $options = array())
+    function permanent_file_prefix($type, $options)
     {
-        if(!isset($options['is_resource'])) $options['is_resource'] = false;
+        switch($type) {
+            case "image":
+            case "video":
+            case "audio":
+            case "upload":
+            case "partner":
+                return($this->new_content_file_name());
+            case "resource":
+                return($this->new_resource_file_name(@$options['resource_id']));
+            case "dataset":
+                return($this->new_dataset_file_name(@$options['data_search_file_id']));
+        }
+        trigger_error("ContentManager: non-valid type (".$type.")", E_USER_NOTICE);
+        return null;
+    }
+
+    public static function download_temp_file_and_assign_extension($file_path_or_uri, $type, $options = array())
+    {
         if(@!$options['unique_key']) $options['unique_key'] = Functions::generate_guid();
         if(@!$options['timeout']) $options['timeout'] = DOWNLOAD_TIMEOUT_SECONDS;
 
@@ -122,7 +132,7 @@ class ContentManager
         elseif(preg_match("/\.([^\.]+)$/", $file_path_or_uri, $arr)) $suffix = strtolower(trim($arr[1]));
 
         // resources may need a little extra time to establish a connection
-        if($options['is_resource'] && $options['timeout'] < 60) $options['timeout'] = 60;
+        if(($type === 'resource') && $options['timeout'] < 60) $options['timeout'] = 60;
 
         $temp_file_path = CONTENT_TEMP_PREFIX . $options['unique_key'] . ".file";
         if(preg_match("/^(http|https|ftp):\/\//", $file_path_or_uri) || preg_match("/^\//", $file_path_or_uri))
@@ -132,7 +142,7 @@ class ContentManager
                 // if this is a resource then update the old references to the schema
                 // there were a few temporary locations for the schema which were being used by early providers
                 // and not all of them have been updated
-                if($options['is_resource'])
+                if($type === 'resource')
                 {
                     $file_contents = str_replace("http://www.eol.org/transfer/data/0.1",
                                                  "http://www.eol.org/transfer/content/0.1", $file_contents);
@@ -146,7 +156,7 @@ class ContentManager
             }
         }
         $temp_file_path_with_extension = self::give_temp_file_right_extension($temp_file_path, $suffix, @$options['unique_key']);
-        $temp_file_path_with_extension = self::enforce_extentions_for_type($temp_file_path_with_extension, @$options['type']);
+        $temp_file_path_with_extension = self::enforce_extentions_for_type($temp_file_path_with_extension, $type);
         return $temp_file_path_with_extension;
     }
 
@@ -375,40 +385,40 @@ class ContentManager
         return $list_of_sizes;
     }
 
-    function create_local_files_and_thumbnails($file, $prefix, $options = array())
+    function create_local_files_and_thumbnails($original_file, $prefix, $options = array())
     {
-        $fullsize_jpg = $this->reduce_original($file, $prefix, $options);
-        
-        if(file_exists($fullsize_jpg)) {
-            $sizes = getimagesize($file);
-            $width = @$sizes[0];
-            $height = @$sizes[1];
-            if (empty($width) && empty($height))
-                trigger_error("ContentManager: Unable to getimagesize for $file: using default crop and not recording image_size data", E_USER_NOTICE);
-
-            // we make an exception
-            if(isset($options['large_image_dimensions']) && is_array($options['large_image_dimensions']))
-            {
-                $large_image_dimensions = $options['large_image_dimensions'];
-            } else $large_image_dimensions = ContentManager::large_image_dimensions();
-            $big_jpg = $this->create_smaller_version($fullsize_jpg, $large_image_dimensions, $prefix, implode(ContentManager::large_image_dimensions(), '_'));
-            $this->create_smaller_version($fullsize_jpg, ContentManager::medium_image_dimensions(), $prefix, implode(ContentManager::medium_image_dimensions(), '_'));
-            $this->create_smaller_version($fullsize_jpg, ContentManager::small_image_dimensions(), $prefix, implode(ContentManager::small_image_dimensions(), '_'));
-
-            $crop = $this->get_saved_crop_or_initialize(@$options['data_object_id']);
-            if (!empty($options['crop_pct'])) $crop = $options['crop_pct'];
-
-            if (count($crop)>=4)
-            {
-                //if this image has a custom crop, it could be of a tiny region, so use the original image, to avoid pixellation & jpeg artifacts
-                $this->create_crops($file, ContentManager::square_sizes(), $prefix, @$sizes[0], @$sizes[1], $crop);
-            } else {
-                //we are taking the default big crop, so to save cpu time, don't bother cropping the full size image, just use the 580_360 version
-                $this->create_crops($big_jpg, ContentManager::square_sizes(), $prefix);
-            }
-            
-            $this->save_image_size_data(@$options['data_object_id'], $width, $height, $crop);
+        $fullsize_jpg = $this->reduced_original($original_file, $prefix, $options);
+        if(!file_exists($fullsize_jpg)) {
+            trigger_error("ContentManager: Unable to create jpg file from downloaded file $original_file.", E_USER_NOTICE);
+            return false;
         }
+        $sizes = getimagesize($original_file);
+        $width = @$sizes[0];
+        $height = @$sizes[1];
+        if (empty($width) && empty($height))
+            trigger_error("ContentManager: Unable to getimagesize for $original_file: using default crop and not recording image_size data", E_USER_NOTICE);
+
+        // we make an exception
+        if(isset($options['large_image_dimensions']) && is_array($options['large_image_dimensions']))
+        {
+            $large_image_dimensions = $options['large_image_dimensions'];
+        } else $large_image_dimensions = ContentManager::large_image_dimensions();
+        $big_jpg = $this->create_smaller_version($fullsize_jpg, $large_image_dimensions, $prefix, implode(ContentManager::large_image_dimensions(), '_'));
+        $this->create_smaller_version($fullsize_jpg, ContentManager::medium_image_dimensions(), $prefix, implode(ContentManager::medium_image_dimensions(), '_'));
+        $this->create_smaller_version($fullsize_jpg, ContentManager::small_image_dimensions(), $prefix, implode(ContentManager::small_image_dimensions(), '_'));
+
+        $crop = $this->get_saved_crop_or_initialize(@$options['data_object_id']);
+        if (!empty($options['crop_pct'])) $crop = $options['crop_pct'];
+
+        if (count($crop)>=4)
+        {
+            //if this image has a custom crop, it could be of a tiny region, so use the original image, to avoid pixellation & jpeg artifacts
+            $this->create_crops($original_file, ContentManager::square_sizes(), $prefix, $width, $height, $crop);
+        } else {
+            //we are taking the default big crop, so to save cpu time, don't bother cropping the full size image, just use the 580_360 version
+            $this->create_crops($big_jpg, ContentManager::square_sizes(), $prefix);
+        }
+        $this->save_image_size_data(@$options['data_object_id'], $width, $height, $crop);
     }
 
     function create_agent_thumbnails($file, $prefix)
@@ -450,23 +460,47 @@ class ContentManager
     }
 
 
-    function reduce_original($path, $prefix, $options = array())
+    function hard_link_to_existing($old_file, $prefix, $new_suffix)
     {
+        //if given an $old_file that does not match $prefix, look for a previously cached old equivalent with $suffix
+        $new_file = $prefix.$new_suffix;
+        $old_file_prefix = self::cache_prefix($old_file);
+        if ($old_file_prefix != $prefix) {
+            //look for an already existing equivalent of $old_file with the new suffix we can link to
+            if (file_exists($old_equivalent = $original_prefix.$new_suffix)) {
+                if (link($old_equivalent, $new_file)) {
+                    self::create_checksum($new_file);
+                    //return the old version, to indicate to future calls that other cached files may be available
+                    return $old_equivalent;
+                }
+            }
+        }
+        return false;
+    }
+
+    function reduced_original($path, $prefix, $options = array())
+    {
+        $suffix = "_orig.jpg";
+        $new_image_path = $prefix.$suffix;
+        if ($link = $this->hard_link_to_existing($path, $prefix, $suffix)) return $link;
+        
         $rotate = "-auto-orient";
         if(isset($options['rotation'])) $rotate = "-rotate ". intval($options['rotation']);
         $command = CONVERT_BIN_PATH." $path -strip -background white -flatten $rotate -quiet -quality 80";
-        $new_image_path = $prefix."_orig.jpg";
         shell_exec($command." ".$new_image_path);
         self::create_checksum($new_image_path);
         return $new_image_path;
     }
 
-    function create_smaller_version($path, $dimensions, $prefix, $suffix)
+    function create_smaller_version($path, $dimensions, $prefix, $suffix_dims)
     {
-        //don't need to rotate, as this works on already-rotated version
+        //N.B. we don't need to rotate, as this works on already-rotated version
+        $suffix = "_". $suffix_dims .".jpg";
+        $new_image_path = $prefix.$suffix;
+        if ($link = $this->hard_link_to_existing($path, $prefix, $suffix)) return $link;
+
         $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -quiet -quality 80 \
                         -resize ".$dimensions[0]."x".$dimensions[1]."\">\"";
-        $new_image_path = $prefix ."_". $suffix .".jpg";
         shell_exec($command." ".$new_image_path);
         self::create_checksum($new_image_path);
         return $new_image_path;
@@ -474,6 +508,7 @@ class ContentManager
 
     function create_crops($path, $list_of_square_sizes, $prefix, $width=NULL, $height=NULL, &$crop_percentages=NULL)
     {
+        //never link to old versions, as the crop size may have changed.
         //if called with $crop != NULL, returns the crop area in percentages, and the image size
         $command_start = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quiet -quality 80";
         // default latter part of command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill 
@@ -510,11 +545,6 @@ class ContentManager
         }
     }
 
-    function new_resource_file_name($resource_id)
-    {
-        return CONTENT_RESOURCE_LOCAL_PATH.$resource_id;
-    }
-
     function new_content_file_name()
     {
         $date = date("Y m d H");
@@ -535,11 +565,18 @@ class ContentManager
         return CONTENT_LOCAL_PATH."$year/$month/$day/$hour/$file";
     }
 
-    function new_dataset_file_name($options)
+    function new_resource_file_name($resource_id)
     {
-        if(!$options['data_search_file_id']) return false;
-        $file_path = CONTENT_DATASET_PATH . "eol_download_" . $options['data_search_file_id'];
-        return $file_path;
+        if (isset($resource_id)) return CONTENT_RESOURCE_LOCAL_PATH.$resource_id;
+        trigger_error("ContentManager: type is 'resource' but no resource id given", E_USER_NOTICE);
+        return null;
+    }
+
+    function new_dataset_file_name($data_search_file_id)
+    {
+        if(isset($data_search_file_id)) return CONTENT_DATASET_PATH . "eol_download_" . $data_search_file_id;
+        trigger_error("ContentManager: type is 'dataset' but no data_search_file_id given", E_USER_NOTICE);
+        return null;
     }
 
     private static function random_md5()
@@ -557,10 +594,27 @@ class ContentManager
         }
     }
 
-    public static function cache_path($object_cache_url)
+    public static function cache_prefix($path)
     {
-        return substr($object_cache_url, 0, 4)."/".substr($object_cache_url, 4, 2)."/".substr($object_cache_url, 6, 2)."/".substr($object_cache_url, 8, 2)."/".substr($object_cache_url, 10, 5);
+        //strips extensions off a path to a cached file, e.g. /content/2009/05/19/23/85866_xxx_yyy.jpg -> /content/2009/05/19/23/85866
+        //assumes the file cache extension is 5 characters long (in the example, "85866")
+        $extension_length = strlen(basename($path))-5;
+        return(substr($path, 0, -$extension_length));
     }
+
+    public static function cache_num2path($object_cache_num)
+    {
+        //convert 15 digit numeric $object_cache_url (e.g. 200905192385866) to path form (e.g. 2009/05/19/23/85866)
+        return substr($object_cache_num, 0, 4)."/".substr($object_cache_num, 4, 2)."/".substr($object_cache_num, 6, 2)."/".substr($object_cache_num, 8, 2)."/".substr($object_cache_num, 10, 5);
+    }
+    
+    public static function cache_path2num($path)
+    {
+        //return the last 15 digits to store in the $object_cache_url field
+        return substr(str_replace("/", "",$path), -15);
+    }
+
+
 
     public function crop_image($data_object_id, $x, $y, $w, $h=NULL)
     {
@@ -571,19 +625,26 @@ class ContentManager
             trigger_error("ContentManager: Cropping invalid data object ID $data_object_id", E_USER_NOTICE);
         } elseif($data_object->is_image() && $data_object->object_cache_url)
         {
-            /* why can't we just use $data_object->object_cache_url which should give a link to the original image, not the jpg version */
-            echo $data_object->object_cache_url;
-            $cache_path = self::cache_path($data_object->object_cache_url);
-            $image_url = CONTENT_LOCAL_PATH . $cache_path ."_orig.jpg";
-            echo $image_url;
-            if(!file_exists($image_url)) $image_url = "http://content71.eol.org/content/" . $cache_path ."_orig.jpg";
-            if (is_null($h)) $h=$w;
             
+            /* we have problems because we don't actually save the filename extension of the original file. Until we can get this from the database, 
+            we hack around this as follows */
+            
+            $cache_path = self::cache_num2path($data_object->object_cache_url);
+            foreach ($valid_image_extensions as $ext) {
+                $image_url = CONTENT_LOCAL_PATH . $cache_path . "." . $ext;
+                if(is_file($image_url)) break;
+            }
+            if(!is_file($image_url)) $image_url = CONTENT_LOCAL_PATH . $cache_path . "_orig.jpg";
+            if(!is_file($image_url)) $image_url = "http://content71.eol.org/content/" . $cache_path ."_orig.jpg";
+
+            if (is_null($h)) $h=$w;            
             // user has defined a bespoke crop region, with crop given as x & y offsets, plus a crop width & poss height.
             // Offsets are from the 580 x 360 version. However, if they are wider than 
             // 540px, CSS scales the image proportionally to fit into a max width of 540.
             // The passed-in image may either be the 580_360 version or the original full-sized image, properly rotated.
             // The offsets and width need to be scaled to match the image dimensions
+            //
+            // Perhaps we should do this calculation in the Ruby front-end code (nearer to the css layout) rather than in php, and pass percentages in to this function?
             $sizes = getimagesize($image_url);
             if(count($sizes)>=2 and $sizes[0]>0 and $sizes[1]>0)
             {
