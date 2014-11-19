@@ -104,6 +104,7 @@ class ContentManager
                 // Take the substring of the new file path to return via the webservice, so that /content/2009/05/19/23/85866.png -> 200905192385866
                 return self::cache_path2num($permanent_file_path);
             case "resource":
+                //slightly oddly, service.php distinguishes between resource folders and plain files by whether CONTENT_RESOURCE_LOCAL_PATH is prefixed
                 if (!$suffix) return($permanent_file_path);
                 if (preg_match("/^".preg_quote(CONTENT_RESOURCE_LOCAL_PATH, "/")."(.*)$/", $permanent_file_path, $arr)) return($arr[1]);
             case "dataset":
@@ -634,10 +635,10 @@ class ContentManager
 
 
 
-    public function crop_image($data_object_id, $data_object, $x, $y, $w, $h=NULL)
+    public function crop_image($data_object_id, $x, $y, $w, $h=NULL)
     {
         //function called by a user interaction (custom crop)
-/*        $data_object = DataObject::find($data_object_id);
+        $data_object = DataObject::find($data_object_id);
         if(!$data_object)
         {
             trigger_error("ContentManager: Cropping invalid data object ID $data_object_id", E_USER_NOTICE);
@@ -646,9 +647,7 @@ class ContentManager
             
             /* we have problems because we don't actually save the filename extension of the original file. Until we can get this from the database, 
             we hack around this as follows */
-{            
-//            $cache_path = self::cache_num2path($data_object->object_cache_url);
-            $cache_path = self::cache_num2path($data_object);
+            $cache_path = self::cache_num2path($data_object->object_cache_url);
             foreach (self::$valid_image_extensions as $ext) {
                 $image_url = CONTENT_LOCAL_PATH . $cache_path . "." . $ext;
                 if(is_file($image_url)) break;
@@ -710,6 +709,7 @@ class ContentManager
 
     private function delete_old_datasets()
     {
+        //deletes all datasets > 14 days old. Do we *really* want to do this every time a new daaset is uploaded?
         $ls = scandir(CONTENT_DATASET_PATH);
         foreach($ls as $file)
         {
