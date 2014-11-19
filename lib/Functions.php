@@ -22,7 +22,7 @@ class Functions
         $str = str_replace(' ', '', $str);
         return $str;
     }
-        
+    
     public static function array_to_xml($array, $prefix = "  ")
     {
         $xml = "";
