@@ -544,7 +544,7 @@ class ContentManager
             $y = intval(round($crop_percentages[1]/100.0*$height));
             $w = intval(round($crop_percentages[2]/100.0*$width));
             $h = intval(round($crop_percentages[3]/100.0*$height));
-            $command .= ' -gravity NorthWest -crop '.$w.'x'.$h.'+'.$x.'+'.$y.' +repage -resize '.$dimensions[0].'x'.$dimensions[1];
+            $command .= ' -gravity NorthWest -crop '.$w.'x'.$h.'+'.$x.'+'.$y.' +repage -resize '.$dimensions[0].'x'.$dimensions[1].'\!';
         } else {
             $command .= ' -resize '.$dimensions[0].'x'.$dimensions[1].'^ -gravity NorthWest -crop '.$dimensions[0]."x".$dimensions[1].'+0+0 +repage';
         }
