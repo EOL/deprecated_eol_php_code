@@ -49,7 +49,7 @@ class test_content_manager extends SimpletestUnitBase
     {
         $unused_data_object_id = 0;
         $this->assertTrue($GLOBALS['db_connection']->delete("DELETE FROM image_sizes WHERE data_object_id=$unused_data_object_id"), "Should delete id $unused_data_object_id from the database, if it exists");
-        $cache_num = $this->content_manager->grab_file('http://eol.org/assets/v2/icon_taxon.png', 'image', array('data_object_id' => 0));
+        $cache_num = $this->content_manager->grab_file('http://eol.org/assets/v2/icon_taxon.png', 'image', array('data_object_id' => $unused_data_object_id));
         $cache_path = CONTENT_LOCAL_PATH . ContentManager::cache_num2path($cache_num);
         $local_file = $cache_path .'.png';
         $this->assertTrue(is_file($local_file), 'Should upload the image');
