@@ -29,7 +29,7 @@ class test_content_manager extends SimpletestUnitBase
         unlink(CONTENT_RESOURCE_LOCAL_PATH . '101010101.xml');
     }
     
-    //To properly test resources, we should test grab a zipped resource file here too.
+    //TODO: To properly test resources, we should test grab a zipped resource file here too.
 
     function testGrabImage()
     {
