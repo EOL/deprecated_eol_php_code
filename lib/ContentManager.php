@@ -412,11 +412,12 @@ class ContentManager
             trigger_error("ContentManager: Unable to create jpg file from downloaded file $original_file.", E_USER_NOTICE);
             return false;
         }
-        $sizes = getimagesize($original_file);
+        //get the size from the jpg version, which is properly orientated
+        $sizes = getimagesize($fullsize_jpg);
         $width = @$sizes[0];
         $height = @$sizes[1];
         if (empty($width) && empty($height))
-            trigger_error("ContentManager: Unable to getimagesize for $original_file: using default crop and not recording image_size data", E_USER_NOTICE);
+            trigger_error("ContentManager: Unable to getimagesize for $fullsize_jpg: using default crop and not recording image_size data", E_USER_NOTICE);
 
         // we make an exception
         if(isset($options['large_image_dimensions']) && is_array($options['large_image_dimensions']))
@@ -433,9 +434,10 @@ class ContentManager
         if ((count($new_crop)>=4) || (count($crop) >= 4))
         {
             if (count($new_crop)>=4) $crop=$new_crop;
-            //if this image has a custom crop, it could be of a tiny region, so use the original image, to avoid pixellation & jpeg artifacts
-            $this->create_crop($original_file, ContentManager::large_square_dimensions(), $prefix, $width, $height, $crop);
-            $this->create_crop($original_file, ContentManager::small_square_dimensions(), $prefix, $width, $height, $crop);
+            //if this image has a custom crop, it could be of a tiny region, so use the huge image, to avoid pixellation.
+            //Ideally, we'd use the original image but it could be rotated differently, and we don't currently store rotation information in the DB.
+            $this->create_crop($fullsize_jpg, ContentManager::large_square_dimensions(), $prefix, $width, $height, $crop);
+            $this->create_crop($fullsize_jpg, ContentManager::small_square_dimensions(), $prefix, $width, $height, $crop);
         } else {
             //we are taking the default big crop, so to save cpu time, don't bother cropping the full size image, just use the 580_360 version
             $this->create_crop($big_jpg, ContentManager::large_square_dimensions(), $prefix);
@@ -459,7 +461,7 @@ class ContentManager
             if ($resp) {
                 if ($resp->num_rows) {
                     $crop = $resp->fetch_row();
-                    if (isset($crop[0]) and isset($crop[1]) and isset($crop[2]) and isset($crop[3]))
+                    if (isset($crop[0]) and isset($crop[1]) and isset($crop[2]))
                         return $crop;
                 } else {
                     //DB entry for this data_obj_id doesn't exist: create the image_size entry in the DB (height, etc may be filled in later)
@@ -475,10 +477,17 @@ class ContentManager
     function save_image_size_data($data_object_id, $width, $height, $crop_percentages=NULL)
     {
         if (!empty($width) and !empty($height) and isset($data_object_id)) {
+            // **** do we also want to store rotation information in the DB? 
+            //This might require getting it from ImageMagick (http://www.imagemagick.org/discourse-server/viewtopic.php?f=1&t=26568)
             $sql = sprintf("SET width=%u,height=%u", $width, $height);
-            if (count($crop_percentages) >= 4) {
-                //also set the crop values at the same time
-                $sql .= vsprintf(",crop_x_pct=%.2F,crop_y_pct=%.2F,crop_width_pct=%.2F,crop_height_pct=%.2F", $crop_percentages);
+            if (count($crop_percentages) >= 4)
+            {   //also set the crop values at the same time
+                if (is_null($crop_percentages[3]))
+                { //the 4th %age (height) might be unset
+                    $sql .= vsprintf(",crop_x_pct=%.2F,crop_y_pct=%.2F,crop_width_pct=%.2F,crop_height_pct=NULL", $crop_percentages);
+                } else {
+                    $sql .= vsprintf(",crop_x_pct=%.2F,crop_y_pct=%.2F,crop_width_pct=%.2F,crop_height_pct=%.2F", $crop_percentages);
+                }
             }
             $GLOBALS['mysqli_connection']->update("UPDATE image_sizes ".$sql." WHERE data_object_id=$data_object_id");
         }
@@ -546,7 +555,7 @@ class ContentManager
             $x = intval(round($crop_percentages[0]/100.0*$width));
             $y = intval(round($crop_percentages[1]/100.0*$height));
             $w = intval(round($crop_percentages[2]/100.0*$width));
-            $h = intval(round($crop_percentages[3]/100.0*$height));
+            $h = $crop_percentages[3] ? intval(round($crop_percentages[3]/100.0*$height)) : $w;
             $command .= ' -gravity NorthWest -crop '.$w.'x'.$h.'+'.$x.'+'.$y.' +repage -resize '.$dimensions[0].'x'.$dimensions[1].'\!';
         } else {
             $command .= ' -resize '.$dimensions[0].'x'.$dimensions[1].'^ -gravity NorthWest -crop '.$dimensions[0]."x".$dimensions[1].'+0+0 +repage';
@@ -637,11 +646,9 @@ class ContentManager
         return substr(str_replace("/", "",self::cache_prefix($path)), -15);
     }
 
-
-
     public function crop_image($data_object_id, $x, $y, $w, $h=NULL)
     {
-        //function called by a user interaction (custom crop)
+        //function called by a user interaction (custom crop). If h is not given, assume a square crop
         $data_object = DataObject::find($data_object_id);
         if(!$data_object)
         {
@@ -656,10 +663,10 @@ class ContentManager
                 $image_url = CONTENT_LOCAL_PATH . $cache_path . "." . $ext;
                 if(is_file($image_url)) break;
             }
+            // If we can't find the original download, save the local or previous jpg versions as the original (yuck)
             if(!is_file($image_url)) $image_url = CONTENT_LOCAL_PATH . $cache_path . "_orig.jpg";
             if(!is_file($image_url)) $image_url = "http://content71.eol.org/content/" . $cache_path ."_orig.jpg";
 
-            if (is_null($h)) $h=$w;            
             // user has defined a bespoke crop region, with crop given as x & y offsets, plus a crop width & poss height.
             // Offsets are from the 580 x 360 version. However, if they are wider than 
             // 540px, CSS scales the image proportionally to fit into a max width of 540.
@@ -685,7 +692,7 @@ class ContentManager
                 $x_pct = 100.0 * $x * $scale_factor/$width;
                 $y_pct = 100.0 * $y * $scale_factor/$height;
                 $w_pct = 100.0 * $w * $scale_factor/$width;
-                $h_pct = 100.0 * $h * $scale_factor/$height;
+                $h_pct = $h ? 100.0 * $h * $scale_factor/$height : null;
                 return $this->grab_file($image_url, "image", array('crop_pct' => array($x_pct, $y_pct, $w_pct, $h_pct), 'data_object_id' => $data_object_id));
             } else {
                 trigger_error("ContentManager: Unable to determine image dimensions of $file, using default crop", E_USER_NOTICE);
