@@ -34,20 +34,21 @@ class test_content_manager extends SimpletestUnitBase
     function testGrabImage()
     {
         $cache_num = $this->content_manager->grab_file('http://eol.org/assets/v2/icon_taxon.png', 'image');
-        $cache_path = ContentManager::cache_num2path($cache_num);
-        $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'.png'), 'Should upload the image');
-        $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_orig.jpg'), 'Should be an original size converted to jpeg');
-        $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_580_360.jpg'), 'Should create thumbnail');
-        $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_260_190.jpg'), 'Should create thumbnail');
-        $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_98_68.jpg'), 'Should create thumbnail');
-        $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_130_130.jpg'), 'Should create thumbnail');
-        $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_88_88.jpg'), 'Should create thumbnail');
-        self::delete_content(CONTENT_LOCAL_PATH . $cache_path);
+        $cache_path = CONTENT_LOCAL_PATH . ContentManager::cache_num2path($cache_num);
+        $this->assertTrue(file_exists($cache_path .'.png'), 'Should upload the image');
+        $this->assertTrue(file_exists($cache_path .'_orig.jpg'), 'Should be an original size converted to jpeg');
+        $this->assertTrue(file_exists($cache_path .'_580_360.jpg'), 'Should create thumbnail');
+        $this->assertTrue(file_exists($cache_path .'_260_190.jpg'), 'Should create thumbnail');
+        $this->assertTrue(file_exists($cache_path .'_98_68.jpg'), 'Should create thumbnail');
+        $this->assertTrue(file_exists($cache_path .'_130_130.jpg'), 'Should create thumbnail');
+        $this->assertTrue(file_exists($cache_path .'_88_88.jpg'), 'Should create thumbnail');
+        self::delete_content($cache_path);
     }
 
     function testGrabImageSizesInDatabase()
     {
         $unused_data_object_id = 0;
+        $this->assertTrue($GLOBALS['db_connection']->delete("DELETE FROM image_sizes WHERE data_object_id=$unused_data_object_id"), "Should delete id $unused_data_object_id from the database, if it exists");
         $cache_num = $this->content_manager->grab_file('http://eol.org/assets/v2/icon_taxon.png', 'image', array('data_object_id' => 0));
         $cache_path = CONTENT_LOCAL_PATH . ContentManager::cache_num2path($cache_num);
         $local_file = $cache_path .'.png';
@@ -57,14 +58,14 @@ class test_content_manager extends SimpletestUnitBase
         if ($resp) {
             $this->assertTrue($resp->num_rows == 1, 'Should find data for a newly inserted image in the database');
             if ($resp->num_rows == 1) {
-                $size = getimagesize($localfile);
+                $size = getimagesize($local_file);
                 $details = $resp->fetch_row();
                 $this->assertTrue($details[0] == $size[0], 'Should be the image width');
                 $this->assertTrue($details[1] == $size[1], 'Should be the image height');
                 $this->assertTrue(!isset($details[2]), 'Should be the custom crop left percentage, which is NULL if no custom crop');
             }
         }
-        $resp = $GLOBALS['db_connection']->delete("DELETE FROM image_sizes WHERE data_object_id=$unused_data_object_id");
+        $GLOBALS['db_connection']->delete("DELETE FROM image_sizes WHERE data_object_id=$unused_data_object_id");
         self::delete_content($cache_path);
 
     }
@@ -129,7 +130,7 @@ class test_content_manager extends SimpletestUnitBase
         self::delete_content($cache_path);
 
         $cache_num = $this->content_manager->grab_file('http://content62.eol.org/content/2013/06/25/16/25942_orig.jpg', 'image', array('large_image_dimensions' => array(300, 300)));
-        $cache_path = ContentManager::cache_num2path($cache_num);
+        $cache_path = CONTENT_LOCAL_PATH . ContentManager::cache_num2path($cache_num);
         $sizes = getimagesize($cache_path .'_580_360.jpg');
         // now it will max out the height
         $this->assertTrue($sizes[0] == 300);
@@ -140,7 +141,8 @@ class test_content_manager extends SimpletestUnitBase
     function testCustomCroppingWithHardLinks()
     {
         $unused_data_object_id = 0;
-        $crop_percentages = array(12.3,45.6,7.8);
+        $crop_percentages = array(12.3,45.6,7.8, null);
+        $this->assertTrue($GLOBALS['db_connection']->delete("DELETE FROM image_sizes WHERE data_object_id=$unused_data_object_id"), "Should delete id $unused_data_object_id from the database, if it exists");
         $cache_num = $this->content_manager->grab_file('http://eol.org/assets/v2/icon_taxon.png', 'image', array('data_object_id' => $unused_data_object_id));
         $cache_path = CONTENT_LOCAL_PATH . ContentManager::cache_num2path($cache_num);
         $local_file = $cache_path .'.png';
@@ -152,17 +154,16 @@ class test_content_manager extends SimpletestUnitBase
             $new_cache_path = CONTENT_LOCAL_PATH . ContentManager::cache_num2path($new_cache_num);
             
             $new_local_file = $new_cache_path .'.png';
-            $this->assertTrue(stat($local_file)['nlink'] == 2, 'Should have two hard links for the original file');
-            $this->assertTrue(is_file($new_local_file), 'Should hard link the image');
+            $this->assertTrue(is_file($new_local_file), 'Should create a new image which is a hard link to the old one');
             $this->assertTrue(stat($new_local_file)['nlink'] == 2, 'Should have two hard links for the new file');
+            $this->assertTrue(stat($local_file)['nlink'] == 2, 'Should also have two hard links for the original file');
             $this->assertTrue(stat($new_cache_path .'_orig.jpg')['nlink'] == 2, 'Should have two hard links for new _orig cache');
             $this->assertTrue(stat($new_cache_path .'_580_360.jpg')['nlink'] == 2, 'Should have two hard links for new _580_360 file');
             $this->assertTrue(stat($new_cache_path .'_260_190.jpg')['nlink'] == 2, 'Should have two hard links for new _260_190 file');
             $this->assertTrue(stat($new_cache_path .'_98_68.jpg')['nlink'] == 2, 'Should have two hard links for new _98_68 file');
             $this->assertTrue(stat($new_cache_path .'_88_88.jpg')['nlink'] == 1, 'Should have a single hard link for new _88_88 file');
             $this->assertTrue(stat($new_cache_path .'_130_130.jpg')['nlink'] == 1, 'Should have a single hard link for new _130_130 file');
-                        
-            self::delete_content(CONTENT_LOCAL_PATH . $cache_path);
+            self::delete_content($cache_path);
             $this->assertTrue(!file_exists($local_file), 'Should have deleted the old images');
             $this->assertTrue(stat($new_local_file)['nlink'] == 1, 'Should have a single remaining links to the new file');
             
@@ -175,8 +176,7 @@ class test_content_manager extends SimpletestUnitBase
                     $this->assertTrue(abs($details[0] - $crop_percentages[0]) < 0.01, 'Should have stored the new image left crop position');
                     $this->assertTrue(abs($details[1] - $crop_percentages[1]) < 0.01, 'Should have stored the new image top crop position');
                     $this->assertTrue(abs($details[2] - $crop_percentages[2]) < 0.01, 'Should have stored the new image width crop value');
-                    $height_pct = $crop_percentages[2] * $details[5]/$details[4];
-                    $this->assertTrue(abs($details[3] - $height_pct) < 0.01, 'Should have calculated and stored the new image height crop value');
+                    $this->assertTrue(is_null($details[3]), 'Should have stored the new image height crop value as null');
                 }
             }
             //check file types
@@ -190,9 +190,9 @@ class test_content_manager extends SimpletestUnitBase
             $this->assertTrue($redownloaded_md5_thumb = $new_md5_thumb, 'Should have identical thumbnails between the initial custom crop and redownloaded version');
         }
 
-        $resp = $GLOBALS['db_connection']->delete("DELETE FROM image_sizes WHERE data_object_id=$unused_data_object_id");
-        self::delete_content(CONTENT_LOCAL_PATH . $new_cache_path);
-        self::delete_content(CONTENT_LOCAL_PATH . $redownloaded_cache_path);
+        $GLOBALS['db_connection']->delete("DELETE FROM image_sizes WHERE data_object_id=$unused_data_object_id");
+        self::delete_content($new_cache_path);
+        self::delete_content($redownloaded_cache_path);
     }
 
     function testEnforcingExtensions()
