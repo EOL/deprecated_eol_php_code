@@ -191,7 +191,8 @@ class test_content_manager extends SimpletestUnitBase
         }
 
         $resp = $GLOBALS['db_connection']->delete("DELETE FROM image_sizes WHERE data_object_id=$unused_data_object_id");
-        self::delete_content(CONTENT_LOCAL_PATH . $cache_path);
+        self::delete_content(CONTENT_LOCAL_PATH . $new_cache_path);
+        self::delete_content(CONTENT_LOCAL_PATH . $redownloaded_cache_path);
     }
 
     function testEnforcingExtensions()
