@@ -56,18 +56,21 @@ class ContentManager
         {
             if(@!$options['timeout']) $options['timeout'] = DOWNLOAD_TIMEOUT_SECONDS;
             $temp_file_path = self::download_temp_file_and_assign_extension($file, $type, array_merge($options, array('unique_key' => $this->unique_key)));
-            if (empty($temp_file_path)) return null;
+            if (empty($temp_file_path)) return false;
 
             //if suffix, require lowercase
             if ($suffix = strtolower(trim(pathinfo($temp_file_path, PATHINFO_EXTENSION))))
             {
                 $cache_file_path = $permanent_file_path = $permanent_prefix . "." . $suffix;
-                //perhaps the two following lines should be simply a "rename"?
+                // **** Perhaps the two following lines should be simply a "rename"?
                 copy($temp_file_path, $permanent_file_path);
                 if(file_exists($temp_file_path)) unlink($temp_file_path);
             } else {
                 //no suffix
-                if ($type != 'resource') return false;
+                if ($type != 'resource') {
+                    if(file_exists($temp_file_path)) unlink($temp_file_path);
+                    return false;
+                };
                 $cache_file_path = $permanent_file_path = $permanent_prefix;
                 // first delete the archive directory that currently exists
                 recursive_rmdir($permanent_file_path);
@@ -439,7 +442,7 @@ class ContentManager
             $this->create_crop($big_jpg, ContentManager::small_square_dimensions(), $prefix);
         }
         //update width & height in case they have changed, but only change % crop values if we have a $new_crop
-        $this->save_image_size_data(@$options['data_object_id'], $width, $height, $crop);
+        $this->save_image_size_data(@$options['data_object_id'], $width, $height, $new_crop);
     }
 
     function create_agent_thumbnails($file, $prefix)
@@ -662,7 +665,7 @@ class ContentManager
             // 540px, CSS scales the image proportionally to fit into a max width of 540.
             // The offsets and width need to be scaled to match the image dimensions
             //
-            // Perhaps we should do this calculation in the Ruby front-end code (nearer to the css layout) rather than in php, 
+            // **** Perhaps we should do this calculation in the Ruby front-end code (nearer to the css layout) rather than in php, 
             // and simply pass percentages into this function? That would also stop doing a getimagesize() on a (potentially remote) file
             $sizes = getimagesize($image_url);
             if(count($sizes)>=2 and $sizes[0]>0 and $sizes[1]>0)
@@ -710,7 +713,7 @@ class ContentManager
 
     private function delete_old_datasets()
     {
-        //deletes all datasets > 14 days old. Do we *really* want to do this every time a new daaset is uploaded?
+        // **** Deletes all datasets > 14 days old. Do we *really* want to do this every time a new daaset is uploaded?
         $ls = scandir(CONTENT_DATASET_PATH);
         foreach($ls as $file)
         {
