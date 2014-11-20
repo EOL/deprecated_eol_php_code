@@ -67,7 +67,7 @@ class ContentManager
                 if(file_exists($temp_file_path)) unlink($temp_file_path);
             } else {
                 //no suffix
-                if ($type != 'resource') {
+                if ($type !== 'resource') {
                     if(file_exists($temp_file_path)) unlink($temp_file_path);
                     return false;
                 };
@@ -87,9 +87,9 @@ class ContentManager
         }
         
         // create thumbnails of website content and agent logos
-        if    ($type=="image")   $this->create_local_files_and_thumbnails($cache_file_path, $permanent_prefix, $options);
-        elseif($type=="partner") $this->create_agent_thumbnails($cache_file_path, $permanent_prefix);
-        elseif($type=="dataset")
+        if    ($type==="image")   $this->create_local_files_and_thumbnails($cache_file_path, $permanent_prefix, $options);
+        elseif($type==="partner") $this->create_agent_thumbnails($cache_file_path, $permanent_prefix);
+        elseif($type==="dataset")
         {
             $permanent_file_path = $this->zip_file($cache_file_path);
             $this->delete_old_datasets();
