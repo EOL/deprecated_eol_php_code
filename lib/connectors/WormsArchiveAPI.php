@@ -46,6 +46,7 @@ class WormsArchiveAPI
         // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
+        print_r($this->debug);
     }
 
     private function process_fields($records, $class)
@@ -115,10 +116,17 @@ class WormsArchiveAPI
         {
             $identifier = (string) $rec["http://purl.org/dc/terms/identifier"];
             $type       = (string) $rec["http://purl.org/dc/terms/type"];
+
+            $rec["taxon_id"] = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
+            $rec["taxon_id"] = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $rec["taxon_id"]);
+            $rec["catnum"] = "";
             
             if (strpos($identifier, "WoRMS:distribution:") !== false)
             {
+                $rec["catnum"] = (string) $rec["http://purl.org/dc/terms/identifier"];
                 self::process_distribution($rec);
+                $rec["catnum"] = str_ireplace("WoRMS:distribution:", "_", $rec["catnum"]);
+                self::process_establishmentMeans_occurrenceStatus($rec); //DATA-1522
                 continue;
             }
             
@@ -130,8 +138,7 @@ class WormsArchiveAPI
             }
 
             $mr = new \eol_schema\MediaResource();
-            $mr->taxonID        = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
-            $mr->taxonID        = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $mr->taxonID);
+            $mr->taxonID        = $rec["taxon_id"];
             $mr->identifier     = $identifier;
             $mr->type           = $type;
             $mr->subtype        = (string) $rec["http://rs.tdwg.org/audubon_core/subtype"];
@@ -239,15 +246,78 @@ class WormsArchiveAPI
         }
     }
 
+    private function process_establishmentMeans_occurrenceStatus($rec) // structured data
+    {
+        $location = $rec["http://purl.org/dc/terms/description"];
+        if(!$location) return;
+        $establishmentMeans = (string) @$rec["http://rs.tdwg.org/dwc/terms/establishmentMeans"];
+        $occurrenceStatus =  (string) @$rec["http://rs.tdwg.org/dwc/terms/occurrenceStatus"];
+
+        // /* list down all possible values of the 2 new fields
+        $this->debug["establishmentMeans"][$establishmentMeans] = '';
+        $this->debug["occurrenceStatus"][$occurrenceStatus] = '';
+        // */
+
+        /*
+        http://eol.org/schema/terms/Present --- lists locations
+        If this condition is met:   occurrenceStatus=present, doubtful, or empty
+        If occurrenceStatus=doubtful, add a metadata record in MeasurementOrFact:
+        field= http://rs.tdwg.org/dwc/terms/measurementAccuracy, value= http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Questionable
+        */
+        if(in_array($occurrenceStatus, array("present", "doubtful", "")) || $occurrenceStatus == "")
+        {
+            $rec["catnum"] .= "_pr";
+                                                self::add_string_types($rec, "true", $location, "http://eol.org/schema/terms/Present");
+            if($occurrenceStatus == "doubtful") self::add_string_types($rec, "metadata", "http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Questionable", "http://rs.tdwg.org/dwc/terms/measurementAccuracy");
+        }
+        
+        /*
+        http://eol.org/schema/terms/Absent --- lists locations
+        If this condition is met:   occurrenceStatus=excluded
+        */
+        if($occurrenceStatus == "excluded")
+        {
+            $rec["catnum"] .= "_ex";
+            self::add_string_types($rec, "true", $location, "http://eol.org/schema/terms/Absent");
+        }
+        
+        /*
+        http://eol.org/schema/terms/NativeRange --- lists locations
+        If this condition is met:   establishmentMeans=native or native - Endemic
+        If establishmentMeans=native - Endemic, add a metadata record in MeasurementOrFact:
+        field= http://rs.tdwg.org/dwc/terms/measurementRemarks, value= http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Endemic
+        */
+        if(in_array($establishmentMeans, array("Native", "Native - Endemic")))
+        {
+            $rec["catnum"] .= "_nr";
+            self::add_string_types($rec, "true", $location, "http://eol.org/schema/terms/NativeRange");
+            if($establishmentMeans == "Native - Endemic")
+            self::add_string_types($rec, "metadata", "http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Endemic", "http://rs.tdwg.org/dwc/terms/measurementRemarks");
+        }
+        
+        /*
+        http://eol.org/schema/terms/IntroducedRange --- lists locations
+        If both these conditions are met:
+            occurrenceStatus=present, doubtful or empty
+            establishmentMeans=Alien
+        If occurrenceStatus=doubtful, add a metadata record in MeasurementOrFact:
+        field= http://rs.tdwg.org/dwc/terms/measurementAccuracy, value= http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Questionable
+        */
+        if((in_array($occurrenceStatus, array("present", "doubtful", ""))) && $establishmentMeans == "Alien")
+        {
+            $rec["catnum"] .= "_ir";
+            self::add_string_types($rec, "true", $location, "http://eol.org/schema/terms/IntroducedRange");
+            if($occurrenceStatus == "doubtful") self::add_string_types($rec, "metadata", "http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Questionable", "http://rs.tdwg.org/dwc/terms/measurementAccuracy");
+        }
+
+    }
+
     private function add_string_types($rec, $label, $value, $measurementType)
     {
-        $taxon_id = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
-        $taxon_id = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $taxon_id);
-        $catnum = (string) $rec["http://purl.org/dc/terms/identifier"];
         $m = new \eol_schema\MeasurementOrFact();
-        $occurrence = $this->add_occurrence($taxon_id, $catnum);
-        $m->occurrenceID = $occurrence->occurrenceID;
-        if($label == "Distribution")
+        $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"]);
+        $m->occurrenceID = $occurrence_id;
+        if($label == "Distribution" || $label == "true")
         {   // so that measurementRemarks (and source, contributor, etc.) appears only once in the [measurement_or_fact.tab]
             $m->measurementOfTaxon = 'true';
             $m->measurementRemarks = '';
@@ -281,13 +351,13 @@ class WormsArchiveAPI
     {
         $occurrence_id = $taxon_id . 'O' . $catnum; // suggested by Katja to use -- ['O' . $catnum]
         // $occurrence_id = md5($taxon_id . 'occurrence'); from environments
-        if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
+        if(isset($this->occurrence_ids[$occurrence_id])) return $occurrence_id;
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
         $this->archive_builder->write_object_to_file($o);
-        $this->occurrence_ids[$occurrence_id] = $o;
-        return $o;
+        $this->occurrence_ids[$occurrence_id] = '';
+        return $occurrence_id;
     }
 
     private function get_vernaculars($records)
