@@ -655,9 +655,8 @@ class ContentManager
             trigger_error("ContentManager: Cropping invalid data object ID $data_object_id", E_USER_NOTICE);
         } elseif($data_object->is_image() && $data_object->object_cache_url)
         {
-            
-            /* we have problems because we don't actually save the filename extension of the original file. Until we can get this from the database, 
-            we hack around this as follows */
+            /* we have problems because we don't actually save the filename extension of the original file.
+            Until we can get this from the database, we hack around this as follows */
             $cache_path = self::cache_num2path($data_object->object_cache_url);
             foreach (self::$valid_image_extensions as $ext) {
                 $image_url = CONTENT_LOCAL_PATH . $cache_path . "." . $ext;
@@ -667,14 +666,16 @@ class ContentManager
             if(!is_file($image_url)) $image_url = CONTENT_LOCAL_PATH . $cache_path . "_orig.jpg";
             if(!is_file($image_url)) $image_url = "http://content71.eol.org/content/" . $cache_path ."_orig.jpg";
 
+            $image_options = array('data_object_id' => $data_object_id);
             // user has defined a bespoke crop region, with crop given as x & y offsets, plus a crop width & poss height.
             // Offsets are from the 580 x 360 version. However, if they are wider than 
             // 540px, CSS scales the image proportionally to fit into a max width of 540.
             // The offsets and width need to be scaled to match the image dimensions
             //
             // **** Perhaps we should do this calculation in the Ruby front-end code (nearer to the css layout) rather than in php, 
-            // and simply pass percentages into this function? That would also stop doing a getimagesize() on a (potentially remote) file
-            $sizes = getimagesize($image_url);
+            // and simply pass percentages into this function? That would also stop doing a getimagesize() on the _580_360 file
+            // (NB we can't use h & w from the original as it may need rotating). We could then delete the next 23 lines.
+            $sizes = getimagesize(CONTENT_LOCAL_PATH . $cache_path . "_580_360.jpg");
             if(count($sizes)>=2 and $sizes[0]>0 and $sizes[1]>0)
             {
                 $width = $sizes[0];
@@ -693,10 +694,11 @@ class ContentManager
                 $y_pct = 100.0 * $y * $scale_factor/$height;
                 $w_pct = 100.0 * $w * $scale_factor/$width;
                 $h_pct = $h ? 100.0 * $h * $scale_factor/$height : null;
-                return $this->grab_file($image_url, "image", array('crop_pct' => array($x_pct, $y_pct, $w_pct, $h_pct), 'data_object_id' => $data_object_id));
+                $image_options['crop_pct']=array($x_pct, $y_pct, $w_pct, $h_pct);
             } else {
                 trigger_error("ContentManager: Unable to determine image dimensions of $file, using default crop", E_USER_NOTICE);
             }
+            return $this->grab_file($image_url, "image", $image_options);
         }
         return false;
     }
