@@ -69,7 +69,15 @@ class test_content_manager extends SimpletestUnitBase
     {
         $file = $this->content_manager->grab_file('http://www.nch.com.au/acm/8kmp38.wav', 'audio');
         $cache_path = ContentManager::cache_path($file);
-        $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'.wav'), 'Should be an wav file');
+        $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'.wav'), 'Should be a wav file');
+        self::delete_content(CONTENT_LOCAL_PATH . $cache_path);
+    }
+
+    function testGrabContentAudioWithNoExtension()
+    {
+        $file = $this->content_manager->grab_file('https://api.soundcloud.com/tracks/72574158/download?client_id=ac6cdf58548a238e00b7892c031378ce', 'audio');
+        $cache_path = ContentManager::cache_path($file);
+        $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'.mp3'), 'Should be an mp3 file');
         self::delete_content(CONTENT_LOCAL_PATH . $cache_path);
     }
 
