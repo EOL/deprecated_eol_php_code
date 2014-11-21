@@ -43,7 +43,8 @@ if($result && $row=$result->fetch_assoc())
         }
     }else
     {
-        if($new_object_cache_url = $content_manager->grab_file($row["object_url"], "image"))
+        //give data_object_id so that previously stored crop locations are reused when grabbing the new image
+        if($new_object_cache_url = $content_manager->grab_file($row["object_url"], "image", array('data_object_id' = $data_object_id)))
         {
             //echo "UPDATE data_objects SET object_cache_url=$object_cache_url WHERE object_cache_url=$object_cache_url";
             $mysqli->query("UPDATE data_objects SET object_cache_url=$new_object_cache_url WHERE id=$data_object_id");
