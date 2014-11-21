@@ -5,7 +5,7 @@ class LifeDeskToScratchpadAPI
 {
     function __construct()
     {
-        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 2); // 15mins timeout
+        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 2, 'delay_in_minutes' => 2); // 15mins timeout
         $this->download_options["expire_seconds"] = 0; // zip file, bibtex
         /*
         $this->file_importer_xls["image"] = "http://localhost/~eolit/cp/LD2Scratchpad/templates/file_importer_image_xls.xls";
@@ -16,13 +16,16 @@ class LifeDeskToScratchpadAPI
         $this->file_importer_xls["text"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/templates/TEMPLATE-import_into_taxon_description_xls.xls";
         $this->file_importer_xls["parent_child"]= "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/templates/template_parent_child.xls";
         
-        $this->spreadsheet_cache = 0;                   // 1 => will use caching or 0 => won't use caching
+        $this->spreadsheet_options = array("cache" => 1, "timeout" => 3600, "file_extension" => "xls", 'download_attempts' => 2, 'delay_in_minutes' => 2);
+        $this->spreadsheet_options["expire_seconds"] = 0; // false => won't expire; 0 => expires now
+        
         $this->LD_image_source_expire_seconds = false;  // false => won't expire; 0 => expires now
         $this->LD_nodes_pages_expire_seconds = false;   // false => won't expire; 0 => expires now
     }
 
     function export_lifedesk_to_scratchpad($params)
     {
+        print_r($params);
         $this->text_path = array();
         $this->booklet_taxa_list = array();
         $this->booklet_title_list = array();
@@ -32,8 +35,11 @@ class LifeDeskToScratchpadAPI
         $this->taxon_description = array();
         $this->creators_for_pages = array();    // used when adding text from LD taxon pages
         $this->biblio_taxa = array();           // used when searching which taxa are related to which biblio, searches are in the taxon pages.
+        $this->taxonomy_biblio = array();       // used when searching which biblio id (NID) belong to a taxon
         
         if($val = @$params["scratchpad_biblio"]) $this->file_importer_xls["biblio"] = $val;
+        if($val = @$params["scratchpad_taxonomy"]) $this->file_importer_xls["taxonomy"] = $val;
+        
         if(self::load_zip_contents($params["lifedesk"]))
         {
             self::prepare_tab_delimited_text_files();
@@ -41,7 +47,7 @@ class LifeDeskToScratchpadAPI
             self::parse_eol_xml();
             self::get_taxon_descriptions_from_LD_taxon_pages($params);  //new
             self::get_images_from_LD_image_gallery($params);            //new
-            self::add_images_without_taxa_to_export_file($params);
+            if($val = @$params["scratchpad_images"]) self::add_images_without_taxa_to_export_file($val);
         }
 
         unset($this->used_GUID);
@@ -49,17 +55,16 @@ class LifeDeskToScratchpadAPI
         unset($this->creators_for_pages);
         
         self::initialize_dump_file($this->text_path["bibtex"]);
-        if($val = @$params["bibtex_file"])
-        {
-            self::convert_bibtex_file($val);
-            if($val = @$params["scratchpad_biblio"]) self::fill_up_biblio_spreadsheet($params);
-        }
+        if($val = @$params["bibtex_file"]) self::convert_bibtex_file($val);
+        if($val = @$params["scratchpad_biblio"]) self::fill_up_biblio_spreadsheet($val);
+        if($val = @$params["scratchpad_taxonomy"]) self::fill_up_taxonomy_spreadsheet($val);
 
         unset($this->taxon_description);
         unset($this->booklet_taxa_list);
         unset($this->booklet_title_list);
         unset($this->lifedesk_fields);
         unset($this->biblio_taxa);
+        unset($this->taxonomy_biblio);
 
         self::convert_tab_to_xls($params);
         // remove temp dir
@@ -67,7 +72,6 @@ class LifeDeskToScratchpadAPI
         recursive_rmdir($parts["dirname"]); //debug - comment if you want to see: images_not_in_xls.txt
         debug("\n temporary directory removed: " . $parts["dirname"]);
         print_r($params);
-
         if($val = @$this->debug["undefined subjects"])
         {
             echo "\n undefined subjects: ";
@@ -76,14 +80,14 @@ class LifeDeskToScratchpadAPI
         }
     }
 
-    private function fill_up_biblio_spreadsheet($params)
+    private function fill_up_biblio_spreadsheet($spreadsheet)
     {
-        if($this->booklet_title_list) self::write_biblio_text($params['scratchpad_biblio']);
+        if($this->booklet_title_list) self::write_biblio_text($spreadsheet);
     }
 
     private function write_biblio_text($spreadsheet)
     {
-        self::prepare_biblio_taxa_list();
+        $this->biblio_taxa = self::format_pipe_values($this->biblio_taxa);
         $headers = self::get_column_headers($spreadsheet);
         if($arr = self::convert_spreadsheet($spreadsheet, 0))
         {
@@ -131,19 +135,20 @@ class LifeDeskToScratchpadAPI
             */
         }
     }
-    
-    private function prepare_biblio_taxa_list()
+
+    private function format_pipe_values($records)
     {
-        foreach($this->biblio_taxa as $biblio => $taxa) $this->biblio_taxa[$biblio] = implode("|", array_unique($taxa));
+        foreach($records as $key => $values) $records[$key] = implode("|", array_unique($values));
+        return $records;
     }
-    
-    private function get_biblio_from_spreadsheet($params)
+
+    private function get_row_from_spreadsheet($spreadsheet, $header)
     {
-        if($val = @$params['scratchpad_biblio'])
+        if($spreadsheet)
         {
-            if($arr = self::convert_spreadsheet($val, 0)) return $arr['Title'];
+            if($arr = self::convert_spreadsheet($spreadsheet, 0)) return $arr[$header];
         }
-        return false;
+        return array();
     }
     
     private function get_scinames_from_taxon_description($title)
@@ -218,6 +223,8 @@ class LifeDeskToScratchpadAPI
     {
         $types = array("image", "text");
         if(@$this->file_importer_xls["biblio"]) $types[] = "biblio";
+        if(@$this->file_importer_xls["taxonomy"]) $types[] = "taxonomy";
+        
         foreach($types as $type)
         {
             self::initialize_dump_file($this->text_path[$type]);
@@ -247,7 +254,6 @@ class LifeDeskToScratchpadAPI
             foreach($arr["GUID"] as $guid)
             {
                 $filename = strtolower($arr["Filename"][$i]);
-                
                 /*
                 $this->scratchpad_image_taxon_list[$filename]["guid"]        = self::clean_str($guid);
                 $this->scratchpad_image_taxon_list[$filename]["taxon"]       = self::clean_str($arr["Taxonomic name (Name)"][$i]);
@@ -256,26 +262,16 @@ class LifeDeskToScratchpadAPI
                 $this->scratchpad_image_taxon_list[$filename]["description"] = self::clean_str($arr["Description"][$i]);
                 $this->scratchpad_image_taxon_list[$filename]["creator"]     = self::clean_str($arr["Creator"][$i]);
                 */
-                foreach($headers as $header)
-                {
-                    $this->scratchpad_image_taxon_list[$filename][$header]     = self::clean_str($arr[$header][$i]);
-                }
-                $this->scratchpad_image_taxon_list[$filename]["guid"]        = self::clean_str($guid);
-                $this->scratchpad_image_taxon_list[$filename]["taxon"]       = self::clean_str($arr["Taxonomic name (Name)"][$i]);
-                
-                
+                foreach($headers as $header) $this->scratchpad_image_taxon_list[$filename][$header] = self::clean_str($arr[$header][$i]);
                 $i++;
             }
         }
         /*
-        Array
-                (
-                    [guid] => 69bb0ba4-2294-4d09-9dd8-5c2e7b6e1f5b
-                    [taxon] => 
-                    [license] => Attribution CC BY
-                    [description] => 
-                    [creator] => 
-                )
+        [guid] => 69bb0ba4-2294-4d09-9dd8-5c2e7b6e1f5b
+        [taxon] =>
+        [license] => Attribution CC BY
+        [description] =>
+        [creator] =>
         */
     }
     
@@ -296,8 +292,7 @@ class LifeDeskToScratchpadAPI
     {
         require_library('XLSParser');
         $parser = new XLSParser();
-        $options = array("cache" => $this->spreadsheet_cache, "timeout" => 3600, "file_extension" => "xls", 'download_attempts' => 2, 'delay_in_minutes' => 2);
-        if($path = Functions::save_remote_file_to_local($spreadsheet, $options))
+        if($path = Functions::save_remote_file_to_local($spreadsheet, $this->spreadsheet_options))
         {
             $arr = $parser->convert_sheet_to_array($path, $worksheet);
             unlink($path);
@@ -366,7 +361,7 @@ class LifeDeskToScratchpadAPI
                     
                     if($this->scratchpad_image_taxon_list)
                     {
-                        if($guid = @$this->scratchpad_image_taxon_list[$filename]["guid"])
+                        if($guid = @$this->scratchpad_image_taxon_list[$filename]["GUID"])
                         {
                             $rec["GUID"] = $guid;
                             $this->used_GUID[$guid] = '';
@@ -377,7 +372,7 @@ class LifeDeskToScratchpadAPI
                             if(is_numeric(stripos($filename, ".jpg")))
                             {
                                 $filename = str_ireplace(".jpg", ".jpeg", $filename);
-                                if($guid = @$this->scratchpad_image_taxon_list[$filename]["guid"])
+                                if($guid = @$this->scratchpad_image_taxon_list[$filename]["GUID"])
                                 {
                                     $rec["GUID"] = $guid;
                                     $this->used_GUID[$guid] = '';
@@ -386,7 +381,7 @@ class LifeDeskToScratchpadAPI
                             elseif(is_numeric(stripos($filename, ".jpeg")))
                             {
                                 $filename = str_ireplace(".jpeg", ".jpg", $filename);
-                                if($guid = @$this->scratchpad_image_taxon_list[$filename]["guid"])
+                                if($guid = @$this->scratchpad_image_taxon_list[$filename]["GUID"])
                                 {
                                     $rec["GUID"] = $guid;
                                     $this->used_GUID[$guid] = '';
@@ -428,9 +423,8 @@ class LifeDeskToScratchpadAPI
     private function get_taxon_descriptions_from_LD_taxon_pages($params)
     {
         // for biblio spreadsheet
-        $biblios = self::get_biblio_from_spreadsheet($params);
-        
-        // $headers = self::get_column_headers($this->file_importer_xls["text"]);
+        $biblios = self::get_row_from_spreadsheet(@$params['scratchpad_biblio'], "Title");
+        /* headers = self::get_column_headers($this->file_importer_xls["text"]); */
         $headers = $this->lifedesk_fields["text"];
         
         // for stats
@@ -446,8 +440,12 @@ class LifeDeskToScratchpadAPI
         //start accessing individual taxon page in LD
         if($pages = self::get_nodes_or_pages("taxa", $params, $options))
         {
+            $total = count($pages);
+            $i = 0;
             foreach($pages as $page)
             {
+                $i++; echo "\n$i of $total --- page: [$page] " . $params["name"];
+                $sciname = false;
                 // <h3 class="taxonpage">Distribution</h3>
                 if($html = Functions::lookup_with_cache("http://" . $params["name"] . ".lifedesks.org/pages/$page", $options))
                 {
@@ -460,11 +458,11 @@ class LifeDeskToScratchpadAPI
                     */
                     
                     // /*
+                    $rec = array();
                     $html = str_ireplace('<div class="taxonpage-children">', '<div class="sub-chapter"><div class="taxonpage-children">', $html);
                     if(preg_match_all("/<h3 class=\"taxonpage\">(.*?)<div class=\"sub-chapter\">/ims", $html, $arr))
                     {
                         $sections = $arr[1];
-                        $rec = array();
                         foreach($sections as $section)
                         {
                             $str = strip_tags($section, "<p><em><h3>");
@@ -484,33 +482,45 @@ class LifeDeskToScratchpadAPI
                     }
                     // */
                     
-                    
                     // /*
                     // DATA-1552
-                    if(preg_match("/<h2 class=\"taxonpage\">References<\/h2>(.*?)title=\"About this site\">About this site<\/a>/ims", $html, $arr))
+                    if(@$params['scratchpad_biblio'] && $sciname)
                     {
-                        $with_biblio_taxa = false;
-                        $html = $arr[1];
-                        foreach($biblios as $biblio)
+                        // if(preg_match("/<h2 class=\"taxonpage\">References<\/h2>(.*?)title=\"About this site\">About this site<\/a>/ims", $html, $arr))
+                        if(true)
                         {
-                            if(is_numeric(stripos($html, $biblio)) || is_numeric(stripos(strip_tags($html), $biblio)) || is_numeric(stripos($html, strip_tags($biblio))) || is_numeric(stripos(strip_tags($html), strip_tags($biblio))))
+                            // $html = $arr[1];
+                            foreach($biblios as $biblio)
                             {
-                                $this->biblio_taxa[$biblio][] = $sciname;
-                                $with_biblio_taxa = true;
-                            }
-                            else // this may not be needed anymore...
-                            {
-                                $html = str_ireplace(array("\n"), "", $html);
-                                if(is_numeric(stripos($html, $biblio)) || is_numeric(stripos(strip_tags($html), $biblio)) || is_numeric(stripos($html, strip_tags($biblio))) || is_numeric(stripos(strip_tags($html), strip_tags($biblio))))
+                                if(is_numeric(stripos($html, $biblio))) $this->biblio_taxa[$biblio][] = $sciname;
+                                elseif(is_numeric(stripos(strip_tags($html), $biblio))) $this->biblio_taxa[$biblio][] = $sciname;
+                                elseif(is_numeric(stripos($html, strip_tags($biblio)))) $this->biblio_taxa[$biblio][] = $sciname;
+                                elseif(is_numeric(stripos(strip_tags($html), strip_tags($biblio)))) exit("\ccc1\n" . $params["name"]);
+                                else // this may not be needed anymore...
                                 {
-                                    $this->biblio_taxa[$biblio][] = $sciname;
-                                    $with_biblio_taxa = true;
+                                    $html = str_ireplace(array("\n"), "", $html);
+                                    if(is_numeric(stripos($html, $biblio))) exit("\naaa\n" . $params["name"]);
+                                    elseif(is_numeric(stripos(strip_tags($html), $biblio))) exit("\nbbb\n" . $params["name"]);
+                                    elseif(is_numeric(stripos($html, strip_tags($biblio)))) exit("\nccc\n" . $params["name"]);
+                                    elseif(is_numeric(stripos(strip_tags($html), strip_tags($biblio)))) exit("\nddd\n" . $params["name"]);
                                 }
                             }
                         }
-                        if($with_biblio_taxa) echo "\nwith biblio taxa\n";
                     }
                     // */
+                    
+                    // /*
+                    // DATA-1554
+                    if(@$params['scratchpad_taxonomy'] && $sciname)
+                    {
+                        if(preg_match_all("/biblio\/view\/(.*?)\"/ims", $html, $arr))
+                        {
+                            if($val = @$this->taxonomy_biblio[$sciname]) $this->taxonomy_biblio[$sciname] = array_merge($val, $arr[1]);
+                            else                                         $this->taxonomy_biblio[$sciname] = $arr[1];
+                        }
+                    }
+                    // */
+                    
                 }
             } //foreach page
         }
@@ -523,10 +533,8 @@ class LifeDeskToScratchpadAPI
     {
         foreach($records as $sciname => $rec)
         {
-            // echo "\n[$sciname]";
             foreach($rec["articles"] as $topic => $text)
             {
-                // echo "-$topic ";
                 if($topic == "Risk Statement")                  $topic = "Risk statement";
                 elseif($topic == "Molecular Biology")           $topic = "Molecular biology";
                 elseif($topic == "Taxon Biology")               $topic = "Taxon biology";
@@ -558,61 +566,6 @@ class LifeDeskToScratchpadAPI
                 elseif(in_array($topic, array("Seasonality"))) $topic = "Cyclicity";
                 elseif(in_array($topic, array("Key to Species"))) $topic = "Key";
 
-
-/*
-if(!in_array("Taxonomy", $headers))         $headers[] = "Taxonomy";
-if(!in_array("TypeInformation", $headers))  $headers[] = "TypeInformation";
-if(!in_array("Key", $headers))              $headers[] = "Key";
-if(!in_array("Notes", $headers))            $headers[] = "Notes";
-if(!in_array("Citation", $headers))         $headers[] = "Citation";
-if(!in_array("Bibliography", $headers))     $headers[] = "Bibliography";
-if(!in_array("References", $headers))       $headers[] = "References";
-if(!in_array("Creator", $headers))          $headers[] = "Creator";
-
-    [4] => General description
-    [5] => Biology
-    [6] => Media (Filename)
-    [7] => Media (URL)
-    [8] => Conservation status
-    [9] => Legislation
-    [10] => Management
-    [11] => Procedures
-    [12] => Threats
-    [13] => Trends
-    [14] => Behaviour
-    [15] => Cytology
-    [16] => Diagnostic description
-    [17] => Genetics
-    [18] => Growth
-    [19] => Look alikes
-    [20] => Molecular biology
-    [21] => Morphology
-    [22] => Physiology
-    [23] => Size
-    [24] => Taxon biology
-    [25] => Evolution
-    [26] => Phylogeny
-    [27] => Map
-    [28] => Associations
-    [29] => Cyclicity
-    [30] => Dispersal
-    [31] => Distribution
-    [32] => Ecology
-    [33] => Habitat
-    [34] => Life cycle
-    [35] => Life expectancy
-    [36] => Migration
-    [37] => Trophic strategy
-    [38] => Population biology
-    [39] => Reproduction
-    [40] => Diseases
-    [41] => Risk statement
-    [42] => Uses
-    [43] => Taxonomy
-    [44] => TypeInformation
-    [45] => Creator
-*/
-
                 if(!in_array($topic, $headers))
                 {
                     $this->debug["undefined subjects"][$topic] = '';
@@ -629,7 +582,52 @@ if(!in_array("Creator", $headers))          $headers[] = "Creator";
             }
         }
     }
-    
+
+    /*
+        [4] => General description
+        [5] => Biology
+        [6] => Media (Filename)
+        [7] => Media (URL)
+        [8] => Conservation status
+        [9] => Legislation
+        [10] => Management
+        [11] => Procedures
+        [12] => Threats
+        [13] => Trends
+        [14] => Behaviour
+        [15] => Cytology
+        [16] => Diagnostic description
+        [17] => Genetics
+        [18] => Growth
+        [19] => Look alikes
+        [20] => Molecular biology
+        [21] => Morphology
+        [22] => Physiology
+        [23] => Size
+        [24] => Taxon biology
+        [25] => Evolution
+        [26] => Phylogeny
+        [27] => Map
+        [28] => Associations
+        [29] => Cyclicity
+        [30] => Dispersal
+        [31] => Distribution
+        [32] => Ecology
+        [33] => Habitat
+        [34] => Life cycle
+        [35] => Life expectancy
+        [36] => Migration
+        [37] => Trophic strategy
+        [38] => Population biology
+        [39] => Reproduction
+        [40] => Diseases
+        [41] => Risk statement
+        [42] => Uses
+        [43] => Taxonomy
+        [44] => TypeInformation
+        [45] => Creator
+    */
+
     private function get_images_from_LD_image_gallery($params)
     {
         // for stats
@@ -689,7 +687,7 @@ if(!in_array("Creator", $headers))          $headers[] = "Creator";
                     if(preg_match("/<strong>Photographer:<\/strong>(.*?)<\/span>/ims", $html, $arr)) $rec["Creator"] = $arr[1];
                     
                     //GUID
-                    if($guid = @$this->scratchpad_image_taxon_list[$rec["Filename"]]["guid"])
+                    if($guid = @$this->scratchpad_image_taxon_list[$rec["Filename"]]["GUID"])
                     {
                         $rec["GUID"] = $guid;
                         if(!isset($this->used_GUID[$guid]))
@@ -705,8 +703,7 @@ if(!in_array("Creator", $headers))          $headers[] = "Creator";
                             // this means that an image file in XML is not found in the image XLS submitted by SPG
                             self::save_to_dump($rec["Taxonomic name (Name)"] . "\t" . "" . "\t" . $rec["Filename"], $dump_file);
                             echo "\n no guid node:[$node] \n";
-                            print_r($rec);
-                            // exit("\n-stopped- NO GUID: Will need to notify SPG\n");
+                            // print_r($rec); // exit("\n-stopped- NO GUID: Will need to notify SPG\n");
                         }
                         else echo "\n blank filename in the page \n"; //e.g. http://africanamphibians.lifedesks.org/node/807
                     }
@@ -740,7 +737,6 @@ if(!in_array("Creator", $headers))          $headers[] = "Creator";
                 if($page > 0) $url = "http://" . $params["name"] . ".lifedesks.org/" . $what . "?page=" . $page;
                 if($html = Functions::lookup_with_cache($url, $options)) // start accessing pages
                 {
-                    // echo "\n[$url]\n";
                     if($what == "image")
                     {
                         // <span class="field-content"><a href="/node/4485"
@@ -761,8 +757,9 @@ if(!in_array("Creator", $headers))          $headers[] = "Creator";
                                         $tds = $arr[1];
                                         // <span class="taxon-list taxon_description_missing">&nbsp;</span>
                                         if(count($tds) != 4) exit("\nInvestigate: wrong no. of columns\n");
-                                        if(@$params['scratchpad_biblio']) $condition = is_numeric(stripos($tds[1], 'class="taxon-list taxon_description"')) || is_numeric(stripos($tds[1], 'class="taxon-list biblio"'));
-                                        else                              $condition = is_numeric(stripos($tds[1], 'class="taxon-list taxon_description"'));
+                                        $condition = is_numeric(stripos($tds[1], 'class="taxon-list taxon_description"'));
+                                        if(@$params['scratchpad_biblio'])   $condition = true; // get all rows --- old value -> $condition = is_numeric(stripos($tds[1], 'class="taxon-list taxon_description"')) || is_numeric(stripos($tds[1], 'class="taxon-list biblio"'));
+                                        if(@$params['scratchpad_taxonomy']) $condition = true; // get all rows
                                         if($condition)
                                         {
                                             // <a href="/pages/3095">
@@ -792,13 +789,13 @@ if(!in_array("Creator", $headers))          $headers[] = "Creator";
         return false;
     }
     
-    private function add_images_without_taxa_to_export_file($params)
+    private function add_images_without_taxa_to_export_file($spreadsheet)
     {
-        $headers = self::get_column_headers($params["scratchpad_images"]);
+        $headers = self::get_column_headers($spreadsheet);
         foreach($this->scratchpad_image_taxon_list as $filename => $value)
         {
             $rec = array();
-            if(!isset($this->used_GUID[$value["guid"]]))
+            if(!isset($this->used_GUID[$value["GUID"]]))
             {
                 /*
                 $rec["GUID"]                    = $value["guid"];
@@ -808,15 +805,7 @@ if(!in_array("Creator", $headers))          $headers[] = "Creator";
                 $rec["Description"] = @$value["description"];
                 $rec["Creator"]     = @$value["creator"];
                 */
-                
-                foreach($headers as $header)
-                {
-                    $rec[$header] = @$value[$header];
-                }
-                $rec["GUID"]                    = $value["guid"];
-                $rec["Filename"]                = $filename;
-                $rec["Taxonomic name (Name)"]   = $value["taxon"];
-                
+                foreach($headers as $header) $rec[$header] = @$value[$header];
                 self::save_to_template($rec, $this->text_path["image"], "image");
             }
         }
@@ -945,11 +934,13 @@ if(!in_array("Creator", $headers))          $headers[] = "Creator";
             }
             $this->text_path["eol_xml"] = $temp_dir . "eol-partnership.xml";
             // initialize tab-delimited text files to be used
-            $this->text_path["image"]        = $temp_dir . "file_importer_image_xls.txt";
-            $this->text_path["text"]         = $temp_dir . "TEMPLATE-import_into_taxon_description_xls.txt";
+            $this->text_path["image"]        = $temp_dir . "filled_file_importer_image_xls.txt";
+            $this->text_path["text"]         = $temp_dir . "filled_TEMPLATE-import_into_taxon_description_xls.txt";
             $this->text_path["bibtex"]       = $temp_dir . "Biblio-Bibtex.bib";
             $this->text_path["biblio"]       = $temp_dir . "filled_node_importer_biblio_xls.txt";
             $this->text_path["parent_child"] = $temp_dir . "parent_child.txt"; // for export_lifedesk_taxonomy()
+            $this->text_path["taxonomy"]     = $temp_dir . "filled_taxonomy_importer_xls.txt";
+            
             print_r($this->text_path);
             return $this->text_path;
         }
@@ -966,6 +957,7 @@ if(!in_array("Creator", $headers))          $headers[] = "Creator";
         $destination_folder = create_temp_dir() . "/";
         $types = array("image", "text");
         if(@$this->file_importer_xls["biblio"]) $types[] = "biblio";
+        if(@$this->file_importer_xls["taxonomy"]) $types[] = "taxonomy";
         foreach($types as $type)
         {
             $inputFileName = $this->text_path[$type];
@@ -1140,7 +1132,6 @@ if(!in_array("Creator", $headers))          $headers[] = "Creator";
             print_r($do);
         }
         /* Reminders:
-        
         available in SPM but not as a header in the spreadsheet template
             http://rs.tdwg.org/ontology/voc/SPMInfoItems#Key
 
@@ -1230,6 +1221,29 @@ if(!in_array("Creator", $headers))          $headers[] = "Creator";
         $parts = pathinfo($this->text_path["eol_xml"]);
         recursive_rmdir($parts["dirname"]); //debug - comment if you want to see: images_not_in_xls.txt
         debug("\n temporary directory removed: " . $parts["dirname"]);
+    }
+
+    private function fill_up_taxonomy_spreadsheet($spreadsheet)
+    {
+        $this->taxonomy_biblio = self::format_pipe_values($this->taxonomy_biblio);
+        $headers = self::get_column_headers($spreadsheet);
+        if($arr = self::convert_spreadsheet($spreadsheet, 0))
+        {
+            print "\n spreadsheet: " . count($arr[$headers[0]]) . "\n";
+            $i = 0;
+            foreach($arr['Term name'] as $term_name)
+            {
+                $NIDs = @$this->taxonomy_biblio[$term_name];
+                $rec = array();
+                foreach($headers as $header)
+                {
+                    if($header == "Reference (NID)") $rec[$header] = $NIDs;
+                    else $rec[$header] = $arr[$header][$i];
+                }
+                if($rec) self::save_to_template($rec, $this->text_path["taxonomy"], "taxonomy");
+                $i++;
+            }
+        }
     }
 
 }
