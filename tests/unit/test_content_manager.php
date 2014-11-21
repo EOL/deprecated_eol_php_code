@@ -115,8 +115,10 @@ class test_content_manager extends SimpletestUnitBase
     {
         $file = $this->content_manager->grab_file('http://www.wikipedia.org/', 'image');
         $this->assertEqual($file, false);
+        if ($file) self::delete_content(CONTENT_LOCAL_PATH . ContentManager::cache_path($file));
         $file = $this->content_manager->grab_file('http://www.wikipedia.org/', 'upload');
         $this->assertNotEqual($file, false);
+        if ($file) self::delete_content(CONTENT_LOCAL_PATH . ContentManager::cache_path($file));
     }
 
     private static function delete_content($prefix)
