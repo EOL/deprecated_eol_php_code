@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [872] GBIF country node - type records */
+/* connector: [872] GBIF country node - type records & classification resource */
 class GBIFCountryTypeRecordAPI
 {
     function __construct($folder)
@@ -28,8 +28,10 @@ class GBIFCountryTypeRecordAPI
             debug("Invalid archive file. Program will terminate.");
             return false;
         }
-        self::process_row_type(array("row_type" => 'http://rs.tdwg.org/dwc/terms/occurrence', "location" => "occurrence.txt", "type" => "taxa"));
-        self::process_row_type(array("row_type" => 'http://rs.tdwg.org/dwc/terms/occurrence', "location" => "occurrence.txt", "type" => "data"));
+
+        if    ($params["type"] == "structured data")         self::process_row_type(array("row_type" => 'http://rs.tdwg.org/dwc/terms/occurrence', "location" => "occurrence.txt", "type" => "data"));
+        elseif($params["type"] == "classification resource") self::process_row_type(array("row_type" => 'http://rs.tdwg.org/dwc/terms/occurrence', "location" => "occurrence.txt", "type" => "classification"));
+
         // self::process_row_type(array("row_type" => 'http://rs.gbif.org/terms/1.0/Multimedia', "location" => "multimedia.txt"));
 
         /*
@@ -101,8 +103,9 @@ class GBIFCountryTypeRecordAPI
                         if($fields && $callback) call_user_func($callback, $fields, $parameters);
                         elseif($fields)
                         {
-                            if($params["type"] == "taxa") self::create_instances_from_taxon_object($fields);
-                            elseif($params["type"] == "data") self::process_type_records($fields);
+                            if($params["type"] == "data") self::create_type_records($fields);
+                            elseif($params["type"] == "classification") self::create_classification($fields);
+                            
                             // elseif($row_type == "http://rs.gbif.org/terms/1.0/Multimedia") self::get_media_objects($fields);
                         }
                         // if($i >= 10000) break; //debug - used during preview mode
@@ -135,6 +138,8 @@ class GBIFCountryTypeRecordAPI
                 $this->archive_builder->write_object_to_file($taxon);
             }
         }
+        $rec["taxon_id"] = $taxon->taxonID;
+        return $rec;
         /* Haven not specified by Jen based on DATA-1557
         $taxon->scientificNameAuthorship  = (string) @$rec["http://rs.tdwg.org/dwc/terms/scientificNameAuthorship"]; // not all records have scientificNameAuthorship
         $taxon->taxonomicStatus = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
@@ -142,6 +147,45 @@ class GBIFCountryTypeRecordAPI
         $taxon->namePublishedIn = (string) $rec["http://rs.tdwg.org/dwc/terms/namePublishedIn"];
         $taxon->rightsHolder    = (string) $rec["http://purl.org/dc/terms/rightsHolder"];
         */
+    }
+
+    private function create_classification($rec)
+    {
+        $species = trim((string) $rec["http://rs.gbif.org/terms/1.0/species"]);
+        $sciname = trim((string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"]);
+        if(!$species || !$sciname) return;
+        if(Functions::canonical_form($species) == Functions::canonical_form($sciname)) return;
+
+        $taxon_id = md5($species);
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID         = $taxon_id;
+        $taxon->scientificName  = $species;
+        $taxon->kingdom         = (string) $rec["http://rs.tdwg.org/dwc/terms/kingdom"];
+        $taxon->phylum          = (string) $rec["http://rs.tdwg.org/dwc/terms/phylum"];
+        $taxon->class           = (string) $rec["http://rs.tdwg.org/dwc/terms/class"];
+        $taxon->order           = (string) $rec["http://rs.tdwg.org/dwc/terms/order"];
+        $taxon->family          = (string) $rec["http://rs.tdwg.org/dwc/terms/family"];
+        $taxon->genus           = (string) $rec["http://rs.tdwg.org/dwc/terms/genus"];
+        $taxon->taxonRank       = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
+        if(!isset($this->taxon_ids[$taxon->taxonID]))
+        {
+            $this->taxon_ids[$taxon->taxonID] = '';
+            $this->archive_builder->write_object_to_file($taxon);
+        }
+        
+        //create the synonym
+        $synonym_taxon_id = md5($sciname);
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID         = $synonym_taxon_id;
+        $taxon->scientificName  = $sciname;
+        $taxon->taxonRank       = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
+        $taxon->taxonomicStatus     = "synonym";
+        $taxon->acceptedNameUsageID = $taxon_id;
+        if(!isset($this->taxon_ids[$taxon->taxonID]))
+        {
+            $this->taxon_ids[$taxon->taxonID] = '';
+            $this->archive_builder->write_object_to_file($taxon);
+        }
     }
 
     private function get_taxon_id($rec)
@@ -152,8 +196,10 @@ class GBIFCountryTypeRecordAPI
         return $taxon_id;
     }
 
-    private function process_type_records($rec) // structured data
+    private function create_type_records($rec) // structured data
     {
+        $rec = self::create_instances_from_taxon_object($rec);
+        
         if(!$val = (string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"]) return;
         if((string) $rec["http://rs.tdwg.org/dwc/terms/typeStatus"] == "NOTATYPE") return;
         if((string) $rec["http://rs.tdwg.org/dwc/terms/institutionCode"] == "Museum Darmstadt") return;
@@ -199,7 +245,7 @@ class GBIFCountryTypeRecordAPI
 
     private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
     {
-        $taxon_id = self::get_taxon_id($rec);
+        $taxon_id = $rec["taxon_id"];
         $catnum = (string) $rec["http://rs.gbif.org/terms/1.0/gbifID"];
         $m = new \eol_schema\MeasurementOrFact();
         $occurrence_id = $this->add_occurrence($taxon_id, $catnum);
