@@ -288,11 +288,12 @@ class LifeDeskToScratchpadAPI
         return $fields;
     }
     
-    public function convert_spreadsheet($spreadsheet, $worksheet = null)
+    public function convert_spreadsheet($spreadsheet, $worksheet = null, $spreadsheet_options = array())
     {
+        if(!$spreadsheet_options) $spreadsheet_options = $this->spreadsheet_options;
         require_library('XLSParser');
         $parser = new XLSParser();
-        if($path = Functions::save_remote_file_to_local($spreadsheet, $this->spreadsheet_options))
+        if($path = Functions::save_remote_file_to_local($spreadsheet, $spreadsheet_options))
         {
             $arr = $parser->convert_sheet_to_array($path, $worksheet);
             unlink($path);
@@ -495,6 +496,7 @@ class LifeDeskToScratchpadAPI
                                 if(is_numeric(stripos($html, $biblio))) $this->biblio_taxa[$biblio][] = $sciname;
                                 elseif(is_numeric(stripos(strip_tags($html), $biblio))) $this->biblio_taxa[$biblio][] = $sciname;
                                 elseif(is_numeric(stripos($html, strip_tags($biblio)))) $this->biblio_taxa[$biblio][] = $sciname;
+                                /*
                                 elseif(is_numeric(stripos(strip_tags($html), strip_tags($biblio)))) exit("\ccc1\n" . $params["name"]);
                                 else // this may not be needed anymore...
                                 {
@@ -504,6 +506,7 @@ class LifeDeskToScratchpadAPI
                                     elseif(is_numeric(stripos($html, strip_tags($biblio)))) exit("\nccc\n" . $params["name"]);
                                     elseif(is_numeric(stripos(strip_tags($html), strip_tags($biblio)))) exit("\nddd\n" . $params["name"]);
                                 }
+                                */
                             }
                         }
                     }

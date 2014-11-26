@@ -914,7 +914,7 @@ $params["neotropicalfishes"]["local"]["lifedesk"]           = "http://localhost/
 $params["neotropicalfishes"]["local"]["bibtex_file"]        = "";
 $params["neotropicalfishes"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/LD2Scratchpad/neotropicalfishes/file_importer_image_xls.xls";
 $params["neotropicalfishes"]["local"]["name"]               = "neotropicalfishes";
-$params["neotropicalfishes"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/neotropicalfishes/node_importer_biblio_xls.xls";
+$params["neotropicalfishes"]["local"]["scratchpad_biblio"]  = "";
 // ==================================================================================================
 // dinoflagellate remote
 $params["dinoflagellate"]["remote"]["lifedesk"]          = "http://dinoflagellate.lifedesks.org/eol-partnership.xml.gz";
@@ -933,8 +933,6 @@ $params["dinoflagellate"]["local"]["scratchpad_images"]  = "";
 $params["dinoflagellate"]["local"]["name"]               = "dinoflagellate";
 $params["dinoflagellate"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/dinoflagellate/node_importer_biblio_xls.xls";
 // ==================================================================================================
-http://chess.lifedesks.org/eol-partnership.xml.gz
-
 // chess remote
 $params["chess"]["remote"]["lifedesk"]          = "http://chess.lifedesks.org/eol-partnership.xml.gz";
 $params["chess"]["remote"]["bibtex_file"]       = "";
@@ -952,6 +950,23 @@ $params["chess"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/LD
 $params["chess"]["local"]["name"]               = "chess";
 $params["chess"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/chess/node_importer_biblio_xls.xls";
 // ==================================================================================================
+// diatoms remote
+$params["diatoms"]["remote"]["lifedesk"]          = "http://diatoms.lifedesks.org/eol-partnership.xml.gz";
+$params["diatoms"]["remote"]["bibtex_file"]       = "";
+$params["diatoms"]["remote"]["scratchpad_images"] = "";
+$params["diatoms"]["remote"]["name"]              = "diatoms";
+// diatoms Dropbox
+$params["diatoms"]["dropbox"]["lifedesk"]          = "";
+$params["diatoms"]["dropbox"]["bibtex_file"]       = "";
+$params["diatoms"]["dropbox"]["scratchpad_images"] = "";
+$params["diatoms"]["dropbox"]["name"]              = "diatoms";
+// diatoms local
+$params["diatoms"]["local"]["lifedesk"]           = "http://localhost/~eolit/cp/LD2Scratchpad/diatoms/eol-partnership.xml.gz";
+$params["diatoms"]["local"]["bibtex_file"]        = "http://localhost/~eolit/cp/LD2Scratchpad/diatoms/Biblio-Bibtex.bib";
+$params["diatoms"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/LD2Scratchpad/diatoms/file_importer_image_xls.xls";
+$params["diatoms"]["local"]["name"]               = "diatoms";
+$params["diatoms"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/diatoms/node_importer_biblio_xls.xls";
+// ==================================================================================================
 
 
 
@@ -965,7 +980,7 @@ $func = new LifeDeskToScratchpadAPI();
 // $parameters = $params["caterpillars"]["local"];
 // $parameters = $params["neotropicalfishes"]["local"];
 // $parameters = $params["lincolnsflorafauna"]["local"];
-$parameters = $params["chess"]["local"];
+$parameters = $params["diatoms"]["local"];
 
 if($parameters) $func->export_lifedesk_to_scratchpad($parameters);
 else echo "\nNothing to process. Program will terminate\n";
@@ -980,7 +995,7 @@ $lifedesks = array("parmotrema", "pelagics", "continenticola", "leptogastrinae",
                    "marineinvaders", "neritopsine", "polycladida", "tabanidae", "squatlobsters", "simuliidae", "proctotrupidae", "opisthobranchia",
                    "katydidsfrombrazil", "hypogymnia", "salamandersofchina", "ebasidiolichens", "hundrednewlichens", "molluscacolombia", "lincolnsflorafauna",
                    "arachnids", "congofishes", "indiareeffishes", "olivirv", "avesamericanas", "neotropnathistory", "quercus", "caterpillars", "terrslugs",
-                   "neotropicalfishes", "dinoflagellate", "chess");
+                   "neotropicalfishes", "dinoflagellate", "chess", "diatoms");
 foreach($lifedesks as $lifedesk)
 {
     $func = new LifeDeskToScratchpadAPI();
