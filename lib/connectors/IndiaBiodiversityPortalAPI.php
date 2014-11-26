@@ -16,6 +16,47 @@ class IndiaBiodiversityPortalAPI
         $this->accessURI = array();
     }
 
+    function check_if_image_is_broken() // utility
+    {
+        $options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 1); // 15mins timeout
+        $broken = array();
+        for($i=1; $i<=58; $i++)
+        {
+            $url = "http://eol.org/collections/94950/images?page=$i&sort_by=3&view_as=3";
+            $html = Functions::lookup_with_cache($url, $options);
+            {
+                echo "\n$i. [$url]";
+                // <a href="/data_objects/26326917"><img alt="84925_88_88" height="68" src="http://media.eol.org/content/2013/09/13/13/84925_88_88.jpg" width="68" /></a>
+                if(preg_match_all("/<a href=\"\/data_objects\/(.*?)<\/a>/ims", $html, $arr))
+                {
+                    $rows = $arr[1];
+                    $total_rows = count($rows);
+                    $k = 0;
+                    foreach($rows as $row)
+                    {
+                        $k++;
+                        echo "\n$i of 58 - $k of $total_rows";
+                        if(preg_match("/_xxx(.*?)\"/ims", "_xxx".$row, $arr)) $id = $arr[1];
+                        if(preg_match("/src=\"(.*?)\"/ims", "_xxx".$row, $arr))
+                        {
+                            $url = $arr[1];
+                            $options['cache_path'] = "/Volumes/Eli blue/eol_cache_2/";
+                            if($html = Functions::lookup_with_cache($url, $options)) echo "\nexists:[$url]";
+                            else
+                            {
+                                echo "\nbroken: [$url]";
+                                $broken[$id] = $url;
+                            }
+                            unset($options['cache_path']);
+                        }
+                    }
+                }
+                // if($i >= 3) break; //debug
+            }
+        }
+        print_r($broken);
+    }
+    
     function get_all_taxa()
     {
         require_library('connectors/INBioAPI');
@@ -43,6 +84,15 @@ class IndiaBiodiversityPortalAPI
 
     private function process_fields($records, $class)
     {
+        if($class == "objects")
+        {
+            $broken_images = array("http://pamba.strandls.com/biodiv/images/Leporicypraea mappa/123", "http://pamba.strandls.com/biodiv/images/Pleuroploca trapezium/903.JPG", 
+            "http://pamba.strandls.com/biodiv/images/Harpago chiragra/886.JPG", "http://pamba.strandls.com/biodiv/images/Lambis millepeda/988.jpg", 
+            "http://pamba.strandls.com/biodiv/images/Lambis truncata/933.jpg", "http://pamba.strandls.com/biodiv/images/Lambis truncata/638.JPG", 
+            "http://pamba.strandls.com/biodiv/images/Crassostrea belcheri/800", "http://pamba.strandls.com/biodiv/images/Ostrea chilensis/697", "http://pamba.strandls.com/biodiv/images/Lopha cristagalli/372", "http://pamba.strandls.com/biodiv/images/Pinguitellina pinguis/600", "http://pamba.strandls.com/biodiv/images/Gafrarium pectinatum/629", "http://pamba.strandls.com/biodiv/images/Gafrarium pectinatum/774", "http://pamba.strandls.com/biodiv/images/Gafrarium pectinatum/889", "http://pamba.strandls.com/biodiv/images/Gafrarium pectinatum/280", "http://pamba.strandls.com/biodiv/images/Gafrarium pectinatum/406", "http://pamba.strandls.com/biodiv/images/Gafrarium pectinatum/907", 
+            "http://pamba.strandls.com/biodiv/images/Gafrarium pectinatum/379", "http://pamba.strandls.com/biodiv/images/Gafrarium pectinatum/167");
+        }
+        
         foreach($records as $rec)
         {
             if    ($class == "vernacular") $c = new \eol_schema\VernacularName();
@@ -81,7 +131,10 @@ class IndiaBiodiversityPortalAPI
                     $access_uri = $r["accessURI"];
                     if(isset($this->accessURI[$access_uri])) $save = false;
                     else $this->accessURI[$access_uri] = '';
+                    if(in_array($access_uri, $broken_images)) $save = false;
                 }
+                if(is_numeric(stripos($r["derivedFrom"], "http://eol.org/data_objects/"))) $save = false;
+                if(is_numeric(stripos($r["derivedFrom"], ".eol.org"))) $save = false;
             }
             if($save) $this->archive_builder->write_object_to_file($c);
         }
