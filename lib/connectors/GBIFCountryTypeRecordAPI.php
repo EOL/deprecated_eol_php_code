@@ -19,7 +19,7 @@ class GBIFCountryTypeRecordAPI
         $this->uris = self::get_uris($params);
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($params["dwca_file"], "meta.xml");
+        $paths = $func->extract_archive_file($params["dwca_file"], "meta.xml", array("timeout" => 7200)); // "expire_seconds" -- false => won't expire; 0 => expires now
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         $this->harvester = new ContentArchiveReader(NULL, $archive_path);
@@ -210,9 +210,10 @@ class GBIFCountryTypeRecordAPI
         /* datasetKey --- use to construct http://purl.org/dc/terms/contributor, eg: http://www.gbif.org/dataset/85714c48-f762-11e1-a439-00145eb45e9a */
         if($val = (string) $rec["http://rs.gbif.org/terms/1.0/datasetKey"]) $rec["contributor"] = self::get_contributor_name("http://www.gbif.org/dataset/" . $val);
 
-        if($val = $rec["http://rs.tdwg.org/dwc/terms/institutionCode"])
+        if($institutionCode = $rec["http://rs.tdwg.org/dwc/terms/institutionCode"])
         {
-            self::add_string_types($rec, self::get_uri($val, "institutionCode"), "http://rs.tdwg.org/dwc/terms/institutionCode", "true");
+            self::add_string_types($rec, self::get_uri($institutionCode, "institutionCode"), "http://eol.org/schema/terms/TypeSpecimenRepository", "true");
+            self::add_string_types($rec, $institutionCode, "http://rs.tdwg.org/dwc/terms/institutionCode");
             if($val = (string) $rec["http://rs.tdwg.org/dwc/terms/typeStatus"]) self::add_string_types($rec, self::get_uri($val, "TypeInformation"), "http://eol.org/schema/terms/TypeInformation");
             if($val = (string) $rec["http://rs.tdwg.org/dwc/terms/collectionCode"]) self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/collectionCode");
             if($val = (string) $rec["http://rs.tdwg.org/dwc/terms/countryCode"]) self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/countryCode");
