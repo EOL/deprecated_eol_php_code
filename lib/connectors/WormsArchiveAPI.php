@@ -124,7 +124,7 @@ class WormsArchiveAPI
             if (strpos($identifier, "WoRMS:distribution:") !== false)
             {
                 $rec["catnum"] = (string) $rec["http://purl.org/dc/terms/identifier"];
-                self::process_distribution($rec);
+                /* self::process_distribution($rec); removed as per DATA-1522 */ 
                 $rec["catnum"] = str_ireplace("WoRMS:distribution:", "_", $rec["catnum"]);
                 self::process_establishmentMeans_occurrenceStatus($rec); //DATA-1522
                 continue;
@@ -196,23 +196,23 @@ class WormsArchiveAPI
         }
     }
 
+    /*
     private function process_distribution($rec) // structured data
     {
-        /* not used yet
-        [] => WoRMS:distribution:274241
-        [http://purl.org/dc/terms/type] => http://purl.org/dc/dcmitype/Text
-        [http://rs.tdwg.org/audubon_core/subtype] => 
-        [http://purl.org/dc/terms/format] => text/html
-        [http://purl.org/dc/terms/title] => Distribution
-        [http://eol.org/schema/media/thumbnailURL] => 
-        [http://rs.tdwg.org/ac/terms/furtherInformationURL] => 
-        [http://purl.org/dc/terms/language] => en
-        [http://ns.adobe.com/xap/1.0/Rating] => 
-        [http://purl.org/dc/terms/audience] => 
-        [http://ns.adobe.com/xap/1.0/rights/UsageTerms] => http://creativecommons.org/licenses/by/3.0/
-        [http://purl.org/dc/terms/rights] => This work is licensed under a Creative Commons Attribution-Share Alike 3.0 License
-        [http://eol.org/schema/agent/agentID] => WoRMS:Person:10
-        */
+        // not used yet
+        // [] => WoRMS:distribution:274241
+        // [http://purl.org/dc/terms/type] => http://purl.org/dc/dcmitype/Text
+        // [http://rs.tdwg.org/audubon_core/subtype] => 
+        // [http://purl.org/dc/terms/format] => text/html
+        // [http://purl.org/dc/terms/title] => Distribution
+        // [http://eol.org/schema/media/thumbnailURL] => 
+        // [http://rs.tdwg.org/ac/terms/furtherInformationURL] => 
+        // [http://purl.org/dc/terms/language] => en
+        // [http://ns.adobe.com/xap/1.0/Rating] => 
+        // [http://purl.org/dc/terms/audience] => 
+        // [http://ns.adobe.com/xap/1.0/rights/UsageTerms] => http://creativecommons.org/licenses/by/3.0/
+        // [http://purl.org/dc/terms/rights] => This work is licensed under a Creative Commons Attribution-Share Alike 3.0 License
+        // [http://eol.org/schema/agent/agentID] => WoRMS:Person:10
         
         // other units:
         $derivedFrom     = "http://rs.tdwg.org/ac/terms/derivedFrom";
@@ -245,13 +245,14 @@ class WormsArchiveAPI
             if($val = (string) $rec[$Owner])            self::add_string_types($rec, "Owner", $val, $Owner);
         }
     }
+    */
 
     private function process_establishmentMeans_occurrenceStatus($rec) // structured data
     {
         $location = $rec["http://purl.org/dc/terms/description"];
         if(!$location) return;
-        $establishmentMeans = (string) @$rec["http://rs.tdwg.org/dwc/terms/establishmentMeans"];
-        $occurrenceStatus =  (string) @$rec["http://rs.tdwg.org/dwc/terms/occurrenceStatus"];
+        $establishmentMeans = trim((string) @$rec["http://rs.tdwg.org/dwc/terms/establishmentMeans"]);
+        $occurrenceStatus = trim((string) @$rec["http://rs.tdwg.org/dwc/terms/occurrenceStatus"]);
 
         // /* list down all possible values of the 2 new fields
         $this->debug["establishmentMeans"][$establishmentMeans] = '';
