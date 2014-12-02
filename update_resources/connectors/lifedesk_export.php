@@ -8,7 +8,6 @@ This generates a gzip file in: DOC_ROOT/tmp/ folder
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/LifeDeskToScratchpadAPI');
 $timestart = time_elapsed();
-$func = new LifeDeskToScratchpadAPI();
 // ==================================================================================================
 // Nemertea remote
 $params["nemertea"]["remote"]["lifedesk"]          = "http://nemertea.lifedesks.org/eol-partnership.xml.gz";
@@ -408,23 +407,6 @@ $params["cephaloleia"]["local"]["bibtex_file"]       = "http://localhost/~eolit/
 $params["cephaloleia"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/cephaloleia/file_importer_image_xls%20(1).xls";
 $params["cephaloleia"]["local"]["name"]              = "cephaloleia";
 // ==================================================================================================
-// africanamphibians remote
-$params["africanamphibians"]["remote"]["lifedesk"]          = "http://africanamphibians.lifedesks.org/eol-partnership.xml.gz";
-$params["africanamphibians"]["remote"]["bibtex_file"]       = "http://africanamphibians.lifedesks.org/biblio/export/bibtex/";
-$params["africanamphibians"]["remote"]["scratchpad_images"] = "";
-$params["africanamphibians"]["remote"]["name"]              = "africanamphibians";
-// africanamphibians Dropbox
-$params["africanamphibians"]["dropbox"]["lifedesk"]          = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/africanamphibians/eol-partnership.xml.gz";
-$params["africanamphibians"]["dropbox"]["bibtex_file"]       = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/africanamphibians/Biblio-Bibtex.bib";
-$params["africanamphibians"]["dropbox"]["scratchpad_images"] = "";
-$params["africanamphibians"]["dropbox"]["name"]              = "africanamphibians";
-// africanamphibians local
-$params["africanamphibians"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/africanamphibians/eol-partnership.xml.gz";
-$params["africanamphibians"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/africanamphibians/Biblio-Bibtex.bib";
-$params["africanamphibians"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/africanamphibians/file_importer_image_xls.xls";
-$params["africanamphibians"]["local"]["name"]              = "africanamphibians";
-$params["africanamphibians"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/africanamphibians/africanamphibians.xls";
-// ==================================================================================================
 // mormyrids remote
 $params["mormyrids"]["remote"]["lifedesk"]          = "http://mormyrids.lifedesks.org/eol-partnership.xml.gz";
 $params["mormyrids"]["remote"]["bibtex_file"]       = "http://mormyrids.lifedesks.org/biblio/export/bibtex/";
@@ -759,7 +741,7 @@ $params["lincolnsflorafauna"]["dropbox"]["name"]              = "lincolnsflorafa
 // lincolnsflorafauna local
 $params["lincolnsflorafauna"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/lincolnsflorafauna/eol-partnership.xml.gz";
 $params["lincolnsflorafauna"]["local"]["bibtex_file"]       = "";
-$params["lincolnsflorafauna"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/lincolnsflorafauna/untitled.xls";
+$params["lincolnsflorafauna"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/lincolnsflorafauna/file_importer_image_xls.xls";
 $params["lincolnsflorafauna"]["local"]["name"]              = "lincolnsflorafauna";
 $params["lincolnsflorafauna"]["local"]["scratchpad_biblio"] = "";
 // ==================================================================================================
@@ -797,13 +779,213 @@ $params["congofishes"]["local"]["scratchpad_images"] = "";
 $params["congofishes"]["local"]["name"]              = "congofishes";
 $params["congofishes"]["local"]["scratchpad_biblio"] = "";
 // ==================================================================================================
+// indiareeffishes remote
+$params["indiareeffishes"]["remote"]["lifedesk"]          = "http://indiareeffishes.lifedesks.org/eol-partnership.xml.gz";
+$params["indiareeffishes"]["remote"]["bibtex_file"]       = "";
+$params["indiareeffishes"]["remote"]["scratchpad_images"] = "";
+$params["indiareeffishes"]["remote"]["name"]              = "indiareeffishes";
+// indiareeffishes Dropbox
+$params["indiareeffishes"]["dropbox"]["lifedesk"]          = "";
+$params["indiareeffishes"]["dropbox"]["bibtex_file"]       = "";
+$params["indiareeffishes"]["dropbox"]["scratchpad_images"] = "";
+$params["indiareeffishes"]["dropbox"]["name"]              = "indiareeffishes";
+// indiareeffishes local
+$params["indiareeffishes"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/indiareeffishes/eol-partnership.xml.gz";
+$params["indiareeffishes"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/indiareeffishes/Biblio-Bibtex.bib";
+$params["indiareeffishes"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/indiareeffishes/file_importer_image_xls.xls";
+$params["indiareeffishes"]["local"]["name"]              = "indiareeffishes";
+$params["indiareeffishes"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/indiareeffishes/node_importer_biblio_xls.xls";
+// ==================================================================================================
+// olivirv remote
+$params["olivirv"]["remote"]["lifedesk"]          = "http://olivirv.lifedesks.org/eol-partnership.xml.gz";
+$params["olivirv"]["remote"]["bibtex_file"]       = "";
+$params["olivirv"]["remote"]["scratchpad_images"] = "";
+$params["olivirv"]["remote"]["name"]              = "olivirv";
+// olivirv Dropbox
+$params["olivirv"]["dropbox"]["lifedesk"]          = "";
+$params["olivirv"]["dropbox"]["bibtex_file"]       = "";
+$params["olivirv"]["dropbox"]["scratchpad_images"] = "";
+$params["olivirv"]["dropbox"]["name"]              = "olivirv";
+// olivirv local
+$params["olivirv"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/olivirv/eol-partnership.xml.gz";
+$params["olivirv"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/olivirv/Biblio-Bibtex.bib";
+$params["olivirv"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/olivirv/file_importer_image_xls.xls";
+$params["olivirv"]["local"]["name"]              = "olivirv";
+$params["olivirv"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/olivirv/node_importer_biblio_xls.xls";
+// ==================================================================================================
+// avesamericanas remote
+$params["avesamericanas"]["remote"]["lifedesk"]          = "http://avesamericanas.lifedesks.org/eol-partnership.xml.gz";
+$params["avesamericanas"]["remote"]["bibtex_file"]       = "";
+$params["avesamericanas"]["remote"]["scratchpad_images"] = "";
+$params["avesamericanas"]["remote"]["name"]              = "avesamericanas";
+// avesamericanas Dropbox
+$params["avesamericanas"]["dropbox"]["lifedesk"]          = "";
+$params["avesamericanas"]["dropbox"]["bibtex_file"]       = "";
+$params["avesamericanas"]["dropbox"]["scratchpad_images"] = "";
+$params["avesamericanas"]["dropbox"]["name"]              = "avesamericanas";
+// avesamericanas local
+$params["avesamericanas"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/avesamericanas/eol-partnership.xml.gz";
+$params["avesamericanas"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/avesamericanas/Biblio-Bibtex.bib";
+$params["avesamericanas"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/avesamericanas/file_importer_image_xls1.xls";
+$params["avesamericanas"]["local"]["name"]              = "avesamericanas";
+$params["avesamericanas"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/avesamericanas/node_importer_biblio_xls1.xls";
+// ==================================================================================================
+// neotropnathistory remote
+$params["neotropnathistory"]["remote"]["lifedesk"]          = "http://neotropnathistory.lifedesks.org/eol-partnership.xml.gz";
+$params["neotropnathistory"]["remote"]["bibtex_file"]       = "";
+$params["neotropnathistory"]["remote"]["scratchpad_images"] = "";
+$params["neotropnathistory"]["remote"]["name"]              = "neotropnathistory";
+// neotropnathistory Dropbox
+$params["neotropnathistory"]["dropbox"]["lifedesk"]          = "";
+$params["neotropnathistory"]["dropbox"]["bibtex_file"]       = "";
+$params["neotropnathistory"]["dropbox"]["scratchpad_images"] = "";
+$params["neotropnathistory"]["dropbox"]["name"]              = "neotropnathistory";
+// neotropnathistory local
+$params["neotropnathistory"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/neotropnathistory/eol-partnership.xml.gz";
+$params["neotropnathistory"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/neotropnathistory/Biblio-Bibtex.bib";
+$params["neotropnathistory"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/neotropnathistory/file_importer_image_xls.xls";
+$params["neotropnathistory"]["local"]["name"]              = "neotropnathistory";
+$params["neotropnathistory"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/neotropnathistory/node_importer_biblio_xls.xls";
+// ==================================================================================================
+// quercus remote
+$params["quercus"]["remote"]["lifedesk"]          = "http://quercus.lifedesks.org/eol-partnership.xml.gz";
+$params["quercus"]["remote"]["bibtex_file"]       = "";
+$params["quercus"]["remote"]["scratchpad_images"] = "";
+$params["quercus"]["remote"]["name"]              = "quercus";
+// quercus Dropbox
+$params["quercus"]["dropbox"]["lifedesk"]          = "";
+$params["quercus"]["dropbox"]["bibtex_file"]       = "";
+$params["quercus"]["dropbox"]["scratchpad_images"] = "";
+$params["quercus"]["dropbox"]["name"]              = "quercus";
+// quercus local
+$params["quercus"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/quercus/eol-partnership.xml.gz";
+$params["quercus"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/quercus/Biblio-Bibtex.bib";
+$params["quercus"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/quercus/file_importer_image_xls (1).xls";
+$params["quercus"]["local"]["name"]              = "quercus";
+$params["quercus"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/quercus/node_importer_biblio_xls.xls";
+// ==================================================================================================
+// caterpillars remote
+$params["caterpillars"]["remote"]["lifedesk"]          = "http://caterpillars.lifedesks.org/eol-partnership.xml.gz";
+$params["caterpillars"]["remote"]["bibtex_file"]       = "";
+$params["caterpillars"]["remote"]["scratchpad_images"] = "";
+$params["caterpillars"]["remote"]["name"]              = "caterpillars";
+// caterpillars Dropbox
+$params["caterpillars"]["dropbox"]["lifedesk"]          = "";
+$params["caterpillars"]["dropbox"]["bibtex_file"]       = "";
+$params["caterpillars"]["dropbox"]["scratchpad_images"] = "";
+$params["caterpillars"]["dropbox"]["name"]              = "caterpillars";
+// caterpillars local
+$params["caterpillars"]["local"]["lifedesk"]          = "http://localhost/~eolit/cp/LD2Scratchpad/caterpillars/eol-partnership.xml.gz";
+$params["caterpillars"]["local"]["bibtex_file"]       = "http://localhost/~eolit/cp/LD2Scratchpad/caterpillars/Biblio-Bibtex.bib";
+$params["caterpillars"]["local"]["scratchpad_images"] = "http://localhost/~eolit/cp/LD2Scratchpad/caterpillars/file_importer_image_xls.xls";
+$params["caterpillars"]["local"]["name"]              = "caterpillars";
+$params["caterpillars"]["local"]["scratchpad_biblio"] = "http://localhost/~eolit/cp/LD2Scratchpad/caterpillars/node_importer_biblio_xls.xls";
+// ==================================================================================================
+// africanamphibians remote
+$params["africanamphibians"]["remote"]["lifedesk"]          = "http://africanamphibians.lifedesks.org/eol-partnership.xml.gz";
+$params["africanamphibians"]["remote"]["bibtex_file"]       = "http://africanamphibians.lifedesks.org/biblio/export/bibtex/";
+$params["africanamphibians"]["remote"]["scratchpad_images"] = "";
+$params["africanamphibians"]["remote"]["name"]              = "africanamphibians";
+// africanamphibians Dropbox
+$params["africanamphibians"]["dropbox"]["lifedesk"]          = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/africanamphibians/eol-partnership.xml.gz";
+$params["africanamphibians"]["dropbox"]["bibtex_file"]       = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/africanamphibians/Biblio-Bibtex.bib";
+$params["africanamphibians"]["dropbox"]["scratchpad_images"] = "";
+$params["africanamphibians"]["dropbox"]["name"]              = "africanamphibians";
+// africanamphibians local
+$params["africanamphibians"]["local"]["lifedesk"]           = "http://localhost/~eolit/cp/LD2Scratchpad/africanamphibians/eol-partnership.xml.gz";
+$params["africanamphibians"]["local"]["bibtex_file"]        = "http://localhost/~eolit/cp/LD2Scratchpad/africanamphibians/Biblio-Bibtex.bib";
+$params["africanamphibians"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/LD2Scratchpad/africanamphibians/file_importer_image_xls.xls";
+$params["africanamphibians"]["local"]["name"]               = "africanamphibians";
+$params["africanamphibians"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/africanamphibians/node_importer_biblio_xls.xls"; //old - africanamphibians.xls
+$params["africanamphibians"]["local"]["scratchpad_taxonomy"]= "http://localhost/~eolit/cp/LD2Scratchpad/africanamphibians/taxonomy_importer_amphibians_xls.xls";
+// ==================================================================================================
+// neotropicalfishes remote
+$params["neotropicalfishes"]["remote"]["lifedesk"]          = "http://neotropicalfishes.lifedesks.org/eol-partnership.xml.gz";
+$params["neotropicalfishes"]["remote"]["bibtex_file"]       = "";
+$params["neotropicalfishes"]["remote"]["scratchpad_images"] = "";
+$params["neotropicalfishes"]["remote"]["name"]              = "neotropicalfishes";
+// neotropicalfishes Dropbox
+$params["neotropicalfishes"]["dropbox"]["lifedesk"]          = "";
+$params["neotropicalfishes"]["dropbox"]["bibtex_file"]       = "";
+$params["neotropicalfishes"]["dropbox"]["scratchpad_images"] = "";
+$params["neotropicalfishes"]["dropbox"]["name"]              = "neotropicalfishes";
+// neotropicalfishes local
+$params["neotropicalfishes"]["local"]["lifedesk"]           = "http://localhost/~eolit/cp/LD2Scratchpad/neotropicalfishes/eol-partnership.xml.gz";
+$params["neotropicalfishes"]["local"]["bibtex_file"]        = "";
+$params["neotropicalfishes"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/LD2Scratchpad/neotropicalfishes/file_importer_image_xls.xls";
+$params["neotropicalfishes"]["local"]["name"]               = "neotropicalfishes";
+$params["neotropicalfishes"]["local"]["scratchpad_biblio"]  = "";
+// ==================================================================================================
+// dinoflagellate remote
+$params["dinoflagellate"]["remote"]["lifedesk"]          = "http://dinoflagellate.lifedesks.org/eol-partnership.xml.gz";
+$params["dinoflagellate"]["remote"]["bibtex_file"]       = "";
+$params["dinoflagellate"]["remote"]["scratchpad_images"] = "";
+$params["dinoflagellate"]["remote"]["name"]              = "dinoflagellate";
+// dinoflagellate Dropbox
+$params["dinoflagellate"]["dropbox"]["lifedesk"]          = "";
+$params["dinoflagellate"]["dropbox"]["bibtex_file"]       = "";
+$params["dinoflagellate"]["dropbox"]["scratchpad_images"] = "";
+$params["dinoflagellate"]["dropbox"]["name"]              = "dinoflagellate";
+// dinoflagellate local
+$params["dinoflagellate"]["local"]["lifedesk"]           = "http://localhost/~eolit/cp/LD2Scratchpad/dinoflagellate/eol-partnership.xml.gz";
+$params["dinoflagellate"]["local"]["bibtex_file"]        = "";
+$params["dinoflagellate"]["local"]["scratchpad_images"]  = "";
+$params["dinoflagellate"]["local"]["name"]               = "dinoflagellate";
+$params["dinoflagellate"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/dinoflagellate/node_importer_biblio_xls.xls";
+// ==================================================================================================
+// chess remote
+$params["chess"]["remote"]["lifedesk"]          = "http://chess.lifedesks.org/eol-partnership.xml.gz";
+$params["chess"]["remote"]["bibtex_file"]       = "";
+$params["chess"]["remote"]["scratchpad_images"] = "";
+$params["chess"]["remote"]["name"]              = "chess";
+// chess Dropbox
+$params["chess"]["dropbox"]["lifedesk"]          = "";
+$params["chess"]["dropbox"]["bibtex_file"]       = "";
+$params["chess"]["dropbox"]["scratchpad_images"] = "";
+$params["chess"]["dropbox"]["name"]              = "chess";
+// chess local
+$params["chess"]["local"]["lifedesk"]           = "http://localhost/~eolit/cp/LD2Scratchpad/chess/eol-partnership.xml.gz";
+$params["chess"]["local"]["bibtex_file"]        = "";
+$params["chess"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/LD2Scratchpad/chess/file_importer_image_xls.xls";
+$params["chess"]["local"]["name"]               = "chess";
+$params["chess"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/chess/node_importer_biblio_xls.xls";
+// ==================================================================================================
+// diatoms remote
+$params["diatoms"]["remote"]["lifedesk"]          = "http://diatoms.lifedesks.org/eol-partnership.xml.gz";
+$params["diatoms"]["remote"]["bibtex_file"]       = "";
+$params["diatoms"]["remote"]["scratchpad_images"] = "";
+$params["diatoms"]["remote"]["name"]              = "diatoms";
+// diatoms Dropbox
+$params["diatoms"]["dropbox"]["lifedesk"]          = "";
+$params["diatoms"]["dropbox"]["bibtex_file"]       = "";
+$params["diatoms"]["dropbox"]["scratchpad_images"] = "";
+$params["diatoms"]["dropbox"]["name"]              = "diatoms";
+// diatoms local
+$params["diatoms"]["local"]["lifedesk"]           = "http://localhost/~eolit/cp/LD2Scratchpad/diatoms/eol-partnership.xml.gz";
+$params["diatoms"]["local"]["bibtex_file"]        = "http://localhost/~eolit/cp/LD2Scratchpad/diatoms/Biblio-Bibtex.bib";
+$params["diatoms"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/LD2Scratchpad/diatoms/file_importer_image_xls.xls";
+$params["diatoms"]["local"]["name"]               = "diatoms";
+$params["diatoms"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/diatoms/node_importer_biblio_xls.xls";
+// ==================================================================================================
+
+
 
 /* paste here which Lifedesk you want to export: e.g. $parameters = $params["leptogastrinae"]["dropbox"];
 the export files (in .tar.gz) will be found in: DOC_ROOT/tmp/leptogastrinae_LD_to_Scratchpad_export.tar.gz
 */
-$parameters = $params["congofishes"]["local"];
+
+// /* To run single LifeDesk:
+$func = new LifeDeskToScratchpadAPI();
+// $parameters = $params["dinoflagellate"]["local"];
+// $parameters = $params["caterpillars"]["local"];
+// $parameters = $params["neotropicalfishes"]["local"];
+// $parameters = $params["lincolnsflorafauna"]["local"];
+$parameters = $params["diatoms"]["local"];
+
 if($parameters) $func->export_lifedesk_to_scratchpad($parameters);
 else echo "\nNothing to process. Program will terminate\n";
+// */
+
 
 /* To run them all:
 // "terrslugs" ***
@@ -812,8 +994,22 @@ $lifedesks = array("parmotrema", "pelagics", "continenticola", "leptogastrinae",
                    "staurozoa", "liquensms", "liquensbr", "africanamphibians", "cephaloleia", "ampullariidae", "agrilus", "mormyrids", "camptosomata", "urbanfloranyc", 
                    "marineinvaders", "neritopsine", "polycladida", "tabanidae", "squatlobsters", "simuliidae", "proctotrupidae", "opisthobranchia",
                    "katydidsfrombrazil", "hypogymnia", "salamandersofchina", "ebasidiolichens", "hundrednewlichens", "molluscacolombia", "lincolnsflorafauna",
-                   "arachnids", "congofishes");
-foreach($lifedesks as $lifedesk) $func->export_lifedesk_to_scratchpad($params[$lifedesk]["local"]);
+                   "arachnids", "congofishes", "indiareeffishes", "olivirv", "avesamericanas", "neotropnathistory", "quercus", "caterpillars", "terrslugs",
+                   "neotropicalfishes", "dinoflagellate", "chess", "diatoms");
+foreach($lifedesks as $lifedesk)
+{
+    $func = new LifeDeskToScratchpadAPI();
+    $func->export_lifedesk_to_scratchpad($params[$lifedesk]["local"]);
+}
+*/
+
+/* start: Generate taxonomy of a LifeDesk 
+// neotropicalfishes local
+$params = array();
+$params["neotropicalfishes"]["local"]["lifedesk"]   = "http://localhost/~eolit/cp/LD2Scratchpad/neotropicalfishes/eol-partnership.xml.gz";
+$params["neotropicalfishes"]["local"]["name"]       = "neotropicalfishes";
+$parameters = $params["neotropicalfishes"]["local"];
+$func->export_lifedesk_taxonomy($parameters);
 */
 
 $elapsed_time_sec = time_elapsed() - $timestart;

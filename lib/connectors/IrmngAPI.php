@@ -8,6 +8,15 @@ for blank taxonomic_status - we first check if the name is already in EOL
 - if in EOL already -- we included/accepted them
 - if not in EOL -- we exclude them as we don't want to create new pages for them
 
+
+11169205	1383458	Navicula forcipata 		Naviculaceae	Navicula	species	Greville, 1859	synonym		10954245
+11879187	1296639	Schizonema forcipatum 		Bacillariophyceae (awaiting allocation)	Schizonema	species	(Greville) Kuntze, 1898	synonym		10954245
+*10954245	1265031	Fallacia forcipata 		Sellaphoraceae	Fallacia	species	(Greville) Stickle & Mann, 1990	accepted		
+
+10918599	1383458	Navicula pseudony 		Naviculaceae	Navicula	species	Hustedt, 1955	synonym		10691248
+*10691248	1265031	Fallacia pseudony 		Sellaphoraceae	Fallacia	species	(Hustedt) D.G. Mann, 1990	accepted		
+
+
 */
 class IrmngAPI
 {
@@ -172,6 +181,7 @@ class IrmngAPI
         }
         if($rec["TAXONOMICSTATUS"] == "synonym")
         {
+            return; // won't get synonyms for now, to check if IRMNG is the culprit in WEB-5489
             if($rec["TAXONRANK"] != "species")  return; // won't get synonyms for level higher than species
             if(!$rec["TAXONRANK"])              return; // won't get synonyms for blank ranks
             if(!$rec["ACCEPTEDNAMEUSAGEID"])    return; // won't get synonyms for blank acceptedNameUsageID

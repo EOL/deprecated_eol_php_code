@@ -3,17 +3,28 @@ namespace php_active_record;
 /*
 WORMS archive
 Now partner provides/hosts a DWC-A file. Connector also converts Distribution text into structured data.
-estimated execution time: 2.78 hours
+estimated execution time: 30 mins, excluding download time of the archive file from partner's server
 
-                24Sep'14
-agent:          [922]
-measurement:    [1172968]
-media_resource: [101513]
-occurrence:     [279966]
-reference:      [319987]
-taxon:          [311866]
-vernacular:     [42231]
+                24Sep'14    20Nov'14                    1Dec'14
+agent:          [922]       948                         948
+measurement:    [1,172,968] 1,484,488   diff 311,520    293,645 (expected decr)
+media_resource: [101,513]   102,009     diff 496        102,009
+occurrence:     [279,966]   576,055                     291,683 (expected decr)
+reference:      [319987]    322257                      322257
+taxon:          [311866]    313006      diff 1,140      313006
+vernacular:     [42231]     42226                       42226
 
+[establishmentMeans] => Array
+    [] => 
+    [Alien] => 
+    [Native - Endemic] => 
+    [Native] => 
+    [Origin uncertain] => 
+    [Origin unknown] => 
+[occurrenceStatus] => Array
+    [present] => 
+    [excluded] => 
+    [doubtful] => 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WormsArchiveAPI');

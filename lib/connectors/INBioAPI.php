@@ -56,14 +56,14 @@ class INBioAPI
         return $all_taxa;
     }
 
-    function extract_archive_file($dwca_file, $check_file_or_folder_name)
+    function extract_archive_file($dwca_file, $check_file_or_folder_name, $download_options = array('timeout' => 172800, 'expire_seconds' => 0))
     {
         debug("Please wait, downloading resource document...");
         $path_parts = pathinfo($dwca_file);
         $filename = $path_parts['basename'];
         $temp_dir = create_temp_dir() . "/";
         debug($temp_dir);
-        if($file_contents = Functions::get_remote_file($dwca_file, array('timeout' => 172800)))
+        if($file_contents = Functions::lookup_with_cache($dwca_file, $download_options))
         {
             $temp_file_path = $temp_dir . "" . $filename;
             debug("temp_dir: $temp_dir");

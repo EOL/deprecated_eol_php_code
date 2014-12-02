@@ -1,21 +1,12 @@
 <?php
 namespace php_active_record;
-/*
-execution time: 1 minute
-
-measurementorfact:  20307   21993   21520
-taxon:              988     989     989
-occurrence:                 2839    2839
-
+/* 
 */
-
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/RotifersTypeSpecimenAPI');
-
+require_library('connectors/WikipediaMycologicalAPI');
 $timestart = time_elapsed();
-$resource_id = 726;
-$func = new RotifersTypeSpecimenAPI($resource_id);
-
+$resource_id = 1;
+$func = new WikipediaMycologicalAPI($resource_id);
 $func->get_all_taxa();
 
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
