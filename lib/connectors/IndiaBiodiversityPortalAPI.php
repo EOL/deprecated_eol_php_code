@@ -91,6 +91,24 @@ class IndiaBiodiversityPortalAPI
             "http://pamba.strandls.com/biodiv/images/Lambis truncata/933.jpg", "http://pamba.strandls.com/biodiv/images/Lambis truncata/638.JPG", 
             "http://pamba.strandls.com/biodiv/images/Crassostrea belcheri/800", "http://pamba.strandls.com/biodiv/images/Ostrea chilensis/697", "http://pamba.strandls.com/biodiv/images/Lopha cristagalli/372", "http://pamba.strandls.com/biodiv/images/Pinguitellina pinguis/600", "http://pamba.strandls.com/biodiv/images/Gafrarium pectinatum/629", "http://pamba.strandls.com/biodiv/images/Gafrarium pectinatum/774", "http://pamba.strandls.com/biodiv/images/Gafrarium pectinatum/889", "http://pamba.strandls.com/biodiv/images/Gafrarium pectinatum/280", "http://pamba.strandls.com/biodiv/images/Gafrarium pectinatum/406", "http://pamba.strandls.com/biodiv/images/Gafrarium pectinatum/907", 
             "http://pamba.strandls.com/biodiv/images/Gafrarium pectinatum/379", "http://pamba.strandls.com/biodiv/images/Gafrarium pectinatum/167");
+            // 2nd batch of broken images
+            $temp = array("http://pamba.strandls.com/biodiv/images/Potanthus pseudomaesa/408.jpg", "http://pamba.strandls.com/biodiv/images/Placuna placenta/225.jpg", 
+            "http://pamba.strandls.com/biodiv/images/Talparia talpa/607.jpg", "http://pamba.strandls.com/biodiv/images/Leporicypraea mappa/110.jpg", 
+            "http://pamba.strandls.com/biodiv/images/Cypraecassis rufa/761.jpg", "http://pamba.strandls.com/biodiv/images/Lambis truncata/18.jpg", 
+            "http://pamba.strandls.com/biodiv/images/Lambis truncata/713.jpg", "http://pamba.strandls.com/biodiv/images/Conus milneedwardsi/701.jpg", 
+            "http://pamba.strandls.com/biodiv/images/Conus milneedwardsi/833.jpg", "http://pamba.strandls.com/biodiv/images/Lambis scorpius/666.jpg", 
+            "http://pamba.strandls.com/biodiv/images/Milvus migrans/979.png", "http://pamba.strandls.com/biodiv/images/Cellana radiata/374.jpg", 
+            "http://pamba.strandls.com/biodiv/images/Cellana radiata/795.jpg", "http://pamba.strandls.com/biodiv/images/Cellana radiata/491.jpg", 
+            "http://pamba.strandls.com/biodiv/images/Cellana radiata/258.jpg", "http://pamba.strandls.com/biodiv/images/Ypthima baldus/20.jpg", 
+            "http://pamba.strandls.com/biodiv/images/Tirumala limniace/573.png", "http://pamba.strandls.com/biodiv/images/Talparia talpa/331.jpg", 
+            "http://pamba.strandls.com/biodiv/images/Gyps bengalensis/292.svg", "http://pamba.strandls.com/biodiv/images/Gyps fulvus/281.PNG", 
+            "http://pamba.strandls.com/biodiv/images/Cassis cornuta/89.jpg", "http://pamba.strandls.com/biodiv/images/Lambis crocata/779.jpg", 
+            "http://pamba.strandls.com/biodiv/images/Talparia talpa/624.jpg", "http://pamba.strandls.com/biodiv/images/Tectus niloticus/827.jpg", 
+            "http://pamba.strandls.com/biodiv/images/Hippopus hippopus/866.jpg", "http://pamba.strandls.com/biodiv/images/Nautilus pompilius/736.jpg", 
+            "http://pamba.strandls.com/biodiv/images/Nautilus pompilius/666.jpg", "http://pamba.strandls.com/biodiv/images/Cypraecassis rufa/503.png", 
+            "http://pamba.strandls.com/biodiv/images/Lambis crocata/395.jpg", "http://pamba.strandls.com/biodiv/images/Turbo marmoratus/837.jpg", 
+            "http://pamba.strandls.com/biodiv/images/Cypraecassis rufa/126.jpg");
+            $broken_images = array_merge($broken_images, $temp);
         }
         
         foreach($records as $rec)
@@ -131,13 +149,23 @@ class IndiaBiodiversityPortalAPI
                     $access_uri = $r["accessURI"];
                     if(isset($this->accessURI[$access_uri])) $save = false;
                     else $this->accessURI[$access_uri] = '';
-                    if(in_array($access_uri, $broken_images)) $save = false;
+                    // if(in_array($access_uri, $broken_images)) $save = false;
+                    if(self::image_is_broken($access_uri, $broken_images)) $save = false;
                 }
                 if(is_numeric(stripos($r["derivedFrom"], "http://eol.org/data_objects/"))) $save = false;
                 if(is_numeric(stripos($r["derivedFrom"], ".eol.org"))) $save = false;
             }
             if($save) $this->archive_builder->write_object_to_file($c);
         }
+    }
+
+    private function image_is_broken($access_uri, $broken_images)
+    {
+        foreach($broken_images as $broken)
+        {
+            if(is_numeric(stripos($access_uri, $broken))) return true;
+        }
+        return false;
     }
 
     private function create_instances_from_taxon_object($records)
