@@ -412,7 +412,7 @@ class RotifersTypeSpecimenAPI
             }
             self::add_string_types($rec, "TSR", $TSR, "http://eol.org/schema/terms/TypeSpecimenRepository", $remarks);
             self::add_string_types($rec, "Institution code", $institution_code, "http://rs.tdwg.org/dwc/terms/institutionCode");
-            self::add_string_types($rec, "Type information", $type, "http://eol.org/schema/terms/TypeInformation");
+            self::add_string_types($rec, "Type information", $type, "http://rs.tdwg.org/dwc/terms/typeStatus");
             
             if($val = $preparations)            self::add_string_types($rec, "Preparations", $val, "http://rs.tdwg.org/dwc/terms/preparations");
             if($val = $catalog_no)              self::add_string_types($rec, "Catalog number", $val, "http://rs.tdwg.org/dwc/terms/catalogNumber");
