@@ -157,23 +157,23 @@ class test_content_manager extends SimpletestUnitBase
         $this->assertTrue(is_file($local_file), 'Should upload the image');
         $md5_thumb = md5_file($cache_path .'_130_130.jpg');
         if (is_file($local_file)) {
-            $this->assertTrue(stat($local_file)['nlink'] == 1, 'Should be a file with only one hard link');
+            $this->assertTrue(self::number_of_hard_links($local_file) == 1, 'Should be a file with only one hard link');
             $new_cache_num = $this->content_manager->grab_file($local_file, 'image', array('data_object_id' => $unused_data_object_id, 'crop_pct'=>$crop_percentages));
             $new_cache_path = CONTENT_LOCAL_PATH . ContentManager::cache_num2path($new_cache_num);
             
             $new_local_file = $new_cache_path .'.png';
             $this->assertTrue(is_file($new_local_file), 'Should create a new image which is a hard link to the old one');
-            $this->assertTrue(stat($new_local_file)['nlink'] == 2, 'Should have two hard links for the new file');
-            $this->assertTrue(stat($local_file)['nlink'] == 2, 'Should also have two hard links for the original file');
-            $this->assertTrue(stat($new_cache_path .'_orig.jpg')['nlink'] == 2, 'Should have two hard links for new _orig cache');
-            $this->assertTrue(stat($new_cache_path .'_580_360.jpg')['nlink'] == 2, 'Should have two hard links for new _580_360 file');
-            $this->assertTrue(stat($new_cache_path .'_260_190.jpg')['nlink'] == 2, 'Should have two hard links for new _260_190 file');
-            $this->assertTrue(stat($new_cache_path .'_98_68.jpg')['nlink'] == 2, 'Should have two hard links for new _98_68 file');
-            $this->assertTrue(stat($new_cache_path .'_88_88.jpg')['nlink'] == 1, 'Should have a single hard link for new _88_88 file');
-            $this->assertTrue(stat($new_cache_path .'_130_130.jpg')['nlink'] == 1, 'Should have a single hard link for new _130_130 file');
+            $this->assertTrue(self::number_of_hard_links($new_local_file) == 2, 'Should have two hard links for the new file');
+            $this->assertTrue(self::number_of_hard_links($local_file) == 2, 'Should also have two hard links for the original file');
+            $this->assertTrue(self::number_of_hard_links($new_cache_path .'_orig.jpg') == 2, 'Should have two hard links for new _orig cache');
+            $this->assertTrue(self::number_of_hard_links($new_cache_path .'_580_360.jpg') == 2, 'Should have two hard links for new _580_360 file');
+            $this->assertTrue(self::number_of_hard_links($new_cache_path .'_260_190.jpg') == 2, 'Should have two hard links for new _260_190 file');
+            $this->assertTrue(self::number_of_hard_links($new_cache_path .'_98_68.jpg') == 2, 'Should have two hard links for new _98_68 file');
+            $this->assertTrue(self::number_of_hard_links($new_cache_path .'_88_88.jpg') == 1, 'Should have a single hard link for new _88_88 file');
+            $this->assertTrue(self::number_of_hard_links($new_cache_path .'_130_130.jpg') == 1, 'Should have a single hard link for new _130_130 file');
             self::delete_content($cache_path);
             $this->assertTrue(!file_exists($local_file), 'Should have deleted the old images');
-            $this->assertTrue(stat($new_local_file)['nlink'] == 1, 'Should have a single remaining links to the new file');
+            $this->assertTrue(self::number_of_hard_links($new_local_file) == 1, 'Should have a single remaining links to the new file');
             
             $resp = $GLOBALS['db_connection']->query("SELECT crop_x_pct, crop_y_pct, crop_width_pct, crop_height_pct, height, width FROM image_sizes WHERE data_object_id=$unused_data_object_id LIMIT 1");
             $this->assertTrue($resp, 'Should query from the image_sizes table in the database');
@@ -209,6 +209,12 @@ class test_content_manager extends SimpletestUnitBase
         $this->assertEqual($file, false);
         $file = $this->content_manager->grab_file('http://www.wikipedia.org/', 'upload');
         $this->assertNotEqual($file, false);
+    }
+
+    private static function number_of_hard_links($file)
+    {
+        $file_stat = stat($file);
+        return $file_stat['nlink'];
     }
 
     private static function delete_content($prefix)
