@@ -967,6 +967,91 @@ $params["diatoms"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/
 $params["diatoms"]["local"]["name"]               = "diatoms";
 $params["diatoms"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/diatoms/node_importer_biblio_xls.xls";
 // ==================================================================================================
+// deepseacoral remote
+$params["deepseacoral"]["remote"]["lifedesk"]          = "http://deepseacoral.lifedesks.org/eol-partnership.xml.gz";
+$params["deepseacoral"]["remote"]["bibtex_file"]       = "";
+$params["deepseacoral"]["remote"]["scratchpad_images"] = "";
+$params["deepseacoral"]["remote"]["name"]              = "deepseacoral";
+// deepseacoral Dropbox
+$params["deepseacoral"]["dropbox"]["lifedesk"]          = "";
+$params["deepseacoral"]["dropbox"]["bibtex_file"]       = "";
+$params["deepseacoral"]["dropbox"]["scratchpad_images"] = "";
+$params["deepseacoral"]["dropbox"]["name"]              = "deepseacoral";
+// deepseacoral local
+$params["deepseacoral"]["local"]["lifedesk"]           = "http://localhost/~eolit/cp/LD2Scratchpad/deepseacoral/eol-partnership.xml.gz";
+$params["deepseacoral"]["local"]["bibtex_file"]        = "http://localhost/~eolit/cp/LD2Scratchpad/deepseacoral/Biblio-Bibtex.bib";
+$params["deepseacoral"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/LD2Scratchpad/deepseacoral/file_importer_image_xls.xls";
+$params["deepseacoral"]["local"]["name"]               = "deepseacoral";
+$params["deepseacoral"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/deepseacoral/node_importer_biblio_xls.xls";
+// ==================================================================================================
+// choreutidae remote
+$params["choreutidae"]["remote"]["lifedesk"]          = "http://choreutidae.lifedesks.org/eol-partnership.xml.gz";
+$params["choreutidae"]["remote"]["bibtex_file"]       = "";
+$params["choreutidae"]["remote"]["scratchpad_images"] = "";
+$params["choreutidae"]["remote"]["name"]              = "choreutidae";
+// choreutidae Dropbox
+$params["choreutidae"]["dropbox"]["lifedesk"]          = "";
+$params["choreutidae"]["dropbox"]["bibtex_file"]       = "";
+$params["choreutidae"]["dropbox"]["scratchpad_images"] = "";
+$params["choreutidae"]["dropbox"]["name"]              = "choreutidae";
+// choreutidae local
+$params["choreutidae"]["local"]["lifedesk"]           = "http://localhost/~eolit/cp/LD2Scratchpad/choreutidae/eol-partnership.xml.gz";
+$params["choreutidae"]["local"]["bibtex_file"]        = "http://localhost/~eolit/cp/LD2Scratchpad/choreutidae/Biblio-Bibtex.bib";
+$params["choreutidae"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/LD2Scratchpad/choreutidae/file_importer_image_xls.xls";
+$params["choreutidae"]["local"]["name"]               = "choreutidae";
+$params["choreutidae"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/choreutidae/node_importer_biblio_xls.xls";
+// ==================================================================================================
+// taiwanseagrasses remote
+$params["taiwanseagrasses"]["remote"]["lifedesk"]          = "http://taiwanseagrasses.lifedesks.org/eol-partnership.xml.gz";
+$params["taiwanseagrasses"]["remote"]["bibtex_file"]       = "";
+$params["taiwanseagrasses"]["remote"]["scratchpad_images"] = "";
+$params["taiwanseagrasses"]["remote"]["name"]              = "taiwanseagrasses";
+// taiwanseagrasses Dropbox
+$params["taiwanseagrasses"]["dropbox"]["lifedesk"]          = "";
+$params["taiwanseagrasses"]["dropbox"]["bibtex_file"]       = "";
+$params["taiwanseagrasses"]["dropbox"]["scratchpad_images"] = "";
+$params["taiwanseagrasses"]["dropbox"]["name"]              = "taiwanseagrasses";
+// taiwanseagrasses local
+$params["taiwanseagrasses"]["local"]["lifedesk"]           = "http://localhost/~eolit/cp/LD2Scratchpad/taiwanseagrasses/eol-partnership.xml.gz";
+$params["taiwanseagrasses"]["local"]["bibtex_file"]        = "";
+$params["taiwanseagrasses"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/LD2Scratchpad/taiwanseagrasses/file_importer_image_xls.xls";
+$params["taiwanseagrasses"]["local"]["name"]               = "taiwanseagrasses";
+$params["taiwanseagrasses"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/taiwanseagrasses/node_importer_biblio_xls.xls";
+// ==================================================================================================
+// odonata remote
+$params["odonata"]["remote"]["lifedesk"]          = "http://odonata.lifedesks.org/eol-partnership.xml.gz";
+$params["odonata"]["remote"]["bibtex_file"]       = "";
+$params["odonata"]["remote"]["scratchpad_images"] = "";
+$params["odonata"]["remote"]["name"]              = "odonata";
+// odonata Dropbox
+$params["odonata"]["dropbox"]["lifedesk"]          = "";
+$params["odonata"]["dropbox"]["bibtex_file"]       = "";
+$params["odonata"]["dropbox"]["scratchpad_images"] = "";
+$params["odonata"]["dropbox"]["name"]              = "odonata";
+// odonata local
+$params["odonata"]["local"]["lifedesk"]           = "http://localhost/~eolit/cp/LD2Scratchpad/odonata/eol-partnership.xml.gz";
+$params["odonata"]["local"]["bibtex_file"]        = "";
+$params["odonata"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/LD2Scratchpad/odonata/file_importer_image_xls.xls";
+$params["odonata"]["local"]["name"]               = "odonata";
+$params["odonata"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/odonata/node_importer_biblio_xls.xls";
+// ==================================================================================================
+// alpheidae remote
+$params["alpheidae"]["remote"]["lifedesk"]          = "http://alpheidae.lifedesks.org/eol-partnership.xml.gz";
+$params["alpheidae"]["remote"]["bibtex_file"]       = "";
+$params["alpheidae"]["remote"]["scratchpad_images"] = "";
+$params["alpheidae"]["remote"]["name"]              = "alpheidae";
+// alpheidae Dropbox
+$params["alpheidae"]["dropbox"]["lifedesk"]          = "";
+$params["alpheidae"]["dropbox"]["bibtex_file"]       = "";
+$params["alpheidae"]["dropbox"]["scratchpad_images"] = "";
+$params["alpheidae"]["dropbox"]["name"]              = "alpheidae";
+// alpheidae local
+$params["alpheidae"]["local"]["lifedesk"]           = "http://localhost/~eolit/cp/LD2Scratchpad/alpheidae/eol-partnership.xml.gz";
+$params["alpheidae"]["local"]["bibtex_file"]        = "";
+$params["alpheidae"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/LD2Scratchpad/alpheidae/file_importer_image_xls.xls";
+$params["alpheidae"]["local"]["name"]               = "alpheidae";
+$params["alpheidae"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/alpheidae/node_importer_biblio_xls.xls";
+// ==================================================================================================
 
 
 
@@ -976,12 +1061,7 @@ the export files (in .tar.gz) will be found in: DOC_ROOT/tmp/leptogastrinae_LD_t
 
 // /* To run single LifeDesk:
 $func = new LifeDeskToScratchpadAPI();
-// $parameters = $params["dinoflagellate"]["local"];
-// $parameters = $params["caterpillars"]["local"];
-// $parameters = $params["neotropicalfishes"]["local"];
-// $parameters = $params["lincolnsflorafauna"]["local"];
-$parameters = $params["diatoms"]["local"];
-
+$parameters = $params["alpheidae"]["local"];
 if($parameters) $func->export_lifedesk_to_scratchpad($parameters);
 else echo "\nNothing to process. Program will terminate\n";
 // */
@@ -989,13 +1069,7 @@ else echo "\nNothing to process. Program will terminate\n";
 
 /* To run them all:
 // "terrslugs" ***
-$lifedesks = array("parmotrema", "pelagics", "continenticola", "leptogastrinae", "tunicata", "syrphidae", "peracarida", "nemertea","ostracoda", "hawaiilandsnails", 
-                   "sipuncula", "malaypeninsularsnail", "borneanlandsnails", "opisthostoma", "apoidea", "buccinids", "sacoglossa", "porifera", "cnidaria", 
-                   "staurozoa", "liquensms", "liquensbr", "africanamphibians", "cephaloleia", "ampullariidae", "agrilus", "mormyrids", "camptosomata", "urbanfloranyc", 
-                   "marineinvaders", "neritopsine", "polycladida", "tabanidae", "squatlobsters", "simuliidae", "proctotrupidae", "opisthobranchia",
-                   "katydidsfrombrazil", "hypogymnia", "salamandersofchina", "ebasidiolichens", "hundrednewlichens", "molluscacolombia", "lincolnsflorafauna",
-                   "arachnids", "congofishes", "indiareeffishes", "olivirv", "avesamericanas", "neotropnathistory", "quercus", "caterpillars", "terrslugs",
-                   "neotropicalfishes", "dinoflagellate", "chess", "diatoms");
+$lifedesks = array_keys($params);
 foreach($lifedesks as $lifedesk)
 {
     $func = new LifeDeskToScratchpadAPI();
