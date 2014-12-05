@@ -449,8 +449,8 @@ class ContentManager
 
     function create_agent_thumbnails($file, $prefix)
     {
-        $this->create_constrained_square_crops($file, ContentManager::large_square_dimensions(), $prefix);
-        $this->create_constrained_square_crops($file, ContentManager::small_square_dimensions(), $prefix);
+        $this->create_constrained_square_crop($file, ContentManager::large_square_dimensions(), $prefix);
+        $this->create_constrained_square_crop($file, ContentManager::small_square_dimensions(), $prefix);
     }
 
     function get_saved_crop_or_initialize($data_object_id)
@@ -566,7 +566,7 @@ class ContentManager
         self::create_checksum($new_image_path);
     }
 
-    function create_constrained_square_crops($path, $list_of_square_sizes, $prefix)
+    function create_constrained_square_crop($path, $dimensions, $prefix)
     {
         // requires "convert" to support -gravity center -extent: ImageMagick >= 6.3.2
         $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quiet -quality 80 \
