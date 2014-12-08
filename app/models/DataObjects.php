@@ -44,6 +44,7 @@ class DataObject extends ActiveRecord
         $GLOBALS['mysqli_connection']->delete("DELETE FROM data_objects_info_items WHERE $where_clause");
         $GLOBALS['mysqli_connection']->delete("DELETE FROM data_objects_table_of_contents WHERE $where_clause");
         $GLOBALS['mysqli_connection']->delete("DELETE FROM data_objects_harvest_events WHERE $where_clause");
+        $GLOBALS['mysqli_connection']->delete("DELETE FROM image_sizes WHERE $where_clause");
         
         
         $where_clause = "id=$id";
@@ -206,7 +207,7 @@ class DataObject extends ActiveRecord
             if(preg_match("/^http:\/\//",$this->object_url) || preg_match("/^https:\/\//",$this->object_url))
             {
                 // Hardcoded exception to make the Biopix images smaller
-                $image_options = array();
+                $image_options = array('data_object_id' => $this->id);
                 if($resource->title == "Biopix") $image_options['large_image_dimensions'] = array(300, 300);
                 if(isset($this->additional_information) && isset($this->additional_information['rotation']))
                 {
