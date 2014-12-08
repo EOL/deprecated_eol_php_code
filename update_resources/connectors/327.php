@@ -16,13 +16,14 @@ There are 7 instances where an image dataObject id is repeated (used twice), but
     warning: has duplicates do_id: [150140-1.jpg][Platostoma strictum (Hiern) A.J. Paton]
     warning: has duplicates do_id: [150140-2.jpg][Platostoma strictum (Hiern) A.J. Paton]
     warning: has duplicates do_id: [150140-3.jpg][Platostoma strictum (Hiern) A.J. Paton]
-    
-taxon:      11082   11435
-reference:  4659    7738
-synonym:    5194    6128
-commonName: 4574    5386
-texts:      28110   30028
-images:     12129   17938
+
+                            8Dec2014
+taxon:      11082   11435   11435
+reference:  4659    7738    7738
+synonym:    5194    6128    6128
+commonName: 4574    5386    5386
+texts:      28110   30028   30028
+images:     12129   17938   17938
 
 */
 
@@ -30,11 +31,13 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 $resource_id = 327;
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
+$download_options = array('timeout' => 1200, 'download_attempts' => 5);
+// $download_options["expire_seconds"] = 0; // 0 -> expires now, false -> never expires
 
 $temp_family_path = CONTENT_RESOURCE_LOCAL_PATH . "flora_of_zimbabwe_family_taxa.xml";
 $temp_genera_path = CONTENT_RESOURCE_LOCAL_PATH . "flora_of_zimbabwe_genera_taxa.xml";
-add_rank_element("http://zimbabweflora.co.zw/speciesdata/utilities/eol_families.xml", $temp_family_path, "family");
-add_rank_element("http://zimbabweflora.co.zw/speciesdata/utilities/eol_genera.xml", $temp_genera_path, "genus");
+add_rank_element("http://zimbabweflora.co.zw/speciesdata/utilities/eol_families.xml", $temp_family_path, "family", $download_options);
+add_rank_element("http://zimbabweflora.co.zw/speciesdata/utilities/eol_genera.xml", $temp_genera_path, "genus", $download_options);
 
 //debug
 // add_rank_element("http://localhost/~eolit/eol_php_code/applications/content_server/resources/eol_families.xml", $temp_family_path, "family");
@@ -46,11 +49,11 @@ $files[] = $temp_genera_path;
 $files[] = "http://zimbabweflora.co.zw/speciesdata/utilities/eol_species1.xml";
 $files[] = "http://zimbabweflora.co.zw/speciesdata/utilities/eol_species2.xml";
 
-combine_remote_eol_resource_files($resource_id, $files);
+combine_remote_eol_resource_files($resource_id, $files, $download_options);
 unlink($temp_family_path);
 unlink($temp_genera_path);
 
-$xml = Functions::get_remote_file($resource_path, array('timeout' => 1200, 'download_attempts' => 5));
+$xml = Functions::lookup_with_cache($resource_path, $download_options);
 $xml = fix_higher_level_names_entered_twice($xml); // this also fixes duplicate taxon and dataObject identifiers
 
 echo "\n\n has duplicate identifiers: " . check_for_duplicate_identifiers($xml) . "\n";
@@ -60,6 +63,7 @@ fwrite($OUT, $xml);
 fclose($OUT);
 
 Functions::set_resource_status_to_force_harvest($resource_id);
+Functions::gzip_resource_xml($resource_id);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
 echo "elapsed time = $elapsed_time_sec seconds             \n";
@@ -68,9 +72,9 @@ echo "\n\n Done processing.";
 
 
 
-function add_rank_element($source, $destination, $rank)
+function add_rank_element($source, $destination, $rank, $download_options)
 {
-    $xml = Functions::get_remote_file($source, array('timeout' => 1200, 'download_attempts' => 5));
+    $xml = Functions::lookup_with_cache($source, $download_options);
     $xml = str_ireplace("</dwc:ScientificName>", "</dwc:ScientificName><rank>" . $rank . "</rank>", $xml);
     $OUT = fopen($destination, "w");
     fwrite($OUT, $xml);
@@ -94,7 +98,7 @@ function fix_higher_level_names_entered_twice($xml_string) // fixes duplicate ob
         $has_duplicates = false;
         if(in_array($taxon_identifier, $taxon_ids))
         {
-            echo "\n\n has duplicates: [$taxon_identifier][$scientificname]\n";
+            // echo "\n\n has duplicates: [$taxon_identifier][$scientificname]\n";
             $has_duplicates = true;
             $taxon_identifier = $taxon_identifier . "_" . str_ireplace(" ", "_", $scientificname);
             $t_dc->identifier = $taxon_identifier;
@@ -104,12 +108,12 @@ function fix_higher_level_names_entered_twice($xml_string) // fixes duplicate ob
 
         if($family == $scientificname)
         {
-            echo "\n same family -- f[$family] g[$genus] sn[$scientificname]";
+            // echo "\n same family -- f[$family] g[$genus] sn[$scientificname]";
             unset($t_dwc->Family);
         }
         elseif($genus == $scientificname)
         {
-            echo "\n same genus -- f[$family] g[$genus] sn[$scientificname]";
+            // echo "\n same genus -- f[$family] g[$genus] sn[$scientificname]";
             unset($t_dwc->Genus);
         }
         if($has_duplicates)
@@ -157,7 +161,7 @@ function check_for_duplicate_identifiers($xml_string)
     else return false;
 }
 
-function combine_remote_eol_resource_files($resource_id, $files)
+function combine_remote_eol_resource_files($resource_id, $files, $download_options)
 {
     debug("\n\n Start compiling all XML...");
     $OUT = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", "w");
@@ -175,7 +179,7 @@ function combine_remote_eol_resource_files($resource_id, $files)
     foreach($files as $filename)
     {
         echo "\n $filename ";
-        $contents = Functions::get_remote_file($filename, array('timeout' => 1200, 'download_attempts' => 5));
+        $contents = Functions::lookup_with_cache($filename, $download_options);
         if($contents != "")
         {
             $pos1 = stripos($contents, "<taxon>");
