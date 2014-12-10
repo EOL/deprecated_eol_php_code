@@ -412,7 +412,8 @@ class RotifersTypeSpecimenAPI
             }
             self::add_string_types($rec, "TSR", $TSR, "http://eol.org/schema/terms/TypeSpecimenRepository", $remarks);
             self::add_string_types($rec, "Institution code", $institution_code, "http://rs.tdwg.org/dwc/terms/institutionCode");
-            self::add_string_types($rec, "Type information", $type, "http://rs.tdwg.org/dwc/terms/typeStatus");
+            // self::add_string_types($rec, "Type information", $type, "http://eol.org/schema/terms/TypeInformation"); // old but working
+            self::add_string_types($rec, "Type information", $type, "http://rs.tdwg.org/dwc/terms/typeStatus"); // new but not able to display in Data tab
             
             if($val = $preparations)            self::add_string_types($rec, "Preparations", $val, "http://rs.tdwg.org/dwc/terms/preparations");
             if($val = $catalog_no)              self::add_string_types($rec, "Catalog number", $val, "http://rs.tdwg.org/dwc/terms/catalogNumber");
@@ -491,8 +492,8 @@ class RotifersTypeSpecimenAPI
         $taxon_id = $rec["taxon_id"];
         $catnum = $rec["catnum"];
         $m = new \eol_schema\MeasurementOrFact();
-        $occurrence = $this->add_occurrence($taxon_id, $catnum);
-        $m->occurrenceID = $occurrence->occurrenceID;
+        $occurrence_id = $this->add_occurrence($taxon_id, $catnum);
+        $m->occurrenceID = $occurrence_id;
 
         if(in_array($label, array("TSR", "Habitat")))
         {
@@ -548,13 +549,13 @@ class RotifersTypeSpecimenAPI
     private function add_occurrence($taxon_id, $catnum)
     {
         $occurrence_id = $taxon_id . 'O' . $catnum; // suggested by Katja to use -- ['O' . $catnum]
-        if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
+        if(isset($this->occurrence_ids[$occurrence_id])) return $occurrence_id;
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
         $this->archive_builder->write_object_to_file($o);
-        $this->occurrence_ids[$occurrence_id] = $o;
-        return $o;
+        $this->occurrence_ids[$occurrence_id] = '';
+        return $occurrence_id;
     }
 
     private function create_archive()
