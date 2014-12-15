@@ -41,7 +41,7 @@ class ContentManager
         //Note that the PHP docs wrongly claim that link() requires extra privileges on Windows.
         //But is *is* true that we can't hard link to directories, so check this via is_file(). 
         //Don't link to archive files, but force download them again, so that they are unpacked in the correct manner.
-        if ((preg_match("/^\//", $file)) && is_file($file) && !in_array($extension, array('gz', 'gzip', 'zip', 'tar'), true)) {
+        if (self::is_local($file) && is_file($file) && !in_array($extension, array('gz', 'gzip', 'zip', 'tar'), true)) {
             //hack required because we don't have the originally downloaded file extension, so simply give the new version the same extension as the old one
             $permanent_file_path = $permanent_prefix;
             if (strlen($extension)) $permanent_file_path .= '.'.$extension;
@@ -147,7 +147,7 @@ class ContentManager
         if(($type === 'resource') && $options['timeout'] < 60) $options['timeout'] = 60;
 
         $temp_file_path = CONTENT_TEMP_PREFIX . $options['unique_key'] . ".file";
-        if(preg_match("/^(http|https|ftp):\/\//", $file_path_or_uri) || preg_match("/^\//", $file_path_or_uri))
+        if(preg_match("/^(http|https|ftp):\/\//", $file_path_or_uri) || self:is_local($file_path_or_uri))
         {
             if($file_contents = Functions::get_remote_file($file_path_or_uri, array('timeout' => $options['timeout'])))
             {
@@ -630,6 +630,12 @@ class ContentManager
             fwrite($OUT, sha1_file($file_path));
             fclose($OUT);
         }
+    }
+
+    public static function is_local($file)
+    {
+        //is $file an absolute path to a local file? may need tweaking under windows
+        return preg_match("/^\//", $file)
     }
 
     public static function cache_prefix($path)
