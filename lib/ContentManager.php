@@ -212,7 +212,7 @@ class ContentManager
                 }
                 if(preg_match("/^(.*)\.(gz|gzip)$/", $new_temp_file_path, $arr))
                 {
-                    shell_exec(GUNZIP_BIN_PATH . " -f $new_temp_file_path");
+                    shell_exec(GUNZIP_BIN_PATH . " -f " . escapeshellarg($new_temp_file_path));
                     $new_temp_file_path = $arr[1];
                     return self::give_temp_file_right_extension($new_temp_file_path, $original_suffix, $unique_key);
                     self::move_up_if_only_directory($new_temp_file_path); //Comment by Yan: this seems redundent.
@@ -224,7 +224,7 @@ class ContentManager
                     @rmdir($archive_directory);
                     mkdir($archive_directory);
 
-                    shell_exec(TAR_BIN_PATH . " -xf $new_temp_file_path -C $archive_directory");
+                    shell_exec(TAR_BIN_PATH . " -xf " . escapeshellarg($new_temp_file_path) . " -C " . escapeshellarg($archive_directory));
                     if(file_exists($new_temp_file_path)) unlink($new_temp_file_path);
                     $new_temp_file_path = $archive_directory;
                     self::move_up_if_only_directory($new_temp_file_path);
@@ -236,7 +236,7 @@ class ContentManager
                     @rmdir($archive_directory);
                     mkdir($archive_directory);
 
-                    shell_exec(UNZIP_BIN_PATH . " -d $archive_directory $new_temp_file_path");
+                    shell_exec(UNZIP_BIN_PATH . " -d " . escapeshellarg($archive_directory) . " " . escapeshellarg($new_temp_file_path));
                     if(file_exists($new_temp_file_path)) unlink($new_temp_file_path);
                     $new_temp_file_path = $archive_directory;
                     self::move_up_if_only_directory($new_temp_file_path);
@@ -268,7 +268,7 @@ class ContentManager
     public static function determine_file_suffix($file_path, $suffix)
     {
         // use the Unix/Linux `file` command to determine file type
-        $stat = strtolower(shell_exec(FILE_BIN_PATH . " " . $file_path));
+        $stat = strtolower(shell_exec(FILE_BIN_PATH . " " . escapeshellarg($file_path)));
         $file_type = "";
         if(preg_match("/^[^ ]+: (.*)$/",$stat,$arr)) $file_type = trim($arr[1]);
         if(preg_match("/^\"(.*)/", $file_type, $arr)) $file_type = trim($arr[1]);
@@ -424,6 +424,8 @@ class ContentManager
         {
             $large_image_dimensions = $options['large_image_dimensions'];
         } else $large_image_dimensions = ContentManager::large_image_dimensions();
+        
+        //create smaller versions, or hard-link to them if $fullsize_jpg is a previously existing file
         $big_jpg = $this->create_smaller_version($fullsize_jpg, $large_image_dimensions, $prefix, implode(ContentManager::large_image_dimensions(), '_'));
         $this->create_smaller_version($fullsize_jpg, ContentManager::medium_image_dimensions(), $prefix, implode(ContentManager::medium_image_dimensions(), '_'));
         $this->create_smaller_version($fullsize_jpg, ContentManager::small_image_dimensions(), $prefix, implode(ContentManager::small_image_dimensions(), '_'));
@@ -513,40 +515,41 @@ class ContentManager
         return false;
     }
 
-    function reduced_original($path, $prefix, $options = array())
+    function reduced_original($src_image, $prefix, $options = array())
     {
         $suffix = "_orig.jpg";
-        $old_prefix = self::cache_prefix($path);
-        if ($link = $this->hard_link_to_existing($old_prefix, $prefix, $suffix)) return $link;
+        $src_prefix = self::cache_prefix($src_image);
+        if ($link = $this->hard_link_to_existing($src_prefix, $prefix, $suffix)) return $link;
         
         $new_image_path = $prefix.$suffix;
         $rotate = "-auto-orient";
-        if(isset($options['rotation'])) $rotate = "-rotate ". intval($options['rotation']);
-        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten $rotate -quiet -quality 80";
-        shell_exec($command." ".$new_image_path);
+        if(isset($options['rotation'])) $rotate = "-rotate " . intval($options['rotation']);
+        $command = CONVERT_BIN_PATH. " " . escapeshellarg($src_image) . " -strip -background white -flatten $rotate -quiet -quality 80";
+        shell_exec($command . " " . escapeshellarg($new_image_path));
         self::create_checksum($new_image_path);
         return $new_image_path;
     }
 
-    function create_smaller_version($path, $dimensions, $prefix, $suffix_dims)
+    function create_smaller_version($src_image, $dimensions, $prefix, $suffix_dims)
     {
+        //makes a smaller image (returning the new path), or hard links to one if it exists already (returning the old path)
         //N.B. we don't need to rotate, as this works on already-rotated version
-        $suffix = "_". $suffix_dims .".jpg";
-        $old_prefix = self::cache_prefix($path);
-        if ($link = $this->hard_link_to_existing($old_prefix, $prefix, $suffix)) return $link;
+        $suffix = "_" . $suffix_dims . ".jpg";
+        $src_prefix = self::cache_prefix($src_image);
+        if ($link = $this->hard_link_to_existing($src_prefix, $prefix, $suffix)) return $link;
 
-        $new_image_path = $prefix.$suffix;
-        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -quiet -quality 80 \
-                        -resize ".$dimensions[0]."x".$dimensions[1]."\">\"";
-        shell_exec($command." ".$new_image_path);
+        $new_image_path = $prefix . $suffix;
+        $command = CONVERT_BIN_PATH . ' ' . escapeshellarg($src_image) . ' -strip -background white -flatten -quiet -quality 80';
+        $command .= ' -resize ' . escapeshellarg($dimensions[0] . 'x' . $dimensions[1] . '>');
+        shell_exec($command . ' ' . escapeshellarg($new_image_path));
         self::create_checksum($new_image_path);
         return $new_image_path;
     }
 
-    function create_crop($path, $dimensions, $prefix, $width=NULL, $height=NULL, &$crop_percentages=NULL)
+    function create_crop($src_image, $dimensions, $prefix, $width=NULL, $height=NULL, &$crop_percentages=NULL)
     {
-        //never look to hard link to old versions, as the crop size may have changed.
-        $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quiet -quality 80";
+        //Do not make square thumbnails by hard linking to old versions, as the crop size may have changed.
+        $command = CONVERT_BIN_PATH . ' ' . escapeshellarg($src_image) . ' -strip -background white -flatten -quiet -quality 80';
         if($width && $height && count($crop_percentages)>=4)
         {
             foreach($crop_percentages as &$p) if ($p < 0) $p = 0; elseif ($p > 100) $p = 100;
@@ -555,25 +558,27 @@ class ContentManager
             $y = intval(round($crop_percentages[1]/100.0*$height));
             $w = intval(round($crop_percentages[2]/100.0*$width));
             $h = $crop_percentages[3] ? intval(round($crop_percentages[3]/100.0*$height)) : $w;
-            $command .= ' -gravity NorthWest -crop '.$w.'x'.$h.'+'.$x.'+'.$y.' +repage -resize '.$dimensions[0].'x'.$dimensions[1].'\!';
+            $command .= ' -gravity NorthWest -crop ' . $w . 'x' . $h . '+' . $x . '+' . $y . ' +repage';
+            $command .= ' -resize ' . escapeshellarg($dimensions[0] . 'x' . $dimensions[1] . '!');
         } else {
             // default command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill 
-            $command .= ' -resize '.$dimensions[0].'x'.$dimensions[1].'^ -gravity NorthWest -crop '.$dimensions[0]."x".$dimensions[1].'+0+0 +repage';
+            $command .= ' -resize ' . escapeshellarg($dimensions[0] . 'x' . $dimensions[1] . '^') . ' -gravity NorthWest';
+            $command .= ' -crop ' . escapeshellarg($dimensions[0] . 'x' . $dimensions[1] . '+0+0') . ' +repage';
         }
         
-        $new_image_path = $prefix."_".$dimensions[0].'_'.$dimensions[1].".jpg";
-        shell_exec($command." ".$new_image_path);
+        $new_image_path = $prefix . '_' . $dimensions[0] . '_' . $dimensions[1] . '.jpg';
+        shell_exec($command . ' ' . escapeshellarg($new_image_path));
         self::create_checksum($new_image_path);
     }
 
-    function create_constrained_square_crop($path, $dimensions, $prefix)
+    function create_constrained_square_crop($src_image, $dimensions, $prefix)
     {
         // requires "convert" to support -gravity center -extent: ImageMagick >= 6.3.2
-        $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quiet -quality 80 \
-                        -resize '".$dimensions[0]."x".$dimensions[1]."' -gravity center \
-                        -extent '".$dimensions[0]."x".$dimensions[1]."' +repage";
-        $new_image_path = $prefix."_".$dimensions[0]."_".$dimensions[1].".jpg";
-        shell_exec($command." ".$new_image_path);
+        $command = CONVERT_BIN_PATH . ' ' . escapeshellarg($src_image) . ' -strip -background white -flatten -auto-orient -quiet -quality 80 ';
+        $command .=  ' -resize ' . escapeshellarg($dimensions[0] . 'x' . $dimensions[1]) . ' -gravity center';
+        $command .=  ' -extent ' . escapeshellarg($dimensions[0] . 'x' . $dimensions[1]) . ' +repage';
+        $new_image_path = $prefix . '_' . $dimensions[0] . '_' . $dimensions[1] . '.jpg';
+        shell_exec($command . ' ' . escapeshellarg($new_image_path));
         self::create_checksum($new_image_path);
     }
 
