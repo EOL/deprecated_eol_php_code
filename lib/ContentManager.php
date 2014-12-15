@@ -147,7 +147,7 @@ class ContentManager
         if(($type === 'resource') && $options['timeout'] < 60) $options['timeout'] = 60;
 
         $temp_file_path = CONTENT_TEMP_PREFIX . $options['unique_key'] . ".file";
-        if(preg_match("/^(http|https|ftp):\/\//", $file_path_or_uri) || self:is_local($file_path_or_uri))
+        if(preg_match("/^(http|https|ftp):\/\//", $file_path_or_uri) || self::is_local($file_path_or_uri))
         {
             if($file_contents = Functions::get_remote_file($file_path_or_uri, array('timeout' => $options['timeout'])))
             {
