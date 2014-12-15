@@ -570,7 +570,7 @@ class ContentManager
         $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -auto-orient -quiet -quality 80 \
                         -resize '".$dimensions[0]."x".$dimensions[1]."' -gravity center \
                         -extent '".$dimensions[0]."x".$dimensions[1]."' +repage";
-        $new_image_path = $prefix."_".$dimensions[0]."_".$dimensions[0].".jpg";
+        $new_image_path = $prefix."_".$dimensions[0]."_".$dimensions[1].".jpg";
         shell_exec($command." ".$new_image_path);
         self::create_checksum($new_image_path);
     }
