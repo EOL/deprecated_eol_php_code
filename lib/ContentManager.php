@@ -426,9 +426,10 @@ class ContentManager
         } else $large_image_dimensions = ContentManager::large_image_dimensions();
         
         //create smaller versions, or hard-link to them if $fullsize_jpg is a previously existing file
-        $big_jpg = $this->create_smaller_version($fullsize_jpg, $large_image_dimensions, $prefix, implode(ContentManager::large_image_dimensions(), '_'));
-        $this->create_smaller_version($fullsize_jpg, ContentManager::medium_image_dimensions(), $prefix, implode(ContentManager::medium_image_dimensions(), '_'));
-        $this->create_smaller_version($fullsize_jpg, ContentManager::small_image_dimensions(), $prefix, implode(ContentManager::small_image_dimensions(), '_'));
+        $large_jpg = $this->create_smaller_version($fullsize_jpg, $large_image_dimensions, $prefix, implode(ContentManager::large_image_dimensions(), '_'));
+        //use large (not fullsize) jpg to create the medium & small versions, to save processing potentially enormous _orig.jpg files.
+        $this->create_smaller_version($large_jpg, ContentManager::medium_image_dimensions(), $prefix, implode(ContentManager::medium_image_dimensions(), '_'));
+        $this->create_smaller_version($large_jpg, ContentManager::small_image_dimensions(), $prefix, implode(ContentManager::small_image_dimensions(), '_'));
 
         $crop = $this->get_saved_crop_or_initialize(@$options['data_object_id']);
         $new_crop = @$options['crop_pct'];
@@ -441,9 +442,9 @@ class ContentManager
             $this->create_crop($fullsize_jpg, ContentManager::large_square_dimensions(), $prefix, $width, $height, $crop);
             $this->create_crop($fullsize_jpg, ContentManager::small_square_dimensions(), $prefix, $width, $height, $crop);
         } else {
-            //we are taking the default big crop, so to save cpu time, don't bother cropping the full size image, just use the 580_360 version
-            $this->create_crop($big_jpg, ContentManager::large_square_dimensions(), $prefix);
-            $this->create_crop($big_jpg, ContentManager::small_square_dimensions(), $prefix);
+            //we are taking the default crop, so to save cpu time, don't bother cropping the full size image, just use the "large" 580_360 version
+            $this->create_crop($large_jpg, ContentManager::large_square_dimensions(), $prefix);
+            $this->create_crop($large_jpg, ContentManager::small_square_dimensions(), $prefix);
         }
         //update width & height in case they have changed, but only change % crop values if we have a $new_crop
         $this->save_image_size_data(@$options['data_object_id'], $width, $height, $new_crop);
