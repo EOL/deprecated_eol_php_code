@@ -95,8 +95,8 @@ class ContentManager
             $this->delete_old_datasets();
         }
 
-        //return the cache file location: for most object this is the concatenated numbers in the cache dirs, so we lose the file extension
-        //in this case we should probably return an array of the number plus extension, so we can access the original downloaded file.
+        //return the cache file location: for most objects this is a number formed by concatenating the cache dir names, so we lose the file extension
+        //TODO in this case: return the array [number, extension], so we can access the original downloaded file.
         switch($type) {
             case "image":
             case "video":
@@ -252,7 +252,7 @@ class ContentManager
         $only_file = null;
         foreach($files as $file)
         {
-            // there can be only one only file
+            // there can be only one only file, must not start with a dot
             if($only_file) return;
             if(substr($file, 0, 1) == ".") continue;
             $only_file = $directory_path ."/". $file;
@@ -544,10 +544,7 @@ class ContentManager
     function create_crop($path, $dimensions, $prefix, $width=NULL, $height=NULL, &$crop_percentages=NULL)
     {
         //never look to hard link to old versions, as the crop size may have changed.
-        //if called with $crop != NULL, returns the crop area in percentages, and the image size
         $command = CONVERT_BIN_PATH. " $path -strip -background white -flatten -quiet -quality 80";
-        // default latter part of command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill 
-        // any %1$u characters will be substituted by the crop size using sprintf
         if($width && $height && count($crop_percentages)>=4)
         {
             foreach($crop_percentages as &$p) if ($p < 0) $p = 0; elseif ($p > 100) $p = 100;
@@ -558,6 +555,7 @@ class ContentManager
             $h = $crop_percentages[3] ? intval(round($crop_percentages[3]/100.0*$height)) : $w;
             $command .= ' -gravity NorthWest -crop '.$w.'x'.$h.'+'.$x.'+'.$y.' +repage -resize '.$dimensions[0].'x'.$dimensions[1].'\!';
         } else {
+            // default command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill 
             $command .= ' -resize '.$dimensions[0].'x'.$dimensions[1].'^ -gravity NorthWest -crop '.$dimensions[0]."x".$dimensions[1].'+0+0 +repage';
         }
         
