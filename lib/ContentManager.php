@@ -494,19 +494,19 @@ class ContentManager
     }
 
 
-    function hard_link_to_existing($old_file, $prefix, $new_suffix)
+    function hard_link_to_existing($old_prefix, $new_prefix, $suffix)
     {
-        //if given an $old_file that does not match $prefix, look for a previously cached old equivalent with $suffix
-        $new_file = $prefix.$new_suffix;
-        $old_file_prefix = self::cache_prefix($old_file);
-        if ($old_file_prefix != $prefix) {
+        // If the $old_prefix does not match $new_prefix, look for a previously cached file with the old 
+        // prefix and the suffix. If it exists, create a link from $old_prefix.$suffix to $new_prefix.$suffix.
+        $new_file = $new_prefix.$suffix;
+        if ($old_prefix != $new_prefix) {
             //look for an already existing equivalent of $old_file with the new suffix we can link to
-            if (file_exists($old_equivalent = $old_file_prefix.$new_suffix)) {
-                if (link($old_equivalent, $new_file)) {
-                    if($GLOBALS['ENV_DEBUG']) echo "Hard link created (old file is $old_equivalent, now linked at $new_file)\n";
+            if (file_exists($old_file = $old_prefix.$suffix)) {
+                if (link($old_file, $new_file)) {
+                    if($GLOBALS['ENV_DEBUG']) echo "Hard link created (old file is $old_file, now linked at $new_file)\n";
                     self::create_checksum($new_file);
                     //return the old version, to indicate to future calls that other cached files may be available
-                    return $old_equivalent;
+                    return $old_file;
                 }
             }
         }
@@ -516,9 +516,10 @@ class ContentManager
     function reduced_original($path, $prefix, $options = array())
     {
         $suffix = "_orig.jpg";
-        $new_image_path = $prefix.$suffix;
-        if ($link = $this->hard_link_to_existing($path, $prefix, $suffix)) return $link;
+        $old_prefix = self::cache_prefix($path);
+        if ($link = $this->hard_link_to_existing($old_prefix, $prefix, $suffix)) return $link;
         
+        $new_image_path = $prefix.$suffix;
         $rotate = "-auto-orient";
         if(isset($options['rotation'])) $rotate = "-rotate ". intval($options['rotation']);
         $command = CONVERT_BIN_PATH." $path -strip -background white -flatten $rotate -quiet -quality 80";
@@ -531,9 +532,10 @@ class ContentManager
     {
         //N.B. we don't need to rotate, as this works on already-rotated version
         $suffix = "_". $suffix_dims .".jpg";
-        $new_image_path = $prefix.$suffix;
-        if ($link = $this->hard_link_to_existing($path, $prefix, $suffix)) return $link;
+        $old_prefix = self::cache_prefix($path);
+        if ($link = $this->hard_link_to_existing($old_prefix, $prefix, $suffix)) return $link;
 
+        $new_image_path = $prefix.$suffix;
         $command = CONVERT_BIN_PATH." $path -strip -background white -flatten -quiet -quality 80 \
                         -resize ".$dimensions[0]."x".$dimensions[1]."\">\"";
         shell_exec($command." ".$new_image_path);
