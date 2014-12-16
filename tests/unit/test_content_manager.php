@@ -33,15 +33,39 @@ class test_content_manager extends SimpletestUnitBase
 
     function testGrabImage()
     {
-        $cache_num = $this->content_manager->grab_file('http://eol.org/assets/v2/icon_taxon.png', 'image');
+        $file = 'http://eol.org/assets/v2/icon_taxon.png'; //a permanently accessible small png file
+        $w = 72; //dimensions assumed to be less than ContentManager::small_image_dimensions()
+        $h = 60;
+        $cache_num = $this->content_manager->grab_file($file, 'image');
         $cache_path = CONTENT_LOCAL_PATH . ContentManager::cache_num2path($cache_num);
         $this->assertTrue(file_exists($cache_path .'.png'), 'Should upload the image');
+        $size = getimagesize($cache_path .'.png');
+        $this->assertTrue($size[0] === $w && $size[1] === $h, "Should be $w pixels wide and $h pixels high");
+
         $this->assertTrue(file_exists($cache_path .'_orig.jpg'), 'Should be an original size converted to jpeg');
+        $size = getimagesize($cache_path .'_orig.jpg');
+        $this->assertTrue($size[0] === $w && $size[1] === $h, "Should be $w pixels wide and $h pixels high");
+
         $this->assertTrue(file_exists($cache_path .'_580_360.jpg'), 'Should create thumbnail');
+        $size = getimagesize($cache_path .'_580_360.jpg');
+        $this->assertTrue($size[0] === $w && $size[1] === $h, "Should be $w pixels wide and $h pixels high");
+
         $this->assertTrue(file_exists($cache_path .'_260_190.jpg'), 'Should create thumbnail');
+        $size = getimagesize($cache_path .'_260_190.jpg');
+        $this->assertTrue($size[0] === $w && $size[1] === $h, "Should be $w pixels wide and $h pixels high");
+
         $this->assertTrue(file_exists($cache_path .'_98_68.jpg'), 'Should create thumbnail');
+        $size = getimagesize($cache_path .'_98_68.jpg');
+        $this->assertTrue($size[0] === $w && $size[1] === $h, "Should be $w pixels wide and $h pixels high");
+
         $this->assertTrue(file_exists($cache_path .'_130_130.jpg'), 'Should create thumbnail');
+        $size = getimagesize($cache_path .'_130_130.jpg');
+        $this->assertTrue($size[0] === 130 && $size[1] === 130, 'Thumbnail should be 130 pixels wide and 130 pixels high');
+
         $this->assertTrue(file_exists($cache_path .'_88_88.jpg'), 'Should create thumbnail');
+        $size = getimagesize($cache_path .'_88_88.jpg');
+        $this->assertTrue($size[0] === 88 && $size[1] === 88, 'Thumbnail should be 88 pixels wide and 88 pixels high');
+
         self::delete_content($cache_path);
     }
 
@@ -72,15 +96,40 @@ class test_content_manager extends SimpletestUnitBase
 
     function testGrabImageWithNoExtension()
     {
-        $cache_num = $this->content_manager->grab_file('http://eolspecies.lifedesks.org/image/view/793', 'image');
+        $file = 'http://eolspecies.lifedesks.org/image/view/793'; //a permanently accessible mediumn-sized file with no extension
+        $w = 233;
+        $h = 345;
+
+        $cache_num = $this->content_manager->grab_file($file, 'image');
         $cache_path = CONTENT_LOCAL_PATH . ContentManager::cache_num2path($cache_num);
         $this->assertTrue(file_exists($cache_path . '.jpg'), 'Should upload the image');
+        $size = getimagesize($cache_path .'.jpg');
+        $this->assertTrue($size[0] === $w && $size[1] === $h, "Should be $w pixels wide and $h pixels high");
+
         $this->assertTrue(file_exists($cache_path . '_orig.jpg'), 'Should be an original size converted to jpeg');
+        $size = getimagesize($cache_path .'_orig.jpg');
+        $this->assertTrue($size[0] === $w && $size[1] === $h, "Should be $w pixels wide and $h pixels high");
+
         $this->assertTrue(file_exists($cache_path . '_580_360.jpg'), 'Should create thumbnail');
+        $size = getimagesize($cache_path .'_580_360.jpg');
+        $this->assertTrue($size[0] === $w && $size[1] === $h, "Should be $w pixels wide and $h pixels high");
+
         $this->assertTrue(file_exists($cache_path . '_260_190.jpg'), 'Should create thumbnail');
+        $size = getimagesize($cache_path .'_260_190.jpg');
+        $this->assertTrue((abs($size[1]*$w/$h - $size[0]) <= 1) && $size[1] === 190, "Should retain approximate aspect ratio, but be 190 pixels high");
+
         $this->assertTrue(file_exists($cache_path . '_98_68.jpg'), 'Should create thumbnail');
-        $this->assertTrue(file_exists($cache_path . '_130_130.jpg'), 'Should create thumbnail');
-        $this->assertTrue(file_exists($cache_path . '_88_88.jpg'), 'Should create thumbnail');
+        $size = getimagesize($cache_path .'_98_68.jpg');
+        $this->assertTrue((abs($size[1]*$w/$h - $size[0]) <= 1) && $size[1] === 68, "Should retain approximate aspect ratio, but be 68 pixels high");
+
+        $this->assertTrue(file_exists($cache_path .'_130_130.jpg'), 'Should create thumbnail');
+        $size = getimagesize($cache_path .'_130_130.jpg');
+        $this->assertTrue($size[0] === 130 && $size[1] === 130, 'Thumbnail should be 130 pixels wide and 130 pixels high');
+
+        $this->assertTrue(file_exists($cache_path .'_88_88.jpg'), 'Should create thumbnail');
+        $size = getimagesize($cache_path .'_88_88.jpg');
+        $this->assertTrue($size[0] === 88 && $size[1] === 88, 'Thumbnail should be 88 pixels wide and 88 pixels high');
+
         self::delete_content($cache_path);
     }
 
