@@ -634,8 +634,8 @@ class ContentManager
 
     public static function is_local($file)
     {
-        //is $file an absolute path to a local file? may need tweaking under windows
-        return preg_match("/^\//", $file)
+        //is $file an absolute path to a local file? may need tweaking under Windows OS
+        return preg_match("/^\//", $file);
     }
 
     public static function cache_prefix($path)
