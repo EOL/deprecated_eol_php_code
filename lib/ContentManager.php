@@ -669,7 +669,7 @@ class ContentManager
         {
             /* we have problems because we don't actually save the filename extension of the original file.
             Until we can get this from the database, we hack around this as follows */
-            $cache_path = self::cache_num2path($num);
+            $cache_path = self::cache_num2path($data_object->object_cache_url);
             if (is_file($image_url = CONTENT_LOCAL_PATH . $cache_path . "_orig.jpg")) {
                 //we have a proper _orig file. Now try hard to find the original version, even through we don't have the extension
                 foreach (self::$valid_image_extensions as $ext) {
