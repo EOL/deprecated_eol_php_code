@@ -669,15 +669,22 @@ class ContentManager
         {
             /* we have problems because we don't actually save the filename extension of the original file.
             Until we can get this from the database, we hack around this as follows */
-            $cache_path = self::cache_num2path($data_object->object_cache_url);
-            foreach (self::$valid_image_extensions as $ext) {
-                $image_url = CONTENT_LOCAL_PATH . $cache_path . "." . $ext;
-                if(is_file($image_url)) break;
+            $cache_path = self::cache_num2path($num);
+            if (is_file($image_url = CONTENT_LOCAL_PATH . $cache_path . "_orig.jpg")) {
+                //we have a proper _orig file. Now try hard to find the original version, even through we don't have the extension
+                foreach (self::$valid_image_extensions as $ext) {
+                    $orig = CONTENT_LOCAL_PATH . $cache_path . "." . $ext;
+                    if(is_file($orig)) {
+                        $image_url = $orig;
+                        break;
+                    }
+                }
+                $sizes = getimagesize(CONTENT_LOCAL_PATH . $cache_path . "_580_360.jpg");
+            } else {
+                //use the online version, yuck. This hacks around the problem of having old images stored on a different filesystem
+                $image_url = "http://content71.eol.org/content/" . $cache_path ."_orig.jpg";
+                $sizes = getimagesize("http://content71.eol.org/content/" . $cache_path . "_580_360.jpg");
             }
-            // If we can't find the original download, save the local or previous jpg versions as the original (yuck)
-            if(!is_file($image_url)) $image_url = CONTENT_LOCAL_PATH . $cache_path . "_orig.jpg";
-            if(!is_file($image_url)) $image_url = "http://content71.eol.org/content/" . $cache_path ."_orig.jpg";
-
             $image_options = array('data_object_id' => $data_object_id);
             // user has defined a bespoke crop region, with crop given as x & y offsets, plus a crop width & poss height.
             // Offsets are from the 580 x 360 version. However, if they are wider than 
@@ -687,11 +694,10 @@ class ContentManager
             // **** Perhaps we should do this calculation in the Ruby front-end code (nearer to the css layout) rather than in php, 
             // and simply pass percentages into this function? That would also stop doing a getimagesize() on the _580_360 file
             // (NB we can't use h & w from the original as it may need rotating). We could then use crop_image_pct() as below
-            $sizes = getimagesize(CONTENT_LOCAL_PATH . $cache_path . "_580_360.jpg");
             if(count($sizes)>=2 and $sizes[0]>0 and $sizes[1]>0)
             {
-                $width = $sizes[0];
-                $height = $sizes[1];
+                $width = intval($sizes[0]);
+                $height = intval($sizes[1]);
                 $scale_factor = 1;
                 if(($width / $height) < ( 540 / 360 ))
                 {
