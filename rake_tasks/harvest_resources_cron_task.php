@@ -27,9 +27,6 @@ $log = HarvestProcessLog::create(array('process_name' => 'Harvesting'));
 $resources = Resource::ready_for_harvesting();
 foreach($resources as $resource)
 {
-<<<<<<< Updated upstream
-    if(in_array($resource->id, array(201, 224))) continue;
-=======
     // IMPORTANT!
     // We skip a few hard-coded resource IDs, here.
     // 201 is Harvard's MCZ.
@@ -38,7 +35,6 @@ foreach($resources as $resource)
     // TODO - output a warning if a resource gets skipped.
     if(in_array($resource->id, array(77, 224, 710, 752))) continue;
     // NOTE that a specified id will get SKIPPED if it's not "ready" for harvesting.
->>>>>>> Stashed changes
     if($specified_id && $resource->id != $specified_id) continue;
     // if(!in_array($resource->id, array(324))) continue;
     // if($resource->id < 197) continue;
