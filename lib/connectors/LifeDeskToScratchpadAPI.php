@@ -107,7 +107,9 @@ class LifeDeskToScratchpadAPI
                         else $scinames = $scinames2;
                     }
                 }
-                
+
+                $scinames = self::make_unique_pipe_delimited_string($scinames);
+
                 $rec = array();
                 foreach($headers as $header)
                 {
@@ -131,6 +133,13 @@ class LifeDeskToScratchpadAPI
         }
     }
 
+    private function make_unique_pipe_delimited_string($string)
+    {
+        $arr = explode("|", $string);
+        $arr = array_unique($arr);
+        return implode("|", $arr);
+    }
+    
     private function format_pipe_values($records)
     {
         foreach($records as $key => $values) $records[$key] = implode("|", array_unique($values));
@@ -542,7 +551,7 @@ class LifeDeskToScratchpadAPI
                 elseif($topic == "Trophic Strategy")            $topic = "Trophic strategy";
                 elseif(in_array($topic, array("General comments", "Original description", "Original Published Description", "Description générale", "Summary", "Detailed Description", "Liew Manuscript Discussion", "Liew Manuscript Description", "General Description", "Description", "Synoptic Description", "Original description(s)", "Technical Description", "Records &amp; General Information on the taxon", "The information shown herein was extracted from the following publications"))) $topic = "General description";
                 elseif(in_array($topic, array("Look Alikes", "Looks Alike", "Similar Species", "Comparisons"))) $topic = "Look alikes";
-                elseif(in_array($topic, array("Synonomies", "Concepts and synonymy", "Common and Local Names", "Taxonomic History", "Local Names", "Taxonomic Notes", "Taxonomic Discussion", "Floral Records", "notes for taxonomic status", "Name-Bearing Type", "Taxonomic Remarks", "Etymology", "Nomenclature and Synonymy", "Synonyms", "Synonymy", "Abbreviations", "Nomenclature", "Additional species, genera..."))) $topic = "Taxonomy";
+                elseif(in_array($topic, array("Common names", "Synonomies", "Concepts and synonymy", "Common and Local Names", "Taxonomic History", "Local Names", "Taxonomic Notes", "Taxonomic Discussion", "Floral Records", "notes for taxonomic status", "Name-Bearing Type", "Taxonomic Remarks", "Etymology", "Nomenclature and Synonymy", "Synonyms", "Synonymy", "Abbreviations", "Nomenclature", "Additional species, genera..."))) $topic = "Taxonomy";
                 elseif(in_array($topic, array("Specimen information", "Type Citation", "Specimens Examined", "Type Data", "Type locality", "Type Information", "Type material location", "Liew Manuscript Type material", "Type material", "Type Material", "Type Locality", "Type specimens", "Type species, type genus..."))) $topic = "TypeInformation";
                 elseif(in_array($topic, array("Conservation Actions and Management", "Conservation", "Conservation Status", "Liew Manuscript Conservation status", "IUCN Red List Category and Justification of Conservation Status"))) $topic = "Conservation status";
                 elseif(in_array($topic, array("Latin Diagnosis", "Diagnostic Features", "Liew Manuscript Diagnosis", "Diagnostic Description", "Differential diagnosis", "Diagnosis"))) $topic = "Diagnostic description";
@@ -550,17 +559,17 @@ class LifeDeskToScratchpadAPI
                 elseif(in_array($topic, array("Fishery information", "Gaps in our knowledge", "Related literature", "Useful Links", "Other Remarks", "Additional Resources", "Other Databases", "Additional links", "Liew Manuscript Other material examined", "General notes", "Other material", "Additional Information", "Systematic Discussion", "Material Examined", "Remarks"))) $topic = "Notes";
                 elseif(in_array($topic, array("Color", "Egg, larval, pupal and adult morphology", "Tadpole morphology", "External Appearance", "Sensory Organs", "Proboscis and Rhynchocoel System", "Blood Vascular System", "Excretory System", "Nervous System", "Body Wall", "Glands", "morphological description", "Osteology"))) $topic = "Morphology";
                 elseif(in_array($topic, array("Digestive System", "Herbivores"))) $topic = "Trophic strategy";
-                elseif(in_array($topic, array("Reproduction and Development", "Reproductive System"))) $topic = "Reproduction";
-                elseif(in_array($topic, array("Reproduction and Life History", "Adult behavior", "Larval morphology and behavior", "Nesting behavior", "Nestling description", "Nesting Biology", "Behavior", "Repository", "Adult chaetotaxy", "Advertisement Call", "Modes and Mechanisms of Locomotion", "Activity and Special Behaviors"))) $topic = "Behaviour";
+                elseif(in_array($topic, array("Phenology", "Asexual reproduction", "Reproduction and Development", "Reproductive System"))) $topic = "Reproduction";
+                elseif(in_array($topic, array("Regeneration", "Reproduction and Life History", "Adult behavior", "Larval morphology and behavior", "Nesting behavior", "Nestling description", "Nesting Biology", "Behavior", "Repository", "Adult chaetotaxy", "Advertisement Call", "Modes and Mechanisms of Locomotion", "Activity and Special Behaviors"))) $topic = "Behaviour";
                 elseif(in_array($topic, array("Life History", "Metamorphosis"))) $topic = "Life cycle";
                 elseif(in_array($topic, array("Altitudinal Range", "Geographic Range", "Introduction", "Distribution and Habitat", "Occurrence", "Liew Manuscript Distribution", "Known distribution"))) $topic = "Distribution";
                 elseif(in_array($topic, array("Natural History", "Ecology and Behaviour", "Urban Ecology"))) $topic = "Ecology";
-                elseif(in_array($topic, array("Phylogenetics", "Systematics and Phylogenetics", "Phylogenetic Relationships"))) $topic = "Genetics";
+                elseif(in_array($topic, array("Systematics", "Chemistry", "Phylogenetics", "Systematics and Phylogenetics", "Phylogenetic Relationships"))) $topic = "Genetics";
                 elseif(in_array($topic, array("Toxicity", "Research Use"))) $topic = "Uses";
                 elseif(in_array($topic, array("Please cite this taxon page as"))) $topic = "Citation";
                 elseif(in_array($topic, array("Description compiled by", "Edited by"))) $topic = "Creator";
                 elseif(in_array($topic, array("Electric Organ Discharge", "Egg description"))) $topic = "Biology";
-                elseif(in_array($topic, array("Habitat and Ecology", "Nest description", "Nesting habitat", "Habitat and Host Associations"))) $topic = "Habitat";
+                elseif(in_array($topic, array("Palynology", "Habitat and Ecology", "Nest description", "Nesting habitat", "Habitat and Host Associations"))) $topic = "Habitat";
                 elseif(in_array($topic, array("Seasonality"))) $topic = "Cyclicity";
                 elseif(in_array($topic, array("Key to Species", "Systematics and Identification"))) $topic = "Key";
 
