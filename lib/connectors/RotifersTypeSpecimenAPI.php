@@ -117,9 +117,9 @@ class RotifersTypeSpecimenAPI
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID                       = $taxon_id;
             $taxon->scientificName                = $sciname;
-            $this->taxa[$taxon->taxonID] = $taxon;
             $rec["taxon_id"] = $taxon_id;
             $rec["sciname"] = $sciname;
+            $cont_save = false;
             
             if($type == "locality")
             {
@@ -137,7 +137,7 @@ class RotifersTypeSpecimenAPI
                     if(!isset($processed_specimen[$lngSpecimen_ID]))
                     {
                         $rec["catnum"] = $lngSpecimen_ID;
-                        self::process_specimen($rec);
+                        $cont_save = self::process_specimen($rec);
                         $processed_specimen[$lngSpecimen_ID] = 1;
                     }
                 }
@@ -152,11 +152,14 @@ class RotifersTypeSpecimenAPI
                     {
                         $rec["catnum"] = md5($sciname . "|" . $habitat);
                         $rec["habitat"] = $habitat;
-                        self::process_habitat($rec);
+                        $cont_save = self::process_habitat($rec);
                     }
                 }
             }
-        }
+        
+            if($cont_save) $this->taxa[$taxon->taxonID] = $taxon;
+        
+        }//loop
     }
 
     private function process_habitat($rec)
@@ -173,7 +176,9 @@ class RotifersTypeSpecimenAPI
             $this->habitats[$rec["taxon_id"]][$value_uri] = 1;
             if($val = $habitat) self::add_string_types($rec, "Habitat", $val, "http://rs.tdwg.org/dwc/terms/habitat", null, $value_uri);
             if($val = $rec["sciname"]) self::add_string_types($rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
+            return true;
         }
+        return false;
     }
     
     private function format_habitat_value($habitat)
@@ -413,7 +418,7 @@ class RotifersTypeSpecimenAPI
             self::add_string_types($rec, "TSR", $TSR, "http://eol.org/schema/terms/TypeSpecimenRepository", $remarks);
             self::add_string_types($rec, "Institution code", $institution_code, "http://rs.tdwg.org/dwc/terms/institutionCode");
             // self::add_string_types($rec, "Type information", $type, "http://eol.org/schema/terms/TypeInformation"); // old but working
-            self::add_string_types($rec, "Type information", $type, "http://rs.tdwg.org/dwc/terms/typeStatus"); // new but not able to display in Data tab
+            self::add_string_types($rec, "Type information", $type, "http://rs.tdwg.org/dwc/terms/typeStatus"); // new and now is being displayed in Data tab
             
             if($val = $preparations)            self::add_string_types($rec, "Preparations", $val, "http://rs.tdwg.org/dwc/terms/preparations");
             if($val = $catalog_no)              self::add_string_types($rec, "Catalog number", $val, "http://rs.tdwg.org/dwc/terms/catalogNumber");
@@ -422,6 +427,7 @@ class RotifersTypeSpecimenAPI
             if($val = $recorded_by)             self::add_string_types($rec, "Recorded by", $val, "http://rs.tdwg.org/dwc/terms/recordedBy");
             if($val = $sciname)                 self::add_string_types($rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
             self::process_locality($rec, $sciname);
+            return true;
         }
     }
 
