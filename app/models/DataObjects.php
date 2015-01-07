@@ -207,7 +207,7 @@ class DataObject extends ActiveRecord
             if(preg_match("/^http:\/\//",$this->object_url) || preg_match("/^https:\/\//",$this->object_url))
             {
                 // Hardcoded exception to make the Biopix images smaller
-                $image_options = array('data_object_id' => $this->id);
+                $image_options = array('data_object_id' => $this->id, 'data_object_guid' => $this->guid);
                 if($resource->title == "Biopix") $image_options['large_image_dimensions'] = array(300, 300);
                 if(isset($this->additional_information) && isset($this->additional_information['rotation']))
                 {

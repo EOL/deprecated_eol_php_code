@@ -431,17 +431,17 @@ class ContentManager
         $this->create_smaller_version($large_jpg, ContentManager::medium_image_dimensions(), $prefix, implode(ContentManager::medium_image_dimensions(), '_'));
         $this->create_smaller_version($large_jpg, ContentManager::small_image_dimensions(), $prefix, implode(ContentManager::small_image_dimensions(), '_'));
 
-        $custom_crop = $this->check_image_database(@$options['data_object']);
+        $custom_crop = $this->check_image_database(@$options['data_object_id'], @$options['data_object_guid']);
         if (isset($options['crop_pct']) && count($options['crop_pct']) >= 4)
             $custom_crop = $options['crop_pct'];
 
         if (count($custom_crop) >= 4)
         {
-            foreach($custom_crop as &$p) $p =  min(max($x, 0), 100);
-            $crop_pixels = array(intval(round($crop_percentages[0]/100.0*$width)),
-                                 intval(round($crop_percentages[1]/100.0*$height)),
-                                 intval(round($crop_percentages[2]/100.0*$width)));
-            $crop_pixels[]= empty($crop_percentages[3]) ? $crop_pixels[2] : intval(round($crop_percentages[3]/100.0*$height));
+            foreach($custom_crop as &$p) $p =  min(max($p, 0), 100);
+            $crop_pixels = array(intval(round($custom_crop[0]/100.0*$width)),
+                                 intval(round($custom_crop[1]/100.0*$height)),
+                                 intval(round($custom_crop[2]/100.0*$width)));
+            $crop_pixels[]= empty($custom_crop[3]) ? $crop_pixels[2] : intval(round($custom_crop[3]/100.0*$height));
 
             //if this image has a custom crop, it could be of a tiny region, so use the huge image, to avoid pixellation.
             //Ideally, we'd use the original image but it could be rotated differently, and we don't currently store rotation information in the DB.
@@ -453,7 +453,7 @@ class ContentManager
             $this->create_crop($large_jpg, ContentManager::small_square_dimensions(), $prefix);
         }
         //update width & height in case they have changed, but only change % crop values if we have a $new_crop
-        $this->save_image_size_data(@$options['data_object']->id, $width, $height, $custom_crop);
+        $this->save_image_size_data(@$options['data_object_id'], $width, $height, $custom_crop);
     }
 
     function create_agent_thumbnails($file, $prefix)
@@ -462,25 +462,25 @@ class ContentManager
         $this->create_constrained_square_crop($file, ContentManager::small_square_dimensions(), $prefix);
     }
 
-    function check_image_database($data_object)
+    function check_image_database($data_object_id, $data_object_guid)
     {
-        //check if $data_object->id already exists in images_sizes table: insert if not. Return potential cropping info.
-        $crop = get_crop_from_DB(@$data_object->id);
+        //check if $data_object_id already exists in images_sizes table: insert if not. Return potential cropping info.
+        $crop = $this->get_crop_from_DB($data_object_id);
         if (isset($crop)) return $crop;
 
         //if we get here, DB entry for this data_obj_id doesn't exist, so create the image_size entry in the DB (height, etc may be filled in later)
-        $GLOBALS['mysqli_connection']->insert("INSERT IGNORE INTO image_sizes (data_object_id) VALUES (". $data_object->id . ")");
+        $GLOBALS['mysqli_connection']->insert("INSERT IGNORE INTO image_sizes (data_object_id) VALUES ($data_object_id)");
         //check for other data_object IDs with the same GUID, which might provide a relevant previous crop
-        if (isset($data_object->guid)) {
-            $resp = $GLOBALS['mysqli_connection']->query("SELECT id FROM data_objects WHERE guid=" . $data_object->guid . "AND published=1 ORDER BY id DESC LIMIT 1");
+        if (isset($data_object_guid)) {
+            $resp = $GLOBALS['mysqli_connection']->query("SELECT id FROM data_objects WHERE guid=$data_object_guid AND published=1 ORDER BY id DESC LIMIT 1");
             if ($resp) {
                 if ($resp->num_rows) {
                     $prev_data_objID = $resp->fetch_row()[0];
                     if ($prev_data_objID)
-                        return get_crop_from_DB($prev_data_objID);
+                        return $this->get_crop_from_DB($prev_data_objID);
                 }
             } else {
-                trigger_error("ContentManager: Database error while getting data_object " . $data_object->id . " from image_sizes table", E_USER_NOTICE);
+                trigger_error("ContentManager: Database error while getting data_objects with guid=$data_object_guid from data_objects table", E_USER_NOTICE);
             }
         }
         return false;
@@ -705,7 +705,7 @@ class ContentManager
                 $image_url = "http://content71.eol.org/content/" . $cache_path ."_orig.jpg";
                 $sizes = getimagesize("http://content71.eol.org/content/" . $cache_path . "_580_360.jpg");
             }
-            $image_options = array('data_object' => $data_object);
+            $image_options = array('data_object_id' => $data_object->id, 'data_object_guid' => $data_object->guid);
             // user has defined a bespoke crop region, with crop given as x & y offsets, plus a crop width & poss height.
             // Offsets are from the 580 x 360 version. However, if they are wider than 
             // 540px, CSS scales the image proportionally to fit into a max width of 540.
@@ -760,7 +760,7 @@ class ContentManager
             // If we can't find the original download, save the local or previous jpg versions as the original (yuck)
             if(!is_file($image_url)) $image_url = CONTENT_LOCAL_PATH . $cache_path . "_orig.jpg";
             if(!is_file($image_url)) $image_url = "http://content71.eol.org/content/" . $cache_path ."_orig.jpg";
-            return $this->grab_file($image_url, "image", array('crop_pct'=>array($x_pct, $y_pct, $w_pct, $h_pct), 'data_object' => $data_object));
+            return $this->grab_file($image_url, "image", array('crop_pct'=>array($x_pct, $y_pct, $w_pct, $h_pct), 'data_object_id' => $data_object->id, 'data_object_guid' => $data_object->guid));
         }
     }
 
