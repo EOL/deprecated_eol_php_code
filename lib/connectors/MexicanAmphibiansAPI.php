@@ -29,6 +29,8 @@ class MexicanAmphibiansAPI
         self::process_fields($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'), "taxa");
         self::process_fields($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/MeasurementOrFact'), "measurements");
         self::process_fields($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Occurrence'), "occurrences");
+        self::process_fields($harvester->process_row_type('http://eol.org/schema/reference/Reference'), "reference");
+        
         $this->archive_builder->finalize(TRUE);
         recursive_rmdir($temp_dir); // remove temp dir
         echo ("\n temporary directory removed: " . $temp_dir);
@@ -53,8 +55,13 @@ class MexicanAmphibiansAPI
                 $temp = pathinfo($key);
                 $field = $temp["basename"];
 
+                // manual adjustment bec. of a typo in meta.xml, without "s"
+                if($field == "measurementRemark") $field = "measurementRemarks";
+
+                /*
                 // sample way to exclude if field is to be excluded
                 if($field == "attribution") continue; //not recognized in eol: http://indiabiodiversity.org/terms/attribution
+                */
                 
                 // some fields have '#', e.g. "http://schemas.talis.com/2005/address/schema#localityName"
                 $parts = explode("#", $field);
