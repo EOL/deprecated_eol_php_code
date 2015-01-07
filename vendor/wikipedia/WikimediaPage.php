@@ -699,7 +699,7 @@ class WikimediaPage
                 $this->georef["latitude"] = $location[1] + ((($location[2] * 60) + ($location[3])) / 3600);
                 if(stripos($location[4], "N") === false) $this->georef["latitude"] *= -1;
                 $this->georef["longitude"] = $location[5] + ((($location[6] * 60) + ($location[7])) / 3600);
-                if(stripos($location[8], "W") === false) $this->georef["longitude"] *= -1;
+                if(stripos($location[8], "W") === true) $this->georef["longitude"] *= -1;
                 if(isset($location[9]))
                 {
                     $this->location = $location[9];

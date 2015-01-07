@@ -76,7 +76,7 @@ XML;
 |permission={{User:Flickr upload bot/upload|date=13:56, 21 September 2007 (UTC)|reviewer=Dongio}}
 {{cc-by-2.0}}
 }}
-{{Location|36|7|57.8634|N|5|20|55.9962|E}}
+{{Location|36|7|57.8634|N|5|20|55.9962|W}}
 
 [[Category:Macaca sylvanus]]";
 
