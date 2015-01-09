@@ -1052,8 +1052,91 @@ $params["alpheidae"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/c
 $params["alpheidae"]["local"]["name"]               = "alpheidae";
 $params["alpheidae"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/alpheidae/node_importer_biblio_xls.xls";
 // ==================================================================================================
-
-
+// tearga remote
+$params["tearga"]["remote"]["lifedesk"]          = "http://tearga.lifedesks.org/eol-partnership.xml.gz";
+$params["tearga"]["remote"]["bibtex_file"]       = "";
+$params["tearga"]["remote"]["scratchpad_images"] = "";
+$params["tearga"]["remote"]["name"]              = "tearga";
+// tearga Dropbox
+$params["tearga"]["dropbox"]["lifedesk"]          = "";
+$params["tearga"]["dropbox"]["bibtex_file"]       = "";
+$params["tearga"]["dropbox"]["scratchpad_images"] = "";
+$params["tearga"]["dropbox"]["name"]              = "tearga";
+// tearga local
+$params["tearga"]["local"]["lifedesk"]           = "http://localhost/~eolit/cp/LD2Scratchpad/tearga/eol-partnership.xml.gz";
+$params["tearga"]["local"]["bibtex_file"]        = "";
+$params["tearga"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/LD2Scratchpad/tearga/file_importer_image_xls.xls";
+$params["tearga"]["local"]["name"]               = "tearga";
+$params["tearga"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/tearga/node_importer_biblio_xls.xls";
+// ==================================================================================================
+// canopy remote
+$params["canopy"]["remote"]["lifedesk"]          = "http://canopy.lifedesks.org/eol-partnership.xml.gz";
+$params["canopy"]["remote"]["bibtex_file"]       = "";
+$params["canopy"]["remote"]["scratchpad_images"] = "";
+$params["canopy"]["remote"]["name"]              = "canopy";
+// canopy Dropbox
+$params["canopy"]["dropbox"]["lifedesk"]          = "";
+$params["canopy"]["dropbox"]["bibtex_file"]       = "";
+$params["canopy"]["dropbox"]["scratchpad_images"] = "";
+$params["canopy"]["dropbox"]["name"]              = "canopy";
+// canopy local
+$params["canopy"]["local"]["lifedesk"]           = "http://localhost/~eolit/cp/LD2Scratchpad/canopy/eol-partnership.xml.gz";
+$params["canopy"]["local"]["bibtex_file"]        = "http://localhost/~eolit/cp/LD2Scratchpad/canopy/Biblio-Bibtex.bib";
+$params["canopy"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/LD2Scratchpad/canopy/file_importer_image_xls.xls";
+$params["canopy"]["local"]["name"]               = "canopy";
+$params["canopy"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/canopy/node_importer_biblio_xls.xls";
+// ==================================================================================================
+// naididae remote
+$params["naididae"]["remote"]["lifedesk"]          = "http://naididae.lifedesks.org/eol-partnership.xml.gz";
+$params["naididae"]["remote"]["bibtex_file"]       = "";
+$params["naididae"]["remote"]["scratchpad_images"] = "";
+$params["naididae"]["remote"]["name"]              = "naididae";
+// naididae Dropbox
+$params["naididae"]["dropbox"]["lifedesk"]          = "";
+$params["naididae"]["dropbox"]["bibtex_file"]       = "";
+$params["naididae"]["dropbox"]["scratchpad_images"] = "";
+$params["naididae"]["dropbox"]["name"]              = "naididae";
+// naididae local
+$params["naididae"]["local"]["lifedesk"]           = "http://localhost/~eolit/cp/LD2Scratchpad/naididae/eol-partnership.xml.gz";
+$params["naididae"]["local"]["bibtex_file"]        = "";
+$params["naididae"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/LD2Scratchpad/naididae/file_importer_image_xls.xls";
+$params["naididae"]["local"]["name"]               = "naididae";
+$params["naididae"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/naididae/node_importer_biblio_xls.xls";
+// ==================================================================================================
+// ebivalvia remote
+$params["ebivalvia"]["remote"]["lifedesk"]          = "http://ebivalvia.lifedesks.org/eol-partnership.xml.gz";
+$params["ebivalvia"]["remote"]["bibtex_file"]       = "";
+$params["ebivalvia"]["remote"]["scratchpad_images"] = "";
+$params["ebivalvia"]["remote"]["name"]              = "ebivalvia";
+// ebivalvia Dropbox
+$params["ebivalvia"]["dropbox"]["lifedesk"]          = "";
+$params["ebivalvia"]["dropbox"]["bibtex_file"]       = "";
+$params["ebivalvia"]["dropbox"]["scratchpad_images"] = "";
+$params["ebivalvia"]["dropbox"]["name"]              = "ebivalvia";
+// ebivalvia local
+$params["ebivalvia"]["local"]["lifedesk"]           = "http://localhost/~eolit/cp/LD2Scratchpad/ebivalvia/eol-partnership.xml.gz";
+$params["ebivalvia"]["local"]["bibtex_file"]        = "";
+$params["ebivalvia"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/LD2Scratchpad/ebivalvia/file_importer_image_xls.xls";
+$params["ebivalvia"]["local"]["name"]               = "ebivalvia";
+$params["ebivalvia"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/ebivalvia/node_importer_biblio_xls.xls";
+// ==================================================================================================
+// compositae remote
+$params["compositae"]["remote"]["lifedesk"]          = "http://compositae.lifedesks.org/eol-partnership.xml.gz";
+$params["compositae"]["remote"]["bibtex_file"]       = "";
+$params["compositae"]["remote"]["scratchpad_images"] = "";
+$params["compositae"]["remote"]["name"]              = "compositae";
+// compositae Dropbox
+$params["compositae"]["dropbox"]["lifedesk"]          = "";
+$params["compositae"]["dropbox"]["bibtex_file"]       = "";
+$params["compositae"]["dropbox"]["scratchpad_images"] = "";
+$params["compositae"]["dropbox"]["name"]              = "compositae";
+// compositae local
+$params["compositae"]["local"]["lifedesk"]           = "http://localhost/~eolit/cp/LD2Scratchpad/compositae/eol-partnership.xml.gz";
+$params["compositae"]["local"]["bibtex_file"]        = "";
+$params["compositae"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/LD2Scratchpad/compositae/file_importer_image_xls.xls";
+$params["compositae"]["local"]["name"]               = "compositae";
+$params["compositae"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/compositae/node_importer_biblio_xls.xls";
+// ==================================================================================================
 
 /* paste here which Lifedesk you want to export: e.g. $parameters = $params["leptogastrinae"]["dropbox"];
 the export files (in .tar.gz) will be found in: DOC_ROOT/tmp/leptogastrinae_LD_to_Scratchpad_export.tar.gz
@@ -1061,11 +1144,10 @@ the export files (in .tar.gz) will be found in: DOC_ROOT/tmp/leptogastrinae_LD_t
 
 // /* To run single LifeDesk:
 $func = new LifeDeskToScratchpadAPI();
-$parameters = $params["alpheidae"]["local"];
+$parameters = $params["ebivalvia"]["local"];
 if($parameters) $func->export_lifedesk_to_scratchpad($parameters);
 else echo "\nNothing to process. Program will terminate\n";
 // */
-
 
 /* To run them all:
 // "terrslugs" ***
