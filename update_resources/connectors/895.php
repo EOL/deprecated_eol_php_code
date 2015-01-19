@@ -2,10 +2,10 @@
 namespace php_active_record;
 /* estimated execution time:  minutes 
 
-        31Dec   5Jan    12Jan
-Taxa:   2056    1951    1938
-Image:  3353    3293    3292
-agent   1       1       1
+        31Dec   5Jan    12Jan   15Jan
+Taxa:   2056    1951    1944    1936
+Image:  3353    3293    3302    3293
+agent   1       1       1       1
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

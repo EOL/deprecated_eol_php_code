@@ -151,6 +151,9 @@ class TrekNatureAPI
             $mr->publisher              = '';
             $mr->CVterm                 = '';
             $mr->title                  = '';
+            $mr->spatial                = $rec["location"];
+            $mr->LocationCreated        = $rec["location"];
+            
             if(!isset($this->object_ids[$mr->identifier]))
             {
                 $this->object_ids[$mr->identifier] = '';
@@ -161,7 +164,12 @@ class TrekNatureAPI
 
     private function valid_sciname($rec)
     {
-        if($rec["image_id"] == "254976") return "Ranunculus asiaticus";
+        if($rec["image_id"] == "254976")     return "Ranunculus asiaticus";
+        elseif($rec["image_id"] == "182893") return "Cervus nippon";
+        elseif($rec["image_id"] == "18992")  return "Testudines";
+        elseif($rec["image_id"] == "23374")  return "Orchidaceae";
+        elseif($rec["image_id"] == "41233")  return "Malus";
+        elseif(in_array($rec["image_id"], array("31192", "20651"))) return false;
         
         $sciname = trim($rec["sciname"]);
         
@@ -288,6 +296,11 @@ class TrekNatureAPI
         elseif(is_numeric(stripos($sciname, "cypress tree")))           return "Cupressus sempervirents";
         elseif(is_numeric(stripos($sciname, "Blue tongue lizard")))     return "Tiliqua";
         elseif(is_numeric(stripos($sciname, "Gladiolus atroviolaceus"))) return "Gladiolus atroviolaceus";
+        elseif(is_numeric(stripos($sciname, "Swallowtail"))) return "Papilionidae";
+        elseif(is_numeric(stripos($sciname, "juniper"))) return "Juniperus";
+        elseif(is_numeric(stripos($sciname, "Elk"))) return "Cervus";
+        elseif(is_numeric(stripos($sciname, "Stilt"))) return "Recurvirostridae";
+        
 
         $exclude_exact_match = array("alpine blooming", "eggs", "desert bloom", "saline", "Indian Forest", "spring", "Red Sea in winter", "caterpillar on caper", "spring in West Australia", "Hamamat Main", "Lake Towada", "desert snow", "succulent", "Mt Hermon Fritillary");
         foreach($exclude_exact_match as $str)
@@ -301,7 +314,7 @@ class TrekNatureAPI
             return false;
         }
 
-        $exclude = array("wonderful", "glacier", "peacock", "river", "fruit", "flower", "lake", "saline", " land", "garlic", "Semidesert");
+        $exclude = array("wonderful", "glacier", "peacock", "river", "fruit", "flower", "lake", "saline", " land", "garlic", "Semidesert", "please");
         foreach($exclude as $str)
         {
             if(is_numeric(stripos($sciname, $str)))
@@ -339,8 +352,8 @@ class TrekNatureAPI
     {
         $agent_ids = array();
         $r = new \eol_schema\Agent();
-        $r->term_name       = "Ori Fragman Sapir";
-        $r->identifier      = md5("Ori Fragman Sapir");
+        $r->term_name       = "Ori Fragman-Sapir";
+        $r->identifier      = md5($r->term_name);
         $r->agentRole       = "creator";
         $r->term_homepage   = "http://www.treknature.com/members/fragman/";
         $agent_ids[] = $r->identifier;
