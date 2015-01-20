@@ -549,7 +549,7 @@ class LifeDeskToScratchpadAPI
                 elseif($topic == "Life Expectancy")             $topic = "Life expectancy";
                 elseif($topic == "Population Biology")          $topic = "Population biology";
                 elseif($topic == "Trophic Strategy")            $topic = "Trophic strategy";
-                elseif(in_array($topic, array("General comments", "Original description", "Original Published Description", "Description générale", "Summary", "Detailed Description", "Liew Manuscript Discussion", "Liew Manuscript Description", "General Description", "Description", "Synoptic Description", "Original description(s)", "Technical Description", "Records &amp; General Information on the taxon", "The information shown herein was extracted from the following publications"))) $topic = "General description";
+                elseif(in_array($topic, array("Body length", "General comments", "Original description", "Original Published Description", "Description générale", "Summary", "Detailed Description", "Liew Manuscript Discussion", "Liew Manuscript Description", "General Description", "Description", "Synoptic Description", "Original description(s)", "Technical Description", "Records &amp; General Information on the taxon", "The information shown herein was extracted from the following publications"))) $topic = "General description";
                 elseif(in_array($topic, array("Look Alikes", "Looks Alike", "Similar Species", "Comparisons"))) $topic = "Look alikes";
                 elseif(in_array($topic, array("Common names", "Synonomies", "Concepts and synonymy", "Common and Local Names", "Taxonomic History", "Local Names", "Taxonomic Notes", "Taxonomic Discussion", "Floral Records", "notes for taxonomic status", "Name-Bearing Type", "Taxonomic Remarks", "Etymology", "Nomenclature and Synonymy", "Synonyms", "Synonymy", "Abbreviations", "Nomenclature", "Additional species, genera..."))) $topic = "Taxonomy";
                 elseif(in_array($topic, array("Specimen information", "Type Citation", "Specimens Examined", "Type Data", "Type locality", "Type Information", "Type material location", "Liew Manuscript Type material", "Type material", "Type Material", "Type Locality", "Type specimens", "Type species, type genus..."))) $topic = "TypeInformation";
@@ -562,7 +562,7 @@ class LifeDeskToScratchpadAPI
                 elseif(in_array($topic, array("Phenology", "Asexual reproduction", "Reproduction and Development", "Reproductive System"))) $topic = "Reproduction";
                 elseif(in_array($topic, array("Regeneration", "Reproduction and Life History", "Adult behavior", "Larval morphology and behavior", "Nesting behavior", "Nestling description", "Nesting Biology", "Behavior", "Repository", "Adult chaetotaxy", "Advertisement Call", "Modes and Mechanisms of Locomotion", "Activity and Special Behaviors"))) $topic = "Behaviour";
                 elseif(in_array($topic, array("Life History", "Metamorphosis"))) $topic = "Life cycle";
-                elseif(in_array($topic, array("Altitudinal Range", "Geographic Range", "Introduction", "Distribution and Habitat", "Occurrence", "Liew Manuscript Distribution", "Known distribution"))) $topic = "Distribution";
+                elseif(in_array($topic, array("Distribution in the Plot", "Global Distribution", "Altitudinal Range", "Geographic Range", "Introduction", "Distribution and Habitat", "Occurrence", "Liew Manuscript Distribution", "Known distribution"))) $topic = "Distribution";
                 elseif(in_array($topic, array("Natural History", "Ecology and Behaviour", "Urban Ecology"))) $topic = "Ecology";
                 elseif(in_array($topic, array("Systematics", "Chemistry", "Phylogenetics", "Systematics and Phylogenetics", "Phylogenetic Relationships"))) $topic = "Genetics";
                 elseif(in_array($topic, array("Toxicity", "Research Use"))) $topic = "Uses";
@@ -572,6 +572,7 @@ class LifeDeskToScratchpadAPI
                 elseif(in_array($topic, array("Palynology", "Habitat and Ecology", "Nest description", "Nesting habitat", "Habitat and Host Associations"))) $topic = "Habitat";
                 elseif(in_array($topic, array("Seasonality"))) $topic = "Cyclicity";
                 elseif(in_array($topic, array("Key to Species", "Systematics and Identification"))) $topic = "Key";
+                elseif(in_array($topic, array("Dry weight (biomass)"))) $topic = "Size";
 
                 if(!in_array($topic, $headers))
                 {
