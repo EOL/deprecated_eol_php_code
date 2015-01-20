@@ -6,9 +6,10 @@ estimated execution time: 14 minutes: 40k images | 50 minutes: 72k images
 
 Now partner provides/hosts a DWC-A file. Together with images they also now share text objects as well.
 estimated execution time: 55 minutes for:
- images:                114,658     114,103
- measurementorfact:     201,088     201,088
- taxa:                  17,499      17,499
+                                                5Jan'15
+ images:                114,658     114,103     138,879
+ measurementorfact:     201,088     201,088     239,256
+ taxa:                  17,499      17,499      19,627
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -30,6 +31,7 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") >
     rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
     rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
     Functions::set_resource_status_to_force_harvest($resource_id);
+    Functions::count_resource_tab_files($resource_id);
 }
 
 // $func->get_mediaURL_for_first_40k_images(); //this is a utility

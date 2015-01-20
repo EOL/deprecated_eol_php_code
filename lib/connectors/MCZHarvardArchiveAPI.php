@@ -11,7 +11,6 @@ class MCZHarvardArchiveAPI
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        $this->taxon_ids = array();
         $this->object_ids = array();
         $this->EOL = 'http://www.eol.org/voc/table_of_contents';
         $this->dwca_file = "http://digir.mcz.harvard.edu/ipt/archive.do?r=mcz_for_eol";
@@ -34,6 +33,7 @@ class MCZHarvardArchiveAPI
 
     function get_all_taxa()
     {
+        $this->uris = self::get_uris();
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->dwca_file, "meta.xml");
@@ -51,13 +51,11 @@ class MCZHarvardArchiveAPI
         self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
         self::get_images($harvester->process_row_type('http://eol.org/schema/media/Document'));
         self::get_texts_v2($harvester->process_row_type('http://rs.gbif.org/terms/1.0/TypesAndSpecimen'));
-
-        print_r($this->types);
-        $this->create_archive();
-
+        $this->archive_builder->finalize(TRUE);
         // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
+        print_r($this->debug);
     }
 
     private function create_instances_from_taxon_object($records)
@@ -75,7 +73,7 @@ class MCZHarvardArchiveAPI
             $taxon->genus           = (string) $rec["http://rs.tdwg.org/dwc/terms/genus"];
             $taxon->subgenus        = (string) $rec["http://rs.tdwg.org/dwc/terms/subgenus"];
             $taxon->rightsHolder    = (string) $rec["http://purl.org/dc/terms/rightsHolder"];
-            $this->taxa[$taxon->taxonID] = $taxon;
+            $this->archive_builder->write_object_to_file($taxon);
         }
     }
 
@@ -125,14 +123,15 @@ class MCZHarvardArchiveAPI
             $mr->thumbnailURL   = $thumbnailURL;
             $mr->furtherInformationURL = (string) $rec["http://rs.tdwg.org/ac/terms/furtherInformationURL"];
             if((string) $mr->accessURI == $mr->furtherInformationURL) continue;
-            if(!in_array($mr->identifier, $this->object_ids)) 
+            if(!isset($this->object_ids[$mr->identifier]))
             {
-               $this->object_ids[] = $mr->identifier;
+               $this->object_ids[$mr->identifier] = '';
                $this->archive_builder->write_object_to_file($mr);
             }
         }
     }
 
+    /* no longer being used at the moment, but working before...
     private function get_texts($records)
     {
         $not_utf8 = 0;
@@ -173,6 +172,7 @@ class MCZHarvardArchiveAPI
         }
         echo "\n Not utf8: [$not_utf8] \n";
     }
+    */
 
     private function get_texts_v2($records) // structured data
     {
@@ -185,77 +185,101 @@ class MCZHarvardArchiveAPI
             {
                 if($val != "no citation available") $measurementRemarks .= "Type designated by: " . $val . "<br>";
             }
-            // if($val = $rec["http://rs.tdwg.org/dwc/terms/scientificName"]) $measurementRemarks .= "Type for " . $val . "<br>"; --- will follow Tropicos' ["Scientific name => Genus species"]
+
+            $institution_uri = "http://biocol.org/urn:lsid:biocol.org:col:33791"; //Museum of Comparative Zoology, Harvard University
+            $typeStatus_uri = false;
             if($val = self::format_type_status($rec["http://rs.tdwg.org/dwc/terms/typeStatus"]))
             {
-                self::add_string_types($rec, "Type information", $val, $measurementRemarks);
-                if($val = $rec["http://rs.tdwg.org/dwc/terms/occurrenceID"])        self::add_string_types($rec, "Occurrence ID", $val);
-                if($val = $rec["http://rs.tdwg.org/dwc/terms/institutionCode"])     self::add_string_types($rec, "Institution code", $val);
-                if($val = $rec["http://rs.tdwg.org/dwc/terms/collectionCode"])      self::add_string_types($rec, "Collection code", $val);
-                if($val = $rec["http://rs.tdwg.org/dwc/terms/catalogNumber"])       self::add_string_types($rec, "Catalog number", $val);
-                if($val = $rec["http://rs.tdwg.org/dwc/terms/locality"])            self::add_string_types($rec, "Locality", $val);
-                if($val = $rec["http://rs.tdwg.org/dwc/terms/verbatimEventDate"])   self::add_string_types($rec, "Event date", $val);
-                if($val = $rec["http://rs.tdwg.org/dwc/terms/scientificName"])      self::add_string_types($rec, "Scientific name", $val);
+                $typeStatus_uri = self::get_uri($val, "typeStatus");
             }
-            // if($i >= 110) break; //debug - just first 10 records during preview phase
+
+            if($institution_uri && $typeStatus_uri)
+            {
+                self::add_string_types($rec, $institution_uri, "http://eol.org/schema/terms/TypeSpecimenRepository", $measurementRemarks);
+                self::add_string_types($rec, $typeStatus_uri, "http://rs.tdwg.org/dwc/terms/typeStatus");
+                
+
+                if($val = $rec["http://rs.tdwg.org/dwc/terms/verbatimEventDate"])   self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/eventDate");
+                if($val = $rec["http://rs.tdwg.org/dwc/terms/scientificName"])      self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/scientificName");
+                
+            }
+            // else
+            // {
+            //     echo "\ninvalid rec \n";
+            //     print_r($rec);
+            // }
+            $i++;
+            // if($i >= 1000) break; //debug - just first 1000 records during preview phase
         }
     }
 
-    private function add_string_types($rec, $label, $value, $measurementRemarks = null)
+    private function add_string_types($rec, $value, $mtype, $measurementRemarks = null)
     {
         $taxon_id = (string) $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
         $catnum = (string) $rec["http://rs.tdwg.org/dwc/terms/catalogNumber"];
         $m = new \eol_schema\MeasurementOrFact();
-        $occurrence = $this->add_occurrence($taxon_id, $catnum);
-        $m->occurrenceID = $occurrence->occurrenceID;
-        if($label == "Type information") $m->measurementOfTaxon = 'true';
-        if    ($label == "Occurrence ID")    $m->measurementType = "http://rs.tdwg.org/dwc/terms/occurrenceID";
-        elseif($label == "Institution code") $m->measurementType = "http://rs.tdwg.org/dwc/terms/institutionCode";
-        elseif($label == "Collection code")  $m->measurementType = "http://rs.tdwg.org/dwc/terms/collectionCode";
-        elseif($label == "Catalog number")   $m->measurementType = "http://rs.tdwg.org/dwc/terms/catalogNumber";
-        elseif($label == "Locality")         $m->measurementType = "http://rs.tdwg.org/dwc/terms/locality";
-        elseif($label == "Event date")       $m->measurementType = "http://rs.tdwg.org/dwc/terms/eventDate";
-        elseif($label == "Scientific name")  $m->measurementType = "http://rs.tdwg.org/dwc/terms/scientificName";
-        elseif($label == "Type information") $m->measurementType = "http://eol.org/schema/terms/TypeInformation"; //"http://rs.tdwg.org/ontology/voc/TaxonName#Type";
-        else                                 $m->measurementType = "http://mcz.harvard.edu/". SparqlClient::to_underscore($label);
-        $m->measurementValue = (string) $value;
-        $m->measurementMethod = '';
+        $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
+        $m->occurrenceID = $occurrence_id;
+        if($mtype == "http://eol.org/schema/terms/TypeSpecimenRepository") $m->measurementOfTaxon = 'true';
+        $m->measurementType     = $mtype;
+        $m->measurementValue    = utf8_encode((string) $value);
+        $m->measurementMethod   = '';
         if($measurementRemarks) // so that measurementRemarks (and source, contributor) appears only once in the [measurement_or_fact.tab]
         {
             $m->measurementRemarks = $measurementRemarks;
             $m->source = $this->page_by_guid . $rec["http://rs.tdwg.org/dwc/terms/occurrenceID"];
-            $m->contributor = 'Museum of Comparative Zoology, Harvard'; // if this doesn't work then use the 'contributor' implementation above that are commented
+            $m->contributor = 'Museum of Comparative Zoology, Harvard';
         }
         $this->archive_builder->write_object_to_file($m);
+    }
+
+    private function get_uris()
+    {
+        $params["uri_file"] = "http://localhost/~eolit/cp/NMNH/type_specimen_resource/nmnh mappings.xlsx"; //a good source of typeStatus URI's
+        $params["dataset"]  = "GBIF";
+        require_library('connectors/GBIFCountryTypeRecordAPI');
+        $func = new GBIFCountryTypeRecordAPI("x");
+        $uris = $func->get_uris($params);
+        return $uris;
+    }
+
+    private function get_uri($value, $field)
+    {
+        if(in_array($field, array("typeStatus"))) $value = strtoupper($value);
+        if($field == "typeStatus") $value = str_ireplace("TYPES", "TYPE", $value);
+        if($val = @$this->uris[$value]) return $val;
+        else
+        {
+            $this->debug["undefined"][$field][$value] = '';
+            return $value;
+        }
     }
 
     private function format_type_status($type_status)
     {
         // manual adjustments
-        $type_status = str_ireplace(array("?", " (ms)", " (Paleontology)"), "", $type_status);
+        $type_status = str_ireplace(array(" (ms)", " (Paleontology)"), "", $type_status);
         $type_status = str_ireplace("Paralectotpye", "Paralectotype", $type_status);
-        if(in_array($type_status, array("Figured", "Voucher", "Additional Material", "Erroneous Citation"))) return false;
-        
-        // if(in_array($type_status, array("Paratopotype", "Genotype", "Hypotype", "Plastotype", "Alloectotype", "Genoholotype"))) return $type_status; // not yet included in katja's list
-        return $type_status = "http://rs.tdwg.org/ontology/voc/TaxonName#" . ucfirst(strtolower($type_status));
+        $type_status = str_ireplace("ALLOECTOTYPE", "LECTOALLOTYPE", $type_status);
+        $type_status = strtoupper($type_status);
+        if(in_array($type_status, array("FIGURED", "VOUCHER", "ADDITIONAL MATERIAL", "ERRONEOUS CITATION"))) return false;
+        return $type_status;
     }
 
-    private function add_occurrence($taxon_id, $catnum)
+    private function add_occurrence($taxon_id, $catnum, $rec)
     {
-        $occurrence_id = $taxon_id . 'O' . $catnum; // suggested by Katja to use -- ['O' . $catnum]
-        if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
+        $occurrence_id = $taxon_id . 'O' . $catnum;
+        if(isset($this->occurrence_ids[$occurrence_id])) return $occurrence_id;
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
-        $o->taxonID = $taxon_id;
+        $o->taxonID      = $taxon_id;
+        if($val = $rec["http://rs.tdwg.org/dwc/terms/institutionCode"]) $o->institutionCode = $val;
+        if($val = $rec["http://rs.tdwg.org/dwc/terms/collectionCode"])  $o->collectionCode = $val;
+        if($val = $rec["http://rs.tdwg.org/dwc/terms/catalogNumber"])   $o->catalogNumber = $val;
+        if($val = $rec["http://rs.tdwg.org/dwc/terms/locality"])        $o->locality = $val;
         $this->archive_builder->write_object_to_file($o);
-        $this->occurrence_ids[$occurrence_id] = $o;
-        return $o;
-    }
-
-    private function create_archive()
-    {
-        foreach($this->taxa as $t) $this->archive_builder->write_object_to_file($t);
-        $this->archive_builder->finalize(TRUE);
+        $this->occurrence_ids[$occurrence_id] = '';
+        return $occurrence_id;
     }
 
     private function get_first40k_images()
