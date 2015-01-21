@@ -8,18 +8,21 @@ Partner provides an archive file, but needs adjustments:
 - in meta.xml, change entry "furtherinformationURL" to "furtherInformationURL", case sensitive here.
 
 estimated execution time: 1.2 minutes
-                            4Jan
-measurement_or_fact.tab:    [90489]
-occurrence.tab:             [12332]
-taxon.tab:                  [13679]
-
+                            13Jan
+measurement_or_fact.tab:    [1909]
+occurrence.tab:             [815]
+reference                   [113]
+taxon.tab:                  [370]
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/MexicanAmphibiansAPI');
 $timestart = time_elapsed();
 $resource_id = 856;
-$func = new MexicanAmphibiansAPI($resource_id);
+$params["dwca_file"] = "http://localhost/~eolit/cp/MexicanAmphibians/Mex_Amph.zip";                     // raw from Anne Thessen
+$params["dwca_file"] = "http://localhost/~eolit/cp/MexicanAmphibians/Mex_Amph/Archive.zip";             // adjusted meta XML
+$params["dwca_file"] = "https://dl.dropboxusercontent.com/u/7597512/MexicanAmphibians/Archive.zip";
+$func = new MexicanAmphibiansAPI($resource_id, $params);
 $func->get_all_taxa();
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
