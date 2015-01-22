@@ -500,7 +500,7 @@ class WikimediaHarvester
     private static function get_all_child_categories($base_category, $depth = null)
     {
         $sites = array( "toolserver" => "http://toolserver.org/~daniel/WikiSense/CategoryIntersect.php?wikifam=commons.wikimedia.org&basedeep=100&mode=cl&go=Scan&format=csv&userlang=en&basecat=",
-                        "wmflabs" => "http://tools.wmflabs.org/catscan2/quick_intersection.php?lang=commons&project=wikimedia&ns=14&depth=-1&max=30000&start=0&format=json&sparse=1&cats=");
+                        "wmflabs" => "http://tools.wmflabs.org/quick-intersection/index.php?lang=commons&project=wikimedia&ns=14&depth=-1&max=30000&start=0&format=json&sparse=1&cats=");
         $cats = array($base_category => 1);
         // Using toolserver.org seems to only return max ~x500 categories, so its use has been commented out below
 /*        if(count($cats) <= 1)
