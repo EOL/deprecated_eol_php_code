@@ -291,7 +291,18 @@ class DataObject extends ActiveRecord
                     // If the object is text and the contents have changed - set this version to curated = 0
                     if($data_object->is_text() && $existing_data_object->description != $data_object->description) $data_object->curated = 0;
                     
-                    return array(DataObject::create_by_object($data_object), "Updated", $existing_data_object);
+                    $new_data_object =
+                        DataObject::create_by_object($data_object);
+                    $GLOBALS['mysqli_connection']->query(
+                        "UPDATE taxon_concept_exemplar_images
+                         SET data_object_id=$new_data_object->id
+                         WHERE data_object_id=$existing_data_object->id");
+                    $GLOBALS['mysqli_connection']->query(
+                        "UPDATE taxon_concept_exemplar_articles
+                         SET data_object_id=$new_data_object->id
+                         WHERE data_object_id=$existing_data_object->id");
+                    return array($new_data_object, "Updated",
+                        $existing_data_object);
                 }
             }
         }elseif($guids = $find_result["similar"])
