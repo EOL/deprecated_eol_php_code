@@ -44,12 +44,12 @@ class SoundcloudAPI
             $page = 1;
             while($page == 1 || $count_of_tracks > 0)
             {
-                if($xml = Functions::lookup_with_cache($audio_list_url, $options))
+                if($json = Functions::lookup_with_cache($audio_list_url, $options))
                 {
-                    $xml = simplexml_load_string($xml);
-                    $count_of_tracks = count($xml->track);
+                    $tracks = json_decode($json);
+                    $count_of_tracks = count($tracks);
                     $j = 0;
-                    foreach($xml->track as $track)
+                    foreach($tracks as $track)
                     {
                         $j++;
                         debug("\n User $i of $count_of_users (User: [$user_id] - " . $track->user->username . "); page $page Audio $j of $count_of_tracks (trackID: $track->id)");
@@ -75,17 +75,13 @@ class SoundcloudAPI
         $offset = 0;
         while(true)
         {
-            if($xml = Functions::lookup_with_cache($this->EOL_members . "&offset=$offset", $this->download_options))
+            if($json = Functions::lookup_with_cache($this->EOL_members . "&offset=$offset", $this->download_options))
             {
                 $offset += 50; 
-                $xml = simplexml_load_string($xml);
-                debug("\n members: " . count($xml->user));
-                if(!$xml->user) break;
-                foreach($xml->user as $user)
-                {
-                    $user_ids[(string) $user->id] = 1;
-                    debug("\n $user->username [$user->id]");
-                }
+                $users = json_decode($json);
+                debug("\n members: " . count($users));
+                if(!$users) break;
+                foreach($users as $user) $user_ids[(string) $user->id] = 1;
             }
             else
             {
@@ -125,7 +121,7 @@ class SoundcloudAPI
         }
         $arr_data = array();
         $description = Functions::import_decode($rec->description);
-        $arr_sciname = self::get_taxonomy_from_tags($rec->{'tag-list'});
+        $arr_sciname = self::get_taxonomy_from_tags($rec->tag_list);
         if(!$arr_sciname)
         {
             $result = self::get_taxonomy_from_description($description);
@@ -142,14 +138,14 @@ class SoundcloudAPI
             $arr_objects  = array();
             $identifier   = $rec->id;
             $dataType     = "http://purl.org/dc/dcmitype/Sound";
-            $mimeType     = self::get_mimetype($rec->{'original-format'});
+            $mimeType     = self::get_mimetype($rec->original_format);
             if(trim($rec->title)) $title = $rec->title;
             else                  $title = "Soundcloud audio";
-            $source       = trim($rec->{'permalink-url'});
-            $mediaURL     = $rec->{'download-url'} . "?client_id=" . $this->soundcloud_api_client_id;
-            $thumbnailURL = $rec->{'waveform-url'};
+            $source       = trim($rec->permalink_url);
+            $mediaURL     = $rec->download_url . "?client_id=" . $this->soundcloud_api_client_id;
+            $thumbnailURL = $rec->waveform_url;
             $agent = array();
-            if($rec->user->username) $agent[]= array("role" => "creator", "homepage" => trim($rec->user->{'permalink-url'}), "fullName" => trim($rec->user->username));
+            if($rec->user->username) $agent[]= array("role" => "creator", "homepage" => trim($rec->user->permalink_url), "fullName" => trim($rec->user->username));
             $arr_objects = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects);
             //end data objects //----------------------------------------------------------------------------------------
 
@@ -181,8 +177,8 @@ class SoundcloudAPI
               ) //gets everything between brackets [] or parenthesis () or quotes ""
         {
             $smallest_taxa = self::get_smallest_rank($matches[1]);
-            $smallest_rank = $smallest_taxa['rank'];
-            $sciname       = $smallest_taxa['name'];
+            $smallest_rank = @$smallest_taxa['rank'];
+            $sciname       = @$smallest_taxa['name'];
             $multiple_taxa_YN = self::is_multiple_taxa_video($matches[1]);
             if(!$multiple_taxa_YN) $arr_sciname = self::initialize($sciname);
             foreach($matches[1] as $tag)
