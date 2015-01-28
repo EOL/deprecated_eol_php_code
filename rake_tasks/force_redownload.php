@@ -19,7 +19,7 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 
 
 
-$result = $mysqli->query("SELECT id, object_url, thumbnail_url FROM data_objects WHERE id=$data_object_id LIMIT 1");
+$result = $mysqli->query("SELECT id, guid, object_url, thumbnail_url FROM data_objects WHERE id=$data_object_id LIMIT 1");
 if($result && $row=$result->fetch_assoc())
 {
     print_r($row);
@@ -43,8 +43,8 @@ if($result && $row=$result->fetch_assoc())
         }
     }else
     {
-        //give data_object_id so that previously stored crop locations are reused when grabbing the new image
-        if($new_object_cache_url = $content_manager->grab_file($row["object_url"], "image", array('data_object_id' = $data_object_id)))
+        //give data_object_id and guid so that previously stored crop locations are reused when grabbing the new image
+        if($new_object_cache_url = $content_manager->grab_file($row["object_url"], "image", array('data_object_id' = $row['id'], 'data_object_guid' = $row['guid'])))
         {
             //echo "UPDATE data_objects SET object_cache_url=$object_cache_url WHERE object_cache_url=$object_cache_url";
             $mysqli->query("UPDATE data_objects SET object_cache_url=$new_object_cache_url WHERE id=$data_object_id");

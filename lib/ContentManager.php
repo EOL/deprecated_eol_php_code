@@ -431,23 +431,29 @@ class ContentManager
         $this->create_smaller_version($large_jpg, ContentManager::medium_image_dimensions(), $prefix, implode(ContentManager::medium_image_dimensions(), '_'));
         $this->create_smaller_version($large_jpg, ContentManager::small_image_dimensions(), $prefix, implode(ContentManager::small_image_dimensions(), '_'));
 
-        $crop = $this->get_saved_crop_or_initialize(@$options['data_object_id']);
-        $new_crop = @$options['crop_pct'];
+        $custom_crop = $this->check_image_database(@$options['data_object_id'], @$options['data_object_guid']);
+        if (isset($options['crop_pct']) && count($options['crop_pct']) >= 4)
+            $custom_crop = $options['crop_pct'];
 
-        if ((count($new_crop)>=4) || (count($crop) >= 4))
+        if (count($custom_crop) >= 4)
         {
-            if (count($new_crop)>=4) $crop=$new_crop;
+            foreach($custom_crop as &$p) $p =  min(max($p, 0), 100);
+            $crop_pixels = array(intval(round($custom_crop[0]/100.0*$width)),
+                                 intval(round($custom_crop[1]/100.0*$height)),
+                                 intval(round($custom_crop[2]/100.0*$width)));
+            $crop_pixels[]= empty($custom_crop[3]) ? $crop_pixels[2] : intval(round($custom_crop[3]/100.0*$height));
+
             //if this image has a custom crop, it could be of a tiny region, so use the huge image, to avoid pixellation.
             //Ideally, we'd use the original image but it could be rotated differently, and we don't currently store rotation information in the DB.
-            $this->create_crop($fullsize_jpg, ContentManager::large_square_dimensions(), $prefix, $width, $height, $crop);
-            $this->create_crop($fullsize_jpg, ContentManager::small_square_dimensions(), $prefix, $width, $height, $crop);
+            $this->create_crop($fullsize_jpg, ContentManager::large_square_dimensions(), $prefix, $crop_pixels);
+            $this->create_crop($fullsize_jpg, ContentManager::small_square_dimensions(), $prefix, $crop_pixels);
         } else {
             //we are taking the default crop, so to save cpu time, don't bother cropping the full size image, just use the "large" 580_360 version
             $this->create_crop($large_jpg, ContentManager::large_square_dimensions(), $prefix);
             $this->create_crop($large_jpg, ContentManager::small_square_dimensions(), $prefix);
         }
         //update width & height in case they have changed, but only change % crop values if we have a $new_crop
-        $this->save_image_size_data(@$options['data_object_id'], $width, $height, $new_crop);
+        $this->save_image_size_data(@$options['data_object_id'], $width, $height, $custom_crop);
     }
 
     function create_agent_thumbnails($file, $prefix)
@@ -456,25 +462,46 @@ class ContentManager
         $this->create_constrained_square_crop($file, ContentManager::small_square_dimensions(), $prefix);
     }
 
-    function get_saved_crop_or_initialize($data_object_id)
+    function check_image_database($data_object_id, $data_object_guid)
     {
-        if (isset($data_object_id)) {
-            // Check if the image_size db entry exists
-            $resp = $GLOBALS['mysqli_connection']->query("SELECT crop_x_pct, crop_y_pct, crop_width_pct, crop_height_pct FROM image_sizes WHERE data_object_id=$data_object_id LIMIT 1");
+        //check if $data_object_id already exists in images_sizes table: insert if not. Return potential cropping info.
+        $crop = $this->get_crop_from_DB($data_object_id);
+        if (isset($crop)) return $crop;
+
+        //if we get here, DB entry for this data_obj_id doesn't exist, so create the image_size entry in the DB (height, etc may be filled in later)
+        $GLOBALS['mysqli_connection']->insert("INSERT IGNORE INTO image_sizes (data_object_id) VALUES ($data_object_id)");
+        //check for other data_object IDs with the same GUID, which might provide a relevant previous crop
+        if (isset($data_object_guid)) {
+            $resp = $GLOBALS['mysqli_connection']->query("SELECT id FROM data_objects WHERE guid=$data_object_guid AND published=1 ORDER BY id DESC LIMIT 1");
             if ($resp) {
                 if ($resp->num_rows) {
-                    $crop = $resp->fetch_row();
-                    if (isset($crop[0]) and isset($crop[1]) and isset($crop[2]))
-                        return $crop;
-                } else {
-                    //DB entry for this data_obj_id doesn't exist: create the image_size entry in the DB (height, etc may be filled in later)
-                    $GLOBALS['mysqli_connection']->insert("INSERT IGNORE INTO image_sizes (data_object_id) VALUES ($data_object_id)");
+                    $prev_data_objID = $resp->fetch_row()[0];
+                    if ($prev_data_objID)
+                        return $this->get_crop_from_DB($prev_data_objID);
                 }
+            } else {
+                trigger_error("ContentManager: Database error while getting data_objects with guid=$data_object_guid from data_objects table", E_USER_NOTICE);
+            }
+        }
+        return false;
+    }
+
+    function get_crop_from_DB($data_object_id) {
+        //return the crop data, or NULL if the query ran but found no entry in the image_sizes table, else return false
+        if (isset($data_object_id)) {
+            $resp = $GLOBALS['mysqli_connection']->query("SELECT crop_x_pct, crop_y_pct, crop_width_pct, crop_height_pct FROM image_sizes WHERE data_object_id=$data_object_id LIMIT 1");
+            if ($resp) {
+                if (!$resp->num_rows) {
+                    //DB query OK, but no rows found
+                    return NULL;
+                }
+                $crop = $resp->fetch_row();
+                if (isset($crop[0]) and isset($crop[1]) and isset($crop[2])) return $crop;
             } else {
                 trigger_error("ContentManager: Database error while getting data_object $data_object_id from image_sizes table", E_USER_NOTICE);
             }
         }
-        return NULL;
+        return false;
     }
 
     function save_image_size_data($data_object_id, $width, $height, $crop_percentages=NULL)
@@ -495,7 +522,6 @@ class ContentManager
             $GLOBALS['mysqli_connection']->update("UPDATE image_sizes ".$sql." WHERE data_object_id=$data_object_id");
         }
     }
-
 
     function hard_link_to_existing($old_prefix, $new_prefix, $suffix)
     {
@@ -547,20 +573,14 @@ class ContentManager
         return $new_image_path;
     }
 
-    function create_crop($src_image, $dimensions, $prefix, $width=NULL, $height=NULL, &$crop_percentages=NULL)
+    function create_crop($src_image, $dimensions, $prefix, $crop_pixels=NULL)
     {
         //Do not make square thumbnails by hard linking to old versions, as the crop size may have changed.
         $command = CONVERT_BIN_PATH . ' ' . escapeshellarg($src_image) . ' -strip -background white -flatten -quiet -quality 80';
-        if($width && $height && count($crop_percentages)>=4)
+        if(count($crop_pixels)>=4)
         {
-            foreach($crop_percentages as &$p) if ($p < 0) $p = 0; elseif ($p > 100) $p = 100;
-
-            $x = intval(round($crop_percentages[0]/100.0*$width));
-            $y = intval(round($crop_percentages[1]/100.0*$height));
-            $w = intval(round($crop_percentages[2]/100.0*$width));
-            $h = $crop_percentages[3] ? intval(round($crop_percentages[3]/100.0*$height)) : $w;
-            $command .= ' -gravity NorthWest -crop ' . $w . 'x' . $h . '+' . $x . '+' . $y . ' +repage';
-            $command .= ' -resize ' . escapeshellarg($dimensions[0] . 'x' . $dimensions[1] . '!');
+            $command .= ' -gravity NorthWest -crop ' . escapeshellarg($crop_pixels[2] . 'x' . $crop_pixels[3] . '+' . $crop_pixels[0] . '+' . $crop_pixels[1]);
+            $command .= ' +repage -resize ' . escapeshellarg($dimensions[0] . 'x' . $dimensions[1] . '!');
         } else {
             // default command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill 
             $command .= ' -resize ' . escapeshellarg($dimensions[0] . 'x' . $dimensions[1] . '^') . ' -gravity NorthWest';
@@ -685,7 +705,7 @@ class ContentManager
                 $image_url = "http://content71.eol.org/content/" . $cache_path ."_orig.jpg";
                 $sizes = getimagesize("http://content71.eol.org/content/" . $cache_path . "_580_360.jpg");
             }
-            $image_options = array('data_object_id' => $data_object_id);
+            $image_options = array('data_object_id' => $data_object->id, 'data_object_guid' => $data_object->guid);
             // user has defined a bespoke crop region, with crop given as x & y offsets, plus a crop width & poss height.
             // Offsets are from the 580 x 360 version. However, if they are wider than 
             // 540px, CSS scales the image proportionally to fit into a max width of 540.
@@ -740,7 +760,7 @@ class ContentManager
             // If we can't find the original download, save the local or previous jpg versions as the original (yuck)
             if(!is_file($image_url)) $image_url = CONTENT_LOCAL_PATH . $cache_path . "_orig.jpg";
             if(!is_file($image_url)) $image_url = "http://content71.eol.org/content/" . $cache_path ."_orig.jpg";
-            return $this->grab_file($image_url, "image", array('crop_pct'=>array($x_pct, $y_pct, $w_pct, $h_pct), 'data_object_id' => $data_object_id));
+            return $this->grab_file($image_url, "image", array('crop_pct'=>array($x_pct, $y_pct, $w_pct, $h_pct), 'data_object_id' => $data_object->id, 'data_object_guid' => $data_object->guid));
         }
     }
 
