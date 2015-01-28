@@ -475,7 +475,7 @@ class ContentManager
             $resp = $GLOBALS['mysqli_connection']->query("SELECT id FROM data_objects WHERE guid=$data_object_guid AND published=1 ORDER BY id DESC LIMIT 1");
             if ($resp) {
                 if ($resp->num_rows) {
-                    $prev_data_objID = $resp->fetch_row()[0];
+                    $prev_data_objID = $resp->fetch_row();
                     if ($prev_data_objID)
                         return $this->get_crop_from_DB($prev_data_objID);
                 }
