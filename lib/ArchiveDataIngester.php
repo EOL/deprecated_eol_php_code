@@ -241,11 +241,6 @@ class ArchiveDataIngester
             $hierarchy_entry->delete_refs();
             $this->entry_references_deleted[$hierarchy_entry->id] = true;
         }
-        if(!isset($this->entry_vernacular_names_deleted[$hierarchy_entry->id]))
-        {
-            $this->mysqli->delete("DELETE FROM synonyms WHERE hierarchy_entry_id=$hierarchy_entry->id AND hierarchy_id=". $this->harvest_event->resource->hierarchy_id ." AND language_id!=0 AND language_id!=". Language::find_or_create_for_parser('scientific name')->id);
-            $this->entry_vernacular_names_deleted[$hierarchy_entry->id] = true;
-        }
         if(!isset($this->entry_synonyms_deleted[$hierarchy_entry->id]))
         {
             $hierarchy_entry->delete_synonyms();
@@ -374,16 +369,21 @@ class ArchiveDataIngester
             $he_id = $taxon_info['hierarchy_entry_id'];
             $tc_id = $taxon_info['taxon_concept_id'];
             $common_name_relation = SynonymRelation::find_or_create_by_translated_label('common name');
-
-            Synonym::find_or_create(array('name_id'               => $name->id,
-                                          'synonym_relation_id'   => $common_name_relation->id,
-                                          'language_id'           => @$language->id ?: 0,
-                                          'hierarchy_entry_id'    => $he_id,
-                                          'preferred'             => ($isPreferredName != ''),
-                                          'hierarchy_id'          => $this->harvest_event->resource->hierarchy_id,
-                                          'vetted_id'             => 0,
-                                          'published'             => 0,
-                                          'taxonRemarks'          => $taxonRemarks));
+            $result = $this->mysqli->query("SELECT SQL_NO_CACHE id FROM synonyms WHERE name_id = " . $name->id ." AND synonym_relation_id = " . 
+                $common_name_relation->id . " AND hierarchy_entry_id = " . $he_id . " AND hierarchy_id = " . $this->harvest_event->resource->hierarchy_id);
+            if ($result && $result->fetch_assoc()){
+                $GLOBALS['db_connection']->update("UPDATE synonyms SET language_id = " . @$language->id ?: 0 . ", published = 0, taxonRemarks = " . $taxonRemarks);
+            }else{
+                Synonym::find_or_create(array('name_id'               => $name->id,
+                                              'synonym_relation_id'   => $common_name_relation->id,
+                                              'language_id'           => @$language->id ?: 0,
+                                              'hierarchy_entry_id'    => $he_id,
+                                              'preferred'             => ($isPreferredName != ''),
+                                              'hierarchy_id'          => $this->harvest_event->resource->hierarchy_id,
+                                              'vetted_id'             => 0,
+                                              'published'             => 0,
+                                              'taxonRemarks'          => $taxonRemarks));
+            }
         }
     }
 

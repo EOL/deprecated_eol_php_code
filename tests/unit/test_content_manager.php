@@ -92,11 +92,13 @@ class test_content_manager extends SimpletestUnitBase
         $GLOBALS['db_connection']->delete("DELETE FROM image_sizes WHERE data_object_id=$unused_data_object_id");
         self::delete_content($cache_path);
 
+        /* TODO: add unit test to check retrieval of previous crop values from a different data object that has the same guid
+           but this is complex as it requires us to use a guid correspondind to a known crop of an image stored in the data_objects table */
     }
 
     function testGrabImageWithNoExtension()
     {
-        $file = 'http://eolspecies.lifedesks.org/image/view/793'; //a permanently accessible mediumn-sized file with no extension
+        $file = 'http://eolspecies.lifedesks.org/image/view/793'; //a permanently accessible medium-sized file with no extension
         $w = 233;
         $h = 345;
 

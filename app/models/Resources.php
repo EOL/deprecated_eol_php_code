@@ -412,9 +412,9 @@ class Resource extends ActiveRecord
                 if($this->vetted)
                 {
                     // Vet all taxon concepts associated with this resource
-                    $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.vetted_id=". Vetted::trusted()->id ." WHERE he.hierarchy_id=$this->hierarchy_id");
-                    $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.vetted_id=". Vetted::trusted()->id ." WHERE he.hierarchy_id=$this->hierarchy_id AND he.vetted_id!=". Vetted::untrusted()->id);
-                    $this->mysqli->update("UPDATE hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id AND he.hierarchy_id=s.hierarchy_id) SET s.vetted_id=". Vetted::trusted()->id ." WHERE he.hierarchy_id=$this->hierarchy_id");
+                    $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.vetted_id=" . Vetted::trusted()->id . " WHERE he.hierarchy_id=$this->hierarchy_id");
+                    $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.vetted_id=" . Vetted::trusted()->id . " WHERE he.hierarchy_id=$this->hierarchy_id AND he.vetted_id!=" . Vetted::untrusted()->id);
+                    $this->mysqli->update("UPDATE hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id AND he.hierarchy_id=s.hierarchy_id) SET s.vetted_id=" . Vetted::trusted()->id . " WHERE he.hierarchy_id=$this->hierarchy_id and s.vetted_id = 0");
                 }
                 
                 // after all the resource hierarchy stuff has been taken care of - import the DWC Archive into a
