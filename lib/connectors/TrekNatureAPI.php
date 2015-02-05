@@ -152,7 +152,6 @@ class TrekNatureAPI
             $mr->CVterm                 = '';
             $mr->title                  = '';
             $mr->spatial                = $rec["location"];
-            $mr->LocationCreated        = $rec["location"];
             
             if(!isset($this->object_ids[$mr->identifier]))
             {
@@ -169,6 +168,7 @@ class TrekNatureAPI
         elseif($rec["image_id"] == "18992")  return "Testudines";
         elseif($rec["image_id"] == "23374")  return "Orchidaceae";
         elseif($rec["image_id"] == "41233")  return "Malus";
+        elseif($rec["image_id"] == "281568")  return "Vernonia";
         elseif(in_array($rec["image_id"], array("31192", "20651"))) return false;
         
         $sciname = trim($rec["sciname"]);
@@ -300,7 +300,7 @@ class TrekNatureAPI
         elseif(is_numeric(stripos($sciname, "juniper"))) return "Juniperus";
         elseif(is_numeric(stripos($sciname, "Elk"))) return "Cervus";
         elseif(is_numeric(stripos($sciname, "Stilt"))) return "Recurvirostridae";
-        
+        elseif(is_numeric(stripos($sciname, "fungi"))) return "Fungi";
 
         $exclude_exact_match = array("alpine blooming", "eggs", "desert bloom", "saline", "Indian Forest", "spring", "Red Sea in winter", "caterpillar on caper", "spring in West Australia", "Hamamat Main", "Lake Towada", "desert snow", "succulent", "Mt Hermon Fritillary");
         foreach($exclude_exact_match as $str)
