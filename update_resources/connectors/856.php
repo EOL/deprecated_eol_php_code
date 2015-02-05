@@ -18,10 +18,15 @@ taxon.tab:                  [370]
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/MexicanAmphibiansAPI');
 $timestart = time_elapsed();
+
 $resource_id = 856;
-$params["dwca_file"] = "http://localhost/~eolit/cp/MexicanAmphibians/Mex_Amph.zip";                     // raw from Anne Thessen
-$params["dwca_file"] = "http://localhost/~eolit/cp/MexicanAmphibians/Mex_Amph/Archive.zip";             // adjusted meta XML
-$params["dwca_file"] = "https://dl.dropboxusercontent.com/u/7597512/MexicanAmphibians/Archive.zip";
+// $params["dwca_file"] = "http://localhost/~eolit/cp/MexicanAmphibians/Mex_Amph.zip";                     // raw from Anne Thessen
+// $params["dwca_file"] = "http://localhost/~eolit/cp/MexicanAmphibians/Mex_Amph/Archive.zip";             // adjusted meta XML
+// $params["dwca_file"] = "https://dl.dropboxusercontent.com/u/7597512/MexicanAmphibians/Archive.zip";
+
+$params["dwca_file"] = "http://localhost/~eolit/cp/MexicanAmphibians/877.zip";  //new resource from Anne
+$params["dwca_file"] = "https://dl.dropboxusercontent.com/u/7597512/MexicanAmphibians/877.zip;"
+
 $func = new MexicanAmphibiansAPI($resource_id, $params);
 $func->get_all_taxa();
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)

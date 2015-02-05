@@ -35,6 +35,11 @@ class MexicanAmphibiansAPI
         }
         
         $row_types = self::get_XML_fields($paths["temp_dir"] . "meta.xml", "rowType");
+
+        /* manual assignment, use this if some referenceID in Measurements don't exist in References.tab
+        $row_types = array("http://eol.org/schema/reference/Reference", "http://rs.tdwg.org/dwc/terms/Taxon", "http://rs.tdwg.org/dwc/terms/MeasurementOrFact", "http://rs.tdwg.org/dwc/terms/Occurrence");
+        */
+        
         print_r($row_types);
         foreach($row_types as $row_type)
         {
@@ -69,7 +74,7 @@ class MexicanAmphibiansAPI
             elseif($class == "Image")               $c = new \eol_schema\MediaResource();
 
             $keys = array_keys($rec);
-            $r = array();
+            $save = true;
             foreach($keys as $key)
             {
                 $temp = pathinfo($key);
@@ -103,12 +108,45 @@ class MexicanAmphibiansAPI
                 if($parts[0]) $field = $parts[0];
                 if(@$parts[1]) $field = $parts[1];
 
-                $value = (string) $rec[$key];
-                $r[$field] = $value;
-                $c->$field = $value;
+                $value = trim((string) $rec[$key]);
+                $value = trim(Functions::import_decode($value));
+                if(!Functions::is_utf8($value)) $save = false;
+                
+                //special arrangement
+                if($class == "Reference")
+                {
+                    if($field == "identifier") $this->reference_ids[$value] = '';
+                    if($field == "full_reference")
+                    {
+                        if(!$value)
+                        {
+                            $full_ref = "";
+                            if    ($val = (string) @$rec["http://eol.org/schema/reference/primaryTitle"])   $full_ref .= $val;
+                            elseif($val = (string) @$rec["http://purl.org/dc/terms/title"])                 $full_ref .= $val;
+                            if($val = (string) @$rec["http://purl.org/ontology/bibo/pageStart"])    $full_ref .= ". Page(s) " . $val;
+                            if($val = (string) @$rec["http://purl.org/ontology/bibo/pageEnd"])      $full_ref .= " - " . $val;
+                            if($val = (string) @$rec["http://purl.org/ontology/bibo/volume"])       $full_ref .= ". Vol. " . $val;
+                            if($val = (string) @$rec["http://purl.org/dc/terms/publisher"])         $full_ref .= ". Publisher: " . $val;
+                            if($val = (string) @$rec["http://purl.org/ontology/bibo/authorList"])   $full_ref .= ". Author: " . $val;
+                            if($val = (string) @$rec["http://purl.org/ontology/bibo/editorList"])   $full_ref .= ". Editor: " . $val;
+                            if($val = (string) @$rec["http://purl.org/dc/terms/created"])           $full_ref .= ". " . $val;
+                            if($val = $full_ref) $value = $full_ref;
+                            else echo " -- still blank";
+                        }
+                    }
+                }
+                
+                // if($class == "MeasurementOrFact" && $field == "referenceID")
+                // {
+                //     if($value)
+                //     {
+                //         if(!isset($this->reference_ids[$value])) echo " -- undefined refid:[$value]";
+                //     }
+                // }
+                
+                if($value) $c->$field = $value;
             }
-            $save = true;
-            if($class == "objects") {} // sample way to filter
+            /* if($class == "objects") {} // sample way to filter */
             if($save) $this->archive_builder->write_object_to_file($c);
         }
     }
