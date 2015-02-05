@@ -11,22 +11,11 @@ taxon:                      6692    3786
 measurementorfact:          28408   14251
 occurrence                  9470    4751
 classification resource:                33,377
-
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/GBIFCountryTypeRecordAPI');
 $timestart = time_elapsed();
-
-// $sciname = "eli sp.";
-// echo "\n[" . strtolower(substr($sciname, -4)) . "]";
-
-// $coll1 = array("Amphibians & Reptiles" => "herps", "Birds" => "birds", "Botany" => "botany", "Fishes" => "fishes", "Mammals" => "mammals", "Paleobiology" => "paleo");
-// $coll2 = array("Entomology" => "ento", "Invertebrate Zoology" => "iz");
-// $colls = array_merge($coll1, $coll2);
-// print_r(array_keys($colls));
-
-// exit;
 
 /*
 $params["dwca_file"] = "http://localhost/~eolit/cp/GBIF_dwca/atlantic_cod.zip";
@@ -37,11 +26,10 @@ $params["dataset"] = "All audio for birds";
 
 $params["dwca_file"]    = "http://localhost/~eolit/cp/GBIF_dwca/countries/Germany/Germany.zip";
 $params["uri_file"]     = "http://localhost/~eolit/cp/GBIF_dwca/countries/Germany/germany mappings.xlsx";
-// $params["dwca_file"]    = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/Germany/Germany.zip";
-// $params["uri_file"]     = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/Germany/germany mappings.xlsx";
+$params["dwca_file"]    = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/Germany/Germany.zip";
+$params["uri_file"]     = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/Germany/germany mappings.xlsx";
 $params["dataset"]      = "GBIF";
 $params["country"]      = "Germany";
-
 $params["type"]         = "structured data";
 $params["resource_id"]  = 872;
 

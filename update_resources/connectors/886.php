@@ -18,11 +18,10 @@ $timestart = time_elapsed();
 
 $params["dwca_file"]    = "http://localhost/~eolit/cp/GBIF_dwca/countries/France/France.zip";
 $params["uri_file"]     = "http://localhost/~eolit/cp/GBIF_dwca/countries/France/french GBIF mapping.xlsx";
-// $params["dwca_file"]    = "";
-// $params["uri_file"]     = "";
+$params["dwca_file"]    = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/France/France.zip";
+$params["uri_file"]     = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/France/french GBIF mapping.xlsx";
 $params["dataset"]      = "GBIF";
 $params["country"]      = "France";
-
 $params["type"]         = "structured data";
 $params["resource_id"]  = 886;
 

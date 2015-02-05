@@ -18,11 +18,10 @@ $timestart = time_elapsed();
 
 $params["dwca_file"]    = "http://localhost/~eolit/cp/GBIF_dwca/countries/Netherlands/Netherlands.zip";
 $params["uri_file"]     = "http://localhost/~eolit/cp/GBIF_dwca/countries/Netherlands/GBIF Netherlands mapping.xlsx";
-// $params["dwca_file"]    = "";
-// $params["uri_file"]     = "";
+$params["dwca_file"]    = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/Netherlands/Netherlands.zip";
+$params["uri_file"]     = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/Netherlands/GBIF Netherlands mapping.xlsx";
 $params["dataset"]      = "GBIF";
 $params["country"]      = "Netherlands";
-
 $params["type"]         = "structured data";
 $params["resource_id"]  = 887;
 

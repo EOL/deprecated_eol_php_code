@@ -34,7 +34,7 @@ class NCBIGGIqueryAPI
             $this->occurrence_ids = array();
             $this->measurement_ids = array();
         }
-        $this->download_options = array('expire_seconds' => 5184000, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1);
+        $this->download_options = array('expire_seconds' => 5184000, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1); //2 months to expire
         // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/"; // use cache_path to assign a different directory for the cache files
         
         // local
@@ -86,6 +86,8 @@ class NCBIGGIqueryAPI
         $this->databases_to_check_eol_api["gbif"] = "GBIF Nub Taxonomy";
         $this->databases_to_check_eol_api["ggbn"] = "ITIS Catalogue of Life";
         $this->databases_to_check_eol_api["bolds"] = "-BOLDS-";
+        
+        $this->temp_family_table_file = DOC_ROOT . "tmp/family_table.txt";
     }
 
     function get_all_taxa()
@@ -104,13 +106,27 @@ class NCBIGGIqueryAPI
                 $this->families_with_no_data = array_keys($this->families_with_no_data);
                 if($this->families_with_no_data) self::create_instances_from_taxon_object($this->families_with_no_data, true, $database);
             }
+            
+            /* working, a round-robin option of server load - per 100 calls each server
+            $k = 0;
+            for ($i = $k; $i <= count($families)+100; $i=$i+100) //orig value of i is 0
+            {
+                $min = $i; $max = $min+100;
+                foreach($this->ggi_databases as $database)
+                {
+                    self::create_instances_from_taxon_object($families, false, $database, $min, $max);
+                    $this->families_with_no_data = array_keys($this->families_with_no_data);
+                    if($this->families_with_no_data) self::create_instances_from_taxon_object($this->families_with_no_data, true, $database);
+                }
+            }
+            */
+            
             self::compare_previuos_and_current_dumps();
             $this->create_archive();
         }
         echo "\n temp dir: " . $this->TEMP_DIR . "\n";
         // remove temp dir
         recursive_rmdir($this->TEMP_DIR); // debug - comment to check "name_from_eol_api.txt"
-        debug("\n temporary directory removed: " . $this->TEMP_DIR);
     }
 
     private function initialize_files()
@@ -177,7 +193,7 @@ class NCBIGGIqueryAPI
         }
     }
     
-    private function create_instances_from_taxon_object($families, $is_subfamily = false, $database)
+    private function create_instances_from_taxon_object($families, $is_subfamily = false, $database, $min=false, $max=false)
     {
         $this->families_with_no_data = array();
         $i = 0;
@@ -185,22 +201,16 @@ class NCBIGGIqueryAPI
         foreach($families as $family)
         {
             $i++;
-            /* breakdown when caching
-            $cont = false;
-            // if($i >= 1 && $i < 1000)     $cont = true;
-            // if($i >= 1000 && $i < 2000)  $cont = true;
-            // if($i >= 2000 && $i < 3000)  $cont = true;
-            // if($i >= 3000 && $i < 4000)  $cont = true;
-            // if($i >= 4000 && $i < 5000)  $cont = true;
-            // if($i >= 5000 && $i < 6000)  $cont = true;
-            // if($i >= 6000 && $i < 7000)  $cont = true;
-            // if($i >= 7000 && $i < 8000)  $cont = true;
-            // if($i >= 8000 && $i < 9000)  $cont = true;
-            // if($i >= 9000 && $i < 10000) $cont = true;
-            // if(in_array($database, array("bhl", "bolds"))) { if($i >= 1 && $i < 100) $cont = true; }
-            // else                                           { if($i >= 1 && $i < 10) $cont = true; }
-            if(!$cont) continue;
-            */
+            
+            if($min || $max)
+            {
+                // /* breakdown when caching
+                $cont = false;
+                if($i >= $min && $i < $max) $cont = true;
+                if(!$cont) continue;
+                // */
+            }
+            
             echo "\n $i of $total - [$family]\n";
             if    ($database == "ncbi")  $with_data = self::query_family_NCBI_info($family, $is_subfamily, $database);
             elseif($database == "ggbn")  $with_data = self::query_family_GGBN_info($family, $is_subfamily, $database);
@@ -415,7 +425,7 @@ class NCBIGGIqueryAPI
                     $k++;
                 }
                 $parts = pathinfo($rec["Url"]);
-                $page_ids[$parts["filename"]] = 1;
+                $page_ids[$parts["filename"]] = '';
             }
         }
         fclose($file);
@@ -425,8 +435,11 @@ class NCBIGGIqueryAPI
 
     private function has_diff_family_name_in_eol_api($family, $database)
     {
+        // return false; //debug - remove in normal operation
         $canonical = "";
-        if($json = Functions::lookup_with_cache($this->eol_api["search"] . $family, $this->download_options))
+        $d_options = $this->download_options;
+        $d_options['expire_seconds'] = 15552000; //6 months to expire
+        if($json = Functions::lookup_with_cache($this->eol_api["search"] . $family, $d_options))
         {
             $json = json_decode($json, true);
             if($json["results"])
@@ -435,7 +448,7 @@ class NCBIGGIqueryAPI
                 {
                     if($database == "bolds")
                     {
-                        if($html = Functions::lookup_with_cache("http://eol.org/pages/$id/resources/partner_links", $this->download_options))
+                        if($html = Functions::lookup_with_cache("http://eol.org/pages/$id/resources/partner_links", $d_options))
                         {
                             if(preg_match("/boldsystems\.org\/index.php\/Taxbrowser_Taxonpage\?taxid=(.*?)\"/ims", $html, $arr))
                             {
@@ -461,7 +474,7 @@ class NCBIGGIqueryAPI
                     }
                     else // ncbi, gbif, ggbn
                     {
-                        if($json = Functions::lookup_with_cache($this->eol_api["page"][0] . $id . $this->eol_api["page"][1], $this->download_options))
+                        if($json = Functions::lookup_with_cache($this->eol_api["page"][0] . $id . $this->eol_api["page"][1], $d_options))
                         {
                             $json = json_decode($json, true);
                             foreach($json["taxonConcepts"] as $tc)
@@ -485,11 +498,10 @@ class NCBIGGIqueryAPI
         }
         echo "\n [$database] taxonomy:[" . $this->databases_to_check_eol_api[$database] . "]\n";
         if($canonical) $canonical = ucfirst(strtolower($canonical));
-        echo "\n canonical:[$canonical]\n";
         if($canonical && $canonical != $family)
         {
             echo "\n has diff name in eol api:[$canonical]\n";
-            $this->families_with_no_data[$canonical] = 1;
+            $this->families_with_no_data[$canonical] = '';
             self::save_to_dump($family . "\t" . $canonical . "\t" . $database, $this->name_from_eol_api_dump_file);
             return true;
         }
@@ -795,7 +807,7 @@ class NCBIGGIqueryAPI
                     $fams[] = "Cenarchaeaceae";
                     foreach($fams as $family)
                     {
-                        if($family) $families[$family] = 1;
+                        if($family) $families[$family] = '';
                     }
                 }
                 unlink($path);
@@ -828,7 +840,7 @@ class NCBIGGIqueryAPI
         {
             $family = trim(str_ireplace(array("Family ", '"', "FAMILY"), "", $family));
             if(is_numeric($family)) continue;
-            if($family) $families[$family] = 1;
+            if($family) $families[$family] = '';
         }
         return array_keys($families);
     }
@@ -844,7 +856,7 @@ class NCBIGGIqueryAPI
                 $line = trim($line);
                 $temp = explode("[", $line);
                 $family = trim($temp[0]);
-                $families[$family] = 1;
+                $families[$family] = '';
             }
         }
         unlink($temp_path_filename);
@@ -887,14 +899,14 @@ class NCBIGGIqueryAPI
         {
             $orig = $family;
             $family = str_replace("dae" . "xxx", "nae", $family . "xxx");
-            $this->families_with_no_data[$family] = 1;
+            $this->families_with_no_data[$family] = '';
             self::save_to_dump($orig . "\t" . $family, $this->names_dae_to_nae_dump_file);
         }
         /* commented for now bec it is not improving the no. of records
         elseif(substr($family, -4) == "ceae")
         {
             $family = str_replace("ceae" . "xxx", "deae", $family . "xxx");
-            $this->families_with_no_data[$family] = 1;
+            $this->families_with_no_data[$family] = '';
         }
         */
     }
@@ -904,26 +916,46 @@ class NCBIGGIqueryAPI
         require_library('XLSParser');
         $parser = new XLSParser();
         $families = array();
-        $dropbox_xlsx[] = "http://tiny.cc/FALO"; // from Cyndy's Dropbox
+        
+        // for family table
+        $family_table = array();
+        $fields = array("SpK", "K", "SbK", "IK", "SpP", "P", "SbP", "IP", "PvP", "SpC", "C", "SbC", "IC", "SpO", "O");
+        
+        $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/ALF2015.xlsx";
+        // $dropbox_xlsx[] = "http://tiny.cc/FALO"; // from Cyndy's Dropbox
         // $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/FALO.xlsx"; // from Eli's Dropbox
         // $dropbox_xlsx[] = "http://localhost/~eolit/cp/NCBIGGI/FALO.xlsx"; // local
+        // $dropbox_xlsx[] = "http://localhost/~eolit/cp/NCBIGGI/ALF2015.xlsx"; // local
+
         foreach($dropbox_xlsx as $doc)
         {
             echo "\n processing [$doc]...\n";
-            if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2)))
+            if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2, 'cache' => 1)))
             {
                 $arr = $parser->convert_sheet_to_array($path);
+                $i = 0;
                 foreach($arr["FAMILY"] as $family)
                 {
                     $family = trim(str_ireplace(array("Family", '"'), "", $family));
                     if(is_numeric($family)) continue;
-                    if($family) $families[$family] = 1;
+                    if($family)
+                    {
+                        $families[$family] = '';
+                        foreach($fields as $field) $family_table[$family][$field] = $arr[$field][$i]; // for family table
+                    }
+                    $i++;
                 }
                 unlink($path);
                 break;
             }
             else echo "\n [$doc] unavailable! \n";
         }
+        
+        //save $family_table as json to text file, to be accessed later when generating the spreadsheet
+        self::initialize_dump_file($this->temp_family_table_file);
+        self::save_to_dump($family_table, $this->temp_family_table_file);
+        echo "\n count family rows: ". count($family_table) . "\n"; unset($family_table);
+
         return array_keys($families);
     }
     
@@ -941,6 +973,92 @@ class NCBIGGIqueryAPI
             }
         }
         print "\n $database: " . count($subfamilies) . "\n";
+    }
+
+
+    private function generate_spreadsheet($resource_id)
+    {
+        /*[Xenoturbellidae] => Array
+             [SpK] => Superkingdom Eukaryota
+             [K] => Kingdom Animalia
+             [SbK] => Subkingdom Bilateria
+             [IK] => Infrakingdom Deuterostomia
+             [SpP] => 
+             [P] => Phylum Xenacoelomorpha
+             [SbP] => Subphylum Xenoturbellida
+             [IP] => 
+             [PvP] => 
+             [SpC] => 
+             [C] => 
+             [SbC] => 
+             [IC] => 
+             [SpO] => 
+             [O] => */
+        $family_counts = self::convert_measurement_or_fact_to_array($resource_id);
+        $xls = self::access_dump_file($this->temp_family_table_file); // this will access the array, that is the main spreadsheet source for this connector
+        $uris = array("http://eol.org/schema/terms/NumberReferencesInBHL",          "http://eol.org/schema/terms/NumberPublicRecordsInBOLD",
+                      "http://eol.org/schema/terms/NumberRichSpeciesPagesInEOL",    "http://eol.org/schema/terms/NumberRecordsInGBIF",
+                      "http://eol.org/schema/terms/NumberOfSequencesInGenBank",     "http://eol.org/schema/terms/NumberSpecimensInGGBN");
+        foreach($xls as $family => $rec)
+        {
+            if($fam_rec = @$family_counts[$family])
+            {
+                if(self::family_has_totals($fam_rec, $uris))
+                {
+                    echo "\n $family";
+                    print_r($family_counts[$family]);
+                }
+            }
+        }
+        // if(file_exists($this->temp_family_table_file)) unlink($this->temp_family_table_file);
+    }
+
+    private function family_has_totals($fam_rec, $uris)
+    {
+        foreach($uris as $uri)
+        {
+            if(@$fam_rec[$uri] > 0) return true;
+        }
+        return false;
+    }
+
+    private function convert_measurement_or_fact_to_array($resource_id)
+    {
+        $fields = array("http://eol.org/schema/terms/NumberReferencesInBHL", "http://eol.org/schema/terms/NumberPublicRecordsInBOLD",
+                        "http://eol.org/schema/terms/NumberRichSpeciesPagesInEOL", "http://eol.org/schema/terms/NumberRecordsInGBIF",
+                        "http://eol.org/schema/terms/NumberOfSequencesInGenBank", "http://eol.org/schema/terms/NumberSpecimensInGGBN");
+        $file = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/measurement_or_fact.tab";
+        $records = array();
+        foreach(new FileIterator($file) as $line_number => $line)
+        {
+            $rec = array();
+            /*  [0] => CharaciosiphonaceaeO_no_of_public_rec_in_bolds
+                [1] => true
+                [2] => http://eol.org/schema/terms/NumberPublicRecordsInBOLD
+                [3] => 2
+                [4] => http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=414014 */
+            if($line)
+            {
+                $line = trim($line);
+                $row = explode("\t", $line);
+                if(in_array($row[2], $fields))
+                {
+                    $temp = explode("O_", $row[0]);
+                    $sciname = $temp[0];
+                    $records[$sciname][$row[2]] = $row[3];
+                }
+            }
+        }
+        return $records;
+    }
+    
+    private function access_dump_file($file_path, $is_array = true)
+    {
+        $file = fopen($file_path, "r");
+        if($is_array) $contents = json_decode(fread($file,filesize($file_path)), true);
+        else          $contents = fread($file,filesize($file_path));
+        fclose($file);
+        return $contents;
     }
 
 }
