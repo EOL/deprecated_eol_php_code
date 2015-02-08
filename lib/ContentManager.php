@@ -614,7 +614,7 @@ class ContentManager
         //Create "XXX_orig.png" spectrogram, whose width varies with length of sound file (with maximum length constraint)
         $truncate_after_seconds = 60;
         $pixels_per_second = 100;
-        $dimensions = array($pixels_per_second, self::large_image_dimensions()[1]);
+        $dimensions = array($pixels_per_second) + self::large_image_dimensions(); //overwrite $dimension[0] (width)
         $this->create_spectrogram($audiofile, $dimensions, $prefix, $truncate_after_seconds, true, "orig", false);
 
         //Fixed width spectrogram thumbnails, omit axes for smaller sizes 
