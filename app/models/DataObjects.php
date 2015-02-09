@@ -12,7 +12,7 @@ class DataObject extends ActiveRecord
             array('vetted'),
             array('visibility')
         );
-    
+
     public static $has_many = array(
             array('audiences_data_objects'),
             array('audiences', 'through' => 'audiences_data_objects'),
@@ -27,13 +27,13 @@ class DataObject extends ActiveRecord
             array('data_objects_taxon_concepts'),
             array('taxon_concepts', 'through' => 'data_objects_taxon_concepts'),
         );
-    
+
     public static function delete($id)
     {
         if(!$id) return false;
-        
+
         $GLOBALS['mysqli_connection']->begin_transaction();
-        
+
         $where_clause = "data_object_id=$id";
         if(is_array($id)) $where_clause = "data_object_id IN (".implode($id, ',').")";
 
@@ -45,26 +45,26 @@ class DataObject extends ActiveRecord
         $GLOBALS['mysqli_connection']->delete("DELETE FROM data_objects_table_of_contents WHERE $where_clause");
         $GLOBALS['mysqli_connection']->delete("DELETE FROM data_objects_harvest_events WHERE $where_clause");
         $GLOBALS['mysqli_connection']->delete("DELETE FROM image_sizes WHERE $where_clause");
-        
-        
+
+
         $where_clause = "id=$id";
         if(is_array($id)) $where_clause = "id IN (".implode($id, ',').")";
-        
+
         $GLOBALS['mysqli_connection']->delete("DELETE FROM data_objects WHERE $where_clause");
-        
+
         $GLOBALS['mysqli_connection']->end_transaction();
     }
-    
+
     public static function unpublish($id)
     {
         $GLOBALS['mysqli_connection']->update("UPDATE data_objects SET published=0 WHERE id=$id");
     }
-    
+
     public static function publish($id)
     {
         $GLOBALS['mysqli_connection']->update("UPDATE data_objects SET published=1 WHERE id=$id");
     }
-    
+
     public function delete_refs()
     {
         $result = $this->mysqli->query("SELECT * FROM data_objects_refs WHERE data_object_id=$this->id");
@@ -73,13 +73,13 @@ class DataObject extends ActiveRecord
             $this->mysqli->delete("DELETE FROM data_objects_refs WHERE data_object_id=". $row['data_object_id'] ." AND ref_id=". $row['ref_id']);
         }
     }
-    
+
     public function add_reference($reference_id)
     {
         if(!$reference_id) return 0;
         $this->mysqli->insert("INSERT IGNORE INTO data_objects_refs VALUES ($this->id, $reference_id)");
     }
-    
+
     public function published_references()
     {
         $published_refs = array();
@@ -89,7 +89,7 @@ class DataObject extends ActiveRecord
         }
         return $published_refs;
     }
-    
+
     public function add_agent($agent_id, $agent_role_id, $view_order)
     {
         if(!$agent_id) return false;
@@ -104,7 +104,7 @@ class DataObject extends ActiveRecord
             $this->mysqli->delete("DELETE FROM agents_data_objects WHERE data_object_id=". $row['data_object_id'] ." AND agent_id=". $row['agent_id'] ." AND agent_role_id=". $row['agent_role_id']);
         }
     }
-    
+
     public function add_translation($data_object_id, $language_id)
     {
         if(!$data_object_id) return false;
@@ -115,8 +115,8 @@ class DataObject extends ActiveRecord
     {
         $this->mysqli->insert("DELETE FROM data_object_translations WHERE data_object_id=$this->id");
     }
-    
-    
+
+
     public function delete_audiences()
     {
         $this->mysqli->insert("DELETE FROM audiences_data_objects WHERE data_object_id=$this->id");
@@ -126,7 +126,7 @@ class DataObject extends ActiveRecord
         if(!$audience_id) return false;
         $this->mysqli->insert("INSERT IGNORE INTO audiences_data_objects VALUES ($this->id, $audience_id)");
     }
-    
+
     public function delete_info_items()
     {
         $result = $this->mysqli->query("SELECT * FROM data_objects_info_items WHERE data_object_id=$this->id");
@@ -141,7 +141,7 @@ class DataObject extends ActiveRecord
         $this->mysqli->insert("INSERT IGNORE INTO data_objects_info_items VALUES ($this->id, $info_item_id)");
         $this->mysqli->insert("INSERT IGNORE INTO data_objects_table_of_contents (SELECT $this->id, toc_id FROM info_items WHERE id=$info_item_id AND toc_id!=0)");
     }
-    
+
     public function delete_table_of_contents()
     {
         $result = $this->mysqli->query("SELECT * FROM data_objects_table_of_contents WHERE data_object_id=$this->id");
@@ -155,23 +155,23 @@ class DataObject extends ActiveRecord
         if(!$toc_id) return false;
         $this->mysqli->insert("INSERT IGNORE INTO data_objects_table_of_contents ($this->id, $toc_id)");
     }
-    
-    
-    
-    
+
+
+
+
     public function delete_hierarchy_entries()
     {
         $this->mysqli->insert("DELETE FROM data_objects_hierarchy_entries WHERE data_object_id=$this->id");
     }
-    
+
     static function equivalent($data_object_1, $data_object_2)
     {
         $match = $data_object_1->equals($data_object_2);
         if($match) $match = $data_object_2->equals($data_object_1);
-        
+
         return $match;
     }
-    
+
     function equals($data_object)
     {
         $fields = self::table_fields();
@@ -181,7 +181,7 @@ class DataObject extends ActiveRecord
                 "object_created_at", "object_modified_at", "created_at", "updated_at", "data_rating", "vetted_id",
                 "visibility_id", "curated", "published", "description_linked", "available_at", "additional_information");
             if(in_array($field, $fields_to_ignore)) continue;
-            
+
             if(@$this->$field == "0") $this->$field = 0;
             if(@$data_object->$field == "0") $data_object->$field = 0;
             if(isset($this->$field) && @$data_object->$field != $this->$field)
@@ -191,17 +191,17 @@ class DataObject extends ActiveRecord
                 return false;
             }
         }
-        
+
         // if(@$this->id)
         // {
         //     if(!Functions::references_are_same($this->references(), $data_object->refs)) return false;
         // }elseif(!Functions::references_are_same($this->refs, $data_object->references())) return false;
-        
+
         return true;
     }
-    
+
     function cache_object(&$content_manager, &$resource)
-    {     
+    {
         if($this->is_image())
         {
             if(preg_match("/^http:\/\//",$this->object_url) || preg_match("/^https:\/\//",$this->object_url))
@@ -235,7 +235,7 @@ class DataObject extends ActiveRecord
         }
         return true;
     }
-    
+
     function cache_thumbnail(&$content_manager)
     {
         if($this->is_video() || $this->is_sound() || $this->is_flash() || $this->is_youtube())
@@ -248,7 +248,7 @@ class DataObject extends ActiveRecord
         }
         return true;
     }
-    
+
     static function find_and_compare(&$resource, $data_object, &$content_manager)
     {
         if(!$data_object->data_type) return false;
@@ -256,7 +256,7 @@ class DataObject extends ActiveRecord
         if($data_object->is_image() && @!trim($data_object->object_url)) return false;
         if($data_object->is_sound() && @!trim($data_object->object_url)) return false;
         if($data_object->is_video() && @!trim($data_object->object_url)) return false;
-        
+
         $find_result = self::find_in_resource($resource, $data_object);
         if($guid = $find_result["exact"])
         {
@@ -265,14 +265,14 @@ class DataObject extends ActiveRecord
             while($result && $row = $result->fetch_assoc())
             {
                 $existing_data_object = DataObject::find($row["data_object_id"]);
-                
+
                 if(self::equivalent($existing_data_object, $data_object))
                 {
                     // This data object is equivalent (each field is identical) to the object in the last harvest with the same guid
                     // So we can reference the old object and don't need to create a new one
                     $status = "Unchanged";
                     if($row["harvest_event_id"] == @$resource->harvest_event->id) $status = "Reused";
-                    
+
                     return array($existing_data_object, "Unchanged", $existing_data_object);
                 }else
                 {
@@ -282,15 +282,15 @@ class DataObject extends ActiveRecord
                     $data_object->guid = $existing_data_object->guid;
                     $data_object->curated = $existing_data_object->curated;
                     $data_object->data_rating = $existing_data_object->data_rating;
-                    
+
                     // Check to see if we can reuse cached object or need to download it again
                     if(strtolower($data_object->object_url) == strtolower($existing_data_object->object_url) && $existing_data_object->object_cache_url) $data_object->object_cache_url = $existing_data_object->object_cache_url;
                     elseif(!$data_object->cache_object($content_manager, $resource)) return false;
-                    
+
                     if(!$data_object->thumbnail_cache_url) $data_object->cache_thumbnail($content_manager);
                     // If the object is text and the contents have changed - set this version to curated = 0
                     if($data_object->is_text() && $existing_data_object->description != $data_object->description) $data_object->curated = 0;
-                    
+
                     $new_data_object =
                         DataObject::create_by_object($data_object);
                     $GLOBALS['mysqli_connection']->query(
@@ -301,6 +301,18 @@ class DataObject extends ActiveRecord
                         "UPDATE taxon_concept_exemplar_articles
                          SET data_object_id=$new_data_object->id
                          WHERE data_object_id=$existing_data_object->id");
+                    //if the old image was cropped, crop the new image
+                    $result = $GLOBALS['mysqli_connection']->query("SELECT SQL_NO_CACHE id, height, width, crop_x_pct, crop_y_pct, crop_width_pct, crop_height_pct FROM image_sizes WHERE data_object_id=$existing_data_object->id ORDER BY id DESC LIMIT 1");
+                    if ($result && $row = $result->fetch_assoc()){
+                        $GLOBALS['mysqli_connection']->insert("INSERT INTO image_sizes (data_object_id, height, width, crop_x_pct, crop_y_pct, crop_width_pct, crop_height_pct) VALUES (" .
+                            $new_data_object->id . " , " .
+                            $row['height'] . " , " .
+                            $row['width'] . " , " .
+                            $row['crop_x_pct'] . " , " .
+                            $row['crop_y_pct'] . " , " .
+                            $row['crop_width_pct'] . " , " .
+                            $row['crop_height_pct'] . " )");
+                    }
                     return array($new_data_object, "Updated",
                         $existing_data_object);
                 }
@@ -312,43 +324,43 @@ class DataObject extends ActiveRecord
             while($result && $row = $result->fetch_assoc())
             {
                 $existing_data_object = DataObject::find($row["data_object_id"]);
-                
+
                 if(self::equivalent($existing_data_object, $data_object))
                 {
                     $status = "Unchanged";
                     if($row["harvest_event_id"] == $resource->harvest_event->id) $status = "Reused";
-                    
+
                     return array($existing_data_object, "Unchanged", $existing_data_object);
                 }
             }
         }
-        
-        
+
+
         // Will get here if the object is similar to an existing object (description the same, image URL the same)
         // but there is a difference - eg the identifiers are different. Or if the object is entirely new
-        
+
         // // Attempt to cache the object. Method will fail if the cache should have worked and it didn't
         if(!$data_object->cache_object($content_manager, $resource)) return false;
         $data_object->cache_thumbnail($content_manager);
-        
+
         return array(DataObject::create_by_object($data_object), "Inserted", null);
     }
-    
+
     static function create_by_object($data_object)
     {
         if(@!$data_object->guid) $data_object->guid = Functions::generate_guid();
-        
+
         return self::create($data_object);
     }
-    
+
     static function find_in_resource($resource, $data_object)
     {
         $return = array("exact" => 0, "similar" => array());
-        
+
         if(!$data_object->identifier)
         {
             $query = "SELECT SQL_NO_CACHE DISTINCT do.guid FROM harvest_events he JOIN data_objects_harvest_events dohe ON (he.id=dohe.harvest_event_id) JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE he.resource_id=$resource->id AND ";
-            
+
             $conditions = array();
             if($data_object->data_type)
             {
@@ -360,16 +372,16 @@ class DataObject extends ActiveRecord
             }
             if($data_object->mime_type) $conditions[] = "do.mime_type_id=".$data_object->mime_type->id;
             if($data_object->object_url) $conditions[] = "do.object_url='".$GLOBALS['mysqli_connection']->escape($data_object->object_url)."'";
-            
+
             $query .= implode(" AND ", $conditions);
-            
+
             $guids = array();
             $result = $GLOBALS['mysqli_connection']->query($query);
             while($result && $row=$result->fetch_assoc())
             {
                 $guids[] = $row["guid"];
             }
-            
+
             $return["similar"] = $guids;
             return $return;
         }else
@@ -382,52 +394,52 @@ class DataObject extends ActiveRecord
                 return $return;
             }
         }
-        
+
         return $return;
     }
-    
+
     public function is_image()
     {
         if($this->data_type_id && $this->data_type_id == DataType::image()->id) return true;
         return false;
     }
-    
+
     public function is_text()
     {
         if($this->data_type_id && $this->data_type_id == DataType::text()->id) return true;
         return false;
     }
-    
+
     public function is_video()
     {
         if($this->data_type_id && $this->data_type_id == DataType::video()->id) return true;
         return false;
     }
-    
+
     public function is_sound()
     {
         if($this->data_type_id && $this->data_type_id == DataType::sound()->id) return true;
         return false;
     }
-    
+
     public function is_iucn()
     {
         if($this->data_type_id && $this->data_type_id == DataType::iucn()->id) return true;
         return false;
     }
-    
+
     public function is_flash()
     {
         if($this->data_type_id && $this->data_type_id == DataType::flash()->id) return true;
         return false;
     }
-    
+
     public function is_youtube()
     {
         if($this->data_type_id && $this->data_type_id == DataType::youtube()->id) return true;
         return false;
     }
-    
+
     public function best_vetted()
     {
         $weights = array();
@@ -448,7 +460,7 @@ class DataObject extends ActiveRecord
         }
         return $best_vetted;
     }
-    
+
     public function best_visibility()
     {
         $weights = array();
@@ -468,7 +480,7 @@ class DataObject extends ActiveRecord
         }
         return $best_visibility;
     }
-    
+
 }
 
 ?>
