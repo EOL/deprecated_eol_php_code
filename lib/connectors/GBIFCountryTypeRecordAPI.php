@@ -24,17 +24,19 @@ class GBIFCountryTypeRecordAPI
         
         // for iDigBio
         $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 1);
-        $this->download_options["expire_seconds"] = 5184000; // "expire_seconds" -- false => won't expire; 0 => expires now
+        $this->download_options["expire_seconds"] = 5184000;
         $this->IDB_service["record"] = "http://api.idigbio.org/v1/records/";
         $this->IDB_service["recordset"] = "http://api.idigbio.org/v1/recordsets/";
     }
 
     function export_gbif_to_eol($params)
     {
-        $this->uris = self::get_uris($params);
+        $this->uris = self::get_uris($params, $params["uri_file"]);
+        if($file = @$params["citation_file"]) $this->citations = self::get_uris($params, $file);
+
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($params["dwca_file"], "meta.xml", array("timeout" => 7200, "expire_seconds" => 0)); // "expire_seconds" -- false => won't expire; 0 => expires now
+        $paths = $func->extract_archive_file($params["dwca_file"], "meta.xml", array("timeout" => 7200, "expire_seconds" => 0));
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         $this->harvester = new ContentArchiveReader(NULL, $archive_path);
@@ -68,7 +70,7 @@ class GBIFCountryTypeRecordAPI
         print_r($this->debug);
     }
 
-    function get_uris($params)
+    function get_uris($params, $spreadsheet)
     {
         $fields = array();
         if($params["dataset"] == "GBIF")
@@ -77,6 +79,8 @@ class GBIFCountryTypeRecordAPI
             $fields["typeStatus"] = "typeStatus_uri";
             if(@$params["country"] == "Sweden") $fields["datasetKey"]      = "Type Specimen Repository URI"; //exception to the rule
             else                                $fields["institutionCode"] = "institutionCode_uri";          //rule case
+            $fields["datasetKey France"] = "BibliographicCitation";
+            $fields["datasetKey UK"]     = "BibliographicCitation";
         }
         elseif($params["dataset"] == "iDigBio")
         {
@@ -89,20 +93,28 @@ class GBIFCountryTypeRecordAPI
         require_library('connectors/LifeDeskToScratchpadAPI');
         $func = new LifeDeskToScratchpadAPI();
         $spreadsheet_options = array("cache" => 1, "timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2);
-        $spreadsheet_options["expire_seconds"] = 0; // false => won't expire; 0 => expires now
+        $spreadsheet_options["expire_seconds"] = 0;
         $uris = array();
-        if($spreadsheet = @$params["uri_file"])
+        if($spreadsheet)
         {
             if($arr = $func->convert_spreadsheet($spreadsheet, 0, $spreadsheet_options))
             {
                  foreach($fields as $key => $value)
                  {
                      $i = 0;
-                     foreach($arr[$key] as $item)
+                     if(@$arr[$key])
                      {
-                         $item = trim($item);
-                         if($item) $uris[$item] = $arr[$value][$i];
-                         $i++;
+                         foreach($arr[$key] as $item)
+                         {
+                             $item = trim($item);
+                             if($item)
+                             {
+                                 $temp = $arr[$value][$i];
+                                 $temp = trim(str_replace(array("\n"), "", $temp));
+                                 $uris[$item] = $temp;
+                             }
+                             $i++;
+                         }
                      }
                  }
             }
@@ -615,6 +627,11 @@ class GBIFCountryTypeRecordAPI
             // $m->measurementRemarks  = '';
             $m->source              = $rec["source"];
             $m->contributor         = @$rec["contributor"];
+            if($val = $rec["http://rs.gbif.org/terms/1.0/datasetKey"])
+            {
+                if($citation = @$this->citations[$val]) $m->bibliographicCitation = $citation;
+                else echo "\nno citation for this datasetkey [$val]\n";
+            }
             /* not used at the moment
             if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/reference/referenceID"])) $m->referenceID = $referenceID;
             */
@@ -689,7 +706,7 @@ class GBIFCountryTypeRecordAPI
             $o->decimalLongitude    = $rec["http://rs.tdwg.org/dwc/terms/decimalLongitude"];
             $o->eventDate           = $eventDate;
             
-            $sex = (string) $rec["http://rs.tdwg.org/dwc/terms/sex"];
+            $sex = trim((string) $rec["http://rs.tdwg.org/dwc/terms/sex"]);
             //some sex values are actually lifestage values
             $lifestage = false;
             if    (is_numeric(stripos($sex, "ADULT")))          $lifestage = "ADULT";

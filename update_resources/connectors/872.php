@@ -7,10 +7,10 @@ estimated execution time: this will vary depending on how big the archive file i
 
 DATA-1557 GBIF national node type records- Germany
 Germany:                    10k     5k
-taxon:                      6692    3786
-measurementorfact:          28408   14251
-occurrence                  9470    4751
-classification resource:                33,377
+taxon:                      6692    3786    80,093
+measurementorfact:          28408   14251   639,196
+occurrence                  9470    4751    167,663
+classification resource:    33,377
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -24,10 +24,14 @@ $params["dwca_file"] = "http://localhost/~eolit/cp/GBIF_dwca/birds.zip";
 $params["dataset"] = "All audio for birds";
 */
 
-$params["dwca_file"]    = "http://localhost/~eolit/cp/GBIF_dwca/countries/Germany/Germany.zip";
-$params["uri_file"]     = "http://localhost/~eolit/cp/GBIF_dwca/countries/Germany/germany mappings.xlsx";
+// local
+// $params["dwca_file"]    = "http://localhost/~eolit/cp/GBIF_dwca/countries/Germany/Germany.zip";
+// $params["uri_file"]     = "http://localhost/~eolit/cp/GBIF_dwca/countries/Germany/germany mappings.xlsx";
+
+// remote
 $params["dwca_file"]    = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/Germany/Germany.zip";
 $params["uri_file"]     = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/Germany/germany mappings.xlsx";
+
 $params["dataset"]      = "GBIF";
 $params["country"]      = "Germany";
 $params["type"]         = "structured data";
@@ -39,7 +43,7 @@ $params["resource_id"]  = 872;
 $resource_id = $params["resource_id"];
 $func = new GBIFCountryTypeRecordAPI($resource_id);
 $func->export_gbif_to_eol($params);
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1) //orig 1000
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
     if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
     {

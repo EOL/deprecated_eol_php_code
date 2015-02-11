@@ -6,9 +6,9 @@ This connector assembles the data and generates the EOL archive for ingestion.
 estimated execution time: this will vary depending on how big the archive file is.
 
 DATA-1578 GBIF national node type records- Netherlands
-measurement_or_fact         [29989] 418450
-occurrence                  [9997]  139484
-taxon                       [3214]  52763
+measurement_or_fact         [29989] 418450  533799
+occurrence                  [9997]  139484  139484
+taxon                       [3214]  52763   52763
 classification resource:
 */
 
