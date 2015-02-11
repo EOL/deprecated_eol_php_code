@@ -9,13 +9,11 @@ class STRIorigAPI
     {
         $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 1);
         // $this->download_options["expire_seconds"] = false; // "expire_seconds" -- false => won't expire; 0 => expires now
-        
         $this->domain             = "http://biogeodb.stri.si.edu";
         $this->image_list_page    = $this->domain . "/caribbean/en/contributors/images";
         $this->image_summary_page = $this->domain . "/caribbean/en/pages/random/";
         $this->taxa_list_page     = $this->domain . "/caribbean/en/thefishes/systematic";
         $this->taxa_list_page     = $this->domain . "/caribbean/en/thefishes/systematic?sort=Alphabetic&display=Scientific";
-        
         $this->biogeodb_taxon_summary_page          = $this->domain . "/caribbean/en/thefishes/species/";
         $this->neotropicalfishes_taxon_summary_page = "http://neotropicalfishes.myspecies.info/taxonomy/term/";
     }
@@ -24,7 +22,6 @@ class STRIorigAPI
     {
         $all_taxa = self::get_taxa_list_from_biogeodb();
         $this->taxa_id_list = array_merge($all_taxa, self::get_taxa_list_from_myspecies());
-        
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($params["eol_xml_file"], $params["filename"], array("timeout" => 7200, "expire_seconds" => false));
