@@ -34,7 +34,11 @@ class I3InteractiveAPI
             return false;
         }
         if($records = $harvester->process_row_type('http://rs.gbif.org/terms/1.0/Reference')) self::get_references($records);
-        if($records = $harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon')) self::create_instances_from_taxon_object($records);
+        if($records = $harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'))
+        {
+            $taxa_id_list = self::get_taxa_id_list($records);
+            self::create_instances_from_taxon_object($records, $taxa_id_list);
+        }
         if($this->params["process occurrence"])
         {
             echo "\nProcessed OCCURRENCE\n";
@@ -55,7 +59,14 @@ class I3InteractiveAPI
         print_r($this->debug);
     }
 
-    private function create_instances_from_taxon_object($records)
+    private function get_taxa_id_list($records)
+    {
+        $taxa = array();
+        foreach($records as $rec) $taxa[(string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"]] = '';
+        return $taxa;
+    }
+    
+    private function create_instances_from_taxon_object($records, $taxa_id_list)
     {
         foreach($records as $rec)
         {
@@ -65,7 +76,11 @@ class I3InteractiveAPI
             $taxon->scientificNameAuthorship    = (string) $rec["http://rs.tdwg.org/dwc/terms/scientificNameAuthorship"];
             $taxon->furtherInformationURL       = (string) $rec["http://purl.org/dc/terms/source"];
             $taxon->acceptedNameUsageID         = (string) $rec["http://rs.tdwg.org/dwc/terms/acceptedNameUsageID"];
-            $taxon->parentNameUsageID           = (string) $rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"];
+            
+            $parentNameUsageID = (string) $rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"];
+            if(isset($taxa_id_list[$parentNameUsageID])) $taxon->parentNameUsageID = $parentNameUsageID;
+            else echo "\nthis parentNameUsageID does not exist [$parentNameUsageID]\n";
+            
             $taxon->originalNameUsageID         = (string) $rec["http://rs.tdwg.org/dwc/terms/originalNameUsageID"];
             $taxon->taxonRank                   = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
             $taxon->taxonRank                   = trim(str_ireplace("group", "", $taxon->taxonRank));
