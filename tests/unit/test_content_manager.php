@@ -148,6 +148,14 @@ class test_content_manager extends SimpletestUnitBase
         $cache_num = $this->content_manager->grab_file('http://www.nch.com.au/acm/8kmp38.wav', 'audio');
         $cache_path = CONTENT_LOCAL_PATH . ContentManager::cache_num2path($cache_num);
         $this->assertTrue(file_exists($cache_path .'.wav'), 'Should be a wav file');
+        if (defined('SOX_BIN_PATH')) {
+            $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_orig.png'), 'Should be a spectrogram of the audio, ');
+            $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_580_360.png'), 'Should create thumbnail');
+            $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_260_190.png'), 'Should create thumbnail');
+            $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_98_68.png'), 'Should create thumbnail');
+            $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_130_130.png'), 'Should create thumbnail');
+            $this->assertTrue(file_exists(CONTENT_LOCAL_PATH . $cache_path .'_88_88.png'), 'Should create thumbnail');
+        }
         self::delete_content($cache_path);
     }
 
