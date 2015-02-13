@@ -473,7 +473,7 @@ class ContentManager
         $GLOBALS['mysqli_connection']->insert("INSERT IGNORE INTO image_sizes (data_object_id) VALUES ($data_object_id)");
         //check for other data_object IDs with the same GUID, which might provide a relevant previous crop
         if (isset($data_object_guid)) {
-            $resp = $GLOBALS['mysqli_connection']->query("SELECT id FROM data_objects WHERE guid=$data_object_guid AND published=1 ORDER BY id DESC LIMIT 1");
+            $resp = $GLOBALS['mysqli_connection']->query("SELECT id FROM data_objects WHERE guid='$data_object_guid' AND published=1 ORDER BY id DESC LIMIT 1");
             if ($resp) {
                 if ($resp->num_rows) {
                     $prev_data_objID = $resp->fetch_row();
@@ -481,7 +481,7 @@ class ContentManager
                         return $this->get_crop_from_DB($prev_data_objID);
                 }
             } else {
-                trigger_error("ContentManager: Database error while getting data_objects with guid=$data_object_guid from data_objects table", E_USER_NOTICE);
+                trigger_error("ContentManager: Database error while getting data_objects with guid='$data_object_guid' from data_objects table", E_USER_NOTICE);
             }
         }
         return false;
