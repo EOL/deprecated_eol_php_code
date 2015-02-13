@@ -369,10 +369,13 @@ class ArchiveDataIngester
             $he_id = $taxon_info['hierarchy_entry_id'];
             $tc_id = $taxon_info['taxon_concept_id'];
             $common_name_relation = SynonymRelation::find_or_create_by_translated_label('common name');
-            $result = $this->mysqli->query("SELECT SQL_NO_CACHE id FROM synonyms WHERE name_id = " . $name->id ." AND synonym_relation_id = " . 
+            $result = $this->mysqli->query("SELECT SQL_NO_CACHE id FROM synonyms WHERE name_id = " . $name->id ." AND synonym_relation_id = " .
                 $common_name_relation->id . " AND hierarchy_entry_id = " . $he_id . " AND hierarchy_id = " . $this->harvest_event->resource->hierarchy_id);
             if ($result && $result->fetch_assoc()){
-                $GLOBALS['db_connection']->update("UPDATE synonyms SET language_id = " . @$language->id ?: 0 . ", published = 0, taxonRemarks = " . $taxonRemarks);
+                $GLOBALS['db_connection']->update("UPDATE synonyms SET language_id = " . @$language->id ?: 0 . ", published = 0, taxonRemarks = " . $taxonRemarks .
+                "WHERE name_id = " . $name->id ." AND synonym_relation_id = " .
+                    $common_name_relation->id . " AND hierarchy_entry_id = " . $he_id . " AND hierarchy_id = " . $this->harvest_event->resource->hierarchy_id
+                );
             }else{
                 Synonym::find_or_create(array('name_id'               => $name->id,
                                               'synonym_relation_id'   => $common_name_relation->id,
