@@ -1,38 +1,36 @@
 <?php
 namespace php_active_record;
-/* WEB-5843 Import Smithsonian type specimen data to TraitBank
+/* DATA-1589 assist EOL China with xml resource
 
-                    14Jan
-measurement_or_fact 4,768,256
-occurrence          468,454
-taxon               295903
+This is a generic script that will convert EOL XML to EOL DWC-A
 
-10k records:        9Jan
-measurement_or_fact 9218
-occurrence          1708
-taxon               716
+http://rs.gbif.org/terms/1.0/vernacularname:
+                                zh:         2667
+                                en:         993
+                                Total:      3660
+
+http://rs.tdwg.org/dwc/terms/taxon:         2300
+http://eol.org/schema/reference/reference:  1690
+http://eol.org/schema/agent/agent:          104
+
+http://purl.org/dc/dcmitype/Text:           5650
+http://purl.org/dc/dcmitype/StillImage:     464
+                                    Total:  6114
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/NMNHTypeRecordAPI');
+require_library('connectors/ConvertEOLtoDWCaAPI');
 $timestart = time_elapsed();
 
-//local source
-$params["dwca_file"]    = "http://localhost/~eolit/cp/NMNH/type_specimen_resource/dwca-nmnhdwca.zip";
-$params["uri_file"]     = "http://localhost/~eolit/cp/NMNH/type_specimen_resource/nmnh mappings.xlsx";
-
-//remote source
-$params["dwca_file"]    = "https://dl.dropboxusercontent.com/u/7597512/NMNH/type_specimen_resource/dwca-nmnhdwca.zip";
-$params["dwca_file"]    = "http://collections.mnh.si.edu/ipt/archive.do?r=nmnhdwca"; // true value - working
-$params["uri_file"]     = "https://dl.dropboxusercontent.com/u/7597512/NMNH/type_specimen_resource/nmnh mappings.xlsx";
-
-$params["dataset"]      = "NMNH";
-$params["type"]         = "structured data";
-$params["resource_id"]  = 891;
+$params["eol_xml_file"] = "http://localhost/~eolit/cp/EOL_China/FaunaSinica_Aves.zip";
+$params["eol_xml_file"] = "https://dl.dropboxusercontent.com/u/7597512/EOL_China/FaunaSinica_Aves.zip";
+$params["filename"]     = "FaunaSinica_Aves.xml";
+$params["dataset"]      = "EOL China";
+$params["resource_id"]  = 412;
 
 $resource_id = $params["resource_id"];
-$func = new NMNHTypeRecordAPI($resource_id);
-$func->export_gbif_to_eol($params);
+$func = new ConvertEOLtoDWCaAPI($resource_id);
+$func->export_xml_to_archive($params);
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
     if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))

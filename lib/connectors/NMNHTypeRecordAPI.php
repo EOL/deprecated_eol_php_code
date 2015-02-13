@@ -129,8 +129,7 @@ class NMNHTypeRecordAPI
                             elseif($params["dataset"] == "iDigBio") {}
                             // old ways: elseif($row_type == "http://rs.gbif.org/terms/1.0/Multimedia") self::get_media_objects($fields);
                         }
-                        // if($i >= 100) break; //debug - used during preview mode
-                        // if($i >= 10000) break; //debug - used during preview mode
+                        if($i >= 1000) break; //debug - used during preview mode
                     }
                 }
                 // otherwise we need to load the entire file into memory and split it
@@ -279,7 +278,7 @@ class NMNHTypeRecordAPI
             }
             else self::add_string_types($rec, $typeStatus_uri, "http://rs.tdwg.org/dwc/terms/typeStatus");
             
-            if($val = $rec["http://rs.tdwg.org/dwc/terms/collectionCode"]) self::add_string_types($rec, self::get_uri($val, "collectionCode"), "http://rs.tdwg.org/dwc/terms/collectionCode");
+            if($val = $rec["http://rs.tdwg.org/dwc/terms/collectionCode"]) self::add_string_types($rec, self::get_uri($val, "collectionCode"), "http://rs.tdwg.org/dwc/terms/collectionID");
 
             $associatedSequences = $rec["http://rs.tdwg.org/dwc/terms/associatedSequences"];
             if($associatedSequences && $associatedSequences != "Genbank:") self::add_string_types($rec, $associatedSequences, "http://rs.tdwg.org/dwc/terms/associatedSequences");
@@ -312,8 +311,15 @@ class NMNHTypeRecordAPI
             $value = str_ireplace("MALES", "MALE", $value);
             $value = str_ireplace("HERMAPHRODITES", "HERMAPHRODITE", $value);
             
+            /*
+            Any values that have a ? - use verbatim value
+            Strings like "Worker", "sex", "no sex" - use verbatim value
+            [WORKER] => 
+            [MALE?] => 
+            */
+            
             //manual adjustment
-            if($value == 0 || $value == "0") $value = ""; //ignore
+            if($value === 0 || $value === "0") $value = ""; //ignore
             
             //various case statements
             if(is_numeric(stripos($value, "?"))) {} // use verbatim value
@@ -333,6 +339,7 @@ class NMNHTypeRecordAPI
                 elseif(self::has_male($value) && !self::has_female($value) && !self::has_hermaphrodite($value)) $value = "MALE";
                 elseif(!self::has_male($value) && self::has_female($value) && !self::has_hermaphrodite($value)) $value = "FEMALE";
                 elseif(!self::has_male($value) && !self::has_female($value) && self::has_hermaphrodite($value)) $value = "HERMAPHRODITE";
+                elseif(in_array($value, array("UNCERTAIN", "SEX UNKNOWN", "UNKNOWN; UNKNOWN"))) $value = "UNKNOWN";
                 else {} // use verbatim value
             }
             else {} // use verbatim value
@@ -340,11 +347,34 @@ class NMNHTypeRecordAPI
         
         if($field == "lifeStage")
         {
+            /*
+              [EXUVIAE] => 
+              [HALF-GROWN] => 
+              [; JUVENILE; LARVAE V] => 
+              [OVIGEROUS; LARVAE V] => 
+              [; AMPLEXUS] => 
+              [I; II; OVIGEROUS;] => 
+              [I; OVIGEROUS;] => 
+              [I; OVIGEROUS] => 
+              [I; II; OVIGEROUS] => 
+              [II; OVIGEROUS] => 
+              [NEUTER] => 
+              [; NEUTER] => 
+              [; OVIGEROUS; SUBADULT] => 
+              [METAMORPH, LARVAE] => 
+              [YOUNG OF THE YEAR] => 
+              [FIRST YEAR] => 
+              [; OVIGEROUS; PRANIZA] => 
+              [; IMMATURE; JUVENILE; MANCA] => 
+              [; IMMATURE; JUVENILE] => 
+              [PREMATURE; JUVENILE] => 
+              [AGED] => 
+            */
             $value = str_replace(";;", ";", $value);
             $value = str_replace(";;", ";", $value);
             $value = str_ireplace("JUVENILES", "JUVENILE", $value);
 
-            if(in_array($value, array("ADULT;", "; ADULT", "ADULT; ADULT", "BRANCHIATE ADULT", "ADULT; WINGS UNKNOWN")))    $value = "ADULT";
+            if(in_array($value, array("ADULT;", "; ADULT", "ADULT; ADULT", "BRANCHIATE ADULT", "ADULT; WINGS UNKNOWN", "SUBADULT; IMMATURE"))) $value = "ADULT";
             elseif(in_array($value, array("PUPA;", "PUPAL EXUVIA")))                                                        $value = "PUPA";
             elseif(in_array($value, array("; JUVENILE; JUVENILE; EMBRYO", "; I; OVIGEROUS", "JUVENILE, EGG")))              $value = "JUVENILE & OVIGEROUS";
             elseif(in_array($value, array("; LARVAE", "; LARVAE V", "; LARVAE;", "LARVA; LARVA")))                          $value = "LARVA";
@@ -382,6 +412,7 @@ class NMNHTypeRecordAPI
             elseif(is_numeric(stripos($value, "COPEPODID III")))        $value = "COPEPODID III";
             elseif(is_numeric(stripos($value, "ADULT; ADULT; ADULT")))  $value = "ADULT";
             elseif(is_numeric(stripos($value, "OVIGEROUS; IMMATURE")))  $value = "IMMATURE & OVIGEROUS";
+            elseif(is_numeric(stripos($value, "JUVENILE; JUVENILE")))   $value = "JUVENILE";
         }
 
         if($val = @$this->uris[$value]) return $val;

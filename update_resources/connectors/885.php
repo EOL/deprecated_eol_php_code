@@ -1,10 +1,10 @@
 <?php
 namespace php_active_record;
 /* https://jira.eol.org/browse/DATA-1549 iDigBio Portal 
-                5k
-measurement     6748    1385056
-occurrence      2250    461686
-taxon           2157    224065
+                5k                  4Feb
+measurement     6748    1385056     3191194
+occurrence      2250    461686      461686
+taxon           2157    224065      224065
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -21,7 +21,7 @@ $params["resource_id"]  = 885;
 $resource_id = $params["resource_id"];
 $func = new GBIFCountryTypeRecordAPI($resource_id);
 $func->export_gbif_to_eol($params);
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1) //orig 1000
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
     if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
     {

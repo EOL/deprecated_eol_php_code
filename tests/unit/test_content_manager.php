@@ -161,9 +161,9 @@ class test_content_manager extends SimpletestUnitBase
 
     function testGrabContentAudioWithNoExtension()
     {
-        $cache_num = $this->content_manager->grab_file('https://api.soundcloud.com/tracks/72574158/download?client_id=ac6cdf58548a238e00b7892c031378ce', 'audio');
+        $cache_num = $this->content_manager->grab_file('https://api.soundcloud.com/tracks/50714448/download?client_id=ac6cdf58548a238e00b7892c031378ce', 'audio');
         $cache_path = CONTENT_LOCAL_PATH . ContentManager::cache_num2path($cache_num);
-        $this->assertTrue(file_exists($cache_path .'.mp3'), 'Should be an mp3 file');
+        $this->assertTrue(file_exists($cache_path .'.wav'), 'Should be a WAV file');
         self::delete_content($cache_path);
     }
 

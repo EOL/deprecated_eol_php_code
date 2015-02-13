@@ -11,7 +11,7 @@ class TrekNatureAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->resource_agent_ids = array();
         $this->download_options = array('download_wait_time' => 500000, 'timeout' => 900, 'download_attempts' => 1);
-        $this->download_options["expire_seconds"] = false; // "expire_seconds" -- false => won't expire; 0 => expires now
+        // $this->download_options["expire_seconds"] = false; // "expire_seconds" -- false => won't expire; 0 => expires now
         $this->image_list_page = "http://www.treknature.com/members/fragman/photos/";
         $this->image_summary_page = "http://www.treknature.com/viewphotos.php";
     }
@@ -76,9 +76,24 @@ class TrekNatureAPI
                                 elseif($val = @$temp[4]) $rec["location"] = str_ireplace("register", "", $val) . ", " . $temp[2];
                             }
                         }
-                        // print_r($rec);
+                        
                         if($rec) self::process_record($rec);
                         else echo "\ninvestigate no image details [$image_url]\n";
+                        
+                        //additional records
+                        if(in_array($rec["image_id"], array("258161","238990","213710","212647","212559","120397","48044", "231718")))
+                        {
+                            if    ($rec["image_id"] == "258161") $rec["sciname"] = "Cistus creticus";
+                            elseif($rec["image_id"] == "238990") $rec["sciname"] = "Euphorbia antilibanotica";
+                            elseif($rec["image_id"] == "213710") $rec["sciname"] = "Ziziphora clinopodioides";
+                            elseif($rec["image_id"] == "212647") $rec["sciname"] = "Melanargia galathea";
+                            elseif($rec["image_id"] == "212559") $rec["sciname"] = "Galanthus";
+                            elseif($rec["image_id"] == "120397") $rec["sciname"] = "Plantago ciliata";
+                            elseif($rec["image_id"] == "48044")  $rec["sciname"] = "Ixia sorrel";
+                            elseif($rec["image_id"] == "231718") $rec["sciname"] = "Ranunculus asiaticus";
+                            self::process_record($rec);
+                        }
+                        
                     }
                 }
                 else echo "\ninvestigate no images [$url]\n";
@@ -93,7 +108,6 @@ class TrekNatureAPI
     private function process_record($rec)
     {
         $rec["sciname"] = self::valid_sciname($rec);
-
         if($rec["sciname"])
         {
             $taxon = new \eol_schema\Taxon();
@@ -114,25 +128,48 @@ class TrekNatureAPI
             $mr = new \eol_schema\MediaResource();
             // if($reference_ids) $mr->referenceID = implode("; ", $reference_ids); //not used at the moment...
             if($agent_ids) $mr->agentID = implode("; ", $agent_ids);
-            $mr->taxonID                = $taxon->taxonID;
+            
+            $mr->taxonID = $taxon->taxonID;
+
+            if    ($rec["image_id"] == "258161") $mr->taxonID .= ";" . str_replace(" ", "_", "Cistus creticus");
+            elseif($rec["image_id"] == "238990") $mr->taxonID .= ";" . str_replace(" ", "_", "Euphorbia antilibanotica");
+            elseif($rec["image_id"] == "213710") $mr->taxonID .= ";" . str_replace(" ", "_", "Ziziphora clinopodioides");
+            elseif($rec["image_id"] == "212647") $mr->taxonID .= ";" . str_replace(" ", "_", "Melanargia galathea");
+            elseif($rec["image_id"] == "212559") $mr->taxonID .= ";" . str_replace(" ", "_", "Galanthus");
+            elseif($rec["image_id"] == "120397") $mr->taxonID .= ";" . str_replace(" ", "_", "Plantago ciliata");
+            elseif($rec["image_id"] == "48044")  $mr->taxonID .= ";" . str_replace(" ", "_", "Ixia sorrel");
+            elseif($rec["image_id"] == "231718") $mr->taxonID .= ";" . str_replace(" ", "_", "Ranunculus asiaticus");
+
             $mr->identifier             = $rec["image_id"];
             $mr->type                   = 'http://purl.org/dc/dcmitype/StillImage';
             $mr->format                 = Functions::get_mimetype($rec["src"]);
             $mr->furtherInformationURL  = $rec["source"];
-            $mr->CVterm                 = '';
-            $mr->title                  = '';
             $mr->UsageTerms             = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
             $mr->accessURI              = $rec["src"];
+            $mr->description            = utf8_encode($rec["caption"]);
             $mr->Owner                  = '';
             $mr->publisher              = '';
-            $mr->description            = utf8_encode($rec["caption"]);
-            $this->archive_builder->write_object_to_file($mr);
+            $mr->CVterm                 = '';
+            $mr->title                  = '';
+            $mr->spatial                = $rec["location"];
+            
+            if(!isset($this->object_ids[$mr->identifier]))
+            {
+                $this->object_ids[$mr->identifier] = '';
+                $this->archive_builder->write_object_to_file($mr);
+            }
         }
     }
 
     private function valid_sciname($rec)
     {
-        if($rec["image_id"] == "254976") return "Ranunculus asiaticus";
+        if($rec["image_id"] == "254976")     return "Ranunculus asiaticus";
+        elseif($rec["image_id"] == "182893") return "Cervus nippon";
+        elseif($rec["image_id"] == "18992")  return "Testudines";
+        elseif($rec["image_id"] == "23374")  return "Orchidaceae";
+        elseif($rec["image_id"] == "41233")  return "Malus";
+        elseif($rec["image_id"] == "281568")  return "Vernonia";
+        elseif(in_array($rec["image_id"], array("31192", "20651"))) return false;
         
         $sciname = trim($rec["sciname"]);
         
@@ -214,6 +251,20 @@ class TrekNatureAPI
         elseif($sciname == "lizard")                    return "Reptilia";
         elseif($sciname == "Tragacanth Vegetation in Mt Hermon")    return "Astragalus cruentiflorus";
         elseif($sciname == "who is eating creeping cherry fruits?") return "Cerasus prostrata";
+        elseif($sciname == "Tulips in the Judean mountains")        return "Tulipa agenensis ssp. agenensis";
+        elseif($sciname == "Bud in the snow")           return "Cyclamen persicum";
+        elseif($sciname == "Jackal in the snow")        return "Canis";
+        elseif($sciname == "Spur-winged plover")        return "Vanellus spinosus";
+        elseif($sciname == "Narrow-leaved lupin")       return "Lupinus angustifolius";
+        elseif($sciname == "Bacon & Eggs")              return "Schizodium flexuosum";
+        elseif($sciname == "Wild carrot")               return "Daucus carota";
+        elseif($sciname == "Wild raddish")              return "Raphanus raphanistrum";
+        elseif($sciname == "Wild watermelon")           return "Citrullus colocynthis";
+        elseif($sciname == "Red wattled Lapwing")       return "Vanellus indicus";
+        elseif($sciname == "Gentianoid at 4500m")       return "Swertia";
+        elseif($sciname == "Blue desert Lily")          return "Ixiolirion tataricum";
+        elseif($sciname == "Spring in Cyprus")          return "Chrysanthemum";
+        
         elseif(is_numeric(stripos($sciname, "gazelle")))        return "Gazella";
         elseif(is_numeric(stripos($sciname, "langur")))         return "Semnopithecus";
         elseif(is_numeric(stripos($sciname, "Capra nubiana")))  return "Capra nubiana";
@@ -227,6 +278,29 @@ class TrekNatureAPI
         elseif(is_numeric(stripos($sciname, "Fossil Trunk")))   return "Plantae";
         elseif(is_numeric(stripos($sciname, "saguaro land")))   return "Carnegiea gigantea";
         elseif(is_numeric(stripos($sciname, "truffles")))       return "Fungi";
+        elseif(is_numeric(stripos($sciname, "Bontebok")))       return "Damaliscus pygargus pygarus";
+        elseif(is_numeric(stripos($sciname, "Mousebird")))      return "Coliiformes";
+        elseif(is_numeric(stripos($sciname, "Equus hemionus"))) return "Equus hemionus";
+        elseif(is_numeric(stripos($sciname, "Isatis armena")))  return "Isatis armena";
+        elseif(is_numeric(stripos($sciname, "Gentiana")))       return "Gentianaceae";
+        elseif(is_numeric(stripos($sciname, "Cistus salviifolius")))    return "Cistus salviifolius";
+        elseif(is_numeric(stripos($sciname, "Iris westii")))            return "Iris westii";
+        elseif(is_numeric(stripos($sciname, "Cerasus prostrata")))      return "Cerasus prostrata";
+        elseif(is_numeric(stripos($sciname, "Centaurea reflexa")))      return "Centaurea reflexa";
+        elseif(is_numeric(stripos($sciname, "Fritillaria latifolia")))  return "Fritillaria latifolia";
+        elseif(is_numeric(stripos($sciname, "Plantago coronopus")))     return "Plantago coronopus";
+        elseif(is_numeric(stripos($sciname, "Ixia micrandra")))         return "Ixia micrandra";
+        elseif(is_numeric(stripos($sciname, "Tulipa systola")))         return "Tulipa systola";
+        elseif(is_numeric(stripos($sciname, "Iris haynei")))            return "Iris haynei";
+        elseif(is_numeric(stripos($sciname, "Iris pseudacorus")))       return "Iris pseudacorus";
+        elseif(is_numeric(stripos($sciname, "cypress tree")))           return "Cupressus sempervirents";
+        elseif(is_numeric(stripos($sciname, "Blue tongue lizard")))     return "Tiliqua";
+        elseif(is_numeric(stripos($sciname, "Gladiolus atroviolaceus"))) return "Gladiolus atroviolaceus";
+        elseif(is_numeric(stripos($sciname, "Swallowtail"))) return "Papilionidae";
+        elseif(is_numeric(stripos($sciname, "juniper"))) return "Juniperus";
+        elseif(is_numeric(stripos($sciname, "Elk"))) return "Cervus";
+        elseif(is_numeric(stripos($sciname, "Stilt"))) return "Recurvirostridae";
+        elseif(is_numeric(stripos($sciname, "fungi"))) return "Fungi";
 
         $exclude_exact_match = array("alpine blooming", "eggs", "desert bloom", "saline", "Indian Forest", "spring", "Red Sea in winter", "caterpillar on caper", "spring in West Australia", "Hamamat Main", "Lake Towada", "desert snow", "succulent", "Mt Hermon Fritillary");
         foreach($exclude_exact_match as $str)
@@ -240,7 +314,7 @@ class TrekNatureAPI
             return false;
         }
 
-        $exclude = array("wonderful", "glacier", "peacock", "river", "fruit", "flower", "lake", "saline", " land", "garlic");
+        $exclude = array("wonderful", "glacier", "peacock", "river", "fruit", "flower", "lake", "saline", " land", "garlic", "Semidesert", "please");
         foreach($exclude as $str)
         {
             if(is_numeric(stripos($sciname, $str)))
@@ -262,6 +336,14 @@ class TrekNatureAPI
             echo "\nexcluded 3 [$sciname][$rec[source]]";
             return false;
         }
+
+        $sciname = trim(str_replace("?", "", $sciname));
+        
+        /*
+        //just a cleaning procedure
+        $canonical = Functions::canonical_form($sciname);
+        if($sciname != $canonical) echo "\nnot proper latin: [$sciname][$rec[source]]";
+        */
         
         return $sciname;
     }
@@ -270,8 +352,8 @@ class TrekNatureAPI
     {
         $agent_ids = array();
         $r = new \eol_schema\Agent();
-        $r->term_name       = "Ori Fragman Sapir";
-        $r->identifier      = md5("Ori Fragman Sapir");
+        $r->term_name       = "Ori Fragman-Sapir";
+        $r->identifier      = md5($r->term_name);
         $r->agentRole       = "creator";
         $r->term_homepage   = "http://www.treknature.com/members/fragman/";
         $agent_ids[] = $r->identifier;

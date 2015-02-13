@@ -2,13 +2,13 @@
 namespace php_active_record;
 /* estimated execution time: 6 minutes
 
-                      old       Oct2
-reference:          : 1         1
-Text                : 26220     26205
-#Distribution       : 26187     26205
-#ConservationStatus : 33        
-taxon:              : 33590     33641
-measurementorfact               31339
+                      old       Oct2    Jan28
+reference:          : 1         1       1
+Text                : 26220     26205   26205
+#Distribution       : 26187     26205   26205
+#ConservationStatus : 33                none
+taxon:              : 33590     33641   33641
+measurementorfact               31339   31339
 
 */
 
