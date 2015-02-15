@@ -19,7 +19,8 @@ class ConvertEOLtoDWCaAPI
     {
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($params["eol_xml_file"], $params["filename"], array("timeout" => 7200, "expire_seconds" => false)); // "expire_seconds" -- false => won't expire; 0 => expires now
+        $paths = $func->extract_archive_file($params["eol_xml_file"], $params["filename"], array("timeout" => 7200));
+        // $paths["expire_seconds"] = false; // "expire_seconds" -- false => won't expire; 0 => expires now //debug
         print_r($paths);
         $params["path"] = $paths["temp_dir"];
         self::convert_xml($params);
@@ -52,10 +53,14 @@ class ConvertEOLtoDWCaAPI
                 $rec[$field] = (string) $t_dcterms->$field;
             }
             
+            $taxon_id = false;
             if(isset($t_dc->identifier))
             {
-                if($val = $t_dc->identifier) $taxon_id = (string) $val;
+                if    ($val = (string) $t_dc->identifier)      $taxon_id = $val;
+                elseif($val = (string) $t_dwc->ScientificName) $taxon_id = md5($val);
             }
+            if($val = $taxon_id) $rec["identifier"] = $val;
+            else echo "\n -- try to figure how to get taxon_id for this resource -- \n";
 
             if($obj = @$t->commonName)
             {
@@ -136,7 +141,7 @@ class ConvertEOLtoDWCaAPI
                 }
             }
 
-            if($params["dataset"] == "EOL China")
+            if(in_array($params["dataset"], array("EOL China", "EOL XML")))
             {
                 if($val = $o_dc->identifier) $identifier = (string) $val;
                 else exit("\n -- find or create your own object identifier -- \n");
