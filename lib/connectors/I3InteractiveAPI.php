@@ -70,6 +70,7 @@ class I3InteractiveAPI
     {
         foreach($records as $rec)
         {
+            $rec = array_map('trim', $rec);
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID                     = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
             $taxon->scientificName              = utf8_encode((string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"]);
@@ -81,7 +82,10 @@ class I3InteractiveAPI
             if(isset($taxa_id_list[$parentNameUsageID])) $taxon->parentNameUsageID = $parentNameUsageID;
             else echo "\nthis parentNameUsageID does not exist [$parentNameUsageID]\n";
             
-            $taxon->originalNameUsageID         = (string) $rec["http://rs.tdwg.org/dwc/terms/originalNameUsageID"];
+            $originalNameUsageID = (string) $rec["http://rs.tdwg.org/dwc/terms/originalNameUsageID"];
+            if(isset($taxa_id_list[$originalNameUsageID])) $taxon->originalNameUsageID = $originalNameUsageID;
+            else echo "\nthis originalNameUsageID does not exist [$originalNameUsageID]\n";
+            
             $taxon->taxonRank                   = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
             $taxon->taxonRank                   = trim(str_ireplace("group", "", $taxon->taxonRank));
             $taxon->taxonomicStatus             = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];

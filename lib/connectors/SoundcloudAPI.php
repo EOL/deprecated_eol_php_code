@@ -149,8 +149,8 @@ class SoundcloudAPI
             $arr_objects = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects);
             //end data objects //----------------------------------------------------------------------------------------
 
-            $taxon_id   = str_ireplace(" ", "_", $sciname) . "_" . $rec->id;
-            $arr_data[] = array("identifier"   => "",
+            $taxon_id   = strtolower(str_ireplace(" ", "_", $sciname));
+            $arr_data[] = array("identifier"   => $taxon_id,
                                 "source"       => "",
                                 "kingdom"      => @$arr_sciname[$sciname]['kingdom'],
                                 "phylum"       => @$arr_sciname[$sciname]['phylum'],
