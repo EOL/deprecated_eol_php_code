@@ -22,6 +22,14 @@ $xml = $func->replace_taxon_element_value_with_condition("dwc:Class", "Insecta",
 $func->save_resource_document($xml);
 // */
 
+// start - this will get Tamborines videos from Vimeo and append it with the main resource 106.xml (DATA-1592)
+rename($resource_path, CONTENT_RESOURCE_LOCAL_PATH . "temp_vimeo_to_tamborine1.xml");
+get_videos_from_vimeo();
+Functions::combine_all_eol_resource_xmls($resource_id, CONTENT_RESOURCE_LOCAL_PATH . "temp_vimeo_to_tamborine*.xml");
+unlink(CONTENT_RESOURCE_LOCAL_PATH . "temp_vimeo_to_tamborine1.xml");
+unlink(CONTENT_RESOURCE_LOCAL_PATH . "temp_vimeo_to_tamborine2.xml");
+// end
+
 if(filesize($resource_path) > 1000)
 {
     Functions::set_resource_status_to_force_harvest($resource_id);
@@ -32,4 +40,18 @@ $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
+
+function get_videos_from_vimeo()
+{
+    echo "\n -- start access to vimeo ";
+    $resource_id = "temp_vimeo_to_tamborine2";
+    require_library('connectors/VimeoAPI');
+    $taxa = VimeoAPI::get_all_taxa(array("user1632860")); // Peter Kuttner's id
+    $xml = \SchemaDocument::get_taxon_xml($taxa);
+    $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
+    $OUT = fopen($resource_path, "w");
+    fwrite($OUT, $xml);
+    fclose($OUT);
+    echo " -- end.\n";
+}
 ?>
