@@ -921,9 +921,8 @@ class NCBIGGIqueryAPI
         $family_table = array();
         $fields = array("SpK", "K", "SbK", "IK", "SpP", "P", "SbP", "IP", "PvP", "SpC", "C", "SbC", "IC", "SpO", "O");
         
-        $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/ALF2015.xlsx";
-        // $dropbox_xlsx[] = "http://tiny.cc/FALO"; // from Cyndy's Dropbox
-        // $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/FALO.xlsx"; // from Eli's Dropbox
+        $dropbox_xlsx[] = "http://tiny.cc/FALO"; // from Cyndy's Dropbox
+        // $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/ALF2015.xlsx"; // from Eli's Dropbox
         // $dropbox_xlsx[] = "http://localhost/~eolit/cp/NCBIGGI/FALO.xlsx"; // local
         // $dropbox_xlsx[] = "http://localhost/~eolit/cp/NCBIGGI/ALF2015.xlsx"; // local
 

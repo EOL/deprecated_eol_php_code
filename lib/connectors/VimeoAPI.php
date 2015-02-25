@@ -19,12 +19,12 @@ define("CONSUMER_SECRET", "579812c7f9e9cef30ab1bf088c3d3b92073e115c");
 
 class VimeoAPI
 {
-    public static function get_all_taxa()
+    public static function get_all_taxa($user_ids = false)
     {
         $vimeo = new \phpVimeo(CONSUMER_KEY, CONSUMER_SECRET);
         $all_taxa = array();
         $used_collection_ids = array();
-        $user_ids = self::get_list_of_user_ids($vimeo);
+        if(!$user_ids) $user_ids = self::get_list_of_user_ids($vimeo);
         $count_of_users = count($user_ids);
         $i = 0;
         foreach($user_ids as $user_id)
@@ -100,7 +100,7 @@ class VimeoAPI
         $user_ids['5352360']     = 1; //eli
         $user_ids['user1632860'] = 1; //peter kuttner
         */
-
+        unset($user_ids["1632860"]); //Tamborine's videos are moved to the main Tamborine EOL account (DATA-1592)
         return array_keys($user_ids);
     }
 

@@ -55,7 +55,7 @@ class STRIorigAPI
                     elseif(isset($this->taxa_id_list["neo"][$sciname])) $t_dc->source = $this->neotropicalfishes_taxon_summary_page . $this->taxa_id_list["neo"][$sciname];
                     else $t_dc->source = "";
                 }
-                else $t_dc->source = "";
+                else $t_dc->source = "http://biogeodb.stri.si.edu/caribbean/en/pages"; //home page of the new site
             }
             
             if($objects = @$t->dataObject)

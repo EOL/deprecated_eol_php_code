@@ -1137,6 +1137,40 @@ $params["compositae"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/
 $params["compositae"]["local"]["name"]               = "compositae";
 $params["compositae"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/compositae/node_importer_biblio_xls.xls";
 // ==================================================================================================
+// korupplants remote
+$params["korupplants"]["remote"]["lifedesk"]          = "http://korupplants.lifedesks.org/eol-partnership.xml.gz";
+$params["korupplants"]["remote"]["bibtex_file"]       = "";
+$params["korupplants"]["remote"]["scratchpad_images"] = "";
+$params["korupplants"]["remote"]["name"]              = "korupplants";
+// korupplants Dropbox
+$params["korupplants"]["dropbox"]["lifedesk"]          = "";
+$params["korupplants"]["dropbox"]["bibtex_file"]       = "";
+$params["korupplants"]["dropbox"]["scratchpad_images"] = "";
+$params["korupplants"]["dropbox"]["name"]              = "korupplants";
+// korupplants local
+$params["korupplants"]["local"]["lifedesk"]           = "http://localhost/~eolit/cp/LD2Scratchpad/korupplants/eol-partnership.xml.gz";
+$params["korupplants"]["local"]["bibtex_file"]        = "";
+$params["korupplants"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/LD2Scratchpad/korupplants/file_importer_image_xls.xls";
+$params["korupplants"]["local"]["name"]               = "korupplants";
+$params["korupplants"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/korupplants/node_importer_biblio_xls.xls";
+// ==================================================================================================
+// scarabaeinae remote
+$params["scarabaeinae"]["remote"]["lifedesk"]          = "http://scarabaeinae.lifedesks.org/eol-partnership.xml.gz";
+$params["scarabaeinae"]["remote"]["bibtex_file"]       = "";
+$params["scarabaeinae"]["remote"]["scratchpad_images"] = "";
+$params["scarabaeinae"]["remote"]["name"]              = "scarabaeinae";
+// scarabaeinae Dropbox
+$params["scarabaeinae"]["dropbox"]["lifedesk"]          = "";
+$params["scarabaeinae"]["dropbox"]["bibtex_file"]       = "";
+$params["scarabaeinae"]["dropbox"]["scratchpad_images"] = "";
+$params["scarabaeinae"]["dropbox"]["name"]              = "scarabaeinae";
+// scarabaeinae local
+$params["scarabaeinae"]["local"]["lifedesk"]           = "http://localhost/~eolit/cp/LD2Scratchpad/scarabaeinae/eol-partnership.xml.gz";
+$params["scarabaeinae"]["local"]["bibtex_file"]        = "";
+$params["scarabaeinae"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/LD2Scratchpad/scarabaeinae/file_importer_image_xls.xls";
+$params["scarabaeinae"]["local"]["name"]               = "scarabaeinae";
+$params["scarabaeinae"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/scarabaeinae/node_importer_biblio_xls.xls";
+// ==================================================================================================
 
 /* paste here which Lifedesk you want to export: e.g. $parameters = $params["leptogastrinae"]["dropbox"];
 the export files (in .tar.gz) will be found in: DOC_ROOT/tmp/leptogastrinae_LD_to_Scratchpad_export.tar.gz
@@ -1144,7 +1178,7 @@ the export files (in .tar.gz) will be found in: DOC_ROOT/tmp/leptogastrinae_LD_t
 
 // /* To run single LifeDesk:
 $func = new LifeDeskToScratchpadAPI();
-$parameters = $params["ebivalvia"]["local"];
+$parameters = $params["scarabaeinae"]["local"];
 if($parameters) $func->export_lifedesk_to_scratchpad($parameters);
 else echo "\nNothing to process. Program will terminate\n";
 // */
