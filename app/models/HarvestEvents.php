@@ -141,7 +141,7 @@ class HarvestEvent extends ActiveRecord
             FROM
                 (data_objects_harvest_events dohe_previous
                 JOIN data_objects do_previous ON (dohe_previous.data_object_id=do_previous.id)
-                JOIN data_objects_hierarchy_entries dohent_previous ON (dpo_previous.id=dohent_previous.data_object_id))
+                JOIN data_objects_hierarchy_entries dohent_previous ON (do_previous.id=dohent_previous.data_object_id))
             JOIN
                 (data_objects_harvest_events dohe_current
                 JOIN data_objects do_current ON (dohe_current.data_object_id=do_current.id))
