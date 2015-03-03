@@ -6,7 +6,7 @@ This connector assembles the data and generates the EOL archive for ingestion.
 estimated execution time: this will vary depending on how big the archive file is.
 
 DATA-1577 GBIF national node type records- France
-                                                9Feb
+                                                2March
 measurement_or_fact         [27223] 638236      837638
 occurrence                  [9075]  212746      212746
 taxon                       [4291]  95625       95625
@@ -17,14 +17,17 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/GBIFCountryTypeRecordAPI');
 $timestart = time_elapsed();
 
-// local
-// $params["citation_file"] = "http://localhost/~eolit/cp/GBIF_dwca/countries/France/Citation Mapping France.xlsx";
-// $params["dwca_file"]     = "http://localhost/~eolit/cp/GBIF_dwca/countries/France/France.zip";
-// $params["uri_file"]      = "http://localhost/~eolit/cp/GBIF_dwca/countries/France/french GBIF mapping.xlsx";
+/*// local
+$params["citation_file"] = "http://localhost/~eolit/cp/GBIF_dwca/countries/France/Citation Mapping France.xlsx";
+$params["dwca_file"]     = "http://localhost/~eolit/cp/GBIF_dwca/countries/France/France.zip";
+$params["uri_file"]      = "http://localhost/~eolit/cp/GBIF_dwca/countries/France/french GBIF mapping.xlsx";
+*/
 
+// remote
 $params["citation_file"] = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/France/Citation Mapping France.xlsx";
 $params["dwca_file"]     = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/France/France.zip";
 $params["uri_file"]      = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/France/french GBIF mapping.xlsx";
+
 $params["dataset"]      = "GBIF";
 $params["country"]      = "France";
 $params["type"]         = "structured data";

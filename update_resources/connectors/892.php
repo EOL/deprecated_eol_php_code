@@ -6,9 +6,9 @@ This connector assembles the data and generates the EOL archive for ingestion.
 estimated execution time: this will vary depending on how big the archive file is.
 
 DATA-1582 GBIF national node type records- Brazil
-measurement_or_fact         70725
-occurrence                  23159
-taxon                       12662
+measurement_or_fact         70725   49470
+occurrence                  23159   12434
+taxon                       12662   5954
 classification resource:
 */
 
@@ -16,10 +16,17 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/GBIFCountryTypeRecordAPI');
 $timestart = time_elapsed();
 
+/*//local
+$params["citation_file"] = "http://localhost/~eolit/cp/GBIF_dwca/countries/Brazil/Citation Mapping Brazil.xlsx";
 $params["dwca_file"]    = "http://localhost/~eolit/cp/GBIF_dwca/countries/Brazil/Brazil.zip";
 $params["uri_file"]     = "http://localhost/~eolit/cp/GBIF_dwca/countries/Brazil/GBIF Brazil mapping.xlsx";
+*/
+
+//remote
+$params["citation_file"] = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/Brazil/Citation Mapping Brazil.xlsx";
 $params["dwca_file"]    = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/Brazil/Brazil.zip";
 $params["uri_file"]     = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/Brazil/GBIF Brazil mapping.xlsx";
+
 $params["dataset"]      = "GBIF";
 $params["country"]      = "Brazil";
 $params["type"]         = "structured data";

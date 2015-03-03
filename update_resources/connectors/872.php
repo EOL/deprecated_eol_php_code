@@ -24,11 +24,14 @@ $params["dwca_file"] = "http://localhost/~eolit/cp/GBIF_dwca/birds.zip";
 $params["dataset"] = "All audio for birds";
 */
 
-// local
-// $params["dwca_file"]    = "http://localhost/~eolit/cp/GBIF_dwca/countries/Germany/Germany.zip";
-// $params["uri_file"]     = "http://localhost/~eolit/cp/GBIF_dwca/countries/Germany/germany mappings.xlsx";
+/*// local
+$params["citation_file"] = "http://localhost/~eolit/cp/GBIF_dwca/countries/Germany/Citation Mapping Germany.xlsx";
+$params["dwca_file"]    = "http://localhost/~eolit/cp/GBIF_dwca/countries/Germany/Germany.zip";
+$params["uri_file"]     = "http://localhost/~eolit/cp/GBIF_dwca/countries/Germany/germany mappings.xlsx";
+*/
 
 // remote
+$params["citation_file"] = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/Germany/Citation Mapping Germany.xlsx";
 $params["dwca_file"]    = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/Germany/Germany.zip";
 $params["uri_file"]     = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/Germany/germany mappings.xlsx";
 
