@@ -1171,6 +1171,23 @@ $params["scarabaeinae"]["local"]["scratchpad_images"]  = "http://localhost/~eoli
 $params["scarabaeinae"]["local"]["name"]               = "scarabaeinae";
 $params["scarabaeinae"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/scarabaeinae/node_importer_biblio_xls.xls";
 // ==================================================================================================
+// cyanolichens remote
+$params["cyanolichens"]["remote"]["lifedesk"]          = "http://cyanolichens.lifedesks.org/eol-partnership.xml.gz";
+$params["cyanolichens"]["remote"]["bibtex_file"]       = "";
+$params["cyanolichens"]["remote"]["scratchpad_images"] = "";
+$params["cyanolichens"]["remote"]["name"]              = "cyanolichens";
+// cyanolichens Dropbox
+$params["cyanolichens"]["dropbox"]["lifedesk"]          = "";
+$params["cyanolichens"]["dropbox"]["bibtex_file"]       = "";
+$params["cyanolichens"]["dropbox"]["scratchpad_images"] = "";
+$params["cyanolichens"]["dropbox"]["name"]              = "cyanolichens";
+// cyanolichens local
+$params["cyanolichens"]["local"]["lifedesk"]           = "http://localhost/~eolit/cp/LD2Scratchpad/cyanolichens/eol-partnership.xml.gz";
+$params["cyanolichens"]["local"]["bibtex_file"]        = "";
+$params["cyanolichens"]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/LD2Scratchpad/cyanolichens/file_importer_image_xls.xls";
+$params["cyanolichens"]["local"]["name"]               = "cyanolichens";
+$params["cyanolichens"]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/cyanolichens/node_importer_biblio_xls.xls";
+// ==================================================================================================
 
 /* paste here which Lifedesk you want to export: e.g. $parameters = $params["leptogastrinae"]["dropbox"];
 the export files (in .tar.gz) will be found in: DOC_ROOT/tmp/leptogastrinae_LD_to_Scratchpad_export.tar.gz
@@ -1178,7 +1195,7 @@ the export files (in .tar.gz) will be found in: DOC_ROOT/tmp/leptogastrinae_LD_t
 
 // /* To run single LifeDesk:
 $func = new LifeDeskToScratchpadAPI();
-$parameters = $params["scarabaeinae"]["local"];
+$parameters = $params["cyanolichens"]["local"];
 if($parameters) $func->export_lifedesk_to_scratchpad($parameters);
 else echo "\nNothing to process. Program will terminate\n";
 // */
