@@ -21,6 +21,7 @@ if(Functions::grep_processlist('harvest_resources') > 2)
 
 $log = HarvestProcessLog::create(array('process_name' => 'Harvesting'));
 $resources = Resource::ready_for_harvesting();
+// $resources = array(Resource::find(SOME_ID_HERE));
 foreach($resources as $resource)
 {
     // IMPORTANT!
