@@ -385,6 +385,7 @@ class Resource extends ActiveRecord
         {
           debug("(VALID)");
 
+          $this->being_processed();
           debug_start("transaction");
           $this->mysqli->begin_transaction();
           $this->insert_hierarchy();
@@ -699,19 +700,24 @@ class Resource extends ActiveRecord
       debug_end("make_old_preview_entries_invisible");
     }
 
+    public function being_processed()
+    {
+      debug("Setting status to being processed");
+      if(!$this->harvest_event)
+      {
+        // Set resource as 'Being Processed'
+        $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::being_processed()->id ." WHERE id=$this->id");
+      }
+    }
+
     public function start_harvest()
     {
       debug_start("start_harvest");
-        if(!$this->harvest_event)
-        {
-            // Set resource as 'Being Processed'
-            $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::being_processed()->id ." WHERE id=$this->id");
-
-            // Create this harvest event
-            $this->harvest_event = HarvestEvent::create(array('resource_id' => $this->id));
-            $this->harvest_event->resource = $this;
-            $this->start_harvest_time  = date('Y m d H');
-        }
+      if(!$this->harvest_event) { // Create this harvest event
+        $this->harvest_event = HarvestEvent::create(array('resource_id' => $this->id));
+        $this->harvest_event->resource = $this;
+        $this->start_harvest_time  = date('Y m d H');
+      }
       debug_end("start_harvest");
     }
 
