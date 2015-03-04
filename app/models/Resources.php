@@ -243,20 +243,20 @@ class Resource extends ActiveRecord
 
     public function unpublish_data_objects()
     {
-      debug_start("unpublish_data_objects");
+      $this->debug_start("unpublish_data_objects");
         if($last_id = $this->most_recent_published_harvest_event_id())
         {
             $this->mysqli->update_where("data_objects", "id", "SELECT do.id FROM data_objects_harvest_events dohe JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE harvest_event_id=$last_id AND do.published=1", "published=0", 2000000, 2500);
         }
-        debug_end("unpublish_data_objects");
+        $this->debug_end("unpublish_data_objects");
     }
 
     public function unpublish_hierarchy_entries()
     {
-      debug_start("unpublish_hierarchy_entries");
+      $this->debug_start("unpublish_hierarchy_entries");
         $this->mysqli->update_where("hierarchy_entries", "id", "SELECT id FROM hierarchy_entries WHERE hierarchy_id=$this->hierarchy_id AND published=1", "published=0, visibility_id=".Visibility::invisible()->id);
         $this->mysqli->update_where("synonyms", "id", "SELECT s.id FROM hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id AND he.hierarchy_id=s.hierarchy_id) WHERE he.hierarchy_id=$this->hierarchy_id AND s.published=1", "published=0");
-        debug_end("unpublish_hierarchy_entries");
+        $this->debug_end("unpublish_hierarchy_entries");
     }
 
     public function force_publish()
@@ -274,8 +274,8 @@ class Resource extends ActiveRecord
 
     public function publish($fast_for_testing = false)
     {
-      debug_start("publish");
-      debug_start("transaction");
+      $this->debug_start("publish");
+      $this->debug_start("transaction");
       $this->mysqli->begin_transaction();
       if($harvest_event_id = $this->most_recent_harvest_event_id())
       {
@@ -283,18 +283,18 @@ class Resource extends ActiveRecord
           if(!$harvest_event->published_at && $harvest_event->completed_at && $harvest_event->publish)
           {
               // make all objects in last harvest visible if they were in preview mode
-              debug_start("harvest_event->make_objects_visible");
+              $this->debug_start("harvest_event->make_objects_visible");
               $harvest_event->make_objects_visible();
-              debug_end("harvest_event->make_objects_visible");
+              $this->debug_end("harvest_event->make_objects_visible");
 
               // preserve visibilities from older versions of same objects
               // if the older versions were curated they may be invible or inappropriate and we don't want to lose that info
               if($last_id = $this->most_recent_published_harvest_event_id())
               {
-                debug_start("harvest_event->inherit_visibilities_from");
+                $this->debug_start("harvest_event->inherit_visibilities_from");
                 $harvest_event->inherit_visibilities_from($last_id);
                 $this->mysqli->commit();
-                debug_end("harvest_event->inherit_visibilities_from");
+                $this->debug_end("harvest_event->inherit_visibilities_from");
               } else {
                 debug("(First harvest!)");
               }
@@ -303,16 +303,16 @@ class Resource extends ActiveRecord
               $this->unpublish_data_objects();
 
               // now only set published=1 for the objects in the latest harvest
-              debug_start("harvest_event->publish_objects");
+              $this->debug_start("harvest_event->publish_objects");
               $harvest_event->publish_objects();
               $this->mysqli->commit();
-              debug_end("harvest_event->publish_objects");
+              $this->debug_end("harvest_event->publish_objects");
 
               // set the harvest published_at date
-              debug_start("harvest_event->published");
+              $this->debug_start("harvest_event->published");
               $harvest_event->published();
               $this->mysqli->commit();
-              debug_end("harvest_event->published");
+              $this->debug_end("harvest_event->published");
 
               if($this->hierarchy_id)
               {
@@ -321,33 +321,33 @@ class Resource extends ActiveRecord
                 $this->mysqli->commit();
 
                 // now set published=1 for all concepts in the latest harvest
-                debug_start("harvest_event->publish_hierarchy_entries");
+                $this->debug_start("harvest_event->publish_hierarchy_entries");
                 $harvest_event->publish_hierarchy_entries();
-                debug_end("harvest_event->publish_hierarchy_entries");
+                $this->debug_end("harvest_event->publish_hierarchy_entries");
                 $this->mysqli->commit();
 
                 // make sure all concepts are published
-                debug_start("Hierarchy::fix_published_flags_for_taxon_concepts");
+                $this->debug_start("Hierarchy::fix_published_flags_for_taxon_concepts");
                 Hierarchy::fix_published_flags_for_taxon_concepts();
-                debug_end("Hierarchy::fix_published_flags_for_taxon_concepts");
+                $this->debug_end("Hierarchy::fix_published_flags_for_taxon_concepts");
                 $this->mysqli->commit();
 
                 if(!$fast_for_testing)
                 {
                     // Rebuild the Solr index for this hierarchy
                     $indexer = new HierarchyEntryIndexer();
-                    debug_start("HierarchyEntryIndexer::index");
+                    $this->debug_start("HierarchyEntryIndexer::index");
                     $indexer->index($this->hierarchy_id);
-                    debug_end("HierarchyEntryIndexer::index");
+                    $this->debug_end("HierarchyEntryIndexer::index");
 
                     // Compare this hierarchy to all others and store the
                     // results in the hierarchy_entry_relationships table
-                    debug_start("harvest_event->compare_new_hierarchy_entries");
+                    $this->debug_start("harvest_event->compare_new_hierarchy_entries");
                     $harvest_event->compare_new_hierarchy_entries();
-                    debug_end("harvest_event->compare_new_hierarchy_entries");
-                    debug_start("harvest_event->create_taxon_relations_graph");
+                    $this->debug_end("harvest_event->compare_new_hierarchy_entries");
+                    $this->debug_start("harvest_event->create_taxon_relations_graph");
                     $harvest_event->create_taxon_relations_graph();
-                    debug_end("harvest_event->create_taxon_relations_graph");
+                    $this->debug_end("harvest_event->create_taxon_relations_graph");
                 }
               } else {
                 debug("(NO HIERARCHY!)");
@@ -360,25 +360,25 @@ class Resource extends ActiveRecord
               $harvest_event->resource->refresh();
               if(!$fast_for_testing)
               {
-                debug_start("harvest_event->create_collection");
+                $this->debug_start("harvest_event->create_collection");
                 $harvest_event->create_collection();
-                debug_end("harvest_event->create_collection");
-                debug_start("harvest_event->index_for_search");
+                $this->debug_end("harvest_event->create_collection");
+                $this->debug_start("harvest_event->index_for_search");
                 $harvest_event->index_for_search();
-                debug_start("harvest_event->index_for_search");
+                $this->debug_start("harvest_event->index_for_search");
               }
               debug("setting resource status to published");
               $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::published()->id ." WHERE id=$this->id");
           }
       }
       $this->mysqli->end_transaction();
-      debug_end("transaction");
-      debug_end("publish");
+      $this->debug_end("transaction");
+      $this->debug_end("publish");
     }
 
     public function harvest($validate = true, $validate_only_welformed = false, $fast_for_testing = false)
     {
-        debug_start("harvest");
+        $this->debug_start("harvest");
 
         $valid = $validate ? $this->validate() : true;
         if($valid)
@@ -386,14 +386,14 @@ class Resource extends ActiveRecord
           debug("(VALID)");
 
           $this->being_processed();
-          debug_start("transaction");
+          $this->debug_start("transaction");
           $this->mysqli->begin_transaction();
           $this->insert_hierarchy();
           $sparql_client = SparqlClient::connection();
           $sparql_client->delete_graph($this->virtuoso_graph_name());
           $this->start_harvest();
 
-          debug_start("parsing");
+          $this->debug_start("parsing");
           if($this->is_translation_resource())
           {
             debug("(translation resource)");
@@ -413,7 +413,7 @@ class Resource extends ActiveRecord
             SchemaParser::parse($this->resource_path(), $connection, false);
             unset($connection);
           }
-          debug_end("parsing");
+          $this->debug_end("parsing");
           $this->mysqli->commit();
 
           // if the resource only contains information to update, then check for a
@@ -427,7 +427,7 @@ class Resource extends ActiveRecord
           // then set them to be invisible
           $this->make_old_preview_objects_invisible();
           $this->mysqli->commit();
-          debug_end("transaction");
+          $this->debug_end("transaction");
 
           // do the same thing with hierarchy entries
           $this->make_old_preview_entries_invisible();
@@ -437,9 +437,9 @@ class Resource extends ActiveRecord
           {
             debug("(Translation resource)");
               $hierarchy = Hierarchy::find($this->hierarchy_id);
-              debug_start("Tasks::rebuild_nested_set");
+              $this->debug_start("Tasks::rebuild_nested_set");
               Tasks::rebuild_nested_set($this->hierarchy_id);
-              debug_end("Tasks::rebuild_nested_set");
+              $this->debug_end("Tasks::rebuild_nested_set");
               $this->make_new_hierarchy_entries_preview($hierarchy);
 
               if(!$this->auto_publish)
@@ -447,28 +447,28 @@ class Resource extends ActiveRecord
                 debug("(AUTO-PUBLISH)");
                   // Rebuild the Solr index for this hierarchy
                   $indexer = new HierarchyEntryIndexer();
-                  debug_start("HierarchyEntryIndexer::index");
+                  $this->debug_start("HierarchyEntryIndexer::index");
                   $indexer->index($this->hierarchy_id);
-                  debug_end("HierarchyEntryIndexer::index");
+                  $this->debug_end("HierarchyEntryIndexer::index");
 
-                  debug_start("harvest_event->compare_new_hierarchy_entries");
+                  $this->debug_start("harvest_event->compare_new_hierarchy_entries");
                   $this->harvest_event->compare_new_hierarchy_entries();
-                  debug_end("harvest_event->compare_new_hierarchy_entries");
+                  $this->debug_end("harvest_event->compare_new_hierarchy_entries");
 
-                  debug_start("harvest_event->create_collection");
+                  $this->debug_start("harvest_event->create_collection");
                   $this->harvest_event->create_collection();
-                  debug_end("harvest_event->create_collection");
+                  $this->debug_end("harvest_event->create_collection");
               }
 
               if($this->vetted)
               {
                 debug("(vetted resource)");
-                debug_start("vetting");
+                $this->debug_start("vetting");
                   // Vet all taxon concepts associated with this resource
                   $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.vetted_id=" . Vetted::trusted()->id . " WHERE he.hierarchy_id=$this->hierarchy_id");
                   $this->mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.vetted_id=" . Vetted::trusted()->id . " WHERE he.hierarchy_id=$this->hierarchy_id AND he.vetted_id!=" . Vetted::untrusted()->id);
                   $this->mysqli->update("UPDATE hierarchy_entries he JOIN synonyms s ON (he.id=s.hierarchy_entry_id AND he.hierarchy_id=s.hierarchy_id) SET s.vetted_id=" . Vetted::trusted()->id . " WHERE he.hierarchy_id=$this->hierarchy_id and s.vetted_id = 0");
-                debug_end("vetting");
+                $this->debug_end("vetting");
               }
 
               // after all the resource hierarchy stuff has been taken care of -
@@ -478,14 +478,14 @@ class Resource extends ActiveRecord
 
           if($this->vetted && $this->harvest_event)
           {
-            debug_start("harvest_event->vet_objects");
+            $this->debug_start("harvest_event->vet_objects");
             // set vetted=trusted for all objects in this harvest
             $this->harvest_event->vet_objects();
-            debug_end("harvest_event->vet_objects");
+            $this->debug_end("harvest_event->vet_objects");
           }
 
           $this->mysqli->end_transaction();
-          debug_end("transaction");
+          $this->debug_end("transaction");
 
           if($this->auto_publish)
           {
@@ -501,12 +501,12 @@ class Resource extends ActiveRecord
           }
       }
       $this->harvest_event = null;
-      debug_end("harvest");
+      $this->debug_end("harvest");
     }
 
     public function add_unchanged_data_to_harvest()
     {
-      debug_start("add_unchanged_data_to_harvest");
+      $this->debug_start("add_unchanged_data_to_harvest");
         // there is no _delete file so we assume the resource is complete
         if(!file_exists($this->resource_deletions_path())) return false;
 
@@ -543,12 +543,12 @@ class Resource extends ActiveRecord
 
             // at this point everything has been added EXCEPT the things we want to delete
         }
-        debug_end("add_unchanged_data_to_harvest");
+        $this->debug_end("add_unchanged_data_to_harvest");
     }
 
     public function update_names()
     {
-      debug_start("update_names");
+      $this->debug_start("update_names");
         if($this->harvest_event)
         {
             $taxon_concept_ids = array();
@@ -563,12 +563,12 @@ class Resource extends ActiveRecord
                 Tasks::update_taxon_concept_names($taxon_concept_ids);
             }
         }
-        debug_end("update_names");
+        $this->debug_end("update_names");
     }
 
     public function update_taxon_concepts_solr_index()
     {
-      debug_start("update_taxon_concepts_solr_index");
+      $this->debug_start("update_taxon_concepts_solr_index");
         if($this->harvest_event)
         {
             $taxon_concept_ids = array();
@@ -595,12 +595,12 @@ class Resource extends ActiveRecord
             $indexer = new TaxonConceptIndexer();
             $indexer->index_concepts($taxon_concept_ids);
         }
-        debug_end("update_taxon_concepts_solr_index");
+        $this->debug_end("update_taxon_concepts_solr_index");
     }
 
     public function update_data_objects_solr_index()
     {
-      debug_start("update_data_objects_solr_index");
+      $this->debug_start("update_data_objects_solr_index");
         if($this->harvest_event)
         {
             $data_object_ids = array();
@@ -627,23 +627,23 @@ class Resource extends ActiveRecord
             $indexer = new DataObjectAncestriesIndexer();
             $indexer->index_data_objects($data_object_ids);
         }
-        debug_end("update_data_objects_solr_index");
+        $this->debug_end("update_data_objects_solr_index");
     }
 
     public function make_new_hierarchy_entries_preview($hierarchy)
     {
-      debug_start("make_new_hierarchy_entries_preview");
+      $this->debug_start("make_new_hierarchy_entries_preview");
         if($this->harvest_event)
         {
             $this->mysqli->update("UPDATE harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) SET he.visibility_id=". Visibility::preview()->id ." WHERE hehe.harvest_event_id=".$this->harvest_event->id." AND he.visibility_id=". Visibility::invisible()->id);
             $this->make_new_hierarchy_entries_parents_preview($hierarchy);
         }
-        debug_end("make_new_hierarchy_entries_preview");
+        $this->debug_end("make_new_hierarchy_entries_preview");
     }
 
     public function make_new_hierarchy_entries_parents_preview($hierarchy)
     {
-      debug_start("make_new_hierarchy_entries_parents_preview");
+      $this->debug_start("make_new_hierarchy_entries_parents_preview");
         $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) WHERE he.hierarchy_id=$hierarchy->id AND he.visibility_id=". Visibility::preview()->id ." AND he_parents.visibility_id=". Visibility::invisible()->id ." LIMIT 1");
         while($result && $row=$result->fetch_assoc())
         {
@@ -651,14 +651,14 @@ class Resource extends ActiveRecord
 
             $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) WHERE he.hierarchy_id=$hierarchy->id AND he.visibility_id=". Visibility::preview()->id ." AND he_parents.visibility_id=". Visibility::invisible()->id ." LIMIT 1");
         }
-      debug_end("make_new_hierarchy_entries_parents_preview");
+      $this->debug_end("make_new_hierarchy_entries_parents_preview");
     }
 
     // this method will make sure that any data objects that were in the previous harvest event, which are not
     // in this current harvest event, whose visibility id is Preview, are set to be invisible
     public function make_old_preview_objects_invisible()
     {
-      debug_start("make_old_preview_objects_invisible");
+      $this->debug_start("make_old_preview_objects_invisible");
         if($this->harvest_event && $last_harvest_event_id = $this->last_harvest_event_id())
         {
             $result = $this->mysqli->query("
@@ -675,12 +675,12 @@ class Resource extends ActiveRecord
                 $this->mysqli->update("UPDATE data_objects_hierarchy_entries SET visibility_id=". Visibility::invisible()->id . " WHERE data_object_id=". $row['data_object_id']);
             }
         }
-        debug_end("make_old_preview_objects_invisible");
+        $this->debug_end("make_old_preview_objects_invisible");
     }
 
     public function make_old_preview_entries_invisible()
     {
-      debug_start("make_old_preview_entries_invisible");
+      $this->debug_start("make_old_preview_entries_invisible");
         if($this->harvest_event && $last_harvest_event_id = $this->last_harvest_event_id())
         {
             $result = $this->mysqli->query("
@@ -697,7 +697,7 @@ class Resource extends ActiveRecord
                 $this->mysqli->update("UPDATE hierarchy_entries SET visibility_id=". Visibility::invisible()->id . " WHERE id=". $row['hierarchy_entry_id']);
             }
         }
-      debug_end("make_old_preview_entries_invisible");
+      $this->debug_end("make_old_preview_entries_invisible");
     }
 
     public function being_processed()
@@ -712,18 +712,18 @@ class Resource extends ActiveRecord
 
     public function start_harvest()
     {
-      debug_start("start_harvest");
+      $this->debug_start("start_harvest");
       if(!$this->harvest_event) { // Create this harvest event
         $this->harvest_event = HarvestEvent::create(array('resource_id' => $this->id));
         $this->harvest_event->resource = $this;
         $this->start_harvest_time  = date('Y m d H');
       }
-      debug_end("start_harvest");
+      $this->debug_end("start_harvest");
     }
 
     public function end_harvest()
     {
-      debug_start("end_harvest");
+      $this->debug_start("end_harvest");
         if($this->harvest_event)
         {
             $this->harvest_event->completed();
@@ -731,21 +731,21 @@ class Resource extends ActiveRecord
             $this->end_harvest_time  = date('Y m d H');
             $this->harvest_event->resource->refresh();
         }
-      debug_end("end_harvest");
+      $this->debug_end("end_harvest");
     }
 
     public function create_archive_validator()
     {
-      debug_start("create_archive_validator");
+      $this->debug_start("create_archive_validator");
         if(isset($this->archive_validator)) return $this->archive_validator;
         $this->archive_reader = new ContentArchiveReader(null, $this->archive_path());
-      debug_end("create_archive_validator");
+      $this->debug_end("create_archive_validator");
         $this->archive_validator = new ContentArchiveValidator($this->archive_reader, $this);
     }
 
     public function validate()
     {
-      debug_start("validate");
+      $this->debug_start("validate");
 
       $valid = false;
       $error_string = null;
@@ -778,13 +778,13 @@ class Resource extends ActiveRecord
       {
           $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::processing_failed()->id." WHERE id=$this->id");
       }
-      debug_end("validate");
+      $this->debug_end("validate");
       return $valid;
     }
 
     public function insert_hierarchy()
     {
-      debug_start("insert_hierarchy");
+      $this->debug_start("insert_hierarchy");
       if($this->hierarchy_id) return $this->hierarchy_id;
 
       $provider_agent = $this->data_supplier();
@@ -800,13 +800,13 @@ class Resource extends ActiveRecord
       # TODO - get real object updating in place to take care of value updates
       $this->hierarchy_id = $hierarchy->id;
 
-      debug_end("insert_hierarchy");
+      $this->debug_end("insert_hierarchy");
       return $hierarchy->id;
     }
 
     private function insert_dwc_hierarchy()
     {
-      debug_start("insert_dwc_hierarchy");
+      $this->debug_start("insert_dwc_hierarchy");
         // if there is already an archive hierarchy - make a copy for the new data
         if($this->dwc_hierarchy_id)
         {
@@ -824,13 +824,13 @@ class Resource extends ActiveRecord
         # TODO - get real object updating in place to take care of value updates
         $this->dwc_hierarchy_id = $hierarchy->id;
 
-        debug_end("insert_dwc_hierarchy");
+        $this->debug_end("insert_dwc_hierarchy");
         return $hierarchy->id;
     }
 
     private function import_dwc_archive()
     {
-      debug_start("import_dwc_archive");
+      $this->debug_start("import_dwc_archive");
 
         if(!$this->dwc_archive_url) return false;
         try
@@ -878,10 +878,10 @@ class Resource extends ActiveRecord
                 Hierarchy::delete($this->dwc_hierarchy_id);
                 $this->dwc_hierarchy_id = $archive_hierarchy_id;
             }
-            debug_end("import_dwc_archive");
+            $this->debug_end("import_dwc_archive");
         }catch(Exception $e)
         {
-          debug_end("import_dwc_archive (ERROR: " . $e->getMessage() . ")");
+          $this->debug_end("import_dwc_archive (ERROR: " . $e->getMessage() . ")");
           return false;
         }
     }

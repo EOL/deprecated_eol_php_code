@@ -93,20 +93,6 @@ function mysql_debug($string)
     }
 }
 
-function debug_start($method) {
-  debug("++ START $method $this->id ($this->title)");
-}
-
-function debug_end($method) {
-  debug("-- END $method $this->id ($this->title)");
-}
-
-
-
-
-
-
-
 /*
 ===================================
     Misc
