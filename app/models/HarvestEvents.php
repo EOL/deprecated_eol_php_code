@@ -139,6 +139,7 @@ class HarvestEvent extends ActiveRecord
         if($last_harvest->resource_id != $this->resource_id) return false;
         // make sure this is newer
         if($last_harvest->id > $this->id) return false;
+        
         $outfile = $GLOBALS['db_connection']->select_into_outfile("
             SELECT do_current.id, dohent_previous.visibility_id, dohent_previous.hierarchy_entry_id
             FROM
@@ -152,7 +153,7 @@ class HarvestEvent extends ActiveRecord
             WHERE dohe_previous.harvest_event_id=$last_harvest->id
             AND dohe_current.harvest_event_id=$this->id
             AND dohent_previous.visibility_id IN (".Visibility::invisible()->id.")");
-		
+	
         $FILE = fopen($outfile, "r");
         while(!feof($FILE))
         {
