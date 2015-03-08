@@ -131,11 +131,14 @@ class HarvestEvent extends ActiveRecord
     public function inherit_visibilities_from($last_published_harvest_event_id)
     {
         $last_harvest = new HarvestEvent($last_published_harvest_event_id);
+		$select_result = $this->mysqli->query("SELECT * FROM harvest_events WHERE id = ".$last_published_harvest_event_id);
+		$result=$select_result->fetch_assoc();
+		$last_harvest->id = $result['id'];
+		$last_harvest->resource_id = $result['resource_id'];
         // make sure its in the same resource
         if($last_harvest->resource_id != $this->resource_id) return false;
         // make sure this is newer
         if($last_harvest->id > $this->id) return false;
-        
         $outfile = $GLOBALS['db_connection']->select_into_outfile("
             SELECT do_current.id, dohent_previous.visibility_id, dohent_previous.hierarchy_entry_id
             FROM
@@ -149,13 +152,13 @@ class HarvestEvent extends ActiveRecord
             WHERE dohe_previous.harvest_event_id=$last_harvest->id
             AND dohe_current.harvest_event_id=$this->id
             AND dohent_previous.visibility_id IN (".Visibility::invisible()->id.")");
-        
+		
         $FILE = fopen($outfile, "r");
         while(!feof($FILE))
         {
             if($line = fgets($FILE, 4096))
             {
-                $values = explode("\t", trim($line));
+            	$values = explode("\t", trim($line));
                 $data_object_id = $values[0];
                 $visibility_id = $values[1];
                 $hierarchy_entry_id = $values[2];

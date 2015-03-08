@@ -496,32 +496,23 @@ class ArchiveDataIngester
 
 
         /* ADDING THE DATA OBJECT */
-        $existing_data_object = new DataObject();
-        list($data_object, $status, $existing_data_object) = DataObject::find_and_compare($this->harvest_event->resource, $data_object, $this->content_manager);
+        list($data_object, $status) = DataObject::find_and_compare($this->harvest_event->resource, $data_object, $this->content_manager);
         if(@!$data_object->id) return false;
         $this->media_ids_inserted[$data_object->identifier] = $data_object->id;
 
         $this->harvest_event->add_data_object($data_object, $status);
-
+		
 		if (strcmp($status, "Unchanged") != 0){
 			$data_object->delete_hierarchy_entries();
-	        $vetted_id = Vetted::unknown()->id;
-	        $visibility_id = Visibility::preview()->id;
-	        foreach($object_taxon_info as $taxon_info)
-	        {
-	            $he_id = $taxon_info['hierarchy_entry_id'];
-	            $tc_id = $taxon_info['taxon_concept_id'];
-				if ($existing_data_object != null){
-					foreach($existing_data_object->data_objects_hierarchy_entries as $he){
-						if ($he->hierarchy_entry->id == $he_id){
-							$vetted_id = $he->vetted->id;
-	        				$visibility_id = $he->visibility->id;
-						}
-					}
-				}
-	            $this->mysqli->insert("INSERT IGNORE INTO data_objects_hierarchy_entries (hierarchy_entry_id, data_object_id, vetted_id, visibility_id) VALUES ($he_id, $data_object->id, $vetted_id, $visibility_id)");
-	            $this->mysqli->insert("INSERT IGNORE INTO data_objects_taxon_concepts (taxon_concept_id, data_object_id) VALUES ($tc_id, $data_object->id)");
-	        }	
+		    $vetted_id = Vetted::unknown()->id;
+		    $visibility_id = Visibility::preview()->id;
+		    foreach($object_taxon_info as $taxon_info)
+		    {
+		    	$he_id = $taxon_info['hierarchy_entry_id'];
+		        $tc_id = $taxon_info['taxon_concept_id'];
+				$this->mysqli->insert("INSERT IGNORE INTO data_objects_hierarchy_entries (hierarchy_entry_id, data_object_id, vetted_id, visibility_id) VALUES ($he_id, $data_object->id, $vetted_id, $visibility_id)");
+		        $this->mysqli->insert("INSERT IGNORE INTO data_objects_taxon_concepts (taxon_concept_id, data_object_id) VALUES ($tc_id, $data_object->id)");	        
+			}	
 		}
 
 
