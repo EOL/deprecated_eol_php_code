@@ -8,6 +8,7 @@ This resource is regularly being harvested. Connector is scheduled as a cron tas
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/InsectVisitorsAPI');
 $timestart = time_elapsed();
+$GLOBALS['ENV_DEBUG'] = false;
 
 $resource_id = 143;
 $func = new InsectVisitorsAPI();
@@ -21,8 +22,7 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 1000)
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n";
-echo "elapsed time = $elapsed_time_sec seconds             \n";
+echo "\n\nelapsed time = $elapsed_time_sec seconds             \n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes  \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\n\n Done processing.";

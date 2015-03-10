@@ -32,7 +32,7 @@ class InsectVisitorsAPI
         $this->file_urls[] = array("active" => 1, "type" => "plant_bugs", "ancestry" => array("kingdom" => "Animalia", "phylum" => "Arthropoda", "class" => "Insecta", "order" => "Hemiptera", "family" => ""));
         $this->file_urls[] = array("active" => 1, "type" => "lepidoptera", "ancestry" => array("kingdom" => "Animalia", "phylum" => "Arthropoda", "class" => "Insecta", "order" => "Lepidoptera", "family" => ""));
         
-        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 2, 'delay_in_minutes' => 2);
+        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
     }
 
     function get_all_taxa($resource_id)
@@ -42,14 +42,14 @@ class InsectVisitorsAPI
         self::get_associations();
         self::get_general_descriptions();
         self::prepare_common_names();
-        debug("\n\n total: " . count($GLOBALS['taxon']) . "\n");
+        echo("\n total: " . count($GLOBALS['taxon']) . "\n");
         $all_taxa = array();
         $i = 0;
         $total = count(array_keys($GLOBALS['taxon']));
         foreach($GLOBALS['taxon'] as $taxon_name => $record)
         {
             $i++; 
-            debug("\n$i of $total " . $taxon_name);
+            if(($i % 100) == 0) echo("\n$i of $total " . $taxon_name);
             $record["taxon_name"] = $taxon_name;
             $arr = self::get_visitors_taxa($record);
             $page_taxa = $arr[0];
@@ -72,7 +72,7 @@ class InsectVisitorsAPI
             $url = $this->path['home'] . '/files/' . $path["type"] . ".htm";
             if($path["active"])
             {
-                debug("\n\n$i" . " " . $url . "\n");
+                if(($i % 100) == 0) echo "\n -$i";
                 self::process_gen_desc($url, $path["ancestry"], $path['type']);
                 $i++;
                 if($this->test_run) break; //just get 1 url
@@ -92,7 +92,6 @@ class InsectVisitorsAPI
             elseif(in_array($taxon_name, array("Sciaridae, Mycetophilidae", "Tephretidae, Drosophilidae"))) $scinames = explode(", ", $taxon_name);
             if($scinames)
             {
-                print "\n Multiple names: [$taxon_name]\n";
                 $scinames = array_map('trim', $scinames);
                 foreach($scinames as $sciname)
                 {
@@ -109,12 +108,7 @@ class InsectVisitorsAPI
 
     private function process_gen_desc($url, $ancestry, $type)
     {
-        debug("\n\n file: $url \n");
-        if(!$html = Functions::lookup_with_cache($url, $this->download_options)) // 1sec wait, 10mins timeout, 4 attempts
-        {
-            debug("\n\n Content partner's server is down1, $url.\n");
-            return;
-        }
+        if(!$html = Functions::lookup_with_cache($url, $this->download_options)) return;
         $html = str_ireplace("&amp;", "and", $html);
         $html = self::clean_str($html);
         if(preg_match("/<BLOCKQUOTE>(.*?)<\/BLOCKQUOTE>/ims", $html, $match))
@@ -148,7 +142,7 @@ class InsectVisitorsAPI
             else                           $url = $this->path['home'] . '/insects/' . $path['type'] . ".htm";
             if($path["active"])
             {
-                debug("\n\n$i " . $path['type'] . " [$url]\n");
+                echo("\n$i " . $path['type'] . " [$url]\n");
                 if($path['type'] == "insects")              self::process_insects($url, $path["ancestry"]);
                 elseif(in_array($path['type'], $bird_type)) self::process_birds($url, $path["ancestry"], $path['type']);
             }
@@ -162,11 +156,7 @@ class InsectVisitorsAPI
 
     private function process_birds($url, $ancestry, $type)
     {
-        if(!$html = Functions::lookup_with_cache($url, $this->download_options))
-        {
-            debug("\n\n Content partner's server is down2, $url\n");
-            return;
-        }
+        if(!$html = Functions::lookup_with_cache($url, $this->download_options)) return;
         /*HREF="birds/hummingbird.htm" NAME="hummingbird">Archilochus colubris</A><BR></B><FONT COLOR="#000000">(Ruby-Throated Hummingbird)</FONT></FONT></FONT></TD>*/
         if(preg_match_all("/href=\"$type(.*?)<\/td>/ims", $html, $matches))
         {
@@ -198,11 +188,7 @@ class InsectVisitorsAPI
 
     private function process_insects($url, $ancestry)
     {
-        if(!$html = Functions::lookup_with_cache($url, $this->download_options))
-        {
-            debug("\n\n Content partner's server is down3, $url\n");
-            return;
-        }
+        if(!$html = Functions::lookup_with_cache($url, $this->download_options)) return;
         /*<a href="plants/velvetleaf.htm" name="velvetleaf">Abutilon theophrastii (Velvet Leaf)</a>*/
         if(preg_match_all("/href=\"plants(.*?)<\/a>/ims", $html, $matches))
         {
@@ -240,10 +226,9 @@ class InsectVisitorsAPI
             $url = $this->path['home'] . '/insects/' . $value['html'];
             if($type == 'insects') $url = str_ireplace("/insects/", "/", $url);
             $GLOBALS['taxon'][$taxon_name]['html'] = $url;
-            debug("\n $url -- $taxon_name");
             if(!$html = Functions::lookup_with_cache($url, $this->download_options))
             {
-                debug("\n\n Content partner's server is down4, $url\n");
+                echo("\n\n Content partner's server is down, $url\n");
                 $GLOBALS['taxon'][$taxon_name]['association'] = 'no object';
                 continue;
             }
@@ -296,11 +281,7 @@ class InsectVisitorsAPI
         $urls = array("http://www.illinoiswildflowers.info/flower_insects/files/family_names.htm", "http://www.illinoiswildflowers.info/flower_insects/files/common_names.htm");
         foreach($urls as $url)
         {
-            if(!$html = Functions::lookup_with_cache($url, $this->download_options))
-            {
-                debug("\n\n Content partner's server is down5, $url.\n");
-                return;
-            }
+            if(!$html = Functions::lookup_with_cache($url, $this->download_options)) return;
             $html = str_ireplace("</FONT></FONT></FONT>", "<U>", $html); // so that last block is included in preg_match_all
             $html = str_ireplace("etc.", "", $html);
             if(preg_match_all("/<\/U>(.*?)<U>/ims", $html, $matches))
