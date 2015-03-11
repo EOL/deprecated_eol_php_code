@@ -505,6 +505,7 @@ class ArchiveDataIngester
         /* ADDING THE DATA OBJECT */
         list($data_object, $status) = DataObject::find_and_compare($this->harvest_event->resource, $data_object, $this->content_manager);
         if(@!$data_object->id) return false;
+               
         $this->media_ids_inserted[$data_object->identifier] = $data_object->id;
 
         $this->harvest_event->add_data_object($data_object, $status);
@@ -585,7 +586,50 @@ class ArchiveDataIngester
             $data_object->delete_refs();
             $this->object_references_deleted[$data_object->id] = true;
         }
+        
+        // add data object info to resource contribution
+        if ($status != "Unchanged")
+        {
+        	print("start resource contributions");
+	        $result = $this->mysqli->query("SELECT id, source_url, taxon_concept_id, hierarchy_id, identifier FROM hierarchy_entries inner join  data_objects_hierarchy_entries on hierarchy_entries.id = data_objects_hierarchy_entries.hierarchy_entry_id where data_object_id =". $data_object->id);
+	        if($result && $row=$result->fetch_assoc())
+	        {
+	             $hierarchy_entry_id = $row["id"];
+	             $source = "'" . $this->get_hierarchy_entry_outlink($row["hierarchy_id"], $row["identifier"], $row["source_url"]) . "'";
+	             $identifier = "'" . $row["identifier"] . "'";
+	             $taxon_concept_id = $row["taxon_concept_id"];
+	        }
+	        $resource_id = $this->harvest_event->resource_id;
+	        $this->mysqli->insert("INSERT IGNORE INTO resource_contributions (resource_id, data_object_id, data_point_uri_id, hierarchy_entry_id, taxon_concept_id, source, object_type, identifier) VALUES ($resource_id, $data_object->id, NULL, $hierarchy_entry_id, $taxon_concept_id, $source, 'data_object', $identifier)");
+        }
     }
+    
+    private function get_hierarchy_entry_outlink($hierarchy_id, $identifier, $source)
+    {
+        $result = $this->mysqli->query("SELECT outlink_uri FROM hierarchies where id =". $hierarchy_id);
+        if($result && $row=$result->fetch_assoc())
+        {
+        	$outlink_url = $row["outlink_uri"];
+        }
+    	if($source!="" && $source != NULL)
+    	{
+    		return preg_replace('~&oldid=[0-9]+$~', '', $source);
+    	}
+    	else if($hierarchy_id != NULL && $outlink_url != NULL && $outlink_url != "")
+    	{
+    		$matches = preg_match('/%%ID%%/', $outlink_url);
+    		if($matches !=NULL)
+    		{
+    			if($identifier != NULL)
+    				return preg_replace('~%%ID%%~', $identifier, $outlink_url);
+    		}
+    		else {
+    			return $outlink_url;
+    		}
+    		
+    	}
+    }
+    
 
     public function insert_references($row, $parameters)
     {

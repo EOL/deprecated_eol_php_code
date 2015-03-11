@@ -1,6 +1,7 @@
 <?php
 namespace php_active_record;
-
+include_once(dirname(__FILE__) . "/../../lib/CodeBridge.php");
+if(defined('RESQUE_HOST') && RESQUE_HOST && class_exists('Resque')) Resque::setBackend(RESQUE_HOST);
 class Resource extends ActiveRecord
 {
     public static $belongs_to = array(
@@ -374,6 +375,9 @@ class Resource extends ActiveRecord
       $this->mysqli->end_transaction();
       $this->debug_end("transaction");
       $this->debug_end("publish");
+      print("finish publish");
+      // inform rails when harvest finished
+      \CodeBridge::update_resource_contributions($this->id);
     }
 
     public function harvest($validate = true, $validate_only_welformed = false, $fast_for_testing = false)
@@ -729,7 +733,7 @@ class Resource extends ActiveRecord
             $this->harvest_event->completed();
             $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::processed()->id .", harvested_at=NOW(), notes='' WHERE id=$this->id");
             $this->end_harvest_time  = date('Y m d H');
-            $this->harvest_event->resource->refresh();
+            $this->harvest_event->resource->refresh();            
         }
       $this->debug_end("end_harvest");
     }
