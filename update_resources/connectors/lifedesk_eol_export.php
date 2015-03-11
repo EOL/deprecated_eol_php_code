@@ -14,7 +14,9 @@ $timestart = time_elapsed();
 $func = new LifeDeskToEOLAPI();
 
 $lifedesks = array("afrotropicalbirds");
-$lifedesks = array("araneae", "drosophilidae", "mochokidae", "batrach", "berry");
+$lifedesks = array("araneae", "drosophilidae", "mochokidae", "batrach", "berry");           //DATA-1597
+$lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife", "diptera");  //DATA-1599
+
 foreach($lifedesks as $ld)
 {
     $params[$ld]["remote"]["lifedesk"]      = "http://" . $ld . ".lifedesks.org/eol-partnership.xml.gz";
