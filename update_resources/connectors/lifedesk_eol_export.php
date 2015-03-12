@@ -14,8 +14,10 @@ $timestart = time_elapsed();
 $func = new LifeDeskToEOLAPI();
 
 $lifedesks = array("afrotropicalbirds");
-$lifedesks = array("araneae", "drosophilidae", "mochokidae", "batrach", "berry");           //DATA-1597
-$lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife", "diptera");  //DATA-1599
+$lifedesks = array("araneae", "drosophilidae", "mochokidae", "batrach", "berry");                   //DATA-1597
+$lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife", "diptera");          //DATA-1599
+$lifedesks = array("trilobites", "echinoderms", "snakesoftheworld", "pleurotomariidae", "psora");   //DATA-1600
+$lifedesks = array("plantsoftibet", "philbreo", "rotifera", "maldivesnlaccadives", "mexinverts");   //DATA-1601
 
 foreach($lifedesks as $ld)
 {
