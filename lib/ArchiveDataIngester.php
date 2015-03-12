@@ -15,7 +15,12 @@ class ArchiveDataIngester
 
     public function parse($validate = true, &$archive_reader = null, &$archive_validator = null)
     {
-        if(!is_dir($this->harvest_event->resource->archive_path())) return false;
+      $this->harvest_event->debug_start("ADI/parse");
+        if(!is_dir($this->harvest_event->resource->archive_path())) {
+          debug("ERROR - attempt to parse a resource with no archive");
+          $this->harvest_event->debug_end("ADI/parse");
+          return false;
+        }
         if($archive_reader) $this->archive_reader = $archive_reader;
         else $this->archive_reader = new ContentArchiveReader(null, $this->harvest_event->resource->archive_path());
         if($archive_validator) $this->archive_validator = $archive_validator;
@@ -24,22 +29,29 @@ class ArchiveDataIngester
 
         // set valid to true if we don't need validation
         $valid = $validate ? $this->archive_validator->is_valid() : true;
-        if($valid !== true) return array_merge($this->archive_validator->structural_errors(), $this->archive_validator->display_errors());
-        // even if we don't want to validate - we need the errors to determine which rows to ignore
+        if($valid !== true) {
+          debug("ERROR - resource INVALID");
+          $this->harvest_event->debug_end("ADI/parse");
+          return array_merge($this->archive_validator->structural_errors(), $this->archive_validator->display_errors());
+        }
+        // even if we don't want to validate - we need the errors to determine
+        // which rows to ignore
+        // TODO: sooooo... we should be storing validations somewhere we can
+        // retrieve it without re-validating every time.
         if(!$validate) $this->archive_validator->get_validation_errors(true);
         $this->archive_validator->delete_validation_cache();
 
         $this->taxon_reference_ids = array();
         $this->media_reference_ids = array();
         $this->media_agent_ids = array();
-
         $this->media_ids_inserted = array();
         $this->occurrence_ids_inserted = array();
         $this->event_ids_inserted = array();
 
-        /* During harvesting we need to delete all the old records associated with HierarchyEntries
-           and DataObjects so we can add the new ones, and also properly represent the case where a
-           provider deletes a common name or reference from an object or taxon
+        /* During harvesting we need to delete all the old records associated
+        /* with HierarchyEntries and DataObjects so we can add the new ones, and
+        /* also properly represent the case where a provider deletes a common
+        /* name or reference from an object or taxon
         */
         $this->object_references_deleted = array();
         $this->entry_references_deleted = array();
@@ -49,6 +61,7 @@ class ArchiveDataIngester
         $this->dataset_metadata = array();
         $this->collect_dataset_attribution();
 
+        $this->harvest_event->debug_start("ADI/transaction");
         $this->mysqli->begin_transaction();
         $this->start_reading_taxa();
         $this->mysqli->commit();
@@ -64,21 +77,26 @@ class ArchiveDataIngester
         $this->sparql_client->insert_remaining_bulk_data();
 
         $this->mysqli->end_transaction();
+        $this->harvest_event->debug_end("ADI/transaction");
 
+        $this->harvest_event->debug_end("ADI/parse");
         // returning true so we know that the parsing/ingesting succeeded
         return true;
     }
 
     public function start_reading_taxa()
     {
+      $this->harvest_event->debug_start("ADI/start_reading_taxa");
         $this->children = array();
         $this->synonyms = array();
         $this->archive_reader->process_row_type("http://rs.tdwg.org/dwc/terms/Taxon", array($this, 'read_taxon'));
         $this->begin_adding_taxa();
+        $this->harvest_event->debug_end("ADI/start_reading_taxa");
     }
 
     private function begin_adding_taxa()
     {
+      $this->harvest_event->debug_start("ADI/begin_adding_taxa");
         $this->taxon_ids_inserted = array();
         if(isset($this->children[0]))
         {
@@ -90,7 +108,11 @@ class ArchiveDataIngester
                 self::uncompress_array($row);
                 $this->add_hierarchy_entry($row, $parent_hierarchy_entry_id, $ancestry, @$row['http://rs.tdwg.org/dwc/terms/scientificName']);
             }
-        }else echo "THERE ARE NO ROOT TAXA\nAborting import\n";
+        } else {
+          debug("ERROR: no root taxa!");
+          echo "THERE ARE NO ROOT TAXA\nAborting import\n";
+        }
+        $this->harvest_event->debug_end("ADI/begin_adding_taxa");
     }
 
     public function read_taxon($row, $parameters)
@@ -120,6 +142,7 @@ class ArchiveDataIngester
         $row['archive_line_number'] = $parameters['archive_line_number'];
         $row['archive_file_location'] = $parameters['archive_table_definition']->location;
 
+        // TODO: what is compress_array? I am assuming it's like Ruby's #compact
         self::compress_array($row);
         if($taxon_id && $is_valid)
         {
@@ -165,15 +188,24 @@ class ArchiveDataIngester
         }
         if(!$scientific_name) return false;
 
-        // this taxon_id has already been inserted meaning this tree has a loop in it - so stop
         $taxon_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/taxonID']);
         if(!$taxon_id) $taxon_id = @self::field_decode($row['http://purl.org/dc/terms/identifier']);
-        if(!$taxon_id) return false;
-        if(isset($this->taxon_ids_inserted[$taxon_id])) return false;
+        if(!$taxon_id) {
+          debug("ERROR - no taxon ID for $scientific_name, skipping");
+          return false;
+        }
+        if(isset($this->taxon_ids_inserted[$taxon_id])) {
+          // this taxon_id has already been inserted meaning this tree has a loop in it - so stop
+          debug("ERROR - taxon ID ($taxon_id) for $scientific_name already inserted; LOOP?");
+          return false;
+        }
 
         $scientific_name = ucfirst($scientific_name);
         $name = Name::find_or_create_by_string($scientific_name);
-        if(@!$name->id) return false;
+        if(@!$name->id) {
+          debug("ERROR - Failed to insert name: $scientific_name");
+          return false;
+        }
 
         $phylum = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/phylum']);
         $class = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/class']);
@@ -190,6 +222,9 @@ class ArchiveDataIngester
         else $taxon_remarks = NULL;
         if(!$taxon_remarks && strtolower($taxonomic_status) == 'provisionally accepted name') $taxon_remarks = "provisionally accepted name";
 
+        // TODO: This block is somewhat confusing. Clearly, it's clearing the
+        // rank that's currently being read, but shouldn't it also clear all of
+        // the ranks below that?
         if(strtolower($rank_label) == 'kingdom') $kingdom = null;
         if(strtolower($rank_label) == 'phylum') $phylum = null;
         if(strtolower($rank_label) == 'class') $class = null;
@@ -213,7 +248,13 @@ class ArchiveDataIngester
                             "rank"              => $rank,
                             "taxon_remarks"     => $taxon_remarks);
             $hierarchy_entry = HierarchyEntry::create_entries_for_taxon($params, $this->harvest_event->resource->hierarchy_id);
-            if(@!$hierarchy_entry->id) return;
+            if(@!$hierarchy_entry->id) {
+              debug("ERROR - unable to insert hierarchy entry for $scientific_name");
+              return;
+            }
+            // NOTE: This is NOT adding a hierarchy entry, but a
+            // harvest_event_hierarchy_entry:
+            // TODO: I am not sure this adds entries for ancestors!
             $this->harvest_event->add_hierarchy_entry($hierarchy_entry, 'inserted');
             $this->taxon_ids_inserted[$taxon_id] = array('hierarchy_entry_id' => $hierarchy_entry->id, 'taxon_concept_id' => $hierarchy_entry->taxon_concept_id, 'source_url' => $source_url);
             self::compress_array($this->taxon_ids_inserted[$taxon_id]);
@@ -369,15 +410,21 @@ class ArchiveDataIngester
             $he_id = $taxon_info['hierarchy_entry_id'];
             $tc_id = $taxon_info['taxon_concept_id'];
             $common_name_relation = SynonymRelation::find_or_create_by_translated_label('common name');
-            $result = $this->mysqli->query("SELECT SQL_NO_CACHE id FROM synonyms WHERE name_id = " . $name->id ." AND synonym_relation_id = " .
-                $common_name_relation->id . " AND hierarchy_entry_id = " . $he_id . " AND hierarchy_id = " . $this->harvest_event->resource->hierarchy_id);
+            $result = $this->mysqli->query(
+              "SELECT SQL_NO_CACHE id FROM synonyms" .
+              " WHERE name_id = " . $name->id .
+              " AND synonym_relation_id = " . $common_name_relation->id .
+              " AND hierarchy_entry_id = " . $he_id .
+              " AND hierarchy_id = " .
+              $this->harvest_event->resource->hierarchy_id);
             if ($result && $result->fetch_assoc()){
               $l_id = @$language->id ?: 0;
               $GLOBALS['db_connection']->update(
-                "UPDATE synonyms SET language_id = " . $l_id .
-                ", published = 0, " .
-                " taxonRemarks = " . $taxonRemarks .
-                " WHERE name_id = " . $name->id .
+                "UPDATE synonyms SET" .
+                " language_id = " . $l_id .
+                ", published = 0" .
+                ", taxon_remarks = '" . $taxonRemarks .
+                "' WHERE name_id = " . $name->id .
                 " AND synonym_relation_id = " . $common_name_relation->id .
                 " AND hierarchy_entry_id = " . $he_id .
                 " AND hierarchy_id = " .

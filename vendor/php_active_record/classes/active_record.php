@@ -968,11 +968,15 @@ class ActiveRecord
     }
 
     function debug_start($method) {
-      debug("++ START $method $this->id ($this->title)");
+      $title = "(NO TITLE)";
+      if(!empty($this->title)) $title = $this->title;
+      debug("++ START $method $this->id ($title)");
     }
 
     function debug_end($method) {
-      debug("-- END $method $this->id ($this->title)");
+      $title = "(NO TITLE)";
+      if(!empty($this->title)) $title = $this->title;
+      debug("-- END $method $this->id ($title)");
     }
 
 }

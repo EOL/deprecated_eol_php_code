@@ -356,6 +356,7 @@ class Resource extends ActiveRecord
               $this->update_names();
               $this->mysqli->commit();
 
+              //TODO: really, commit twice in a row? Is there any use in that?
               $this->mysqli->commit();
               $harvest_event->resource->refresh();
               if(!$fast_for_testing)
@@ -388,10 +389,11 @@ class Resource extends ActiveRecord
           $this->being_processed();
           $this->debug_start("transaction");
           $this->mysqli->begin_transaction();
-          $this->insert_hierarchy();
+          $this->insert_hierarchy(); // ...or use the one we have...
           $sparql_client = SparqlClient::connection();
+          // TODO: we shouldn't delete the graph, but make a temp one...
           $sparql_client->delete_graph($this->virtuoso_graph_name());
-          $this->start_harvest();
+          $this->start_harvest(); // Create the event
 
           $this->debug_start("parsing");
           if($this->is_translation_resource())
@@ -868,10 +870,13 @@ class Resource extends ActiveRecord
             $relator->process_hierarchy();
 
             // Use the entry relationships to assign the proper concept IDs
+            $this->debug_start("CompareHierarchies::begin_concept_assignment");
             CompareHierarchies::begin_concept_assignment($archive_hierarchy_id, true);
+            $this->debug_end("CompareHierarchies::begin_concept_assignment");
 
-            // this means the resource already had a hierarchy - and we just inserted one to take its place, so
-            // we now need to update resources to point to the new one now that its ready
+            // this means the resource already had a hierarchy - and we just
+            // inserted one to take its place, so we now need to update
+            // resources to point to the new one now that its ready
             if($archive_hierarchy_id != $this->dwc_hierarchy_id)
             {
                 $this->mysqli->update("UPDATE resources SET dwc_hierarchy_id=$archive_hierarchy_id WHERE id=$this->id");

@@ -6,11 +6,16 @@ class CompareHierarchies
     // number of rows from each hierarchy to compare in an iteration
     private static $solr_iteration_size = 10000;
 
-    // this method will use its own transactions so commit any open transactions before using
+    // this method will use its own transactions so commit any open transactions
+    // before using
     public static function begin_concept_assignment($hierarchy_id = null, $use_synonyms_for_merging = false)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
-        if(!defined('SOLR_SERVER') || !SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries')) return false;
+        if(!defined('SOLR_SERVER') ||
+          !SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries')) {
+          debug("ERROR: No Solr server; cannot begin_concept_assignment");
+          return false;
+        }
 
         // looking up which hierarchies might have nodes in preview mode
         // this will save time later on when we need to check published vs preview taxa
@@ -35,8 +40,9 @@ class CompareHierarchies
         $hierarchy_lookup_ids2[800] = 1;
         arsort($hierarchy_lookup_ids2);
 
-        // if the function is passed a hierarchy_id then make the first loop just that hierarchy
-        // otherwise make the first loop the same as the inner loop - compare everything with everything else
+        // if the function is passed a hierarchy_id then make the first loop
+        // just that hierarchy otherwise make the first loop the same as the
+        // inner loop - compare everything with everything else
         if($hierarchy_id)
         {
             $hierarchy1 = Hierarchy::find($hierarchy_id);
@@ -79,9 +85,10 @@ class CompareHierarchies
         $mysqli =& $GLOBALS['mysqli_connection'];
         if($GLOBALS['ENV_DEBUG']) echo("Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)\n");
 
-        // hierarchy is the same and its 'complete' meaning its been curated and all nodes should be different taxa
-        // so there no need to compare it to itself. Other hierarchies are not 'complete' such as Flickr which
-        // can have several entries for the same taxon
+        // hierarchy is the same and its 'complete' meaning its been curated and
+        // all nodes should be different taxa so there no need to compare it to
+        // itself. Other hierarchies are not 'complete' such as Flickr which can
+        // have several entries for the same taxon
         if($hierarchy1->id == $hierarchy2->id && $hierarchy1->complete) return;
 
         // store all changes made this session
@@ -131,9 +138,11 @@ class CompareHierarchies
                 $entries_matched[$id1] = 1;
                 $entries_matched[$id2] = 1;
 
-                // this comparison happens here instead of the query to ensure the sorting is always the same
-                // if this happened in the query and the entry was related to more than one taxa, and this function is run more than once
-                // then we'll start to get huge groups of concepts - all transitively related to one another
+                // this comparison happens here instead of the query to ensure
+                // the sorting is always the same if this happened in the query
+                // and the entry was related to more than one taxa, and this
+                // function is run more than once then we'll start to get huge
+                // groups of concepts - all transitively related to one another
                 if($tc_id1 == $tc_id2) continue;
 
                 // get all the recent supercedures withouth looking in the DB
@@ -145,7 +154,8 @@ class CompareHierarchies
                 $tc_id2 = TaxonConcept::get_superceded_by($tc_id2);
                 if($tc_id1 == $tc_id2) continue;
 
-                // if even after all recent changes we still have different concepts, merge them
+                // if even after all recent changes we still have different
+                // concepts, merge them
                 if($tc_id1 != $tc_id2)
                 {
                     if($GLOBALS['ENV_DEBUG']) echo("$id1 :: $id2\n");
