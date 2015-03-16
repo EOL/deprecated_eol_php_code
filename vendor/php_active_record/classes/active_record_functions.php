@@ -43,7 +43,7 @@ function to_singular($str)
     elseif(preg_match("/^(.*)(oes)$/", $str, $arr)) $str = $arr[1] . 'o';
     elseif(preg_match("/^(.*)(ses)$/", $str, $arr)) $str = $arr[1] . 's';
     elseif(preg_match("/^(.*)(s)$/", $str, $arr)) $str = $arr[1];
-    
+
     return $str;
 }
 
@@ -53,7 +53,7 @@ function to_plural($str)
     elseif(preg_match("/^(.*)(s)$/", $str, $arr)) $str = $arr[1] . 'ses';
     elseif(preg_match("/^(.*)(o)$/", $str, $arr)) $str = $arr[1] . 'oes';
     else $str .= 's';
-    
+
     return $str;
 }
 
@@ -93,13 +93,6 @@ function mysql_debug($string)
     }
 }
 
-
-
-
-
-
-
-
 /*
 ===================================
     Misc
@@ -111,18 +104,18 @@ function render_view($view, $parameters = NULL, $return = false)
     if(file_exists($filename))
     {
         if(is_array($parameters)) extract($parameters);
-        
+
         ob_start();
         include $filename;
         $contents = ob_get_contents();
         ob_end_clean();
-        
+
         if($return) return $contents;
-        
+
         echo $contents;
         return true;
     }
-    
+
     trigger_error('Unknown view `' . $view . '` in '.get_last_function(1), E_USER_ERROR);
 }
 
@@ -132,16 +125,16 @@ function render_template($filename, $parameters = NULL, $return = false)
     if(is_file($filename))
     {
         if(is_array($parameters)) extract($parameters);
-        
+
         ob_start();
         include $filename;
         $contents = ob_get_contents();
         ob_end_clean();
-        
+
         if($return) return $contents;
         else echo $contents;
     }else print "template $filename does not exist";
-    
+
     return false;
 }
 
@@ -207,11 +200,11 @@ function shutdown_check()
     }
     if ($isError) debug("Fatal Error: {$error['message']} in {$error['file']} on line {$error['line']}");
     else debug("Completed ". $_SERVER['SCRIPT_FILENAME']);
-    
+
     // close any open database connections
     if($GLOBALS['db_connection']->transaction_in_progress) $GLOBALS['db_connection']->rollback();
     if($GLOBALS['ENV_MYSQL_DEBUG']) debug("Closing database connection\n");
-    
+
     // close the log file handle
     if($GLOBALS['ENV_DEBUG'] && $GLOBALS['ENV_DEBUG_TO_FILE'] && @$GLOBALS['ENV_DEBUG_FILE_HANDLE'])
     {
@@ -222,34 +215,34 @@ function shutdown_check()
 function load_fixtures($environment = "test")
 {
     if(@$GLOBALS['ENV_NAME'] != $environment) return false;
-    
+
     $files = get_fixture_files();
-    
+
     $fixture_data = (object) array();
-    
+
     $GLOBALS['db_connection']->begin_transaction();
     foreach($files as $table)
     {
         $fixture_data->$table = (object) array();
-        
+
         $rows = \Spyc::YAMLLoad(DOC_ROOT . "tests/fixtures/$table.yml");
         foreach($rows as $id => $row)
         {
             $fixture_data->$table->$id = (object) array();
-            
+
             foreach($row as $key => $val)
             {
                 if(!is_field_in_table($key, $table)) unset($row[$key]);
             }
-            
+
             $query = "INSERT INTO $table (`";
             $query .= implode("`, `", array_keys($row));
             $query .= "`) VALUES ('";
             $query .= implode("', '", $row);
             $query .= "')";
-            
+
             $GLOBALS['db_connection']->insert($query);
-            
+
             foreach($row as $k => $v)
             {
                 $fixture_data->$table->$id->$k = $v;
@@ -257,14 +250,14 @@ function load_fixtures($environment = "test")
         }
     }
     $GLOBALS['db_connection']->end_transaction();
-    
+
     return $fixture_data;
 }
 
 function get_fixture_files()
 {
     $files = array();
-    
+
     $dir = DOC_ROOT . 'tests/fixtures/';
     if($handle = opendir($dir))
     {
@@ -277,7 +270,7 @@ function get_fixture_files()
        }
        closedir($handle);
     }
-    
+
     return $files;
 }
 
@@ -310,18 +303,18 @@ function is_field_in_table($field, $table)
 function table_fields($table)
 {
     if($cache = Cache::get('table_fields:' . $table)) return $cache;
-    
+
     $fields = array();
-    
+
     $result = $GLOBALS['db_connection']->query('SHOW fields FROM `' . $table . '`');
     while($result && $row=$result->fetch_assoc())
     {
         $fields[] = $row["Field"];
     }
     if($result && @$result->num_rows) $result->free();
-    
+
     Cache::set('table_fields:' . $table, $fields);
-    
+
     return $fields;
 }
 
@@ -371,7 +364,7 @@ function temp_filepath($relative_from_root = false, $extension = 'file')
 {
     if($relative_from_root) $prefix = "";
     else $prefix = DOC_ROOT;
-    
+
     $filepath = $prefix ."tmp/tmp_". random_digits(5) .".$extension";
     // make sure the name is unique
     while(glob($filepath))
@@ -411,7 +404,7 @@ function file_randomize($path)
             $newline_positions[] = ftell($FILE);
         }
     }
-    
+
     // randomize the offsets and seek around the file getting the random lines
     shuffle($newline_positions);
     $new_file_path = temp_filepath();
@@ -426,7 +419,7 @@ function file_randomize($path)
     }
     fclose($NEW_FILE);
     fclose($FILE);
-    
+
     unlink($path);
     rename($new_file_path, $path);
 }
@@ -434,7 +427,7 @@ function file_randomize($path)
 function get_simpletest_name()
 {
     static $test_number = 0;
-    
+
     $test_name = "";
     if(isset($GLOBALS['group_test']->_test_cases[$test_number]->_reporter->_test_stack[2]))
     {
@@ -447,7 +440,7 @@ function get_simpletest_name()
             $test_name = $GLOBALS['group_test']->_test_cases[$test_number]->_reporter->_test_stack[2];
         }
     }
-    
+
     return $test_name;
 }
 
