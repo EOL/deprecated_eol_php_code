@@ -56,7 +56,7 @@ class EnvironmentsEOLDataConnector
         {
             $temp = explode("\t", $line);
             $i++;
-            echo "\n".number_format($i)." - ";
+            if(($i % 5000) == 0) echo "\n".number_format($i)." - ";
             /* breakdown when caching
             $cont = false;
             // if($i >= 1      && $i < 400000)  $cont = true;
@@ -122,24 +122,28 @@ class EnvironmentsEOLDataConnector
                         // print_r($arr);
                         if(!$taxon['rank']) $taxon['rank'] = @$arr['taxonRank'];
                         $i = 0;
-                        foreach(@$arr['ancestors'] as $ancestor)
+
+                        if($loop = @$arr['ancestors'])
                         {
-                            if($rank = @$ancestor['taxonRank'])
+                            foreach($loop as $ancestor)
                             {
-                                if(in_array($rank, $included_ranks))
+                                if($rank = @$ancestor['taxonRank'])
                                 {
-                                    $taxon['ancestry'][$rank] = $ancestor['scientificName'];
-                                    $i++;
+                                    if(in_array($rank, $included_ranks))
+                                    {
+                                        $taxon['ancestry'][$rank] = $ancestor['scientificName'];
+                                        $i++;
+                                    }
                                 }
+                                if($i >= 2) break; // just two will be enough for mapping names during name reconciliation
                             }
-                            if($i >= 2) break; // just two will be enough for mapping names during name reconciliation
                         }
                     }
                 }
             } // if $tc exists
             if(!@$match)
             {
-                echo "\ninvestigate no real match [$taxon_id], no hierarchy_entry therefore no ancestry\n"; //e.g. http://eol.org/api/pages/1.0/6862766.xml?images=0&videos=0&sounds=0&maps=0&text=0&iucn=false&subjects=overview&licenses=all&details=true&common_names=false&synonyms=false&references=false&vetted=0&cache_ttl=
+                // echo "\ninvestigate no real match [$taxon_id], no hierarchy_entry therefore no ancestry\n"; //e.g. http://eol.org/api/pages/1.0/6862766.xml?images=0&videos=0&sounds=0&maps=0&text=0&iucn=false&subjects=overview&licenses=all&details=true&common_names=false&synonyms=false&references=false&vetted=0&cache_ttl=
                 $taxon['taxon_id']       = $taxon_id;
                 $taxon['scientificName'] = $sciname;
                 $taxon['ancestry'] = array();
@@ -151,6 +155,7 @@ class EnvironmentsEOLDataConnector
 
     private function get_the_right_tc_record($tcs, $sciname)
     {
+        if(!$tcs) return false;
         $tc_rec = false;
         foreach($tcs as $tc)
         {
@@ -199,7 +204,7 @@ class EnvironmentsEOLDataConnector
                 $taxon->$rank = $name;
             }
         }
-        echo " - $taxon->scientificName [$taxon->taxonID]";
+        // echo " - $taxon->scientificName [$taxon->taxonID]";
         if(!isset($this->taxon_ids[$taxon->taxonID]))
         {
             $this->archive_builder->write_object_to_file($taxon);
@@ -240,12 +245,12 @@ class EnvironmentsEOLDataConnector
     private function add_string_types($rec)
     {
         // since all measurements have measurementOfTaxon = 'true' then the occurrence_id will not be used twice
-        if($occurrence = $this->add_occurrence($rec["taxon_id"], $rec["catnum"]))
+        if($occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"]))
         {
             unset($rec['catnum']);
             unset($rec['taxon_id']);
             $m = new \eol_schema\MeasurementOrFact();
-            $m->occurrenceID = $occurrence->occurrenceID;
+            $m->occurrenceID = $occurrence_id;
             foreach($rec as $key => $value) $m->$key = $value;
             $this->archive_builder->write_object_to_file($m);
         }
@@ -261,7 +266,7 @@ class EnvironmentsEOLDataConnector
         $o->taxonID = $taxon_id;
         $this->archive_builder->write_object_to_file($o);
         $this->occurrence_ids[$occurrence_id] = '';
-        return $o;
+        return $occurrence_id;
     }
 
     private function save_to_dump($rec, $filename)
