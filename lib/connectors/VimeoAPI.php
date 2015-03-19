@@ -42,7 +42,7 @@ class VimeoAPI
                     foreach($return->videos->video as $video)
                     {
                         $j++;
-                        debug("\nUser $i of $count_of_users (UserID: $user_id); Video $j of $count_of_videos on page $page (VideoID: $video->id)");
+                        echo("\nUser $i of $count_of_users (UserID: $user_id); Video $j of $count_of_videos on page $page (VideoID: $video->id)");
                         $arr = self::get_vimeo_taxa($video, $used_collection_ids);
                         $page_taxa              = $arr[0];
                         $used_collection_ids    = $arr[1];
@@ -63,12 +63,12 @@ class VimeoAPI
             if($return = $vimeo->call($command, $param)) return $return;
             else
             {
-                debug("\n Fail. Will try again in 30 seconds.");
+                echo("\n Fail. Will try again in 30 seconds.");
                 sleep(30);
                 $trials++;
             }
         }
-        debug("\nFailed after 5 tries.");
+        echo("\nFailed after 5 tries.");
         return false;
     }
     
@@ -79,9 +79,9 @@ class VimeoAPI
         $page = 1;
         while(!$user_ids || count($user_ids) % 20 == 0) //if count($user_ids) is not a multiple of 20 it means that this current page is the last page; default per_page = 50
         {
-            debug("\npage: $page");
+            echo("\npage: $page");
             $return = self::vimeo_call_with_retry($vimeo, 'vimeo.groups.getMembers', array('group_id' => "encyclopediaoflife", 'page' => $page, 'per_page' => 20));
-            debug(" - " . count($return->members->member) . " members");
+            echo(" - " . count($return->members->member) . " members");
             $loop = array();
             if(count($return->members->member) == 1) $loop[] = $return->members->member;
             else                                     $loop = $return->members->member;
@@ -184,7 +184,7 @@ class VimeoAPI
         //has to have a valid license
         if(!$license)
         {
-            debug("\ninvalid license: " . $rec->urls->url{0}->{"_content"});
+            echo("\ninvalid license: " . $rec->urls->url{0}->{"_content"});
             return array();
         }
 
@@ -303,7 +303,7 @@ class VimeoAPI
         foreach($match as $tag) if(preg_match("/^taxonomy:" . $smallest_rank . "=(.*)$/i", $tag, $arr)) $sciname = ucfirst(trim($arr[1]));
         if(!isset($sciname))
         {
-            debug("\nThis needs checking...");
+            echo("\nThis needs checking...");
             print_r($match); 
         }
         return array("rank" => $smallest_rank, "name" => $sciname);

@@ -1,8 +1,7 @@
 <?php
 namespace php_active_record;
 /* LifeDesk to EOL export
-estimated execution time:
-
+estimated execution time: a few seconds per LifeDesk
 - Use the LifeDesk EOL XML here: http://afrotropicalbirds.lifedesks.org/eol-partnership.xml.gz --- first LD to process
 - Remove the furtherInformationURL entries, or leave them blank.
 - strip tags in <references>
@@ -13,27 +12,24 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/LifeDeskToEOLAPI');
 $timestart = time_elapsed();
 $func = new LifeDeskToEOLAPI();
-// ==================================================================================================
-// afrotropicalbirds remote
-$params["afrotropicalbirds"]["remote"]["lifedesk"]      = "http://afrotropicalbirds.lifedesks.org/eol-partnership.xml.gz";
-$params["afrotropicalbirds"]["remote"]["name"]          = "afrotropicalbirds";
-// afrotropicalbirds Dropbox
-$params["afrotropicalbirds"]["dropbox"]["lifedesk"]     = "";
-$params["afrotropicalbirds"]["dropbox"]["name"]         = "afrotropicalbirds";
-// afrotropicalbirds local
-$params["afrotropicalbirds"]["local"]["lifedesk"]       = "http://localhost/~eolit/cp/LD2EOL/afrotropicalbirds/eol-partnership.xml.gz";
-$params["afrotropicalbirds"]["local"]["name"]           = "afrotropicalbirds";
-// ==================================================================================================
 
-/* paste here which Lifedesk you want to export: e.g. $parameters = $params["afrotropicalbirds"]["dropbox"]; */
-$parameters = $params["afrotropicalbirds"]["local"];
-if($parameters) $func->export_lifedesk_to_eol($parameters);
-else echo "\nNothing to process. Program will terminate\n";
-
-/* To run them all:
 $lifedesks = array("afrotropicalbirds");
+$lifedesks = array("araneae", "drosophilidae", "mochokidae", "batrach", "berry");                   //DATA-1597
+$lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife", "diptera");          //DATA-1599
+$lifedesks = array("trilobites", "echinoderms", "snakesoftheworld", "pleurotomariidae", "psora");   //DATA-1600
+$lifedesks = array("plantsoftibet", "philbreo", "rotifera", "maldivesnlaccadives", "mexinverts");   //DATA-1601
+
+foreach($lifedesks as $ld)
+{
+    $params[$ld]["remote"]["lifedesk"]      = "http://" . $ld . ".lifedesks.org/eol-partnership.xml.gz";
+    $params[$ld]["remote"]["name"]          = $ld;
+    $params[$ld]["dropbox"]["lifedesk"]     = "";
+    $params[$ld]["dropbox"]["name"]         = $ld;
+    $params[$ld]["local"]["lifedesk"]       = "http://localhost/~eolit/cp/LD2EOL/" . $ld . "/eol-partnership.xml.gz";
+    $params[$ld]["local"]["name"]           = $ld;
+}
+
 foreach($lifedesks as $lifedesk) $func->export_lifedesk_to_eol($params[$lifedesk]["local"]);
-*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

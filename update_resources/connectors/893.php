@@ -6,6 +6,7 @@ This connector assembles the data and generates the EOL archive for ingestion.
 estimated execution time: this will vary depending on how big the archive file is.
 
 DATA-1579 GBIF national node type records- Sweden
+                                    Mar2
 measurement_or_fact         262882  341939
 occurrence                  87628   87628
 taxon                       50395   50395
@@ -16,10 +17,17 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/GBIFCountryTypeRecordAPI');
 $timestart = time_elapsed();
 
+/*//local
+$params["citation_file"] = "http://localhost/~eolit/cp/GBIF_dwca/countries/Sweden/Citation mapping Sweden.xlsx";
 $params["dwca_file"]    = "http://localhost/~eolit/cp/GBIF_dwca/countries/Sweden/Sweden.zip";
 $params["uri_file"]     = "http://localhost/~eolit/cp/GBIF_dwca/countries/Sweden/GBIF Sweden mapping.xlsx";
+*/
+
+//remote
+$params["citation_file"] = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/Sweden/Citation mapping Sweden.xlsx";
 $params["dwca_file"]    = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/Sweden/Sweden.zip";
 $params["uri_file"]     = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/Sweden/GBIF Sweden mapping.xlsx";
+
 $params["dataset"]      = "GBIF";
 $params["country"]      = "Sweden";
 $params["type"]         = "structured data";

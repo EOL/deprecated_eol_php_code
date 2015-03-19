@@ -28,10 +28,38 @@ class FishBaseArchiveAPI
         $this->object_agent_ids     = array();
         $this->reference_ids        = array();
         $this->agent_ids            = array();
+        $this->uri_mappings_spreadsheet = "http://localhost/~eolit/cp/FishBase/fishbase mappings.xlsx";
+        $this->uri_mappings_spreadsheet = "https://dl.dropboxusercontent.com/u/7597512/FishBase/fishbase mappings.xlsx";
     }
 
     function get_all_taxa($resource_id)
     {
+        $this->uris = self::get_uris();
+        
+        /*
+        $str = "bathydemersal; marine; depth range 549 - 1202 m (Ref. 97189)";
+        $str = "benthopelagic; potamodromous (Ref. 51243); freshwater; brackish; pH range: 7.0 - 7.5; dH range: 15; depth range 1 - ? m (Ref. 9696)";
+        $str = "depth range 220 - 457 m, usually 274 - 402 m";
+        $str = "reef-associated; non-migratory; marine; depth range 6 - 80 m (Ref. 9334), usually 6 - 20 m (Ref. 6852)";
+        $str = "non-migratory; freshwater; anadromous; pH range: 6.6 - 36,751.0; depth range 0 - 1 m (Ref. 58018)";
+        $str = "pH range: 6.6; depth range 220 - 457 m, usually 274 - 402 m";
+        $str = "depth range 220 - 457 m; benthopelagic; freshwater, usually ? - 10 m (Ref. 5595)";
+        $str = "demersal; amphidromous? (Ref. 51243); freshwater; brackish; marine; depth range ? - 5 m (Ref. 6733)";
+        $parts = self::get_description_parts($str, false); print_r($parts); 
+        $a = self::process_habitat_data($parts); print_r($a); exit;
+        */
+        
+        /*
+        $str = "33.7 cm SL (male/unsexed; (Ref. 93606)); max. reported age: 33 years (Ref. 93630)";
+        $str = "69.0 cm TL (male/unsexed; (Ref. 5578))";
+        $str = "4.7 cm SL (male/unsexed; (Ref. 4696)); 3.9 cm SL (female); max. reported age: 1 years (Ref. 232)";
+        $str = "61.0 cm TL (male/unsexed; (Ref. 58426)); 42.9 cm SL (female); max. published weight: 9,500 g (Ref. 4701); max. published weight: 5,000.0 g; max. reported age: 13 years (Ref. 54207)";
+        $str = "50.0 cm TL (male/unsexed; (Ref. 3506)); 133 cm TL (female); max. published weight: 6,599 g (Ref. 39903); max. published weight: 2,850.0 g; max. reported age: 88 years (Ref. 72468)";
+        $str = str_ireplace("unsexed;", "unsexed", $str);
+        $parts = self::get_description_parts($str, false); print_r($parts); 
+        $a = self::process_size_data($parts); print_r($a); exit;
+        */
+        
         self::prepare_data();
         // remove tmp dir
         $this->TEMP_FILE_PATH = str_ireplace("/fishbase", "", $this->TEMP_FILE_PATH);
@@ -68,7 +96,7 @@ class FishBaseArchiveAPI
         }
         else
         {
-            debug("\n\n Connector terminated. Remote files are not ready.\n\n");
+            echo("\n\n Connector terminated. Remote files are not ready.\n\n");
             return;
         }
     }
@@ -76,6 +104,19 @@ class FishBaseArchiveAPI
     function prepare_data()
     {
         self::load_zip_contents();
+
+        /* to be used when developing
+        $this->TEMP_FILE_PATH = DOC_ROOT . "tmp/fb_dir_88795";
+        $this->text_path['TAXON_PATH']                       = $this->TEMP_FILE_PATH . "/taxon.txt";
+        $this->text_path['TAXON_COMNAMES_PATH']              = $this->TEMP_FILE_PATH . "/taxon_comnames.txt";
+        $this->text_path['TAXON_DATAOBJECT_PATH']            = $this->TEMP_FILE_PATH . "/taxon_dataobject.txt";
+        $this->text_path['TAXON_DATAOBJECT_AGENT_PATH']      = $this->TEMP_FILE_PATH . "/taxon_dataobject_agent.txt";
+        $this->text_path['TAXON_DATAOBJECT_REFERENCE_PATH']  = $this->TEMP_FILE_PATH . "/taxon_dataobject_reference.txt";
+        $this->text_path['TAXON_REFERENCES_PATH']            = $this->TEMP_FILE_PATH . "/taxon_references.txt";
+        $this->text_path['TAXON_SYNONYMS_PATH']              = $this->TEMP_FILE_PATH . "/taxon_synonyms.txt";
+        */
+        // self::clean_text_file($this->text_path['TAXON_REFERENCES_PATH']); // tried to fix bad char in taxon_references.txt from FishBase
+        
         self::process_taxa_references();        echo "\n taxa references -- DONE";
         self::process_taxa();                   echo "\n taxa -- DONE";
         self::process_taxa_comnames();          echo "\n common names -- DONE";
@@ -157,7 +198,7 @@ class FishBaseArchiveAPI
                 $agent_ids[] = $r->identifier;
                 if(!isset($this->agent_ids[$r->identifier]))
                 {
-                   $this->agent_ids[$r->identifier] = '';
+                   $this->agent_ids[$r->identifier] = $r->term_name;
                    $this->archive_builder->write_object_to_file($r);
                 }
             }
@@ -192,16 +233,27 @@ class FishBaseArchiveAPI
         foreach($refs as $ref)
         {
             foreach($ref as $key => $value) $ref[$key] = str_replace("\N", "", $value);
-            if(!Functions::is_utf8($ref['reference'])) continue;
+            // if(!Functions::is_utf8($ref['reference'])) continue; // commented since it excludes many references that are needed
             $r = new \eol_schema\Reference();
             $r->full_reference = $ref['reference'];
             $r->identifier = md5($r->full_reference);
             $r->uri = $ref['url'];
             $reference_ids[] = $r->identifier;
-            if(!isset($this->reference_ids[$r->identifier]))
+            
+            //get ref_id
+            if(preg_match("/id=(.*?)&/ims", $ref['url'], $arr)) $ref_id = trim($arr[1]);
+            elseif(preg_match("/id=(.*?)xxx/ims", $ref['url']."xxx", $arr)) $ref_id = trim($arr[1]);
+            else
             {
-               $this->reference_ids[$r->identifier] = '';
-               $this->archive_builder->write_object_to_file($r);
+                echo "\nno ref id; investigate: " . $ref["url"];
+                print_r($ref);
+                exit("\n");
+            }
+            
+            if(!isset($this->reference_ids[$ref_id]))
+            {
+                $this->reference_ids[$ref_id] = $r->identifier;
+                $this->archive_builder->write_object_to_file($r);
             }
         }
         return array_unique($reference_ids);
@@ -228,35 +280,122 @@ class FishBaseArchiveAPI
         */
         $fields = array("TaxonID", "dc_identifier", "dataType", "mimeType", "dcterms_created", "dcterms_modified", "dc_title", "dc_language", "license", "dc_rights", "dcterms_bibliographicCitation", "dc_source", "subject", "dc_description", "mediaURL", "thumbnailURL", "location", "xml_lang", "geo_point", "lat", "long", "alt", "timestamp", "int_id", "int_do_id", "dc_rightsHolder");
         $taxa_objects = self::make_array($this->text_path['TAXON_DATAOBJECT_PATH'], $fields, "int_id", array(0,4,5,7,17,18,19,20,21,22));
+
+        $debug = array();
+        $debug["sex"] = array();
+        $debug["title"] = array();
+        $debug["unit"] = array();
+        $debug["method"] = array();
+        $k = 0;
+        
         foreach($taxa_objects as $taxon_id => $objects) //taxon_id is int_id in FB text file
         {
+            $k++;
             foreach($objects as $o)
             {
                 foreach($o as $key => $value) $o[$key] = str_replace("\N", "", $value);
-                $mr = new \eol_schema\MediaResource();
-                if($val = @$this->taxa_ids[$taxon_id]) $mr->taxonID = $val;
+                if($val = @$this->taxa_ids[$taxon_id]) $taxonID = $val;
                 else continue;
-                $mr->identifier     = $o['dc_identifier'];
-                $mr->type           = $o['dataType'];
-                $mr->language       = 'en';
-                $mr->format         = $o['mimeType'];
-                if(substr($o['dc_source'], 0, 4) == "http") $mr->furtherInformationURL = $o['dc_source'];
-                $mr->accessURI      = $o['mediaURL'];
-                $mr->thumbnailURL   = $o['thumbnailURL'];
-                $mr->CVterm         = $o['subject'];
-                $mr->Owner          = $o['dc_rightsHolder'];
-                $mr->rights         = $o['dc_rights'];
-                $mr->title          = $o['dc_title'];
-                $mr->UsageTerms     = $o['license'];
-                $mr->audience       = 'Everyone';
-                $mr->description    = utf8_encode($o['dc_description']);
-                if(!Functions::is_utf8($mr->description)) continue;
-                $mr->LocationCreated = $o['location'];
-                $mr->bibliographicCitation = $o['dcterms_bibliographicCitation'];
-                if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
-                if($agent_ids     =     @$this->object_agent_ids[$o['int_do_id']])  $mr->agentID = implode("; ", $agent_ids);
-                $this->archive_builder->write_object_to_file($mr);
+                $description = utf8_encode($o['dc_description']);
+                
+                //for TraitBank
+                $rec = array();
+                $rec["taxon_id"] = $taxonID;
+                $rec["catnum"] = $o['dc_identifier'];
+                $orig_catnum = $o['dc_identifier'];
+                if(substr($o['dc_source'],0,4) == "http")                          $rec["source"]      = $o['dc_source'];
+                if($reference_ids = @$this->object_reference_ids[$o['int_do_id']]) $rec["referenceID"] = implode("; ", $reference_ids);
+                if($agent_ids = @$this->object_agent_ids[$o['int_do_id']])         $rec["contributor"] = self::convert_agent_ids_with_names($agent_ids);
+                
+                if($o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size" || $o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat")
+                {
+                    if($o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size")
+                    {
+                        $str = str_ireplace("unsexed;", "unsexed", $description);
+                        $parts = self::get_description_parts($str, false);
+                        $items = self::process_size_data($parts);
+                        /* for stats only -- will work when looping $parts not $items
+                        $debug["sex"][@$part["sex"]] = '';
+                        $debug["title"][@$part["title"]] = '';
+                        $debug["unit"][@$part["unit"]] = '';
+                        $debug["method"][@$part["method"]] = ''; */
+                    }
+                    elseif($o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat")
+                    {
+                        $parts = self::get_description_parts($description, false); 
+                        $items = self::process_habitat_data($parts);
+                        /* for stats only -- will work when looping $parts not $items
+                        $debug["title"]["h"][@$part["title"]] = '';
+                        $debug["unit"]["h"][@$part["unit"]] = ''; */
+                    }
+                    foreach($items as $item)
+                    {
+                        $rec["catnum"] = '';
+                        $rec["referenceID"] = '';
+                        $rec["measurementMethod"] = '';
+                        $rec["statisticalMethod"] = '';
+                        $rec["measurementRemarks"] = '';
+                        $rec["measurementUnit"] = '';
+                        $rec["sex"] = '';
+                        /*
+                            [measurement] => http://rs.tdwg.org/dwc/terms/verbatimDepth
+                            [value] => 0
+                            [unit] => http://purl.obolibrary.org/obo/UO_0000008
+                            [ref_id] => Array([0] => 58018)
+                            [sMethod] => http://semanticscience.org/resource/SIO_001113
+                            [sex] => http://purl.obolibrary.org/obo/PATO_0000383
+                            [mMethod] => Total length; the length of a fish, measured from the tip of the snout to the tip of the longest rays of the caudal fin (but excluding filaments), when the caudal fin lobes are aligned with the main body axis.
+                            [mRemarks] => demersal
+                        */
+                        if($item['value'] === "") exit("\nblank value\n");
+                        
+                        if($val = @$item['range_value']) $rec["catnum"] = $orig_catnum . "_" . md5($item['measurement'].$val);
+                        else                             $rec["catnum"] = $orig_catnum . "_" . md5($item['measurement'].$item['value'].@$item['mRemarks']); //specifically used for TraitBank; mRemarks is added to differentiate e.g. freshwater and catadromous.
+                        
+                        if($val = @$item['ref_id'])
+                        {
+                            if($ref_ids = self::convert_FBrefID_with_archiveID($val)) $rec["referenceID"] = implode("; ", $ref_ids);
+                            // else print_r($items);
+                        }
+                        if($val = @$item['mMethod'])  $rec['measurementMethod'] = $val;
+                        if($val = @$item['sMethod'])  $rec['statisticalMethod'] = $val;
+                        if($val = @$item['mRemarks']) $rec['measurementRemarks'] = $val;
+                        if($val = @$item['unit'])     $rec['measurementUnit'] = $val;
+                        if($val = @$item['sex'])      $rec['sex'] = $val;
+                        self::add_string_types($rec, $item['value'], $item['measurement'], "true");
+                    }
+                }
+                elseif($o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution")
+                {
+                    self::add_string_types($rec, $description, "http://eol.org/schema/terms/Present", "true");
+                }
+                else // regular data objects
+                {
+                    $mr = new \eol_schema\MediaResource();
+                    $mr->taxonID        = $taxonID;
+                    $mr->identifier     = $o['dc_identifier'];
+                    $mr->type           = $o['dataType'];
+                    $mr->language       = 'en';
+                    $mr->format         = $o['mimeType'];
+                    if(substr($o['dc_source'], 0, 4) == "http") $mr->furtherInformationURL = $o['dc_source'];
+                    $mr->accessURI      = $o['mediaURL'];
+                    $mr->thumbnailURL   = $o['thumbnailURL'];
+                    $mr->CVterm         = $o['subject'];
+                    $mr->Owner          = $o['dc_rightsHolder'];
+                    $mr->rights         = $o['dc_rights'];
+                    $mr->title          = $o['dc_title'];
+                    $mr->UsageTerms     = $o['license'];
+                    // $mr->audience       = 'Everyone';
+                    $mr->description    = utf8_encode($o['dc_description']);
+                    if(!Functions::is_utf8($mr->description)) continue;
+                    $mr->LocationCreated = $o['location'];
+                    $mr->bibliographicCitation = $o['dcterms_bibliographicCitation'];
+                    if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
+                    if($agent_ids     =     @$this->object_agent_ids[$o['int_do_id']])  $mr->agentID = implode("; ", $agent_ids);
+                    $this->archive_builder->write_object_to_file($mr);
+                }
             }
+            // if($k > 10) break; //debug
         }
     }
     
@@ -291,22 +430,6 @@ class FishBaseArchiveAPI
     
     private function process_taxa_references()
     {
-        /*
-        [3] => Array
-                (
-                    [0] => Array
-                        (
-                            [reference] => Russell, F.S.0 The eggs and planktonic stages of British marine fishes. Academic Press, London, UK. 524 p.
-                            [isbn] => 
-                            [url] => http://www.fishbase.org/references/FBRefSummary.php?id=37&speccode=69
-                        )
-                    [1] => Array
-                        (
-                            [reference] => Greenstreet, S.P.R.0 Estimation of the daily consumption of food by fish in the North Sea in each quarter of the year. Scott. Fish. Res. Rep. 55:1-16, plus tables.
-                            [isbn] => 0 7480 51414
-                            [url] => http://www.fishbase.org/references/FBRefSummary.php?id=42340&speccode=69
-                        )
-        */
         $fields = array("reference", "bici", "coden", "doi", "eissn", "handle", "isbn", "issn", "lsid", "oclc", "sici", "url", "urn", "int_id", "timestamp", "autoctr");
         $taxon_references = self::make_array($this->text_path['TAXON_REFERENCES_PATH'], $fields, "int_id", array(1,2,3,4,5,7,8,9,10,12,14,15));
         foreach($taxon_references as $taxon_id => $refs) //taxon_id is int_id in FB text file
@@ -335,6 +458,11 @@ class FishBaseArchiveAPI
         */
         foreach($taxa as $t)
         {
+            /* debug - used in preview mode only - comment in normal operation
+            $include = array("FB-2", "FB-3", "FB-4", "FB-5", "FB-6", "FB-7", "FB-9", "FB-10", "FB-12", "FB-14", "FB-15");
+            if(!in_array($t['dc_identifier'], $include)) continue;
+            */
+            
             $this->taxa_ids[$t['int_id']] = $t['dc_identifier'];
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID         = $t['dc_identifier'];
@@ -363,6 +491,7 @@ class FishBaseArchiveAPI
         {
             if($line)
             {
+                $line = str_ireplace("\	", "", $line); //manual adjustment
                 $line = trim($line);
                 $values = explode($separator, $line);
                 $i = 0;
@@ -419,6 +548,325 @@ class FishBaseArchiveAPI
         // might need or not need this...
         $common = utf8_encode($name['commonName']);
         if(Functions::is_utf8($common)) $arr_names[] = array("name" => Functions::import_decode($common), "language" => $name['xml_lang']);
+    }
+
+    private function process_size_data($parts)
+    {
+        $records = array();
+        foreach($parts as $part)
+        {
+            $rec = array();
+            if(stripos($part, ":") !== false) //found a colon ':'
+            {   //max. reported age: 33 years (Ref. 93630)
+                $arr = explode(":", $part);
+                $rec["title"] = trim($arr[0]);
+                $right_of_colon = trim($arr[1]);
+                $arr = explode(" ", $right_of_colon);
+                $rec["value"] = $arr[0];
+                $rec["unit"] = $arr[1];
+            }
+            else
+            {   //33.7 cm SL (male/unsexed (Ref. 93606))
+                if($val = self::get_sex_from_size_str($part)) $rec["sex"] = $val;
+                $rec["title"] = "max. size";
+                $arr = explode(" ", $part);
+                $rec["value"] = $arr[0];
+                $rec["unit"] = $arr[1];
+                if(preg_match("/" . $rec["unit"] . "(.*?)\(/ims", $part, $arr)) $rec["method"] = trim($arr[1]);
+            }
+            if($val = self::get_ref_id($part)) $rec["ref_id"] = $val;
+            if($rec) $records[] = $rec;
+        }
+        //start creating Traitbank record
+        $final = array();
+        $valid_lengths = array("SL", "TL", "FL", "WD");
+        foreach($records as $rec)
+        {
+            $r = array();
+            if($rec['title'] == "max. size")
+            {
+                if(!in_array($rec['method'], $valid_lengths)) continue;
+                if($measurement = $rec['method']) $r['measurement'] = $this->uris[$measurement];
+            }
+            else
+            {
+                $r['measurement'] = $this->uris[$rec['title']];
+                $measurement = $rec['title'];
+            }
+            $r['value'] = $rec['value'];
+            if($val = @$rec['sex'])                            $r['sex']        = $this->uris[$val];
+            if($val = @$rec['unit'])                           $r['unit']       = $this->uris[$val];
+            if($val = @$rec['ref_id'])                         $r['ref_id']     = $val;
+            if($val = @$this->uris["$measurement (mMethod)"])  $r['mMethod']    = $val;
+            if($val = @$this->uris["$measurement (sMethod)"])  $r['sMethod']    = $val;
+            if($val = @$this->uris["$measurement (mRemarks)"]) $r['mRemarks']   = $val;
+            if($r) $final[] = $r;
+        }
+        return $final;
+    }
+    
+    private function get_sex_from_size_str($string)
+    {
+        if(strpos($string, "male/unsexed") !== false) return "male/unsexed";
+        elseif(strpos($string, "female") !== false) return "female";
+        return false;
+    }
+
+    private function get_ref_id($string)
+    {
+        // if(preg_match_all("/Ref\.(.*?)\)/ims", $string, $arr)) return $arr[1];
+        if(preg_match_all("/Ref\.(.*?)\)/ims", $string, $arr)) return array_map('trim', $arr[1]);
+        return false;
+    }
+    
+    private function process_habitat_data($parts)
+    {
+        $records = array();
+        foreach($parts as $part)
+        {
+            $rec = array();
+            if(self::is_habitat_a_range($part))
+            {
+                $arr = explode(" range", $part);
+                $rec["title"] = $arr[0] . " range";
+                
+                if(@$arr[1])
+                {
+                    $arr2 = explode(", usually", $arr[1]);
+                    $arr2 = array_map('trim', $arr2);
+                }
+                else // e.g. usually ? - 10 m (Ref. 5595) range
+                {
+                    $arr = explode("usually ", $part);
+                    $rec["title"] = $arr[0] . "depth range"; //this is actually - usual range
+                    $arr2 = explode(", usually", $arr[1]);
+                    $arr2 = array_map('trim', $arr2);
+                }
+                
+                $rec["value"] = trim(str_replace(array(":"), "", $arr2[0]));
+                $rec["value"] = trim(preg_replace('/\s*\([^)]*\)/', '', $rec["value"])); //remove parenthesis
+                
+                if($val = self::get_range_unit($rec["value"]))
+                {
+                    $rec["unit"] = $val;
+                    $rec["value"] = str_ireplace(" $val", "", $rec["value"]);
+                }
+                
+                //get min max values
+                $temp = explode("-", $rec["value"]);
+                $temp = array_map('trim', $temp);
+                $rec["min"] = @$temp[0];
+                $rec["max"] = @$temp[1];
+                
+                if($val = @$arr2[1]) $rec["remarks"] = "usually " . $val;
+                if($val = self::get_ref_id($part)) $rec["ref_id"] = $val;
+            }
+            else
+            {
+                $rec["value"] = trim(preg_replace('/\s*\([^)]*\)/', '', $part)); //remove parenthesis
+                if($val = self::get_ref_id($part)) $rec["ref_id"] = $val;
+            }
+            if($rec) $records[] = $rec;
+            
+        }
+        
+        // print_r($records);
+        //start creating Traitbank record
+        $final = array();
+        foreach($records as $rec)
+        {
+            if(@$rec['title'] == "dH range") continue;
+            
+            if(!@$rec['title']) // meaning habitat valuese e.g. demersal, freshwater, non-migratory*
+            {
+                $two_values = array("catadromous", "anadromous", "diadromous", "amphidromous", "oceano-estuarine");
+                if(!in_array($rec['value'], $two_values))
+                {
+                    $r = array();
+                    if($rec['value'] == "non-migratory")    $r['measurement'] = "http://www.owl-ontologies.com/unnamed.owl#Migratory";
+                    else                                    $r['measurement'] = $this->uris['habitat'];
+                    $measurement = $rec['value'];
+                    $r['value'] = $this->uris[$measurement];
+                    
+                    if($r['value'] == "EXCLUDE") continue;
+                    
+                    if($val = @$rec['ref_id']) $r['ref_id'] = $val;
+                    if($val = @$this->uris["$measurement (mRemarks)"]) $r['mRemarks'] = $val;
+                    if($r) $final[] = $r;
+                }
+                else //two values
+                {
+                    $r = array();
+                    $r['measurement'] = $this->uris['habitat'];
+                    $measurement = $rec['value'];
+                    $temp = explode(",", $this->uris[$measurement]);
+                    $temp = array_map('trim', $temp);
+                    foreach($temp as $t) //enter each of the multiple values
+                    {
+                        $r['value'] = $t;
+                        if($val = @$rec['ref_id']) $r['ref_id'] = $val;
+                        if($val = @$this->uris["$measurement (mRemarks)"]) $r['mRemarks'] = $val;
+                        if($r) $final[] = $r;
+                    }
+                }
+            }
+            else // "pH range" OR "depth range"
+            {
+                $r = array();
+                $r['range_value'] = $rec['value'];
+                if($rec['title'] == "depth range")  $measurement = "mindepth";
+                elseif($rec['title'] == "pH range") $measurement = "min pH";
+                $r['measurement'] = $this->uris[$measurement];
+                $r['value'] = $rec['min'];
+                if($val = @$rec['unit'])    $r['unit']      = $this->uris[$val];
+                if($val = @$rec['ref_id'])  $r['ref_id']    = $val;
+                if($rec['max'])
+                {
+                    if($val = @$this->uris["$measurement (sMethod)"])  $r['sMethod'] = $val;
+                }
+                if($r) $final[] = $r;
+                if($rec['max'])
+                {
+                    $r = array();
+                    $r['range_value'] = $rec['value'];
+                    if($rec['title'] == "depth range")  $measurement = "maxdepth";
+                    elseif($rec['title'] == "pH range") $measurement = "max pH";
+                    $r['measurement'] = $this->uris[$measurement];
+                    $r['value'] = $rec['max'];
+                    if($val = @$rec['unit'])    $r['unit']      = $this->uris[$val];
+                    if($val = @$rec['ref_id'])  $r['ref_id']    = $val;
+                    if($val = @$this->uris["$measurement (sMethod)"])  $r['sMethod'] = $val;
+                    if($r) $final[] = $r;
+                }
+            }
+        }
+        return $final;
+    }
+    
+    private function get_range_unit($string)
+    {
+        $arr = explode(" ", $string);
+        $char = $arr[count($arr)-1];
+        if(!is_numeric(substr($char,0,1)) && !in_array($char, array("?"))) return $char;
+        else return false;
+    }
+    
+    private function is_habitat_a_range($habitat)
+    {
+        $ranges = array("depth range", "dH range", "pH range", "usually ");
+        foreach($ranges as $range)
+        {
+            if(stripos($habitat, $range) !== false) return true;
+        }
+        return false;
+    }
+
+    private function convert_FBrefID_with_archiveID($FB_ref_ids)
+    {
+        $final = array();
+        foreach($FB_ref_ids as $id)
+        {
+            if($val = @$this->reference_ids[$id]) $final[] = $val;
+            else echo "\nundefined ref_id:[$id]\n";
+        }
+        return $final;
+    }
+    
+    private function get_uris()
+    {
+        /*
+        $fields["sex"]          = "sex_uri";
+        $fields["length_type"]  = "length_type_uri";
+        $fields["habitat"]      = "habitat_uri";
+        */
+        $fields["value"]    = "value_uri"; //a generic spreadsheet
+        $params["fields"]   = $fields;
+        $params["dataset"]  = "FishBase";
+        /* you can specify spreadsheet_options here, if not it will use default spreadsheet options in GBIFCountryTypeRecordAPI */
+        require_library('connectors/GBIFCountryTypeRecordAPI');
+        $func = new GBIFCountryTypeRecordAPI("x");
+        return $func->get_uris($params, $this->uri_mappings_spreadsheet);
+    }
+    
+    private function convert_agent_ids_with_names($agent_ids)
+    {
+        $arr = array();
+        foreach($agent_ids as $agent_id)
+        {
+            if($val = @$this->agent_ids[$agent_id]) $arr[$val] = '';
+        }
+        $arr = array_keys($arr);
+        return implode(";", $arr);
+    }
+
+    private function clean_text_file($file_path)
+    {
+        echo "\nUpdating $file_path";
+        //read
+        $file = fopen($file_path, "r");
+        $contents = fread($file, filesize($file_path));
+        fclose($file);
+        $contents = str_ireplace(chr(10).chr(13)."\\", "", $contents);
+        //write
+        $TMP = fopen($file_path, "w");
+        fwrite($TMP, $contents);
+        fclose($TMP);
+        echo "\nChanges saved\n"; exit;
+    }
+
+    private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
+    {
+        $taxon_id = $rec["taxon_id"];
+        $catnum   = $rec["catnum"];
+        $occurrence_id = $catnum; // simply used catnum
+        $m = new \eol_schema\MeasurementOrFact();
+        $this->add_occurrence($taxon_id, $occurrence_id, $rec);
+        $m->occurrenceID       = $occurrence_id;
+        $m->measurementOfTaxon = $measurementOfTaxon;
+        if($measurementOfTaxon == "true")
+        {
+            $m->source      = @$rec["source"];
+            $m->contributor = @$rec["contributor"];
+            if($referenceID = @$rec["referenceID"]) $m->referenceID = $referenceID;
+        }
+        $m->measurementType  = $measurementType;
+        $m->measurementValue = $value;
+        if($val = @$rec['measurementUnit'])     $m->measurementUnit = $val;
+        if($val = @$rec['measurementMethod'])   $m->measurementMethod = $val;
+        if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
+        if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
+        $this->archive_builder->write_object_to_file($m);
+    }
+
+    private function add_occurrence($taxon_id, $occurrence_id, $rec)
+    {
+        if(isset($this->occurrence_ids[$occurrence_id])) return;
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = $occurrence_id;
+        $o->taxonID = $taxon_id;
+        if($val = @$rec['sex']) $o->sex = $val;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$occurrence_id] = '';
+        return;
+    }
+
+    private function get_description_parts($string, $for_stats = true)
+    {
+        //bathydemersal; marine; depth range 50 - 700 m (Ref. 56504)
+        if($for_stats) $string = trim(preg_replace('/\s*\([^)]*\)/', '', $string)); //remove parenthesis
+        if($for_stats) $string = self::remove_numeric_from_string($string);
+        $string = str_ireplace("marine, usually", "marine; usually", $string);
+        $string = str_ireplace("freshwater, usually", "freshwater; usually", $string);
+        $string = str_ireplace("brackish, usually", "brackish; usually", $string);
+        $string = str_ireplace("(Ref. )", "", $string);
+        $arr = explode(";", $string);
+        return array_map('trim', $arr);
+    }
+
+    private function remove_numeric_from_string($string)
+    {
+        $digits = array("1", "2", "3", "4", "5", "6", "7", "8", "9", "0", " - ", "usually", "?");
+        return str_ireplace($digits, '', $string);
     }
 
 }

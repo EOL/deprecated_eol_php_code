@@ -32,7 +32,7 @@ class GBIFCountryTypeRecordAPI
     function export_gbif_to_eol($params)
     {
         $this->uris = self::get_uris($params, $params["uri_file"]);
-        if($file = @$params["citation_file"]) $this->citations = self::get_uris($params, $file);
+        if($file = @$params["citation_file"]) $this->citations = self::get_uris($params, $file, "citation");
 
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
@@ -70,7 +70,7 @@ class GBIFCountryTypeRecordAPI
         print_r($this->debug);
     }
 
-    function get_uris($params, $spreadsheet)
+    function get_uris($params, $spreadsheet, $uri_type = false)
     {
         $fields = array();
         if($params["dataset"] == "GBIF")
@@ -79,8 +79,16 @@ class GBIFCountryTypeRecordAPI
             $fields["typeStatus"] = "typeStatus_uri";
             if(@$params["country"] == "Sweden") $fields["datasetKey"]      = "Type Specimen Repository URI"; //exception to the rule
             else                                $fields["institutionCode"] = "institutionCode_uri";          //rule case
-            $fields["datasetKey France"] = "BibliographicCitation";
-            $fields["datasetKey UK"]     = "BibliographicCitation";
+            
+            if($uri_type == "citation") // additional fields when processing citation spreadsheets
+            {
+                $fields["datasetKey France"]  = "BibliographicCitation"; //886
+                $fields["datasetKey UK"]      = "BibliographicCitation"; //894
+                $fields["datasetKey Germany"] = "BibliographicCitation"; //872
+                $fields["datasetKey Brazil"]  = "BibliographicCitation"; //892
+                $fields["datasetKey"]         = "BibliographicCitation"; //from Netherlands (887), Sweden (893) spreadsheet
+            }
+
         }
         elseif($params["dataset"] == "iDigBio")
         {
@@ -92,8 +100,7 @@ class GBIFCountryTypeRecordAPI
         
         require_library('connectors/LifeDeskToScratchpadAPI');
         $func = new LifeDeskToScratchpadAPI();
-        $spreadsheet_options = array("cache" => 1, "timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2);
-        $spreadsheet_options["expire_seconds"] = 0;
+        $spreadsheet_options = array("cache" => 0, "timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2); //we don't want to cache spreadsheet
         $uris = array();
         if($spreadsheet)
         {
@@ -630,7 +637,6 @@ class GBIFCountryTypeRecordAPI
             if($val = $rec["http://rs.gbif.org/terms/1.0/datasetKey"])
             {
                 if($citation = @$this->citations[$val]) $m->bibliographicCitation = $citation;
-                else echo "\nno citation for this datasetkey [$val]\n";
             }
             /* not used at the moment
             if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/reference/referenceID"])) $m->referenceID = $referenceID;
