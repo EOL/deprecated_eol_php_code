@@ -16,6 +16,13 @@ $params["uri_file"]     = "https://dl.dropboxusercontent.com/u/7597512/iDigBio/i
 $params["uri_file"]     = "http://localhost/~eolit/cp/iDigBio/idigbio mappings.xlsx";
 $params["dataset"]      = "iDigBio";
 $params["type"]         = "structured data";
+
+$fields["institutionCode"]  = "institutionCode_uri";
+$fields["sex"]              = "sex_uri";
+$fields["typeStatus"]       = "typeStatus_uri";
+$fields["lifeStage"]        = "lifeStage_uri";
+$params["fields"] = $fields;
+
 $params["resource_id"]  = 885;
 
 $resource_id = $params["resource_id"];
