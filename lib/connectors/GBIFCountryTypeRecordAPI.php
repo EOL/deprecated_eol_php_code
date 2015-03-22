@@ -21,7 +21,7 @@ class GBIFCountryTypeRecordAPI
         $this->occurrence_ids = array();
         $this->gbifID_taxonID = array();
         $this->debug = array();
-        
+        $this->spreadsheet_options = array("cache" => 0, "timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2); //we don't want to cache spreadsheet
         // for iDigBio
         $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 1);
         $this->download_options["expire_seconds"] = 5184000;
@@ -32,8 +32,9 @@ class GBIFCountryTypeRecordAPI
     function export_gbif_to_eol($params)
     {
         $this->uris = self::get_uris($params, $params["uri_file"]);
-        if($file = @$params["citation_file"]) $this->citations = self::get_uris($params, $file, "citation");
-
+        $params["uri_type"] = "citation";
+        if($file = @$params["citation_file"]) $this->citations = self::get_uris($params, $file);
+        
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($params["dwca_file"], "meta.xml", array("timeout" => 7200, "expire_seconds" => 0));
@@ -42,7 +43,7 @@ class GBIFCountryTypeRecordAPI
         $this->harvester = new ContentArchiveReader(NULL, $archive_path);
         if(!(@$this->harvester->tables["http://rs.tdwg.org/dwc/terms/occurrence"][0]->fields)) // take note the index key is all lower case
         {
-            debug("Invalid archive file. Program will terminate.");
+            echo "\nInvalid archive file. Program will terminate.\n";
             return false;
         }
 
@@ -70,7 +71,7 @@ class GBIFCountryTypeRecordAPI
         print_r($this->debug);
     }
 
-    function get_uris($params, $spreadsheet, $uri_type = false)
+    function get_uris($params, $spreadsheet)
     {
         $fields = array();
         if($params["dataset"] == "GBIF")
@@ -80,7 +81,7 @@ class GBIFCountryTypeRecordAPI
             if(@$params["country"] == "Sweden") $fields["datasetKey"]      = "Type Specimen Repository URI"; //exception to the rule
             else                                $fields["institutionCode"] = "institutionCode_uri";          //rule case
             
-            if($uri_type == "citation") // additional fields when processing citation spreadsheets
+            if(@$params["uri_type"] == "citation") // additional fields when processing citation spreadsheets
             {
                 $fields["datasetKey France"]  = "BibliographicCitation"; //886
                 $fields["datasetKey UK"]      = "BibliographicCitation"; //894
@@ -90,17 +91,14 @@ class GBIFCountryTypeRecordAPI
             }
 
         }
-        elseif($params["dataset"] == "iDigBio")
-        {
-            $fields["institutionCode"]  = "institutionCode_uri";
-            $fields["sex"]              = "sex_uri";
-            $fields["typeStatus"]       = "typeStatus_uri";
-            $fields["lifeStage"]        = "lifeStage_uri";
-        }
+        else $fields = $params["fields"];
         
         require_library('connectors/LifeDeskToScratchpadAPI');
         $func = new LifeDeskToScratchpadAPI();
-        $spreadsheet_options = array("cache" => 0, "timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2); //we don't want to cache spreadsheet
+
+        if($val = @$params["spreadsheet_options"]) $spreadsheet_options = $val;
+        else                                       $spreadsheet_options = $this->spreadsheet_options;
+        
         $uris = array();
         if($spreadsheet)
         {
@@ -119,6 +117,7 @@ class GBIFCountryTypeRecordAPI
                                  $temp = $arr[$value][$i];
                                  $temp = trim(str_replace(array("\n"), "", $temp));
                                  $uris[$item] = $temp;
+                                 if(!Functions::is_utf8($temp)) echo "\nnot utf8: [$temp]\n";
                              }
                              $i++;
                          }
@@ -627,24 +626,23 @@ class GBIFCountryTypeRecordAPI
         $m = new \eol_schema\MeasurementOrFact();
         $this->add_occurrence($taxon_id, $occurrence_id, $rec);
         $m->occurrenceID = $occurrence_id;
-        
         $m->measurementOfTaxon = $measurementOfTaxon;
-        if($measurementOfTaxon ==  "true")
-        {   // so that measurementRemarks (and source, contributor, etc.) appears only once in the [measurement_or_fact.tab]
-            // $m->measurementRemarks  = '';
-            $m->source              = $rec["source"];
-            $m->contributor         = @$rec["contributor"];
-            if($val = $rec["http://rs.gbif.org/terms/1.0/datasetKey"])
+        // =====================
+        $m->source              = $rec["source"];
+        $m->contributor         = @$rec["contributor"];
+        if($val = @$rec["http://rs.gbif.org/terms/1.0/datasetKey"]) //only for GBIF resources (not for iDigBio)
+        {
+            if($citation = @$this->citations[$val])
             {
-                if($citation = @$this->citations[$val]) $m->bibliographicCitation = $citation;
+                if($citation != "EXCLUDE") $m->bibliographicCitation = $citation;
             }
-            /* not used at the moment
-            if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/reference/referenceID"])) $m->referenceID = $referenceID;
-            */
         }
+        /* not used at the moment
+        if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/reference/referenceID"])) $m->referenceID = $referenceID;
+        */
+        // =====================
         $m->measurementType = $measurementType;
         $m->measurementValue = Functions::import_decode($value);
-        // $m->measurementMethod = '';
         $this->archive_builder->write_object_to_file($m);
     }
 

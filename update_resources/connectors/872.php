@@ -11,6 +11,12 @@ taxon:                      6692    3786    80,093
 measurementorfact:          28408   14251   639,196
 occurrence                  9470    4751    167,663
 classification resource:    33,377
+
+for 1k taxa:
+measurement_or_fact.tab     [3655]
+occurrence.tab              [970]
+taxon.tab                   [875]
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
