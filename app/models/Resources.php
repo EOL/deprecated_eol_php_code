@@ -395,6 +395,8 @@ class Resource extends ActiveRecord
           $this->insert_hierarchy();
           $sparql_client = SparqlClient::connection();
           $sparql_client->delete_graph($this->virtuoso_graph_name());
+          // delete all data point uris related to this resource
+          $this->mysqli->delete("DELETE FROM data_point_uris where resource_id = $this->id");
           $this->start_harvest();
 
           $this->debug_start("parsing");
@@ -770,7 +772,7 @@ class Resource extends ActiveRecord
       }else
       {
           $validation_result = SchemaValidator::validate($this->resource_path());
-          if($validation_result===true) $valid = true;  // valid
+          if($validation_result===true) $valid = true;  // valid  
           else $error_string = $this->mysqli->escape(implode("<br>", $validation_result));
       }
       if($error_string)
