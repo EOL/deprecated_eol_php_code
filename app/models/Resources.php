@@ -768,7 +768,7 @@ class Resource extends ActiveRecord
       }else
       {
           $validation_result = SchemaValidator::validate($this->resource_path());
-          if($validation_result===true) $valid = true;  // valid          
+          if($validation_result===true) $valid = true;  // valid  
           else $error_string = $this->mysqli->escape(implode("<br>", $validation_result));
       }
       if($error_string)

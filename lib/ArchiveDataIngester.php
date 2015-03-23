@@ -63,7 +63,7 @@ class ArchiveDataIngester
         $this->archive_reader->process_row_type("http://rs.tdwg.org/dwc/terms/MeasurementOrFact", array($this, 'insert_data'));
         $this->archive_reader->process_row_type("http://eol.org/schema/Association", array($this, 'insert_data'));
         $this->archive_reader->process_row_type("http://rs.tdwg.org/dwc/terms/Event", array($this, 'insert_data'));
-        $this->sparql_client->insert_remaining_bulk_data();        
+        $this->sparql_client->insert_remaining_bulk_data();
 
         $this->mysqli->end_transaction();
 
@@ -825,7 +825,7 @@ class ArchiveDataIngester
                 if(!isset($this->occurrence_ids_inserted[$target_occurrence_id])) return;
             }
 
-            list($turtle, $data_point_uri) =  $this->prepare_turtle($row, $row_class_name);            
+            list($turtle, $data_point_uri) =  $this->prepare_turtle($row, $row_class_name);
             $this->sparql_client->insert_data_in_bulk(array(
                 'data' => array($turtle),
                 'graph_name' => $this->harvest_event->resource->virtuoso_graph_name()));
@@ -916,7 +916,7 @@ class ArchiveDataIngester
             {
                 $this->occurrence_ids_inserted[$occurrence_id] = true;
             }
-        }        
+        }   
     }
 
     private function prepare_turtle($row, $row_class_name)
@@ -928,7 +928,7 @@ class ArchiveDataIngester
         // # may this is a reason we will need to do represent the data in a custom way
         if($primary_key) $node_uri = $graph_name ."/". $row_class_name::GRAPH_NAME ."/". SparqlClient::to_underscore($primary_key);
         else $node_uri = $graph_name ."/". $row_class_name::GRAPH_NAME ."/". md5(serialize($row));
-        $turtle = "<$node_uri> a <$row_type>";        
+        $turtle = "<$node_uri> a <$row_type>"; 
         foreach($row as $key => $value)
         {
             $value = @self::field_decode($value);
@@ -958,7 +958,7 @@ class ArchiveDataIngester
                     $turtle .= "; ". SparqlClient::enclose_value($key) ." ".
                         SparqlClient::enclose_value($graph_name ."/events/". SparqlClient::to_underscore($value)) ."\n";
                 }elseif($key == "http://rs.tdwg.org/dwc/terms/occurrenceID" || $key == "http://eol.org/schema/targetOccurrenceID")
-                {            
+                {    
                     $turtle .= "; ". SparqlClient::enclose_value($key) ." ".
                         SparqlClient::enclose_value($graph_name ."/occurrences/". SparqlClient::to_underscore($value)) ."\n";
                     if($key == "http://rs.tdwg.org/dwc/terms/occurrenceID" && ($row_type == "http://rs.tdwg.org/dwc/terms/MeasurementOrFact" || $row_type == 'http://eol.org/schema/Association'))
@@ -1020,7 +1020,7 @@ class ArchiveDataIngester
 	    	if(isset($predicate)) { $data_point_uri["predicate"] = $predicate; }
 	    	if(isset($object)) { $data_point_uri["object"] = $object; }
 	    	if(isset($unit_of_measure)) { $data_point_uri["unit_of_measure"] = $unit_of_measure; }
-		    if(isset($occurrence_id)) { $data_point_uri["occurrence_id"] = $occurrence_id; }	    	
+		    if(isset($occurrence_id)) { $data_point_uri["occurrence_id"] = $occurrence_id; }	
 		}
 		else
 		    	$data_point_uri = NULL;
