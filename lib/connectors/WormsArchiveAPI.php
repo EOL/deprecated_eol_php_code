@@ -91,6 +91,11 @@ class WormsArchiveAPI
             
             $taxon->taxonRank       = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
             $taxon->taxonomicStatus = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
+            /* stats
+            $this->debug[$taxon->taxonomicStatus] = '';
+            $this->debug["count"][$taxon->taxonomicStatus]++;
+            $this->debug["count"]["count"]++;
+            */
             $taxon->taxonRemarks    = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRemarks"];
             $taxon->namePublishedIn = (string) $rec["http://rs.tdwg.org/dwc/terms/namePublishedIn"];
             $taxon->rightsHolder    = (string) $rec["http://purl.org/dc/terms/rightsHolder"];
