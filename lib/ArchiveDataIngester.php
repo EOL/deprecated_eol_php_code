@@ -601,7 +601,7 @@ class ArchiveDataIngester
 	             $taxon_concept_id = $row["taxon_concept_id"];
 	        }
 	        $resource_id = $this->harvest_event->resource_id;
-	        $this->mysqli->insert("INSERT IGNORE INTO resource_contributions (resource_id, data_object_id, data_point_uri_id, hierarchy_entry_id, taxon_concept_id, source, object_type, identifier) VALUES ($resource_id, $data_object->id, NULL, $hierarchy_entry_id, $taxon_concept_id, $source, 'data_object', $identifier)");
+	        $this->mysqli->insert("INSERT IGNORE INTO resource_contributions (resource_id, data_object_id, data_point_uri_id, hierarchy_entry_id, taxon_concept_id, source, object_type, identifier, data_object_type) VALUES ($resource_id, $data_object->id, NULL, $hierarchy_entry_id, $taxon_concept_id, $source, 'data_object', $identifier, $data_object->data_type_id)");
         }
     }
     
@@ -963,7 +963,15 @@ class ArchiveDataIngester
             	if($data_point_uri_id != NULL)
             	{
             		$source = "'" . $this->get_hierarchy_entry_outlink($hierarchy_id, $hierarchy_entry_identifier, $source_url) . "'";
-                	$this->mysqli->insert("INSERT IGNORE INTO resource_contributions (resource_id, data_object_id, data_point_uri_id, hierarchy_entry_id, taxon_concept_id, source, object_type, identifier) VALUES ($resource_id, NULL, $data_point_uri_id, $hierarchy_entry_id, $taxon_concept_id, $source, 'data_point_uri', $hierarchy_entry_identifier)");         		
+            		if(isset($data_point_uri['predicate']))
+            		{
+            			$predicate = "'" . $data_point_uri['predicate'] . "'";
+            		}
+            		else
+            		{
+            			$predicate = NULL;
+            		}
+                	$this->mysqli->insert("INSERT IGNORE INTO resource_contributions (resource_id, data_object_id, data_point_uri_id, hierarchy_entry_id, taxon_concept_id, source, object_type, identifier, predicate) VALUES ($resource_id, NULL, $data_point_uri_id, $hierarchy_entry_id, $taxon_concept_id, $source, 'data_point_uri', $hierarchy_entry_identifier, $predicate)");         		
             	}
             	
             }
