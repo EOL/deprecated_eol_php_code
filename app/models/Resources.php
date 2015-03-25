@@ -375,7 +375,6 @@ class Resource extends ActiveRecord
       $this->mysqli->end_transaction();
       $this->debug_end("transaction");
       $this->debug_end("publish");
-      print("finish publish");
       // inform rails when harvest finished
       \CodeBridge::update_resource_contributions($this->id);
     }
@@ -397,6 +396,8 @@ class Resource extends ActiveRecord
           $sparql_client->delete_graph($this->virtuoso_graph_name());
           // delete all data point uris related to this resource
           $this->mysqli->delete("DELETE FROM data_point_uris where resource_id = $this->id");
+          // delete all data point uris related to this resource from resource contributions
+          $this->mysqli->delete("DELETE FROM resource_contributions where resource_id = $this->id and object_type = 'data_point_uri'");
           $this->start_harvest();
 
           $this->debug_start("parsing");
@@ -595,7 +596,6 @@ class Resource extends ActiveRecord
                 }
             }
 
-            // print_r($taxon_concept_ids);
             echo count($taxon_concept_ids);
             echo " $last_id\n";
             $indexer = new TaxonConceptIndexer();
@@ -627,7 +627,6 @@ class Resource extends ActiveRecord
                 }
             }
 
-            // print_r($data_object_ids);
             echo count($data_object_ids);
             echo " $last_id\n";
             $indexer = new DataObjectAncestriesIndexer();

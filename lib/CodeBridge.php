@@ -82,7 +82,6 @@ class CodeBridge
 	public static function update_resource_contributions($resource_id)
     {
      	// inform rails when resource finish harvest
-     	print("inform");
         \Resque::enqueue('notifications', 'CodeBridge', array('cmd' => 'update_resource_contributions',
                         'resource_id' => $resource_id));
         CodeBridge::print_message("++ Enqueued notifications/CodeBridge/update_resource_contributions(resource_id = ". $resource_id .")");

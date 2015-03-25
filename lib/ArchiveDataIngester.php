@@ -592,7 +592,6 @@ class ArchiveDataIngester
         // add data object info to resource contribution
         if ($status != "Unchanged")
         {
-        	print("start resource contributions");
 	        $result = $this->mysqli->query("SELECT id, source_url, taxon_concept_id, hierarchy_id, identifier FROM hierarchy_entries inner join  data_objects_hierarchy_entries on hierarchy_entries.id = data_objects_hierarchy_entries.hierarchy_entry_id where data_object_id =". $data_object->id);
 	        if($result && $row=$result->fetch_assoc())
 	        {
@@ -879,7 +878,12 @@ class ArchiveDataIngester
             	$created_at = $data_point_uri['created_at'];
             	$updated_at = $data_point_uri['updated_at'];
             	$resource_id = $data_point_uri['resource_id'];
-            	$data_point_uri_type = "'" . end(split("/", $row_type)). "'";   	
+            	$data_point_uri_type = "'" . end(split("/", $row_type)). "'";
+            	$taxon_concept_id = NULL; 
+            	$hierarchy_entry_identifier = NULL;
+                $hierarchy_entry_id = NULL;
+                $source_url = NULL;
+                $hierarchy_id = NULL;
             	
             	$attributes_query  = "INSERT INTO data_point_uris(uri, created_at, updated_at, resource_id, class_type";
             	$values_query = "values($uri, $created_at, $updated_at, $resource_id, $data_point_uri_type";
@@ -938,10 +942,13 @@ class ArchiveDataIngester
             	if(isset($data_point_uri['occurrence_id']))
                 {
                 	 $hierarchy_entry_identifier = "'" . str_replace("'", "\'", $this->occurrence_taxon_mapping[$data_point_uri["occurrence_id"]]) . "'";
-                	 $result = $this->mysqli->select("SELECT taxon_concept_id from hierarchy_entries where identifier =  $hierarchy_entry_identifier");
+                	 $result = $this->mysqli->select("SELECT id,taxon_concept_id, source_url, hierarchy_id from hierarchy_entries where identifier =  $hierarchy_entry_identifier");
                 	 if($result && $row=$result->fetch_assoc())
                 	 {
                 	 	$taxon_concept_id = $row["taxon_concept_id"];
+                	 	$hierarchy_entry_id = $row["id"];
+                	 	$source_url = $row["source_url"];
+                	 	$hierarchy_id = $row["hierarchy_id"];
                 	 	if($taxon_concept_id != NULL && $taxon_concept_id != '')
 	                	 {
 	                	 	$attributes_query .= ",taxon_concept_id";
@@ -952,7 +959,13 @@ class ArchiveDataIngester
                 }
                 $attributes_query .= ")";
                 $values_query .= ")";
-            	$this->mysqli->insert($attributes_query . $values_query);
+            	$data_point_uri_id = $this->mysqli->insert($attributes_query . $values_query);
+            	if($data_point_uri_id != NULL)
+            	{
+            		$source = "'" . $this->get_hierarchy_entry_outlink($hierarchy_id, $hierarchy_entry_identifier, $source_url) . "'";
+                	$this->mysqli->insert("INSERT IGNORE INTO resource_contributions (resource_id, data_object_id, data_point_uri_id, hierarchy_entry_id, taxon_concept_id, source, object_type, identifier) VALUES ($resource_id, NULL, $data_point_uri_id, $hierarchy_entry_id, $taxon_concept_id, $source, 'data_point_uri', $hierarchy_entry_identifier)");         		
+            	}
+            	
             }
 
             if($row_type == 'http://rs.tdwg.org/dwc/terms/Occurrence' &&
