@@ -18,6 +18,10 @@ $lifedesks = array("araneae", "drosophilidae", "mochokidae", "batrach", "berry")
 $lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife", "diptera");          //DATA-1599
 $lifedesks = array("trilobites", "echinoderms", "snakesoftheworld", "pleurotomariidae", "psora");   //DATA-1600
 $lifedesks = array("plantsoftibet", "philbreo", "rotifera", "maldivesnlaccadives", "mexinverts");   //DATA-1601
+$lifedesks = array("araneoidea", "archaeoceti", "arczoo", "calintertidalinverts", "caprellids");    //DATA-1607
+$lifedesks = array("chileanbees", "corvidae", "deepseafishes", "eleodes", "empidinae");             //DATA-1608
+$lifedesks = array("surinamewaterbeetles", "scarabaeoidea", "pipunculidae", "ncfishes", "indianadunes"); //DATA-1609
+$lifedesks = array("idorids", "evaniidae", "eolinterns", "halictidae", "eolspecies");               //DATA-1611
 
 foreach($lifedesks as $ld)
 {
