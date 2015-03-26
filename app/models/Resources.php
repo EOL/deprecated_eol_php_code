@@ -181,10 +181,16 @@ class Resource extends ActiveRecord
         {
             $resources[] = $resource = Resource::find($row["id"]);
         }
-        
+        usort($resources, array(self, "compare_resources"));
         return $resources;
     }
     
+	public static function compare_resources($resource1, $resource2){
+		if ($resource1->position == $resource2->position)
+			return 0;	
+		return ($resource1->position < $resource2->position) ? -1 : 1;
+	}
+		
     public static function ready_for_publishing()
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
@@ -344,6 +350,7 @@ class Resource extends ActiveRecord
         debug("Starting harvest of resource: $this->id");
         
         debug("Validating resource: $this->id");
+		$validate = false;
         $valid = $validate ? $this->validate() : true;
         debug("Validated resource: $this->id");
         if($valid)
