@@ -734,7 +734,7 @@ class Resource extends ActiveRecord
             $this->harvest_event->completed();
             $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::processed()->id .", harvested_at=NOW(), notes='' WHERE id=$this->id");
             $this->end_harvest_time  = date('Y m d H');
-            $this->harvest_event->resource->refresh();            
+            $this->harvest_event->resource->refresh();       
         }
       $this->debug_end("end_harvest");
     }
@@ -771,7 +771,7 @@ class Resource extends ActiveRecord
       }else
       {
           $validation_result = SchemaValidator::validate($this->resource_path());
-          if($validation_result===true) $valid = true;  // valid  
+          if($validation_result===true) $valid = true;  // valid
           else $error_string = $this->mysqli->escape(implode("<br>", $validation_result));
       }
       if($error_string)

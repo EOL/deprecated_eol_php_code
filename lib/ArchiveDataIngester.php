@@ -612,16 +612,16 @@ class ArchiveDataIngester
         {
         	$outlink_url = $row["outlink_uri"];
         }
-    	if($source!="" && $source != NULL)
+    	if(!empty($source))
     	{
     		return preg_replace('~&oldid=[0-9]+$~', '', $source);
     	}
-    	else if($hierarchy_id != NULL && $outlink_url != NULL && $outlink_url != "")
+    	else if(isset($hierarchy_id) && !empty($outlink_url))
     	{
     		$matches = preg_match('/%%ID%%/', $outlink_url);
-    		if($matches !=NULL)
+    		if(isset($matches))
     		{
-    			if($identifier != NULL)
+    			if(isset($identifier))
     				return preg_replace('~%%ID%%~', $identifier, $outlink_url);
     		}
     		else {
@@ -916,7 +916,7 @@ class ArchiveDataIngester
 	                	 if($result && $row=$result->fetch_assoc())
 	                	 {
 	                	 	$target_taxon_concept_id = $row["taxon_concept_id"];
-	                	 	if($target_taxon_concept_id != NULL && $target_taxon_concept_id != '')
+	                	 	if(!empty($target_taxon_concept_id))
 		                	 {
 		                	 	$values_query .= ", $target_taxon_concept_id";
 		                	 } 
@@ -949,7 +949,7 @@ class ArchiveDataIngester
                 	 	$hierarchy_entry_id = $row["id"];
                 	 	$source_url = $row["source_url"];
                 	 	$hierarchy_id = $row["hierarchy_id"];
-                	 	if($taxon_concept_id != NULL && $taxon_concept_id != '')
+                	 	if(!empty($taxon_concept_id))
 	                	 {
 	                	 	$attributes_query .= ",taxon_concept_id";
 	                	 	$values_query .= ", $taxon_concept_id";
@@ -960,7 +960,7 @@ class ArchiveDataIngester
                 $attributes_query .= ")";
                 $values_query .= ")";
             	$data_point_uri_id = $this->mysqli->insert($attributes_query . $values_query);
-            	if($data_point_uri_id != NULL)
+            	if(!empty($data_point_uri_id))
             	{
             		$source = "'" . $this->get_hierarchy_entry_outlink($hierarchy_id, $hierarchy_entry_identifier, $source_url) . "'";
             		if(isset($data_point_uri['predicate']))
@@ -981,7 +981,7 @@ class ArchiveDataIngester
             {
                 $this->occurrence_ids_inserted[$occurrence_id] = true;
             }
-        }   
+        }
     }
 
     private function prepare_turtle($row, $row_class_name)
@@ -1009,7 +1009,7 @@ class ArchiveDataIngester
                     	$this->occurrence_taxon_mapping[$primary_key] = @self::field_decode($value);
                     }
                 }
-                if($key == "http://eol.org/schema/targetTaxonID")
+                elseif($key == "http://eol.org/schema/targetTaxonID")
                 {
                 	$turtle .= "; ". SparqlClient::enclose_value($key) ." ".
                         SparqlClient::enclose_value($graph_name ."/taxa/". SparqlClient::to_underscore($value)) ."\n";
@@ -1030,7 +1030,7 @@ class ArchiveDataIngester
                     {
                         $occurrence_id = $value;
                     }
-                	if($row_type == 'http://eol.org/schema/Association' && $key == "http://eol.org/schema/targetOccurrenceID")
+                	elseif($row_type == 'http://eol.org/schema/Association' && $key == "http://eol.org/schema/targetOccurrenceID")
                     {
                     	$object = $value;
                     }
