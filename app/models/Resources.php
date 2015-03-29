@@ -176,21 +176,15 @@ class Resource extends ActiveRecord
         $extra_hours_clause = "";
         if($hours_ahead_of_time) $extra_hours_clause = " - $hours_ahead_of_time";
         
-        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=".ResourceStatus::force_harvest()->id." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::validated()->id." OR resource_status_id=".ResourceStatus::validation_failed()->id." OR resource_status_id=".ResourceStatus::processing_failed()->id.")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL (refresh_period_hours $extra_hours_clause) HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::upload_failed()->id.", ".ResourceStatus::validated()->id.", ".ResourceStatus::validation_failed()->id.", ". ResourceStatus::processed()->id .", ".ResourceStatus::processing_failed()->id.", ".ResourceStatus::published()->id."))");
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=".ResourceStatus::force_harvest()->id." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::validated()->id." OR resource_status_id=".ResourceStatus::validation_failed()->id." OR resource_status_id=".ResourceStatus::processing_failed()->id.")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL (refresh_period_hours $extra_hours_clause) HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::upload_failed()->id.", ".ResourceStatus::validated()->id.", ".ResourceStatus::validation_failed()->id.", ". ResourceStatus::processed()->id .", ".ResourceStatus::processing_failed()->id.", ".ResourceStatus::published()->id.")) ORDER BY position ASC");
+		
         while($result && $row=$result->fetch_assoc())
         {
             $resources[] = $resource = Resource::find($row["id"]);
         }
-        usort($resources, array(self, "compare_resources"));
         return $resources;
     }
-    
-	public static function compare_resources($resource1, $resource2){
-		if ($resource1->position == $resource2->position)
-			return 0;	
-		return ($resource1->position < $resource2->position) ? -1 : 1;
-	}
-		
+
     public static function ready_for_publishing()
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
