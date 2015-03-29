@@ -181,10 +181,10 @@ class Resource extends ActiveRecord
         {
             $resources[] = $resource = Resource::find($row["id"]);
         }
-		
+	
         return $resources;
     }
-	
+  
     public static function ready_for_publishing()
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
@@ -343,7 +343,7 @@ class Resource extends ActiveRecord
     {
         debug("Starting harvest of resource: $this->id");
         
-        debug("Validating resource: $this->id");		
+        debug("Validating resource: $this->id");
         $valid = $validate ? $this->validate() : true;
         debug("Validated resource: $this->id");
         if($valid)
