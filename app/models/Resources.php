@@ -274,6 +274,7 @@ class Resource extends ActiveRecord
 
     public function publish($fast_for_testing = false)
     {
+    	write_to_resource_harvesting_log(10, "value: ".$this->id);
       $this->debug_start("publish");
       $this->debug_start("transaction");
       $this->mysqli->begin_transaction();

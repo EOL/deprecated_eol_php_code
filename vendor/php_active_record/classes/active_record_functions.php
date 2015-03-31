@@ -77,6 +77,15 @@ function write_to_log($str)
     }
 }
 
+function write_to_resource_harvesting_log($resource_id, $str)
+{
+	$file_handler = fopen("log/" . $resource_id .  ".log", "w+");
+    if($file_handler)
+    {
+        fwrite($file_handler, date('m/d H:i:s') .":: $str\n");
+    }
+}
+
 function debug($string)
 {
     if($GLOBALS['ENV_NAME']=='test' || $GLOBALS['ENV_DEBUG'])
