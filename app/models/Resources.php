@@ -186,6 +186,29 @@ class Resource extends ActiveRecord
         return $resources;
     }
 
+    public static function get_ready_resource($hours_ahead_of_time = null)
+    {
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        
+        $extra_hours_clause = "";
+        if($hours_ahead_of_time) $extra_hours_clause = " - $hours_ahead_of_time";
+
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=".ResourceStatus::force_harvest()->id." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::validated()->id." OR resource_status_id=".ResourceStatus::validation_failed()->id." OR resource_status_id=".ResourceStatus::processing_failed()->id.")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL (refresh_period_hours $extra_hours_clause) HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::upload_failed()->id.", ".ResourceStatus::validated()->id.", ".ResourceStatus::validation_failed()->id.", ". ResourceStatus::processed()->id .", ".ResourceStatus::processing_failed()->id.", ".ResourceStatus::published()->id.")) ORDER BY position ASC LIMIT 1");
+        if($result && $row=$result->fetch_assoc())
+        {
+            return Resource::find($row["id"]);
+        }
+        return NULL;
+    }
+
+	public static function is_paused()
+	{
+		$mysqli =& $GLOBALS['mysqli_connection'];
+		$result = $mysqli->query("SELECT SQL_NO_CACHE pause FROM resources");
+		if($result && $row=$result->fetch_assoc())        
+            return $row["pause"];        
+	}
+
     public static function ready_for_publishing()
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
