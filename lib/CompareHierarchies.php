@@ -26,17 +26,35 @@ class CompareHierarchies
         if($default_id = Hierarchy::default_id())
         {
             $default_hierarchy = Hierarchy::find($default_id);
+            // TODO: This should NOT be hard-coded. ...particularly without an
+            // explanation. :| ...And isn't this just ... undone as soon as we
+            // leave this block by "$hierarchy_lookup_ids2 = array();"? ...This
+            // seems stupid.
             if(@$default_hierarchy->id) $hierarchy_lookup_ids2 = array($default_id => 1475377);
         }
 
         $hierarchy_lookup_ids2 = array();
-        $result = $mysqli->query("SELECT h.id, count(*) as count FROM hierarchies h LEFT JOIN hierarchy_entries he ON (h.id=he.hierarchy_id and he.published=1) GROUP BY h.id");
+        // TODO: This is a SLOW, huge query. If we had a denormalized HE count
+        // on each hierarchy (and, truly, we should), it would be super-fast. Do
+        // this.
+        $result = $mysqli->query(
+          "SELECT h.id, count(*) AS count" .
+          " FROM hierarchies h" .
+          " LEFT JOIN hierarchy_entries he" .
+          " ON (h.id = he.hierarchy_id AND he.published = 1)" .
+          " GROUP BY h.id");
         while($result && $row=$result->fetch_assoc())
         {
-            // TODO - is this GBIF going away?
+            // TODO: DON'T hard-code this (this is GBIF Nub Taxonomy).
+            // Instead, add an attribute to hierarchies called "no_comparisons"
+            // and check that, and make sure the migration for that sets the
+            // value of that field to true for all hierarchies with a ).
+            // Also make sure curators can set that value from the resource
+            // page.
             if($row['id'] == 129) continue;
             $hierarchy_lookup_ids2[$row['id']] = $row['count'];
         }
+        // TODO: This is, again, a GBIF Nub taxonomy:
         $hierarchy_lookup_ids2[800] = 1;
         arsort($hierarchy_lookup_ids2);
 
@@ -46,6 +64,7 @@ class CompareHierarchies
         if($hierarchy_id)
         {
             $hierarchy1 = Hierarchy::find($hierarchy_id);
+            // TODO: Don't we have this in $hierarchy_lookup_ids2 ?
             $count1 = $hierarchy1->count_entries();
             $hierarchy_lookup_ids1[$hierarchy_id] = $count1;
         }else $hierarchy_lookup_ids1 = $hierarchy_lookup_ids2;
@@ -53,24 +72,29 @@ class CompareHierarchies
         foreach($hierarchy_lookup_ids1 as $id1 => $count1)
         {
             $hierarchy1 = Hierarchy::find($id1);
-            if(@!$hierarchy1->id) continue;
+            if(@!$hierarchy1->id) {
+              debug("ERROR: Attempt to compare hierarchy $id1, but it was missing");
+              continue;
+            }
 
             foreach($hierarchy_lookup_ids2 as $id2 => $count2)
             {
                 $hierarchy2 = Hierarchy::find($id2);
-                if(@!$hierarchy2->id) continue;
+                if(@!$hierarchy2->id) {
+                  debug("WARNING: Skipping compare of missing hierarchy $id2");
+                  continue;
+                }
 
                 // already compared - skip
-                if(isset($hierarchies_compared[$hierarchy1->id][$hierarchy2->id])) continue;
+                if(isset($hierarchies_compared[$hierarchy1->id][$hierarchy2->id]))
+                  continue;
 
-                // have the smaller hierarchy as the first parameter so the comparison will be quicker
-                if($count1 < $count2)
-                {
-                    if($GLOBALS['ENV_DEBUG']) echo("Assigning $hierarchy1->label ($hierarchy1->id) to $hierarchy2->label ($hierarchy2->id)\n");
+                debug("Comparing hierarchy $id1 ($hierarchy1->label; $count1 entries) to $id2 ($hierarchy2->label; $count2 entries)");
+                // have the smaller hierarchy as the first parameter so the
+                // comparison will be quicker
+                if($count1 < $count2) {
                     self::assign_concepts_across_hierarchies($hierarchy1, $hierarchy2, $confirmed_exclusions, $use_synonyms_for_merging);
-                }else
-                {
-                    if($GLOBALS['ENV_DEBUG']) echo("Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)\n");
+                } else {
                     self::assign_concepts_across_hierarchies($hierarchy2, $hierarchy1, $confirmed_exclusions, $use_synonyms_for_merging);
                 }
 
