@@ -31,10 +31,7 @@ class SchemaParser
                 if($i%100==0)
                 {
                 	debug("Parsed taxon $i");
-                	if(isset($resource))
-                	{
-                		write_to_resource_harvesting_log("Parsed taxon $i");
-                	}
+                    write_to_resource_harvesting_log("Parsed taxon $i");
                 }
                 
                 // trying now to see if commiting every 20 taxa will help with replication
