@@ -205,8 +205,8 @@ class Resource extends ActiveRecord
 	{
 		$mysqli =& $GLOBALS['mysqli_connection'];
 		$result = $mysqli->query("SELECT SQL_NO_CACHE pause FROM resources");
-		if($result && $row=$result->fetch_assoc())        
-            return $row["pause"];        
+		if($result && $row=$result->fetch_assoc())
+			return $row["pause"];        
 	}
 
     public static function ready_for_publishing()
