@@ -77,9 +77,10 @@ function write_to_log($str)
     }
 }
 
-function write_to_resource_harvesting_log($resource_id, $str)
+function write_to_resource_harvesting_log($str)
 {
-	$file_handler = fopen("log/" . $resource_id .  ".log", "w+");
+	$resource_id = $GLOBALS['currently_harvesting_resource_id'];
+	$file_handler = fopen("log/" . $resource_id .  ".log", "a");
     if($file_handler)
     {
         fwrite($file_handler, date('m/d H:i:s') .":: $str\n");

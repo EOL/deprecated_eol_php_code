@@ -92,15 +92,18 @@ class Functions
         while($attempts <= $options['download_attempts'])
         {
             debug("Grabbing $remote_url: attempt " . $attempts);
+            write_to_resource_harvesting_log("Grabbing $remote_url: attempt " . $attempts);
             $file = @self::fake_user_agent_http_get($remote_url, $options);
             usleep($options['download_wait_time']);
             if($file || strval($file) == "0") // e.g. file is valid with value of '0' http://api.gbif.org/v0.9/occurrence/count?taxonKey=4896414
             {
                 debug("received file");
+                write_to_resource_harvesting_log("received file");
                 return $file;
             }
 
             debug("attempt $attempts failed, will try again after " . ($options['download_wait_time']/1000000) . " seconds");
+            write_to_resource_harvesting_log("attempt $attempts failed, will try again after " . ($options['download_wait_time']/1000000) . " seconds");
             $attempts++;
             
             if($attempts > $options['download_attempts'])
@@ -108,6 +111,7 @@ class Functions
                 if($options['delay_in_minutes'])
                 {
                     debug("Will delay for " . $options['delay_in_minutes'] . " minute(s), then will try again. Number of attempts will be reset.");
+                    write_to_resource_harvesting_log("Will delay for " . $options['delay_in_minutes'] . " minute(s), then will try again. Number of attempts will be reset.");
                     sleep($options['delay_in_minutes'] . 60);
                     $attempts = 1;
                     $options['delay_in_minutes'] = false;
@@ -117,6 +121,7 @@ class Functions
         }
 
         debug("failed download file after " . ($attempts-1) . " attempts");
+        write_to_resource_harvesting_log("failed download file after " . ($attempts-1) . " attempts");
         return false;
     }
 
@@ -352,6 +357,7 @@ class Functions
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         
         debug("Sending get request to $url : only attempt");
+        write_to_resource_harvesting_log("Sending get request to $url : only attempt");
         $result = curl_exec($ch);
         
         if(0 == curl_errno($ch))
@@ -360,6 +366,7 @@ class Functions
             return $result;
         }
         debug("Curl error ($url): " . curl_error($ch));
+        write_to_resource_harvesting_log("Curl error ($url): " . curl_error($ch));
         return false;
     }
     

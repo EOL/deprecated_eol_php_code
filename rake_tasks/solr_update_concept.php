@@ -9,6 +9,7 @@ $confirmed = @$argv[2];
 if(!$taxon_concept_id || !is_numeric(str_replace(',', '', $taxon_concept_id)))
 {
     echo "\n\n\tsolr_update_concept.php [taxon_concept_id] [confirmed]\n\n";
+    write_to_resource_harvesting_log("solr_update_concept.php [taxon_concept_id] [confirmed]");
     exit;
 }
 

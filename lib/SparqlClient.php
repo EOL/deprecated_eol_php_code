@@ -118,6 +118,7 @@ class SparqlClient
     // end up with a strangely incomplete set of data (for example, 10,000 lines of data, but lines 2,000-4,000 are missing because of *1* line of errors).
     public function insert_data_in_bulk($options = array())
     {
+    	//write_to_resource_harvesting_log("Inserting bulk data in virtuoso");
         if(!isset($this->data_waiting_for_insert[$options['graph_name']])) $this->data_waiting_for_insert[$options['graph_name']] = array();
         $this->data_waiting_for_insert[$options['graph_name']] = array_merge($this->data_waiting_for_insert[$options['graph_name']], $options['data']);
         if(count($this->data_waiting_for_insert[$options['graph_name']]) >= 2000)
@@ -129,6 +130,7 @@ class SparqlClient
 
     public function insert_remaining_bulk_data()
     {
+    	//write_to_resource_harvesting_log("Inserting remaining bulk data in virtuoso");
         foreach($this->data_waiting_for_insert as $graph_name => $data)
         {
             $this->insert_data(array('graph_name' => $graph_name, 'data' => $data));
@@ -169,6 +171,9 @@ class SparqlClient
             print_r($options);
             print_r(serialize($options['data']));
             echo "===========================================\n\n";
+            write_to_resource_harvesting_log("ERROR: Inserting data in virtuoso");
+            write_to_resource_harvesting_log('Curl error: ' . curl_error($ch));
+            write_to_resource_harvesting_log($query);
             return false;
         }
     }

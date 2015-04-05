@@ -24,6 +24,7 @@ $resources = Resource::ready_for_harvesting();
 // $resources = array(Resource::find(SOME_ID_HERE));
 foreach($resources as $resource)
 {
+	$GLOBALS['currently_harvesting_resource_id'] = $resource->id;
     // IMPORTANT!
     // We skip a few hard-coded resource IDs, here.
     // 224 is 3I Interactive Keys and Taxonomic Databases' "Typhlocybinae" DB.
