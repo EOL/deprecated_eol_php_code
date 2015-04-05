@@ -413,7 +413,6 @@ class Resource extends ActiveRecord
     {
         $this->debug_start("harvest");
         write_to_resource_harvesting_log("++ START harvest ++");
-
         $valid = $validate ? $this->validate() : true;
         if($valid)
         {
@@ -834,7 +833,7 @@ class Resource extends ActiveRecord
           if($this->archive_validator->is_valid(true)) $valid = true;  // valid
           $errors = array_merge($this->archive_validator->structural_errors(), $this->archive_validator->display_errors());
           if($errors)
-          {          	  
+          {
               $errors_as_string = array();
               foreach($errors as $error)
               {

@@ -470,7 +470,6 @@ class ArchiveDataIngester
     public function insert_data_object($row, $parameters)
     {
         self::debug_iterations("Inserting DataObject");
-        //write_to_resource_harvesting_log("Inserting DataObject");
         $this->commit_iterations("DataObject", 20);
         if($this->archive_validator->has_error_by_line('http://eol.org/schema/media/document', $parameters['archive_table_definition']->location, $parameters['archive_line_number']))
         {

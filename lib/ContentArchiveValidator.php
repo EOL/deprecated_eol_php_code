@@ -24,7 +24,6 @@ class ContentArchiveValidator
     {
         $this->get_validation_errors($skip_warnings);
         if($this->structural_errors){
-        	//TODO add_to_harvest_log
         	return false;
         }
         return true;
