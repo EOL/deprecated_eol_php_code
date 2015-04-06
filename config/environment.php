@@ -24,7 +24,6 @@ if(!defined('GUNZIP_BIN_PATH')) define('GUNZIP_BIN_PATH', 'gunzip');
 if(!defined('UNZIP_BIN_PATH')) define('UNZIP_BIN_PATH', 'unzip');
 if(!defined('TAR_BIN_PATH')) define('TAR_BIN_PATH', 'tar');
 if(!defined('FILE_BIN_PATH')) define('FILE_BIN_PATH', 'file');
-if(!defined('PARSE_SERVER_BIN_PATH')) define('PARSE_SERVER_BIN_PATH', 'parserver');
 
 if(!isset($GLOBALS['ENV_DEBUG'])) $GLOBALS['ENV_DEBUG'] = true;
 if(!isset($GLOBALS['ENV_MYSQL_DEBUG'])) $GLOBALS['ENV_MYSQL_DEBUG'] = true;
