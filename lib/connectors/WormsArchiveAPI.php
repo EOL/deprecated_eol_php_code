@@ -79,22 +79,30 @@ class WormsArchiveAPI
         foreach($records as $rec)
         {
             $taxon = new \eol_schema\Taxon();
-            $taxon->taxonID         = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
-            $taxon->taxonID         = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $taxon->taxonID);
+            $val = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
+            $taxon->taxonID         = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $val);
             $taxon->scientificName  = (string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"];
             
             if($taxon->scientificName != "Biota")
             {
-                $taxon->parentNameUsageID  = (string) $rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"];
-                $taxon->parentNameUsageID  = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $taxon->parentNameUsageID);
+                $val = (string) $rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"];
+                $taxon->parentNameUsageID  = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $val);
             }
             
             $taxon->taxonRank       = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
             $taxon->taxonomicStatus = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
+
+            if($taxon->taxonomicStatus == "synonym")
+            {
+                $val = (string) $rec["http://rs.tdwg.org/dwc/terms/acceptedNameUsageID"];
+                $taxon->acceptedNameUsageID  = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $val);
+            }
+            else $taxon->acceptedNameUsageID = "";
+            
             /* stats
             $this->debug[$taxon->taxonomicStatus] = '';
-            $this->debug["count"][$taxon->taxonomicStatus]++;
-            $this->debug["count"]["count"]++;
+            @$this->debug["count"][$taxon->taxonomicStatus]++;
+            @$this->debug["count"]["count"]++;
             */
             $taxon->taxonRemarks    = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRemarks"];
             $taxon->namePublishedIn = (string) $rec["http://rs.tdwg.org/dwc/terms/namePublishedIn"];
@@ -293,12 +301,12 @@ class WormsArchiveAPI
         If establishmentMeans=native - Endemic, add a metadata record in MeasurementOrFact:
         field= http://rs.tdwg.org/dwc/terms/measurementRemarks, value= http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Endemic
         */
-        if(in_array($establishmentMeans, array("Native", "Native - Endemic")))
+        if(in_array($establishmentMeans, array("Native", "Native - Endemic", "Native - Non-endemic")))
         {
             $rec["catnum"] .= "_nr";
             self::add_string_types($rec, "true", $location, "http://eol.org/schema/terms/NativeRange");
-            if($establishmentMeans == "Native - Endemic")
-            self::add_string_types($rec, "metadata", "http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Endemic", "http://rs.tdwg.org/dwc/terms/measurementRemarks");
+            if($establishmentMeans == "Native - Endemic")         self::add_string_types($rec, "metadata", "http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Endemic", "http://rs.tdwg.org/dwc/terms/measurementRemarks");
+            elseif($establishmentMeans == "Native - Non-endemic") //no metadata -> https://jira.eol.org/browse/DATA-1522?focusedCommentId=59715&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-59715
         }
         
         /*
