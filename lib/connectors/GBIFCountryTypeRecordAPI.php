@@ -279,9 +279,14 @@ class GBIFCountryTypeRecordAPI
         $taxon_id = trim((string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
         if(!$taxon_id)
         {
-            $sciname = trim((string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"]);
-            if(!$sciname) exit("\n got it \n");
-            $taxon_id = md5($sciname);
+            if    ($val = trim((string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"]))   $taxon_id = md5($val);
+            elseif($val = trim((string) $rec["http://rs.tdwg.org/dwc/terms/genus"]))            $taxon_id = md5($val);
+            elseif($val = trim((string) $rec["http://rs.tdwg.org/dwc/terms/family"]))           $taxon_id = md5($val);
+            elseif($val = trim((string) $rec["http://rs.tdwg.org/dwc/terms/order"]))            $taxon_id = md5($val);
+            elseif($val = trim((string) $rec["http://rs.tdwg.org/dwc/terms/class"]))            $taxon_id = md5($val);
+            elseif($val = trim((string) $rec["http://rs.tdwg.org/dwc/terms/phylum"]))           $taxon_id = md5($val);
+            elseif($val = trim((string) $rec["http://rs.tdwg.org/dwc/terms/kingdom"]))          $taxon_id = md5($val);
+            else exit("\n got it \n");
         }
         return $taxon_id;
     }
@@ -306,6 +311,9 @@ class GBIFCountryTypeRecordAPI
     
     private function create_type_records_idigbio($rec) // structured data
     {
+
+        if(count($rec) != 200) exit("\n count is not 200: " . count($rec));
+        
         $rec["catnum"] = $rec[""];
         if(!$rec["catnum"])
         {
@@ -341,24 +349,23 @@ class GBIFCountryTypeRecordAPI
             
             // /*
             //not a standard element in occurrence, but in the XLS specs from Jen
-            $uris = array("http://rs.tdwg.org/dwc/terms/county",
-                            "http://rs.tdwg.org/dwc/terms/country",
-                            "http://rs.tdwg.org/dwc/terms/verbatimDepth",
-                            "http://rs.tdwg.org/dwc/terms/verbatimCoordinates",
-                            "http://rs.tdwg.org/dwc/terms/maximumElevationInMeters",
-                            "http://rs.tdwg.org/dwc/terms/waterBody",
-                            "http://rs.tdwg.org/dwc/terms/island",
-                            "http://rs.tdwg.org/dwc/terms/islandGroup",
-                            "http://rs.tdwg.org/dwc/terms/maximumDepthInMeters",
-                            "http://rs.tdwg.org/dwc/terms/minimumDepthInMeters",
-                            "http://rs.tdwg.org/dwc/terms/minimumElevationInMeters",
-                            "http://rs.tdwg.org/dwc/terms/georeferenceRemarks",
-                            "http://rs.tdwg.org/dwc/terms/higherGeography",
-                            "http://rs.tdwg.org/dwc/terms/stateProvince",
-                            "http://rs.tdwg.org/dwc/terms/continent",
-                            "http://rs.tdwg.org/dwc/terms/latestEraOrHighestErathem",
-                            "http://rs.tdwg.org/dwc/terms/collectionID");
-            // print_r($rec);
+            $uris = array("http://rs.tdwg.org/dwc/terms/verbatimDepth",
+                          "http://rs.tdwg.org/dwc/terms/collectionID",
+                          "http://rs.tdwg.org/dwc/terms/county",
+                          "http://rs.tdwg.org/dwc/terms/country",
+                          "http://rs.tdwg.org/dwc/terms/waterBody",
+                          "http://rs.tdwg.org/dwc/terms/higherGeography",
+                          "http://rs.tdwg.org/dwc/terms/stateProvince",
+                          "http://rs.tdwg.org/dwc/terms/continent",
+                          "http://rs.tdwg.org/dwc/terms/georeferenceRemarks",
+                          "http://rs.tdwg.org/dwc/terms/verbatimCoordinates",
+                          "http://rs.tdwg.org/dwc/terms/island",
+                          "http://rs.tdwg.org/dwc/terms/islandGroup",
+                          "http://rs.tdwg.org/dwc/terms/maximumDepthInMeters",
+                          "http://rs.tdwg.org/dwc/terms/minimumDepthInMeters",
+                          "http://rs.tdwg.org/dwc/terms/maximumElevationInMeters",
+                          "http://rs.tdwg.org/dwc/terms/minimumElevationInMeters",
+                          "http://rs.tdwg.org/dwc/terms/latestEraOrHighestErathem");
             foreach($uris as $uri)
             {
                 if($val = $rec[$uri]) self::add_string_types($rec, Functions::import_decode($val), $uri);
@@ -628,22 +635,43 @@ class GBIFCountryTypeRecordAPI
         $m->occurrenceID = $occurrence_id;
         $m->measurementOfTaxon = $measurementOfTaxon;
         // =====================
-        $m->source              = $rec["source"];
-        $m->contributor         = @$rec["contributor"];
-        if($val = @$rec["http://rs.gbif.org/terms/1.0/datasetKey"]) //only for GBIF resources (not for iDigBio)
+        if($measurementOfTaxon == "true")
         {
-            if($citation = @$this->citations[$val])
+            $m->source              = $rec["source"];
+            $m->contributor         = @$rec["contributor"];
+            if($val = @$rec["http://rs.gbif.org/terms/1.0/datasetKey"]) //only for GBIF resources (not for iDigBio)
             {
-                if($citation != "EXCLUDE") $m->bibliographicCitation = $citation;
+                if($citation = @$this->citations[$val])
+                {
+                    if($citation != "EXCLUDE") $m->bibliographicCitation = $citation;
+                }
+            }
+            if($rec["dataset"] == "iDigBio")
+            {
+                if($referenceID = self::prepare_reference(trim((string) $rec["http://purl.org/dc/terms/references"]))) $m->referenceID = $referenceID;
             }
         }
-        /* not used at the moment
-        if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/reference/referenceID"])) $m->referenceID = $referenceID;
-        */
         // =====================
         $m->measurementType = $measurementType;
         $m->measurementValue = Functions::import_decode($value);
         $this->archive_builder->write_object_to_file($m);
+    }
+    
+    private function prepare_reference($citation)
+    {
+        if($citation)
+        {
+            $r = new \eol_schema\Reference();
+            $r->full_reference = (string) $citation;
+            $r->identifier = md5($r->full_reference);
+            if(substr($citation, 0, 5) == "http:") $r->uri = $citation;
+            if(!isset($this->resource_reference_ids[$r->identifier]))
+            {
+               $this->resource_reference_ids[$r->identifier] = '';
+               $this->archive_builder->write_object_to_file($r);
+            }
+            return $r->identifier;
+        }
     }
 
     private function add_occurrence($taxon_id, $occurrence_id, $rec)
@@ -701,13 +729,13 @@ class GBIFCountryTypeRecordAPI
             $o->verbatimLatitude    = $rec["http://rs.tdwg.org/dwc/terms/verbatimLatitude"];
             $o->verbatimLongitude   = $rec["http://rs.tdwg.org/dwc/terms/verbatimLongitude"];
             $o->samplingProtocol    = $rec["http://rs.tdwg.org/dwc/terms/samplingProtocol"];
-            $o->decimalLatitude     = $rec["http://rs.tdwg.org/dwc/terms/decimalLatitude"];
             $o->preparations        = $rec["http://rs.tdwg.org/dwc/terms/preparations"];
             $o->catalogNumber       = $catalogNumber;
             $o->collectionCode      = $rec["http://rs.tdwg.org/dwc/terms/collectionCode"];
             $o->institutionCode     = $rec["http://rs.tdwg.org/dwc/terms/institutionCode"];
             $o->individualCount     = $rec["http://rs.tdwg.org/dwc/terms/individualCount"];
             $o->decimalLongitude    = $rec["http://rs.tdwg.org/dwc/terms/decimalLongitude"];
+            $o->decimalLatitude     = $rec["http://rs.tdwg.org/dwc/terms/decimalLatitude"];
             $o->eventDate           = $eventDate;
             
             $sex = trim((string) $rec["http://rs.tdwg.org/dwc/terms/sex"]);
