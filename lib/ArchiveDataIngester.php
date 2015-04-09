@@ -16,12 +16,9 @@ class ArchiveDataIngester
     public function parse($validate = true, &$archive_reader = null, &$archive_validator = null)
     {
       $this->harvest_event->debug_start("ADI/parse");
-      write_to_resource_harvesting_log("++ START ADI/parse ++");
         if(!is_dir($this->harvest_event->resource->archive_path())) {
           debug("ERROR - attempt to parse a resource with no archive");
-          write_to_resource_harvesting_log("ERROR - attempt to parse a resource with no archive");
           $this->harvest_event->debug_end("ADI/parse");
-          write_to_resource_harvesting_log("++ END ADI/parse ++");
           return false;
         }
         if($archive_reader) $this->archive_reader = $archive_reader;
@@ -34,9 +31,7 @@ class ArchiveDataIngester
         $valid = $validate ? $this->archive_validator->is_valid() : true;
         if($valid !== true) {
           debug("ERROR - resource INVALID");
-          write_to_resource_harvesting_log("ERROR - resource INVALID");
           $this->harvest_event->debug_end("ADI/parse");
-          write_to_resource_harvesting_log("++ END ADI/parse ++");          
           write_to_resource_harvesting_log(implode(",", $this->archive_validator->structural_errors()));
           return array_merge($this->archive_validator->structural_errors(), $this->archive_validator->display_errors());
         }
@@ -68,7 +63,6 @@ class ArchiveDataIngester
         $this->collect_dataset_attribution();
 
         $this->harvest_event->debug_start("ADI/transaction");
-        write_to_resource_harvesting_log("++ START ADI/transaction ++");
         $this->mysqli->begin_transaction();
         $this->start_reading_taxa();
         $this->mysqli->commit();
@@ -85,10 +79,8 @@ class ArchiveDataIngester
 
         $this->mysqli->end_transaction();
         $this->harvest_event->debug_end("ADI/transaction");
-        write_to_resource_harvesting_log("++ END ADI/transaction ++");
 
         $this->harvest_event->debug_end("ADI/parse");
-        write_to_resource_harvesting_log("++ END ADI/parse ++");
         // returning true so we know that the parsing/ingesting succeeded
         return true;
     }
@@ -96,19 +88,16 @@ class ArchiveDataIngester
     public function start_reading_taxa()
     {
       $this->harvest_event->debug_start("ADI/start_reading_taxa");
-      write_to_resource_harvesting_log("++ START ADI/start_reading_taxa ++");
         $this->children = array();
         $this->synonyms = array();
         $this->archive_reader->process_row_type("http://rs.tdwg.org/dwc/terms/Taxon", array($this, 'read_taxon'));
         $this->begin_adding_taxa();
         $this->harvest_event->debug_end("ADI/start_reading_taxa");
-        write_to_resource_harvesting_log("++ END ADI/start_reading_taxa ++");
     }
 
     private function begin_adding_taxa()
     {
       $this->harvest_event->debug_start("ADI/begin_adding_taxa");
-      write_to_resource_harvesting_log("++ START ADI/begin_adding_taxa ++");
         $this->taxon_ids_inserted = array();
         if(isset($this->children[0]))
         {
@@ -122,11 +111,9 @@ class ArchiveDataIngester
             }
         } else {
           debug("ERROR: no root taxa!");
-          write_to_resource_harvesting_log("Adding taxa: ERROR: no root taxa!");
           echo "THERE ARE NO ROOT TAXA\nAborting import\n";
         }
         $this->harvest_event->debug_end("ADI/begin_adding_taxa");
-        write_to_resource_harvesting_log("++ END ADI/begin_adding_taxa ++");
     }
 
     public function read_taxon($row, $parameters)
@@ -393,7 +380,6 @@ class ArchiveDataIngester
     public function insert_vernacular_names($row, $parameters)
     {
         self::debug_iterations("Inserting VernacularName");
-        //write_to_resource_harvesting_log("Inserting VernacularName");
         $this->commit_iterations("VernacularName", 500);
         if($this->archive_validator->has_error_by_line('http://rs.gbif.org/terms/1.0/vernacularname', $parameters['archive_table_definition']->location, $parameters['archive_line_number']))
         {
@@ -664,7 +650,6 @@ class ArchiveDataIngester
     public function insert_references($row, $parameters)
     {
         self::debug_iterations("Inserting reference");
-       // write_to_resource_harvesting_log("insert_references");
         $this->commit_iterations("Reference", 500);
         if($this->archive_validator->has_error_by_line('http://eol.org/schema/reference/reference', $parameters['archive_table_definition']->location, $parameters['archive_line_number']))
         {
@@ -762,7 +747,6 @@ class ArchiveDataIngester
     public function insert_agents($row, $parameters)
     {
         self::debug_iterations("Inserting agent");
-        //write_to_resource_harvesting_log("Inserting agents");
         if($this->archive_validator->has_error_by_line('http://eol.org/schema/agent/agent', $parameters['archive_table_definition']->location, $parameters['archive_line_number']))
         {
         	write_to_resource_harvesting_log("ERROR: insert_agents: has_error_by_line" . ",file_location:" . $parameters['archive_table_definition']->location . ",line_number:" . $parameters['archive_line_number']);
@@ -809,7 +793,6 @@ class ArchiveDataIngester
     public function insert_gbif_references($row, $parameters)
     {
         self::debug_iterations("Inserting GBIF reference");
-        //write_to_resource_harvesting_log("insert_gbif_references");
         $this->commit_iterations("GBIFReference", 500);
         if($this->archive_validator->has_error_by_line('http://rs.gbif.org/terms/1.0/reference', $parameters['archive_table_definition']->location, $parameters['archive_line_number']))
         {
@@ -889,7 +872,6 @@ class ArchiveDataIngester
             $file_location = @$parameters['archive_table_definition']->location;
             $line_number = @$parameters['archive_line_number'];
             self::debug_iterations("Inserting $row_type");
-            //write_to_resource_harvesting_log("Inserting row type" . $row_type);
             $this->commit_iterations($row_type, 500);
             # TODO: fix this with validation
             if(in_array(@$row['http://eol.org/schema/measurementOfTaxon'], $valid_measurement_of_taxon))

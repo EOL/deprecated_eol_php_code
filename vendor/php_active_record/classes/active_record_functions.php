@@ -93,6 +93,7 @@ function debug($string)
     {
         display($string . ' :: [' . get_last_function(3) . ']');
     }
+    write_to_resource_harvesting_log($string);
 }
 
 function mysql_debug($string)
