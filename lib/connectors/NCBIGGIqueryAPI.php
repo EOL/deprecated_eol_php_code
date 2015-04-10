@@ -1,9 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [723] NCBI GGI queries (DATA-1369)
-              [730] GGBN Queries for GGI  (DATA-1372)
-              [731] GBIF records (DATA-1370)
-              [743, 747] Create a resource for more Database Coverage data (BHL and BOLD info) (DATA-1417)
+/* connector: [723] NCBI, GGBN, GBIF, BHL, BOLDS data coverage (DATA-1369 and others)
 
 #==== 5 AM, every 4th day of the month -- [Number of sequences in GenBank (DATA-1369)]
 00 05 4 * * /usr/bin/php /opt/eol_php_code/update_resources/connectors/723.php > /dev/null
@@ -211,7 +208,7 @@ class NCBIGGIqueryAPI
                 // */
             }
             
-            echo "\n $i of $total - [$family]\n";
+            if(($i % 100) == 0) echo "\n $i of $total - [$family]\n";
             if    ($database == "ncbi")  $with_data = self::query_family_NCBI_info($family, $is_subfamily, $database);
             elseif($database == "ggbn")  $with_data = self::query_family_GGBN_info($family, $is_subfamily, $database);
             elseif($database == "gbif")  $with_data = self::query_family_GBIF_info($family, $is_subfamily, $database);
@@ -496,7 +493,7 @@ class NCBIGGIqueryAPI
                 }
             }
         }
-        echo "\n [$database] taxonomy:[" . $this->databases_to_check_eol_api[$database] . "]\n";
+        // echo "\n [$database] taxonomy:[" . $this->databases_to_check_eol_api[$database] . "]\n";
         if($canonical) $canonical = ucfirst(strtolower($canonical));
         if($canonical && $canonical != $family)
         {

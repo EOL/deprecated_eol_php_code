@@ -21,7 +21,10 @@ $lifedesks = array("plantsoftibet", "philbreo", "rotifera", "maldivesnlaccadives
 $lifedesks = array("araneoidea", "archaeoceti", "arczoo", "calintertidalinverts", "caprellids");    //DATA-1607
 $lifedesks = array("chileanbees", "corvidae", "deepseafishes", "eleodes", "empidinae");             //DATA-1608
 $lifedesks = array("surinamewaterbeetles", "scarabaeoidea", "pipunculidae", "ncfishes", "indianadunes"); //DATA-1609
-$lifedesks = array("idorids", "evaniidae", "eolinterns", "halictidae", "eolspecies");               //DATA-1611
+$lifedesks = array("idorids", "evaniidae", "eolinterns", "halictidae", "eolspecies");                    //DATA-1611
+$lifedesks = array("spiderindia", "speciesindia", "skinklink", "scarab", "nzicn");                       //DATA-1612
+$lifedesks = array("bcbiodiversity", "pterioidea", "halictidae", "westernghatfishes", "cephalopoda");    //DATA-1613
+$lifedesks = array("calintertidalinverts", "biomarks", "nlbio", "thrasops");                             //DATA-1614
 
 foreach($lifedesks as $ld)
 {
