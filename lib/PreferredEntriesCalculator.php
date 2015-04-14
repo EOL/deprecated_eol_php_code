@@ -113,7 +113,8 @@ class PreferredEntriesCalculator
         {
             // its possible to have a saved curated entry for a concept that no longer exits
             // so make sure we are setting the preferred value for a concept that we know about
-            if($best_entry_for_concept[$taxon_concept_id])
+            if(isset($best_entry_for_concept[$taxon_concept_id]) &&
+                $best_entry_for_concept[$taxon_concept_id])
             {
                 $best_entry_for_concept[$taxon_concept_id] = $hierarchy_entry_id;
             }
