@@ -184,12 +184,12 @@ class CompareHierarchies
                 {
                     if($GLOBALS['ENV_DEBUG']) echo("$id1 :: $id2\n");
                     // compare visible entries to other published entries
-                    if($hierarchy1->complete && $visibility_id1 == $visible_id && self::concept_published_in_hierarchy($tc_id2, $hierarchy1->id)) { debug("fail1"); continue; }
-                    if($hierarchy2->complete && $visibility_id2 == $visible_id && self::concept_published_in_hierarchy($tc_id1, $hierarchy2->id)) { debug("fail2"); continue; }
+                    if($hierarchy1->complete && $visibility_id1 == $visible_id && self::concept_published_in_hierarchy($tc_id2, $hierarchy1->id)) { debug("NO: concept 2 published in hierarchy 1"); continue; }
+                    if($hierarchy2->complete && $visibility_id2 == $visible_id && self::concept_published_in_hierarchy($tc_id1, $hierarchy2->id)) { debug("NO: concept 1 published in hierarchy 2"); continue; }
 
                     // compare preview entries to entries in the latest harvest events
-                    if($hierarchy1->complete && $visibility_id1 == $preview_id && self::concept_preview_in_hierarchy($tc_id2, $hierarchy1->id)) { debug("fail3"); continue; }
-                    if($hierarchy2->complete && $visibility_id2 == $preview_id && self::concept_preview_in_hierarchy($tc_id1, $hierarchy2->id)) { debug("fail4"); continue; }
+                    if($hierarchy1->complete && $visibility_id1 == $preview_id && self::concept_preview_in_hierarchy($tc_id2, $hierarchy1->id)) { debug("NO: concept 2 preview in hierarchy 1"); continue; }
+                    if($hierarchy2->complete && $visibility_id2 == $preview_id && self::concept_preview_in_hierarchy($tc_id1, $hierarchy2->id)) { debug("NO: concept 1 preview in hierarchy 2"); continue; }
 
                     if(self::curators_denied_relationship($id1, $tc_id1, $id2, $tc_id2, $superceded, $confirmed_exclusions))
                     {
