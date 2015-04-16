@@ -301,28 +301,6 @@ class NMNHTypeRecordAPI
     {
         $value = trim(str_replace("'", "", $value));
         if(in_array($field, array("sex", "typeStatus"))) $value = strtoupper($value);
-
-        if($field == "typeStatus")
-        {
-            $value = str_ireplace(array("[", "]"), "", $value);
-            $value = str_ireplace(" ?", "?", $value);
-            $value = str_ireplace("TYPES", "TYPE", $value);
-            $value = str_ireplace("PROBABLE", "POSSIBLE", $value);
-            $value = str_ireplace("POSSIBLE COTYPE (FIDE M. R. BROWNING)", "POSSIBLE COTYPE", $value);
-            $value = str_ireplace("NEOTYPE COLLECTION", "NEOTYPE", $value);
-            $value = str_ireplace("SYNYTPE", "SYNTYPE", $value);
-            
-            //NHM start
-            $value = str_ireplace("  ", " ", $value);
-            $value = str_ireplace("PARAYPE", "PARATYPE", $value);
-            $value = str_ireplace("?PARALECTOTYPE", "PARALECTOTYPE?", $value);
-            $value = str_ireplace("TYPE.", "TYPE", $value);
-            if(in_array($value, array("PARATYPE #5", "PARATYPE V", "PARATYPE I", "PARATYPE II", "PARATYPE #2", "PARATYPE #3", "PARATYPE (NO.52)", "PARATYPE #1", "PARATYPE #9", "PARATYPE III", "PARATYPE II AND III", "PARATYPE III AND IV", "PARATYPE #10", "PARATYPE #7", "PARATYPE #4", "PARATYPE #6", "PARATYPE (NO.65)", "PARATYPE #8"))) $value = "PARATYPE";
-            elseif(in_array($value, array("NO. 15 = LECTOTYPE", "NO.17 = LECTOTYPE"))) $value = "LECTOTYPE";
-            elseif(in_array($value, array("SYNTYTPE", "SYTNTYPE", "SYNYPES", "SYNTPE", "SYNTYPE]"))) $value = "SYNTYPE";
-            elseif(in_array($value, array("PARALECTO", "PARALECTOYPES", "PARALECTOYPE"))) $value = "PARALECTOTYPE";
-        }
-
         if($field == "sex")
         {
             //remove "s"
@@ -435,11 +413,15 @@ class NMNHTypeRecordAPI
             elseif(is_numeric(stripos($value, "JUVENILE; JUVENILE")))   $value = "JUVENILE";
         }
 
-        if($val = @$this->uris[$value]) return $val;
+        if($val = @$this->uris[$value])
+        {
+            if(in_array($val, array("Exclude- literature dataset", "EXCLUDE"))) return '';
+            else                                                                return $val; //success
+        }
         else
         {
             $this->debug["undefined"][$field][$value] = '';
-            return $value;
+            return $value; // returned verbatim
         }
     }
     
@@ -538,16 +520,37 @@ class NMNHTypeRecordAPI
     private function format_typeStatus($value)
     {
         $value = strtoupper($value);
-        if(in_array($value, array("SYNTYPE OR HOLOTYPE?", "?HOLOTYPE OR SYNTYPE", "HOLOTYPE OR SYNTYPE", "SYNTYPE OR HOLOTYPE"))) $value = "SYNTYPE? + HOLOTYPE?";
+        $value = str_ireplace(array("[", "]"), "", $value);
+        $value = str_ireplace(" ?", "?", $value);
+        $value = str_ireplace("TYPES", "TYPE", $value);
+        $value = str_ireplace("PROBABLE", "POSSIBLE", $value);
+        $value = str_ireplace("POSSIBLE COTYPE (FIDE M. R. BROWNING)", "POSSIBLE COTYPE", $value);
+        $value = str_ireplace("NEOTYPE COLLECTION", "NEOTYPE", $value);
+        $value = str_ireplace("  ", " ", $value);
+        $value = str_ireplace("TYPE.", "TYPE", $value);
+        if(in_array($value, array("PARATYPE #5", "PARATYPE V", "PARATYPE I", "PARATYPE II", "PARATYPE #2", "PARATYPE #3", "PARATYPE (NO.52)", "PARATYPE #1", "PARATYPE #9", "PARATYPE III", "PARATYPE II AND III", "PARATYPE III AND IV", "PARATYPE #10", "PARATYPE #7", "PARATYPE #4", "PARATYPE #6", "PARATYPE (NO.65)", "PARATYPE #8", "PARAYPE", "PARATYPE)"))) $value = "PARATYPE";
+        elseif(in_array($value, array("TYPE OF B.ASIATICA", "TYPE OF PHOCOENA COMMUNIS TUBERCULIFERUS")))                                    $value = "TYPE";
+        elseif(in_array($value, array("NO. 15 = LECTOTYPE", "NO.17 = LECTOTYPE")))                                                           $value = "LECTOTYPE";
+        elseif(in_array($value, array("SYNTYTPE", "SYTNTYPE", "SYNYPES", "SYNTPE", "SYNTYPE]", "SYNTYPE MAMILLATA")))                        $value = "SYNTYPE";
+        elseif(in_array($value, array("PARALECTO", "PARALECTOYPES", "PARALECTOYPE")))                                                        $value = "PARALECTOTYPE";
+        elseif(in_array($value, array("SYNTYPE OR HOLOTYPE?", "?HOLOTYPE OR SYNTYPE", "HOLOTYPE OR SYNTYPE", "SYNTYPE OR HOLOTYPE")))        $value = "SYNTYPE? + HOLOTYPE?";
+        elseif(in_array($value, array("POSS./PROB. PARALECTOTYPE", "PARALECTOTYPE (POSSIBLE)", "POSSIBLE PARALECTOTYPE", "?PARALECTOTYPE"))) $value = "PARALECTOTYPE?";
+        elseif(in_array($value, array("PT OF HOLOTYPE", "PART OF HOLOTYPE", "HOLOTYPE (PART)")))                                             $value = "HOLOTYPE FRAGMENT";
+        elseif(in_array($value, array("PART OF TYPE", "PT OF TYPE", "PART OF TYPE MATERIAL", "PT OF TYPE MATERIAL", "TYPE (PART)")))         $value = "TYPE FRAGMENT";
+        elseif(in_array($value, array("?PT OF TYPE?")))                     $value = "UNCONFIRMED TYPE"; //same as 'TYPE?'
+        elseif(in_array($value, array("SYNYTPE", "FIGURED SYNTYPE")))       $value = "SYNTYPE";
+        elseif(in_array($value, array("TOPTYPE", "TOPOTYPICAL")))           $value = "TOPOTYPE";
         elseif($value == "SYNTYPE OR PARALECTOTYPE")                        $value = "SYNTYPE? + PARALECTOTYPE?";
         elseif($value == "SYNTYPE OR LECTOTYPE")                            $value = "SYNTYPE? + LECTOTYPE?";
         elseif($value == "TOPOTYPE (STATED BY THE DONOR TO BE PARATYPE)")   $value = "TOPOTYPE? + PARATYPE?";
         elseif($value == "HOLOTYPE/PARATYPE ?")                             $value = "HOLOTYPE? + PARATYPE?";
-        elseif(in_array($value, array("POSS./PROB. PARALECTOTYPE", "PARALECTOTYPE (POSSIBLE)"))) $value = "PARALECTOTYPE?";
         elseif($value == "NEOTYPE (POSSIBLE)")                              $value = "NEOTYPE?";
         elseif($value == "LECTOTYPE (POSSIBLE)")                            $value = "LECTOTYPE?";
         elseif($value == "ALLOTYPE (POSSIBLE)")                             $value = "ALLOTYPE?";
-        elseif($value == "POSSIBLE PARALECTOTYPE")                          $value = "PARALECTOTYPE?";
+        elseif($value == "ORIGINAL MATERIAL.")                              $value = "ORIGINALMATERIAL";
+        elseif($value == "PART OF LECTOTYPE")                               $value = "LECTOTYPE FRAGMENT";
+        elseif($value == "PART OF PARATYPE")                                $value = "PARATYPE FRAGMENT";
+        elseif($value == "HOLOTYPE LIMNOTRAGUS SELOUSI")                    $value = "HOLOTYPE";
         return $value;
     }
     
