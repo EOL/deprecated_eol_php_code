@@ -506,6 +506,8 @@ class Resource extends ActiveRecord
               $this->harvest_event->refresh();
               $this->harvest_event->send_emails_about_outlier_harvests();
           }
+      } else {
+          debug("WARNING: INVALID - skipping");
       }
       $this->harvest_event = null;
       $this->debug_end("harvest");
