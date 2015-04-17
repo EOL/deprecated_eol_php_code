@@ -229,7 +229,7 @@ class FEISDataConnector
             $TMP = fopen($temp_file_path, "w");
             fwrite($TMP, $file_contents);
             fclose($TMP);
-            $output = shell_exec("tar -xzf $temp_file_path -C $temp_path");
+            $output = shell_exec("unzip $temp_file_path -C $temp_path");
             if(file_exists($temp_path . "/" . $files[0] . $extension))
             {
                 foreach($files as $file) $text_path[$file] = $temp_path . "/" . $file . $extension;
