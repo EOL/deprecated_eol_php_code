@@ -781,6 +781,7 @@ class Resource extends ActiveRecord
       if($error_string)
       {
           if(strlen($error_string) > 50000) $error_string = substr($error_string, 0, 50000) . "...";
+          debug("Validation errors:\n$error_string\n");
           $this->mysqli->update("UPDATE resources SET notes='$error_string' WHERE id=$this->id");
       }
       if(!$valid)
