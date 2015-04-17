@@ -837,7 +837,7 @@ class RotifersAPI
             $TMP = fopen($temp_file_path, "w");
             fwrite($TMP, $file_contents);
             fclose($TMP);
-            $output = shell_exec("unzip $temp_file_path -C $this->TEMP_FILE_PATH");
+            $output = shell_exec("unzip $temp_file_path -d $this->TEMP_FILE_PATH");
             if(!file_exists($this->TEMP_FILE_PATH . "/species.txt")) 
             {
                 $this->TEMP_FILE_PATH = str_ireplace(".zip", "", $temp_file_path);
