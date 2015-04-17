@@ -379,7 +379,12 @@ class Resource extends ActiveRecord
 
     public function harvest($validate = true, $validate_only_welformed = false, $fast_for_testing = false)
     {
-        $this->debug_start("harvest");
+        $this->debug_start(
+            "harvest eol.org/content_partners/" .
+            $this->content_partner->id .
+            "/resources/" .
+            $this->id
+        );
 
         $valid = $validate ? $this->validate() : true;
         if($valid)
