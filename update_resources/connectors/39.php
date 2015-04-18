@@ -10,8 +10,9 @@ $timestart = time_elapsed();
 $resource_id = 39;
 
 require_library('ResourceDataObjectElementsSetting');
-$resource_path = "http://localhost/~eolit/cp/UnivAlberta/data.xml.gz";
-$resource_path = "http://project.macs.ualberta.ca/services/eol/data.xml.gz";
+// $resource_path = "http://localhost/~eolit/cp/UnivAlberta/data.xml.gz";
+// $resource_path = "http://project.macs.ualberta.ca/services/eol/data.xml.gz";
+$resource_path = "https://dl.dropboxusercontent.com/u/7597512/UnivAlberta/data.xml.gz";
 
 $result = $GLOBALS['db_connection']->select("SELECT accesspoint_url FROM resources WHERE id=$resource_id");
 $row = $result->fetch_row();
