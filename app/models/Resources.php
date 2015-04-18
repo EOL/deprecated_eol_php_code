@@ -379,7 +379,12 @@ class Resource extends ActiveRecord
 
     public function harvest($validate = true, $validate_only_welformed = false, $fast_for_testing = false)
     {
-        $this->debug_start("harvest");
+        $this->debug_start(
+            "harvest eol.org/content_partners/" .
+            $this->content_partner->id .
+            "/resources/" .
+            $this->id
+        );
 
         $valid = $validate ? $this->validate() : true;
         if($valid)
@@ -501,6 +506,8 @@ class Resource extends ActiveRecord
               $this->harvest_event->refresh();
               $this->harvest_event->send_emails_about_outlier_harvests();
           }
+      } else {
+          debug("WARNING: INVALID - skipping");
       }
       $this->harvest_event = null;
       $this->debug_end("harvest");
@@ -774,6 +781,7 @@ class Resource extends ActiveRecord
       if($error_string)
       {
           if(strlen($error_string) > 50000) $error_string = substr($error_string, 0, 50000) . "...";
+          debug("Validation errors:\n$error_string\n");
           $this->mysqli->update("UPDATE resources SET notes='$error_string' WHERE id=$this->id");
       }
       if(!$valid)
