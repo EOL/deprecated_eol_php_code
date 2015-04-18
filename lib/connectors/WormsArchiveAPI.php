@@ -92,19 +92,36 @@ class WormsArchiveAPI
             $taxon->taxonRank       = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
             $taxon->taxonomicStatus = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
 
-            if($taxon->taxonomicStatus == "synonym")
+            $taxon->taxonRemarks    = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRemarks"];
+            if(is_numeric(stripos($taxon->taxonRemarks, 'REMAP_ON_EOL')))
             {
-                $val = (string) $rec["http://rs.tdwg.org/dwc/terms/acceptedNameUsageID"];
-                $taxon->acceptedNameUsageID  = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $val);
+                $taxon->taxonomicStatus = "synonym";
             }
-            else $taxon->acceptedNameUsageID = "";
+
+            if($val = (string) $rec["http://rs.tdwg.org/dwc/terms/acceptedNameUsageID"]) $taxon->acceptedNameUsageID  = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $val);
+            else $taxon->acceptedNameUsageID = '';
+
+            if($taxon->taxonomicStatus == "accepted")
+            {
+                if((string) $rec["http://rs.tdwg.org/dwc/terms/acceptedNameUsageID"]) $taxon->acceptedNameUsageID = "";
+            }
+            elseif($taxon->taxonomicStatus == "synonym")
+            {
+                if(!$taxon->acceptedNameUsageID) continue; //is syn but no acceptedNameUsageID, ignore this taxon
+            }
+            else //not "synonym" and not "accepted"
+            {
+                //not syn but has acceptedNameUsageID; seems possible, so just accept it
+            }
+
+            if($taxon->taxonID == $taxon->acceptedNameUsageID) $taxon->acceptedNameUsageID = '';
+
             
             /* stats
             $this->debug[$taxon->taxonomicStatus] = '';
             @$this->debug["count"][$taxon->taxonomicStatus]++;
             @$this->debug["count"]["count"]++;
             */
-            $taxon->taxonRemarks    = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRemarks"];
             $taxon->namePublishedIn = (string) $rec["http://rs.tdwg.org/dwc/terms/namePublishedIn"];
             $taxon->rightsHolder    = (string) $rec["http://purl.org/dc/terms/rightsHolder"];
             $taxon->furtherInformationURL = (string) $rec["http://rs.tdwg.org/ac/terms/furtherInformationURL"];
@@ -306,7 +323,7 @@ class WormsArchiveAPI
             $rec["catnum"] .= "_nr";
             self::add_string_types($rec, "true", $location, "http://eol.org/schema/terms/NativeRange");
             if($establishmentMeans == "Native - Endemic")         self::add_string_types($rec, "metadata", "http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Endemic", "http://rs.tdwg.org/dwc/terms/measurementRemarks");
-            elseif($establishmentMeans == "Native - Non-endemic") //no metadata -> https://jira.eol.org/browse/DATA-1522?focusedCommentId=59715&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-59715
+            // elseif($establishmentMeans == "Native - Non-endemic") //no metadata -> https://jira.eol.org/browse/DATA-1522?focusedCommentId=59715&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-59715
         }
         
         /*
