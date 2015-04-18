@@ -15,7 +15,7 @@ class PaleoDBAPI
         $this->invalid_names_status = array("replaced by", "invalid subgroup of", "nomen dubium", "nomen nudum", "nomen vanum", "nomen oblitum");
         $this->service["taxon"] = "http://paleobiodb.org/data1.1/taxa/list.csv?rel=all_taxa&status=valid&show=attr,app,size,phylo,ent,entname,crmod&limit=1000000";
         // $this->service["taxon"] = "https://dl.dropboxusercontent.com/u/7597512/PaleoDB/paleobiodb.csv";
-        // $this->service["taxon"] = "http://localhost/~eolit/cp/PaleoDB/paleobiodb.csv";
+        // $this->service["taxon"] = "http://localhost/~eolit/cp/PaleoDB/pbdb_taxa.csv";
         // $this->service["taxon"] = "http://localhost/~eolit/cp/PaleoDB/paleobiodb_small.csv";
 
         $this->service["collection"] = "http://paleobiodb.org/data1.1/colls/list.csv?vocab=pbdb&limit=10&show=bin,attr,ref,loc,paleoloc,prot,time,strat,stratext,lith,lithext,geo,rem,ent,entname,crmod&taxon_name=";
