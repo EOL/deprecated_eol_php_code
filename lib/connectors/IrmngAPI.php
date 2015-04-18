@@ -276,7 +276,7 @@ class IrmngAPI
         $rec["catnum"] = "cs"; //conservation status
         if($val = $conservation_status) self::add_string_types($rec, "Conservation status", $val, "http://eol.org/schema/terms/ExtinctionStatus");
         $rec["catnum"] = "h"; //habitat
-        if($val = $habitat)             self::add_string_types($rec, "Habitat", $val, "http://rs.tdwg.org/dwc/terms/habitat");
+        if($val = $habitat)             self::add_string_types($rec, "Habitat", $val, "http://eol.org/schema/terms/Habitat");
     }
 
     private function add_string_types($rec, $label, $value, $mtype)

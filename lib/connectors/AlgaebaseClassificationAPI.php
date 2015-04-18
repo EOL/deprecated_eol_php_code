@@ -44,7 +44,7 @@ class AlgaebaseClassificationAPI
         echo "\n count not numeric: " . $this->not_numeric_id;
         echo "\n synonyms count: " . $this->syn_count;
         echo "\n wrong data: " . $this->no_rank;
-        print_r($this->debug);
+        // print_r($this->debug); //to list the unique habitat values
     }
 
     private function assign_name_and_id()
@@ -232,7 +232,7 @@ class AlgaebaseClassificationAPI
             {
                 $this->debug[$desc] = "";
                 $habitat = self::format_habitat($desc);
-                self::add_string_types($taxon_id, "Habitat", $habitat, "http://rs.tdwg.org/dwc/terms/habitat");
+                self::add_string_types($taxon_id, "Habitat", $habitat, "http://eol.org/schema/terms/Habitat");
                 // self::get_texts($desc, $taxon_id, '', $this->SPM . '#Habitat', '_habitat', array(), array()); --- conveted to structured data
             } 
             $desc = $rec["species.Type_locality"];

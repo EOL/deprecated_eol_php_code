@@ -76,8 +76,12 @@ class I3InteractiveAPI
             $taxon->scientificName              = utf8_encode((string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"]);
             $taxon->scientificNameAuthorship    = (string) $rec["http://rs.tdwg.org/dwc/terms/scientificNameAuthorship"];
             $taxon->furtherInformationURL       = (string) $rec["http://purl.org/dc/terms/source"];
-            $taxon->acceptedNameUsageID         = (string) $rec["http://rs.tdwg.org/dwc/terms/acceptedNameUsageID"];
-            
+
+            $acceptedNameUsageID = (string) $rec["http://rs.tdwg.org/dwc/terms/acceptedNameUsageID"];
+            if(isset($taxa_id_list[$acceptedNameUsageID])) $taxon->acceptedNameUsageID = $acceptedNameUsageID;
+            else echo "\nthis acceptedNameUsageID does not exist [$acceptedNameUsageID]\n";
+
+            /* decided to comment this since collection is truncated, possible prob. is a missing node in hierarchy
             $parentNameUsageID = (string) $rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"];
             if(isset($taxa_id_list[$parentNameUsageID])) $taxon->parentNameUsageID = $parentNameUsageID;
             else echo "\nthis parentNameUsageID does not exist [$parentNameUsageID]\n";
@@ -85,6 +89,7 @@ class I3InteractiveAPI
             $originalNameUsageID = (string) $rec["http://rs.tdwg.org/dwc/terms/originalNameUsageID"];
             if(isset($taxa_id_list[$originalNameUsageID])) $taxon->originalNameUsageID = $originalNameUsageID;
             else echo "\nthis originalNameUsageID does not exist [$originalNameUsageID]\n";
+            */
             
             $taxon->taxonRank                   = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
             $taxon->taxonRank                   = trim(str_ireplace("group", "", $taxon->taxonRank));
@@ -518,11 +523,10 @@ class I3InteractiveAPI
 
     private function get_uris()
     {
-        $params["uri_file"] = $this->uri_mappings_spreadsheet; //a good source of typeStatus URI's
         $params["dataset"]  = "GBIF";
         require_library('connectors/GBIFCountryTypeRecordAPI');
         $func = new GBIFCountryTypeRecordAPI("x");
-        $uris = $func->get_uris($params);
+        $uris = $func->get_uris($params, $this->uri_mappings_spreadsheet);
         return $uris;
     }
 

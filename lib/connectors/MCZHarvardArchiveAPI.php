@@ -235,11 +235,13 @@ class MCZHarvardArchiveAPI
 
     private function get_uris()
     {
-        $params["uri_file"] = "http://localhost/~eolit/cp/NMNH/type_specimen_resource/nmnh mappings.xlsx"; //a good source of typeStatus URI's
+        $spreadsheet = "http://localhost/~eolit/cp/NMNH/type_specimen_resource/nmnh mappings.xlsx"; //a good source of typeStatus URI's
+        $spreadsheet = "https://dl.dropboxusercontent.com/u/7597512/NMNH/type_specimen_resource/nmnh mappings.xlsx";
+        $params["uri_file"] = $spreadsheet;
         $params["dataset"]  = "GBIF";
         require_library('connectors/GBIFCountryTypeRecordAPI');
         $func = new GBIFCountryTypeRecordAPI("x");
-        $uris = $func->get_uris($params);
+        $uris = $func->get_uris($params, $spreadsheet);
         return $uris;
     }
 

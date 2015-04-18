@@ -246,8 +246,7 @@ class FishBaseArchiveAPI
             else
             {
                 echo "\nno ref id; investigate: " . $ref["url"];
-                print_r($ref);
-                exit("\n");
+                $ref_id = '';
             }
             
             if(!isset($this->reference_ids[$ref_id]))
