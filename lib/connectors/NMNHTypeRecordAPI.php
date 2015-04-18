@@ -149,6 +149,7 @@ class NMNHTypeRecordAPI
         $i = 0;
         foreach($arr as $value)
         {
+            $value = self::format_typeStatus($value);
             if(self::valid_typestatus($value, $sciname))
             {
                 foreach($this->typeStatus_separators as $separator)
@@ -519,7 +520,7 @@ class NMNHTypeRecordAPI
 
     private function format_typeStatus($value)
     {
-        $value = strtoupper($value);
+        $value = trim(strtoupper($value));
         $value = str_ireplace(array("[", "]"), "", $value);
         $value = str_ireplace(" ?", "?", $value);
         $value = str_ireplace("TYPES", "TYPE", $value);
@@ -528,8 +529,7 @@ class NMNHTypeRecordAPI
         $value = str_ireplace("NEOTYPE COLLECTION", "NEOTYPE", $value);
         $value = str_ireplace("  ", " ", $value);
         $value = str_ireplace("TYPE.", "TYPE", $value);
-        if(in_array($value, array("PARATYPE #5", "PARATYPE V", "PARATYPE I", "PARATYPE II", "PARATYPE #2", "PARATYPE #3", "PARATYPE (NO.52)", "PARATYPE #1", "PARATYPE #9", "PARATYPE III", "PARATYPE II AND III", "PARATYPE III AND IV", "PARATYPE #10", "PARATYPE #7", "PARATYPE #4", "PARATYPE #6", "PARATYPE (NO.65)", "PARATYPE #8", "PARAYPE", "PARATYPE)"))) $value = "PARATYPE";
-        elseif(in_array($value, array("TYPE OF B.ASIATICA", "TYPE OF PHOCOENA COMMUNIS TUBERCULIFERUS")))                                    $value = "TYPE";
+        if(in_array($value, array("TYPE OF B.ASIATICA", "TYPE OF PHOCOENA COMMUNIS TUBERCULIFERUS")))                                    $value = "TYPE";
         elseif(in_array($value, array("NO. 15 = LECTOTYPE", "NO.17 = LECTOTYPE")))                                                           $value = "LECTOTYPE";
         elseif(in_array($value, array("SYNTYTPE", "SYTNTYPE", "SYNYPES", "SYNTPE", "SYNTYPE]", "SYNTYPE MAMILLATA")))                        $value = "SYNTYPE";
         elseif(in_array($value, array("PARALECTO", "PARALECTOYPES", "PARALECTOYPE")))                                                        $value = "PARALECTOTYPE";
@@ -537,9 +537,10 @@ class NMNHTypeRecordAPI
         elseif(in_array($value, array("POSS./PROB. PARALECTOTYPE", "PARALECTOTYPE (POSSIBLE)", "POSSIBLE PARALECTOTYPE", "?PARALECTOTYPE"))) $value = "PARALECTOTYPE?";
         elseif(in_array($value, array("PT OF HOLOTYPE", "PART OF HOLOTYPE", "HOLOTYPE (PART)")))                                             $value = "HOLOTYPE FRAGMENT";
         elseif(in_array($value, array("PART OF TYPE", "PT OF TYPE", "PART OF TYPE MATERIAL", "PT OF TYPE MATERIAL", "TYPE (PART)")))         $value = "TYPE FRAGMENT";
-        elseif(in_array($value, array("?PT OF TYPE?")))                     $value = "UNCONFIRMED TYPE"; //same as 'TYPE?'
+        elseif(in_array($value, array("?PT OF TYPE?", "?PT OF TYPE OF REGULARIS?"))) $value = "UNCONFIRMED TYPE"; //same as 'TYPE?'
         elseif(in_array($value, array("SYNYTPE", "FIGURED SYNTYPE")))       $value = "SYNTYPE";
         elseif(in_array($value, array("TOPTYPE", "TOPOTYPICAL")))           $value = "TOPOTYPE";
+        elseif(in_array($value, array("COTYPUS", "CO-TYPE")))               $value = "COTYPE";
         elseif($value == "SYNTYPE OR PARALECTOTYPE")                        $value = "SYNTYPE? + PARALECTOTYPE?";
         elseif($value == "SYNTYPE OR LECTOTYPE")                            $value = "SYNTYPE? + LECTOTYPE?";
         elseif($value == "TOPOTYPE (STATED BY THE DONOR TO BE PARATYPE)")   $value = "TOPOTYPE? + PARATYPE?";
@@ -551,6 +552,7 @@ class NMNHTypeRecordAPI
         elseif($value == "PART OF LECTOTYPE")                               $value = "LECTOTYPE FRAGMENT";
         elseif($value == "PART OF PARATYPE")                                $value = "PARATYPE FRAGMENT";
         elseif($value == "HOLOTYPE LIMNOTRAGUS SELOUSI")                    $value = "HOLOTYPE";
+        elseif(in_array($value, array("PARATYPE #5", "PARATYPE V", "PARATYPE I", "PARATYPE II", "PARATYPE #2", "PARATYPE #3", "PARATYPE (NO.52)", "PARATYPE #1", "PARATYPE #9", "PARATYPE III", "PARATYPE II AND III", "PARATYPE III AND IV", "PARATYPE #10", "PARATYPE #7", "PARATYPE #4", "PARATYPE #6", "PARATYPE (NO.65)", "PARATYPE #8", "PARAYPE", "PARATYPE)"))) $value = "PARATYPE";
         return $value;
     }
     

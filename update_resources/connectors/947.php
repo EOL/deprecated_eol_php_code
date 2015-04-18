@@ -2,7 +2,7 @@
 namespace php_active_record;
 /* DATA-1615 NHM type data acquisition
                     12-Apr      15Apr
-measurement_or_fact [2432673]   2433673
+measurement_or_fact [2432673]   2433637
 occurrence          [293257]    293256
 taxon.tab           [155041]    155041
 */

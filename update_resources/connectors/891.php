@@ -2,10 +2,10 @@
 namespace php_active_record;
 /* WEB-5843 Import Smithsonian type specimen data to TraitBank
 
-                    14Jan
-measurement_or_fact 4,768,256
-occurrence          468,454
-taxon               295903
+                    14Jan       16Apr
+measurement_or_fact 4,768,256   4768226
+occurrence          468,454     468454
+taxon               295903      295903
 
 10k records:        9Jan
 measurement_or_fact 9218
