@@ -19,6 +19,7 @@ $params["uri_file"]     = "http://localhost/~eolit/cp/NMNH/type_specimen_resourc
 
 //remote source
 $params["dwca_file"]    = "http://data.nhm.ac.uk/resources/gbif_dwca.zip"; // true value - working
+$params["dwca_file"]    = "https://dl.dropboxusercontent.com/u/7597512/NHM/gbif_dwca.zip";
 $params["uri_file"]     = "https://dl.dropboxusercontent.com/u/7597512/NMNH/type_specimen_resource/nmnh mappings.xlsx";
 
 $params["row_type"]     = "http://rs.tdwg.org/dwc/terms/occurrence";
