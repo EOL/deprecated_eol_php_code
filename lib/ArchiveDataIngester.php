@@ -384,7 +384,6 @@ class ArchiveDataIngester
         if($this->archive_validator->has_error_by_line('http://rs.gbif.org/terms/1.0/vernacularname', $parameters['archive_table_definition']->location, $parameters['archive_line_number'])) return false;
 
         $taxon_ids = self::get_foreign_keys_from_row($row, 'http://rs.tdwg.org/dwc/terms/taxonID');
-        // $taxon_id = $taxon_ids[0];
         $taxon_info = array();
         if($taxon_ids)
         {
