@@ -384,6 +384,7 @@ class ArchiveDataIngester
         if($this->archive_validator->has_error_by_line('http://rs.gbif.org/terms/1.0/vernacularname', $parameters['archive_table_definition']->location, $parameters['archive_line_number'])) return false;
 
         $taxon_ids = self::get_foreign_keys_from_row($row, 'http://rs.tdwg.org/dwc/terms/taxonID');
+        $taxon_id = $taxon_ids[0];
         $taxon_info = array();
         if($taxon_ids)
         {
@@ -410,50 +411,47 @@ class ArchiveDataIngester
         $language = Language::find_or_create_for_parser($languageString);
         if(!$name) return false;
 
-        foreach($taxon_ids as $taxon_id)
+        foreach($taxon_info as $info)
         {
-          foreach($taxon_info as $info)
-          {
-              $he_id = $taxon_info['hierarchy_entry_id'];
-              $tc_id = $taxon_info['taxon_concept_id'];
-              $common_name_relation = SynonymRelation::find_or_create_by_translated_label('common name');
-              $result = $this->mysqli->query(
-                "SELECT SQL_NO_CACHE id FROM synonyms" .
-                " WHERE name_id = " . $name->id .
+            $he_id = $taxon_info['hierarchy_entry_id'];
+            $tc_id = $taxon_info['taxon_concept_id'];
+            $common_name_relation = SynonymRelation::find_or_create_by_translated_label('common name');
+            $result = $this->mysqli->query(
+              "SELECT SQL_NO_CACHE id FROM synonyms" .
+              " WHERE name_id = " . $name->id .
+              " AND synonym_relation_id = " . $common_name_relation->id .
+              " AND hierarchy_entry_id = " . $he_id .
+              " AND hierarchy_id = " .
+              $this->harvest_event->resource->hierarchy_id . 
+              " AND identifier = ". $taxon_id);
+            if ($result && $result->fetch_assoc()){
+              $l_id = @$language->id ?: 0;
+              $GLOBALS['db_connection']->update(
+                "UPDATE synonyms SET" .
+                " language_id = " . $l_id .
+                ", published = 0" .
+                ", taxon_remarks = '" . $taxonRemarks .
+                "' WHERE name_id = " . $name->id .
                 " AND synonym_relation_id = " . $common_name_relation->id .
                 " AND hierarchy_entry_id = " . $he_id .
                 " AND hierarchy_id = " .
-                $this->harvest_event->resource->hierarchy_id . 
-                " AND identifier = ". $taxon_id);
-              if ($result && $result->fetch_assoc()){
-                $l_id = @$language->id ?: 0;
-                $GLOBALS['db_connection']->update(
-                  "UPDATE synonyms SET" .
-                  " language_id = " . $l_id .
-                  ", published = 0" .
-                  ", taxon_remarks = '" . $taxonRemarks .
-                  "' WHERE name_id = " . $name->id .
-                  " AND synonym_relation_id = " . $common_name_relation->id .
-                  " AND hierarchy_entry_id = " . $he_id .
-                  " AND hierarchy_id = " .
-                  $this->harvest_event->resource->hierarchy_id .
-                  "AND identifier = ". $taxon_id);
-                break;
-              }else{
-                  Synonym::find_or_create(array('name_id'               => $name->id,
-                                                'synonym_relation_id'   => $common_name_relation->id,
-                                                'language_id'           => @$language->id ?: 0,
-                                                'hierarchy_entry_id'    => $he_id,
-                                                'preferred'             => ($isPreferredName != ''),
-                                                'hierarchy_id'          => $this->harvest_event->resource->hierarchy_id,
-                                                'vetted_id'             => 0,
-                                                'published'             => 0,
-                                                'taxonRemarks'          => $taxonRemarks, 
-                                                'identifier'            => $taxon_id ));
-                   break;
-              }
+                $this->harvest_event->resource->hierarchy_id .
+                "AND identifier = ". $taxon_id);
+              break;
+            }else{
+                Synonym::find_or_create(array('name_id'               => $name->id,
+                                              'synonym_relation_id'   => $common_name_relation->id,
+                                              'language_id'           => @$language->id ?: 0,
+                                              'hierarchy_entry_id'    => $he_id,
+                                              'preferred'             => ($isPreferredName != ''),
+                                              'hierarchy_id'          => $this->harvest_event->resource->hierarchy_id,
+                                              'vetted_id'             => 0,
+                                              'published'             => 0,
+                                              'taxonRemarks'          => $taxonRemarks, 
+                                              'identifier'            => $taxon_id ));
+                 break;
+            }
           }
-        }
     }
 
     public function insert_data_object($row, $parameters)
