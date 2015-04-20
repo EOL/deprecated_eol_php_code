@@ -384,7 +384,7 @@ class ArchiveDataIngester
         if($this->archive_validator->has_error_by_line('http://rs.gbif.org/terms/1.0/vernacularname', $parameters['archive_table_definition']->location, $parameters['archive_line_number'])) return false;
 
         $taxon_ids = self::get_foreign_keys_from_row($row, 'http://rs.tdwg.org/dwc/terms/taxonID');
-        $taxon_id = $taxon_ids[0];
+        // $taxon_id = $taxon_ids[0];
         $taxon_info = array();
         if($taxon_ids)
         {
@@ -436,7 +436,7 @@ class ArchiveDataIngester
                 " AND hierarchy_entry_id = " . $he_id .
                 " AND hierarchy_id = " .
                 $this->harvest_event->resource->hierarchy_id .
-                "AND identifier = ". $taxon_id);
+                "AND identifier = ". $taxon_ids[0]);
               break;
             }else{
                 Synonym::find_or_create(array('name_id'               => $name->id,
@@ -448,7 +448,7 @@ class ArchiveDataIngester
                                               'vetted_id'             => 0,
                                               'published'             => 0,
                                               'taxonRemarks'          => $taxonRemarks, 
-                                              'identifier'            => $taxon_id ));
+                                              'identifier'            => $taxon_ids[0] ));
                  break;
             }
           }
