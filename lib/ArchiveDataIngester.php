@@ -423,7 +423,7 @@ class ArchiveDataIngester
               " AND hierarchy_entry_id = " . $he_id .
               " AND hierarchy_id = " .
               $this->harvest_event->resource->hierarchy_id . 
-              " AND identifier = ". $taxon_id);
+              " AND identifier = ". $taxon_ids[0]);
             if ($result && $result->fetch_assoc()){
               $l_id = @$language->id ?: 0;
               $GLOBALS['db_connection']->update(
@@ -451,7 +451,7 @@ class ArchiveDataIngester
                                               'identifier'            => $taxon_ids[0] ));
                  break;
             }
-          }
+        }
     }
 
     public function insert_data_object($row, $parameters)
