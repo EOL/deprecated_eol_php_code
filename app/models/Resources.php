@@ -388,7 +388,6 @@ class Resource extends ActiveRecord
             "/resources/" .
             $this->id
         );
-
         $valid = $validate ? $this->validate() : true;
         if($valid)
         {
@@ -450,7 +449,7 @@ class Resource extends ActiveRecord
 
           if($this->hierarchy_id && !$this->is_translation_resource())
           {
-            debug("(Translation resource)");
+              debug("(Translation resource)");
               $hierarchy = Hierarchy::find($this->hierarchy_id);
               $this->debug_start("Tasks::rebuild_nested_set");
               Tasks::rebuild_nested_set($this->hierarchy_id);
@@ -459,7 +458,7 @@ class Resource extends ActiveRecord
 
               if(!$this->auto_publish)
               {
-                debug("(AUTO-PUBLISH)");
+                  debug("(AUTO-PUBLISH)");
                   // Rebuild the Solr index for this hierarchy
                   $indexer = new HierarchyEntryIndexer();
                   $this->debug_start("HierarchyEntryIndexer::index");
@@ -523,7 +522,7 @@ class Resource extends ActiveRecord
 
     public function add_unchanged_data_to_harvest()
     {
-      $this->debug_start("add_unchanged_data_to_harvest");
+      $this->debug_start("++ START add_unchanged_data_to_harvest ++");
         // there is no _delete file so we assume the resource is complete
         if(!file_exists($this->resource_deletions_path())) return false;
 
@@ -777,12 +776,17 @@ class Resource extends ActiveRecord
                   $errors_as_string[] = $error->__toString();
               }
               $error_string = $this->mysqli->escape(implode("<br>", $errors_as_string));
+              write_to_resource_harvesting_log("ERRORS in archive validatior" . $error_string);
           }
       }else
       {
           $validation_result = SchemaValidator::validate($this->resource_path());
           if($validation_result===true) $valid = true;  // valid
-          else $error_string = $this->mysqli->escape(implode("<br>", $validation_result));
+          else 
+          {
+          	$error_string = $this->mysqli->escape(implode("<br>", $validation_result));
+          	write_to_resource_harvesting_log("ERRORS in schema validatior" . $error_string);
+          }
       }
       if($error_string)
       {
@@ -793,6 +797,7 @@ class Resource extends ActiveRecord
       if(!$valid)
       {
           $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::processing_failed()->id." WHERE id=$this->id");
+          write_to_resource_harvesting_log("Resource isn't valid");
       }
       $this->debug_end("validate");
       return $valid;

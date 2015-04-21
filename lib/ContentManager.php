@@ -47,7 +47,11 @@ class ContentManager
             if (strlen($extension)) $permanent_file_path .= '.'.$extension;
             if (link($file, $permanent_file_path)) {
                 $cache_file_path = $file;
-                if($GLOBALS['ENV_DEBUG']) echo "Hard link created (old file is $file, now linked at $permanent_file_path)\n";
+                if($GLOBALS['ENV_DEBUG'])
+                {
+                	echo "Hard link created (old file is $file, now linked at $permanent_file_path)\n";
+                	write_to_resource_harvesting_log("Hard link created (old file is $file, now linked at $permanent_file_path)");
+                }
             }
         }
         
@@ -82,6 +86,7 @@ class ContentManager
             if(!file_exists($permanent_file_path))
             {
                 trigger_error("ContentManager: Unable to download file $file", E_USER_NOTICE);
+                write_to_resource_harvesting_log("ContentManager: Unable to download file $file");
                 return false;
             }
         }
@@ -131,6 +136,7 @@ class ContentManager
             case "dataset":
                 return($this->new_dataset_file_name(@$options['data_search_file_id']));
         }
+        write_to_resource_harvesting_log("ContentManager: non-valid type (".$type.")");
         trigger_error("ContentManager: non-valid type (".$type.")", E_USER_NOTICE);
         return null;
     }
@@ -208,6 +214,7 @@ class ContentManager
                 if(!file_exists($new_temp_file_path))
                 {
                     if(file_exists($temp_file_path)) unlink($temp_file_path);
+                    write_to_resource_harvesting_log("ContentManager: Unable to download file $file_path_or_uri");
                     trigger_error("ContentManager: Unable to download file $file_path_or_uri", E_USER_NOTICE);
                     return false;
                 }
@@ -410,7 +417,8 @@ class ContentManager
     {
         $fullsize_jpg = $this->reduced_original($original_file, $prefix, $options);
         if(!file_exists($fullsize_jpg)) {
-            trigger_error("ContentManager: Unable to create jpg file from downloaded file $original_file.", E_USER_NOTICE);
+        	write_to_resource_harvesting_log("ContentManager: Unable to create jpg file from downloaded file $original_file");
+            trigger_error("ContentManager: Unable to create jpg file from downloaded file $original_file.", E_USER_NOTICE);            
             return false;
         }
         //get the size from the jpg version, which is properly orientated
@@ -418,6 +426,7 @@ class ContentManager
         $width = @$sizes[0];
         $height = @$sizes[1];
         if (empty($width) && empty($height))
+            write_to_resource_harvesting_log("ContentManager: Unable to getimagesize for $fullsize_jpg: using default crop and not recording image_size data");
             trigger_error("ContentManager: Unable to getimagesize for $fullsize_jpg: using default crop and not recording image_size data", E_USER_NOTICE);
 
         // we make an exception
@@ -481,6 +490,7 @@ class ContentManager
                         return $this->get_crop_from_DB($row[0]);
                 }
             } else {
+                write_to_resource_harvesting_log("ContentManager: Database error while getting data_objects with guid='$data_object_guid' from data_objects table");
                 trigger_error("ContentManager: Database error while getting data_objects with guid='$data_object_guid' from data_objects table", E_USER_NOTICE);
             }
         }
@@ -499,6 +509,7 @@ class ContentManager
                 $crop = $resp->fetch_row();
                 if (isset($crop[0]) and isset($crop[1]) and isset($crop[2])) return $crop;
             } else {
+            	write_to_resource_harvesting_log("ContentManager: Database error while getting data_object $data_object_id from image_sizes table");
                 trigger_error("ContentManager: Database error while getting data_object $data_object_id from image_sizes table", E_USER_NOTICE);
             }
         }
@@ -533,7 +544,11 @@ class ContentManager
             //look for an already existing equivalent of $old_file with the new suffix we can link to
             if (file_exists($old_file = $old_prefix.$suffix)) {
                 if (link($old_file, $new_file)) {
-                    if($GLOBALS['ENV_DEBUG']) echo "Hard link created (old file is $old_file, now linked at $new_file)\n";
+                    if($GLOBALS['ENV_DEBUG'])
+                    {
+                     echo "Hard link created (old file is $old_file, now linked at $new_file)\n";
+                     write_to_resource_harvesting_log("Hard link created (old file is $old_file, now linked at $new_file)");
+                    }
                     self::create_checksum($new_file);
                     //return the old version, to indicate to future calls that other cached files may be available
                     return $old_file;
@@ -670,6 +685,7 @@ class ContentManager
                 self::create_checksum($spectrogram_path);
                 return $spectrogram_path;
             } else {
+            	write_to_resource_harvesting_log("ContentManager: SoX could not produce thumbnail spectrogram for audio file $audiofile");
                 trigger_error("ContentManager: SoX could not produce thumbnail spectrogram for audio file $audiofile", E_USER_NOTICE);
             }
         }
@@ -699,6 +715,7 @@ class ContentManager
     function new_resource_file_name($resource_id)
     {
         if (isset($resource_id)) return CONTENT_RESOURCE_LOCAL_PATH.$resource_id;
+        write_to_resource_harvesting_log("ContentManager: type is 'resource' but no resource id given");
         trigger_error("ContentManager: type is 'resource' but no resource id given", E_USER_NOTICE);
         return null;
     }
@@ -706,6 +723,7 @@ class ContentManager
     function new_dataset_file_name($data_search_file_id)
     {
         if(isset($data_search_file_id)) return CONTENT_DATASET_PATH . "eol_download_" . $data_search_file_id;
+        write_to_resource_harvesting_log("ContentManager: type is 'dataset' but no data_search_file_id given");
         trigger_error("ContentManager: type is 'dataset' but no data_search_file_id given", E_USER_NOTICE);
         return null;
     }
@@ -757,6 +775,7 @@ class ContentManager
         $data_object = DataObject::find($data_object_id);
         if(!$data_object)
         {
+        	write_to_resource_harvesting_log("ContentManager: Cropping invalid data object ID $data_object_id");
             trigger_error("ContentManager: Cropping invalid data object ID $data_object_id", E_USER_NOTICE);
         } elseif($data_object->is_image() && $data_object->object_cache_url)
         {
@@ -807,6 +826,7 @@ class ContentManager
                 $h_pct = $h ? 100.0 * $h * $scale_factor/$height : null;
                 $image_options['crop_pct']=array($x_pct, $y_pct, $w_pct, $h_pct);
             } else {
+            	write_to_resource_harvesting_log("ContentManager: Unable to determine image dimensions of $file, using default crop");
                 trigger_error("ContentManager: Unable to determine image dimensions of $file, using default crop", E_USER_NOTICE);
             }
             return $this->grab_file($image_url, "image", $image_options);
@@ -820,6 +840,7 @@ class ContentManager
         $data_object = DataObject::find($data_object_id);
         if(!$data_object)
         {
+        	write_to_resource_harvesting_log("ContentManager: Cropping invalid data object ID $data_object_id");
             trigger_error("ContentManager: Cropping invalid data object ID $data_object_id", E_USER_NOTICE);
         } elseif($data_object->is_image() && $data_object->object_cache_url)
         {

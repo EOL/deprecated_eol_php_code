@@ -27,7 +27,9 @@ class TranslationSchemaParser
                 call_user_func($callback, $taxon_parameters, $resource);
                 
                 $i++;
-                if($i%100==0) debug("Parsed taxon $i");
+                if($i%100==0){
+                	debug("Parsed taxon $i");
+                 }
                 
                 // trying now to see if commiting every 200 taxa will help with replication
                 if($i%200==0) $mysqli->commit();
