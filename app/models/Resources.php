@@ -1,6 +1,7 @@
 <?php
 namespace php_active_record;
-
+include_once(dirname(__FILE__) . "/../../lib/CodeBridge.php");
+if(defined('RESQUE_HOST') && RESQUE_HOST && class_exists('Resque')) Resque::setBackend(RESQUE_HOST);
 class Resource extends ActiveRecord
 {
     public static $belongs_to = array(
@@ -375,6 +376,8 @@ class Resource extends ActiveRecord
       $this->mysqli->end_transaction();
       $this->debug_end("transaction");
       $this->debug_end("publish");
+      // inform rails when harvest finished
+      \CodeBridge::update_resource_contributions($this->id);
     }
 
     public function harvest($validate = true, $validate_only_welformed = false, $fast_for_testing = false)
@@ -399,6 +402,11 @@ class Resource extends ActiveRecord
           // TODO: we shouldn't delete the graph, but make a temp one...
           $sparql_client->delete_graph($this->virtuoso_graph_name());
           $this->start_harvest(); // Create the event
+          // delete all data point uris related to this resource
+          $this->mysqli->delete("DELETE FROM data_point_uris where resource_id = $this->id");
+          // delete all data point uris related to this resource from resource contributions
+          $this->mysqli->delete("DELETE FROM resource_contributions where resource_id = $this->id and object_type = 'data_point_uri'");
+          $this->start_harvest();
 
           $this->debug_start("parsing");
           if($this->is_translation_resource())
@@ -598,7 +606,6 @@ class Resource extends ActiveRecord
                 }
             }
 
-            // print_r($taxon_concept_ids);
             echo count($taxon_concept_ids);
             echo " $last_id\n";
             $indexer = new TaxonConceptIndexer();
@@ -630,7 +637,6 @@ class Resource extends ActiveRecord
                 }
             }
 
-            // print_r($data_object_ids);
             echo count($data_object_ids);
             echo " $last_id\n";
             $indexer = new DataObjectAncestriesIndexer();
@@ -738,7 +744,7 @@ class Resource extends ActiveRecord
             $this->harvest_event->completed();
             $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::processed()->id .", harvested_at=NOW(), notes='' WHERE id=$this->id");
             $this->end_harvest_time  = date('Y m d H');
-            $this->harvest_event->resource->refresh();
+            $this->harvest_event->resource->refresh();       
         }
       $this->debug_end("end_harvest");
     }

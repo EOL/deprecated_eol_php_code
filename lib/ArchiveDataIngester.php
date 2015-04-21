@@ -46,6 +46,8 @@ class ArchiveDataIngester
         $this->media_agent_ids = array();
         $this->media_ids_inserted = array();
         $this->occurrence_ids_inserted = array();
+        // map occurrence_id to taxon_id
+        $this->occurrence_taxon_mapping = array();
         $this->event_ids_inserted = array();
 
         /* During harvesting we need to delete all the old records associated
@@ -557,6 +559,7 @@ class ArchiveDataIngester
         /* ADDING THE DATA OBJECT */
         list($data_object, $status) = DataObject::find_and_compare($this->harvest_event->resource, $data_object, $this->content_manager);
         if(@!$data_object->id) return false;
+               
         $this->media_ids_inserted[$data_object->identifier] = $data_object->id;
 
         $this->harvest_event->add_data_object($data_object, $status);
@@ -637,7 +640,49 @@ class ArchiveDataIngester
             $data_object->delete_refs();
             $this->object_references_deleted[$data_object->id] = true;
         }
+        
+        // add data object info to resource contribution
+        if ($status != "Unchanged")
+        {
+	        $result = $this->mysqli->query("SELECT id, source_url, taxon_concept_id, hierarchy_id, identifier FROM hierarchy_entries inner join  data_objects_hierarchy_entries on hierarchy_entries.id = data_objects_hierarchy_entries.hierarchy_entry_id where data_object_id =". $data_object->id);
+	        if($result && $row=$result->fetch_assoc())
+	        {
+	             $hierarchy_entry_id = $row["id"];
+	             $source = "'" . $this->get_hierarchy_entry_outlink($row["hierarchy_id"], $row["identifier"], $row["source_url"]) . "'";
+	             $identifier = "'" . $row["identifier"] . "'";
+	             $taxon_concept_id = $row["taxon_concept_id"];
+	        }
+	        $resource_id = $this->harvest_event->resource_id;
+	        $this->mysqli->insert("INSERT IGNORE INTO resource_contributions (resource_id, data_object_id, data_point_uri_id, hierarchy_entry_id, taxon_concept_id, source, object_type, identifier, data_object_type) VALUES ($resource_id, $data_object->id, NULL, $hierarchy_entry_id, $taxon_concept_id, $source, 'data_object', $identifier, $data_object->data_type_id)");
+        }
     }
+    
+    private function get_hierarchy_entry_outlink($hierarchy_id, $identifier, $source)
+    {
+        $result = $this->mysqli->query("SELECT outlink_uri FROM hierarchies where id =". $hierarchy_id);
+        if($result && $row=$result->fetch_assoc())
+        {
+        	$outlink_url = $row["outlink_uri"];
+        }
+    	if(!empty($source))
+    	{
+    		return preg_replace('~&oldid=[0-9]+$~', '', $source);
+    	}
+    	else if(isset($hierarchy_id) && !empty($outlink_url))
+    	{
+    		$matches = preg_match('/%%ID%%/', $outlink_url);
+    		if(isset($matches))
+    		{
+    			if(isset($identifier))
+    				return preg_replace('~%%ID%%~', $identifier, $outlink_url);
+    		}
+    		else {
+    			return $outlink_url;
+    		}
+    		
+    	}
+    }
+    
 
     public function insert_references($row, $parameters)
     {
@@ -875,10 +920,113 @@ class ArchiveDataIngester
                 if(!isset($this->occurrence_ids_inserted[$target_occurrence_id])) return;
             }
 
-            $turtle = $this->prepare_turtle($row, $row_class_name);
+            list($turtle, $data_point_uri) =  $this->prepare_turtle($row, $row_class_name);
             $this->sparql_client->insert_data_in_bulk(array(
                 'data' => array($turtle),
                 'graph_name' => $this->harvest_event->resource->virtuoso_graph_name()));
+            if($row_type == "http://rs.tdwg.org/dwc/terms/MeasurementOrFact" || $row_type == "http://eol.org/schema/Association")
+            {
+            	$uri = "'" . $data_point_uri['uri'] . "'";
+            	$created_at = $data_point_uri['created_at'];
+            	$updated_at = $data_point_uri['updated_at'];
+            	$resource_id = $data_point_uri['resource_id'];
+            	$data_point_uri_type = "'" . end(split("/", $row_type)). "'";
+            	$taxon_concept_id = NULL; 
+            	$hierarchy_entry_identifier = NULL;
+                $hierarchy_entry_id = NULL;
+                $source_url = NULL;
+                $hierarchy_id = NULL;
+            	
+            	$attributes_query  = "INSERT INTO data_point_uris(uri, created_at, updated_at, resource_id, class_type";
+            	$values_query = "values($uri, $created_at, $updated_at, $resource_id, $data_point_uri_type";
+                if(isset($data_point_uri['predicate']))
+                {
+                	 $predicate = "'" . $data_point_uri['predicate'] . "'";
+                	 $attributes_query .= ",predicate";
+                	 $values_query .= ", $predicate";
+                	 $result = $this->mysqli->select("SELECT id FROM known_uris where uri = $predicate");
+                	 if($result && $row=$result->fetch_assoc())
+                	 {
+                	 	$predicate_known_uri_id = $row["id"];
+                	 	if($predicate_known_uri_id)
+                	 	{
+                	 		$attributes_query .= ",predicate_known_uri_id";
+                	 		$values_query .= ", $predicate_known_uri_id";
+                	 	}
+                	 }
+                }
+                if(isset($data_point_uri['object']))
+                {
+                	 $attributes_query .= ",object";
+                	 if($row_type == "http://rs.tdwg.org/dwc/terms/MeasurementOrFact")
+                	 {
+                	 	$values_query .= "," .  $data_point_uri['object'];
+                	 }
+                	 else if($row_type == "http://eol.org/schema/Association") {
+	                	 $hierarchy_entry_identifier = "'" . str_replace("'", "\'", $this->occurrence_taxon_mapping[$data_point_uri["object"]]) . "'";
+	                	 $result = $this->mysqli->select("SELECT taxon_concept_id from hierarchy_entries where identifier =  $hierarchy_entry_identifier");
+	                	 if($result && $row=$result->fetch_assoc())
+	                	 {
+	                	 	$target_taxon_concept_id = $row["taxon_concept_id"];
+	                	 	if(!empty($target_taxon_concept_id))
+		                	 {
+		                	 	$values_query .= ", $target_taxon_concept_id";
+		                	 } 
+	                	 }
+                	 }                	 
+                }
+                if(isset($data_point_uri['unit_of_measure']))
+                {
+                	 $unit_of_measure = "'" . $data_point_uri['unit_of_measure'] . "'";
+                	 $attributes_query .= ",unit_of_measure";
+                	 $values_query .= ", $unit_of_measure";
+                	 $result = $this->mysqli->select("SELECT id FROM known_uris where uri = $unit_of_measure");
+                	 if($result && $row=$result->fetch_assoc())
+                	 {
+                	 	$unit_of_measure_known_uri_id = $row["id"];
+                	 	if($unit_of_measure_known_uri_id)
+                	 	{
+                	 		$attributes_query .= ",unit_of_measure_known_uri_id";
+                	 		$values_query .= ", $unit_of_measure_known_uri_id";
+                	 	}
+                	 }
+                }
+            	if(isset($data_point_uri['occurrence_id']))
+                {
+                	 $hierarchy_entry_identifier = "'" . str_replace("'", "\'", $this->occurrence_taxon_mapping[$data_point_uri["occurrence_id"]]) . "'";
+                	 $result = $this->mysqli->select("SELECT id,taxon_concept_id, source_url, hierarchy_id from hierarchy_entries where identifier =  $hierarchy_entry_identifier");
+                	 if($result && $row=$result->fetch_assoc())
+                	 {
+                	 	$taxon_concept_id = $row["taxon_concept_id"];
+                	 	$hierarchy_entry_id = $row["id"];
+                	 	$source_url = $row["source_url"];
+                	 	$hierarchy_id = $row["hierarchy_id"];
+                	 	if(!empty($taxon_concept_id))
+	                	 {
+	                	 	$attributes_query .= ",taxon_concept_id";
+	                	 	$values_query .= ", $taxon_concept_id";
+	                	 } 
+                	 }
+                	                	 
+                }
+                $attributes_query .= ")";
+                $values_query .= ")";
+            	$data_point_uri_id = $this->mysqli->insert($attributes_query . $values_query);
+            	if(!empty($data_point_uri_id))
+            	{
+            		$source = "'" . $this->get_hierarchy_entry_outlink($hierarchy_id, $hierarchy_entry_identifier, $source_url) . "'";
+            		if(isset($data_point_uri['predicate']))
+            		{
+            			$predicate = "'" . $data_point_uri['predicate'] . "'";
+            		}
+            		else
+            		{
+            			$predicate = NULL;
+            		}
+                	$this->mysqli->insert("INSERT IGNORE INTO resource_contributions (resource_id, data_object_id, data_point_uri_id, hierarchy_entry_id, taxon_concept_id, source, object_type, identifier, predicate) VALUES ($resource_id, NULL, $data_point_uri_id, $hierarchy_entry_id, $taxon_concept_id, $source, 'data_point_uri', $hierarchy_entry_identifier, $predicate)");         		
+            	}
+            	
+            }
 
             if($row_type == 'http://rs.tdwg.org/dwc/terms/Occurrence' &&
                $occurrence_id = @self::field_decode($row['http://rs.tdwg.org/dwc/terms/occurrenceID']))
@@ -897,25 +1045,47 @@ class ArchiveDataIngester
         // # may this is a reason we will need to do represent the data in a custom way
         if($primary_key) $node_uri = $graph_name ."/". $row_class_name::GRAPH_NAME ."/". SparqlClient::to_underscore($primary_key);
         else $node_uri = $graph_name ."/". $row_class_name::GRAPH_NAME ."/". md5(serialize($row));
-        $turtle = "<$node_uri> a <$row_type>";
+        $turtle = "<$node_uri> a <$row_type>"; 
         foreach($row as $key => $value)
         {
             $value = @self::field_decode($value);
             if($value && preg_match("/^http:\/\//", $key, $arr))
             {
                 if($key == $row_class_name::PRIMARY_KEY) continue;
-                if($key == "http://rs.tdwg.org/dwc/terms/taxonID" || $key == "http://eol.org/schema/targetTaxonID")
+                if($key == "http://rs.tdwg.org/dwc/terms/taxonID")
                 {
                     $turtle .= "; ". SparqlClient::enclose_value($key) ." ".
                         SparqlClient::enclose_value($graph_name ."/taxa/". SparqlClient::to_underscore($value)) ."\n";
-                }elseif($key == "http://rs.tdwg.org/dwc/terms/eventID")
+                    if($row_type == 'http://rs.tdwg.org/dwc/terms/Occurrence')
+                    {
+                    	$this->occurrence_taxon_mapping[$primary_key] = @self::field_decode($value);
+                    }
+                }
+                elseif($key == "http://eol.org/schema/targetTaxonID")
+                {
+                	$turtle .= "; ". SparqlClient::enclose_value($key) ." ".
+                        SparqlClient::enclose_value($graph_name ."/taxa/". SparqlClient::to_underscore($value)) ."\n";
+                    if($row_type == 'http://rs.tdwg.org/dwc/terms/targetOccurrenceID')
+                    {
+                    	$this->occurrence_taxon_mapping[$primary_key] = @self::field_decode($value);
+                    }     	
+                }
+                elseif($key == "http://rs.tdwg.org/dwc/terms/eventID")
                 {
                     $turtle .= "; ". SparqlClient::enclose_value($key) ." ".
                         SparqlClient::enclose_value($graph_name ."/events/". SparqlClient::to_underscore($value)) ."\n";
                 }elseif($key == "http://rs.tdwg.org/dwc/terms/occurrenceID" || $key == "http://eol.org/schema/targetOccurrenceID")
-                {
+                {    
                     $turtle .= "; ". SparqlClient::enclose_value($key) ." ".
                         SparqlClient::enclose_value($graph_name ."/occurrences/". SparqlClient::to_underscore($value)) ."\n";
+                    if($key == "http://rs.tdwg.org/dwc/terms/occurrenceID" && ($row_type == "http://rs.tdwg.org/dwc/terms/MeasurementOrFact" || $row_type == 'http://eol.org/schema/Association'))
+                    {
+                        $occurrence_id = $value;
+                    }
+                	elseif($row_type == 'http://eol.org/schema/Association' && $key == "http://eol.org/schema/targetOccurrenceID")
+                    {
+                    	$object = $value;
+                    }
                 }elseif($key == "http://eol.org/schema/associationID")
                 {
                     $turtle .= "; ". SparqlClient::enclose_value($key) ." ".
@@ -932,10 +1102,46 @@ class ArchiveDataIngester
                         $turtle .= "; ". SparqlClient::enclose_value($key) ." ".
                             SparqlClient::enclose_value($graph_name ."/references/". SparqlClient::to_underscore($reference_id)) ."\n";
                     }
-                }else $turtle .= "; ". SparqlClient::enclose_value($key) ." ". SparqlClient::enclose_value($value) ."\n";
+                }
+                elseif($row_type == "http://rs.tdwg.org/dwc/terms/MeasurementOrFact" && $key == "http://rs.tdwg.org/dwc/terms/measurementType")
+                {
+                	$predicate = $value;
+                	$turtle .= "; ". SparqlClient::enclose_value($key) ." ". SparqlClient::enclose_value($value) ."\n";
+                }
+                elseif($row_type == "http://eol.org/schema/Association" && $key == "http://eol.org/schema/associationType")
+                {
+                	$predicate = $value;
+                	$turtle .= "; ". SparqlClient::enclose_value($key) ." ". SparqlClient::enclose_value($value) ."\n";
+                }
+                elseif($row_type == "http://rs.tdwg.org/dwc/terms/MeasurementOrFact" && $key == "http://rs.tdwg.org/dwc/terms/measurementValue")
+                {
+                	$object = $value;
+                	$turtle .= "; ". SparqlClient::enclose_value($key) ." ". SparqlClient::enclose_value($value) ."\n";
+                }
+                elseif($row_type == "http://rs.tdwg.org/dwc/terms/MeasurementOrFact" && $key == "http://rs.tdwg.org/dwc/terms/measurementUnit")
+                {
+                	$unit_of_measure = $value;
+                	$turtle .= "; ". SparqlClient::enclose_value($key) ." ". SparqlClient::enclose_value($value) ."\n";
+                }
+                else $turtle .= "; ". SparqlClient::enclose_value($key) ." ". SparqlClient::enclose_value($value) ."\n";
             }
         }
-        return $turtle;
+        
+	    if($row_type == "http://rs.tdwg.org/dwc/terms/MeasurementOrFact" || $row_type == "http://eol.org/schema/Association")
+		{
+	    	// prepare data point uri attributes
+	    	$data_point_uri = array("uri" => $node_uri,
+							    	"created_at" => 'NOW()',
+							    	"updated_at" => 'NOW()',
+							    	"resource_id" => $this->harvest_event->resource->id);
+	    	if(isset($predicate)) { $data_point_uri["predicate"] = $predicate; }
+	    	if(isset($object)) { $data_point_uri["object"] = $object; }
+	    	if(isset($unit_of_measure)) { $data_point_uri["unit_of_measure"] = $unit_of_measure; }
+		    if(isset($occurrence_id)) { $data_point_uri["occurrence_id"] = $occurrence_id; }	
+		}
+		else
+		    	$data_point_uri = NULL;
+        return array($turtle, $data_point_uri);
     }
 
     private function commit_iterations($namespace, $iteration_size = 500)
