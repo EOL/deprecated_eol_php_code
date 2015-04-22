@@ -293,6 +293,18 @@ class ACGuanacasteAPI
     {
         if($obj_type == "image")
         {
+            if($val = @$records[0]['caption']) //caption of first image
+            {
+                foreach(array("forest ", "lugar ", "rainfore") as $string)
+                {
+                    if(is_numeric(stripos($val, $string)))
+                    {
+                        array_shift($records); //remove first image
+                        break;
+                        // print_r($records); exit; //debug
+                    }
+                }
+            }
             if(!is_numeric(stripos($taxon['href'], "insectos/"))) return; //only process insects, no plants
             $adj['http://www.acguanacaste.ac.cr/paginas-de-especies/insectos/288-erebidae/632-i-aclytia-albistrigadhj02-i-erebidae']['exc'][]       = "http://www.acguanacaste.ac.cr/images/species-home-page/Aclytia_albistrigaDHJ02/IMG_5106.JPG";
             $adj['http://www.acguanacaste.ac.cr/paginas-de-especies/insectos/276-geometridae/591-i-acrotomia-mucia-i-geometridae']['inc']           = array("http://www.acguanacaste.ac.cr/images/species-home-page/Acrotomia-mucia/01-SRNP-6990-DHJ325614.jpg", "http://www.acguanacaste.ac.cr/images/species-home-page/Acrotomia-mucia/01-SRNP-6990-DHJ325615.jpg", "http://www.acguanacaste.ac.cr/images/species-home-page/Acrotomia-mucia/02-SRNP-5430-DHJ325602.jpg", "http://www.acguanacaste.ac.cr/images/species-home-page/Acrotomia-mucia/02-SRNP-5430-DHJ325603.jpg");
@@ -310,6 +322,18 @@ class ACGuanacasteAPI
             $adj['http://www.acguanacaste.ac.cr/paginas-de-especies/insectos/104-nymphalidae/351-i-brassolis-isidrochaconi-i-nymphalidae']['exc']   = array("http://www.acguanacaste.ac.cr/images/species-home-page/Brassolis-isthmia/13-SRNP-30714-DHJ700876.jpg", "http://www.acguanacaste.ac.cr/images/species-home-page/Brassolis-isthmia/13-SRNP-30714-DHJ700878.jpg");
             $adj['http://www.acguanacaste.ac.cr/paginas-de-especies/insectos/103-hesperiidae/360-i-bungalotis-diophorus-i-hesperiidae']['exc']      = array("http://www.acguanacaste.ac.cr/images/species-home-page/Bungalotis_diophorus/IMG_2773.JPG", "http://www.acguanacaste.ac.cr/images/species-home-page/Bungalotis_diophorus/13-SRNP-42931-DHJ708129.JPG", "http://www.acguanacaste.ac.cr/images/species-home-page/Bungalotis_diophorus/13-SRNP-42931-DHJ708130.JPG");
             $adj['http://www.acguanacaste.ac.cr/paginas-de-especies/insectos/104-nymphalidae/218-caligo-telamonius-nymphalidae']['exc']             = array("http://www.acguanacaste.ac.cr/images/species-home-page/Caligo-telamonius/IMG_1735.JPG", "http://www.acguanacaste.ac.cr/images/species-home-page/Caligo-telamonius/IMG_1750.JPG");
+            $adj['http://www.acguanacaste.ac.cr/paginas-de-especies/insectos/103-hesperiidae/608-i-elbella-i-patrobasdhj05-hesperiidae']['exc'][] = "http://www.acguanacaste.ac.cr/images/species-home-page/Elbella-patrobasDHJ05/IMG_2879.JPG";
+            $adj['http://www.acguanacaste.ac.cr/paginas-de-especies/insectos/101-sphingidae/546-i-enyo-ocypete-i-sphingidae']['exc'][] = "http://www.acguanacaste.ac.cr/images/species-home-page/Enyo-ocypete/IMG_0329.JPG";
+            $adj['http://www.acguanacaste.ac.cr/paginas-de-especies/insectos/105-limacodidae/221-epiperola-vaferella-limacodidae']['exc'] = array("http://www.acguanacaste.ac.cr/images/species-home-page/_Epiperola-vaferella/miniaturas/IMG_4444.JPG", "http://www.acguanacaste.ac.cr/images/species-home-page/_Epiperola-vaferella/miniaturas/IMG_4445.JPG", "http://www.acguanacaste.ac.cr/images/species-home-page/_Epiperola-vaferella/IMG_3973.JPG");
+            $adj['http://www.acguanacaste.ac.cr/paginas-de-especies/insectos/103-hesperiidae/515-i-eracon-lachesis-i-hesperiidae']['exc'][] = "http://www.acguanacaste.ac.cr/images/species-home-page/Eracon-lachesis/Habitad_10_Enero_2007.JPG";
+            $adj['http://www.acguanacaste.ac.cr/paginas-de-especies/insectos/101-sphingidae/266-i-eumorpha-anchemolus-i-sphingidae']['exc'][] = "http://www.acguanacaste.ac.cr/images/species-home-page/Eumorpha-anchemolus/IMG_3858.JPG";
+            $adj['http://www.acguanacaste.ac.cr/paginas-de-especies/insectos/101-sphingidae/236-eumorpha-phorbas-sphingidae']['exc'] = array("http://www.acguanacaste.ac.cr/images/species-home-page/Eumorpha-phorbas/Eumorpha-phorbas-3.jpg", "http://www.acguanacaste.ac.cr/images/species-home-page/Eumorpha-phorbas/Eumorpha-phorbas-4.jpg");
+            $adj['http://www.acguanacaste.ac.cr/paginas-de-especies/insectos/102-saturniidae/371-i-lonomia-electra-i-saturniidae']['exc'][] = "http://www.acguanacaste.ac.cr/images/species-home-page/Lonomia-electra/H.Ramirez-02Est.Cacao_07_12_2010.jpg";
+            $adj['http://www.acguanacaste.ac.cr/paginas-de-especies/insectos/104-nymphalidae/588-i-memphis-artacaena-i-nymphalidae']['exc'][] = "http://www.acguanacaste.ac.cr/images/species-home-page/Memphis-artacaena/Fig.11_Arbusto_de_Croton_schedianus_Estacion_Pitilla_Sendero_Laguna_Hospedero_de_Memphis_artacaena.jpg";
+            $adj['http://www.acguanacaste.ac.cr/paginas-de-especies/insectos/104-nymphalidae/767-i-memphis-pithyusa-i-nymphalidae']['exc'][] = "http://www.acguanacaste.ac.cr/images/species-home-page/Memphis-_pithyusa/Fig.18_Arbusto_de_Croton_schedianus_Estacion_Pitilla_Sendero_Laguna_Hospedero_de_Memphis_artacaena.jpg";
+            $adj['http://www.acguanacaste.ac.cr/paginas-de-especies/insectos/104-nymphalidae/178-morpho-catalina-nymphalidae']['exc'][] = "http://www.acguanacaste.ac.cr/images/parataxonomos/mariano-pereira/IMG_1912.jpg";
+            $adj['http://www.acguanacaste.ac.cr/paginas-de-especies/insectos/103-hesperiidae/282-i-neoxeniades-burns03-i-hesperiidae']['exc'][] = "http://www.acguanacaste.ac.cr/images/species-home-page/Neoxeniades-Burns03/Fig.7.13-SRNP-30634-DHJ700768.jpg";
+            $adj['http://www.acguanacaste.ac.cr/paginas-de-especies/insectos/103-hesperiidae/311-i-neoxeniades-burns04-i-hesperiidae']['exc'][] = "http://www.acguanacaste.ac.cr/images/species-home-page/Neoxeniades-Burns04/miniaturas/peq_06-SRNP-31635-DHJ412722.jpg";
             /*
             [href] => /paginas-de-especies/insectos/121-notodontidae/763-rhuda-difficilis-notodontidae
             [sciname] => Rhuda difficilis
@@ -338,13 +362,20 @@ class ACGuanacasteAPI
                     if(!in_array($rec['src'], $include)) continue;
                 }
 
-                $strings = array("Planta ", "Plantas ", "planta,", "forest ", "Planta_", "Chimarrhis", "habito ", "follaje ");
+                $proceed = true;
+                $strings = array("Planta ", "Plantas ", "planta,", "forest ", "Planta_", "Chimarrhis", "habito ", "follaje ", "fruto", "Actinidiaceae", "Rutaceae", "Malvaceae", "lista ", "Fagaceae", "Bromeliaceae", "Malpighiaceae", "Clusia ", "Hojas", "Tronco", "Arbol", " Arbusto", "hospeder", "alojan", "alojar", "lente", "toldo sobre", "toldos sobre", "Rubiaceae");
                 foreach($strings as $string)
                 {
-                    if(is_numeric(stripos($rec['caption'], $string))) continue;
+                    if(is_numeric(stripos($rec['caption'], $string)))
+                    {
+                        $proceed = false;
+                        break;
+                    }
                 }
+                if(!$proceed) continue;
+                
                 /*
-                continue with: Doxocopa laure (Nymphalidae) 
+                continue with: Potamanaxas Burns03 (Hesperiidae) 
                 */
                 
                 $path_info = pathinfo($rec['src']);
