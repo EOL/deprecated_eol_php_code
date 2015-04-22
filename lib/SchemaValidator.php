@@ -44,7 +44,11 @@ class SchemaValidator
         $reader->open($uri, 'utf8');
         if(!$only_well_formedness)
         {
-            if(@!$reader->setSchema($schema_location)) return array("The specified schema could not be loaded or contained errors: $schema_location");
+            if(@!$reader->setSchema($schema_location))
+            {
+            	write_to_resource_harvesting_log("The specified schema could not be loaded or contained errors: $schema_location");
+            	return array("The specified schema could not be loaded or contained errors: $schema_location");
+            }
         }
         libxml_clear_errors();
         
@@ -60,7 +64,11 @@ class SchemaValidator
             // }
         }
         
-        if($errors = self::get_errors()) return $errors;
+        if($errors = self::get_errors())
+        {
+        	write_to_resource_harvesting_log(implode(",", $errors));
+        	return $errors;
+        }
         return true;
     }
     

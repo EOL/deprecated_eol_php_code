@@ -1,5 +1,6 @@
 <?php
 include_once(dirname(__FILE__) . "/../config/environment.php");
+include_once(dirname(__FILE__) . "/../vendor/php_resque/lib/Resque.php");
 if(defined('RESQUE_HOST') && RESQUE_HOST && class_exists('Resque')) Resque::setBackend(RESQUE_HOST);
 
 # Needed for work:
@@ -76,7 +77,16 @@ class CodeBridge
     public static function print_message($message)
     {
         echo "\n++ [" . date('g:i A', time()) . "] $message\n\n";
+    }   
+    
+	public static function update_resource_contributions($resource_id)
+    {
+     	// inform rails when resource finish harvest
+        \Resque::enqueue('notifications', 'CodeBridge', array('cmd' => 'update_resource_contributions',
+                        'resource_id' => $resource_id));
+        CodeBridge::print_message("++ Enqueued notifications/CodeBridge/update_resource_contributions(resource_id = ". $resource_id .")");
     }
+    
 }
 
 CodeBridge::print_message('CodeBridge loaded.');

@@ -1,6 +1,7 @@
 <?php
 namespace php_active_record;
-
+include_once(dirname(__FILE__) . "/../../lib/CodeBridge.php");
+if(defined('RESQUE_HOST') && RESQUE_HOST && class_exists('Resque')) Resque::setBackend(RESQUE_HOST);
 class Resource extends ActiveRecord
 {
     public static $belongs_to = array(
@@ -375,6 +376,8 @@ class Resource extends ActiveRecord
       $this->mysqli->end_transaction();
       $this->debug_end("transaction");
       $this->debug_end("publish");
+      // inform rails when harvest finished
+      \CodeBridge::update_resource_contributions($this->id);
     }
 
     public function harvest($validate = true, $validate_only_welformed = false, $fast_for_testing = false)
@@ -385,7 +388,6 @@ class Resource extends ActiveRecord
             "/resources/" .
             $this->id
         );
-
         $valid = $validate ? $this->validate() : true;
         if($valid)
         {
@@ -399,6 +401,11 @@ class Resource extends ActiveRecord
           // TODO: we shouldn't delete the graph, but make a temp one...
           $sparql_client->delete_graph($this->virtuoso_graph_name());
           $this->start_harvest(); // Create the event
+          // delete all data point uris related to this resource
+          $this->mysqli->delete("DELETE FROM data_point_uris where resource_id = $this->id");
+          // delete all data point uris related to this resource from resource contributions
+          $this->mysqli->delete("DELETE FROM resource_contributions where resource_id = $this->id and object_type = 'data_point_uri'");
+          $this->start_harvest();
 
           $this->debug_start("parsing");
           if($this->is_translation_resource())
@@ -442,7 +449,7 @@ class Resource extends ActiveRecord
 
           if($this->hierarchy_id && !$this->is_translation_resource())
           {
-            debug("(Translation resource)");
+              debug("(Translation resource)");
               $hierarchy = Hierarchy::find($this->hierarchy_id);
               $this->debug_start("Tasks::rebuild_nested_set");
               Tasks::rebuild_nested_set($this->hierarchy_id);
@@ -451,7 +458,7 @@ class Resource extends ActiveRecord
 
               if(!$this->auto_publish)
               {
-                debug("(AUTO-PUBLISH)");
+                  debug("(AUTO-PUBLISH)");
                   // Rebuild the Solr index for this hierarchy
                   $indexer = new HierarchyEntryIndexer();
                   $this->debug_start("HierarchyEntryIndexer::index");
@@ -515,7 +522,7 @@ class Resource extends ActiveRecord
 
     public function add_unchanged_data_to_harvest()
     {
-      $this->debug_start("add_unchanged_data_to_harvest");
+      $this->debug_start("++ START add_unchanged_data_to_harvest ++");
         // there is no _delete file so we assume the resource is complete
         if(!file_exists($this->resource_deletions_path())) return false;
 
@@ -598,7 +605,6 @@ class Resource extends ActiveRecord
                 }
             }
 
-            // print_r($taxon_concept_ids);
             echo count($taxon_concept_ids);
             echo " $last_id\n";
             $indexer = new TaxonConceptIndexer();
@@ -630,7 +636,6 @@ class Resource extends ActiveRecord
                 }
             }
 
-            // print_r($data_object_ids);
             echo count($data_object_ids);
             echo " $last_id\n";
             $indexer = new DataObjectAncestriesIndexer();
@@ -738,7 +743,7 @@ class Resource extends ActiveRecord
             $this->harvest_event->completed();
             $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::processed()->id .", harvested_at=NOW(), notes='' WHERE id=$this->id");
             $this->end_harvest_time  = date('Y m d H');
-            $this->harvest_event->resource->refresh();
+            $this->harvest_event->resource->refresh();       
         }
       $this->debug_end("end_harvest");
     }
@@ -771,12 +776,17 @@ class Resource extends ActiveRecord
                   $errors_as_string[] = $error->__toString();
               }
               $error_string = $this->mysqli->escape(implode("<br>", $errors_as_string));
+              write_to_resource_harvesting_log("ERRORS in archive validatior" . $error_string);
           }
       }else
       {
           $validation_result = SchemaValidator::validate($this->resource_path());
           if($validation_result===true) $valid = true;  // valid
-          else $error_string = $this->mysqli->escape(implode("<br>", $validation_result));
+          else 
+          {
+          	$error_string = $this->mysqli->escape(implode("<br>", $validation_result));
+          	write_to_resource_harvesting_log("ERRORS in schema validatior" . $error_string);
+          }
       }
       if($error_string)
       {
@@ -787,6 +797,7 @@ class Resource extends ActiveRecord
       if(!$valid)
       {
           $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::processing_failed()->id." WHERE id=$this->id");
+          write_to_resource_harvesting_log("Resource isn't valid");
       }
       $this->debug_end("validate");
       return $valid;
