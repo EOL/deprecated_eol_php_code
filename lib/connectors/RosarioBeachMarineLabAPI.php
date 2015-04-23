@@ -45,7 +45,14 @@ class RosarioBeachMarineLabAPI
 
                     $url = $this->url['main'] . $path;
                     if(in_array($url, $exclude)) continue;
-                    // $url = "http://www.wallawalla.edu/academics/departments/biology/rosario/inverts/Nemertea/Paranemertes_peregrina.html"; //debug
+
+                    //debug
+                    // $url = "http://www.wallawalla.edu/academics/departments/biology/rosario/inverts/Nemertea/Paranemertes_peregrina.html";
+                    // $url = "http://www.wallawalla.edu/academics/departments/biology/rosario/inverts/Arthropoda/Crustacea/Malacostraca/Eumalacostraca/Eucarida/Decapoda/Brachyura/Family_Cancridae/Cancer_gracilis.html";
+                    // $url = "http://www.wallawalla.edu/academics/departments/biology/rosario/inverts/Arthropoda/Crustacea/Malacostraca/Eumalacostraca/Peracarida/Lophogastrida/Neognathophausia_ingens.html";
+                    //has both refs and scientific articles
+                    // $url = "http://www.wallawalla.edu/academics/departments/biology/rosario/inverts/Ctenophora/Pleurobrachia_bachei.html";
+                    
                     if($html = Functions::lookup_with_cache($url, $this->download_options))
                     {
                         $rec = array();
@@ -229,7 +236,7 @@ class RosarioBeachMarineLabAPI
     {
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                 = $rec['taxon_id'];
-        $taxon->scientificName          = $rec['sciname'];
+        $taxon->scientificName          = utf8_encode($rec['sciname']);
         $taxon->furtherInformationURL   = $rec['source'];
         $taxon->phylum  = @$rec['ancestry']['phylum'];
         $taxon->class   = @$rec['ancestry']['class'];
@@ -298,12 +305,14 @@ class RosarioBeachMarineLabAPI
         {
             foreach($val as $i)
             {
-                $param["identifier"] = $i['src'];
-                $param["desc"]       = @$i['caption'];
-                $param["mediaURL"]   = pathinfo($param['source'], PATHINFO_DIRNAME) . "/" . $i['src'];
-                $param["agent_ids"]  = self::generate_agent_ids(array(@$i['agent']), 'photographer');
-                $param['format']     = Functions::get_mimetype($i['src']);
-                self::generate_object($param);
+                if($param["identifier"] = $i['src'])
+                {
+                    $param["desc"]       = @$i['caption'];
+                    $param["mediaURL"]   = pathinfo($param['source'], PATHINFO_DIRNAME) . "/" . $i['src'];
+                    $param["agent_ids"]  = self::generate_agent_ids(array(@$i['agent']), 'photographer');
+                    $param['format']     = Functions::get_mimetype($i['src']);
+                    self::generate_object($param);
+                }
             }
         }
     }
@@ -324,12 +333,20 @@ class RosarioBeachMarineLabAPI
         $reference_ids = array();
         foreach($refs as $ref)
         {
-            if($val = @$this->references[$ref])
+            $val = false;
+            if($val = @$this->references[$ref]) $with_url = true; //ref found in Annotated_Bibliography.html
+            else                                                  //ref not found in Annotated_Bibliography.html; e.g. http://www.wallawalla.edu/academics/departments/biology/rosario/inverts/Arthropoda/Crustacea/Malacostraca/Eumalacostraca/Peracarida/Lophogastrida/Neognathophausia_ingens.html
+            {
+                $with_url = false;
+                if(str_word_count($ref) > 15) $val = $ref;
+            }
+
+            if($val)
             {
                 $r = new \eol_schema\Reference();
                 $r->full_reference  = $val;
                 $r->identifier      = md5($r->full_reference);
-                $r->uri             = $this->url['biblio'] . "#" . $ref;
+                if($with_url) $r->uri = $this->url['biblio'] . "#" . $ref;
                 $reference_ids[] = $r->identifier;
                 if(!isset($this->reference_ids[$r->identifier]))
                 {
@@ -385,7 +402,12 @@ class RosarioBeachMarineLabAPI
         if($reference_ids = @$o['reference_ids']) $mr->referenceID = implode("; ", $reference_ids);
         if($agent_ids     = @$o['agent_ids'])     $mr->agentID = implode("; ", $agent_ids);
         $mr->furtherInformationURL = $o['source'];
-        $this->archive_builder->write_object_to_file($mr);
+        
+        if(!isset($this->obj_ids[$mr->identifier]))
+        {
+            $this->obj_ids[$mr->identifier] = '';
+            $this->archive_builder->write_object_to_file($mr);
+        }
     }
 
     private function generate_synonyms($rec)
@@ -401,7 +423,7 @@ class RosarioBeachMarineLabAPI
             
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID             = $syn_id;
-            $taxon->scientificName      = $name;
+            $taxon->scientificName      = utf8_encode($name);
             $taxon->acceptedNameUsageID = $rec['taxon_id'];
             $taxon->taxonomicStatus     = 'synonym';
             $this->archive_builder->write_object_to_file($taxon);
@@ -454,11 +476,30 @@ class RosarioBeachMarineLabAPI
     private function assign_reference($html)
     {
         if(preg_match("/references:(.*?)<hr/ims", $html, $arr)) $html = $arr[1];
-        
+
+        // process scientific articles
+        $scientific_articles = array();
+        if(preg_match("/scientific articles:(.*?)xxx/ims", $html."xxx", $arr))
+        {
+            $html2 = str_replace(array("\n", "&nbsp;"), " ", $arr[1]);
+            $html2 = str_ireplace(array("Dichotomous Keys:", "General References:", "Scientific Articles:", "Web sites:"), "", $html2);
+            $html2 = Functions::remove_whitespace($html2);
+            if(preg_match_all("/<p>(.*?)<\/p>/ims", $html2, $arr))
+            {
+                $temp = array_map('strip_tags', $arr[1]);
+                $temp = array_map('trim', $temp);
+                $temp = array_filter($temp); //remove null arrays
+                $temp = array_values($temp); //reindex key
+                if($temp) $scientific_articles = $temp;
+            }
+        }
+        // end scientific articles
+
+
         //1st option: the one with #, e.g. Cancer_gracilis.html
         $option1 = array();
         if(preg_match_all("/html\#(.*?)\"/ims", $html, $arr)) $option1 = array_map('urldecode', $arr[1]);
-        if($option1) return $option1;
+        if($option1) return array_merge($option1, $scientific_articles);
         
         //2nd option: the one without hyperlinks, e.g. Paranemertes_peregrina.html
         $temp = explode("<br>&nbsp;", $html);
@@ -472,7 +513,7 @@ class RosarioBeachMarineLabAPI
         }
         $option2 = array_keys($final);
         $option2 = array_filter($option2); //remove null values
-        if($option2) return $option2;
+        if($option2) return array_merge($option2, $scientific_articles);
         
         //3rd option: the one with actual reference body, e.g. Neognathophausia_ingens.html
         $temp = explode("<p>", $html);
@@ -486,7 +527,14 @@ class RosarioBeachMarineLabAPI
         }
         $final = array_map('trim', $final);
         $option3 = array_filter($final); //remove null values
-        if($option3) return $option3;
+        if($option3)
+        {
+            $temp = array_merge($option3, $scientific_articles);
+            $temp = array_filter($temp); //remove null arrays
+            $temp = array_unique($temp); //make unique
+            $temp = array_values($temp); //reindex key
+            return $temp;
+        }
         
         return array();
     }

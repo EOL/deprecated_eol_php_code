@@ -5,7 +5,6 @@ class PesiAPI
 {
     function __construct($folder)
     {
-        $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->resource_reference_ids = array();
@@ -16,6 +15,9 @@ class PesiAPI
         $this->path_string_search = $this->pesi_domain . "/portal/search.php?search=adv&SearchContent=WebSearchName&SearchType=begins&txt_Search=start_letter&accepted=accepted&rankm=%3E%3D&rank=10&belongs=&list=0&listareas=0&listareastatus=0&btn_SearchAdv=Search";
         $this->levels = array("kingdom" => 1, "phylum" => 2, "class" => 3, "order" => 4, "family" => 5, "genus" => 6, "species" => 7, "subspecies" => 8);
         $this->language_codes["Israel (Hebrew)"] = "he";
+        $this->cache_path = "/Volumes/Eli blue/";
+        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1);
+        // $this->download_options["expire_seconds"] = false; //debug
     }
 
     function get_all_taxa($taxa_list_text_file = NULL)
@@ -23,7 +25,7 @@ class PesiAPI
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
         if($taxa_list_text_file)
         {
-            if($contents = Functions::get_remote_file($taxa_list_text_file, array('download_wait_time' => 1000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 3)))  self::save_to_taxa_text_file($contents);
+            if($contents = Functions::lookup_with_cache($taxa_list_text_file, $this->download_options))  self::save_to_taxa_text_file($contents);
         }
         else self::generate_taxa_list(); /* debug: stop operation here if you only want to generate taxa list */ //return;
         self::save_data_to_text();       /* debug: stop operation here if you only want to generate processed text files */ //return;
@@ -33,6 +35,7 @@ class PesiAPI
             return; // you need to consolidate the processed text files before proceeding.
         }
         self::process_text_file();
+        $this->archive_builder->finalize(true);
         // remove temp dir
         recursive_rmdir($this->TEMP_FILE_PATH);
         echo ("\n temporary directory removed: " . $this->TEMP_FILE_PATH);
@@ -66,7 +69,7 @@ class PesiAPI
                 $info = self::get_parent_taxon($result);
                 $parent_taxa = $info["taxon"];
                 $parent_rank = $info["rank"];
-                echo "\n $i. $result->scientificname -- $result->GUID -- $parent_taxa";
+                if(($i % 100) == 0) echo "\n SOAP response: $i. $result->scientificname -- $result->GUID -- $parent_taxa";
                 $line = self::clean_str($result->GUID) . "\t" .
                         self::clean_str($result->scientificname) . "\t" .
                         self::clean_str($result->authority) . "\t" .
@@ -82,7 +85,6 @@ class PesiAPI
                 echo "\n investigate guid no record: [$guid]\n";
                 continue;
             }
-            usleep(500000);
             // if($i >= 20) break; // debug - to limit during development
         }
         fclose($f);
@@ -135,16 +137,26 @@ class PesiAPI
 
     private function generate_taxa_list($letters = "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z")
     {
-        // $letters = "Z"; // debug
+        $options1 = $this->download_options;
+        $options1["download_wait_time"] = 5000000;
+        $options2 = $options1;
+        $options2["download_wait_time"] = 1000000;
+
+        /* debug - comment in normal operation, use to divide when caching
+        $letters = "E,F";
+        // $letters = "J,K,L,M";
+        // $letters = "P,Q,R,S";
+        // $letters = "G,N,T,U,V,W,X,Y,Z";
+        */
+
         $letters = explode(",", $letters);
         foreach($letters as $letter)
         {
             echo "\n\n processing letter: [$letter]\n\n";
-            if($html = Functions::get_remote_file(str_ireplace("start_letter", $letter, $this->path_string_search), array('download_wait_time' => 5000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 3)))
+            if($html = Functions::lookup_with_cache(str_ireplace("start_letter", $letter, $this->path_string_search), $options1))
             {
                 if($ranks = self::get_relevant_ranks_to_process($html))
                 {
-                    print_r($ranks);
                     foreach($ranks as $rank)
                     {
                         echo "\n\n processing rank: [$rank][$letter]\n\n";
@@ -159,7 +171,7 @@ class PesiAPI
                             for($i = 1; $i <= $repeatitions; $i++)
                             {
                                 echo "\n $i of $repeatitions \n";
-                                if($html = Functions::get_remote_file($path."&page=$i", array('download_wait_time' => 2000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 3)))
+                                if($html = Functions::lookup_with_cache($path."&page=$i", $options2))
                                 {
                                     if($arr2[1] == 1) self::store_taxon_name($html);
                                     else self::store_taxa_names($html);
@@ -262,12 +274,12 @@ class PesiAPI
             $i++;
             echo "\n $i. $rec[scientificname] [$rec[guid]]";
             $this->create_instances_from_taxon_object($rec, array());
+            // /* uncomment in normal operation - debug
             self::get_vernacular_names($rec);
             self::get_synonyms($rec);
-            usleep(300000);
+            // */
             // if($i > 20) break; // debug
         }
-        $this->create_archive();
     }
 
     function create_instances_from_taxon_object($rec, $reference_ids)
@@ -315,7 +327,6 @@ class PesiAPI
                     }
                     else
                     {
-                        echo "\n\n accessing soap service...\n";
                         if($result = self::access_pesi_service_with_retry($rec["guid"], 1)) // type 1 is for getPESIRecordByGUID
                         {
                             $info = self::get_parent_taxon($result, $parent_rank);
@@ -328,8 +339,8 @@ class PesiAPI
                     }
                     if(!isset($this->taxon_ids[$taxon2->taxonID]))
                     {
-                        $this->taxa[$taxon2->taxonID] = $taxon2;
-                        $this->taxon_ids[$taxon2->taxonID] = 1;
+                        $this->taxon_ids[$taxon2->taxonID] = '';
+                        $this->archive_builder->write_object_to_file($taxon2);
                     }
                     $this->name_id[$taxon2->scientificName] = $taxon2->taxonID;
                 }
@@ -338,8 +349,8 @@ class PesiAPI
         }
         if(!isset($this->taxon_ids[$taxon->taxonID]))
         {
-            $this->taxa[$taxon->taxonID] = $taxon;
-            $this->taxon_ids[$taxon->taxonID] = 1;
+            $this->taxon_ids[$taxon->taxonID] = '';
+            $this->archive_builder->write_object_to_file($taxon);
         }
     }
 
@@ -387,7 +398,7 @@ class PesiAPI
                 if(!isset($this->taxon_ids[$synonym->taxonID]))
                 {
                     $this->archive_builder->write_object_to_file($synonym);
-                    $this->taxon_ids[$synonym->taxonID] = 1;
+                    $this->taxon_ids[$synonym->taxonID] = '';
                 }
                 else
                 {
@@ -423,7 +434,7 @@ class PesiAPI
                 if(!isset($this->vernacular_name_ids[$vernacular_id]))
                 {
                     $this->archive_builder->write_object_to_file($vernacular);
-                    $this->vernacular_name_ids[$vernacular_id] = 1;
+                    $this->vernacular_name_ids[$vernacular_id] = '';
                 }
                 else
                 {
@@ -453,18 +464,32 @@ class PesiAPI
         echo "\n count: " . count($this->name_id) . "\n";
     }
 
-    function create_archive()
-    {
-        foreach($this->taxa as $t)
-        {
-            $this->archive_builder->write_object_to_file($t);
-        }
-        $this->archive_builder->finalize(true);
-    }
-
     private function access_pesi_service_with_retry($guid, $type)
     {
-        for($i = 1; $i <= 5; $i++)
+        $dirs = array("PESI_cache", "PESI_cache2", "PESI_cache3");
+        foreach($dirs as $dir)
+        {
+            $filename = $this->cache_path . $dir . "/" . $type . "_" . $guid . ".txt";
+            if(file_exists($filename))
+            {
+                $json = file_get_contents($filename);
+                echo " --- cache retrieved";
+                return json_decode($json);
+            }
+        }
+        echo " --- cache created";
+        //create the cache
+        $obj = self::soap_request($guid, $type);
+        $file = fopen($filename, "w");
+        fwrite($file, json_encode($obj));
+        fclose($file);
+        usleep(300000); // 3 tenths of a second = 3/10 of a second
+        return $obj;
+    }
+
+    private function soap_request($guid, $type)
+    {
+        for($i = 1; $i <= 2; $i++) // 2 tries only
         {
             try
             {
