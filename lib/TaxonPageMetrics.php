@@ -89,6 +89,10 @@ class TaxonPageMetrics
         $run = new PageRichnessCalculator();
         $arr_taxa = array();
         $READ = fopen(PAGE_METRICS_TEXT_PATH . $this->table . ".txt", "r");
+        if (!$READ) {
+            print "!! ERROR: Could not read table txt file";
+            return;
+        }
         while(!feof($READ))
         {
             if($line = fgets($READ))
@@ -146,6 +150,10 @@ class TaxonPageMetrics
             else $sql .= " AND gaps.taxon_concept_id BETWEEN $i AND ". ($i + $batch_size);
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $FILE = fopen($outfile, "r");
+            if (!$FILE) {
+                print "!! ERROR: Could not read $outfile";
+                return;
+            }
             $num_rows = 0;
             while(!feof($FILE))
             {
@@ -178,9 +186,13 @@ class TaxonPageMetrics
     {
         $time_start = time_elapsed();
         $arr_taxa = array();
-        print "\n BHL publications [4 of 14]\n";
         $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_publications.txt";
+        print "\n BHL publications [4 of 14] ($filename)\n";
         $FILE = fopen($filename, "r");
+        if (!$FILE) {
+            print "!! ERROR: Could not read $filename";
+            return;
+        }
         $num_rows=0;
         while(!feof($FILE))
         {
@@ -214,6 +226,10 @@ class TaxonPageMetrics
         if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and he.taxon_concept_id IN (" . implode(",", $GLOBALS['test_taxon_concept_ids']) . ")";
         $outfile = $this->mysqli_slave->select_into_outfile($sql);
         $FILE = fopen($outfile, "r");
+        if (!$FILE) {
+            print "!! ERROR: Could not read $outfile";
+            return;
+        }
         $num_rows=0;
         while(!feof($FILE))
         {
@@ -244,6 +260,10 @@ class TaxonPageMetrics
 	if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and he.taxon_concept_id IN (" . implode(",", $GLOBALS['test_taxon_concept_ids']) . ")";
         $outfile = $this->mysqli_slave->select_into_outfile($sql);
         $FILE = fopen($outfile, "r");
+        if (!$FILE) {
+            print "!! ERROR: Could not read $outfile";
+            return;
+        }
         $num_rows=0;
         while(!feof($FILE))
         {
@@ -272,6 +292,10 @@ class TaxonPageMetrics
         if(isset($GLOBALS['test_taxon_concept_ids'])) $sql .= " and udo.taxon_concept_id IN (" . implode(",", $GLOBALS['test_taxon_concept_ids']) . ")";
         $outfile = $this->mysqli_slave->select_into_outfile($sql);
         $FILE = fopen($outfile, "r");
+        if (!$FILE) {
+            print "!! ERROR: Could not read $outfile";
+            return;
+        }
         $num_rows = 0; 
         $tc_do_id = array(); 
         $tc_user_id = array();
@@ -319,6 +343,10 @@ class TaxonPageMetrics
             $sql .= " ORDER BY he.taxon_concept_id";
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $FILE = fopen($outfile, "r");
+            if (!$FILE) {
+                print "!! ERROR: Could not read $outfile";
+                return;
+            }
             $num_rows = 0;
             while(!feof($FILE))
             {
@@ -353,6 +381,10 @@ class TaxonPageMetrics
             $sql .= " ORDER BY he.taxon_concept_id ";
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $FILE = fopen($outfile, "r");
+            if (!$FILE) {
+                print "!! ERROR: Could not read $outfile";
+                return;
+            }
             $num_rows = 0;
             while(!feof($FILE))
             {
@@ -399,6 +431,10 @@ class TaxonPageMetrics
             else $sql .= " AND he.taxon_concept_id BETWEEN $i AND ". ($i + $batch_size);
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $FILE = fopen($outfile, "r");
+            if (!$FILE) {
+                print "!! ERROR: Could not read $outfile";
+                return;
+            }
             $num_rows=0;
             while(!feof($FILE))
             {
@@ -451,6 +487,10 @@ class TaxonPageMetrics
             else $sql .= " AND he.taxon_concept_id BETWEEN $i AND ". ($i + $batch_size);
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $FILE = fopen($outfile, "r");
+            if (!$FILE) {
+                print "!! ERROR: Could not read $outfile";
+                return;
+            }
             $num_rows = 0;
             while(!feof($FILE))
             {
@@ -502,6 +542,10 @@ class TaxonPageMetrics
             else $sql .= " AND tc.id BETWEEN $i AND ". ($i + $batch_size);
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $FILE = fopen($outfile, "r");
+            if (!$FILE) {
+                print "!! ERROR: Could not read $outfile";
+                return;
+            }
             $num_rows=0;
             while(!feof($FILE))
             {
@@ -571,6 +615,10 @@ class TaxonPageMetrics
             else $sql .= " AND tc.id BETWEEN $i AND ". ($i + $batch_size);
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $FILE = fopen($outfile, "r");
+            if (!$FILE) {
+                print "!! ERROR: Could not read $outfile";
+                return;
+            }
             $num_rows=0;
             while(!feof($FILE))
             {
@@ -658,6 +706,10 @@ class TaxonPageMetrics
             
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $FILE = fopen($outfile, "r");
+            if (!$FILE) {
+                print "!! ERROR: Could not read $outfile";
+                return;
+            }
             $num_rows = 0;
             while(!feof($FILE))
             {
@@ -747,6 +799,10 @@ class TaxonPageMetrics
     function save_to_json_file($arr, $filename)
     {
         $WRITE = fopen(PAGE_METRICS_TEXT_PATH . $filename . ".txt", "w");
+        if (!$WRITE) {
+            print "!! ERROR: Could not write to $filename";
+            return;
+        }
         fwrite($WRITE, json_encode($arr));
         fclose($WRITE);
     }
@@ -755,6 +811,10 @@ class TaxonPageMetrics
     {
         $filename = PAGE_METRICS_TEXT_PATH . $filename . ".txt";
         $READ = fopen($filename, "r");
+        if (!$READ) {
+            print "!! ERROR: Could not read $filename";
+            return;
+        }
         $contents = fread($READ, filesize($filename));
         fclose($READ);
         return json_decode($contents, true);
@@ -766,7 +826,15 @@ class TaxonPageMetrics
         $time_start = time_elapsed(); print "\n $category --- start";
         rename(PAGE_METRICS_TEXT_PATH . $this->table . ".txt", PAGE_METRICS_TEXT_PATH . $this->table . ".txt.tmp");
         $WRITE = fopen(PAGE_METRICS_TEXT_PATH . $this->table . ".txt", "a");
+        if (!$WRITE) {
+            print "!! ERROR: Could not write to table txt tmp file";
+            return;
+        }
         $READ = fopen(PAGE_METRICS_TEXT_PATH . $this->table . ".txt.tmp", "r");
+        if (!$READ) {
+            print "!! ERROR: Could not read table txt tmp file";
+            return;
+        }
         $num_rows = 0;
         $str = "";
         while(!feof($READ))
@@ -829,6 +897,10 @@ class TaxonPageMetrics
             $sql .= " AND tc.id BETWEEN $i AND " . ($i + $batch_size);
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $FILE = fopen($outfile, "r");
+            if (!$FILE) {
+                print "!! ERROR: Could not read $outfile";
+                return;
+            }
             $num_rows = 0;
             while(!feof($FILE))
             {
@@ -871,6 +943,10 @@ class TaxonPageMetrics
         print "\n Start reading text file [taxon_concept_with_bhl_links]";
         $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_links.txt";
         $FILE = fopen($filename, "r");
+        if (!$FILE) {
+            print "!! ERROR: Could not read $filename";
+            return;
+        }
         $i = 0;
         $str = "";
         $save_count = 0;
