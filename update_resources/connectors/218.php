@@ -22,6 +22,7 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") >
     rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
     rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
     Functions::set_resource_status_to_force_harvest($resource_id);
+    Functions::count_resource_tab_files($resource_id);
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;
