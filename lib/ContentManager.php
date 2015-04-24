@@ -425,9 +425,10 @@ class ContentManager
         $sizes = getimagesize($fullsize_jpg);
         $width = @$sizes[0];
         $height = @$sizes[1];
-        if (empty($width) && empty($height))
+        if (empty($width) && empty($height)) {
             write_to_resource_harvesting_log("ContentManager: Unable to getimagesize for $fullsize_jpg: using default crop and not recording image_size data");
             trigger_error("ContentManager: Unable to getimagesize for $fullsize_jpg: using default crop and not recording image_size data", E_USER_NOTICE);
+        }
 
         // we make an exception
         if(isset($options['large_image_dimensions']) && is_array($options['large_image_dimensions']))
