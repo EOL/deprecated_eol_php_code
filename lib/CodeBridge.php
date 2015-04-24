@@ -15,6 +15,8 @@ class CodeBridge
 {
     public function perform()
     {
+        CodeBridge::print_message('CodeBridge performing.');
+
         $mysqli =& $GLOBALS['db_connection'];
         $error_message = '';
         try
@@ -88,7 +90,5 @@ class CodeBridge
     }
     
 }
-
-CodeBridge::print_message('CodeBridge loaded.');
 
 ?>
