@@ -86,6 +86,7 @@ function write_to_resource_harvesting_log($str)
         {
             fwrite($file_handler, date('m/d H:i:s') .":: $str\n");
         }
+        fclose($file_handler); // TODO: Is this necessary? When do we clean up FHs?
     } else {
         write_to_log($str);
     }
