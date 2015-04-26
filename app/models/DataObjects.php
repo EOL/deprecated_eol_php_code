@@ -213,7 +213,17 @@ class DataObject extends ActiveRecord
                 {
                     $image_options['rotation'] = $this->additional_information['rotation'];
                 }
-                $this->object_cache_url = $content_manager->grab_file($this->object_url, "image", $image_options);
+                $result = $content_manager->grab_file($this->object_url, "image", $image_options);
+                if(is_array($result))
+                {                	
+                	$this->object_cache_url = $result['file_path'];
+        	        return array('cache_res' => true, 'image_info' => $result['image_info']);
+                }
+                else
+                {
+                	$this->object_cache_url = $result;
+                	return true;
+                }
                 if(@!$this->object_cache_url) return false;
             }else return false;
         }
@@ -272,7 +282,6 @@ class DataObject extends ActiveRecord
                     // So we can reference the old object and don't need to create a new one
                     $status = "Unchanged";
                     if($row["harvest_event_id"] == @$resource->harvest_event->id) $status = "Reused";
-
                     return array($existing_data_object, "Unchanged", $existing_data_object);
                 }else
                 {
@@ -285,34 +294,87 @@ class DataObject extends ActiveRecord
 
                     // Check to see if we can reuse cached object or need to download it again
                     if(strtolower($data_object->object_url) == strtolower($existing_data_object->object_url) && $existing_data_object->object_cache_url) $data_object->object_cache_url = $existing_data_object->object_cache_url;
-                    elseif(!$data_object->cache_object($content_manager, $resource)) return false;
-
-                    if(!$data_object->thumbnail_cache_url) $data_object->cache_thumbnail($content_manager);
-                    // If the object is text and the contents have changed - set this version to curated = 0
-                    if($data_object->is_text() && $existing_data_object->description != $data_object->description) $data_object->curated = 0;
-
-                    $new_data_object =
-                        DataObject::create_by_object($data_object);
-                    $GLOBALS['mysqli_connection']->query(
-                        "UPDATE taxon_concept_exemplar_images
-                         SET data_object_id=$new_data_object->id
-                         WHERE data_object_id=$existing_data_object->id");
-                    $GLOBALS['mysqli_connection']->query(
-                        "UPDATE taxon_concept_exemplar_articles
-                         SET data_object_id=$new_data_object->id
-                         WHERE data_object_id=$existing_data_object->id");
-                    //if the old image was cropped, crop the new image
-                    $result = $GLOBALS['mysqli_connection']->query("SELECT SQL_NO_CACHE id, height, width, crop_x_pct, crop_y_pct, crop_width_pct, crop_height_pct FROM image_sizes WHERE data_object_id=$existing_data_object->id ORDER BY id DESC LIMIT 1");
-                    if ($result && $row = $result->fetch_assoc()){
-                        $GLOBALS['mysqli_connection']->insert("INSERT INTO image_sizes (data_object_id, height, width, crop_x_pct, crop_y_pct, crop_width_pct, crop_height_pct) VALUES (" .
-                            $new_data_object->id . " , " .
-                            $row['height'] . " , " .
-                            $row['width'] . " , " .
-                            $row['crop_x_pct'] . " , " .
-                            $row['crop_y_pct'] . " , " .
-                            $row['crop_width_pct'] . " , " .
-                            $row['crop_height_pct'] . " )");
+                    else
+                    {
+                        $res =  $data_object->cache_object($content_manager, $resource);
+				        if(is_array($res))
+				        {
+				        	if(!$res['cache_res']) return false;				        	
+				        	$image_info = $res['image_info'];
+				        }
+				        else
+				        {
+				        	if(!$res) return false;
+				        }
                     }
+				        if(!$data_object->thumbnail_cache_url) $data_object->cache_thumbnail($content_manager);
+	                    // If the object is text and the contents have changed - set this version to curated = 0
+	                    if($data_object->is_text() && $existing_data_object->description != $data_object->description) $data_object->curated = 0;
+	
+	                    $new_data_object =
+	                        DataObject::create_by_object($data_object);
+	                    $GLOBALS['mysqli_connection']->query(
+	                        "UPDATE taxon_concept_exemplar_images
+	                         SET data_object_id=$new_data_object->id
+	                         WHERE data_object_id=$existing_data_object->id");
+	                    $GLOBALS['mysqli_connection']->query(
+	                        "UPDATE taxon_concept_exemplar_articles
+	                         SET data_object_id=$new_data_object->id
+                         WHERE data_object_id=$existing_data_object->id");
+				        if(isset($image_info) && !empty($image_info))
+				        {
+				        	$content_manager->keep_cropping_info(array('data_object_id' => $new_data_object->id, 'data_object_guid' => $existing_data_object->id, 'image_info' => $image_info));
+				        }
+				        else
+				        {
+		                	//if the old image was cropped, crop the new image
+                    		$result = $GLOBALS['mysqli_connection']->query("SELECT SQL_NO_CACHE id, height, width, crop_x_pct, crop_y_pct, crop_width_pct, crop_height_pct FROM image_sizes WHERE data_object_id=$existing_data_object->id ORDER BY id DESC LIMIT 1");
+                    		if ($result && $row = $result->fetch_assoc()){
+                    			$sql_attributes = "INSERT INTO image_sizes (data_object_id";
+                    			$sql_values = "VALUES ($new_data_object->id";
+                    			$height = $row['height'];
+                    			$width = $row['width'];
+                    			$crop_y_pct = $row['crop_y_pct'];
+                    			$crop_x_pct = $row['crop_x_pct'];
+                    			$crop_width_pct = $row['crop_width_pct'];
+                    			$crop_height_pct = $row['crop_height_pct'];
+                    			if(isset($height))
+                    			{                    				
+                    				$sql_attributes .= ",height ";
+                    				$sql_values .= ",$height";
+                    			}
+	                    		if(isset($width))
+	                    		{
+	                    			$sql_attributes .= ",width ";
+	                    			$sql_values .= ",$width";
+	                    		}
+	                    		if(isset($crop_x_pct))
+	                    		{
+	                    			$sql_attributes .= ",crop_x_pct ";
+	                    			$sql_values .= ",$crop_x_pct";
+	                    		}	                    			
+	                    		if(isset($crop_y_pct))
+	                    		{
+	                    			$sql_attributes .= ",crop_y_pct ";
+	                    			$sql_values .= ",$crop_y_pct";	                    		
+	                    		}
+	                    		if(isset($crop_width_pct))
+	                    		{
+	                    			$sql_attributes .= ",crop_width_pct ";
+	                    			$sql_values .= ",$crop_width_pct";
+	                    		}
+                    		    if(isset($crop_height_pct))
+	                    		{
+	                    			$sql_attributes .= ",crop_height_pct ";
+	                    			$sql_values .= ",$crop_height_pct";
+	                    		}
+	                    		$sql_attributes .= ")";
+	                    		$sql_values .= ")";
+                        		$GLOBALS['mysqli_connection']->insert($sql_attributes . $sql_values);
+                    		}
+				        }
+
+
                     return array($new_data_object, "Updated",
                         $existing_data_object);
                 }
@@ -340,10 +402,23 @@ class DataObject extends ActiveRecord
         // but there is a difference - eg the identifiers are different. Or if the object is entirely new
 
         // // Attempt to cache the object. Method will fail if the cache should have worked and it didn't
-        if(!$data_object->cache_object($content_manager, $resource)) return false;
-        $data_object->cache_thumbnail($content_manager);
-
-        return array(DataObject::create_by_object($data_object), "Inserted", null);
+        $res =  $data_object->cache_object($content_manager, $resource);
+        if(is_array($res))
+        {
+        	if(!$res['cache_res']) return false;
+        	$image_info = $res['image_info'];
+        }
+        else
+        {
+        	if(!$res) return false;
+        }
+        $new_data_object = DataObject::create_by_object($data_object);
+        if(isset($image_info) && !empty($image_info))
+        {
+        	$content_manager->keep_cropping_info(array('data_object_id' => $new_data_object->id, 'data_object_guid' => null, 'image_info' => $image_info));
+        }
+        	
+        return array($new_data_object, "Inserted", null);       
     }
 
     static function create_by_object($data_object)
