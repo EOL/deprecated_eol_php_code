@@ -18,8 +18,10 @@ class Resource extends ActiveRecord
 
     public $harvest_event;
     public $last_harvest_event;
-    public $start_harvest_time;
-    public $end_harvest_time;
+    public $start_harvest_datetime;
+    public $end_harvest_datetime;
+    public $start_harvest_seconds;
+    public $end_harvest_seconds;
 
     public static function delete($id)
     {
@@ -753,7 +755,8 @@ class Resource extends ActiveRecord
       if(!$this->harvest_event) { // Create this harvest event
         $this->harvest_event = HarvestEvent::create(array('resource_id' => $this->id));
         $this->harvest_event->resource = $this;
-        $this->start_harvest_time  = date('Y m d H');
+        $this->start_harvest_datetime  = date('Y m d H');
+        $this->start_harvest_seconds = time();
       }
       $this->debug_end("start_harvest");
     }
@@ -765,8 +768,10 @@ class Resource extends ActiveRecord
         {
             $this->harvest_event->completed();
             $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::processed()->id .", harvested_at=NOW(), notes='' WHERE id=$this->id");
-            $this->end_harvest_time  = date('Y m d H');
-            $this->harvest_event->resource->refresh();       
+            $this->end_harvest_datetime  = date('Y m d H');
+            $this->harvest_event->resource->refresh();
+            $this->end_harvest_seconds= time();
+            $this->mysqli->update("UPDATE resources SET last_harvest_seconds=".( $this->end_harvest_seconds-$this->start_harvest_seconds )." WHERE id=$this->id");
         }
       $this->debug_end("end_harvest");
     }
