@@ -20,10 +20,18 @@ if(Functions::grep_processlist('harvest_resources') > 2)
 }
 
 $log = HarvestProcessLog::create(array('process_name' => 'Harvesting'));
-$resources = Resource::ready_for_harvesting();
+//$resources = Resource::ready_for_harvesting();
 // $resources = array(Resource::find(SOME_ID_HERE));
-foreach($resources as $resource)
-{
+while(true)
+{	
+	//sleep the php until resuming the harvest from the rails side
+	while(Resource::is_paused() == 1)		
+		sleep(40);		
+	//get the resource
+	$resource = Resource::get_ready_resource();	
+	if (is_null($resource))
+		break;
+	
 	$GLOBALS['currently_harvesting_resource_id'] = $resource->id;
     // IMPORTANT!
     // We skip a few hard-coded resource IDs, here.
