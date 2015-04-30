@@ -604,6 +604,14 @@ class HarvestEvent extends ActiveRecord
                     'X-Mailer: PHP/' . phpversion();
                 $to      = implode(", ", array(SPG_EMAIL_ADDRESS, EOL_DEV_EMAIL_ADDRESS, ELI_EMAIL_ADDRESS));
                 mail($to, $subject, $message, $headers);
+				//create a file for each mail
+				$mail_file = fopen ("log/" . $this->resource->title . "_" . date('d-m-Y H:i:s', time()) . ".log", "w");
+			    if(!$mail_file){
+      				debug("Can't open file for the new mail");
+      				return;
+      			}
+				fwrite($mail_file, $message);
+			    fclose($mail_file);
             }
         }
     }
