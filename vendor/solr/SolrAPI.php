@@ -84,6 +84,8 @@ class SolrAPI
     {
         debug("Solr query: $query\n");
         $url = $this->action_url."/select/?q={!lucene}".str_replace(" ", "%20", $query) ."&wt=json";
+        // THIS IS NOT WINDOWS-COMPATIBLE:
+        usleep(200000); // Units are millionths of a sec; this is 1/5th of a second.
         return json_decode(file_get_contents($url));
     }
 

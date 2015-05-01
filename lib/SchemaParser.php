@@ -28,7 +28,10 @@ class SchemaParser
                 $connection->add_taxon($taxon_parameters);
                 
                 $i++;
-                if($i%100==0) debug("Parsed taxon $i");
+                if($i%100==0)
+                {
+                	debug("Parsed taxon $i");
+                }
                 
                 // trying now to see if commiting every 20 taxa will help with replication
                 // if($i%20==0) 

@@ -1,6 +1,7 @@
 <?php
 namespace php_active_record;
-
+include_once(dirname(__FILE__) . "/../../lib/CodeBridge.php");
+if(defined('RESQUE_HOST') && RESQUE_HOST && class_exists('Resque')) \Resque::setBackend(RESQUE_HOST);
 class Resource extends ActiveRecord
 {
     public static $belongs_to = array(
@@ -17,8 +18,10 @@ class Resource extends ActiveRecord
 
     public $harvest_event;
     public $last_harvest_event;
-    public $start_harvest_time;
-    public $end_harvest_time;
+    public $start_harvest_datetime;
+    public $end_harvest_datetime;
+    public $start_harvest_seconds;
+    public $end_harvest_seconds;
 
     public static function delete($id)
     {
@@ -176,15 +179,38 @@ class Resource extends ActiveRecord
         $resources = array();
         $extra_hours_clause = "";
         if($hours_ahead_of_time) $extra_hours_clause = " - $hours_ahead_of_time";
-
-        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=".ResourceStatus::force_harvest()->id." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::validated()->id." OR resource_status_id=".ResourceStatus::validation_failed()->id." OR resource_status_id=".ResourceStatus::processing_failed()->id.")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL (refresh_period_hours $extra_hours_clause) HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::upload_failed()->id.", ".ResourceStatus::validated()->id.", ".ResourceStatus::validation_failed()->id.", ". ResourceStatus::processed()->id .", ".ResourceStatus::processing_failed()->id.", ".ResourceStatus::published()->id."))");
+        
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=".ResourceStatus::force_harvest()->id." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::validated()->id." OR resource_status_id=".ResourceStatus::validation_failed()->id." OR resource_status_id=".ResourceStatus::processing_failed()->id.")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL (refresh_period_hours $extra_hours_clause) HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::upload_failed()->id.", ".ResourceStatus::validated()->id.", ".ResourceStatus::validation_failed()->id.", ". ResourceStatus::processed()->id .", ".ResourceStatus::processing_failed()->id.", ".ResourceStatus::published()->id."))"); // WAIT: ORDER BY position ASC");		
         while($result && $row=$result->fetch_assoc())
         {
             $resources[] = $resource = Resource::find($row["id"]);
         }
-
+		
         return $resources;
     }
+
+    public static function get_ready_resource($hours_ahead_of_time = null)
+    {
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        
+        $extra_hours_clause = "";
+        if($hours_ahead_of_time) $extra_hours_clause = " - $hours_ahead_of_time";
+
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=".ResourceStatus::force_harvest()->id." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::validated()->id." OR resource_status_id=".ResourceStatus::validation_failed()->id." OR resource_status_id=".ResourceStatus::processing_failed()->id.")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL (refresh_period_hours $extra_hours_clause) HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::upload_failed()->id.", ".ResourceStatus::validated()->id.", ".ResourceStatus::validation_failed()->id.", ". ResourceStatus::processed()->id .", ".ResourceStatus::processing_failed()->id.", ".ResourceStatus::published()->id.")) ORDER BY position ASC LIMIT 1");
+        if($result && $row=$result->fetch_assoc())
+        {
+            return Resource::find($row["id"]);
+        }
+        return NULL;
+    }
+
+	public static function is_paused()
+	{
+		$mysqli =& $GLOBALS['mysqli_connection'];
+		$result = $mysqli->query("SELECT SQL_NO_CACHE pause FROM resources");
+		if($result && $row=$result->fetch_assoc())
+			return $row["pause"];        
+	}
 
     public static function ready_for_publishing()
     {
@@ -375,12 +401,18 @@ class Resource extends ActiveRecord
       $this->mysqli->end_transaction();
       $this->debug_end("transaction");
       $this->debug_end("publish");
+      // inform rails when harvest finished
+      \CodeBridge::update_resource_contributions($this->id);
     }
 
     public function harvest($validate = true, $validate_only_welformed = false, $fast_for_testing = false)
     {
-        $this->debug_start("harvest");
-
+        $this->debug_start(
+            "harvest eol.org/content_partners/" .
+            $this->content_partner->id .
+            "/resources/" .
+            $this->id
+        );
         $valid = $validate ? $this->validate() : true;
         if($valid)
         {
@@ -394,6 +426,11 @@ class Resource extends ActiveRecord
           // TODO: we shouldn't delete the graph, but make a temp one...
           $sparql_client->delete_graph($this->virtuoso_graph_name());
           $this->start_harvest(); // Create the event
+          // delete all data point uris related to this resource
+          $this->mysqli->delete("DELETE FROM data_point_uris where resource_id = $this->id");
+          // delete all data point uris related to this resource from resource contributions
+          $this->mysqli->delete("DELETE FROM resource_contributions where resource_id = $this->id and object_type = 'data_point_uri'");
+          $this->start_harvest();
 
           $this->debug_start("parsing");
           if($this->is_translation_resource())
@@ -437,7 +474,7 @@ class Resource extends ActiveRecord
 
           if($this->hierarchy_id && !$this->is_translation_resource())
           {
-            debug("(Translation resource)");
+              debug("(Translation resource)");
               $hierarchy = Hierarchy::find($this->hierarchy_id);
               $this->debug_start("Tasks::rebuild_nested_set");
               Tasks::rebuild_nested_set($this->hierarchy_id);
@@ -446,7 +483,7 @@ class Resource extends ActiveRecord
 
               if(!$this->auto_publish)
               {
-                debug("(AUTO-PUBLISH)");
+                  debug("(AUTO-PUBLISH)");
                   // Rebuild the Solr index for this hierarchy
                   $indexer = new HierarchyEntryIndexer();
                   $this->debug_start("HierarchyEntryIndexer::index");
@@ -501,6 +538,8 @@ class Resource extends ActiveRecord
               $this->harvest_event->refresh();
               $this->harvest_event->send_emails_about_outlier_harvests();
           }
+      } else {
+          debug("WARNING: INVALID - skipping");
       }
       $this->harvest_event = null;
       $this->debug_end("harvest");
@@ -508,7 +547,7 @@ class Resource extends ActiveRecord
 
     public function add_unchanged_data_to_harvest()
     {
-      $this->debug_start("add_unchanged_data_to_harvest");
+      $this->debug_start("++ START add_unchanged_data_to_harvest ++");
         // there is no _delete file so we assume the resource is complete
         if(!file_exists($this->resource_deletions_path())) return false;
 
@@ -591,7 +630,6 @@ class Resource extends ActiveRecord
                 }
             }
 
-            // print_r($taxon_concept_ids);
             echo count($taxon_concept_ids);
             echo " $last_id\n";
             $indexer = new TaxonConceptIndexer();
@@ -623,7 +661,6 @@ class Resource extends ActiveRecord
                 }
             }
 
-            // print_r($data_object_ids);
             echo count($data_object_ids);
             echo " $last_id\n";
             $indexer = new DataObjectAncestriesIndexer();
@@ -718,7 +755,8 @@ class Resource extends ActiveRecord
       if(!$this->harvest_event) { // Create this harvest event
         $this->harvest_event = HarvestEvent::create(array('resource_id' => $this->id));
         $this->harvest_event->resource = $this;
-        $this->start_harvest_time  = date('Y m d H');
+        $this->start_harvest_datetime  = date('Y m d H');
+        $this->start_harvest_seconds = time();
       }
       $this->debug_end("start_harvest");
     }
@@ -730,8 +768,10 @@ class Resource extends ActiveRecord
         {
             $this->harvest_event->completed();
             $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::processed()->id .", harvested_at=NOW(), notes='' WHERE id=$this->id");
-            $this->end_harvest_time  = date('Y m d H');
+            $this->end_harvest_datetime  = date('Y m d H');
             $this->harvest_event->resource->refresh();
+            $this->end_harvest_seconds= time();
+            $this->mysqli->update("UPDATE resources SET last_harvest_seconds=".( $this->end_harvest_seconds-$this->start_harvest_seconds )." WHERE id=$this->id");
         }
       $this->debug_end("end_harvest");
     }
@@ -764,21 +804,28 @@ class Resource extends ActiveRecord
                   $errors_as_string[] = $error->__toString();
               }
               $error_string = $this->mysqli->escape(implode("<br>", $errors_as_string));
+              write_to_resource_harvesting_log("ERRORS in archive validatior" . $error_string);
           }
       }else
       {
           $validation_result = SchemaValidator::validate($this->resource_path());
           if($validation_result===true) $valid = true;  // valid
-          else $error_string = $this->mysqli->escape(implode("<br>", $validation_result));
+          else 
+          {
+          	$error_string = $this->mysqli->escape(implode("<br>", $validation_result));
+          	write_to_resource_harvesting_log("ERRORS in schema validatior" . $error_string);
+          }
       }
       if($error_string)
       {
           if(strlen($error_string) > 50000) $error_string = substr($error_string, 0, 50000) . "...";
+          debug("Validation errors:\n$error_string\n");
           $this->mysqli->update("UPDATE resources SET notes='$error_string' WHERE id=$this->id");
       }
       if(!$valid)
       {
           $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::processing_failed()->id." WHERE id=$this->id");
+          write_to_resource_harvesting_log("Resource isn't valid");
       }
       $this->debug_end("validate");
       return $valid;

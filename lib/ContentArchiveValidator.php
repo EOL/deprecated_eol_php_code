@@ -23,7 +23,9 @@ class ContentArchiveValidator
     public function is_valid($skip_warnings = false)
     {
         $this->get_validation_errors($skip_warnings);
-        if($this->structural_errors) return false;
+        if($this->structural_errors){
+        	return false;
+        }
         return true;
     }
 
@@ -109,6 +111,7 @@ class ContentArchiveValidator
         {
             $error = new \eol_schema\ContentArchiveError();
             $error->message = 'Cannot read meta.xml. There may be a structural problem with this archive.';
+            write_to_resource_harvesting_log("Cannot read meta.xml. There may be a structural problem with this archive.");
             $this->structural_errors[] = $error;
         }
 
@@ -134,7 +137,11 @@ class ContentArchiveValidator
             // TODO: duplicate primary keys
             // TODO: referential integrity
             if(!in_array(strtolower($row_type), $row_types_to_validate)) continue;
-            if($GLOBALS['ENV_DEBUG']) echo "Processing $row_type\n";
+            if($GLOBALS['ENV_DEBUG'])
+            {
+            	write_to_resource_harvesting_log("Processing $row_type");
+            	echo "Processing $row_type\n";
+            }
             $this->content_archive_reader->process_row_type($row_type, array($this, 'validate_row'), array('row_type' => $row_type));
             if($row_type == 'http://rs.tdwg.org/dwc/terms/taxon')
             {
@@ -143,6 +150,7 @@ class ContentArchiveValidator
                 {
                     $error = new \eol_schema\ContentArchiveError();
                     $error->message = 'There are no valid taxa in this archive.';
+                    write_to_resource_harvesting_log("There are no valid taxa in this archive.");
                     $this->structural_errors[] = $error;
                 }
             }
@@ -153,7 +161,11 @@ class ContentArchiveValidator
     {
         static $i = 0;
         $i++;
-        if($i % 10000 == 0 && $GLOBALS['ENV_DEBUG']) echo "$i: ". time_elapsed() ." :: ". memory_get_usage() ."\n";
+        if($i % 10000 == 0 && $GLOBALS['ENV_DEBUG'])
+        {
+        	echo "$i: ". time_elapsed() ." :: ". memory_get_usage() ."\n";
+        	write_to_resource_harvesting_log($i . ": ". time_elapsed() . "::" . memory_get_usage());
+        }
 
         $file_location = $parameters['archive_table_definition']->location;
         $new_exceptions = array();

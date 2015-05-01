@@ -20,10 +20,19 @@ if(Functions::grep_processlist('harvest_resources') > 2)
 }
 
 $log = HarvestProcessLog::create(array('process_name' => 'Harvesting'));
-$resources = Resource::ready_for_harvesting();
+//$resources = Resource::ready_for_harvesting();
 // $resources = array(Resource::find(SOME_ID_HERE));
-foreach($resources as $resource)
-{
+while(true)
+{	
+	//sleep the php until resuming the harvest from the rails side
+	while(Resource::is_paused() == 1)		
+		sleep(40);		
+	//get the resource
+	$resource = Resource::get_ready_resource();	
+	if (is_null($resource))
+		break;
+	
+	$GLOBALS['currently_harvesting_resource_id'] = $resource->id;
     // IMPORTANT!
     // We skip a few hard-coded resource IDs, here.
     // TODO - it would be preferable if this flag were in the DB. ...It looks like using a ResourceStatus could achieve the effect.
@@ -44,7 +53,10 @@ foreach($resources as $resource)
 
     $validate = true;
     if($GLOBALS['ENV_NAME'] == 'test') $validate = false;
+    // create resource_id.log
+    $resource_harvesting_log = fopen ("log/" . $resource->id . ".log", "w+");
     $resource->harvest($validate, false, $fast_for_testing);
+    fclose($resource_harvesting_log);
 }
 $log->finished();
 

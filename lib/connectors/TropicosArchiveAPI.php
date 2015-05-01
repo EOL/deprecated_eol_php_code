@@ -39,8 +39,7 @@ class TropicosArchiveAPI
         $this->taxon_ids = array();
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->tropicos_ids_list_file = $this->TEMP_DIR . "tropicos_ids.txt";
-        // replace expire_seconds to 999999999 get last cache, no expire
-        $this->download_options = array('expire_seconds' => 2592000, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 2);
+        $this->download_options = array('expire_seconds' => false, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
     }
 
     function get_all_taxa()
@@ -81,42 +80,15 @@ class TropicosArchiveAPI
             {
                 $i++;
                 /* breakdown when caching
+                $m = 50000;
                 $cont = false;
-                // if($i >=      1 && $i <  30000) $cont = true;
-                // if($i >=  30000 && $i <  60000) $cont = true;
-                // if($i >=  60000 && $i <  90000) $cont = true;
-                // if($i >=  90000 && $i < 120000) $cont = true;
-                // if($i >= 120000 && $i < 150000) $cont = true;
-                // if($i >= 150000 && $i < 180000) $cont = true;
-                // if($i >= 180000 && $i < 210000) $cont = true;
-                // if($i >= 210000 && $i < 240000) $cont = true;
-                // if($i >= 240000 && $i < 270000) $cont = true;
-                // if($i >= 270000 && $i < 300000) $cont = true;
-                // if($i >= 300000 && $i < 330000) $cont = true;
-                // if($i >= 330000 && $i < 360000) $cont = true;
-                // if($i >= 360000 && $i < 390000) $cont = true;
-                // if($i >= 390000 && $i < 420000) $cont = true;
-                // if($i >= 420000 && $i < 450000) $cont = true;
-                // if($i >= 450000 && $i < 480000) $cont = true;
-                // if($i >= 480000 && $i < 510000) $cont = true;
-                // if($i >= 510000 && $i < 540000) $cont = true;
-                // if($i >= 540000 && $i < 570000) $cont = true;
-                // if($i >= 570000 && $i < 600000) $cont = true;
-                // if($i >= 600000 && $i < 630000) $cont = true;
-                // if($i >= 630000 && $i < 660000) $cont = true;
-                // if($i >= 660000 && $i < 690000) $cont = true;
-                // if($i >= 690000 && $i < 720000) $cont = true;
-                // if($i >= 720000 && $i < 750000) $cont = true;
-                // if($i >= 750000 && $i < 780000) $cont = true;
-                // if($i >= 780000 && $i < 810000) $cont = true;
-                // if($i >= 810000 && $i < 840000) $cont = true;
-                // if($i >= 840000 && $i < 870000) $cont = true;
-                // if($i >= 870000 && $i < 900000) $cont = true;
-                // if($i >= 900000 && $i < 930000) $cont = true;
-                // if($i >= 930000 && $i < 960000) $cont = true;
+                // if($i >=  1    && $i < $m)    $cont = true;
+                // if($i >=  $m   && $i < $m*2)  $cont = true;
+                // if($i >=  $m*2 && $i < $m*3)  $cont = true;
+                // if($i >=  $m*3 && $i < $m*4)  $cont = true;
                 if(!$cont) continue;
                 */
-                echo "\n$i. [$taxon_id]";
+                if(($i % 100) == 0) echo "\n" . number_format($i) . " - ";
                 self::process_taxon($taxon_id);
             }
         }
@@ -141,7 +113,6 @@ class TropicosArchiveAPI
         // "Citation":"Tropicos.org. Missouri Botanical Garden. 11 Dec 2013 &lt;http:\/\/www.tropicos.org\/Name\/1&gt;",
         // "Copyright":"© 2013 Missouri Botanical Garden - 4344 Shaw Boulevard - Saint Louis, Missouri 63110",
         
-        echo "[$taxon_id] " . $sciname;
         /* working but temporarily commented by Chris Freeland
         self::get_chromosome_count($taxon_id);
         */
@@ -166,12 +137,11 @@ class TropicosArchiveAPI
         if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
         if(!isset($this->taxon_ids[$taxon->taxonID]))
         {
-            $this->taxon_ids[$taxon->taxonID] = 1;
+            $this->taxon_ids[$taxon->taxonID] = '';
             $this->archive_builder->write_object_to_file($taxon);
         }
         self::get_distributions($taxon_id, $sciname);
         self::get_synonyms($taxon_id);
-        echo "\n sciname: [$sciname][$taxon_id]\n";
     }
 
     private function get_images($taxon_id)
@@ -181,13 +151,9 @@ class TropicosArchiveAPI
         $with_image = 0;
         foreach($xml->Image as $rec)
         {
-            if($rec->Error)
-            {
-                echo "\n no images - " . $rec->DetailUrl;
-                continue;
-            }
+            if($rec->Error) continue; // echo "\n no images - " . $rec->DetailUrl;
             $with_image++;
-            if($with_image > 15) break;//max no. of images per taxon //debug orig 15
+            if($with_image > 15) break; // max no. of images per taxon //debug orig 15
             $description = $rec->NameText . ". " . $rec->LongDescription;
             if($rec->SpecimenId)    $description .= "<br>" . "SpecimenId: " . $rec->SpecimenId;
             if($rec->SpecimenText)  $description .= "<br>" . "SpecimenText: " . $rec->SpecimenText;
@@ -196,12 +162,7 @@ class TropicosArchiveAPI
             if($rec->PhotoDate)     $description .= "<br>" . "Photo taken: " . $rec->PhotoDate;
             if($rec->ImageKindText) $description .= "<br>" . "Image kind: " . $rec->ImageKindText;
             $valid_licenses = array("http://creativecommons.org/licenses/by/3.0/", "http://creativecommons.org/licenses/by-sa/3.0/", "http://creativecommons.org/licenses/by-nc/3.0/", "http://creativecommons.org/licenses/by-nc-sa/3.0/", "http://creativecommons.org/licenses/publicdomain/");
-            if(!in_array(trim($rec->LicenseUrl), $valid_licenses))
-            {
-                echo "\n invalid image license - " . $rec->DetailUrl . "\n";
-                continue;
-            }
-            else echo "\n valid image license - " . $rec->DetailUrl . "\n";
+            if(!in_array(trim($rec->LicenseUrl), $valid_licenses)) continue; // echo "\n invalid image license - " . $rec->DetailUrl . "\n";
             $license = $rec->LicenseUrl;
             $agent_ids = array();
             if(trim($rec->Photographer) != "")
@@ -294,8 +255,8 @@ class TropicosArchiveAPI
     private function add_string_types($taxon_id, $catnum, $label, $value, $mtype, $mtaxon = false)
     {
         $m = new \eol_schema\MeasurementOrFact();
-        $occurrence = $this->add_occurrence($taxon_id, $catnum);
-        $m->occurrenceID = $occurrence->occurrenceID;
+        $occurrence_id = $this->add_occurrence($taxon_id, $catnum);
+        $m->occurrenceID = $occurrence_id;
         if($mtaxon)
         {
             $m->measurementOfTaxon = 'true';
@@ -312,13 +273,13 @@ class TropicosArchiveAPI
     private function add_occurrence($taxon_id, $catnum)
     {
         $occurrence_id = $taxon_id . '_' . $catnum;
-        if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
+        if(isset($this->occurrence_ids[$occurrence_id])) return $occurrence_id;
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
         $this->archive_builder->write_object_to_file($o);
-        $this->occurrence_ids[$occurrence_id] = $o;
-        return $o;
+        $this->occurrence_ids[$occurrence_id] = '';
+        return $occurrence_id;
     }
 
     private function create_agents($agents)
@@ -394,7 +355,7 @@ class TropicosArchiveAPI
             if($ref_url) $r->uri = $ref_url;
             if(!isset($this->resource_reference_ids[$r->identifier]))
             {
-               $this->resource_reference_ids[$r->identifier] = 1;
+               $this->resource_reference_ids[$r->identifier] = '';
                $this->archive_builder->write_object_to_file($r);
             }
         }
@@ -414,7 +375,7 @@ class TropicosArchiveAPI
             if($rec["ref_ids"]) $synonym->referenceID = implode("; ", $rec["ref_ids"]);
             if(!isset($this->taxon_ids[$synonym->taxonID]))
             {
-                $this->taxon_ids[$synonym->taxonID] = 1;
+                $this->taxon_ids[$synonym->taxonID] = '';
                 $this->archive_builder->write_object_to_file($synonym);
             }
             // else
@@ -507,7 +468,7 @@ class TropicosArchiveAPI
             if($contents)
             {
                 $ids = json_decode($contents, true);
-                echo "\n count:[$count] " . count($ids);
+                if(($count % 100) == 0) echo "\n count:[$count] " . count($ids);
                 $str = "";
                 foreach($ids as $id)
                 {

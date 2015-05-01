@@ -1,6 +1,7 @@
 <?php
 include_once(dirname(__FILE__) . "/../config/environment.php");
-if(defined('RESQUE_HOST') && RESQUE_HOST && class_exists('Resque')) Resque::setBackend(RESQUE_HOST);
+include_once(dirname(__FILE__) . "/../vendor/php_resque/lib/Resque.php");
+if(defined('RESQUE_HOST') && RESQUE_HOST && class_exists('Resque')) \Resque::setBackend(RESQUE_HOST);
 
 # Needed for work:
 php_active_record\require_library("SplitEntryHandler");
@@ -14,6 +15,8 @@ class CodeBridge
 {
     public function perform()
     {
+        CodeBridge::print_message('CodeBridge performing.');
+
         $mysqli =& $GLOBALS['db_connection'];
         $error_message = '';
         try
@@ -76,9 +79,16 @@ class CodeBridge
     public static function print_message($message)
     {
         echo "\n++ [" . date('g:i A', time()) . "] $message\n\n";
+    }   
+    
+	public static function update_resource_contributions($resource_id)
+    {
+     	// inform rails when resource finish harvest
+        \Resque::enqueue('notifications', 'CodeBridge', array('cmd' => 'update_resource_contributions',
+                        'resource_id' => $resource_id));
+        CodeBridge::print_message("++ Enqueued notifications/CodeBridge/update_resource_contributions(resource_id = ". $resource_id .")");
     }
+    
 }
-
-CodeBridge::print_message('CodeBridge loaded.');
 
 ?>

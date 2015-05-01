@@ -17,6 +17,7 @@ $data_search_file_id = @$_GET["data_search_file_id"];
 $x = @$_GET["x"];
 $y = @$_GET["y"];
 $w = @$_GET["w"];
+$h = @$_GET["h"];
 
 if(!$function) $function = @$_POST["function"];
 if(!$server_ip) $server_ip = @$_POST["server_ip"];
@@ -203,6 +204,13 @@ switch($function)
     case "crop_image":
         $manager = new ContentManager();
         $new_file_path = $manager->crop_image($data_object_id, $x, $y, $w);
+        if($new_file_path) echo "  <file_path>$new_file_path</file_path>\n";
+        else echo "  <error type='fatal'>Upload failed</error>\n";
+        break;
+
+    case "crop_image_pct":
+        $manager = new ContentManager();
+        $new_file_path = $manager->crop_image_pct($data_object_id, $x, $y, $w, $h);
         if($new_file_path) echo "  <file_path>$new_file_path</file_path>\n";
         else echo "  <error type='fatal'>Upload failed</error>\n";
         break;

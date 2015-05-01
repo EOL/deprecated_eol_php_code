@@ -77,12 +77,28 @@ function write_to_log($str)
     }
 }
 
+function write_to_resource_harvesting_log($str)
+{
+    if (array_key_exists('currently_harvesting_resource_id', $GLOBALS)) {
+        $resource_id = $GLOBALS['currently_harvesting_resource_id'];
+        $file_handler = fopen(DOC_ROOT . 'log/' . $resource_id .  ".log", "a");
+        if($file_handler)
+        {
+            fwrite($file_handler, date('m/d H:i:s') .":: $str\n");
+        }
+        fclose($file_handler); // TODO: Is this necessary? When do we clean up FHs?
+    } else {
+        write_to_log($str);
+    }
+}
+
 function debug($string)
 {
     if($GLOBALS['ENV_NAME']=='test' || $GLOBALS['ENV_DEBUG'])
     {
         display($string . ' :: [' . get_last_function(3) . ']');
     }
+    write_to_resource_harvesting_log($string);
 }
 
 function mysql_debug($string)

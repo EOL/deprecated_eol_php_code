@@ -233,7 +233,7 @@ class EnvironmentsEOLDataConnector
         $rec["taxon_id"]            = $line['taxon_id'];
         $rec["catnum"]              = "_" . str_replace(" ", "_", $line['text']);
         $rec['measurementOfTaxon']  = "true";
-        $rec['measurementType']     = "http://rs.tdwg.org/dwc/terms/habitat";
+        $rec['measurementType']     = "http://eol.org/schema/terms/Habitat";
         $rec['measurementValue']    = $uri;
         $rec['measurementMethod']   = 'text mining';
         $rec["contributor"]         = '<a href="http://environments-eol.blogspot.com/2013/03/welcome-to-environments-eol-few-words.html">Environments-EOL</a>';

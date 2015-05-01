@@ -1461,7 +1461,7 @@ class Functions
             $extension = strtolower($file_path);
         } else {
             $path_info = pathinfo($file_path);
-            $extension = strtolower($path_info['extension']);
+            $extension = strtolower(@$path_info['extension']);
         }
         $mimetype = "";
         $mpg = array("mpg", "mpeg");

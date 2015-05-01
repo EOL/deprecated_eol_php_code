@@ -7,12 +7,12 @@ class RubyNameParserClient
     private $socket_ip;
     private $socket_port;
     private $connected;
-    
+
     function __construct($params = array())
     {
         $this->connect($params);
     }
-    
+
     private static function start_parserver()
     {
         $gem_is_installed = shell_exec('which parserver');
@@ -30,7 +30,7 @@ class RubyNameParserClient
             trigger_error("NameParserGemClient:: Unable to start parserver. You may need to `sudo gem install biodiversity --version '=1.0.10'`", E_USER_WARNING);
         }
     }
-    
+
     public static function is_parserver_running()
     {
 	return (self::parserver_check('ps -e') or self::parserver_check('ps -e x'));
@@ -47,11 +47,11 @@ class RubyNameParserClient
         }
         return false;
     }
-    
+
     private function connect($params = array())
     {
         self::start_parserver();
-        if(@!$params['ip']) $params['ip'] = 'localhost';
+        if(@!$params['ip']) $params['ip'] = '127.0.0.1';
         if(@!$params['port']) $params['port'] = '4334';
         $this->timeout_retry_seconds = 120;
         $this->socket_ip = $this->socket_ip ?: $params['ip'];
@@ -68,7 +68,7 @@ class RubyNameParserClient
             stream_set_timeout($this->fsock, 2);
         }
     }
-    
+
     public function lookup_string($string)
     {
         if(!$this->fsock)
@@ -80,11 +80,11 @@ class RubyNameParserClient
             }
             return false;
         }
-        
+
         $string = str_replace("\n", " ", $string);
         $string = str_replace("\r", " ", $string);
         $string = preg_replace("/\s/", " ", $string);
-        
+
         $string = trim($string) . "\n";
         if(fwrite($this->fsock, $string) === false)
         {
@@ -92,12 +92,12 @@ class RubyNameParserClient
             $errormsg = socket_strerror($errorcode);
             trigger_error("NameParserGemClient:: Problem with socket connection: [$this->errno] $this->errstr", E_USER_WARNING);
         }
-        
+
         if($out = fread($this->fsock, 2048))
         {
             return rtrim($out, "\n");
         }
-        
+
         $info = stream_get_meta_data($this->fsock);
         if($info['timed_out'])
         {
@@ -105,7 +105,7 @@ class RubyNameParserClient
             fclose($this->fsock);
             $this->fsock = false;
         }
-        
+
         return false;
     }
 }

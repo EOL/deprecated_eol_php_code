@@ -44,7 +44,7 @@ class AlgaebaseClassificationAPI
         echo "\n count not numeric: " . $this->not_numeric_id;
         echo "\n synonyms count: " . $this->syn_count;
         echo "\n wrong data: " . $this->no_rank;
-        print_r($this->debug);
+        // print_r($this->debug); //to list the unique habitat values
     }
 
     private function assign_name_and_id()
@@ -232,7 +232,7 @@ class AlgaebaseClassificationAPI
             {
                 $this->debug[$desc] = "";
                 $habitat = self::format_habitat($desc);
-                self::add_string_types($taxon_id, "Habitat", $habitat, "http://rs.tdwg.org/dwc/terms/habitat");
+                self::add_string_types($taxon_id, "Habitat", $habitat, "http://eol.org/schema/terms/Habitat");
                 // self::get_texts($desc, $taxon_id, '', $this->SPM . '#Habitat', '_habitat', array(), array()); --- conveted to structured data
             } 
             $desc = $rec["species.Type_locality"];
@@ -485,7 +485,7 @@ class AlgaebaseClassificationAPI
             $TMP = fopen($temp_file_path, "w");
             fwrite($TMP, $file_contents);
             fclose($TMP);
-            $output = shell_exec("tar -xzf $temp_file_path -C $this->TEMP_FILE_PATH");
+            $output = shell_exec("unzip $temp_file_path -d $this->TEMP_FILE_PATH");
             if(file_exists($this->TEMP_FILE_PATH . "/all_species.csv")) 
             {
                 $this->text_path["species"] = $this->TEMP_FILE_PATH . "/all_species.csv";

@@ -169,6 +169,9 @@ class SparqlClient
             print_r($options);
             print_r(serialize($options['data']));
             echo "===========================================\n\n";
+            write_to_resource_harvesting_log("ERROR: Inserting data in virtuoso");
+            write_to_resource_harvesting_log('Curl error: ' . curl_error($ch));
+            write_to_resource_harvesting_log($query);
             return false;
         }
     }

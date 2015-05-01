@@ -276,7 +276,7 @@ class IrmngAPI
         $rec["catnum"] = "cs"; //conservation status
         if($val = $conservation_status) self::add_string_types($rec, "Conservation status", $val, "http://eol.org/schema/terms/ExtinctionStatus");
         $rec["catnum"] = "h"; //habitat
-        if($val = $habitat)             self::add_string_types($rec, "Habitat", $val, "http://rs.tdwg.org/dwc/terms/habitat");
+        if($val = $habitat)             self::add_string_types($rec, "Habitat", $val, "http://eol.org/schema/terms/Habitat");
     }
 
     private function add_string_types($rec, $label, $value, $mtype)
@@ -323,7 +323,7 @@ class IrmngAPI
             $TMP = fopen($temp_file_path, "w");
             fwrite($TMP, $file_contents);
             fclose($TMP);
-            $output = shell_exec("tar -xzf $temp_file_path -C $this->TEMP_FILE_PATH");
+            $output = shell_exec("unzip $temp_file_path -d $this->TEMP_FILE_PATH");
             if(!file_exists($this->TEMP_FILE_PATH . "/IRMNG_DWC_20140131.csv")) 
             {
                 $this->TEMP_FILE_PATH = str_ireplace(".zip", "", $temp_file_path);
