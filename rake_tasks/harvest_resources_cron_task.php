@@ -26,10 +26,9 @@ foreach($resources as $resource)
 {
     // IMPORTANT!
     // We skip a few hard-coded resource IDs, here.
-    // 224 is 3I Interactive Keys and Taxonomic Databases' "Typhlocybinae" DB.
     // TODO - it would be preferable if this flag were in the DB. ...It looks like using a ResourceStatus could achieve the effect.
     // TODO - output a warning if a resource gets skipped.
-    if(in_array($resource->id, array(77, 224, 710, 752))) {
+    if(in_array($resource->id, array(77, 710, 752))) {
       error_log("** SKIPPING hard-coded exception resource " . $resource->id);
       error_log("   (" . $resource->title . ")");
       continue;
