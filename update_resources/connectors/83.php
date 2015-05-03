@@ -115,7 +115,11 @@ foreach($used_taxa as $taxon_parameters)
 }
 $new_resource_xml = \SchemaDocument::get_taxon_xml($schema_taxa);
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-$OUT = fopen($old_resource_path, "w+");
+if(!($OUT = fopen($old_resource_path, "w+")))
+{
+  debug("Couldn't open file: " .$old_resource_path);
+  return;
+}
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 // set MorphBank to force harvest

@@ -126,7 +126,11 @@ class PreferredEntriesCalculator
     private function insert_best_entries($best_entry_for_concept)
     {
         $tmp_file_path = DOC_ROOT . "temp/preferred_entries.tmp";
-        $TMP_FILE = fopen($tmp_file_path, "w+");
+        if(!($TMP_FILE = fopen($tmp_file_path, "w+")))
+        {
+          debug("Couldn't open file: " . $tmp_file_path);
+          return;
+        }
         foreach($best_entry_for_concept as $taxon_concept_id => $hierarchy_entry_id)
         {
             fwrite($TMP_FILE, "NULL\t$taxon_concept_id\t$hierarchy_entry_id\n");

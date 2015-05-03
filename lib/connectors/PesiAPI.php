@@ -54,7 +54,11 @@ class PesiAPI
     {
         if(!extension_loaded('soap')) dl("php_soap.dll");
         $i = 0;
-        $f = fopen($this->TEMP_FILE_PATH . "/processed.txt", "a");
+        if(!($f = fopen($this->TEMP_FILE_PATH . "/processed.txt", "a")))
+        {
+          debug("Couldn't open file: " . $this->TEMP_FILE_PATH . "/processed.txt");
+          return;
+        }
         foreach(new FileIterator($this->TEMP_FILE_PATH . "taxa.txt") as $line_number => $line)
         {
             $line = explode("\t", $line);
@@ -217,7 +221,11 @@ class PesiAPI
 
     private function save_to_taxa_text_file($contents)
     {
-        $f=fopen($this->TEMP_FILE_PATH . "/taxa.txt", "a");
+        if(!($f=fopen($this->TEMP_FILE_PATH . "/taxa.txt", "a")))
+        {
+          debug("Couldn't open file: " .$this->TEMP_FILE_PATH . "/taxa.txt");
+          return;
+        }
         fwrite($f, $contents);
         fclose($f);
     }
@@ -480,7 +488,11 @@ class PesiAPI
         echo " --- cache created";
         //create the cache
         $obj = self::soap_request($guid, $type);
-        $file = fopen($filename, "w");
+        if(!($file = fopen($filename, "w")))
+        {
+          debug("Couldn't open file: " . $filename);
+          return;
+        }
         fwrite($file, json_encode($obj));
         fclose($file);
         usleep(300000); // 3 tenths of a second = 3/10 of a second

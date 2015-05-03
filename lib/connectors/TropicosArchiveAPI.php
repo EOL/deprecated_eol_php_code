@@ -458,7 +458,11 @@ class TropicosArchiveAPI
 
     private function assemble_id_list()
     {
-        $OUT = fopen($this->tropicos_ids_list_file, "w");
+        if(!($OUT = fopen($this->tropicos_ids_list_file, "w")))
+        {
+          debug("Couldn't open file: " .$this->tropicos_ids_list_file);
+          return;
+        }
         $startid = 0; // debug orig value 0; 1600267 with mediaURL and <location>; 1201245 with thumbnail size images; 100391155 near the end
         $count = 0;
         while(true)

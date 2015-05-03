@@ -44,7 +44,11 @@ class ContentArchiveReader
         
         // copy contents to temp gzip file
         $temp_file_path = $this->archive_directory ."/dwca.tar.gz";
-        $TMP = fopen($temp_file_path, "w+");
+        if(!($TMP = fopen($temp_file_path, "w+")))
+        {
+          debug("Couldn't open file: " .$temp_file_path);
+          return;
+        }
         fwrite($TMP, $file_contents);
         fclose($TMP);
         

@@ -147,13 +147,23 @@ function save_to_txt($result,$filename,$field_separator,$file_extension)
     }
     
     $filename = "$filename" . "." . $file_extension;
-    if($fp = fopen($filename,"a+")){fwrite($fp,$str);fclose($fp);}            
+    if($fp = fopen($filename,"a+"))
+    {
+      fwrite($fp,$str);fclose($fp);
+    }else
+    {
+      debug("Couldn't open file: " . $filename);
+    }
 }
 
 function getDays($filename)
 {    
     $filename = $filename . ".csv";
-    if(!($handle = fopen($filename, "a+")))return;    
+    if(!($handle = fopen($filename, "a+")))
+    {
+      debug("Couldn't open file: " . $filename);
+      return;
+    }
     
     $comma_separated='';
     while (($data = fgetcsv($handle)) !== FALSE) 

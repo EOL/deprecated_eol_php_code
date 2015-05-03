@@ -23,7 +23,11 @@ if(!$contents = Functions::get_remote_file($file, array('timeout' => 172800)))
     $contents = str_ireplace("<![CDATA[", "", $contents);
     $contents = str_ireplace("]]>", "", $contents);
     $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-    $OUT = fopen($resource_path, "w");
+    if(!($OUT = fopen($resource_path, "w")))
+    {
+      debug("Couldn't open file: " .$resource_path);
+      return;
+    }
     fwrite($OUT, $contents);
     fclose($OUT);
 
@@ -61,7 +65,11 @@ function remove_erroneous_common_names($resource_id)
         }
     }
     $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-    $OUT = fopen($resource_path, "w");
+    if(!($OUT = fopen($resource_path, "w")))
+    {
+      debug("Couldn't open file: " .$resource_path);
+      return;
+    }
     fwrite($OUT, $xml->asXML());
     fclose($OUT);
     return $xml->asXML();

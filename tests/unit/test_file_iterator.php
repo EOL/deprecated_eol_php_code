@@ -17,7 +17,11 @@ class test_file_iterator extends SimpletestUnitBase
         $file_lines[] = "   ";
         $file_lines[] = "";
         
-        $FILE = fopen($temp_filepath, "w+");
+        if(!($FILE = fopen($temp_filepath, "w+")))
+        {
+          debug("Couldn't open file: " . $temp_filepath);
+          return;
+        }
         fwrite($FILE, implode("\n", $file_lines));
         fclose($FILE);
         
@@ -38,7 +42,11 @@ class test_file_iterator extends SimpletestUnitBase
         $file_lines[] = "third line";
         
         $temp_filepath = temp_filepath();
-        $FILE = fopen($temp_filepath, "w+");
+        if(!($FILE = fopen($temp_filepath, "w+")))
+        {
+          debug("Couldn't open file: " . $temp_filepath);
+          return;
+        }
         fwrite($FILE, implode("\n", $file_lines));
         fclose($FILE);
         

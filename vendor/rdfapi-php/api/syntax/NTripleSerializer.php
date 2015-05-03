@@ -108,6 +108,7 @@ class NTripleSerializer extends Object {
       fclose($file_handle);
       return TRUE;
    }else{
+      debug("Couldn't open file: " .$file_handle);
       return FALSE;
    };
  }

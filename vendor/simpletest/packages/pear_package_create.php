@@ -59,8 +59,18 @@ $PPFM = new PEAR_PackageFileManager;
 
 if (version_compare(phpversion(), '4.3.0', '<') ||
     php_sapi_name() == 'cgi') {
-    define('STDOUT', fopen('php://stdout', 'w'));
-    define('STDERR', fopen('php://stderr', 'w'));
+    if(!($stdout = fopen('php://stdout', 'w')))
+    {
+      debug("Couldn't open file: " . 'php://stdout');
+      return;
+    }
+    define('STDOUT',  $stdout);
+    if(!($sterr = fopen('php://stderr', 'w')))
+    {
+      debug("Couldn't open file: " . 'php://stderr');
+      return;
+    }
+    define('STDERR',$stderr);
     register_shutdown_function(
         create_function('', 'fclose(STDOUT); fclose(STDERR); return true;'));
 }

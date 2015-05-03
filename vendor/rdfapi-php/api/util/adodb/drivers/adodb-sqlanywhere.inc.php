@@ -78,7 +78,11 @@ if (!defined('ADODB_SYBASE_SQLANYWHERE')){
   function load_blobvar_from_file($blobVarName, $filename) {
    $chunk_size = 1000;
 
-   $fd = fopen ($filename, "rb");
+   if(!($fd = fopen ($filename, "rb")))
+   {
+    debug("Couldn't open file: " .$filename);
+    return;
+  }
 
    $integer_chunks = (integer)filesize($filename) / $chunk_size;
    $modulus = filesize($filename) % $chunk_size;

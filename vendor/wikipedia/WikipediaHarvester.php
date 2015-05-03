@@ -36,7 +36,11 @@ class WikipediaHarvester
         $this->load_update_information();
         
         // create new _temp file
-        $this->resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_temp.xml", "w+");
+        if(!($this->resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_temp.xml", "w+")))
+        {
+          debug("Couldn't open file: " .CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_temp.xml");
+          return;
+        }
         
         // start the resource file with the XML header
         fwrite($this->resource_file, \SchemaDocument::xml_header());
@@ -92,7 +96,11 @@ class WikipediaHarvester
         $ids = @file(DOC_ROOT . 'temp/wikipedia_deleted.txt');
         if($ids)
         {
-            $delete_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_delete.xml", "w+");
+            if(!($delete_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_delete.xml", "w+")))
+            {
+              debug("Couldn't open file: " .CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_delete.xml");
+              return;
+            }
             $result = $this->mysqli->query("SELECT identifier FROM data_objects WHERE id IN (". implode(",", $ids).")");
             while($result && $row=$result->fetch_assoc())
             {
@@ -176,7 +184,11 @@ class WikipediaHarvester
     {
         echo("Processing file $part_suffix with callback $callback\n");
         flush();
-        $FILE = fopen($this->base_directory_path ."wikipedia/part_".$part_suffix, "r");
+        if(!($FILE = fopen($this->base_directory_path ."wikipedia/part_".$part_suffix, "r")))
+        {
+          debug("Couldn't open file: " .$this->base_directory_path ."wikipedia/part_".$part_suffix);
+          return;
+        }
         
         $current_page = $left_overs;
         static $page_number = 0;

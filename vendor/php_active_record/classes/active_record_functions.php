@@ -82,11 +82,14 @@ function write_to_resource_harvesting_log($str)
     if (array_key_exists('currently_harvesting_resource_id', $GLOBALS)) {
         $resource_id = $GLOBALS['currently_harvesting_resource_id'];
         $file_handler = fopen(DOC_ROOT . 'log/' . $resource_id .  ".log", "a");
-        if($file_handler)
+        if(!$file_handler)
         {
+          debug("Couldn't open file: " .DOC_ROOT . 'log/' . $resource_id .  ".log");
+          return;
+        }else {
             fwrite($file_handler, date('m/d H:i:s') .":: $str\n");
+            fclose($file_handler); // TODO: Is this necessary? When do we clean up FHs?
         }
-        fclose($file_handler); // TODO: Is this necessary? When do we clean up FHs?
     } else {
         write_to_log($str);
     }
@@ -412,7 +415,11 @@ function file_randomize($path)
 {
     // loop through the file finding the offset of all newlines
     $newline_positions = array(0);
-    $FILE = fopen($path, "r");
+    if(!($FILE = fopen($path, "r")))
+    {
+      debug("Couldn't open file: " .$path);
+      return;
+    }
     while(!feof($FILE))
     {
         if(fgets($FILE, 4096))
@@ -424,7 +431,11 @@ function file_randomize($path)
     // randomize the offsets and seek around the file getting the random lines
     shuffle($newline_positions);
     $new_file_path = temp_filepath();
-    $NEW_FILE = fopen($new_file_path, "w+");
+    if(!($NEW_FILE = fopen($new_file_path, "w+")))
+    {
+      debug("Couldn't open file: " .$new_file_path);
+      return;
+    }
     foreach($newline_positions as $position)
     {
         fseek($FILE, $position);

@@ -49,7 +49,11 @@ function get_videos_from_vimeo()
     $taxa = VimeoAPI::get_all_taxa(array("user1632860")); // Peter Kuttner's id
     $xml = \SchemaDocument::get_taxon_xml($taxa);
     $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-    $OUT = fopen($resource_path, "w");
+    if(!($OUT = fopen($resource_path, "w")))
+    {
+      debug("Couldn't open file: " .$resource_path);
+      return;
+    }
     fwrite($OUT, $xml);
     fclose($OUT);
     echo " -- end.\n";

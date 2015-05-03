@@ -55,7 +55,11 @@ if($what == 'transform')
     $path = $write_path_prefix . $filename . ".xml";
     $path = str_ireplace("\\", "/", $path);
     $path = str_ireplace("//", "/", $path);
-    $fn = fopen($path, 'w');
+    if (!($fn = fopen($path, 'w')))
+    {
+      debug("Couldn't open file: " . $path);
+      return;
+    }
     fputs($fn, $temp);
     fclose($fn);
     $source_path = str_ireplace(DOC_ROOT, LOCAL_WEB_ROOT, CONTENT_GNI_RESOURCE_PATH);

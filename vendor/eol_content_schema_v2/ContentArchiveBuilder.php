@@ -67,7 +67,11 @@ class ContentArchiveBuilder
         }
         
         $meta_xml_contents .= "</archive>\n";
-        $META_FILE = fopen($this->directory . "meta.xml", 'w+');
+        if(!($META_FILE = fopen($this->directory . "meta.xml", 'w+')))
+        {
+          debug("Couldn't open file: " .$this->directory . "meta.xml");
+          return;
+        }
         fwrite($META_FILE, $meta_xml_contents);
         fclose($META_FILE);
         
@@ -95,7 +99,11 @@ class ContentArchiveBuilder
         }
         fwrite($FILE, implode("\t", $column_headers) . "\n");
         
-        $WORKING_FILE = fopen($this->directory . $file_name, "r");
+        if(!($WORKING_FILE = fopen($this->directory . $file_name, "r")))
+        {
+          debug("Couldn't open file: " .this->directory . $file_name);
+          return;
+        }
         while(!feof($WORKING_FILE))
         {
             if($line = fgets($WORKING_FILE, 409600))
@@ -155,11 +163,19 @@ class ContentArchiveBuilder
         
         if($final_version)
         {
-            $FILE = fopen($this->directory . $file_name, 'w+');
+            if(!($FILE = fopen($this->directory . $file_name, 'w+')))
+            {
+              debug("Couldn't open file: " .$this->directory . $file_name);
+              return;
+            }
         }else
         {
             if(isset($this->file_handles[$file_name])) return $this->file_handles[$file_name];
-            $FILE = fopen($this->directory . $file_name, 'w+');
+            if(!($FILE = fopen($this->directory . $file_name, 'w+')))
+            {
+              debug("Couldn't open file: " .$this->directory . $file_name);
+              return;
+            }
             $this->file_handles[$file_name] = $FILE;
             $this->file_classes[$file_name] = $object_class;
             $this->file_columns[$object_class] = array();

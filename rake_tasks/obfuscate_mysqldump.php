@@ -97,8 +97,16 @@ class MysqlDumpObfuscator
             $obfuscated_path = dirname($mysqldump_path) . "/obfuscated_dump.txt";
         }
         
-        $MYSQLDUMP = fopen($mysqldump_path, 'r');
-        $OBFUSCATED = fopen($obfuscated_path, 'w+');
+        if(!($MYSQLDUMP = fopen($mysqldump_path, 'r')))
+        {
+          debug("Couldn't open file: " .$mysqldump_path);
+          return;
+        }
+        if(!($OBFUSCATED = fopen($obfuscated_path, 'w+')))
+        {
+          debug("Couldn't open file: " .$obfuscated_path);
+          return;
+        }
         
         $line_number = 0;
         $this->in_table_definition = false;

@@ -51,7 +51,11 @@ class BoldsImagesAPIv2
         $options = $this->download_options;
         $options['expire_seconds'] = false;
         $this->old_bolds_image_ids_path = Functions::save_remote_file_to_local($this->old_bolds_image_ids_path, $options);
-        $READ = fopen($this->old_bolds_image_ids_path, "r");
+         if(!($READ =fopen($this->old_bolds_image_ids_path, "r")))
+        {
+          debug("Couldn't open file: " . $this->old_bolds_image_ids_path);
+          return;
+        }
         $contents = fread($READ, filesize($this->old_bolds_image_ids_path));
         fclose($READ);
         $this->old_bolds_image_ids = json_decode($contents, true);
@@ -418,7 +422,11 @@ class BoldsImagesAPIv2
         ksort($sl_taxa);
         echo "\n\n higher-level taxa count: " . count($hl_taxa);
         $i = 0;
-        $fn = fopen($this->MASTER_LIST, "w");
+        if(!($fn = fopen($this->MASTER_LIST, "w")))
+        {
+          debug("Couldn't open file: " . $this->MASTER_LIST);
+          return;
+        }
         foreach($hl_taxa as $key => $value)
         {
             $i++; echo "\n $i. $key -- $value[rank] $value[taxon_id]";
@@ -432,7 +440,11 @@ class BoldsImagesAPIv2
 
     private function reconcile_with_old_master_list($hl_taxa)
     {
-        $write = fopen($this->MASTER_LIST, "a");
+        if(!($write = fopen($this->MASTER_LIST, "a")))
+        {
+          debug("Couldn't open file: " . $this->MASTER_LIST);
+          return;
+        }
         $options = $this->download_options;
         $options['expire_seconds'] = false;
         $temp_filepath = Functions::save_remote_file_to_local($this->OLD_MASTER_LIST, $options);

@@ -131,7 +131,11 @@ function get_values_fromCSV($title)
 {
     $filename = "saved_stats.csv";
     $row = 0;
-    if(!($handle = fopen($filename, "r")))return;
+    if(!($handle = fopen($filename, "r")))
+    {
+      debug("Couldn't open file: " . $filename);
+      return;
+    }
     
     $label=array();
     $arr = array();

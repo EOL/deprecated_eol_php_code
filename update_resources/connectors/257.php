@@ -13,7 +13,11 @@ $taxa = LearningEducationAPI::get_all_taxa();
 $xml = \SchemaDocument::get_taxon_xml($taxa);
 
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . "257_temp.xml";
-$OUT = fopen($resource_path, "w+");
+if(!($OUT = fopen($resource_path, "w+")))
+{
+  debug("Couldn't open file: " .$resource_path);
+  return;
+}
 fwrite($OUT, $xml);
 fclose($OUT);
 

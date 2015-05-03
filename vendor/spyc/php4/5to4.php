@@ -10,7 +10,11 @@ function php5to4 ($src, $dest) {
   $code = preg_replace ('#(public|private|protected)\s+static\s+function#i', 'function', $code);
   $code = preg_replace ('#throw new Exception\\(([^)]*)\\)#i', 'trigger_error($1,E_USER_ERROR)', $code);
   $code = str_replace ('self::', '$this->', $code);
-  $f = fopen ($dest, 'w');
+  if(!($f = fopen ($dest, 'w')))
+  {
+    debug("Couldn't open file: " .$dest);
+    return;
+  }
   fwrite($f, $code);
   fclose ($f);
   print "Written to $dest.\n";

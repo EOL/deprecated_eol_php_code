@@ -172,7 +172,11 @@ class SolrAPI
     {
         if(!$ids) return;
         @unlink(DOC_ROOT . $this->csv_path);
-        $OUT = fopen(DOC_ROOT . $this->csv_path, "w+");
+        if(!($OUT = fopen(DOC_ROOT . $this->csv_path, "w+")))
+        {
+          debug("Couldn't open file: " .$this->csv_path);
+          return;
+        }
         fwrite($OUT, "<delete>");
         foreach($ids as $id)
         {
@@ -197,7 +201,11 @@ class SolrAPI
     {
         if(!$queries) return;
         @unlink(DOC_ROOT . $this->csv_path);
-        $OUT = fopen(DOC_ROOT . $this->csv_path, "w+");
+        if(!($OUT = fopen(DOC_ROOT . $this->csv_path, "w+")))
+        {
+          debug("Couldn't open file: " .$this->csv_path);
+          return;
+        }
         fwrite($OUT, "<delete>");
         foreach($queries as $query)
         {
@@ -216,8 +224,11 @@ class SolrAPI
     public function write_objects_to_file($objects)
     {
         clearstatcache();
-        $OUT = fopen(DOC_ROOT . $this->csv_bulk_path, "a+");
-
+        if(!($OUT = fopen(DOC_ROOT . $this->csv_bulk_path, "a+")))
+        {
+          debug("Couldn't open file: " .$this->csv_bulk_path);
+          return;
+        }
         $fields = array_keys(get_object_vars($this->schema_object));
         if(!filesize(DOC_ROOT . $this->csv_bulk_path))
         {

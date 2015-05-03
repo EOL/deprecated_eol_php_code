@@ -50,9 +50,18 @@ class TropicosAPI
 
     function initialize_text_files()
     {
-        $f = fopen($this->WORK_LIST, "w"); fclose($f);
-        $f = fopen($this->WORK_IN_PROGRESS_LIST, "w"); fclose($f);
-        $f = fopen($this->INITIAL_PROCESS_STATUS, "w"); fclose($f);
+        if(!($f = fopen($this->WORK_LIST, "w")))
+        {
+          debug("Couldn't open file: " . $this->WORK_LIST);
+        }else  fclose($f);
+        if(!($f = fopen($this->WORK_IN_PROGRESS_LIST, "w")))
+        {
+          debug("Couldn't open file: " . $this->WORK_IN_PROGRESS_LIST);
+        } else fclose($f);
+        if(!($f = fopen($this->INITIAL_PROCESS_STATUS, "w")))
+        {
+          debug("Couldn't open file: " . $this->INITIAL_PROCESS_STATUS);
+        }else  fclose($f);
         //this is not needed but just to have a clean directory
         Functions::delete_temp_files($this->TEMP_FILE_PATH . "temp_tropicos_batch_", "xml");
         Functions::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
@@ -114,7 +123,11 @@ class TropicosAPI
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         // $xml = self::add_rating_to_image_object($xml, '1.0');
         $resource_path = $temp_file_path . "temp_tropicos_" . $task . ".xml";
-        $OUT = fopen($resource_path, "w");
+        if(!($OUT = fopen($resource_path, "w")))
+        {
+          debug("Couldn't open file: " . $resource_path);
+          return;
+        }
         fwrite($OUT, $xml);
         fclose($OUT);
     }
@@ -136,7 +149,11 @@ class TropicosAPI
                 {
                     $file_ctr++;
                     $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 2);
-                    $OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
+                    if(!($OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w")))
+                    {
+                      debug("Couldn't open file: " . $this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
+                      return;
+                    }
                     fwrite($OUT, $str);
                     fclose($OUT);
                     $str = ""; 
@@ -150,7 +167,11 @@ class TropicosAPI
         {
             $file_ctr++;
             $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 2);
-            $OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
+            if(!($OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w")))
+            {
+              debug("Couldn't open file: " . $this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
+              return;
+            }
             fwrite($OUT, $str);
             fclose($OUT);
         }
@@ -462,7 +483,11 @@ class TropicosAPI
 
     function build_id_list() // 13 mins execution time
     {
-        $OUT = fopen($this->TEMP_FILE_PATH . "tropicos_ids.txt", "w");
+        if(!($OUT = fopen($this->TEMP_FILE_PATH . "tropicos_ids.txt", "w")))
+        {
+          debug("Couldn't open file: ". $this->TEMP_FILE_PATH . "tropicos_ids.txt");
+          return;
+        }
         $startid = 0; // debug orig value 0; 1600267 with mediaURL and <location>; 1201245 with thumbnail size images
         //pagesize is the no. of records returned from Tropicos master list service
         $pagesize = 1000; // debug orig value 1000
@@ -501,7 +526,11 @@ class TropicosAPI
     
     private function truncate_text_file($filename)
     {
-        $OUT = fopen($filename, 'w');
+        if(!($OUT = fopen($filename, 'w')))
+        {
+          debug("Couldn't open file: ". $filename);
+          return;
+        }
         fwrite($OUT, "");
         fclose($OUT);
     }

@@ -44,7 +44,11 @@ fclose($OUT);
 
 //start compiling all britain_ireland_?.xml 
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
-$OUT = fopen($old_resource_path, "w+");
+if(!($OUT = fopen($old_resource_path, "w+")))
+{
+  debug("Couldn't open file: " .$old_resource_path);
+  return;
+}
 $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
 $str .= "<response\n";
 $str .= "  xmlns='http://www.eol.org/transfer/content/0.3'\n";

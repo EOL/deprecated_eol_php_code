@@ -39,7 +39,11 @@ class AvibaseAPI
     
     function prepare_resource()
     {
-        $resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id ."_temp.xml", "w+");
+        if(!($resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id ."_temp.xml", "w+")
+        {
+          debug("Couldn't open file: " . CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id ."_temp.xml");
+          return;
+        }
         fwrite($resource_file, \SchemaDocument::xml_header());
         
         $language_iso_codes = self::language_iso_codes();

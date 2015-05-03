@@ -110,7 +110,11 @@ class USFishWildlifeAPI
         }
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-        $OUT = fopen($resource_path, "w");
+        if(!($OUT = fopen($resource_path, "w")))
+        {
+          debug("Couldn't open file: " .$resource_path);
+          return;
+        }
         fwrite($OUT, $xml);
         fclose($OUT);
         $with_eol_page = $i - $no_eol_page;
@@ -387,7 +391,11 @@ class USFishWildlifeAPI
 
     function initialize_text_file($filename)
     {
-        $OUT = fopen($filename, "a");
+        if(!($OUT = fopen($filename, "a")))
+        {
+          debug("Couldn't open file: " .$filename);
+          return;
+        }
         fwrite($OUT, "===================" . "\n");
         fwrite($OUT, date("F j, Y, g:i:s a") . "\n");
         fclose($OUT);

@@ -66,7 +66,11 @@ $rs = $conn->Execute('select b1 from blobtest where id=1');
 
 $output = "c:\\temp\\test_out-".date('H-i-s').".gif"; 
 print "Saving file <b>$output</b>, size=".strlen($rs->fields[0])."<p>";
-$fd = fopen($output, "wb"); 
+if(!($fd = fopen($output, "wb")))
+{
+  debug("Couldn't open file: " .$output);
+  return;
+} 
 fwrite($fd, $rs->fields[0]); 
 fclose($fd); 
 

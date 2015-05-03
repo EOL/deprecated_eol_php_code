@@ -175,7 +175,11 @@ class ExcelToText
             $highest_column_index = \PHPExcel_Cell::columnIndexFromString($highest_column);
             $number_of_columns = ord($highest_column) - 64;
             
-            $OUTFILE = fopen($archive_temp_directory_path ."/$sheet_name.txt", "w+");
+            if(!($OUTFILE = fopen($archive_temp_directory_path ."/$sheet_name.txt", "w+")))
+            {
+              debug("Couldn't open file: " .$archive_temp_directory_path ."/$sheet_name.txt");
+              return;
+            }
             $worksheet_fields[$sheet_name] = array();
             for($row_index = 1; $row_index <= $highest_row; $row_index++)
             {
@@ -241,7 +245,11 @@ class ExcelToText
             fclose($OUTFILE);
         }
         
-        $META = fopen($archive_temp_directory_path ."/meta.xml", "w+");
+        if(!($META = fopen($archive_temp_directory_path ."/meta.xml", "w+")))
+        {
+          debug("Couldn't open file: ".$archive_temp_directory_path ."/meta.xml");
+          return;
+        }
         fwrite($META, self::meta_xml_from_worksheets($worksheet_fields));
         fclose($META);
         
@@ -265,7 +273,11 @@ class ExcelToText
         $xml = $parser->create_eol_xml($this->path_to_spreadsheet);
         
         $output_file = $this->output_file();
-        $OUT = fopen($output_file, "w+");
+        if(!($OUT = fopen($output_file, "w+")))
+        {
+          debug("Couldn't open file: ". $output_file);
+          return;
+        }
         fwrite($OUT, $xml);
         fclose($OUT);
         return $output_file;

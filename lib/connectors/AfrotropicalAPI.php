@@ -94,7 +94,11 @@ class AfrotropicalAPI
                     $pdf = Functions::get_remote_file($mediaURL);
                     $file = DOC_ROOT . "update_resources/connectors/files/temp.pdf";
                     $target = DOC_ROOT . "update_resources/connectors/files/temp.xml";
-                    $OUT = fopen($file, "w");
+                    if(!($OUT = fopen($file, "w")))
+                    {
+                      debug("Couldn't open file: " . $file);
+                      return;
+                    }
                     fwrite($OUT, $pdf);
                     fclose($OUT);
                     $description = shell_exec(PDF2TEXT_PROGRAM . " -layout -nopgbrk -raw -enc UTF-8 " . $file . " -");
@@ -103,7 +107,11 @@ class AfrotropicalAPI
                     $temp = str_ireplace("&nbsp;", " ", $temp);
                     $temp = str_ireplace("&", "&amp;", $temp);
                     $xml_temp = "<?xml version='1.0' encoding='utf-8' ?><text>" . $temp . "</text>";
-                    $OUT = fopen($target, "w");
+                    if(!($OUT = fopen($target, "w")))
+                    {
+                      debug("Couldn't open file: " . $filename);
+                      return;
+                    }
                     fwrite($OUT, $xml_temp);
                     fclose($OUT);
                     

@@ -1117,7 +1117,7 @@
         
         // ----- Error log
         PclZip::privErrorLog(PCLZIP_ERR_READ_OPEN_FAIL, 'Unable to open archive \''.$this->zipname.'\' in binary read mode');
-
+        debug("Couldn't open file: " .$this->zipname);
         // ----- Return
         return 0;
       }
@@ -2206,7 +2206,7 @@
       $this->privSwapBackMagicQuotes();
 
       PclZip::privErrorLog(PCLZIP_ERR_READ_OPEN_FAIL, 'Unable to open temporary file \''.$v_zip_temp_name.'\' in binary write mode');
-
+      debug("Couldn't open file: " .$v_zip_temp_name);
       // ----- Return
       return PclZip::errorCode();
     }
@@ -2354,7 +2354,7 @@
     {
       // ----- Error log
       PclZip::privErrorLog(PCLZIP_ERR_READ_OPEN_FAIL, 'Unable to open archive \''.$this->zipname.'\' in '.$p_mode.' mode');
-
+      debug("Couldn't open file: " .$this->zipname);
       // ----- Return
       return PclZip::errorCode();
     }
@@ -2666,6 +2666,7 @@
         // ----- Open the source file
         if (($v_file = @fopen($p_filename, "rb")) == 0) {
           PclZip::privErrorLog(PCLZIP_ERR_READ_OPEN_FAIL, "Unable to open file '$p_filename' in binary read mode");
+          debug("Couldn't open file: " .$p_filename);
           return PclZip::errorCode();
         }
 
@@ -2806,6 +2807,7 @@
     // ----- Open the source file
     if (($v_file = @fopen($p_filename, "rb")) == 0) {
       PclZip::privErrorLog(PCLZIP_ERR_READ_OPEN_FAIL, "Unable to open file '$p_filename' in binary read mode");
+      debug("Couldn't open file: " .$p_filename);
       return PclZip::errorCode();
     }
 
@@ -2840,6 +2842,7 @@
     // ----- Extract the compressed attributes
     if (($v_file_compressed = @fopen($v_gzip_temp_name, "rb")) == 0) {
       PclZip::privErrorLog(PCLZIP_ERR_READ_OPEN_FAIL, 'Unable to open temporary file \''.$v_gzip_temp_name.'\' in binary read mode');
+      debug("Couldn't open file: " .$v_gzip_temp_name);
       return PclZip::errorCode();
     }
 
@@ -2873,6 +2876,7 @@
     if (($v_file_compressed = @fopen($v_gzip_temp_name, "rb")) == 0)
     {
       PclZip::privErrorLog(PCLZIP_ERR_READ_OPEN_FAIL, 'Unable to open temporary file \''.$v_gzip_temp_name.'\' in binary read mode');
+      debug("Couldn't open file: " .$v_gzip_temp_name);
       return PclZip::errorCode();
     }
 
@@ -3161,7 +3165,7 @@
       
       // ----- Error log
       PclZip::privErrorLog(PCLZIP_ERR_READ_OPEN_FAIL, 'Unable to open archive \''.$this->zipname.'\' in binary read mode');
-
+      debug("Couldn't open file: " .$this->zipname);
       // ----- Return
       return PclZip::errorCode();
     }
@@ -3829,6 +3833,7 @@
 
             // ----- Change the file status
             $p_entry['status'] = "write_error";
+            debug("Couldn't open file: " .$p_entry['filename']);
 
             // ----- Return
             return $v_result;
@@ -3901,6 +3906,7 @@
   
               // ----- Change the file status
               $p_entry['status'] = "write_error";
+              debug("Couldn't open file: " .$p_entry['filename']);
   
               return $v_result;
             }
@@ -3972,6 +3978,7 @@
     if (($v_dest_file = @fopen($v_gzip_temp_name, "wb")) == 0) {
       fclose($v_file);
       PclZip::privErrorLog(PCLZIP_ERR_WRITE_OPEN_FAIL, 'Unable to open temporary file \''.$v_gzip_temp_name.'\' in binary write mode');
+      debug("Couldn't open file: " .$v_gzip_temp_name);
       return PclZip::errorCode();
     }
 
@@ -4001,6 +4008,7 @@
     // ----- Opening destination file
     if (($v_dest_file = @fopen($p_entry['filename'], 'wb')) == 0) {
       $p_entry['status'] = "write_error";
+      debug("Couldn't open file: " .$p_entry['filename']);
       return $v_result;
     }
 
@@ -5120,7 +5128,7 @@
       $p_archive_to_add->privCloseFd();
 
       PclZip::privErrorLog(PCLZIP_ERR_READ_OPEN_FAIL, 'Unable to open temporary file \''.$v_zip_temp_name.'\' in binary write mode');
-
+      debug("Couldn't open file: " .$v_zip_temp_name);
       // ----- Return
       return PclZip::errorCode();
     }
@@ -5255,7 +5263,7 @@
     if (($v_zip_temp_fd = @fopen($p_archive_filename, 'rb')) == 0)
     {
       $this->privCloseFd();
-
+      debug("Couldn't open file: " .$p_archive_filename);
       PclZip::privErrorLog(PCLZIP_ERR_READ_OPEN_FAIL, 'Unable to open archive file \''.$p_archive_filename.'\' in binary write mode');
 
       // ----- Return

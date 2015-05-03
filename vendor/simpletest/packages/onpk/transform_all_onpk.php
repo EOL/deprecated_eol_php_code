@@ -18,10 +18,14 @@ while (($file = readdir($dir)) !== false) {
 	$result = xslt_process ($xsltProcessor, $source, $transform);
 
 	if ( $result ) {
-		$handle = fopen($destination, "w+");
+		if(!($handle = fopen($destination, "w+")))
+    {
+      debug("Couldn't open file: " .$destination);
+      return;
+    }
 		fwrite($handle, $result);
 		fclose($handle);
-		echo "succès pour ".$destination."<br />";
+		echo "succï¿½s pour ".$destination."<br />";
 	} else {
 	   echo "erreur pour ".$destination." : ".xslt_error($xh)."<br />";
 	}

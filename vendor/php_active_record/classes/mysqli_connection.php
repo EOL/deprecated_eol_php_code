@@ -189,12 +189,20 @@ class MysqliConnection
 
         $this->begin_transaction();
         //$this->insert("SET FOREIGN_KEY_CHECKS = 0");
-        $LOAD_DATA_TEMP = fopen($tmp_file_path, "w+");
+        if(!($LOAD_DATA_TEMP = fopen($tmp_file_path, "w+")))
+        {
+          debug("Couldn't open file: " .$tmp_file_path);
+          return;
+        }
         //flock($LOAD_DATA_TEMP, LOCK_EX);
 
         $line_counter = 0;
         $batch = 0;
-        $FILE = fopen($path, "r");
+        if(!($FILE = fopen($path, "r")))
+        {
+          debug("Couldn't open file: " .$path);
+          return;
+        }
         while(!feof($FILE))
         {
             if($line = fgets($FILE, 4096))
@@ -258,7 +266,11 @@ class MysqliConnection
 
         $ids = array();
         $this->begin_transaction();
-        $FILE = fopen($outfile, "r");
+        if(!($FILE = fopen($outfile, "r")))
+        {
+          debug("Couldn't open file: " .$outfile);
+          return;
+        }
         while(!feof($FILE))
         {
             if($line = fgets($FILE, 4096))
@@ -289,7 +301,11 @@ class MysqliConnection
         $outfile = $this->select_into_outfile($select);
         $ids = array();
         $this->begin_transaction();
-        $FILE = fopen($outfile, "r");
+        if(!($FILE = fopen($outfile, "r")))
+        {
+          debug("Couldn't open file: " .$outfile);
+          return;
+        }
         while(!feof($FILE))
         {
             if($line = fgets($FILE, 4096))

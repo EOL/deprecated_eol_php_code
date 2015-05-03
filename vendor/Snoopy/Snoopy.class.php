@@ -713,13 +713,13 @@ class Snoopy
 							chr(176),
 							chr(39),
 							chr(128),
-							"ä",
-							"ö",
-							"ü",
-							"Ä",
-							"Ö",
-							"Ü",
-							"ß",
+							"ï¿½",
+							"ï¿½",
+							"ï¿½",
+							"ï¿½",
+							"ï¿½",
+							"ï¿½",
+							"ï¿½",
 						);
 					
 		$text = preg_replace($search,$replace,$document);
@@ -1229,7 +1229,11 @@ class Snoopy
 					while (list(, $file_name) = each($file_names)) {
 						if (!is_readable($file_name)) continue;
 
-						$fp = fopen($file_name, "r");
+						if(!($fp = fopen($file_name, "r")))
+            {
+              debug("Couldn't open file: " .$file_name);
+              return;
+            }
 						$file_content = fread($fp, filesize($file_name));
 						fclose($fp);
 						$base_name = basename($file_name);

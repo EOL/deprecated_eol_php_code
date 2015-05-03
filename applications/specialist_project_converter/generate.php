@@ -11,7 +11,11 @@ $arr = $parser->convert_sheet_to_array($file);
 $xml = $parser->create_specialist_project_xml($arr);
 
 $filename = "xml/" . time() . ".xml";
-$OUT = fopen($filename, "w+");            
+if(!($OUT = fopen($filename, "w+")))
+{
+  debug("Couldn't open file: " . $filename);
+  return;
+}
 fwrite($OUT, $xml); fclose($OUT);
 
 $domain = $_SERVER['HTTP_HOST'];

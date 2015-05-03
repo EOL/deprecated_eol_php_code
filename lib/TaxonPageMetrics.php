@@ -152,6 +152,7 @@ class TaxonPageMetrics
             $FILE = fopen($outfile, "r");
             if (!$FILE) {
                 print "!! ERROR: Could not read $outfile";
+                debug("!! ERROR: Could not read $outfile" );
                 return;
             }
             $num_rows = 0;
@@ -191,6 +192,7 @@ class TaxonPageMetrics
         $FILE = fopen($filename, "r");
         if (!$FILE) {
             print "!! ERROR: Could not read $filename";
+            debug("!! ERROR: Could not read $filename" );
             return;
         }
         $num_rows=0;
@@ -228,6 +230,7 @@ class TaxonPageMetrics
         $FILE = fopen($outfile, "r");
         if (!$FILE) {
             print "!! ERROR: Could not read $outfile";
+            debug("!! ERROR: Could not read $outfile" );
             return;
         }
         $num_rows=0;
@@ -294,6 +297,7 @@ class TaxonPageMetrics
         $FILE = fopen($outfile, "r");
         if (!$FILE) {
             print "!! ERROR: Could not read $outfile";
+            debug("!! ERROR: Could not read $outfile" );
             return;
         }
         $num_rows = 0; 
@@ -345,6 +349,7 @@ class TaxonPageMetrics
             $FILE = fopen($outfile, "r");
             if (!$FILE) {
                 print "!! ERROR: Could not read $outfile";
+                debug("!! ERROR: Could not read $outfile" );
                 return;
             }
             $num_rows = 0;
@@ -383,6 +388,7 @@ class TaxonPageMetrics
             $FILE = fopen($outfile, "r");
             if (!$FILE) {
                 print "!! ERROR: Could not read $outfile";
+                debug("!! ERROR: Could not read $outfile" );
                 return;
             }
             $num_rows = 0;
@@ -433,6 +439,7 @@ class TaxonPageMetrics
             $FILE = fopen($outfile, "r");
             if (!$FILE) {
                 print "!! ERROR: Could not read $outfile";
+                debug("!! ERROR: Could not read $outfile" );
                 return;
             }
             $num_rows=0;
@@ -489,6 +496,7 @@ class TaxonPageMetrics
             $FILE = fopen($outfile, "r");
             if (!$FILE) {
                 print "!! ERROR: Could not read $outfile";
+                debug("!! ERROR: Could not read $outfile" );
                 return;
             }
             $num_rows = 0;
@@ -544,6 +552,7 @@ class TaxonPageMetrics
             $FILE = fopen($outfile, "r");
             if (!$FILE) {
                 print "!! ERROR: Could not read $outfile";
+                debug("!! ERROR: Could not read $outfile" );
                 return;
             }
             $num_rows=0;
@@ -617,6 +626,7 @@ class TaxonPageMetrics
             $FILE = fopen($outfile, "r");
             if (!$FILE) {
                 print "!! ERROR: Could not read $outfile";
+                debug("!! ERROR: Could not read $outfile" );
                 return;
             }
             $num_rows=0;
@@ -708,6 +718,7 @@ class TaxonPageMetrics
             $FILE = fopen($outfile, "r");
             if (!$FILE) {
                 print "!! ERROR: Could not read $outfile";
+                debug("!! ERROR: Could not read $outfile" );
                 return;
             }
             $num_rows = 0;
@@ -801,6 +812,7 @@ class TaxonPageMetrics
         $WRITE = fopen(PAGE_METRICS_TEXT_PATH . $filename . ".txt", "w");
         if (!$WRITE) {
             print "!! ERROR: Could not write to $filename";
+            debug("!! ERROR: Could not read $filename" );
             return;
         }
         fwrite($WRITE, json_encode($arr));
@@ -813,6 +825,7 @@ class TaxonPageMetrics
         $READ = fopen($filename, "r");
         if (!$READ) {
             print "!! ERROR: Could not read $filename";
+            debug("!! ERROR: Could not read $filename" );
             return;
         }
         $contents = fread($READ, filesize($filename));
@@ -833,6 +846,7 @@ class TaxonPageMetrics
         $READ = fopen(PAGE_METRICS_TEXT_PATH . $this->table . ".txt.tmp", "r");
         if (!$READ) {
             print "!! ERROR: Could not read table txt tmp file";
+            debug("!! ERROR: Could not read ". PAGE_METRICS_TEXT_PATH . $this->table . ".txt.tmp" );
             return;
         }
         $num_rows = 0;
@@ -899,6 +913,7 @@ class TaxonPageMetrics
             $FILE = fopen($outfile, "r");
             if (!$FILE) {
                 print "!! ERROR: Could not read $outfile";
+                debug("!! ERROR: Could not read $outfile" );
                 return;
             }
             $num_rows = 0;
@@ -920,7 +935,11 @@ class TaxonPageMetrics
         foreach($tc_ids as $id => $rec) $str .= $id . "\n";
         unset($tc_ids);
         $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_links.txt.tmp";
-        $fp = fopen($filename, "w"); 
+        if(!($fp = fopen($filename, "w")))
+        {
+          debug("!! ERROR: Could not read $filename" );
+          return;
+        } 
         fwrite($fp, $str); 
         fclose($fp); 
         //rename
@@ -974,7 +993,11 @@ class TaxonPageMetrics
                     $save_count++;
                     if($save_count == 1000)
                     {
-                        $fp = fopen($write_filename, "a");
+                        if(!($fp = fopen($write_filename, "a")))
+                        {
+                          debug("Couldn't open file: ". $write_filename);
+                          return;
+                        }
                         print "\n writing...";
                         fwrite($fp,$str);
                         fclose($fp);
@@ -987,7 +1010,11 @@ class TaxonPageMetrics
         }
         fclose($FILE);
         //last remaining writes
-        $fp = fopen($write_filename, "a");
+        if(!($fp = fopen($write_filename, "a")))
+        {
+          debug("Couldn't open file: " .$write_filename);
+          return;
+        }
         fwrite($fp, $str);
         fclose($fp);
         //rename
@@ -1025,7 +1052,11 @@ class TaxonPageMetrics
                 print "\n[$tc_id][".sizeof($publications)."] ";
             }
             //saving
-            $fp = fopen($write_filename, "a"); 
+            if(!($fp = fopen($write_filename, "a")))
+            {
+              debug("Couldn't open file: " .$write_filename);
+              return;
+            } 
             fwrite($fp,$str); 
             fclose($fp);
             $str = "";

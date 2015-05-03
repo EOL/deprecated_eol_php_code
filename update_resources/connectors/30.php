@@ -13,7 +13,11 @@ $new_resource_path = DOC_ROOT . "temp/30.xml";
 
 $new_resource_xml = Functions::get_remote_file("http://plazi.cs.umb.edu/exist/rest/db/taxonx_docs");
 
-$OUT = fopen($new_resource_path, "w+");
+if(!($OUT = fopen($new_resource_path, "w+")))
+{
+  debug("Couldn't open file: " .$new_resource_path);
+  return;
+}
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 
@@ -57,7 +61,11 @@ foreach($file_names as $file_name => $v)
     $file_contents = str_replace("<xhtml:p xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">", htmlspecialchars("<p>"), $file_contents);
     $file_contents = str_replace("</xhtml:p>", htmlspecialchars("</p>"), $file_contents);
     
-    $OUT = fopen($download_cache_path, "w+");
+    if(!($OUT = fopen($download_cache_path, "w+")))
+    {
+      debug("Couldn't open file: " .$download_cache_path);
+      return;
+    }
     fwrite($OUT, $file_contents);
     fclose($OUT);
     
@@ -75,7 +83,11 @@ foreach($file_names as $file_name => $v)
 
 
 
-$OUT = fopen($new_resource_path, "w+");
+if(!($OUT = fopen($new_resource_path, "w+")))
+{
+  debug("Couldn't open file: " .$new_resource_path);
+  return;
+}
 fwrite($OUT, serialize($all_taxa));
 fclose($OUT);
 

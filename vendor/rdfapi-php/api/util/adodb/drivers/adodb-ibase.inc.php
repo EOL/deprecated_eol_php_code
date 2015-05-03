@@ -597,7 +597,11 @@ class ADODB_ibase extends ADOConnection {
 	function UpdateBlobFile($table,$column,$path,$where,$blobtype='BLOB') 
 	{ 
 		$fd = fopen($path,'rb'); 
-		if ($fd === false) return false; 
+		if ($fd === false)
+    {
+      debug("Couldn't open file: " .$path);
+      return false;
+    } 
 		$blob_id = ibase_blob_create($this->_connectionID); 
 		
 		/* fill with data */ 

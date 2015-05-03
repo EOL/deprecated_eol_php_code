@@ -52,7 +52,11 @@ class INaturalistAPI
                     }
                     if($rec)
                     {
-                        $h = fopen($this->dump_file, 'a');
+                        if(!($h = fopen($this->dump_file, 'a')))
+                        {
+                          debug("Couldn't open file: " . $this->dump_file);
+                          return;
+                        }
                         fwrite($h, "http://eol.org/data_objects/".$rec['object_id'] . "\t" . $rec['photo_url'] . "\t" . $rec['observation_url'] . "\n");
                         fclose($h);
                     }
@@ -73,7 +77,11 @@ class INaturalistAPI
         {
             if($photo_id = self::get_iNat_photo_id($url))
             {
-                $h = fopen(DOC_ROOT . "/temp/iNat_photoID_not_found.txt", 'a');
+                if(!($h = fopen(DOC_ROOT . "/temp/iNat_photoID_not_found.txt", 'a')))
+                {
+                  debug("Couldn't open file: " .DOC_ROOT . "/temp/iNat_photoID_not_found.txt");
+                  return;
+                }
                 fwrite($h, $photo_id . "-");
                 fclose($h);
             }
@@ -99,7 +107,11 @@ class INaturalistAPI
     
     private function initialize_dump()
     {
-        $h = fopen($this->dump_file, 'w');
+        if(!($h = fopen($this->dump_file, 'w')))
+        {
+          debug("Couldn't open file: " .$this->dump_file);
+          return;
+        }
         fclose($h);
     }
 

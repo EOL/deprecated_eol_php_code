@@ -278,7 +278,11 @@ processes 69293
 		if (!file_exists($statfile)) return false;
 		
 		$fd = fopen($statfile,"r");
-		if (!$fd) return false;
+		if (!$fd)
+    {
+      debug("Couldn't open file: " .$statfile);
+      return;
+    }
 		
 		$statinfo = explode("\n",fgets($fd, 1024));
 		fclose($fd);

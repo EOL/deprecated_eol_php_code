@@ -2,7 +2,7 @@
 /* connector for USDA text descriptions compiled by Gerald "Stinger" Guala, Ph.D. using the SLIKS software.
 estimated execution time: 1.34 to 2 min. ->
 
-This character '×' must be deleted from the species_list_with_synonyms.txt because the names from the 3 HTML docs don't
+This character 'ï¿½' must be deleted from the species_list_with_synonyms.txt because the names from the 3 HTML docs don't
 have this character.
 
 Bromus lanceolatus - grass
@@ -59,7 +59,11 @@ foreach($used_taxa as $taxon_parameters)
 ////////////////////// ---
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
-$OUT = fopen($old_resource_path, "w+");
+if(!($OUT = fopen($old_resource_path, "w+")))
+{
+  debug("Couldn't open file: " .$old_resource_path);
+  return;
+}
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 ////////////////////// ---
@@ -535,7 +539,11 @@ function reverse_str($str)
 }
 function get_from_txt($filename)
 {
-    $fd = fopen ($filename, "r");
+    if(!($fd = fopen ($filename, "r")))
+    {
+      debug("Couldn't open file: " .$filename);
+      return;
+    }
     $contents = fread ($fd,filesize ($filename));
     fclose ($fd);
 

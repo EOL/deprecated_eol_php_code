@@ -18,7 +18,11 @@ class PlaziArchiveAPI
                 $contents = str_ireplace('"">', '">', $contents);
                 
                 //saving new media.txt
-                $WRITE = fopen($paths['archive_path'] . "media.txt", "w");
+                if(!($WRITE = fopen($paths['archive_path'] . "media.txt", "w")))
+                {
+                  debug("Couldn't open file: " .$paths['archive_path'] . "media.txt");
+                  return;
+                }
                 fwrite($WRITE, $contents);
                 fclose($WRITE);
                 

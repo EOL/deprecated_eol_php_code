@@ -26,7 +26,11 @@ if(!$new_resource_xml = Functions::get_remote_file($file, array('timeout' => 120
     $new_resource_xml = str_replace("", "\"", $new_resource_xml);
     $new_resource_xml = str_replace("", "-", $new_resource_xml);
 
-    $OUT = fopen($new_resource_path, "w+");
+    if(!($OUT = fopen($new_resource_path, "w+")))
+    {
+      debug("Couldn't open file: " .$new_resource_path);
+      return;
+    }
     fwrite($OUT, $new_resource_xml);
     fclose($OUT);
     unset($new_resource_xml);
@@ -132,7 +136,11 @@ if(!$new_resource_xml = Functions::get_remote_file($file, array('timeout' => 120
 
     $new_resource_xml = \SchemaDocument::get_taxon_xml($taxa);
     $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
-    $OUT = fopen($old_resource_path, "w+");
+    if(!($OUT = fopen($old_resource_path, "w+")))
+    {
+      debug("Couldn't open file: " .$old_resource_path);
+      return;
+    }
     fwrite($OUT, $new_resource_xml);
     fclose($OUT);
     Functions::set_resource_status_to_force_harvest($resource_id);

@@ -10,7 +10,11 @@ $parser = new XLSParser();
 $xml = $parser->create_eol_xml($file);
 
 $filename = "xml/" . time() . ".xml";
-$OUT = fopen($filename, "w+");
+if(!($OUT = fopen($filename, "w+")))
+{
+  debug("Couldn't open file: " . $filename);
+  return;
+}
 fwrite($OUT, $xml); fclose($OUT);
 
 $domain = $_SERVER['HTTP_HOST'];

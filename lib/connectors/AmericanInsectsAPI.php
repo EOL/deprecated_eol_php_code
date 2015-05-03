@@ -317,7 +317,11 @@ class AmericanInsectsAPI
 
     private function save_to_dump($data, $filename)
     {
-        $WRITE = fopen($filename, "a");
+        if(!($WRITE = fopen($filename, "a")))
+        {
+          debug("Couldn't open file: " . $filename);
+          return;
+        }
         if($data && is_array($data)) fwrite($WRITE, json_encode($data) . "\n");
         else                         fwrite($WRITE, $data . "\n");
         fclose($WRITE);

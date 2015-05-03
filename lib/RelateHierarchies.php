@@ -291,7 +291,11 @@ class RelateHierarchies
     private function create_temp_file_for_relationships()
     {
         $this->relationships_temp_file_path = temp_filepath();  // get a path to a tmp file which doesn't exist yet
-        $this->RELATIONSHIPS_FILE = fopen($this->relationships_temp_file_path, "w+");
+        if(!($this->RELATIONSHIPS_FILE = fopen($this->relationships_temp_file_path, "w+")))
+        {
+          debug("Couldn't open file: " . $this->relationships_temp_file_path);
+          return;
+        }
     }
     
     private function write_relationships_to_temp_file()

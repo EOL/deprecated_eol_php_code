@@ -169,7 +169,11 @@ class ContentManager
                                                  "http://services.eol.org/schema/content_0_1.xsd", $file_contents);
                 }
 
-                $TMP = fopen($temp_file_path,"w+");
+                if(!($TMP = fopen($temp_file_path,"w+")))
+                {
+                  debug("Couldn't open file: " .$temp_file_path);
+                  return;
+                }
                 fwrite($TMP, $file_contents);
                 fclose($TMP);
             }

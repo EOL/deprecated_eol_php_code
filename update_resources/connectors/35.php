@@ -32,7 +32,11 @@ $func = new STRIorigAPI($resource_id);
 $xml = $func->process_xml($params);
 
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-$OUT = fopen($resource_path, "w");
+if(!($OUT = fopen($resource_path, "w")))
+{
+  debug("Couldn't open file: " .$resource_path);
+  return;
+}
 fwrite($OUT, $xml);
 fclose($OUT);
 

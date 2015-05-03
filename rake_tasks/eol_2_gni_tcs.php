@@ -25,7 +25,11 @@ $resource_path = "..\applications\content_server\gni_tcs_files\eol_names.xml";
 $resource_path = DOC_ROOT."applications/content_server/gni_tcs_files/eol_names.xml";
 // */
 
-$FILE = fopen($resource_path, 'w+');
+if(!($FILE = fopen($resource_path, 'w+')))
+{
+  debug("Couldn't open file: " .$resource_path);
+  return;
+}
 
 $header="<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <DataSet

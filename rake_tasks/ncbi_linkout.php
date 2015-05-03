@@ -27,7 +27,11 @@ while($result && $row=$result->fetch_assoc())
 
 
 
-$FILE = fopen(dirname(__FILE__) . '/../temp/ncbi_linkout.ft', 'w+');
+if(!($FILE = fopen(dirname(__FILE__) . '/../temp/ncbi_linkout.ft', 'w+')))
+{
+  debug("Couldn't open file: " . '/../temp/ncbi_linkout.ft');
+  return;
+}
 $details = <<<HERE
 prid:   7164
 dbase:  Taxonomy

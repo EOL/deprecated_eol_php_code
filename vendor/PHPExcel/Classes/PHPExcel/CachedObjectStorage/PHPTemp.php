@@ -147,7 +147,11 @@ class PHPExcel_CachedObjectStorage_PHPTemp extends PHPExcel_CachedObjectStorage_
 	public function copyCellCollection(PHPExcel_Worksheet $parent) {
 		parent::copyCellCollection($parent);
 		//	Open a new stream for the cell cache data
-		$newFileHandle = fopen('php://temp/maxmemory:'.$this->_memoryCacheSize,'a+');
+		if(!($newFileHandle = fopen('php://temp/maxmemory:'.$this->_memoryCacheSize,'a+')))
+    {
+      debug("Couldn't open file: " . 'php://temp/maxmemory:'.$this->_memoryCacheSize);
+      return;
+    }
 		//	Copy the existing cell cache data to the new stream
 		fseek($this->_fileHandle,0);
 		while (!feof($this->_fileHandle)) {
@@ -188,7 +192,11 @@ class PHPExcel_CachedObjectStorage_PHPTemp extends PHPExcel_CachedObjectStorage_
 
 		parent::__construct($parent);
 		if (is_null($this->_fileHandle)) {
-			$this->_fileHandle = fopen('php://temp/maxmemory:'.$this->_memoryCacheSize,'a+');
+			if(!($this->_fileHandle = fopen('php://temp/maxmemory:'.$this->_memoryCacheSize,'a+')))
+      {
+        debug("Couldn't open file: " .'php://temp/maxmemory:'.$this->_memoryCacheSize);
+        return;
+      }
 		}
 	}	//	function __construct()
 

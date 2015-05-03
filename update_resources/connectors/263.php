@@ -26,7 +26,11 @@ $naturserveAPI->get_all_taxa();
 
 
 
-$resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . "263_temp.xml", "w+");
+if(!($resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . "263_temp.xml", "w+")))
+{
+  debug("Couldn't open file: " .CONTENT_RESOURCE_LOCAL_PATH . "263_temp.xml");
+  return;
+}
 
 // start the resource file with the XML header
 fwrite($resource_file, \SchemaDocument::xml_header());

@@ -12,7 +12,11 @@ if(is_dir('/opt/downloads'))
     copy(DOC_ROOT.'temp/eol_names_and_ranks_to_family_archive.tar.gz', '/opt/downloads/eol_names_and_ranks_to_family_archive.tar.gz');
     
     $md5sum = md5_file('/opt/downloads/eol_names_and_ranks_to_family_archive.tar.gz');
-    $MD5_FILE = fopen('/opt/downloads/eol_names_and_ranks_to_family_archive.md5', 'w+');
+    if(!($MD5_FILE = fopen('/opt/downloads/eol_names_and_ranks_to_family_archive.md5', 'w+')))
+    {
+      debug("Couldn't open file: " . '/opt/downloads/eol_names_and_ranks_to_family_archive.md5');
+      return;
+    }
     fwrite($MD5_FILE, $md5sum);
     fclose($MD5_FILE);
 }

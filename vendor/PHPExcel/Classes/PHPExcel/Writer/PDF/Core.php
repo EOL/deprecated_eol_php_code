@@ -337,6 +337,7 @@ abstract class PHPExcel_Writer_PDF_Core extends PHPExcel_Writer_HTML
         $fileHandle = fopen($pFilename, 'w');
         if ($fileHandle === FALSE) {
             throw new PHPExcel_Writer_Exception("Could not open file $pFilename for writing.");
+            debug("Couldn't open file: " .$pFilename);
         }
 
         //  Set PDF

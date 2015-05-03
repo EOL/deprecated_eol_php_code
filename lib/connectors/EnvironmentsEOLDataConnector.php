@@ -276,13 +276,21 @@ class EnvironmentsEOLDataConnector
             $fields = array("family", "count", "taxon_id", "object_id", "source", "label", "measurement");
             $data = "";
             foreach($fields as $field) $data .= $rec[$field] . "\t";
-            $WRITE = fopen($filename, "a");
+            if(!($WRITE = File::fopen($filename, "a")))
+            {
+              debug("Couldn't open file: " . $filename);
+              return;
+            }
             fwrite($WRITE, $data . "\n");
             fclose($WRITE);
         }
         else
         {
-            $WRITE = fopen($filename, "a");
+            if(!($WRITE = File::fopen($filename, "a")))
+            {
+              debug("Couldn't open file: " . $filename);
+              return;
+            }
             if($rec && is_array($rec)) fwrite($WRITE, json_encode($rec) . "\n");
             else                       fwrite($WRITE, $rec . "\n");
             fclose($WRITE);

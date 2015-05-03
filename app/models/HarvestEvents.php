@@ -150,7 +150,11 @@ class HarvestEvent extends ActiveRecord
             AND dohe_current.harvest_event_id=$this->id
             AND dohent_previous.visibility_id IN (".Visibility::invisible()->id.")");
         
-        $FILE = fopen($outfile, "r");
+        if (!($FILE = fopen($outfile, "r")))
+        {
+          debug("Couldn't open file: " . $outfile);
+          return;
+        }
         while(!feof($FILE))
         {
             if($line = fgets($FILE, 4096))
@@ -626,7 +630,11 @@ class HarvestEvent extends ActiveRecord
         $used_ids = array();
         $count = 0;
         $outfile = temp_filepath();
-        $OUT = fopen($outfile, 'w+');
+        if(!($OUT = fopen($outfile, 'w+')))
+        {
+          debug("Couldn't open file: " . $outfile);
+          return;
+        }
         foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row)
         {
             $id = $row[0];
@@ -662,7 +670,11 @@ class HarvestEvent extends ActiveRecord
         $used_ids = array();
         $count = 0;
         $outfile = temp_filepath();
-        $OUT = fopen($outfile, 'w+');
+        if (!($OUT = fopen($outfile, 'w+')))
+        {
+          debug("Couldn't open file: " . $outfile);
+          return;
+        }
         foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row)
         {
             $id = $row[0];

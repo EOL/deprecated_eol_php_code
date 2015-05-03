@@ -20,7 +20,11 @@ print "taxa count = " . count($xml) . "\n";
 $resource_id = 33;//AskNature - Biomimicry
 
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
-$OUT = fopen($old_resource_path, "w+");
+if(!($OUT = fopen($old_resource_path, "w+")))
+{
+  debug("Couldn't open file: " .$old_resource_path);
+  return;
+}
 
 $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
 $str .= "<response\n";

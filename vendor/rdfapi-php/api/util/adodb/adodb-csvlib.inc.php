@@ -97,6 +97,7 @@ $ADODB_INCLUDED_CSV = 1;
 		$fp = @fopen($url,'rb');
 		if (!$fp) {
 			$err = $url.' file/URL not found';
+      debug("Couldn't open file: " .$url);
 			return $false;
 		}
 		@flock($fp, LOCK_SH);
@@ -280,7 +281,11 @@ $ADODB_INCLUDED_CSV = 1;
 			$mtime = substr(str_replace(' ','_',microtime()),2); 
 			// getmypid() actually returns 0 on Win98 - never mind!
 			$tmpname = $filename.uniqid($mtime).getmypid();
-			if (!($fd = @fopen($tmpname,'a'))) return false;
+			if (!($fd = @fopen($tmpname,'a')))
+      {
+        debug("Couldn't open file: " .$tmpname);
+        return false;
+      }
 			$ok = ftruncate($fd,0);			
 			if (!fwrite($fd,$contents)) $ok = false;
 			fclose($fd);
@@ -296,7 +301,11 @@ $ADODB_INCLUDED_CSV = 1;
 			}
 			return $ok;
 		}
-		if (!($fd = @fopen($filename, 'a'))) return false;
+		if (!($fd = @fopen($filename, 'a')))
+    {
+      debug("Couldn't open file: " .$filename);
+      return false;
+    }
 		if (flock($fd, LOCK_EX) && ftruncate($fd, 0)) {
 			$ok = fwrite( $fd, $contents );
 			fclose($fd);

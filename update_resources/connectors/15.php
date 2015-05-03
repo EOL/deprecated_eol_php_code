@@ -17,7 +17,11 @@ if(FlickrAPI::valid_auth_token(FLICKR_AUTH_TOKEN))
 
 
 // create new _temp file
-$resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . "15_temp.xml", "w+");
+if(!($resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . "15_temp.xml", "w+")))
+{
+  debug("Couldn't open file: " .CONTENT_RESOURCE_LOCAL_PATH . "15_temp.xml");
+  return;
+}
 
 // start the resource file with the XML header
 fwrite($resource_file, \SchemaDocument::xml_header());

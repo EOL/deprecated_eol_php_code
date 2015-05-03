@@ -165,7 +165,11 @@ foreach($used_taxa as $taxon_parameters)
 ////////////////////// ---
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
-$OUT = fopen($old_resource_path, "w+");
+if(!($OUT = fopen($old_resource_path, "w+")))
+{
+  debug("Couldn't open file: " .$old_resource_path);
+  return;
+}
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 ////////////////////// ---
@@ -285,6 +289,9 @@ function get_id_list()
             while (!feof($handle)){$contents .= fread($handle, 8192);}
             fclose($handle);
             $str = $contents;
+        }else{
+            debug("Couldn't open file: " .$url);
+            return;
         }
         $str = utf8_encode($str);
         $beg='<tr><td><font face="arial" size="2">ID#:'; $end1="</font><hr></td></tr>"; $end2="173xxx"; $end3="173xxx";
@@ -370,9 +377,9 @@ function parse_contents($str)
 {
     //========================================================================================
 
-    $str = str_ireplace('”', '', $str);
-    $str = str_ireplace('“', '', $str);
-    $str = str_ireplace('™', '&#153;', $str);
+    $str = str_ireplace('ï¿½', '', $str);
+    $str = str_ireplace('ï¿½', '', $str);
+    $str = str_ireplace('ï¿½', '&#153;', $str);
 
 
     $image_url="";
@@ -544,7 +551,7 @@ function parse_contents($str)
     $taxa = trim(strip_tags($taxa));
     if (in_array($taxa, array("Plasmodium spp. life cycle.")))$taxa="Plasmodium spp.";
 
-    $taxa = str_ireplace('”', '', $taxa);
+    $taxa = str_ireplace('ï¿½', '', $taxa);
     $taxa = str_ireplace('"', '', $taxa);
     print "taxa = [$taxa] ";
 

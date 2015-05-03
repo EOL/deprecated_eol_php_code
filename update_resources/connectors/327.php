@@ -58,7 +58,11 @@ $xml = fix_higher_level_names_entered_twice($xml); // this also fixes duplicate 
 
 echo "\n\n has duplicate identifiers: " . check_for_duplicate_identifiers($xml) . "\n";
 
-$OUT = fopen($resource_path, "w");
+if(!($OUT = fopen($resource_path, "w")))
+{
+  debug("Couldn't open file: " .$resource_path);
+  return;
+}
 fwrite($OUT, $xml);
 fclose($OUT);
 
@@ -76,7 +80,11 @@ function add_rank_element($source, $destination, $rank, $download_options)
 {
     $xml = Functions::lookup_with_cache($source, $download_options);
     $xml = str_ireplace("</dwc:ScientificName>", "</dwc:ScientificName><rank>" . $rank . "</rank>", $xml);
-    $OUT = fopen($destination, "w");
+    if(!($OUT = fopen($destination, "w")))
+    {
+      debug("Couldn't open file: " . $destination);
+      return;
+    }
     fwrite($OUT, $xml);
     fclose($OUT);
 }
@@ -164,7 +172,11 @@ function check_for_duplicate_identifiers($xml_string)
 function combine_remote_eol_resource_files($resource_id, $files, $download_options)
 {
     debug("\n\n Start compiling all XML...");
-    $OUT = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", "w");
+    if(!($OUT = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", "w")))
+    {
+      debug("Couldn't open file: " .CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");
+      return;
+    }
     $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
     $str .= "<response\n";
     $str .= "  xmlns='http://www.eol.org/transfer/content/0.3'\n";

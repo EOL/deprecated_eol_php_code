@@ -156,7 +156,11 @@ class Functions
         }
         else // can happen when cache_path is from external drive with corrupt dir/file
         {
-            $h = fopen(DOC_ROOT . "/temp/cant_delete.txt", 'a');
+            if(!($h = fopen(DOC_ROOT . "/temp/cant_delete.txt", 'a')))
+            {
+              debug("Couldn't open file: ". DOC_ROOT . "/temp/cant_delete.txt");
+              return;
+            }
             fwrite($h, $cache_path . "\n");
             fclose($h);
         }
@@ -236,7 +240,11 @@ class Functions
         else $file_contents = self::get_remote_file($url, $options);
         if($file_contents)
         {
-            $file = fopen($temp_path, "w");
+            if(!($file = fopen($temp_path, "w")))
+            {
+              debug("Couldn't open file: ". $temp_path);
+              return;
+            }
             fwrite($file, $file_contents);
             fclose($file);
             return $temp_path;
@@ -1707,7 +1715,11 @@ class Functions
             fclose($READ);
             $task_list = str_ireplace($task, "", $task_list);
             //saving
-            $OUT = fopen($filename, 'w');
+            if(!($OUT = fopen($filename, "w")))
+            {
+              debug("Couldn't open file: " .$filename);
+              return;
+            }
             fwrite($OUT, $task_list);
             fclose($OUT);
         }
@@ -1802,7 +1814,11 @@ class Functions
                 {
                     $file_ctr++;
                     $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
-                    $OUT = fopen($destination_folder . $filename_prefix . $file_ctr_str . ".txt", "w");
+                    if(!($OUT = fopen($destination_folder . $filename_prefix . $file_ctr_str . ".txt", "w")))
+                    {
+                      debug("Couldn't open file: ". $destination_folder . $filename_prefix . $file_ctr_str . ".txt");
+                      return;
+                    }
                     fwrite($OUT, $str);
                     fclose($OUT);
                     $str = "";
@@ -1815,7 +1831,11 @@ class Functions
         {
             $file_ctr++;
             $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
-            $OUT = fopen($destination_folder . $filename_prefix . $file_ctr_str . ".txt", "w");
+            if(!($OUT = fopen($destination_folder . $filename_prefix . $file_ctr_str . ".txt", "w")))
+            {
+              debug("Couldn't open file: ". $destination_folder . $filename_prefix . $file_ctr_str . ".txt");
+              return;
+            }
             fwrite($OUT, $str);
             fclose($OUT);
         }
@@ -1833,7 +1853,11 @@ class Functions
     function combine_all_eol_resource_xmls($resource_id, $files)
     {
         debug("\n\n Start compiling all XML...");
-        $OUT = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", "w");
+        if(!($OUT = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", "w")))
+        {
+          debug("Couldn't open file: ". CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");
+          return;
+        }
         $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
         $str .= "<response\n";
         $str .= "  xmlns='http://www.eol.org/transfer/content/0.3'\n";
@@ -1848,7 +1872,11 @@ class Functions
         foreach (glob($files) as $filename)
         {
             debug("\n $filename");
-            $READ = fopen($filename, "r");
+            if(!($READ = fopen($filename, "r")))
+            {
+              debug("Couldn't open file: ". $filename);
+              return;
+            }
             $contents = fread($READ, filesize($filename));
             fclose($READ);
             if($contents) 

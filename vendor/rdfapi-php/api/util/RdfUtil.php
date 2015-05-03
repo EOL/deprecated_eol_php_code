@@ -10,7 +10,7 @@
 *
 * @version  $Id: RdfUtil.php 295 2006-06-23 06:45:53Z tgauss $
 * @author Chris Bizer <chris@bizer.de>, Daniel Westphal <dawe@gmx.de>
-* @author   Anton Köstlbacher <anton1@koestlbacher.de>
+* @author   Anton Kï¿½stlbacher <anton1@koestlbacher.de>
 * @package utility
 * @access	public
 **/
@@ -326,7 +326,7 @@ class RDFUtil extends Object {
  * Uses $default_prefixes defined in constants.php and getParsedNamespaces()
  * Returns FALSE if no matching prefix is found
  *
- * @author   Anton Köstlbacher <anton1@koestlbacher.de>
+ * @author   Anton Kï¿½stlbacher <anton1@koestlbacher.de>
  * @param    string  $uri
  * @param    object $model
  * @return   string, boolean
@@ -370,7 +370,7 @@ class RDFUtil extends Object {
  * WARNING: Graphviz can be slow with large models.
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  *
- * @author   Anton Köstlbacher <anton1@koestlbacher.de>
+ * @author   Anton Kï¿½stlbacher <anton1@koestlbacher.de>
  * @param    object  Model
  * @param    string  $format
  * @param    boolean $short_prefix
@@ -536,6 +536,8 @@ class RDFUtil extends Object {
          {
              fwrite($file_handle, $dot);
              fclose($file_handle);
+         }else {
+          debug("Couldn't open file: " .$file_handle);
          }
          $dotinput = " -T".$format." ".$filename;
 

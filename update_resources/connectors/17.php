@@ -36,7 +36,11 @@ $xml = str_ireplace("<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Gener
 $xml = split_habitat_and_distribution($xml);
 
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-$OUT = fopen($resource_path, "w");
+if(!($OUT = fopen($resource_path, "w")))
+{
+  debug("Couldn't open file: " .$resource_path);
+  return;
+}
 fwrite($OUT, $xml);
 fclose($OUT);
 

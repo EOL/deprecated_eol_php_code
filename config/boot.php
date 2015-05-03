@@ -61,7 +61,11 @@ if((@$GLOBALS['ENV_DEBUG'] || @$GLOBALS['ENV_MYSQL_DEBUG']) && @$GLOBALS['ENV_DE
 {
     $open_state = 'a+';
     if($GLOBALS['ENV_DEBUG_FILE_FLUSH']) $open_state = 'w+';
-    $GLOBALS['ENV_DEBUG_FILE_HANDLE'] = fopen($GLOBALS['ENV_DEBUG_FILE'], $open_state);
+    if(!($GLOBALS['ENV_DEBUG_FILE_HANDLE'] = fopen($GLOBALS['ENV_DEBUG_FILE'], $open_state)))
+    {
+      debug("Couldn't open file: " .$GLOBALS['ENV_DEBUG_FILE']);
+      return;
+    }
 }
 
 /* Auto flush echo statements to the screen when debugging */

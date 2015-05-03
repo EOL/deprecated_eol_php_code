@@ -25,9 +25,17 @@ class GoogleDumpPreparerOriginal
         }
         $max_id = 1000000 - 1;
         
-        $this->NAMES_OUT = fopen(DOC_ROOT ."/temp/google_dump_names.txt", "w+");
+        if(!($this->NAMES_OUT = fopen(DOC_ROOT ."/temp/google_dump_names.txt", "w+")))
+        {
+          debug("Couldn't open file: " . DOC_ROOT ."/temp/google_dump_names.txt");
+          return;
+        }
         fwrite($this->NAMES_OUT, "EOL PAGE ID\tNAME\tPARENT EOL PAGE ID\tRANK\n");
-        $this->LINKS_OUT = fopen(DOC_ROOT ."/temp/google_dump_links.txt", "w+");
+        if(!(!$this->LINKS_OUT = fopen(DOC_ROOT ."/temp/google_dump_links.txt", "w+")))
+        {
+          debug("Couldn't open file: " . DOC_ROOT ."/temp/google_dump_links.txt");
+          return;
+        }
         fwrite($this->LINKS_OUT, "EOL PAGE ID\tPARTNER NAME\tPARTNER URL\n");
         for($i=$start ; $i<$max_id ; $i+=$limit)
         {

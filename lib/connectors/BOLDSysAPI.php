@@ -156,9 +156,18 @@ class BOLDSysAPI
 
     function initialize_text_files()
     {
-        $f = fopen($this->WORK_LIST, "w"); fclose($f);
-        $f = fopen($this->WORK_IN_PROGRESS_LIST, "w"); fclose($f);
-        $f = fopen($this->INITIAL_PROCESS_STATUS, "w"); fclose($f);
+        if(!($f = fopen($this->WORK_LIST, "w")))
+        {
+          debug("Couldn't open file: " . $this->WORK_LIST);
+        } else { fclose($f); }
+        if(!($f = fopen($this->WORK_IN_PROGRESS_LIST, "w")))
+        {
+          debug("Couldn't open file: " . $this->WORK_IN_PROGRESS_LIST);
+        } else{ fclose($f); }
+        if(!($f = fopen($this->INITIAL_PROCESS_STATUS, "w")))
+        {
+          debug("Couldn't open file: " . $this->INITIAL_PROCESS_STATUS);
+        } else { fclose($f); }
         //this is not needed but just to have a clean directory
         Functions::delete_temp_files($this->TEMP_FILE_PATH . "sl_batch_", "txt");
         Functions::delete_temp_files($this->TEMP_FILE_PATH . "sl_batch_", "xml");
@@ -214,7 +223,11 @@ class BOLDSysAPI
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $xml = str_replace("</mediaURL>", "</mediaURL><additionalInformation><subtype>map</subtype>\n</additionalInformation>\n", $xml);
         $resource_path = $temp_file_path . $task . ".xml";
-        $OUT = fopen($resource_path, "w");
+        if(!($OUT = fopen($resource_path, "w")))
+        {
+          debug("Couldn't open file: " . $resource_path);
+          return;
+        }
         fwrite($OUT, $xml); 
         fclose($OUT);
     }
@@ -467,7 +480,11 @@ class BOLDSysAPI
 
     private function initialize_text_file()
     {
-        $OUT = fopen($this->LOG_FILE, "a");
+        if(!($OUT = fopen($this->LOG_FILE, "a")))
+        {
+          debug("Couldn't open file: " .$this->LOG_FILE);
+          return;
+        }
         fwrite($OUT, "===================" . "\n");
         fwrite($OUT, date("F j, Y, g:i:s a") . "\n");
         fclose($OUT);
@@ -484,14 +501,22 @@ class BOLDSysAPI
 
     function save_to_json_file($arr, $filename)
     {
-        $WRITE = fopen($filename, "w");
+        if(!($WRITE = fopen($filename, "w")))
+        {
+          debug("Couldn't open file: " . $filename);
+          return;
+        }
         fwrite($WRITE, json_encode($arr));
         fclose($WRITE);
     }
 
     function get_array_from_json_file($filename)
     {
-        $READ = fopen($filename, "r");
+        if(!($READ = fopen($filename, "r")))
+        {
+          debug("Couldn't open file: " . $filename);
+          return;
+        }
         $contents = fread($READ, filesize($filename));
         fclose($READ);
         return json_decode($contents,true);

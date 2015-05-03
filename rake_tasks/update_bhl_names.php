@@ -30,8 +30,16 @@ $indexer->index_all_pages();
 function insert_titles()
 {
     echo "Starting insert_titles\n";
-    $OUT = fopen(DOC_ROOT ."temp/titles.txt", "w+");
-    $FILE = fopen(DOC_ROOT ."temp/data/data/title.txt", "r");
+    if(!($OUT = fopen(DOC_ROOT ."temp/titles.txt", "w+")))
+    {
+      debug("Couldn't open file: " .$resource_path);
+      return;
+    }
+    if(!($FILE = fopen(DOC_ROOT ."temp/data/data/title.txt", "r")))
+    {
+      debug("Couldn't open file: " .DOC_ROOT ."temp/data/data/title.txt");
+      return;
+    }
     $i=0;
     while(!feof($FILE))
     {
@@ -74,8 +82,16 @@ function insert_titles()
 function insert_items()
 {
     echo "Starting insert_items\n";
-    $OUT = fopen(DOC_ROOT ."temp/items.txt", "w+");
-    $FILE = fopen(DOC_ROOT ."temp/data/data/item.txt", "r");
+    if(!($OUT = fopen(DOC_ROOT ."temp/items.txt", "w+")))
+    {
+      debug("Couldn't open file: " . DOC_ROOT ."temp/items.txt");
+      return;
+    }
+    if(!($FILE = fopen(DOC_ROOT ."temp/data/data/item.txt", "r")))
+    {
+      debug("Couldn't open file: " . DOC_ROOT ."temp/data/data/item.txt");
+      return;
+    }
     $i=0;
     while(!feof($FILE))
     {
@@ -111,8 +127,16 @@ function insert_items()
 function insert_pages()
 {
     echo "Starting insert_pages\n";
-    $OUT = fopen(DOC_ROOT ."temp/pages.txt", "w+");
-    $FILE = fopen(DOC_ROOT ."temp/data/data/page.txt", "r");
+    if(!($OUT = fopen(DOC_ROOT ."temp/pages.txt", "w+")))
+    {
+      debug("Couldn't open file: " . DOC_ROOT ."temp/pages.txt");
+      return;
+    }
+    if(!($FILE = fopen(DOC_ROOT ."temp/data/data/page.txt", "r")))
+    {
+      debug("Couldn't open file: " .DOC_ROOT ."temp/data/data/page.txt");
+      return;
+    }
     $i=0;
     while(!feof($FILE))
     {
@@ -150,8 +174,16 @@ function insert_pages()
 function insert_page_names()
 {
     echo "Starting insert_page_names\n";
-    $OUT = fopen(DOC_ROOT ."temp/page_names.txt", "w+");
-    $FILE = fopen(DOC_ROOT ."temp/data/data/pagename.txt", "r");
+    if(!($OUT = fopen(DOC_ROOT ."temp/page_names.txt", "w+")))
+    {
+      debug("Couldn't open file: " .DOC_ROOT ."temp/page_names.txt");
+      return;
+    }
+    if(!($FILE = fopen(DOC_ROOT ."temp/data/data/pagename.txt", "r")))
+    {
+      debug("Couldn't open file: " . DOC_ROOT ."temp/data/data/pagename.txt");
+      return;
+    }
     $i=0;
     while(!feof($FILE))
     {

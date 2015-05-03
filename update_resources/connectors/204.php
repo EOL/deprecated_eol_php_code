@@ -21,7 +21,11 @@ $path_to_final_file = DOC_ROOT . "update_resources/connectors/files/tol-all-cont
 $reader = new XMLReader();
 $reader->open($path_to_raw_file);
 
-$OUT = fopen($path_to_final_file, "w+");
+if(!($OUT = fopen($path_to_final_file, "w+")))
+{
+  debug("Couldn't open file: " .$path_to_final_file);
+  return;
+}
 scan_recursively($reader, $OUT);
 fclose($OUT);
 

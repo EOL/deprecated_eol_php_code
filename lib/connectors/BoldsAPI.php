@@ -40,9 +40,24 @@ class BoldsAPI
 
     function initialize_text_files()
     {
-        $f = fopen($this->WORK_LIST, "w"); fclose($f);
-        $f = fopen($this->WORK_IN_PROGRESS_LIST, "w"); fclose($f);
-        $f = fopen($this->INITIAL_PROCESS_STATUS, "w"); fclose($f);
+        if(!($f = fopen($this->WORK_LIST, "w")))
+        {
+          debug("Couldn't open file: " . $this->WORK_LIST);
+        }else{
+          fclose($f);
+        }
+        if(!($f = fopen($this->WORK_IN_PROGRESS_LIST, "w")))
+        {
+          debug("Couldn't open file: " .$this->WORK_IN_PROGRESS_LIST);
+        }else{
+          fclose($f);
+        }
+        if(!($f = fopen($this->INITIAL_PROCESS_STATUS, "w")))
+        {
+          debug("Couldn't open file: " . $this->INITIAL_PROCESS_STATUS);
+        }else{
+          fclose($f);
+        }
         //this is not needed but just to have a clean directory
         Functions::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
         Functions::delete_temp_files($this->TEMP_FILE_PATH . "temp_Bolds_" . "batch_", "xml");
@@ -102,7 +117,11 @@ class BoldsAPI
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $xml = str_replace("</mediaURL>", "</mediaURL><additionalInformation><subtype>map</subtype>\n</additionalInformation>\n", $xml);
         $resource_path = $this->TEMP_FILE_PATH . "temp_Bolds_" . $task . ".xml";
-        $OUT = fopen($resource_path, "w"); 
+        if(!($OUT = fopen($resource_path, "w")))
+        {
+          debug("Couldn't open file: " . $resource_path);
+          return;
+        } 
         fwrite($OUT, $xml); 
         fclose($OUT);
         echo "\n\n total = $i \n\n";
@@ -294,7 +313,11 @@ class BoldsAPI
 
     private function save_to_dump($data, $filename)
     {
-        $WRITE = fopen($filename, "a");
+        if(!($WRITE = fopen($filename, "a")))
+        {
+          debug("Couldn't open file: " . $filename);
+          return;
+        }
         if($data && is_array($data)) fwrite($WRITE, json_encode($data) . "\n");
         else                         fwrite($WRITE, $data . "\n");
         fclose($WRITE);

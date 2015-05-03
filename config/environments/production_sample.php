@@ -8,7 +8,11 @@ ini_set('display_errors', true);
 define('WEB_ROOT', 'http:// *PRODUCTION_WEB_SERVER_HOST* /eol_php_code/');
 
 // this will create a file which will log certain rake tasks run
-$GLOBALS['log_file'] = fopen(DOC_ROOT . 'temp/processes.log', 'a+');
+if(!($GLOBALS['log_file'] = fopen(DOC_ROOT . 'temp/processes.log', 'a+')))
+{
+  debug("Couldn't open file: " . $DOC_ROOT . 'temp/processes.log');
+  return;
+}
 
 // make there there is at least a .3 second delay between
 // requests to remote servers

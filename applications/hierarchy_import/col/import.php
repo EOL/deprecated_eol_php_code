@@ -13,8 +13,16 @@ $mysqli->begin_transaction();
 
 $GLOBALS['agents_file_path'] = temp_filepath();
 $GLOBALS['synonyms_file_path'] = temp_filepath();
-$GLOBALS['agents_file'] = fopen($GLOBALS['agents_file_path'], "w+");
-$GLOBALS['synonyms_file'] = fopen($GLOBALS['synonyms_file_path'], "w+");
+if(!($GLOBALS['agents_file'] = fopen($GLOBALS['agents_file_path'], "w+")))
+{
+  debug("Couldn't open file: " . $GLOBALS['agents_file_path']);
+  return;
+}
+if(!($GLOBALS['synonyms_file'] = fopen($GLOBALS['synonyms_file_path'], "w+")))
+{
+  debug("Couldn't open file: " . $GLOBALS['synonyms_file_path']);
+  return;
+}
 
 get_agents();
 get_parents();

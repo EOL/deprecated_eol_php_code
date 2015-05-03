@@ -23,7 +23,11 @@ function _file_get_contents($file)
  	if (function_exists('file_get_contents')) return file_get_contents($file);
 	
 	$f = fopen($file,'r');
-	if (!$f) return '';
+	if (!$f)
+  {
+    debug("Couldn't open file: " .$file);
+    return '';
+  }
 	$t = '';
 	
 	while ($s = fread($f,100000)) $t .= $s;
@@ -1590,6 +1594,7 @@ class adoSchema {
 		// Open the file
 		if( !($fp = fopen( $filename, 'r' )) ) {
 			logMsg( 'Unable to open file' );
+      debug("Couldn't open file: " .$filename);
 			return FALSE;
 		}
 		
@@ -1770,7 +1775,11 @@ class adoSchema {
 			return FALSE;
 		}
 		
-		$fp = fopen( $filename, "w" );
+		if(!($fp = fopen( $filename, "w" )))
+    {
+      debug("Couldn't open file: " .$filename);
+      return;
+    }
 		
 		foreach( $sqlArray as $key => $query ) {
 			fwrite( $fp, $query . ";\n" );
@@ -1876,7 +1885,10 @@ class adoSchema {
 		if( is_string( $result ) AND is_string( $newFile ) AND ( $fp = fopen( $newFile, 'w' ) ) ) {
 			fwrite( $fp, $result );
 			fclose( $fp );
-		}
+		}else {
+      debug("Couldn't open file: " .$newFile);
+      return;
+    }
 		
 		return $result;
 	}
@@ -1930,7 +1942,10 @@ class adoSchema {
 		if( is_string( $result ) AND is_string( $newFile ) AND ( $fp = fopen( $newFile, 'w' ) ) ) {
 			fwrite( $fp, $result );
 			fclose( $fp );
-		}
+		}else {
+      debug("Couldn't open file: " .$newFile);
+      return;
+    }
 		
 		return $result;
 	}
@@ -2050,6 +2065,7 @@ class adoSchema {
 		// Open the file
 		if( !($fp = fopen( $filename, 'r' )) ) {
 			// die( 'Unable to open file' );
+			debug("Couldn't open file: " .$filename);
 			return FALSE;
 		}
 		

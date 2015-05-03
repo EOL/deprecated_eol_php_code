@@ -110,7 +110,11 @@ class IrmngAPI
         else $taxa_ids_with_blank_taxonomicStatus = array();
         
         $i = 0;
-        $file = fopen($csv_file, "r");
+        if(!($file = fopen($csv_file, "r")))
+        {
+          debug("Couldn't open file: " . $csv_file);
+          return;
+        }
         while(!feof($file))
         {
             $i++;
@@ -320,7 +324,11 @@ class IrmngAPI
         {
             $parts = pathinfo($this->zip_path);
             $temp_file_path = $this->TEMP_FILE_PATH . "/" . $parts["basename"];
-            $TMP = fopen($temp_file_path, "w");
+            if(!($TMP = fopen($temp_file_path, "w")))
+            {
+              debug("Couldn't open file: " . $temp_file_path);
+              return;
+            }
             fwrite($TMP, $file_contents);
             fclose($TMP);
             $output = shell_exec("unzip $temp_file_path -d $this->TEMP_FILE_PATH");
@@ -342,7 +350,11 @@ class IrmngAPI
 
     private function save_to_dump($data, $filename) // utility
     {
-        $WRITE = fopen($filename, "a");
+        if(!($WRITE = fopen($filename, "a")))
+        {
+          debug("Couldn't open file: " . $filename);
+          return;
+        }
         if($data && is_array($data)) fwrite($WRITE, json_encode($data) . "\n");
         else                         fwrite($WRITE, $data . "\n");
         fclose($WRITE);

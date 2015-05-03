@@ -15,7 +15,11 @@ $GLOBALS['ENV_DEBUG'] = false;
 $taxa = PhotosynthAPI::get_all_taxa();
 $xml = \SchemaDocument::get_taxon_xml($taxa);
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . "119.xml";
-$OUT = fopen($resource_path, "w+");
+if(!($OUT = fopen($resource_path, "w+")))
+{
+  debug("Couldn't open file: " .$resource_path);
+  return;
+}
 fwrite($OUT, $xml);
 fclose($OUT);
 $elapsed_time_sec = microtime(1)-$timestart;

@@ -38,7 +38,11 @@ class PlantFeedingInsectsAPI
         }
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-        $OUT = fopen($resource_path, "w");
+        if(!($OUT = fopen($resource_path, "w")))
+        {
+          debug("Couldn't open file: " .$resource_path);
+          return;
+        }
         fwrite($OUT, $xml);
         fclose($OUT);
         return $all_taxa; //used for testing

@@ -33,9 +33,18 @@ class DiscoverLifeAPIv2
 
     public function initialize_text_files()
     {
-        $f = fopen($this->WORK_LIST, "w"); fclose($f);
-        $f = fopen($this->WORK_IN_PROGRESS_LIST, "w"); fclose($f);
-        $f = fopen($this->INITIAL_PROCESS_STATUS, "w"); fclose($f);
+        if(!($f = File::fopen($this->WORK_LIST, "w")))
+        {
+          debug("Couldn't open file: " . $this->WORK_LIST);
+        } else { fclose($f); }
+        if(!($f = File::fopen($this->WORK_IN_PROGRESS_LIST, "w")))
+        {
+          debug("Couldn't open file: " . $this->WORK_IN_PROGRESS_LIST);
+        } else { fclose($f); }
+        if(!($f = File::fopen($this->INITIAL_PROCESS_STATUS, "w")))
+        {
+          debug("Couldn't open file: " . $this->INITIAL_PROCESS_STATUS);
+        } else { fclose($f); }
         //this is not needed but just to have a clean directory
         Functions::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
         Functions::delete_temp_files($this->TEMP_FILE_PATH . "temp_DiscoverLife_batch_", "xml");
@@ -106,7 +115,11 @@ class DiscoverLifeAPIv2
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $xml = str_replace("</dataObject>", "<additionalInformation><subtype>map</subtype></additionalInformation></dataObject>", $xml);
         $resource_path = $this->TEMP_FILE_PATH . "temp_DiscoverLife_" . $task . ".xml";
-        $OUT = fopen($resource_path, "w"); 
+        if(!($OUT = File::fopen($resource_path, "w")))
+        {
+          debug("Couldn't open file: " . $resource_path);
+          return;
+        } 
         fwrite($OUT, $xml); 
         fclose($OUT);
 
@@ -244,7 +257,11 @@ class DiscoverLifeAPIv2
                     print"\n";
                     $file_ctr++;
                     $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
-                    $OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
+                    if(!($OUT = File::fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w")))
+                    {
+                      debug("Couldn't open file: " . $this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
+                      return;
+                    }
                     fwrite($OUT, $str);
                     fclose($OUT);
                     $str = "";
@@ -258,7 +275,11 @@ class DiscoverLifeAPIv2
         {
             $file_ctr++;
             $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
-            $OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
+            if(!($OUT = File::fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w")))
+            {
+              debug("Couldn't open file: " . $this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
+              return;
+            }
             fwrite($OUT, $str);
             fclose($OUT);
         }
@@ -275,7 +296,11 @@ class DiscoverLifeAPIv2
 
     private function initialize_text_file($filename)
     {
-        $OUT = fopen($filename, "a");
+        if(!($OUT = fopen($filename, "a")))
+        {
+          debug("Couldn't open file: " . $filename);
+          return;
+        }
         fwrite($OUT, "===================" . "\n");
         fwrite($OUT, date("F j, Y, g:i:s a") . "\n");
         fclose($OUT);

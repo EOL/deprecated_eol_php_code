@@ -180,7 +180,11 @@ class BiopixAPI
     {
         $biopix_data_path = DOC_ROOT . "/update_resources/connectors/files/biopix_tab.txt";
         $biopix_tab_data = Functions::get_remote_file($this->data_dump_url, array('timeout' => 300));
-        $OUT = fopen($biopix_data_path, "w+");
+        if(!($OUT = fopen($biopix_data_path, "w+")))
+        {
+          debug("Couldn't open file: " . $biopix_data_path);
+          return;
+        }
         fwrite($OUT, $biopix_tab_data);
         fclose($OUT);
         return $biopix_data_path;

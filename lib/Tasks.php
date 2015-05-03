@@ -217,7 +217,11 @@ class Tasks
             $mysqli->delete("DELETE FROM taxon_concept_names WHERE taxon_concept_id IN (". implode(",", $batch_ids) .")");
             
             $tmp_file_path = temp_filepath();
-            $LOAD_DATA_TEMP = fopen($tmp_file_path, "w+");
+            if(!($LOAD_DATA_TEMP = fopen($tmp_file_path, "w+")))
+            {
+              debug("Couldn't open file: " .$tmp_file_path);
+              return;
+            }
             /* Insert the scientific names */
             foreach($matching_ids as $taxon_concept_id => $arr)
             {
@@ -235,7 +239,11 @@ class Tasks
             unlink($tmp_file_path);
             
             $tmp_file_path = temp_filepath();
-            $LOAD_DATA_TEMP = fopen($tmp_file_path, "w+");
+            if(!($LOAD_DATA_TEMP = fopen($tmp_file_path, "w+")))
+            {
+              debug("Couldn't open file: " .$tmp_file_path);
+              return;
+            }
             /* Insert the common names */
             foreach($common_names as $taxon_concept_id => $arr)
             {
