@@ -33,15 +33,15 @@ class DiscoverLifeAPIv2
 
     public function initialize_text_files()
     {
-        if(!($f = File::fopen($this->WORK_LIST, "w")))
+        if(!($f = fopen($this->WORK_LIST, "w")))
         {
           debug("Couldn't open file: " . $this->WORK_LIST);
         } else { fclose($f); }
-        if(!($f = File::fopen($this->WORK_IN_PROGRESS_LIST, "w")))
+        if(!($f = fopen($this->WORK_IN_PROGRESS_LIST, "w")))
         {
           debug("Couldn't open file: " . $this->WORK_IN_PROGRESS_LIST);
         } else { fclose($f); }
-        if(!($f = File::fopen($this->INITIAL_PROCESS_STATUS, "w")))
+        if(!($f = fopen($this->INITIAL_PROCESS_STATUS, "w")))
         {
           debug("Couldn't open file: " . $this->INITIAL_PROCESS_STATUS);
         } else { fclose($f); }
@@ -115,7 +115,7 @@ class DiscoverLifeAPIv2
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $xml = str_replace("</dataObject>", "<additionalInformation><subtype>map</subtype></additionalInformation></dataObject>", $xml);
         $resource_path = $this->TEMP_FILE_PATH . "temp_DiscoverLife_" . $task . ".xml";
-        if(!($OUT = File::fopen($resource_path, "w")))
+        if(!($OUT = fopen($resource_path, "w")))
         {
           debug("Couldn't open file: " . $resource_path);
           return;
@@ -257,7 +257,7 @@ class DiscoverLifeAPIv2
                     print"\n";
                     $file_ctr++;
                     $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
-                    if(!($OUT = File::fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w")))
+                    if(!($OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w")))
                     {
                       debug("Couldn't open file: " . $this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
                       return;
@@ -275,7 +275,7 @@ class DiscoverLifeAPIv2
         {
             $file_ctr++;
             $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
-            if(!($OUT = File::fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w")))
+            if(!($OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w")))
             {
               debug("Couldn't open file: " . $this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
               return;

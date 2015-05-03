@@ -276,7 +276,7 @@ class EnvironmentsEOLDataConnector
             $fields = array("family", "count", "taxon_id", "object_id", "source", "label", "measurement");
             $data = "";
             foreach($fields as $field) $data .= $rec[$field] . "\t";
-            if(!($WRITE = File::fopen($filename, "a")))
+            if(!($WRITE = fopen($filename, "a")))
             {
               debug("Couldn't open file: " . $filename);
               return;
@@ -286,7 +286,7 @@ class EnvironmentsEOLDataConnector
         }
         else
         {
-            if(!($WRITE = File::fopen($filename, "a")))
+            if(!($WRITE = fopen($filename, "a")))
             {
               debug("Couldn't open file: " . $filename);
               return;
