@@ -15,11 +15,23 @@ class HierarchyEntryRelationshipIndexer
     
     public function index($options = array())
     {
-        if(!$options['hierarchy']) return false;
-        if(get_class($options['hierarchy']) != 'php_active_record\Hierarchy') return false;
-        if($options['hierarchy_entry_ids'] && !is_array($options['hierarchy_entry_ids'])) return false;
+        if(!$options['hierarchy']) {
+        	debug("Missing options['hierarchy']!");
+        	return false;
+        }
+        if(get_class($options['hierarchy']) != 'php_active_record\Hierarchy') {
+        	debug("options['hierarchy'] is not a valid php_active_record\Hierarchy!");
+        	return false;
+        }
+        if($options['hierarchy_entry_ids'] && !is_array($options['hierarchy_entry_ids'])) {
+        	debug("options['hierarchy_entry_ids'] must be an array!");
+        	return false;
+        }
         
-        if(!defined('SOLR_SERVER') || !SolrAPI::ping(SOLR_SERVER, 'hierarchy_entry_relationship')) return false;
+        if(!defined('SOLR_SERVER') || !SolrAPI::ping(SOLR_SERVER, 'hierarchy_entry_relationship')) {
+        	debug("SOLR SERVER not defined or can't ping hierarchy_entry_relationship");
+        	return false;
+        }
         $this->solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entry_relationship');
         
         if($options['hierarchy_entry_ids'])

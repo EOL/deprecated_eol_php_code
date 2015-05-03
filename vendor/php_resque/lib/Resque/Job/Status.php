@@ -68,11 +68,13 @@ class Resque_Job_Status
 	public function isTracking()
 	{
 		if($this->isTracking === false) {
+			debug("The status is not being monitored");
 			return false;
 		}
 
 		if(!Resque::redis()->exists((string)$this)) {
 			$this->isTracking = false;
+			debug("The status is not being monitored (Resque::redis)");
 			return false;
 		}
 
@@ -112,11 +114,13 @@ class Resque_Job_Status
 	public function get()
 	{
 		if(!$this->isTracking()) {
+			debug("The status is not being monitored");
 			return false;
 		}
 
 		$statusPacket = json_decode(Resque::redis()->get((string)$this), true);
 		if(!$statusPacket) {
+			debug("The status is not being monitored (Resque::redis)");
 			return false;
 		}
 

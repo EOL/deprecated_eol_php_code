@@ -5,11 +5,15 @@ class DarwinCoreHarvester
 {
     public static function harvest($uri, &$hierarchy, $vetted_id = 0, $published = 0)
     {
-        if(!$uri) return false;
+        if(!$uri) {
+        	debuge("Null uri");
+        	return false;
+        }
         $errors = SchemaValidator::validate($uri, true);
         if($errors !== true)
         {
             print_r($errors);
+            debuge("$errors");
             return false;
         }
         
@@ -125,9 +129,15 @@ class DarwinCoreHarvester
         
         
         // make sure this taxon has a name, otherwise skip this branch
-        if(!isset($GLOBALS['node_attributes'][$taxon_id]['name_id'])) return false;
+        if(!isset($GLOBALS['node_attributes'][$taxon_id]['name_id'])) {
+        	debug("Taxon_id: ". $GLOBALS['node_attributes'][$taxon_id] . " has no name");
+        	return false;
+        }
         // this taxon_id has already been inserted meaning this tree has a loop in it - so stop
-        if(isset($GLOBALS['taxon_ids_inserted'][$taxon_id])) return false;
+        if(isset($GLOBALS['taxon_ids_inserted'][$taxon_id])) {
+        	debug("Taxon_id: " . $GLOBALS['taxon_ids_inserted'][$taxon_id] . " has already been inserted meaning this tree has a loop in it");
+        	return false;
+        }
         
         $taxon_attributes = $GLOBALS['node_attributes'][$taxon_id];
         

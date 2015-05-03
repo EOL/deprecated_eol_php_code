@@ -76,6 +76,7 @@ class Google_MediaFileUpload {
     $uploadType = self::getUploadType($meta, $payload, $params);
     if (!$uploadType) {
       // Process as a normal API request.
+      debug("Process as a normal API request");
       return false;
     }
 
@@ -180,6 +181,7 @@ class Google_MediaFileUpload {
 
     if (false == $data && false == isset($params['file'])) {
       // No upload data available.
+      debug("No upload data available");
       return false;
     }
 

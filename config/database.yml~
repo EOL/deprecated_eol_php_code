@@ -1,0 +1,37 @@
+development:
+  host:     localhost
+  username: root
+  password: root
+  database: eol_development
+  encoding: utf8
+  socket: /var/run/mysqld/mysqld.sock
+  
+test:
+  host:     localhost
+  username: test
+  password: test
+  database: eol_test
+  encoding: utf8
+  socket: /tmp/mysql.sock
+  
+integration:
+  host:     localhost
+  username: test
+  password: test
+  database: eol_integration
+  encoding: utf8
+  socket: /tmp/mysql.sock
+  
+production:
+  host:            localhost
+  username:        test
+  password:        test
+  database:        eol_data
+  encoding:        utf8
+  socket: /tmp/mysql.sock
+  master_host:     localhost
+  master_username: test
+  master_password: test
+  master_database: eol_production
+  master_encoding: utf8
+  

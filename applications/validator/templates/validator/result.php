@@ -25,6 +25,7 @@ if($file_url || $file_upload)
     }else
     {
         print "This file has no schema declaration";
+        debug("This file has no schema declaration");
         return;
     }
     

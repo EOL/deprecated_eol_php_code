@@ -461,10 +461,12 @@ class Spreadsheet_Excel_Reader
 
         if (($version != SPREADSHEET_EXCEL_READER_BIFF8) &&
             ($version != SPREADSHEET_EXCEL_READER_BIFF7)) {
+            debug($version . " != " . SPREADSHEET_EXCEL_READER_BIFF8 . " and " . $version . " != " . SPREADSHEET_EXCEL_READER_BIFF7);
             return false;
         }
 
         if ($substreamType != SPREADSHEET_EXCEL_READER_WORKBOOKGLOBALS){
+        	debug($substreamType . " != " . SPREADSHEET_EXCEL_READER_WORKBOOKGLOBALS);
             return false;
         }
 
@@ -599,6 +601,7 @@ class Spreadsheet_Excel_Reader
                     break;
 
                 case SPREADSHEET_EXCEL_READER_TYPE_FILEPASS:
+                	debug(SPREADSHEET_EXCEL_READER_TYPE_FILEPASS);
                     return false;
                     break;
                 case SPREADSHEET_EXCEL_READER_TYPE_NAME:

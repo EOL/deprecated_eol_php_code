@@ -67,6 +67,7 @@ class PHPExcel_Autoloader
     public static function Load($pClassName){
         if ((class_exists($pClassName,FALSE)) || (strpos($pClassName, 'PHPExcel') !== 0)) {
             //    Either already loaded, or not a PHPExcel class request
+            debug("Either already loaded, or not a PHPExcel class request");
             return FALSE;
         }
 
@@ -76,6 +77,7 @@ class PHPExcel_Autoloader
 
         if ((file_exists($pClassFilePath) === FALSE) || (is_readable($pClassFilePath) === FALSE)) {
             //    Can't load
+            debug("Can't load");
             return FALSE;
         }
 
