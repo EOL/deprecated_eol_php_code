@@ -245,6 +245,7 @@ class analytics_api {
 		$xml = $this->call($url);
 
 		if(!$xml) {
+			debug("Null XML!");
 			return false;
 		}
 

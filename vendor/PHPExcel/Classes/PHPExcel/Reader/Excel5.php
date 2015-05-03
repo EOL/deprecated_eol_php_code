@@ -410,6 +410,7 @@ class PHPExcel_Reader_Excel5 extends PHPExcel_Reader_Abstract implements PHPExce
 			$res = $ole->read($pFilename);
 			return true;
 		} catch (PHPExcel_Exception $e) {
+			debug("PHPExcel_Exception");
 			return false;
 		}
 	}
@@ -6124,6 +6125,7 @@ class PHPExcel_Reader_Excel5 extends PHPExcel_Reader_Abstract implements PHPExce
 					// check if we have a deleted 3d reference
 					if ($this->_ref[$index]['firstSheetIndex'] == 0xFFFF or $this->_ref[$index]['lastSheetIndex'] == 0xFFFF) {
 						throw new PHPExcel_Reader_Exception('Deleted sheet reference');
+						debug("PHPExcel_Reader_Exception('Deleted sheet reference')");
 					}
 
 					// we have normal sheet range (collapsed or uncollapsed)
@@ -6154,6 +6156,7 @@ class PHPExcel_Reader_Excel5 extends PHPExcel_Reader_Abstract implements PHPExce
 				default:
 					// TODO: external sheet support
 					throw new PHPExcel_Reader_Exception('Excel5 reader only supports internal sheets in fomulas');
+					debug("PHPExcel_Reader_Exception('Excel5 reader only supports internal sheets in fomulas')");
 					break;
 			}
 		}

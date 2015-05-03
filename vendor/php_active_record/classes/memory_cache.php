@@ -8,11 +8,13 @@ class MemoryCache
         if(!is_string($key))
         {
             trigger_error("MemoryCache: cache key must be string", E_USER_WARNING);
+            debug("MemoryCache: cache key must be string");
             return false;
         }
         if(!isset($GLOBALS['memory_cache'][$key]))
         {
             //trigger_error("MemoryCache: key doesnt exist", E_USER_WARNING);
+            debug("MemoryCache: key doesnt exist");
             return false;
         }
         return unserialize($GLOBALS['memory_cache'][$key]);
@@ -23,11 +25,13 @@ class MemoryCache
         if(!is_string($key))
         {
             trigger_error("MemoryCache: cache key must be string", E_USER_WARNING);
+            debug("MemoryCache: cache key must be string");
             return false;
         }
         if(!$force && isset($GLOBALS['memory_cache'][$key]))
         {
             //trigger_error("MemoryCache: key already exists", E_USER_WARNING);
+            debug("MemoryCache: key doesnt exist");
             return false;
         }
         $GLOBALS['memory_cache'][$key] = serialize($value);
@@ -39,6 +43,7 @@ class MemoryCache
         if(!is_string($key))
         {
             trigger_error("MemoryCache: cache key must be string", E_USER_WARNING);
+            debug("MemoryCache: cache key must be string");
             return false;
         }
         return self::add($key, $value, $expire, true);
@@ -49,6 +54,7 @@ class MemoryCache
         if(!is_string($key))
         {
             trigger_error("MemoryCache: cache key must be string", E_USER_WARNING);
+            debug("MemoryCache: cache key must be string");
             return false;
         }
         if(isset($GLOBALS['memory_cache'][$key])) unset($GLOBALS['memory_cache'][$key]);

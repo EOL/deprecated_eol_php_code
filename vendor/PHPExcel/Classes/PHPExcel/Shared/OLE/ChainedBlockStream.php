@@ -77,6 +77,7 @@ class PHPExcel_Shared_OLE_ChainedBlockStream
 		if ($mode != 'r') {
 			if ($options & STREAM_REPORT_ERRORS) {
 				trigger_error('Only reading is supported', E_USER_WARNING);
+				debug("Only reading is supported");
 			}
 			return false;
 		}
@@ -89,6 +90,7 @@ class PHPExcel_Shared_OLE_ChainedBlockStream
 
 			if ($options & STREAM_REPORT_ERRORS) {
 				trigger_error('OLE stream not found', E_USER_WARNING);
+				debug('OLE stream not found');
 			}
 			return false;
 		}

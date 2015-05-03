@@ -36,7 +36,10 @@ class HierarchyEntryIndexer
     {
         $filter = "1=1";
         
-        if(!defined('SOLR_SERVER') || !SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries')) return false;
+        if(!defined('SOLR_SERVER') || !SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries')) {
+        	debug("SOLR SERVER not defined or can't ping hierarchy_entries!");
+        	return false;
+        }
         
         if($hierarchy_id)
         {

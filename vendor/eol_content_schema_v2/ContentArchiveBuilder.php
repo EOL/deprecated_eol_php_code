@@ -20,7 +20,10 @@ class ContentArchiveBuilder
     // $parameters might be a single array of objects, or an array of arrays of objects
     public function create_archive_from_objects($parameters)
     {
-        if(!is_array($parameters)) return false;
+        if(!is_array($parameters)) {
+        	debug("Parameters must be an array");
+        	return false;
+        }
         foreach($parameters as $p)
         {
             if(is_array($p))

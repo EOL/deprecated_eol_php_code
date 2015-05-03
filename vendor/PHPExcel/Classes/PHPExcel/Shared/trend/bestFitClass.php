@@ -421,6 +421,7 @@ class PHPExcel_Best_Fit
 		} elseif ($nY != $nX) {
 			//	Ensure both arrays of points are the same size
 			$this->_error = True;
+			debug("Both arrays of points are not the same size");
 			return False;
 		}
 

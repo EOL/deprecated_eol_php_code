@@ -48,18 +48,21 @@ class OLERead {
     	// check if file exist and is readable (Darko Miljanovic)
     	if(!is_readable($sFileName)) {
     		$this->error = 1;
+    		debug("File: $sFileName is not readable!");
     		return false;
     	}
     	
     	$this->data = @file_get_contents($sFileName);
     	if (!$this->data) { 
     		$this->error = 1; 
+    		debug("File: $sFileName has empty content!");
     		return false; 
    		}
    		//echo IDENTIFIER_OLE;
    		//echo 'start';
    		if (substr($this->data, 0, 8) != IDENTIFIER_OLE) {
     		$this->error = 1; 
+    		debug(substr($this->data, 0, 8). " != " . IDENTIFIER_OLE);
     		return false; 
    		}
         $this->numBigBlockDepotBlocks = GetInt4d($this->data, NUM_BIG_BLOCK_DEPOT_BLOCKS_POS);

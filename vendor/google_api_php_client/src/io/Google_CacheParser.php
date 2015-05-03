@@ -36,6 +36,7 @@ class Google_CacheParser {
   public static function isRequestCacheable (Google_HttpRequest $resp) {
     $method = $resp->getRequestMethod();
     if (! in_array($method, self::$CACHEABLE_HTTP_METHODS)) {
+      debug("The request is un-cacheable");
       return false;
     }
 
@@ -44,6 +45,7 @@ class Google_CacheParser {
     // Authorization field, it MUST NOT return the corresponding response
     // as a reply to any other request...
     if ($resp->getRequestHeader("authorization")) {
+      debug("The request is un-cacheable. Don't cache authorized requests/responses.");
       return false;
     }
 
@@ -62,11 +64,13 @@ class Google_CacheParser {
     // First, check if the HTTP request was cacheable before inspecting the
     // HTTP response.
     if (false == self::isRequestCacheable($resp)) {
+      debug("The resquest was un-cacheable");
       return false;
     }
 
     $code = $resp->getResponseHttpCode();
     if (! in_array($code, self::$CACHEABLE_STATUS_CODES)) {
+      debug("The response is un-cacheable.");
       return false;
     }
 
@@ -74,6 +78,7 @@ class Google_CacheParser {
     // the resource doesn't have an ETag for revalidation.
     $etag = $resp->getResponseHeader("etag");
     if (self::isExpired($resp) && $etag == false) {
+      debug("The response is un-cacheable. The resource is already expired and the resource doesn't have an ETag for revalidation.");
       return false;
     }
 
@@ -81,6 +86,7 @@ class Google_CacheParser {
     // store any part of either this response or the request that elicited it.
     $cacheControl = $resp->getParsedCacheControl();
     if (isset($cacheControl['no-store'])) {
+      debug("The response is un-cacheable. If [no-store is] sent in a response, a cache MUST NOT store any part of either this response or the request that elicited it.");
       return false;
     }
 
@@ -88,6 +94,7 @@ class Google_CacheParser {
     // used as a response header incorrectly.
     $pragma = $resp->getResponseHeader('pragma');
     if ($pragma == 'no-cache' || strpos($pragma, 'no-cache') !== false) {
+      debug("The response is un-cacheable. Pragma: no-cache is an http request directive, but is occasionally used as a response header incorrectly.");
       return false;
     }
 
@@ -97,6 +104,7 @@ class Google_CacheParser {
     // Given this, we deem responses with the Vary header as uncacheable.
     $vary = $resp->getResponseHeader('vary');
     if ($vary) {
+      debug("The response is un-cacheable. Vary is extremely difficult to cache.");
       return false;
     }
 
