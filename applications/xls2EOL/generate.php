@@ -13,9 +13,9 @@ $filename = "xml/" . time() . ".xml";
 if(!($OUT = fopen($filename, "w+")))
 {
   debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
-  return;
+}else{
+  fwrite($OUT, $xml); fclose($OUT);
 }
-fwrite($OUT, $xml); fclose($OUT);
 
 $domain = $_SERVER['HTTP_HOST'];
 $temp 	= $_SERVER['SCRIPT_NAME'];

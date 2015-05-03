@@ -110,11 +110,11 @@ class AfrotropicalAPI
                     if(!($OUT = fopen($target, "w")))
                     {
                       debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
-                      return;
+                    }else {
+                     fwrite($OUT, $xml_temp);
+                     fclose($OUT);
                     }
-                    fwrite($OUT, $xml_temp);
-                    fclose($OUT);
-                    
+
                     if(self::check_xml_if_well_formed($target))
                     {
                         $pos = stripos($description,"mm.");

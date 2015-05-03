@@ -149,7 +149,8 @@ function save_to_txt($result,$filename,$field_separator,$file_extension)
     $filename = "$filename" . "." . $file_extension;
     if($fp = fopen($filename,"a+"))
     {
-      fwrite($fp,$str);fclose($fp);
+      fwrite($fp,$str);
+      fclose($fp);
     }else
     {
       debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
