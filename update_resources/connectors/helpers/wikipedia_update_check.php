@@ -73,7 +73,7 @@ fclose($FILE);
 
 if(!($FILE = fopen(DOC_ROOT . "temp/wikipedia_updated.txt", "w+")))
 {
-  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .(DOC_ROOT . "temp/wikipedia_updated.txt");
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .DOC_ROOT . "temp/wikipedia_updated.txt");
   return;
 }
 fwrite($FILE, "data_object_id\tlatest_revision_id\tpageid\tcurrent title\trevision_date\n");

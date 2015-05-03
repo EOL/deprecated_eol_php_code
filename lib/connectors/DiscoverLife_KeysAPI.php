@@ -172,7 +172,7 @@ class DiscoverLife_KeysAPI
 
     private function initialize_text_file($filename)
     {
-        $OUT = fopen($filename, "a")
+        if(!($OUT = fopen($filename, "a")))
         {
           debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
           return;
