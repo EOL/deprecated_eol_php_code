@@ -608,10 +608,10 @@ class HarvestEvent extends ActiveRecord
 				$mail_file = fopen ("log/" . $this->resource->title . "_" . date('d-m-Y H:i:s', time()) . ".log", "w");
 			    if(!$mail_file){
       				debug("Can't open file for outlier mail");
-      				return;
-      			}
-				fwrite($mail_file, $message);
-			    fclose($mail_file);
+      			}else{
+      				fwrite($mail_file, $message);
+			    	fclose($mail_file);
+      			}				
             }
         }
     }
