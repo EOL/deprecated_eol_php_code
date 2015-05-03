@@ -3498,13 +3498,13 @@ class PHPExcel_Calculation {
 				if ($operand > '' && $operand{0} == '#') {
 					$stack->push('Value', $operand);
 					$this->_debugLog->writeDebugLog('Evaluation Result is ', $this->_showTypeDetails($operand));
-					debug('Evaluation Result is ', $this->_showTypeDetails($operand));
+					debug('Evaluation Result is '. $this->_showTypeDetails($operand));
 					return FALSE;
 				} elseif (!PHPExcel_Shared_String::convertToNumberIfFraction($operand)) {
 					//	If not a numeric or a fraction, then it's a text string, and so can't be used in mathematical binary operations
 					$stack->push('Value', '#VALUE!');
 					$this->_debugLog->writeDebugLog('Evaluation Result is a ', $this->_showTypeDetails('#VALUE!'));
-					debug('Evaluation Result is a ', $this->_showTypeDetails('#VALUE!'));
+					debug('Evaluation Result is a '. $this->_showTypeDetails('#VALUE!'));
 					return FALSE;
 				}
 			}
@@ -3654,7 +3654,7 @@ class PHPExcel_Calculation {
 							//	Trap for Divide by Zero error
 							$stack->push('Value','#DIV/0!');
 							$this->_debugLog->writeDebugLog('Evaluation Result is ', $this->_showTypeDetails('#DIV/0!'));
-							debug('Evaluation Result is ', $this->_showTypeDetails('#DIV/0!'));
+							debug('Evaluation Result is '. $this->_showTypeDetails('#DIV/0!'));
 							return FALSE;
 						} else {
 							$result = $operand1/$operand2;

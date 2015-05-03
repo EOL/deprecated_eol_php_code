@@ -6,14 +6,14 @@ class DarwinCoreHarvester
     public static function harvest($uri, &$hierarchy, $vetted_id = 0, $published = 0)
     {
         if(!$uri) {
-        	debuge("Null uri");
+        	debug("Null uri");
         	return false;
         }
         $errors = SchemaValidator::validate($uri, true);
         if($errors !== true)
         {
             print_r($errors);
-            debuge("$errors");
+            debug($errors);
             return false;
         }
         

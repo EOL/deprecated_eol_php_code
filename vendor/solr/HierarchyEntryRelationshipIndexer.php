@@ -20,7 +20,7 @@ class HierarchyEntryRelationshipIndexer
         	return false;
         }
         if(get_class($options['hierarchy']) != 'php_active_record\Hierarchy') {
-        	debug("options['hierarchy'] is not a valid php_active_record\Hierarchy!");
+        	debug("options['hierarchy'] is not a valid php_active_record/Hierarchy!");
         	return false;
         }
         if($options['hierarchy_entry_ids'] && !is_array($options['hierarchy_entry_ids'])) {
