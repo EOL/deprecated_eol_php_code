@@ -112,7 +112,7 @@ class USFishWildlifeAPI
         $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
         if(!($OUT = fopen($resource_path, "w")))
         {
-          debug("Couldn't open file: " .$resource_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$resource_path);
           return;
         }
         fwrite($OUT, $xml);
@@ -393,7 +393,7 @@ class USFishWildlifeAPI
     {
         if(!($OUT = fopen($filename, "a")))
         {
-          debug("Couldn't open file: " .$filename);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
           return;
         }
         fwrite($OUT, "===================" . "\n");

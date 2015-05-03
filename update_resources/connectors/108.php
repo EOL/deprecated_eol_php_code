@@ -61,7 +61,7 @@ $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
 if(!($OUT = fopen($old_resource_path, "w+")))
 {
-  debug("Couldn't open file: " .$old_resource_path);
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$old_resource_path);
   return;
 }
 fwrite($OUT, $new_resource_xml);
@@ -541,7 +541,7 @@ function get_from_txt($filename)
 {
     if(!($fd = fopen ($filename, "r")))
     {
-      debug("Couldn't open file: " .$filename);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
       return;
     }
     $contents = fread ($fd,filesize ($filename));

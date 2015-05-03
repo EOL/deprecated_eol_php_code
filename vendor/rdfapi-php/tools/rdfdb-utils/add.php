@@ -58,7 +58,7 @@ if ($db->modelExists($muri)) {
       
       if(!($fp=fopen($f)))
       {
-        debug("Couldn't open file: " .$f);
+        debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$f);
         return;
       }
       fputs($fp,$a["content"]);

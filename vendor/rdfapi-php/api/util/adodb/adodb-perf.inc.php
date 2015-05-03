@@ -280,7 +280,7 @@ processes 69293
 		$fd = fopen($statfile,"r");
 		if (!$fd)
     {
-      debug("Couldn't open file: " .$statfile);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$statfile);
       return;
     }
 		

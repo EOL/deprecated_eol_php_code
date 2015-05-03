@@ -69,7 +69,7 @@ class ContentArchiveBuilder
         $meta_xml_contents .= "</archive>\n";
         if(!($META_FILE = fopen($this->directory . "meta.xml", 'w+')))
         {
-          debug("Couldn't open file: " .$this->directory . "meta.xml");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->directory . "meta.xml");
           return;
         }
         fwrite($META_FILE, $meta_xml_contents);
@@ -101,7 +101,7 @@ class ContentArchiveBuilder
         
         if(!($WORKING_FILE = fopen($this->directory . $file_name, "r")))
         {
-          debug("Couldn't open file: " .this->directory . $file_name);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->directory . $file_name);
           return;
         }
         while(!feof($WORKING_FILE))
@@ -165,7 +165,7 @@ class ContentArchiveBuilder
         {
             if(!($FILE = fopen($this->directory . $file_name, 'w+')))
             {
-              debug("Couldn't open file: " .$this->directory . $file_name);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->directory . $file_name);
               return;
             }
         }else
@@ -173,7 +173,7 @@ class ContentArchiveBuilder
             if(isset($this->file_handles[$file_name])) return $this->file_handles[$file_name];
             if(!($FILE = fopen($this->directory . $file_name, 'w+')))
             {
-              debug("Couldn't open file: " .$this->directory . $file_name);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->directory . $file_name);
               return;
             }
             $this->file_handles[$file_name] = $FILE;

@@ -14,7 +14,7 @@ if($xml_content = Functions::get_remote_file($url))
     $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
     if(!($OUT = fopen($resource_path, "w")))
     {
-      debug("Couldn't open file: " .$resource_path);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$resource_path);
       return;
     }
     fwrite($OUT, $xml_content);

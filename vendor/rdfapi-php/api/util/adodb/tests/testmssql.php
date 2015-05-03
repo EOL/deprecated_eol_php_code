@@ -68,7 +68,7 @@ $output = "c:\\temp\\test_out-".date('H-i-s').".gif";
 print "Saving file <b>$output</b>, size=".strlen($rs->fields[0])."<p>";
 if(!($fd = fopen($output, "wb")))
 {
-  debug("Couldn't open file: " .$output);
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$output);
   return;
 } 
 fwrite($fd, $rs->fields[0]); 

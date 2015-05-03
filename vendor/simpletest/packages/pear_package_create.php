@@ -61,13 +61,13 @@ if (version_compare(phpversion(), '4.3.0', '<') ||
     php_sapi_name() == 'cgi') {
     if(!($stdout = fopen('php://stdout', 'w')))
     {
-      debug("Couldn't open file: " . 'php://stdout');
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . 'php://stdout');
       return;
     }
     define('STDOUT',  $stdout);
     if(!($sterr = fopen('php://stderr', 'w')))
     {
-      debug("Couldn't open file: " . 'php://stderr');
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . 'php://stderr');
       return;
     }
     define('STDERR',$stderr);

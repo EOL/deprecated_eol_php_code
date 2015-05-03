@@ -60,7 +60,7 @@ $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "30.xml";
 
 if(!($OUT = fopen($old_resource_path, "w+")))
 {
-  debug("Couldn't open file: " .$old_resource_path);
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$old_resource_path);
   return;
 }
 fwrite($OUT, $new_resource_xml);

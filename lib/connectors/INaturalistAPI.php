@@ -54,7 +54,7 @@ class INaturalistAPI
                     {
                         if(!($h = fopen($this->dump_file, 'a')))
                         {
-                          debug("Couldn't open file: " . $this->dump_file);
+                          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->dump_file);
                           return;
                         }
                         fwrite($h, "http://eol.org/data_objects/".$rec['object_id'] . "\t" . $rec['photo_url'] . "\t" . $rec['observation_url'] . "\n");
@@ -79,7 +79,7 @@ class INaturalistAPI
             {
                 if(!($h = fopen(DOC_ROOT . "/temp/iNat_photoID_not_found.txt", 'a')))
                 {
-                  debug("Couldn't open file: " .DOC_ROOT . "/temp/iNat_photoID_not_found.txt");
+                  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .DOC_ROOT . "/temp/iNat_photoID_not_found.txt");
                   return;
                 }
                 fwrite($h, $photo_id . "-");
@@ -109,7 +109,7 @@ class INaturalistAPI
     {
         if(!($h = fopen($this->dump_file, 'w')))
         {
-          debug("Couldn't open file: " .$this->dump_file);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->dump_file);
           return;
         }
         fclose($h);

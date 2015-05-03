@@ -29,7 +29,7 @@ while($result && $row=$result->fetch_assoc())
 
 if(!($FILE = fopen(dirname(__FILE__) . '/../temp/ncbi_linkout.ft', 'w+')))
 {
-  debug("Couldn't open file: " . '/../temp/ncbi_linkout.ft');
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . '/../temp/ncbi_linkout.ft');
   return;
 }
 $details = <<<HERE

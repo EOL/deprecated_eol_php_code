@@ -128,7 +128,7 @@ class PreferredEntriesCalculator
         $tmp_file_path = DOC_ROOT . "temp/preferred_entries.tmp";
         if(!($TMP_FILE = fopen($tmp_file_path, "w+")))
         {
-          debug("Couldn't open file: " . $tmp_file_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $tmp_file_path);
           return;
         }
         foreach($best_entry_for_concept as $taxon_concept_id => $hierarchy_entry_id)

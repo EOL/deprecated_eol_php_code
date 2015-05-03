@@ -93,7 +93,7 @@ class FishWiseAPI
                 $resource_path = DOC_ROOT . "/update_resources/connectors/files/FishWisePro/" . $j_str . ".xml";
                 if (!($OUT = fopen($resource_path, "w+")))
                 {
-                  debug("Couldn't open file: " . $resource_path);
+                  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $resource_path);
                   return;
                 }
                 fwrite($OUT, $xml); fclose($OUT);
@@ -108,7 +108,7 @@ class FishWiseAPI
             $resource_path = DOC_ROOT . "/update_resources/connectors/files/FishWisePro/" . $j_str . ".xml";
             if(!($OUT = fopen($resource_path, "w+")))
             {
-              debug("Couldn't open file: " . $resource_path);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $resource_path);
               return;
             }
              fwrite($OUT, $xml); fclose($OUT);

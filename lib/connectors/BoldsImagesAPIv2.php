@@ -53,7 +53,7 @@ class BoldsImagesAPIv2
         $this->old_bolds_image_ids_path = Functions::save_remote_file_to_local($this->old_bolds_image_ids_path, $options);
          if(!($READ =fopen($this->old_bolds_image_ids_path, "r")))
         {
-          debug("Couldn't open file: " . $this->old_bolds_image_ids_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->old_bolds_image_ids_path);
           return;
         }
         $contents = fread($READ, filesize($this->old_bolds_image_ids_path));
@@ -424,7 +424,7 @@ class BoldsImagesAPIv2
         $i = 0;
         if(!($fn = fopen($this->MASTER_LIST, "w")))
         {
-          debug("Couldn't open file: " . $this->MASTER_LIST);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->MASTER_LIST);
           return;
         }
         foreach($hl_taxa as $key => $value)
@@ -442,7 +442,7 @@ class BoldsImagesAPIv2
     {
         if(!($write = fopen($this->MASTER_LIST, "a")))
         {
-          debug("Couldn't open file: " . $this->MASTER_LIST);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->MASTER_LIST);
           return;
         }
         $options = $this->download_options;

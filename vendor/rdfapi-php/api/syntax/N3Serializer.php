@@ -254,7 +254,7 @@ class N3Serializer extends Object
             fclose($file_handle);
             return true;
         } else {
-            debug("Couldn't open file: " .$file_handle);
+            debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$file_handle);
             return false;
         };
     }

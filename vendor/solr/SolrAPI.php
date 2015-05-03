@@ -174,7 +174,7 @@ class SolrAPI
         @unlink(DOC_ROOT . $this->csv_path);
         if(!($OUT = fopen(DOC_ROOT . $this->csv_path, "w+")))
         {
-          debug("Couldn't open file: " .$this->csv_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->csv_path);
           return;
         }
         fwrite($OUT, "<delete>");
@@ -203,7 +203,7 @@ class SolrAPI
         @unlink(DOC_ROOT . $this->csv_path);
         if(!($OUT = fopen(DOC_ROOT . $this->csv_path, "w+")))
         {
-          debug("Couldn't open file: " .$this->csv_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->csv_path);
           return;
         }
         fwrite($OUT, "<delete>");
@@ -226,7 +226,7 @@ class SolrAPI
         clearstatcache();
         if(!($OUT = fopen(DOC_ROOT . $this->csv_bulk_path, "a+")))
         {
-          debug("Couldn't open file: " .$this->csv_bulk_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->csv_bulk_path);
           return;
         }
         $fields = array_keys(get_object_vars($this->schema_object));

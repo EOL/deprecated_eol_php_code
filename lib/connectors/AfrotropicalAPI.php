@@ -96,7 +96,7 @@ class AfrotropicalAPI
                     $target = DOC_ROOT . "update_resources/connectors/files/temp.xml";
                     if(!($OUT = fopen($file, "w")))
                     {
-                      debug("Couldn't open file: " . $file);
+                      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $file);
                       return;
                     }
                     fwrite($OUT, $pdf);
@@ -109,7 +109,7 @@ class AfrotropicalAPI
                     $xml_temp = "<?xml version='1.0' encoding='utf-8' ?><text>" . $temp . "</text>";
                     if(!($OUT = fopen($target, "w")))
                     {
-                      debug("Couldn't open file: " . $filename);
+                      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
                       return;
                     }
                     fwrite($OUT, $xml_temp);

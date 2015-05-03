@@ -57,7 +57,7 @@ if($what == 'transform')
     $path = str_ireplace("//", "/", $path);
     if (!($fn = fopen($path, 'w')))
     {
-      debug("Couldn't open file: " . $path);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $path);
       return;
     }
     fputs($fn, $temp);

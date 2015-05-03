@@ -99,12 +99,12 @@ class MysqlDumpObfuscator
         
         if(!($MYSQLDUMP = fopen($mysqldump_path, 'r')))
         {
-          debug("Couldn't open file: " .$mysqldump_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$mysqldump_path);
           return;
         }
         if(!($OBFUSCATED = fopen($obfuscated_path, 'w+')))
         {
-          debug("Couldn't open file: " .$obfuscated_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$obfuscated_path);
           return;
         }
         

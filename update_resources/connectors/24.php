@@ -52,7 +52,7 @@ if($taxon_index)
     
     if(!($OUT = fopen($old_resource_path, "w+")))
     {
-      debug("Couldn't open file: " .$old_resource_path);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$old_resource_path);
       return;
     }
     fwrite($OUT, $xml->asXML());

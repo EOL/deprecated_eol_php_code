@@ -49,14 +49,14 @@ class STRImapsAPI
                     unset($page_taxa);
                 }
             }else{
-              debug("Couldn't open file: " . $url);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $url);
             }
         }
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
         if(!($OUT = fopen($resource_path, "w")))
         {
-          debug("Couldn't open file: " .$resource_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$resource_path);
           return;
         }
         fwrite($OUT, $xml);

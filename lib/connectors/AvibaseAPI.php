@@ -41,7 +41,7 @@ class AvibaseAPI
     {
         if(!($resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id ."_temp.xml", "w+")
         {
-          debug("Couldn't open file: " . CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id ."_temp.xml");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id ."_temp.xml");
           return;
         }
         fwrite($resource_file, \SchemaDocument::xml_header());

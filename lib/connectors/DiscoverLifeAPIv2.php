@@ -35,15 +35,15 @@ class DiscoverLifeAPIv2
     {
         if(!($f = fopen($this->WORK_LIST, "w")))
         {
-          debug("Couldn't open file: " . $this->WORK_LIST);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->WORK_LIST);
         } else { fclose($f); }
         if(!($f = fopen($this->WORK_IN_PROGRESS_LIST, "w")))
         {
-          debug("Couldn't open file: " . $this->WORK_IN_PROGRESS_LIST);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->WORK_IN_PROGRESS_LIST);
         } else { fclose($f); }
         if(!($f = fopen($this->INITIAL_PROCESS_STATUS, "w")))
         {
-          debug("Couldn't open file: " . $this->INITIAL_PROCESS_STATUS);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->INITIAL_PROCESS_STATUS);
         } else { fclose($f); }
         //this is not needed but just to have a clean directory
         Functions::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
@@ -117,7 +117,7 @@ class DiscoverLifeAPIv2
         $resource_path = $this->TEMP_FILE_PATH . "temp_DiscoverLife_" . $task . ".xml";
         if(!($OUT = fopen($resource_path, "w")))
         {
-          debug("Couldn't open file: " . $resource_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $resource_path);
           return;
         } 
         fwrite($OUT, $xml); 
@@ -259,7 +259,7 @@ class DiscoverLifeAPIv2
                     $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
                     if(!($OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w")))
                     {
-                      debug("Couldn't open file: " . $this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
+                      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
                       return;
                     }
                     fwrite($OUT, $str);
@@ -277,7 +277,7 @@ class DiscoverLifeAPIv2
             $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
             if(!($OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w")))
             {
-              debug("Couldn't open file: " . $this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
               return;
             }
             fwrite($OUT, $str);
@@ -298,7 +298,7 @@ class DiscoverLifeAPIv2
     {
         if(!($OUT = fopen($filename, "a")))
         {
-          debug("Couldn't open file: " . $filename);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
           return;
         }
         fwrite($OUT, "===================" . "\n");

@@ -1065,7 +1065,7 @@ class AdwAPI
     {
         if(!($WRITE = fopen($filename, "a")))
         {
-          debug("Couldn't open file: " . $filename);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
           return;
         }
         if($data && is_array($data)) fwrite($WRITE, json_encode($data, true) . "\n");

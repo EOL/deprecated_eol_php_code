@@ -293,7 +293,7 @@ class RelateHierarchies
         $this->relationships_temp_file_path = temp_filepath();  // get a path to a tmp file which doesn't exist yet
         if(!($this->RELATIONSHIPS_FILE = fopen($this->relationships_temp_file_path, "w+")))
         {
-          debug("Couldn't open file: " . $this->relationships_temp_file_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->relationships_temp_file_path);
           return;
         }
     }

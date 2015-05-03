@@ -931,7 +931,7 @@ class LifeDeskToScratchpadAPI
             $temp_file_path = $temp_dir . "/" . $parts["basename"];
             if(!($TMP = fopen($temp_file_path, "w")))
             {
-              debug("Couldn't open file: " . $temp_file_path);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_file_path);
               return;
             }
             fwrite($TMP, $file_contents);
@@ -1092,7 +1092,7 @@ class LifeDeskToScratchpadAPI
     {
         if(!($WRITE = fopen($filename, "a")))
         {
-          debug("Couldn't open file: " . $filename);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
           return;
         }
         foreach($this->lifedesk_fields[$type] as $header)
@@ -1108,7 +1108,7 @@ class LifeDeskToScratchpadAPI
     {
         if(!($WRITE = fopen($filename, "a")))
         {
-          debug("Couldn't open file: " . $filename);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
           return;
         }
         if($rec && is_array($rec)) fwrite($WRITE, json_encode($rec) . $nextline);
@@ -1120,7 +1120,7 @@ class LifeDeskToScratchpadAPI
     {
         if(!($f=fopen($file,"w")))
         {
-          debug("Couldn't open file: " . $file);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $file);
           return;
         } 
         # Now UTF-8 - Add byte order mark 

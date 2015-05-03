@@ -158,7 +158,7 @@ class ADODB_Active_Record {
 		if (!$forceUpdate && $ADODB_ACTIVE_CACHESECS && $ADODB_CACHE_DIR && file_exists($fname)) {
 			if(!($fp = fopen($fname,'r')))
       {
-        debug("Couldn't open file: " .$fname);
+        debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$fname);
         return;
       }
 			@flock($fp, LOCK_SH);

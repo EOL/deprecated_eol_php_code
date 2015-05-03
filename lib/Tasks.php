@@ -219,7 +219,7 @@ class Tasks
             $tmp_file_path = temp_filepath();
             if(!($LOAD_DATA_TEMP = fopen($tmp_file_path, "w+")))
             {
-              debug("Couldn't open file: " .$tmp_file_path);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$tmp_file_path);
               return;
             }
             /* Insert the scientific names */
@@ -241,7 +241,7 @@ class Tasks
             $tmp_file_path = temp_filepath();
             if(!($LOAD_DATA_TEMP = fopen($tmp_file_path, "w+")))
             {
-              debug("Couldn't open file: " .$tmp_file_path);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$tmp_file_path);
               return;
             }
             /* Insert the common names */

@@ -129,7 +129,7 @@ function get_values_fromCSV()
     
     if(!($OUT = fopen("temp.csv", "w+")))
     {
-      debug("Couldn't open file: temp.csv");
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: temp.csv");
       return;
     }
 

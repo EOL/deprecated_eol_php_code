@@ -38,7 +38,7 @@ class WikipediaHarvester
         // create new _temp file
         if(!($this->resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_temp.xml", "w+")))
         {
-          debug("Couldn't open file: " .CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_temp.xml");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_temp.xml");
           return;
         }
         
@@ -98,7 +98,7 @@ class WikipediaHarvester
         {
             if(!($delete_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_delete.xml", "w+")))
             {
-              debug("Couldn't open file: " .CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_delete.xml");
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id."_delete.xml");
               return;
             }
             $result = $this->mysqli->query("SELECT identifier FROM data_objects WHERE id IN (". implode(",", $ids).")");
@@ -186,7 +186,7 @@ class WikipediaHarvester
         flush();
         if(!($FILE = fopen($this->base_directory_path ."wikipedia/part_".$part_suffix, "r")))
         {
-          debug("Couldn't open file: " .$this->base_directory_path ."wikipedia/part_".$part_suffix);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->base_directory_path ."wikipedia/part_".$part_suffix);
           return;
         }
         

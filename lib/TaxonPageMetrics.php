@@ -995,7 +995,7 @@ class TaxonPageMetrics
                     {
                         if(!($fp = fopen($write_filename, "a")))
                         {
-                          debug("Couldn't open file: ". $write_filename);
+                          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $write_filename);
                           return;
                         }
                         print "\n writing...";
@@ -1012,7 +1012,7 @@ class TaxonPageMetrics
         //last remaining writes
         if(!($fp = fopen($write_filename, "a")))
         {
-          debug("Couldn't open file: " .$write_filename);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$write_filename);
           return;
         }
         fwrite($fp, $str);
@@ -1054,7 +1054,7 @@ class TaxonPageMetrics
             //saving
             if(!($fp = fopen($write_filename, "a")))
             {
-              debug("Couldn't open file: " .$write_filename);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$write_filename);
               return;
             } 
             fwrite($fp,$str); 

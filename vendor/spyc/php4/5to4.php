@@ -12,7 +12,7 @@ function php5to4 ($src, $dest) {
   $code = str_replace ('self::', '$this->', $code);
   if(!($f = fopen ($dest, 'w')))
   {
-    debug("Couldn't open file: " .$dest);
+    debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$dest);
     return;
   }
   fwrite($f, $code);

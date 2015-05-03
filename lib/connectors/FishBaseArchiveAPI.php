@@ -77,7 +77,7 @@ class FishBaseArchiveAPI
             $temp_file_path = $this->TEMP_FILE_PATH . "/fishbase.zip";
             if(!($TMP = fopen($temp_file_path, "w")))
             {
-              debug("Couldn't open file: " . $temp_file_path);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_file_path);
               return;
             }
             fwrite($TMP, $file_contents);
@@ -808,7 +808,7 @@ class FishBaseArchiveAPI
         //read
         if(!($file = fopen($file_path, "r")))
         {
-          debug("Couldn't open file: " . $file_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $file_path);
           return;
         }
         $contents = fread($file, filesize($file_path));
@@ -817,7 +817,7 @@ class FishBaseArchiveAPI
         //write
         if(!($TMP = fopen($file_path, "w")))
         {
-          debug("Couldn't open file: " . $file_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $file_path);
           return;
         }
         fwrite($TMP, $contents);

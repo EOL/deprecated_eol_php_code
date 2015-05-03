@@ -158,7 +158,7 @@ class Functions
         {
             if(!($h = fopen(DOC_ROOT . "/temp/cant_delete.txt", 'a')))
             {
-              debug("Couldn't open file: ". DOC_ROOT . "/temp/cant_delete.txt");
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". DOC_ROOT . "/temp/cant_delete.txt");
               return;
             }
             fwrite($h, $cache_path . "\n");
@@ -242,7 +242,7 @@ class Functions
         {
             if(!($file = fopen($temp_path, "w")))
             {
-              debug("Couldn't open file: ". $temp_path);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $temp_path);
               return;
             }
             fwrite($file, $file_contents);
@@ -1717,7 +1717,7 @@ class Functions
             //saving
             if(!($OUT = fopen($filename, "w")))
             {
-              debug("Couldn't open file: " .$filename);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
               return;
             }
             fwrite($OUT, $task_list);
@@ -1816,7 +1816,7 @@ class Functions
                     $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
                     if(!($OUT = fopen($destination_folder . $filename_prefix . $file_ctr_str . ".txt", "w")))
                     {
-                      debug("Couldn't open file: ". $destination_folder . $filename_prefix . $file_ctr_str . ".txt");
+                      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $destination_folder . $filename_prefix . $file_ctr_str . ".txt");
                       return;
                     }
                     fwrite($OUT, $str);
@@ -1833,7 +1833,7 @@ class Functions
             $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
             if(!($OUT = fopen($destination_folder . $filename_prefix . $file_ctr_str . ".txt", "w")))
             {
-              debug("Couldn't open file: ". $destination_folder . $filename_prefix . $file_ctr_str . ".txt");
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $destination_folder . $filename_prefix . $file_ctr_str . ".txt");
               return;
             }
             fwrite($OUT, $str);
@@ -1855,7 +1855,7 @@ class Functions
         debug("\n\n Start compiling all XML...");
         if(!($OUT = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", "w")))
         {
-          debug("Couldn't open file: ". CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");
           return;
         }
         $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
@@ -1874,7 +1874,7 @@ class Functions
             debug("\n $filename");
             if(!($READ = fopen($filename, "r")))
             {
-              debug("Couldn't open file: ". $filename);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $filename);
               return;
             }
             $contents = fread($READ, filesize($filename));

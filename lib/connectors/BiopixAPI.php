@@ -182,7 +182,7 @@ class BiopixAPI
         $biopix_tab_data = Functions::get_remote_file($this->data_dump_url, array('timeout' => 300));
         if(!($OUT = fopen($biopix_data_path, "w+")))
         {
-          debug("Couldn't open file: " . $biopix_data_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $biopix_data_path);
           return;
         }
         fwrite($OUT, $biopix_tab_data);

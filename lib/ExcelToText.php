@@ -177,7 +177,7 @@ class ExcelToText
             
             if(!($OUTFILE = fopen($archive_temp_directory_path ."/$sheet_name.txt", "w+")))
             {
-              debug("Couldn't open file: " .$archive_temp_directory_path ."/$sheet_name.txt");
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$archive_temp_directory_path ."/$sheet_name.txt");
               return;
             }
             $worksheet_fields[$sheet_name] = array();
@@ -247,7 +247,7 @@ class ExcelToText
         
         if(!($META = fopen($archive_temp_directory_path ."/meta.xml", "w+")))
         {
-          debug("Couldn't open file: ".$archive_temp_directory_path ."/meta.xml");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ".$archive_temp_directory_path ."/meta.xml");
           return;
         }
         fwrite($META, self::meta_xml_from_worksheets($worksheet_fields));
@@ -275,7 +275,7 @@ class ExcelToText
         $output_file = $this->output_file();
         if(!($OUT = fopen($output_file, "w+")))
         {
-          debug("Couldn't open file: ". $output_file);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $output_file);
           return;
         }
         fwrite($OUT, $xml);

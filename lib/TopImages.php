@@ -109,12 +109,12 @@ class TopImages
     {
         if(!($this->TOP_IMAGES_FILE = fopen(DOC_ROOT . "temp/top_images.sql", "w+")))
         {
-          debug("Couldn't open file: " . DOC_ROOT . "temp/top_images.sql");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . DOC_ROOT . "temp/top_images.sql");
           return;
         }
         if(!($this->TOP_UNPUBLISHED_IMAGES = fopen(DOC_ROOT . "temp/top_unpublished_images.sql", "w+")))
         {
-          debug("Couldn't open file: " . DOC_ROOT . "temp/top_unpublished_images.sql");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . DOC_ROOT . "temp/top_unpublished_images.sql");
           return;
         }
         
@@ -205,12 +205,12 @@ class TopImages
         // truncate the temporary files
         if(!($this->TOP_IMAGES_FILE = fopen(DOC_ROOT . "temp/top_images.sql", "w+")))
         {
-          debug("Couldn't open file: " . DOC_ROOT . "temp/top_images.sql");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . DOC_ROOT . "temp/top_images.sql");
           return;
         }
         if(!($this->TOP_UNPUBLISHED_IMAGES = fopen(DOC_ROOT . "temp/top_unpublished_images.sql", "w+")))
         {
-          debug("Couldn't open file: " . DOC_ROOT . "temp/top_unpublished_images.sql");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . DOC_ROOT . "temp/top_unpublished_images.sql");
           return;
         }
         $i = 0;
@@ -258,7 +258,7 @@ class TopImages
     {
         if(!($OUT = fopen(DOC_ROOT . "temp/top_concept_images.sql", "w+")))
         {
-          debug("Couldn't open file: " . DOC_ROOT . "temp/top_concept_images.sql");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . DOC_ROOT . "temp/top_concept_images.sql");
           return;
         }
         if($published)
@@ -336,7 +336,7 @@ class TopImages
         $visible_id = Visibility::visible()->id;
         if(!($RESULT = fopen($outfile, "r")))
         {
-          debug("Couldn't open file: " . $outfile);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $outfile);
           return;
         }
         while(!feof($RESULT))

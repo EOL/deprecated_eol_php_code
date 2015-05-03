@@ -11,7 +11,7 @@ class testDataFileIterator implements Iterator
     {
         if(!($this->file = fopen($file, 'r')))
         {
-          debug("Couldn't open file: " .$file);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$file);
           return;
         }
     }
@@ -78,7 +78,7 @@ class testDataFileIterator implements Iterator
 
         if(!($temp = fopen('php://memory', 'rw')))
         {
-          debug("Couldn't open file: " .'php://memory');
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .'php://memory');
           return;
         }
         fwrite($temp, $input);

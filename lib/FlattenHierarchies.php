@@ -259,12 +259,12 @@ class FlattenHierarchies
         $this->he_tmp_file_path = temp_filepath();
         if(!($this->HE_OUTFILE = fopen($this->he_tmp_file_path, "w+")))
         {
-          debug("Couldn't open file: " . $this->he_tmp_file_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->he_tmp_file_path);
         }
         $this->tc_tmp_file_path = temp_filepath();
         if(!($this->TC_OUTFILE = fopen($this->tc_tmp_file_path, "w+")))
         {
-          debug("Couldn't open file: " . $this->he_tmp_file_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->he_tmp_file_path);
         }
     }
     

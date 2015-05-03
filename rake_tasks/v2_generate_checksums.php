@@ -66,7 +66,7 @@ function create_checksum($file_path)
     {
         if(!($OUT = fopen("$file_path.sha1", "w+")))
         {
-          debug("Couldn't open file: " ."$file_path.sha1");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " ."$file_path.sha1");
           return;
         }
         fwrite($OUT, sha1_file($file_path));

@@ -144,7 +144,7 @@ class NCBIGGIqueryAPI
         echo "\n initialize file:[$file]\n";
         if(!($WRITE = fopen($file, "w")))
         {
-          debug("Couldn't open file: " . $file);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $file);
           return;
         }
         fclose($WRITE);
@@ -405,7 +405,7 @@ class NCBIGGIqueryAPI
         {
             if(!($file = fopen($temp_path, "w")))
             {
-              debug("Couldn't open file: " . $temp_path);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_path);
               return;
             }
             fwrite($file, $contents);
@@ -415,7 +415,7 @@ class NCBIGGIqueryAPI
         $i = 0;
         if(!($file = fopen($temp_path, "r")))
         {
-          debug("Couldn't open file: " . $temp_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_path);
           return;
         }
         while(!feof($file))
@@ -618,7 +618,7 @@ class NCBIGGIqueryAPI
             foreach($fields as $field) $data .= $rec[$field] . "\t";
             if(!($WRITE = fopen($filename, "a")))
             {
-              debug("Couldn't open file: " . $filename);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
               return;
             }
             fwrite($WRITE, $data . "\n");
@@ -628,7 +628,7 @@ class NCBIGGIqueryAPI
         {
             if(!($WRITE = fopen($filename, "a")))
             {
-              debug("Couldn't open file: " . $filename);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
               return;
             }
             if($rec && is_array($rec)) fwrite($WRITE, json_encode($rec) . "\n");
@@ -1072,7 +1072,7 @@ class NCBIGGIqueryAPI
     {
         if(!($file = fopen($file_path, "r")))
         {
-          debug("Couldn't open file: " . $file_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $file_path);
           return;
         }
         if($is_array) $contents = json_decode(fread($file,filesize($file_path)), true);

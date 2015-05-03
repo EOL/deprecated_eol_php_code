@@ -68,7 +68,7 @@ class FishBaseAPI
                 $resource_path = $this->TEMP_FILE_PATH . "FB_" . $batch_count . ".xml";
                 if(!($OUT = fopen($resource_path, "w")))
                 {
-                  debug("Couldn't open file: " . $resource_path);
+                  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $resource_path);
                   return;
                 }
                 fwrite($OUT, $xml);
@@ -82,7 +82,7 @@ class FishBaseAPI
         $resource_path = $this->TEMP_FILE_PATH . "FB_" . $batch_count . ".xml";
         if(!($OUT = fopen($resource_path, "w")))
         {
-          debug("Couldn't open file: " . $resource_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $resource_path);
           return;
         }
         fwrite($OUT, $xml);
@@ -105,7 +105,7 @@ class FishBaseAPI
             $temp_file_path = $this->TEMP_FILE_PATH . "/fishbase.zip";
             if(!($TMP = fopen($temp_file_path, "w")))
             {
-              debug("Couldn't open file: " . $temp_file_path);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_file_path);
               return;
             }
             fwrite($TMP, $file_contents);

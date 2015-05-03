@@ -23,7 +23,7 @@ if($result && $row=$result->fetch_assoc())
     $outfile = $mysqli->select_into_outfile("SELECT do.id, do.source_url FROM data_objects_harvest_events dohe JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE dohe.harvest_event_id=$max_he_id");
     if(!($RESULT = fopen($outfile, "r")))
     {
-      debug("Couldn't open file: " .$outfile);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$outfile);
       return;
     }
     while(!feof($RESULT))
@@ -53,7 +53,7 @@ if($result && $row=$result->fetch_assoc())
 
 if(!($FILE = fopen(DOC_ROOT . "temp/wikipedia_unchanged.txt", "w+")))
 {
-  debug("Couldn't open file: " .DOC_ROOT . "temp/wikipedia_unchanged.txt");
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .DOC_ROOT . "temp/wikipedia_unchanged.txt");
   return;
 }
 fwrite($FILE, "data_object_id\tpageid\trevision_date\n");
@@ -65,7 +65,7 @@ fclose($FILE);
 
 if(!($FILE = fopen(DOC_ROOT . "temp/wikipedia_deleted.txt", "w+")))
 {
-  debug("Couldn't open file: " .DOC_ROOT . "temp/wikipedia_deleted.txt");
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .DOC_ROOT . "temp/wikipedia_deleted.txt");
   return;
 }
 fwrite($FILE, implode("\n", $GLOBALS['objects_deleted']));
@@ -73,7 +73,7 @@ fclose($FILE);
 
 if(!($FILE = fopen(DOC_ROOT . "temp/wikipedia_updated.txt", "w+")))
 {
-  debug("Couldn't open file: " .(DOC_ROOT . "temp/wikipedia_updated.txt");
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .(DOC_ROOT . "temp/wikipedia_updated.txt");
   return;
 }
 fwrite($FILE, "data_object_id\tlatest_revision_id\tpageid\tcurrent title\trevision_date\n");

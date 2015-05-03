@@ -907,7 +907,7 @@ class HymenopteraAPI
             $temp_file_path = $this->TEMP_FILE_PATH . "/" . $parts["basename"];
             if(!($TMP = fopen($temp_file_path, "w")))
             {
-              debug("Couldn't open file: " . $temp_file_path);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_file_path);
               return;
             }
             fwrite($TMP, $file_contents);

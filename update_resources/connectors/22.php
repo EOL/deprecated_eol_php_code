@@ -7,7 +7,7 @@ $new_resource = Functions::get_remote_file("http://animaldiversity.ummz.umich.ed
 // $new_resource = Functions::get_remote_file("http://localhost/~eolit/eli/eol_php_code/applications/content_server/resources/adw_eol.xml.gz");
 if(!($OUT = fopen($new_resource_path, "w+")))
 {
-  debug("Couldn't open file: " .$new_resource_path);
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$new_resource_path);
   return;
 }
 fwrite($OUT, $new_resource);
@@ -23,7 +23,7 @@ if(substr_count($xml, "<?xml") == 0) $xml = "<?xml version=\"1.0\" encoding=\"UT
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "22.xml";
 if(!($OUT = fopen($old_resource_path, "w+")))
 {
-  debug("Couldn't open file: " .$old_resource_path);
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$old_resource_path);
   return;
 }
 fwrite($OUT, $xml);

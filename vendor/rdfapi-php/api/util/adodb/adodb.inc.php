@@ -1934,7 +1934,7 @@
 		$fd = fopen($path,'rb');
 		if ($fd === false) 
 		{
-      debug("Couldn't open file: " .$fd);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$fd);
       return false;
     }
 		$val = fread($fd,filesize($path));

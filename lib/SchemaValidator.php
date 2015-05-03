@@ -76,7 +76,7 @@ class SchemaValidator
     {
         if(!($FILE = @fopen($uri, "r")))
         {
-          debug("Couldn't open file: " . $uri);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $uri);
           return;
         }
         

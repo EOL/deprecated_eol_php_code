@@ -38,7 +38,7 @@ function rs2csvout(&$rs,$addtitles=true)
 {
 	if(!($fp = fopen('php://stdout','wb')))
   {
-    debug("Couldn't open file: " .'php://stdout');
+    debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .'php://stdout');
     return;
   }
 	_adodb_export($rs,',',',',true,$addtitles);

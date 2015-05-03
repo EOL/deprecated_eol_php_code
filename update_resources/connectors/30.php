@@ -15,7 +15,7 @@ $new_resource_xml = Functions::get_remote_file("http://plazi.cs.umb.edu/exist/re
 
 if(!($OUT = fopen($new_resource_path, "w+")))
 {
-  debug("Couldn't open file: " .$new_resource_path);
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$new_resource_path);
   return;
 }
 fwrite($OUT, $new_resource_xml);
@@ -63,7 +63,7 @@ foreach($file_names as $file_name => $v)
     
     if(!($OUT = fopen($download_cache_path, "w+")))
     {
-      debug("Couldn't open file: " .$download_cache_path);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$download_cache_path);
       return;
     }
     fwrite($OUT, $file_contents);
@@ -85,7 +85,7 @@ foreach($file_names as $file_name => $v)
 
 if(!($OUT = fopen($new_resource_path, "w+")))
 {
-  debug("Couldn't open file: " .$new_resource_path);
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$new_resource_path);
   return;
 }
 fwrite($OUT, serialize($all_taxa));

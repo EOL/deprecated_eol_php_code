@@ -32,12 +32,12 @@ function insert_titles()
     echo "Starting insert_titles\n";
     if(!($OUT = fopen(DOC_ROOT ."temp/titles.txt", "w+")))
     {
-      debug("Couldn't open file: " .$resource_path);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$resource_path);
       return;
     }
     if(!($FILE = fopen(DOC_ROOT ."temp/data/data/title.txt", "r")))
     {
-      debug("Couldn't open file: " .DOC_ROOT ."temp/data/data/title.txt");
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .DOC_ROOT ."temp/data/data/title.txt");
       return;
     }
     $i=0;
@@ -84,12 +84,12 @@ function insert_items()
     echo "Starting insert_items\n";
     if(!($OUT = fopen(DOC_ROOT ."temp/items.txt", "w+")))
     {
-      debug("Couldn't open file: " . DOC_ROOT ."temp/items.txt");
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . DOC_ROOT ."temp/items.txt");
       return;
     }
     if(!($FILE = fopen(DOC_ROOT ."temp/data/data/item.txt", "r")))
     {
-      debug("Couldn't open file: " . DOC_ROOT ."temp/data/data/item.txt");
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . DOC_ROOT ."temp/data/data/item.txt");
       return;
     }
     $i=0;
@@ -129,12 +129,12 @@ function insert_pages()
     echo "Starting insert_pages\n";
     if(!($OUT = fopen(DOC_ROOT ."temp/pages.txt", "w+")))
     {
-      debug("Couldn't open file: " . DOC_ROOT ."temp/pages.txt");
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . DOC_ROOT ."temp/pages.txt");
       return;
     }
     if(!($FILE = fopen(DOC_ROOT ."temp/data/data/page.txt", "r")))
     {
-      debug("Couldn't open file: " .DOC_ROOT ."temp/data/data/page.txt");
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .DOC_ROOT ."temp/data/data/page.txt");
       return;
     }
     $i=0;
@@ -176,12 +176,12 @@ function insert_page_names()
     echo "Starting insert_page_names\n";
     if(!($OUT = fopen(DOC_ROOT ."temp/page_names.txt", "w+")))
     {
-      debug("Couldn't open file: " .DOC_ROOT ."temp/page_names.txt");
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .DOC_ROOT ."temp/page_names.txt");
       return;
     }
     if(!($FILE = fopen(DOC_ROOT ."temp/data/data/pagename.txt", "r")))
     {
-      debug("Couldn't open file: " . DOC_ROOT ."temp/data/data/pagename.txt");
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . DOC_ROOT ."temp/data/data/pagename.txt");
       return;
     }
     $i=0;

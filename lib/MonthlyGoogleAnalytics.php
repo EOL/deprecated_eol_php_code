@@ -87,7 +87,7 @@ class MonthlyGoogleAnalytics
             $outfile = temp_filepath();
             if(!($OUT = fopen($outfile, "w+")))
             {
-              debug("Couldn't open file: " .$outfile);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$outfile);
               return;
             }
             foreach($rows_to_write as $taxon_id => &$values)
@@ -230,7 +230,7 @@ class MonthlyGoogleAnalytics
         $outfile = temp_filepath();
         if(!($OUT = fopen($outfile, "w+")))
         {
-          debug("Couldn't open file: " .$outfile);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$outfile);
           return;
         }
         foreach($taxon_concept_ids as $taxon_concept_id)
@@ -247,7 +247,7 @@ class MonthlyGoogleAnalytics
         $outfile = temp_filepath();
         if(!($OUT = fopen($outfile, "w+")))
         {
-          debug("Couldn't open file: " .$outfile);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$outfile);
           return;
         }
         fwrite($OUT, implode("\t", $stats) . "\n");

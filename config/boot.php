@@ -63,7 +63,7 @@ if((@$GLOBALS['ENV_DEBUG'] || @$GLOBALS['ENV_MYSQL_DEBUG']) && @$GLOBALS['ENV_DE
     if($GLOBALS['ENV_DEBUG_FILE_FLUSH']) $open_state = 'w+';
     if(!($GLOBALS['ENV_DEBUG_FILE_HANDLE'] = fopen($GLOBALS['ENV_DEBUG_FILE'], $open_state)))
     {
-      debug("Couldn't open file: " .$GLOBALS['ENV_DEBUG_FILE']);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$GLOBALS['ENV_DEBUG_FILE']);
       return;
     }
 }

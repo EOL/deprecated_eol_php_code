@@ -25,7 +25,7 @@ function _file_get_contents($file)
 	$f = fopen($file,'r');
 	if (!$f)
   {
-    debug("Couldn't open file: " .$file);
+    debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$file);
     return '';
   }
 	$t = '';
@@ -1594,7 +1594,7 @@ class adoSchema {
 		// Open the file
 		if( !($fp = fopen( $filename, 'r' )) ) {
 			logMsg( 'Unable to open file' );
-      debug("Couldn't open file: " .$filename);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
 			return FALSE;
 		}
 		
@@ -1777,7 +1777,7 @@ class adoSchema {
 		
 		if(!($fp = fopen( $filename, "w" )))
     {
-      debug("Couldn't open file: " .$filename);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
       return;
     }
 		
@@ -1886,7 +1886,7 @@ class adoSchema {
 			fwrite( $fp, $result );
 			fclose( $fp );
 		}else {
-      debug("Couldn't open file: " .$newFile);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$newFile);
       return;
     }
 		
@@ -1943,7 +1943,7 @@ class adoSchema {
 			fwrite( $fp, $result );
 			fclose( $fp );
 		}else {
-      debug("Couldn't open file: " .$newFile);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$newFile);
       return;
     }
 		
@@ -2065,7 +2065,7 @@ class adoSchema {
 		// Open the file
 		if( !($fp = fopen( $filename, 'r' )) ) {
 			// die( 'Unable to open file' );
-			debug("Couldn't open file: " .$filename);
+			debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
 			return FALSE;
 		}
 		

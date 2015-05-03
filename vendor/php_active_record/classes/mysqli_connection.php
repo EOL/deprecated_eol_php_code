@@ -191,7 +191,7 @@ class MysqliConnection
         //$this->insert("SET FOREIGN_KEY_CHECKS = 0");
         if(!($LOAD_DATA_TEMP = fopen($tmp_file_path, "w+")))
         {
-          debug("Couldn't open file: " .$tmp_file_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$tmp_file_path);
           return;
         }
         //flock($LOAD_DATA_TEMP, LOCK_EX);
@@ -200,7 +200,7 @@ class MysqliConnection
         $batch = 0;
         if(!($FILE = fopen($path, "r")))
         {
-          debug("Couldn't open file: " .$path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$path);
           return;
         }
         while(!feof($FILE))
@@ -268,7 +268,7 @@ class MysqliConnection
         $this->begin_transaction();
         if(!($FILE = fopen($outfile, "r")))
         {
-          debug("Couldn't open file: " .$outfile);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$outfile);
           return;
         }
         while(!feof($FILE))
@@ -303,7 +303,7 @@ class MysqliConnection
         $this->begin_transaction();
         if(!($FILE = fopen($outfile, "r")))
         {
-          debug("Couldn't open file: " .$outfile);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$outfile);
           return;
         }
         while(!feof($FILE))

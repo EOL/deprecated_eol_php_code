@@ -24,7 +24,7 @@ class ConabioAPI
         $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
         if(!($OUT = fopen($old_resource_path, "w+")))
         {
-          debug("Couldn't open file: " .$old_resource_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$old_resource_path);
           return;
         }
         $str = "<?xml version='1.0' encoding='utf-8' ?>\n";

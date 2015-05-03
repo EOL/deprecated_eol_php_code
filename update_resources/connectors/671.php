@@ -48,7 +48,7 @@ function utility_append_text_loop()
         $filename = "/Users/eolit/Sites/eli/eol_php_code/tmp/mycobank/mycobank_dump_add" . $str . ".txt";
         if(!($READ = fopen($filename, "r")))
         {
-          debug("Couldn't open file: " .$filename);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
           return;
         }
         $contents = fread($READ, filesize($filename));
@@ -58,7 +58,7 @@ function utility_append_text_loop()
         echo "\n to... $filename\n";
         if(!($WRITE = fopen($filename, "a")))
         {
-          debug("Couldn't open file: " .$filename);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
           return;
         }
         fwrite($WRITE, $contents);

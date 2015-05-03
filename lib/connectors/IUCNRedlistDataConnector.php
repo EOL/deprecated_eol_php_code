@@ -72,7 +72,7 @@ class IUCNRedlistDataConnector
         $i = 0;
         if(!$file = fopen($csv_file, "r"))
         {
-          debug("Couldn't open file: " . $csv_file);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $csv_file);
           return;
         }
         while(!feof($file))
@@ -187,7 +187,7 @@ class IUCNRedlistDataConnector
     {
         if(!($WRITE = fopen($filename, "a")))
         {
-          debug("Couldn't open file: " . $filename);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
           return;
         }
         if($data && is_array($data)) fwrite($WRITE, json_encode($data) . "\n");
@@ -392,7 +392,7 @@ class IUCNRedlistDataConnector
             $temp_file_path = $temp_path . "/" . $parts["basename"];
             if(!($TMP = fopen($temp_file_path, "w")))
             {
-              debug("Couldn't open file: " . $temp_file_path);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_file_path);
               return;
             }
             fwrite($TMP, $file_contents);

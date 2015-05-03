@@ -167,7 +167,7 @@ $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
 if(!($OUT = fopen($old_resource_path, "w+")))
 {
-  debug("Couldn't open file: " .$old_resource_path);
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$old_resource_path);
   return;
 }
 fwrite($OUT, $new_resource_xml);
@@ -290,7 +290,7 @@ function get_id_list()
             fclose($handle);
             $str = $contents;
         }else{
-            debug("Couldn't open file: " .$url);
+            debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$url);
             return;
         }
         $str = utf8_encode($str);

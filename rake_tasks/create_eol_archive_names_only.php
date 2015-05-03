@@ -14,7 +14,7 @@ if(is_dir('/opt/downloads'))
     $md5sum = md5_file('/opt/downloads/eol_names_and_ranks_archive.tar.gz');
     if(!($MD5_FILE = fopen('/opt/downloads/eol_names_and_ranks_archive.md5', 'w+')))
     {
-      debug("Couldn't open file: " . '/opt/downloads/eol_names_and_ranks_archive.md5');
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . '/opt/downloads/eol_names_and_ranks_archive.md5');
       return;
     }
     fwrite($MD5_FILE, $md5sum);

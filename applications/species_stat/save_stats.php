@@ -152,7 +152,7 @@ function save_to_txt($result,$filename,$field_separator,$file_extension)
       fwrite($fp,$str);fclose($fp);
     }else
     {
-      debug("Couldn't open file: " . $filename);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
     }
 }
 
@@ -161,7 +161,7 @@ function getDays($filename)
     $filename = $filename . ".csv";
     if(!($handle = fopen($filename, "a+")))
     {
-      debug("Couldn't open file: " . $filename);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
       return;
     }
     

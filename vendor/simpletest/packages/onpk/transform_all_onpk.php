@@ -20,7 +20,7 @@ while (($file = readdir($dir)) !== false) {
 	if ( $result ) {
 		if(!($handle = fopen($destination, "w+")))
     {
-      debug("Couldn't open file: " .$destination);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$destination);
       return;
     }
 		fwrite($handle, $result);

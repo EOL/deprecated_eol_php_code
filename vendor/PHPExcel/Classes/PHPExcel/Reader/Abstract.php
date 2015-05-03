@@ -200,7 +200,7 @@ abstract class PHPExcel_Reader_Abstract implements PHPExcel_Reader_IReader
 		$this->_fileHandle = fopen($pFilename, 'r');
 		if ($this->_fileHandle === FALSE) {
 			throw new PHPExcel_Reader_Exception("Could not open file " . $pFilename . " for reading.");
-      debug("Couldn't open file: " .$pFilename);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$pFilename);
 		}
 	}
 

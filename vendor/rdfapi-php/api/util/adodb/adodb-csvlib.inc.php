@@ -97,7 +97,7 @@ $ADODB_INCLUDED_CSV = 1;
 		$fp = @fopen($url,'rb');
 		if (!$fp) {
 			$err = $url.' file/URL not found';
-      debug("Couldn't open file: " .$url);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$url);
 			return $false;
 		}
 		@flock($fp, LOCK_SH);
@@ -283,7 +283,7 @@ $ADODB_INCLUDED_CSV = 1;
 			$tmpname = $filename.uniqid($mtime).getmypid();
 			if (!($fd = @fopen($tmpname,'a')))
       {
-        debug("Couldn't open file: " .$tmpname);
+        debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$tmpname);
         return false;
       }
 			$ok = ftruncate($fd,0);			
@@ -303,7 +303,7 @@ $ADODB_INCLUDED_CSV = 1;
 		}
 		if (!($fd = @fopen($filename, 'a')))
     {
-      debug("Couldn't open file: " .$filename);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
       return false;
     }
 		if (flock($fd, LOCK_EX) && ftruncate($fd, 0)) {

@@ -57,7 +57,7 @@ while(true)
     // create resource_id.log
     if(!($resource_harvesting_log = fopen ("log/" . $resource->id . ".log", "w+")))
     {
-      debug("Couldn't open file: " ."log/" . $resource->id . ".log");
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " ."log/" . $resource->id . ".log");
       return;
      }
     $resource->harvest($validate, false, $fast_for_testing);

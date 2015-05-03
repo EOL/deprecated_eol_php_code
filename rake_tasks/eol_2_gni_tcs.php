@@ -27,7 +27,7 @@ $resource_path = DOC_ROOT."applications/content_server/gni_tcs_files/eol_names.x
 
 if(!($FILE = fopen($resource_path, 'w+')))
 {
-  debug("Couldn't open file: " .$resource_path);
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$resource_path);
   return;
 }
 

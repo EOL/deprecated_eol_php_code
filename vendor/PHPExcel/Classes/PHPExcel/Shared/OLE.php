@@ -98,7 +98,7 @@ class PHPExcel_Shared_OLE
 		$fh = fopen($file, "r");
 		if (!$fh) {
 			throw new PHPExcel_Reader_Exception("Can't open file $file");
-      debug("Couldn't open file: " .$file);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$file);
 		}
 		$this->_file_handle = $fh;
 
@@ -219,7 +219,7 @@ class PHPExcel_Shared_OLE
 		}
     if(!($file = fopen($path, 'r')))
     {
-      debug("Couldn't open file: " . $path);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $path);
       return;
     }else return $file;
 	}

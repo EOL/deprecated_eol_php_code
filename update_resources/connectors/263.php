@@ -28,7 +28,7 @@ $naturserveAPI->get_all_taxa();
 
 if(!($resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . "263_temp.xml", "w+")))
 {
-  debug("Couldn't open file: " .CONTENT_RESOURCE_LOCAL_PATH . "263_temp.xml");
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .CONTENT_RESOURCE_LOCAL_PATH . "263_temp.xml");
   return;
 }
 

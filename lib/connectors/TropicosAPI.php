@@ -52,15 +52,15 @@ class TropicosAPI
     {
         if(!($f = fopen($this->WORK_LIST, "w")))
         {
-          debug("Couldn't open file: " . $this->WORK_LIST);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->WORK_LIST);
         }else  fclose($f);
         if(!($f = fopen($this->WORK_IN_PROGRESS_LIST, "w")))
         {
-          debug("Couldn't open file: " . $this->WORK_IN_PROGRESS_LIST);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->WORK_IN_PROGRESS_LIST);
         } else fclose($f);
         if(!($f = fopen($this->INITIAL_PROCESS_STATUS, "w")))
         {
-          debug("Couldn't open file: " . $this->INITIAL_PROCESS_STATUS);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->INITIAL_PROCESS_STATUS);
         }else  fclose($f);
         //this is not needed but just to have a clean directory
         Functions::delete_temp_files($this->TEMP_FILE_PATH . "temp_tropicos_batch_", "xml");
@@ -125,7 +125,7 @@ class TropicosAPI
         $resource_path = $temp_file_path . "temp_tropicos_" . $task . ".xml";
         if(!($OUT = fopen($resource_path, "w")))
         {
-          debug("Couldn't open file: " . $resource_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $resource_path);
           return;
         }
         fwrite($OUT, $xml);
@@ -151,7 +151,7 @@ class TropicosAPI
                     $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 2);
                     if(!($OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w")))
                     {
-                      debug("Couldn't open file: " . $this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
+                      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
                       return;
                     }
                     fwrite($OUT, $str);
@@ -169,7 +169,7 @@ class TropicosAPI
             $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 2);
             if(!($OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w")))
             {
-              debug("Couldn't open file: " . $this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
               return;
             }
             fwrite($OUT, $str);
@@ -485,7 +485,7 @@ class TropicosAPI
     {
         if(!($OUT = fopen($this->TEMP_FILE_PATH . "tropicos_ids.txt", "w")))
         {
-          debug("Couldn't open file: ". $this->TEMP_FILE_PATH . "tropicos_ids.txt");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $this->TEMP_FILE_PATH . "tropicos_ids.txt");
           return;
         }
         $startid = 0; // debug orig value 0; 1600267 with mediaURL and <location>; 1201245 with thumbnail size images
@@ -528,7 +528,7 @@ class TropicosAPI
     {
         if(!($OUT = fopen($filename, 'w')))
         {
-          debug("Couldn't open file: ". $filename);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $filename);
           return;
         }
         fwrite($OUT, "");

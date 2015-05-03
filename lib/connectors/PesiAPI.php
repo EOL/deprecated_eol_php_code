@@ -56,7 +56,7 @@ class PesiAPI
         $i = 0;
         if(!($f = fopen($this->TEMP_FILE_PATH . "/processed.txt", "a")))
         {
-          debug("Couldn't open file: " . $this->TEMP_FILE_PATH . "/processed.txt");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->TEMP_FILE_PATH . "/processed.txt");
           return;
         }
         foreach(new FileIterator($this->TEMP_FILE_PATH . "taxa.txt") as $line_number => $line)
@@ -223,7 +223,7 @@ class PesiAPI
     {
         if(!($f=fopen($this->TEMP_FILE_PATH . "/taxa.txt", "a")))
         {
-          debug("Couldn't open file: " .$this->TEMP_FILE_PATH . "/taxa.txt");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->TEMP_FILE_PATH . "/taxa.txt");
           return;
         }
         fwrite($f, $contents);
@@ -490,7 +490,7 @@ class PesiAPI
         $obj = self::soap_request($guid, $type);
         if(!($file = fopen($filename, "w")))
         {
-          debug("Couldn't open file: " . $filename);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
           return;
         }
         fwrite($file, json_encode($obj));

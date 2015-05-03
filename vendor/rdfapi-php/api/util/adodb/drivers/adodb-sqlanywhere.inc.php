@@ -80,7 +80,7 @@ if (!defined('ADODB_SYBASE_SQLANYWHERE')){
 
    if(!($fd = fopen ($filename, "rb")))
    {
-    debug("Couldn't open file: " .$filename);
+    debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
     return;
   }
 

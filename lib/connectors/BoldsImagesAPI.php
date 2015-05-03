@@ -34,7 +34,7 @@ class BoldsImagesAPI
         $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
         if(!($OUT = fopen($resource_path, "w")))
         {
-          debug("Couldn't open file: " . $resource_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $resource_path);
           return;
         }
         fwrite($OUT, $xml);
@@ -49,7 +49,7 @@ class BoldsImagesAPI
         print "\nfilename: [$filename]";
         if(!($READ = fopen($filename, "r")))
         {
-          debug("Couldn't open file: " . $filename);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
           return;
         }
         $i = 0;
@@ -141,7 +141,7 @@ class BoldsImagesAPI
         $filename = CONTENT_RESOURCE_LOCAL_PATH . "old_BOLDS_image_ids.txt";
         if(!($WRITE = fopen($filename, "w")))
         {
-          debug("Couldn't open file: " . $filename);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
           return;
         }
         fwrite($WRITE, json_encode(array_keys($ids_4fn)));
@@ -149,7 +149,7 @@ class BoldsImagesAPI
             // just testing - reading it back
             if(!($READ2 = fopen($filename, "r")))
             {
-              debug("Couldn't open file: " . $filename);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
               return;
             }
             $contents = fread($READ2, filesize($filename));

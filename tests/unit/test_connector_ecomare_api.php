@@ -21,7 +21,7 @@ class test_connector_Ecomare_api extends SimpletestUnitBase
         $temp_path = temp_filepath();
         if(!($OUT = fopen($temp_path, "w")))
         {
-          debug("Couldn't open file: " .$temp_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$temp_path);
           return;
         }
         fwrite($OUT, $str);

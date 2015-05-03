@@ -112,7 +112,7 @@ class IrmngAPI
         $i = 0;
         if(!($file = fopen($csv_file, "r")))
         {
-          debug("Couldn't open file: " . $csv_file);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $csv_file);
           return;
         }
         while(!feof($file))
@@ -326,7 +326,7 @@ class IrmngAPI
             $temp_file_path = $this->TEMP_FILE_PATH . "/" . $parts["basename"];
             if(!($TMP = fopen($temp_file_path, "w")))
             {
-              debug("Couldn't open file: " . $temp_file_path);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_file_path);
               return;
             }
             fwrite($TMP, $file_contents);
@@ -352,7 +352,7 @@ class IrmngAPI
     {
         if(!($WRITE = fopen($filename, "a")))
         {
-          debug("Couldn't open file: " . $filename);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
           return;
         }
         if($data && is_array($data)) fwrite($WRITE, json_encode($data) . "\n");

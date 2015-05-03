@@ -30,13 +30,13 @@ class GoogleDumpPreparer
         $this->all_languages = array();
         if(!($this->LINKS_OUT = fopen(DOC_ROOT ."/temp/google_dump_links.txt", "w+")))
         {
-          debug("Couldn't open file: " .DOC_ROOT ."/temp/google_dump_links.txt");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .DOC_ROOT ."/temp/google_dump_links.txt");
           return;
         }
         fwrite($this->LINKS_OUT, "EOL PAGE ID\tHIERARCHY NODE ID\tNAME\tPARENT EOL PAGE ID\tPARENT HIERARCHY NODE ID\tEOL PAGE RICHNESS SCORE\tRANK\tPARTNER TAXON IDENTIFIER\tPARTNER NAME\tPARTNER URL\n");
         if(!($this->COMMON_NAMES_OUT = fopen(DOC_ROOT ."/temp/google_dump_common_names.txt", "w+")))
         {
-          debug("Couldn't open file: " . DOC_ROOT ."/temp/google_dump_common_names.txt");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . DOC_ROOT ."/temp/google_dump_common_names.txt");
           return;
         }
         fwrite($this->COMMON_NAMES_OUT, "EOL PAGE ID\tCOMMON NAME\tLANGUAGE ISO CODE OR LABEL\tPREFERRED NAME IN LANGUAGE\n");
@@ -53,7 +53,7 @@ class GoogleDumpPreparer
         
         if(!($this->BLURBS_OUT = fopen(DOC_ROOT ."/temp/google_dump_text_blurbs.txt", "w+")))
         {
-          debug("Couldn't open file: " . DOC_ROOT ."/temp/google_dump_text_blurbs.txt");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . DOC_ROOT ."/temp/google_dump_text_blurbs.txt");
           return;
         }
         fwrite($this->BLURBS_OUT, "EOL PAGE ID\tBLURB\tATTRIBUTION\tLICENSE\n");

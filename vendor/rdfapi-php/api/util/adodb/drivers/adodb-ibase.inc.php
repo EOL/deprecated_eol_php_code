@@ -599,7 +599,7 @@ class ADODB_ibase extends ADOConnection {
 		$fd = fopen($path,'rb'); 
 		if ($fd === false)
     {
-      debug("Couldn't open file: " .$path);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$path);
       return false;
     } 
 		$blob_id = ibase_blob_create($this->_connectionID); 

@@ -537,7 +537,7 @@ class RDFUtil extends Object {
              fwrite($file_handle, $dot);
              fclose($file_handle);
          }else {
-          debug("Couldn't open file: " .$file_handle);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$file_handle);
          }
          $dotinput = " -T".$format." ".$filename;
 

@@ -152,7 +152,7 @@ class HarvestEvent extends ActiveRecord
         
         if (!($FILE = fopen($outfile, "r")))
         {
-          debug("Couldn't open file: " . $outfile);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $outfile);
           return;
         }
         while(!feof($FILE))
@@ -632,7 +632,7 @@ class HarvestEvent extends ActiveRecord
         $outfile = temp_filepath();
         if(!($OUT = fopen($outfile, 'w+')))
         {
-          debug("Couldn't open file: " . $outfile);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $outfile);
           return;
         }
         foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row)
@@ -672,7 +672,7 @@ class HarvestEvent extends ActiveRecord
         $outfile = temp_filepath();
         if (!($OUT = fopen($outfile, 'w+')))
         {
-          debug("Couldn't open file: " . $outfile);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $outfile);
           return;
         }
         foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row)

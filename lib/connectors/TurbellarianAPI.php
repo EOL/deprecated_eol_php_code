@@ -923,7 +923,7 @@ class TurbellarianAPI
         else $item = $array;
         if(!($WRITE = fopen($filename, "a")))
         {
-          debug("Couldn't open file: " .$filename);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
           return;
         }
         fwrite($WRITE, $item . "\n");
@@ -934,7 +934,7 @@ class TurbellarianAPI
     {
         if(!($WRITE = fopen($this->dump_file, "w")))
         {
-          debug("Couldn't open file: " .$this->dump_file);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->dump_file);
           return;
         }
         fclose($WRITE);

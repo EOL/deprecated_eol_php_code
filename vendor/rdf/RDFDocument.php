@@ -16,7 +16,7 @@ class RDFDocument
         if(!preg_match("/rdf:rdf/i", $document)) throw new Exception("Not a valid RDF Document: $url");
         if(!($FILE = fopen(DOC_ROOT . "temp/downloaded_rdf.rdf", "w+")))
         {
-          debug("Couldn't open file: " ."temp/downloaded_rdf.rdf");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " ."temp/downloaded_rdf.rdf");
           return;
         }
         fwrite($FILE, $document);

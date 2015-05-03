@@ -54,7 +54,7 @@ class FEISDataConnector
         $i = 0;
         if(!($file = fopen($csv_file, "r")))
         {
-          debug("Couldn't open file: " . $csv_file);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $csv_file);
           return;
         }
         if(!$file) return;
@@ -232,7 +232,7 @@ class FEISDataConnector
             $temp_file_path = $temp_path . "/" . $parts["basename"];
             if(!($TMP = fopen($temp_file_path, "w")))
             {
-              debug("Couldn't open file: " . $temp_file_path);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_file_path);
               return;
             }
             fwrite($TMP, $file_contents);

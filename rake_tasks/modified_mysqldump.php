@@ -81,7 +81,7 @@ while($result && $row=$result->fetch_row())
         
         if(!($FILE = fopen($modified_dump_tmp_file, 'w+')))
         {
-           debug("Couldn't open file: " .$modified_dump_tmp_file);
+           debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$modified_dump_tmp_file);
            return;
         }
         fwrite($FILE, "\n\n".$insert_query."\n\n");

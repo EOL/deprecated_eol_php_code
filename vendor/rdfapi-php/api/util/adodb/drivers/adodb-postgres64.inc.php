@@ -350,7 +350,7 @@ select viewname,'V' from pg_views where viewname like $mask";
 		
 		if(!($fd = fopen($path,'r')))
     {
-      debug("Couldn't open file: " .$path);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$path);
       return;
     }
 		$contents = fread($fd,filesize($path));

@@ -32,7 +32,7 @@ class WikipediaMycologicalAPI
         self::process_mushroom_observer_list($wrong_urls);
         if(!($WRITE = fopen($this->triples_file, "w")))
         {
-          debug("Couldn't open file: " . $this->triples_file);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->triples_file);
           return;
         } else fclose($WRITE); //initialize file
         foreach(array_keys($this->unique_triples) as $triple) self::save_to_dump($triple, $this->triples_file);
@@ -297,7 +297,7 @@ class WikipediaMycologicalAPI
     {
         if(!($WRITE = fopen($filename, "a")))
         {
-          debug("Couldn't open file: " .$filename);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
           return;
         }
         if($data && is_array($data)) fwrite($WRITE, json_encode($data) . "\n");

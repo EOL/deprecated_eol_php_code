@@ -44,7 +44,7 @@ class ObisAPI
             $resource_path = OBIS_DATA_PATH . "temp_obis_" . $i . ".xml";
             if(!($OUT = fopen($resource_path, "w")))
             {
-              debug("Couldn't open file: " . $resource_path);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $resource_path);
               return;
             } 
             fwrite($OUT, $xml); 
@@ -438,7 +438,7 @@ class ObisAPI
                 $file_count++;
                 if(!($OUT = fopen(OBIS_DATA_PATH . "temp_" . $file_count . ".csv", "w")))
                 {
-                  debug("Couldn't open file: " .OBIS_DATA_PATH . "temp_" . $file_count . ".csv");
+                  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .OBIS_DATA_PATH . "temp_" . $file_count . ".csv");
                   return;
                 }
                 fwrite($OUT, $labels);
@@ -453,7 +453,7 @@ class ObisAPI
             $file_count++;
             if(!($OUT = fopen(OBIS_DATA_PATH . "temp_" . $file_count . ".csv", "w")))
             {
-              debug("Couldn't open file: " .OBIS_DATA_PATH . "temp_" . $file_count . ".csv");
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .OBIS_DATA_PATH . "temp_" . $file_count . ".csv");
               return;
             }
             fwrite($OUT, $labels);

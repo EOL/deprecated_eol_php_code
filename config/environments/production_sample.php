@@ -10,7 +10,7 @@ define('WEB_ROOT', 'http:// *PRODUCTION_WEB_SERVER_HOST* /eol_php_code/');
 // this will create a file which will log certain rake tasks run
 if(!($GLOBALS['log_file'] = fopen(DOC_ROOT . 'temp/processes.log', 'a+')))
 {
-  debug("Couldn't open file: " . $DOC_ROOT . 'temp/processes.log');
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $DOC_ROOT . 'temp/processes.log');
   return;
 }
 

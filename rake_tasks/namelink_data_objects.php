@@ -45,7 +45,7 @@ if($result && $row=$result->fetch_assoc())
     
     if(!($FILE = fopen(DOC_ROOT . 'temp/namelink_last_maximum_object_id.txt', 'w+')))
     {
-      debug("Couldn't open file: " .DOC_ROOT . 'temp/namelink_last_maximum_object_id.txt');
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .DOC_ROOT . 'temp/namelink_last_maximum_object_id.txt');
       return;
     }
 

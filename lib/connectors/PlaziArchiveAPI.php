@@ -20,7 +20,7 @@ class PlaziArchiveAPI
                 //saving new media.txt
                 if(!($WRITE = fopen($paths['archive_path'] . "media.txt", "w")))
                 {
-                  debug("Couldn't open file: " .$paths['archive_path'] . "media.txt");
+                  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$paths['archive_path'] . "media.txt");
                   return;
                 }
                 fwrite($WRITE, $contents);

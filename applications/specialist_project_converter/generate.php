@@ -13,7 +13,7 @@ $xml = $parser->create_specialist_project_xml($arr);
 $filename = "xml/" . time() . ".xml";
 if(!($OUT = fopen($filename, "w+")))
 {
-  debug("Couldn't open file: " . $filename);
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
   return;
 }
 fwrite($OUT, $xml); fclose($OUT);

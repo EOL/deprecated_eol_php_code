@@ -278,7 +278,7 @@ class EnvironmentsEOLDataConnector
             foreach($fields as $field) $data .= $rec[$field] . "\t";
             if(!($WRITE = fopen($filename, "a")))
             {
-              debug("Couldn't open file: " . $filename);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
               return;
             }
             fwrite($WRITE, $data . "\n");
@@ -288,7 +288,7 @@ class EnvironmentsEOLDataConnector
         {
             if(!($WRITE = fopen($filename, "a")))
             {
-              debug("Couldn't open file: " . $filename);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
               return;
             }
             if($rec && is_array($rec)) fwrite($WRITE, json_encode($rec) . "\n");

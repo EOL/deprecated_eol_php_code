@@ -84,7 +84,7 @@ function write_to_resource_harvesting_log($str)
         $file_handler = fopen(DOC_ROOT . 'log/' . $resource_id .  ".log", "a");
         if(!$file_handler)
         {
-          debug("Couldn't open file: " .DOC_ROOT . 'log/' . $resource_id .  ".log");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .DOC_ROOT . 'log/' . $resource_id .  ".log");
           return;
         }else {
             fwrite($file_handler, date('m/d H:i:s') .":: $str\n");
@@ -417,7 +417,7 @@ function file_randomize($path)
     $newline_positions = array(0);
     if(!($FILE = fopen($path, "r")))
     {
-      debug("Couldn't open file: " .$path);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$path);
       return;
     }
     while(!feof($FILE))
@@ -433,7 +433,7 @@ function file_randomize($path)
     $new_file_path = temp_filepath();
     if(!($NEW_FILE = fopen($new_file_path, "w+")))
     {
-      debug("Couldn't open file: " .$new_file_path);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$new_file_path);
       return;
     }
     foreach($newline_positions as $position)

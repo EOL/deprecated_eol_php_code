@@ -20,7 +20,7 @@ class test_validator extends SimpletestUnitBase
         
         if(!($FILE = fopen(DOC_ROOT . "temp/resource.xml", "w+")))
         {
-          debug("Couldn't open file: " . DOC_ROOT . "temp/resource.xml");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . DOC_ROOT . "temp/resource.xml");
           return;
         }
         fwrite($FILE, $doc->asXML());

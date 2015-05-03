@@ -191,7 +191,7 @@ function write_to_text_file($records, $filename, $synonyms, $vernaculars)
     $line = '';
     if(!($OUT = fopen($filename, "a")))
     {
-      debug("Couldn't open file: " .$filename);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
       return;
     }
     $temp = array();
@@ -234,7 +234,7 @@ function write_to_text_file_vernacular($records, $filename)
     $line = '';
     if(!($OUT = fopen($filename, "a")))
     {
-      debug("Couldn't open file: " .$filename);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
       return;
     }
     foreach($records as $recordz)
@@ -255,7 +255,7 @@ function initialize_text_file($filename)
 {
     if(!($f = fopen($filename, "w")))
     {
-      debug("Couldn't open file: " . $filename);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
       return;
     }
     fclose($f);

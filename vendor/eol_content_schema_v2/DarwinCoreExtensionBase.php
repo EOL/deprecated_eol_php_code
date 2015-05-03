@@ -125,7 +125,7 @@ class DarwinCoreExtensionBase
         $extension_contents = file_get_contents($url);
         if(!($CACHE = fopen($cache_location, "w+")))
         {
-          debug("Couldn't open file: " .$cache_location);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$cache_location);
           return;
         }
         fwrite($CACHE, $extension_contents);

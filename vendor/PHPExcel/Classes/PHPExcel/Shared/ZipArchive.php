@@ -98,7 +98,7 @@ class PHPExcel_Shared_ZipArchive
 
 		if(!($handle = fopen($this->_tempDir.'/'.$filenameParts["basename"], "wb")))
     {
-      debug("Couldn't open file: " .$this->_tempDir.'/'.$filenameParts["basename"]);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->_tempDir.'/'.$filenameParts["basename"]);
       return;
     }
 		fwrite($handle, $contents);

@@ -469,7 +469,7 @@ class FlickrAPI
         // write to cache file
         if(!($FILE = fopen($file_path, "w+")))
         {
-          debug("Couldn't open file: " .$file_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$file_path);
           return;
         }
         fwrite($FILE, $photo_response);

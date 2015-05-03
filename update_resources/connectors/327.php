@@ -60,7 +60,7 @@ echo "\n\n has duplicate identifiers: " . check_for_duplicate_identifiers($xml) 
 
 if(!($OUT = fopen($resource_path, "w")))
 {
-  debug("Couldn't open file: " .$resource_path);
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$resource_path);
   return;
 }
 fwrite($OUT, $xml);
@@ -82,7 +82,7 @@ function add_rank_element($source, $destination, $rank, $download_options)
     $xml = str_ireplace("</dwc:ScientificName>", "</dwc:ScientificName><rank>" . $rank . "</rank>", $xml);
     if(!($OUT = fopen($destination, "w")))
     {
-      debug("Couldn't open file: " . $destination);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $destination);
       return;
     }
     fwrite($OUT, $xml);
@@ -174,7 +174,7 @@ function combine_remote_eol_resource_files($resource_id, $files, $download_optio
     debug("\n\n Start compiling all XML...");
     if(!($OUT = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", "w")))
     {
-      debug("Couldn't open file: " .CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");
       return;
     }
     $str = "<?xml version='1.0' encoding='utf-8' ?>\n";

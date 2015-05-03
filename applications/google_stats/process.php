@@ -71,7 +71,7 @@ $taxa_id                = array();
 $row = 0;
 if(!($handle = fopen($filename, "r")))
 {
-  debug("Couldn't open file: " . $filename);
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
   exit;
 }
 while (($data = fgetcsv($handle)) !== FALSE)
@@ -271,7 +271,7 @@ function getMonthYear()
     $filename = "data/monthly.csv";
     if(!($handle = fopen($filename, "a+")))
     {
-      debug("Couldn't open file: " . $filename);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
       return "";
     }
     $comma_separated='';
@@ -422,7 +422,7 @@ function getCountOfTaxaPages($provider,$path,$for)
     $row = 0;
     if(!($handle = fopen($filename, "r")))
     {
-      debug("Couldn't open file: " . $filename);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
       return;
     }
     while (($data = fgetcsv($handle)) !== FALSE)
@@ -458,7 +458,7 @@ function count_rec($file)
     $row = 0;
     if(!($handle = fopen($file, "r")))
     {
-      debug("Couldn't open file: " . $file);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $file);
       return;
     }
     while (($data = fgetcsv($handle)) !== FALSE)
@@ -478,7 +478,7 @@ function process_all_eol($file)
     $row = 0;
     if(!($handle = fopen($file, "r")))
     {
-      debug("Couldn't open file: " . $file);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $file);
       return;
     }
     while (($data = fgetcsv($handle)) !== FALSE)
@@ -549,7 +549,7 @@ function record_details($provider,$path,$start_cnt,$total_taxon_id,$agentID)
     $row = 0;
     if (!($handle = fopen($filename, "r")))
     {
-      debug("Couldn't open file: " . $filename);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
       return;
     }
     while (($data = fgetcsv($handle)) !== FALSE)
@@ -711,7 +711,7 @@ function record_details_eol($path)
     $row = 0;
     if(!($handle = fopen($filename, "r")))
     {
-      debug("Couldn't open file: " . $filename);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
       return;
     }
     while (($data = fgetcsv($handle)) !== FALSE)

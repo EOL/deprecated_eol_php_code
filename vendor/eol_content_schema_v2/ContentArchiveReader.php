@@ -46,7 +46,7 @@ class ContentArchiveReader
         $temp_file_path = $this->archive_directory ."/dwca.tar.gz";
         if(!($TMP = fopen($temp_file_path, "w+")))
         {
-          debug("Couldn't open file: " .$temp_file_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$temp_file_path);
           return;
         }
         fwrite($TMP, $file_contents);

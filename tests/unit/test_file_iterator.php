@@ -19,7 +19,7 @@ class test_file_iterator extends SimpletestUnitBase
         
         if(!($FILE = fopen($temp_filepath, "w+")))
         {
-          debug("Couldn't open file: " . $temp_filepath);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_filepath);
           return;
         }
         fwrite($FILE, implode("\n", $file_lines));
@@ -44,7 +44,7 @@ class test_file_iterator extends SimpletestUnitBase
         $temp_filepath = temp_filepath();
         if(!($FILE = fopen($temp_filepath, "w+")))
         {
-          debug("Couldn't open file: " . $temp_filepath);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_filepath);
           return;
         }
         fwrite($FILE, implode("\n", $file_lines));

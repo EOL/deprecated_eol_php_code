@@ -22,7 +22,7 @@ if(FlickrAPI::valid_auth_token(FLICKR_AUTH_TOKEN)) $auth_token = FLICKR_AUTH_TOK
 // create new _temp file
 if(!($resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", "w+")))
 {
-  debug("Couldn't open file: " .CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml");
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml");
   return;
 }
 
@@ -106,7 +106,7 @@ function remove_bhl_images_already_existing_in_eol_group($resource_id)
     $xml_string = ResourceDataObjectElementsSetting::delete_taxon_if_no_dataObject($xml_string);
     if(!($WRITE = fopen($resource_path, "w")))
     {
-      debug("Couldn't open file: " .$resource_path);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$resource_path);
       return;
     }
     fwrite($WRITE, $xml_string);
@@ -154,7 +154,7 @@ function bhl_image_count() // just for stats
     $filename = "BHL_images_in_EOLGroup.txt";
     if(!($WRITE = fopen($filename, "w")))
     {
-      debug("Couldn't open file: " .$filename);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
       return;
     }
     fwrite($WRITE, json_encode($do_ids));
@@ -163,7 +163,7 @@ function bhl_image_count() // just for stats
     // just testing - reading it back
     if(!($READ = fopen($filename, "r")))
     {
-      debug("Couldn't open file: " .$filename);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
       return;
     }
     $contents = fread($READ, filesize($filename));

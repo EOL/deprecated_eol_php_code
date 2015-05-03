@@ -9,7 +9,7 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 
 if(!($OUT = fopen("../temp/namebank.tcs.xml", "w+")))
 {
-  debug("Couldn't open file: " ."../temp/namebank.tcs.xml");
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " ."../temp/namebank.tcs.xml");
   return;
 }
 

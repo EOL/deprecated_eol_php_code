@@ -1231,7 +1231,7 @@ class Snoopy
 
 						if(!($fp = fopen($file_name, "r")))
             {
-              debug("Couldn't open file: " .$file_name);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$file_name);
               return;
             }
 						$file_content = fread($fp, filesize($file_name));

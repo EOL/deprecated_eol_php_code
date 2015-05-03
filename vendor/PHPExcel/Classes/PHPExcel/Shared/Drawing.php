@@ -181,7 +181,7 @@ class PHPExcel_Shared_Drawing
         //    Load the image into a string
         if(!($file    =    fopen($p_sFile,"rb")))
         {
-          debug("Couldn't open file: " .$p_sFile);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$p_sFile);
           return;
         }
         $read    =    fread($file,10);

@@ -135,7 +135,7 @@ class MycoBankAPI
         {
             if(!($READ = fopen($filename, "r")))
             {
-              debug("Couldn't open file: " . $filename);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
               return;
             }
             $contents = fread($READ, filesize($filename));
@@ -274,7 +274,7 @@ class MycoBankAPI
         echo "\n\n Start compiling all dumps...";
         if(!($OUT = fopen($dump_file, "a")))
         {
-          debug("Couldn't open file: " . $dump_file);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $dump_file);
           return;
         }
         foreach (glob($files) as $filename)
@@ -282,7 +282,7 @@ class MycoBankAPI
             echo "\n -- $filename";
             if(!($READ = fopen($filename, "r")))
             {
-              debug("Couldn't open file: " . $filename);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
               return;
             }
             $contents = fread($READ, filesize($filename));
@@ -862,7 +862,7 @@ class MycoBankAPI
     {
         if(!($WRITE = fopen($filename, "a")))
         {
-          debug("Couldn't open file: " . $filename);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
           return;
         }
         if($data && is_array($data)) fwrite($WRITE, json_encode($data, true) . "\n");
@@ -874,7 +874,7 @@ class MycoBankAPI
     {
         if(!($WRITE = fopen($this->dump_file, "w")))
         {
-          debug("Couldn't open file: " . $this->dump_file);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->dump_file);
           return;
         }
         fclose($WRITE);

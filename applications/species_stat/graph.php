@@ -133,7 +133,7 @@ function get_values_fromCSV($title)
     $row = 0;
     if(!($handle = fopen($filename, "r")))
     {
-      debug("Couldn't open file: " . $filename);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
       return;
     }
     

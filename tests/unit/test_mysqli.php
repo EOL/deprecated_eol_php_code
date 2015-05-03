@@ -26,7 +26,7 @@ class test_mysqli extends SimpletestUnitBase
         $tmp_file_path = temp_filepath();
         if(!($FILE = fopen($tmp_file_path, 'w+')))
         {
-          debug("Couldn't open file: " . $temp_file_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_file_path);
           return;
         }
         for($i=1 ; $i<=50002 ; $i++)
@@ -55,7 +55,7 @@ class test_mysqli extends SimpletestUnitBase
         // making a smaler file for two more tests
         if(!($FILE = fopen($tmp_file_path, 'w+')))
         {
-          debug("Couldn't open file: " . $temp_file_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_file_path);
           return;
         }
         for($i=1 ; $i<=10 ; $i++)

@@ -58,22 +58,22 @@ class WormsAPI
     {
         if(!($f = fopen($this->WORK_LIST, "w")))
         {
-          debug("Couldn't open file: ". $this->WORK_LIST);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $this->WORK_LIST);
           return;
         } else fclose($f);
         if(!($f = fopen($this->WORK_IN_PROGRESS_LIST, "w")))
         {
-          debug("Couldn't open file: ". $this->WORK_IN_PROGRESS_LIST);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $this->WORK_IN_PROGRESS_LIST);
           return;
         }else  fclose($f);
         if(!($f = fopen($this->INITIAL_PROCESS_STATUS, "w")))
         {
-          debug("Couldn't open file: ". $this->INITIAL_PROCESS_STATUS);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $this->INITIAL_PROCESS_STATUS);
           return;
         } else  fclose($f);
         if(!($f = fopen($this->TEMP_FILE_PATH . "bad_ids.txt", "w")))
         {
-          debug("Couldn't open file: ". $this->TEMP_FILE_PATH );
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $this->TEMP_FILE_PATH );
           return;
         } else  fclose($f);
         //this is not needed but just to have a clean directory
@@ -120,7 +120,7 @@ class WormsAPI
         $temp_resource_path = $this->TEMP_FILE_PATH . "temp_worms_" . $task . ".xml";
         if(!($OUT = fopen($temp_resource_path, "w")))
         {
-          debug("Couldn't open file: ". $temp_resource_pat);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $temp_resource_pat);
           return;
         }
         foreach(new FileIterator($filename) as $line_number => $line)
@@ -289,7 +289,7 @@ class WormsAPI
                 $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
                 if(!($OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w")))
                 {
-                  debug("Couldn't open file: " .$this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
+                  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
                   return;
                 }
                 fwrite($OUT, $str);
@@ -305,7 +305,7 @@ class WormsAPI
             $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
             if(!($OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w")))
             {
-              debug("Couldn't open file: " .$this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
               return;
             }
             fwrite($OUT, $str);
@@ -326,7 +326,7 @@ class WormsAPI
     {
         if(!($OUT = fopen($this->TEMP_FILE_PATH . "bad_ids.txt", "a")))
         {
-          debug("Couldn't open file: ". $this->TEMP_FILE_PATH . "bad_ids.txt");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $this->TEMP_FILE_PATH . "bad_ids.txt");
           return;
         }
         fwrite($OUT, "===================" . "\n");
@@ -341,7 +341,7 @@ class WormsAPI
         $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
         if(!($OUT = fopen($old_resource_path, "w")))
         {
-          debug("Couldn't open file: ".$old_resource_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ".$old_resource_path);
           return;
         }
         $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
@@ -369,7 +369,7 @@ class WormsAPI
             echo " $i ";
             if(!($READ = fopen($filename, "r")))
             {
-              debug("Couldn't open file: ". $filename);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $filename);
               return;
             }
             $contents = fread($READ, filesize($filename));

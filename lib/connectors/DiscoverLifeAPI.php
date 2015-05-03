@@ -89,7 +89,7 @@ class DiscoverLifeAPI
         $filename = self::$TEMP_FILE_PATH . $task . ".txt";
         if(!($FILE = fopen($filename, "r")))
         {
-          debug("Couldn't open file: " . $filename);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
           return;
         }
         $i = 0; 
@@ -134,7 +134,7 @@ class DiscoverLifeAPI
         $resource_path = CONTENT_RESOURCE_LOCAL_PATH . "DiscoverLife/temp_DiscoverLife_" . $task . ".xml";
         if(!($OUT = fopen($resource_path, "w")))
         {
-          debug("Couldn't open file: " .$resource_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$resource_path);
           return;
         } 
         fwrite($OUT, $xml); 
@@ -228,7 +228,7 @@ class DiscoverLifeAPI
     {
         if(!($FILE = fopen(self::DL_MAP_SPECIES_LIST, "r")))
         {
-          debug("Couldn't open file: " . self::DL_MAP_SPECIES_LIST);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . self::DL_MAP_SPECIES_LIST);
           return;
         }
         $i = 0;
@@ -249,7 +249,7 @@ class DiscoverLifeAPI
                     $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
                     if(!($OUT = fopen(self::$TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w")))
                     {
-                      debug("Couldn't open file: " .self::$TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
+                      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .self::$TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
                       return;
                     }
                     fwrite($OUT, $str);
@@ -266,7 +266,7 @@ class DiscoverLifeAPI
             $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
             if(!($OUT = fopen(self::$TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w")))
             {
-              debug("Couldn't open file: " .self::$TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .self::$TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
               return;
             }
             fwrite($OUT, $str);
@@ -289,7 +289,7 @@ class DiscoverLifeAPI
         $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
         if(!($OUT = fopen($old_resource_path, "w")))
         {
-          debug("Couldn't open file: " . $old_resource_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $old_resource_path);
           return;
         }
         $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
@@ -317,7 +317,7 @@ class DiscoverLifeAPI
             print " $i ";
             if(!($READ = fopen($filename, "r")))
             {
-              debug("Couldn't open file: " . $filename);
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
               return;
             }
             $contents = fread($READ, filesize($filename));
@@ -339,7 +339,7 @@ class DiscoverLifeAPI
     {
         if(!($OUT = fopen($filename, "a")))
         {
-          debug("Couldn't open file: " . $filename);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
           return;
         }
         fwrite($OUT, "===================" . "\n");

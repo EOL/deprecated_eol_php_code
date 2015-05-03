@@ -23,7 +23,7 @@ $reader->open($path_to_raw_file);
 
 if(!($OUT = fopen($path_to_final_file, "w+")))
 {
-  debug("Couldn't open file: " .$path_to_final_file);
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$path_to_final_file);
   return;
 }
 scan_recursively($reader, $OUT);

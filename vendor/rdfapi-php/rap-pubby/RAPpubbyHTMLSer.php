@@ -80,7 +80,7 @@ Class RAPpubbyHTMLSer extends Object {
 		} 
 		else { 			
 			trigger_error("Could not find template file: $t, ");
-      debug("Couldn't open file: " .$t);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$t);
 			$this->htmlTemplate = $this->getBasicTemplate();
 		} 	
 		
@@ -93,7 +93,7 @@ Class RAPpubbyHTMLSer extends Object {
 		} 
 		else { 			
 			trigger_error("Could not find template file: $t_404, ");
-      debug("Couldn't open file: " .$t_404);
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$t_404);
 			$this->htmlTemplate_404 = $this->getBasicTemplate_404();
 		} 	
 		

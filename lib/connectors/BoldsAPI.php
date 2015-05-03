@@ -42,19 +42,19 @@ class BoldsAPI
     {
         if(!($f = fopen($this->WORK_LIST, "w")))
         {
-          debug("Couldn't open file: " . $this->WORK_LIST);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->WORK_LIST);
         }else{
           fclose($f);
         }
         if(!($f = fopen($this->WORK_IN_PROGRESS_LIST, "w")))
         {
-          debug("Couldn't open file: " .$this->WORK_IN_PROGRESS_LIST);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->WORK_IN_PROGRESS_LIST);
         }else{
           fclose($f);
         }
         if(!($f = fopen($this->INITIAL_PROCESS_STATUS, "w")))
         {
-          debug("Couldn't open file: " . $this->INITIAL_PROCESS_STATUS);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->INITIAL_PROCESS_STATUS);
         }else{
           fclose($f);
         }
@@ -119,7 +119,7 @@ class BoldsAPI
         $resource_path = $this->TEMP_FILE_PATH . "temp_Bolds_" . $task . ".xml";
         if(!($OUT = fopen($resource_path, "w")))
         {
-          debug("Couldn't open file: " . $resource_path);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $resource_path);
           return;
         } 
         fwrite($OUT, $xml); 
@@ -315,7 +315,7 @@ class BoldsAPI
     {
         if(!($WRITE = fopen($filename, "a")))
         {
-          debug("Couldn't open file: " . $filename);
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
           return;
         }
         if($data && is_array($data)) fwrite($WRITE, json_encode($data) . "\n");
