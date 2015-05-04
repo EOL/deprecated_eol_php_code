@@ -432,7 +432,8 @@ class ArchiveDataIngester
               " AND synonym_relation_id = " . $common_name_relation->id .
               " AND hierarchy_entry_id = " . $he_id .
               " AND hierarchy_id = " .
-              $this->harvest_event->resource->hierarchy_id);
+              $this->harvest_event->resource->hierarchy_id . 
+              " AND identifier = ". $taxon_ids[0]);
             if ($result && $result->fetch_assoc()){
               $l_id = @$language->id ?: 0;
               $GLOBALS['db_connection']->update(
@@ -444,8 +445,9 @@ class ArchiveDataIngester
                 " AND synonym_relation_id = " . $common_name_relation->id .
                 " AND hierarchy_entry_id = " . $he_id .
                 " AND hierarchy_id = " .
-                $this->harvest_event->resource->hierarchy_id
-              );
+                $this->harvest_event->resource->hierarchy_id .
+                "AND identifier = ". $taxon_ids[0]);
+              break;
             }else{
                 Synonym::find_or_create(array('name_id'               => $name->id,
                                               'synonym_relation_id'   => $common_name_relation->id,
@@ -455,7 +457,9 @@ class ArchiveDataIngester
                                               'hierarchy_id'          => $this->harvest_event->resource->hierarchy_id,
                                               'vetted_id'             => 0,
                                               'published'             => 0,
-                                              'taxonRemarks'          => $taxonRemarks));
+                                              'taxonRemarks'          => $taxonRemarks, 
+                                              'identifier'            => $taxon_ids[0] ));
+                 break;
             }
         }
     }

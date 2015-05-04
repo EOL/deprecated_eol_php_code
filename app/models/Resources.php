@@ -18,8 +18,10 @@ class Resource extends ActiveRecord
 
     public $harvest_event;
     public $last_harvest_event;
-    public $start_harvest_time;
-    public $end_harvest_time;
+    public $start_harvest_datetime;
+    public $end_harvest_datetime;
+    public $start_harvest_seconds;
+    public $end_harvest_seconds;
 
     public static function delete($id)
     {
@@ -186,6 +188,29 @@ class Resource extends ActiveRecord
 		
         return $resources;
     }
+
+    public static function get_ready_resource($hours_ahead_of_time = null)
+    {
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        
+        $extra_hours_clause = "";
+        if($hours_ahead_of_time) $extra_hours_clause = " - $hours_ahead_of_time";
+
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=".ResourceStatus::force_harvest()->id." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::validated()->id." OR resource_status_id=".ResourceStatus::validation_failed()->id." OR resource_status_id=".ResourceStatus::processing_failed()->id.")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL (refresh_period_hours $extra_hours_clause) HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::upload_failed()->id.", ".ResourceStatus::validated()->id.", ".ResourceStatus::validation_failed()->id.", ". ResourceStatus::processed()->id .", ".ResourceStatus::processing_failed()->id.", ".ResourceStatus::published()->id.")) ORDER BY position ASC LIMIT 1");
+        if($result && $row=$result->fetch_assoc())
+        {
+            return Resource::find($row["id"]);
+        }
+        return NULL;
+    }
+
+	public static function is_paused()
+	{
+		$mysqli =& $GLOBALS['mysqli_connection'];
+		$result = $mysqli->query("SELECT SQL_NO_CACHE pause FROM resources");
+		if($result && $row=$result->fetch_assoc())
+			return $row["pause"];        
+	}
 
     public static function ready_for_publishing()
     {
@@ -730,7 +755,8 @@ class Resource extends ActiveRecord
       if(!$this->harvest_event) { // Create this harvest event
         $this->harvest_event = HarvestEvent::create(array('resource_id' => $this->id));
         $this->harvest_event->resource = $this;
-        $this->start_harvest_time  = date('Y m d H');
+        $this->start_harvest_datetime  = date('Y m d H');
+        $this->start_harvest_seconds = time();
       }
       $this->debug_end("start_harvest");
     }
@@ -742,8 +768,10 @@ class Resource extends ActiveRecord
         {
             $this->harvest_event->completed();
             $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::processed()->id .", harvested_at=NOW(), notes='' WHERE id=$this->id");
-            $this->end_harvest_time  = date('Y m d H');
-            $this->harvest_event->resource->refresh();       
+            $this->end_harvest_datetime  = date('Y m d H');
+            $this->harvest_event->resource->refresh();
+            $this->end_harvest_seconds= time();
+            $this->mysqli->update("UPDATE resources SET last_harvest_seconds=".( $this->end_harvest_seconds-$this->start_harvest_seconds )." WHERE id=$this->id");
         }
       $this->debug_end("end_harvest");
     }
