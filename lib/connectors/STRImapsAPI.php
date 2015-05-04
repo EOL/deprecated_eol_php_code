@@ -48,11 +48,17 @@ class STRImapsAPI
                     if($page_taxa) $all_taxa = array_merge($all_taxa, $page_taxa);
                     unset($page_taxa);
                 }
+            }else{
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $url);
             }
         }
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-        $OUT = fopen($resource_path, "w");
+        if(!($OUT = fopen($resource_path, "w")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$resource_path);
+          return;
+        }
         fwrite($OUT, $xml);
         fclose($OUT);
     }

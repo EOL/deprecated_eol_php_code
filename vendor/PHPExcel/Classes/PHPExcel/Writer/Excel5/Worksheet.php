@@ -2616,6 +2616,7 @@ class PHPExcel_Writer_Excel5_Worksheet extends PHPExcel_Writer_Excel5_BIFFwriter
 		$bmp_fd = @fopen($bitmap,"rb");
 		if (!$bmp_fd) {
 			throw new PHPExcel_Writer_Exception("Couldn't import $bitmap");
+      debug("Couldn't import $bitmap");
 		}
 
 		// Slurp the file into a string.

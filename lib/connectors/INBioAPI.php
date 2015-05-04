@@ -68,7 +68,11 @@ class INBioAPI
             $temp_file_path = $temp_dir . "" . $filename;
             debug("temp_dir: $temp_dir");
             debug("Extracting... $temp_file_path");
-            $TMP = fopen($temp_file_path, "w");
+            if(!($TMP = fopen($temp_file_path, "w")))
+            {
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_file_path);
+              return;
+            }
             fwrite($TMP, $file_contents);
             fclose($TMP);
             sleep(5);

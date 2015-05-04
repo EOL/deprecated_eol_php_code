@@ -559,7 +559,11 @@ class NMNHTypeRecordAPI
     private function process_row_type_from_NHM($csv_file)
     {
         $i = 0;
-        $file = fopen($csv_file,"r");
+        if(!($file = fopen($csv_file,"r")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $csv_file);
+          return;
+        }
         while(!feof($file))
         {
             $temp = fgetcsv($file);

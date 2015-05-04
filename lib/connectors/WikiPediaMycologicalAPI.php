@@ -30,7 +30,11 @@ class WikipediaMycologicalAPI
         $wrong_urls = self::get_urls_from_dump($this->dump_file);
         self::process_wikepedia_fungal_list($wrong_urls);
         self::process_mushroom_observer_list($wrong_urls);
-        $WRITE = fopen($this->triples_file, "w"); fclose($WRITE); //initialize file
+        if(!($WRITE = fopen($this->triples_file, "w")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->triples_file);
+          return;
+        } else fclose($WRITE); //initialize file
         foreach(array_keys($this->unique_triples) as $triple) self::save_to_dump($triple, $this->triples_file);
         echo "\n count of scinames: "              . count($this->debug["sciname"]);
         echo "\n count of scinames with triples: " . count($this->debug["sciname with triples"]);
@@ -291,7 +295,11 @@ class WikipediaMycologicalAPI
 
     private function save_to_dump($data, $filename) // utility
     {
-        $WRITE = fopen($filename, "a");
+        if(!($WRITE = fopen($filename, "a")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
+          return;
+        }
         if($data && is_array($data)) fwrite($WRITE, json_encode($data) . "\n");
         else                         fwrite($WRITE, $data . "\n");
         fclose($WRITE);

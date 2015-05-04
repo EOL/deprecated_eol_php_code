@@ -75,7 +75,11 @@ class FishBaseArchiveAPI
         if($file_contents = Functions::get_remote_file($this->fishbase_data, array('timeout' => 172800)))
         {
             $temp_file_path = $this->TEMP_FILE_PATH . "/fishbase.zip";
-            $TMP = fopen($temp_file_path, "w");
+            if(!($TMP = fopen($temp_file_path, "w")))
+            {
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_file_path);
+              return;
+            }
             fwrite($TMP, $file_contents);
             fclose($TMP);
             $output = shell_exec("unzip $temp_file_path -d $this->TEMP_FILE_PATH");
@@ -802,12 +806,20 @@ class FishBaseArchiveAPI
     {
         echo "\nUpdating $file_path";
         //read
-        $file = fopen($file_path, "r");
+        if(!($file = fopen($file_path, "r")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $file_path);
+          return;
+        }
         $contents = fread($file, filesize($file_path));
         fclose($file);
         $contents = str_ireplace(chr(10).chr(13)."\\", "", $contents);
         //write
-        $TMP = fopen($file_path, "w");
+        if(!($TMP = fopen($file_path, "w")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $file_path);
+          return;
+        }
         fwrite($TMP, $contents);
         fclose($TMP);
         echo "\nChanges saved\n"; exit;

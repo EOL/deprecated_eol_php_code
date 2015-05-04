@@ -921,14 +921,22 @@ class TurbellarianAPI
     {
         if(is_array($array)) $item = json_encode($array);
         else $item = $array;
-        $WRITE = fopen($filename, "a");
+        if(!($WRITE = fopen($filename, "a")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
+          return;
+        }
         fwrite($WRITE, $item . "\n");
         fclose($WRITE);
     }
 
     private function initialize_dump_file()
     {
-        $WRITE = fopen($this->dump_file, "w");
+        if(!($WRITE = fopen($this->dump_file, "w")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->dump_file);
+          return;
+        }
         fclose($WRITE);
     }
 

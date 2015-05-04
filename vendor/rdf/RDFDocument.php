@@ -14,7 +14,11 @@ class RDFDocument
         
         $document = Functions::get_remote_file($url);
         if(!preg_match("/rdf:rdf/i", $document)) throw new Exception("Not a valid RDF Document: $url");
-        $FILE = fopen(DOC_ROOT . "temp/downloaded_rdf.rdf", "w+");
+        if(!($FILE = fopen(DOC_ROOT . "temp/downloaded_rdf.rdf", "w+")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " ."temp/downloaded_rdf.rdf");
+          return;
+        }
         fwrite($FILE, $document);
         fclose($FILE);
         

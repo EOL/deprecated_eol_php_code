@@ -142,7 +142,11 @@ class NCBIGGIqueryAPI
     private function initialize_dump_file($file)
     {
         echo "\n initialize file:[$file]\n";
-        $WRITE = fopen($file, "w");
+        if(!($WRITE = fopen($file, "w")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $file);
+          return;
+        }
         fclose($WRITE);
     }
     
@@ -399,13 +403,21 @@ class NCBIGGIqueryAPI
         $temp_path = temp_filepath();
         if($contents)
         {
-            $file = fopen($temp_path, "w");
+            if(!($file = fopen($temp_path, "w")))
+            {
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_path);
+              return;
+            }
             fwrite($file, $contents);
             fclose($file);
         }
         $page_ids = array();
         $i = 0;
-        $file = fopen($temp_path, "r");
+        if(!($file = fopen($temp_path, "r")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_path);
+          return;
+        }
         while(!feof($file))
         {
             $i++;
@@ -604,13 +616,21 @@ class NCBIGGIqueryAPI
             $fields = array("family", "count", "taxon_id", "object_id", "source", "label", "measurement");
             $data = "";
             foreach($fields as $field) $data .= $rec[$field] . "\t";
-            $WRITE = fopen($filename, "a");
+            if(!($WRITE = fopen($filename, "a")))
+            {
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
+              return;
+            }
             fwrite($WRITE, $data . "\n");
             fclose($WRITE);
         }
         else
         {
-            $WRITE = fopen($filename, "a");
+            if(!($WRITE = fopen($filename, "a")))
+            {
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
+              return;
+            }
             if($rec && is_array($rec)) fwrite($WRITE, json_encode($rec) . "\n");
             else                       fwrite($WRITE, $rec . "\n");
             fclose($WRITE);
@@ -1050,7 +1070,11 @@ class NCBIGGIqueryAPI
     
     private function access_dump_file($file_path, $is_array = true)
     {
-        $file = fopen($file_path, "r");
+        if(!($file = fopen($file_path, "r")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $file_path);
+          return;
+        }
         if($is_array) $contents = json_decode(fread($file,filesize($file_path)), true);
         else          $contents = fread($file,filesize($file_path));
         fclose($file);

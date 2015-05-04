@@ -163,6 +163,7 @@ class PHPExcel_Writer_HTML extends PHPExcel_Writer_Abstract implements PHPExcel_
 		// Open file
 		$fileHandle = fopen($pFilename, 'wb+');
 		if ($fileHandle === false) {
+		  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$pFilename);
 			throw new PHPExcel_Writer_Exception("Could not open file $pFilename for writing.");
 		}
 

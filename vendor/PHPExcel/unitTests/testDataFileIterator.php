@@ -9,7 +9,11 @@ class testDataFileIterator implements Iterator
 
     public function __construct($file)
     {
-        $this->file = fopen($file, 'r');
+        if(!($this->file = fopen($file, 'r')))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$file);
+          return;
+        }
     }
 
     public function __destruct()
@@ -72,7 +76,11 @@ class testDataFileIterator implements Iterator
             return str_getcsv($input, $delimiter, $enclosure);
         }
 
-        $temp = fopen('php://memory', 'rw');
+        if(!($temp = fopen('php://memory', 'rw')))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .'php://memory');
+          return;
+        }
         fwrite($temp, $input);
         rewind($temp);
         $data = fgetcsv($temp, strlen($input), $delimiter, $enclosure);

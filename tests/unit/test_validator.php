@@ -18,7 +18,11 @@ class test_validator extends SimpletestUnitBase
         $taxon->addChild('scientificname', 'some name', 'http://rs.tdwg.org/dwc/dwcore/');
         //this should be capitalized to be valid
         
-        $FILE = fopen(DOC_ROOT . "temp/resource.xml", "w+");
+        if(!($FILE = fopen(DOC_ROOT . "temp/resource.xml", "w+")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . DOC_ROOT . "temp/resource.xml");
+          return;
+        }
         fwrite($FILE, $doc->asXML());
         fclose($FILE);
         

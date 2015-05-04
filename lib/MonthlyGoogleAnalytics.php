@@ -85,7 +85,11 @@ class MonthlyGoogleAnalytics
             }
 
             $outfile = temp_filepath();
-            $OUT = fopen($outfile, 'w+');
+            if(!($OUT = fopen($outfile, "w+")))
+            {
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$outfile);
+              return;
+            }
             foreach($rows_to_write as $taxon_id => &$values)
             {
                 if($values['page_views'] - $values['exits'])
@@ -224,7 +228,11 @@ class MonthlyGoogleAnalytics
     function write_partner_taxa($taxon_concept_ids, $user_id)
     {
         $outfile = temp_filepath();
-        $OUT = fopen($outfile, 'w+');
+        if(!($OUT = fopen($outfile, "w+")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$outfile);
+          return;
+        }
         foreach($taxon_concept_ids as $taxon_concept_id)
         {
             fwrite($OUT, "$taxon_concept_id\t$user_id\t$this->year\t$this->month\n");
@@ -237,7 +245,11 @@ class MonthlyGoogleAnalytics
     function write_partner_summaries($stats)
     {
         $outfile = temp_filepath();
-        $OUT = fopen($outfile, 'w+');
+        if(!($OUT = fopen($outfile, "w+")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$outfile);
+          return;
+        }
         fwrite($OUT, implode("\t", $stats) . "\n");
         fclose($OUT);
         $this->mysqli->load_data_infile($outfile, 'google_analytics_partner_summaries');

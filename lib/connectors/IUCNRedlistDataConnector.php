@@ -70,7 +70,11 @@ class IUCNRedlistDataConnector
         $names_no_entry_from_partner = array();
         
         $i = 0;
-        if(!$file = fopen($csv_file, "r")) return;
+        if(!$file = fopen($csv_file, "r"))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $csv_file);
+          return;
+        }
         while(!feof($file))
         {
             $temp = fgetcsv($file);
@@ -181,7 +185,11 @@ class IUCNRedlistDataConnector
     
     private function save_to_dump($data, $filename)
     {
-        $WRITE = fopen($filename, "a");
+        if(!($WRITE = fopen($filename, "a")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
+          return;
+        }
         if($data && is_array($data)) fwrite($WRITE, json_encode($data) . "\n");
         else                         fwrite($WRITE, $data . "\n");
         fclose($WRITE);
@@ -382,7 +390,11 @@ class IUCNRedlistDataConnector
         {
             $parts = pathinfo($zip_path);
             $temp_file_path = $temp_path . "/" . $parts["basename"];
-            $TMP = fopen($temp_file_path, "w");
+            if(!($TMP = fopen($temp_file_path, "w")))
+            {
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_file_path);
+              return;
+            }
             fwrite($TMP, $file_contents);
             fclose($TMP);
             $output = shell_exec("unzip $temp_file_path -d $temp_path");

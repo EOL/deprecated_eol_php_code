@@ -257,9 +257,15 @@ class FlattenHierarchies
     private function create_temporary_files()
     {
         $this->he_tmp_file_path = temp_filepath();
-        $this->HE_OUTFILE = fopen($this->he_tmp_file_path, "w+");
+        if(!($this->HE_OUTFILE = fopen($this->he_tmp_file_path, "w+")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->he_tmp_file_path);
+        }
         $this->tc_tmp_file_path = temp_filepath();
-        $this->TC_OUTFILE = fopen($this->tc_tmp_file_path, "w+");
+        if(!($this->TC_OUTFILE = fopen($this->tc_tmp_file_path, "w+")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->he_tmp_file_path);
+        }
     }
     
     private function load_data_from_temporary_files($temp_tables = false)

@@ -43,7 +43,12 @@ if($result && $row=$result->fetch_assoc())
         usleep(1000000);
     }
     
-    $FILE = fopen(DOC_ROOT . 'temp/namelink_last_maximum_object_id.txt', 'w+');
+    if(!($FILE = fopen(DOC_ROOT . 'temp/namelink_last_maximum_object_id.txt', 'w+')))
+    {
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .DOC_ROOT . 'temp/namelink_last_maximum_object_id.txt');
+      return;
+    }
+
     fwrite($FILE, $max);
     fclose($FILE);
 }
