@@ -272,6 +272,96 @@ class Functions
         return $i;
     }
 
+    public static function get_undefined_uris_from_resource($resource_id)
+    {
+        $undefined_uris = array();
+        $defined_uris = self::get_eol_defined_uris();
+        // check the measurement_or_fact.tab
+        $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/measurement_or_fact.tab";
+        if(!file_exists($url))
+        {
+            echo "\nFile does not exist: [$url]\n";
+            return;
+        }
+        $file = fopen($url,"r");
+        $i = 0;
+        $exclude = array("http://rs.tdwg.org/dwc/terms/georeferenceRemarks");
+        while(!feof($file))
+        {
+            $temp = fgets($file);
+            $temp = explode("\t", $temp);
+            $i++;
+            if($i == 1) $fields = $temp;
+            else
+            {
+                $rec = array();
+                $k = 0;
+                if(!$temp) continue;
+                foreach($temp as $t)
+                {
+                    $rec[$fields[$k]] = $t;
+                    $k++;
+                }
+                if($val = @$rec['measurementType'])
+                {
+                    if(substr($val,0,4) == "http") $uris[$val] = '';
+                }
+                if($val = @$rec['measurementValue'])
+                {
+                    if(!in_array(@$rec['measurementType'], $exclude))
+                    {
+                        if(substr($val,0,4) == "http") $uris[$val] = '';
+                    }
+                }
+            }
+        }
+        fclose($file);
+        foreach(array_keys($uris) as $uri)
+        {
+            if(!isset($defined_uris[$uri])) $undefined_uris[$uri] = '';
+        }
+        if($undefined_uris) print_r($undefined_uris);
+        echo "\nundefined uris: " . count($undefined_uris) . "\n";
+        return $undefined_uris;
+    }
+
+    public static function get_eol_defined_uris($download_options = false)
+    {
+        if(!$download_options) $download_options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 2, 'delay_in_minutes' => 2, 'expire_seconds' => 86400); //expires in 24 hours
+        for($i=1; $i<=7; $i++)
+        {
+            $urls = array();
+            // $urls[] = "http://localhost/~eolit/cp/TraitRequest/measurements/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
+            // $urls[] = "http://localhost/~eolit/cp/TraitRequest/values/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
+            $urls[] = "https://dl.dropboxusercontent.com/u/7597512/TraitRequest/measurements/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
+            $urls[] = "https://dl.dropboxusercontent.com/u/7597512/TraitRequest/values/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
+            foreach($urls as $url)
+            {
+                if(is_numeric(stripos($url, "values"))) //this only has 4 files
+                {
+                    if($i >= 5) continue;
+                }
+                if($html = Functions::lookup_with_cache($url, $download_options))
+                {
+                    $html = str_ireplace("<wbr/>", "", $html);
+                    if(preg_match_all("/<tr class='hidden' id='known_uri(.*?)<\/tr>/ims", $html, $arr))
+                    {
+                        foreach($arr[1] as $t)
+                        {
+                            if(preg_match("/<td class='uri'>(.*?)<\/td>/ims", $t, $arr2) || preg_match("/<td class='excluded uri'>(.*?)<\/td>/ims", $t, $arr2))
+                            {
+                                $val = '';
+                                if(preg_match("/<td>(.*?)<\/td>/ims", $t, $arr3)) $val = $arr3[1];
+                                $rec[$arr2[1]] = $val;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $rec;
+    }
+
     // see http://www.php.net/manual/en/function.filesize.php#92462
     public static function remote_file_size($uri)
     {
