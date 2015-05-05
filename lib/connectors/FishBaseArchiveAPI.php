@@ -686,7 +686,7 @@ class FishBaseArchiveAPI
                 if(!in_array($rec['value'], $two_values))
                 {
                     $r = array();
-                    if($rec['value'] == "non-migratory")    $r['measurement'] = "http://www.owl-ontologies.com/unnamed.owl#Migratory";
+                    if($rec['value'] == "non-migratory")    $r['measurement'] = "http://www.owl-ontologies.com/unnamed.owl#MigratoryStatus";
                     else                                    $r['measurement'] = $this->uris['habitat'];
                     $measurement = $rec['value'];
                     $r['value'] = $this->uris[$measurement];

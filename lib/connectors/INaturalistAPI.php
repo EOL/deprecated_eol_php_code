@@ -12,16 +12,24 @@ class INaturalistAPI
         $this->url["eol_collection"] = "http://eol.org/api/collections/1.0/36789.json?filter=images&sort_by=recently_added&sort_field=&cache_ttl=";
         $this->url["eol_object"]     = "http://eol.org/api/data_objects/1.0/";
         $this->download_options = array("download_wait_time" => 2000000, "timeout" => 3600, "download_attempts" => 1, "delay_in_minutes" => 1);
+        $this->download_options['expire_seconds'] = false;
         $this->dump_file = CONTENT_RESOURCE_LOCAL_PATH . "iNat_EOL_object_urls.txt";
     }
 
     function generate_link_backs()
     {
         self::initialize_dump();
+        self::start_process();
+        self::zip_text_file();
+    }
+    
+    private function start_process()
+    {
         $page = 1; //orig value is 1
         $per_page = 50;
         while(true)
         {
+            echo "\n page:$page";
             $url = $this->url["eol_collection"] . "&page=$page&per_page=$per_page";
             if($json = Functions::lookup_with_cache($url, $this->download_options))
             {
@@ -29,11 +37,10 @@ class INaturalistAPI
                 $collections = json_decode($json);
                 $total_col = count($collections->collection_items);
                 if($total_col == 0) break; //end of collections
-                echo "\ntotal collections = $total_col\n";
                 $k = 0;
                 foreach($collections->collection_items as $col)
                 {
-                    $k++; echo "\n page:$page | item $k of $total_col -- ";
+                    $k++; //echo "\n page:$page | item $k of $total_col -- ";
                     $rec = array();
                     if($col->object_type == "Image")
                     {
@@ -65,6 +72,16 @@ class INaturalistAPI
             $page++;
             // if($page > 1) break; //debug
         }//while
+    }
+
+    private function zip_text_file()
+    {
+        if(file_exists($this->dump_file))
+        {
+            $command_line = "gzip -c " . $this->dump_file . " >" . $this->dump_file . ".zip";
+            $output = shell_exec($command_line);
+            echo "\nfile zipped...\n";
+        }
     }
     
     private function get_inat_observation_url($url)
@@ -101,7 +118,6 @@ class INaturalistAPI
         if(!file_exists($file)) return array();
         $contents = file_get_contents($file);
         $ids = explode("-", $contents);
-        print_r($ids);
         return $ids;
     }
     
