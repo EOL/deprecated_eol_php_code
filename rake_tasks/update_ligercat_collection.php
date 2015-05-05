@@ -8,7 +8,11 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 
 
 $binary = file_get_contents('http://ligercat.ubio.org/eol_ids_with_clouds.txt.gz');
-$OUT = fopen(DOC_ROOT . 'temp/eol_ids_with_clouds.txt.gz', 'w+');
+if(!($OUT = fopen(DOC_ROOT . 'temp/eol_ids_with_clouds.txt.gz', 'w+')))
+{
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . DOC_ROOT . 'temp/eol_ids_with_clouds.txt.gz');
+  return;
+}
 fwrite($OUT, $binary);
 fclose($OUT);
 shell_exec("gunzip -f ". DOC_ROOT . "temp/eol_ids_with_clouds.txt.gz");

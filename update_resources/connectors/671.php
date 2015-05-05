@@ -46,13 +46,21 @@ function utility_append_text_loop()
     {
         $str = Functions::format_number_with_leading_zeros($x, "2");
         $filename = "/Users/eolit/Sites/eli/eol_php_code/tmp/mycobank/mycobank_dump_add" . $str . ".txt";
-        $READ = fopen($filename, "r");
+        if(!($READ = fopen($filename, "r")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
+          return;
+        }
         $contents = fread($READ, filesize($filename));
         fclose($READ);
         echo "\n copying... $filename";
         $filename = "/Users/eolit/Sites/eli/eol_php_code/tmp/mycobank/mycobank_dump.txt";
         echo "\n to... $filename\n";
-        $WRITE = fopen($filename, "a");
+        if(!($WRITE = fopen($filename, "a")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
+          return;
+        }
         fwrite($WRITE, $contents);
         fclose($WRITE);
     }

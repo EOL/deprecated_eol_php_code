@@ -161,7 +161,11 @@ class PHPExcel_CachedObjectStorage_DiscISAM extends PHPExcel_CachedObjectStorage
 		copy ($this->_fileName,$newFileName);
 		$this->_fileName = $newFileName;
 		//	Open the copied cell cache file
-		$this->_fileHandle = fopen($this->_fileName,'a+');
+		if(!($this->_fileHandle = fopen($this->_fileName,'a+')))
+    {
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->_fileName);
+      return;
+    }
 	}	//	function copyCellCollection()
 
 
@@ -200,7 +204,11 @@ class PHPExcel_CachedObjectStorage_DiscISAM extends PHPExcel_CachedObjectStorage
 		if (is_null($this->_fileHandle)) {
 			$baseUnique = $this->_getUniqueID();
 			$this->_fileName = $this->_cacheDirectory.'/PHPExcel.'.$baseUnique.'.cache';
-			$this->_fileHandle = fopen($this->_fileName,'a+');
+			if(!($this->_fileHandle = fopen($this->_fileName,'a+')))
+      {
+        debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->_fileName);
+        return;
+      }
 		}
 	}	//	function __construct()
 

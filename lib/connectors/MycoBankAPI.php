@@ -133,7 +133,11 @@ class MycoBankAPI
     {
         if($filename = Functions::save_remote_file_to_local($fname, $this->download_options))
         {
-            $READ = fopen($filename, "r");
+            if(!($READ = fopen($filename, "r")))
+            {
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
+              return;
+            }
             $contents = fread($READ, filesize($filename));
             $contents = utf8_encode($contents);
             fclose($READ);
@@ -268,11 +272,19 @@ class MycoBankAPI
     function combine_all_dumps($files, $dump_file)
     {
         echo "\n\n Start compiling all dumps...";
-        $OUT = fopen($dump_file, "a");
+        if(!($OUT = fopen($dump_file, "a")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $dump_file);
+          return;
+        }
         foreach (glob($files) as $filename)
         {
             echo "\n -- $filename";
-            $READ = fopen($filename, "r");
+            if(!($READ = fopen($filename, "r")))
+            {
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
+              return;
+            }
             $contents = fread($READ, filesize($filename));
             fclose($READ);
             if($contents) fwrite($OUT, $contents);
@@ -848,7 +860,11 @@ class MycoBankAPI
 
     private function save_to_dump($data, $filename)
     {
-        $WRITE = fopen($filename, "a");
+        if(!($WRITE = fopen($filename, "a")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
+          return;
+        }
         if($data && is_array($data)) fwrite($WRITE, json_encode($data, true) . "\n");
         else                         fwrite($WRITE, $data . "\n");
         fclose($WRITE);
@@ -856,7 +872,11 @@ class MycoBankAPI
 
     private function initialize_dump_file()
     {
-        $WRITE = fopen($this->dump_file, "w");
+        if(!($WRITE = fopen($this->dump_file, "w")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->dump_file);
+          return;
+        }
         fclose($WRITE);
     }
 

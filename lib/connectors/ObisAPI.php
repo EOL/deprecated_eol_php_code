@@ -42,7 +42,11 @@ class ObisAPI
 
             $xml = \SchemaDocument::get_taxon_xml($page_taxa);
             $resource_path = OBIS_DATA_PATH . "temp_obis_" . $i . ".xml";
-            $OUT = fopen($resource_path, "w"); 
+            if(!($OUT = fopen($resource_path, "w")))
+            {
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $resource_path);
+              return;
+            } 
             fwrite($OUT, $xml); 
             fclose($OUT);
         }
@@ -432,7 +436,11 @@ class ObisAPI
             {
                 $i = 0;
                 $file_count++;
-                $OUT = fopen(OBIS_DATA_PATH . "temp_" . $file_count . ".csv", "w");
+                if(!($OUT = fopen(OBIS_DATA_PATH . "temp_" . $file_count . ".csv", "w")))
+                {
+                  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .OBIS_DATA_PATH . "temp_" . $file_count . ".csv");
+                  return;
+                }
                 fwrite($OUT, $labels);
                 fwrite($OUT, $line);
                 fclose($OUT);
@@ -443,7 +451,11 @@ class ObisAPI
         if($line)
         {
             $file_count++;
-            $OUT = fopen(OBIS_DATA_PATH . "temp_" . $file_count . ".csv", "w");
+            if(!($OUT = fopen(OBIS_DATA_PATH . "temp_" . $file_count . ".csv", "w")))
+            {
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .OBIS_DATA_PATH . "temp_" . $file_count . ".csv");
+              return;
+            }
             fwrite($OUT, $labels);
             fwrite($OUT, $line);
             fclose($OUT);

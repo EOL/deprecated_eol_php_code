@@ -29,7 +29,11 @@ print "taxa count = " . count($xml) . "$wrap";
 $resource = new Resource(111);
 
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource->id .".xml";
-$OUT = fopen($old_resource_path, "w+");
+if(!($OUT = fopen($old_resource_path, "w+")))
+{
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$old_resource_path);
+  return;
+}
 
 $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
 $str .= "<response\n";
@@ -99,10 +103,10 @@ foreach($xml->taxon as $t)
             $rightsHolder = $t->dc_rights;
 
             $do_agents = array();
-            $do_agents[] = array("name"=>"Robert Lücking"                        , "role"=>"compiler");
+            $do_agents[] = array("name"=>"Robert Lï¿½cking"                        , "role"=>"compiler");
             $do_agents[] = array("name"=>"Audrey Sica"                           , "role"=>"compiler");
             $do_agents[] = array("name"=>"Joanna McCaffrey"                      , "role"=>"compiler");
-            $do_agents[] = array("name"=>"Grainger Foundation (PI R. Lücking)"   , "role"=>"project");
+            $do_agents[] = array("name"=>"Grainger Foundation (PI R. Lï¿½cking)"   , "role"=>"project");
 
             //print"<hr>$t->PhysDescription<hr>";
 
@@ -414,7 +418,7 @@ function parse_html($str,$beg,$end1,$end2,$end3,$end4,$all=NULL,$exit_on_first_m
 }//end function
 function clean_str($str)
 {
-    $str = str_ireplace("©", "", $str);
+    $str = str_ireplace("ï¿½", "", $str);
     $str = utf8_encode($str);
     $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB"), "", $str);
     return $str;

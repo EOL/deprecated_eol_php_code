@@ -210,7 +210,11 @@ class ResourceDataObjectElementsSetting
     public function save_resource_document($xml)
     {
         $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . ".xml";
-        $OUT = fopen($resource_path, "w");
+        if(!($OUT = fopen($resource_path, "w")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$resource_path);
+          return;
+        }
         fwrite($OUT, $xml);
         fclose($OUT);
     }

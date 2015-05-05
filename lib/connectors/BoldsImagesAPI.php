@@ -32,7 +32,11 @@ class BoldsImagesAPI
         }
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-        $OUT = fopen($resource_path, "w");
+        if(!($OUT = fopen($resource_path, "w")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $resource_path);
+          return;
+        }
         fwrite($OUT, $xml);
         fclose($OUT);
     }
@@ -43,7 +47,11 @@ class BoldsImagesAPI
         $data = array();
         $filename = BOLDS_IMAGE_EXPORT_FILE;
         print "\nfilename: [$filename]";
-        $READ = fopen($filename, "r");
+        if(!($READ = fopen($filename, "r")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
+          return;
+        }
         $i = 0;
         //$limit = 10; //debug
 
@@ -131,11 +139,19 @@ class BoldsImagesAPI
 
         // start utility
         $filename = CONTENT_RESOURCE_LOCAL_PATH . "old_BOLDS_image_ids.txt";
-        $WRITE = fopen($filename, "w");
+        if(!($WRITE = fopen($filename, "w")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
+          return;
+        }
         fwrite($WRITE, json_encode(array_keys($ids_4fn)));
         fclose($WRITE);
             // just testing - reading it back
-            $READ2 = fopen($filename, "r");
+            if(!($READ2 = fopen($filename, "r")))
+            {
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
+              return;
+            }
             $contents = fread($READ2, filesize($filename));
             fclose($READ2);
             $ids_4fn = json_decode($contents,true);

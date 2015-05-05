@@ -929,7 +929,11 @@ class LifeDeskToScratchpadAPI
         {
             $parts = pathinfo($zip_file);
             $temp_file_path = $temp_dir . "/" . $parts["basename"];
-            $TMP = fopen($temp_file_path, "w");
+            if(!($TMP = fopen($temp_file_path, "w")))
+            {
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_file_path);
+              return;
+            }
             fwrite($TMP, $file_contents);
             fclose($TMP);
             
@@ -1086,7 +1090,11 @@ class LifeDeskToScratchpadAPI
     
     private function save_to_template($rec, $filename, $type)
     {
-        $WRITE = fopen($filename, "a");
+        if(!($WRITE = fopen($filename, "a")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
+          return;
+        }
         foreach($this->lifedesk_fields[$type] as $header)
         {
             if($val = (@$rec[$header])) fwrite($WRITE, $val . "\t");
@@ -1098,7 +1106,11 @@ class LifeDeskToScratchpadAPI
     
     private function save_to_dump($rec, $filename, $nextline = "\n")
     {
-        $WRITE = fopen($filename, "a");
+        if(!($WRITE = fopen($filename, "a")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
+          return;
+        }
         if($rec && is_array($rec)) fwrite($WRITE, json_encode($rec) . $nextline);
         else                       fwrite($WRITE, $rec . $nextline);
         fclose($WRITE);
@@ -1106,7 +1118,11 @@ class LifeDeskToScratchpadAPI
 
     private function initialize_dump_file($file)
     {
-        $f=fopen($file,"w"); 
+        if(!($f=fopen($file,"w")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $file);
+          return;
+        } 
         # Now UTF-8 - Add byte order mark 
         fwrite($f, pack("CCC",0xef,0xbb,0xbf));
         fclose($f);

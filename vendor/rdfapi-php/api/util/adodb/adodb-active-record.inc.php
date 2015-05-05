@@ -156,7 +156,11 @@ class ADODB_Active_Record {
 		$db =& $activedb->db;
 		$fname = $ADODB_CACHE_DIR . '/adodb_' . $db->databaseType . '_active_'. $table . '.cache';
 		if (!$forceUpdate && $ADODB_ACTIVE_CACHESECS && $ADODB_CACHE_DIR && file_exists($fname)) {
-			$fp = fopen($fname,'r');
+			if(!($fp = fopen($fname,'r')))
+      {
+        debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$fname);
+        return;
+      }
 			@flock($fp, LOCK_SH);
 			$acttab = unserialize(fread($fp,100000));
 			fclose($fp);

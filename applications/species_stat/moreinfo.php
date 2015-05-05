@@ -127,7 +127,12 @@ function get_values_fromCSV()
     $filename="http://admin.lifedesks.org/files/lifedesk_admin/lifedesk_stats/lifedesk_stats.txt";
     //$filename="http://127.0.0.1/lifedesk_stats.txt";
     
-    $OUT = fopen("temp.csv", "w+");            
+    if(!($OUT = fopen("temp.csv", "w+")))
+    {
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: temp.csv");
+      return;
+    }
+
     $str = Functions::get_remote_file($filename);    
     if($str)
     {

@@ -91,7 +91,12 @@ class FishWiseAPI
                 $xml = \SchemaDocument::get_taxon_xml($all_taxa);
                 $j_str = Functions::format_number_with_leading_zeros($j, 3);
                 $resource_path = DOC_ROOT . "/update_resources/connectors/files/FishWisePro/" . $j_str . ".xml";
-                $OUT = fopen($resource_path, "w+"); fwrite($OUT, $xml); fclose($OUT);
+                if (!($OUT = fopen($resource_path, "w+")))
+                {
+                  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $resource_path);
+                  return;
+                }
+                fwrite($OUT, $xml); fclose($OUT);
                 $all_taxa = array();
             }
         }
@@ -101,7 +106,12 @@ class FishWiseAPI
             $xml = \SchemaDocument::get_taxon_xml($all_taxa);
             $j_str = Functions::format_number_with_leading_zeros($j, 3);
             $resource_path = DOC_ROOT . "/update_resources/connectors/files/FishWisePro/" . $j_str . ".xml";
-            $OUT = fopen($resource_path, "w+"); fwrite($OUT, $xml); fclose($OUT);
+            if(!($OUT = fopen($resource_path, "w+")))
+            {
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $resource_path);
+              return;
+            }
+             fwrite($OUT, $xml); fclose($OUT);
         }
         Functions::combine_all_eol_resource_xmls($resource_id, DOC_ROOT . "/update_resources/connectors/files/FishWisePro/*.xml");
         self::delete_files(DOC_ROOT . "/update_resources/connectors/files/FishWisePro/*.xml");
@@ -352,7 +362,7 @@ class FishWiseAPI
 
     function translate_synonym($syn_status)
     {
-        if    (in_array($syn_status, array("1°Homonym", "2°Homonym", "other", "Uncertain"))) return "ambiguous synonym";
+        if    (in_array($syn_status, array("1ï¿½Homonym", "2ï¿½Homonym", "other", "Uncertain"))) return "ambiguous synonym";
         elseif(in_array($syn_status, array("Valid"))) return "valid name";
         elseif(in_array($syn_status, array("Synonym"))) return "synonym";
         elseif(in_array($syn_status, array("junior synonym"))) return "junior synonym";

@@ -28,9 +28,17 @@ class GoogleDumpPreparer
         // $limit = 1;
         
         $this->all_languages = array();
-        $this->LINKS_OUT = fopen(DOC_ROOT ."/temp/google_dump_links.txt", "w+");
+        if(!($this->LINKS_OUT = fopen(DOC_ROOT ."/temp/google_dump_links.txt", "w+")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .DOC_ROOT ."/temp/google_dump_links.txt");
+          return;
+        }
         fwrite($this->LINKS_OUT, "EOL PAGE ID\tHIERARCHY NODE ID\tNAME\tPARENT EOL PAGE ID\tPARENT HIERARCHY NODE ID\tEOL PAGE RICHNESS SCORE\tRANK\tPARTNER TAXON IDENTIFIER\tPARTNER NAME\tPARTNER URL\n");
-        $this->COMMON_NAMES_OUT = fopen(DOC_ROOT ."/temp/google_dump_common_names.txt", "w+");
+        if(!($this->COMMON_NAMES_OUT = fopen(DOC_ROOT ."/temp/google_dump_common_names.txt", "w+")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . DOC_ROOT ."/temp/google_dump_common_names.txt");
+          return;
+        }
         fwrite($this->COMMON_NAMES_OUT, "EOL PAGE ID\tCOMMON NAME\tLANGUAGE ISO CODE OR LABEL\tPREFERRED NAME IN LANGUAGE\n");
         for($i=$start ; $i<$max_id ; $i+=$limit)
         {
@@ -43,7 +51,11 @@ class GoogleDumpPreparer
         arsort($this->all_languages);
         print_r($this->all_languages);
         
-        $this->BLURBS_OUT = fopen(DOC_ROOT ."/temp/google_dump_text_blurbs.txt", "w+");
+        if(!($this->BLURBS_OUT = fopen(DOC_ROOT ."/temp/google_dump_text_blurbs.txt", "w+")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . DOC_ROOT ."/temp/google_dump_text_blurbs.txt");
+          return;
+        }
         fwrite($this->BLURBS_OUT, "EOL PAGE ID\tBLURB\tATTRIBUTION\tLICENSE\n");
         $this->lookup_blurbs();
         fclose($this->BLURBS_OUT);

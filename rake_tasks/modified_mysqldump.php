@@ -79,7 +79,11 @@ while($result && $row=$result->fetch_row())
         $insert_query = substr($insert_query, 0, -1) . ";\n";
         $insert_query .= "UNLOCK TABLES;\n";
         
-        $FILE = fopen($modified_dump_tmp_file, 'w+');
+        if(!($FILE = fopen($modified_dump_tmp_file, 'w+')))
+        {
+           debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$modified_dump_tmp_file);
+           return;
+        }
         fwrite($FILE, "\n\n".$insert_query."\n\n");
         fclose($FILE);
         

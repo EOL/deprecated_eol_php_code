@@ -56,8 +56,12 @@ class TriXSerializer
 	function serializeToFile($fileName)
 	{
 		$serializedString=&$this->_serialize();
-		$handle = fopen($fileName, 'w');
-	   	fwrite($handle, $serializedString);
+		if(!($handle = fopen($fileName, 'w')))
+    {
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
+      return;
+    }
+	  fwrite($handle, $serializedString);
 		fclose($handle);
 	}
 	
