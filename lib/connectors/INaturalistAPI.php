@@ -12,7 +12,7 @@ class INaturalistAPI
         $this->url["eol_collection"] = "http://eol.org/api/collections/1.0/36789.json?filter=images&sort_by=recently_added&sort_field=&cache_ttl=";
         $this->url["eol_object"]     = "http://eol.org/api/data_objects/1.0/";
         $this->download_options = array("download_wait_time" => 2000000, "timeout" => 3600, "download_attempts" => 1, "delay_in_minutes" => 1);
-        // $this->download_options['expire_seconds'] = false;
+        $this->download_options['expire_seconds'] = false;
         $this->dump_file = CONTENT_RESOURCE_LOCAL_PATH . "iNat_EOL_object_urls.txt";
     }
 
@@ -37,7 +37,6 @@ class INaturalistAPI
                 $collections = json_decode($json);
                 $total_col = count($collections->collection_items);
                 if($total_col == 0) break; //end of collections
-                echo "\ntotal collections = $total_col\n";
                 $k = 0;
                 foreach($collections->collection_items as $col)
                 {
@@ -61,7 +60,7 @@ class INaturalistAPI
                     if($rec)
                     {
                         $h = fopen($this->dump_file, 'a');
-                        fwrite($h, "http://eol.org/data_objects/".$rec['object_id'] . "\t" . $rec['photo_url'] . "\t" . $rec['observation_url'] . "\n");
+                        fwrite($h, "http://eol.org/data_objects/".$rec['object_id'] . "\t" . $rec['photo_url'] . "\t" . @$rec['observation_url'] . "\n");
                         fclose($h);
                     }
                 }
