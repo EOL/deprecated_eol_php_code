@@ -262,8 +262,14 @@ class Functions
     {
         foreach(glob(CONTENT_RESOURCE_LOCAL_PATH . "/$resource_id/*.tab") as $filename) self::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/" . pathinfo($filename, PATHINFO_BASENAME));
     }
-    
-    
+
+    public static function remove_resource_working_dir($resource_id = false)
+    {
+        if(!$resource_id) return;
+        $working_dir = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working";
+        if(is_dir($working_dir)) recursive_rmdir($working_dir);
+    }
+
     public static function count_rows_from_text_file($file)
     {
         debug("\n counting: [$file]");
