@@ -295,14 +295,12 @@ class Functions
         if(!file_exists($url))
         {
             echo "\nFile does not exist: [$url]\n";
-            return;
+            return $undefined_uris;
         }
-        $file = fopen($url,"r");
         $i = 0;
         $exclude = array("http://rs.tdwg.org/dwc/terms/georeferenceRemarks");
-        while(!feof($file))
+        foreach(new FileIterator($url) as $line_number => $temp)
         {
-            $temp = fgets($file);
             $temp = explode("\t", $temp);
             $i++;
             if($i == 1) $fields = $temp;
@@ -329,13 +327,10 @@ class Functions
                 }
             }
         }
-        fclose($file);
         foreach(array_keys($uris) as $uri)
         {
             if(!isset($defined_uris[$uri])) $undefined_uris[$uri] = '';
         }
-        if($undefined_uris) print_r($undefined_uris);
-        echo "\nundefined uris: " . count($undefined_uris) . "\n";
         return $undefined_uris;
     }
 
