@@ -149,18 +149,14 @@ class Functions
             @unlink($cache_path);
         }
         $file_contents = Functions::get_remote_file($url, $options);
-        if($FILE = fopen($cache_path, 'w+')) // normal
+        if($FILE = Functions::file_open($cache_path, 'w+')) // normal
         {
             fwrite($FILE, $file_contents);
             fclose($FILE);
         }
         else // can happen when cache_path is from external drive with corrupt dir/file
         {
-            if(!($h = fopen(DOC_ROOT . "/temp/cant_delete.txt", 'a')))
-            {
-              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". DOC_ROOT . "/temp/cant_delete.txt");
-              return;
-            }
+            if(!($h = Functions::file_open(DOC_ROOT . "/temp/cant_delete.txt", 'a'))) return;
             fwrite($h, $cache_path . "\n");
             fclose($h);
         }
@@ -240,11 +236,7 @@ class Functions
         else $file_contents = self::get_remote_file($url, $options);
         if($file_contents)
         {
-            if(!($file = fopen($temp_path, "w")))
-            {
-              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $temp_path);
-              return;
-            }
+            if(!($file = Functions::file_open($temp_path, "w"))) return;
             fwrite($file, $file_contents);
             fclose($file);
             return $temp_path;
@@ -274,7 +266,7 @@ class Functions
     {
         debug("\n counting: [$file]");
         $i = 0;
-        if($handle = fopen($file, "r"))
+        if($handle = Functions::file_open($file, "r"))
         {
             while(!feof($handle))
             {
@@ -286,6 +278,17 @@ class Functions
         return $i;
     }
 
+    public static function file_open($file_path, $mode)
+    {
+        if($handle = fopen($file_path, $mode)) return $handle;
+        else
+        {
+            $caller = array_shift(debug_backtrace());
+            debug($caller['file'] . ":" . $caller['line'] . ": Couldn't open file: " . $file_path);
+            return false;
+        }
+    }
+    
     public static function get_undefined_uris_from_resource($resource_id)
     {
         $undefined_uris = array();
@@ -1781,7 +1784,7 @@ class Functions
     //4 functions for queueing task in connectors
     public static function add_a_task($task, $filename)
     {
-        if($READ = fopen($filename, "a"))
+        if($READ = Functions::file_open($filename, "a"))
         {
             fwrite($READ, $task);
             fclose($READ);
@@ -1790,7 +1793,7 @@ class Functions
 
     public static function get_a_task($filename)
     {
-        if($READ = fopen($filename, "r"))
+        if($READ = Functions::file_open($filename, "r"))
         {
             $line = fgets($READ);
             fclose($READ);
@@ -1800,17 +1803,13 @@ class Functions
 
     public static function delete_a_task($task, $filename)
     {
-        if($READ = fopen($filename, 'r'))
+        if($READ = Functions::file_open($filename, 'r'))
         {
             $task_list = fread($READ, filesize($filename));
             fclose($READ);
             $task_list = str_ireplace($task, "", $task_list);
             //saving
-            if(!($OUT = fopen($filename, "w")))
-            {
-              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
-              return;
-            }
+            if(!($OUT = Functions::file_open($filename, "w"))) return;
             fwrite($OUT, $task_list);
             fclose($OUT);
         }
@@ -1885,8 +1884,7 @@ class Functions
 
     public function create_work_list_from_master_file($master_file, $divisor, $destination_folder, $filename_prefix, $work_list)
     {
-        $FILE = fopen($master_file, "r");
-        if(!$FILE)
+        if(!($FILE = Functions::file_open($master_file, "r")))
         {
             echo "\n File not found: \n $master_file \n Program will terminate.\n\n";
             return false;
@@ -1905,11 +1903,7 @@ class Functions
                 {
                     $file_ctr++;
                     $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
-                    if(!($OUT = fopen($destination_folder . $filename_prefix . $file_ctr_str . ".txt", "w")))
-                    {
-                      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $destination_folder . $filename_prefix . $file_ctr_str . ".txt");
-                      return;
-                    }
+                    if(!($OUT = Functions::file_open($destination_folder . $filename_prefix . $file_ctr_str . ".txt", "w"))) return;
                     fwrite($OUT, $str);
                     fclose($OUT);
                     $str = "";
@@ -1922,18 +1916,14 @@ class Functions
         {
             $file_ctr++;
             $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
-            if(!($OUT = fopen($destination_folder . $filename_prefix . $file_ctr_str . ".txt", "w")))
-            {
-              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $destination_folder . $filename_prefix . $file_ctr_str . ".txt");
-              return;
-            }
+            if(!($OUT = Functions::file_open($destination_folder . $filename_prefix . $file_ctr_str . ".txt", "w"))) return;
             fwrite($OUT, $str);
             fclose($OUT);
         }
         //create work_list
         $str = "";
         for($i = 1; $i <= $file_ctr; $i++) $str .= $filename_prefix . Functions::format_number_with_leading_zeros($i, 3) . "\n";
-        if($fp = fopen($work_list, "w"))
+        if($fp = Functions::file_open($work_list, "w"))
         {
             fwrite($fp, $str);
             fclose($fp);
@@ -1944,11 +1934,7 @@ class Functions
     function combine_all_eol_resource_xmls($resource_id, $files)
     {
         debug("\n\n Start compiling all XML...");
-        if(!($OUT = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", "w")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");
-          return;
-        }
+        if(!($OUT = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", "w"))) return;
         $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
         $str .= "<response\n";
         $str .= "  xmlns='http://www.eol.org/transfer/content/0.3'\n";
@@ -1963,11 +1949,7 @@ class Functions
         foreach (glob($files) as $filename)
         {
             debug("\n $filename");
-            if(!($READ = fopen($filename, "r")))
-            {
-              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $filename);
-              return;
-            }
+            if(!($READ = Functions::file_open($filename, "r"))) return;
             $contents = fread($READ, filesize($filename));
             fclose($READ);
             if($contents) 

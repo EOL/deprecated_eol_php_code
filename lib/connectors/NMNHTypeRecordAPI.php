@@ -526,6 +526,7 @@ class NMNHTypeRecordAPI
 
     private function format_typeStatus($value)
     {
+        $value = Functions::remove_whitespace($value);
         if(is_numeric(stripos($value, " "))) $measurement_remarks = $value;
         else                                 $measurement_remarks = "";
         
@@ -535,11 +536,10 @@ class NMNHTypeRecordAPI
         $value = str_ireplace("TYPES", "TYPE", $value);
         $value = str_ireplace("PROBABLE", "POSSIBLE", $value);
         $value = str_ireplace("NEOTYPE COLLECTION", "NEOTYPE", $value);
-        $value = str_ireplace("  ", " ", $value);
         $value = str_ireplace("TYPE.", "TYPE", $value);
         
-        if(substr($value, 0, 8) == "TYPE OF ")          $value = "TYPE";
-        elseif(substr($value, 0, 8) == "SYNTYPE OF ")   $value = "SYNTYPE";
+        if(substr($value, 0, 8) == "TYPE OF ")                                                                                               $value = "TYPE";
+        elseif(substr($value, 0, 8) == "SYNTYPE OF ")                                                                                        $value = "SYNTYPE";
         elseif(in_array($value, array("NO. 15 = LECTOTYPE", "NO.17 = LECTOTYPE")))                                                           $value = "LECTOTYPE";
         elseif(in_array($value, array("SYNTYTPE", "SYTNTYPE", "SYNYPES", "SYNTPE", "SYNTYPE MAMILLATA")))                                    $value = "SYNTYPE";
         elseif(in_array($value, array("PARALECTO", "PARALECTOYPES", "PARALECTOYPE")))                                                        $value = "PARALECTOTYPE";
@@ -547,7 +547,7 @@ class NMNHTypeRecordAPI
         elseif(in_array($value, array("POSS./PROB. PARALECTOTYPE", "PARALECTOTYPE (POSSIBLE)", "POSSIBLE PARALECTOTYPE", "?PARALECTOTYPE"))) $value = "PARALECTOTYPE?";
         elseif(in_array($value, array("PT OF HOLOTYPE", "PART OF HOLOTYPE", "HOLOTYPE (PART)")))                                             $value = "HOLOTYPE FRAGMENT";
         elseif(in_array($value, array("PART OF TYPE", "PT OF TYPE", "PART OF TYPE MATERIAL", "PT OF TYPE MATERIAL", "TYPE (PART)")))         $value = "TYPE FRAGMENT";
-        elseif(in_array($value, array("?PT OF TYPE?", "?PT OF TYPE OF REGULARIS?"))) $value = "UNCONFIRMED TYPE"; //same as 'TYPE?'
+        elseif(in_array($value, array("?PT OF TYPE?", "?PT OF TYPE OF REGULARIS?")))                                                         $value = "UNCONFIRMED TYPE"; //same as 'TYPE?'
         elseif(in_array($value, array("SYNYTPE", "FIGURED SYNTYPE")))       $value = "SYNTYPE";
         elseif(in_array($value, array("TOPTYPE", "TOPOTYPICAL")))           $value = "TOPOTYPE";
         elseif(in_array($value, array("COTYPUS", "CO-TYPE")))               $value = "COTYPE";
@@ -555,7 +555,7 @@ class NMNHTypeRecordAPI
         elseif($value == "SYNTYPE OR PARALECTOTYPE")                        $value = "SYNTYPE? + PARALECTOTYPE?";
         elseif($value == "SYNTYPE OR LECTOTYPE")                            $value = "SYNTYPE? + LECTOTYPE?";
         elseif($value == "TOPOTYPE (STATED BY THE DONOR TO BE PARATYPE)")   $value = "TOPOTYPE? + PARATYPE?";
-        elseif($value == "HOLOTYPE/PARATYPE ?")                             $value = "HOLOTYPE? + PARATYPE?";
+        elseif($value == "HOLOTYPE/PARATYPE?")                              $value = "HOLOTYPE? + PARATYPE?";
         elseif($value == "NEOTYPE (POSSIBLE)")                              $value = "NEOTYPE?";
         elseif($value == "LECTOTYPE (POSSIBLE)")                            $value = "LECTOTYPE?";
         elseif($value == "ALLOTYPE (POSSIBLE)")                             $value = "ALLOTYPE?";
@@ -570,11 +570,7 @@ class NMNHTypeRecordAPI
     private function process_row_type_from_NHM($csv_file)
     {
         $i = 0;
-        if(!($file = fopen($csv_file,"r")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $csv_file);
-          return;
-        }
+        if(!($file = Functions::file_open($csv_file,"r"))) return;
         while(!feof($file))
         {
             $temp = fgetcsv($file);
