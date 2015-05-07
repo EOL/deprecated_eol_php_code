@@ -149,7 +149,8 @@ class NMNHTypeRecordAPI
         $i = 0;
         foreach($arr as $value)
         {
-            $value = self::format_typeStatus($value);
+            $info = self::format_typeStatus($value);
+            $value = $info['type_status'];
             if(self::valid_typestatus($value, $sciname))
             {
                 foreach($this->typeStatus_separators as $separator)
@@ -184,6 +185,7 @@ class NMNHTypeRecordAPI
     
     private function string_with_separator($string)
     {
+        if($string == "SYNTYPE OF LEPRALIA ERRATA, WATERS") return false;
         foreach($this->typeStatus_separators as $separator)
         {
             if(is_numeric(stripos($string, $separator))) return true;
@@ -269,9 +271,13 @@ class NMNHTypeRecordAPI
         $typeStatus_uri = false;
         $typeStatus_uri_arr = false;
         $typeStatus = $rec["http://rs.tdwg.org/dwc/terms/typeStatus"];
-        $typeStatus = self::format_typeStatus($typeStatus);
-        if(!self::string_with_separator($typeStatus)) $typeStatus_uri = self::get_uri($typeStatus, "typeStatus");
-        else                                          $typeStatus_uri_arr = self::process_multiple_typestatuses($typeStatus, $rec["http://rs.tdwg.org/dwc/terms/scientificName"]);
+
+        $info = self::format_typeStatus($typeStatus);
+        $typeStatus                 = $info['type_status'];
+        $rec['measurement_remarks'] = $info['measurement_remarks'];
+        
+        if(self::string_with_separator($typeStatus)) $typeStatus_uri_arr = self::process_multiple_typestatuses($typeStatus, $rec["http://rs.tdwg.org/dwc/terms/scientificName"]);
+        else                                         $typeStatus_uri = self::get_uri($typeStatus, "typeStatus");
         
         if($institutionCode_uri && ($typeStatus_uri || $typeStatus_uri_arr))
         {
@@ -288,11 +294,6 @@ class NMNHTypeRecordAPI
             if($associatedSequences && $associatedSequences != "Genbank:") self::add_string_types($rec, $associatedSequences, "http://rs.tdwg.org/dwc/terms/associatedSequences");
 
             $fields = array("http://rs.tdwg.org/dwc/terms/recordNumber", "http://rs.tdwg.org/dwc/terms/otherCatalogNumbers", "http://rs.tdwg.org/dwc/terms/startDayOfYear", "http://rs.tdwg.org/dwc/terms/endDayOfYear", "http://rs.tdwg.org/dwc/terms/year", "http://rs.tdwg.org/dwc/terms/month", "http://rs.tdwg.org/dwc/terms/day", "http://rs.tdwg.org/dwc/terms/verbatimEventDate", "http://rs.tdwg.org/dwc/terms/fieldNumber", "http://rs.tdwg.org/dwc/terms/higherGeography", "http://rs.tdwg.org/dwc/terms/continent", "http://rs.tdwg.org/dwc/terms/waterBody", "http://rs.tdwg.org/dwc/terms/islandGroup", "http://rs.tdwg.org/dwc/terms/island", "http://rs.tdwg.org/dwc/terms/country", "http://rs.tdwg.org/dwc/terms/stateProvince", "http://rs.tdwg.org/dwc/terms/county", "http://rs.tdwg.org/dwc/terms/minimumElevationInMeters", "http://rs.tdwg.org/dwc/terms/maximumElevationInMeters", "http://rs.tdwg.org/dwc/terms/verbatimDepth", "http://rs.tdwg.org/dwc/terms/minimumDepthInMeters", "http://rs.tdwg.org/dwc/terms/maximumDepthInMeters", "http://rs.tdwg.org/dwc/terms/verbatimCoordinateSystem", "http://rs.tdwg.org/dwc/terms/geodeticDatum", "http://rs.tdwg.org/dwc/terms/coordinateUncertaintyInMeters", "http://rs.tdwg.org/dwc/terms/georeferenceProtocol", "http://rs.tdwg.org/dwc/terms/georeferenceRemarks", "http://rs.tdwg.org/dwc/terms/identificationQualifier");
-
-            //exclude these until Katja adds them to known_uris:
-            $exclude = array("http://rs.tdwg.org/dwc/terms/georeferenceProtocol", "http://rs.tdwg.org/dwc/terms/identificationQualifier", "http://rs.tdwg.org/dwc/terms/geodeticDatum");
-            $fields = array_diff($fields, $exclude);
-
             if($rec['dataset'] == "NMNH") $fields[] = "http://rs.tdwg.org/dwc/terms/associatedMedia";
             foreach($fields as $field)
             {
@@ -474,7 +475,7 @@ class NMNHTypeRecordAPI
         $m->measurementOfTaxon = $measurementOfTaxon;
         if($measurementOfTaxon ==  "true")
         {   // so that measurementRemarks (and source, contributor, etc.) appears only once in the [measurement_or_fact.tab]
-            $m->measurementRemarks = '';
+            $m->measurementRemarks = @$rec['measurement_remarks'];
             $m->source = $rec["source"];
             $m->contributor = @$rec["contributor"];
             /* not used at the moment
@@ -525,31 +526,36 @@ class NMNHTypeRecordAPI
 
     private function format_typeStatus($value)
     {
+        $value = Functions::remove_whitespace($value);
+        if(is_numeric(stripos($value, " "))) $measurement_remarks = $value;
+        else                                 $measurement_remarks = "";
+        
         $value = trim(strtoupper($value));
         $value = str_ireplace(array("[", "]"), "", $value);
         $value = str_ireplace(" ?", "?", $value);
         $value = str_ireplace("TYPES", "TYPE", $value);
         $value = str_ireplace("PROBABLE", "POSSIBLE", $value);
-        $value = str_ireplace("POSSIBLE COTYPE (FIDE M. R. BROWNING)", "POSSIBLE COTYPE", $value);
         $value = str_ireplace("NEOTYPE COLLECTION", "NEOTYPE", $value);
-        $value = str_ireplace("  ", " ", $value);
         $value = str_ireplace("TYPE.", "TYPE", $value);
-        if(in_array($value, array("TYPE OF B.ASIATICA", "TYPE OF PHOCOENA COMMUNIS TUBERCULIFERUS")))                                    $value = "TYPE";
+        
+        if(substr($value, 0, 8) == "TYPE OF ")                                                                                               $value = "TYPE";
+        elseif(substr($value, 0, 8) == "SYNTYPE OF ")                                                                                        $value = "SYNTYPE";
         elseif(in_array($value, array("NO. 15 = LECTOTYPE", "NO.17 = LECTOTYPE")))                                                           $value = "LECTOTYPE";
-        elseif(in_array($value, array("SYNTYTPE", "SYTNTYPE", "SYNYPES", "SYNTPE", "SYNTYPE]", "SYNTYPE MAMILLATA")))                        $value = "SYNTYPE";
+        elseif(in_array($value, array("SYNTYTPE", "SYTNTYPE", "SYNYPES", "SYNTPE", "SYNTYPE MAMILLATA")))                                    $value = "SYNTYPE";
         elseif(in_array($value, array("PARALECTO", "PARALECTOYPES", "PARALECTOYPE")))                                                        $value = "PARALECTOTYPE";
         elseif(in_array($value, array("SYNTYPE OR HOLOTYPE?", "?HOLOTYPE OR SYNTYPE", "HOLOTYPE OR SYNTYPE", "SYNTYPE OR HOLOTYPE")))        $value = "SYNTYPE? + HOLOTYPE?";
         elseif(in_array($value, array("POSS./PROB. PARALECTOTYPE", "PARALECTOTYPE (POSSIBLE)", "POSSIBLE PARALECTOTYPE", "?PARALECTOTYPE"))) $value = "PARALECTOTYPE?";
         elseif(in_array($value, array("PT OF HOLOTYPE", "PART OF HOLOTYPE", "HOLOTYPE (PART)")))                                             $value = "HOLOTYPE FRAGMENT";
         elseif(in_array($value, array("PART OF TYPE", "PT OF TYPE", "PART OF TYPE MATERIAL", "PT OF TYPE MATERIAL", "TYPE (PART)")))         $value = "TYPE FRAGMENT";
-        elseif(in_array($value, array("?PT OF TYPE?", "?PT OF TYPE OF REGULARIS?"))) $value = "UNCONFIRMED TYPE"; //same as 'TYPE?'
+        elseif(in_array($value, array("?PT OF TYPE?", "?PT OF TYPE OF REGULARIS?")))                                                         $value = "UNCONFIRMED TYPE"; //same as 'TYPE?'
         elseif(in_array($value, array("SYNYTPE", "FIGURED SYNTYPE")))       $value = "SYNTYPE";
         elseif(in_array($value, array("TOPTYPE", "TOPOTYPICAL")))           $value = "TOPOTYPE";
         elseif(in_array($value, array("COTYPUS", "CO-TYPE")))               $value = "COTYPE";
+        elseif($value == "POSSIBLE COTYPE (FIDE M. R. BROWNING)")           $value = "POSSIBLE COTYPE";
         elseif($value == "SYNTYPE OR PARALECTOTYPE")                        $value = "SYNTYPE? + PARALECTOTYPE?";
         elseif($value == "SYNTYPE OR LECTOTYPE")                            $value = "SYNTYPE? + LECTOTYPE?";
         elseif($value == "TOPOTYPE (STATED BY THE DONOR TO BE PARATYPE)")   $value = "TOPOTYPE? + PARATYPE?";
-        elseif($value == "HOLOTYPE/PARATYPE ?")                             $value = "HOLOTYPE? + PARATYPE?";
+        elseif($value == "HOLOTYPE/PARATYPE?")                              $value = "HOLOTYPE? + PARATYPE?";
         elseif($value == "NEOTYPE (POSSIBLE)")                              $value = "NEOTYPE?";
         elseif($value == "LECTOTYPE (POSSIBLE)")                            $value = "LECTOTYPE?";
         elseif($value == "ALLOTYPE (POSSIBLE)")                             $value = "ALLOTYPE?";
@@ -558,17 +564,13 @@ class NMNHTypeRecordAPI
         elseif($value == "PART OF PARATYPE")                                $value = "PARATYPE FRAGMENT";
         elseif($value == "HOLOTYPE LIMNOTRAGUS SELOUSI")                    $value = "HOLOTYPE";
         elseif(in_array($value, array("PARATYPE #5", "PARATYPE V", "PARATYPE I", "PARATYPE II", "PARATYPE #2", "PARATYPE #3", "PARATYPE (NO.52)", "PARATYPE #1", "PARATYPE #9", "PARATYPE III", "PARATYPE II AND III", "PARATYPE III AND IV", "PARATYPE #10", "PARATYPE #7", "PARATYPE #4", "PARATYPE #6", "PARATYPE (NO.65)", "PARATYPE #8", "PARAYPE", "PARATYPE)"))) $value = "PARATYPE";
-        return $value;
+        return array("type_status" => $value, "measurement_remarks" => $measurement_remarks);
     }
     
     private function process_row_type_from_NHM($csv_file)
     {
         $i = 0;
-        if(!($file = fopen($csv_file,"r")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $csv_file);
-          return;
-        }
+        if(!($file = Functions::file_open($csv_file,"r"))) return;
         while(!feof($file))
         {
             $temp = fgetcsv($file);
@@ -577,7 +579,6 @@ class NMNHTypeRecordAPI
             if($i == 1)
             {
                 $fields = $temp;
-                print_r($fields);
                 if(count($fields) != 71)
                 {
                     // $this->debug["not71"][$fields[0]] = '';
