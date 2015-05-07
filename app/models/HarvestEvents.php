@@ -608,6 +608,17 @@ class HarvestEvent extends ActiveRecord
                     'X-Mailer: PHP/' . phpversion();
                 $to      = implode(", ", array(SPG_EMAIL_ADDRESS, EOL_DEV_EMAIL_ADDRESS, ELI_EMAIL_ADDRESS));
                 mail($to, $subject, $message, $headers);
+                //create a file for each mail
+                $outlier_mails_log_dir = "log/outlier_mails/";
+                if (!file_exists($outlier_mails_log_dir))
+                   mkdir($outlier_mails_log_dir);
+                $mail_file = fopen ($outlier_mails_log_dir . $this->resource->title . "_" . date('d-m-Y H:i:s', time()) . ".log", "w");
+                if(!$mail_file){
+                   debug("Can't open file for outlier mail");
+                }else{
+                   fwrite($mail_file, $message);
+                   fclose($mail_file);
+                }
             }
         }
     }
