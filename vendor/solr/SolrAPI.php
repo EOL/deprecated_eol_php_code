@@ -82,7 +82,6 @@ class SolrAPI
 
     public function raw_query($query)
     {
-        debug("Solr query: $query\n");
         $url = $this->action_url."/select/?q={!lucene}".str_replace(" ", "%20", $query) ."&wt=json";
         // THIS IS NOT WINDOWS-COMPATIBLE:
         usleep(200000); // Units are millionths of a sec; this is 1/5th of a second.
@@ -93,6 +92,12 @@ class SolrAPI
     {
         $json = $this->raw_query($query);
         return $json->response;
+    }
+
+    public function logged_query($query)
+    {
+        debug("Solr query: $query\n");
+        return $this->query($query);
     }
 
     public function get_results($query)

@@ -50,6 +50,8 @@ class RelateHierarchies
     
     private function iterate_through_entire_hierarchy()
     {
+        debug("RelateHierarchies::iterate_through_entire_hierarchy " .
+            "($this->hierarchy_to_compare->id)");
         // get the record count for the loop below
         $query = "hierarchy_id:". $this->hierarchy_to_compare->id ."&rows=1";
         $response = $this->solr->query($query);
@@ -134,7 +136,7 @@ class RelateHierarchies
         }
         
         $this->total_entry_comparisons++;
-        if($this->total_entry_comparisons % 100 == 0 && $GLOBALS['ENV_DEBUG'])
+        if($this->total_entry_comparisons % 200 == 0 && $GLOBALS['ENV_DEBUG'])
         {
             $this->show_processing_stats();
         }

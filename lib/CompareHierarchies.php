@@ -107,7 +107,7 @@ class CompareHierarchies
     public static function assign_concepts_across_hierarchies($hierarchy1, $hierarchy2, $confirmed_exclusions = array(), $use_synonyms_for_merging = false)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
-        if($GLOBALS['ENV_DEBUG']) echo("Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)\n");
+        debug("Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)");
 
         // hierarchy is the same and its 'complete' meaning its been curated and
         // all nodes should be different taxa so there no need to compare it to
@@ -126,7 +126,6 @@ class CompareHierarchies
         $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entry_relationship');
 
         $main_query = "hierarchy_id_1:$hierarchy1->id AND (visibility_id_1:$visible_id OR visibility_id_1:$preview_id) AND hierarchy_id_2:$hierarchy2->id AND (visibility_id_2:$visible_id OR visibility_id_2:$preview_id) AND same_concept:false&sort=relationship asc, visibility_id_1 asc, visibility_id_2 asc, confidence desc, hierarchy_entry_id_1 asc, hierarchy_entry_id_2 asc";
-        debug($main_query . "&rows=1");
         $response = $solr->query($main_query . "&rows=1");
         $total_results = $response->numFound;
         unset($response);
@@ -138,7 +137,6 @@ class CompareHierarchies
             $GLOBALS['hierarchy_entry_matches'] = array();
 
             $this_query = $main_query . "&rows=".self::$solr_iteration_size."&start=$i";
-            debug("$this_query");
             $entries = $solr->get_results($this_query);
             foreach($entries as $entry)
             {
@@ -182,7 +180,7 @@ class CompareHierarchies
                 // concepts, merge them
                 if($tc_id1 != $tc_id2)
                 {
-                    if($GLOBALS['ENV_DEBUG']) echo("$id1 :: $id2\n");
+                    debug("$id1 :: $id2");
                     // compare visible entries to other published entries
                     if($hierarchy1->complete && $visibility_id1 == $visible_id && self::concept_published_in_hierarchy($tc_id2, $hierarchy1->id)) { debug("NO: concept 2 published in hierarchy 1"); continue; }
                     if($hierarchy2->complete && $visibility_id2 == $visible_id && self::concept_published_in_hierarchy($tc_id1, $hierarchy2->id)) { debug("NO: concept 1 published in hierarchy 2"); continue; }
@@ -193,17 +191,17 @@ class CompareHierarchies
 
                     if(self::curators_denied_relationship($id1, $tc_id1, $id2, $tc_id2, $superceded, $confirmed_exclusions))
                     {
-                        if($GLOBALS['ENV_DEBUG']) echo("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) has been rejected by a curator\n");
+                        debug("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) has been rejected by a curator");
                         continue;
                     }
 
                     if($hierarchy_id = self::concept_merger_effects_other_hierarchies($tc_id1, $tc_id2))
                     {
-                        if($GLOBALS['ENV_DEBUG']) echo("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) is not allowed by a curated hierarchy ($hierarchy_id)\n");
+                        debug("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) is not allowed by a curated hierarchy ($hierarchy_id)");
                         continue;
                     }
                     TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);
-                    if($GLOBALS['ENV_DEBUG']) echo("TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);\n");
+                    debug("TaxonConcept::supercede_by_ids($tc_id1, $tc_id2)");
                     $superceded[max($tc_id1, $tc_id2)] = min($tc_id1, $tc_id2);
 
                     static $count = 0;
