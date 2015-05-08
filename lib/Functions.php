@@ -95,7 +95,6 @@ class Functions
             usleep($options['download_wait_time']);
             if($file || strval($file) == "0") // e.g. file is valid with value of '0' http://api.gbif.org/v0.9/occurrence/count?taxonKey=4896414
             {
-                debug("received file");
                 return $file;
             }
 
