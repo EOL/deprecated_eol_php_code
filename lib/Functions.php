@@ -91,7 +91,6 @@ class Functions
         $attempts = 1;
         while($attempts <= $options['download_attempts'])
         {
-            debug("Grabbing $remote_url: attempt " . $attempts);
             $file = @self::fake_user_agent_http_get($remote_url, $options);
             usleep($options['download_wait_time']);
             if($file || strval($file) == "0") // e.g. file is valid with value of '0' http://api.gbif.org/v0.9/occurrence/count?taxonKey=4896414
