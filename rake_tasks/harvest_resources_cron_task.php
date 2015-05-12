@@ -53,14 +53,7 @@ while(true)
 
     $validate = true;
     if($GLOBALS['ENV_NAME'] == 'test') $validate = false;
-    // create resource_id.log
-    if(!($resource_harvesting_log = fopen ("log/" . $resource->id . ".log", "w+")))
-    {
-      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " ."log/" . $resource->id . ".log");
-      return;
-     }
     $resource->harvest($validate, false, $fast_for_testing);
-    fclose($resource_harvesting_log);
 }
 $log->finished();
 
