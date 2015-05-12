@@ -1,6 +1,13 @@
 <?php
 namespace php_active_record;
-/* execution time: 9 seconds */
+/* execution time: 9 seconds 
+
+                            Mar2014     11May2015
+measurement_or_fact.tab]    [10618]     10312
+occurrence.tab]             [3537]      3435
+taxon.tab]                  [1176]      1141
+
+*/
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/FEISDataConnector');
@@ -20,6 +27,12 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") >
     rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
     rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
     Functions::set_resource_status_to_force_harvest($resource_id);
+    Functions::count_resource_tab_files($resource_id);
+    if($val = Functions::get_undefined_uris_from_resource($resource_id))
+    {
+        echo "\nUndefined URIs: " . count($val) . "\n";
+        print_r($val);
+    }
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;

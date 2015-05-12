@@ -36,7 +36,6 @@ class FEISDataConnector
     {
         $basenames = array_keys($this->export_basenames);
         $text_path = self::load_zip_contents($this->species_list_export, array('timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 1), $basenames, ".csv");
-        print_r($text_path);
         foreach($this->export_basenames as $type => $uri) self::csv_to_array($text_path[$type], $type, $uri);
         $this->archive_builder->finalize(TRUE);
         // remove temp dir
@@ -46,25 +45,27 @@ class FEISDataConnector
         $parts["dirname"] = str_ireplace($basename, "", $parts["dirname"]);
         recursive_rmdir($parts["dirname"]);
         debug("\n temporary directory removed: " . $parts["dirname"]);
-        print_r($this->debug);
+        if($val = $this->debug) print_r($val);
     }
 
     private function csv_to_array($csv_file, $type, $uri)
     {
+        echo "\n[$type]";
+        /* Note: Before there are only 5 columns in the CSV files. Now there are already 6 columns */
         $i = 0;
         if(!($file = Functions::file_open($csv_file, "r"))) return;
         while(!feof($file))
         {
             $temp = fgetcsv($file);
+            if(is_array($temp)) $temp = array_map('trim', $temp);
             $i++;
-            echo "\n $i - ";
             if($i == 1) continue;   // ignore first line of CSV file
             if($i == 2)             // 2nd row gets the field labels
             {
                 $fields = $temp;
-                if(count($fields) != 5)
+                if(count($fields) != 6)
                 {
-                    $this->debug["not5"][$fields[0]] = 1;
+                    $this->debug["not5"][$fields[0]] = '';
                     continue;
                 }
             }
@@ -72,29 +73,64 @@ class FEISDataConnector
             {
                 $rec = array();
                 $k = 0;
-                // 2 checks if valid record
                 if(!$temp) continue;
-                if(count($temp) != 5)
-                {
-                    $this->debug["not5"][$temp[0]] = 1;
-                    continue;
-                }
                 foreach($temp as $t)
                 {
-                    $rec[$fields[$k]] = $t;
+                    $rec[@$fields[$k]] = $t;
                     $k++;
                 }
                 
-                $rec["type"] = $type;
-                $rec["uri"] = $uri;
-                $rec = self::manual_adjustment_on_names($rec);
-                $this->create_instances_from_taxon_object($rec);
-                $this->process_structured_data($rec);
+                if(is_numeric(stripos($rec["Scientific Name"], ";"))) //each row has multiple scinames separated by ';' semicolon.
+                {
+                    $reks = self::process_multiple_scinames($rec);
+                    foreach($reks as $rec)
+                    {
+                        $rec["type"] = $type;
+                        $rec["uri"] = $uri;
+                        $rec = self::manual_adjustment_on_names($rec);
+                        $this->create_instances_from_taxon_object($rec);
+                        $this->process_structured_data($rec);
+                    }
+                }
+                else //each row has one sciname
+                {
+                    $rec["type"] = $type;
+                    $rec["uri"] = $uri;
+                    $rec = self::manual_adjustment_on_names($rec);
+                    $this->create_instances_from_taxon_object($rec);
+                    $this->process_structured_data($rec);
+                }
             }
         }
         fclose($file);
     }
 
+    private function process_multiple_scinames($rec)
+    {
+        $reks = array();
+        $scinames = explode(";", $rec["Scientific Name"]);
+        $scinames = array_map('trim', $scinames);
+        $comnames = explode(";", $rec["Common Name"]);
+        $comnames = array_map('trim', $comnames);
+        $z = 0;
+        $genus_species = array();
+        foreach($scinames as $sciname)
+        {
+            if($z === 0) $genus = self::get_genus($sciname);
+            $species = self::get_species($sciname);
+            $rek = array();
+            $rek['Acronym']                 = $rec['Acronym'];
+            $rek['Link']                    = $rec['Link'];
+            $rek['Scientific Name']         = $genus . " " . $species;
+            $rek['Common Name']             = @$comnames[$z];
+            $rek['Review Date']             = $rec['Review Date'];
+            $rek['Fire Study Availability'] = $rec['Fire Study Availability'];
+            $z++;
+            if($rek['Scientific Name']) $reks[] = $rek;
+        }
+        return $reks;
+    }
+    
     private function manual_adjustment_on_names($rec)
     {
         switch($rec["Scientific Name"])
@@ -129,7 +165,6 @@ class FEISDataConnector
         $taxon->taxonID                 = $rec["taxon_id"];
         $taxon->scientificName          = $rec["Scientific Name"];
         $taxon->furtherInformationURL   = $rec["Link"];
-        echo " - " . $taxon->scientificName . " [$taxon->taxonID]";
         if(!isset($this->taxa[$taxon->taxonID]))
         {
             $this->archive_builder->write_object_to_file($taxon);
@@ -163,7 +198,7 @@ class FEISDataConnector
             $data["value"] = "United States (USA)";
         }
         
-        $remarks = "FEIS taxon abbreviation: " . $record["Review Acronym"];
+        $remarks = "FEIS taxon abbreviation: " . $record["Acronym"];
         if($val = @$data["remarks"]) $remarks .= ". " . $val;
         
         self::add_string_types("true", $rec, "", $data["value"], $data["uri"], $remarks);
@@ -173,7 +208,6 @@ class FEISDataConnector
     
     private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype, $measurementRemarks = null)
     {
-        echo "\n [$label]:[$value]:[$mtype]\n";
         $taxon_id = $rec["taxon_id"];
         $catnum = $rec["catnum"];
         $m = new \eol_schema\MeasurementOrFact();
@@ -237,6 +271,19 @@ class FEISDataConnector
         }
         else debug("\n\n Connector terminated. Remote files are not ready.\n\n");
         return $text_path;
+    }
+    
+    private function get_genus($sciname)
+    {
+        $arr = explode(" ", $sciname);
+        return trim($arr[0]);
+    }
+
+    private function get_species($sciname)
+    {
+        $arr = explode(" ", $sciname);
+        array_shift($arr);
+        return implode(" ", $arr);
     }
 
 }
