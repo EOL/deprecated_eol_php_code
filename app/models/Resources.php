@@ -200,9 +200,8 @@ class Resource extends ActiveRecord
 
         if($result && $row=$result->fetch_assoc())
         {
-            $resource = Resource::find($row["id"]);
-            $GLOBALS['currently_harvesting_resource_id'] = $resource->id;
-            return $resource;
+            $GLOBALS['currently_harvesting_resource_id'] = $row["id"];
+            return  $resource = Resource::find($row["id"]);
         }
         $GLOBALS['currently_harvesting_resource_id'] = NULL;
         return NULL;
@@ -412,7 +411,7 @@ class Resource extends ActiveRecord
     public function harvest($validate = true, $validate_only_welformed = false, $fast_for_testing = false)
     {
         // create resource_id.log
-        if( ($GLOBALS['ENV_NAME'] != 'test') && !($resource_harvesting_log = fopen ("log/" . $resource->id . ".log", "w+")))
+        if(!($resource_harvesting_log = fopen ("log/" . $resource->id . ".log", "w+")))
         {
           debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " ."log/" . $resource->id . ".log");
           return;
