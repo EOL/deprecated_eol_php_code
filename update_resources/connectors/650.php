@@ -24,7 +24,11 @@ $auth_token = NULL;
 if(FlickrAPI::valid_auth_token(FLICKR_AUTH_TOKEN)) $auth_token = FLICKR_AUTH_TOKEN;
 
 // create new _temp file
-$resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", "w+");
+if(!($resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", "w+")))
+{
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml");
+  return;
+}
 
 // start the resource file with the XML header
 fwrite($resource_file, \SchemaDocument::xml_header());

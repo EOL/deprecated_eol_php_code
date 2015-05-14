@@ -7,7 +7,11 @@ if(@$_POST["nameList"])
 {
     $names = explode("\n",$_POST["nameList"]);
     
-    $OUT = fopen(DOC_ROOT."temp/google_output.txt","w+");
+    if(!($OUT = fopen(DOC_ROOT."temp/google_output.txt","w+")))
+    {
+      debug("Can't open file : temp/google_output.txt");
+      return;
+    }
     
     while(list($key,$val)=each($names))
     {

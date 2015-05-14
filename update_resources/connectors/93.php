@@ -119,7 +119,11 @@ foreach($used_taxa as $taxon_parameters)
 ////////////////////// ---
 $new_resource_xml = SchemaDocument::get_taxon_xml($schema_taxa);
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
-$OUT = fopen($old_resource_path, "w+");
+if(!($OUT = fopen($old_resource_path, "w+")))
+{
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$old_resource_path);
+  return;
+}
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
 ////////////////////// ---
@@ -142,11 +146,11 @@ function get_references($file)
     $str = str_replace(array("\n", "\r", "\t", "\o", "\xOB"), '', $str);    
     $str = str_replace(array("<nobr>", "</nobr>", "taxon_view.cfm?mode=bibliography&citation=","&#776;"), '', $str);            
     
-    $str = str_ireplace('&#8216;' , "'", $str);//special char [‘]
-    $str = str_ireplace('&#8217;' , "'", $str);//special char [’]
-    $str = str_ireplace('&#8220;' , '"', $str); //special char [“]
-    $str = str_ireplace('&#8221;' , '"', $str); //special char [”]     
-    $str = str_ireplace('&#8211;' , '-', $str);//special char [–]     
+    $str = str_ireplace('&#8216;' , "'", $str);//special char [ï¿½]
+    $str = str_ireplace('&#8217;' , "'", $str);//special char [ï¿½]
+    $str = str_ireplace('&#8220;' , '"', $str); //special char [ï¿½]
+    $str = str_ireplace('&#8221;' , '"', $str); //special char [ï¿½]     
+    $str = str_ireplace('&#8211;' , '-', $str);//special char [ï¿½]     
     $str = str_ireplace('&#769;' , "'", $str);//special char [?]         
 
     $str = str_ireplace('&amp;' , "and", $str);        

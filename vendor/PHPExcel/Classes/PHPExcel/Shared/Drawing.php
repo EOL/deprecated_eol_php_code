@@ -179,7 +179,11 @@ class PHPExcel_Shared_Drawing
 	public static function imagecreatefrombmp($p_sFile)
 	{
         //    Load the image into a string
-        $file    =    fopen($p_sFile,"rb");
+        if(!($file    =    fopen($p_sFile,"rb")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$p_sFile);
+          return;
+        }
         $read    =    fread($file,10);
         while(!feof($file)&&($read<>""))
             $read    .=    fread($file,1024);

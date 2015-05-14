@@ -6,6 +6,7 @@ estimated execution time:
     2 days - generation of 5 processed text files - save_data_to_text()
     2 days - generation of 5 archive files - process_text_file()
 */
+return;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/PesiAPI');
 $timestart = time_elapsed();

@@ -189,7 +189,11 @@ function get_vernaculars($min, $max)
 function write_to_text_file($records, $filename, $synonyms, $vernaculars)
 {
     $line = '';
-    $OUT = fopen($filename, "a");
+    if(!($OUT = fopen($filename, "a")))
+    {
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
+      return;
+    }
     $temp = array();
     foreach($records as $record)
     {
@@ -228,7 +232,11 @@ function write_to_text_file($records, $filename, $synonyms, $vernaculars)
 function write_to_text_file_vernacular($records, $filename)
 {
     $line = '';
-    $OUT = fopen($filename, "a");
+    if(!($OUT = fopen($filename, "a")))
+    {
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
+      return;
+    }
     foreach($records as $recordz)
     {
         foreach($recordz as $record)
@@ -245,7 +253,11 @@ function write_to_text_file_vernacular($records, $filename)
 
 function initialize_text_file($filename)
 {
-    $f = fopen($filename, "w");
+    if(!($f = fopen($filename, "w")))
+    {
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
+      return;
+    }
     fclose($f);
 } 
 

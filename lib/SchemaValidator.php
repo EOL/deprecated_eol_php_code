@@ -74,7 +74,11 @@ class SchemaValidator
     
     public static function get_schema_location($uri)
     {
-        $FILE = @fopen($uri, "r");
+        if(!($FILE = @fopen($uri, "r")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $uri);
+          return;
+        }
         
         // number of lines of the XML file to look for xsi:schemaLocation in
         $n = 30;

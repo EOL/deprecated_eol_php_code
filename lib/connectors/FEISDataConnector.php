@@ -52,8 +52,7 @@ class FEISDataConnector
     private function csv_to_array($csv_file, $type, $uri)
     {
         $i = 0;
-        $file = fopen($csv_file, "r");
-        if(!$file) return;
+        if(!($file = Functions::file_open($csv_file, "r"))) return;
         while(!feof($file))
         {
             $temp = fgetcsv($file);
@@ -226,7 +225,7 @@ class FEISDataConnector
         {
             $parts = pathinfo($zip_path);
             $temp_file_path = $temp_path . "/" . $parts["basename"];
-            $TMP = fopen($temp_file_path, "w");
+            if(!($TMP = Functions::file_open($temp_file_path, "w"))) return;
             fwrite($TMP, $file_contents);
             fclose($TMP);
             $output = shell_exec("unzip $temp_file_path -d $temp_path");

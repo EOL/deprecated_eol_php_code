@@ -90,7 +90,11 @@ class PHPExcel_Reader_Gnumeric extends PHPExcel_Reader_Abstract implements PHPEx
 		}
 
 		// Read signature data (first 3 bytes)
-		$fh = fopen($pFilename, 'r');
+		if(!($fh = fopen($pFilename, 'r')))
+    {
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$pFilename);
+      return;
+    }
 		$data = fread($fh, 2);
 		fclose($fh);
 

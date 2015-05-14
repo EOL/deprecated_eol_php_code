@@ -7,7 +7,11 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 
 
 
-$OUT = fopen("../temp/namebank.tcs.xml", "w+");
+if(!($OUT = fopen("../temp/namebank.tcs.xml", "w+")))
+{
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " ."../temp/namebank.tcs.xml");
+  return;
+}
 
 $header = "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <DataSet

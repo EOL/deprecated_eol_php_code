@@ -13,6 +13,7 @@ class ConabioAPI
     function __construct()
     {
         $this->download_options = array("download_wait_time" => 1000000, "timeout" => 3600, "delay_in_minutes" => 2);
+        $this->download_options['expire_seconds'] = false;
     }
 
     function combine_all_xmls($resource_id)
@@ -22,7 +23,7 @@ class ConabioAPI
         if(!$species_urls) return;
         debug("\n\n Start compiling all XML...");
         $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-        $OUT = fopen($old_resource_path, "w+");
+        if(!($OUT = Functions::file_open($old_resource_path, "w+"))) return;
         $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
         $str .= "<response\n";
         $str .= "  xmlns='http://www.eol.org/transfer/content/0.3'\n";

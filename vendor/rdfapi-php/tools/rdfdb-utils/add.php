@@ -56,7 +56,11 @@ if ($db->modelExists($muri)) {
       $a=getthroughproxy($u,$PROXYHOST,$PROXYPORT);
       $f=tempnam();
       
-      $fp=fopen($f);
+      if(!($fp=fopen($f)))
+      {
+        debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$f);
+        return;
+      }
       fputs($fp,$a["content"]);
       fclose($fp);
       

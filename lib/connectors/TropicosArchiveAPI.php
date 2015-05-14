@@ -194,7 +194,7 @@ class TropicosArchiveAPI
             $mr = new \eol_schema\MediaResource();
             if($agent_ids) $mr->agentID = implode("; ", $agent_ids);
             $mr->taxonID        = $taxon_id;
-            $mr->identifier     = $identifier;
+            $mr->identifier     = (string) $identifier;
             $mr->type           = $dataType;
             $mr->language       = 'en';
             $mr->format         = $mimeType;
@@ -206,7 +206,11 @@ class TropicosArchiveAPI
             $mr->description    = $description;
             $mr->accessURI      = $mediaURL;
             $mr->Rating         = $rating;
-            $this->archive_builder->write_object_to_file($mr);
+            if(!isset($this->object_ids[$mr->identifier]))
+            {
+                $this->object_ids[$mr->identifier] = '';
+                $this->archive_builder->write_object_to_file($mr);
+            }
         }
     }
 
@@ -458,7 +462,11 @@ class TropicosArchiveAPI
 
     private function assemble_id_list()
     {
-        $OUT = fopen($this->tropicos_ids_list_file, "w");
+        if(!($OUT = fopen($this->tropicos_ids_list_file, "w")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->tropicos_ids_list_file);
+          return;
+        }
         $startid = 0; // debug orig value 0; 1600267 with mediaURL and <location>; 1201245 with thumbnail size images; 100391155 near the end
         $count = 0;
         while(true)

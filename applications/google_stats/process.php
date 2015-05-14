@@ -69,7 +69,11 @@ $unique_page_views      = array();
 $time_on_page_seconds   = array();
 $taxa_id                = array();
 $row = 0;
-if(!($handle = fopen($filename, "r")))exit;
+if(!($handle = fopen($filename, "r")))
+{
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
+  exit;
+}
 while (($data = fgetcsv($handle)) !== FALSE)
 {
     if($row > 0)
@@ -265,7 +269,11 @@ function save_monthly()
 function getMonthYear()
 {
     $filename = "data/monthly.csv";
-    if(!($handle = fopen($filename, "a+")))return "";
+    if(!($handle = fopen($filename, "a+")))
+    {
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
+      return "";
+    }
     $comma_separated='';
     while (($data = fgetcsv($handle)) !== FALSE)
     {
@@ -412,7 +420,11 @@ function getCountOfTaxaPages($provider,$path,$for)
 {
     $filename = $path . "/query9.csv";
     $row = 0;
-    if(!($handle = fopen($filename, "r")))return;
+    if(!($handle = fopen($filename, "r")))
+    {
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
+      return;
+    }
     while (($data = fgetcsv($handle)) !== FALSE)
     {
         if($row > 0)
@@ -444,7 +456,11 @@ function iif($condition, $true, $false)
 function count_rec($file)
 {
     $row = 0;
-    if(!($handle = fopen($file, "r")))return;
+    if(!($handle = fopen($file, "r")))
+    {
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $file);
+      return;
+    }
     while (($data = fgetcsv($handle)) !== FALSE)
     {
         if($row > 0) $num = count($data);
@@ -460,7 +476,11 @@ function process_all_eol($file)
     $bounce_rate = 0;
     $percent_exit = 0;
     $row = 0;
-    if(!($handle = fopen($file, "r")))return;
+    if(!($handle = fopen($file, "r")))
+    {
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $file);
+      return;
+    }
     while (($data = fgetcsv($handle)) !== FALSE)
     {
         if($row > 0)
@@ -527,7 +547,11 @@ function record_details($provider,$path,$start_cnt,$total_taxon_id,$agentID)
     $provider_cnt=0;
     $filename = $path . "/site_statistics.csv";
     $row = 0;
-    $handle = fopen($filename, "r");
+    if (!($handle = fopen($filename, "r")))
+    {
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
+      return;
+    }
     while (($data = fgetcsv($handle)) !== FALSE)
     {
         if($row > 0 )
@@ -685,7 +709,11 @@ function record_details_eol($path)
     $provider_cnt=0;
     $filename = $path . "/query10.csv";
     $row = 0;
-    if(!($handle = fopen($filename, "r")))return;
+    if(!($handle = fopen($filename, "r")))
+    {
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
+      return;
+    }
     while (($data = fgetcsv($handle)) !== FALSE)
     {
         if($row > 0 )

@@ -22,6 +22,7 @@ class FileIterator implements \Iterator
         }else
         {
             trigger_error("FileIterator: Invalid file path or not readable: $file_path", E_USER_NOTICE);
+            debug("FileIterator: Invalid file path or not readable: $file_path", E_USER_NOTICE);
         }
     }
     

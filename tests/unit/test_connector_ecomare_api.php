@@ -19,7 +19,11 @@ class test_connector_Ecomare_api extends SimpletestUnitBase
         $str .= "  </subject_item>\n";
         $str .= "</subjects>\n";
         $temp_path = temp_filepath();
-        $OUT = fopen($temp_path, "w");
+        if(!($OUT = fopen($temp_path, "w")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$temp_path);
+          return;
+        }
         fwrite($OUT, $str);
         fclose($OUT);
         $url = "http://dl.dropbox.com/u/7597512/Ecomare/encyclopedia_toc_small.xml";

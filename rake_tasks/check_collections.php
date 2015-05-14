@@ -40,14 +40,14 @@ class CollectionsFixer
             $solr_count = $response->numFound;
             if($mysql_count == $solr_count && $mysql_count <= 2) continue;
             
-            
-            echo "Collection $collection_id : $mysql_count\n";
+            debug("get_collection_counts: $collection_id = $mysql_count");
             $this->fix_collection($collection_id, isset($test_collection_id));
         }
     }
     
     public function fix_collection($collection_id, $test_mode)
     {
+        debug("CheckCollections::fix_collection ($collection_id)");
         $collection_ids_in_mysql = array();
         foreach($this->mysqli->iterate_file("SELECT id, object_id FROM collection_items WHERE collection_id=$collection_id ORDER BY id") as $row_num => $row)
         {
@@ -59,7 +59,7 @@ class CollectionsFixer
         $response = $this->solr->query("collection_id:$collection_id&rows=1");
         if(!isset($response->numFound))
         {
-            echo "****** THERE ARE NO RESULTS\n";
+            debug("****** THERE ARE NO RESULTS");
             return false;
         }
         $solr_count = $response->numFound;
@@ -70,7 +70,7 @@ class CollectionsFixer
             $response = $this->solr->query("collection_id:$collection_id&start=". ($i*$batch_size) ."&rows=$batch_size&fl=collection_item_id,object_id&sort=collection_item_id asc");
             if(!isset($response->numFound))
             {
-                echo "****** THERE ARE NO RESULTS\n";
+                debug("****** THERE ARE NO RESULTS");
                 return false;
             }
             foreach($response->docs as $doc)
@@ -82,14 +82,8 @@ class CollectionsFixer
         $items_that_need_to_be_added = array_diff($collection_ids_in_mysql, $collection_ids_in_solr);
         $items_that_need_to_be_deleted = array_diff($collection_ids_in_solr, $collection_ids_in_mysql);
         
-        // echo "In MySQL:\n";
-        // print_r($collection_ids_in_mysql);
-        // echo "In Solr:\n";
-        // print_r($collection_ids_in_solr);
-        echo "Need to be Added: ". count($items_that_need_to_be_added) ."\n";
-        // print_r($items_that_need_to_be_added);
-        echo "Need to be Deleted: ". count($items_that_need_to_be_deleted) ."\n\n\n";
-        // print_r($items_that_need_to_be_deleted);
+        debug("Need to be Added: ". count($items_that_need_to_be_added));
+        debug("Need to be Deleted: ". count($items_that_need_to_be_deleted) ."\n");
         
         if($test_mode) return;
         

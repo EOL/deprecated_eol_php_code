@@ -12,6 +12,7 @@ class SchemaDocument
         if ($this->FILE === false)
         {
             echo "Could not open file $filename\n";
+            debug ( "Could not open file $filename");
             flush();
             debug("Could not open file $filename");
             return false;

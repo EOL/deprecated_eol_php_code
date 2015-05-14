@@ -24,7 +24,11 @@ class test_mysqli extends SimpletestUnitBase
     function testLoadData()
     {
         $tmp_file_path = temp_filepath();
-        $FILE = fopen($tmp_file_path, 'w+');
+        if(!($FILE = fopen($tmp_file_path, 'w+')))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_file_path);
+          return;
+        }
         for($i=1 ; $i<=50002 ; $i++)
         {
             fwrite($FILE, "$i\ttest string $i\t\N\n");
@@ -49,7 +53,11 @@ class test_mysqli extends SimpletestUnitBase
         
         
         // making a smaler file for two more tests
-        $FILE = fopen($tmp_file_path, 'w+');
+        if(!($FILE = fopen($tmp_file_path, 'w+')))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_file_path);
+          return;
+        }
         for($i=1 ; $i<=10 ; $i++)
         {
             fwrite($FILE, "$i\tnew test string $i\tnot null\n");

@@ -87,7 +87,11 @@ class DiscoverLifeAPI
         //initialize text file for DiscoverLife: save names without a page in EOL
         self::initialize_text_file(self::$TEXT_FILE_FOR_DL);
         $filename = self::$TEMP_FILE_PATH . $task . ".txt";
-        $FILE = fopen($filename, "r");
+        if(!($FILE = fopen($filename, "r")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
+          return;
+        }
         $i = 0; 
         $save_count = 0; 
         $no_eol_page = 0;
@@ -128,7 +132,11 @@ class DiscoverLifeAPI
 
         $xml = SchemaDocument::get_taxon_xml($all_taxa);
         $resource_path = CONTENT_RESOURCE_LOCAL_PATH . "DiscoverLife/temp_DiscoverLife_" . $task . ".xml";
-        $OUT = fopen($resource_path, "w"); 
+        if(!($OUT = fopen($resource_path, "w")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$resource_path);
+          return;
+        } 
         fwrite($OUT, $xml); 
         fclose($OUT);
 
@@ -218,7 +226,11 @@ class DiscoverLifeAPI
 
     private function divide_text_file($divisor)
     {
-        $FILE = fopen(self::DL_MAP_SPECIES_LIST, "r");
+        if(!($FILE = fopen(self::DL_MAP_SPECIES_LIST, "r")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . self::DL_MAP_SPECIES_LIST);
+          return;
+        }
         $i = 0;
         $file_ctr = 0;
         $str = "";
@@ -235,7 +247,11 @@ class DiscoverLifeAPI
                     print"\n";
                     $file_ctr++;
                     $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
-                    $OUT = fopen(self::$TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
+                    if(!($OUT = fopen(self::$TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w")))
+                    {
+                      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .self::$TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
+                      return;
+                    }
                     fwrite($OUT, $str);
                     fclose($OUT);
                     $str = "";
@@ -248,7 +264,11 @@ class DiscoverLifeAPI
         {
             $file_ctr++;
             $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
-            $OUT = fopen(self::$TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w");
+            if(!($OUT = fopen(self::$TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w")))
+            {
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .self::$TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
+              return;
+            }
             fwrite($OUT, $str);
             fclose($OUT);
         }
@@ -267,7 +287,11 @@ class DiscoverLifeAPI
     {
         debug("\n\n Start compiling all XML...");
         $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
-        $OUT = fopen($old_resource_path, "w");
+        if(!($OUT = fopen($old_resource_path, "w")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $old_resource_path);
+          return;
+        }
         $str = "<?xml version='1.0' encoding='utf-8' ?>\n";
         $str .= "<response\n";
         $str .= "  xmlns='http://www.eol.org/transfer/content/0.3'\n";
@@ -291,7 +315,11 @@ class DiscoverLifeAPI
                 break;
             }
             print " $i ";
-            $READ = fopen($filename, "r");
+            if(!($READ = fopen($filename, "r")))
+            {
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
+              return;
+            }
             $contents = fread($READ, filesize($filename));
             fclose($READ);
             if($contents)
@@ -309,7 +337,11 @@ class DiscoverLifeAPI
 
     private function initialize_text_file($filename)
     {
-        $OUT = fopen($filename, "a");
+        if(!($OUT = fopen($filename, "a")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
+          return;
+        }
         fwrite($OUT, "===================" . "\n");
         fwrite($OUT, date("F j, Y, g:i:s a") . "\n");
         fclose($OUT);

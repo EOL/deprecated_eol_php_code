@@ -5,7 +5,11 @@ include_once(dirname(__FILE__) . "/../config/environment.php");
 
 $mysqli =& $GLOBALS['mysqli_connection'];
 
-$OUT = fopen("../temp/eol.tcs.xml", "w+");
+if(!($OUT = fopen("../temp/eol.tcs.xml", "w+")))
+{
+  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " ."../temp/eol.tcs.xml");
+  return;
+}
 
 $header = "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <DataSet

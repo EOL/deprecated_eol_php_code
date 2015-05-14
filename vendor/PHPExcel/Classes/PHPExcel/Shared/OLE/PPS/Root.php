@@ -85,12 +85,14 @@ class PHPExcel_Shared_OLE_PPS_Root extends PHPExcel_Shared_OLE_PPS
 			$this->_FILEH_ = fopen($this->_tmp_filename,"w+b");
 			if ($this->_FILEH_ == false) {
 				throw new PHPExcel_Writer_Exception("Can't create temporary file.");
+        debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->_tmp_filename);
 			}
 		} else {
 			$this->_FILEH_ = fopen($filename, "wb");
 		}
 		if ($this->_FILEH_ == false) {
 			throw new PHPExcel_Writer_Exception("Can't open $filename. It may be in use or protected.");
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->_FILEH_);
 		}
 		// Make an array of PPS's (for Save)
 		$aList = array();

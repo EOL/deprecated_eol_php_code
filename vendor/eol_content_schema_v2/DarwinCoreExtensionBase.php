@@ -123,7 +123,11 @@ class DarwinCoreExtensionBase
         $cache_location = __DIR__ . "/extension_cache/schema_". md5($url) .".xml";
         if(file_exists($cache_location)) return file_get_contents($cache_location);
         $extension_contents = file_get_contents($url);
-        $CACHE = fopen($cache_location, "w+");
+        if(!($CACHE = fopen($cache_location, "w+")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$cache_location);
+          return;
+        }
         fwrite($CACHE, $extension_contents);
         fclose($CACHE);
         return $extension_contents;

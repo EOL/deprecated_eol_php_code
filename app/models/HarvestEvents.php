@@ -150,7 +150,11 @@ class HarvestEvent extends ActiveRecord
             AND dohe_current.harvest_event_id=$this->id
             AND dohent_previous.visibility_id IN (".Visibility::invisible()->id.")");
         
-        $FILE = fopen($outfile, "r");
+        if (!($FILE = fopen($outfile, "r")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $outfile);
+          return;
+        }
         while(!feof($FILE))
         {
             if($line = fgets($FILE, 4096))
@@ -604,6 +608,17 @@ class HarvestEvent extends ActiveRecord
                     'X-Mailer: PHP/' . phpversion();
                 $to      = implode(", ", array(SPG_EMAIL_ADDRESS, EOL_DEV_EMAIL_ADDRESS, ELI_EMAIL_ADDRESS));
                 mail($to, $subject, $message, $headers);
+                //create a file for each mail
+                $outlier_mails_log_dir = "log/outlier_mails/";
+                if (!file_exists($outlier_mails_log_dir))
+                   mkdir($outlier_mails_log_dir);
+                $mail_file = fopen ($outlier_mails_log_dir . $this->resource->title . "_" . date('d-m-Y H:i:s', time()) . ".log", "w");
+                if(!$mail_file){
+                   debug("Can't open file for outlier mail");
+                }else{
+                   fwrite($mail_file, $message);
+                   fclose($mail_file);
+                }
             }
         }
     }
@@ -626,7 +641,11 @@ class HarvestEvent extends ActiveRecord
         $used_ids = array();
         $count = 0;
         $outfile = temp_filepath();
-        $OUT = fopen($outfile, 'w+');
+        if(!($OUT = fopen($outfile, 'w+')))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $outfile);
+          return;
+        }
         foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row)
         {
             $id = $row[0];
@@ -662,7 +681,11 @@ class HarvestEvent extends ActiveRecord
         $used_ids = array();
         $count = 0;
         $outfile = temp_filepath();
-        $OUT = fopen($outfile, 'w+');
+        if (!($OUT = fopen($outfile, 'w+')))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $outfile);
+          return;
+        }
         foreach($GLOBALS['db_connection']->iterate_file($query) as $row_num => $row)
         {
             $id = $row[0];

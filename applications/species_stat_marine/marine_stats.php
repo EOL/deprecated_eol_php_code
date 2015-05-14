@@ -141,7 +141,9 @@ function save2txt($arr,$filename)
     {
         fwrite($fp, $str);
         fclose($fp);
-    }       
+    }else{
+      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
+    }
 }
 
 /*

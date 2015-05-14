@@ -107,8 +107,16 @@ class TopImages
     
     private function insert_baseline_objects()
     {
-        $this->TOP_IMAGES_FILE = fopen(DOC_ROOT . "temp/top_images.sql", "w+");
-        $this->TOP_UNPUBLISHED_IMAGES = fopen(DOC_ROOT . "temp/top_unpublished_images.sql", "w+");
+        if(!($this->TOP_IMAGES_FILE = fopen(DOC_ROOT . "temp/top_images.sql", "w+")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . DOC_ROOT . "temp/top_images.sql");
+          return;
+        }
+        if(!($this->TOP_UNPUBLISHED_IMAGES = fopen(DOC_ROOT . "temp/top_unpublished_images.sql", "w+")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . DOC_ROOT . "temp/top_unpublished_images.sql");
+          return;
+        }
         
         $preview_id = Visibility::preview()->id;
         
@@ -195,9 +203,16 @@ class TopImages
     private function process_parents($parent_ids)
     {
         // truncate the temporary files
-        $this->TOP_IMAGES_FILE = fopen(DOC_ROOT . "temp/top_images.sql", "w+");
-        $this->TOP_UNPUBLISHED_IMAGES = fopen(DOC_ROOT . "temp/top_unpublished_images.sql", "w+");
-        
+        if(!($this->TOP_IMAGES_FILE = fopen(DOC_ROOT . "temp/top_images.sql", "w+")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . DOC_ROOT . "temp/top_images.sql");
+          return;
+        }
+        if(!($this->TOP_UNPUBLISHED_IMAGES = fopen(DOC_ROOT . "temp/top_unpublished_images.sql", "w+")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . DOC_ROOT . "temp/top_unpublished_images.sql");
+          return;
+        }
         $i = 0;
         unset($all_parent_ids);
         $all_parent_ids = array();
@@ -241,8 +256,11 @@ class TopImages
     
     public function top_concept_images($published = false)
     {
-        $OUT = fopen(DOC_ROOT . "temp/top_concept_images.sql", "w+");
-        
+        if(!($OUT = fopen(DOC_ROOT . "temp/top_concept_images.sql", "w+")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . DOC_ROOT . "temp/top_concept_images.sql");
+          return;
+        }
         if($published)
         {
             $table_name = 'top_concept_images';
@@ -316,7 +334,11 @@ class TopImages
         $hierarchy_entry_ids = array();
         
         $visible_id = Visibility::visible()->id;
-        $RESULT = fopen($outfile, "r");
+        if(!($RESULT = fopen($outfile, "r")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $outfile);
+          return;
+        }
         while(!feof($RESULT))
         {
             if($line = fgets($RESULT, 4096))

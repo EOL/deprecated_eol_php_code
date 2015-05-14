@@ -102,7 +102,11 @@ class TaxonPageMetricsNew
             $sql .= " limit $start_limit, $batch ";
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
-            $FILE = fopen($outfile, "r");
+            if(!($FILE = fopen($outfile, "r")))
+            {
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $outfile);
+              return;
+            }
             $num_rows = 0;
             while(!feof($FILE))
             {
@@ -140,7 +144,11 @@ class TaxonPageMetricsNew
         $arr_taxa = array();
         $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_publications.txt";
         if(!file_exists($filename)) return;
-        $FILE = fopen($filename, "r");
+        if(!($FILE = fopen($filename, "r")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $filename);
+          return;
+        }
         $num_rows = 0;
         while(!feof($FILE))
         {
@@ -602,7 +610,11 @@ class TaxonPageMetricsNew
     
     function save_to_json_file($arr, $filename)
     {
-        $WRITE = fopen(PAGE_METRICS_TEXT_PATH . $filename . ".txt", "w");
+        if(!($WRITE = fopen(PAGE_METRICS_TEXT_PATH . $filename . ".txt", "w")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". PAGE_METRICS_TEXT_PATH . $filename . ".txt");
+          return;
+        }
         fwrite($WRITE, json_encode($arr));
         fclose($WRITE);
     }
@@ -610,7 +622,11 @@ class TaxonPageMetricsNew
     function get_array_from_json_file($filename)
     {
         $filename = PAGE_METRICS_TEXT_PATH . $filename . ".txt";
-        $READ = fopen($filename, "r");
+        if(!($READ = fopen($filename, "r")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $filename);
+          return;
+        }
         $contents = fread($READ, filesize($filename));
         fclose($READ);
         return json_decode($contents, true);
@@ -623,13 +639,21 @@ class TaxonPageMetricsNew
         {
             rename($file_path, $file_path .".tmp");
         }
-        $OUT = fopen($file_path, "w+");
+        if(!($OUT = fopen($file_path, "w+")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$file_path);
+          return;
+        }
         fclose($OUT);
     }
     
     function save_category_stats($stats, $category)
     {
-        $OUT = fopen(PAGE_METRICS_TEXT_PATH . "$category.txt", "a+");
+        if(!($OUT = fopen(PAGE_METRICS_TEXT_PATH . "$category.txt", "a+")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". PAGE_METRICS_TEXT_PATH . "$category.txt");
+          return;
+        }
         ksort($stats);
         while(list($taxon_concept_id, $stat) = each($stats))
         {
@@ -642,9 +666,17 @@ class TaxonPageMetricsNew
     {
         // expects $arr to equal "\t#" or "\t#\t#\t#"
         rename(PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt", PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt.tmp");
-        $WRITE = fopen(PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt", "a");
+        if(!($WRITE = fopen(PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt", "a")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt");
+          return;
+        }
         
-        $READ = fopen(PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt.tmp", "r");
+        if(!($READ = fopen(PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt.tmp", "r")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ".PAGE_METRICS_TEXT_PATH . "taxon_concept_metrics.txt.tmp");
+          return;
+        }
         $num_rows = 0;
         $str = "";
         
@@ -793,7 +825,11 @@ class TaxonPageMetricsNew
             
             $outfile = $this->mysqli_slave->select_into_outfile($sql);
             $start_limit += $batch;
-            $FILE = fopen($outfile, "r");
+            if(!($FILE = fopen($outfile, "r")))
+            {
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $outfile);
+              return;
+            }
             $num_rows = 0;
             while(!feof($FILE))
             {
@@ -816,7 +852,11 @@ class TaxonPageMetricsNew
         unset($tc_ids);
         
         $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_links.txt.tmp";
-        $fp = fopen($filename, "w");
+        if(!($fp = fopen($filename, "w")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $filename);
+          return;
+        }
         print "\n writing...";
         fwrite($fp, $str);
         fclose($fp);
@@ -841,12 +881,20 @@ class TaxonPageMetricsNew
         $timestart = microtime(1);
         $write_filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_publications.txt.tmp";
         unlink($write_filename);
-        $fp = fopen($write_filename, "a");
+        if(!($fp = fopen($write_filename, "a")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $write_filename);
+          return;
+        }
         
         //start reading text file
         print "\n Start reading text file [taxon_concept_with_bhl_links] \n";
         $filename = PAGE_METRICS_TEXT_PATH . "taxon_concept_with_bhl_links.txt";
-        $FILE = fopen($filename, "r");
+        if(!($FILE = fopen($filename, "r")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ". $filename);
+          return;
+        }
         $i = 0;
         $str = "";
         $save_count = 0;

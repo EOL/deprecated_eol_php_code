@@ -66,7 +66,11 @@ class FishBaseAPI
                 $batch_count++;
                 $xml = \SchemaDocument::get_taxon_xml($all_taxa);
                 $resource_path = $this->TEMP_FILE_PATH . "FB_" . $batch_count . ".xml";
-                $OUT = fopen($resource_path, "w");
+                if(!($OUT = fopen($resource_path, "w")))
+                {
+                  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $resource_path);
+                  return;
+                }
                 fwrite($OUT, $xml);
                 fclose($OUT);
                 $all_taxa = array();
@@ -76,7 +80,11 @@ class FishBaseAPI
         $batch_count++;
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $resource_path = $this->TEMP_FILE_PATH . "FB_" . $batch_count . ".xml";
-        $OUT = fopen($resource_path, "w");
+        if(!($OUT = fopen($resource_path, "w")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $resource_path);
+          return;
+        }
         fwrite($OUT, $xml);
         fclose($OUT);
         Functions::combine_all_eol_resource_xmls($resource_id, $this->TEMP_FILE_PATH . "FB_*.xml");
@@ -95,7 +103,11 @@ class FishBaseAPI
         if($file_contents = Functions::get_remote_file($this->fishbase_data, array('timeout' => 172800)))
         {
             $temp_file_path = $this->TEMP_FILE_PATH . "/fishbase.zip";
-            $TMP = fopen($temp_file_path, "w");
+            if(!($TMP = fopen($temp_file_path, "w")))
+            {
+              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_file_path);
+              return;
+            }
             fwrite($TMP, $file_contents);
             fclose($TMP);
             $output = shell_exec("unzip $temp_file_path -d $this->TEMP_FILE_PATH");
