@@ -12,7 +12,7 @@ class NMNHTypeRecordAPI
         $this->taxon_ids = array();
         $this->occurrence_ids = array();
         $this->debug = array();
-        $this->typeStatus_separators = array(";", "+", ",", " & ", " AND ");
+        $this->typeStatus_separators = array(";", "+", " & ", " AND ", ",");
         //for NHM
         $this->download_options = array('expire_seconds' => false, 'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->service['specimen'] = "http://data.nhm.ac.uk/api/action/datastore_search?resource_id=05ff2255-c38a-40c9-b657-4ccb55ab2feb";
@@ -165,14 +165,23 @@ class NMNHTypeRecordAPI
         $arr = array_unique($arr); //make unique
         $arr = array_values($arr); //reindex key
         $URIs = array();
-        foreach($arr as $typeStatus) $URIs[] = self::get_uri($typeStatus, "typeStatus");
+        foreach($arr as $typeStatus)
+        {
+            $info = self::format_typeStatus($typeStatus);
+            $typeStatus = $info['type_status'];
+            $URIs[] = self::get_uri($typeStatus, "typeStatus");
+        }
         return $URIs;
     }
     
     private function valid_typestatus($typestatus, $sciname)
     {
         if(!$typestatus = trim(strtolower($typestatus))) return false;
-        $exclude = array("nomen nudem", "not a type", "voucher", "ms", "non-type", "non type", "none", "type - nom. nud.");
+        $exclude = array("nomen nudem", "not a type", "voucher", "ms", "non-type", "non type", "none", "type - nom. nud.",
+                "?", "additional specimen", "an", "bleeker specimen", "c", "cited", "cited; cited; cited",
+                "figured", "figured; cited", "figured; figured", "figured; referred", "g.incrassatus and genus sphoerocephalus",
+                "juvenile", "nomen nudem", "nomenclatural standard", "pt", "referred", "referred; referred", "referred; referred; referred",
+                "schubotzi", "stated not type on evac.", "trophotype", "typestatus", "voucher");
         if(in_array($typestatus, $exclude)) return false;
         //ms *type (e.g., MS Holotype, MS Lectotype, MS Paralectotype, MS Paratype)
         if(substr($typestatus,0,3) == "ms " && !self::string_with_separator($typestatus)) return false;
@@ -180,12 +189,14 @@ class NMNHTypeRecordAPI
         if(!$sciname) return false;
         //The ScientificName is of the form “Genus sp.”, e.g., Alnus sp. - Note: names like Alnus maritima subsp. oklahomensis or Carex nutans var. japonica are fine, so you should not skip all records with . in them.
         if(strtolower(substr($sciname, -4)) == " sp.") return false;
+        if(substr($typestatus, 0, 8) == "cast of ") return false;
         return true;
     }
     
     private function string_with_separator($string)
     {
-        if($string == "SYNTYPE OF LEPRALIA ERRATA, WATERS") return false;
+        $no_separator = array("TYPE, NO.17 = LECTOTYPE", "TYPE, NO. 15 = LECTOTYPE", "LECTOTYPE, TYPE", "HOLOTYPE, TYPE", "SYNTYPE OF LEPRALIA ERRATA, WATERS");
+        if(in_array($string, $no_separator)) return false;
         foreach($this->typeStatus_separators as $separator)
         {
             if(is_numeric(stripos($string, $separator))) return true;
@@ -308,6 +319,13 @@ class NMNHTypeRecordAPI
     {
         $value = trim(str_replace("'", "", $value));
         if(in_array($field, array("sex", "typeStatus"))) $value = strtoupper($value);
+        
+        if($field == "typeStatus")
+        {
+            $info = self::format_typeStatus($value);
+            $value = $info['type_status'];
+        }
+        
         if($field == "sex")
         {
             //remove "s"
@@ -327,6 +345,7 @@ class NMNHTypeRecordAPI
             
             //various case statements
             if(is_numeric(stripos($value, "?"))) {} // use verbatim value
+            elseif(in_array($value, array("F SUBAD", "F AD")))                                              $value = "FEMALE";
             elseif(self::has_male($value) && self::has_female($value) && !self::has_hermaphrodite($value))  $value = "MALE_FEMALE";
             elseif(self::has_male($value) && self::has_female($value) && self::has_hermaphrodite($value))   $value = "MALE_FEMALE_HERMAPHRODITE";
             elseif(self::has_male($value) && !self::has_female($value) && self::has_hermaphrodite($value))  $value = "MALE_HERMAPHRODITE";
@@ -343,7 +362,7 @@ class NMNHTypeRecordAPI
                 elseif(self::has_male($value) && !self::has_female($value) && !self::has_hermaphrodite($value)) $value = "MALE";
                 elseif(!self::has_male($value) && self::has_female($value) && !self::has_hermaphrodite($value)) $value = "FEMALE";
                 elseif(!self::has_male($value) && !self::has_female($value) && self::has_hermaphrodite($value)) $value = "HERMAPHRODITE";
-                elseif(in_array($value, array("UNCERTAIN", "SEX UNKNOWN", "UNKNOWN; UNKNOWN"))) $value = "UNKNOWN";
+                elseif(in_array($value, array("UNCERTAIN", "SEX UNKNOWN", "UNKNOWN; UNKNOWN", "UNSEXED", "(UNSEXED)"))) $value = "UNKNOWN";
                 else {} // use verbatim value
             }
             else {} // use verbatim value
@@ -374,19 +393,20 @@ class NMNHTypeRecordAPI
               [PREMATURE; JUVENILE] => 
               [AGED] => 
             */
+            
             $value = str_replace(";;", ";", $value);
             $value = str_replace(";;", ";", $value);
             $value = str_ireplace("JUVENILES", "JUVENILE", $value);
             $value = str_ireplace("ADULT ANDJUVENILE", "ADULT & JUVENILE", $value);
 
-            if(in_array($value, array("ADULT;", "; ADULT", "ADULT; ADULT", "BRANCHIATE ADULT", "ADULT; WINGS UNKNOWN", "SUBADULT; IMMATURE", "ADULT(S)", "ADULTS"))) $value = "ADULT";
+            if(in_array($value, array("ADULT;", "; ADULT", "ADULT; ADULT", "BRANCHIATE ADULT", "ADULT; WINGS UNKNOWN", "ADULT(S)", "ADULTS", "ADULT (ANTENNAE ONLY)"))) $value = "ADULT";
             elseif(in_array($value, array("PUPA;", "PUPAL EXUVIA", "PUPAE, 3")))                                            $value = "PUPA";
             elseif(in_array($value, array("; JUVENILE; JUVENILE; EMBRYO", "; I; OVIGEROUS", "JUVENILE, EGG")))              $value = "JUVENILE & OVIGEROUS";
-            elseif(in_array($value, array("; LARVAE", "; LARVAE V", "; LARVAE;", "LARVA; LARVA", "LARVAL", "LARVAL STAGE", "TANTULUS LARVA"))) $value = "LARVA";
+            elseif(in_array($value, array("; LARVAE", "; LARVAE V", "; LARVAE;", "LARVA; LARVA", "LARVAL", "LARVAL STAGE", "TANTULUS LARVA", "CHAETOSPHAERA LARVAE"))) $value = "LARVA";
             elseif(in_array($value, array("; COPEPODID", "COPEPODID IV; COPEPODID V", "COPEPODIDS, STAGE III", "COPEPODID STAGES V AND IV", "COPEPODIDS, STAGE V", "COPEPODIDS, STAGE IV", "COPEPODID (STAGES IV AND V)")))            $value = "COPEPODID";
             elseif(in_array($value, array("; JUVENILE;", "JUVENILE;", "; JUVENILE", "JUV.", "JUVENILE STAGE V", "JUVENILE, 1"))) $value = "JUVENILE";
             elseif(in_array($value, array("; OVIGEROUS", "OVIGEROUS;", "; OVIGEROUS;", "; OVIGEROUS; OVIGEROUS")))          $value = "OVIGEROUS";
-            elseif(in_array($value, array("PREMATURE", "; PREMATURE", "; IMMATURE")))                                       $value = "IMMATURE"; // by Eli
+            elseif(in_array($value, array("PREMATURE", "; PREMATURE", "; IMMATURE", "IMMATURE (3)", "IMMATURE, 1")))        $value = "IMMATURE"; // by Eli
             elseif(in_array($value, array("1 ADULT, 1 LARVA", "ADULT WITH 2 EGGS")))                                        $value = "ADULT & LARVA";
             elseif($value == "; OVIGEROUS; JUVENILE V")                 $value = "JUVENILE V & OVIGEROUS";
             elseif($value == "; EMBRYO")                                $value = "EMBRYO";
@@ -399,6 +419,7 @@ class NMNHTypeRecordAPI
             elseif($value == "ADULT; EGG")                              $value = "ADULT & LARVA";       // by Eli
             elseif($value == "FLOWERING AND IMMATURE FRUIT")            $value = "IMMATURE FRUIT";
             elseif(in_array($value, array("; MANCA", "MANCA III", "MANCA (1)", "MANCA I AND II"))) $value = "MANCA";
+            elseif(in_array($value, array("SEXUALLY MATURE MALE", "SEXUALLY MATURE"))) $value = "MATURE";
             elseif(is_numeric(stripos($value, "ADULT; EXUVIAE")))       $value = "ADULT";               // by Eli
             elseif(is_numeric(stripos($value, "ADULT; SUBADULT")))      $value = "ADULT & SUBADULT";
             elseif(is_numeric(stripos($value, "ADULT; NYMPH")))         $value = "ADULT & NYMPH";
@@ -457,7 +478,8 @@ class NMNHTypeRecordAPI
     private function has_unknown($sex)
     {
         if(is_numeric(stripos($sex, "UNKNOWN"))   ||
-           is_numeric(stripos($sex, "UNCERTAIN"))) return true;
+           is_numeric(stripos($sex, "UNCERTAIN")) ||
+           is_numeric(stripos($sex, "UNSEXED"))) return true;
         return false;
     }
 
@@ -523,24 +545,26 @@ class NMNHTypeRecordAPI
         $this->occurrence_ids[$occurrence_id] = '';
         return;
     }
-
+    
     private function format_typeStatus($value)
     {
-        $value = Functions::remove_whitespace($value);
-        if(is_numeric(stripos($value, " "))) $measurement_remarks = $value;
-        else                                 $measurement_remarks = "";
+        $value = trim(Functions::remove_whitespace($value));
+        if(is_numeric(stripos($value, " ")) || is_numeric(stripos($value, "/"))) $measurement_remarks = $value;
+        else                                                                     $measurement_remarks = "";
         
         $value = trim(strtoupper($value));
-        $value = str_ireplace(array("[", "]"), "", $value);
+        $value = str_ireplace(array("[", "]", "!"), "", $value);
         $value = str_ireplace(" ?", "?", $value);
         $value = str_ireplace("TYPES", "TYPE", $value);
         $value = str_ireplace("PROBABLE", "POSSIBLE", $value);
         $value = str_ireplace("NEOTYPE COLLECTION", "NEOTYPE", $value);
         $value = str_ireplace("TYPE.", "TYPE", $value);
-        
+
         if(substr($value, 0, 8) == "TYPE OF ")                                                                                               $value = "TYPE";
-        elseif(substr($value, 0, 8) == "SYNTYPE OF ")                                                                                        $value = "SYNTYPE";
-        elseif(in_array($value, array("NO. 15 = LECTOTYPE", "NO.17 = LECTOTYPE")))                                                           $value = "LECTOTYPE";
+        elseif(substr($value, 0, 11) == "SYNTYPE OF ")                                                                                       $value = "SYNTYPE";
+        elseif(substr($value, 0, 17) == "SCHIZOSYNTYPE OF ")                                                                                 $value = "SCHIZOSYNTYPE";
+        elseif(substr($value, 0, 18) == "SCHIZOPARATYPE OF ")                                                                                $value = "SCHIZOPARATYPE";
+        elseif(in_array($value, array("TYPE, NO. 15 = LECTOTYPE", "TYPE, NO.17 = LECTOTYPE", "LECTOTYPE/TYPE", "LECTOTYPE, TYPE")))          $value = "LECTOTYPE";
         elseif(in_array($value, array("SYNTYTPE", "SYTNTYPE", "SYNYPES", "SYNTPE", "SYNTYPE MAMILLATA")))                                    $value = "SYNTYPE";
         elseif(in_array($value, array("PARALECTO", "PARALECTOYPES", "PARALECTOYPE")))                                                        $value = "PARALECTOTYPE";
         elseif(in_array($value, array("SYNTYPE OR HOLOTYPE?", "?HOLOTYPE OR SYNTYPE", "HOLOTYPE OR SYNTYPE", "SYNTYPE OR HOLOTYPE")))        $value = "SYNTYPE? + HOLOTYPE?";
@@ -548,6 +572,7 @@ class NMNHTypeRecordAPI
         elseif(in_array($value, array("PT OF HOLOTYPE", "PART OF HOLOTYPE", "HOLOTYPE (PART)")))                                             $value = "HOLOTYPE FRAGMENT";
         elseif(in_array($value, array("PART OF TYPE", "PT OF TYPE", "PART OF TYPE MATERIAL", "PT OF TYPE MATERIAL", "TYPE (PART)")))         $value = "TYPE FRAGMENT";
         elseif(in_array($value, array("?PT OF TYPE?", "?PT OF TYPE OF REGULARIS?")))                                                         $value = "UNCONFIRMED TYPE"; //same as 'TYPE?'
+        elseif(in_array($value, array("TYPE - HOLOTYPE", "HOLOTYPE LIMNOTRAGUS SELOUSI", "COTYPE (HOLOTYPE", "HOLOTYPE, TYPE")))             $value = "HOLOTYPE";
         elseif(in_array($value, array("SYNYTPE", "FIGURED SYNTYPE")))       $value = "SYNTYPE";
         elseif(in_array($value, array("TOPTYPE", "TOPOTYPICAL")))           $value = "TOPOTYPE";
         elseif(in_array($value, array("COTYPUS", "CO-TYPE")))               $value = "COTYPE";
@@ -555,14 +580,18 @@ class NMNHTypeRecordAPI
         elseif($value == "SYNTYPE OR PARALECTOTYPE")                        $value = "SYNTYPE? + PARALECTOTYPE?";
         elseif($value == "SYNTYPE OR LECTOTYPE")                            $value = "SYNTYPE? + LECTOTYPE?";
         elseif($value == "TOPOTYPE (STATED BY THE DONOR TO BE PARATYPE)")   $value = "TOPOTYPE? + PARATYPE?";
-        elseif($value == "HOLOTYPE/PARATYPE?")                              $value = "HOLOTYPE? + PARATYPE?";
+        elseif($value == "HOLOTYPE/PARATYPE?")                              $value = "HOLOTYPE + PARATYPE?";
+        elseif($value == "HOLOTYPE/SYNTYPE")                                $value = "HOLOTYPE + SYNTYPE";
+        elseif($value == "SYNTYPE/HOLOTYPE")                                $value = "HOLOTYPE + SYNTYPE";
+        elseif($value == "HOLOTYPE/LECTOTYPE")                              $value = "HOLOTYPE + LECTOTYPE";
         elseif($value == "NEOTYPE (POSSIBLE)")                              $value = "NEOTYPE?";
         elseif($value == "LECTOTYPE (POSSIBLE)")                            $value = "LECTOTYPE?";
         elseif($value == "ALLOTYPE (POSSIBLE)")                             $value = "ALLOTYPE?";
         elseif($value == "ORIGINAL MATERIAL.")                              $value = "ORIGINALMATERIAL";
         elseif($value == "PART OF LECTOTYPE")                               $value = "LECTOTYPE FRAGMENT";
         elseif($value == "PART OF PARATYPE")                                $value = "PARATYPE FRAGMENT";
-        elseif($value == "HOLOTYPE LIMNOTRAGUS SELOUSI")                    $value = "HOLOTYPE";
+        elseif($value == "ISTOTYPE")                                        $value = "ISOTYPE";
+        elseif($value == "PARATYPE (ALLOTYPE)")                             $value = "ALLOTYPE";
         elseif(in_array($value, array("PARATYPE #5", "PARATYPE V", "PARATYPE I", "PARATYPE II", "PARATYPE #2", "PARATYPE #3", "PARATYPE (NO.52)", "PARATYPE #1", "PARATYPE #9", "PARATYPE III", "PARATYPE II AND III", "PARATYPE III AND IV", "PARATYPE #10", "PARATYPE #7", "PARATYPE #4", "PARATYPE #6", "PARATYPE (NO.65)", "PARATYPE #8", "PARAYPE", "PARATYPE)"))) $value = "PARATYPE";
         return array("type_status" => $value, "measurement_remarks" => $measurement_remarks);
     }

@@ -248,9 +248,9 @@ class Functions
         $output = shell_exec($command_line);
     }
     
-    public static function count_resource_tab_files($resource_id)
+    public static function count_resource_tab_files($resource_id, $file_extension = ".tab")
     {
-        foreach(glob(CONTENT_RESOURCE_LOCAL_PATH . "/$resource_id/*.tab") as $filename) self::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/" . pathinfo($filename, PATHINFO_BASENAME));
+        foreach(glob(CONTENT_RESOURCE_LOCAL_PATH . "/$resource_id/*" . $file_extension) as $filename) self::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/" . pathinfo($filename, PATHINFO_BASENAME));
     }
 
     public static function remove_resource_working_dir($resource_id = false)
@@ -354,15 +354,19 @@ class Functions
                 if($html = Functions::lookup_with_cache($url, $download_options))
                 {
                     $html = str_ireplace("<wbr/>", "", $html);
-                    if(preg_match_all("/<tr class='hidden' id='known_uri(.*?)<\/tr>/ims", $html, $arr))
+                    $params = array("<tr class='hidden' id='known_uri", "<tr id='known_uri");
+                    foreach($params as $param)
                     {
-                        foreach($arr[1] as $t)
+                        if(preg_match_all("/" . $param . "(.*?)<\/tr>/ims", $html, $arr))
                         {
-                            if(preg_match("/<td class='uri'>(.*?)<\/td>/ims", $t, $arr2) || preg_match("/<td class='excluded uri'>(.*?)<\/td>/ims", $t, $arr2))
+                            foreach($arr[1] as $t)
                             {
-                                $val = '';
-                                if(preg_match("/<td>(.*?)<\/td>/ims", $t, $arr3)) $val = $arr3[1];
-                                $rec[$arr2[1]] = $val;
+                                if(preg_match("/<td class='uri'>(.*?)<\/td>/ims", $t, $arr2) || preg_match("/<td class='excluded uri'>(.*?)<\/td>/ims", $t, $arr2))
+                                {
+                                    $val = '';
+                                    if(preg_match("/<td>(.*?)<\/td>/ims", $t, $arr3)) $val = $arr3[1];
+                                    $rec[$arr2[1]] = $val;
+                                }
                             }
                         }
                     }
