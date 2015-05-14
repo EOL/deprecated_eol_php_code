@@ -410,10 +410,11 @@ class Resource extends ActiveRecord
 
     public function harvest($validate = true, $validate_only_welformed = false, $fast_for_testing = false)
     {
+        $GLOBALS['currently_harvesting_resource_id'] = $this->id;
         // create resource_id.log
-        if(!($resource_harvesting_log = fopen ("log/" . $resource->id . ".log", "w+")))
+        if(!($resource_harvesting_log = fopen ("log/" . $this->id . ".log", "w+")))
         {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " ."log/" . $resource->id . ".log");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " ."log/" . $this->id . ".log");
           return;
          }
         $this->debug_start(
