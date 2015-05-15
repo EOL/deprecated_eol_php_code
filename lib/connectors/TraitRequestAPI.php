@@ -9,7 +9,7 @@ class TraitRequestAPI
 {
     function __construct()
     {
-        $this->download_options = array("download_wait_time" => 2000000, "timeout" => 7200, "download_attempts" => 0, "delay_in_minutes" => 1);
+        $this->download_options = array("download_wait_time" => 2000000, "timeout" => 7200, "download_attempts" => 1, "delay_in_minutes" => 1);
         $this->spreadsheet_options = array("cache" => 0, "timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 1, 'delay_in_minutes' => 1); //we don't want to cache spreadsheet
         $this->url['api_search'] = "http://eol.org/api/search/1.0.json?page=1&exact=true&cache_ttl=&q=";
         $this->url['api_traits'] = "http://eol.org/api/traits/";

@@ -21,6 +21,7 @@ class INaturalistAPI
         self::initialize_dump();
         self::start_process();
         self::zip_text_file();
+        self::upload_to_dropbox();
     }
     
     private function start_process()
@@ -117,6 +118,16 @@ class INaturalistAPI
     {
         if(!($h = Functions::file_open($this->dump_file, 'w'))) return;
         fclose($h);
+    }
+    
+    private function upload_to_dropbox()
+    {
+        require_library('connectors/DropboxAPI');
+        $func = new DropboxAPI();
+        $params['source']               = CONTENT_RESOURCE_LOCAL_PATH . 'iNat_EOL_object_urls.txt.zip';
+        $params['dropbox_path']         = '/Public/iNaturalist/';
+        $params['dropbox_access_token'] = '0L_P2JHHe60AAAAAAAARGn8Au3W0IEmAHbWgHQzSfyP_QMvomhOkuHc-ATnbb23Z';
+        $func->upload_file_to_dropbox($params);
     }
 
 }
