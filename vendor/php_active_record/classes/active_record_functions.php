@@ -79,7 +79,7 @@ function write_to_log($str)
 
 function write_to_resource_harvesting_log($str)
 {
-    if (array_key_exists('currently_harvesting_resource_id', $GLOBALS)) {
+    if ( ($GLOBALS['ENV_NAME'] != 'test') && isset($GLOBALS['currently_harvesting_resource_id']) ) {
         $resource_id = $GLOBALS['currently_harvesting_resource_id'];
         $file_handler = fopen(DOC_ROOT . 'log/' . $resource_id .  ".log", "a");
         if(!$file_handler)
