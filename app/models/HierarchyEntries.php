@@ -505,22 +505,32 @@ class HierarchyEntry extends ActiveRecord
 
     static function find_or_create_by_array($parameters, $force = false)
     {
-        if(!$force && $object = self::find_by_array($parameters)) return $object;
-
-        if(@!$parameters['taxon_concept_id']) $parameters['taxon_concept_id'] = TaxonConcept::create()->id;
+        debug("Finding or creating a hierarchy_entry..");
+        if(!$force && $object = self::find_by_array($parameters)) {
+          debug("Found a hierarchy_entry match (". $object->id.") with the same params..");
+          return $object;
+        }
+        if(@!$parameters['taxon_concept_id']) {
+          debug("Couldn't find a taxon match for hierarchy_entry ");
+          $parameters['taxon_concept_id'] = TaxonConcept::create()->id;
+          debug("Creating a new taxon_concept (".$parameters['taxon_concept_id'] .") for hierarchy_entry");
+        }
         if(@!$parameters['guid'])
         {
             $previous_version_guid = self::find_guid_by_hierarchy_and_identifier($parameters);
             if($previous_version_guid)
             {
                 $parameters['guid'] = $previous_version_guid;
+                debug("Found a previous version of guid (". $parameters['guid'].") for the current hierarchy_entry");
             }else
             {
                 $parameters['guid'] = Functions::generate_guid();
+                debug("Creating a guid (". $parameters['guid'].") for the current hierarchy_entry");
             }
         }
-
-        return self::create($parameters);
+        $new_he = self::create($parameters);
+        debug("Creating a new hierarchy_entry(".$new_he->id.")");
+        return $new_he;
     }
 
     static function find_by_array($parameters)
