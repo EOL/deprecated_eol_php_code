@@ -200,7 +200,7 @@ class CompareHierarchies
                         debug("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) is not allowed by a curated hierarchy ($hierarchy_id)");
                         continue;
                     }
-                    debug("TaxonMatch :: ($tc_id1) = ($tc_id2), because NO concepts are visible/preview in the other hierarchy, the merging is not rejected by a curator or by a curated hierarchy");
+                    debug("TaxonMatch::($tc_id1) = ($tc_id2), because both hierarchies($hierarchy1->id & $hierarchy2->id) are not complete, NO concepts are visible/preview in the other hierarchy, the merging is not rejected by a curator or by a curated hierarchy");
                     debug("TaxonConcept::supercede_by_ids($tc_id1, $tc_id2)");
                     TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);
                     $superceded[max($tc_id1, $tc_id2)] = min($tc_id1, $tc_id2);
