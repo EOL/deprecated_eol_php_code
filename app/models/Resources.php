@@ -197,10 +197,13 @@ class Resource extends ActiveRecord
         if($hours_ahead_of_time) $extra_hours_clause = " - $hours_ahead_of_time";
 
         $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=".ResourceStatus::force_harvest()->id." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::validated()->id." OR resource_status_id=".ResourceStatus::validation_failed()->id." OR resource_status_id=".ResourceStatus::processing_failed()->id.")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL (refresh_period_hours $extra_hours_clause) HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::upload_failed()->id.", ".ResourceStatus::validated()->id.", ".ResourceStatus::validation_failed()->id.", ". ResourceStatus::processed()->id .", ".ResourceStatus::processing_failed()->id.", ".ResourceStatus::published()->id.")) ORDER BY position ASC LIMIT 1");
+
         if($result && $row=$result->fetch_assoc())
         {
-            return Resource::find($row["id"]);
+            $GLOBALS['currently_harvesting_resource_id'] = $row["id"];
+            return  $resource = Resource::find($row["id"]);
         }
+        $GLOBALS['currently_harvesting_resource_id'] = NULL;
         return NULL;
     }
 
@@ -407,6 +410,13 @@ class Resource extends ActiveRecord
 
     public function harvest($validate = true, $validate_only_welformed = false, $fast_for_testing = false)
     {
+        $GLOBALS['currently_harvesting_resource_id'] = $this->id;
+        // create resource_id.log
+        if(!($resource_harvesting_log = fopen ("log/" . $this->id . ".log", "w+")))
+        {
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " ."log/" . $this->id . ".log");
+          return;
+         }
         $this->debug_start(
             "harvest eol.org/content_partners/" .
             $this->content_partner->id .
@@ -543,6 +553,7 @@ class Resource extends ActiveRecord
       }
       $this->harvest_event = null;
       $this->debug_end("harvest");
+      fclose($resource_harvesting_log);
     }
 
     public function add_unchanged_data_to_harvest()
