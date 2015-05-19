@@ -145,7 +145,7 @@ class IUCNRedlistDataConnector
     private function get_names_no_entry_from_partner()
     {
         $names = array();
-        $dump_file = "/Users/eolit/Sites/eli/eol_php_code/tmp/IUCN/names_no_entry_from_partner.txt";
+        $dump_file = DOC_ROOT . "/public/tmp/IUCN/names_no_entry_from_partner.txt";
         foreach(new FileIterator($dump_file) as $line_number => $line)
         {
             if($line) $names[$line] = "";

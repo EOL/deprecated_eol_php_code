@@ -47,7 +47,7 @@ class MycoBankAPI
 
         //for stats
         $this->TEMP_DIR = create_temp_dir() . "/";
-        // $this->TEMP_DIR = DOC_ROOT . '/tmp/mycobank/'; //debug
+        // $this->TEMP_DIR = DOC_ROOT . '/public/tmp/mycobank/'; //debug
         $this->dump_file                        = $this->TEMP_DIR . "mycobank_dump.txt";
         $this->names_with_error_dump_file       = $this->TEMP_DIR . "names_with_error.txt"; // stores names when API timesout or has errors
         $this->more_than_1k                     = $this->TEMP_DIR . "more_than_1k.txt";
@@ -791,7 +791,7 @@ class MycoBankAPI
     private function get_names_no_entry_from_partner($type) // utility
     {
         $names = array();
-        $dump_file = "/Users/eolit/Sites/eli/eol_php_code/tmp/mycobank_latest/" . $type . ".txt";
+        $dump_file = DOC_ROOT . "/public/tmp/mycobank_latest/" . $type . ".txt";
         foreach(new FileIterator($dump_file) as $line_number => $line)
         {
             if($line) $names[$line] = "";
@@ -802,7 +802,7 @@ class MycoBankAPI
     private function get_names_from_dump_local($basename, $type)
     {
         $names = array();
-        $dump_file = "/Users/eolit/Sites/eli/eol_php_code/tmp/mycobank_latest/" . $basename . ".txt";
+        $dump_file = DOC_ROOT . "/public/tmp/mycobank_latest/" . $basename . ".txt";
         foreach(new FileIterator($dump_file) as $line_number => $line)
         {
             if(!$line) continue;
