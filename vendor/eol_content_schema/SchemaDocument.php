@@ -14,6 +14,7 @@ class SchemaDocument
             echo "Could not open file $filename\n";
             debug ( "Could not open file $filename");
             flush();
+            debug("Could not open file $filename");
             return false;
         }
         fwrite($this->FILE, self::xml_header());
@@ -25,6 +26,7 @@ class SchemaDocument
         {
             echo "Could not write to file $this->filename as it is not open\n";
             flush();
+            debug("Could not write to file $this->filename as it is not open");
             return false;
         }
         fwrite($this->FILE, $t->__toXML());

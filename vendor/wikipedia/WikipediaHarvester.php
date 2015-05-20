@@ -239,6 +239,7 @@ class WikipediaHarvester
             if(isset($this->pageids_to_ignore[$page->pageid]))
             {
                 echo "Ignoring ".$page->title."\n";
+                debug("Ignoring ".$page->title);
                 return false;
             }
             
@@ -264,6 +265,7 @@ class WikipediaHarvester
             }else
             {
                 echo "   no taxon\n";
+                debug("$page->title: no taxon\n");
                 return false;
             }
         }

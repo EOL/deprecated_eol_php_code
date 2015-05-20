@@ -162,6 +162,7 @@ function show_all_children($node, $indent, $previous_ids, $variable)
             echo "********************************<br>";
             echo show_node($v, $indent, $variable);
             echo "********************************<br>";
+            debug(show_node($v, $indent, $variable));
             return;
         }
         

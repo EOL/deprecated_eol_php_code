@@ -765,6 +765,7 @@ class PHPExcel_Chart_Renderer_jpgraph
 				$chartType = array_pop($chartTypes);
 			} elseif (count($chartTypes) == 0) {
 				echo 'Chart is not yet implemented<br />';
+				debug("Chart is not yet implemented");
 				return false;
 			} else {
 				return $this->_renderCombinationChart($groupCount,$dimensions,$outputDestination);
@@ -816,6 +817,7 @@ class PHPExcel_Chart_Renderer_jpgraph
 				break;
 			default	:
 				echo $chartType.' is not yet implemented<br />';
+				debug($chartType.' is not yet implemented');
 				return false;
 		}
 		$this->_renderLegend();

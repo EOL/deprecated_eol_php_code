@@ -191,15 +191,18 @@ class Snoopy
 				}
 				else
 				{
+					debug("Not Connected!");
 					return false;
 				}
 				return true;					
 				break;
 			case "https":
 				if(!$this->curl_path)
+					debug("Invalid curle path: '" . $this->curl_path . "'!");
 					return false;
 				if(function_exists("is_executable"))
 				    if (!is_executable($this->curl_path))
+				        debug("Curle path not executable: '" . $this->curl_path . "'!");
 				        return false;
 				$this->host = $URI_PARTS["host"];
 				if(!empty($URI_PARTS["port"]))
@@ -253,6 +256,7 @@ class Snoopy
 			default:
 				// not a valid protocol
 				$this->error	=	'Invalid protocol "'.$URI_PARTS["scheme"].'"\n';
+				debug('Invalid protocol: '.$URI_PARTS["scheme"]);
 				return false;
 				break;
 		}		
@@ -350,15 +354,18 @@ class Snoopy
 				}
 				else
 				{
+					debug("Not Connected!");
 					return false;
 				}
 				return true;					
 				break;
 			case "https":
 				if(!$this->curl_path)
+				debug("Invalid curle path: '" . $this->curl_path . "'!");
 					return false;
 				if(function_exists("is_executable"))
 				    if (!is_executable($this->curl_path))
+				    	debug("Curle path not executable: '" . $this->curl_path . "'!");
 				        return false;
 				$this->host = $URI_PARTS["host"];
 				if(!empty($URI_PARTS["port"]))
@@ -419,6 +426,7 @@ class Snoopy
 			default:
 				// not a valid protocol
 				$this->error	=	'Invalid protocol "'.$URI_PARTS["scheme"].'"\n';
+				debug('Invalid protocol: '.$URI_PARTS["scheme"]);
 				return false;
 				break;
 		}		
@@ -851,6 +859,7 @@ class Snoopy
 			if ($this->read_timeout > 0 && $this->_check_timeout($fp))
 			{
 				$this->status=-100;
+				debug("Read timeout!");
 				return false;
 			}
 				
@@ -901,6 +910,7 @@ class Snoopy
 		if ($this->read_timeout > 0 && $this->_check_timeout($fp))
 		{
 			$this->status=-100;
+			debug("Read timeout!");
 			return false;
 		}
 		
@@ -1011,6 +1021,7 @@ class Snoopy
 		if($return)
 		{
 			$this->error = "Error: cURL could not retrieve the document, error $return.";
+			debug("Error: cURL could not retrieve the document, error $return.");
 			return false;
 		}
 			

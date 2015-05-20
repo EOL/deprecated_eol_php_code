@@ -386,6 +386,7 @@ class phpVimeo
     public function upload($file_path, $use_multiple_chunks = false, $chunk_temp_dir = '.', $size = 2097152, $replace_id = null)
     {
         if (!file_exists($file_path)) {
+        	debug("File not exists: $file_path");
             return false;
         }
 
