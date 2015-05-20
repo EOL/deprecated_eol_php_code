@@ -999,7 +999,7 @@ class LifeDeskToScratchpadAPI
             copy($this->text_path["bibtex"], $destination_folder . $parts["basename"]);
         }
         // compress export files
-        $command_line = "tar -czf " . DOC_ROOT . "/tmp/" . $params["name"] . "_LD_to_Scratchpad_export.tar.gz --directory=" . $destination_folder . " .";
+        $command_line = "tar -czf " . DOC_ROOT . "/public/tmp/lifedesk_exports/" . $params["name"] . "_LD_to_Scratchpad_export.tar.gz --directory=" . $destination_folder . " .";
         $output = shell_exec($command_line);
         recursive_rmdir($destination_folder);
     }
@@ -1237,7 +1237,7 @@ class LifeDeskToScratchpadAPI
             }
 
             // compress export files
-            $command_line = "tar -czf " . DOC_ROOT . "/tmp/" . $params["name"] . "_parent_child.tar.gz --directory=" . $destination_folder . " .";
+            $command_line = "tar -czf " . DOC_ROOT . "/public/tmp/lifedesk_exports/" . $params["name"] . "_parent_child.tar.gz --directory=" . $destination_folder . " .";
             $output = shell_exec($command_line);
             recursive_rmdir($destination_folder);
         }

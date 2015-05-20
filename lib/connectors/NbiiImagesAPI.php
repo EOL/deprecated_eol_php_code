@@ -185,7 +185,7 @@ class NbiiImagesAPI
                          "bracket"   => '\[   \]');
         $paths[] = array("url"       => "http://www1.usgs.gov/archive/images/xml_files/", 
                          "extension" => ".xml", 
-                         "temp_dir"  => "/Users/eolit/Sites/eli/eol_php_code/tmp/dir_nbii_xml/",
+                         "temp_dir"  => DOC_ROOT . "/public/tmp/dir_nbii_xml/",
                          "bracket"   => '\[TXT\]');
         $excluded_downloaded_already = array();
         foreach($paths as $path)

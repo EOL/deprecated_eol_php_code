@@ -27,7 +27,7 @@ class TraitRequestAPI
         self::process_taxa($taxa, "process_taxa");
         self::delete_blank_text_files();
         // compress text files, delete temp dir
-        $command_line = "tar -czf " . DOC_ROOT . "/tmp/" . $params["name"] . ".tar.gz --directory=" . $this->temp_dir . " .";
+        $command_line = "tar -czf " . DOC_ROOT . "/public/tmp/trait_request/" . $params["name"] . ".tar.gz --directory=" . $this->temp_dir . " .";
         $output = shell_exec($command_line);
         recursive_rmdir($this->temp_dir);
     }
