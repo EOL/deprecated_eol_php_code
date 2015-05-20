@@ -759,6 +759,14 @@ class Resource extends ActiveRecord
         $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::being_processed()->id ." WHERE id=$this->id");
       }
     }
+    
+    public function harvesting_failed()
+    {
+    	debug("Setting status to harvest failed");
+    	$harvest_failed_id = ResourceStatus::harvesting_failed()->id;
+    	$this->resource_status_id = $harvest_failed_id;
+        $this->mysqli->update("UPDATE resources SET resource_status_id=". $harvest_failed_id ." WHERE id=$this->id");
+    }
 
     public function start_harvest()
     {

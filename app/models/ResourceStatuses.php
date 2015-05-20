@@ -68,6 +68,12 @@ class ResourceStatus extends ActiveRecord
         return ResourceStatus::find_or_create_by_translated_label('Force Harvest',
           array('created_at' => 'NOW()', 'updated_at' => 'NOW()'));
     }
+	
+	public static function harvesting_failed()
+    {
+        return ResourceStatus::find_or_create_by_translated_label('Harvest Failed',
+          array('created_at' => 'NOW()', 'updated_at' => 'NOW()'));
+    }
 }
 
 ?>
