@@ -67,7 +67,13 @@ while((time() - $start_time)/(60*60) < 24)
 
     $validate = true;
     if($GLOBALS['ENV_NAME'] == 'test') $validate = false;
-    $resource->harvest($validate, false, $fast_for_testing);
+    
+    try {
+        $resource->harvest($validate, false, $fast_for_testing);
+    } catch (\Exception $e) {
+        echo 'Caught exception: ',  $e->getMessage(), "\n";
+        $resource->update_hierarchy_entries_count();
+    }
 }
 $log->finished();
 

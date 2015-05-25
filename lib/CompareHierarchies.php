@@ -37,12 +37,7 @@ class CompareHierarchies
         // TODO: This is a SLOW, huge query. If we had a denormalized HE count
         // on each hierarchy (and, truly, we should), it would be super-fast. Do
         // this.
-        $result = $mysqli->query(
-          "SELECT h.id, count(*) AS count" .
-          " FROM hierarchies h" .
-          " LEFT JOIN hierarchy_entries he" .
-          " ON (h.id = he.hierarchy_id AND he.published = 1)" .
-          " GROUP BY h.id");
+        $result = $mysqli->query("SELECT id ,hierarchy_entries_count as count FROM hierarchies ");
         while($result && $row=$result->fetch_assoc())
         {
             // TODO: DON'T hard-code this (this is GBIF Nub Taxonomy).
