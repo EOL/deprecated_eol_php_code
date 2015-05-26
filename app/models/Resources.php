@@ -767,7 +767,7 @@ class Resource extends ActiveRecord
     	$harvest_failed_id = ResourceStatus::harvesting_failed()->id;
     	$this->resource_status_id = $harvest_failed_id;
       $this->mysqli->update("UPDATE resources SET resource_status_id=". $harvest_failed_id ." WHERE id=$this->id");
-      //insure that the hierarchy_entries_count is updated
+      //ensure that the hierarchy_entries_count is updated
       $this->update_hierarchy_entries_count();
     }
 

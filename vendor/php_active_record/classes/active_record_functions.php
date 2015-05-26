@@ -230,7 +230,7 @@ function shutdown_check()
         fclose($GLOBALS['ENV_DEBUG_FILE_HANDLE']);
     }
 
-    //insure to update the resource hierarchy_entries_count
+    //ensure to update the resource hierarchy_entries_count
     if( isset($GLOBALS['currently_harvesting_resource_id'])  )
     {
         $resource= Resource::find($GLOBALS['currently_harvesting_resource_id']);
