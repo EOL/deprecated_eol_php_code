@@ -993,7 +993,9 @@ class ArchiveDataIngester
                 	 $attributes_query .= ",object";
                 	 if($row_type == "http://rs.tdwg.org/dwc/terms/MeasurementOrFact")
                 	 {
-                	 	$values_query .= "," .  $data_point_uri['object'];
+                        $values_query .= ", '" .
+                            str_replace("'", "\'", $data_point_uri['object']) .
+                            "'";
                 	 }
                 	 else if($row_type == "http://eol.org/schema/Association") {
 	                	 $hierarchy_entry_identifier = "'" . str_replace("'", "\'", $this->occurrence_taxon_mapping[$data_point_uri["object"]]) . "'";
