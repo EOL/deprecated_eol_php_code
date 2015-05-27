@@ -78,12 +78,14 @@ class Memcached
         self::close();
         // caching is not enabled - so cannot connect
         if(!@$GLOBALS['ENV_ENABLE_CACHING']) {
-        	debug("Caching is not enabled");
+            // This debug was being called too often.
+        	// debug("Caching is not enabled");
         	return false;
         }
         // memcached is not configured - so cannot connect
         if(!@$GLOBALS['ENV_MEMCACHED_SERVER']){
-        	debug("memcached is not configured");
+            // This debug was being called too often.
+        	// debug("memcached is not configured");
         	return false;
         }
         
