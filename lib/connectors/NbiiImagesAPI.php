@@ -17,7 +17,7 @@ class NbiiImagesAPI
         $this->taxon_ids = array();
         $this->object_ids = array();
         $this->zip_path = "http://www1.usgs.gov/archive/images/all.xml.zip";
-        $this->zip_path = "http://localhost/~eolit/eli/eol_php_code/update_resources/connectors/files/NBII/all.xml.zip";
+        $this->zip_path = "http://localhost/eol_php_code/update_resources/connectors/files/NBII/all.xml.zip";
         $this->eol_defined_image_path = "http://ubio.org/NBII_images/";
         $this->missing_filenames_text_file = DOC_ROOT . "update_resources/connectors/files/NBII/offline_filenames.txt";
         /* a copy of the file: https://dl.dropboxusercontent.com/u/7597512/NBII/offline_filenames.txt */

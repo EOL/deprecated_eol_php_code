@@ -12,7 +12,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $resource_id = 21;
 $new_resource_path = DOC_ROOT . "temp/".$resource_id.".xml";
 
-// $file = 'http://localhost/~eolit/eli/eol_php_code/applications/content_server/resources/amphib_dump.xml';
+// $file = 'http://localhost/eol_php_code/applications/content_server/resources/amphib_dump.xml';
 $file = 'http://amphibiaweb.org/amphib_dump.xml';
 if(!$new_resource_xml = Functions::get_remote_file($file, array('timeout' => 1200, 'download_attempts' => 5)))
 {

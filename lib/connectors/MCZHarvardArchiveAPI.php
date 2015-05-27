@@ -235,7 +235,7 @@ class MCZHarvardArchiveAPI
 
     private function get_uris()
     {
-        $spreadsheet = "http://localhost/~eolit/cp/NMNH/type_specimen_resource/nmnh mappings.xlsx"; //a good source of typeStatus URI's
+        $spreadsheet = "http://localhost/cp/NMNH/type_specimen_resource/nmnh mappings.xlsx"; //a good source of typeStatus URI's
         $spreadsheet = "https://dl.dropboxusercontent.com/u/7597512/NMNH/type_specimen_resource/nmnh mappings.xlsx";
         $params["uri_file"] = $spreadsheet;
         $params["dataset"]  = "GBIF";
@@ -302,7 +302,7 @@ class MCZHarvardArchiveAPI
     {
         require_library('connectors/BOLDSysAPI');
         $func = new BOLDSysAPI();
-        $source = "http://localhost/~eolit/eli/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_still40k.tsv";
+        $source = "http://localhost/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_still40k.tsv";
         $destination = DOC_ROOT .                         "/update_resources/connectors/files/MCZ_Harvard/First40k.txt";
         if($temp_filepath = Functions::save_remote_file_to_local($source, array('timeout' => 4800, 'download_attempts' => 2)))
         {

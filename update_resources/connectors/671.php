@@ -39,13 +39,13 @@ echo "\nDone processing.\n";
 function utility_append_text_loop()
 {
     echo "\n backing up first...";
-    $filename = "/Users/eolit/Sites/eli/eol_php_code/tmp/mycobank/mycobank_dump.txt";
-    copy($filename, "/Users/eolit/Sites/eli/eol_php_code/tmp/mycobank/mycobank_dump_backup.txt");
+    $filename = DOC_ROOT . "/public/tmp/mycobank/mycobank_dump.txt";
+    copy($filename, DOC_ROOT . "/public/tmp/mycobank/mycobank_dump_backup.txt");
     echo "\n backup done. \n";
     for ($x=1; $x <= 1; $x++)
     {
         $str = Functions::format_number_with_leading_zeros($x, "2");
-        $filename = "/Users/eolit/Sites/eli/eol_php_code/tmp/mycobank/mycobank_dump_add" . $str . ".txt";
+        $filename = DOC_ROOT . "/public/tmp/mycobank/mycobank_dump_add" . $str . ".txt";
         if(!($READ = fopen($filename, "r")))
         {
           debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
@@ -54,7 +54,7 @@ function utility_append_text_loop()
         $contents = fread($READ, filesize($filename));
         fclose($READ);
         echo "\n copying... $filename";
-        $filename = "/Users/eolit/Sites/eli/eol_php_code/tmp/mycobank/mycobank_dump.txt";
+        $filename = DOC_ROOT . "/public/tmp/mycobank/mycobank_dump.txt";
         echo "\n to... $filename\n";
         if(!($WRITE = fopen($filename, "a")))
         {

@@ -435,7 +435,7 @@ class BOLDSysAPI
         {
             $p++;
             $phylum_path = PHYLUM_SERVICE_URL . $phylum['name'];
-            // $phylum_path = "http://localhost/~eolit/eli/eol_php_code/update_resources/connectors/files/BOLD/Annelida.xml"; // debug
+            // $phylum_path = "http://localhost/eol_php_code/update_resources/connectors/files/BOLD/Annelida.xml"; // debug
             echo "\n\nphylum service: " . $phylum_path . "\n";
             $response = Functions::lookup_with_cache($phylum_path, $this->download_options);
             if($xml = simplexml_load_string($response)) //about 4 hours before it timesout

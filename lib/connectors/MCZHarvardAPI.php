@@ -6,8 +6,8 @@ class MCZHarvardAPI
     function __construct($folder)
     {
         $this->data_dump_url = "http://digir.mcz.harvard.edu/forEOL/MCZimages.tsv";
-        // $this->data_dump_url = "http://127.0.0.1/~eolit/eli/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_small.tsv";
-        // $this->data_dump_url = "http://127.0.0.1/~eolit/eli/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages.tsv";
+        // $this->data_dump_url = "http://127.0.0.1/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_small.tsv";
+        // $this->data_dump_url = "http://127.0.0.1/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages.tsv";
 
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';

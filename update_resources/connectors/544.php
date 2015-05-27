@@ -63,7 +63,7 @@ echo "\n\n Done processing.";
 function remove_bhl_images_already_existing_in_eol_group($resource_id)
 {
     $file = "http://dl.dropbox.com/u/7597512/BHL_images/BHL_images_in_EOLGroup.txt";
-    // $file = "http://localhost/~eolit/eli/eol_php_code/update_resources/connectors/files/BHL_images/BHL_images_in_EOLGroup_sample.txt";
+    // $file = "http://localhost/eol_php_code/update_resources/connectors/files/BHL_images/BHL_images_in_EOLGroup_sample.txt";
     $contents = Functions::get_remote_file($file, array('timeout' => 600, 'download_attempts' => 5));
     $do_ids = json_decode($contents,true);
     print "\n\n from text file: " . count($do_ids);
@@ -115,8 +115,8 @@ function remove_bhl_images_already_existing_in_eol_group($resource_id)
 
 function bhl_image_count() // just for stats
 {
-    $path = "http://localhost/~eolit/eli/eol_php_code/applications/content_server/resources/544.xml";
-    $path = "http://localhost/~eolit/eli/eol_php_code/applications/content_server/resources/544%20BHL%20in%20EOL%20Flickr%20Group.xml";
+    $path = "http://localhost/eol_php_code/applications/content_server/resources/544.xml";
+    $path = "http://localhost/eol_php_code/applications/content_server/resources/544%20BHL%20in%20EOL%20Flickr%20Group.xml";
     print "\n xml file: [$path] \n";
     $reader = new \XMLReader();
     $reader->open($path);

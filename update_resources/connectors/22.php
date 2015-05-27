@@ -4,7 +4,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 $new_resource_path = DOC_ROOT . "temp/22.xml.gz";
 $new_resource = Functions::get_remote_file("http://animaldiversity.ummz.umich.edu/XML/adw_eol.xml.gz");
-// $new_resource = Functions::get_remote_file("http://localhost/~eolit/eli/eol_php_code/applications/content_server/resources/adw_eol.xml.gz");
+// $new_resource = Functions::get_remote_file("http://localhost/eol_php_code/applications/content_server/resources/adw_eol.xml.gz");
 if(!($OUT = fopen($new_resource_path, "w+")))
 {
   debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$new_resource_path);
