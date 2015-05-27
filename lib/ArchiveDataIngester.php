@@ -1052,7 +1052,9 @@ class ArchiveDataIngester
             		$source = "'" . $this->get_hierarchy_entry_outlink($hierarchy_id, $hierarchy_entry_identifier, $source_url) . "'";
             		if(isset($data_point_uri['predicate']))
             		{
-            			$predicate = "'" . $data_point_uri['predicate'] . "'";
+                        $predicate = "'" .
+                          str_replace("'", "\'", $data_point_uri['predicate']) .
+                          "'";
             		}
             		else
             		{
