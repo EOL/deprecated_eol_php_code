@@ -55,7 +55,8 @@ class MysqliConnection
         $this->master_mysqli->query($query);
         if($this->master_mysqli->errno)
         {
-            trigger_error('MySQL insert Error: ' . $this->master_mysqli->error, E_USER_WARNING);
+            trigger_error('MySQL insert Error: ' . $this->master_mysqli->error .
+                " ($query)", E_USER_WARNING);
             mysql_debug('MySQL insert Error: ' . $this->master_mysqli->error, E_USER_WARNING);
         }
         if($err = mysqli_errno($this->master_mysqli)) return NULL;
@@ -70,7 +71,8 @@ class MysqliConnection
         $result = $this->master_mysqli->query($query);
         if($this->master_mysqli->errno)
         {
-            trigger_error('MySQL update Error: ' . $this->master_mysqli->error, E_USER_WARNING);
+            trigger_error('MySQL update Error: ' . $this->master_mysqli->error .
+                " ($query)", E_USER_WARNING);
             mysql_debug('MySQL update Error: ' . $this->master_mysqli->error, E_USER_WARNING);
         }
         if($err = mysqli_errno($this->master_mysqli)) return NULL;
@@ -90,7 +92,8 @@ class MysqliConnection
         $result = $this->master_mysqli->query($query);
         if($this->master_mysqli->errno)
         {
-            trigger_error('MySQL delete Error: ' . $this->master_mysqli->error, E_USER_WARNING);
+            trigger_error('MySQL delete Error: ' . $this->master_mysqli->error .
+                " ($query)", E_USER_WARNING);
             mysql_debug('MySQL delete Error: ' . $this->master_mysqli->error, E_USER_WARNING);
         }
         if($err = mysqli_errno($this->master_mysqli)) return NULL;
@@ -105,7 +108,8 @@ class MysqliConnection
         $result = $this->mysqli->query($query);
         if($this->mysqli->errno)
         {
-            trigger_error('MySQL select Error: ' . $this->mysqli->error, E_USER_WARNING);
+            trigger_error('MySQL select Error: ' . $this->mysqli->error .
+                " ($query)", E_USER_WARNING);
             mysql_debug('MySQL select Error: ' . $this->master_mysqli->error, E_USER_WARNING);
         }
         if($err = mysqli_errno($this->mysqli)) return NULL;
@@ -169,14 +173,18 @@ class MysqliConnection
                 if($result = $this->master_mysqli->store_result()) $results[] = $result;
                 elseif($this->master_mysqli->errno)
                 {
-                    trigger_error('MySQL multi_query Error: ' . $this->master_mysqli->error, E_USER_WARNING);
+                    trigger_error('MySQL multi_query Error: ' .
+                        $this->master_mysqli->error .
+                        " ($query)", E_USER_WARNING);
                 }
 
                 if($result) $result->free();
             }while(@$this->master_mysqli->next_result());
         }else
         {
-            trigger_error('MySQL multi_query Error: ' . $this->master_mysqli->error, E_USER_WARNING);
+            trigger_error('MySQL multi_query Error: ' .
+                $this->master_mysqli->error .
+                " ($query)", E_USER_WARNING);
         }
     }
 
