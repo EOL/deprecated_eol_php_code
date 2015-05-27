@@ -6,7 +6,7 @@ estimated execution time: 3 hrs.
 1st version: Maps are shown as embedded images in the Distribution text.
 2nd version: Maps are shown in the Maps tab as image objects.
 */
-
+return; //aquamaps.org is down until further notice
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/AquamapsAPIv2');
 $timestart = time_elapsed();
