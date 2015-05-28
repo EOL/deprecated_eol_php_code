@@ -23,7 +23,7 @@ class AquamapsAPIv2
     {
         $all_taxa = array();
         $used_collection_ids = array();
-        $path = DOC_ROOT . "/update_resources/connectors/files/AquaMaps/";
+        $path = "http://localhost/cp/AquaMaps/";
         $path = "http://dl.dropbox.com/u/7597512/AquaMaps/";
         $urls = array( 0  => array( "path" => $path . "aquamaps_species_list.XML"  , "active" => 1),  // all 8k species
                        1  => array( "path" => $path . "aquamaps_species_list2.XML" , "active" => 0)   // test just 3 species
@@ -43,16 +43,19 @@ class AquamapsAPIv2
 
     public static function get_aquamaps_taxa($url, $used_collection_ids)
     {
-        $response = self::parse_xml($url);//this will output the raw (but structured) output from the external service
-        $page_taxa = array();
-        foreach($response as $rec)
+        if($response = self::parse_xml($url)) //this will output the raw (but structured) output from the external service
         {
-            if(@$used_collection_ids[$rec["sciname"]]) continue;
-            $taxon = Functions::prepare_taxon_params($rec);
-            if($taxon) $page_taxa[] = $taxon;
-            $used_collection_ids[$rec["sciname"]] = true;
+            $page_taxa = array();
+            foreach($response as $rec)
+            {
+                if(@$used_collection_ids[$rec["sciname"]]) continue;
+                $taxon = Functions::prepare_taxon_params($rec);
+                if($taxon) $page_taxa[] = $taxon;
+                $used_collection_ids[$rec["sciname"]] = true;
+            }
+            return array($page_taxa, $used_collection_ids);
         }
-        return array($page_taxa, $used_collection_ids);
+        return false;
     }
 
     function parse_xml($url)

@@ -22,14 +22,14 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/ConvertEOLtoDWCaAPI');
 $timestart = time_elapsed();
 
-$params["eol_xml_file"] = "http://localhost/~eolit/cp/EOL_China/FaunaSinica_Aves.zip";
+$params["eol_xml_file"] = "http://localhost/cp/EOL_China/FaunaSinica_Aves.zip";
 $params["eol_xml_file"] = "https://dl.dropboxusercontent.com/u/7597512/EOL_China/FaunaSinica_Aves.zip";
 $params["filename"]     = "FaunaSinica_Aves.xml";
 $params["dataset"]      = "EOL China";
 $params["resource_id"]  = 412;
 
 /* Sample way to access the generic script of converting EOL XML to EOL DWCA
-$params["eol_xml_file"] = "http://localhost/~eolit/eli/eol_php_code/applications/content_server/resources/511.xml.gz";
+$params["eol_xml_file"] = "http://localhost/eol_php_code/applications/content_server/resources/511.xml.gz";
 $params["filename"]     = "511.xml";
 $params["dataset"]      = "EOL XML";
 $params["resource_id"]  = 1;
