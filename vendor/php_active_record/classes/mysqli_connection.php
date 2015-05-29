@@ -200,7 +200,7 @@ class MysqliConnection
         if(!($LOAD_DATA_TEMP = fopen($tmp_file_path, "w+")))
         {
           debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$tmp_file_path);
-          return;
+          return(false);
         }
         //flock($LOAD_DATA_TEMP, LOCK_EX);
 
@@ -209,7 +209,7 @@ class MysqliConnection
         if(!($FILE = fopen($path, "r")))
         {
           debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$path);
-          return;
+          return(false);
         }
         while(!feof($FILE))
         {
@@ -245,6 +245,7 @@ class MysqliConnection
         //$this->insert("SET FOREIGN_KEY_CHECKS = 1");
         $this->end_transaction();
         unlink($tmp_file_path);
+        return(true);
     }
 
     function select_into_outfile($query, $escape = false)
