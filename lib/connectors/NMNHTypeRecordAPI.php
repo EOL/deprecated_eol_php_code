@@ -209,7 +209,17 @@ class NMNHTypeRecordAPI
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = $rec["taxon_id"];
         $taxon->scientificName  = (string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"];
-        if($val = $rec["http://rs.tdwg.org/dwc/terms/scientificNameAuthorship"]) $taxon->scientificName .= " " . $val;
+	
+		if($rec['dataset'] == "NMNH")
+		{
+	        if($val = $rec["http://rs.tdwg.org/dwc/terms/scientificNameAuthorship"]) $taxon->scientificName .= " " . $val;
+		}
+		elseif($rec['dataset'] == "NHM")
+		{
+			/* this is excluded since our name matching algorithm isn't able to match names correctly to its correct taxon_concept, thus decided to strip the author part of the name. 
+			https://jira.eol.org/browse/DATA-1615?focusedCommentId=59928&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-59928 */
+		}
+		
         $taxon->kingdom         = (string) $rec["http://rs.tdwg.org/dwc/terms/kingdom"];
         $taxon->phylum          = (string) $rec["http://rs.tdwg.org/dwc/terms/phylum"];
         $taxon->class           = (string) $rec["http://rs.tdwg.org/dwc/terms/class"];
@@ -277,6 +287,7 @@ class NMNHTypeRecordAPI
         {
             // if(!$institutionCode_uri = self::get_uri($rec['institutionCode'], "institutionCode")) return;
             if(!$institutionCode_uri = self::get_uri($rec['http://rs.tdwg.org/dwc/terms/institutionCode'], "institutionCode")) return;
+			if($val = @$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']) $rec["source"] = "http://data.nhm.ac.uk/specimen/" . $val;
         }
         
         $typeStatus_uri = false;
@@ -520,7 +531,15 @@ class NMNHTypeRecordAPI
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
         
-        $o->institutionCode     = "USNM";
+		/*
+			connector: [891] NMNH type records -- should have $->institutionCode = USNM
+		    connector: [947] NHM type records -- should have $->institutionCode = NHMUK
+			... using what is in their DWC-A file which is in [http://rs.tdwg.org/dwc/terms/institutionCode] has the correct values, so I will now use that field
+			// [http://rs.tdwg.org/dwc/terms/institutionCode] => USNM
+			// [http://rs.tdwg.org/dwc/terms/institutionCode] => NHMUK
+		*/
+		
+        $o->institutionCode     = $rec["http://rs.tdwg.org/dwc/terms/institutionCode"];
         $o->collectionCode      = $rec["http://rs.tdwg.org/dwc/terms/collectionCode"]; //verbatim here
         $o->catalogNumber       = $rec["http://rs.tdwg.org/dwc/terms/catalogNumber"];
         $o->occurrenceRemarks   = $rec["http://rs.tdwg.org/dwc/terms/occurrenceRemarks"]; //careful: there are quotes, commas, semicolons in this field.
@@ -651,6 +670,7 @@ class NMNHTypeRecordAPI
         $f['taxon_id']                                          = str_replace(" ", "_", $f['http://rs.tdwg.org/dwc/terms/scientificName']);
         $f["dataset"]                                           = "NHM";
         $f[""]                                                  = $rec->_id;
+		$f["http://rs.tdwg.org/dwc/terms/occurrenceID"]			= $rec->occurrenceID;
         $f['http://rs.tdwg.org/dwc/terms/collectionCode']       = $rec->collectionCode;
         $f['institutionCode']                                   = $rec->institutionCode; //e.g. NHMUK
         $f['http://rs.tdwg.org/dwc/terms/catalogNumber']        = $rec->catalogNumber;
@@ -710,6 +730,7 @@ class NMNHTypeRecordAPI
         return $f;
     }
 
+	/* working but not being used at the moment, we are making use of their dwc-a file
     function export_nhm_gbif_to_eol($params) // using the NHM API service
     {
         $this->uris = self::get_uris($params);
@@ -742,6 +763,7 @@ class NMNHTypeRecordAPI
             self::create_type_records_nmnh($f);
         }
     }
+	*/
 
 }
 ?>

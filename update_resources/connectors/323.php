@@ -2,6 +2,12 @@
 namespace php_active_record;
 /* connector for YouTube 
 estimated execution time: 1 minute. But this will change as the number of EOL YouTube subscriptions increase.
+
+2015-05-30
+taxon 		= 497
+commonName 	= 16
+videos 		= 497
+
 */
 
 // setting a 2 second wait time because we were getting yt:quota, too_many_recent_calls errors
@@ -21,6 +27,7 @@ fwrite($OUT, $xml);
 fclose($OUT);
 
 Functions::set_resource_status_to_force_harvest($resource_id);
+Functions::gzip_resource_xml($resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
