@@ -397,10 +397,15 @@ class Resource extends ActiveRecord
                 $harvest_event->index_for_search();
                 $this->debug_start("harvest_event->index_for_search");
               }
-              debug("setting resource status to published");
-              $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::published()->id ." WHERE id=$this->id");
+          } else {
+             debug("Did nothing, conditions unmet:\n");
+             debug("  Published at: $harvest_event->published_at\n");
+             debug("  Completed at: $harvest_event->completed_at\n");
+             debug("  Event published: $harvest_event->publish\n");
           }
       }
+      debug("setting resource status to published");
+      $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::published()->id ." WHERE id=$this->id");
       $this->mysqli->end_transaction();
       $this->debug_end("transaction");
       $this->debug_end("publish");
