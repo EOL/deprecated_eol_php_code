@@ -14,7 +14,9 @@ class EolStatsDataConnector
     {
         $this->resource_id = $resource_id;
         $this->mysqli =& $GLOBALS['mysqli_connection'];
-        $this->source_file_path = "http://tiny.cc/FALO"; // from Cyndy's Dropbox
+		//         $this->source_file_path = "http://tiny.cc/FALO"; // from Cyndy's Dropbox - not working at the moment
+		// $this->source_file_path = "http://localhost/cp/NCBIGGI/ALF2015.xlsx";
+		$this->source_file_path = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/ALF2015.xlsx";
     }
 
     public function begin()
