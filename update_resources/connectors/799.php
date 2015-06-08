@@ -19,7 +19,7 @@ $params['extensions'] = array('taxa', 'occurrences', 'measurements', 'references
 $resource_id = 799;
 $func = new EOLSpreadsheetTextToArchiveAPI($resource_id);
 $func->convert_to_dwca($params);
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1)
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
     if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
     {

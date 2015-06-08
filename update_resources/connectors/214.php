@@ -13,11 +13,7 @@ $taxa = VimeoAPI::get_all_taxa();
 $xml = \SchemaDocument::get_taxon_xml($taxa);
 
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-if(!($OUT = fopen($resource_path, "w")))
-{
-  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$resource_path);
-  return;
-}
+if(!($OUT = Functions::file_open($resource_path, "w"))) return;
 fwrite($OUT, $xml);
 fclose($OUT);
 
