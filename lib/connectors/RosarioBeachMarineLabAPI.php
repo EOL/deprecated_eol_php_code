@@ -52,22 +52,40 @@ class RosarioBeachMarineLabAPI
                     // $url = "http://www.wallawalla.edu/academics/departments/biology/rosario/inverts/Arthropoda/Crustacea/Malacostraca/Eumalacostraca/Peracarida/Lophogastrida/Neognathophausia_ingens.html";
                     //has both refs and scientific articles
                     // $url = "http://www.wallawalla.edu/academics/departments/biology/rosario/inverts/Ctenophora/Pleurobrachia_bachei.html";
-                    
-                    if($html = Functions::lookup_with_cache($url, $this->download_options))
+
+					$options = $this->download_options;                    
+                    if($html = Functions::lookup_with_cache($url, $options))
                     {
+						$html = str_replace(array("\n"), " ", $html); //needs this to get the correct family name e.g. http://www.wallawalla.edu/academics/departments/biology/rosario/inverts/Arthropoda/Crustacea/Malacostraca/Eumalacostraca/Eucarida/Decapoda/Caridea/Family_Oplophoridae/Acanthephyra_curtirostris.html
+
                         $rec = array();
                         $rec['taxon_id'] = pathinfo($url, PATHINFO_BASENAME);
                         $rec['source'] = $url;
-                        if(preg_match("/<h2(.*?)<\/h2>/ims", $html, $arr2))          $rec['sciname'] = self::clean_string("<h2" . $arr2[1]);
-                        else exit("\n no sciname [$url]\n");
+                        if(preg_match("/<h2(.*?)<\/h2>/ims", $html, $arr2))
+						{
+							$rec['sciname'] = self::clean_string("<h2" . $arr2[1]);
+							$rec['sciname'] = trim(preg_replace('/\s*\([^)]*\)/', '', $rec['sciname'])); //remove parenthesis
+							
+						}
+                        else
+						{
+							echo "\n no sciname [$url]\n";
+							return;
+						}
                         if(preg_match("/Common name\(s\):(.*?)</ims", $html, $arr2)) $rec['comnames'] = self::clean_string($arr2[1]);
                         if(preg_match("/Synonyms:(.*?)<\/td>/ims", $html, $arr2))    $rec['synonyms'] = self::clean_string($arr2[1]);
 
                         if(preg_match("/Phylum (.*?)</ims", $html, $arr2))    $rec['ancestry']['phylum'] = self::clean_string($arr2[1]);
                         if(preg_match("/Class (.*?)</ims", $html, $arr2))     $rec['ancestry']['class']  = self::clean_string($arr2[1]);
-                        if(preg_match("/ Order (.*?)</ms", $html, $arr2))     $rec['ancestry']['order']  = self::clean_string($arr2[1]);
-                        elseif(preg_match("/>Order (.*?)</ms", $html, $arr2)) $rec['ancestry']['order']  = self::clean_string($arr2[1]);
-                        if(preg_match("/Family (.*?)</ims", $html, $arr2))    $rec['ancestry']['family'] = self::clean_string($arr2[1]);
+
+                        if(preg_match_all("/Order (.*?)</ms", $html, $arr2))      $rec['ancestry']['order']  = self::clean_string($arr2[1][0]);
+                        elseif(preg_match_all("/>Order (.*?)</ms", $html, $arr2)) $rec['ancestry']['order']  = self::clean_string($arr2[1][0]);
+                        elseif(preg_match_all("/ Order (.*?)</ms", $html, $arr2)) $rec['ancestry']['order']  = self::clean_string($arr2[1][0]);
+						
+                        if(preg_match_all("/Family (.*?)</ims", $html, $arr2)) 
+						{
+							$rec['ancestry']['family'] = self::clean_string($arr2[1][0]);
+						}
 
                         if(preg_match("/Description:(.*?)<p>/ims", $html, $arr2))        $rec['txt']['desc']         = self::clean_string($arr2[1]);
                         if(preg_match("/Similar Species:(.*?)<p>/ims", $html, $arr2))    $rec['txt']['lookalikes']   = self::clean_string($arr2[1]);
@@ -82,7 +100,13 @@ class RosarioBeachMarineLabAPI
 
                         $rec['editors']    = self::get_page_editors($html);
                         $rec['references'] = self::assign_reference($html);
-                        // print_r($rec);
+
+						/* to be used when debugging
+						if($url == "http://www.wallawalla.edu/academics/departments/biology/rosario/inverts/Annelida/Alvinellidae/Paralvinella_palmiformis.html")
+						{
+	                    	print_r($rec);
+						}
+						*/
                         self::create_archive($rec);
                     }
                     // break; //debug
