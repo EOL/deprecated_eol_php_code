@@ -81,6 +81,8 @@ class I3InteractiveAPI
             if(isset($taxa_id_list[$acceptedNameUsageID])) $taxon->acceptedNameUsageID = $acceptedNameUsageID;
             else echo "\nthis acceptedNameUsageID does not exist [$acceptedNameUsageID]\n";
 
+			if($taxon->acceptedNameUsageID == $taxon->taxonID) $taxon->acceptedNameUsageID = '';
+
             /* decided to comment this since collection is truncated, possible prob. is a missing node in hierarchy
             $parentNameUsageID = (string) $rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"];
             if(isset($taxa_id_list[$parentNameUsageID])) $taxon->parentNameUsageID = $parentNameUsageID;
