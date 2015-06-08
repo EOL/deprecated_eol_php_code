@@ -64,8 +64,6 @@ class RosarioBeachMarineLabAPI
                         if(preg_match("/<h2(.*?)<\/h2>/ims", $html, $arr2))
 						{
 							$rec['sciname'] = self::clean_string("<h2" . $arr2[1]);
-							$rec['sciname'] = trim(preg_replace('/\s*\([^)]*\)/', '', $rec['sciname'])); //remove parenthesis
-							
 						}
                         else
 						{
@@ -607,6 +605,7 @@ class RosarioBeachMarineLabAPI
         $string = trim(strip_tags(str_ireplace(array("\n"), " ", $string)));
         $string = trim(str_ireplace(array("&nbsp;"), " ", $string));
         $string = trim(str_ireplace(array("  "), " ", $string));
+		$string = self::remove_parenthesis($string);
         return $string;
     }
     
