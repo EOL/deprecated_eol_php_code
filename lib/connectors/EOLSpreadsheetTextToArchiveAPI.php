@@ -58,6 +58,7 @@ class EOLSpreadsheetTextToArchiveAPI
             }
             // if($i >= 1000) break; //debug
 		}
+		unlink($filename);
 	}
 	
 	private function create_archive($extension, $fields, $uris, $rec)
