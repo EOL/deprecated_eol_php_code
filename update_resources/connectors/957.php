@@ -1,21 +1,16 @@
 <?php
 namespace php_active_record;
-/* connector for Avibase - IOC World Bird Names
-estimated execution time: 3 minutes (9 hours with synonyms)
-Connector scrapes the Avibase site.
-
-                    2015-05-10	05-28
-taxon.tab           27389		27400
-vernacular_name.tab 747213		747748
+/* DATA-1618 internationalize wikipedia! Test case: German Wikipedia
+					2015Jun2
+media_resource.tab 	54605
+taxon.tab 			27300
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/AvibaseAPIv2');
-
+require_library('connectors/WikipediaRegionalAPI');
 $timestart = time_elapsed();
-$resource_id = 355;
-
-$func = new AvibaseAPIv2($resource_id, 'ioc');
-$func->generate_archive($resource_id);
+$resource_id = 957;
+$func = new WikipediaRegionalAPI($resource_id, 'de');
+$func->generate_archive();
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
     if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
@@ -37,9 +32,8 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") >
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n";
-echo "elapsed time = $elapsed_time_sec seconds             \n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " minutes  \n";
+echo "\n\n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
-echo "\n\n Done processing.";
+echo "\nDone processing.\n";
 ?>

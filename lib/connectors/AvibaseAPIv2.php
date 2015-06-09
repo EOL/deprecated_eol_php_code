@@ -15,7 +15,8 @@ class AvibaseAPIv2
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->download_options = array('expire_seconds' => 5184000, 'timeout' => 7200, 'download_wait_time' => 1000000); // 2 months expire_seconds
-        
+        // $this->download_options['expire_seconds'] = false;
+
         $this->resource_id      = $resource_id;
         $this->checklist_name   = $checklist_name;
         $this->for_testing      = $for_testing;
@@ -63,6 +64,10 @@ class AvibaseAPIv2
         'pal', // palearctic
         'wpa'  // western palearctic
         );
+
+		// $regions = array_reverse($regions);
+		print_r($regions);
+		
         if($this->for_testing) $regions = array('nam'); //debug
         foreach($regions as $region) self::get_taxa_list(self::AVIBASE_SERVICE_URL . '&region=' . $region . '&list=' . $this->checklist_name);
     }

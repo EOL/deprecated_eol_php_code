@@ -1,21 +1,24 @@
 <?php
 namespace php_active_record;
-/* connector for Avibase - IOC World Bird Names
-estimated execution time: 3 minutes (9 hours with synonyms)
-Connector scrapes the Avibase site.
+/* This is a specific connector for the mineralogy spreadsheet where the worksheets were exported to tab-delimited text files (DATA-1619).
 
-                    2015-05-10	05-28
-taxon.tab           27389		27400
-vernacular_name.tab 747213		747748
+					2015Jun4
+measurement_or_fact	986312
+occurrence		 	322805
+reference	 		64
+taxon				293068
 */
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/AvibaseAPIv2');
-
+require_library('connectors/EOLSpreadsheetTextToArchiveAPI');
 $timestart = time_elapsed();
-$resource_id = 355;
 
-$func = new AvibaseAPIv2($resource_id, 'ioc');
-$func->generate_archive($resource_id);
+$params['text_files_path'] = 'http://localhost/cp/SpreadsheetToArchive/mineralogy 2015/';
+$params['extensions'] = array('taxa', 'occurrences', 'measurements', 'references');
+
+$resource_id = 799;
+$func = new EOLSpreadsheetTextToArchiveAPI($resource_id);
+$func->convert_to_dwca($params);
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
     if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
@@ -35,11 +38,9 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") >
 	$func = new DWCADiagnoseAPI();
 	$func->check_unique_ids($resource_id);
 }
-
 $elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n";
-echo "elapsed time = $elapsed_time_sec seconds             \n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " minutes  \n";
+echo "\n\n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
-echo "\n\n Done processing.";
+echo "\nDone processing.\n";
 ?>

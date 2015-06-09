@@ -5,6 +5,7 @@ namespace php_active_record;
 measurement     6748    1385056     3191194
 occurrence      2250    461686      461686
 taxon           2157    224065      224065
+reference							189866
 */
 return;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -13,8 +14,8 @@ $timestart = time_elapsed();
 
 /*
 //local
-$params["dwca_file"]    = "http://localhost/~eolit/cp/iDigBio/iDigBioTypes.zip";
-$params["uri_file"]     = "http://localhost/~eolit/cp/iDigBio/idigbio mappings.xlsx";
+$params["dwca_file"]    = "http://localhost/cp/iDigBio/iDigBioTypes.zip";
+$params["uri_file"]     = "http://localhost/cp/iDigBio/idigbio mappings.xlsx";
 */
 
 /*
@@ -48,7 +49,13 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") >
     rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
     Functions::set_resource_status_to_force_harvest($resource_id);
     Functions::count_resource_tab_files($resource_id);
-    Functions::get_undefined_uris_from_resource($resource_id);
+
+	if($undefined_uris = Functions::get_undefined_uris_from_resource($resource_id)) print_r($undefined_uris);
+    echo "\nUndefined URIs: " . count($undefined_uris) . "\n";
+
+	require_library('connectors/DWCADiagnoseAPI');
+	$func = new DWCADiagnoseAPI();
+	$func->check_unique_ids($resource_id);
 }
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

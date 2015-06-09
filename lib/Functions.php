@@ -154,7 +154,7 @@ class Functions
         }
         else // can happen when cache_path is from external drive with corrupt dir/file
         {
-            if(!($h = Functions::file_open(DOC_ROOT . "/temp/cant_delete.txt", 'a'))) return;
+            if(!($h = Functions::file_open(DOC_ROOT . "/public/tmp/cant_delete.txt", 'a'))) return;
             fwrite($h, $cache_path . "\n");
             fclose($h);
         }

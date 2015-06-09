@@ -8,7 +8,7 @@ This resource is regularly being harvested. Connector is scheduled as a cron tas
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/InsectVisitorsAPI');
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = false;
+// $GLOBALS['ENV_DEBUG'] = false;
 
 $resource_id = 143;
 $func = new InsectVisitorsAPI();

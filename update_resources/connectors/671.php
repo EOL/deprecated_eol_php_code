@@ -10,7 +10,7 @@ $names = array("Fungi", "Ascomycota", "Pezizomycotina", "Dothideomycetes", "Doth
 $names = array("Fungi", "Basidiomycota", "Agaricomycotina", "Agaricomycetes", "Agaricomycetidae", "Agaricales", "Marasmiaceae", "Chamaeceras", "Chamaeceras brasiliensis", "Marasmius");
 $names = array("Selenia perforans", "Selenia", "Montagnula perforans");
 */
-
+return;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/MycoBankAPI');
 $timestart = time_elapsed();
