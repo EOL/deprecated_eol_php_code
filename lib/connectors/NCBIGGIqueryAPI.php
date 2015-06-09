@@ -32,10 +32,10 @@ class NCBIGGIqueryAPI
             $this->measurement_ids = array();
         }
         $this->download_options = array('expire_seconds' => 5184000, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1); //2 months to expire
-        // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/"; // use cache_path to assign a different directory for the cache files
+		// $this->download_options['expire_seconds'] = false; //debug
         
         // local
-        $this->families_list = "http://localhost/~eolit/cp/NCBIGGI/falo2.in";
+        $this->families_list = "http://localhost/cp/NCBIGGI/falo2.in";
         $this->families_list = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/falo2.in";
 
         // NCBI service
@@ -142,11 +142,7 @@ class NCBIGGIqueryAPI
     private function initialize_dump_file($file)
     {
         echo "\n initialize file:[$file]\n";
-        if(!($WRITE = fopen($file, "w")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $file);
-          return;
-        }
+        if(!($WRITE = Functions::file_open($file, "w"))) return;
         fclose($WRITE);
     }
     
@@ -403,21 +399,13 @@ class NCBIGGIqueryAPI
         $temp_path = temp_filepath();
         if($contents)
         {
-            if(!($file = fopen($temp_path, "w")))
-            {
-              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_path);
-              return;
-            }
+            if(!($file = Functions::file_open($temp_path, "w"))) return;
             fwrite($file, $contents);
             fclose($file);
         }
         $page_ids = array();
         $i = 0;
-        if(!($file = fopen($temp_path, "r")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_path);
-          return;
-        }
+        if(!($file = Functions::file_open($temp_path, "r"))) return;
         while(!feof($file))
         {
             $i++;
@@ -448,6 +436,8 @@ class NCBIGGIqueryAPI
         $canonical = "";
         $d_options = $this->download_options;
         $d_options['expire_seconds'] = 15552000; //6 months to expire
+        // $d_options['expire_seconds'] = false; //debug
+
         if($json = Functions::lookup_with_cache($this->eol_api["search"] . $family, $d_options))
         {
             $json = json_decode($json, true);
@@ -601,7 +591,7 @@ class NCBIGGIqueryAPI
     private function get_names_no_entry_from_partner()
     {
         $names = array();
-        $dump_file = DOC_ROOT "/public/tmp/gbif/names_no_entry_from_partner.txt";
+        $dump_file = DOC_ROOT . "/public/tmp/gbif/names_no_entry_from_partner.txt";
         foreach(new FileIterator($dump_file) as $line_number => $line)
         {
             if($line) $names[$line] = "";
@@ -616,21 +606,13 @@ class NCBIGGIqueryAPI
             $fields = array("family", "count", "taxon_id", "object_id", "source", "label", "measurement");
             $data = "";
             foreach($fields as $field) $data .= $rec[$field] . "\t";
-            if(!($WRITE = fopen($filename, "a")))
-            {
-              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
-              return;
-            }
+            if(!($WRITE = Functions::file_open($filename, "a"))) return;
             fwrite($WRITE, $data . "\n");
             fclose($WRITE);
         }
         else
         {
-            if(!($WRITE = fopen($filename, "a")))
-            {
-              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
-              return;
-            }
+            if(!($WRITE = Functions::file_open($filename, "a"))) return;
             if($rec && is_array($rec)) fwrite($WRITE, json_encode($rec) . "\n");
             else                       fwrite($WRITE, $rec . "\n");
             fclose($WRITE);
@@ -812,7 +794,7 @@ class NCBIGGIqueryAPI
         require_library('XLSParser');
         $parser = new XLSParser();
         $families = array();
-        $dropbox_xlsx[] = "http://localhost/~eolit/cp/NCBIGGI/missing from GBIF.xlsx";
+        $dropbox_xlsx[] = "http://localhost/cp/NCBIGGI/missing from GBIF.xlsx";
         foreach($dropbox_xlsx as $doc)
         {
             echo "\n processing [$doc]...\n";
@@ -938,10 +920,10 @@ class NCBIGGIqueryAPI
         $family_table = array();
         $fields = array("SpK", "K", "SbK", "IK", "SpP", "P", "SbP", "IP", "PvP", "SpC", "C", "SbC", "IC", "SpO", "O");
         
-        $dropbox_xlsx[] = "http://tiny.cc/FALO"; // from Cyndy's Dropbox
-        // $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/ALF2015.xlsx"; // from Eli's Dropbox
-        // $dropbox_xlsx[] = "http://localhost/~eolit/cp/NCBIGGI/FALO.xlsx"; // local
-        // $dropbox_xlsx[] = "http://localhost/~eolit/cp/NCBIGGI/ALF2015.xlsx"; // local
+        // $dropbox_xlsx[] = "http://tiny.cc/FALO"; // from Cyndy's Dropbox
+        $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/ALF2015.xlsx"; // from Eli's Dropbox
+        // $dropbox_xlsx[] = "http://localhost/cp/NCBIGGI/FALO.xlsx"; // local
+        // $dropbox_xlsx[] = "http://localhost/cp/NCBIGGI/ALF2015.xlsx"; // local
 
         foreach($dropbox_xlsx as $doc)
         {
@@ -1070,11 +1052,7 @@ class NCBIGGIqueryAPI
     
     private function access_dump_file($file_path, $is_array = true)
     {
-        if(!($file = fopen($file_path, "r")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $file_path);
-          return;
-        }
+        if(!($file = Functions::file_open($file_path, "r"))) return;
         if($is_array) $contents = json_decode(fread($file,filesize($file_path)), true);
         else          $contents = fread($file,filesize($file_path));
         fclose($file);

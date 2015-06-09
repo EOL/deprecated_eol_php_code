@@ -6,9 +6,13 @@ require_library('connectors/FaloDataConnector');
 taxa    11976
 */
 $resource_id = 778;
-$spg_falo_url = 'http://tiny.cc/FALO';
+
+// $spg_falo_url = 'http://tiny.cc/FALO'; //not working
+$spg_falo_url = 'https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/ALF2015.xlsx';
+
 $temporary_falo_url = 'https://www.dropbox.com/s/04yyog1kdwq04l8/FALO.xlsx?dl=1'; // Lisa's version
-$temporary_falo_url = 'http://localhost/~eolit/cp/NCBIGGI/ALF2015.xlsx'; // local
+$temporary_falo_url = 'http://localhost/~eolit/cp/NCBIGGI/ALF2015.xlsx'; 		  // local
+
 $source_url = $spg_falo_url; // pointing to SPG's version, dynamic
 
 $caught_exception = null;
