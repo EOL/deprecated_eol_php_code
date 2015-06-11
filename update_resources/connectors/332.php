@@ -19,7 +19,7 @@ $timestart = time_elapsed();
 $params["resource_id"] = 332;
 
 $params["process occurrence"] = false;
-$params["dwca_file"] = "http://localhost/~eolit/cp/3IInteractive/DwCArchive_Cicadellinae.zip";
+$params["dwca_file"] = "http://localhost/cp/3IInteractive/DwCArchive_Cicadellinae.zip";
 $params["dwca_file"] = "http://dmitriev.speciesfile.org/Export/DwCArchive_Cicadellinae.zip";
 
 $func = new I3InteractiveAPI($params);
@@ -35,6 +35,13 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $params["resource_id"] . "_working/tax
     rename(CONTENT_RESOURCE_LOCAL_PATH . $params["resource_id"] . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $params["resource_id"] . ".tar.gz");
     Functions::set_resource_status_to_force_harvest($params["resource_id"]);
     Functions::count_resource_tab_files($params["resource_id"]);
+
+	if($undefined_uris = Functions::get_undefined_uris_from_resource($params["resource_id"])) print_r($undefined_uris);
+    echo "\nUndefined URIs: " . count($undefined_uris) . "\n";
+
+	require_library('connectors/DWCADiagnoseAPI');
+	$func = new DWCADiagnoseAPI();
+	$func->check_unique_ids($params["resource_id"]);
 }
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
