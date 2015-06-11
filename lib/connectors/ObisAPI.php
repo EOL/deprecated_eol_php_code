@@ -12,23 +12,30 @@ define("OBIS_DATA_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/dep
 define("OBIS_DATA_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/spenv_small.csv");
 */
 
-define("OBIS_DATA_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/OBIS_data.csv");
-define("OBIS_ANCESTRY_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/tnames20100825.csv");
-
-/* to use small dataset
-define("OBIS_DATA_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/OBIS_data_small.csv");
-define("OBIS_ANCESTRY_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/tnames20100825_small.csv");
-*/
-
-define("OBIS_RANK_FILE", DOC_ROOT . "/update_resources/connectors/files/OBIS/rank.xls");
-define("OBIS_DATA_PATH", DOC_ROOT . "/update_resources/connectors/files/OBIS/");
-
 class ObisAPI
 {
-    public static function get_all_taxa($resource_id)
+    function __construct()
     {
+		$this->OBIS_DATA_FILE = DOC_ROOT . "/update_resources/connectors/files/OBIS/OBIS_data.csv";
+		$this->OBIS_ANCESTRY_FILE = DOC_ROOT . "/update_resources/connectors/files/OBIS/tnames20100825.csv";
+
+		/* to use small dataset
+		$this->OBIS_DATA_FILE = DOC_ROOT . "/update_resources/connectors/files/OBIS/OBIS_data_small.csv";
+		// $this->OBIS_ANCESTRY_FILE = DOC_ROOT . "/update_resources/connectors/files/OBIS/tnames20100825_small.csv";
+		*/
+
+		$this->OBIS_RANK_FILE = DOC_ROOT . "/update_resources/connectors/files/OBIS/rank.xls";
+		$this->OBIS_DATA_PATH = DOC_ROOT . "/update_resources/connectors/files/OBIS/";
+    }
+	
+    public function get_all_taxa($resource_id)
+    {    
+	    // Delete temp files, possible remnants from interrupted runs
+        Functions::delete_temp_files($this->OBIS_DATA_PATH . "temp_obis_", "xml");
+        Functions::delete_temp_files($this->OBIS_DATA_PATH . "temp_", "csv");
+
         //divide big file to a more consumable chunks
-        $file_count = self::divide_big_csv_file(20000); //debug orig is 20000
+        $file_count = self::divide_big_csv_file(40000); //debug orig is 40000
         if($file_count === false) return false;
 
         $all_taxa = array();
@@ -36,33 +43,30 @@ class ObisAPI
 
         for ($i = 1; $i <= $file_count; $i++)
         {
-            $arr = self::get_obis_taxa(OBIS_DATA_PATH . "temp_" . $i . ".csv", $used_collection_ids, OBIS_ANCESTRY_FILE);
+			echo "\nprocessing $i => \n";
+            $arr = self::get_obis_taxa($this->OBIS_DATA_PATH . "temp_" . $i . ".csv", $used_collection_ids);
             $page_taxa              = $arr[0];
             $used_collection_ids    = $arr[1];
 
             $xml = \SchemaDocument::get_taxon_xml($page_taxa);
-            $resource_path = OBIS_DATA_PATH . "temp_obis_" . $i . ".xml";
-            if(!($OUT = fopen($resource_path, "w")))
-            {
-              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $resource_path);
-              return;
-            } 
+            $resource_path = $this->OBIS_DATA_PATH . "temp_obis_" . $i . ".xml";
+            if(!($OUT = Functions::file_open($resource_path, "w"))) return;
             fwrite($OUT, $xml); 
             fclose($OUT);
         }
 
         // Combine all XML files.
-        Functions::combine_all_eol_resource_xmls($resource_id, OBIS_DATA_PATH . "temp_obis_*.xml");
+        Functions::combine_all_eol_resource_xmls($resource_id, $this->OBIS_DATA_PATH . "temp_obis_*.xml");
         // Set to force harvest
         if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
         // Delete temp files
-        Functions::delete_temp_files(OBIS_DATA_PATH . "temp_obis_", "xml");
-        Functions::delete_temp_files(OBIS_DATA_PATH . "temp_", "csv");
+        Functions::delete_temp_files($this->OBIS_DATA_PATH . "temp_obis_", "xml");
+        Functions::delete_temp_files($this->OBIS_DATA_PATH . "temp_", "csv");
     }
 
-    public static function get_obis_taxa($url, $used_collection_ids, $ancestry)
+    function get_obis_taxa($url, $used_collection_ids)
     {
-        $response = self::search_collections($url, $ancestry);
+        $response = self::search_collections($url);
         $page_taxa = array();
         foreach($response as $rec)
         {
@@ -74,18 +78,19 @@ class ObisAPI
         return array($page_taxa, $used_collection_ids);
     }
 
-    function search_collections($url, $ancestry)//this will output the raw (but structured) output from the external service
+    private function search_collections($url)//this will output the raw (but structured) output from the external service
     {
-        require_library('XLSParser');
+	    require_library('XLSParser');
         $parser = new XLSParser();
-        $arr_taxon_detail = $parser->convert_sheet_to_array($ancestry);
+	
+        $arr_taxon_detail = $parser->convert_sheet_to_array($this->OBIS_ANCESTRY_FILE, 0);
         //id    tname    tauthor    valid_id    rank_id    parent_id    worms_id
-        $arr_taxon_detail = self::prepare_taxon_detail($arr_taxon_detail, $parser);
+        $arr_taxon_detail = self::prepare_taxon_detail($arr_taxon_detail);
         $response = self::prepare_species_page($url, $arr_taxon_detail);
         return $response;
     }
 
-    function prepare_species_page($url, $arr_taxon_detail)
+    private function prepare_species_page($url, $arr_taxon_detail)
     {
         $arr_taxa = array();
         $i = 0;
@@ -216,7 +221,18 @@ class ObisAPI
                          
             if(sizeof($arr_objects))
             {
-                $ancestry = self::assign_ancestry(@$arr_taxon_detail[$species_id]['ancestry']);        
+                $ancestry = self::assign_ancestry(@$arr_taxon_detail[$species_id]['ancestry']);
+
+				//start manual adjustment - https://jira.eol.org/browse/TAX-1744
+				if($sciname == "Polybranchia viridis")
+				{
+                    @$ancestry["Phylum"] 	= 'Mollusca';
+                    @$ancestry["Class"]		= '';
+                    @$ancestry["Order"]		= '';
+                    @$ancestry["Family"]	= '';
+				}
+				//end manual adjustment
+        
                 $arr_taxa[] = array("identifier"   => $species_id,
                                     "source"       => $source,
                                     "kingdom"      => @$ancestry["Kingdom"],
@@ -230,10 +246,11 @@ class ObisAPI
             }
             $i++;
         }
+		// print_r($arr_taxa);
         return $arr_taxa;
     }
 
-    function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject)
+    private function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $location, $rightsHolder, $refs, $subject)
     {
         return array("identifier"  => $identifier,
                      "dataType"    => $dataType,
@@ -246,7 +263,7 @@ class ObisAPI
                     );
     }
     
-    function remove_parenthesis_entry($sciname)
+    private function remove_parenthesis_entry($sciname)
     {
         // e.g. "Bulla (Leucophysema) argoblysis" should only return "Bulla argoblysis"
         $pos1 = stripos($sciname, "(");
@@ -258,7 +275,7 @@ class ObisAPI
         return $sciname;
     }
 
-    function generate_line_graph($max, $min)
+    private function generate_line_graph($max, $min)
     {
         $range1 = self::get_max_range($max, $min);
         $range2 = 0;
@@ -269,7 +286,7 @@ class ObisAPI
         return "<img src='" . GOOGLE_CHART_DOMAIN . "chart?chs=200x150&chxt=$chxt&chxl=$chxl&chxr=0,$range1,$range2&chtt=$title&cht=lc&chd=t:$comma_separated&chds=$range1,$range2'>";
     }
 
-    function generate_bar_graph($max, $min, $title, $environment = NULL)
+    private function generate_bar_graph($max, $min, $title, $environment = NULL)
     {
         $range = $max - $min;
         if($range == 0) return;
@@ -320,14 +337,14 @@ class ObisAPI
         return "<img src='" . GOOGLE_CHART_DOMAIN . "chart?cht=bvs&chs=350x150&chd=t:$min|$range&chxr=0,$min_range,$max_range&chds=0,$max_range&chbh=50,20,15&chxt=$chxt&chm=$chm&chma=20&chf=$chf&chco=$chco&chxl=$chxl'>";
     }
 
-    function get_max_range($max, $min)
+    private function get_max_range($max, $min)
     {
         $digits = strlen(strval(intval($max)));
         $step = "1" . str_repeat("0", $digits-1);
         return $max + intval($step);
     }
 
-    function assign_ancestry($taxon_ancestry)
+    private function assign_ancestry($taxon_ancestry)
     {
         $ancestry = array();
         if($taxon_ancestry)
@@ -344,9 +361,9 @@ class ObisAPI
         return $ancestry;
     }
 
-    function prepare_taxon_detail($taxon, $parser)
+    private function prepare_taxon_detail($taxon)
     {
-        $rank_data = self::prepare_rank_data($parser);
+        $rank_data = self::prepare_rank_data();
         $arr_taxon_detail = array();
         $i = 0;
         foreach($taxon["id"] as $id)
@@ -356,6 +373,7 @@ class ObisAPI
             $arr_taxon_detail[$id] = array("tname" => $taxon['tname'][$i], "rank_id" => $rank_id, "rank_name" => @$rank_data[$rank_id], "parent_id" => $taxon['parent_id'][$i]);
             $i++;
         }
+
         $arr_ancestry = array();
         foreach($arr_taxon_detail as $id => $rec)
         {
@@ -371,12 +389,15 @@ class ObisAPI
             //id    tname    tauthor    valid_id    rank_id    parent_id    worms_id
             $rank_id = $taxon['rank_id'][$i];
             $arr_taxon_detail[$id] = array("tname" => $taxon['tname'][$i], "rank_name" => @$rank_data[$rank_id], "ancestry" => $arr_ancestry[$id]);
+			
+			// print_r($arr_taxon_detail[$id]);
+
             $i++;
         }
         return $arr_taxon_detail;
     }
 
-    function get_ancestry($id, $arr_taxon_detail, $rank_data)
+    private function get_ancestry($id, $arr_taxon_detail, $rank_data)
     {
         $arr = array();
         $continue = true; 
@@ -388,27 +409,34 @@ class ObisAPI
                 $temp_id        = @$arr_taxon_detail[$searched_id]['parent_id'];
                 $temp_rank_id   = @$arr_taxon_detail[$temp_id]['rank_id'];
                 $arr[] = array("id" => $temp_id, "name" => @$arr_taxon_detail[$temp_id]['tname'], "rank" => @$rank_data[$temp_rank_id]);
-                $searched_id = @$arr_taxon_detail[$searched_id]['parent_id'];
+				$searched_id = @$arr_taxon_detail[$searched_id]['parent_id'];
+				
+				// if($temp_id == $searched_id) $continue = false;
+				// if(!($searched_id = @$arr_taxon_detail[$searched_id]['parent_id'])) $continue = false;
             }
             else $continue = false;
         }
+		// print_r($arr);
         return $arr;
     }
 
-    function prepare_rank_data($parser)
+    private function prepare_rank_data()
     {
+	    require_library('XLSParser');
+        $parser = new XLSParser();
+
         $arr_rank = array();
-        $arr = $parser->convert_sheet_to_array(OBIS_RANK_FILE);
+        $arr = $parser->convert_sheet_to_array($this->OBIS_RANK_FILE);
         $i = 0;
         foreach($arr['rank_id'] as $rank_id)
         {
             $arr_rank[$rank_id] = @$arr['rank_name'][$i];
             $i++;
-        }    
+        }
         return $arr_rank;
     }
 
-    function clean_str($str)
+    private function clean_str($str)
     {
         $str = str_ireplace(array("\r", "\t", "\o"), '', $str);
         $str = str_ireplace(array("  "), ' ', $str);
@@ -417,12 +445,12 @@ class ObisAPI
 
     private function divide_big_csv_file($divisor)
     {
-        Functions::delete_temp_files(OBIS_DATA_PATH . "temp_", "csv");
+        Functions::delete_temp_files($this->OBIS_DATA_PATH . "temp_", "csv");
         $i = 0;
         $line = "";
         $file_count = 0;
         $labels = "";
-        foreach(new FileIterator(OBIS_DATA_FILE) as $line_number => $linex)
+        foreach(new FileIterator($this->OBIS_DATA_FILE) as $line_number => $linex)
         {
             $i++;
             $line .= $linex . "\n"; // FileIterator removes the carriage-return
@@ -436,11 +464,7 @@ class ObisAPI
             {
                 $i = 0;
                 $file_count++;
-                if(!($OUT = fopen(OBIS_DATA_PATH . "temp_" . $file_count . ".csv", "w")))
-                {
-                  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .OBIS_DATA_PATH . "temp_" . $file_count . ".csv");
-                  return;
-                }
+                if(!($OUT = Functions::file_open($this->OBIS_DATA_PATH . "temp_" . $file_count . ".csv", "w"))) return;
                 fwrite($OUT, $labels);
                 fwrite($OUT, $line);
                 fclose($OUT);
@@ -451,11 +475,7 @@ class ObisAPI
         if($line)
         {
             $file_count++;
-            if(!($OUT = fopen(OBIS_DATA_PATH . "temp_" . $file_count . ".csv", "w")))
-            {
-              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .OBIS_DATA_PATH . "temp_" . $file_count . ".csv");
-              return;
-            }
+            if(!($OUT = Functions::file_open($this->OBIS_DATA_PATH . "temp_" . $file_count . ".csv", "w"))) return;
             fwrite($OUT, $labels);
             fwrite($OUT, $line);
             fclose($OUT);
