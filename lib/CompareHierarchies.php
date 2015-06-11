@@ -175,7 +175,7 @@ class CompareHierarchies
                 // concepts, merge them
                 if($tc_id1 != $tc_id2)
                 {
-                    debug("$id1 :: $id2");
+                    debug("Comparing hierarchy_entry($id1) :: hierarchy_entry($id2)");
                     // compare visible entries to other published entries
                     if($hierarchy1->complete && $visibility_id1 == $visible_id && self::concept_published_in_hierarchy($tc_id2, $hierarchy1->id)) { debug("NO: concept 2 published in hierarchy 1"); continue; }
                     if($hierarchy2->complete && $visibility_id2 == $visible_id && self::concept_published_in_hierarchy($tc_id1, $hierarchy2->id)) { debug("NO: concept 1 published in hierarchy 2"); continue; }
@@ -195,8 +195,9 @@ class CompareHierarchies
                         debug("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) is not allowed by a curated hierarchy ($hierarchy_id)");
                         continue;
                     }
-                    TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);
+                    debug("TaxonMatch::($tc_id1) = ($tc_id2), because both hierarchies($hierarchy1->id & $hierarchy2->id) are not complete, NO concepts are visible/preview in the other hierarchy, the merging is not rejected by a curator or by a curated hierarchy");
                     debug("TaxonConcept::supercede_by_ids($tc_id1, $tc_id2)");
+                    TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);
                     $superceded[max($tc_id1, $tc_id2)] = min($tc_id1, $tc_id2);
 
                     static $count = 0;

@@ -39,9 +39,12 @@ class TaxonConcept extends ActiveRecord
         $mysqli->begin_transaction();
         // at this point ID2 is the one going away
         // ID2 is being superceded by ID1
+        debug("Matching hierarchy_entries to its superceded taxon_concept_id($id1)");
         $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.taxon_concept_id=$id1, tc.supercedure_id=$id1 WHERE taxon_concept_id=$id2");
         
         // updating TCN => all names linked to ID2 are getting linked to ID1
+        debug("Matching users_data_objects,taxon_concept_names, data_objects_taxon_concepts, random_hierarchy_images, taxon_concepts_flattened to its superceded taxon_concept_id($id1)");
+        
         $mysqli->update("UPDATE IGNORE users_data_objects SET taxon_concept_id=$id1 WHERE taxon_concept_id=$id2");
         $mysqli->update("UPDATE IGNORE taxon_concept_names SET taxon_concept_id=$id1 WHERE taxon_concept_id=$id2");
         $mysqli->update("DELETE FROM taxon_concept_names WHERE taxon_concept_id=$id2");
