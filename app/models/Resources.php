@@ -540,6 +540,7 @@ class Resource extends ActiveRecord
             $this->debug_end("harvest_event->vet_objects");
           }
 
+          $this->update_hierarchy_entries_count();
           $this->mysqli->end_transaction();
           $this->debug_end("transaction");
 
@@ -772,7 +773,9 @@ class Resource extends ActiveRecord
     	debug("Setting status to harvest failed");
     	$harvest_failed_id = ResourceStatus::harvesting_failed()->id;
     	$this->resource_status_id = $harvest_failed_id;
-        $this->mysqli->update("UPDATE resources SET resource_status_id=". $harvest_failed_id ." WHERE id=$this->id");
+      $this->mysqli->update("UPDATE resources SET resource_status_id=". $harvest_failed_id ." WHERE id=$this->id");
+      //ensure that the hierarchy_entries_count is updated
+      $this->update_hierarchy_entries_count();
     }
 
     public function start_harvest()
@@ -877,6 +880,20 @@ class Resource extends ActiveRecord
 
       $this->debug_end("insert_hierarchy");
       return $hierarchy->id;
+    }
+
+    public function update_hierarchy_entries_count()
+    {
+      debug("update hierarchy_entries_count");
+       $this->mysqli->update("update hierarchies as h ".
+            "set hierarchy_entries_count  = ( ".
+              "select count(*) ".
+              "from hierarchy_entries as he ".
+              "where he.published = 1 and " .
+              "he.hierarchy_id = $this->hierarchy_id ".
+              "GROUP BY hierarchy_id ".
+            ") where id = $this->hierarchy_id");
+      
     }
 
     private function insert_dwc_hierarchy()

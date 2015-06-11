@@ -229,6 +229,13 @@ function shutdown_check()
     {
         fclose($GLOBALS['ENV_DEBUG_FILE_HANDLE']);
     }
+
+    //ensure to update the resource hierarchy_entries_count
+    if( isset($GLOBALS['currently_harvesting_resource_id'])  )
+    {
+        $resource= Resource::find($GLOBALS['currently_harvesting_resource_id']);
+        $resource->update_hierarchy_entries_count();
+    }
 }
 
 function load_fixtures($environment = "test")
