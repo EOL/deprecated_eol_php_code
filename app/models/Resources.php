@@ -417,9 +417,11 @@ class Resource extends ActiveRecord
     {
         $GLOBALS['currently_harvesting_resource_id'] = $this->id;
         // create resource_id.log
-        if(!($resource_harvesting_log = fopen ("log/" . $this->id . ".log", "w+")))
+        $filename = "log/" . $this->id . ".log";
+        if (file_exists($filename)) unlink($filename);
+        if(!($resource_harvesting_log = fopen ($filename , "w+")))
         {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " ."log/" . $this->id . ".log");
+          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: $filename ");
           return;
          }
         $this->debug_start(
