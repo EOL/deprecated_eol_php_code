@@ -9,7 +9,12 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 require_library('connectors/ObisAPI');
 $resource_id = 171;
-$taxa = ObisAPI::get_all_taxa($resource_id);
+
+$func = new ObisAPI();
+$func->get_all_taxa($resource_id);
+
+Functions::set_resource_status_to_force_harvest($resource_id);
+Functions::gzip_resource_xml($resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
