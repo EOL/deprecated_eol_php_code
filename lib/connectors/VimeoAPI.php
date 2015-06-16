@@ -54,13 +54,14 @@ class VimeoAPI
         }
         return $all_taxa;
     }
-    
+
     public static function vimeo_call_with_retry($vimeo, $command, $param)
     {
         $trials = 1;
         while($trials <= 5)
         {
-            if($return = $vimeo->call($command, $param)) return $return;
+            // if($obj = $vimeo->call($command, $param)) return $obj; => old version, without caching
+            if($obj = self::lookup_with_cache_vimeo_call($vimeo, $command, $param)) return $obj;
             else
             {
                 echo("\n Fail. Will try again in 30 seconds.");
@@ -72,6 +73,54 @@ class VimeoAPI
         return false;
     }
     
+    private function lookup_with_cache_vimeo_call($vimeo, $command, $param, $options = array())
+    {
+        // default expire time is 30 days
+        if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 2592000;
+        if(!isset($options['timeout']))        $options['timeout'] = 120;
+        if(!isset($options['cache_path'])) $options['cache_path'] = DOC_ROOT . "tmp/cache/";
+        // if(!isset($options['cache_path'])) $options['cache_path'] = "/Users/eli/eol_cache/";	//debug - only during development
+
+		$url = $command . implode("_", $param);
+        $md5 = md5($url);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        if(!file_exists($options['cache_path'] . $cache1)) mkdir($options['cache_path'] . $cache1);
+        if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
+        $cache_path = $options['cache_path'] . "$cache1/$cache2/$md5.cache";
+        if(file_exists($cache_path))
+        {
+            $file_contents = file_get_contents($cache_path);
+			$obj = json_decode($file_contents);
+			
+            if(($file_contents) || (strval($file_contents) == "0"))
+            {
+                $file_age_in_seconds = time() - filemtime($cache_path);
+                if($file_age_in_seconds < $options['expire_seconds']) return $obj;
+                if($options['expire_seconds'] === false) return $obj;
+            }
+            @unlink($cache_path);
+        }
+
+		if($obj = $vimeo->call($command, $param))
+        {
+			$file_contents = json_encode($obj);
+	        if($FILE = Functions::file_open($cache_path, 'w+')) // normal
+	        {
+	            fwrite($FILE, $file_contents);
+	            fclose($FILE);
+	        }
+	        else // can happen when cache_path is from external drive with corrupt dir/file
+	        {
+	            if(!($h = Functions::file_open(DOC_ROOT . "/public/tmp/cant_delete.txt", 'a'))) return;
+	            fwrite($h, $cache_path . "\n");
+	            fclose($h);
+	        }
+	        return $obj;
+		}
+		return false;
+    }
+
     function get_list_of_user_ids($vimeo)
     {
         //get the members of the group
