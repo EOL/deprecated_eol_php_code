@@ -31,7 +31,7 @@ class NCBIGGIqueryAPI
             $this->occurrence_ids = array();
             $this->measurement_ids = array();
         }
-        $this->download_options = array('expire_seconds' => 5184000, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1); //2 months to expire
+        $this->download_options = array('expire_seconds' => 5184000, 'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1); //2 months to expire
 		// $this->download_options['expire_seconds'] = false; //debug
         
         // local
@@ -97,14 +97,16 @@ class NCBIGGIqueryAPI
         */
         if($families = self::get_families_xlsx())
         {
+			/* working but not round-robin, rather each database is processed one after the other.
             foreach($this->ggi_databases as $database)
             {
                 self::create_instances_from_taxon_object($families, false, $database);
                 $this->families_with_no_data = array_keys($this->families_with_no_data);
                 if($this->families_with_no_data) self::create_instances_from_taxon_object($this->families_with_no_data, true, $database);
             }
-            
-            /* working, a round-robin option of server load - per 100 calls each server
+            */
+
+            // /* working, a round-robin option of server load - per 100 calls each server
             $k = 0;
             for ($i = $k; $i <= count($families)+100; $i=$i+100) //orig value of i is 0
             {
@@ -116,7 +118,7 @@ class NCBIGGIqueryAPI
                     if($this->families_with_no_data) self::create_instances_from_taxon_object($this->families_with_no_data, true, $database);
                 }
             }
-            */
+            // */
             
             self::compare_previuos_and_current_dumps();
             $this->create_archive();
