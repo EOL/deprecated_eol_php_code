@@ -75,9 +75,9 @@ class VimeoAPI
     
     private function lookup_with_cache_vimeo_call($vimeo, $command, $param, $options = array())
     {
-        // default expire time is 30 days
-        if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 2592000;
-        if(!isset($options['timeout']))        $options['timeout'] = 120;
+        // default expire time is 15 days
+        if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 1296000;
+        if(!isset($options['timeout']))        $options['timeout'] = 240;
         if(!isset($options['cache_path'])) $options['cache_path'] = DOC_ROOT . "tmp/cache/";
         // if(!isset($options['cache_path'])) $options['cache_path'] = "/Users/eli/eol_cache/";	//debug - only during development
 
@@ -353,7 +353,8 @@ class VimeoAPI
         if(!isset($sciname))
         {
             echo("\nThis needs checking...");
-            print_r($match); 
+            print_r($match);
+			$sciname = '';
         }
         return array("rank" => $smallest_rank, "name" => $sciname);
     }
