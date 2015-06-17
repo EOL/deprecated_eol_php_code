@@ -12,8 +12,8 @@ class WormsArchiveAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         $this->object_ids = array();
-        // $this->dwca_file = "http://localhost/~eolit/cp/WORMS/WoRMS2EoL.zip";                    //local
-        // $this->dwca_file = "http://localhost/~eolit/cp/WORMS/Archive.zip";                      //local subset copy
+        // $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";                    //local
+        // $this->dwca_file = "http://localhost/cp/WORMS/Archive.zip";                      //local subset copy
         // $this->dwca_file = "https://dl.dropboxusercontent.com/u/7597512/WORMS/WoRMS2EoL.zip";   //dropbox copy
         $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";             //WORMS online copy
         $this->occurrence_ids = array();
@@ -36,6 +36,7 @@ class WormsArchiveAPI
             return false;
         }
 
+        self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
         self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
         self::get_objects($harvester->process_row_type('http://eol.org/schema/media/Document'));
         self::get_references($harvester->process_row_type('http://rs.gbif.org/terms/1.0/Reference'));
@@ -74,6 +75,15 @@ class WormsArchiveAPI
         }
     }
 
+    private function build_taxa_rank_array($records)
+    {
+        foreach($records as $rec)
+		{
+            $taxon_id = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
+            $this->taxa_rank[$taxon_id] = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
+		}
+	}
+	
     private function create_instances_from_taxon_object($records)
     {
         foreach($records as $rec)
@@ -114,8 +124,13 @@ class WormsArchiveAPI
                 //not syn but has acceptedNameUsageID; seems possible, so just accept it
             }
 
-            if($taxon->taxonID == $taxon->acceptedNameUsageID) $taxon->acceptedNameUsageID = '';
+            if($taxon->taxonID == @$taxon->acceptedNameUsageID) $taxon->acceptedNameUsageID = '';
+            if($taxon->taxonID == @$taxon->parentNameUsageID)   $taxon->parentNameUsageID = '';
 
+			if($taxon->taxonomicStatus == "synonym") // this will prevent names to become synonyms of another where the ranks are different
+            {
+				if($taxon->taxonRank != @$this->taxa_rank[$taxon->acceptedNameUsageID]) continue;
+			}
             
             /* stats
             $this->debug[$taxon->taxonomicStatus] = '';
