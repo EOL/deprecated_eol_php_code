@@ -1,6 +1,7 @@
 <?php
 namespace php_active_record;
-/* This is a specific connector for the mineralogy spreadsheet where the worksheets were exported to tab-delimited text files (DATA-1619).
+/* This is a specific connector for the mineralogy spreadsheet where the worksheets were exported to tab-delimited text files using MS Spreadsheet for Mac (DATA-1619).
+execution time: 7 minutes
 
 					2015Jun4
 measurement_or_fact	986312
