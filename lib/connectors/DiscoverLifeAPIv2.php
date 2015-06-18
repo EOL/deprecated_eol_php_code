@@ -13,7 +13,7 @@ If no, then this name will be added to a text file that will be reported back to
 class DiscoverLifeAPIv2
 {
     const DL_MAP_SPECIES_LIST   = "http://www.discoverlife.org/export/species_map.txt";
-    // const DL_MAP_SPECIES_LIST   = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/DiscoverLife/species_map_small2.txt";
+    // const DL_MAP_SPECIES_LIST   = "http://localhost/eol_php_code/update_resources/connectors/files/DiscoverLife/species_map_small2.txt";
 
     // this is temporary until DL fixes their list
     // const DL_MAP_SPECIES_LIST   = "http://dl.dropbox.com/u/7597512/DiscoverLife/species_map 2012 06 26.txt";
@@ -33,18 +33,9 @@ class DiscoverLifeAPIv2
 
     public function initialize_text_files()
     {
-        if(!($f = fopen($this->WORK_LIST, "w")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->WORK_LIST);
-        } else { fclose($f); }
-        if(!($f = fopen($this->WORK_IN_PROGRESS_LIST, "w")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->WORK_IN_PROGRESS_LIST);
-        } else { fclose($f); }
-        if(!($f = fopen($this->INITIAL_PROCESS_STATUS, "w")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->INITIAL_PROCESS_STATUS);
-        } else { fclose($f); }
+        if(($f = Functions::file_open($this->WORK_LIST, "w"))) fclose($f);
+        if(($f = Functions::file_open($this->WORK_IN_PROGRESS_LIST, "w"))) fclose($f);
+        if(($f = Functions::file_open($this->INITIAL_PROCESS_STATUS, "w"))) fclose($f);
         //this is not needed but just to have a clean directory
         Functions::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
         Functions::delete_temp_files($this->TEMP_FILE_PATH . "temp_DiscoverLife_batch_", "xml");
@@ -115,11 +106,7 @@ class DiscoverLifeAPIv2
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $xml = str_replace("</dataObject>", "<additionalInformation><subtype>map</subtype></additionalInformation></dataObject>", $xml);
         $resource_path = $this->TEMP_FILE_PATH . "temp_DiscoverLife_" . $task . ".xml";
-        if(!($OUT = fopen($resource_path, "w")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $resource_path);
-          return;
-        } 
+        if(!($OUT = Functions::file_open($resource_path, "w"))) return;
         fwrite($OUT, $xml); 
         fclose($OUT);
 
@@ -257,11 +244,7 @@ class DiscoverLifeAPIv2
                     print"\n";
                     $file_ctr++;
                     $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
-                    if(!($OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w")))
-                    {
-                      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
-                      return;
-                    }
+                    if(!($OUT = Functions::file_open($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w"))) return;
                     fwrite($OUT, $str);
                     fclose($OUT);
                     $str = "";
@@ -275,11 +258,7 @@ class DiscoverLifeAPIv2
         {
             $file_ctr++;
             $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
-            if(!($OUT = fopen($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w")))
-            {
-              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt");
-              return;
-            }
+            if(!($OUT = Functions::file_open($this->TEMP_FILE_PATH . "batch_" . $file_ctr_str . ".txt", "w"))) return;
             fwrite($OUT, $str);
             fclose($OUT);
         }
@@ -287,7 +266,7 @@ class DiscoverLifeAPIv2
         $str = "";
         FOR($i = 1; $i <= $file_ctr; $i++) $str .= "batch_" . Functions::format_number_with_leading_zeros($i, 3) . "\n";
         $filename = $this->TEMP_FILE_PATH . "work_list.txt";
-        if($fp = fopen($filename, "w"))
+        if($fp = Functions::file_open($filename, "w"))
         {
             fwrite($fp, $str);
             fclose($fp);
@@ -296,11 +275,7 @@ class DiscoverLifeAPIv2
 
     private function initialize_text_file($filename)
     {
-        if(!($OUT = fopen($filename, "a")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
-          return;
-        }
+        if(!($OUT = Functions::file_open($filename, "a"))) return;
         fwrite($OUT, "===================" . "\n");
         fwrite($OUT, date("F j, Y, g:i:s a") . "\n");
         fclose($OUT);
@@ -309,7 +284,7 @@ class DiscoverLifeAPIv2
     private function store_name_to_text_file($name, $post_name)
     {
         /* This text file will be given to partner so they can fix their names */
-        if($fp = fopen($this->TEXT_FILE_FOR_DL, "a"))
+        if($fp = Functions::file_open($this->TEXT_FILE_FOR_DL, "a"))
         {
             fwrite($fp, $name. "\n");
             fclose($fp);
