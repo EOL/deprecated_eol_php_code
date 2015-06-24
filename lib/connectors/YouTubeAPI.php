@@ -45,6 +45,12 @@ define("DEVELOPER_KEY", "AI39si4JyuxT-aemiIm9JxeiFbr4F3hphhrhR1n3qPkvbCrrLRohUbB
 /* Google Developers project name: EOL Connectors
    Public API access: API key: AIzaSyCXt2WPrcQniaMomonEruEOi3EHYlGEi3U
 
+get subscriptions:
+https://www.googleapis.com/youtube/v3/subscriptions?channelId=UCECuihlM1FFpO2lONWqY8gA&part=snippet,id,subscriberSnippet&key=AIzaSyCXt2WPrcQniaMomonEruEOi3EHYlGEi3U
+
+get playlist_id using channel_id
+https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=UCECuihlM1FFpO2lONWqY8gA&key={YOUR_API_KEY}
+
 from username to videolist to video details
 https://www.googleapis.com/youtube/v3/channels?part=snippet,contentDetails,statistics,status&forUsername=EncyclopediaOfLife&key=AIzaSyCXt2WPrcQniaMomonEruEOi3EHYlGEi3U
 https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails,status&playlistId=UUECuihlM1FFpO2lONWqY8gA&key=AIzaSyCXt2WPrcQniaMomonEruEOi3EHYlGEi3U
@@ -61,8 +67,8 @@ class YouTubeAPI
 {
     function __construct()
     {
-        // cache expires after 2 weeks; download timeout is 4 minutes; download interval is 2 seconds
-        $this->download_options = array('expire_seconds' => 1209600, 'download_wait_time' => 2000000, 'timeout' => 240, 'download_attempts' => 2, 'delay_in_minutes' => 5);
+        // cache expires after 1 week; download timeout is 4 minutes; download interval is 2 seconds
+        $this->download_options = array('expire_seconds' => 604800, 'download_wait_time' => 2000000, 'timeout' => 240, 'download_attempts' => 2, 'delay_in_minutes' => 5);
         // $this->download_options['expire_seconds'] = false;
     }
     
@@ -70,7 +76,7 @@ class YouTubeAPI
     {
         $all_taxa = array();
         $used_collection_ids = array();
-        $usernames_of_subscribers = self::get_subscriber_usernames();
+        $usernames_of_subscribers = self::get_subscriber_usernames_for_v3();
         $user_video_ids = self::get_upload_videos_from_usernames($usernames_of_subscribers);
         $total_users = count($usernames_of_subscribers);
         $user_index = 0;
@@ -115,7 +121,7 @@ class YouTubeAPI
         return array($page_taxa, $used_collection_ids);
     }
 
-    public function build_data($video, $username)
+    public function build_data($video, $username) //username here is actually the channel_id
     {
         // $url = YOUTUBE_API  . '/videos/' . $video_id . '?v=3&alt=json';
         // $tries = 0;
@@ -151,7 +157,7 @@ class YouTubeAPI
                      "author"        => $video->snippet->channelTitle, //self::get_author_name($video->snippet->channelId),
                      "author_uri"    => '',
                      "author_detail" => '',
-                     "author_url"    => "http://www.youtube.com/user/" . $username,
+                     "author_url"    => "https://www.youtube.com/channel/" . $username,
                      "media_title"   => $video->snippet->title,
                      "description"   => str_replace("\r\n", "<br/>", trim($video->snippet->description)),
                      "thumbnail"     => $video->snippet->thumbnails->medium->url,
@@ -424,6 +430,43 @@ class YouTubeAPI
         return $data_object_parameters;
     }
 
+    private function get_subscriber_usernames_for_v3() //no more usernames in V3. this is getting 
+	{
+		/* We need to excluded a number of YouTube users because they have many videos and none of which is for EOL and each of those videos is checked by the connector. */
+		$exclude_this_channel = array('PRI Public Radio International');
+		
+		$eol_channel_id = 'UCECuihlM1FFpO2lONWqY8gA';
+        $max_results = 10;
+		$page_token = false;
+	    while(true)
+	    {
+			$url = YOUTUBE_API_V3 . "/subscriptions?part=snippet&channelId=" . $eol_channel_id . "&key=" . DEVELOPER_KEY . "&maxResults=$max_results";
+			if($page_token) $url .= "&pageToken=" . $page_token;
+	        if($raw_json = Functions::lookup_with_cache($url, $this->download_options))
+	        {
+				$json = json_decode($raw_json);
+				if($val = @$json->nextPageToken) $page_token = $val;
+				else                             $page_token = false;
+				
+				if($json->items)
+				{
+					foreach($json->items as $items)
+					{
+						if(in_array($items->snippet->title, $exclude_this_channel)) continue;
+						$user_channel_ids[$items->snippet->title] = $items->snippet->resourceId->channelId;
+						$channel_playlist_ids[$items->snippet->resourceId->channelId] = self::get_playlist_id_using_channel_id($items->snippet->resourceId->channelId);
+						
+					}
+				}else break;
+	        }else break;
+			if(!$page_token) break;
+	    }
+
+		// print_r($user_channel_ids);		echo "\ntotal: " . count($user_channel_ids);
+		// print_r($channel_playlist_ids);	echo "\ntotal: " . count($channel_playlist_ids);
+		return $channel_playlist_ids;
+	}
+	
     private function get_subscriber_usernames()
     {
 		// return array("sheshadriali" => self::get_playlist_id('sheshadriali')); //debug
@@ -440,8 +483,6 @@ class YouTubeAPI
         {	
             echo "\n Getting subscriptions...";
             $url = YOUTUBE_API . '/users/' . YOUTUBE_EOL_USER . '/subscriptions?v=2' . "&start-index=$start_index&max-results=$max_results";
-			$options = $this->download_options;
-			$options['expire_seconds'] = 0;
             if($xml = Functions::lookup_with_cache($url, $this->download_options))
             {
             	$xml = simplexml_load_string($xml);
@@ -460,10 +501,21 @@ class YouTubeAPI
             else break;
             // break; //debug
         }
-        
+		
         return $usernames_of_subscribers;
     }
 
+	private function get_playlist_id_using_channel_id($channel_id)
+	{
+		$url = YOUTUBE_API_V3 . "/channels?part=contentDetails&id=" . $channel_id . "&key=" . DEVELOPER_KEY;
+	    if($raw_json = Functions::lookup_with_cache($url, $this->download_options))
+		{
+	        $json = json_decode($raw_json);
+			if($val = @$json->items[0]->contentDetails->relatedPlaylists->uploads) return $val;
+			else return false; 
+		}
+	}
+	
 	private function get_playlist_id($username)
 	{
 		$url = YOUTUBE_API_V3 . "/channels?part=snippet,contentDetails,statistics,status&forUsername=" . $username . "&key=" . DEVELOPER_KEY;
