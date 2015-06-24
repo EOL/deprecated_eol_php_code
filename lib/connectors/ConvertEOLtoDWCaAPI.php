@@ -15,17 +15,30 @@ class ConvertEOLtoDWCaAPI
         $this->download_options = array('download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1);
     }
 
-    function export_xml_to_archive($params)
+    function export_xml_to_archive($params, $xml_file_YN = false)
     {
-        require_library('connectors/INBioAPI');
-        $func = new INBioAPI();
-        $paths = $func->extract_archive_file($params["eol_xml_file"], $params["filename"], array("timeout" => 7200));
-        // $paths["expire_seconds"] = false; // "expire_seconds" -- false => won't expire; 0 => expires now //debug
-        print_r($paths);
-        $params["path"] = $paths["temp_dir"];
-        self::convert_xml($params);
-        $this->archive_builder->finalize(TRUE);
-        recursive_rmdir($paths["temp_dir"]); // remove temp dir
+		if(!$xml_file_YN)
+		{
+	        require_library('connectors/INBioAPI');
+	        $func = new INBioAPI();
+	        $paths = $func->extract_archive_file($params["eol_xml_file"], $params["filename"], array("timeout" => 7200));
+	        // $paths["expire_seconds"] = false; // "expire_seconds" -- false => won't expire; 0 => expires now //debug
+	        print_r($paths);
+	        $params["path"] = $paths["temp_dir"];
+	        self::convert_xml($params);
+	        $this->archive_builder->finalize(TRUE);
+	        recursive_rmdir($paths["temp_dir"]); // remove temp dir
+	
+		}
+		else //is XML file
+		{
+			$params['path'] = DOC_ROOT . "tmp/";
+			$local_xml_file = Functions::save_remote_file_to_local($params['eol_xml_file'], array('file_extension' => "xml", 'cache' => 1, "timeout" => 7200, "download_attempts" => 2, "delay_in_minutes" => 2)); //debug - cache should be 0 zero in normal operation
+			$params['filename'] = pathinfo($local_xml_file, PATHINFO_BASENAME);
+	        self::convert_xml($params);
+	        $this->archive_builder->finalize(TRUE);
+	        unlink($local_xml_file);
+		}
     }
 
     private function convert_xml($params)
@@ -116,14 +129,29 @@ class ConvertEOLtoDWCaAPI
             $rec = array();
             foreach(array_keys((array) $o) as $field)
             {
-                if(in_array($field, array("agent"))) continue; //processed separately below
-                else                                 $rec[$field] = (string) $o->$field;
+                if(in_array($field, array("agent", "reference"))) continue; //processed separately below
+                else $rec[$field] = (string) $o->$field;
             }
             foreach(array_keys((array) $o_dc) as $field) $rec[$field] = (string) $o_dc->$field;
             foreach(array_keys((array) $o_dcterms) as $field)
             {
                 /* if(in_array($field, array("some_field"))) continue; //how to exclude fields, not in schema */
                 $rec[$field] = (string) $o_dcterms->$field;
+            }
+            
+			//for references in data_object
+			if($obj = @$o->reference)
+            {
+                if($references = self::process_reference($obj, $taxon_id, $params))
+                {
+                    $reference_ids = array();
+                    foreach($references as $reference)
+                    {
+                        self::create_archive($reference, "reference");
+                        $reference_ids[$reference["ref_identifier"]] = '';
+                    }
+                    $rec["referenceID"] = implode(";", array_keys($reference_ids));
+                }
             }
             
             //for agent
@@ -141,11 +169,15 @@ class ConvertEOLtoDWCaAPI
                 }
             }
 
+			/*
             if(in_array($params["dataset"], array("EOL China", "EOL XML")))
             {
                 if($val = $o_dc->identifier) $identifier = (string) $val;
-                else exit("\n -- find or create your own object identifier -- \n");
+                else echo("\n -- find or create your own object identifier -- \n");
             }
+			*/
+			if($val = $o_dc->identifier) $identifier = (string) $val;
+			else echo("\n -- find or create your own object identifier -- \n");				
             
             $rec["obj_identifier"] = $identifier;
             unset($rec["identifier"]);
@@ -174,12 +206,19 @@ class ConvertEOLtoDWCaAPI
         $records = array();
         foreach($objects as $o)
         {
+			$identifier = ''; $uri = '';
             if($params["dataset"] == "EOL China")
             {
                 $uri = (string) $o{"url"};
                 if(preg_match("/\{(.*?)\}/ims", $uri, $arr)) $identifier = $arr[1];
-                else exit("\n -- find or create your own identifier -- \n");
+                else echo("\n -- find or create your own identifier -- \n");
             }
+            elseif($params["dataset"] == "Pensoft XML files")
+			{
+				if($val = $o{'doi'}) $identifier = (string) $val;
+				if($val = $o{'uri'}) $uri = $val;
+			}
+			else echo "\nModule to create identifier and uri for this dataset has not yet been defined!\n";
             $records[] = array("full_reference" => (string) $o, "uri" => $uri, "ref_identifier" => $identifier);
         }
         // print_r($records);
@@ -227,6 +266,7 @@ class ConvertEOLtoDWCaAPI
             elseif($field == "created")         $tfield = "CreateDate";
             elseif($field == "subject")         $tfield = "CVterm";
             elseif($field == "agentID")         $tfield = "identifier";
+            elseif($field == "location")        $tfield = "LocationCreated";
             else                                $tfield = $field;
             $t->$tfield = $rec[$orig_field];
         }
