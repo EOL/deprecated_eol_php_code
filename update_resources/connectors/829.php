@@ -1,25 +1,22 @@
 <?php
 namespace php_active_record;
-/* This is a specific connector for the mineralogy spreadsheet where the worksheets were exported to tab-delimited text files using MS Spreadsheet for Mac (DATA-1619).
-execution time: 7 minutes
-
-					2015Jun4
-measurement_or_fact	986312
-occurrence		 	322805
-reference	 		64
-taxon				293068
+/* http://eol.org/content_partners/22/resources/829 - DATA-1622
+This is a generic script that will convert EOL XML to EOL DWC-A
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/EOLSpreadsheetTextToArchiveAPI');
+require_library('connectors/ConvertEOLtoDWCaAPI');
 $timestart = time_elapsed();
 
-$params['text_files_path'] = 'http://localhost/cp/SpreadsheetToArchive/mineralogy 2015/';
-$params['extensions'] = array('taxa', 'occurrences', 'measurements', 'references');
+$resource_id = 829;
+$params["eol_xml_file"] = "";
+$params["eol_xml_file"] = Functions::get_accesspoint_url_if_available($resource_id, "http://zookeys.pensoft.net/lib/eol_exports/ZK.xml");
+$params["filename"]     = "no need to mention here.xml";
+$params["dataset"]      = "Pensoft XML files";
+$params["resource_id"]  = $resource_id;
 
-$resource_id = 799;
-$func = new EOLSpreadsheetTextToArchiveAPI($resource_id);
-$func->convert_to_dwca($params);
+$func = new ConvertEOLtoDWCaAPI($resource_id);
+$func->export_xml_to_archive($params, true); // true => means it is an XML file, not an archive file nor a zip file
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
     if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))

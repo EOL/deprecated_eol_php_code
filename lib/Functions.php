@@ -341,8 +341,8 @@ class Functions
         for($i=1; $i<=7; $i++)
         {
             $urls = array();
-            // $urls[] = "http://localhost/~eolit/cp/TraitRequest/measurements/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
-            // $urls[] = "http://localhost/~eolit/cp/TraitRequest/values/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
+            // $urls[] = "http://localhost/cp/TraitRequest/measurements/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
+            // $urls[] = "http://localhost/cp/TraitRequest/values/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
             $urls[] = "https://dl.dropboxusercontent.com/u/7597512/TraitRequest/measurements/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
             $urls[] = "https://dl.dropboxusercontent.com/u/7597512/TraitRequest/values/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
             foreach($urls as $url)
@@ -718,6 +718,17 @@ class Functions
         return true;
     }
 
+	public static function get_accesspoint_url_if_available($resource_id, $backup_accesspoint_url)
+	{
+		/* this will use if partner submits an accesspoint_url, othwerwise will use a hard-coded version of it */
+        $mysqli =& $GLOBALS['mysqli_connection'];
+        $result = $mysqli->query("SELECT accesspoint_url FROM resources WHERE id=" . $resource_id);
+		$row = $result->fetch_row();
+		$new_resource_path = trim(@$row[0]);
+		if($backup_accesspoint_url != $new_resource_path && $new_resource_path) return $new_resource_path;
+		else return $backup_accesspoint_url;
+	}
+	
     public static function create_fixture($table)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];

@@ -10,6 +10,7 @@ class TraitRequestAPI
     function __construct()
     {
         $this->download_options = array("download_wait_time" => 2000000, "timeout" => 7200, "download_attempts" => 1, "delay_in_minutes" => 1);
+		// $this->download_options['expire_seconds'] = false;
         $this->spreadsheet_options = array("cache" => 0, "timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 1, 'delay_in_minutes' => 1); //we don't want to cache spreadsheet
         $this->url['api_search'] = "http://eol.org/api/search/1.0.json?page=1&exact=true&cache_ttl=&q=";
         $this->url['api_traits'] = "http://eol.org/api/traits/";
@@ -27,7 +28,9 @@ class TraitRequestAPI
         self::process_taxa($taxa, "process_taxa");
         self::delete_blank_text_files();
         // compress text files, delete temp dir
-        $command_line = "tar -czf " . DOC_ROOT . "/public/tmp/trait_request/" . $params["name"] . ".tar.gz --directory=" . $this->temp_dir . " .";
+		$trait_request_dir_path = DOC_ROOT . "/public/tmp/trait_request/";
+		if(!is_dir($trait_request_dir_path)) mkdir($trait_request_dir_path);
+        $command_line = "tar -czf " . $trait_request_dir_path . $params["name"] . ".tar.gz --directory=" . $this->temp_dir . " .";
         $output = shell_exec($command_line);
         recursive_rmdir($this->temp_dir);
     }

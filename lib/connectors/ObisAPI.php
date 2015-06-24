@@ -21,7 +21,7 @@ class ObisAPI
 
 		/* to use small dataset
 		$this->OBIS_DATA_FILE = DOC_ROOT . "/update_resources/connectors/files/OBIS/OBIS_data_small.csv";
-		// $this->OBIS_ANCESTRY_FILE = DOC_ROOT . "/update_resources/connectors/files/OBIS/tnames20100825_small.csv";
+		$this->OBIS_ANCESTRY_FILE = DOC_ROOT . "/update_resources/connectors/files/OBIS/tnames20100825_small.csv";
 		*/
 
 		$this->OBIS_RANK_FILE = DOC_ROOT . "/update_resources/connectors/files/OBIS/rank.xls";
