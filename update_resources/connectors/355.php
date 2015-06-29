@@ -4,9 +4,16 @@ namespace php_active_record;
 estimated execution time: 3 minutes (9 hours with synonyms)
 Connector scrapes the Avibase site.
 
-                    2015-05-10	05-28
-taxon.tab           27389		27400
-vernacular_name.tab 747213		747748
+                    2015-05-10	05-28	6-27
+taxon.tab           27389		27400	19542
+vernacular_name.tab 747213		747748	747748
+
+breakdown	 05-28	6-27
+[]        => 7931	 7931
+[synonym] => 19469	11611
+total	  =>		19542
+
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/AvibaseAPIv2');

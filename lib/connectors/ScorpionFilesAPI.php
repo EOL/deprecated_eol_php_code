@@ -16,6 +16,8 @@ class ScorpionFilesAPI
 		$families = self::get_families();
 		$taxa = self::get_species_list($families);
 		self::save_to_text_file($taxa);
+		self::get_scorpiones_text_objects();
+		self::parse_species_pages();
     }
 
 	private function get_families()
@@ -51,6 +53,7 @@ class ScorpionFilesAPI
 			echo "\n[$url]\n";
 			if($html = Functions::lookup_with_cache($url, $this->download_options))
 			{
+				self::get_all_hrefs($html);
 				$article = self::parse_text_object($html);
 				$authorship = self::get_family_authorship($family, $html);
 				$family = trim($family . " $authorship");
@@ -194,11 +197,216 @@ class ScorpionFilesAPI
 		fwrite($WRITE, "Family" . "\t" . "Article" ."\n");
         foreach($taxa as $family => $rekords)
         {
-			fwrite($WRITE, $family . "\t" . $rekords['text'] . "\n");
+			fwrite($WRITE, $family . "\t" . self::format_utf8($rekords['text']) . "\n");
         }
         fclose($WRITE);
 		self::convert_tab_to_xls($filename);
 
+	}
+	
+	public function get_scorpiones_text_objects() //specifically assigned two text objects
+	{
+		$filename = DOC_ROOT . "public/tmp/scorpion_order.txt";
+        $WRITE = fopen($filename, "w");
+		fwrite($WRITE, "Order" . "\t" . "Article" ."\n");
+		
+		$files = array($this->domain . "higher_phylogeny.php", $this->domain . "intro.php");
+		foreach($files as $file)
+		{
+			if($html = Functions::lookup_with_cache($file, $this->download_options))
+			{
+				$html = self::clean_html($html);
+				if(preg_match("/Higher taxonomy and phylogeny in scorpions(.*?)<TABLE/ims", $html, $arr))
+				{
+					$str = strip_tags($arr[1], "<font><p><em><a><br>");
+					if(substr($str, 0, 12) == '.</font></p>') $str = trim(substr($str, 12, strlen($str))); //remove extra chars in the beginning of text
+				}
+				elseif(preg_match("/WELCOME TO THE SCORPION FILES!(.*?)<A HREF=\"http:\/\/www.ntnu.no\">/ims", $html, $arr))
+				{
+					$str = strip_tags($arr[1], "<font><p><em><a><br>");
+					if(substr($str, 0, 7) == '</font>') $str = trim(substr($str, 7, strlen($str))); //remove extra chars in the beginning of text
+					$str = str_ireplace('<a href="higher_phylogeny.php">', '<a href="' . $this->domain . 'higher_phylogeny.php">', $str);
+				}
+			}			
+			fwrite($WRITE, 'Scorpiones' . "\t" . $str . "\n");
+		}
+		
+		fclose($WRITE);
+        self::convert_tab_to_xls($filename);
+	}
+	
+	public function get_all_hrefs($html)
+	{
+		if(!isset($this->all_hrefs)) $this->all_hrefs = array();
+		if(preg_match_all("/href=\"(.*?)\"/ims", $html, $arr))
+		{
+			$this->all_hrefs = array_merge($this->all_hrefs, $arr[1]);
+		}
+	}
+	
+	private function parse_species_pages()
+	{
+		//initialize text files
+		$headers['v1'] = array("Species", "Common names", "Distribution", "Habitat", "Venom", "Selected literature", "On the Internet", "General");
+		$fields = implode("\t", $headers['v1']);
+		$filename['v1'] = DOC_ROOT . "public/tmp/scorpion_species_pages_v1.txt";
+        $WRITE = fopen($filename['v1'], "w"); fwrite($WRITE, $fields . "\n"); fclose($WRITE);
+
+		$headers['v2'] = array("Species", "Subspecies", "Distribution", "Synonyms", "Habitat", "Medical", "Bibliography", "Comments");
+		$fields = implode("\t", $headers['v2']);
+		$filename['v2'] = DOC_ROOT . "public/tmp/scorpion_species_pages_v2.txt";
+        $WRITE = fopen($filename['v2'], "w"); fwrite($WRITE, $fields . "\n"); fclose($WRITE);
+		
+		
+		$final = array();
+		$urls = self::get_species_url_lists();
+		foreach($urls as $url)
+		{
+			echo "\n[$url] ";
+			if($html = Functions::lookup_with_cache($url, $this->download_options))
+			{
+				$html = str_ireplace('&nbsp;', ' ', $html);
+				$html = self::clean_html($html);
+				
+				//manual adjustment
+				$html = str_ireplace("<em>Liocheles</em> waigiensis<br>", "<em>Liocheles waigiensis</em><br>", $html);
+				$html = str_ireplace("<em>Vaejovis intermedius,</em><br>", "<em>Vaejovis intermedius</em>,<br>", $html);
+				
+				$html = str_ireplace('</FONT><FONT face=Arial size=3>', '</FONT> <FONT face=Arial size=3>', $html);
+				
+				if(preg_match("/<\/script>(.*?)<A HREF=\"http:\/\/www.ntnu.no\">/ims", $html, $arr))
+				{
+					$sciname = false;
+					if(preg_match("/<font size=\"5\" face=\"Arial\">(.*?)<\/p>/ims", $html, $arr)) 	$sciname = strip_tags($arr[1]);
+					elseif(preg_match("/<FONT face=Arial size=5>(.*?)<\/p>/ims", $html, $arr))		$sciname = strip_tags($arr[1]);
+					if($sciname)
+					{
+						$final = self::parse_text_objects_v1($html, $url);
+						$final['Species'] = $sciname;
+						self::save_species_pages_to_text($final, $headers['v1'], $filename['v1']);
+					}
+					else
+					{
+						// echo " - no sciname 1 ";
+						if(preg_match("/Name:<\/td>(.*?)<\/td>/ims", $html, $arr)) $sciname = strip_tags($arr[1]);
+						$final = self::parse_text_objects_v2($html, $url);
+						$final['Species'] = $sciname;
+						self::save_species_pages_to_text($final, $headers['v2'], $filename['v2']);
+					}
+				}
+				else
+				{
+					$sciname = false;
+					if(preg_match("/<font size=\"5\" face=\"Arial\">(.*?)<\/p>/ims", $html, $arr)) 	$sciname = strip_tags($arr[1]);
+					elseif(preg_match("/<FONT face=Arial size=5>(.*?)<\/p>/ims", $html, $arr))		$sciname = strip_tags($arr[1]);
+					if($sciname)
+					{
+						$final = self::parse_text_objects_v1($html, $url);
+						$final['Species'] = $sciname;
+						self::save_species_pages_to_text($final, $headers['v1'], $filename['v1']);						
+					}
+					else echo " - no sciname 2 ";
+				}
+				echo " - [$sciname]";
+			}
+		}
+		
+		//converting to spreadsheet
+		self::convert_tab_to_xls($filename['v1']);
+        self::convert_tab_to_xls($filename['v2']);
+        
+	}
+	
+	private function parse_text_objects_v2($html, $url) //2nd type of html e.g. http://www.ntnu.no/ub/scorpion-files/a_amoreuxi_bio.php
+	{
+		$texts = array();
+		if(preg_match("/Subspecies:<\/td>(.*?)<\/td>/ims", $html, $arr))	$texts['Subspecies'] = strip_tags($arr[1], "<em><br>");
+		if(preg_match("/Distribution:<\/td>(.*?)<\/td>/ims", $html, $arr)) 	$texts['Distribution'] = strip_tags($arr[1], "<em><br>");
+		if(preg_match("/Synonyms:<\/td>(.*?)<\/td>/ims", $html, $arr)) 		$texts['Synonyms'] = strip_tags($arr[1], "<em><br>");
+		if(preg_match("/Habitat:<\/td>(.*?)<\/td>/ims", $html, $arr)) 		$texts['Habitat'] = strip_tags($arr[1], "<em><br>");
+		if(preg_match("/Medical:<\/td>(.*?)<\/td>/ims", $html, $arr)) 		$texts['Medical'] = strip_tags($arr[1], "<em><br>");
+		if(preg_match("/Bibliography:<\/td>(.*?)<\/td>/ims", $html, $arr)) 	$texts['Bibliography'] = strip_tags($arr[1], "<em><br>");
+		if(preg_match("/Comments:<\/td>(.*?)<\/td>/ims", $html, $arr)) 		$texts['Comments'] = strip_tags($arr[1], "<em><br>");
+		$texts = array_map('self::format_utf8', $texts);
+		$texts = array_map('trim', $texts);
+		return $texts;
+	}
+	
+	private function parse_text_objects_v1($html, $url) //first type of html e.g. http://www.ntnu.no/ub/scorpion-files/c_bicolor.php
+	{
+		$html = strip_tags($html, "<p><i><a><em><br>");
+		
+		// if($url == "http://www.ntnu.no/ub/scorpion-files/h_lepturus.htm") echo("\n[$html]\n");
+			
+		//manual adjustment
+		$html = str_ireplace('On the Internet:</p><A HREF="i_politius3.jpg">Picture of <I>I. politus</I> in the gallery</A> (Photo: Boris Striffler (C))', 'On the Internet:<br><A HREF="i_politius3.jpg">Picture of <I>I. politus</I> in the gallery</A> (Photo: Boris Striffler (C))</p>', $html);
+		
+		$texts = array();
+		if(preg_match("/Common names:<br>(.*?)<\/p>/ims", $html, $arr)) 	 $texts['Common names'] = $arr[1];
+		elseif(preg_match("/Common names: <br>(.*?)<\/p>/ims", $html, $arr)) $texts['Common names'] = $arr[1];
+		
+		if(preg_match("/Distribution:<br>(.*?)<\/p>/ims", $html, $arr)) $texts['Distribution'] = $arr[1];
+		if(preg_match("/Habitat:<br>(.*?)<\/p>/ims", $html, $arr)) 		$texts['Habitat'] = $arr[1];
+		if(preg_match("/Venom:<br>(.*?)<\/p>/ims", $html, $arr)) 		$texts['Venom'] = $arr[1];
+		
+		if(preg_match("/Selected litterature:<br>(.*?)<\/p>/ims", $html, $arr)) 	$texts['Selected literature'] = $arr[1];
+		elseif(preg_match("/Selected literature:<br>(.*?)<\/p>/ims", $html, $arr)) 	$texts['Selected literature'] = $arr[1];
+
+		if(preg_match("/On the Internet:<br>(.*?)<P>/ims", $html, $arr)) 		$texts['On the Internet'] = $arr[1];		
+		elseif(preg_match("/On the Internet:<br>(.*?)<\/p>/ims", $html, $arr)) 	$texts['On the Internet'] = $arr[1];
+		
+		if(preg_match("/General:<br>(.*?)<\/p> <p></ims", $html, $arr)) 	$texts['General'] = $arr[1];				
+		elseif(preg_match("/General:<br>(.*?)<\/p> <p>/ims", $html, $arr)) 	$texts['General'] = $arr[1];		
+		elseif(preg_match("/General:<br>(.*?)<\/p><p>/ims", $html, $arr)) 	$texts['General'] = $arr[1];		
+		elseif(preg_match("/General:<br>(.*?)<\/p>/ims", $html, $arr)) 		$texts['General'] = $arr[1];
+		
+		return $texts;
+	}
+	
+	private function save_species_pages_to_text($rec, $headers, $filename)
+	{
+		$WRITE = fopen($filename, "a"); 
+		foreach($headers as $fld)
+		{
+			$val = trim($rec[$fld]);
+			$val = self::format_utf8($val);
+			if(strip_tags($val) == "") $val = '';
+			fwrite($WRITE, $val . "\t");
+		}
+		fwrite($WRITE, "\n"); 
+		fclose($WRITE);        
+	}
+	
+	private function get_species_url_lists()
+	{
+		$arr = $this->all_hrefs;
+		$arr = array_filter($arr); //remove null arrays
+        $arr = array_unique($arr); //make unique
+        $arr = array_values($arr); //reindex key
+
+		$final = array();
+		foreach($arr as $href)
+		{
+			$str = "http://www.ub.ntnu.no/scorpion-files/";
+			if(substr($href, 0, strlen($str)) == $str) $final[$href] = '';
+			if(substr($href, 1, 1) == "_") $final[$this->domain . $href] = '';
+		}
+        
+		//manual adjustment
+		unset($final["http://www.ub.ntnu.no/scorpion-files/medical.php"]);
+		unset($final["http://www.ub.ntnu.no/scorpion-files/euscorpius_id.php"]);
+		unset($final["http://www.ub.ntnu.no/scorpion-files/litterature.php"]);
+		unset($final["http://www.ub.ntnu.no/scorpion-files/e_carpathicus_habitat.htm"]);
+		unset($final["http://www.ub.ntnu.no/scorpion-files/e_flavicaudis_habitatuk.htm"]);
+		unset($final["http://www.ntnu.no/ub/scorpion-files/i_dufoureius_habitat_crete.php"]);
+		unset($final["http://www.ntnu.no/ub/scorpion-files/i_dufoureius_habitat.php"]);
+		unset($final["http://www.ub.ntnu.no/scorpion-files/higher_phylogeny.php"]);
+		unset($final["http://www.ntnu.no/ub/scorpion-files/a_crassicauda_kuwait.php"]);
+		unset($final["http://www.ntnu.no/ub/scorpion-files/l_quinquestriatus_info.pdf"]);
+		unset($final["http://www.ub.ntnu.no/scorpion-files/iuridae_updates.pdf"]);
+		
+		// print_r($final); echo "\n" . count($final) . "\n";
+		return array_keys($final);
 	}
 
     public function convert_tab_to_xls($source)
@@ -219,6 +427,8 @@ class ScorpionFilesAPI
         $objPHPExcel = $objReader->load($inputFileName);
         $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
         $objWriter->save($outputFileName);
+
+		unlink($inputFileName); //if you want to delete the .txt files, and leave only the .xls files
     }
 
 	private function clean_html($html)

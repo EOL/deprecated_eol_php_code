@@ -9,7 +9,7 @@ require_library('connectors/TraitRequestAPI');
 $func = new TraitRequestAPI();
 
 $params['name'] = "WEB-5987";
-$params['spreadsheet'] = "http://localhost/~eolit/cp/TraitRequest/WEB-5987/Tree list EOL TraitBank.xlsx";
+$params['spreadsheet'] = "http://localhost/cp/TraitRequest/WEB-5987/Tree list EOL TraitBank.xlsx";
 $params['spreadsheet'] = "https://dl.dropboxusercontent.com/u/7597512/TraitRequest/WEB-5987/Tree list EOL TraitBank.xlsx";
 $func->generate_traits_for_taxa($params);
 $elapsed_time_sec = time_elapsed() - $timestart;

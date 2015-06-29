@@ -145,6 +145,7 @@ class AvibaseAPIv2
                 if(!Functions::is_utf8($comname)) continue;
                 if($name['lang'] == "Latin") // these will be synonyms
                 {
+					if($t->scientificName == $comname) continue;
                     $synonym = new \eol_schema\Taxon();
                     $synonym->taxonID               = strtolower(str_ireplace(" ", "_", $comname));
                     $synonym->scientificName        = $comname;
