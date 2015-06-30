@@ -181,7 +181,11 @@ class ClementsAPIv2
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
-        $this->archive_builder->write_object_to_file($o);
+		if(!isset($this->occurrence_ids[$occurrence_id]))
+		{
+			$this->occurrence_ids[$occurrence_id] = '';
+	        $this->archive_builder->write_object_to_file($o);
+		}
         return $o;
     }
 

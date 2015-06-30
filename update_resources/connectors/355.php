@@ -6,7 +6,7 @@ Connector scrapes the Avibase site.
 
                     2015-05-10	05-28	6-27
 taxon.tab           27389		27400	19542
-vernacular_name.tab 747213		747748	747748
+vernacular_name.tab 747213		747748	747745
 
 breakdown	 05-28	6-27
 []        => 7931	 7931
