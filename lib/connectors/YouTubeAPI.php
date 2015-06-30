@@ -452,7 +452,11 @@ class YouTubeAPI
 				{
 					foreach($json->items as $items)
 					{
-						if(in_array($items->snippet->title, $exclude_this_channel)) continue;
+						if(in_array($items->snippet->title, $exclude_this_channel))
+						{
+							echo "\nexcluded: " . $items->snippet->title . "\n";
+							continue;
+						}
 						$user_channel_ids[$items->snippet->title] = $items->snippet->resourceId->channelId;
 						$channel_playlist_ids[$items->snippet->resourceId->channelId] = self::get_playlist_id_using_channel_id($items->snippet->resourceId->channelId);
 						

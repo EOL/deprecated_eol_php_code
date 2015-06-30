@@ -142,7 +142,8 @@ class AvibaseAPIv2
             if(!@$name['comnames']) continue; // e.g. http://avibase.bsc-eoc.org/species.jsp?avibaseid=483A2A51F4A5E37E -- see Malayalam
             foreach(@$name['comnames'] as $comname)
             {
-                if(!Functions::is_utf8($comname)) continue;
+				if(!($comname = trim($comname))) continue;
+                if(!Functions::is_utf8($comname)) $comname = utf8_encode($comname);
                 if($name['lang'] == "Latin") // these will be synonyms
                 {
 					if($t->scientificName == $comname) continue;

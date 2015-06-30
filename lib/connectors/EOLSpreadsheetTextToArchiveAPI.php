@@ -125,8 +125,10 @@ class EOLSpreadsheetTextToArchiveAPI
 	private function clean_string($str)
 	{
 		$str = trim($str);
-		if(substr($str, 0, 1) == '"' && substr($str, -1) == '"') return substr($str, 1, strlen($str)-2);
-		return $str;
+		if(substr($str, 0, 1) == '"' && substr($str, -1) == '"') $str = substr($str, 1, strlen($str)-2);
+		
+		if(!Functions::is_utf8($str)) $str = utf8_encode($str);
+		return trim($str);
 	}
 
 }
