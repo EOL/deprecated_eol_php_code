@@ -76,7 +76,7 @@ class VimeoAPI
     private function lookup_with_cache_vimeo_call($vimeo, $command, $param, $options = array())
     {
         // default expire time is 15 days
-        if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 1296000;
+        if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 1296000; //debug orig value = 1296000
         if(!isset($options['timeout']))        $options['timeout'] = 240;
         if(!isset($options['cache_path'])) $options['cache_path'] = DOC_ROOT . "tmp/cache/";
         // if(!isset($options['cache_path'])) $options['cache_path'] = "/Users/eli/eol_cache/";	//debug - only during development
@@ -91,6 +91,7 @@ class VimeoAPI
         if(file_exists($cache_path))
         {
             $file_contents = file_get_contents($cache_path);
+			if(!Functions::is_utf8($file_contents)) $file_contents = utf8_encode($file_contents);
 			$obj = json_decode($file_contents);
 			
             if(($file_contents) || (strval($file_contents) == "0"))
@@ -227,7 +228,13 @@ class VimeoAPI
         else
         {
             if($license = $rec->license) $license = self::get_cc_license($license);
-            else $license = self::get_license_from_page($rec->urls->url{0}->{"_content"}); //license from Vimeo license settings - scraped from the video page
+            else
+			{
+				/* working but commented since it is too heavy with all those extra page loads, the total no. didn't actually change so this step can be excluded
+				$license = self::get_license_from_page($rec->urls->url{0}->{"_content"}); //license from Vimeo license settings - scraped from the video page
+				*/
+				$license = false;
+			}
         }
 
         //has to have a valid license
@@ -468,7 +475,7 @@ class VimeoAPI
 
     function get_license_from_page($video_page_url)
     {
-        $html = Functions::lookup_with_cache($video_page_url, array('expire_seconds' => 1296000)); // 15 days until cache expires
+        $html = Functions::lookup_with_cache($video_page_url, array('expire_seconds' => 1296000)); // 15 days until cache expires //debug orig value = 1296000
         if(preg_match("/<a href=\"http:\/\/creativecommons.org\/licenses\/(.*?)\//ims", $html, $matches)) return self::get_cc_license("cc-" . trim($matches[1]));
         return false;
     }
