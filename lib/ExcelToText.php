@@ -7,12 +7,12 @@ class ExcelToText
     public static $row_delimiter = "\n";
     public static $field_delimeter = "\t";
     public static $field_enclosure = "";
-    
+
     private $path_to_spreadsheet;
     private $path_to_specified_output_path;
     private $errors;
     private $spreadsheet_reader;
-    
+
     public function __construct($path_to_spreadsheet, $path_to_specified_output_path = null)
     {
         $this->path_to_spreadsheet = $path_to_spreadsheet;
@@ -26,7 +26,7 @@ class ExcelToText
             $this->errors[] = "Unable to read Excel file";
         }
     }
-    
+
     public function reset_errors()
     {
         $this->errors = array();
@@ -36,7 +36,7 @@ class ExcelToText
     {
         return $this->errors;
     }
-    
+
     public function output_directory()
     {
         if($this->path_to_specified_output_path)
@@ -51,14 +51,14 @@ class ExcelToText
         }
         return create_temp_dir('dwca');
     }
-    
+
     public function output_file()
     {
         if($this->path_to_specified_output_path) return $this->path_to_specified_output_path;
         return temp_filepath(true, 'xml');
     }
-    
-    
+
+
     public function is_new_schema_spreadsheet()
     {
         // previous problems reading spreadsheet
@@ -68,7 +68,7 @@ class ExcelToText
         if($this->errors) return false;
         return true;
     }
-    
+
     public function is_old_schema_spreadsheet()
     {
         // previous problems reading spreadsheet
@@ -77,13 +77,13 @@ class ExcelToText
         if($this->errors) return false;
         return true;
     }
-    
-    
+
+
     public function has_proper_new_schema_worksheets()
     {
         // previous problems reading spreadsheet
         if($this->errors || @!$this->spreadsheet_reader) return false;
-        
+
         $sheet_names = $this->spreadsheet_reader->getSheetNames();
         foreach($sheet_names as &$name) $name = trim(strtolower($name));
         if(!in_array('media', $sheet_names)) $this->errors[] = "Missing `media` worksheet";
@@ -92,47 +92,47 @@ class ExcelToText
         if(!in_array('references', $sheet_names)) $this->errors[] = "Missing `references` worksheet";
         if(!in_array('agents', $sheet_names)) $this->errors[] = "Missing `agents` worksheet";
         if(!in_array('controlled terms', $sheet_names)) $this->errors[] = "Missing `controlled terms` worksheet";
-        
+
         // new problems - missing expected worksheets
         if($this->errors) return false;
         return true;
     }
-    
+
     public function has_proper_new_schema_control_rows()
     {
         // previous problems reading spreadsheet
         if($this->errors || @!$this->spreadsheet_reader) return false;
-        
+
         $controlled_fields = self::read_controlled_fields_from_spreadsheet($this->spreadsheet_reader);
         if(@$controlled_fields['media'][0]['label'] != 'MediaID') $this->errors[] = "Problem reading structure of spreadsheet [media : label]";
         if(@$controlled_fields['media'][0]['uri'] != 'http://purl.org/dc/terms/identifier') $this->errors[] = "Problem reading structure of spreadsheet [media : uri]";
-        
+
         if(@$controlled_fields['taxa'][0]['label'] != 'Identifier') $this->errors[] = "Problem reading structure of spreadsheet [taxa : label]";
         if(@$controlled_fields['taxa'][0]['uri'] != 'http://rs.tdwg.org/dwc/terms/taxonID') $this->errors[] = "Problem reading structure of spreadsheet [taxa : uri]";
-        
+
         if(@$controlled_fields['common names'][0]['label'] != 'TaxonID') $this->errors[] = "Problem reading structure of spreadsheet [common names : label]";
         if(@$controlled_fields['common names'][0]['uri'] != 'http://rs.tdwg.org/dwc/terms/taxonID') $this->errors[] = "Problem reading structure of spreadsheet [common names : uri]";
-        
+
         if(@$controlled_fields['references'][0]['label'] != 'ReferenceID') $this->errors[] = "Problem reading structure of spreadsheet [references : label]";
         if(@$controlled_fields['references'][0]['uri'] != 'http://purl.org/dc/terms/identifier') $this->errors[] = "Problem reading structure of spreadsheet [references : uri]";
-        
+
         if(@$controlled_fields['agents'][0]['label'] != 'AgentID') $this->errors[] = "Problem reading structure of spreadsheet [agents : label]";
         if(@$controlled_fields['agents'][0]['uri'] != 'http://purl.org/dc/terms/identifier') $this->errors[] = "Problem reading structure of spreadsheet [agents : uri]";
-        
+
         if(@$controlled_fields['controlled terms'][0]['label'] != 'Agent Roles') $this->errors[] = "Problem reading structure of spreadsheet [controlled_terms : label]";
         # not really a URI here, but its in the place the URI is for other sheets
         if(@$controlled_fields['controlled terms'][0]['uri'] != 'Animator') $this->errors[] = "Problem reading structure of spreadsheet [controlled_terms : values]";
-        
+
         // new problems - missing expected worksheets
         if($this->errors) return false;
         return true;
     }
-    
+
     public function has_proper_old_schema_worksheets()
     {
         // previous problems reading spreadsheet
         if($this->errors || @!$this->spreadsheet_reader) return false;
-        
+
         $sheet_names = $this->spreadsheet_reader->getSheetNames();
         foreach($sheet_names as &$name) $name = trim(strtolower($name));
         if(!in_array('contributors', $sheet_names)) $this->errors[] = "Missing `Contributors` worksheet";
@@ -143,12 +143,12 @@ class ExcelToText
         if(!in_array('taxon information', $sheet_names)) $this->errors[] = "Missing `Taxon Information` worksheet";
         if(!in_array('more common names (optional)', $sheet_names)) $this->errors[] = "Missing `More common names (optional)` worksheet";
         if(!in_array('synonyms', $sheet_names)) $this->errors[] = "Missing `Synonyms` worksheet";
-        
+
         // new problems - missing expected worksheets
         if($this->errors) return false;
         return true;
     }
-    
+
     /*
         Returns the path to the directory that is the archive
     */
@@ -157,11 +157,11 @@ class ExcelToText
         // previous problems reading spreadsheet
         if($this->errors || @!$this->spreadsheet_reader) return false;
         if(!$this->is_new_schema_spreadsheet()) return false;
-        
+
         $archive_temp_directory_path = $this->output_directory();
         // fail if for some reason there is no valid output directory
         if($archive_temp_directory_path === null) return false;
-        
+
         $sheet_names = $this->spreadsheet_reader->getSheetNames();
         $worksheet_fields = array();
         // loop through all the worksheets in the file
@@ -174,7 +174,7 @@ class ExcelToText
             $highest_column = $worksheet_reader->getHighestColumn(); // e.g 'F'
             $highest_column_index = \PHPExcel_Cell::columnIndexFromString($highest_column);
             $number_of_columns = ord($highest_column) - 64;
-            
+
             if(!($OUTFILE = fopen($archive_temp_directory_path ."/$sheet_name.txt", "w+")))
             {
               debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$archive_temp_directory_path ."/$sheet_name.txt");
@@ -221,7 +221,7 @@ class ExcelToText
                     elseif($row_index == 8) $worksheet_fields[$sheet_name][$column_index]['comment'] = $value;
                     elseif($row_index == 9) $worksheet_fields[$sheet_name][$column_index]['example'] = $value;
                 }
-                
+
                 if($values)
                 {
                     $all_empty_values = true;
@@ -244,7 +244,7 @@ class ExcelToText
             }
             fclose($OUTFILE);
         }
-        
+
         if(!($META = fopen($archive_temp_directory_path ."/meta.xml", "w+")))
         {
           debug(__CLASS__ .":". __LINE__ .": Couldn't open file: ".$archive_temp_directory_path ."/meta.xml");
@@ -252,17 +252,18 @@ class ExcelToText
         }
         fwrite($META, self::meta_xml_from_worksheets($worksheet_fields));
         fclose($META);
-        
+
         $info = pathinfo($archive_temp_directory_path);
         $temporary_tarball_path = temp_filepath();
         $final_tarball_path = $archive_temp_directory_path .".tar.gz";
         shell_exec("tar -czf $temporary_tarball_path --directory=". $info['dirname'] ."/". $info['basename'] ." .");
         @unlink($new_tarball_path);
-        rename($temporary_tarball_path, $final_tarball_path);
-        
+        if(copy($temporary_tarball_path, $final_tarball_path))
+          unlink($temporary_tarball_path);
+
         return $archive_temp_directory_path;
     }
-    
+
     /*
         Returns a string containing XML representing the contents of the spreadsheet
     */
@@ -271,7 +272,7 @@ class ExcelToText
         require_library('XLSParser');
         $parser = new XLSParser();
         $xml = $parser->create_eol_xml($this->path_to_spreadsheet);
-        
+
         $output_file = $this->output_file();
         if(!($OUT = fopen($output_file, "w+")))
         {
@@ -282,7 +283,7 @@ class ExcelToText
         fclose($OUT);
         return $output_file;
     }
-    
+
     private static function fix_spreadsheet_shorthand($worksheet_name, $uri, $value)
     {
         if($worksheet_name == 'media' && strtolower($uri) == 'http://purl.org/dc/terms/type')
@@ -314,7 +315,7 @@ class ExcelToText
         }
         return $value;
     }
-    
+
     private static function meta_xml_from_worksheets($worksheet_fields)
     {
         $table_xmls = array();
@@ -345,7 +346,7 @@ class ExcelToText
             $table_xml .= ' rowType="'. $row_type .'"';
             $table_xml .= ">\n";
             $table_xml .= "    <files><location>$worksheet_name.txt</location></files>\n";
-            
+
             $table_fields = array();
             foreach($fields as $field_index => $field_metadata)
             {
@@ -356,17 +357,17 @@ class ExcelToText
             }
             $table_xml .= implode("\n", $table_fields);
             $table_xml .= "\n  </table>";
-            
+
             $table_xmls[] = $table_xml;
         }
-        
+
         $meta_xml = "<?xml version=\"1.0\"?>\n";
         $meta_xml .= "<archive xmlns=\"http://rs.tdwg.org/dwc/text/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://rs.tdwg.org/dwc/text/  http://services.eol.org/schema/dwca/tdwg_dwc_text.xsd\">\n";
         $meta_xml .= implode("\n", $table_xmls);
         $meta_xml .= "\n</archive>";
         return $meta_xml;
     }
-    
+
     public static function read_controlled_fields_from_spreadsheet($spreadsheet_reader)
     {
         $worksheet_fields = array();
@@ -409,7 +410,7 @@ class ExcelToText
         }
         return $worksheet_fields;
     }
-    
+
     private static function prepare_reader($path_to_spreadsheet)
     {
         $info = pathinfo($path_to_spreadsheet);
@@ -419,13 +420,13 @@ class ExcelToText
         elseif($extension == "xlsx") $excel_reader = \PHPExcel_IOFactory::createReader('Excel2007');
         elseif($extension == "zip") $excel_reader = \PHPExcel_IOFactory::createReader('Excel2007');
         elseif($extension == "csv") $excel_reader = new \PHPExcel_Reader_CSV();
-        
+
         if(!$excel_reader->canRead($path_to_spreadsheet)) throw new \Exception('Cannot read this file');
         if($extension != "csv") $excel_reader->setReadDataOnly(true);
         $objPHPExcel = $excel_reader->load($path_to_spreadsheet);
         return $objPHPExcel;
     }
-    
+
     private static function prepare_value($value)
     {
         if(self::$row_delimiter)
@@ -442,7 +443,7 @@ class ExcelToText
         }
         return $value;
     }
-    
+
     private static function escape($str)
     {
         $str = $GLOBALS['db_connection']->real_escape_string($str);

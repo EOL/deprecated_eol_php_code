@@ -32,14 +32,14 @@ class ContentManager
 
     function grab_file($file, $type, $options = array())
     {
-        
+
         $permanent_prefix = $this->permanent_file_prefix($type, $options);
         if(empty($permanent_prefix)) return false;
-        
+
         $extension = strtolower(trim(pathinfo($file, PATHINFO_EXTENSION)));
         //Try hard linking to a local version of the file if it exists, to save space (especially relevant for cropping images)
         //Note that the PHP docs wrongly claim that link() requires extra privileges on Windows.
-        //But is *is* true that we can't hard link to directories, so check this via is_file(). 
+        //But is *is* true that we can't hard link to directories, so check this via is_file().
         //Don't link to archive files, but force download them again, so that they are unpacked in the correct manner.
         if (self::is_local($file) && is_file($file) && !in_array($extension, array('gz', 'gzip', 'zip', 'tar'), true)) {
             //hack required because we don't have the originally downloaded file extension, so simply give the new version the same extension as the old one
@@ -54,7 +54,7 @@ class ContentManager
                 }
             }
         }
-        
+
         //If we couldn't hard link, download the file from scratch
         if (!isset($cache_file_path))
         {
@@ -66,9 +66,8 @@ class ContentManager
             if ($suffix = strtolower(trim(pathinfo($temp_file_path, PATHINFO_EXTENSION))))
             {
                 $cache_file_path = $permanent_file_path = $permanent_prefix . "." . $suffix;
-                // **** Perhaps the two following lines should be simply a "rename"?
-                copy($temp_file_path, $permanent_file_path);
-                if(file_exists($temp_file_path)) unlink($temp_file_path);
+                if(copy($temp_file_path, $permanent_file_path))
+                  unlink($temp_file_path);
             } else {
                 //no suffix
                 if ($type !== 'resource') {
@@ -78,8 +77,10 @@ class ContentManager
                 $cache_file_path = $permanent_file_path = $permanent_prefix;
                 // first delete the archive directory that currently exists
                 recursive_rmdir($permanent_file_path);
-                // move the temp, uncompressed directory to its new home with the resources
-                rename($temp_file_path, $permanent_file_path);
+                // move the temp, uncompressed directory to its new home with
+                // the resources
+                if(copy($temp_file_path, $permanent_file_path))
+                  unlink($temp_file_path);
             }
 
             // fail if for some reason there is still no file at the new path
@@ -90,7 +91,7 @@ class ContentManager
                 return false;
             }
         }
-        
+
         // create thumbnails of website content and agent logos
         if    ($type==="image")   $this->create_local_files_and_thumbnails($cache_file_path, $permanent_prefix, $options);
         elseif($type==="audio")   $this->create_audio_thumbnails($cache_file_path, $permanent_prefix, $options);
@@ -212,7 +213,8 @@ class ContentManager
             {
                 $new_temp_file_path = CONTENT_TEMP_PREFIX . $unique_key . "." . $new_suffix;
                 // copy temporary file from $PATH.file to $PATH.tar.gz for example
-                rename($temp_file_path, $new_temp_file_path);
+                if(copy($temp_file_path, $new_temp_file_path))
+                  unlink($temp_file_path);
 
                 // fail if for some reason there is still no file at the new path
                 if(!file_exists($new_temp_file_path))
@@ -271,9 +273,11 @@ class ContentManager
         }
         if(is_dir($only_file))
         {
-            rename($only_file, $directory_path."_swap");
+            if(copy($only_file, $directory_path . "_swap"))
+              unlink($only_file);
             rmdir($directory_path);
-            rename($directory_path."_swap", $directory_path);
+            if(copy($directory_path . "_swap", $directory_path))
+              unlink($directory_path . "_swap");
         }
     }
 
@@ -422,7 +426,7 @@ class ContentManager
         $fullsize_jpg = $this->reduced_original($original_file, $prefix, $options);
         if(!file_exists($fullsize_jpg)) {
         	write_to_resource_harvesting_log("ContentManager: Unable to create jpg file from downloaded file $original_file");
-            trigger_error("ContentManager: Unable to create jpg file from downloaded file $original_file.", E_USER_NOTICE);            
+            trigger_error("ContentManager: Unable to create jpg file from downloaded file $original_file.", E_USER_NOTICE);
             return false;
         }
         //get the size from the jpg version, which is properly orientated
@@ -439,7 +443,7 @@ class ContentManager
         {
             $large_image_dimensions = $options['large_image_dimensions'];
         } else $large_image_dimensions = ContentManager::large_image_dimensions();
-        
+
         //create smaller versions, or hard-link to them if $fullsize_jpg is a previously existing file
         $large_jpg = $this->create_smaller_version($fullsize_jpg, $large_image_dimensions, $prefix, implode(ContentManager::large_image_dimensions(), '_'));
         //use large (not fullsize) jpg to create the medium & small versions, to save processing potentially enormous _orig.jpg files.
@@ -524,7 +528,7 @@ class ContentManager
     function save_image_size_data($data_object_id, $width, $height, $crop_percentages=NULL)
     {
         if (!empty($width) and !empty($height) and isset($data_object_id)) {
-            // **** do we also want to store rotation information in the DB? 
+            // **** do we also want to store rotation information in the DB?
             //This might require getting it from ImageMagick (http://www.imagemagick.org/discourse-server/viewtopic.php?f=1&t=26568)
             $sql = sprintf("SET width=%u,height=%u", $width, $height);
             if (count($crop_percentages) >= 4)
@@ -542,7 +546,7 @@ class ContentManager
 
     function hard_link_to_existing($old_prefix, $new_prefix, $suffix)
     {
-        // If the $old_prefix does not match $new_prefix, look for a previously cached file with the old 
+        // If the $old_prefix does not match $new_prefix, look for a previously cached file with the old
         // prefix and the suffix. If it exists, create a link from $old_prefix.$suffix to $new_prefix.$suffix.
         $new_file = $new_prefix.$suffix;
         if ($old_prefix != $new_prefix) {
@@ -568,7 +572,7 @@ class ContentManager
         $suffix = "_orig.jpg";
         $src_prefix = self::cache_prefix($src_image);
         if ($link = $this->hard_link_to_existing($src_prefix, $prefix, $suffix)) return $link;
-        
+
         $new_image_path = $prefix.$suffix;
         $rotate = "-auto-orient";
         if(isset($options['rotation'])) $rotate = "-rotate " . intval($options['rotation']);
@@ -603,11 +607,11 @@ class ContentManager
             $command .= ' -gravity NorthWest -crop ' . escapeshellarg($crop_pixels[2] . 'x' . $crop_pixels[3] . '+' . $crop_pixels[0] . '+' . $crop_pixels[1]);
             $command .= ' +repage -resize ' . escapeshellarg($dimensions[0] . 'x' . $dimensions[1] . '!');
         } else {
-            // default command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill 
+            // default command just makes the image square by cropping the edges: see http://www.imagemagick.org/Usage/resize/#fill
             $command .= ' -resize ' . escapeshellarg($dimensions[0] . 'x' . $dimensions[1] . '^') . ' -gravity NorthWest';
             $command .= ' -crop ' . escapeshellarg($dimensions[0] . 'x' . $dimensions[1] . '+0+0') . ' +repage';
         }
-        
+
         $new_image_path = $prefix . '_' . $dimensions[0] . '_' . $dimensions[1] . '.jpg';
         shell_exec($command . ' ' . escapeshellarg($new_image_path));
         self::create_checksum($new_image_path);
@@ -627,7 +631,7 @@ class ContentManager
     function create_audio_thumbnails($audiofile, $prefix, $options = array())
     {
         /* Some audio, video, etc files may have thumbnails created from the harvesting site (code in DataObjects.php).
-        This could be a picture, a spectrogram, or whatever. Here we create a default thumbnail set for audio files. 
+        This could be a picture, a spectrogram, or whatever. Here we create a default thumbnail set for audio files.
         Those that already have a thumbnail will thus have 2 potential sets of thumbnails. The "default" ones created
          here are guaranteed to have the same prefix as the audio (.wav, .mp3 etc) file, but are .png files */
 
@@ -637,7 +641,7 @@ class ContentManager
         $dimensions = array($pixels_per_second) + self::large_image_dimensions(); //overwrite $dimension[0] (width)
         $this->create_spectrogram($audiofile, $dimensions, $prefix, $truncate_after_seconds, true, "orig", false);
 
-        //Fixed width spectrogram thumbnails, omit axes for smaller sizes 
+        //Fixed width spectrogram thumbnails, omit axes for smaller sizes
         $truncate_after_seconds = 30;
         $this->create_spectrogram($audiofile, self::large_image_dimensions(), $prefix, $truncate_after_seconds, true);
         $this->create_spectrogram($audiofile, self::medium_image_dimensions(), $prefix, $truncate_after_seconds, true);
@@ -666,10 +670,10 @@ class ContentManager
             } else {
                 $sox_options .= " -r";
             }
-            
+
             if ($fixed_width)
             {
-                //SoX only accepts x > 100px: if less, make a larger image and post-process to resize it down. 
+                //SoX only accepts x > 100px: if less, make a larger image and post-process to resize it down.
                 if ($x < 100)
                 {
                     $x = 100;
@@ -767,7 +771,7 @@ class ContentManager
         //convert 15 digit numeric $object_cache_url (e.g. 200905192385866) to path form (e.g. 2009/05/19/23/85866)
         return substr($object_cache_num, 0, 4)."/".substr($object_cache_num, 4, 2)."/".substr($object_cache_num, 6, 2)."/".substr($object_cache_num, 8, 2)."/".substr($object_cache_num, 10, 5);
     }
-    
+
     public static function cache_path2num($path)
     {
         //return the last 15 digits to store in the $object_cache_url field
@@ -804,11 +808,11 @@ class ContentManager
             }
             $image_options = array('data_object_id' => $data_object->id, 'data_object_guid' => $data_object->guid);
             // user has defined a bespoke crop region, with crop given as x & y offsets, plus a crop width & poss height.
-            // Offsets are from the 580 x 360 version. However, if they are wider than 
+            // Offsets are from the 580 x 360 version. However, if they are wider than
             // 540px, CSS scales the image proportionally to fit into a max width of 540.
             // The offsets and width need to be scaled to match the image dimensions
             //
-            // **** Perhaps we should do this calculation in the Ruby front-end code (nearer to the css layout) rather than in php, 
+            // **** Perhaps we should do this calculation in the Ruby front-end code (nearer to the css layout) rather than in php,
             // and simply pass percentages into this function? That would also stop doing a getimagesize() on the _580_360 file
             // (NB we can't use h & w from the original as it may need rotating). We could then use crop_image_pct() as below
             if(count($sizes)>=2 and $sizes[0]>0 and $sizes[1]>0)

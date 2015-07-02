@@ -6,7 +6,7 @@ class ContentArchiveBuilder
     private $core;
     private $extensions;
     private $tables;
-    
+
     public function __construct($parameters = array())
     {
         if(isset($parameters['directory_path'])) $this->directory = $parameters['directory_path'];
@@ -16,7 +16,7 @@ class ContentArchiveBuilder
         $this->file_columns = array();
         if(!file_exists($this->directory)) mkdir($this->directory);
     }
-    
+
     // $parameters might be a single array of objects, or an array of arrays of objects
     public function create_archive_from_objects($parameters)
     {
@@ -45,13 +45,13 @@ class ContentArchiveBuilder
         }
         $this->finalize();
     }
-    
+
     public function finalize($compress = false)
     {
         $meta_xml_contents = "<?xml version=\"1.0\"?>\n";
         $meta_xml_contents .= "<archive xmlns=\"http://rs.tdwg.org/dwc/text/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://rs.tdwg.org/dwc/text/  http://services.eol.org/schema/dwca/tdwg_dwc_text.xsd\">\n";
         $table_definition_prefix = "<table encoding=\"UTF-8\" fieldsTerminatedBy=\"\\t\" linesTerminatedBy=\"\\n\" ignoreHeaderLines=\"1\"";
-        
+
         foreach($this->file_handles as $file_name => $FILE)
         {
             fclose($FILE);
@@ -68,7 +68,7 @@ class ContentArchiveBuilder
             }
             $meta_xml_contents .= "  </table>\n";
         }
-        
+
         $meta_xml_contents .= "</archive>\n";
         if(!($META_FILE = fopen($this->directory . "meta.xml", 'w+')))
         {
@@ -77,7 +77,7 @@ class ContentArchiveBuilder
         }
         fwrite($META_FILE, $meta_xml_contents);
         fclose($META_FILE);
-        
+
         if($compress)
         {
             $info = pathinfo($this->directory);
@@ -85,23 +85,24 @@ class ContentArchiveBuilder
             $final_tarball_path = $info['dirname'] ."/". $info['basename'] .".tar.gz";
             shell_exec("tar -czf $temporary_tarball_path --directory=". $info['dirname'] ."/". $info['basename'] ." .");
             @unlink($final_tarball_path);
-            rename($temporary_tarball_path, $final_tarball_path);
+            if(copy($temporary_tarball_path, $final_tarball_path))
+              unlink($temporary_tarball_path);
         }
     }
-    
+
     public function rebalance_tabs_and_add_header($file_name)
     {
         $class = $this->file_classes[$file_name];
         $count_columns = count($this->file_columns[$class]);
         $FILE = $this->get_file_handle($class, true);
-        
+
         $column_headers = array();
         foreach($this->file_columns[$class] as $index => $property)
         {
             $column_headers[] = $property['name'];
         }
         fwrite($FILE, implode("\t", $column_headers) . "\n");
-        
+
         if(!($WORKING_FILE = fopen($this->directory . $file_name, "r")))
         {
           debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->directory . $file_name);
@@ -123,12 +124,12 @@ class ContentArchiveBuilder
         fclose($WORKING_FILE);
         fclose($FILE);
     }
-    
+
     public function write_object_to_file($object)
     {
         $object_class = get_class($object);
         $FILE = $this->get_file_handle($object_class);
-        
+
         $this_line = "";
         $object_properties = $object->assigned_properties();
         $written_properties = array();
@@ -145,25 +146,25 @@ class ContentArchiveBuilder
             }
             $this_line .= "\t";
         }
-        
+
         foreach($object_properties as $p)
         {
             if(in_array($p['property'], $written_properties)) continue;
             $this_line .= self::escape_string($p['value']) . "\t";
             $this->file_columns[$object_class][] = $p['property'];
         }
-        
+
         if(substr($this_line, -1) == "\t") $this_line = substr($this_line, 0, -1);
         fwrite($FILE, $this_line . "\n");
     }
-    
+
     private function get_file_handle($object_class, $final_version = false)
     {
         $class = preg_replace("/^.*\\\\/", "", $object_class);
         $file_name = self::to_underscore($class);
         if(!$final_version) $file_name .= "_working";
         $file_name .= ".tab";
-        
+
         if($final_version)
         {
             if(!($FILE = fopen($this->directory . $file_name, 'w+')))
@@ -185,7 +186,7 @@ class ContentArchiveBuilder
         }
         return $FILE;
     }
-    
+
     public static function escape_string($string)
     {
         $string = str_replace("\n", "\\n", $string);
@@ -193,7 +194,7 @@ class ContentArchiveBuilder
         $string = str_replace("\t", "\\t", $string);
         return $string;
     }
-    
+
     private static function unique_archive_directory_path()
     {
         $root_directory = DOC_ROOT . "temp/";
@@ -204,7 +205,7 @@ class ContentArchiveBuilder
         }
         return $root_directory . "archive_" . $random_bit . "/";
     }
-    
+
     private static function to_underscore($str)
     {
         $str = preg_replace('/([A-Z])/', '_' . strtolower('\\1'), $str);

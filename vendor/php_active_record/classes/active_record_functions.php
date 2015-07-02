@@ -455,7 +455,8 @@ function file_randomize($path)
     fclose($FILE);
 
     unlink($path);
-    rename($new_file_path, $path);
+    if(copy($new_file_path, $path))
+      unlink($new_file_path);
 }
 
 function get_simpletest_name()

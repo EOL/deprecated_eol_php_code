@@ -33,7 +33,7 @@ class NCBIGGIqueryAPI
         }
         $this->download_options = array('expire_seconds' => 5184000, 'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1); //2 months to expire
 		// $this->download_options['expire_seconds'] = false; //debug
-        
+
         // local
         $this->families_list = "http://localhost/cp/NCBIGGI/falo2.in";
         $this->families_list = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/falo2.in";
@@ -42,40 +42,40 @@ class NCBIGGIqueryAPI
         $this->family_service_ncbi = "http://www.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nucleotide&usehistory=y&term=";
         // $this->family_service_ncbi = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nucleotide&usehistory=y&term=";
         /* to be used if u want to get all Id's, that is u will loop to get all Id's so server won't be overwhelmed: &retmax=10&retstart=0 */
-        
+
         // GGBN data portal:
         $this->family_service_ggbn = "http://www.dnabank-network.org/Query.php?family="; // original
         $this->family_service_ggbn = "http://data.ggbn.org/Query.php?family="; // "Dröge, Gabriele" <g.droege@bgbm.org> advised to use this instead, Apr 17, 2014
-        
+
         //GBIF services
         $this->gbif_taxon_info = "http://api.gbif.org/v1/species/match?name="; //http://api.gbif.org/v1/species/match?name=felidae&kingdom=Animalia
         $this->gbif_record_count = "http://api.gbif.org/v1/occurrence/count?taxonKey=";
-        
+
         // BHL services
         $this->bhl_taxon_page = "http://www.biodiversitylibrary.org/name/";
         $this->bhl_taxon_in_csv = "http://www.biodiversitylibrary.org/namelistdownload/?type=c&name=";
         $this->bhl_taxon_in_xml = "http://www.biodiversitylibrary.org/api2/httpquery.ashx?op=NameGetDetail&apikey=deabdd14-65fb-4cde-8c36-93dc2a5de1d8&name=";
-        
+
         // BOLDS portal
         $this->bolds_taxon_page = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?searchTax=&taxon=";
         $this->bolds_taxon_page_id = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
         $this->bolds["TaxonSearch"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonSearch?taxName=";
         $this->bolds["TaxonData"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=basic,stats&taxId=";
-        
+
         // stats
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->names_no_entry_from_partner_dump_file = $this->TEMP_DIR . "names_no_entry_from_partner.txt";
         $this->name_from_eol_api_dump_file = $this->TEMP_DIR . "name_from_eol_api.txt";
         $this->names_dae_to_nae_dump_file = $this->TEMP_DIR . "names_dae_to_nae.txt";
-        
+
         /* // FALO report
         $this->names_in_falo_but_not_in_irmng = $this->TEMP_DIR . "families_in_falo_but_not_in_irmng.txt";
         $this->names_in_irmng_but_not_in_falo = $this->TEMP_DIR . "families_in_irmng_but_not_in_falo.txt";
         */
-        
+
         $this->ggi_databases = array("ncbi", "ggbn", "gbif", "bhl", "bolds");
         $this->ggi_path = DOC_ROOT . "temp/GGI/";
-        
+
         $this->eol_api["search"]    = "http://eol.org/api/search/1.0.json?page=1&exact=true&filter_by_taxon_concept_id=&filter_by_hierarchy_entry_id=&filter_by_string=&cache_ttl=&q=";
         $this->eol_api["page"][0]   = "http://eol.org/api/pages/1.0/";
         $this->eol_api["page"][1]   = ".json?images=0&videos=0&sounds=0&maps=0&text=0&iucn=false&subjects=overview&licenses=all&details=true&common_names=false&synonyms=false&references=false&vetted=1&cache_ttl=";
@@ -83,14 +83,14 @@ class NCBIGGIqueryAPI
         $this->databases_to_check_eol_api["gbif"] = "GBIF Nub Taxonomy";
         $this->databases_to_check_eol_api["ggbn"] = "ITIS Catalogue of Life";
         $this->databases_to_check_eol_api["bolds"] = "-BOLDS-";
-        
+
         $this->temp_family_table_file = DOC_ROOT . "tmp/family_table.txt";
     }
 
     function get_all_taxa()
     {
         self::initialize_files();
-        /* 
+        /*
         $families = self::get_families_from_google_spreadsheet(); Google spreadsheets are very slow, it is better to use Dropbox for our online spreadsheets
         $families = self::get_families(); use to read a plain text file
         $families = self::get_families_with_missing_data_xlsx(); - utility
@@ -119,7 +119,7 @@ class NCBIGGIqueryAPI
                 }
             }
             // */
-            
+
             self::compare_previuos_and_current_dumps();
             $this->create_archive();
         }
@@ -140,14 +140,14 @@ class NCBIGGIqueryAPI
             self::initialize_dump_file($this->ggi_text_file[$database]["current"]);
         }
     }
-    
+
     private function initialize_dump_file($file)
     {
         echo "\n initialize file:[$file]\n";
         if(!($WRITE = Functions::file_open($file, "w"))) return;
         fclose($WRITE);
     }
-    
+
     private function compare_previuos_and_current_dumps()
     {
         foreach($this->ggi_databases as $database)
@@ -158,7 +158,8 @@ class NCBIGGIqueryAPI
             {
                 self::process_text_file($current, $database);
                 unlink($previous);
-                rename($current, $previous);
+                if(copy($current, $previous))
+                  unlink($current);
             }
             else self::process_text_file($previous, $database);
         }
@@ -191,7 +192,7 @@ class NCBIGGIqueryAPI
             }
         }
     }
-    
+
     private function create_instances_from_taxon_object($families, $is_subfamily = false, $database, $min=false, $max=false)
     {
         $this->families_with_no_data = array();
@@ -200,7 +201,7 @@ class NCBIGGIqueryAPI
         foreach($families as $family)
         {
             $i++;
-            
+
             if($min || $max)
             {
                 // /* breakdown when caching
@@ -209,14 +210,14 @@ class NCBIGGIqueryAPI
                 if(!$cont) continue;
                 // */
             }
-            
+
             if(($i % 100) == 0) echo "\n $i of $total - [$family]\n";
             if    ($database == "ncbi")  $with_data = self::query_family_NCBI_info($family, $is_subfamily, $database);
             elseif($database == "ggbn")  $with_data = self::query_family_GGBN_info($family, $is_subfamily, $database);
             elseif($database == "gbif")  $with_data = self::query_family_GBIF_info($family, $is_subfamily, $database);
             elseif($database == "bhl")   $with_data = self::query_family_BHL_info($family, $is_subfamily, $database);
             elseif($database == "bolds") $with_data = self::query_family_BOLDS_info($family, $is_subfamily, $database);
-            
+
             if(($is_subfamily && $with_data) || !$is_subfamily)
             {
                 $taxon = new \eol_schema\Taxon();
@@ -296,20 +297,20 @@ class NCBIGGIqueryAPI
         self::check_for_sub_family($family);
         return false;
     }
-    
+
     private function parse_bolds_taxon_search($json)
     {
         if($taxid = self::get_best_bolds_taxid($json))
         {
             if($json = Functions::lookup_with_cache($this->bolds["TaxonData"] . $taxid, $this->download_options))
             {
-                $arr = json_decode($json); 
+                $arr = json_decode($json);
                 return array("taxid" => $taxid, "public records" => $arr->stats->publicrecords, "specimens" => $arr->stats->sequencedspecimens);
             }
         }
         else return false;
     }
-        
+
     private function get_best_bolds_taxid($json)
     {
         $ranks = array("family", "subfamily", "genus", "order"); // best rank for FALO family, in this order
@@ -526,7 +527,7 @@ class NCBIGGIqueryAPI
                 else {} // e.g. Fervidicoccaceae
             }
             else $usageKey = trim((string) $json->usageKey);
-            
+
             if($usageKey)
             {
                 $count = Functions::lookup_with_cache($this->gbif_record_count . $usageKey, $this->download_options);
@@ -589,7 +590,7 @@ class NCBIGGIqueryAPI
         }
         return false;
     }
-    
+
     private function get_names_no_entry_from_partner()
     {
         $names = array();
@@ -701,7 +702,7 @@ class NCBIGGIqueryAPI
         if($num) return ceil($num/50);
         return 1;
     }
-    
+
     private function process_html($html)
     {
         $temp = array();
@@ -732,13 +733,13 @@ class NCBIGGIqueryAPI
                 $rec["label"]       = "Number Of Sequences In GenBank";
                 $rec["measurement"] = "http://eol.org/schema/terms/NumberOfSequencesInGenBank";
                 self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
-                
+
                 $rec["object_id"] = "SequenceInGenBank";
                 $rec["count"] = "http://eol.org/schema/terms/yes";
                 $rec["label"] = "SequenceInGenBank";
                 $rec["measurement"] = "http://eol.org/schema/terms/SequenceInGenBank";
                 self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
-                
+
                 return true;
             }
         }
@@ -888,7 +889,7 @@ class NCBIGGIqueryAPI
         */
         // recursive_rmdir($this->TEMP_DIR);
     }
-    
+
     private function save_as_tab_delimited($names, $file)
     {
         foreach($names as $name) self::save_to_dump($name, $file);
@@ -917,11 +918,11 @@ class NCBIGGIqueryAPI
         require_library('XLSParser');
         $parser = new XLSParser();
         $families = array();
-        
+
         // for family table
         $family_table = array();
         $fields = array("SpK", "K", "SbK", "IK", "SpP", "P", "SbP", "IP", "PvP", "SpC", "C", "SbC", "IC", "SpO", "O");
-        
+
         // $dropbox_xlsx[] = "http://tiny.cc/FALO"; // from Cyndy's Dropbox
         $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/ALF2015.xlsx"; // from Eli's Dropbox
         // $dropbox_xlsx[] = "http://localhost/cp/NCBIGGI/FALO.xlsx"; // local
@@ -950,7 +951,7 @@ class NCBIGGIqueryAPI
             }
             else echo "\n [$doc] unavailable! \n";
         }
-        
+
         //save $family_table as json to text file, to be accessed later when generating the spreadsheet
         self::initialize_dump_file($this->temp_family_table_file);
         self::save_to_dump($family_table, $this->temp_family_table_file);
@@ -958,7 +959,7 @@ class NCBIGGIqueryAPI
 
         return array_keys($families);
     }
-    
+
     function count_subfamily_per_database($file, $database)
     {
         $subfamilies = array();
@@ -983,16 +984,16 @@ class NCBIGGIqueryAPI
              [K] => Kingdom Animalia
              [SbK] => Subkingdom Bilateria
              [IK] => Infrakingdom Deuterostomia
-             [SpP] => 
+             [SpP] =>
              [P] => Phylum Xenacoelomorpha
              [SbP] => Subphylum Xenoturbellida
-             [IP] => 
-             [PvP] => 
-             [SpC] => 
-             [C] => 
-             [SbC] => 
-             [IC] => 
-             [SpO] => 
+             [IP] =>
+             [PvP] =>
+             [SpC] =>
+             [C] =>
+             [SbC] =>
+             [IC] =>
+             [SpO] =>
              [O] => */
         $family_counts = self::convert_measurement_or_fact_to_array($resource_id);
         $xls = self::access_dump_file($this->temp_family_table_file); // this will access the array, that is the main spreadsheet source for this connector
@@ -1051,7 +1052,7 @@ class NCBIGGIqueryAPI
         }
         return $records;
     }
-    
+
     private function access_dump_file($file_path, $is_array = true)
     {
         if(!($file = Functions::file_open($file_path, "r"))) return;
