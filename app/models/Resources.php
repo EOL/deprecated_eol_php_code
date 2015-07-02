@@ -179,20 +179,20 @@ class Resource extends ActiveRecord
         $resources = array();
         $extra_hours_clause = "";
         if($hours_ahead_of_time) $extra_hours_clause = " - $hours_ahead_of_time";
-        
-        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=".ResourceStatus::force_harvest()->id." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::validated()->id." OR resource_status_id=".ResourceStatus::validation_failed()->id." OR resource_status_id=".ResourceStatus::processing_failed()->id.")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL (refresh_period_hours $extra_hours_clause) HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::upload_failed()->id.", ".ResourceStatus::validated()->id.", ".ResourceStatus::validation_failed()->id.", ". ResourceStatus::processed()->id .", ".ResourceStatus::processing_failed()->id.", ".ResourceStatus::published()->id."))"); // WAIT: ORDER BY position ASC");		
+
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=".ResourceStatus::force_harvest()->id." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::validated()->id." OR resource_status_id=".ResourceStatus::validation_failed()->id." OR resource_status_id=".ResourceStatus::processing_failed()->id.")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL (refresh_period_hours $extra_hours_clause) HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::upload_failed()->id.", ".ResourceStatus::validated()->id.", ".ResourceStatus::validation_failed()->id.", ". ResourceStatus::processed()->id .", ".ResourceStatus::processing_failed()->id.", ".ResourceStatus::published()->id."))"); // WAIT: ORDER BY position ASC");
         while($result && $row=$result->fetch_assoc())
         {
             $resources[] = $resource = Resource::find($row["id"]);
         }
-		
+
         return $resources;
     }
 
     public static function get_ready_resource($hours_ahead_of_time = null)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
-        
+
         $extra_hours_clause = "";
         if($hours_ahead_of_time) $extra_hours_clause = " - $hours_ahead_of_time";
 
@@ -212,7 +212,7 @@ class Resource extends ActiveRecord
 		$mysqli =& $GLOBALS['mysqli_connection'];
 		$result = $mysqli->query("SELECT SQL_NO_CACHE pause FROM resources");
 		if($result && $row=$result->fetch_assoc())
-			return $row["pause"];        
+			return $row["pause"];
 	}
 
     public static function ready_for_publishing()
@@ -416,14 +416,7 @@ class Resource extends ActiveRecord
     public function harvest($validate = true, $validate_only_welformed = false, $fast_for_testing = false)
     {
         $GLOBALS['currently_harvesting_resource_id'] = $this->id;
-        // create resource_id.log
-        $filename = "log/" . $this->id . ".log";
-        if (file_exists($filename)) unlink($filename);
-        if(!($resource_harvesting_log = fopen ($filename , "w+")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: $filename ");
-          return;
-         }
+        $this->clear_log_file();
         $this->debug_start(
             "harvest eol.org/content_partners/" .
             $this->content_partner->id .
@@ -767,7 +760,7 @@ class Resource extends ActiveRecord
         $this->mysqli->update("UPDATE resources SET resource_status_id=". ResourceStatus::being_processed()->id ." WHERE id=$this->id");
       }
     }
-    
+
     public function harvesting_failed()
     {
     	debug("Setting status to harvest failed");
@@ -839,7 +832,7 @@ class Resource extends ActiveRecord
       {
           $validation_result = SchemaValidator::validate($this->resource_path());
           if($validation_result===true) $valid = true;  // valid
-          else 
+          else
           {
           	$error_string = $this->mysqli->escape(implode("<br>", $validation_result));
           	write_to_resource_harvesting_log("ERRORS in schema validatior" . $error_string);
@@ -893,7 +886,7 @@ class Resource extends ActiveRecord
               "he.hierarchy_id = $this->hierarchy_id ".
               "GROUP BY hierarchy_id ".
             ") where id = $this->hierarchy_id");
-      
+
     }
 
     private function insert_dwc_hierarchy()
@@ -918,6 +911,12 @@ class Resource extends ActiveRecord
 
         $this->debug_end("insert_dwc_hierarchy");
         return $hierarchy->id;
+    }
+
+    private function clear_log_file()
+    {
+      $filename = DOC_ROOT . "log/" . $this->id . ".log";
+      shell_exec("> $filename");
     }
 
     private function import_dwc_archive()
