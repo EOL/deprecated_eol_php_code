@@ -11,24 +11,7 @@ $resource_id = 723;
 $func = new NCBIGGIqueryAPI($resource_id);
 
 $func->get_all_taxa();
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
-{
-    if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
-    {
-        recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
-        Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
-    }
-    Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
-    Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
-    Functions::set_resource_status_to_force_harvest($resource_id);
-
-	if($undefined_uris = Functions::get_undefined_uris_from_resource($resource_id)) print_r($undefined_uris);
-    echo "\nUndefined URIs: " . count($undefined_uris) . "\n";
-
-	require_library('connectors/DWCADiagnoseAPI');
-	$func = new DWCADiagnoseAPI();
-	$func->check_unique_ids($resource_id);
-}
+Functions::finalize_dwca_resource($resource_id);
 
 /* not yet implemented
 sleep(60);
