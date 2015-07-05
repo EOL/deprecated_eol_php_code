@@ -35,8 +35,8 @@ fclose($resource_file);
 
 // cache the previous version and make this new version the current version
 @unlink(CONTENT_RESOURCE_LOCAL_PATH . "15_previous.xml");
-@rename(CONTENT_RESOURCE_LOCAL_PATH . "15.xml", CONTENT_RESOURCE_LOCAL_PATH . "15_previous.xml");
-rename(CONTENT_RESOURCE_LOCAL_PATH . "15_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . "15.xml");
+Functions::file_rename((CONTENT_RESOURCE_LOCAL_PATH . "15.xml", CONTENT_RESOURCE_LOCAL_PATH . "15_previous.xml");
+Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . "15_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . "15.xml");
 
 // set Flickr to force harvest
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "15.xml") > 600)
