@@ -31,9 +31,9 @@ $params["dataset"] = "All audio for birds";
 */
 
 /*// local
-$params["citation_file"] = "http://localhost/~eolit/cp/GBIF_dwca/countries/Germany/Citation Mapping Germany.xlsx";
-$params["dwca_file"]    = "http://localhost/~eolit/cp/GBIF_dwca/countries/Germany/Germany.zip";
-$params["uri_file"]     = "http://localhost/~eolit/cp/GBIF_dwca/countries/Germany/germany mappings.xlsx";
+$params["citation_file"] = "http://localhost/cp/GBIF_dwca/countries/Germany/Citation Mapping Germany.xlsx";
+$params["dwca_file"]    = "http://localhost/cp/GBIF_dwca/countries/Germany/Germany.zip";
+$params["uri_file"]     = "http://localhost/cp/GBIF_dwca/countries/Germany/germany mappings.xlsx";
 */
 
 // remote
@@ -63,6 +63,11 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") >
     rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
     Functions::set_resource_status_to_force_harvest($resource_id);
     Functions::count_resource_tab_files($resource_id);
+	if($undefined_uris = Functions::get_undefined_uris_from_resource($resource_id)) print_r($undefined_uris);
+    echo "\nUndefined URIs: " . count($undefined_uris) . "\n";
+	require_library('connectors/DWCADiagnoseAPI');
+	$func = new DWCADiagnoseAPI();
+	$func->check_unique_ids($resource_id);
 }
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

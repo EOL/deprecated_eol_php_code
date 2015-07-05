@@ -11,7 +11,7 @@ $timestart = time_elapsed();
 $resource_id = 218;
 $func = new TropicosArchiveAPI($resource_id);
 
-$func->get_all_taxa();
+$func->get_all_taxa($resource_id);
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
 {
     if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))

@@ -28,6 +28,12 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") >
     rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
     rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
     Functions::set_resource_status_to_force_harvest($resource_id);
+    Functions::count_resource_tab_files($resource_id);
+	if($undefined_uris = Functions::get_undefined_uris_from_resource($resource_id)) print_r($undefined_uris);
+    echo "\nUndefined URIs: " . count($undefined_uris) . "\n";
+	require_library('connectors/DWCADiagnoseAPI');
+	$func = new DWCADiagnoseAPI();
+	$func->check_unique_ids($resource_id);
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;
@@ -46,21 +52,13 @@ function utility_append_text_loop()
     {
         $str = Functions::format_number_with_leading_zeros($x, "2");
         $filename = DOC_ROOT . "/public/tmp/mycobank/mycobank_dump_add" . $str . ".txt";
-        if(!($READ = fopen($filename, "r")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
-          return;
-        }
+        if(!($READ = Functions::file_open($filename, "r"))) return;
         $contents = fread($READ, filesize($filename));
         fclose($READ);
         echo "\n copying... $filename";
         $filename = DOC_ROOT . "/public/tmp/mycobank/mycobank_dump.txt";
         echo "\n to... $filename\n";
-        if(!($WRITE = fopen($filename, "a")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
-          return;
-        }
+        if(!($WRITE = Functions::file_open($filename, "a"))) return;
         fwrite($WRITE, $contents);
         fclose($WRITE);
     }
