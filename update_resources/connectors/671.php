@@ -18,17 +18,7 @@ $resource_id = 671;
 $func = new MycoBankAPI($resource_id);
 $func->get_all_taxa();
 
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
-{
-    if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
-    {
-        recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
-        rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
-    }
-    rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
-    rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
-    Functions::set_resource_status_to_force_harvest($resource_id);
-}
+Functions::finalize_dwca_resource($resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
@@ -46,21 +36,13 @@ function utility_append_text_loop()
     {
         $str = Functions::format_number_with_leading_zeros($x, "2");
         $filename = DOC_ROOT . "/public/tmp/mycobank/mycobank_dump_add" . $str . ".txt";
-        if(!($READ = fopen($filename, "r")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
-          return;
-        }
+        if(!($READ = Functions::file_open($filename, "r"))) return;
         $contents = fread($READ, filesize($filename));
         fclose($READ);
         echo "\n copying... $filename";
         $filename = DOC_ROOT . "/public/tmp/mycobank/mycobank_dump.txt";
         echo "\n to... $filename\n";
-        if(!($WRITE = fopen($filename, "a")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
-          return;
-        }
+        if(!($WRITE = Functions::file_open($filename, "a"))) return;
         fwrite($WRITE, $contents);
         fclose($WRITE);
     }

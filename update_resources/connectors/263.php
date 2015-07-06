@@ -56,8 +56,8 @@ fclose($resource_file);
 
 // cache the previous version and make this new version the current version
 @unlink(CONTENT_RESOURCE_LOCAL_PATH . "263_previous.xml");
-@rename(CONTENT_RESOURCE_LOCAL_PATH . "263.xml", CONTENT_RESOURCE_LOCAL_PATH . "263_previous.xml");
-rename(CONTENT_RESOURCE_LOCAL_PATH . "263_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . "263.xml");
+Functions::file_rename((CONTENT_RESOURCE_LOCAL_PATH . "263.xml", CONTENT_RESOURCE_LOCAL_PATH . "263_previous.xml");
+Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . "263_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . "263.xml");
 
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "263.xml") > 200000)
 {

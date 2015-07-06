@@ -281,11 +281,108 @@ class Functions
         if($handle = fopen($file_path, $mode)) return $handle;
         else
         {
-            $caller = array_shift(debug_backtrace());
-            debug($caller['file'] . ":" . $caller['line'] . ": Couldn't open file: " . $file_path);
+			self::debug_line("Couldn't open file: [$file_path]");
             return false;
         }
     }
+
+	public static function file_rename($oldname, $newname)
+	{
+		if($oldname == $newname) return false;
+		if(!self::is_within_folders_where_file_change_is_allowed($oldname)) return false;
+		
+		if(is_file($newname)) unlink($newname);
+		elseif(is_dir($newname)) recursive_rmdir($newname);
+				
+		if(is_dir($oldname))
+		{
+			if(self::recursive_copy($oldname, $newname)) recursive_rmdir($oldname);
+			else return false;
+		}
+		elseif(is_file($oldname))
+		{
+			if(copy($oldname, $newname)) unlink($oldname);
+			else return false;
+		}
+		else
+		{
+			self::debug_line("Source file does not exist: [$oldname]");
+			return false;			
+		}
+	}
+	
+	public static function is_within_folders_where_file_change_is_allowed($file)
+	{
+		$allowed_folders = array('eol_php_code/tmp/', 'eol_php_code/temp/', 'eol_php_code/public/tmp/', 'eol_php_code/applications/content_server/resources/'); //allowed folders so far; we can add more.
+		foreach($allowed_folders as $folder)
+		{
+			if(strpos($file, $folder) !== false) return true;
+		}
+		self::debug_line("File change is not allowed here: [$file]");
+		return false;
+	}
+	
+	public static function recursive_copy($source_dir, $destination_dir) //copy entire directory
+	{
+		if(strpos($source_dir, $destination_dir."/") !== false) return false; //cannot recursive_copy if destination is already within source path
+		if(strpos($destination_dir, $source_dir."/") !== false) return false; //cannot recursive_copy if source is already within destination path
+
+		if($dir = opendir($source_dir))
+		{
+			if(!self::is_within_folders_where_file_change_is_allowed($destination_dir)) return false;
+		    @mkdir($destination_dir); 
+		    while(false !== ($file = readdir($dir))) 
+			{ 
+		        if(($file != '.') && ($file != '..')) 
+				{ 
+		            if(is_dir($source_dir . '/' . $file) )
+					{
+						if(!self::recursive_copy($source_dir.'/'.$file, $destination_dir.'/'.$file)) return false;
+					}
+		            else
+					{
+						if(!copy($source_dir."/".$file, $destination_dir."/".$file))
+						{
+							self::debug_line("Copy file failed. source:[$source_dir/$file] destination:[$destination_dir/$file]");
+							return false;
+						}
+					}
+		        } 
+		    } 
+		    closedir($dir);		
+			return true;
+		}
+		self::debug_line("Permission restriction or filesystem error for: [$source_dir]");
+		return false;
+	}
+	
+	public static function debug_line($msg)
+	{
+		$callers = array_reverse(debug_backtrace());		
+		foreach($callers as $caller) debug($caller['file'] . ":" . $caller['line']);
+		debug($msg);
+	}
+	
+	public static function finalize_dwca_resource($resource_id)
+	{
+		if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
+		{
+		    if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
+		    {
+		        recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
+		        Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
+		    }
+		    Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
+		    Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
+		    Functions::set_resource_status_to_force_harvest($resource_id);
+		    Functions::count_resource_tab_files($resource_id);
+			if($undefined_uris = Functions::get_undefined_uris_from_resource($resource_id)) print_r($undefined_uris);
+		    echo "\nUndefined URIs: " . count($undefined_uris) . "\n";
+			require_library('connectors/DWCADiagnoseAPI');
+			$func = new DWCADiagnoseAPI();
+			$func->check_unique_ids($resource_id);
+		}		
+	}
     
     public static function get_undefined_uris_from_resource($resource_id)
     {

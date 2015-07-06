@@ -23,7 +23,7 @@ $func->save_resource_document($xml);
 // */
 
 // start - this will get Tamborines videos from Vimeo and append it with the main resource 106.xml (DATA-1592)
-rename($resource_path, CONTENT_RESOURCE_LOCAL_PATH . "temp_vimeo_to_tamborine1.xml");
+Functions::file_rename($resource_path, CONTENT_RESOURCE_LOCAL_PATH . "temp_vimeo_to_tamborine1.xml");
 get_videos_from_vimeo();
 Functions::combine_all_eol_resource_xmls($resource_id, CONTENT_RESOURCE_LOCAL_PATH . "temp_vimeo_to_tamborine*.xml");
 unlink(CONTENT_RESOURCE_LOCAL_PATH . "temp_vimeo_to_tamborine1.xml");
