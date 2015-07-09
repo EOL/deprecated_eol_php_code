@@ -67,8 +67,8 @@ class YouTubeAPI
 {
     function __construct()
     {
-        // cache expires after 1 week; download timeout is 4 minutes; download interval is 2 seconds
-        $this->download_options = array('expire_seconds' => 604800, 'download_wait_time' => 2000000, 'timeout' => 240, 'download_attempts' => 2, 'delay_in_minutes' => 5);
+        // cache expires after 1 week; download timeout is 2 minutes; download interval is 2 seconds
+        $this->download_options = array('resource_id' => 323, 'expire_seconds' => 604800, 'download_wait_time' => 2000000, 'timeout' => 120, 'download_attempts' => 1); //, 'delay_in_minutes' => 5
         // $this->download_options['expire_seconds'] = false;
     }
     
@@ -276,7 +276,7 @@ class YouTubeAPI
         foreach($strings_to_search as $string)
         {
             if(!$string = trim($string)) continue;
-            $url = TAXON_FINDER_SERVICE . $string;
+            $url = TAXON_FINDER_SERVICE . urlencode($string);
             if($response = Functions::lookup_with_cache($url, $options)) //1hr timeout
             {
                 $response = simplexml_load_string($response);
@@ -288,6 +288,7 @@ class YouTubeAPI
                         $taxon_id = (string) $entity->namebankID;
                         $scinames[] = $sciname;
                     }
+                    // if($scinames) print_r($scinames); //peak/look-see at what Ubio's TaxoFinder gives us.
                 }
             }
             if($scinames) break; // if you get names in title, no need to search on description anymore
@@ -379,13 +380,13 @@ class YouTubeAPI
         $taxon = array();
         $taxon["source"] = $rec["source"];
         $taxon["identifier"] = trim($rec["identifier"]);
-        $taxon["scientificName"] = ucfirst(trim($rec["sciname"]));
-        if($rec["sciname"] != @$rec["family"]) $taxon["family"] = ucfirst(trim(@$rec["family"]));
-        if($rec["sciname"] != @$rec["genus"]) $taxon["genus"] = ucfirst(trim(@$rec["genus"]));
-        if($rec["sciname"] != @$rec["order"]) $taxon["order"] = ucfirst(trim(@$rec["order"]));
-        if($rec["sciname"] != @$rec["class"]) $taxon["class"] = ucfirst(trim(@$rec["class"]));
-        if($rec["sciname"] != @$rec["phylum"]) $taxon["phylum"] = ucfirst(trim(@$rec["phylum"]));
-        if($rec["sciname"] != @$rec["kingdom"]) $taxon["kingdom"] = ucfirst(trim(@$rec["kingdom"]));
+        $taxon["scientificName"]                                    = self::format_name($rec["sciname"]);
+        if($rec["sciname"] != @$rec["family"]) $taxon["family"]     = self::format_name(@$rec["family"]);
+        if($rec["sciname"] != @$rec["genus"]) $taxon["genus"]       = self::format_name(@$rec["genus"]);
+        if($rec["sciname"] != @$rec["order"]) $taxon["order"]       = self::format_name(@$rec["order"]);
+        if($rec["sciname"] != @$rec["class"]) $taxon["class"]       = self::format_name(@$rec["class"]);
+        if($rec["sciname"] != @$rec["phylum"]) $taxon["phylum"]     = self::format_name(@$rec["phylum"]);
+        if($rec["sciname"] != @$rec["kingdom"]) $taxon["kingdom"]   = self::format_name(@$rec["kingdom"]);
         foreach($rec["commonNames"] as $comname) $taxon["commonNames"][] = new \SchemaCommonName(array("name" => $comname, "language" => ""));
         if($rec["arr_objects"])
         {
@@ -398,6 +399,12 @@ class YouTubeAPI
         }
         $taxon_object = new \SchemaTaxon($taxon);
         return $taxon_object;
+    }
+    
+    private function format_name($str)
+    {
+        $str = ucfirst(trim($str));
+        return str_replace('"', '', $str);
     }
 
     private function get_data_object($rec)

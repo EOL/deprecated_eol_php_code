@@ -15,12 +15,13 @@ define('DOWNLOAD_WAIT_TIME', 2000000);
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 require_library('connectors/YouTubeAPI');
+$resource_id = 323;
+if(!Functions::can_this_connector_run($resource_id)) return;
 
 $func = new YouTubeAPI();
 $taxa = $func->get_all_taxa();
 $xml = \SchemaDocument::get_taxon_xml($taxa);
 
-$resource_id = 323;
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
 if(!($OUT = Functions::file_open($resource_path, "w"))) return;
 fwrite($OUT, $xml);
