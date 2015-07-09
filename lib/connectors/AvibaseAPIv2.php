@@ -65,9 +65,9 @@ class AvibaseAPIv2
         'wpa'  // western palearctic
         );
 
-		// $regions = array_reverse($regions);
-		print_r($regions);
-		
+        // $regions = array_reverse($regions);
+        print_r($regions);
+        
         if($this->for_testing) $regions = array('nam'); //debug
         foreach($regions as $region) self::get_taxa_list(self::AVIBASE_SERVICE_URL . '&region=' . $region . '&list=' . $this->checklist_name);
     }
@@ -142,11 +142,11 @@ class AvibaseAPIv2
             if(!@$name['comnames']) continue; // e.g. http://avibase.bsc-eoc.org/species.jsp?avibaseid=483A2A51F4A5E37E -- see Malayalam
             foreach(@$name['comnames'] as $comname)
             {
-				if(!($comname = trim($comname))) continue;
+                if(!($comname = trim($comname))) continue;
                 if(!Functions::is_utf8($comname)) $comname = utf8_encode($comname);
                 if($name['lang'] == "Latin") // these will be synonyms
                 {
-					if($t->scientificName == $comname) continue;
+                    if($t->scientificName == $comname) continue;
                     $synonym = new \eol_schema\Taxon();
                     $synonym->taxonID               = strtolower(str_ireplace(" ", "_", $comname));
                     $synonym->scientificName        = $comname;

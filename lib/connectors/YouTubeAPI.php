@@ -67,8 +67,8 @@ class YouTubeAPI
 {
     function __construct()
     {
-        // cache expires after 1 week; download timeout is 4 minutes; download interval is 2 seconds
-        $this->download_options = array('expire_seconds' => 604800, 'download_wait_time' => 2000000, 'timeout' => 240, 'download_attempts' => 2, 'delay_in_minutes' => 5);
+        // cache expires after 1 week; download timeout is 2 minutes; download interval is 2 seconds
+        $this->download_options = array('resource_id' => 323, 'expire_seconds' => 604800, 'download_wait_time' => 2000000, 'timeout' => 120, 'download_attempts' => 1); //, 'delay_in_minutes' => 5
         // $this->download_options['expire_seconds'] = false;
     }
     
@@ -143,7 +143,7 @@ class YouTubeAPI
         //     }
         // }
 
-		$video_id = $video->contentDetails->videoId;
+        $video_id = $video->contentDetails->videoId;
         $license = $video->status->privacyStatus;
 
         // For a while we used the API URL for the identifier (not sure why). Just
@@ -166,11 +166,11 @@ class YouTubeAPI
                      "video_id"      => $video_id);
     }
 
-	private function get_author_name($channel_id) //not used at the moment
-	{
-		$url = YOUTUBE_API_V3 . "/channels.list?id=" . $channel_id . "&part=snippet,contentDetails&key=" . DEVELOPER_KEY;
-	}
-	
+    private function get_author_name($channel_id) //not used at the moment
+    {
+        $url = YOUTUBE_API_V3 . "/channels.list?id=" . $channel_id . "&part=snippet,contentDetails&key=" . DEVELOPER_KEY;
+    }
+    
     private function parse_xml($rec)
     {
         $arr_data = array();
@@ -269,14 +269,14 @@ class YouTubeAPI
 
     private function get_sciname($strings_to_search)
     {
-		$options = $this->download_options;
-		$options['expire_seconds'] = 15552000; //six months before it expires
-	
+        $options = $this->download_options;
+        $options['expire_seconds'] = 15552000; //six months before it expires
+    
         $scinames = array();
         foreach($strings_to_search as $string)
         {
             if(!$string = trim($string)) continue;
-            $url = TAXON_FINDER_SERVICE . $string;
+            $url = TAXON_FINDER_SERVICE . urlencode($string);
             if($response = Functions::lookup_with_cache($url, $options)) //1hr timeout
             {
                 $response = simplexml_load_string($response);
@@ -288,6 +288,7 @@ class YouTubeAPI
                         $taxon_id = (string) $entity->namebankID;
                         $scinames[] = $sciname;
                     }
+                    // if($scinames) print_r($scinames); //peak/look-see at what Ubio's TaxoFinder gives us.
                 }
             }
             if($scinames) break; // if you get names in title, no need to search on description anymore
@@ -347,13 +348,13 @@ class YouTubeAPI
             }
         }
         foreach($match as $tag)
-		{
-			if(preg_match("/^taxonomy:" . $smallest_rank . "=(.*)$/i", $tag, $arr)) $sciname = ucfirst(trim($arr[1]));
-		}
+        {
+            if(preg_match("/^taxonomy:" . $smallest_rank . "=(.*)$/i", $tag, $arr)) $sciname = ucfirst(trim($arr[1]));
+        }
         if(!isset($sciname))
         {
             // echo "\n This needs checking..."; print_r($match); //debug - uncomment when developing...
-			$sciname = "";
+            $sciname = "";
         }
         return array("rank" => $smallest_rank, "name" => $sciname);
     }
@@ -379,13 +380,13 @@ class YouTubeAPI
         $taxon = array();
         $taxon["source"] = $rec["source"];
         $taxon["identifier"] = trim($rec["identifier"]);
-        $taxon["scientificName"] = ucfirst(trim($rec["sciname"]));
-        if($rec["sciname"] != @$rec["family"]) $taxon["family"] = ucfirst(trim(@$rec["family"]));
-        if($rec["sciname"] != @$rec["genus"]) $taxon["genus"] = ucfirst(trim(@$rec["genus"]));
-        if($rec["sciname"] != @$rec["order"]) $taxon["order"] = ucfirst(trim(@$rec["order"]));
-        if($rec["sciname"] != @$rec["class"]) $taxon["class"] = ucfirst(trim(@$rec["class"]));
-        if($rec["sciname"] != @$rec["phylum"]) $taxon["phylum"] = ucfirst(trim(@$rec["phylum"]));
-        if($rec["sciname"] != @$rec["kingdom"]) $taxon["kingdom"] = ucfirst(trim(@$rec["kingdom"]));
+        $taxon["scientificName"]                                    = self::format_name($rec["sciname"]);
+        if($rec["sciname"] != @$rec["family"]) $taxon["family"]     = self::format_name(@$rec["family"]);
+        if($rec["sciname"] != @$rec["genus"]) $taxon["genus"]       = self::format_name(@$rec["genus"]);
+        if($rec["sciname"] != @$rec["order"]) $taxon["order"]       = self::format_name(@$rec["order"]);
+        if($rec["sciname"] != @$rec["class"]) $taxon["class"]       = self::format_name(@$rec["class"]);
+        if($rec["sciname"] != @$rec["phylum"]) $taxon["phylum"]     = self::format_name(@$rec["phylum"]);
+        if($rec["sciname"] != @$rec["kingdom"]) $taxon["kingdom"]   = self::format_name(@$rec["kingdom"]);
         foreach($rec["commonNames"] as $comname) $taxon["commonNames"][] = new \SchemaCommonName(array("name" => $comname, "language" => ""));
         if($rec["arr_objects"])
         {
@@ -398,6 +399,12 @@ class YouTubeAPI
         }
         $taxon_object = new \SchemaTaxon($taxon);
         return $taxon_object;
+    }
+    
+    private function format_name($str)
+    {
+        $str = ucfirst(trim($str));
+        return str_replace('"', '', $str);
     }
 
     private function get_data_object($rec)
@@ -431,49 +438,49 @@ class YouTubeAPI
     }
 
     private function get_subscriber_usernames_for_v3() //no more usernames in V3. this is getting 
-	{
-		/* We need to excluded a number of YouTube users because they have many videos and none of which is for EOL and each of those videos is checked by the connector. */
-		$exclude_this_channel = array('PRI Public Radio International');
-		
-		$eol_channel_id = 'UCECuihlM1FFpO2lONWqY8gA';
+    {
+        /* We need to excluded a number of YouTube users because they have many videos and none of which is for EOL and each of those videos is checked by the connector. */
+        $exclude_this_channel = array('PRI Public Radio International');
+        
+        $eol_channel_id = 'UCECuihlM1FFpO2lONWqY8gA';
         $max_results = 10;
-		$page_token = false;
-	    while(true)
-	    {
-			$url = YOUTUBE_API_V3 . "/subscriptions?part=snippet&channelId=" . $eol_channel_id . "&key=" . DEVELOPER_KEY . "&maxResults=$max_results";
-			if($page_token) $url .= "&pageToken=" . $page_token;
-	        if($raw_json = Functions::lookup_with_cache($url, $this->download_options))
-	        {
-				$json = json_decode($raw_json);
-				if($val = @$json->nextPageToken) $page_token = $val;
-				else                             $page_token = false;
-				
-				if($json->items)
-				{
-					foreach($json->items as $items)
-					{
-						if(in_array($items->snippet->title, $exclude_this_channel))
-						{
-							echo "\nexcluded: " . $items->snippet->title . "\n";
-							continue;
-						}
-						$user_channel_ids[$items->snippet->title] = $items->snippet->resourceId->channelId;
-						$channel_playlist_ids[$items->snippet->resourceId->channelId] = self::get_playlist_id_using_channel_id($items->snippet->resourceId->channelId);
-						
-					}
-				}else break;
-	        }else break;
-			if(!$page_token) break;
-	    }
+        $page_token = false;
+        while(true)
+        {
+            $url = YOUTUBE_API_V3 . "/subscriptions?part=snippet&channelId=" . $eol_channel_id . "&key=" . DEVELOPER_KEY . "&maxResults=$max_results";
+            if($page_token) $url .= "&pageToken=" . $page_token;
+            if($raw_json = Functions::lookup_with_cache($url, $this->download_options))
+            {
+                $json = json_decode($raw_json);
+                if($val = @$json->nextPageToken) $page_token = $val;
+                else                             $page_token = false;
+                
+                if($json->items)
+                {
+                    foreach($json->items as $items)
+                    {
+                        if(in_array($items->snippet->title, $exclude_this_channel))
+                        {
+                            echo "\nexcluded: " . $items->snippet->title . "\n";
+                            continue;
+                        }
+                        $user_channel_ids[$items->snippet->title] = $items->snippet->resourceId->channelId;
+                        $channel_playlist_ids[$items->snippet->resourceId->channelId] = self::get_playlist_id_using_channel_id($items->snippet->resourceId->channelId);
+                        
+                    }
+                }else break;
+            }else break;
+            if(!$page_token) break;
+        }
 
-		// print_r($user_channel_ids);		echo "\ntotal: " . count($user_channel_ids);
-		// print_r($channel_playlist_ids);	echo "\ntotal: " . count($channel_playlist_ids);
-		return $channel_playlist_ids;
-	}
-	
+        // print_r($user_channel_ids);        echo "\ntotal: " . count($user_channel_ids);
+        // print_r($channel_playlist_ids);    echo "\ntotal: " . count($channel_playlist_ids);
+        return $channel_playlist_ids;
+    }
+    
     private function get_subscriber_usernames()
     {
-		// return array("sheshadriali" => self::get_playlist_id('sheshadriali')); //debug
+        // return array("sheshadriali" => self::get_playlist_id('sheshadriali')); //debug
 
         $usernames_of_subscribers = array();
         $usernames_of_subscribers['EncyclopediaOfLife'] = self::get_playlist_id('EncyclopediaOfLife');
@@ -484,12 +491,12 @@ class YouTubeAPI
         $start_index = 1;
         $max_results = 20;
         while(true)
-        {	
+        {    
             echo "\n Getting subscriptions...";
             $url = YOUTUBE_API . '/users/' . YOUTUBE_EOL_USER . '/subscriptions?v=2' . "&start-index=$start_index&max-results=$max_results";
             if($xml = Functions::lookup_with_cache($url, $this->download_options))
             {
-            	$xml = simplexml_load_string($xml);
+                $xml = simplexml_load_string($xml);
                 if($xml->entry)
                 {
                     foreach($xml->entry as $entry)
@@ -505,31 +512,31 @@ class YouTubeAPI
             else break;
             // break; //debug
         }
-		
+        
         return $usernames_of_subscribers;
     }
 
-	private function get_playlist_id_using_channel_id($channel_id)
-	{
-		$url = YOUTUBE_API_V3 . "/channels?part=contentDetails&id=" . $channel_id . "&key=" . DEVELOPER_KEY;
-	    if($raw_json = Functions::lookup_with_cache($url, $this->download_options))
-		{
-	        $json = json_decode($raw_json);
-			if($val = @$json->items[0]->contentDetails->relatedPlaylists->uploads) return $val;
-			else return false; 
-		}
-	}
-	
-	private function get_playlist_id($username)
-	{
-		$url = YOUTUBE_API_V3 . "/channels?part=snippet,contentDetails,statistics,status&forUsername=" . $username . "&key=" . DEVELOPER_KEY;
-	    if($raw_json = Functions::lookup_with_cache($url, $this->download_options))
-		{
-	        $json = json_decode($raw_json);
-			if($val = @$json->items[0]->contentDetails->relatedPlaylists->uploads) return $val;
-			else return false; 
-		}
-	}
+    private function get_playlist_id_using_channel_id($channel_id)
+    {
+        $url = YOUTUBE_API_V3 . "/channels?part=contentDetails&id=" . $channel_id . "&key=" . DEVELOPER_KEY;
+        if($raw_json = Functions::lookup_with_cache($url, $this->download_options))
+        {
+            $json = json_decode($raw_json);
+            if($val = @$json->items[0]->contentDetails->relatedPlaylists->uploads) return $val;
+            else return false; 
+        }
+    }
+    
+    private function get_playlist_id($username)
+    {
+        $url = YOUTUBE_API_V3 . "/channels?part=snippet,contentDetails,statistics,status&forUsername=" . $username . "&key=" . DEVELOPER_KEY;
+        if($raw_json = Functions::lookup_with_cache($url, $this->download_options))
+        {
+            $json = json_decode($raw_json);
+            if($val = @$json->items[0]->contentDetails->relatedPlaylists->uploads) return $val;
+            else return false; 
+        }
+    }
 
     public function get_upload_videos_from_usernames($usernames)
     {
@@ -537,32 +544,32 @@ class YouTubeAPI
         $user_video_ids = array();
         foreach($usernames as $username => $playlist_id)
         {
-			if(!$playlist_id) continue;
+            if(!$playlist_id) continue;
             echo "\n Getting video list for $username...";
-			$page_token = false;
+            $page_token = false;
             while(true)
             {
-				$url = YOUTUBE_API_V3 . "/playlistItems?part=snippet,contentDetails,status&playlistId=" . $playlist_id . "&key=" . DEVELOPER_KEY . "&maxResults=$max_results";
-				if($page_token) $url .= "&pageToken=" . $page_token;
+                $url = YOUTUBE_API_V3 . "/playlistItems?part=snippet,contentDetails,status&playlistId=" . $playlist_id . "&key=" . DEVELOPER_KEY . "&maxResults=$max_results";
+                if($page_token) $url .= "&pageToken=" . $page_token;
                 if($raw_json = Functions::lookup_with_cache($url, $this->download_options))
                 {
-					$words = array("taxonomy", "trinomial", "binomial", "genus", "subfamily", "family", "order", "class", "phylum", "division", "kingdom");
-					foreach($words as $word) $raw_json = str_ireplace($word, strtolower($word), $raw_json);
-			        
-					$raw_json = str_ireplace("taxonomy: binomial", "taxonomy:binomial", $raw_json);
-			        $raw_json = str_ireplace("taxonomy:binomial:", "taxonomy:binomial=", $raw_json);
-					$json = json_decode($raw_json);
-					if($val = @$json->nextPageToken) $page_token = $val;
-					else                             $page_token = false;
+                    $words = array("taxonomy", "trinomial", "binomial", "genus", "subfamily", "family", "order", "class", "phylum", "division", "kingdom");
+                    foreach($words as $word) $raw_json = str_ireplace($word, strtolower($word), $raw_json);
+                    
+                    $raw_json = str_ireplace("taxonomy: binomial", "taxonomy:binomial", $raw_json);
+                    $raw_json = str_ireplace("taxonomy:binomial:", "taxonomy:binomial=", $raw_json);
+                    $json = json_decode($raw_json);
+                    if($val = @$json->nextPageToken) $page_token = $val;
+                    else                             $page_token = false;
                     if($json->items)
                     {
-						// echo "\n" . count($json->items) . "\n";
+                        // echo "\n" . count($json->items) . "\n";
                         foreach($json->items as $items) $user_video_ids[$username][] = $items;
                     }else break;
                 }else break;
-				if(!$page_token) break;
+                if(!$page_token) break;
             }
-			// break; //debug
+            // break; //debug
         }
         return $user_video_ids;
     }

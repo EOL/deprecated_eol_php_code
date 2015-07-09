@@ -79,21 +79,25 @@ class VimeoAPI
         if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 1296000; //debug orig value = 1296000
         if(!isset($options['timeout']))        $options['timeout'] = 240;
         if(!isset($options['cache_path'])) $options['cache_path'] = DOC_ROOT . "tmp/cache/";
-        // if(!isset($options['cache_path'])) $options['cache_path'] = "/Users/eli/eol_cache/";	//debug - only during development
+        // if(!isset($options['cache_path'])) $options['cache_path'] = "/Volumes/Eli black/eol_cache/";    //debug - only during development
 
-		$url = $command . implode("_", $param);
+        $url = $command . implode("_", $param);
         $md5 = md5($url);
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
+        
+        $options['cache_path'] .= "vimeo/";
+        if(!file_exists($options['cache_path'])) mkdir($options['cache_path']);
+        
         if(!file_exists($options['cache_path'] . $cache1)) mkdir($options['cache_path'] . $cache1);
         if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
         $cache_path = $options['cache_path'] . "$cache1/$cache2/$md5.cache";
         if(file_exists($cache_path))
         {
             $file_contents = file_get_contents($cache_path);
-			if(!Functions::is_utf8($file_contents)) $file_contents = utf8_encode($file_contents);
-			$obj = json_decode($file_contents);
-			
+            if(!Functions::is_utf8($file_contents)) $file_contents = utf8_encode($file_contents);
+            $obj = json_decode($file_contents);
+            
             if(($file_contents) || (strval($file_contents) == "0"))
             {
                 $file_age_in_seconds = time() - filemtime($cache_path);
@@ -103,23 +107,23 @@ class VimeoAPI
             @unlink($cache_path);
         }
 
-		if($obj = $vimeo->call($command, $param))
+        if($obj = $vimeo->call($command, $param))
         {
-			$file_contents = json_encode($obj);
-	        if($FILE = Functions::file_open($cache_path, 'w+')) // normal
-	        {
-	            fwrite($FILE, $file_contents);
-	            fclose($FILE);
-	        }
-	        else // can happen when cache_path is from external drive with corrupt dir/file
-	        {
-	            if(!($h = Functions::file_open(DOC_ROOT . "/public/tmp/cant_delete.txt", 'a'))) return;
-	            fwrite($h, $cache_path . "\n");
-	            fclose($h);
-	        }
-	        return $obj;
-		}
-		return false;
+            $file_contents = json_encode($obj);
+            if($FILE = Functions::file_open($cache_path, 'w+')) // normal
+            {
+                fwrite($FILE, $file_contents);
+                fclose($FILE);
+            }
+            else // can happen when cache_path is from external drive with corrupt dir/file
+            {
+                if(!($h = Functions::file_open(DOC_ROOT . "/public/tmp/cant_delete.txt", 'a'))) return;
+                fwrite($h, $cache_path . "\n");
+                fclose($h);
+            }
+            return $obj;
+        }
+        return false;
     }
 
     function get_list_of_user_ids($vimeo)
@@ -229,12 +233,12 @@ class VimeoAPI
         {
             if($license = $rec->license) $license = self::get_cc_license($license);
             else
-			{
-				/* working but commented since it is too heavy with all those extra page loads, the total no. didn't actually change so this step can be excluded
-				$license = self::get_license_from_page($rec->urls->url{0}->{"_content"}); //license from Vimeo license settings - scraped from the video page
-				*/
-				$license = false;
-			}
+            {
+                /* working but commented since it is too heavy with all those extra page loads, the total no. didn't actually change so this step can be excluded
+                $license = self::get_license_from_page($rec->urls->url{0}->{"_content"}); //license from Vimeo license settings - scraped from the video page
+                */
+                $license = false;
+            }
         }
 
         //has to have a valid license
@@ -361,7 +365,7 @@ class VimeoAPI
         {
             echo("\nThis needs checking...");
             print_r($match);
-			$sciname = '';
+            $sciname = '';
         }
         return array("rank" => $smallest_rank, "name" => $sciname);
     }

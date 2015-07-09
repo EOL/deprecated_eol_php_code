@@ -79,6 +79,16 @@ class Functions
         return $count;
     }
     
+    public static function can_this_connector_run($resource_id)
+    {
+        if(($count = Functions::grep_processlist("$resource_id.php")) > 1)
+        {
+          error_log("!! ERROR: This connector [$resource_id.php] is already running. Exiting.");
+          return false;
+        }
+        return true;
+    }
+    
     public static function get_remote_file($remote_url, $options = array())
     {
         if(!isset($options['download_wait_time'])) $options['download_wait_time'] = DOWNLOAD_WAIT_TIME;

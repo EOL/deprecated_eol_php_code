@@ -11,6 +11,7 @@ define("WIKI_PREFIX", "http://commons.wikimedia.org/wiki/");
 require_vendor("wikipedia");
 
 $resource_id = 71;
+if(!Functions::can_this_connector_run($resource_id)) return;
 $w = new WikimediaHarvester(Resource::find($resource_id));
 $w->begin_wikimedia_harvest("update_resources/connectors/files/");
 
