@@ -9,6 +9,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/VimeoAPI');
 
 $resource_id = 214;
+if(!Functions::can_this_connector_run($resource_id)) return;
 $func = new VimeoAPI();
 $taxa = $func->get_all_taxa();
 $xml = \SchemaDocument::get_taxon_xml($taxa);

@@ -79,12 +79,16 @@ class VimeoAPI
         if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 1296000; //debug orig value = 1296000
         if(!isset($options['timeout']))        $options['timeout'] = 240;
         if(!isset($options['cache_path'])) $options['cache_path'] = DOC_ROOT . "tmp/cache/";
-        // if(!isset($options['cache_path'])) $options['cache_path'] = "/Users/eli/eol_cache/";    //debug - only during development
+        // if(!isset($options['cache_path'])) $options['cache_path'] = "/Volumes/Eli black/eol_cache/";    //debug - only during development
 
         $url = $command . implode("_", $param);
         $md5 = md5($url);
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
+        
+        $options['cache_path'] .= "vimeo/";
+        if(!file_exists($options['cache_path'])) mkdir($options['cache_path']);
+        
         if(!file_exists($options['cache_path'] . $cache1)) mkdir($options['cache_path'] . $cache1);
         if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
         $cache_path = $options['cache_path'] . "$cache1/$cache2/$md5.cache";
