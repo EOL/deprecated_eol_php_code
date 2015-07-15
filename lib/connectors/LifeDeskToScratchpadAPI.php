@@ -5,18 +5,18 @@ class LifeDeskToScratchpadAPI
 {
     function __construct()
     {
-        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 2, 'delay_in_minutes' => 2); // 15mins timeout
+        $this->download_options = array('resource_id' => 'LD_Scratchpad', 'download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 2, 'delay_in_minutes' => 2); // 15mins timeout
         $this->download_options["expire_seconds"] = 0; // zip file, bibtex
         /*
-        $this->file_importer_xls["image"] = "http://localhost/~eolit/cp/LD2Scratchpad/templates/file_importer_image_xls.xls";
-        $this->file_importer_xls["text"] = "http://localhost/~eolit/cp/LD2Scratchpad/templates/TEMPLATE-import_into_taxon_description_xls.xls";
-        $this->file_importer_xls["parent_child"]= "http://localhost/~eolit/cp/LD2Scratchpad/templates/template_parent_child.xls";
+        $this->file_importer_xls["image"] = "http://localhost/cp/LD2Scratchpad/templates/file_importer_image_xls.xls";
+        $this->file_importer_xls["text"] = "http://localhost/cp/LD2Scratchpad/templates/TEMPLATE-import_into_taxon_description_xls.xls";
+        $this->file_importer_xls["parent_child"]= "http://localhost/cp/LD2Scratchpad/templates/template_parent_child.xls";
         */
         $this->file_importer_xls["image"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/templates/file_importer_image_xls.xls";
         $this->file_importer_xls["text"] = "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/templates/TEMPLATE-import_into_taxon_description_xls.xls";
         $this->file_importer_xls["parent_child"]= "https://dl.dropboxusercontent.com/u/7597512/LifeDesk_exports/templates/template_parent_child.xls";
         
-        $this->spreadsheet_options = array("cache" => 1, "timeout" => 3600, "file_extension" => "xls", 'download_attempts' => 2, 'delay_in_minutes' => 2);
+        $this->spreadsheet_options = array("cache" => 1, "timeout" => 3600, "file_extension" => "xls", 'download_attempts' => 2, 'delay_in_minutes' => 2, 'resource_id' => 'LD_Scratchpad');
         $this->spreadsheet_options["expire_seconds"] = 0; // false => won't expire; 0 => expires now
         
         $this->LD_image_source_expire_seconds = false;  // false => won't expire; 0 => expires now
@@ -294,6 +294,12 @@ class LifeDeskToScratchpadAPI
     
     public function convert_spreadsheet($spreadsheet, $worksheet = null, $spreadsheet_options = array())
     {
+        if(!self::fileExists($spreadsheet))
+        {
+            echo "\nSpreadsheet does not exist [$spreadsheet]\n";
+            return false;
+        }
+        else echo "\nSpreadsheet exists [$spreadsheet]\n";
         if(!$spreadsheet_options) $spreadsheet_options = $this->spreadsheet_options;
         require_library('XLSParser');
         $parser = new XLSParser();
@@ -305,6 +311,11 @@ class LifeDeskToScratchpadAPI
         }
         else echo "\n [$spreadsheet] unavailable! \n";
         return false;
+    }
+    
+    private function fileExists($path)
+    {
+        return (@fopen($path, "r") == true);
     }
     
     private function load_xml()
@@ -643,11 +654,11 @@ class LifeDeskToScratchpadAPI
         $parts = pathinfo($this->text_path["eol_xml"]);
         $dump_file = $parts["dirname"] . "/images_not_in_xls2.txt";
         
-        // [lifedesk]           => http://localhost/~eolit/cp/LD2Scratchpad/olivirv/eol-partnership.xml.gz
-        // [bibtex_file]        => http://localhost/~eolit/cp/LD2Scratchpad/olivirv/Biblio-Bibtex.bib
-        // [scratchpad_images]  => http://localhost/~eolit/cp/LD2Scratchpad/olivirv/file_importer_image_xls.xls
+        // [lifedesk]           => http://localhost/cp/LD2Scratchpad/olivirv/eol-partnership.xml.gz
+        // [bibtex_file]        => http://localhost/cp/LD2Scratchpad/olivirv/Biblio-Bibtex.bib
+        // [scratchpad_images]  => http://localhost/cp/LD2Scratchpad/olivirv/file_importer_image_xls.xls
         // [name]               => olivirv
-        // [scratchpad_biblio]  => http://localhost/~eolit/cp/LD2Scratchpad/olivirv/node_importer_biblio_xls.xls
+        // [scratchpad_biblio]  => http://localhost/cp/LD2Scratchpad/olivirv/node_importer_biblio_xls.xls
 
         $options = $this->download_options;
         $options['expire_seconds'] = $this->LD_nodes_pages_expire_seconds; // lookup to LifeDesk page should not expire unless requested to have a fresh export to scratchpad
@@ -730,7 +741,8 @@ class LifeDeskToScratchpadAPI
     {
         if($what == "image") $var = "node";
         if($what == "taxa") $var = "pages";
-        
+
+        $nodes = array();
         $url = "http://" . $params["name"] . ".lifedesks.org/$what";
         if($html = Functions::lookup_with_cache($url, $options))
         {
@@ -739,7 +751,6 @@ class LifeDeskToScratchpadAPI
             else $last_page = 0;
 
             echo "\n last page: [$last_page]\n";
-            $nodes = array();
             $page = 0;
             for($page = 0; $page <= $last_page; $page++)
             {
@@ -765,7 +776,11 @@ class LifeDeskToScratchpadAPI
                                     {
                                         $tds = $arr[1];
                                         // <span class="taxon-list taxon_description_missing">&nbsp;</span>
-                                        if(count($tds) != 4) exit("\nInvestigate: wrong no. of columns\n");
+                                        if(count($tds) != 4)
+                                        {
+                                            if(in_array($params["name"], array('porifera'))) continue;
+                                            else exit("\nInvestigate: wrong no. of columns\n");
+                                        }
                                         $condition = is_numeric(stripos($tds[1], 'class="taxon-list taxon_description"'));
                                         if(@$params['scratchpad_biblio'])   $condition = true; // get all rows --- old value -> $condition = is_numeric(stripos($tds[1], 'class="taxon-list taxon_description"')) || is_numeric(stripos($tds[1], 'class="taxon-list biblio"'));
                                         if(@$params['scratchpad_taxonomy']) $condition = true; // get all rows

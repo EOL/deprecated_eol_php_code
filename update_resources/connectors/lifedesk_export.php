@@ -17,8 +17,8 @@ $desks = array("nemertea", "peracarida", "syrphidae", "tunicata", "leptogastrina
     "ebasidiolichens", "hundrednewlichens", "molluscacolombia", "lincolnsflorafauna", "arachnids", "congofishes", "indiareeffishes", "olivirv", "avesamericanas", 
     "neotropnathistory", "quercus", "caterpillars", "africanamphibians", "neotropicalfishes", "dinoflagellate", "chess", "diatoms", "deepseacoral", "choreutidae", 
     "taiwanseagrasses", "odonata", "alpheidae", "tearga", "canopy", "naididae", "ebivalvia", "compositae", "korupplants", "scarabaeinae", "cyanolichens", "annelida", 
-    "polychaetasouthocean", "batrach"); // "terrslugs" ***
-$desks = array("batrach");
+    "polychaetasouthocean", "batrach", "echinoderms"); // "terrslugs" ***
+$desks = array("echinoderms");
 foreach($desks as $desk)
 {
     //remote
@@ -32,12 +32,12 @@ foreach($desks as $desk)
     $params[$desk]["dropbox"]["scratchpad_images"] = "";
     $params[$desk]["dropbox"]["name"]              = $desk;
     //local
-    $params[$desk]["local"]["lifedesk"]           = "http://localhost/~eolit/cp/LD2Scratchpad/" . $desk . "/eol-partnership.xml.gz";
+    $params[$desk]["local"]["lifedesk"]           = "http://localhost/cp/LD2Scratchpad/" . $desk . "/eol-partnership.xml.gz";
     $params[$desk]["local"]["bibtex_file"]        = "";
-    $params[$desk]["local"]["scratchpad_images"]  = "http://localhost/~eolit/cp/LD2Scratchpad/" . $desk . "/file_importer_image_xls.xls";
+    $params[$desk]["local"]["scratchpad_images"]  = "http://localhost/cp/LD2Scratchpad/" . $desk . "/file_importer_image_xls.xls";
     $params[$desk]["local"]["name"]               = $desk;
-    $params[$desk]["local"]["scratchpad_biblio"]  = "http://localhost/~eolit/cp/LD2Scratchpad/" . $desk . "/node_importer_biblio_xls.xls";
-    if($desk == "africanamphibians") $params[$desk]["local"]["scratchpad_taxonomy"]= "http://localhost/~eolit/cp/LD2Scratchpad/" . $desk . "/taxonomy_importer_xls.xls";
+    $params[$desk]["local"]["scratchpad_biblio"]  = "http://localhost/cp/LD2Scratchpad/" . $desk . "/node_importer_biblio_xls.xls";
+    if($desk == "africanamphibians") $params[$desk]["local"]["scratchpad_taxonomy"]= "http://localhost/cp/LD2Scratchpad/" . $desk . "/taxonomy_importer_xls.xls";
     
     $func = new LifeDeskToScratchpadAPI();
     $func->export_lifedesk_to_scratchpad($params[$desk]["local"]);
@@ -46,7 +46,7 @@ foreach($desks as $desk)
 /* start: Generate taxonomy of a LifeDesk 
 // neotropicalfishes local
 $params = array();
-$params["neotropicalfishes"]["local"]["lifedesk"]   = "http://localhost/~eolit/cp/LD2Scratchpad/neotropicalfishes/eol-partnership.xml.gz";
+$params["neotropicalfishes"]["local"]["lifedesk"]   = "http://localhost/cp/LD2Scratchpad/neotropicalfishes/eol-partnership.xml.gz";
 $params["neotropicalfishes"]["local"]["name"]       = "neotropicalfishes";
 $parameters = $params["neotropicalfishes"]["local"];
 $func->export_lifedesk_taxonomy($parameters);
