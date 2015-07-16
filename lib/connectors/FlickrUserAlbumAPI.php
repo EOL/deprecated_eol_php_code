@@ -8,8 +8,7 @@ class FlickrUserAlbumAPI
     {
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        $this->download_options = array('expire_seconds' => 5184000, 'timeout' => 7200, 'download_wait_time' => 1000000, // 2 months expire_seconds
-        'cache_path' => "/Volumes/Eli blue/eol_cache_feller_flora_helvetica/"); //enter this in Functions lib as well, since calls are made to Flick API as well
+        $this->download_options = array('resource_id' => $resource_id, 'expire_seconds' => 5184000, 'timeout' => 7200, 'download_wait_time' => 1000000); // 2 months expire_seconds
         // $this->download_options['expire_seconds'] = false;
         $this->service['photosets'] = 'https://api.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=' . FLICKR_API_KEY . '&format=json&nojsoncallback=1';
     }
@@ -53,14 +52,10 @@ class FlickrUserAlbumAPI
                         //     print_r($rec);
                         // }
 
-                        $photo_response = FlickrAPI::photos_get_info($rec->id, $rec->secret, $auth_token);
+                        $photo_response = FlickrAPI::photos_get_info($rec->id, $rec->secret, $auth_token, $this->download_options);
                         $photo = @$photo_response->photo;
 
-                        if(!$photo)
-                        {
-                            debug("\n\nERROR:Photo $photo_id is not available\n\n");
-                            continue;
-                        }
+                        if(!$photo) continue;
                         if($photo->visibility->ispublic != 1)               continue;
                         if($photo->usage->candownload != 1)                 continue;
                         if(@!$GLOBALS["flickr_licenses"][$photo->license])  continue;
