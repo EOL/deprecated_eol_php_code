@@ -20,7 +20,7 @@ class AmphibiawebDataAPI
     {
         //TODO: [next] button is not processed
         ini_set("auto_detect_line_endings", true);
-        $filename = Functions::save_remote_file_to_local($this->strings_to_search, array('cache' => 1));
+        $filename = Functions::save_remote_file_to_local($this->strings_to_search, array('cache' => 1, 'resource_id' => '959')); //resource_id here is just to have the cache stored in that folder
         
         $types[1] = 'country records';
         $types[2] = 'US state records';
