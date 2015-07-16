@@ -7,8 +7,8 @@ class ScorpionFilesAPI
     {
         $this->domain = "http://www.ntnu.no/ub/scorpion-files/";
         $this->family_list = $this->domain . "higher_phylogeny.php";
-        $this->download_options = array("download_wait_time" => 1000000, "timeout" => 1800, "download_attempts" => 1, "delay_in_minutes" => 1);
-        // $this->download_options['expire_seconds'] = false;
+        $this->download_options = array("resource_id" => "scorpion", "download_wait_time" => 1000000, "timeout" => 1800, "download_attempts" => 1, "delay_in_minutes" => 1);
+        $this->download_options['expire_seconds'] = false;
     }
 
     function get_all_taxa()
