@@ -57,8 +57,9 @@ class VimeoAPI
 
     public static function vimeo_call_with_retry($vimeo, $command, $param)
     {
+        $no_of_trials = 2;
         $trials = 1;
-        while($trials <= 5)
+        while($trials <= $no_of_trials)
         {
             // if($obj = $vimeo->call($command, $param)) return $obj; => old version, without caching
             if($obj = self::lookup_with_cache_vimeo_call($vimeo, $command, $param)) return $obj;
@@ -69,11 +70,11 @@ class VimeoAPI
                 $trials++;
             }
         }
-        echo("\nFailed after 5 tries.");
+        echo("\nFailed after $no_of_trials tries.");
         return false;
     }
     
-    private function lookup_with_cache_vimeo_call($vimeo, $command, $param, $options = array())
+    private static function lookup_with_cache_vimeo_call($vimeo, $command, $param, $options = array())
     {
         // default expire time is 15 days
         if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 1296000; //debug orig value = 1296000
@@ -126,7 +127,7 @@ class VimeoAPI
         return false;
     }
 
-    function get_list_of_user_ids($vimeo)
+    private static function get_list_of_user_ids($vimeo)
     {
         //get the members of the group
         $user_ids = array();
@@ -172,7 +173,7 @@ class VimeoAPI
         return array($page_taxa, $used_collection_ids);
     }
 
-    function parse_xml($rec)
+    private static function parse_xml($rec)
     {
         $arr_data = array();
         $description = Functions::import_decode($rec->description);
