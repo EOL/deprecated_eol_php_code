@@ -313,9 +313,16 @@ class LifeDeskToScratchpadAPI
         return false;
     }
     
-    private function fileExists($path)
+    public function fileExists($path)
     {
-        return (@fopen($path, "r") == true);
+        $ch = curl_init($path);
+        curl_setopt($ch, CURLOPT_NOBODY, true);
+        curl_exec($ch);
+        $retcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        // $retcode >= 400 -> not found, $retcode = 200, found.
+        curl_close($ch);
+        if($retcode >= 400) return false;
+        else return true;
     }
     
     private function load_xml()
