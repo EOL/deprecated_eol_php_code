@@ -191,10 +191,10 @@ class RelateHierarchies
 
     private function compare_names(&$e1, &$e2, $is_virus = false)
     {
-        // names are assigned and identical
-        if($e1->name && $e2->name && $e1->name == $e2->name) return 1;
         // canonical_forms are assigned and identical
-        if(!$is_virus && @$e1->canonical_form && @$e2->canonical_form && $e1->canonical_form == $e2->canonical_form) return .5;
+        if(!$is_virus && @$e1->canonical_form && @$e2->canonical_form && $e1->canonical_form == $e2->canonical_form) return 1;
+        // names are assigned and identical
+        if($e1->name && $e2->name && $e1->name == $e2->name) return .5;
         return 0;
     }
 
