@@ -2,6 +2,12 @@
 namespace php_active_record;
 /* connector for Vimeo 
 estimated execution time: 46 minutes
+
+                    Jul20
+agent.tab           [20]
+media_resource.tab  [254]
+taxon.tab           [172]
+vernacular_name.tab [38]
 */
 
 $timestart = microtime(1);

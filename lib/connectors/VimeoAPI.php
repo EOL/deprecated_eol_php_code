@@ -57,8 +57,9 @@ class VimeoAPI
 
     public static function vimeo_call_with_retry($vimeo, $command, $param)
     {
+        $no_of_trials = 2;
         $trials = 1;
-        while($trials <= 5)
+        while($trials <= $no_of_trials)
         {
             // if($obj = $vimeo->call($command, $param)) return $obj; => old version, without caching
             if($obj = self::lookup_with_cache_vimeo_call($vimeo, $command, $param)) return $obj;
@@ -69,11 +70,11 @@ class VimeoAPI
                 $trials++;
             }
         }
-        echo("\nFailed after 5 tries.");
+        echo("\nFailed after $no_of_trials tries.");
         return false;
     }
     
-    private function lookup_with_cache_vimeo_call($vimeo, $command, $param, $options = array())
+    private static function lookup_with_cache_vimeo_call($vimeo, $command, $param, $options = array())
     {
         // default expire time is 15 days
         if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 1296000; //debug orig value = 1296000
@@ -126,7 +127,7 @@ class VimeoAPI
         return false;
     }
 
-    function get_list_of_user_ids($vimeo)
+    private static function get_list_of_user_ids($vimeo)
     {
         //get the members of the group
         $user_ids = array();
@@ -172,7 +173,7 @@ class VimeoAPI
         return array($page_taxa, $used_collection_ids);
     }
 
-    function parse_xml($rec)
+    private static function parse_xml($rec)
     {
         $arr_data = array();
         $description = Functions::import_decode($rec->description);
@@ -291,7 +292,7 @@ class VimeoAPI
         return $arr_data;
     }
 
-    private function adjust_sciname($arr_sciname, $sciname)
+    private static function adjust_sciname($arr_sciname, $sciname)
     {
         /* if there is genus e.g. "Testudo", and species e.g. "T. marginata", then it will return "Testudo marginata" */
         if(@$arr_sciname[$sciname]['genus'])
@@ -306,7 +307,7 @@ class VimeoAPI
         return false;
     }
     
-    function initialize($sciname, $arr_sciname=NULL)
+    private static function initialize($sciname, $arr_sciname=NULL)
     {
         $arr_sciname[$sciname]['binomial']    = "";
         $arr_sciname[$sciname]['trinomial']   = "";
@@ -322,7 +323,7 @@ class VimeoAPI
         return $arr_sciname;
     }
 
-    function is_multiple_taxa_video($arr)
+    private static function is_multiple_taxa_video($arr)
     {
         $taxa=array();
         foreach($arr as $tag)
@@ -337,7 +338,7 @@ class VimeoAPI
         return 0;
     }
 
-    function get_smallest_rank($match)
+    private static function get_smallest_rank($match)
     {
         /*
           [0] => taxonomy:order=Lepidoptera&nbsp;[taxonomy:family=Lymantriidae
@@ -370,7 +371,7 @@ class VimeoAPI
         return array("rank" => $smallest_rank, "name" => $sciname);
     }
 
-    function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects)
+    private static function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects)
     {
         $arr_objects[] = array( "identifier"   => $identifier,
                                 "dataType"     => $dataType,
@@ -386,7 +387,7 @@ class VimeoAPI
         return $arr_objects;
     }
 
-    function get_taxa_for_photo($rec)
+    private static function get_taxa_for_photo($rec)
     {
         $taxon = array();
         $taxon["source"] = $rec["source"];
@@ -418,7 +419,7 @@ class VimeoAPI
         return $taxon_object;
     }
 
-    function get_data_object($rec)
+    private static function get_data_object($rec)
     {
         $data_object_parameters = array();
         $data_object_parameters["identifier"]   = trim(@$rec["identifier"]);
@@ -450,7 +451,7 @@ class VimeoAPI
         return $data_object_parameters;
     }
 
-    function get_cc_license($license)
+    private static function get_cc_license($license)
     {
         switch($license)
         {

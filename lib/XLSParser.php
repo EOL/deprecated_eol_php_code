@@ -13,7 +13,8 @@ class XLSParser
         require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel.php';
         
         if(!isset($this->open_spreadsheets)) $this->open_spreadsheets = array();
-        $ext = strtolower(end(explode('.', $spreadsheet)));
+        $temp = explode('.', $spreadsheet); //to avoid E_STRICT warning - only variables can be passed by reference
+        $ext = strtolower(end($temp));
         if(isset($this->open_spreadsheets['spreadsheet']))
         {
             $objPHPExcel = $this->open_spreadsheets['spreadsheet'];

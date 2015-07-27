@@ -451,20 +451,14 @@ class Functions
 
     public static function get_eol_defined_uris($download_options = false)
     {
-        if(!$download_options) $download_options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 2, 'delay_in_minutes' => 2, 'expire_seconds' => 86400); //expires in 24 hours
-        for($i=1; $i<=7; $i++)
+        if(!$download_options) $download_options = array('resource_id' => 'URIs', 'download_wait_time' => 1000000, 'timeout' => 900, 'expire_seconds' => 86400, 'download_attempts' => 1); //expires in 24 hours
+        for($i=1; $i<=12; $i++)
         {
             $urls = array();
             // $urls[] = "http://localhost/cp/TraitRequest/measurements/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
-            // $urls[] = "http://localhost/cp/TraitRequest/values/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
             $urls[] = "https://dl.dropboxusercontent.com/u/7597512/TraitRequest/measurements/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
-            $urls[] = "https://dl.dropboxusercontent.com/u/7597512/TraitRequest/values/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
             foreach($urls as $url)
             {
-                if(is_numeric(stripos($url, "values"))) //this only has 4 files
-                {
-                    if($i >= 5) continue;
-                }
                 if($html = Functions::lookup_with_cache($url, $download_options))
                 {
                     $html = str_ireplace("<wbr/>", "", $html);
@@ -485,6 +479,7 @@ class Functions
                         }
                     }
                 }
+                else return $rec;
             }
         }
         return $rec;

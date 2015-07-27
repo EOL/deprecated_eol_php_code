@@ -12,9 +12,9 @@ class FishBaseArchiveAPI
     public function __construct($test_run = false, $folder)
     {
         $this->test_run = $test_run;
-        // $this->fishbase_data = "http://localhost/~eolit/cp/FishBase/fishbase_in_folder.zip";
-        // $this->fishbase_data = "http://localhost/~eolit/cp/FishBase/fishbase_not_in_folder.zip";
-        // $this->fishbase_data = "http://localhost/~eolit/cp/FishBase/fishbase.zip";
+        // $this->fishbase_data = "http://localhost/cp/FishBase/fishbase_in_folder.zip";
+        // $this->fishbase_data = "http://localhost/cp/FishBase/fishbase_not_in_folder.zip";
+        // $this->fishbase_data = "http://localhost/cp/FishBase/fishbase.zip";
         $this->fishbase_data = "http://www.fishbase.us/FB_data_for_EOL/fishbase.zip";
         if($this->test_run) $this->fishbase_data = "http://dl.dropbox.com/u/7597512/FishBase/fishbase_not_in_folder.zip";
         $this->text_path = array();
@@ -28,7 +28,7 @@ class FishBaseArchiveAPI
         $this->object_agent_ids     = array();
         $this->reference_ids        = array();
         $this->agent_ids            = array();
-        $this->uri_mappings_spreadsheet = "http://localhost/~eolit/cp/FishBase/fishbase mappings.xlsx";
+        $this->uri_mappings_spreadsheet = "http://localhost/cp/FishBase/fishbase mappings.xlsx";
         $this->uri_mappings_spreadsheet = "https://dl.dropboxusercontent.com/u/7597512/FishBase/fishbase mappings.xlsx";
     }
 
@@ -72,7 +72,7 @@ class FishBaseArchiveAPI
     function load_zip_contents()
     {
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
-        if($file_contents = Functions::get_remote_file($this->fishbase_data, array('timeout' => 172800)))
+        if($file_contents = Functions::lookup_with_cache($this->fishbase_data, array('resource_id' => 42, 'timeout' => 172800, 'expire_seconds' => 1728000))) // expire_seconds = 20 days in normal operation 1728000
         {
             $temp_file_path = $this->TEMP_FILE_PATH . "/fishbase.zip";
             if(!($TMP = Functions::file_open($temp_file_path, "w"))) return;
