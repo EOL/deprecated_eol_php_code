@@ -49,8 +49,7 @@ class MysqliConnection
 
     function insert($query)
     {
-        if(!$this->check())
-        	debug("MySQL server is down\n");
+        $this->check();
         $this->debug($query, true);
 
         $this->master_mysqli->query($query);
@@ -66,8 +65,7 @@ class MysqliConnection
 
     function update($query)
     {
-        if(!$this->check())
-        	debug("MySQL server is down\n");
+        $this->check();
         $this->debug($query, true);
 
         $result = $this->master_mysqli->query($query);
@@ -88,8 +86,7 @@ class MysqliConnection
 
     function delete($query)
     {
-        if(!$this->check())
-        	debug("MySQL server is down\n");
+        $this->check();
         $this->debug($query, true);
 
         $result = $this->master_mysqli->query($query);
@@ -105,8 +102,7 @@ class MysqliConnection
 
     function select($query)
     {
-        if(!$this->check())
-        	debug("MySQL server is down\n");
+        $this->check();
         $this->debug($query, false);
 
         $result = $this->mysqli->query($query);
@@ -166,8 +162,7 @@ class MysqliConnection
     function multi_query($query)
     {
         if(!trim($query)) return;
-        if(!$this->check())
-        	debug("MySQL server is down\n");
+        $this->check();
         $this->debug($query, true);
 
         if($this->master_mysqli->multi_query($query))
@@ -363,8 +358,7 @@ class MysqliConnection
     function truncate_tables($environment = "test")
     {
         if($GLOBALS['ENV_NAME'] != $environment) return false;
-        if(!$this->check())
-			debug("MySQL server is down\n");
+        $this->check();
 
         $query = "";
         $this->debug("show tables from ".$this->master_database, true);
@@ -383,31 +377,27 @@ class MysqliConnection
 
     function real_escape_string($string)
     {
-        if(!$this->check())
-			debug("MySQL server is down\n");
+        $this->check();
         return $this->master_mysqli->real_escape_string($string);
     }
 
     function escape($string)
     {
-        if(!$this->check())
-			debug("MySQL server is down\n");
+        $this->check();
         if(is_null($string)) return NULL;
         return $this->master_mysqli->real_escape_string($string);
     }
 
     function thread_id($master)
     {
-        if(!$this->check())
-			debug("MySQL server is down\n");
+        $this->check();
         if($master) return $this->master_mysqli->thread_id;
         return $this->mysqli->thread_id;
     }
 
     function autocommit($commit)
     {
-        if(!$this->check())
-			debug("MySQL server is down\n");
+        $this->check();
         $this->master_mysqli->autocommit($commit);
         if($commit) $this->transaction_in_progress = false;
         else $this->transaction_in_progress = true;
@@ -415,16 +405,14 @@ class MysqliConnection
 
     function begin_transaction()
     {
-        if(!$this->check())
-			debug("MySQL server is down\n");
+        $this->check();
         mysql_debug('Beginning transaction');
         $this->autocommit(false);
     }
 
     function end_transaction()
     {
-        if(!$this->check())
-        	debug("MySQL server is down\n");
+        $this->check();
         $this->commit();
         mysql_debug('Ending transaction');
         $this->autocommit(true);
@@ -432,16 +420,14 @@ class MysqliConnection
 
     function commit()
     {
-        if(!$this->check())
-        	debug("MySQL server is down\n");
+        $this->check();
         mysql_debug('Committing');
         $this->master_mysqli->commit();
     }
 
     function in_transaction()
     {
-        if(!$this->check())
-        	debug("MySQL server is down\n");
+        $this->check();
         // if @@autocommit == 1 - there is NOT a transaction
         $result = $this->master_mysqli->query("select @@autocommit as not_in_transaction");
         if($result && $row=$result->fetch_assoc())
@@ -453,34 +439,28 @@ class MysqliConnection
 
     function rollback()
     {
-        if(!$this->check())
-        	debug("MySQL server is down\n");
+        $this->check();
         mysql_debug('Rolling back');
         $this->master_mysqli->rollback();
     }
 
     function close()
     {
-        if(!$this->check())
-        	debug("MySQL server is down\n");
+        $this->check();
         $this->mysqli->close();
         if($this->master_mysqli !== $this->mysqli) $this->master_mysqli->close();
     }
 
-	function is_connected()
+	function reconnect()
 	{
-		echo "ping result is: ".$this->mysqli->ping()." other is: ".$this->master_mysqli->ping()."\n";
-		if (!$this->mysqli->ping() || !$this->master_mysqli->ping()){
-			debug("Ping failed");
-			return false;
-		}
-		return true;
+		if (!$this->mysqli->ping() || !$this->master_mysqli->ping())
+			debug("Ping failed..MySQL server is down");
 	}
 
     function check()
     {
         if(!$this->mysqli) $this->initialize();
-		return $this->is_connected();
+		$this->reconnect();
     }
 
     function errno()
@@ -525,8 +505,7 @@ class MysqliConnection
             if(!isset($number_of_queries)) $number_of_queries = 1;
             if(!isset($number_of_master_queries)) $number_of_master_queries = 1;
 
-            if(!$this->check())
-            	debug("MySQL server is down\n");
+            $this->check();
 
             $return = "db";
             if($master) $return .= "(M) $number_of_master_queries";

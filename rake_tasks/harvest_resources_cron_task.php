@@ -31,7 +31,7 @@ while((time() - $start_time)/(60*60) < 24)
 		sleep(40);		
 	//get the resource and check with the previous one
 	$resource = Resource::get_ready_resource();
-	sleep(60);
+	
 	if (is_null($resource))
 		break;
 	
