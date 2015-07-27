@@ -294,12 +294,6 @@ class LifeDeskToScratchpadAPI
     
     public function convert_spreadsheet($spreadsheet, $worksheet = null, $spreadsheet_options = array())
     {
-        if(!self::fileExists($spreadsheet))
-        {
-            echo "\nSpreadsheet does not exist [$spreadsheet]\n";
-            return false;
-        }
-        else echo "\nSpreadsheet exists [$spreadsheet]\n";
         if(!$spreadsheet_options) $spreadsheet_options = $this->spreadsheet_options;
         require_library('XLSParser');
         $parser = new XLSParser();
@@ -311,18 +305,6 @@ class LifeDeskToScratchpadAPI
         }
         else echo "\n [$spreadsheet] unavailable! \n";
         return false;
-    }
-    
-    public function fileExists($path)
-    {
-        $ch = curl_init($path);
-        curl_setopt($ch, CURLOPT_NOBODY, true);
-        curl_exec($ch);
-        $retcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        // $retcode >= 400 -> not found, $retcode = 200, found.
-        curl_close($ch);
-        if($retcode >= 400) return false;
-        else return true;
     }
     
     private function load_xml()
