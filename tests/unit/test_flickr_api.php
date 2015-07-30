@@ -3,16 +3,23 @@ namespace php_active_record;
 
 require_library('FlickrAPI');
 // this is used to test the API for getting users' photos
+
+/*
+For this test to pass, put these four lines in /config/environment/test.php
+Or put them below this comment block.
+
 define("FLICKR_PLEARY_USER_ID", "11571226@N04");
+define("FLICKR_API_KEY", "7856957eced5a8ddbad50f1bca0db452");
+define("FLICKR_SHARED_SECRET", "c15b63eeea26739f");
+define("FLICKR_AUTH_TOKEN", "");
+*/
 
 class test_flickr_api extends SimpletestUnitBase
 {
     function hasFlickrAPIKey()
     {
-        if (defined('FLICKR_API_KEY'))
-        {
-            return true;
-        } else {
+        if (defined('FLICKR_API_KEY')) return true;
+        else {
             echo "      **SKIPPING FLICKR TEST. NEED TO DEFINE FLICKR_API_KEY, FLICKR_EOL_GROUP_ID ETC.**\n";
             return false;
         }
@@ -20,9 +27,10 @@ class test_flickr_api extends SimpletestUnitBase
 
     function testPoolsGetPhotos()
     {
+        FlickrAPI::create_cache_path();
         if(self::hasFlickrAPIKey())
         {
-	          $response = FlickrAPI::pools_get_photos(FLICKR_EOL_GROUP_ID, "", 1, 1, FLICKR_AUTH_TOKEN);
+            $response = FlickrAPI::pools_get_photos(FLICKR_EOL_GROUP_ID, "", 1, 1, FLICKR_AUTH_TOKEN);
             $this->assertTrue($response->stat == 'ok', 'pools_get_photos should return a stat of OK');
             $this->assertTrue($response->photos->pages > 45000, 'EOL pool should have more than 45000 photos');
         }
@@ -32,7 +40,7 @@ class test_flickr_api extends SimpletestUnitBase
     {
         if(self::hasFlickrAPIKey())
         {
-	          $response = FlickrAPI::pools_get_photos(FLICKR_EOL_GROUP_ID, "", 5, 1, FLICKR_AUTH_TOKEN, FLICKR_PLEARY_USER_ID);
+            $response = FlickrAPI::pools_get_photos(FLICKR_EOL_GROUP_ID, "", 5, 1, FLICKR_AUTH_TOKEN, FLICKR_PLEARY_USER_ID);
             $this->assertTrue($response->photos->total == 4, 'Patrick should have submitted only 4 photos');
         
             $first_photo = $response->photos->photo[3];
@@ -63,7 +71,7 @@ class test_flickr_api extends SimpletestUnitBase
             $this->assertTrue($dataObject->source == 'https://www.flickr.com/photos/pleary/2687301130/', "Data object source $dataObject->source should be https://www.flickr.com/photos/pleary/2687301130/");
             $this->assertTrue($dataObject->mediaURL == 'https://farm4.staticflickr.com/3057/2687301130_c12f33ac24_o.jpg', 'Data object should have the right mediaURL');
             // 3.15.13 - it seems Flickr moved place names to a separate place API
-            // $this->assertTrue($dataObject->location == 'Copenhagen, Hovedstaden, Denmark', 'Data object should have the right location');
+            $this->assertTrue($dataObject->location == 'Copenhagen, Hovedstaden, Denmark', 'Data object should have the right location');
         
             $this->assertIsA($dataObject->agents[0], 'SchemaAgent', 'Data object should have an agent');
             $this->assertTrue($dataObject->agents[0]->fullName == 'pleary', 'Agent should have the right fullName');
