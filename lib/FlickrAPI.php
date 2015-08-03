@@ -20,6 +20,9 @@ define("FLICKR_BHL_ID", "61021753@N02"); // BHL: BioDivLibrary's photostream - h
 define("FLICKR_SMITHSONIAN_ID", "51045845@N08"); // Smithsonian Wild's photostream - http://www.flickr.com/photos/51045845@N08
 define("OPENTREE_ID", "92803392@N02"); // OpenTree photostream - http://www.flickr.com/photos/92803392@N02 - no resource here, just a way to get all images for a certain Flickr user e.g EFB-1126
 
+$GLOBALS['flickr_cache_path'] = DOC_ROOT . "/update_resources/connectors/files/flickr_cache"; //old cache path
+$GLOBALS['flickr_cache_path'] = DOC_ROOT . "/public/tmp/flickr_cache";
+
 // these two variables are used to limit the number of photos per taxon for Flickr photostream resources, if needed (e.g. Smithsonian Wild's photostream)
 $GLOBALS['taxa'] = array();
 $GLOBALS['max_photos_per_taxon'] = false;
@@ -28,6 +31,7 @@ class FlickrAPI
 {
     public static function get_all_eol_photos($auth_token = "", $resource_file = null, $user_id = NULL, $start_date = NULL, $end_date = NULL)
     {
+        self::create_cache_path();
         $all_taxa = array();
         $used_image_ids = array();
         $per_page = 500;
@@ -484,7 +488,7 @@ class FlickrAPI
     public static function add_to_cache($dir_name, $photo_id, $photo_response)
     {
         $filter_dir = substr($photo_id, -2);
-        $dir_path = DOC_ROOT . "/update_resources/connectors/files/flickr_cache/$dir_name/$filter_dir";
+        $dir_path = $GLOBALS['flickr_cache_path'] . "/$dir_name/$filter_dir";
         $file_path = "$dir_path/$photo_id.json";
         
         // make sure cache directory exists
@@ -503,7 +507,7 @@ class FlickrAPI
     public static function check_cache($dir_name, $photo_id, $last_update = null)
     {
         $filter_dir = substr($photo_id, -2);
-        $file_path = DOC_ROOT . "/update_resources/connectors/files/flickr_cache/$dir_name/$filter_dir/$photo_id.json";
+        $file_path = $GLOBALS['flickr_cache_path'] . "/$dir_name/$filter_dir/$photo_id.json";
         if(file_exists($file_path))
         {
             $file_contents = file_get_contents($file_path);
@@ -513,7 +517,7 @@ class FlickrAPI
             if($dir_name == 'photosGetInfo' && (!$last_update || @$json_object->photo->dates->lastupdate != $last_update))
             {
                 unlink($file_path);
-                $sizes_path = DOC_ROOT . "/update_resources/connectors/files/flickr_cache/photosGetSizes/$filter_dir/$photo_id.json";
+                $sizes_path = $GLOBALS['flickr_cache_path'] . "/photosGetSizes/$filter_dir/$photo_id.json";
                 @unlink($sizes_path);
             }else return $json_object;
         }
@@ -591,6 +595,13 @@ class FlickrAPI
         $date_start = new \DateTime($start_date);
         $date_end = new \DateTime($end_date);
         return array("start" => $start_date, "end" => $end_date, "start_timestamp" => $date_start->getTimestamp(), "end_timestamp" => $date_end->getTimestamp());
+    }
+    
+    function create_cache_path()
+    {
+        if(!file_exists($GLOBALS['flickr_cache_path'])) mkdir($GLOBALS['flickr_cache_path']);
+        if(!file_exists($GLOBALS['flickr_cache_path']."/photosGetInfo")) mkdir($GLOBALS['flickr_cache_path']."/photosGetInfo");
+        if(!file_exists($GLOBALS['flickr_cache_path']."/photosGetSizes")) mkdir($GLOBALS['flickr_cache_path']."/photosGetSizes");
     }
 
 }

@@ -30,11 +30,20 @@ class FishBaseArchiveAPI
         $this->agent_ids            = array();
         $this->uri_mappings_spreadsheet = "http://localhost/cp/FishBase/fishbase mappings.xlsx";
         $this->uri_mappings_spreadsheet = "https://dl.dropboxusercontent.com/u/7597512/FishBase/fishbase mappings.xlsx";
+        $this->download_options = array('resource_id' => 42, 'timeout' => 172800, 'expire_seconds' => false, 'download_wait_time' => 2000000);
     }
 
     function get_all_taxa($resource_id)
     {
         $this->uris = self::get_uris();
+        $this->bibliographic_citation = self::get_fishbase_remote_citation();
+        
+        /*
+        $str = "Circumglobal in coastal warm temperate and tropical seas (Ref. 13562). Western Atlantic: North Carolina, USA to Uruguay, including the Gulf of Mexico and Caribbean. Eastern Atlantic: Mediterranean and Morocco to Senegal. Indo-Pacific: throughout the Indian Ocean; Ryukyu Islands to New Caledonia and French Polynesia. Eastern Pacific: southern Baja California, Mexico to Peru. Highly migratory species, Annex I of the 1982 Convention on the Law of the Sea (Ref. 26139).";
+        $str = "Western Atlantic: o River basin (Ref. 3498, 40587, 81627), but also in Ogowe River, Kouilou-Niari River and Loeme River (Ref. 3498, 40587, 81627, Ref. 2)Panama to southern Brazil and Uruguay (Ref. 58839) (Ref. 5663, 89864) bvhgbhghty hbgj nh b hgv (Ref. 2921, Ref. 3515).";
+        $texts = self::process_distribution_text($str);
+        print_r($texts); exit;
+        */
         
         /*
         $str = "bathydemersal; marine; depth range 549 - 1202 m (Ref. 97189)";
@@ -69,10 +78,95 @@ class FishBaseArchiveAPI
         if($this->test_run) return $all_taxa; //used in testing
     }
 
+    private function process_distribution_text($str)
+    {
+        $str = str_ireplace("Ref.", "Ref*", $str);
+        $temp = explode(".", $str);
+        $temp = array_map('trim', $temp);
+        $final = array();
+        foreach($temp as $t)
+        {
+            if(strpos($t, ":") !== false) $final[] = str_ireplace("Ref*", "Ref.", $t);
+        }
+        
+        $new_distribution_texts = array();
+        foreach($final as $t)
+        {
+            $reference_ids = array();
+            if($ref_ids = self::get_ref_id_from_string($t))
+            {
+                foreach($ref_ids as $ref_id) self::get_ref_details_from_fishbase_and_create_ref($ref_id);
+            }
+            $new_distribution_texts[] = array("desc" => $t, "reference_ids" => $ref_ids);
+        }
+        return $new_distribution_texts;
+    }
+    
+    private function get_ref_details_from_fishbase_and_create_ref($ref_id)
+    {
+        $url = 'http://www.fishbase.org/references/FBRefSummary.php?ID=' . $ref_id;
+        if($html = Functions::lookup_with_cache($url, $this->download_options))
+        {
+            if(preg_match("/Citation<\/td>(.*?)<\/td>/ims", $html, $arr))
+            {
+                $fb_full_ref = self::clean_html(strip_tags($arr[1]));
+                
+                $reference_ids = array();
+                if(!Functions::is_utf8($fb_full_ref)) $fb_full_ref = utf8_encode($fb_full_ref);
+                
+                $r = new \eol_schema\Reference();
+                $r->full_reference = $fb_full_ref;
+                $r->identifier = $ref_id;
+                $r->uri = $url;
+                if(!isset($this->reference_ids[$ref_id]))
+                {
+                    $this->reference_ids[$ref_id] = md5($fb_full_ref);
+                    $this->archive_builder->write_object_to_file($r);
+                    return md5($fb_full_ref);
+                }
+            }
+        }
+    }
+    
+    private function get_ref_id_from_string($str)
+    {
+        if(preg_match_all("/\(Ref\.(.*?)\)/ims", $str, $arr))
+        {
+            $str = trim(implode(",", $arr[1]));
+            $str = str_ireplace("Ref.", "", $str);
+            $arr = explode(",", $str);
+            $arr = array_map('trim', $arr);
+            $arr = array_unique($arr); //make unique
+            $arr = array_values($arr); //reindex key
+            $final = array();
+            foreach($arr as $a)
+            {
+                if(is_numeric($a)) $final[] = $a;
+            }
+            return $final;
+        }
+        return false;
+    }
+    
+    private function get_fishbase_remote_citation()
+    {
+        if($html = Functions::lookup_with_cache('http://www.fishbase.org/summary/citation.php', $this->download_options))
+        {
+            if(preg_match("/Cite FishBase itself as(.*?)<p /ims", $html, $arr))
+            {
+                $temp = $arr[1];
+                $temp = str_ireplace(".<br>", ". ", $temp);
+                return trim(strip_tags($temp));
+            }
+        }
+    }
+    
     function load_zip_contents()
     {
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
-        if($file_contents = Functions::lookup_with_cache($this->fishbase_data, array('resource_id' => 42, 'timeout' => 172800, 'expire_seconds' => 1728000))) // expire_seconds = 20 days in normal operation 1728000
+        $download_options = $this->download_options;
+        $download_options['expire_seconds'] = 1728000; // expire_seconds = 20 days in normal operation 1728000
+        if($file_contents = Functions::lookup_with_cache($this->fishbase_data, $download_options))
         {
             $temp_file_path = $this->TEMP_FILE_PATH . "/fishbase.zip";
             if(!($TMP = Functions::file_open($temp_file_path, "w"))) return;
@@ -233,7 +327,7 @@ class FishBaseArchiveAPI
         foreach($refs as $ref)
         {
             foreach($ref as $key => $value) $ref[$key] = str_replace("\N", "", $value);
-            // if(!Functions::is_utf8($ref['reference'])) continue; // commented since it excludes many references that are needed
+            if(!Functions::is_utf8($ref['reference'])) $ref['reference'] = utf8_encode($ref['reference']);
             $r = new \eol_schema\Reference();
             $r->full_reference = $ref['reference'];
             $r->identifier = md5($r->full_reference);
@@ -251,7 +345,7 @@ class FishBaseArchiveAPI
             
             if(!isset($this->reference_ids[$ref_id]))
             {
-                $this->reference_ids[$ref_id] = $r->identifier;
+                $this->reference_ids[$ref_id] = $r->identifier; //normally the value should be just '', but $this->reference_ids will be used in - convert_FBrefID_with_archiveID()
                 $this->archive_builder->write_object_to_file($r);
             }
         }
@@ -366,7 +460,29 @@ class FishBaseArchiveAPI
                 }
                 elseif($o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution")
                 {
-                    self::add_string_types($rec, $description, "http://eol.org/schema/terms/Present", "true");
+                    // self::add_string_types($rec, $description, "http://eol.org/schema/terms/Present", "true"); => changed to what is below, per DATA-1630
+                    $texts = self::process_distribution_text($description);
+                    /*
+                    [0] => Array
+                        (
+                            [desc] => Western Atlantic: Panama to southern Brazil and Uruguay (Ref. 58839)
+                            [reference_ids] => Array
+                                (
+                                    [0] => 58839
+                                )
+
+                        )
+                    */
+                    foreach($texts as $text)
+                    {
+                        $rec["referenceID"] = '';
+                        if($val = @$text['reference_ids'])
+                        {
+                            if($ref_ids = self::convert_FBrefID_with_archiveID($val)) $rec["referenceID"] = implode("; ", $ref_ids);
+                        }
+                        self::add_string_types($rec, $text['desc'], "http://eol.org/schema/terms/Present", "true");
+                    }
+                    
                 }
                 else // regular data objects
                 {
@@ -766,7 +882,15 @@ class FishBaseArchiveAPI
         foreach($FB_ref_ids as $id)
         {
             if($val = @$this->reference_ids[$id]) $final[] = $val;
-            else echo "\nundefined ref_id:[$id]\n";
+            else
+            {
+                echo "\nundefined ref_id: [$id] ";
+                if($val = self::get_ref_details_from_fishbase_and_create_ref($id))
+                {
+                    echo " -- FOUND: Salvaged ref_id"; //last run didn't find anything here.
+                    $final[] = $val;
+                }
+            }
         }
         return $final;
     }
@@ -830,6 +954,7 @@ class FishBaseArchiveAPI
         }
         $m->measurementType  = $measurementType;
         $m->measurementValue = $value;
+        $m->bibliographicCitation = $this->bibliographic_citation;
         if($val = @$rec['measurementUnit'])     $m->measurementUnit = $val;
         if($val = @$rec['measurementMethod'])   $m->measurementMethod = $val;
         if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
@@ -866,6 +991,12 @@ class FishBaseArchiveAPI
     {
         $digits = array("1", "2", "3", "4", "5", "6", "7", "8", "9", "0", " - ", "usually", "?");
         return str_ireplace($digits, '', $string);
+    }
+
+    private function clean_html($html)
+    {
+        $html = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\11", "\011"), "", trim($html));
+        return Functions::remove_whitespace($html);
     }
 
 }
