@@ -372,7 +372,7 @@ class SolrAPI
     public static function mysql_date_to_solr_date($mysql_date)
     {
         if(!$mysql_date) return null;
-        return date('Y-m-d', $mysql_date) . "T". date('h:i:s', $mysql_date) ."Z";
+        return date('Y-m-d', strtotime($mysql_date)) . "T". date('h:i:s', strtotime($mysql_date)) ."Z";
     }
 }
 
