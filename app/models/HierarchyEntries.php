@@ -116,6 +116,7 @@ class HierarchyEntry extends ActiveRecord
         return false;
     }
 
+    // NOTE: this function looks as if it's never used (Aug 2015). That's fine, I'm not sure what it's intent was. :|
     function set_taxon_concept_id($taxon_concept_id)
     {
         if($this->taxon_concept_id)
