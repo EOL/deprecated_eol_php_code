@@ -451,17 +451,24 @@ class MysqliConnection
         if($this->master_mysqli !== $this->mysqli) $this->master_mysqli->close();
     }
 
-	function reconnect()
-	{
-		if (!$this->mysqli->ping() || !$this->master_mysqli->ping())
-			debug("Ping failed..MySQL server is down");
-	}
+  function check()
+  {
+    if (!$this->mysqli) $this->initialize();
+    if (!$this->master_mysqli) $this->initialize();
+    $this->debug_if_still_disconnected();
+  }
 
-    function check()
-    {
-        if(!$this->mysqli) $this->initialize();
-		$this->reconnect();
+  function debug_if_still_disconnected()
+	{
+    // I'm told that if mysql "goes away," you can simply "bring it back" by re-issuing the same command (if you are configured to do so), so we actually attempt the ping TWICE, here--the first one is allowed to fail.
+    $this->mysqli->ping();
+    $this->master_mysqli->ping();
+		if (!$this->mysqli->ping() || !$this->master_mysqli->ping()) {
+      $error = 'MySQL Ping failed: server is down?'
+			debug($error);
+      throw new Exception($error);
     }
+	}
 
     function errno()
     {
