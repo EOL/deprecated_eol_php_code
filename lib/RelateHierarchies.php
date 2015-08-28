@@ -176,14 +176,16 @@ class RelateHierarchies
 
     private function rank_conflict(&$e1, &$e2)
     {
+      // NOTE: Was the intent here an &&? As written, it will follow this branch
+      // if EITHER of the entries has a rank group (which I imagine is 99.99% of
+      // the time).
         if(isset($this->rank_groups[$e1->rank_id]) || isset($this->rank_groups[$e2->rank_id]))
         {
             $group1 = @$this->rank_groups[$e1->rank_id];
             $group2 = @$this->rank_groups[$e2->rank_id];
             if($e1->rank_id && $e2->rank_id && $group1 != $group2) return 1;
-        }else
+        }else // the rank groups are not known:
         {
-            // the ranks are not the same
             if($e1->rank_id && $e2->rank_id && $e1->rank_id != $e2->rank_id) return 1;
         }
         return 0;
@@ -354,12 +356,17 @@ class RelateHierarchies
         $this->relations_table_name = $relations_table_name;
     }
 
+    // NOTE: This is dumb, AFAICT. The end result will be
+    // ranks_matched_at_kingdom[] populated with the id of the (same) kingdom
+    // rank 4 times. ...Why is that useful? Thoughts below.
     private function set_ranks_matched_at_kingdom()
     {
         $ranks_to_lookup = array( 'kingdom', 'phylum', 'class', 'order' );
         $this->ranks_matched_at_kingdom = array();
         foreach($ranks_to_lookup as $rank_label)
         {
+          // THOUGHT: Was the intent here to lookup $rank_label?! Was this
+          // intended to look up ALL of the rank ids with that label?
             if($rank = Rank::find_or_create_by_translated_label('kingdom'))
             {
                 $this->ranks_matched_at_kingdom[] = $rank->id;
