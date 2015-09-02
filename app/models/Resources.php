@@ -435,12 +435,11 @@ class Resource extends ActiveRecord
           $sparql_client = SparqlClient::connection();
           // TODO: we shouldn't delete the graph, but make a temp one...
           $sparql_client->delete_graph($this->virtuoso_graph_name());
-          $this->start_harvest(); // Create the event
           // delete all data point uris related to this resource
           $this->mysqli->delete("DELETE FROM data_point_uris where resource_id = $this->id");
           // delete all data point uris related to this resource from resource contributions
           $this->mysqli->delete("DELETE FROM resource_contributions where resource_id = $this->id and object_type = 'data_point_uri'");
-          $this->start_harvest();
+          $this->start_harvest(); // Create the event
 
           $this->debug_start("parsing");
           if($this->is_translation_resource())
