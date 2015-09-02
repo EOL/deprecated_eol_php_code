@@ -483,7 +483,6 @@ class Resource extends ActiveRecord
 
           if($this->hierarchy_id && !$this->is_translation_resource())
           {
-              debug("(Translation resource)");
               $hierarchy = Hierarchy::find($this->hierarchy_id);
               $this->debug_start("Tasks::rebuild_nested_set");
               Tasks::rebuild_nested_set($this->hierarchy_id);
