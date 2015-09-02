@@ -275,7 +275,7 @@ class DataObject extends ActiveRecord
                     $status = "Unchanged";
                     if($row["harvest_event_id"] == @$resource->harvest_event->id) $status = "Reused";
 
-                    return array($existing_data_object, "Unchanged", $existing_data_object);
+                    return array($existing_data_object, $status , $existing_data_object);
                 }else
                 {
                     // This data object has different metadata than the object in the last harvest with the same guid
@@ -332,7 +332,7 @@ class DataObject extends ActiveRecord
                     $status = "Unchanged";
                     if($row["harvest_event_id"] == $resource->harvest_event->id) $status = "Reused";
 
-                    return array($existing_data_object, "Unchanged", $existing_data_object);
+                    return array($existing_data_object, $status , $existing_data_object);
                 }
             }
         }
