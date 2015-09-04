@@ -466,7 +466,7 @@ class MysqliConnection
     if (!$this->mysqli->ping() || !$this->master_mysqli->ping()) {
       $error = 'MySQL Ping failed: server is down?';
       debug($error);
-      throw new Exception($error);
+      throw new \Exception($error);
     }
   }
 
