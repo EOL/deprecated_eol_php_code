@@ -357,18 +357,13 @@ class RelateHierarchies
         $this->relations_table_name = $relations_table_name;
     }
 
-    // NOTE: This is broken. The end result will be ranks_matched_at_kingdom[]
-    // populated with the id of the (same) kingdom rank 4 times: [183, 183, 183,
-    // 183] in point of fact. ...Why is that useful? Thoughts below.
     private function set_ranks_matched_at_kingdom()
     {
         $ranks_to_lookup = array( 'kingdom', 'phylum', 'class', 'order' );
         $this->ranks_matched_at_kingdom = array();
         foreach($ranks_to_lookup as $rank_label)
         {
-          // THOUGHT: Was the intent here to lookup $rank_label?! Was this
-          // intended to look up ALL of the rank ids with that label?
-            if($rank = Rank::find_or_create_by_translated_label('kingdom'))
+            if($rank = Rank::find_or_create_by_translated_label($rank_label))
             {
                 $this->ranks_matched_at_kingdom[] = $rank->id;
             }
@@ -404,6 +399,7 @@ class RelateHierarchies
         $records_per_second = $this->total_entry_comparisons / $processing_time_so_far;
         // Memory:    ". memory_get_usage() ."
         // Time:      ". round($processing_time_so_far, 2)." s
+        $this->mysqli->check();
         debug("
         Records:   $this->total_entry_comparisons / $this->total_comparisons_to_be_made
         Time Left: " . round(($this->total_comparisons_to_be_made -
