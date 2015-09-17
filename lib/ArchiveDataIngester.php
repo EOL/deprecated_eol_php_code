@@ -263,7 +263,9 @@ class ArchiveDataIngester
             // harvest_event_hierarchy_entry:
             // TODO: I am not sure this adds entries for ancestors!
             $this->harvest_event->add_hierarchy_entry($hierarchy_entry, 'inserted');
-            $this->taxon_ids_inserted[$taxon_id] = array('hierarchy_entry_id' => $hierarchy_entry->id, 'taxon_concept_id' => $hierarchy_entry->taxon_concept_id, 'source_url' => $source_url);
+            $this->taxon_ids_inserted[$taxon_id] = array('hierarchy_entry_id' => $hierarchy_entry->id, 
+                                                         'taxon_concept_id' => $hierarchy_entry->taxon_concept_id, 
+                                                         'source_url' => $source_url);
             self::compress_array($this->taxon_ids_inserted[$taxon_id]);
         }
         // these are the taxa using the parent-child format
