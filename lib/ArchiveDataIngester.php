@@ -665,7 +665,9 @@ class ArchiveDataIngester
 	        if($result && $row=$result->fetch_assoc())
 	        {
 	             $hierarchy_entry_id = $row["id"];
-	             $source = "'" . $this->get_hierarchy_entry_outlink($row["hierarchy_id"], $row["identifier"], $row["source_url"]) . "'";
+                 $source = "'" . $this->get_hierarchy_entry_outlink($row["hierarchy_id"],
+                     $row["identifier"],
+                     preg_replace('/\'/', "\\'", $row["source_url"])) . "'";
 	             $identifier = "'" . $row["identifier"] . "'";
 	             $taxon_concept_id = $row["taxon_concept_id"];
 	        }
