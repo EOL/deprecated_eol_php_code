@@ -40,7 +40,6 @@ class HierarchyEntryIndexer
         	debug("SOLR SERVER not defined or can't ping hierarchy_entries!");
         	return false;
         }
-        
         if($hierarchy_id)
         {
             $this->solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entries');
@@ -62,7 +61,11 @@ class HierarchyEntryIndexer
             $start = $row["min"];
             $max_id = $row["max"];
         }
-        if($start == 0) return;
+        if($start == 0)
+        {
+          debug("No entries to index in ($hierarchy_id)");
+          return;
+        } 
         
         for($i=$start ; $i<=$max_id ; $i+=$limit)
         {

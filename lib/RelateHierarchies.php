@@ -33,7 +33,12 @@ class RelateHierarchies
     // this method will use its own transactions so commit any open transactions before using
     public function process_hierarchy()
     {
-        if(!$this->hierarchy_to_compare || !$this->solr) return false;
+        if(!$this->hierarchy_to_compare ) return false;
+        if (!$this->solr)
+        {
+          debug("SOLR SERVER not defined or can't ping hierarchy_entries, can't begin Relate Hierarchies!");
+         return false;
+        }
         $this->time_comparisons_started = microtime(true);
         $this->total_entry_comparisons = 0;
         $this->create_temp_file_for_relationships();
@@ -73,12 +78,18 @@ class RelateHierarchies
         $iteration_size = 200;
         $batches = array_chunk($this->hierarchy_entry_ids_to_compare, $iteration_size);
         $this->total_comparisons_to_be_made = count($this->hierarchy_entry_ids_to_compare);
+         debug_start("RelateHierarchies::iterate_through_selected_entries ($this->hierarchy_entry_ids_to_compare), $this->total_comparisons_to_be_made entries");
+         $batch_no = 1;
         foreach($batches as $batch)
         {
             $query = "hierarchy_id:". $this->hierarchy_to_compare->id ." AND id:(". implode(" OR ", $batch) .")&rows=$iteration_size";
             $entries_from_solr = $this->solr->get_results($query);
+            $count = count($entries_from_solr);
+            debug("RelateHierarchies::iterate_through_entries , batch:$batch_no, no_of_entries:$count");
             $this->iterate_through_entries($entries_from_solr);
+            $batch_no++;
         }
+        debug_end("RelateHierarchies::iterate_through_selected_entries");
     }
 
     private function iterate_through_entries(&$entries_from_solr)
@@ -330,7 +341,9 @@ class RelateHierarchies
         self::insert_curator_assertions();
 
         $solr_indexer = new HierarchyEntryRelationshipIndexer($this->relations_table_name);
+        debug_start("HierarchyEntryRelationshipIndexer::index");
         $solr_indexer->index(array('hierarchy' => $this->hierarchy_to_compare, 'hierarchy_entry_ids' => $this->hierarchy_entry_ids_to_compare));
+        debug_end("HierarchyEntryRelationshipIndexer::index");
         $this->mysqli->delete("DROP TABLE $this->relations_table_name");
     }
 

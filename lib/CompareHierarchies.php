@@ -102,13 +102,17 @@ class CompareHierarchies
     public static function assign_concepts_across_hierarchies($hierarchy1, $hierarchy2, $confirmed_exclusions = array(), $use_synonyms_for_merging = false)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
-        debug("Assigning $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)");
+        debug("Assigning concepts from $hierarchy2->label ($hierarchy2->id) to $hierarchy1->label ($hierarchy1->id)");
 
         // hierarchy is the same and its 'complete' meaning its been curated and
         // all nodes should be different taxa so there no need to compare it to
         // itself. Other hierarchies are not 'complete' such as Flickr which can
         // have several entries for the same taxon
-        if($hierarchy1->id == $hierarchy2->id && $hierarchy1->complete) return;
+        if($hierarchy1->id == $hierarchy2->id && $hierarchy1->complete)
+        {
+           debug("Skipping:: Hierarchies are equivilant and Complete");
+          return;
+        }
 
         // store all changes made this session
         $superceded = array();
@@ -124,7 +128,7 @@ class CompareHierarchies
         $response = $solr->query($main_query . "&rows=1");
         $total_results = $response->numFound;
         unset($response);
-
+        debug("querying solr(hierarchy_entry_relationship), got $total_results relations..");
         $mysqli->begin_transaction();
         for($i=0 ; $i<$total_results ; $i += self::$solr_iteration_size)
         {
@@ -195,7 +199,7 @@ class CompareHierarchies
                         debug("The merger of $id1 and $id2 (concepts $tc_id1 and $tc_id2) is not allowed by a curated hierarchy ($hierarchy_id)");
                         continue;
                     }
-                    debug("TaxonMatch::($tc_id1) = ($tc_id2), because both hierarchies($hierarchy1->id & $hierarchy2->id) are not complete, NO concepts are visible/preview in the other hierarchy, the merging is not rejected by a curator or by a curated hierarchy");
+                    debug("TaxonMatch::($tc_id1) = ($tc_id2)");
                     debug("TaxonConcept::supercede_by_ids($tc_id1, $tc_id2)");
                     TaxonConcept::supercede_by_ids($tc_id1, $tc_id2);
                     $superceded[max($tc_id1, $tc_id2)] = min($tc_id1, $tc_id2);
