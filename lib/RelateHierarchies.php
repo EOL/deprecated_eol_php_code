@@ -78,7 +78,7 @@ class RelateHierarchies
         $iteration_size = 200;
         $batches = array_chunk($this->hierarchy_entry_ids_to_compare, $iteration_size);
         $this->total_comparisons_to_be_made = count($this->hierarchy_entry_ids_to_compare);
-         debug_start("RelateHierarchies::iterate_through_selected_entries ($this->hierarchy_entry_ids_to_compare), $this->total_comparisons_to_be_made entries");
+         debug("++ START RelateHierarchies::iterate_through_selected_entries ($this->hierarchy_entry_ids_to_compare), $this->total_comparisons_to_be_made entries");
          $batch_no = 1;
         foreach($batches as $batch)
         {
@@ -89,7 +89,7 @@ class RelateHierarchies
             $this->iterate_through_entries($entries_from_solr);
             $batch_no++;
         }
-        debug_end("RelateHierarchies::iterate_through_selected_entries");
+        debug("-- END RelateHierarchies::iterate_through_selected_entries");
     }
 
     private function iterate_through_entries(&$entries_from_solr)
@@ -341,9 +341,9 @@ class RelateHierarchies
         self::insert_curator_assertions();
 
         $solr_indexer = new HierarchyEntryRelationshipIndexer($this->relations_table_name);
-        debug_start("HierarchyEntryRelationshipIndexer::index");
+        debug("++ START HierarchyEntryRelationshipIndexer::index");
         $solr_indexer->index(array('hierarchy' => $this->hierarchy_to_compare, 'hierarchy_entry_ids' => $this->hierarchy_entry_ids_to_compare));
-        debug_end("HierarchyEntryRelationshipIndexer::index");
+        debug("-- END HierarchyEntryRelationshipIndexer::index");
         $this->mysqli->delete("DROP TABLE $this->relations_table_name");
     }
 

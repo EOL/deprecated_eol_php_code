@@ -552,12 +552,11 @@ class Resource extends ActiveRecord
       }
       $this->harvest_event = null;
       $this->debug_end("harvest");
-      fclose($resource_harvesting_log);
     }
 
     public function add_unchanged_data_to_harvest()
     {
-      $this->debug_start("++ START add_unchanged_data_to_harvest ++");
+      $this->debug_start("add_unchanged_data_to_harvest");
         // there is no _delete file so we assume the resource is complete
         if(!file_exists($this->resource_deletions_path())) return false;
 
