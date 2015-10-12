@@ -55,8 +55,7 @@ class RelateHierarchies
 
     private function iterate_through_entire_hierarchy()
     {
-        debug("RelateHierarchies::iterate_through_entire_hierarchy " .
-            "($this->hierarchy_to_compare->id)");
+        debug("RelateHierarchies::iterate_through_entire_hierarchy {$this->hierarchy_to_compare->id}");
         // get the record count for the loop below
         $query = "hierarchy_id:". $this->hierarchy_to_compare->id ."&rows=1";
         $response = $this->solr->query($query);
@@ -418,6 +417,7 @@ class RelateHierarchies
         // Memory:    ". memory_get_usage() ."
         // Time:      ". round($processing_time_so_far, 2)." s
         debug("
+        SOLR comparisons:\n
         Records:   $this->total_entry_comparisons / $this->total_comparisons_to_be_made
         Time Left: " . round(($this->total_comparisons_to_be_made -
           $this->total_entry_comparisons) / $records_per_second, 2) .
