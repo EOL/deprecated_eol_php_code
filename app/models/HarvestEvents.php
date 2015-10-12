@@ -427,7 +427,6 @@ class HarvestEvent extends ActiveRecord
                 $taxon_concept_ids[$row[1]] = true;
             }
         }
-        print_r(array_keys($hierarchy_entry_ids));
         return array(array_keys($hierarchy_entry_ids), array_keys($taxon_concept_ids));
     }
     

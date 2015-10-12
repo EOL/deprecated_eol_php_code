@@ -66,6 +66,7 @@ class HierarchyEntryIndexer
           debug("No entries to index in ($hierarchy_id)");
           return;
         } 
+
         $count = $max_id-$start+1;
         debug("indexing $count entries in solr");
         for($i=$start ; $i<=$max_id ; $i+=$limit)
@@ -90,15 +91,15 @@ class HierarchyEntryIndexer
         {
             $this->solr->swap('hierarchy_entries_swap', 'hierarchy_entries');
         }
-         $solr_count = $this->solr->count_results("hierarchy_id:$hierarchy_id");
-        debug("indexed in SOLR: $solr_count entries");
+       $solr_count = $this->solr->count_results("hierarchy_id:$hierarchy_id");
+       debug("indexed in SOLR: $solr_count entries");
        if ($count == $solr_count)
        {
          debug("All hierarchy entries were correctly indexed in SOLR");
        }else 
-         {
-           debug("WARNING:: Not all hierarchy entries are present in SOLR!");
-         }
+       {
+          debug("WARNING:: Not all hierarchy entries are present in SOLR!");
+       }
     }
     
     

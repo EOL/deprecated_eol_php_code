@@ -62,7 +62,7 @@ class RelateHierarchies
         $this->total_comparisons_to_be_made = $response->numFound;
         unset($response);
 
-        $iteration_size = 10000; 
+        $iteration_size = 10000;
         for($i=0 ; $i<$this->total_comparisons_to_be_made ; $i += $iteration_size)
         {
             $query = "hierarchy_id:". $this->hierarchy_to_compare->id ."&rows=$iteration_size&start=$i";
