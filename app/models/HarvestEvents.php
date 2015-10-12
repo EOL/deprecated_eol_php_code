@@ -349,6 +349,8 @@ class HarvestEvent extends ActiveRecord
     {
         // run the comparisons
         $compare_ids = $this->modified_hierarchy_entry_ids();
+        $count = count($compare_ids);
+        debug("no. of modified hierarchy entries: $count");
         $relator = new RelateHierarchies(array('hierarchy_to_compare' => $this->resource->hierarchy, 'hierarchy_entry_ids_to_compare' => $compare_ids));
         debug("++ START RelateHierarchies::process_hierarchy");
         $relator->process_hierarchy();
@@ -425,6 +427,7 @@ class HarvestEvent extends ActiveRecord
                 $taxon_concept_ids[$row[1]] = true;
             }
         }
+        print_r(array_keys($hierarchy_entry_ids));
         return array(array_keys($hierarchy_entry_ids), array_keys($taxon_concept_ids));
     }
     
