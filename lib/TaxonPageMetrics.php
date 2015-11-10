@@ -193,7 +193,7 @@ class TaxonPageMetrics
         if (!$FILE) {
             print "!! ERROR: Could not read $filename";
             debug("!! ERROR: Could not read $filename" );
-            return;
+         //   return;
         }
         $num_rows=0;
         while(!feof($FILE))
