@@ -489,22 +489,24 @@ class Resource extends ActiveRecord
               $this->debug_end("Tasks::rebuild_nested_set");
               $this->make_new_hierarchy_entries_preview($hierarchy);
 
-              if(!$this->auto_publish)
-              {
-                  debug("(AUTO-PUBLISH)");
-                  // Rebuild the Solr index for this hierarchy
-                  $indexer = new HierarchyEntryIndexer();
-                  $this->debug_start("HierarchyEntryIndexer::index");
-                  $indexer->index($this->hierarchy_id);
-                  $this->debug_end("HierarchyEntryIndexer::index");
+              if(false) { // Ported to Ruby.
+                if(!$this->auto_publish)
+                {
+                    debug("(NON-AUTO-PUBLISH: cleaning up for later publishing)");
+                    // Rebuild the Solr index for this hierarchy
+                    $indexer = new HierarchyEntryIndexer();
+                    $this->debug_start("HierarchyEntryIndexer::index");
+                    $indexer->index($this->hierarchy_id);
+                    $this->debug_end("HierarchyEntryIndexer::index");
 
-                  $this->debug_start("harvest_event->compare_new_hierarchy_entries");
-                  $this->harvest_event->compare_new_hierarchy_entries();
-                  $this->debug_end("harvest_event->compare_new_hierarchy_entries");
+                    $this->debug_start("harvest_event->compare_new_hierarchy_entries");
+                    $this->harvest_event->compare_new_hierarchy_entries();
+                    $this->debug_end("harvest_event->compare_new_hierarchy_entries");
 
-                  $this->debug_start("harvest_event->create_collection");
-                  $this->harvest_event->create_collection();
-                  $this->debug_end("harvest_event->create_collection");
+                    $this->debug_start("harvest_event->create_collection");
+                    $this->harvest_event->create_collection();
+                    $this->debug_end("harvest_event->create_collection");
+                }
               }
 
               if($this->vetted)
@@ -539,7 +541,7 @@ class Resource extends ActiveRecord
           {
             $this->harvest_event->publish = 1;
             $this->harvest_event->save();
-            $this->publish($fast_for_testing);
+            // PORTED TO RUBY! $this->publish($fast_for_testing);
           }
 
           if($GLOBALS['ENV_NAME'] == 'production')
@@ -874,16 +876,15 @@ class Resource extends ActiveRecord
 
     public function update_hierarchy_entries_count()
     {
+      # If the hierarchy was *just* inserted, it won't be here yet.
+      $this->refresh();
       debug("update hierarchy_entries_count");
-       $this->mysqli->update("update hierarchies as h ".
-            "set hierarchy_entries_count  = ( ".
-              "select count(*) ".
-              "from hierarchy_entries as he ".
-              "where he.published = 1 and " .
-              "he.hierarchy_id = $this->hierarchy_id ".
-              "GROUP BY hierarchy_id ".
-            ") where id = $this->hierarchy_id");
-
+       $this->mysqli->update("UPDATE hierarchies AS h ".
+            "SET hierarchy_entries_count  = ( ".
+              "SELECT count(*) ".
+              "FROM hierarchy_entries AS he ".
+              "WHERE he.hierarchy_id = $this->hierarchy_id ".
+            ") WHERE id = $this->hierarchy_id");
     }
 
     private function insert_dwc_hierarchy()
