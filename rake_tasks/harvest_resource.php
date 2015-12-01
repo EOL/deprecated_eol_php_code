@@ -7,7 +7,7 @@ if(!is_numeric($specified_id)) {
   error_log("!! ERROR: You must run this script with a single ID.");
   exit;
 }
-if(in_array($resource->id, array(77, 710, 752))) {
+if(in_array($specified_id, array(77, 710, 752))) {
   error_log("EROR: This resource cannot be harvested: " . $resource->id);
   error_log("   (" . $resource->title . ")");
   exit;
