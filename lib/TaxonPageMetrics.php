@@ -242,9 +242,6 @@ class TaxonPageMetrics
                 $tc_id = trim($fields[0]);
 				$arr_taxa[$tc_id]="\t" . "has_biomedical_terms:1";
 			}
-            // }else{
-            	// $arr_taxa[$tc_id] .= "0";
-            // }
         }
         fclose($FILE);unlink($outfile);
         print "\n num_rows: $num_rows";
@@ -273,16 +270,12 @@ class TaxonPageMetrics
         $num_rows=0;
         while(!feof($FILE))
         {
-        	// $arr_taxa[$tc_id]="\t"."has_GBIF_map:";
             if($line = fgets($FILE))
             {
                 $num_rows++; $line = trim($line); $fields = explode("\t", $line);
                 $tc_id = trim($fields[0]);
 				$arr_taxa[$tc_id]="\t"."has_GBIF_map:1";
 			}
-            // }else{
-            	// $arr_taxa[$tc_id] .="0";
-            // }
         }
         fclose($FILE);unlink($outfile);
         print "\n num_rows: $num_rows";
@@ -898,7 +891,6 @@ class TaxonPageMetrics
         $this->mysqli->delete("DROP TABLE IF EXISTS " . $this->table . "_tmp");
         $this->mysqli->insert("CREATE TABLE IF NOT EXISTS " . $this->table . "_tmp LIKE " . $this->table); //debug taxon_concept_metrics_copy
         $this->mysqli->delete("TRUNCATE TABLE " . $this->table . "_tmp");
-        // $this->mysqli->load_data_infile($filename, $this->table . "_tmp");
         $this->load_into_table($filename, $this->table . "_tmp");
         $result = $this->mysqli->query("SELECT 1 FROM " . $this->table . "_tmp LIMIT 1");
         if($result && $row=$result->fetch_assoc()) $this->mysqli->swap_tables($this->table, $this->table . '_tmp'); //debug taxon_concept_metrics_copy                                                                                               
@@ -930,7 +922,6 @@ class TaxonPageMetrics
                 	}
                 }
 				$query = "insert into $tablename (" . implode(',', $keys) . ") values (" . implode(',', $values) .");";
-				echo "query is: ".$query . "\n";
 				$result = $this->mysqli->query($query);
 				
             }
