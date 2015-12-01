@@ -70,10 +70,10 @@ class TaxonPageMetrics
         foreach($concept_data_object_maps as $taxon_concept_id => $taxon_object_counts)
         {
             $new_value = "";
-            $new_value .= "\t" . @$taxon_object_counts[$data_type]['total'];
-            $new_value .= "\t" . @$taxon_object_counts[$data_type]['t'];
-            $new_value .= "\t" . @$taxon_object_counts[$data_type]['ut'];
-            $new_value .= "\t" . @$taxon_object_counts[$data_type]['ur'];
+            $new_value .= "\t" . "map_total:" . @$taxon_object_counts[$data_type]['total'];
+            $new_value .= "\t" . "map_trusted:" . @$taxon_object_counts[$data_type]['t'];
+            $new_value .= "\t" . "map_untrusted:" . @$taxon_object_counts[$data_type]['ut'];
+            $new_value .= "\t" . "map_unreviewed:" . @$taxon_object_counts[$data_type]['ur'];
             $concept_data_object_maps[$taxon_concept_id] = $new_value;
         }
         print "\n get_images_count():" . (time_elapsed()-$time_start)/60 . " minutes";
@@ -127,7 +127,7 @@ class TaxonPageMetrics
                              $fields[28], $fields[34], $fields[36], $fields[42], $fields[44], $fields[49], $fields[57], $fields[58], $fields[60], $fields[62], 
                              $fields[59], $fields[64]);
                 $scores = $run->calculate_score_from_row($row);
-                $arr_taxa[$tc_id] = "\t" . $scores['total'];
+                $arr_taxa[$tc_id] = "\t" . "richness_score:" .$scores['total'];
             }
         }
         print "\n get_richness_score():" . (time_elapsed()-$time_start)/60 . " minutes";
@@ -175,8 +175,8 @@ class TaxonPageMetrics
         foreach($arr_taxa as $tc_id => $taxon_views_counts)
         {
             $new_value = "";
-            $new_value .= "\t".@$taxon_views_counts['pv'];
-            $new_value .= "\t".@$taxon_views_counts['upv'];
+            $new_value .= "\t". "page_views:" .@$taxon_views_counts['pv'];
+            $new_value .= "\t". "unique_page_views:" .@$taxon_views_counts['upv'];
             $arr_taxa[$tc_id] = $new_value;
         }
         print "\n get_google_stats():" . (time_elapsed()-$time_start)/60 . " minutes";
@@ -203,7 +203,7 @@ class TaxonPageMetrics
                 $num_rows++; $line = trim($line); $fields = explode("\t", $line);
                 $tc_id        = trim(@$fields[0]);
                 $publications = trim(@$fields[1]);
-                $arr_taxa[$tc_id] = "\t".$publications;
+                $arr_taxa[$tc_id] = "\t". "BHL_publications:" .$publications;
             }
         }
         print "\n get_BHL_publications():" . (time_elapsed()-$time_start)/60 . " minutes";
@@ -240,8 +240,11 @@ class TaxonPageMetrics
             {
                 $num_rows++; $line = trim($line); $fields = explode("\t", $line);
                 $tc_id = trim($fields[0]);
-                $arr_taxa[$tc_id]="\t" . "1";
-            }
+				$arr_taxa[$tc_id]="\t" . "has_biomedical_terms:1";
+			}
+            // }else{
+            	// $arr_taxa[$tc_id] .= "0";
+            // }
         }
         fclose($FILE);unlink($outfile);
         print "\n num_rows: $num_rows";
@@ -270,12 +273,16 @@ class TaxonPageMetrics
         $num_rows=0;
         while(!feof($FILE))
         {
+        	// $arr_taxa[$tc_id]="\t"."has_GBIF_map:";
             if($line = fgets($FILE))
             {
                 $num_rows++; $line = trim($line); $fields = explode("\t", $line);
                 $tc_id = trim($fields[0]);
-                $arr_taxa[$tc_id]="\t" . "1";
-            }
+				$arr_taxa[$tc_id]="\t"."has_GBIF_map:1";
+			}
+            // }else{
+            	// $arr_taxa[$tc_id] .="0";
+            // }
         }
         fclose($FILE);unlink($outfile);
         print "\n num_rows: $num_rows";
@@ -325,8 +332,8 @@ class TaxonPageMetrics
         foreach($arr_taxa as $tc_id => $taxon_addedText_counts)
         {
             $new_value = "";
-            $new_value .= "\t".@$taxon_addedText_counts['count'];
-            $new_value .= "\t".@$taxon_addedText_counts['providers'];
+            $new_value .= "\t". "user_submitted_text:" .@$taxon_addedText_counts['count'];
+            $new_value .= "\t". "submitted_text_providers:" .@$taxon_addedText_counts['providers'];
             $arr_taxa[$tc_id] = $new_value;
         }
         print "\n get_user_submitted_text_count():" . (time_elapsed()-$time_start)/60 . " minutes";
@@ -365,7 +372,7 @@ class TaxonPageMetrics
             }
             fclose($FILE);unlink($outfile);
             print "\n num_rows: $num_rows";
-            foreach($tc_hierarchy_id as $id => $rec){@$arr_taxa[$id] = "\t".sizeof($rec);}
+            foreach($tc_hierarchy_id as $id => $rec){@$arr_taxa[$id] = "\t". "content_partners:" .sizeof($rec);}
             unset($tc_hierarchy_id);
         }
         print "\n get_content_partner_count():" . (time_elapsed()-$time_start)/60 . " minutes";
@@ -409,7 +416,7 @@ class TaxonPageMetrics
             {
                 $arr = explode("_",$rec);
                 $arr = array_unique($arr);
-                $arr_taxa[$id] = "\t".sizeof($arr);
+                $arr_taxa[$id] = "\t". "outlinks:" .sizeof($arr);
             }
             unset($temp);
         }
@@ -466,8 +473,8 @@ class TaxonPageMetrics
         foreach($arr_taxa as $tc_id => $taxon_comname_counts)
         {
             $new_value = "";
-            $new_value .= "\t".@$taxon_comname_counts['count'];
-            $new_value .= "\t".@$taxon_comname_counts['providers'];
+            $new_value .= "\t". "common_names:" .@$taxon_comname_counts['count'];
+            $new_value .= "\t". "common_name_providers:" .@$taxon_comname_counts['providers'];
             $arr_taxa[$tc_id] = $new_value;
         }
         print "\n get_common_names_count():" . (time_elapsed()-$time_start)/60 . " minutes";
@@ -523,8 +530,8 @@ class TaxonPageMetrics
         foreach($arr_taxa as $tc_id => $taxon_synonym_counts)
         {
             $new_value = "";
-            $new_value .= "\t".@$taxon_synonym_counts['count'];
-            $new_value .= "\t".@$taxon_synonym_counts['providers'];
+            $new_value .= "\t". "synonyms:" .@$taxon_synonym_counts['count'];
+            $new_value .= "\t". "synonym_providers:" .@$taxon_synonym_counts['providers'];
             $arr_taxa[$tc_id] = $new_value;
         }
         print "\n get_synonyms_count():" . (time_elapsed()-$time_start)/60 . " minutes";
@@ -596,14 +603,14 @@ class TaxonPageMetrics
         foreach($concept_data_object_counts as $taxon_concept_id => $taxon_object_counts)
         {
             $new_value = "";
-            $new_value .= "\t".@$taxon_object_counts[$data_type]['total'];
-            $new_value .= "\t".@$taxon_object_counts[$data_type]['t'];
-            $new_value .= "\t".@$taxon_object_counts[$data_type]['ut'];
-            $new_value .= "\t".@$taxon_object_counts[$data_type]['ur'];
-            $new_value .= "\t".@$taxon_object_counts[$data_type]['total_w'];
-            $new_value .= "\t".@$taxon_object_counts[$data_type]['t_w'];
-            $new_value .= "\t".@$taxon_object_counts[$data_type]['ut_w'];
-            $new_value .= "\t".@$taxon_object_counts[$data_type]['ur_w'];
+            $new_value .= "\t". "image_total:" .@$taxon_object_counts[$data_type]['total'];
+            $new_value .= "\t". "image_trusted:" .@$taxon_object_counts[$data_type]['t'];
+            $new_value .= "\t". "image_untrusted:" .@$taxon_object_counts[$data_type]['ut'];
+            $new_value .= "\t". "image_unreviewed:" .@$taxon_object_counts[$data_type]['ur'];
+            $new_value .= "\t". "image_total_words:" .@$taxon_object_counts[$data_type]['total_w'];
+            $new_value .= "\t". "image_trusted_words:" .@$taxon_object_counts[$data_type]['t_w'];
+            $new_value .= "\t". "image_untrusted_words:" .@$taxon_object_counts[$data_type]['ut_w'];
+            $new_value .= "\t". "image_unreviewed_words:" .@$taxon_object_counts[$data_type]['ur_w'];
             $concept_data_object_counts[$taxon_concept_id] = $new_value;
         }
         print "\n get_images_count():" . (time_elapsed()-$time_start)/60 . " minutes";
@@ -654,8 +661,8 @@ class TaxonPageMetrics
         foreach($concept as $taxon_concept_id => $taxon_object_counts)
         {
             $new_value = "";
-            $new_value .= "\t" . @$taxon_object_counts["ref"];
-            $new_value .= "\t" . @$taxon_object_counts["ii"];
+            $new_value .= "\t" . "data_object_references:" .@$taxon_object_counts["ref"];
+            $new_value .= "\t" . "info_items:" .@$taxon_object_counts["ii"];
             $concept[$taxon_concept_id] = $new_value;
         }
         print "\n get_concept_references():" . (time_elapsed()-$time_start)/60 . " minutes";
@@ -791,14 +798,14 @@ class TaxonPageMetrics
             $new_value = "";
             foreach($data_type_order_in_file as $data_type)
             {
-                $new_value .= "\t".@$taxon_object_counts[$data_type]['total'];
-                $new_value .= "\t".@$taxon_object_counts[$data_type]['t'];
-                $new_value .= "\t".@$taxon_object_counts[$data_type]['ut'];
-                $new_value .= "\t".@$taxon_object_counts[$data_type]['ur'];
-                $new_value .= "\t".@$taxon_object_counts[$data_type]['total_w'];
-                $new_value .= "\t".@$taxon_object_counts[$data_type]['t_w'];
-                $new_value .= "\t".@$taxon_object_counts[$data_type]['ut_w'];
-                $new_value .= "\t".@$taxon_object_counts[$data_type]['ur_w'];
+                $new_value .= "\t". $data_type . "_total:" .@$taxon_object_counts[$data_type]['total'];
+                $new_value .= "\t". $data_type . "_trusted:" .@$taxon_object_counts[$data_type]['t'];
+                $new_value .= "\t". $data_type . "_untrusted:" .@$taxon_object_counts[$data_type]['ut'];
+                $new_value .= "\t". $data_type . "_unreviewed:" .@$taxon_object_counts[$data_type]['ur'];
+                $new_value .= "\t". $data_type . "_total_words:" .@$taxon_object_counts[$data_type]['total_w'];
+                $new_value .= "\t". $data_type . "_trusted_words:" .@$taxon_object_counts[$data_type]['t_w'];
+                $new_value .= "\t". $data_type . "_untrusted_words:" .@$taxon_object_counts[$data_type]['ut_w'];
+                $new_value .= "\t". $data_type . "_unreviewed_words:" .@$taxon_object_counts[$data_type]['ur_w'];
             }
             $concept_data_object_counts[$taxon_concept_id] = $new_value;
         }
@@ -891,12 +898,44 @@ class TaxonPageMetrics
         $this->mysqli->delete("DROP TABLE IF EXISTS " . $this->table . "_tmp");
         $this->mysqli->insert("CREATE TABLE IF NOT EXISTS " . $this->table . "_tmp LIKE " . $this->table); //debug taxon_concept_metrics_copy
         $this->mysqli->delete("TRUNCATE TABLE " . $this->table . "_tmp");
-        $this->mysqli->load_data_infile($filename, $this->table . "_tmp");
+        // $this->mysqli->load_data_infile($filename, $this->table . "_tmp");
+        $this->load_into_table($filename, $this->table . "_tmp");
         $result = $this->mysqli->query("SELECT 1 FROM " . $this->table . "_tmp LIMIT 1");
         if($result && $row=$result->fetch_assoc()) $this->mysqli->swap_tables($this->table, $this->table . '_tmp'); //debug taxon_concept_metrics_copy                                                                                               
         print "\n table saved \n save_to_table():" . (time_elapsed()-$time_start)/60 . " minutes";
         print "\n" . date("Y-m-d H:i:s");
     }
+
+	function load_into_table($filename, $tablename){
+		$FILE = fopen($filename, "r");
+        if (!$FILE) {
+            print "!! ERROR: Could not read $filename";
+            return;
+        }
+        while(!feof($FILE))
+        {
+            if($line = fgets($FILE))
+            {
+                $fields = explode("\t", trim($line));
+				$keys = array();
+				$values = array();
+				if (empty($fields[0]))	continue;
+				$keys[0] = "taxon_concept_id";
+				$values[0] = trim($fields[0]);
+                foreach(array_slice($fields, 1) as $key_value){
+                	$key_value_array = explode(":", $key_value);
+                	if (count($key_value_array) == 2 && !empty($key_value_array[1])){
+            			array_push($keys, $key_value_array[0]);
+						array_push($values, $key_value_array[1]);
+                	}
+                }
+				$query = "insert into $tablename (" . implode(',', $keys) . ") values (" . implode(',', $values) .");";
+				echo "query is: ".$query . "\n";
+				$result = $this->mysqli->query($query);
+				
+            }
+		}
+	} 
 
     public function generate_taxon_concept_with_bhl_links_textfile($batch_size = 500000) //execution time: 17 minutes
     {
