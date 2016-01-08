@@ -1,12 +1,7 @@
 <?php
 namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../lib/CodeBridge.php");
-if(defined('RESQUE_HOST') && RESQUE_HOST && class_exists('Resque')) {
-    \Resque::setBackend(RESQUE_HOST);
-} else {
-    print "Could not set resque host!";
-    exit(1);
-}
+if(defined('RESQUE_HOST') && RESQUE_HOST && class_exists('Resque')) \Resque::setBackend(RESQUE_HOST);
 class Resource extends ActiveRecord
 {
     public static $belongs_to = array(
