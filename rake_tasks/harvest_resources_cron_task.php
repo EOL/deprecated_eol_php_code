@@ -24,28 +24,30 @@ $log = HarvestProcessLog::create(array('process_name' => 'Harvesting'));
 //$resources = Resource::ready_for_harvesting();
 // $resources = array(Resource::find(SOME_ID_HERE));
 $start_time = time();
-while((time() - $start_time)/(60*60) < 24)
+$harvested = array();
+
+while((time() - $start_time)/(60*60) < 10)
 {
 	//sleep the php until resuming the harvest from the rails side
-	while(Resource::is_paused() == 1)		
-		sleep(40);		
+	while(Resource::is_paused() == 1)
+		sleep(40);
 	//get the resource and check with the previous one
 	$resource = Resource::get_ready_resource();
-	
+
 	if (is_null($resource))
 		break;
-	
+
 	if (!isset($previous_resource->id))
 		$previous_resource->id = -1;
-	
+
 	if ($previous_resource->id == $resource->id){
 		$resource->harvesting_failed();
 		$previous_resource = $resource;
 		continue;
 	}else{
-		$previous_resource = $resource;	
+		$previous_resource = $resource;
 	}
-	
+
 	$GLOBALS['currently_harvesting_resource_id'] = $resource->id;
     // IMPORTANT!
     // We skip a few hard-coded resource IDs, here.
@@ -67,72 +69,21 @@ while((time() - $start_time)/(60*60) < 24)
 
     $validate = true;
     if($GLOBALS['ENV_NAME'] == 'test') $validate = false;
-    
+
     try {
-        $resource->harvest($validate, false, $fast_for_testing);
+      $resource->harvest($validate, false, $fast_for_testing);
+      array_push($harvested, $resource->id());
     } catch (\Exception $e) {
-        echo 'Caught exception: ',  $e->getMessage(), "\n";
-        $resource->update_hierarchy_entries_count();
+      echo 'Caught exception: ',  $e->getMessage(), "\n";
+      $resource->update_hierarchy_entries_count();
     }
 }
+
+if (!empty($harvested)) {
+  echo "Enqueing publish_batch for " + join(', ', $harvested)+"\n";
+  \Resque::enqueue('notifications', 'CodeBridge',
+    array('cmd' => 'publish_batch', 'resource_ids' => $harvested));
+}
+
 $log->finished();
-
-if(!$fast_for_testing)
-{
-    // publish all pending resources
-    shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/publish_resources.php ENV_NAME=". $GLOBALS['ENV_NAME']);
-
-    // setting appropriate TaxonConcept publish flag
-    Hierarchy::fix_published_flags_for_taxon_concepts();
-    Hierarchy::fix_improperly_trusted_concepts();
-
-    // update collection items which reference superceded concepts
-    shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/remove_superceded_collection_items.php ENV_NAME=". $GLOBALS['ENV_NAME']);
-
-    if(!$specified_id)
-    {
-        // denormalize tables
-        shell_exec(PHP_BIN_PATH . dirname(__FILE__)."/denormalize_tables.php ENV_NAME=". $GLOBALS['ENV_NAME']);
-
-        if(defined('SOLR_SERVER'))
-        {
-            if($GLOBALS["ENV_NAME"] == 'test' || date('w') == 6)
-            {
-                if(SolrAPI::ping(SOLR_SERVER, 'site_search'))
-                {
-                    $search_indexer = new SiteSearchIndexer();
-                    $search_indexer->recreate_index_for_class('DataObject');
-                    $search_indexer->recreate_index_for_class('TaxonConcept');
-                    $solr = new SolrAPI(SOLR_SERVER, 'site_search');
-                    $solr->optimize();
-                }
-
-                if(SolrAPI::ping(SOLR_SERVER, 'data_objects'))
-                {
-                    $solr = new SolrAPI(SOLR_SERVER, 'data_objects');
-                    $solr->optimize();
-                }
-
-                if(SolrAPI::ping(SOLR_SERVER, 'hierarchy_entries'))
-                {
-                    $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entries');
-                    $solr->optimize();
-                }
-
-                if(SolrAPI::ping(SOLR_SERVER, 'hierarchy_entry_relationship'))
-                {
-                    $solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entry_relationship');
-                    $solr->optimize();
-                }
-
-                if(SolrAPI::ping(SOLR_SERVER, 'collection_items'))
-                {
-                    $solr = new SolrAPI(SOLR_SERVER, 'collection_items');
-                    $solr->optimize();
-                }
-            }
-        }
-    }
-}
-
 ?>

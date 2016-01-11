@@ -5,7 +5,7 @@ if(defined('RESQUE_HOST') && RESQUE_HOST && class_exists('Resque'))
 {
   \Resque::setBackend(RESQUE_HOST);
 } else {
-  puts "Cannot set Resque backend!\n";
+  print "Cannot set Resque backend!\n";
   exit(1);
 }
 
@@ -14,6 +14,7 @@ php_active_record\require_library("SplitEntryHandler");
 php_active_record\require_library("MoveEntryHandler");
 php_active_record\require_library("MergeConceptsHandler");
 php_active_record\require_library("ReindexHandler");
+php_active_record\require_library("TopImageHandler");
 
 // This is a way for PHP and Ruby to talk across Resque. If the class names are (exactly) the same, they can pass
 // JSON back and forth fairly simply.
@@ -35,6 +36,7 @@ class CodeBridge
             elseif ($this->args['cmd'] == 'move') php_active_record\MoveEntryHandler::move_entry($this->args);
             elseif ($this->args['cmd'] == 'merge') php_active_record\MergeConceptsHandler::merge_concepts($this->args);
             elseif ($this->args['cmd'] == 'reindex_taxon_concept') php_active_record\ReindexHandler::reindex_concept($this->args);
+            elseif ($this->args['cmd'] == 'top_images') php_active_record\TopImagesHandler::top_images();
             else throw new Exception("No command available for ", $this->args['cmd']);
         }catch (Exception $e)
         {
