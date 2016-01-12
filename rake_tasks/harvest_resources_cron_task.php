@@ -72,15 +72,17 @@ while((time() - $start_time)/(60*60) < 10)
 
     try {
       $resource->harvest($validate, false, $fast_for_testing);
-      array_push($harvested, $resource->id());
+      array_push($harvested, $resource->id;
     } catch (\Exception $e) {
       echo 'Caught exception: ',  $e->getMessage(), "\n";
       $resource->update_hierarchy_entries_count();
     }
 }
 
-if (!empty($harvested)) {
-  echo "Enqueing publish_batch for " + join(', ', $harvested)+"\n";
+if (empty($harvested)) {
+  debug("NOTHING HARVESTED. Not enqueing anything for Ruby.\n");
+} else {
+  debug("Enqueing publish_batch for " + join(', ', $harvested)+"\n");
   \Resque::enqueue('notifications', 'CodeBridge',
     array('cmd' => 'publish_batch', 'resource_ids' => $harvested));
 }

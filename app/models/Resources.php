@@ -762,12 +762,10 @@ class Resource extends ActiveRecord
 
     public function harvesting_failed()
     {
-    	debug("Setting status to harvest failed");
+    	debug("Setting status to harvest failed for $this->id");
     	$harvest_failed_id = ResourceStatus::harvesting_failed()->id;
     	$this->resource_status_id = $harvest_failed_id;
       $this->mysqli->update("UPDATE resources SET resource_status_id=". $harvest_failed_id ." WHERE id=$this->id");
-      //ensure that the hierarchy_entries_count is updated
-      $this->update_hierarchy_entries_count();
     }
 
     public function start_harvest()

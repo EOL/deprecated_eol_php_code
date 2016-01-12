@@ -14,7 +14,7 @@ php_active_record\require_library("SplitEntryHandler");
 php_active_record\require_library("MoveEntryHandler");
 php_active_record\require_library("MergeConceptsHandler");
 php_active_record\require_library("ReindexHandler");
-php_active_record\require_library("TopImageHandler");
+php_active_record\require_library("TopImagesHandler");
 
 // This is a way for PHP and Ruby to talk across Resque. If the class names are (exactly) the same, they can pass
 // JSON back and forth fairly simply.

@@ -4,7 +4,7 @@ namespace php_active_record;
 class TopImagesHandler
 {
     // YOU HAVE BEEN WARNED: this takes about 2.5 *DAYS* to complete. Be careful.
-    public static function top_images
+    public static function top_images()
     {
       require_library('TopImages');
       $log = HarvestProcessLog::create(array('process_name' => 'Top Images'));
