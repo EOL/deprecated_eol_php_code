@@ -76,21 +76,21 @@ while((time() - $start_time)/(60*60) < 10)
       $resource->harvest($validate, false, $fast_for_testing);
       array_push($harvested, $resource->id);
     } catch (\Exception $e) {
-      if($GLOBALS['ENV_DEBUG']) echo('Caught exception: ',  $e->getMessage(), "\n");
+      if($GLOBALS['ENV_DEBUG']) echo 'Caught exception: ', $e->getMessage(), "\n";
       $resource->update_hierarchy_entries_count();
       $resource->harvesting_failed();
       debug('Caught exception: ', $e->getMessage());
     }
 }
 
-if($GLOBALS['ENV_DEBUG']) echo("Exiting harvest loop.\n");
+if($GLOBALS['ENV_DEBUG']) echo "Exiting harvest loop.\n";
 debug("Exiting harvest loop.\n");
 
 if (empty($harvested)) {
-  if($GLOBALS['ENV_DEBUG']) echo("NOTHING HARVESTED. Not enqueing publish_batch for Ruby.\n");
+  if($GLOBALS['ENV_DEBUG']) echo "NOTHING HARVESTED. Not enqueing publish_batch for Ruby.\n";
   debug("NOTHING HARVESTED. Not enqueing publish_batch for Ruby.\n");
 } else {
-  if($GLOBALS['ENV_DEBUG']) echo("Enqueing publish_batch for " + join(', ', $harvested)+"\n");
+  if($GLOBALS['ENV_DEBUG']) echo "Enqueing publish_batch for ", join(', ', $harvested), "\n";
   debug("Enqueing publish_batch for " + join(', ', $harvested)+"\n");
   \Resque::enqueue('harvesting', 'CodeBridge',
     array('cmd' => 'publish_batch', 'resource_ids' => $harvested));
