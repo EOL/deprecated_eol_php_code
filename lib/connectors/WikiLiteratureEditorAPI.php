@@ -68,8 +68,9 @@ class WikiLiteratureEditorAPI
             // if($rec->title != "42194845") continue; //debug only
             // if($rec->title != "33870179") continue; //debug only --with copyrightstatus
             // if($rec->title != "13128418") continue; //debug only --with licensor (13128418, 30413122)
-            if($rec->title != "42194845") continue; //debug only --without licensor
-            
+            // if($rec->title != "42194845") continue; //debug only --without licensor
+            if($rec->title != "30413130") continue; //debug only
+
             echo "\n" . $rec->title;
             $url = $this->wikipedia_api . "?action=query&titles=" . urlencode($rec->title) . "&format=json&prop=revisions&rvprop=content";
             $json = Functions::lookup_with_cache($url, array('expire_seconds' => true)); //this expire_seconds should always be true
@@ -105,6 +106,7 @@ class WikiLiteratureEditorAPI
         foreach($rec['Taxa Found in Page']['NameConfirmed'] as $name)
         {
             if(!trim($name)) continue;
+            if(stripos($name, 'NameConfirmed') !== false) continue; //string is found
             
             $t = new \eol_schema\Taxon();
             $t->taxonID                 = str_replace(" ", "_", strtolower($name));
@@ -141,7 +143,7 @@ class WikiLiteratureEditorAPI
             $media['Publisher']              = 'Biodiversity Heritage Library';
             $media['rights']                 = $rec['Item Summary']['Rights'];
             
-            $media['UsageTerms']             = self::format_license($rec['Item Summary']['LicenseUrl']);
+            $media['UsageTerms']             = self::format_license($rec);
             $media['furtherInformationURL']  = $rec['Page Summary']['PageUrl'];
             
             $media['agent']                  = $rec['agent'];
@@ -281,9 +283,13 @@ class WikiLiteratureEditorAPI
         else return $rec['Item Summary']['CopyrightStatus'];
     }
     
-    private function format_license($license)
+    private function format_license($rec)
     {
-        return $license;
+        if(isset($rec['License Type']['text']))
+        {
+            if($val = $rec['License Type']['text']) return $val;
+        }
+        else return $rec['Item Summary']['LicenseUrl'];
     }
     
     private function parse_wiki_content($wiki)
@@ -347,6 +353,12 @@ class WikiLiteratureEditorAPI
                     {
                         echo "\n $index is Licensor";
                         $rec[$index] = self::process_ocr_text($section, "Licensor");
+                    }
+
+                    elseif(stripos($section, 'name="License Type"') !== false) //string is found
+                    {
+                        echo "\n $index is License Type";
+                        $rec[$index] = self::process_ocr_text($section, "License Type");
                     }
 
                 }
