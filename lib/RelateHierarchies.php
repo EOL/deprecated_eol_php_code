@@ -33,7 +33,12 @@ class RelateHierarchies
     // this method will use its own transactions so commit any open transactions before using
     public function process_hierarchy()
     {
-        if(!$this->hierarchy_to_compare || !$this->solr) return false;
+        if(!$this->hierarchy_to_compare ) return false;
+        if (!$this->solr)
+        {
+          debug("SOLR SERVER not defined or can't ping hierarchy_entries, can't begin Relate Hierarchies!");
+         return false;
+        }
         $this->time_comparisons_started = microtime(true);
         $this->total_entry_comparisons = 0;
         $this->create_temp_file_for_relationships();
@@ -41,7 +46,7 @@ class RelateHierarchies
         if($this->hierarchy_entry_ids_to_compare)
         {
             $this->iterate_through_selected_entries();
-        }else
+        } else
         {
             $this->iterate_through_entire_hierarchy();
         }
@@ -50,8 +55,7 @@ class RelateHierarchies
 
     private function iterate_through_entire_hierarchy()
     {
-        debug("RelateHierarchies::iterate_through_entire_hierarchy " .
-            "($this->hierarchy_to_compare->id)");
+        debug("RelateHierarchies::iterate_through_entire_hierarchy {$this->hierarchy_to_compare->id}");
         // get the record count for the loop below
         $query = "hierarchy_id:". $this->hierarchy_to_compare->id ."&rows=1";
         $response = $this->solr->query($query);
@@ -73,12 +77,18 @@ class RelateHierarchies
         $iteration_size = 200;
         $batches = array_chunk($this->hierarchy_entry_ids_to_compare, $iteration_size);
         $this->total_comparisons_to_be_made = count($this->hierarchy_entry_ids_to_compare);
+         debug("++ START RelateHierarchies::iterate_through_selected_entries ($this->hierarchy_entry_ids_to_compare), $this->total_comparisons_to_be_made entries");
+         $batch_no = 1;
         foreach($batches as $batch)
         {
             $query = "hierarchy_id:". $this->hierarchy_to_compare->id ." AND id:(". implode(" OR ", $batch) .")&rows=$iteration_size";
             $entries_from_solr = $this->solr->get_results($query);
+            $count = count($entries_from_solr);
+            debug("RelateHierarchies::iterate_through_entries , batch:$batch_no, no_of_entries:$count");
             $this->iterate_through_entries($entries_from_solr);
+            $batch_no++;
         }
+        debug("-- END RelateHierarchies::iterate_through_selected_entries");
     }
 
     private function iterate_through_entries(&$entries_from_solr)
@@ -157,12 +167,13 @@ class RelateHierarchies
 
         $name_match = $this->compare_names($e1, $e2, $is_virus);
 
-        // synonym matching - cut the score in half and make it negative to show it was a synonym match
-        if(!$name_match && !$is_virus) $name_match = $this->compare_synonyms($e1, $e2) * -1;
+        // synonym matching - make it negative to show it was a synonym match
+        if(!$name_match && !$is_virus)
+          $name_match = $this->compare_synonyms($e1, $e2) * -1;
 
         $ancestry_match = $this->compare_ancestries($e1, $e2);
 
-        // an ancestry was empty to use name match only
+        // an ancestry was empty so use name match only (at half score)
         if(is_null($ancestry_match)) $total_score = $name_match * .5;
 
         // ancestry match was at a resonable rank, weight scores
@@ -176,14 +187,16 @@ class RelateHierarchies
 
     private function rank_conflict(&$e1, &$e2)
     {
+      // NOTE: Was the intent here an &&? As written, it will follow this branch
+      // if EITHER of the entries has a rank group (which I imagine is 99.99% of
+      // the time).
         if(isset($this->rank_groups[$e1->rank_id]) || isset($this->rank_groups[$e2->rank_id]))
         {
             $group1 = @$this->rank_groups[$e1->rank_id];
             $group2 = @$this->rank_groups[$e2->rank_id];
             if($e1->rank_id && $e2->rank_id && $group1 != $group2) return 1;
-        }else
+        }else // the rank groups are not known:
         {
-            // the ranks are not the same
             if($e1->rank_id && $e2->rank_id && $e1->rank_id != $e2->rank_id) return 1;
         }
         return 0;
@@ -327,7 +340,9 @@ class RelateHierarchies
         self::insert_curator_assertions();
 
         $solr_indexer = new HierarchyEntryRelationshipIndexer($this->relations_table_name);
+        debug("++ START HierarchyEntryRelationshipIndexer::index");
         $solr_indexer->index(array('hierarchy' => $this->hierarchy_to_compare, 'hierarchy_entry_ids' => $this->hierarchy_entry_ids_to_compare));
+        debug("-- END HierarchyEntryRelationshipIndexer::index");
         $this->mysqli->delete("DROP TABLE $this->relations_table_name");
     }
 
@@ -354,12 +369,17 @@ class RelateHierarchies
         $this->relations_table_name = $relations_table_name;
     }
 
+    // NOTE: This is broken. The end result will be ranks_matched_at_kingdom[]
+    // populated with the id of the (same) kingdom rank 4 times: [183, 183, 183,
+    // 183] in point of fact. ...Why is that useful? Thoughts below.
     private function set_ranks_matched_at_kingdom()
     {
         $ranks_to_lookup = array( 'kingdom', 'phylum', 'class', 'order' );
         $this->ranks_matched_at_kingdom = array();
         foreach($ranks_to_lookup as $rank_label)
         {
+          // THOUGHT: Was the intent here to lookup $rank_label?! Was this
+          // intended to look up ALL of the rank ids with that label?
             if($rank = Rank::find_or_create_by_translated_label('kingdom'))
             {
                 $this->ranks_matched_at_kingdom[] = $rank->id;
@@ -394,14 +414,16 @@ class RelateHierarchies
     {
         $processing_time_so_far = microtime(true) - $this->time_comparisons_started;
         $records_per_second = $this->total_entry_comparisons / $processing_time_so_far;
+        // Memory:    ". memory_get_usage() ."
+        // Time:      ". round($processing_time_so_far, 2)." s
         debug("
-        Records:   $this->total_entry_comparisons
-        Speed:     ". round($records_per_second, 2) ." r/s
-        Memory:    ". memory_get_usage() ."
-        Time:      ". round($processing_time_so_far, 2)." s
-        Time Left: ". round(($this->total_comparisons_to_be_made - $this->total_entry_comparisons) / $records_per_second, 2) ." s\n\n");
-        flush();
-        @ob_flush();
+        SOLR comparisons:\n
+        Records:   $this->total_entry_comparisons / $this->total_comparisons_to_be_made
+        Time Left: " . round(($this->total_comparisons_to_be_made -
+          $this->total_entry_comparisons) / $records_per_second, 2) .
+          "s (@" . round($records_per_second, 2) . "/s)\n\n");
+        // flush();
+        // @ob_flush();
     }
 }
 

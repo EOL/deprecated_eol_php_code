@@ -435,12 +435,11 @@ class Resource extends ActiveRecord
           $sparql_client = SparqlClient::connection();
           // TODO: we shouldn't delete the graph, but make a temp one...
           $sparql_client->delete_graph($this->virtuoso_graph_name());
-          $this->start_harvest(); // Create the event
           // delete all data point uris related to this resource
           $this->mysqli->delete("DELETE FROM data_point_uris where resource_id = $this->id");
           // delete all data point uris related to this resource from resource contributions
           $this->mysqli->delete("DELETE FROM resource_contributions where resource_id = $this->id and object_type = 'data_point_uri'");
-          $this->start_harvest();
+          $this->start_harvest(); // Create the event
 
           $this->debug_start("parsing");
           if($this->is_translation_resource())
@@ -484,29 +483,30 @@ class Resource extends ActiveRecord
 
           if($this->hierarchy_id && !$this->is_translation_resource())
           {
-              debug("(Translation resource)");
               $hierarchy = Hierarchy::find($this->hierarchy_id);
               $this->debug_start("Tasks::rebuild_nested_set");
               Tasks::rebuild_nested_set($this->hierarchy_id);
               $this->debug_end("Tasks::rebuild_nested_set");
               $this->make_new_hierarchy_entries_preview($hierarchy);
 
-              if(!$this->auto_publish)
-              {
-                  debug("(AUTO-PUBLISH)");
-                  // Rebuild the Solr index for this hierarchy
-                  $indexer = new HierarchyEntryIndexer();
-                  $this->debug_start("HierarchyEntryIndexer::index");
-                  $indexer->index($this->hierarchy_id);
-                  $this->debug_end("HierarchyEntryIndexer::index");
+              if(false) { // Ported to Ruby.
+                if(!$this->auto_publish)
+                {
+                    debug("(NON-AUTO-PUBLISH: cleaning up for later publishing)");
+                    // Rebuild the Solr index for this hierarchy
+                    $indexer = new HierarchyEntryIndexer();
+                    $this->debug_start("HierarchyEntryIndexer::index");
+                    $indexer->index($this->hierarchy_id);
+                    $this->debug_end("HierarchyEntryIndexer::index");
 
-                  $this->debug_start("harvest_event->compare_new_hierarchy_entries");
-                  $this->harvest_event->compare_new_hierarchy_entries();
-                  $this->debug_end("harvest_event->compare_new_hierarchy_entries");
+                    $this->debug_start("harvest_event->compare_new_hierarchy_entries");
+                    $this->harvest_event->compare_new_hierarchy_entries();
+                    $this->debug_end("harvest_event->compare_new_hierarchy_entries");
 
-                  $this->debug_start("harvest_event->create_collection");
-                  $this->harvest_event->create_collection();
-                  $this->debug_end("harvest_event->create_collection");
+                    $this->debug_start("harvest_event->create_collection");
+                    $this->harvest_event->create_collection();
+                    $this->debug_end("harvest_event->create_collection");
+                }
               }
 
               if($this->vetted)
@@ -541,7 +541,7 @@ class Resource extends ActiveRecord
           {
             $this->harvest_event->publish = 1;
             $this->harvest_event->save();
-            $this->publish($fast_for_testing);
+            // PORTED TO RUBY! $this->publish($fast_for_testing);
           }
 
           if($GLOBALS['ENV_NAME'] == 'production')
@@ -554,12 +554,11 @@ class Resource extends ActiveRecord
       }
       $this->harvest_event = null;
       $this->debug_end("harvest");
-      fclose($resource_harvesting_log);
     }
 
     public function add_unchanged_data_to_harvest()
     {
-      $this->debug_start("++ START add_unchanged_data_to_harvest ++");
+      $this->debug_start("add_unchanged_data_to_harvest");
         // there is no _delete file so we assume the resource is complete
         if(!file_exists($this->resource_deletions_path())) return false;
 
@@ -763,12 +762,10 @@ class Resource extends ActiveRecord
 
     public function harvesting_failed()
     {
-    	debug("Setting status to harvest failed");
+    	debug("Setting status to harvest failed for $this->id");
     	$harvest_failed_id = ResourceStatus::harvesting_failed()->id;
     	$this->resource_status_id = $harvest_failed_id;
       $this->mysqli->update("UPDATE resources SET resource_status_id=". $harvest_failed_id ." WHERE id=$this->id");
-      //ensure that the hierarchy_entries_count is updated
-      $this->update_hierarchy_entries_count();
     }
 
     public function start_harvest()
@@ -877,16 +874,15 @@ class Resource extends ActiveRecord
 
     public function update_hierarchy_entries_count()
     {
+      # If the hierarchy was *just* inserted, it won't be here yet.
+      $this->refresh();
       debug("update hierarchy_entries_count");
-       $this->mysqli->update("update hierarchies as h ".
-            "set hierarchy_entries_count  = ( ".
-              "select count(*) ".
-              "from hierarchy_entries as he ".
-              "where he.published = 1 and " .
-              "he.hierarchy_id = $this->hierarchy_id ".
-              "GROUP BY hierarchy_id ".
-            ") where id = $this->hierarchy_id");
-
+       $this->mysqli->update("UPDATE hierarchies AS h ".
+            "SET hierarchy_entries_count  = ( ".
+              "SELECT count(*) ".
+              "FROM hierarchy_entries AS he ".
+              "WHERE he.hierarchy_id = $this->hierarchy_id ".
+            ") WHERE id = $this->hierarchy_id");
     }
 
     private function insert_dwc_hierarchy()

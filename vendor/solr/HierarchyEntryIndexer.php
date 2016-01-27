@@ -40,7 +40,6 @@ class HierarchyEntryIndexer
         	debug("SOLR SERVER not defined or can't ping hierarchy_entries!");
         	return false;
         }
-        
         if($hierarchy_id)
         {
             $this->solr = new SolrAPI(SOLR_SERVER, 'hierarchy_entries');
@@ -62,8 +61,14 @@ class HierarchyEntryIndexer
             $start = $row["min"];
             $max_id = $row["max"];
         }
-        if($start == 0) return;
-        
+        if($start == 0)
+        {
+          debug("No entries to index in ($hierarchy_id)");
+          return;
+        } 
+
+        $count = $max_id-$start+1;
+        debug("indexing $count entries in solr");
         for($i=$start ; $i<=$max_id ; $i+=$limit)
         {
             unset($this->objects);
@@ -81,11 +86,20 @@ class HierarchyEntryIndexer
         if(isset($this->objects)) $this->solr->send_attributes($this->objects);
         $this->solr->commit();
         // if($optimize) $this->solr->optimize();
-        
+       
         if(!$hierarchy_id)
         {
             $this->solr->swap('hierarchy_entries_swap', 'hierarchy_entries');
         }
+       $solr_count = $this->solr->count_results("hierarchy_id:$hierarchy_id");
+       debug("indexed in SOLR: $solr_count entries");
+       if ($count == $solr_count)
+       {
+         debug("All hierarchy entries were correctly indexed in SOLR");
+       }else 
+       {
+          debug("WARNING:: Not all hierarchy entries are present in SOLR!");
+       }
     }
     
     

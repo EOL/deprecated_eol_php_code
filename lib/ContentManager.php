@@ -75,12 +75,7 @@ class ContentManager
                     return false;
                 };
                 $cache_file_path = $permanent_file_path = $permanent_prefix;
-                // first delete the archive directory that currently exists
-                recursive_rmdir($permanent_file_path);
-                // move the temp, uncompressed directory to its new home with
-                // the resources
-                if(copy($temp_file_path, $permanent_file_path))
-                  unlink($temp_file_path);
+                file_rename($temp_file_path, $permanent_file_path);
             }
 
             // fail if for some reason there is still no file at the new path
@@ -273,8 +268,7 @@ class ContentManager
         }
         if(is_dir($only_file))
         {
-            if(copy($only_file, $directory_path . "_swap"))
-              unlink($only_file);
+            file_rename($only_file, $directory_path . "_swap");
             rmdir($directory_path);
             if(copy($directory_path . "_swap", $directory_path))
               unlink($directory_path . "_swap");
@@ -803,8 +797,8 @@ class ContentManager
                 $sizes = getimagesize(CONTENT_LOCAL_PATH . $cache_path . "_580_360.jpg");
             } else {
                 //use the online version, yuck. This hacks around the problem of having old images stored on a different filesystem
-                $image_url = "http://content71.eol.org/content/" . $cache_path ."_orig.jpg";
-                $sizes = getimagesize("http://content71.eol.org/content/" . $cache_path . "_580_360.jpg");
+                $image_url = "http://content.eol.org/content/" . $cache_path ."_orig.jpg";
+                $sizes = getimagesize("http://content.eol.org/content/" . $cache_path . "_580_360.jpg");
             }
             $image_options = array('data_object_id' => $data_object->id, 'data_object_guid' => $data_object->guid);
             // user has defined a bespoke crop region, with crop given as x & y offsets, plus a crop width & poss height.
@@ -862,7 +856,7 @@ class ContentManager
             }
             // If we can't find the original download, save the local or previous jpg versions as the original (yuck)
             if(!is_file($image_url)) $image_url = CONTENT_LOCAL_PATH . $cache_path . "_orig.jpg";
-            if(!is_file($image_url)) $image_url = "http://content71.eol.org/content/" . $cache_path ."_orig.jpg";
+            if(!is_file($image_url)) $image_url = "http://content.eol.org/content/" . $cache_path ."_orig.jpg";
             return $this->grab_file($image_url, "image", array('crop_pct'=>array($x_pct, $y_pct, $w_pct, $h_pct), 'data_object_id' => $data_object->id, 'data_object_guid' => $data_object->guid));
         }
     }

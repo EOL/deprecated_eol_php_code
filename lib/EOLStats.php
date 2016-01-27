@@ -693,7 +693,7 @@ class EOLStats
             JOIN resources r ON (he.resource_id=r.id)
             JOIN content_partners cp ON (r.content_partner_id=cp.id)
             WHERE he.published_at IS NOT NULL
-                AND cp.public=1";
+                AND cp.is_public=1";
         if($vetted) $sql .= " AND r.vetted = $vetted";
         return $this->mysqli_slave->select_value($sql);
     }
@@ -724,7 +724,7 @@ class EOLStats
             JOIN resources r ON (he.resource_id=r.id)
             JOIN content_partners cp ON (r.content_partner_id=cp.id)
             WHERE he.published_at IS NOT NULL
-                AND cp.public=1 ";
+                AND cp.is_public=1 ";
         if($vetted != "x") $sql .= " AND r.vetted = $vetted ";
         return $this->mysqli_slave->select_value($sql);
     }
@@ -1068,4 +1068,3 @@ class EOLStats
     }
 }
 ?>
-

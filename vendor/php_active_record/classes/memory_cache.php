@@ -14,7 +14,8 @@ class MemoryCache
         if(!isset($GLOBALS['memory_cache'][$key]))
         {
             //trigger_error("MemoryCache: key doesnt exist", E_USER_WARNING);
-            debug("MemoryCache: key doesnt exist");
+            // TOO MUCH NOISE
+            // debug("MemoryCache: key doesnt exist");
             return false;
         }
         return unserialize($GLOBALS['memory_cache'][$key]);
@@ -31,7 +32,8 @@ class MemoryCache
         if(!$force && isset($GLOBALS['memory_cache'][$key]))
         {
             //trigger_error("MemoryCache: key already exists", E_USER_WARNING);
-            debug("MemoryCache: key doesnt exist");
+            // TOO MUCH NOISE!
+            // debug("MemoryCache: key doesnt exist");
             return false;
         }
         $GLOBALS['memory_cache'][$key] = serialize($value);

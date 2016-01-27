@@ -27,7 +27,7 @@ if(!defined('FILE_BIN_PATH')) define('FILE_BIN_PATH', 'file');
 
 if(!isset($GLOBALS['ENV_DEBUG'])) $GLOBALS['ENV_DEBUG'] = true;
 if(!isset($GLOBALS['ENV_MYSQL_DEBUG'])) $GLOBALS['ENV_MYSQL_DEBUG'] = true;
-if(!isset($GLOBALS['ENV_DEBUG_TO_FILE'])) $GLOBALS['ENV_DEBUG_TO_FILE'] = true;
+if(!isset($GLOBALS['ENV_DEBUG_TO_FILE'])) $GLOBALS['ENV_DEBUG_TO_FILE'] = false;
 if(!isset($GLOBALS['ENV_DEBUG_FILE_FLUSH'])) $GLOBALS['ENV_DEBUG_FILE_FLUSH'] = false;
 
 if(!isset($GLOBALS['ENV_ENABLE_CACHING'])) $GLOBALS['ENV_ENABLE_CACHING'] = true;
@@ -117,7 +117,7 @@ $GLOBALS['no_cache']['taxon_concepts']      = true;
 
 
 
-/* Set your working development environment 
+/* Set your working development environment
    if a web request and there is a paremeter ENV_NAME=$ENV that gets priority
    if a CLI request and there is an argument ENV_NAME=$ENV that gets second priority
    if a constant ENVIRONMENT exists that gets third priority

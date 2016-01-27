@@ -1,13 +1,20 @@
 <?php
 include_once(dirname(__FILE__) . "/../config/environment.php");
 include_once(dirname(__FILE__) . "/../vendor/php_resque/lib/Resque.php");
-if(defined('RESQUE_HOST') && RESQUE_HOST && class_exists('Resque')) \Resque::setBackend(RESQUE_HOST);
+if(defined('RESQUE_HOST') && RESQUE_HOST && class_exists('Resque'))
+{
+  \Resque::setBackend(RESQUE_HOST);
+} else {
+  print "Cannot set Resque backend!\n";
+  exit(1);
+}
 
 # Needed for work:
 php_active_record\require_library("SplitEntryHandler");
 php_active_record\require_library("MoveEntryHandler");
 php_active_record\require_library("MergeConceptsHandler");
 php_active_record\require_library("ReindexHandler");
+php_active_record\require_library("TopImagesHandler");
 
 // This is a way for PHP and Ruby to talk across Resque. If the class names are (exactly) the same, they can pass
 // JSON back and forth fairly simply.
@@ -29,6 +36,7 @@ class CodeBridge
             elseif ($this->args['cmd'] == 'move') php_active_record\MoveEntryHandler::move_entry($this->args);
             elseif ($this->args['cmd'] == 'merge') php_active_record\MergeConceptsHandler::merge_concepts($this->args);
             elseif ($this->args['cmd'] == 'reindex_taxon_concept') php_active_record\ReindexHandler::reindex_concept($this->args);
+            elseif ($this->args['cmd'] == 'top_images') php_active_record\TopImagesHandler::top_images();
             else throw new Exception("No command available for ", $this->args['cmd']);
         }catch (Exception $e)
         {
@@ -36,13 +44,13 @@ class CodeBridge
             // Report for logging on the worker:
             CodeBridge::print_message("Command Failed: $error_message");
             print_r($this->args);
-            
+
             // Actual error logs to the DB (note that this can fail if the DB connection was severed),
             // so I'm attempting a reconnect, here:
             $mysqli->close();
             $mysqli->initialize();
         }
-        
+
         try
         {
             if (array_key_exists('hierarchy_entry_id', $this->args))
@@ -75,12 +83,12 @@ class CodeBridge
         }
         $mysqli->initialize();
     }
-    
+
     public static function print_message($message)
     {
         echo "\n++ [" . date('g:i A', time()) . "] $message\n\n";
-    }   
-    
+    }
+
 	public static function update_resource_contributions($resource_id)
     {
      	// inform rails when resource finish harvest
@@ -88,7 +96,7 @@ class CodeBridge
                         'resource_id' => $resource_id));
         CodeBridge::print_message("++ Enqueued notifications/CodeBridge/update_resource_contributions(resource_id = ". $resource_id .")");
     }
-    
+
 }
 
 ?>

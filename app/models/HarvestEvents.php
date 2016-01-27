@@ -349,10 +349,17 @@ class HarvestEvent extends ActiveRecord
     {
         // run the comparisons
         $compare_ids = $this->modified_hierarchy_entry_ids();
+        $count = count($compare_ids);
+        debug("no. of modified hierarchy entries: $count");
         $relator = new RelateHierarchies(array('hierarchy_to_compare' => $this->resource->hierarchy, 'hierarchy_entry_ids_to_compare' => $compare_ids));
+        debug("++ START RelateHierarchies::process_hierarchy");
         $relator->process_hierarchy();
+        debug("-- END RelateHierarchies::process_hierarchy");
         // use them to create concepts
+         debug("++ START CompareHierarchies::begin_concept_assignment");
         CompareHierarchies::begin_concept_assignment($this->resource->hierarchy_id, true);
+        debug("-- END CompareHierarchies::begin_concept_assignment");
+
     }
     
     function modified_hierarchy_entry_ids()
