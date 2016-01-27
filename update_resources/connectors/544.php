@@ -46,7 +46,7 @@ fclose($resource_file);
 
 // cache the previous version and make this new version the current version
 @unlink(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous.xml");
-Functions::file_rename((CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous.xml");
+Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous.xml");
 Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");
 
 Functions::set_resource_status_to_force_harvest($resource_id);

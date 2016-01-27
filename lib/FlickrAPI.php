@@ -126,7 +126,7 @@ class FlickrAPI
         }
         if(!$photo) debug("\n\nERROR:Photo $photo_id is not available\n\n");
         
-        if($photo->visibility->ispublic != 1) return false;
+        if(@$photo->visibility->ispublic != 1) return false;
         if($photo->usage->candownload != 1) return false;
         
         if(@!$GLOBALS["flickr_licenses"][$photo->license]) return false;
