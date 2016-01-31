@@ -63,13 +63,12 @@ class WikiLiteratureEditorAPI
     {
         foreach($recs as $rec)
         {
-            // print_r($rec); exit;
             // if($rec->title != "42194843") continue; //debug only
             // if($rec->title != "42194845") continue; //debug only
             // if($rec->title != "33870179") continue; //debug only --with copyrightstatus
             // if($rec->title != "13128418") continue; //debug only --with licensor (13128418, 30413122)
             // if($rec->title != "42194845") continue; //debug only --without licensor
-            if($rec->title != "30413130") continue; //debug only
+            if($rec->title != "16059324") continue; //debug only
 
             echo "\n" . $rec->title;
             $url = $this->wikipedia_api . "?action=query&titles=" . urlencode($rec->title) . "&format=json&prop=revisions&rvprop=content";
@@ -147,6 +146,8 @@ class WikiLiteratureEditorAPI
             $media['furtherInformationURL']  = $rec['Page Summary']['PageUrl'];
             
             $media['agent']                  = $rec['agent'];
+            $media['bibliographicCitation']  = self::format_biblio($rec['Bibliographic Citation']['text']);
+            
             
             $media['reference_ids'] = array();
             if($val = $rec['User-defined References']) $media['reference_ids'] = self::get_reference_ids($val);
@@ -224,11 +225,11 @@ class WikiLiteratureEditorAPI
         $mr->Owner                  = @$media['Owner'];
         $mr->publisher              = @$media['Publisher'];
         $mr->rights                 = $media['rights'];
-        
         $mr->title                  = $media['title'];
         $mr->UsageTerms             = $media['UsageTerms'];
         $mr->description            = $media['description'];
         $mr->CVterm                 = $media['CVterm'];
+        $mr->bibliographicCitation  = $media['bibliographicCitation'];
         $mr->furtherInformationURL  = $media['furtherInformationURL'];
         
         if($val = @$media['agent'])
@@ -269,6 +270,11 @@ class WikiLiteratureEditorAPI
         return $agent_ids;
     }
 
+    private function format_biblio($biblio)
+    {
+        return $biblio;
+    }
+    
     private function format_language($lang)
     {
         return substr($lang,0,2);
@@ -295,8 +301,7 @@ class WikiLiteratureEditorAPI
     private function parse_wiki_content($wiki)
     {
         $rec = array();
-
-        $rec['agent'] = self::process_agent($wiki);
+        $rec['agent'] = self::process_provider_agent($wiki);
         
         if(preg_match_all("/class=\"wikitable\"(.*?)\|\}/ims", $wiki, $arr))
         {
@@ -361,6 +366,19 @@ class WikiLiteratureEditorAPI
                         $rec[$index] = self::process_ocr_text($section, "License Type");
                     }
 
+                    elseif(stripos($section, 'name="Bibliographic Citation"') !== false) //string is found
+                    {
+                        echo "\n $index is Bibliographic Citation";
+                        $rec[$index] = self::process_ocr_text($section, "Bibliographic Citation");
+                    }
+                    
+                    elseif(stripos($section, 'name="Authors"') !== false) //string is found
+                    {
+                        echo "\n $index is Authors";
+                        $rec[$index] = self::process_multiple_row_text($section, "Authors");
+                    }
+                    
+
                 }
                 else
                 {
@@ -368,6 +386,10 @@ class WikiLiteratureEditorAPI
                 }
             }
         }
+        
+        if($val = $rec['Authors']) $rec['agent'] = array_merge($rec['agent'], self::process_author_agent($val));
+        
+        
         print_r($rec); //exit;
         return $rec;
     }
@@ -410,7 +432,7 @@ class WikiLiteratureEditorAPI
         return $recs;
     }
 
-    private function process_agent($wiki)
+    private function process_provider_agent($wiki)
     {
         $agent = array();
         //Contributing User: [http://editors.eol.localhost/LiteratureEditor/wiki/User:EAgbayani <b>EAgbayani</b>]
@@ -426,16 +448,26 @@ class WikiLiteratureEditorAPI
         }
         return false;
     }
-    
+
+    private function process_author_agent($names)
+    {
+        $agents = array();
+        foreach($names as $name)
+        {
+            if(preg_match("/\{(.*?)\}/ims", $name, $arr)) $agent_id = $arr[1];
+            $name = str_replace(' {'.$agent_id.'}', "", $name);
+            $agent = array();
+            $agent['fullName'] = $name;
+            $agent['homepage'] = "http://www.biodiversitylibrary.org/creator/" . $agent_id . "#/titles";
+            $agent['role'] = 'author';
+            $agents[] = $agent;
+        }
+        return $agents;
+    }
+
     private function process_ocr_text($section, $str)
     {
         /*
-            ===User-defined Title (optional)===
-            {| class="wikitable" name="User-defined Title" style="color:green; background-color:#ffffcc;"
-            |''enter title here''
-            |-
-            |}
-            
             ===User-defined Title (optional)===
             {| class="wikitable" style="color:green; background-color:#ffffcc;" name="User-defined Title"
             |+ style="caption-side:right;"|[[Image:arrow-up icon.png|link=#top|Go top]]
@@ -450,6 +482,28 @@ class WikiLiteratureEditorAPI
             return array("text" => $text);
         }
     }
+
+    private function process_multiple_row_text($section, $str)
+    {
+        /*
+            ===Authors===
+            {| class="wikitable" style="color:green; background-color:#ffffcc;" name="Authors"
+            |+ style="caption-side:right;"|[[Image:arrow-up icon.png|link=#top|Go top]]
+            |British Museum (Natural History).
+            |-
+            |Gray, John Edward
+            |-
+            |}
+        */
+        if(preg_match("/Go top\]\](.*?)xxx/ims", $section."xxx", $arr))
+        {
+            if(preg_match_all("/\|(.*?)\|-/ims", $arr[1], $arr2))
+            {
+                return array_map("trim", $arr2[1]);
+            }
+        }
+    }
+
     
     private function process_col_table($section)
     {
