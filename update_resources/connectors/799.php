@@ -1,13 +1,13 @@
 <?php
 namespace php_active_record;
-/* This is a specific connector for the mineralogy spreadsheet where the worksheets were exported to tab-delimited text files using MS Spreadsheet for Mac (DATA-1619).
+/* This is a specific connector for the mineralogy spreadsheet where the worksheets were exported to tab-delimited text files using MS Spreadsheet for Mac (DATA-1619). This is one-time export.
 execution time: 7 minutes
 
-					2015Jun4	Jun30
-measurement_or_fact	986312		986312
-occurrence		 	322805		322136
-reference	 		64			64
-taxon				293068		293067
+                        2015Jun4    Jun30
+measurement_or_fact     986312      986312
+occurrence              322805      322136
+reference               64          64
+taxon                   293068      293067
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
