@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-class HTML2MediaWikiAPI
+class HTML2MediaWikiAPI_EoEarth
 {
     public function __construct()
     {
@@ -513,7 +513,7 @@ class HTML2MediaWikiAPI
                             // /* generating non-unique titles...
                             @$this->debug['titles'][ucfirst($val)][$url][$main_url_to_process] = '';
                             continue;
-                            exit("\nshould not pass here when generating non-unique titles list\n");
+                            print("\nshould not pass here when generating non-unique titles list\n");
                             // */
                         }
                         //====================================================================================
@@ -696,7 +696,7 @@ class HTML2MediaWikiAPI
         //====start this finalizes the wiki ref adjustment --- this is from adjust_client_html() -> implement_wiki_ref()
         if($val = $this->ref_below)
         {
-            // print_r($val); exit;
+            // print_r($val);
             foreach($val as $ref_id => $value)
             {
                 if(stripos($wiki, $ref_id) !== false) //$ref_id is found
@@ -1743,53 +1743,9 @@ class HTML2MediaWikiAPI
                         print_r($rec);
                         echo "\n[$t]\n";
                         echo("\nfix url [$final]\n");
-                        exit("\n");
                     }
                 }
                 
-                
-                /*
-                if(stripos($rec['text'], "...") !== false) // ... is found
-                {
-                    // if($title = @$this->complete_title[$rec['text']])
-                    // {
-                    //     $new_t = str_replace($rec['text'], $title, $t);
-                    //     $html = str_replace("<div class='leftNavLinkContainerInner'>$t</div>", "<div class='leftNavLinkContainerInner'>$new_t</div>", $html);
-                    // }
-                    // else
-                    // {
-                        print_r($rec);
-                        $fixed_path = self::adjust_path($rec['href'], $client_path);
-                        $url = $this->root . $fixed_path ;
-                        $title = "";
-                        if(file_exists($url))
-                        {
-                            $title = self::get_title_tag($url);
-                            $this->complete_title[$rec['text']] = $title;
-                            
-                            $new_t = str_replace($rec['text'], $title, $t);
-                            echo "\ntitle:[$title][$url]";
-                            echo "\nclient_path:[$client_path]";
-                            echo "\nurl:[$url]\n";
-                            // echo "\nreplace[$t] with[$new_t]\n";
-                            $html = str_replace("<div class='leftNavLinkContainerInner'>$t</div>", "<div class='leftNavLinkContainerInner'>$new_t</div>", $html);
-                        }
-                        else
-                        {
-                            echo "\n - no title...";
-                            echo "\nclient_path:[$client_path]";
-                            echo "\nurl:[$url]\n";
-                            exit;
-                        }
-                        // if(true)
-                        // {
-                        //     echo "\nstart of debugxxx\n";
-                        //     Functions::debug_line("elix");
-                        //     exit;
-                        // }
-                    // }
-                }
-                */
             }
         }
         return $html;
@@ -2023,7 +1979,7 @@ class HTML2MediaWikiAPI
         
         if(preg_match_all("/ href=(.*?)<\/a>/ims", $html, $arr))
         {
-            // print_r($arr[1]); exit;
+            // print_r($arr[1]);
             $final = array();
             $exclude1 = array("index-topic=", "http://", "#", "https://", "mailto:"); //exclude if it starts with these
             $exclude2 = array('.css', '#');                                           //exclude if it has these strings ... was included before: 51cbee8c7896bb431f698a5c
@@ -3439,7 +3395,6 @@ class HTML2MediaWikiAPI
     $url = "'../54337/index.html'>Temperature";
     $url = "'../../../topics/view/54290/index.html' target='_blank'><span style='color: rgb(0, 0, 255);'>Temperature</span>";
     echo self::significant_part_of_url($url);
-    exit("\n");
     */
     
 }

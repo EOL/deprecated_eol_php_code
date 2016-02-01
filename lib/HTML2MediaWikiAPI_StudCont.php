@@ -48,7 +48,6 @@ class HTML2MediaWikiAPI_StudCont
         {
             $main_url_to_process = $this->root . $client_path;
             $paths = self::get_anchors($main_url_to_process);
-            // print_r($paths); exit;
             self::generate_wiki_format($paths, $client_path, $main_url_to_process);
         }
         // self::key_values(@$this->debug['menu titles']);
@@ -90,7 +89,6 @@ class HTML2MediaWikiAPI_StudCont
                             // /* generating non-unique titles...
                             @$this->debug['titles'][ucfirst($val)][$url][$main_url_to_process] = '';
                             continue;
-                            exit("\nshould not pass here when generating non-unique titles list\n");
                             // */
                         }
                         //====================================================================================
@@ -172,12 +170,7 @@ class HTML2MediaWikiAPI_StudCont
                                 echo "\n [$val] generating wiki...";                    shell_exec("php /Library/WebServer/Documents/" . $this->mediawiki_main_folder . "/maintenance/edit.php -s 'Quick edit' -m " . $val . " < " . $temp_wiki_file);
                                 self::save_process($val.$url, $this->save_options);
                             }
-                            else
-                            {
-                                echo "\nzero file size:[$val][$url]\n";
-                                // continue;
-                                // exit;
-                            }
+                            else echo "\nzero file size:[$val][$url]\n";
                         }
                         // */
                         
@@ -212,7 +205,7 @@ class HTML2MediaWikiAPI_StudCont
     private function fix_the_More_link($wiki)
     {
         /*
-        <div class="inverseContentItem modRow"><span class="img"> [[Image:Computer_keyboard.jpeg.gif]] </span> 
+        <div class="inverseContentItem modRow"><span class="img"> [[Image:Computer_keyboard.jpeg.gif]] </span>
         <span class="inverseContainer"> 
         <span class="inverseTitle">[[Submitting an article]]</span> 
         <span class="inverseUpdated">Last Updated on 2014-05-07 15:39:29</span> 
@@ -267,7 +260,6 @@ class HTML2MediaWikiAPI_StudCont
         //====start this finalizes the wiki ref adjustment --- this is from adjust_client_html() -> implement_wiki_ref()
         if($val = $this->ref_below)
         {
-            // print_r($val); exit;
             foreach($val as $ref_id => $value)
             {
                 if(stripos($wiki, $ref_id) !== false) //$ref_id is found
@@ -464,7 +456,6 @@ class HTML2MediaWikiAPI_StudCont
         $wiki = str_ireplace("* [[Login]]\n", "", $wiki);
         $wiki = str_ireplace("* [[Not a Member?]]\n", "", $wiki);
         
-        
         //separate the to with a carriage return: </font>|} --- a problem with e.g. Wheat article
         $wiki = str_replace(">|}", ">" . "\n" . "|}", $wiki);
         $wiki = str_replace(">{|", ">" . "\n" . "{|", $wiki);
@@ -498,7 +489,6 @@ class HTML2MediaWikiAPI_StudCont
         $wiki = str_replace("<nowiki>", "", $wiki);
         $wiki = str_replace("</nowiki>", "", $wiki);
         
-        
         if(($OUT = Functions::file_open($wiki_file, "w")))
         {
             fwrite($OUT, $wiki);
@@ -526,7 +516,6 @@ class HTML2MediaWikiAPI_StudCont
             }
         }
         $main = array_keys($main);
-        // print_r($main);
         
         //for subtopics' titles
         if(preg_match_all("/\=\=\[\[(.*?)\]\]\=\=/ims", $wiki, $arr))
@@ -1077,7 +1066,7 @@ class HTML2MediaWikiAPI_StudCont
         //reference on top -> replace it with: <ref name="test1">additional text.</ref>
         if(preg_match_all("/<span class=[\"|']reference[\"|']>(.*?)<\/span>/ims", $html, $arr))
         {
-            // print_r($arr[1]); exit;
+            // print_r($arr[1]);
             foreach($arr[1] as $t)
             {
                 if(preg_match("/href=[\"|'](.*?)[\"|']/ims", $t, $arr2))
@@ -1290,55 +1279,8 @@ class HTML2MediaWikiAPI_StudCont
                         print_r($rec);
                         echo "\n[$t]\n";
                         echo("\nfix url [$final]\n");
-                        exit("\n");
                     }
                 }
-                
-                
-                /*
-                if(stripos($rec['text'], "...") !== false) // ... is found
-                {
-                    // if($title = @$this->complete_title[$rec['text']])
-                    // {
-                    //     $new_t = str_replace($rec['text'], $title, $t);
-                    //     $html = str_replace("<div class='leftNavLinkContainerInner'>$t</div>", "<div class='leftNavLinkContainerInner'>$new_t</div>", $html);
-                    // }
-                    // else
-                    // {
-                        print_r($rec);
-                        $fixed_path = self::adjust_path($rec['href'], $client_path);
-                        $url = $this->root . $fixed_path ;
-                        $title = "";
-                        if(file_exists($url))
-                        {
-                            $title = self::get_title_tag($url);
-                            $this->complete_title[$rec['text']] = $title;
-                            
-                            $new_t = str_replace($rec['text'], $title, $t);
-                            echo "\ntitle:[$title][$url]";
-                            echo "\nclient_path:[$client_path]";
-                            echo "\nurl:[$url]\n";
-                            
-                            // echo "\nreplace[$t] with[$new_t]\n";
-                            
-                            $html = str_replace("<div class='leftNavLinkContainerInner'>$t</div>", "<div class='leftNavLinkContainerInner'>$new_t</div>", $html);
-                        }
-                        else
-                        {
-                            echo "\n - no title...";
-                            echo "\nclient_path:[$client_path]";
-                            echo "\nurl:[$url]\n";
-                            exit;
-                        }
-                        // if(true)
-                        // {
-                        //     echo "\nstart of debugxxx\n";
-                        //     Functions::debug_line("elix");
-                        //     exit;
-                        // }
-                    // }
-                }
-                */
             }
         }
         return $html;
@@ -1517,7 +1459,6 @@ class HTML2MediaWikiAPI_StudCont
             
         }
         return $html;
-        //about
     }
     
     private function word_fix_single($html, $words, $article_title = false)
@@ -1532,14 +1473,8 @@ class HTML2MediaWikiAPI_StudCont
         if(!$article_title) $article_title = self::get_article_title($html);
         foreach($words as $word)
         {
-            // if(preg_match_all("/['|\"]>" . $word . "(.*?)<\/a>/ims", $html, $arr)) -- this one gets Member (Zoology) , Members ($title) through 'Article' above
             if(preg_match_all("/\">" . $word . "(.*?)<\/a>/ims", $html, $arr))
             {
-                if($word == "About")
-                {
-                    print_r($arr[1]); //exit;
-                }
-                // print_r($arr[1]);
                 foreach($arr[1] as $t)
                 {
                     $new_link_text = $word."$t ($article_title)";
@@ -1566,12 +1501,9 @@ class HTML2MediaWikiAPI_StudCont
         if($pos !== false) $subject = substr_replace($subject, $replace, $pos, strlen($search));
         return $subject;
     }
-        
+
     private function get_anchors($url)
     {
-        // if(stripos($url, "/view/article/51cbee8c7896bb431f698a5c/") !== false) return array();
-        // if(stripos($url, "/view/article/51cbee367896bb431f6962ee/") !== false) return array();
-        
         if(is_dir($url)) $url = self::get_file_if_path_is_dir($url);
         if(!file_exists($url)) return array();
         
@@ -1588,14 +1520,10 @@ class HTML2MediaWikiAPI_StudCont
         // if(preg_match_all("/<a href=(.*?)<\/a>/ims", $html, $arr))
         if(preg_match_all("/ href=(.*?)<\/a>/ims", $html, $arr))
         {
-            // print_r($arr[1]); exit;
             $final = array();
             $exclude1 = array("index-topic=", "http://", "#");  //exclude if it starts with these
             $exclude2 = array('.css', '#');                     //exclude if it has these strings ... was included before: 51cbee8c7896bb431f698a5c
             
-            // $exclude1 = array(); 
-            // $exclude2 = array();
-
             //to filter anchors to process...
             foreach($arr[1] as $t)
             {
@@ -1621,7 +1549,6 @@ class HTML2MediaWikiAPI_StudCont
             foreach(array_keys($temp) as $t)
             {
                 //'../../../view/article/51cbf2057896bb431f6a78e2/index-topic=51cbfc79f702fc2ba812a1b9.html'>Hsieh, Paul A.
-                // echo "\n[$t]\n";
                 $temp_arr = explode(">", $t);
                 $left = $temp_arr[0];
                 $left = str_replace("'", '"', $left);
@@ -1633,7 +1560,6 @@ class HTML2MediaWikiAPI_StudCont
                     }
                 }
             }
-            // print_r($final); exit;
             return $final;
         }
     }
