@@ -1,9 +1,9 @@
 <?php
 namespace php_active_record;
 /* DATA-1618 internationalize wikipedia! Test case: German Wikipedia
-					2015Jun2
-media_resource.tab 	54605
-taxon.tab 			27300
+                    2015Jun2    Aug18   Aug21
+media_resource.tab  54605       55242   55280
+taxon.tab           27300       27618   27637
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikipediaRegionalAPI');

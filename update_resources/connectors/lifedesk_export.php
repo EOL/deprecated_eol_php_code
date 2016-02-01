@@ -8,7 +8,7 @@ This generates an archive (.tar.gz) file in: DOC_ROOT/tmp/ folder
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/LifeDeskToScratchpadAPI');
 $timestart = time_elapsed();
-
+// /*
 $params = array();
 $desks = array("nemertea", "peracarida", "syrphidae", "tunicata", "leptogastrinae", "continenticola", "pelagics", "parmotrema", "liquensbr", "liquensms", "staurozoa", 
     "cnidaria", "porifera", "sacoglossa", "buccinids", "apoidea", "opisthostoma", "borneanlandsnails", "malaypeninsularsnail", "sipuncula", "hawaiilandsnails", 
@@ -18,6 +18,11 @@ $desks = array("nemertea", "peracarida", "syrphidae", "tunicata", "leptogastrina
     "neotropnathistory", "quercus", "caterpillars", "africanamphibians", "neotropicalfishes", "dinoflagellate", "chess", "diatoms", "deepseacoral", "choreutidae", 
     "taiwanseagrasses", "odonata", "alpheidae", "tearga", "canopy", "naididae", "ebivalvia", "compositae", "korupplants", "scarabaeinae", "cyanolichens", "annelida", 
     "polychaetasouthocean", "batrach", "echinoderms"); // "terrslugs" ***
+
+    $desks = array("canopy", "naididae", "ebivalvia", "compositae", "korupplants", "scarabaeinae", "cyanolichens", "annelida", 
+        "polychaetasouthocean", "batrach", "echinoderms"); // "terrslugs" ***
+
+
 $desks = array("echinoderms");
 foreach($desks as $desk)
 {
@@ -42,13 +47,17 @@ foreach($desks as $desk)
     $func = new LifeDeskToScratchpadAPI();
     $func->export_lifedesk_to_scratchpad($params[$desk]["local"]);
 }
-
+// */
 /* start: Generate taxonomy of a LifeDesk 
 // neotropicalfishes local
+$lifedesk = 'neotropicalfishes';
+$lifedesk = 'echinoderms';
+
 $params = array();
-$params["neotropicalfishes"]["local"]["lifedesk"]   = "http://localhost/cp/LD2Scratchpad/neotropicalfishes/eol-partnership.xml.gz";
-$params["neotropicalfishes"]["local"]["name"]       = "neotropicalfishes";
-$parameters = $params["neotropicalfishes"]["local"];
+$params[$lifedesk]["local"]["lifedesk"]   = "http://localhost/cp/LD2Scratchpad/" . $lifedesk . "/eol-partnership.xml.gz";
+$params[$lifedesk]["local"]["name"]       = $lifedesk;
+$parameters = $params[$lifedesk]["local"];
+$func = new LifeDeskToScratchpadAPI();
 $func->export_lifedesk_taxonomy($parameters);
 */
 

@@ -11,6 +11,9 @@ $GLOBALS['flickr_licenses'][4] = "http://creativecommons.org/licenses/by/2.0/";
 $GLOBALS['flickr_licenses'][5] = "http://creativecommons.org/licenses/by-sa/2.0/";
 //$GLOBALS['flickr_licenses'][6] = "http://creativecommons.org/licenses/by-nd/2.0/";
 
+$GLOBALS['flickr_cache_path'] = DOC_ROOT . "/update_resources/connectors/files/flickr_cache"; //old cache path
+$GLOBALS['flickr_cache_path'] = DOC_ROOT . "/public/tmp/flickr_cache";
+
 define("FLICKR_REST_PREFIX", "http://api.flickr.com/services/rest/?");
 define("FLICKR_AUTH_PREFIX", "http://api.flickr.com/services/auth/?");
 define("FLICKR_UPLOAD_URL", "http://www.flickr.com/services/upload/");
@@ -20,6 +23,7 @@ class FlickrAPI
 {
     public static function get_all_eol_photos($auth_token = "", $resource_file = null)
     {
+        self::create_cache_path();
         $all_taxa = array();
         $used_image_ids = array();
         $per_page = 500;
@@ -460,7 +464,7 @@ class FlickrAPI
     public static function add_to_cache($dir_name, $photo_id, $photo_response)
     {
         $filter_dir = substr($photo_id, -2);
-        $dir_path = DOC_ROOT . "/update_resources/connectors/files/flickr_cache/$dir_name/$filter_dir";
+        $dir_path = $GLOBALS['flickr_cache_path'] . "/$dir_name/$filter_dir";
         $file_path = "$dir_path/$photo_id.json";
         
         // make sure cache directory exists
@@ -479,7 +483,7 @@ class FlickrAPI
     public static function check_cache($dir_name, $photo_id, $last_update = null)
     {
         $filter_dir = substr($photo_id, -2);
-        $file_path = DOC_ROOT . "/update_resources/connectors/files/flickr_cache/$dir_name/$filter_dir/$photo_id.json";
+        $file_path = $GLOBALS['flickr_cache_path'] . "/$dir_name/$filter_dir/$photo_id.json";
         if(file_exists($file_path))
         {
             $file_contents = file_get_contents($file_path);
@@ -489,12 +493,19 @@ class FlickrAPI
             if($dir_name == 'photosGetInfo' && (!$last_update || @$json_object->photo->dates->lastupdate != $last_update))
             {
                 unlink($file_path);
-                $sizes_path = DOC_ROOT . "/update_resources/connectors/files/flickr_cache/photosGetSizes/$filter_dir/$photo_id.json";
+                $sizes_path = $GLOBALS['flickr_cache_path'] . "/photosGetSizes/$filter_dir/$photo_id.json";
                 @unlink($sizes_path);
             }else return $json_object;
         }
         return false;
     }
-}
 
+    function create_cache_path()
+    {
+        if(!file_exists($GLOBALS['flickr_cache_path'])) mkdir($GLOBALS['flickr_cache_path']);
+        if(!file_exists($GLOBALS['flickr_cache_path']."/photosGetInfo")) mkdir($GLOBALS['flickr_cache_path']."/photosGetInfo");
+        if(!file_exists($GLOBALS['flickr_cache_path']."/photosGetSizes")) mkdir($GLOBALS['flickr_cache_path']."/photosGetSizes");
+    }
+
+}
 ?>

@@ -12,7 +12,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $resource_id = 21;
 $new_resource_path = DOC_ROOT . "temp/".$resource_id.".xml";
 
-// $file = 'http://localhost/eol_php_code/applications/content_server/resources/amphib_dump.xml';
+// $file = 'http://localhost/cp/Amphibiaweb/amphib_dump.xml';
 $file = 'http://amphibiaweb.org/amphib_dump.xml';
 if(!$new_resource_xml = Functions::get_remote_file($file, array('timeout' => 1200, 'download_attempts' => 5)))
 {
@@ -26,11 +26,7 @@ if(!$new_resource_xml = Functions::get_remote_file($file, array('timeout' => 120
     $new_resource_xml = str_replace("", "\"", $new_resource_xml);
     $new_resource_xml = str_replace("", "-", $new_resource_xml);
 
-    if(!($OUT = fopen($new_resource_path, "w+")))
-    {
-      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$new_resource_path);
-      return;
-    }
+    if(!($OUT = Functions::file_open($new_resource_path, "w+"))) return;
     fwrite($OUT, $new_resource_xml);
     fclose($OUT);
     unset($new_resource_xml);
@@ -45,24 +41,24 @@ if(!$new_resource_xml = Functions::get_remote_file($file, array('timeout' => 120
         $i++;
         print "\n $i of $total";
         $amphibID = (int) trim($species->amphib_id);
-        $genus = utf8_decode((string) trim($species->genus));
-        $speciesName = utf8_decode((string) trim($species->species));
-        $order = utf8_decode((string) trim($species->ordr));
-        $family = utf8_decode((string) trim($species->family));
+        $genus = format_utf8((string) trim($species->genus));
+        $speciesName = format_utf8((string) trim($species->species));
+        $order = format_utf8((string) trim($species->ordr));
+        $family = format_utf8((string) trim($species->family));
         
-        $commonNames = utf8_decode((string) trim($species->common_name));
+        $commonNames = format_utf8((string) trim($species->common_name));
         $commonNames = explode(",", $commonNames);
         
-        $submittedBy = utf8_decode((string) trim($species->submittedby));
-        $editedBy = utf8_decode((string) trim($species->editedby));
-        $description = utf8_decode((string) trim($species->description));
-        $distribution = utf8_decode((string) trim($species->distribution));
-        $life_history = utf8_decode((string) trim($species->life_history));
-        $trends_and_threats = utf8_decode((string) trim($species->trends_and_threats));
-        $relation_to_humans = utf8_decode((string) trim($species->relation_to_humans));
-        $comments = utf8_decode((string) trim($species->comments));
+        $submittedBy = format_utf8((string) trim($species->submittedby));
+        $editedBy = format_utf8((string) trim($species->editedby));
+        $description = format_utf8((string) trim($species->description));
+        $distribution = format_utf8((string) trim($species->distribution));
+        $life_history = format_utf8((string) trim($species->life_history));
+        $trends_and_threats = format_utf8((string) trim($species->trends_and_threats));
+        $relation_to_humans = format_utf8((string) trim($species->relation_to_humans));
+        $comments = format_utf8((string) trim($species->comments));
 
-        $ref = utf8_decode((string) trim($species->refs));
+        $ref = format_utf8((string) trim($species->refs));
         $separator = "&lt;p&gt;";
         $separator = "<p>";
         $ref = explode($separator, $ref);
@@ -136,15 +132,12 @@ if(!$new_resource_xml = Functions::get_remote_file($file, array('timeout' => 120
 
     $new_resource_xml = \SchemaDocument::get_taxon_xml($taxa);
     $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
-    if(!($OUT = fopen($old_resource_path, "w+")))
-    {
-      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$old_resource_path);
-      return;
-    }
+    if(!($OUT = Functions::file_open($old_resource_path, "w+"))) return;
     fwrite($OUT, $new_resource_xml);
     fclose($OUT);
     Functions::set_resource_status_to_force_harvest($resource_id);
     shell_exec("rm ".$new_resource_path);
+    Functions::gzip_resource_xml($resource_id);
     $elapsed_time_sec = microtime(1)-$timestart;
     echo "\n";
     echo "elapsed time = $elapsed_time_sec sec                 \n";
@@ -198,5 +191,11 @@ function get_data_object($id, $title, $description, $subject, $refs, $agents, $p
     $rec["reference"] = $refs;
     $dataObjectParameters = Functions::prepare_reference_params($rec, $dataObjectParameters);
     return $dataObjectParameters;
+}
+
+function format_utf8($str)
+{
+    if(Functions::is_utf8($str)) return utf8_decode($str);
+    else return $str;
 }
 ?>
