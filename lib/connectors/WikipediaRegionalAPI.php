@@ -10,7 +10,7 @@ class WikipediaRegionalAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->language_code = $language_code;
         $this->wikipedia_api = "http://en.wikipedia.org/w/api.php";
-        $this->download_options = array('expire_seconds' => false, 'download_wait_time' => 5000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->download_options = array('resource_id' => $resource_id, 'expire_seconds' => false, 'download_wait_time' => 5000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->ranks['de'] = array("reich", "klasse", "ordnung", "familie", "gattung");
         $this->ranks_en['reich']     = "kingdom";        
         $this->ranks_en['klasse']     = "class";
