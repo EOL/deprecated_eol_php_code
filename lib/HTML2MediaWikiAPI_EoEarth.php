@@ -5,8 +5,8 @@ class HTML2MediaWikiAPI
     public function __construct()
     {
         $this->root = str_replace('eol_php_code/', '', DOC_ROOT); // e.g. /Library/WebServer/Documents/
-        $this->temp['html'] = DOC_ROOT . '/public/tmp/eoe/temp_9h.html';
-        $this->temp['wiki'] = DOC_ROOT . '/public/tmp/eoe/temp_9h.wiki';
+        $this->temp['html'] = DOC_ROOT . '/public/tmp/eoe/temp_a.html';
+        $this->temp['wiki'] = DOC_ROOT . '/public/tmp/eoe/temp_a.wiki';
     
         $this->temp['eoe_report_multiple_titles'] = DOC_ROOT . '/public/tmp/eoe/eoe_report_multiple_titles.txt';
         $this->temp['eoe_report_multiple_titles'] = DOC_ROOT . '/public/tmp/eoe/eoe_report_multiple_titles_forELI.txt';
@@ -26,39 +26,8 @@ class HTML2MediaWikiAPI
         $this->download_options = array('resource_id' => 'eoearth', 'expire_seconds' => false, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1);
     }
     
-    private function significant_part_of_url($url)
-    {
-        // echo "\n$url\n";
-        if(preg_match("/[\"|\'](.*?)[\"|\']/ims", $url, $arr))
-        {
-            // echo " -- " . $arr[1];
-            $temp = explode("../", $arr[1]);
-            // print_r($temp);
-            return array_pop($temp);
-        }
-        return;
-    }
-    
     public function start()
     {
-        /*
-        $url = '"../54337/index.html">Temperature';
-        $url = '"../../../topics/view/54290/index.html" target="_blank"><span style="color: rgb(0, 0, 255);">Temperature</span>';
-        $url = "'../54337/index.html'>Temperature";
-        $url = "'../../../topics/view/54290/index.html' target='_blank'><span style='color: rgb(0, 0, 255);'>Temperature</span>";
-        echo self::significant_part_of_url($url);
-        exit("\n");
-        */
-        
-        /*
-        [World Database on Protected Areas]
-         destination:/Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/profile/WDPA/index.html
-         - sources:
-           --- /Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/view/article/155382/index.html
-           --- /Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/view/article/155405/index.html
-           --- /Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/view/article/155418/index.html
-        */
-        
         /*
         [Food Security (Food security)]
          destination:/Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/topics/view/54424/index.html
@@ -142,7 +111,7 @@ class HTML2MediaWikiAPI
         $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Climate_Change.html';
         $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Ecology.html';
         $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Environmental_&_Earth_Science.html';
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Energy.html';
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Energy.html';
         
         $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Environmental_Law_&_Policy.html';
         $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Environmental_Humanities.html';
@@ -160,7 +129,7 @@ class HTML2MediaWikiAPI
         $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Society_&_Environment.html';
         $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Water.html';
         $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Weather_&_Climate.html';
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Wildlife.html';
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Wildlife.html';
 
         $client_paths = array_unique($client_paths);
 
@@ -171,64 +140,59 @@ class HTML2MediaWikiAPI
         return;
         // =================================================================== */
 
-        
         $client_paths = array();
         
-        // $client_paths = self::all_client_paths();
-        
-        // $client_paths = self::use_others();
+        $client_paths = self::all_client_paths();
         
         //=== these next 2 are very important:
         // $client_paths = self::main23(); //use main23() - Climate Change => Causes (main) problem…
         // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/eoe_test.html'; // for SearchResultsForMainTopics
 
-
-        // $client_paths[] = '/EncyclopediaOfEarth/www.eoearth.org/index.html'; // for EoE Topics
+        $client_paths[] = '/EncyclopediaOfEarth/www.eoearth.org/index.html'; // for EoE Topics
         
-        // $client_paths[] = '/EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc8bf702fc2ba812cc39/index.html'; //About the EoE (main)
-        // $client_paths[] = '/EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc8cf702fc2ba812cca2/index.html'; //Help (main)
-
+        $client_paths[] = '/EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc8bf702fc2ba812cc39/index.html'; //About the EoE (main)
+        $client_paths[] = '/EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc8cf702fc2ba812cca2/index.html'; //Help (main)
 
         // /*
         // when you run this: be sure to have overwrite = TRUE
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test.html';
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/SearchResultsForMainTopics.html'; //not needed
-        // 
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/About_the_EoE.html';
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Agricultural_&_Resource_Economics.html';
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Biodiversity.html';
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Biology.html';
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test.html';
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/SearchResultsForMainTopics.html'; //not needed
+        
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/About_the_EoE.html';
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Agricultural_&_Resource_Economics.html';
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Biodiversity.html';
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Biology.html';
 
         $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Climate_Change.html';
         $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Ecology.html';
         $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Environmental_&_Earth_Science.html';
         $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Energy.html';
-        // 
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Environmental_Law_&_Policy.html';
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Environmental_Humanities.html';
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Food.html';
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Forests.html';
-        // 
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Geography.html';
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Hazards_&_Disasters.html';
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Health.html';
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Mining_&_Materials.html';
-        // 
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/People.html';
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Physics_&_Chemistry.html';
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Pollution.html';
+        
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Environmental_Law_&_Policy.html';
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Environmental_Humanities.html';
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Food.html';
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Forests.html';
+        
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Geography.html';
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Hazards_&_Disasters.html';
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Health.html';
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Mining_&_Materials.html';
+        
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/People.html';
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Physics_&_Chemistry.html';
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Pollution.html';
 
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Society_&_Environment.html';
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Water.html';
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Weather_&_Climate.html';
-        // $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Wildlife.html';
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Society_&_Environment.html';
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Water.html';
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Weather_&_Climate.html';
+        $client_paths[] = '/EncyclopediaOfEarth/127.0.0.1/eoe_test/html/Wildlife.html';
         // */
         
-        /* these 2 will deal with Content Partners page
+        // /* these 2 will deal with Content Partners page
         $client_paths[] = '/EncyclopediaOfEarth/www.eoearth.org/view/article/152591/index.html'; //Environmental Information Coalition => for 'Content Providers'
         $client_paths[] = '/EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc8bf702fc2ba812cc39/index.html'; //about the eoe --- demo with Jen Aug 18 8:30am
         $client_paths[] = '/EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc8cf702fc2ba812ccc5/index.html'; //content partners
-        */
+        // */
 
         $client_paths = array_unique($client_paths);
 
@@ -335,8 +299,6 @@ class HTML2MediaWikiAPI
     {
         $client_paths = self::get_all_hrefs_from_page($client_path);
         self::bulk_generate_redirect_sys($client_paths, $file);
-        // return;
-        
         foreach($client_paths as $client_path)
         {
             echo "\nLevel 1";
@@ -516,7 +478,6 @@ class HTML2MediaWikiAPI
         $temp_wiki_file = $this->temp['wiki'];
         foreach($paths as $key => $possible_titles)
         {
-            
             $fixed_path = self::adjust_path($key, $client_path);
             $url = $this->root . $fixed_path ;
 
@@ -527,7 +488,6 @@ class HTML2MediaWikiAPI
             // if(stripos($url, 'SearchResultsForMainTopics.html')          === false) continue; //uncomment this if you want to generate Wiki for "SearchResultsForMainTopics"
             if(stripos($url, 'SearchResultsForMainTopics.html')             !== false) continue; //don't proceed - BUT comment this if you want to generate Wiki for "SearchResultsForMainTopics"
             //==============
-            
             
             if(stripos($url, '/EncyclopediaOfEarth/www.trunity.net/portal/') !== false) continue; //don't proceed
             if(stripos($url, '/view/view/')                                  !== false) continue; //don't proceed
@@ -575,7 +535,7 @@ class HTML2MediaWikiAPI
                         
                         // continue; //to just count all
 
-                        //====================================================================================
+                        //==================================================================================== debug only
                         // if(substr($val,0,8) == "Site_Map" || substr($val,0,8) == "Site_Map") {}
                         // else continue;
 
@@ -621,7 +581,6 @@ class HTML2MediaWikiAPI
                             if(stripos($val, "\(main\)") !== false) continue;
                         }
                         
-                        
                         // /*
                         //these 2 came from above
                         $images_info = self::get_images_size_info_from_html($url);
@@ -643,7 +602,6 @@ class HTML2MediaWikiAPI
                             {
                                 echo "\nzero file size:[$val][$url]\n";
                                 // continue;
-                                // exit;
                             }
                         }
                         // */
@@ -728,15 +686,12 @@ class HTML2MediaWikiAPI
     private function adjust_generated_wiki($wiki_file, $title)
     {
         $wiki = file_get_contents($wiki_file);
-        
         $wiki = str_replace(" ", "", $wiki);
-        
         
         // finalize youtube
         $wiki = str_replace("start_embed_youtube", '<embedvideo service="youtube">', $wiki);
         $wiki = str_replace("end_embed_youtube", '</embedvideo>', $wiki);
         // =====
-        
         
         //====start this finalizes the wiki ref adjustment --- this is from adjust_client_html() -> implement_wiki_ref()
         if($val = $this->ref_below)
@@ -803,7 +758,6 @@ class HTML2MediaWikiAPI
 
         if(preg_match_all("/\[(.*?)\]/ims", $wiki, $arr))
         {
-        
             /*This general loop is to replace this [[../dir1/dir2/file.html link_text]] to [[link_text]] */
             foreach($arr[1] as $t)
             {
@@ -873,7 +827,6 @@ class HTML2MediaWikiAPI
         $wiki = self::adjust_image_width($wiki);
         if($title == "Encyclopedia_of_Earth_Topics") $wiki = self::format_navigation($wiki);
 
-
         /*This will change this: -- Content Source Index -- /EncyclopediaOfEarth/www.eoearth.org//view/article/51cbed527896bb431f69166a/index-topic=51cbfc8bf702fc2ba812cc39.html
         [../../../contributor/ATSDR.html [[Image:ATSDR.jpg]]]
         ../../../contributor/NIEHS.html [[Image:NIEHS_logo.gif.jpeg
@@ -940,7 +893,6 @@ class HTML2MediaWikiAPI
         $wiki = str_ireplace("* [[Login]]\n", "", $wiki);
         $wiki = str_ireplace("* [[Not a Member?]]\n", "", $wiki);
         
-        
         //separate the to with a carriage return: </font>|} --- a problem with e.g. Wheat article
         $wiki = str_replace(">|}", ">" . "\n" . "|}", $wiki);
         $wiki = str_replace(">{|", ">" . "\n" . "{|", $wiki);
@@ -977,13 +929,11 @@ class HTML2MediaWikiAPI
         $wiki = str_replace("EcoregionsCollection", "Ecoregions Collection", $wiki);
         $wiki = str_replace("WWFTerrestrial", "WWF Terrestrial", $wiki);
 
-
         if(($OUT = Functions::file_open($wiki_file, "w")))
         {
             fwrite($OUT, $wiki);
             fclose($OUT);
         }
-        
         self::fix_the_PDF_link($wiki_file);
     }
     
@@ -1056,7 +1006,6 @@ class HTML2MediaWikiAPI
                 $wiki = str_replace('<div class="leftNavLinkContainer leftNavSelectedItem" style="margin-left: 49px"><div class="leftNavLinkContainerInner">'.$t."</div></div>", $temp, $wiki);
             }
         }
-        
         return $wiki;
     }
     
@@ -1239,11 +1188,9 @@ class HTML2MediaWikiAPI
                                      "[[" . "Encyclopedia_of_Earth_Topics" . "|", $wiki); //i'm not sure if I want this
                 $wiki = str_ireplace("[[" . $r . " |",
                                      "[[" . "Encyclopedia_of_Earth_Topics" . "|", $wiki); //i'm not sure if I want this
-                
             }
         }
         // */
-        
         
         if(($OUT = Functions::file_open($wiki_file, "w")))
         {
@@ -1279,7 +1226,6 @@ class HTML2MediaWikiAPI
                         if(strlen($number) > 3) exit("\n 003 Investigate: number length > 3...[$number]\n");
                         $final[$filename] = $number;
                     }
-                    
                 }
             }
         }
@@ -1395,9 +1341,9 @@ class HTML2MediaWikiAPI
         // echo "\n[$i] = " . count($anchors) . "\n";
         return $html;
     }
+    
     private function adjust_client_html($path, $proceed = true, $title)
     {
-        
         if(!$proceed)
         {
             $html = file_get_contents($path);
@@ -1410,9 +1356,7 @@ class HTML2MediaWikiAPI
         }
         
         $html = file_get_contents($path);
-        
         $html = str_ireplace("[the Plume Team]", "(the Plume Team)", $html);
-        
         $html = self::implement_internal_link_to_an_anchor($html);
      
         // - convert this: <a href="mailto:vhutchison@usgs.gov">Vivian&nbsp;Hutchison</a>
@@ -1436,15 +1380,11 @@ class HTML2MediaWikiAPI
         
         $html = str_ireplace("bottom-",        "bottom:", $html);
         $html = str_ireplace("margin-bottom=", "margin-bottom:", $html);
-
         $html = self::update_main_topics_title($html);
         $html = self::add_desc_for_sub_titles($html);
         $html = str_replace("[[Killer Whale|Killer whales}}", "Killer Whale|Killer whales", $html); //Pinniped page
         $html = str_replace("{harp Seal|Harp seals]]", "harp Seal|Harp seals", $html);              //Pinniped page
-        
         $html = self::gen_retrieved_from_line($html, $title);
-        
-        
         
         // this will remove the un-needed block in main index.html page and just leave the main <img> entry
         if(stripos($path, "www.eoearth.org/index.html") !== false)
@@ -1456,22 +1396,15 @@ class HTML2MediaWikiAPI
         }
         
         $html = str_replace('<a class="external text" ', '<a ', $html); //from Content Partners page
-        
         $html = self::insert_title_icons($html);
         $html = str_ireplace(";Arial", ";font-family:Arial", $html); //e.g. Content Source Index
-
-
         $html = self::remove_portions($html);
         $html = self::remove_portions2($html);
-        
         $html = self::implement_wiki_ref($html); //it is imperative that his comes before explicit_changes()
-        
         $html = self::explicit_changes($html);
         $html = self::remove_attribute_value($html, 'font-size');
         $html = str_ireplace(array("<em>", "</em>"), "", $html); //kind a daring...
 
-        
-        
         /*remove certain blocks */
         if(preg_match("/<!-- ===== Action Bar =(.*?)<div id='announcementContent'/ims", $html, $arr))
         {
@@ -1507,20 +1440,13 @@ class HTML2MediaWikiAPI
         }
         // */
         
-        
         $html = self::format_embed_video($html);
-        
-        
-        // exit($html);
-        
         if(($OUT = Functions::file_open($this->temp['html'], "w")))
         {
             fwrite($OUT, $html);
             fclose($OUT);
         }
         return;
-        
-        //$title
     }
     
     private function format_embed_video($html)
@@ -1528,18 +1454,12 @@ class HTML2MediaWikiAPI
         /*
         <iframe width='720px' height="480px" src='http://www.youtube.com/embed/TdIMljT1jSM' frameborder='0' allowfullscreen></iframe>
         <embedvideo service="youtube">https://www.youtube.com/watch?v=pSsYTj9kCHE</embedvideo>
-        
-        
         <embedvideo service="youtube">http://www.youtube.com/embed/TdIMljT1jSM</embedvideo>
-        <embedvideo service="youtube">https://www.youtube.com/watch?v=pSsYTj9kCHE</embedvideo>
-
         */
         if(preg_match_all("/<iframe (.*?)<\/iframe>/ims", $html, $arr))
         {
-            // print_r($arr[1]);
             foreach($arr[1] as $iframe)
             {
-                // echo "\n $iframe";
                 if(preg_match("/src=['|\"](.*?)['|\"]/ims", $iframe, $arr2))
                 {
                     $src = $arr2[1];
@@ -1554,23 +1474,19 @@ class HTML2MediaWikiAPI
             }
         }
         return $html;
-        // exit("\n");
     }
 
     /*
-    bad
+    bad:
     <span class="reference"><sup class="plainlinksneverexpand" id="ref_4"><a class="external autonumber" href="index.html#endnote_4" rel="nofollow" title="#endnote_4">[4]</a></sup></span>
     <span class="reference"><sup class="plainlinksneverexpand" id="ref_4"><a class="external autonumber" href="index.html#endnote_4" rel="nofollow" title="#endnote_4">[4]</a></sup></span>
     <li>
-    		<cite id="endnote_4" style="font-style: normal"><a href="index.html#ref_4" title=""><strong>^</strong></a></cite> MacDonald, G.M., A.A.Velichko, C.V. Kremenetski, O.K. Borisova, A.A. Goleva, A.A. Andreev, L.C. Cwynar, R.T. Riding, S.L. Forman, T.W.D. Edwards, R. Aravena, D. Hammarlund, J.M. Szeicz and V.N. Gattaulin, 2000. Holocene treeline history and climate change across Northern Eurasia. Quaternary Research, 53:302&ndash;311.
+        <cite id="endnote_4" style="font-style: normal"><a href="index.html#ref_4" title=""><strong>^</strong></a></cite> MacDonald, G.M., A.A.Velichko, C.V. Kremenetski, O.K. Borisova, A.A. Goleva, A.A. Andreev, L.C. Cwynar, R.T. Riding, S.L. Forman, T.W.D. Edwards, R. Aravena, D. Hammarlund, J.M. Szeicz and V.N. Gattaulin, 2000. Holocene treeline history and climate change across Northern Eurasia. Quaternary Research, 53:302&ndash;311.
     </li>
-    
     <span class='reference'><sup id='ref_1' class='plainlinksneverexpand'><a  data-cke-saved-href='#endnote_1' href='index.html#endnote_1' class='external autonumber' title='#endnote_1' rel='nofollow'>[1]</a></sup></span>.
-    							</span>
-    
     <span class='reference'><sup id='ref_2' class='plainlinksneverexpand'><a  data-cke-saved-href='#endnote_2' href='index.html#endnote_2' class='external autonumber' title='#endnote_2' rel='nofollow'>[2]</a></sup></span>
     
-    good
+    good:
     <span class="reference"><sup class="plainlinksneverexpand" id="ref_23"><a class="external autonumber" href="#endnote_23" rel="nofollow" title="#endnote_23">[23]</a></sup></span>
     <span class="reference"><ref name="endnote_23">Gower, S.</ref></span>
     */
@@ -1616,7 +1532,7 @@ class HTML2MediaWikiAPI
         //reference on top -> replace it with: <ref name="test1">additional text.</ref>
         if(preg_match_all("/<span class=[\"|']reference[\"|']>(.*?)<\/span>/ims", $html, $arr))
         {
-            // print_r($arr[1]); exit;
+            // print_r($arr[1]);
             foreach($arr[1] as $t)
             {
                 if(preg_match("/href=[\"|'](.*?)[\"|']/ims", $t, $arr2))
@@ -1632,7 +1548,6 @@ class HTML2MediaWikiAPI
                     }
                 }
             }
-            
             //removing old orig ref entries
             foreach($arr_below[1] as $t) $html = str_replace('<li><cite ' . $t . '</li>', '', $html);
         }
@@ -1662,7 +1577,7 @@ class HTML2MediaWikiAPI
         }
         
         /*Curry, J.A. and A.H. Lynch, 2002. Comparing Arctic Regional Climate Models. Eos,Transactions, American Geophysical Union, 83:87.;<br />
-        		-- see also <a href="../155689/index.html" title="Regional modeling of the Arctic">section 4.5.1</a>
+                -- see also <a href="../155689/index.html" title="Regional modeling of the Arctic">section 4.5.1</a>
         */
         if(preg_match_all("/<a href=\"(.*?)<\/a>/ims", $str, $arr))
         {
@@ -1772,7 +1687,6 @@ class HTML2MediaWikiAPI
     private function get_file_if_path_is_dir($url)
     {
         $filenames = glob($url."*.html");
-        // print_r($filenames);
         usort($filenames, create_function('$a,$b', 'return filemtime($b) - filemtime($a);')); //last modified first
         foreach ($filenames as $filename)
         {
@@ -1857,9 +1771,7 @@ class HTML2MediaWikiAPI
                             echo "\ntitle:[$title][$url]";
                             echo "\nclient_path:[$client_path]";
                             echo "\nurl:[$url]\n";
-                            
                             // echo "\nreplace[$t] with[$new_t]\n";
-                            
                             $html = str_replace("<div class='leftNavLinkContainerInner'>$t</div>", "<div class='leftNavLinkContainerInner'>$new_t</div>", $html);
                         }
                         else
@@ -1921,7 +1833,6 @@ class HTML2MediaWikiAPI
     
     private function explicit_changes($html)
     {
-        // return $html;
         $html = str_replace(" ", "", $html);
         // $html = str_replace("width: ", "width:", $html); --- no effect, thus commented
         $html = str_replace("/view/view/", "/view/article/", $html);
@@ -1967,9 +1878,7 @@ class HTML2MediaWikiAPI
                 $words = array('About');        $html = self::word_fix($html, $words, $article_title);
                 $words = array('Collection');   $html = self::word_fix($html, $words, $article_title);
                 */
-                
                 $html = self::explicit_fix_Content_Partners($html);
-                
             }
             elseif($article_title == "Add a Resource")
             {
@@ -2002,10 +1911,7 @@ class HTML2MediaWikiAPI
                 {
                     foreach($arr[1] as $t) $html = str_replace("&nbsp; ".$t."</a>", "&nbsp; ".$t." (Geography)</a>", $html);
                 }
-                
             }
-            
-            
             
             
             elseif($article_title == "Aldo Leopold Collection")                       $html = self::explicit_fix_AldoLeopoldCollection_page($html);
@@ -2027,7 +1933,6 @@ class HTML2MediaWikiAPI
             }
             
             
-            
             if(stripos($html, "report") !== false)
             {
                 $words = array('Summary for Policymakers', 'Full Text', 'Front Matter', 'Technical Summary', 'Reviewers', 'Acronyms', 
@@ -2047,7 +1952,6 @@ class HTML2MediaWikiAPI
             'Overview', 'Next chapter', 'Conclusions', 'Appendix', 'Preface', 'Glossary', '(other articles)');
             $html = self::word_fix($html, $words, $article_title);
             
-            
             //this is after all word_fix
             if($article_title == "IPCC Fourth Assessment Report (full report)")
             {
@@ -2056,7 +1960,6 @@ class HTML2MediaWikiAPI
             
         }
         return $html;
-        //about
     }
     
     private function word_fix_single($html, $words, $article_title = false)
@@ -2074,11 +1977,7 @@ class HTML2MediaWikiAPI
             // if(preg_match_all("/['|\"]>" . $word . "(.*?)<\/a>/ims", $html, $arr)) -- this one gets Member (Zoology) , Members ($title) through 'Article' above
             if(preg_match_all("/\">" . $word . "(.*?)<\/a>/ims", $html, $arr))
             {
-                if($word == "About")
-                {
-                    print_r($arr[1]); //exit;
-                }
-                // print_r($arr[1]);
+                // if($word == "About") print_r($arr[1]);
                 foreach($arr[1] as $t)
                 {
                     $new_link_text = $word."$t ($article_title)";
@@ -2108,17 +2007,11 @@ class HTML2MediaWikiAPI
         
     private function get_anchors($url)
     {
-        // if(stripos($url, "/view/article/51cbee8c7896bb431f698a5c/") !== false) return array();
-        // if(stripos($url, "/view/article/51cbee367896bb431f6962ee/") !== false) return array();
-        
         if(is_dir($url)) $url = self::get_file_if_path_is_dir($url);
         if(!file_exists($url)) return array();
         
         $html = file_get_contents($url);
-        
         $html = preg_replace('/<!--[\s\S]+?-->/', '', $html); //removes strings between <!-- and --> ; inclusive ... didn't add this elsewhere bec it might break other parts of the code... will just add this as neede.
-        
-        
         $html = self::update_main_topics_title($html);
         $html = self::add_desc_for_sub_titles($html);
         $html = str_ireplace('<a class="mw-redirect"', '<a ', $html);
@@ -2287,7 +2180,6 @@ class HTML2MediaWikiAPI
                      "&Acirc;" => "Â", "&Ecirc;" => "Ê", "&Icirc;" => "Î", "&Ocirc;" => "Ô", "&Ucirc;" => "Û",
                      "&Atilde;" => "Ã", "&Ntilde;" => "Ñ", "&Otilde;" => "Õ",
                      "&Yacute;" => "Ý", "&yacute;" => "ý", "&yuml;" => "ÿ");
-                     
         /*
         'Å', 'Æ', 'Ç', 'Ø', '', 'Þ', 'ß', 'å', 'æ', 'ç', 'ð',
         'ø', '', '', '', '', 'þ', '');
@@ -2388,25 +2280,21 @@ class HTML2MediaWikiAPI
     {
         $client_paths = self::get_all_hrefs_from_page($client_path);
         self::bulk_generate_wiki($client_paths);
-        
         foreach($client_paths as $client_path)
         {
             echo "\nLevel 1";
             if($client_paths2 = self::get_all_hrefs_from_page($client_path))
             {
-                // break; //comment
                 self::bulk_generate_wiki($client_paths2);
                 foreach($client_paths2 as $client_path)
                 {
                     echo "\nLevel 2";
                     if($client_paths3 = self::get_all_hrefs_from_page($client_path))
                     {
-                        // break; //comment
                         self::bulk_generate_wiki($client_paths3);
                         foreach($client_paths3 as $client_path)
                         {
                             echo "\nLevel 3";
-                            // break; //comment
                             if($client_paths4 = self::get_all_hrefs_from_page($client_path))
                             {
                                 self::bulk_generate_wiki($client_paths4);
@@ -2667,39 +2555,30 @@ class HTML2MediaWikiAPI
             $index_links10 = array_merge(self::get_main_links_from_page($index_url, $client_path), $index_links10);
             $index_links10 = array_unique($index_links10);
         }
-        
         // */
 
-        //print_r($index_links);
         self::bulk_generate_wiki($index_links);
-
         $index_links2 = array_unique($index_links2);
-        //print_r($index_links2);
         self::bulk_generate_wiki($index_links2);
-        
         $index_links3 = array_unique($index_links3);
-        //print_r($index_links3);
         self::bulk_generate_wiki($index_links3);
-        
         $index_links4 = array_unique($index_links4);
-        //print_r($index_links4);
         self::bulk_generate_wiki($index_links4);
-        
         $index_links5 = array_unique($index_links5);
-        //print_r($index_links5);
         self::bulk_generate_wiki($index_links5);
-        
         $index_links6 = array_unique($index_links6);
-        //print_r($index_links6);
         self::bulk_generate_wiki($index_links6);
-
         $index_links7 = array_unique($index_links7);
-        //print_r($index_links7);
         self::bulk_generate_wiki($index_links7);
-
         $index_links8 = array_unique($index_links8);
-        //print_r($index_links8);
         self::bulk_generate_wiki($index_links8);
+
+        $index_links9 = array_unique($index_links9);
+        self::bulk_generate_wiki($index_links9);
+
+        $index_links10 = array_unique($index_links10);
+        self::bulk_generate_wiki($index_links10);
+
     }
     
     private function bulk_generate_wiki($client_paths)
@@ -2758,13 +2637,13 @@ class HTML2MediaWikiAPI
     {
         /*
         <td valign="center" width="35%">
-        	<strong>American Institute of Physics</strong><br />
-        	<strong><a class="external text" href="../../../profile/AIP/index.html" rel="nofollow" title="/profile/AIP">About</a></strong>
+            <strong>American Institute of Physics</strong><br />
+            <strong><a class="external text" href="../../../profile/AIP/index.html" rel="nofollow" title="/profile/AIP">About</a></strong>
         </td>
 
         <div align="left">
-        	<strong>Environmental Health Perspectives<br />
-        	<a class="external text" href="../../../profile/EHP/index.html" rel="nofollow" title="/profile/EHP">About</a></strong>
+            <strong>Environmental Health Perspectives<br />
+            <a class="external text" href="../../../profile/EHP/index.html" rel="nofollow" title="/profile/EHP">About</a></strong>
         </div>
         
         this is not yet being implemented, that's why there is no 'e-book' nor 'collection' yet
@@ -2815,20 +2694,6 @@ class HTML2MediaWikiAPI
         }
         return $html;
     }
-    
-    /*
-    private function files_are_equal($a, $b)
-    {
-        // // Check if filesize is different
-        // if(filesize($a) !== filesize($b)) return false;
-
-        // Check if content is different
-        $a_html = self::get_contents_for_file_comparison($a);
-        $b_html = self::get_contents_for_file_comparison($b);
-        if($a_html == $b_html) return true;
-        else return false;
-    }
-    */
     
     private function get_contents_for_file_comparison($path, $some_id)
     {
@@ -2916,9 +2781,9 @@ class HTML2MediaWikiAPI
             $title = ucfirst($title);
             $title = str_replace("_", " ", $title);
             $title = str_replace("\\", "", $title);
-            // if(stripos($title, " (main)") !== false) continue;
             
-            // if(!in_array($title, array("Ecosystem services", "Radioactive"))) continue;                    //debug comment in real operation
+            // if(stripos($title, " (main)") !== false) continue;                               //debug comment in real operation
+            // if(!in_array($title, array("Ecosystem services", "Radioactive"))) continue;      //debug comment in real operation
             
             $destinations = array();
             foreach($recs as $destination => $sources) $destinations[$destination] = '';
@@ -3011,9 +2876,9 @@ class HTML2MediaWikiAPI
             $title = ucfirst($title);
             $title = str_replace("_", " ", $title);
             $title = str_replace("\\", "", $title);
-            // if(stripos($title, " (main)") !== false) continue;
             
-            // if(!in_array($title, array("Ecosystem services", "Radioactive"))) continue;                    //debug comment in real operation
+            // if(stripos($title, " (main)") !== false) continue;                               //debug comment in real operation
+            // if(!in_array($title, array("Ecosystem services", "Radioactive"))) continue;      //debug comment in real operation
             
             $destinations = array();
             foreach($recs as $destination => $sources) $destinations[$destination] = '';
@@ -3083,12 +2948,10 @@ class HTML2MediaWikiAPI
         $a = explode("/", $path);
         if(count($a) >= 7) return true;
         else return false;
-        
     }
 
     private function key_values($arr)
     {
-        // return;
         if(!$arr) return;
         foreach($arr as $key => $values)
         {
@@ -3103,9 +2966,7 @@ class HTML2MediaWikiAPI
     private function update_title_in_raw_html($sought_title, $source, $destination)
     {
         $article_title_of_destination = self::get_title_tag($destination);
-        
         echo "\n updating HTML [$sought_title][$source][$article_title_of_destination]\n";
-        
         $orig_html = file_get_contents($source);
         $orig_html = preg_replace('/<!--[\s\S]+?-->/', '', $orig_html); //removes strings between <!-- and --> ; inclusive
         
@@ -3126,14 +2987,9 @@ class HTML2MediaWikiAPI
         {
             $lines = array_unique($arr[1]);
             
-            // print_r($lines); exit;
-            
             foreach($lines as $line) //"../54337/index.html">Temperature
                                      //"../../../topics/view/54290/index.html" target="_blank"><span style="color: rgb(0, 0, 255);">Temperature</span>
             {
-                
-                
-                
                 if(preg_match("/>(.*?)xxx/ims", $line.'xxx', $arr2))
                 {
                     $link_text = trim(strip_tags($arr2[1]));
@@ -3165,9 +3021,7 @@ class HTML2MediaWikiAPI
                     
                     if(strtolower($link_text) == strtolower($sought_title))
                     {
-                        
                         // if($link_text == "CO2") $link_text = "CO<sub>2</sub>";
-                        
                         $new_link_text = "$link_text ($article_title_of_destination)";
                         $new_line = str_replace($link_text, $new_link_text, $line);
                         $orig_html = str_replace($line, $new_line, $orig_html);
@@ -3190,6 +3044,16 @@ class HTML2MediaWikiAPI
             }
         }
         else echo "\nNot saved! [$sought_title][$article_title_of_destination]\n";
+    }
+    
+    private function significant_part_of_url($url)
+    {
+        if(preg_match("/[\"|\'](.*?)[\"|\']/ims", $url, $arr))
+        {
+            $temp = explode("../", $arr[1]);
+            return array_pop($temp);
+        }
+        return;
     }
     
     private function add_desc_for_sub_titles($html) // adds the title in parenthesis in the “featured articles” sections for every main topic. This is similar to the effect in the SearchResults page.
@@ -3388,13 +3252,7 @@ class HTML2MediaWikiAPI
         $client_paths[] = '/EncyclopediaOfEarth/www.eoearth.org/view/article/150635/index.html'; // Biological diversity in the Cape Floristic Region
         $client_paths[] = '/EncyclopediaOfEarth/www.eoearth.org/view/article/51cbf37f7896bb431f6ad10c/index.html'; //Ecoregions of Countries | Ecoregions of countries collection
         $client_paths[] = '/EncyclopediaOfEarth/www.eoearth.org/view/article/177116/index.html'; //Ecoregions of Afghanistan
-
-
-        // /* series 6 of many
-        // Latin America and the Caribbean (collection)
-        // http://www.eoearth.org/view/article/51cbee527896bb431f696fd5/
         $client_paths[] = '/EncyclopediaOfEarth/www.eoearth.org/view/article/51cbee527896bb431f696fd5/index.html';
-        // */
         
         // /* series 7 of many
         $client_paths[] = '/EncyclopediaOfEarth/www.eoearth.org/view/article/149972/index.html'; //Aldo Leopold Collection
@@ -3456,7 +3314,6 @@ class HTML2MediaWikiAPI
         $client_paths[] = '/EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc64f702fc2ba8125f78/index.html'; //biology
         $client_paths[] = '/EncyclopediaOfEarth/www.eoearth.org/view/article/51cbed567896bb431f691862/index-topic=51cbfc78f702fc2ba8129e70.html'; //coral reefs (collection)
         $client_paths[] = '/EncyclopediaOfEarth/www.eoearth.org/view/article/51cbef4e7896bb431f69d822/index-topic=51cbfc77f702fc2ba8129ab9.html'; //Zambezian flooded grasslands
-
         return $client_paths;
     }
     
@@ -3477,7 +3334,6 @@ class HTML2MediaWikiAPI
             }
             $titles = array_keys($titles);
             echo "\n" . count($titles) . "\n";
-            // print_r($titles);
             return $titles;
         }
     }
@@ -3486,13 +3342,12 @@ class HTML2MediaWikiAPI
     {
         $titles = self::get_wanted_pages_from_website();
         echo "\n" . count($titles) . "\n";
-        // print_r($titles);
         if($file = Functions::file_open(DOC_ROOT. "/temp/eoearth_wanted_pages_titles.txt", 'w'))
         {
             foreach($titles as $title) fwrite($file, $title . "\n");
             echo "\nFile saved OK\n";
             fclose($file);
-        }//end if($file)
+        }
     }
 
     public function get_wanted_pages_from_website()
@@ -3508,7 +3363,6 @@ class HTML2MediaWikiAPI
             {
                 if(preg_match_all("/<li>(.*?)<\/li>/ims", $html, $arr))
                 {
-                    // echo "\n" . count($arr[1]);
                     //title="7.3 (page does not exist)"
                     foreach($arr[1] as $line)
                     {
@@ -3579,41 +3433,14 @@ class HTML2MediaWikiAPI
     }
     */
     
-    // private function it_points_to_PDF_or_the_like_YN($url)
-    // {
-    //     $extension = strtolower(pathinfo($url, PATHINFO_EXTENSION));
-    //     $excluded_extensions = array("pdf", "doc", "txt", "xls", "xlsx", "ppt", "ods",
-    //                                  "PDF", "DOC", "TXT", "XLS", "XLSX", "PPT", "ODS");
-    //     if(in_array($extension, $excluded_extensions))
-    //     {
-    //         $this->debug['excluded_urls'][$url] = '';
-    //         return true;
-    //     }
-    //     else return false;
-    // }
-
-    // private function remove_tag_attribute_from_html($html, $attrib)
-    // {
-    //     $dom = new \DOMDocument;                 // init new DOMDocument
-    //     $dom->loadHTML($html);                  // load HTML into it
-    //     $xpath = new \DOMXPath($dom);            // create a new XPath
-    //     $nodes = $xpath->query('//*[@size]');  // Find elements with a style attribute
-    //     foreach ($nodes as $node) 
-    //     {                                       // Iterate over found elements
-    //         $node->removeAttribute('size');    // Remove style attribute
-    //     }
-    //     return $dom->saveHTML();
-    // }
-
-    /*
-    *3 diff algae pages:
-    file:///Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/view/article/51cbece57896bb431f68e513/index-topic=51cbfc79f702fc2ba8129ebf.html
-    file:///Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/view/article/51cbece57896bb431f68e513/index-topic=51cbfc64f702fc2ba8125f78.html
-    file:///Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc79f702fc2ba8129ebf/index.html
-    *2 diff wildlife pages:
-    file:///Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/topics/view/51cbfc79f702fc2ba812a05b/index.html
-    file:///Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/view/article/51cbef477896bb431f69d50c/index-topic=51cbfc64f702fc2ba8125f78.html
+    /* some test cases:
+    $url = '"../54337/index.html">Temperature';
+    $url = '"../../../topics/view/54290/index.html" target="_blank"><span style="color: rgb(0, 0, 255);">Temperature</span>';
+    $url = "'../54337/index.html'>Temperature";
+    $url = "'../../../topics/view/54290/index.html' target='_blank'><span style='color: rgb(0, 0, 255);'>Temperature</span>";
+    echo self::significant_part_of_url($url);
+    exit("\n");
     */
-
+    
 }
 ?>
