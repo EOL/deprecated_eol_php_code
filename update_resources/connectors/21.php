@@ -14,13 +14,11 @@ $new_resource_path = DOC_ROOT . "temp/".$resource_id.".xml";
 
 // $file = 'http://localhost/cp/Amphibiaweb/amphib_dump.xml';
 $file = 'http://amphibiaweb.org/amphib_dump.xml';
-if(!$new_resource_xml = Functions::get_remote_file($file, array('timeout' => 1200, 'download_attempts' => 5)))
+if(!$new_resource_xml = Functions::lookup_with_cache($file, array('timeout' => 1200, 'download_attempts' => 5, 'expire_seconds' => 86400))) //cache expires in 1 day
 {
     echo("\n\n Content partner's server is down, connector will now terminate.\n");
 }else
 {
-    $new_resource_xml = utf8_encode($new_resource_xml);
-
     // These may look like the same wrong characters - but they are several different wrong characters
     $new_resource_xml = str_replace("", "\"", $new_resource_xml);
     $new_resource_xml = str_replace("", "\"", $new_resource_xml);
@@ -195,7 +193,7 @@ function get_data_object($id, $title, $description, $subject, $refs, $agents, $p
 
 function format_utf8($str)
 {
-    if(Functions::is_utf8($str)) return utf8_decode($str);
-    else return $str;
+    if(Functions::is_utf8($str)) return $str;
+    else return utf8_encode($str);
 }
 ?>
