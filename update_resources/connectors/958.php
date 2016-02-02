@@ -1,11 +1,12 @@
 <?php
 namespace php_active_record;
-/* This is a connector that uses the Flickr API. Parameters passed were the Flickr user_id and album id, and then generates the EOL DWC-A file for it. - DATA-1625
+/* Feller resource: http://eol.org/content_partners/494/resources/958
+This is a connector that uses the Flickr API. Parameters passed were the Flickr user_id and album id, and then generates the EOL DWC-A file for it. - DATA-1625
 execution time: 
                             Jul-6
-agent.tab             [2]        2
-media_resource.tab  [5809]    5611
-taxon.tab           [2070]    2068
+agent.tab             [2]   2
+media_resource.tab  [5809]  5611
+taxon.tab           [2070]  2068
 */
 return; //this is one-time for this specific resource, others in the future maybe periodic.
 include_once(dirname(__FILE__) . "/../../config/environment.php");
