@@ -139,6 +139,7 @@ class ContentManager
 
     public static function download_temp_file_and_assign_extension($file_path_or_uri, $type, $options = array())
     {
+        debug("ContentManager: = download_temp_file_and_assign_extension ==========");
         if(@!$options['unique_key']) $options['unique_key'] = Functions::generate_guid();
         if(@!$options['timeout']) $options['timeout'] = DOWNLOAD_TIMEOUT_SECONDS;
 
@@ -150,15 +151,18 @@ class ContentManager
         if(($type === 'resource') && $options['timeout'] < 60) $options['timeout'] = 60;
 
         $temp_file_path = CONTENT_TEMP_PREFIX . $options['unique_key'] . ".file";
+        debug("ContentManager: = $temp_file_path (from $file_path_or_uri )");
         if(preg_match("/^(http|https|ftp):\/\//", $file_path_or_uri) || self::is_local($file_path_or_uri))
         {
             if($file_contents = Functions::get_remote_file($file_path_or_uri, array('timeout' => $options['timeout'])))
             {
+                debug("ContentManager: got remote file");
                 // if this is a resource then update the old references to the schema
                 // there were a few temporary locations for the schema which were being used by early providers
                 // and not all of them have been updated
                 if($type === 'resource')
                 {
+                    debug("ContentManager: is resource");
                     $file_contents = str_replace("http://www.eol.org/transfer/data/0.1",
                                                  "http://www.eol.org/transfer/content/0.1", $file_contents);
                     $file_contents = str_replace("http://services.eol.org/development/pleary/xml/content4.xsd",
@@ -171,13 +175,17 @@ class ContentManager
                   return;
                 }
                 fwrite($TMP, $file_contents);
+                debug("ContentManager: wrote file");
                 fclose($TMP);
             }
         }
         if (is_file($temp_file_path)) {
-            $temp_file_path_with_extension = self::give_temp_file_right_extension($temp_file_path, $suffix, @$options['unique_key']);
-            $temp_file_path_with_extension = self::enforce_extensions_for_type($temp_file_path_with_extension, $type);
-            return $temp_file_path_with_extension;
+          debug("ContentManager: is file (suffix $suffix)");
+          $temp_file_path_with_extension = self::give_temp_file_right_extension($temp_file_path, $suffix, @$options['unique_key']);
+          debug("ContentManager: gave extension: $temp_file_path_with_extension");
+          $temp_file_path_with_extension = self::enforce_extensions_for_type($temp_file_path_with_extension, $type);
+          debug("ContentManager: enforced extension: $temp_file_path_with_extension");
+          return $temp_file_path_with_extension;
         } else return null;
     }
 
@@ -198,15 +206,19 @@ class ContentManager
 
     public static function give_temp_file_right_extension($temp_file_path, $original_suffix, $unique_key)
     {
+        debug("ContentManager: give_temp_file_right_extension");
         // if the download succeeded
         if(file_exists($temp_file_path))
         {
+            debug("ContentManager: file exists (original suffix $original_suffix)");
             if(SYSTEM_OS == "Windows") $new_suffix = self::determine_file_suffix_pc($temp_file_path, $original_suffix);
             else $new_suffix = self::determine_file_suffix($temp_file_path, $original_suffix);
 
             if($new_suffix)
             {
+                debug("ContentManager: new_suffix: $new_suffix");
                 $new_temp_file_path = CONTENT_TEMP_PREFIX . $unique_key . "." . $new_suffix;
+                debug("ContentManager: new_temp_file_path: $new_temp_file_path");
                 // copy temporary file from $PATH.file to $PATH.tar.gz for example
                 if(copy($temp_file_path, $new_temp_file_path))
                   unlink($temp_file_path);
@@ -221,6 +233,7 @@ class ContentManager
                 }
                 if(preg_match("/^(.*)\.(gz|gzip)$/", $new_temp_file_path, $arr))
                 {
+                    debug("ContentManager: ungzipping...");
                     shell_exec(GUNZIP_BIN_PATH . " -f " . escapeshellarg($new_temp_file_path));
                     $new_temp_file_path = $arr[1];
                     return self::give_temp_file_right_extension($new_temp_file_path, $original_suffix, $unique_key);
@@ -228,6 +241,7 @@ class ContentManager
                 }
                 if(preg_match("/^(.*)\.(tar)$/", $new_temp_file_path, $arr))
                 {
+                    debug("ContentManager: untarring...");
                     $archive_directory = $arr[1];
                     @unlink($archive_directory);
                     @rmdir($archive_directory);
@@ -240,6 +254,7 @@ class ContentManager
                 }
                 if(preg_match("/^(.*)\.(zip)$/", $new_temp_file_path, $arr))
                 {
+                    debug("ContentManager: unzipping $new_temp_file_path ...");
                     $archive_directory = $arr[1];
                     @unlink($archive_directory);
                     @rmdir($archive_directory);
@@ -250,6 +265,7 @@ class ContentManager
                     $new_temp_file_path = $archive_directory;
                     self::move_up_if_only_directory($new_temp_file_path);
                 }
+                debug("ContentManager: done with $new_temp_file_path ...");
                 if(file_exists($new_temp_file_path)) return $new_temp_file_path;
             }
         }
@@ -321,6 +337,7 @@ class ContentManager
         elseif(preg_match("/^tar archive/i", $file_type))                               $new_suffix = "tar";
         elseif(preg_match("/^zip archive data/i", $file_type))
         {
+            debug("ContentManager: It's compressed, it's a zip, and the suffix is $suffix");
             if($suffix == "xlsx")                                                       $new_suffix = "xlsx";
             else                                                                        $new_suffix = "zip";
         }
