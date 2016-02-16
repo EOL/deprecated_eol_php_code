@@ -5,6 +5,9 @@ This script searches GBIF API occurrence data via taxon (taxon_key)
 */
 class GBIFoccurrenceAPI
 {
+    // const DL_MAP_SPECIES_LIST   = "http://www.discoverlife.org/export/species_map.txt";
+    const DL_MAP_SPECIES_LIST   = "http://localhost/cp/DiscoverLife/species_map.txt";
+    
     function __construct($folder = null, $query = null)
     {
         $this->download_options = array('resource_id' => "gbif", 'expire_seconds' => 5184000, 'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1); //2 months to expire
@@ -24,34 +27,19 @@ class GBIFoccurrenceAPI
 
     function start()
     {
+        self::process_DL_list(); return; //get data list from DiscoverLife
+        
         $scinames = array();
         // $scinames[] = "Gadus morhua";
-        $scinames[] = "Anopheles";
-        $scinames[] = "Ursus maritimus";
-        $scinames[] = "Carcharodon carcharias";
-        $scinames[] = "Panthera leo";
-        $scinames[] = "Rattus rattus";
-        $scinames[] = "Cavia porcellus";
-        $scinames[] = "Chanos chanos";
+        // $scinames[] = "Anopheles";
+        // $scinames[] = "Ursus maritimus";
+        // $scinames[] = "Carcharodon carcharias";
+        // $scinames[] = "Panthera leo";
+        // $scinames[] = "Rattus rattus";
+        // $scinames[] = "Chanos chanos";
         
-        foreach($scinames as $sciname)
-        {
-            if(!($this->file = Functions::file_open($this->save_path['cluster'].$sciname.".json", "w"))) return;
-            if(!($this->file2 = Functions::file_open($this->save_path['fusion'].$sciname.".txt", "w"))) return;
-            
-            $headers = "catalogNumber, sciname, publisher, publisher_id, dataset, dataset_id, gbifID, latitude, longitude, recordedBy, identifiedBy, pic_url";
-            fwrite($this->file2, str_replace(", ", "\t", $headers) . "\n");
-            
-            $rec = self::get_initial_data($sciname);
-            self::get_georeference_data($rec['usageKey']);
-            
-            
-            fclose($this->file);
-            fclose($this->file2);
-        }
+        foreach($scinames as $sciname) self::main_loop($sciname);
         
-        print_r($rec);
-
         /*
         [offset]        => 0
         [limit]         => 20
@@ -59,7 +47,48 @@ class GBIFoccurrenceAPI
         [count]         => 78842
         [results]       => Array
         */
-        
+    }
+
+    private function process_DL_list()
+    {
+        $temp_filepath = Functions::save_remote_file_to_local(self::DL_MAP_SPECIES_LIST, array('timeout' => 4800, 'download_attempts' => 5));
+        if(!$temp_filepath)
+        {
+            echo "\n\nExternal file not available. Program will terminate.\n";
+            return;
+        }
+        $i = 0;
+        foreach(new FileIterator($temp_filepath, true) as $line_number => $line) // 'true' will auto delete temp_filepath
+        {
+            $i++;
+            if($line)
+            {
+                $m = 10000;
+                $cont = false;
+                if($i >=  1    && $i < $m)    $cont = true;
+                // if($i >=  $m   && $i < $m*2)  $cont = true;
+                // if($i >=  $m*2 && $i < $m*3)  $cont = true;
+                // if($i >=  $m*3 && $i < $m*4)  $cont = true;
+                if(!$cont) continue;
+                
+                $arr = explode("\t", $line);
+                $sciname = trim($arr[0]);
+                echo "\n[$sciname]\n";
+                self::main_loop($sciname);
+            }
+            // if($i >= 5) break; //debug
+        }
+    }
+
+    private function main_loop($sciname)
+    {
+        if(!($this->file = Functions::file_open($this->save_path['cluster'].$sciname.".json", "w"))) return;
+        if(!($this->file2 = Functions::file_open($this->save_path['fusion'].$sciname.".txt", "w"))) return;
+        $headers = "catalogNumber, sciname, publisher, publisher_id, dataset, dataset_id, gbifID, latitude, longitude, recordedBy, identifiedBy, pic_url";
+        fwrite($this->file2, str_replace(", ", "\t", $headers) . "\n");
+        if($rec = self::get_initial_data($sciname)) self::get_georeference_data($rec['usageKey']);
+        fclose($this->file);
+        fclose($this->file2);
     }
 
     private function get_georeference_data($taxonKey)
@@ -90,7 +119,6 @@ class GBIFoccurrenceAPI
         $final['count'] = count($final['records']);
         $json = json_encode($final);
         fwrite($this->file, "var data = ".$json);
-        
     }
 
     private function write_to_file($j)
@@ -124,10 +152,8 @@ class GBIFoccurrenceAPI
                 $rec['pic_url']      = @$r->media[0]->identifier;
 
                 self::write_to_fusion_table($rec);
-
                 $recs[] = $rec;
                 
-                // print_r($r); //exit;
                 /*
                 Catalogue number: 3043
                 Uncinocythere stubbsi
@@ -177,6 +203,7 @@ class GBIFoccurrenceAPI
             $count = Functions::lookup_with_cache($this->gbif_record_count . $usageKey, $this->download_options);
             if($count > 0)
             {
+                echo "\nTotal:[$count]";
                 $rec['usageKey'] = $usageKey;
                 $rec["count"] = $count;
                 return $rec;
