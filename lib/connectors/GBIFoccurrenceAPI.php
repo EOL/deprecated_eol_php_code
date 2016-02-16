@@ -10,7 +10,7 @@ class GBIFoccurrenceAPI
     
     function __construct($folder = null, $query = null)
     {
-        $this->download_options = array('resource_id' => "gbif", 'expire_seconds' => 5184000, 'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1); //2 months to expire
+        $this->download_options = array('resource_id' => "gbif", 'expire_seconds' => 5184000, 'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1); //2 months to expire
         $this->download_options['expire_seconds'] = false; //debug
 
         //GBIF services
@@ -27,9 +27,9 @@ class GBIFoccurrenceAPI
 
     function start()
     {
-        self::process_DL_list(); return; //get data list from DiscoverLife
+        self::process_DL_taxon_list(); return;  //make use of taxon list from DiscoverLife
         
-        $scinames = array();
+        $scinames = array();                    //make use of manual taxon list
         // $scinames[] = "Gadus morhua";
         // $scinames[] = "Anopheles";
         // $scinames[] = "Ursus maritimus";
@@ -49,7 +49,7 @@ class GBIFoccurrenceAPI
         */
     }
 
-    private function process_DL_list()
+    private function process_DL_taxon_list()
     {
         $temp_filepath = Functions::save_remote_file_to_local(self::DL_MAP_SPECIES_LIST, array('timeout' => 4800, 'download_attempts' => 5));
         if(!$temp_filepath)
@@ -82,13 +82,23 @@ class GBIFoccurrenceAPI
 
     private function main_loop($sciname)
     {
+        $final_count = false;
         if(!($this->file = Functions::file_open($this->save_path['cluster'].$sciname.".json", "w"))) return;
         if(!($this->file2 = Functions::file_open($this->save_path['fusion'].$sciname.".txt", "w"))) return;
         $headers = "catalogNumber, sciname, publisher, publisher_id, dataset, dataset_id, gbifID, latitude, longitude, recordedBy, identifiedBy, pic_url";
         fwrite($this->file2, str_replace(", ", "\t", $headers) . "\n");
-        if($rec = self::get_initial_data($sciname)) self::get_georeference_data($rec['usageKey']);
+        if($rec = self::get_initial_data($sciname))
+        {
+            $final_count = self::get_georeference_data($rec['usageKey']);
+        }
         fclose($this->file);
         fclose($this->file2);
+        
+        if(!$final_count)
+        {
+            unlink($this->save_path['cluster'].$sciname.".json");
+            unlink($this->save_path['fusion'].$sciname.".txt");
+        }
     }
 
     private function get_georeference_data($taxonKey)
@@ -113,12 +123,14 @@ class GBIFoccurrenceAPI
                 echo "\n" . count($j->results) . "\n";
                 if($j->endOfRecords) $continue = false;
             }
+            else break; //just try again next time...
             $offset += $limit;
         }
         
         $final['count'] = count($final['records']);
         $json = json_encode($final);
         fwrite($this->file, "var data = ".$json);
+        return $final['count'];
     }
 
     private function write_to_file($j)
@@ -134,11 +146,11 @@ class GBIFoccurrenceAPI
                 $rec = array();
                 $rec['catalogNumber']   = (string) @$r->catalogNumber;
                 $rec['sciname']         = self::get_sciname($r);
-                $rec['publisher']       = self::get_org_name('publisher', $r->publishingOrgKey);
-                $rec['publisher_id']    = $r->publishingOrgKey;
+                $rec['publisher']       = self::get_org_name('publisher', @$r->publishingOrgKey);
+                $rec['publisher_id']    = @$r->publishingOrgKey;
                 if($val = @$r->institutionCode) $rec['publisher'] .= " ($val)";
-                $rec['dataset']         = self::get_org_name('dataset', $r->datasetKey);
-                $rec['dataset_id']      = $r->datasetKey;
+                $rec['dataset']         = self::get_org_name('dataset', @$r->datasetKey);
+                $rec['dataset_id']      = @$r->datasetKey;
                 $rec['gbifID']          = $r->gbifID;
                 $rec['lat']             = $r->decimalLatitude;
                 $rec['lon']             = $r->decimalLongitude;
@@ -190,6 +202,7 @@ class GBIFoccurrenceAPI
     
     private function get_org_name($org, $id)
     {
+        if(!$id) return "";
         if($html = Functions::lookup_with_cache($this->html[$org] . $id, $this->download_options))
         {
             if(preg_match("/Full title<\/h3>(.*?)<\/p>/ims", $html, $arr)) return strip_tags(trim($arr[1]));
