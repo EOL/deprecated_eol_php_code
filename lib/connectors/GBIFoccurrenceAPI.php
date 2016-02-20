@@ -10,7 +10,7 @@ class GBIFoccurrenceAPI
     
     function __construct($folder = null, $query = null)
     {
-        $this->download_options = array('resource_id' => "gbif", 'expire_seconds' => 5184000, 'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1); //2 months to expire
+        $this->download_options = array('resource_id' => "gbif", 'expire_seconds' => 5184000, 'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 1); //2 months to expire
         $this->download_options['expire_seconds'] = false; //debug
 
         //GBIF services
@@ -27,10 +27,12 @@ class GBIFoccurrenceAPI
 
     function start()
     {
+        self::get_center_latlon(174); exit;
+        
         self::process_DL_taxon_list(); return;  //make use of taxon list from DiscoverLife
         
         $scinames = array();                    //make use of manual taxon list
-        // $scinames[] = "Gadus morhua";
+        $scinames[] = "Gadus morhua";
         // $scinames[] = "Anopheles";
         // $scinames[] = "Ursus maritimus";
         // $scinames[] = "Carcharodon carcharias";
@@ -69,6 +71,8 @@ class GBIFoccurrenceAPI
                 // if($i >=  $m   && $i < $m*2)  $cont = true;
                 // if($i >=  $m*2 && $i < $m*3)  $cont = true;
                 // if($i >=  $m*3 && $i < $m*4)  $cont = true;
+                // if($i >=  $m*4 && $i < $m*5)  $cont = true;
+                
                 if(!$cont) continue;
                 
                 $arr = explode("\t", $line);
@@ -85,11 +89,14 @@ class GBIFoccurrenceAPI
         $final_count = false;
         if(!($this->file = Functions::file_open($this->save_path['cluster'].$sciname.".json", "w"))) return;
         if(!($this->file2 = Functions::file_open($this->save_path['fusion'].$sciname.".txt", "w"))) return;
+        
         $headers = "catalogNumber, sciname, publisher, publisher_id, dataset, dataset_id, gbifID, latitude, longitude, recordedBy, identifiedBy, pic_url";
+        $headers = "catalogNumber, sciname, publisher, publisher_id, dataset, dataset_id, gbifID, recordedBy, identifiedBy, pic_url, location";
+        
         fwrite($this->file2, str_replace(", ", "\t", $headers) . "\n");
         if($rec = self::get_initial_data($sciname))
         {
-            $final_count = self::get_georeference_data($rec['usageKey']);
+            if($rec['count'] < 20000) $final_count = self::get_georeference_data($rec['usageKey']);
         }
         fclose($this->file);
         fclose($this->file2);
@@ -101,6 +108,56 @@ class GBIFoccurrenceAPI
         }
     }
 
+    private function prepare_data($taxon_concept_id)
+    {
+        $txtFile = DOC_ROOT . "/public/tmp/google_maps/fusion/" . $taxon_concept_id . ".txt";
+        $file_array = file($txtFile);
+        unset($file_array[0]); //remove first line, the headers
+        return $file_array;
+    }
+
+    private function get_center_latlon($taxon_concept_id)
+    {
+        $rows = self::prepare_data($taxon_concept_id);
+        $minlat = false; $minlng = false; $maxlat = false; $maxlng = false;
+        foreach($rows as $row) //$row is String not array
+        {
+            $cols = explode("\t", $row);
+            if(count($cols) != 11) continue; //exclude row if total no. of cols is not 11, just to be sure that the col is the "lat,long" column.
+            $temp = explode(",", $cols[10]); //col 10 is the latlon column.
+            $lat = $temp[0];
+            $lon = $temp[1];
+            if ($lat && $lon) {
+                if ($minlat === false) { $minlat = $lat; } else { $minlat = ($lat < $minlat) ? $lat : $minlat; }
+                if ($maxlat === false) { $maxlat = $lat; } else { $maxlat = ($lat > $maxlat) ? $lat : $maxlat; }
+                if ($minlng === false) { $minlng = $lon; } else { $minlng = ($lon < $minlng) ? $lon : $minlng; }
+                if ($maxlng === false) { $maxlng = $lon; } else { $maxlng = ($lon > $maxlng) ? $lon : $maxlng; }
+            }
+            $lat_center = $maxlat - (($maxlat - $minlat) / 2);
+            $lon_center = $maxlng - (($maxlng - $minlng) / 2);
+            echo "\n[$lat_center][$lon_center]\n";
+            echo "\n$lat_center".","."$lon_center\n";
+            return $lat_center.','.$lon_center;
+        }
+        
+        /* computation based on: http://stackoverflow.com/questions/6671183/calculate-the-center-point-of-multiple-latitude-longitude-coordinate-pairs
+        $minlat = false; $minlng = false; $maxlat = false; $maxlng = false;
+        $data_array = json_decode($this->data, true);
+        foreach ($data_array as $data_element) {
+            $data_coords = explode(',',$data_element);
+            if (isset($data_coords[1])) {
+                if ($minlat === false) { $minlat = $data_coords[0]; } else { $minlat = ($data_coords[0] < $minlat) ? $data_coords[0] : $minlat; }
+                if ($maxlat === false) { $maxlat = $data_coords[0]; } else { $maxlat = ($data_coords[0] > $maxlat) ? $data_coords[0] : $maxlat; }
+                if ($minlng === false) { $minlng = $data_coords[1]; } else { $minlng = ($data_coords[1] < $minlng) ? $data_coords[1] : $minlng; }
+                if ($maxlng === false) { $maxlng = $data_coords[1]; } else { $maxlng = ($data_coords[1] > $maxlng) ? $data_coords[1] : $maxlng; }
+            }
+        }
+        $lat = $maxlat - (($maxlat - $minlat) / 2);
+        $lng = $maxlng - (($maxlng - $minlng) / 2);
+        return $lat.','.$lng;
+        */
+    }
+    
     private function get_georeference_data($taxonKey)
     {
         $offset = 0;
@@ -112,6 +169,7 @@ class GBIFoccurrenceAPI
         
         while($continue)
         {
+            if($offset > 100000) break;
             $url = $this->gbif_occurrence_data . $taxonKey . "&limit=$limit";
             if($offset) $url .= "&offset=$offset";
             if($json = Functions::lookup_with_cache($url, $this->download_options))
@@ -191,7 +249,16 @@ class GBIFoccurrenceAPI
         [recordedBy] => David R
         [pic_url] => http://static.inaturalist.org/photos/1596294/original.jpg?1444769372
         */
-        fwrite($this->file2, implode("\t", $rec) . "\n");
+        // fwrite($this->file2, implode("\t", $rec) . "\n"); //works OK but it has 2 fields for lat and lon
+        
+        $rek = $rec;
+        $rek['location'] = $rec['lat'] . "," . $rec['lon'];
+        unset($rek['lat']);
+        unset($rek['lon']);
+        fwrite($this->file2, implode("\t", $rek) . "\n");
+        
+        
+        
     }
     
     private function get_sciname($r)
@@ -203,7 +270,9 @@ class GBIFoccurrenceAPI
     private function get_org_name($org, $id)
     {
         if(!$id) return "";
-        if($html = Functions::lookup_with_cache($this->html[$org] . $id, $this->download_options))
+        $options = $this->download_options;
+        $options['delay_in_minutes'] = 0;
+        if($html = Functions::lookup_with_cache($this->html[$org] . $id, $options))
         {
             if(preg_match("/Full title<\/h3>(.*?)<\/p>/ims", $html, $arr)) return strip_tags(trim($arr[1]));
         }
