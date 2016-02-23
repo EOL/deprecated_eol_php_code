@@ -703,7 +703,7 @@ class EOLStats
         return $this->mysqli_slave->select_value("
             SELECT COUNT(*) count
             FROM content_partners
-            WHERE public = 1");
+            WHERE is_public = 1");
     }
 
     public function latest_harvest_event_ids()
