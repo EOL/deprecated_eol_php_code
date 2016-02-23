@@ -75,7 +75,7 @@ class ContentManager
                     return false;
                 };
                 $cache_file_path = $permanent_file_path = $permanent_prefix;
-                file_rename($temp_file_path, $permanent_file_path);
+                Functions::file_rename($temp_file_path, $permanent_file_path);
             }
 
             // fail if for some reason there is still no file at the new path
@@ -284,7 +284,7 @@ class ContentManager
         }
         if(is_dir($only_file))
         {
-            file_rename($only_file, $directory_path . "_swap");
+            Functions::file_rename($only_file, $directory_path . "_swap");
             rmdir($directory_path);
             if(copy($directory_path . "_swap", $directory_path))
               unlink($directory_path . "_swap");
