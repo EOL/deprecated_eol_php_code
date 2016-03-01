@@ -355,11 +355,13 @@ class HarvestEvent extends ActiveRecord
         debug("++ START RelateHierarchies::process_hierarchy");
         $relator->process_hierarchy();
         debug("-- END RelateHierarchies::process_hierarchy");
-        // use them to create concepts
-         debug("++ START CompareHierarchies::begin_concept_assignment");
+    }
+
+    function assign_concepts()
+        // use compare_new_hierarchy_entries results to create concepts
+        debug("++ START CompareHierarchies::begin_concept_assignment");
         CompareHierarchies::begin_concept_assignment($this->resource->hierarchy_id, true);
         debug("-- END CompareHierarchies::begin_concept_assignment");
-
     }
 
     function modified_hierarchy_entry_ids()

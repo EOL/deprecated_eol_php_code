@@ -348,6 +348,7 @@ class ContentManager
         elseif($suffix == "csv" && preg_match("/^html /i", $file_type))                 $new_suffix = "csv";
         elseif(preg_match("/^html( |$)/i", $file_type))                                 $new_suffix = "html";
         elseif(preg_match("/ Excel(,|$)/i", $file_type))                                $new_suffix = "xls";
+        elseif(preg_match("/ Excel 2007/i", $file_type))                                $new_suffix = "xlsx";
         elseif($suffix == "xml" && preg_match("/^utf-8 unicode /i", $file_type))        $new_suffix = "xml";
         elseif($suffix == "xml" && preg_match("/^ascii text/i", $file_type))            $new_suffix = "xml";
         elseif($suffix == "csv" && preg_match("/^ascii text/i", $file_type))            $new_suffix = "csv";

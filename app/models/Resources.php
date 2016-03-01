@@ -374,6 +374,11 @@ class Resource extends ActiveRecord
                     $this->debug_start("harvest_event->compare_new_hierarchy_entries");
                     $harvest_event->compare_new_hierarchy_entries();
                     $this->debug_end("harvest_event->compare_new_hierarchy_entries");
+                    // And use the results to assign matching concepts:
+                    $this->debug_start("harvest_event->assign_concepts");
+                    $harvest_event->assign_concepts();
+                    $this->debug_end("harvest_event->assign_concepts");
+                    // Old TB stuff, don't use anymore:
                     $this->debug_start("harvest_event->create_taxon_relations_graph");
                     $harvest_event->create_taxon_relations_graph();
                     $this->debug_end("harvest_event->create_taxon_relations_graph");
@@ -502,6 +507,10 @@ class Resource extends ActiveRecord
                     $this->debug_start("harvest_event->compare_new_hierarchy_entries");
                     $this->harvest_event->compare_new_hierarchy_entries();
                     $this->debug_end("harvest_event->compare_new_hierarchy_entries");
+
+                    $this->debug_start("harvest_event->assign_concepts");
+                    $this->harvest_event->assign_concepts();
+                    $this->debug_end("harvest_event->assign_concepts");
 
                     $this->debug_start("harvest_event->create_collection");
                     $this->harvest_event->create_collection();
