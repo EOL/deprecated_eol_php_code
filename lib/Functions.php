@@ -3,6 +3,188 @@ namespace php_active_record;
 
 class Functions
 {
+	public static $mapping = array(
+		"http://purl.obolibrary.org/obo/UO_0000185" => array( "n_unit" => "http://eol.org/schema/terms/decimaldegrees",
+										   					  "n_value" => 1),
+		"http://eol.org/schema/terms/numberofindividuals" => array( "n_unit" => "http://eol.org/schema/terms/numberofindividuals",
+															        "n_value" => 1),
+		"http://eol.org/schema/terms/decimaldegrees" => array( "n_unit" => "http://eol.org/schema/terms/decimaldegrees",
+															   "n_value" => 1),
+		"http://purl.obolibrary.org/obo/UO_0000081" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000081",
+															  "n_value" => 1),
+		"http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C68867" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000081",
+																			  "n_value" => 40468564.2),
+		"http://eol.org/schema/terms/squarekilometer" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000081",
+															    "n_value" => 10000000000),
+		"http://eol.org/schema/terms/squareMicrometer" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000081",
+																 "n_value" => 0.00000001),
+		"http://purl.obolibrary.org/obo/UO_0000082" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000081",
+																 "n_value" => 0.01),
+		"http://purl.obolibrary.org/obo/UO_0000064" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000064",
+															  "n_value" => 1),
+		"http://purl.obolibrary.org/obo/UO_0000207" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000207",
+															  "n_value" => 1),
+		"http://purl.obolibrary.org/obo/UO_0000008" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000008",
+															  "n_value" => 1),
+		"http://purl.obolibrary.org/obo/UO_0000015" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000008",
+															  "n_value" => 0.01),
+		"http://mimi.case.edu/ontologies/2009/1/UnitsOntology#foot" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000008",
+																			  "n_value" => 0.3048),
+		"http://mimi.case.edu/ontologies/2009/1/UnitsOntology#inch" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000008",
+																			  "n_value" => 0.0254),
+		"http://purl.obolibrary.org/obo/UO_0000017" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000008",
+																						 "n_value" => 0.000001),
+		"http://purl.obolibrary.org/obo/UO_0000266" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000266",
+																						 "n_value" => 1),
+		"http://purl.obolibrary.org/obo/UO_0000114" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000114",
+																						 "n_value" => 1),
+		"http://eol.org/schema/terms/individualspersquarekilometer" => array( "n_unit" => "http://eol.org/schema/terms/perAcre",
+																						 "n_value" => 1),
+		"http://purl.obolibrary.org/obo/UO_0000021" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000021",
+																						 "n_value" => 1),
+		"http://purl.obolibrary.org/obo/UO_0000009" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000021",
+																						 "n_value" => 1000),
+		"http://mimi.case.edu/ontologies/2009/1/UnitsOntology#US_pound" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000021",
+																						 "n_value" => 453.592),
+		"http://purl.obolibrary.org/obo/UO_0000025" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000021",
+																						 "n_value" => 0.000000000001),
+		"http://purl.obolibrary.org/obo/UO_0000023" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000021",
+																						 "n_value" => 0.000001),
+		"http://mimi.case.edu/ontologies/2009/1/UnitsOntology#US_ounce" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000021",
+																						 "n_value" => 28.3495),
+		"http://purl.obolibrary.org/obo/UO_0000084" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000084",
+																						 "n_value" => 1),
+		"http://www.owl-ontologies.com/unnamed.owl#Oviparous" => array( "n_unit" => "http://www.owl-ontologies.com/unnamed.owl#Oviparous",
+																						 "n_value" => 1),
+		"http://eol.org/schema/terms/OxygenPerGramPerHour" => array( "n_unit" => "http://eol.org/schema/terms/OxygenPerGramPerHour",
+																						 "n_value" => 1),
+		"http://purl.obolibrary.org/obo/UO_0000272" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000272",
+																						 "n_value" => 1),
+		"http://eol.org/schema/terms/perAcre" => array( "n_unit" => "http://eol.org/schema/terms/perAcre",
+																						 "n_value" => 1),
+		"http://eol.org/schema/terms/perMicrometer" => array( "n_unit" => "http://eol.org/schema/terms/perMicrometer",
+																						 "n_value" => 1),
+		"http://eol.org/schema/terms/perPound" => array( "n_unit" => "http://eol.org/schema/terms/perPound",
+																						 "n_value" => 1),
+		"http://eol.org/schema/terms/perOunce" => array( "n_unit" => "hhttp://eol.org/schema/terms/perPound",
+																						 "n_value" => 16),
+		"http://purl.bioontology.org/ontology/SNOMEDCT/259039008" => array( "n_unit" => "http://purl.bioontology.org/ontology/SNOMEDCT/259039008",
+																						 "n_value" => 1),
+		"http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C66968" => array( "n_unit" => "http://purl.bioontology.org/ontology/SNOMEDCT/259039008",
+																						 "n_value" => 365.242),
+		"http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C74924" => array( "n_unit" => "http://purl.bioontology.org/ontology/SNOMEDCT/259039008",
+																						 "n_value" => 1),
+		"http://eol.org/schema/terms/millimeterspermonth" => array( "n_unit" => "http://eol.org/schema/terms/millimeterspermonth",
+																						 "n_value" => 1),
+		"http://purl.obolibrary.org/obo/UO_0000027" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000027",
+																						 "n_value" => 1),
+		"http://eol.org/schema/terms/onetenthdegreescelsius" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000027",
+																						 "n_value" => 10),
+		"http://purl.obolibrary.org/obo/UO_0000033" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000033",
+																						 "n_value" => 1),
+		"http://eol.org/schema/terms/day" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000033",
+																						 "n_value" => 1),
+		"http://eol.org/schema/terms/paleo_megaannum" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000033",
+																						 "n_value" => 365242000),
+		"http://purl.obolibrary.org/obo/UO_0000035" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000033",
+																						 "n_value" => 30.4368),
+		"http://purl.obolibrary.org/obo/UO_0000036" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000033",
+																						 "n_value" => 365.242),
+		"http://eol.org/schema/terms/mlO2perhour" => array( "n_unit" => "http://eol.org/schema/terms/mlO2perhour",
+																						 "n_value" => 1),
+		"http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C64555" => array( "n_unit" => "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C64555",
+																						 "n_value" => 1),
+		"http://eol.org/schema/terms/cubicMillimeter" => array( "n_unit" => "http://eol.org/schema/terms/cubicMillimeter",
+																						 "n_value" => 1),
+		"http://eol.org/schema/terms/cubicMicrometer" => array( "n_unit" => "http://eol.org/schema/terms/cubicMillimeter",
+																						 "n_value" => 0.000000001),
+		"http://eol.org/schema/terms/practicalSalinityUnits" => array( "n_unit" => "http://eol.org/schema/terms/practicalSalinityUnits",
+		 																				 "n_value" => 1),
+		"http://purl.obolibrary.org/obo/UO_0000187" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000187",
+																						 "n_value" => 1),
+		"http://mimi.case.edu/ontologies/2009/1/UnitsOntology#US_pound" => array( "n_unit" => "http://mimi.case.edu/ontologies/2009/1/UnitsOntology#US_pound",
+																						 "n_value" => 1),
+			"http://eol.org/schema/terms/log10km2" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000081",
+																						 "n_value" => 0),
+			"http://purl.obolibrary.org/obo/UO_0000016" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000008",
+																						 "n_value" => 0),
+			"http://eol.org/schema/terms/log10gram" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000021",
+																						 "n_value" => 0),
+			"http://purl.obolibrary.org/obo/UO_0000022" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000021",
+																						 "n_value" => 0),
+			"http://purl.obolibrary.org/obo/UO_0000195" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000027",
+																						 "n_value" => 0),
+			"http://purl.obolibrary.org/obo/UO_0000012" => array( "n_unit" => "http://purl.obolibrary.org/obo/UO_0000027",
+																						 "n_value" => 0));
+	
+	public static function normalize_value($actual_value, $actual_unit){		
+		if (is_numeric($actual_value) && $actual_value && $actual_unit && trim($actual_value) != "" && trim($actual_unit) != ""){
+			$sh = Functions::special_handeling($actual_value, $actual_unit);
+			if ($sh !== false){
+				return $sh;
+			}else{
+				if (Functions::$mapping[$actual_unit]["n_value"] != 0){
+					return Functions::$mapping[$actual_unit]["n_value"] * $actual_value;
+				}	
+			}
+		}
+		return $actual_value;
+	}
+	
+	public static function normalize_unit($actual_unit){
+		if ($actual_unit && trim($actual_unit) != "") {
+			if (Functions::$mapping[$actual_unit]["n_unit"]){
+				$u = Functions::$mapping[$actual_unit]["n_unit"];
+				return $u;
+			}
+		}
+		return $actual_unit;
+	}
+	
+	public static function special_handeling($actual_value, $actual_unit){
+		switch ($actual_unit) {
+		    case "http://eol.org/schema/terms/log10km2":
+		        return Functions::log10km2($actual_value);
+		    case "http://purl.obolibrary.org/obo/UO_0000016":
+		        return Functions::UO_0000016($actual_value);		        
+		    case "http://eol.org/schema/terms/log10gram":
+		        return Functions::log10gram($actual_value);		        
+		    case "http://purl.obolibrary.org/obo/UO_0000022":
+		        return Functions::UO_0000022($actual_value);		        
+	        case "http://purl.obolibrary.org/obo/UO_0000195":
+		        return Functions::UO_0000195($actual_value);		        
+	        case "http://purl.obolibrary.org/obo/UO_0000012":
+		        return Functions::UO_0000012($actual_value);		        
+		    default:
+		        return false;
+		}
+	}
+	
+	public static function log10km2($actual_value){
+		// (10^?) X 10^10
+		return pow(10, $actual_value) * pow(10, 10);
+	}
+	public static function UO_0000016($actual_value){
+		// ? X ? X 10^-3
+		return pow($actual_value, 2) * pow(10, -3);
+	}
+	public static function log10gram($actual_value){
+		// 10^?
+		return pow(10, $actual_value);
+	}
+	public static function UO_0000022($actual_value){
+		// ? X ? X 10^-3
+		return pow($actual_value, 2) * pow(10, -3);
+	}
+	public static function UO_0000195($actual_value){
+		// (? - 32)/1.8
+		return ($actual_value - 32) / 1.8;
+	}
+	public static function UO_0000012($actual_value){
+		// ? - 273.15
+		return $actual_value -  273.15;
+	}
+	
     // Returns true if $string is valid UTF-8 and false otherwise.
     public static function is_utf8($string) {
         return mb_check_encoding($string, 'UTF-8');
