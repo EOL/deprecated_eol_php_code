@@ -74,7 +74,7 @@ while((time() - $start_time)/(60*60) < 10)
 
     try {
       $resource->harvest($validate, false, $fast_for_testing);
-      array_push($harvested, $resource->id);
+      if($resource->resource_status_id != ResourceStatus::harvesting_failed()->id;) array_push($harvested, $resource->id);
     } catch (\Exception $e) {
       if($GLOBALS['ENV_DEBUG']) echo 'Caught exception: ', $e->getMessage(), "\n";
       $resource->update_hierarchy_entries_count();
