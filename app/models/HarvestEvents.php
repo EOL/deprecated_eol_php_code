@@ -358,6 +358,7 @@ class HarvestEvent extends ActiveRecord
     }
 
     function assign_concepts()
+    {
         // use compare_new_hierarchy_entries results to create concepts
         debug("++ START CompareHierarchies::begin_concept_assignment");
         CompareHierarchies::begin_concept_assignment($this->resource->hierarchy_id, true);
