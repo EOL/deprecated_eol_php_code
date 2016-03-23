@@ -56,7 +56,7 @@ if($url)
         }
     }else
     {
-        $errors[] = "There was a problem with the uploaded file";
+        $errors[] = "There was a problem with the uploaded $suffix file.";
     }
 }else $errors[] = "No file was provided";
 

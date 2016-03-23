@@ -6,13 +6,13 @@ class HarvestEvent extends ActiveRecord
     public static $belongs_to = array(
             array('resource')
         );
-    
+
     public static function delete($id)
     {
         if(!$id) return false;
-        
+
         $mysqli =& $GLOBALS['mysqli_connection'];
-        
+
         $mysqli->begin_transaction();
         $mysqli->delete("DELETE do FROM data_objects_harvest_events dohe JOIN data_objects do ON (dohe.data_object_id=do.id) WHERE harvest_event_id=$id AND dohe.status_id IN (". Status::inserted()->id .", ". Status::updated()->id .")");
         $mysqli->delete("DELETE FROM data_objects_harvest_events WHERE harvest_event_id=$id");
@@ -20,24 +20,24 @@ class HarvestEvent extends ActiveRecord
         $mysqli->delete("DELETE he FROM harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) WHERE harvest_event_id=$id AND hehe.status_id IN (". Status::inserted()->id .", ". Status::updated()->id .")");
         $mysqli->delete("DELETE FROM harvest_events_hierarchy_entries WHERE harvest_event_id=$id");
         $mysqli->delete("DELETE FROM harvest_events WHERE id=$id");
-        
+
         $mysqli->end_transaction();
     }
-    
+
     public function completed()
     {
         $this->completed_at = 'NOW()';
         $this->save();
         $this->refresh();
     }
-    
+
     public function published()
     {
         $this->published_at = 'NOW()';
         $this->save();
         $this->refresh();
     }
-    
+
     public function previous_harvest_event()
     {
         $result = $this->mysqli->query("SELECT SQL_NO_CACHE MAX(id) as id FROM harvest_events WHERE resource_id = $this->resource_id AND id < $this->id");
@@ -47,7 +47,7 @@ class HarvestEvent extends ActiveRecord
         }
         return null;
     }
-    
+
     public function make_objects_visible()
     {
         $this->mysqli->query("
@@ -58,12 +58,12 @@ class HarvestEvent extends ActiveRecord
             WHERE dohent.visibility_id=". Visibility::preview()->id ."
             AND dohe.harvest_event_id=$this->id");
     }
-    
+
     public function publish_objects()
     {
         $this->mysqli->query("UPDATE data_objects_harvest_events dohe JOIN data_objects do ON (dohe.data_object_id=do.id) SET do.published=1 WHERE do.published=0 AND dohe.harvest_event_id=$this->id");
     }
-    
+
     public function publish_hierarchy_entries()
     {
         $this->mysqli->update("UPDATE harvest_events_hierarchy_entries hehe JOIN hierarchy_entries he ON (hehe.hierarchy_entry_id=he.id) JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET he.published=1, he.visibility_id=". Visibility::visible()->id .", tc.published=1 WHERE hehe.harvest_event_id=$this->id");
@@ -71,7 +71,7 @@ class HarvestEvent extends ActiveRecord
         $this->publish_hierarchy_entry_parents();
         $this->make_hierarchy_entry_parents_visible();
     }
-    
+
     public function publish_hierarchy_entry_parents()
     {
         $this->resource->refresh();
@@ -81,7 +81,7 @@ class HarvestEvent extends ActiveRecord
             while($continue)
             {
                 $this->mysqli->update("UPDATE hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) JOIN taxon_concepts tc_parents ON (he_parents.taxon_concept_id=tc_parents.id) SET he_parents.published=1, tc_parents.published=1 WHERE he.hierarchy_id=". $this->resource->hierarchy_id ." AND he.published=1 AND he_parents.published=0");
-                
+
                 // continue doing this as long as we're affecting new rows
                 $continue = false;
                 $result = $this->mysqli->query("SELECT COUNT(*) as count FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) JOIN taxon_concepts tc_parents ON (he_parents.taxon_concept_id=tc_parents.id) WHERE he.hierarchy_id=". $this->resource->hierarchy_id ." AND he.published=1 AND he_parents.published=0");
@@ -93,7 +93,7 @@ class HarvestEvent extends ActiveRecord
             }
         }
     }
-    
+
     function make_hierarchy_entry_parents_visible()
     {
         if($this->resource->hierarchy_id)
@@ -102,7 +102,7 @@ class HarvestEvent extends ActiveRecord
             while($continue)
             {
                 $this->mysqli->update("UPDATE hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) SET he_parents.visibility_id=". Visibility::visible()->id ." WHERE he.hierarchy_id=". $this->resource->hierarchy_id ." AND he.visibility_id=". Visibility::visible()->id ." AND he_parents.visibility_id!=". Visibility::visible()->id);
-                
+
                 // continue doing this as long as we're affecting new rows
                 $continue = false;
                 $result = $this->mysqli->query("SELECT COUNT(*) as count FROM hierarchy_entries he JOIN hierarchy_entries he_parents ON (he.parent_id=he_parents.id) WHERE he.hierarchy_id=". $this->resource->hierarchy_id ." AND he.visibility_id=". Visibility::visible()->id ." AND he_parents.visibility_id!=". Visibility::visible()->id);
@@ -114,8 +114,8 @@ class HarvestEvent extends ActiveRecord
             }
         }
     }
-    
-    
+
+
     public function vet_objects()
     {
         $this->mysqli->query("
@@ -126,8 +126,8 @@ class HarvestEvent extends ActiveRecord
             WHERE dohent.vetted_id=". Vetted::unknown()->id ."
             AND dohe.harvest_event_id=$this->id");
     }
-    
-    
+
+
     public function inherit_visibilities_from($last_published_harvest_event_id)
     {
         $last_harvest = new HarvestEvent($last_published_harvest_event_id);
@@ -135,7 +135,7 @@ class HarvestEvent extends ActiveRecord
         if($last_harvest->resource_id != $this->resource_id) return false;
         // make sure this is newer
         if($last_harvest->id > $this->id) return false;
-        
+
         $outfile = $GLOBALS['db_connection']->select_into_outfile("
             SELECT do_current.id, dohent_previous.visibility_id, dohent_previous.hierarchy_entry_id
             FROM
@@ -149,7 +149,7 @@ class HarvestEvent extends ActiveRecord
             WHERE dohe_previous.harvest_event_id=$last_harvest->id
             AND dohe_current.harvest_event_id=$this->id
             AND dohent_previous.visibility_id IN (".Visibility::invisible()->id.")");
-        
+
         if (!($FILE = fopen($outfile, "r")))
         {
           debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $outfile);
@@ -169,33 +169,33 @@ class HarvestEvent extends ActiveRecord
         fclose($FILE);
         unlink($outfile);
     }
-    
+
     public function add_taxon_from_harvest($parameters = array())
     {
         $hierarchy_entry = HierarchyEntry::create_entries_for_taxon($taxon_parameters, $this->resource->hierarchy_id);
         if(@!$hierarchy_entry->id) return false;
         $this->hierarchy_entry_ids[$taxon_parameters["identifier"]] = $hierarchy_entry->id;
         $this->resource->add_hierarchy_entry($hierarchy_entry, 'inserted');
-        
+
         $hierarchy_entry = HierarchyEntry::create_entries_for_taxon($t, $this->resource->hierarchy_id);
         if(@!$hierarchy_entry->id) return false;
-        
+
         $this->resource->harvest_event->add_hierarchy_entry($hierarchy_entry, 'inserted');
-        
+
     }
-    
+
     public function add_hierarchy_entry($hierarchy_entry, $status)
     {
         if(@!$hierarchy_entry->id) return false;
         $this->mysqli->insert("INSERT IGNORE INTO harvest_events_hierarchy_entries VALUES ($this->id, $hierarchy_entry->id, '$hierarchy_entry->guid', ". Status::find_or_create_by_translated_label($status)->id .")");
     }
-    
+
     public function add_data_object($data_object, $status)
     {
         if(@!$data_object->id) return false;
         $this->mysqli->insert("INSERT IGNORE INTO data_objects_harvest_events VALUES ($this->id, $data_object->id, '$data_object->guid', ". Status::find_or_create_by_translated_label($status)->id .")");
     }
-    
+
     public function index_for_search($index_only_modified_data = true)
     {
         if($previous_harvest = $this->previous_harvest_event())
@@ -206,7 +206,7 @@ class HarvestEvent extends ActiveRecord
         // needed when indexing the data objects to figure out which pages to show them on
         $flattener = new FlattenHierarchies();
         $flattener->begin_process($this->resource->hierarchy_id);
-        
+
         // index the data objects
         $search_indexer = new SiteSearchIndexer();
         $data_object_ids = array();
@@ -222,7 +222,7 @@ class HarvestEvent extends ActiveRecord
         // index objects in the data_objects core
         $object_indexer = new DataObjectAncestriesIndexer();
         $object_indexer->index_data_objects($data_object_ids);
-        
+
         // index the taxa
         $taxon_concept_ids = array();
         if($index_only_modified_data) $taxon_concept_ids = $this->modified_taxon_concept_ids();
@@ -238,7 +238,7 @@ class HarvestEvent extends ActiveRecord
         // index concepts in the site_search core
         if($taxon_concept_ids) $search_indexer->index_type('TaxonConcept', $taxon_concept_ids);
     }
-    
+
     private function create_or_get_resource_collection()
     {
         if($this->published_at)
@@ -266,14 +266,14 @@ class HarvestEvent extends ActiveRecord
         }
         return $collection;
     }
-    
+
     public function create_collection()
     {
         $collection = $this->create_or_get_resource_collection();
         $description = trim($this->resource->content_partner->description);
         if($description && !preg_match("/\.$/", $description)) $description = trim($description) . ".";
         $description .= " Last indexed ". date('F j, Y', strtotime($this->completed_at));
-        
+
         $collection->name = $this->resource->title;
         $collection->logo_cache_url = $this->resource->content_partner->logo_cache_url;
         if(!$collection->logo_cache_url) $collection->logo_cache_url = $this->resource->content_partner->user->logo_cache_url;
@@ -283,9 +283,9 @@ class HarvestEvent extends ActiveRecord
         $user_id = $this->resource->content_partner->user_id;
         $GLOBALS['db_connection']->insert("DELETE FROM collections_users WHERE collection_id = $collection->id AND user_id = $user_id");
         $GLOBALS['db_connection']->insert("INSERT IGNORE INTO collections_users (collection_id, user_id) VALUES ($collection->id, $user_id)");
-        
+
         $this->sync_with_collection($collection);
-        
+
         if($this->published_at)
         {
             // make sure the collection can be searched for
@@ -295,16 +295,16 @@ class HarvestEvent extends ActiveRecord
             if($this->resource->preview_collection) $this->resource->preview_collection->delete();
         }
     }
-    
+
     public function sync_with_collection($collection)
     {
         $this->remove_collection_items_not_in_harvest($collection);
-        
+
         $starting_max_collection_item_id = $this->mysqli->select_value("SELECT MAX(id) FROM collection_items WHERE collection_id=$collection->id");
         if(!$starting_max_collection_item_id) $starting_max_collection_item_id = 0;
         $this->add_objects_to_collection($collection);
         $this->add_taxa_to_collection($collection);
-        
+
         $collection_items_to_index = array();
         $query = "SELECT id FROM collection_items WHERE collection_id=$collection->id AND id > $starting_max_collection_item_id";
         foreach($GLOBALS['db_connection']->iterate_file($query) as $row) $collection_items_to_index[] = $row[0];
@@ -324,7 +324,7 @@ class HarvestEvent extends ActiveRecord
             LEFT JOIN data_objects_harvest_events dohe ON (ci.collected_item_id=dohe.data_object_id AND dohe.harvest_event_id=$this->id)
             WHERE ci.collection_id=$collection->id AND ci.collected_item_type='DataObject' AND dohe.data_object_id IS NULL";
         foreach($GLOBALS['db_connection']->iterate_file($query) as $row) $collection_items_to_delete[] = $row[0];
-        
+
         // taxa in collection not in harvest event
         $query = "SELECT ci.id FROM collection_items ci
             LEFT JOIN (
@@ -333,7 +333,7 @@ class HarvestEvent extends ActiveRecord
             ON (ci.collected_item_id=he.taxon_concept_id)
             WHERE ci.collection_id=$collection->id AND ci.collected_item_type='TaxonConcept' AND hehe.hierarchy_entry_id IS NULL";
         foreach($GLOBALS['db_connection']->iterate_file($query) as $row) $collection_items_to_delete[] = $row[0];
-        
+
         $batches = array_chunk($collection_items_to_delete, 10000);
         foreach($batches as $batch)
         {
@@ -344,7 +344,7 @@ class HarvestEvent extends ActiveRecord
             $indexer->index_collection_items($batch);
         }
     }
-    
+
     function compare_new_hierarchy_entries()
     {
         // run the comparisons
@@ -355,25 +355,28 @@ class HarvestEvent extends ActiveRecord
         debug("++ START RelateHierarchies::process_hierarchy");
         $relator->process_hierarchy();
         debug("-- END RelateHierarchies::process_hierarchy");
-        // use them to create concepts
-         debug("++ START CompareHierarchies::begin_concept_assignment");
+    }
+
+    function assign_concepts()
+    {
+        // use compare_new_hierarchy_entries results to create concepts
+        debug("++ START CompareHierarchies::begin_concept_assignment");
         CompareHierarchies::begin_concept_assignment($this->resource->hierarchy_id, true);
         debug("-- END CompareHierarchies::begin_concept_assignment");
-
     }
-    
+
     function modified_hierarchy_entry_ids()
     {
         list($hierarchy_entry_ids, $taxon_concept_ids) = $this->modified_hierarchy_entry_and_taxon_concept_ids();
         return $hierarchy_entry_ids;
     }
-    
+
     function modified_taxon_concept_ids()
     {
         list($hierarchy_entry_ids, $taxon_concept_ids) = $this->modified_hierarchy_entry_and_taxon_concept_ids();
         return $taxon_concept_ids;
     }
-    
+
     function modified_hierarchy_entry_and_taxon_concept_ids()
     {
         $this->resource->refresh();
@@ -391,7 +394,7 @@ class HarvestEvent extends ActiveRecord
                 $hierarchy_entry_ids[$row[0]] = true;
                 $taxon_concept_ids[$row[1]] = true;
             }
-            
+
             // all entries that are in the current harvest but were not in the previous harvest
             $query = "SELECT he.id, he.taxon_concept_id
                 FROM harvest_events_hierarchy_entries hehe
@@ -404,7 +407,7 @@ class HarvestEvent extends ActiveRecord
                 $hierarchy_entry_ids[$row[0]] = true;
                 $taxon_concept_ids[$row[1]] = true;
             }
-            
+
             // all entries that were in the previous harvest but are not in the currrent harvest
             $query = "SELECT he.id, he.taxon_concept_id
                 FROM harvest_events_hierarchy_entries hehe
@@ -429,7 +432,7 @@ class HarvestEvent extends ActiveRecord
         }
         return array(array_keys($hierarchy_entry_ids), array_keys($taxon_concept_ids));
     }
-    
+
     function modified_data_object_ids()
     {
         $data_object_ids = array();
@@ -446,7 +449,7 @@ class HarvestEvent extends ActiveRecord
                   ON (dohe.data_object_id = dohe2.data_object_id AND dohe2.harvest_event_id = $previous_harvest->id)
                 WHERE dohe.harvest_event_id = $this->id AND dohe2.data_object_id IS NULL";
             foreach($GLOBALS['db_connection']->iterate_file($query) as $row) $data_object_ids[$row[0]] = true;
-            
+
             // all objects that were in the previous harvest but are not in the currrent harvest
             $query = "SELECT dohe.data_object_id
                 FROM data_objects_harvest_events dohe
@@ -462,7 +465,7 @@ class HarvestEvent extends ActiveRecord
         }
         return array_keys($data_object_ids);
     }
-    
+
     function data_object_ids_of_modified_entries()
     {
         $data_object_ids = array();
@@ -476,7 +479,7 @@ class HarvestEvent extends ActiveRecord
         }
         return array_keys($data_object_ids);
     }
-    
+
     function count_data_objects()
     {
         $result = $this->mysqli->query("SELECT count(*) as count FROM data_objects_harvest_events WHERE harvest_event_id=$this->id");
@@ -486,7 +489,7 @@ class HarvestEvent extends ActiveRecord
         }
         return 0;
     }
-    
+
     function count_hierarchy_entries()
     {
         $result = $this->mysqli->query("SELECT count(*) as count FROM harvest_events_hierarchy_entries WHERE harvest_event_id=$this->id");
@@ -496,7 +499,7 @@ class HarvestEvent extends ActiveRecord
         }
         return 0;
     }
-    
+
     function percent_different_data_objects()
     {
         $previous_harvest_event = $this->previous_harvest_event();
@@ -506,7 +509,7 @@ class HarvestEvent extends ActiveRecord
         if($previous_count == 0) return 0;
         return ((($my_count - $previous_count) / $previous_count) * 100);
     }
-    
+
     function percent_different_hierarchy_entries()
     {
         $previous_harvest_event = $this->previous_harvest_event();
@@ -516,7 +519,7 @@ class HarvestEvent extends ActiveRecord
         if($previous_count == 0) return 0;
         return ((($my_count - $previous_count) / $previous_count) * 100);
     }
-    
+
     function create_taxon_relations_graph()
     {
         $sparql_client = SparqlClient::connection();
@@ -615,10 +618,8 @@ class HarvestEvent extends ActiveRecord
                     'X-Mailer: PHP/' . phpversion();
                 $to      = implode(", ", array(SPG_EMAIL_ADDRESS, EOL_DEV_EMAIL_ADDRESS, ELI_EMAIL_ADDRESS));
                 mail($to, $subject, $message, $headers);
-                //create a file for each mail
-                $outlier_mails_log_dir = "log/outlier_mails/";
-                if (!file_exists($outlier_mails_log_dir))
-                   mkdir($outlier_mails_log_dir);
+                //create a file for each mail NOTE: hard-coded path is not so great. :(
+                $outlier_mails_log_dir = "/eol/log/outlier_mails_";
                 $mail_file = fopen ($outlier_mails_log_dir . $this->resource->title . "_" . date('d-m-Y H:i:s', time()) . ".log", "w");
                 if(!$mail_file){
                    debug("Can't open file for outlier mail");
@@ -629,7 +630,7 @@ class HarvestEvent extends ActiveRecord
             }
         }
     }
-    
+
     private function add_objects_to_collection($collection)
     {
         $sound_type_ids = DataType::sound_type_ids();
@@ -637,7 +638,7 @@ class HarvestEvent extends ActiveRecord
         $video_type_ids = DataType::video_type_ids();
         $map_type_ids = DataType::map_type_ids();
         $text_type_ids = DataType::text_type_ids();
-        
+
         // objects that need to be added
         $query = "SELECT do.id, do.created_at, do.object_title, do.data_type_id
             FROM data_objects_harvest_events dohe
@@ -666,7 +667,7 @@ class HarvestEvent extends ActiveRecord
             elseif(in_array($data_type_id, $map_type_ids)) $title = "Map";
             elseif(in_array($data_type_id, $text_type_ids)) $title = "Text";
             else $title = "Data Object";
-            
+
             fwrite($OUT, "NULL\t$title\tDataObject\t$id\t$collection->id\t$created_at\t$created_at\t\tNULL\n");
             $used_ids[$id] = true;
         }
@@ -674,7 +675,7 @@ class HarvestEvent extends ActiveRecord
         $this->mysqli->load_data_infile($outfile, 'collection_items');
         unlink($outfile);
     }
-    
+
     private function add_taxa_to_collection($collection)
     {
         // taxa that need to be added
