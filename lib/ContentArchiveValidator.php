@@ -279,7 +279,7 @@ class ContentArchiveValidator
     public static function validate_url($url, $suffix = null)
     {
         if(!$suffix && preg_match("/\.([a-z]{2,4})$/", $url, $arr)) $suffix = $arr[1];
-        if($temp_dir = ContentManager::download_temp_file_and_assign_extension($url, $suffix, array('suffix' => $suffix)))
+        if($temp_dir = ContentManager::download_temp_file_and_assign_extension($url, $suffix, array('suffix' => $suffix, 'timeout' => 900))) //15 minutes timeout (900 seconds)
         {
             if(is_dir($temp_dir))
             {

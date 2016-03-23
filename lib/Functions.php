@@ -452,7 +452,7 @@ class Functions
     public static function get_eol_defined_uris($download_options = false)
     {
         if(!$download_options) $download_options = array('resource_id' => 'URIs', 'download_wait_time' => 1000000, 'timeout' => 900, 'expire_seconds' => 86400, 'download_attempts' => 1); //expires in 24 hours
-        for($i=1; $i<=12; $i++)
+        for($i=1; $i<=14; $i++)
         {
             $urls = array();
             // $urls[] = "http://localhost/cp/TraitRequest/measurements/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
