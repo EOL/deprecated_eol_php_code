@@ -50,7 +50,7 @@ class GBIFoccurrenceAPI
         $this->save_path['fusion2']     = DOC_ROOT . "public/tmp/google_maps/fusion2/";
         // $this->save_path['kml']         = DOC_ROOT . "public/tmp/google_maps/kml/";
         
-        $this->rec_limit = 100000;
+        $this->rec_limit = 50000;
     }
 
     function start()
@@ -58,13 +58,13 @@ class GBIFoccurrenceAPI
         // start GBIF
         // self::breakdown_GBIF_csv_file_v2(); return;
         // self::breakdown_GBIF_csv_file(); return;
-        self::generate_map_data_using_GBIF_csv_files(); return;
+        // self::generate_map_data_using_GBIF_csv_files(); return;
         // end GBIF
         
         // self::start_clustering(); return;                        //distance clustering sample
         // self::get_center_latlon_using_taxonID(206692); return;   //computes the center lat long
         // self::process_all_eol_taxa(); return;                    //make use of tab-delimited text file from JRice
-        // self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
+        self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
         // self::process_DL_taxon_list(); return;                   //make use of taxon list from DiscoverLife
         
         $scinames = array();                                        //make use of manual taxon list
@@ -161,7 +161,6 @@ class GBIFoccurrenceAPI
             $row = explode("\t", $line);
             if(!@$row[26]) continue;
             
-            
             //start exclude higher-level taxa =========================================
             $sciname = Functions::canonical_form($row[12]);
             if(stripos($sciname, " ") !== false) $cont = true; //there is space, meaning a species-level taxon
@@ -197,7 +196,7 @@ class GBIFoccurrenceAPI
     
     private function generate_map_data_using_GBIF_csv_files()
     {
-        $eol_taxon_id_list = self::process_all_eol_taxa(true); //listOnly = true
+        // $eol_taxon_id_list = self::process_all_eol_taxa(true); //listOnly = true
         // print_r($eol_taxon_id_list); echo "\n" . count($eol_taxon_id_list) . "\n"; return; //[Triticum aestivum virus] => 540152
         
         // $eol_taxon_id_list["Gadus morhua"] = 206692;
@@ -206,6 +205,9 @@ class GBIFoccurrenceAPI
         // $eol_taxon_id_list["Phylloscopus trochilus"] = 2; //2493052
         // $eol_taxon_id_list["Aichi virus"] = 540501;
         // $eol_taxon_id_list["Anthriscus sylvestris (L.) Hoffm."] = 584996; //from Plantae group
+        
+        $eol_taxon_id_list["Xenidae"] = 8965;
+        
 
         $paths = array();
         // $paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_animalia/";
@@ -369,43 +371,50 @@ class GBIFoccurrenceAPI
         
         $final_count = false;
         
+        /*
         if(!($this->file2 = Functions::file_open($this->save_path['fusion'].$basename.".txt", "w"))) return;
         if(!($this->file3 = Functions::file_open($this->save_path['fusion2'].$basename.".json", "w"))) return;
+        */
         // if(!($this->file4 = Functions::file_open($this->save_path['kml'].$basename.".kml", "w"))) return;
         
         $headers = "catalogNumber, sciname, publisher, publisher_id, dataset, dataset_id, gbifID, latitude, longitude, recordedBy, identifiedBy, pic_url";
         $headers = "catalogNumber, sciname, publisher, publisher_id, dataset, dataset_id, gbifID, recordedBy, identifiedBy, pic_url, location";
         
-        fwrite($this->file2, str_replace(", ", "\t", $headers) . "\n");
+        /* fwrite($this->file2, str_replace(", ", "\t", $headers) . "\n"); */
         if($rec = self::get_initial_data($sciname))
         {
-            $final = self::get_georeference_data($rec['usageKey'], $basename); //use if you want to process all including higher-level taxa e.g. Animalia, Gadidae
-            
-            // if($rec['count'] < $this->rec_limit) $final = self::get_georeference_data($rec['usageKey'], $basename);    //only process taxa with < 100K georeference records
-
-            $final_count = $final['count'];
-
-            if($final_count > 20000)
+            if($rec['count'] < $this->rec_limit) //only process taxa with < 100K georeference records
             {
-                self::process_revised_cluster($final, $basename); //done after main demo using screenshots
+                $final = self::get_georeference_data($rec['usageKey'], $basename);
+                $final_count = $final['count'];
+                if($final_count > 20000)
+                {
+                    self::process_revised_cluster($final, $basename); //done after main demo using screenshots
+                }
             }
         }
         
+        /*
         fclose($this->file2);
         fclose($this->file3);
+        */
         // fclose($this->file4); //kml
         
         if(!$final_count)
         {
-            unlink($this->save_path['cluster'].$basename.".json");
+            if(file_exists($this->save_path['cluster'].$basename.".json")) unlink($this->save_path['cluster'].$basename.".json"); //delete cluster map data
+            /*
             unlink($this->save_path['fusion'].$basename.".txt");
             unlink($this->save_path['fusion2'].$basename.".json");
+            */
         }
         else //delete respective file
         {
             if($final_count < 20000) {
-                    unlink($this->save_path['fusion'].$basename.".txt");   //delete Fusion data
-                    unlink($this->save_path['fusion2'].$basename.".json"); //delete Fusion data (centerLatLon, tableID, publishers)
+                /*
+                unlink($this->save_path['fusion'].$basename.".txt");   //delete Fusion data
+                unlink($this->save_path['fusion2'].$basename.".json"); //delete Fusion data (centerLatLon, tableID, publishers)
+                */
             }
             else
             {
@@ -518,7 +527,7 @@ class GBIFoccurrenceAPI
         fwrite($this->file, "var data = ".$json);
         fclose($this->file);
         
-        self::write_to_supplementary_fusion_text($final);
+        /* self::write_to_supplementary_fusion_text($final); */
         
         return $final;
     }
@@ -688,7 +697,7 @@ class GBIFoccurrenceAPI
                 establishmentmeans    lastinterpreted    mediatype    issue
                 */
                 
-                self::write_to_fusion_table($rec);
+                /* self::write_to_fusion_table($rec); */
                 $recs[] = $rec;
                 
                 /*
@@ -825,8 +834,8 @@ class GBIFoccurrenceAPI
             foreach($arr['Animals'] as $sciname)
             {
                 $i++;
-                $sciname = trim($sciname);
-                if(stripos($sciname, " ") !== false)
+                $sciname = trim(Functions::canonical_form($sciname));
+                if(stripos($sciname, " ") !== false) //process only species-level taxa
                 {
                     $taxon_concept_id = $arr['1'][$i];
                     echo "\n$i. [$sciname][$taxon_concept_id]";
@@ -844,6 +853,7 @@ class GBIFoccurrenceAPI
                     if(!$cont) continue;
                     self::main_loop($sciname, $taxon_concept_id);
                     //==================
+                    // break; //debug - process only 1
                 }
             }
             unlink($path);
