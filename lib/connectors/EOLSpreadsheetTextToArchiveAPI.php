@@ -63,8 +63,8 @@ class EOLSpreadsheetTextToArchiveAPI
     
     private function create_archive($extension, $fields, $uris, $rec)
     {
-        if($extension == "taxa")              $t = new \eol_schema\Taxon();
-        elseif($extension == "references")      $t = new \eol_schema\Reference();
+        if($extension == "taxa")             $t = new \eol_schema\Taxon();
+        elseif($extension == "references")   $t = new \eol_schema\Reference();
         elseif($extension == "occurrences")  $t = new \eol_schema\Occurrence();
         elseif($extension == "measurements") $t = new \eol_schema\MeasurementOrFact();
         else

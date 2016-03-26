@@ -29,7 +29,11 @@ class XLSParser
             $this->open_spreadsheets['spreadsheet'] = $objPHPExcel;
         }
         if(is_null($sheet)) $objWorksheet = $objPHPExcel->getActiveSheet();
-        else                $objWorksheet = $objPHPExcel->setActiveSheetIndex($sheet);
+        else
+        {
+            if($sheet+1 > $objPHPExcel->getSheetCount()) return false;
+            $objWorksheet = $objPHPExcel->setActiveSheetIndex($sheet);
+        }
         $highestRow         = $objWorksheet->getHighestRow(); // e.g. 10
         $highestColumn      = $objWorksheet->getHighestColumn(); // e.g 'F'
         $highestColumnIndex = \PHPExcel_Cell::columnIndexFromString($highestColumn); // e.g. 5
