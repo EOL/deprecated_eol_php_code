@@ -8,26 +8,52 @@ class EOLSpreadsheetToArchiveAPI
     {
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        
+        $this->download_options = array("timeout" => 3600, 'download_attempts' => 2, 'delay_in_minutes' => 2);
+        $this->download_options['cache'] = 1; //will use cache
     }
 
-    function convert_to_dwca($params)
+    function convert_to_dwca($spreadsheet)
     {
-        self::start($params);
+        self::start($spreadsheet);
         $this->archive_builder->finalize(TRUE);
         print_r(@$this->debug);
     }
 
-    private function start($params)
+    private function download_file_accordingly($path)
+    {
+        $pathinfo = pathinfo($path);
+        if(stripos($pathinfo['dirname'], "https://www.dropbox.com/") !== false) //string is found => spreadsheet is from DropBox
+        {
+            $a = explode("?", $pathinfo['basename']);
+            $extension = self::get_extension($a[0]);
+            
+            $download_options = $this->download_options;
+            $download_options['file_extension'] = $extension;
+            
+            $path = str_ireplace("dl=0", "dl=1", $path);
+            if($newpath = Functions::save_remote_file_to_local($path, $download_options))
+            {
+                echo("\nnewpath: [$newpath]\n");
+                return $newpath;
+            }
+        }
+        return $path;
+    }
+    
+    private function start($spreadsheet)
     {
         require_library('XLSParser');
         $parser = new XLSParser();
         
-        $doc = $params['spreadsheet_url_path'];
-        echo "\n processing [$doc]...\n";
-        if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 3600, "file_extension" => self::get_extension($doc), 'download_attempts' => 2, 'delay_in_minutes' => 2)))
+        $doc = self::download_file_accordingly($spreadsheet);
+        
+        $download_options = $this->download_options;
+        $download_options['file_extension'] = self::get_extension($doc);
+        
+        if($path = Functions::save_remote_file_to_local($doc, $download_options))
         {
             $worksheets = self::get_worksheets($path, $parser);
-            print_r($worksheets); //exit;
             foreach($worksheets as $index => $worksheet_title)
             {
                 $arr = $parser->convert_sheet_to_array($path, $index);
@@ -47,7 +73,7 @@ class EOLSpreadsheetToArchiveAPI
                     foreach($arr[$fields[0]] as $row)
                     {
                         $i++;
-                        if($i >= 8)
+                        if($i > 7) // >= 8
                         {
                             $rec = array();
                             foreach($fields as $field) $rec[$field] = $arr[$field][$i];
@@ -57,6 +83,7 @@ class EOLSpreadsheetToArchiveAPI
                 }
             }
             unlink($path);
+            if(file_exists($doc)) unlink($doc);
         }
         else echo "\n [$doc] unavailable! \n";
     }
@@ -72,7 +99,11 @@ class EOLSpreadsheetToArchiveAPI
         elseif($extension == "agents")                  $t = new \eol_schema\Agent();
         elseif($extension == "associations")            $t = new \eol_schema\Association();
         elseif($extension == "events")                  $t = new \eol_schema\Event();
-        else echo "\nextension undefined![$extension]\n"; return;
+        else
+        {
+            echo "\nextension undefined![$extension]\n";
+            return;
+        }
         
         $i = 0;
         foreach($fields as $field)
@@ -86,7 +117,7 @@ class EOLSpreadsheetToArchiveAPI
             if(!trim($t->taxonID)) return; //meaning object is not assigned to any taxon
             if(!isset($this->media_ids[$t->identifier]))
             {
-                $this->media_ids[$t->taxonID] = '';
+                $this->media_ids[$t->identifier] = '';
                 $this->archive_builder->write_object_to_file($t);
             }
             else echo "\nduplicate taxon entry excluded...[$t->identifier]"; //commented but working... preferably uncomment during development
@@ -167,12 +198,6 @@ class EOLSpreadsheetToArchiveAPI
     
     private function get_worksheets($path, $parser)
     {
-        /* //debug
-        $worksheets[0] = "measurements or facts";
-        $worksheets[1] = "taxa";
-        return $worksheets;
-        */
-        
         /* //manual
         $worksheets[0] = "media";
         $worksheets[1] = "taxa";
