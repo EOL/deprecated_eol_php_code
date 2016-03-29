@@ -21,8 +21,8 @@ class ConvertEOLtoDWCaAPI
 		{
 	        require_library('connectors/INBioAPI');
 	        $func = new INBioAPI();
-	        $paths = $func->extract_archive_file($params["eol_xml_file"], $params["filename"], array("timeout" => 7200));
-	        // $paths["expire_seconds"] = false; // "expire_seconds" -- false => won't expire; 0 => expires now //debug
+	        $paths = $func->extract_archive_file($params["eol_xml_file"], $params["filename"], array("timeout" => 7200, "expire_seconds" => 0)); // "expire_seconds" -- false => won't expire; 0 => expires now //debug
+	        
 	        print_r($paths);
 	        $params["path"] = $paths["temp_dir"];
 	        self::convert_xml($params);
@@ -80,7 +80,10 @@ class ConvertEOLtoDWCaAPI
             {
                 if($vernaculars = self::process_vernacular($obj, $taxon_id))
                 {
-                    foreach($vernaculars as $vernacular) self::create_archive($vernacular, "vernacular");
+                    foreach($vernaculars as $vernacular)
+                    {
+                        if($vernacular) self::create_archive($vernacular, "vernacular");
+                    }
                 }
             }
             if($obj = @$t->synonym)
@@ -207,6 +210,9 @@ class ConvertEOLtoDWCaAPI
         $records = array();
         foreach($objects as $o)
         {
+            $full_reference = trim((string) $o);
+            if(!$full_reference) continue;
+            
 			$identifier = ''; $uri = '';
             if($params["dataset"] == "EOL China")
             {
@@ -219,8 +225,15 @@ class ConvertEOLtoDWCaAPI
 				if($val = $o{'doi'}) $identifier = (string) $val;
 				if($val = $o{'uri'}) $uri = $val;
 			}
-			else echo "\nModule to create identifier and uri for this dataset has not yet been defined!\n";
-            $records[] = array("full_reference" => (string) $o, "uri" => $uri, "ref_identifier" => $identifier);
+            elseif($params["dataset"] == "Amphibiaweb")
+            {
+                if($val = $o{'doi'}) $identifier = (string) $val;
+                if($val = $o{'uri'}) $uri = $val;
+                if(!$identifier) $identifier = md5($full_reference);
+            }
+            
+            else echo "\nModule to create identifier and uri for this dataset has not yet been defined!\n";
+            $records[] = array("full_reference" => $full_reference, "uri" => $uri, "ref_identifier" => $identifier);
         }
         // print_r($records);
         return $records;
@@ -238,7 +251,11 @@ class ConvertEOLtoDWCaAPI
     private function process_vernacular($objects, $taxon_id)
     {
         $records = array();
-        foreach($objects as $o) $records[] = array("vernacularName" => (string) $o, "language" => (string) $o{"xml_lang"}, "taxonID" => (string) $taxon_id);
+        foreach($objects as $o)
+        {
+            $lang = trim((string) $o{"xml_lang"});
+            if($val = trim((string) $o)) $records[] = array("vernacularName" => $val, "language" => $lang, "taxonID" => (string) $taxon_id);
+        }
         // print_r($records);
         return $records;
     }
