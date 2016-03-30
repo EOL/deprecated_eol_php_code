@@ -17,29 +17,29 @@ class ConvertEOLtoDWCaAPI
 
     function export_xml_to_archive($params, $xml_file_YN = false)
     {
-		if(!$xml_file_YN)
-		{
-	        require_library('connectors/INBioAPI');
-	        $func = new INBioAPI();
-	        $paths = $func->extract_archive_file($params["eol_xml_file"], $params["filename"], array("timeout" => 7200, "expire_seconds" => 0)); // "expire_seconds" -- false => won't expire; 0 => expires now //debug
-	        
-	        print_r($paths);
-	        $params["path"] = $paths["temp_dir"];
-	        self::convert_xml($params);
-	        $this->archive_builder->finalize(TRUE);
-	        recursive_rmdir($paths["temp_dir"]); // remove temp dir
-	
-		}
-		else //is XML file
-		{
-			$params['path'] = DOC_ROOT . "tmp/";
-			$local_xml_file = Functions::save_remote_file_to_local($params['eol_xml_file'], array('file_extension' => "xml", 'cache' => 0, "timeout" => 7200, "download_attempts" => 2, "delay_in_minutes" => 2)); 
-			//debug - cache should be 0 zero in normal operation
-			$params['filename'] = pathinfo($local_xml_file, PATHINFO_BASENAME);
-	        self::convert_xml($params);
-	        $this->archive_builder->finalize(TRUE);
-	        unlink($local_xml_file);
-		}
+        if(!$xml_file_YN)
+        {
+            require_library('connectors/INBioAPI');
+            $func = new INBioAPI();
+            $paths = $func->extract_archive_file($params["eol_xml_file"], $params["filename"], array("timeout" => 7200, "expire_seconds" => 0)); // "expire_seconds" -- false => won't expire; 0 => expires now //debug
+            
+            print_r($paths);
+            $params["path"] = $paths["temp_dir"];
+            self::convert_xml($params);
+            $this->archive_builder->finalize(TRUE);
+            recursive_rmdir($paths["temp_dir"]); // remove temp dir
+    
+        }
+        else //is XML file
+        {
+            $params['path'] = DOC_ROOT . "tmp/";
+            $local_xml_file = Functions::save_remote_file_to_local($params['eol_xml_file'], array('file_extension' => "xml", 'cache' => 0, "timeout" => 7200, "download_attempts" => 2, "delay_in_minutes" => 2)); 
+            //debug - cache should be 0 zero in normal operation
+            $params['filename'] = pathinfo($local_xml_file, PATHINFO_BASENAME);
+            self::convert_xml($params);
+            $this->archive_builder->finalize(TRUE);
+            unlink($local_xml_file);
+        }
     }
 
     private function convert_xml($params)
@@ -143,8 +143,8 @@ class ConvertEOLtoDWCaAPI
                 $rec[$field] = (string) $o_dcterms->$field;
             }
             
-			//for references in data_object
-			if($obj = @$o->reference)
+            //for references in data_object
+            if($obj = @$o->reference)
             {
                 if($references = self::process_reference($obj, $taxon_id, $params))
                 {
@@ -173,15 +173,15 @@ class ConvertEOLtoDWCaAPI
                 }
             }
 
-			/*
+            /*
             if(in_array($params["dataset"], array("EOL China", "EOL XML")))
             {
                 if($val = $o_dc->identifier) $identifier = (string) $val;
                 else echo("\n -- find or create your own object identifier -- \n");
             }
-			*/
-			if($val = $o_dc->identifier) $identifier = (string) $val;
-			else echo("\n -- find or create your own object identifier -- \n");				
+            */
+            if($val = $o_dc->identifier) $identifier = (string) $val;
+            else echo("\n -- find or create your own object identifier -- \n");
             
             $rec["obj_identifier"] = $identifier;
             unset($rec["identifier"]);
@@ -213,7 +213,7 @@ class ConvertEOLtoDWCaAPI
             $full_reference = trim((string) $o);
             if(!$full_reference) continue;
             
-			$identifier = ''; $uri = '';
+            $identifier = ''; $uri = '';
             if($params["dataset"] == "EOL China")
             {
                 $uri = (string) $o{"url"};
@@ -221,10 +221,10 @@ class ConvertEOLtoDWCaAPI
                 else echo("\n -- find or create your own identifier -- \n");
             }
             elseif($params["dataset"] == "Pensoft XML files")
-			{
-				if($val = $o{'doi'}) $identifier = (string) $val;
-				if($val = $o{'uri'}) $uri = $val;
-			}
+            {
+                if($val = $o{'doi'}) $identifier = (string) $val;
+                if($val = $o{'uri'}) $uri = $val;
+            }
             elseif($params["dataset"] == "Amphibiaweb")
             {
                 if($val = $o{'doi'}) $identifier = (string) $val;
