@@ -30,6 +30,7 @@ class EOLSpreadsheetToArchiveAPI
             
             $download_options = $this->download_options;
             $download_options['file_extension'] = $extension;
+            $download_options['cache'] = 1; //debug - comment in real operation
             
             $path = str_ireplace("dl=0", "dl=1", $path);
             if($newpath = Functions::save_remote_file_to_local($path, $download_options))
@@ -54,10 +55,16 @@ class EOLSpreadsheetToArchiveAPI
         if($path = Functions::save_remote_file_to_local($doc, $download_options))
         {
             $worksheets = self::get_worksheets($path, $parser);
+            print_r($worksheets);
             foreach($worksheets as $index => $worksheet_title)
             {
+                echo "\nProcessing worksheet: [$worksheet_title]";
                 $arr = $parser->convert_sheet_to_array($path, $index);
-                if(!self::sheet_is_valid($arr, $worksheet_title)) continue;
+                if(!self::sheet_is_valid($arr, $worksheet_title))
+                {
+                    echo " - invalid worksheet\n";
+                    continue;
+                }
 
                 // if($worksheet_title == "taxa")
                 if(true)
@@ -155,13 +162,16 @@ class EOLSpreadsheetToArchiveAPI
         elseif($extension == "measurements or facts")
         {
             if(!trim($t->measurementType)) return;
-            $val = md5($t->occurrenceID.$t->measurementType);
+            if(!trim($t->occurrenceID)) return;
+            
+            if($val = $t->measurementID) {}
+            else $val = md5($t->occurrenceID.$t->measurementType);
             if(!isset($this->measurement_ids[$val]))
             {
-                $this->measurement_ids[$t->occurrenceID] = '';
+                $this->measurement_ids[$val] = '';
                 $this->archive_builder->write_object_to_file($t);
             }
-            else echo "\nduplicate measurement entry excluded...[$t->occurrenceID][$t->measurementType]";
+            else echo "\nduplicate measurement entry excluded...[$val]";
         }
         elseif($extension == "common names")
         {
