@@ -7,17 +7,13 @@ execution time: varies on how big the spreadsheet is
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/EOLSpreadsheetToArchiveAPI');
 $timestart = time_elapsed();
-
+ini_set('memory_limit', '5120M'); // 5GB maximum memory usage
 $spreadsheets = array();
-
-// /* Sarah Miller's spreadsheets
-
-// $spreadsheets[] = 'https://www.dropbox.com/s/u17km6pnylf6cx3/WWF 2.xlsx?dl=0';
-// $spreadsheets[] = 'https://www.dropbox.com/s/k49tww9xgb2xd8k/WWF.xlsx?dl=0';
-// $spreadsheets[] = 'https://www.dropbox.com/s/bnrbmrttgithwa1/Avian body sizes in relation to fecundity%2C mating system%2C display behavior%2C and resource sharing Export.xls?dl=0';
-// $spreadsheets[] = 'https://www.dropbox.com/s/dlybjsx410h90rh/WWF Habitats.xlsx?dl=0';
+$big_file = false;
 
 
+
+// Sarah Miller's spreadsheets
 /*
 $spreadsheets[] = 'https://www.dropbox.com/s/9b4ie0g024wszy6/carnivore dinosaurs.xlsx?dl=0';
 $spreadsheets[] = 'https://www.dropbox.com/s/yiywpg5pyc3w102/EGG CHARACTERISTICS AND BREEDING SEASON FOR WOODS HOLE SPECIES.xls?dl=0';
@@ -48,7 +44,6 @@ $spreadsheets[] = 'https://www.dropbox.com/s/sb6snwmg3f3mu9j/Eggs copy.xlsx?dl=0
 [DC Flower Export](https://www.dropbox.com/s/wyrr5o56feycbaj/DC Flower Export.xls?dl=0) is VALID - [DWC-A](https://dl.dropboxusercontent.com/u/7597512/spreadsheets/resources/SarahM/DC_Flower_Export.tar.gz)
 [dana dinosaur transfer](https://www.dropbox.com/s/faxizw1w9lo9j1e/dana dinosaur transfer.xlsx?dl=0) is VALID - [DWC-A](https://dl.dropboxusercontent.com/u/7597512/spreadsheets/resources/SarahM/dana_dinosaur_transfer.tar.gz)
 [climates](https://www.dropbox.com/s/llska2bdzl0elo1/climates.xls?dl=0) is VALID - [DWC-A](https://dl.dropboxusercontent.com/u/7597512/spreadsheets/resources/SarahM/climates.tar.gz)
-
 */
 
 /*
@@ -71,20 +66,15 @@ $spreadsheets[] = 'https://www.dropbox.com/s/kawt45g3auvrvfl/Parrot Fish.xlsx?dl
 [Eggs](https://www.dropbox.com/s/vaysqf4w2aok34j/Eggs.xls?dl=0) is VALID - [DWC-A](https://dl.dropboxusercontent.com/u/7597512/spreadsheets/resources/SarahM/Eggs.tar.gz)
 */
 
-
-// /*
+/*
 $spreadsheets[] = 'https://www.dropbox.com/s/0rfmqrj97v6e37y/Dragonflies Measurements 2.xlsx?dl=0';
 $spreadsheets[] = 'https://www.dropbox.com/s/o97ue4gkya9s6br/Life history characteristics of placental non-volant mammals.xls?dl=0';
 $spreadsheets[] = 'https://www.dropbox.com/s/y77wsxfdo22c6t0/Coral Skeletons.xlsx?dl=0';
 
-
-// [Dragonflies Measurements 2](https://www.dropbox.com/s/0rfmqrj97v6e37y/Dragonflies%20Measurements%202.xlsx?dl=0) has duplicate "Measurement IDs" in the "measurements or facts" worksheet.
-// [Life history characteristics of placental non-volant mammals](https://www.dropbox.com/s/o97ue4gkya9s6br/Life history characteristics of placental non-volant mammals.xls?dl=0) has duplicate "Measurement IDs" in the "measurements or facts" worksheet.
-// [Coral Skeletons](https://www.dropbox.com/s/y77wsxfdo22c6t0/Coral Skeletons.xlsx?dl=0) has duplicate "Measurement IDs" in the "measurements or facts" worksheet. List of duplicate ID: M_00095
-
-// */
-
-
+[Coral Skeletons](https://www.dropbox.com/s/y77wsxfdo22c6t0/Coral Skeletons.xlsx?dl=0) is VALID - [DWC-A](https://dl.dropboxusercontent.com/u/7597512/spreadsheets/resources/SarahM/Coral_Skeletons.tar.gz)
+[Life history characteristics of placental non-volant mammals](https://www.dropbox.com/s/o97ue4gkya9s6br/Life history characteristics of placental non-volant mammals.xls?dl=0) is VALID - [DWC-A](https://dl.dropboxusercontent.com/u/7597512/spreadsheets/resources/SarahM/Life_history_characteristics_of_placental_non-volant_mammals.tar.gz)
+[Dragonflies Measurements 2](https://www.dropbox.com/s/0rfmqrj97v6e37y/Dragonflies Measurements 2.xlsx?dl=0) is VALID - [DWC-A](https://dl.dropboxusercontent.com/u/7597512/spreadsheets/resources/SarahM/Dragonflies_Measurements_2.tar.gz)
+*/
 
 /* Jen's spreadsheets
 $spreadsheets[] = 'http://localhost/eol_php_code/public/tmp/xls/2016 03 22/Barton Finkel 2013.xlsx';
@@ -95,6 +85,16 @@ $spreadsheets[] = 'http://localhost/eol_php_code/public/tmp/xls/2016 03 28/Avian
 $spreadsheets[] = 'https://www.dropbox.com/s/bnrbmrttgithwa1/Avian body sizes in relation to fecundity%2C mating system%2C display behavior%2C and resource sharing Export.xls?dl=0';
 */
 
+/*
+// the big spreadsheets: moved to 799.php
+$spreadsheets[] = 'https://www.dropbox.com/s/u17km6pnylf6cx3/WWF 2.xlsx?dl=0';
+$spreadsheets[] = 'https://www.dropbox.com/s/k49tww9xgb2xd8k/WWF.xlsx?dl=0';
+$spreadsheets[] = 'https://www.dropbox.com/s/bnrbmrttgithwa1/Avian body sizes in relation to fecundity%2C mating system%2C display behavior%2C and resource sharing Export.xls?dl=0';
+$spreadsheets[] = 'https://www.dropbox.com/s/dlybjsx410h90rh/WWF Habitats.xlsx?dl=0';
+
+$big_file = true;
+*/
+
 print_r($spreadsheets);
 foreach($spreadsheets as $spreadsheet)
 {
@@ -102,12 +102,12 @@ foreach($spreadsheets as $spreadsheet)
     echo "\n[$resource_id]";
     $func = new EOLSpreadsheetToArchiveAPI($resource_id);
     $func->convert_to_dwca($spreadsheet);
-    Functions::finalize_dwca_resource($resource_id);
+    /* $func->convert_to_text_to_dwca($spreadsheet);working but not being used... since XLSParser still loads entire worksheet into memory */
+    Functions::finalize_dwca_resource($resource_id, $big_file);
     $elapsed_time_sec = time_elapsed() - $timestart;
     echo "\n\n";
     echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
     echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
     echo "\nDone processing.\n";
 }
-
 ?>

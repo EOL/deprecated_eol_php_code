@@ -1,5 +1,6 @@
 <?php
 namespace php_active_record;
+/* connector: [799] */
 /* connector: [generic_xls2dwca.php] */
 
 class EOLSpreadsheetToArchiveAPI
@@ -8,74 +9,101 @@ class EOLSpreadsheetToArchiveAPI
     {
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        
         $this->download_options = array("timeout" => 3600, 'download_attempts' => 2, 'delay_in_minutes' => 2);
-        $this->download_options['cache'] = 1; //will use cache
+        // $this->download_options['cache'] = 1; //will use cache
     }
+
+    //start text process ====================================================================================
+    function convert_spreadsheet_text_to_dwca($params)
+    {
+        foreach($params['extensions'] as $extension)
+        {
+            echo "\n[$extension]\n";
+            self::process_text_file($extension, $params['text_files_path']);
+            // break; //debug -- to process just 1 extension
+            if($extension == "taxa")             unset($this->taxon_ids);
+            elseif($extension == "references")   unset($this->ref_ids);
+            elseif($extension == "occurrences")  unset($this->occur_ids);
+            elseif($extension == "measurements") unset($this->measurement_ids);
+        }
+        $this->archive_builder->finalize(TRUE);
+    }
+
+    private function process_text_file($extension, $path)
+    {
+        ini_set("auto_detect_line_endings", true);
+        // $extension = 'references'; //debug -- to process just 1 extension
+        $filename = Functions::save_remote_file_to_local($path.$extension.".txt", array('cache' => 0, 'file_extension' => "txt"));
+        $i = 0;
+        foreach(new FileIterator($filename) as $line_number => $line)
+        {
+            $temp = explode("\t", $line);
+            $i++;
+            if(($i % 50000) == 0) echo "\n" . number_format($i) . " - ";
+            if    ($i == 1) $fields = $temp;
+            elseif($i == 2) $uris = $temp;
+            elseif($i == 3) $requirements = $temp;
+            elseif($i > 8)
+            {
+                $rec = array();
+                $k = 0;
+                
+                // checks if valid record
+                if(!$temp) continue;
+                
+                foreach($temp as $t)
+                {
+                    $rec[@$fields[$k]] = $t;
+                    $k++;
+                }
+                self::create_archive($extension, $fields, $uris, $rec);
+            }
+            // if($i >= 1000) break; //debug
+        }
+        unlink($filename);
+    }
+    //end text process ======================================================================================
 
     function convert_to_dwca($spreadsheet)
     {
         self::start($spreadsheet);
         $this->archive_builder->finalize(TRUE);
-        print_r(@$this->debug);
     }
 
-    private function download_file_accordingly($path)
-    {
-        $pathinfo = pathinfo($path);
-        if(stripos($pathinfo['dirname'], "https://www.dropbox.com/") !== false) //string is found => spreadsheet is from DropBox
-        {
-            $a = explode("?", $pathinfo['basename']);
-            $extension = self::get_extension($a[0]);
-            
-            $download_options = $this->download_options;
-            $download_options['file_extension'] = $extension;
-            $download_options['cache'] = 1; //debug - comment in real operation
-            
-            $path = str_ireplace("dl=0", "dl=1", $path);
-            if($newpath = Functions::save_remote_file_to_local($path, $download_options))
-            {
-                echo("\nnewpath: [$newpath]\n");
-                return $newpath;
-            }
-        }
-        return $path;
-    }
-    
-    private function start($spreadsheet)
+    private function start($spreadsheet, $temp_path = false)
     {
         require_library('XLSParser');
         $parser = new XLSParser();
-        
         $doc = self::download_file_accordingly($spreadsheet);
-        
         $download_options = $this->download_options;
         $download_options['file_extension'] = self::get_extension($doc);
         
         if($path = Functions::save_remote_file_to_local($doc, $download_options))
         {
-            $worksheets = self::get_worksheets($path, $parser);
+            $worksheets = self::get_worksheets($path, $parser, $temp_path);
             print_r($worksheets);
             foreach($worksheets as $index => $worksheet_title)
             {
                 echo "\nProcessing worksheet: [$worksheet_title]";
-                $arr = $parser->convert_sheet_to_array($path, $index);
-                if(!self::sheet_is_valid($arr, $worksheet_title))
-                {
-                    echo " - invalid worksheet\n";
-                    continue;
-                }
 
-                // if($worksheet_title == "taxa")
-                if(true)
+                if($temp_path) //meaning save to text files
                 {
+                    $params = array("worksheet_title" => $worksheet_title, "path" => $temp_path);
+                    $parser->convert_sheet_to_array($path, $index, NULL, $params);
+                }
+                else
+                {
+                    $arr = $parser->convert_sheet_to_array($path, $index);
+                    if(!self::sheet_is_valid($arr, $worksheet_title))
+                    {
+                        echo " - invalid worksheet\n";
+                        continue;
+                    }
                     $fields = array();
                     $uris = array();
-                    
                     $fields = array_keys($arr);
                     foreach($fields as $field) $uris[] = $arr[$field][0];
                     // print_r($fields); print_r($uris); continue;
-                    
                     $i = -1;
                     foreach($arr[$fields[0]] as $row)
                     {
@@ -94,14 +122,71 @@ class EOLSpreadsheetToArchiveAPI
         }
         else echo "\n [$doc] unavailable! \n";
     }
+    
+    /*
+    function convert_to_text_to_dwca($spreadsheet) //this saves the worksheets to text files first, then converts the DWC-A.
+    {
+        $temp_path = DOC_ROOT . "/tmp/". time();
+        mkdir($temp_path);
+        echo "\n[$temp_path]\n";
+        self::start($spreadsheet, $temp_path); //2nd param triggers save to text files
+        self::process_text_filez($temp_path);
+        $this->archive_builder->finalize(TRUE);
+        if(is_dir($temp_path)) recursive_rmdir($temp_path);
+    }
+    
+    private function process_text_filez($temp_path)
+    {
+        foreach(glob($temp_path."/*.txt") as $filename)
+        {
+            $extension = pathinfo($filename, PATHINFO_FILENAME);
+            // $extension2 = get_sheet_name_from_text_file();
+            echo "\n[$extension]\n";
+            
+            $fields = array();
+            $uris = array();
+            
+            $i = 0;
+            foreach(new FileIterator($filename) as $line_number => $line)
+            {
+                $temp = explode("\t", $line);
+                $i++;
+                if(($i % 50000) == 0) echo "\n" . number_format($i) . " - ";
+                if    ($i == 1) $fields = $temp;
+                elseif($i == 2) $uris = $temp;
+                elseif($i == 3) $requirements = $temp;
+                elseif($i > 9)
+                {
+                    $rec = array();
+                    $k = 0;
+                    
+                    // checks if valid record
+                    if(!$temp) continue;
+                    if(!$fields) continue;
+                    if(!$uris) continue;
+                    
+                    foreach($temp as $t)
+                    {
+                        $rec[@$fields[$k]] = $t;
+                        $k++;
+                    }
+                    
+                    // print_r($fields); print_r($uris); print_r($rec);
+                    self::create_archive($extension, $fields, $uris, $rec);
+                }
+            }
+        }
+    }
+    */
 
-    private function create_archive($extension, $fields, $uris, $rec)
+    public function create_archive($extension, $fields, $uris, $rec)
     {
         if($extension == "media")                       $t = new \eol_schema\MediaResource();
         elseif($extension == "taxa")                    $t = new \eol_schema\Taxon();
         elseif($extension == "references")              $t = new \eol_schema\Reference();
         elseif($extension == "occurrences")             $t = new \eol_schema\Occurrence();
         elseif($extension == "measurements or facts")   $t = new \eol_schema\MeasurementOrFact();
+        elseif($extension == "measurements")            $t = new \eol_schema\MeasurementOrFact();
         elseif($extension == "common names")            $t = new \eol_schema\VernacularName();
         elseif($extension == "agents")                  $t = new \eol_schema\Agent();
         elseif($extension == "associations")            $t = new \eol_schema\Association();
@@ -115,10 +200,10 @@ class EOLSpreadsheetToArchiveAPI
         $i = 0;
         foreach($fields as $field)
         {
-            if($val = self::get_field_from_uri($uris[$i])) $t->$val = self::clean_string(@$rec[$fields[$i]]);
+            if($val = self::get_field_from_uri(@$uris[$i])) $t->$val = self::clean_string(@$rec[$fields[$i]]);
             $i++;
         }
-
+        
         if($extension == "media")
         {
             if(!trim($t->taxonID)) return; //meaning object is not assigned to any taxon
@@ -159,7 +244,7 @@ class EOLSpreadsheetToArchiveAPI
             }
             else echo "\nduplicate occurrence entry excluded...[$t->occurrenceID]";
         }
-        elseif($extension == "measurements or facts")
+        elseif(in_array($extension, array("measurements or facts", "measurements")))
         {
             if(!trim($t->measurementType)) return;
             if(!trim($t->occurrenceID)) return;
@@ -206,20 +291,22 @@ class EOLSpreadsheetToArchiveAPI
         return strtolower(@$path_info['extension']);
     }
     
-    private function get_worksheets($path, $parser)
+    private function get_worksheets($path, $parser, $temp_path)
     {
-        /* //manual
-        $worksheets[0] = "media";
-        $worksheets[1] = "taxa";
-        $worksheets[2] = "common names";
-        $worksheets[3] = "references";
-        $worksheets[4] = "agents";
-        $worksheets[5] = "occurrences";
-        $worksheets[6] = "measurements or facts";
-        $worksheets[7] = "associations";
-        $worksheets[8] = "events";
-        return $worksheets;
-        */
+        if($temp_path) //meaning spreadsheet is big
+        {
+            // /* //manual
+            $worksheets[0] = "media";
+            $worksheets[1] = "taxa";
+            $worksheets[2] = "common names";
+            $worksheets[3] = "references";
+            $worksheets[4] = "agents";
+            $worksheets[5] = "occurrences";
+            $worksheets[6] = "measurements or facts";
+            $worksheets[7] = "associations";
+            $worksheets[8] = "events";
+            return $worksheets;
+        }
         
         $i = 0;
         while(true)
@@ -279,43 +366,26 @@ class EOLSpreadsheetToArchiveAPI
         else return $arr[0];
     }
 
-    /*
-    private function process_text_file($extension, $path)
+    private function download_file_accordingly($path)
     {
-        ini_set("auto_detect_line_endings", true);
-        // $extension = 'references'; //debug -- to process just 1 extension
-        $filename = Functions::save_remote_file_to_local($path.$extension.".txt", array('cache' => 0, 'file_extension' => "txt"));
-        $i = 0;
-        foreach(new FileIterator($filename) as $line_number => $line)
+        $pathinfo = pathinfo($path);
+        if(stripos($pathinfo['dirname'], "https://www.dropbox.com/") !== false) //string is found => spreadsheet is from DropBox
         {
-            $temp = explode("\t", $line);
-            $i++;
-            if(($i % 50000) == 0) echo "\n" . number_format($i) . " - ";
-            if    ($i == 1) $fields = $temp;
-            elseif($i == 2) $uris = $temp;
-            elseif($i == 3) $requirements = $temp;
-            elseif($i > 8)
+            $a = explode("?", $pathinfo['basename']);
+            $extension = self::get_extension($a[0]);
+            
+            $download_options = $this->download_options;
+            $download_options['file_extension'] = $extension;
+            
+            $path = str_ireplace("dl=0", "dl=1", $path);
+            if($newpath = Functions::save_remote_file_to_local($path, $download_options))
             {
-                $rec = array();
-                $k = 0;
-                // 2 checks if valid record
-                if(!$temp) continue;
-                * seems we cannot capture the prob. here
-                if(count($fields) < count($temp)) continue;
-                *
-                foreach($temp as $t)
-                {
-                    $rec[@$fields[$k]] = $t;
-                    $k++;
-                }
-                self::create_archive($extension, $fields, $uris, $rec);
+                echo("\nnewpath: [$newpath]\n");
+                return $newpath;
             }
-            // if($i >= 1000) break; //debug
         }
-        unlink($filename);
+        return $path;
     }
-    */
 
 }
 ?>
-

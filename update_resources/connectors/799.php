@@ -11,15 +11,41 @@ taxon                   293068      293067
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/EOLSpreadsheetTextToArchiveAPI');
+require_library('connectors/EOLSpreadsheetToArchiveAPI');
 $timestart = time_elapsed();
 
+// /* original resource: mineralogy
 $params['text_files_path'] = 'http://localhost/cp/SpreadsheetToArchive/mineralogy 2015/';
 $params['extensions'] = array('taxa', 'occurrences', 'measurements', 'references');
-
 $resource_id = 799;
-$func = new EOLSpreadsheetTextToArchiveAPI($resource_id);
-$func->convert_to_dwca($params);
+// */
+
+/* Sarah Miller's big spreadsheets
+$params['text_files_path'] = 'http://localhost/eol_php_code/public/tmp/xls/2016 04 01/WWF 2/';
+$params['extensions'] = array('taxa', 'occurrences', 'measurements');
+$resource_id = "WWF 2";
+
+// $params['text_files_path'] = 'http://localhost/eol_php_code/public/tmp/xls/2016 04 01/WWF/';
+// $params['extensions'] = array('taxa', 'occurrences', 'measurements');
+// $resource_id = "WWF";
+
+// $params['text_files_path'] = 'http://localhost/eol_php_code/public/tmp/xls/2016 04 01/Avian body sizes in relation to fecundity, mating system, display behavior, and resource sharing Export/';
+// $params['extensions'] = array('taxa', 'occurrences', 'measurements', 'references');
+// $resource_id = "Avian body sizes in relation to fecundity, mating system, display behavior, and resource sharing Export";
+
+// $params['text_files_path'] = 'http://localhost/eol_php_code/public/tmp/xls/2016 04 01/WWF Habitats/';
+// $params['extensions'] = array('taxa', 'occurrences', 'measurements');
+// $resource_id = "WWF Habitats";
+
+// [WWF Habitats](https://www.dropbox.com/s/dlybjsx410h90rh/WWF Habitats.xlsx?dl=0) is VALID - [DWC-A](https://dl.dropboxusercontent.com/u/7597512/spreadsheets/resources/SarahM/WWF_Habitats.tar.gz)
+// [Avian body sizes in relation to fecundity%2C mating system, display behavior, and resource sharing Export](https://www.dropbox.com/s/bnrbmrttgithwa1/Avian body sizes in relation to fecundity%2C mating system%2C display behavior%2C and resource sharing Export.xls?dl=0) is VALID - [DWC-A](https://dl.dropboxusercontent.com/u/7597512/spreadsheets/resources/SarahM/Avian_body_sizes_in_relation_to_fecundity%2C_mating_system%2C_display_behavior%2C_and_resource_sharing_Export.tar.gz)
+// [WWF.xlsx](https://www.dropbox.com/s/k49tww9xgb2xd8k/WWF.xlsx?dl=0) has undefined URIs:
+// [xxx](spreadsheet) is VALID - [DWC-A](dwca)
+*/
+
+$resource_id = str_replace(" ", "_", $resource_id);
+$func = new EOLSpreadsheetToArchiveAPI($resource_id);
+$func->convert_spreadsheet_text_to_dwca($params);
 Functions::finalize_dwca_resource($resource_id);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
