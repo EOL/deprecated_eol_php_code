@@ -47,6 +47,7 @@ Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml",
 
 Functions::set_resource_status_to_force_harvest($resource_id);
 remove_bhl_images_already_existing_in_eol_group($resource_id);
+Functions::gzip_resource_xml($resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";

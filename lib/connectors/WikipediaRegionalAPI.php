@@ -92,7 +92,7 @@ class WikipediaRegionalAPI
         {
             echo "\n Number of records:"; print_r($recs);
             $options = $this->download_options;
-            $options['expire_seconds'] = 0;
+            $options['expire_seconds'] = 0; // 0 -> expires now, orig value; false -> does not expire
             Functions::lookup_with_cache($url, $options);
             return; //this means you have to run the connector again
         }
