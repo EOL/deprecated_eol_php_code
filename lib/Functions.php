@@ -380,9 +380,9 @@ class Functions
         debug($msg);
     }
 
-    public static function finalize_dwca_resource($resource_id)
+    public static function finalize_dwca_resource($resource_id, $big_file = false)
     {
-        if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 1000)
+        if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 200)
         {
             if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
             {
@@ -393,11 +393,14 @@ class Functions
             Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
             Functions::set_resource_status_to_force_harvest($resource_id);
             Functions::count_resource_tab_files($resource_id);
-            if($undefined_uris = Functions::get_undefined_uris_from_resource($resource_id)) print_r($undefined_uris);
-            echo "\nUndefined URIs: " . count($undefined_uris) . "\n";
-            require_library('connectors/DWCADiagnoseAPI');
-            $func = new DWCADiagnoseAPI();
-            $func->check_unique_ids($resource_id);
+            if(!$big_file)
+            {
+                if($undefined_uris = Functions::get_undefined_uris_from_resource($resource_id)) print_r($undefined_uris);
+                echo "\nUndefined URIs: " . count($undefined_uris) . "\n";
+                require_library('connectors/DWCADiagnoseAPI');
+                $func = new DWCADiagnoseAPI();
+                $func->check_unique_ids($resource_id);
+            }
         }
     }
 
@@ -452,7 +455,7 @@ class Functions
     public static function get_eol_defined_uris($download_options = false)
     {
         if(!$download_options) $download_options = array('resource_id' => 'URIs', 'download_wait_time' => 1000000, 'timeout' => 900, 'expire_seconds' => 86400, 'download_attempts' => 1); //expires in 24 hours
-        for($i=1; $i<=12; $i++)
+        for($i=1; $i<=15; $i++)
         {
             $urls = array();
             // $urls[] = "http://localhost/cp/TraitRequest/measurements/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";

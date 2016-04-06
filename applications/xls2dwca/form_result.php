@@ -18,7 +18,7 @@ $final_archive_gzip_url = null;
 $errors = array();
 if($url)
 {
-    if($temp_dir = ContentManager::download_temp_file_and_assign_extension($url, $suffix, array('suffix' => $suffix)))
+    if($temp_dir = ContentManager::download_temp_file_and_assign_extension($url, $suffix, array('suffix' => $suffix, 'timeout' => 900))) //15 minutes timeout (900 seconds)
     {
         if(is_dir($temp_dir))
         {

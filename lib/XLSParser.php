@@ -8,7 +8,7 @@ class XLSParser
                       LookAlikes,Management,Migration,MolecularBiology,Morphology,Physiology,PopulationBiology,Procedures,Reproduction,RiskStatement,
                       Size,TaxonBiology,Threats,Trends,TrophicStrategy,Uses";
     
-    public function convert_sheet_to_array($spreadsheet, $sheet = NULL, $startRow = NULL)
+    public function convert_sheet_to_array($spreadsheet, $sheet = NULL, $startRow = NULL, $save_params = false)
     {
         require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel.php';
         
@@ -29,26 +29,42 @@ class XLSParser
             $this->open_spreadsheets['spreadsheet'] = $objPHPExcel;
         }
         if(is_null($sheet)) $objWorksheet = $objPHPExcel->getActiveSheet();
-        else                $objWorksheet = $objPHPExcel->setActiveSheetIndex($sheet);
+        else
+        {
+            if($sheet+1 > $objPHPExcel->getSheetCount()) return false;
+            $objWorksheet = $objPHPExcel->setActiveSheetIndex($sheet);
+        }
         $highestRow         = $objWorksheet->getHighestRow(); // e.g. 10
         $highestColumn      = $objWorksheet->getHighestColumn(); // e.g 'F'
         $highestColumnIndex = \PHPExcel_Cell::columnIndexFromString($highestColumn); // e.g. 5
         $sheet_label = array();
         $sheet_value = array();
         if(is_null($startRow)) $startRow = 1;
+        if($save_params) $FILE = Functions::file_open($save_params['path']."/".$save_params['worksheet_title'].".txt", 'w');
         for ($row = $startRow; $row <= $highestRow; ++$row)
         {
+            if($save_params) $saved_row = array();
             for ($col = 0; $col <= $highestColumnIndex; ++$col)
             {
                 $cell = self::cell_value($objWorksheet, $col, $row, $ext);
-                if($row == $startRow) $sheet_label[] = $cell;
+                if($row == $startRow)
+                {
+                    $sheet_label[] = $cell;
+                    if($save_params) $saved_row[] = $cell;
+                }
                 else
                 {
                     $index = trim($sheet_label[$col]);
-                    if($index) $sheet_value[$index][] = $cell;
+                    if($index)
+                    {
+                        if($save_params) $saved_row[] = $cell;
+                        else $sheet_value[$index][] = $cell;
+                    }
                 }
             }
+            if($save_params) fwrite($FILE, implode("\t", $saved_row)."\n");
         }
+        if($save_params) fclose($FILE);
         return $sheet_value;
     }
     

@@ -5,12 +5,12 @@ class DWCADiagnoseAPI
 {
     function __construct()
     {
-        $this->file['taxon'] 			= "http://rs.tdwg.org/dwc/terms/taxonID";
-        $this->file['occurrence'] 		= "http://rs.tdwg.org/dwc/terms/occurrenceID";
-        $this->file['reference'] 		= "http://purl.org/dc/terms/identifier";
-        $this->file['document'] 		= "http://purl.org/dc/terms/identifier";
-        $this->file['agent'] 			= "http://purl.org/dc/terms/identifier";
-        $this->file['vernacularname']	= "http://rs.tdwg.org/dwc/terms/vernacularName";
+        $this->file['taxon']            = "http://rs.tdwg.org/dwc/terms/taxonID";
+        $this->file['occurrence']       = "http://rs.tdwg.org/dwc/terms/occurrenceID";
+        $this->file['reference']        = "http://purl.org/dc/terms/identifier";
+        $this->file['document']         = "http://purl.org/dc/terms/identifier";
+        $this->file['agent']            = "http://purl.org/dc/terms/identifier";
+        $this->file['vernacularname']   = "http://rs.tdwg.org/dwc/terms/vernacularName";
     }
 
     function check_unique_ids($resource_id, $file_extension = ".tab")
@@ -19,6 +19,7 @@ class DWCADiagnoseAPI
         $tables = $harvester->tables;
         $tables = array_keys($tables);
         $tables = array_diff($tables, array("http://rs.tdwg.org/dwc/terms/measurementorfact")); //exclude measurementorfact
+        $tables = array_diff($tables, array("http://rs.gbif.org/terms/1.0/vernacularname")); //exclude vernacular name
         print_r($tables);
         foreach($tables as $table) self::process_fields($harvester->process_row_type($table), pathinfo($table, PATHINFO_BASENAME));
     }

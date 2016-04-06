@@ -20,11 +20,7 @@ $auth_token = NULL;
 if(FlickrAPI::valid_auth_token(FLICKR_AUTH_TOKEN)) $auth_token = FLICKR_AUTH_TOKEN;
 
 // create new _temp file
-if(!($resource_file = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", "w+")))
-{
-  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml");
-  return;
-}
+if(!($resource_file = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", "w+"))) return;
 
 // start the resource file with the XML header
 fwrite($resource_file, \SchemaDocument::xml_header());
@@ -46,11 +42,12 @@ fclose($resource_file);
 
 // cache the previous version and make this new version the current version
 @unlink(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous.xml");
-Functions::file_rename((CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous.xml");
+Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous.xml");
 Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");
 
 Functions::set_resource_status_to_force_harvest($resource_id);
 remove_bhl_images_already_existing_in_eol_group($resource_id);
+Functions::gzip_resource_xml($resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
@@ -104,11 +101,7 @@ function remove_bhl_images_already_existing_in_eol_group($resource_id)
     $xml_string = $xml->asXML();
     require_library('ResourceDataObjectElementsSetting');
     $xml_string = ResourceDataObjectElementsSetting::delete_taxon_if_no_dataObject($xml_string);
-    if(!($WRITE = fopen($resource_path, "w")))
-    {
-      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$resource_path);
-      return;
-    }
+    if(!($WRITE = Functions::file_open($resource_path, "w"))) return;
     fwrite($WRITE, $xml_string);
     fclose($WRITE);
 }
@@ -152,20 +145,12 @@ function bhl_image_count() // just for stats
     print "\n total do: " . count($do_ids);
     
     $filename = "BHL_images_in_EOLGroup.txt";
-    if(!($WRITE = fopen($filename, "w")))
-    {
-      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
-      return;
-    }
+    if(!($WRITE = Functions::file_open($filename, "w"))) return;
     fwrite($WRITE, json_encode($do_ids));
     fclose($WRITE);
 
     // just testing - reading it back
-    if(!($READ = fopen($filename, "r")))
-    {
-      debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
-      return;
-    }
+    if(!($READ = Functions::file_open($filename, "r"))) return;
     $contents = fread($READ, filesize($filename));
     fclose($READ);
     $do_ids = json_decode($contents,true);

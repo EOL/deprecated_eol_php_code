@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [flickr_user_album.php] */
+/* connector: [flickr_user_album.php, 958.php] */
 
 class FlickrUserAlbumAPI
 {

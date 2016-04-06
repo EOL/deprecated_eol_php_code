@@ -25,6 +25,7 @@ $lifedesks = array("idorids", "evaniidae", "eolinterns", "halictidae", "eolspeci
 $lifedesks = array("spiderindia", "speciesindia", "skinklink", "scarab", "nzicn");                       //DATA-1612
 $lifedesks = array("bcbiodiversity", "pterioidea", "halictidae", "westernghatfishes", "cephalopoda");    //DATA-1613
 $lifedesks = array("calintertidalinverts", "biomarks", "nlbio", "thrasops");                             //DATA-1614
+$lifedesks = array("echinoderms"); //DATA-1631
 
 foreach($lifedesks as $ld)
 {
@@ -32,7 +33,7 @@ foreach($lifedesks as $ld)
     $params[$ld]["remote"]["name"]          = $ld;
     $params[$ld]["dropbox"]["lifedesk"]     = "";
     $params[$ld]["dropbox"]["name"]         = $ld;
-    $params[$ld]["local"]["lifedesk"]       = "http://localhost/~eolit/cp/LD2EOL/" . $ld . "/eol-partnership.xml.gz";
+    $params[$ld]["local"]["lifedesk"]       = "http://localhost/cp/LD2EOL/" . $ld . "/eol-partnership.xml.gz";
     $params[$ld]["local"]["name"]           = $ld;
 }
 

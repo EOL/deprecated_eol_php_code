@@ -16,6 +16,8 @@ http://eol.org/schema/agent/agent:          104
 http://purl.org/dc/dcmitype/Text:           5650
 http://purl.org/dc/dcmitype/StillImage:     464
                                     Total:  6114
+
+*21.php also uses this script.
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
