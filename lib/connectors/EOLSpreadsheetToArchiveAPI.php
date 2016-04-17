@@ -247,16 +247,17 @@ class EOLSpreadsheetToArchiveAPI
         elseif(in_array($extension, array("measurements or facts", "measurements")))
         {
             if(!trim($t->measurementType)) return;
-            if(!trim($t->occurrenceID)) return;
+            /* if(!trim($t->occurrenceID)) return; //seems occurrenceID is not required, meaning this can be blank */
             
-            if($val = $t->measurementID) {}
-            else $val = md5($t->occurrenceID.$t->measurementType);
-            if(!isset($this->measurement_ids[$val]))
+            if($val = $t->measurementID) //if measurementID exists, then it has to be unique
             {
-                $this->measurement_ids[$val] = '';
-                $this->archive_builder->write_object_to_file($t);
+                if(!isset($this->measurement_ids[$val]))
+                {
+                    $this->measurement_ids[$val] = '';
+                    $this->archive_builder->write_object_to_file($t);
+                }
             }
-            else echo "\nduplicate measurement entry excluded...[$val]";
+            else $this->archive_builder->write_object_to_file($t);
         }
         elseif($extension == "common names")
         {
@@ -272,6 +273,15 @@ class EOLSpreadsheetToArchiveAPI
                 $this->archive_builder->write_object_to_file($t);
             }
             else echo "\nduplicate agent entry excluded...[$t->identifier]";
+        }
+        elseif($extension == "associations")
+        {
+            if(!trim($t->associationType)) return;
+            $this->archive_builder->write_object_to_file($t);
+        }
+        elseif($extension == "events")
+        {
+            $this->archive_builder->write_object_to_file($t);
         }
         
     }
