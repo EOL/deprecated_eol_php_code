@@ -28,11 +28,10 @@ class GBIFoccurrenceAPI
     {
         /* add: 'resource_id' => "gbif" ;if you want to add cache inside a folder [gbif] inside [eol_cache_gbif] */
         $this->download_options = array(
-            'cache_path' => '/Volumes/Eli red/eol_cache_gbif/', 
-            // 'cache_path' => '/Volumes/Eli black/eol_cache/', 
-            'expire_seconds' => 5184000, //2 months to expire
-            'download_wait_time' => 2000000, 'timeout' => 600,
-            'download_attempts' => 1, 'delay_in_minutes' => 1);
+            'cache_path'         => '/Volumes/Eli red/eol_cache_gbif/', 
+            // 'cache_path'         => '/Volumes/Eli black/eol_cache/', 
+            'expire_seconds'     => 5184000, //2 months to expire
+            'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts'  => 1, 'delay_in_minutes' => 1);
         $this->download_options['expire_seconds'] = false; //debug
         // $this->download_options['expire_seconds'] = true; //debug -- expires now
 
@@ -44,13 +43,18 @@ class GBIFoccurrenceAPI
         $this->html['publisher']    = "http://www.gbif.org/publisher/";
         $this->html['dataset']      = "http://www.gbif.org/dataset/";
         
-        $this->save_path['cluster']     = DOC_ROOT . "public/tmp/google_maps/cluster/";
-        $this->save_path['cluster_v2']  = DOC_ROOT . "public/tmp/google_maps/cluster_v2/";
+        // $this->save_path['cluster']     = DOC_ROOT . "public/tmp/google_maps/cluster/";
+        // $this->save_path['cluster_v2']  = DOC_ROOT . "public/tmp/google_maps/cluster_v2/";
+        $this->save_path['map_data']    = DOC_ROOT . "public/tmp/google_maps/map_data/";
+        
+        $this->save_path['cluster']     = "/Volumes/Eli red/cluster_cache/cluster/";
+        $this->save_path['cluster_v2']  = "/Volumes/Eli red/cluster_cache/cluster_v2/";
+        
         $this->save_path['fusion']      = DOC_ROOT . "public/tmp/google_maps/fusion/";
         $this->save_path['fusion2']     = DOC_ROOT . "public/tmp/google_maps/fusion2/";
         // $this->save_path['kml']         = DOC_ROOT . "public/tmp/google_maps/kml/";
         
-        $this->rec_limit = 50000;
+        $this->rec_limit = 20000;
     }
 
     function start()
@@ -63,8 +67,8 @@ class GBIFoccurrenceAPI
         
         // self::start_clustering(); return;                        //distance clustering sample
         // self::get_center_latlon_using_taxonID(206692); return;   //computes the center lat long
-        // self::process_all_eol_taxa(); return;                    //make use of tab-delimited text file from JRice
-        self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
+        self::process_all_eol_taxa(); return;                    //make use of tab-delimited text file from JRice
+        // self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
         // self::process_DL_taxon_list(); return;                   //make use of taxon list from DiscoverLife
         
         $scinames = array();                                        //make use of manual taxon list
@@ -199,19 +203,17 @@ class GBIFoccurrenceAPI
         // $eol_taxon_id_list = self::process_all_eol_taxa(true); //listOnly = true
         // print_r($eol_taxon_id_list); echo "\n" . count($eol_taxon_id_list) . "\n"; return; //[Triticum aestivum virus] => 540152
         
-        // $eol_taxon_id_list["Gadus morhua"] = 206692;
+        $eol_taxon_id_list["Gadus morhua"] = 206692;
         // $eol_taxon_id_list["Achillea millefolium L."] = 45850244;
         // $eol_taxon_id_list["Francolinus levaillantoides"] = 1; //5227890
         // $eol_taxon_id_list["Phylloscopus trochilus"] = 2; //2493052
         // $eol_taxon_id_list["Aichi virus"] = 540501;
         // $eol_taxon_id_list["Anthriscus sylvestris (L.) Hoffm."] = 584996; //from Plantae group
-        
-        $eol_taxon_id_list["Xenidae"] = 8965;
-        
+        // $eol_taxon_id_list["Xenidae"] = 8965;
 
         $paths = array();
-        // $paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_animalia/";
-        $paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_incertae/";
+        $paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_animalia/";
+        // $paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_incertae/";
         // $paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_others/";
         
         $i = 0;
@@ -232,20 +234,30 @@ class GBIFoccurrenceAPI
                         echo "\n > 20K\n";
                         self::process_revised_cluster($final, $taxon_concept_id); //done after main demo using screenshots
                     }
-                    else
+                    elseif($final['count'] <= 20000)
                     {
-                        echo "\n < 20K\n";
+                        echo "\n <= 20K\n";
                         $final['actual'] = $final['count'];
-                        if(!($this->file = Functions::file_open($this->save_path['cluster'].$taxon_concept_id.".json", "w"))) return;
+                        // if(!($this->file = Functions::file_open($this->save_path['cluster'].$taxon_concept_id.".json", "w"))) return;
+                        if(!($this->file = Functions::file_open(self::get_map_data_path($taxon_concept_id).$taxon_concept_id.".json", "w"))) return;
                         $json = json_encode($final);
                         fwrite($this->file, "var data = ".$json);
                         fclose($this->file);
                     }
+                    else exit("\nShould not go here 001\n");
                 }
                 else echo "\nmap data not yet available\n";
             }
             else echo "\n usageKey not found!\n";
         } //end main foreach()
+    }
+    
+    private function get_map_data_path($taxon_concept_id)
+    {
+        $folder = $taxon_concept_id % 100;
+        $path = $this->save_path['map_data']."/".$folder."/";
+        if(!is_dir($path)) mkdir($path);
+        return $path;
     }
     
     private function prepare_csv_data($usageKey, $paths)
@@ -324,16 +336,25 @@ class GBIFoccurrenceAPI
                 //==================
                 $m = 100000;
                 $cont = false;
-                if($i >=  1    && $i < $m)    $cont = true;
+
+                // if($i >=  1    && $i < $m)    $cont = true;
                 // if($i >=  $m   && $i < $m*2)  $cont = true;
                 // if($i >=  $m*2 && $i < $m*3)  $cont = true;
                 // if($i >=  $m*3 && $i < $m*4)  $cont = true;
                 // if($i >=  $m*4 && $i < $m*5)  $cont = true;
                 // if($i >=  $m*5 && $i < $m*6)  $cont = true;
+
+                if($i >=  180000 && $i < $m*2)  $cont = true;
+                // if($i >=  243551 && $i < $m*3)  $cont = true;
+                // if($i >=  333619 && $i < $m*4)  $cont = true;
+                // if($i >=  446560 && $i < $m*5)  $cont = true;
+                // if($i >=  486863 && $i < $m*6)  $cont = true;
+
+
                 if(!$cont) continue;
                 //==================
                 
-                // self::main_loop($sciname, $taxon_concept_id); //uncomment in real operation...
+                self::main_loop($sciname, $taxon_concept_id); //uncomment in real operation...
                 
                 if($usageKey = self::get_usage_key($sciname)) echo " - OK [$usageKey]"; //used to cache all usageKey requests...
                 else echo " - usageKey not found!";
@@ -349,6 +370,7 @@ class GBIFoccurrenceAPI
     private function map_data_file_already_been_generated($basename)
     {
         // return false; //debug
+        /* working but procedure changed to use subdirectories for map data storage
         $filenames = array($this->save_path['cluster'].$basename.".json", $this->save_path['cluster_v2'].$basename.".json");
         foreach($filenames as $filename)
         {
@@ -359,6 +381,15 @@ class GBIFoccurrenceAPI
             }
         }
         return false;
+        */
+        
+        $filename = self::get_map_data_path($basename).$basename.".json";
+        if(file_exists($filename))
+        {
+            echo "\n[$basename] already generated OK";
+            return true;
+        }
+        else return false;
     }
 
     private function main_loop($sciname, $taxon_concept_id = false)
@@ -425,7 +456,8 @@ class GBIFoccurrenceAPI
 
     private function process_revised_cluster($final, $basename)
     {
-        if(!($this->file5 = Functions::file_open($this->save_path['cluster_v2'].$basename.".json", "w"))) return;
+        // if(!($this->file5 = Functions::file_open($this->save_path['cluster_v2'].$basename.".json", "w"))) return;
+        if(!($this->file5 = Functions::file_open(self::get_map_data_path($basename).$basename.".json", "w"))) return;
         $to_be_saved = array();
         $to_be_saved['records'] = array();
         $unique = array();
@@ -826,6 +858,7 @@ class GBIFoccurrenceAPI
         $parser = new XLSParser();
         $families = array();
         $doc = "http://localhost/eol_php_code/public/tmp/spreadsheets/SPG Hotlist Official Version.xlsx";
+        $doc = "http://localhost/~eolit/eli/eol_php_code/public/tmp/spreadsheets/SPG Hotlist Official Version.xlsx"; //for MacBook
         echo "\n processing [$doc]...\n";
         if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2)))
         {
