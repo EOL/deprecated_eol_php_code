@@ -45,10 +45,13 @@ class GBIFoccurrenceAPI
         
         // $this->save_path['cluster']     = DOC_ROOT . "public/tmp/google_maps/cluster/";
         // $this->save_path['cluster_v2']  = DOC_ROOT . "public/tmp/google_maps/cluster_v2/";
-        $this->save_path['map_data']    = DOC_ROOT . "public/tmp/google_maps/map_data/";
+        // $this->save_path['map_data']    = DOC_ROOT . "public/tmp/google_maps/map_data/";
+        
         
         $this->save_path['cluster']     = "/Volumes/Eli red/cluster_cache/cluster/";
         $this->save_path['cluster_v2']  = "/Volumes/Eli red/cluster_cache/cluster_v2/";
+        $this->save_path['map_data']    = "/Volumes/Eli red/map_data/";
+        
         
         $this->save_path['fusion']      = DOC_ROOT . "public/tmp/google_maps/fusion/";
         $this->save_path['fusion2']     = DOC_ROOT . "public/tmp/google_maps/fusion2/";
@@ -328,27 +331,21 @@ class GBIFoccurrenceAPI
                 continue;
             }
             $i++;
-            
-            // if(stripos($sciname, " ") !== false)
-            if(true)
+
+            // if(true)
+            if(stripos($sciname, " ") !== false)
             {
                 echo "\n$i. [$sciname][$taxon_concept_id]";
                 //==================
                 $m = 100000;
                 $cont = false;
 
-                // if($i >=  1    && $i < $m)    $cont = true;
+                if($i >=  1    && $i < $m)    $cont = true;
                 // if($i >=  $m   && $i < $m*2)  $cont = true;
                 // if($i >=  $m*2 && $i < $m*3)  $cont = true;
                 // if($i >=  $m*3 && $i < $m*4)  $cont = true;
                 // if($i >=  $m*4 && $i < $m*5)  $cont = true;
                 // if($i >=  $m*5 && $i < $m*6)  $cont = true;
-
-                if($i >=  180000 && $i < $m*2)  $cont = true;
-                // if($i >=  243551 && $i < $m*3)  $cont = true;
-                // if($i >=  333619 && $i < $m*4)  $cont = true;
-                // if($i >=  446560 && $i < $m*5)  $cont = true;
-                // if($i >=  486863 && $i < $m*6)  $cont = true;
 
 
                 if(!$cont) continue;
@@ -433,7 +430,8 @@ class GBIFoccurrenceAPI
         
         if(!$final_count)
         {
-            if(file_exists($this->save_path['cluster'].$basename.".json")) unlink($this->save_path['cluster'].$basename.".json"); //delete cluster map data
+            $filename = self::get_map_data_path($basename).$basename.".json";
+            if(file_exists($filename)) unlink($filename); //delete cluster map data
             /*
             unlink($this->save_path['fusion'].$basename.".txt");
             unlink($this->save_path['fusion2'].$basename.".json");
@@ -449,7 +447,8 @@ class GBIFoccurrenceAPI
             }
             else
             {
-                if(file_exists($this->save_path['cluster'].$basename.".json")) unlink($this->save_path['cluster'].$basename.".json"); //delete cluster map data
+                $filename = self::get_map_data_path($basename).$basename.".json";
+                if(file_exists($filename)) unlink($filename); //delete cluster map data
             }
         }
     }
@@ -488,7 +487,7 @@ class GBIFoccurrenceAPI
         if(count($unique) > 20000)
         {
             echo "\ntaxon_concept_ID [$basename] revised cluster unsuccessful\n";
-            if(!($fhandle = Functions::file_open($this->save_path['cluster_v2']."alert.txt", "a"))) return;
+            if(!($fhandle = Functions::file_open(DOC_ROOT . "public/tmp/google_maps/alert.txt", "a"))) return;
             fwrite($fhandle, "$basename" . "\t" . count($unique) . "\n");
             fclose($fhandle);
             exit("\neli exits here...\n");
@@ -555,7 +554,8 @@ class GBIFoccurrenceAPI
         echo "\nFinal count: " . $final['count'] . "\n";
         $json = json_encode($final);
         
-        if(!($this->file = Functions::file_open($this->save_path['cluster'].$basename.".json", "w"))) return;
+        // if(!($this->file = Functions::file_open($this->save_path['cluster'].$basename.".json", "w"))) return;
+        if(!($this->file = Functions::file_open(self::get_map_data_path($basename).$basename.".json", "w"))) return;
         fwrite($this->file, "var data = ".$json);
         fclose($this->file);
         
