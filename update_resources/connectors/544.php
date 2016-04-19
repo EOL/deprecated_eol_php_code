@@ -60,12 +60,13 @@ echo "\n\n Done processing.";
 function remove_bhl_images_already_existing_in_eol_group($resource_id)
 {
     $file = "http://dl.dropbox.com/u/7597512/BHL_images/BHL_images_in_EOLGroup.txt";
-    // $file = "http://localhost/eol_php_code/update_resources/connectors/files/BHL_images/BHL_images_in_EOLGroup_sample.txt";
+    // $file = "http://localhost/cp/BHL/BHL_images/BHL_images_in_EOLGroup.txt";
     $contents = Functions::get_remote_file($file, array('timeout' => 600, 'download_attempts' => 5));
     $do_ids = json_decode($contents,true);
     print "\n\n from text file: " . count($do_ids);
     $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
     $xml_string = Functions::get_remote_file($resource_path, array('timeout' => 240, 'download_attempts' => 5));
+    $xml_string = remove_invalid_bytes_in_XML($xml_string);
     $xml = simplexml_load_string($xml_string);
     $i = 0;
     $deleted_ids = array();
@@ -104,6 +105,12 @@ function remove_bhl_images_already_existing_in_eol_group($resource_id)
     if(!($WRITE = Functions::file_open($resource_path, "w"))) return;
     fwrite($WRITE, $xml_string);
     fclose($WRITE);
+}
+
+function remove_invalid_bytes_in_XML($string)
+{
+    $string = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $string);
+    return $string;
 }
 
 function bhl_image_count() // just for stats

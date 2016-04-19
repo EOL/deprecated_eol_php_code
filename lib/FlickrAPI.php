@@ -172,6 +172,22 @@ class FlickrAPI
                 }
                 else continue; // those using taxonomy:binomial supposedly are already in the EOL Flickr group
             }
+            
+            /* BHL photostream resource should not assign images to synonyms */
+            if($user_id == FLICKR_BHL_ID)
+            {
+                if(preg_match("/^taxonomy:binomial=(.+ .+)$/i", $string, $arr))
+                {
+                    $sciname = ucfirst(trim($arr[1]));
+                    if(self::is_sciname_synonym($sciname))
+                    {   //remove value in array: $parameters["scientificName"]
+                        echo "\n" . count($parameters["scientificName"]) . "\n";
+                        $parameters["scientificName"] = array_diff($parameters["scientificName"], array($sciname));
+                        echo "\n[$sciname] is synonym or new name in eol.org\n";
+                        echo "\n" . count($parameters["scientificName"]) . "\n";
+                    }
+                }
+            }
 
         }
         
@@ -188,7 +204,7 @@ class FlickrAPI
                 {
                     foreach($value as $name)
                     {
-                        $taxon_parameters[] = array("scientificName" => $name);
+                        if($name) $taxon_parameters[] = array("scientificName" => $name);
                     }
                 }else $return_false = true;
             }
@@ -203,7 +219,7 @@ class FlickrAPI
             foreach($parameters as $key => $value)
             {
                 if($key == "commonNames") $temp_params[$key] = $value;
-                elseif($value) $temp_params[$key] = $value[0];
+                elseif(@$value[0]) $temp_params[$key] = $value[0];
             }
             
             if(@$temp_params["trinomial"]) $temp_params["scientificName"] = $temp_params["trinomial"];
@@ -395,6 +411,11 @@ class FlickrAPI
     {
         $url = self::generate_rest_url("flickr.auth.checkToken", array("auth_token" => $auth_token), 1);
         return Functions::get_hashed_response($url);
+        
+        /* will replace original if needed
+        $response = Functions::lookup_with_cache($url);
+        return simplexml_load_string($response);
+        */
     }
     
     public static function auth_get_token($frob)
@@ -522,6 +543,26 @@ class FlickrAPI
                 $sizes_path = $GLOBALS['flickr_cache_path'] . "/photosGetSizes/$filter_dir/$photo_id.json";
                 @unlink($sizes_path);
             }else return $json_object;
+        }
+        return false;
+    }
+
+    private function is_sciname_synonym($sciname)
+    {
+        /* http://eol.org/api/search/1.0.xml?q=Xanthopsar+flavus&page=1&exact=false&filter_by_taxon_concept_id=&filter_by_hierarchy_entry_id=&filter_by_string=&cache_ttl= */
+        $search_call = "http://eol.org/api/search/1.0.xml?q=" . $sciname . "&page=1&exact=false&filter_by_taxon_concept_id=&filter_by_hierarchy_entry_id=&filter_by_string=&cache_ttl=";
+        if($xml = Functions::lookup_with_cache($search_call, array('timeout' => 30, 'expire_seconds' => false, 'resource_id' => 'eol_api'))) //resource_id here is just a folder name in cache
+        {
+            $xml = simplexml_load_string($xml);
+            $sciname = Functions::canonical_form($sciname);
+            if($sciname == Functions::canonical_form(@$xml->entry[0]->title)) return false; //sciname is not a synonym but accepted name
+            else
+            {
+                $titles = array();
+                foreach($xml->entry as $entry) $titles[] = Functions::canonical_form($entry->title);
+                if(in_array($sciname, $titles)) return false; //sciname is not a synonym but accepted name
+                else return true;
+            }
         }
         return false;
     }
