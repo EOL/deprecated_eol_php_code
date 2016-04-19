@@ -28,7 +28,8 @@ class GBIFoccurrenceAPI
     {
         /* add: 'resource_id' => "gbif" ;if you want to add cache inside a folder [gbif] inside [eol_cache_gbif] */
         $this->download_options = array(
-            'cache_path'         => '/Volumes/Eli red/eol_cache_gbif/', 
+            // 'cache_path'         => '/Volumes/Eli red/eol_cache_gbif/', 
+            'cache_path'         => DOC_ROOT . 'tmp/cache/',
             // 'cache_path'         => '/Volumes/Eli black/eol_cache/', 
             'expire_seconds'     => 5184000, //2 months to expire
             'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts'  => 1, 'delay_in_minutes' => 1);
@@ -64,13 +65,13 @@ class GBIFoccurrenceAPI
     {
         // start GBIF
         // self::breakdown_GBIF_csv_file_v2(); return;
-        // self::breakdown_GBIF_csv_file(); return;
+        self::breakdown_GBIF_csv_file(); return;
         // self::generate_map_data_using_GBIF_csv_files(); return;
         // end GBIF
         
         // self::start_clustering(); return;                        //distance clustering sample
         // self::get_center_latlon_using_taxonID(206692); return;   //computes the center lat long
-        self::process_all_eol_taxa(); return;                    //make use of tab-delimited text file from JRice
+        // self::process_all_eol_taxa(); return;                    //make use of tab-delimited text file from JRice
         // self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
         // self::process_DL_taxon_list(); return;                   //make use of taxon list from DiscoverLife
         
@@ -141,38 +142,44 @@ class GBIFoccurrenceAPI
     
     private function breakdown_GBIF_csv_file() //working as of Mar 3 Thursday
     {
-        return;
+        // return;
         
         /* ran it with all species levels [finished in 4.79 hours]
         $path = DOC_ROOT . "/public/tmp/google_maps/GBIF_csv/Incertae sedis/incertae sedis.csv";
         $path2 = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_incertae/";
         */
         
-        /* ran it with all species levels
+        // /* ran it with all species levels
         $path = DOC_ROOT . "/public/tmp/google_maps/GBIF_csv/Animalia/animalia.csv";
         $path2 = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_animalia/";
-        */
+        // */
         
-        // /* Mar 14 2:05 AM
+        /* Mar 14 2:05 AM - run it with just species-level taxa
         $path = DOC_ROOT . "/public/tmp/google_maps/GBIF_csv/Others/others.csv";
         $path2 = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_others/";
-        // */
+        */
 
         $i = 0;
         foreach(new FileIterator($path) as $line_number => $line) // 'true' will auto delete temp_filepath
         {
             $i++;
-            if(($i % 5000) == 0) echo number_format($i) . " ";
+            // if(($i % 5000) == 0) echo number_format($i) . " ";
+            echo number_format($i) . " ";
+            // if($i < 66445000) continue; //bec of machine shutdown - for 'others.csv'
+            if($i < 120454688) continue; //bec of machine shutdown - for 'animalia.csv'
+            
             
             if($i == 1) continue;
             $row = explode("\t", $line);
             if(!@$row[26]) continue;
             
             //start exclude higher-level taxa =========================================
+            /*
             $sciname = Functions::canonical_form($row[12]);
             if(stripos($sciname, " ") !== false) $cont = true; //there is space, meaning a species-level taxon
             else                                 $cont = false;
             if(!$cont) continue;
+            */
             //end exclude higher-level taxa ===========================================
             
             
@@ -273,9 +280,16 @@ class GBIFoccurrenceAPI
             {
                 echo "\n[$usageKey] found in [$path]";
                 $file_array = file($csv);
+                $gbif_ids = array();
                 foreach($file_array as $line)
                 {
                     $row = explode("\t", $line);
+                    
+                    //make record unique
+                    $gbifid = $row[0];
+                    if(isset($gbif_ids[$gbifid])) continue;
+                    else $gbif_ids[$gbifid] = '';
+                    
                     $rec = array();
                     $rec['a']   = $row[8];
                     $rec['b']   = $row[2];
@@ -799,7 +813,7 @@ class GBIFoccurrenceAPI
             $count = Functions::lookup_with_cache($this->gbif_record_count . $usageKey, $this->download_options);
             if($count > 0)
             {
-                echo "\nTotal:[$count]";
+                echo "\nTotal:[$count]"; //total records; with or without lat long
                 $rec['usageKey'] = $usageKey;
                 $rec["count"] = $count;
                 return $rec;
