@@ -930,7 +930,7 @@ class ArchiveDataIngester
             self::debug_iterations("Inserting $row_type");
             $this->commit_iterations($row_type, 500);
             # TODO: fix this with validation
-            if(in_array(@$row['http://eol.org/schema/measurementOfTaxon'], $valid_measurement_of_taxon))
+            if(in_array(strtolower(@$row['http://eol.org/schema/measurementOfTaxon']), $valid_measurement_of_taxon))
             {
                 $row['http://eol.org/schema/measurementOfTaxon'] = 'http://eol.org/schema/terms/true';
             }
