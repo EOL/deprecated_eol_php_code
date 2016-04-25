@@ -80,11 +80,11 @@ class INBioAPI
                 chdir($cur_dir);
                 $archive_path = str_ireplace(".tar.gz", "", $temp_file_path);
             }
-            // elseif(preg_match("/^(.*)\.(gz|gzip)$/", $dwca_file, $arr)) 
-            // {
-            //     shell_exec("gunzip -f $temp_file_path");
-            //     $archive_path = str_ireplace(".gz", "", $temp_file_path);
-            // }
+            elseif(preg_match("/^(.*)\.(gz|gzip)$/", $dwca_file, $arr)) 
+            {
+                shell_exec("gunzip -f $temp_file_path");
+                $archive_path = str_ireplace(".gz", "", $temp_file_path);
+            }
             elseif(preg_match("/^(.*)\.(zip)$/", $dwca_file, $arr) || preg_match("/mcz_for_eol(.*?)/ims", $dwca_file, $arr))
             {
                 shell_exec("unzip -ad $temp_dir $temp_file_path");
