@@ -31,8 +31,8 @@ class NCBIGGIqueryAPI
             $this->occurrence_ids = array();
             $this->measurement_ids = array();
         }
-        $this->download_options = array('expire_seconds' => 5184000, 'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1); //2 months to expire
-        // $this->download_options['expire_seconds'] = false; //debug
+        $this->download_options = array('resource_id' => 723, 'expire_seconds' => 5184000, 'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1); //2 months to expire
+        // $this->download_options['expire_seconds'] = false; //debug - false -> wont expire; 0 -> expires now
 
         // local
         $this->families_list = "http://localhost/cp/NCBIGGI/falo2.in";
@@ -44,8 +44,9 @@ class NCBIGGIqueryAPI
         /* to be used if u want to get all Id's, that is u will loop to get all Id's so server won't be overwhelmed: &retmax=10&retstart=0 */
 
         // GGBN data portal:
-        $this->family_service_ggbn = "http://www.dnabank-network.org/Query.php?family="; // original
-        $this->family_service_ggbn = "http://data.ggbn.org/Query.php?family="; // "Dröge, Gabriele" <g.droege@bgbm.org> advised to use this instead, Apr 17, 2014
+        $this->family_service_ggbn = "http://www.dnabank-network.org/Query.php?family=";                // original
+        $this->family_service_ggbn = "http://data.ggbn.org/Query.php?family=";                          // "Dröge, Gabriele" <g.droege@bgbm.org> advised to use this instead, Apr 17, 2014
+        $this->family_service_ggbn = "http://data.ggbn.org/ggbn_portal/api/search?getSampletype&name="; // "Dröge, Gabriele" <g.droege@bgbm.org> advised to use this API instead, May 3, 2016
 
         //GBIF services
         $this->gbif_taxon_info = "http://api.gbif.org/v1/species/match?name="; //http://api.gbif.org/v1/species/match?name=felidae&kingdom=Animalia
@@ -109,15 +110,17 @@ class NCBIGGIqueryAPI
 
             // /* working, a round-robin option of server load - per 100 calls each server
             $k = 0;
-            for ($i = $k; $i <= count($families)+100; $i=$i+100) //orig value of i is 0
+            $calls = 10;
+            for ($i = $k; $i <= count($families)+$calls; $i=$i+$calls) //orig value of i is 0
             {
-                $min = $i; $max = $min+100;
+                $min = $i; $max = $min+$calls;
                 foreach($this->ggi_databases as $database)
                 {
                     self::create_instances_from_taxon_object($families, false, $database, $min, $max);
                     $this->families_with_no_data = array_keys($this->families_with_no_data);
                     if($this->families_with_no_data) self::create_instances_from_taxon_object($this->families_with_no_data, true, $database);
                 }
+                // break; //debug - process just a subset
             }
             // */
 
@@ -631,18 +634,16 @@ class NCBIGGIqueryAPI
         $rec["taxon_id"] = $family;
         if($html = Functions::lookup_with_cache($rec["source"], $this->download_options))
         {
+            $obj = json_decode($html);
             $has_data = false;
-            if(preg_match("/<b>(.*?) entries found/ims", $html, $arr) || preg_match("/<b>(.*?) entry found/ims", $html, $arr))
+            if(@$obj->sampletype->DNA > 0)
             {
-                if($arr[1] > 0)
-                {
-                    $rec["object_id"]   = "NumberDNAInGGBN";
-                    $rec["count"]       = $arr[1];
-                    $rec["label"]       = "Number of DNA records in GGBN";
-                    $rec["measurement"] = "http://eol.org/schema/terms/NumberDNARecordsInGGBN";
-                    self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
-                    $has_data = true;
-                }
+                $rec["object_id"]   = "NumberDNAInGGBN";
+                $rec["count"]       = (string) $obj->sampletype->DNA;
+                $rec["label"]       = "Number of DNA records in GGBN";
+                $rec["measurement"] = "http://eol.org/schema/terms/NumberDNARecordsInGGBN";
+                self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
+                $has_data = true;
             }
             if(!$has_data)
             {
@@ -652,16 +653,11 @@ class NCBIGGIqueryAPI
                     self::add_string_types($rec, "Number of DNA records in GGBN", 0, "http://eol.org/schema/terms/NumberDNARecordsInGGBN", $family);
                 }
             }
-            $pages = self::get_number_of_pages($html, @$arr[1]);
-            for ($i = 1; $i <= $pages; $i++)
-            {
-                if($i > 1) $html = Functions::lookup_with_cache($this->family_service_ggbn . $family . "&page=$i", $this->download_options);
-                if($temp = self::process_html($html)) $records = array_merge($records, $temp);
-            }
-            if($records)
+
+            if(@$obj->sampletype->specimen > 0)
             {
                 $rec["object_id"] = "NumberSpecimensInGGBN";
-                $rec["count"] = count($records);
+                $rec["count"] = (string) $obj->sampletype->specimen;
                 $rec["label"] = "NumberSpecimensInGGBN";
                 $rec["measurement"] = "http://eol.org/schema/terms/NumberSpecimensInGGBN";
                 self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
@@ -682,7 +678,7 @@ class NCBIGGIqueryAPI
                     self::add_string_types($rec, "SpecimensInGGBN", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/SpecimensInGGBN", $family);
                 }
             }
-            if($records || $has_data) return true;
+            if(@$obj->sampletype->DNA || @$obj->sampletype->specimen) return true;
         }
         if(!$is_subfamily)
         {
