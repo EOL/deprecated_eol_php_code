@@ -28,9 +28,9 @@ class GBIFoccurrenceAPI
     {
         /* add: 'resource_id' => "gbif" ;if you want to add cache inside a folder [gbif] inside [eol_cache_gbif] */
         $this->download_options = array(
-            // 'cache_path'         => '/Volumes/Eli red/eol_cache_gbif/', 
-            'cache_path'         => DOC_ROOT . 'tmp/cache/',
-            // 'cache_path'         => '/Volumes/Eli black/eol_cache/', 
+            // 'cache_path'         => DOC_ROOT . 'tmp/cache/',             
+            // 'cache_path'         => '/Volumes/Eli red/eol_cache_gbif/',  //used in MacBook - generating map data using GBIF API
+            'cache_path'         => '/Volumes/Eli white/eol_cache/',        //used in Functions for all general cache
             'expire_seconds'     => 5184000, //2 months to expire
             'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts'  => 1, 'delay_in_minutes' => 1);
         $this->download_options['expire_seconds'] = false; //debug
@@ -144,20 +144,22 @@ class GBIFoccurrenceAPI
     {
         // return;
         
-        /* ran it with all species levels [finished in 4.79 hours]
+        /* ran it with all taxon levels [finished in 4.79 hours]
         $path = DOC_ROOT . "/public/tmp/google_maps/GBIF_csv/Incertae sedis/incertae sedis.csv";
         $path2 = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_incertae/";
         */
         
-        // /* ran it with all species levels
+        /* ran it with all taxon levels
         $path = DOC_ROOT . "/public/tmp/google_maps/GBIF_csv/Animalia/animalia.csv";
         $path2 = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_animalia/";
-        // */
+        */
         
-        /* Mar 14 2:05 AM - run it with just species-level taxa
+        // /* 
+           // Mar 14 2:05 AM - run it with just species-level taxa
+           // Apr 27         - run it with just higher-level taxa
         $path = DOC_ROOT . "/public/tmp/google_maps/GBIF_csv/Others/others.csv";
         $path2 = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_others/";
-        */
+        // */
 
         $i = 0;
         foreach(new FileIterator($path) as $line_number => $line) // 'true' will auto delete temp_filepath
@@ -166,14 +168,14 @@ class GBIFoccurrenceAPI
             // if(($i % 5000) == 0) echo number_format($i) . " ";
             echo number_format($i) . " ";
             // if($i < 66445000) continue; //bec of machine shutdown - for 'others.csv'
-            if($i < 120454688) continue; //bec of machine shutdown - for 'animalia.csv'
+            // if($i < 120454688) continue; //bec of machine shutdown - for 'animalia.csv'
             
             
             if($i == 1) continue;
             $row = explode("\t", $line);
             if(!@$row[26]) continue;
             
-            //start exclude higher-level taxa =========================================
+            //start exclude higher-level taxa ========================================= used 1st batch of Plantae group
             /*
             $sciname = Functions::canonical_form($row[12]);
             if(stripos($sciname, " ") !== false) $cont = true; //there is space, meaning a species-level taxon
@@ -181,6 +183,15 @@ class GBIFoccurrenceAPI
             if(!$cont) continue;
             */
             //end exclude higher-level taxa ===========================================
+
+            //start exclude species-level taxa ========================================= used for 2nd batch of Plantae group
+            // /*
+            $sciname = Functions::canonical_form($row[12]);
+            if(stripos($sciname, " ") !== false) $cont = false; //there is space, meaning a species-level taxon
+            else                                 $cont = true;
+            if(!$cont) continue;
+            // */
+            //end exclude species-level taxa ===========================================
             
             
             $taxonkey = $row[26];
@@ -522,6 +533,33 @@ class GBIFoccurrenceAPI
             // $this->file = false;
         }
         
+    }
+
+    function save_ids_to_text_from_many_folders()
+    {
+        $dir_to_process = "/Volumes/MacMini_HD2/batch_parts/map_data_batch2/";
+        $text_file      = "/Volumes/MacMini_HD2/batch_parts/taxon_concept_IDS.txt";
+        $i = 0;
+        if(!($fhandle = Functions::file_open($text_file, "w"))) return;
+        if($dir = opendir($dir_to_process))
+        {
+            while(false !== ($subdir = readdir($dir)))
+            {
+                if(!in_array($subdir, array(".","..")))
+                {
+                    echo "\n[$subdir]";
+                    $files = $dir_to_process.$subdir."/*.json";
+                    foreach (glob($files) as $filename)
+                    {
+                        echo "\n[$filename] - " . pathinfo($filename, PATHINFO_FILENAME);
+                        fwrite($fhandle, pathinfo($filename, PATHINFO_FILENAME) . "\n");
+                        $i++;
+                    }
+                }
+            }
+        }
+        fclose($fhandle);
+        echo "\n--end taxon_concept_IDs total: [$i]--\n";
     }
 
     private function prepare_data($taxon_concept_id)
