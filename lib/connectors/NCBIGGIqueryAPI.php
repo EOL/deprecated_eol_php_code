@@ -32,7 +32,7 @@ class NCBIGGIqueryAPI
             $this->measurement_ids = array();
         }
         $this->download_options = array('expire_seconds' => 5184000, 'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1); //2 months to expire
-		// $this->download_options['expire_seconds'] = false; //debug
+        // $this->download_options['expire_seconds'] = false; //debug
 
         // local
         $this->families_list = "http://localhost/cp/NCBIGGI/falo2.in";
@@ -74,6 +74,7 @@ class NCBIGGIqueryAPI
         */
 
         $this->ggi_databases = array("ncbi", "ggbn", "gbif", "bhl", "bolds");
+        // $this->ggi_databases = array("gbif"); //debug - use to process 1 database
         $this->ggi_path = DOC_ROOT . "temp/GGI/";
 
         $this->eol_api["search"]    = "http://eol.org/api/search/1.0.json?page=1&exact=true&filter_by_taxon_concept_id=&filter_by_hierarchy_entry_id=&filter_by_string=&cache_ttl=&q=";
@@ -97,7 +98,7 @@ class NCBIGGIqueryAPI
         */
         if($families = self::get_families_xlsx())
         {
-			/* working but not round-robin, rather each database is processed one after the other.
+            /* working but not round-robin, rather each database is processed one after the other.
             foreach($this->ggi_databases as $database)
             {
                 self::create_instances_from_taxon_object($families, false, $database);
