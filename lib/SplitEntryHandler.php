@@ -13,13 +13,13 @@ class SplitEntryHandler
         {
             throw new \Exception("split_entry.php [hierarchy_entry_id] [bad_match_hierarchy_entry_id] [confirmed]");
         }
-        
+
         \CodeBridge::print_message("Splitting HE# $hierarchy_entry_id from $bad_match_hierarchy_entry_id");
         $he = HierarchyEntry::find($hierarchy_entry_id);
         $bad_he = HierarchyEntry::find($hierarchy_entry_id);
         if(!$he->id || !$bad_he->id) throw new \Exception("Invalid ID");
         if($he->taxon_concept_id != $bad_he->taxon_concept_id) throw new \Exception("The bad match ID isn't from the same concept");
-        
+
         if($confirmation == 'confirmed')
         {
             $user_id = 13;  # 13 is Patrick's user ID - TODO - this should be an argument.  :|
@@ -29,7 +29,7 @@ class SplitEntryHandler
             \CodeBridge::print_message("Done. HE# $hierarchy_entry_id was split into a new concept # $new_taxon_concept_id");
         }else
         {
-            echo "\n\nRemoving:\n";
+            echo "\n\nIf confirmed, this would remove:\n";
             print_r($he);
             echo "Name: ".$he->name->string."\n\nFrom:\n";
             print_r($he->taxon_concept);
