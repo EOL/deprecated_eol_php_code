@@ -143,6 +143,16 @@ class FlickrAPI
         $parameters["class"] = array();
         $parameters["phylum"] = array();
         $parameters["kingdom"] = array();
+        
+        /* we use this block to test what <taxon> and <dataObject> entries are created for diff. types of tags
+        print_r($photo->tags->tag);
+        if(@$photo->tags->tag[4]->raw == "taxonomy:binomial=Loligo vulgaris") 
+        {
+            $photo->tags->tag[4]->raw = "taxonomy:binomial=Loligo vulgaris eli";
+            print_r($photo->tags->tag);
+        }
+        */
+        
         foreach($photo->tags->tag as $tag)
         {
             $string = trim($tag->raw);
@@ -263,6 +273,14 @@ class FlickrAPI
         {
             $taxa[] = new \SchemaTaxon($p);
         }
+        
+        /* we use this block to test what <taxon> and <dataObject> entries are created for diff. types of tags
+        if(in_array("Sepia officinalis", $parameters["scientificName"]) && in_array("Loligo vulgaris eli", $parameters["scientificName"]))
+        {
+            print_r($taxa); 
+            exit("\n-test ends-\n");
+        }
+        */
         
         return $taxa;
     }
