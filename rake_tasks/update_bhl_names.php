@@ -6,16 +6,16 @@ $GLOBALS['ENV_DEBUG'] = false;
 
 
 
-// shell_exec("rm -fr ". DOC_ROOT ."temp/data/*");
-// shell_exec("rm -fr ". DOC_ROOT ."temp/data.zip");
-// 
-// shell_exec("curl http://www.biodiversitylibrary.org/data/data.zip -o ". DOC_ROOT ."temp/data.zip");
-// shell_exec("unzip ". DOC_ROOT ."temp/data.zip -d ". DOC_ROOT ."temp/data");
-// 
-// insert_titles();
-// insert_items();
-// insert_pages();
-// insert_page_names();
+shell_exec("rm -fr ". DOC_ROOT ."temp/data/*");
+shell_exec("rm -fr ". DOC_ROOT ."temp/data.zip");
+
+shell_exec("curl http://www.biodiversitylibrary.org/data/data.zip -o ". DOC_ROOT ."temp/data.zip");
+shell_exec("unzip ". DOC_ROOT ."temp/data.zip -d ". DOC_ROOT ."temp/data");
+
+insert_titles();
+insert_items();
+insert_pages();
+insert_page_names();
 
 $indexer = new BHLIndexer();
 $indexer->index_all_pages();
