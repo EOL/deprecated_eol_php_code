@@ -922,7 +922,7 @@ class ArchiveDataIngester
             'http://eol.org/schema/Association' => '\eol_schema\Association',
             'http://eol.org/schema/reference/Reference' => '\eol_schema\Reference'
         );
-        static $valid_measurement_of_taxon = array('yes', 'true', 'http://eol.org/schema/terms/true', 'http://eol.org/schema/terms/yes');
+        static $valid_measurement_of_taxon = array('1', 'yes', 'true', 'http://eol.org/schema/terms/true', 'http://eol.org/schema/terms/yes');
         if($row_class_name = @$row_type_class_names[$row_type])
         {
             $file_location = @$parameters['archive_table_definition']->location;
