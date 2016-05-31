@@ -51,8 +51,9 @@ class GBIFoccurrenceAPI
         // */
         
         /* for macbook
-        $this->save_path['cluster']     = "/Volumes/Eli red/cluster_cache/cluster/";
-        $this->save_path['cluster_v2']  = "/Volumes/Eli red/cluster_cache/cluster_v2/";
+        // it seems no longer used
+        // $this->save_path['cluster']     = "/Volumes/Eli red/cluster_cache/cluster/";
+        // $this->save_path['cluster_v2']  = "/Volumes/Eli red/cluster_cache/cluster_v2/";
         $this->save_path['map_data']    = "/Volumes/Eli red/map_data/";
         */
 
@@ -60,7 +61,7 @@ class GBIFoccurrenceAPI
         $this->save_path['fusion2']     = DOC_ROOT . "public/tmp/google_maps/fusion2/";
         // $this->save_path['kml']         = DOC_ROOT . "public/tmp/google_maps/kml/";
         
-        $this->rec_limit = 20000;
+        $this->rec_limit = 30000;
     }
 
     function start()
@@ -78,19 +79,20 @@ class GBIFoccurrenceAPI
         // self::process_DL_taxon_list(); return;                   //make use of taxon list from DiscoverLife
         
         $scinames = array();                                        //make use of manual taxon list
-        $scinames["Phalacrocorax penicillatus"] = 1048643;
-        $scinames["Chanos chanos"] = 224731;
-        $scinames["Gadus morhua"] = 206692;
-        $scinames["Atractoscion aequidens"] = 203945;
-        $scinames["Veronica beccabunga"] = 578492;
-        $scinames["Tragopogon pratensis"] = 503271;
-        $scinames["Chelidonium majus"] = 488380;
-        $scinames["Veronica hederifolia"] = 578497;
-        $scinames["Saxicola torquatus"] = 284202;
-        $scinames["Chorthippus parallelus"] = 495478;
-        $scinames["Micarea lignaria"] = 197344;
+        // $scinames["Phalacrocorax penicillatus"] = 1048643;
+        // $scinames["Chanos chanos"] = 224731;
+        // $scinames["Gadus morhua"] = 206692;
+        // $scinames["Atractoscion aequidens"] = 203945;
+        // $scinames["Veronica beccabunga"] = 578492;
+        // $scinames["Tragopogon pratensis"] = 503271;
+        // $scinames["Chelidonium majus"] = 488380;
+        // $scinames["Veronica hederifolia"] = 578497;
+        // $scinames["Saxicola torquatus"] = 284202;
+        // $scinames["Chorthippus parallelus"] = 495478;
+        // $scinames["Micarea lignaria"] = 197344;
         // $scinames["Gadidae"] = 5503;
         // $scinames["Animalia"] = 1;
+        $scinames['Dermaptera'] = 405;
         foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
         
         /* API result:
@@ -446,7 +448,7 @@ class GBIFoccurrenceAPI
                 $final_count = $final['count'];
                 if($final_count > 20000)
                 {
-                    self::process_revised_cluster($final, $basename); //done after main demo using screenshots
+                    $final_count = self::process_revised_cluster($final, $basename); //done after main demo using screenshots
                 }
             }
         }
@@ -468,7 +470,6 @@ class GBIFoccurrenceAPI
         }
         else //delete respective file
         {
-            echo "\nfinal_count is [$final_count]\n";
             if($final_count < 20000) {
                 /*
                 unlink($this->save_path['fusion'].$basename.".txt");   //delete Fusion data
@@ -477,6 +478,7 @@ class GBIFoccurrenceAPI
             }
             else
             {
+                echo "\nfinal_count is [$final_count]\n";
                 $filename = self::get_map_data_path($basename).$basename.".json";
                 if(file_exists($filename)) unlink($filename); //delete cluster map data
             }
@@ -531,6 +533,8 @@ class GBIFoccurrenceAPI
             $json = json_encode($to_be_saved);
             fwrite($this->file5, "var data = ".$json);
             fclose($this->file5);
+            
+            return $to_be_saved['count']; //the smaller value; the bigger one is $to_be_saved['actual']
             
             //unlink the original cluster
             // fclose($this->file);
