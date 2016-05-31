@@ -44,16 +44,18 @@ class GBIFoccurrenceAPI
         $this->html['publisher']    = "http://www.gbif.org/publisher/";
         $this->html['dataset']      = "http://www.gbif.org/dataset/";
         
-        // $this->save_path['cluster']     = DOC_ROOT . "public/tmp/google_maps/cluster/";
-        // $this->save_path['cluster_v2']  = DOC_ROOT . "public/tmp/google_maps/cluster_v2/";
-        // $this->save_path['map_data']    = DOC_ROOT . "public/tmp/google_maps/map_data/";
+        // /* for mac mini
+        $this->save_path['cluster']     = DOC_ROOT . "public/tmp/google_maps/cluster/";
+        $this->save_path['cluster_v2']  = DOC_ROOT . "public/tmp/google_maps/cluster_v2/";
+        $this->save_path['map_data']    = DOC_ROOT . "public/tmp/google_maps/map_data/";
+        // */
         
-        
+        /* for macbook
         $this->save_path['cluster']     = "/Volumes/Eli red/cluster_cache/cluster/";
         $this->save_path['cluster_v2']  = "/Volumes/Eli red/cluster_cache/cluster_v2/";
         $this->save_path['map_data']    = "/Volumes/Eli red/map_data/";
-        
-        
+        */
+
         $this->save_path['fusion']      = DOC_ROOT . "public/tmp/google_maps/fusion/";
         $this->save_path['fusion2']     = DOC_ROOT . "public/tmp/google_maps/fusion2/";
         // $this->save_path['kml']         = DOC_ROOT . "public/tmp/google_maps/kml/";
@@ -149,17 +151,17 @@ class GBIFoccurrenceAPI
         $path2 = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_incertae/";
         */
         
-        /* ran it with all taxon levels
+        // /* ran it with all taxon levels; total records in cmd finished: 361,245,321 
         $path = DOC_ROOT . "/public/tmp/google_maps/GBIF_csv/Animalia/animalia.csv";
         $path2 = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_animalia/";
-        */
+        // */
         
-        // /* 
+        /* total records in cmd finished: 151,838,119
            // Mar 14 2:05 AM - run it with just species-level taxa
            // Apr 27         - run it with just higher-level taxa
         $path = DOC_ROOT . "/public/tmp/google_maps/GBIF_csv/Others/others.csv";
         $path2 = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_others/";
-        // */
+        */
 
         $i = 0;
         foreach(new FileIterator($path) as $line_number => $line) // 'true' will auto delete temp_filepath
@@ -168,29 +170,29 @@ class GBIFoccurrenceAPI
             // if(($i % 5000) == 0) echo number_format($i) . " ";
             echo number_format($i) . " ";
             // if($i < 66445000) continue; //bec of machine shutdown - for 'others.csv'
-            // if($i < 120454688) continue; //bec of machine shutdown - for 'animalia.csv'
-            
+            if($i < 167133238) continue; //bec of machine shutdown - for 'animalia.csv'
+                    
             
             if($i == 1) continue;
             $row = explode("\t", $line);
             if(!@$row[26]) continue;
             
             //start exclude higher-level taxa ========================================= used 1st batch of Plantae group
-            /*
+            // /*
             $sciname = Functions::canonical_form($row[12]);
             if(stripos($sciname, " ") !== false) $cont = true; //there is space, meaning a species-level taxon
             else                                 $cont = false;
             if(!$cont) continue;
-            */
+            // */
             //end exclude higher-level taxa ===========================================
 
             //start exclude species-level taxa ========================================= used for 2nd batch of Plantae group
-            // /*
+            /*
             $sciname = Functions::canonical_form($row[12]);
             if(stripos($sciname, " ") !== false) $cont = false; //there is space, meaning a species-level taxon
             else                                 $cont = true;
             if(!$cont) continue;
-            // */
+            */
             //end exclude species-level taxa ===========================================
             
             
@@ -224,13 +226,15 @@ class GBIFoccurrenceAPI
         // $eol_taxon_id_list = self::process_all_eol_taxa(true); //listOnly = true
         // print_r($eol_taxon_id_list); echo "\n" . count($eol_taxon_id_list) . "\n"; return; //[Triticum aestivum virus] => 540152
         
-        $eol_taxon_id_list["Gadus morhua"] = 206692;
+        // $eol_taxon_id_list["Gadus morhua"] = 206692;
         // $eol_taxon_id_list["Achillea millefolium L."] = 45850244;
         // $eol_taxon_id_list["Francolinus levaillantoides"] = 1; //5227890
         // $eol_taxon_id_list["Phylloscopus trochilus"] = 2; //2493052
         // $eol_taxon_id_list["Aichi virus"] = 540501;
         // $eol_taxon_id_list["Anthriscus sylvestris (L.) Hoffm."] = 584996; //from Plantae group
         // $eol_taxon_id_list["Xenidae"] = 8965;
+        
+        $eol_taxon_id_list["Gadidae"] = 5503;
 
         $paths = array();
         $paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_animalia/";
@@ -244,7 +248,7 @@ class GBIFoccurrenceAPI
             echo "\n$i. [$sciname][$taxon_concept_id]";
             if($usageKey = self::get_usage_key($sciname))
             {
-                echo "\nOK [$usageKey]\n";
+                echo "\nOK GBIF key [$usageKey]\n";
                 if(self::map_data_file_already_been_generated($taxon_concept_id)) continue;
                 
                 if($final = self::prepare_csv_data($usageKey, $paths))
@@ -464,6 +468,7 @@ class GBIFoccurrenceAPI
         }
         else //delete respective file
         {
+            echo "\nfinal_count is [$final_count]\n";
             if($final_count < 20000) {
                 /*
                 unlink($this->save_path['fusion'].$basename.".txt");   //delete Fusion data
