@@ -51,6 +51,7 @@ function insert_titles()
             $data = explode("\t", $line);
             $details = array();
             $details['id']           = $GLOBALS['db_connection']->escape($data[0]);
+			echo "title id is: "+ $details['id'] + "\n";
             $details['marc_bib_id']  = $GLOBALS['db_connection']->escape($data[1]);
             $details['marc_leader']  = $GLOBALS['db_connection']->escape($data[2]);
             $details['title']        = $GLOBALS['db_connection']->escape($data[3]);
@@ -73,7 +74,9 @@ function insert_titles()
         $GLOBALS['db_connection']->insert("CREATE TABLE IF NOT EXISTS publication_titles_tmp LIKE publication_titles");
         $GLOBALS['db_connection']->delete("TRUNCATE TABLE publication_titles_tmp");
         $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/titles.txt", "publication_titles_tmp", "IGNORE", '', 100000, 500000);
+		echo "Load the data in titles swap \n";
         $GLOBALS['db_connection']->swap_tables('publication_titles_tmp', 'publication_titles');
+		echo "Load the data in titles \n";
     }
     shell_exec("rm ". DOC_ROOT ."temp/titles.txt");
 }
@@ -103,6 +106,7 @@ function insert_items()
             $data = explode("\t", $line);
             $details = array();
             $details['id']                      = $GLOBALS['db_connection']->escape($data[0]);
+            echo "item id is: "+ $details['id'] + "\n";
             $details['publication_title_id']    = $GLOBALS['db_connection']->escape($data[1]);
             $details['bar_code']                = $GLOBALS['db_connection']->escape($data[3]);
             $details['marc_item_id']            = $GLOBALS['db_connection']->escape($data[4]);
@@ -119,7 +123,9 @@ function insert_items()
         $GLOBALS['db_connection']->insert("CREATE TABLE IF NOT EXISTS title_items_tmp LIKE title_items");
         $GLOBALS['db_connection']->delete("TRUNCATE TABLE title_items_tmp");
         $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/items.txt", "title_items_tmp", "IGNORE", '', 100000, 500000);
+		echo "Load the data in titles tmp \n";
         $GLOBALS['db_connection']->swap_tables('title_items_tmp', 'title_items');
+		echo "Load the data in titles items \n";
     }
     shell_exec("rm ". DOC_ROOT ."temp/items.txt");
 }
@@ -148,6 +154,7 @@ function insert_pages()
             $data = explode("\t", $line);
             $details = array();
             $details['id']              = $GLOBALS['db_connection']->escape($data[0]);
+			echo "page id is: "+ $details['id'] + "\n";
             $details['title_item_id']   = $GLOBALS['db_connection']->escape($data[1]);
             $details['year']            = $GLOBALS['db_connection']->escape($data[3]);
             $details['volume']          = $GLOBALS['db_connection']->escape($data[4]);
@@ -166,7 +173,9 @@ function insert_pages()
         $GLOBALS['db_connection']->insert("CREATE TABLE IF NOT EXISTS item_pages_tmp LIKE item_pages");
         $GLOBALS['db_connection']->delete("TRUNCATE TABLE item_pages_tmp");
         $GLOBALS['db_connection']->load_data_infile(DOC_ROOT ."temp/pages.txt", "item_pages_tmp", "IGNORE", '', 100000, 500000);
+		echo "Load the data in pages tmp \n";
         $GLOBALS['db_connection']->swap_tables('item_pages_tmp', 'item_pages');
+		echo "Load the data in pages \n";
     }
     shell_exec("rm ". DOC_ROOT ."temp/pages.txt");
 }

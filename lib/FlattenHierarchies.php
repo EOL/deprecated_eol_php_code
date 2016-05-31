@@ -9,21 +9,21 @@ class FlattenHierarchies
     private $HE_OUTFILE;
     private $tc_tmp_file_path;
     private $TC_OUTFILE;
-    
+
     public function __construct()
     {
         $this->mysqli =& $GLOBALS['db_connection'];
         if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $this->mysqli_slave = load_mysql_environment('slave');
         else $this->mysqli_slave =& $this->mysqli;
-        
+
         $this->visibile_id = Visibility::visible()->id;
         $this->preview_id = Visibility::preview()->id;
     }
-    
+
     public function flatten_hierarchies_from_concept_id($taxon_concept_id)
     {
         $this->create_temporary_files();
-        
+
         // delete ALL rows for descendants of this row
         $taxon_concept_ids_to_delete = array();
         $result = $this->mysqli->query("SELECT DISTINCT taxon_concept_id FROM taxon_concepts_flattened
@@ -37,9 +37,10 @@ class FlattenHierarchies
                 $ids = implode(",", $batch);
                 $this->mysqli->delete("DELETE FROM taxon_concepts_flattened WHERE taxon_concept_id IN ($ids)");
                 $GLOBALS['db_connection']->delete_from_where('hierarchy_entries_flattened', 'hierarchy_entry_id', "SELECT id FROM hierarchy_entries WHERE taxon_concept_id IN ($ids)");
+                sleep(count($ids) * 10); // Give the DB some time to recover from that!
             }
         }
-        
+
         $result = $this->mysqli->query("SELECT DISTINCT c.id child_id, p.id parent_id, p.taxon_concept_id
             FROM hierarchy_entries c
             LEFT JOIN hierarchy_entries p ON (c.parent_id=p.id)
@@ -72,17 +73,17 @@ class FlattenHierarchies
             if($row['parent_id']) $this->flatten_hierarchies_recursive($row['parent_id'], $ancestor_entry_ids, $ancestor_concept_ids, $row['child_id']);
             else $this->flatten_hierarchies_recursive($row['child_id'], array($row['child_id']), array($taxon_concept_id));
         }
-        
+
         $this->load_data_from_temporary_files();
     }
-    
+
     // takes an optional child_id to only refresh a particular node and its descendants
     private function flatten_hierarchies_recursive($parent_id, $he_ancestors, $tc_ancestors, $child_id = null)
     {
         static $count = 0;
         $count++;
         if($count%1000 == 0 && $GLOBALS['ENV_DEBUG']) echo "$count: ".time_elapsed()." : ".memory_get_usage()."\n";
-        
+
         $query = "SELECT id, parent_id, taxon_concept_id, (rgt-lft) therange
             FROM hierarchy_entries
             WHERE parent_id=$parent_id
@@ -119,33 +120,33 @@ class FlattenHierarchies
             }
         }
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public function begin_process($hierarchy_id = null)
     {
         $this->create_temporary_files();
-        
+
         if($hierarchy_id) $this->delete_rows_from_hierarchy($hierarchy_id);
         else $this->create_temporary_tables();
-        
+
         $query = "SELECT he.id FROM hierarchy_entries he
             LEFT JOIN hierarchy_entries he_children ON (he.id=he_children.parent_id)
             WHERE he_children.id IS NULL
@@ -153,7 +154,7 @@ class FlattenHierarchies
             AND he.visibility_id IN ($this->visibile_id, $this->preview_id)
             AND he.vetted_id!=".Vetted::untrusted()->id;
         if($hierarchy_id) $query .= " AND he.hierarchy_id=$hierarchy_id";
-        
+
         $hierarchy_entry_ids = array();
         foreach($this->mysqli->iterate_file($query) as $row)
         {
@@ -167,14 +168,14 @@ class FlattenHierarchies
         }
         // there may be some remainder less than 10,000
         if($hierarchy_entry_ids) $this->flatten_hierarchy_entries($hierarchy_entry_ids);
-        
+
         // import the data into the DB
         $temp_tables = $hierarchy_id ? false : true;
         $this->load_data_from_temporary_files($temp_tables);
-        
+
         if(!$hierarchy_id) $this->swap_temporary_tables();
     }
-    
+
     private function flatten_hierarchy_entries($hierarchy_entry_ids)
     {
         if(!isset($this->number_of_lookups)) $this->number_of_lookups = 0;
@@ -202,7 +203,7 @@ class FlattenHierarchies
         debug("Starting batch $this->number_of_lookups :: mem ". memory_get_usage() ." :: time ". time_elapsed());
         $this->insert_batch();
     }
-    
+
     private function insert_batch()
     {
         $this->ancestries = array();
@@ -220,11 +221,11 @@ class FlattenHierarchies
             }
         }
     }
-    
+
     private function get_ancestries($id)
     {
         if(isset($this->ancestries[$id])) return $this->ancestries[$id];
-        
+
         $ancestry = array('he' => array(), 'tc' => array());
         if(@$this->node_metadata[$id])
         {
@@ -249,11 +250,11 @@ class FlattenHierarchies
                 }
             }
         }
-        
+
         $this->ancestries[$id] = $ancestry;
         return $ancestry;
     }
-    
+
     private function create_temporary_files()
     {
         $this->he_tmp_file_path = temp_filepath();
@@ -267,12 +268,12 @@ class FlattenHierarchies
           debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->he_tmp_file_path);
         }
     }
-    
+
     private function load_data_from_temporary_files($temp_tables = false)
     {
         fclose($this->HE_OUTFILE);
         fclose($this->TC_OUTFILE);
-        
+
         // batches of 500,000 - .2 second pause in between
         $tmp = $temp_tables ? "_tmp" : "";
         $this->mysqli->load_data_infile($this->he_tmp_file_path, 'hierarchy_entries_flattened'.$tmp, "IGNORE", '', 200000, 500000);
@@ -280,7 +281,7 @@ class FlattenHierarchies
         $this->mysqli->load_data_infile($this->tc_tmp_file_path, 'taxon_concepts_flattened'.$tmp, "IGNORE", '', 200000, 500000);
         unlink($this->tc_tmp_file_path);
     }
-    
+
     private function create_temporary_tables()
     {
         $this->mysqli->query("DROP TABLE IF EXISTS `hierarchy_entries_flattened_tmp`");
@@ -291,7 +292,7 @@ class FlattenHierarchies
                   KEY `ancestor_id` (`ancestor_id`)
                 ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         $this->mysqli->insert("CREATE TABLE IF NOT EXISTS hierarchy_entries_flattened LIKE hierarchy_entries_flattened_tmp");
-        
+
         $this->mysqli->query("DROP TABLE IF EXISTS `taxon_concepts_flattened_tmp`");
         $this->mysqli->query("CREATE TABLE `taxon_concepts_flattened_tmp` (
                   `taxon_concept_id` int unsigned NOT NULL,
@@ -301,7 +302,7 @@ class FlattenHierarchies
                 ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         $this->mysqli->insert("CREATE TABLE IF NOT EXISTS taxon_concepts_flattened LIKE taxon_concepts_flattened_tmp");
     }
-    
+
     private function swap_temporary_tables()
     {
         $result = $this->mysqli->query("SELECT 1 FROM hierarchy_entries_flattened_tmp LIMIT 1");
@@ -315,7 +316,7 @@ class FlattenHierarchies
             $this->mysqli->swap_tables("taxon_concepts_flattened", "taxon_concepts_flattened_tmp");
         }
     }
-    
+
     private function delete_rows_from_hierarchy($hierarchy_id)
     {
         // delete ALL flattened entries for this hierarchy

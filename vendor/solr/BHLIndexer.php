@@ -18,13 +18,16 @@ class BHLIndexer
         if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $this->mysqli_slave = load_mysql_environment('slave');
         else $this->mysqli_slave =& $this->mysqli;
         $this->solr = new SolrAPI(SOLR_SERVER, 'bhl');
+		echo "solr is created here \n";
     }
 
     public function index_all_pages()
     {
         $limit = 500000;
         $start = $this->mysqli->select_value("SELECT MIN(id) FROM item_pages");
-        $max_id = $this->mysqli->select_value("SELECT MAX(id) FROM item_pages");
+        $max_id = 100000;//$this->mysqli->select_value("SELECT MAX(id) FROM item_pages");
+		echo "Min is: " + $start + "\n";
+		echo "Max is: " + $max_id + "\n";
         for($i=$start ; $i<$max_id ; $i+=$limit)
         {
             $upper_range = $i + $limit - 1;
@@ -32,13 +35,18 @@ class BHLIndexer
             $item_page_ids = range($i, $upper_range);
             $this->index_item_pages($item_page_ids);
         }
+		echo "before commit \n";
         $this->solr->commit_objects_in_file();
+		echo "after commit \n";
     }
 
     public function index_item_pages(&$item_page_ids = array())
     {
         $this->lookup_and_cache_publication_titles();
-        if(!$item_page_ids) return;
+        if(!$item_page_ids){
+        	echo "ERROR: --index item pages-- No item pages ids \n";
+        	return;
+		}
         $batches = array_chunk($item_page_ids, 10000);
         foreach($batches as $batch)
         {
@@ -48,7 +56,10 @@ class BHLIndexer
     
     private function index_batch(&$item_page_ids)
     {
-        if(!$item_page_ids) return;
+        if(!$item_page_ids){
+        	echo "ERROR: --index batch-- No item pages ids \n";
+        	return;
+		}
         unset($this->objects);
         $this->objects = array();
         static $num_batch = 0;
@@ -57,18 +68,30 @@ class BHLIndexer
         $this->lookup_item_pages($item_page_ids);
         if(isset($this->objects))
         {
+        	echo "--index batch-- objects are set \n";
             $lookup_ids = array_keys($this->objects);
             $this->lookup_page_names($lookup_ids);
+			echo "after looking page names \n";
         }
         while(list($key, $val) = each($this->objects))
         {
-            if(!$val['name_id']) unset($this->objects[$key]);
+            if(!$val['name_id']){
+            	echo "before unsetting the objects \n";
+            	unset($this->objects[$key]);
+            } 
         }
         
         // print_r($this->objects);
+        echo "before delete by id \n";
         $this->solr->delete_by_ids($item_page_ids, false);
-        if(isset($this->objects)) $this->solr->send_attributes_in_bulk($this->objects);
+		echo "after delete by id \n";
+        if(isset($this->objects)){
+        	echo "There are objects existing and will be sent to solr \n";
+        	$this->solr->send_attributes_in_bulk($this->objects);
+        } 
+        echo "before commit \n";
         $this->solr->commit();
+		echo "after commit \n";
     }
 
     function lookup_item_pages(&$item_page_ids = array())
@@ -97,7 +120,11 @@ class BHLIndexer
                 $fields['year'] = 0;
             }
 
-            if(!@$GLOBALS['title_item_publication_title_details'][$title_item_id]) continue;
+            if(!@$GLOBALS['title_item_publication_title_details'][$title_item_id])
+            {
+            	echo "No globals of title item publication title details set \n";
+            	continue;
+            }
             $fields['publication_id'] = SolrApi::text_filter($GLOBALS['title_item_publication_title_details'][$title_item_id]['id']);
             $fields['title_item_id'] = SolrApi::text_filter($GLOBALS['title_item_publication_title_details'][$title_item_id]['title_item_id']);
             $fields['publication_title'] = SolrApi::text_filter($GLOBALS['title_item_publication_title_details'][$title_item_id]['title']);
@@ -125,6 +152,7 @@ class BHLIndexer
             $name_id = $row[1];
             if(@$this->objects[$item_page_id]) $this->objects[$item_page_id]['name_id'][$name_id] = 1;
         }
+		echo "after setting page names \n";
     }
 
     function lookup_and_cache_publication_titles()

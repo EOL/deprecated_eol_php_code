@@ -922,7 +922,7 @@ class ArchiveDataIngester
             'http://eol.org/schema/Association' => '\eol_schema\Association',
             'http://eol.org/schema/reference/Reference' => '\eol_schema\Reference'
         );
-        static $valid_measurement_of_taxon = array('yes', 'true', 'http://eol.org/schema/terms/true', 'http://eol.org/schema/terms/yes');
+        static $valid_measurement_of_taxon = array('1', 'yes', 'true', 'http://eol.org/schema/terms/true', 'http://eol.org/schema/terms/yes');
         if($row_class_name = @$row_type_class_names[$row_type])
         {
             $file_location = @$parameters['archive_table_definition']->location;
@@ -962,7 +962,6 @@ class ArchiveDataIngester
             // NOTE: this is not being inserted yet; won't work—taxon_id can
             // come through an occurrence, which is too convoluted for this
             // right now. TODO: this won't be deleted, yet...
-            $simple_turtle = "";
             $entry_id = 0;
             $resource_uri = 0;
             $entry_uri = 0;
@@ -972,23 +971,17 @@ class ArchiveDataIngester
               $entry_id = $taxon_id;
             }
             if(! $entry_id == 0) {
-              $simple_graph = "http://eol.org/traits";
-              $simple_turtle = "@prefix eol: <http://eol.org/schema/> .\n";
               $resource_id = $this->harvest_event->resource->id;
               $resource_uri = "eol:resources/$resource_id";
               $entry_uri = "$resource_uri/entries/$taxon_id";
-              $simple_turtle .= "$resource_uri a eol:resource .\n";
               if(!isset($this->entry_uris_inserted[$taxon_id])) {
-                $simple_turtle .= "$entry_uri a eol:entry ;\n";
-                $simple_turtle .= "eol:recognized_by $resource_uri .\n";
                 $this->entry_uris_inserted[$taxon_id] = true;
               }
             }
 
-            list($turtle, $data_point_uri, $more_simple) =
+            list($turtle, $data_point_uri) =
               $this->prepare_turtle($row, $row_class_name, $resource_uri, $entry_uri);
-            debug("TURTLE: $turtle");
-            debug("SIMPLER TURTLE: $simple_turtle$more_simple");
+            // debug("TURTLE: $turtle");
 
             $this->sparql_client->insert_data_in_bulk(array(
                 'data' => array($turtle),
@@ -1119,7 +1112,6 @@ class ArchiveDataIngester
         if($primary_key) $node_uri = $graph_name ."/". $row_class_name::GRAPH_NAME ."/". SparqlClient::to_underscore($primary_key);
         else $node_uri = $graph_name ."/". $row_class_name::GRAPH_NAME ."/". md5(serialize($row));
         $turtle = "<$node_uri> a <$row_type>";
-        $simple_turtle = "";
 
         foreach($row as $key => $value)
         {
@@ -1204,20 +1196,6 @@ class ArchiveDataIngester
 
   	    if($row_type == "http://rs.tdwg.org/dwc/terms/MeasurementOrFact" || $row_type == "http://eol.org/schema/Association")
     		{
-          if(isset($predicate) && isset($object)) {
-            $trait_id = md5(serialize($row));
-            $trait_uri = "$resource_uri/traits/$trait_id";
-            $simple_turtle  = "$trait_uri a eol:trait ;\n";
-            $simple_turtle .= "  eol:predicate $predicate ;\n";
-            $simple_turtle .= "  eol:recognized_as $entry_uri ;\n";
-            $simple_turtle .= "  eol:value $object ;\n";
-            $simple_turtle .= "  eol:source $resource_uri .\n";
-            if(isset($unit_of_measure)) {
-              $simple_turtle .= "  eol:units $unit_of_measure .\n";
-            }
-            $simple_turtle .= "$entry_uri $predicate $trait_uri .\n";
-          }
-
   	    	// prepare data point uri attributes
   	    	$data_point_uri = array("uri" => $node_uri,
   							    	"created_at" => 'NOW()',
@@ -1230,7 +1208,7 @@ class ArchiveDataIngester
     		}
     		else
   		    	$data_point_uri = NULL;
-        return array($turtle, $data_point_uri, $simple_turtle);
+        return array($turtle, $data_point_uri);
     }
 
     private function commit_iterations($namespace, $iteration_size = 500)
