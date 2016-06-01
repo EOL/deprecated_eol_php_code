@@ -28,6 +28,7 @@ class HTML2MediaWikiAPI_EoEarth
     
     public function start()
     {
+        return; 
         /*
         [Food Security (Food security)]
          destination:/Library/WebServer/Documents//EncyclopediaOfEarth/www.eoearth.org/topics/view/54424/index.html
@@ -262,7 +263,7 @@ class HTML2MediaWikiAPI_EoEarth
                             
                             if(stripos($path, "EncyclopediaOfEarth/") !== false) continue; //string is found
                             
-                            if(!@$this->processed[md5($path)]) //this will make it unique
+                            if(!isset($this->processed[md5($path)])) //this will make it unique
                             {
                                 // echo "\n[$path] - [$title]\n";
                                 fwrite($file, $path . "\t" . str_replace("\\", "", $title) . "\n"); //saving to text file
