@@ -63,6 +63,7 @@ if($url)
 
 if($final_archive_gzip_url)
 {
+    echo "<br>=======================================================<br>";
     echo "The archive is now available at <a href='$final_archive_gzip_url'>$final_archive_gzip_url</a><br><br>
         You can use this as the resource URL in the EOL Content Partner Registry (in the Resources section),
         or you can save this file to your computer.<br><br>
@@ -71,6 +72,7 @@ if($final_archive_gzip_url)
         <a href='../dwc_validator/index.php' target='_blank'>Archive Validator</a> to ensure its contents are valid.
         <a href='../dwc_validator/index.php?file_url=$final_archive_gzip_url' target='_blank'>Click here</a> to validate now<br><br>
         Thank you.";
+    echo "<br>=======================================================<br><br>";
 }else
 {
     echo "There were problems processing this file:<br><br>";
