@@ -100,6 +100,7 @@ class BHLIndexer
             SELECT ip.id, ip.year, ip.volume, ip.issue, ip.number, ip.title_item_id, ip.prefix
             FROM item_pages ip
             WHERE ip.id IN (". implode(",", $item_page_ids) .")";
+		$debug_count = 0;
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
         {
             $id = $row[0];
@@ -135,6 +136,14 @@ class BHLIndexer
             if(!$fields['year']) $fields['year'] = $fields['start_year'];
             if(!$fields['year']) $fields['year'] = 0;
             $fields['name_id'] = array();
+			if ($debug_count < 10){
+				reset($fields);
+				while (list($key, $val) = each($fields)){
+					echo "$key => $val, ";
+				}
+				echo "\n";
+				$debug_count++;
+			}
             $this->objects[$id] = $fields;
         }
     }

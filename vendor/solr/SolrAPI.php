@@ -55,11 +55,14 @@ class SolrAPI
     private function load_schema()
     {
         // load schema XML
+        echo "GET SCHEMA FILE: ".file_get_contents($this->action_url . "/admin/file/?file=schema.xml");
         $response = simplexml_load_string(file_get_contents($this->action_url . "/admin/file/?file=schema.xml"));
 
+		echo "\n --------- \n";
         // set primary key field name
         $this->primary_key = (string) $response->uniqueKey;
 
+		echo "primary key is: ". $this->primary_key . "\n";
         // create empty object that maps to each field name; will be array if multivalued
         $this->schema_object = new \stdClass();
         foreach($response->fields->field as $field)
@@ -136,6 +139,7 @@ class SolrAPI
         if($GLOBALS['ENV_DEBUG']) echo("Solr commit $this->action_url\n");
         if(!$GLOBALS['ENV_DEBUG']) $extra_bit = " > /dev/null 2>/dev/null";
         $extra_bit = @$extra_bit ?: '';
+		echo "inside commit action of solr \n";
         exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/commit.xml $extra_bit");
     }
 
@@ -235,17 +239,23 @@ class SolrAPI
           return;
         }
         $fields = array_keys(get_object_vars($this->schema_object));
+		echo ("fields count is: " . count($fields) . "\n");
         if(!filesize(DOC_ROOT . $this->csv_bulk_path))
         {
             if($this->primary_key)
             {
+            	echo "there is a primary key here \n";
                 fwrite($OUT, $this->primary_key . $this->file_delimiter . implode($this->file_delimiter, $fields) . "\n");
+				echo "write on the file the following: ". $this->primary_key . $this->file_delimiter . implode($this->file_delimiter, $fields) . "\n";
             }else
             {
+            	echo "No primary index \n";
                 fwrite($OUT, implode($this->file_delimiter, $fields) . "\n");
+				echo "write on the file the following: ". implode($this->file_delimiter, $fields) ."\n";
             }
         }
 
+		$debug_count = 0;
         foreach($objects as $primary_key => $attributes)
         {
             $this_attr = array();
@@ -269,6 +279,10 @@ class SolrAPI
                 // default value is empty string
                 else $this_attr[] = "";
             }
+			if ($debug_count < 10){
+				echo "write the followin object in the file: ". implode($this->file_delimiter, $this_attr) ."\n";
+				$debug_count++;
+			}
             fwrite($OUT, implode($this->file_delimiter, $this_attr) . "\n");
         }
         fclose($OUT);
@@ -277,7 +291,10 @@ class SolrAPI
     public function commit_objects_in_file()
     {
         clearstatcache();
-        if(!file_exists(DOC_ROOT . $this->csv_bulk_path) || !filesize(DOC_ROOT . $this->csv_bulk_path)) return;
+        if(!file_exists(DOC_ROOT . $this->csv_bulk_path) || !filesize(DOC_ROOT . $this->csv_bulk_path)){
+        	echo "NO CSV FILE TO COMMIT OBJECTS FROM \n";	
+        	return;
+		}
         $curl = "curl ". $this->action_url ."/update/csv -F overwrite=true -F separator='". $this->file_delimiter ."'";
         foreach($this->multi_valued_fields_in_csv as $field => $bool)
         {
@@ -302,6 +319,7 @@ class SolrAPI
 
     public function send_attributes_in_bulk($objects)
     {
+    	echo "csv file path is: " . DOC_ROOT . $this->csv_bulk_path . "\n";
         $this->write_objects_to_file($objects);
         debug("Solr attributes file size: ". filesize(DOC_ROOT . $this->csv_bulk_path));
         // 5 MB
