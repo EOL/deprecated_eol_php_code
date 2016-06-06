@@ -21,7 +21,7 @@
         </tr>
         <tr align="center">
             <td>
-                <input type="submit" value="Convert to EOL-compliant XML">
+                <input type="submit" value="Convert to EOL-compliant archive">
                 <input type="reset" value="Reset">
                 <input type="checkbox" name="validate">Validate
             </td>

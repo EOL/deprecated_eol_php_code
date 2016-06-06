@@ -70,7 +70,7 @@ if($final_archive_gzip_url)
         This file will be stored on our server for two (2) weeks, after which it will be removed.<br><br>
         You can also use this URL in our
         <a href='../dwc_validator/index.php' target='_blank'>Archive Validator</a> to ensure its contents are valid.
-        <a href='../dwc_validator/index.php?file_url=$final_archive_gzip_url' target='_blank'>Click here</a> to validate now<br><br>
+        <a href='../dwc_validator/index.php?file_url=$final_archive_gzip_url' target='_blank'>Click here</a> to validate now.<br><br>
         Thank you.";
     echo "<br>=======================================================<br><br>";
 }else
