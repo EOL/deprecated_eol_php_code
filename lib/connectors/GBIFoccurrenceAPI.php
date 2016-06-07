@@ -28,13 +28,11 @@ class GBIFoccurrenceAPI
     {
         /* add: 'resource_id' => "gbif" ;if you want to add cache inside a folder [gbif] inside [eol_cache_gbif] */
         $this->download_options = array(
-            // 'cache_path'         => DOC_ROOT . 'tmp/cache/',             
-            // 'cache_path'         => '/Volumes/Eli red/eol_cache_gbif/',  //used in MacBook - generating map data using GBIF API
-            'cache_path'         => '/Volumes/Eli white/eol_cache/',        //used in Functions for all general cache
+            'cache_path'         => '/Volumes/Eli red/eol_cache_gbif/',  //used in MacBook - generating map data using GBIF API
+            // 'cache_path'         => '/Volumes/Eli white/eol_cache/',        //used in Functions for all general cache
             'expire_seconds'     => 5184000, //2 months to expire
-            'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts'  => 1, 'delay_in_minutes' => 1);
-        $this->download_options['expire_seconds'] = false; //debug
-        // $this->download_options['expire_seconds'] = true; //debug -- expires now
+            'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->download_options['expire_seconds'] = false; //debug | true -- expires now
 
         //GBIF services
         $this->gbif_taxon_info      = "http://api.gbif.org/v1/species/match?name="; //http://api.gbif.org/v1/species/match?name=felidae&kingdom=Animalia
@@ -44,32 +42,34 @@ class GBIFoccurrenceAPI
         $this->html['publisher']    = "http://www.gbif.org/publisher/";
         $this->html['dataset']      = "http://www.gbif.org/dataset/";
         
-        // /* for mac mini
-        $this->save_path['cluster']     = DOC_ROOT . "public/tmp/google_maps/cluster/";
-        $this->save_path['cluster_v2']  = DOC_ROOT . "public/tmp/google_maps/cluster_v2/";
-        $this->save_path['map_data']    = DOC_ROOT . "public/tmp/google_maps/map_data/";
-        // */
+        /* for mac mini
+        // it seems no longer used
+        // $this->save_path['cluster']     = DOC_ROOT . "public/tmp/google_maps/cluster/";
+        // $this->save_path['cluster_v2']  = DOC_ROOT . "public/tmp/google_maps/cluster_v2/";
+        $this->save_path['map_data'] = DOC_ROOT . "public/tmp/google_maps/map_data/";
+        */
         
-        /* for macbook
+        // /* for macbook
         // it seems no longer used
         // $this->save_path['cluster']     = "/Volumes/Eli red/cluster_cache/cluster/";
         // $this->save_path['cluster_v2']  = "/Volumes/Eli red/cluster_cache/cluster_v2/";
-        $this->save_path['map_data']    = "/Volumes/Eli red/map_data/";
-        */
+        $this->save_path['map_data'] = "/Volumes/Eli red/map_data/";
+        // */
 
-        $this->save_path['fusion']      = DOC_ROOT . "public/tmp/google_maps/fusion/";
-        $this->save_path['fusion2']     = DOC_ROOT . "public/tmp/google_maps/fusion2/";
+        // not being used anymore
+        // $this->save_path['fusion']      = DOC_ROOT . "public/tmp/google_maps/fusion/";
+        // $this->save_path['fusion2']     = DOC_ROOT . "public/tmp/google_maps/fusion2/";
         // $this->save_path['kml']         = DOC_ROOT . "public/tmp/google_maps/kml/";
         
-        $this->rec_limit = 30000;
+        $this->rec_limit = 40000;
     }
 
     function start()
     {
         // start GBIF
         // self::breakdown_GBIF_csv_file_v2(); return;
-        self::breakdown_GBIF_csv_file(); return;
-        // self::generate_map_data_using_GBIF_csv_files(); return;
+        // self::breakdown_GBIF_csv_file(); return;
+        self::generate_map_data_using_GBIF_csv_files(); return;
         // end GBIF
         
         // self::start_clustering(); return;                        //distance clustering sample
@@ -92,7 +92,9 @@ class GBIFoccurrenceAPI
         // $scinames["Micarea lignaria"] = 197344;
         // $scinames["Gadidae"] = 5503;
         // $scinames["Animalia"] = 1;
-        $scinames['Dermaptera'] = 405;
+        // $scinames['Dermaptera'] = 405;
+        $scinames["Soleidae"] = 5169;
+        
         foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
         
         /* API result:
@@ -236,12 +238,13 @@ class GBIFoccurrenceAPI
         // $eol_taxon_id_list["Anthriscus sylvestris (L.) Hoffm."] = 584996; //from Plantae group
         // $eol_taxon_id_list["Xenidae"] = 8965;
         
-        $eol_taxon_id_list["Gadidae"] = 5503;
+        // $eol_taxon_id_list["Gadidae"] = 5503;
+        $eol_taxon_id_list["Soleidae"] = 5169;
 
         $paths = array();
         $paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_animalia/";
-        // $paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_incertae/";
-        // $paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_others/";
+        $paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_incertae/";
+        $paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_others/";
         
         $i = 0;
         foreach($eol_taxon_id_list as $sciname => $taxon_concept_id)
@@ -919,7 +922,7 @@ class GBIFoccurrenceAPI
         $parser = new XLSParser();
         $families = array();
         $doc = "http://localhost/eol_php_code/public/tmp/spreadsheets/SPG Hotlist Official Version.xlsx";
-        $doc = "http://localhost/~eolit/eli/eol_php_code/public/tmp/spreadsheets/SPG Hotlist Official Version.xlsx"; //for MacBook
+        // $doc = "http://localhost/~eolit/eli/eol_php_code/public/tmp/spreadsheets/SPG Hotlist Official Version.xlsx"; //for MacBook
         echo "\n processing [$doc]...\n";
         if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2)))
         {
@@ -929,22 +932,24 @@ class GBIFoccurrenceAPI
             {
                 $i++;
                 $sciname = trim(Functions::canonical_form($sciname));
-                if(stripos($sciname, " ") !== false) //process only species-level taxa
+                // if(stripos($sciname, " ") !== false) //process only species-level taxa
+                if(true)
                 {
                     $taxon_concept_id = $arr['1'][$i];
                     echo "\n$i. [$sciname][$taxon_concept_id]";
                     //==================
+                    /*
                     $m = 10000;
                     $cont = false;
-                    if($i >=  1    && $i < $m)    $cont = true;
+                    // if($i >=  1    && $i < $m)    $cont = true;
                     // if($i >=  $m   && $i < $m*2)  $cont = true;
                     // if($i >=  $m*2 && $i < $m*3)  $cont = true;
                     // if($i >=  $m*3 && $i < $m*4)  $cont = true;
                     // if($i >=  $m*4 && $i < $m*5)  $cont = true;
                     // if($i >=  $m*5 && $i < $m*6)  $cont = true;
                     // if($i >=  $m*6 && $i < $m*7)  $cont = true;
-
                     if(!$cont) continue;
+                    */
                     self::main_loop($sciname, $taxon_concept_id);
                     //==================
                     // break; //debug - process only 1
