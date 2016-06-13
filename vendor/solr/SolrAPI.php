@@ -262,6 +262,11 @@ class SolrAPI
             if($this->primary_key) $this_attr[] = $primary_key;
             foreach($fields as $attr)
             {
+            	//just adding for BHL sake to make sure
+            	if($this->primary_key && $attr == "id"){
+            		echo "The new case is happening now. \n";
+            		continue;
+				}
                 // this object has this attribute
                 if(isset($attributes[$attr]))
                 {
