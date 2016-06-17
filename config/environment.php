@@ -24,6 +24,7 @@ if(!defined('GUNZIP_BIN_PATH')) define('GUNZIP_BIN_PATH', 'gunzip');
 if(!defined('UNZIP_BIN_PATH')) define('UNZIP_BIN_PATH', 'unzip');
 if(!defined('TAR_BIN_PATH')) define('TAR_BIN_PATH', 'tar');
 if(!defined('FILE_BIN_PATH')) define('FILE_BIN_PATH', 'file');
+if(!defined('RESQUE_HOST')) define('RESQUE_HOST', 'localhost:6379');
 
 if(!isset($GLOBALS['ENV_DEBUG'])) $GLOBALS['ENV_DEBUG'] = true;
 if(!isset($GLOBALS['ENV_MYSQL_DEBUG'])) $GLOBALS['ENV_MYSQL_DEBUG'] = true;
@@ -96,8 +97,6 @@ if(!defined('CONTENT_DATASET_PATH'))        define('CONTENT_DATASET_PATH',      
 // this may not be needed anymore
 if(!defined('WEB_ROOT')) define('MAGICK_HOME', '/usr/local/ImageMagick/');       // path to ImageMagick home directory
 
-// Resque:
-if(!defined('RESQUE_HOST')) define('RESQUE_HOST', 'localhost:6379');
 /* table data which will not get cached - there are too many rows */
 $GLOBALS['no_cache']['agents']              = true;
 $GLOBALS['no_cache']['canonical_forms']     = true;
