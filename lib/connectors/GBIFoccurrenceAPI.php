@@ -66,15 +66,18 @@ class GBIFoccurrenceAPI
 
     function start()
     {
+        /*
+        237020 - /map_data_from_api/
+        */
         // start GBIF
         // self::breakdown_GBIF_csv_file_v2(); return;
         // self::breakdown_GBIF_csv_file(); return;
-        self::generate_map_data_using_GBIF_csv_files(); return;
+        // self::generate_map_data_using_GBIF_csv_files(); return;
         // end GBIF
         
         // self::start_clustering(); return;                        //distance clustering sample
         // self::get_center_latlon_using_taxonID(206692); return;   //computes the center lat long
-        // self::process_all_eol_taxa(); return;                    //make use of tab-delimited text file from JRice
+        self::process_all_eol_taxa(); return;                    //make use of tab-delimited text file from JRice
         // self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
         // self::process_DL_taxon_list(); return;                   //make use of taxon list from DiscoverLife
         
@@ -93,7 +96,9 @@ class GBIFoccurrenceAPI
         // $scinames["Gadidae"] = 5503;
         // $scinames["Animalia"] = 1;
         // $scinames['Dermaptera'] = 405;
-        $scinames["Soleidae"] = 5169;
+        // $scinames["Soleidae"] = 5169;
+        $scinames["Caridinophilidae"] = 50;
+        
         
         foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
         
@@ -227,7 +232,7 @@ class GBIFoccurrenceAPI
     
     private function generate_map_data_using_GBIF_csv_files()
     {
-        // $eol_taxon_id_list = self::process_all_eol_taxa(true); //listOnly = true
+        $eol_taxon_id_list = self::process_all_eol_taxa(true); //listOnly = true
         // print_r($eol_taxon_id_list); echo "\n" . count($eol_taxon_id_list) . "\n"; return; //[Triticum aestivum virus] => 540152
         
         // $eol_taxon_id_list["Gadus morhua"] = 206692;
@@ -237,9 +242,10 @@ class GBIFoccurrenceAPI
         // $eol_taxon_id_list["Aichi virus"] = 540501;
         // $eol_taxon_id_list["Anthriscus sylvestris (L.) Hoffm."] = 584996; //from Plantae group
         // $eol_taxon_id_list["Xenidae"] = 8965;
-        
         // $eol_taxon_id_list["Gadidae"] = 5503;
-        $eol_taxon_id_list["Soleidae"] = 5169;
+        // $eol_taxon_id_list["Soleidae"] = 5169;
+        // $eol_taxon_id_list["Plantae"] = 281;
+        // $eol_taxon_id_list["Chaetoceros"] = 12010;
 
         $paths = array();
         $paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_animalia/";
@@ -250,6 +256,19 @@ class GBIFoccurrenceAPI
         foreach($eol_taxon_id_list as $sciname => $taxon_concept_id)
         {
             $i++;
+            // ==============================
+            /*
+            $m = 100000;
+            $cont = false;
+            // if($i >=  1    && $i < $m)    $cont = true;
+            // if($i >=  $m   && $i < $m*2)  $cont = true;
+            // if($i >=  $m*2 && $i < $m*3)  $cont = true;
+            // if($i >=  $m*3 && $i < $m*4)  $cont = true;
+            // if($i >=  $m*4 && $i < $m*5)  $cont = true;
+            // if($i >=  $m*5 && $i < $m*6)  $cont = true;
+            if(!$cont) continue;
+            */
+            // ==============================
             echo "\n$i. [$sciname][$taxon_concept_id]";
             if($usageKey = self::get_usage_key($sciname))
             {
@@ -274,11 +293,11 @@ class GBIFoccurrenceAPI
                         fwrite($this->file, "var data = ".$json);
                         fclose($this->file);
                     }
-                    else exit("\nShould not go here 001\n");
+                    else exit("\nShould not go here 001 [$sciname]\n");
                 }
-                else echo "\nmap data not yet available\n";
+                else echo "\nmap data not yet available [$sciname]\n";
             }
-            else echo "\n usageKey not found!\n";
+            else echo "\n usageKey not found! [$sciname]\n";
         } //end main foreach()
     }
     
@@ -371,25 +390,21 @@ class GBIFoccurrenceAPI
             {
                 echo "\n$i. [$sciname][$taxon_concept_id]";
                 //==================
+                /*
                 $m = 100000;
                 $cont = false;
-
                 if($i >=  1    && $i < $m)    $cont = true;
                 // if($i >=  $m   && $i < $m*2)  $cont = true;
                 // if($i >=  $m*2 && $i < $m*3)  $cont = true;
                 // if($i >=  $m*3 && $i < $m*4)  $cont = true;
                 // if($i >=  $m*4 && $i < $m*5)  $cont = true;
                 // if($i >=  $m*5 && $i < $m*6)  $cont = true;
-
-
                 if(!$cont) continue;
+                */
                 //==================
-                
                 self::main_loop($sciname, $taxon_concept_id); //uncomment in real operation...
-                
                 if($usageKey = self::get_usage_key($sciname)) echo " - OK [$usageKey]"; //used to cache all usageKey requests...
-                else echo " - usageKey not found!";
-                
+                else                                          echo " - usageKey not found!";
             }
             else echo "\n[$sciname] will pass higher-level taxa at this time...\n";
             
@@ -508,7 +523,11 @@ class GBIFoccurrenceAPI
                 $to_be_saved['records'][] = $r;
             }
             echo "\n New total [$decimal_places]: " . count($unique) . "\n";
-            if(count($to_be_saved['records']) < 20000 || $decimal_places == 0) break;
+            
+            $limit_to_break = 20000;
+            if($basename == 281) $limit_to_break = 35000; //Plantae 34131
+            
+            if(count($to_be_saved['records']) < $limit_to_break || $decimal_places == 0) break; //orig value is 0, not 1
             else
             {   //initialize vars
                 $decimal_places--;
@@ -519,7 +538,7 @@ class GBIFoccurrenceAPI
         }
         
         //flag if after revised cluster is still unsuccessful
-        if(count($unique) > 20000)
+        if(count($unique) > $limit_to_break)
         {
             echo "\ntaxon_concept_ID [$basename] revised cluster unsuccessful\n";
             if(!($fhandle = Functions::file_open(DOC_ROOT . "public/tmp/google_maps/alert.txt", "a"))) return;
