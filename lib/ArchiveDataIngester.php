@@ -965,7 +965,8 @@ class ArchiveDataIngester
             $entry_id = 0;
             $resource_uri = 0;
             $entry_uri = 0;
-            if(empty($taxon_id) && isset($occurrence_id)) {
+            if(empty($taxon_id) && isset($occurrence_id) &&
+              array_key_exists($occurrence_id, $this->occurrence_taxon_mapping)) {
               $entry_id = $this->occurrence_taxon_mapping[$occurrence_id];
             } else if(! empty($taxon_id)) {
               $entry_id = $taxon_id;
