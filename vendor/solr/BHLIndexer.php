@@ -5,13 +5,13 @@ class BHLIndexer
 {
     // create index publication_title_id on title_items(publication_title_id);
     // create index item_page_id on page_names(item_page_id);
-    
+
     private $mysqli;
     private $mysqli_slave;
     private $solr;
     private $objects;
     private $solr_server;
-    
+
     public function __construct()
     {
         $this->mysqli =& $GLOBALS['db_connection'];
@@ -53,7 +53,7 @@ class BHLIndexer
             $this->index_batch($batch);
         }
     }
-    
+
     private function index_batch(&$item_page_ids)
     {
         if(!$item_page_ids){
@@ -78,9 +78,9 @@ class BHLIndexer
             if(!$val['name_id']){
             	echo "before unsetting the objects \n";
             	unset($this->objects[$key]);
-            } 
+            }
         }
-        
+
         // print_r($this->objects);
         echo "before delete by id \n";
         $this->solr->delete_by_ids($item_page_ids, false);
@@ -88,7 +88,7 @@ class BHLIndexer
         if(isset($this->objects)){
         	echo "There are objects existing and will be sent to solr \n";
         	$this->solr->send_attributes_in_bulk($this->objects);
-        } 
+        }
         echo "before commit \n";
         $this->solr->commit();
 		echo "after commit \n";
@@ -100,6 +100,7 @@ class BHLIndexer
             SELECT ip.id, ip.year, ip.volume, ip.issue, ip.number, ip.title_item_id, ip.prefix
             FROM item_pages ip
             WHERE ip.id IN (". implode(",", $item_page_ids) .")";
+		$debug_count = 0;
         foreach($this->mysqli_slave->iterate_file($query) as $row_num => $row)
         {
             $id = $row[0];
@@ -135,6 +136,14 @@ class BHLIndexer
             if(!$fields['year']) $fields['year'] = $fields['start_year'];
             if(!$fields['year']) $fields['year'] = 0;
             $fields['name_id'] = array();
+			if ($debug_count < 10){
+				reset($fields);
+				while (list($key, $val) = each($fields)){
+					echo "$key => $val, ";
+				}
+				echo "\n";
+				$debug_count++;
+			}
             $this->objects[$id] = $fields;
         }
     }
