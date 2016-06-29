@@ -13,7 +13,8 @@ If no, then this name will be added to a text file that will be reported back to
 class DiscoverLifeAPIv2
 {
     const DL_MAP_SPECIES_LIST   = "http://www.discoverlife.org/export/species_map.txt";
-    // const DL_MAP_SPECIES_LIST   = "http://localhost/eol_php_code/update_resources/connectors/files/DiscoverLife/species_map_small2.txt";
+    // const DL_MAP_SPECIES_LIST   = "http://localhost/cp/DiscoverLife/species_map.txt";
+    // const DL_MAP_SPECIES_LIST   = "http://localhost/cp/DiscoverLife/species_map_small.txt";
 
     // this is temporary until DL fixes their list
     // const DL_MAP_SPECIES_LIST   = "http://dl.dropbox.com/u/7597512/DiscoverLife/species_map 2012 06 26.txt";
@@ -275,7 +276,7 @@ class DiscoverLifeAPIv2
 
     private function initialize_text_file($filename)
     {
-        if(!($OUT = Functions::file_open($filename, "a"))) return;
+        if(!($OUT = Functions::file_open($filename, "w"))) return;
         fwrite($OUT, "===================" . "\n");
         fwrite($OUT, date("F j, Y, g:i:s a") . "\n");
         fclose($OUT);
