@@ -28,7 +28,7 @@ class GBIFoccurrenceAPI
     {
         /* add: 'resource_id' => "gbif" ;if you want to add cache inside a folder [gbif] inside [eol_cache_gbif] */
         $this->download_options = array(
-            'cache_path'         => '/Volumes/Eli red/eol_cache_gbif/',  //used in MacBook - generating map data using GBIF API
+            'cache_path'         => '/Volumes/Thunderbolt4/eol_cache_gbif/',  //used in MacBook - generating map data using GBIF API
             // 'cache_path'         => '/Volumes/Eli white/eol_cache/',        //used in Functions for all general cache
             'expire_seconds'     => 5184000, //2 months to expire
             'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
@@ -51,9 +51,9 @@ class GBIFoccurrenceAPI
         
         // /* for macbook
         // it seems no longer used
-        // $this->save_path['cluster']     = "/Volumes/Eli red/cluster_cache/cluster/";
-        // $this->save_path['cluster_v2']  = "/Volumes/Eli red/cluster_cache/cluster_v2/";
-        $this->save_path['map_data'] = "/Volumes/Eli red/map_data/";
+        // $this->save_path['cluster']     = "/Volumes/Thunderbolt4/cluster_cache/cluster/";
+        // $this->save_path['cluster_v2']  = "/Volumes/Thunderbolt4/cluster_cache/cluster_v2/";
+        $this->save_path['map_data'] = "/Volumes/Thunderbolt4/map_data_new/";
         // */
 
         // not being used anymore
@@ -61,14 +61,12 @@ class GBIFoccurrenceAPI
         // $this->save_path['fusion2']     = DOC_ROOT . "public/tmp/google_maps/fusion2/";
         // $this->save_path['kml']         = DOC_ROOT . "public/tmp/google_maps/kml/";
         
-        $this->rec_limit = 40000;
+        $this->rec_limit = 50000;
     }
 
     function start()
     {
-        /*
-        237020 - /map_data_from_api/
-        */
+        /* 237020 - /map_data_from_api/ */
         // start GBIF
         // self::breakdown_GBIF_csv_file_v2(); return;
         // self::breakdown_GBIF_csv_file(); return;
@@ -82,23 +80,39 @@ class GBIFoccurrenceAPI
         // self::process_DL_taxon_list(); return;                   //make use of taxon list from DiscoverLife
         
         $scinames = array();                                        //make use of manual taxon list
-        // $scinames["Phalacrocorax penicillatus"] = 1048643;
-        // $scinames["Chanos chanos"] = 224731;
-        // $scinames["Gadus morhua"] = 206692;
-        // $scinames["Atractoscion aequidens"] = 203945;
-        // $scinames["Veronica beccabunga"] = 578492;
-        // $scinames["Tragopogon pratensis"] = 503271;
-        // $scinames["Chelidonium majus"] = 488380;
-        // $scinames["Veronica hederifolia"] = 578497;
-        // $scinames["Saxicola torquatus"] = 284202;
-        // $scinames["Chorthippus parallelus"] = 495478;
-        // $scinames["Micarea lignaria"] = 197344;
-        // $scinames["Gadidae"] = 5503;
-        // $scinames["Animalia"] = 1;
-        // $scinames['Dermaptera'] = 405;
-        // $scinames["Soleidae"] = 5169;
+        $scinames["Phalacrocorax penicillatus"] = 1048643;
+        $scinames["Chanos chanos"] = 224731;
+        $scinames["Gadus morhua"] = 206692;
+        $scinames["Atractoscion aequidens"] = 203945;
+        $scinames["Veronica beccabunga"] = 578492;
+        $scinames["Tragopogon pratensis"] = 503271;
+        $scinames["Chelidonium majus"] = 488380;
+        $scinames["Veronica hederifolia"] = 578497;
+        $scinames["Saxicola torquatus"] = 284202;
+        $scinames["Chorthippus parallelus"] = 495478;
+        $scinames["Micarea lignaria"] = 197344;
+        $scinames["Gadidae"] = 5503;
+        $scinames["Animalia"] = 1;
+        $scinames['Dermaptera'] = 405;
+        $scinames["Soleidae"] = 5169;
         $scinames["Caridinophilidae"] = 50;
-        
+        $scinames["Chenonetta"] = 104248;
+        $scinames["Coniocybaceae"] = 6217;
+        $scinames["Oenanthe"] = 49118;
+        $scinames["Plantae"] = 281;
+        $scinames["Chaetoceros"] = 12010;
+        $scinames["Fragaria vesca auct. nonn. fl. as. med."] = 229665;
+        $scinames["Achillea millefolium"] = 467225;
+        $scinames["Gadus morhua"] = 206692;
+        $scinames["Achillea millefolium L."] = 45850244;
+        $scinames["Francolinus levaillantoides"] = 1; //5227890
+        $scinames["Phylloscopus trochilus"] = 2; //2493052
+        $scinames["Aichi virus"] = 540501;
+        $scinames["Anthriscus sylvestris (L.) Hoffm."] = 584996; //from Plantae group
+        $scinames["Xenidae"] = 8965;
+        $scinames["Gadidae"] = 5503;
+        $scinames["Soleidae"] = 5169;
+        $scinames["Chenonetta"] = 104248;
         
         foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
         
@@ -118,6 +132,7 @@ class GBIFoccurrenceAPI
     {
         // return;
         $path = DOC_ROOT . "/public/tmp/google_maps/GBIF_csv/Animalia/animalia.csv";
+        $path = "/Volumes/Thunderbolt4/eol_cache_gbif/pub_tmp_google_maps/GBIF_csv/Animalia/animalia.csv";
         $k = 0;
         $i = 0;
         $not42 = 0;
@@ -153,16 +168,21 @@ class GBIFoccurrenceAPI
     
     private function breakdown_GBIF_csv_file() //working as of Mar 3 Thursday
     {
-        // return;
-        
+        return;
         /* ran it with all taxon levels [finished in 4.79 hours]
         $path = DOC_ROOT . "/public/tmp/google_maps/GBIF_csv/Incertae sedis/incertae sedis.csv";
         $path2 = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_incertae/";
+
+        $path  = "/Volumes/Thunderbolt4/eol_cache_gbif/pub_tmp_google_maps/GBIF_csv/Incertae sedis/incertae sedis.csv";
+        $path2 = "/Volumes/Thunderbolt4/eol_cache_gbif/pub_tmp_google_maps/GBIF_taxa_csv_incertae/";
         */
         
         // /* ran it with all taxon levels; total records in cmd finished: 361,245,321 
         $path = DOC_ROOT . "/public/tmp/google_maps/GBIF_csv/Animalia/animalia.csv";
         $path2 = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_animalia/";
+        
+        $path  = "/Volumes/Thunderbolt4/eol_cache_gbif/pub_tmp_google_maps/GBIF_csv/Animalia/animalia.csv";
+        $path2 = "/Volumes/Thunderbolt4/eol_cache_gbif/pub_tmp_google_maps/GBIF_taxa_csv_animalia/";
         // */
         
         /* total records in cmd finished: 151,838,119
@@ -170,6 +190,9 @@ class GBIFoccurrenceAPI
            // Apr 27         - run it with just higher-level taxa
         $path = DOC_ROOT . "/public/tmp/google_maps/GBIF_csv/Others/others.csv";
         $path2 = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_others/";
+
+        $path  = "/Volumes/Thunderbolt4/eol_cache_gbif/pub_tmp_google_maps/GBIF_csv/Others/others.csv";
+        $path2 = "/Volumes/Thunderbolt4/eol_cache_gbif/pub_tmp_google_maps/GBIF_taxa_csv_others/";
         */
 
         $i = 0;
@@ -179,8 +202,7 @@ class GBIFoccurrenceAPI
             // if(($i % 5000) == 0) echo number_format($i) . " ";
             echo number_format($i) . " ";
             // if($i < 66445000) continue; //bec of machine shutdown - for 'others.csv'
-            if($i < 167133238) continue; //bec of machine shutdown - for 'animalia.csv'
-                    
+            // if($i < 167133238) continue; //bec of machine shutdown - for 'animalia.csv'
             
             if($i == 1) continue;
             $row = explode("\t", $line);
@@ -203,7 +225,6 @@ class GBIFoccurrenceAPI
             if(!$cont) continue;
             */
             //end exclude species-level taxa ===========================================
-            
             
             $taxonkey = $row[26];
             $rek = array($row[0], $row[1], $row[12], $row[15], $row[16], $row[17], $row[22], $row[29], $row[31], $row[33], $row[36]);
@@ -246,6 +267,7 @@ class GBIFoccurrenceAPI
         // $eol_taxon_id_list["Soleidae"] = 5169;
         // $eol_taxon_id_list["Plantae"] = 281;
         // $eol_taxon_id_list["Chaetoceros"] = 12010;
+        // $eol_taxon_id_list["Chenonetta"] = 104248;
 
         $paths = array();
         $paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_animalia/";
@@ -385,15 +407,18 @@ class GBIFoccurrenceAPI
             }
             $i++;
 
-            // if(true)
-            if(stripos($sciname, " ") !== false)
+            // if(true)                             //all taxa
+            // if(stripos($sciname, " ") !== false) //only species-level taxa
+
+            if($taxon_concept_id == 1) continue;
+            if(true)
             {
                 echo "\n$i. [$sciname][$taxon_concept_id]";
                 //==================
                 /*
                 $m = 100000;
                 $cont = false;
-                if($i >=  1    && $i < $m)    $cont = true;
+                // if($i >=  1    && $i < $m)    $cont = true;
                 // if($i >=  $m   && $i < $m*2)  $cont = true;
                 // if($i >=  $m*2 && $i < $m*3)  $cont = true;
                 // if($i >=  $m*3 && $i < $m*4)  $cont = true;
@@ -406,7 +431,7 @@ class GBIFoccurrenceAPI
                 if($usageKey = self::get_usage_key($sciname)) echo " - OK [$usageKey]"; //used to cache all usageKey requests...
                 else                                          echo " - usageKey not found!";
             }
-            else echo "\n[$sciname] will pass higher-level taxa at this time...\n";
+            // else echo "\n[$sciname] will pass higher-level taxa at this time...\n";
             
         }//end loop
         
@@ -446,8 +471,6 @@ class GBIFoccurrenceAPI
         
         if(self::map_data_file_already_been_generated($basename)) return;
         
-        $final_count = false;
-        
         /*
         if(!($this->file2 = Functions::file_open($this->save_path['fusion'].$basename.".txt", "w"))) return;
         if(!($this->file3 = Functions::file_open($this->save_path['fusion2'].$basename.".json", "w"))) return;
@@ -458,17 +481,26 @@ class GBIFoccurrenceAPI
         $headers = "catalogNumber, sciname, publisher, publisher_id, dataset, dataset_id, gbifID, recordedBy, identifiedBy, pic_url, location";
         
         /* fwrite($this->file2, str_replace(", ", "\t", $headers) . "\n"); */
+
+        $final_count = false;
         if($rec = self::get_initial_data($sciname))
         {
-            if($rec['count'] < $this->rec_limit) //only process taxa with < 100K georeference records
-            {
+            // if($rec['count'] < $this->rec_limit) //only process taxa with < 100K georeference records
+            // {
                 $final = self::get_georeference_data($rec['usageKey'], $basename);
                 $final_count = $final['count'];
                 if($final_count > 20000)
                 {
                     $final_count = self::process_revised_cluster($final, $basename); //done after main demo using screenshots
                 }
-            }
+            // }
+            // else //e.g. 102569. [Chenonetta][104248]
+            // {
+            //     echo "\nIGNORED:[$sciname][tc_id=$basename][" . $rec['count'] . "]\n";
+            //     $final = self::get_georeference_data($rec['usageKey'], $basename);
+            //     $final_count = $final['count'];
+            //     $final_count = self::process_revised_cluster($final, $basename);
+            // }
         }
         
         /*
@@ -526,7 +558,7 @@ class GBIFoccurrenceAPI
             
             $limit_to_break = 20000;
             if($basename == 281) $limit_to_break = 35000; //Plantae 34131
-            
+
             if(count($to_be_saved['records']) < $limit_to_break || $decimal_places == 0) break; //orig value is 0, not 1
             else
             {   //initialize vars
@@ -544,18 +576,28 @@ class GBIFoccurrenceAPI
             if(!($fhandle = Functions::file_open(DOC_ROOT . "public/tmp/google_maps/alert.txt", "a"))) return;
             fwrite($fhandle, "$basename" . "\t" . count($unique) . "\n");
             fclose($fhandle);
-            exit("\neli exits here...\n");
+            // exit("\neli exits here...\n");
+            
+            //start force-get only the first 20k records
+            $to_be_saved = self::reduce_records($to_be_saved);
+
+            echo "\n Final total after reduce_records() [$decimal_places]: " . count($to_be_saved['records']) . "\n";
+
+            $to_be_saved['count'] = count($to_be_saved['records']);
+            $to_be_saved['actual'] = $final['count'];
+            $json = json_encode($to_be_saved);
+            fwrite($this->file5, "var data = ".$json);
+            fclose($this->file5);
+            return $to_be_saved['count']; //the smaller value; the bigger one is $to_be_saved['actual']
         }
         else
         {
             echo "\n Final total [$decimal_places]: " . count($unique) . "\n";
             $to_be_saved['count'] = count($to_be_saved['records']);
             $to_be_saved['actual'] = $final['count'];
-            
             $json = json_encode($to_be_saved);
             fwrite($this->file5, "var data = ".$json);
             fclose($this->file5);
-            
             return $to_be_saved['count']; //the smaller value; the bigger one is $to_be_saved['actual']
             
             //unlink the original cluster
@@ -566,10 +608,27 @@ class GBIFoccurrenceAPI
         
     }
 
-    function save_ids_to_text_from_many_folders()
+    function reduce_records($to_be_saved)
     {
+        $i = -1;
+        foreach($to_be_saved['records'] as $r)
+        {
+            $i++;
+            if($i > 20000) $to_be_saved['records'][$i] = '';
+        }
+        $to_be_saved['records'] = array_filter($to_be_saved['records']); //remove null arrays
+        $to_be_saved['records'] = array_values($to_be_saved['records']); //reindex key
+        return $to_be_saved;
+    }
+    
+    function save_ids_to_text_from_many_folders()
+    {   /*
         $dir_to_process = "/Volumes/MacMini_HD2/batch_parts/map_data_batch2/";
         $text_file      = "/Volumes/MacMini_HD2/batch_parts/taxon_concept_IDS.txt";
+        */
+        $dir_to_process = $this->save_path['map_data'];
+        $text_file = "/Volumes/Thunderbolt4/map_data_zip/final_taxon_concept_IDS.txt";
+        
         $i = 0;
         if(!($fhandle = Functions::file_open($text_file, "w"))) return;
         if($dir = opendir($dir_to_process))
@@ -606,10 +665,8 @@ class GBIFoccurrenceAPI
         $offset = 0;
         $limit = 300;
         $continue = true;
-        
         $final = array();
         $final['records'] = array();
-        
         while($continue)
         {
             if($offset > $this->rec_limit) break; //working... uncomment if u want to limit to 100,000
@@ -621,11 +678,11 @@ class GBIFoccurrenceAPI
                 // print_r($j);
                 $recs = self::write_to_file($j);
                 $final['records'] = array_merge($final['records'], $recs);
-                
+
                 echo "\n incremental count: " . count($recs) . "\n";
-                
-                if($j->endOfRecords)                    $continue = false;
-                if(count($final['records']) > $this->rec_limit)   $continue = false; //limit no. of markers in Google maps is 100K //working... uncomment if u want to limit to 100,000
+
+                if($j->endOfRecords)                            $continue = false;
+                if(count($final['records']) > $this->rec_limit) $continue = false; //limit no. of markers in Google maps is 100K //working... uncomment if u want to limit to 100,000
             }
             else break; //just try again next time...
             $offset += $limit;
