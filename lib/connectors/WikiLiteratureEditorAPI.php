@@ -9,7 +9,7 @@ class WikiLiteratureEditorAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         
-        $this->wikipedia_api = $mediawiki_api; //http://editors.eol.localhost/LiteratureEditor/api.php
+        $this->mediawiki_api = $mediawiki_api; //http://editors.eol.localhost/LiteratureEditor/api.php
         $this->download_options = array('resource_id' => $resource_id, 'expire_seconds' => false, 'download_wait_time' => 5000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
     }
 
@@ -27,7 +27,7 @@ class WikiLiteratureEditorAPI
         $k = 0; //just used when caching, running multiple connectors
         while(true)
         {
-            $url = $this->wikipedia_api . "?action=query&list=allpages&aplimit=$eilimit&format=json&continue=";
+            $url = $this->mediawiki_api . "?action=query&list=allpages&aplimit=$eilimit&format=json&apnamespace=5000&continue=";
             if($continue) $url .= "&apcontinue=" . $continue;
             echo "\n [$url] \n";
             if($json = Functions::lookup_with_cache($url, $this->download_options))
@@ -49,6 +49,7 @@ class WikiLiteratureEditorAPI
                 {
                     $i = $i + count($recs);
                     echo "\n" . count($recs) . " -- " . number_format($i) . " [$continue]\n";
+                    // print_r($recs);
                     self::process_pages($recs);
                 }
                 
@@ -63,15 +64,12 @@ class WikiLiteratureEditorAPI
     {
         foreach($recs as $rec)
         {
-            // if($rec->title != "42194843") continue; //debug only
-            // if($rec->title != "42194845") continue; //debug only
-            // if($rec->title != "33870179") continue; //debug only --with copyrightstatus
-            // if($rec->title != "13128418") continue; //debug only --with licensor (13128418, 30413122)
-            // if($rec->title != "42194845") continue; //debug only --without licensor
-            if($rec->title != "16059324") continue; //debug only
-
+            if($rec->title != "ForHarvesting:16194405 ae66e9b6f430af7e694cad4cf1d6f295") continue; //debug only
             echo "\n" . $rec->title;
-            $url = $this->wikipedia_api . "?action=query&titles=" . urlencode($rec->title) . "&format=json&prop=revisions&rvprop=content";
+
+
+            /* from old implementation - ver 1
+            $url = $this->mediawiki_api . "?action=query&titles=" . urlencode($rec->title) . "&format=json&prop=revisions&rvprop=content";
             $json = Functions::lookup_with_cache($url, array('expire_seconds' => true)); //this expire_seconds should always be true
             $arr = json_decode($json, true);
             foreach(@$arr['query']['pages'] as $page) //there is really just one page here...
@@ -80,34 +78,69 @@ class WikiLiteratureEditorAPI
                 {
                     if($data = self::parse_wiki_content($val))
                     {
-                        // if(isset($data['Taxa Found in Page (tabular)']['NameConfirmed'])) self::create_archive($data);
                         if(isset($data['Taxa Found in Page']['text'])) self::create_archive($data);
                         else echo "\n[no taxa found for wiki: ".$data['Page Summary']['PageID']."]\n";
                     }
                 }
             }
+            */
+            
+            $info = self::get_wiki_text($rec->title);
+            $params = self::get_void_part($info['content']);
+            if(!$params['header_title']) continue; //to exclude the likes of "Main Page"
+            if($params['ocr_text'] && $params['taxon_asso']) self::create_archive($params);
         }
     }
 
-    private function create_archive($rec)
+    //===============start from BHL controller
+    function get_wiki_text($wiki_title)
     {
-        //get taxon_ids =========================
-        $taxon_ids = array();
+        /*
+        $url = "/LiteratureEditor/api.php?action=query&meta=userinfo&uiprop=groups|realname&format=json";
+        $json = self::get_api_result($url);
+        */
+        $url = $this->mediawiki_api . "?action=query&titles=" . urlencode($wiki_title) . "&format=json&prop=revisions&rvprop=content|timestamp";
+        // echo "<br>[$url]<br>";
+        $json = Functions::lookup_with_cache($url, array('expire_seconds' => true)); //this expire_seconds should always be true
+        $arr = json_decode($json, true);
+        // echo "<pre>";print_r($arr);echo "</pre>";//exit;
+        foreach(@$arr['query']['pages'] as $page) //there is really just one page here...
+        {
+            $arr = array();
+            $arr['content']   = (string) @$page['revisions'][0]['*'];
+            $arr['timestamp'] = (string) @$page['revisions'][0]['timestamp'];
+            return $arr;
+        }
+        return false;
+    }
+    
+    function get_void_part($str)
+    {
+        if(preg_match("/Void\|(.*?)\}\}/ims", $str, $arr))
+        {
+            $json = "{" . $arr[1] . "}";
+            $params = json_decode($json, true);
+            return $params;
+        }
+        return false;
+    }
+    //===============end from BHL controller
+
+    private function create_archive($p)
+    {
+        print_r($p);
         
-        // foreach($rec['Taxa Found in Page (tabular)']['NameConfirmed'] as $name)
-        $names = explode(";", $rec['Taxa Found in Page']['text']);
+        //get taxon_ids =========================
+        $taxon_ids = array(); //initialize
+        $names = explode(";", $p['taxon_asso']);
         $names = array_map("trim", $names);
         foreach($names as $name)
         {
-            if($name = trim($name))
-            {
-                $taxon_ids[str_replace(" ", "_", strtolower($name))] = '';
-            }
+            if($name = trim($name)) $taxon_ids[str_replace(" ", "_", strtolower($name))] = '';
         }
         $taxon_ids = array_keys($taxon_ids);
         //=======================================
         
-        // foreach($rec['Taxa Found in Page (tabular)']['NameConfirmed'] as $name)
         foreach($names as $name)
         {
             if(!trim($name)) continue;
@@ -116,11 +149,13 @@ class WikiLiteratureEditorAPI
             $t = new \eol_schema\Taxon();
             $t->taxonID                 = str_replace(" ", "_", strtolower($name));
             $t->scientificName          = $name;
-            // $t->order                   = @$rec['ancestry']['order'];
-            // $t->family                  = @$rec['ancestry']['family'];
-            // $t->genus                   = @$rec['ancestry']['genus'];
-            // $t->furtherInformationURL   = $rec['permalink'];
-            // $t->$rank = ''; 
+            /* not supplied at the moment
+            $t->order                   = @$rec['ancestry']['order'];
+            $t->family                  = @$rec['ancestry']['family'];
+            $t->genus                   = @$rec['ancestry']['genus'];
+            $t->furtherInformationURL   = $rec['permalink'];
+            $t->$rank = ''; 
+            */
             if(!isset($this->taxon_ids[$t->taxonID]))
             {
                 $this->taxon_ids[$t->taxonID] = '';
@@ -128,76 +163,63 @@ class WikiLiteratureEditorAPI
             }
 
             //start media objects
-            $media = array();
+            $media = array(); //initialize
 
             // text object
-            $media['identifier']             = $rec['Page Summary']['PageID'];
-            $media['title']                  = self::format_title(@$rec['User-defined Title']['text']); //per Katja: user enters title
-            $media['description']            = $rec['OCR Text']['text'];
-            $media['CVterm']                 = $rec['Subject Type']['text'];
-            $media['audience']               = $rec['Audience Type']['text'];
+            $media['title']                  = $p['header_title'];
+            $media['CVterm']                 = $p['subject_type'];
+            $media['audience']               = self::format_audience($p);
 
-            // below here is same for the next text object
-            $media['taxonID']                = implode("|", $taxon_ids);
-            $media['type']                   = "http://purl.org/dc/dcmitype/Text";
-            $media['format']                 = "text/html";
-            $media['language']               = self::format_language($rec['Item Summary']['Language']);
+            $descriptions = self::format_descriptions($p['ocr_text']);
+            // print_r($descriptions);
+            foreach($descriptions as $description)
+            {
+                $media['identifier']             = md5($p['wiki_title'].$description);
+                $media['description']            = $description;
 
-            $media['Owner']                  = self::format_owner($rec);
-            $media['Publisher']              = 'Biodiversity Heritage Library';
-            $media['rights']                 = $rec['Item Summary']['Rights'];
-            
-            $media['UsageTerms']             = self::format_license($rec);
-            $media['furtherInformationURL']  = $rec['Page Summary']['PageUrl'];
-            
-            $media['agent']                  = $rec['agent'];
-            $media['bibliographicCitation']  = self::format_biblio($rec['Bibliographic Citation']['text']);
-            
-            
-            $media['reference_ids'] = array();
-            if($val = $rec['User-defined References']) $media['reference_ids'] = self::get_reference_ids($val);
-            
-            self::create_media_object($media);
+                // below here is same for the next text object
+                $media['taxonID']                = implode("|", $taxon_ids);
+                $media['type']                   = "http://purl.org/dc/dcmitype/Text";
+                $media['format']                 = "text/html";
+                $media['language']               = self::format_language($p['language']);
+                $media['Owner']                  = $p['rightsholder'];
+                $media['Publisher']              = 'Biodiversity Heritage Library';
+                $media['rights']                 = ''; //ask Katja about it
+                $media['UsageTerms']             = self::format_license($p['license_type']);
+                $media['furtherInformationURL']  = str_replace("api.php", "wiki/", $this->mediawiki_api) . $p['wiki_title'];
+                $media['agent']                  = $p['agents'];
+                $media['bibliographicCitation']  = $p['bibliographicCitation'];
 
-            // // Brief Summary
-            // $media['identifier']             = md5($rec['permalink']."Brief Summary");
-            // $media['title']                  = $rec['title'] . ': Brief Summary';
-            // $media['description']            = $rec['brief_desc'];
-            // $media['CVterm']                 = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology';
-            // self::create_media_object($media);
+                $media['reference_ids'] = array();
+                if($val = $p['references']) $media['reference_ids'] = self::get_reference_ids($val);
+
+                self::create_media_object($media);
+
+                // // Brief Summary
+                // $media['identifier']             = md5($rec['permalink']."Brief Summary");
+                // $media['title']                  = $rec['title'] . ': Brief Summary';
+                // $media['description']            = $rec['brief_desc'];
+                // $media['CVterm']                 = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology';
+                // self::create_media_object($media);
+                
+            }
+
         }//foreach name
     }
 
-    private function get_reference_ids($recs)
+    private function get_reference_ids($str)
     {
-        /*
-        [0] => Array
-            (
-                [id] => ref1
-                [ref] => John's Handbook, Third Edition, Doe-Roe Co., 1973.
-            )
-
-        [1] => Array
-            (
-                [id] => ref2
-                [ref] => [http://www.eol.org Link text], my second sample reference.
-                [url] => http://www.eol.org
-                [link_text] => Link text
-            )
-
-        [2] => Array
-            (
-                [id] => ref3
-                [ref] => [www.fishbase.org FishBase link], my 3rd sample reference.
-            )
-        */
+        $refs = explode("\n", $str);
+        $refs = array_map('trim', $refs);
+        $refs = array_filter($refs);
+        
         $reference_ids = array();
-        foreach($recs as $rec)
+        foreach($refs as $ref)
         {
-            $ref_id = md5($rec['ref']);
+            $ref_id = md5($ref);
             $reference_ids[] = $ref_id;
-            $ref_url = @$rec['url']; //not all ref records have 'url'
-            $citation = trim($rec['ref']);
+            $ref_url = '';
+            $citation = trim($ref);
             self::add_reference($citation, $ref_id, $ref_url);
         }
         return $reference_ids;
@@ -253,6 +275,48 @@ class WikiLiteratureEditorAPI
         }
     }
 
+    private function format_descriptions($str)
+    {
+        $descs = explode("\n", $str);
+        $descs = array_map('trim', $descs);
+        $descs = array_filter($descs);
+        return $descs;
+    }
+    
+    private function format_audience($p)
+    {
+        $str = "";
+        if(isset($p['scientists'])) $str .= "scientists; ";
+        if(isset($p['public']))     $str .= "public; ";
+        if(isset($p['children']))   $str .= "children; ";
+        $str = trim($str);
+        return substr($str, 0, -1);
+    }
+    
+    private function create_agents($agents)
+    {
+        $agent_ids = array();
+        $agents = explode(";", $agents);
+        $agents = array_map('trim', $agents);
+        foreach($agents as $agent)
+        {
+            if(!$agent) continue;
+            $r = new \eol_schema\Agent();
+            $r->term_name = $agent;
+            $r->identifier = md5("$agent|" . 'author');
+            $r->agentRole = 'author';
+            $r->term_homepage = "";
+            $agent_ids[] = $r->identifier;
+            if(!isset($this->resource_agent_ids[$r->identifier]))
+            {
+               $this->resource_agent_ids[$r->identifier] = '';
+               $this->archive_builder->write_object_to_file($r);
+            }
+        }
+        return $agent_ids;
+    }
+
+    /* not used anymore
     private function create_agents($agents)
     {
         $agent_ids = array();
@@ -274,39 +338,37 @@ class WikiLiteratureEditorAPI
         }
         return $agent_ids;
     }
-
-    private function format_title($title)
-    {
-        if(stripos($title, 'enter title') !== false) return ""; //string is found
-        else return $title;
-    }
+    */
     
-    private function format_biblio($biblio)
+    private function format_language($lang_name)
     {
-        return $biblio;
-    }
-    
-    private function format_language($lang)
-    {
-        return substr($lang,0,2);
-    }
-    
-    private function format_owner($rec)
-    {
-        if(isset($rec['Licensor']['text']))
+        $langs = array(
+            array("name" => "English",           "abb" => "en"), //en
+            array("name" => "Spanish",           "abb" => "es"), //es
+            array("name" => "French",            "abb" => "fr"), //fr
+            array("name" => "German",            "abb" => "de"), //de
+            array("name" => "Portugus-Brasil",   "abb" => "br"), //br
+            array("name" => "Portugus-Portugal", "abb" => "pt") //pt
+        );
+        foreach($langs as $lang)
         {
-            if($val = $rec['Licensor']['text']) return $val;
+            if($lang['name'] == $lang_name) return $lang['abb'];
         }
-        else return $rec['Item Summary']['CopyrightStatus'];
     }
-    
-    private function format_license($rec)
+    private function format_license($license_value)
     {
-        if(isset($rec['License Type']['text']))
+        //license array came from BHL controller
+        $licenses = array(
+        array("value" => "Attribution 3.0",                             "t" => "CC BY",                           "url" => "http://creativecommons.org/licenses/by/3.0/"),
+        array("value" => "Attribution-NonCommercial 3.0",               "t" => "CC BY NC",                        "url" => "http://creativecommons.org/licenses/by-nc/3.0/"),
+        array("value" => "Attribution-ShareAlike 3.0",                  "t" => "CC BY SA",                        "url" => "http://creativecommons.org/licenses/by-sa/3.0/"),
+        array("value" => "Attribution-NonCommercial-ShareAlike 3.0",    "t" => "CC BY NC SA",                     "url" => "http://creativecommons.org/licenses/by-nc-sa/3.0/"),
+        array("value" => "Public Domain",                               "t" => "Public Domain",                   "url" => "http://creativecommons.org/licenses/publicdomain/"),
+        array("value" => "no known copyright restrictions",             "t" => "no known copyright restrictions", "url" => "no known copyright restrictions"));
+        foreach($licenses as $license)
         {
-            if($val = $rec['License Type']['text']) return $val;
+            if($license['value'] == $license_value) return $license['url'];
         }
-        else return $rec['Item Summary']['LicenseUrl'];
     }
     
     private function parse_wiki_content($wiki)
