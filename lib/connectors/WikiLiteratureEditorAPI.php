@@ -80,7 +80,8 @@ class WikiLiteratureEditorAPI
                 {
                     if($data = self::parse_wiki_content($val))
                     {
-                        if(isset($data['Taxa Found in Page']['NameConfirmed'])) self::create_archive($data);
+                        // if(isset($data['Taxa Found in Page (tabular)']['NameConfirmed'])) self::create_archive($data);
+                        if(isset($data['Taxa Found in Page']['text'])) self::create_archive($data);
                         else echo "\n[no taxa found for wiki: ".$data['Page Summary']['PageID']."]\n";
                     }
                 }
@@ -92,7 +93,11 @@ class WikiLiteratureEditorAPI
     {
         //get taxon_ids =========================
         $taxon_ids = array();
-        foreach($rec['Taxa Found in Page']['NameConfirmed'] as $name)
+        
+        // foreach($rec['Taxa Found in Page (tabular)']['NameConfirmed'] as $name)
+        $names = explode(";", $rec['Taxa Found in Page']['text']);
+        $names = array_map("trim", $names);
+        foreach($names as $name)
         {
             if($name = trim($name))
             {
@@ -102,7 +107,8 @@ class WikiLiteratureEditorAPI
         $taxon_ids = array_keys($taxon_ids);
         //=======================================
         
-        foreach($rec['Taxa Found in Page']['NameConfirmed'] as $name)
+        // foreach($rec['Taxa Found in Page (tabular)']['NameConfirmed'] as $name)
+        foreach($names as $name)
         {
             if(!trim($name)) continue;
             if(stripos($name, 'NameConfirmed') !== false) continue; //string is found
@@ -126,11 +132,10 @@ class WikiLiteratureEditorAPI
 
             // text object
             $media['identifier']             = $rec['Page Summary']['PageID'];
-            $media['title']                  = @$rec['User-defined Title']['text']; //per Katja: user enters title
+            $media['title']                  = self::format_title(@$rec['User-defined Title']['text']); //per Katja: user enters title
             $media['description']            = $rec['OCR Text']['text'];
             $media['CVterm']                 = $rec['Subject Type']['text'];
             $media['audience']               = $rec['Audience Type']['text'];
-            
 
             // below here is same for the next text object
             $media['taxonID']                = implode("|", $taxon_ids);
@@ -259,7 +264,7 @@ class WikiLiteratureEditorAPI
             $r->term_name = $agent;
             $r->identifier = md5("$agent|" . $rec["role"]);
             $r->agentRole = $rec["role"];
-            $r->term_homepage = $rec["homepage"];
+            $r->term_homepage = @$rec["homepage"];
             $agent_ids[] = $r->identifier;
             if(!isset($this->resource_agent_ids[$r->identifier]))
             {
@@ -270,6 +275,12 @@ class WikiLiteratureEditorAPI
         return $agent_ids;
     }
 
+    private function format_title($title)
+    {
+        if(stripos($title, 'enter title') !== false) return ""; //string is found
+        else return $title;
+    }
+    
     private function format_biblio($biblio)
     {
         return $biblio;
@@ -322,6 +333,12 @@ class WikiLiteratureEditorAPI
                         $rec[$index] = self::process_col_table($section);
                     }
 
+                    elseif(stripos($section, 'name="Taxa Found in Page"') !== false) //string is found
+                    {
+                        echo "\n $index is Taxa Found in Page";
+                        $rec[$index] = self::process_ocr_text($section, "Taxa Found in Page");
+                    }
+
                     elseif(stripos($section, 'name="OCR Text"') !== false) //string is found
                     {
                         echo "\n $index is OCR Text";
@@ -344,7 +361,7 @@ class WikiLiteratureEditorAPI
                     {
                         echo "\n $index is User-defined Title";
                         $rec[$index] = self::process_ocr_text($section, "User-defined Title");
-                        $rec[$index] = str_replace("'", "", $rec[$index]);
+                        $rec[$index] = str_replace("''", "", $rec[$index]);
                     }
 
                     elseif(stripos($section, 'name="User-defined References"') !== false) //string is found
@@ -454,11 +471,12 @@ class WikiLiteratureEditorAPI
         $agents = array();
         foreach($names as $name)
         {
+            $agent_id = false;
             if(preg_match("/\{(.*?)\}/ims", $name, $arr)) $agent_id = $arr[1];
             $name = str_replace(' {'.$agent_id.'}', "", $name);
             $agent = array();
             $agent['fullName'] = $name;
-            $agent['homepage'] = "http://www.biodiversitylibrary.org/creator/" . $agent_id . "#/titles";
+            if($agent_id) $agent['homepage'] = "http://www.biodiversitylibrary.org/creator/" . $agent_id . "#/titles";
             $agent['role'] = 'author';
             $agents[] = $agent;
         }
@@ -532,7 +550,7 @@ class WikiLiteratureEditorAPI
                     foreach($labels as $label)
                     {
                         $j++;
-                        if($values[$j] != "-") $fields[$label][] = $values[$j];
+                        if($values[$j] != "-") $fields[$label][] = self::remove_comments($values[$j]);
                     }
                 }
                 else
@@ -555,10 +573,15 @@ class WikiLiteratureEditorAPI
             {
                 $a = explode("|", $temp);
                 $a = array_map("trim", $a);
-                $fields[$a[1]] = $a[2];
+                $fields[$a[1]] = self::remove_comments($a[2]);
             }
         }
         return $fields;
+    }
+    
+    private function remove_comments($str)
+    {
+        return trim(preg_replace('/\s*\<!--[^)]*\-->/', '', $str)); //remove <!-- -->
     }
 
 }
