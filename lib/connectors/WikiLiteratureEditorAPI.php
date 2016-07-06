@@ -11,6 +11,8 @@ class WikiLiteratureEditorAPI
         
         $this->mediawiki_api = $mediawiki_api; //http://editors.eol.localhost/LiteratureEditor/api.php
         $this->download_options = array('resource_id' => $resource_id, 'expire_seconds' => false, 'download_wait_time' => 5000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->namespace = 5000; //ForHarvesting
+        // $this->namespace = 0; //Main namespace - drafts
     }
 
     function generate_archive()
@@ -27,7 +29,7 @@ class WikiLiteratureEditorAPI
         $k = 0; //just used when caching, running multiple connectors
         while(true)
         {
-            $url = $this->mediawiki_api . "?action=query&list=allpages&aplimit=$eilimit&format=json&apnamespace=5000&continue=";
+            $url = $this->mediawiki_api . "?action=query&list=allpages&aplimit=$eilimit&format=json&apnamespace=" . $this->namespace . "&continue=";
             if($continue) $url .= "&apcontinue=" . $continue;
             echo "\n [$url] \n";
             if($json = Functions::lookup_with_cache($url, $this->download_options))
@@ -64,30 +66,18 @@ class WikiLiteratureEditorAPI
     {
         foreach($recs as $rec)
         {
-            if($rec->title != "ForHarvesting:16194405 ae66e9b6f430af7e694cad4cf1d6f295") continue; //debug only
-            echo "\n" . $rec->title;
-
-
-            /* from old implementation - ver 1
-            $url = $this->mediawiki_api . "?action=query&titles=" . urlencode($rec->title) . "&format=json&prop=revisions&rvprop=content";
-            $json = Functions::lookup_with_cache($url, array('expire_seconds' => true)); //this expire_seconds should always be true
-            $arr = json_decode($json, true);
-            foreach(@$arr['query']['pages'] as $page) //there is really just one page here...
-            {
-                if($val = @$page['revisions'][0]['*'])
-                {
-                    if($data = self::parse_wiki_content($val))
-                    {
-                        if(isset($data['Taxa Found in Page']['text'])) self::create_archive($data);
-                        else echo "\n[no taxa found for wiki: ".$data['Page Summary']['PageID']."]\n";
-                    }
-                }
-            }
-            */
-            
-            $info = self::get_wiki_text($rec->title);
-            $params = self::get_void_part($info['content']);
-            if(!$params['header_title']) continue; //to exclude the likes of "Main Page"
+            // if($rec->title != "ForHarvesting:16194405 ae66e9b6f430af7e694cad4cf1d6f295") continue; //debug only
+            echo "\n" . $rec->title . "\n";
+            self::process_title($rec->title);
+        }
+    }
+    
+    function process_title($title)
+    {
+        $info = self::get_wiki_text($title);
+        $params = self::get_void_part($info['content']);
+        if($params['header_title']) //to exclude the likes of "Main Page"
+        {
             if($params['ocr_text'] && $params['taxon_asso']) self::create_archive($params);
         }
     }
@@ -128,8 +118,7 @@ class WikiLiteratureEditorAPI
 
     private function create_archive($p)
     {
-        print_r($p);
-        
+        // print_r($p);
         //get taxon_ids =========================
         $taxon_ids = array(); //initialize
         $names = explode(";", $p['taxon_asso']);
@@ -188,6 +177,7 @@ class WikiLiteratureEditorAPI
                 $media['UsageTerms']             = self::format_license($p['license_type']);
                 $media['furtherInformationURL']  = str_replace("api.php", "wiki/", $this->mediawiki_api) . $p['wiki_title'];
                 $media['agent']                  = $p['agents'];
+                $media['compiler']               = $p['compiler'];
                 $media['bibliographicCitation']  = $p['bibliographicCitation'];
 
                 $media['reference_ids'] = array();
@@ -259,10 +249,39 @@ class WikiLiteratureEditorAPI
         $mr->bibliographicCitation  = $media['bibliographicCitation'];
         $mr->furtherInformationURL  = $media['furtherInformationURL'];
         
-        if($val = @$media['agent'])
+        //=========================================
+        if($temp = @$media['agent'])
         {
-            if($agent_ids = self::create_agents($val)) $mr->agentID = implode("; ", $agent_ids);
+            $temp = explode(";", $temp);
+            $temp = array_map('trim', $temp);
+            $recs = array(); $rec = array();
+            foreach($temp as $t)
+            {
+                $rec['fullName'] = $t;
+                $rec['role'] = "author";
+                if($rec) $recs[] = $rec;
+            }
+            if($agent_ids = self::create_agents($recs)) $mr->agentID = implode("; ", $agent_ids);
         }
+        //=========================================
+        // [http://editors.eol.localhost/LiteratureEditor/wiki/User:Contributor1 Contributor one]; [http://editors.eol.localhost/LiteratureEditor/wiki/User:EAgbayani Eli E. Agbayani]
+        if($temps = @$media['compiler'])
+        {
+            $recs = array();
+            $temps = explode(";", $temps);
+            $temps = array_map('trim', $temps);
+            foreach($temps as $temp)
+            {
+                $arr = explode(" ", $temp);
+                $homepage = trim(substr($arr[0], 1, strlen($arr[0])));
+                array_shift($arr);
+                $name = implode(" ", $arr);
+                $name = substr($name, 0, -1);
+                $recs[] = array('fullName' => $name, 'role' => "compiler", 'homepage' => $homepage);
+            }
+            if($agent_ids = self::create_agents($recs)) $mr->agentID = implode("; ", $agent_ids);
+        }
+        //=========================================
 
         $mr->audience = $media['audience'];
         
@@ -296,49 +315,25 @@ class WikiLiteratureEditorAPI
     private function create_agents($agents)
     {
         $agent_ids = array();
-        $agents = explode(";", $agents);
-        $agents = array_map('trim', $agents);
-        foreach($agents as $agent)
-        {
-            if(!$agent) continue;
-            $r = new \eol_schema\Agent();
-            $r->term_name = $agent;
-            $r->identifier = md5("$agent|" . 'author');
-            $r->agentRole = 'author';
-            $r->term_homepage = "";
-            $agent_ids[] = $r->identifier;
-            if(!isset($this->resource_agent_ids[$r->identifier]))
-            {
-               $this->resource_agent_ids[$r->identifier] = '';
-               $this->archive_builder->write_object_to_file($r);
-            }
-        }
-        return $agent_ids;
-    }
-
-    /* not used anymore
-    private function create_agents($agents)
-    {
-        $agent_ids = array();
         foreach($agents as $rec)
         {
-            $agent = (string) trim($rec["fullName"]);
-            if(!$agent) continue;
-            $r = new \eol_schema\Agent();
-            $r->term_name = $agent;
-            $r->identifier = md5("$agent|" . $rec["role"]);
-            $r->agentRole = $rec["role"];
-            $r->term_homepage = @$rec["homepage"];
-            $agent_ids[] = $r->identifier;
-            if(!isset($this->resource_agent_ids[$r->identifier]))
+            if($agent = (string) trim($rec["fullName"]))
             {
-               $this->resource_agent_ids[$r->identifier] = '';
-               $this->archive_builder->write_object_to_file($r);
+                $r = new \eol_schema\Agent();
+                $r->term_name = $agent;
+                $r->identifier = md5("$agent|" . $rec["role"]);
+                $r->agentRole = $rec["role"];
+                $r->term_homepage = @$rec["homepage"];
+                $agent_ids[] = $r->identifier;
+                if(!isset($this->resource_agent_ids[$r->identifier]))
+                {
+                   $this->resource_agent_ids[$r->identifier] = '';
+                   $this->archive_builder->write_object_to_file($r);
+                }
             }
         }
         return $agent_ids;
     }
-    */
     
     private function format_language($lang_name)
     {
@@ -355,6 +350,7 @@ class WikiLiteratureEditorAPI
             if($lang['name'] == $lang_name) return $lang['abb'];
         }
     }
+    
     private function format_license($license_value)
     {
         //license array came from BHL controller
@@ -371,280 +367,5 @@ class WikiLiteratureEditorAPI
         }
     }
     
-    private function parse_wiki_content($wiki)
-    {
-        $rec = array();
-        $rec['agent'] = self::process_provider_agent($wiki);
-        
-        if(preg_match_all("/class=\"wikitable\"(.*?)\|\}/ims", $wiki, $arr))
-        {
-            foreach($arr[1] as $section)
-            {
-                if(preg_match("/name=\"(.*?)\"/ims", $section, $arr2))
-                {
-                    $index = $arr2[1];
-                    
-                    if(stripos($section, 'scope="row"') !== false) //string is found
-                    {
-                        echo "\n $index is row";
-                        $rec[$index] = self::process_row_table($section);
-                    }
-                    elseif(stripos($section, 'scope="col"') !== false) //string is found
-                    {
-                        echo "\n $index is col";
-                        $rec[$index] = self::process_col_table($section);
-                    }
-
-                    elseif(stripos($section, 'name="Taxa Found in Page"') !== false) //string is found
-                    {
-                        echo "\n $index is Taxa Found in Page";
-                        $rec[$index] = self::process_ocr_text($section, "Taxa Found in Page");
-                    }
-
-                    elseif(stripos($section, 'name="OCR Text"') !== false) //string is found
-                    {
-                        echo "\n $index is OCR Text";
-                        $rec[$index] = self::process_ocr_text($section, "OCR Text");
-                    }
-
-                    elseif(stripos($section, 'name="Subject Type"') !== false) //string is found
-                    {
-                        echo "\n $index is Subject Type";
-                        $rec[$index] = self::process_ocr_text($section, "Subject Type");
-                    }
-                    
-                    elseif(stripos($section, 'name="Audience Type"') !== false) //string is found
-                    {
-                        echo "\n $index is Audience Type";
-                        $rec[$index] = self::process_ocr_text($section, "Audience Type");
-                    }
-                    
-                    elseif(stripos($section, 'name="User-defined Title"') !== false) //string is found
-                    {
-                        echo "\n $index is User-defined Title";
-                        $rec[$index] = self::process_ocr_text($section, "User-defined Title");
-                        $rec[$index] = str_replace("''", "", $rec[$index]);
-                    }
-
-                    elseif(stripos($section, 'name="User-defined References"') !== false) //string is found
-                    {
-                        echo "\n $index is User-defined References";
-                        $temp = self::process_ocr_text($section, "User-defined References");
-                        $rec[$index] = self::parse_ref($temp['text']);
-                    }
-
-                    elseif(stripos($section, 'name="Licensor"') !== false) //string is found
-                    {
-                        echo "\n $index is Licensor";
-                        $rec[$index] = self::process_ocr_text($section, "Licensor");
-                    }
-
-                    elseif(stripos($section, 'name="License Type"') !== false) //string is found
-                    {
-                        echo "\n $index is License Type";
-                        $rec[$index] = self::process_ocr_text($section, "License Type");
-                    }
-
-                    elseif(stripos($section, 'name="Bibliographic Citation"') !== false) //string is found
-                    {
-                        echo "\n $index is Bibliographic Citation";
-                        $rec[$index] = self::process_ocr_text($section, "Bibliographic Citation");
-                    }
-                    
-                    elseif(stripos($section, 'name="Authors"') !== false) //string is found
-                    {
-                        echo "\n $index is Authors";
-                        $rec[$index] = self::process_multiple_row_text($section, "Authors");
-                    }
-                    
-
-                }
-                else
-                {
-                    echo "\nInvestigate 001\n"; exit;
-                }
-            }
-        }
-        
-        if($val = $rec['Authors']) $rec['agent'] = array_merge($rec['agent'], self::process_author_agent($val));
-        
-        
-        print_r($rec); //exit;
-        return $rec;
-    }
-
-    private function parse_ref($str)
-    {
-        $recs = array();
-        $exclude = array("John's Handbook, Third Edition, Doe-Roe Co., 1972.", "[http://www.eol.org Link text], my 2nd sample reference.");
-        /*
-        <ref name="ref1">John's Handbook, Third Edition, Doe-Roe Co., 1972.</ref><!-- Put your reference here or leave it as is. This sample won't be imported -->
-        <ref name="ref2">[http://www.eol.org Link text], my 2nd sample reference.</ref>
-        */
-        
-        //1st step
-        if(preg_match_all("/<ref name=(.*?)<\/ref>/ims", $str, $arr))
-        {
-            foreach($arr[1] as $t)
-            {
-                $a = explode('">', $t);
-                if(!in_array($a[1], $exclude)) $recs[] = array("id" => str_replace('"', "", $a[0]), "ref" => $a[1]);
-            }
-        }
-        
-        //2nd step
-        $final = array();
-        $i = 0;
-        foreach($recs as $rec)
-        {
-            if(preg_match("/\[http:(.*?)\]/ims", $rec['ref'], $arr))
-            {
-                // echo "\n[$arr[1]]\n";
-                $temp = explode(" ", $arr[1]);
-                // print_r($temp);
-                $recs[$i]['url'] = "http:".$temp[0];
-                array_shift($temp);
-                $recs[$i]['link_text'] = implode(" ", $temp);
-            }
-            $i++;
-        }
-        return $recs;
-    }
-
-    private function process_provider_agent($wiki)
-    {
-        $agent = array();
-        //Contributing User: [http://editors.eol.localhost/LiteratureEditor/wiki/User:EAgbayani <b>EAgbayani</b>]
-        if(preg_match("/<b>(.*?)<\/b>/ims", $wiki, $arr))
-        {
-            $agent['fullName'] = $arr[1];
-            if(preg_match("/Contributing User: \[http:\/\/(.*?) /ims", $wiki, $arr))
-            {
-                $agent['homepage'] = "http://" . $arr[1];
-                $agent['role'] = 'provider';
-            }
-            return array($agent);
-        }
-        return false;
-    }
-
-    private function process_author_agent($names)
-    {
-        $agents = array();
-        foreach($names as $name)
-        {
-            $agent_id = false;
-            if(preg_match("/\{(.*?)\}/ims", $name, $arr)) $agent_id = $arr[1];
-            $name = str_replace(' {'.$agent_id.'}', "", $name);
-            $agent = array();
-            $agent['fullName'] = $name;
-            if($agent_id) $agent['homepage'] = "http://www.biodiversitylibrary.org/creator/" . $agent_id . "#/titles";
-            $agent['role'] = 'author';
-            $agents[] = $agent;
-        }
-        return $agents;
-    }
-
-    private function process_ocr_text($section, $str)
-    {
-        /*
-            ===User-defined Title (optional)===
-            {| class="wikitable" style="color:green; background-color:#ffffcc;" name="User-defined Title"
-            |+ style="caption-side:right;"|[[Image:arrow-up icon.png|link=#top|Go top]]
-            |''enter title here''
-            |-
-            |}
-        */
-        if(preg_match("/Go top\]\](.*?)\|-/ims", $section, $arr))
-        {
-            $text = trim($arr[1]);
-            $text = substr($text, 1, strlen($text));
-            return array("text" => $text);
-        }
-    }
-
-    private function process_multiple_row_text($section, $str)
-    {
-        /*
-            ===Authors===
-            {| class="wikitable" style="color:green; background-color:#ffffcc;" name="Authors"
-            |+ style="caption-side:right;"|[[Image:arrow-up icon.png|link=#top|Go top]]
-            |British Museum (Natural History).
-            |-
-            |Gray, John Edward
-            |-
-            |}
-        */
-        if(preg_match("/Go top\]\](.*?)xxx/ims", $section."xxx", $arr))
-        {
-            if(preg_match_all("/\|(.*?)\|-/ims", $arr[1], $arr2))
-            {
-                return array_map("trim", $arr2[1]);
-            }
-        }
-    }
-
-    
-    private function process_col_table($section)
-    {
-        $fields = array();
-        $a = explode("\n", $section);
-
-        //get labels
-        if(preg_match_all("/scope=\"col\"\|(.*?)\|/ims", $a[3]."|", $arr))
-        {
-            $labels = array_map("trim", $arr[1]);
-        }
-
-        //get values
-        for($i = 4; $i <= count($a)-1; $i++)
-        {
-            // echo "\n[$i]" . count($a[$i]) . "\n";
-            $values = explode("||", "|".$a[$i]."||");
-            $values = array_map("trim", $values);
-            array_pop($values);     //remove first value
-            array_shift($values);   //remove last value
-            if(count($labels) == count($values))
-            {
-                if(count($labels) == count($values))
-                {
-                    $j = -1;
-                    foreach($labels as $label)
-                    {
-                        $j++;
-                        if($values[$j] != "-") $fields[$label][] = self::remove_comments($values[$j]);
-                    }
-                }
-                else
-                {
-                    echo "\nInvestigate 002\n";
-                    echo "\n[$section]\n";
-                    exit;
-                }
-            }
-        }
-        return $fields;
-    }
-
-    private function process_row_table($section)
-    {
-        $fields = array();
-        if(preg_match_all("/scope=\"row\"(.*?)\|\-/ims", $section, $arr))
-        {
-            foreach($arr[1] as $temp)
-            {
-                $a = explode("|", $temp);
-                $a = array_map("trim", $a);
-                $fields[$a[1]] = self::remove_comments($a[2]);
-            }
-        }
-        return $fields;
-    }
-    
-    private function remove_comments($str)
-    {
-        return trim(preg_replace('/\s*\<!--[^)]*\-->/', '', $str)); //remove <!-- -->
-    }
-
 }
 ?>
