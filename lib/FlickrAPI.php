@@ -22,7 +22,7 @@ define("OPENTREE_ID", "92803392@N02"); // OpenTree photostream - http://www.flic
 
 $GLOBALS['flickr_cache_path'] = DOC_ROOT . "/update_resources/connectors/files/flickr_cache"; //old cache path
 $GLOBALS['flickr_cache_path'] = DOC_ROOT . "/public/tmp/flickr_cache";
-$GLOBALS['expire_seconds'] = 172800; //0 -> expires now, false -> doesn't expire, 172800 -> expires in 2 days
+$GLOBALS['expire_seconds'] = 2160000; //0 -> expires now, false -> doesn't expire, 2160000 -> expires in 25 days
 
 // these two variables are used to limit the number of photos per taxon for Flickr photostream resources, if needed (e.g. Smithsonian Wild's photostream)
 $GLOBALS['taxa'] = array();
