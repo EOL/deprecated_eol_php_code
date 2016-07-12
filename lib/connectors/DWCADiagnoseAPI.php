@@ -110,5 +110,57 @@ class DWCADiagnoseAPI
         echo "\nTotal objects: " . count($objects) . "\n";
     }
 
+    //============================================================
+    function check_if_all_parents_have_entries($resource_id)
+    {
+        $var = self::get_fields_from_tab_file($resource_id, array("taxonID", "parentNameUsageID"));
+        $taxon_ids = array_keys($var['taxonID']);
+        $parent_ids = array_keys($var['parentNameUsageID']);
+        // print_r($taxon_ids); print_r($parent_ids);
+        $undefined = array();
+        foreach($parent_ids as $parent_id)
+        {
+            if(!in_array($parent_id, $taxon_ids))
+            {
+                echo "\n not defined parent [$parent_id]";
+                $undefined[$parent_id] = '';
+            }
+            // else echo "\n defined OK parent [$parent_id]";
+        }
+        // print_r($undefined);
+        echo "\n total undefined parent_id: " . count($undefined) . "\n";
+    }
+    
+    function get_fields_from_tab_file($resource_id, $cols)
+    {
+        $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/taxon.tab";
+        if(!file_exists($url))
+        {
+            echo "\nFile does not exist: [$url]\n";
+            return;
+        }
+        $i = 0;
+        $var = array();
+        foreach(new FileIterator($url) as $line_number => $temp)
+        {
+            $temp = explode("\t", $temp);
+            $i++;
+            if($i == 1) $fields = $temp;
+            else
+            {
+                $rec = array();
+                $k = 0;
+                if(!$temp) continue;
+                foreach($temp as $t)
+                {
+                    $rec[$fields[$k]] = $t;
+                    $k++;
+                }
+                foreach($cols as $col) $var[$col][@$rec[$col]] = '';
+            }
+        }
+        return $var;
+    }
+    //============================================================
 }
 ?>
