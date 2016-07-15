@@ -11,10 +11,11 @@ class ReindexHandler
             throw new \Exception("The TaxonConceptID was missing or was not a number");
             return;
         }
-        
+
         Tasks::update_taxon_concept_names(array($taxon_concept_id));
-        $he = new FlattenHierarchies();
-        $he->flatten_hierarchies_from_concept_id($taxon_concept_id);
+        // I don't think we really want to do this here. :S
+        // $he = new FlattenHierarchies();
+        // $he->flatten_hierarchies_from_concept_id($taxon_concept_id);
         TaxonConcept::reindex_descendants_objects($taxon_concept_id);
         TaxonConcept::reindex_for_search($taxon_concept_id);
         TaxonConcept::unlock_classifications_by_id($taxon_concept_id);
