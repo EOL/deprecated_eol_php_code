@@ -22,7 +22,7 @@ if($url)
     {
         if(is_dir($temp_dir))
         {
-            $errors[] = "The file provided is not an Excel file";
+            $errors[] = "The file provided ". $temp_dir ." is not an Excel file";
             recursive_rmdir($temp_dir);
         }else
         {

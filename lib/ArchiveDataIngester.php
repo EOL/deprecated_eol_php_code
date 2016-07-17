@@ -433,7 +433,7 @@ class ArchiveDataIngester
               " AND hierarchy_entry_id = " . $he_id .
               " AND hierarchy_id = " .
               $this->harvest_event->resource->hierarchy_id .
-              " AND identifier = ". $taxon_ids[0]);
+              " AND identifier = '". $taxon_ids[0] . "'");
             if ($result && $result->fetch_assoc()){
               $l_id = @$language->id ?: 0;
               $GLOBALS['db_connection']->update(
@@ -446,7 +446,7 @@ class ArchiveDataIngester
                 " AND hierarchy_entry_id = " . $he_id .
                 " AND hierarchy_id = " .
                 $this->harvest_event->resource->hierarchy_id .
-                "AND identifier = ". $taxon_ids[0]);
+                "AND identifier = '". $taxon_ids[0] . "'");
               break;
             }else{
                 Synonym::find_or_create(array('name_id'               => $name->id,
@@ -665,9 +665,9 @@ class ArchiveDataIngester
 	        if($result && $row=$result->fetch_assoc())
 	        {
 	             $hierarchy_entry_id = $row["id"];
-                 $source = "'" . $this->get_hierarchy_entry_outlink($row["hierarchy_id"],
-                     $row["identifier"],
-                     preg_replace('/\'/', "\\'", $row["source_url"])) . "'";
+               $source = "'" . $this->get_hierarchy_entry_outlink($row["hierarchy_id"],
+                   $row["identifier"],
+                   preg_replace('/\'/', "\\'", $row["source_url"])) . "'";
 	             $identifier = "'" . $row["identifier"] . "'";
 	             $taxon_concept_id = $row["taxon_concept_id"];
 	        }
@@ -965,7 +965,8 @@ class ArchiveDataIngester
             $entry_id = 0;
             $resource_uri = 0;
             $entry_uri = 0;
-            if(empty($taxon_id) && isset($occurrence_id)) {
+            if(empty($taxon_id) && isset($occurrence_id) &&
+              array_key_exists($occurrence_id, $this->occurrence_taxon_mapping)) {
               $entry_id = $this->occurrence_taxon_mapping[$occurrence_id];
             } else if(! empty($taxon_id)) {
               $entry_id = $taxon_id;
@@ -1078,7 +1079,11 @@ class ArchiveDataIngester
             	$data_point_uri_id = $this->mysqli->insert($attributes_query . $values_query);
             	if(!empty($data_point_uri_id))
             	{
-            		$source = "'" . $this->get_hierarchy_entry_outlink($hierarchy_id, $hierarchy_entry_identifier, $source_url) . "'";
+            		$source = "'" .
+                  str_replace("'", "\'",
+                    $this->get_hierarchy_entry_outlink($hierarchy_id,
+                    $hierarchy_entry_identifier, $source_url)) .
+                  "'";
             		if(isset($data_point_uri['predicate']))
             		{
                         $predicate = "'" .
