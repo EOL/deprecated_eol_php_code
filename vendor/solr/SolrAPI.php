@@ -140,6 +140,7 @@ class SolrAPI
         if(!$GLOBALS['ENV_DEBUG']) $extra_bit = " > /dev/null 2>/dev/null";
         $extra_bit = @$extra_bit ?: '';
 		echo "inside commit action of solr \n";
+		echo $this->action_url . "  and extra bit is: " . $extra_bit . "\n";
         exec("curl ". $this->action_url ."/update -F stream.url=".LOCAL_WEB_ROOT."applications/solr/commit.xml $extra_bit");
     }
 
@@ -262,11 +263,6 @@ class SolrAPI
             if($this->primary_key) $this_attr[] = $primary_key;
             foreach($fields as $attr)
             {
-            	//just adding for BHL sake to make sure
-            	if($this->primary_key && $attr == "id"){
-            		echo "The new case is happening now. \n";
-            		continue;
-				}
                 // this object has this attribute
                 if(isset($attributes[$attr]))
                 {
