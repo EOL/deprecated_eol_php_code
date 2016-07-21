@@ -29,9 +29,13 @@ if(isset($params['wiki_title']))
 else
 {
     $resource_id = 1006;
+    if($val = @$params['archive_id']) $resource_id = $val;
     $func = new WikiLiteratureEditorAPI($resource_id, 'http://' . $domain . '/LiteratureEditor/api.php');
     $func->generate_archive();
-    Functions::finalize_dwca_resource($resource_id);
+    finalize_dwca_resource($resource_id);
+    if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/taxon.tab") > 0) echo "<br>[SUCCESS]<br>";
+    else echo "<br>[FAIL]<br>";
+    
     $elapsed_time_sec = time_elapsed() - $timestart;
     echo "\n\n";
     echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
@@ -50,9 +54,11 @@ function finalize_dwca_resource($resource_id, $big_file = false)
         }
         Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
         Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
+        /* works but not needed
         echo "<pre>";
         Functions::count_resource_tab_files($resource_id);
         echo "</pre>";
+        */
     }
 }
 

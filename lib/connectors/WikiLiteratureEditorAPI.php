@@ -10,7 +10,7 @@ class WikiLiteratureEditorAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
 
         $this->mediawiki_api = $mediawiki_api; //http://editors.eol.localhost/LiteratureEditor/api.php
-        $this->download_options = array('resource_id' => $resource_id, 'expire_seconds' => false, 'download_wait_time' => 5000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->download_options = array('resource_id' => $resource_id, 'expire_seconds' => true, 'download_wait_time' => 5000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->namespace = 5000; //ForHarvesting
     }
 
@@ -22,7 +22,7 @@ class WikiLiteratureEditorAPI
     
     private function list_all_pages()
     {
-        $eilimit = 2; //orig 500 debug
+        $eilimit = 500; //orig 500 debug
         $continue = false;
         $i = 0;
         $k = 0; //just used when caching, running multiple connectors
