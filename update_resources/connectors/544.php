@@ -66,7 +66,7 @@ function remove_bhl_images_already_existing_in_eol_group($resource_id)
     print "\n\n from text file: " . count($do_ids);
     $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
     $xml_string = Functions::get_remote_file($resource_path, array('timeout' => 240, 'download_attempts' => 5));
-    $xml_string = remove_invalid_bytes_in_XML($xml_string);
+    $xml_string = Functions::remove_invalid_bytes_in_XML($xml_string);
     $xml = simplexml_load_string($xml_string);
     $i = 0;
     $deleted_ids = array();
@@ -105,12 +105,6 @@ function remove_bhl_images_already_existing_in_eol_group($resource_id)
     if(!($WRITE = Functions::file_open($resource_path, "w"))) return;
     fwrite($WRITE, $xml_string);
     fclose($WRITE);
-}
-
-function remove_invalid_bytes_in_XML($string)
-{
-    $string = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $string);
-    return $string;
 }
 
 function bhl_image_count() // just for stats
