@@ -49,6 +49,14 @@ class FlickrAPI
             $taxa = array();
             for($i=1 ; $i<=$total_pages ; $i++)
             {
+                /* when running 2 or more connectors...
+                $m = 265;
+                $cont = false;
+                if($i >= 1 && $i < $m)      $cont = true;
+                if($i >= $m && $i < $m*2)   $cont = true;
+                if(!$cont) continue;
+                */
+                
                 echo "getting page $i: ".time_elapsed()."\n";
                 $page_taxa = self::get_eol_photos($per_page, $i, $auth_token, $user_id, $start_date, $end_date);
                 if($page_taxa)
@@ -536,11 +544,7 @@ class FlickrAPI
         if(!file_exists($dir_path)) mkdir($dir_path);
         
         // write to cache file
-        if(!($FILE = fopen($file_path, "w+")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$file_path);
-          return;
-        }
+        if(!($FILE = Functions::file_open($file_path, "w+"))) return;
         fwrite($FILE, $photo_response);
         fclose($FILE);
     }
@@ -565,11 +569,18 @@ class FlickrAPI
         return false;
     }
 
-    private function is_sciname_synonym($sciname)
+    public static function is_sciname_synonym($sciname)
     {
-        /* http://eol.org/api/search/1.0.xml?q=Xanthopsar+flavus&page=1&exact=false&filter_by_taxon_concept_id=&filter_by_hierarchy_entry_id=&filter_by_string=&cache_ttl= */
-        $search_call = "http://eol.org/api/search/1.0.xml?q=" . $sciname . "&page=1&exact=false&filter_by_taxon_concept_id=&filter_by_hierarchy_entry_id=&filter_by_string=&cache_ttl=";
-        if($xml = Functions::lookup_with_cache($search_call, array('timeout' => 30, 'expire_seconds' => false, 'resource_id' => 'eol_api'))) //resource_id here is just a folder name in cache
+        $expire_seconds = false;
+        
+        /* debug
+        if($sciname == "Falco chrysaetos") $expire_seconds = true;
+        else                               $expire_seconds = false;
+        */
+        
+        /*              http://eol.org/api/search/1.0.xml?q=Xanthopsar+flavus&page=1&exact=false&filter_by_taxon_concept_id=&filter_by_hierarchy_entry_id=&filter_by_string=&cache_ttl= */
+        $search_call = "http://eol.org/api/search/1.0.xml?q=" . $sciname .  "&page=1&exact=false&filter_by_taxon_concept_id=&filter_by_hierarchy_entry_id=&filter_by_string=&cache_ttl=";
+        if($xml = Functions::lookup_with_cache($search_call, array('timeout' => 30, 'expire_seconds' => $expire_seconds, 'resource_id' => 'eol_api'))) //resource_id here is just a folder name in cache
         {
             $xml = simplexml_load_string($xml);
             $sciname = Functions::canonical_form($sciname);
@@ -607,7 +618,7 @@ class FlickrAPI
         return $all_taxa;
     }
 
-    private function get_date_ranges($start_year, $month = NULL)
+    public static function get_date_ranges($start_year, $month = NULL)
     {
         $range = array();
         if(!$month)
@@ -651,14 +662,14 @@ class FlickrAPI
         return $range;
     }
 
-    private function get_timestamp_range($start_date, $end_date)
+    public static function get_timestamp_range($start_date, $end_date)
     {
         $date_start = new \DateTime($start_date);
         $date_end = new \DateTime($end_date);
         return array("start" => $start_date, "end" => $end_date, "start_timestamp" => $date_start->getTimestamp(), "end_timestamp" => $date_end->getTimestamp());
     }
     
-    function create_cache_path()
+    public static function create_cache_path()
     {
         if(!file_exists($GLOBALS['flickr_cache_path'])) mkdir($GLOBALS['flickr_cache_path']);
         if(!file_exists($GLOBALS['flickr_cache_path']."/photosGetInfo")) mkdir($GLOBALS['flickr_cache_path']."/photosGetInfo");
