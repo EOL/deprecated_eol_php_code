@@ -20,6 +20,13 @@ class FlattenHierarchies
         $this->preview_id = Visibility::preview()->id;
     }
 
+    // NOTE: I believe I (JRice) have commented out all occurrences of this
+    // method. I'm leaving it here to analyze later; I believe it is screwing up
+    // hierarchies. ...It *could* be because it was called twice and there could
+    // have been some disconnect between master/slave or something. But I've
+    // written nice clean, fast code to do this is Ruby, so we can call it there
+    // when needed. ...Really it should only be needed after classification
+    // curations and harvests.
     public function flatten_hierarchies_from_concept_id($taxon_concept_id)
     {
         $this->create_temporary_files();

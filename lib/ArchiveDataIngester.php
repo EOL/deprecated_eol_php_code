@@ -665,9 +665,9 @@ class ArchiveDataIngester
 	        if($result && $row=$result->fetch_assoc())
 	        {
 	             $hierarchy_entry_id = $row["id"];
-                 $source = "'" . $this->get_hierarchy_entry_outlink($row["hierarchy_id"],
-                     $row["identifier"],
-                     preg_replace('/\'/', "\\'", $row["source_url"])) . "'";
+               $source = "'" . $this->get_hierarchy_entry_outlink($row["hierarchy_id"],
+                   $row["identifier"],
+                   preg_replace('/\'/', "\\'", $row["source_url"])) . "'";
 	             $identifier = "'" . $row["identifier"] . "'";
 	             $taxon_concept_id = $row["taxon_concept_id"];
 	        }
@@ -1079,7 +1079,11 @@ class ArchiveDataIngester
             	$data_point_uri_id = $this->mysqli->insert($attributes_query . $values_query);
             	if(!empty($data_point_uri_id))
             	{
-            		$source = "'" . $this->get_hierarchy_entry_outlink($hierarchy_id, $hierarchy_entry_identifier, $source_url) . "'";
+            		$source = "'" .
+                  str_replace("'", "\'",
+                    $this->get_hierarchy_entry_outlink($hierarchy_id,
+                    $hierarchy_entry_identifier, $source_url)) .
+                  "'";
             		if(isset($data_point_uri['predicate']))
             		{
                         $predicate = "'" .

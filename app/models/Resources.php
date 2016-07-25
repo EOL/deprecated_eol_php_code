@@ -546,12 +546,13 @@ class Resource extends ActiveRecord
           $this->mysqli->end_transaction();
           $this->debug_end("transaction");
 
-          if($this->auto_publish)
-          {
+          // WE NO LONGER MAKE THIS DISTINCTION:
+          // if($this->auto_publish)
+          // {
             $this->harvest_event->publish = 1;
             $this->harvest_event->save();
             // PORTED TO RUBY! $this->publish($fast_for_testing);
-          }
+          // }
 
           if($GLOBALS['ENV_NAME'] == 'production')
           {
