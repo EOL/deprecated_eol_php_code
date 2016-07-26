@@ -34,4 +34,15 @@ Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml",
 // set Flickr to force harvest
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 600) Functions::set_resource_status_to_force_harvest($resource_id);
 
+//fix bad characters
+$xml_string = file_get_contents(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");
+$xml_string = Functions::remove_invalid_bytes_in_XML($xml_string);
+if(($fhandle = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", "w")))
+{
+    fwrite($fhandle, $xml_string);
+    fclose($fhandle);
+}
+
+//compress resource xml
+Functions::gzip_resource_xml($resource_id);
 ?>
