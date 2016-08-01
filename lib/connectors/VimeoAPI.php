@@ -361,12 +361,18 @@ class VimeoAPI
                 }
             }
         }
-        foreach($match as $tag) if(preg_match("/^taxonomy:" . $smallest_rank . "=(.*)$/i", $tag, $arr)) $sciname = ucfirst(trim($arr[1]));
+        foreach($match as $tag)
+        {
+            if(preg_match("/^taxonomy:" . $smallest_rank . "=(.*)$/i", $tag, $arr)) $sciname = ucfirst(trim($arr[1]));
+        }
         if(!isset($sciname))
         {
             echo("\nThis needs checking...");
             print_r($match);
             $sciname = '';
+            /* for debugging
+            if(stripos($match[0], 'Higa') !== false) exit("\n - investigate - \n");
+            */
         }
         return array("rank" => $smallest_rank, "name" => $sciname);
     }
