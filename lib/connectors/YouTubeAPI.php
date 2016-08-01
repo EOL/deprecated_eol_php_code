@@ -212,7 +212,8 @@ class YouTubeAPI
             foreach($matches[0] as $str) $description = str_ireplace($str, "", trim($description));
         }
         
-        if(!$arr_sciname) // probably no machine tags, let us check names inside the title
+        /*commented since Ubio service is offline
+        if(!$arr_sciname) // probably no machine tags, let us check names inside the title using Ubio API
         {
             if($scinames = self::get_sciname(array($rec["media_title"], $rec["description"])))
             {
@@ -223,6 +224,7 @@ class YouTubeAPI
                 }
             }
         }
+        */
         
         $license = 'http://creativecommons.org/licenses/by/3.0/';
         foreach($arr_sciname as $sciname => $temp)
@@ -267,7 +269,7 @@ class YouTubeAPI
         return $arr_data;
     }
 
-    private function get_sciname($strings_to_search)
+    private function get_sciname($strings_to_search) //Ubio search
     {
         $options = $this->download_options;
         $options['expire_seconds'] = 15552000; //six months before it expires
