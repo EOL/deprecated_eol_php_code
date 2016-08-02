@@ -22,7 +22,7 @@ define("OPENTREE_ID", "92803392@N02"); // OpenTree photostream - http://www.flic
 
 $GLOBALS['flickr_cache_path'] = DOC_ROOT . "/update_resources/connectors/files/flickr_cache"; //old cache path
 $GLOBALS['flickr_cache_path'] = DOC_ROOT . "/public/tmp/flickr_cache";
-$GLOBALS['expire_seconds'] = 2160000; //0 -> expires now, false -> doesn't expire, 2160000 -> expires in 25 days
+$GLOBALS['expire_seconds'] = 2592000; //0 -> expires now, false -> doesn't expire, 2592000 -> expires in 30 days
 
 // these two variables are used to limit the number of photos per taxon for Flickr photostream resources, if needed (e.g. Smithsonian Wild's photostream)
 $GLOBALS['taxa'] = array();
@@ -424,7 +424,7 @@ class FlickrAPI
             /* remove group_id param to get images from photostream, and not only those in the EOL Flickr group */
             $url = self::generate_rest_url("flickr.photos.search", array("machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, "license" => "1,2,4,5,7", "privacy_filter" => "1", "sort" => "date-taken-asc", "min_taken_date" => $start_date, "max_taken_date" => $end_date, "format" => "json", "nojsoncallback" => 1), 1);
         }
-        return json_decode(Functions::lookup_with_cache($url, array('timeout' => 30, 'expire_seconds' => $GLOBALS['expire_seconds'], 'resource_id' => 'flickr'))); //expires in 2 days, since Flickr is called every day as Cron task anyway. And resource_id here is just a folder name in cache
+        return json_decode(Functions::lookup_with_cache($url, array('timeout' => 30, 'expire_seconds' => $GLOBALS['expire_seconds'], 'resource_id' => 'flickr'))); //expires in 30 days; rsource_id here is just a folder name in cache
     }
     
     public static function auth_get_frob()

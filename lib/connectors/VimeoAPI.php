@@ -76,8 +76,8 @@ class VimeoAPI
     
     private static function lookup_with_cache_vimeo_call($vimeo, $command, $param, $options = array())
     {
-        // default expire time is 15 days
-        if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 1296000; //debug orig value = 1296000
+        // default expire time is 30 days
+        if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 2592000; //debug orig value = 2592000
         if(!isset($options['timeout']))        $options['timeout'] = 240;
         if(!isset($options['cache_path'])) $options['cache_path'] = DOC_ROOT . "tmp/cache/";
         // if(!isset($options['cache_path'])) $options['cache_path'] = "/Volumes/Eli black/eol_cache/";    //debug - only during development
@@ -486,7 +486,7 @@ class VimeoAPI
 
     function get_license_from_page($video_page_url)
     {
-        $html = Functions::lookup_with_cache($video_page_url, array('expire_seconds' => 1296000)); // 15 days until cache expires //debug orig value = 1296000
+        $html = Functions::lookup_with_cache($video_page_url, array('expire_seconds' => 2592000)); // 30 days until cache expires //debug orig value = 2592000
         if(preg_match("/<a href=\"http:\/\/creativecommons.org\/licenses\/(.*?)\//ims", $html, $matches)) return self::get_cc_license("cc-" . trim($matches[1]));
         return false;
     }

@@ -67,9 +67,9 @@ class YouTubeAPI
 {
     function __construct()
     {
-        // cache expires after 25 days; download timeout is 2 minutes; download interval is 2 seconds
-        $this->download_options = array('resource_id' => 323, 'expire_seconds' => 2160000, 'download_wait_time' => 2000000, 'timeout' => 120, 'download_attempts' => 1); //, 'delay_in_minutes' => 5
-        // $this->download_options['expire_seconds'] = false; //false - doesn't expire | 2160000 - expires in 25 days
+        // cache expires after 30 days; download timeout is 2 minutes; download interval is 2 seconds
+        $this->download_options = array('resource_id' => 323, 'expire_seconds' => 2592000, 'download_wait_time' => 2000000, 'timeout' => 120, 'download_attempts' => 1); //, 'delay_in_minutes' => 5
+        // $this->download_options['expire_seconds'] = false; //false - doesn't expire | 2592000 - expires in 30 days
     }
     
     public function get_all_taxa()
