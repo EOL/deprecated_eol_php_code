@@ -10,19 +10,33 @@ class PaleoDBAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->resource_reference_ids = array();
-        $this->download_options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->download_options = array('cache' => 1, 'resource_id' => $folder, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'expire_seconds' => 2592000); //cache expires in 30 days
         $this->occurrence_ids = array();
         $this->invalid_names_status = array("replaced by", "invalid subgroup of", "nomen dubium", "nomen nudum", "nomen vanum", "nomen oblitum");
+        
         $this->service["taxon"] = "http://paleobiodb.org/data1.1/taxa/list.csv?rel=all_taxa&status=valid&show=attr,app,size,phylo,ent,entname,crmod&limit=1000000";
+
+        /* paleobiodb.csv - old version, with just 32 cols
         // $this->service["taxon"] = "https://dl.dropboxusercontent.com/u/7597512/PaleoDB/paleobiodb.csv";
-        // $this->service["taxon"] = "http://localhost/~eolit/cp/PaleoDB/pbdb_taxa.csv";
-        // $this->service["taxon"] = "http://localhost/~eolit/cp/PaleoDB/paleobiodb_small.csv";
+        // $this->service["taxon"] = "http://localhost/cp/PaleoDB/paleobiodb_small.csv";
+        */
+        
+        /* pbdb_taxa.csv - new version with 33 cols - working as of 11-Jul-2016
+        // $this->service["taxon"] = "https://dl.dropboxusercontent.com/u/5763406/resources/PaleoDB/pbdb_taxa.csv";
+        // $this->service["taxon"] = "http://localhost/cp/PaleoDB/pbdb_taxa.csv";
+        // $this->service["taxon"] = "http://localhost/cp/PaleoDB/pbdb_taxa_small.csv";
+        */
 
         $this->service["collection"] = "http://paleobiodb.org/data1.1/colls/list.csv?vocab=pbdb&limit=10&show=bin,attr,ref,loc,paleoloc,prot,time,strat,stratext,lith,lithext,geo,rem,ent,entname,crmod&taxon_name=";
         $this->service["occurrence"] = "http://paleobiodb.org/data1.1/occs/list.csv?show=loc,time&limit=10&base_name=";
         $this->service["reference"] = "http://paleobiodb.org/cgi-bin/bridge.pl?a=displayRefResults&type=view&reference_no=";
         $this->service["source"] = "http://paleobiodb.org/cgi-bin/bridge.pl?a=checkTaxonInfo&is_real_user=1&taxon_no=";
+
+        $this->taxon_no_of_cols = 33; //old version value is 32
         /*
+        new ver. 33 "taxon_no","orig_no","record_type","associated_records","rank","taxon_name","common_name","attribution","pubyr","status","parent_no","senior_no","reference_no","is_extant","firstapp_ea","firstapp_la","lastapp_ea","lastapp_la","size","extant_size","kingdom","phylum","class","order","family","authorizer_no","enterer_no","modifier_no","authorizer","enterer","modifier","created","modified"
+        old ver. 32 "taxon_no","orig_no","record_type",                     "rank","taxon_name","common_name","attribution","pubyr","status","parent_no","senior_no","reference_no","is_extant","firstapp_ea","firstapp_la","lastapp_ea","lastapp_la","size","extant_size","kingdom","phylum","class","order","family","authorizer_no","enterer_no","modifier_no","authorizer","enterer","modifier","created","modified"
+        
         ranks so far:
             [kingdom] => 
             [unranked clade] => 
@@ -90,7 +104,7 @@ class PaleoDBAPI
         }
         elseif($type == "taxon")
         {
-            $no_of_fields = 32;
+            $no_of_fields = $this->taxon_no_of_cols;
             $path = Functions::save_remote_file_to_local($this->service["taxon"], array("timeout" => 999999, "cache" => 0)); // debug cache should be 0; only when debugging should be 1
         }
 
@@ -301,8 +315,10 @@ class PaleoDBAPI
             if(!isset($this->taxa[$t->parentNameUsageID]) && $t->parentNameUsageID)
             {
                 print "\n parent_id of $t->taxonID does not exist:[$t->parentNameUsageID]";
-                if($id = self::create_missing_taxon($t)) $t->parentNameUsageID = $id;
-                else                                     $t->parentNameUsageID = "";
+                if    ($id = self::create_missing_taxon($t))       $t->parentNameUsageID = $id;
+                elseif($id = self::get_missing_parent_via_api($t)) $t->parentNameUsageID = $id;
+                else                                               $t->parentNameUsageID = "";
+                echo " - new parent id = [$t->parentNameUsageID]\n";
             }
             if(!isset($this->taxa[$t->acceptedNameUsageID]) && $t->acceptedNameUsageID)
             {
@@ -325,17 +341,94 @@ class PaleoDBAPI
         $this->archive_builder->finalize(TRUE);
     }
     
+    private function get_missing_parent_via_api($t)
+    {
+        $rnk[8]  = "subfamily";
+        $rnk[5]  = "genus";
+        $rnk[25] = ""; //sciname for it is "Life"
+        $rnk[7]  = "tribe";         // parent_id of 188896 does not exist:[161173]
+        $rnk[11] = "infraorder";    // parent_id of 193147 does not exist:[193148]
+        $rnk[3]  = "species";       // parent_id of 232231 does not exist:[131664]
+        $rnk[26] = "informal";      // parent_id of 297613 does not exist:[84242]
+        $rnk[10] = "superfamily";   // parent_id of 306307 does not exist:[306306]
+        $rnk[12] = "suborder";      // parent_id of 312506 does not exist:[312505]
+        $rnk[18] = "superclass";    // parent_id of 162968 does not exist:[162969]
+        $rnk[15] = "Infraclass";    // parent_id of 276031 does not exist:[247806]
+        $rnk[4]  = "genus";         // parent_id of 61287 does not exist:[61315]
+        
+        $url = "https://paleobiodb.org/data1.1/taxa/single.json?id=" . $t->parentNameUsageID . "&show=attr";
+        
+        $ids_to_set_cache_expires = array(); //just a check, put here parent_ids that needed a fresh http access, cache expires.
+        $download_options = $this->download_options;
+        if(in_array($t->parentNameUsageID, $ids_to_set_cache_expires))
+        {
+            $download_options['expire_seconds'] = 0; //cache expires
+        }
+        
+        if($json = Functions::lookup_with_cache($url, $download_options))
+        {
+            /*[records] => Array
+                (
+                    [0] => stdClass Object
+                        (
+                            [oid] => 170201
+                            [gid] => 170201
+                            [typ] => txn
+                            [rnk] => 5
+                            [nam] => Acaciella
+                            [att] => Walter et al. 2000
+                            [par] => 0
+                            [rid] => Array([0] => 33229)
+                        )
+                )
+            */
+            $obj = json_decode($json);
+            foreach($obj->records as $rec)
+            {
+                echo "\n" . $rec->nam;
+                
+                //start create archive
+                $taxon = new \eol_schema\Taxon();
+                $taxon->taxonID                  = $t->parentNameUsageID;
+                $taxon->scientificName           = $rec->nam;
+                $taxon->scientificNameAuthorship = @$rec->att;
+                
+                if($parent_id = $rec->par)  $taxon->parentNameUsageID = $parent_id;
+                if($rank = $rnk[$rec->rnk]) $taxon->taxonRank = $rank;
+                else
+                {
+                    if($rank != "")
+                    {
+                        echo "\nundefined rank: [$rec->rnk]\n";
+                        exit("\ninvestigate 001\n");
+                    }
+                }
+                $taxon->taxonomicStatus = "valid";
+                
+                if(!isset($this->taxa[$taxon->taxonID]))
+                {
+                    $this->taxa[$taxon->taxonID] = '';
+                    $this->archive_builder->write_object_to_file($taxon);
+                    $this->name_id[$taxon->scientificName] = $taxon->taxonID;
+                }
+                echo " --- $taxon->taxonID used as parent ccc \n";
+                return $taxon->taxonID;
+            }
+        }
+        
+    }
+    
     private function create_missing_taxon($t)
     {
         if(    $t->family  && $t->scientificName != $t->family)    $info = array("sciname" => $t->family, "rank" => "family");
         elseif($t->order   && $t->scientificName != $t->order)     $info = array("sciname" => $t->order, "rank" => "order");
         elseif($t->class   && $t->scientificName != $t->class)     $info = array("sciname" => $t->class, "rank" => "class");
-        elseif($t->phylum  && $t->scientificName != $t->phylum)    $info = array("sciname" => $t->phylum, "rank" => "phylum");
+        elseif(@$t->phylum  && $t->scientificName != @$t->phylumm) $info = array("sciname" => @$t->phylum, "rank" => "phylum");
         elseif($t->kingdom && $t->scientificName != $t->kingdom)   $info = array("sciname" => $t->kingdom, "rank" => "kingdom");
         else return false;
         if($id = @$this->name_id[$info["sciname"]]) // there is an existing taxon for the parent either from k.p.c.o.f.
         {
-            echo " --- $id used as parent 01 \n";
+            echo " --- $id used as parent aaa \n";
             return $id;
         }
         $taxon = new \eol_schema\Taxon();
@@ -349,7 +442,7 @@ class PaleoDBAPI
             $this->archive_builder->write_object_to_file($taxon);
             $this->name_id[$taxon->scientificName] = $taxon->taxonID;
         }
-        echo " --- $taxon->taxonID used as parent 02 \n";
+        echo " --- $taxon->taxonID used as parent bbb \n";
         return $taxon->taxonID;
     }
 

@@ -8,6 +8,14 @@ namespace php_active_record;
 893 Sweden
 894 United Kingdom
 including iDigBio [885]
+
+php update_resources/connectors/872.php
+php update_resources/connectors/886.php
+php update_resources/connectors/887.php
+php update_resources/connectors/892.php
+php update_resources/connectors/893.php
+php update_resources/connectors/894.php
+php update_resources/connectors/885.php
 */
 
 class GBIFCountryTypeRecordAPI
@@ -19,12 +27,10 @@ class GBIFCountryTypeRecordAPI
         $this->taxon_ids = array();
         $this->object_ids = array();
         $this->occurrence_ids = array();
-        $this->gbifID_taxonID = array();
         $this->debug = array();
-        $this->spreadsheet_options = array("cache" => 0, "timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2); //we don't want to cache spreadsheet
+        $this->spreadsheet_options = array('resource_id' => 'gbif', 'cache' => 0, 'timeout' => 3600, 'file_extension' => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2); //we don't want to cache spreadsheet
         // for iDigBio
-        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 1);
-        $this->download_options["expire_seconds"] = 5184000;
+        $this->download_options = array('resource_id' => 'gbif', 'download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 1, 'expire_seconds' => false);
         $this->IDB_service["record"] = "http://api.idigbio.org/v1/records/";
         $this->IDB_service["recordset"] = "http://api.idigbio.org/v1/recordsets/";
     }
@@ -145,10 +151,12 @@ class GBIFCountryTypeRecordAPI
                     $i = 0;
                     foreach(new FileIterator($table_definition->file_uri) as $line_number => $line)
                     {
+                        if(!Functions::is_utf8($line)) exit("\nnot utf8\n");
+                        
                         $i++;
                         if(($i % 10000) == 0) echo "\n" . $params["type"] . " - $i ";
                         
-                        /* breakdown when caching
+                        /* breakdown when caching - iDigBIO up to 5 simultaneous connectors
                         $m = 200000;
                         $cont = false;
                         // if($i >=  1    && $i < $m)    $cont = true;
@@ -205,6 +213,9 @@ class GBIFCountryTypeRecordAPI
         $taxon->family          = (string) $rec["http://rs.tdwg.org/dwc/terms/family"];
         $taxon->genus           = (string) $rec["http://rs.tdwg.org/dwc/terms/genus"];
         $taxon->taxonRank       = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
+
+        $taxon = self::check_sciname_ancestry_values($taxon);
+
         if(in_array($taxon->taxonRank, array("var.", "f.", "var"))) $taxon->taxonRank = "";
         if($taxon->scientificName || $taxon->genus || $taxon->family || $taxon->order || $taxon->class || $taxon->phylum || $taxon->kingdom)
         {
@@ -223,6 +234,18 @@ class GBIFCountryTypeRecordAPI
         */
     }
 
+    private function check_sciname_ancestry_values($taxon)
+    {    //scientificname should not be equal to any of the ancestry
+        $canonical = Functions::canonical_form($taxon->scientificName);
+        if($taxon->kingdom == $canonical)     $taxon->kingdom = '';
+        if($taxon->phylum == $canonical)     $taxon->phylum = '';
+        if($taxon->class == $canonical)     $taxon->class = '';
+        if($taxon->order == $canonical)     $taxon->order = '';
+        if($taxon->family == $canonical)     $taxon->family = '';
+        if($taxon->genus == $canonical)     $taxon->genus = '';
+        return $taxon;
+    }
+    
     private function create_classification_gbif($rec)
     {
         $species = trim((string) $rec["http://rs.gbif.org/terms/1.0/species"]);
@@ -241,6 +264,9 @@ class GBIFCountryTypeRecordAPI
         $taxon->family          = (string) $rec["http://rs.tdwg.org/dwc/terms/family"];
         $taxon->genus           = (string) $rec["http://rs.tdwg.org/dwc/terms/genus"];
         $taxon->taxonRank       = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
+
+        $taxon = self::check_sciname_ancestry_values($taxon);
+
         if(!isset($this->taxon_ids[$taxon->taxonID]))
         {
             $this->taxon_ids[$taxon->taxonID] = '';
@@ -279,7 +305,7 @@ class GBIFCountryTypeRecordAPI
         $taxon_id = trim((string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
         if(!$taxon_id)
         {
-            if    ($val = trim((string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"]))   $taxon_id = md5($val);
+            if    ($val = trim((string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"]))   $taxon_id = str_replace(" ", "_", Functions::canonical_form($val));//md5($val);
             elseif($val = trim((string) $rec["http://rs.tdwg.org/dwc/terms/genus"]))            $taxon_id = md5($val);
             elseif($val = trim((string) $rec["http://rs.tdwg.org/dwc/terms/family"]))           $taxon_id = md5($val);
             elseif($val = trim((string) $rec["http://rs.tdwg.org/dwc/terms/order"]))            $taxon_id = md5($val);
@@ -333,7 +359,19 @@ class GBIFCountryTypeRecordAPI
         $typestatus = self:: get_type_status_iDigBio($rec);
         
         if(!$institution || !$typestatus) return;
-        if($this->uris[$institution] == "EXCLUDE") return;
+        if(@$this->uris[$institution] == "EXCLUDE") return; //added a new way to compare, see below
+
+        // start - a new way to compare institution from what is listed in the spreadsheet e.g. "CAS Botany (BOT) {http://www.calacademy.org/scientists/botany-collections}" is NOT DIRECTLY found in spreadsheet.
+        // but "CAS Botany (BOT)" is found.
+        $institution_strings = array();
+        $institution_strings[] = $institution;
+        $temp = explode(" {", $institution);
+        if($val = $temp[0]) $institution_strings[] = $val;
+        foreach($institution_strings as $institution_string)
+        {
+            if(@$this->uris[$institution_string] == "EXCLUDE") return;
+        }
+        // end
         
         if($occurrenceID = (string) $rec[""]) $rec["source"] = "https://www.idigbio.org/portal/records/" . $occurrenceID;
         
@@ -628,8 +666,9 @@ class GBIFCountryTypeRecordAPI
         elseif($rec["dataset"] == "GBIF")       $occurrence_id = $catnum;
         else                                    $occurrence_id = $taxon_id . '_' . $catnum;
         */
-        $occurrence_id = $taxon_id . '_' . $catnum;
-        
+        // $occurrence_id = md5($taxon_id . '_' . $catnum); //1st choice
+        $occurrence_id = $catnum;
+
         $m = new \eol_schema\MeasurementOrFact();
         $this->add_occurrence($taxon_id, $occurrence_id, $rec);
         $m->occurrenceID = $occurrence_id;
@@ -704,6 +743,7 @@ class GBIFCountryTypeRecordAPI
             }
             elseif($day = $rec["http://rs.tdwg.org/dwc/terms/day"] || $month = $rec["http://rs.tdwg.org/dwc/terms/month"] || $year = $rec["http://rs.tdwg.org/dwc/terms/year"])
             {
+                $o->eventDate = "";
                 if($day != "--") $o->eventDate = $day;
                 if($month != "--") $o->eventDate .= "-".$month;
                 if($year != "--") $o->eventDate .= "-".$year;
@@ -764,8 +804,7 @@ class GBIFCountryTypeRecordAPI
 
     private function get_contributor_name($url)
     {
-        $options = array('expire_seconds' => false, 'download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 2, 'delay_in_minutes' => 2); // 15mins timeout
-        if($html = Functions::lookup_with_cache($url, $options))
+        if($html = Functions::lookup_with_cache($url, $this->download_options))
         {
             // <title property="dc:title">Herbarium Berolinense - Dataset detail</title>
             if(preg_match("/\"dc:title\">(.*?)\- Dataset detail/ims", $html, $arr))

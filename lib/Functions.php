@@ -487,6 +487,12 @@ class Functions
         }
         return $rec;
     }
+    
+    public static function remove_invalid_bytes_in_XML($string)
+    {
+        $string = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $string);
+        return $string;
+    }
 
     // see http://www.php.net/manual/en/function.filesize.php#92462
     public static function remote_file_size($uri)

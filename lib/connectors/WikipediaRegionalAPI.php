@@ -12,7 +12,7 @@ class WikipediaRegionalAPI
         $this->wikipedia_api = "http://en.wikipedia.org/w/api.php";
         $this->download_options = array('resource_id' => $resource_id, 'expire_seconds' => false, 'download_wait_time' => 5000000, 'timeout' => 10800, 'download_attempts' => 1); //'delay_in_minutes' => 1
         $this->ranks['de'] = array("reich", "klasse", "ordnung", "familie", "gattung");
-        $this->ranks_en['reich']     = "kingdom";        
+        $this->ranks_en['reich']     = "kingdom";
         $this->ranks_en['klasse']     = "class";
         $this->ranks_en['ordnung']     = "order";
         $this->ranks_en['familie']     = "family";
@@ -35,15 +35,16 @@ class WikipediaRegionalAPI
         {
             $url = $this->wikipedia_api . "?action=query&list=embeddedin&eititle=Template:taxobox&eilimit=$eilimit&format=json&continue=";
             if($continue) $url .= "&eicontinue=" . $continue;
-            echo "\n [$url] \n";
+            // echo "\n [$url] \n";
             if($json = Functions::lookup_with_cache($url, $this->download_options))
             {
                 $j = json_decode($json);
                 if($val = @$j->continue->eicontinue) $continue = $val;
                 else $continue = false;
-                
-                /* breakdown when caching: as of 2015June03 total is 561 loops
+
                 $k++;
+                if(($k % 100) == 0) echo "\n count: $k";
+                /* breakdown when caching: as of 2015June03 total is 561 loops
                 $cont = false;
                 // if($k >=  1   && $k < 187) $cont = true;
                 // if($k >=  187 && $k < 374) $cont = true;
@@ -77,7 +78,7 @@ class WikipediaRegionalAPI
                 if($json = Functions::lookup_with_cache($url, $this->download_options))
                 {
                     $j = json_decode($json);
-                    echo "\n$url\n";
+                    // echo "\n$url\n";
                     self::process_language_specific_pages($j, $url);
                 }
                 $titles = array();
@@ -101,7 +102,7 @@ class WikipediaRegionalAPI
             $rekord = array();
             if($url = @$rec->langlinks[0]->url)
             {
-                echo "\n[$url]\n";
+                // echo "\n[$url]\n";
                 $this->exclude_url['de'] = array("http://de.wikipedia.org/wiki/Fuchsf%C3%A4cherschwanz", "http://de.wikipedia.org/wiki/Bali_cattle", "http://de.wikipedia.org/wiki/Benutzer:Ad_Libertatem/Spielwiese", 
                 "http://de.wikipedia.org/wiki/Benutzer:Aquarius_Rising", "http://de.wikipedia.org/wiki/User:The_Mighty_Kinkle", "http://de.wikipedia.org/wiki/Br%C3%A4unling_(Vogel)", "http://de.wikipedia.org/wiki/Tachyoryctinae");
                 if(in_array($url, $this->exclude_url[$this->language_code])) continue;

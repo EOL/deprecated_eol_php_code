@@ -22,7 +22,7 @@ define("OPENTREE_ID", "92803392@N02"); // OpenTree photostream - http://www.flic
 
 $GLOBALS['flickr_cache_path'] = DOC_ROOT . "/update_resources/connectors/files/flickr_cache"; //old cache path
 $GLOBALS['flickr_cache_path'] = DOC_ROOT . "/public/tmp/flickr_cache";
-$GLOBALS['expire_seconds'] = 172800; //0 -> expires now, false -> doesn't expire, 172800 -> expires in 2 days
+$GLOBALS['expire_seconds'] = 2592000; //0 -> expires now, false -> doesn't expire, 2592000 -> expires in 30 days
 
 // these two variables are used to limit the number of photos per taxon for Flickr photostream resources, if needed (e.g. Smithsonian Wild's photostream)
 $GLOBALS['taxa'] = array();
@@ -49,6 +49,14 @@ class FlickrAPI
             $taxa = array();
             for($i=1 ; $i<=$total_pages ; $i++)
             {
+                /* when running 2 or more connectors...
+                $m = 265;
+                $cont = false;
+                if($i >= 1 && $i < $m)      $cont = true;
+                if($i >= $m && $i < $m*2)   $cont = true;
+                if(!$cont) continue;
+                */
+                
                 echo "getting page $i: ".time_elapsed()."\n";
                 $page_taxa = self::get_eol_photos($per_page, $i, $auth_token, $user_id, $start_date, $end_date);
                 if($page_taxa)
@@ -143,6 +151,16 @@ class FlickrAPI
         $parameters["class"] = array();
         $parameters["phylum"] = array();
         $parameters["kingdom"] = array();
+        
+        /* we use this block to test what <taxon> and <dataObject> entries are created for diff. types of tags
+        print_r($photo->tags->tag);
+        if(@$photo->tags->tag[4]->raw == "taxonomy:binomial=Loligo vulgaris") 
+        {
+            $photo->tags->tag[4]->raw = "taxonomy:binomial=Loligo vulgaris eli";
+            print_r($photo->tags->tag);
+        }
+        */
+        
         foreach($photo->tags->tag as $tag)
         {
             $string = trim($tag->raw);
@@ -172,6 +190,22 @@ class FlickrAPI
                 }
                 else continue; // those using taxonomy:binomial supposedly are already in the EOL Flickr group
             }
+            
+            /* BHL photostream resource should not assign images to synonyms */
+            if($user_id == FLICKR_BHL_ID)
+            {
+                if(preg_match("/^taxonomy:binomial=(.+ .+)$/i", $string, $arr))
+                {
+                    $sciname = ucfirst(trim($arr[1]));
+                    if(self::is_sciname_synonym($sciname))
+                    {   //remove value in array: $parameters["scientificName"]
+                        echo "\n" . count($parameters["scientificName"]) . "\n";
+                        $parameters["scientificName"] = array_diff($parameters["scientificName"], array($sciname));
+                        echo "\n[$sciname] is synonym or new name in eol.org\n";
+                        echo "\n" . count($parameters["scientificName"]) . "\n";
+                    }
+                }
+            }
 
         }
         
@@ -188,7 +222,7 @@ class FlickrAPI
                 {
                     foreach($value as $name)
                     {
-                        $taxon_parameters[] = array("scientificName" => $name);
+                        if($name) $taxon_parameters[] = array("scientificName" => $name);
                     }
                 }else $return_false = true;
             }
@@ -203,7 +237,7 @@ class FlickrAPI
             foreach($parameters as $key => $value)
             {
                 if($key == "commonNames") $temp_params[$key] = $value;
-                elseif($value) $temp_params[$key] = $value[0];
+                elseif(@$value[0]) $temp_params[$key] = $value[0];
             }
             
             if(@$temp_params["trinomial"]) $temp_params["scientificName"] = $temp_params["trinomial"];
@@ -247,6 +281,14 @@ class FlickrAPI
         {
             $taxa[] = new \SchemaTaxon($p);
         }
+        
+        /* we use this block to test what <taxon> and <dataObject> entries are created for diff. types of tags
+        if(in_array("Sepia officinalis", $parameters["scientificName"]) && in_array("Loligo vulgaris eli", $parameters["scientificName"]))
+        {
+            print_r($taxa); 
+            exit("\n-test ends-\n");
+        }
+        */
         
         return $taxa;
     }
@@ -382,7 +424,7 @@ class FlickrAPI
             /* remove group_id param to get images from photostream, and not only those in the EOL Flickr group */
             $url = self::generate_rest_url("flickr.photos.search", array("machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, "license" => "1,2,4,5,7", "privacy_filter" => "1", "sort" => "date-taken-asc", "min_taken_date" => $start_date, "max_taken_date" => $end_date, "format" => "json", "nojsoncallback" => 1), 1);
         }
-        return json_decode(Functions::lookup_with_cache($url, array('timeout' => 30, 'expire_seconds' => $GLOBALS['expire_seconds'], 'resource_id' => 'flickr'))); //expires in 2 days, since Flickr is called every day as Cron task anyway. And resource_id here is just a folder name in cache
+        return json_decode(Functions::lookup_with_cache($url, array('timeout' => 30, 'expire_seconds' => $GLOBALS['expire_seconds'], 'resource_id' => 'flickr'))); //expires in 30 days; rsource_id here is just a folder name in cache
     }
     
     public static function auth_get_frob()
@@ -395,6 +437,11 @@ class FlickrAPI
     {
         $url = self::generate_rest_url("flickr.auth.checkToken", array("auth_token" => $auth_token), 1);
         return Functions::get_hashed_response($url);
+        
+        /* will replace original if needed
+        $response = Functions::lookup_with_cache($url);
+        return simplexml_load_string($response);
+        */
     }
     
     public static function auth_get_token($frob)
@@ -497,11 +544,7 @@ class FlickrAPI
         if(!file_exists($dir_path)) mkdir($dir_path);
         
         // write to cache file
-        if(!($FILE = fopen($file_path, "w+")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$file_path);
-          return;
-        }
+        if(!($FILE = Functions::file_open($file_path, "w+"))) return;
         fwrite($FILE, $photo_response);
         fclose($FILE);
     }
@@ -522,6 +565,33 @@ class FlickrAPI
                 $sizes_path = $GLOBALS['flickr_cache_path'] . "/photosGetSizes/$filter_dir/$photo_id.json";
                 @unlink($sizes_path);
             }else return $json_object;
+        }
+        return false;
+    }
+
+    public static function is_sciname_synonym($sciname)
+    {
+        $expire_seconds = false;
+        
+        /* debug
+        if($sciname == "Falco chrysaetos") $expire_seconds = true;
+        else                               $expire_seconds = false;
+        */
+        
+        /*              http://eol.org/api/search/1.0.xml?q=Xanthopsar+flavus&page=1&exact=false&filter_by_taxon_concept_id=&filter_by_hierarchy_entry_id=&filter_by_string=&cache_ttl= */
+        $search_call = "http://eol.org/api/search/1.0.xml?q=" . $sciname .  "&page=1&exact=false&filter_by_taxon_concept_id=&filter_by_hierarchy_entry_id=&filter_by_string=&cache_ttl=";
+        if($xml = Functions::lookup_with_cache($search_call, array('timeout' => 30, 'expire_seconds' => $expire_seconds, 'resource_id' => 'eol_api'))) //resource_id here is just a folder name in cache
+        {
+            $xml = simplexml_load_string($xml);
+            $sciname = Functions::canonical_form($sciname);
+            if($sciname == Functions::canonical_form(@$xml->entry[0]->title)) return false; //sciname is not a synonym but accepted name
+            else
+            {
+                $titles = array();
+                foreach($xml->entry as $entry) $titles[] = Functions::canonical_form($entry->title);
+                if(in_array($sciname, $titles)) return false; //sciname is not a synonym but accepted name
+                else return true;
+            }
         }
         return false;
     }
@@ -548,7 +618,7 @@ class FlickrAPI
         return $all_taxa;
     }
 
-    private function get_date_ranges($start_year, $month = NULL)
+    public static function get_date_ranges($start_year, $month = NULL)
     {
         $range = array();
         if(!$month)
@@ -592,14 +662,14 @@ class FlickrAPI
         return $range;
     }
 
-    private function get_timestamp_range($start_date, $end_date)
+    public static function get_timestamp_range($start_date, $end_date)
     {
         $date_start = new \DateTime($start_date);
         $date_end = new \DateTime($end_date);
         return array("start" => $start_date, "end" => $end_date, "start_timestamp" => $date_start->getTimestamp(), "end_timestamp" => $date_end->getTimestamp());
     }
     
-    function create_cache_path()
+    public static function create_cache_path()
     {
         if(!file_exists($GLOBALS['flickr_cache_path'])) mkdir($GLOBALS['flickr_cache_path']);
         if(!file_exists($GLOBALS['flickr_cache_path']."/photosGetInfo")) mkdir($GLOBALS['flickr_cache_path']."/photosGetInfo");
