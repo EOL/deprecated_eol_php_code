@@ -12,10 +12,10 @@ class WormsArchiveAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         $this->object_ids = array();
-        // $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";                    		//local
-        // $this->dwca_file = "http://localhost/cp/WORMS/Archive.zip";                      		//local subset copy
-        // $this->dwca_file = "https://dl.dropboxusercontent.com/u/7597512/WORMS/WoRMS2EoL.zip";	//dropbox copy
-        $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";             	//WORMS online copy
+        // $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";                            //local
+        // $this->dwca_file = "http://localhost/cp/WORMS/Archive.zip";                              //local subset copy
+        // $this->dwca_file = "https://dl.dropboxusercontent.com/u/7597512/WORMS/WoRMS2EoL.zip";    //dropbox copy
+        $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";                 //WORMS online copy
         $this->occurrence_ids = array();
         $this->taxon_page = "http://www.marinespecies.org/aphia.php?p=taxdetails&id=";
     }
@@ -78,12 +78,12 @@ class WormsArchiveAPI
     private function build_taxa_rank_array($records)
     {
         foreach($records as $rec)
-		{
+        {
             $taxon_id = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
             $this->taxa_rank[$taxon_id] = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
-		}
-	}
-	
+        }
+    }
+    
     private function create_instances_from_taxon_object($records)
     {
         foreach($records as $rec)
@@ -127,11 +127,11 @@ class WormsArchiveAPI
             if($taxon->taxonID == @$taxon->acceptedNameUsageID) $taxon->acceptedNameUsageID = '';
             if($taxon->taxonID == @$taxon->parentNameUsageID)   $taxon->parentNameUsageID = '';
 
-			if($taxon->taxonomicStatus == "synonym") // this will prevent names to become synonyms of another where the ranks are different
+            if($taxon->taxonomicStatus == "synonym") // this will prevent names to become synonyms of another where the ranks are different
             {
-				if($taxon->taxonRank != @$this->taxa_rank[$taxon->acceptedNameUsageID]) continue;
-				$taxon->parentNameUsageID = ''; //remove the ParentNameUsageID data from all of the synonym lines
-			}
+                if($taxon->taxonRank != @$this->taxa_rank[$taxon->acceptedNameUsageID]) continue;
+                $taxon->parentNameUsageID = ''; //remove the ParentNameUsageID data from all of the synonym lines
+            }
             
             /* stats
             $this->debug[$taxon->taxonomicStatus] = '';
