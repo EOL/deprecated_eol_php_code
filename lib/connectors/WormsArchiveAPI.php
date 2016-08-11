@@ -3,7 +3,25 @@ namespace php_active_record;
 /* connector: [26] WORMS archive connector
 We received a Darwincore archive file from the partner.
 Connector downloads the archive file, extracts, reads it, assembles the data and generates the EOL DWC-A resource.
+
+[establishmentMeans] => Array
+       (
+           [] => 
+           [Alien] =>                   used
+           [Native - Endemic] =>        used
+           [Native] =>                  used
+           [Origin uncertain] => 
+           [Origin unknown] => 
+           [Native - Non-endemic] =>    used
+       )
+   [occurrenceStatus] => Array
+       (
+           [present] =>                 used
+           [excluded] =>                used
+           [doubtful] =>                used
+       )
 */
+
 class WormsArchiveAPI
 {
     function __construct($folder)
@@ -228,10 +246,10 @@ class WormsArchiveAPI
 
             if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/reference/referenceID"])) $mr->referenceID = $referenceID;
             
-            $mr->accessURI      = (string) $rec["http://rs.tdwg.org/ac/terms/accessURI"];
+            $mr->accessURI      = self::complete_url((string) $rec["http://rs.tdwg.org/ac/terms/accessURI"]);
             $mr->thumbnailURL   = (string) $rec["http://eol.org/schema/media/thumbnailURL"];
             
-            if($source = (string) $rec["http://rs.tdwg.org/ac/terms/furtherInformationURL"]) $mr->furtherInformationURL = $source;
+            if($source = (string) $rec["http://rs.tdwg.org/ac/terms/furtherInformationURL"]) $mr->furtherInformationURL = self::complete_url($source);
             else                                                                             $mr->furtherInformationURL = $this->taxon_page . $mr->taxonID;
             
             if(!isset($this->object_ids[$mr->identifier]))
@@ -240,6 +258,14 @@ class WormsArchiveAPI
                 $this->archive_builder->write_object_to_file($mr);
             }
         }
+    }
+    
+    private function complete_url($path)
+    {
+        // http://www.marinespecies.org/aphia.php?p=sourcedetails&id=154106
+        $path = trim($path);
+        if(substr($path, 0, 10) == "aphia.php?") return "http://www.marinespecies.org/" . $path;
+        else return $path;
     }
 
     /*
