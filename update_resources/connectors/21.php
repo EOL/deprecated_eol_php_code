@@ -66,7 +66,10 @@ function start($resource_id)
             
             $amphibID = (int) trim($species->amphib_id);
             $genus = format_utf8((string) trim($species->genus));
+            
             $speciesName = format_utf8((string) trim($species->species));
+            if(!$speciesName) $speciesName = format_utf8((string) trim($species->specificepithet)); //https://github.com/EOL/eol_php_code/issues/152
+            
             $order = format_utf8((string) trim($species->ordr));
             $family = format_utf8((string) trim($species->family));
 
