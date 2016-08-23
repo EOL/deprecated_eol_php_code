@@ -24,8 +24,12 @@ $params["resource_id"]  = 21;
 
 $resource_id = $params["resource_id"];
 $func = new ConvertEOLtoDWCaAPI($resource_id);
+
+//we need to export from XML to archive due to bad chars in XML
 $func->export_xml_to_archive($params, true); //true means it is an XML file
+
 Functions::finalize_dwca_resource($resource_id);
+unlink($params["eol_xml_file"]);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
@@ -66,7 +70,10 @@ function start($resource_id)
             
             $amphibID = (int) trim($species->amphib_id);
             $genus = format_utf8((string) trim($species->genus));
+            
             $speciesName = format_utf8((string) trim($species->species));
+            if(!$speciesName) $speciesName = format_utf8((string) trim($species->specificepithet)); //https://github.com/EOL/eol_php_code/issues/152
+            
             $order = format_utf8((string) trim($species->ordr));
             $family = format_utf8((string) trim($species->family));
 

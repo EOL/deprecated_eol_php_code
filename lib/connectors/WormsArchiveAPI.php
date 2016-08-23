@@ -3,7 +3,25 @@ namespace php_active_record;
 /* connector: [26] WORMS archive connector
 We received a Darwincore archive file from the partner.
 Connector downloads the archive file, extracts, reads it, assembles the data and generates the EOL DWC-A resource.
+
+[establishmentMeans] => Array
+       (
+           [] => 
+           [Alien] =>                   used
+           [Native - Endemic] =>        used
+           [Native] =>                  used
+           [Origin uncertain] => 
+           [Origin unknown] => 
+           [Native - Non-endemic] =>    used
+       )
+   [occurrenceStatus] => Array
+       (
+           [present] =>                 used
+           [excluded] =>                used
+           [doubtful] =>                used
+       )
 */
+
 class WormsArchiveAPI
 {
     function __construct($folder)
@@ -12,10 +30,10 @@ class WormsArchiveAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         $this->object_ids = array();
-        // $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";                    		//local
-        // $this->dwca_file = "http://localhost/cp/WORMS/Archive.zip";                      		//local subset copy
-        // $this->dwca_file = "https://dl.dropboxusercontent.com/u/7597512/WORMS/WoRMS2EoL.zip";	//dropbox copy
-        $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";             	//WORMS online copy
+        // $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";                            //local
+        // $this->dwca_file = "http://localhost/cp/WORMS/Archive.zip";                              //local subset copy
+        // $this->dwca_file = "https://dl.dropboxusercontent.com/u/7597512/WORMS/WoRMS2EoL.zip";    //dropbox copy
+        $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";                 //WORMS online copy
         $this->occurrence_ids = array();
         $this->taxon_page = "http://www.marinespecies.org/aphia.php?p=taxdetails&id=";
     }
@@ -78,12 +96,12 @@ class WormsArchiveAPI
     private function build_taxa_rank_array($records)
     {
         foreach($records as $rec)
-		{
+        {
             $taxon_id = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
             $this->taxa_rank[$taxon_id] = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
-		}
-	}
-	
+        }
+    }
+    
     private function create_instances_from_taxon_object($records)
     {
         foreach($records as $rec)
@@ -127,11 +145,11 @@ class WormsArchiveAPI
             if($taxon->taxonID == @$taxon->acceptedNameUsageID) $taxon->acceptedNameUsageID = '';
             if($taxon->taxonID == @$taxon->parentNameUsageID)   $taxon->parentNameUsageID = '';
 
-			if($taxon->taxonomicStatus == "synonym") // this will prevent names to become synonyms of another where the ranks are different
+            if($taxon->taxonomicStatus == "synonym") // this will prevent names to become synonyms of another where the ranks are different
             {
-				if($taxon->taxonRank != @$this->taxa_rank[$taxon->acceptedNameUsageID]) continue;
-				$taxon->parentNameUsageID = ''; //remove the ParentNameUsageID data from all of the synonym lines
-			}
+                if($taxon->taxonRank != @$this->taxa_rank[$taxon->acceptedNameUsageID]) continue;
+                $taxon->parentNameUsageID = ''; //remove the ParentNameUsageID data from all of the synonym lines
+            }
             
             /* stats
             $this->debug[$taxon->taxonomicStatus] = '';
@@ -228,10 +246,10 @@ class WormsArchiveAPI
 
             if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/reference/referenceID"])) $mr->referenceID = $referenceID;
             
-            $mr->accessURI      = (string) $rec["http://rs.tdwg.org/ac/terms/accessURI"];
+            $mr->accessURI      = self::complete_url((string) $rec["http://rs.tdwg.org/ac/terms/accessURI"]);
             $mr->thumbnailURL   = (string) $rec["http://eol.org/schema/media/thumbnailURL"];
             
-            if($source = (string) $rec["http://rs.tdwg.org/ac/terms/furtherInformationURL"]) $mr->furtherInformationURL = $source;
+            if($source = (string) $rec["http://rs.tdwg.org/ac/terms/furtherInformationURL"]) $mr->furtherInformationURL = self::complete_url($source);
             else                                                                             $mr->furtherInformationURL = $this->taxon_page . $mr->taxonID;
             
             if(!isset($this->object_ids[$mr->identifier]))
@@ -240,6 +258,14 @@ class WormsArchiveAPI
                 $this->archive_builder->write_object_to_file($mr);
             }
         }
+    }
+    
+    private function complete_url($path)
+    {
+        // http://www.marinespecies.org/aphia.php?p=sourcedetails&id=154106
+        $path = trim($path);
+        if(substr($path, 0, 10) == "aphia.php?") return "http://www.marinespecies.org/" . $path;
+        else return $path;
     }
 
     /*
