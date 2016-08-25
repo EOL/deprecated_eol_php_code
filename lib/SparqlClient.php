@@ -191,6 +191,17 @@ class SparqlClient
             $this->update("DELETE FROM <". $options['graph_name'] ."> { <". $options['uri'] ."> ?p ?o } WHERE { <". $options['uri'] ."> ?p ?o }");
         }
     }
+	
+	public function update_taxon_given_trait($trait, $predicate, $new_page, $old_page)
+	{
+		$default_graph = "<http://eol.org/traitbank>";
+		$default_page_uri = "<http://eol.org/pages/";
+		$query = " WITH GRAPH " . $default_graph . "
+			DELETE { " . $default_page_uri . $old_page . "> <" . $predicate . "> <" . $trait . "> }
+			INSERT { " . $default_page_uri . $new_page . "> <" . $predicate . "> <" . $trait . "> }";
+		echo "query is: ".$query."\n";
+		$this->update($query);
+	}
 
     public function update($query, $options = array())
     {
