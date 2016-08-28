@@ -1,6 +1,28 @@
 <?php
 namespace php_active_record;
-/* connector: [211] */
+/* connector: [211] 
+
+A certain list of manual steps should be followed for IUCN resources to be re-harvested.
+
+First, download the csv export file (in this format export-?????.csv.zip) from IUCN using this:
+URL:      http://www.iucnredlist.org/users/sign_in
+Login:    eli@eol.org
+Password: jijamali
+
+Then among the available downloads in "My Downloads", 
+I created this saved search: “For EOL Resources 211 and 737” - Exported on 24 August 2016
+
+When re-harvesting, before downloading you need to click button [Refresh Exported Data], this usually takes half-day to finish. After which you'll receive an email confirmation: "IUCN Red List: Export complete".
+This same export is used by both IUCN resources (IDs 211, 737).
+http://eol.org/content_partners/10/resources/737
+http://eol.org/content_partners/10/resources/211
+
+Then I uploaded it to a web accessible folder which the connector uses at the moment. This case I’m using my public DropBox folder:
+https://dl.dropboxusercontent.com/u/7597512/IUCN/export-?????.csv.zip
+
+I now put these steps in the connector. So we won’t forget.
+
+*/
 class IUCNRedlistAPI
 {
     // http://www.assembla.com/wiki/show/sis/Red_List_API
@@ -9,11 +31,15 @@ class IUCNRedlistAPI
 
     function __construct()
     {
-        $this->export_basename = "export-47427";
-        // $this->species_list_export = "http://localhost/~eolit/cp/IUCN/" . $this->export_basename . ".csv.zip";
+        $this->export_basename = "export-74550"; //previously "export-47427"
+        // $this->species_list_export = "http://localhost/cp/IUCN/" . $this->export_basename . ".csv.zip";
         $this->species_list_export = "https://dl.dropboxusercontent.com/u/7597512/IUCN/" . $this->export_basename . ".csv.zip";
-        $this->download_options = array('timeout' => 3600, 'download_attempts' => 1);
-        // $this->download_options['expire_seconds'] = false;
+        
+        /* direct download from IUCN server does not work:
+        $this->species_list_export = "http://www.iucnredlist.org/search/download/59026.csv"; -- this doesn't work
+        */
+        
+        $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 2592000 * 3); //expires in 3 months
     }
     
     public function get_taxon_xml($resource_file = null, $type = null)
@@ -36,6 +62,11 @@ class IUCNRedlistAPI
         {
             $i++;
             if(($i % 1000) == 0) echo "\n$i.";
+            echo "\n$i. - ";
+            
+            //http://api.iucnredlist.org/details/164845
+            // $taxon_id = "164845"; //debug only
+            
             $taxon = self::get_taxa_for_species(null, $taxon_id);
             if(!$taxon) continue;
             $taxon_xml = $taxon->__toXML();
@@ -47,6 +78,8 @@ class IUCNRedlistAPI
             if(!Functions::is_utf8($taxon_xml)) continue;
             if($resource_file) fwrite($resource_file, $taxon_xml);
             else $all_taxa[] = $taxon;
+            
+            // break; //debug only
         }
         // remove temp dir
         $path = $text_path[$basename];
@@ -61,11 +94,7 @@ class IUCNRedlistAPI
     {
         $taxon_ids = array();
         $i = 0;
-        if(!($file = fopen($csv_file, "r")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $csv_file);
-          return;
-        }
+        if(!($file = Functions::file_open($csv_file, "r"))) return;
         while(!feof($file))
         {
             $temp = fgetcsv($file);
@@ -89,11 +118,7 @@ class IUCNRedlistAPI
         {
             $parts = pathinfo($zip_path);
             $temp_file_path = $temp_path . "/" . $parts["basename"];
-            if(!($TMP = fopen($temp_file_path, "w")))
-           {
-              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_file_path);
-              return;
-            }
+            if(!($TMP = Functions::file_open($temp_file_path, "w"))) return;
             fwrite($TMP, $file_contents);
             fclose($TMP);
             $output = shell_exec("unzip $temp_file_path -d $temp_path");
@@ -156,7 +181,10 @@ class IUCNRedlistAPI
 
         $download_options = $this->download_options;
         $download_options['validation_regex'] = 'x_section';
-        $details_html = Functions::lookup_with_cache(self::API_PREFIX . $species_id, $download_options);
+        
+        $url = self::API_PREFIX . $species_id;
+        echo "\n$url\n";
+        $details_html = Functions::lookup_with_cache($url, $download_options);
 
         if(!$details_html) return array();
         $details_html = utf8_encode($details_html);

@@ -14,13 +14,14 @@ class IUCNRedlistDataConnector
         $this->occurrence_ids = array();
         $this->debug = array();
 
-        // $this->export_basename = "export-22326";
-        $this->export_basename = "export-47427";
-        // $this->species_list_export = "http://localhost/~eolit/cp/IUCN/" . $this->export_basename . ".csv.zip";
+        $this->export_basename = "export-74550"; //previously "export-47427"
+        // $this->species_list_export = "http://localhost/cp/IUCN/" . $this->export_basename . ".csv.zip";
         $this->species_list_export = "https://dl.dropboxusercontent.com/u/7597512/IUCN/" . $this->export_basename . ".csv.zip";
         
-        $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 2592000 * 3);
-        // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/";
+        /* direct download from IUCN server does not work:
+        $this->species_list_export = "http://www.iucnredlist.org/search/download/59026.csv"; -- this doesn't work
+        */
+        $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 2592000 * 3); //expires in 3 months
 
         $this->categories = array("CR" => "Critically Endangered (CR)",
                                   "EN" => "Endangered (EN)",
@@ -70,11 +71,7 @@ class IUCNRedlistDataConnector
         $names_no_entry_from_partner = array();
         
         $i = 0;
-        if(!$file = fopen($csv_file, "r"))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $csv_file);
-          return;
-        }
+        if(!$file = Functions::file_open($csv_file, "r")) return;
         while(!feof($file))
         {
             $temp = fgetcsv($file);
@@ -99,6 +96,7 @@ class IUCNRedlistDataConnector
                 // if($i >= 20000 && $i < 40000)    $cont = true;
                 // if($i >= 40000 && $i < 60000)    $cont = true;
                 // if($i >= 60000 && $i <= 80000)   $cont = true;
+                // if($i >= 80000 && $i <= 100000)   $cont = true;
                 if(!$cont) continue;
                 */
 
@@ -124,7 +122,8 @@ class IUCNRedlistDataConnector
                     continue;
                 }
                 
-                // $rec["Species ID"] = 187809; //debug
+                // http://api.iucnredlist.org/details/164845
+                // $rec["Species ID"] = "164845"; //debug only
                 
                 if($taxon = $func->get_taxa_for_species(null, $rec["Species ID"]))
                 {
@@ -134,9 +133,12 @@ class IUCNRedlistDataConnector
                 else
                 {
                     echo "\n no result for: " . $rec["Species ID"] . "\n";
-                    self::save_to_dump($rec["Species ID"], $this->names_no_entry_from_partner_dump_file);
+                    // self::save_to_dump($rec["Species ID"], $this->names_no_entry_from_partner_dump_file); //for stats only
                     // self::process_profile_using_csv($rec);
                 }
+                
+                // break; //debug only
+                
             }
         } // end while{}
         fclose($file);
@@ -185,11 +187,7 @@ class IUCNRedlistDataConnector
     
     private function save_to_dump($data, $filename)
     {
-        if(!($WRITE = fopen($filename, "a")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
-          return;
-        }
+        if(!($WRITE = Functions::file_open($filename, "a"))) return;
         if($data && is_array($data)) fwrite($WRITE, json_encode($data) . "\n");
         else                         fwrite($WRITE, $data . "\n");
         fclose($WRITE);
@@ -390,11 +388,7 @@ class IUCNRedlistDataConnector
         {
             $parts = pathinfo($zip_path);
             $temp_file_path = $temp_path . "/" . $parts["basename"];
-            if(!($TMP = fopen($temp_file_path, "w")))
-            {
-              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_file_path);
-              return;
-            }
+            if(!($TMP = Functions::file_open($temp_file_path, "w"))) return;
             fwrite($TMP, $file_contents);
             fclose($TMP);
             $output = shell_exec("unzip $temp_file_path -d $temp_path");

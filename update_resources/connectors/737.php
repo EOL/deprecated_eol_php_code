@@ -10,20 +10,25 @@ To be harvestd quarterly: https://jira.eol.org/browse/WEB-5427
 #==== 8 PM, 25th of the month, quarterly (Feb, May, Aug, Nov) => IUCN Structured Data
 00 20 25 2,5,8,11 * /usr/bin/php /opt/eol_php_code/update_resources/connectors/737.php > /dev/null
 
-            taxon   measurementorfact
+            taxon   measurementorfact   occurrence
 2014 05 27  73,465  533,549
 2014 08 14  76,022  554,047
-increase    2,557   20,498
+2016 08 25  81,703  597,586             243,525
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/IUCNRedlistDataConnector');
 $timestart = time_elapsed();
 $resource_id = 737;
+
+/* Commented temporarily, since resource has already been uploaded to server. Next month, this connector will run from the server.
 $func = new IUCNRedlistDataConnector($resource_id);
 $func->generate_IUCN_data();
-
 Functions::finalize_dwca_resource($resource_id);
+*/
+
+Functions::set_resource_status_to_force_harvest($resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
