@@ -187,4 +187,14 @@ class Resque
 		}
 		return $queues;
 	}
+
+	public static function stop_hierarchy_reindexing()
+	{
+		$top = Resque::pop('harvesting');
+        if (current($top) == 'HierarchyReindexing')
+		  return;
+		else {
+		  Resque::push('harvesting', $top);
+		}
+	}
 }

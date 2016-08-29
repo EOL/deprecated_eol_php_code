@@ -74,7 +74,7 @@ while((time() - $start_time)/(60*60) < 10)
 
     try {
       $resource->harvest($validate, false, $fast_for_testing);
-      if($resource->resource_status_id != ResourceStatus::harvesting_failed()->id;) array_push($harvested, $resource->id);
+      if($resource->resource_status_id != ResourceStatus::harvesting_failed()->id) array_push($harvested, $resource->id);
     } catch (\Exception $e) {
       if($GLOBALS['ENV_DEBUG']) echo 'Caught exception: ', $e->getMessage(), "\n";
       $resource->update_hierarchy_entries_count();
@@ -94,7 +94,12 @@ if (empty($harvested)) {
   debug("Enqueing publish_batch for " + join(', ', $harvested)+"\n");
   \Resque::enqueue('harvesting', 'CodeBridge',
     array('cmd' => 'publish_batch', 'resource_ids' => $harvested));
+  $count = \Resque::size('harvesting');
+  while ($count > 0)
+    {
+      	\Resque::stop_hierarchy_reindexing();
+		$count --;
+	}
 }
-
 $log->finished();
 ?>
