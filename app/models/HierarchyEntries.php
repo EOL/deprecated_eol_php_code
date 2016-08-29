@@ -22,18 +22,15 @@ class HierarchyEntry extends ActiveRecord
     public function split_from_concept_static($hierarchy_entry_id)
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
-		echo "inside split static \n";
 
         $entry = HierarchyEntry::find($hierarchy_entry_id);
 		echo "after getting the entry \n";
         if(!$entry || @!$entry->id) return null;
 
         $result = $mysqli->query("SELECT he2.id, he2.taxon_concept_id FROM hierarchy_entries he JOIN hierarchy_entries he2 USING (taxon_concept_id) WHERE he.id=$hierarchy_entry_id");
-		echo "after DB query \n";
         if($result && $row=$result->fetch_assoc())
         {
             $count = $result->num_rows;
-			echo "count is: " . $count . "\n";
             // if there is only one member in the entry's concept there is no need to split it
             if($count > 1)
             {
@@ -96,7 +93,6 @@ class HierarchyEntry extends ActiveRecord
             $count = $result->num_rows;
             if($count == 1)
             {
-            	echo "supercede case \n";
                 //// if there is just one member of the group, then supercede the group with the new one
                 HierarchyEntry::update_data($entry, $row['taxon_concept_id'], $taxon_concept_id);
                 TaxonConcept::supercede_by_ids($taxon_concept_id, $row['taxon_concept_id'], $update_collection_items);
