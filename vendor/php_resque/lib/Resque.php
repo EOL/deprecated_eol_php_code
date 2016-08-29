@@ -162,6 +162,32 @@ class Resque
 		return $result;
 	}
 
+	/**
+	 * Reserve and return the next available job in the specified queue.
+	 *
+	 * @param string $queue Queue to fetch next available job from.
+	 * @return Resque_Job Instance of Resque_Job to be processed, false if none or error.
+	 */
+	public static function reserve($queue)
+	{
+		require_once dirname(__FILE__) . '/Resque/Job.php';
+		return Resque_Job::reserve($queue);
+	}
+
+	/**
+	 * Get an array of all known queues.
+	 *
+	 * @return array Array of queues.
+	 */
+	public static function queues()
+	{
+		$queues = self::redis()->smembers('queues');
+		if(!is_array($queues)) {
+			$queues = array();
+		}
+		return $queues;
+	}
+
 	public static function stop_hierarchy_reindexing()
 	{
 		$top = Resque::pop('harvesting');
