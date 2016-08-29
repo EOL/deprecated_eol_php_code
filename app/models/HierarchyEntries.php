@@ -55,25 +55,23 @@ class HierarchyEntry extends ActiveRecord
         }
         return null;
     }
-    
-    public static function update_data($entry, $old_taxon_concept_id, $taxon_concept_id){
-    	$mysqli =& $GLOBALS['mysqli_connection'];
-    	echo "update data function \n";
-    	$resource_id = $mysqli->select_value("SELECT id from resources where hierarchy_id = $entry->hierarchy_id");
-		echo "resource id is : " . $resource_id . "\n";
-		echo "old taxon concept id is: " . $old_taxon_concept_id . "\n";
-		$data_point_uris_to_update = $mysqli->query("SELECT uri, predicate FROM data_point_uris WHERE resource_id = $resource_id and taxon_concept_id = $old_taxon_concept_id");
-		while($data_point_uris_to_update && $row=$data_point_uris_to_update->fetch_assoc())
-		{
-			echo "inside update data while \n";
-			HierarchyEntry::update_data_split_move($entry->id, $old_taxon_concept_id, $taxon_concept_id, $row['uri'], $row['predicate']);
+
+    public static function update_data($entry, $old_taxon_concept_id, $new_taxon_concept_id){
+		$mysqli =& $GLOBALS['mysqli_connection'];
+		echo "update data function \n";
+		$resource_id = $mysqli->select_value("SELECT id from resources where hierarchy_id = $entry->hierarchy_id");
+		$sparql_client = SparqlClient::connection();
+		$result = $sparql_client->get_traits_from_virtuoso($old_taxon_concept_id, $resource_id);
+		foreach ($result as $row) {
+			HierarchyEntry::update_data_split_move($entry->id, $old_taxon_concept_id, $new_taxon_concept_id, $row['trait']['value'], $row['predicate']['value']);
 		}
     }
 
 	public static function update_data_split_move($hierarchy_id, $old_page, $new_page, $trait, $predicate){
 		//DB update
+		echo ("trait is: " . $trait . " and predicate is: " . $predicate . "\n");
 		$mysqli =& $GLOBALS['mysqli_connection'];
-		$mysqli->update("UPDATE data_point_uris SET taxon_concept_id=$new_page where resource_id = $hierarchy_id and taxon_concept_id = $old_page");
+		$mysqli->update("UPDATE data_point_uris SET taxon_concept_id=$new_page where uri = '$trait' and taxon_concept_id = $old_page");
 		//virtuoso update new format
 		$sparql_client = SparqlClient::connection();
 		$sparql_client->update_taxon_given_trait($trait, $predicate, $new_page, $old_page);
@@ -98,7 +96,9 @@ class HierarchyEntry extends ActiveRecord
             $count = $result->num_rows;
             if($count == 1)
             {
+            	echo "supercede case \n";
                 //// if there is just one member of the group, then supercede the group with the new one
+                HierarchyEntry::update_data($entry, $row['taxon_concept_id'], $taxon_concept_id);
                 TaxonConcept::supercede_by_ids($taxon_concept_id, $row['taxon_concept_id'], $update_collection_items);
             }else
             {
