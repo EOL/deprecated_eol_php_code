@@ -202,6 +202,19 @@ class SparqlClient
 		echo "query is: ".$query."\n";
 		$this->update($query);
 	}
+	
+	public function get_traits_from_virtuoso($old_page, $resource_number){
+		echo "get traits from virtuoso \n";
+		$default_graph = "<http://eol.org/traitbank>";
+		$default_page_uri = "<http://eol.org/pages/";
+		$default_resource_page = "<http://eol.org/resources/";
+		$query = " WITH GRAPH " . $default_graph . "
+			SELECT ?trait ?predicate
+			WHERE { " . $default_page_uri . $old_page . "> ?predicate ?trait .
+				?trait ?trait_resource " . $default_resource_page . $resource_number . "> }";
+		echo "query is: ".$query."\n";
+		return $this->query_for_select($query);
+	}
 
     public function update($query, $options = array())
     {
@@ -215,17 +228,27 @@ class SparqlClient
         $this->update("DROP SILENT GRAPH <$graph_name>");
     }
 
-    public function query($query, $options = array())
-    {
-        $query = self::append_namespaces_to_query($query);
+	public function append_namespaces_adjust_endpoint($query, $options = array()){
+		$query = self::append_namespaces_to_query($query);
         if(isset($options['log_enable']))
         {
             $query = "DEFINE sql:log-enable 3 ". $query;
         }
-        $query_url = $this->endpoint_uri . "?format=application/json&query=" . urlencode($query);
+        return $this->endpoint_uri . "?format=application/json&query=" . urlencode($query);
+	}
+	
+    public function query($query, $options = array())
+    {
+        $query_url = $this->append_namespaces_adjust_endpoint($query, $options);
         $decoded_response = json_decode(Functions::get_remote_file($query_url, array('timeout' => 900))); // 15 minutes
         return $decoded_response->results->bindings;
     }
+	
+	public function query_for_select($query, $options = array()){
+		$query_url = $this->append_namespaces_adjust_endpoint($query, $options);
+		 $decoded_response = json_decode(Functions::get_remote_file($query_url, array('timeout' => 900)), true); // 15 minutes
+		 return $decoded_response["results"]["bindings"];
+	}
 
     public function post_query($query, $options = array())
     {
