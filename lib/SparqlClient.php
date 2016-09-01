@@ -192,15 +192,29 @@ class SparqlClient
         }
     }
 	
-	public function update_taxon_given_trait($trait, $predicate, $new_page, $old_page)
+	public function update_taxon_given_trait($traits, $predicates, $new_page, $old_page)
 	{
 		$default_graph = "<http://eol.org/traitbank>";
 		$default_page_uri = "<http://eol.org/pages/";
-		$query = " WITH GRAPH " . $default_graph . "
-			DELETE { " . $default_page_uri . $old_page . "> <" . $predicate . "> <" . $trait . "> }
-			INSERT { " . $default_page_uri . $new_page . "> <" . $predicate . "> <" . $trait . "> }";
-		echo "query is: ".$query."\n";
-		$this->update($query);
+		// $query = " WITH GRAPH " . $default_graph . "
+			// DELETE { " . $default_page_uri . $old_page . "> <" . $predicate . "> <" . $trait . "> }
+			// INSERT { " . $default_page_uri . $new_page . "> <" . $predicate . "> <" . $trait . "> }";
+		// $query = " WITH GRAPH " . $default_graph . "
+			// DELETE { " . $default_page_uri . $old_page . "> ?predicate ?trait }
+  			// INSERT { " . $default_page_uri . $new_page . "> ?predicate ?trait }
+  				// WHERE { VALUES ?predicate {<" . implode($predicates, "> <") . ">} ." .
+					// " VALUES ?trait {<" . implode($traits, "> <") . "> } }";
+		$delete_query = "WITH GRAPH " . $default_graph . "
+			DELETE { " . $default_page_uri . $old_page . "> ?predicate ?trait }
+				WHERE {VALUES ?trait {<" . implode($traits, "> <") . ">} }";
+		$this->update($delete_query);
+		
+		$insert_query = "WITH GRAPH " . $default_graph . "
+			INSERT { " . $default_page_uri . $new_page . "> ?predicate ?trait }
+				WHERE { VALUES ?predicate {<" . implode($predicates, "> <") . ">} ." .
+					" VALUES ?trait {<" . implode($traits, "> <") . "> } }";
+		echo "query is: ".$insert_query."\n";
+		$this->update($insert_query);
 	}
 	
 	public function get_traits_from_virtuoso($old_page, $resource_number){
