@@ -57,21 +57,28 @@ class HierarchyEntry extends ActiveRecord
 		$mysqli =& $GLOBALS['mysqli_connection'];
 		echo "update data function \n";
 		$resource_id = $mysqli->select_value("SELECT id from resources where hierarchy_id = $entry->hierarchy_id");
+		$batch_size = 100;
 		$sparql_client = SparqlClient::connection();
 		$result = $sparql_client->get_traits_from_virtuoso($old_taxon_concept_id, $resource_id);
+		$traits = array();
+		$predicates = array();
 		foreach ($result as $row) {
-			HierarchyEntry::update_data_split_move($entry->id, $old_taxon_concept_id, $new_taxon_concept_id, $row['trait']['value'], $row['predicate']['value']);
+			$traits[] = $row['trait']['value'];
+			$predicates[] = $row['predicate']['value'];
+		}
+		for ($i=0; $i < count($traits); $i = $i + $batch_size) { 
+			HierarchyEntry::update_data_split_move($entry->id, $old_taxon_concept_id, $new_taxon_concept_id, array_slice($traits, $i), array_slice($predicates, $i));
 		}
     }
 
-	public static function update_data_split_move($hierarchy_id, $old_page, $new_page, $trait, $predicate){
+	public static function update_data_split_move($hierarchy_id, $old_page, $new_page, $traits, $predicates){
 		//DB update
-		echo ("trait is: " . $trait . " and predicate is: " . $predicate . "\n");
+		// echo ("trait is: " . $trait . " and predicate is: " . $predicate . "\n");
 		$mysqli =& $GLOBALS['mysqli_connection'];
-		$mysqli->update("UPDATE data_point_uris SET taxon_concept_id=$new_page where uri = '$trait' and taxon_concept_id = $old_page");
+		$mysqli->update("UPDATE data_point_uris SET taxon_concept_id=$new_page where uri IN ('" . implode("', '", $traits) ."') and taxon_concept_id = $old_page");
 		//virtuoso update new format
 		$sparql_client = SparqlClient::connection();
-		$sparql_client->update_taxon_given_trait($trait, $predicate, $new_page, $old_page);
+		$sparql_client->update_taxon_given_trait($traits, $predicates, $new_page, $old_page);
 	}
 
     public static function move_to_concept_static($hierarchy_entry_id, $taxon_concept_id, $force_move = false, $update_collection_items = false)
