@@ -76,6 +76,7 @@ class EOLSpreadsheetToArchiveAPI
         $parser = new XLSParser();
         $doc = self::download_file_accordingly($spreadsheet);
         $download_options = $this->download_options;
+        // $download_options['cache'] = 1; //debug - comment in real operation
         $download_options['file_extension'] = self::get_extension($doc);
         
         if($path = Functions::save_remote_file_to_local($doc, $download_options))
