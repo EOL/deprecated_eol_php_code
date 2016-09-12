@@ -70,7 +70,7 @@ class USDAfsfeisAPI
         // sub-sub-sub-topics ==================================================================================
         $this->sub_sub_subtopics["Movements and home range"] = array("Daily activity", "Seasonal movements and migration", "Dispersal", "Home range");
         $this->sub_sub_subtopics["Life span and survival"] = array("Predators", "Diseases and parasites", "Malnutrition and weather", "Fawn survival", "Hunting", "Calf survival");
-        $this->download_options = array('download_wait_time' => 1500000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->download_options = array('resource_id' => 'FEIS', 'expire_seconds' => false, 'download_wait_time' => 1500000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
     }
 
     private function find_spm_given_subject($subject)
@@ -93,7 +93,7 @@ class USDAfsfeisAPI
         return false;
     }
 
-    private function prepare_taxa_urls()
+    public function prepare_taxa_urls()
     {
         $taxonIDs = array();
         foreach($this->main_groups as $kingdom => $group)
