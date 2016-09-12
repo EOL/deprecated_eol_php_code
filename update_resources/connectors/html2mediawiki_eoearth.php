@@ -4,8 +4,8 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 require_library('HTML2MediaWikiAPI_EoEarth');
-$func = new HTML2MediaWikiAPI();
-$func->start(); //comment if you want to run generate_dbase_for_redirect() OR generate_wanted_pages()
+$func = new HTML2MediaWikiAPI_EoEarth();
+// $func->start(); //comment if you want to run generate_dbase_for_redirect() OR generate_wanted_pages() OR start_edit_published_wiki()
 // */
 
 /* Downloading articles from EoEarth.org
@@ -15,6 +15,10 @@ require_library('connectors/EoEarthAPI');
 $func = new EoEarthAPI();
 $func->start();
 */
+
+// /* this will edit published wiki pages
+$func->start_edit_published_wiki();
+// */
 
 /* this will generate the dbase for the redirect system
 $func->generate_dbase_for_redirect();
