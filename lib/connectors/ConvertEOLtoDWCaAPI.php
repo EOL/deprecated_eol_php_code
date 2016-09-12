@@ -2,6 +2,7 @@
 namespace php_active_record;
 /* connector: generic connector to convert EOL XML to EOL DWC-A
     412:    EOL China
+    306:    Reptile DB
     
 */
 class ConvertEOLtoDWCaAPI
