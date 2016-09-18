@@ -196,24 +196,25 @@ class SparqlClient
 	{
 		$default_graph = "<http://eol.org/traitbank>";
 		$default_page_uri = "<http://eol.org/pages/";
-		// $query = " WITH GRAPH " . $default_graph . "
-			// DELETE { " . $default_page_uri . $old_page . "> <" . $predicate . "> <" . $trait . "> }
-			// INSERT { " . $default_page_uri . $new_page . "> <" . $predicate . "> <" . $trait . "> }";
-		// $query = " WITH GRAPH " . $default_graph . "
-			// DELETE { " . $default_page_uri . $old_page . "> ?predicate ?trait }
-  			// INSERT { " . $default_page_uri . $new_page . "> ?predicate ?trait }
-  				// WHERE { VALUES ?predicate {<" . implode($predicates, "> <") . ">} ." .
-					// " VALUES ?trait {<" . implode($traits, "> <") . "> } }";
+		
+		//delete query
 		$delete_query = "WITH GRAPH " . $default_graph . "
-			DELETE { " . $default_page_uri . $old_page . "> ?predicate ?trait }
-				WHERE {VALUES ?trait {<" . implode($traits, "> <") . ">} }";
+			DELETE { ";
+		for ($i=0; $i < count($traits); $i++) {
+			$delete_query = $delete_query . $default_page_uri . $old_page . "> <" . $predicates[$i] . "> <" . $traits[$i] . ">.";
+		}
+		$delete_query = $delete_query . "}";
+		echo "DELETE QUERY IS: " . $delete_query . "\n";
 		$this->update($delete_query);
 		
 		$insert_query = "WITH GRAPH " . $default_graph . "
-			INSERT { " . $default_page_uri . $new_page . "> ?predicate ?trait }
-				WHERE { VALUES ?predicate {<" . implode($predicates, "> <") . ">} ." .
-					" VALUES ?trait {<" . implode($traits, "> <") . "> } }";
-		echo "query is: ".$insert_query."\n";
+			INSERT { ";
+			
+		for ($i=0; $i < count($traits); $i++) {
+			$insert_query = $insert_query . $default_page_uri . $new_page . "> <" . $predicates[$i] . "> <" . $traits[$i] . ">.";
+		}
+		$insert_query = $insert_query . "}";
+		echo "Insert query is: " . $insert_query . "\n";
 		$this->update($insert_query);
 	}
 	
