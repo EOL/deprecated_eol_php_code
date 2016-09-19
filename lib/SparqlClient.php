@@ -191,6 +191,45 @@ class SparqlClient
             $this->update("DELETE FROM <". $options['graph_name'] ."> { <". $options['uri'] ."> ?p ?o } WHERE { <". $options['uri'] ."> ?p ?o }");
         }
     }
+	
+	public function update_taxon_given_trait($traits, $predicates, $new_page, $old_page)
+	{
+		$default_graph = "<http://eol.org/traitbank>";
+		$default_page_uri = "<http://eol.org/pages/";
+		
+		//delete query
+		$delete_query = "WITH GRAPH " . $default_graph . "
+			DELETE { ";
+		for ($i=0; $i < count($traits); $i++) {
+			$delete_query = $delete_query . $default_page_uri . $old_page . "> <" . $predicates[$i] . "> <" . $traits[$i] . ">.";
+		}
+		$delete_query = $delete_query . "}";
+		echo "DELETE QUERY IS: " . $delete_query . "\n";
+		$this->update($delete_query);
+		
+		$insert_query = "WITH GRAPH " . $default_graph . "
+			INSERT { ";
+			
+		for ($i=0; $i < count($traits); $i++) {
+			$insert_query = $insert_query . $default_page_uri . $new_page . "> <" . $predicates[$i] . "> <" . $traits[$i] . ">.";
+		}
+		$insert_query = $insert_query . "}";
+		echo "Insert query is: " . $insert_query . "\n";
+		$this->update($insert_query);
+	}
+	
+	public function get_traits_from_virtuoso($old_page, $resource_number){
+		echo "get traits from virtuoso \n";
+		$default_graph = "<http://eol.org/traitbank>";
+		$default_page_uri = "<http://eol.org/pages/";
+		$default_resource_page = "<http://eol.org/resources/";
+		$query = " WITH GRAPH " . $default_graph . "
+			SELECT ?trait ?predicate
+			WHERE { " . $default_page_uri . $old_page . "> ?predicate ?trait .
+				?trait ?trait_resource " . $default_resource_page . $resource_number . "> }";
+		echo "query is: ".$query."\n";
+		return $this->query_for_select($query);
+	}
 
     public function update($query, $options = array())
     {
@@ -204,17 +243,27 @@ class SparqlClient
         $this->update("DROP SILENT GRAPH <$graph_name>");
     }
 
-    public function query($query, $options = array())
-    {
-        $query = self::append_namespaces_to_query($query);
+	public function append_namespaces_adjust_endpoint($query, $options = array()){
+		$query = self::append_namespaces_to_query($query);
         if(isset($options['log_enable']))
         {
             $query = "DEFINE sql:log-enable 3 ". $query;
         }
-        $query_url = $this->endpoint_uri . "?format=application/json&query=" . urlencode($query);
+        return $this->endpoint_uri . "?format=application/json&query=" . urlencode($query);
+	}
+	
+    public function query($query, $options = array())
+    {
+        $query_url = $this->append_namespaces_adjust_endpoint($query, $options);
         $decoded_response = json_decode(Functions::get_remote_file($query_url, array('timeout' => 900))); // 15 minutes
         return $decoded_response->results->bindings;
     }
+	
+	public function query_for_select($query, $options = array()){
+		$query_url = $this->append_namespaces_adjust_endpoint($query, $options);
+		 $decoded_response = json_decode(Functions::get_remote_file($query_url, array('timeout' => 900)), true); // 15 minutes
+		 return $decoded_response["results"]["bindings"];
+	}
 
     public function post_query($query, $options = array())
     {

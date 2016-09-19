@@ -24,6 +24,7 @@ class HierarchyEntry extends ActiveRecord
         $mysqli =& $GLOBALS['mysqli_connection'];
 
         $entry = HierarchyEntry::find($hierarchy_entry_id);
+		echo "after getting the entry \n";
         if(!$entry || @!$entry->id) return null;
 
         $result = $mysqli->query("SELECT he2.id, he2.taxon_concept_id FROM hierarchy_entries he JOIN hierarchy_entries he2 USING (taxon_concept_id) WHERE he.id=$hierarchy_entry_id");
@@ -41,14 +42,44 @@ class HierarchyEntry extends ActiveRecord
                 $mysqli->update("UPDATE hierarchy_entries SET taxon_concept_id=$taxon_concept_id WHERE id=$hierarchy_entry_id");
                 $mysqli->update("UPDATE IGNORE taxon_concept_names SET taxon_concept_id=$taxon_concept_id WHERE source_hierarchy_entry_id=$hierarchy_entry_id");
                 $mysqli->update("UPDATE IGNORE hierarchy_entries he JOIN random_hierarchy_images rhi ON (he.id=rhi.hierarchy_entry_id) SET rhi.taxon_concept_id=he.taxon_concept_id WHERE he.taxon_concept_id=$hierarchy_entry_id");
+				
+				echo "before calling update data \n";
+				HierarchyEntry::update_data($entry, $old_taxon_concept_id, $taxon_concept_id);
                 Tasks::update_taxon_concept_names(array($taxon_concept_id));
-
                 $mysqli->end_transaction();
                 return $taxon_concept_id;
             }
         }
         return null;
     }
+
+    public static function update_data($entry, $old_taxon_concept_id, $new_taxon_concept_id){
+		$mysqli =& $GLOBALS['mysqli_connection'];
+		echo "update data function \n";
+		$resource_id = $mysqli->select_value("SELECT id from resources where hierarchy_id = $entry->hierarchy_id");
+		$batch_size = 100;
+		$sparql_client = SparqlClient::connection();
+		$result = $sparql_client->get_traits_from_virtuoso($old_taxon_concept_id, $resource_id);
+		$traits = array();
+		$predicates = array();
+		foreach ($result as $row) {
+			$traits[] = $row['trait']['value'];
+			$predicates[] = $row['predicate']['value'];
+		}
+		for ($i=0; $i < count($traits); $i = $i + $batch_size) { 
+			HierarchyEntry::update_data_split_move($entry->id, $old_taxon_concept_id, $new_taxon_concept_id, array_slice($traits, $i), array_slice($predicates, $i));
+		}
+    }
+
+	public static function update_data_split_move($hierarchy_id, $old_page, $new_page, $traits, $predicates){
+		//DB update
+		// echo ("trait is: " . $trait . " and predicate is: " . $predicate . "\n");
+		$mysqli =& $GLOBALS['mysqli_connection'];
+		$mysqli->update("UPDATE data_point_uris SET taxon_concept_id=$new_page where uri IN ('" . implode("', '", $traits) ."') and taxon_concept_id = $old_page");
+		//virtuoso update new format
+		$sparql_client = SparqlClient::connection();
+		$sparql_client->update_taxon_given_trait($traits, $predicates, $new_page, $old_page);
+	}
 
     public static function move_to_concept_static($hierarchy_entry_id, $taxon_concept_id, $force_move = false, $update_collection_items = false)
     {
@@ -70,6 +101,7 @@ class HierarchyEntry extends ActiveRecord
             if($count == 1)
             {
                 //// if there is just one member of the group, then supercede the group with the new one
+                HierarchyEntry::update_data($entry, $row['taxon_concept_id'], $taxon_concept_id);
                 TaxonConcept::supercede_by_ids($taxon_concept_id, $row['taxon_concept_id'], $update_collection_items);
             }else
             {
@@ -88,7 +120,9 @@ class HierarchyEntry extends ActiveRecord
 
                 $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.published=he.published WHERE tc.id=$old_taxon_concept_id AND he.published!=0");
                 $mysqli->update("UPDATE hierarchy_entries he JOIN taxon_concepts tc ON (he.taxon_concept_id=tc.id) SET tc.vetted_id=he.vetted_id WHERE tc.id=$old_taxon_concept_id AND he.vetted_id!=0");
-
+				
+				$entry = HierarchyEntry::find($hierarchy_entry_id);
+				HierarchyEntry::update_data($entry, $old_taxon_concept_id, $taxon_concept_id);
                 $mysqli->end_transaction();
             }
         }
