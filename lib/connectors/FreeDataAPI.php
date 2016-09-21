@@ -30,7 +30,7 @@ class FreeDataAPI
         $command_line = "sudo mkdir " . CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey";
         $output = shell_exec($command_line);
         */
-        if (!mkdir(CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey", 0700)) {
+        if (!mkdir(CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey", 0777)) {
             die('\nFailed to create folders...\n');
         }
         
