@@ -18,22 +18,14 @@ class FreeDataAPI
 
     function generate_ReefLifeSurvey_archive($params)
     {
-        if(file_exists(CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey"))
+        if(!file_exists(CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey"))
         {
-            recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey");
-            echo "\nDelete old folder reef_life_survey...\n";
+            $command_line = "sudo mkdir " . CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey";
+            $output = shell_exec($command_line);
+            // if (!mkdir(CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey", 0777)) {
+            //     die('\nFailed to create folders...\n');
+            // }
         }
-        
-        echo "\nCreate folder reef_life_survey...\n";
-        //make dir "reef_life_survey"
-        // /* works but...
-        $command_line = "sudo mkdir " . CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey";
-        $output = shell_exec($command_line);
-        // */
-        
-        // if (!mkdir(CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey", 0777)) {
-        //     die('\nFailed to create folders...\n');
-        // }
         
         if(!$WRITE = Functions::file_open($this->destination['reef life survey'], "w")) return;
         fwrite($WRITE, implode("\t", $this->fields['reef life survey']) . "\n");
