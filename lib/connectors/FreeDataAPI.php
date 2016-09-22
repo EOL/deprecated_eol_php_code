@@ -47,7 +47,7 @@ class FreeDataAPI
         copy(CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey/meta.xml"            , CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey/meta.xml");
 
         //create reef_life_survey.tar.gz
-        $command_line = "sudo tar -czvf " . CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey.tar.gz --directory=" . CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey .";
+        $command_line = "sudo zip -rj " . CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey.zip " . CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey/";
         $output = shell_exec($command_line);
 
         if($this->debug) print_r($this->debug);
