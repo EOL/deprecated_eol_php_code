@@ -183,8 +183,7 @@ class Resource extends ActiveRecord
         // tonight".
 
         $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE " .
-          "resource_status_id = " . ResourceStatus::harvest_tonight()->id .
-          " ORDER BY position ASC");
+          "resource_status_id = " . ResourceStatus::harvest_tonight()->id);
         while($result && $row=$result->fetch_assoc())
         {
             $resources[] = $resource = Resource::find($row["id"]);
@@ -197,10 +196,13 @@ class Resource extends ActiveRecord
     {
         $mysqli =& $GLOBALS['mysqli_connection'];
 
-        $extra_hours_clause = "";
-        if($hours_ahead_of_time) $extra_hours_clause = " - $hours_ahead_of_time";
+        // See revision 744567643c4207b0361fe2eeeb0125fd5cb5341c for the old
+        // method that looked for "ready to harvest" rather than "harvest
+        // tonight".
 
-        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=".ResourceStatus::harvest_requested()->id." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::validated()->id." OR resource_status_id=".ResourceStatus::validation_failed()->id." OR resource_status_id=".ResourceStatus::processing_failed()->id.")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL (refresh_period_hours $extra_hours_clause) HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::upload_failed()->id.", ".ResourceStatus::validated()->id.", ".ResourceStatus::validation_failed()->id.", ". ResourceStatus::processed()->id .", ".ResourceStatus::processing_failed()->id.", ".ResourceStatus::published()->id.")) ORDER BY position ASC LIMIT 1");
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE " .
+          "resource_status_id = " . ResourceStatus::harvest_tonight()->id .
+          " ORDER BY position ASC");
 
         if($result && $row=$result->fetch_assoc())
         {
