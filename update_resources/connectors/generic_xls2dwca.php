@@ -11,8 +11,6 @@ ini_set('memory_limit', '5120M'); // 5GB maximum memory usage
 $spreadsheets = array();
 $big_file = false;
 
-
-
 // Sarah Miller's spreadsheets
 /*
 $spreadsheets[] = 'https://www.dropbox.com/s/9b4ie0g024wszy6/carnivore dinosaurs.xlsx?dl=0';
@@ -91,9 +89,61 @@ $spreadsheets[] = 'https://www.dropbox.com/s/u17km6pnylf6cx3/WWF 2.xlsx?dl=0';
 $spreadsheets[] = 'https://www.dropbox.com/s/k49tww9xgb2xd8k/WWF.xlsx?dl=0';
 $spreadsheets[] = 'https://www.dropbox.com/s/bnrbmrttgithwa1/Avian body sizes in relation to fecundity%2C mating system%2C display behavior%2C and resource sharing Export.xls?dl=0';
 $spreadsheets[] = 'https://www.dropbox.com/s/dlybjsx410h90rh/WWF Habitats.xlsx?dl=0';
-
 $big_file = true;
 */
+
+/*
+// $spreadsheets[] = 'https://www.dropbox.com/s/kxt9ypcxa4ttj05/Bird Incubation.xlsx?dl=0';
+// $spreadsheets[] = 'https://www.dropbox.com/s/ys8l3vwzkljxcsv/Toxic Set finalish.xlsx?dl=0';
+// [Toxic Set finalish.xlsx](https://www.dropbox.com/s/ys8l3vwzkljxcsv/Toxic Set finalish.xlsx?dl=0) is VALID - [DWC-A](https://dl.dropboxusercontent.com/u/7597512/spreadsheets/resources/SarahM/Toxic_Set_finalish.tar.gz)
+// [Incubation.xlsx](https://www.dropbox.com/s/kxt9ypcxa4ttj05/Bird Incubation.xlsx?dl=0) is VALID - [DWC-A](https://dl.dropboxusercontent.com/u/7597512/spreadsheets/resources/SarahM/Bird_Incubation.tar.gz)
+$spreadsheets[] = 'https://www.dropbox.com/s/xknmozz5mlnl88u/climates.xls?dl=0';
+Please see [undefined URIs](https://dl.dropboxusercontent.com/u/7597512/spreadsheets/resources/undefinedURIs_2016_04_06.txt) from [WFF Regions version 2.xlsx](https://www.dropbox.com/s/k5yzq5jv5hd1p2s/WFF Regions version 2.xlsx?dl=0)
+[climates.xls](https://www.dropbox.com/s/xknmozz5mlnl88u/climates.xls?dl=0) is VALID - [DWC-A](https://dl.dropboxusercontent.com/u/7597512/spreadsheets/resources/SarahM/climates.tar.gz)
+*/
+
+/* 8-April-2016
+// $spreadsheets[] = 'https://www.dropbox.com/s/xknmozz5mlnl88u/climates.xls?dl=0';
+// $spreadsheets[] =  'http://localhost/eol_php_code/public/tmp/xls/big/spreadsheets/climates.xls';
+// [climates.xls](https://www.dropbox.com/s/xknmozz5mlnl88u/climates.xls?dl=0) is VALID - [DWC-A](https://dl.dropboxusercontent.com/u/7597512/spreadsheets/resources/SarahM/climates.tar.gz)
+// $spreadsheets[] =  'https://www.dropbox.com/s/k39t8hcvacyww9v/Coral Skeletons.xlsx?dl=0';
+// [Coral Skeletons.xlsx](https://www.dropbox.com/s/k39t8hcvacyww9v/Coral Skeletons.xlsx?dl=0) is VALID - [DWC-A](https://dl.dropboxusercontent.com/u/7597512/spreadsheets/resources/SarahM/Coral_Skeletons.tar.gz)
+*/
+
+/*
+// $spreadsheets[] = 'https://www.dropbox.com/s/tt1tqajojkyzsy5/bioluminescent.xls?dl=0';
+$spreadsheets[] = 'https://www.dropbox.com/s/mui6yyhssln7jr3/bioluminescent.xlsx?dl=0';
+[bioluminescent.xlsx](https://www.dropbox.com/s/mui6yyhssln7jr3/bioluminescent.xlsx?dl=0) is VALID - [DWC-A](https://dl.dropboxusercontent.com/u/7597512/spreadsheets/resources/JenH/bioluminescent.tar.gz)
+*/
+
+/*
+// $spreadsheets[] = 'https://www.dropbox.com/s/wb64tp7bpjmlnq8/Dragonfly%20Locality.xlsx?dl=0';
+$spreadsheets[] = 'http://localhost/eol_php_code/public/tmp/xls/2016 04 18/Dragonfly%20Locality.xlsx';
+[Dragonfly Locality.xlsx](https://www.dropbox.com/s/wb64tp7bpjmlnq8/Dragonfly%20Locality.xlsx?dl=0) is VALID - [DWC-A](https://dl.dropboxusercontent.com/u/7597512/spreadsheets/resources/SarahM/Dragonfly_Locality.tar.gz)
+*/
+
+/*
+$spreadsheets[] = 'https://www.dropbox.com/s/lh79w1egk4orxn3/DCBirds_eol_import_spreadsheet.xls?dl=0';
+[DCBirds_eol_import_spreadsheet.xls](https://www.dropbox.com/s/lh79w1egk4orxn3/DCBirds_eol_import_spreadsheet.xls?dl=0) is VALID - [DWC-A](https://dl.dropboxusercontent.com/u/7597512/spreadsheets/resources/JenH/DCBirds_eol_import_spreadsheet.tar.gz)
+*/
+
+/* 27-Apr-2016
+// $spreadsheets[] = 'https://www.dropbox.com/s/bksnchuqlzeu0bj/EdwardsEtAl2015.xlsx?dl=0';
+// $spreadsheets[] = 'https://www.dropbox.com/s/e1uzf1hcrdi4nbr/animal%20seed%20size.xlsx?dl=0';
+$spreadsheets[] = 'http://localhost/cp/spreadsheets/animal%20seed%20size.xlsx';
+// $spreadsheets[] = 'https://www.dropbox.com/s/ioevc9xye354us9/Benedetti_2015.xlsx?dl=0';
+[animal seed size.xlsx](https://www.dropbox.com/s/e1uzf1hcrdi4nbr/animal%20seed%20size.xlsx?dl=0) is VALID - [DWC-A](https://dl.dropboxusercontent.com/u/7597512/spreadsheets/resources/JenH/animal_seed_size.tar.gz)
+*/
+
+/* May 5, 2016 - from Jen
+$spreadsheets[] = 'https://www.dropbox.com/s/1529pseqma8b4c3/scleractinia%20lifestye.xls?dl=0';
+[scleractinia lifestye.xls](https://www.dropbox.com/s/1529pseqma8b4c3/scleractinia%20lifestye.xls?dl=0) is VALID - [DWC-A](https://dl.dropboxusercontent.com/u/7597512/spreadsheets/resources/JenH/scleractinia_lifestye.tar.gz)
+*/
+
+// /* May 27, 2016 - from Jen
+$spreadsheets[] = 'https://www.dropbox.com/s/bwjluijh3npl29i/dcBirds_eol_import_spreadsheet_2.xls?dl=0';
+// [dcBirds_eol_import_spreadsheet_2.xls](https://www.dropbox.com/s/bwjluijh3npl29i/dcBirds_eol_import_spreadsheet_2.xls?dl=0) is VALID - [DWC-A](https://dl.dropboxusercontent.com/u/7597512/spreadsheets/resources/JenH/dcBirds_eol_import_spreadsheet_2.tar.gz)
+// */
 
 print_r($spreadsheets);
 foreach($spreadsheets as $spreadsheet)
