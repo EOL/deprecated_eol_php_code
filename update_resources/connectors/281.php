@@ -26,7 +26,7 @@ $xml = Functions::get_remote_file($resource_path);
 $xml = $func->replace_data_object_element_value_with_condition("subject", "", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology", $xml, "dc:title", "Introduction", false);
 $func->save_resource_document($xml);
 
-Functions::set_resource_status_to_force_harvest($resource_id);
+Functions::set_resource_status_to_harvest_requested($resource_id);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
 echo "elapsed time = $elapsed_time_sec seconds             \n";

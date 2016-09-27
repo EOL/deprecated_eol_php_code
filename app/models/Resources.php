@@ -165,7 +165,7 @@ class Resource extends ActiveRecord
         $extra_hours_clause = "";
         if($hours_ahead_of_time) $extra_hours_clause = " - $hours_ahead_of_time";
 
-        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE id=$this->id AND (resource_status_id=".ResourceStatus::force_harvest()->id." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::validated()->id." OR resource_status_id=".ResourceStatus::validation_failed()->id." OR resource_status_id=".ResourceStatus::processing_failed()->id." OR resource_status_id=".ResourceStatus::upload_failed()->id.")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL (refresh_period_hours $extra_hours_clause) HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::validated()->id.", ".ResourceStatus::validation_failed()->id.", ".ResourceStatus::upload_failed()->id.", ".ResourceStatus::processed()->id.", ".ResourceStatus::processing_failed()->id.", ".ResourceStatus::published()->id.")))");
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE id=$this->id AND (resource_status_id=".ResourceStatus::harvest_requested()->id." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::validated()->id." OR resource_status_id=".ResourceStatus::validation_failed()->id." OR resource_status_id=".ResourceStatus::processing_failed()->id." OR resource_status_id=".ResourceStatus::upload_failed()->id.")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL (refresh_period_hours $extra_hours_clause) HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::validated()->id.", ".ResourceStatus::validation_failed()->id.", ".ResourceStatus::upload_failed()->id.", ".ResourceStatus::processed()->id.", ".ResourceStatus::harvest_tonight()->id.", ".ResourceStatus::processing_failed()->id.", ".ResourceStatus::published()->id.")))");
 
         if($result && $row=$result->fetch_assoc()) return true;
         return false;
@@ -177,10 +177,14 @@ class Resource extends ActiveRecord
         $mysqli =& $GLOBALS['mysqli_connection'];
 
         $resources = array();
-        $extra_hours_clause = "";
-        if($hours_ahead_of_time) $extra_hours_clause = " - $hours_ahead_of_time";
 
-        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=".ResourceStatus::force_harvest()->id." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::validated()->id." OR resource_status_id=".ResourceStatus::validation_failed()->id." OR resource_status_id=".ResourceStatus::processing_failed()->id.")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL (refresh_period_hours $extra_hours_clause) HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::upload_failed()->id.", ".ResourceStatus::validated()->id.", ".ResourceStatus::validation_failed()->id.", ". ResourceStatus::processed()->id .", ".ResourceStatus::processing_failed()->id.", ".ResourceStatus::published()->id."))"); // WAIT: ORDER BY position ASC");
+        // See revision 744567643c4207b0361fe2eeeb0125fd5cb5341c for the old
+        // method that looked for "ready to harvest" rather than "harvest
+        // tonight".
+
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE " .
+          "resource_status_id = " . ResourceStatus::harvest_tonight()->id .
+          " ORDER BY position ASC");
         while($result && $row=$result->fetch_assoc())
         {
             $resources[] = $resource = Resource::find($row["id"]);
@@ -196,7 +200,7 @@ class Resource extends ActiveRecord
         $extra_hours_clause = "";
         if($hours_ahead_of_time) $extra_hours_clause = " - $hours_ahead_of_time";
 
-        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=".ResourceStatus::force_harvest()->id." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::validated()->id." OR resource_status_id=".ResourceStatus::validation_failed()->id." OR resource_status_id=".ResourceStatus::processing_failed()->id.")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL (refresh_period_hours $extra_hours_clause) HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::upload_failed()->id.", ".ResourceStatus::validated()->id.", ".ResourceStatus::validation_failed()->id.", ". ResourceStatus::processed()->id .", ".ResourceStatus::processing_failed()->id.", ".ResourceStatus::published()->id.")) ORDER BY position ASC LIMIT 1");
+        $result = $mysqli->query("SELECT SQL_NO_CACHE id FROM resources WHERE resource_status_id=".ResourceStatus::harvest_requested()->id." OR (harvested_at IS NULL AND (resource_status_id=".ResourceStatus::validated()->id." OR resource_status_id=".ResourceStatus::validation_failed()->id." OR resource_status_id=".ResourceStatus::processing_failed()->id.")) OR (refresh_period_hours!=0 AND DATE_ADD(harvested_at, INTERVAL (refresh_period_hours $extra_hours_clause) HOUR)<=NOW() AND resource_status_id IN (".ResourceStatus::upload_failed()->id.", ".ResourceStatus::validated()->id.", ".ResourceStatus::validation_failed()->id.", ". ResourceStatus::processed()->id .", ".ResourceStatus::processing_failed()->id.", ".ResourceStatus::published()->id.")) ORDER BY position ASC LIMIT 1");
 
         if($result && $row=$result->fetch_assoc())
         {

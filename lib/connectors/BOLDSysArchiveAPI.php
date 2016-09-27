@@ -39,8 +39,8 @@ class BOLDSysArchiveAPI
         if(!$task = trim(Functions::get_a_task($this->WORK_IN_PROGRESS_LIST))) //don't do this if there are task(s) in progress
         {
             $this->archive_builder->finalize(true);
-            // Set to force harvest
-            Functions::set_resource_status_to_force_harvest($resource_id);
+            // Set to Harvest Requested
+            Functions::set_resource_status_to_harvest_requested($resource_id);
             // Delete temp files
             Functions::delete_temp_files($this->TEMP_FILE_PATH . "sl_batch_", "txt");
         }

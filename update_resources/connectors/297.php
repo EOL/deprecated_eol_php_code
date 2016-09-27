@@ -22,7 +22,7 @@ if($taxa = IabinAPI::get_all_taxa($resource_id))
     }
     fwrite($OUT, $xml);
     fclose($OUT);
-    Functions::set_resource_status_to_force_harvest($resource_id);
+    Functions::set_resource_status_to_harvest_requested($resource_id);
 }
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\nelapsed time = " . $elapsed_time_sec . " seconds";

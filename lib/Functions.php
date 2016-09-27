@@ -391,7 +391,7 @@ class Functions
             }
             Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
             Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
-            Functions::set_resource_status_to_force_harvest($resource_id);
+            Functions::set_resource_status_to_harvest_requested($resource_id);
             Functions::count_resource_tab_files($resource_id);
             if(!$big_file)
             {
@@ -1895,19 +1895,19 @@ class Functions
         return $taxon_or_data_object_param;
     }
 
-    public static function set_resource_status_to_force_harvest($resource_id)
+    public static function set_resource_status_to_harvest_requested($resource_id)
     {
         if(file_exists(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml"))
         {
             if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 600)
             {
-                $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
+                $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::harvest_requested()->id . " WHERE id=" . $resource_id);
             }
         }elseif(file_exists(CONTENT_RESOURCE_LOCAL_PATH ."/$resource_id/taxon.tab"))
         {
             if(filesize(CONTENT_RESOURCE_LOCAL_PATH ."/$resource_id/taxon.tab") > 600)
             {
-                $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
+                $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::harvest_requested()->id . " WHERE id=" . $resource_id);
             }
         }
     }

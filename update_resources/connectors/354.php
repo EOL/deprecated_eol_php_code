@@ -12,10 +12,10 @@ $timestart = time_elapsed();
 $av = new AvibaseAPI(354, 'howardmoore');
 $av->get_all_taxa();
 
-// set to force harvest
+// set to Harvest Requested
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "354.xml") > 600)
 {
-    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Force Harvest')->id." WHERE id=354");
+    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Harvest Requested')->id." WHERE id=354");
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;

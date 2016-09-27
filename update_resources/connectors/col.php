@@ -6,6 +6,6 @@ require_library('connectors/NCBIConnector');
 $resource_id = 999;
 $ncbi = new CatalogueOfLifeConnector($resource_id);
 $ncbi->build_archive();
-Functions::set_resource_status_to_force_harvest($resource_id);
+Functions::set_resource_status_to_harvest_requested($resource_id);
 
 ?>

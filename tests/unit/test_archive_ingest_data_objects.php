@@ -431,8 +431,8 @@ class test_archive_ingest_data_objects extends SimpletestUnitBase
     
     private static function harvest($resource)
     {
-        // set to force harvest - this will only change the status id
-        passthru(PHP_BIN_PATH . DOC_ROOT ."rake_tasks/force_harvest.php -id $resource->id ENV_NAME=test");
+        // set to Harvest Requested - this will only change the status id
+        passthru(PHP_BIN_PATH . DOC_ROOT ."rake_tasks/harvest_requested.php -id $resource->id ENV_NAME=test");
         passthru(PHP_BIN_PATH . DOC_ROOT ."rake_tasks/harvest_resources_cron_task.php $resource->id --fast ENV_NAME=test");
         Cache::flush();
     }

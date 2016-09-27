@@ -13,7 +13,7 @@ require_library('connectors/DiscoverLife_KeysAPI');
 $resource_id = 252;
 DiscoverLife_KeysAPI::get_all_taxa_keys($resource_id);
 
-Functions::set_resource_status_to_force_harvest($resource_id);
+Functions::set_resource_status_to_harvest_requested($resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";

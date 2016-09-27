@@ -7,7 +7,7 @@ $timestart = time_elapsed();
 $resource_id = 383;
 $itis = new ITISConnector($resource_id);
 $itis->build_archive();
-Functions::set_resource_status_to_force_harvest($resource_id);
+Functions::set_resource_status_to_harvest_requested($resource_id);
 
 /* as of            Sep23    Mar30
 measurement         186666   189993

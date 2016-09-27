@@ -61,7 +61,7 @@
             elseif($e==10)$id=9;    //  resources: Processing Failed
             elseif($e==11)$id=11;   //  resources: Publish Pending
             elseif($e==12)$id=12;   //  resources: Unpublish Pending
-            elseif($e==13)$id=13;   //  resources: Force Harvest
+            elseif($e==13)$id=13;   //  resources: Harvest Requested
             $qry="Select distinct 
             concat(if(agents.full_name = resources.title,agents.full_name,concat(agents.full_name,' - ', resources.title)),' {',agent_statuses.label,'}') as title, 
             trim(concat(if(resources.harvested_at is null,'',concat('Harvested at: ', resources.harvested_at,'<br>')) , 'Comment: ' , resources.notes)) as description ,             

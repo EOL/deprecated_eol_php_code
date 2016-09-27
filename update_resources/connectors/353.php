@@ -11,7 +11,7 @@ $resource_id = 353;
 $avibase = new AvibaseAPI();
 $taxonomy = "avibase";
 $avibase->get_all_taxa($resource_id, $taxonomy);
-Functions::set_resource_status_to_force_harvest($resource_id);
+Functions::set_resource_status_to_harvest_requested($resource_id);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
 echo "elapsed time = $elapsed_time_sec seconds             \n";

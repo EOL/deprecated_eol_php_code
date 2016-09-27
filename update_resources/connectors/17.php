@@ -44,7 +44,7 @@ if(!($OUT = fopen($resource_path, "w")))
 fwrite($OUT, $xml);
 fclose($OUT);
 
-Functions::set_resource_status_to_force_harvest($resource_id);
+Functions::set_resource_status_to_harvest_requested($resource_id);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
 echo "elapsed time = $elapsed_time_sec seconds             \n";

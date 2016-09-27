@@ -27,7 +27,7 @@ catch (\Exception $e) {
 
 if (is_null($caught_exception) &&
   filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/taxon.tab") > 10000) {
-  Functions::set_resource_status_to_force_harvest($resource_id);
+  Functions::set_resource_status_to_harvest_requested($resource_id);
   Functions::count_resource_tab_files($resource_id);
 }
 else {

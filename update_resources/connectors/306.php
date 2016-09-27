@@ -37,10 +37,10 @@ if(!($OUT = fopen($resource_path, "w")))
 fwrite($OUT, $xml);
 fclose($OUT);
 
-// set to force harvest
+// set to Harvest Requested
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 25000)
 {
-    Functions::set_resource_status_to_force_harvest($resource_id);
+    Functions::set_resource_status_to_harvest_requested($resource_id);
     Functions::gzip_resource_xml($resource_id);
 }
 

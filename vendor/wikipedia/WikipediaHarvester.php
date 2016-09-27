@@ -59,10 +59,10 @@ class WikipediaHarvester
         // generate the _delete.xml file
         $this->create_delete_file();
         
-        // set the resource to Force Harvest
+        // set the resource to Harvest Requested
         if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id.".xml"))
         {
-            $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Force Harvest')->id." WHERE id=".$this->resource->id);
+            $this->mysqli->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Harvest Requested')->id." WHERE id=".$this->resource->id);
         }
     }
     

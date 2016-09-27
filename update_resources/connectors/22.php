@@ -37,6 +37,6 @@ $func = new ResourceDataObjectElementsSetting($resource_id, $resource_path);
 $xml_string = file_get_contents($resource_path);
 $xml = $func->remove_data_object_of_certain_element_value("mediaURL", "http://animaldiversity.ummz.umich.edu/", $xml_string);
 $func->save_resource_document($xml);
-Functions::set_resource_status_to_force_harvest($resource_id);
+Functions::set_resource_status_to_harvest_requested($resource_id);
 Functions::gzip_resource_xml($resource_id);
 ?>

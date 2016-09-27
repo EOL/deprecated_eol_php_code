@@ -10,7 +10,7 @@ $options = array("-download", "-now");
 
 if($attr != "-id" || !$id || !is_numeric($id))
 {
-    echo "\n\n\tforce_harvest.php -id [resource_id] [-download] [-now]\n\n";
+    echo "\n\n\tharvest_requested.php -id [resource_id] [-download] [-now]\n\n";
     exit;
 }
 
@@ -46,8 +46,8 @@ if($resource)
         exit;
     }
     
-    if($GLOBALS['ENV_DEBUG']) echo "Setting status of $resource->title ($id) to force harvest\n";
-    $mysqli->update("UPDATE resources SET resource_status_id = ". ResourceStatus::find_or_create_by_translated_label("Force Harvest")->id ." where id=$resource->id");
+    if($GLOBALS['ENV_DEBUG']) echo "Setting status of $resource->title ($id) to Harvest Requested\n";
+    $mysqli->update("UPDATE resources SET resource_status_id = ". ResourceStatus::find_or_create_by_translated_label("Harvest Requested")->id ." where id=$resource->id");
 }else echo "\nNo resource with id $id\n\n";
 
 
