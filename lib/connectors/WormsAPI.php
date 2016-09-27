@@ -104,8 +104,8 @@ class WormsAPI
         {
             // step 3: Combine all XML files. This only runs when all of instances of step 2 are done
             self::combine_all_xmls($resource_id);
-            // set to force harvest
-            if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
+            // set to Harvest Requested
+            if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::harvest_requested()->id . " WHERE id=" . $resource_id);
             // delete temp files
             Functions::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
             Functions::delete_temp_files($this->TEMP_FILE_PATH . "temp_worms_" . "batch_", "xml");

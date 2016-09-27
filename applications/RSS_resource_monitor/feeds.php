@@ -12,7 +12,7 @@ $feeds = array(
                 10 => array("title" => "Resources: Processing Failed"	            , "feed" => "10"),                
                 11 => array("title" => "Resources: Publish Pending"	                , "feed" => "11"),
                 12 => array("title" => "Resources: Unpublish Pending"	            , "feed" => "12"),
-                13 => array("title" => "Resources: Force Harvest"                   , "feed" => "13")
+                13 => array("title" => "Resources: Harvest Requested"                   , "feed" => "13")
 			  );
               
 $domain 	= $_SERVER['HTTP_HOST'];

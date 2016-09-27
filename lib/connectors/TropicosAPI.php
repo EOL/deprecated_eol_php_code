@@ -92,7 +92,7 @@ class TropicosAPI
             Functions::combine_all_eol_resource_xmls($resource_id, $this->TEMP_FILE_PATH . "temp_tropicos_batch_*.xml");
             Functions::delete_temp_files($this->TEMP_FILE_PATH . "temp_tropicos_batch_", "xml"); //debug comment this line if u want to have a source for checking encoding probs in the XML
             Functions::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
-            Functions::set_resource_status_to_force_harvest($resource_id);
+            Functions::set_resource_status_to_harvest_requested($resource_id);
         }
     }
 

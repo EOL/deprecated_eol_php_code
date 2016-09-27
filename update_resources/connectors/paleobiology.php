@@ -15,7 +15,7 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "paleobiology_working/taxon.tab") > 10
         Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . "paleobiology", CONTENT_RESOURCE_LOCAL_PATH . "paleobiology_previous");
     }
     Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . "paleobiology_working", CONTENT_RESOURCE_LOCAL_PATH . "paleobiology");
-    #$GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Force Harvest')->id." WHERE id=6");
+    #$GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Harvest Requested')->id." WHERE id=6");
 }
 
 

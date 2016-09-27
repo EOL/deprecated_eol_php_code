@@ -25,7 +25,7 @@ if(filesize($resource_path) > 600)
 {
     Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . "257.xml", CONTENT_RESOURCE_LOCAL_PATH . "257_previous.xml");
     Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . "257_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . "257.xml");
-    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Force Harvest')->id." WHERE id=257");
+    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Harvest Requested')->id." WHERE id=257");
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;

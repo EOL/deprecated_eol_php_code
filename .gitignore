@@ -72,7 +72,7 @@ log/*
 rake_tasks/2009 12 29
 rake_tasks/denormalize_tables_saved.php
 rake_tasks/eli backup
-rake_tasks/force_harvest eli.php
+rake_tasks/harvest_requested eli.php
 rake_tasks/New Folder
 rake_tasks/run.bat
 rake_tasks/run.php

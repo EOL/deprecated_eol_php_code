@@ -31,8 +31,8 @@ fclose($resource_file);
 Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous.xml");
 Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");
 
-// set Flickr to force harvest
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 600) Functions::set_resource_status_to_force_harvest($resource_id);
+// set Flickr to Harvest Requested
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 600) Functions::set_resource_status_to_harvest_requested($resource_id);
 
 //fix bad characters
 $xml_string = file_get_contents(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");

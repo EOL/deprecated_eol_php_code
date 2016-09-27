@@ -57,8 +57,8 @@ class ObisAPI
 
         // Combine all XML files.
         Functions::combine_all_eol_resource_xmls($resource_id, $this->OBIS_DATA_PATH . "temp_obis_*.xml");
-        // Set to force harvest
-        if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
+        // Set to Harvest Requested
+        if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::harvest_requested()->id . " WHERE id=" . $resource_id);
         // Delete temp files
         Functions::delete_temp_files($this->OBIS_DATA_PATH . "temp_obis_", "xml");
         Functions::delete_temp_files($this->OBIS_DATA_PATH . "temp_", "csv");

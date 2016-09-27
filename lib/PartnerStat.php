@@ -184,7 +184,7 @@ class PartnerStat
         10	Published	
         11	Publish Pending	
         12	Unpublish Pending	
-        13	Force Harvest	
+        13	Harvest Requested	
         */    
         $checked='';
         if($with_published_content == 'on')$checked='checked';        

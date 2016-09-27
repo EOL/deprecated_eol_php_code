@@ -166,7 +166,7 @@ function start($resource_id)
         if(!($OUT = Functions::file_open($old_resource_path, "w+"))) return;
         fwrite($OUT, $new_resource_xml);
         fclose($OUT);
-        // Functions::set_resource_status_to_force_harvest($resource_id);
+        // Functions::set_resource_status_to_harvest_requested($resource_id);
         shell_exec("rm ".$new_resource_path);
         // Functions::gzip_resource_xml($resource_id);
         // $elapsed_time_sec = microtime(1)-$timestart;

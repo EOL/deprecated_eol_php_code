@@ -20,7 +20,7 @@ if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") >
         Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
     }
     Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
-    Functions::set_resource_status_to_force_harvest($resource_id);
+    Functions::set_resource_status_to_harvest_requested($resource_id);
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;

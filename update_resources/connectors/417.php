@@ -11,7 +11,7 @@ $timestart = time_elapsed();
 $resource_id = 417;
 $func = new PlantFeedingInsectsAPI();
 $func->get_all_taxa($resource_id);
-Functions::set_resource_status_to_force_harvest($resource_id);
+Functions::set_resource_status_to_harvest_requested($resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";

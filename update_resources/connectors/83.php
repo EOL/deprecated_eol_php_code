@@ -122,10 +122,10 @@ if(!($OUT = fopen($old_resource_path, "w+")))
 }
 fwrite($OUT, $new_resource_xml);
 fclose($OUT);
-// set MorphBank to force harvest
+// set MorphBank to Harvest Requested
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 600)
 {
-    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::force_harvest()->id . " WHERE id=" . $resource_id);
+    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::harvest_requested()->id . " WHERE id=" . $resource_id);
 }
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";

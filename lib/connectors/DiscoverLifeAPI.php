@@ -70,8 +70,8 @@ class DiscoverLifeAPI
         {
             // Combine all XML files.
             self::combine_all_xmls($resource_id);
-            // Set to force harvest
-            if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::insert('Force Harvest') . " WHERE id=" . $resource_id);
+            // Set to Harvest Requested
+            if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::insert('Harvest Requested') . " WHERE id=" . $resource_id);
             // Delete temp files
             self::delete_temp_files(self::$TEMP_FILE_PATH . "batch_", "txt");
             self::delete_temp_files(CONTENT_RESOURCE_LOCAL_PATH . "DiscoverLife/temp_DiscoverLife_" . "batch_", "xml");

@@ -30,7 +30,7 @@ if($local_path = Functions::save_remote_file_to_local($resource_path, array('dow
     $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
     $xml = fill_up_values($resource_path, $dataObjects);
     $func->save_resource_document($xml);
-    Functions::set_resource_status_to_force_harvest($resource_id);
+    Functions::set_resource_status_to_harvest_requested($resource_id);
 
     // remove tmp file
     unlink($local_path);
