@@ -13,6 +13,7 @@ taxa	images
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/INBioAPI');
+$GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
 $resource_id = 267;
 
@@ -35,8 +36,9 @@ fclose($WRITE);
 // remove tmp dir
 if($temp_dir) shell_exec("rm -fr $temp_dir");
 
-Functions::set_resource_status_to_harvest_requested($resource_id);
 Functions::gzip_resource_xml($resource_id);
+Functions::set_resource_status_to_harvest_requested($resource_id);
+
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
 echo "elapsed time = $elapsed_time_sec seconds             \n";
