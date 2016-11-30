@@ -21,7 +21,7 @@ if($taxa = $func->get_all_taxa($dwca_file))
     $xml = \SchemaDocument::get_taxon_xml($taxa);
     $xml = $func->assign_eol_subjects($xml);
     $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-    if(!($OUT = Functions:file_open($resource_path, "w"))) return;
+    if(!($OUT = Functions::file_open($resource_path, "w"))) return;
     fwrite($OUT, $xml);
     fclose($OUT);
     Functions::set_resource_status_to_harvest_requested($resource_id);
