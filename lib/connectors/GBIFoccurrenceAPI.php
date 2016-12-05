@@ -61,11 +61,24 @@ class GBIFoccurrenceAPI
         // $this->save_path['fusion2']     = DOC_ROOT . "public/tmp/google_maps/fusion2/";
         // $this->save_path['kml']         = DOC_ROOT . "public/tmp/google_maps/kml/";
         
-        $this->rec_limit = 50000;
+        $this->rec_limit = 100000; //50000;
+        
+        $this->csv_paths = array();
+        $this->csv_paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_animalia/";
+        $this->csv_paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_incertae/";
+        $this->csv_paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_others/";
     }
 
     function start()
     {
+        /* steps in order accordingly
+        1. Delete all .json files
+        First try using the API
+        2. self::process_all_eol_taxa(); return;
+        then use the CSV as 2nd option
+        3. self::generate_map_data_using_GBIF_csv_files(); return;
+        */
+        
         /* 237020 - /map_data_from_api/ */
         // start GBIF
         // self::breakdown_GBIF_csv_file_v2(); return;
@@ -75,7 +88,10 @@ class GBIFoccurrenceAPI
         
         // self::start_clustering(); return;                        //distance clustering sample
         // self::get_center_latlon_using_taxonID(206692); return;   //computes the center lat long
+        
+        //OKAY to use
         self::process_all_eol_taxa(); return;                    //make use of tab-delimited text file from JRice
+        
         // self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
         // self::process_DL_taxon_list(); return;                   //make use of taxon list from DiscoverLife
         
@@ -113,6 +129,18 @@ class GBIFoccurrenceAPI
         $scinames["Gadidae"] = 5503;
         $scinames["Soleidae"] = 5169;
         $scinames["Chenonetta"] = 104248;
+        
+        $scinames = array();
+        // $scinames["Pterostichus tarsalis"] = 312743;
+        // $scinames["Hyperiidae"] = 1180;
+        $scinames["Decapoda"] = 1183; //then will try CSV source to see if we're getting more data from CSV or API 
+        
+        /*
+        will test this as well: 
+        [Moehringia trinervia][tc_id = 482255]
+        $scinames["Moehringia trinervia"] = 482255; //then will try CSV source to see if we're getting more data from CSV or API 
+        */
+        
         
         foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
         
@@ -268,11 +296,14 @@ class GBIFoccurrenceAPI
         // $eol_taxon_id_list["Plantae"] = 281;
         // $eol_taxon_id_list["Chaetoceros"] = 12010;
         // $eol_taxon_id_list["Chenonetta"] = 104248;
+        
+        /* for testing 1 taxon
+        $eol_taxon_id_list = array();
+        // $eol_taxon_id_list["Hyperiidae"] = 1180;
+        $eol_taxon_id_list["Decapoda"] = 1183;
+        */
 
-        $paths = array();
-        $paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_animalia/";
-        $paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_incertae/";
-        $paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_others/";
+        $paths = $this->csv_paths;
         
         $i = 0;
         foreach($eol_taxon_id_list as $sciname => $taxon_concept_id)
@@ -411,10 +442,21 @@ class GBIFoccurrenceAPI
             // if(stripos($sciname, " ") !== false) //only species-level taxa
 
             if($taxon_concept_id == 1) continue;
+            // if(stripos($sciname, " ") !== false) //only species-level taxa
             if(true)
             {
-                echo "\n$i. [$sciname][$taxon_concept_id]";
+                echo "\n$i. [$sciname][tc_id = $taxon_concept_id]";
                 //==================
+                /*
+                285. [Geraniaceae][tc_id = 285]
+                [Geraniaceae]
+
+                Total:[1212423]
+                [4676] NOT found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_animalia/]
+                [4676] NOT found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_incertae/]
+                [4676] found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_others/]
+                 -- will use API as source 01 -- 411 > 50000 
+                */
                 /*
                 $m = 100000;
                 $cont = false;
@@ -470,7 +512,7 @@ class GBIFoccurrenceAPI
         if($val = $taxon_concept_id) $basename = $val;
         
         if(self::map_data_file_already_been_generated($basename)) return;
-        
+
         /*
         if(!($this->file2 = Functions::file_open($this->save_path['fusion'].$basename.".txt", "w"))) return;
         if(!($this->file3 = Functions::file_open($this->save_path['fusion2'].$basename.".json", "w"))) return;
@@ -485,6 +527,22 @@ class GBIFoccurrenceAPI
         $final_count = false;
         if($rec = self::get_initial_data($sciname))
         {
+            // first is check the csv front
+            if($final = self::prepare_csv_data($rec['usageKey'], $this->csv_paths))
+            {
+                if($final['count'] > $this->rec_limit)
+                {
+                    echo "\n -- will just use CSV source instead -- " . $final['count'] . " > " . $this->rec_limit . " \n"; //exit;
+                    return; //if count > from csv then use csv later instead using - generate_map_data_using_GBIF_csv_files()
+                }
+                else
+                {
+                    echo "\n -- will use API as source 01 -- " . $final['count'] . " < " . $this->rec_limit . " \n";
+                }
+            }
+            else echo "\n -- will use API as source 02 -- No CSV data \n"; //exit;
+            // end
+            
             // if($rec['count'] < $this->rec_limit) //only process taxa with < 100K georeference records
             // {
                 $final = self::get_georeference_data($rec['usageKey'], $basename);
