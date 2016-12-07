@@ -78,7 +78,7 @@ class EolAPI
                 // */
                 //==================
                 
-                echo "\n$i. [$sciname][tc_id = $taxon_concept_id]";
+                echo "\n".number_format($i).". [$sciname][tc_id = $taxon_concept_id]";
                 if($json = Functions::lookup_with_cache($this->api['Pages'].$taxon_concept_id, $this->download_options))
                 {
                     $arr = json_decode($json, true);
@@ -89,7 +89,7 @@ class EolAPI
                     {
                         echo "\n" . $o['dataObjectVersionID'];
                         $objects = self::get_objects($o['dataObjectVersionID']);
-                        foreach($objects['dataObjects'] as $o) echo "\n" . $o['mimeType'];
+                        foreach($objects['dataObjects'] as $o) echo " - " . @$o['mimeType'];
                         // print_r($objects);
                     }
                 }
