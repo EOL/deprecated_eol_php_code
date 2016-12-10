@@ -4,14 +4,14 @@ namespace php_active_record;
 estimated execution time:
 Provider provides text file. Connector parses it and assembles the EOL DWC-A.
 
-                    Sep-9   Sep-17      Mar-17      Jul-27
-taxon (with syn):   92515   92854       93235       93409
-media_resource:     224584  225596      131234      131638
-vernacular:         234617  234902      236758      236954
-agent.tab:          144     145         146         146
-reference:          32739   33068       30003       30195
-occurrence                              157763      157061
-measurements                            173768      175317
+                    Sep-9   Sep-17      Mar-17      Jul-27  Dec-6
+taxon (with syn):   92515   92854       93235       93409   93769
+media_resource:     224584  225596      131234      131638  133384
+vernaculars:        234617  234902      236758      236954  244112
+agents:             144     145         146         146     146
+references:         32739   33068       30003       30195   30782
+occurrence                              157763      157061  158020
+measurements                            173768      175317  176490
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
