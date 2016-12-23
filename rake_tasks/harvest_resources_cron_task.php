@@ -26,7 +26,7 @@ $log = HarvestProcessLog::create(array('process_name' => 'Harvesting'));
 $start_time = time();
 $harvested = array();
 
-while((time() - $start_time)/(60*60) < 10)
+while((time() - $start_time)/(60*60) < 8) // 8 hours allowed...
 {
 	//sleep the php until resuming the harvest from the rails side
 	while(Resource::is_paused() == 1)
@@ -47,6 +47,13 @@ while((time() - $start_time)/(60*60) < 10)
 	}else{
 		$previous_resource = $resource;
 	}
+
+    // ids that are allowed:
+    if(! in_array($resource->id, array(799))) {
+      debug("** Skipping $resource->id for now...");
+      $resource->harvesting_failed();
+      continue;
+    }
 
 	$GLOBALS['currently_harvesting_resource_id'] = $resource->id;
     // IMPORTANT!

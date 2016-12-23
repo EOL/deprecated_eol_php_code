@@ -6,7 +6,8 @@ require_once(dirname(__FILE__) ."/NameTag.php");
 require_once(dirname(__FILE__) ."/NewNamesFinder.php");
 
 /* TaxonFinder */
-define("TAXONFINDER_SOCKET_SERVER", "127.0.0.1");
+/* define("TAXONFINDER_SOCKET_SERVER", "127.0.0.1"); */
+define("TAXONFINDER_SOCKET_SERVER", getenv("EOL_HARVEST_HOST"));
 define("TAXONFINDER_SOCKET_PORT",   "1234");
 define("TAXONFINDER_STOP_KEYWORD",  "asdfib3r234");
 

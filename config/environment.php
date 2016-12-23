@@ -6,14 +6,15 @@ if(!isset($GLOBALS['DEFAULT_TIMEZONE'])) $GLOBALS['DEFAULT_TIMEZONE'] = 'America
 date_default_timezone_set($GLOBALS['DEFAULT_TIMEZONE']);  // Required by resque...
 
 /* best to leave the PHP settings at the top in case they are overridden in another environment */
-ini_set('memory_limit', '1024M'); // 1GB maximum memory usage
-ini_set('max_execution_time', '21600'); // 6 hours
-ini_set('display_errors', false);
+ini_set('memory_limit', '15360M'); // 15GB maximum memory usage
+ini_set('max_execution_time', '604800'); // a week
+ini_set('display_errors', true);
 
 /* Default Environment */
-if(!isset($GLOBALS['ENV_NAME'])) $GLOBALS['ENV_NAME'] = 'development';
+/* if(!isset($GLOBALS['ENV_NAME'])) $GLOBALS['ENV_NAME'] = 'development'; */
+if(!isset($GLOBALS['ENV_NAME'])) $GLOBALS['ENV_NAME'] = 'production';
 // passing in the CLI arguments
-set_and_load_proper_environment($argv);
+@set_and_load_proper_environment($argv);
 
 
 if(!defined('PS_LITE_CMD')) define('PS_LITE_CMD', 'ps -eo uid,pid,ppid,stime,tty,time,command'); // No -f
@@ -24,11 +25,10 @@ if(!defined('GUNZIP_BIN_PATH')) define('GUNZIP_BIN_PATH', 'gunzip');
 if(!defined('UNZIP_BIN_PATH')) define('UNZIP_BIN_PATH', 'unzip');
 if(!defined('TAR_BIN_PATH')) define('TAR_BIN_PATH', 'tar');
 if(!defined('FILE_BIN_PATH')) define('FILE_BIN_PATH', 'file');
-if(!defined('RESQUE_HOST')) define('RESQUE_HOST', 'localhost:6379');
 
 if(!isset($GLOBALS['ENV_DEBUG'])) $GLOBALS['ENV_DEBUG'] = true;
-if(!isset($GLOBALS['ENV_MYSQL_DEBUG'])) $GLOBALS['ENV_MYSQL_DEBUG'] = true;
-if(!isset($GLOBALS['ENV_DEBUG_TO_FILE'])) $GLOBALS['ENV_DEBUG_TO_FILE'] = false;
+if(!isset($GLOBALS['ENV_MYSQL_DEBUG'])) $GLOBALS['ENV_MYSQL_DEBUG'] = false;
+if(!isset($GLOBALS['ENV_DEBUG_TO_FILE'])) $GLOBALS['ENV_DEBUG_TO_FILE'] = true;
 if(!isset($GLOBALS['ENV_DEBUG_FILE_FLUSH'])) $GLOBALS['ENV_DEBUG_FILE_FLUSH'] = false;
 
 if(!isset($GLOBALS['ENV_ENABLE_CACHING'])) $GLOBALS['ENV_ENABLE_CACHING'] = true;
@@ -38,13 +38,15 @@ if(!defined('SPARQL_UPLOAD_ENDPOINT')) define("SPARQL_UPLOAD_ENDPOINT", "http://
 if(!defined('SPARQL_USERNAME')) define("SPARQL_USERNAME", "dba");
 if(!defined('SPARQL_PASSWORD')) define("SPARQL_PASSWORD", "dba");
 
+if(!defined('DOWNLOAD_TIMEOUT_SECONDS'))    define('DOWNLOAD_TIMEOUT_SECONDS', '45');
+
 /* Initialize app - this should be towards the top of environment.php,
    but declare the WEB_ROOT and caching settings first.
    This will load values from ./environments/ENV_NAME.php before values below
 */
 require_once(dirname(__FILE__) . '/boot.php');
 
-// $GLOBALS['log_file'] = fopen(DOC_ROOT . "temp/processes.log", "a+");
+$GLOBALS['log_file'] = fopen(DOC_ROOT . "temp/processes.log", "a+");
 
 
 
@@ -85,17 +87,22 @@ php_active_record\require_vendor('eol_content_schema_v2');
 
 /* For content downloading */
 # where harvested media will be downloaded to (must be web accessible)
-if(!defined('CONTENT_LOCAL_PATH'))          define('CONTENT_LOCAL_PATH',            DOC_ROOT . 'applications/content_server/content/');
+/* if(!defined('CONTENT_LOCAL_PATH'))          define('CONTENT_LOCAL_PATH',            DOC_ROOT . 'applications/content_server/content/'); */
+if(!defined('CONTENT_LOCAL_PATH'))          define('CONTENT_LOCAL_PATH',            '/opt/content/');
 # where harvested media will be temporarily stored before being moved the above directory
 if(!defined('CONTENT_TEMP_PREFIX'))         define('CONTENT_TEMP_PREFIX',           DOC_ROOT . 'applications/content_server/tmp/');
 # where resource XML files will be downloaded to
-if(!defined('CONTENT_RESOURCE_LOCAL_PATH')) define('CONTENT_RESOURCE_LOCAL_PATH',   DOC_ROOT . 'applications/content_server/resources/');
+/* if(!defined('CONTENT_RESOURCE_LOCAL_PATH')) define('CONTENT_RESOURCE_LOCAL_PATH',   DOC_ROOT . 'applications/content_server/resources/'); */
+if(!defined('CONTENT_RESOURCE_LOCAL_PATH')) define('CONTENT_RESOURCE_LOCAL_PATH',   DOC_ROOT . '/opt/resources/');
 if(!defined('CONTENT_GNI_RESOURCE_PATH'))   define('CONTENT_GNI_RESOURCE_PATH',     DOC_ROOT . 'applications/content_server/gni_tcs_files/');
 # where datasets prepared by app servers will reside (must be web accessible)
 if(!defined('CONTENT_DATASET_PATH'))        define('CONTENT_DATASET_PATH',          DOC_ROOT . 'applications/content_server/datasets/');
 
 // this may not be needed anymore
 if(!defined('WEB_ROOT')) define('MAGICK_HOME', '/usr/local/ImageMagick/');       // path to ImageMagick home directory
+
+/* if(!defined('RESQUE_HOST')) define('RESQUE_HOST', 'localhost:6379'); */
+if(!defined('RESQUE_HOST')) define('RESQUE_HOST', '10.252.248.35:6379');
 
 /* table data which will not get cached - there are too many rows */
 $GLOBALS['no_cache']['agents']              = true;

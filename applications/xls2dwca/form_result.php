@@ -47,7 +47,7 @@ if($url)
                     {
                         if(preg_match("/\/(dwca_[0-9]+)$/", $archive_tmp_dir, $arr))
                         {
-                            $final_archive_gzip_url = WEB_ROOT . "tmp/" . $arr[1] . ".tar.gz";
+                            $final_archive_gzip_url = "http://services.eol.org/conversions/" . $arr[1] . ".tar.gz";
                         }
                     }
                 }else $errors[] = "Unable to determine the template of the provided Excel file. Are you sure this matches the EOL template provided at https://dl.dropboxusercontent.com/u/1355101/schema/eol_import_spreadsheet.xlsx ?";
@@ -60,6 +60,13 @@ if($url)
     }
 }else $errors[] = "No file was provided";
 
+debug("Cmgr: done parsing file");
+?>
+<html>
+<body>
+<h1>Conversion Results</h1>
+<p>
+<?php
 
 if($final_archive_gzip_url)
 {
@@ -85,4 +92,12 @@ if($final_archive_gzip_url)
     }else echo "An unknown error occurred<br>";
 }
 
+?>
+</p>
+</body>
+</html>
+<?php
+flush();
+ob_flush();
+exit(0);
 ?>
