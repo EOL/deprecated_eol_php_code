@@ -4,7 +4,10 @@ namespace php_active_record;
 AquaMaps
 --- AquaMaps resource [123]
 The partner provided a customized XML (list of species with AquaMaps) exported from their MS Access database.
-e.g. http://dl.dropbox.com/u/7597512/AquaMaps/aquamaps_species_list.XML
+e.g. http://opendata.eol.org/dataset/7d8ea4b6-f4f9-4f31-bce2-e1c663fd8127/resource/efe2e8d9-c84f-48bf-ae18-7cc3c45cf705/download/aquamapsspecieslist.xml
+     http://opendata.eol.org/dataset/7d8ea4b6-f4f9-4f31-bce2-e1c663fd8127/resource/017a6628-bba8-4626-bd0d-fa9761aa3993/download/aquamapsspecieslist2.xml
+     http://localhost/cp/Aquamaps/aquamaps_species_list.XML
+     
 We can later on ask partner to host this XML and update it periodically.
 Contact would be Nina Garilao (cgarilao@ifm-geomar.de, ninagarilao@yahoo.com). To make her remember the customized XML EOL needs, just show her the 'aquamaps_species_list.XML' above.
 
@@ -23,10 +26,8 @@ class AquamapsAPIv2
     {
         $all_taxa = array();
         $used_collection_ids = array();
-        $path = "http://localhost/cp/AquaMaps/";
-        $path = "http://dl.dropbox.com/u/7597512/AquaMaps/";
-        $urls = array( 0  => array( "path" => $path . "aquamaps_species_list.XML"  , "active" => 1),  // all 8k species
-                       1  => array( "path" => $path . "aquamaps_species_list2.XML" , "active" => 0)   // test just 3 species
+        $urls = array( 0  => array( "path" => "http://opendata.eol.org/dataset/7d8ea4b6-f4f9-4f31-bce2-e1c663fd8127/resource/efe2e8d9-c84f-48bf-ae18-7cc3c45cf705/download/aquamapsspecieslist.xml"  , "active" => 1),  // all 8k species
+                       1  => array( "path" => "http://opendata.eol.org/dataset/7d8ea4b6-f4f9-4f31-bce2-e1c663fd8127/resource/017a6628-bba8-4626-bd0d-fa9761aa3993/download/aquamapsspecieslist2.xml" , "active" => 0)   // test just 3 species
                      );
         foreach($urls as $url)
         {
