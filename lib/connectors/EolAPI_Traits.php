@@ -43,6 +43,10 @@ class EolAPI_Traits
         // print_r($this->headers); exit;
     }
     
+    
+    
+    
+    
     function start()
     {
         /*
@@ -99,7 +103,7 @@ class EolAPI_Traits
         // $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=5344";
         $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645"; //cell mass; csv sample from Jen
         
-        
+
         foreach($attributes as $attribute) self::get_data_search_results($attribute);
 
         print_r($this->unique_index);
@@ -118,13 +122,18 @@ class EolAPI_Traits
         {
             if($html = Functions::lookup_with_cache($this->data_search_url.$attrib."&page=$page", $this->download_options))
             {
-                if(preg_match_all("/<tr class='data' data-loaded (.*?)<\/tr>/ims", $html, $arr))
+                // if(preg_match_all("/<tr class='data' data-loaded (.*?)<\/tr>/ims", $html, $arr))
+                if(preg_match_all("/<tr class='data' data-loaded (.*?)Link to this record/ims", $html, $arr))
                 {
                     $i = 0;
                     foreach($arr[1] as $row)
                     {
                         $i++;
-                        // print($row); //exit;
+                        echo "\n[[row: $i]]";
+                        // print($row); exit;
+                        
+                        $metadata = self::get_additional_metadata($row);
+                        
                         $rec = array();
                         $rec['predicate'] = $result['predicate'];
                         if(preg_match("/\/pages\/(.*?)\/data/ims", $row, $arr2))                    $rec['taxon_id'] = trim($arr2[1]);
@@ -153,42 +162,120 @@ class EolAPI_Traits
                         if(preg_match("/<span class='stat'>(.*?)<\/span>/ims", $row, $arr2))        $rec['stat']     = trim($arr2[1]);
                         if(preg_match("/<span class='source'>(.*?)<\/span>/ims", $row, $arr2))      $rec['source']   = trim($arr2[1]);
                         if(preg_match("/<span class='comments'>(.*?)<\/span>/ims", $row, $arr2))    $rec['comments'] = trim($arr2[1]);
-                        print_r($rec); //exit;
                         
                         $api_recs = array();
-                        if($rec['taxon_id']) $api_recs = self::get_api_recs($rec, "#$i $page of $pages");
+                        if($rec['taxon_id']) 
+                        {
+                            /* don't use JSON-LD
+                            $api_recs = self::get_api_recs($rec, "#$i $page of $pages");
+                            print_r($api_recs);
+                            */
+                            print_r($rec);
+                            print_r($metadata);
+                            /*
+                            
+                            */
+                            
+                            
+                        }
                         
-                        // exit;
+                        // exit("\nxxx\n");
                     }
                 }
             }
         }
     }
     
-    private function get_api_recs($rec, $msg)
+    private function get_additional_metadata($row)
     {
+        $additional = array();
+        if(preg_match("/<caption class='title'>Data about this record<\/caption>(.*?)elix173/ims", $row."elix173", $arr))
+        {
+            if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $arr[1]."elix173", $arr2))
+            {
+                // print_r($arr2[1]);
+                foreach($arr2[1] as $t)
+                {
+                    $field = ""; $details = array();
+                    //gets the field e.g. 'statistical method'
+                    if(preg_match("/<dt>(.*?)<\/dt>/ims", $t, $arr3))
+                    {
+                        $field = trim($arr3[1]);
+                        // echo "\n"."[$field]";
+                    }
+                    //gets the value e.g.
+                    // Array
+                    // (
+                    //     [value] => mean
+                    //     [uri] => http://semanticscience.org/resource/SIO_001109
+                    // )
+                    if(preg_match("/<td id=(.*?)<\/td>/ims", $t, $arr4))
+                    {
+                        $temp = "<td id=".$arr4[1];
+                        // echo "\n".$temp;
+                        $details = self::parse_span_info($temp);
+                        $additional[$field] = $details;
+                    }
+                    // echo "\n-------------------------";
+                }
+            }
+        }
+        return $additional;
+    }
+    
+    private function parse_span_info($temp)
+    {
+        $return = array();
+        if(stripos($temp, "<span class='info'>") !== false) //string is found
+        {
+            if(preg_match("/<dt>(.*?)<\/dt>/ims", $temp, $arr))             $return['value'] = trim($arr[1]);
+            if(preg_match("/<dd class='uri'>(.*?)<\/dd>/ims", $temp, $arr)) $return['uri']   = trim($arr[1]);
+        }
+        else $return['value'] = trim(strip_tags($temp));
+        /*
+        <span class='info'>
+            <ul class='glossary'>
+                <li data-toc-id='' id='http___semanticscience_org_resource_SIO_001114'>
+                <dt>
+                    max
+                </dt>
+                <dd>
+                    a maximal value is largest value of an attribute for the entities in the defined set.
+                </dd>
+                <dd class='uri'>http://semanticscience.org/resource/SIO_001114</dd>
+                <ul class='helpers'>
+                    <li><a href="http://eol.org/data_glossary#http___semanticscience_org_resource_SIO_001114" class="glossary" data-anchor="http___semanticscience_org_resource_SIO_001114" data-tab-link-message="see in glossary tab">explore full data glossary</a></li>
+                </ul>
+                </li>
+            </ul>
+        </span>
+        */
+        return $return;
+    }
+    
+    private function get_api_recs($rek, $msg)
+    {
+        $records = array();
         echo "\n[$msg]";
-        if($json = Functions::lookup_with_cache($this->trait_api.$rec['taxon_id'], $this->download_options))
+        if($json = Functions::lookup_with_cache($this->trait_api.$rek['taxon_id'], $this->download_options))
         {
             $recs = json_decode($json, true);
-            // foreach($recs as $rec)
-            // {
-            //     print_r($rec); exit; 
-            //     
-            // }
-            
             // print_r($recs);
-            echo "\n".$recs['item']['scientificName']."\n";
-            $common_names = $recs['item']['vernacularNames'];
-            $traits = $recs['item']['traits'];
+            echo "\n"        .$recs['item']['scientificName']."\n";
+            $common_names   = $recs['item']['vernacularNames'];
+            $traits         = $recs['item']['traits'];
             foreach($traits as $trait)
             {
-                print_r($trait);
-                $keys = array_keys($trait);
+                if($rek['predicate'] == $trait['predicate'])
+                {
+                    // print_r($trait);
+                    $records[] = $trait;
+                }
                 
-                exit;
+                // exit;
                 
                 //for stats only
+                $keys = array_keys($trait);
                 $this->unique_index = array_merge($this->unique_index, $keys);
                 $this->unique_index = array_unique($this->unique_index);
             }
@@ -343,13 +430,9 @@ class EolAPI_Traits
                 [85] => eolterms:RedListCriteria
                 [86] => dwc:behavior
             )
-            
-            */                          
-            
-            
-            
+            */
         }
-        
+        return $records;
     }
     
     private function get_html_info($attrib)
