@@ -38,14 +38,9 @@ class EolAPI_Traits
         // %2F /
         
         
-        $headers = "EOL page ID,Scientific Name,Common Name,Measurement,Value,Measurement URI,Value URI,Units (normalized),Units URI (normalized),Raw Value (direct from source),Raw Units (direct from source),Raw Units URI (normalized),Supplier,Content Partner Resource URL,source,citation,measurement method,statistical method,individual count,locality,event date,sampling protocol,size class,diameter,counting unit,cells per counting unit,scientific name,measurement remarks,height,Reference,measurement determined by,occurrence remarks,length,diameter 2,width,life stage,length 2,measurement determined date,sampling effort,standard deviation,number of available reports from the literature";
-        $this->headers = explode(",", $headers);
+        $this->headers = "EOL page ID,Scientific Name,Common Name,Measurement,Value,Measurement URI,Value URI,Units (normalized),Units URI (normalized),Raw Value (direct from source),Raw Units (direct from source),Raw Units URI (normalized),Supplier,Content Partner Resource URL,source,citation,measurement method,statistical method,individual count,locality,event date,sampling protocol,size class,diameter,counting unit,cells per counting unit,scientific name,measurement remarks,height,Reference,measurement determined by,occurrence remarks,length,diameter 2,width,life stage,length 2,measurement determined date,sampling effort,standard deviation,number of available reports from the literature";
         // print_r($this->headers); exit;
     }
-    
-    
-    
-    
     
     function start()
     {
@@ -98,20 +93,34 @@ class EolAPI_Traits
         $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&q="; //cell mass; csv sample from Jen
         */
 
-        $attributes = array();
-        // $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=5344";
+        $datasets = array();
+        // $attributes[] = "";
         // $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=5344";
-        $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645"; //cell mass; csv sample from Jen
+
+        $datasets[] = array("name" => "cell mass from Jen", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645");
+
+        // $datasets[] = array("name" => "fishbase", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=5344");
+
+        // $datasets[] = array("name" => "life span", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=1642");
+        
+        
+        // $datasets[] = array("name" => "plant propagation method", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPropagationMethod&q=&sort=desc");
+        
         
 
-        foreach($attributes as $attribute) self::get_data_search_results($attribute);
+        foreach($datasets as $dataset)
+        {
+            self::initialize_tsv($dataset['name']);
+            self::get_data_search_results($dataset);
+        }
 
         print_r($this->unique_index);
         exit("\n-eli stops-\n");
     }
-    
-    private function get_data_search_results($attrib)
+
+    private function get_data_search_results($dataset)
     {
+        $attrib = $dataset['attribute'];
         $result = self::get_html_info($attrib);
         $total = $result['total_records'];
         echo "\nTotal: $total";
@@ -157,7 +166,11 @@ class EolAPI_Traits
                         
                         if(preg_match_all("/<div class='term'>(.*?)<\/div>/ims", $row, $arr2))
                         {
-                            if($val = $arr2[1][1]) $rec['term'] = trim($val);
+                            if($val = $arr2[1][1])
+                            {
+                                // $rec['term'] = trim($val);
+                                $rec['term'] = self::parse_span_info($val);
+                            }
                         }
                         if(preg_match("/<span class='stat'>(.*?)<\/span>/ims", $row, $arr2))        $rec['stat']     = trim($arr2[1]);
                         if(preg_match("/<span class='source'>(.*?)<\/span>/ims", $row, $arr2))      $rec['source']   = trim($arr2[1]);
@@ -170,15 +183,60 @@ class EolAPI_Traits
                             $api_recs = self::get_api_recs($rec, "#$i $page of $pages");
                             print_r($api_recs);
                             */
+                            // $foo = $bar ? $a : $b;
+                            
                             print_r($rec);
-                            print_r($metadata);
+                            print_r($metadata); exit;
+                            
+                            $save['EOL page ID']        = $rec['taxon_id'];
+                            $save['Scientific Name']    = ($val=$meta['scientific name']['value']) ? $val : $rec['sciname'];
+                            $save['Common Name']        = @$rec['vernacular'];
+                            
                             /*
+                            	
+                            Measurement	                        predicate
+                            Value	                            value
+                            Measurement URI	                    dwc:measurementType
+                            Value URI	                        dwc:measurementValue
+                            Units (normalized)	                units
+                            Units URI (normalized)	            dwc:measurementUnit
+                            Raw Value (direct from source)	    
+                            Raw Units (direct from source)	    
+                            Raw Units URI (normalized)	        dwc:measurementUnit
+                            Supplier	
+                            Content Partner Resource URL	    eolterms:resource
+                            source	                        dc:source
+                            citation	                    dc:bibliographicCitation
+                            measurement method	            dwc:measurementMethod
+                            statistical method	            eolterms:statisticalMethod (get value)
+                            individual count	            dwc:individualCount
+                            locality	                    dwc:locality
+                            event date	                    dwc:eventDate
+                            sampling protocol	            dwc:samplingProtocol
+                            size class	                    eolterms:SizeClass
+                            diameter	
+                            counting unit	                eolterms:CountingUnit
+                            cells per counting unit	        eolterms:CellsPerCountingUnit
+                            scientific name	                dwc:scientificName
+                            measurement remarks	            dwc:measurementRemarks
+                            height	                        http://semanticscience.org/resource/SIO_000040
+                            Reference	                    eol:reference/full_reference
+                            measurement determined by	    dwc:measurementDeterminedBy
+                            occurrence remarks	            dwc:occurrenceRemarks
+                            length	                        http://semanticscience.org/resource/SIO_000041
+                            diameter 2	
+                            width	                        http://semanticscience.org/resource/SIO_000042
+                            life stage	                    dwc:lifeStage
+                            length 2	
+                            measurement determined date	    dwc:measurementDeterminedDate
+                            sampling effort	                dwc:samplingEffort
+                            standard deviation	            http://semanticscience.org/resource/SIO_000770
+                            number of available reports from the literature     eolterms:NLiteratureValues
                             
                             */
                             
                             
                         }
-                        
                         // exit("\nxxx\n");
                     }
                 }
@@ -449,6 +507,15 @@ class EolAPI_Traits
             }
         }
         return $result;
+    }
+
+    private function initialize_tsv($name)
+    {
+        $filename = CONTENT_RESOURCE_LOCAL_PATH . "/" . str_replace(" ", "_", $name) . ".txt";
+        $WRITE = fopen($filename, "w");
+        $fields = $this->headers = explode(",", $this->headers);
+        fwrite($WRITE, implode("\t", $fields) . "\n");
+        fclose($WRITE);
     }
 
 }
