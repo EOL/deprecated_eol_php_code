@@ -85,28 +85,21 @@ class EolAPI_Traits
         $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1703";
         $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1642";       //done
         $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=695";        //done
-        $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=1642";     //done
-        $attributes[] = "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPropagationMethod&q=&sort=desc";                       //done
         $attributes[] = "http%3A%2F%2Feol.org%2Fschema%2Fterms%2Fcarbon_per_cell&q=&sort=desc";                         //done
-        $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FTO_0002725&q=&sort=desc";
-        $attributes[] = "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPlantHabit&q=&sort=desc";                              //done
-        $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&q="; //cell mass; csv sample from Jen
+        $attributes[] = "";
+        $attributes[] = "";                              //done
         */
 
         $datasets = array();
-        // $attributes[] = "";
-        // $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=5344";
+        $datasets[] = array("name" => "test", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPlantHabit&q=&sort=desc"); //1091 pages!
 
-        $datasets[] = array("name" => "cell mass from Jen", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645");
+
+        // $datasets[] = array("name" => "cell mass from Jen", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645");
+        // $datasets[] = array("name" => "cell mass from Jen2", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&q=");
 
         // $datasets[] = array("name" => "fishbase", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=5344");
-
         // $datasets[] = array("name" => "life span", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=1642");
-        
-        
         // $datasets[] = array("name" => "plant propagation method", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPropagationMethod&q=&sort=desc");
-        
-        
 
         foreach($datasets as $dataset)
         {
@@ -127,7 +120,7 @@ class EolAPI_Traits
         $pages = ceil($total/100);
         // $pages = 20;
         echo "\nPages: $pages";
-        for($page = 1; $page <= $pages; $page++)
+        for($page = 936; $page <= $pages; $page++)
         {
             if($html = Functions::lookup_with_cache($this->data_search_url.$attrib."&page=$page", $this->download_options))
             {
@@ -141,7 +134,7 @@ class EolAPI_Traits
                         echo "\n[[row: $i]]";
                         // print($row); exit;
                         
-                        $metadata = self::get_additional_metadata($row);
+                        $meta = self::get_additional_metadata($row);
                         
                         $rec = array();
                         $rec['predicate'] = $result['predicate'];
@@ -166,11 +159,9 @@ class EolAPI_Traits
                         
                         if(preg_match_all("/<div class='term'>(.*?)<\/div>/ims", $row, $arr2))
                         {
-                            if($val = $arr2[1][1])
-                            {
-                                // $rec['term'] = trim($val);
-                                $rec['term'] = self::parse_span_info($val);
-                            }
+                            // print_r($arr2[1]); exit;
+                            if($val = $arr2[1][0]) $rec['predicate2'] = self::parse_span_info($val);
+                            if($val = $arr2[1][1]) $rec['term']       = self::parse_span_info($val);
                         }
                         if(preg_match("/<span class='stat'>(.*?)<\/span>/ims", $row, $arr2))        $rec['stat']     = trim($arr2[1]);
                         if(preg_match("/<span class='source'>(.*?)<\/span>/ims", $row, $arr2))      $rec['source']   = trim($arr2[1]);
@@ -179,27 +170,26 @@ class EolAPI_Traits
                         $api_recs = array();
                         if($rec['taxon_id']) 
                         {
-                            /* don't use JSON-LD
+                            // /* don't use JSON-LD
                             $api_recs = self::get_api_recs($rec, "#$i $page of $pages");
-                            print_r($api_recs);
-                            */
+                            // print_r($api_recs);
+                            // */
                             // $foo = $bar ? $a : $b;
                             
                             print_r($rec);
-                            print_r($metadata); exit;
+                            print_r($meta); //exit;
                             
                             $save['EOL page ID']        = $rec['taxon_id'];
                             $save['Scientific Name']    = ($val=$meta['scientific name']['value']) ? $val : $rec['sciname'];
                             $save['Common Name']        = @$rec['vernacular'];
+                            $save['Measurement']        = $rec['predicate2']['value'];
+                            $save['Value']              = $rec['term']['value'];
+                            $save['Measurement URI']    = $rec['predicate2']['uri'];
+                            $save['Value URI']          = @$rec['term']['uri'];
+                            $save['Units (normalized)']     = $meta['measurement unit']['value'];
+                            $save['Units URI (normalized)'] = $meta['measurement unit']['uri'];
                             
                             /*
-                            	
-                            Measurement	                        predicate
-                            Value	                            value
-                            Measurement URI	                    dwc:measurementType
-                            Value URI	                        dwc:measurementValue
-                            Units (normalized)	                units
-                            Units URI (normalized)	            dwc:measurementUnit
                             Raw Value (direct from source)	    
                             Raw Units (direct from source)	    
                             Raw Units URI (normalized)	        dwc:measurementUnit
