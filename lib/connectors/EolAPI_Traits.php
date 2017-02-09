@@ -36,6 +36,11 @@ class EolAPI_Traits
         $this->unique_index = array();
         // %3A :
         // %2F /
+        
+        
+        $headers = "EOL page ID,Scientific Name,Common Name,Measurement,Value,Measurement URI,Value URI,Units (normalized),Units URI (normalized),Raw Value (direct from source),Raw Units (direct from source),Raw Units URI (normalized),Supplier,Content Partner Resource URL,source,citation,measurement method,statistical method,individual count,locality,event date,sampling protocol,size class,diameter,counting unit,cells per counting unit,scientific name,measurement remarks,height,Reference,measurement determined by,occurrence remarks,length,diameter 2,width,life stage,length 2,measurement determined date,sampling effort,standard deviation,number of available reports from the literature";
+        $this->headers = explode(",", $headers);
+        // print_r($this->headers); exit;
     }
     
     function start()
@@ -91,7 +96,8 @@ class EolAPI_Traits
 
         $attributes = array();
         // $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=5344";
-        $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=5344";
+        // $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=5344";
+        $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645"; //cell mass; csv sample from Jen
         
         
         foreach($attributes as $attribute) self::get_data_search_results($attribute);
@@ -102,7 +108,8 @@ class EolAPI_Traits
     
     private function get_data_search_results($attrib)
     {
-        $total = self::get_total_records($attrib);
+        $result = self::get_html_info($attrib);
+        $total = $result['total_records'];
         echo "\nTotal: $total";
         $pages = ceil($total/100);
         // $pages = 20;
@@ -119,12 +126,26 @@ class EolAPI_Traits
                         $i++;
                         // print($row); //exit;
                         $rec = array();
+                        $rec['predicate'] = $result['predicate'];
                         if(preg_match("/\/pages\/(.*?)\/data/ims", $row, $arr2))                    $rec['taxon_id'] = trim($arr2[1]);
-                        if(preg_match_all("/\/data\">(.*?)<\/a>/ims", $row, $arr2))
+
+                        if(preg_match("/<h4>(.*?)<\/h4>/ims", $row, $arr2))
                         {
-                            if($val = $arr2[1][2])  $rec['sciname'] = trim($val);
-                            if($val = @$arr2[1][3]) $rec['vernacular'] = trim($val);
+                            if(preg_match("/\/data\">(.*?)<\/a>/ims", $arr2[1], $arr3)) $rec['sciname'] = trim($arr3[1]);
                         }
+                        // <h4>
+                        // <a href="/pages/222402/data">Tylochromis mylodon</a>
+                        // </h4>
+
+                        if(preg_match("/<\/h4>(.*?)<\/div>/ims", $row, $arr2))
+                        {
+                            if(preg_match("/\/data\">(.*?)<\/a>/ims", $arr2[1], $arr3)) $rec['vernacular'] = trim($arr3[1]);
+                        }
+                        // </h4>
+                        // <a href="/pages/222402/data">Mweru Hump-backed Bream</a>
+                        // </div>
+                        
+                        
                         if(preg_match_all("/<div class='term'>(.*?)<\/div>/ims", $row, $arr2))
                         {
                             if($val = $arr2[1][1]) $rec['term'] = trim($val);
@@ -132,7 +153,7 @@ class EolAPI_Traits
                         if(preg_match("/<span class='stat'>(.*?)<\/span>/ims", $row, $arr2))        $rec['stat']     = trim($arr2[1]);
                         if(preg_match("/<span class='source'>(.*?)<\/span>/ims", $row, $arr2))      $rec['source']   = trim($arr2[1]);
                         if(preg_match("/<span class='comments'>(.*?)<\/span>/ims", $row, $arr2))    $rec['comments'] = trim($arr2[1]);
-                        // print_r($rec); //exit;
+                        print_r($rec); //exit;
                         
                         $api_recs = array();
                         if($rec['taxon_id']) $api_recs = self::get_api_recs($rec, "#$i $page of $pages");
@@ -162,8 +183,12 @@ class EolAPI_Traits
             $traits = $recs['item']['traits'];
             foreach($traits as $trait)
             {
-                // print_r($trait);
+                print_r($trait);
                 $keys = array_keys($trait);
+                
+                exit;
+                
+                //for stats only
                 $this->unique_index = array_merge($this->unique_index, $keys);
                 $this->unique_index = array_unique($this->unique_index);
             }
@@ -172,7 +197,7 @@ class EolAPI_Traits
             
             
             /*
-            EOL page ID	
+            EOL page ID	                        $recs['item']['@id']
             Scientific Name	                    dwc:scientificName
             Common Name	
             Measurement	                        predicate
@@ -327,13 +352,20 @@ class EolAPI_Traits
         
     }
     
-    private function get_total_records($attrib)
+    private function get_html_info($attrib)
     {
+        $result = array();
         if($html = Functions::lookup_with_cache($this->data_search_url.$attrib."&page=1", $this->download_options))
         {
-            if(preg_match("/<h2>(.*?) results/ims", $html, $arr)) return $arr[1];
+            if(preg_match("/<h2>(.*?) results/ims", $html, $arr)) $result['total_records'] = $arr[1];
+            // get predicate e.g. 'boday mass'
+            // selected="selected" data-known_uri_id="1722">body mass</option>
+            if(preg_match("/selected=\"selected\" data-known_uri_id=(.*?)<\/option>/ims", $html, $arr))
+            {
+                if(preg_match("/>(.*?)xxx/ims", $arr[1]."xxx", $arr2)) $result['predicate'] = $arr2[1];
+            }
         }
-        return 0;
+        return $result;
     }
 
 }
