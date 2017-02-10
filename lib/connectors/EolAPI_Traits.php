@@ -44,6 +44,19 @@ class EolAPI_Traits
     
     function start()
     {
+        // $tests = array(
+        //     "42",
+        //     "123,456"
+        // );
+        // 
+        // foreach ($tests as $element) {
+        //     if (is_numeric($element)) {
+        //         echo "'{$element}' is numeric", PHP_EOL;
+        //     } else {
+        //         echo "'{$element}' is NOT numeric", PHP_EOL;
+        //     }
+        // }exit;
+        
         /*
         // DATA-1648 derivative files: Cichlidae 
         $attribute = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=5344";
@@ -91,13 +104,12 @@ class EolAPI_Traits
         */
 
         $datasets = array();
-        $datasets[] = array("name" => "test", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPlantHabit&q=&sort=desc"); //1091 pages!
-
-
-        // $datasets[] = array("name" => "cell mass from Jen", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645");
+        // $datasets[] = array("name" => "test", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPlantHabit&q=&sort=desc"); //1091 pages!
+        $datasets[] = array("name" => "cell mass from Jen", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645");
         // $datasets[] = array("name" => "cell mass from Jen2", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&q=");
-
         // $datasets[] = array("name" => "fishbase", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=5344");
+        // $datasets[] = array("name" => "fishbase2", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=5344");
+        
         // $datasets[] = array("name" => "life span", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=1642");
         // $datasets[] = array("name" => "plant propagation method", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPropagationMethod&q=&sort=desc");
 
@@ -120,7 +132,7 @@ class EolAPI_Traits
         $pages = ceil($total/100);
         // $pages = 20;
         echo "\nPages: $pages";
-        for($page = 936; $page <= $pages; $page++)
+        for($page = 1; $page <= $pages; $page++)
         {
             if($html = Functions::lookup_with_cache($this->data_search_url.$attrib."&page=$page", $this->download_options))
             {
@@ -170,31 +182,47 @@ class EolAPI_Traits
                         $api_recs = array();
                         if($rec['taxon_id']) 
                         {
-                            // /* don't use JSON-LD
+                            /* don't use JSON-LD
                             $api_recs = self::get_api_recs($rec, "#$i $page of $pages");
-                            // print_r($api_recs);
-                            // */
+                            print_r($api_recs);
+                            */
                             // $foo = $bar ? $a : $b;
                             
                             print_r($rec);
                             print_r($meta); //exit;
                             
                             $save['EOL page ID']        = $rec['taxon_id'];
-                            $save['Scientific Name']    = ($val=$meta['scientific name']['value']) ? $val : $rec['sciname'];
+                            $save['Scientific Name']    = ($val = @$meta['scientific name']['value']) ? $val : $rec['sciname'];
                             $save['Common Name']        = @$rec['vernacular'];
                             $save['Measurement']        = $rec['predicate2']['value'];
-                            $save['Value']              = $rec['term']['value'];
+                            
+                            //remove unit
+                            if($unit = @$meta['measurement unit']['value']) $save['Value'] = str_replace(" ".$unit, "", $rec['term']['value']);
+                            else                                            $save['Value'] = $rec['term']['value'];
+                            //remove comma if numeric
+                            $temp = str_replace(',', '', $save['Value']);
+                            if(is_numeric($temp)) $save['Value'] = $temp;
+                            
+                            
                             $save['Measurement URI']    = $rec['predicate2']['uri'];
                             $save['Value URI']          = @$rec['term']['uri'];
                             $save['Units (normalized)']     = $meta['measurement unit']['value'];
                             $save['Units URI (normalized)'] = $meta['measurement unit']['uri'];
                             
+                            $save['Raw Value (direct from source)'] = $save['Value'];
+                            $save['Raw Units (direct from source)'] = $meta['measurement unit']['value'];
+                            $save['Raw Units URI (normalized)']     = $meta['measurement unit']['uri'];
+                            $save['Supplier']                       = strip_tags($rec['source']);
+
+                            $api_rec = self::get_actual_api_rec($rec, $save['Value']);
+                            print_r($api_rec);
+                            
+                            $save['Content Partner Resource URL'] = ($val = $api_rec['eolterms:resource']) ? $val : $api_rec['source'];
+                            
+                            
+                            
                             /*
-                            Raw Value (direct from source)	    
-                            Raw Units (direct from source)	    
-                            Raw Units URI (normalized)	        dwc:measurementUnit
-                            Supplier	
-                            Content Partner Resource URL	    eolterms:resource
+                            	    eolterms:resource
                             source	                        dc:source
                             citation	                    dc:bibliographicCitation
                             measurement method	            dwc:measurementMethod
@@ -222,9 +250,8 @@ class EolAPI_Traits
                             sampling effort	                dwc:samplingEffort
                             standard deviation	            http://semanticscience.org/resource/SIO_000770
                             number of available reports from the literature     eolterms:NLiteratureValues
-                            
                             */
-                            
+                            print_r($save); exit;
                             
                         }
                         // exit("\nxxx\n");
@@ -233,6 +260,7 @@ class EolAPI_Traits
             }
         }
     }
+    
     
     private function get_additional_metadata($row)
     {
@@ -299,6 +327,27 @@ class EolAPI_Traits
         </span>
         */
         return $return;
+    }
+    
+    private function get_actual_api_rec($rek, $valuex)
+    {
+        if($json = Functions::lookup_with_cache($this->trait_api.$rek['taxon_id'], $this->download_options))
+        {
+            $recs = json_decode($json, true);
+            // print_r($recs);
+            echo "\n"        .$recs['item']['scientificName']."\n";
+            $traits         = $recs['item']['traits'];
+            foreach($traits as $trait)
+            {
+                if($rek['predicate'] == $trait['predicate'])
+                {
+                    // print_r($trait); exit;
+                    if($valuex == $trait['value'] &&
+                       $rek['predicate2']['value'] == $trait['predicate']
+                    ) return $trait;
+                }
+            }
+        }
     }
     
     private function get_api_recs($rek, $msg)
@@ -388,96 +437,6 @@ class EolAPI_Traits
             */
             
             /*
-            Array
-            (
-                [0] => @id
-                [1] => eol:traitUri
-                [2] => @type
-                [3] => predicate
-                [4] => dwc:measurementType
-                [5] => value
-                [6] => units
-                [7] => eol:dataPointId
-                [8] => eolterms:SizeClass
-                [9] => http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C25285
-                [10] => eolterms:CellsPerCountingUnit
-                [11] => dc:source
-                [12] => dwc:individualCount
-                [13] => dc:bibliographicCitation
-                [14] => dwc:measurementMethod
-                [15] => eolterms:statisticalMethod
-                [16] => dwc:measurementValue
-                [17] => dwc:measurementUnit
-                [18] => dwc:scientificName
-                [19] => eolterms:CountingUnit
-                [20] => dwc:locality
-                [21] => dwc:eventDate
-                [22] => dwc:samplingProtocol
-                [23] => eolterms:resource
-                [24] => eolterms:VolumeFormula
-                [25] => dwc:measurementRemarks
-                [26] => http://semanticscience.org/resource/SIO_000770
-                [27] => dc:contributor
-                [28] => dwc:measurementDeterminedDate
-                [29] => eolterms:SampleSize
-                [30] => dwc:measurementDeterminedBy
-                [31] => dwc:occurrenceRemarks
-                [32] => source
-                [33] => http://semanticscience.org/resource/SIO_000040
-                [34] => eol:reference/full_reference
-                [35] => eolterms:NLiteratureValues
-                [36] => dwc:samplingEffort
-                [37] => http://semanticscience.org/resource/SIO_000041
-                [38] => eolterms:Salinity
-                [39] => dwc:municipality
-                [40] => dwc:month
-                [41] => dwc:year
-                [42] => dwc:island
-                [43] => dwc:country
-                [44] => eol:associationType
-                [45] => eol:inverseAssociationType
-                [46] => eol:subjectPage
-                [47] => eol:objectPage
-                [48] => eol:targetTaxonID
-                [49] => dwc:lifeStage
-                [50] => http://semanticscience.org/resource/SIO_000042
-                [51] => eolterms:SeawaterTemperature
-                [52] => dwc:verbatimEventDate
-                [53] => dwc:day
-                [54] => dwc:continent
-                [55] => dwc:waterBody
-                [56] => dwc:associatedMedia
-                [57] => dwc:recordNumber
-                [58] => dwc:startDayOfYear
-                [59] => dwc:endDayOfYear
-                [60] => dwc:catalogNumber
-                [61] => dwc:collectionCode
-                [62] => dwc:institutionCode
-                [63] => dwc:collectionID
-                [64] => dwc:typeStatus
-                [65] => dwc:stateProvince
-                [66] => dwc:recordedBy
-                [67] => dwc:higherGeography
-                [68] => eolterms:HasToxin
-                [69] => eolterms:ToxicEffect
-                [70] => dwc:verbatimDepth
-                [71] => dwc:decimalLongitude
-                [72] => dwc:countryCode
-                [73] => eolterms:GenbankAccessionNumber
-                [74] => dwc:identifiedBy
-                [75] => dwc:preparations
-                [76] => dwc:decimalLatitude
-                [77] => dwc:islandGroup
-                [78] => http://ecoinformatics.org/oboe/oboe.1.0/oboe-characteristics.owl#Irradiance
-                [79] => dwc:fieldNotes
-                [80] => dwc:measurementAccuracy
-                [81] => dwc:county
-                [82] => eolterms:Reviewer
-                [83] => eolterms:Assessor
-                [84] => eolterms:Version
-                [85] => eolterms:RedListCriteria
-                [86] => dwc:behavior
-            )
             */
         }
         return $records;
@@ -509,4 +468,130 @@ class EolAPI_Traits
     }
 
 }
+/*
+Array
+(
+    [0] => @id
+    [1] => eol:traitUri
+    [2] => @type
+    [3] => predicate
+    [4] => dwc:measurementType
+    [5] => value
+    [6] => eol:dataPointId
+    [7] => dc:source
+    [8] => dwc:measurementValue
+    [9] => dwc:scientificName
+    [10] => eolterms:resource
+    [11] => units
+    [12] => dwc:individualCount
+    [13] => eolterms:statisticalMethod
+    [14] => dwc:measurementUnit
+    [15] => dwc:eventDate
+    [16] => eolterms:Reviewer
+    [17] => eolterms:Assessor
+    [18] => eolterms:Version
+    [19] => dwc:measurementRemarks
+    [20] => dwc:measurementDeterminedDate
+    [21] => dwc:establishmentMeans
+    [22] => http://purl.bioontology.org/ontology/CSP/5004-0024
+    [23] => eolterms:SampleSize
+    [24] => dwc:sex
+    [25] => dwc:lifeStage
+    [26] => dwc:measurementMethod
+    [27] => dc:contributor
+    [28] => dc:bibliographicCitation
+    [29] => source
+    [30] => eol:reference/full_reference
+    [31] => eol:associationType
+    [32] => eol:inverseAssociationType
+    [33] => eol:subjectPage
+    [34] => eol:objectPage
+    [35] => eol:targetTaxonID
+    [36] => dwc:measurementAccuracy
+    [37] => eolterms:RedListCriteria
+    [38] => dwc:verbatimEventDate
+    [39] => dwc:year
+    [40] => dwc:continent
+    [41] => dwc:catalogNumber
+    [42] => dwc:collectionCode
+    [43] => dwc:institutionCode
+    [44] => dwc:collectionID
+    [45] => dwc:typeStatus
+    [46] => dwc:county
+    [47] => dwc:stateProvince
+    [48] => dwc:country
+    [49] => dwc:locality
+    [50] => dwc:occurrenceRemarks
+    [51] => dwc:recordedBy
+    [52] => dwc:higherGeography
+    [53] => dwc:waterBody
+    [54] => dwc:associatedMedia
+    [55] => dwc:island
+    [56] => dwc:preparations
+    [57] => dwc:fieldNumber
+    [58] => dwc:startDayOfYear
+    [59] => dwc:day
+    [60] => dwc:month
+    [61] => dwc:endDayOfYear
+    [62] => dwc:islandGroup
+    [63] => dwc:verbatimCoordinateSystem
+    [64] => dwc:decimalLongitude
+    [65] => dwc:decimalLatitude
+    [66] => dwc:verbatimLongitude
+    [67] => dwc:verbatimLatitude
+    [68] => dwc:maximumDepthInMeters
+    [69] => dwc:minimumDepthInMeters
+    [70] => eolterms:Propagule
+    [71] => eolterms:bodyPart
+    [72] => http://purl.obolibrary.org/obo/VT_0001259
+    [73] => http://semanticscience.org/resource/SIO_000770
+    [74] => dwc:georeferenceProtocol
+    [75] => dwc:geodeticDatum
+    [76] => dwc:verbatimElevation
+    [77] => dwc:minimumElevationInMeters
+    [78] => dwc:maximumElevationInMeters
+    [79] => http://edamontology.org/data_2140
+    [80] => http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#Sample_Size
+    [81] => http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#Standard_Deviation
+    [82] => http://purl.obolibrary.org/obo/OBI_0000235
+    [83] => dwc:georeferenceRemarks
+    [84] => dwc:coordinateUncertaintyInMeters
+    [85] => dwc:identifiedBy
+    [86] => dwc:reproductiveCondition
+    [87] => dwc:fieldNotes
+    [88] => eolterms:TimeOfExtinction
+    [89] => dwc:samplingProtocol
+    [90] => http://purl.obolibrary.org/obo/VT_0001256
+    [91] => eolterms:OriginOfToxin
+    [92] => dwc:identificationQualifier
+    [93] => dwc:recordNumber
+    [94] => dwc:associatedSequences
+    [95] => eolterms:WetlandIndicatorRegion
+    [96] => http://tropicos.org/upper_name
+    [97] => eolterms:ToxicEffect
+    [98] => eolterms:HasToxin
+    [99] => eolterms:SeawaterTemperature
+    [100] => http://ecoinformatics.org/oboe/oboe.1.0/oboe-characteristics.owl#Irradiance
+    [101] => eolterms:SizeClass
+    [102] => http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C25285
+    [103] => http://semanticscience.org/resource/SIO_000041
+    [104] => eolterms:CellsPerCountingUnit
+    [105] => eolterms:VolumeFormula
+    [106] => eolterms:CountingUnit
+    [107] => dwc:samplingEffort
+    [108] => http://semanticscience.org/resource/SIO_000042
+    [109] => http://semanticscience.org/resource/SIO_000040
+    [110] => dwc:measurementDeterminedBy
+    [111] => eolterms:LatentPeriod
+    [112] => eolterms:Uses
+    [113] => eolterms:ModeOfAction
+    [114] => eolterms:NLiteratureValues
+    [115] => eolterms:Salinity
+    [116] => dwc:municipality
+    [117] => dwc:verbatimDepth
+    [118] => dwc:countryCode
+    [119] => eolterms:GenbankAccessionNumber
+    [120] => dwc:behavior
+)
+*/
 ?>
