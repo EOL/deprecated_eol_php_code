@@ -44,6 +44,10 @@ class EolAPI_Traits
     
     function start()
     {
+        // $x = (3<2) ? 1 : (3<2) ? 2 : 173;
+        // echo "\n[$x]\n";
+        // exit;
+        
         // $tests = array(
         //     "42",
         //     "123,456"
@@ -91,26 +95,14 @@ class EolAPI_Traits
         echo "\n" . urldecode($attribute) . "\n"; //exit;
         
         
-        /* just for stats
-        $attributes = array();
-        $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=38541712";   //done
-        $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1552";       //done
-        $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1703";
-        $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1642";       //done
-        $attributes[] = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=695";        //done
-        $attributes[] = "http%3A%2F%2Feol.org%2Fschema%2Fterms%2Fcarbon_per_cell&q=&sort=desc";                         //done
-        $attributes[] = "";
-        $attributes[] = "";                              //done
-        */
-
         $datasets = array();
         // $datasets[] = array("name" => "test", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPlantHabit&q=&sort=desc"); //1091 pages!
-        $datasets[] = array("name" => "cell mass from Jen", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645");
+        // $datasets[] = array("name" => "cell mass from Jen", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645");
         // $datasets[] = array("name" => "cell mass from Jen2", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&q=");
         // $datasets[] = array("name" => "fishbase", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=5344");
         // $datasets[] = array("name" => "fishbase2", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=5344");
         
-        // $datasets[] = array("name" => "life span", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=1642");
+        $datasets[] = array("name" => "life span", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=1642");
         // $datasets[] = array("name" => "plant propagation method", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPropagationMethod&q=&sort=desc");
 
         foreach($datasets as $dataset)
@@ -194,7 +186,7 @@ class EolAPI_Traits
                             $save['EOL page ID']        = $rec['taxon_id'];
                             $save['Scientific Name']    = ($val = @$meta['scientific name']['value']) ? $val : $rec['sciname'];
                             $save['Common Name']        = @$rec['vernacular'];
-                            $save['Measurement']        = $rec['predicate2']['value'];
+                            $save['Measurement']        = ($val = $rec['predicate2']['value']         ? $val : $api_rec['predicate']);
                             
                             //remove unit
                             if($unit = @$meta['measurement unit']['value']) $save['Value'] = str_replace(" ".$unit, "", $rec['term']['value']);
@@ -202,48 +194,49 @@ class EolAPI_Traits
                             //remove comma if numeric
                             $temp = str_replace(',', '', $save['Value']);
                             if(is_numeric($temp)) $save['Value'] = $temp;
-                            
-                            
-                            $save['Measurement URI']    = $rec['predicate2']['uri'];
-                            $save['Value URI']          = @$rec['term']['uri'];
-                            $save['Units (normalized)']     = $meta['measurement unit']['value'];
-                            $save['Units URI (normalized)'] = $meta['measurement unit']['uri'];
-                            
-                            $save['Raw Value (direct from source)'] = $save['Value'];
-                            $save['Raw Units (direct from source)'] = $meta['measurement unit']['value'];
-                            $save['Raw Units URI (normalized)']     = $meta['measurement unit']['uri'];
-                            $save['Supplier']                       = strip_tags($rec['source']);
 
                             $api_rec = self::get_actual_api_rec($rec, $save['Value']);
                             print_r($api_rec);
                             
+                            $save['Measurement URI']        = ($val = $rec['predicate2']['uri'])            ? $val : $api_rec['dwc:measurementType'];
+                            $save['Value URI']              = ($val = @$rec['term']['uri'])                 ? $val : $api_rec['dwc:measurementValue'];
+                            $save['Units (normalized)']     = ($val = $meta['measurementt unit']['value'])  ? $val : $api_rec['units'];
+                            $save['Units URI (normalized)'] = ($val = $meta['measurement unit']['uri'])     ? $val : $api_rec['dwc:measurementUnit'];
+                            
+                            $save['Raw Value (direct from source)'] = $save['Value'];
+                            $save['Raw Units (direct from source)'] = $meta['measurement unit']['value'];
+                            $save['Raw Units URI (normalized)']     = ($val = $meta['measurement unit']['uri']) ? $val : $api_rec['dwc:measurementUnit'];
+                            $save['Supplier']                       = strip_tags($rec['source']);
+
                             $save['Content Partner Resource URL'] = ($val = $api_rec['eolterms:resource']) ? $val : $api_rec['source'];
+                            $save['source']                       = ($val = $meta['source']['value'])      ? $val : $api_rec['dc:source'];
+                            $save['citation']               = ($val = $meta['citation']['value'])               ? $val : $api_rec['dc:bibliographicCitation'];
+                            $save['measurement method']     = ($val = $meta['measurement method']['value'])     ? $val : $api_rec['dwc:measurementMethod'];
+                            $save['statistical method']     = ($val = $meta['statistical method']['value'])     ? $val : $api_rec['eolterms:statisticalMethod']; //(get value for api_rec)
+                            $save['individual count']       = ($val = $meta['individual count']['value'])       ? $val : $api_rec['dwc:individualCount'];
+                            $save['locality']               = ($val = $meta['locality']['value'])               ? $val : $api_rec['dwc:locality'];
+                            $save['event date']             = ($val = $meta['event date']['value'])             ? $val : $api_rec['dwc:eventDate'];
+                            $save['sampling protocol']      = ($val = $meta['sampling protocol']['value'])      ? $val : $api_rec['dwc:samplingProtocol'];
+                            $save['size class']             = ($val = $meta['size class']['value'])             ? $val : $api_rec['eolterms:SizeClass'];
+                            $save['diameter']               = ($val = $meta['diameter']['value'])               ? $val : "";
+                            $save['counting unit']          = ($val = $meta['counting unit']['value'])          ? $val : $api_rec['eolterms:CountingUnit'];
+                            $save['cells per counting unit'] = ($val = $meta['cells per counting unit']['value']) ? $val : $api_rec['eolterms:CellsPerCountingUnit'];
+                            $save['scientific name']        = ($val = @$meta['scientific name']['value'])       ? $val : ($val = $api_rec['dwc:scientificName']) ? $val : $rec['sciname'];
                             
-                            
-                            
+                            //guessed meta field 2x
+                            $save['measurement remarks'] = ($val = $meta['measurement remarks']['value']) ? $val : $api_rec['dwc:measurementRemarks'];
+                            $save['height']              = ($val = $meta['height']['value'])              ? $val : $api_rec['http://semanticscience.org/resource/SIO_000040'];
+
+                            $save['Reference'] = ($val = $meta['References']['value']) ? $val : $api_rec['eol:reference/full_reference'];
+
+                            //guessed meta field 5x
+                            $save['measurement determined by']  = ($val = $meta['measurement determined by']['value'])  ? $val : $api_rec['dwc:measurementDeterminedBy'];
+                            $save['occurrence remarks']         = ($val = $meta['occurrence remarks']['value'])         ? $val : $api_rec['dwc:occurrenceRemarks'];
+                            $save['length']                     = ($val = $meta['length']['value'])                     ? $val : $api_rec['http://semanticscience.org/resource/SIO_000041'];
+                            $save['diameter 2']                 = ($val = $meta['diameter 2']['value'])                 ? $val : "";
+                            $save['width']                      = ($val = $meta['width']['value'])                      ? $val : $api_rec['http://semanticscience.org/resource/SIO_000042'];
                             /*
-                            	    eolterms:resource
-                            source	                        dc:source
-                            citation	                    dc:bibliographicCitation
-                            measurement method	            dwc:measurementMethod
-                            statistical method	            eolterms:statisticalMethod (get value)
-                            individual count	            dwc:individualCount
-                            locality	                    dwc:locality
-                            event date	                    dwc:eventDate
-                            sampling protocol	            dwc:samplingProtocol
-                            size class	                    eolterms:SizeClass
-                            diameter	
-                            counting unit	                eolterms:CountingUnit
-                            cells per counting unit	        eolterms:CellsPerCountingUnit
-                            scientific name	                dwc:scientificName
-                            measurement remarks	            dwc:measurementRemarks
-                            height	                        http://semanticscience.org/resource/SIO_000040
-                            Reference	                    eol:reference/full_reference
-                            measurement determined by	    dwc:measurementDeterminedBy
-                            occurrence remarks	            dwc:occurrenceRemarks
-                            length	                        http://semanticscience.org/resource/SIO_000041
-                            diameter 2	
-                            width	                        http://semanticscience.org/resource/SIO_000042
+                            	                        
                             life stage	                    dwc:lifeStage
                             length 2	
                             measurement determined date	    dwc:measurementDeterminedDate
@@ -579,8 +572,8 @@ Array
     [105] => eolterms:VolumeFormula
     [106] => eolterms:CountingUnit
     [107] => dwc:samplingEffort
-    [108] => http://semanticscience.org/resource/SIO_000042
-    [109] => http://semanticscience.org/resource/SIO_000040
+    [108] => http://semanticscience.org/resource/SIO_000042         width
+    [109] => http://semanticscience.org/resource/SIO_000040         height
     [110] => dwc:measurementDeterminedBy
     [111] => eolterms:LatentPeriod
     [112] => eolterms:Uses
