@@ -48,32 +48,32 @@ class EolAPI_Traits
         // /*
         // DATA-1648 derivative files: Cichlidae 
         $datasets[] = array("name" => "Cichlidae - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=5344");
-        // $datasets[] = array("name" => "Cichlidae - life span", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=5344");
+        $datasets[] = array("name" => "Cichlidae - life span", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=5344");
 
         // DATA-1649 - derivative file: body mass, various groups
-        // $datasets[] = array("name" => "Chondrichthyes - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=38541712");
-        // $datasets[] = array("name" => "Amphibia - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1552");
-        // $datasets[] = array("name" => "Reptilia - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1703");
-        // $datasets[] = array("name" => "Mammalia - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1642");
-        // $datasets[] = array("name" => "Aves - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=695");
+        $datasets[] = array("name" => "Chondrichthyes - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=38541712");
+        $datasets[] = array("name" => "Amphibia - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1552");
+        $datasets[] = array("name" => "Reptilia - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1703");
+        $datasets[] = array("name" => "Mammalia - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1642");
+        $datasets[] = array("name" => "Aves - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=695");
 
         // DATA-1650 lifespan of mammalia
-        // $datasets[] = array("name" => "Mammalia - life span", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=1642");
+        $datasets[] = array("name" => "Mammalia - life span", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=1642");
 
         // DATA-1651 plant propagation method
-        // $datasets[] = array("name" => "plant propagation method", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPropagationMethod&q=&sort=desc");
+        $datasets[] = array("name" => "plant propagation method", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPropagationMethod&q=&sort=desc");
 
         // DATA-1652 carbon per cell
-        // $datasets[] = array("name" => "carbon per cell", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2Fcarbon_per_cell&q=&sort=desc");
+        $datasets[] = array("name" => "carbon per cell", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2Fcarbon_per_cell&q=&sort=desc");
 
         // DATA-1653 life cycle habit
-        // $datasets[] = array("name" => "life cycle habit", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FTO_0002725&q=&sort=desc");
+        $datasets[] = array("name" => "life cycle habit", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FTO_0002725&q=&sort=desc");
 
         // DATA-1654 growth habit // 1091 pages!
-        // $datasets[] = array("name" => "growth habit", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPlantHabit&q=&sort=desc");
+        $datasets[] = array("name" => "growth habit", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPlantHabit&q=&sort=desc");
 
         // DATA-1652 carbon per cell
-        // $datasets[] = array("name" => "carbon per cell", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2Fcarbon_per_cell&q=&sort=desc");
+        $datasets[] = array("name" => "carbon per cell", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2Fcarbon_per_cell&q=&sort=desc");
 
         // tests
         // $datasets[] = array("name" => "cell mass from Jen", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645");
@@ -116,7 +116,7 @@ class EolAPI_Traits
         $pages = ceil($total/100);
         // $pages = 20;
         echo "\nPages: $pages";
-        for($page = 3150; $page <= $pages; $page++)
+        for($page = 1; $page <= $pages; $page++)
         {
             if($html = Functions::lookup_with_cache($this->data_search_url.$attrib."&page=$page", $this->download_options))
             {
@@ -193,16 +193,23 @@ class EolAPI_Traits
 
                             $api_rec = self::get_actual_api_rec($rec, $save['Value']);
                             // print_r($api_rec);
+                            if(!$api_rec) echo "\n-NO API RECORD-\n";
 
                             $save['Measurement']            = ($val = $rec['predicate2']['value'])          ? $val : $api_rec['predicate'];
                             $save['Measurement URI']        = ($val = $rec['predicate2']['uri'])            ? $val : $api_rec['dwc:measurementType'];
+                            
                             $save['Value URI']              = ($val = @$rec['term']['uri'])                 ? $val : $api_rec['dwc:measurementValue'];
+                            $save['Value URI'] = self::blank_if_not_uri($save['Value URI']);
+                            
                             $save['Units (normalized)']     = ($val = @$meta['measurement unit']['value'])  ? $val : @$api_rec['units'];
                             $save['Units URI (normalized)'] = ($val = @$meta['measurement unit']['uri'])    ? $val : @$api_rec['dwc:measurementUnit'];
+                            $save['Units URI (normalized)'] = self::blank_if_not_uri($save['Units URI (normalized)']);
                             
                             $save['Raw Value (direct from source)'] = $save['Value'];
                             $save['Raw Units (direct from source)'] = @$meta['measurement unit']['value'];
                             $save['Raw Units URI (normalized)']     = ($val = @$meta['measurement unit']['uri']) ? $val : @$api_rec['dwc:measurementUnit'];
+                            $save['Raw Units URI (normalized)'] = self::blank_if_not_uri($save['Raw Units URI (normalized)']);
+                            
                             $save['Supplier']                       = strip_tags($rec['source']);
 
                             $resource_url = self::get_resource_url_from_traitUri($api_rec['eol:traitUri']);
@@ -241,7 +248,7 @@ class EolAPI_Traits
                             $save['sampling effort']            = ($val = @$meta['sampling effort']['value'])                ? $val : @$api_rec['dwc:samplingEffort'];
                             $save['standard deviation']         = ($val = @$meta['standard deviation']['value'])             ? $val : @$api_rec['http://semanticscience.org/resource/SIO_000770'];
                             $save['number of available reports from the literature'] = ($val = @$meta['number of available reports from the literature']['value'])  ? $val : @$api_rec['eolterms:NLiteratureValues'];
-                            print_r($save); 
+                            print_r($save);
                             
                             //start saving
                             if($save['EOL page ID'])
@@ -312,6 +319,14 @@ class EolAPI_Traits
         fclose($WRITE);
     }
     
+    private function blank_if_not_uri($val)
+    {
+        if($val)
+        {
+            if(strtolower(substr($val,0,4)) != "http") return "";
+        }
+        return $val;
+    }
     private function get_resource_url_from_traitUri($traitUri)
     {
         //e.g. [eol:traitUri] => http://eol.org/resources/692/measurements/ab4a32a35c2d266976ba4f10879be6c4
