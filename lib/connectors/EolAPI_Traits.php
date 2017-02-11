@@ -83,16 +83,17 @@ class EolAPI_Traits
         //for archiving...
         // $datasets[] = array("name" => "active growth period", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FActiveGrowthPeriod&commit=Search&taxon_name=&q="); DONE
         // $datasets[] = array("name" => "flower color", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FTO_0000537&commit=Search&taxon_name=&q=");                DONE
-        // $datasets[] = array("name" => "egg diameter", "attribute" => "http%3A%2F%2Fpolytraits.lifewatchgreece.eu%2Fterms%2FEGG&commit=Search&taxon_name=&q=");
+        // $datasets[] = array("name" => "abdomen length", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FAbdomenLength&commit=Search&taxon_name=&q=");    DONE
+        // $datasets[] = array("name" => "egg diameter", "attribute" => "http%3A%2F%2Fpolytraits.lifewatchgreece.eu%2Fterms%2FEGG&commit=Search&taxon_name=&q=");   DONE
 
         //currently archiving...
-        // $datasets[] = array("name" => "abdomen length", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FAbdomenLength&commit=Search&taxon_name=&q=");
         // $datasets[] = array("name" => "body length (CMO)", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FCMO_0000013&commit=Search&taxon_name=&q=");
         // $datasets[] = array("name" => "latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&commit=Search&taxon_name=&q=");
         // $datasets[] = array("name" => "latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&commit=Search&taxon_name=&q=");
         // $datasets[] = array("name" => "latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&commit=Search&taxon_name=&q=");
+        // $datasets[] = array("name" => "latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&commit=Search&taxon_name=&q=");
 
-        // $datasets[] = array("name" => "cell mass from Jen2", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&q=");
+        // $datasets[] = array("name" => "cell mass from Jen", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645");
 
         foreach($datasets as $dataset)
         {
@@ -115,7 +116,7 @@ class EolAPI_Traits
         $pages = ceil($total/100);
         // $pages = 20;
         echo "\nPages: $pages";
-        for($page = 1; $page <= $pages; $page++)
+        for($page = 3150; $page <= $pages; $page++)
         {
             if($html = Functions::lookup_with_cache($this->data_search_url.$attrib."&page=$page", $this->download_options))
             {
@@ -182,7 +183,6 @@ class EolAPI_Traits
                             $save['EOL page ID']        = $rec['taxon_id'];
                             $save['Scientific Name']    = ($val = @$meta['scientific name']['value']) ? $val : $rec['sciname'];
                             $save['Common Name']        = @$rec['vernacular'];
-                            $save['Measurement']        = ($val = $rec['predicate2']['value']         ? $val : $api_rec['predicate']);
                             
                             //remove unit
                             if($unit = @$meta['measurement unit']['value']) $save['Value'] = str_replace(" ".$unit, "", $rec['term']['value']);
@@ -192,12 +192,13 @@ class EolAPI_Traits
                             if(is_numeric($temp)) $save['Value'] = $temp;
 
                             $api_rec = self::get_actual_api_rec($rec, $save['Value']);
-                            print_r($api_rec);
-                            
+                            // print_r($api_rec);
+
+                            $save['Measurement']            = ($val = $rec['predicate2']['value'])          ? $val : $api_rec['predicate'];
                             $save['Measurement URI']        = ($val = $rec['predicate2']['uri'])            ? $val : $api_rec['dwc:measurementType'];
                             $save['Value URI']              = ($val = @$rec['term']['uri'])                 ? $val : $api_rec['dwc:measurementValue'];
-                            $save['Units (normalized)']     = ($val = @$meta['measurementt unit']['value'])  ? $val : @$api_rec['units'];
-                            $save['Units URI (normalized)'] = ($val = @$meta['measurement unit']['uri'])     ? $val : @$api_rec['dwc:measurementUnit'];
+                            $save['Units (normalized)']     = ($val = @$meta['measurement unit']['value'])  ? $val : @$api_rec['units'];
+                            $save['Units URI (normalized)'] = ($val = @$meta['measurement unit']['uri'])    ? $val : @$api_rec['dwc:measurementUnit'];
                             
                             $save['Raw Value (direct from source)'] = $save['Value'];
                             $save['Raw Units (direct from source)'] = @$meta['measurement unit']['value'];
@@ -247,20 +248,18 @@ class EolAPI_Traits
                             {
                                 $fields = explode(",", $this->headers);
                                 $fields_total = count($fields);
-                                $line = ""; $i = 0;
+                                $line = ""; $j = 0;
                                 foreach($fields as $field)
                                 {
-                                    $i++;
+                                    $j++;
                                     $line .= $save[$field];
-                                    if($i != $fields_total) $line .= "\t";
+                                    if($j != $fields_total) $line .= "\t";
                                 }
                                 fwrite($WRITE, $line . "\n");
                                 // echo "\n[$line]";
                             }
-                            
-                            
-                            
                             // exit;
+
                             /*
                             Array
                             (
