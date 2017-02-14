@@ -36,8 +36,12 @@ class EolAPI_Traits
         $this->unique_index = array();
         // %3A :
         // %2F /
-        
-        
+/*
+![][id]
+[id]: path "name"
+[hyperlink][eolpath]
+[eolpath]: urlpath
+*/
         $this->headers = "EOL page ID,Scientific Name,Common Name,Measurement,Value,Measurement URI,Value URI,Units (normalized),Units URI (normalized),Raw Value (direct from source),Raw Units (direct from source),Raw Units URI (normalized),Supplier,Content Partner Resource URL,source,citation,measurement method,statistical method,individual count,locality,event date,sampling protocol,size class,diameter,counting unit,cells per counting unit,scientific name,measurement remarks,height,Reference,measurement determined by,occurrence remarks,length,diameter 2,width,life stage,length 2,measurement determined date,sampling effort,standard deviation,number of available reports from the literature";
         // print_r($this->headers); exit;
     }
@@ -47,37 +51,33 @@ class EolAPI_Traits
         $datasets = array();
         // /*
         // DATA-1648 derivative files: Cichlidae 
-        $datasets[] = array("name" => "Cichlidae - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=5344");
-        $datasets[] = array("name" => "Cichlidae - life span", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=5344");
+        // $datasets[] = array("name" => "Cichlidae - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=5344");
+        // $datasets[] = array("name" => "Cichlidae - life span", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=5344");
 
         // DATA-1649 - derivative file: body mass, various groups
-        $datasets[] = array("name" => "Chondrichthyes - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=38541712");
-        $datasets[] = array("name" => "Amphibia - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1552");
-        $datasets[] = array("name" => "Reptilia - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1703");
-        $datasets[] = array("name" => "Mammalia - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1642");
-        $datasets[] = array("name" => "Aves - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=695");
+        // $datasets[] = array("name" => "Chondrichthyes - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=38541712");
+        // $datasets[] = array("name" => "Amphibia - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1552");
+        // $datasets[] = array("name" => "Reptilia - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1703");
+        // $datasets[] = array("name" => "Mammalia - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1642");
+        // $datasets[] = array("name" => "Aves - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=695");
 
         // DATA-1650 lifespan of mammalia
-        $datasets[] = array("name" => "Mammalia - life span", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=1642");
+        // $datasets[] = array("name" => "Mammalia - life span", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=1642");
 
         // DATA-1651 plant propagation method
-        $datasets[] = array("name" => "plant propagation method", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPropagationMethod&q=&sort=desc");
+        // $datasets[] = array("name" => "plant propagation method", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPropagationMethod&q=&sort=desc");
 
         // DATA-1652 carbon per cell
-        $datasets[] = array("name" => "carbon per cell", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2Fcarbon_per_cell&q=&sort=desc");
+        // $datasets[] = array("name" => "carbon per cell", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2Fcarbon_per_cell&q=&sort=desc");
 
         // DATA-1653 life cycle habit
-        $datasets[] = array("name" => "life cycle habit", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FTO_0002725&q=&sort=desc");
+        // $datasets[] = array("name" => "life cycle habit", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FTO_0002725&q=&sort=desc");
 
         // DATA-1654 growth habit // 1091 pages!
-        $datasets[] = array("name" => "growth habit", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPlantHabit&q=&sort=desc");
+        // $datasets[] = array("name" => "growth habit", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPlantHabit&q=&sort=desc");
 
-        // DATA-1652 carbon per cell
-        $datasets[] = array("name" => "carbon per cell", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2Fcarbon_per_cell&q=&sort=desc");
-
-        // tests
-        // $datasets[] = array("name" => "cell mass from Jen", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645");
-        // $datasets[] = array("name" => "cell mass from Jen2", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&q=");
+        // DATA-1657 derivative file: All Body Mass
+        // $datasets[] = array("name" => "body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc");
         // */
 
         //for archiving...
@@ -85,21 +85,27 @@ class EolAPI_Traits
         // $datasets[] = array("name" => "flower color", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FTO_0000537&commit=Search&taxon_name=&q=");                DONE
         // $datasets[] = array("name" => "abdomen length", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FAbdomenLength&commit=Search&taxon_name=&q=");    DONE
         // $datasets[] = array("name" => "egg diameter", "attribute" => "http%3A%2F%2Fpolytraits.lifewatchgreece.eu%2Fterms%2FEGG&commit=Search&taxon_name=&q=");   DONE
+        // $datasets[] = array("name" => "body length (CMO)", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FCMO_0000013&commit=Search&taxon_name=&q=");  DONE
 
         //currently archiving...
-        // $datasets[] = array("name" => "body length (CMO)", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FCMO_0000013&commit=Search&taxon_name=&q=");
-        // $datasets[] = array("name" => "latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&commit=Search&taxon_name=&q=");
-        // $datasets[] = array("name" => "latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&commit=Search&taxon_name=&q=");
-        // $datasets[] = array("name" => "latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&commit=Search&taxon_name=&q=");
-        // $datasets[] = array("name" => "latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&commit=Search&taxon_name=&q=");
+        $datasets[] = array("name" => "latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&commit=Search&taxon_name=&q=");
 
+        // tests
         // $datasets[] = array("name" => "cell mass from Jen", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645");
+        // $datasets[] = array("name" => "cell mass from Jen2", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&q=");
 
         foreach($datasets as $dataset)
         {
-            $filename = CONTENT_RESOURCE_LOCAL_PATH . "/" . str_replace(" ", "_", $dataset['name']) . ".txt";
+            $filename = CONTENT_RESOURCE_LOCAL_PATH . "/" . str_replace(" ", "-", $dataset['name']) . ".txt";
             self::initialize_tsv($filename);
             self::get_data_search_results($dataset, $filename);
+            
+            if(filesize($filename) > 1)
+            {
+                $command_line = "gzip -c " . $filename . " > " . $filename . ".gz";
+                $output = shell_exec($command_line);
+                echo "\n$output\n";
+            }
         }
         print_r($this->unique_index);
         exit("\n-eli stops-\n");
@@ -108,7 +114,6 @@ class EolAPI_Traits
     private function get_data_search_results($dataset, $filename)
     {
         $WRITE = fopen($filename, "a");
-        
         $attrib = $dataset['attribute'];
         $result = self::get_html_info($attrib);
         $total = $result['total_records'];
@@ -116,7 +121,10 @@ class EolAPI_Traits
         $pages = ceil($total/100);
         // $pages = 20;
         echo "\nPages: $pages";
-        for($page = 1; $page <= $pages; $page++)
+        for($page = 1; $page <= $pages; $page++)    //orig
+        // for($page = 1; $page <= 196; $page++)
+        // for($page = 196; $page <= 392; $page++)
+        // for($page = 392; $page <= $pages; $page++)
         {
             if($html = Functions::lookup_with_cache($this->data_search_url.$attrib."&page=$page", $this->download_options))
             {
@@ -266,7 +274,7 @@ class EolAPI_Traits
                                 // echo "\n[$line]";
                             }
                             // exit;
-
+                            
                             /*
                             Array
                             (
