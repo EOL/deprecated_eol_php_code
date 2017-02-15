@@ -16,7 +16,8 @@ class BioImagesAPI
         // $this->original_resource = "http://localhost/~eolit/eol_php_code/applications/content_server/resources/168_Nov2010.xml.gz";
         // $this->original_resource = "http://opendata.eol.org/dataset/b0846bb0-7b81-40c7-8878-fb71f830ed17/resource/4444b435-c5e9-4d9e-b9ac-e6da8fd3fc55/download/168nov2010.xml.gz";
 
-        $this->data_dump_url = "http://pick14.pick.uga.edu/users/s/Storey,_Malcolm/Malcolm_Storey_images.TXT";
+        // $this->data_dump_url = "http://pick14.pick.uga.edu/users/s/Storey,_Malcolm/Malcolm_Storey_images.TXT"; obsolete
+        $this->data_dump_url = "http://www.discoverlife.org/users/s/Storey,_Malcolm/Malcolm_Storey_images.txt";
         $this->original_resource = "http://opendata.eol.org/dataset/b0846bb0-7b81-40c7-8878-fb71f830ed17/resource/4444b435-c5e9-4d9e-b9ac-e6da8fd3fc55/download/168nov2010.xml.gz";
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . '_working/';
