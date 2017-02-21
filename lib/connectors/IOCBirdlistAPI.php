@@ -9,17 +9,11 @@ class IOCBirdlistAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxa_ids             = array();
-        $this->taxa_reference_ids   = array(); // $this->taxa_reference_ids[taxon_id] = reference_ids
-        $this->object_reference_ids = array();
-        $this->object_agent_ids     = array();
-        $this->reference_ids        = array();
-        $this->agent_ids            = array();
         $this->download_options = array('resource_id' => $folder, 'timeout' => 172800, 'expire_seconds' => false, 'download_wait_time' => 2000000);
         
         $this->xml_data = "http://www.worldbirdnames.org/master_ioc-names_xml.xml";
         $this->xml_data = "http://localhost/cp/IOCBirdlist/data/master_ioc-names_xml.xml";
         
-        $this->domain = "http://www.worldbirdnames.org";
         $this->source = "http://www.worldbirdnames.org";
         $this->bibliographic_citation = "Gill F & D Donsker (Eds). 2017. IOC World Bird List (v 7.1). http://dx.doi.org/10.14344/IOC.ML.7.1";
         
@@ -28,20 +22,13 @@ class IOCBirdlistAPI
 
     function get_all_taxa($resource_id)
     {
-        /*
-        self::process_taxa_synonyms();          echo "\n synonyms -- DONE";
-        self::process_taxa_object_references(); echo "\n dataObject references -- DONE";
-        self::process_taxa_object_agents();     echo "\n agents -- DONE";
-        self::process_taxa_objects();           echo "\n dataObjects -- DONE";
-        */
-        
         self::create_aves();
         self::process_taxa();
         $this->archive_builder->finalize(true);
         
-        print_r($this->debug['breeding_regions']);
-        print_r($this->debug['breeding_subregions']);
-        print_r($this->debug['nonbreeding_regions']);
+        // print_r($this->debug['breeding_regions']);
+        // print_r($this->debug['breeding_subregions']);
+        // print_r($this->debug['nonbreeding_regions']);
     }
 
     private function process_taxa()
@@ -185,7 +172,6 @@ class IOCBirdlistAPI
             $taxonID            = md5($taxon_name);
             $parentNameUsageID  = md5($parent);
             if(!isset($this->taxa_ids[$taxonID]))
-            // if(true)
             {
                 $this->taxa_ids[$taxonID] = '';
                 $taxon = new \eol_schema\Taxon();
@@ -193,7 +179,7 @@ class IOCBirdlistAPI
                 $taxon->taxonRank           = $rank;
                 $taxon->scientificName      = $taxon_name;
                 $taxon->parentNameUsageID   = $parentNameUsageID;
-                if($val = @$rek[$rank]['url'])      $taxon->furtherInformationURL = $this->domain."/".$val;
+                if($val = @$rek[$rank]['url'])      $taxon->furtherInformationURL = $this->source."/".$val;
                 if($val = @$rek[$rank]['note'])     $taxon->taxonRemarks = $val;
                 if($val = @$rek[$rank]['english'])  self::create_vernacular($val, $taxonID);
                 $this->archive_builder->write_object_to_file($taxon);
@@ -210,20 +196,6 @@ class IOCBirdlistAPI
                 
             }
         }
-        /*
-        $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID         = $t['dc_identifier'];
-        $taxon->scientificName  = utf8_encode($t['dwc_ScientificName']);
-        $taxon->kingdom         = $t['dwc_Kingdom'];
-        $taxon->phylum          = $t['dwc_Phylum'];
-        $taxon->class           = $t['dwc_Class'];
-        $taxon->order           = $t['dwc_Order'];
-        $taxon->family          = $t['dwc_Family'];
-        $taxon->genus           = $t['dwc_Genus'];
-        $taxon->furtherInformationURL = $t['dc_source'];
-        if($reference_ids = @$this->taxa_reference_ids[$t['int_id']]) $taxon->referenceID = implode("; ", $reference_ids);
-        $this->archive_builder->write_object_to_file($taxon);
-        */
     }
 
     private function create_vernacular($vernacular, $taxonID)
@@ -330,6 +302,19 @@ class IOCBirdlistAPI
     
     //===================================================================================================================================================
     //===================================================================================================================================================
+    /*
+    $taxon = new \eol_schema\Taxon();
+    $taxon->taxonID         = $t['dc_identifier'];
+    $taxon->scientificName  = utf8_encode($t['dwc_ScientificName']);
+    $taxon->kingdom         = $t['dwc_Kingdom'];
+    $taxon->phylum          = $t['dwc_Phylum'];
+    $taxon->class           = $t['dwc_Class'];
+    $taxon->order           = $t['dwc_Order'];
+    $taxon->family          = $t['dwc_Family'];
+    $taxon->genus           = $t['dwc_Genus'];
+    $taxon->furtherInformationURL = $t['dc_source'];
+    if($reference_ids = @$this->taxa_reference_ids[$t['int_id']]) $taxon->referenceID = implode("; ", $reference_ids);
+    $this->archive_builder->write_object_to_file($taxon);
     
     private function get_ref_details_from_fishbase_and_create_ref($ref_id)
     {
@@ -344,7 +329,6 @@ class IOCBirdlistAPI
             return md5($fb_full_ref);
         }
     }
-    
     private function process_taxa_object_agents()
     {
         $r = new \eol_schema\Agent();
@@ -359,7 +343,6 @@ class IOCBirdlistAPI
            $this->archive_builder->write_object_to_file($r);
         }
     }
-
     private function create_references($refs)
     {
         $r = new \eol_schema\Reference();
@@ -367,14 +350,12 @@ class IOCBirdlistAPI
         $r->identifier = md5($r->full_reference);
         $r->uri = $ref['url'];
         $reference_ids[] = $r->identifier;
-    
         if(!isset($this->reference_ids[$ref_id]))
         {
             $this->reference_ids[$ref_id] = $r->identifier; //normally the value should be just '', but $this->reference_ids will be used in - convert_FBrefID_with_archiveID()
             $this->archive_builder->write_object_to_file($r);
         }
     }
-    
     private function process_taxa_objects()
     {
         $mr = new \eol_schema\MediaResource();
@@ -400,6 +381,6 @@ class IOCBirdlistAPI
         if($agent_ids     =     @$this->object_agent_ids[$o['int_do_id']])  $mr->agentID = implode("; ", $agent_ids);
         $this->archive_builder->write_object_to_file($mr);
     }
-
+    */
 }
 ?>
