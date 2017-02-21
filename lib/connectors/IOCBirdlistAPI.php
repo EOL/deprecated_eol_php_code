@@ -20,11 +20,13 @@ class IOCBirdlistAPI
         $this->xml_data = "http://localhost/cp/IOCBirdlist/data/master_ioc-names_xml.xml";
         
         $this->domain = "http://www.worldbirdnames.org";
+        $this->source = "http://www.worldbirdnames.org";
+        $this->bibliographic_citation = "Gill F & D Donsker (Eds). 2017. IOC World Bird List (v 7.1). http://dx.doi.org/10.14344/IOC.ML.7.1";
+        
     }
 
     function get_all_taxa($resource_id)
     {
-        $this->bibliographic_citation = "";
         /*
         self::process_taxa_references();        echo "\n taxa references -- DONE";
         self::process_taxa();                   echo "\n taxa -- DONE";
@@ -63,7 +65,8 @@ class IOCBirdlistAPI
                 $rek['family']['code'] = (string) $f->code;
                 $rek['family']['note'] = (string) $f->note;
                 $rek['family']['url'] = (string) $f->url;
-                if($f{"extinct"} == "yes") $rek['family']['extinct'] = 1;
+                if($f{"extinct"} == "yes") $rek['family']['status'] = "http://eol.org/schema/terms/extinct";
+                else                       $rek['family']['status'] = "http://eol.org/schema/terms/extant";
                 foreach($f->genus as $g)
                 {
                     // echo "\n ------G ".$g->latin_name;
@@ -72,7 +75,8 @@ class IOCBirdlistAPI
                     $rek['genus']['english'] = (string) $g->english_name;
                     $rek['genus']['code'] = (string) $g->code;
                     $rek['genus']['note'] = (string) $g->note;
-                    if($g{"extinct"} == "yes") $rek['genus']['extinct'] = 1;
+                    if($g{"extinct"} == "yes") $rek['genus']['status'] = "http://eol.org/schema/terms/extinct";
+                    else                       $rek['genus']['status'] = "http://eol.org/schema/terms/extant";
                     foreach($g->species as $s)
                     {
                         // echo "\n --------S ".$s->latin_name;
@@ -82,7 +86,8 @@ class IOCBirdlistAPI
                         $rek['species']['breeding_regions'] = (string) $s->breeding_regions;
                         $rek['species']['breeding_subregions'] = (string) $s->breeding_subregions;
                         $rek['species']['nonbreeding_regions'] = (string) $s->nonbreeding_regions;
-                        if($s{"extinct"} == "yes") $rek['species']['extinct'] = 1;
+                        if($s{"extinct"} == "yes") $rek['species']['status'] = "http://eol.org/schema/terms/extinct";
+                        else                       $rek['species']['status'] = "http://eol.org/schema/terms/extant";
                         foreach($s->subspecies as $b)
                         {
                             // echo "\n ----------B ".$b->latin_name;
@@ -92,12 +97,13 @@ class IOCBirdlistAPI
                             $rek['subspecies']['breeding_regions'] = (string) $b->breeding_regions;
                             $rek['subspecies']['breeding_subregions'] = (string) $b->breeding_subregions;
                             $rek['subspecies']['nonbreeding_regions'] = (string) $b->nonbreeding_regions;
-                            if($b{"extinct"} == "yes") $rek['subspecies']['extinct'] = 1;
+                            if($b{"extinct"} == "yes")  $rek['subspecies']['status'] = "http://eol.org/schema/terms/extinct";
+                            else                        $rek['subspecies']['status'] = "http://eol.org/schema/terms/extant";
                             
                             $rek = self::prepare_names($rek);
-                            print_r($rek); //exit;
+                            // print_r($rek); exit;
                             self::create_taxa($rek);
-                            // break; //debug
+                            break; //debug
                         }
                         // break;
                     }
@@ -175,6 +181,17 @@ class IOCBirdlistAPI
                 if($val = @$rek[$rank]['note'])     $taxon->taxonRemarks = $val;
                 if($val = @$rek[$rank]['english'])  self::create_vernacular($val, $taxonID);
                 $this->archive_builder->write_object_to_file($taxon);
+                
+                if($rank != "order")
+                {
+                    //for extinction status
+                    $mrec = array(); //m for measurement
+                    $mrec["taxon_id"] = $taxonID;
+                    $mrec["catnum"] = "es"; //extinction status
+                    $mrec["source"] = $this->source;
+                    self::add_string_types($mrec, $rek[$rank]['status'], "http://eol.org/schema/terms/ExtinctionStatus", "true");
+                }
+                
             }
         }
         /*
@@ -242,6 +259,18 @@ class IOCBirdlistAPI
         $taxon->taxonRank           = "class";
         $taxon->scientificName      = "Aves";
         $this->archive_builder->write_object_to_file($taxon);
+        
+        
+        
+        $taxa = array("Paleognathae", "Neognathae", "Neoaves");
+        foreach($taxa as $sciname)
+        {
+            $taxon = new \eol_schema\Taxon();
+            $taxon->taxonID             = md5($sciname);
+            $taxon->scientificName      = $sciname;
+            if($sciname == "Neoaves") $taxon->taxonRemarks = "Neoaves includes three major components: (1) a basal unresolved polytomy of at least 9 Orders, (2) a Core Waterbird Clade (Aequornithes) and (3) a Core Landbird Clade (Telluraves) (Prum et al. 2015, Suh et al. 2016).";
+            $this->archive_builder->write_object_to_file($taxon);
+        }
     }
     
     private function get_ref_details_from_fishbase_and_create_ref($ref_id)
@@ -924,7 +953,7 @@ class IOCBirdlistAPI
     {
         $taxon_id = $rec["taxon_id"];
         $catnum   = $rec["catnum"];
-        $occurrence_id = $catnum; // simply used catnum
+        $occurrence_id = $taxon_id . "_" . $catnum;
         $m = new \eol_schema\MeasurementOrFact();
         $this->add_occurrence($taxon_id, $occurrence_id, $rec);
         $m->occurrenceID       = $occurrence_id;
