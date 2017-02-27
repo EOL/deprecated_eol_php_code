@@ -455,11 +455,11 @@ class Functions
     public static function get_eol_defined_uris($download_options = false)
     {
         if(!$download_options) $download_options = array('resource_id' => 'URIs', 'download_wait_time' => 1000000, 'timeout' => 900, 'expire_seconds' => 86400, 'download_attempts' => 1); //expires in 24 hours
-        for($i=1; $i<=15; $i++)
+        for($i=1; $i<=16; $i++)
         {
             $urls = array();
             // $urls[] = "http://localhost/cp/TraitRequest/measurements/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
-            $urls[] = "https://dl.dropboxusercontent.com/u/7597512/TraitRequest/measurements/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
+            $urls[] = "http://editors.eol.org/tools/measurements/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
             foreach($urls as $url)
             {
                 if($html = Functions::lookup_with_cache($url, $download_options))
