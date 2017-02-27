@@ -179,7 +179,7 @@ class IOCBirdlistAPI
                 $taxon->taxonRank           = $rank;
                 $taxon->scientificName      = $taxon_name;
                 $taxon->parentNameUsageID   = $parentNameUsageID;
-                if($val = @$rek[$rank]['url'])      $taxon->furtherInformationURL = $this->source."/".$val;
+                if($val = @$rek[$rank]['url'])      $taxon->source = $this->source."/".$val;
                 if($val = @$rek[$rank]['note'])     $taxon->taxonRemarks = $val;
                 if($val = @$rek[$rank]['english'])  self::create_vernacular($val, $taxonID);
                 $this->archive_builder->write_object_to_file($taxon);
