@@ -9,15 +9,31 @@ class IOCBirdlistAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxa_ids             = array();
-        $this->download_options = array('resource_id' => $folder, 'timeout' => 172800, 'expire_seconds' => false, 'download_wait_time' => 2000000);
+        $this->download_options = array('resource_id' => $folder, 'timeout' => 172800, 'expire_seconds' => 2592000, 'download_wait_time' => 2000000); //expires monthly, 30 days
         
         $this->xml_data = "http://www.worldbirdnames.org/master_ioc-names_xml.xml";
-        $this->xml_data = "http://localhost/cp/IOCBirdlist/data/master_ioc-names_xml.xml";
+        // $this->xml_data = "http://localhost/cp/IOCBirdlist/data/master_ioc-names_xml.xml";
         
         $this->source = "http://www.worldbirdnames.org";
         $this->bibliographic_citation = "Gill F & D Donsker (Eds). 2017. IOC World Bird List (v 7.1). http://dx.doi.org/10.14344/IOC.ML.7.1";
         
         $this->debug = array();
+        $this->regions = array( "AF" => "http://www.geonames.org/6255146",
+                                "AN" => "http://www.geonames.org/6697173",
+                                "AO" => "http://www.geonames.org/3373405",
+                                "AU" => "http://eol.org/schema/terms/Australasia",
+                                "EU" => "http://www.wikidata.org/entity/Q5401",
+                                "IO" => "http://www.geonames.org/1545739",
+                                "PO" => "http://www.geonames.org/2363254",
+                                "SA" => "http://www.geonames.org/6255150",
+                                "SO" => "http://www.geonames.org/4036776",
+                                "NO" => "http://www.geonames.org/2960860",
+                                "NA" => "http://www.geonames.org/7729890",
+                                "TO" => "http://eol.org/schema/terms/TemperateOcean",
+                                "TrO" => "http://eol.org/schema/terms/TropicalOcean",
+                                "Worldwide" => "http://eol.org/schema/terms/Worldwide",
+                                "MA" => "http://eol.org/schema/terms/MiddleAmerica",
+                                "OR" => "http://eol.org/schema/terms/OrientalRegion");
     }
 
     function get_all_taxa($resource_id)
@@ -29,6 +45,7 @@ class IOCBirdlistAPI
         // print_r($this->debug['breeding_regions']);
         // print_r($this->debug['breeding_subregions']);
         // print_r($this->debug['nonbreeding_regions']);
+        print_r(@$this->debug['unknown']); //to be reported  in https://eol-jira.bibalex.org/browse/TRAM-499
     }
 
     private function process_taxa()
@@ -62,6 +79,7 @@ class IOCBirdlistAPI
                     $rek['genus']['english'] = (string) $g->english_name;
                     $rek['genus']['code'] = (string) $g->code;
                     $rek['genus']['note'] = (string) $g->note;
+                    if($val = @$rek['family']['url']) $rek['genus']['url'] = $val;
                     foreach($g->species as $s)
                     {
                         // if($s->latin_name == "molybdophanes") exit("\n-elix $g->latin_name -\n");
@@ -74,6 +92,7 @@ class IOCBirdlistAPI
                         $rek['species']['nonbreeding_regions'] = (string) $s->nonbreeding_regions;
                         if($s{"extinct"} == "yes") $rek['species']['status'] = "http://eol.org/schema/terms/extinct";
                         else                       $rek['species']['status'] = "http://eol.org/schema/terms/extant";
+                        if($val = @$rek['family']['url']) $rek['species']['url'] = $val;
                         foreach($s->subspecies as $b)
                         {
                             // echo "\n ----------B ".$b->latin_name;
@@ -85,6 +104,7 @@ class IOCBirdlistAPI
                             $rek['subspecies']['nonbreeding_regions'] = (string) $b->nonbreeding_regions;
                             if($b{"extinct"} == "yes")  $rek['subspecies']['status'] = "http://eol.org/schema/terms/extinct";
                             else                        $rek['subspecies']['status'] = "http://eol.org/schema/terms/extant";
+                            if($val = @$rek['family']['url']) $rek['subspecies']['url'] = $val;
 
                             /* debug
                             if($rek['species']['latin'] == "molybdophanes") {print_r($rek); exit;}
@@ -186,18 +206,54 @@ class IOCBirdlistAPI
                 
                 if(in_array($rank, array("species", "subspecies")))
                 {
+                    // /*
                     //for extinction status
                     $mrec = array(); //m for measurement
                     $mrec["taxon_id"] = $taxonID;
                     $mrec["catnum"] = "es"; //extinction status
                     $mrec["source"] = $this->source;
                     if($val = @$rek[$rank]['status']) self::add_string_types($mrec, $val, "http://eol.org/schema/terms/ExtinctionStatus", "true");
+                    // */
+                    
+                    // /*
+                    //for breeding regions : http://eol.org/schema/terms/BreedingRange
+                    if($vals = @$rek[$rank]['breeding_regions'])
+                    {
+                        $arr = self::convert_regions_2array($vals);
+                        // Array
+                        // (   [0] => NA
+                        //     [1] => SA
+                        //     [2] => AF
+                        // )
+                        foreach($arr as $a)
+                        {
+                            $mrec = array(); //m for measurement
+                            $mrec["taxon_id"] = $taxonID;
+                            $mrec["catnum"] = "br_".$a; 
+                            $mrec["source"] = $this->source;
+                            $mrec["contributor"] = "";
+                            $mrec["referenceID"] = "";
+                            $mrec['measurementUnit'] = "";
+                            $mrec['measurementMethod'] = "";
+                            $mrec['statisticalMethod'] = "";
+                            $mrec['measurementRemarks'] = "";
+                            if($val = @$this->regions[$a]) self::add_string_types($mrec, $val, "http://eol.org/schema/terms/BreedingRange", "true");
+                            else $this->debug['unknown'][$a] = '';
+                        }
+                    }
+                    // */
                 }
-                
             }
         }
     }
 
+    private function convert_regions_2array($str)
+    {
+        /* e.g. [SO, AN] or [AN] */
+        $str = str_replace(" ", "", $str);
+        return explode(",", trim($str));
+    }
+    
     private function create_vernacular($vernacular, $taxonID)
     {
         $v = new \eol_schema\VernacularName();
