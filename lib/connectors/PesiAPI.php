@@ -3,7 +3,7 @@ namespace php_active_record;
 // connector: [665]
 class PesiAPI
 {
-    function __construct($folder)
+      function __construct($folder)
     {
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -15,9 +15,9 @@ class PesiAPI
         $this->path_string_search = $this->pesi_domain . "/portal/search.php?search=adv&SearchContent=WebSearchName&SearchType=begins&txt_Search=start_letter&accepted=accepted&rankm=%3E%3D&rank=10&belongs=&list=0&listareas=0&listareastatus=0&btn_SearchAdv=Search";
         $this->levels = array("kingdom" => 1, "phylum" => 2, "class" => 3, "order" => 4, "family" => 5, "genus" => 6, "species" => 7, "subspecies" => 8);
         $this->language_codes["Israel (Hebrew)"] = "he";
-        $this->cache_path = "/Volumes/Eli blue/";
-        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1);
-        // $this->download_options["expire_seconds"] = false; //debug
+        $this->cache_path = "/Volumes/Thunderbolt4/eol_cache_pesi/eol_PESI_cache/";
+        $this->download_options = array('download_wait_time' => 5000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 665);
+        $this->download_options["expire_seconds"] = false; //debug
     }
 
     function get_all_taxa($taxa_list_text_file = NULL)
@@ -54,11 +54,7 @@ class PesiAPI
     {
         if(!extension_loaded('soap')) dl("php_soap.dll");
         $i = 0;
-        if(!($f = fopen($this->TEMP_FILE_PATH . "/processed.txt", "a")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->TEMP_FILE_PATH . "/processed.txt");
-          return;
-        }
+        if(!($f = Functions::file_open($this->TEMP_FILE_PATH . "/processed.txt", "a"))) return;
         foreach(new FileIterator($this->TEMP_FILE_PATH . "taxa.txt") as $line_number => $line)
         {
             $line = explode("\t", $line);
@@ -123,20 +119,41 @@ class PesiAPI
 
     private function get_species_from_subspecies($subspecies)
     {
-        $string = explode(" ", $subspecies);
-        switch(count($string))
-        {
-            case 3:
-                 $species = $string[0] . " " . $string[1];
-                 break;
-            case 4:
-                $species = $string[0] . " " . $string[1] . " " . $string[2];
-                break;
-            case 5:
-                $species = $string[0] . " " . $string[1] . " " . $string[2] . " " . $string[3];
-                break;
-        }
-        return trim(str_ireplace(" subsp.", "", $species));
+		if(stripos($subspecies, "subsp") === false)
+		{
+	        $string = explode(" ", $subspecies);
+	        switch(count($string))
+	        {
+				case 2:
+                	 $species = $string[0] . " " . $string[1];
+                	 break;
+				
+	            case 3:
+	                 $species = $string[0] . " " . $string[1];
+	                 break;
+	            case 4:
+	                $species = $string[0] . " " . $string[1] . " " . $string[2];
+	                break;
+	            case 5:
+	                $species = $string[0] . " " . $string[1] . " " . $string[2] . " " . $string[3];
+	                break;
+	        }
+			if(!isset($species))
+			{
+				echo "\n- will stop -\n";
+				print_r($string);
+				exit("\nno species variable [$subspecies]\n");
+			}
+			// echo "\n subspecies:[$subspecies] [" . trim(str_ireplace(" subsp.", "", $species)) . "]\n";
+	        return trim(str_ireplace(" subsp.", "", $species));
+		}
+		else
+		{
+			$string = explode("subsp", $subspecies);
+			return trim($string[0]);
+		}
+		
+		
     }
 
     private function generate_taxa_list($letters = "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z")
@@ -146,12 +163,12 @@ class PesiAPI
         $options2 = $options1;
         $options2["download_wait_time"] = 1000000;
 
-        /* debug - comment in normal operation, use to divide when caching
-        $letters = "E,F";
-        // $letters = "J,K,L,M";
-        // $letters = "P,Q,R,S";
-        // $letters = "G,N,T,U,V,W,X,Y,Z";
-        */
+        // /* debug - comment in normal operation, use to divide when caching
+        $letters = "A,B,C,D,E,F,G";
+        // $letters = "H,I,J,K,L,M,N,O";
+        // $letters = "P,Q,R,S,T,U";
+        // $letters = "V,W,X,Y,Z";
+        // */
 
         $letters = explode(",", $letters);
         foreach($letters as $letter)
@@ -221,11 +238,7 @@ class PesiAPI
 
     private function save_to_taxa_text_file($contents)
     {
-        if(!($f=fopen($this->TEMP_FILE_PATH . "/taxa.txt", "a")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->TEMP_FILE_PATH . "/taxa.txt");
-          return;
-        }
+        if(!($f = Functions::file_open($this->TEMP_FILE_PATH . "/taxa.txt", "a"))) return;
         fwrite($f, $contents);
         fclose($f);
     }
@@ -282,13 +295,31 @@ class PesiAPI
             $i++;
             echo "\n $i. $rec[scientificname] [$rec[guid]]";
             $this->create_instances_from_taxon_object($rec, array());
-            // /* uncomment in normal operation - debug
+            /* uncomment in normal operation - debug
             self::get_vernacular_names($rec);
             self::get_synonyms($rec);
-            // */
+            */
             // if($i > 20) break; // debug
         }
     }
+
+{"GUID":"urn:lsid:faunaeur.org:taxname:381594",
+    "url":"http:\/\/www.eu-nomen.eu\/portal\/taxon.php?GUID=urn:lsid:faunaeur.org:taxname:381594",
+    "scientificname":"Abax (Abax) parallelepipedus alpigradus",
+    "authority":"Schauberger, 1927",
+    "rank":"Subspecies",
+    "status":"accepted",
+    "valid_guid":"urn:lsid:faunaeur.org:taxname:381594",
+    "valid_name":"Abax (Abax) parallelepipedus alpigradus",
+    "valid_authority":"Schauberger, 1927",
+    "kingdom":"Animalia",
+    "phylum":"Arthropoda",
+    "class":"Insecta",
+    "order":"Coleoptera",
+    "family":"Carabidae",
+    "genus":"Abax",
+    "citation":"Prof. Augusto Vigna Taglianti. Abax (Abax) parallelepipedus alpigradus Schauberger, 1927. Accessed through: Fauna Europaea at http:\/\/www.faunaeur.org\/full_results.php?id=381594",
+    "match_type":"exact"}
 
     function create_instances_from_taxon_object($rec, $reference_ids)
     {
@@ -474,29 +505,38 @@ class PesiAPI
 
     private function access_pesi_service_with_retry($guid, $type)
     {
-        $dirs = array("PESI_cache", "PESI_cache2", "PESI_cache3");
-        foreach($dirs as $dir)
+	    $md5 = md5($type . "_" . $guid);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        if(!file_exists($this->cache_path . $cache1))           mkdir($this->cache_path . $cache1);
+        if(!file_exists($this->cache_path . "$cache1/$cache2")) mkdir($this->cache_path . "$cache1/$cache2");
+        $filename = $this->cache_path . "$cache1/$cache2/$md5.txt";
+        
+		$old_filename = "/Volumes/Thunderbolt4/eol_cache_pesi/eol_old_PESI_cache/" . $type . "_" . $guid . ".txt"; //from last harvest's cache
+		
+		if(file_exists($old_filename))
+		{
+            $json = file_get_contents($old_filename);
+            // echo " --- cache retrieved from old filename";
+            return json_decode($json);
+		}
+		elseif(file_exists($filename))
         {
-            $filename = $this->cache_path . $dir . "/" . $type . "_" . $guid . ".txt";
-            if(file_exists($filename))
-            {
-                $json = file_get_contents($filename);
-                echo " --- cache retrieved";
-                return json_decode($json);
-            }
+            $json = file_get_contents($filename);
+            // echo " --- cache retrieved";
+            return json_decode($json);
         }
-        echo " --- cache created";
-        //create the cache
-        $obj = self::soap_request($guid, $type);
-        if(!($file = fopen($filename, "w")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
-          return;
-        }
-        fwrite($file, json_encode($obj));
-        fclose($file);
-        usleep(300000); // 3 tenths of a second = 3/10 of a second
-        return $obj;
+		else
+		{
+	        //create the cache
+	        $obj = self::soap_request($guid, $type);
+	        if(!($file = Functions::file_open($filename, "w"))) return;
+	        fwrite($file, json_encode($obj));
+	        fclose($file);
+	        echo "\n --- cache created [$filename]";
+	        usleep(500000); // 5 tenths of a second = 5/10 of a second
+	        return $obj;
+		}
     }
 
     private function soap_request($guid, $type)
