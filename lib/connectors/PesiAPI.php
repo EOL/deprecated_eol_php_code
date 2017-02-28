@@ -119,41 +119,41 @@ class PesiAPI
 
     private function get_species_from_subspecies($subspecies)
     {
-		if(stripos($subspecies, "subsp") === false)
-		{
-	        $string = explode(" ", $subspecies);
-	        switch(count($string))
-	        {
-				case 2:
-                	 $species = $string[0] . " " . $string[1];
-                	 break;
-				
-	            case 3:
-	                 $species = $string[0] . " " . $string[1];
-	                 break;
-	            case 4:
-	                $species = $string[0] . " " . $string[1] . " " . $string[2];
-	                break;
-	            case 5:
-	                $species = $string[0] . " " . $string[1] . " " . $string[2] . " " . $string[3];
-	                break;
-	        }
-			if(!isset($species))
-			{
-				echo "\n- will stop -\n";
-				print_r($string);
-				exit("\nno species variable [$subspecies]\n");
-			}
-			// echo "\n subspecies:[$subspecies] [" . trim(str_ireplace(" subsp.", "", $species)) . "]\n";
-	        return trim(str_ireplace(" subsp.", "", $species));
-		}
-		else
-		{
-			$string = explode("subsp", $subspecies);
-			return trim($string[0]);
-		}
-		
-		
+        if(stripos($subspecies, "subsp") === false)
+        {
+            $string = explode(" ", $subspecies);
+            switch(count($string))
+            {
+                case 2:
+                     $species = $string[0] . " " . $string[1];
+                     break;
+                
+                case 3:
+                     $species = $string[0] . " " . $string[1];
+                     break;
+                case 4:
+                    $species = $string[0] . " " . $string[1] . " " . $string[2];
+                    break;
+                case 5:
+                    $species = $string[0] . " " . $string[1] . " " . $string[2] . " " . $string[3];
+                    break;
+            }
+            if(!isset($species))
+            {
+                echo "\n- will stop -\n";
+                print_r($string);
+                exit("\nno species variable [$subspecies]\n");
+            }
+            // echo "\n subspecies:[$subspecies] [" . trim(str_ireplace(" subsp.", "", $species)) . "]\n";
+            return trim(str_ireplace(" subsp.", "", $species));
+        }
+        else
+        {
+            $string = explode("subsp", $subspecies);
+            return trim($string[0]);
+        }
+        
+        
     }
 
     private function generate_taxa_list($letters = "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z")
@@ -505,38 +505,38 @@ class PesiAPI
 
     private function access_pesi_service_with_retry($guid, $type)
     {
-	    $md5 = md5($type . "_" . $guid);
+        $md5 = md5($type . "_" . $guid);
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
         if(!file_exists($this->cache_path . $cache1))           mkdir($this->cache_path . $cache1);
         if(!file_exists($this->cache_path . "$cache1/$cache2")) mkdir($this->cache_path . "$cache1/$cache2");
         $filename = $this->cache_path . "$cache1/$cache2/$md5.txt";
         
-		$old_filename = "/Volumes/Thunderbolt4/eol_cache_pesi/eol_old_PESI_cache/" . $type . "_" . $guid . ".txt"; //from last harvest's cache
-		
-		if(file_exists($old_filename))
-		{
+        $old_filename = "/Volumes/Thunderbolt4/eol_cache_pesi/eol_old_PESI_cache/" . $type . "_" . $guid . ".txt"; //from last harvest's cache
+        
+        if(file_exists($old_filename))
+        {
             $json = file_get_contents($old_filename);
             // echo " --- cache retrieved from old filename";
             return json_decode($json);
-		}
-		elseif(file_exists($filename))
+        }
+        elseif(file_exists($filename))
         {
             $json = file_get_contents($filename);
             // echo " --- cache retrieved";
             return json_decode($json);
         }
-		else
-		{
-	        //create the cache
-	        $obj = self::soap_request($guid, $type);
-	        if(!($file = Functions::file_open($filename, "w"))) return;
-	        fwrite($file, json_encode($obj));
-	        fclose($file);
-	        echo "\n --- cache created [$filename]";
-	        usleep(500000); // 5 tenths of a second = 5/10 of a second
-	        return $obj;
-		}
+        else
+        {
+            //create the cache
+            $obj = self::soap_request($guid, $type);
+            if(!($file = Functions::file_open($filename, "w"))) return;
+            fwrite($file, json_encode($obj));
+            fclose($file);
+            echo "\n --- cache created [$filename]";
+            usleep(500000); // 5 tenths of a second = 5/10 of a second
+            return $obj;
+        }
     }
 
     private function soap_request($guid, $type)
