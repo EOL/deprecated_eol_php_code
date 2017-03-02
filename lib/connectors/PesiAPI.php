@@ -37,7 +37,7 @@ class PesiAPI
         self::process_text_file();
         $this->archive_builder->finalize(true);
         // remove temp dir
-        recursive_rmdir($this->TEMP_FILE_PATH);
+        // recursive_rmdir($this->TEMP_FILE_PATH);
         echo ("\n temporary directory removed: " . $this->TEMP_FILE_PATH);
     }
 
@@ -119,7 +119,7 @@ class PesiAPI
 
     private function get_species_from_subspecies($subspecies)
     {
-        if(stripos($subspecies, "subsp") === false)
+        if(stripos($subspecies, "subsp") === false) //string is not found
         {
             $string = explode(" ", $subspecies);
             switch(count($string))
@@ -127,7 +127,6 @@ class PesiAPI
                 case 2:
                      $species = $string[0] . " " . $string[1];
                      break;
-                
                 case 3:
                      $species = $string[0] . " " . $string[1];
                      break;
@@ -152,8 +151,6 @@ class PesiAPI
             $string = explode("subsp", $subspecies);
             return trim($string[0]);
         }
-        
-        
     }
 
     private function generate_taxa_list($letters = "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z")
@@ -163,12 +160,14 @@ class PesiAPI
         $options2 = $options1;
         $options2["download_wait_time"] = 1000000;
 
-        // /* debug - comment in normal operation, use to divide when caching
-        $letters = "A,B,C,D,E,F,G";
-        // $letters = "H,I,J,K,L,M,N,O";
-        // $letters = "P,Q,R,S,T,U";
-        // $letters = "V,W,X,Y,Z";
-        // */
+        /* debug - comment in normal operation, use to divide when caching. 6 simultaneous connectors is OK
+        $letters = "A,B";
+        $letters = "C,D";
+        $letters = "E,F,G,H,I,J,K";
+        $letters = "L,M,N,O,P";
+        $letters = "Q,R,S";
+        $letters = "T,U,V,W,X,Y,Z";
+        */
 
         $letters = explode(",", $letters);
         foreach($letters as $letter)
@@ -302,7 +301,7 @@ class PesiAPI
             // if($i > 20) break; // debug
         }
     }
-
+/*
 {"GUID":"urn:lsid:faunaeur.org:taxname:381594",
     "url":"http:\/\/www.eu-nomen.eu\/portal\/taxon.php?GUID=urn:lsid:faunaeur.org:taxname:381594",
     "scientificname":"Abax (Abax) parallelepipedus alpigradus",
@@ -320,7 +319,7 @@ class PesiAPI
     "genus":"Abax",
     "citation":"Prof. Augusto Vigna Taglianti. Abax (Abax) parallelepipedus alpigradus Schauberger, 1927. Accessed through: Fauna Europaea at http:\/\/www.faunaeur.org\/full_results.php?id=381594",
     "match_type":"exact"}
-
+*/
     function create_instances_from_taxon_object($rec, $reference_ids)
     {
         $sciname = trim($rec["scientificname"]);
