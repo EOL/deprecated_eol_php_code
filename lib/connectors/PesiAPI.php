@@ -20,20 +20,13 @@ class PesiAPI
         $this->download_options["expire_seconds"] = false; //debug
     }
 
-    function get_all_taxa($taxa_list_text_file = NULL)
+    function get_all_taxa()
     {
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
-        if($taxa_list_text_file)
-        {
-            if($contents = Functions::lookup_with_cache($taxa_list_text_file, $this->download_options))  self::save_to_taxa_text_file($contents);
-        }
-        else self::generate_taxa_list(); /* debug: stop operation here if you only want to generate taxa list */ //return;
-        self::save_data_to_text();       /* debug: stop operation here if you only want to generate processed text files */ //return;
-        if($taxa_list_text_file) 
-        {
-            echo "\n\n finished processing: [$taxa_list_text_file]\n\n";
-            return; // you need to consolidate the processed text files before proceeding.
-        }
+        self::generate_taxa_list(); /* debug: stop operation here if you only want to generate taxa list */ //return;
+        self::save_data_to_text();  /* debug: stop operation here if you only want to generate processed text files */ //return;
+        exit("\n temp with generated texts: " . $this->TEMP_FILE_PATH . "\n");
+
         self::process_text_file();
         $this->archive_builder->finalize(true);
         // remove temp dir
@@ -41,13 +34,23 @@ class PesiAPI
         echo ("\n temporary directory removed: " . $this->TEMP_FILE_PATH);
     }
 
-    function get_all_taxa_v2($letters)
+    function get_all_taxa_v2($url) //taxa.txt and processed.txt are already generated elsewhere
     {
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
-        self::generate_taxa_list($letters);
-        self::save_data_to_text();
-        echo "\n\n finished processing: [$letters]\n\n";
-        return; // you need to consolidate the processed text files before proceeding.
+
+        $contents = Functions::lookup_with_cache($url, $this->download_options);
+        if($f = Functions::file_open($this->TEMP_FILE_PATH . "/processed.txt", "a"))
+        {
+            fwrite($f, $contents);
+            fclose($f);
+        }
+        else return;
+        
+        self::process_text_file();
+        $this->archive_builder->finalize(true);
+        // remove temp dir
+        recursive_rmdir($this->TEMP_FILE_PATH); //debug uncomment in real operation
+        echo ("\n temporary directory removed: " . $this->TEMP_FILE_PATH);
     }
 
     private function save_data_to_text()
@@ -76,7 +79,8 @@ class PesiAPI
                         self::clean_str($result->rank) . "\t" .
                         self::clean_str($parent_taxa) . "\t" .
                         self::clean_str($parent_rank) . "\t" .
-                        self::clean_str($result->citation) . "\n";
+                        self::clean_str($result->citation) . "\t" .
+                        self::clean_str($result->url) . "\n";
                 fwrite($f, $line);
                 $i++;
             }
@@ -290,14 +294,15 @@ class PesiAPI
                          "rank"            => (string) @$line[3],
                          "parent"          => (string) @$line[4],
                          "parent_rank"     => (string) @$line[5],
-                         "citation"        => (string) @$line[6]);
+                         "citation"        => (string) @$line[6],
+                         "url"             => (string) @$line[7]);
             $i++;
             echo "\n $i. $rec[scientificname] [$rec[guid]]";
             $this->create_instances_from_taxon_object($rec, array());
-            /* uncomment in normal operation - debug
+            // /* uncomment in normal operation - debug
             self::get_vernacular_names($rec);
-            self::get_synonyms($rec);
-            */
+            // self::get_synonyms($rec);
+            // */
             // if($i > 20) break; // debug
         }
     }
@@ -333,10 +338,12 @@ class PesiAPI
         if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
         $taxon->taxonID                     = (string) $rec["guid"];
         $taxon->taxonRank                   = (string) $rec["rank"];
-        $taxon->scientificName              = (string) $rec["scientificname"];
-        $taxon->scientificNameAuthorship    = (string) $rec["authority"];
+        $sciname = (string) $rec["scientificname"] . " " . (string) $rec["authority"];
+        $taxon->scientificName              = trim($sciname);
+        // $taxon->scientificNameAuthorship    = (string) $rec["authority"];
         $taxon->genus                       = (string) $genus;
         $taxon->bibliographicCitation       = (string) $rec["citation"];
+        $taxon->source                      = (string) $rec["url"];
         $taxon->parentNameUsageID = "";
         if($rec["parent"] != "")
         {
@@ -350,7 +357,7 @@ class PesiAPI
                     $taxon2->taxonID                     = (string) str_ireplace(" ", "_", $rec["parent"]);
                     $taxon2->taxonRank                   = (string) $parent_rank;
                     $taxon2->scientificName              = (string) $rec["parent"];
-                    $taxon2->scientificNameAuthorship    = (string) "";
+                    // $taxon2->scientificNameAuthorship    = (string) "";
                     $taxon2->genus                       = (string) "";
                     $taxon2->parentNameUsageID = "";
                     $taxon->parentNameUsageID = $taxon2->taxonID;
