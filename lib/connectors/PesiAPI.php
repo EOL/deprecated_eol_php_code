@@ -37,7 +37,7 @@ class PesiAPI
         self::process_text_file();
         $this->archive_builder->finalize(true);
         // remove temp dir
-        // recursive_rmdir($this->TEMP_FILE_PATH);
+        recursive_rmdir($this->TEMP_FILE_PATH); //debug uncomment in real operation
         echo ("\n temporary directory removed: " . $this->TEMP_FILE_PATH);
     }
 
