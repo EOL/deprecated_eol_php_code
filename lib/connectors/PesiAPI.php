@@ -193,7 +193,10 @@ class PesiAPI
         // $letters = "T,U,V,W,X,Y,Z";
         // */
         // $letters = "Z";
-        $letters = "K";
+        // $letters = "K";
+        $letters = "J";
+        $letters = "B";
+        
         
         
         $letters = explode(",", $letters);
@@ -328,7 +331,8 @@ class PesiAPI
                          "parent"          => (string) @$line[4],
                          "parent_rank"     => (string) @$line[5],
                          "citation"        => (string) @$line[6],
-                         "url"             => (string) @$line[7]);
+                         "url"             => (string) @$line[7]),
+                         "parent_id"       => (string) @$line[8]);
             $i++;
             echo "\n $i. $rec[scientificname] [$rec[guid]]";
             $this->create_instances_from_taxon_object($rec, array());
@@ -364,7 +368,6 @@ SOAP    : http://www.eu-nomen.eu/portal/soap.php#
     function create_instances_from_taxon_object($rec, $reference_ids)
     {
         $sciname = trim($rec["scientificname"]);
-        $genus = self::get_genus($sciname);
         
         $taxon = new \eol_schema\Taxon();
         if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
@@ -373,10 +376,11 @@ SOAP    : http://www.eu-nomen.eu/portal/soap.php#
         $sciname = (string) $rec["scientificname"] . " " . (string) $rec["authority"];
         $taxon->scientificName              = trim($sciname);
         // $taxon->scientificNameAuthorship    = (string) $rec["authority"];
-        // $taxon->genus                       = (string) $genus;
         $taxon->bibliographicCitation       = (string) $rec["citation"];
         $taxon->source                      = (string) $rec["url"];
-        $taxon->parentNameUsageID = "";
+        $taxon->parentNameUsageID           = (string) $rec["parent_id"];
+
+        /* wait... we may not need it anymore
         if($rec["parent"] != "")
         {
             if($taxon->parentNameUsageID = self::get_guid_from_name($rec["parent"])) {echo "\naaa\n";}
@@ -449,6 +453,8 @@ SOAP    : http://www.eu-nomen.eu/portal/soap.php#
             }
             if($taxon->parentNameUsageID == "") echo "\n\n main taxon [" . $taxon->scientificName . "] ($taxon->taxonRank) no parent info \n";
         }
+        */
+        
         if(!isset($this->taxon_ids[$taxon->taxonID]))
         {
             $this->taxon_ids[$taxon->taxonID] = '';
