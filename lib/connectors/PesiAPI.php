@@ -18,11 +18,11 @@ class PesiAPI
         $this->levels = array("kingdom" => 1, "phylum" => 2, "class" => 3, "order" => 4, "family" => 5, "genus" => 6, "species" => 7, "subspecies" => 8);
         $this->language_codes["Israel (Hebrew)"] = "he";
         $this->cache_path = "/Volumes/Thunderbolt4/eol_cache_pesi/eol_PESI_cache/";
-        $this->download_options = array('download_wait_time' => 3000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 665);
+        $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 665);
         $this->download_options["expire_seconds"] = false; //debug
         
         $this->ranks = "Kingdom,Subkingdom,Superphylum,Infrakingdom,Division,Phylum,Subdivision,Subphylum,Infraphylum,Superclass,Class,Subclass,Infraclass,Superorder,Order,Suborder,Infraorder,Section,Subsection,Superfamily,Family,Subfamily,Tribe,Subtribe,Genus,Subgenus,Section,Subsection,Series,Subseries,Aggregate,Coll. Species,Species,Grex,Subspecies,Proles,Race,Natio,Convariety,Variety,Subvariety,Form,Subform,Form spec.,Tax. infragen.,Tax. infraspec.";
-        
+        // $this->ranks = "Species";
     }
 
 // http://www.eu-nomen.eu/portal/search.php?search=adv&SearchContent=WebSearchName&SearchType=begins&txt_Search=Z&accepted=accepted&rankm=>=&rank=10&belongs=&list=0&listareas=0&listareastatus=0&btn_SearchAdv=Search
@@ -33,11 +33,13 @@ class PesiAPI
         // self::get_parent_from_portal("urn:lsid:marinespecies.org:taxname:2847"); exit;
         
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
+        print("\n temp with generated texts: " . $this->TEMP_FILE_PATH . "\n");
+        
         self::generate_taxa_list(); /* debug: stop operation here if you only want to generate taxa list */ 
         // exit("\n temp with generated texts: " . $this->TEMP_FILE_PATH . "\n");
         // return;
         self::save_data_to_text();  /* debug: stop operation here if you only want to generate processed text files */ //return;
-        exit("\n temp with generated texts: " . $this->TEMP_FILE_PATH . "\n");
+        // exit("\n temp with generated texts: " . $this->TEMP_FILE_PATH . "\n");
 
         self::process_text_file();
         $this->archive_builder->finalize(true);
@@ -78,11 +80,13 @@ class PesiAPI
         {
             $line = explode("\t", $line);
             $guid = $line[0];
+            if(!$guid) continue;
+            echo "\nsciname: ".$line[1]."\n";
             if($result = self::access_pesi_service_with_retry($guid, 1)) // type 1 is for getPESIRecordByGUID
             {
                 if(self::is_array_empty($result, 1))
                 {
-                    echo "\n investigate guid no record: [$guid]\n";
+                    echo "\n investigate guid no record1: [$guid]\n";
                     continue;
                 }
                 // $info = self::get_parent_taxon($result);
@@ -106,7 +110,7 @@ class PesiAPI
             }
             else
             {
-                echo "\n investigate guid no record: [$guid]\n";
+                echo "\n investigate guid no record2: [$guid]\n";
                 continue;
             }
             // if($i >= 20) break; // debug - to limit during development
@@ -184,19 +188,33 @@ class PesiAPI
         $options2 = $options1;
         $options2["download_wait_time"] = 1000000;
 
-        // /* debug - comment in normal operation, use to divide when caching. 6 simultaneous connectors is OK
-        // $letters = "A,B";
-        // $letters = "C,D";
-        // $letters = "E,F,G,H,I,J,K";
-        // $letters = "L,M,N,O,P";
-        // $letters = "Q,R,S";
-        // $letters = "T,U,V,W,X,Y,Z";
-        // */
-        // $letters = "Z";
-        // $letters = "K";
-        $letters = "J";
+        /* debug - comment in normal operation, use to divide when caching. 10 simultaneous connectors is OK
+        $letters = "P";
+        */
+
+        //best breakdown when caching
+        /*
+        $letters = "A";
         $letters = "B";
-        
+        $letters = "C";
+        $letters = "D";
+        $letters = "E,F,G";
+        $letters = "H,I,J";
+        $letters = "K,L,M";
+        $letters = "N,O,P";
+        $letters = "Q,R,S";
+        $letters = "T,U,V,W,X,Y,Z";
+        */
+        // $letters = "A";
+        // $letters = "B";
+        // $letters = "C";
+        // $letters = "D";
+        // $letters = "E,F,G";
+        // $letters = "H,I,J";
+        // $letters = "K,L,M";
+        // $letters = "N,O,P";
+        // $letters = "Q,R,S";
+        $letters = "T,U,V,W,X,Y,Z";
         
         
         $letters = explode(",", $letters);
@@ -259,7 +277,9 @@ class PesiAPI
 
     private function store_taxa_names($html)
     {
-        /* <a href="taxon.php?GUID=8D587FC0-A13D-413C-9A36-C5E2132A08C9"><i>Atriplex semibaccata</i> R. Br.</a> */
+        /* <a href="taxon.php?GUID=8D587FC0-A13D-413C-9A36-C5E2132A08C9"><i>Atriplex semibaccata</i> R. Br.</a> 
+           <a href="taxon.php?GUID=urn:lsid:marinespecies.org:taxname:172726">Navicula <i>peregrina</i> var. <i>peregrina</i> f. <i>peregrina</i></a>
+        */
         if(preg_match_all("/taxon\.php\?GUID=(.*?)<\/a>/ims", $html, $arr))
         {
             $contents = "";
@@ -267,8 +287,9 @@ class PesiAPI
             {
                 /* urn:lsid:faunaeur.org:taxname:405332"><i>Zabrachia minutissima</i> (Zetterstedt, 1838) */
                 if(preg_match("/(.*?)\"/ims", $line, $arr)) $guid = $arr[1];
-                if(preg_match("/<i>(.*?)xxx/ims", $line."xxx", $arr)) $taxon = (string) strip_tags($arr[1]);
-                $contents .= $guid . "\t" . $taxon . "\n";
+                // if(preg_match("/<i>(.*?)xxx/ims", $line."xxx", $arr)) $taxon = (string) strip_tags($arr[1]); -- was replaced by below
+                if(preg_match("/\">(.*?)xxx/ims", $line."xxx", $arr)) $taxon = (string) strip_tags($arr[1]);
+                if($guid && $taxon) $contents .= $guid . "\t" . $taxon . "\n";
             }
             self::save_to_taxa_text_file($contents);
         }
@@ -331,13 +352,13 @@ class PesiAPI
                          "parent"          => (string) @$line[4],
                          "parent_rank"     => (string) @$line[5],
                          "citation"        => (string) @$line[6],
-                         "url"             => (string) @$line[7]),
+                         "url"             => (string) @$line[7],
                          "parent_id"       => (string) @$line[8]);
             $i++;
             echo "\n $i. $rec[scientificname] [$rec[guid]]";
             $this->create_instances_from_taxon_object($rec, array());
             // /* uncomment in normal operation - debug
-            // self::get_vernacular_names($rec);
+            self::get_vernacular_names($rec);
             // self::get_synonyms($rec);
             // */
             // if($i > 20) break; // debug
@@ -379,6 +400,8 @@ SOAP    : http://www.eu-nomen.eu/portal/soap.php#
         $taxon->bibliographicCitation       = (string) $rec["citation"];
         $taxon->source                      = (string) $rec["url"];
         $taxon->parentNameUsageID           = (string) $rec["parent_id"];
+
+        // if(!$taxon->parentNameUsageID) exit("\nno parent id - (" . $rec["parent"] . ")\n"); debug
 
         /* wait... we may not need it anymore
         if($rec["parent"] != "")
@@ -761,7 +784,9 @@ SOAP    : http://www.eu-nomen.eu/portal/soap.php#
         &nbsp;Subphylum <b><a href="taxon.php?GUID=urn:lsid:marinespecies.org:taxname:380603">Acoelomorpha</a></b> 
         </small>
         */
-        if($html = Functions::lookup_with_cache($this->path_summary_page.$guid, $this->download_options))
+        $options = $this->download_options;
+        $options["expire_seconds"] = false; //always false, doesn't expire coz it is a heavy request and ancestry doesn't change for most taxa
+        if($html = Functions::lookup_with_cache($this->path_summary_page.$guid, $options))
         {
             if(preg_match("/<b>Higher Classification(.*?)<\/small>/ims", $html, $arr))
             {
@@ -781,8 +806,6 @@ SOAP    : http://www.eu-nomen.eu/portal/soap.php#
             }
         }
     }
-    
-    
     
     /*
     <OPTION VALUE= "10">Kingdom</OPTION>
@@ -832,6 +855,46 @@ SOAP    : http://www.eu-nomen.eu/portal/soap.php#
     <OPTION VALUE= "280">Tax. infragen.</OPTION>
     <OPTION VALUE= "285">Tax. infraspec.</OPTION>
     
+    Tax. infraspec. (325)
+    Tax. infragen. (12)
+    Form spec. (14)
+    Subform (83)
+    Form (2743)
+    Subvariety (294)
+    Variety (15033)
+    Convariety (4)
+    Race (23)
+    Proles (55)
+    Subspecies (55474)
+    Grex (15)
+    Species (392290)
+    Coll. Species (171)
+    Aggregate (281)
+    Subsection (11)
+    Section (168)
+    Subgenus (5275)
+    Genus (52198)
+    Subtribe (173)
+    Tribe (1360)
+    Subfamily (2325)
+    Family (6526)
+    Superfamily (1030)
+    Kingdom (7)
+    Infraorder (123)
+    Suborder (425)
+    Order (1161)
+    Superorder (98)
+    Infraclass (22)
+    Subclass (218)
+    Class (320)
+    Superclass (10)
+    Infraphylum (8)
+    Subdivision (17)
+    Subphylum (45)
+    Phylum (81)
+    Division (18)
+    Infrakingdom (6)
+    Subkingdom (14)
     */
 }
 ?>
