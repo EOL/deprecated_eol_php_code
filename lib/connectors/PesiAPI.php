@@ -22,11 +22,7 @@ class PesiAPI
         $this->download_options["expire_seconds"] = false; //debug
         
         $this->ranks = "Kingdom,Subkingdom,Superphylum,Infrakingdom,Division,Phylum,Subdivision,Subphylum,Infraphylum,Superclass,Class,Subclass,Infraclass,Superorder,Order,Suborder,Infraorder,Section,Subsection,Superfamily,Family,Subfamily,Tribe,Subtribe,Genus,Subgenus,Section,Subsection,Series,Subseries,Aggregate,Coll. Species,Species,Grex,Subspecies,Proles,Race,Natio,Convariety,Variety,Subvariety,Form,Subform,Form spec.,Tax. infragen.,Tax. infraspec.";
-        // $this->ranks = "Species";
     }
-
-// http://www.eu-nomen.eu/portal/search.php?search=adv&SearchContent=WebSearchName&SearchType=begins&txt_Search=Z&accepted=accepted&rankm=>=&rank=10&belongs=&list=0&listareas=0&listareastatus=0&btn_SearchAdv=Search
-// http://www.eu-nomen.eu/portal/search.php?search=adv&SearchContent=WebSearchName&SearchType=begins&txt_Search=Z                  &rankm=>=&rank=10&belongs=&list=0&listareas=0&listareastatus=0&btn_SearchAdv=Search
 
     function get_all_taxa()
     {
@@ -36,10 +32,10 @@ class PesiAPI
         print("\n temp with generated texts: " . $this->TEMP_FILE_PATH . "\n");
         
         self::generate_taxa_list(); /* debug: stop operation here if you only want to generate taxa list */ 
-        // exit("\n temp with generated texts: " . $this->TEMP_FILE_PATH . "\n");
+        // exit("\n temp path with generated texts: " . $this->TEMP_FILE_PATH . "\n");
         // return;
         self::save_data_to_text();  /* debug: stop operation here if you only want to generate processed text files */ //return;
-        // exit("\n temp with generated texts: " . $this->TEMP_FILE_PATH . "\n");
+        exit("\n temp path with generated texts: " . $this->TEMP_FILE_PATH . "\n");
 
         self::process_text_file();
         $this->archive_builder->finalize(true);
@@ -50,13 +46,11 @@ class PesiAPI
 
     function get_all_taxa_v2($url) //taxa.txt and processed.txt are already generated elsewhere
     {
-        // $x = "http://www.eu-nomen.eu/portal/search.php?search=adv&SearchContent=WebSearchName&SearchType=begins&txt_Search=Z&rankm=%3E%3D&rank=10&belongs=&list=0&listareas=0&listareastatus=0&btn_SearchAdv=Search";
-        // exit("\n".urldecode($x)."\n");
-        // exit("\n".urldecode($this->path_string_search)."\n");
-
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
 
-        $contents = Functions::lookup_with_cache($url, $this->download_options);
+        $options = $this->download_options;
+        $options["expire_seconds"] = 0;
+        $contents = Functions::lookup_with_cache($url, $options);
         if($f = Functions::file_open($this->TEMP_FILE_PATH . "/processed.txt", "a"))
         {
             fwrite($f, $contents);
@@ -81,7 +75,7 @@ class PesiAPI
             $line = explode("\t", $line);
             $guid = $line[0];
             if(!$guid) continue;
-            echo "\nsciname: ".$line[1]."\n";
+            // echo "\nsciname: ".$line[1]."\n";  //debug
             if($result = self::access_pesi_service_with_retry($guid, 1)) // type 1 is for getPESIRecordByGUID
             {
                 if(self::is_array_empty($result, 1))
@@ -119,68 +113,6 @@ class PesiAPI
         echo "\n\n total: $i \n\n";
     }
 
-    private function get_parent_taxon($result, $rank = false)
-    {
-        if(!$rank) $rank = strtolower($result->rank);
-        if($rank == "subspecies") return array("taxon" => self::get_species_from_subspecies($result->scientificname), "rank" => "species");
-        $num = $this->levels[$rank] - 1;
-        for($i=1; $i<=7; $i++)
-        {
-            if($num >= 1 && $num <= 7)
-            {
-                foreach($this->levels as $rank => $value)
-                {
-                    if($num == $value)
-                    {
-                        if($result->$rank) return array("taxon" => $result->$rank, "rank" => $rank);
-                        else
-                        {
-                            $num = $num - 1;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        return array("taxon" => "", "rank" => "");
-    }
-
-    private function get_species_from_subspecies($subspecies)
-    {
-        if(stripos($subspecies, "subsp") === false) //string is not found
-        {
-            $string = explode(" ", $subspecies);
-            switch(count($string))
-            {
-                case 2:
-                     $species = $string[0] . " " . $string[1];
-                     break;
-                case 3:
-                     $species = $string[0] . " " . $string[1];
-                     break;
-                case 4:
-                    $species = $string[0] . " " . $string[1] . " " . $string[2];
-                    break;
-                case 5:
-                    $species = $string[0] . " " . $string[1] . " " . $string[2] . " " . $string[3];
-                    break;
-            }
-            if(!isset($species))
-            {
-                echo "\n- will stop -\n";
-                print_r($string);
-                exit("\nno species variable [$subspecies]\n");
-            }
-            // echo "\n subspecies:[$subspecies] [" . trim(str_ireplace(" subsp.", "", $species)) . "]\n";
-            return trim(str_ireplace(" subsp.", "", $species));
-        }
-        else
-        {
-            $string = explode("subsp", $subspecies);
-            return trim($string[0]);
-        }
-    }
-
     private function generate_taxa_list($letters = "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z")
     {
         $options1 = $this->download_options;
@@ -188,12 +120,7 @@ class PesiAPI
         $options2 = $options1;
         $options2["download_wait_time"] = 1000000;
 
-        /* debug - comment in normal operation, use to divide when caching. 10 simultaneous connectors is OK
-        $letters = "P";
-        */
-
-        //best breakdown when caching
-        /*
+        /* debug - comment in normal operation, use to divide when caching. 10 simultaneous connectors is OK  --- best breakdown when caching below
         $letters = "A";
         $letters = "B";
         $letters = "C";
@@ -205,17 +132,6 @@ class PesiAPI
         $letters = "Q,R,S";
         $letters = "T,U,V,W,X,Y,Z";
         */
-        // $letters = "A";
-        // $letters = "B";
-        // $letters = "C";
-        // $letters = "D";
-        // $letters = "E,F,G";
-        // $letters = "H,I,J";
-        // $letters = "K,L,M";
-        // $letters = "N,O,P";
-        // $letters = "Q,R,S";
-        $letters = "T,U,V,W,X,Y,Z";
-        
         
         $letters = explode(",", $letters);
         foreach($letters as $letter)
@@ -255,9 +171,15 @@ class PesiAPI
 
         //for 'unassigned' taxa
         $path = "http://www.eu-nomen.eu/portal/search.php?search=adv&SearchContent=WebSearchName&SearchType=contains&txt_Search=unassigned&accepted=accepted&rankm=%3E%3D&rank=10&belongs=&list=0&listareas=0&listareastatus=0&btn_SearchAdv=Search";
-        if($html = Functions::lookup_with_cache($path, $options2))
+        if($html = Functions::lookup_with_cache($path, $options2)) self::store_taxa_names($html);
+        
+        //for 11 undefined parent
+        $undefined_parents = array("urn:lsid:marinespecies.org:taxname:131605","urn:lsid:marinespecies.org:taxname:155735","urn:lsid:marinespecies.org:taxname:2",
+        "urn:lsid:marinespecies.org:taxname:106680","urn:lsid:marinespecies.org:taxname:6","urn:lsid:marinespecies.org:taxname:740671","urn:lsid:marinespecies.org:taxname:153641",
+        "urn:lsid:marinespecies.org:taxname:153648","urn:lsid:marinespecies.org:taxname:7","urn:lsid:faunaeur.org:taxname:257022","urn:lsid:marinespecies.org:taxname:740669");
+        foreach($undefined_parents as $id)
         {
-            self::store_taxa_names($html);
+            if($html = Functions::lookup_with_cache($this->path_summary_page.$id, $options2)) self::store_taxon_name($html);
         }
     }
 
@@ -345,6 +267,18 @@ class PesiAPI
         {
             $line = explode("\t", $line);
             if(count($line) == 1) continue;
+            
+            // /* //start debug
+            $char = strtolower(substr($line[1], 0, 1));
+            // if(!in_array($char, array("a-z"))) continue;
+
+            if(!in_array($char, array("d","e","f","g"))) continue;
+            // if(!in_array($char, array("h","i","j","k"))) continue;
+            // if(!in_array($char, array("l","m","n","o"))) continue;
+            // if(!in_array($char, array("p","q","r","s"))) continue;
+            // if(!in_array($char, array("t","u","v","w","x","y","z"))) continue;
+            // */ //end debug
+            
             $rec = array("guid"            => (string) $line[0], //"F03821E2-BDA3-4CA7-829D-312BD6D4809B"
                          "scientificname"  => (string) $line[1],
                          "authority"       => (string) $line[2],
@@ -358,8 +292,8 @@ class PesiAPI
             echo "\n $i. $rec[scientificname] [$rec[guid]]";
             $this->create_instances_from_taxon_object($rec, array());
             // /* uncomment in normal operation - debug
-            self::get_vernacular_names($rec);
-            // self::get_synonyms($rec);
+            // self::get_vernacular_names($rec);
+            self::get_synonyms($rec);
             // */
             // if($i > 20) break; // debug
         }
@@ -394,14 +328,19 @@ SOAP    : http://www.eu-nomen.eu/portal/soap.php#
         if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
         $taxon->taxonID                     = (string) $rec["guid"];
         $taxon->taxonRank                   = (string) $rec["rank"];
+
         $sciname = (string) $rec["scientificname"] . " " . (string) $rec["authority"];
-        $taxon->scientificName              = trim($sciname);
+        $sciname = str_ireplace(array("\r", "\n", "\t"), "", $sciname);
+        $taxon->scientificName = trim($sciname);
+
         // $taxon->scientificNameAuthorship    = (string) $rec["authority"];
         $taxon->bibliographicCitation       = (string) $rec["citation"];
         $taxon->source                      = (string) $rec["url"];
-        $taxon->parentNameUsageID           = (string) $rec["parent_id"];
+        if($val = $rec["parent_id"]) $taxon->parentNameUsageID = (string) $val;
 
-        // if(!$taxon->parentNameUsageID) exit("\nno parent id - (" . $rec["parent"] . ")\n"); debug
+            // Rosmarinus officinalis  
+
+        // if(!$taxon->parentNameUsageID) exit("\nno parent id - (" . $rec["parent"] . ") [" . $val . "]\n"); //debug
 
         /* wait... we may not need it anymore
         if($rec["parent"] != "")
@@ -584,6 +523,8 @@ SOAP    : http://www.eu-nomen.eu/portal/soap.php#
                 return;
             }
             echo "\n with synonym(s)...\n";
+            print_r($results);
+            return; //debug only - uncomment in real operation
             foreach($results as $result)
             {
                 if($rec["guid"] != $result->valid_guid)
@@ -682,17 +623,16 @@ SOAP    : http://www.eu-nomen.eu/portal/soap.php#
         $filename = $this->cache_path . "$cache1/$cache2/$md5.txt";
         
         $old_filename = "/Volumes/Thunderbolt4/eol_cache_pesi/eol_old_PESI_cache/" . $type . "_" . $guid . ".txt"; //from last harvest's cache
-        
+
+        // /* uncomment in normal operation
         if(file_exists($old_filename))
         {
-            $json = file_get_contents($old_filename);
-            // echo " --- cache retrieved from old filename";
+            $json = file_get_contents($old_filename); // echo " --- cache retrieved from old filename";
             return json_decode($json);
         }
         elseif(file_exists($filename))
         {
-            $json = file_get_contents($filename);
-            // echo " --- cache retrieved";
+            $json = file_get_contents($filename); // echo " --- cache retrieved";
             return json_decode($json);
         }
         else
@@ -702,10 +642,22 @@ SOAP    : http://www.eu-nomen.eu/portal/soap.php#
             if(!($file = Functions::file_open($filename, "w"))) return;
             fwrite($file, json_encode($obj));
             fclose($file);
-            echo "\n --- cache created [$filename]";
+            echo "\n --- cache created [$type - $filename]";
             usleep(500000); // 5 tenths of a second = 5/10 of a second
             return $obj;
         }
+        // */
+
+        /* //force create cache - comment in normal operation - code copied above
+        //create the cache
+        $obj = self::soap_request($guid, $type, $name);
+        if(!($file = Functions::file_open($filename, "w"))) return;
+        fwrite($file, json_encode($obj));
+        fclose($file);
+        echo "\n --- cache created [$type - $filename]";
+        usleep(500000); // 5 tenths of a second = 5/10 of a second
+        return $obj;
+        */
     }
 
     private function soap_request($guid, $type, $name)
@@ -800,12 +752,77 @@ SOAP    : http://www.eu-nomen.eu/portal/soap.php#
                     if(preg_match("/GUID=(.*?)\"/ims", "xxx".$temp, $arr3)) $rec["guid"] = $arr3[1];
                     if(preg_match("/\">(.*?)xxx/ims", $temp."xxx", $arr3)) $rec["taxon"] = $arr3[1];
                     if(preg_match("/xxx(.*?)<b>/ims", "xxx".$temp, $arr3)) $rec["rank"] = trim($arr3[1]);
-                    print_r($rec);
+                    // print_r($rec);
                     return $rec;
                 }
             }
         }
     }
+    
+    /* may not be needed anymore
+    
+    private function get_parent_taxon($result, $rank = false)
+    {
+        if(!$rank) $rank = strtolower($result->rank);
+        if($rank == "subspecies") return array("taxon" => self::get_species_from_subspecies($result->scientificname), "rank" => "species");
+        $num = $this->levels[$rank] - 1;
+        for($i=1; $i<=7; $i++)
+        {
+            if($num >= 1 && $num <= 7)
+            {
+                foreach($this->levels as $rank => $value)
+                {
+                    if($num == $value)
+                    {
+                        if($result->$rank) return array("taxon" => $result->$rank, "rank" => $rank);
+                        else
+                        {
+                            $num = $num - 1;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return array("taxon" => "", "rank" => "");
+    }
+
+    private function get_species_from_subspecies($subspecies)
+    {
+        if(stripos($subspecies, "subsp") === false) //string is not found
+        {
+            $string = explode(" ", $subspecies);
+            switch(count($string))
+            {
+                case 2:
+                     $species = $string[0] . " " . $string[1];
+                     break;
+                case 3:
+                     $species = $string[0] . " " . $string[1];
+                     break;
+                case 4:
+                    $species = $string[0] . " " . $string[1] . " " . $string[2];
+                    break;
+                case 5:
+                    $species = $string[0] . " " . $string[1] . " " . $string[2] . " " . $string[3];
+                    break;
+            }
+            if(!isset($species))
+            {
+                echo "\n- will stop -\n";
+                print_r($string);
+                exit("\nno species variable [$subspecies]\n");
+            }
+            // echo "\n subspecies:[$subspecies] [" . trim(str_ireplace(" subsp.", "", $species)) . "]\n";
+            return trim(str_ireplace(" subsp.", "", $species));
+        }
+        else
+        {
+            $string = explode("subsp", $subspecies);
+            return trim($string[0]);
+        }
+    }
+    */
     
     /*
     <OPTION VALUE= "10">Kingdom</OPTION>
