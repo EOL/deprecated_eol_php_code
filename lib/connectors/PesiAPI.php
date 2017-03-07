@@ -19,7 +19,7 @@ class PesiAPI
         $this->language_codes["Israel (Hebrew)"] = "he";
         $this->cache_path = "/Volumes/Thunderbolt4/eol_cache_pesi/eol_PESI_cache/";
         $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 665);
-        $this->download_options["expire_seconds"] = false; //debug
+        $this->download_options["expire_seconds"] = false; //debug - false means it will use cache
         
         $this->ranks = "Kingdom,Subkingdom,Superphylum,Infrakingdom,Division,Phylum,Subdivision,Subphylum,Infraphylum,Superclass,Class,Subclass,Infraclass,Superorder,Order,Suborder,Infraorder,Section,Subsection,Superfamily,Family,Subfamily,Tribe,Subtribe,Genus,Subgenus,Section,Subsection,Series,Subseries,Aggregate,Coll. Species,Species,Grex,Subspecies,Proles,Race,Natio,Convariety,Variety,Subvariety,Form,Subform,Form spec.,Tax. infragen.,Tax. infraspec.";
     }
@@ -132,7 +132,7 @@ class PesiAPI
         $letters = "Q,R,S";
         $letters = "T,U,V,W,X,Y,Z";
         */
-        
+
         $letters = explode(",", $letters);
         foreach($letters as $letter)
         {
@@ -173,10 +173,11 @@ class PesiAPI
         $path = "http://www.eu-nomen.eu/portal/search.php?search=adv&SearchContent=WebSearchName&SearchType=contains&txt_Search=unassigned&accepted=accepted&rankm=%3E%3D&rank=10&belongs=&list=0&listareas=0&listareastatus=0&btn_SearchAdv=Search";
         if($html = Functions::lookup_with_cache($path, $options2)) self::store_taxa_names($html);
         
-        //for 11 undefined parent
+        //for 11+1+1 undefined parent
         $undefined_parents = array("urn:lsid:marinespecies.org:taxname:131605","urn:lsid:marinespecies.org:taxname:155735","urn:lsid:marinespecies.org:taxname:2",
         "urn:lsid:marinespecies.org:taxname:106680","urn:lsid:marinespecies.org:taxname:6","urn:lsid:marinespecies.org:taxname:740671","urn:lsid:marinespecies.org:taxname:153641",
-        "urn:lsid:marinespecies.org:taxname:153648","urn:lsid:marinespecies.org:taxname:7","urn:lsid:faunaeur.org:taxname:257022","urn:lsid:marinespecies.org:taxname:740669");
+        "urn:lsid:marinespecies.org:taxname:153648","urn:lsid:marinespecies.org:taxname:7","urn:lsid:faunaeur.org:taxname:257022","urn:lsid:marinespecies.org:taxname:740669",
+        "urn:lsid:marinespecies.org:taxname:150936","4F2FE922-4FEC-47ED-9842-A50C1BAE84F6");
         foreach($undefined_parents as $id)
         {
             if($html = Functions::lookup_with_cache($this->path_summary_page.$id, $options2)) self::store_taxon_name($html);
@@ -194,7 +195,7 @@ class PesiAPI
             $guid = $guids[0];
         }
         if(preg_match("/<H1>(.*?)<\/H1>/ims", $html, $arr)) $taxon = (string) strip_tags($arr[1]);
-        if($guid && $taxon) self::save_to_taxa_text_file($guid . "\t" . $taxon . "\n");
+        if($guid && $taxon) self::save_to_taxa_text_file($guid . "\t" . self::clean_str($taxon) . "\n");
     }
 
     private function store_taxa_names($html)
@@ -268,16 +269,16 @@ class PesiAPI
             $line = explode("\t", $line);
             if(count($line) == 1) continue;
             
-            // /* //start debug
+            /* //start debug
             $char = strtolower(substr($line[1], 0, 1));
-            // if(!in_array($char, array("a-z"))) continue;
-
-            if(!in_array($char, array("d","e","f","g"))) continue;
-            // if(!in_array($char, array("h","i","j","k"))) continue;
-            // if(!in_array($char, array("l","m","n","o"))) continue;
+            // if(!in_array($char, array("a"))) continue;
+            // if(!in_array($char, array("b"))) continue;
+            // if(!in_array($char, array("c"))) continue;
+            // if(!in_array($char, array("d","e","f","g","h","i"))) continue;
+            // if(!in_array($char, array("j","k","l","m","n","o"))) continue;
             // if(!in_array($char, array("p","q","r","s"))) continue;
             // if(!in_array($char, array("t","u","v","w","x","y","z"))) continue;
-            // */ //end debug
+            */ //end debug
             
             $rec = array("guid"            => (string) $line[0], //"F03821E2-BDA3-4CA7-829D-312BD6D4809B"
                          "scientificname"  => (string) $line[1],
@@ -293,7 +294,7 @@ class PesiAPI
             $this->create_instances_from_taxon_object($rec, array());
             // /* uncomment in normal operation - debug
             // self::get_vernacular_names($rec);
-            self::get_synonyms($rec);
+            // self::get_synonyms($rec);
             // */
             // if($i > 20) break; // debug
         }
@@ -330,15 +331,12 @@ SOAP    : http://www.eu-nomen.eu/portal/soap.php#
         $taxon->taxonRank                   = (string) $rec["rank"];
 
         $sciname = (string) $rec["scientificname"] . " " . (string) $rec["authority"];
-        $sciname = str_ireplace(array("\r", "\n", "\t"), "", $sciname);
         $taxon->scientificName = trim($sciname);
 
         // $taxon->scientificNameAuthorship    = (string) $rec["authority"];
         $taxon->bibliographicCitation       = (string) $rec["citation"];
         $taxon->source                      = (string) $rec["url"];
         if($val = $rec["parent_id"]) $taxon->parentNameUsageID = (string) $val;
-
-            // Rosmarinus officinalis  
 
         // if(!$taxon->parentNameUsageID) exit("\nno parent id - (" . $rec["parent"] . ") [" . $val . "]\n"); //debug
 
@@ -714,7 +712,8 @@ SOAP    : http://www.eu-nomen.eu/portal/soap.php#
 
     private function clean_str($str)
     {
-        return str_ireplace(array("\t"), " ", $str);
+        return preg_replace('/\s+/', ' ', $str);
+        // return str_ireplace(array("\t","\n","\r"), " ", $str);
     }
     
     private function get_genus($sciname)
