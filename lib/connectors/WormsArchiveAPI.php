@@ -30,19 +30,32 @@ class WormsArchiveAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         $this->object_ids = array();
-        // $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";                            //local
+        $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";                            //local
         // $this->dwca_file = "http://localhost/cp/WORMS/Archive.zip";                              //local subset copy
         // $this->dwca_file = "https://dl.dropboxusercontent.com/u/7597512/WORMS/WoRMS2EoL.zip";    //dropbox copy
-        $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";                 //WORMS online copy
+        // $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";                 //WORMS online copy
         $this->occurrence_ids = array();
         $this->taxon_page = "http://www.marinespecies.org/aphia.php?p=taxdetails&id=";
+        
+        $this->webservice['AphiaClassificationByAphiaID'] = "http://www.marinespecies.org/rest/AphiaClassificationByAphiaID/";
+        $this->webservice['AphiaRecordByAphiaID'] = "http://www.marinespecies.org/rest/AphiaRecordByAphiaID/";
+        $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 26);
+        $this->download_options["expire_seconds"] = false; //debug - false means it will use cache
+        $this->debug = array();
     }
 
     function get_all_taxa()
     {
+        $id = "24";
+        $id = "142";
+        // $id = "5";
+        $id = "25";
+        self::AphiaClassificationByAphiaID($id);
+        // exit;
+        
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($this->dwca_file, "meta.xml");
+        $paths = $func->extract_archive_file($this->dwca_file, "meta.xml", array('timeout' => 172800, 'expire_seconds' => true)); //true means it will re-download, will not use cache. Set TRUE when developing
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
 
@@ -54,13 +67,13 @@ class WormsArchiveAPI
             return false;
         }
 
-        self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
-        self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
-        self::get_objects($harvester->process_row_type('http://eol.org/schema/media/Document'));
-        self::get_references($harvester->process_row_type('http://rs.gbif.org/terms/1.0/Reference'));
-        self::get_agents($harvester->process_row_type('http://eol.org/schema/agent/Agent'));
-        self::get_vernaculars($harvester->process_row_type('http://rs.gbif.org/terms/1.0/VernacularName'));
-        $this->archive_builder->finalize(TRUE);
+        self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));                    echo "\n1 of 7\n";
+        self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));       echo "\n2 of 7\n";
+        self::get_objects($harvester->process_row_type('http://eol.org/schema/media/Document'));                            echo "\n3 of 7\n";
+        self::get_references($harvester->process_row_type('http://rs.gbif.org/terms/1.0/Reference'));                       echo "\n4 of 7\n";
+        self::get_agents($harvester->process_row_type('http://eol.org/schema/agent/Agent'));                                echo "\n5 of 7\n";
+        self::get_vernaculars($harvester->process_row_type('http://rs.gbif.org/terms/1.0/VernacularName'));                 echo "\n6 of 7\n";
+        $this->archive_builder->finalize(TRUE);                                                                             echo "\n7 of 7\n";
 
         // remove temp dir
         recursive_rmdir($temp_dir);
@@ -68,6 +81,121 @@ class WormsArchiveAPI
         print_r($this->debug);
     }
 
+    private function AphiaClassificationByAphiaID($id)
+    {
+        $taxa = self::get_ancestry_by_id($id);
+        $taxa = self::add_authorship($taxa);
+        $taxa = self::add_parent_id($taxa);
+        
+        print_r($taxa);
+        exit;
+        self::create_taxa($taxa);
+        exit;
+    }
+    
+    private function add_authorship($taxa)
+    {
+        $i = 0;
+        foreach($taxa as $taxon)
+        {   /*
+            [AphiaID] => 7
+            [rank] => Kingdom
+            [scientificname] => Chromista
+            [parent_id] => 1
+            */
+            
+            if($json = Functions::lookup_with_cache($this->webservice['AphiaRecordByAphiaID'].$taxon['AphiaID'], $this->download_options))
+            {
+                $arr = json_decode($json, true);
+                // print_r($arr);
+                // [valid_AphiaID] => 1
+                // [valid_name] => Biota
+                // [valid_authority] => 
+                $taxa[$i]['authority'] = $arr['authority'];
+                $taxa[$i]['valid_name'] = trim($arr['valid_name'] . " " . $arr['valid_authority']);
+                $taxa[$i]['valid_AphiaID'] = $arr['valid_AphiaID'];
+                $taxa[$i]['status'] = $arr['status'];
+            }
+            $i++;
+        }
+        return $taxa;
+    }
+    
+    private function create_taxa($taxa)
+    {
+        foreach($taxa as $t)
+        {
+
+            // [AphiaID] => 24
+            // [rank] => Class
+            // [scientificname] => Zoomastigophora
+            // [authority] => 
+            // [valid_name] => 
+            // [valid_AphiaID] => 
+            // [status] => unaccepted
+            // [parent_id] => 13
+
+            
+            $taxon = new \eol_schema\Taxon();
+            $taxon->taxonID         = $t['valid_AphiaID'];
+            $taxon->scientificName  = $t['valid_name'];
+            $taxon->taxonRank       = $t['rank'];
+            $taxon->taxonomicStatus = $t['status'];
+            $taxon->source          = $this->taxon_page . $t['valid_AphiaID'];
+            if($t['scientificname'] != "Biota") $taxon->parentNameUsageID = $t['parent_id'];
+            if(!isset($this->taxon_ids[$taxon->taxonID]))
+            {
+                $this->taxon_ids[$taxon->taxonID] = '';
+                $this->archive_builder->write_object_to_file($taxon);
+            }
+        }
+    }
+    
+    private function add_parent_id($taxa)
+    {
+        $i = 0;
+        foreach($taxa as $taxon)
+        {
+            if($i != 0)
+            {
+                for ($x = 1; $x <= count($taxa); $x++)
+                {
+                    if($val = @$taxa[$i-$x]['AphiaID'])
+                    {
+                        $taxa[$i]['parent_id'] = $val;
+                        break;
+                    }
+                }
+            }
+            $i++;
+        }
+        return $taxa;
+    }
+    
+    private function get_ancestry_by_id($id)
+    {
+        $taxa = array();
+        if($json = Functions::lookup_with_cache($this->webservice['AphiaClassificationByAphiaID'].$id, $this->download_options))
+        {
+            $arr = json_decode($json, true);
+            // print_r($arr);
+            if(@$arr['scientificname'] && strlen(@$arr['scientificname']) > 1) $taxa[] = array('AphiaID' => @$arr['AphiaID'], 'rank' => @$arr['rank'], 'scientificname' => @$arr['scientificname']);
+            while(true)
+            {
+                if(!$arr) break;
+                foreach($arr as $i)
+                {
+                    if(@$i['scientificname'] && strlen(@$i['scientificname'])>1)
+                    {
+                        $taxa[] = array('AphiaID' => @$i['AphiaID'], 'rank' => @$i['rank'], 'scientificname' => @$i['scientificname']);
+                    }
+                    $arr = $i;
+                }
+            }
+        }
+        return $taxa;
+    }
+    
     private function process_fields($records, $class)
     {
         foreach($records as $rec)
@@ -118,6 +246,8 @@ class WormsArchiveAPI
             }
             
             $taxon->taxonRank       = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
+            $this->debug['ranks'][$taxon->taxonRank] = '';
+            
             $taxon->taxonomicStatus = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
 
             $taxon->taxonRemarks    = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRemarks"];
@@ -150,15 +280,15 @@ class WormsArchiveAPI
                 if($taxon->taxonRank != @$this->taxa_rank[$taxon->acceptedNameUsageID]) continue;
                 $taxon->parentNameUsageID = ''; //remove the ParentNameUsageID data from all of the synonym lines
             }
-            
-            /* stats
-            $this->debug[$taxon->taxonomicStatus] = '';
+            // /* stats
+            // $this->debug[$taxon->taxonomicStatus] = '';
+            $this->debug['status'][$taxon->taxonomicStatus] = '';
             @$this->debug["count"][$taxon->taxonomicStatus]++;
             @$this->debug["count"]["count"]++;
-            */
+            // */
             $taxon->namePublishedIn = (string) $rec["http://rs.tdwg.org/dwc/terms/namePublishedIn"];
             $taxon->rightsHolder    = (string) $rec["http://purl.org/dc/terms/rightsHolder"];
-            $taxon->furtherInformationURL = (string) $rec["http://rs.tdwg.org/ac/terms/furtherInformationURL"];
+            $taxon->source = $this->taxon_page . $taxon->taxonID;
             if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/media/referenceID"])) $taxon->referenceID = $referenceID;
 
             if(!isset($this->taxon_ids[$taxon->taxonID]))
