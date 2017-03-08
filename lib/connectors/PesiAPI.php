@@ -26,16 +26,14 @@ class PesiAPI
 
     function get_all_taxa()
     {
-        // self::get_parent_from_portal("urn:lsid:marinespecies.org:taxname:2847"); exit;
-        
+        /* tests:
+        self::get_parent_from_portal("urn:lsid:marinespecies.org:taxname:2847"); exit;
+        */
+
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
-        print("\n temp with generated texts: " . $this->TEMP_FILE_PATH . "\n");
-        
-        self::generate_taxa_list(); /* debug: stop operation here if you only want to generate taxa list */ 
-        // exit("\n temp path with generated texts: " . $this->TEMP_FILE_PATH . "\n");
-        // return;
+        self::generate_taxa_list(); /* debug: stop operation here if you only want to generate taxa list */  // return;
         self::save_data_to_text();  /* debug: stop operation here if you only want to generate processed text files */ //return;
-        exit("\n temp path with generated texts: " . $this->TEMP_FILE_PATH . "\n");
+        exit("\n temp path with generated texts: " . $this->TEMP_FILE_PATH . "\n\n");
 
         self::process_text_file();
         $this->archive_builder->finalize(true);
@@ -293,8 +291,8 @@ class PesiAPI
             echo "\n $i. $rec[scientificname] [$rec[guid]]";
             $this->create_instances_from_taxon_object($rec, array());
             // /* uncomment in normal operation - debug
-            // self::get_vernacular_names($rec);
-            // self::get_synonyms($rec);
+            self::get_vernacular_names($rec);
+            self::get_synonyms($rec);
             // */
             // if($i > 20) break; // debug
         }
@@ -521,8 +519,7 @@ SOAP    : http://www.eu-nomen.eu/portal/soap.php#
                 return;
             }
             echo "\n with synonym(s)...\n";
-            print_r($results);
-            return; //debug only - uncomment in real operation
+            // return; //debug only - comment in real operation
             foreach($results as $result)
             {
                 if($rec["guid"] != $result->valid_guid)
