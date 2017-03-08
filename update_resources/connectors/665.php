@@ -1,14 +1,15 @@
 <?php
 namespace php_active_record;
 /* PESI
-estimated execution time:
-    1 day - generation of taxa list text file (taxa.txt)
+estimated execution time: 3-5 days
+ - 1 day - generation of taxa list text file (taxa.txt)
+ - taxa.txt is used to generate processed.txt
 
-    taxa.txt is used to generate processed.txt
+            2Mar2017
+taxon.tab   289649
     
-    
-                2Mar2017
-    taxon.tab   289649
+total: 300687
+total: 300699
     
 */
 // return;
@@ -16,13 +17,11 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/PesiAPI');
 $timestart = time_elapsed();
 $resource_id = "665";
-// $resource_id = "f"; //used a-f when caching
-
 
 // /* main operation
 $func = new PesiAPI($resource_id);
-$func->get_all_taxa();   //main func to use
-// $func->get_all_taxa_v2("http://localhost/eol_php_code/tmp/pesi_txts_2017_03_02/processed.txt");   //used if taxa.txt and processed.txt are already generated elsewhere
+// $func->get_all_taxa();   //main func to use
+$func->get_all_taxa_v2("http://localhost/eol_php_code/tmp/pesi_txts_2017_03_07/processed.txt");   //used if taxa.txt and processed.txt are already generated elsewhere
 Functions::finalize_dwca_resource($resource_id);
 // */
 
