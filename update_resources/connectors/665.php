@@ -7,7 +7,8 @@ estimated execution time: 3-5 days
 
             8Mar2017
 taxon       300701
-with syn    
+with syno   530110
+with vern   140782
 
 */
 // return;

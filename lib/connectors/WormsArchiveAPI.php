@@ -104,7 +104,7 @@ class WormsArchiveAPI
         $taxa = self::get_ancestry_by_id($id);
         $taxa = self::add_authorship($taxa);
         $taxa = self::add_parent_id($taxa);
-        print_r($taxa); exit;
+        // print_r($taxa); exit; //debug only
         self::create_taxa($taxa);
     }
     
