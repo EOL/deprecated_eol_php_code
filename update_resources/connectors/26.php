@@ -24,11 +24,11 @@ require_library('connectors/WormsArchiveAPI');
 $timestart = time_elapsed();
 $resource_id = 26;
 
-/* //main operation
+// /* //main operation
 $func = new WormsArchiveAPI($resource_id);
 $func->get_all_taxa();
 Functions::finalize_dwca_resource($resource_id);
-*/
+// */
 
 // /* utility
 require_library('connectors/DWCADiagnoseAPI');

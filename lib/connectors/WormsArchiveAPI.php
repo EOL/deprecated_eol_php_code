@@ -31,10 +31,10 @@ class WormsArchiveAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         $this->object_ids = array();
-        $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";                            //local
+        // $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";                            //local
         // $this->dwca_file = "http://localhost/cp/WORMS/Archive.zip";                              //local subset copy
         // $this->dwca_file = "https://dl.dropboxusercontent.com/u/7597512/WORMS/WoRMS2EoL.zip";    //dropbox copy
-        // $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";              //WORMS online copy
+        $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";              //WORMS online copy
         $this->occurrence_ids = array();
         $this->taxon_page = "http://www.marinespecies.org/aphia.php?p=taxdetails&id=";
         
@@ -104,7 +104,7 @@ class WormsArchiveAPI
         $taxa = self::get_ancestry_by_id($id);
         $taxa = self::add_authorship($taxa);
         $taxa = self::add_parent_id($taxa);
-        // print_r($taxa); exit;
+        print_r($taxa); exit;
         self::create_taxa($taxa);
     }
     
@@ -139,8 +139,7 @@ class WormsArchiveAPI
     private function create_taxa($taxa)
     {
         foreach($taxa as $t)
-        {
-            // [AphiaID] => 24
+        {   // [AphiaID] => 24
             // [rank] => Class
             // [scientificname] => Zoomastigophora
             // [authority] => 

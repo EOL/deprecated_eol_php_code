@@ -14,13 +14,11 @@ class PesiAPI
         $this->pesi_domain = "http://www.eu-nomen.eu";
         $this->path_string_search = $this->pesi_domain . "/portal/search.php?search=adv&SearchContent=WebSearchName&SearchType=begins&txt_Search=start_letter&accepted=accepted&rankm=%3E%3D&rank=10&belongs=&list=0&listareas=0&listareastatus=0&btn_SearchAdv=Search";
         $this->path_summary_page  = $this->pesi_domain . "/portal/taxon.php?GUID=";
-        
         $this->levels = array("kingdom" => 1, "phylum" => 2, "class" => 3, "order" => 4, "family" => 5, "genus" => 6, "species" => 7, "subspecies" => 8);
         $this->language_codes["Israel (Hebrew)"] = "he";
         $this->cache_path = "/Volumes/Thunderbolt4/eol_cache_pesi/eol_PESI_cache/";
         $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 665);
         $this->download_options["expire_seconds"] = false; //debug - false means it will use cache
-        
         $this->ranks = "Kingdom,Subkingdom,Superphylum,Infrakingdom,Division,Phylum,Subdivision,Subphylum,Infraphylum,Superclass,Class,Subclass,Infraclass,Superorder,Order,Suborder,Infraorder,Section,Subsection,Superfamily,Family,Subfamily,Tribe,Subtribe,Genus,Subgenus,Section,Subsection,Series,Subseries,Aggregate,Coll. Species,Species,Grex,Subspecies,Proles,Race,Natio,Convariety,Variety,Subvariety,Form,Subform,Form spec.,Tax. infragen.,Tax. infraspec.";
     }
 

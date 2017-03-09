@@ -5,12 +5,10 @@ estimated execution time: 3-5 days
  - 1 day - generation of taxa list text file (taxa.txt)
  - taxa.txt is used to generate processed.txt
 
-            2Mar2017
-taxon.tab   289649
-    
-total: 300687
-total: 300699
-    
+            8Mar2017
+taxon       300701
+with syn    
+
 */
 // return;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
