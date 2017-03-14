@@ -20,6 +20,10 @@ Connector downloads the archive file, extracts, reads it, assembles the data and
            [excluded] =>                used
            [doubtful] =>                used
        )
+
+http://www.marinespecies.org/rest/#/
+http://www.marinespecies.org/aphia.php?p=taxdetails&id=9
+
 */
 
 class WormsArchiveAPI
