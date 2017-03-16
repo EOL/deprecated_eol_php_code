@@ -49,11 +49,32 @@ class WormsArchiveAPI
         $this->debug = array();
     }
 
+    private function get_valid_parent_id($id)
+    {
+        $taxa = self::AphiaClassificationByAphiaID($id);
+        $last_rec = end($taxa);
+        // print_r($taxa);
+        if($last_rec['status'] == "accepted") return $last_rec["AphiaID"];
+        else                                  return $last_rec['parent_id'];
+    }
+
+    private function get_parent_id_from_api($id) //works OK
+    {
+        $taxa = self::AphiaClassificationByAphiaID($id);
+        $last_rec = end($taxa);
+        // print_r($taxa);
+        // echo "\nparent_id: ".$last_rec['parent_id']."\n";
+        return $last_rec['parent_id'];
+    }
+    
     function get_all_taxa()
     {
         /* tests
-        $id = "24"; $id = "142"; $id = "5"; $id = "25";
-        self::AphiaClassificationByAphiaID($id); exit;
+        $id = "24"; $id = "142"; $id = "5"; $id = "25"; $id = "890992"; $id = "834546";
+        $x1 = self::get_parent_id_from_api($id);
+        $x2 = self::get_valid_parent_id($id);
+        echo "\n parent_id: $x1\n";
+        exit("\n valid parent_id: $x2\n");
         */
         
         require_library('connectors/INBioAPI');
@@ -98,7 +119,8 @@ class WormsArchiveAPI
             {
                 $i++;
                 // echo "[$i]. $id";
-                self::AphiaClassificationByAphiaID($id);
+                $taxa = self::AphiaClassificationByAphiaID($id);
+                self::create_taxa($taxa);
             }
         }
     }
@@ -107,9 +129,9 @@ class WormsArchiveAPI
     {
         $taxa = self::get_ancestry_by_id($id);
         $taxa = self::add_authorship($taxa);
-        $taxa = self::add_parent_id($taxa);
-        // print_r($taxa); exit; //debug only
-        self::create_taxa($taxa);
+        // $taxa = self::add_parent_id($taxa); //obsolete
+        $taxa = self::add_parent_id_v2($taxa);
+        return $taxa;
     }
     
     private function add_authorship($taxa) //and other metadata
@@ -151,7 +173,7 @@ class WormsArchiveAPI
             // [valid_AphiaID] => 
             // [status] => unaccepted
             // [parent_id] => 13
-
+            if($t['status'] != "accepted") continue; //only add those that are 'accepted'
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID         = $t['AphiaID'];
             $taxon->scientificName  = trim($t['scientificname'] . " " . $t['authority']);
@@ -172,8 +194,9 @@ class WormsArchiveAPI
             }
         }
     }
-    
-    private function add_parent_id($taxa)
+
+    /*
+    private function add_parent_id($taxa) //works OK, but chooses parent whatever is in the line, even if it is 'unaccepted'.
     {
         $i = 0;
         foreach($taxa as $taxon)
@@ -193,10 +216,58 @@ class WormsArchiveAPI
         }
         return $taxa;
     }
+    */
+
+    private function add_parent_id_v2($taxa)
+    {   /*Array
+        (
+            [AphiaID] => 25
+            [rank] => Order
+            [scientificname] => Choanoflagellida
+            [authority] => Kent, 1880
+            [valid_name] => Choanoflagellida Kent, 1880
+            [valid_AphiaID] => 25
+            [status] => accepted
+            [citation] => WoRMS (2013). Choanoflagellida. In: Guiry, M.D. & Guiry, G.M. (2016). AlgaeBase. World-wide electronic publication,...
+        )
+        */
+        $i = 0;
+        foreach($taxa as $taxon)
+        {
+            if($taxon['scientificname'] != "Biota")
+            {
+                $parent_id = self::get_parent_of_index($i, $taxa);
+                $taxa[$i]['parent_id'] = $parent_id;
+            }
+            $i++;
+        }
+        return $taxa;
+    }
+    private function get_parent_of_index($index, $taxa)
+    {
+        $parent_id = "";
+        for($k = 0; $k <= $index-1 ; $k++)
+        {
+            if($taxa[$k]['status'] == "accepted") $parent_id = $taxa[$k]['AphiaID'];
+        }
+        return $parent_id;
+    }
+    
+    private function get_undeclared_parent_ids()
+    {
+        $ids = array();
+        $url = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_undefined_parent_ids_archive_01.txt";
+        if(file_exists($url))
+        {
+            foreach(new FileIterator($url) as $line_number => $id) $ids[$id] = '';
+        }
+        return array_keys($ids);
+    }
     
     private function get_ancestry_by_id($id)
     {
         $taxa = array();
+        if(!$id) return array();
         if($json = Functions::lookup_with_cache($this->webservice['AphiaClassificationByAphiaID'].$id, $this->download_options))
         {
             $arr = json_decode($json, true);
@@ -257,8 +328,21 @@ class WormsArchiveAPI
     
     private function create_instances_from_taxon_object($records)
     {
+        $undeclared_ids = self::get_undeclared_parent_ids(); //uses a historical text file - undeclared parents. If not to use this, then there will be alot of API calls needed.
+        $k = 0;
         foreach($records as $rec)
         {
+            $k++;
+            // if(($k % 100) == 0) echo "\n count: $k";
+            /* breakdown when caching:
+            $cont = false;
+            // if($k >=  1   && $k < 100000) $cont = true;
+            // if($k >=  100000 && $k < 200000) $cont = true;
+            // if($k >=  200000 && $k < 300000) $cont = true;
+            if(!$cont) continue;
+            */
+             
+            
             $taxon = new \eol_schema\Taxon();
             $val = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
             $taxon->taxonID         = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $val);
@@ -267,7 +351,9 @@ class WormsArchiveAPI
             if($taxon->scientificName != "Biota")
             {
                 $val = (string) $rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"];
-                $taxon->parentNameUsageID  = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $val);
+                $val = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $val);
+                if(in_array($val, $undeclared_ids)) $taxon->parentNameUsageID = self::get_valid_parent_id($val); //based here: https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60658&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60658
+                else                                $taxon->parentNameUsageID = $val;
             }
             
             $taxon->taxonRank       = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
@@ -306,8 +392,7 @@ class WormsArchiveAPI
                 $taxon->parentNameUsageID = ''; //remove the ParentNameUsageID data from all of the synonym lines
             }
             // /* stats
-            // $this->debug[$taxon->taxonomicStatus] = '';
-            $this->debug['status'][$taxon->taxonomicStatus] = '';
+            $this->debug["status"][$taxon->taxonomicStatus] = '';
             @$this->debug["count"][$taxon->taxonomicStatus]++;
             @$this->debug["count"]["count"]++;
             // */

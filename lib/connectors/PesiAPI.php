@@ -20,6 +20,11 @@ class PesiAPI
         $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 665);
         $this->download_options["expire_seconds"] = false; //debug - false means it will use cache
         $this->ranks = "Kingdom,Subkingdom,Superphylum,Infrakingdom,Division,Phylum,Subdivision,Subphylum,Infraphylum,Superclass,Class,Subclass,Infraclass,Superorder,Order,Suborder,Infraorder,Section,Subsection,Superfamily,Family,Subfamily,Tribe,Subtribe,Genus,Subgenus,Section,Subsection,Series,Subseries,Aggregate,Coll. Species,Species,Grex,Subspecies,Proles,Race,Natio,Convariety,Variety,Subvariety,Form,Subform,Form spec.,Tax. infragen.,Tax. infraspec.";
+        /*
+        http://www.eu-nomen.eu/portal/soap.php#
+        http://www.eu-nomen.eu/portal/taxon.php?GUID=urn:lsid:marinespecies.org:taxname:130223
+        http://www.eu-nomen.eu/portal/rest/#!/Taxonomic_data/get_PESIRecordByGUID_GUID
+        */
     }
 
     function get_all_taxa()

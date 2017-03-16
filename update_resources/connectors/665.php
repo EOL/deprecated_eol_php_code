@@ -28,6 +28,7 @@ Functions::finalize_dwca_resource($resource_id);
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
 $func->check_if_all_parents_have_entries($resource_id);
+// $func->get_all_taxa_without_parent($resource_id, true); //a utility report for Katja...works OK
 // */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
