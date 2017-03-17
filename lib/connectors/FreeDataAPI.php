@@ -11,16 +11,113 @@ class FreeDataAPI
     {
         $this->download_options = array('cache' => 1, 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 2592000); //expires in a month
         $this->destination['reef life survey'] = CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey/observations.txt";
-        $this->fields['reef life survey'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family");
-        $this->ctr = 0;
-        $this->debug = array();
+             $this->fields['reef life survey'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family");
+        $this->destination['eMammal'] = CONTENT_RESOURCE_LOCAL_PATH . "eMammal/observations.txt";
+             $this->fields['eMammal'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family");
+         $this->ctr = 0;
+         $this->debug = array();
     }
+
+    //start for eMammal ==============================================================================================================
+    function generate_eMammal_archive($local_path)
+    {
+        $folder = "eMammal";
+        if(!file_exists(CONTENT_RESOURCE_LOCAL_PATH . "$folder"))
+        {
+            $command_line = "mkdir " . CONTENT_RESOURCE_LOCAL_PATH . "$folder"; //may need 'sudo mkdir'
+            $output = shell_exec($command_line);
+        }
+        
+        if(!$WRITE = Functions::file_open($this->destination['eMammal'], "w")) return;
+        fwrite($WRITE, implode("\t", $this->fields['eMammal']) . "\n");
+        fclose($WRITE);
+        
+        foreach(glob("$local_path/*.csv") as $filename)
+        {
+            echo "\n$filename";
+            self::process_csv($filename, "eMammal");
+            // break; //debug - just process 1 csv file
+        }
+        
+        self::last_part($folder);
+        if($this->debug) print_r($this->debug);
+    }
+
+    function process_rec_eMammal($rec)
+    {
+        // id   occurrenceID    eventDate   decimalLatitude decimalLongitude    scientificName  taxonRank   kingdom phylum  class   family
+        $rek = array();
+        /* total of 11 columns
+        $rek['id']               = $rec['id'];
+        $rek['occurrenceID']     = $rec['Sequence ID'];
+        $rek['eventDate']        = $rec['Begin Time'];
+        $rek['decimalLatitude']  = $rec['Actual Lat'];
+        $rek['decimalLongitude'] = $rec['Actual Lon'];
+        $rek['scientificName']   = $rec['Species Name'];
+        $rek['taxonRank']        = 'species';
+        $rek['kingdom']          = 'Animalia';
+        $rek['phylum']           = 'Chordata';
+        $rek['class']            = 'Mammalia';
+        $rek['family']           = '';
+        
+        [Subproject] => White Rock
+        [Treatment] => 
+        [Deployment Name] => WhiteRock02_062016
+        [ID Type] => Researcher
+        [Deploy ID] => d20200
+        [Sequence ID] => d20200s10
+        [Begin Time] => 2016-06-16T10:42:28
+        [End Time] => 2016-06-16T10:43:24
+        [Species Name] => No Animal
+        [Common Name] => No Animal
+        [Age] => 
+        [Sex] => 
+        [Individual] => 
+        [Count] => 1
+        [Actual Lat] => 48.01166
+        [Actual Lon] => -108.00895
+        [id] => 1
+        */
+        
+        $taxon = $rec['Species Name'];
+        if(stripos($taxon, 'Vehicle') !== false || stripos($taxon, 'Human') !== false ) return false; //string is found
+        if(stripos($taxon, 'Unknown') !== false || stripos($taxon, 'Animal') !== false ) return false; //string is found
+        if(stripos($taxon, 'Camera') !== false || stripos($taxon, 'Calibration') !== false ) return false; //string is found
+        if(stripos($taxon, 'sapiens') !== false || stripos($taxon, 'Homo') !== false ) return false; //string is found
+        if(stripos($taxon, 'other') !== false || stripos($taxon, 'species') !== false ) return false; //string is found
+        
+        //total of 11 columns
+        $rek[] = $rec['id'];
+        $rek[] = $rec['Sequence ID'];
+        $rek[] = $rec['Begin Time'];
+        $rek[] = $rec['Actual Lat'];
+        $rek[] = $rec['Actual Lon'];
+        if(stripos($taxon, ' spp.') !== false || stripos($taxon, ' sp.') !== false ) //string is found
+        {
+            $taxon = str_ireplace(" spp.", "", $taxon);
+            $taxon = str_ireplace(" sp.", "", $taxon);
+            $rek[] = $taxon;
+            $rek[] = '';
+        }
+        else
+        {
+            $rek[] = $taxon;
+            $rek[] = 'species';
+        }
+        $rek[] = 'Animalia';
+        $rek[] = 'Chordata';
+        $rek[] = 'Mammalia';
+        $rek[] = '';
+        return implode("\t", $rek);
+    }
+    //end for eMammal ================================================================================================================
 
     function generate_ReefLifeSurvey_archive($params)
     {
-        if(!file_exists(CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey"))
+        $folder = "reef_life_survey";
+        if(!file_exists(CONTENT_RESOURCE_LOCAL_PATH . "$folder"))
         {
-            $command_line = "sudo mkdir " . CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey";
+            $command_line = "mkdir " . CONTENT_RESOURCE_LOCAL_PATH . "$folder"; //may need 'sudo mkdir'
             $output = shell_exec($command_line);
             // if (!mkdir(CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey", 0777)) {
             //     die('\nFailed to create folders...\n');
@@ -37,27 +134,44 @@ class FreeDataAPI
         {
             $url = $params[$coll]; //csv url path
             $temp_path = Functions::save_remote_file_to_local($url, $this->download_options);
-            self::process_RLS($temp_path, $coll);
+            self::process_csv($temp_path, "reef life survey", $coll);
             unlink($temp_path);
         }
-        self::generate_meta_xml(); //creates a meta.xml file
 
-        //copy 2 files inside /reef_life_survey/
-        copy(CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey/observations.txt", CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey/observations.txt");
-        copy(CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey/meta.xml"            , CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey/meta.xml");
-
-        //create reef_life_survey.tar.gz
-        $command_line = "sudo zip -rj " . CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey.zip " . CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey/";
-        $output = shell_exec($command_line);
-
+        self::last_part($folder);
         if($this->debug) print_r($this->debug);
     }
     
-    function process_RLS($csv_file, $collection)
+    private function last_part($folder)
     {
+        self::generate_meta_xml($folder); //creates a meta.xml file
+
+        //copy 2 files inside /reef_life_survey/
+        copy(CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt", CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt");
+        copy(CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml"        , CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml");
+
+        //create reef_life_survey.tar.gz
+        $command_line = "zip -rj " . CONTENT_RESOURCE_LOCAL_PATH . $folder . ".zip " . CONTENT_RESOURCE_LOCAL_PATH . $folder . "/"; //may need 'sudo zip -rj...'
+        $output = shell_exec($command_line);
+    }
+    
+    function process_csv($csv_file, $dbase, $collection = "")
+    {
+        if($dbase == "reef life survey") $field_count = 20;
+        elseif($dbase == "eMammal")      $field_count = 16;
+
         $i = 0;
-        if(!$file = Functions::file_open($csv_file, "r")) return;
-        if(!$WRITE = Functions::file_open($this->destination['reef life survey'], "a")) return;
+        if(!$file = Functions::file_open($csv_file, "r"))
+        {
+            echo "\nerror 1\n";
+            return;
+        }
+        if(!$WRITE = Functions::file_open($this->destination[$dbase], "a"))
+        {
+            echo "\nerror 2\n";
+            return;
+        }
+        
         
         while(!feof($file))
         {
@@ -67,10 +181,10 @@ class FreeDataAPI
             if($i == 1)
             {
                 $fields = $temp;
-                // print_r($fields);
-                if(count($fields) != 20)
+                // print_r($fields); //exit;
+                if(count($fields) != $field_count)
                 {
-                    $this->debug["not20"][$fields[0]] = 1;
+                    $this->debug["not20"][$fields[0]] = '';
                     continue;
                 }
             }
@@ -81,7 +195,7 @@ class FreeDataAPI
                 $k = 0;
                 // 2 checks if valid record
                 if(!$temp) continue;
-                if(count($temp) != 20)
+                if(count($temp) != $field_count)
                 {
                     $this->debug["not20"][$temp[0]] = 1;
                     continue;
@@ -97,8 +211,10 @@ class FreeDataAPI
                 {
                     $rec['id'] = $this->ctr;
                     // print_r($rec); exit;
-                    $row = self::process_rec_RLS($rec, $collection);
-                    fwrite($WRITE, $row . "\n");
+                    if    ($dbase == "reef life survey") $row = self::process_rec_RLS($rec, $collection);
+                    elseif($dbase == "eMammal")          $row = self::process_rec_eMammal($rec);
+                    else echo "\n --undefine dbase-- \n";
+                    if($row) fwrite($WRITE, $row . "\n");
                 }
                 
                 // if($i > 5) break;  //debug only
@@ -201,9 +317,9 @@ class FreeDataAPI
         return implode("\t", $rek);
     }
     
-    function generate_meta_xml()
+    function generate_meta_xml($folder)
     {
-        if(!$WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey/meta.xml", "w")) return;
+        if(!$WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml", "w")) return;
         fwrite($WRITE, '<?xml version="1.0" encoding="UTF-8"?>' . "\n");
         fwrite($WRITE, '<archive xmlns="http://rs.tdwg.org/dwc/text/">' . "\n");
         fwrite($WRITE, '  <core encoding="UTF-8" linesTerminatedBy="\n" fieldsTerminatedBy="\t" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/Occurrence">' . "\n");
