@@ -10,13 +10,41 @@ class WikipediaRegionalAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->language_code = $language_code;
         $this->wikipedia_api = "http://en.wikipedia.org/w/api.php";
-        $this->download_options = array('resource_id' => $resource_id, 'expire_seconds' => false, 'download_wait_time' => 5000000, 'timeout' => 10800, 'download_attempts' => 1); //'delay_in_minutes' => 1
+        
+        if($resource_id == 957) $this->download_options = array('resource_id' => $resource_id, 'expire_seconds' => false, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1); //'delay_in_minutes' => 1
+        else
+        {
+            $this->download_options = array('cache_path' => '/Volumes/Thunderbolt4/eol_cache_wiki_regions/', 'expire_seconds' => false, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1); //'delay_in_minutes' => 1
+        }
+
         $this->ranks['de'] = array("reich", "klasse", "ordnung", "familie", "gattung");
-        $this->ranks_en['reich']     = "kingdom";
-        $this->ranks_en['klasse']     = "class";
-        $this->ranks_en['ordnung']     = "order";
-        $this->ranks_en['familie']     = "family";
-        $this->ranks_en['gattung']     = "genus";
+        $this->ranks_en['reich']    = "kingdom";
+        $this->ranks_en['klasse']   = "class";
+        $this->ranks_en['ordnung']  = "order";
+        $this->ranks_en['familie']  = "family";
+        $this->ranks_en['gattung']  = "genus";
+        $this->word_User_for_this_region = "Benutzer";
+
+        /* will be replaced by WikiData
+        $this->ranks['es'] = array("reino", "filo", "clase", "orden", "familia", "género");
+        $this->ranks_en['reino']    = "kingdom";
+        $this->ranks_en['filo']     = "phylum";
+        $this->ranks_en['clase']    = "class";
+        $this->ranks_en['orden']    = "order";
+        $this->ranks_en['familia']  = "family";
+        $this->ranks_en['género']   = "genus";
+        $this->word_User_for_this_region = "Usuario";
+
+        $this->ranks['fr'] = array("règne", "embranchement", "classe", "ordre", "famille", "genre");
+        $this->ranks_en['reino']    = "règne";
+        $this->ranks_en['filo']     = "embranchement"; //"phylum";
+        $this->ranks_en['clase']    = "classe";
+        $this->ranks_en['orden']    = "ordre";
+        $this->ranks_en['familia']  = "famille";
+        $this->ranks_en['género']   = "genre";
+        $this->word_User_for_this_region = "Utilisateur";
+        */
+
     }
 
     function generate_archive()
@@ -103,17 +131,24 @@ class WikipediaRegionalAPI
             if($url = @$rec->langlinks[0]->url)
             {
                 // echo "\n[$url]\n";
-                $this->exclude_url['de'] = array("http://de.wikipedia.org/wiki/Fuchsf%C3%A4cherschwanz", "http://de.wikipedia.org/wiki/Bali_cattle", "http://de.wikipedia.org/wiki/Benutzer:Ad_Libertatem/Spielwiese", 
-                "http://de.wikipedia.org/wiki/Benutzer:Aquarius_Rising", "http://de.wikipedia.org/wiki/User:The_Mighty_Kinkle", "http://de.wikipedia.org/wiki/Br%C3%A4unling_(Vogel)", "http://de.wikipedia.org/wiki/Tachyoryctinae");
+                $this->exclude_url['de'] = array("http://de.wikipedia.org/wiki/Fuchsf%C3%A4cherschwanz", "https://de.wikipedia.org/wiki/Fuchsf%C3%A4cherschwanz", 
+                                                 "http://de.wikipedia.org/wiki/Bali_cattle", "https://de.wikipedia.org/wiki/Bali_cattle", "http://de.wikipedia.org/wiki/Br%C3%A4unling_(Vogel)", 
+                                                 "http://de.wikipedia.org/wiki/Tachyoryctinae");
+                $this->exclude_url['es'] = array("http://es.wikipedia.org/wiki/eli_boy");
+                $this->exclude_url['fr'] = array("http://es.wikipedia.org/wiki/eli_boy");
+                
                 if(in_array($url, $this->exclude_url[$this->language_code])) continue;
+            
+                // e.g. "/wiki/Benutzer:"
+                if(stripos($url, "/wiki/" . $this->word_User_for_this_region . ":") !== false) continue; //string is found
+                if(stripos($url, "/wiki/User:") !== false) continue; //string is found
+                
                 
                 $rekord['title'] = $rec->langlinks[0]->{"*"};
                 $domain_name = self::get_domain_name($url);
                 if($html = Functions::lookup_with_cache($url, $this->download_options))
                 {
-                    $html = str_ireplace('href="//', "href=xxxxxx", $html);
-                    $html = str_ireplace('href="/', 'href="http://' . $domain_name . '/', $html);
-                    $html = str_ireplace('href=xxxxxx', 'href="//', $html);                    
+                    $html = self::prepare_wiki_for_parsing($html, $domain_name);
                     if(substr_count($html, "<div ") != substr_count($html, "</div>")) $rekord['not equal divs'] = true;
                     /*
                     <div id="content" class="mw-body" role="main">
@@ -121,24 +156,26 @@ class WikipediaRegionalAPI
                     <div id="mw-navigation">
                     <div id="footer" role="contentinfo">
                     */
-                    if(preg_match("/<div id=\"mw-content-text\" lang=\"de\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr))
+                    // if(preg_match("/<div id=\"mw-content-text\" lang=\"de\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) //orig works OK, but 'de' is hard-coded
+                    if(preg_match("/<div id=\"mw-content-text\" lang=\"$this->language_code\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr))
                     {
                         $rekord['comprehensive_desc'] = self::format_wiki_substr($arr[1]);
-                        // $rekord['comprehensive_desc'] = $rekord['title'] . ': my comprehensive report'; //debug
                     }
                     $rekord['sciname']          = self::get_sciname($html);
-                    $rekord['ancestry']      = self::get_ancestry($html);
-                    $rekord['permalink']      = self::get_permalink($html);
-                    $rekord['brief_desc']      = self::get_brief_description($html);
-                    $rekord['last_modified'] = self::get_last_modified($html);
-                    $rekord['citation']      = self::get_citation($rekord['title'], $rekord['permalink'], $rekord['last_modified']);
+                    $rekord['ancestry']         = self::get_ancestry($html);
+                    $rekord['permalink']        = self::get_permalink($html);
+                    $rekord['brief_desc']       = self::get_brief_description($html);
+                    $rekord['last_modified']    = self::get_last_modified($html);
+                    $rekord['citation']         = self::get_citation($rekord['title'], $rekord['permalink'], $rekord['last_modified']);
+                    
+                    print_r($rekord); //exit;
                     
                     if(is_numeric(stripos($html, 'summary="Taxobox">')))
                     {
                         if(!@$rekord['sciname']) //needs investigation
                         {
                             echo "\n no sciname:[$html]";
-                            print_r($rekord); exit;
+                            print_r($rekord); //exit;
                         }
                         else 
                         {
@@ -152,12 +189,21 @@ class WikipediaRegionalAPI
         }
     }
     
-    private function get_domain_name($url)
+    function prepare_wiki_for_parsing($html, $domain_name)
     {
-        if(preg_match("/http:\/\/(.*?)\//ims", pathinfo($url, PATHINFO_DIRNAME), $arr)) return $arr[1];
+        $html = str_ireplace('href="//', "href=xxxxxx", $html);
+        $html = str_ireplace('href="/', 'href="http://' . $domain_name . '/', $html);
+        $html = str_ireplace('href=xxxxxx', 'href="//', $html);
+        return $html;
     }
     
-    private function get_sciname($html)
+    function get_domain_name($url)
+    {
+        if(preg_match("/http:\/\/(.*?)\//ims", pathinfo($url, PATHINFO_DIRNAME), $arr)) return $arr[1];
+        if(preg_match("/https:\/\/(.*?)\//ims", pathinfo($url, PATHINFO_DIRNAME), $arr)) return $arr[1];
+    }
+    
+    private function get_sciname($html) //for 'de' only
     {
         if(preg_match_all("/<td class=\"taxo-name\">(.*?)<\/td>/ims", $html, $arr))
         {
@@ -185,7 +231,7 @@ class WikipediaRegionalAPI
         return false;
     }
 
-    private function get_ancestry($html)
+    private function get_ancestry($html) //for 'de' only
     {
         $ancestry = array();
         if(preg_match("/<table class=\"toptextcells\"(.*?)<\/table>/ims", $html, $arr))
@@ -212,13 +258,13 @@ class WikipediaRegionalAPI
         return $ancestry;
     }
     
-    private function get_permalink($html)
+    function get_permalink($html)
     {
         // <li id="t-permalink"><a href="/w/index.php?title=Piranhas&amp;oldid=140727080" title="Dauerhafter Link zu dieser Seitenversion">Permanenter Link</a></li>
         if(preg_match("/<li id=\"t-permalink\"><a href=\"(.*?)\"/ims", $html, $arr)) return html_entity_decode($arr[1]);
     }
     
-    private function get_brief_description($html)
+    private function get_brief_description($html) //for 'de' only
     {
         if(preg_match("/summary=\"Taxobox\">(.*?)<p><\/p>/ims", $html, $arr)) 
         {
@@ -227,24 +273,36 @@ class WikipediaRegionalAPI
         elseif(preg_match("/summary=\"Taxobox\">(.*?)<h2>/ims", $html, $arr)) 
         {
             if(preg_match_all("/<p>(.*?)<\/p>/ims", $arr[1], $arr2)) return self::format_wiki_substr(array_pop($arr2[1])); //get the last <p>xxx</p> 
-        }        
+        }
     }
     
-    private function get_last_modified($html)
+    function get_last_modified($html)
     {
         if($this->language_code == 'de')
         {
             // <li id="footer-info-lastmod"> Diese Seite wurde zuletzt am 12. Dezember 2013 um 20:57 Uhr geändert.</li>
-            if(preg_match("/<li id=\"footer-info-lastmod\"> Diese Seite wurde zuletzt am(.*?)Uhr geändert./ims", $html, $arr)) return trim(str_replace(" um ", ", ", $arr[1]));
+            if(preg_match("/<li id=\"footer-info-lastmod\"> Diese Seite wurde zuletzt am(.*?)Uhr geändert\./ims", $html, $arr)) return trim(str_replace(" um ", ", ", $arr[1]));
+        }
+        if($this->language_code == 'es')
+        {
+            //<li id="footer-info-lastmod"> Esta página fue modificada por última vez el 18 mar 2017 a las 10:54.</li>
+            if(preg_match("/<li id=\"footer-info-lastmod\"> Esta página fue modificada por última vez el(.*?)\./ims", $html, $arr)) return trim(str_replace(" a las ", ", ", $arr[1]));
+        }
+        if($this->language_code == 'fr')
+        {
+            //<li id="footer-info-lastmod"> Dernière modification de cette page le 22 juillet 2016, à 08:05.</li>
+            if(preg_match("/<li id=\"footer-info-lastmod\"> Dernière modification de cette page le(.*?)\./ims", $html, $arr)) return trim(str_replace(", à ", ", ", $arr[1]));
         }
     }
     
-    private function get_citation($title, $permalink, $last_modified)
+    function get_citation($title, $permalink, $last_modified)
     {
         if($this->language_code == 'de')
-        {
-            return "Seite „" . $title . "“. In: Wikipedia, Die freie Enzyklopädie. Bearbeitungsstand: " . $last_modified . ". URL: " . $permalink . " (Abgerufen: " . date("d. F Y, h:i T") . ")"; 
-        }
+        {return "Seite „" . $title . "“. In: Wikipedia, Die freie Enzyklopädie. Bearbeitungsstand: " . $last_modified . ". URL: " . $permalink . " (Abgerufen: " . date("d. F Y, h:i T") . ")";}
+        if($this->language_code == 'es')
+        {return "Página „" . $title . "“. En: Wikipedia, la enciclopedia libre. Nivel de procesamiento: " . $last_modified . ". URL: " . $permalink . " (Visitada: " . date("d. F Y, h:i T") . ")";}
+        if($this->language_code == 'fr')
+        {return "Page '" . $title . "'. Dans: Wikipédia, l'encyclopédie libre. Niveau de traitement: " . $last_modified . ". URL: " . $permalink . " (Accédé: " . date("d. F Y, h:i T") . ")";}
     }
     
     /* not used since it will call another extra webpage
@@ -303,14 +361,14 @@ class WikipediaRegionalAPI
         $media['Owner']                  = 'Wikipedia Autoren und Herausgeber';
         $media['UsageTerms']             = 'http://creativecommons.org/licenses/by-sa/3.0/';
         $media['furtherInformationURL'] = $rec['permalink'];
-        self::create_media_object($media);
+        if($media['description']) self::create_media_object($media);
 
         // Brief Summary
         $media['identifier']             = md5($rec['permalink']."Brief Summary");
         $media['title']                  = $rec['title'] . ': Brief Summary';
         $media['description']            = $rec['brief_desc'];
         $media['CVterm']                 = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology';
-        self::create_media_object($media);
+        if($media['description']) self::create_media_object($media);
     }
     
     private function create_media_object($media)
