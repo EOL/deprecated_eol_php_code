@@ -1,6 +1,7 @@
 <?php
 namespace php_active_record;
-require_once DOC_ROOT . '/vendor/JsonCollectionParser-master/src/Parser.php';
+// require_once DOC_ROOT . '/vendor/JsonCollectionParser-master/src/Parser.php';
+require_library('connectors/WikipediaRegionalAPI');
 
 /* */
 
@@ -9,7 +10,7 @@ class WikiDataAPI
     function __construct($folder, $lang)
     {
         $this->resource_id = $folder;
-        $this->resource_lang = $lang;
+        $this->language_code = $lang;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
@@ -38,7 +39,7 @@ class WikiDataAPI
         $k = 0; $m = 4624000; //only for breakdown when caching
         foreach(new FileIterator($this->wiki_data_json) as $line_number => $row)
         {
-            // /* breakdown when caching:
+            /* breakdown when caching:
             $k++; echo " $k";
             $cont = false;
             // if($k >=  1   && $k < $m) $cont = true;
@@ -47,16 +48,11 @@ class WikiDataAPI
             // if($k >=  $m*3 && $k < $m*4) $cont = true;
             if($k >=  $m*4 && $k < $m*5) $cont = true;
             if(!$cont) continue;
-            // */
-            
+            */
             
             /* remove the last char which is "," a comma and escape the ' with \' */
-            $row = substr($row,0,strlen($row)-1); //removes last char with is "," a comma
+            $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
 
-            // seems not needed anymore...
-            // $row = str_replace("\\", "", $row);
-            // $row = str_replace("'", "\'", $row);
-            
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
                 $arr = json_decode($row);
@@ -73,11 +69,33 @@ class WikiDataAPI
                      $rek['taxon_id'] = $arr->id;
                      if($rek['taxon'] = self::get_taxon_name($arr->claims))
                      {
-                         $i++; 
-                         $rek['rank'] = self::get_taxon_rank($arr->claims);
-                         $rek['parent'] = self::get_taxon_parent($arr->claims);
-                         $rek['sitelinks'] = self::get_taxon_sitelinks($arr->sitelinks);
-                         // print_r($rek);
+                         /* works well
+                         if($rek['sitelinks'] = self::get_taxon_sitelinks_by_lang($arr->sitelinks)) //if true then create DwCA for it
+                         {
+                             $i++; 
+                             $rek['rank'] = self::get_taxon_rank($arr->claims);
+                             $rek['parent'] = self::get_taxon_parent($arr->claims);
+                             $rek = self::get_other_info($rek);
+                         }
+                         print_r($rek); //exit;
+                         */
+                         
+                         // /* utility: this is to count how many articles per language
+                         if($arr = self::get_taxon_sitelinks($arr->sitelinks))
+                         {
+                             foreach($arr as $a)
+                             {
+                                 $str = str_replace("wiki", "", $a->site);
+                                 // echo " ".$str;
+                                 $this->debug[$str]++;
+                             }
+                             // if($j > 100) break;
+                             // exit;
+                         }
+                         
+                         // */
+                         
+                         
                      }
                      else $j++;
                      // */
@@ -93,13 +111,35 @@ class WikiDataAPI
             else $j++;
             
             
-            
         }
         echo "\ntotal taxon wikis = [$i]\n";
         echo "\ntotal non-taxon wikis = [$j]\n";
+        print_r($this->debug);
         
     }
 
+    private function get_other_info($rek)
+    {
+        $func = new WikipediaRegionalAPI(null, $this->language_code);
+        
+        if($title = $rek['sitelinks']->title)
+        {
+            // $title = "Dicorynia"; //debug
+            $url = "https://" . $this->language_code . ".wikipedia.org/wiki/" . str_replace(" ", "_", $title);
+            $domain_name = $func->get_domain_name($url);
+            if($html = Functions::lookup_with_cache($url, $this->download_options))
+            {
+                $html = $func->prepare_wiki_for_parsing($html, $domain_name);
+                $rek['other']['title'] = $title;
+                // $rek['other']['comprehensive_desc'] = $func->get_comprehensive_desc($html);
+                $rek['other']['permalink']        = $func->get_permalink($html);
+                $rek['other']['last_modified']    = $func->get_last_modified($html);
+                $rek['other']['citation']         = $func->get_citation($rek['other']['title'], $rek['other']['permalink'], $rek['other']['last_modified']);
+            }
+        }
+        return $rek;
+    }
+    
     private function get_taxon_name($claims)
     {
         if($val = @$claims->P225[0]->mainsnak->datavalue->value) return (string) $val;
@@ -161,7 +201,7 @@ class WikiDataAPI
     
     private function get_taxon_sitelinks_by_lang($sitelinks)
     {
-        $str = $this->resource_lang."wiki";
+        $str = $this->language_code."wiki";
         if($obj = @$sitelinks->$str) return $obj;
         return false;
     }

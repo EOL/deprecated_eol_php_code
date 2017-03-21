@@ -7,7 +7,12 @@ $timestart = time_elapsed();
 $resource_id = 1;
 
 // /* //main operation
-$func = new WikiDataAPI($resource_id, "es");
+// $func = new WikiDataAPI($resource_id, "es");
+// $func = new WikiDataAPI($resource_id, "fr");
+// $func = new WikiDataAPI($resource_id, "de");
+$func = new WikiDataAPI($resource_id, "en");
+
+
 $func->get_all_taxa();
 // Functions::finalize_dwca_resource($resource_id);
 // */

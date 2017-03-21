@@ -156,11 +156,8 @@ class WikipediaRegionalAPI
                     <div id="mw-navigation">
                     <div id="footer" role="contentinfo">
                     */
-                    // if(preg_match("/<div id=\"mw-content-text\" lang=\"de\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) //orig works OK, but 'de' is hard-coded
-                    if(preg_match("/<div id=\"mw-content-text\" lang=\"$this->language_code\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr))
-                    {
-                        $rekord['comprehensive_desc'] = self::format_wiki_substr($arr[1]);
-                    }
+
+                    $rekord['comprehensive_desc'] = self::get_comprehensive_desc($html);
                     $rekord['sciname']          = self::get_sciname($html);
                     $rekord['ancestry']         = self::get_ancestry($html);
                     $rekord['permalink']        = self::get_permalink($html);
@@ -168,7 +165,7 @@ class WikipediaRegionalAPI
                     $rekord['last_modified']    = self::get_last_modified($html);
                     $rekord['citation']         = self::get_citation($rekord['title'], $rekord['permalink'], $rekord['last_modified']);
                     
-                    print_r($rekord); //exit;
+                    // print_r($rekord); //exit;
                     
                     if(is_numeric(stripos($html, 'summary="Taxobox">')))
                     {
@@ -195,6 +192,15 @@ class WikipediaRegionalAPI
         $html = str_ireplace('href="/', 'href="http://' . $domain_name . '/', $html);
         $html = str_ireplace('href=xxxxxx', 'href="//', $html);
         return $html;
+    }
+    
+    function get_comprehensive_desc($html)
+    {
+        // if(preg_match("/<div id=\"mw-content-text\" lang=\"de\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) //orig works OK, but 'de' is hard-coded
+        if(preg_match("/<div id=\"mw-content-text\" lang=\"$this->language_code\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr))
+        {
+            return self::format_wiki_substr($arr[1]);
+        }
     }
     
     function get_domain_name($url)
@@ -298,9 +304,9 @@ class WikipediaRegionalAPI
     function get_citation($title, $permalink, $last_modified)
     {
         if($this->language_code == 'de')
-        {return "Seite „" . $title . "“. In: Wikipedia, Die freie Enzyklopädie. Bearbeitungsstand: " . $last_modified . ". URL: " . $permalink . " (Abgerufen: " . date("d. F Y, h:i T") . ")";}
+        {return "Seite '" . $title . "'. In: Wikipedia, Die freie Enzyklopädie. Bearbeitungsstand: " . $last_modified . ". URL: " . $permalink . " (Abgerufen: " . date("d. F Y, h:i T") . ")";}
         if($this->language_code == 'es')
-        {return "Página „" . $title . "“. En: Wikipedia, la enciclopedia libre. Nivel de procesamiento: " . $last_modified . ". URL: " . $permalink . " (Visitada: " . date("d. F Y, h:i T") . ")";}
+        {return "Página '" . $title . "'. En: Wikipedia, la enciclopedia libre. Nivel de procesamiento: " . $last_modified . ". URL: " . $permalink . " (Visitada: " . date("d. F Y, h:i T") . ")";}
         if($this->language_code == 'fr')
         {return "Page '" . $title . "'. Dans: Wikipédia, l'encyclopédie libre. Niveau de traitement: " . $last_modified . ". URL: " . $permalink . " (Accédé: " . date("d. F Y, h:i T") . ")";}
     }
