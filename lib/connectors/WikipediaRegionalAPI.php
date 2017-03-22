@@ -25,25 +25,22 @@ class WikipediaRegionalAPI
         $this->ranks_en['gattung']  = "genus";
         $this->word_User_for_this_region = "Benutzer";
 
-        /* will be replaced by WikiData
-        $this->ranks['es'] = array("reino", "filo", "clase", "orden", "familia", "género");
-        $this->ranks_en['reino']    = "kingdom";
-        $this->ranks_en['filo']     = "phylum";
-        $this->ranks_en['clase']    = "class";
-        $this->ranks_en['orden']    = "order";
-        $this->ranks_en['familia']  = "family";
-        $this->ranks_en['género']   = "genus";
-        $this->word_User_for_this_region = "Usuario";
+        //translations
+        $this->trans['Page']['en'] = "Page";
+        $this->trans['Modified']['en'] = "Modified";
+        $this->trans['Retrieved']['en'] = "Retrieved";
 
-        $this->ranks['fr'] = array("règne", "embranchement", "classe", "ordre", "famille", "genre");
-        $this->ranks_en['reino']    = "règne";
-        $this->ranks_en['filo']     = "embranchement"; //"phylum";
-        $this->ranks_en['clase']    = "classe";
-        $this->ranks_en['orden']    = "ordre";
-        $this->ranks_en['familia']  = "famille";
-        $this->ranks_en['género']   = "genre";
-        $this->word_User_for_this_region = "Utilisateur";
-        */
+        $this->trans['Page']['de'] = "Seite";
+        $this->trans['Modified']['de'] = "Bearbeitungsstand";
+        $this->trans['Retrieved']['de'] = "Abgerufen";
+
+        $this->trans['Page']['es'] = "Página";
+        $this->trans['Modified']['es'] = "Modificado";
+        $this->trans['Retrieved']['es'] = "Recuperado";
+
+        $this->trans['Page']['fr'] = "Page";
+        $this->trans['Modified']['fr'] = "Modifié";
+        $this->trans['Retrieved']['fr'] = "Récupéré";
 
     }
 
@@ -163,7 +160,8 @@ class WikipediaRegionalAPI
                     $rekord['permalink']        = self::get_permalink($html);
                     $rekord['brief_desc']       = self::get_brief_description($html);
                     $rekord['last_modified']    = self::get_last_modified($html);
-                    $rekord['citation']         = self::get_citation($rekord['title'], $rekord['permalink'], $rekord['last_modified']);
+                    $rekord['phrase']           = self::get_wikipedia_phrase($html);
+                    $rekord['citation']         = self::get_citation($rekord['title'], $rekord['permalink'], $rekord['last_modified'], $rekord['phrase']);
                     
                     // print_r($rekord); //exit;
                     
@@ -299,16 +297,28 @@ class WikipediaRegionalAPI
             //<li id="footer-info-lastmod"> Dernière modification de cette page le 22 juillet 2016, à 08:05.</li>
             if(preg_match("/<li id=\"footer-info-lastmod\"> Dernière modification de cette page le(.*?)\./ims", $html, $arr)) return trim(str_replace(", à ", ", ", $arr[1]));
         }
+        if($this->language_code == 'en')
+        {
+            //<li id="footer-info-lastmod"> This page was last modified on 18 March 2017, at 20:43.</li>
+            if(preg_match("/<li id=\"footer-info-lastmod\"> This page was last modified on(.*?)\./ims", $html, $arr)) return trim(str_replace(", at ", ", ", $arr[1]));
+        }
+        
     }
     
-    function get_citation($title, $permalink, $last_modified)
+    function get_wikipedia_phrase($html)
     {
+        //<div id="siteSub">De Wikipedia, la enciclopedia libre</div>
+        if(preg_match("/<div id=\"siteSub\">(.*?)<\/div>/ims", $html, $arr)) return ucfirst(trim($arr[1]));
+    }
+    
+    function get_citation($title, $permalink, $last_modified, $phrase)
+    {
+        /* orig
         if($this->language_code == 'de')
         {return "Seite '" . $title . "'. In: Wikipedia, Die freie Enzyklopädie. Bearbeitungsstand: " . $last_modified . ". URL: " . $permalink . " (Abgerufen: " . date("d. F Y, h:i T") . ")";}
-        if($this->language_code == 'es')
-        {return "Página '" . $title . "'. En: Wikipedia, la enciclopedia libre. Nivel de procesamiento: " . $last_modified . ". URL: " . $permalink . " (Visitada: " . date("d. F Y, h:i T") . ")";}
-        if($this->language_code == 'fr')
-        {return "Page '" . $title . "'. Dans: Wikipédia, l'encyclopédie libre. Niveau de traitement: " . $last_modified . ". URL: " . $permalink . " (Accédé: " . date("d. F Y, h:i T") . ")";}
+        */
+        
+        return $this->trans['Page'][$this->language_code] . " '" . $title . "'. $phrase. " . $this->trans['Modified'][$this->language_code] . ": " . $last_modified . ". URL: " . $permalink . " (" . $this->trans['Retrieved'][$this->language_code] . ": " . date("d. F Y, h:i T") . ")";
     }
     
     /* not used since it will call another extra webpage
@@ -403,7 +413,25 @@ class WikipediaRegionalAPI
         return str_replace(array("\n", "\t"), "", Functions::remove_whitespace($substr));
     }
 
+    /* will be replaced by WikiData
+    $this->ranks['es'] = array("reino", "filo", "clase", "orden", "familia", "género");
+    $this->ranks_en['reino']    = "kingdom";
+    $this->ranks_en['filo']     = "phylum";
+    $this->ranks_en['clase']    = "class";
+    $this->ranks_en['orden']    = "order";
+    $this->ranks_en['familia']  = "family";
+    $this->ranks_en['género']   = "genus";
+    $this->word_User_for_this_region = "Usuario";
+
+    $this->ranks['fr'] = array("règne", "embranchement", "classe", "ordre", "famille", "genre");
+    $this->ranks_en['reino']    = "règne";
+    $this->ranks_en['filo']     = "embranchement"; //"phylum";
+    $this->ranks_en['clase']    = "classe";
+    $this->ranks_en['orden']    = "ordre";
+    $this->ranks_en['familia']  = "famille";
+    $this->ranks_en['género']   = "genre";
+    $this->word_User_for_this_region = "Utilisateur";
+    */
+
 }
 ?>
-
-
