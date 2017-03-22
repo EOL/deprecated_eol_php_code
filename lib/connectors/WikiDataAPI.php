@@ -20,7 +20,9 @@ class WikiDataAPI
         
         //start
         $this->wiki_data_json = "/Volumes/Thunderbolt4/wikidata/latest-all.json";
-        $this->lookup['Q'] = "https://www.wikidata.org/wiki/";
+        $this->wiki_data_taxa_json = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //used in utility to create an all-taxon dump
+        // $this->wiki_data_json = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //used in utility to create an all-taxon dump
+
 
         // $this->property['taxon name'] = "P225";
         // $this->property['taxon rank'] = "P105";
@@ -33,6 +35,8 @@ class WikiDataAPI
 
     function get_all_taxa()
     {
+        self::create_all_taxon_dump(); exit;
+        
         self::initialize_files();
         self::parse_wiki_data_json();
         self::add_parent_entries();
@@ -84,8 +88,8 @@ class WikiDataAPI
         $t->taxonID                 = $rec['id'];
         $t->scientificName          = $rec['taxon_name'];
         $t->taxonRank               = $rec['rank'];
-        $t->source                  = "https://www.wikidata.org/wiki/".$t->taxonID;
         $t->parentNameUsageID       = @$rec['parent_id'];
+        $t->source                  = "https://www.wikidata.org/wiki/".$t->taxonID;
         if(!isset($this->taxon_ids[$t->taxonID]))
         {
             $this->taxon_ids[$t->taxonID] = '';
@@ -99,7 +103,34 @@ class WikiDataAPI
         [parent_id] => Q130942
         */
     }
-    
+
+    private function create_all_taxon_dump() // utility to create an all-taxon dump
+    {
+        if(!($f = Functions::file_open($this->wiki_data_taxa_json, "w"))) return;
+        // fwrite($f, "{");
+        
+        $e = 0; $i = 0; $k = 0;
+        foreach(new FileIterator($this->wiki_data_json) as $line_number => $row)
+        {
+            $k++;
+            if(($k % 20000) == 0) echo " $k";
+            
+            if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
+            {
+                $e++;
+                fwrite($f, $row."\n");
+                // if($e == 3) break;
+            }
+            else $i++;
+        }
+        // fwrite($f, "}");
+        fclose($f);
+        
+        echo "\ntaxa  wikis: [$e]\n";
+        echo "\nnon-taxa  wikis: [$i]\n";
+        exit;
+    }
+
     private function parse_wiki_data_json()
     {
         $i = 0; $j = 0;
@@ -116,14 +147,13 @@ class WikiDataAPI
             if($k >=  $m*4 && $k < $m*5) $cont = true;
             if(!$cont) continue;
             */
-            
-            /* remove the last char which is "," a comma and escape the ' with \' */
-            $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
 
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
+                /* remove the last char which is "," a comma */
+                $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
                 $arr = json_decode($row);
-                
+
                 /* for debug start ======================
                 $arr = self::get_object('Q36611');
                 $arr = $arr->entities->Q36611;
@@ -139,18 +169,22 @@ class WikiDataAPI
                          // /* normal operation
                          if($rek['sitelinks'] = self::get_taxon_sitelinks_by_lang($arr->sitelinks)) //if true then create DwCA for it
                          {
+                             // print_r($arr); exit; //debug
+                             
                              $i++; 
                              $rek['rank'] = self::get_taxon_rank($arr->claims);
                              $rek['parent'] = self::get_taxon_parent($arr->claims);
                              $rek = self::get_other_info($rek);
+                             self::create_archive($rek);
+                             self::save_ancestry_to_temp($rek['parent']);
+                             print_r($rek); //exit;
+                             
                          }
                          print_r($rek); //exit;
-                         self::create_archive($rek);
-                         self::save_ancestry_to_temp($rek['parent']);
                          
                          
-                         // break; //debug - process just 1 rec
-                         if($i >= 3) break;
+                         // break;              //debug - process just 1 rec
+                         if($i >= 10) break;  //debug
                          // */
                          
                          /* utility: this is to count how many articles per language
@@ -168,15 +202,15 @@ class WikiDataAPI
                      }
                      else $j++;
                      // */
-                     // exit;
+                     
                 }
-                else 
-                {
-                    echo "\nnot ok\n";
-                    exit;
-                }
+                else exit("\nnot ok\n");
             }
-            else $j++;
+            else
+            {
+                $j++;
+                echo " -x- ";
+            }
         }
         echo "\ntotal taxon wikis = [$i]\n";
         echo "\ntotal non-taxon wikis = [$j]\n";
@@ -201,8 +235,8 @@ class WikiDataAPI
         $t->taxonID                 = $rec['taxon_id'];
         $t->scientificName          = $rec['taxon'];
         $t->taxonRank               = $rec['rank'];
+        $t->parentNameUsageID       = $rec['parent']['id'];
         $t->source                  = $rec['other']['permalink'];
-        $t->parentNameUsageID   = $rec['parent']['id'];
 
         if(!isset($this->taxon_ids[$t->taxonID]))
         {

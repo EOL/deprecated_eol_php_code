@@ -8,10 +8,10 @@ $resource_id = 1;
 
 
 // /* //main operation
-$func = new WikiDataAPI($resource_id, "es");
+// $func = new WikiDataAPI($resource_id, "es");
 // $func = new WikiDataAPI($resource_id, "fr");
 // $func = new WikiDataAPI("957", "de");
-// $func = new WikiDataAPI($resource_id, "en");
+$func = new WikiDataAPI($resource_id, "en");
 // $func = new WikiDataAPI($resource_id, "cu");
 
 
