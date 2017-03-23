@@ -3,7 +3,9 @@ namespace php_active_record;
 // require_once DOC_ROOT . '/vendor/JsonCollectionParser-master/src/Parser.php';
 require_library('connectors/WikipediaRegionalAPI');
 
-/* */
+/* 
+https://en.wikipedia.org/wiki/List_of_Wikipedias
+*/
 
 class WikiDataAPI
 {
@@ -19,9 +21,9 @@ class WikiDataAPI
         $this->debug = array();
         
         //start
-        $this->wiki_data_json = "/Volumes/Thunderbolt4/wikidata/latest-all.json";
-        $this->wiki_data_taxa_json = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //used in utility to create an all-taxon dump
-        // $this->wiki_data_json = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //used in utility to create an all-taxon dump
+        // $this->wiki_data_json = "/Volumes/Thunderbolt4/wikidata/latest-all.json";
+        // $this->wiki_data_taxa_json = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //used in utility to create an all-taxon dump
+        $this->wiki_data_json = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //used in utility to create an all-taxon dump
 
 
         // $this->property['taxon name'] = "P225";
@@ -30,12 +32,17 @@ class WikiDataAPI
         $this->trans['editors']['en'] = "Wikipedia authors and editors";
         $this->trans['editors']['de'] = "Wikipedia Autoren und Herausgeber";
         $this->trans['editors']['es'] = "Autores y editores de Wikipedia";
-        
     }
 
     function get_all_taxa()
     {
-        self::create_all_taxon_dump(); exit;
+        if(!@$this->trans['editors'][$this->language_code]) 
+        {
+            $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
+            $this->trans['editors'][$this->language_code] = $func->translate_source_target_lang("Wikipedia authors and editors", "en", $this->language_code);
+        }
+        
+        // self::create_all_taxon_dump(); exit;
         
         self::initialize_files();
         self::parse_wiki_data_json();
@@ -134,7 +141,7 @@ class WikiDataAPI
     private function parse_wiki_data_json()
     {
         $i = 0; $j = 0;
-        $k = 0; $m = 4624000; //only for breakdown when caching
+        $k = 0; $m = 4624000; //$m = 600000; //only for breakdown when caching
         foreach(new FileIterator($this->wiki_data_json) as $line_number => $row)
         {
             /* breakdown when caching:
@@ -177,14 +184,13 @@ class WikiDataAPI
                              $rek = self::get_other_info($rek);
                              self::create_archive($rek);
                              self::save_ancestry_to_temp($rek['parent']);
-                             print_r($rek); //exit;
-                             
+                             // print_r($rek); exit;
                          }
                          print_r($rek); //exit;
                          
                          
                          // break;              //debug - process just 1 rec
-                         if($i >= 10) break;  //debug
+                         // if($i >= 10) break; //debug
                          // */
                          
                          /* utility: this is to count how many articles per language

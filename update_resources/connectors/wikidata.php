@@ -11,8 +11,9 @@ $resource_id = 1;
 // $func = new WikiDataAPI($resource_id, "es");
 // $func = new WikiDataAPI($resource_id, "fr");
 // $func = new WikiDataAPI("957", "de");
-$func = new WikiDataAPI($resource_id, "en");
+// $func = new WikiDataAPI($resource_id, "en");
 // $func = new WikiDataAPI($resource_id, "cu");
+$func = new WikiDataAPI($resource_id, "sv");
 
 
 $func->get_all_taxa();

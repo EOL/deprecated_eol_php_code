@@ -303,6 +303,44 @@ class WikipediaRegionalAPI
             if(preg_match("/<li id=\"footer-info-lastmod\"> This page was last modified on(.*?)\./ims", $html, $arr)) return trim(str_replace(", at ", ", ", $arr[1]));
         }
         
+        // <li id="footer-info-lastmod"> Deze pagina is het laatst bewerkt op 10 mrt 2017 om 13:22.</li>
+        return self::get_start_of_numerical_part($html);
+    }
+    
+    private function get_start_of_numerical_part($html)
+    {
+        if(preg_match("/<li id=\"footer-info-lastmod\">(.*?)<\/li>/ims", $html, $arr))
+        {
+            $str = $arr[1]; echo "\n$str\n";
+            for ($x = 0; $x <= strlen($str); $x++) 
+            {
+                if(is_numeric(substr($str,$x,1))) break;
+            }
+            $final = trim(substr($str,$x,strlen($str)));
+            echo "\n[" . $final . "]\n";
+            if(substr($final,-1) == ".") $final = trim(substr($final,0,strlen($final)-1)); //remove last char if it is period
+            echo "\n[" . $final . "]\n";
+            return $final;
+        }
+    }
+    
+    function translate_source_target_lang($source_text, $source_lang, $target_lang)
+    {
+        // based from: https://ctrlq.org/code/19909-google-translate-api
+        $url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=" . $source_lang . "&tl=" . $target_lang . "&dt=t&q=" . $source_text;
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        if($json = Functions::lookup_with_cache($url, $options))
+        {
+            echo "\n $json \n";
+            if(preg_match("/\"(.*?)\"/ims", $json, $arr)) return ucfirst($arr[1]);
+        }
+    }
+    
+    private function translate($source_text)
+    {
+        if($val = @$this->trans[$str][$this->language_code]) return $val;
+        else return self::translate_source_target_lang($source_text, "en", $this->language_code);
     }
     
     function get_wikipedia_phrase($html)
@@ -318,7 +356,7 @@ class WikipediaRegionalAPI
         {return "Seite '" . $title . "'. In: Wikipedia, Die freie Enzyklopädie. Bearbeitungsstand: " . $last_modified . ". URL: " . $permalink . " (Abgerufen: " . date("d. F Y, h:i T") . ")";}
         */
         
-        return $this->trans['Page'][$this->language_code] . " '" . $title . "'. $phrase. " . $this->trans['Modified'][$this->language_code] . ": " . $last_modified . ". URL: " . $permalink . " (" . $this->trans['Retrieved'][$this->language_code] . ": " . date("d. F Y, h:i T") . ")";
+        return self::translate("Page") . " '" . $title . "'. $phrase. " . self::translate("Modified") . ": " . $last_modified . ". URL: " . $permalink . " (" . self::translate("Retrieved") . ": " . date("d. F Y, h:i T") . ")";
     }
     
     /* not used since it will call another extra webpage
