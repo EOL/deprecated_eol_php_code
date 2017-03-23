@@ -25,7 +25,6 @@ class WikiDataAPI
         // $this->wiki_data_taxa_json = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //used in utility to create an all-taxon dump
         $this->wiki_data_json = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //used in utility to create an all-taxon dump
 
-
         // $this->property['taxon name'] = "P225";
         // $this->property['taxon rank'] = "P105";
 
@@ -42,13 +41,20 @@ class WikiDataAPI
             $this->trans['editors'][$this->language_code] = $func->translate_source_target_lang("Wikipedia authors and editors", "en", $this->language_code);
         }
         
-        // self::create_all_taxon_dump(); exit;
+        /* self::create_all_taxon_dump(); exit; //a utility */
         
         self::initialize_files();
         self::parse_wiki_data_json();
         self::add_parent_entries();
         $this->archive_builder->finalize(TRUE);
         unlink($this->TEMP_FILE_PATH);
+    }
+
+    private function initialize_files()
+    {
+        $this->TEMP_FILE_PATH = temp_filepath();
+        if(!($f = Functions::file_open($this->TEMP_FILE_PATH, "w"))) return;
+        fclose($f);
     }
     
     private function add_parent_entries()
@@ -82,12 +88,6 @@ class WikiDataAPI
         }
     }
     
-    private function initialize_files()
-    {
-        $this->TEMP_FILE_PATH = temp_filepath();
-        if(!($f = Functions::file_open($this->TEMP_FILE_PATH, "w"))) return;
-        fclose($f);
-    }
     
     private function create_parent_taxon($rec)
     {
@@ -111,37 +111,10 @@ class WikiDataAPI
         */
     }
 
-    private function create_all_taxon_dump() // utility to create an all-taxon dump
-    {
-        if(!($f = Functions::file_open($this->wiki_data_taxa_json, "w"))) return;
-        // fwrite($f, "{");
-        
-        $e = 0; $i = 0; $k = 0;
-        foreach(new FileIterator($this->wiki_data_json) as $line_number => $row)
-        {
-            $k++;
-            if(($k % 20000) == 0) echo " $k";
-            
-            if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
-            {
-                $e++;
-                fwrite($f, $row."\n");
-                // if($e == 3) break;
-            }
-            else $i++;
-        }
-        // fwrite($f, "}");
-        fclose($f);
-        
-        echo "\ntaxa  wikis: [$e]\n";
-        echo "\nnon-taxa  wikis: [$i]\n";
-        exit;
-    }
-
     private function parse_wiki_data_json()
     {
         $i = 0; $j = 0;
-        $k = 0; $m = 4624000; //$m = 600000; //only for breakdown when caching
+        $k = 0; $m = 4624000; $m = 600000; //only for breakdown when caching
         foreach(new FileIterator($this->wiki_data_json) as $line_number => $row)
         {
             /* breakdown when caching:
@@ -309,6 +282,12 @@ class WikiDataAPI
             $domain_name = $func->get_domain_name($url);
             if($html = Functions::lookup_with_cache($url, $this->download_options))
             {
+                if(self::bot_inspired($html))
+                {
+                    exit("\nbot inspired: [$url]\n");
+                    return $rek;
+                }
+                
                 $html = $func->prepare_wiki_for_parsing($html, $domain_name);
                 $rek['other']['title'] = $title;
                 // $rek['other']['comprehensive_desc'] = $func->get_comprehensive_desc($html);
@@ -385,6 +364,32 @@ class WikiDataAPI
     {
         $str = $this->language_code."wiki";
         if($obj = @$sitelinks->$str) return $obj;
+        return false;
+    }
+
+    private function create_all_taxon_dump() // utility to create an all-taxon dump
+    {
+        if(!($f = Functions::file_open($this->wiki_data_taxa_json, "w"))) return;
+        $e = 0; $i = 0; $k = 0;
+        foreach(new FileIterator($this->wiki_data_json) as $line_number => $row)
+        {
+            $k++;
+            if(($k % 20000) == 0) echo " $k";
+            if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
+            {
+                $e++;
+                fwrite($f, $row."\n");
+            }
+            else $i++;
+        }
+        fclose($f);
+        echo "\ntaxa  wikis: [$e]\n";
+        echo "\nnon-taxa  wikis: [$i]\n";
+    }
+
+    private function bot_inspired($html)
+    {
+        if(stripos($html, "Robot icon.svg") !== false && stripos($html, "Lsjbot") !== false) return true; //string is found
         return false;
     }
 
