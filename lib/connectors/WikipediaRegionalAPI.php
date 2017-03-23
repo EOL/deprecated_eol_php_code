@@ -339,7 +339,7 @@ class WikipediaRegionalAPI
     
     private function translate($source_text)
     {
-        if($val = @$this->trans[$str][$this->language_code]) return $val;
+        if($val = @$this->trans[$source_text][$this->language_code]) return $val;
         else return self::translate_source_target_lang($source_text, "en", $this->language_code);
     }
     

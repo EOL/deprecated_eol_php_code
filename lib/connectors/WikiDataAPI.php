@@ -135,8 +135,8 @@ class WikiDataAPI
                 $arr = json_decode($row);
 
                 /* for debug start ======================
-                $arr = self::get_object('Q36611');
-                $arr = $arr->entities->Q36611;
+                $arr = self::get_object('Q192285');
+                $arr = $arr->entities->Q192285;
                 for debug end ======================== */
                 
                 if(is_object($arr))
@@ -153,11 +153,14 @@ class WikiDataAPI
                              
                              $i++; 
                              $rek['rank'] = self::get_taxon_rank($arr->claims);
+                             $rek['author'] = self::get_authorship($arr->claims);
+                             $rek['author_yr'] = self::get_authorship_date($arr->claims);
                              $rek['parent'] = self::get_taxon_parent($arr->claims);
                              $rek = self::get_other_info($rek);
+                             // print_r($rek); exit;
+
                              self::create_archive($rek);
                              self::save_ancestry_to_temp($rek['parent']);
-                             // print_r($rek); exit;
                          }
                          print_r($rek); //exit;
                          
@@ -307,12 +310,21 @@ class WikiDataAPI
         return false;
     }
 
+    private function get_authorship($claims)
+    {
+        if($id = @$claims->P225[0]->qualifiers->P405[0]->datavalue->value->id) return self::lookup_value($id);
+        return false;
+    }
+
+    private function get_authorship_date($claims)
+    {
+        if($date = @$claims->P225[0]->qualifiers->P574[0]->datavalue->value->time) return (string) $date;
+        return false;
+    }
+
     private function get_taxon_rank($claims)
     {
-        if($id = (string) @$claims->P105[0]->mainsnak->datavalue->value->id)
-        {
-            return self::lookup_value($id);
-        }
+        if($id = (string) @$claims->P105[0]->mainsnak->datavalue->value->id) return self::lookup_value($id);
         return false;
     }
 
