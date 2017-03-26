@@ -9,8 +9,9 @@ https://en.wikipedia.org/wiki/List_of_Wikipedias
 
 class WikiDataAPI
 {
-    function __construct($folder, $lang)
+    function __construct($folder, $lang, $taxonomy = false)
     {
+        $this->taxonomy = $taxonomy;
         $this->resource_id = $folder;
         $this->language_code = $lang;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
@@ -21,9 +22,9 @@ class WikiDataAPI
         $this->debug = array();
         
         //start
-        // $this->wiki_data_json = "/Volumes/Thunderbolt4/wikidata/latest-all.json";
-        // $this->wiki_data_taxa_json = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //used in utility to create an all-taxon dump
-        $this->wiki_data_json = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //used in utility to create an all-taxon dump
+        // $this->wiki_data_json        = "/Volumes/Thunderbolt4/wikidata/latest-all.json"; //from fresh dump
+        // $this->wiki_data_taxa_json   = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //used in utility to create an all-taxon dump -> create_all_taxon_dump()
+        $this->wiki_data_json           = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //used in utility to create an all-taxon dump
 
         // $this->property['taxon name'] = "P225";
         // $this->property['taxon rank'] = "P105";
@@ -41,7 +42,7 @@ class WikiDataAPI
             $this->trans['editors'][$this->language_code] = $func->translate_source_target_lang("Wikipedia authors and editors", "en", $this->language_code);
         }
         
-        /* self::create_all_taxon_dump(); exit; //a utility */
+        /* self::create_all_taxon_dump(); exit; //a utility, generates overnight */
         
         self::initialize_files();
         self::parse_wiki_data_json();
@@ -59,6 +60,7 @@ class WikiDataAPI
     
     private function add_parent_entries()
     {
+        echo "\n\nStart add parent entries...\n\n";
         foreach(new FileIterator($this->TEMP_FILE_PATH) as $line_number => $row)
         {
             $arr = json_decode($row, true);
@@ -117,14 +119,14 @@ class WikiDataAPI
         $k = 0; $m = 4624000; $m = 600000; //only for breakdown when caching
         foreach(new FileIterator($this->wiki_data_json) as $line_number => $row)
         {
+            $k++; echo " ".number_format($k)." ";
             /* breakdown when caching:
-            $k++; echo " $k";
             $cont = false;
-            // if($k >=  1   && $k < $m) $cont = true;
-            // if($k >=  $m && $k < $m*2) $cont = true;
+            // if($k >=  1    && $k < $m) $cont = true;
+            // if($k >=  $m   && $k < $m*2) $cont = true;
             // if($k >=  $m*2 && $k < $m*3) $cont = true;
             // if($k >=  $m*3 && $k < $m*4) $cont = true;
-            if($k >=  $m*4 && $k < $m*5) $cont = true;
+            // if($k >=  $m*4 && $k < $m*5) $cont = true;
             if(!$cont) continue;
             */
 
@@ -135,8 +137,8 @@ class WikiDataAPI
                 $arr = json_decode($row);
 
                 /* for debug start ======================
-                $arr = self::get_object('Q192285');
-                $arr = $arr->entities->Q192285;
+                $arr = self::get_object('Q1210224');
+                $arr = $arr->entities->Q1210224;
                 for debug end ======================== */
                 
                 if(is_object($arr))
@@ -156,7 +158,7 @@ class WikiDataAPI
                              $rek['author'] = self::get_authorship($arr->claims);
                              $rek['author_yr'] = self::get_authorship_date($arr->claims);
                              $rek['parent'] = self::get_taxon_parent($arr->claims);
-                             $rek = self::get_other_info($rek);
+                             if(!$this->taxonomy) $rek = self::get_other_info($rek); //uncomment in normal operation
                              // print_r($rek); exit;
 
                              self::create_archive($rek);
@@ -287,14 +289,14 @@ class WikiDataAPI
             {
                 if(self::bot_inspired($html))
                 {
-                    exit("\nbot inspired: [$url]\n");
+                    // exit("\nbot inspired: [$url]\n");
                     return $rek;
                 }
                 
                 $html = $func->prepare_wiki_for_parsing($html, $domain_name);
                 $rek['other']['title'] = $title;
-                // $rek['other']['comprehensive_desc'] = $func->get_comprehensive_desc($html);
-                $rek['other']['comprehensive_desc'] = "elix elix elicha elicha";
+                $rek['other']['comprehensive_desc'] = $func->get_comprehensive_desc($html);
+                // $rek['other']['comprehensive_desc'] = "elix elix elicha elicha";  //debug
                 $rek['other']['permalink']        = $func->get_permalink($html);
                 $rek['other']['last_modified']    = $func->get_last_modified($html);
                 $rek['other']['phrase']           = $func->get_wikipedia_phrase($html);
@@ -333,6 +335,8 @@ class WikiDataAPI
         $parent = array();
         if($id = (string) @$claims->P171[0]->mainsnak->datavalue->value->id)
         {
+            $id = self::replace_id_if_redirected($id);
+            
             $parent['id'] = $id;
             $parent['name'] = self::lookup_value($id);
             //start get rank
@@ -345,6 +349,24 @@ class WikiDataAPI
             return $parent;
         }
         return false;
+    }
+    
+    private function replace_id_if_redirected($id)
+    {
+        $this->redirects['Q13862468'] = "Q10794768";
+        $this->redirects['Q14050218'] = "Q10804328";
+        $this->redirects['Q14469766'] = "Q10824551";
+        $this->redirects['Q14376190'] = "Q10820737";
+        $this->redirects['Q14513318'] = "Q10713968";
+        $this->redirects['Q15029351'] = "Q13167464";
+        $this->redirects['Q18583887'] = "Q13167388";
+        $this->redirects['Q18549914'] = "Q13167487";
+        $this->redirects['Q16481559'] = "Q10762052";
+        $this->redirects['Q21446808'] = "Q10745346";
+         // not defined parent [Q18519941]
+        
+        if($val = @$this->redirects[$id]) return $val;
+        return $id;
     }
     
     private function lookup_value($id)
