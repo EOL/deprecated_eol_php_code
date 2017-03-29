@@ -122,11 +122,16 @@ class WikiDataAPI
             $k++; echo " ".number_format($k)." ";
             /* breakdown when caching:
             $cont = false;
-            // if($k >=  1    && $k < $m) $cont = true;
-            // if($k >=  $m   && $k < $m*2) $cont = true;
-            // if($k >=  $m*2 && $k < $m*3) $cont = true;
-            // if($k >=  $m*3 && $k < $m*4) $cont = true;
-            // if($k >=  $m*4 && $k < $m*5) $cont = true;
+            
+            if($k >=  565000    && $k < $m) $cont = true;
+            // if($k >=  994000    && $k < $m*2) $cont = true;
+            // if($k >=  1461000    && $k < $m*3) $cont = true;
+            
+            // if($k >=  1    && $k < $m) $cont = true;           //1 -   600,000
+            // if($k >=  $m   && $k < $m*2) $cont = true;   //600,000 - 1,200,000
+            // if($k >=  $m*2 && $k < $m*3) $cont = true; //1,200,000 - 1,800,000
+            // if($k >=  $m*3 && $k < $m*4) $cont = true; //1,800,000 - 2,400,000
+            // if($k >=  $m*4 && $k < $m*5) $cont = true; //2,400,000 - 3,000,000
             if(!$cont) continue;
             */
 
@@ -137,15 +142,15 @@ class WikiDataAPI
                 $arr = json_decode($row);
 
                 /* for debug start ======================
-                $arr = self::get_object('Q1210224');
-                $arr = $arr->entities->Q1210224;
+                $arr = self::get_object('Q5113');
+                $arr = $arr->entities->Q5113;
                 for debug end ======================== */
                 
                 if(is_object($arr))
                 {
                     $rek = array();
                      // /*
-                     $rek['taxon_id'] = $arr->id;
+                     $rek['taxon_id'] = trim((string) $arr->id);
                      if($rek['taxon'] = self::get_taxon_name($arr->claims))
                      {
                          // /* normal operation
@@ -160,15 +165,20 @@ class WikiDataAPI
                              $rek['parent'] = self::get_taxon_parent($arr->claims);
                              if(!$this->taxonomy) $rek = self::get_other_info($rek); //uncomment in normal operation
                              // print_r($rek); exit;
-
-                             self::create_archive($rek);
-                             self::save_ancestry_to_temp($rek['parent']);
+                             
+                             if($rek['taxon_id'])
+                             {
+                                 self::create_archive($rek);
+                                 self::save_ancestry_to_temp($rek['parent']);
+                             }
+                             // break;              //debug - process just 1 rec
+                             
                          }
                          print_r($rek); //exit;
                          
                          
                          // break;              //debug - process just 1 rec
-                         // if($i >= 10) break; //debug
+                         // if($i >= 7) break; //debug
                          // */
                          
                          /* utility: this is to count how many articles per language
@@ -216,17 +226,30 @@ class WikiDataAPI
     private function create_archive($rec)
     {
         $t = new \eol_schema\Taxon();
-        $t->taxonID                 = $rec['taxon_id'];
-        $t->scientificName          = $rec['taxon'];
-        $t->taxonRank               = $rec['rank'];
-        $t->parentNameUsageID       = $rec['parent']['id'];
-        $t->source                  = $rec['other']['permalink'];
+        $t->taxonID                  = $rec['taxon_id'];
+        $t->scientificName           = $rec['taxon'];
+        if($t->scientificNameAuthorship = $rec['author'])
+        {
+            if($year = $rec['author_yr'])
+            {
+                //+1831-01-01T00:00:00Z
+                $year = substr($year,1,4);
+                $t->scientificNameAuthorship .= ", $year";
+            }
+        }
+        
+        $t->taxonRank                = $rec['rank'];
+        $t->parentNameUsageID        = $rec['parent']['id'];
+        $t->source                   = $rec['other']['permalink'];
 
         if(!isset($this->taxon_ids[$t->taxonID]))
         {
             $this->taxon_ids[$t->taxonID] = '';
             $this->archive_builder->write_object_to_file($t);
         }
+
+        // if($rec['taxon_id'] == "Q5113" && $this->language_code == "ja") return; //debug
+        
 
         //start media objects
         $media = array();
@@ -285,7 +308,11 @@ class WikiDataAPI
             // $title = "Dicorynia"; //debug
             $url = "https://" . $this->language_code . ".wikipedia.org/wiki/" . str_replace(" ", "_", $title);
             $domain_name = $func->get_domain_name($url);
-            if($html = Functions::lookup_with_cache($url, $this->download_options))
+
+            $options = $this->download_options;
+            // if($rek['taxon_id'] == "Q5113") $options['expire_seconds'] = false; //debug only
+
+            if($html = Functions::lookup_with_cache($url, $options))
             {
                 if(self::bot_inspired($html))
                 {
@@ -336,7 +363,7 @@ class WikiDataAPI
         if($id = (string) @$claims->P171[0]->mainsnak->datavalue->value->id)
         {
             $id = self::replace_id_if_redirected($id);
-            
+
             $parent['id'] = $id;
             $parent['name'] = self::lookup_value($id);
             //start get rank
@@ -363,8 +390,14 @@ class WikiDataAPI
         $this->redirects['Q18549914'] = "Q13167487";
         $this->redirects['Q16481559'] = "Q10762052";
         $this->redirects['Q21446808'] = "Q10745346";
-         // not defined parent [Q18519941]
-        
+        $this->redirects['Q18519941'] = "Q23005859"; //later homonym
+        $this->redirects['Q27661141'] = "Q777139";   //later homonym
+        $this->redirects['Q7225609']  = "Q28148175"; //later homonym
+        $this->redirects['Q18522963'] = "Q10827989"; //redirected
+        $this->redirects['Q18591107'] = "Q16986192"; //redirected
+        $this->redirects['Q21438944'] = "Q21223073"; //duplicated
+        $this->redirects['Q13231238'] = "Q13167447"; //redirected
+        $this->redirects['Q26288710'] = "Q24976183"; //redirected
         if($val = @$this->redirects[$id]) return $val;
         return $id;
     }
@@ -373,6 +406,10 @@ class WikiDataAPI
     {
         if($obj = self::get_object($id))
         {
+            if($id == "Q27661141") //debug only
+            {
+                // print_r($obj); exit;
+            }
             return (string) $obj->entities->$id->labels->en->value;
         }
     }

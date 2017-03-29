@@ -446,9 +446,39 @@ class WikipediaRegionalAPI
         }
     }
     
-    private function format_wiki_substr($substr)
-    {
+    private function format_wiki_substr($substr) //https://en.wikipedia.org/wiki/Control_character
+    {   /*
+        0 (null, NUL, \0, ^@), originally intended to be an ignored character, but now used by many programming languages to mark the end of a string.
+        7 (bell, BEL, \a, ^G), which may cause the device receiving it to emit a warning of some kind (usually audible).
+        8 (backspace, BS, \b, ^H), used either to erase the last character printed or to overprint it.
+        9 (horizontal tab, HT, \t, ^I), moves the printing position some spaces to the right.
+        10 (line feed, LF, \n, ^J), used as the end of line marker in most UNIX systems and variants.
+        11 (vertical tab, VT, \v, ^K), vertical tabulation.
+        12 (form feed, FF, \f, ^L), to cause a printer to eject paper to the top of the next page, or a video terminal to clear the screen.
+        13 (carriage return, CR, \r, ^M), used as the end of line marker in Classic Mac OS, OS-9, FLEX (and variants). A carriage return/line feed pair is used by CP/M-80 and its derivatives including DOS and Windows, and by Application Layer protocols such as HTTP.
+        26 (Control-Z, SUB, EOF, ^Z).
+        27 (escape, ESC, \e (GCC only), ^[).
+        127 (delete, DEL, ^?), originally intended to be an ignored chara
+        */
+        
+        $substr = str_replace(array("\t\t\t\t"), "", $substr);
+        $substr = str_replace(array("\r\n"), "", $substr);
+        $substr = str_replace(array("\t", "\n", "\v", "\f", "\r"), "", $substr);
+        $substr = str_replace(array(chr(9), chr(10), chr(11), chr(12), chr(13)), "", $substr);
+
+        $substr = str_replace(array(chr(127), chr(129), chr(141), chr(143), chr(144), chr(157)), "", $substr);
+        for ($x = 0; $x <= 31; $x++) 
+        {
+            $substr = str_replace(chr($x), "", $substr);
+        }
+        // 0 to 31, , , , , , and 
+        
+        $substr = Functions::remove_whitespace($substr);
+        return $substr;
+
+        /* orig
         return str_replace(array("\n", "\t"), "", Functions::remove_whitespace($substr));
+        */
     }
 
     /* will be replaced by WikiData
