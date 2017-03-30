@@ -141,7 +141,7 @@ class WikiDataAPI
                 $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
                 $arr = json_decode($row);
 
-                /* for debug start ======================
+                /* for debug start ====================== Q4589415 - en with blank taxon name | Q5113 - jap with erroneous desc
                 $arr = self::get_object('Q5113');
                 $arr = $arr->entities->Q5113;
                 for debug end ======================== */
@@ -151,7 +151,7 @@ class WikiDataAPI
                     $rek = array();
                      // /*
                      $rek['taxon_id'] = trim((string) $arr->id);
-                     if($rek['taxon'] = self::get_taxon_name($arr->claims))
+                     if($rek['taxon'] = self::get_taxon_name($arr)) //old working param is $arr->claims
                      {
                          // /* normal operation
                          if($rek['sitelinks'] = self::get_taxon_sitelinks_by_lang($arr->sitelinks)) //if true then create DwCA for it
@@ -240,7 +240,9 @@ class WikiDataAPI
         
         $t->taxonRank                = $rec['rank'];
         $t->parentNameUsageID        = $rec['parent']['id'];
-        $t->source                   = $rec['other']['permalink'];
+        
+        if($val = @$rec['other']['permalink']) $t->source = $val;
+        else                                   $t->source = "https://www.wikidata.org/wiki/".$t->taxonID;
 
         if(!isset($this->taxon_ids[$t->taxonID]))
         {
@@ -333,9 +335,16 @@ class WikiDataAPI
         return $rek;
     }
     
-    private function get_taxon_name($claims)
+    private function get_taxon_name($arr)
     {
+        $claims = $arr->claims;
         if($val = @$claims->P225[0]->mainsnak->datavalue->value) return (string) $val;
+        elseif($val = @$arr->labels->en->value) return (string) $val;
+        else
+        {
+            print_r($arr);
+            exit("\nno taxon name, pls investigate...\n");
+        }
         return false;
     }
 
@@ -369,7 +378,7 @@ class WikiDataAPI
             //start get rank
             if($obj = self::get_object($id))
             {
-                $parent['taxon_name'] = self::get_taxon_name($obj->entities->$id->claims);
+                $parent['taxon_name'] = self::get_taxon_name($obj->entities->$id); //old working param is $obj->entities->$id->claims
                 $parent['rank'] = self::get_taxon_rank($obj->entities->$id->claims);
                 $parent['parent'] = self::get_taxon_parent($obj->entities->$id->claims);
             }
