@@ -250,7 +250,7 @@ class WikiDataAPI
             $this->archive_builder->write_object_to_file($t);
         }
 
-        // if($rec['taxon_id'] == "Q5113" && $this->language_code == "ja") return; //debug
+        // if($rec['taxon_id'] == "Q5113" && $this->language_code == "ja") return; //debug force
         
 
         //start media objects
@@ -280,6 +280,12 @@ class WikiDataAPI
         */
     }
     
+    private function format_wiki_substr($substr) //https://en.wikipedia.org/wiki/Control_character
+    {   
+        $substr = Functions::import_decode($substr);
+        return str_replace(array("\n", "\t"), "", Functions::remove_whitespace($substr));
+    }
+    
     private function create_media_object($media)
     {
         $mr = new \eol_schema\MediaResource();
@@ -288,12 +294,12 @@ class WikiDataAPI
         $mr->type                   = $media['type'];
         $mr->format                 = $media['format'];
         $mr->language               = $media['language'];
-        $mr->Owner                  = $media['Owner'];
-        $mr->title                  = $media['title'];
         $mr->UsageTerms             = $media['UsageTerms'];
-        $mr->description            = $media['description'];
         $mr->CVterm                 = $media['CVterm'];
-        $mr->furtherInformationURL     = $media['furtherInformationURL'];
+        $mr->description            = $media['description'];
+        $mr->furtherInformationURL  = $media['furtherInformationURL'];
+        $mr->title                  = $media['title'];
+        $mr->Owner                  = $media['Owner'];
         if(!isset($this->object_ids[$mr->identifier]))
         {
             $this->object_ids[$mr->identifier] = '';
@@ -312,7 +318,7 @@ class WikiDataAPI
             $domain_name = $func->get_domain_name($url);
 
             $options = $this->download_options;
-            // if($rek['taxon_id'] == "Q5113") $options['expire_seconds'] = false; //debug only
+            // if($rek['taxon_id'] == "Q5113") $options['expire_seconds'] = true; //debug only force
 
             if($html = Functions::lookup_with_cache($url, $options))
             {
@@ -322,6 +328,7 @@ class WikiDataAPI
                     return $rek;
                 }
                 
+                $rek['other'] = array();
                 $html = $func->prepare_wiki_for_parsing($html, $domain_name);
                 $rek['other']['title'] = $title;
                 $rek['other']['comprehensive_desc'] = $func->get_comprehensive_desc($html);
@@ -342,8 +349,8 @@ class WikiDataAPI
         elseif($val = @$arr->labels->en->value) return (string) $val;
         else
         {
-            print_r($arr);
-            exit("\nno taxon name, pls investigate...\n");
+            // print_r($arr);
+            // exit("\nno taxon name, pls investigate...\n");
         }
         return false;
     }

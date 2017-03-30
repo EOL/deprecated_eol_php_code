@@ -141,7 +141,7 @@ class WikipediaRegionalAPI
                 if(stripos($url, "/wiki/User:") !== false) continue; //string is found
                 
                 
-                $rekord['title'] = $rec->langlinks[0]->{"*"};
+                $rekord['title'] = self::format_wiki_substr($rec->langlinks[0]->{"*"});
                 $domain_name = self::get_domain_name($url);
                 if($html = Functions::lookup_with_cache($url, $this->download_options))
                 {
@@ -332,8 +332,9 @@ class WikipediaRegionalAPI
         $options['expire_seconds'] = false;
         if($json = Functions::lookup_with_cache($url, $options))
         {
-            echo "\n $json \n";
-            if(preg_match("/\"(.*?)\"/ims", $json, $arr)) return ucfirst($arr[1]);
+            // echo "\n $json \n";
+            // if(preg_match("/\"(.*?)\"/ims", $json, $arr)) return ucfirst($arr[1]); //orig
+            if(preg_match("/\"(.*?)\"/ims", $json, $arr)) return self::format_wiki_substr(ucfirst($arr[1]));
         }
     }
     
@@ -459,26 +460,21 @@ class WikipediaRegionalAPI
         26 (Control-Z, SUB, EOF, ^Z).
         27 (escape, ESC, \e (GCC only), ^[).
         127 (delete, DEL, ^?), originally intended to be an ignored chara
-        */
-        
+
+        $substr = str_replace(chr(32).chr(160), "", $substr);
         $substr = str_replace(array("\t\t\t\t"), "", $substr);
         $substr = str_replace(array("\r\n"), "", $substr);
         $substr = str_replace(array("\t", "\n", "\v", "\f", "\r"), "", $substr);
         $substr = str_replace(array(chr(9), chr(10), chr(11), chr(12), chr(13)), "", $substr);
-
         $substr = str_replace(array(chr(127), chr(129), chr(141), chr(143), chr(144), chr(157)), "", $substr);
-        for ($x = 0; $x <= 31; $x++) 
-        {
-            $substr = str_replace(chr($x), "", $substr);
-        }
-        // 0 to 31, , , , , , and 
-        
-        $substr = Functions::remove_whitespace($substr);
-        return $substr;
-
-        /* orig
-        return str_replace(array("\n", "\t"), "", Functions::remove_whitespace($substr));
+        for ($x = 0; $x <= 31; $x++) $substr = str_replace(chr($x), "", $substr);
+        $substr = str_replace(array("\t\n", "\n", "\r", "\t", "\o", "\xOB", "\11", "\011", "", ""), " ", trim($substr));
+        $substr = str_replace(array("\r\n", "\n", "\r", "\t", "\0", "\x0B", "\t"), '', $substr);
+        $substr = str_replace(" ", " ", $substr);
         */
+        
+        $substr = Functions::import_decode($substr);
+        return str_replace(array("\n", "\t"), "", Functions::remove_whitespace($substr));
     }
 
     /* will be replaced by WikiData
