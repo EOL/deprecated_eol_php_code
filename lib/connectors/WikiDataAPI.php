@@ -132,6 +132,7 @@ class WikiDataAPI
     
     private function create_parent_taxon($rec)
     {
+        if(!@$rec['taxon_name']) return;
         $t = new \eol_schema\Taxon();
         $t->taxonID                 = $rec['id'];
         $t->scientificName          = $rec['taxon_name'];
@@ -176,9 +177,9 @@ class WikiDataAPI
                 $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
                 $arr = json_decode($row);
 
-                /* for debug start ====================== Q4589415 - en with blank taxon name | Q5113 - jap with erroneous desc
-                $arr = self::get_object('Q5113');
-                $arr = $arr->entities->Q5113;
+                /* for debug start ====================== Q4589415 - en with blank taxon name | Q5113 - jap with erroneous desc | ko Q8222313 has invalid parent 
+                $arr = self::get_object('Q8222313');
+                $arr = $arr->entities->Q8222313;
                 for debug end ======================== */
                 
                 if(is_object($arr))
@@ -203,7 +204,13 @@ class WikiDataAPI
                              {
                                  self::create_archive($rek);
                                  self::save_ancestry_to_temp($rek['parent']);
-                                 // print_r($rek); exit;
+                                 
+                                 if(!@$rek['other']['comprehensive_desc'])
+                                 {
+                                     // print_r($rek); exit("\ninvestigate\n"); //debug
+                                 }
+                                 
+                                 // print_r($rek);
                                  // break;              //debug - process just 1 rec
                                  
                                  $actual++; echo " [$actual] ";
@@ -257,6 +264,7 @@ class WikiDataAPI
     
     private function create_archive($rec)
     {
+        if(!@$rec['taxon']) return;
         $t = new \eol_schema\Taxon();
         $t->taxonID                  = $rec['taxon_id'];
         $t->scientificName           = $rec['taxon'];
@@ -334,9 +342,12 @@ class WikiDataAPI
             if($i == $total_cols) $row .= "\n";
             else                  $row .= "\t";
         }
-        if(!($f = Functions::file_open($this->media_extension, "a"))) return;
-        fwrite($f, $row);
-        fclose($f);
+        if(!isset($this->object_ids[$media['identifier']]))
+        {
+            if(!($f = Functions::file_open($this->media_extension, "a"))) return;
+            fwrite($f, $row);
+            fclose($f);
+        }
         // */
 
         // /*
@@ -402,7 +413,7 @@ class WikiDataAPI
             {
                 if(self::bot_inspired($html))
                 {
-                    // exit("\nbot inspired: [$url]\n");
+                    echo("\nbot inspired: [$url]\n");
                     return $rek;
                 }
                 
@@ -424,6 +435,11 @@ class WikiDataAPI
     {
         $claims = $arr->claims;
         if($val = @$claims->P225[0]->mainsnak->datavalue->value) return (string) $val;
+        elseif(in_array($arr->id, array("Q4589415")))   //special case for a ko article
+        {
+            if($val = @$arr->labels->en->value) return (string) $val;
+        }
+        
         /* this introduced new probs, thus commented
         elseif($val = @$arr->labels->en->value) return (string) $val;
         else
