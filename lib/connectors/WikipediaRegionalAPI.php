@@ -1,5 +1,10 @@
 <?php
 namespace php_active_record;
+/*
+require_once(DOC_ROOT . '/vendor/ForceUTF8/Encoding.php');
+use \ForceUTF8\Encoding;  // It's namespaced now.
+*/
+
 /* connector: [957 - German] */
 
 class WikipediaRegionalAPI
@@ -472,9 +477,33 @@ class WikipediaRegionalAPI
         $substr = str_replace(array("\r\n", "\n", "\r", "\t", "\0", "\x0B", "\t"), '', $substr);
         $substr = str_replace(" ", " ", $substr);
         */
-        
+
         $substr = Functions::import_decode($substr);
-        return str_replace(array("\n", "\t"), "", Functions::remove_whitespace($substr));
+        $substr = Functions::remove_whitespace($substr);
+        return str_replace(array("\n", "\t", "\r", chr(9), chr(10), chr(13)), "", $substr);
+
+        // $substr = Encoding::fixUTF8($substr);
+        // $substr = Encoding::toUTF8($substr);
+        
+        /*
+        Detect character encoding with current detect_order 
+        echo "\n111 - ".mb_detect_encoding($substr)." -- ". strlen($substr) ."\n";
+        "auto" is expanded according to mbstring.language 
+        echo "\n222 - ".mb_detect_encoding($substr, "auto")." -- ". strlen($substr) ."\n";
+        Specify encoding_list character encoding by comma separated list 
+        $detected = mb_detect_encoding($substr, "UTF-8, JIS, eucjp-win, sjis-win");
+        echo "\n333 - ".$detected." -- ". strlen($substr) ."\n";
+        */
+    }
+    
+    private function remove_utf8_bom($text)
+    {
+        $bom = pack('H*','EFBBBF');
+        $text = preg_replace("/^$bom/", '', $text);
+        /* another option:
+        text = str_replace("\xEF\xBB\xBF",'',$text); 
+        */
+        return $text;
     }
 
     /* will be replaced by WikiData

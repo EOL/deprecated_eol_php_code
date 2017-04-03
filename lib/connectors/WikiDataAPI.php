@@ -32,6 +32,8 @@ class WikiDataAPI
         $this->trans['editors']['en'] = "Wikipedia authors and editors";
         $this->trans['editors']['de'] = "Wikipedia Autoren und Herausgeber";
         $this->trans['editors']['es'] = "Autores y editores de Wikipedia";
+        
+        $this->passed_already = false; //use to create a fake meta.xml
     }
 
     function get_all_taxa()
@@ -48,6 +50,21 @@ class WikiDataAPI
         self::parse_wiki_data_json();
         self::add_parent_entries();
         $this->archive_builder->finalize(TRUE);
+
+        //start ============================================================= needed adjustments
+        unlink(CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_working" . "/media_resource.tab");  //remove generated orig test media_resource.tab
+        Functions::file_rename($this->media_extension, CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_working" . "/media_resource.tab");  //rename .eli to .tab
+
+        //mimic the compression in finalize()
+        $info = pathinfo(CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_working");
+        $temporary_tarball_path = \php_active_record\temp_filepath();
+        $final_tarball_path = $info['dirname'] ."/". $info['basename'] .".tar.gz";
+        shell_exec("tar -czf $temporary_tarball_path --directory=". $info['dirname'] ."/". $info['basename'] ." .");
+        @unlink($final_tarball_path);
+        if(copy($temporary_tarball_path, $final_tarball_path))
+          unlink($temporary_tarball_path);
+        //end =============================================================
+
         unlink($this->TEMP_FILE_PATH);
     }
 
@@ -56,6 +73,28 @@ class WikiDataAPI
         $this->TEMP_FILE_PATH = temp_filepath();
         if(!($f = Functions::file_open($this->TEMP_FILE_PATH, "w"))) return;
         fclose($f);
+        
+        // <field index="0" term="http://purl.org/dc/terms/identifier"/>
+        // <field index="1" term="http://rs.tdwg.org/dwc/terms/taxonID"/>
+        // <field index="2" term="http://purl.org/dc/terms/type"/>
+        // <field index="3" term="http://purl.org/dc/terms/format"/>
+        // <field index="4" term="http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm"/>
+        // <field index="5" term="http://purl.org/dc/terms/title"/>
+        // <field index="6" term="http://purl.org/dc/terms/description"/>
+        // <field index="7" term="http://rs.tdwg.org/ac/terms/furtherInformationURL"/>
+        // <field index="8" term="http://purl.org/dc/terms/language"/>
+        // <field index="9" term="http://ns.adobe.com/xap/1.0/rights/UsageTerms"/>
+        // <field index="10" term="http://ns.adobe.com/xap/1.0/rights/Owner"/>
+
+        
+        // /*
+        $this->media_cols = "identifier,taxonID,type,format,CVterm,title,description,furtherInformationURL,language,UsageTerms,Owner";
+        $this->media_cols = explode(",", $this->media_cols);
+        $this->media_extension = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_working" . "/media_resource.eli";
+        if(!($f = Functions::file_open($this->media_extension, "w"))) return;
+        fwrite($f, implode("\t", $this->media_cols)."\n");
+        fclose($f);
+        // */
     }
     
     private function add_parent_entries()
@@ -115,6 +154,7 @@ class WikiDataAPI
 
     private function parse_wiki_data_json()
     {
+        $actual = 0;
         $i = 0; $j = 0;
         $k = 0; $m = 4624000; $m = 600000; //only for breakdown when caching
         foreach(new FileIterator($this->wiki_data_json) as $line_number => $row)
@@ -122,11 +162,6 @@ class WikiDataAPI
             $k++; echo " ".number_format($k)." ";
             /* breakdown when caching:
             $cont = false;
-            
-            if($k >=  565000    && $k < $m) $cont = true;
-            // if($k >=  994000    && $k < $m*2) $cont = true;
-            // if($k >=  1461000    && $k < $m*3) $cont = true;
-            
             // if($k >=  1    && $k < $m) $cont = true;           //1 -   600,000
             // if($k >=  $m   && $k < $m*2) $cont = true;   //600,000 - 1,200,000
             // if($k >=  $m*2 && $k < $m*3) $cont = true; //1,200,000 - 1,800,000
@@ -157,28 +192,26 @@ class WikiDataAPI
                          if($rek['sitelinks'] = self::get_taxon_sitelinks_by_lang($arr->sitelinks)) //if true then create DwCA for it
                          {
                              // print_r($arr); exit; //debug
-                             
                              $i++; 
                              $rek['rank'] = self::get_taxon_rank($arr->claims);
                              $rek['author'] = self::get_authorship($arr->claims);
                              $rek['author_yr'] = self::get_authorship_date($arr->claims);
                              $rek['parent'] = self::get_taxon_parent($arr->claims);
+                             echo "\n".$rek['taxon_id']." - ";
                              if(!$this->taxonomy) $rek = self::get_other_info($rek); //uncomment in normal operation
-                             // print_r($rek); exit;
-                             
                              if($rek['taxon_id'])
                              {
                                  self::create_archive($rek);
                                  self::save_ancestry_to_temp($rek['parent']);
+                                 // print_r($rek); exit;
+                                 // break;              //debug - process just 1 rec
+                                 
+                                 $actual++; echo " [$actual] ";
+                                 if($actual >= 5000) break;   //debug
                              }
-                             // break;              //debug - process just 1 rec
-                             
                          }
-                         print_r($rek); //exit;
-                         
-                         
-                         // break;              //debug - process just 1 rec
-                         // if($i >= 7) break; //debug
+                         // print_r($rek); //exit;
+                         // if($i >= 5000) break;   //debug
                          // */
                          
                          /* utility: this is to count how many articles per language
@@ -196,7 +229,6 @@ class WikiDataAPI
                      }
                      else $j++;
                      // */
-                     
                 }
                 else exit("\nnot ok\n");
             }
@@ -251,7 +283,7 @@ class WikiDataAPI
         }
 
         // if($rec['taxon_id'] == "Q5113" && $this->language_code == "ja") return; //debug force
-        
+        // if($rec['taxon_id'] == "Q5113") return; //Aves is problematic...debug force
 
         //start media objects
         $media = array();
@@ -288,6 +320,48 @@ class WikiDataAPI
     
     private function create_media_object($media)
     {
+        // /*
+        $row = "";
+        $i = 0;
+        $total_cols = count($this->media_cols);
+        foreach($this->media_cols as $key)
+        {
+            $i++;
+            $row .= $media[$key];
+            if($i == $total_cols) $row .= "\n";
+            else                  $row .= "\t";
+        }
+        if(!($f = Functions::file_open($this->media_extension, "a"))) return;
+        fwrite($f, $row);
+        fclose($f);
+        // */
+
+        // /*
+        if(!$this->passed_already)
+        {
+            $this->passed_already = true;
+            
+            $mr = new \eol_schema\MediaResource();
+            $mr->taxonID                = $media['taxonID'];
+            $mr->identifier             = $media['identifier'];
+            $mr->type                   = $media['type'];
+            $mr->format                 = $media['format'];
+            $mr->language               = $media['language'];
+            $mr->UsageTerms             = $media['UsageTerms'];
+            $mr->CVterm                 = $media['CVterm'];
+            $mr->description            = "test data"; //$media['description'];
+            $mr->furtherInformationURL  = $media['furtherInformationURL'];
+            $mr->title                  = $media['title'];
+            $mr->Owner                  = $media['Owner'];
+            if(!isset($this->object_ids[$mr->identifier]))
+            {
+                $this->object_ids[$mr->identifier] = '';
+                $this->archive_builder->write_object_to_file($mr);
+            }
+        }
+        // */
+        
+        /*
         $mr = new \eol_schema\MediaResource();
         $mr->taxonID                = $media['taxonID'];
         $mr->identifier             = $media['identifier'];
@@ -305,6 +379,7 @@ class WikiDataAPI
             $this->object_ids[$mr->identifier] = '';
             $this->archive_builder->write_object_to_file($mr);
         }
+        */
     }
     
     private function get_other_info($rek)
@@ -346,12 +421,14 @@ class WikiDataAPI
     {
         $claims = $arr->claims;
         if($val = @$claims->P225[0]->mainsnak->datavalue->value) return (string) $val;
+        /* this introduced new probs, thus commented
         elseif($val = @$arr->labels->en->value) return (string) $val;
         else
         {
             // print_r($arr);
             // exit("\nno taxon name, pls investigate...\n");
         }
+        */
         return false;
     }
 
