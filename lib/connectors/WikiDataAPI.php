@@ -195,7 +195,7 @@ class WikiDataAPI
                              $rek['author'] = self::get_authorship($arr->claims);
                              $rek['author_yr'] = self::get_authorship_date($arr->claims);
                              $rek['parent'] = self::get_taxon_parent($arr->claims);
-                             echo "\n".$rek['taxon_id']." - ";
+                             echo "\n $this->language_code ".$rek['taxon_id']." - ";
                              if(!$this->taxonomy) $rek = self::get_other_info($rek); //uncomment in normal operation
                              if($rek['taxon_id'])
                              {
@@ -511,11 +511,17 @@ class WikiDataAPI
     {
         if($obj = self::get_object($id))
         {
-            if($id == "Q27661141") //debug only
+            /* debug only
+            if($id == "Q27661141")
             {
-                // print_r($obj); exit;
+                print_r($obj); exit;
             }
-            return (string) $obj->entities->$id->labels->en->value;
+            if(!isset($obj->entities->$id->labels->en->value)) //e.g. Q5614965 
+            {
+                print_r($obj->entities); exit("\npls investigate 01\n");
+            }
+            */
+            if($val = (string) @$obj->entities->$id->labels->en->value) return $val;
         }
     }
     
