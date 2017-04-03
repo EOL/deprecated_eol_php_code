@@ -288,20 +288,23 @@ class WikiDataAPI
         //start media objects
         $media = array();
         
-        // Comprehensive Description
-        $media['identifier']             = md5($rec['taxon_id']."Comprehensive Description");
-        $media['title']                  = $rec['other']['title'];
-        $media['description']            = $rec['other']['comprehensive_desc'];
-        $media['CVterm']                 = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description';
-        // below here is same for the next text object
-        $media['taxonID']                = $t->taxonID;
-        $media['type']                   = "http://purl.org/dc/dcmitype/Text";
-        $media['format']                 = "text/html";
-        $media['language']               = $this->language_code;
-        $media['Owner']                  = $this->trans['editors'][$this->language_code];
-        $media['UsageTerms']             = 'http://creativecommons.org/licenses/by-sa/3.0/';
-        $media['furtherInformationURL'] = $rec['other']['permalink'];
-        if($media['description']) self::create_media_object($media);
+        if($description = trim(@$rec['other']['comprehensive_desc']))
+        {
+            // Comprehensive Description
+            $media['identifier']             = md5($rec['taxon_id']."Comprehensive Description");
+            $media['title']                  = $rec['other']['title'];
+            $media['description']            = $description;
+            $media['CVterm']                 = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description';
+            // below here is same for the next text object
+            $media['taxonID']                = $t->taxonID;
+            $media['type']                   = "http://purl.org/dc/dcmitype/Text";
+            $media['format']                 = "text/html";
+            $media['language']               = $this->language_code;
+            $media['Owner']                  = $this->trans['editors'][$this->language_code];
+            $media['UsageTerms']             = 'http://creativecommons.org/licenses/by-sa/3.0/';
+            $media['furtherInformationURL'] = $rec['other']['permalink'];
+            self::create_media_object($media);
+        }
 
         /* // Brief Summary - works well for 'de'
         $media['identifier']             = md5($rec['permalink']."Brief Summary");

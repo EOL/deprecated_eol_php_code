@@ -316,15 +316,15 @@ class WikipediaRegionalAPI
     {
         if(preg_match("/<li id=\"footer-info-lastmod\">(.*?)<\/li>/ims", $html, $arr))
         {
-            $str = $arr[1]; echo "\n$str\n";
+            $str = $arr[1]; //echo "\n$str\n";
             for ($x = 0; $x <= strlen($str); $x++) 
             {
                 if(is_numeric(substr($str,$x,1))) break;
             }
             $final = trim(substr($str,$x,strlen($str)));
-            echo "\n[" . $final . "]\n";
+            // echo "\n[" . $final . "]\n";
             if(substr($final,-1) == ".") $final = trim(substr($final,0,strlen($final)-1)); //remove last char if it is period
-            echo "\n[" . $final . "]\n";
+            // echo "\n[" . $final . "]\n";
             return $final;
         }
     }
