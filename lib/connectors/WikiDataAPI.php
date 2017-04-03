@@ -86,7 +86,6 @@ class WikiDataAPI
         // <field index="9" term="http://ns.adobe.com/xap/1.0/rights/UsageTerms"/>
         // <field index="10" term="http://ns.adobe.com/xap/1.0/rights/Owner"/>
 
-        
         // /*
         $this->media_cols = "identifier,taxonID,type,format,CVterm,title,description,furtherInformationURL,language,UsageTerms,Owner";
         $this->media_cols = explode(",", $this->media_cols);
@@ -103,7 +102,6 @@ class WikiDataAPI
         foreach(new FileIterator($this->TEMP_FILE_PATH) as $line_number => $row)
         {
             $arr = json_decode($row, true);
-            // print_r($arr);
             while(@$arr['parent'])
             {
                 //first record
@@ -128,7 +126,6 @@ class WikiDataAPI
             }
         }
     }
-    
     
     private function create_parent_taxon($rec)
     {
@@ -178,8 +175,8 @@ class WikiDataAPI
                 $arr = json_decode($row);
 
                 /* for debug start ====================== Q4589415 - en with blank taxon name | Q5113 - jap with erroneous desc | ko Q8222313 has invalid parent 
-                $arr = self::get_object('Q8222313');
-                $arr = $arr->entities->Q8222313;
+                $arr = self::get_object('Q132634');
+                $arr = $arr->entities->Q132634;
                 for debug end ======================== */
                 
                 if(is_object($arr))
@@ -205,11 +202,7 @@ class WikiDataAPI
                                  self::create_archive($rek);
                                  self::save_ancestry_to_temp($rek['parent']);
                                  
-                                 if(!@$rek['other']['comprehensive_desc'])
-                                 {
-                                     // print_r($rek); exit("\ninvestigate\n"); //debug
-                                 }
-                                 
+                                 // if(!@$rek['other']['comprehensive_desc']) { print_r($rek); exit("\ninvestigate\n"); }
                                  // print_r($rek);
                                  // break;              //debug - process just 1 rec
                                  
