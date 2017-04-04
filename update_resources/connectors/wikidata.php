@@ -17,15 +17,15 @@ $resource_id = "1";
 // $func = new WikiDataAPI($resource_id, "cu");     //done
 // $func = new WikiDataAPI($resource_id, "uk");     //done
 // $func = new WikiDataAPI($resource_id, "pl");     //done
+// $func = new WikiDataAPI($resource_id, "zh");
+// $func = new WikiDataAPI($resource_id, "pt");
 
 // $func = new WikiDataAPI($resource_id, "en", "taxonomy"); //3rd param is boolean taxonomy; true means will generate hierarchy resource. [wikidata-hierarchy]    //done
 $func = new WikiDataAPI($resource_id, "en", "wikimedia");     //done - Used for Commons
 // $func = new WikiDataAPI($resource_id, "en");     //done
 
-// $func = new WikiDataAPI($resource_id, "pt");
 // $func = new WikiDataAPI($resource_id, "nl");
 // $func = new WikiDataAPI($resource_id, "sv");    //still being run, many many bot inspired
-// $func = new WikiDataAPI($resource_id, "zh");
 // $func = new WikiDataAPI($resource_id, "vi");
 
 //===================

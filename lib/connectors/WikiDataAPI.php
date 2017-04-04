@@ -174,16 +174,28 @@ class WikiDataAPI
         foreach(new FileIterator($this->wiki_data_json) as $line_number => $row)
         {
             $k++; echo " ".number_format($k)." ";
-            /* breakdown when caching:
+            // /* breakdown when caching:
             $cont = false;
+            // if($k >=  1    && $k < 500000) $cont = true;           //1 -   600,000
+            // if($k >= 500000 && $k < 600000) $cont = true; //5th
+            
+            // if($k >=  $m   && $k < 1000000) $cont = true;   //600,000 - 1,200,000
+            // if($k >= 1000000 && $k < 1200000) $cont = true; //5th
+
+            // if($k >=  $m*2 && $k < $m*3) $cont = true; //1,200,000 - 1,800,000
+            if($k >=  $m*3 && $k < $m*4) $cont = true; //1,800,000 - 2,400,000
+
+
             // if($k >=  1    && $k < $m) $cont = true;           //1 -   600,000
             // if($k >=  $m   && $k < $m*2) $cont = true;   //600,000 - 1,200,000
             // if($k >=  $m*2 && $k < $m*3) $cont = true; //1,200,000 - 1,800,000
             // if($k >=  $m*3 && $k < $m*4) $cont = true; //1,800,000 - 2,400,000
             // if($k >=  $m*4 && $k < $m*5) $cont = true; //2,400,000 - 3,000,000
-            if($k >= 2150000 && $k < 2400000) $cont = true; //5th
             if(!$cont) continue;
-            */
+            // */
+
+
+
 
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
@@ -191,10 +203,10 @@ class WikiDataAPI
                 $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
                 $arr = json_decode($row);
 
-                // /* for debug start ====================== Q4589415 - en with blank taxon name | Q5113 - jap with erroneous desc | ko Q8222313 has invalid parent | Q132634
+                /* for debug start ====================== Q4589415 - en with blank taxon name | Q5113 - jap with erroneous desc | ko Q8222313 has invalid parent | Q132634
                 $arr = self::get_object('Q6707390');
                 $arr = $arr->entities->Q6707390;
-                // for debug end ======================== */
+                for debug end ======================== */
                 
                 if(is_object($arr))
                 {
@@ -218,14 +230,20 @@ class WikiDataAPI
                              
                              echo "\n $this->language_code ".$rek['taxon_id']." - ";
                              if($this->what == "wikipedia") $rek = self::get_other_info($rek); //uncomment in normal operation
+                             if($this->what == "wikimedia")
+                             {
+                                 if($url = @$rek['com_category'])   $rek['obj_gallery'] = self::get_commons_info($url);
+                                 if($url = @$rek['com_gallery'])    $rek['obj_category'] = self::get_commons_info($url);
+                             }
+                             
                              if($rek['taxon_id'])
                              {
                                  self::create_archive($rek);
                                  self::save_ancestry_to_temp($rek['parent']);
                                  
                                  // if(!@$rek['other']['comprehensive_desc']) { print_r($rek); exit("\ninvestigate\n"); }
-                                 // print_r($rek);
-                                 break;              //debug - process just 1 rec
+                                 print_r($rek);
+                                 // break;              //debug - process just 1 rec
                                  
                                  $actual++; echo " [$actual] ";
                                  // if($actual >= 5000) break;   //debug - used only on batch of 5000 articles per language
@@ -335,15 +353,11 @@ class WikiDataAPI
         $media['CVterm']                 = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology';
         if($media['description']) self::create_media_object($media);
         */
-        
-        if($url = @$rec['com_category']) self::get_commons_media($url);
-        if($url = @$rec['com_gallery']) self::get_commons_media($url);
-        // exit("\n");
-        
     }
     
-    private function get_commons_media($url)
+    private function get_commons_info($url)
     {
+        $final = array();
         // <a href="/wiki/File:A_hand-book_to_the_primates_(Plate_XL)_(5589462024).jpg"
         // <a href="/wiki/File:Irrawaddy_Dolphin.jpg"
         $options = $this->download_options;
@@ -358,10 +372,11 @@ class WikiDataAPI
                     $rek = array();
                     $rek = self::get_media_metadata($file);
                     $rek['media_url'] = self::get_media_url($file);
-                    // self::create_wikimedia_object($rek);
+                    if($rek['pageid']) $final[] = $rek;
                 }
             }
         }
+        return $final;
     }
     
     private function get_media_metadata($file)
@@ -372,13 +387,13 @@ class WikiDataAPI
             $arr = json_decode($json, true);
             $arr = array_values($arr["query"]["pages"]);
             $arr = $arr[0];
-            print_r($arr);
+            // print_r($arr);
             
             $rek['pageid'] = self::format_wiki_substr($arr['pageid']);
             if($val = @$arr['imageinfo'][0]['extmetadata']['ObjectName']['value'])  $rek['title'] = self::format_wiki_substr($val);
             else                                                                    $rek['title'] = self::format_wiki_substr($arr['title']);
-            $rek['ImageDescription'] = self::format_wiki_substr($arr['imageinfo'][0]['extmetadata']['ImageDescription']['value']);
-            $rek['Artist']           = self::format_wiki_substr($arr['imageinfo'][0]['extmetadata']['Artist']['value']);
+            $rek['ImageDescription'] = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['ImageDescription']['value']);
+            $rek['Artist']           = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Artist']['value']);
             $rek['LicenseUrl']       = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['LicenseUrl']['value']);
             $rek['LicenseShortName'] = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['LicenseShortName']['value']);
             if($val = @$arr['imageinfo'][0]['extmetadata']['DateTime']['value'])             $rek['date'] = self::format_wiki_substr($val);
