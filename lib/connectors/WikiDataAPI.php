@@ -5,13 +5,23 @@ require_library('connectors/WikipediaRegionalAPI');
 
 /* 
 https://en.wikipedia.org/wiki/List_of_Wikipedias
+
+commons dump: https://dumps.wikimedia.org/commonswiki/20170320/
+postponed: eliagbayani@ELIs-Mac-mini ~: wget http://dumps.wikimedia.org/commonswiki/latest/commonswiki-latest-pages-articles.xml.bz2
+
+used api for commons:
+https://commons.wikimedia.org/wiki/Commons:API/MediaWiki
+others:
+https://tools.wmflabs.org/magnus-toolserver/commonsapi.php
+https://commons.wikimedia.org/wiki/Commons:Commons_API
+
 */
 
 class WikiDataAPI
 {
-    function __construct($folder, $lang, $taxonomy = false)
+    function __construct($folder, $lang, $what = "wikipedia")
     {
-        $this->taxonomy = $taxonomy;
+        $this->what = $what;
         $this->resource_id = $folder;
         $this->language_code = $lang;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
@@ -52,12 +62,12 @@ class WikiDataAPI
         $this->archive_builder->finalize(TRUE);
 
         //start ============================================================= needed adjustments
-        if(!$this->taxonomy)
+        if($this->what == "wikipedia")
         {
             unlink(CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_working" . "/media_resource.tab");  //remove generated orig test media_resource.tab
             Functions::file_rename($this->media_extension, CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_working" . "/media_resource.tab");  //rename .eli to .tab
 
-            //mimic the compression in finalize()
+            //mimic the compression in $this->archive_builder->finalize()
             $info = pathinfo(CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_working");
             $temporary_tarball_path = \php_active_record\temp_filepath();
             $final_tarball_path = $info['dirname'] ."/". $info['basename'] .".tar.gz";
@@ -76,21 +86,21 @@ class WikiDataAPI
         $this->TEMP_FILE_PATH = temp_filepath();
         if(!($f = Functions::file_open($this->TEMP_FILE_PATH, "w"))) return;
         fclose($f);
-        
-        // <field index="0" term="http://purl.org/dc/terms/identifier"/>
-        // <field index="1" term="http://rs.tdwg.org/dwc/terms/taxonID"/>
-        // <field index="2" term="http://purl.org/dc/terms/type"/>
-        // <field index="3" term="http://purl.org/dc/terms/format"/>
-        // <field index="4" term="http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm"/>
-        // <field index="5" term="http://purl.org/dc/terms/title"/>
-        // <field index="6" term="http://purl.org/dc/terms/description"/>
-        // <field index="7" term="http://rs.tdwg.org/ac/terms/furtherInformationURL"/>
-        // <field index="8" term="http://purl.org/dc/terms/language"/>
-        // <field index="9" term="http://ns.adobe.com/xap/1.0/rights/UsageTerms"/>
-        // <field index="10" term="http://ns.adobe.com/xap/1.0/rights/Owner"/>
-
+        /*
+        <field index="0" term="http://purl.org/dc/terms/identifier"/>
+        <field index="1" term="http://rs.tdwg.org/dwc/terms/taxonID"/>
+        <field index="2" term="http://purl.org/dc/terms/type"/>
+        <field index="3" term="http://purl.org/dc/terms/format"/>
+        <field index="4" term="http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm"/>
+        <field index="5" term="http://purl.org/dc/terms/title"/>
+        <field index="6" term="http://purl.org/dc/terms/description"/>
+        <field index="7" term="http://rs.tdwg.org/ac/terms/furtherInformationURL"/>
+        <field index="8" term="http://purl.org/dc/terms/language"/>
+        <field index="9" term="http://ns.adobe.com/xap/1.0/rights/UsageTerms"/>
+        <field index="10" term="http://ns.adobe.com/xap/1.0/rights/Owner"/>
+        */
         // /*
-        if(!$this->taxonomy)
+        if($this->what == "wikipedia")
         {
             $this->media_cols = "identifier,taxonID,type,format,CVterm,title,description,furtherInformationURL,language,UsageTerms,Owner";
             $this->media_cols = explode(",", $this->media_cols);
@@ -171,6 +181,7 @@ class WikiDataAPI
             // if($k >=  $m*2 && $k < $m*3) $cont = true; //1,200,000 - 1,800,000
             // if($k >=  $m*3 && $k < $m*4) $cont = true; //1,800,000 - 2,400,000
             // if($k >=  $m*4 && $k < $m*5) $cont = true; //2,400,000 - 3,000,000
+            if($k >= 2150000 && $k < 2400000) $cont = true; //5th
             if(!$cont) continue;
             */
 
@@ -180,10 +191,10 @@ class WikiDataAPI
                 $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
                 $arr = json_decode($row);
 
-                /* for debug start ====================== Q4589415 - en with blank taxon name | Q5113 - jap with erroneous desc | ko Q8222313 has invalid parent | Q132634
-                $arr = self::get_object('Q8222313');
-                $arr = $arr->entities->Q8222313;
-                for debug end ======================== */
+                // /* for debug start ====================== Q4589415 - en with blank taxon name | Q5113 - jap with erroneous desc | ko Q8222313 has invalid parent | Q132634
+                $arr = self::get_object('Q6707390');
+                $arr = $arr->entities->Q6707390;
+                // for debug end ======================== */
                 
                 if(is_object($arr))
                 {
@@ -201,8 +212,12 @@ class WikiDataAPI
                              $rek['author'] = self::get_authorship($arr->claims);
                              $rek['author_yr'] = self::get_authorship_date($arr->claims);
                              $rek['parent'] = self::get_taxon_parent($arr->claims);
+
+                             $rek['com_gallery'] = self::get_commons_gallery($arr->claims);
+                             $rek['com_category'] = self::get_commons_category($arr->claims);
+                             
                              echo "\n $this->language_code ".$rek['taxon_id']." - ";
-                             if(!$this->taxonomy) $rek = self::get_other_info($rek); //uncomment in normal operation
+                             if($this->what == "wikipedia") $rek = self::get_other_info($rek); //uncomment in normal operation
                              if($rek['taxon_id'])
                              {
                                  self::create_archive($rek);
@@ -210,7 +225,7 @@ class WikiDataAPI
                                  
                                  // if(!@$rek['other']['comprehensive_desc']) { print_r($rek); exit("\ninvestigate\n"); }
                                  // print_r($rek);
-                                 // break;              //debug - process just 1 rec
+                                 break;              //debug - process just 1 rec
                                  
                                  $actual++; echo " [$actual] ";
                                  // if($actual >= 5000) break;   //debug - used only on batch of 5000 articles per language
@@ -320,12 +335,75 @@ class WikiDataAPI
         $media['CVterm']                 = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology';
         if($media['description']) self::create_media_object($media);
         */
+        
+        if($url = @$rec['com_category']) self::get_commons_media($url);
+        if($url = @$rec['com_gallery']) self::get_commons_media($url);
+        // exit("\n");
+        
+    }
+    
+    private function get_commons_media($url)
+    {
+        // <a href="/wiki/File:A_hand-book_to_the_primates_(Plate_XL)_(5589462024).jpg"
+        // <a href="/wiki/File:Irrawaddy_Dolphin.jpg"
+        $options = $this->download_options;
+        if($html = Functions::lookup_with_cache($url, $options))
+        {
+            if(preg_match_all("/<a href=\"\/wiki\/File:(.*?)\"/ims", $html, $arr))
+            {
+                $files = array_values(array_unique($arr[1]));
+                print_r($files);
+                foreach($files as $file)
+                {   // https://commons.wikimedia.org/wiki/File:Eyes_of_gorilla.jpg
+                    $rek = array();
+                    $rek = self::get_media_metadata($file);
+                    $rek['media_url'] = self::get_media_url($file);
+                    // self::create_wikimedia_object($rek);
+                }
+            }
+        }
+    }
+    
+    private function get_media_metadata($file)
+    {   //https://commons.wikimedia.org/w/api.php?action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:Gorilla_498.jpg
+        $rek = array();
+        if($json = Functions::lookup_with_cache("https://commons.wikimedia.org/w/api.php?format=json&action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:".$file, $this->download_options))
+        {
+            $arr = json_decode($json, true);
+            $arr = array_values($arr["query"]["pages"]);
+            $arr = $arr[0];
+            print_r($arr);
+            
+            $rek['pageid'] = self::format_wiki_substr($arr['pageid']);
+            if($val = @$arr['imageinfo'][0]['extmetadata']['ObjectName']['value'])  $rek['title'] = self::format_wiki_substr($val);
+            else                                                                    $rek['title'] = self::format_wiki_substr($arr['title']);
+            $rek['ImageDescription'] = self::format_wiki_substr($arr['imageinfo'][0]['extmetadata']['ImageDescription']['value']);
+            $rek['Artist']           = self::format_wiki_substr($arr['imageinfo'][0]['extmetadata']['Artist']['value']);
+            $rek['LicenseUrl']       = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['LicenseUrl']['value']);
+            $rek['LicenseShortName'] = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['LicenseShortName']['value']);
+            if($val = @$arr['imageinfo'][0]['extmetadata']['DateTime']['value'])             $rek['date'] = self::format_wiki_substr($val);
+            elseif($val = @$arr['imageinfo'][0]['extmetadata']['DateTimeOriginal']['value']) $rek['date'] = self::format_wiki_substr($val);
+            $rek['source_url']       = "https://commons.wikimedia.org/wiki/File:".$file;
+        }
+        return $rek;
+    }
+    
+    private function get_media_url($file)
+    {   // $file = "DKoehl_Irrawaddi_Dolphin_jumping.jpg";
+        // $file = "Lycopodiella_cernua_estróbilos.jpg";
+        // $file = "Lycopodiella_cernua_estr%C3%B3bilos.jpg";
+        $file = urldecode($file);
+        $md5 = md5($file);
+        $char1 = substr($md5,0,1);
+        $char2 = substr($md5,1,1);
+        return "https://upload.wikimedia.org/wikipedia/commons/$char1/$char1$char2/" . str_replace(" ", "_", $file);
     }
     
     private function format_wiki_substr($substr) //https://en.wikipedia.org/wiki/Control_character
     {   
         $substr = Functions::import_decode($substr);
-        return str_replace(array("\n", "\t"), "", Functions::remove_whitespace($substr));
+        $substr = Functions::remove_whitespace($substr);
+        return str_replace(array("\n", "\t", "\r", chr(9), chr(10), chr(13)), "", $substr);
     }
     
     private function create_media_object($media)
@@ -468,6 +546,18 @@ class WikiDataAPI
         return false;
     }
 
+    private function get_commons_gallery($claims) //https://commons.wikimedia.org/wiki/Gorilla%20gorilla
+    {
+        if($val = (string) @$claims->P935[0]->mainsnak->datavalue->value) return "https://commons.wikimedia.org/wiki/" . str_replace(" ", "_", $val);
+        return false;
+    }
+
+    private function get_commons_category($claims) //https://commons.wikimedia.org/wiki/Category:Gorilla%20gorilla
+    {
+        if($val = (string) @$claims->P373[0]->mainsnak->datavalue->value) return "https://commons.wikimedia.org/wiki/Category:" . str_replace(" ", "_", $val);
+        return false;
+    }
+
     private function get_taxon_parent($claims)
     {
         $parent = array();
@@ -581,12 +671,26 @@ class WikiDataAPI
         return false;
     }
 
-    // private function checkaddslashes($str){       
+    // private function checkaddslashes($str){
     //     if(strpos(str_replace("\'",""," $str"),"'")!=false)
     //         return addslashes($str);
     //     else
     //         return $str;
     // }
+    
+    /* works but expensive
+    if($html = Functions::lookup_with_cache("https://commons.wikimedia.org/wiki/File:".str_replace(" ", "_", $file), $options))
+    {
+        //<a href="https://upload.wikimedia.org/wikipedia/commons/6/67/Western_Gorilla_area.png">
+        if(preg_match_all("/<a href=\"https:\/\/upload.wikimedia.org(.*?)\"/ims", $html, $arr))
+        {
+            $files2 = array_values(array_unique($arr[1]));
+            $rek['media_url'] = "https://upload.wikimedia.org".$files2[0];
+        }
+    }
+    */
+    
+    
 
 }
 ?>
