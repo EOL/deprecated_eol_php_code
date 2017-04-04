@@ -52,17 +52,20 @@ class WikiDataAPI
         $this->archive_builder->finalize(TRUE);
 
         //start ============================================================= needed adjustments
-        unlink(CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_working" . "/media_resource.tab");  //remove generated orig test media_resource.tab
-        Functions::file_rename($this->media_extension, CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_working" . "/media_resource.tab");  //rename .eli to .tab
+        if(!$this->taxonomy)
+        {
+            unlink(CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_working" . "/media_resource.tab");  //remove generated orig test media_resource.tab
+            Functions::file_rename($this->media_extension, CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_working" . "/media_resource.tab");  //rename .eli to .tab
 
-        //mimic the compression in finalize()
-        $info = pathinfo(CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_working");
-        $temporary_tarball_path = \php_active_record\temp_filepath();
-        $final_tarball_path = $info['dirname'] ."/". $info['basename'] .".tar.gz";
-        shell_exec("tar -czf $temporary_tarball_path --directory=". $info['dirname'] ."/". $info['basename'] ." .");
-        @unlink($final_tarball_path);
-        if(copy($temporary_tarball_path, $final_tarball_path))
-          unlink($temporary_tarball_path);
+            //mimic the compression in finalize()
+            $info = pathinfo(CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_working");
+            $temporary_tarball_path = \php_active_record\temp_filepath();
+            $final_tarball_path = $info['dirname'] ."/". $info['basename'] .".tar.gz";
+            shell_exec("tar -czf $temporary_tarball_path --directory=". $info['dirname'] ."/". $info['basename'] ." .");
+            @unlink($final_tarball_path);
+            if(copy($temporary_tarball_path, $final_tarball_path))
+              unlink($temporary_tarball_path);
+        }
         //end =============================================================
 
         unlink($this->TEMP_FILE_PATH);
@@ -87,12 +90,15 @@ class WikiDataAPI
         // <field index="10" term="http://ns.adobe.com/xap/1.0/rights/Owner"/>
 
         // /*
-        $this->media_cols = "identifier,taxonID,type,format,CVterm,title,description,furtherInformationURL,language,UsageTerms,Owner";
-        $this->media_cols = explode(",", $this->media_cols);
-        $this->media_extension = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_working" . "/media_resource.eli";
-        if(!($f = Functions::file_open($this->media_extension, "w"))) return;
-        fwrite($f, implode("\t", $this->media_cols)."\n");
-        fclose($f);
+        if(!$this->taxonomy)
+        {
+            $this->media_cols = "identifier,taxonID,type,format,CVterm,title,description,furtherInformationURL,language,UsageTerms,Owner";
+            $this->media_cols = explode(",", $this->media_cols);
+            $this->media_extension = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_working" . "/media_resource.eli";
+            if(!($f = Functions::file_open($this->media_extension, "w"))) return;
+            fwrite($f, implode("\t", $this->media_cols)."\n");
+            fclose($f);
+        }
         // */
     }
     
@@ -174,9 +180,9 @@ class WikiDataAPI
                 $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
                 $arr = json_decode($row);
 
-                /* for debug start ====================== Q4589415 - en with blank taxon name | Q5113 - jap with erroneous desc | ko Q8222313 has invalid parent 
-                $arr = self::get_object('Q132634');
-                $arr = $arr->entities->Q132634;
+                /* for debug start ====================== Q4589415 - en with blank taxon name | Q5113 - jap with erroneous desc | ko Q8222313 has invalid parent | Q132634
+                $arr = self::get_object('Q8222313');
+                $arr = $arr->entities->Q8222313;
                 for debug end ======================== */
                 
                 if(is_object($arr))
@@ -189,7 +195,7 @@ class WikiDataAPI
                          // /* normal operation
                          if($rek['sitelinks'] = self::get_taxon_sitelinks_by_lang($arr->sitelinks)) //if true then create DwCA for it
                          {
-                             // print_r($arr); exit; //debug
+                             // print_r($arr); //debug
                              $i++; 
                              $rek['rank'] = self::get_taxon_rank($arr->claims);
                              $rek['author'] = self::get_authorship($arr->claims);
@@ -207,11 +213,11 @@ class WikiDataAPI
                                  // break;              //debug - process just 1 rec
                                  
                                  $actual++; echo " [$actual] ";
-                                 if($actual >= 5000) break;   //debug
+                                 // if($actual >= 5000) break;   //debug - used only on batch of 5000 articles per language
                              }
                          }
-                         // print_r($rek); //exit;
-                         // if($i >= 5000) break;   //debug
+                         // print_r($rek);
+                         // if($i >= 100) break;   //debug
                          // */
                          
                          /* utility: this is to count how many articles per language
@@ -428,7 +434,7 @@ class WikiDataAPI
     {
         $claims = $arr->claims;
         if($val = @$claims->P225[0]->mainsnak->datavalue->value) return (string) $val;
-        elseif(in_array($arr->id, array("Q4589415")))   //special case for a ko article
+        elseif(in_array($arr->id, array("Q4589415")))   //special case for a ko & en article
         {
             if($val = @$arr->labels->en->value) return (string) $val;
         }
