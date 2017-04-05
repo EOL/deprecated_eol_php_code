@@ -7,7 +7,14 @@ require_library('connectors/WikipediaRegionalAPI');
 https://en.wikipedia.org/wiki/List_of_Wikipedias
 
 commons dump: https://dumps.wikimedia.org/commonswiki/20170320/
-postponed: eliagbayani@ELIs-Mac-mini ~: wget http://dumps.wikimedia.org/commonswiki/latest/commonswiki-latest-pages-articles.xml.bz2
+postponed: eliagbayani@ELIs-Mac-mini ~: 
+wget    http://dumps.wikimedia.org/commonswiki/latest/commonswiki-latest-pages-articles.xml.bz2
+wget -c http://dumps.wikimedia.org/commonswiki/latest/commonswiki-latest-pages-articles.xml.bz2
+
+
+https://dumps.wikimedia.org/commonswiki/20170320/commonswiki-20170320-pages-articles.xml.bz2
+
+wget -c https://dumps.wikimedia.org/commonswiki/20170320/commonswiki-20170320-pages-articles-multistream-index.txt.bz2
 
 used api for commons:
 https://commons.wikimedia.org/wiki/Commons:API/MediaWiki
@@ -174,16 +181,16 @@ class WikiDataAPI
         foreach(new FileIterator($this->wiki_data_json) as $line_number => $row)
         {
             $k++; echo " ".number_format($k)." ";
-            // /* breakdown when caching:
+            /* breakdown when caching:
             $cont = false;
-            // if($k >=  1    && $k < 500000) $cont = true;           //1 -   600,000
-            // if($k >= 500000 && $k < 600000) $cont = true; //5th
-            
-            // if($k >=  $m   && $k < 1000000) $cont = true;   //600,000 - 1,200,000
-            // if($k >= 1000000 && $k < 1200000) $cont = true; //5th
-
-            // if($k >=  $m*2 && $k < $m*3) $cont = true; //1,200,000 - 1,800,000
-            if($k >=  $m*3 && $k < $m*4) $cont = true; //1,800,000 - 2,400,000
+            // if($k >=  345    && $k < 250000) $cont = true;           //1 -   600,000
+            // if($k >=  279,537    && $k < 500000) $cont = true;           //1 -   600,000
+            // if($k >= 516,319 && $k < 600000) $cont = true; //5th
+            // if($k >= 883,565 && $k < 1000000) $cont = true;   //600,000 - 1,200,000
+            // if($k >= 1,064,255 && $k < 1200000) $cont = true; //5th
+            // if($k >=  1,326,328 && $k < 1,800,000) $cont = true; //1,200,000 - 1,800,000
+            // if($k >=  1,830,365 && $k < 2000000) $cont = true; //1,800,000 - 2,400,000
+            // if($k >=  2,013,188 && $k < 2400000) $cont = true; 
 
 
             // if($k >=  1    && $k < $m) $cont = true;           //1 -   600,000
@@ -192,10 +199,7 @@ class WikiDataAPI
             // if($k >=  $m*3 && $k < $m*4) $cont = true; //1,800,000 - 2,400,000
             // if($k >=  $m*4 && $k < $m*5) $cont = true; //2,400,000 - 3,000,000
             if(!$cont) continue;
-            // */
-
-
-
+            */
 
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
@@ -238,8 +242,8 @@ class WikiDataAPI
                              
                              if($rek['taxon_id'])
                              {
-                                 self::create_archive($rek);
-                                 self::save_ancestry_to_temp($rek['parent']);
+                                 $ret = self::create_archive($rek);
+                                 if($ret) self::save_ancestry_to_temp($rek['parent']);
                                  
                                  // if(!@$rek['other']['comprehensive_desc']) { print_r($rek); exit("\ninvestigate\n"); }
                                  print_r($rek);
@@ -296,6 +300,16 @@ class WikiDataAPI
     
     private function create_archive($rec)
     {
+        if($this->what == "wikimedia")
+        {
+            if(!$rec['obj_gallery'] && !$rec['obj_category']) return;
+        }
+        if($this->what == "wikipedia")
+        {
+            if(!trim(@$rec['other']['comprehensive_desc'])) return;
+        }
+        
+        
         if(!@$rec['taxon']) return;
         $t = new \eol_schema\Taxon();
         $t->taxonID                  = $rec['taxon_id'];
@@ -353,6 +367,7 @@ class WikiDataAPI
         $media['CVterm']                 = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology';
         if($media['description']) self::create_media_object($media);
         */
+        return true;
     }
     
     private function get_commons_info($url)
@@ -367,12 +382,18 @@ class WikiDataAPI
             {
                 $files = array_values(array_unique($arr[1]));
                 print_r($files);
+                $limit = 0;
                 foreach($files as $file)
                 {   // https://commons.wikimedia.org/wiki/File:Eyes_of_gorilla.jpg
                     $rek = array();
                     $rek = self::get_media_metadata($file);
                     $rek['media_url'] = self::get_media_url($file);
-                    if($rek['pageid']) $final[] = $rek;
+                    if($rek['pageid'])
+                    {
+                        $final[] = $rek;
+                        $limit++;
+                    }
+                    if($limit >= 30) break;
                 }
             }
         }
@@ -389,6 +410,7 @@ class WikiDataAPI
             $arr = $arr[0];
             // print_r($arr);
             
+            if(!isset($arr['pageid'])) return array();
             $rek['pageid'] = self::format_wiki_substr($arr['pageid']);
             if($val = @$arr['imageinfo'][0]['extmetadata']['ObjectName']['value'])  $rek['title'] = self::format_wiki_substr($val);
             else                                                                    $rek['title'] = self::format_wiki_substr($arr['title']);
@@ -420,7 +442,7 @@ class WikiDataAPI
         $substr = Functions::remove_whitespace($substr);
         return str_replace(array("\n", "\t", "\r", chr(9), chr(10), chr(13)), "", $substr);
     }
-    
+
     private function create_media_object($media)
     {
         // /*
