@@ -9,24 +9,25 @@ $resource_id = "1";
 // /* //main operation
 // $func = new WikiDataAPI($resource_id, "es");     //done final-es
 // $func = new WikiDataAPI($resource_id, "fr");     //done final-fr
-// $func = new WikiDataAPI("957", "de");            //done
-// $func = new WikiDataAPI($resource_id, "ja");     //done
-// $func = new WikiDataAPI($resource_id, "it");     //done
-// $func = new WikiDataAPI($resource_id, "ru");     //done
-// $func = new WikiDataAPI($resource_id, "ko");     //done
-// $func = new WikiDataAPI($resource_id, "cu");     //done
-// $func = new WikiDataAPI($resource_id, "uk");     //done
-// $func = new WikiDataAPI($resource_id, "pl");     //done
-// $func = new WikiDataAPI($resource_id, "zh");
-// $func = new WikiDataAPI($resource_id, "pt");
+// $func = new WikiDataAPI("957", "de");            //done final
+// $func = new WikiDataAPI($resource_id, "ja");     //done final-ja
+// $func = new WikiDataAPI($resource_id, "it");     //done final-it
+// $func = new WikiDataAPI($resource_id, "ru");     //done final-ru
+// $func = new WikiDataAPI($resource_id, "ko");     //done final-ko
+// $func = new WikiDataAPI($resource_id, "cu");     //done final-cu ? investigate why so few...
+// $func = new WikiDataAPI($resource_id, "uk");     //done final-uk
+// $func = new WikiDataAPI($resource_id, "pl");     //done final
+// $func = new WikiDataAPI($resource_id, "zh");     //done final
+// $func = new WikiDataAPI($resource_id, "pt");     //done final
+// $func = new WikiDataAPI($resource_id, "en");     //done final-en
 
 // $func = new WikiDataAPI($resource_id, "en", "taxonomy"); //3rd param is boolean taxonomy; true means will generate hierarchy resource. [wikidata-hierarchy]    //done
 $func = new WikiDataAPI($resource_id, "en", "wikimedia");     //done - Used for Commons
-// $func = new WikiDataAPI($resource_id, "en");     //done
 
-// $func = new WikiDataAPI($resource_id, "nl");
-// $func = new WikiDataAPI($resource_id, "sv");    //still being run, many many bot inspired
-// $func = new WikiDataAPI($resource_id, "vi");
+// not yet complete:
+// $func = new WikiDataAPI($resource_id, "nl");     213,235
+// $func = new WikiDataAPI($resource_id, "sv");     190,547    //still being run, many many bot inspired
+// $func = new WikiDataAPI($resource_id, "vi");     207,127
 
 //===================
 

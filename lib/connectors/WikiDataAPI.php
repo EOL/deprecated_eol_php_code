@@ -184,13 +184,13 @@ class WikiDataAPI
             /* breakdown when caching:
             $cont = false;
             // if($k >=  345    && $k < 250000) $cont = true;           //1 -   600,000
-            // if($k >=  279,537    && $k < 500000) $cont = true;           //1 -   600,000
-            // if($k >= 516,319 && $k < 600000) $cont = true; //5th
-            // if($k >= 883,565 && $k < 1000000) $cont = true;   //600,000 - 1,200,000
-            // if($k >= 1,064,255 && $k < 1200000) $cont = true; //5th
-            // if($k >=  1,326,328 && $k < 1,800,000) $cont = true; //1,200,000 - 1,800,000
-            // if($k >=  1,830,365 && $k < 2000000) $cont = true; //1,800,000 - 2,400,000
-            // if($k >=  2,013,188 && $k < 2400000) $cont = true; 
+            // if($k >=  279537    && $k < 500000) $cont = true;           //1 -   600,000
+            // if($k >= 516319 && $k < 600000) $cont = true; //5th
+            // if($k >= 883565 && $k < 1000000) $cont = true;   //600,000 - 1,200,000
+            // if($k >= 1064255 && $k < 1200000) $cont = true; //5th
+            // if($k >=  1326328 && $k < 1800000) $cont = true; //1,200,000 - 1,800,000
+            // if($k >=  1830365 && $k < 2000000) $cont = true; //1,800,000 - 2,400,000
+            if($k >=  2013188 && $k < 2400000) $cont = true; 
 
 
             // if($k >=  1    && $k < $m) $cont = true;           //1 -   600,000
@@ -393,7 +393,7 @@ class WikiDataAPI
                         $final[] = $rek;
                         $limit++;
                     }
-                    if($limit >= 30) break;
+                    if($limit >= 20) break;
                 }
             }
         }
@@ -408,6 +408,7 @@ class WikiDataAPI
             $arr = json_decode($json, true);
             $arr = array_values($arr["query"]["pages"]);
             $arr = $arr[0];
+            echo "\nresult: " . count($arr) . "\n";
             // print_r($arr);
             
             if(!isset($arr['pageid'])) return array();
