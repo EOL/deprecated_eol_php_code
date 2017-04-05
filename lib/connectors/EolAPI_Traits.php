@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [eol_api.php]
+/* connector: [eol_api_traits.php]
 This script uses the different means to access the EOL API.
 Can be used for OpenData's customized subsets.
 */
@@ -34,16 +34,11 @@ class EolAPI_Traits
         
         // others
         $this->unique_index = array();
-        // %3A :
-        // %2F /
-/*
-![][id]
-[id]: path "name"
-[hyperlink][eolpath]
-[eolpath]: urlpath
-*/
         $this->headers = "EOL page ID,Scientific Name,Common Name,Measurement,Value,Measurement URI,Value URI,Units (normalized),Units URI (normalized),Raw Value (direct from source),Raw Units (direct from source),Raw Units URI (normalized),Supplier,Content Partner Resource URL,source,citation,measurement method,statistical method,individual count,locality,event date,sampling protocol,size class,diameter,counting unit,cells per counting unit,scientific name,measurement remarks,height,Reference,measurement determined by,occurrence remarks,length,diameter 2,width,life stage,length 2,measurement determined date,sampling effort,standard deviation,number of available reports from the literature";
-        // print_r($this->headers); exit;
+        /*
+        %3A is :
+        %2F is /
+        */
     }
     
     function start()
@@ -79,6 +74,13 @@ class EolAPI_Traits
         // DATA-1657 derivative file: All Body Mass
         // $datasets[] = array("name" => "body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc");
         // */
+        
+        // DATA-1664: body length (CMO) + body length (VT)
+        // $datasets[] = array("name" => "body length CMO VT", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FCMO_0000013&required_equivalent_attributes%5B%5D=2247&commit=Search&taxon_name=&q=");
+        
+        // DATA-1669: weight within Eutheria
+        $datasets[] = array("name" => "weight within Eutheria", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000128&q=&sort=desc&taxon_concept_id=2844801");
+        // $datasets[] = array("name" => "body mass within Eutheria", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&commit=Search&taxon_name=Eutheria&q=&taxon_concept_id=2844801");
 
         //for archiving...
         // $datasets[] = array("name" => "active growth period", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FActiveGrowthPeriod&commit=Search&taxon_name=&q="); DONE
@@ -88,7 +90,7 @@ class EolAPI_Traits
         // $datasets[] = array("name" => "body length (CMO)", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FCMO_0000013&commit=Search&taxon_name=&q=");  DONE
 
         //currently archiving...
-        $datasets[] = array("name" => "latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&commit=Search&taxon_name=&q=");
+        // $datasets[] = array("name" => "latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&commit=Search&taxon_name=&q=");
 
         // tests
         // $datasets[] = array("name" => "cell mass from Jen", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645");
@@ -108,7 +110,6 @@ class EolAPI_Traits
             }
         }
         print_r($this->unique_index);
-        exit("\n-eli stops-\n");
     }
 
     private function get_data_search_results($dataset, $filename)
