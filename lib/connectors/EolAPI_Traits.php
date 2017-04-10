@@ -120,7 +120,7 @@ class EolAPI_Traits
         $total = $result['total_records'];
         echo "\nTotal: $total";
         $pages = ceil($total/100);
-        // $pages = 20;
+        // $pages = 20; //debug - force limit 20 pages only
         echo "\nPages: $pages";
         for($page = 1; $page <= $pages; $page++)    //orig
         // for($page = 1; $page <= 196; $page++)
@@ -193,13 +193,16 @@ class EolAPI_Traits
                             $save['Scientific Name']    = ($val = @$meta['scientific name']['value']) ? $val : $rec['sciname'];
                             $save['Common Name']        = @$rec['vernacular'];
                             
+                            /* not perfect sol'n infact erroneous for like e.g. "13,846.17 mm adult"
                             //remove unit
                             if($unit = @$meta['measurement unit']['value']) $save['Value'] = str_replace(" ".$unit, "", $rec['term']['value']);
                             else                                            $save['Value'] = $rec['term']['value'];
                             //remove comma if numeric
                             $temp = str_replace(',', '', $save['Value']);
                             if(is_numeric($temp)) $save['Value'] = $temp;
-
+                            */
+                            $save['Value'] = self::get_float_from_string($rec['term']['value']); //better sol'n vs above
+                            
                             $api_rec = self::get_actual_api_rec($rec, $save['Value']);
                             // print_r($api_rec);
                             if(!$api_rec) echo "\n-NO API RECORD-\n";
@@ -326,6 +329,13 @@ class EolAPI_Traits
             }
         }
         fclose($WRITE);
+    }
+    
+    private function get_float_from_string($string)
+    {
+        $float = filter_var($string, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+        $float = str_replace(array("-","+"), "", $float); //needed for like e.g. "Paratype- 1.5 mm"
+        return $float;
     }
     
     private function blank_if_not_uri($val)
