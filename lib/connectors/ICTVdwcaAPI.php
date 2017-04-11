@@ -25,13 +25,30 @@ class ICTVdwcaAPI
         // $this->data_dump_url = "http://localhost/cp/ICTV/ICTV Master Species List 2016 v1.1.xlsx"; //debug
 
         $records = self::parse_xls();
-        $i = 0;
-        foreach($records as $record)
+        print_r($records);
+        foreach($records as $key => $rec)
         {
-            $i++;
-            if(($i % 5000) == 0) echo "\n$i";
+            $t = new \eol_schema\Taxon();
+            $t->taxonID = str_ireplace("ICTVonline=", "ICTV:", $key);
+            if($val = @$rec['sciname'])
+            {
+                $t->scientificName = $val;
+                $t->taxonRank = @$rec['rank'];
+            }
+            elseif($val = @$rec['Species'])
+            {
+                $t->scientificName = $val;
+                $t->taxonRank = "species";
+                $t->source = "https://talk.ictvonline.org/taxonomy/p/taxonomy-history?taxnode_id=".str_ireplace("ICTV:", "", $t->taxonID);
+            }
+            $t->parentNameUsageID = @$rec['parent_id']; //placed @ bec ICTV:Viruses doesn't have parent_id
+            if(!isset($this->taxon_ids[$t->taxonID]))
+            {
+                $this->taxon_ids[$t->taxonID] = '';
+                $this->archive_builder->write_object_to_file($t);
+            }
         }
-        $this->create_archive();
+        $this->archive_builder->finalize(TRUE);
         // remove tmp file
         unlink($this->data_dump_url);
         debug("\n temporary file removed: [$this->data_dump_url]");
@@ -48,7 +65,7 @@ class ICTVdwcaAPI
             $records = $parser->prepare_data($temp, "single", "Taxon History URL", "Order", "Family", "Subfamily", "Genus", "Species", "Type Species?", "Exemplar Accession Number", "Exemplar Isolate", "Genome Composition", "Last Change", "MSL of Last Change", "Proposal", "Taxon History URL");
             // print_r($records); echo count($records);
             $records = self::add_nodes_for_order_family_genus($records);
-            
+            return $records;
             
             /* old
             $records = self::add_uppercase_fields($records);
@@ -75,32 +92,39 @@ class ICTVdwcaAPI
             // print_r($rec);
             
             $rec = array_map("trim", $rec);
-            $order = ("Unassigned" == @$rec['Order']) ? "unplaced Viruses" : $rec['Order'];
-            if($order)
+            
+            if($order = @$rec['Order'])
             {
+                if($order == "Unassigned") $order = "unplaced Viruses";
                 if(!isset($records[$order]))    $records["ICTV:$order"] = array("sciname" => $order, "rank" => "Order", "parent_id" => "ICTV:Viruses");
-                if($order == "unplaced Viruses") $records[$key]['Order'] = "unplaced Viruses";
+                if($order == "unplaced Viruses") 
+                {
+                    $records[$key]['Order'] = "unplaced Viruses";
+                    $rec['Order']           = "unplaced Viruses";
+                }
             }
-            if($family = $rec['Family'])
+            if($family = @$rec['Family'])
             {
                 if(!isset($records[$family]))       $records["ICTV:$family"] = array("sciname" => $family, "rank" => "Family", "parent_id" => self::get_parent($rec, 'family'));
             }
-            if($subfamily = $rec['Subfamily'])
+            if($subfamily = @$rec['Subfamily'])
             {
                 if(!isset($records[$subfamily]))    $records["ICTV:$subfamily"] = array("sciname" => $subfamily, "rank" => "Subfamily", "parent_id" => self::get_parent($rec, 'subfamily'));
             }
-            if($genus = $rec['Genus'])
+            if($genus = @$rec['Genus'])
             {
                 if(!isset($records[$genus]))        $records["ICTV:$genus"] = array("sciname" => $genus, "rank" => "Genus", "parent_id" => self::get_parent($rec, 'genus'));
             }
             
-            
-            //get parent of species level
-            $records[$key]['parent_id'] = self::get_parent($rec, 'species');
+            if(@$rec['Species'])
+            {
+                //get parent of species level
+                $records[$key]['parent_id'] = self::get_parent($rec, 'species');
+            }
             
         }
-        print_r($records);
-        exit;
+        // print_r($records);
+        return $records;
     }
 
     private function get_parent($rec, $rank)
@@ -114,31 +138,30 @@ class ICTVdwcaAPI
 
         if($rank == "species")
         {
-            if($genus = $rec['Genus']) return "ICTV:$genus";
-            if($subfamily = $rec['Subfamily']) return "ICTV:$subfamily";
-            if($family = $rec['Family']) return "ICTV:$family";
-            if($order = $rec['Order']) return "ICTV:$order";
+            if(($genus       = @$rec['Genus'])        && @$rec['Genus'] != "Unassigned")      return "ICTV:$genus";
+            if(($subfamily   = @$rec['Subfamily'])    && @$rec['Subfamily'] != "Unassigned")  return "ICTV:$subfamily";
+            if(($family      = @$rec['Family'])       && @$rec['Family'] != "Unassigned")     return "ICTV:$family";
+            if(($order       = @$rec['Order'])        && @$rec['Order'] != "Unassigned")      return "ICTV:$order";
             return "ICTV:Viruses";
         }
         elseif($rank == "genus")
         {
-            if($subfamily = $rec['Subfamily']) return "ICTV:$subfamily";
-            if($family = $rec['Family']) return "ICTV:$family";
-            if($order = $rec['Order']) return "ICTV:$order";
+            if(($subfamily   = @$rec['Subfamily'])    && @$rec['Subfamily'] != "Unassigned")  return "ICTV:$subfamily";
+            if(($family      = @$rec['Family'])       && @$rec['Family'] != "Unassigned")     return "ICTV:$family";
+            if(($order       = @$rec['Order'])        && @$rec['Order'] != "Unassigned")      return "ICTV:$order";
             return "ICTV:Viruses";
         }
         elseif($rank == "subfamily")
         {
-            if($family = $rec['Family']) return "ICTV:$family";
-            if($order = $rec['Order']) return "ICTV:$order";
+            if(($family      = @$rec['Family'])       && @$rec['Family'] != "Unassigned")     return "ICTV:$family";
+            if(($order       = @$rec['Order'])        && @$rec['Order'] != "Unassigned")      return "ICTV:$order";
             return "ICTV:Viruses";
         }
         elseif($rank == "family")
         {
-            if($order = $rec['Order']) return "ICTV:$order";
+            if(($order       = @$rec['Order'])        && @$rec['Order'] != "Unassigned")      return "ICTV:$order";
             return "ICTV:Viruses";
         }
-        
     }
 
     private function add_uppercase_fields($records)

@@ -21,6 +21,13 @@ $func = new ICTVdwcaAPI($resource_id);
 $func->get_all_taxa();
 Functions::finalize_dwca_resource($resource_id);
 
+
+// /* utility
+require_library('connectors/DWCADiagnoseAPI');
+$func = new DWCADiagnoseAPI();
+$func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
+// */
+
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
