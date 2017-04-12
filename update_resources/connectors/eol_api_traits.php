@@ -3,16 +3,26 @@ namespace php_active_record;
 /* used for /lib/EolAPI.php */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
+require_library('connectors/EolAPI_Traits');
 
 /*
-$str = "Paratype- 1.5 mm ";
-$num = filter_var($str, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION); //better sol'n vs above
-$num = str_replace(array("-","+"), "", $num);
-echo "\n[$str]";
-exit("\n[$num]\n");
+$strs = array();
+$strs[] = "1,100 cm";
+$strs[] = "1.39 cm female";
+$strs[] = "Paratype- 1.5 mm";
+$strs[] = "2.5mm - 10mm";
+$strs[] = "51-53 mm";
+$strs[] = "< 2.5mm";
+$strs[] = ">=100 mm";
+$strs[] = "3.5+17 mm";
+$func = new EolAPI_Traits($resource_id);
+foreach($strs as $str)
+{
+    $arr = $func->get_correct_Value_from_string($str);
+    print_r($arr);
+}
+exit;
 */
-
-require_library('connectors/EolAPI_Traits');
 
 $resource_id = 'eol';
 // /* normal operation ============================================

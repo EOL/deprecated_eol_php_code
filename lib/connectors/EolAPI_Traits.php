@@ -76,7 +76,7 @@ class EolAPI_Traits
         */
         
         // DATA-1664: body length (CMO) + body length (VT)
-        $datasets[] = array("name" => "body length CMO VT", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FCMO_0000013&required_equivalent_attributes%5B%5D=2247&commit=Search&taxon_name=&q=");
+        // $datasets[] = array("name" => "body length CMO VT", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FCMO_0000013&required_equivalent_attributes%5B%5D=2247&commit=Search&taxon_name=&q=");
         
         // DATA-1669: weight within Eutheria
         // $datasets[] = array("name" => "weight within Eutheria", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000128&q=&sort=desc&taxon_concept_id=2844801");
@@ -89,10 +89,7 @@ class EolAPI_Traits
         // $datasets[] = array("name" => "egg diameter", "attribute" => "http%3A%2F%2Fpolytraits.lifewatchgreece.eu%2Fterms%2FEGG&commit=Search&taxon_name=&q=");
         // $datasets[] = array("name" => "body length (CMO)", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FCMO_0000013&commit=Search&taxon_name=&q=");
         // $datasets[] = array("name" => "latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&commit=Search&taxon_name=&q=");
-
-        // $datasets[] = array("name" => "water nitrate concentration", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedNitrate&commit=Search&taxon_name=&q=");
-        
-        
+        $datasets[] = array("name" => "water nitrate concentration", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedNitrate&commit=Search&taxon_name=&q=");
 
         // tests
         // $datasets[] = array("name" => "cell mass from Jen", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645");
@@ -202,7 +199,7 @@ class EolAPI_Traits
                             $save['Scientific Name']    = ($val = @$meta['scientific name']['value']) ? $val : $rec['sciname'];
                             $save['Common Name']        = @$rec['vernacular'];
 
-                            $save['Value'] = self::get_correct_Value_from_string($rec['term']['value'], $meta); //better sol'n
+                            $save['Value'] = self::get_correct_Value_from_string($rec['term'], $meta); //better sol'n
 
                             $api_rec = self::get_actual_api_rec($rec, $save['Value']);
                             // print_r($api_rec);
@@ -346,8 +343,17 @@ class EolAPI_Traits
         return $value;
     }
     
-    function get_correct_Value_from_string($str, $meta)
+    function get_correct_Value_from_string($rek_term, $meta)
     {
+        if($uri = @$rek_term['uri'])
+        {
+            if(strtolower(substr($uri,0,4)) == "http")
+            {
+                if($value = @$rek_term['value']) return $value; //if there is a uri, don't modify the value anymore
+            }
+        }
+        
+        $str = $rek_term['value'];
         //remove unit, lifestage, sex
         if($unit      = @$meta['measurement unit']['value']) $str = str_replace(" ".$unit, "", $str);
         if($lifestage = @$meta['life stage']['value'])       $str = str_replace(" ".$lifestage, "", $str);
