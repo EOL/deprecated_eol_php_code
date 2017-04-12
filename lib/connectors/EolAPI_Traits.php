@@ -34,7 +34,7 @@ class EolAPI_Traits
         
         // others
         $this->unique_index = array();
-        $this->headers = "EOL page ID,Scientific Name,Common Name,Measurement,Value,Measurement URI,Value URI,Units (normalized),Units URI (normalized),Raw Value (direct from source),Raw Units (direct from source),Raw Units URI (normalized),Supplier,Content Partner Resource URL,source,citation,measurement method,statistical method,individual count,locality,event date,sampling protocol,size class,diameter,counting unit,cells per counting unit,scientific name,measurement remarks,height,Reference,measurement determined by,occurrence remarks,length,diameter 2,width,life stage,length 2,measurement determined date,sampling effort,standard deviation,number of available reports from the literature";
+        $this->headers = "EOL page ID,Scientific Name,Common Name,Measurement,Value,Measurement URI,Value URI,Units (normalized),Units URI (normalized),Raw Value (direct from source),Raw Units (direct from source),Raw Units URI (normalized),Supplier,Content Partner Resource URL,source,citation,measurement method,statistical method,individual count,locality,event date,sampling protocol,size class,diameter,counting unit,cells per counting unit,scientific name,measurement remarks,height,Reference,measurement determined by,occurrence remarks,length,diameter 2,width,life stage,length 2,measurement determined date,sampling effort,standard deviation,number of available reports from the literature,sex";
         /*
         %3A is :
         %2F is /
@@ -44,53 +44,55 @@ class EolAPI_Traits
     function start()
     {
         $datasets = array();
-        // /*
+        /*
         // DATA-1648 derivative files: Cichlidae 
-        // $datasets[] = array("name" => "Cichlidae - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=5344");
-        // $datasets[] = array("name" => "Cichlidae - life span", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=5344");
+        $datasets[] = array("name" => "Cichlidae - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=5344");
+        $datasets[] = array("name" => "Cichlidae - life span", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=5344");
 
         // DATA-1649 - derivative file: body mass, various groups
-        // $datasets[] = array("name" => "Chondrichthyes - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=38541712");
-        // $datasets[] = array("name" => "Amphibia - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1552");
-        // $datasets[] = array("name" => "Reptilia - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1703");
-        // $datasets[] = array("name" => "Mammalia - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1642");
-        // $datasets[] = array("name" => "Aves - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=695");
+        $datasets[] = array("name" => "Chondrichthyes - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=38541712");
+        $datasets[] = array("name" => "Amphibia - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1552");
+        $datasets[] = array("name" => "Reptilia - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1703");
+        $datasets[] = array("name" => "Mammalia - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=1642");
+        $datasets[] = array("name" => "Aves - body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc&taxon_concept_id=695");
 
         // DATA-1650 lifespan of mammalia
-        // $datasets[] = array("name" => "Mammalia - life span", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=1642");
+        $datasets[] = array("name" => "Mammalia - life span", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&q=&sort=desc&taxon_concept_id=1642");
 
         // DATA-1651 plant propagation method
-        // $datasets[] = array("name" => "plant propagation method", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPropagationMethod&q=&sort=desc");
+        $datasets[] = array("name" => "plant propagation method", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPropagationMethod&q=&sort=desc");
 
         // DATA-1652 carbon per cell
-        // $datasets[] = array("name" => "carbon per cell", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2Fcarbon_per_cell&q=&sort=desc");
+        $datasets[] = array("name" => "carbon per cell", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2Fcarbon_per_cell&q=&sort=desc");
 
         // DATA-1653 life cycle habit
-        // $datasets[] = array("name" => "life cycle habit", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FTO_0002725&q=&sort=desc");
+        $datasets[] = array("name" => "life cycle habit", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FTO_0002725&q=&sort=desc");
 
         // DATA-1654 growth habit // 1091 pages!
-        // $datasets[] = array("name" => "growth habit", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPlantHabit&q=&sort=desc");
+        $datasets[] = array("name" => "growth habit", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPlantHabit&q=&sort=desc");
 
         // DATA-1657 derivative file: All Body Mass
-        // $datasets[] = array("name" => "body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc");
-        // */
+        $datasets[] = array("name" => "body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc");
+        */
         
         // DATA-1664: body length (CMO) + body length (VT)
-        // $datasets[] = array("name" => "body length CMO VT", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FCMO_0000013&required_equivalent_attributes%5B%5D=2247&commit=Search&taxon_name=&q=");
+        $datasets[] = array("name" => "body length CMO VT", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FCMO_0000013&required_equivalent_attributes%5B%5D=2247&commit=Search&taxon_name=&q=");
         
         // DATA-1669: weight within Eutheria
-        $datasets[] = array("name" => "weight within Eutheria", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000128&q=&sort=desc&taxon_concept_id=2844801");
+        // $datasets[] = array("name" => "weight within Eutheria", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000128&q=&sort=desc&taxon_concept_id=2844801");
         // $datasets[] = array("name" => "body mass within Eutheria", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&commit=Search&taxon_name=Eutheria&q=&taxon_concept_id=2844801");
 
         //for archiving...
-        // $datasets[] = array("name" => "active growth period", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FActiveGrowthPeriod&commit=Search&taxon_name=&q="); DONE
-        // $datasets[] = array("name" => "flower color", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FTO_0000537&commit=Search&taxon_name=&q=");                DONE
-        // $datasets[] = array("name" => "abdomen length", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FAbdomenLength&commit=Search&taxon_name=&q=");    DONE
-        // $datasets[] = array("name" => "egg diameter", "attribute" => "http%3A%2F%2Fpolytraits.lifewatchgreece.eu%2Fterms%2FEGG&commit=Search&taxon_name=&q=");   DONE
-        // $datasets[] = array("name" => "body length (CMO)", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FCMO_0000013&commit=Search&taxon_name=&q=");  DONE
-
-        //currently archiving...
+        // $datasets[] = array("name" => "active growth period", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FActiveGrowthPeriod&commit=Search&taxon_name=&q=");
+        // $datasets[] = array("name" => "flower color", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FTO_0000537&commit=Search&taxon_name=&q=");
+        // $datasets[] = array("name" => "abdomen length", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FAbdomenLength&commit=Search&taxon_name=&q=");
+        // $datasets[] = array("name" => "egg diameter", "attribute" => "http%3A%2F%2Fpolytraits.lifewatchgreece.eu%2Fterms%2FEGG&commit=Search&taxon_name=&q=");
+        // $datasets[] = array("name" => "body length (CMO)", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FCMO_0000013&commit=Search&taxon_name=&q=");
         // $datasets[] = array("name" => "latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&commit=Search&taxon_name=&q=");
+
+        // $datasets[] = array("name" => "water nitrate concentration", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedNitrate&commit=Search&taxon_name=&q=");
+        
+        
 
         // tests
         // $datasets[] = array("name" => "cell mass from Jen", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645");
@@ -188,21 +190,20 @@ class EolAPI_Traits
                             $this->unique_index = array_unique($this->unique_index);
                             // */
                             
+                            /* debug only
+                            if(@$meta['aquatic habitat'] || @$meta['ocean'])
+                            {
+                                print_r($meta); exit;
+                            }
+                            */
+                            
                             $save = array();
                             $save['EOL page ID']        = $rec['taxon_id'];
                             $save['Scientific Name']    = ($val = @$meta['scientific name']['value']) ? $val : $rec['sciname'];
                             $save['Common Name']        = @$rec['vernacular'];
-                            
-                            /* not perfect sol'n infact erroneous for like e.g. "13,846.17 mm adult"
-                            //remove unit
-                            if($unit = @$meta['measurement unit']['value']) $save['Value'] = str_replace(" ".$unit, "", $rec['term']['value']);
-                            else                                            $save['Value'] = $rec['term']['value'];
-                            //remove comma if numeric
-                            $temp = str_replace(',', '', $save['Value']);
-                            if(is_numeric($temp)) $save['Value'] = $temp;
-                            */
-                            $save['Value'] = self::get_float_from_string($rec['term']['value']); //better sol'n vs above
-                            
+
+                            $save['Value'] = self::get_correct_Value_from_string($rec['term']['value'], $meta); //better sol'n
+
                             $api_rec = self::get_actual_api_rec($rec, $save['Value']);
                             // print_r($api_rec);
                             if(!$api_rec) echo "\n-NO API RECORD-\n";
@@ -227,10 +228,10 @@ class EolAPI_Traits
                             $resource_url = self::get_resource_url_from_traitUri($api_rec['eol:traitUri']);
                             $save['Content Partner Resource URL'] = ($val = $resource_url) ? $val : ($val = @$api_rec['eolterms:resource']) ? $val : @$api_rec['source'];
                             
-                            $save['source']                       = ($val = @$meta['source']['value'])      ? $val : @$api_rec['dc:source'];
-                            $save['citation']               = ($val = @$meta['citation']['value'])               ? $val : @$api_rec['dc:bibliographicCitation'];
-                            $save['measurement method']     = ($val = @$meta['measurement method']['value'])     ? $val : @$api_rec['dwc:measurementMethod'];
-                            $save['statistical method']     = ($val = @$meta['statistical method']['value'])     ? $val : @$api_rec['eolterms:statisticalMethod']; //(get value for api_rec)
+                            $save['source']                 = ($val = @$meta['source']['value'])    ? $val : @$api_rec['dc:source'];
+                            $save['citation']               = ($val = @$meta['citation']['value'])  ? $val : @$api_rec['dc:bibliographicCitation'];
+                            $save['measurement method'] = self::get_uri_or_value($meta, 'measurement method', 'dwc:measurementMethod');
+                            $save['statistical method'] = self::get_uri_or_value($meta, 'statistical method', 'eolterms:statisticalMethod');
                             $save['individual count']       = ($val = @$meta['individual count']['value'])       ? $val : @$api_rec['dwc:individualCount'];
                             $save['locality']               = ($val = @$meta['locality']['value'])               ? $val : @$api_rec['dwc:locality'];
                             $save['event date']             = ($val = @$meta['event date']['value'])             ? $val : @$api_rec['dwc:eventDate'];
@@ -251,7 +252,7 @@ class EolAPI_Traits
                             $save['diameter 2']                 = ($val = @$meta['diameter 2']['value'])                 ? $val : "";
 
                             $save['width']                      = ($val = @$meta['width']['value'])                      ? $val : @$api_rec['http://semanticscience.org/resource/SIO_000042'];
-                            $save['life stage']                 = ($val = @$meta['life stage']['value'])                 ? $val : @$api_rec['dwc:lifeStage'];
+                            $save['life stage'] = self::get_uri_or_value($meta, 'life stage', 'dwc:lifeStage');
 
                             //guessed meta field 1x
                             $save['length 2']                   = ($val = @$meta['length 2']['value'])                   ? $val : "";
@@ -260,7 +261,9 @@ class EolAPI_Traits
                             $save['sampling effort']            = ($val = @$meta['sampling effort']['value'])                ? $val : @$api_rec['dwc:samplingEffort'];
                             $save['standard deviation']         = ($val = @$meta['standard deviation']['value'])             ? $val : @$api_rec['http://semanticscience.org/resource/SIO_000770'];
                             $save['number of available reports from the literature'] = ($val = @$meta['number of available reports from the literature']['value'])  ? $val : @$api_rec['eolterms:NLiteratureValues'];
-                            print_r($save);
+                            $save['sex'] = self::get_uri_or_value($meta, 'sex', 'dwc:sex');
+
+                            // print_r($save);
                             
                             //start saving
                             if($save['EOL page ID'])
@@ -331,11 +334,29 @@ class EolAPI_Traits
         fclose($WRITE);
     }
     
-    private function get_float_from_string($string)
+    private function get_uri_or_value($meta, $index, $index_api) //$index e.g. 'statistical method';
+    {   /* e.g.
+        $index = 'statistical method'
+        $index_api = 'eolterms:statisticalMethod'
+        */
+        $value = "";
+        $value = ($val = @$meta[$index]['uri']) ? $val : @$meta[$index]['value'];
+        if($value) return $value;
+        else $value = @$api_rec[$index_api];
+        return $value;
+    }
+    
+    function get_correct_Value_from_string($str, $meta)
     {
-        $float = filter_var($string, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
-        $float = str_replace(array("-","+"), "", $float); //needed for like e.g. "Paratype- 1.5 mm"
-        return $float;
+        //remove unit, lifestage, sex
+        if($unit      = @$meta['measurement unit']['value']) $str = str_replace(" ".$unit, "", $str);
+        if($lifestage = @$meta['life stage']['value'])       $str = str_replace(" ".$lifestage, "", $str);
+        if($sex       = @$meta['sex']['value'])              $str = str_replace(" ".$sex, "", $str);
+        //remove comma if numeric
+        $temp = str_replace(',', '', $str);
+        if(is_numeric($temp)) $str = $temp;
+        
+        return trim($str);
     }
     
     private function blank_if_not_uri($val)
@@ -346,6 +367,7 @@ class EolAPI_Traits
         }
         return $val;
     }
+    
     private function get_resource_url_from_traitUri($traitUri)
     {
         //e.g. [eol:traitUri] => http://eol.org/resources/692/measurements/ab4a32a35c2d266976ba4f10879be6c4
@@ -421,7 +443,11 @@ class EolAPI_Traits
     
     private function clean_value($string)
     {
-        return str_replace("\n", " ", $string);
+        // return str_replace(array("\n"), " ", $string); //orig
+        
+        $string = Functions::import_decode($string);
+        $string = str_replace(array("\n", "\t", "\r", chr(9), chr(10), chr(13)), " ", $string);
+        return Functions::remove_whitespace($string);
     }
     
     private function get_actual_api_rec($rek, $valuex)
@@ -689,5 +715,42 @@ Array
     [119] => eolterms:GenbankAccessionNumber
     [120] => dwc:behavior
 )
+
+function get_correct_Value_from_string($str)
+{
+    if(substr_count($str, "-")) //dash exists
+    {
+        $arr = explode("-", $str);
+        $arr = array_map("trim", $arr);
+        $num1 = filter_var($arr[0], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+        $num2 = filter_var($arr[1], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+        if(!$num1 || !$num2)
+        {
+            echo "\n[$str]"; echo("\n[$str]\n");
+            return array($str);
+        }
+        else
+        {
+            echo "\n[$str]"; echo("\n[$num1] - [$num2]\n");
+            return array($num1, $num2);
+        }
+    }
+    else
+    {
+        if(substr_count($str, "<") ||
+           substr_count($str, ">") ||
+           substr_count($str, "="))
+        {
+            echo "\n[$str]"; echo("\n[$str]\n");
+            return array($str);
+        }
+        else
+        {
+            $num1 = filter_var($str, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+            echo "\n[$str]"; echo("\n[$num1]\n");
+            return array($num1);
+        }
+    }
+}
 */
 ?>
