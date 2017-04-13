@@ -6,18 +6,25 @@ require_library('connectors/WikiDataAPI');
 $timestart = time_elapsed();
 $resource_id = "1";
 
+/* utility
+$func = new WikiDataAPI($resource_id, "");
+$func->process_wikimedia_txt_dump();
+exit("\nelix\n");
+*/
+
+
 // /* //main operation
 // $func = new WikiDataAPI($resource_id, "es");     //done final-es
 // $func = new WikiDataAPI($resource_id, "fr");     //done final-fr
-// $func = new WikiDataAPI("957", "de");            //done final
+// $func = new WikiDataAPI("957", "de");            //done final-de
 // $func = new WikiDataAPI($resource_id, "ja");     //done final-ja
 // $func = new WikiDataAPI($resource_id, "it");     //done final-it
 // $func = new WikiDataAPI($resource_id, "ru");     //done final-ru
 // $func = new WikiDataAPI($resource_id, "ko");     //done final-ko
 // $func = new WikiDataAPI($resource_id, "cu");     //done final-cu ? investigate why so few...
 // $func = new WikiDataAPI($resource_id, "uk");     //done final-uk
-// $func = new WikiDataAPI($resource_id, "pl");     //done final
-// $func = new WikiDataAPI($resource_id, "zh");     //done final
+// $func = new WikiDataAPI($resource_id, "pl");     //done final-pl
+// $func = new WikiDataAPI($resource_id, "zh");     //done final-zh
 // $func = new WikiDataAPI($resource_id, "pt");     //done final
 // $func = new WikiDataAPI($resource_id, "en");     //done final-en
 
@@ -34,10 +41,18 @@ $func = new WikiDataAPI($resource_id, "en", "wikimedia");     //done - Used for 
 // $func = new WikiDataAPI($resource_id, "ceb");
 
 
-
 $func->get_all_taxa();
 Functions::finalize_dwca_resource($resource_id);
+
+
+
 // */
+
+/* final-pt
+not defined parent [Q4674600]
+not defined parent [Q18596649]
+total undefined parent_id: 2
+*/
 
 // /* utility
 require_library('connectors/DWCADiagnoseAPI');
@@ -50,4 +65,12 @@ echo "\n\n";
 echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
 echo "\n Done processing.\n";
+
+/*
+You uploaded: final-zh.tar.gz
+    http://rs.tdwg.org/dwc/terms/taxon:Total: 90952
+    http://purl.org/dc/dcmitype/Text: 77991
+*/
+
+
 ?>

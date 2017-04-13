@@ -53,6 +53,77 @@ class WikiDataAPI
         $this->passed_already = false; //use to create a fake meta.xml
     }
 
+    function process_wikimedia_txt_dump()
+    {
+        $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/commonswiki-20170320-pages-articles-multistream-index.txt";
+        $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-20170320-pages-articles1.xml-p000000001p006457504";
+        $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-20170320-pages-articles2.xml-p006457505p016129764";
+        
+        
+        /*
+        $i = 0;
+        foreach(new FileIterator($path) as $line_number => $row)
+        {
+            $i++;
+            // $arr = json_decode($row);
+            echo "\n" . $row;
+            // print_r($row); 
+            if($i >= 90000) exit("\n-end-\n");
+        }
+        */
+        
+        $reader = new \XMLReader();
+        $reader->open($path);
+        
+        $i = 0;
+        while(@$reader->read())
+        {
+            if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "page")
+            {
+                $page_xml = $reader->readOuterXML();
+                $t = simplexml_load_string($page_xml, null, LIBXML_NOCDATA);
+
+                $page_id = $t->revision->id;
+                if($page_id == "19460379")
+                {
+                    print_r($t); exit;
+                }
+                echo "\n$page_id";
+                
+                $title = $t->title;
+                if(substr($title,0,5) == "File:")
+                {
+                    print_r($t); //exit;
+                }
+                // $i++; if($i%100==0) debug("Parsed taxon $i");
+                
+            }
+        }
+        /*
+        <page>
+            <title>South Pole</title>
+            <ns>0</ns>
+            <id>1883</id>
+            <revision>
+                  <id>209011112</id>
+                  <parentid>140212602</parentid>
+                  <timestamp>2016-10-06T22:13:52Z</timestamp>
+                  <contributor>
+                        <username>CommonsDelinker</username>
+                        <id>70842</id>
+                  </contributor>
+                  <comment>Removed Sastrugi.jpg; deleted by [[User:Ronhjones|Ronhjones]] because: [[:c:COM:L|Copyright violation]]: OTRS 2016100610022578 - From Antarctic Photo Library. Image not taken by employee of National Science Foundation. Needs permission from photographer..</comment>
+                  <model>wikitext</model>
+                  <format>text/x-wiki</format>
+                  <text xml:space="preserve">all wiki text...</text>
+                  <sha1>6dpwe9r97p716sg3uzcta9mgc5xlvsk</sha1>
+            </revision>
+        </page>
+        
+        */
+        
+    }
+    
     function get_all_taxa()
     {
         if(!@$this->trans['editors'][$this->language_code]) 
@@ -181,17 +252,19 @@ class WikiDataAPI
         foreach(new FileIterator($this->wiki_data_json) as $line_number => $row)
         {
             $k++; echo " ".number_format($k)." ";
-            /* breakdown when caching:
+            // /* breakdown when caching:
             $cont = false;
-            // if($k >=  345    && $k < 250000) $cont = true;           //1 -   600,000
-            // if($k >=  279537    && $k < 500000) $cont = true;           //1 -   600,000
-            // if($k >= 516319 && $k < 600000) $cont = true; //5th
-            // if($k >= 883565 && $k < 1000000) $cont = true;   //600,000 - 1,200,000
-            // if($k >= 1064255 && $k < 1200000) $cont = true; //5th
-            // if($k >=  1326328 && $k < 1800000) $cont = true; //1,200,000 - 1,800,000
-            // if($k >=  1830365 && $k < 2000000) $cont = true; //1,800,000 - 2,400,000
-            if($k >=  2013188 && $k < 2400000) $cont = true; 
+            // if($k >= 1     && $k < 25000) $cont = true;
+            // if($k >= 25000     && $k < 35000) $cont = true;
+            // if($k >= 35000     && $k < 100000) $cont = true;
+            // if($k >= 100000     && $k < 140000) $cont = true;
+            if($k >= 449800  && $k < 475000) $cont = true;
+            // if($k >= 475000  && $k < 500000) $cont = true;
 
+            // if($k >= 1395278 && $k < 1500000) $cont = true;
+            // if($k >= 1500000 && $k < 1550000) $cont = true;
+            // if($k >= 1550000 && $k < 1600000) $cont = true;
+            // if($k >= 1772160 && $k < 1800000) $cont = true;
 
             // if($k >=  1    && $k < $m) $cont = true;           //1 -   600,000
             // if($k >=  $m   && $k < $m*2) $cont = true;   //600,000 - 1,200,000
@@ -199,7 +272,7 @@ class WikiDataAPI
             // if($k >=  $m*3 && $k < $m*4) $cont = true; //1,800,000 - 2,400,000
             // if($k >=  $m*4 && $k < $m*5) $cont = true; //2,400,000 - 3,000,000
             if(!$cont) continue;
-            */
+            // */
 
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
@@ -302,7 +375,7 @@ class WikiDataAPI
     {
         if($this->what == "wikimedia")
         {
-            if(!$rec['obj_gallery'] && !$rec['obj_category']) return;
+            if(!@$rec['obj_gallery'] && !@$rec['obj_category']) return;
         }
         if($this->what == "wikipedia")
         {
@@ -393,7 +466,7 @@ class WikiDataAPI
                         $final[] = $rek;
                         $limit++;
                     }
-                    if($limit >= 20) break;
+                    if($limit >= 30) break; //no. of images to get
                 }
             }
         }
