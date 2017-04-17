@@ -69,8 +69,9 @@ class WormsArchiveAPI
         return $last_rec['parent_id'];
     }
 
-    function get_all_taxa()
+    function get_all_taxa($what)
     {
+        $this->what = $what; //either 'taxonomy' or 'media_objects'
         /* tests
         $id = "24"; $id = "142"; $id = "5"; $id = "25"; $id = "890992"; $id = "834546";
         $id = "379702"; $id = "934667";
@@ -100,18 +101,24 @@ class WormsArchiveAPI
             return false;
         }
 
-        /* First, get all synonyms, then using api, get the list of children, then exclude these children
-        Based on latest: https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60756&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60756
-        */
-        $all_children_of_synonyms = self::get_all_children_of_synonyms($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon')); //then we will exclude this in the main operation
+        if($this->what == "taxonomy")
+        {
+            /* First, get all synonyms, then using api, get the list of children, then exclude these children
+            Based on latest: https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60756&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60756
+            */
+            $this->children_of_synonyms = self::get_all_children_of_synonyms($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon')); //then we will exclude this in the main operation
+        }
 
         self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));                    echo "\n1 of 8\n";
         self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));       echo "\n2 of 8\n";
         self::add_taxa_from_undeclared_parent_ids();                                                                        echo "\n3 of 8\n";
-        // self::get_objects($harvester->process_row_type('http://eol.org/schema/media/Document'));                            echo "\n4 of 8\n";
-        // self::get_references($harvester->process_row_type('http://rs.gbif.org/terms/1.0/Reference'));                       echo "\n5 of 8\n";
-        // self::get_agents($harvester->process_row_type('http://eol.org/schema/agent/Agent'));                                echo "\n6 of 8\n";
-        // self::get_vernaculars($harvester->process_row_type('http://rs.gbif.org/terms/1.0/VernacularName'));                 echo "\n7 of 8\n";
+        if($this->what == "media_objects")
+        {
+            self::get_objects($harvester->process_row_type('http://eol.org/schema/media/Document'));                        echo "\n4 of 8\n";
+            self::get_references($harvester->process_row_type('http://rs.gbif.org/terms/1.0/Reference'));                   echo "\n5 of 8\n";
+            self::get_agents($harvester->process_row_type('http://eol.org/schema/agent/Agent'));                            echo "\n6 of 8\n";
+            self::get_vernaculars($harvester->process_row_type('http://rs.gbif.org/terms/1.0/VernacularName'));             echo "\n7 of 8\n";
+        }
         $this->archive_builder->finalize(TRUE);                                                                             echo "\n8 of 8\n";
 
         // remove temp dir
@@ -328,7 +335,7 @@ class WormsArchiveAPI
                 if(@$parts[1]) $field = $parts[1];
 
                 $c->$field = $rec[$key];
-                if($field == "taxonID") $c->$field = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $c->$field);
+                if($field == "taxonID") $c->$field = self::get_worms_taxon_id($c->$field)
             }
             $this->archive_builder->write_object_to_file($c);
         }
@@ -347,12 +354,10 @@ class WormsArchiveAPI
         {
             $txt = file_get_contents($filename);
             $AphiaIDs = explode("\n", $txt);
-            $this->children_of_synonyms = array_filter($AphiaIDs);
-            print_r($this->children_of_synonyms);
-            return;
-            // exit("\n222\n");
+            $AphiaIDs = array_filter($AphiaIDs);
+            print_r($AphiaIDs);
+            return $AphiaIDs;
         }
-        // exit("\n333\n");
         
         // Continues here if 26_children_of_synonyms.txt hasn't been created yet.
         $AphiaIDs = array();
@@ -366,7 +371,7 @@ class WormsArchiveAPI
             $status = $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
             if($status == "synonym")
             {
-                $taxon_id = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
+                $taxon_id = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
                 if($json = Functions::lookup_with_cache($this->webservice['AphiaChildrenByAphiaID'].$taxon_id, $options))
                 {
                     if($arr = json_decode($json, true))
@@ -380,10 +385,10 @@ class WormsArchiveAPI
         $filename = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_children_of_synonyms.txt";
         $WRITE = fopen($filename, "w");
         $AphiaIDs = array_keys($AphiaIDs);
-        $this->children_of_synonyms = array_filter($AphiaIDs);
-        fwrite($WRITE, implode("\n", $this->children_of_synonyms) . "\n");
+        $AphiaIDs = array_filter($AphiaIDs);
+        fwrite($WRITE, implode("\n", $AphiaIDs) . "\n");
         fclose($WRITE);
-        return;
+        return $AphiaIDs;
         /* sample children of a synonym e.g. AphiaID = 13
         [147416] =>
         [24] =>
@@ -391,11 +396,16 @@ class WormsArchiveAPI
         */
     }
     
+    private function get_worms_taxon_id($worms_id)
+    {
+        return str_ireplace("urn:lsid:marinespecies.org:taxname:", "", (string) $worms_id);
+    }
+    
     private function build_taxa_rank_array($records)
     {
         foreach($records as $rec)
         {
-            $taxon_id = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
+            $taxon_id = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
             $this->taxa_rank[$taxon_id] = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
         }
     }
@@ -418,8 +428,7 @@ class WormsArchiveAPI
              
             
             $taxon = new \eol_schema\Taxon();
-            $val = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
-            $taxon->taxonID         = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $val);
+            $taxon->taxonID = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
             
             if(in_array($taxon->taxonID, $this->children_of_synonyms)) continue; //exclude children of synonyms
             
@@ -427,8 +436,7 @@ class WormsArchiveAPI
             
             if($taxon->scientificName != "Biota")
             {
-                $val = (string) $rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"];
-                $val = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $val);
+                $val = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"]);
                 if(in_array($val, $undeclared_ids)) $taxon->parentNameUsageID = self::get_valid_parent_id($val); //based here: https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60658&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60658
                 else                                $taxon->parentNameUsageID = $val;
             }
@@ -444,7 +452,7 @@ class WormsArchiveAPI
                 $taxon->taxonomicStatus = "synonym";
             }
 
-            if($val = (string) $rec["http://rs.tdwg.org/dwc/terms/acceptedNameUsageID"]) $taxon->acceptedNameUsageID  = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $val);
+            if($val = (string) $rec["http://rs.tdwg.org/dwc/terms/acceptedNameUsageID"]) $taxon->acceptedNameUsageID  = self::get_worms_taxon_id($val);
             else $taxon->acceptedNameUsageID = '';
 
             if($taxon->taxonomicStatus == "accepted")
@@ -498,8 +506,7 @@ class WormsArchiveAPI
             $identifier = (string) $rec["http://purl.org/dc/terms/identifier"];
             $type       = (string) $rec["http://purl.org/dc/terms/type"];
 
-            $rec["taxon_id"] = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
-            $rec["taxon_id"] = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $rec["taxon_id"]);
+            $rec["taxon_id"] = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
             $rec["catnum"] = "";
             
             if (strpos($identifier, "WoRMS:distribution:") !== false)
