@@ -35,15 +35,17 @@ class WormsArchiveAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         $this->object_ids = array();
-        // $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";                            //local
+        $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";                            //local
         // $this->dwca_file = "http://localhost/cp/WORMS/Archive.zip";                              //local subset copy
         // $this->dwca_file = "https://dl.dropboxusercontent.com/u/7597512/WORMS/WoRMS2EoL.zip";    //dropbox copy
-        $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";              //WORMS online copy
+        // $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";              //WORMS online copy
         $this->occurrence_ids = array();
         $this->taxon_page = "http://www.marinespecies.org/aphia.php?p=taxdetails&id=";
         
         $this->webservice['AphiaClassificationByAphiaID'] = "http://www.marinespecies.org/rest/AphiaClassificationByAphiaID/";
-        $this->webservice['AphiaRecordByAphiaID'] = "http://www.marinespecies.org/rest/AphiaRecordByAphiaID/";
+        $this->webservice['AphiaRecordByAphiaID']         = "http://www.marinespecies.org/rest/AphiaRecordByAphiaID/";
+        $this->webservice['AphiaChildrenByAphiaID']       = "http://www.marinespecies.org/rest/AphiaChildrenByAphiaID/";
+        
         $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 26);
         $this->download_options["expire_seconds"] = false; //debug - false means it will use cache
         $this->debug = array();
@@ -66,15 +68,22 @@ class WormsArchiveAPI
         // echo "\nparent_id: ".$last_rec['parent_id']."\n";
         return $last_rec['parent_id'];
     }
-    
+
     function get_all_taxa()
     {
         /* tests
         $id = "24"; $id = "142"; $id = "5"; $id = "25"; $id = "890992"; $id = "834546";
+        $id = "379702"; $id = "934667";
+
         $x1 = self::get_parent_id_from_api($id);
         $x2 = self::get_valid_parent_id($id);
         echo "\n parent_id: $x1\n";
         exit("\n valid parent_id: $x2\n");
+        
+        // during investigation...
+        // $ancestry = self::get_ancestry_by_id($id);          print_r($ancestry);
+        // $taxa = self::AphiaClassificationByAphiaID($id);    print_r($taxa);
+        // exit("\nstops\n");
         */
         
         require_library('connectors/INBioAPI');
@@ -91,13 +100,18 @@ class WormsArchiveAPI
             return false;
         }
 
+        /* First, get all synonyms, then using api, get the list of children, then exclude these children
+        Based on latest: https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60756&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60756
+        */
+        $all_children_of_synonyms = self::get_all_children_of_synonyms($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon')); //then we will exclude this in the main operation
+
         self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));                    echo "\n1 of 8\n";
         self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));       echo "\n2 of 8\n";
         self::add_taxa_from_undeclared_parent_ids();                                                                        echo "\n3 of 8\n";
-        self::get_objects($harvester->process_row_type('http://eol.org/schema/media/Document'));                            echo "\n4 of 8\n";
-        self::get_references($harvester->process_row_type('http://rs.gbif.org/terms/1.0/Reference'));                       echo "\n5 of 8\n";
-        self::get_agents($harvester->process_row_type('http://eol.org/schema/agent/Agent'));                                echo "\n6 of 8\n";
-        self::get_vernaculars($harvester->process_row_type('http://rs.gbif.org/terms/1.0/VernacularName'));                 echo "\n7 of 8\n";
+        // self::get_objects($harvester->process_row_type('http://eol.org/schema/media/Document'));                            echo "\n4 of 8\n";
+        // self::get_references($harvester->process_row_type('http://rs.gbif.org/terms/1.0/Reference'));                       echo "\n5 of 8\n";
+        // self::get_agents($harvester->process_row_type('http://eol.org/schema/agent/Agent'));                                echo "\n6 of 8\n";
+        // self::get_vernaculars($harvester->process_row_type('http://rs.gbif.org/terms/1.0/VernacularName'));                 echo "\n7 of 8\n";
         $this->archive_builder->finalize(TRUE);                                                                             echo "\n8 of 8\n";
 
         // remove temp dir
@@ -176,6 +190,9 @@ class WormsArchiveAPI
             if($t['status'] != "accepted") continue; //only add those that are 'accepted'
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID         = $t['AphiaID'];
+            
+            if(in_array($taxon->taxonID, $this->children_of_synonyms)) continue; //exclude children of synonyms
+            
             $taxon->scientificName  = trim($t['scientificname'] . " " . $t['authority']);
             $taxon->taxonRank       = $t['rank'];
             $taxon->taxonomicStatus = $t['status'];
@@ -256,7 +273,7 @@ class WormsArchiveAPI
     private function get_undeclared_parent_ids()
     {
         $ids = array();
-        $url = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_undefined_parent_ids_archive_01.txt";
+        $url = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_undefined_parent_ids_archive.txt";
         if(file_exists($url))
         {
             foreach(new FileIterator($url) as $line_number => $id) $ids[$id] = '';
@@ -317,6 +334,63 @@ class WormsArchiveAPI
         }
     }
 
+    /*
+    synonym ->  379702	WoRMS:citation:379702	255040	Leptasterias epichlora (Brandt, 1835)
+    child ->    934667	WoRMS:citation:934667		Leptasterias epichlora alaskensis Verrill, 1914	Verrill, A.E. (1914).
+    child ->    934669	WoRMS:citation:934669		Leptasterias epichlora alaskensis var. siderea Verrill, 1914	Verrill, A.E. (1914). Monograph of the shallow-water 
+    */
+    private function get_all_children_of_synonyms($records)
+    {
+        $filename = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_children_of_synonyms.txt";
+        $filename = CONTENT_RESOURCE_LOCAL_PATH . "1_children_of_synonyms.txt";
+        if(file_exists($filename))
+        {
+            $txt = file_get_contents($filename);
+            $AphiaIDs = explode("\n", $txt);
+            $this->children_of_synonyms = array_filter($AphiaIDs);
+            print_r($this->children_of_synonyms);
+            return;
+            // exit("\n222\n");
+        }
+        // exit("\n333\n");
+        
+        // Continues here if 26_children_of_synonyms.txt hasn't been created yet.
+        $AphiaIDs = array();
+        $options = $this->download_options;
+        $options['download_wait_time'] = 1000000; //500000 -> half a second; 1 million is 1 second
+        $options['delay_in_minutes'] = 0;
+        $options['download_attempts'] = 1;
+        
+        foreach($records as $rec)
+        {
+            $status = $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
+            if($status == "synonym")
+            {
+                $taxon_id = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
+                if($json = Functions::lookup_with_cache($this->webservice['AphiaChildrenByAphiaID'].$taxon_id, $options))
+                {
+                    if($arr = json_decode($json, true))
+                    {
+                        foreach($arr as $a) $AphiaIDs[(string) $a['AphiaID']] = '';
+                    }
+                }
+            }
+        }
+        //save to text file
+        $filename = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_children_of_synonyms.txt";
+        $WRITE = fopen($filename, "w");
+        $AphiaIDs = array_keys($AphiaIDs);
+        $this->children_of_synonyms = array_filter($AphiaIDs);
+        fwrite($WRITE, implode("\n", $this->children_of_synonyms) . "\n");
+        fclose($WRITE);
+        return;
+        /* sample children of a synonym e.g. AphiaID = 13
+        [147416] =>
+        [24] =>
+        [147698] =>
+        */
+    }
+    
     private function build_taxa_rank_array($records)
     {
         foreach($records as $rec)
@@ -346,6 +420,9 @@ class WormsArchiveAPI
             $taxon = new \eol_schema\Taxon();
             $val = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
             $taxon->taxonID         = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $val);
+            
+            if(in_array($taxon->taxonID, $this->children_of_synonyms)) continue; //exclude children of synonyms
+            
             $taxon->scientificName  = (string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"];
             
             if($taxon->scientificName != "Biota")
