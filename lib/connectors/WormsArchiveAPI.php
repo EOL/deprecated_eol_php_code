@@ -335,7 +335,7 @@ class WormsArchiveAPI
                 if(@$parts[1]) $field = $parts[1];
 
                 $c->$field = $rec[$key];
-                if($field == "taxonID") $c->$field = self::get_worms_taxon_id($c->$field)
+                if($field == "taxonID") $c->$field = self::get_worms_taxon_id($c->$field);
             }
             $this->archive_builder->write_object_to_file($c);
         }
