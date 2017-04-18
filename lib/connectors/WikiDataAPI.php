@@ -58,8 +58,6 @@ class WikiDataAPI
         $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/commonswiki-20170320-pages-articles-multistream-index.txt";
         $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-20170320-pages-articles1.xml-p000000001p006457504";
         $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-20170320-pages-articles2.xml-p006457505p016129764";
-        
-        
         /*
         $i = 0;
         foreach(new FileIterator($path) as $line_number => $row)
@@ -74,7 +72,6 @@ class WikiDataAPI
         
         $reader = new \XMLReader();
         $reader->open($path);
-        
         $i = 0;
         while(@$reader->read())
         {
@@ -254,23 +251,18 @@ class WikiDataAPI
             $k++; echo " ".number_format($k)." ";
             // /* breakdown when caching:
             $cont = false;
-            // if($k >= 1     && $k < 25000) $cont = true;
-            // if($k >= 25000     && $k < 35000) $cont = true;
-            // if($k >= 35000     && $k < 100000) $cont = true;
-            // if($k >= 100000     && $k < 140000) $cont = true;
-            if($k >= 449800  && $k < 475000) $cont = true;
-            // if($k >= 475000  && $k < 500000) $cont = true;
-
-            // if($k >= 1395278 && $k < 1500000) $cont = true;
-            // if($k >= 1500000 && $k < 1550000) $cont = true;
-            // if($k >= 1550000 && $k < 1600000) $cont = true;
-            // if($k >= 1772160 && $k < 1800000) $cont = true;
-
             // if($k >=  1    && $k < $m) $cont = true;           //1 -   600,000
             // if($k >=  $m   && $k < $m*2) $cont = true;   //600,000 - 1,200,000
             // if($k >=  $m*2 && $k < $m*3) $cont = true; //1,200,000 - 1,800,000
             // if($k >=  $m*3 && $k < $m*4) $cont = true; //1,800,000 - 2,400,000
             // if($k >=  $m*4 && $k < $m*5) $cont = true; //2,400,000 - 3,000,000
+            
+            // if($k >= 213230 && $k < $m*5) $cont = true; // nl
+            // if($k >= 190547 && $k < $m*5) $cont = true; // sv
+            // if($k >= 207120 && $k < $m*5) $cont = true; // vi
+
+            if($k >= 1 && $k < 100) $cont = true;   //wikimedia total taxa = 2,208,086
+
             if(!$cont) continue;
             // */
 
@@ -466,7 +458,7 @@ class WikiDataAPI
                         $final[] = $rek;
                         $limit++;
                     }
-                    if($limit >= 30) break; //no. of images to get
+                    if($limit >= 35) break; //no. of images to get
                 }
             }
         }
