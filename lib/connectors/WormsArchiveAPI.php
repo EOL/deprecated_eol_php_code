@@ -108,6 +108,7 @@ class WormsArchiveAPI
             */
             $this->children_of_synonyms = self::get_all_children_of_synonyms($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon')); //then we will exclude this in the main operation
         }
+        exit("\n building up list of children of synonyms \n");
 
         self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));                    echo "\n1 of 8\n";
         self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));       echo "\n2 of 8\n";
@@ -348,6 +349,9 @@ class WormsArchiveAPI
     */
     private function get_all_children_of_synonyms($records)
     {
+        $this->synonyms_without_children = self::get_synonyms_without_children(); //used so script will no longer lookup if this syn is known to have no children.
+        //=====================================
+        /* commented when building up the file 26_children_of_synonyms.txt. 6 connectors running during build-up
         $filename = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_children_of_synonyms.txt";
         $filename = CONTENT_RESOURCE_LOCAL_PATH . "1_children_of_synonyms.txt";
         if(file_exists($filename))
@@ -355,45 +359,119 @@ class WormsArchiveAPI
             $txt = file_get_contents($filename);
             $AphiaIDs = explode("\n", $txt);
             $AphiaIDs = array_filter($AphiaIDs);
-            print_r($AphiaIDs);
+            print_r($AphiaIDs); exit("\n 222 \n");
             return $AphiaIDs;
         }
+        */
         
         // Continues here if 26_children_of_synonyms.txt hasn't been created yet.
         $AphiaIDs = array();
-        $options = $this->download_options;
-        $options['download_wait_time'] = 1000000; //500000 -> half a second; 1 million is 1 second
-        $options['delay_in_minutes'] = 0;
-        $options['download_attempts'] = 1;
-        
+        $i = 0; //for debug
+        $k = 0; $m = 100000; //only for breakdown when caching
         foreach($records as $rec)
         {
+            // /* breakdown when caching:
+            $k++; echo " ".number_format($k)." ";
+            $cont = false;
+            // if($k >=  1    && $k < $m) $cont = true;           //1 -   600,000
+            // if($k >=  $m   && $k < $m*2) $cont = true;   //600,000 - 1,200,000
+            // if($k >=  $m*2 && $k < $m*3) $cont = true; //1,200,000 - 1,800,000
+            // if($k >=  $m*3 && $k < $m*4) $cont = true; //1,800,000 - 2,400,000
+            // if($k >=  $m*4 && $k < $m*5) $cont = true; //2,400,000 - 3,000,000
+            if($k >=  $m*5 && $k < $m*6) $cont = true;
+            if(!$cont) continue;
+            // */
+            
             $status = $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
             if($status == "synonym")
             {
                 $taxon_id = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
-                if($json = Functions::lookup_with_cache($this->webservice['AphiaChildrenByAphiaID'].$taxon_id, $options))
+                $temp = self::get_children_of_synonym($taxon_id);
+                $AphiaIDs = array_merge($AphiaIDs, $temp);
+                //start 2nd loop -> process children of children
+                foreach($temp as $id)
                 {
-                    if($arr = json_decode($json, true))
+                    $temp2 = self::get_children_of_synonym($id);
+                    $AphiaIDs = array_merge($AphiaIDs, $temp2);
+                    //start 3rd loop -> process children of children of children
+                    foreach($temp2 as $id)
                     {
-                        foreach($arr as $a) $AphiaIDs[(string) $a['AphiaID']] = '';
+                        $temp3 = self::get_children_of_synonym($id);
+                        $AphiaIDs = array_merge($AphiaIDs, $temp3);
+                        //start 4th loop -> process children of children of children
+                        foreach($temp3 as $id)
+                        {
+                            $temp4 = self::get_children_of_synonym($id);
+                            $AphiaIDs = array_merge($AphiaIDs, $temp4);
+                        }
+                        //end 4th loop
                     }
+                    //end 3rd loop
                 }
+                //end 2nd loop
+
+                // break; //debug - get the first synonym only
+                // $i++;
+                // if($i >= 10) break; //debug - process only the first 10 taxa with status == synonyms
+                $AphiaIDs = array_unique($AphiaIDs);
             }
         }
+        $AphiaIDs = array_unique($AphiaIDs);
+        $AphiaIDs = array_filter($AphiaIDs);
+        print_r($AphiaIDs); //exit("\n 111 \n");
         //save to text file
         $filename = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_children_of_synonyms.txt";
-        $WRITE = fopen($filename, "w");
-        $AphiaIDs = array_keys($AphiaIDs);
-        $AphiaIDs = array_filter($AphiaIDs);
+        $WRITE = fopen($filename, "a");
         fwrite($WRITE, implode("\n", $AphiaIDs) . "\n");
         fclose($WRITE);
+        // print_r($AphiaIDs); exit("\n 333 \n");
         return $AphiaIDs;
         /* sample children of a synonym e.g. AphiaID = 13
         [147416] =>
         [24] =>
         [147698] =>
         */
+    }
+    
+    private function get_children_of_synonym($taxon_id)
+    {
+        if(in_array($taxon_id, $this->synonyms_without_children)) return array();
+        $final = array();
+        $options = $this->download_options;
+        $options['download_wait_time'] = 1000000; //500000 -> half a second; 1 million is 1 second
+        $options['delay_in_minutes'] = 0;
+        $options['download_attempts'] = 1;
+        if($json = Functions::lookup_with_cache($this->webservice['AphiaChildrenByAphiaID'].$taxon_id, $options))
+        {
+            if($arr = json_decode($json, true))
+            {
+                foreach($arr as $a) $final[] = $a['AphiaID'];
+            }
+        }
+        else self::save_2text_synonyms_without_children($taxon_id);
+        return $final;
+    }
+    
+    private function save_2text_synonyms_without_children($taxon_id)
+    {
+        $filename = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_synonyms_without_children.txt";
+        $WRITE = fopen($filename, "a");
+        fwrite($WRITE, $taxon_id . "\n");
+        fclose($WRITE);
+    }
+    
+    private function get_synonyms_without_children()
+    {
+        $filename = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_synonyms_without_children.txt";
+        if(file_exists($filename))
+        {
+            $txt = file_get_contents($filename);
+            $AphiaIDs = explode("\n", $txt);
+            $AphiaIDs = array_filter($AphiaIDs);
+            // print_r($AphiaIDs); exit("\n 222 \n");
+            return $AphiaIDs;
+        }
+        return array();
     }
     
     private function get_worms_taxon_id($worms_id)
