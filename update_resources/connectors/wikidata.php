@@ -29,12 +29,12 @@ exit("\nelix\n");
 // $func = new WikiDataAPI($resource_id, "en");     //done final-en
 
 // $func = new WikiDataAPI($resource_id, "en", "taxonomy"); //3rd param is boolean taxonomy; true means will generate hierarchy resource. [wikidata-hierarchy]    //done
-$func = new WikiDataAPI($resource_id, "en", "wikimedia");     //done - Used for Commons
+$func = new WikiDataAPI($resource_id, "en", "wikimedia");     //done - Used for Commons - total taxa = 2,208,086
 
 // not yet complete:
-// $func = new WikiDataAPI($resource_id, "nl");     213,235
-// $func = new WikiDataAPI($resource_id, "sv");     190,547    //still being run, many many bot inspired
-// $func = new WikiDataAPI($resource_id, "vi");     207,127
+// $func = new WikiDataAPI($resource_id, "nl");     //496,946
+// $func = new WikiDataAPI($resource_id, "sv");     //317,840    //still being run, many many bot inspired
+// $func = new WikiDataAPI($resource_id, "vi");     //459,962
 
 //===================
 
@@ -43,9 +43,6 @@ $func = new WikiDataAPI($resource_id, "en", "wikimedia");     //done - Used for 
 
 $func->get_all_taxa();
 Functions::finalize_dwca_resource($resource_id);
-
-
-
 // */
 
 /* final-pt
