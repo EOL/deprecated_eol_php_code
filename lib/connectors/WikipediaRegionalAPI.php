@@ -475,8 +475,8 @@ class WikipediaRegionalAPI
         */
 
         $substr = Functions::import_decode($substr);
-        $substr = Functions::remove_whitespace($substr);
-        return str_replace(array("\n", "\t", "\r", chr(9), chr(10), chr(13)), "", $substr);
+        $substr = str_replace(array("\n", "\t", "\r", chr(9), chr(10), chr(13)), "", $substr);
+        return Functions::remove_whitespace($substr);
 
         // $substr = Encoding::fixUTF8($substr);
         // $substr = Encoding::toUTF8($substr);
