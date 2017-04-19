@@ -21,7 +21,7 @@ https://commons.wikimedia.org/wiki/Commons:API/MediaWiki
 others:
 https://tools.wmflabs.org/magnus-toolserver/commonsapi.php
 https://commons.wikimedia.org/wiki/Commons:Commons_API
-
+using page id -> https://commons.wikimedia.org/?curid=29447337
 */
 
 class WikiDataAPI
@@ -51,6 +51,8 @@ class WikiDataAPI
         $this->trans['editors']['es'] = "Autores y editores de Wikipedia";
         
         $this->passed_already = false; //use to create a fake meta.xml
+        
+        $this->save_all_filenames = true; //use to save all pageids to text file; normal operation is false; => not being used since a lookup is still needed
     }
 
     function process_wikimedia_txt_dump()
@@ -58,6 +60,7 @@ class WikiDataAPI
         $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/commonswiki-20170320-pages-articles-multistream-index.txt";
         $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-20170320-pages-articles1.xml-p000000001p006457504";
         $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-20170320-pages-articles2.xml-p006457505p016129764";
+        $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-latest-pages-articles.xml";
         /*
         $i = 0;
         foreach(new FileIterator($path) as $line_number => $row)
@@ -81,9 +84,9 @@ class WikiDataAPI
                 $t = simplexml_load_string($page_xml, null, LIBXML_NOCDATA);
 
                 $page_id = $t->revision->id;
-                if($page_id == "19460379")
+                if($page_id == "47821")
                 {
-                    print_r($t); exit;
+                    print_r($t); exit("\nfound 47821\n");
                 }
                 echo "\n$page_id";
                 
@@ -92,6 +95,16 @@ class WikiDataAPI
                 {
                     print_r($t); //exit;
                 }
+                if($title == "File:Abhandlungen aus dem Gebiete der Zoologie und vergleichenden Anatomie (1841) (16095238834).jpg")
+                {
+                    print_r($t); exit("\n111\n");
+                }
+                if(str_replace(" ", "_", $title) == "File:Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg")
+                {
+                    print_r($t); exit("\n222\n");
+                }
+                
+                
                 // $i++; if($i%100==0) debug("Parsed taxon $i");
                 
             }
@@ -116,9 +129,7 @@ class WikiDataAPI
                   <sha1>6dpwe9r97p716sg3uzcta9mgc5xlvsk</sha1>
             </revision>
         </page>
-        
         */
-        
     }
     
     function get_all_taxa()
@@ -446,19 +457,24 @@ class WikiDataAPI
             if(preg_match_all("/<a href=\"\/wiki\/File:(.*?)\"/ims", $html, $arr))
             {
                 $files = array_values(array_unique($arr[1]));
-                print_r($files);
+                print_r($files); //exit("\nelix111\n");
                 $limit = 0;
                 foreach($files as $file)
                 {   // https://commons.wikimedia.org/wiki/File:Eyes_of_gorilla.jpg
                     $rek = array();
                     $rek = self::get_media_metadata($file);
                     $rek['media_url'] = self::get_media_url($file);
+                    print_r($rek); exit;
                     if($rek['pageid'])
-                    {
+                    {   
+                        if($this->save_all_filenames) self::save_filenames_2file($rek['pageid']);
                         $final[] = $rek;
                         $limit++;
                     }
-                    if($limit >= 35) break; //no. of images to get
+                    if(!$this->save_all_filenames)
+                    {
+                        if($limit >= 35) break; //no. of images to get
+                    }
                 }
             }
         }
@@ -774,6 +790,15 @@ class WikiDataAPI
         return false;
     }
 
+    private function save_filenames_2file($pageid)
+    {
+        //save to text file
+        $filename = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_pageids_" . date("Y_m_d") . ".txt";
+        $WRITE_pageid = fopen($filename, "a");
+        fwrite($WRITE_pageid, $pageid . "\n");
+        fclose($WRITE_pageid);
+    }
+    
     // private function checkaddslashes($str){
     //     if(strpos(str_replace("\'",""," $str"),"'")!=false)
     //         return addslashes($str);
