@@ -52,86 +52,9 @@ class WikiDataAPI
         
         $this->passed_already = false; //use to create a fake meta.xml
         
-        $this->save_all_filenames = true; //use to save all pageids to text file; normal operation is false; => not being used since a lookup is still needed
+        $this->save_all_filenames = false; //use to save all media filenames to text file; normal operation is false; => not being used since a lookup is still needed
     }
 
-    function process_wikimedia_txt_dump()
-    {
-        $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/commonswiki-20170320-pages-articles-multistream-index.txt";
-        $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-20170320-pages-articles1.xml-p000000001p006457504";
-        $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-20170320-pages-articles2.xml-p006457505p016129764";
-        $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-latest-pages-articles.xml";
-        /*
-        $i = 0;
-        foreach(new FileIterator($path) as $line_number => $row)
-        {
-            $i++;
-            // $arr = json_decode($row);
-            echo "\n" . $row;
-            // print_r($row); 
-            if($i >= 90000) exit("\n-end-\n");
-        }
-        */
-        
-        $reader = new \XMLReader();
-        $reader->open($path);
-        $i = 0;
-        while(@$reader->read())
-        {
-            if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "page")
-            {
-                $page_xml = $reader->readOuterXML();
-                $t = simplexml_load_string($page_xml, null, LIBXML_NOCDATA);
-
-                $page_id = $t->revision->id;
-                if($page_id == "47821")
-                {
-                    print_r($t); exit("\nfound 47821\n");
-                }
-                echo "\n$page_id";
-                
-                $title = $t->title;
-                if(substr($title,0,5) == "File:")
-                {
-                    print_r($t); //exit;
-                }
-                if($title == "File:Abhandlungen aus dem Gebiete der Zoologie und vergleichenden Anatomie (1841) (16095238834).jpg")
-                {
-                    print_r($t); exit("\n111\n");
-                }
-                if(str_replace(" ", "_", $title) == "File:Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg")
-                {
-                    print_r($t); exit("\n222\n");
-                }
-                
-                
-                // $i++; if($i%100==0) debug("Parsed taxon $i");
-                
-            }
-        }
-        /*
-        <page>
-            <title>South Pole</title>
-            <ns>0</ns>
-            <id>1883</id>
-            <revision>
-                  <id>209011112</id>
-                  <parentid>140212602</parentid>
-                  <timestamp>2016-10-06T22:13:52Z</timestamp>
-                  <contributor>
-                        <username>CommonsDelinker</username>
-                        <id>70842</id>
-                  </contributor>
-                  <comment>Removed Sastrugi.jpg; deleted by [[User:Ronhjones|Ronhjones]] because: [[:c:COM:L|Copyright violation]]: OTRS 2016100610022578 - From Antarctic Photo Library. Image not taken by employee of National Science Foundation. Needs permission from photographer..</comment>
-                  <model>wikitext</model>
-                  <format>text/x-wiki</format>
-                  <text xml:space="preserve">all wiki text...</text>
-                  <sha1>6dpwe9r97p716sg3uzcta9mgc5xlvsk</sha1>
-            </revision>
-        </page>
-        */
-    }
-    
     function get_all_taxa()
     {
         if(!@$this->trans['editors'][$this->language_code]) 
@@ -260,7 +183,7 @@ class WikiDataAPI
         foreach(new FileIterator($this->wiki_data_json) as $line_number => $row)
         {
             $k++; echo " ".number_format($k)." ";
-            // /* breakdown when caching:
+            /* breakdown when caching:
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true;           //1 -   600,000
             // if($k >=  $m   && $k < $m*2) $cont = true;   //600,000 - 1,200,000
@@ -275,7 +198,7 @@ class WikiDataAPI
             if($k >= 1 && $k < 100) $cont = true;   //wikimedia total taxa = 2,208,086
 
             if(!$cont) continue;
-            // */
+            */
 
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
@@ -458,23 +381,25 @@ class WikiDataAPI
             {
                 $files = array_values(array_unique($arr[1]));
                 print_r($files); //exit("\nelix111\n");
+                if($this->save_all_filenames)
+                {
+                    self::save_filenames_2file($files);
+                    return;
+                }
+                
                 $limit = 0;
                 foreach($files as $file)
                 {   // https://commons.wikimedia.org/wiki/File:Eyes_of_gorilla.jpg
                     $rek = array();
                     $rek = self::get_media_metadata($file);
                     $rek['media_url'] = self::get_media_url($file);
-                    print_r($rek); exit;
+                    print_r($rek); //exit;
                     if($rek['pageid'])
-                    {   
-                        if($this->save_all_filenames) self::save_filenames_2file($rek['pageid']);
+                    {
                         $final[] = $rek;
                         $limit++;
                     }
-                    if(!$this->save_all_filenames)
-                    {
-                        if($limit >= 35) break; //no. of images to get
-                    }
+                    if($limit >= 35) break; //no. of images to get
                 }
             }
         }
@@ -790,15 +715,198 @@ class WikiDataAPI
         return false;
     }
 
-    private function save_filenames_2file($pageid)
+    private function save_filenames_2file($files)
     {
         //save to text file
-        $filename = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_pageids_" . date("Y_m_d") . ".txt";
-        $WRITE_pageid = fopen($filename, "a");
-        fwrite($WRITE_pageid, $pageid . "\n");
+        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_" . date("Y_m_d") . ".txt";
+        $WRITE_pageid = fopen($txtfile, "a");
+        fwrite($WRITE_pageid, implode("\n", $files) . "\n");
         fclose($WRITE_pageid);
     }
     
+    // ============================ start temp file generation ================================================================================================
+    function fill_in_temp_files_with_wikimedia_dump_data()
+    {
+        $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-latest-pages-articles.xml";
+        $reader = new \XMLReader();
+        $reader->open($path);
+        $i = 0;
+        while(@$reader->read())
+        {
+            if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "page")
+            {
+                $page_xml = $reader->readOuterXML();
+                $t = simplexml_load_string($page_xml, null, LIBXML_NOCDATA);
+
+                $title = $t->title;
+                // $title = "File:Two Gambel's Quail (Callipepla gambelii) - Paradise Valley, Arizona, ca 2004.png";
+                $title = str_replace("File:", "", $title);
+                $title = str_replace(" ", "_", $title);
+                if($filename = self::taxon_media($title))
+                {
+                    if(filesize($filename) == 0)
+                    {
+                        echo "\n found taxon wikimedia \n";
+                        $json = json_encode($t);
+                        if($FILE = Functions::file_open($filename, 'w')) // normal
+                        {
+                            fwrite($FILE, $json);
+                            fclose($FILE);
+                        }
+                        echo("\n[$filename] saved content\n");
+                    }
+                    else
+                    {
+                        echo("\nalready saved: [$filename]\n");
+                    }
+                }
+                else echo "\n negative \n";
+                
+                /*
+                if(substr($title,0,5) == "File:")
+                {
+                    print_r($t); 
+                    $json = json_encode($t);
+                    $arr = json_decode($json, true);
+                    print_r($arr);
+                    exit("\n---\n");
+                }
+                if($title == "File:Abhandlungen aus dem Gebiete der Zoologie und vergleichenden Anatomie (1841) (16095238834).jpg")
+                {
+                    print_r($t); exit("\n111\n");
+                }
+                */
+            }
+        }
+        /*
+        <page>
+            <title>South Pole</title>
+            <ns>0</ns>
+            <id>1883</id>
+            <revision>
+                  <id>209011112</id>
+                  <parentid>140212602</parentid>
+                  <timestamp>2016-10-06T22:13:52Z</timestamp>
+                  <contributor>
+                        <username>CommonsDelinker</username>
+                        <id>70842</id>
+                  </contributor>
+                  <comment>Removed Sastrugi.jpg; deleted by [[User:Ronhjones|Ronhjones]] because: [[:c:COM:L|Copyright violation]]: OTRS 2016100610022578 - From Antarctic Photo Library. Image not taken by employee of National Science Foundation. Needs permission from photographer..</comment>
+                  <model>wikitext</model>
+                  <format>text/x-wiki</format>
+                  <text xml:space="preserve">all wiki text...</text>
+                  <sha1>6dpwe9r97p716sg3uzcta9mgc5xlvsk</sha1>
+            </revision>
+        </page>
+        */
+    }
+    
+    function create_temp_files_based_on_wikimedia_filenames()
+    {
+        /*
+        $files = array();
+        $files[] = "Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg";
+        $files[] = "Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16531419109).jpg";
+        $files[] = "C%C3%A9tac%C3%A9s_de_l%27Antarctique_(Baleinopt%C3%A8res,_ziphiid%C3%A9s,_delphinid%C3%A9s)_(1913)_(20092715714).jpg";
+        $files[] = str_replace(" ", "_", "Two Gambel's Quail (Callipepla gambelii) - Paradise Valley, Arizona, ca 2004.png");
+        foreach($files as $file)
+        */
+        $main_path = "/Volumes/Thunderbolt4/wikimedia_cache/";
+        $i = 0;
+        foreach(new FileIterator(CONTENT_RESOURCE_LOCAL_PATH."wikimedia_filenames_2017_04_19.txt") as $line_number => $file)
+        {
+            $md5 = md5($file);
+            $cache1 = substr($md5, 0, 2);
+            $cache2 = substr($md5, 2, 2);
+            if(!file_exists($main_path . $cache1))           mkdir($main_path . $cache1);
+            if(!file_exists($main_path . "$cache1/$cache2")) mkdir($main_path . "$cache1/$cache2");
+            $filename = $main_path . "$cache1/$cache2/$md5.json";
+            if(!file_exists($filename))
+            {
+                echo "\n " . number_format($i) . " creating file: $file";
+                if($FILE = Functions::file_open($filename, 'w')) // normal
+                {
+                    // fwrite($FILE, $file_contents);
+                    fclose($FILE);
+                }
+            }
+            $i++; 
+            // if($i >= 100) break; //debug
+        }
+        // self::fill_in_temp_files_with_wikimedia_metadata();
+    }
+    function fill_in_temp_files_with_wikimedia_metadata() //just during testing...
+    {
+        $title = "File:Two Gambel's Quail (Callipepla gambelii) - Paradise Valley, Arizona, ca 2004.png";
+        $title = str_replace("File:", "", $title);
+        $title = str_replace(" ", "_", $title);
+        if(self::taxon_media($title))
+        {
+            echo "\n yes";
+        }
+        else echo "\n no";
+    }
+    private function taxon_media($title)
+    {
+        $main_path = "/Volumes/Thunderbolt4/wikimedia_cache/";
+        $md5 = md5($title);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        $filename = $main_path . "$cache1/$cache2/$md5.json";
+        if(file_exists($filename)) return $filename;
+        else return false;
+    }
+    
+    function process_wikimedia_txt_dump()
+    {
+        $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/commonswiki-20170320-pages-articles-multistream-index.txt";
+        $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-20170320-pages-articles1.xml-p000000001p006457504";
+        $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-20170320-pages-articles2.xml-p006457505p016129764";
+        $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-latest-pages-articles.xml";
+        /*
+        $i = 0;
+        foreach(new FileIterator($path) as $line_number => $row)
+        {
+            $i++;
+            // $arr = json_decode($row);
+            echo "\n" . $row;
+            // print_r($row); 
+            if($i >= 90000) exit("\n-end-\n");
+        }
+        */
+        $reader = new \XMLReader();
+        $reader->open($path);
+        $i = 0;
+        while(@$reader->read())
+        {
+            if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "page")
+            {
+                $page_xml = $reader->readOuterXML();
+                $t = simplexml_load_string($page_xml, null, LIBXML_NOCDATA);
+
+                $page_id = $t->id;
+                if($page_id == "47821")
+                {
+                    print_r($t); exit("\nfound 47821\n");
+                }
+                echo "\n$page_id";
+                
+                $title = $t->title;
+                if(substr($title,0,5) == "File:")
+                {
+                    print_r($t); 
+                    exit("\n$page_xml\n");
+                }
+                if($title == "File:Abhandlungen aus dem Gebiete der Zoologie und vergleichenden Anatomie (1841) (16095238834).jpg")
+                {
+                    print_r($t); exit("\n111\n");
+                }
+                // $i++; if($i%100==0) debug("Parsed taxon $i");
+            }
+        }
+    }
+    // ============================ end temp file generation ==================================================================================================
+
     // private function checkaddslashes($str){
     //     if(strpos(str_replace("\'",""," $str"),"'")!=false)
     //         return addslashes($str);
