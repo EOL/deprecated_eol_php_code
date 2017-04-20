@@ -6,11 +6,19 @@ require_library('connectors/WikiDataAPI');
 $timestart = time_elapsed();
 $resource_id = "1";
 
-/* utility
+
+// /* utility
+$func = new WikiDataAPI($resource_id, "");
+// $func->create_temp_files_based_on_wikimedia_filenames();     //create blank json files
+$func->fill_in_temp_files_with_wikimedia_dump_data();        //fill-in those blank json files
+exit("\n end1 \n");
+// */
+
+// /* utility
 $func = new WikiDataAPI($resource_id, "");
 $func->process_wikimedia_txt_dump();
-exit("\nelix\n");
-*/
+exit("\n end2 \n");
+// */
 
 
 // /* //main operation
