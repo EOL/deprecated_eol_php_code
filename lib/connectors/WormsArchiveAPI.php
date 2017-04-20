@@ -56,8 +56,11 @@ class WormsArchiveAPI
         $taxa = self::AphiaClassificationByAphiaID($id);
         $last_rec = end($taxa);
         // print_r($taxa);
+        /*
         if($last_rec['status'] == "accepted") return $last_rec["AphiaID"];
         else                                  return $last_rec['parent_id'];
+        */
+        return $last_rec['parent_id'];
     }
 
     private function get_parent_id_from_api($id) //works OK
@@ -65,7 +68,6 @@ class WormsArchiveAPI
         $taxa = self::AphiaClassificationByAphiaID($id);
         $last_rec = end($taxa);
         // print_r($taxa);
-        // echo "\nparent_id: ".$last_rec['parent_id']."\n";
         return $last_rec['parent_id'];
     }
 
@@ -73,18 +75,17 @@ class WormsArchiveAPI
     {
         $this->what = $what; //either 'taxonomy' or 'media_objects'
         /* tests
+        $this->children_of_synonyms = array(14769);
         $id = "24"; $id = "142"; $id = "5"; $id = "25"; $id = "890992"; $id = "834546";
-        $id = "379702"; $id = "934667";
+        $id = "379702"; 
+        $id = "127";
+        $id = "14769";
 
         $x1 = self::get_parent_id_from_api($id);
         $x2 = self::get_valid_parent_id($id);
-        echo "\n parent_id: $x1\n";
+        echo "\n parent_id from api: $x1\n";
         exit("\n valid parent_id: $x2\n");
-        
-        // during investigation...
-        // $ancestry = self::get_ancestry_by_id($id);          print_r($ancestry);
-        // $taxa = self::AphiaClassificationByAphiaID($id);    print_r($taxa);
-        // exit("\nstops\n");
+        exit("\n");
         */
         
         require_library('connectors/INBioAPI');
@@ -153,6 +154,31 @@ class WormsArchiveAPI
         $taxa = self::add_authorship($taxa);
         // $taxa = self::add_parent_id($taxa); //obsolete
         $taxa = self::add_parent_id_v2($taxa);
+        return $taxa;
+    }
+
+    private function get_ancestry_by_id($id)
+    {
+        $taxa = array();
+        if(!$id) return array();
+        if($json = Functions::lookup_with_cache($this->webservice['AphiaClassificationByAphiaID'].$id, $this->download_options))
+        {
+            $arr = json_decode($json, true);
+            // print_r($arr);
+            if(@$arr['scientificname'] && strlen(@$arr['scientificname']) > 1) $taxa[] = array('AphiaID' => @$arr['AphiaID'], 'rank' => @$arr['rank'], 'scientificname' => @$arr['scientificname']);
+            while(true)
+            {
+                if(!$arr) break;
+                foreach($arr as $i)
+                {
+                    if(@$i['scientificname'] && strlen(@$i['scientificname'])>1)
+                    {
+                        $taxa[] = array('AphiaID' => @$i['AphiaID'], 'rank' => @$i['rank'], 'scientificname' => @$i['scientificname']);
+                    }
+                    $arr = $i;
+                }
+            }
+        }
         return $taxa;
     }
     
@@ -273,7 +299,10 @@ class WormsArchiveAPI
         $parent_id = "";
         for($k = 0; $k <= $index-1 ; $k++)
         {
-            if($taxa[$k]['status'] == "accepted") $parent_id = $taxa[$k]['AphiaID'];
+            if($taxa[$k]['status'] == "accepted")
+            {
+                if(!in_array($taxa[$k]['AphiaID'], $this->children_of_synonyms)) $parent_id = $taxa[$k]['AphiaID']; //new
+            }
         }
         return $parent_id;
     }
@@ -289,30 +318,6 @@ class WormsArchiveAPI
         return array_keys($ids);
     }
     
-    private function get_ancestry_by_id($id)
-    {
-        $taxa = array();
-        if(!$id) return array();
-        if($json = Functions::lookup_with_cache($this->webservice['AphiaClassificationByAphiaID'].$id, $this->download_options))
-        {
-            $arr = json_decode($json, true);
-            // print_r($arr);
-            if(@$arr['scientificname'] && strlen(@$arr['scientificname']) > 1) $taxa[] = array('AphiaID' => @$arr['AphiaID'], 'rank' => @$arr['rank'], 'scientificname' => @$arr['scientificname']);
-            while(true)
-            {
-                if(!$arr) break;
-                foreach($arr as $i)
-                {
-                    if(@$i['scientificname'] && strlen(@$i['scientificname'])>1)
-                    {
-                        $taxa[] = array('AphiaID' => @$i['AphiaID'], 'rank' => @$i['rank'], 'scientificname' => @$i['scientificname']);
-                    }
-                    $arr = $i;
-                }
-            }
-        }
-        return $taxa;
-    }
     // ===================================================================================
     // END dynamic hierarchy ===========================================================
     // ===================================================================================
@@ -514,7 +519,7 @@ class WormsArchiveAPI
             if($taxon->scientificName != "Biota")
             {
                 $val = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"]);
-                if(in_array($val, $undeclared_ids)) $taxon->parentNameUsageID = self::get_valid_parent_id($val); //based here: https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60658&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60658
+                if(in_array($val, $undeclared_ids)) $taxon->parentNameUsageID = self::get_valid_parent_id($taxon->taxonID); //based here: https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60658&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60658
                 else                                $taxon->parentNameUsageID = $val;
             }
             
