@@ -108,7 +108,7 @@ class WormsArchiveAPI
             */
             $this->children_of_synonyms = self::get_all_children_of_synonyms($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon')); //then we will exclude this in the main operation
         }
-        exit("\n building up list of children of synonyms \n");
+        // exit("\n building up list of children of synonyms \n"); //comment in normal operation
 
         self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));                    echo "\n1 of 8\n";
         self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));       echo "\n2 of 8\n";
@@ -351,18 +351,18 @@ class WormsArchiveAPI
     {
         $this->synonyms_without_children = self::get_synonyms_without_children(); //used so script will no longer lookup if this syn is known to have no children.
         //=====================================
-        /* commented when building up the file 26_children_of_synonyms.txt. 6 connectors running during build-up
+        // /* commented when building up the file 26_children_of_synonyms.txt. 6 connectors running during build-up
         $filename = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_children_of_synonyms.txt";
-        $filename = CONTENT_RESOURCE_LOCAL_PATH . "1_children_of_synonyms.txt";
         if(file_exists($filename))
         {
             $txt = file_get_contents($filename);
             $AphiaIDs = explode("\n", $txt);
             $AphiaIDs = array_filter($AphiaIDs);
-            print_r($AphiaIDs); exit("\n 222 \n");
+            $AphiaIDs = array_unique($AphiaIDs);
+            // print_r($AphiaIDs); exit("\n 222 \n");
             return $AphiaIDs;
         }
-        */
+        // */
         
         // Continues here if 26_children_of_synonyms.txt hasn't been created yet.
         $AphiaIDs = array();
@@ -370,7 +370,7 @@ class WormsArchiveAPI
         $k = 0; $m = 100000; //only for breakdown when caching
         foreach($records as $rec)
         {
-            // /* breakdown when caching:
+            /* breakdown when caching:
             $k++; echo " ".number_format($k)." ";
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true;           //1 -   600,000
@@ -380,7 +380,7 @@ class WormsArchiveAPI
             // if($k >=  $m*4 && $k < $m*5) $cont = true; //2,400,000 - 3,000,000
             if($k >=  $m*5 && $k < $m*6) $cont = true;
             if(!$cont) continue;
-            // */
+            */
             
             $status = $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
             if($status == "synonym")
@@ -503,7 +503,6 @@ class WormsArchiveAPI
             // if($k >=  200000 && $k < 300000) $cont = true;
             if(!$cont) continue;
             */
-             
             
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
