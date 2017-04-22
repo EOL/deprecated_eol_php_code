@@ -83,12 +83,12 @@ class EolAPI_Traits
         // $datasets[] = array("name" => "body mass within Eutheria", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&commit=Search&taxon_name=Eutheria&q=&taxon_concept_id=2844801");
 
         //for archiving...
-        // $datasets[] = array("name" => "active growth period", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FActiveGrowthPeriod&commit=Search&taxon_name=&q=");
-        // $datasets[] = array("name" => "flower color", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FTO_0000537&commit=Search&taxon_name=&q=");
-        // $datasets[] = array("name" => "abdomen length", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FAbdomenLength&commit=Search&taxon_name=&q=");
-        // $datasets[] = array("name" => "egg diameter", "attribute" => "http%3A%2F%2Fpolytraits.lifewatchgreece.eu%2Fterms%2FEGG&commit=Search&taxon_name=&q=");
-        // $datasets[] = array("name" => "body length (CMO)", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FCMO_0000013&commit=Search&taxon_name=&q=");
-        // $datasets[] = array("name" => "latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&commit=Search&taxon_name=&q=");
+        $datasets[] = array("name" => "active growth period", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FActiveGrowthPeriod&commit=Search&taxon_name=&q=");
+        $datasets[] = array("name" => "flower color", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FTO_0000537&commit=Search&taxon_name=&q=");
+        $datasets[] = array("name" => "abdomen length", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FAbdomenLength&commit=Search&taxon_name=&q=");
+        $datasets[] = array("name" => "egg diameter", "attribute" => "http%3A%2F%2Fpolytraits.lifewatchgreece.eu%2Fterms%2FEGG&commit=Search&taxon_name=&q=");
+        $datasets[] = array("name" => "body length (CMO)", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FCMO_0000013&commit=Search&taxon_name=&q=");
+        $datasets[] = array("name" => "latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&commit=Search&taxon_name=&q=");
         $datasets[] = array("name" => "water nitrate concentration", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedNitrate&commit=Search&taxon_name=&q=");
 
         // tests
@@ -135,7 +135,7 @@ class EolAPI_Traits
                     foreach($arr[1] as $row)
                     {
                         $i++;
-                        echo "\n[[row: #$i $page of $pages]]";
+                        echo "\n[[row: #$i $page of $pages]] ".$dataset['name'];
                         // print($row); exit;
                         
                         $meta = self::get_additional_metadata($row);
@@ -321,6 +321,21 @@ class EolAPI_Traits
                                 [36] => sampling effort
                                 [37] => standard deviation
                                 [38] => number of available reports from the literature
+
+                                [27] => preparations
+                                [28] => recorded by
+                                [29] => verbatim latitude
+                                [30] => verbatim longitude
+                                [31] => elevation
+                                [32] => reproductive condition
+                                [34] => water depth
+                                [35] => aquatic habitat
+                                [36] => ocean
+                                [37] => body length (VT)
+                                [38] => country code
+                                [39] => measurement accuracy
+                                [40] => type status
+                                [42] => body part
                             )
                             */
                         }
@@ -565,8 +580,8 @@ class EolAPI_Traits
             "dc:contributor": "Compiler: Anne E Thessen",
             */
             
-            /*
-            */
+
+
         }
         return $records;
     }
