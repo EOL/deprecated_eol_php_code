@@ -18,15 +18,17 @@ vernacular:     [42231]     42226                       42226       46654       
 [accepted]  => 327966
 [synonym]   => 211583
 [count]     => 539549
+
+exec time: ~30 minutes
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WormsArchiveAPI');
 $timestart = time_elapsed();
-$resource_id = 26;
+$resource_id = 26; //1;
 
 // /* //main operation
 $func = new WormsArchiveAPI($resource_id);
-$func->get_all_taxa();
+$func->get_all_taxa("taxonomy"); //'taxonomy' or 'media_objects'
 Functions::finalize_dwca_resource($resource_id);
 // */
 

@@ -75,11 +75,12 @@ class WormsArchiveAPI
     {
         $this->what = $what; //either 'taxonomy' or 'media_objects'
         /* tests
-        $this->children_of_synonyms = array(14769);
+        $this->children_of_synonyms = array(14769, 735405);
         $id = "24"; $id = "142"; $id = "5"; $id = "25"; $id = "890992"; $id = "834546";
         $id = "379702"; 
         $id = "127";
         $id = "14769";
+        $id = "930326";
 
         $x1 = self::get_parent_id_from_api($id);
         $x2 = self::get_valid_parent_id($id);
