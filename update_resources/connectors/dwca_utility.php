@@ -9,7 +9,7 @@ $resource_id = 1;
 // /* //main operation
 $func = new DwCA_Utility($resource_id);
 $func->get_all_taxa();
-// Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id);
 // */
 
 /* utility
