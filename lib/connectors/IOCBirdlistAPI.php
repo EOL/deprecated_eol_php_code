@@ -190,7 +190,12 @@ class IOCBirdlistAPI
             $taxon_name = $rek[$rank]['taxon'];
             $parent     = $rek[$rank]['parent'];
             $taxonID            = md5($taxon_name);
-            $parentNameUsageID  = md5($parent);
+            
+            if(in_array($taxon_name, array("Struthioniformes", "Rheiformes", "Apterygiformes", "Casuariiformes", "Tinamiformes"))) $parentNameUsageID  = md5("Paleognathae");
+            elseif(in_array($taxon_name, array("Anseriformes", "Galliformes"))) $parentNameUsageID  = md5("Neognathae");
+            elseif(in_array($taxon_name, array("Gaviiformes", "Sphenisciformes", "Procellariiformes", "Podicipediformes", "Phoenicopteriformes", "Phaethontiformes", "Ciconiiformes", "Pelecaniformes", "Suliformes", "Accipitriformes", "Otidiformes", "Mesitornithiformes", "Cariamiformes", "Eurypygiformes", "Gruiformes", "Charadriiformes", "Pterocliformes", "Columbiformes", "Opisthocomiformes", "Musophagiformes", "Cuculiformes", "Strigiformes", "Caprimulgiformes", "Apodiformes", "Coliiformes", "Trogoniformes", "Leptosomiformes", "Coraciiformes", "Bucerotiformes", "Piciformes", "Falconiformes", "Psittaciformes", "Passeriformes"))) $parentNameUsageID  = md5("Neoaves");
+            else $parentNameUsageID  = md5($parent);
+            
             if(!isset($this->taxa_ids[$taxonID]))
             {
                 $this->taxa_ids[$taxonID] = '';
@@ -291,7 +296,7 @@ class IOCBirdlistAPI
             $rek['subspecies']['taxon'] = trim($rek['genus']['latin']." ".$rek['species']['latin']." ".$rek['subspecies']['latin']." ".$rek['subspecies']['authority']);
         }
         //get parent
-        $rek['order']['parent']      = "Aves";
+        $rek['order']['parent']      = "Aves"; //this will be overwritten anyway...
         $rek['family']['parent']     = $rek['order']['taxon'];
         $rek['genus']['parent']      = $rek['family']['taxon'];
         $rek['species']['parent']    = $rek['genus']['taxon'];
@@ -300,11 +305,18 @@ class IOCBirdlistAPI
     }
 
     private function create_aves() //and 3 others non-rank taxa
-    {
+    {   /* based from: https://eol-jira.bibalex.org/browse/TRAM-499?focusedCommentId=60776&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60776
+        1. Change Aves to Neornithes.
+        2. Neornithes should be the parent of Paleognathae, Neognathae, and Neoaves. Currently, these don't have a parent.
+        3. The order that currently descend directly from Aves need to be moved into Paleognathae, Neognathae, and Neoaves as follows:
+        a. Paleognathae should be the parent of Struthioniformes, Rheiformes, Apterygiformes, Casuariiformes, Tinamiformes.
+        b. Neognathae should be the parent of Anseriformes and Galliformes.
+        c. Neoaves should be the parent of Gaviiformes, Sphenisciformes, Procellariiformes, Podicipediformes, Phoenicopteriformes, Phaethontiformes, Ciconiiformes, Pelecaniformes, Suliformes, Accipitriformes, Otidiformes, Mesitornithiformes, Cariamiformes, Eurypygiformes, Gruiformes, Charadriiformes, Pterocliformes, Columbiformes, Opisthocomiformes, Musophagiformes, Cuculiformes, Strigiformes, Caprimulgiformes, Apodiformes, Coliiformes, Trogoniformes, Leptosomiformes, Coraciiformes, Bucerotiformes, Piciformes, Falconiformes, Psittaciformes, and Passeriformes.    
+        */
         $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID             = md5("Aves");
+        $taxon->taxonID             = md5("Neornithes");
         $taxon->taxonRank           = "class";
-        $taxon->scientificName      = "Aves";
+        $taxon->scientificName      = "Neornithes";
         $this->archive_builder->write_object_to_file($taxon);
         
         //3 non-rank taxa
@@ -314,6 +326,7 @@ class IOCBirdlistAPI
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID             = md5($sciname);
             $taxon->scientificName      = $sciname;
+            $taxon->parentNameUsageID   = md5("Neornithes");
             if($sciname == "Neoaves") $taxon->taxonRemarks = "Neoaves includes three major components: (1) a basal unresolved polytomy of at least 9 Orders, (2) a Core Waterbird Clade (Aequornithes) and (3) a Core Landbird Clade (Telluraves) (Prum et al. 2015, Suh et al. 2016).";
             $this->archive_builder->write_object_to_file($taxon);
         }

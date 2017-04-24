@@ -13,10 +13,16 @@ measurements    31172
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/IOCBirdlistAPI');
 $timestart = time_elapsed();
-$resource_id = 173;
+$resource_id = "ioc-birdlist";
 $fishbase = new IOCBirdlistAPI(false, $resource_id);
 $fishbase->get_all_taxa($resource_id);
 Functions::finalize_dwca_resource($resource_id);
+
+// /* utility
+require_library('connectors/DWCADiagnoseAPI');
+$func = new DWCADiagnoseAPI();
+$func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
+// */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
