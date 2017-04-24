@@ -14,7 +14,7 @@ class DwCA_Utility
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
 
-        $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";
+        // $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";
         $this->dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/ioc-birdlist.tar.gz";
         // $this->dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/26.tar.gz";
         
@@ -43,14 +43,13 @@ class DwCA_Utility
         $index = array_keys($tables);
         print_r($index);
 
-
         $records = $harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon');
         if(self::can_compute_higherClassification($records))
         {
-            /*
+            // /*
             self::build_id_name_array($records);                     echo "\n1 of 8\n";
             self::generate_higherClassification_field($records);      echo "\n2 of 8\n";
-            */
+            // */
             
             /*
             Array
@@ -60,23 +59,22 @@ class DwCA_Utility
                 [3] => http://rs.tdwg.org/dwc/terms/measurementorfact
             */
             
-            $this->extensions = array("http://rs.gbif.org/terms/1.0/vernacularname" => "vernacular",
-                                      "http://rs.tdwg.org/dwc/terms/occurrence" => "occurrence",
-                                      "http://rs.tdwg.org/dwc/terms/measurementorfact" => "measurementorfact",
-                                      "http://rs.tdwg.org/dwc/terms/taxon" => "taxon"
-            );
-            
+            /* Please take note of some Meta XML entries have upper and lower case differences */
+            $this->extensions = array("http://rs.gbif.org/terms/1.0/vernacularname"     => "vernacular",
+                                      "http://rs.tdwg.org/dwc/terms/occurrence"         => "occurrence",
+                                      "http://rs.tdwg.org/dwc/terms/measurementorfact"  => "measurementorfact",
+                                      "http://rs.tdwg.org/dwc/terms/taxon"              => "taxon",
+                                      "http://eol.org/schema/media/document"            => "document",
+                                      "http://rs.gbif.org/terms/1.0/reference"          => "reference",
+                                      "http://eol.org/schema/agent/agent"               => "agent");
+            /*
             foreach($index as $row_type)
             {
                 self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
             }
-            
-            
-            // self::get_objects($harvester->process_row_type('http://eol.org/schema/media/Document'));                            echo "\n4 of 8\n";
-            // self::get_references($harvester->process_row_type('http://rs.gbif.org/terms/1.0/Reference'));                       echo "\n5 of 8\n";
-            // self::get_agents($harvester->process_row_type('http://eol.org/schema/agent/Agent'));                                echo "\n6 of 8\n";
-            // self::get_vernaculars($harvester->process_row_type('http://rs.gbif.org/terms/1.0/VernacularName'));                 echo "\n7 of 8\n";
-            $this->archive_builder->finalize(TRUE);                                                                             echo "\n8 of 8\n";
+            $this->archive_builder->finalize(TRUE);
+            */
+                                                                                        echo "\n8 of 8\n";
         }
         else echo "\nCannot compute higherClassification.\n";
 
@@ -126,7 +124,6 @@ class DwCA_Utility
             elseif($class == "occurrence")  $c = new \eol_schema\Occurrence();
             elseif($class == "measurementorfact")  $c = new \eol_schema\MeasurementOrFact();
             
-            
             $keys = array_keys($rec);
             foreach($keys as $key)
             {
@@ -139,7 +136,7 @@ class DwCA_Utility
                 if(@$parts[1]) $field = $parts[1];
 
                 $c->$field = $rec[$key];
-                
+
                 // if($field == "taxonID") $c->$field = self::get_worms_taxon_id($c->$field); //not used here, only in WoRMS connector
             }
             $this->archive_builder->write_object_to_file($c);
@@ -180,16 +177,16 @@ class DwCA_Utility
         {
             if($parent_id)
             {
-                $str .= trim($this->id_name[$parent_id]['scientificName'])."|";
+                $str .= Functions::canonical_form(trim($this->id_name[$parent_id]['scientificName']))."|";
                 $parent_id = @$this->id_name[$parent_id]['parentNameUsageID'];
             }
         }
         $str = substr($str, 0, strlen($str)-1);
-        echo "\n[$str]";
+        echo "\norig: [$str]";
         $arr = explode("|", $str);
         $arr = array_reverse($arr);
         $str = implode("|", $arr);
-        echo "\n[$str]\n";
+        echo "\n new: [$str]\n";
         return $str;
     }
 
@@ -200,71 +197,6 @@ class DwCA_Utility
         if(!isset($records[0]["http://rs.tdwg.org/dwc/terms/parentNameUsageID"])) return false;
         return true;
     }
-
     //ends here 
-    
-    private function get_vernaculars($records)
-    {
-        self::process_fields($records, "vernacular");
-        // foreach($records as $rec)
-        // {
-        //     $v = new \eol_schema\VernacularName();
-        //     $v->taxonID         = $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
-        //     $v->taxonID         = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $v->taxonID);
-        //     $v->vernacularName  = $rec["http://rs.tdwg.org/dwc/terms/vernacularName"];
-        //     $v->source          = $rec["http://purl.org/dc/terms/source"];
-        //     $v->language        = $rec["http://purl.org/dc/terms/language"];
-        //     $v->isPreferredName = $rec["http://rs.gbif.org/terms/1.0/isPreferredName"];
-        //     $this->archive_builder->write_object_to_file($v);
-        // }
-    }
-
-    private function get_agents($records)
-    {
-        self::process_fields($records, "agent");
-        // foreach($records as $rec)
-        // {
-        //     $r = new \eol_schema\Agent();
-        //     $r->identifier      = (string) $rec["http://purl.org/dc/terms/identifier"];
-        //     $r->term_name       = (string) $rec["http://xmlns.com/foaf/spec/#term_name"];
-        //     $r->agentRole       = (string) $rec["http://eol.org/schema/agent/agentRole"];
-        //     $r->term_homepage   = (string) $rec["http://xmlns.com/foaf/spec/#term_homepage"];
-        //     $r->term_logo       = (string) $rec["http://xmlns.com/foaf/spec/#term_logo"];
-        //     $this->archive_builder->write_object_to_file($r);
-        // }
-    }
-    
-    private function get_references($records)
-    {
-        self::process_fields($records, "reference");
-        // foreach($records as $rec)
-        // {
-        //     $r = new \eol_schema\Reference();
-        //     $r->identifier      = (string) $rec["http://purl.org/dc/terms/identifier"];
-        //     $r->publicationType = (string) $rec["http://eol.org/schema/reference/publicationType"];
-        //     $r->full_reference  = (string) $rec["http://eol.org/schema/reference/full_reference"];
-        //     $r->primaryTitle    = (string) $rec["http://eol.org/schema/reference/primaryTitle"];
-        //     $r->title           = (string) $rec["http://purl.org/dc/terms/title"];
-        //     $r->pages           = (string) $rec["http://purl.org/ontology/bibo/pages"];
-        //     $r->pageStart       = (string) $rec["http://purl.org/ontology/bibo/pageStart"];
-        //     $r->pageEnd         = (string) $rec["http://purl.org/ontology/bibo/pageEnd"];
-        //     $r->volume          = (string) $rec["http://purl.org/ontology/bibo/volume"];
-        //     $r->edition         = (string) $rec["http://purl.org/ontology/bibo/edition"];
-        //     $r->publisher       = (string) $rec["http://purl.org/dc/terms/publisher"];
-        //     $r->authorList      = (string) $rec["http://purl.org/ontology/bibo/authorList"];
-        //     $r->editorList      = (string) $rec["http://purl.org/ontology/bibo/editorList"];
-        //     $r->created         = (string) $rec["http://purl.org/dc/terms/created"];
-        //     $r->language        = (string) $rec["http://purl.org/dc/terms/language"];
-        //     $r->uri             = (string) $rec["http://purl.org/ontology/bibo/uri"];
-        //     $r->doi             = (string) $rec["http://purl.org/ontology/bibo/doi"];
-        //     $r->localityName    = (string) $rec["http://schemas.talis.com/2005/address/schema#localityName"];
-        //     if(!isset($this->resource_reference_ids[$r->identifier]))
-        //     {
-        //        $this->resource_reference_ids[$r->identifier] = 1;
-        //        $this->archive_builder->write_object_to_file($r);
-        //     }
-        // }
-    }
-
 }
 ?>
