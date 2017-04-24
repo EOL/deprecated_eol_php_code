@@ -93,11 +93,14 @@ class EolAPI_Traits
 
         // tests
         // $datasets[] = array("name" => "cell mass from Jen", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645");
-        $datasets[] = array("name" => "cell mass from Jen2", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&q=");
+        // $datasets[] = array("name" => "cell mass from Jen2", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&q=");
 
         foreach($datasets as $dataset)
         {
-            $filename = CONTENT_RESOURCE_LOCAL_PATH . "/" . str_replace(" ", "-", $dataset['name']) . ".txt";
+            $temp = CONTENT_RESOURCE_LOCAL_PATH . "/eol_traits";
+            if(!file_exists($temp)) mkdir($temp);
+            
+            $filename = CONTENT_RESOURCE_LOCAL_PATH . "/eol_traits/" . str_replace(" ", "-", $dataset['name']) . ".txt";
             self::initialize_tsv($filename);
             self::get_data_search_results($dataset, $filename);
             
