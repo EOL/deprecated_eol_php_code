@@ -111,8 +111,10 @@ class DWCADiagnoseAPI
     }
 
     //============================================================
-    function check_if_all_parents_have_entries($resource_id)
+    function check_if_all_parents_have_entries($resource_id, $write_2text_file = false)
     {
+        if($write_2text_file) $WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_undefined_parent_ids.txt", "w");
+        
         $var = self::get_fields_from_tab_file($resource_id, array("taxonID", "parentNameUsageID"));
         $taxon_ids = array_keys($var['taxonID']);
         $parent_ids = array_keys($var['parentNameUsageID']);
@@ -129,6 +131,13 @@ class DWCADiagnoseAPI
         }
         // print_r($undefined);
         echo "\n total undefined parent_id: " . count($undefined) . "\n";
+        
+        if($write_2text_file)
+        {
+            foreach(array_keys($undefined) as $id) fwrite($WRITE, $id . "\n");
+            fclose($WRITE);
+        }
+        return array_keys($undefined);
     }
     
     function get_fields_from_tab_file($resource_id, $cols)
@@ -162,5 +171,61 @@ class DWCADiagnoseAPI
         return $var;
     }
     //============================================================
+    function get_all_taxa_without_parent($resource_id, $write_2text_file = false)
+    {
+        if($write_2text_file) 
+        {
+            $WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_taxa_without_parent.txt", "w");
+            fwrite($WRITE, 'taxonID' . "\t" . 'scientificName' . "\t" . 'taxonRank' . "\t" . 'source' . "\n");
+        }
+        //start loop =======================
+        $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/taxon.tab";
+        if(!file_exists($url))
+        {
+            echo "\nFile does not exist: [$url]\n";
+            return;
+        }
+        $i = 0;
+        foreach(new FileIterator($url) as $line_number => $temp)
+        {
+            $temp = explode("\t", $temp);
+            $i++;
+            if($i == 1) $fields = $temp;
+            else
+            {
+                $rec = array();
+                $k = 0;
+                if(!$temp) continue;
+                foreach($temp as $t)
+                {
+                    $rec[$fields[$k]] = $t;
+                    $k++;
+                }
+                
+                if(!@$rec['parentNameUsageID'])
+                {
+                    $no_parent[$rec['taxonID']] = '';
+                    echo "\n". $rec['taxonID'] . " -- " . @$rec['scientificName'] . " -- " . @$rec['taxonRank'] . " -- " . @$rec['source'];
+                    if($write_2text_file)
+                    {
+                        fwrite($WRITE, $rec['taxonID'] . "\t" . @$rec['scientificName'] . "\t" . @$rec['taxonRank'] . "\t" . @$rec['source'] . "\n");
+                    }
+                }
+            }
+            // print_r($fields); exit;
+        }
+        //end loop =========================
+        echo "\n total no parent: " . count($no_parent) . "\n";
+        /* works but used above which has more data
+        if($write_2text_file)
+        {
+            foreach(array_keys($no_parent) as $id) fwrite($WRITE, $id . "\n");
+            fclose($WRITE);
+        }
+        */
+        fclose($WRITE);
+        return array_keys($no_parent);
+    }
+
 }
 ?>
