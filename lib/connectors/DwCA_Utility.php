@@ -3,8 +3,8 @@ namespace php_active_record;
 /* connector: [dwca_utility.php]
 Processes any DwCA archive file.
 Using the parentNameUsageID, generates a new DwCA with a new taxon column: http://rs.tdwg.org/dwc/terms/higherClassification
+User Warning: Undefined property `rights` on eol_schema\Taxon as defined by `http://rs.tdwg.org/dwc/xsd/tdwg_dwcterms.xsd` in /Library/WebServer/Documents/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 168
 */
-
 class DwCA_Utility
 {
     function __construct($folder)
@@ -135,7 +135,7 @@ class DwCA_Utility
     }
     
     private function generate_higherClassification_field($records)
-    {   /*
+    {   /* e.g. $rec
         Array
             [http://rs.tdwg.org/dwc/terms/taxonID] => 5e2712849c197671c260f53809836273
             [http://rs.tdwg.org/dwc/terms/scientificName] => Passerina leclancherii leclancherii Lafresnaye, 1840
@@ -144,9 +144,8 @@ class DwCA_Utility
         $i = 0;
         foreach($records as $rec)
         {
-            $rec["higherClassification"] = self::get_higherClassification($rec);
-            print_r($rec);
-            $records[$i]["higherClassification"] = $rec["higherClassification"];
+            $higherClassification = self::get_higherClassification($rec);
+            $records[$i]["higherClassification"] = $higherClassification; //assign value to main $records -> UNCOMMENT in real operation
             print_r($records[$i]);
             $i++;
         }
