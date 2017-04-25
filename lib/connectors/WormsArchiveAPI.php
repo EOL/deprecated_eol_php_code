@@ -369,7 +369,8 @@ class WormsArchiveAPI
         //=====================================
         // /* commented when building up the file 26_children_of_synonyms.txt. 6 connectors running during build-up
         $filename = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_children_of_synonyms.txt";
-        if(file_exists($filename))
+        // if(file_exists($filename))
+        if(false)
         {
             $txt = file_get_contents($filename);
             $AphiaIDs = explode("\n", $txt);
@@ -390,18 +391,23 @@ class WormsArchiveAPI
         foreach($records as $rec)
         {
             $k++; echo " ".number_format($k)." ";
-            /* breakdown when caching:
+            // /* breakdown when caching: total ~565,280
             $cont = false;
-            // if($k >=  1    && $k < $m) $cont = true;           //1 -   600,000
-            // if($k >=  $m   && $k < $m*2) $cont = true;   //600,000 - 1,200,000
-            // if($k >=  $m*2 && $k < $m*3) $cont = true; //1,200,000 - 1,800,000
-            // if($k >=  $m*3 && $k < $m*4) $cont = true; //1,800,000 - 2,400,000
-            // if($k >=  $m*4 && $k < $m*5) $cont = true; //2,400,000 - 3,000,000
-            // if($k >=  $m*5 && $k < $m*10) $cont = true;
+            // if($k >=  1    && $k < $m) $cont = true;     //1 -   100,000
+            // if($k >=  $m   && $k < $m*2) $cont = true;   //100,000 - 200,000
+            // if($k >=  $m*2 && $k < $m*3) $cont = true;   //200,000 - 300,000
+            // if($k >=  $m*3 && $k < $m*4) $cont = true;   //300,000 - 400,000
+            if($k >=  $m*4 && $k < $m*6) $cont = true;   //400,000 - 500,000
+            // if($k >=  $m*5 && $k < $m*6) $cont = true;   //500,000 - 600,000
             if(!$cont) continue;
-            */
+            // */
             
             $status = $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
+            
+            //special case where "REMAP_ON_EOL" -> status also becomes 'synonym'
+            $taxonRemarks = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRemarks"];
+            if(is_numeric(stripos($taxonRemarks, 'REMAP_ON_EOL'))) $status = "synonym";
+            
             if($status == "synonym")
             {
                 $i++;
@@ -409,7 +415,7 @@ class WormsArchiveAPI
                 $taxo_tmp = self::get_children_of_taxon($taxon_id);
                 if($taxo_tmp)
                 {
-                    print_r($taxo_tmp);
+                    // print_r($taxo_tmp);
                     fwrite($WRITE, implode("\n", $taxo_tmp) . "\n");
                 }
                 // if($i >= 10) break; //debug
@@ -426,10 +432,10 @@ class WormsArchiveAPI
         }
         fclose($WRITE);
 
-        // /* //to make unique rows
+        // /* //to make unique rows -> call the same function
         $AphiaIDs = self::get_all_children_of_synonyms();
         //save to text file
-        $WRITE = fopen($filename, "w");
+        $WRITE = fopen($filename, "w"); //will overwrite existing
         fwrite($WRITE, implode("\n", $AphiaIDs) . "\n");
         fclose($WRITE);
         // */
