@@ -363,14 +363,13 @@ class WormsArchiveAPI
     child ->    934667	WoRMS:citation:934667		Leptasterias epichlora alaskensis Verrill, 1914	Verrill, A.E. (1914).
     child ->    934669	WoRMS:citation:934669		Leptasterias epichlora alaskensis var. siderea Verrill, 1914	Verrill, A.E. (1914). Monograph of the shallow-water 
     */
-    private function get_all_children_of_synonyms($records)
+    private function get_all_children_of_synonyms($records = array())
     {
         $this->synonyms_without_children = self::get_synonyms_without_children(); //used so script will no longer lookup if this syn is known to have no children.
         //=====================================
         // /* commented when building up the file 26_children_of_synonyms.txt. 6 connectors running during build-up
         $filename = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_children_of_synonyms.txt";
-        // if(file_exists($filename))
-        if(false)
+        if(file_exists($filename))
         {
             $txt = file_get_contents($filename);
             $AphiaIDs = explode("\n", $txt);
@@ -382,29 +381,38 @@ class WormsArchiveAPI
         // */
         
         // Continues here if 26_children_of_synonyms.txt hasn't been created yet.
+        $filename = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_children_of_synonyms.txt";
+        $WRITE = fopen($filename, "a");
+        
         $AphiaIDs = array();
         $i = 0; //for debug
         $k = 0; $m = 100000; //only for breakdown when caching
         foreach($records as $rec)
         {
             $k++; echo " ".number_format($k)." ";
-            // /* breakdown when caching:
+            /* breakdown when caching:
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true;           //1 -   600,000
             // if($k >=  $m   && $k < $m*2) $cont = true;   //600,000 - 1,200,000
-            if($k >=  $m*2 && $k < $m*3) $cont = true; //1,200,000 - 1,800,000
+            // if($k >=  $m*2 && $k < $m*3) $cont = true; //1,200,000 - 1,800,000
             // if($k >=  $m*3 && $k < $m*4) $cont = true; //1,800,000 - 2,400,000
             // if($k >=  $m*4 && $k < $m*5) $cont = true; //2,400,000 - 3,000,000
             // if($k >=  $m*5 && $k < $m*10) $cont = true;
             if(!$cont) continue;
-            // */
+            */
             
             $status = $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
             if($status == "synonym")
             {
+                $i++;
                 $taxon_id = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
                 $taxo_tmp = self::get_children_of_taxon($taxon_id);
-                if($taxo_tmp) $AphiaIDs = array_merge($AphiaIDs, $taxo_tmp);
+                if($taxo_tmp)
+                {
+                    print_r($taxo_tmp);
+                    fwrite($WRITE, implode("\n", $taxo_tmp) . "\n");
+                }
+                // if($i >= 10) break; //debug
                 
                 // if($taxon_id == "100795") //just debug
                 // {
@@ -416,16 +424,16 @@ class WormsArchiveAPI
                 
             }
         }
-        $AphiaIDs = array_unique($AphiaIDs);
-        $AphiaIDs = array_filter($AphiaIDs);
-        print_r($AphiaIDs); //exit("\n 111 \n");
-        
+        fclose($WRITE);
+
+        // /* //to make unique rows
+        $AphiaIDs = self::get_all_children_of_synonyms();
         //save to text file
-        $filename = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_children_of_synonyms.txt";
-        $WRITE = fopen($filename, "a");
+        $WRITE = fopen($filename, "w");
         fwrite($WRITE, implode("\n", $AphiaIDs) . "\n");
         fclose($WRITE);
-        // print_r($AphiaIDs); exit("\n 333 \n");
+        // */
+        
         return $AphiaIDs;
         /* sample children of a synonym e.g. AphiaID = 13
         [147416] =>
