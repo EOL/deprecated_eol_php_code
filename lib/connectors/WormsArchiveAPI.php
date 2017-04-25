@@ -120,7 +120,7 @@ class WormsArchiveAPI
             */
             $this->children_of_synonyms = self::get_all_children_of_synonyms($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon')); //then we will exclude this in the main operation
         }
-        exit("\n building up list of children of synonyms \n"); //comment in normal operation
+        // exit("\n building up list of children of synonyms \n"); //comment in normal operation
 
         self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));                    echo "\n1 of 8\n";
         self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));       echo "\n2 of 8\n";
@@ -375,7 +375,6 @@ class WormsArchiveAPI
             $AphiaIDs = explode("\n", $txt);
             $AphiaIDs = array_filter($AphiaIDs);
             $AphiaIDs = array_unique($AphiaIDs);
-            // print_r($AphiaIDs); exit("\n 222 \n");
             return $AphiaIDs;
         }
         // */
@@ -412,21 +411,8 @@ class WormsArchiveAPI
                 $i++;
                 $taxon_id = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
                 $taxo_tmp = self::get_children_of_taxon($taxon_id);
-                if($taxo_tmp)
-                {
-                    // print_r($taxo_tmp);
-                    fwrite($WRITE, implode("\n", $taxo_tmp) . "\n");
-                }
+                if($taxo_tmp) fwrite($WRITE, implode("\n", $taxo_tmp) . "\n");
                 // if($i >= 10) break; //debug
-                
-                // if($taxon_id == "100795") //just debug
-                // {
-                //     $taxo_tmp = array_unique($taxo_tmp);
-                //     $taxo_tmp = array_filter($taxo_tmp);
-                //     print_r($taxo_tmp);
-                //     exit("\nelix111\n");
-                // }
-                
             }
         }
         fclose($WRITE);
