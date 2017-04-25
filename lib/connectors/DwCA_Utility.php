@@ -47,8 +47,8 @@ class DwCA_Utility
         if(self::can_compute_higherClassification($records))
         {
             // /*
-            self::build_id_name_array($records);                     echo "\n1 of 8\n";
-            self::generate_higherClassification_field($records);      echo "\n2 of 8\n";
+            self::build_id_name_array($records);                            echo "\n1 of 8\n";
+            $records = self::generate_higherClassification_field($records); echo "\n2 of 8\n";
             // */
             
             /*
@@ -67,14 +67,15 @@ class DwCA_Utility
                                       "http://eol.org/schema/media/document"            => "document",
                                       "http://rs.gbif.org/terms/1.0/reference"          => "reference",
                                       "http://eol.org/schema/agent/agent"               => "agent");
-            /*
+            // /*
             foreach($index as $row_type)
             {
-                self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
+                if($this->extensions[$row_type] == "taxon") self::process_fields($records, $this->extensions[$row_type]);
+                else                                        self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
             }
             $this->archive_builder->finalize(TRUE);
-            */
-                                                                                        echo "\n8 of 8\n";
+            // */
+                                                                                        echo "\n3 of 8\n";
         }
         else echo "\nCannot compute higherClassification.\n";
 
@@ -83,36 +84,7 @@ class DwCA_Utility
         echo ("\n temporary directory removed: " . $temp_dir);
         print_r($this->debug);
     }
-    
 
-    // ===================================================================================
-    // START dynamic hierarchy ===========================================================
-    // ===================================================================================
-    private function create_taxa($taxa)
-    {
-        foreach($taxa as $t)
-        {   
-            $taxon = new \eol_schema\Taxon();
-            $taxon->taxonID         = $t['AphiaID'];
-            $taxon->scientificName  = trim($t['scientificname'] . " " . $t['authority']);
-            $taxon->taxonRank       = $t['rank'];
-            $taxon->taxonomicStatus = $t['status'];
-            $taxon->source          = $this->taxon_page . $t['AphiaID'];
-            $taxon->parentNameUsageID = $t['parent_id'];
-            $taxon->acceptedNameUsageID     = $t['valid_AphiaID'];
-            $taxon->bibliographicCitation   = $t['citation'];
-            if(!isset($this->taxon_ids[$taxon->taxonID]))
-            {
-                $this->taxon_ids[$taxon->taxonID] = '';
-                $this->archive_builder->write_object_to_file($taxon);
-            }
-        }
-    }
-
-    // ===================================================================================
-    // END dynamic hierarchy ===========================================================
-    // ===================================================================================
-    
     private function process_fields($records, $class)
     {
         foreach($records as $rec)
@@ -121,8 +93,15 @@ class DwCA_Utility
             elseif($class == "agent")       $c = new \eol_schema\Agent();
             elseif($class == "reference")   $c = new \eol_schema\Reference();
             elseif($class == "taxon")       $c = new \eol_schema\Taxon();
+            elseif($class == "document")    $c = new \eol_schema\MediaResource();
             elseif($class == "occurrence")  $c = new \eol_schema\Occurrence();
-            elseif($class == "measurementorfact")  $c = new \eol_schema\MeasurementOrFact();
+            elseif($class == "measurementorfact")   $c = new \eol_schema\MeasurementOrFact();
+            
+            if($class == "taxon")
+            {
+                print_r($rec);
+                // exit("\n");
+            }
             
             $keys = array_keys($rec);
             foreach($keys as $key)
@@ -162,11 +141,16 @@ class DwCA_Utility
             [http://rs.tdwg.org/dwc/terms/scientificName] => Passerina leclancherii leclancherii Lafresnaye, 1840
             [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => 49fc924007e33cc43908fed677d5499a
         */
+        $i = 0;
         foreach($records as $rec)
         {
             $rec["higherClassification"] = self::get_higherClassification($rec);
             print_r($rec);
+            $records[$i]["higherClassification"] = $rec["higherClassification"];
+            print_r($records[$i]);
+            $i++;
         }
+        return $records;
     }
     
     private function get_higherClassification($rek)
@@ -198,5 +182,29 @@ class DwCA_Utility
         return true;
     }
     //ends here 
+    
+    /* not used at the moment...
+    private function create_taxa($taxa)
+    {
+        foreach($taxa as $t)
+        {   
+            $taxon = new \eol_schema\Taxon();
+            $taxon->taxonID         = $t['AphiaID'];
+            $taxon->scientificName  = trim($t['scientificname'] . " " . $t['authority']);
+            $taxon->taxonRank       = $t['rank'];
+            $taxon->taxonomicStatus = $t['status'];
+            $taxon->source          = $this->taxon_page . $t['AphiaID'];
+            $taxon->parentNameUsageID = $t['parent_id'];
+            $taxon->acceptedNameUsageID     = $t['valid_AphiaID'];
+            $taxon->bibliographicCitation   = $t['citation'];
+            if(!isset($this->taxon_ids[$taxon->taxonID]))
+            {
+                $this->taxon_ids[$taxon->taxonID] = '';
+                $this->archive_builder->write_object_to_file($taxon);
+            }
+        }
+    }
+    */
+    
 }
 ?>

@@ -14,10 +14,15 @@ reference:      [319987]    322257                      322257      550506      
 taxon:          [311866]    313006      diff 1,140      313006      539550      540877  512283  532578
 vernacular:     [42231]     42226                       42226       46654       46657   46661   47809
 
+with media objects: 
+[accepted]  =>      327966
+[synonym]   =>      211583
+[count]     =>      539549
 
-[accepted]  => 327966
-[synonym]   => 211583
-[count]     => 539549
+dynamic hierarchy   24Apr2017
+[accepted] =>       314499
+[count] =>          468409
+[synonym] =>        148389
 
 exec time: ~30 minutes
 */
