@@ -539,9 +539,9 @@ class WormsArchiveAPI
             // if(($k % 100) == 0) echo "\n count: $k";
             /* breakdown when caching:
             $cont = false;
-            // if($k >=  1   && $k < 100000) $cont = true;
-            // if($k >=  100000 && $k < 200000) $cont = true;
-            // if($k >=  200000 && $k < 300000) $cont = true;
+            // if($k >=  1   && $k < 200000) $cont = true;
+            // if($k >=  200000 && $k < 400000) $cont = true;
+            // if($k >=  400000 && $k < 600000) $cont = true;
             if(!$cont) continue;
             */
             

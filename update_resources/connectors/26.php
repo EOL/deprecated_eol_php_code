@@ -29,7 +29,7 @@ exec time: ~30 minutes
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WormsArchiveAPI');
 $timestart = time_elapsed();
-$resource_id = 26; //1;
+$resource_id = 26;
 
 // /* //main operation
 $func = new WormsArchiveAPI($resource_id);
