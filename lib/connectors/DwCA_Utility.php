@@ -27,7 +27,18 @@ class DwCA_Utility
                                   "http://rs.tdwg.org/dwc/terms/taxon"              => "taxon",
                                   "http://eol.org/schema/media/document"            => "document",
                                   "http://rs.gbif.org/terms/1.0/reference"          => "reference",
-                                  "http://eol.org/schema/agent/agent"               => "agent");
+                                  "http://eol.org/schema/agent/agent"               => "agent",
+
+                                  //start of other row_types:
+                                  "http://rs.gbif.org/terms/1.0/description"        => "document",
+                                  "http://rs.gbif.org/terms/1.0/multimedia"         => "document",
+                                  );
+
+                                  /*
+                                  [1] => http://rs.gbif.org/terms/1.0/speciesprofile
+                                  [6] => http://rs.gbif.org/terms/1.0/typesandspecimen
+                                  [7] => http://rs.gbif.org/terms/1.0/distribution
+                                  */
     }
 
     private function start()
@@ -96,8 +107,11 @@ class DwCA_Utility
             // /*
             foreach($index as $row_type)
             {
-                if($this->extensions[$row_type] == "taxon") self::process_fields($records, $this->extensions[$row_type]);
-                else                                        self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
+                if(@$this->extensions[$row_type]) //process only defined row_types
+                {
+                    if($this->extensions[$row_type] == "taxon") self::process_fields($records, $this->extensions[$row_type]);
+                    else                                        self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
+                }
             }
             $this->archive_builder->finalize(TRUE);
             // */

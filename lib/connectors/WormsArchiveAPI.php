@@ -370,8 +370,7 @@ class WormsArchiveAPI
         //=====================================
         // /* commented when building up the file 26_children_of_synonyms.txt. 6 connectors running during build-up
         $filename = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_children_of_synonyms.txt";
-        // if(file_exists($filename))
-        if(false)
+        if(file_exists($filename))
         {
             $txt = file_get_contents($filename);
             $AphiaIDs = explode("\n", $txt);
@@ -391,16 +390,16 @@ class WormsArchiveAPI
         foreach($records as $rec)
         {
             $k++; echo " ".number_format($k)." ";
-            // /* breakdown when caching: total ~565,280
+            /* breakdown when caching: total ~565,280
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true;     //1 -   100,000
-            if($k >=  $m   && $k < $m*2) $cont = true;   //100,000 - 200,000
+            // if($k >=  $m   && $k < $m*2) $cont = true;   //100,000 - 200,000
             // if($k >=  $m*2 && $k < $m*3) $cont = true;   //200,000 - 300,000
             // if($k >=  $m*3 && $k < $m*4) $cont = true;   //300,000 - 400,000
             // if($k >=  $m*4 && $k < $m*6) $cont = true;   //400,000 - 500,000
             // if($k >=  $m*5 && $k < $m*6) $cont = true;   //500,000 - 600,000
             if(!$cont) continue;
-            // */
+            */
             
             $status = $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
             
@@ -419,13 +418,13 @@ class WormsArchiveAPI
         }
         fclose($WRITE);
 
-        /* //to make unique rows -> call the same function -> uncomment in real operation
+        // /* //to make unique rows -> call the same function -> uncomment in real operation
         $AphiaIDs = self::get_all_children_of_synonyms();
         //save to text file
         $WRITE = fopen($filename, "w"); //will overwrite existing
         fwrite($WRITE, implode("\n", $AphiaIDs) . "\n");
         fclose($WRITE);
-        */
+        // */
         
         return $AphiaIDs;
         /* sample children of a synonym e.g. AphiaID = 13
@@ -490,7 +489,9 @@ class WormsArchiveAPI
         {
             while(true)
             {
-                if($json = Functions::lookup_with_cache($this->webservice['AphiaChildrenByAphiaID'].$taxon_id."?offset=$offset", $options))
+                if($offset == 1) $url = $this->webservice['AphiaChildrenByAphiaID'].$taxon_id;
+                else             $url = $this->webservice['AphiaChildrenByAphiaID'].$taxon_id."?offset=$offset";
+                if($json = Functions::lookup_with_cache($url, $options))
                 {
                     if($arr = json_decode($json, true))
                     {
