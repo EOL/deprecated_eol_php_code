@@ -39,12 +39,13 @@ class DwCA_Utility
         $temp_dir = $paths['temp_dir'];
         $harvester = new ContentArchiveReader(NULL, $archive_path);
         $tables = $harvester->tables;
+        $index = array_keys($tables);
         if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) // take note the index key is all lower case
         {
             debug("Invalid archive file. Program will terminate.");
             return false;
         }
-        return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables);
+        return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
     }
     
     function count_records_in_dwca()
@@ -53,8 +54,8 @@ class DwCA_Utility
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
         $tables = $info['tables'];
+        $index = $info['index'];
 
-        $index = array_keys($tables);
         $totals = array();
         foreach($index as $row_type)
         {
@@ -73,10 +74,7 @@ class DwCA_Utility
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
         $tables = $info['tables'];
-
-        print_r($tables);
-        $index = array_keys($tables);
-        print_r($index);
+        $index = $info['index'];
 
         $records = $harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon');
         if(self::can_compute_higherClassification($records))
