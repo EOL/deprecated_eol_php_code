@@ -7,7 +7,7 @@ User Warning: Undefined property `rights` on eol_schema\Taxon as defined by `htt
 */
 class DwCA_Utility
 {
-    function __construct($folder = NULL)
+    function __construct($folder = NULL, $dwca_file = NULL)
     {
         if($folder)
         {
@@ -15,11 +15,7 @@ class DwCA_Utility
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         }
-
-        // $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";
-        $this->dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/ioc-birdlist.tar.gz";
-        // $this->dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/26.tar.gz";
-        
+        $this->dwca_file = $dwca_file;
         $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 26);
         $this->download_options["expire_seconds"] = false; //debug - false means it will use cache
         $this->debug = array();
@@ -195,11 +191,11 @@ class DwCA_Utility
             }
         }
         $str = substr($str, 0, strlen($str)-1);
-        echo "\norig: [$str]";
+        // echo "\norig: [$str]";
         $arr = explode("|", $str);
         $arr = array_reverse($arr);
         $str = implode("|", $arr);
-        echo "\n new: [$str]\n";
+        // echo "\n new: [$str]\n";
         return $str;
     }
 
