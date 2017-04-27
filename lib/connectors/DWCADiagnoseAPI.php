@@ -118,7 +118,6 @@ class DWCADiagnoseAPI
         $var = self::get_fields_from_tab_file($resource_id, array("taxonID", "parentNameUsageID"));
         $taxon_ids = array_keys($var['taxonID']);
         $parent_ids = array_keys($var['parentNameUsageID']);
-        // print_r($taxon_ids); print_r($parent_ids);
         $undefined = array();
         foreach($parent_ids as $parent_id)
         {
@@ -127,9 +126,7 @@ class DWCADiagnoseAPI
                 echo "\n not defined parent [$parent_id]";
                 $undefined[$parent_id] = '';
             }
-            // else echo "\n defined OK parent [$parent_id]";
         }
-        // print_r($undefined);
         echo "\n total undefined parent_id: " . count($undefined) . "\n";
         
         if($write_2text_file)
@@ -212,17 +209,9 @@ class DWCADiagnoseAPI
                     }
                 }
             }
-            // print_r($fields); exit;
         }
         //end loop =========================
         echo "\n total no parent: " . count($no_parent) . "\n";
-        /* works but used above which has more data
-        if($write_2text_file)
-        {
-            foreach(array_keys($no_parent) as $id) fwrite($WRITE, $id . "\n");
-            fclose($WRITE);
-        }
-        */
         fclose($WRITE);
         return array_keys($no_parent);
     }

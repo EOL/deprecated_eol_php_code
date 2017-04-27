@@ -121,7 +121,7 @@ class WormsArchiveAPI
             */
             $this->children_of_synonyms = self::get_all_children_of_synonyms($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon')); //then we will exclude this in the main operation
         }
-        exit("\n building up list of children of synonyms \n"); //comment in normal operation
+        // exit("\n building up list of children of synonyms \n"); //comment in normal operation
 
         self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));                    echo "\n1 of 8\n";
         self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));       echo "\n2 of 8\n";
