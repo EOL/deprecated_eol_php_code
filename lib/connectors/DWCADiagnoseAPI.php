@@ -198,14 +198,15 @@ class DWCADiagnoseAPI
                     $rec[$fields[$k]] = $t;
                     $k++;
                 }
-                
                 if(!@$rec['parentNameUsageID'])
                 {
                     $no_parent[$rec['taxonID']] = '';
-                    echo "\n". $rec['taxonID'] . " -- " . @$rec['scientificName'] . " -- " . @$rec['taxonRank'] . " -- " . @$rec['source'];
+                    $row = $rec['taxonID'] . " -- " . @$rec['scientificName'] . " -- " . @$rec['taxonRank'] . " -- " . @$rec['source'];
+                    echo "\n". $row; //use to display rows
                     if($write_2text_file)
                     {
-                        fwrite($WRITE, $rec['taxonID'] . "\t" . @$rec['scientificName'] . "\t" . @$rec['taxonRank'] . "\t" . @$rec['source'] . "\n");
+                        $row = str_ireplace(" -- ", "\t", $row);
+                        fwrite($WRITE, $row . "\n");
                     }
                 }
             }
