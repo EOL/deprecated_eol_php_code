@@ -725,6 +725,36 @@ class WikiDataAPI
     }
     
     // ============================ start temp file generation ================================================================================================
+    function create_temp_files_based_on_wikimedia_filenames()
+    {
+        /*
+        $files = array();
+        $files[] = "Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg";
+        $files[] = "Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16531419109).jpg";
+        $files[] = "C%C3%A9tac%C3%A9s_de_l%27Antarctique_(Baleinopt%C3%A8res,_ziphiid%C3%A9s,_delphinid%C3%A9s)_(1913)_(20092715714).jpg";
+        $files[] = str_replace(" ", "_", "Two Gambel's Quail (Callipepla gambelii) - Paradise Valley, Arizona, ca 2004.png");
+        foreach($files as $file)
+        */
+        $main_path = "/Volumes/Thunderbolt4/wikimedia_cache/";
+        $i = 0;
+        foreach(new FileIterator(CONTENT_RESOURCE_LOCAL_PATH."wikimedia_filenames_2017_04_19.txt") as $line_number => $file)
+        {
+            $md5 = md5($file);
+            $cache1 = substr($md5, 0, 2);
+            $cache2 = substr($md5, 2, 2);
+            if(!file_exists($main_path . $cache1))           mkdir($main_path . $cache1);
+            if(!file_exists($main_path . "$cache1/$cache2")) mkdir($main_path . "$cache1/$cache2");
+            $filename = $main_path . "$cache1/$cache2/$md5.json";
+            if(!file_exists($filename))
+            {
+                echo "\n " . number_format($i) . " creating file: $file";
+                if($FILE = Functions::file_open($filename, 'w'))  fclose($FILE);
+            }
+            $i++; 
+            // if($i >= 100) break; //debug
+        }
+    }
+
     function fill_in_temp_files_with_wikimedia_dump_data()
     {
         $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-latest-pages-articles.xml";
@@ -797,44 +827,7 @@ class WikiDataAPI
         </page>
         */
     }
-    
-    function create_temp_files_based_on_wikimedia_filenames()
-    {
-        /*
-        $files = array();
-        $files[] = "Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg";
-        $files[] = "Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16531419109).jpg";
-        $files[] = "C%C3%A9tac%C3%A9s_de_l%27Antarctique_(Baleinopt%C3%A8res,_ziphiid%C3%A9s,_delphinid%C3%A9s)_(1913)_(20092715714).jpg";
-        $files[] = str_replace(" ", "_", "Two Gambel's Quail (Callipepla gambelii) - Paradise Valley, Arizona, ca 2004.png");
-        foreach($files as $file)
-        */
-        $main_path = "/Volumes/Thunderbolt4/wikimedia_cache/";
-        $i = 0;
-        foreach(new FileIterator(CONTENT_RESOURCE_LOCAL_PATH."wikimedia_filenames_2017_04_19.txt") as $line_number => $file)
-        {
-            $md5 = md5($file);
-            $cache1 = substr($md5, 0, 2);
-            $cache2 = substr($md5, 2, 2);
-            if(!file_exists($main_path . $cache1))           mkdir($main_path . $cache1);
-            if(!file_exists($main_path . "$cache1/$cache2")) mkdir($main_path . "$cache1/$cache2");
-            $filename = $main_path . "$cache1/$cache2/$md5.json";
-            if(!file_exists($filename))
-            {
-                echo "\n " . number_format($i) . " creating file: $file";
-                if($FILE = Functions::file_open($filename, 'w'))  fclose($FILE);
-            }
-            $i++; 
-            // if($i >= 100) break; //debug
-        }
-    }
-    function fill_in_temp_files_with_wikimedia_metadata() //just during testing...
-    {
-        $title = "File:Two Gambel's Quail (Callipepla gambelii) - Paradise Valley, Arizona, ca 2004.png";
-        $title = str_replace("File:", "", $title);
-        $title = str_replace(" ", "_", $title);
-        if(self::taxon_media($title)) echo "\n yes";
-        else echo "\n no";
-    }
+
     private function taxon_media($title)
     {
         $main_path = "/Volumes/Thunderbolt4/wikimedia_cache/";
@@ -844,6 +837,15 @@ class WikiDataAPI
         $filename = $main_path . "$cache1/$cache2/$md5.json";
         if(file_exists($filename)) return $filename;
         else return false;
+    }
+
+    function fill_in_temp_files_with_wikimedia_metadata() //just during testing...
+    {
+        $title = "File:Two Gambel's Quail (Callipepla gambelii) - Paradise Valley, Arizona, ca 2004.png";
+        $title = str_replace("File:", "", $title);
+        $title = str_replace(" ", "_", $title);
+        if(self::taxon_media($title)) echo "\n yes";
+        else echo "\n no";
     }
     
     function process_wikimedia_txt_dump() //initial verification of the wikimedia dump file
