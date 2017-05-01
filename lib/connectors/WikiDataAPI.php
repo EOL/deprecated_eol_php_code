@@ -183,7 +183,7 @@ class WikiDataAPI
         foreach(new FileIterator($this->wiki_data_json) as $line_number => $row)
         {
             $k++; echo " ".number_format($k)." ";
-            /* breakdown when caching:
+            // /* breakdown when caching:
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true;           //1 -   600,000
             // if($k >=  $m   && $k < $m*2) $cont = true;   //600,000 - 1,200,000
@@ -191,14 +191,14 @@ class WikiDataAPI
             // if($k >=  $m*3 && $k < $m*4) $cont = true; //1,800,000 - 2,400,000
             // if($k >=  $m*4 && $k < $m*5) $cont = true; //2,400,000 - 3,000,000
             
-            // if($k >= 213230 && $k < $m*5) $cont = true; // nl
-            // if($k >= 190547 && $k < $m*5) $cont = true; // sv
-            // if($k >= 207120 && $k < $m*5) $cont = true; // vi
+            // if($k >= 639234 && $k < $m*5) $cont = true; // nl
+            // if($k >= 481988 && $k < $m*5) $cont = true; // sv
+            if($k >= 657043 && $k < $m*5) $cont = true; // vi
 
-            if($k >= 1 && $k < 100) $cont = true;   //wikimedia total taxa = 2,208,086
+            // if($k >= 1 && $k < 100) $cont = true;   //wikimedia total taxa = 2,208,086
 
             if(!$cont) continue;
-            */
+            // */
 
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
@@ -755,10 +755,7 @@ class WikiDataAPI
                         }
                         echo("\n[$filename] saved content\n");
                     }
-                    else
-                    {
-                        echo("\nalready saved: [$filename]\n");
-                    }
+                    else echo("\nalready saved: [$filename]\n");
                 }
                 else echo "\n negative \n";
                 
@@ -824,26 +821,18 @@ class WikiDataAPI
             if(!file_exists($filename))
             {
                 echo "\n " . number_format($i) . " creating file: $file";
-                if($FILE = Functions::file_open($filename, 'w')) // normal
-                {
-                    // fwrite($FILE, $file_contents);
-                    fclose($FILE);
-                }
+                if($FILE = Functions::file_open($filename, 'w'))  fclose($FILE);
             }
             $i++; 
             // if($i >= 100) break; //debug
         }
-        // self::fill_in_temp_files_with_wikimedia_metadata();
     }
     function fill_in_temp_files_with_wikimedia_metadata() //just during testing...
     {
         $title = "File:Two Gambel's Quail (Callipepla gambelii) - Paradise Valley, Arizona, ca 2004.png";
         $title = str_replace("File:", "", $title);
         $title = str_replace(" ", "_", $title);
-        if(self::taxon_media($title))
-        {
-            echo "\n yes";
-        }
+        if(self::taxon_media($title)) echo "\n yes";
         else echo "\n no";
     }
     private function taxon_media($title)
@@ -857,7 +846,7 @@ class WikiDataAPI
         else return false;
     }
     
-    function process_wikimedia_txt_dump()
+    function process_wikimedia_txt_dump() //initial verification of the wikimedia dump file
     {
         $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/commonswiki-20170320-pages-articles-multistream-index.txt";
         $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-20170320-pages-articles1.xml-p000000001p006457504";

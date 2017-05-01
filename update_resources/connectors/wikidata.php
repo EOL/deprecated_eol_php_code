@@ -4,21 +4,21 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikiDataAPI');
 $timestart = time_elapsed();
-$resource_id = "1";
+$resource_id = "sv";
 
 
-// /* utility
+/* utility
 $func = new WikiDataAPI($resource_id, "");
 // $func->create_temp_files_based_on_wikimedia_filenames();     //create blank json files
 $func->fill_in_temp_files_with_wikimedia_dump_data();        //fill-in those blank json files
 exit("\n end1 \n");
-// */
+*/
 
-// /* utility
+/* utility
 $func = new WikiDataAPI($resource_id, "");
-$func->process_wikimedia_txt_dump();
+$func->process_wikimedia_txt_dump(); //initial verification of the wikimedia dump file
 exit("\n end2 \n");
-// */
+*/
 
 
 // /* //main operation
@@ -40,9 +40,9 @@ exit("\n end2 \n");
 $func = new WikiDataAPI($resource_id, "en", "wikimedia");     //done - Used for Commons - total taxa = 2,208,086
 
 // not yet complete:
-// $func = new WikiDataAPI($resource_id, "nl");     //496,946
-// $func = new WikiDataAPI($resource_id, "sv");     //317,840    //still being run, many many bot inspired
-// $func = new WikiDataAPI($resource_id, "vi");     //459,962
+// $func = new WikiDataAPI($resource_id, "nl");     //496940
+// $func = new WikiDataAPI($resource_id, "sv");     //317830    //still being run, many many bot inspired
+$func = new WikiDataAPI($resource_id, "vi");     //459950
 
 //===================
 
