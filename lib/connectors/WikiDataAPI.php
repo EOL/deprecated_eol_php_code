@@ -183,7 +183,7 @@ class WikiDataAPI
         foreach(new FileIterator($this->wiki_data_json) as $line_number => $row)
         {
             $k++; echo " ".number_format($k)." ";
-            // /* breakdown when caching:
+            /* breakdown when caching:
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true;           //1 -   600,000
             // if($k >=  $m   && $k < $m*2) $cont = true;   //600,000 - 1,200,000
@@ -191,14 +191,14 @@ class WikiDataAPI
             // if($k >=  $m*3 && $k < $m*4) $cont = true; //1,800,000 - 2,400,000
             // if($k >=  $m*4 && $k < $m*5) $cont = true; //2,400,000 - 3,000,000
             
-            // if($k >= 639234 && $k < $m*5) $cont = true; // nl
-            // if($k >= 481988 && $k < $m*5) $cont = true; // sv
-            if($k >= 657043 && $k < $m*5) $cont = true; // vi
+            // if($k >= 668,006 && $k < $m*5) $cont = true; // nl
+            // if($k >= 520,538 && $k < $m*5) $cont = true; // sv
+            // if($k >= 747,157 && $k < $m*5) $cont = true; // vi
 
             // if($k >= 1 && $k < 100) $cont = true;   //wikimedia total taxa = 2,208,086
 
             if(!$cont) continue;
-            // */
+            */
 
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
@@ -235,8 +235,8 @@ class WikiDataAPI
                              if($this->what == "wikipedia") $rek = self::get_other_info($rek); //uncomment in normal operation
                              if($this->what == "wikimedia")
                              {
-                                 if($url = @$rek['com_category'])   $rek['obj_gallery'] = self::get_commons_info($url);
-                                 if($url = @$rek['com_gallery'])    $rek['obj_category'] = self::get_commons_info($url);
+                                 if($url = @$rek['com_category'])   $rek['obj_category'] = self::get_commons_info($url);
+                                 if($url = @$rek['com_gallery'])    $rek['obj_gallery'] = self::get_commons_info($url);
                              }
                              
                              if($rek['taxon_id'])
@@ -380,7 +380,7 @@ class WikiDataAPI
             if(preg_match_all("/<a href=\"\/wiki\/File:(.*?)\"/ims", $html, $arr))
             {
                 $files = array_values(array_unique($arr[1]));
-                print_r($files); //exit("\nelix111\n");
+                print_r($files); //exit("\n cha111 \n");
                 if($this->save_all_filenames)
                 {
                     self::save_filenames_2file($files);
@@ -391,9 +391,19 @@ class WikiDataAPI
                 foreach($files as $file)
                 {   // https://commons.wikimedia.org/wiki/File:Eyes_of_gorilla.jpg
                     $rek = array();
-                    $rek = self::get_media_metadata($file);
-                    $rek['media_url'] = self::get_media_url($file);
-                    print_r($rek); //exit;
+                    
+                    if($filename = self::has_cache_data($file)) //Eyes_of_gorilla.jpg
+                    // if(false)
+                    {
+                        $rek = self::get_media_metadata_from_json($filename, $file);
+                    }
+                    else
+                    {
+                        $rek = self::get_media_metadata_from_api($file);
+                    }
+                    $rek['source_url']  = "https://commons.wikimedia.org/wiki/File:".$file;
+                    $rek['media_url']   = self::get_media_url($file);
+                    print_r($rek); exit;
                     if($rek['pageid'])
                     {
                         $final[] = $rek;
@@ -401,12 +411,88 @@ class WikiDataAPI
                     }
                     if($limit >= 35) break; //no. of images to get
                 }
+                exit("\n cha222 \n");
             }
         }
         return $final;
     }
     
-    private function get_media_metadata($file)
+    private function has_cache_data($file)
+    {
+        if($filename = self::taxon_media($file))
+        {
+            if(filesize($filename) > 0) return $filename;
+        }
+        return false;
+    }
+    
+    private function get_media_metadata_from_json($filename, $title)
+    {
+        $json = file_get_contents($filename);
+        $arr = json_decode($json, true);
+        // print_r($arr); exit;
+        $rek = array();
+        $rek['pageid'] = $arr['id'];
+        $rek['title'] = str_replace("_", " ", $title);
+        $wiki = $arr['revision']['text'];
+
+        // for LicenseShortName
+        // == {{int:license-header}} ==
+        // {{Flickr-no known copyright restrictions}}
+        if(preg_match("/== \{\{int:license-header\}\} ==(.*?)\}\}/ims", $wiki, $a))
+        {
+            $tmp = trim(str_replace("{", "", $a[1]));
+            $rek['LicenseShortName'] = $tmp;
+        }
+        // for ImageDescription
+        if(preg_match("/== \{\{int:filedesc\}\} ==(.*?)\}\}/ims", $wiki, $a))
+        {
+            echo "\n $a[1] \n";
+            if(preg_match_all("/\'\'\'(.*?)<br>/ims", $a[1], $a2))
+            {
+                $tmp = $a2[1];
+                $i = 0;
+                foreach($tmp as $t)
+                {
+                    $t = str_replace("'", "", $t); $tmp[$i] = $t;
+                    if(stripos($t, "view book online") !== false) $tmp[$i] = null; //string is found
+                    if(stripos($t, "Text Appearing") !== false) $tmp[$i] = null; //string is found
+                    if(stripos($t, "Note About Images") !== false) $tmp[$i] = null; //string is found
+                    if(strlen($t) < 5) $tmp[$i] = null;
+                    $i++;
+                }
+            }
+            $tmp = array_filter($tmp);
+            print_r($tmp);
+            $i = 0;
+            foreach($tmp as $t)
+            {
+                $tmp[$i] = self::wiki2html($t);
+                $i++;
+            }
+            print_r($tmp);
+            $rek['ImageDescription'] = implode("<br>", $tmp);
+            // exit;
+        }
+        // for other metadata
+        /*
+        |date=1841
+        |author=Schlegel, H. (Hermann), 1804-1884
+        |source=https://www.flickr.com/photos/internetarchivebookimages/16095238834/
+        |permission={{User:Fæ/Flickr API}}
+        */
+        if(preg_match("/\|date\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['date'] = $a[1];
+        if(preg_match("/\|author\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['author'] = $a[1];
+        if(preg_match("/\|source\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['source'] = $a[1];
+        if(preg_match("/\|permission\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['permission'] = $a[1];
+        
+
+        //print_r($arr); 
+        // exit("\n $wiki \n");
+        return $rek;
+    }
+    
+    private function get_media_metadata_from_api($file)
     {   //https://commons.wikimedia.org/w/api.php?action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:Gorilla_498.jpg
         $rek = array();
         if($json = Functions::lookup_with_cache("https://commons.wikimedia.org/w/api.php?format=json&action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:".$file, $this->download_options))
@@ -415,21 +501,45 @@ class WikiDataAPI
             $arr = array_values($arr["query"]["pages"]);
             $arr = $arr[0];
             echo "\nresult: " . count($arr) . "\n";
-            // print_r($arr);
-            
+            // print_r($arr); exit;
             if(!isset($arr['pageid'])) return array();
             $rek['pageid'] = self::format_wiki_substr($arr['pageid']);
+            /* better to use just the one below
             if($val = @$arr['imageinfo'][0]['extmetadata']['ObjectName']['value'])  $rek['title'] = self::format_wiki_substr($val);
             else                                                                    $rek['title'] = self::format_wiki_substr($arr['title']);
+            */
+            $rek['title'] = self::format_wiki_substr($arr['title']);
             $rek['ImageDescription'] = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['ImageDescription']['value']);
             $rek['Artist']           = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Artist']['value']);
             $rek['LicenseUrl']       = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['LicenseUrl']['value']);
             $rek['LicenseShortName'] = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['LicenseShortName']['value']);
             if($val = @$arr['imageinfo'][0]['extmetadata']['DateTime']['value'])             $rek['date'] = self::format_wiki_substr($val);
             elseif($val = @$arr['imageinfo'][0]['extmetadata']['DateTimeOriginal']['value']) $rek['date'] = self::format_wiki_substr($val);
-            $rek['source_url']       = "https://commons.wikimedia.org/wiki/File:".$file;
         }
         return $rek;
+    }
+    
+    private function wiki2html($str)
+    {
+        if(preg_match_all("/\[(.*?)\]/ims", $str, $a))
+        {
+            $divided = array();
+            foreach($a[1] as $tmp)
+            {
+                $arr = explode(" ", $tmp);
+                $url = $arr[0];
+                array_shift($arr);
+                $link_text = implode(" ", $arr);
+                $divided[] = array("url" => $url, "link_text" => $link_text);
+            }
+            $i = 0;
+            foreach($a[1] as $tmp)
+            {
+                $str = str_replace("[" . $tmp . "]", "<a href='" . $divided[$i]['url'] . "'>" . $divided[$i]['link_text'] . "</a>", $str);
+                $i++;
+            }
+        }
+        return $str;
     }
     
     private function get_media_url($file)
