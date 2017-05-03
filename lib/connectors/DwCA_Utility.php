@@ -243,5 +243,90 @@ class DwCA_Utility
     }
     */
     
+    //start functions for the tool "genHigherClass"
+    
+    function tool_generate_higherClassification($file)
+    {
+        if($records = self::create_records_array($file))
+        {
+            echo "\n1 of 3\n";  self::build_id_name_array($records);
+            echo "\n2 of 3\n";  $records = self::generate_higherClassification_field($records);
+            // echo "<pre>";
+            // print_r($records[50]);
+            // echo "<hr>".count($records);
+            // echo "</pre>";
+            // exit;
+
+            $fields = self::normalize_fields($records[0]);
+            
+            foreach($records as $rec)
+            {
+            }
+            
+            
+        }
+        else return false;
+    }
+    
+    private function create_records_array($file)
+    {
+        $records = array();
+        // echo "<pre>"; echo "<hr>$file<hr>";
+        $i = 0;
+        foreach(new FileIterator($file) as $line => $row)
+        {
+            $i++;
+            if($i == 1)
+            {
+                $fields = explode("\t", $row);
+                
+                $k = 0;
+                foreach($fields as $field) //replace it with the long field URI
+                {
+                    if($field == "taxonID") $fields[$k] = "http://rs.tdwg.org/dwc/terms/taxonID";
+                    elseif($field == "scientificName") $fields[$k] = "http://rs.tdwg.org/dwc/terms/scientificName";
+                    elseif($field == "parentNameUsageID") $fields[$k] = "http://rs.tdwg.org/dwc/terms/parentNameUsageID";
+                    $k++;
+                }
+                // print_r($fields); exit;
+            }
+            else
+            {
+                $rec = array();
+                $cols = explode("\t", $row);
+                $k = 0;
+                foreach($fields as $field)
+                {
+                    $rec[$field] = @$cols[$k];
+                    $k++;
+                }
+                // print_r($rec);
+                if($rec)
+                {
+                    if($i == 3) //can check this early if we can compute for higherClassification
+                    {
+                        if(!self::can_compute_higherClassification($records)) return false;
+                    }
+                    $records[] = $rec;
+                }
+            }
+            // if($i >= 3) exit; //debug
+        }
+        // echo "</pre>";
+        return $records;
+    }
+    
+    private function normalize_fields($arr)
+    {
+        $fields = array_keys($arr);
+        $k = 0;
+        foreach($fields as $field)
+        {
+            $fields[$k] = pathinfo($field, PATHINFO_FILENAME);
+            $k++;
+        }
+        return $fields;
+    }
+    
 }
 ?>
