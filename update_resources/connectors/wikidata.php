@@ -4,8 +4,15 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikiDataAPI');
 $timestart = time_elapsed();
-$resource_id = "sv";
+$resource_id = "en";
 
+/* testing routines...
+$str = "Year: [https://www.flickr.com/search/?tags=bookyear1841 1841] ([https://www.flickr.com/search/?tags=bookdecade1840 1840s])";
+$str =  "Publisher: [https://www.flickr.com/search/?tags=bookpublisherLeiden_A_Arnz_comp_ Leiden, A. Arnz &amp; comp.]";
+echo "\n$str\n";
+echo wiki2html($str);
+exit("\n");
+*/
 
 /* utility
 $func = new WikiDataAPI($resource_id, "");
@@ -42,7 +49,7 @@ $func = new WikiDataAPI($resource_id, "en", "wikimedia");     //done - Used for 
 // not yet complete:
 // $func = new WikiDataAPI($resource_id, "nl");     //496940
 // $func = new WikiDataAPI($resource_id, "sv");     //317830    //still being run, many many bot inspired
-$func = new WikiDataAPI($resource_id, "vi");     //459950
+// $func = new WikiDataAPI($resource_id, "vi");     //459950
 
 //===================
 
@@ -76,6 +83,5 @@ You uploaded: final-zh.tar.gz
     http://rs.tdwg.org/dwc/terms/taxon:Total: 90952
     http://purl.org/dc/dcmitype/Text: 77991
 */
-
 
 ?>
