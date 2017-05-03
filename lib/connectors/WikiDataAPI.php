@@ -434,6 +434,7 @@ class WikiDataAPI
         $rek = array();
         $rek['pageid'] = $arr['id'];
         $rek['title'] = str_replace("_", " ", $title);
+        $rek['timestamp'] = $arr['revision']['timestamp'];
         $wiki = $arr['revision']['text'];
 
         // for LicenseShortName
@@ -463,14 +464,14 @@ class WikiDataAPI
                 }
             }
             $tmp = array_filter($tmp);
-            print_r($tmp);
+            // print_r($tmp);
             $i = 0;
             foreach($tmp as $t)
             {
                 $tmp[$i] = self::wiki2html($t);
                 $i++;
             }
-            print_r($tmp);
+            // print_r($tmp);
             $rek['ImageDescription'] = implode("<br>", $tmp);
             // exit;
         }
@@ -498,6 +499,8 @@ class WikiDataAPI
         if($json = Functions::lookup_with_cache("https://commons.wikimedia.org/w/api.php?format=json&action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:".$file, $this->download_options))
         {
             $arr = json_decode($json, true);
+            // print_r($arr); exit;
+
             $arr = array_values($arr["query"]["pages"]);
             $arr = $arr[0];
             echo "\nresult: " . count($arr) . "\n";
