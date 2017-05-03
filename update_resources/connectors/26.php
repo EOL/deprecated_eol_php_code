@@ -19,10 +19,14 @@ with media objects:
 [synonym]   =>      211583
 [count]     =>      539549
 
-dynamic hierarchy   24Apr2017
-[accepted] =>       314499
-[count] =>          468409
-[synonym] =>        148389
+dynamic hierarchy   27Apr2017
+[accepted] =>       303570
+[synonym] =>        134132
+[] =>               5329
+[count] =>          443031
+
+total no parent:    134134
+/terms/taxon:       443440
 
 exec time: ~30 minutes
 */
@@ -41,6 +45,7 @@ Functions::finalize_dwca_resource($resource_id);
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
 $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
+$func->get_all_taxa_without_parent($resource_id, true); //true means output will write to text file
 // */
 
 $elapsed_time_sec = time_elapsed() - $timestart;

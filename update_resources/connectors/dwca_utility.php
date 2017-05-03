@@ -8,12 +8,11 @@ $timestart = time_elapsed();
 // $dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";
 // $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/ioc-birdlist.tar.gz";
 // $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/ICTV-virus_taxonomy.tar.gz";
-// $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/26.tar.gz";
+$dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/26.tar.gz";
 // $dwca_file = "http://localhost/cp/dynamic_hierarchy/amphibia.zip";
-$dwca_file = "http://localhost/cp/dynamic_hierarchy/dwca-phasmida-v10.6.zip";
+// $dwca_file = "http://localhost/cp/dynamic_hierarchy/dwca-phasmida-v10.6.zip";
 
 $resource_id = get_base_filename($dwca_file);
-// exit("\n[$resource_id]\nstop muna\n");
 
 // /* //main operation
 $func = new DwCA_Utility($resource_id, $dwca_file);
@@ -22,7 +21,7 @@ Functions::finalize_dwca_resource($resource_id);
 // */
 
 // /* //utility
-// $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/dwca-phasmida-v10-with-higherClassification.tar.gz";
+// $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/dwca-phasmida-v10-with-higherClassification.tar.gz"; //debug -> if you want to supply a diff. dwca
 $func = new DwCA_Utility(NULL, $dwca_file);
 $func->count_records_in_dwca();
 // */
