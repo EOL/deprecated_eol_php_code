@@ -198,7 +198,7 @@ class DwCA_Utility
         {
             if($parent_id)
             {
-                $str .= Functions::canonical_form(trim($this->id_name[$parent_id]['scientificName']))."|";
+                $str .= Functions::canonical_form(trim(@$this->id_name[$parent_id]['scientificName']))."|";
                 $parent_id = @$this->id_name[$parent_id]['parentNameUsageID'];
             }
         }
@@ -243,27 +243,26 @@ class DwCA_Utility
     }
     */
     
-    //start functions for the tool "genHigherClass"
+    //=====================================================================================================================
+    //start functions for the interface tool "genHigherClass"
+    //=====================================================================================================================
     
     function tool_generate_higherClassification($file)
     {
         if($records = self::create_records_array($file))
         {
-            echo "\n1 of 3\n";  self::build_id_name_array($records);
-            echo "\n2 of 3\n";  $records = self::generate_higherClassification_field($records);
-            // echo "<pre>";
-            // print_r($records[50]);
-            // echo "<hr>".count($records);
-            // echo "</pre>";
-            // exit;
-
+            self::build_id_name_array($records);                                //echo "\n1 of 3\n";
+            $records = self::generate_higherClassification_field($records);     //echo "\n2 of 3\n";
             $fields = self::normalize_fields($records[0]);
-            
-            foreach($records as $rec)
-            {
-            }
-            
-            
+
+            //start write to file
+            // $file = str_replace(".", "_higherClassification.", $file);
+            if(!($f = Functions::file_open($file, "w"))) return;
+            fwrite($f, implode("\t", $fields)."\n");
+            foreach($records as $rec) fwrite($f, implode("\t", $rec)."\n");
+            fclose($f);
+            // echo "\n3 of 3\n";
+            return true;
         }
         else return false;
     }
@@ -271,7 +270,6 @@ class DwCA_Utility
     private function create_records_array($file)
     {
         $records = array();
-        // echo "<pre>"; echo "<hr>$file<hr>";
         $i = 0;
         foreach(new FileIterator($file) as $line => $row)
         {
@@ -279,7 +277,6 @@ class DwCA_Utility
             if($i == 1)
             {
                 $fields = explode("\t", $row);
-                
                 $k = 0;
                 foreach($fields as $field) //replace it with the long field URI
                 {
@@ -288,7 +285,6 @@ class DwCA_Utility
                     elseif($field == "parentNameUsageID") $fields[$k] = "http://rs.tdwg.org/dwc/terms/parentNameUsageID";
                     $k++;
                 }
-                // print_r($fields); exit;
             }
             else
             {
@@ -300,7 +296,6 @@ class DwCA_Utility
                     $rec[$field] = @$cols[$k];
                     $k++;
                 }
-                // print_r($rec);
                 if($rec)
                 {
                     if($i == 3) //can check this early if we can compute for higherClassification
@@ -310,9 +305,7 @@ class DwCA_Utility
                     $records[] = $rec;
                 }
             }
-            // if($i >= 3) exit; //debug
         }
-        // echo "</pre>";
         return $records;
     }
     

@@ -19,30 +19,33 @@ if($url) //URL is pasted.
     $parts = pathinfo($url);
     $extension = @$parts['extension'];
     $newfile = "temp/" . time() . "." . $extension;
+    $orig_file = $parts['basename'];
 }
 // elseif($url_new != "") {}//URL is pasted. //seems not used
 elseif($file_type = @$_FILES["file_upload"]["type"])
 {
-    if(in_array($file_type, array("application/octet-stream", "text/plain"))) //for spreadsheets: "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    if(in_array($file_type, array("application/octet-stream", "text/plain", "text/tab-separated-values"))) //for spreadsheets: "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     {
         if($_FILES["file_upload"]["error"] > 0) {}
         else
         {
-            $url = "temp/" . $_FILES["file_upload"]["name"];
+            $orig_file = $_FILES["file_upload"]["name"];
+            $url = "temp/" . $orig_file;
             move_uploaded_file($_FILES["file_upload"]["tmp_name"] , $url);
         }
-        $newfile = "temp/" . time() . "." . pathinfo($_FILES["file_upload"]["name"], PATHINFO_EXTENSION);
+        $newfile = "temp/" . time() . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
     }
-    else exit("<hr>Invalid file. <br> <a href='javascript:history.go(-1)'> &lt;&lt;Go back</a>");
+    else exit("<hr>$file_type<hr>Invalid file. <br> <a href='javascript:history.go(-1)'> &lt;&lt;Go back</a>");
 }
 else exit("<hr>Please enter a URL or browse a file to continue. <br> <a href='javascript:history.go(-1)'> &lt;&lt;Go back</a>");
 
-if(!copy($url, $newfile)) exit("<hr>Failed to copy file. <br> <a href='javascript:history.go(-1)'> &lt;&lt;Go back</a>");
+if(!copy($url, $newfile)) exit("<hr>Failed to copy file. <br> <a href='javascript:history.go(-1)'> &lt;&lt;Go back</a><hr>");
 
 // exit("<br>[$newfile]<br>");
 
 $validate = get_val_var('validate');
-print"<META HTTP-EQUIV='Refresh' Content='0; URL=generate.php?file=$newfile&validate=$validate'>";
+print "Processing, please wait...<br><hr>";
+print"<META HTTP-EQUIV='Refresh' Content='0; URL=generate.php?file=$newfile&orig_file=$orig_file'>";
 exit;
 
 /*
