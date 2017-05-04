@@ -11,15 +11,13 @@ ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 // */
 
-
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $url = @get_val_var('url');
 
 // echo "<pre>";
-// print_r($parts);
 // print_r(@$_FILES);
 // echo "</pre>";
-
+// exit;
 
 if($url) //URL is pasted.
 {
@@ -30,22 +28,25 @@ if($url) //URL is pasted.
 }
 elseif($file_type = @$_FILES["file_upload"]["type"])
 {
-    if(in_array($file_type, array("application/octet-stream", "text/plain", "text/tab-separated-values"))) //for spreadsheets: "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    if(in_array($file_type, array("application/octet-stream", "text/plain", "text/tab-separated-values", "application/zip"))) //for spreadsheets: "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     {
         if($_FILES["file_upload"]["error"] > 0) {}
         else
         {
             $orig_file = $_FILES["file_upload"]["name"];
-            $url = "temp/" . $orig_file;
+            // $url = "temp/" . $orig_file;
+            $url = "temp/" . time() . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
             move_uploaded_file($_FILES["file_upload"]["tmp_name"] , $url);
         }
         $newfile = "temp/" . time() . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
     }
     else exit("<hr>$file_type<hr>Invalid file. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 }
-else exit("<hr>Please enter a URL or browse a file to continue. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
+// else exit("<hr>Please enter a URL or browse a file to continue. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
+else exit("<hr>Please browse a file to continue. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 
-if(!copy($url, $newfile)) exit("<hr>Failed to copy file. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
+
+// if(!copy($url, $newfile)) exit("<hr>Failed to copy file. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 
 $validate = get_val_var('validate');
 print "<b>Processing, please wait...</b><br><hr>";

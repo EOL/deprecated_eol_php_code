@@ -1,6 +1,7 @@
 <form action="form_result.php" method="post" enctype="multipart/form-data">
 <table border="1" cellpadding="15" cellspacing="1" align="center">
 <tr align="center"><td>Generate higherClassification Tool</td></tr>
+<!---
 <tr align="center">
     <td>
         File URL: <input type="text" name="url" size="100" style="font-family : Arial;">
@@ -9,10 +10,16 @@
         <a href="sample/taxon.tab">Download</a> a sample <i>taxon.tab</i> here.<br>
     </td>
 </tr>
+--->
+<tr align="center">
+    <td>
+        <a href="sample/taxon.tab">Download</a> a sample <i>taxon.tab</i> here.<br>
+    </td>
+</tr>
 <tr>
     <td>
         File Upload: <input type="file" name="file_upload" id="file_upload" size="100" style="font-family : Arial;">
-        (.tab, .txt, .tsv)
+        <small><br>(.tab, .txt, .tsv) OR<br>(.tab.zip, .txt.zip, .tsv.zip)</small>
     </td>
 </tr>
 <tr align="center">

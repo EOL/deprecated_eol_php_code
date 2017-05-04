@@ -9,6 +9,43 @@ ini_set("memory_limit","5000M");
 $file = "" . $_GET["file"];
 $orig_file = "" . $_GET["orig_file"];
 
+// echo "<pre>";
+// echo "<br>$file<br>";
+// echo "<br>$orig_file<br>";
+// echo "</pre>";
+// exit;
+
+if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
+{
+    $filenamez = pathinfo($file, PATHINFO_FILENAME); //time() e.g. 1493906650
+    $extensionz = get_ext_of_orig_file_in_zip($orig_file);
+    // exit("[$filenamez]");
+    
+    $destination = "temp/".$filenamez;
+    mkdir($destination);
+    
+    $zip = new \ZipArchive;
+    $res = $zip->open($file);
+    if($res === TRUE) 
+    {
+        // $zip->extractTo('temp/');
+        $zip->extractTo($destination);
+        $zip->close();
+        unlink("temp/$filenamez".".zip");
+        
+        foreach (glob("$destination/*.*") as $filename) //source
+        {
+            echo "<br>file = [$filename]<br>";
+            $file = "temp/" . "$filenamez.$extensionz"; //destination
+            if(!copy($filename, $file)) exit("<hr>Failed to copy file. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
+            else recursive_rmdir($destination);
+            break;
+        }
+        
+    } 
+    else echo '<br>There is a problem with the .ZIP file!<br>';
+}
+
 require_library('connectors/DwCA_Utility');
 $func = new DwCA_Utility();
 
@@ -20,11 +57,12 @@ if($info = $func->tool_generate_higherClassification($file))
     $temp   = str_ireplace("generate.php", $filename, $temp);
     $url    = "http://$domain" . $temp;
 
-    // /* utility
+    /* utility
     require_library('connectors/DWCADiagnoseAPI');
     $func = new DWCADiagnoseAPI();
     $undefined_parents = $func->check_if_all_parents_have_entries(pathinfo($filename, PATHINFO_FILENAME), true, $file); //true means output will write to text file
-    // */
+    */
+    $undefined_parents = array();
 
     print"<b>
     Conversion completed. <br>&nbsp;<br>
@@ -46,4 +84,9 @@ else
     <br><hr>";
 }
 
+function get_ext_of_orig_file_in_zip($orig)
+{
+    $temp = pathinfo($orig, PATHINFO_FILENAME);
+    return pathinfo($temp, PATHINFO_EXTENSION);
+}
 ?>
