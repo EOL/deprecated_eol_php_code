@@ -11,6 +11,7 @@ ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 // */
 
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $url = @get_val_var('url');
 
@@ -18,7 +19,6 @@ $url = @get_val_var('url');
 // print_r($parts);
 // print_r(@$_FILES);
 // echo "</pre>";
-// exit;
 
 
 if($url) //URL is pasted.
@@ -52,6 +52,14 @@ print "<b>Processing, please wait...</b><br><hr>";
 print"<META HTTP-EQUIV='Refresh' Content='0; URL=generate.php?file=$newfile&orig_file=$orig_file'>";
 exit;
 
+function get_val_var($v)
+{
+    if     (isset($_GET["$v"])) $var = $_GET["$v"];
+    elseif (isset($_POST["$v"])) $var = $_POST["$v"];
+    if(isset($var)) return $var;
+    else return NULL;
+}
+
 /*
 function excel_extension($type) //not used
 {
@@ -60,14 +68,6 @@ function excel_extension($type) //not used
     elseif  ($type == "application/octet-stream") return "eli";
 }
 */
-
-function get_val_var($v)
-{
-    if     (isset($_GET["$v"])) $var = $_GET["$v"];
-    elseif (isset($_POST["$v"])) $var = $_POST["$v"];
-    if(isset($var)) return $var;
-    else return NULL;
-}
 
 /*
 elseif(@$_FILES["file_upload_new"]["type"])

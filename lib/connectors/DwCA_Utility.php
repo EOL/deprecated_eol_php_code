@@ -184,7 +184,6 @@ class DwCA_Utility
         {
             $higherClassification = self::get_higherClassification($rec);
             $records[$i]["higherClassification"] = $higherClassification; //assign value to main $records -> UNCOMMENT in real operation
-            // print_r($records[$i]);
             $i++;
         }
         return $records;

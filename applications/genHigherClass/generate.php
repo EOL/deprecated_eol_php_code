@@ -8,7 +8,6 @@ ini_set('display_errors', true);
 ini_set("memory_limit","5000M");
 $file = "" . $_GET["file"];
 $orig_file = "" . $_GET["orig_file"];
-// echo "<br>$file<br>";
 
 require_library('connectors/DwCA_Utility');
 $func = new DwCA_Utility();
@@ -21,13 +20,11 @@ if($info = $func->tool_generate_higherClassification($file))
     $temp   = str_ireplace("generate.php", $filename, $temp);
     $url    = "http://$domain" . $temp;
 
-    
     // /* utility
     require_library('connectors/DWCADiagnoseAPI');
     $func = new DWCADiagnoseAPI();
     $undefined_parents = $func->check_if_all_parents_have_entries(pathinfo($filename, PATHINFO_FILENAME), true, $file); //true means output will write to text file
     // */
-
 
     print"<b>
     Conversion completed. <br>&nbsp;<br>
@@ -41,7 +38,6 @@ if($info = $func->tool_generate_higherClassification($file))
     }
 
     echo "<a href='javascript:history.go(-1)'> &lt;&lt; Back to main</a><br><hr>";
-    
 }
 else
 {
