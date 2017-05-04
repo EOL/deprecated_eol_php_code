@@ -35,7 +35,7 @@ if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
         
         foreach (glob("$destination/*.*") as $filename) //source
         {
-            echo "<br>file = [$filename]<br>";
+            // echo "<br>file = [$filename]<br>";
             $file = "temp/" . "$filenamez.$extensionz"; //destination
             if(!copy($filename, $file)) exit("<hr>Failed to copy file. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
             else recursive_rmdir($destination);

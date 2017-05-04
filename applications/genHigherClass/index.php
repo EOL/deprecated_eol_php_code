@@ -19,7 +19,9 @@
 <tr>
     <td>
         File Upload: <input type="file" name="file_upload" id="file_upload" size="100" style="font-family : Arial;">
-        <small><br>(.tab, .txt, .tsv) OR<br>(.tab.zip, .txt.zip, .tsv.zip)</small>
+        <small><br><br>(.tab, .txt, .tsv) OR<br>(.tab.zip, .txt.zip, .tsv.zip)
+        <br><br>
+        Recommended if you zip your file before uploading.</small>
     </td>
 </tr>
 <tr align="center">
