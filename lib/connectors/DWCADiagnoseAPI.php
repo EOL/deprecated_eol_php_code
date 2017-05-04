@@ -118,6 +118,7 @@ class DWCADiagnoseAPI
         $var = self::get_fields_from_tab_file($resource_id, array("taxonID", "parentNameUsageID"));
         $taxon_ids = array_keys($var['taxonID']);
         $parent_ids = array_keys($var['parentNameUsageID']);
+        unset($var);
         $undefined = array();
         foreach($parent_ids as $parent_id)
         {

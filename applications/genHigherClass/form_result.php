@@ -1,11 +1,11 @@
 <?php
 namespace php_active_record;
+ini_set('error_reporting', false);
+ini_set('display_errors', false);
+
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-
 $url = @get_val_var('url');
-
-// $url_new = @get_val_var('url_new');  //not used
-// $orig_url = $url;                    //not used
 
 // echo "<pre>";
 // print_r($parts);
@@ -21,7 +21,6 @@ if($url) //URL is pasted.
     $newfile = "temp/" . time() . "." . $extension;
     $orig_file = $parts['basename'];
 }
-// elseif($url_new != "") {}//URL is pasted. //seems not used
 elseif($file_type = @$_FILES["file_upload"]["type"])
 {
     if(in_array($file_type, array("application/octet-stream", "text/plain", "text/tab-separated-values"))) //for spreadsheets: "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -35,13 +34,11 @@ elseif($file_type = @$_FILES["file_upload"]["type"])
         }
         $newfile = "temp/" . time() . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
     }
-    else exit("<hr>$file_type<hr>Invalid file. <br> <a href='javascript:history.go(-1)'> &lt;&lt;Go back</a>");
+    else exit("<hr>$file_type<hr>Invalid file. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 }
-else exit("<hr>Please enter a URL or browse a file to continue. <br> <a href='javascript:history.go(-1)'> &lt;&lt;Go back</a>");
+else exit("<hr>Please enter a URL or browse a file to continue. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 
-if(!copy($url, $newfile)) exit("<hr>Failed to copy file. <br> <a href='javascript:history.go(-1)'> &lt;&lt;Go back</a><hr>");
-
-// exit("<br>[$newfile]<br>");
+if(!copy($url, $newfile)) exit("<hr>Failed to copy file. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 
 $validate = get_val_var('validate');
 print "Processing, please wait...<br><hr>";
@@ -80,7 +77,7 @@ elseif(@$_FILES["file_upload_new"]["type"])
             $dwca_url = ExcelToText::worksheet_to_file($new_temp_path);
         }
     }
-    else exit("<hr>Invalid file. <br> <a href='javascript:history.go(-1)'> &lt;&lt;Go back</a>");
+    else exit("<hr>Invalid file. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a>");
     
     echo "Download your archive at <a href='$dwca_url'>$dwca_url</a>\n";
     
