@@ -14,10 +14,10 @@ ini_set('display_errors', true);
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $url = @get_val_var('url');
 
-echo "<pre>";
+// echo "<pre>";
 // print_r($parts);
-print_r(@$_FILES);
-echo "</pre>";
+// print_r(@$_FILES);
+// echo "</pre>";
 // exit;
 
 
