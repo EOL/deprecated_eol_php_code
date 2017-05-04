@@ -1,8 +1,15 @@
 <?php
 namespace php_active_record;
+
+/* normal operation
 ini_set('error_reporting', false);
 ini_set('display_errors', false);
+*/
 
+// /* during development
+ini_set('error_reporting', E_ALL);
+ini_set('display_errors', true);
+// */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $url = @get_val_var('url');
@@ -41,7 +48,7 @@ else exit("<hr>Please enter a URL or browse a file to continue. <br> <a href='ja
 if(!copy($url, $newfile)) exit("<hr>Failed to copy file. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 
 $validate = get_val_var('validate');
-print "Processing, please wait...<br><hr>";
+print "<b>Processing, please wait...</b><br><hr>";
 print"<META HTTP-EQUIV='Refresh' Content='0; URL=generate.php?file=$newfile&orig_file=$orig_file'>";
 exit;
 

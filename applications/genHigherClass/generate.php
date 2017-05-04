@@ -19,10 +19,27 @@ if($info = $func->tool_generate_higherClassification($file))
     $temp   = str_ireplace("generate.php", $filename, $temp);
     $url    = "http://$domain" . $temp;
 
-    print"
+    
+    // /* utility
+    require_library('connectors/DWCADiagnoseAPI');
+    $func = new DWCADiagnoseAPI();
+    $undefined_parents = $func->check_if_all_parents_have_entries(pathinfo($filename, PATHINFO_FILENAME), true, $file); //true means output will write to text file
+    // */
+
+
+    print"<b>
     Conversion completed. <br>&nbsp;<br>
     This is the URL of the converted file [<i>$orig_file</i>] with higherClassification:<br><br> <a target='$filename' href='$url'>$url</a>
-    <br><hr>";
+    <br><hr></b>";
+    
+    if($undefined_parents)
+    {
+        echo "Undefined parents found: " . count($undefined_parents) . "<br>";
+        echo "Report <a href='../content_server/resources/" . pathinfo($filename, PATHINFO_FILENAME) . "_undefined_parent_ids.txt'>here</a><hr>";
+    }
+
+    echo "<a href='javascript:history.go(-1)'> &lt;&lt; Back to main</a><br><hr>";
+    
 }
 else
 {

@@ -111,11 +111,11 @@ class DWCADiagnoseAPI
     }
 
     //============================================================
-    function check_if_all_parents_have_entries($resource_id, $write_2text_file = false)
+    function check_if_all_parents_have_entries($resource_id, $write_2text_file = false, $url = false)
     {
         if($write_2text_file) $WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_undefined_parent_ids.txt", "w");
         
-        $var = self::get_fields_from_tab_file($resource_id, array("taxonID", "parentNameUsageID"));
+        $var = self::get_fields_from_tab_file($resource_id, array("taxonID", "parentNameUsageID"), $url); //$url if to the tool genHigherClass
         $taxon_ids = array_keys($var['taxonID']);
         $parent_ids = array_keys($var['parentNameUsageID']);
         unset($var);
@@ -124,23 +124,25 @@ class DWCADiagnoseAPI
         {
             if(!in_array($parent_id, $taxon_ids))
             {
-                echo "\n not defined parent [$parent_id]";
+                // echo "\n not defined parent [$parent_id]";
                 $undefined[$parent_id] = '';
             }
         }
-        echo "\n total undefined parent_id: " . count($undefined) . "\n";
-        
+        // echo "\n total undefined parent_id: " . count($undefined) . "\n";
+
         if($write_2text_file)
         {
             foreach(array_keys($undefined) as $id) fwrite($WRITE, $id . "\n");
             fclose($WRITE);
         }
-        return array_keys($undefined);
+        $undefined = array_keys($undefined);
+        if(!$undefined) unlink(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_undefined_parent_ids.txt");
+        return $undefined;
     }
     
-    function get_fields_from_tab_file($resource_id, $cols)
+    function get_fields_from_tab_file($resource_id, $cols, $url = false)
     {
-        $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/taxon.tab";
+        if(!$url) $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/taxon.tab";
         if(!file_exists($url))
         {
             echo "\nFile does not exist: [$url]\n";
