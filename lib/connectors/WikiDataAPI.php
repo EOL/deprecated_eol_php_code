@@ -392,18 +392,31 @@ class WikiDataAPI
                 {   // https://commons.wikimedia.org/wiki/File:Eyes_of_gorilla.jpg
                     $rek = array();
                     
-                    if($filename = self::has_cache_data($file)) //Eyes_of_gorilla.jpg
-                    // if(false)
+                    if($filename = self::has_cache_data($file)) //Eyes_of_gorilla.jpg - used in normal operation
+                    // if(false) //will use API data - debug only
                     {
+                        echo "\nused cache data";
                         $rek = self::get_media_metadata_from_json($filename, $file);
+                        if(!$rek)
+                        {
+                            echo "\njust used api data instead";
+                            if(!in_array($file, array("Anales_del_Museo_Nacional_de_Chile_(Tab._I)_(8071433095).jpg", 
+                                                      "Anales_del_Museo_Nacional_de_Chile_(Tab._II)_(8071433697).jpg", 
+                                                      "Anales_del_Museo_Nacional_de_Chile_(Tab._III)_(8071426854).jpg", 
+                                                      "Anales_del_Museo_Nacional_de_Chile_(Tab._IV)_(8071435007).jpg", 
+                                                      "Anales_del_Museo_Nacional_de_Chile_(Tab._V)_(8071428150).jpg"))) exit("\n$file\n");
+                            $rek = self::get_media_metadata_from_api($file);
+                        }
                     }
                     else
                     {
+                        echo "\nused api data";
                         $rek = self::get_media_metadata_from_api($file);
                     }
                     $rek['source_url']  = "https://commons.wikimedia.org/wiki/File:".$file;
                     $rek['media_url']   = self::get_media_url($file);
-                    print_r($rek); exit;
+                    print_r($rek); 
+                    // exit;
                     if($rek['pageid'])
                     {
                         $final[] = $rek;
@@ -430,25 +443,29 @@ class WikiDataAPI
     {
         $json = file_get_contents($filename);
         $arr = json_decode($json, true);
-        // print_r($arr); exit;
+        print_r($arr); //exit;
         $rek = array();
         $rek['pageid'] = $arr['id'];
-        $rek['title'] = str_replace("_", " ", $title);
+        // $rek['title'] = str_replace("_", " ", $title); moved below...
         $rek['timestamp'] = $arr['revision']['timestamp'];
         $wiki = $arr['revision']['text'];
 
         // for LicenseShortName
         // == {{int:license-header}} ==
         // {{Flickr-no known copyright restrictions}}
-        if(preg_match("/== \{\{int:license-header\}\} ==(.*?)\}\}/ims", $wiki, $a))
+        if(preg_match("/== \{\{int:license-header\}\} ==(.*?)\}\}/ims", $wiki, $a) ||
+           preg_match("/==\{\{int:license-header\}\}==(.*?)\}\}/ims", $wiki, $a)
+        )
         {
             $tmp = trim(str_replace("{", "", $a[1]));
             $rek['LicenseShortName'] = $tmp;
         }
-        // for ImageDescription
+        
+        
+        // for ImageDescription 1st option
         if(preg_match("/== \{\{int:filedesc\}\} ==(.*?)\}\}/ims", $wiki, $a))
         {
-            echo "\n $a[1] \n";
+            // echo "\n $a[1] \n";
             if(preg_match_all("/\'\'\'(.*?)<br>/ims", $a[1], $a2))
             {
                 $tmp = $a2[1];
@@ -472,9 +489,53 @@ class WikiDataAPI
                 $i++;
             }
             // print_r($tmp);
-            $rek['ImageDescription'] = implode("<br>", $tmp);
+            $rek['ImageDescription'] = trim(implode("<br>", $tmp));
+            
+            //cases where ImageDescription is still blank
+            // if($rek['pageid'] == "52428898")
+            if(true)
+            {
+                //e.g. [pageid] => 52428898
+                if(!$rek['ImageDescription'])
+                {
+                    if(preg_match("/\|Description=\{\{(.*?)\}\}/ims", $a[1]. "}}", $a2)) //2nd option
+                    {
+                        $temp = $a2[1];
+                        $arr = explode("|1=", $temp); //since "en|1=" or "ja|1=" etc...
+                        $rek['ImageDescription'] = $arr[1];
+                        if($rek['ImageDescription']) {}
+                        else
+                        {
+                            // print_r($arr);
+                            exit("\ninvestigate desc 111");
+                        }
+                    }
+                    else return false; //exit("\n $a[1] investigate no ImageDescription 222\n");
+                }
+                else echo "\nelicha\n";
+                print_r($rek);
+            }
             // exit;
         }
+        elseif(preg_match("/\|Description=\{\{(.*?)\}\}/ims", $wiki, $a)) //2nd option
+        {
+            $temp = $a[1];
+            
+            $arr = explode("|1=", $temp); //since "en|1=" or "ja|1=" etc...
+            $rek['ImageDescription'] = $arr[1];
+            if($rek['ImageDescription']) {}
+            else
+            {
+                // print_r($arr);
+                exit("\ninvestigate desc 222");
+            }
+        }
+        else exit("\ninvestigate no ImageDescription 111\n");
+        
+        // for title
+        if($rek['title'] = self::get_title_from_ImageDescription($rek['ImageDescription'])) {}
+        else $rek['title'] = str_replace("_", " ", $title);
+        
         // for other metadata
         /*
         |date=1841
@@ -487,6 +548,7 @@ class WikiDataAPI
         if(preg_match("/\|source\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['source'] = $a[1];
         if(preg_match("/\|permission\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['permission'] = $a[1];
         
+        $rek['Artist'] = @$rek['other']['author'];
 
         //print_r($arr); 
         // exit("\n $wiki \n");
@@ -511,8 +573,11 @@ class WikiDataAPI
             if($val = @$arr['imageinfo'][0]['extmetadata']['ObjectName']['value'])  $rek['title'] = self::format_wiki_substr($val);
             else                                                                    $rek['title'] = self::format_wiki_substr($arr['title']);
             */
-            $rek['title'] = self::format_wiki_substr($arr['title']);
             $rek['ImageDescription'] = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['ImageDescription']['value']);
+
+            if($rek['title'] = self::get_title_from_ImageDescription($rek['ImageDescription'])) {}
+            else $rek['title'] = self::format_wiki_substr($arr['title']);
+
             $rek['Artist']           = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Artist']['value']);
             $rek['LicenseUrl']       = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['LicenseUrl']['value']);
             $rek['LicenseShortName'] = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['LicenseShortName']['value']);
@@ -520,6 +585,16 @@ class WikiDataAPI
             elseif($val = @$arr['imageinfo'][0]['extmetadata']['DateTimeOriginal']['value']) $rek['date'] = self::format_wiki_substr($val);
         }
         return $rek;
+    }
+    
+    private function get_title_from_ImageDescription($desc)
+    {
+        $desc = strip_tags($desc, "<br>");
+        if(preg_match("/Title:(.*?)<br>/ims", $desc, $arr))
+        {
+            return trim($arr[1]);
+        }
+        return false;
     }
     
     private function wiki2html($str)
