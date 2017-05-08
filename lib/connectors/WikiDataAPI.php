@@ -183,13 +183,13 @@ class WikiDataAPI
         foreach(new FileIterator($this->wiki_data_json) as $line_number => $row)
         {
             $k++; echo " ".number_format($k)." ";
-            /* breakdown when caching:
+            // /* breakdown when caching:
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true;           //1 -   600,000
             // if($k >=  $m   && $k < $m*2) $cont = true;   //600,000 - 1,200,000
             // if($k >=  $m*2 && $k < $m*3) $cont = true; //1,200,000 - 1,800,000
             // if($k >=  $m*3 && $k < $m*4) $cont = true; //1,800,000 - 2,400,000
-            // if($k >=  $m*4 && $k < $m*5) $cont = true; //2,400,000 - 3,000,000
+            if($k >=  $m*4 && $k < $m*5) $cont = true; //2,400,000 - 3,000,000
             
             // if($k >= 668,006 && $k < $m*5) $cont = true; // nl
             // if($k >= 520,538 && $k < $m*5) $cont = true; // sv
@@ -198,7 +198,7 @@ class WikiDataAPI
             // if($k >= 1 && $k < 100) $cont = true;   //wikimedia total taxa = 2,208,086
 
             if(!$cont) continue;
-            */
+            // */
 
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
@@ -380,7 +380,7 @@ class WikiDataAPI
             if(preg_match_all("/<a href=\"\/wiki\/File:(.*?)\"/ims", $html, $arr))
             {
                 $files = array_values(array_unique($arr[1]));
-                print_r($files); //exit("\n cha111 \n");
+                print_r($files); //exit;
                 if($this->save_all_filenames)
                 {
                     self::save_filenames_2file($files);
@@ -390,33 +390,10 @@ class WikiDataAPI
                 $limit = 0;
                 foreach($files as $file)
                 {   // https://commons.wikimedia.org/wiki/File:Eyes_of_gorilla.jpg
-                    $rek = array();
+                    $rek = self::process_file($file);
+                    if($rek == "continue") continue;
+                    print_r($rek); //exit;
                     
-                    if($filename = self::has_cache_data($file)) //Eyes_of_gorilla.jpg - used in normal operation
-                    // if(false) //will use API data - debug only
-                    {
-                        echo "\nused cache data";
-                        $rek = self::get_media_metadata_from_json($filename, $file);
-                        if(!$rek)
-                        {
-                            echo "\njust used api data instead";
-                            if(!in_array($file, array("Anales_del_Museo_Nacional_de_Chile_(Tab._I)_(8071433095).jpg", 
-                                                      "Anales_del_Museo_Nacional_de_Chile_(Tab._II)_(8071433697).jpg", 
-                                                      "Anales_del_Museo_Nacional_de_Chile_(Tab._III)_(8071426854).jpg", 
-                                                      "Anales_del_Museo_Nacional_de_Chile_(Tab._IV)_(8071435007).jpg", 
-                                                      "Anales_del_Museo_Nacional_de_Chile_(Tab._V)_(8071428150).jpg"))) exit("\n$file\n");
-                            $rek = self::get_media_metadata_from_api($file);
-                        }
-                    }
-                    else
-                    {
-                        echo "\nused api data";
-                        $rek = self::get_media_metadata_from_api($file);
-                    }
-                    $rek['source_url']  = "https://commons.wikimedia.org/wiki/File:".$file;
-                    $rek['media_url']   = self::get_media_url($file);
-                    print_r($rek); 
-                    // exit;
                     if($rek['pageid'])
                     {
                         $final[] = $rek;
@@ -424,10 +401,45 @@ class WikiDataAPI
                     }
                     if($limit >= 35) break; //no. of images to get
                 }
-                exit("\n cha222 \n");
+                // exit("\n cha222 \n");
             }
         }
         return $final;
+    }
+    
+    private function process_file($file) //e.g. Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg
+    {
+        $rek = array();
+        if($filename = self::has_cache_data($file)) //Eyes_of_gorilla.jpg - used in normal operation
+        // if(false) //will use API data - debug only
+        {
+            echo "\nused cache data";
+            $rek = self::get_media_metadata_from_json($filename, $file);
+            if($rek == "protected") return "continue";
+            if(!$rek)
+            {
+                echo "\njust used api data instead";
+
+
+                /*
+                if(!in_array($file, array("The_marine_mammals_of_the_north-western_coast_of_North_America,_described_and_illustrated;_together_with_an_account_of_the_American_whale-fishery_(1874)_(14598172619).jpg", 
+                "The_marine_mammals_of_the_north-western_coast_of_North_America_described_and_illustrated_(microform)_-_together_with_an_account_of_the_American_whale-fishery_(1874)_(20624848441).jpg"))) exit("\n111 [$file] 222\n");
+                */
+                
+                
+
+                $rek = self::get_media_metadata_from_api($file);
+            }
+            // print_r($rek); exit;
+        }
+        else
+        {
+            echo "\nused api data";
+            $rek = self::get_media_metadata_from_api($file);
+        }
+        $rek['source_url']  = "https://commons.wikimedia.org/wiki/File:".$file;
+        $rek['media_url']   = self::get_media_url($file);
+        return $rek;
     }
     
     private function has_cache_data($file)
@@ -439,6 +451,13 @@ class WikiDataAPI
         return false;
     }
     
+    private function wiki_protected($wiki)
+    {
+        if(stripos($wiki, "{{Mprotected}}") !== false) return true; //string is found
+        if(stripos($wiki, "Wiktionary-logo") !== false) return true; //string is found
+        if(stripos($wiki, "Wikispecies-logo") !== false) return true; //string is found
+        return false;
+    }
     private function get_media_metadata_from_json($filename, $title)
     {
         $json = file_get_contents($filename);
@@ -446,9 +465,12 @@ class WikiDataAPI
         print_r($arr); //exit;
         $rek = array();
         $rek['pageid'] = $arr['id'];
-        // $rek['title'] = str_replace("_", " ", $title); moved below...
         $rek['timestamp'] = $arr['revision']['timestamp'];
+
         $wiki = $arr['revision']['text'];
+
+        if(self::wiki_protected($wiki)) return "protected";
+
 
         // for LicenseShortName
         // == {{int:license-header}} ==
@@ -462,75 +484,11 @@ class WikiDataAPI
         }
         
         
-        // for ImageDescription 1st option
-        if(preg_match("/== \{\{int:filedesc\}\} ==(.*?)\}\}/ims", $wiki, $a))
-        {
-            // echo "\n $a[1] \n";
-            if(preg_match_all("/\'\'\'(.*?)<br>/ims", $a[1], $a2))
-            {
-                $tmp = $a2[1];
-                $i = 0;
-                foreach($tmp as $t)
-                {
-                    $t = str_replace("'", "", $t); $tmp[$i] = $t;
-                    if(stripos($t, "view book online") !== false) $tmp[$i] = null; //string is found
-                    if(stripos($t, "Text Appearing") !== false) $tmp[$i] = null; //string is found
-                    if(stripos($t, "Note About Images") !== false) $tmp[$i] = null; //string is found
-                    if(strlen($t) < 5) $tmp[$i] = null;
-                    $i++;
-                }
-            }
-            $tmp = array_filter($tmp);
-            // print_r($tmp);
-            $i = 0;
-            foreach($tmp as $t)
-            {
-                $tmp[$i] = self::wiki2html($t);
-                $i++;
-            }
-            // print_r($tmp);
-            $rek['ImageDescription'] = trim(implode("<br>", $tmp));
-            
-            //cases where ImageDescription is still blank
-            // if($rek['pageid'] == "52428898")
-            if(true)
-            {
-                //e.g. [pageid] => 52428898
-                if(!$rek['ImageDescription'])
-                {
-                    if(preg_match("/\|Description=\{\{(.*?)\}\}/ims", $a[1]. "}}", $a2)) //2nd option
-                    {
-                        $temp = $a2[1];
-                        $arr = explode("|1=", $temp); //since "en|1=" or "ja|1=" etc...
-                        $rek['ImageDescription'] = $arr[1];
-                        if($rek['ImageDescription']) {}
-                        else
-                        {
-                            // print_r($arr);
-                            exit("\ninvestigate desc 111");
-                        }
-                    }
-                    else return false; //exit("\n $a[1] investigate no ImageDescription 222\n");
-                }
-                else echo "\nelicha\n";
-                print_r($rek);
-            }
-            // exit;
-        }
-        elseif(preg_match("/\|Description=\{\{(.*?)\}\}/ims", $wiki, $a)) //2nd option
-        {
-            $temp = $a[1];
-            
-            $arr = explode("|1=", $temp); //since "en|1=" or "ja|1=" etc...
-            $rek['ImageDescription'] = $arr[1];
-            if($rek['ImageDescription']) {}
-            else
-            {
-                // print_r($arr);
-                exit("\ninvestigate desc 222");
-            }
-        }
-        else exit("\ninvestigate no ImageDescription 111\n");
+        //for ImageDescription
+        if($rek['ImageDescription'] = self::convert_wiki_2_html($wiki)) {}
+        else return false;
+        
+        
         
         // for title
         if($rek['title'] = self::get_title_from_ImageDescription($rek['ImageDescription'])) {}
@@ -554,6 +512,85 @@ class WikiDataAPI
         // exit("\n $wiki \n");
         return $rek;
     }
+    
+    private function convert_wiki_2_html($wiki)
+    {
+        $url = "https://www.mediawiki.org/w/api.php?action=parse&contentmodel=wikitext&format=json&text=";
+        // https://commons.wikimedia.org/w/api.php?action=parse&contentmodel=wikitext&text=
+
+        $count = strlen($wiki);
+        echo "\ncount = [$count]\n";
+        if($count >= 4054) return ""; //4054 //6783
+        
+        if($json = Functions::lookup_with_cache($url.urlencode($wiki), $this->download_options))
+        {
+            $arr = json_decode($json, true);
+            // echo "\n==========\n";
+            // print_r($arr);
+            
+            $html = $arr['parse']['text']['*'];
+            if(preg_match("/elix(.*?)<!--/ims", "elix".$html, $a))
+            {
+                $html = trim($a[1]);
+                $html = str_ireplace('href="/w/', 'href="https://commons.wikimedia.org/w/', $html);
+                $html = self::format_wiki_substr($html);
+                
+                $html = str_ireplace("&nbsp;", "", $html);
+                
+                //double Template:Information field
+                $temp = '<a href="https://commons.wikimedia.org/w/index.php?title=Template:Information_field&action=edit&redlink=1" class="new" title="Template:Information field (page does not exist)">Template:Information field</a>';
+                $html = str_ireplace($temp.$temp, $temp, $html);
+                
+                //remove style
+                if(preg_match_all("/style=\"(.*?)\"/ims", $html, $a))
+                {
+                    foreach($a[1] as $style) $html = str_ireplace($style, "", $html);
+                    $html = str_ireplace('style=""', "", $html);
+                }
+
+                //others
+                $html = str_ireplace(" (page does not exist)", "", $html);
+            }
+            
+            // echo "\n$html\n";
+            // exit("\nelix\n");
+            return $html;
+            
+        }
+    }
+    
+    /*
+    private function last_chance_for_description($str)
+    {
+        if(preg_match("/\|en =(.*?)\\\n/ims", $str, $a))
+        {
+            // |en = Inflorescence of [[:en:Oregano|Oregano]].
+            // Origanum_vulgare_-_harilik_pune.jpg
+            if($val = trim($a[1])) return $val;
+        }
+        if(preg_match("/\|Description=(.*?)\\\n/ims", $str, $a))
+        {
+            if($val = trim($a[1])) return $val;
+        }
+        if(preg_match("/\|Description (.*?)\\\n/ims", $str, $a))
+        {
+            if($val = trim($a[1])) return $val;
+        }
+        if(preg_match("/\|description (.*?)\\\n/ims", $str, $a))
+        {
+            if($val = trim($a[1])) return $val;
+        }
+        if(preg_match("/\| Description (.*?)\\\n/ims", $str, $a))
+        {
+            if($val = trim($a[1])) return $val;
+        }
+        // if(preg_match("/elix(.*?)\\\n/ims", "elix".$str, $a)) //get first row in the wiki text
+        // {
+        //     if($val = trim($a[1])) return $val;
+        // }
+        return false;
+    }
+    */
     
     private function get_media_metadata_from_api($file)
     {   //https://commons.wikimedia.org/w/api.php?action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:Gorilla_498.jpg
@@ -1102,6 +1139,88 @@ class WikiDataAPI
             $files2 = array_values(array_unique($arr[1]));
             $rek['media_url'] = "https://upload.wikimedia.org".$files2[0];
         }
+    }
+    */
+    
+    /*
+    // for ImageDescription 1st option
+    if(preg_match("/== \{\{int:filedesc\}\} ==(.*?)\}\}\\\n/ims", $wiki, $a))
+    {
+        // echo "\n $a[1] \n";
+        if(preg_match_all("/\'\'\'(.*?)<br>/ims", $a[1], $a2))
+        {
+            $tmp = $a2[1];
+            $i = 0;
+            foreach($tmp as $t)
+            {
+                $t = str_replace("'", "", $t); $tmp[$i] = $t;
+                if(stripos($t, "view book online") !== false) $tmp[$i] = null; //string is found
+                if(stripos($t, "Text Appearing") !== false) $tmp[$i] = null; //string is found
+                if(stripos($t, "Note About Images") !== false) $tmp[$i] = null; //string is found
+                if(strlen($t) < 5) $tmp[$i] = null;
+                $i++;
+            }
+            $tmp = array_filter($tmp);
+            $i = 0;
+            foreach($tmp as $t)
+            {
+                $tmp[$i] = self::wiki2html($t);
+                $i++;
+            }
+            $rek['ImageDescription'] = trim(implode("<br>", $tmp));
+        }
+        
+        //cases where ImageDescription is still blank
+        // if($rek['pageid'] == "52428898")
+        if(true)
+        {
+            //e.g. [pageid] => 52428898
+            if(!@$rek['ImageDescription'])
+            {
+                if(preg_match("/\|Description=\{\{(.*?)\}\}/ims", $a[1]. "}}", $a2)) //2nd option
+                {
+                    $temp = $a2[1];
+                    $arr = explode("|1=", $temp); //since "en|1=" or "ja|1=" etc...
+                    $rek['ImageDescription'] = $arr[1];
+                    if($rek['ImageDescription']) {}
+                    elseif($rek['ImageDescription'] = $temp) {}
+                    else
+                    {
+                        // print_r($arr);
+                        exit("\n $a[1] - investigate desc 111");
+                    }
+                }
+                elseif($rek['ImageDescription'] = self::last_chance_for_description($wiki))
+                {
+                    // print_r($rek);
+                    // exit("\nstop muna 222\n");
+                }
+                else
+                {
+                    print("\n $wiki -->> investigate no ImageDescription 222\n");
+                    return false;
+                }
+            }
+            else echo "\nelicha\n";
+            // print_r($rek);
+        }
+        // exit;
+    }
+    elseif(preg_match("/\|Description=\{\{(.*?)\}\}/ims", $wiki, $a)) //2nd option
+    {
+        $temp = $a[1];
+        $arr = explode("|1=", $temp); //since "en|1=" or "ja|1=" etc...
+        $rek['ImageDescription'] = $arr[1];
+    }
+    elseif($rek['ImageDescription'] = self::last_chance_for_description($wiki)) //3rd option
+    {
+        print_r($rek);
+        // exit("\nstop muna\n");
+    }
+    else 
+    {
+        print("\ninvestigate no ImageDescription 111\n");
+        return false; // use API instead
     }
     */
     
