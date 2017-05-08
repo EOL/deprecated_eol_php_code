@@ -256,7 +256,7 @@ class WikiDataAPI
                          // if($i >= 100) break;   //debug
                          // */
                          
-                         /* utility: this is to count how many articles per language
+                         /* utility: this is to count how many articles per language ==============
                          if($arr = self::get_taxon_sitelinks($arr->sitelinks))
                          {
                              foreach($arr as $a)
@@ -267,7 +267,7 @@ class WikiDataAPI
                              }
                              // if($j > 100) break; //debug
                          }
-                         */
+                         ==========================================================================*/
                      }
                      else $j++;
                      // */

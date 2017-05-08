@@ -16,15 +16,16 @@ exit("\n");
 
 /* utility
 $func = new WikiDataAPI($resource_id, "");
-// $func->create_temp_files_based_on_wikimedia_filenames();     //create blank json files
+//these 2 functions are ran one after the other, preferably. This is process a new WikiMedia dump
+$func->create_temp_files_based_on_wikimedia_filenames();     //create blank json files
 $func->fill_in_temp_files_with_wikimedia_dump_data();        //fill-in those blank json files
-exit("\n end1 \n");
+exit("\n Finished preparing new WikiMedia dump \n");
 */
 
 /* utility
 $func = new WikiDataAPI($resource_id, "");
-$func->process_wikimedia_txt_dump(); //initial verification of the wikimedia dump file
-exit("\n end2 \n");
+$func->process_wikimedia_txt_dump(); //initial verification of the wikimedia dump file. Not part of the normal operation
+exit("\n Finished: just exploring... \n");
 */
 
 
