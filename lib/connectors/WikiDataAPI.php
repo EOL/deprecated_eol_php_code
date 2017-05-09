@@ -57,6 +57,20 @@ class WikiDataAPI
 
     function get_all_taxa()
     {
+        // /*testing
+        // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
+        // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
+        // $arr = self::process_file("Rubus_parviflorus_3742.JPG");
+        
+        $arr = self::process_file("Circle_Square_Ranch_Town_Hall_-_panoramio_(1).jpg");
+        
+        
+        
+        print_r($arr);
+        exit("\n-Finished testing-\n");
+        // */
+        
+        
         if(!@$this->trans['editors'][$this->language_code]) 
         {
             $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
@@ -185,11 +199,19 @@ class WikiDataAPI
             $k++; echo " ".number_format($k)." ";
             // /* breakdown when caching:
             $cont = false;
+            
             // if($k >=  1    && $k < $m) $cont = true;           //1 -   600,000
+
+            // if($k >=  1    && $k < 300000) $cont = true;           
+            if($k >=  300000    && $k < 600000) $cont = true;       
+            
+            
             // if($k >=  $m   && $k < $m*2) $cont = true;   //600,000 - 1,200,000
             // if($k >=  $m*2 && $k < $m*3) $cont = true; //1,200,000 - 1,800,000
             // if($k >=  $m*3 && $k < $m*4) $cont = true; //1,800,000 - 2,400,000
-            if($k >=  $m*4 && $k < $m*5) $cont = true; //2,400,000 - 3,000,000
+            // if($k >=  $m*4 && $k < $m*5) $cont = true; //2,400,000 - 3,000,000 -- done
+            
+            
             
             // if($k >= 668,006 && $k < $m*5) $cont = true; // nl
             // if($k >= 520,538 && $k < $m*5) $cont = true; // sv
@@ -420,13 +442,10 @@ class WikiDataAPI
             {
                 echo "\njust used api data instead";
 
-
                 /*
                 if(!in_array($file, array("The_marine_mammals_of_the_north-western_coast_of_North_America,_described_and_illustrated;_together_with_an_account_of_the_American_whale-fishery_(1874)_(14598172619).jpg", 
                 "The_marine_mammals_of_the_north-western_coast_of_North_America_described_and_illustrated_(microform)_-_together_with_an_account_of_the_American_whale-fishery_(1874)_(20624848441).jpg"))) exit("\n111 [$file] 222\n");
                 */
-                
-                
 
                 $rek = self::get_media_metadata_from_api($file);
             }
@@ -516,11 +535,11 @@ class WikiDataAPI
     private function convert_wiki_2_html($wiki)
     {
         $url = "https://www.mediawiki.org/w/api.php?action=parse&contentmodel=wikitext&format=json&text=";
-        // https://commons.wikimedia.org/w/api.php?action=parse&contentmodel=wikitext&text=
+        $url = "https://commons.wikimedia.org/w/api.php?action=parse&contentmodel=wikitext&format=json&text="; //much better API version
 
         $count = strlen($wiki);
         echo "\ncount = [$count]\n";
-        if($count >= 4054) return ""; //4054 //6783
+        if($count >= 4054) return false; //4054 //6783
         
         if($json = Functions::lookup_with_cache($url.urlencode($wiki), $this->download_options))
         {
@@ -532,31 +551,66 @@ class WikiDataAPI
             if(preg_match("/elix(.*?)<!--/ims", "elix".$html, $a))
             {
                 $html = trim($a[1]);
-                $html = str_ireplace('href="/w/', 'href="https://commons.wikimedia.org/w/', $html);
+                // exit("\n$html\n");
+                $html = str_ireplace('href="//', 'href="http://', $html);
+                $html = str_ireplace('href="/', 'href="https://commons.wikimedia.org/', $html);
                 $html = self::format_wiki_substr($html);
                 
-                $html = str_ireplace("&nbsp;", "", $html);
+                $html = str_ireplace("&nbsp;", " ", $html);
+                $html = Functions::remove_whitespace($html);
                 
-                //double Template:Information field
+                /*
+                //double Template:Information field -> not needed when using the commons.wikimedia.org API
                 $temp = '<a href="https://commons.wikimedia.org/w/index.php?title=Template:Information_field&action=edit&redlink=1" class="new" title="Template:Information field (page does not exist)">Template:Information field</a>';
                 $html = str_ireplace($temp.$temp, $temp, $html);
+                */
                 
                 //remove style
                 if(preg_match_all("/style=\"(.*?)\"/ims", $html, $a))
                 {
-                    foreach($a[1] as $style) $html = str_ireplace($style, "", $html);
-                    $html = str_ireplace('style=""', "", $html);
+                    foreach($a[1] as $style) $html = str_ireplace('style="'.$style.'"', "", $html);
                 }
 
                 //others
                 $html = str_ireplace(" (page does not exist)", "", $html);
+                
+                /*
+                //Template removal when using API mediawiki.org -> not needed when using the commons.wikimedia.org API
+                $html = str_ireplace('<a href="https://commons.wikimedia.org/w/index.php?title=Template:Date-time_separator&action=edit&redlink=1" class="new" title="Template:Date-time separator">Template:Date-time separator</a>', "", $html);
+                $html = str_ireplace('<a href="https://commons.wikimedia.org/w/index.php?title=Template:Formatting_error&action=edit&redlink=1" class="new" title="Template:Formatting error">Template:Formatting error</a>', "", $html);
+                $html = str_ireplace('<a href="https://commons.wikimedia.org/w/index.php?title=Template:Own&action=edit&redlink=1" class="new" title="Template:Own">Template:Own</a>', "Own work", $html);
+                $arr = array("Self", "Location dec", "Geograph");
+                foreach($arr as $t) $html = str_ireplace('<a href="https://commons.wikimedia.org/w/index.php?title=Template:'.str_replace(" ", "_", $t).'&action=edit&redlink=1" class="new" title="Template:'.$t.'">Template:'.$t.'</a>', "", $html);
+                */
+                
+                //strip_tags
+                $html = strip_tags($html, "<table><tr><td><br><a><i>");
+
+                $html = str_ireplace("([//www.mediawiki.org/w/index.php?title=API&action=purge# purge])", "", $html);
+                $html = Functions::remove_whitespace($html);
+                
+                
+                $html = str_ireplace('[<a href="https://commons.wikimedia.org/w/index.php?title=API&action=edit&section=1" class="mw-redirect" title="Edit section: Summary">edit</a>]', "", $html);
+                $html = str_ireplace('[<a href="https://commons.wikimedia.org/w/index.php?title=API&action=edit&section=2" class="mw-redirect" title="Edit section: Licensing">edit</a>]', "", $html);
+                
+                $arr = array("class", "id");
+                foreach($arr as $attrib)
+                {
+                    //remove class="" id=""
+                    if(preg_match_all("/$attrib=\"(.*?)\"/ims", $html, $a))
+                    {
+                        foreach($a[1] as $style) $html = str_ireplace($attrib.'="'.$style.'"', "", $html);
+                    }
+                }
+                
+                $html = Functions::remove_whitespace($html); //always the last step
             }
             
             // echo "\n$html\n";
             // exit("\nelix\n");
             return $html;
-            
         }
+        return false;
     }
     
     /*
