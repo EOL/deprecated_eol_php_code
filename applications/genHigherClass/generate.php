@@ -26,8 +26,7 @@ if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
     
     $zip = new \ZipArchive;
     $res = $zip->open($file);
-    // if($res === TRUE)
-    if($res)
+    if($res === TRUE)
     {
         // $zip->extractTo('temp/');
         $zip->extractTo($destination);      echo "<br>Zip file extracted...<br>";
@@ -46,7 +45,8 @@ if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
     } 
     else 
     {
-        echo "<br>There is a problem with the .ZIP file! [temp/" . $filenamez . ".zip]<br>";
+        echo "<br>There is a problem with the .ZIP file! [temp/" . $filenamez . ".zip]<br>Program will terminate now.";
+        echo "<a href='javascript:history.go(-1)'> &lt;&lt; Back to main</a><br><hr>";
         return;
     }
 }
