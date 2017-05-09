@@ -57,16 +57,18 @@ class WikiDataAPI
 
     function get_all_taxa()
     {
-        // /*testing
+        /*testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // $arr = self::process_file("Rubus_parviflorus_3742.JPG");
-        $arr = self::process_file("Circle_Square_Ranch_Town_Hall_-_panoramio_(1).jpg");
+        // $arr = self::process_file("Circle_Square_Ranch_Town_Hall_-_panoramio_(1).jpg");
         // $arr = self::process_file("(1)Cormorant_Centennial_Park-1.jpg");
-
+        // $arr = self::process_file("Apis_mellifera_carnica_worker_hive_entrance_3.jpg");
+        // $arr = self::process_file("Gardenology.org-IMG_2825_rbgs11jan.jpg");
+        $arr = self::process_file("Cuculus_canorus_-_Guguk_01.jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
-        // */
+        */
         
         
         if(!@$this->trans['editors'][$this->language_code]) 
@@ -553,11 +555,39 @@ class WikiDataAPI
         return $rek;
     }
     
+    private function remove_portions_of_wiki($wiki)
+    {
+        // =={{Assessment}}==
+        $wiki = str_ireplace("=={{Assessment}}==", "", $wiki);
+
+        //{{Assessment }}
+        if(preg_match("/\{\{Assessment(.*?)\}\}/ims", $wiki, $a))
+        {
+            $wiki = str_ireplace("{{Assessment" . $a[1] . "}}", "", $wiki);
+        }
+        
+        //===Versions:===
+        $wiki = str_ireplace("===Versions:===", "", $wiki);
+        
+        
+        //test...
+        /*
+        $wiki = str_ireplace("== {{int:license-header}} ==", "", $wiki);
+        $wiki = str_ireplace("{{self|cc-by-sa-3.0}}", "", $wiki);
+        */
+        
+        
+        $wiki = str_ireplace("{{gardenology}}", "", $wiki); //e.g. Gardenology.org-IMG_2825_rbgs11jan.jpg
+        
+        return $wiki;
+    }
+    
     private function convert_wiki_2_html($wiki)
     {
         $url = "https://www.mediawiki.org/w/api.php?action=parse&contentmodel=wikitext&format=json&text=";
         $url = "https://commons.wikimedia.org/w/api.php?action=parse&contentmodel=wikitext&format=json&text="; //much better API version
 
+        $wiki = self::remove_portions_of_wiki($wiki);
         $count = strlen($wiki);
         echo "\ncount = [$count]\n";
         if($count >= 4054) return false; //4054 //6783
@@ -604,12 +634,10 @@ class WikiDataAPI
                 foreach($arr as $t) $html = str_ireplace('<a href="https://commons.wikimedia.org/w/index.php?title=Template:'.str_replace(" ", "_", $t).'&action=edit&redlink=1" class="new" title="Template:'.$t.'">Template:'.$t.'</a>', "", $html);
                 */
                 
-                //strip_tags
-                $html = strip_tags($html, "<table><tr><td><br><a><i>");
+                $html = strip_tags($html, "<table><tr><td><br><a><i>"); //strip_tags
 
                 $html = str_ireplace("([//www.mediawiki.org/w/index.php?title=API&action=purge# purge])", "", $html);
                 $html = Functions::remove_whitespace($html);
-                
                 
                 $html = str_ireplace('[<a href="https://commons.wikimedia.org/w/index.php?title=API&action=edit&section=1" class="mw-redirect" title="Edit section: Summary">edit</a>]', "", $html);
                 $html = str_ireplace('[<a href="https://commons.wikimedia.org/w/index.php?title=API&action=edit&section=2" class="mw-redirect" title="Edit section: Licensing">edit</a>]', "", $html);
@@ -626,12 +654,13 @@ class WikiDataAPI
                 
                 $html = str_ireplace("<tr >", "<tr>", $html);
                 $html = str_ireplace("<td >", "<td>", $html);
-                
+
+                //remove 2 rows before 'License'
+                $html = str_ireplace("I, the copyright holder of this work, hereby publish it under the following license:", "", $html);
+                $html = str_ireplace("You are free: to share – to copy, distribute and transmit the work to remix – to adapt the work Under the following conditions: attribution – You must attribute the work in the manner specified by the author or licensor (but not in any way that suggests that they endorse you or your use of the work). share alike – If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.", "", $html);
+
                 $html = Functions::remove_whitespace($html); //always the last step
             }
-            
-            // echo "\n$html\n";
-            // exit("\nelix\n");
             return $html;
         }
         return false;
