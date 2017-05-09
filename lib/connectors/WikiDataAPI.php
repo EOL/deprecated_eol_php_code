@@ -61,11 +61,9 @@ class WikiDataAPI
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // $arr = self::process_file("Rubus_parviflorus_3742.JPG");
-        
-        $arr = self::process_file("Circle_Square_Ranch_Town_Hall_-_panoramio_(1).jpg");
-        
-        
-        
+        // $arr = self::process_file("Circle_Square_Ranch_Town_Hall_-_panoramio_(1).jpg");
+        $arr = self::process_file("(1)Cormorant_Centennial_Park-1.jpg");
+
         print_r($arr);
         exit("\n-Finished testing-\n");
         // */
@@ -203,13 +201,13 @@ class WikiDataAPI
             // if($k >=  1    && $k < $m) $cont = true;           //1 -   600,000
 
             // if($k >=  1    && $k < 300000) $cont = true;           
-            if($k >=  300000    && $k < 600000) $cont = true;       
+            // if($k >=  300000    && $k < 600000) $cont = true;       
             
             
             // if($k >=  $m   && $k < $m*2) $cont = true;   //600,000 - 1,200,000
             // if($k >=  $m*2 && $k < $m*3) $cont = true; //1,200,000 - 1,800,000
             // if($k >=  $m*3 && $k < $m*4) $cont = true; //1,800,000 - 2,400,000
-            // if($k >=  $m*4 && $k < $m*5) $cont = true; //2,400,000 - 3,000,000 -- done
+            if($k >=  $m*4 && $k < $m*5) $cont = true; //2,400,000 - 3,000,000 -- done
             
             
             
@@ -490,30 +488,29 @@ class WikiDataAPI
 
         if(self::wiki_protected($wiki)) return "protected";
 
-
-        // for LicenseShortName
+        //================================================================ ImageDescription
+        if($rek['ImageDescription'] = self::convert_wiki_2_html($wiki)) {}
+        else return false;
+        //================================================================ LicenseShortName
         // == {{int:license-header}} ==
         // {{Flickr-no known copyright restrictions}}
         if(preg_match("/== \{\{int:license-header\}\} ==(.*?)\}\}/ims", $wiki, $a) ||
-           preg_match("/==\{\{int:license-header\}\}==(.*?)\}\}/ims", $wiki, $a)
-        )
+           preg_match("/==\{\{int:license-header\}\}==(.*?)\}\}/ims", $wiki, $a))
         {
             $tmp = trim(str_replace("{", "", $a[1]));
             $rek['LicenseShortName'] = $tmp;
         }
-        
-        
-        //for ImageDescription
-        if($rek['ImageDescription'] = self::convert_wiki_2_html($wiki)) {}
-        else return false;
-        
-        
-        
-        // for title
+        //================================================================ LicenseUrl
+        //  -- http://creativecommons.org/licenses/by-sa/3.0 
+        if(preg_match("/http:\/\/creativecommons.org\/licenses\/(.*?)\"/ims", $rek['ImageDescription'], $a))
+        {
+            $rek['LicenseUrl'] = "http://creativecommons.org/licenses/" . $a[1];
+        }
+        //================================================================ title
         if($rek['title'] = self::get_title_from_ImageDescription($rek['ImageDescription'])) {}
         else $rek['title'] = str_replace("_", " ", $title);
-        
-        // for other metadata
+
+        //================================================================ other metadata
         /*
         |date=1841
         |author=Schlegel, H. (Hermann), 1804-1884
@@ -525,7 +522,21 @@ class WikiDataAPI
         if(preg_match("/\|source\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['source'] = $a[1];
         if(preg_match("/\|permission\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['permission'] = $a[1];
         
+        //================================================================ Artist
         $rek['Artist'] = @$rek['other']['author'];
+        if(!$rek['Artist'])
+        {
+            // <td lang="en">Author</td> 
+            // <td><a href="https://commons.wikimedia.org/wiki/User:Sardaka" title="User:Sardaka">Sardaka</a></td> 
+            if(preg_match("/>Author<\/td>(.*?)<\/td>/ims", $rek['ImageDescription'], $a))
+            {
+                $temp = $a[1];
+                if(preg_match("/href=\"(.*?)\"/ims", $temp, $a)) $rek['Artist']['homepage'] = trim($a[1]);
+                if(preg_match("/\">(.*?)<\/a>/ims", $temp, $a)) $rek['Artist']['name'] = trim($a[1]);
+            }
+            
+        }
+
 
         //print_r($arr); 
         // exit("\n $wiki \n");
@@ -602,6 +613,9 @@ class WikiDataAPI
                         foreach($a[1] as $style) $html = str_ireplace($attrib.'="'.$style.'"', "", $html);
                     }
                 }
+                
+                $html = str_ireplace("<tr >", "<tr>", $html);
+                $html = str_ireplace("<td >", "<td>", $html);
                 
                 $html = Functions::remove_whitespace($html); //always the last step
             }
