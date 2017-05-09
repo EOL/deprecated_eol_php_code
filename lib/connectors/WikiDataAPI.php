@@ -61,8 +61,8 @@ class WikiDataAPI
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // $arr = self::process_file("Rubus_parviflorus_3742.JPG");
-        // $arr = self::process_file("Circle_Square_Ranch_Town_Hall_-_panoramio_(1).jpg");
-        $arr = self::process_file("(1)Cormorant_Centennial_Park-1.jpg");
+        $arr = self::process_file("Circle_Square_Ranch_Town_Hall_-_panoramio_(1).jpg");
+        // $arr = self::process_file("(1)Cormorant_Centennial_Park-1.jpg");
 
         print_r($arr);
         exit("\n-Finished testing-\n");
@@ -518,7 +518,7 @@ class WikiDataAPI
         |permission={{User:Fæ/Flickr API}}
         */
         if(preg_match("/\|date\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['date'] = $a[1];
-        if(preg_match("/\|author\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['author'] = $a[1];
+        if(preg_match("/\|author\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['author'] = trim($a[1]);
         if(preg_match("/\|source\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['source'] = $a[1];
         if(preg_match("/\|permission\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['permission'] = $a[1];
         
@@ -534,12 +534,22 @@ class WikiDataAPI
                 if(preg_match("/href=\"(.*?)\"/ims", $temp, $a)) $rek['Artist']['homepage'] = trim($a[1]);
                 if(preg_match("/\">(.*?)<\/a>/ims", $temp, $a)) $rek['Artist']['name'] = trim($a[1]);
             }
-            
         }
+        // parse this value = "[http://www.panoramio.com/user/6099584?with_photo_id=56065015 Greg N]"
+        if(substr($rek['Artist'],0,5) == "[http")
+        {
+            $arr = explode(" ", $rek['Artist']);
+            unset($rek['Artist']);
+            $rek['Artist']['homepage'] = trim($arr[0]);
 
-
-        //print_r($arr); 
-        // exit("\n $wiki \n");
+            $arr[0] = null;
+            $arr = array_filter($arr);
+            $rek['Artist']['name'] = implode(" ", $arr);
+            
+            // remove "[" "]"
+            $rek['Artist']['name'] = str_replace(array("[","]"), "", $rek['Artist']['name']);
+            $rek['Artist']['homepage'] = str_replace(array("[","]"), "", $rek['Artist']['homepage']);
+        }
         return $rek;
     }
     
