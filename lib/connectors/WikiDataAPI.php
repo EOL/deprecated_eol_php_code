@@ -57,7 +57,7 @@ class WikiDataAPI
 
     function get_all_taxa()
     {
-        /*testing
+        // /*testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // $arr = self::process_file("Rubus_parviflorus_3742.JPG");
@@ -65,10 +65,11 @@ class WikiDataAPI
         // $arr = self::process_file("(1)Cormorant_Centennial_Park-1.jpg");
         // $arr = self::process_file("Apis_mellifera_carnica_worker_hive_entrance_3.jpg");
         // $arr = self::process_file("Gardenology.org-IMG_2825_rbgs11jan.jpg");
-        $arr = self::process_file("Cuculus_canorus_-_Guguk_01.jpg");
+        $arr = self::process_file("Pycnogonida_(1907)_(14595053968).jpg");
+        
         print_r($arr);
         exit("\n-Finished testing-\n");
-        */
+        // */
         
         
         if(!@$this->trans['editors'][$this->language_code]) 
@@ -561,21 +562,22 @@ class WikiDataAPI
         $wiki = str_ireplace("=={{Assessment}}==", "", $wiki);
 
         //{{Assessment }}
-        if(preg_match("/\{\{Assessment(.*?)\}\}/ims", $wiki, $a))
-        {
-            $wiki = str_ireplace("{{Assessment" . $a[1] . "}}", "", $wiki);
-        }
+        if(preg_match("/\{\{Assessment(.*?)\}\}/ims", $wiki, $a)) $wiki = str_ireplace("{{Assessment" . $a[1] . "}}", "", $wiki);
+
+        // {{User:FlickreviewR }}
+        if(preg_match("/\{\{User:FlickreviewR(.*?)\}\}/ims", $wiki, $a)) $wiki = str_ireplace("{{User:FlickreviewR" . $a[1] . "}}", "", $wiki);
+        
+        // {{Check categories }}
+        if(preg_match("/\{\{Check categories(.*?)\}\}/ims", $wiki, $a)) $wiki = str_ireplace("{{Check categories" . $a[1] . "}}", "", $wiki);
         
         //===Versions:===
         $wiki = str_ireplace("===Versions:===", "", $wiki);
-        
         
         //test...
         /*
         $wiki = str_ireplace("== {{int:license-header}} ==", "", $wiki);
         $wiki = str_ireplace("{{self|cc-by-sa-3.0}}", "", $wiki);
         */
-        
         
         $wiki = str_ireplace("{{gardenology}}", "", $wiki); //e.g. Gardenology.org-IMG_2825_rbgs11jan.jpg
         
@@ -660,6 +662,11 @@ class WikiDataAPI
                 $html = str_ireplace("You are free: to share – to copy, distribute and transmit the work to remix – to adapt the work Under the following conditions: attribution – You must attribute the work in the manner specified by the author or licensor (but not in any way that suggests that they endorse you or your use of the work). share alike – If you alter, transform, or build upon this work, you may distribute the resulting work only under the same or similar license to this one.", "", $html);
 
                 $html = Functions::remove_whitespace($html); //always the last step
+                
+                //remove Flickr's long licensing portion
+                $html = str_ireplace('Licensing <table cellspacing="8" cellpadding="0" lang="en" > <tr> <td><i>This image was taken from <a href="https://commons.wikimedia.org/wiki/Flickr" title="Flickr">Flickr</a>'."'".'s <a rel="nofollow" href="https://flickr.com/commons">The Commons</a>. The uploading organization may have various reasons for determining that no known copyright restrictions exist, such as:<br /></i> The copyright is in the public domain because it has expired; The copyright was injected into the public domain for other reasons, such as failure to adhere to required formalities or conditions; The institution owns the copyright but is not interested in exercising control; or The institution has legal rights sufficient to authorize others to use the work without restrictions. More information can be found at <a rel="nofollow" href="https://flickr.com/commons/usage/">https://flickr.com/commons/usage/</a> Please add additional <a href="https://commons.wikimedia.org/wiki/Commons:Copyright_tags" title="Commons:Copyright tags">copyright tags</a> to this image if more specific information about copyright status can be determined. See <a href="https://commons.wikimedia.org/wiki/Special:MyLanguage/Commons:Licensing" title="Special:MyLanguage/Commons:Licensing">Commons:Licensing</a> for more information.No known copyright restrictionsNo restrictionshttps://www.flickr.com/commons/usage/false </td> </tr> </table>', "", $html);
+                
+                
             }
             return $html;
         }
