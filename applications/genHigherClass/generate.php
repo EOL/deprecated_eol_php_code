@@ -26,12 +26,13 @@ if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
     
     $zip = new \ZipArchive;
     $res = $zip->open($file);
-    if($res === TRUE) 
+    // if($res === TRUE)
+    if($res)
     {
         // $zip->extractTo('temp/');
-        $zip->extractTo($destination);
+        $zip->extractTo($destination);      echo "<br>Zip file extracted...<br>";
         $zip->close();
-        unlink("temp/$filenamez".".zip");
+        unlink("temp/$filenamez".".zip");   echo "<br>Zip file deleted...<br>";
         
         foreach (glob("$destination/*.*") as $filename) //source
         {
