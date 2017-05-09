@@ -43,7 +43,11 @@ if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
         }
         
     } 
-    else echo '<br>There is a problem with the .ZIP file!<br>';
+    else 
+    {
+        echo "<br>There is a problem with the .ZIP file! [temp/" . $filenamez . ".zip]<br>";
+        return;
+    }
 }
 
 require_library('connectors/DwCA_Utility');
