@@ -39,8 +39,9 @@ if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
     else                   echo "<br>[$file] file does not exist - ERROR<br>";
     
     //start of new routine ================================
-    $output = shell_exec("unzip $file -d $destination");    echo "<br>Zip file extracted...<br>";
-    unlink("temp/$filenamez".".zip");                       echo "<br>Source Zip file deleted...<br>";
+    $status = shell_exec("unzip $file -d $destination");    echo "<br>unzip status: <i>$status</i><br>";
+    $status = unlink("temp/$filenamez".".zip");             echo "<br>unlink status: <i>$status</i><br>";
+    
     
     foreach (glob("$destination/*.*") as $filename) //source
     {
