@@ -50,6 +50,7 @@ if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
     } 
     else 
     {
+        echo "<br>failed, code: $res<br>";
         echo "<br>There is a problem with the .ZIP file! [temp/" . $filenamez . ".zip]<br>Program will terminate now.";
         echo "<a href='javascript:history.go(-1)'> &lt;&lt; Back to main</a><br><hr>";
         return;
