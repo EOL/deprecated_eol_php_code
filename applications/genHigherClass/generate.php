@@ -30,7 +30,7 @@ if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
     else                   echo "<br>[$file] does not exist - ERROR<br>";
     
     $zip = new \ZipArchive;
-    $res = $zip->open($file);
+    $res = $zip->open($file, \ZIPARCHIVE::CREATE | \ZipArchive::CHECKCONS);
     if($res === TRUE)
     {
         // $zip->extractTo('temp/');
