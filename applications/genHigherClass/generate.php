@@ -15,6 +15,8 @@ $orig_file = "" . $_GET["orig_file"];
 // echo "</pre>";
 // exit;
 
+echo "<br>Working file: [$file]<br>";
+
 if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
 {
     $filenamez = pathinfo($file, PATHINFO_FILENAME); //time() e.g. 1493906650
@@ -23,6 +25,9 @@ if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
     
     $destination = "temp/".$filenamez;
     mkdir($destination);
+    
+    if(file_exists($file)) echo "<br>[$file] exists OK<br>";
+    else                   echo "<br>[$file] does not exist - ERROR<br>";
     
     $zip = new \ZipArchive;
     $res = $zip->open($file);
@@ -62,6 +67,17 @@ if($info = $func->tool_generate_higherClassification($file))
     $temp   = str_ireplace("generate.php", $filename, $temp);
     $url    = "http://$domain" . $temp;
 
+
+    //start zip
+    echo "<br>filename = $filename<br>";
+    // $command_line = "sudo zip -rj " . CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey.zip " . CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey/";
+    // $output = shell_exec($command_line);
+    $command_line = "zip -rj " . $filename . ".zip " . $filename;
+    echo "<br>$command_line<br>";
+    $output = shell_exec($command_line);
+
+    //end zip
+
     /* utility
     require_library('connectors/DWCADiagnoseAPI');
     $func = new DWCADiagnoseAPI();
@@ -71,7 +87,10 @@ if($info = $func->tool_generate_higherClassification($file))
 
     print"<b>
     Conversion completed. <br>&nbsp;<br>
-    This is the URL of the converted file [<i>$orig_file</i>] with higherClassification:<br><br> <a target='$filename' href='$url'>$url</a>
+    This is the URL of the converted file [<i>$orig_file</i>] with higherClassification:
+    <br><br> <a target='$filename' href='$url'>$url</a>
+    <br><br> <a target='$filename' href='$url.zip'>$url.zip</a>
+    
     <br><hr></b>";
     
     if($undefined_parents)
