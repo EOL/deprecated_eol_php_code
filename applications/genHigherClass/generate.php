@@ -29,6 +29,19 @@ if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
     if(file_exists($file)) echo "<br>[$file] exists OK<br>";
     else                   echo "<br>[$file] does not exist - ERROR<br>";
     
+    //start of new routine ================================
+    $output = shell_exec("unzip $file -d $destination");
+    foreach (glob("$destination/*.*") as $filename) //source
+    {
+        // echo "<br>file = [$filename]<br>";
+        $file = "temp/" . "$filenamez.$extensionz"; //destination
+        if(!copy($filename, $file)) exit("<hr>Failed to copy file. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
+        else recursive_rmdir($destination);
+        break;
+    }
+    //end of new routine ================================
+    
+    /* problematic for big files to unzip
     $zip = new \ZipArchive;
     $res = $zip->open($file, \ZIPARCHIVE::CREATE | \ZipArchive::CHECKCONS);
     if($res === TRUE)
@@ -48,13 +61,15 @@ if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
         }
         
     } 
-    else 
+    else
     {
         echo "<br>failed, code: $res<br>";
         echo "<br>There is a problem with the .ZIP file! [temp/" . $filenamez . ".zip]<br>Program will terminate now.";
         echo "<a href='javascript:history.go(-1)'> &lt;&lt; Back to main</a><br><hr>";
         return;
     }
+    */
+    
 }
 
 require_library('connectors/DwCA_Utility');
@@ -74,7 +89,7 @@ if($info = $func->tool_generate_higherClassification($file))
     // $command_line = "sudo zip -rj " . CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey.zip " . CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey/";
     // $output = shell_exec($command_line);
     $command_line = "zip -rj " . $filename . ".zip " . $filename;
-    echo "<br>$command_line<br>";
+    // echo "<br>$command_line<br>";
     $output = shell_exec($command_line);
 
     //end zip
@@ -91,7 +106,6 @@ if($info = $func->tool_generate_higherClassification($file))
     This is the URL of the converted file [<i>$orig_file</i>] with higherClassification:
     <br><br> <a target='$filename' href='$url'>$url</a>
     <br><br> <a target='$filename' href='$url.zip'>$url.zip</a>
-    
     <br><hr></b>";
     
     if($undefined_parents)
