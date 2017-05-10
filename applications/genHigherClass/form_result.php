@@ -40,7 +40,7 @@ elseif($file_type = @$_FILES["file_upload"]["type"])
             {
                 echo "<br>OK - file uploaded<br>";
                 echo "<br>destination: $url<br>";
-                exit("<br>testing...exits now...<br>");
+                // exit("<br>testing...exits now...<br>");
             }
             else echo "<br>ERROR - uploading file<br>";
         }
