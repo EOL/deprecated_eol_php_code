@@ -1,14 +1,21 @@
 <?php
 namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-
 $timestart = time_elapsed();
-
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
-
 set_time_limit(0);
 ini_set("memory_limit","5000M");
+
+/* Important settings
+Apache httpd.conf:
+    Timeout 1200
+    
+php.ini:
+    upload_max_filesize = 10M
+    post_max_size = 10M
+*/
+
 $file = "" . $_GET["file"];
 $orig_file = "" . $_GET["orig_file"];
 
@@ -24,7 +31,6 @@ if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
 {
     $filenamez = pathinfo($file, PATHINFO_FILENAME); //time() e.g. 1493906650
     $extensionz = get_ext_of_orig_file_in_zip($orig_file);
-    // exit("[$filenamez]");
     
     $destination = "temp/".$filenamez;
     mkdir($destination);
@@ -33,7 +39,9 @@ if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
     else                   echo "<br>[$file] file does not exist - ERROR<br>";
     
     //start of new routine ================================
-    $output = shell_exec("unzip $file -d $destination");
+    $output = shell_exec("unzip $file -d $destination");    echo "<br>Zip file extracted...<br>";
+    unlink("temp/$filenamez".".zip");                       echo "<br>Source Zip file deleted...<br>";
+    
     foreach (glob("$destination/*.*") as $filename) //source
     {
         // echo "<br>file = [$filename]<br>";
