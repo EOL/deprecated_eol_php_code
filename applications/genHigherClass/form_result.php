@@ -36,7 +36,12 @@ elseif($file_type = @$_FILES["file_upload"]["type"])
             $orig_file = $_FILES["file_upload"]["name"];
             // $url = "temp/" . $orig_file;
             $url = "temp/" . time() . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
-            if(move_uploaded_file($_FILES["file_upload"]["tmp_name"] , $url)) echo "<br>OK - file uploaded<br>";
+            if(move_uploaded_file($_FILES["file_upload"]["tmp_name"] , $url))
+            {
+                echo "<br>OK - file uploaded<br>";
+                echo "<br>destination: $url<br>";
+                exit("<br>testing...exits now...<br>");
+            }
             else echo "<br>ERROR - uploading file<br>";
         }
         $newfile = "temp/" . time() . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
