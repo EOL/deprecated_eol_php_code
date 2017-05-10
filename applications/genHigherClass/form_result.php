@@ -38,11 +38,11 @@ elseif($file_type = @$_FILES["file_upload"]["type"])
             $url = "temp/" . time() . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
             if(move_uploaded_file($_FILES["file_upload"]["tmp_name"] , $url))
             {
-                echo "<br>OK - file uploaded<br>";
+                echo "<br>file uploaded - OK<br>";
                 echo "<br>destination: $url<br>";
                 // exit("<br>testing...exits now...<br>");
             }
-            else echo "<br>ERROR - uploading file<br>";
+            else echo "<br>uploading file - ERROR<br>";
         }
         $newfile = "temp/" . time() . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
     }
@@ -55,7 +55,7 @@ else exit("<hr>Please browse a file to continue. <br> <a href='javascript:histor
 // if(!copy($url, $newfile)) exit("<hr>Failed to copy file. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 
 $validate = get_val_var('validate');
-print "<b>Processing, please wait...</b><br><hr>";
+print "<br><b>Processing, please wait...</b><br><hr>";
 print"<META HTTP-EQUIV='Refresh' Content='0; URL=generate.php?file=$newfile&orig_file=$orig_file'>";
 exit;
 

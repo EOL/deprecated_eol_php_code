@@ -2,9 +2,12 @@
 namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
+$timestart = time_elapsed();
+
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 
+set_time_limit(0);
 ini_set("memory_limit","5000M");
 $file = "" . $_GET["file"];
 $orig_file = "" . $_GET["orig_file"];
@@ -26,8 +29,8 @@ if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
     $destination = "temp/".$filenamez;
     mkdir($destination);
     
-    if(file_exists($file)) echo "<br>[$file] exists OK<br>";
-    else                   echo "<br>[$file] does not exist - ERROR<br>";
+    if(file_exists($file)) echo "<br>[$file] file exists - OK<br>";
+    else                   echo "<br>[$file] file does not exist - ERROR<br>";
     
     //start of new routine ================================
     $output = shell_exec("unzip $file -d $destination");
@@ -122,6 +125,12 @@ else
     <br><a href='javascript:history.go(-1)'> &lt;&lt; Go back</a>
     <br><hr>";
 }
+
+$elapsed_time_sec = time_elapsed() - $timestart;
+echo "elapsed time = $elapsed_time_sec seconds                  ";
+echo "<br>elapsed time = " . $elapsed_time_sec/60 . " minutes   ";
+echo "<br>Done processing.<br><br>";
+
 
 function get_ext_of_orig_file_in_zip($orig)
 {
