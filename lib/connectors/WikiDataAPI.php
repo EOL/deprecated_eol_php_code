@@ -57,7 +57,7 @@ class WikiDataAPI
 
     function get_all_taxa()
     {
-        // /*testing
+        /*testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // $arr = self::process_file("Rubus_parviflorus_3742.JPG");
@@ -68,7 +68,7 @@ class WikiDataAPI
         $arr = self::process_file("The_marine_mammals_of_the_north-western_coast_of_North_America,_described_and_illustrated;_together_with_an_account_of_the_American_whale-fishery_(1874)_(14598304727).jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
-        // */
+        */
         
         
         if(!@$this->trans['editors'][$this->language_code]) 
@@ -455,7 +455,50 @@ class WikiDataAPI
         }
         $rek['source_url']  = "https://commons.wikimedia.org/wiki/File:".$file;
         $rek['media_url']   = self::get_media_url($file);
+        
+        $rek['Artist'] = self::format_artist($rek['Artist']);
+        
         return $rek;
+    }
+
+    private function format_artist($str)
+    {
+        if(is_array($str)) return $str;
+        
+        $str = trim($str);
+        // [Artist] => [[User:Chiswick Chap|Ian Alexander]]
+        if(preg_match("/\[\[User:(.*?)\]\]/ims", $str, $a))
+        {
+            $arr = explode("|", $a[1]);
+            $arr = array_unique($arr);
+            $final = array();
+            foreach($arr as $t)
+            {
+                $final[] = array('name' => $t, 'homepage' => "https://commons.wikimedia.org/wiki/User:".str_replace(" ", "_", $t));
+            }
+            if($final) return $final;
+        }
+        
+        //[Artist] => <a rel="nofollow" class="external text" href="https://www.flickr.com/people/126377022@N07">Internet Archive Book Images</a>
+        if(substr($str,0,3) == "<a " && substr_count($str, '</a>') == 1)
+        {
+            $temp = array();
+            if(preg_match("/>(.*?)<\/a>/ims", $str, $a))    $temp['name'] = $a[1];
+            if(preg_match("/href=\"(.*?)\"/ims", $str, $a)) $temp['homepage'] = $a[1];
+            if($temp)
+            {
+                $final[] = $temp;
+                return $final;
+            }
+        }
+        
+        //[Artist] => <span lang="en">Anonymous</span>
+        if(substr($str,0,6) == "<span " && substr_count($str, '</span>') == 1)
+        {
+            return array(array('name' => strip_tags($str)));
+        }
+        
+        return $str;
     }
     
     private function has_cache_data($file)
@@ -525,31 +568,60 @@ class WikiDataAPI
         $rek['Artist'] = @$rek['other']['author'];
         if(!$rek['Artist'])
         {
-            // <td lang="en">Author</td> 
-            // <td><a href="https://commons.wikimedia.org/wiki/User:Sardaka" title="User:Sardaka">Sardaka</a></td> 
-            if(preg_match("/>Author<\/td>(.*?)<\/td>/ims", $rek['ImageDescription'], $a))
-            {
-                $temp = $a[1];
-                if(preg_match("/href=\"(.*?)\"/ims", $temp, $a)) $rek['Artist']['homepage'] = trim($a[1]);
-                if(preg_match("/\">(.*?)<\/a>/ims", $temp, $a)) $rek['Artist']['name'] = trim($a[1]);
-            }
+            $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']);
         }
         // parse this value = "[http://www.panoramio.com/user/6099584?with_photo_id=56065015 Greg N]"
         if(substr($rek['Artist'],0,5) == "[http")
         {
             $arr = explode(" ", $rek['Artist']);
             unset($rek['Artist']);
-            $rek['Artist']['homepage'] = trim($arr[0]);
+            $temp = array();
+            $temp['homepage'] = trim($arr[0]);
 
             $arr[0] = null;
             $arr = array_filter($arr);
-            $rek['Artist']['name'] = implode(" ", $arr);
+            $temp['name'] = implode(" ", $arr);
             
             // remove "[" "]"
-            $rek['Artist']['name'] = str_replace(array("[","]"), "", $rek['Artist']['name']);
-            $rek['Artist']['homepage'] = str_replace(array("[","]"), "", $rek['Artist']['homepage']);
+            $temp['name'] = str_replace(array("[","]"), "", $temp['name']);
+            $temp['homepage'] = str_replace(array("[","]"), "", $temp['homepage']);
+            
+            if($temp) $rek['Artist'][] = $temp;
         }
+        //================================================================ END
         return $rek;
+    }
+    
+    private function get_artist_from_ImageDescription($description)
+    {
+        // <td lang="en">Author</td> 
+        // <td><a href="https://commons.wikimedia.org/wiki/User:Sardaka" title="User:Sardaka">Sardaka</a></td> 
+        if(preg_match("/>Author<\/td>(.*?)<\/td>/ims", $description, $a))
+        {
+            $temp = $a[1];
+            $final = array(); $atemp = array();
+            if(preg_match("/href=\"(.*?)\"/ims", $temp, $a)) $atemp['homepage'] = trim($a[1]);
+            if(preg_match("/\">(.*?)<\/a>/ims", $temp, $a)) $atemp['name'] = trim($a[1]);
+            if($atemp)
+            {
+                $final[] = $atemp;
+                return $final;
+            }
+            else
+            {
+                // <td lang="en">Author</td>
+                // <td>Museo Nacional de Chile.</td>
+                // echo("\n[@$a[1]]\n");
+                
+                $atemp = array('name' => trim(strip_tags($temp)));
+                if($atemp)
+                {
+                    $final[] = $atemp;
+                    return $final;
+                }
+            }
+        }
+        return false;
     }
     
     private function remove_portions_of_wiki($wiki)
@@ -727,7 +799,11 @@ class WikiDataAPI
             if($rek['title'] = self::get_title_from_ImageDescription($rek['ImageDescription'])) {}
             else $rek['title'] = self::format_wiki_substr($arr['title']);
 
-            $rek['Artist']           = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Artist']['value']);
+            $rek['Artist'] = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Artist']['value']);
+            if(!$rek['Artist']) $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']);
+            
+            
+            
             $rek['LicenseUrl']       = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['LicenseUrl']['value']);
             $rek['LicenseShortName'] = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['LicenseShortName']['value']);
             if($val = @$arr['imageinfo'][0]['extmetadata']['DateTime']['value'])             $rek['date'] = self::format_wiki_substr($val);
