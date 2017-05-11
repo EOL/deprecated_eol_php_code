@@ -57,7 +57,7 @@ class WikiDataAPI
 
     function get_all_taxa()
     {
-        // /*testing
+        /*testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // $arr = self::process_file("Rubus_parviflorus_3742.JPG");
@@ -65,11 +65,10 @@ class WikiDataAPI
         // $arr = self::process_file("(1)Cormorant_Centennial_Park-1.jpg");
         // $arr = self::process_file("Apis_mellifera_carnica_worker_hive_entrance_3.jpg");
         // $arr = self::process_file("Gardenology.org-IMG_2825_rbgs11jan.jpg");
-        $arr = self::process_file("Pycnogonida_(1907)_(14595053968).jpg");
-        
+        $arr = self::process_file("Ptyonoprogne_concolor_1894.jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
-        // */
+        */
         
         
         if(!@$this->trans['editors'][$this->language_code]) 
@@ -194,23 +193,22 @@ class WikiDataAPI
     {
         $actual = 0;
         $i = 0; $j = 0;
-        $k = 0; $m = 4624000; $m = 600000; //only for breakdown when caching
+        $k = 0; $m = 4624000; $m = 300000; //only for breakdown when caching
         foreach(new FileIterator($this->wiki_data_json) as $line_number => $row)
         {
             $k++; echo " ".number_format($k)." ";
             // /* breakdown when caching:
             $cont = false;
             
-            // if($k >=  1    && $k < $m) $cont = true;           //1 -   600,000
-
-            // if($k >=  1    && $k < 300000) $cont = true;           
-            // if($k >=  300000    && $k < 600000) $cont = true;       
-            
-            
-            // if($k >=  $m   && $k < $m*2) $cont = true;   //600,000 - 1,200,000
-            // if($k >=  $m*2 && $k < $m*3) $cont = true; //1,200,000 - 1,800,000
-            // if($k >=  $m*3 && $k < $m*4) $cont = true; //1,800,000 - 2,400,000
-            if($k >=  $m*4 && $k < $m*5) $cont = true; //2,400,000 - 3,000,000 -- done
+            // if($k >=  1    && $k < $m) $cont = true;
+            // if($k >=  $m   && $k < $m*2) $cont = true;
+            // if($k >=  $m*2 && $k < $m*3) $cont = true;
+            // if($k >=  $m*3 && $k < $m*4) $cont = true;
+            // if($k >=  $m*4 && $k < $m*5) $cont = true;
+            // if($k >=  $m*5 && $k < $m*6) $cont = true;
+            // if($k >=  $m*6 && $k < $m*7) $cont = true;
+            // if($k >=  $m*7 && $k < $m*8) $cont = true;
+            if($k >=  2400000 && $k < 3000000) $cont = true; //2,400,000 - 3,000,000
             
             
             
@@ -422,7 +420,7 @@ class WikiDataAPI
                         $final[] = $rek;
                         $limit++;
                     }
-                    if($limit >= 35) break; //no. of images to get
+                    // if($limit >= 35) break; //no. of images to get
                 }
                 // exit("\n cha222 \n");
             }
@@ -592,7 +590,7 @@ class WikiDataAPI
         $wiki = self::remove_portions_of_wiki($wiki);
         $count = strlen($wiki);
         echo "\ncount = [$count]\n";
-        if($count >= 4054) return false; //4054 //6783
+        if($count >= 2995) return false; //2995 //4054 //6783
         
         if($json = Functions::lookup_with_cache($url.urlencode($wiki), $this->download_options))
         {
@@ -665,7 +663,9 @@ class WikiDataAPI
                 
                 //remove Flickr's long licensing portion
                 $html = str_ireplace('Licensing <table cellspacing="8" cellpadding="0" lang="en" > <tr> <td><i>This image was taken from <a href="https://commons.wikimedia.org/wiki/Flickr" title="Flickr">Flickr</a>'."'".'s <a rel="nofollow" href="https://flickr.com/commons">The Commons</a>. The uploading organization may have various reasons for determining that no known copyright restrictions exist, such as:<br /></i> The copyright is in the public domain because it has expired; The copyright was injected into the public domain for other reasons, such as failure to adhere to required formalities or conditions; The institution owns the copyright but is not interested in exercising control; or The institution has legal rights sufficient to authorize others to use the work without restrictions. More information can be found at <a rel="nofollow" href="https://flickr.com/commons/usage/">https://flickr.com/commons/usage/</a> Please add additional <a href="https://commons.wikimedia.org/wiki/Commons:Copyright_tags" title="Commons:Copyright tags">copyright tags</a> to this image if more specific information about copyright status can be determined. See <a href="https://commons.wikimedia.org/wiki/Special:MyLanguage/Commons:Licensing" title="Special:MyLanguage/Commons:Licensing">Commons:Licensing</a> for more information.No known copyright restrictionsNo restrictionshttps://www.flickr.com/commons/usage/false </td> </tr> </table>', "", $html);
-                
+             
+                //remove {{PD-scan|PD-old-100}} long licensing portion
+                $html = str_ireplace('Licensing <table cellspacing="8" cellpadding="0" > <tr> <td>This image is in the <a href="https://en.wikipedia.org/wiki/public_domain" title="w:public domain">public domain</a> because it is a mere mechanical scan or photocopy of a public domain original, or – from the available evidence – is so similar to such a scan or photocopy that no copyright protection can be expected to arise. The original itself is in the public domain for the following reason: <table > <tr> <td>Public domainPublic domainfalsefalse</td> </tr> </table> <table lang="en"> <tr> <td rowspan="2"></td> <td> This work is in the <a href="https://en.wikipedia.org/wiki/public_domain" title="en:public domain">public domain</a> in its country of origin and other countries and areas where the <a href="https://en.wikipedia.org/wiki/List_of_countries%27_copyright_length" title="w:List of countries'."'".' copyright length">copyright term</a> is the author'."'".'s life plus 100 years or less. You must also include a <a href="https://commons.wikimedia.org/wiki/Commons:Copyright_tags#United_States" title="Commons:Copyright tags">United States public domain tag</a> to indicate why this work is in the public domain in the United States. </td> </tr> <tr> <td colspan="2"> <a rel="nofollow" href="https://creativecommons.org/publicdomain/mark/1.0/deed.en">This file has been identified as being free of known restrictions under copyright law, including all related and neighboring rights.</a> </td> </tr> </table> This tag is designed for use where there may be a need to assert that any enhancements (eg brightness, contrast, colour-matching, sharpening) are in themselves insufficiently creative to generate a new copyright. It can be used where it is unknown whether any enhancements have been made, as well as when the enhancements are clear but insufficient. For known raw unenhanced scans you can use an appropriate <a href="https://commons.wikimedia.org/wiki/Template:PD-old" title="Template:PD-old">{{PD-old}}</a> tag instead. For usage, see <a href="https://commons.wikimedia.org/wiki/Commons:When_to_use_the_PD-scan_tag" title="Commons:When to use the PD-scan tag">Commons:When to use the PD-scan tag</a>. Note: This tag applies to scans and photocopies only. For photographs of public domain originals taken from afar, <a href="https://commons.wikimedia.org/wiki/Template:PD-Art" title="Template:PD-Art">{{PD-Art}}</a> may be applicable. See <a href="https://commons.wikimedia.org/wiki/Commons:When_to_use_the_PD-Art_tag" title="Commons:When to use the PD-Art tag">Commons:When to use the PD-Art tag</a>.</td> </tr> </table>', "", $html);
                 
             }
             return $html;
