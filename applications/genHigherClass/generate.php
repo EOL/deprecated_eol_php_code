@@ -82,7 +82,7 @@ if($info = $func->tool_generate_higherClassification($file))
     */
     $undefined_parents = array();
 
-    print"<b>
+    print"<b><br>
     Conversion completed. <br>&nbsp;<br>
     This is the URL of the converted file [<i>$orig_file</i>] with higherClassification:
     <br><br> <a target='$filename' href='$url'>$url</a>
