@@ -57,7 +57,7 @@ class WikiDataAPI
 
     function get_all_taxa()
     {
-        /*testing
+        // /*testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // $arr = self::process_file("Rubus_parviflorus_3742.JPG");
@@ -65,10 +65,10 @@ class WikiDataAPI
         // $arr = self::process_file("(1)Cormorant_Centennial_Park-1.jpg");
         // $arr = self::process_file("Apis_mellifera_carnica_worker_hive_entrance_3.jpg");
         // $arr = self::process_file("Gardenology.org-IMG_2825_rbgs11jan.jpg");
-        $arr = self::process_file("Ptyonoprogne_concolor_1894.jpg");
+        $arr = self::process_file("The_marine_mammals_of_the_north-western_coast_of_North_America,_described_and_illustrated;_together_with_an_account_of_the_American_whale-fishery_(1874)_(14598304727).jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
-        */
+        // */
         
         
         if(!@$this->trans['editors'][$this->language_code]) 
@@ -197,7 +197,7 @@ class WikiDataAPI
         foreach(new FileIterator($this->wiki_data_json) as $line_number => $row)
         {
             $k++; echo " ".number_format($k)." ";
-            // /* breakdown when caching:
+            /* breakdown when caching:
             $cont = false;
             
             // if($k >=  1    && $k < $m) $cont = true;
@@ -207,10 +207,8 @@ class WikiDataAPI
             // if($k >=  $m*4 && $k < $m*5) $cont = true;
             // if($k >=  $m*5 && $k < $m*6) $cont = true;
             // if($k >=  $m*6 && $k < $m*7) $cont = true;
-            // if($k >=  $m*7 && $k < $m*8) $cont = true;
-            if($k >=  2400000 && $k < 3000000) $cont = true; //2,400,000 - 3,000,000
-            
-            
+            // if($k >=  $m*7 && $k < $m*8) $cont = true;   done
+            // if($k >=  2400000 && $k < 3000000) $cont = true; //2,400,000 - 3,000,000 done
             
             // if($k >= 668,006 && $k < $m*5) $cont = true; // nl
             // if($k >= 520,538 && $k < $m*5) $cont = true; // sv
@@ -219,7 +217,7 @@ class WikiDataAPI
             // if($k >= 1 && $k < 100) $cont = true;   //wikimedia total taxa = 2,208,086
 
             if(!$cont) continue;
-            // */
+            */
 
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
@@ -273,7 +271,7 @@ class WikiDataAPI
                                  // if($actual >= 5000) break;   //debug - used only on batch of 5000 articles per language
                              }
                          }
-                         // print_r($rek);
+                         print_r($rek); exit("\nstop muna\n");
                          // if($i >= 100) break;   //debug
                          // */
                          
@@ -741,10 +739,7 @@ class WikiDataAPI
     private function get_title_from_ImageDescription($desc)
     {
         $desc = strip_tags($desc, "<br>");
-        if(preg_match("/Title:(.*?)<br>/ims", $desc, $arr))
-        {
-            return trim($arr[1]);
-        }
+        if(preg_match("/Title:(.*?)<br>/ims", $desc, $arr)) return trim($arr[1]);
         return false;
     }
     
