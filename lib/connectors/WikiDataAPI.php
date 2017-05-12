@@ -197,7 +197,7 @@ class WikiDataAPI
         foreach(new FileIterator($this->wiki_data_json) as $line_number => $row)
         {
             $k++; echo " ".number_format($k)." ";
-            /* breakdown when caching:
+            // /* breakdown when caching:
             $cont = false;
             
             // if($k >=  1    && $k < $m) $cont = true;
@@ -206,7 +206,7 @@ class WikiDataAPI
             // if($k >=  $m*3 && $k < $m*4) $cont = true;
             // if($k >=  $m*4 && $k < $m*5) $cont = true;
             // if($k >=  $m*5 && $k < $m*6) $cont = true;
-            // if($k >=  $m*6 && $k < $m*7) $cont = true;
+            if($k >=  $m*6 && $k < $m*7) $cont = true;
             // if($k >=  $m*7 && $k < $m*8) $cont = true;   done
             // if($k >=  2400000 && $k < 3000000) $cont = true; //2,400,000 - 3,000,000 done
             
@@ -217,7 +217,7 @@ class WikiDataAPI
             // if($k >= 1 && $k < 100) $cont = true;   //wikimedia total taxa = 2,208,086
 
             if(!$cont) continue;
-            */
+            // */
 
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
@@ -271,7 +271,7 @@ class WikiDataAPI
                                  // if($actual >= 5000) break;   //debug - used only on batch of 5000 articles per language
                              }
                          }
-                         print_r($rek); exit("\nstop muna\n");
+                         print_r($rek); //exit("\nstop muna\n");
                          // if($i >= 100) break;   //debug
                          // */
                          
@@ -662,7 +662,9 @@ class WikiDataAPI
         echo "\ncount = [$count]\n";
         if($count >= 2995) return false; //2995 //4054 //6783
         
-        if($json = Functions::lookup_with_cache($url.urlencode($wiki), $this->download_options))
+        $options = $this->download_options;
+        $options['expire_seconds'] = false; //always false
+        if($json = Functions::lookup_with_cache($url.urlencode($wiki), $options))
         {
             $arr = json_decode($json, true);
             // echo "\n==========\n";
@@ -779,7 +781,9 @@ class WikiDataAPI
     private function get_media_metadata_from_api($file)
     {   //https://commons.wikimedia.org/w/api.php?action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:Gorilla_498.jpg
         $rek = array();
-        if($json = Functions::lookup_with_cache("https://commons.wikimedia.org/w/api.php?format=json&action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:".$file, $this->download_options))
+        $options = $this->download_options;
+        $options['expire_seconds'] = false; //this can be 2 months
+        if($json = Functions::lookup_with_cache("https://commons.wikimedia.org/w/api.php?format=json&action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:".$file, $options))
         {
             $arr = json_decode($json, true);
             // print_r($arr); exit;
