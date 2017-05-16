@@ -75,8 +75,23 @@ class WormsArchiveAPI
     {
         $temp = CONTENT_RESOURCE_LOCAL_PATH . "26_files";
         if(!file_exists($temp)) mkdir($temp);
-        
         $this->what = $what; //either 'taxonomy' or 'media_objects'
+
+        /* last 2 bad parents:
+        Cristellaria Lamarck, 1816 (worms#390648)
+        Corbiculidae Gray, 1847 (worms#414789)
+        
+        And there are six descendants of bad parents respectively:
+        
+        *Cristellaria arcuatula Stache, 1864 (worms#895743)
+        *Cristellaria foliata Stache, 1864 (worms#903431)
+        *Cristellaria vestuta d'Orbigny, 1850 (worms#924530)
+        *Cristellaria obtusa (worms#925572)
+        
+        *Corbiculina Dall, 1903 (worms#818186)
+        *Cyrenobatissa Suzuki & Oyama, 1943 (worms#818201)            
+        */
+
         /* tests
         $this->children_of_synonyms = array(14769, 735405);
         $id = "24"; $id = "142"; $id = "5"; $id = "25"; $id = "890992"; $id = "834546";
@@ -94,10 +109,11 @@ class WormsArchiveAPI
         
         /* tests
         $this->synonyms_without_children = self::get_synonyms_without_children(); //used so script will no longer lookup if this syn is known to have no children.
-        $taxo_tmp = self::get_children_of_taxon("100795");
+        // $taxo_tmp = self::get_children_of_taxon("100795");
         // $taxo_tmp = self::get_children_of_taxon(13);
         // $taxo_tmp = self::get_children_of_taxon(510462);
-        print_r($taxo_tmp); exit("\nelix\n");
+        $taxo_tmp = self::get_children_of_taxon("390648");
+        print_r($taxo_tmp); exit("\n[".count($taxo_tmp)."] elix\n");
         */
         
         require_library('connectors/INBioAPI');
@@ -461,6 +477,14 @@ class WormsArchiveAPI
                     {
                         $temp5 = self::get_children_of_synonym($id);
                         $taxo_tmp = array_merge($taxo_tmp, $temp5);
+                        //start 6th loop -> process children of children of children
+                        foreach($temp5 as $id)
+                        {
+                            exit("\nreaches 6th loop, worth possible increase in loops\n");
+                            $temp6 = self::get_children_of_synonym($id);
+                            $taxo_tmp = array_merge($taxo_tmp, $temp6);
+                        }
+                        //end 6th loop
                     }
                     //end 5th loop
                 }
@@ -489,6 +513,7 @@ class WormsArchiveAPI
         {
             while(true)
             {
+                echo " $offset";
                 if($offset == 1) $url = $this->webservice['AphiaChildrenByAphiaID'].$taxon_id;
                 else             $url = $this->webservice['AphiaChildrenByAphiaID'].$taxon_id."?offset=$offset";
                 if($json = Functions::lookup_with_cache($url, $options))
@@ -617,6 +642,16 @@ class WormsArchiveAPI
                 if($taxon->taxonRank != @$this->taxa_rank[$taxon->acceptedNameUsageID]) continue;
                 $taxon->parentNameUsageID = ''; //remove the ParentNameUsageID data from all of the synonym lines
             }
+            
+            if($this->what == "taxonomy") //based on https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60923&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60923
+            {
+                if($taxon->parentNameUsageID)
+                {
+                    if(!self::if_accepted_taxon($taxon->parentNameUsageID)) continue;
+                }
+            }
+            
+            
             // /* stats
             $this->debug["status"][$taxon->taxonomicStatus] = '';
             @$this->debug["count"][$taxon->taxonomicStatus]++;
@@ -640,6 +675,17 @@ class WormsArchiveAPI
         }
     }
 
+    private function if_accepted_taxon($taxon_id)
+    {
+        if($json = Functions::lookup_with_cache($this->webservice['AphiaRecordByAphiaID'].$taxon_id, $this->download_options))
+        {
+            $arr = json_decode($json, true);
+            print_r($arr);
+            if($arr['status'] == "accepted") return true;
+        }
+        return false;
+    }
+    
     private function get_objects($records)
     {
         foreach($records as $rec)
