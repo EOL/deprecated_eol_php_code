@@ -552,6 +552,7 @@ class WormsArchiveAPI
         $k = 0;
         foreach($records as $rec)
         {
+            $rec = array_map('trim', $rec);
             $k++;
             // if(($k % 100) == 0) echo "\n count: $k";
             /* breakdown when caching:
@@ -565,7 +566,10 @@ class WormsArchiveAPI
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
             
-            if(in_array($taxon->taxonID, $this->children_of_synonyms)) continue; //exclude children of synonyms
+            if($this->what == "taxonomy")
+            {
+                if(in_array($taxon->taxonID, $this->children_of_synonyms)) continue; //exclude children of synonyms
+            }
             
             $taxon->scientificName  = (string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"];
             
@@ -580,12 +584,14 @@ class WormsArchiveAPI
             $this->debug['ranks'][$taxon->taxonRank] = '';
             
             $taxon->taxonomicStatus = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
-
             $taxon->taxonRemarks    = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRemarks"];
-            if(is_numeric(stripos($taxon->taxonRemarks, 'REMAP_ON_EOL')))
+            
+            if($this->what == "taxonomy") //based on https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60923&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60923
             {
-                $taxon->taxonomicStatus = "synonym";
+                if($taxon->taxonomicStatus == "") continue; //synonymous to cases where "unassessed" in taxonRemarks
             }
+            
+            if(is_numeric(stripos($taxon->taxonRemarks, 'REMAP_ON_EOL'))) $taxon->taxonomicStatus = "synonym";
 
             if($val = (string) $rec["http://rs.tdwg.org/dwc/terms/acceptedNameUsageID"]) $taxon->acceptedNameUsageID  = self::get_worms_taxon_id($val);
             else $taxon->acceptedNameUsageID = '';
