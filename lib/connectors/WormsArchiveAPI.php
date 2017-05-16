@@ -149,6 +149,7 @@ class WormsArchiveAPI
             self::get_agents($harvester->process_row_type('http://eol.org/schema/agent/Agent'));                            echo "\n6 of 8\n";
             self::get_vernaculars($harvester->process_row_type('http://rs.gbif.org/terms/1.0/VernacularName'));             echo "\n7 of 8\n";
         }
+        unset($harvester);
         $this->archive_builder->finalize(TRUE);                                                                             echo "\n8 of 8\n";
 
         // remove temp dir
@@ -260,6 +261,7 @@ class WormsArchiveAPI
             $taxon->taxonomicStatus = $t['status'];
             $taxon->source          = $this->taxon_page . $t['AphiaID'];
             if($t['scientificname'] != "Biota") $taxon->parentNameUsageID = $t['parent_id'];
+            else                                $taxon->parentNameUsageID = '';
             $taxon->acceptedNameUsageID     = $t['valid_AphiaID'];
             $taxon->bibliographicCitation   = $t['citation'];
             
@@ -567,7 +569,8 @@ class WormsArchiveAPI
         foreach($records as $rec)
         {
             $taxon_id = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
-            $this->taxa_rank[$taxon_id] = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
+            $this->taxa_rank[$taxon_id]['r'] = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
+            $this->taxa_rank[$taxon_id]['s'] = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
         }
     }
     
@@ -639,7 +642,7 @@ class WormsArchiveAPI
 
             if($taxon->taxonomicStatus == "synonym") // this will prevent names to become synonyms of another where the ranks are different
             {
-                if($taxon->taxonRank != @$this->taxa_rank[$taxon->acceptedNameUsageID]) continue;
+                if($taxon->taxonRank != @$this->taxa_rank[$taxon->acceptedNameUsageID]['r']) continue;
                 $taxon->parentNameUsageID = ''; //remove the ParentNameUsageID data from all of the synonym lines
             }
             
@@ -677,11 +680,20 @@ class WormsArchiveAPI
 
     private function if_accepted_taxon($taxon_id)
     {
-        if($json = Functions::lookup_with_cache($this->webservice['AphiaRecordByAphiaID'].$taxon_id, $this->download_options))
+        if($status = @$this->taxa_rank[$taxon_id]['s'])
         {
-            $arr = json_decode($json, true);
-            print_r($arr);
-            if($arr['status'] == "accepted") return true;
+            if($status == "accepted") return true;
+            else return false;
+        }
+        else //let the API decide
+        {
+            if($json = Functions::lookup_with_cache($this->webservice['AphiaRecordByAphiaID'].$taxon_id, $this->download_options))
+            {
+                $arr = json_decode($json, true);
+                print_r($arr);
+                if($arr['status'] == "accepted") return true;
+            }
+            return false;
         }
         return false;
     }
@@ -777,6 +789,12 @@ class WormsArchiveAPI
         $path = trim($path);
         if(substr($path, 0, 10) == "aphia.php?") return "http://www.marinespecies.org/" . $path;
         else return $path;
+    }
+    
+    private function get_ids_to_prune()
+    {
+        //to do: access google sheets online: https://docs.google.com/spreadsheets/d/11jQ-6CUJIbZiNwZrHqhR_4rqw10mamdA17iaNELWCBQ/edit#gid=0
+        return array(12, 598929, 22718, 10, 503066, 234484, 596326, 886300, 147480, 742162, 1836, 178701, 1278, 1300, 719042, 741333, 393257, 598621, 719043, 719950, 164710, 167282, 510103, 719044, 719045, 719046, 397356, 724635, 719047, 719048, 719049, 598607, 719050, 549666, 709139);
     }
 
     /*
