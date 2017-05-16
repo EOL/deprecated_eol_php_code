@@ -19,7 +19,8 @@ php.ini:
 */
 
 
-$file = "temp/GBIF_Taxon.tsv";
+$file = "sample/GBIF_Taxon.tsv";
+// $file = "sample/taxon.tsv";
 
 require_library('connectors/DwCA_Utility_cmd');
 $func = new DwCA_Utility_cmd();

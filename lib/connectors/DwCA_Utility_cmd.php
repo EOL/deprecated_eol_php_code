@@ -59,131 +59,30 @@ class DwCA_Utility_cmd
         return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
     }
     
-    function count_records_in_dwca()
-    {
-        $info = self::start();
-        $temp_dir = $info['temp_dir'];
-        $harvester = $info['harvester'];
-        $tables = $info['tables'];
-        $index = $info['index'];
-
-        $totals = array();
-        foreach($index as $row_type)
-        {
-            $count = self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type], false); //3rd param = false means county only, no archive will be generated
-            $totals[$row_type] = $count;
-        }
-        print_r($totals);
-        // remove temp dir
-        recursive_rmdir($temp_dir);
-        echo ("\n temporary directory removed: " . $temp_dir);
-    }
-    
-    function get_all_taxa()
-    {
-        $info = self::start();
-        $temp_dir = $info['temp_dir'];
-        $harvester = $info['harvester'];
-        $tables = $info['tables'];
-        $index = $info['index'];
-
-        $records = $harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon');
-        if(self::can_compute_higherClassification($records))
-        {
-            // /*
-            echo "\n1 of 3\n";  self::build_id_name_array($records);
-            echo "\n2 of 3\n";  $records = self::generate_higherClassification_field($records);
-            // */
-            
-            /*
-            Array
-                [0] => http://rs.tdwg.org/dwc/terms/taxon
-                [1] => http://rs.gbif.org/terms/1.0/vernacularname
-                [2] => http://rs.tdwg.org/dwc/terms/occurrence
-                [3] => http://rs.tdwg.org/dwc/terms/measurementorfact
-            */
-
-            echo "\n3 of 3\n";
-            // /*
-            foreach($index as $row_type)
-            {
-                if(@$this->extensions[$row_type]) //process only defined row_types
-                {
-                    if($this->extensions[$row_type] == "taxon") self::process_fields($records, $this->extensions[$row_type]);
-                    else                                        self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
-                }
-            }
-            $this->archive_builder->finalize(TRUE);
-            // */
-        }
-        else echo "\nCannot compute higherClassification.\n";
-
-        // remove temp dir
-        recursive_rmdir($temp_dir);
-        echo ("\n temporary directory removed: " . $temp_dir);
-        if($this->debug) print_r($this->debug);
-    }
-
-    private function process_fields($records, $class, $generateArchive = true)
-    {
-        $count = 0;
-        foreach($records as $rec)
-        {
-            $count++;
-            if    ($class == "vernacular")  $c = new \eol_schema\VernacularName();
-            elseif($class == "agent")       $c = new \eol_schema\Agent();
-            elseif($class == "reference")   $c = new \eol_schema\Reference();
-            elseif($class == "taxon")       $c = new \eol_schema\Taxon();
-            elseif($class == "document")    $c = new \eol_schema\MediaResource();
-            elseif($class == "occurrence")  $c = new \eol_schema\Occurrence();
-            elseif($class == "measurementorfact")   $c = new \eol_schema\MeasurementOrFact();
-            
-            // if($class == "taxon") print_r($rec);
-            
-            $keys = array_keys($rec);
-            foreach($keys as $key)
-            {
-                $temp = pathinfo($key);
-                $field = $temp["basename"];
-
-                // some fields have '#', e.g. "http://schemas.talis.com/2005/address/schema#localityName"
-                $parts = explode("#", $field);
-                if($parts[0]) $field = $parts[0];
-                if(@$parts[1]) $field = $parts[1];
-
-                $c->$field = $rec[$key];
-
-                // if($field == "taxonID") $c->$field = self::get_worms_taxon_id($c->$field); //not used here, only in WoRMS connector
-            }
-            if($generateArchive) $this->archive_builder->write_object_to_file($c);
-        }
-        return $count;
-    }
-
     private function build_id_name_array($records)
     {
         foreach($records as $rec)
         {
-            // [taxonID] => 6de0dc42e8f4fc2610cb4287a4505764
-            // [scientificName] => Accipiter cirrocephalus rosselianus Mayr, 1940
-            $taxon_id = (string) $rec["taxonID"];
-            $this->id_name[$taxon_id]['scientificName'] = (string) $rec["scientificName"];
-            $this->id_name[$taxon_id]['parentNameUsageID'] = (string) $rec["parentNameUsageID"];
+            // [tID] => 6de0dc42e8f4fc2610cb4287a4505764
+            // [sN] => Accipiter cirrocephalus rosselianus Mayr, 1940
+            $taxon_id = (string) $rec["tID"];
+            $this->id_name[$taxon_id]['sN'] = (string) $rec["sN"];
+            $this->id_name[$taxon_id]['pID'] = (string) $rec["pID"];
         }
     }
     
     private function generate_higherClassification_field($records)
     {   /* e.g. $rec
         Array
-            [taxonID] => 5e2712849c197671c260f53809836273
-            [scientificName] => Passerina leclancherii leclancherii Lafresnaye, 1840
-            [parentNameUsageID] => 49fc924007e33cc43908fed677d5499a
+            [tID] => 5e2712849c197671c260f53809836273
+            [sN] => Passerina leclancherii leclancherii Lafresnaye, 1840
+            [pID] => 49fc924007e33cc43908fed677d5499a
         */
         $i = 0;
         foreach($records as $rec)
         {
             $higherClassification = self::get_higherClassification($rec);
-            $records[$i]["higherClassification"] = $higherClassification; //assign value to main $records -> UNCOMMENT in real operation
+            $records[$i]["hC"] = $higherClassification; //assign value to main $records -> UNCOMMENT in real operation
             $i++;
         }
         return $records;
@@ -191,14 +90,14 @@ class DwCA_Utility_cmd
     
     private function get_higherClassification($rek)
     {
-        $parent_id = $rek['parentNameUsageID'];
+        $parent_id = $rek['pID'];
         $str = "";
         while($parent_id)
         {
             if($parent_id)
             {
-                $str .= Functions::canonical_form(trim(@$this->id_name[$parent_id]['scientificName']))."|";
-                $parent_id = @$this->id_name[$parent_id]['parentNameUsageID'];
+                $str .= Functions::canonical_form(trim(@$this->id_name[$parent_id]['sN']))."|";
+                $parent_id = @$this->id_name[$parent_id]['pID'];
             }
         }
         $str = substr($str, 0, strlen($str)-1);
@@ -212,35 +111,12 @@ class DwCA_Utility_cmd
 
     private function can_compute_higherClassification($records)
     {
-        if(!isset($records[0]["taxonID"])) return false;
-        if(!isset($records[0]["scientificName"])) return false;
-        if(!isset($records[0]["parentNameUsageID"])) return false;
+        if(!isset($records[0]["tID"])) return false;
+        if(!isset($records[0]["sN"])) return false;
+        if(!isset($records[0]["pID"])) return false;
         return true;
     }
     //ends here 
-    
-    /* not used at the moment...
-    private function create_taxa($taxa)
-    {
-        foreach($taxa as $t)
-        {   
-            $taxon = new \eol_schema\Taxon();
-            $taxon->taxonID         = $t['AphiaID'];
-            $taxon->scientificName  = trim($t['scientificname'] . " " . $t['authority']);
-            $taxon->taxonRank       = $t['rank'];
-            $taxon->taxonomicStatus = $t['status'];
-            $taxon->source          = $this->taxon_page . $t['AphiaID'];
-            $taxon->parentNameUsageID = $t['parent_id'];
-            $taxon->acceptedNameUsageID     = $t['valid_AphiaID'];
-            $taxon->bibliographicCitation   = $t['citation'];
-            if(!isset($this->taxon_ids[$taxon->taxonID]))
-            {
-                $this->taxon_ids[$taxon->taxonID] = '';
-                $this->archive_builder->write_object_to_file($taxon);
-            }
-        }
-    }
-    */
     
     //=====================================================================================================================
     //start functions for the interface tool "genHigherClass"
@@ -256,7 +132,7 @@ class DwCA_Utility_cmd
 
             //start write to file
             // $file = str_replace(".", "_higherClassification.", $file);
-            if(!($f = Functions::file_open($file, "w"))) return;
+            if(!($f = Functions::file_open(str_replace("sample/", "temp/", $file), "w"))) return;
             fwrite($f, implode("\t", $fields)."\n");
             foreach($records as $rec) fwrite($f, implode("\t", $rec)."\n");
             fclose($f);
@@ -289,13 +165,14 @@ class DwCA_Utility_cmd
                 $k = 0;
                 foreach($fields as $field)
                 {
-                    if(in_array($field, $fieldz)) $rec[$field] = @$cols[$k];
+                    $short_field = self::shorten_field($field);
+                    if(in_array($field, $fieldz)) $rec[$short_field] = @$cols[$k];
                     $k++;
                 }
                 if($rec)
                 {
                     // print_r($rec); exit;
-                    if($rec['taxonomicStatus'] == 'accepted')
+                    if($rec['tS'] == 'accepted')
                     {
                         $records[] = $rec;
                         if($i > 3) //can check this early if we can compute for higherClassification
@@ -315,11 +192,39 @@ class DwCA_Utility_cmd
         $k = 0;
         foreach($fields as $field)
         {
-            $fields[$k] = pathinfo($field, PATHINFO_FILENAME);
+            $fields[$k] = self::lengthen_field($field);
             $k++;
         }
         return $fields;
     }
+
+    private function shorten_field($field)
+    {
+        switch ($field) {
+            case "taxonID":             return "tID"; break;
+            case "parentNameUsageID":   return "pID"; break;
+            case "acceptedNameUsageID": return "aID"; break;
+            case "scientificName":      return "sN"; break;
+            case "taxonRank":           return "tR"; break;
+            case "taxonomicStatus":     return "tS"; break;
+            default: //exit("\nundefined field\n");
+        }
+    }
+
+    private function lengthen_field($field)
+    {
+        switch ($field) {
+            case "tID": return "taxonID"; break;
+            case "pID": return "parentNameUsageID"; break;
+            case "aID": return "acceptedNameUsageID"; break;
+            case "sN":  return "scientificName"; break;
+            case "tR":  return "taxonRank"; break;
+            case "tS":  return "taxonomicStatus"; break;
+            case "hC":  return "higherClassification"; break;
+            default:
+        }
+    }
+
     //=====================================================================================================================
     //end functions for the interface tool "genHigherClass"
     //=====================================================================================================================
