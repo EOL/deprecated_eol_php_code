@@ -23,7 +23,6 @@ Connector downloads the archive file, extracts, reads it, assembles the data and
 
 http://www.marinespecies.org/rest/#/
 http://www.marinespecies.org/aphia.php?p=taxdetails&id=9
-
 */
 
 class WormsArchiveAPI
@@ -55,19 +54,6 @@ class WormsArchiveAPI
     {
         $taxa = self::AphiaClassificationByAphiaID($id);
         $last_rec = end($taxa);
-        // print_r($taxa);
-        /*
-        if($last_rec['status'] == "accepted") return $last_rec["AphiaID"];
-        else                                  return $last_rec['parent_id'];
-        */
-        return $last_rec['parent_id'];
-    }
-
-    private function get_parent_id_from_api($id) //works OK
-    {
-        $taxa = self::AphiaClassificationByAphiaID($id);
-        $last_rec = end($taxa);
-        // print_r($taxa);
         return $last_rec['parent_id'];
     }
 
@@ -78,18 +64,16 @@ class WormsArchiveAPI
         $this->what = $what; //either 'taxonomy' or 'media_objects'
 
         /* last 2 bad parents:
-        Cristellaria Lamarck, 1816 (worms#390648)
-        Corbiculidae Gray, 1847 (worms#414789)
-        
+                Cristellaria Lamarck, 1816 (worms#390648)
+                Corbiculidae Gray, 1847 (worms#414789)
         And there are six descendants of bad parents respectively:
+                *Cristellaria arcuatula Stache, 1864 (worms#895743)
+                *Cristellaria foliata Stache, 1864 (worms#903431)
+                *Cristellaria vestuta d'Orbigny, 1850 (worms#924530)
+                *Cristellaria obtusa (worms#925572)
         
-        *Cristellaria arcuatula Stache, 1864 (worms#895743)
-        *Cristellaria foliata Stache, 1864 (worms#903431)
-        *Cristellaria vestuta d'Orbigny, 1850 (worms#924530)
-        *Cristellaria obtusa (worms#925572)
-        
-        *Corbiculina Dall, 1903 (worms#818186)
-        *Cyrenobatissa Suzuki & Oyama, 1943 (worms#818201)            
+                *Corbiculina Dall, 1903 (worms#818186)
+                *Cyrenobatissa Suzuki & Oyama, 1943 (worms#818201)            
         */
 
         /* tests
@@ -100,7 +84,6 @@ class WormsArchiveAPI
         $id = "14769";
         $id = "930326";
 
-        $x1 = self::get_parent_id_from_api($id);
         $x2 = self::get_valid_parent_id($id);
         echo "\n parent_id from api: $x1\n";
         exit("\n valid parent_id: $x2\n");
@@ -574,16 +557,12 @@ class WormsArchiveAPI
                                                                             $taxo_tmp = array_merge($taxo_tmp, $temp18);
                                                                         }
                                                                         //end 18th loop
-                                                                        
                                                                     }
                                                                     //end 17th loop
-                                                                    
                                                                 }
                                                                 //end 16th loop
-                                                                
                                                             }
                                                             //end 15th loop
-                                                            
                                                         }
                                                         //end 14th loop
                                                     }
