@@ -102,7 +102,7 @@ class WormsArchiveAPI
         /* tests
         $this->synonyms_without_children = self::get_synonyms_without_children(); //used so script will no longer lookup if this syn is known to have no children.
         $ids = self::get_all_ids_to_prune();
-        print_r($ids); exit("\n[".count($ids)."] elix\n");
+        print_r($ids); exit("\n[".count($ids)."] total IDs to prune\n");
         */
         
         require_library('connectors/INBioAPI');
@@ -128,7 +128,7 @@ class WormsArchiveAPI
 
             // /* uncomment in real operation
             //add ids to prune for those to be excluded: https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60923&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60923
-            $ids = self::get_all_ids_to_prune();
+            echo "\nBuilding up IDs to prune...\n"; $ids = self::get_all_ids_to_prune();
             $this->children_of_synonyms = array_merge($this->children_of_synonyms, $ids);
             $this->children_of_synonyms = array_unique($this->children_of_synonyms);
             // */
@@ -167,7 +167,6 @@ class WormsArchiveAPI
             foreach(new FileIterator($url) as $line_number => $id)
             {
                 $i++;
-                // echo "[$i]. $id";
                 $taxa = self::AphiaClassificationByAphiaID($id);
                 self::create_taxa($taxa);
             }
@@ -480,43 +479,36 @@ class WormsArchiveAPI
                         //start 6th loop -> process children of children of children
                         foreach($temp5 as $id)
                         {
-                            print("\nreaches 6th loop\n");
                             $temp6 = self::get_children_of_synonym($id);
                             $taxo_tmp = array_merge($taxo_tmp, $temp6);
                             //start 7th loop -> process children of children of children
                             foreach($temp6 as $id)
                             {
-                                print("\nreaches 7th loop\n");
                                 $temp7 = self::get_children_of_synonym($id);
                                 $taxo_tmp = array_merge($taxo_tmp, $temp7);
                                 //start 8th loop -> process children of children of children
                                 foreach($temp7 as $id)
                                 {
-                                    print("\nreaches 8th loop\n");
                                     $temp8 = self::get_children_of_synonym($id);
                                     $taxo_tmp = array_merge($taxo_tmp, $temp8);
                                     //start 9th loop -> process children of children of children
                                     foreach($temp8 as $id)
                                     {
-                                        print("\nreaches 9th loop\n");
                                         $temp9 = self::get_children_of_synonym($id);
                                         $taxo_tmp = array_merge($taxo_tmp, $temp9);
                                         //start 10th loop -> process children of children of children
                                         foreach($temp9 as $id)
                                         {
-                                            print("\nreaches 10th loop\n");
                                             $temp10 = self::get_children_of_synonym($id);
                                             $taxo_tmp = array_merge($taxo_tmp, $temp10);
                                             //start 11th loop -> process children of children of children
                                             foreach($temp10 as $id)
                                             {
-                                                print("\nreaches 11th loop\n");
                                                 $temp11 = self::get_children_of_synonym($id);
                                                 $taxo_tmp = array_merge($taxo_tmp, $temp11);
                                                 //start 12th loop -> process children of children of children
                                                 foreach($temp11 as $id)
                                                 {
-                                                    print("\nreaches 12th loop\n");
                                                     $temp12 = self::get_children_of_synonym($id);
                                                     $taxo_tmp = array_merge($taxo_tmp, $temp12);
                                                     //start 13th loop -> process children of children of children
@@ -609,7 +601,7 @@ class WormsArchiveAPI
         {
             while(true)
             {
-                echo " $offset";
+                // echo " $offset";
                 if($offset == 1) $url = $this->webservice['AphiaChildrenByAphiaID'].$taxon_id;
                 else             $url = $this->webservice['AphiaChildrenByAphiaID'].$taxon_id."?offset=$offset";
                 if($json = Functions::lookup_with_cache($url, $options))
@@ -786,7 +778,7 @@ class WormsArchiveAPI
             if($json = Functions::lookup_with_cache($this->webservice['AphiaRecordByAphiaID'].$taxon_id, $this->download_options))
             {
                 $arr = json_decode($json, true);
-                print_r($arr);
+                // print_r($arr);
                 if($arr['status'] == "accepted") return true;
             }
             return false;
