@@ -116,6 +116,12 @@ class WormsArchiveAPI
         print_r($taxo_tmp); exit("\n[".count($taxo_tmp)."] elix\n");
         */
         
+        /* tests
+        $this->synonyms_without_children = self::get_synonyms_without_children(); //used so script will no longer lookup if this syn is known to have no children.
+        $ids = self::get_all_ids_to_prune();
+        print_r($ids); exit("\n[".count($ids)."] elix\n");
+        */
+        
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->dwca_file, "meta.xml", array('timeout' => 172800, 'expire_seconds' => true)); //true means it will re-download, will not use cache. Set TRUE when developing
@@ -136,6 +142,14 @@ class WormsArchiveAPI
             Based on latest: https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60756&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60756
             */
             $this->children_of_synonyms = self::get_all_children_of_synonyms($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon')); //then we will exclude this in the main operation
+
+            // /* uncomment in real operation
+            //add ids to prune for those to be excluded: https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60923&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60923
+            $ids = self::get_all_ids_to_prune();
+            $this->children_of_synonyms = array_merge($this->children_of_synonyms, $ids);
+            $this->children_of_synonyms = array_unique($this->children_of_synonyms);
+            // */
+            
         }
         // exit("\n building up list of children of synonyms \n"); //comment in normal operation
 
@@ -257,11 +271,12 @@ class WormsArchiveAPI
             if(in_array($taxon->taxonID, $this->children_of_synonyms)) continue; //exclude children of synonyms
             
             $taxon->scientificName  = trim($t['scientificname'] . " " . $t['authority']);
+            $taxon->scientificName = self::format_incertae_sedis($taxon->scientificName);
+            
             $taxon->taxonRank       = $t['rank'];
             $taxon->taxonomicStatus = $t['status'];
             $taxon->source          = $this->taxon_page . $t['AphiaID'];
             if($t['scientificname'] != "Biota") $taxon->parentNameUsageID = $t['parent_id'];
-            else                                $taxon->parentNameUsageID = '';
             $taxon->acceptedNameUsageID     = $t['valid_AphiaID'];
             $taxon->bibliographicCitation   = $t['citation'];
             
@@ -482,9 +497,109 @@ class WormsArchiveAPI
                         //start 6th loop -> process children of children of children
                         foreach($temp5 as $id)
                         {
-                            exit("\nreaches 6th loop, worth possible increase in loops\n");
+                            print("\nreaches 6th loop\n");
                             $temp6 = self::get_children_of_synonym($id);
                             $taxo_tmp = array_merge($taxo_tmp, $temp6);
+                            //start 7th loop -> process children of children of children
+                            foreach($temp6 as $id)
+                            {
+                                print("\nreaches 7th loop\n");
+                                $temp7 = self::get_children_of_synonym($id);
+                                $taxo_tmp = array_merge($taxo_tmp, $temp7);
+                                //start 8th loop -> process children of children of children
+                                foreach($temp7 as $id)
+                                {
+                                    print("\nreaches 8th loop\n");
+                                    $temp8 = self::get_children_of_synonym($id);
+                                    $taxo_tmp = array_merge($taxo_tmp, $temp8);
+                                    //start 9th loop -> process children of children of children
+                                    foreach($temp8 as $id)
+                                    {
+                                        print("\nreaches 9th loop\n");
+                                        $temp9 = self::get_children_of_synonym($id);
+                                        $taxo_tmp = array_merge($taxo_tmp, $temp9);
+                                        //start 10th loop -> process children of children of children
+                                        foreach($temp9 as $id)
+                                        {
+                                            print("\nreaches 10th loop\n");
+                                            $temp10 = self::get_children_of_synonym($id);
+                                            $taxo_tmp = array_merge($taxo_tmp, $temp10);
+                                            //start 11th loop -> process children of children of children
+                                            foreach($temp10 as $id)
+                                            {
+                                                print("\nreaches 11th loop\n");
+                                                $temp11 = self::get_children_of_synonym($id);
+                                                $taxo_tmp = array_merge($taxo_tmp, $temp11);
+                                                //start 12th loop -> process children of children of children
+                                                foreach($temp11 as $id)
+                                                {
+                                                    print("\nreaches 12th loop\n");
+                                                    $temp12 = self::get_children_of_synonym($id);
+                                                    $taxo_tmp = array_merge($taxo_tmp, $temp12);
+                                                    //start 13th loop -> process children of children of children
+                                                    foreach($temp12 as $id)
+                                                    {
+                                                        print("\nreaches 13th loop\n");
+                                                        $temp13 = self::get_children_of_synonym($id);
+                                                        $taxo_tmp = array_merge($taxo_tmp, $temp13);
+                                                        //start 14th loop -> process children of children of children
+                                                        foreach($temp13 as $id)
+                                                        {
+                                                            print("\nreaches 14th loop\n");
+                                                            $temp14 = self::get_children_of_synonym($id);
+                                                            $taxo_tmp = array_merge($taxo_tmp, $temp14);
+                                                            //start 15th loop -> process children of children of children
+                                                            foreach($temp14 as $id)
+                                                            {
+                                                                print("\nreaches 15th loop\n");
+                                                                $temp15 = self::get_children_of_synonym($id);
+                                                                $taxo_tmp = array_merge($taxo_tmp, $temp15);
+                                                                //start 16th loop -> process children of children of children
+                                                                foreach($temp15 as $id)
+                                                                {
+                                                                    print("\nreaches 16th loop\n");
+                                                                    $temp16 = self::get_children_of_synonym($id);
+                                                                    $taxo_tmp = array_merge($taxo_tmp, $temp16);
+                                                                    //start 17th loop -> process children of children of children
+                                                                    foreach($temp16 as $id)
+                                                                    {
+                                                                        print("\nreaches 17th loop\n");
+                                                                        $temp17 = self::get_children_of_synonym($id);
+                                                                        $taxo_tmp = array_merge($taxo_tmp, $temp17);
+                                                                        //start 18th loop -> process children of children of children
+                                                                        foreach($temp17 as $id)
+                                                                        {
+                                                                            exit("\nreaches 18th loop\n");
+                                                                            $temp18 = self::get_children_of_synonym($id);
+                                                                            $taxo_tmp = array_merge($taxo_tmp, $temp18);
+                                                                        }
+                                                                        //end 18th loop
+                                                                        
+                                                                    }
+                                                                    //end 17th loop
+                                                                    
+                                                                }
+                                                                //end 16th loop
+                                                                
+                                                            }
+                                                            //end 15th loop
+                                                            
+                                                        }
+                                                        //end 14th loop
+                                                    }
+                                                    //end 13th loop
+                                                }
+                                                //end 12th loop
+                                            }
+                                            //end 11th loop
+                                        }
+                                        //end 10th loop
+                                    }
+                                    //end 9th loop
+                                }
+                                //end 8th loop
+                            }
+                            //end 7th loop
                         }
                         //end 6th loop
                     }
@@ -532,6 +647,7 @@ class WormsArchiveAPI
         }
         else
         {
+            echo "\nsave_2text_synonyms_without_children\n";
             self::save_2text_synonyms_without_children($taxon_id);
         }
         return $final;
@@ -600,6 +716,7 @@ class WormsArchiveAPI
             }
             
             $taxon->scientificName  = (string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"];
+            $taxon->scientificName = self::format_incertae_sedis($taxon->scientificName);
             
             if($taxon->scientificName != "Biota")
             {
@@ -648,7 +765,7 @@ class WormsArchiveAPI
             
             if($this->what == "taxonomy") //based on https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60923&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60923
             {
-                if($taxon->parentNameUsageID)
+                if(@$taxon->parentNameUsageID)
                 {
                     if(!self::if_accepted_taxon($taxon->parentNameUsageID)) continue;
                 }
@@ -791,10 +908,55 @@ class WormsArchiveAPI
         else return $path;
     }
     
-    private function get_ids_to_prune()
+    private function get_branch_ids_to_prune()
     {
         //to do: access google sheets online: https://docs.google.com/spreadsheets/d/11jQ-6CUJIbZiNwZrHqhR_4rqw10mamdA17iaNELWCBQ/edit#gid=0
         return array(12, 598929, 22718, 10, 503066, 234484, 596326, 886300, 147480, 742162, 1836, 178701, 1278, 1300, 719042, 741333, 393257, 598621, 719043, 719950, 164710, 167282, 510103, 719044, 719045, 719046, 397356, 724635, 719047, 719048, 719049, 598607, 719050, 549666, 709139);
+    }
+    
+    private function get_all_ids_to_prune()
+    {
+        $final = array();
+        $ids = self::get_branch_ids_to_prune(); //supposedly comes from a google spreadsheet
+        foreach($ids as $id)
+        {
+            $arr = self::get_children_of_taxon($id);
+            if($arr) $final = array_merge($final, $arr);
+            $final = array_unique($final);
+        }
+        $final = array_merge($final, $ids);
+        $final = array_unique($final);
+        $final = array_filter($final);
+        return $final;
+    }
+    
+    private function format_incertae_sedis($str)
+    {
+        /*
+        case 1: [One-word-name] incertae sedis
+            Example: Bivalvia incertae sedis
+            To: unplaced [One-word-name]
+        
+        case 2: [One-word-name] incertae sedis [other words]
+        Example: Lyssacinosida incertae sedis Tabachnick, 2002
+        To: unplaced [One-word-name]
+
+        case 3: [more than 1 word-name] incertae sedis
+        :: leave it alone for now
+        Examples: Ascorhynchoidea family incertae sedis
+        */
+        $str = trim($str);
+        if(is_numeric(stripos($str, " incertae sedis")))
+        {
+            $arr = explode(" incertae sedis", $str);
+            if($val = @$arr[0])
+            {
+                $space_count = substr_count($val, " ");
+                if($space_count == 0) return "unplaced " . trim($val);
+                else return $str;
+            }
+        }
+        else return $str;
     }
 
     /*
