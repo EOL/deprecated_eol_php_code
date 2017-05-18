@@ -146,18 +146,18 @@ class WormsArchiveAPI
         }
         // exit("\n building up list of children of synonyms \n"); //comment in normal operation
 
-        self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));                    echo "\n1 of 8\n";
-        self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));       echo "\n2 of 8\n";
-        self::add_taxa_from_undeclared_parent_ids();                                                                        echo "\n3 of 8\n";
+        echo "\n1 of 8\n";  self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
+        echo "\n2 of 8\n";  self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
+        echo "\n3 of 8\n";  self::add_taxa_from_undeclared_parent_ids();
         if($this->what == "media_objects")
         {
-            self::get_objects($harvester->process_row_type('http://eol.org/schema/media/Document'));                        echo "\n4 of 8\n";
-            self::get_references($harvester->process_row_type('http://rs.gbif.org/terms/1.0/Reference'));                   echo "\n5 of 8\n";
-            self::get_agents($harvester->process_row_type('http://eol.org/schema/agent/Agent'));                            echo "\n6 of 8\n";
-            self::get_vernaculars($harvester->process_row_type('http://rs.gbif.org/terms/1.0/VernacularName'));             echo "\n7 of 8\n";
+            echo "\n4 of 8\n";  self::get_objects($harvester->process_row_type('http://eol.org/schema/media/Document'));
+            echo "\n5 of 8\n";  self::get_references($harvester->process_row_type('http://rs.gbif.org/terms/1.0/Reference'));
+            echo "\n6 of 8\n";  self::get_agents($harvester->process_row_type('http://eol.org/schema/agent/Agent'));
+            echo "\n7 of 8\n";  self::get_vernaculars($harvester->process_row_type('http://rs.gbif.org/terms/1.0/VernacularName'));
         }
         unset($harvester);
-        $this->archive_builder->finalize(TRUE);                                                                             echo "\n8 of 8\n";
+        echo "\n8 of 8\n";  $this->archive_builder->finalize(TRUE);
 
         // remove temp dir
         recursive_rmdir($temp_dir);
