@@ -29,14 +29,12 @@ echo "\ninput file to lib: [$file]\n";
 if($info = $func->tool_generate_higherClassification($file)) {}
 else
 {
-    echo "The file is not ready for processing. The file needs the minimum three fields column header: '<i>taxonID</i>', '<i>scientificName</i>' and '<i>parentNameUsageID</i>'.
-    \n<a href='javascript:history.go(-1)'> &lt;&lt; Go back</a>
-    \n";
+    echo "The file is not ready for processing. The file needs the minimum three fields column header: '<i>taxonID</i>', '<i>scientificName</i>' and '<i>parentNameUsageID</i>'";
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;
-echo "elapsed time = $elapsed_time_sec seconds                  ";
-echo "\nelapsed time = " . $elapsed_time_sec/60 . " minutes   ";
+echo "elapsed time = $elapsed_time_sec seconds";
+echo "\nelapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\nDone processing.\n\n";
 
 
