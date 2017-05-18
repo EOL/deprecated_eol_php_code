@@ -105,6 +105,16 @@ class WormsArchiveAPI
         print_r($ids); exit("\n[".count($ids)."] total IDs to prune\n");
         */
         
+        /*
+        $str = "Cyclostomatida  incertae sedis";
+        // $str = "Tubuliporoidea Incertae sedis";
+        $str = "Lyssacinosida    incertae Sedis Tabachnick, 2002";
+        echo "\n[$str]\n";
+        $str = self::format_incertae_sedis($str);
+        exit("\n[$str]\n");
+        */
+        
+        
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->dwca_file, "meta.xml", array('timeout' => 172800, 'expire_seconds' => true)); //true means it will re-download, will not use cache. Set TRUE when developing
@@ -916,9 +926,11 @@ class WormsArchiveAPI
         :: leave it alone for now
         Examples: Ascorhynchoidea family incertae sedis
         */
+        $str = Functions::remove_whitespace($str);
         $str = trim($str);
         if(is_numeric(stripos($str, " incertae sedis")))
         {
+            $str = str_ireplace("incertae sedis", "incertae sedis", $str); //this will capture Incertae sedis
             $arr = explode(" incertae sedis", $str);
             if($val = @$arr[0])
             {

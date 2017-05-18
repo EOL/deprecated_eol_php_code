@@ -79,7 +79,7 @@ class DwCA_Utility
         echo ("\n temporary directory removed: " . $temp_dir);
     }
     
-    function get_all_taxa()
+    function convert_archive_by_adding_higherClassification()
     {
         $info = self::start();
         $temp_dir = $info['temp_dir'];

@@ -44,8 +44,9 @@ Functions::finalize_dwca_resource($resource_id);
 // /* utility
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
-$func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
-$func->get_all_taxa_without_parent($resource_id, true); //true means output will write to text file
+$undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
+echo "\nTotal undefined parents:" . count($undefined_parents)."\n";
+// $func->get_all_taxa_without_parent($resource_id, true); //true means output will write to text file
 // */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
