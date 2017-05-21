@@ -205,7 +205,7 @@ class DWCADiagnoseAPI
                 {
                     $no_parent[$rec['taxonID']] = '';
                     $row = $rec['taxonID'] . " -- " . @$rec['scientificName'] . " -- " . @$rec['taxonRank'] . " -- " . @$rec['source'];
-                    echo "\n". $row; //use to display rows
+                    // echo "\n". $row; //use to display rows
                     if($write_2text_file)
                     {
                         $row = str_ireplace(" -- ", "\t", $row);
@@ -215,7 +215,6 @@ class DWCADiagnoseAPI
             }
         }
         //end loop =========================
-        echo "\n total no parent: " . count($no_parent) . "\n";
         fclose($WRITE);
         return array_keys($no_parent);
     }
