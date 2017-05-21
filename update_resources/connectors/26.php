@@ -19,14 +19,14 @@ with media objects:
 [synonym]   =>      211583
 [count]     =>      539549
 
-dynamic hierarchy   27Apr2017
-[accepted] =>       303570
-[synonym] =>        134132
-[] =>               5329
-[count] =>          443031
+dynamic hierarchy   27Apr2017   18May2017
+[accepted] =>       303570      300105
+[synonym] =>        134132      135024
+[] =>               5329        0
+[count] =>          443031      435129
 
-total no parent:    134134
-/terms/taxon:       443440
+total no parent:    134134      135026
+/terms/taxon:       443440      435608
 
 exec time: ~30 minutes
 */
@@ -41,13 +41,16 @@ $func->get_all_taxa("taxonomy"); //'taxonomy' or 'media_objects'
 Functions::finalize_dwca_resource($resource_id);
 // */
 
-// /* utility
+// /* utility ==========================
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
+
 $undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
-echo "\nTotal undefined parents:" . count($undefined_parents)."\n";
-// $func->get_all_taxa_without_parent($resource_id, true); //true means output will write to text file
-// */
+echo "\nTotal undefined parents:" . count($undefined_parents)."\n"; unset($undefined_parents);
+
+$without = $func->get_all_taxa_without_parent($resource_id, true); //true means output will write to text file
+echo "\nTotal taxa without parents:" . count($without)."\n";
+// =====================================*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
