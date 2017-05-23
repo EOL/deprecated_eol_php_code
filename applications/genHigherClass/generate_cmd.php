@@ -36,13 +36,19 @@ else echo "The file is not ready for processing. The file needs the minimum thre
 // /* additional task: pruning GBIF backbone: https://eol-jira.bibalex.org/browse/TRAM-552
 require_library('connectors/GBIFtaxaAPI');
 $func = new GBIFtaxaAPI();
-$func->prune_gbif_backbone_taxa("temp/GBIF_Taxa_accepted.tsv");
+$new_file = $func->prune_gbif_backbone_taxa("temp/GBIF_Taxa_accepted.tsv");
 // */
 
+/* utility
+require_library('connectors/DWCADiagnoseAPI');
+$func = new DWCADiagnoseAPI();
+$undefined_parents = $func->check_if_all_parents_have_entries(pathinfo($new_file, PATHINFO_FILENAME), true, $new_file); //true means output will write to text file
+echo "\nundefined parents: ".count($undefined_parents)."\n";
+*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
-echo "elapsed time = $elapsed_time_sec seconds";
 echo "\nelapsed time = " . $elapsed_time_sec/60 . " minutes";
+echo "\nelapsed time = " . $elapsed_time_sec/60/60 . " hours";
 echo "\nDone processing.\n\n";
 
 function get_ext_of_orig_file_in_zip($orig)

@@ -21,32 +21,38 @@ class GBIFtaxaAPI
 
     function prune_gbif_backbone_taxa($taxon_extension)
     {
-        /* testing...
-        $children = self::get_all_children_of_taxon(7612838);
-        // $children = self::get_all_children_of_taxon(212);
+        // /* testing...
+        $children = self::get_all_children_of_taxon(212);
+        // $children = self::get_all_children_of_taxon(131);
+        
         print_r($children);
         echo "\ntotal = " . count($children) . "\n";
         exit("\n");
-        */
+        // */
         
+        self::get_ids_2prune(); exit("\n");
+        
+        // temp/GBIF_Taxa_accepted.tsv
+        echo "\nsource: [$taxon_extension]\n";
+        $filename = pathinfo($taxon_extension, PATHINFO_FILENAME);
+        $new_file = str_replace($filename, $filename."_pruned", $taxon_extension);
+        echo("\ntarget: [$new_file]\n");
+        
+        $fn = fopen($new_file, "w");
         // $ids_2prune = self::get_ids_2prune();
         $ids_2prune = array();
-        $i = 0;
         foreach(new FileIterator($taxon_extension) as $line_number => $line)
         {
-            $i++;
             if($line)
             {
-                $line = explode("\t", $line);
-                if($i == 1) $fields = $line;
-                else
-                {
-                    $taxonID = $line[0];
-                    echo "\n".$taxonID." "; exit;
-                }
+                $col = explode("\t", $line);
+                $taxonID = $col[0];
+                echo "\n[$taxonID]";
+                if(!in_array($taxonID, $ids_2prune)) fwrite($fn, $line."\n");
             }
         }
-        
+        fclose($fn);
+        return $new_file;
     }
 
     private function get_ids_2prune()
@@ -61,21 +67,11 @@ class GBIFtaxaAPI
             $i++;
             // /* breakdown when caching:
             $cont = false;
-            // if($i >=  1    && $i < $m) $cont = true; divided
-
-            // if($i >=  1    && $i < 900) $cont = true;
-            // if($i >=  900    && $i < 1834) $cont = true;
-            
-            // if($i >=  $m   && $i < $m*2) $cont = true; done
-            // if($i >=  $m*2 && $i < $m*3) $cont = true; done
-            
-            // if($i >=  $m*3 && $i < $m*4) $cont = true; divided
-
-            // if($i >= 5502 && $i < 6419) $cont = true;
-            if($i >= 6419 && $i < 7336) $cont = true;
-            
-            // if($i >=  $m*4 && $i < $m*5) $cont = true;
-            // if($i >=  $m*5 && $i < $m*6) $cont = true;
+            if($i >= 1    && $i < 900) $cont = true;
+            // if($i >= 6419 && $i < 7336) $cont = true;
+            // if($i >= 8253 && $i < 9170) $cont = true;
+            // if($i >= 9170 && $i < 10087) $cont = true;
+            // if($i >=  10087 && $i < 11004) $cont = true;
             if(!$cont) continue;
             // */
             if($line)
@@ -86,12 +82,17 @@ class GBIFtaxaAPI
                 {
                     $taxonID = $line[0];
                     echo "\n".$taxonID." ";
+                    // if($taxonID == 212) exit("\n$taxonID will start\n");
+                    if(in_array($taxonID, array(212,131,1496,789,1458))) continue;
+                    
                     $children = self::get_all_children_of_taxon($taxonID);
                     $children[] = $taxonID;
                     $final = array_merge($final, $children);
                     $final = array_unique($final);
                 }
             }
+            // if($taxonID == 212) exit("\n$taxonID finished\n");
+            
         }
         unlink($filename);
         $final = array_unique($final);
