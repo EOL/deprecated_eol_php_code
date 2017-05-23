@@ -21,7 +21,6 @@ php.ini:
     post_max_size = 10M
 */
 
-
 $file = "sample/GBIF_Taxon.tsv";
 // $file = "sample/taxon.tsv";
 
