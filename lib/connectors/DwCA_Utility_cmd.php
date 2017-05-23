@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector: [generate_cmd.php]
-Processes any DwCA archive file.
+Processes any DwCA taxon extension (taxon.tab/txt/tsv).
 Using the parentNameUsageID, generates a new DwCA with a new taxon column: http://rs.tdwg.org/dwc/terms/higherClassification
 User Warning: Undefined property `rights` on eol_schema\Taxon as defined by `http://rs.tdwg.org/dwc/xsd/tdwg_dwcterms.xsd` in /Library/WebServer/Documents/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 168
 */
@@ -28,12 +28,10 @@ class DwCA_Utility_cmd
                                   "http://eol.org/schema/media/document"            => "document",
                                   "http://rs.gbif.org/terms/1.0/reference"          => "reference",
                                   "http://eol.org/schema/agent/agent"               => "agent",
-
                                   //start of other row_types:
                                   "http://rs.gbif.org/terms/1.0/description"        => "document",
                                   "http://rs.gbif.org/terms/1.0/multimedia"         => "document",
                                   );
-
                                   /*
                                   [1] => http://rs.gbif.org/terms/1.0/speciesprofile
                                   [6] => http://rs.gbif.org/terms/1.0/typesandspecimen

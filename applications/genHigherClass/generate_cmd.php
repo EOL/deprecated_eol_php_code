@@ -21,6 +21,7 @@ php.ini:
     post_max_size = 10M
 */
 
+/* normal operation
 $file = "sample/GBIF_Taxon.tsv";
 // $file = "sample/taxon.tsv";
 
@@ -30,6 +31,14 @@ $func = new DwCA_Utility_cmd();
 echo "\ninput file to lib: [$file]\n";
 if($info = $func->tool_generate_higherClassification($file)) {}
 else echo "The file is not ready for processing. The file needs the minimum three fields column header: '<i>taxonID</i>', '<i>scientificName</i>' and '<i>parentNameUsageID</i>'";
+*/
+
+// /* additional task: pruning GBIF backbone: https://eol-jira.bibalex.org/browse/TRAM-552
+require_library('connectors/GBIFtaxaAPI');
+$func = new GBIFtaxaAPI();
+$func->prune_gbif_backbone_taxa();
+// */
+
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "elapsed time = $elapsed_time_sec seconds";
