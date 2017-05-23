@@ -36,7 +36,7 @@ else echo "The file is not ready for processing. The file needs the minimum thre
 // /* additional task: pruning GBIF backbone: https://eol-jira.bibalex.org/browse/TRAM-552
 require_library('connectors/GBIFtaxaAPI');
 $func = new GBIFtaxaAPI();
-$func->prune_gbif_backbone_taxa();
+$func->prune_gbif_backbone_taxa("temp/GBIF_Taxa_accepted.tsv");
 // */
 
 
