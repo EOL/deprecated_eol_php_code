@@ -1,6 +1,10 @@
 <?php
 namespace php_active_record;
-/*  */
+/*  
+Processes a DwCA file, preferably an EOL DwCA file.
+For non-EOL DwCA file, the result archive will only consist of extensions and fields that are understood by the EOL DwCA.
+*Another similar library is DWCA_Utility_cmd.php. This one will process a DwCA taxa extension (taxon.tab/txt/tsv). And this one is run as command-line in terminal.
+*/
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DwCA_Utility');
 $timestart = time_elapsed();
