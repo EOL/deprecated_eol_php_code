@@ -26,8 +26,6 @@ class GoogleClientAPI
         $service = new \Google_Service_Sheets($client);
         $response = $service->spreadsheets_values->get($params['spreadsheetID'], $params['range']);
         $values = $response->getValues();
-        print_r($values[0]);
-        echo "\n".count($values)."\n";
         return $values;
     }
 

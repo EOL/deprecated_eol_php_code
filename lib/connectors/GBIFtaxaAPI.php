@@ -21,17 +21,22 @@ class GBIFtaxaAPI
 
     function prune_gbif_backbone_taxa($taxon_extension)
     {
-        // /* testing...
-        $children = self::get_all_children_of_taxon(212);
-        // $children = self::get_all_children_of_taxon(131);
+        /* testing...
+        // $children = self::get_all_children_of_taxon(212);
+        // $children = self::get_all_children_of_taxon(1496);
+        // $children = self::get_all_children_of_taxon(136);
+        // $children = self::get_all_children_of_taxon(35);
+        $children = self::get_all_children_of_taxon(7707728);
         
         print_r($children);
         echo "\ntotal = " . count($children) . "\n";
         exit("\n");
-        // */
+        */
         
-        self::get_ids_2prune(); exit("\n");
+        // self::get_ids_2prune_using_google_sheet();
+        self::get_ids_2prune_using_tsv(); exit("\n");
         
+        // normal operation
         // temp/GBIF_Taxa_accepted.tsv
         echo "\nsource: [$taxon_extension]\n";
         $filename = pathinfo($taxon_extension, PATHINFO_FILENAME);
@@ -39,8 +44,7 @@ class GBIFtaxaAPI
         echo("\ntarget: [$new_file]\n");
         
         $fn = fopen($new_file, "w");
-        // $ids_2prune = self::get_ids_2prune();
-        $ids_2prune = array();
+        $ids_2prune = self::get_ids_2prune_using_google_sheet();
         foreach(new FileIterator($taxon_extension) as $line_number => $line)
         {
             if($line)
@@ -55,7 +59,24 @@ class GBIFtaxaAPI
         return $new_file;
     }
 
-    private function get_ids_2prune()
+    private function get_ids_2prune_using_google_sheet()
+    {
+        $final = array();
+        $values = self::get_google_sheet();
+        foreach($values as $row)
+        {
+            $taxonID = $row[0];
+            echo "\nprocessing [$taxonID]\n";
+            $children = self::get_all_children_of_taxon($taxonID);
+            $children[] = $taxonID;
+            $final = array_merge($final, $children);
+            $final = array_unique($final);
+        }
+        $final = array_unique($final);
+        return $final;
+    }
+    
+    private function get_ids_2prune_using_tsv()
     {
         $final = array();
         $spreadsheet = "http://localhost/cp/GBIF/from_Google_spreadsheet/Branches to prune from GBIF - Sheet1.tsv";
@@ -67,11 +88,13 @@ class GBIFtaxaAPI
             $i++;
             // /* breakdown when caching:
             $cont = false;
-            if($i >= 1    && $i < 900) $cont = true;
-            // if($i >= 6419 && $i < 7336) $cont = true;
-            // if($i >= 8253 && $i < 9170) $cont = true;
-            // if($i >= 9170 && $i < 10087) $cont = true;
-            // if($i >=  10087 && $i < 11004) $cont = true;
+            
+            if($i >= 1    && $i < 25) $cont = true;
+            // if($i >= 25    && $i < 50) $cont = true;
+            // if($i >= 50    && $i < 100) $cont = true;
+            // if($i >= 100    && $i < 200) $cont = true; done
+            // if($i >= 200    && $i < 300) $cont = true;
+            
             if(!$cont) continue;
             // */
             if($line)
@@ -83,7 +106,11 @@ class GBIFtaxaAPI
                     $taxonID = $line[0];
                     echo "\n".$taxonID." ";
                     // if($taxonID == 212) exit("\n$taxonID will start\n");
-                    if(in_array($taxonID, array(212,131,1496,789,1458))) continue;
+                    if(in_array($taxonID, array(7707728, 8,13,35,9,212,131,1496,789,1458,136,62)))
+                    {
+                        // exit("\n[$taxonID]\n");
+                        continue;
+                    }
                     
                     $children = self::get_all_children_of_taxon($taxonID);
                     $children[] = $taxonID;
@@ -262,6 +289,15 @@ class GBIFtaxaAPI
         $taxo_tmp = array_filter($taxo_tmp);
         //end ====
         return $taxo_tmp;
+    }
+
+    private function get_google_sheet() //sheet found here: https://eol-jira.bibalex.org/browse/TRAM-552?focusedCommentId=61031&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61031
+    {
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI();
+        $params['spreadsheetID'] = '1-nTN2i_epQzl-rOaQJjIFbVRUfVirVKZpTEwC8kH7k8';
+        $params['range']         = 'Sheet1!A2:A'; //where "A" is the starting column, "C" is the ending column, and "2" is the starting row.
+        return $func->access_google_sheet($params);
     }
 
 }
