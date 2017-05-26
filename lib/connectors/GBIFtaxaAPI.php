@@ -10,31 +10,58 @@ class GBIFtaxaAPI
 {
     function __construct()
     {
-        // http://api.gbif.org/v1/species/8115426/children?offset=0
-        $this->api['children'] = "http://api.gbif.org/v1/species/";
-        
+        $this->api['children'] = "http://api.gbif.org/v1/species/"; // http://api.gbif.org/v1/species/8115426/children?offset=0
         $this->download_options = array(
             'cache_path'         => '/Volumes/Thunderbolt4/eol_cache_gbif/',
-            'expire_seconds'     => false, //5184000, //2 months to expire; true expires now
+            'expire_seconds'     => false, //false doesn't expire; true expires now
             'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
     }
 
     function prune_gbif_backbone_taxa($taxon_extension)
     {
-        /* testing...
-        // $children = self::get_all_children_of_taxon(212);
-        // $children = self::get_all_children_of_taxon(1496);
-        // $children = self::get_all_children_of_taxon(136);
-        // $children = self::get_all_children_of_taxon(35);
-        $children = self::get_all_children_of_taxon(7707728);
+        /* Jen's effechecka download
+        $options = $this->download_options;
+        $options['cache_path'] = "/Volumes/Thunderbolt4/eol_effechecka_cache/";
+        $options['timeout'] = 7200; //2 hours timeout
+        $url = "http://api.effechecka.org/occurrences?limit=500000&wktString=POLYGON%20((-81.17675811052322%2038.866147304827315%2C%20-80.45166045427322%2040.3724147137188%2C%20-78.64990264177322%2041.18766902511264%2C%20-76.56250029802322%2041.27029516213595%2C%20-74.69482451677322%2040.8893508055629%2C%20-74.16748076677322%2040.221587484085745%2C%20-74.91455107927321%2039.122307124684454%2C%20-75.70556670427322%2039.7670878257266%2C%20-75.57373076677322%2039.22451128580981%2C%20-75.24414092302322%2038.712006664146635%2C%20-75.55175811052322%2037.98828627141629%2C%20-76.05712920427322%2038.505967753770065%2C%20-75.94726592302322%2039.58105490004761%2C%20-76.32080107927322%2039.58105490004761%2C%20-76.65039092302322%2039.22451128580981%2C%20-76.56250029802322%2038.48877114593059%2C%20-76.47460967302322%2037.292324732564005%2C%20-76.80419951677322%2037.09979421886438%2C%20-76.03515654802322%2036.27165004883655%2C%20-78.91357451677321%2036.413239924092565%2C%20-80.80322295427322%2037.362214027755726%2C%20-81.17675811052322%2038.866147304827315))";
+        if($contents = Functions::lookup_with_cache($url, $options))
+        {
+            $fn = fopen(CONTENT_RESOURCE_LOCAL_PATH."effechecka500K.txt", "w");
+            fwrite($fn, $contents);
+            fclose($fn);
+            echo "\nsaved...\n";
+            
+            $arr = json_decode($contents, true);
+            // print_r($arr);
+            echo "\nrecords: ".count($arr["items"])."\n";
+            
+        }
+        exit("\n");
+        */
         
+        /* testing...
+        $children = self::get_all_children_of_taxon(7707728); 
         print_r($children);
         echo "\ntotal = " . count($children) . "\n";
         exit("\n");
         */
         
-        // self::get_ids_2prune_using_google_sheet();
-        self::get_ids_2prune_using_tsv(); exit("\n");
+        // /* multiple
+        $ids = array(194,7228684,7219203,4909157,4909080,4908776,4908769,8559669,4908502,4908168,3229182);
+        // $ids = array(245,7228682);
+        // $ids = array(196);
+        // $ids = array(220);
+        // $ids = array(4907978,4907863,3229221,4907313,4907279,8693163,3229223,8532480,3229207,4906344,4906193,4906030,4906011,4905965,4905648,4905232,3229190,3229264,4904269,4901310,4901053,4900868,4900575,3229211,4900349,4900222,8510558,4899970,4899954,4899907,3229155,4899547,4899535,4899484,4899165,7575152,4898619,4897891,8462264,8438376,4896279,4896027,8668657,4895709,4895413,4895408,4895387,3229219,4895138,4894751,3229204,4894047,4894045,3229165,4893959,4893879,4893755,4893527,4893470,8612004,3229196,4893183,3229202,4893034,4892927,4892894,4892576,4892286,3229466,4891487,4891471,4889843,8477075,3229079,4887334,4887278,3229158,4886404,4886401,4886161,4922350,4922331,4912094);
+        
+        foreach($ids as $id) self::get_all_children_of_taxon($id);
+        exit("\n");
+        // */
+        
+        
+        // /*
+        self::get_ids_2prune_using_google_sheet(true); exit("\nfinished saving [GBIF_ids_2prune.txt]\n");
+        // self::get_ids_2prune_using_tsv(); exit("\n");
+        // */
         
         // normal operation
         // temp/GBIF_Taxa_accepted.tsv
@@ -59,20 +86,28 @@ class GBIFtaxaAPI
         return $new_file;
     }
 
-    private function get_ids_2prune_using_google_sheet()
+    private function get_ids_2prune_using_google_sheet($save_to_text = false)
     {
+        if($save_to_text) $fn = fopen(CONTENT_RESOURCE_LOCAL_PATH."GBIF_ids_2prune.txt", "w");
         $final = array();
         $values = self::get_google_sheet();
         foreach($values as $row)
         {
             $taxonID = $row[0];
+            if($taxonID == 7707728) continue; //exit("\nfound $taxonID\n");
             echo "\nprocessing [$taxonID]\n";
             $children = self::get_all_children_of_taxon($taxonID);
             $children[] = $taxonID;
+            
+            if($save_to_text) fwrite($fn, implode("\t", $children)."\n");
+            
             $final = array_merge($final, $children);
             $final = array_unique($final);
+            
+            // if(count($final)>500) break; //debug only
         }
         $final = array_unique($final);
+        if($save_to_text) fclose($fn);
         return $final;
     }
     
@@ -86,17 +121,12 @@ class GBIFtaxaAPI
         foreach(new FileIterator($filename) as $line_number => $line)
         {
             $i++;
-            // /* breakdown when caching:
+            /* breakdown when caching:
             $cont = false;
-            
-            if($i >= 1    && $i < 25) $cont = true;
-            // if($i >= 25    && $i < 50) $cont = true;
-            // if($i >= 50    && $i < 100) $cont = true;
-            // if($i >= 100    && $i < 200) $cont = true; done
-            // if($i >= 200    && $i < 300) $cont = true;
-            
+            // if($i >= 50    && $i < 75) $cont = true; done
+            // if($i >= 75    && $i < 100) $cont = true; done
             if(!$cont) continue;
-            // */
+            */
             if($line)
             {
                 $line = explode("\t", $line);
@@ -106,9 +136,8 @@ class GBIFtaxaAPI
                     $taxonID = $line[0];
                     echo "\n".$taxonID." ";
                     // if($taxonID == 212) exit("\n$taxonID will start\n");
-                    if(in_array($taxonID, array(7707728, 8,13,35,9,212,131,1496,789,1458,136,62)))
+                    if(in_array($taxonID, array(7707728))) //, 8,13,35,9,212,131,1496,789,1458,136,62
                     {
-                        // exit("\n[$taxonID]\n");
                         continue;
                     }
                     
@@ -155,6 +184,10 @@ class GBIFtaxaAPI
         $taxo_tmp = array();
         //start ====
         $temp = self::get_children($taxon_id);
+        
+        // foreach($temp as $t) echo "$t,";
+        // exit("\n");
+        
         $taxo_tmp = array_merge($taxo_tmp, $temp);
 
         //start 2nd loop -> process children of children
