@@ -14,7 +14,7 @@ class GBIFtaxaAPI
         $this->download_options = array(
             'cache_path'         => '/Volumes/Thunderbolt4/eol_cache_gbif/',
             'expire_seconds'     => false, //false doesn't expire; true expires now
-            'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+            'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
     }
 
     function prune_gbif_backbone_taxa($taxon_extension)
@@ -30,33 +30,18 @@ class GBIFtaxaAPI
             fwrite($fn, $contents);
             fclose($fn);
             echo "\nsaved...\n";
-            
             $arr = json_decode($contents, true);
-            // print_r($arr);
             echo "\nrecords: ".count($arr["items"])."\n";
-            
         }
         exit("\n");
         */
         
         /* testing...
-        $children = self::get_all_children_of_taxon(7707728); 
-        print_r($children);
-        echo "\ntotal = " . count($children) . "\n";
-        exit("\n");
-        */
-        
-        // /* multiple
-        $ids = array(194,7228684,7219203,4909157,4909080,4908776,4908769,8559669,4908502,4908168,3229182);
-        // $ids = array(245,7228682);
-        // $ids = array(196);
-        // $ids = array(220);
-        // $ids = array(4907978,4907863,3229221,4907313,4907279,8693163,3229223,8532480,3229207,4906344,4906193,4906030,4906011,4905965,4905648,4905232,3229190,3229264,4904269,4901310,4901053,4900868,4900575,3229211,4900349,4900222,8510558,4899970,4899954,4899907,3229155,4899547,4899535,4899484,4899165,7575152,4898619,4897891,8462264,8438376,4896279,4896027,8668657,4895709,4895413,4895408,4895387,3229219,4895138,4894751,3229204,4894047,4894045,3229165,4893959,4893879,4893755,4893527,4893470,8612004,3229196,4893183,3229202,4893034,4892927,4892894,4892576,4892286,3229466,4891487,4891471,4889843,8477075,3229079,4887334,4887278,3229158,4886404,4886401,4886161,4922350,4922331,4912094);
-        
+        $ids = array(7707728);
+        $ids = array(8282879,9112416,3095362,8237524,5428444,4228201,6064205,3122003,8152779,3118099,8207588,7337268,4227712,3145359,3147437,7337258,3129972,7895782,7337227);
         foreach($ids as $id) self::get_all_children_of_taxon($id);
         exit("\n");
-        // */
-        
+        */
         
         // /*
         self::get_ids_2prune_using_google_sheet(true); exit("\nfinished saving [GBIF_ids_2prune.txt]\n");
@@ -88,27 +73,39 @@ class GBIFtaxaAPI
 
     private function get_ids_2prune_using_google_sheet($save_to_text = false)
     {
-        if($save_to_text) $fn = fopen(CONTENT_RESOURCE_LOCAL_PATH."GBIF_ids_2prune.txt", "w");
-        $final = array();
-        $values = self::get_google_sheet();
-        foreach($values as $row)
+        $text_file = CONTENT_RESOURCE_LOCAL_PATH."GBIF_ids_2prune_final.txt";
+        if(file_exists($text_file)) //retrieve text file
         {
-            $taxonID = $row[0];
-            if($taxonID == 7707728) continue; //exit("\nfound $taxonID\n");
-            echo "\nprocessing [$taxonID]\n";
-            $children = self::get_all_children_of_taxon($taxonID);
-            $children[] = $taxonID;
-            
-            if($save_to_text) fwrite($fn, implode("\t", $children)."\n");
-            
-            $final = array_merge($final, $children);
-            $final = array_unique($final);
-            
-            // if(count($final)>500) break; //debug only
+            $final = array();
+            foreach(new FileIterator($text_file) as $line_number => $line)
+            {
+                $arr = explode("\t", $line);
+                if($arr) $final = array_merge($final, $arr);
+                $final = array_unique($final);
+            }
+            return $final;
         }
-        $final = array_unique($final);
-        if($save_to_text) fclose($fn);
-        return $final;
+        else //create text file
+        {
+            echo "\nwill generate GBIF_ids_2prune_final.txt\n"; sleep(5);
+            if($save_to_text) $fn = fopen($text_file, "w");
+            $final = array();
+            $values = self::get_google_sheet();
+            foreach($values as $row)
+            {
+                $taxonID = $row[0];
+                // if($taxonID == 7707728) continue; //exit("\nfound $taxonID\n"); debug only //comment in normal operation
+                echo "\nprocessing [$taxonID]\n";
+                $children = self::get_all_children_of_taxon($taxonID);
+                $children[] = $taxonID;
+                if($save_to_text) fwrite($fn, implode("\t", $children)."\n");
+                $final = array_merge($final, $children);
+                $final = array_unique($final);
+            }
+            $final = array_unique($final);
+            if($save_to_text) fclose($fn);
+            return $final;
+        }
     }
     
     private function get_ids_2prune_using_tsv()
@@ -185,11 +182,10 @@ class GBIFtaxaAPI
         //start ====
         $temp = self::get_children($taxon_id);
         
-        // foreach($temp as $t) echo "$t,";
+        // foreach($temp as $id) echo ",$id";
         // exit("\n");
         
         $taxo_tmp = array_merge($taxo_tmp, $temp);
-
         //start 2nd loop -> process children of children
         foreach($temp as $id)
         {
