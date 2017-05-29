@@ -30,10 +30,11 @@ class ICTVdwcaAPI
         {
             $t = new \eol_schema\Taxon();
             $t->taxonID = str_ireplace("ICTVonline=", "ICTV:", $key);
+            if($t->taxonID == "ICTV:Unassigned") continue; //remove this one taxon: https://eol-jira.bibalex.org/browse/TRAM-532?focusedCommentId=61033&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61033
             if($val = @$rec['sciname'])
             {
                 $t->scientificName = $val;
-                $t->taxonRank = @$rec['rank'];
+                $t->taxonRank = strtolower(@$rec['rank']);
             }
             elseif($val = @$rec['Species'])
             {

@@ -28,6 +28,8 @@ $undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true
 echo "\nTotal undefined parents:" . count($undefined_parents)."\n"; unset($undefined_parents);
 // */
 
+/* Note: after which we run dwca_utility.php to get higherClassification column */
+
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
