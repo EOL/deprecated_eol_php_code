@@ -43,12 +43,14 @@ class GBIFtaxaAPI
         exit("\n");
         */
         
-        // /*
-        self::get_ids_2prune_using_google_sheet(true); exit("\nfinished saving [GBIF_ids_2prune.txt]\n");
+        /*
+        $ids = self::get_ids_2prune_using_google_sheet(true); 
+        echo "\ntotal: ".count($ids)."\n";
+        exit("\nfinished saving [GBIF_ids_2prune.txt]\n");
         // self::get_ids_2prune_using_tsv(); exit("\n");
-        // */
+        */
         
-        // normal operation
+        // start of normal operation
         // temp/GBIF_Taxa_accepted.tsv
         echo "\nsource: [$taxon_extension]\n";
         $filename = pathinfo($taxon_extension, PATHINFO_FILENAME);
@@ -57,15 +59,17 @@ class GBIFtaxaAPI
         
         $fn = fopen($new_file, "w");
         $ids_2prune = self::get_ids_2prune_using_google_sheet();
+        $i = 0;
         foreach(new FileIterator($taxon_extension) as $line_number => $line)
         {
+            $i++;
             if($line)
             {
                 $col = explode("\t", $line);
                 $taxonID = $col[0];
-                echo "\n[$taxonID]";
                 if(!in_array($taxonID, $ids_2prune)) fwrite($fn, $line."\n");
             }
+            if(($i % 10000) == 0) echo "\n count: $i";
         }
         fclose($fn);
         return $new_file;
@@ -73,23 +77,23 @@ class GBIFtaxaAPI
 
     private function get_ids_2prune_using_google_sheet($save_to_text = false)
     {
-        $text_file = CONTENT_RESOURCE_LOCAL_PATH."GBIF_ids_2prune_final_final.txt";
+        $text_file = CONTENT_RESOURCE_LOCAL_PATH."GBIF_ids_2prune_final.txt";
         if(file_exists($text_file)) //retrieve text file
         {
+            echo "\nretrieving $text_file...\n";
             $final = array();
             foreach(new FileIterator($text_file) as $line_number => $line)
             {
                 $arr = explode("\t", $line);
                 if($arr) $final = array_merge($final, $arr);
-                $final = array_unique($final);
             }
+            $final = array_unique($final);
             return $final;
         }
-        else //create text file
+        else //create text file: possibly create this only once coz the file is too long to generate.
         {
             echo "\nwill generate GBIF_ids_2prune_final.txt\n"; sleep(2);
             if($save_to_text) $fn = fopen($text_file, "w");
-            $final = array();
             $values = self::get_google_sheet();
             foreach($values as $row)
             {
@@ -99,14 +103,8 @@ class GBIFtaxaAPI
                 $children = self::get_all_children_of_taxon($taxonID);
                 $children[] = $taxonID;
                 if($save_to_text) fwrite($fn, implode("\t", $children)."\n");
-                /* not advisable to use, since it is too long to get all ids this way, better to just save it to text file first, then get the ids from the text file
-                $final = array_merge($final, $children);
-                $final = array_unique($final);
-                */
             }
-            $final = array_unique($final);
             if($save_to_text) fclose($fn);
-            return $final;
         }
     }
     
