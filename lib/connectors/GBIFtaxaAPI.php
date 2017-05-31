@@ -73,7 +73,7 @@ class GBIFtaxaAPI
 
     private function get_ids_2prune_using_google_sheet($save_to_text = false)
     {
-        $text_file = CONTENT_RESOURCE_LOCAL_PATH."GBIF_ids_2prune_final.txt";
+        $text_file = CONTENT_RESOURCE_LOCAL_PATH."GBIF_ids_2prune_final_final.txt";
         if(file_exists($text_file)) //retrieve text file
         {
             $final = array();
@@ -87,7 +87,7 @@ class GBIFtaxaAPI
         }
         else //create text file
         {
-            echo "\nwill generate GBIF_ids_2prune_final.txt\n"; sleep(5);
+            echo "\nwill generate GBIF_ids_2prune_final.txt\n"; sleep(2);
             if($save_to_text) $fn = fopen($text_file, "w");
             $final = array();
             $values = self::get_google_sheet();
@@ -99,8 +99,10 @@ class GBIFtaxaAPI
                 $children = self::get_all_children_of_taxon($taxonID);
                 $children[] = $taxonID;
                 if($save_to_text) fwrite($fn, implode("\t", $children)."\n");
+                /* not advisable to use, since it is too long to get all ids this way, better to just save it to text file first, then get the ids from the text file
                 $final = array_merge($final, $children);
                 $final = array_unique($final);
+                */
             }
             $final = array_unique($final);
             if($save_to_text) fclose($fn);
@@ -165,8 +167,7 @@ class GBIFtaxaAPI
             if($json = Functions::lookup_with_cache($url, $this->download_options))
             {
                 $j = json_decode($json);
-                // print_r($j); exit;
-                echo "\n [$url] incremental count: " . count($j->results) . "\n";
+                // echo "\n [$url] incremental count: " . count($j->results) . "\n"; //good debug info
                 foreach($j->results as $r) $final[] = str_ireplace("gbif:", "", $r->taxonID);
                 if($j->endOfRecords) $continue = false;
             }
