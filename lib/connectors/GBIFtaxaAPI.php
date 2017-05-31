@@ -36,18 +36,17 @@ class GBIFtaxaAPI
         exit("\n");
         */
         
-        /* testing...
-        $ids = array(7707728);
-        $ids = array(8282879,9112416,3095362,8237524,5428444,4228201,6064205,3122003,8152779,3118099,8207588,7337268,4227712,3145359,3147437,7337258,3129972,7895782,7337227);
-        foreach($ids as $id) self::get_all_children_of_taxon($id);
-        exit("\n");
-        */
-        
-        /*
+        /* creating the text file is too long to generate thus I ran this first before the normal operation.
         $ids = self::get_ids_2prune_using_google_sheet(true); 
         echo "\ntotal: ".count($ids)."\n";
         exit("\nfinished saving [GBIF_ids_2prune.txt]\n");
         // self::get_ids_2prune_using_tsv(); exit("\n");
+        */
+
+        /* testing... a subset of IDs from Google sheet
+        $ids = array(8282879,9112416,3095362,8237524,5428444,4228201,6064205,3122003,8152779,3118099,8207588,7337268,4227712,3145359,3147437,7337258,3129972,7895782,7337227);
+        foreach($ids as $id) self::get_all_children_of_taxon($id);
+        exit("\n");
         */
         
         // start of normal operation
@@ -108,7 +107,7 @@ class GBIFtaxaAPI
         }
     }
     
-    private function get_ids_2prune_using_tsv()
+    private function get_ids_2prune_using_tsv() //later on used get_ids_2prune_using_google_sheet() instead.
     {
         $final = array();
         $spreadsheet = "http://localhost/cp/GBIF/from_Google_spreadsheet/Branches to prune from GBIF - Sheet1.tsv";
@@ -132,12 +131,9 @@ class GBIFtaxaAPI
                 {
                     $taxonID = $line[0];
                     echo "\n".$taxonID." ";
-                    // if($taxonID == 212) exit("\n$taxonID will start\n");
-                    if(in_array($taxonID, array(7707728))) //, 8,13,35,9,212,131,1496,789,1458,136,62
-                    {
-                        continue;
-                    }
-                    
+                    /* just debug
+                    if(in_array($taxonID, array(7707728))) continue; //, 8,13,35,9,212,131,1496,789,1458,136,62
+                    */
                     $children = self::get_all_children_of_taxon($taxonID);
                     $children[] = $taxonID;
                     $final = array_merge($final, $children);
@@ -145,7 +141,6 @@ class GBIFtaxaAPI
                 }
             }
             // if($taxonID == 212) exit("\n$taxonID finished\n");
-            
         }
         unlink($filename);
         $final = array_unique($final);
@@ -181,8 +176,10 @@ class GBIFtaxaAPI
         //start ====
         $temp = self::get_children($taxon_id);
         
-        // foreach($temp as $id) echo ",$id";
-        // exit("\n");
+        /* just debug - used when I want to see the direct descendants of a taxon, and then would want to run separate connectors for each
+        foreach($temp as $id) echo ",$id";
+        exit("\n");
+        */
         
         $taxo_tmp = array_merge($taxo_tmp, $temp);
         //start 2nd loop -> process children of children
