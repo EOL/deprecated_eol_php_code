@@ -75,21 +75,244 @@ class EolAPI_Traits
         $datasets[] = array("name" => "body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc");
 
         // DATA-1664: body length (CMO) + body length (VT)
-        $datasets[] = array("name" => "body length CMO VT", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FCMO_0000013&required_equivalent_attributes%5B%5D=2247&commit=Search&taxon_name=&q=");
+        $datasets[] = array("name" => "body length CMO VT", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FCMO_0000013&required_equivalent_attributes%5B%5D=2247&commit=Search&q=");
 
         // DATA-1669: weight within Eutheria
         $datasets[] = array("name" => "weight within Eutheria", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000128&q=&sort=desc&taxon_concept_id=2844801");
-        $datasets[] = array("name" => "body mass within Eutheria", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&commit=Search&taxon_name=Eutheria&q=&taxon_concept_id=2844801");
+        $datasets[] = array("name" => "body mass within Eutheria", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&commit=Search&q=&taxon_concept_id=2844801");
         */
 
-        //for archiving...
-        // $datasets[] = array("name" => "active growth period", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FActiveGrowthPeriod&commit=Search&taxon_name=&q=");
-        // $datasets[] = array("name" => "flower color", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FTO_0000537&commit=Search&taxon_name=&q=");
-        // $datasets[] = array("name" => "abdomen length", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FAbdomenLength&commit=Search&taxon_name=&q=");
-        // $datasets[] = array("name" => "egg diameter", "attribute" => "http%3A%2F%2Fpolytraits.lifewatchgreece.eu%2Fterms%2FEGG&commit=Search&taxon_name=&q=");
-        // $datasets[] = array("name" => "body length (CMO)", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FCMO_0000013&commit=Search&taxon_name=&q=");
-        // $datasets[] = array("name" => "latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&commit=Search&taxon_name=&q=");
-        // $datasets[] = array("name" => "water nitrate concentration", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedNitrate&commit=Search&taxon_name=&q=");
+        // %3A is :
+        // %2F is /
+        
+        // DATA-1685 - Data request: lots of little queries
+        /* four seagrass
+        $datasets[] = array("name" => "Posidoniaceae conservation status", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fontology%2Fvoc%2FSPMInfoItems%23ConservationStatus&commit=Search&q=&taxon_concept_id=8165");
+        $datasets[] = array("name" => "Zosteraceae conservation status", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fontology%2Fvoc%2FSPMInfoItems%23ConservationStatus&commit=Search&q=&taxon_concept_id=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae conservation status", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fontology%2Fvoc%2FSPMInfoItems%23ConservationStatus&commit=Search&q=&taxon_concept_id=4182");
+        $datasets[] = array("name" => "Cymodoceaceae conservation status", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fontology%2Fvoc%2FSPMInfoItems%23ConservationStatus&commit=Search&q=&taxon_concept_id=8210");
+
+        $datasets[] = array("name" => "Posidoniaceae geographic distribution", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fontology%2Fvoc%2FSPMInfoItems%23Distribution&q=&commit=Search&taxon_concept_id=8165");
+        $datasets[] = array("name" => "Zosteraceae geographic distribution", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fontology%2Fvoc%2FSPMInfoItems%23Distribution&q=&commit=Search&taxon_concept_id=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae geographic distribution", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fontology%2Fvoc%2FSPMInfoItems%23Distribution&q=&commit=Search&taxon_concept_id=4182");
+        $datasets[] = array("name" => "Cymodoceaceae geographic distribution", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fontology%2Fvoc%2FSPMInfoItems%23Distribution&q=&commit=Search&taxon_concept_id=8210");
+        
+        $datasets[] = array("name" => "Posidoniaceae geographic distribution inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPresent&commit=Search&q=&taxon_concept_id=8165");
+        $datasets[] = array("name" => "Zosteraceae geographic distribution inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPresent&commit=Search&q=&taxon_concept_id=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae geographic distribution inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPresent&commit=Search&q=&taxon_concept_id=4182");
+        $datasets[] = array("name" => "Cymodoceaceae geographic distribution inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPresent&commit=Search&q=&taxon_concept_id=8210");
+
+        $datasets[] = array("name" => "Posidoniaceae growth habit", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPlantHabit&q=&commit=Search&taxon_concept_id=8165");
+        $datasets[] = array("name" => "Zosteraceae growth habit", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPlantHabit&q=&commit=Search&taxon_concept_id=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae growth habit", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPlantHabit&q=&commit=Search&taxon_concept_id=4182");
+        $datasets[] = array("name" => "Cymodoceaceae growth habit", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPlantHabit&q=&commit=Search&taxon_concept_id=8210");
+
+        $datasets[] = array("name" => "Posidoniaceae habitat", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2Fhabitat&q=&commit=Search&taxon_concept_id=8165");
+        $datasets[] = array("name" => "Zosteraceae habitat", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2Fhabitat&q=&commit=Search&taxon_concept_id=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae habitat", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2Fhabitat&q=&commit=Search&taxon_concept_id=4182");
+        $datasets[] = array("name" => "Cymodoceaceae habitat", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2Fhabitat&q=&commit=Search&taxon_concept_id=8210");
+        
+        $datasets[] = array("name" => "Posidoniaceae habitat inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FHabitat&q=&commit=Search&taxon_concept_id=8165");
+        $datasets[] = array("name" => "Zosteraceae habitat inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FHabitat&q=&commit=Search&taxon_concept_id=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae habitat inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FHabitat&q=&commit=Search&taxon_concept_id=4182");
+        $datasets[] = array("name" => "Cymodoceaceae habitat inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FHabitat&q=&commit=Search&taxon_concept_id=8210");
+
+        $datasets[] = array("name" => "Posidoniaceae introduced range inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FIntroducedRange&commit=Search&q=&taxon_concept_id=8165");
+        $datasets[] = array("name" => "Zosteraceae introduced range inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FIntroducedRange&commit=Search&q=&taxon_concept_id=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae introduced range inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FIntroducedRange&commit=Search&q=&taxon_concept_id=4182");
+        $datasets[] = array("name" => "Cymodoceaceae introduced range inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FIntroducedRange&commit=Search&q=&taxon_concept_id=8210");
+
+        $datasets[] = array("name" => "Posidoniaceae latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&required_equivalent_attributes%5B%5D=2281&commit=Search&q=&taxon_concept_id=8165");
+        $datasets[] = array("name" => "Zosteraceae latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&required_equivalent_attributes%5B%5D=2281&commit=Search&q=&taxon_concept_id=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&required_equivalent_attributes%5B%5D=2281&commit=Search&q=&taxon_concept_id=4182");
+        $datasets[] = array("name" => "Cymodoceaceae latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&required_equivalent_attributes%5B%5D=2281&commit=Search&q=&taxon_concept_id=8210");
+
+        $datasets[] = array("name" => "Posidoniaceae longitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLongitude&required_equivalent_attributes%5B%5D=2282&commit=Search&q=&taxon_concept_id=8165");
+        $datasets[] = array("name" => "Zosteraceae longitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLongitude&required_equivalent_attributes%5B%5D=2282&commit=Search&q=&taxon_concept_id=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae longitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLongitude&required_equivalent_attributes%5B%5D=2282&commit=Search&q=&taxon_concept_id=4182");
+        $datasets[] = array("name" => "Cymodoceaceae longitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLongitude&required_equivalent_attributes%5B%5D=2282&commit=Search&q=&taxon_concept_id=8210");
+
+        $datasets[] = array("name" => "Posidoniaceae native range inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FNativeRange&q=&commit=Search&taxon_concept_id=8165");
+        $datasets[] = array("name" => "Zosteraceae native range inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FNativeRange&q=&commit=Search&taxon_concept_id=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae native range inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FNativeRange&q=&commit=Search&taxon_concept_id=4182");
+        $datasets[] = array("name" => "Cymodoceaceae native range inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FNativeRange&q=&commit=Search&taxon_concept_id=8210");
+
+        $datasets[] = array("name" => "Posidoniaceae plant height ", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FTO_0000207&q=&commit=Search&taxon_concept_id=8165");
+        $datasets[] = array("name" => "Zosteraceae plant height ", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FTO_0000207&q=&commit=Search&taxon_concept_id=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae plant height ", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FTO_0000207&q=&commit=Search&taxon_concept_id=4182");
+        $datasets[] = array("name" => "Cymodoceaceae plant height ", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FTO_0000207&q=&commit=Search&taxon_concept_id=8210");
+
+        $datasets[] = array("name" => "Posidoniaceae plant propagation method", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPropagationMethod&commit=Search&q=&taxon_concept_id=8165");
+        $datasets[] = array("name" => "Zosteraceae plant propagation method", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPropagationMethod&commit=Search&q=&taxon_concept_id=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae plant propagation method", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPropagationMethod&commit=Search&q=&taxon_concept_id=4182");
+        $datasets[] = array("name" => "Cymodoceaceae plant propagation method", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPropagationMethod&commit=Search&q=&taxon_concept_id=8210");
+
+        $datasets[] = array("name" => "Posidoniaceae planting density", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPlantingDensity&commit=Search&q=&taxon_concept_id=8165");
+        $datasets[] = array("name" => "Zosteraceae planting density", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPlantingDensity&commit=Search&q=&taxon_concept_id=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae planting density", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPlantingDensity&commit=Search&q=&taxon_concept_id=4182");
+        $datasets[] = array("name" => "Cymodoceaceae planting density", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPlantingDensity&commit=Search&q=&taxon_concept_id=8210");
+
+        $datasets[] = array("name" => "Posidoniaceae threatened or endangered status", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FThreatenedEndangeredStatus&commit=Search&q=&taxon_concept_id=8165");
+        $datasets[] = array("name" => "Zosteraceae threatened or endangered status", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FThreatenedEndangeredStatus&commit=Search&q=&taxon_concept_id=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae threatened or endangered status", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FThreatenedEndangeredStatus&commit=Search&q=&taxon_concept_id=4182");
+        $datasets[] = array("name" => "Cymodoceaceae threatened or endangered status", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FThreatenedEndangeredStatus&commit=Search&q=&taxon_concept_id=8210");
+
+        $datasets[] = array("name" => "Posidoniaceae water depth", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FverbatimDepth&commit=Search&q=8165");
+        $datasets[] = array("name" => "Zosteraceae water depth", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FverbatimDepth&commit=Search&q=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae water depth", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FverbatimDepth&commit=Search&q=4182");
+        $datasets[] = array("name" => "Cymodoceaceae water depth", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FverbatimDepth&commit=Search&q=8210");
+
+        $datasets[] = array("name" => "Posidoniaceae water dissolved O2 conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedOxygen&commit=Search&q=&taxon_concept_id=8165");
+        $datasets[] = array("name" => "Zosteraceae water dissolved O2 conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedOxygen&commit=Search&q=&taxon_concept_id=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae water dissolved O2 conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedOxygen&commit=Search&q=&taxon_concept_id=4182");
+        $datasets[] = array("name" => "Cymodoceaceae water dissolved O2 conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedOxygen&commit=Search&q=&taxon_concept_id=8210");
+        
+        $datasets[] = array("name" => "Posidoniaceae water nitrate conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedNitrate&commit=Search&q=&taxon_concept_id=8165");
+        $datasets[] = array("name" => "Zosteraceae water nitrate conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedNitrate&commit=Search&q=&taxon_concept_id=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae water nitrate conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedNitrate&commit=Search&q=&taxon_concept_id=4182");
+        $datasets[] = array("name" => "Cymodoceaceae water nitrate conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedNitrate&commit=Search&q=&taxon_concept_id=8210");
+
+        $datasets[] = array("name" => "Posidoniaceae water O2 saturation", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FOxygenSaturation&commit=Search&q=&taxon_concept_id=8165");
+        $datasets[] = array("name" => "Zosteraceae water O2 saturation", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FOxygenSaturation&commit=Search&q=&taxon_concept_id=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae water O2 saturation", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FOxygenSaturation&commit=Search&q=&taxon_concept_id=4182");
+        $datasets[] = array("name" => "Cymodoceaceae water O2 saturation", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FOxygenSaturation&commit=Search&q=&taxon_concept_id=8210");
+
+        $datasets[] = array("name" => "Posidoniaceae water phosphate conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedPhosphate&q=&commit=Search&taxon_concept_id=8165");
+        $datasets[] = array("name" => "Zosteraceae water phosphate conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedPhosphate&q=&commit=Search&taxon_concept_id=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae water phosphate conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedPhosphate&q=&commit=Search&taxon_concept_id=4182");
+        $datasets[] = array("name" => "Cymodoceaceae water phosphate conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedPhosphate&q=&commit=Search&taxon_concept_id=8210");
+
+        $datasets[] = array("name" => "Posidoniaceae water salinity", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FSalinity&commit=Search&q=&taxon_concept_id=8165");
+        $datasets[] = array("name" => "Zosteraceae water salinity", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FSalinity&commit=Search&q=&taxon_concept_id=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae water salinity", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FSalinity&commit=Search&q=&taxon_concept_id=4182");
+        $datasets[] = array("name" => "Cymodoceaceae water salinity", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FSalinity&commit=Search&q=&taxon_concept_id=8210");
+
+        $datasets[] = array("name" => "Posidoniaceae water silicate conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedSilicate&q=&commit=Search&taxon_concept_id=8165");
+        $datasets[] = array("name" => "Zosteraceae water silicate conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedSilicate&q=&commit=Search&taxon_concept_id=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae water silicate conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedSilicate&q=&commit=Search&taxon_concept_id=4182");
+        $datasets[] = array("name" => "Cymodoceaceae water silicate conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedSilicate&q=&commit=Search&taxon_concept_id=8210");
+
+        $datasets[] = array("name" => "Posidoniaceae water temperature", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FSeawaterTemperature&commit=Search&q=&taxon_concept_id=8165");
+        $datasets[] = array("name" => "Zosteraceae water temperature", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FSeawaterTemperature&commit=Search&q=&taxon_concept_id=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae water temperature", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FSeawaterTemperature&commit=Search&q=&taxon_concept_id=4182");
+        $datasets[] = array("name" => "Cymodoceaceae water temperature", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FSeawaterTemperature&commit=Search&q=&taxon_concept_id=8210");
+        */
+
+        /*
+        Cnidaria: 24 traits request
+        $datasets[] = array("name" => "Cnidaria Area mass ratio", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FareaToMassRatio&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria attached to substrate", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FAttached&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria breeding season", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FbreedingSeason&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria colonial", "attribute" => "http%3A%2F%2Fwww.owl-ontologies.com%2Funnamed.owl%23Colonial&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria conservation status ", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fontology%2Fvoc%2FSPMInfoItems%23ConservationStatus&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria geographic distribution", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fontology%2Fvoc%2FSPMInfoItems%23Distribution&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria geographic distribution inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPresent&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria habitat", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2Fhabitat&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria habitat includes + habitat", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FHabitat&required_equivalent_attributes%5B%5D=1456&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria introduced range inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FIntroducedRange&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria latitude + latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&required_equivalent_attributes%5B%5D=2281&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria longitude + longitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLongitude&required_equivalent_attributes%5B%5D=2282&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria native range inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FNativeRange&required_equivalent_attributes%5B%5D=2282&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria rate of development", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FrateOfDevelopment&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria sexual dimorphism", "attribute" => "http%3A%2F%2Fwww.owl-ontologies.com%2Funnamed.owl%23Dimorphism&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria skeletal density", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FSkeletalDensity&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria water depth", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FverbatimDepth&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria water dissolved O2 conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedOxygen&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria water nitrate conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedNitrate&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria water O2 saturation", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FOxygenSaturation&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria water phosphate conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedPhosphate&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria water salinity", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FSalinity&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria water silicate conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedSilicate&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria water temperature", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FSeawaterTemperature&commit=Search&q=&taxon_concept_id=1745");
+        */
+
+        /* Actinopterygii:
+        Traits: age at first birth, age at first reproduction, age at maturity, animal population density, basal metabolic rate, body length (CMO), body length (VT), body mass, 
+        body temperature, breeding habitat, breeding season, clutch/brood/litter size, conservation status, development mode, dispersal age, feeding method, feeding mode, 
+        foraging habitat, foraging time, geographic distribution, geographic distribution inc…, geographic range (size of a.., geographical zone, growth rate */
+
+        // $datasets[] = array("name" => "Actinopterygii age at first birth", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FAgeAtFirstBirth&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii age at first reproduction", "attribute" => "http%3A%2F%2Fpolytraits.lifewatchgreece.eu%2Fterms%2FMAT&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii age at maturity", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FAgeAtMaturity&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii animal population density", "attribute" => "http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FCSP%2F2383-1863&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii basal metabolic rate", "attribute" => "http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F165109007&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii body length CMO", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FCMO_0000013&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii body length VT", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001256&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii body temperature", "attribute" => "http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FCSP%2F2871-4249&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii breeding habitat", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FBreedingHabitat&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii breeding season", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FbreedingSeason&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii clutch/brood/litter size", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001933&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii conservation status", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fontology%2Fvoc%2FSPMInfoItems%23ConservationStatus&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii developmental mode", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDevelopmentalMode&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii dispersal age", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDispersalAge&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii feeding method", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FFeedingMethod&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii Feeding Mode", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FFeedingMode&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii foraging habitat", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FForagingHabitat&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii foraging time", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FForagingTime&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii geographic distribution", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fontology%2Fvoc%2FSPMInfoItems%23Distribution&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii geographic distribution inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPresent&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii geographic range - size of area", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FGeographicRangeArea&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii geographical zone", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FGeographicalZone&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii growth rate", "attribute" => "http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F260865002&commit=Search&q=&taxon_concept_id=1905");
+
+        /* , habitat, 
+        habitat breadth, habitat includes, head-body length, home range, human population density, human population density ch…, introduced range includes, latitude, life span, 
+        locomotion, log 10 productivity, longitude, male female body mass ratio, mating system, metabolic rate, native range includes, onset of fertility, parental care, population trend, 
+        primary diet, range midpoint latitude */
+
+        // $datasets[] = array("name" => "Actinopterygii habitat", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2Fhabitat&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii habitat breadth", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FHabitatBreadth&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii habitat inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FHabitat&commit=Search&q=&taxon_concept_id=1905");
+
+        // $datasets[] = array("name" => "Actinopterygii head-body length", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FHeadBodyLength&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii home range", "attribute" => "http%3A%2F%2Fwww.owl-ontologies.com%2Funnamed.owl%23Home_range&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii human population density", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FHumanPopulationDensity&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii human population density change", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FHumanPopulationDensityChange&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii introduced range inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FIntroducedRange&commit=Search&q=&taxon_concept_id=1905");
+
+        // $datasets[] = array("name" => "Actinopterygii latitude + latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&required_equivalent_attributes%5B%5D=2281&commit=Search&q=&taxon_concept_id=1905");
+
+        // $datasets[] = array("name" => "Actinopterygii life span + total life span", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&required_equivalent_attributes%5B%5D=2259&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii locomotion", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FGO_0040011&required_equivalent_attributes%5B%5D=2259&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii log10 productivity", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FLog10Productivity&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii longitude + longitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLongitude&required_equivalent_attributes%5B%5D=2282&commit=Search&q=&taxon_concept_id=1905");
+
+        // $datasets[] = array("name" => "Actinopterygii Male Female Body Mass Ratio", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FMaleFemaleBodyMassRatio&required_equivalent_attributes%5B%5D=2282&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii Mating System", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FMatingSystem&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii metabolic rate", "attribute" => "http%3A%2F%2Fwww.owl-ontologies.com%2Funnamed.owl%23Metabolic_rate&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii native range inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FNativeRange&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii onset of fertility", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0002683&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii parental care", "attribute" => "http%3A%2F%2Fwww.owl-ontologies.com%2Funnamed.owl%23Parental_investment&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii population trend", "attribute" => "http%3A%2F%2Fiucn.org%2Fpopulation_trend&commit=Search&q=&taxon_concept_id=1905");
+
+        $datasets[] = array("name" => "Actinopterygii primary diet", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPrimaryDiet&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii range midpoint latitude", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FRangeMidpointLatitude&commit=Search&q=&taxon_concept_id=1905");
+
+        /* , rate of development, reproductive skew, sexual dimorphism, sexual system, social group size, temperature at midpoint…, 
+        temperature in geographic r…, territorial, testis location, testis mass, total life span, trophic guild, trophic level, water depth, water dissolved O2 concentration, 
+        water nitrate concentration, water O2 saturation, water phosphate concentration, water salinity, water silicate concentration, water temperature, weight */
+
+        $datasets[] = array("name" => "Actinopterygii rate of development", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FrateOfDevelopment&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii Reproductive Skew", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FReproductiveSkew&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii sexual dimorphism", "attribute" => "http%3A%2F%2Fwww.owl-ontologies.com%2Funnamed.owl%23Dimorphism&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii sexual system", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FSexualSystem&commit=Search&q=&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii xxxx", "attribute" => "xxx_&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii xxxx", "attribute" => "xxx_&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii xxxx", "attribute" => "xxx_&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii xxxx", "attribute" => "xxx_&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii xxxx", "attribute" => "xxx_&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii xxxx", "attribute" => "xxx_&taxon_concept_id=1905");
+        // $datasets[] = array("name" => "Actinopterygii xxxx", "attribute" => "xxx_&taxon_concept_id=1905");
+        
+        
+        /*
+        $datasets[] = array("name" => "Posidoniaceae xxx", "attribute" => "xxx=8165");
+        $datasets[] = array("name" => "Zosteraceae xxx", "attribute" => "xxx=8184");
+        $datasets[] = array("name" => "Hydrocharitaceae xxx", "attribute" => "xxx=4182");
+        $datasets[] = array("name" => "Cymodoceaceae xxx", "attribute" => "xxx=8210");
+        */
+
 
         // tests
         // $datasets[] = array("name" => "cell mass from Jen", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645");
