@@ -25,31 +25,31 @@ class FreeDataAPI
 
     //start for USGS ==============================================================================================================
     /* These are the unique list of groups:
-                [Fishes] => 
-                [Plants] => 
-                [Amphibians-Frogs] => 
-                [Reptiles-Snakes] => 
-                [Mollusks-Bivalves] => 
-                [Reptiles-Crocodilians] => 
-                [Amphibians-Salamanders] => 
-                [Reptiles-Turtles] => 
-                [Crustaceans-Amphipods] => 
-                [Crustaceans-Copepods] => 
-                [Crustaceans-Isopods] => 
-                [Annelids-Hirundinea] => 
-                [Mollusks-Gastropods] => 
-                [Coelenterates-Hydrozoans] => 
-                [Crustaceans-Cladocerans] => 
-                [Rotifers] => 
-                [Crustaceans-Crayfish] => 
-                [Crustaceans-Shrimp] => 
-                [Mammals] => 
-                [Crustaceans-Crabs] => 
-                [Crustaceans-Mysids] => 
-                [Bryozoans] => 
-                [Mollusks-Cephalopods] => 
-                [Annelids-Oligochaetes] => 
-                [Entoprocts] => 
+                [Fishes] =>                 Animalia
+                [Plants] =>                 Plantae
+                [Amphibians-Frogs] =>       Animalia
+                [Reptiles-Snakes] =>        Animalia
+                [Mollusks-Bivalves] =>      Animalia
+                [Reptiles-Crocodilians] =>  Animalia
+                [Amphibians-Salamanders] => Animalia
+                [Reptiles-Turtles] =>       Animalia
+                [Crustaceans-Amphipods] =>  Animalia 
+                [Crustaceans-Copepods] =>   Animalia
+                [Crustaceans-Isopods] =>    Animalia
+                [Annelids-Hirundinea] =>    Animalia
+                [Mollusks-Gastropods] =>    Animalia
+                [Coelenterates-Hydrozoans] =>   Animalia
+                [Crustaceans-Cladocerans] =>    Animalia
+                [Rotifers] =>                   Animalia
+                [Crustaceans-Crayfish] =>       Animalia
+                [Crustaceans-Shrimp] =>         Animalia
+                [Mammals] =>                    Animalia
+                [Crustaceans-Crabs] =>          Animalia
+                [Crustaceans-Mysids] =>     Animalia
+                [Bryozoans] =>              Animalia
+                [Mollusks-Cephalopods] =>   Animalia
+                [Annelids-Oligochaetes] =>  Animalia
+                [Entoprocts] =>             Animalia
     From the API, we can get the FAMILY of the species belonging to each of the groups.
     Do we need to fill-in the other: KINGDOM, PHYLUM, CLASS, ORDER? */
     
@@ -59,10 +59,25 @@ class FreeDataAPI
         2. get occurrences for each species
         3. create the zip file
         */
+        
+        /*
+        $str = "eli boy cha";
+        $arr = explode(" ", $str);
+        echo "\ngenus: ".$arr[0]."\n";
+        array_shift($arr);
+        print_r($arr);
+        exit("\n");
+        */
+        
+        // $url = "https://nas.er.usgs.gov/api/v1/occurrence/search?offset=0&genus=Paraneetroplus&species=" . urlencode("melanurus x P. zonatus(?)");
+        // exit("\n$url\n");
+        
         $options = $this->download_options;
         $options['resource_id'] = "usgs"; //a folder /usgs/ will be created in /eol_cache/
         $options['download_wait_time'] = 1000000; //1 second
         $options['expire_seconds'] = false;
+        $options['download_attempts'] = 3;
+        $options['delay_in_minutes'] = 2;
         
         self::create_folder_if_does_not_exist('usgs_nonindigenous_aquatic_species');
         
@@ -80,28 +95,26 @@ class FreeDataAPI
             if(count($arr) == 7) 
             {
                 $i++;
-                // print_r($arr); exit;
+                // print_r($arr); //exit;
                 $this->debug['group'][$arr[0]] = '';
-                $temp = explode(" ", $arr[2]);
+                $group = $arr[0];
+                $temp = explode(" ", $arr[2]); //scientificname
                 $temp = array_map('trim', $temp);
                 $genus = $temp[0];
-                $species = $temp[1];
+                array_shift($temp);
+                $species = trim(implode(" ", $temp));
+                $species = urlencode($species);
                 $offset = 0;
                 
-                // /* breakdown when caching: as of Jun 5, 2017 total is 1,270
+                /* breakdown when caching: as of Jun 5, 2017 total is 1,270
                 $cont = false;
-                // if($i >= 0    && $i < 250) $cont = true; done
-                // if($i >= 250    && $i < 450) $cont = true; done
-                // if($i >= 400    && $i < 500) $cont = true; done
-                // if($i >= 500    && $i < 750) $cont = true; done
-                
-                // if($i >= 840    && $i < 855) $cont = true;
-                // if($i >= 855    && $i < 880) $cont = true; done
-                // if($i >= 1130    && $i < 1140) $cont = true;
-                // if($i >= 1140    && $i < 1150) $cont = true;
-
+                // if($i >= 0    && $i < 250) $cont = true; 
+                // if($i >= 250    && $i < 500) $cont = true; 
+                // if($i >= 500    && $i < 750) $cont = true; 
+                // if($i >= 750    && $i < 1000) $cont = true; 
+                if($i >= 1000    && $i < 1300) $cont = true; 
                 if(!$cont) continue;
-                // */
+                */
                 
                 while(true)
                 {
@@ -111,12 +124,13 @@ class FreeDataAPI
                     {
                         $recs = json_decode($json);
                         echo "\n$i. total: ".count($recs->results). "\n";
-                        if($val = $recs->results) self::process_usgs_occurrence($val);
+                        if($val = $recs->results) self::process_usgs_occurrence($val, $group);
                         // break; //debug
                         $offset += 100;
                         if($recs->endOfRecords == "true") break;
                         if(count($recs->results) < 100) break;
                     }
+                    else break;
                 }
                 
             }
@@ -127,7 +141,7 @@ class FreeDataAPI
         // if($this->debug) print_r($this->debug);
     }
     
-    private function process_usgs_occurrence($recs)
+    private function process_usgs_occurrence($recs, $group)
     {
         $i = 0;
         $WRITE = Functions::file_open($this->destination['USGS'], "a");
@@ -137,7 +151,7 @@ class FreeDataAPI
             if(($i % 1000) == 0) echo number_format($i) . "\n";
             if($rec)
             {
-                $row = self::process_rec_USGS($rec);
+                $row = self::process_rec_USGS($rec, $group);
                 if($row) fwrite($WRITE, $row . "\n");
             }
             // if($i > 5) break;  //debug only
@@ -146,7 +160,7 @@ class FreeDataAPI
         fclose($WRITE);
     }
     
-    function process_rec_USGS($rec)
+    function process_rec_USGS($rec, $group)
     {
         $rek = array();
         /* total of 11 columns
@@ -194,12 +208,12 @@ class FreeDataAPI
         //total of 12 columns
         $rek[]  = $rec->key;
         $rek[]  = $rec->museumCatNumber;
-        $rek[]  = $rec->date;
+        $rek[]  = @$rec->date;
         $rek[]  = $rec->decimalLatitude;
         $rek[]  = $rec->decimalLongitude;
         $rek[]  = $rec->scientificName;
         $rek[]  = 'species';
-        $rek[]  = '';
+        $rek[]  = ($group == "Plants" ? "Plantae" : "Animalia");
         $rek[]  = '';
         $rek[]  = '';
         $rek[]  = $rec->family;
