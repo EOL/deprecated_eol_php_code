@@ -199,7 +199,7 @@ class EolAPI_Traits
         */
 
         /*
-        Cnidaria: 24 traits request
+        // Cnidaria: 24 traits request
         $datasets[] = array("name" => "Cnidaria Area mass ratio", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FareaToMassRatio&commit=Search&q=&taxon_concept_id=1745");
         $datasets[] = array("name" => "Cnidaria attached to substrate", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FAttached&commit=Search&q=&taxon_concept_id=1745");
         $datasets[] = array("name" => "Cnidaria breeding season", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FbreedingSeason&commit=Search&q=&taxon_concept_id=1745");
@@ -212,7 +212,7 @@ class EolAPI_Traits
         $datasets[] = array("name" => "Cnidaria introduced range inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FIntroducedRange&commit=Search&q=&taxon_concept_id=1745");
         $datasets[] = array("name" => "Cnidaria latitude + latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&required_equivalent_attributes%5B%5D=2281&commit=Search&q=&taxon_concept_id=1745");
         $datasets[] = array("name" => "Cnidaria longitude + longitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLongitude&required_equivalent_attributes%5B%5D=2282&commit=Search&q=&taxon_concept_id=1745");
-        $datasets[] = array("name" => "Cnidaria native range inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FNativeRange&required_equivalent_attributes%5B%5D=2282&commit=Search&q=&taxon_concept_id=1745");
+        $datasets[] = array("name" => "Cnidaria native range inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FNativeRange&commit=Search&q=&taxon_concept_id=1745");
         $datasets[] = array("name" => "Cnidaria rate of development", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FrateOfDevelopment&commit=Search&q=&taxon_concept_id=1745");
         $datasets[] = array("name" => "Cnidaria sexual dimorphism", "attribute" => "http%3A%2F%2Fwww.owl-ontologies.com%2Funnamed.owl%23Dimorphism&commit=Search&q=&taxon_concept_id=1745");
         $datasets[] = array("name" => "Cnidaria skeletal density", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FSkeletalDensity&commit=Search&q=&taxon_concept_id=1745");
@@ -226,93 +226,87 @@ class EolAPI_Traits
         $datasets[] = array("name" => "Cnidaria water temperature", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FSeawaterTemperature&commit=Search&q=&taxon_concept_id=1745");
         */
 
-        /* Actinopterygii:
+         /* Actinopterygii:
         Traits: age at first birth, age at first reproduction, age at maturity, animal population density, basal metabolic rate, body length (CMO), body length (VT), body mass, 
         body temperature, breeding habitat, breeding season, clutch/brood/litter size, conservation status, development mode, dispersal age, feeding method, feeding mode, 
-        foraging habitat, foraging time, geographic distribution, geographic distribution inc…, geographic range (size of a.., geographical zone, growth rate */
-
-        // $datasets[] = array("name" => "Actinopterygii age at first birth", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FAgeAtFirstBirth&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii age at first reproduction", "attribute" => "http%3A%2F%2Fpolytraits.lifewatchgreece.eu%2Fterms%2FMAT&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii age at maturity", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FAgeAtMaturity&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii animal population density", "attribute" => "http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FCSP%2F2383-1863&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii basal metabolic rate", "attribute" => "http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F165109007&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii body length CMO", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FCMO_0000013&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii body length VT", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001256&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii body temperature", "attribute" => "http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FCSP%2F2871-4249&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii breeding habitat", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FBreedingHabitat&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii breeding season", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FbreedingSeason&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii clutch/brood/litter size", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001933&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii conservation status", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fontology%2Fvoc%2FSPMInfoItems%23ConservationStatus&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii developmental mode", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDevelopmentalMode&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii dispersal age", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDispersalAge&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii feeding method", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FFeedingMethod&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii Feeding Mode", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FFeedingMode&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii foraging habitat", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FForagingHabitat&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii foraging time", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FForagingTime&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii geographic distribution", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fontology%2Fvoc%2FSPMInfoItems%23Distribution&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii geographic distribution inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPresent&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii geographic range - size of area", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FGeographicRangeArea&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii geographical zone", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FGeographicalZone&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii growth rate", "attribute" => "http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F260865002&commit=Search&q=&taxon_concept_id=1905");
-
-        /* , habitat, 
+        foraging habitat, foraging time, geographic distribution, geographic distribution inc…, geographic range (size of a.., geographical zone, growth rate 
+         , habitat, 
         habitat breadth, habitat includes, head-body length, home range, human population density, human population density ch…, introduced range includes, latitude, life span, 
         locomotion, log 10 productivity, longitude, male female body mass ratio, mating system, metabolic rate, native range includes, onset of fertility, parental care, population trend, 
-        primary diet, range midpoint latitude */
-
-        // $datasets[] = array("name" => "Actinopterygii habitat", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2Fhabitat&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii habitat breadth", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FHabitatBreadth&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii habitat inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FHabitat&commit=Search&q=&taxon_concept_id=1905");
-
-        // $datasets[] = array("name" => "Actinopterygii head-body length", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FHeadBodyLength&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii home range", "attribute" => "http%3A%2F%2Fwww.owl-ontologies.com%2Funnamed.owl%23Home_range&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii human population density", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FHumanPopulationDensity&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii human population density change", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FHumanPopulationDensityChange&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii introduced range inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FIntroducedRange&commit=Search&q=&taxon_concept_id=1905");
-
-        // $datasets[] = array("name" => "Actinopterygii latitude + latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&required_equivalent_attributes%5B%5D=2281&commit=Search&q=&taxon_concept_id=1905");
-
-        // $datasets[] = array("name" => "Actinopterygii life span + total life span", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&required_equivalent_attributes%5B%5D=2259&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii locomotion", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FGO_0040011&required_equivalent_attributes%5B%5D=2259&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii log10 productivity", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FLog10Productivity&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii longitude + longitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLongitude&required_equivalent_attributes%5B%5D=2282&commit=Search&q=&taxon_concept_id=1905");
-
-        // $datasets[] = array("name" => "Actinopterygii Male Female Body Mass Ratio", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FMaleFemaleBodyMassRatio&required_equivalent_attributes%5B%5D=2282&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii Mating System", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FMatingSystem&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii metabolic rate", "attribute" => "http%3A%2F%2Fwww.owl-ontologies.com%2Funnamed.owl%23Metabolic_rate&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii native range inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FNativeRange&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii onset of fertility", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0002683&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii parental care", "attribute" => "http%3A%2F%2Fwww.owl-ontologies.com%2Funnamed.owl%23Parental_investment&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii population trend", "attribute" => "http%3A%2F%2Fiucn.org%2Fpopulation_trend&commit=Search&q=&taxon_concept_id=1905");
-
-        $datasets[] = array("name" => "Actinopterygii primary diet", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPrimaryDiet&commit=Search&q=&taxon_concept_id=1905");
-        $datasets[] = array("name" => "Actinopterygii range midpoint latitude", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FRangeMidpointLatitude&commit=Search&q=&taxon_concept_id=1905");
-
-        /* , rate of development, reproductive skew, sexual dimorphism, sexual system, social group size, temperature at midpoint…, 
+        primary diet, range midpoint latitude 
+         , rate of development, reproductive skew, sexual dimorphism, sexual system, social group size, temperature at midpoint…, 
         temperature in geographic r…, territorial, testis location, testis mass, total life span, trophic guild, trophic level, water depth, water dissolved O2 concentration, 
         water nitrate concentration, water O2 saturation, water phosphate concentration, water salinity, water silicate concentration, water temperature, weight */
-
+        // /*
+        $datasets[] = array("name" => "Actinopterygii age at first birth", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FAgeAtFirstBirth&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii age at first reproduction", "attribute" => "http%3A%2F%2Fpolytraits.lifewatchgreece.eu%2Fterms%2FMAT&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii age at maturity", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FAgeAtMaturity&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii animal population density", "attribute" => "http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FCSP%2F2383-1863&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii basal metabolic rate", "attribute" => "http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F165109007&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii body length CMO", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FCMO_0000013&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii body length VT", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001256&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii body temperature", "attribute" => "http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FCSP%2F2871-4249&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii breeding habitat", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FBreedingHabitat&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii breeding season", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FbreedingSeason&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii clutch/brood/litter size", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001933&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii conservation status", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fontology%2Fvoc%2FSPMInfoItems%23ConservationStatus&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii developmental mode", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDevelopmentalMode&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii dispersal age", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDispersalAge&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii feeding method", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FFeedingMethod&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii Feeding Mode", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FFeedingMode&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii foraging habitat", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FForagingHabitat&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii foraging time", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FForagingTime&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii geographic distribution", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fontology%2Fvoc%2FSPMInfoItems%23Distribution&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii geographic distribution inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPresent&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii geographic range - size of area", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FGeographicRangeArea&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii geographical zone", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FGeographicalZone&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii growth rate", "attribute" => "http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F260865002&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii habitat", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2Fhabitat&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii habitat breadth", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FHabitatBreadth&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii habitat inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FHabitat&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii head-body length", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FHeadBodyLength&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii home range", "attribute" => "http%3A%2F%2Fwww.owl-ontologies.com%2Funnamed.owl%23Home_range&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii human population density", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FHumanPopulationDensity&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii human population density change", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FHumanPopulationDensityChange&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii introduced range inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FIntroducedRange&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii latitude + latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&required_equivalent_attributes%5B%5D=2281&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii life span + total life span", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000050&required_equivalent_attributes%5B%5D=2259&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii locomotion + locomotion", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FGO_0040011&required_equivalent_attributes%5B%5D=2513&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii log10 productivity", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FLog10Productivity&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii longitude + longitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLongitude&required_equivalent_attributes%5B%5D=2282&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii Male Female Body Mass Ratio", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FMaleFemaleBodyMassRatio&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii Mating System", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FMatingSystem&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii metabolic rate", "attribute" => "http%3A%2F%2Fwww.owl-ontologies.com%2Funnamed.owl%23Metabolic_rate&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii native range inc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FNativeRange&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii onset of fertility", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0002683&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii parental care", "attribute" => "http%3A%2F%2Fwww.owl-ontologies.com%2Funnamed.owl%23Parental_investment&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii population trend", "attribute" => "http%3A%2F%2Fiucn.org%2Fpopulation_trend&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii primary diet", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPrimaryDiet&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii range midpoint latitude", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FRangeMidpointLatitude&commit=Search&q=&taxon_concept_id=1905");
         $datasets[] = array("name" => "Actinopterygii rate of development", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FrateOfDevelopment&commit=Search&q=&taxon_concept_id=1905");
         $datasets[] = array("name" => "Actinopterygii Reproductive Skew", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FReproductiveSkew&commit=Search&q=&taxon_concept_id=1905");
         $datasets[] = array("name" => "Actinopterygii sexual dimorphism", "attribute" => "http%3A%2F%2Fwww.owl-ontologies.com%2Funnamed.owl%23Dimorphism&commit=Search&q=&taxon_concept_id=1905");
         $datasets[] = array("name" => "Actinopterygii sexual system", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FSexualSystem&commit=Search&q=&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii xxxx", "attribute" => "xxx_&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii xxxx", "attribute" => "xxx_&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii xxxx", "attribute" => "xxx_&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii xxxx", "attribute" => "xxx_&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii xxxx", "attribute" => "xxx_&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii xxxx", "attribute" => "xxx_&taxon_concept_id=1905");
-        // $datasets[] = array("name" => "Actinopterygii xxxx", "attribute" => "xxx_&taxon_concept_id=1905");
-        
-        
-        /*
-        $datasets[] = array("name" => "Posidoniaceae xxx", "attribute" => "xxx=8165");
-        $datasets[] = array("name" => "Zosteraceae xxx", "attribute" => "xxx=8184");
-        $datasets[] = array("name" => "Hydrocharitaceae xxx", "attribute" => "xxx=4182");
-        $datasets[] = array("name" => "Cymodoceaceae xxx", "attribute" => "xxx=8210");
-        */
-
+        $datasets[] = array("name" => "Actinopterygii social group size", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FSocialGroupSize&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii temperature at range midpoint latitude", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FTemperatureAtRangeMidpointLatitude&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii temperature in geographic range", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FTemperatureInRange&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii territorial", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FTerritorial&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii testis location", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FTestisLocation&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii Testes Mass", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FTestesMass&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii total life span + life span", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001661&required_equivalent_attributes%5B%5D=2746&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii trophic guild", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FTrophicGuild&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii trophic level + trophic level", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FTrophicLevel&required_equivalent_attributes%5B%5D=4323&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii water depth", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FverbatimDepth&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii water dissolved O2 conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedOxygen&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii water nitrate conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedNitrate&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii water O2 saturation", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FOxygenSaturation&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii water phosphate conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedPhosphate&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii water salinity", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FSalinity&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii water silicate conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedSilicate&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii water temperature", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FSeawaterTemperature&commit=Search&q=&taxon_concept_id=1905");
+        $datasets[] = array("name" => "Actinopterygii weight", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000128&commit=Search&q=&taxon_concept_id=1905");
+        // */
 
         // tests
         // $datasets[] = array("name" => "cell mass from Jen", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645");
