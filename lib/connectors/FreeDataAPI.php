@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [freedata] */
+/* connector: [freedata_xxx] */
 class FreeDataAPI
 {
     /*
@@ -12,11 +12,203 @@ class FreeDataAPI
         $this->download_options = array('cache' => 1, 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 2592000); //expires in a month
         $this->destination['reef life survey'] = CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey/observations.txt";
              $this->fields['reef life survey'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family");
-        $this->destination['eMammal']          = CONTENT_RESOURCE_LOCAL_PATH . "eMammal/observations.txt";
-             $this->fields['eMammal']          = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family");
+        $this->destination['eMammal'] = CONTENT_RESOURCE_LOCAL_PATH . "eMammal/observations.txt";
+             $this->fields['eMammal'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family");
+        
+        $this->destination['USGS'] = CONTENT_RESOURCE_LOCAL_PATH . "usgs_nonindigenous_aquatic_species/observations.txt"; //Nonindigenous Aquatic Species
+             $this->fields['USGS'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family", "basisOfRecord");
+        $this->service['USGS']['occurrences'] = "https://nas.er.usgs.gov/api/v1/occurrence/search"; //https://nas.er.usgs.gov/api/v1/occurrence/search?genus=Zizania&species=palustris&offset=0
+
          $this->ctr = 0;
          $this->debug = array();
     }
+
+    //start for USGS ==============================================================================================================
+    /* These are the unique list of groups:
+                [Fishes] => 
+                [Plants] => 
+                [Amphibians-Frogs] => 
+                [Reptiles-Snakes] => 
+                [Mollusks-Bivalves] => 
+                [Reptiles-Crocodilians] => 
+                [Amphibians-Salamanders] => 
+                [Reptiles-Turtles] => 
+                [Crustaceans-Amphipods] => 
+                [Crustaceans-Copepods] => 
+                [Crustaceans-Isopods] => 
+                [Annelids-Hirundinea] => 
+                [Mollusks-Gastropods] => 
+                [Coelenterates-Hydrozoans] => 
+                [Crustaceans-Cladocerans] => 
+                [Rotifers] => 
+                [Crustaceans-Crayfish] => 
+                [Crustaceans-Shrimp] => 
+                [Mammals] => 
+                [Crustaceans-Crabs] => 
+                [Crustaceans-Mysids] => 
+                [Bryozoans] => 
+                [Mollusks-Cephalopods] => 
+                [Annelids-Oligochaetes] => 
+                [Entoprocts] => 
+    From the API, we can get the FAMILY of the species belonging to each of the groups.
+    Do we need to fill-in the other: KINGDOM, PHYLUM, CLASS, ORDER? */
+    
+    function generate_usgs_archive($local_path)
+    {   /* steps:
+        1. get species list here: from a [csv] button here: https://nas.er.usgs.gov/queries/SpeciesList.aspx?group=&genus=&species=&comname=&Sortby=1
+        2. get occurrences for each species
+        3. create the zip file
+        */
+        $options = $this->download_options;
+        $options['resource_id'] = "usgs"; //a folder /usgs/ will be created in /eol_cache/
+        $options['download_wait_time'] = 1000000; //1 second
+        $options['expire_seconds'] = false;
+        
+        self::create_folder_if_does_not_exist('usgs_nonindigenous_aquatic_species');
+        
+        //first row - headers of text file
+        if(!$WRITE = Functions::file_open($this->destination['USGS'], "w")) return;
+        fwrite($WRITE, implode("\t", $this->fields['USGS']) . "\n");
+        fclose($WRITE);
+        
+        $i = 0;
+        $species_list = "/Library/WebServer/Documents/cp/FreshData/USGS/SpeciesList.csv";
+        foreach(new FileIterator($species_list) as $line_number => $line)
+        {
+            $line = str_replace(", ", ";", $line); //needed to do this bec of rows like e.g. "Fishes,Cyprinidae,Labeo chrysophekadion,,black sharkminnow, black labeo,Exotic,Freshwater";
+            $arr = explode(",", $line);
+            if(count($arr) == 7) 
+            {
+                $i++;
+                // print_r($arr); exit;
+                $this->debug['group'][$arr[0]] = '';
+                $temp = explode(" ", $arr[2]);
+                $temp = array_map('trim', $temp);
+                $genus = $temp[0];
+                $species = $temp[1];
+                $offset = 0;
+                
+                // /* breakdown when caching: as of Jun 5, 2017 total is 1,270
+                $cont = false;
+                // if($i >= 0    && $i < 250) $cont = true; done
+                // if($i >= 250    && $i < 450) $cont = true; done
+                // if($i >= 400    && $i < 500) $cont = true; done
+                // if($i >= 500    && $i < 750) $cont = true; done
+                
+                // if($i >= 840    && $i < 855) $cont = true;
+                // if($i >= 855    && $i < 880) $cont = true; done
+                // if($i >= 1130    && $i < 1140) $cont = true;
+                // if($i >= 1140    && $i < 1150) $cont = true;
+
+                if(!$cont) continue;
+                // */
+                
+                while(true)
+                {
+                    $api = $this->service['USGS']['occurrences'];
+                    $api .= "?offset=$offset&genus=$genus&species=$species";
+                    if($json = Functions::lookup_with_cache($api, $options))
+                    {
+                        $recs = json_decode($json);
+                        echo "\n$i. total: ".count($recs->results). "\n";
+                        if($val = $recs->results) self::process_usgs_occurrence($val);
+                        // break; //debug
+                        $offset += 100;
+                        if($recs->endOfRecords == "true") break;
+                        if(count($recs->results) < 100) break;
+                    }
+                }
+                
+            }
+        }
+        echo "\ntotal: ".$i."\n";
+
+        self::last_part("usgs_nonindigenous_aquatic_species"); //folder within CONTENT_RESOURCE_LOCAL_PATH
+        // if($this->debug) print_r($this->debug);
+    }
+    
+    private function process_usgs_occurrence($recs)
+    {
+        $i = 0;
+        $WRITE = Functions::file_open($this->destination['USGS'], "a");
+        foreach($recs as $rec)
+        {
+            $i++;
+            if(($i % 1000) == 0) echo number_format($i) . "\n";
+            if($rec)
+            {
+                $row = self::process_rec_USGS($rec);
+                if($row) fwrite($WRITE, $row . "\n");
+            }
+            // if($i > 5) break;  //debug only
+            
+        }
+        fclose($WRITE);
+    }
+    
+    function process_rec_USGS($rec)
+    {
+        $rek = array();
+        /* total of 11 columns
+        $rek['id']               = $rec['key'];
+        $rek['occurrenceID']     = $rec['museumCatNumber'];
+        $rek['eventDate']        = $rec['date'];
+        $rek['decimalLatitude']  = $rec['decimalLatitude'];
+        $rek['decimalLongitude'] = $rec['decimalLongitude'];
+        $rek['scientificName']   = $rec['scientificName'];
+        $rek['taxonRank']        = 'species';
+        $rek['kingdom']          = '';
+        $rek['phylum']           = '';
+        $rek['class']            = '';
+        $rek['family']           = $rec['family'];
+        $rek['basisOfRecord']    = $rec['recordType'];
+        */
+        /* sample actual data
+        [key] => 276594
+        [speciesID] => 707
+        [group] => Fishes
+        [family] => Gobiidae
+        [genus] => Acanthogobius
+        [species] => flavimanus
+        [scientificName] => Acanthogobius flavimanus
+        [commonName] => Yellowfin Goby
+        [state] => California
+        [county] => San Diego
+        [locality] => Mission Bay, off Fiesta Island
+        [decimalLatitude] => 32.778904
+        [decimalLongitude] => -117.224078
+        [huc8Name] => San Diego
+        [huc8] => 18070304
+        [date] => 2003-6-13
+        [year] => 2003
+        [month] => 6
+        [day] => 13
+        [status] => established
+        [comments] => 
+        [recordType] => Literature
+        [disposal] => Scripps Institution of Oceanography
+        [museumCatNumber] => SIO 03-78
+        [freshMarineIntro] => Brackish
+        */
+        
+        //total of 12 columns
+        $rek[]  = $rec->key;
+        $rek[]  = $rec->museumCatNumber;
+        $rek[]  = $rec->date;
+        $rek[]  = $rec->decimalLatitude;
+        $rek[]  = $rec->decimalLongitude;
+        $rek[]  = $rec->scientificName;
+        $rek[]  = 'species';
+        $rek[]  = '';
+        $rek[]  = '';
+        $rek[]  = '';
+        $rek[]  = $rec->family;
+        $rek[]  = $rec->recordType;
+        return implode("\t", $rek);
+    }
+    
+    
+    //end for USGS ================================================================================================================
 
     //start for eMammal ==============================================================================================================
     function generate_eMammal_archive($local_path)
@@ -28,6 +220,7 @@ class FreeDataAPI
             $output = shell_exec($command_line);
         }
         
+        //first row - headers of text file
         if(!$WRITE = Functions::file_open($this->destination['eMammal'], "w")) return;
         fwrite($WRITE, implode("\t", $this->fields['eMammal']) . "\n");
         fclose($WRITE);
@@ -338,9 +531,21 @@ class FreeDataAPI
         fwrite($WRITE, '    <field index="8" term="http://rs.tdwg.org/dwc/terms/phylum"/>' . "\n");
         fwrite($WRITE, '    <field index="9" term="http://rs.tdwg.org/dwc/terms/class"/>' . "\n");
         fwrite($WRITE, '    <field index="10" term="http://rs.tdwg.org/dwc/terms/family"/>' . "\n");
+        if($folder == "usgs_nonindigenous_aquatic_species")
+        {
+        fwrite($WRITE, '    <field index="11" term="http://rs.tdwg.org/dwc/terms/basisOfRecord"/>' . "\n");
+        }
         fwrite($WRITE, '  </core>' . "\n");
         fwrite($WRITE, '</archive>' . "\n");
         fclose($WRITE);
+    }
+    
+    private function create_folder_if_does_not_exist($folder)
+    {
+        if(!file_exists(CONTENT_RESOURCE_LOCAL_PATH . "$folder")) {
+            $command_line = "mkdir " . CONTENT_RESOURCE_LOCAL_PATH . "$folder"; //may need 'sudo mkdir'
+            $output = shell_exec($command_line);
+        }
     }
     
 }
