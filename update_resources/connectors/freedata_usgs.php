@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* e-mammal for FreshData: https://eol-jira.bibalex.org/browse/DATA-1659 
+/* e-mammal for FreshData: https://eol-jira.bibalex.org/browse/DATA-1683 
 
 1. Resource is then added to: https://github.com/gimmefreshdata
 2. then added to queue in: http://archive.effechecka.org/
@@ -13,7 +13,7 @@ $timestart = time_elapsed();
 
 // /*
 //local - during development
-$local_path = "/Library/WebServer/Documents/cp/FreshData/eMammal";
+$local_path = "";
 // */
 
 /*
@@ -21,7 +21,7 @@ $local_path = "/Library/WebServer/Documents/cp/FreshData/eMammal";
 */
 
 $func = new FreeDataAPI();
-$func->generate_eMammal_archive($local_path);
+$func->generate_usgs_archive($local_path);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
