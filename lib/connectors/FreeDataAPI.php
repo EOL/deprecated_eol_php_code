@@ -11,16 +11,16 @@ class FreeDataAPI
     {
         $this->download_options = array('cache' => 1, 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 2592000); //expires in a month
         $this->destination['reef life survey'] = CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey/observations.txt";
-             $this->fields['reef life survey'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family");
+        $this->fields['reef life survey'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family");
         $this->destination['eMammal'] = CONTENT_RESOURCE_LOCAL_PATH . "eMammal/observations.txt";
-             $this->fields['eMammal'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family");
+        $this->fields['eMammal'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family");
         
         $this->destination['USGS'] = CONTENT_RESOURCE_LOCAL_PATH . "usgs_nonindigenous_aquatic_species/observations.txt"; //Nonindigenous Aquatic Species
-             $this->fields['USGS'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family", "basisOfRecord");
+        $this->fields['USGS'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family", "basisOfRecord");
         $this->service['USGS']['occurrences'] = "https://nas.er.usgs.gov/api/v1/occurrence/search"; //https://nas.er.usgs.gov/api/v1/occurrence/search?genus=Zizania&species=palustris&offset=0
 
-         $this->ctr = 0;
-         $this->debug = array();
+        $this->ctr = 0;
+        $this->debug = array();
     }
 
     //start for USGS ==============================================================================================================
@@ -75,7 +75,7 @@ class FreeDataAPI
         fclose($WRITE);
         
         $i = 0;
-        $species_list = "/Library/WebServer/Documents/cp/FreshData/USGS/SpeciesList.csv";
+        $species_list = "/Library/WebServer/Documents/cp/FreshData/USGS/SpeciesList.csv"; //use [csv] button below this page: https://nas.er.usgs.gov/queries/SpeciesList.aspx
         foreach(new FileIterator($species_list) as $line_number => $line)
         {
             $line = str_replace(", ", ";", $line); //needed to do this bec of rows like e.g. "Fishes,Cyprinidae,Labeo chrysophekadion,,black sharkminnow, black labeo,Exotic,Freshwater";
