@@ -192,6 +192,8 @@ class FreeDataAPI
         */
         
         //total of 12 columns
+        if(!isset($this->debug['key'][$rec->key])) $this->debug['key'][$rec->key] = '';
+        else return false; //print("\nkey duplicate: $rec->key\n");
         $rek[]  = $rec->key;
         $rek[]  = $rec->museumCatNumber;
         $rek[]  = @$rec->date;
