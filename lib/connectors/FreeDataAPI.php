@@ -60,18 +60,6 @@ class FreeDataAPI
         3. create the zip file
         */
         
-        /*
-        $str = "eli boy cha";
-        $arr = explode(" ", $str);
-        echo "\ngenus: ".$arr[0]."\n";
-        array_shift($arr);
-        print_r($arr);
-        exit("\n");
-        */
-        
-        // $url = "https://nas.er.usgs.gov/api/v1/occurrence/search?offset=0&genus=Paraneetroplus&species=" . urlencode("melanurus x P. zonatus(?)");
-        // exit("\n$url\n");
-        
         $options = $this->download_options;
         $options['resource_id'] = "usgs"; //a folder /usgs/ will be created in /eol_cache/
         $options['download_wait_time'] = 1000000; //1 second
@@ -82,7 +70,7 @@ class FreeDataAPI
         self::create_folder_if_does_not_exist('usgs_nonindigenous_aquatic_species');
         
         //first row - headers of text file
-        if(!$WRITE = Functions::file_open($this->destination['USGS'], "w")) return;
+        $WRITE = Functions::file_open($this->destination['USGS'], "w");
         fwrite($WRITE, implode("\t", $this->fields['USGS']) . "\n");
         fclose($WRITE);
         
@@ -132,12 +120,11 @@ class FreeDataAPI
                     }
                     else break;
                 }
-                
             }
         }
-        echo "\ntotal: ".$i."\n";
+        echo "\ntotal: ".($i-1)."\n";
 
-        self::last_part("usgs_nonindigenous_aquatic_species"); //folder within CONTENT_RESOURCE_LOCAL_PATH
+        self::last_part("usgs_nonindigenous_aquatic_species"); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
         // if($this->debug) print_r($this->debug);
     }
     
@@ -155,7 +142,6 @@ class FreeDataAPI
                 if($row) fwrite($WRITE, $row . "\n");
             }
             // if($i > 5) break;  //debug only
-            
         }
         fclose($WRITE);
     }
@@ -221,21 +207,17 @@ class FreeDataAPI
         return implode("\t", $rek);
     }
     
-    
     //end for USGS ================================================================================================================
 
     //start for eMammal ==============================================================================================================
     function generate_eMammal_archive($local_path)
     {
         $folder = "eMammal";
-        if(!file_exists(CONTENT_RESOURCE_LOCAL_PATH . "$folder"))
-        {
-            $command_line = "mkdir " . CONTENT_RESOURCE_LOCAL_PATH . "$folder"; //may need 'sudo mkdir'
-            $output = shell_exec($command_line);
-        }
+        
+        self::create_folder_if_does_not_exist($folder);
         
         //first row - headers of text file
-        if(!$WRITE = Functions::file_open($this->destination['eMammal'], "w")) return;
+        $WRITE = Functions::file_open($this->destination['eMammal'], "w");
         fwrite($WRITE, implode("\t", $this->fields['eMammal']) . "\n");
         fclose($WRITE);
         
@@ -336,7 +318,7 @@ class FreeDataAPI
         fclose($WRITE);
         
         $collections = array("Global reef fish dataset", "Invertebrates");
-        // $collections = array("Invertebrates");
+        // $collections = array("Invertebrates"); //debug only
         foreach($collections as $coll)
         {
             $url = $params[$coll]; //csv url path
