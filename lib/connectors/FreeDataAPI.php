@@ -19,7 +19,7 @@ class FreeDataAPI
         $this->fields['USGS'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family", "basisOfRecord");
         $this->service['USGS']['occurrences'] = "https://nas.er.usgs.gov/api/v1/occurrence/search"; //https://nas.er.usgs.gov/api/v1/occurrence/search?genus=Zizania&species=palustris&offset=0
 
-        $this->ctr = 0;
+        $this->ctr = 0; //for "reef life survey" and "eMammal"
         $this->debug = array();
     }
 
