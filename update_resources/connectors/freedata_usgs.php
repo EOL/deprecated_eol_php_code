@@ -5,6 +5,8 @@ namespace php_active_record;
 1. Resource is then added to: https://github.com/gimmefreshdata
 2. then added to queue in: http://archive.effechecka.org/
 
+                                2017-Jun-06
+observations.txt rows total:    463616
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

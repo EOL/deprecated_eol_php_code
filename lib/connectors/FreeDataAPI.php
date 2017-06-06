@@ -16,7 +16,7 @@ class FreeDataAPI
         $this->fields['eMammal'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family");
         
         $this->destination['USGS'] = CONTENT_RESOURCE_LOCAL_PATH . "usgs_nonindigenous_aquatic_species/observations.txt"; //Nonindigenous Aquatic Species
-        $this->fields['USGS'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family", "basisOfRecord");
+        $this->fields['USGS'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "family", "basisOfRecord", "group", "genus", "species", "vernacularName", "stateProvince", "county", "locality", "date", "year", "month", "day", "catalogNumber");
         $this->service['USGS']['occurrences'] = "https://nas.er.usgs.gov/api/v1/occurrence/search"; //https://nas.er.usgs.gov/api/v1/occurrence/search?genus=Zizania&species=palustris&offset=0
 
         $this->ctr = 0; //for "reef life survey" and "eMammal"
@@ -164,52 +164,132 @@ class FreeDataAPI
         $rek['basisOfRecord']    = $rec['recordType'];
         */
         /* sample actual data
-        [key] => 276594
-        [speciesID] => 707
-        [group] => Fishes
-        [family] => Gobiidae
-        [genus] => Acanthogobius
-        [species] => flavimanus
-        [scientificName] => Acanthogobius flavimanus
-        [commonName] => Yellowfin Goby
-        [state] => California
-        [county] => San Diego
-        [locality] => Mission Bay, off Fiesta Island
+        [key] => 276594                                     done
+        [speciesID] => 707                                  x
+        [group] => Fishes                                   http://rs.tdwg.org/dwc/terms/group
+        [family] => Gobiidae                                done
+        [genus] => Acanthogobius                            http://rs.tdwg.org/dwc/terms/genus
+        [species] => flavimanus                             http://rs.gbif.org/terms/1.0/species
+        [scientificName] => Acanthogobius flavimanus        done
+        [commonName] => Yellowfin Goby                      http://rs.tdwg.org/dwc/terms/vernacularName
+        [state] => California                               http://rs.tdwg.org/dwc/terms/stateProvince
+        [county] => San Diego                               http://rs.tdwg.org/dwc/terms/county
+        [locality] => Mission Bay, off Fiesta Island        http://rs.tdwg.org/dwc/terms/locality
         [decimalLatitude] => 32.778904
         [decimalLongitude] => -117.224078
         [huc8Name] => San Diego
         [huc8] => 18070304
-        [date] => 2003-6-13
-        [year] => 2003
-        [month] => 6
-        [day] => 13
-        [status] => established
-        [comments] => 
-        [recordType] => Literature
-        [disposal] => Scripps Institution of Oceanography
-        [museumCatNumber] => SIO 03-78
-        [freshMarineIntro] => Brackish
+        [date] => 2003-6-13                                 http://purl.org/dc/terms/date
+        [year] => 2003                                      http://rs.tdwg.org/dwc/terms/year
+        [month] => 6                                        http://rs.tdwg.org/dwc/terms/month
+        [day] => 13                                         http://rs.tdwg.org/dwc/terms/day
+        [status] => established                             x
+        [comments] =>                                       x
+        [recordType] => Literature                          done
+        [disposal] => Scripps Institution of Oceanography   x
+        [museumCatNumber] => SIO 03-78                      http://rs.tdwg.org/dwc/terms/catalogNumber
+        [freshMarineIntro] => Brackish                      x
         */
         
-        //total of 12 columns
+        //total of 22 columns
         if(!isset($this->debug['key'][$rec->key])) $this->debug['key'][$rec->key] = '';
         else return false; //print("\nkey duplicate: $rec->key\n");
+        $this->ctr++;
+        $rek[]  = $this->ctr;
         $rek[]  = $rec->key;
-        $rek[]  = $rec->museumCatNumber;
         $rek[]  = @$rec->date;
         $rek[]  = $rec->decimalLatitude;
         $rek[]  = $rec->decimalLongitude;
         $rek[]  = $rec->scientificName;
         $rek[]  = 'species';
         $rek[]  = ($group == "Plants" ? "Plantae" : "Animalia");
-        $rek[]  = '';
-        $rek[]  = '';
         $rek[]  = $rec->family;
         $rek[]  = $rec->recordType;
+        
+        $rek[]  = $rec->group;
+        $rek[]  = $rec->genus;
+        $rek[]  = $rec->species;
+        $rek[]  = $rec->commonName;
+        $rek[]  = $rec->state;
+        $rek[]  = $rec->county;
+        $rek[]  = $rec->locality;
+        $rek[]  = @$rec->date;
+        $rek[]  = $rec->year;
+        $rek[]  = $rec->month;
+        $rek[]  = $rec->day;
+        $rek[]  = $rec->museumCatNumber;
         return implode("\t", $rek);
+        /*
+        [group] => Fishes                                   http://rs.tdwg.org/dwc/terms/group
+        [genus] => Acanthogobius                            http://rs.tdwg.org/dwc/terms/genus
+        [species] => flavimanus                             http://rs.gbif.org/terms/1.0/species
+        [commonName] => Yellowfin Goby                      http://rs.tdwg.org/dwc/terms/vernacularName
+        [state] => California                               http://rs.tdwg.org/dwc/terms/stateProvince
+        [county] => San Diego                               http://rs.tdwg.org/dwc/terms/county
+        [locality] => Mission Bay, off Fiesta Island        http://rs.tdwg.org/dwc/terms/locality
+        [date] => 2003-6-13                                 http://purl.org/dc/terms/date
+        [year] => 2003                                      http://rs.tdwg.org/dwc/terms/year
+        [month] => 6                                        http://rs.tdwg.org/dwc/terms/month
+        [day] => 13                                         http://rs.tdwg.org/dwc/terms/day
+        [museumCatNumber] => SIO 03-78                      http://rs.tdwg.org/dwc/terms/catalogNumber
+        */
     }
     
     //end for USGS ================================================================================================================
+
+    function generate_meta_xml($folder)
+    {
+        if(!$WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml", "w")) return;
+        fwrite($WRITE, '<?xml version="1.0" encoding="UTF-8"?>' . "\n");
+        fwrite($WRITE, '<archive xmlns="http://rs.tdwg.org/dwc/text/">' . "\n");
+        fwrite($WRITE, '  <core encoding="UTF-8" linesTerminatedBy="\n" fieldsTerminatedBy="\t" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/Occurrence">' . "\n");
+        fwrite($WRITE, '    <files>' . "\n");
+        fwrite($WRITE, '      <location>observations.txt</location>' . "\n");
+        fwrite($WRITE, '    </files>' . "\n");
+        fwrite($WRITE, '    <id index="0"/>' . "\n");
+        if(in_array($folder, array("reef_life_survey", "eMammal")))
+        {
+            fwrite($WRITE, '    <field index="0" term="http://rs.gbif.org/terms/1.0/RLSID"/>' . "\n");
+            fwrite($WRITE, '    <field index="1" term="http://rs.tdwg.org/dwc/terms/occurrenceID"/>' . "\n");
+            fwrite($WRITE, '    <field index="2" term="http://rs.tdwg.org/dwc/terms/eventDate"/>' . "\n");
+            fwrite($WRITE, '    <field index="3" term="http://rs.tdwg.org/dwc/terms/decimalLatitude"/>' . "\n");
+            fwrite($WRITE, '    <field index="4" term="http://rs.tdwg.org/dwc/terms/decimalLongitude"/>' . "\n");
+            fwrite($WRITE, '    <field index="5" term="http://rs.tdwg.org/dwc/terms/scientificName"/>' . "\n");
+            fwrite($WRITE, '    <field index="6" term="http://rs.tdwg.org/dwc/terms/taxonRank"/>' . "\n");
+            fwrite($WRITE, '    <field index="7" term="http://rs.tdwg.org/dwc/terms/kingdom"/>' . "\n");
+            fwrite($WRITE, '    <field index="8" term="http://rs.tdwg.org/dwc/terms/phylum"/>' . "\n");
+            fwrite($WRITE, '    <field index="9" term="http://rs.tdwg.org/dwc/terms/class"/>' . "\n");
+            fwrite($WRITE, '    <field index="10" term="http://rs.tdwg.org/dwc/terms/family"/>' . "\n");
+        }
+        elseif($folder == "usgs_nonindigenous_aquatic_species")
+        {
+            fwrite($WRITE, '    <field index="0" term="http://rs.gbif.org/terms/1.0/RLSID"/>' . "\n");
+            fwrite($WRITE, '    <field index="1" term="http://rs.tdwg.org/dwc/terms/occurrenceID"/>' . "\n");
+            fwrite($WRITE, '    <field index="2" term="http://rs.tdwg.org/dwc/terms/eventDate"/>' . "\n");
+            fwrite($WRITE, '    <field index="3" term="http://rs.tdwg.org/dwc/terms/decimalLatitude"/>' . "\n");
+            fwrite($WRITE, '    <field index="4" term="http://rs.tdwg.org/dwc/terms/decimalLongitude"/>' . "\n");
+            fwrite($WRITE, '    <field index="5" term="http://rs.tdwg.org/dwc/terms/scientificName"/>' . "\n");
+            fwrite($WRITE, '    <field index="6" term="http://rs.tdwg.org/dwc/terms/taxonRank"/>' . "\n");
+            fwrite($WRITE, '    <field index="7" term="http://rs.tdwg.org/dwc/terms/kingdom"/>' . "\n");
+            fwrite($WRITE, '    <field index="8" term="http://rs.tdwg.org/dwc/terms/family"/>' . "\n");
+            fwrite($WRITE, '    <field index="9" term="http://rs.tdwg.org/dwc/terms/basisOfRecord"/>' . "\n");
+            fwrite($WRITE, '    <field index="10" term="http://rs.tdwg.org/dwc/terms/group"/>' . "\n");
+            fwrite($WRITE, '    <field index="11" term="http://rs.tdwg.org/dwc/terms/genus"/>' . "\n");
+            fwrite($WRITE, '    <field index="12" term="http://rs.gbif.org/terms/1.0/species"/>' . "\n");
+            fwrite($WRITE, '    <field index="13" term="http://rs.tdwg.org/dwc/terms/vernacularName"/>' . "\n");
+            fwrite($WRITE, '    <field index="14" term="http://rs.tdwg.org/dwc/terms/stateProvince"/>' . "\n");
+            fwrite($WRITE, '    <field index="15" term="http://rs.tdwg.org/dwc/terms/county"/>' . "\n");
+            fwrite($WRITE, '    <field index="16" term="http://rs.tdwg.org/dwc/terms/locality"/>' . "\n");
+            fwrite($WRITE, '    <field index="17" term="http://purl.org/dc/terms/date"/>' . "\n");
+            fwrite($WRITE, '    <field index="18" term="http://rs.tdwg.org/dwc/terms/year"/>' . "\n");
+            fwrite($WRITE, '    <field index="19" term="http://rs.tdwg.org/dwc/terms/month"/>' . "\n");
+            fwrite($WRITE, '    <field index="20" term="http://rs.tdwg.org/dwc/terms/day"/>' . "\n");
+            fwrite($WRITE, '    <field index="21" term="http://rs.tdwg.org/dwc/terms/catalogNumber"/>' . "\n");
+        }
+        fwrite($WRITE, '  </core>' . "\n");
+        fwrite($WRITE, '</archive>' . "\n");
+        fclose($WRITE);
+    }
 
     //start for eMammal ==============================================================================================================
     function generate_eMammal_archive($local_path)
@@ -506,36 +586,6 @@ class FreeDataAPI
         $rek[] = $rec['Class'];
         $rek[] = $rec['Family'];
         return implode("\t", $rek);
-    }
-    
-    function generate_meta_xml($folder)
-    {
-        if(!$WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml", "w")) return;
-        fwrite($WRITE, '<?xml version="1.0" encoding="UTF-8"?>' . "\n");
-        fwrite($WRITE, '<archive xmlns="http://rs.tdwg.org/dwc/text/">' . "\n");
-        fwrite($WRITE, '  <core encoding="UTF-8" linesTerminatedBy="\n" fieldsTerminatedBy="\t" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/Occurrence">' . "\n");
-        fwrite($WRITE, '    <files>' . "\n");
-        fwrite($WRITE, '      <location>observations.txt</location>' . "\n");
-        fwrite($WRITE, '    </files>' . "\n");
-        fwrite($WRITE, '    <id index="0"/>' . "\n");
-        fwrite($WRITE, '    <field index="0" term="http://rs.gbif.org/terms/1.0/RLSID"/>' . "\n");
-        fwrite($WRITE, '    <field index="1" term="http://rs.tdwg.org/dwc/terms/occurrenceID"/>' . "\n");
-        fwrite($WRITE, '    <field index="2" term="http://rs.tdwg.org/dwc/terms/eventDate"/>' . "\n");
-        fwrite($WRITE, '    <field index="3" term="http://rs.tdwg.org/dwc/terms/decimalLatitude"/>' . "\n");
-        fwrite($WRITE, '    <field index="4" term="http://rs.tdwg.org/dwc/terms/decimalLongitude"/>' . "\n");
-        fwrite($WRITE, '    <field index="5" term="http://rs.tdwg.org/dwc/terms/scientificName"/>' . "\n");
-        fwrite($WRITE, '    <field index="6" term="http://rs.tdwg.org/dwc/terms/taxonRank"/>' . "\n");
-        fwrite($WRITE, '    <field index="7" term="http://rs.tdwg.org/dwc/terms/kingdom"/>' . "\n");
-        fwrite($WRITE, '    <field index="8" term="http://rs.tdwg.org/dwc/terms/phylum"/>' . "\n");
-        fwrite($WRITE, '    <field index="9" term="http://rs.tdwg.org/dwc/terms/class"/>' . "\n");
-        fwrite($WRITE, '    <field index="10" term="http://rs.tdwg.org/dwc/terms/family"/>' . "\n");
-        if($folder == "usgs_nonindigenous_aquatic_species")
-        {
-        fwrite($WRITE, '    <field index="11" term="http://rs.tdwg.org/dwc/terms/basisOfRecord"/>' . "\n");
-        }
-        fwrite($WRITE, '  </core>' . "\n");
-        fwrite($WRITE, '</archive>' . "\n");
-        fclose($WRITE);
     }
     
     private function create_folder_if_does_not_exist($folder)

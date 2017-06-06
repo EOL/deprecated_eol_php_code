@@ -1,6 +1,11 @@
 <?php
 namespace php_active_record;
-/* Reef Life Survey (http://reeflifesurvey.imas.utas.edu.au/static/landing.html) for FreeData */
+/* Reef Life Survey (http://reeflifesurvey.imas.utas.edu.au/static/landing.html) for FreeData 
+
+                                2017-Jun-06
+observations.txt rows total:    508343
+
+*/
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/FreeDataAPI');
 $timestart = time_elapsed();
