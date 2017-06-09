@@ -334,9 +334,7 @@ class GBIFtaxaAPI
         if(file_exists($text_file)) //retrieve text file
         {
             $ids = self::retrieve_ids_from_text_file($text_file);
-            $ids = array_filter($ids); //remove null arrays
-            print_r($ids);
-            exit("\nelix\n");
+            return $ids;
         }
         {
             $fn = fopen($text_file, "w");
@@ -384,8 +382,36 @@ class GBIFtaxaAPI
             if($arr) $final = array_merge($final, $arr);
         }
         $final = array_unique($final);
+        $final = array_filter($final); //remove null arrays
         return $final;
     }
+    
+    function prune_gbif_backbone_taxa_FURTHER($taxon_extension)
+    {
+        // temp/GBIF_Taxa_accepted_pruned.tsv
+        echo "\nsource: [$taxon_extension]\n";
+        $filename = pathinfo($taxon_extension, PATHINFO_FILENAME);
+        $new_file = str_replace($filename, $filename."_pruned_further", $taxon_extension);
+        echo("\ntarget: [$new_file]\n");
+        
+        $fn = fopen($new_file, "w");
+        $ids_2prune = self::get_GBIF_invalid_descendants();
+        $i = 0;
+        foreach(new FileIterator($taxon_extension) as $line_number => $line)
+        {
+            $i++;
+            if($line)
+            {
+                $col = explode("\t", $line);
+                $taxonID = $col[0];
+                if(!in_array($taxonID, $ids_2prune)) fwrite($fn, $line."\n");
+            }
+            if(($i % 10000) == 0) echo "\n count: $i";
+        }
+        fclose($fn);
+        return $new_file;
+    }
+    
 
 }
 ?>

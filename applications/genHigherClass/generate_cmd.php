@@ -49,12 +49,19 @@ echo "\nundefined parents: ".count($undefined_parents)."\n";
 */
 
 
-// /* utility to cache AND/OR generate "GBIF_invalid_descendants.txt"
+/* utility to cache AND/OR generate "GBIF_invalid_descendants.txt"
 // INPUT IS: GBIF_Taxa_accepted_pruned_undefined_parent_ids.txt
 require_library('connectors/GBIFtaxaAPI');
 $func = new GBIFtaxaAPI();
 $new_file = $func->get_GBIF_invalid_descendants();
 // OUTPUT IS: GBIF_invalid_descendants.txt
+*/
+
+// /* additional task: pruning FURTHER: including descendants of synonyms and doubtful parents
+require_library('connectors/GBIFtaxaAPI');
+$func = new GBIFtaxaAPI();
+$new_file = $func->prune_gbif_backbone_taxa_FURTHER("temp/GBIF_Taxa_accepted_pruned.tsv"); // pruning takes ???
+echo "\nOUTPUT IS: $new_file\n";
 // */
 
 
