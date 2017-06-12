@@ -37,6 +37,7 @@ class DwCA_Utility_cmd
                                   [6] => http://rs.gbif.org/terms/1.0/typesandspecimen
                                   [7] => http://rs.gbif.org/terms/1.0/distribution
                                   */
+                                  
     }
 
     private function start()
@@ -107,11 +108,11 @@ class DwCA_Utility_cmd
         return $str;
     }
 
-    private function can_compute_higherClassification($records)
+    private function can_compute_higherClassification($single_rec)
     {
-        if(!isset($records[0]["tID"])) return false;
-        if(!isset($records[0]["sN"])) return false;
-        if(!isset($records[0]["pID"])) return false;
+        if(!isset($single_rec["tID"])) return false;
+        if(!isset($single_rec["sN"])) return false;
+        if(!isset($single_rec["pID"])) return false;
         return true;
     }
     //ends here 
@@ -129,7 +130,7 @@ class DwCA_Utility_cmd
             $fields = self::normalize_fields($records[0]);
 
             //start write to file
-            // $file = str_replace(".", "_higherClassification.", $file);
+            // $file = str_replace(".", "_higherClassification.", $file); //working but didn't use it
             if(!($f = Functions::file_open(str_replace("sample/", "temp/", $file), "w"))) return;
             fwrite($f, implode("\t", $fields)."\n");
             foreach($records as $rec) fwrite($f, implode("\t", $rec)."\n");
@@ -150,11 +151,17 @@ class DwCA_Utility_cmd
             if($i == 1)
             {
                 $fields = explode("\t", $row);
-                // /*
-                //fields for GBIF taxa
-                $fieldz = array("taxonID", "parentNameUsageID", "acceptedNameUsageID", "scientificName", "scientificNameAuthorship", "specificEpithet", "infraspecificEpithet", "taxonRank", "taxonomicStatus");
-                $fieldz = array("taxonID", "parentNameUsageID", "acceptedNameUsageID", "scientificName", "taxonRank", "taxonomicStatus");
-                // */
+                
+                // this is for specific resource criteria
+                if($file == "sample/GBIF_Taxon.tsv") //https://eol-jira.bibalex.org/browse/TRAM-552
+                {
+                    //fields for GBIF taxa - we tried to limit the no. of fields due to big size of file
+                    $fieldz = array("taxonID", "parentNameUsageID", "acceptedNameUsageID", "scientificName", "scientificNameAuthorship", "specificEpithet", "infraspecificEpithet", "taxonRank", "taxonomicStatus");
+                    $fieldz = array("taxonID", "parentNameUsageID", "acceptedNameUsageID", "scientificName", "taxonRank", "taxonomicStatus");
+                }
+                elseif($file == "something else") {}
+                else $fieldz = $fields; //no criteria needed, for normal operation
+                
             }
             else
             {
@@ -176,9 +183,9 @@ class DwCA_Utility_cmd
                     }
 
                     $records[] = $rec;
-                    if($i > 3) //can check this early if we can compute for higherClassification
+                    if($i > 3 && $i <= 10) //can check this early if we can compute for higherClassification, used a range so it will NOT check for every record but just 7 records.
                     {
-                        if(!self::can_compute_higherClassification($records)) return false;
+                        if(!self::can_compute_higherClassification($rec)) return false;
                     }
                     
                 }
@@ -208,6 +215,8 @@ class DwCA_Utility_cmd
             case "scientificName":      return "sN"; break;
             case "taxonRank":           return "tR"; break;
             case "taxonomicStatus":     return "tS"; break;
+            case "taxonRemarks":        return "tRe"; break;
+            case "source":              return "s"; break;
             default: //exit("\nundefined field\n");
         }
     }
@@ -222,6 +231,8 @@ class DwCA_Utility_cmd
             case "tR":  return "taxonRank"; break;
             case "tS":  return "taxonomicStatus"; break;
             case "hC":  return "higherClassification"; break;
+            case "tRe": return "taxonRemarks"; break;
+            case "s":   return "source"; break;
             default:
         }
     }
