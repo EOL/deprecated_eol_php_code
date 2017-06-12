@@ -48,7 +48,6 @@ echo "\nundefined parents: ".count($undefined_parents)."\n";
 // OUTPUT IS: GBIF_Taxa_accepted_pruned_undefined_parent_ids.txt
 */
 
-
 /* utility to cache AND/OR generate "GBIF_invalid_descendants.txt"
 // INPUT IS: GBIF_Taxa_accepted_pruned_undefined_parent_ids.txt
 require_library('connectors/GBIFtaxaAPI');
@@ -57,16 +56,21 @@ $new_file = $func->get_GBIF_invalid_descendants();
 // OUTPUT IS: GBIF_invalid_descendants.txt
 */
 
-// /* additional task: pruning FURTHER: including descendants of synonyms and doubtful parents
+/* additional task: pruning FURTHER: including descendants of synonyms and doubtful parents | this alone takes: 8.4 hours
 require_library('connectors/GBIFtaxaAPI');
 $func = new GBIFtaxaAPI();
 $new_file = $func->prune_gbif_backbone_taxa_FURTHER("temp/GBIF_Taxa_accepted_pruned.tsv"); // pruning takes ???
 echo "\nOUTPUT IS: $new_file\n";
+*/
+
+// /* utility - this takes 1.1 hours, but 0 undefined parents
+$new_file = "temp/GBIF_Taxa_accepted_pruned_final.tsv"; //OR this should be the output from above
+require_library('connectors/DWCADiagnoseAPI');
+$func = new DWCADiagnoseAPI();
+$undefined_parents = $func->check_if_all_parents_have_entries(pathinfo($new_file, PATHINFO_FILENAME), true, $new_file); //true means output will write to text file
+echo "\nundefined parents: ".count($undefined_parents)."\n";
+// OUTPUT IS: GBIF_Taxa_accepted_pruned_final_undefined_parent_ids.txt
 // */
-
-
-
-
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\nelapsed time = " . $elapsed_time_sec/60 . " minutes";

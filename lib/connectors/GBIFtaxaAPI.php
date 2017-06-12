@@ -391,7 +391,7 @@ class GBIFtaxaAPI
         // temp/GBIF_Taxa_accepted_pruned.tsv
         echo "\nsource: [$taxon_extension]\n";
         $filename = pathinfo($taxon_extension, PATHINFO_FILENAME);
-        $new_file = str_replace($filename, $filename."_pruned_further", $taxon_extension);
+        $new_file = str_replace($filename, $filename."_final", $taxon_extension);
         echo("\ntarget: [$new_file]\n");
         
         $fn = fopen($new_file, "w");

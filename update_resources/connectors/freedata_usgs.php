@@ -7,6 +7,8 @@ namespace php_active_record;
 
                                 2017-Jun-06
 observations.txt rows total:    463616
+
+Todo: get remote raw file using script
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
