@@ -169,15 +169,18 @@ class DwCA_Utility_cmd
                 }
                 if($rec)
                 {
-                    // print_r($rec); exit;
-                    if($rec['tS'] == 'accepted')
+                    // this is for specific resource criteria
+                    if($file == "sample/GBIF_Taxon.tsv") //https://eol-jira.bibalex.org/browse/TRAM-552
                     {
-                        $records[] = $rec;
-                        if($i > 3) //can check this early if we can compute for higherClassification
-                        {
-                            if(!self::can_compute_higherClassification($records)) return false;
-                        }
+                        if($rec['tS'] != 'accepted') continue;
                     }
+
+                    $records[] = $rec;
+                    if($i > 3) //can check this early if we can compute for higherClassification
+                    {
+                        if(!self::can_compute_higherClassification($records)) return false;
+                    }
+                    
                 }
             }
         }
