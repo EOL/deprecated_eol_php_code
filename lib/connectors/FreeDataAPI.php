@@ -3,10 +3,7 @@ namespace php_active_record;
 /* connector: [freedata_xxx] */
 class FreeDataAPI
 {
-    /*
-    const VARIABLE_NAME = "string value";
-    */
-    
+    /* const VARIABLE_NAME = "string value"; */
     function __construct($folder = null)
     {
         $this->download_options = array('cache' => 1, 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 2592000); //expires in a month
@@ -21,34 +18,27 @@ class FreeDataAPI
 
         $this->ctr = 0; //for "reef life survey" and "eMammal"
         $this->debug = array();
+        
+        /*
+        GBIF occurrence extension:
+        file:///Library/WebServer/Documents/cp/GBIF_dwca/atlantic_cod/meta.xml
+        */
     }
 
     //start for USGS ==============================================================================================================
     /* These are the unique list of groups:
-                [Fishes] =>                 Animalia
-                [Plants] =>                 Plantae
-                [Amphibians-Frogs] =>       Animalia
-                [Reptiles-Snakes] =>        Animalia
-                [Mollusks-Bivalves] =>      Animalia
-                [Reptiles-Crocodilians] =>  Animalia
-                [Amphibians-Salamanders] => Animalia
-                [Reptiles-Turtles] =>       Animalia
-                [Crustaceans-Amphipods] =>  Animalia 
-                [Crustaceans-Copepods] =>   Animalia
-                [Crustaceans-Isopods] =>    Animalia
-                [Annelids-Hirundinea] =>    Animalia
-                [Mollusks-Gastropods] =>    Animalia
-                [Coelenterates-Hydrozoans] =>   Animalia
-                [Crustaceans-Cladocerans] =>    Animalia
-                [Rotifers] =>                   Animalia
-                [Crustaceans-Crayfish] =>       Animalia
-                [Crustaceans-Shrimp] =>         Animalia
-                [Mammals] =>                    Animalia
-                [Crustaceans-Crabs] =>          Animalia
-                [Crustaceans-Mysids] =>     Animalia
-                [Bryozoans] =>              Animalia
-                [Mollusks-Cephalopods] =>   Animalia
-                [Annelids-Oligochaetes] =>  Animalia
+                [Fishes] =>                 Animalia    [Plants] =>                 Plantae
+                [Amphibians-Frogs] =>       Animalia    [Reptiles-Snakes] =>        Animalia
+                [Mollusks-Bivalves] =>      Animalia    [Reptiles-Crocodilians] =>  Animalia
+                [Amphibians-Salamanders] => Animalia    [Reptiles-Turtles] =>       Animalia
+                [Crustaceans-Amphipods] =>  Animalia    [Crustaceans-Copepods] =>   Animalia
+                [Crustaceans-Isopods] =>    Animalia    [Annelids-Hirundinea] =>    Animalia
+                [Mollusks-Gastropods] =>    Animalia    [Coelenterates-Hydrozoans] =>   Animalia
+                [Crustaceans-Cladocerans] =>    Animalia    [Rotifers] =>                   Animalia
+                [Crustaceans-Crayfish] =>       Animalia    [Crustaceans-Shrimp] =>         Animalia
+                [Mammals] =>                    Animalia    [Crustaceans-Crabs] =>          Animalia
+                [Crustaceans-Mysids] =>     Animalia        [Bryozoans] =>              Animalia
+                [Mollusks-Cephalopods] =>   Animalia        [Annelids-Oligochaetes] =>  Animalia
                 [Entoprocts] =>             Animalia
     From the API, we can get the FAMILY of the species belonging to each of the groups.
     Do we need to fill-in the other: KINGDOM, PHYLUM, CLASS, ORDER? */
@@ -59,7 +49,6 @@ class FreeDataAPI
         2. get occurrences for each species
         3. create the zip file
         */
-        
         $options = $this->download_options;
         $options['resource_id'] = "usgs"; //a folder /usgs/ will be created in /eol_cache/
         $options['download_wait_time'] = 1000000; //1 second
