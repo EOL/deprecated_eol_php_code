@@ -8,14 +8,14 @@ class FreshDataGlobiAPI
     {
         $this->folder = $folder;
         $this->destination['GloBI_Ecological-DB-of-the-World-s-Insect-Pathogens'] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt";
-        $this->fields['GloBI_Ecological-DB-of-the-World-s-Insect-Pathogens'] = array("id", "taxonID", "scientificName", "lifeStage", "sex", "taxonRemarks", "locality", "decimalLatitude", "decimalLongitude", "eventDate", "bibliographicCitation");
+             $this->fields['GloBI_Ecological-DB-of-the-World-s-Insect-Pathogens'] = array("id", "taxonID", "scientificName", "lifeStage", "sex", "taxonRemarks", "locality", "decimalLatitude", "decimalLongitude", "eventDate", "bibliographicCitation");
 
         $this->ctr = 0;
         $this->debug = array();
         
         /*
-        GBIF occurrence extension:
-        file:///Library/WebServer/Documents/cp/GBIF_dwca/atlantic_cod/meta.xml
+        GBIF occurrence extension   : file:///Library/WebServer/Documents/cp/GBIF_dwca/atlantic_cod/meta.xml
+        DWC terms                   : http://rs.tdwg.org/dwc/terms/index.htm#Occurrence
         */
     }
 
@@ -53,18 +53,15 @@ class FreshDataGlobiAPI
                 }
                 
                 // if($rek['decimalLatitude']) //used in normal operation
-                if(true)
+                if(true) //get all rows
                 {
                     self::process_record($rek);
                 }
-                // else echo " no dec";
             }
         }
         
-        
         // remove tmp dir
         if($paths['temp_dir']) shell_exec("rm -fr ".$paths['temp_dir']);
-        
         
         require_library('connectors/FreeDataAPI');
         $func = new FreeDataAPI();
