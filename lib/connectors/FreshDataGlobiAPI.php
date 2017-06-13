@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: globi
+/* connector: freedata_globi.php
 */
 class FreshDataGlobiAPI
 {
@@ -37,6 +37,17 @@ class FreshDataGlobiAPI
         
         $paths = self::extract_file($params['zip_path']);
         print_r($paths);
+        
+        // /* this part is needed because master.zip extracts into a different folder and not into /master/
+        $tsv_file = $paths['archive_path']."/interactions.tsv";
+        if(!file_exists($tsv_file))
+        {
+            $paths['archive_path'] .= "/".$params['zip_folder'];
+            echo "\nnew paths:\n";
+            print_r($paths);
+        }
+        // */
+        
         $i = 0;
         foreach(new FileIterator($paths['archive_path']."/interactions.tsv") as $line => $row)
         {
@@ -149,7 +160,7 @@ class FreshDataGlobiAPI
     {
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($zip_path, "interactions.tsv");
+        $paths = $func->extract_archive_file($zip_path, "interactions.tsv", array('timeout' => 172800, 'expire_seconds' => 2592000)); //expires in 1 month
         return $paths;
     }
 

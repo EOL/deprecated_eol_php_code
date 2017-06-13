@@ -103,12 +103,12 @@ class INBioAPI
             return;
         }
 
-        if(file_exists($temp_dir . $check_file_or_folder_name)) return array('archive_path' => $temp_dir, 'temp_dir' => $temp_dir);
+        if(file_exists($temp_dir . $check_file_or_folder_name))               return array('archive_path' => $temp_dir,     'temp_dir' => $temp_dir);
         elseif(file_exists($archive_path . "/" . $check_file_or_folder_name)) return array('archive_path' => $archive_path, 'temp_dir' => $temp_dir);
         else
         {
-            debug("Can't extract archive file. Program will terminate.");
-            return;
+            debug("Can't find check_file_or_folder_name.");
+            return array('archive_path' => $temp_dir, 'temp_dir' => $temp_dir);
         }
     }
 
