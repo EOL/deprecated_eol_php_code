@@ -275,6 +275,20 @@ class FreeDataAPI
             fwrite($WRITE, '    <field index="20" term="http://rs.tdwg.org/dwc/terms/day"/>' . "\n");
             fwrite($WRITE, '    <field index="21" term="http://rs.tdwg.org/dwc/terms/catalogNumber"/>' . "\n");
         }
+        elseif($folder == "GloBI_Ecological-DB-of-the-World-s-Insect-Pathogens")
+        {
+            fwrite($WRITE, '    <field index="0" term="http://rs.gbif.org/terms/1.0/RLSID"/>' . "\n");
+            fwrite($WRITE, '    <field index="1" term="http://rs.tdwg.org/dwc/terms/taxonID"/>' . "\n");
+            fwrite($WRITE, '    <field index="2" term="http://rs.tdwg.org/dwc/terms/scientificName"/>' . "\n");
+            fwrite($WRITE, '    <field index="3" term="http://rs.tdwg.org/dwc/terms/lifeStage"/>' . "\n");
+            fwrite($WRITE, '    <field index="4" term="http://rs.tdwg.org/dwc/terms/sex"/>' . "\n");
+            fwrite($WRITE, '    <field index="5" term="http://rs.tdwg.org/dwc/terms/taxonRemarks"/>' . "\n");
+            fwrite($WRITE, '    <field index="6" term="http://rs.tdwg.org/dwc/terms/locality"/>' . "\n");
+            fwrite($WRITE, '    <field index="7" term="http://rs.tdwg.org/dwc/terms/decimalLatitude"/>' . "\n");
+            fwrite($WRITE, '    <field index="8" term="http://rs.tdwg.org/dwc/terms/decimalLongitude"/>' . "\n");
+            fwrite($WRITE, '    <field index="9" term="http://rs.tdwg.org/dwc/terms/eventDate"/>' . "\n");
+            fwrite($WRITE, '    <field index="10" term="http://purl.org/dc/terms/bibliographicCitation"/>' . "\n");
+        }
         fwrite($WRITE, '  </core>' . "\n");
         fwrite($WRITE, '</archive>' . "\n");
         fclose($WRITE);
@@ -402,7 +416,7 @@ class FreeDataAPI
         if($this->debug) print_r($this->debug);
     }
     
-    private function last_part($folder)
+    function last_part($folder)
     {
         self::generate_meta_xml($folder); //creates a meta.xml file
 
@@ -577,7 +591,7 @@ class FreeDataAPI
         return implode("\t", $rek);
     }
     
-    private function create_folder_if_does_not_exist($folder)
+    function create_folder_if_does_not_exist($folder)
     {
         if(!file_exists(CONTENT_RESOURCE_LOCAL_PATH . "$folder")) {
             $command_line = "mkdir " . CONTENT_RESOURCE_LOCAL_PATH . "$folder"; //may need 'sudo mkdir'
