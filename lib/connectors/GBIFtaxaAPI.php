@@ -327,50 +327,6 @@ class GBIFtaxaAPI
         $params['range']         = 'Sheet1!A2:A'; //where "A" is the starting column, "C" is the ending column, and "2" is the starting row.
         return $func->access_google_sheet($params);
     }
-    
-    function get_GBIF_invalid_descendants() //this was previously utility_2cache() ... instruction from: https://eol-jira.bibalex.org/browse/TRAM-552?focusedCommentId=61053&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61053
-    {
-        $text_file = CONTENT_RESOURCE_LOCAL_PATH."GBIF_invalid_descendants.txt"; //descendants of synonyms/doubtful parents, inclusive
-        if(file_exists($text_file)) //retrieve text file
-        {
-            $ids = self::retrieve_ids_from_text_file($text_file);
-            return $ids;
-        }
-        {
-            $fn = fopen($text_file, "w");
-            $spreadsheet = "http://localhost/eol_php_code/applications/content_server/resources/GBIF_Taxa_accepted_pruned_undefined_parent_ids.txt";
-            if($filename = Functions::save_remote_file_to_local($spreadsheet, $this->download_options)) {}
-            $i = 0;
-            $m = 1216; //total (12,160) divided by 5 = 2432 | by 10 = 1,216
-            foreach(new FileIterator($filename) as $line_number => $taxonID)
-            {
-                $i++;
-                /* breakdown when caching:
-                $cont = false;
-                // if($i >= 1     && $i < $m)   $cont = true;
-                // if($i >= $m    && $i < $m*2) $cont = true;
-                // if($i >= $m*2  && $i < $m*3) $cont = true;
-                // if($i >= $m*3  && $i < $m*4) $cont = true;
-                // if($i >= $m*4  && $i < $m*5) $cont = true;
-                // if($i >= $m*5  && $i < $m*6) $cont = true;
-                // if($i >= $m*6  && $i < $m*7) $cont = true;
-                // if($i >= $m*7  && $i < $m*8) $cont = true;
-                // if($i >= $m*8  && $i < $m*9) $cont = true;
-                if($i >= $m*9  && $i < $m*10) $cont = true;
-                if(!$cont) continue;
-                */
-                if($taxonID)
-                {
-                    echo "\n".$taxonID." ";
-                    $children = self::get_all_children_of_taxon($taxonID);
-                    $children[] = $taxonID;
-                    fwrite($fn, implode("\t", $children)."\n");
-                }
-            }
-            fclose($fn);
-            unlink($filename);
-        }
-    }
 
     private function retrieve_ids_from_text_file($text_file)
     {
@@ -412,6 +368,49 @@ class GBIFtaxaAPI
         return $new_file;
     }
     
+    function get_GBIF_invalid_descendants() //this was previously utility_2cache() ... instruction from: https://eol-jira.bibalex.org/browse/TRAM-552?focusedCommentId=61053&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61053
+    {
+        $text_file = CONTENT_RESOURCE_LOCAL_PATH."GBIF_invalid_descendants.txt"; //descendants of synonyms/doubtful parents, inclusive
+        if(file_exists($text_file)) //retrieve text file
+        {
+            $ids = self::retrieve_ids_from_text_file($text_file);
+            return $ids;
+        }
+        {   //will create the text file
+            $fn = fopen($text_file, "w");
+            $spreadsheet = "http://localhost/eol_php_code/applications/content_server/resources/GBIF_Taxa_accepted_pruned_undefined_parent_ids.txt";
+            if($filename = Functions::save_remote_file_to_local($spreadsheet, $this->download_options)) {}
+            $i = 0;
+            $m = 1216; //total (12,160) divided by 5 = 2432 | by 10 = 1,216
+            foreach(new FileIterator($filename) as $line_number => $taxonID)
+            {
+                $i++;
+                /* breakdown when caching:
+                $cont = false;
+                // if($i >= 1     && $i < $m)   $cont = true;
+                // if($i >= $m    && $i < $m*2) $cont = true;
+                // if($i >= $m*2  && $i < $m*3) $cont = true;
+                // if($i >= $m*3  && $i < $m*4) $cont = true;
+                // if($i >= $m*4  && $i < $m*5) $cont = true;
+                // if($i >= $m*5  && $i < $m*6) $cont = true;
+                // if($i >= $m*6  && $i < $m*7) $cont = true;
+                // if($i >= $m*7  && $i < $m*8) $cont = true;
+                // if($i >= $m*8  && $i < $m*9) $cont = true;
+                if($i >= $m*9  && $i < $m*10) $cont = true;
+                if(!$cont) continue;
+                */
+                if($taxonID)
+                {
+                    echo "\n".$taxonID." ";
+                    $children = self::get_all_children_of_taxon($taxonID);
+                    $children[] = $taxonID;
+                    fwrite($fn, implode("\t", $children)."\n");
+                }
+            }
+            fclose($fn);
+            unlink($filename);
+        }
+    }
 
 }
 ?>

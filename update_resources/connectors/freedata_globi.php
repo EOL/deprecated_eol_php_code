@@ -12,14 +12,20 @@ require_library('connectors/FreshDataGlobiAPI');
 $timestart = time_elapsed();
 
 $params = array("dataset" => "Ecological-Database-of-the-World-s-Insect-Pathogens",
-                "folder" => "GloBI_Ecological-DB-of-the-World-s-Insect-Pathogens",
-                
+                "folder" => "GloBI-Ecological-DB-of-the-World-s-Insect-Pathogens",
                 // "zip_path" => "http://localhost/cp/FreshData/GloBI/Ecological-Database-of-the-World-s-Insect-Pathogens-master.zip",
                 // "zip_path" => "http://localhost/cp/FreshData/GloBI/resource01/master.zip", //this has similar effect with github download of master.zip
                 "zip_path" => "https://github.com/millerse/Ecological-Database-of-the-World-s-Insect-Pathogens/archive/master.zip",
-                
                 "zip_folder" => "Ecological-Database-of-the-World-s-Insect-Pathogens-master" //this is the folder where github's master.zip extracts to
                 );
+
+/*
+$params = array("dataset" => "Ant-Plant-Interactions",
+                "folder" => "GloBI-Ant-Plant-Interactions",
+                "zip_path" => "https://github.com/millerse/Ant-Plant-Interactions/archive/master.zip",
+                "zip_folder" => "Ant-Plant-Interactions-master" //this is the folder where github's master.zip extracts to
+                );
+*/
 
 $func = new FreshDataGlobiAPI($params['folder']);
 $func->start($params);
