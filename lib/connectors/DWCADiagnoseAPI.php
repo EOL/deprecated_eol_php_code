@@ -218,6 +218,19 @@ class DWCADiagnoseAPI
         fclose($WRITE);
         return array_keys($no_parent);
     }
+    
+    function count_rows_in_text_file($local_path = false, $url_path_to_text_file = false)
+    {
+        if($url_path_to_text_file) $local_path = Functions::save_remote_file_to_local($url_path_to_text_file);
+        
+        $i = 0;
+        foreach(new FileIterator($local_path) as $line_number => $temp)
+        {
+            $i++;
+        }
+        echo "local path: $local_path";
+        echo "\ntotal records: $i\n";
+    }
 
 }
 ?>

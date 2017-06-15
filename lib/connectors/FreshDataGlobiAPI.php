@@ -7,8 +7,12 @@ class FreshDataGlobiAPI
     function __construct($folder = null)
     {
         $this->folder = $folder;
-        $this->destination['GloBI_Ecological-DB-of-the-World-s-Insect-Pathogens'] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt";
-             $this->fields['GloBI_Ecological-DB-of-the-World-s-Insect-Pathogens'] = array("id", "taxonID", "scientificName", "lifeStage", "sex", "taxonRemarks", "locality", "decimalLatitude", "decimalLongitude", "eventDate", "bibliographicCitation");
+        $this->destination['GloBI-Ecological-DB-of-the-World-s-Insect-Pathogens'] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt";
+             $this->fields['GloBI-Ecological-DB-of-the-World-s-Insect-Pathogens'] = array("id", "taxonID", "scientificName", "lifeStage", "sex", "taxonRemarks", "locality", "decimalLatitude", "decimalLongitude", "eventDate", "bibliographicCitation");
+
+        $this->destination['GloBI-Ant-Plant-Interactions'] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt";
+             $this->fields['GloBI-Ant-Plant-Interactions'] = array("id", "taxonID", "scientificName", "lifeStage", "sex", "taxonRemarks", "locality", "decimalLatitude", "decimalLongitude", "eventDate", "bibliographicCitation");
+
 
         $this->ctr = 0;
         $this->debug = array();
@@ -94,6 +98,7 @@ class FreshDataGlobiAPI
         $rec[] = $rek['decimalLongitude'];
         $rec[] = $rek['observationDateTime'];
         $rec[] = $rek['referenceCitation'];
+        $rec = array_map('trim', $rec);
         $val = implode("\t", $rec);
         self::save_to_text_file($val);
         
