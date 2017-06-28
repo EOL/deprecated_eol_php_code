@@ -5,8 +5,7 @@ $timestart = time_elapsed();
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 set_time_limit(0);
-ini_set("memory_limit","5000M"); //orig
-ini_set("memory_limit","8000M"); //orig
+ini_set("memory_limit","9000M"); // worked for the dwh_taxa.txt (https://eol-jira.bibalex.org/browse/TRAM-575)
 
 
 /* Important settings
@@ -20,6 +19,7 @@ php.ini:
 
 // /* normal operation
 $file = "sample/taxon.tsv";
+$file = "sample/dwh_taxa.txt"; //original dwh_taxa.txt from the zip file was added with first row headers (https://eol-jira.bibalex.org/browse/TRAM-575)
 
 require_library('connectors/DwCA_Utility_cmd');
 $func = new DwCA_Utility_cmd();

@@ -63,7 +63,7 @@ $new_file = $func->prune_gbif_backbone_taxa_FURTHER("temp/GBIF_Taxa_accepted_pru
 echo "\nOUTPUT IS: $new_file\n";
 */
 
-// /* utility - this takes 1.1 hours, but 0 undefined parents
+// /* utility - this takes 1.1 hours, but 0 undefined parents | if this alone only it takes 64.56 minutes
 $new_file = "temp/GBIF_Taxa_accepted_pruned_final.tsv"; //OR this should be the output from above
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();

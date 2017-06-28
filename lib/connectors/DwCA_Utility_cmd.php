@@ -144,6 +144,7 @@ class DwCA_Utility_cmd
     
     private function create_records_array($file)
     {
+        echo "\n[$file]\n";
         $records = array();
         $i = 0;
         foreach(new FileIterator($file) as $line => $row)
@@ -159,6 +160,11 @@ class DwCA_Utility_cmd
                     //fields for GBIF taxa - we tried to limit the no. of fields due to big size of file
                     $fieldz = array("taxonID", "parentNameUsageID", "acceptedNameUsageID", "scientificName", "scientificNameAuthorship", "specificEpithet", "infraspecificEpithet", "taxonRank", "taxonomicStatus");
                     $fieldz = array("taxonID", "parentNameUsageID", "acceptedNameUsageID", "scientificName", "taxonRank", "taxonomicStatus");
+                }
+                elseif($file == "sample/dwh_taxa.txt") //https://eol-jira.bibalex.org/browse/TRAM-575
+                {
+                    $fieldz = array("taxonID", "acceptedNameUsageID", "parentNameUsageID", "scientificName", "taxonRank", "source", "taxonomicStatus");
+                    $fieldz = array("taxonID", "acceptedNameUsageID", "parentNameUsageID", "scientificName", "taxonRank", "taxonomicStatus"); //worked OK
                 }
                 elseif($file == "something else") {}
                 else $fieldz = $fields; //no criteria needed, for normal operation
@@ -179,6 +185,10 @@ class DwCA_Utility_cmd
                 {
                     // this is for specific resource criteria
                     if($file == "sample/GBIF_Taxon.tsv") //https://eol-jira.bibalex.org/browse/TRAM-552
+                    {
+                        if($rec['tS'] != 'accepted') continue;
+                    }
+                    elseif($file == "sample/dwh_taxa.txt") //https://eol-jira.bibalex.org/browse/TRAM-575
                     {
                         if($rec['tS'] != 'accepted') continue;
                     }
