@@ -237,7 +237,7 @@ class EolAPI_Traits
          , rate of development, reproductive skew, sexual dimorphism, sexual system, social group size, temperature at midpoint…, 
         temperature in geographic r…, territorial, testis location, testis mass, total life span, trophic guild, trophic level, water depth, water dissolved O2 concentration, 
         water nitrate concentration, water O2 saturation, water phosphate concentration, water salinity, water silicate concentration, water temperature, weight */
-        // /*
+        /*
         $datasets[] = array("name" => "Actinopterygii age at first birth", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FAgeAtFirstBirth&commit=Search&q=&taxon_concept_id=1905");
         $datasets[] = array("name" => "Actinopterygii age at first reproduction", "attribute" => "http%3A%2F%2Fpolytraits.lifewatchgreece.eu%2Fterms%2FMAT&commit=Search&q=&taxon_concept_id=1905");
         $datasets[] = array("name" => "Actinopterygii age at maturity", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FAgeAtMaturity&commit=Search&q=&taxon_concept_id=1905");
@@ -306,8 +306,49 @@ class EolAPI_Traits
         $datasets[] = array("name" => "Actinopterygii water silicate conc", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FDissolvedSilicate&commit=Search&q=&taxon_concept_id=1905");
         $datasets[] = array("name" => "Actinopterygii water temperature", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FSeawaterTemperature&commit=Search&q=&taxon_concept_id=1905");
         $datasets[] = array("name" => "Actinopterygii weight", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPATO_0000128&commit=Search&q=&taxon_concept_id=1905");
+        */
+        
+        // /*
+        // Data request, 13 measurementTypes for Plantae
+        // https://eol-jira.bibalex.org/browse/DATA-1689
+        
+        // $datasets[] = array("name" => "Plantae conservation status", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fontology%2Fvoc%2FSPMInfoItems%23ConservationStatus&commit=Search&taxon_name=Plantae&q=&taxon_concept_id=281");
+        // $datasets[] = array("name" => "Plantae invasive in", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FInvasiveRange&taxon_name=Plantae&q=&commit=Search&taxon_concept_id=281");
+        // $datasets[] = array("name" => "Plantae flower color", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FTO_0000537");
+        // $datasets[] = array("name" => "Plantae dispersal vector", "attribute" => "http://eol.org/schema/terms/DispersalVector");
+        // $datasets[] = array("name" => "Plantae leaf area", "attribute" => "http://purl.obolibrary.org/obo/TO_0000540");
+        // $datasets[] = array("name" => "Plantae leaf color", "attribute" => "http://purl.obolibrary.org/obo/TO_0000326");
+        // $datasets[] = array("name" => "Plantae nitrogen fixation", "attribute" => "http://purl.obolibrary.org/obo/GO_0009399");
+        // $datasets[] = array("name" => "Plantae plant height", "attribute" => "http://purl.obolibrary.org/obo/TO_0000207");
+        // $datasets[] = array("name" => "Plantae plant propagation method", "attribute" => "http://eol.org/schema/terms/PropagationMethod");
+        // $datasets[] = array("name" => "Plantae salt tolerance", "attribute" => "http://purl.obolibrary.org/obo/TO_0006001");
+        // $datasets[] = array("name" => "Plantae soil pH", "attribute" => "http://eol.org/schema/terms/SoilPH");
+        // $datasets[] = array("name" => "Plantae soil requirements", "attribute" => "http://eol.org/schema/terms/SoilRequirements");
+        // $datasets[] = array("name" => "Plantae vegetative spread rate", "attribute" => "http://eol.org/schema/terms/VegetativeSpreadRate");
+        
+        // http://purl.obolibrary.org/obo/TO_0000537       flower color
+        // http://eol.org/schema/terms/DispersalVector     dispersal vector
+        // http://purl.obolibrary.org/obo/TO_0000540       leaf area
+        // http://purl.obolibrary.org/obo/TO_0000326       leaf color
+        // http://purl.obolibrary.org/obo/GO_0009399       nitrogen fixation
+        // http://purl.obolibrary.org/obo/TO_0000207       plant height
+        // http://eol.org/schema/terms/PropagationMethod   plant propagation method
+        // http://purl.obolibrary.org/obo/TO_0006001       salt tolerance
+        // http://eol.org/schema/terms/SoilPH              soil pH
+        // http://eol.org/schema/terms/SoilRequirements    soil requirements
+        // http://eol.org/schema/terms/VegetativeSpreadRate    vegetative spread rate
         // */
-
+        
+        // invasive in, flower color, dispersal vector, leaf area, leaf color, nitrogen fixation, plant height, plant propagation method, salt tolerance, soil pH, soil requirements, vegetative spread rate
+        
+        
+        //archiving...
+        // $datasets[] = array("name" => "Plantae latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&required_equivalent_attributes%5B%5D=2281&commit=Search&taxon_name=Plantae&q=&taxon_concept_id=281");
+        // $datasets[] = array("name" => "latitude + latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&required_equivalent_attributes[]=2281&commit=Search&taxon_name=&q=");
+        // $datasets[] = array("name" => "conservation status", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fontology%2Fvoc%2FSPMInfoItems%23ConservationStatus&commit=Search&taxon_name=&q=");
+        $datasets[] = array("name" => "growth habit", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPlantHabit&commit=Search&taxon_name=&q=");
+        
+        
         // tests
         // $datasets[] = array("name" => "cell mass from Jen", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645");
         // $datasets[] = array("name" => "cell mass from Jen2", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&q=");
@@ -343,9 +384,12 @@ class EolAPI_Traits
         echo "\nPages: $pages";
         $unique_rows = array(); //sol'n for having duplicate rows
         for($page = 1; $page <= $pages; $page++)    //orig
-        // for($page = 1; $page <= 196; $page++)
-        // for($page = 196; $page <= 392; $page++)
-        // for($page = 392; $page <= $pages; $page++)
+        // for($page = 1; $page <= 100; $page++)        done
+        // for($page = 100; $page <= 125; $page++)      done
+        // for($page = 125; $page <= 150; $page++)
+        // for($page = 150; $page <= 175; $page++)
+        // for($page = 175; $page <= 200; $page++)
+        // for($page = 200; $page <= $pages; $page++)
         {
             if($html = Functions::lookup_with_cache($this->data_search_url.$attrib."&page=$page", $this->download_options))
             {
