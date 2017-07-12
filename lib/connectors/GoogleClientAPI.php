@@ -1,6 +1,10 @@
 <?php
 namespace php_active_record;
-require_once DOC_ROOT . '/vendor/google_client_library/autoload.php';
+
+// require_once DOC_ROOT . '/vendor/google_client_library/autoload.php';
+require_once __DIR__ . '/../../vendor/google_client_library/autoload.php';
+
+
 /* connector: [google_client.php]  */
 
 class GoogleClientAPI
