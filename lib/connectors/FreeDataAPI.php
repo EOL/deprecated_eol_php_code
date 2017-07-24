@@ -11,9 +11,10 @@ class FreeDataAPI
         $this->fields['reef life survey'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family");
         $this->destination['eMammal'] = CONTENT_RESOURCE_LOCAL_PATH . "eMammal/observations.txt";
         $this->fields['eMammal'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family");
-        
+
+        //DATA-1683
         $this->destination['USGS'] = CONTENT_RESOURCE_LOCAL_PATH . "usgs_nonindigenous_aquatic_species/observations.txt"; //Nonindigenous Aquatic Species
-        $this->fields['USGS'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "family", "basisOfRecord", "group", "genus", "species", "vernacularName", "stateProvince", "county", "locality", "date", "year", "month", "day", "catalogNumber");
+        $this->fields['USGS'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "family", "basisOfRecord", "group", "genus", "species", "vernacularName", "stateProvince", "county", "locality", "date", "year", "month", "day", "catalogNumber", "source");
         $this->service['USGS']['occurrences'] = "https://nas.er.usgs.gov/api/v1/occurrence/search"; //https://nas.er.usgs.gov/api/v1/occurrence/search?genus=Zizania&species=palustris&offset=0
 
         $this->ctr = 0; //for "reef life survey" and "eMammal"
@@ -110,6 +111,7 @@ class FreeDataAPI
                     else break;
                 }
             }
+            // if($i > 10) break; //debug - to limit recs
         }
         echo "\ntotal: ".($i-1)."\n";
 
@@ -207,6 +209,7 @@ class FreeDataAPI
         $rek[]  = $rec->month;
         $rek[]  = $rec->day;
         $rek[]  = $rec->museumCatNumber;
+        $rek[]  = "https://nas.er.usgs.gov/queries/SpecimenViewer.aspx?SpecimenID=".$rec->key;
         return implode("\t", $rek);
         /*
         [group] => Fishes                                   http://rs.tdwg.org/dwc/terms/group
@@ -221,6 +224,7 @@ class FreeDataAPI
         [month] => 6                                        http://rs.tdwg.org/dwc/terms/month
         [day] => 13                                         http://rs.tdwg.org/dwc/terms/day
         [museumCatNumber] => SIO 03-78                      http://rs.tdwg.org/dwc/terms/catalogNumber
+        source                                              http://purl.org/dc/terms/source --- per request: https://eol-jira.bibalex.org/browse/DATA-1683?focusedCommentId=61244&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61244
         */
     }
     
@@ -274,6 +278,7 @@ class FreeDataAPI
             fwrite($WRITE, '    <field index="19" term="http://rs.tdwg.org/dwc/terms/month"/>' . "\n");
             fwrite($WRITE, '    <field index="20" term="http://rs.tdwg.org/dwc/terms/day"/>' . "\n");
             fwrite($WRITE, '    <field index="21" term="http://rs.tdwg.org/dwc/terms/catalogNumber"/>' . "\n");
+            fwrite($WRITE, '    <field index="22" term="http://purl.org/dc/terms/source"/>' . "\n");
         }
         elseif($folder == "GloBI_Ecological-DB-of-the-World-s-Insect-Pathogens")
         {
@@ -425,7 +430,7 @@ class FreeDataAPI
         copy(CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml"        , CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml");
 
         //create reef_life_survey.tar.gz
-        $command_line = "zip -rj " . CONTENT_RESOURCE_LOCAL_PATH . $folder . ".zip " . CONTENT_RESOURCE_LOCAL_PATH . $folder . "/"; //may need 'sudo zip -rj...'
+        $command_line = "zip -rj " . CONTENT_RESOURCE_LOCAL_PATH . str_replace("_","-",$folder) . ".zip " . CONTENT_RESOURCE_LOCAL_PATH . $folder . "/"; //may need 'sudo zip -rj...'
         $output = shell_exec($command_line);
     }
     
