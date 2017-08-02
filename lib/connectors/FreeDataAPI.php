@@ -559,19 +559,16 @@ class FreeDataAPI
         $field_count = count($arr);
 
         $i = 0;
-        if(!$file = Functions::file_open($csv_file, "r"))
-        {
+        if(!$file = Functions::file_open($csv_file, "r")) {
             echo "\nerror 1\n";
             return;
         }
-        if(!$WRITE = Functions::file_open($this->destination[$dbase], "a"))
-        {
+        if(!$WRITE = Functions::file_open($this->destination[$dbase], "a")) {
             echo "\nerror 2\n";
             return;
         }
         
-        while(!feof($file))
-        {
+        while(!feof($file)) {
             $temp = fgetcsv($file);
             $i++;
             if(($i % 10000) == 0) echo number_format($i) . "\n";
