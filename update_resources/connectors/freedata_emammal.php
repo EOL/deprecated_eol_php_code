@@ -20,7 +20,7 @@ $local_path = "/Library/WebServer/Documents/cp/FreshData/eMammal";
 //remote - actual
 */
 
-$func = new FreeDataAPI();
+$func = new FreeDataAPI("eMammal");
 $func->generate_eMammal_archive($local_path);
 
 $elapsed_time_sec = time_elapsed() - $timestart;

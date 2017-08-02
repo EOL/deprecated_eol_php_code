@@ -33,19 +33,6 @@ class FreeDataAPI
         */
     }
 
-    function get_fields_as_array($filename)
-    {
-        if($file = Functions::file_open($filename, "r"))
-        {
-            while(!feof($file))
-            {
-                return fgetcsv($file);
-                break; //just get one line
-            }
-        }
-        return false;
-    }
-
     //start for MarylandBio ==============================================================================================================
     function generate_MarylandBio_archive($csv_url)
     {
@@ -65,8 +52,7 @@ class FreeDataAPI
         $a = array(); $i = 0;
         if($file = Functions::file_open($filename, "r"))
         {
-            while(!feof($file))
-            {
+            while(!feof($file)) {
                 $arr = fgetcsv($file);
                 $i++;
                 if($i != 1)
@@ -85,12 +71,10 @@ class FreeDataAPI
         // Kingdom,Class,OrderName,Family,Genus,Species,Author,Subspecies,Species_ID,Species_URL,Common_Name,RecordID,Month,Day,Year,County,
         // QuadID,QuadName,QuatLat1,QuadLon1,QuadLat2,QuadLat3,Location,LocID,LocLat,LocLon
         
-        $rek = array();
-        
         $scientificName = trim($rec['Genus'].' '.$rec['Species'].' '.$rec['Subspecies']);
         $date = self::maryland_date($rec);
         
-        //total of ? columns
+        $rek = array();
         $rek['id']              = $rec['RecordID'];
         $rek['occurrenceID']    = $rec['RecordID'];
         
@@ -101,15 +85,14 @@ class FreeDataAPI
         }
         elseif($county = $rec['County'])
         {
-            
             if($this->country_lat_lon[$county]['lat'] && $this->country_lat_lon[$county]['lon'])
             {
                 $rek['decimalLatitude'] = $this->country_lat_lon[$county]['lat'];
                 $rek['decimalLongitude'] = $this->country_lat_lon[$county]['lon'];
             }
-            else return false;
+            else return false; //exclude if not both lat long are filled
         }
-        else return false;
+        else return false; //exclude if not both lat long are filled
         
         $rek['scientificName']  = $scientificName;
         $rek['genus']           = $rec['Genus'];
@@ -153,30 +136,6 @@ class FreeDataAPI
     }
     
     //end for MarylandBio ================================================================================================================
-    
-    function generate_meta_xml_v2($folder)
-    {
-        if(!$WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml", "w")) return;
-        fwrite($WRITE, '<?xml version="1.0" encoding="UTF-8"?>' . "\n");
-        fwrite($WRITE, '<archive xmlns="http://rs.tdwg.org/dwc/text/">' . "\n");
-        fwrite($WRITE, '  <core encoding="UTF-8" linesTerminatedBy="\n" fieldsTerminatedBy="\t" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/Occurrence">' . "\n");
-        fwrite($WRITE, '    <files>' . "\n");
-        fwrite($WRITE, '      <location>observations.txt</location>' . "\n");
-        fwrite($WRITE, '    </files>' . "\n");
-        fwrite($WRITE, '    <id index="0"/>' . "\n");
-
-        $terms = self::get_terms();
-        $i = 0;
-        foreach($this->dwca_fields as $term)
-        {
-            fwrite($WRITE, '    <field index="'.$i.'" term="'.$terms[$term].'"/>' . "\n");
-            $i++;
-        }
-        
-        fwrite($WRITE, '  </core>' . "\n");
-        fwrite($WRITE, '</archive>' . "\n");
-        fclose($WRITE);
-    }
     
     //start for USGS ==============================================================================================================
     /* These are the unique list of groups:
@@ -764,6 +723,27 @@ class FreeDataAPI
         }
     }
     
+    private function generate_meta_xml_v2($folder)
+    {
+        if(!$WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml", "w")) return;
+        fwrite($WRITE, '<?xml version="1.0" encoding="UTF-8"?>' . "\n");
+        fwrite($WRITE, '<archive xmlns="http://rs.tdwg.org/dwc/text/">' . "\n");
+        fwrite($WRITE, '  <core encoding="UTF-8" linesTerminatedBy="\n" fieldsTerminatedBy="\t" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/Occurrence">' . "\n");
+        fwrite($WRITE, '    <files>' . "\n");
+        fwrite($WRITE, '      <location>observations.txt</location>' . "\n");
+        fwrite($WRITE, '    </files>' . "\n");
+        fwrite($WRITE, '    <id index="0"/>' . "\n");
+        $terms = self::get_terms();
+        $i = 0;
+        foreach($this->dwca_fields as $term) {
+            fwrite($WRITE, '    <field index="'.$i.'" term="'.$terms[$term].'"/>' . "\n");
+            $i++;
+        }
+        fwrite($WRITE, '  </core>' . "\n");
+        fwrite($WRITE, '</archive>' . "\n");
+        fclose($WRITE);
+    }
+    
     function get_terms()
     {
         $terms['id'] = "http://rs.gbif.org/terms/1.0/RLSID";
@@ -798,6 +778,17 @@ class FreeDataAPI
         $terms['bibliographicCitation'] = "http://purl.org/dc/terms/bibliographicCitation";
         $terms['source'] = "http://purl.org/dc/terms/source";
         return $terms;
+    }
+    
+    private function get_fields_as_array($filename)
+    {
+        if($file = Functions::file_open($filename, "r")) {
+            while(!feof($file)) {
+                return fgetcsv($file);
+                break; //just get one line
+            }
+        }
+        return false;
     }
     
 }
