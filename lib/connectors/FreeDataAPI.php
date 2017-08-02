@@ -6,11 +6,18 @@ class FreeDataAPI
     /* const VARIABLE_NAME = "string value"; */
     function __construct($folder = null)
     {
+        $this->folder = $folder; //first used for MarylandBio
         $this->download_options = array('cache' => 1, 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 2592000); //expires in a month
+
         $this->destination['reef life survey'] = CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey/observations.txt";
         $this->fields['reef life survey'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family");
+
         $this->destination['eMammal'] = CONTENT_RESOURCE_LOCAL_PATH . "eMammal/observations.txt";
         $this->fields['eMammal'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family");
+
+        // DATA-1691 MarylandBio
+        $this->destination[$folder] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt";
+        $this->print_header = true;
 
         //DATA-1683
         $this->destination['USGS'] = CONTENT_RESOURCE_LOCAL_PATH . "usgs_nonindigenous_aquatic_species/observations.txt"; //Nonindigenous Aquatic Species
@@ -26,6 +33,162 @@ class FreeDataAPI
         */
     }
 
+    function get_fields_as_array($filename)
+    {
+        if($file = Functions::file_open($filename, "r"))
+        {
+            while(!feof($file))
+            {
+                return fgetcsv($file);
+                break; //just get one line
+            }
+        }
+        return false;
+    }
+
+    //start for MarylandBio ==============================================================================================================
+    function generate_MarylandBio_archive($csv_url)
+    {
+        $folder = $this->folder; //MarylandBio
+        self::create_folder_if_does_not_exist($folder);
+
+        $filename = Functions::save_remote_file_to_local($csv_url, $this->download_options);
+
+        /* moved
+        //first row - headers of text file
+        $WRITE = Functions::file_open($this->destination[$folder], "w");
+        fwrite($WRITE, implode("\t", $fields) . "\n");
+        fclose($WRITE);
+        */
+        
+        $arr = self::get_fields_as_array($filename);
+        $field_count = count($arr);
+        self::process_csv($filename, $folder, "", $field_count);
+        
+        self::last_part($folder);
+        if($this->debug) print_r($this->debug);
+        unlink($filename);
+    }
+
+    function process_rec_MarylandBio($rec)
+    {
+        // 26 cols total
+        // Kingdom,Class,OrderName,Family,Genus,Species,Author,Subspecies,Species_ID,Species_URL,Common_Name,RecordID,Month,Day,Year,County,
+        // QuadID,QuadName,QuatLat1,QuadLon1,QuadLat2,QuadLat3,Location,LocID,LocLat,LocLon
+        
+        $rek = array();
+        
+        $scientificName = trim($rec['Genus'].' '.$rec['Species'].' '.$rec['Subspecies']);
+        $date = self::maryland_date($rec);
+        
+        //total of ? columns
+        $rek['id']              = $rec['RecordID'];
+        $rek['occurrenceID']    = $rec['RecordID'];
+        $rek['decimalLatitude'] = $rec['LocLat'];
+        $rek['decimalLongitude'] = $rec['LocLon'];
+        $rek['scientificName']  = $scientificName;
+        $rek['genus']           = $rec['Genus'];
+        $rek['species']         = $rec['Species'];
+        $rek['vernacularName']  = $rec['Common_Name'];
+        $rek['taxonRank']       = 'species';
+        $rek['kingdom']         = $rec['Kingdom'];
+        $rek['class']           = $rec['Class'];
+        $rek['order']           = $rec['OrderName'];
+        $rek['family']          = $rec['Family'];
+        $rek['date']            = $date;
+        $rek['month']           = $rec['Month'];
+        $rek['day']             = $rec['Day'];
+        $rek['year']            = $rec['Year'];
+        $rek['county']          = $rec['County'];
+        $rek['locality']        = $rec['Location'];
+        $rek['source']          = $rec['Species_URL'];
+        
+        if($this->print_header)
+        {
+            //first row - headers of text file
+            $WRITE = Functions::file_open($this->destination[$this->folder], "w");
+            fwrite($WRITE, implode("\t", array_keys($rek)) . "\n");
+            fclose($WRITE);
+            $this->print_header = false;
+        }
+        
+        $this->dwca_fields = array_keys($rek);
+        return implode("\t", $rek);
+    }
+    
+    private function maryland_date($rec)
+    {   //desired format is: 2016-06-18
+        if(@$rec['Month'] && @$rec['Day'] && strlen(@$rec['Year'])==4)
+        {
+            $month = Functions::format_number_with_leading_zeros($rec['Month'], 2);
+            $day = Functions::format_number_with_leading_zeros($rec['Day'], 2);
+            return $rec['Year']."-".$month."-".$day;
+        }
+        return "";
+    }
+    
+    //end for MarylandBio ================================================================================================================
+    
+    function generate_meta_xml_v2($folder)
+    {
+        if(!$WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml", "w")) return;
+        fwrite($WRITE, '<?xml version="1.0" encoding="UTF-8"?>' . "\n");
+        fwrite($WRITE, '<archive xmlns="http://rs.tdwg.org/dwc/text/">' . "\n");
+        fwrite($WRITE, '  <core encoding="UTF-8" linesTerminatedBy="\n" fieldsTerminatedBy="\t" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/Occurrence">' . "\n");
+        fwrite($WRITE, '    <files>' . "\n");
+        fwrite($WRITE, '      <location>observations.txt</location>' . "\n");
+        fwrite($WRITE, '    </files>' . "\n");
+        fwrite($WRITE, '    <id index="0"/>' . "\n");
+
+        $terms = self::get_terms();
+        $i = 0;
+        foreach($this->dwca_fields as $term)
+        {
+            fwrite($WRITE, '    <field index="'.$i.'" term="'.$terms[$term].'"/>' . "\n");
+            $i++;
+        }
+        
+        fwrite($WRITE, '  </core>' . "\n");
+        fwrite($WRITE, '</archive>' . "\n");
+        fclose($WRITE);
+    }
+    function get_terms()
+    {
+        $terms['id'] = "http://rs.gbif.org/terms/1.0/RLSID";
+        $terms['occurrenceID'] = "http://rs.tdwg.org/dwc/terms/occurrenceID";
+        $terms['decimalLatitude'] = "http://rs.tdwg.org/dwc/terms/decimalLatitude";
+        $terms['decimalLongitude'] = "http://rs.tdwg.org/dwc/terms/decimalLongitude";
+        $terms['scientificName'] = "http://rs.tdwg.org/dwc/terms/scientificName";
+        $terms['taxonRank'] = "http://rs.tdwg.org/dwc/terms/taxonRank";
+        $terms['kingdom'] = "http://rs.tdwg.org/dwc/terms/kingdom";
+        $terms['phylum'] = "http://rs.tdwg.org/dwc/terms/phylum";
+        $terms['class'] = "http://rs.tdwg.org/dwc/terms/class";
+        $terms['order'] = "http://rs.tdwg.org/dwc/terms/order";
+        $terms['family'] = "http://rs.tdwg.org/dwc/terms/family";
+        $terms['genus'] = "http://rs.tdwg.org/dwc/terms/genus";
+        $terms['species'] = "http://rs.gbif.org/terms/1.0/species";
+        $terms['vernacularName'] = "http://rs.tdwg.org/dwc/terms/vernacularName";
+        $terms['basisOfRecord'] = "http://rs.tdwg.org/dwc/terms/basisOfRecord";
+        $terms['group'] = "http://rs.tdwg.org/dwc/terms/group";
+        $terms['stateProvince'] = "http://rs.tdwg.org/dwc/terms/stateProvince";
+        $terms['county'] = "http://rs.tdwg.org/dwc/terms/county";
+        $terms['locality'] = "http://rs.tdwg.org/dwc/terms/locality";
+        $terms['eventDate'] = "http://rs.tdwg.org/dwc/terms/eventDate";
+        $terms['date'] = "http://purl.org/dc/terms/date";
+        $terms['year'] = "http://rs.tdwg.org/dwc/terms/year";
+        $terms['month'] = "http://rs.tdwg.org/dwc/terms/month";
+        $terms['day'] = "http://rs.tdwg.org/dwc/terms/day";
+        $terms['catalogNumber'] = "http://rs.tdwg.org/dwc/terms/catalogNumber";
+        $terms['taxonID'] = "http://rs.tdwg.org/dwc/terms/taxonID";
+        $terms['lifeStage'] = "http://rs.tdwg.org/dwc/terms/lifeStage";
+        $terms['sex'] = "http://rs.tdwg.org/dwc/terms/sex";
+        $terms['taxonRemarks'] = "http://rs.tdwg.org/dwc/terms/taxonRemarks";
+        $terms['bibliographicCitation'] = "http://purl.org/dc/terms/bibliographicCitation";
+        $terms['source'] = "http://purl.org/dc/terms/source";
+        return $terms;
+    }
+
+    
     //start for USGS ==============================================================================================================
     /* These are the unique list of groups:
                 [Fishes] =>                 Animalia    [Plants] =>                 Plantae
@@ -423,7 +586,9 @@ class FreeDataAPI
     
     function last_part($folder)
     {
-        self::generate_meta_xml($folder); //creates a meta.xml file
+        $new_batch = array("MarylandBio");
+        if(in_array($folder, $new_batch)) self::generate_meta_xml_v2($folder); //creates a meta.xml file
+        else                              self::generate_meta_xml($folder); //creates a meta.xml file
 
         //copy 2 files inside /reef_life_survey/
         copy(CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt", CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt");
@@ -434,7 +599,7 @@ class FreeDataAPI
         $output = shell_exec($command_line);
     }
     
-    function process_csv($csv_file, $dbase, $collection = "")
+    function process_csv($csv_file, $dbase, $collection = "", $field_count = 0)
     {
         if($dbase == "reef life survey") $field_count = 20;
         elseif($dbase == "eMammal")      $field_count = 16;
@@ -492,11 +657,12 @@ class FreeDataAPI
                     // print_r($rec); exit;
                     if    ($dbase == "reef life survey") $row = self::process_rec_RLS($rec, $collection);
                     elseif($dbase == "eMammal")          $row = self::process_rec_eMammal($rec);
+                    elseif($dbase == "MarylandBio")      $row = self::process_rec_MarylandBio($rec);
                     else echo "\n --undefine dbase-- \n";
                     if($row) fwrite($WRITE, $row . "\n");
                 }
                 
-                // if($i > 5) break;  //debug only
+                if($i > 5) break;  //debug only
             }
         } // end while{}
         fclose($file);
