@@ -6,17 +6,17 @@ class FreeDataAPI
     /* const VARIABLE_NAME = "string value"; */
     function __construct($folder = null)
     {
-        $this->folder = $folder; //first used for MarylandBio
+        $this->folder = $folder; //first used for MarylandBio, then eMammal
         $this->download_options = array('cache' => 1, 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 2592000); //expires in a month
 
         $this->destination['reef life survey'] = CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey/observations.txt";
         $this->fields['reef life survey'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family");
 
         $this->destination['eMammal'] = CONTENT_RESOURCE_LOCAL_PATH . "eMammal/observations.txt";
-        $this->fields['eMammal'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family");
 
         // DATA-1691 MarylandBio
         $this->destination[$folder] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt";
+        $this->data_file[$folder] = "http://localhost/cp/FreshData/Maryland Biodiversity invasives/country_lat_lon.csv";
         $this->print_header = true;
 
         //DATA-1683
@@ -51,23 +51,32 @@ class FreeDataAPI
     {
         $folder = $this->folder; //MarylandBio
         self::create_folder_if_does_not_exist($folder);
-
+        $this->country_lat_lon = self::get_country_lat_lon(); // print_r($this->country_lat_lon);
         $filename = Functions::save_remote_file_to_local($csv_url, $this->download_options);
-
-        /* moved
-        //first row - headers of text file
-        $WRITE = Functions::file_open($this->destination[$folder], "w");
-        fwrite($WRITE, implode("\t", $fields) . "\n");
-        fclose($WRITE);
-        */
-        
-        $arr = self::get_fields_as_array($filename);
-        $field_count = count($arr);
-        self::process_csv($filename, $folder, "", $field_count);
-        
+        self::process_csv($filename, $folder, "");
         self::last_part($folder);
         if($this->debug) print_r($this->debug);
         unlink($filename);
+    }
+    
+    private function get_country_lat_lon()
+    {
+        $filename = Functions::save_remote_file_to_local($this->data_file[$this->folder], $this->download_options);
+        $a = array(); $i = 0;
+        if($file = Functions::file_open($filename, "r"))
+        {
+            while(!feof($file))
+            {
+                $arr = fgetcsv($file);
+                $i++;
+                if($i != 1)
+                {
+                    if($country = @$arr[0]) $a[$country] = array("lat" => $arr[1], "lon" => @$arr[2]);
+                }
+            }
+        }
+        unlink($filename);
+        return $a;
     }
 
     function process_rec_MarylandBio($rec)
@@ -84,8 +93,24 @@ class FreeDataAPI
         //total of ? columns
         $rek['id']              = $rec['RecordID'];
         $rek['occurrenceID']    = $rec['RecordID'];
-        $rek['decimalLatitude'] = $rec['LocLat'];
-        $rek['decimalLongitude'] = $rec['LocLon'];
+        
+        if($rec['LocLat'] && $rec['LocLon'])
+        {
+            $rek['decimalLatitude'] = $rec['LocLat'];
+            $rek['decimalLongitude'] = $rec['LocLon'];
+        }
+        elseif($county = $rec['County'])
+        {
+            
+            if($this->country_lat_lon[$county]['lat'] && $this->country_lat_lon[$county]['lon'])
+            {
+                $rek['decimalLatitude'] = $this->country_lat_lon[$county]['lat'];
+                $rek['decimalLongitude'] = $this->country_lat_lon[$county]['lon'];
+            }
+            else return false;
+        }
+        else return false;
+        
         $rek['scientificName']  = $scientificName;
         $rek['genus']           = $rec['Genus'];
         $rek['species']         = $rec['Species'];
@@ -469,10 +494,12 @@ class FreeDataAPI
         
         self::create_folder_if_does_not_exist($folder);
         
+        /*moved
         //first row - headers of text file
         $WRITE = Functions::file_open($this->destination['eMammal'], "w");
         fwrite($WRITE, implode("\t", $this->fields['eMammal']) . "\n");
         fclose($WRITE);
+        */
         
         foreach(glob("$local_path/*.csv") as $filename)
         {
@@ -529,27 +556,29 @@ class FreeDataAPI
         if(stripos($taxon, 'other') !== false || stripos($taxon, 'species') !== false ) return false; //string is found
         
         //total of 11 columns
-        $rek[] = $rec['id'];
-        $rek[] = $rec['Sequence ID'];
-        $rek[] = $rec['Begin Time'];
-        $rek[] = $rec['Actual Lat'];
-        $rek[] = $rec['Actual Lon'];
+        $rek['id'] = $rec['id'];
+        $rek['occurrenceID'] = $rec['Sequence ID'];
+        $rek['eventDate'] = $rec['Begin Time'];
+        $rek['decimalLatitude'] = $rec['Actual Lat'];
+        $rek['decimalLongitude'] = $rec['Actual Lon'];
         if(stripos($taxon, ' spp.') !== false || stripos($taxon, ' sp.') !== false ) //string is found
         {
             $taxon = str_ireplace(" spp.", "", $taxon);
             $taxon = str_ireplace(" sp.", "", $taxon);
-            $rek[] = $taxon;
-            $rek[] = '';
+            $rek['scientificName'] = $taxon;
+            $rek['taxonRank'] = '';
         }
         else
         {
-            $rek[] = $taxon;
-            $rek[] = 'species';
+            $rek['scientificName'] = $taxon;
+            $rek['taxonRank'] = 'species';
         }
-        $rek[] = 'Animalia';
-        $rek[] = 'Chordata';
-        $rek[] = 'Mammalia';
-        $rek[] = '';
+        $rek['kingdom'] = 'Animalia';
+        $rek['phylum'] = 'Chordata';
+        $rek['class'] = 'Mammalia';
+        $rek['family'] = '';
+        
+        $this->dwca_fields = array_keys($rek);
         return implode("\t", $rek);
     }
     //end for eMammal ================================================================================================================
@@ -586,7 +615,7 @@ class FreeDataAPI
     
     function last_part($folder)
     {
-        $new_batch = array("MarylandBio");
+        $new_batch = array("MarylandBio", "eMammal");
         if(in_array($folder, $new_batch)) self::generate_meta_xml_v2($folder); //creates a meta.xml file
         else                              self::generate_meta_xml($folder); //creates a meta.xml file
 
@@ -599,10 +628,15 @@ class FreeDataAPI
         $output = shell_exec($command_line);
     }
     
-    function process_csv($csv_file, $dbase, $collection = "", $field_count = 0)
+    function process_csv($csv_file, $dbase, $collection = "")
     {
-        if($dbase == "reef life survey") $field_count = 20;
-        elseif($dbase == "eMammal")      $field_count = 16;
+        // if($dbase == "reef life survey") $field_count = 20;
+        // elseif($dbase == "eMammal")      $field_count = 16;
+        
+        $arr = self::get_fields_as_array($csv_file);
+        $field_count = count($arr);
+        
+        
 
         $i = 0;
         if(!$file = Functions::file_open($csv_file, "r"))
@@ -662,7 +696,7 @@ class FreeDataAPI
                     if($row) fwrite($WRITE, $row . "\n");
                 }
                 
-                if($i > 5) break;  //debug only
+                // if($i > 5) break;  //debug only
             }
         } // end while{}
         fclose($file);
