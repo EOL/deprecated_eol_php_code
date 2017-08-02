@@ -177,42 +177,6 @@ class FreeDataAPI
         fwrite($WRITE, '</archive>' . "\n");
         fclose($WRITE);
     }
-    function get_terms()
-    {
-        $terms['id'] = "http://rs.gbif.org/terms/1.0/RLSID";
-        $terms['occurrenceID'] = "http://rs.tdwg.org/dwc/terms/occurrenceID";
-        $terms['decimalLatitude'] = "http://rs.tdwg.org/dwc/terms/decimalLatitude";
-        $terms['decimalLongitude'] = "http://rs.tdwg.org/dwc/terms/decimalLongitude";
-        $terms['scientificName'] = "http://rs.tdwg.org/dwc/terms/scientificName";
-        $terms['taxonRank'] = "http://rs.tdwg.org/dwc/terms/taxonRank";
-        $terms['kingdom'] = "http://rs.tdwg.org/dwc/terms/kingdom";
-        $terms['phylum'] = "http://rs.tdwg.org/dwc/terms/phylum";
-        $terms['class'] = "http://rs.tdwg.org/dwc/terms/class";
-        $terms['order'] = "http://rs.tdwg.org/dwc/terms/order";
-        $terms['family'] = "http://rs.tdwg.org/dwc/terms/family";
-        $terms['genus'] = "http://rs.tdwg.org/dwc/terms/genus";
-        $terms['species'] = "http://rs.gbif.org/terms/1.0/species";
-        $terms['vernacularName'] = "http://rs.tdwg.org/dwc/terms/vernacularName";
-        $terms['basisOfRecord'] = "http://rs.tdwg.org/dwc/terms/basisOfRecord";
-        $terms['group'] = "http://rs.tdwg.org/dwc/terms/group";
-        $terms['stateProvince'] = "http://rs.tdwg.org/dwc/terms/stateProvince";
-        $terms['county'] = "http://rs.tdwg.org/dwc/terms/county";
-        $terms['locality'] = "http://rs.tdwg.org/dwc/terms/locality";
-        $terms['eventDate'] = "http://rs.tdwg.org/dwc/terms/eventDate";
-        $terms['date'] = "http://purl.org/dc/terms/date";
-        $terms['year'] = "http://rs.tdwg.org/dwc/terms/year";
-        $terms['month'] = "http://rs.tdwg.org/dwc/terms/month";
-        $terms['day'] = "http://rs.tdwg.org/dwc/terms/day";
-        $terms['catalogNumber'] = "http://rs.tdwg.org/dwc/terms/catalogNumber";
-        $terms['taxonID'] = "http://rs.tdwg.org/dwc/terms/taxonID";
-        $terms['lifeStage'] = "http://rs.tdwg.org/dwc/terms/lifeStage";
-        $terms['sex'] = "http://rs.tdwg.org/dwc/terms/sex";
-        $terms['taxonRemarks'] = "http://rs.tdwg.org/dwc/terms/taxonRemarks";
-        $terms['bibliographicCitation'] = "http://purl.org/dc/terms/bibliographicCitation";
-        $terms['source'] = "http://purl.org/dc/terms/source";
-        return $terms;
-    }
-
     
     //start for USGS ==============================================================================================================
     /* These are the unique list of groups:
@@ -302,7 +266,6 @@ class FreeDataAPI
             // if($i > 10) break; //debug - to limit recs
         }
         echo "\ntotal: ".($i-1)."\n";
-
         self::last_part("usgs_nonindigenous_aquatic_species"); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
         // if($this->debug) print_r($this->debug);
     }
@@ -415,7 +378,6 @@ class FreeDataAPI
         source                                              http://purl.org/dc/terms/source --- per request: https://eol-jira.bibalex.org/browse/DATA-1683?focusedCommentId=61244&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61244
         */
     }
-    
     //end for USGS ================================================================================================================
 
     function generate_meta_xml($folder)
@@ -630,13 +592,12 @@ class FreeDataAPI
     
     function process_csv($csv_file, $dbase, $collection = "")
     {
-        // if($dbase == "reef life survey") $field_count = 20;
-        // elseif($dbase == "eMammal")      $field_count = 16;
-        
+        /* replaced
+        if($dbase == "reef life survey") $field_count = 20;
+        elseif($dbase == "eMammal")      $field_count = 16;
+        */
         $arr = self::get_fields_as_array($csv_file);
         $field_count = count($arr);
-        
-        
 
         $i = 0;
         if(!$file = Functions::file_open($csv_file, "r"))
@@ -649,7 +610,6 @@ class FreeDataAPI
             echo "\nerror 2\n";
             return;
         }
-        
         
         while(!feof($file))
         {
@@ -802,6 +762,42 @@ class FreeDataAPI
             $command_line = "mkdir " . CONTENT_RESOURCE_LOCAL_PATH . "$folder"; //may need 'sudo mkdir'
             $output = shell_exec($command_line);
         }
+    }
+    
+    function get_terms()
+    {
+        $terms['id'] = "http://rs.gbif.org/terms/1.0/RLSID";
+        $terms['occurrenceID'] = "http://rs.tdwg.org/dwc/terms/occurrenceID";
+        $terms['decimalLatitude'] = "http://rs.tdwg.org/dwc/terms/decimalLatitude";
+        $terms['decimalLongitude'] = "http://rs.tdwg.org/dwc/terms/decimalLongitude";
+        $terms['scientificName'] = "http://rs.tdwg.org/dwc/terms/scientificName";
+        $terms['taxonRank'] = "http://rs.tdwg.org/dwc/terms/taxonRank";
+        $terms['kingdom'] = "http://rs.tdwg.org/dwc/terms/kingdom";
+        $terms['phylum'] = "http://rs.tdwg.org/dwc/terms/phylum";
+        $terms['class'] = "http://rs.tdwg.org/dwc/terms/class";
+        $terms['order'] = "http://rs.tdwg.org/dwc/terms/order";
+        $terms['family'] = "http://rs.tdwg.org/dwc/terms/family";
+        $terms['genus'] = "http://rs.tdwg.org/dwc/terms/genus";
+        $terms['species'] = "http://rs.gbif.org/terms/1.0/species";
+        $terms['vernacularName'] = "http://rs.tdwg.org/dwc/terms/vernacularName";
+        $terms['basisOfRecord'] = "http://rs.tdwg.org/dwc/terms/basisOfRecord";
+        $terms['group'] = "http://rs.tdwg.org/dwc/terms/group";
+        $terms['stateProvince'] = "http://rs.tdwg.org/dwc/terms/stateProvince";
+        $terms['county'] = "http://rs.tdwg.org/dwc/terms/county";
+        $terms['locality'] = "http://rs.tdwg.org/dwc/terms/locality";
+        $terms['eventDate'] = "http://rs.tdwg.org/dwc/terms/eventDate";
+        $terms['date'] = "http://purl.org/dc/terms/date";
+        $terms['year'] = "http://rs.tdwg.org/dwc/terms/year";
+        $terms['month'] = "http://rs.tdwg.org/dwc/terms/month";
+        $terms['day'] = "http://rs.tdwg.org/dwc/terms/day";
+        $terms['catalogNumber'] = "http://rs.tdwg.org/dwc/terms/catalogNumber";
+        $terms['taxonID'] = "http://rs.tdwg.org/dwc/terms/taxonID";
+        $terms['lifeStage'] = "http://rs.tdwg.org/dwc/terms/lifeStage";
+        $terms['sex'] = "http://rs.tdwg.org/dwc/terms/sex";
+        $terms['taxonRemarks'] = "http://rs.tdwg.org/dwc/terms/taxonRemarks";
+        $terms['bibliographicCitation'] = "http://purl.org/dc/terms/bibliographicCitation";
+        $terms['source'] = "http://purl.org/dc/terms/source";
+        return $terms;
     }
     
 }
