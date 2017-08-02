@@ -24,7 +24,7 @@ class FreeDataAPI
         $this->fields['USGS'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "family", "basisOfRecord", "group", "genus", "species", "vernacularName", "stateProvince", "county", "locality", "date", "year", "month", "day", "catalogNumber", "source");
         $this->service['USGS']['occurrences'] = "https://nas.er.usgs.gov/api/v1/occurrence/search"; //https://nas.er.usgs.gov/api/v1/occurrence/search?genus=Zizania&species=palustris&offset=0
 
-        $this->ctr = 0; //for "reef life survey" and "eMammal"
+        $this->ctr = 0; //for "reef life survey" and "eMammal" and "MarylandBio"
         $this->debug = array();
         
         /*
@@ -75,7 +75,7 @@ class FreeDataAPI
         $date = self::maryland_date($rec);
         
         $rek = array();
-        $rek['id']              = $rec['RecordID'];
+        $rek['id']              = $this->ctr;
         $rek['occurrenceID']    = $rec['RecordID'];
         
         if($rec['LocLat'] && $rec['LocLon'])
