@@ -15,17 +15,11 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/FreeDataAPI');
 $timestart = time_elapsed();
 
-// /*
-//local - during development
-$local_path = "";
-// */
-
-/*
-//remote - actual
-*/
+$csv_url = "http://editors.eol.org/data_files/FreshData/USGS/SpeciesList.csv";
+// $csv_url = "http://localhost/cp/FreshData/USGS/SpeciesList.csv"; //use [csv] button below this page: https://nas.er.usgs.gov/queries/SpeciesList.aspx
 
 $func = new FreeDataAPI();
-$func->generate_usgs_archive($local_path);
+$func->generate_usgs_archive($csv_url);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

@@ -1,6 +1,8 @@
 <?php
 namespace php_active_record;
-/* connector: [freedata_xxx] */
+/* connector: [freedata_xxx] 
+NOTE: USGS and eMammal still uses local files
+*/
 class FreeDataAPI
 {
     /* const VARIABLE_NAME = "string value"; */
@@ -156,7 +158,7 @@ class FreeDataAPI
     From the API, we can get the FAMILY of the species belonging to each of the groups.
     Do we need to fill-in the other: KINGDOM, PHYLUM, CLASS, ORDER? */
     
-    function generate_usgs_archive($local_path)
+    function generate_usgs_archive($csv_url)
     {   /* steps:
         1. get species list here: from a [csv] button here: https://nas.er.usgs.gov/queries/SpeciesList.aspx?group=&genus=&species=&comname=&Sortby=1
         2. get occurrences for each species
@@ -177,7 +179,7 @@ class FreeDataAPI
         fclose($WRITE);
         
         $i = 0;
-        $species_list = "/Library/WebServer/Documents/cp/FreshData/USGS/SpeciesList.csv"; //use [csv] button below this page: https://nas.er.usgs.gov/queries/SpeciesList.aspx
+        $species_list = Functions::save_remote_file_to_local($csv_url, $this->download_options);
         foreach(new FileIterator($species_list) as $line_number => $line)
         {
             $line = str_replace(", ", ";", $line); //needed to do this bec of rows like e.g. "Fishes,Cyprinidae,Labeo chrysophekadion,,black sharkminnow, black labeo,Exotic,Freshwater";
@@ -213,7 +215,7 @@ class FreeDataAPI
                     if($json = Functions::lookup_with_cache($api, $options))
                     {
                         $recs = json_decode($json);
-                        echo "\n$i. total: ".count($recs->results). "\n";
+                        echo "\n$i. total: ".count($recs->results);
                         if($val = $recs->results) self::process_usgs_occurrence($val, $group);
                         // break; //debug
                         $offset += 100;
@@ -228,6 +230,7 @@ class FreeDataAPI
         echo "\ntotal: ".($i-1)."\n";
         self::last_part("usgs_nonindigenous_aquatic_species"); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
         // if($this->debug) print_r($this->debug);
+        unlink($species_list);
     }
     
     private function process_usgs_occurrence($recs, $group)
