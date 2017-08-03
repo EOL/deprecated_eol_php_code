@@ -12,7 +12,7 @@ require_library('connectors/FreeDataAPI');
 $timestart = time_elapsed();
 
 $csv_url = "http://localhost/cp/FreshData/Maryland Biodiversity invasives/file.csv";                    //local copy
-// $csv_url = "https://www.marylandbiodiversity.com/services/exportInvasiveSpecies.php?dlkey=vanquish";    //actual remote source
+$csv_url = "https://www.marylandbiodiversity.com/services/exportInvasiveSpecies.php?dlkey=vanquish";    //actual remote source
 
 
 $func = new FreeDataAPI("MarylandBio");

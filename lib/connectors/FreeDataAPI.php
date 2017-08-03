@@ -16,7 +16,8 @@ class FreeDataAPI
 
         // DATA-1691 MarylandBio
         $this->destination[$folder] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt";
-        $this->data_file[$folder] = "http://localhost/cp/FreshData/Maryland Biodiversity invasives/country_lat_lon.csv";
+        // $this->data_file[$folder] = "http://localhost/cp/FreshData/Maryland Biodiversity invasives/country_lat_lon.csv";
+        $this->data_file[$folder] = "http://editors.eol.org/data_files/country_lat_lon.csv";
         $this->print_header = true;
 
         //DATA-1683
