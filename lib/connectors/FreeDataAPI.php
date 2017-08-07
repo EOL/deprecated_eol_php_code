@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector: [freedata_xxx] 
-NOTE: USGS and eMammal still uses local files
+NOTE: usgs-nas and eMammal still uses local files
 
 Jenkins notes:
 add Jenkins user read/write access to:
@@ -17,23 +17,24 @@ class FreeDataAPI
         $this->folder = $folder; //first used for MarylandBio, then eMammal
         $this->download_options = array('cache' => 1, 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 2592000); //expires in a month
 
-        $this->destination['reef life survey'] = CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey/observations.txt";
-        $this->fields['reef life survey'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family");
-
-        $this->destination['eMammal'] = CONTENT_RESOURCE_LOCAL_PATH . "eMammal/observations.txt";
-
+        //----------------------------
+        $this->destination['reef-life-survey'] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt";
+        $this->fields['reef-life-survey'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family");
+        //----------------------------
+        $this->destination['eMammal'] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt";
+        //----------------------------
         // DATA-1691 MarylandBio
-        $this->destination[$folder] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt";
-        // $this->data_file[$folder] = "http://localhost/cp/FreshData/Maryland Biodiversity invasives/country_lat_lon.csv";
-        $this->data_file[$folder] = "http://editors.eol.org/data_files/country_lat_lon.csv";
+        $this->destination['MarylandBio'] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt";
+        // $this->data_file['MarylandBio] = "http://localhost/cp/FreshData/Maryland Biodiversity invasives/country_lat_lon.csv";
+        $this->data_file['MarylandBio'] = "http://editors.eol.org/data_files/country_lat_lon.csv";
         $this->print_header = true;
-
+        //----------------------------
         //DATA-1683
-        $this->destination['USGS'] = CONTENT_RESOURCE_LOCAL_PATH . "usgs_nonindigenous_aquatic_species/observations.txt"; //Nonindigenous Aquatic Species
-        $this->fields['USGS'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "family", "basisOfRecord", "group", "genus", "species", "vernacularName", "stateProvince", "county", "locality", "date", "year", "month", "day", "catalogNumber", "source");
-        $this->service['USGS']['occurrences'] = "https://nas.er.usgs.gov/api/v1/occurrence/search"; //https://nas.er.usgs.gov/api/v1/occurrence/search?genus=Zizania&species=palustris&offset=0
-
-        $this->ctr = 0; //for "reef life survey" and "eMammal" and "MarylandBio"
+        $this->destination['usgs-nas'] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt"; //Nonindigenous Aquatic Species
+        $this->fields['usgs-nas'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "family", "basisOfRecord", "group", "genus", "species", "vernacularName", "stateProvince", "county", "locality", "date", "year", "month", "day", "catalogNumber", "source");
+        $this->service['usgs-nas']['occurrences'] = "https://nas.er.usgs.gov/api/v1/occurrence/search"; //https://nas.er.usgs.gov/api/v1/occurrence/search?genus=Zizania&species=palustris&offset=0
+        //----------------------------
+        $this->ctr = 0; //for "reef-life-survey" and "eMammal" and "MarylandBio"
         $this->debug = array();
         
         /*
@@ -45,7 +46,7 @@ class FreeDataAPI
     //start for MarylandBio ==============================================================================================================
     function generate_MarylandBio_archive($csv_url)
     {
-        $folder = $this->folder; //MarylandBio
+        $folder = $this->folder;
         self::create_folder_if_does_not_exist($folder);
         $this->country_lat_lon = self::get_country_lat_lon(); // print_r($this->country_lat_lon);
         $filename = Functions::save_remote_file_to_local($csv_url, $this->download_options);
@@ -53,7 +54,7 @@ class FreeDataAPI
         self::last_part($folder);
         if($this->debug) print_r($this->debug);
         unlink($filename);
-        recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . "$folder");
+        if($folder) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder);
     }
     
     private function get_country_lat_lon()
@@ -147,7 +148,7 @@ class FreeDataAPI
     
     //end for MarylandBio ================================================================================================================
     
-    //start for USGS ==============================================================================================================
+    //start for usgs-nas ==============================================================================================================
     /* These are the unique list of groups:
                 [Fishes] =>                 Animalia    [Plants] =>                 Plantae
                 [Amphibians-Frogs] =>       Animalia    [Reptiles-Snakes] =>        Animalia
@@ -171,6 +172,9 @@ class FreeDataAPI
         2. get occurrences for each species
         3. create the zip file
         */
+        $folder = $this->folder;
+        self::create_folder_if_does_not_exist($folder);
+        
         $options = $this->download_options;
         $options['resource_id'] = "usgs"; //a folder /usgs/ will be created in /eol_cache/
         $options['download_wait_time'] = 1000000; //1 second
@@ -178,11 +182,10 @@ class FreeDataAPI
         $options['download_attempts'] = 3;
         $options['delay_in_minutes'] = 2;
         
-        self::create_folder_if_does_not_exist('usgs_nonindigenous_aquatic_species');
         
         //first row - headers of text file
-        $WRITE = Functions::file_open($this->destination['USGS'], "w");
-        fwrite($WRITE, implode("\t", $this->fields['USGS']) . "\n");
+        $WRITE = Functions::file_open($this->destination['usgs-nas'], "w");
+        fwrite($WRITE, implode("\t", $this->fields['usgs-nas']) . "\n");
         fclose($WRITE);
         
         $i = 0;
@@ -217,12 +220,12 @@ class FreeDataAPI
                 
                 while(true)
                 {
-                    $api = $this->service['USGS']['occurrences'];
+                    $api = $this->service['usgs-nas']['occurrences'];
                     $api .= "?offset=$offset&genus=$genus&species=$species";
                     if($json = Functions::lookup_with_cache($api, $options))
                     {
                         $recs = json_decode($json);
-                        echo "\n$i. total: ".count($recs->results);
+                        if(($i % 200) == 0) echo "\n$i. total: ".count($recs->results);
                         if($val = $recs->results) self::process_usgs_occurrence($val, $group);
                         // break; //debug
                         $offset += 100;
@@ -235,15 +238,16 @@ class FreeDataAPI
             // if($i > 10) break; //debug - to limit recs
         }
         echo "\ntotal: ".($i-1)."\n";
-        self::last_part("usgs_nonindigenous_aquatic_species"); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
+        self::last_part($folder); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
         // if($this->debug) print_r($this->debug);
         unlink($species_list);
+        if($folder) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder);
     }
     
     private function process_usgs_occurrence($recs, $group)
     {
         $i = 0;
-        $WRITE = Functions::file_open($this->destination['USGS'], "a");
+        $WRITE = Functions::file_open($this->destination['usgs-nas'], "a");
         foreach($recs as $rec)
         {
             $i++;
@@ -348,7 +352,7 @@ class FreeDataAPI
         source                                              http://purl.org/dc/terms/source --- per request: https://eol-jira.bibalex.org/browse/DATA-1683?focusedCommentId=61244&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61244
         */
     }
-    //end for USGS ================================================================================================================
+    //end for usgs-nas ================================================================================================================
 
     function generate_meta_xml($folder)
     {
@@ -360,7 +364,7 @@ class FreeDataAPI
         fwrite($WRITE, '      <location>observations.txt</location>' . "\n");
         fwrite($WRITE, '    </files>' . "\n");
         fwrite($WRITE, '    <id index="0"/>' . "\n");
-        if(in_array($folder, array("reef_life_survey", "eMammal")))
+        if(in_array($folder, array("reef-life-survey", "eMammal")))
         {
             fwrite($WRITE, '    <field index="0" term="http://rs.gbif.org/terms/1.0/RLSID"/>' . "\n");
             fwrite($WRITE, '    <field index="1" term="http://rs.tdwg.org/dwc/terms/occurrenceID"/>' . "\n");
@@ -422,8 +426,7 @@ class FreeDataAPI
     //start for eMammal ==============================================================================================================
     function generate_eMammal_archive($local_path)
     {
-        $folder = "eMammal";
-        
+        $folder = $this->folder;
         self::create_folder_if_does_not_exist($folder);
         
         /*moved
@@ -441,6 +444,7 @@ class FreeDataAPI
         }
         
         self::last_part($folder);
+        if($folder) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder);
         if($this->debug) print_r($this->debug);
     }
 
@@ -517,17 +521,11 @@ class FreeDataAPI
 
     function generate_ReefLifeSurvey_archive($params)
     {
-        $folder = "reef_life_survey";
-
-        // if(!file_exists(CONTENT_RESOURCE_LOCAL_PATH . "$folder"))
-        // {
-        //     $command_line = "mkdir " . CONTENT_RESOURCE_LOCAL_PATH . "$folder"; //may need 'sudo mkdir'
-        //     $output = shell_exec($command_line);
-        // }
+        $folder = $this->folder;
         self::create_folder_if_does_not_exist($folder);
         
-        if(!$WRITE = Functions::file_open($this->destination['reef life survey'], "w")) return;
-        fwrite($WRITE, implode("\t", $this->fields['reef life survey']) . "\n");
+        if(!$WRITE = Functions::file_open($this->destination['reef-life-survey'], "w")) return;
+        fwrite($WRITE, implode("\t", $this->fields['reef-life-survey']) . "\n");
         fclose($WRITE);
         
         $collections = array("Global reef fish dataset", "Invertebrates");
@@ -536,12 +534,12 @@ class FreeDataAPI
         {
             $url = $params[$coll]; //csv url path
             $temp_path = Functions::save_remote_file_to_local($url, $this->download_options);
-            self::process_csv($temp_path, "reef life survey", $coll);
+            self::process_csv($temp_path, "reef-life-survey", $coll);
             unlink($temp_path);
         }
 
         self::last_part($folder);
-        recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . "$folder");
+        if($folder) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder);
         if($this->debug) print_r($this->debug);
     }
     
@@ -551,11 +549,11 @@ class FreeDataAPI
         if(in_array($folder, $new_batch)) self::generate_meta_xml_v2($folder); //creates a meta.xml file
         else                              self::generate_meta_xml($folder); //creates a meta.xml file
 
-        //copy 2 files inside /reef_life_survey/
+        //copy 2 files inside /reef-life-survey/
         copy(CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt", CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt");
         copy(CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml"        , CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml");
 
-        //create reef_life_survey.tar.gz
+        //create reef-life-survey.tar.gz
         $command_line = "zip -rj " . CONTENT_RESOURCE_LOCAL_PATH . str_replace("_","-",$folder) . ".zip " . CONTENT_RESOURCE_LOCAL_PATH . $folder . "/"; //may need 'sudo zip -rj...'
         $output = shell_exec($command_line);
     }
@@ -563,7 +561,7 @@ class FreeDataAPI
     function process_csv($csv_file, $dbase, $collection = "")
     {
         /* replaced
-        if($dbase == "reef life survey") $field_count = 20;
+        if($dbase == "reef-life-survey") $field_count = 20;
         elseif($dbase == "eMammal")      $field_count = 16;
         */
         $arr = self::get_fields_as_array($csv_file);
@@ -616,7 +614,7 @@ class FreeDataAPI
                 {
                     $rec['id'] = $this->ctr;
                     // print_r($rec); exit;
-                    if    ($dbase == "reef life survey") $row = self::process_rec_RLS($rec, $collection);
+                    if    ($dbase == "reef-life-survey") $row = self::process_rec_RLS($rec, $collection);
                     elseif($dbase == "eMammal")          $row = self::process_rec_eMammal($rec);
                     elseif($dbase == "MarylandBio")      $row = self::process_rec_MarylandBio($rec);
                     else echo "\n --undefine dbase-- \n";
@@ -725,16 +723,25 @@ class FreeDataAPI
     
     function create_folder_if_does_not_exist($folder)
     {
-        if(!file_exists(CONTENT_RESOURCE_LOCAL_PATH . "$folder")) {
+        if(!file_exists(CONTENT_RESOURCE_LOCAL_PATH . $folder)) {
             /* orig
             $command_line = "mkdir " . CONTENT_RESOURCE_LOCAL_PATH . "$folder"; //may need 'sudo mkdir'
             $output = shell_exec($command_line);
             */
-            mkdir(CONTENT_RESOURCE_LOCAL_PATH . "$folder", 0700, true);
+            mkdir(CONTENT_RESOURCE_LOCAL_PATH . $folder, 0777, true);
         }
+        // else {
+        //     unlink(CONTENT_RESOURCE_LOCAL_PATH . $folder."/meta.xml");
+        //     unlink(CONTENT_RESOURCE_LOCAL_PATH . $folder."/observations.txt");
+        //     recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder);
+        // }
         //will delete zip file so Jenkins and cron can both create and delete its version of the zip file
         $zip_file = CONTENT_RESOURCE_LOCAL_PATH . $folder. ".zip";
-        if(file_exists($zip_file)) unlink($zip_file);
+        if(file_exists($zip_file))
+        {
+            $s = unlink($zip_file);
+            echo "\nunlink [$zip_file: $s]\n";
+        }
     }
     
     private function generate_meta_xml_v2($folder)

@@ -22,7 +22,7 @@ $params['Global reef fish dataset'] = "http://geoserver-rls.imas.utas.edu.au/geo
 $params['Invertebrates']            = "http://geoserver-rls.imas.utas.edu.au/geoserver/RLS/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=RLS:M2_INVERT_DATA&outputFormat=csv";
 // */
 
-$func = new FreeDataAPI();
+$func = new FreeDataAPI("reef-life-survey");
 $func->generate_ReefLifeSurvey_archive($params);
 
 $elapsed_time_sec = time_elapsed() - $timestart;

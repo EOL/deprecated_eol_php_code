@@ -18,7 +18,7 @@ $timestart = time_elapsed();
 $csv_url = "http://editors.eol.org/data_files/FreshData/USGS/SpeciesList.csv";
 // $csv_url = "http://localhost/cp/FreshData/USGS/SpeciesList.csv"; //use [csv] button below this page: https://nas.er.usgs.gov/queries/SpeciesList.aspx
 
-$func = new FreeDataAPI();
+$func = new FreeDataAPI("usgs-nas"); //usgs_nonindigenous_aquatic_species
 $func->generate_usgs_archive($csv_url);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
