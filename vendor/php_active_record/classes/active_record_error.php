@@ -17,7 +17,8 @@ class ActiveRecordError extends \Exception
              "<pre>". $e->getTraceAsString() ."</pre>\n";
     }
 
-    public static function handleException(\Exception $e)
+    // public static function handleException(\Exception $e) //replaced by Eli
+    public static function handleException($e)
     {
         //static::printException($e);
         self::printException($e);
@@ -64,7 +65,7 @@ class ActiveRecordError extends \Exception
         if(in_array($error_type_string, array('Error', 'Core Error', 'User Error')))
         {
             exit(1);
-            break;
+            // break; //commented by Eli
         }
        
         /* Don't execute PHP internal error handler */
