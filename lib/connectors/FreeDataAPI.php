@@ -518,14 +518,13 @@ class FreeDataAPI
     function generate_ReefLifeSurvey_archive($params)
     {
         $folder = "reef_life_survey";
-        if(!file_exists(CONTENT_RESOURCE_LOCAL_PATH . "$folder"))
-        {
-            $command_line = "mkdir " . CONTENT_RESOURCE_LOCAL_PATH . "$folder"; //may need 'sudo mkdir'
-            $output = shell_exec($command_line);
-            // if (!mkdir(CONTENT_RESOURCE_LOCAL_PATH . "reef_life_survey", 0777)) {
-            //     die('\nFailed to create folders...\n');
-            // }
-        }
+
+        // if(!file_exists(CONTENT_RESOURCE_LOCAL_PATH . "$folder"))
+        // {
+        //     $command_line = "mkdir " . CONTENT_RESOURCE_LOCAL_PATH . "$folder"; //may need 'sudo mkdir'
+        //     $output = shell_exec($command_line);
+        // }
+        self::create_folder_if_does_not_exist($folder);
         
         if(!$WRITE = Functions::file_open($this->destination['reef life survey'], "w")) return;
         fwrite($WRITE, implode("\t", $this->fields['reef life survey']) . "\n");
@@ -542,6 +541,7 @@ class FreeDataAPI
         }
 
         self::last_part($folder);
+        recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . "$folder");
         if($this->debug) print_r($this->debug);
     }
     
