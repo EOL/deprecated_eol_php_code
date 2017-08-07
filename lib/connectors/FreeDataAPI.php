@@ -122,16 +122,7 @@ class FreeDataAPI
         $rek['locality']        = $rec['Location'];
         $rek['source']          = $rec['Species_URL'];
         
-        if($this->print_header)
-        {
-            //first row - headers of text file
-            $WRITE = Functions::file_open($this->destination[$this->folder], "w");
-            fwrite($WRITE, implode("\t", array_keys($rek)) . "\n");
-            fclose($WRITE);
-            $this->print_header = false;
-        }
-        
-        $this->dwca_fields = array_keys($rek);
+        self::print_header($rek);
         return implode("\t", $rek);
     }
     
@@ -514,7 +505,7 @@ class FreeDataAPI
         $rek['class'] = 'Mammalia';
         $rek['family'] = '';
         
-        $this->dwca_fields = array_keys($rek);
+        self::print_header($rek);
         return implode("\t", $rek);
     }
     //end for eMammal ================================================================================================================
@@ -810,6 +801,19 @@ class FreeDataAPI
             }
         }
         return false;
+    }
+    
+    private function print_header($rek)
+    {
+        if($this->print_header)
+        {
+            //first row - headers of text file
+            $WRITE = Functions::file_open($this->destination[$this->folder], "w");
+            fwrite($WRITE, implode("\t", array_keys($rek)) . "\n");
+            fclose($WRITE);
+            $this->print_header = false;
+        }
+        $this->dwca_fields = array_keys($rek);
     }
     
 }
