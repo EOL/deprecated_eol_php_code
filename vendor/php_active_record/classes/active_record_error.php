@@ -63,8 +63,9 @@ class ActiveRecordError extends \Exception
         // stop the script if this was a fatal error
         if(in_array($error_type_string, array('Error', 'Core Error', 'User Error')))
         {
+            echo "\nerror_type_string: $error_type_string\n";
             exit(1);
-            break;
+            // break;
         }
        
         /* Don't execute PHP internal error handler */
