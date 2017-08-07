@@ -27,8 +27,22 @@ class ActiveRecordError extends \Exception
         }
         else
         {
-            return;
+            try 
+            {
+                $e = new \Exception($e);
+                self::printException($e);
+            }
+            catch (Throwable $e) 
+            {
+                throw new Exception($e);
+            }
+
         }
+        
+
+
+        
+        
     }
     
     public static function handleError($errno, $errstr, $errfile, $errline)
