@@ -355,6 +355,7 @@ class FreeDataAPI
         fwrite($WRITE, '      <location>observations.txt</location>' . "\n");
         fwrite($WRITE, '    </files>' . "\n");
         fwrite($WRITE, '    <id index="0"/>' . "\n");
+        /*
         if(in_array($folder, array("reef-life-survey", "eMammal")))
         {
             fwrite($WRITE, '    <field index="0" term="http://rs.gbif.org/terms/1.0/RLSID"/>' . "\n");
@@ -395,7 +396,8 @@ class FreeDataAPI
             fwrite($WRITE, '    <field index="21" term="http://rs.tdwg.org/dwc/terms/catalogNumber"/>' . "\n");
             fwrite($WRITE, '    <field index="22" term="http://purl.org/dc/terms/source"/>' . "\n");
         }
-        elseif($folder == "GloBI_Ecological-DB-of-the-World-s-Insect-Pathogens")
+        */
+        if($folder == "GloBI-Ecological-DB-of-the-World-s-Insect-Pathogens")
         {
             fwrite($WRITE, '    <field index="0" term="http://rs.gbif.org/terms/1.0/RLSID"/>' . "\n");
             fwrite($WRITE, '    <field index="1" term="http://rs.tdwg.org/dwc/terms/taxonID"/>' . "\n");
@@ -536,7 +538,7 @@ class FreeDataAPI
     
     function last_part($folder)
     {
-        $new_batch = array("MarylandBio", "eMammal", "usgs-nas");
+        $new_batch = array("MarylandBio", "eMammal", "usgs-nas", "reef-life-survey");
         if(in_array($folder, $new_batch)) self::generate_meta_xml_v2($folder); //creates a meta.xml file
         else                              self::generate_meta_xml($folder); //creates a meta.xml file
 

@@ -37,6 +37,7 @@ class FreshDataGlobiAPI
 
     function start($params)
     {
+        $folder = $this->folder;
         self::initialize();
         
         $paths = self::extract_file($params['zip_path']);
@@ -80,7 +81,9 @@ class FreshDataGlobiAPI
         
         require_library('connectors/FreeDataAPI');
         $func = new FreeDataAPI();
-        $func->last_part($this->folder); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
+        $func->last_part($folder); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
+        if($folder) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder);
+        
     }
 
     private function process_record($rek)
