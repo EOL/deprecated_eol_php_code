@@ -16,12 +16,20 @@ class ActiveRecordError extends \Exception
              "in ". $e->file ."[". $e->line ."]<br/>\n" .
              "<pre>". $e->getTraceAsString() ."</pre>\n";
     }
-    
+
+    /* orig
     public static function handleException(\Exception $e)
     {
         //static::printException($e);
         self::printException($e);
     }
+    */
+    
+    //while transitioning to PHP 7
+    public static function handleException($nothing = null)
+    {
+    }
+    
     
     public static function handleError($errno, $errstr, $errfile, $errline)
     {
