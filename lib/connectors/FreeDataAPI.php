@@ -302,30 +302,30 @@ class FreeDataAPI
         if(!isset($this->debug['key'][$rec->key])) $this->debug['key'][$rec->key] = '';
         else return false; //print("\nkey duplicate: $rec->key\n");
         $this->ctr++;
-        $rek[]  = $this->ctr;
-        $rek[]  = $rec->key;
-        $rek[]  = @$rec->date;
-        $rek[]  = $rec->decimalLatitude;
-        $rek[]  = $rec->decimalLongitude;
-        $rek[]  = $rec->scientificName;
-        $rek[]  = 'species';
-        $rek[]  = ($group == "Plants" ? "Plantae" : "Animalia");
-        $rek[]  = $rec->family;
-        $rek[]  = $rec->recordType;
-        
-        $rek[]  = $rec->group;
-        $rek[]  = $rec->genus;
-        $rek[]  = $rec->species;
-        $rek[]  = $rec->commonName;
-        $rek[]  = $rec->state;
-        $rek[]  = $rec->county;
-        $rek[]  = $rec->locality;
-        $rek[]  = @$rec->date;
-        $rek[]  = $rec->year;
-        $rek[]  = $rec->month;
-        $rek[]  = $rec->day;
-        $rek[]  = $rec->museumCatNumber;
-        $rek[]  = "https://nas.er.usgs.gov/queries/SpecimenViewer.aspx?SpecimenID=".$rec->key;
+        $rek['id']  = $this->ctr;
+        $rek['occurrenceID']  = $rec->key;
+        $rek['eventDate']  = @$rec->date;
+        $rek['decimalLatitude']  = $rec->decimalLatitude;
+        $rek['decimalLongitude']  = $rec->decimalLongitude;
+        $rek['scientificName']  = $rec->scientificName;
+        $rek['taxonRank']  = 'species';
+        $rek['kingdom']  = ($group == "Plants" ? "Plantae" : "Animalia");
+        $rek['family']  = $rec->family;
+        $rek['basisOfRecord']  = $rec->recordType;
+        $rek['group']  = $rec->group;
+        $rek['genus']  = $rec->genus;
+        $rek['species']  = $rec->species;
+        $rek['vernacularName']  = $rec->commonName;
+        $rek['stateProvince']  = $rec->state;
+        $rek['county']  = $rec->county;
+        $rek['locality']  = $rec->locality;
+        $rek['date']  = @$rec->date;
+        $rek['year']  = $rec->year;
+        $rek['month']  = $rec->month;
+        $rek['day']  = $rec->day;
+        $rek['catalogNumber']  = $rec->museumCatNumber;
+        $rek['source']  = "https://nas.er.usgs.gov/queries/SpecimenViewer.aspx?SpecimenID=".$rec->key;
+        self::print_header($rek);
         return implode("\t", $rek);
         /*
         [group] => Fishes                                   http://rs.tdwg.org/dwc/terms/group
@@ -536,7 +536,7 @@ class FreeDataAPI
     
     function last_part($folder)
     {
-        $new_batch = array("MarylandBio", "eMammal");
+        $new_batch = array("MarylandBio", "eMammal", "usgs-nas");
         if(in_array($folder, $new_batch)) self::generate_meta_xml_v2($folder); //creates a meta.xml file
         else                              self::generate_meta_xml($folder); //creates a meta.xml file
 
@@ -684,31 +684,33 @@ class FreeDataAPI
         */
         
         //total of 11 columns
-        $rek[] = $rec['id'];
-        if($collection == "Global reef fish dataset") $rek[] = $rec['SurveyID'] . "_" . $rec['id'];
-        elseif($collection == "Invertebrates")        $rek[] = $rec['FID'];
-        $rek[] = $rec['SurveyDate'];
-        $rek[] = $rec['SiteLat'];
-        $rek[] = $rec['SiteLong'];
+        $rek['id'] = $rec['id'];
+        if($collection == "Global reef fish dataset") $rek['occurrenceID'] = $rec['SurveyID'] . "_" . $rec['id'];
+        elseif($collection == "Invertebrates")        $rek['occurrenceID'] = $rec['FID'];
+        $rek['eventDate'] = $rec['SurveyDate'];
+        $rek['decimalLatitude'] = $rec['SiteLat'];
+        $rek['decimalLongitude'] = $rec['SiteLong'];
         
         $taxon = $rec['Taxon'];
         if(stripos($taxon, ' spp.') !== false || stripos($taxon, ' sp.') !== false ) //string is found
         {
             $taxon = str_ireplace(" spp.", "", $taxon);
             $taxon = str_ireplace(" sp.", "", $taxon);
-            $rek[] = $taxon;
-            $rek[] = '';
+            $rek['scientificName'] = $taxon;
+            $rek['taxonRank'] = '';
         }
         else
         {
-            $rek[] = $taxon;
-            $rek[] = 'species';
+            $rek['scientificName'] = $taxon;
+            $rek['taxonRank'] = 'species';
         }
         
-        $rek[] = 'Animalia';
-        $rek[] = $rec['Phylum'];
-        $rek[] = $rec['Class'];
-        $rek[] = $rec['Family'];
+        $rek['kingdom'] = 'Animalia';
+        $rek['phylum'] = $rec['Phylum'];
+        $rek['class'] = $rec['Class'];
+        $rek['class'] = $rec['Family'];
+
+        self::print_header($rek);
         return implode("\t", $rek);
     }
     
