@@ -2,6 +2,12 @@
 namespace php_active_record;
 /* connector: [freedata_xxx] 
 NOTE: USGS and eMammal still uses local files
+
+Jenkins notes:
+add Jenkins user read/write access to:
+- eol_php_code base /tmp/ folder
+- eol_php_code base /resources/ folder
+
 */
 class FreeDataAPI
 {
@@ -47,6 +53,7 @@ class FreeDataAPI
         self::last_part($folder);
         if($this->debug) print_r($this->debug);
         unlink($filename);
+        recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . "$folder");
     }
     
     private function get_country_lat_lon()
@@ -719,9 +726,15 @@ class FreeDataAPI
     function create_folder_if_does_not_exist($folder)
     {
         if(!file_exists(CONTENT_RESOURCE_LOCAL_PATH . "$folder")) {
+            /* orig
             $command_line = "mkdir " . CONTENT_RESOURCE_LOCAL_PATH . "$folder"; //may need 'sudo mkdir'
             $output = shell_exec($command_line);
+            */
+            mkdir(CONTENT_RESOURCE_LOCAL_PATH . "$folder", 0700, true);
         }
+        //will delete zip file so Jenkins and cron can both create and delete its version of the zip file
+        $zip_file = CONTENT_RESOURCE_LOCAL_PATH . $folder. ".zip";
+        if(file_exists($zip_file)) unlink($zip_file);
     }
     
     private function generate_meta_xml_v2($folder)

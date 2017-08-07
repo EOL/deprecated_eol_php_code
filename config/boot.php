@@ -13,6 +13,11 @@ setlocale(LC_ALL, 'en_US.utf8');
 
 /* set the root paths */
 $root = preg_replace("/config$/", "", dirname(__FILE__));
+
+echo "\norig: [$root]\n";
+$root = prepare_jenkins($argv, $root);
+echo "\nnew: [$root]\n";
+
 define('DOC_ROOT', $root);
 define('LOCAL_ROOT', DOC_ROOT);
 //if(!defined('WEB_ROOT')) define('WEB_ROOT', 'http://' . @$_SERVER['SERVER_NAME'] . '/');
@@ -120,6 +125,19 @@ function environment_defined($environment_name)
     
     // trigger_error('Booting failure: environment `'. $environment .'` doesn\'t exist', E_USER_ERROR);
     return false;
+}
+
+function prepare_jenkins($argv, $root)
+{
+    if($jenkins_or_cron = @$argv[1])
+    {
+        if($jenkins_or_cron == "jenkins")
+        {
+            if($root != "/Library/WebServer/Documents/eol_php_code/") return '/html/eol_php_code/'; //means Jenkins in eol-archive is running
+            // else {} //means Jenkins in Mac mini is running
+        }
+    }
+    return $root;
 }
 
 function load_mysql_environment($environment = NULL)
