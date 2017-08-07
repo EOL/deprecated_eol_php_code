@@ -20,8 +20,15 @@ class ActiveRecordError extends \Exception
     // public static function handleException(\Exception $e) //replaced by Eli
     public static function handleException($e)
     {
-        //static::printException($e);
-        self::printException($e);
+        if ($e instanceof \Exception)
+        {
+            //static::printException($e);
+            self::printException($e);
+        }
+        else
+        {
+            return;
+        }
     }
     
     public static function handleError($errno, $errstr, $errfile, $errline)
