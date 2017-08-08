@@ -397,7 +397,8 @@ class FreeDataAPI
             fwrite($WRITE, '    <field index="22" term="http://purl.org/dc/terms/source"/>' . "\n");
         }
         */
-        if($folder == "GloBI-Ecological-DB-of-the-World-s-Insect-Pathogens")
+        // if(in_array($folder, array("GloBI-Ecological-DB-of-the-World-s-Insect-Pathogens", "GloBI-Ant-Plant-Interactions")))
+        if(true) //coz now only GloBI datasets go here...
         {
             fwrite($WRITE, '    <field index="0" term="http://rs.gbif.org/terms/1.0/RLSID"/>' . "\n");
             fwrite($WRITE, '    <field index="1" term="http://rs.tdwg.org/dwc/terms/taxonID"/>' . "\n");

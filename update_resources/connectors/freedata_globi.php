@@ -11,6 +11,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/FreshDataGlobiAPI');
 $timestart = time_elapsed();
 
+//this dataset doesn't have lat lon values
 $params = array("dataset" => "Ecological-Database-of-the-World-s-Insect-Pathogens",
                 "folder" => "GloBI-Ecological-DB-of-the-World-s-Insect-Pathogens",
                 // "zip_path" => "http://localhost/cp/FreshData/GloBI/Ecological-Database-of-the-World-s-Insect-Pathogens-master.zip",
@@ -19,13 +20,13 @@ $params = array("dataset" => "Ecological-Database-of-the-World-s-Insect-Pathogen
                 "zip_folder" => "Ecological-Database-of-the-World-s-Insect-Pathogens-master" //this is the folder where github's master.zip extracts to
                 );
 
-/*
+// /* this dataset was submitted instead for review:
 $params = array("dataset" => "Ant-Plant-Interactions",
                 "folder" => "GloBI-Ant-Plant-Interactions",
                 "zip_path" => "https://github.com/millerse/Ant-Plant-Interactions/archive/master.zip",
                 "zip_folder" => "Ant-Plant-Interactions-master" //this is the folder where github's master.zip extracts to
                 );
-*/
+// */
 
 $func = new FreshDataGlobiAPI($params['folder']);
 $func->start($params);

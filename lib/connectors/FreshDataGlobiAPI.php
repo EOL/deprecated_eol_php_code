@@ -13,10 +13,8 @@ class FreshDataGlobiAPI
         $this->destination['GloBI-Ant-Plant-Interactions'] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt";
              $this->fields['GloBI-Ant-Plant-Interactions'] = array("id", "taxonID", "scientificName", "lifeStage", "sex", "taxonRemarks", "locality", "decimalLatitude", "decimalLongitude", "eventDate", "bibliographicCitation");
 
-
         $this->ctr = 0;
         $this->debug = array();
-        
         /*
         GBIF occurrence extension   : file:///Library/WebServer/Documents/cp/GBIF_dwca/atlantic_cod/meta.xml
         DWC terms                   : http://rs.tdwg.org/dwc/terms/index.htm#Occurrence
@@ -65,11 +63,11 @@ class FreshDataGlobiAPI
                 foreach($fields as $field)
                 {
                     $k++;
-                    $rek[$field] = $rec[$k];
+                    if($val = @$rec[$k]) $rek[$field] = $val;
                 }
-                
-                // if($rek['decimalLatitude']) //used in normal operation
-                if(true) //get all rows
+                // print_r($rek);
+                // if(true) //get all rows //debug only
+                if(@$rek['decimalLatitude']) //used in normal operation
                 {
                     self::process_record($rek);
                 }
@@ -93,8 +91,8 @@ class FreshDataGlobiAPI
         $rec[] = $this->ctr;
         $rec[] = $rek['sourceTaxonId'];
         $rec[] = $rek['sourceTaxonName'];
-        $rec[] = $rek['sourceLifeStage'];
-        $rec[] = $rek['sourceTaxonSex'];
+        $rec[] = @$rek['sourceLifeStage'];
+        $rec[] = @$rek['sourceTaxonSex'];
         $rec[] = $rek['interactionTypeName'] . " " . $rek['targetTaxonName'];
         $rec[] = $rek['localityName'];
         $rec[] = $rek['decimalLatitude'];
@@ -129,7 +127,7 @@ class FreshDataGlobiAPI
         $rec[] = $this->ctr;
         $rec[] = $rek['targetTaxonId'];
         $rec[] = $rek['targetTaxonName'];
-        $rec[] = $rek['targetLifeStage'];
+        $rec[] = @$rek['targetLifeStage'];
         $rec[] = "";
         $rec[] = $rek['sourceTaxonName'] . " " . $rek['interactionTypeName'];
         $rec[] = $rek['localityName'];
