@@ -14,7 +14,8 @@ class AmericanInsectsAPI
         $this->to_exclude = array("index.", "glossary.", "maps.", "acknowledgment", "about.html", "faq.html", "works-consulted", "23", "24", "periplaneta-americana", "/http:");
         $this->stored_offline_urls_dump_file = "http://localhost/~eolit/cp/AmericanInsects/offline_urls.txt";
         $this->stored_offline_urls_dump_file = "http://opendata.eol.org/dataset/24452c49-7f19-42a2-9a51-68e21c87b174/resource/8552c33b-2102-4e29-ab0a-04218a39e0be/download/offlineurls.txt";
-        $this->download_options = array("download_wait_time" => 1000000, "timeout" => 1800, "download_attempts" => 1, "cache" => 1); // "expire_seconds" => 0 , "delay_in_minutes" => 2
+        $this->download_options = array("download_wait_time" => 1000000, "timeout" => 1800, "download_attempts" => 1, "cache" => 1, "expire_seconds" => 60*60*24*30); //expires in 30 days | "delay_in_minutes" => 2
+        $this->download_options['expire_seconds'] = false; //doesn't expire
         $this->debug = array();
         
         //for stats
