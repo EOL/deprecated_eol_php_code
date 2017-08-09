@@ -1,7 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: freedata_globi.php
-*/
+/* connector: freedata_globi.php */
 class FreshDataGlobiAPI
 {
     function __construct($folder = null)
@@ -56,7 +55,6 @@ class FreshDataGlobiAPI
         require_library('connectors/FreeDataAPI');
         $func = new FreeDataAPI($folder);
         //----------------
-        
         
         $i = 0;
         foreach(new FileIterator($paths['archive_path']."/interactions.tsv") as $line => $row)
