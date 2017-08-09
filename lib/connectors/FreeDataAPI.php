@@ -64,6 +64,7 @@ class FreeDataAPI
         $paths = $func->extract_file($xls_zip_url);
         print_r($paths);
         $filename = pathinfo($xls_zip_url, PATHINFO_FILENAME);
+        $filename = "ForNISC2017.xls"; //TODO: get this file automatically, not hard-coded
         $xls_path = $paths['temp_dir'].$filename;
         $arr = self::get_spreadsheet($xls_path);
         $indexes = array_keys($arr);
