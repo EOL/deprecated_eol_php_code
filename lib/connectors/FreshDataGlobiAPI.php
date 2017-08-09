@@ -24,12 +24,13 @@ class FreshDataGlobiAPI
         require_library('connectors/FreeDataAPI');
         $func = new FreeDataAPI();
         $func->create_folder_if_does_not_exist($this->folder);
+        return $func;
     }
 
     function start($params)
     {
         $folder = $this->folder;
-        self::initialize();
+        $func = self::initialize(); //use some functions from FreeDataAPI
         
         $paths = self::extract_file($params['zip_path']);
         print_r($paths);
@@ -43,11 +44,6 @@ class FreshDataGlobiAPI
             print_r($paths);
         }
         // */
-        
-        //---------------- use some functions from FreeDataAPI
-        require_library('connectors/FreeDataAPI');
-        $func = new FreeDataAPI($folder);
-        //----------------
         
         $i = 0;
         foreach(new FileIterator($paths['archive_path']."/interactions.tsv") as $line => $row)
