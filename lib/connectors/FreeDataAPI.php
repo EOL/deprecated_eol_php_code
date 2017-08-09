@@ -345,78 +345,6 @@ class FreeDataAPI
     }
     //end for usgs-nas ================================================================================================================
 
-    function generate_meta_xml($folder)
-    {
-        if(!$WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml", "w")) return;
-        fwrite($WRITE, '<?xml version="1.0" encoding="UTF-8"?>' . "\n");
-        fwrite($WRITE, '<archive xmlns="http://rs.tdwg.org/dwc/text/">' . "\n");
-        fwrite($WRITE, '  <core encoding="UTF-8" linesTerminatedBy="\n" fieldsTerminatedBy="\t" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/Occurrence">' . "\n");
-        fwrite($WRITE, '    <files>' . "\n");
-        fwrite($WRITE, '      <location>observations.txt</location>' . "\n");
-        fwrite($WRITE, '    </files>' . "\n");
-        fwrite($WRITE, '    <id index="0"/>' . "\n");
-        /*
-        if(in_array($folder, array("reef-life-survey", "eMammal")))
-        {
-            fwrite($WRITE, '    <field index="0" term="http://rs.gbif.org/terms/1.0/RLSID"/>' . "\n");
-            fwrite($WRITE, '    <field index="1" term="http://rs.tdwg.org/dwc/terms/occurrenceID"/>' . "\n");
-            fwrite($WRITE, '    <field index="2" term="http://rs.tdwg.org/dwc/terms/eventDate"/>' . "\n");
-            fwrite($WRITE, '    <field index="3" term="http://rs.tdwg.org/dwc/terms/decimalLatitude"/>' . "\n");
-            fwrite($WRITE, '    <field index="4" term="http://rs.tdwg.org/dwc/terms/decimalLongitude"/>' . "\n");
-            fwrite($WRITE, '    <field index="5" term="http://rs.tdwg.org/dwc/terms/scientificName"/>' . "\n");
-            fwrite($WRITE, '    <field index="6" term="http://rs.tdwg.org/dwc/terms/taxonRank"/>' . "\n");
-            fwrite($WRITE, '    <field index="7" term="http://rs.tdwg.org/dwc/terms/kingdom"/>' . "\n");
-            fwrite($WRITE, '    <field index="8" term="http://rs.tdwg.org/dwc/terms/phylum"/>' . "\n");
-            fwrite($WRITE, '    <field index="9" term="http://rs.tdwg.org/dwc/terms/class"/>' . "\n");
-            fwrite($WRITE, '    <field index="10" term="http://rs.tdwg.org/dwc/terms/family"/>' . "\n");
-        }
-        elseif($folder == "usgs_nonindigenous_aquatic_species")
-        {
-            fwrite($WRITE, '    <field index="0" term="http://rs.gbif.org/terms/1.0/RLSID"/>' . "\n");
-            fwrite($WRITE, '    <field index="1" term="http://rs.tdwg.org/dwc/terms/occurrenceID"/>' . "\n");
-            fwrite($WRITE, '    <field index="2" term="http://rs.tdwg.org/dwc/terms/eventDate"/>' . "\n");
-            fwrite($WRITE, '    <field index="3" term="http://rs.tdwg.org/dwc/terms/decimalLatitude"/>' . "\n");
-            fwrite($WRITE, '    <field index="4" term="http://rs.tdwg.org/dwc/terms/decimalLongitude"/>' . "\n");
-            fwrite($WRITE, '    <field index="5" term="http://rs.tdwg.org/dwc/terms/scientificName"/>' . "\n");
-            fwrite($WRITE, '    <field index="6" term="http://rs.tdwg.org/dwc/terms/taxonRank"/>' . "\n");
-            fwrite($WRITE, '    <field index="7" term="http://rs.tdwg.org/dwc/terms/kingdom"/>' . "\n");
-            fwrite($WRITE, '    <field index="8" term="http://rs.tdwg.org/dwc/terms/family"/>' . "\n");
-            fwrite($WRITE, '    <field index="9" term="http://rs.tdwg.org/dwc/terms/basisOfRecord"/>' . "\n");
-            fwrite($WRITE, '    <field index="10" term="http://rs.tdwg.org/dwc/terms/group"/>' . "\n");
-            fwrite($WRITE, '    <field index="11" term="http://rs.tdwg.org/dwc/terms/genus"/>' . "\n");
-            fwrite($WRITE, '    <field index="12" term="http://rs.gbif.org/terms/1.0/species"/>' . "\n");
-            fwrite($WRITE, '    <field index="13" term="http://rs.tdwg.org/dwc/terms/vernacularName"/>' . "\n");
-            fwrite($WRITE, '    <field index="14" term="http://rs.tdwg.org/dwc/terms/stateProvince"/>' . "\n");
-            fwrite($WRITE, '    <field index="15" term="http://rs.tdwg.org/dwc/terms/county"/>' . "\n");
-            fwrite($WRITE, '    <field index="16" term="http://rs.tdwg.org/dwc/terms/locality"/>' . "\n");
-            fwrite($WRITE, '    <field index="17" term="http://purl.org/dc/terms/date"/>' . "\n");
-            fwrite($WRITE, '    <field index="18" term="http://rs.tdwg.org/dwc/terms/year"/>' . "\n");
-            fwrite($WRITE, '    <field index="19" term="http://rs.tdwg.org/dwc/terms/month"/>' . "\n");
-            fwrite($WRITE, '    <field index="20" term="http://rs.tdwg.org/dwc/terms/day"/>' . "\n");
-            fwrite($WRITE, '    <field index="21" term="http://rs.tdwg.org/dwc/terms/catalogNumber"/>' . "\n");
-            fwrite($WRITE, '    <field index="22" term="http://purl.org/dc/terms/source"/>' . "\n");
-        }
-        */
-        // if(in_array($folder, array("GloBI-Ecological-DB-of-the-World-s-Insect-Pathogens", "GloBI-Ant-Plant-Interactions")))
-        if(true) //coz now only GloBI datasets go here...
-        {
-            fwrite($WRITE, '    <field index="0" term="http://rs.gbif.org/terms/1.0/RLSID"/>' . "\n");
-            fwrite($WRITE, '    <field index="1" term="http://rs.tdwg.org/dwc/terms/taxonID"/>' . "\n");
-            fwrite($WRITE, '    <field index="2" term="http://rs.tdwg.org/dwc/terms/scientificName"/>' . "\n");
-            fwrite($WRITE, '    <field index="3" term="http://rs.tdwg.org/dwc/terms/lifeStage"/>' . "\n");
-            fwrite($WRITE, '    <field index="4" term="http://rs.tdwg.org/dwc/terms/sex"/>' . "\n");
-            fwrite($WRITE, '    <field index="5" term="http://rs.tdwg.org/dwc/terms/taxonRemarks"/>' . "\n");
-            fwrite($WRITE, '    <field index="6" term="http://rs.tdwg.org/dwc/terms/locality"/>' . "\n");
-            fwrite($WRITE, '    <field index="7" term="http://rs.tdwg.org/dwc/terms/decimalLatitude"/>' . "\n");
-            fwrite($WRITE, '    <field index="8" term="http://rs.tdwg.org/dwc/terms/decimalLongitude"/>' . "\n");
-            fwrite($WRITE, '    <field index="9" term="http://rs.tdwg.org/dwc/terms/eventDate"/>' . "\n");
-            fwrite($WRITE, '    <field index="10" term="http://purl.org/dc/terms/bibliographicCitation"/>' . "\n");
-        }
-        fwrite($WRITE, '  </core>' . "\n");
-        fwrite($WRITE, '</archive>' . "\n");
-        fclose($WRITE);
-    }
-
     //start for eMammal ==============================================================================================================
     function generate_eMammal_archive($local_path)
     {
@@ -539,10 +467,13 @@ class FreeDataAPI
     
     function last_part($folder)
     {
+        /*everything now goes to generate_meta_xml_v2()
         $new_batch = array("MarylandBio", "eMammal", "usgs-nas", "reef-life-survey");
         if(in_array($folder, $new_batch)) self::generate_meta_xml_v2($folder); //creates a meta.xml file
         else                              self::generate_meta_xml($folder); //creates a meta.xml file
-
+        */
+        self::generate_meta_xml_v2($folder); //creates a meta.xml file
+        
         //copy 2 files inside /reef-life-survey/
         copy(CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt", CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt");
         copy(CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml"        , CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml");
@@ -808,18 +739,52 @@ class FreeDataAPI
         return false;
     }
     
-    private function print_header($rek)
+    function print_header($rek, $filename = null) //$filename here comes from FreshDataGlobiAPI.php
     {
+        if(!$filename) $folder = $this->destination[$this->folder]; //orig used here FreeDataAPI
         if($this->print_header)
         {
             //first row - headers of text file
-            $WRITE = Functions::file_open($this->destination[$this->folder], "w");
+            $WRITE = Functions::file_open($filename, "w");
             fwrite($WRITE, implode("\t", array_keys($rek)) . "\n");
             fclose($WRITE);
             $this->print_header = false;
         }
         $this->dwca_fields = array_keys($rek);
     }
+    
+    /*
+    function generate_meta_xml($folder)
+    {
+        if(!$WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml", "w")) return;
+        fwrite($WRITE, '<?xml version="1.0" encoding="UTF-8"?>' . "\n");
+        fwrite($WRITE, '<archive xmlns="http://rs.tdwg.org/dwc/text/">' . "\n");
+        fwrite($WRITE, '  <core encoding="UTF-8" linesTerminatedBy="\n" fieldsTerminatedBy="\t" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/Occurrence">' . "\n");
+        fwrite($WRITE, '    <files>' . "\n");
+        fwrite($WRITE, '      <location>observations.txt</location>' . "\n");
+        fwrite($WRITE, '    </files>' . "\n");
+        fwrite($WRITE, '    <id index="0"/>' . "\n");
+        if(in_array($folder, array("reef-life-survey", "eMammal")))
+        {
+            fwrite($WRITE, '    <field index="0" term="http://rs.gbif.org/terms/1.0/RLSID"/>' . "\n");
+            fwrite($WRITE, '    <field index="1" term="http://rs.tdwg.org/dwc/terms/occurrenceID"/>' . "\n");
+            fwrite($WRITE, '    <field index="2" term="http://rs.tdwg.org/dwc/terms/eventDate"/>' . "\n");
+            fwrite($WRITE, '    <field index="3" term="http://rs.tdwg.org/dwc/terms/decimalLatitude"/>' . "\n");
+            fwrite($WRITE, '    <field index="4" term="http://rs.tdwg.org/dwc/terms/decimalLongitude"/>' . "\n");
+            fwrite($WRITE, '    <field index="5" term="http://rs.tdwg.org/dwc/terms/scientificName"/>' . "\n");
+            fwrite($WRITE, '    <field index="6" term="http://rs.tdwg.org/dwc/terms/taxonRank"/>' . "\n");
+            fwrite($WRITE, '    <field index="7" term="http://rs.tdwg.org/dwc/terms/kingdom"/>' . "\n");
+            fwrite($WRITE, '    <field index="8" term="http://rs.tdwg.org/dwc/terms/phylum"/>' . "\n");
+            fwrite($WRITE, '    <field index="9" term="http://rs.tdwg.org/dwc/terms/class"/>' . "\n");
+            fwrite($WRITE, '    <field index="10" term="http://rs.tdwg.org/dwc/terms/family"/>' . "\n");
+        }
+        elseif($folder == "usgs_nonindigenous_aquatic_species") {}
+        ..and other dbases
+        fwrite($WRITE, '  </core>' . "\n");
+        fwrite($WRITE, '</archive>' . "\n");
+        fclose($WRITE);
+    }
+    */
     
 }
 ?>

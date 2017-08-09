@@ -8,13 +8,12 @@ class FreshDataGlobiAPI
     {
         $this->folder = $folder;
         $this->destination['GloBI-Ecological-DB-of-the-World-s-Insect-Pathogens'] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt";
-             $this->fields['GloBI-Ecological-DB-of-the-World-s-Insect-Pathogens'] = array("id", "taxonID", "scientificName", "lifeStage", "sex", "taxonRemarks", "locality", "decimalLatitude", "decimalLongitude", "eventDate", "bibliographicCitation");
-
         $this->destination['GloBI-Ant-Plant-Interactions'] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt";
-             $this->fields['GloBI-Ant-Plant-Interactions'] = array("id", "taxonID", "scientificName", "lifeStage", "sex", "taxonRemarks", "locality", "decimalLatitude", "decimalLongitude", "eventDate", "bibliographicCitation");
 
         $this->ctr = 0;
         $this->debug = array();
+        $this->print_header = true;
+        
         /*
         GBIF occurrence extension   : file:///Library/WebServer/Documents/cp/GBIF_dwca/atlantic_cod/meta.xml
         DWC terms                   : http://rs.tdwg.org/dwc/terms/index.htm#Occurrence
@@ -27,10 +26,12 @@ class FreshDataGlobiAPI
         $func = new FreeDataAPI();
         $func->create_folder_if_does_not_exist($this->folder);
         
+        /* may not be needed anymore
         //first row - headers of text file
         $WRITE = Functions::file_open($this->destination[$this->folder], "w");
         fwrite($WRITE, implode("\t", $this->fields[$this->folder]) . "\n");
         fclose($WRITE);
+        */
     }
 
     function start($params)
@@ -51,6 +52,12 @@ class FreshDataGlobiAPI
         }
         // */
         
+        //---------------- use some functions from FreeDataAPI
+        require_library('connectors/FreeDataAPI');
+        $func = new FreeDataAPI($folder);
+        //----------------
+        
+        
         $i = 0;
         foreach(new FileIterator($paths['archive_path']."/interactions.tsv") as $line => $row)
         {
@@ -69,7 +76,7 @@ class FreshDataGlobiAPI
                 // if(true) //get all rows //debug only
                 if(@$rek['decimalLatitude']) //used in normal operation
                 {
-                    self::process_record($rek);
+                    self::process_record($rek, $func);
                 }
             }
         }
@@ -77,29 +84,29 @@ class FreshDataGlobiAPI
         // remove tmp dir
         if($paths['temp_dir']) shell_exec("rm -fr ".$paths['temp_dir']);
         
-        require_library('connectors/FreeDataAPI');
-        $func = new FreeDataAPI();
         $func->last_part($folder); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
         if($folder) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder);
-        
     }
 
-    private function process_record($rek)
+    private function process_record($rek, $func)
     {
         $rec = array();
         $this->ctr++;
-        $rec[] = $this->ctr;
-        $rec[] = $rek['sourceTaxonId'];
-        $rec[] = $rek['sourceTaxonName'];
-        $rec[] = @$rek['sourceLifeStage'];
-        $rec[] = @$rek['sourceTaxonSex'];
-        $rec[] = $rek['interactionTypeName'] . " " . $rek['targetTaxonName'];
-        $rec[] = $rek['localityName'];
-        $rec[] = $rek['decimalLatitude'];
-        $rec[] = $rek['decimalLongitude'];
-        $rec[] = $rek['observationDateTime'];
-        $rec[] = $rek['referenceCitation'];
+        $rec['id'] = $this->ctr;
+        $rec['taxonID'] = $rek['sourceTaxonId'];
+        $rec['scientificName'] = $rek['sourceTaxonName'];
+        $rec['lifeStage'] = @$rek['sourceLifeStage'];
+        $rec['sex'] = @$rek['sourceTaxonSex'];
+        $rec['taxonRemarks'] = $rek['interactionTypeName'] . " " . $rek['targetTaxonName'];
+        $rec['locality'] = $rek['localityName'];
+        $rec['decimalLatitude'] = $rek['decimalLatitude'];
+        $rec['decimalLongitude'] = $rek['decimalLongitude'];
+        $rec['eventDate'] = $rek['observationDateTime'];
+        $rec['bibliographicCitation'] = $rek['referenceCitation'];
         $rec = array_map('trim', $rec);
+        
+        $func->print_header($rec, CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations.txt");
+        
         $val = implode("\t", $rec);
         self::save_to_text_file($val);
         
@@ -124,17 +131,17 @@ class FreshDataGlobiAPI
         
         $rec = array();
         $this->ctr++;
-        $rec[] = $this->ctr;
-        $rec[] = $rek['targetTaxonId'];
-        $rec[] = $rek['targetTaxonName'];
-        $rec[] = @$rek['targetLifeStage'];
-        $rec[] = "";
-        $rec[] = $rek['sourceTaxonName'] . " " . $rek['interactionTypeName'];
-        $rec[] = $rek['localityName'];
-        $rec[] = $rek['decimalLatitude'];
-        $rec[] = $rek['decimalLongitude'];
-        $rec[] = $rek['observationDateTime'];
-        $rec[] = $rek['referenceCitation'];
+        $rec['id'] = $this->ctr;
+        $rec['taxonID'] = $rek['targetTaxonId'];
+        $rec['scientificName'] = $rek['targetTaxonName'];
+        $rec['lifeStage'] = @$rek['targetLifeStage'];
+        $rec['sex'] = "";
+        $rec['taxonRemarks'] = $rek['sourceTaxonName'] . " " . $rek['interactionTypeName'];
+        $rec['locality'] = $rek['localityName'];
+        $rec['decimalLatitude'] = $rek['decimalLatitude'];
+        $rec['decimalLongitude'] = $rek['decimalLongitude'];
+        $rec['eventDate'] = $rek['observationDateTime'];
+        $rec['bibliographicCitation'] = $rek['referenceCitation'];
         $val = implode("\t", $rec);
         self::save_to_text_file($val);
 
