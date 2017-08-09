@@ -77,11 +77,7 @@ class FreeDataAPI
     }
 
     function process_rec_MarylandBio($rec)
-    {
-        // 26 cols total
-        // Kingdom,Class,OrderName,Family,Genus,Species,Author,Subspecies,Species_ID,Species_URL,Common_Name,RecordID,Month,Day,Year,County,
-        // QuadID,QuadName,QuatLat1,QuadLon1,QuadLat2,QuadLat3,Location,LocID,LocLat,LocLon
-        
+    {   // 26 cols total: Kingdom,Class,OrderName,Family,Genus,Species,Author,Subspecies,Species_ID,Species_URL,Common_Name,RecordID,Month,Day,Year,County,QuadID,QuadName,QuatLat1,QuadLon1,QuadLat2,QuadLat3,Location,LocID,LocLat,LocLon
         $scientificName = trim($rec['Genus'].' '.$rec['Species'].' '.$rec['Subspecies']);
         $date = self::maryland_date($rec);
         
@@ -121,22 +117,19 @@ class FreeDataAPI
         $rek['county']          = $rec['County'];
         $rek['locality']        = $rec['Location'];
         $rek['source']          = $rec['Species_URL'];
-        
         self::print_header($rek);
         return implode("\t", $rek);
     }
     
     private function maryland_date($rec)
     {   //desired format is: 2016-06-18
-        if(@$rec['Month'] && @$rec['Day'] && strlen(@$rec['Year'])==4)
-        {
+        if(@$rec['Month'] && @$rec['Day'] && strlen(@$rec['Year']) == 4) {
             $month = Functions::format_number_with_leading_zeros($rec['Month'], 2);
             $day = Functions::format_number_with_leading_zeros($rec['Day'], 2);
             return $rec['Year']."-".$month."-".$day;
         }
         return "";
     }
-    
     //end for MarylandBio ================================================================================================================
     
     //start for usgs-nas ==============================================================================================================
@@ -173,7 +166,6 @@ class FreeDataAPI
         $options['download_attempts'] = 3;
         $options['delay_in_minutes'] = 2;
         
-        
         //first row - headers of text file
         $WRITE = Functions::file_open($this->destination['usgs-nas'], "w");
         fwrite($WRITE, implode("\t", $this->fields['usgs-nas']) . "\n");
@@ -209,8 +201,7 @@ class FreeDataAPI
                 if(!$cont) continue;
                 */
                 
-                while(true)
-                {
+                while(true) {
                     $api = $this->service['usgs-nas']['occurrences'];
                     $api .= "?offset=$offset&genus=$genus&species=$species";
                     if($json = Functions::lookup_with_cache($api, $options))
@@ -239,12 +230,10 @@ class FreeDataAPI
     {
         $i = 0;
         $WRITE = Functions::file_open($this->destination['usgs-nas'], "a");
-        foreach($recs as $rec)
-        {
+        foreach($recs as $rec) {
             $i++;
             if(($i % 1000) == 0) echo number_format($i) . "\n";
-            if($rec)
-            {
+            if($rec) {
                 $row = self::process_rec_USGS($rec, $group);
                 if($row) fwrite($WRITE, $row . "\n");
             }
@@ -269,8 +258,8 @@ class FreeDataAPI
         $rek['class']            = '';
         $rek['family']           = $rec['family'];
         $rek['basisOfRecord']    = $rec['recordType'];
-        */
-        /* sample actual data
+        
+        sample actual data
         [key] => 276594                                     done
         [speciesID] => 707                                  x
         [group] => Fishes                                   http://rs.tdwg.org/dwc/terms/group
@@ -350,14 +339,6 @@ class FreeDataAPI
     {
         $folder = $this->folder;
         self::create_folder_if_does_not_exist($folder);
-        
-        /*moved
-        //first row - headers of text file
-        $WRITE = Functions::file_open($this->destination['eMammal'], "w");
-        fwrite($WRITE, implode("\t", $this->fields['eMammal']) . "\n");
-        fclose($WRITE);
-        */
-        
         foreach(glob("$local_path/*.csv") as $filename)
         {
             echo "\n$filename";
@@ -371,8 +352,7 @@ class FreeDataAPI
     }
 
     function process_rec_eMammal($rec)
-    {
-        // id   occurrenceID    eventDate   decimalLatitude decimalLongitude    scientificName  taxonRank   kingdom phylum  class   family
+    {   // id   occurrenceID    eventDate   decimalLatitude decimalLongitude    scientificName  taxonRank   kingdom phylum  class   family
         $rek = array();
         /* total of 11 columns
         $rek['id']               = $rec['id'];
@@ -441,6 +421,7 @@ class FreeDataAPI
     }
     //end for eMammal ================================================================================================================
 
+    //start for Reeflife ================================================================================================================
     function generate_ReefLifeSurvey_archive($params)
     {
         $folder = $this->folder;
@@ -465,15 +446,57 @@ class FreeDataAPI
         if($this->debug) print_r($this->debug);
     }
     
+    function process_rec_RLS($rec, $collection)
+    {
+        // id   occurrenceID    eventDate   decimalLatitude decimalLongitude    scientificName  taxonRank   kingdom phylum  class   family
+        $rek = array();
+        /* total of 11 columns
+        $rek['id']               = $rec['id'];
+        $rek['occurrenceID']     = $rec['SurveyID'];
+        $rek['eventDate']        = $rec['SurveyDate'];
+        $rek['decimalLatitude']  = $rec['SiteLat'];
+        $rek['decimalLongitude'] = $rec['SiteLong'];
+        $rek['scientificName']   = $rec['Taxon'];
+        $rek['taxonRank']        = 'species';
+        $rek['kingdom']          = 'Animalia';
+        $rek['phylum']           = $rec['Phylum'];
+        $rek['class']            = $rec['Class'];
+        $rek['family']           = $rec['Family'];
+        */
+        //total of 11 columns
+        $rek['id'] = $rec['id'];
+        if($collection == "Global reef fish dataset") $rek['occurrenceID'] = $rec['SurveyID'] . "_" . $rec['id'];
+        elseif($collection == "Invertebrates")        $rek['occurrenceID'] = $rec['FID'];
+        $rek['eventDate'] = $rec['SurveyDate'];
+        $rek['decimalLatitude'] = $rec['SiteLat'];
+        $rek['decimalLongitude'] = $rec['SiteLong'];
+        
+        $taxon = $rec['Taxon'];
+        if(stripos($taxon, ' spp.') !== false || stripos($taxon, ' sp.') !== false ) //string is found
+        {
+            $taxon = str_ireplace(" spp.", "", $taxon);
+            $taxon = str_ireplace(" sp.", "", $taxon);
+            $rek['scientificName'] = $taxon;
+            $rek['taxonRank'] = '';
+        }
+        else
+        {
+            $rek['scientificName'] = $taxon;
+            $rek['taxonRank'] = 'species';
+        }
+        $rek['kingdom'] = 'Animalia';
+        $rek['phylum'] = $rec['Phylum'];
+        $rek['class'] = $rec['Class'];
+        $rek['class'] = $rec['Family'];
+        self::print_header($rek);
+        return implode("\t", $rek);
+    }
+    //end for Reeflife ================================================================================================================
+    
     function last_part($folder)
     {
-        /*everything now goes to generate_meta_xml_v2()
-        $new_batch = array("MarylandBio", "eMammal", "usgs-nas", "reef-life-survey");
-        if(in_array($folder, $new_batch)) self::generate_meta_xml_v2($folder); //creates a meta.xml file
-        else                              self::generate_meta_xml($folder); //creates a meta.xml file
-        */
         self::generate_meta_xml_v2($folder); //creates a meta.xml file
-        
+
         //copy 2 files inside /reef-life-survey/
         copy(CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt", CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt");
         copy(CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml"        , CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml");
@@ -485,10 +508,6 @@ class FreeDataAPI
     
     function process_csv($csv_file, $dbase, $collection = "")
     {
-        /* replaced
-        if($dbase == "reef-life-survey") $field_count = 20;
-        elseif($dbase == "eMammal")      $field_count = 16;
-        */
         $arr = self::get_fields_as_array($csv_file);
         $field_count = count($arr);
 
@@ -599,55 +618,6 @@ class FreeDataAPI
     [geom] => POINT (95.2696 5.86718)
     */
 
-    function process_rec_RLS($rec, $collection)
-    {
-        // id   occurrenceID    eventDate   decimalLatitude decimalLongitude    scientificName  taxonRank   kingdom phylum  class   family
-        $rek = array();
-        /* total of 11 columns
-        $rek['id']               = $rec['id'];
-        $rek['occurrenceID']     = $rec['SurveyID'];
-        $rek['eventDate']        = $rec['SurveyDate'];
-        $rek['decimalLatitude']  = $rec['SiteLat'];
-        $rek['decimalLongitude'] = $rec['SiteLong'];
-        $rek['scientificName']   = $rec['Taxon'];
-        $rek['taxonRank']        = 'species';
-        $rek['kingdom']          = 'Animalia';
-        $rek['phylum']           = $rec['Phylum'];
-        $rek['class']            = $rec['Class'];
-        $rek['family']           = $rec['Family'];
-        */
-        
-        //total of 11 columns
-        $rek['id'] = $rec['id'];
-        if($collection == "Global reef fish dataset") $rek['occurrenceID'] = $rec['SurveyID'] . "_" . $rec['id'];
-        elseif($collection == "Invertebrates")        $rek['occurrenceID'] = $rec['FID'];
-        $rek['eventDate'] = $rec['SurveyDate'];
-        $rek['decimalLatitude'] = $rec['SiteLat'];
-        $rek['decimalLongitude'] = $rec['SiteLong'];
-        
-        $taxon = $rec['Taxon'];
-        if(stripos($taxon, ' spp.') !== false || stripos($taxon, ' sp.') !== false ) //string is found
-        {
-            $taxon = str_ireplace(" spp.", "", $taxon);
-            $taxon = str_ireplace(" sp.", "", $taxon);
-            $rek['scientificName'] = $taxon;
-            $rek['taxonRank'] = '';
-        }
-        else
-        {
-            $rek['scientificName'] = $taxon;
-            $rek['taxonRank'] = 'species';
-        }
-        
-        $rek['kingdom'] = 'Animalia';
-        $rek['phylum'] = $rec['Phylum'];
-        $rek['class'] = $rec['Class'];
-        $rek['class'] = $rec['Family'];
-
-        self::print_header($rek);
-        return implode("\t", $rek);
-    }
-    
     function create_folder_if_does_not_exist($folder)
     {
         if(!file_exists(CONTENT_RESOURCE_LOCAL_PATH . $folder)) {
@@ -657,11 +627,6 @@ class FreeDataAPI
             */
             mkdir(CONTENT_RESOURCE_LOCAL_PATH . $folder, 0777, true);
         }
-        // else {
-        //     unlink(CONTENT_RESOURCE_LOCAL_PATH . $folder."/meta.xml");
-        //     unlink(CONTENT_RESOURCE_LOCAL_PATH . $folder."/observations.txt");
-        //     recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder);
-        // }
         //will delete zip file so Jenkins and cron can both create and delete its version of the zip file
         $zip_file = CONTENT_RESOURCE_LOCAL_PATH . $folder. ".zip";
         if(file_exists($zip_file))
@@ -692,6 +657,31 @@ class FreeDataAPI
         fclose($WRITE);
     }
     
+    private function get_fields_as_array($filename)
+    {
+        if($file = Functions::file_open($filename, "r")) {
+            while(!feof($file)) {
+                return fgetcsv($file);
+                break; //just get one line
+            }
+        }
+        return false;
+    }
+    
+    function print_header($rek, $filename = null) //$filename here comes from FreshDataGlobiAPI.php
+    {
+        if(!$filename) $folder = $this->destination[$this->folder]; //orig used here FreeDataAPI
+        if($this->print_header)
+        {
+            //first row - headers of text file
+            $WRITE = Functions::file_open($filename, "w");
+            fwrite($WRITE, implode("\t", array_keys($rek)) . "\n");
+            fclose($WRITE);
+            $this->print_header = false;
+        }
+        $this->dwca_fields = array_keys($rek);
+    }
+
     function get_terms()
     {
         $terms['id'] = "http://rs.gbif.org/terms/1.0/RLSID";
@@ -726,31 +716,6 @@ class FreeDataAPI
         $terms['bibliographicCitation'] = "http://purl.org/dc/terms/bibliographicCitation";
         $terms['source'] = "http://purl.org/dc/terms/source";
         return $terms;
-    }
-    
-    private function get_fields_as_array($filename)
-    {
-        if($file = Functions::file_open($filename, "r")) {
-            while(!feof($file)) {
-                return fgetcsv($file);
-                break; //just get one line
-            }
-        }
-        return false;
-    }
-    
-    function print_header($rek, $filename = null) //$filename here comes from FreshDataGlobiAPI.php
-    {
-        if(!$filename) $folder = $this->destination[$this->folder]; //orig used here FreeDataAPI
-        if($this->print_header)
-        {
-            //first row - headers of text file
-            $WRITE = Functions::file_open($filename, "w");
-            fwrite($WRITE, implode("\t", array_keys($rek)) . "\n");
-            fclose($WRITE);
-            $this->print_header = false;
-        }
-        $this->dwca_fields = array_keys($rek);
     }
     
     /*
