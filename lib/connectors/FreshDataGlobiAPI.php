@@ -24,13 +24,6 @@ class FreshDataGlobiAPI
         require_library('connectors/FreeDataAPI');
         $func = new FreeDataAPI();
         $func->create_folder_if_does_not_exist($this->folder);
-        
-        /* may not be needed anymore
-        //first row - headers of text file
-        $WRITE = Functions::file_open($this->destination[$this->folder], "w");
-        fwrite($WRITE, implode("\t", $this->fields[$this->folder]) . "\n");
-        fclose($WRITE);
-        */
     }
 
     function start($params)

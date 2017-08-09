@@ -17,9 +17,9 @@ class FreeDataAPI
         $this->folder = $folder; //first used for MarylandBio, then eMammal
         $this->download_options = array('cache' => 1, 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 2592000); //expires in a month
 
+        $this->print_header = true; //for all
         //----------------------------
         $this->destination['reef-life-survey'] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt";
-        $this->fields['reef-life-survey'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "phylum", "class", "family");
         //----------------------------
         $this->destination['eMammal'] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt";
         //----------------------------
@@ -27,11 +27,9 @@ class FreeDataAPI
         $this->destination['MarylandBio'] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt";
         // $this->data_file['MarylandBio] = "http://localhost/cp/FreshData/Maryland Biodiversity invasives/country_lat_lon.csv";
         $this->data_file['MarylandBio'] = "http://editors.eol.org/data_files/country_lat_lon.csv";
-        $this->print_header = true;
         //----------------------------
         //DATA-1683
         $this->destination['usgs-nas'] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt"; //Nonindigenous Aquatic Species
-        $this->fields['usgs-nas'] = array("id", "occurrenceID", "eventDate", "decimalLatitude", "decimalLongitude", "scientificName", "taxonRank", "kingdom", "family", "basisOfRecord", "group", "genus", "species", "vernacularName", "stateProvince", "county", "locality", "date", "year", "month", "day", "catalogNumber", "source");
         $this->service['usgs-nas']['occurrences'] = "https://nas.er.usgs.gov/api/v1/occurrence/search"; //https://nas.er.usgs.gov/api/v1/occurrence/search?genus=Zizania&species=palustris&offset=0
         //----------------------------
         $this->ctr = 0; //for "reef-life-survey" and "eMammal" and "MarylandBio"
@@ -165,11 +163,6 @@ class FreeDataAPI
         $options['expire_seconds'] = false;
         $options['download_attempts'] = 3;
         $options['delay_in_minutes'] = 2;
-        
-        //first row - headers of text file
-        $WRITE = Functions::file_open($this->destination['usgs-nas'], "w");
-        fwrite($WRITE, implode("\t", $this->fields['usgs-nas']) . "\n");
-        fclose($WRITE);
         
         $i = 0;
         $species_list = Functions::save_remote_file_to_local($csv_url, $this->download_options);
@@ -427,10 +420,6 @@ class FreeDataAPI
         $folder = $this->folder;
         self::create_folder_if_does_not_exist($folder);
         
-        if(!$WRITE = Functions::file_open($this->destination['reef-life-survey'], "w")) return;
-        fwrite($WRITE, implode("\t", $this->fields['reef-life-survey']) . "\n");
-        fclose($WRITE);
-        
         $collections = array("Global reef fish dataset", "Invertebrates");
         // $collections = array("Invertebrates"); //debug only
         foreach($collections as $coll)
@@ -487,7 +476,7 @@ class FreeDataAPI
         $rek['kingdom'] = 'Animalia';
         $rek['phylum'] = $rec['Phylum'];
         $rek['class'] = $rec['Class'];
-        $rek['class'] = $rec['Family'];
+        $rek['family'] = $rec['Family'];
         self::print_header($rek);
         return implode("\t", $rek);
     }
@@ -670,7 +659,7 @@ class FreeDataAPI
     
     function print_header($rek, $filename = null) //$filename here comes from FreshDataGlobiAPI.php
     {
-        if(!$filename) $folder = $this->destination[$this->folder]; //orig used here FreeDataAPI
+        if(!$filename) $filename = $this->destination[$this->folder]; //orig used here FreeDataAPI
         if($this->print_header)
         {
             //first row - headers of text file
