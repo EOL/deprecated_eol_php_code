@@ -160,7 +160,7 @@ class FreshDataGlobiAPI
         }
     }
 
-    private function extract_file($zip_path)
+    function extract_file($zip_path)
     {
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();

@@ -14,7 +14,7 @@ class FreeDataAPI
     /* const VARIABLE_NAME = "string value"; */
     function __construct($folder = null)
     {
-        $this->folder = $folder; //first used for MarylandBio, then eMammal
+        $this->folder = $folder; //now used for all
         $this->download_options = array('cache' => 1, 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 2592000); //expires in a month
 
         $this->print_header = true; //for all
@@ -32,6 +32,9 @@ class FreeDataAPI
         $this->destination['usgs-nas'] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt"; //Nonindigenous Aquatic Species
         $this->service['usgs-nas']['occurrences'] = "https://nas.er.usgs.gov/api/v1/occurrence/search"; //https://nas.er.usgs.gov/api/v1/occurrence/search?genus=Zizania&species=palustris&offset=0
         //----------------------------
+        $this->destination['MarylandDNR'] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt";
+        //----------------------------
+        
         $this->ctr = 0; //for "reef-life-survey" and "eMammal" and "MarylandBio"
         $this->debug = array();
         
@@ -40,6 +43,100 @@ class FreeDataAPI
         file:///Library/WebServer/Documents/cp/GBIF_dwca/atlantic_cod/meta.xml
         */
     }
+
+    function get_spreadsheet($spreadsheet_local_path)
+    {
+        require_library('XLSParser');
+        $parser = new XLSParser();
+        $arr = $parser->convert_sheet_to_array($spreadsheet_local_path);
+        return $arr;
+    }
+
+    //start for MarylandDNR ==============================================================================================================
+    function generate_MarylandDNR_archive($xls_zip_url)
+    {
+        $folder = $this->folder;
+        self::create_folder_if_does_not_exist($folder);
+
+        //---use external func
+        require_library('connectors/FreshDataGlobiAPI');
+        $func = new FreshDataGlobiAPI($folder);
+        $paths = $func->extract_file($xls_zip_url);
+        print_r($paths);
+        $filename = pathinfo($xls_zip_url, PATHINFO_FILENAME);
+        $xls_path = $paths['temp_dir'].$filename;
+        $arr = self::get_spreadsheet($xls_path);
+        $indexes = array_keys($arr);
+        // foreach($indexes as $i) echo "\n$i: ".count($arr[$i]); //debug only - just for stats
+
+        $WRITE = Functions::file_open($this->destination[$folder], "a");
+        $i = -1;
+        foreach($arr['ScientificName'] as $sciname)
+        {
+            $i++;
+            $row = self::process_rec_MarylandDNR($arr, $i);
+            if($row) fwrite($WRITE, $row . "\n");
+        }
+        fclose($WRITE);
+
+        // remove tmp dir
+        if($paths['temp_dir']) shell_exec("rm -fr ".$paths['temp_dir']);
+
+        // last steps
+        self::last_part($folder);
+        if($folder) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder);
+    }
+
+    private function process_rec_MarylandDNR($arr, $i)
+    {
+        $rec = array();
+        $this->ctr++;
+        // echo("\n".$arr['ScientificName'][$i]."\n");
+        $rec['id'] = $this->ctr;
+        $rec['scientificName'] = $arr['ScientificName'][$i];
+        $rec['kingdom'] = 'Animalia';
+        $rec['phylum'] = 'Chordata';
+        
+        // GearText and fkGearDimensions into http://rs.tdwg.org/dwc/terms/samplingProtocol
+        $rec['samplingProtocol'] = "";
+        if($val = $arr['GearText'][$i])         $rec['samplingProtocol'] .= $val.". ";
+        if($val = $arr['fkGearDimensions'][$i]) $rec['samplingProtocol'] .= $val.". ";
+        $rec['samplingProtocol'] = trim($rec['samplingProtocol']);
+        
+        //SiteName and SiteID into http://rs.tdwg.org/dwc/terms/locality
+        $rec['locality'] = "";
+        if($val = $arr['SiteName'][$i]) $rec['locality'] .= $val.". ";
+        if($val = $arr['SiteID'][$i])   $rec['locality'] .= $val.". ";
+        $rec['locality'] = trim($rec['locality']);
+
+        //CountEstimationText and PassComments into measurementRemarks
+        $rec['measurementRemarks'] = "";
+        if($val = $arr['CountEstimationText'][$i]) $rec['measurementRemarks'] .= $val.". ";
+        if($val = $arr['PassComments'][$i])        $rec['measurementRemarks'] .= $val.". ";
+        $rec['measurementRemarks'] = trim($rec['measurementRemarks']);
+        
+        //For http://rs.tdwg.org/dwc/terms/samplingEffort: "Duration = xx seconds. " (if Duration column is populated) 
+        //followed by "Electrofishing units = yy" (if NumbElectroFishUnits is populated)
+        $rec['samplingEffort'] = "";
+        if($val = $arr['Duration'][$i])             $rec['samplingEffort'] .= "Duration = $val seconds. ";
+        if($val = $arr['NumbElectroFishUnits'][$i]) $rec['samplingEffort'] .= "Electrofishing units = $val. ";
+        $rec['samplingEffort'] = trim($rec['samplingEffort']);
+        
+        $rec['decimalLatitude'] = $arr['StartLatDD'][$i];
+        $rec['decimalLongitude'] = $arr['StartLongDD'][$i];
+        if(!$rec['decimalLatitude'] || !$rec['decimalLongitude']) return false; //should have lat long
+
+        // for http://rs.tdwg.org/dwc/terms/individualCount, SpeciesCount should do fine
+        $rec['individualCount'] = $arr['SpeciesCount'][$i];
+        
+        $rec['source'] = "http://dnr.maryland.gov/fisheries/Pages/inland.aspx";
+        $rec['bibliographicCitation'] = "http://dnr.maryland.gov/fisheries/Pages/inland.aspx, Maryland Department of Natural Resources, Freshwater Fisheries Program, data accessed July 2017";
+        
+        self::print_header($rec);
+        // print_r($rec); exit;
+        return implode("\t", $rec);
+    }
+    //end for MarylandDNR ================================================================================================================
 
     //start for MarylandBio ==============================================================================================================
     function generate_MarylandBio_archive($csv_url)
@@ -704,6 +801,10 @@ class FreeDataAPI
         $terms['taxonRemarks'] = "http://rs.tdwg.org/dwc/terms/taxonRemarks";
         $terms['bibliographicCitation'] = "http://purl.org/dc/terms/bibliographicCitation";
         $terms['source'] = "http://purl.org/dc/terms/source";
+        $terms['samplingProtocol'] = "http://rs.tdwg.org/dwc/terms/samplingProtocol";
+        $terms['measurementRemarks'] = "http://rs.tdwg.org/dwc/terms/measurementRemarks";
+        $terms['samplingEffort'] = "http://rs.tdwg.org/dwc/terms/samplingEffort";
+        $terms['individualCount'] = "http://rs.tdwg.org/dwc/terms/individualCount";
         return $terms;
     }
     
