@@ -21,15 +21,9 @@ class DHSmasherOutputAPI
         return $func;
     }
 
-    private function adjust_filename($url)
-    {   // /Library/WebServer/Documents/eol_php_code/
-        // http://localhost/cp/dynamic_hierarchy/smasher/EOLDynamicHierarchyDraftAug2017/dwh_taxa.txt
-        $url = str_ireplace("http://localhost", "", $url);
-        return str_replace("eol_php_code/", "", DOC_ROOT).$url;
-    }
-    
     function start()
     {
+        self::integrity_check();
         $excluded_acronyms = array('gbif', 'WOR', 'ictv');
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
         $i = 0;
@@ -154,7 +148,37 @@ class DHSmasherOutputAPI
         return false;
     }
     
+    private function adjust_filename($url)
+    {   // /Library/WebServer/Documents/eol_php_code/
+        // http://localhost/cp/dynamic_hierarchy/smasher/EOLDynamicHierarchyDraftAug2017/dwh_taxa.txt
+        $url = str_ireplace("http://localhost", "", $url);
+        return str_replace("eol_php_code/", "", DOC_ROOT).$url;
+    }
 
+    private function integrity_check()
+    {
+        $acronyms = array_keys($this->params);
+        print_r($acronyms);
+        foreach($acronyms as $acronym)
+        {
+            $txtfile = self::adjust_filename($this->params[$acronym]["url"]);
+            if(!file_exists($txtfile)) exit("\nfile does not exist: [$txtfile]\n");
+            else echo "\nfound: [$txtfile]";
+            $i = 0;
+            foreach(new FileIterator($txtfile) as $line => $row) {
+                $i++;
+                if($i == 1)
+                {
+                    $fields = explode("\t", $row);
+                    if(!in_array("taxonID", $fields)) exit("\nCannot search, no taxonID from resource file [$txtfile].\n");
+                    break;
+                }
+            }
+        }
+        exit("\n-end integrity check-\n");
+    }
+
+    /*
     private function save_to_text_file($row)
     {
         if($row)
@@ -172,6 +196,7 @@ class DHSmasherOutputAPI
         $paths = $func->extract_archive_file($zip_path, "interactions.tsv", array('timeout' => 172800, 'expire_seconds' => 2592000)); //expires in 1 month
         return $paths;
     }
+    */
 
 }
 ?>
