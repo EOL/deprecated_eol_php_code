@@ -13,7 +13,7 @@ class DHSmasherOutputAPI
         
         $this->download_options = array(
             'cache_path'         => '/Volumes/Thunderbolt4/eol_cache_gbif/',  //used in MacBook - generating map data using GBIF API
-            'expire_seconds'     => 5184000, //orig 2 months to expire
+            // 'expire_seconds'     => 5184000, //orig 2 months to expire
             'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->download_options['expire_seconds'] = false; //debug | true -- expires now
 
@@ -42,39 +42,9 @@ class DHSmasherOutputAPI
     function start() // total rows from smasher file 2,700,000+
     {
         /* self::integrity_check(); */ //works OK, will use it if there is a new batch of resource files
-        // $excluded_acronyms = array('WOR', 'gbif', 'ictv'); //gbif
+        $excluded_acronyms = array('WOR', 'gbif', 'ictv'); //gbif
         // $included_acronyms = array('WOR'); //gbif //debug only when caching
-        
-        /*
-        $p[""] = array("desc" => "Amphibia Genera & Species", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/amphibia/amphibia.txt");
-        $p[""] = array("desc" => "Aphid Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-aphid-v8.6/taxon.txt");
-        $p[""] = array("desc" => "Cockroach Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-blattodea-v8.8/taxon.txt");
-        $p[""] = array("desc" => "Coleorrhyncha Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-coleorrhyncha-v9.6/taxon.txt");
-        $p[""] = array("desc" => "Coreoidea Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-coreoidea-v8.6/taxon.txt");
-        $p[""] = array("desc" => "Dermaptera Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-dermaptera-v8.6/taxon.txt");
-        $p["EET"] = array("desc" => "Earthworms", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/eolearthwormpatch/taxa.txt");
-        $p["EMB"] = array("desc" => "Embioptera Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-embioptera-v8.6/taxon.txt");
-        $p["GRY"] = array("desc" => "Grylloblattodea Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-grylloblattodea-v1.4/taxon.txt");
-        $p["ictv"] = array("desc" => "ICTV Virus Taxonomy", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwh_taxa_accepted.txt");
-        $p["IOC"] = array("desc" => "IOC World Bird List with higherClassification", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/ioc-birdlist-with-higherclassification/taxon.tab");
-        $p["lhw"] = array("desc" => "World Checklist of Hornworts and Liverworts", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/liverhornworts/liverhornworts.txt");
-        $p["LYG"] = array("desc" => "Lygaeoidea Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-lygaeoidea-v1.0/taxon.txt");
-        $p["MAN"] = array("desc" => "Mantophasmatodea Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-mantophasmatodea-v1.4/taxon.txt");
-        $p["MNT"] = array("desc" => "Mantodea Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-mantodea-v8.6/taxon.txt");
-        $p["ODO"] = array("desc" => "World Odonata List", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/odonata/odonata.txt");
-        $p["ONY"] = array("desc" => "Oliveira et al. 2012 Onychophora", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/oliveira2012onychophora/taxa.txt");
-        $p["ORTH"] = array("desc" => "Orthoptera Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-orthoptera-v12.6/taxon.txt");
-        $p["PHA"] = array("desc" => "Phasmida Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-phasmida-v10.6/taxon.txt");
-        $p["PLE"] = array("desc" => "Plecoptera Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-plecoptera-v8.6/taxon.txt");
-        $p["PPG"] = array("desc" => "Pteridophyte Phylogeny Group Classification", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/ppg12016/ferntaxa.txt");
-        $p["PSO"] = array("desc" => "Psocodea Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-psocodea-v8.6/taxon.txt");
-        $p["SPI"] = array("desc" => "Spiders Species List", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/spiders/spiders.txt");
-        $p["TER"] = array("desc" => "Krishna et al. 2013 Termites", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/termites/termites.txt");
-        $p["TPL"] = array("desc" => "The Plant List with literature", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca/taxa.txt");
-        $p["trunk"] = array("desc" => "Dynamic Hierarchy Trunk 14 June 2017", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dynamichierarchytrunk14jun201720170615085118/taxon.txt");
-        $p["ZOR"] = array("desc" => "Zoraptera Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-zoraptera-v1.4/taxon.txt");
-        */
-        $included_acronyms = array('DER');
+        // $included_acronyms = array('ZOR');
         
         
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
@@ -94,7 +64,7 @@ class DHSmasherOutputAPI
                 }
                 if($rek)
                 {
-                    /* breakdown when caching:
+                    // /* breakdown when caching:
                     $cont = false;
                     // if($i >=  1    && $i < $m) $cont = true;
                     // if($i >=  $m   && $i < $m*2) $cont = true;
@@ -103,18 +73,18 @@ class DHSmasherOutputAPI
                     // if($i >=  $m*4 && $i < $m*5) $cont = true;
                     if($i >=  $m*5 && $i < $m*6) $cont = true;
                     if(!$cont) continue;
-                    */
+                    // */
                     
                     // /*
                     print_r($rek); //debug only
                     $first_source = self::get_first_source($rek['source']);
                     print_r($first_source);
 
-                    // if(in_array($first_source['acronym'], $excluded_acronyms)) continue; 
-                    // self::process_record($rek, $first_source);
+                    if(in_array($first_source['acronym'], $excluded_acronyms)) continue;
+                    self::process_record($rek, $first_source);
                     
-                    if(in_array($first_source['acronym'], $included_acronyms)) self::process_record($rek, $first_source);
-                    else continue;
+                    // if(in_array($first_source['acronym'], $included_acronyms)) self::process_record($rek, $first_source);
+                    // else continue;
                     // */
                     
                 }
@@ -225,7 +195,7 @@ class DHSmasherOutputAPI
             {
                 $arr = json_decode($json, true);
                 print_r($arr);
-                exit("\nREST OF THE RESOURCES retrieved cached json\n");
+                // exit("\nREST OF THE RESOURCES retrieved cached json\n");
                 return $arr;
             }
             
@@ -271,7 +241,7 @@ class DHSmasherOutputAPI
 
                         print_r($rek);
                         self::write_cache(json_encode($rek), $first);
-                        exit("\nREST of the resources... test\n");
+                        // exit("\nREST of the resources... test\n");
                         return $rek;
                     }
                 }
