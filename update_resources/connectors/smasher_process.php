@@ -36,7 +36,7 @@ $p["SPI"] = array("desc" => "Spiders Species List", "url" => "http://localhost/c
 $p["TER"] = array("desc" => "Krishna et al. 2013 Termites", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/termites/termites.txt");
 $p["TPL"] = array("desc" => "The Plant List with literature", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca/taxa.txt");
 $p["trunk"] = array("desc" => "Dynamic Hierarchy Trunk 14 June 2017", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dynamichierarchytrunk14jun201720170615085118/taxon.txt");
-$p["WOR"] = array("desc" => "WoRMS: use original WoRMS2EOL file for this", "url" => "");
+$p["WOR"] = array("desc" => "WoRMS: use original WoRMS2EOL file for this", "url" => "http://localhost/cp/WORMS/WoRMS2EoL/taxon.txt");
 $p["ZOR"] = array("desc" => "Zoraptera Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-zoraptera-v1.4/taxon.txt");
 
 $func = new DHSmasherOutputAPI($p);
