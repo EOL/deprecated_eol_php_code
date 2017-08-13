@@ -771,6 +771,17 @@ class FreeDataAPI
 
     function get_terms()
     {
+        //for smasher dynamic hierarchy
+        $terms['canonicalName'] = "http://rs.gbif.org/terms/1.0/canonicalName";
+        $terms['scientificNameAuthorship'] = "http://rs.tdwg.org/dwc/terms/scientificNameAuthorship";
+        $terms['scientificNameID'] = "http://rs.tdwg.org/dwc/terms/scientificNameID";
+        $terms['taxonRemarks'] = "http://rs.tdwg.org/dwc/terms/taxonRemarks";
+        $terms['namePublishedIn'] = "http://rs.tdwg.org/dwc/terms/namePublishedIn";
+        $terms['furtherInformationURL'] = "http://rs.tdwg.org/ac/terms/furtherInformationURL";
+        $terms['datasetID'] = "http://rs.tdwg.org/dwc/terms/datasetID";
+        $terms['EOLid'] = "http://eol.org/schema/EOLid";
+        
+        //for orig FreshData processing
         $terms['id'] = "http://rs.gbif.org/terms/1.0/RLSID";
         $terms['occurrenceID'] = "http://rs.tdwg.org/dwc/terms/occurrenceID";
         $terms['decimalLatitude'] = "http://rs.tdwg.org/dwc/terms/decimalLatitude";
@@ -799,7 +810,6 @@ class FreeDataAPI
         $terms['taxonID'] = "http://rs.tdwg.org/dwc/terms/taxonID";
         $terms['lifeStage'] = "http://rs.tdwg.org/dwc/terms/lifeStage";
         $terms['sex'] = "http://rs.tdwg.org/dwc/terms/sex";
-        $terms['taxonRemarks'] = "http://rs.tdwg.org/dwc/terms/taxonRemarks";
         $terms['bibliographicCitation'] = "http://purl.org/dc/terms/bibliographicCitation";
         $terms['source'] = "http://purl.org/dc/terms/source";
         $terms['samplingProtocol'] = "http://rs.tdwg.org/dwc/terms/samplingProtocol";
