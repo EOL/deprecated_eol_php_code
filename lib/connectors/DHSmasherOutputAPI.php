@@ -12,7 +12,7 @@ class DHSmasherOutputAPI
         $this->params = $params;
         
         $this->download_options = array(
-            'cache_path'         => '/Volumes/Thunderbolt4/eol_cache_gbif/',  //used in MacBook - generating map data using GBIF API
+            'cache_path'         => '/Volumes/Thunderbolt4/eol_cache_gbif/',  //used in MacBook - generating map data using GBIF API and also the dynamic hierarchy smasher file process.
             // 'expire_seconds'     => 5184000, //orig 2 months to expire
             'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->download_options['expire_seconds'] = false; //debug | true -- expires now
@@ -31,6 +31,7 @@ class DHSmasherOutputAPI
         $this->debug = array();
     }
 
+    /*
     private function initialize()
     {
         require_library('connectors/FreeDataAPI');
@@ -38,23 +39,141 @@ class DHSmasherOutputAPI
         $func->create_folder_if_does_not_exist($this->folder);
         return $func;
     }
-
+    */
+    function utility()
+    {   /*
+    $p[""] = array("desc" => "Amphibia Genera & Species", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/amphibia/amphibia.txt");
+    $p[""] = array("desc" => "Aphid Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-aphid-v8.6/taxon.txt");
+    $p["BLA"] = array("desc" => "Cockroach Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-blattodea-v8.8/taxon.txt");
+    $p["COL"] = array("desc" => "Coleorrhyncha Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-coleorrhyncha-v9.6/taxon.txt");
+    $p["COR"] = array("desc" => "Coreoidea Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-coreoidea-v8.6/taxon.txt");
+    $p[""] = array("desc" => "Dermaptera Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-dermaptera-v8.6/taxon.txt");
+    $p["EET"] = array("desc" => "Earthworms", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/eolearthwormpatch/taxa.txt");
+    $p["EMB"] = array("desc" => "Embioptera Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-embioptera-v8.6/taxon.txt");
+    $p["GRY"] = array("desc" => "Grylloblattodea Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-grylloblattodea-v1.4/taxon.txt");
+    $p["ictv"] = array("desc" => "ICTV Virus Taxonomy", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwh_taxa_accepted.txt");
+    $p["IOC"] = array("desc" => "IOC World Bird List with higherClassification", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/ioc-birdlist-with-higherclassification/taxon.tab");
+    $p["lhw"] = array("desc" => "World Checklist of Hornworts and Liverworts", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/liverhornworts/liverhornworts.txt");
+    $p["LYG"] = array("desc" => "Lygaeoidea Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-lygaeoidea-v1.0/taxon.txt");
+    $p[""] = array("desc" => "Mantophasmatodea Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-mantophasmatodea-v1.4/taxon.txt");
+    $p["MNT"] = array("desc" => "Mantodea Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-mantodea-v8.6/taxon.txt");
+    $p[""] = array("desc" => "World Odonata List", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/odonata/odonata.txt");
+    $p[""] = array("desc" => "Oliveira et al. 2012 Onychophora", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/oliveira2012onychophora/taxa.txt");
+    $p["ORTH"] = array("desc" => "Orthoptera Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-orthoptera-v12.6/taxon.txt");
+    $p[""] = array("desc" => "Phasmida Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-phasmida-v10.6/taxon.txt");
+    $p[""] = array("desc" => "Plecoptera Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-plecoptera-v8.6/taxon.txt");
+    $p["PPG"] = array("desc" => "Pteridophyte Phylogeny Group Classification", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/ppg12016/ferntaxa.txt");
+    $p["PSO"] = array("desc" => "Psocodea Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-psocodea-v8.6/taxon.txt");
+    $p[""] = array("desc" => "Spiders Species List", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/spiders/spiders.txt");
+    $p["TER"] = array("desc" => "Krishna et al. 2013 Termites", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/termites/termites.txt");
+    $p[""] = array("desc" => "Dynamic Hierarchy Trunk 14 June 2017", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dynamichierarchytrunk14jun201720170615085118/taxon.txt");
+    $p["ZOR"] = array("desc" => "Zoraptera Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-zoraptera-v1.4/taxon.txt");
+        */
+        // $acronyms = array_keys($this->params);
+        $acronyms = array('PLE'); //WOR TPL
+        print_r($acronyms);
+        foreach($acronyms as $acronym)
+        {
+            $txtfile = self::adjust_filename($this->params[$acronym]["url"]);
+            if(!file_exists($txtfile)) exit("\nfile does not exist: [$txtfile]\n");
+            else echo "\nfound: [$txtfile]";
+            $i = 0;
+            foreach(new FileIterator($txtfile) as $line => $row) {
+                $i++;
+                if($i == 1) $fields = explode("\t", $row);
+                else
+                {
+                    $rec = array(); //just to be sure
+                    $rec = explode("\t", $row);
+                    $k = -1;
+                    $rek = array();
+                    foreach($fields as $field) {
+                        $k++;
+                        if($val = @$rec[$k]) $rek[$field] = $val;
+                    }
+                    if($rek)
+                    {
+                        /* Array
+                        (
+                            [first_source] => WOR:769374
+                            [acronym] => WOR
+                            [taxon_id] => 769374
+                        ) */
+                        // [taxonID] => urn:lsid:marinespecies.org:taxname:104395
+                        
+                        /* TPL
+                        Array
+                        (
+                            [first_source] => TPL:kew-2588978
+                            [acronym] => TPL
+                            [taxon_id] => kew-2588978
+                        )
+                        Array
+                        (
+                            [taxonID] => kew-2588978
+                            [taxonomicStatus] => accepted
+                            [family] => Gesneriaceae
+                            [genus] => Sinningia
+                            [specificEpithet] => iarae
+                            [scientificName] => Sinningia iarae
+                            [taxonRank] => species
+                            [scientificNameAuthorship] => Chautems
+                            [nameAccordingTo] => WCSP (in review)
+                            [scientificNameID] => urn:lsid:ipni.org:names:302524-2
+                        )
+                        
+                        */
+                        //if-then used but not needed so far...
+                        if($acronym == "WOR") $taxon_id = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $rek['taxonID']);
+                        else                  $taxon_id = $rek['taxonID'];
+                        
+                        $first = array("first_source" => "$acronym:".$taxon_id, "acronym" => $acronym, "taxon_id" => $taxon_id);
+                        print_r($first);
+                        
+                        //try to retrieve
+                        if($json = self::retrieve_cache($first))
+                        {
+                            $arr = json_decode($json, true);
+                            print_r($arr);
+                            echo("\n $acronym retrieved cached json\n");
+                            // exit;
+                        }
+                        else
+                        {
+                            print_r($rek);
+                            //start write
+                            self::write_cache(json_encode($rek), $first);
+                            echo("\n $acronym saved cached json\n");
+                            // exit;
+                        }
+                        
+                        echo "\n-------------------------------\n";
+                        
+                    }
+                    
+                }
+            }
+        }
+        exit("\n-end utility-\n");
+        
+    }
     function start() // total rows from smasher file 2,700,000+
     {
         /* self::integrity_check(); */ //works OK, will use it if there is a new batch of resource files
-        $excluded_acronyms = array('WOR', 'gbif', 'ictv'); //gbif
+        // $excluded_acronyms = array('WOR', 'gbif', 'ictv'); //gbif
         // $included_acronyms = array('WOR'); //gbif //debug only when caching
-        // $included_acronyms = array('ZOR');
+        $included_acronyms = array('gbif');
         
         
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
-        $i = 0; $m = 466666;
+        $i = 0; $m = 280000; //466666;
         foreach(new FileIterator($smasher_file) as $line => $row) {
             $i++;
             if(($i % 100000) == 0) echo " $i";
             
             if($i == 1) $fields = explode("\t", $row);
             else {
+                $rec = array(); //just to be sure
                 $rec = explode("\t", $row);
                 $k = -1;
                 $rek = array();
@@ -71,7 +190,11 @@ class DHSmasherOutputAPI
                     // if($i >=  $m*2 && $i < $m*3) $cont = true;
                     // if($i >=  $m*3 && $i < $m*4) $cont = true;
                     // if($i >=  $m*4 && $i < $m*5) $cont = true;
-                    if($i >=  $m*5 && $i < $m*6) $cont = true;
+                    // if($i >=  $m*5 && $i < $m*6) $cont = true;
+                    // if($i >=  $m*6 && $i < $m*7) $cont = true;
+                    // if($i >=  $m*7 && $i < $m*8) $cont = true;
+                    // if($i >=  $m*8 && $i < $m*9) $cont = true;
+                    if($i >=  $m*9 && $i < $m*10) $cont = true;
                     if(!$cont) continue;
                     // */
                     
@@ -80,11 +203,11 @@ class DHSmasherOutputAPI
                     $first_source = self::get_first_source($rek['source']);
                     print_r($first_source);
 
-                    if(in_array($first_source['acronym'], $excluded_acronyms)) continue;
-                    self::process_record($rek, $first_source);
+                    // if(in_array($first_source['acronym'], $excluded_acronyms)) continue;
+                    // self::process_record($rek, $first_source);
                     
-                    // if(in_array($first_source['acronym'], $included_acronyms)) self::process_record($rek, $first_source);
-                    // else continue;
+                    if(in_array($first_source['acronym'], $included_acronyms)) self::process_record($rek, $first_source);
+                    else continue;
                     // */
                     
                 }
@@ -185,7 +308,7 @@ class DHSmasherOutputAPI
             {
                 $arr = json_decode($json, true);
                 print_r($arr);
-                // exit("\nworms retrieved cached json\n");
+                echo("\nworms retrieved cached json\n");
                 return $arr;
             }
         }
@@ -213,6 +336,7 @@ class DHSmasherOutputAPI
                 if(!in_array("taxonID", $fields)) exit("\nCannot search, no taxonID from resource file.\n");
             }
             else {
+                $rec = array(); //just to be sure
                 $rec = explode("\t", $row);
                 $k = -1;
                 $rek = array();
@@ -229,7 +353,7 @@ class DHSmasherOutputAPI
                     {
                         print_r($rek);
                         self::write_cache(json_encode($rek), $first);
-                        // exit("\nWOR test\n");
+                        echo("\nWOR saved cache\n");
                         return $rek;
                     }
                 }
@@ -251,7 +375,7 @@ class DHSmasherOutputAPI
             }
         }
 
-        if($first['acronym'] == 'WOR') exit("\nfrom worms but not found in resource file [" . $first['taxon_id'] . "]\n");
+        // if($first['acronym'] == 'WOR') exit("\nfrom worms but not found in resource file [" . $first['taxon_id'] . "]\n"); //seen this
         
         return false;
     }
