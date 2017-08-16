@@ -192,7 +192,7 @@ class DHSmasherOutputAPI
     {
         $included_acronyms = array("AMP");
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
-        $i = 0; $m = 280000; //466666; 280000
+        $i = 0; $m = 466666; //466666; 280000
         foreach(new FileIterator($smasher_file) as $line => $row) {
             $i++;
             if(($i % 100000) == 0) echo " $i";
@@ -208,24 +208,24 @@ class DHSmasherOutputAPI
                 }
                 if($rek)
                 {
-                    /* breakdown when caching:
+                    // /* breakdown when caching:
                     $cont = false;
                     // if($i >=  1    && $i < $m) $cont = true;
                     // if($i >=  $m   && $i < $m*2) $cont = true;
                     // if($i >=  $m*2 && $i < $m*3) $cont = true;
                     // if($i >=  $m*3 && $i < $m*4) $cont = true;
-                    // if($i >=  $m*4 && $i < $m*5) $cont = true;
+                    if($i >=  $m*4 && $i < $m*5) $cont = true;
                     // if($i >=  $m*5 && $i < $m*6) $cont = true;
                     // if($i >=  $m*6 && $i < $m*7) $cont = true;
                     // if($i >=  $m*7 && $i < $m*8) $cont = true;
                     // if($i >=  $m*8 && $i < $m*9) $cont = true;
                     // if($i >=  $m*9 && $i < $m*10) $cont = true;
                     if(!$cont) continue;
-                    */
+                    // */
 
                     $sciname = $rek['scientificName'];
                     
-                    // /* getting the EOLid ======================================= OK
+                    /* getting the EOLid ======================================= OK
                     // echo "\nsmasher record: ----------------------------";
                     // print_r($rek); //debug only
                     $first_source = self::get_first_source($rek['source']);
@@ -246,12 +246,12 @@ class DHSmasherOutputAPI
                         else echo "\n-NO EOLid-\n";
                     }
                     else continue;
-                    // ==============================================================*/
+                    ==============================================================*/
                     
                     
                     
                     
-                    /* caching EOL API name search ===================================== OK
+                    // /* caching EOL API name search ===================================== OK
                     $url1 = $this->url['api_search'].$sciname;
                     if($taxon_rec = self::search_ok($url1)) {}
                     else
@@ -260,6 +260,7 @@ class DHSmasherOutputAPI
                         if($taxon_rec = self::search_ok($url2)) {}
                         else
                         {
+                            /* not advisable to do, used the EHE instead. Sample why not good is sciname = "Abavorana", gives 46350291 using EHE while API gives 46350292 where exact=false.
                             $url1 = str_ireplace("exact=true","exact=false",$url1);
                             if($taxon_rec = self::search_ok($url1)) {}
                             else
@@ -268,15 +269,11 @@ class DHSmasherOutputAPI
                                 if($taxon_rec = self::search_ok($url2)) {}
                                 else echo("\ntalagang wala lang...[$sciname]\n");
                             }
+                            */
                         }
                     }
-                     =============================================================== */
-                    
-                    
-                    
+                     // =============================================================== */
                     // exit("\n-end utility2-\n");
-
-                    
                 }
             }
         }
@@ -285,7 +282,7 @@ class DHSmasherOutputAPI
     function utility() //creating local cache based on resource files from google sheet
     {   /* */
         // $acronyms = array_keys($this->params);
-        $acronyms = array('ZOR'); //WOR TPL gbif
+        $acronyms = array('WOR'); //WOR TPL gbif
         print_r($acronyms);
         foreach($acronyms as $acronym)
         {
@@ -359,6 +356,10 @@ class DHSmasherOutputAPI
                         if($arr = self::retrieve_cache($first))
                         {
                             echo("\n $acronym RETRIEVED cached json\n");
+                            /* worked OK if you want to update resource files
+                            echo("\n $acronym will delete since I will use a new version of WoRMS2EoL.zip dated 16-Aug-2017 \n");
+                            self::delete_retrieve_cache($first); //utility to use if I want to use new/updated resource files versions from google sheet
+                            */
                             // exit;
                         }
                         else
@@ -732,6 +733,19 @@ class DHSmasherOutputAPI
         }
         return false;
     }
+    private function delete_retrieve_cache($first, $main_path = false)
+    {
+        if(!$main_path) $main_path = $this->smasher_cache;
+        $md5 = md5($first['first_source']);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        $filename = $main_path . "$cache1/$cache2/$md5.json";
+        if(file_exists($filename))
+        {
+            if(unlink($filename)) echo " - deleted OK";
+            else echo " - not deleted for some reason";
+        }
+    }
 
     private function save_to_text_file($row)
     {
@@ -777,7 +791,7 @@ class DHSmasherOutputAPI
 
     function utility3() //creating local cache of EHE by 2-letter TSV files
     {
-        exit("\n-disabled-\n");
+        exit("\n-disabled-\n"); //ran only once... worked OK
         $txtfile = self::adjust_filename($this->params["EHE"]["url"]);
         if(!file_exists($txtfile)) exit("\nfile does not exist: [$txtfile]\n");
         else echo "\nfound: [$txtfile]";
