@@ -34,6 +34,7 @@ class DHSmasherOutputAPI
         $this->url['api_search'] = "http://eol.org/api/search/1.0.json?page=1&exact=true&cache_ttl=&q=";
         $this->download_options2 = array("resource_id" => "trait_request", "download_wait_time" => 2000000, "timeout" => 3600, "download_attempts" => 1);
         $this->download_options2['expire_seconds'] = false;
+        $this->path_EHE_tsv_files = CONTENT_RESOURCE_LOCAL_PATH . "smasher_EHE/";
         
         //furtherInformationURLs
         $this->fiu["APH"] = "http://aphid.speciesfile.org/Common/basic/Taxa.aspx?TaxonNameID=";
@@ -73,8 +74,93 @@ class DHSmasherOutputAPI
         }
         else return false;
     }
+    
+    private function get_eol_id($rek, $first)
+    {
+        print_r($rek); //debug only
+        /* $rek => Array (
+            [taxonID] => -739550
+            [acceptedNameUsageID] => -739550
+            [parentNameUsageID] => -577816
+            [scientificName] => Acanthixalus
+            [taxonRank] => genus
+            [source] => AMP:Acanthixalus
+            [taxonomicStatus] => accepted
+        ) */
+        
+        $first['scientificName'] = $rek['scientificName']; //deliberately add sciname in $first array
+        print_r($first);
+        
+        if($first['acronym'] == "AMP") $search_hierarchies = array("AmphibiaWeb #119", "Species 2000 & ITIS Catalogue of Life: April 2013 #1188");
+        $recs = self::get_recs_from_EHE($first, $search_hierarchies);
+        if($recs)
+        {   /* [0] => Array (
+                    [EOLid] => 42922
+                    [richness_score] => 0
+                    [scientificName] => "Acanthixalus"
+                    [he_id] => 52661717
+                    [source_hierarchy] => "Species 2000 & ITIS Catalogue of Life: April 2013 #1188"
+                ) */
+            print_r($recs);
+            if($first['acronym'] == "AMP") //==================================== start AMP
+            {
+                foreach($recs as $rec) {    //1st option
+                    if($rec['source_hierarchy'] == "AmphibiaWeb #119" && $first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
+                }
+                foreach($recs as $rec) {    //2nd option
+                    if($rec['source_hierarchy'] == "Species 2000 & ITIS Catalogue of Life: April 2013 #1188")
+                    {
+                        if($rek['taxonRank'] == "genus") //exact match
+                        {
+                            if($rek['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
+                        }
+                        elseif($rek['taxonRank'] == "species") //begins_with
+                        {
+                            if($rek['scientificName'] == substr($rec['scientificName'],0,strlen($rek['scientificName']))) return $rec['EOLid'];
+                        }
+                    }
+                }
+                foreach($recs as $rec) {    //3rd option
+                    if($first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
+                }
+            } //================================================================ end AMP
+
+            if($first['acronym'] == "IOC") //==================================== start IOC
+            {
+                foreach($recs as $rec) {    //1st option
+                    if($rec['source_hierarchy'] == "Avibase - IOC World Bird Names (2011) #860")
+                    {
+                        if(in_array($rek['taxonRank'], array("genus","family"))) //exact match
+                        {
+                            if($rek['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
+                        }
+                        elseif($rek['taxonRank'] == "species") //begins_with
+                        {
+                            if($rek['scientificName'] == substr($rec['scientificName'],0,strlen($rek['scientificName']))) return $rec['EOLid'];
+                        }
+                    }
+                }
+                foreach($recs as $rec) {    //3rd option
+                    if($first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
+                }
+            } //================================================================ end IOC
+            
+
+
+            exit("\nfinally found it...\n");
+        }
+        else echo "\nnext ...\n";
+        return "";
+    }
+    
+    
+    // Sending get request to http://eol.org/api/search/1.0.json?page=1&exact=true&cache_ttl=&q=Abrus pulchellus subsp. suffruticosus : only attempt :: [lib/Functions.php [204]]<br>
+    // Sending get request to http://eol.org/api/search/1.0.json?page=1&exact=true&cache_ttl=&q=Abrus pulchellus suffruticosus : only attempt :: [lib/Functions.php [204]]<br>
+    // Sending get request to http://eol.org/api/search/1.0.json?page=1&exact=false&cache_ttl=&q=Abrus pulchellus subsp. suffruticosus : only attempt :: [lib/Functions.php [204]]<br>
+    
     function utility2()
     {
+        $included_acronyms = array("AMP");
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
         $i = 0; $m = 280000; //466666; 280000
         foreach(new FileIterator($smasher_file) as $line => $row) {
@@ -92,7 +178,7 @@ class DHSmasherOutputAPI
                 }
                 if($rek)
                 {
-                    // /* breakdown when caching:
+                    /* breakdown when caching:
                     $cont = false;
                     // if($i >=  1    && $i < $m) $cont = true;
                     // if($i >=  $m   && $i < $m*2) $cont = true;
@@ -105,12 +191,30 @@ class DHSmasherOutputAPI
                     // if($i >=  $m*8 && $i < $m*9) $cont = true;
                     // if($i >=  $m*9 && $i < $m*10) $cont = true;
                     if(!$cont) continue;
-                    // */
+                    */
 
-                    print_r($rek); //debug only
                     $sciname = $rek['scientificName'];
                     
-                    /* caching EOL API name search
+                    // /* getting the EOLid ======================================= OK
+                    // echo "\nsmasher record: ----------------------------";
+                    // print_r($rek); //debug only
+                    $first_source = self::get_first_source($rek['source']);
+                    // print_r($first_source);
+                    
+                    // normal operation
+                    // self::get_eol_id($rek, $first_source, $func);
+                    
+                    // if(in_array($first_source['acronym'], $excluded_acronyms)) continue;
+                    // self::get_eol_id($rek, $first_source, $func);
+                    
+                    if(in_array($first_source['acronym'], $included_acronyms)) self::get_eol_id($rek, $first_source);
+                    else continue;
+                    // ==============================================================*/
+                    
+                    
+                    
+                    
+                    /* caching EOL API name search ===================================== OK
                     $url1 = $this->url['api_search'].$sciname;
                     if($taxon_rec = self::search_ok($url1)) {}
                     else
@@ -129,7 +233,9 @@ class DHSmasherOutputAPI
                             }
                         }
                     }
-                    */
+                     =============================================================== */
+                    
+                    
                     
                     // exit("\n-end utility2-\n");
 
@@ -600,68 +706,83 @@ class DHSmasherOutputAPI
         }
     }
 
-    function utility3() //creating local cache of EHE
+    private function get_recs_from_EHE($first, $search_hierarchies)
     {
-        $acronyms = array('EHE'); //just one, just this one EHE
-        foreach($acronyms as $acronym)
-        {
-            $txtfile = self::adjust_filename($this->params[$acronym]["url"]);
-            if(!file_exists($txtfile)) exit("\nfile does not exist: [$txtfile]\n");
-            else echo "\nfound: [$txtfile]";
-            $i = 0; $m = 466666; 
-            $fields = array("EOLid", "richness_score", "scientificName", "he_id", "source_hierarchy");
-            foreach(new FileIterator($txtfile) as $line => $row) {
-                $i++;
-                if(true)
-                {
-                    $rec = array(); //just to be sure
-                    $rec = explode("\t", $row);
-                    $k = -1;
-                    $rek = array();
-                    foreach($fields as $field) {
-                        $k++;
-                        $rek[$field] = @$rec[$k];
-                    }
-                    if($rek)
-                    {
-                        /* breakdown when caching:
-                        $cont = false;
-                        // if($i >=  1    && $i < $m) $cont = true;
-                        // if($i >=  $m   && $i < $m*2) $cont = true;
-                        // if($i >=  $m*2 && $i < $m*3) $cont = true;
-                        // if($i >=  $m*3 && $i < $m*4) $cont = true;
-                        if($i >=  $m*4 && $i < $m*5) $cont = true;
-                        // if($i >=  $m*5 && $i < $m*6) $cont = true;
-                        if(!$cont) continue;
-                        */
-                        
-                        print_r($rek); //exit;
-                        /*
-                        //try to retrieve
-                        if($arr = self::retrieve_cache($first))
-                        {
-                            echo("\n $acronym RETRIEVED cached json\n");
-                            exit;
-                        }
-                        else
-                        {
-                            print_r($rek);
-                            //start write
-                            self::write_cache(json_encode($rek), $first);
-                            echo("\n $acronym SAVED cached json\n");
-                            exit;
-                        }
-                        */
-                        echo "\n-------------------------------\n";
-                    }
-                    
-                }
-                if($i >= 1000) break; //debug only
+        $recs = array(); //recs to return
+        
+        $txtfile = self::adjust_filename($this->params["EHE"]["url"]); //orig
+        $txtfile = $this->path_EHE_tsv_files.substr($first['scientificName'],0,2).".tsv";
+        
+        if(!file_exists($txtfile)) exit("\nfile does not exist: [$txtfile]\n");
+        else echo "\nfound: [$txtfile]";
+        $i = 0; $m = 466666; 
+        $fields = array("EOLid", "richness_score", "scientificName", "he_id", "source_hierarchy");
+        echo "\nsearching...";
+        foreach(new FileIterator($txtfile) as $line => $row) {
+            $i++; $rec = array(); //just to be sure
+            $rec = explode("\t", $row);
+            $k = -1; $rek = array();
+            foreach($fields as $field) {
+                $k++;
+                $rek[$field] = @$rec[$k];
             }
+            if($rek) {
+                $rek_scientificName = self::remove_quotes($rek['scientificName']);
+                $rek_source_hierarchy = self::remove_quotes($rek['source_hierarchy']);
+                //gets records from EHE with BEGINS_WITH scientificName
+                if($first['scientificName'] == substr($rek_scientificName,0,strlen($first['scientificName']))) {
+                    $recs[] = $rek;
+                }
+            }
+        }
+        return $recs;
+    }
+
+    function utility3() //creating local cache of EHE by 2-letter TSV files
+    {
+        $txtfile = self::adjust_filename($this->params["EHE"]["url"]);
+        if(!file_exists($txtfile)) exit("\nfile does not exist: [$txtfile]\n");
+        else echo "\nfound: [$txtfile]";
+        $i = 0; $m = 466666; 
+        $fields = array("EOLid", "richness_score", "scientificName", "he_id", "source_hierarchy");
+        foreach(new FileIterator($txtfile) as $line => $row) {
+            $i++;
+            if(true)
+            {
+                $rec = array(); //just to be sure
+                $rec = explode("\t", $row);
+                $k = -1;
+                $rek = array();
+                foreach($fields as $field) {
+                    $k++;
+                    $rek[$field] = @$rec[$k];
+                }
+                if($rek)
+                {
+                    $rek['scientificName'] = self::remove_quotes($rek['scientificName']);
+                    $rek['source_hierarchy'] = self::remove_quotes($rek['source_hierarchy']);
+                    $row = implode("\t", $rek);
+                    // print_r($rek);
+                    $substr = substr($rek['scientificName'],0,2);
+                    echo " - [$substr]";
+                    self::append_to_EHE_text_file($this->path_EHE_tsv_files.$substr.".tsv", $row);
+                }
+            }
+            // if($i >= 1000) break; //debug only
         }
         exit("\n-end utility3-\n");
     }
+    private function append_to_EHE_text_file($filename, $row)
+    {
+        $WRITE = Functions::file_open($filename, "a");
+        fwrite($WRITE, $row . "\n");
+        fclose($WRITE);
+    }
 
+    private function remove_quotes($str)
+    {
+        return str_replace('"', "", $str);
+    }
 
     /*
     function extract_file($zip_path)
