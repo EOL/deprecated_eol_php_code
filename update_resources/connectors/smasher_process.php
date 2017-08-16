@@ -47,8 +47,8 @@ $p["ZOR"] = array("desc" => "Zoraptera Species File", "url" => "http://localhost
 $func = new DHSmasherOutputAPI($p);
 // $func->start();
 // $func->utility();    //caching creation of cache files
-// $func->utility2();   //caching EOL API search name | AND | getting EOLid
-$func->utility3();    // creation of EOL Hierarchy Entries (EHE) aa ab ac... text files
+$func->utility2();   //caching EOL API search name | AND | getting EOLid
+// $func->utility3();    // creation of EOL Hierarchy Entries (EHE) aa ab ac... text files  //last generated Aug 16, 2017 Eastern
 
 
 

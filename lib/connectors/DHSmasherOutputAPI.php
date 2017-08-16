@@ -90,9 +90,7 @@ class DHSmasherOutputAPI
         
         $first['scientificName'] = $rek['scientificName']; //deliberately add sciname in $first array
         print_r($first);
-        
-        if($first['acronym'] == "AMP") $search_hierarchies = array("AmphibiaWeb #119", "Species 2000 & ITIS Catalogue of Life: April 2013 #1188");
-        $recs = self::get_recs_from_EHE($first, $search_hierarchies);
+        $recs = self::get_recs_from_EHE($first);
         if($recs)
         {   /* [0] => Array (
                     [EOLid] => 42922
@@ -120,9 +118,10 @@ class DHSmasherOutputAPI
                         }
                     }
                 }
-                foreach($recs as $rec) {    //3rd option
+                foreach($recs as $rec) {    //3rd option -> get from any source hierarchy - exact match
                     if($first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
                 }
+                return "";
             } //================================================================ end AMP
 
             if($first['acronym'] == "IOC") //==================================== start IOC
@@ -140,14 +139,45 @@ class DHSmasherOutputAPI
                         }
                     }
                 }
-                foreach($recs as $rec) {    //3rd option
+                foreach($recs as $rec) {    //3rd option -> get from any source hierarchy - exact match
                     if($first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
                 }
+                return "";
             } //================================================================ end IOC
+
+            if($first['acronym'] == "WOR") //==================================== start WOR
+            {
+                foreach($recs as $rec) {    //1st option
+                    if($rec['source_hierarchy'] == "WORMS Species Information (Marine Species) #123" && $first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
+                }
+                foreach($recs as $rec) {    //2nd option
+                    if($rec['source_hierarchy'] == "Algeabase resource #1280" && $first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
+                }
+                foreach($recs as $rec) {    //3rd option -> get from any source hierarchy - exact match
+                    if($first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
+                }
+                return "";
+            } //================================================================ end WOR
             
 
+            if(!in_array($first['acronym'], array("AMP","IOC","WOR"))) // ===================== start REST of the acronyms
+            {
+                $ordered_priority_hierarchies = array("Species 2000 & ITIS Catalogue of Life: April 2013 #1188", "WORMS Species Information (Marine Species) #123",
+                "NCBI Taxonomy #1172", "Integrated Taxonomic Information System (ITIS) #903",
+                "FishBase (Fish Species) #143", "The Reptile Database #787", "Index Fungorum #596", "MycoBank Classification #1283",
+                "Tropicos resource #636", "Algeabase resource #1280", "AntWeb (Ant Species) #121", "Paleobiology Database #967", "Extant & Habitat resource #1347");
+                foreach($ordered_priority_hierarchies as $source_hierarchy) //option 1
+                {
+                    foreach($recs as $rec) {
+                        if($rec['source_hierarchy'] == $source_hierarchy && $first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
+                    }
+                }
+                foreach($recs as $rec) {    //option 2 -> any exact match from any source hierarchy
+                    if($first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
+                }
+                return "";
+            } // =========================== end REST of the acronyms
 
-            exit("\nfinally found it...\n");
         }
         else echo "\nnext ...\n";
         return "";
@@ -184,7 +214,7 @@ class DHSmasherOutputAPI
                     // if($i >=  $m   && $i < $m*2) $cont = true;
                     // if($i >=  $m*2 && $i < $m*3) $cont = true;
                     // if($i >=  $m*3 && $i < $m*4) $cont = true;
-                    if($i >=  $m*4 && $i < $m*5) $cont = true;
+                    // if($i >=  $m*4 && $i < $m*5) $cont = true;
                     // if($i >=  $m*5 && $i < $m*6) $cont = true;
                     // if($i >=  $m*6 && $i < $m*7) $cont = true;
                     // if($i >=  $m*7 && $i < $m*8) $cont = true;
@@ -207,7 +237,14 @@ class DHSmasherOutputAPI
                     // if(in_array($first_source['acronym'], $excluded_acronyms)) continue;
                     // self::get_eol_id($rek, $first_source, $func);
                     
-                    if(in_array($first_source['acronym'], $included_acronyms)) self::get_eol_id($rek, $first_source);
+                    if(in_array($first_source['acronym'], $included_acronyms))
+                    {
+                        if($eol_id = self::get_eol_id($rek, $first_source))
+                        {
+                            echo "\nEOLid = [$eol_id]\n"; exit;
+                        }
+                        else echo "\n-NO EOLid-\n";
+                    }
                     else continue;
                     // ==============================================================*/
                     
@@ -706,7 +743,7 @@ class DHSmasherOutputAPI
         }
     }
 
-    private function get_recs_from_EHE($first, $search_hierarchies)
+    private function get_recs_from_EHE($first)
     {
         $recs = array(); //recs to return
         
@@ -740,6 +777,7 @@ class DHSmasherOutputAPI
 
     function utility3() //creating local cache of EHE by 2-letter TSV files
     {
+        exit("\n-disabled-\n");
         $txtfile = self::adjust_filename($this->params["EHE"]["url"]);
         if(!file_exists($txtfile)) exit("\nfile does not exist: [$txtfile]\n");
         else echo "\nfound: [$txtfile]";
