@@ -780,6 +780,7 @@ class FreeDataAPI
         $terms['furtherInformationURL'] = "http://rs.tdwg.org/ac/terms/furtherInformationURL";
         $terms['datasetID'] = "http://rs.tdwg.org/dwc/terms/datasetID";
         $terms['EOLid'] = "http://eol.org/schema/EOLid";
+        $terms['EOLidAnnotations'] = "http://eol.org/schema/EOLidAnnotations";
         
         //for orig FreshData processing
         $terms['id'] = "http://rs.gbif.org/terms/1.0/RLSID";

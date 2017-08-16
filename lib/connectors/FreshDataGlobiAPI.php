@@ -90,10 +90,9 @@ class FreshDataGlobiAPI
         $rec['decimalLongitude'] = $rek['decimalLongitude'];
         $rec['eventDate'] = $rek['observationDateTime'];
         $rec['bibliographicCitation'] = $rek['referenceCitation'];
+
         $rec = array_map('trim', $rec);
-        
         $func->print_header($rec, CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations.txt");
-        
         $val = implode("\t", $rec);
         self::save_to_text_file($val);
         

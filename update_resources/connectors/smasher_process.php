@@ -9,6 +9,8 @@ $timestart = time_elapsed();
 // This is build using this google sheet: https://docs.google.com/spreadsheets/d/1mBgsVZi1hqcwz37ZZI_5mEHdlXS_RiXpP_CY3RnLzXA/edit#gid=0
 // and this Dropbox folder: https://www.dropbox.com/scl/fo/nn34xhcjcoxnuro65ryve/AACaBly_BUjkJDHMdHBr-hoka?dl=0&oref=e&r=AAdw397jN5KF6_UtynJjAYlSPhAGW7V4VHBVxs7tSv4Rrj0brXhqgzCKAOvkTbx0j-Tv6NI8eLsU1QHfg3o8VTy8r6GqE0jbHGXkn0S411EhTgS3hd1dQaIIILlsVFUJhpqGuD3Y1PYN_lApCOIQL5JiLCSQfQwvFe7KhsqHx3311A&sm=1
 $p["smasher"] = array("desc" => "Smasher Output file", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/EOLDynamicHierarchyDraftAug2017/dwh_taxa.txt");
+$p["EHE"] = array("desc" => "EOL Hierarchy Entries (EHE)", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/richness_and_names.tsv");
+
 $p["AMP"] = array("desc" => "Amphibia Genera & Species", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/amphibia/amphibia.txt");
 $p["APH"] = array("desc" => "Aphid Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-aphid-v8.6/taxon.txt");
 $p["BLA"] = array("desc" => "Cockroach Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-blattodea-v8.8/taxon.txt");
@@ -19,7 +21,10 @@ $p["EET"] = array("desc" => "Earthworms", "url" => "http://localhost/cp/dynamic_
 $p["EMB"] = array("desc" => "Embioptera Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-embioptera-v8.6/taxon.txt");
 $p["gbif"] = array("desc" => "GBIF Backbone Taxonomy (original version)", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/backbone-current/Taxon.tsv");
 $p["GRY"] = array("desc" => "Grylloblattodea Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-grylloblattodea-v1.4/taxon.txt");
-$p["ictv"] = array("desc" => "ICTV Virus Taxonomy", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwh_taxa_accepted.txt");
+
+// $p["ictv"] = array("desc" => "ICTV Virus Taxonomy", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwh_taxa_accepted.txt");
+$p["ictv"] = array("desc" => "ICTV Virus Taxonomy", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/ictv-virustaxonomy-with-higherclassification/taxon.tab");
+
 $p["IOC"] = array("desc" => "IOC World Bird List with higherClassification", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/ioc-birdlist-with-higherclassification/taxon.tab");
 $p["lhw"] = array("desc" => "World Checklist of Hornworts and Liverworts", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/liverhornworts/liverhornworts.txt");
 $p["LYG"] = array("desc" => "Lygaeoidea Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-lygaeoidea-v1.0/taxon.txt");
@@ -40,7 +45,12 @@ $p["WOR"] = array("desc" => "WoRMS: use original WoRMS2EOL file for this", "url"
 $p["ZOR"] = array("desc" => "Zoraptera Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-zoraptera-v1.4/taxon.txt");
 
 $func = new DHSmasherOutputAPI($p);
-$func->start();
+// $func->start();
+// $func->utility();    //caching creation of cache files
+$func->utility2();   //caching EOL API search name
+// $func->utility3();    //caching creation of EOL Hierarchy Entries (EHE)
+
+
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
