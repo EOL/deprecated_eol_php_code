@@ -212,6 +212,12 @@ class DHSmasherOutputAPI
                     foreach($recs as $rec) {
                         if($rec['source_hierarchy'] == $source_hierarchy && $first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
                     }
+                    
+                    //by Eli
+                    foreach($recs as $rec) {
+                        if($rec['source_hierarchy'] == $source_hierarchy && Functions::canonical_form($first['scientificName']) == Functions::canonical_form($rec['scientificName'])) return $rec['EOLid'];
+                    }
+                    
                 }
                 //option 2 -> any exact match from any source hierarchy
             } // =========================== end REST of the acronyms
@@ -337,6 +343,7 @@ class DHSmasherOutputAPI
         // $acronyms = array_keys($this->params);
         $acronyms = array('WOR'); //WOR TPL gbif
         print_r($acronyms);
+        exit;
         foreach($acronyms as $acronym)
         {
             $txtfile = self::adjust_filename($this->params[$acronym]["url"]);
@@ -447,9 +454,9 @@ class DHSmasherOutputAPI
         /* self::integrity_check(); */ //works OK, will use it if there is a new batch of resource files
         // $excluded_acronyms = array('WOR', 'gbif', 'ictv', 'TPL'); //gbif
         // $included_acronyms = array('WOR'); //gbif TPL //debug only when caching
-        $included_acronyms = array('APH');
+        // $included_acronyms = array('APH');
         // $included_acronyms = array('TPL');
-        // $included_acronyms = array('gbif');
+        $included_acronyms = array('AMP');
         
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
         $i = 0; $m = 466666; //466666; 280000
@@ -596,11 +603,11 @@ class DHSmasherOutputAPI
         
         // print_r($d); exit;
         $rec['EOLid'] = self::get_eol_id($rek, $first, $rec['scientificName']);
-        
+        if(!$rec['EOLid']) exit("\nno EOLid\n");
         
         
         print_r($rec);
-        exit("\nstop muna\n");
+        // exit("\nstop muna\n");
         echo "\n-------------------------------------------------------------\n";
         
         $rec = array_map('trim', $rec);
