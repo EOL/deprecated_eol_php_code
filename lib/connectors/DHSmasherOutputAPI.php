@@ -74,7 +74,16 @@ class DHSmasherOutputAPI
         }
         else return false;
     }
-    
+    private function check_for_multiple($recs, $scientificName)
+    {
+        $check = array();
+        $sciname = Functions::canonical_form($scientificName);
+        for($recs as $rec) {
+            if($sciname == Functions::canonical_form($rec['scientificName'])) $check[$rec['EOLid']] = "";
+        }
+        if(count($check) > 1) return true;
+        else return false;
+    }
     function get_eol_id($rek, $first, $scientificName)
     {
         print_r($rek); //debug only
@@ -91,6 +100,7 @@ class DHSmasherOutputAPI
         $first['scientificName'] = $scientificName; //deliberately add sciname in $first array
         print_r($first);
         $recs = self::get_recs_from_EHE($first);
+        $withMultiple = self::check_for_multiple($recs, $scientificName);
         if($recs)
         {   /* [0] => Array (
                     [EOLid] => 42922
@@ -103,18 +113,18 @@ class DHSmasherOutputAPI
             if($first['acronym'] == "AMP") //==================================== start AMP
             {
                 foreach($recs as $rec) {    //1st option
-                    if($rec['source_hierarchy'] == "AmphibiaWeb #119" && $first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
+                    if($rec['source_hierarchy'] == "AmphibiaWeb #119" && $first['scientificName'] == $rec['scientificName']) return array($rec['EOLid'], $withMultiple);
                 }
                 foreach($recs as $rec) {    //2nd option
                     if($rec['source_hierarchy'] == "Species 2000 & ITIS Catalogue of Life: April 2013 #1188")
                     {
                         if($rek['taxonRank'] == "genus") //exact match
                         {
-                            if($rek['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
+                            if($rek['scientificName'] == $rec['scientificName']) return array($rec['EOLid'], $withMultiple);
                         }
                         elseif($rek['taxonRank'] == "species") //begins_with
                         {
-                            if($rek['scientificName'] == substr($rec['scientificName'],0,strlen($rek['scientificName']))) return $rec['EOLid'];
+                            if($rek['scientificName'] == substr($rec['scientificName'],0,strlen($rek['scientificName']))) return array($rec['EOLid'], $withMultiple);
                         }
                     }
                 }
@@ -189,22 +199,19 @@ class DHSmasherOutputAPI
             if($first['acronym'] == "WOR") //==================================== start WOR
             {
                 foreach($recs as $rec) {    //1st option
-                    if($rec['source_hierarchy'] == "WORMS Species Information (Marine Species) #123" && $first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
+                    if($rec['source_hierarchy'] == "WORMS Species Information (Marine Species) #123" && $first['scientificName'] == $rec['scientificName']) return array($rec['EOLid'], $withMultiple);
                 }
                 //additional 1st option just Eli
                 foreach($recs as $rec) {    //1st option
-                    if($rec['source_hierarchy'] == "WORMS Species Information (Marine Species) #123" && Functions::canonical_form($first['scientificName']) == Functions::canonical_form($rec['scientificName'])) return $rec['EOLid'];
+                    if($rec['source_hierarchy'] == "WORMS Species Information (Marine Species) #123" && Functions::canonical_form($first['scientificName']) == Functions::canonical_form($rec['scientificName'])) return array($rec['EOLid'], $withMultiple);
                 }
                 foreach($recs as $rec) {    //2nd option
-                    if($rec['source_hierarchy'] == "Algeabase resource #1280" && $first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
+                    if($rec['source_hierarchy'] == "Algeabase resource #1280" && $first['scientificName'] == $rec['scientificName']) return array($rec['EOLid'], $withMultiple);
                 }
                 //just by Eli
                 foreach($recs as $rec) {    //2nd option
-                    if($rec['source_hierarchy'] == "Algeabase resource #1280" && Functions::canonical_form($first['scientificName']) == Functions::canonical_form($rec['scientificName'])) return $rec['EOLid'];
+                    if($rec['source_hierarchy'] == "Algeabase resource #1280" && Functions::canonical_form($first['scientificName']) == Functions::canonical_form($rec['scientificName'])) return array($rec['EOLid'], $withMultiple);
                 }
-                
-
-
                 //3rd option -> any exact match from any source hierarchy
             } //================================================================ end WOR
 
@@ -217,12 +224,12 @@ class DHSmasherOutputAPI
                 foreach($ordered_priority_hierarchies as $source_hierarchy) //option 1
                 {
                     foreach($recs as $rec) {
-                        if($rec['source_hierarchy'] == $source_hierarchy && $first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
+                        if($rec['source_hierarchy'] == $source_hierarchy && $first['scientificName'] == $rec['scientificName']) return array($rec['EOLid'], $withMultiple);
                     }
                     
                     //by Eli
                     foreach($recs as $rec) {
-                        if($rec['source_hierarchy'] == $source_hierarchy && Functions::canonical_form($first['scientificName']) == Functions::canonical_form($rec['scientificName'])) return $rec['EOLid'];
+                        if($rec['source_hierarchy'] == $source_hierarchy && Functions::canonical_form($first['scientificName']) == Functions::canonical_form($rec['scientificName'])) return array($rec['EOLid'], $withMultiple);
                     }
                     
                 }
@@ -232,19 +239,14 @@ class DHSmasherOutputAPI
 
             //common to all -> any exact match from any source hierarchy
             foreach($recs as $rec) {
-                if($first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
+                if($first['scientificName'] == $rec['scientificName']) return array($rec['EOLid'], $withMultiple);
             }
-            return "";
-            
-
-            
-
+            return false;
 
         }
         else echo "\nnext ...\n";
-        return "";
+        return false;
     }
-    
     
     // Sending get request to http://eol.org/api/search/1.0.json?page=1&exact=true&cache_ttl=&q=Abrus pulchellus subsp. suffruticosus : only attempt :: [lib/Functions.php [204]]<br>
     // Sending get request to http://eol.org/api/search/1.0.json?page=1&exact=true&cache_ttl=&q=Abrus pulchellus suffruticosus : only attempt :: [lib/Functions.php [204]]<br>
