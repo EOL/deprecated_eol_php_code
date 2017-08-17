@@ -137,17 +137,16 @@ class DHSmasherOutputAPI
                 }
                 //end costly IOC workflow
                 
-                $Avibase_EOLid = false;
                 foreach($recs as $rec) {    //1st option
-                    if($rec['source_hierarchy'] == "Avibase - IOC World Bird Names (2011) #860")
+                    if($rec['source_hierarchy'] == $avibase_hierarchy)
                     {
                         if(in_array($rek['taxonRank'], array("genus","family"))) //exact match
                         {
-                            if($rek['scientificName'] == $rec['scientificName']) $others[$rec['EOLid']][] = $avibase_hierarchy; //$Avibase_EOLid = $rec['EOLid'];
+                            if($rek['scientificName'] == $rec['scientificName']) $others[$rec['EOLid']][] = $avibase_hierarchy;
                         }
                         elseif($rek['taxonRank'] == "species") //begins_with
                         {
-                            if($rek['scientificName'] == substr($rec['scientificName'],0,strlen($rek['scientificName']))) $others[$rec['EOLid']][] = $avibase_hierarchy; //$Avibase_EOLid = $rec['EOLid'];
+                            if($rek['scientificName'] == substr($rec['scientificName'],0,strlen($rek['scientificName']))) $others[$rec['EOLid']][] = $avibase_hierarchy;
                         }
                     }
                 }
