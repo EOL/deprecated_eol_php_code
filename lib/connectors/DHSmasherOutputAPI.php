@@ -158,8 +158,7 @@ class DHSmasherOutputAPI
 
             if($first['acronym'] == "IOC") //==================================== start IOC
             {
-                $canonical = false;
-                
+                /*
                 //start costly IOC workflow - https://eol-jira.bibalex.org/browse/TRAM-581?focusedCommentId=61277&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61277
                 $avibase_hierarchy = "Avibase - IOC World Bird Names (2011) #860";
                 $others = array();
@@ -168,13 +167,8 @@ class DHSmasherOutputAPI
                         if(self::smash_form($first['scientificName']) == self::smash_form($rec['scientificName'])) $others[$rec['EOLid']][] = $rec['source_hierarchy'];
                     }
                 }
-                foreach($recs as $rec) {    //canonical
-                    if($rec['source_hierarchy'] != $avibase_hierarchy) {
-                        if(Functions::canonical_form($first['scientificName']) == Functions::canonical_form($rec['scientificName'])) $others[$rec['EOLid']][] = $rec['source_hierarchy'];
-                    }
-                }
                 //end costly IOC workflow
-                
+
                 foreach($recs as $rec) {    //1st option
                     if($rec['source_hierarchy'] == $avibase_hierarchy)
                     {
@@ -186,20 +180,15 @@ class DHSmasherOutputAPI
                         }
                     }
                 }
-                foreach($recs as $rec) {    //1st option - canonical
-                    if($rec['source_hierarchy'] == $avibase_hierarchy)
-                    {
-                        if(in_array($rek['taxonRank'], array("genus","family"))) { //exact match - canonical
-                            if(Functions::canonical_form($rek['scientificName']) == Functions::canonical_form($rec['scientificName'])) $others[$rec['EOLid']][] = $avibase_hierarchy;
-                        }
-                    }
-                }
-
+                
+                // require("smasher_ioc_lastpart.php");
                 //start cont. costly  ===============================
                 $result = array(); 
                 $clements_hierarchy = "Clements Checklist resource #1128";
                 foreach(array_keys($others) as $eol_id)
                 {
+                    $others[$eol_id] = array_unique(@$others[$eol_id]);
+
                     if(in_array($clements_hierarchy, $others[$eol_id])) {
                         $result['clements']['hierarchies using this id'] = count($others[$eol_id]);
                         $result['clements']['EOLid'] = $eol_id;
@@ -209,22 +198,89 @@ class DHSmasherOutputAPI
                         $result['avibase']['EOLid'] = $eol_id;
                     }
                 }
+
+                // $others[$result['clements']['EOLid']] = array_unique(@$others[$result['clements']['EOLid']]);
+                // $others[$result['avibase']['EOLid']]  = array_unique(@$others[$result['avibase']['EOLid']]);
+
                 print_r($result);
                 print_r(@$others[$result['clements']['EOLid']]);
                 print_r(@$others[$result['avibase']['EOLid']]);
-                /*
-                [clements] => Array(
-                        [hierarchies using this id] => 12
-                        [EOLid] => 18990)
-                [avibase] => Array(
-                        [hierarchies using this id] => 1
-                        [EOLid] => 45509532)
-                */
+
+                // [clements] => Array(
+                //         [hierarchies using this id] => 12
+                //         [EOLid] => 18990)
+                // [avibase] => Array(
+                //         [hierarchies using this id] => 1
+                //         [EOLid] => 45509532)
+
                 if(@$result['avibase']['hierarchies using this id'] == 1 && @$result['clements']['hierarchies using this id'] > 1) return array($result['clements']['EOLid'], $withMultiple);
                 if(@$result['avibase']['hierarchies using this id'] == 1 && @$result['clements']['hierarchies using this id'] <= 1) return array($result['avibase']['EOLid'], $withMultiple);
                 //just Eli
                 if(!@$result['avibase']['hierarchies using this id'] && @$result['clements']['hierarchies using this id'] > 0) return array($result['clements']['EOLid'], $withMultiple);
                 //end cont. costly ===============================
+                */
+                //================================================= divider ================================================= 
+                
+                // require("smasher_ioc_canonical.php");
+                /*
+                //start costly IOC workflow - https://eol-jira.bibalex.org/browse/TRAM-581?focusedCommentId=61277&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61277
+                $avibase_hierarchy = "Avibase - IOC World Bird Names (2011) #860";
+                $others = array();
+                foreach($recs as $rec) {    //canonical
+                    if($rec['source_hierarchy'] != $avibase_hierarchy) {
+                        if(Functions::canonical_form($first['scientificName']) == Functions::canonical_form($rec['scientificName'])) $others[$rec['EOLid']][] = $rec['source_hierarchy'];
+                    }
+                }
+                //end costly IOC workflow
+
+                foreach($recs as $rec) {    //1st option - canonical
+                    if($rec['source_hierarchy'] == $avibase_hierarchy)
+                    {
+                        if(in_array($rek['taxonRank'], array("genus","family"))) { //exact match - canonical
+                            if(Functions::canonical_form($rek['scientificName']) == Functions::canonical_form($rec['scientificName'])) $others[$rec['EOLid']][] = $avibase_hierarchy;
+                        }
+                    }
+                }
+
+                // require("smasher_ioc_lastpart.php");
+                //start cont. costly  ===============================
+                $result = array(); 
+                $clements_hierarchy = "Clements Checklist resource #1128";
+                foreach(array_keys($others) as $eol_id)
+                {
+                    $others[$eol_id] = array_unique(@$others[$eol_id]);
+
+                    if(in_array($clements_hierarchy, $others[$eol_id])) {
+                        $result['clements']['hierarchies using this id'] = count($others[$eol_id]);
+                        $result['clements']['EOLid'] = $eol_id;
+                    }
+                    if(in_array($avibase_hierarchy, $others[$eol_id])) {
+                        $result['avibase']['hierarchies using this id'] = count($others[$eol_id]);
+                        $result['avibase']['EOLid'] = $eol_id;
+                    }
+                }
+
+                // $others[$result['clements']['EOLid']] = array_unique(@$others[$result['clements']['EOLid']]);
+                // $others[$result['avibase']['EOLid']]  = array_unique(@$others[$result['avibase']['EOLid']]);
+
+                print_r($result);
+                print_r(@$others[$result['clements']['EOLid']]);
+                print_r(@$others[$result['avibase']['EOLid']]);
+
+                // [clements] => Array(
+                //         [hierarchies using this id] => 12
+                //         [EOLid] => 18990)
+                // [avibase] => Array(
+                //         [hierarchies using this id] => 1
+                //         [EOLid] => 45509532)
+
+                if(@$result['avibase']['hierarchies using this id'] == 1 && @$result['clements']['hierarchies using this id'] > 1) return array($result['clements']['EOLid'], $withMultiple, 'canonical');
+                if(@$result['avibase']['hierarchies using this id'] == 1 && @$result['clements']['hierarchies using this id'] <= 1) return array($result['avibase']['EOLid'], $withMultiple, 'canonical');
+                //just Eli
+                if(!@$result['avibase']['hierarchies using this id'] && @$result['clements']['hierarchies using this id'] > 0) return array($result['clements']['EOLid'], $withMultiple, 'canonical');
+                //end cont. costly ===============================
+                
+                */
                 
                 //2nd option -> any exact match from any source hierarchy
             } //================================================================ end IOC
@@ -896,7 +952,6 @@ class DHSmasherOutputAPI
         if(!file_exists($main_path . "$cache1/$cache2")) mkdir($main_path . "$cache1/$cache2");
         $filename = $main_path . "$cache1/$cache2/$md5.eol";
         $WRITE = Functions::file_open($filename, "w");
-        
         $json = json_encode($EOLid);
         fwrite($WRITE, $json);
         fclose($WRITE);
@@ -909,7 +964,6 @@ class DHSmasherOutputAPI
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
         $filename = $main_path . "$cache1/$cache2/$md5.eol";
-        
         if(file_exists($filename))
         {
             $json = file_get_contents($filename);
