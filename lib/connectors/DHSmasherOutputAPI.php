@@ -132,7 +132,6 @@ class DHSmasherOutputAPI
                         if($first['scientificName'] == $rec['scientificName']) $others[$rec['EOLid']][] = $rec['source_hierarchy'];
                         //new by eli
                         if(Functions::canonical_form($first['scientificName']) == Functions::canonical_form($rec['scientificName'])) $others[$rec['EOLid']][] = $rec['source_hierarchy'];
-                        
                     }
                 }
                 //end costly IOC workflow
@@ -173,12 +172,10 @@ class DHSmasherOutputAPI
                 /*
                 [clements] => Array(
                         [hierarchies using this id] => 12
-                        [EOLid] => 18990
-                    )
+                        [EOLid] => 18990)
                 [avibase] => Array(
                         [hierarchies using this id] => 1
-                        [EOLid] => 45509532
-                    )
+                        [EOLid] => 45509532)
                 */
                 if(@$result['avibase']['hierarchies using this id'] == 1 && @$result['clements']['hierarchies using this id'] > 1) return $result['clements']['EOLid'];
                 if(@$result['avibase']['hierarchies using this id'] == 1 && @$result['clements']['hierarchies using this id'] <= 1) return $result['avibase']['EOLid'];
@@ -201,6 +198,13 @@ class DHSmasherOutputAPI
                 foreach($recs as $rec) {    //2nd option
                     if($rec['source_hierarchy'] == "Algeabase resource #1280" && $first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
                 }
+                //just by Eli
+                foreach($recs as $rec) {    //2nd option
+                    if($rec['source_hierarchy'] == "Algeabase resource #1280" && Functions::canonical_form($first['scientificName']) == Functions::canonical_form($rec['scientificName'])) return $rec['EOLid'];
+                }
+                
+
+
                 //3rd option -> any exact match from any source hierarchy
             } //================================================================ end WOR
 
@@ -248,10 +252,14 @@ class DHSmasherOutputAPI
     
     function utility2()
     {
-        $included_acronyms = array("TPL");
+        // $included_acronyms = array("TPL");
         // $included_acronyms = array("IOC");
         // $included_acronyms = array("WOR");
         // $included_acronyms = array("AMP");
+        // $included_acronyms = array("gbif");
+        // $included_acronyms = array("trunk");
+        $included_acronyms = array("ictv");
+        
         
         
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
