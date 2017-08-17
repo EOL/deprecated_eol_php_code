@@ -130,6 +130,9 @@ class DHSmasherOutputAPI
                     if($rec['source_hierarchy'] != $avibase_hierarchy)
                     {
                         if($first['scientificName'] == $rec['scientificName']) $others[$rec['EOLid']][] = $rec['source_hierarchy'];
+                        //new by eli
+                        if(Functions::canonical_form($first['scientificName']) == Functions::canonical_form($rec['scientificName'])) $others[$rec['EOLid']][] = $rec['source_hierarchy'];
+                        
                     }
                 }
                 //end costly IOC workflow
@@ -165,8 +168,8 @@ class DHSmasherOutputAPI
                     }
                 }
                 print_r($result);
-                print_r($others[$result['clements']['EOLid']]);
-                print_r($others[$result['avibase']['EOLid']]);
+                print_r(@$others[$result['clements']['EOLid']]);
+                print_r(@$others[$result['avibase']['EOLid']]);
                 /*
                 [clements] => Array(
                         [hierarchies using this id] => 12
@@ -245,9 +248,11 @@ class DHSmasherOutputAPI
     
     function utility2()
     {
-        $included_acronyms = array("AMP");
+        $included_acronyms = array("TPL");
         // $included_acronyms = array("IOC");
         // $included_acronyms = array("WOR");
+        // $included_acronyms = array("AMP");
+        
         
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
         $i = 0; $m = 466666; //466666; 280000
@@ -297,12 +302,27 @@ class DHSmasherOutputAPI
                     
                     if(in_array($first_source['acronym'], $included_acronyms))
                     {
-                        if($eol_id = self::get_eol_id($rek, $first_source, $rek['scientificName'])) //scientificName is one from smasher file
+                        $fetched = self::fetch_record($first_source);
+                        if($eol_id = self::retrieve_cache_EOLid($first_source, $fetched['scientificName']))
                         {
-                            echo "\nEOLid = [$eol_id]\n";
+                            echo "\nRetrieved EOLid = [$eol_id] from cache\n";
                             // exit;
                         }
-                        else echo "\n-NO EOLid-\n";
+                        else
+                        {
+                            if($eol_id = self::get_eol_id($rek, $first_source, $fetched['scientificName'])) //scientificName is now from resource file
+                            {
+                                echo "\nEOLid = [$eol_id] SAVED to cache\n";
+                                self::write_cache_EOLid($eol_id, $first_source, $fetched['scientificName']);
+                                // exit;
+                            }
+                            else
+                            {
+                                echo "\n-NO EOLid-\n";
+                                // exit;
+                            }
+                        }
+                        
                     }
                     else continue;
                     // ==============================================================*/
@@ -342,14 +362,14 @@ class DHSmasherOutputAPI
     {   /* */
         // $acronyms = array_keys($this->params);
         $less = array('gbif','WOR'); //WOR TPL gbif
-        $acronyms = array('IOC'); //WOR TPL gbif
+        $acronyms = array('WOR'); //WOR TPL gbif
         print_r($acronyms);
         // exit;
         foreach($acronyms as $acronym)
         {
             $txtfile = self::adjust_filename($this->params[$acronym]["url"]);
             if(!file_exists($txtfile)) exit("\nfile does not exist: [$txtfile]\n");
-            else echo "\nfound: [$txtfile]";
+            else echo "\nfound:1 [$txtfile]";
             $i = 0; $m = 200000;
             foreach(new FileIterator($txtfile) as $line => $row) {
                 $i++;
@@ -456,8 +476,8 @@ class DHSmasherOutputAPI
         // $excluded_acronyms = array('WOR', 'gbif', 'ictv', 'TPL'); //gbif
         // $included_acronyms = array('WOR'); //gbif TPL //debug only when caching
         // $included_acronyms = array('APH');
-        // $included_acronyms = array('TPL');
-        $included_acronyms = array('AMP');
+        $included_acronyms = array('TPL');
+        // $included_acronyms = array('AMP');
         
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
         $i = 0; $m = 466666; //466666; 280000
@@ -664,7 +684,7 @@ class DHSmasherOutputAPI
         // the rest of the resources below...
         $txtfile = self::adjust_filename($this->params[$first['acronym']]["url"]);
         if(!file_exists($txtfile)) exit("\nfile does not exist: [$txtfile]\n");
-        else echo "\nfound: [$txtfile]\n";
+        else echo "\nfound:2 [$txtfile] - ".$first['acronym']."\n";
         $i = 0;
         foreach(new FileIterator($txtfile) as $line => $row) {
             $i++;
@@ -749,7 +769,7 @@ class DHSmasherOutputAPI
         {
             $txtfile = self::adjust_filename($this->params[$acronym]["url"]);
             if(!file_exists($txtfile)) exit("\nfile does not exist: [$txtfile]\n");
-            else echo "\nfound: [$txtfile]";
+            else echo "\nfound:3 [$txtfile]";
             $i = 0;
             foreach(new FileIterator($txtfile) as $line => $row) {
                 $i++;
@@ -783,6 +803,36 @@ class DHSmasherOutputAPI
         $WRITE = Functions::file_open($filename, "w");
         fwrite($WRITE, $json . "\n");
         fclose($WRITE);
+    }
+
+    private function write_cache_EOLid($EOLid, $first, $scientificName)
+    {
+        $main_path = $this->smasher_cache;
+        $md5 = md5($first['first_source']."-".$scientificName);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        if(!file_exists($main_path . $cache1))           mkdir($main_path . $cache1);
+        if(!file_exists($main_path . "$cache1/$cache2")) mkdir($main_path . "$cache1/$cache2");
+        $filename = $main_path . "$cache1/$cache2/$md5.eol";
+        $WRITE = Functions::file_open($filename, "w");
+        fwrite($WRITE, $EOLid);
+        fclose($WRITE);
+    }
+    
+    private function retrieve_cache_EOLid($first, $scientificName)
+    {
+        $main_path = $this->smasher_cache;
+        $md5 = md5($first['first_source']."-".$scientificName);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        $filename = $main_path . "$cache1/$cache2/$md5.eol";
+        
+        if(file_exists($filename))
+        {
+            $eolid = file_get_contents($filename);
+            return $eolid;
+        }
+        return false;
     }
     private function retrieve_cache($first, $main_path = false)
     {
@@ -832,7 +882,7 @@ class DHSmasherOutputAPI
         $txtfile = $this->path_EHE_tsv_files.substr($first['scientificName'],0,2).".tsv";
         
         if(!file_exists($txtfile)) exit("\nfile does not exist: [$txtfile]\n");
-        else echo "\nfound: [$txtfile]";
+        else echo "\nfound:4 [$txtfile]";
         $i = 0; $m = 466666; 
         $fields = array("EOLid", "richness_score", "scientificName", "he_id", "source_hierarchy");
         echo "\nsearching...$first[scientificName]..in EHE..";
@@ -874,7 +924,7 @@ class DHSmasherOutputAPI
         exit("\n-disabled-\n"); //ran only once... worked OK
         $txtfile = self::adjust_filename($this->params["EHE"]["url"]);
         if(!file_exists($txtfile)) exit("\nfile does not exist: [$txtfile]\n");
-        else echo "\nfound: [$txtfile]";
+        else echo "\nfound:5 [$txtfile]";
         $i = 0; $m = 466666; 
         $fields = array("EOLid", "richness_score", "scientificName", "he_id", "source_hierarchy");
         foreach(new FileIterator($txtfile) as $line => $row) {

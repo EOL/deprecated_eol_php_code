@@ -84,7 +84,7 @@ $first = Array(
 
 
 
-// /*
+/*
 $rek = Array
 (
     'taxonID' => -2318121,
@@ -101,7 +101,18 @@ $first = Array
     'taxon_id' => 1166419,
     'scientificName' => 'Abstrusomyzus Jensen & Stoetzel, 1999');
 $sciname = "Abstrusomyzus Jensen & Stoetzel, 1999";
-// */
+*/
+
+$rek = Array(
+    'scientificName' => 'Abeillia abeillei abeillei',
+    'taxonRank' => 'subspecies',
+    'source' => 'IOC:5bccbf8955a2b2ad4b0722696a733326');
+$first = Array(
+    'first_source' => 'IOC:5bccbf8955a2b2ad4b0722696a733326',
+    'acronym' => 'IOC',
+    'taxon_id' => '5bccbf8955a2b2ad4b0722696a733326',
+    'scientificName' => 'Abeillia abeillei abeillei (Lesson, R & Delattre, 1839)');
+$sciname = 'Abeillia abeillei abeillei (Lesson, R & Delattre, 1839)';
 
 
 // echo "\nEOLid = ".$func->get_eol_id($rek, $first, $sciname)."\n";
