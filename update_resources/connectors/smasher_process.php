@@ -3,6 +3,10 @@ namespace php_active_record;
 /* First draft of EOL Dynamic Hierarchy: Smasher output processing: https://eol-jira.bibalex.org/browse/TRAM-580 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+
+// echo "\n[".Functions::canonical_form("Aahithis Schallreuter 1988")."]";
+// exit("\n");
+
 require_library('connectors/DHSmasherOutputAPI');
 $timestart = time_elapsed();
 
@@ -45,8 +49,39 @@ $p["WOR"] = array("desc" => "WoRMS: use original WoRMS2EOL file for this", "url"
 $p["ZOR"] = array("desc" => "Zoraptera Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-zoraptera-v1.4/taxon.txt");
 
 $func = new DHSmasherOutputAPI($p);
+
+/* sample IOC process.txt
+$rek = Array(
+    'taxonID' => -725255,
+    'acceptedNameUsageID' => -725255,
+    'parentNameUsageID' => -574211,
+    'scientificName' => 'Abeillia',
+    'taxonRank' => 'genus',
+    'source' => 'IOC:0a215d62991d7bce254cd66daea778ba',
+    'taxonomicStatus' => 'accepted' );
+$first = Array(
+    'first_source' => 'IOC:0a215d62991d7bce254cd66daea778ba',
+    'acronym' => 'IOC',
+    'taxon_id' => '0a215d62991d7bce254cd66daea778ba' );
+*/
+
+$rek = Array(
+    'taxonID' => -678537,
+    'acceptedNameUsageID' => -678537,
+    'parentNameUsageID' => -558588,
+    'scientificName' => 'Aahithis Schallreuter, 1988', //'Aahithis',
+    'taxonRank' => 'genus',
+    'source' => 'WOR:769244',
+    'taxonomicStatus' => 'accepted');
+$first = Array(
+    'first_source' => 'WOR:769244',
+    'acronym' => 'WOR',
+    'taxon_id' => 769244);
+
+echo "\nEOLid = ".$func->get_eol_id($rek, $first)."\n";
+
 // $func->start();
-$func->utility();    //creating local cache based on resource files from google sheet
+// $func->utility();    //creating local cache based on resource files from google sheet
 // $func->utility2();   //caching EOL API search name | AND | getting EOLid
 // $func->utility3();    // creation of EOL Hierarchy Entries (EHE) aa ab ac... text files  //last generated Aug 16, 2017 Eastern
 
