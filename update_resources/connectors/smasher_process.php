@@ -5,6 +5,8 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 // echo "\n[".Functions::canonical_form("Aahithis Schallreuter 1988")."]";
+
+// echo "\n[".Functions::canonical_form("Abstrusomyzus Jensen & Stoetzel, 1999")."]";
 // exit("\n");
 
 require_library('connectors/DHSmasherOutputAPI');
@@ -50,7 +52,7 @@ $p["ZOR"] = array("desc" => "Zoraptera Species File", "url" => "http://localhost
 
 $func = new DHSmasherOutputAPI($p);
 
-// /* sample IOC process.txt 
+/* sample IOC process.txt  -> should get 18990
 $rek = Array(
     'taxonID' => -725255,
     'acceptedNameUsageID' => -725255,
@@ -63,7 +65,7 @@ $first = Array(
     'first_source' => 'IOC:0a215d62991d7bce254cd66daea778ba',
     'acronym' => 'IOC',
     'taxon_id' => '0a215d62991d7bce254cd66daea778ba' );
-// */
+*/
 
 /* should get: 46501030
 $rek = Array(
@@ -80,11 +82,33 @@ $first = Array(
     'taxon_id' => 769244);
 */
 
-echo "\nEOLid = ".$func->get_eol_id($rek, $first)."\n";
+
+
+// /*
+$rek = Array
+(
+    'taxonID' => -2318121,
+    'acceptedNameUsageID' => -2318121,
+    'parentNameUsageID' => -2213496,
+    'scientificName' => 'Abstrusomyzus',
+    'taxonRank' => 'genus',
+    'source' => 'APH:1166419',
+    'taxonomicStatus' => 'accepted');
+$first = Array
+(
+    'first_source' => 'APH:1166419',
+    'acronym' => 'APH',
+    'taxon_id' => 1166419,
+    'scientificName' => 'Abstrusomyzus Jensen & Stoetzel, 1999');
+$sciname = "Abstrusomyzus Jensen & Stoetzel, 1999";
+// */
+
+
+// echo "\nEOLid = ".$func->get_eol_id($rek, $first, $sciname)."\n";
 
 // $func->start();
 // $func->utility();    //creating local cache based on resource files from google sheet
-// $func->utility2();   //caching EOL API search name | AND | getting EOLid
+$func->utility2();   //caching EOL API search name | AND | getting EOLid
 // $func->utility3();    // creation of EOL Hierarchy Entries (EHE) aa ab ac... text files  //last generated Aug 16, 2017 Eastern
 
 

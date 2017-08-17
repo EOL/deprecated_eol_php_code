@@ -341,9 +341,10 @@ class DHSmasherOutputAPI
     function utility() //creating local cache based on resource files from google sheet
     {   /* */
         // $acronyms = array_keys($this->params);
-        $acronyms = array('WOR'); //WOR TPL gbif
+        $less = array('gbif','WOR'); //WOR TPL gbif
+        $acronyms = array('IOC'); //WOR TPL gbif
         print_r($acronyms);
-        exit;
+        // exit;
         foreach($acronyms as $acronym)
         {
             $txtfile = self::adjust_filename($this->params[$acronym]["url"]);
