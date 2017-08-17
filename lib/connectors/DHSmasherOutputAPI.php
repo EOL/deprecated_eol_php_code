@@ -75,7 +75,7 @@ class DHSmasherOutputAPI
         else return false;
     }
     
-    function get_eol_id($rek, $first)
+    function get_eol_id($rek, $first, $scientificName)
     {
         print_r($rek); //debug only
         /* $rek => Array (
@@ -88,7 +88,7 @@ class DHSmasherOutputAPI
             [taxonomicStatus] => accepted
         ) */
         
-        $first['scientificName'] = $rek['scientificName']; //deliberately add sciname in $first array
+        $first['scientificName'] = $scientificName; //deliberately add sciname in $first array
         print_r($first);
         $recs = self::get_recs_from_EHE($first);
         if($recs)
@@ -99,7 +99,7 @@ class DHSmasherOutputAPI
                     [he_id] => 52661717
                     [source_hierarchy] => "Species 2000 & ITIS Catalogue of Life: April 2013 #1188"
                 ) */
-            print_r($recs);
+            print_r($recs); //debug only -> there are the recs fetched from EHE
             if($first['acronym'] == "AMP") //==================================== start AMP
             {
                 foreach($recs as $rec) {    //1st option
@@ -284,14 +284,14 @@ class DHSmasherOutputAPI
                     // print_r($first_source);
                     
                     // normal operation
-                    // self::get_eol_id($rek, $first_source, $func);
+                    // self::get_eol_id($rek, $first_source);
                     
                     // if(in_array($first_source['acronym'], $excluded_acronyms)) continue;
-                    // self::get_eol_id($rek, $first_source, $func);
+                    // self::get_eol_id($rek, $first_source);
                     
                     if(in_array($first_source['acronym'], $included_acronyms))
                     {
-                        if($eol_id = self::get_eol_id($rek, $first_source))
+                        if($eol_id = self::get_eol_id($rek, $first_source, $rek['scientificName'])) //scientificName is one from smasher file
                         {
                             echo "\nEOLid = [$eol_id]\n";
                             // exit;
@@ -447,9 +447,9 @@ class DHSmasherOutputAPI
         /* self::integrity_check(); */ //works OK, will use it if there is a new batch of resource files
         // $excluded_acronyms = array('WOR', 'gbif', 'ictv', 'TPL'); //gbif
         // $included_acronyms = array('WOR'); //gbif TPL //debug only when caching
-        // $included_acronyms = array('APH');
+        $included_acronyms = array('APH');
         // $included_acronyms = array('TPL');
-        $included_acronyms = array('gbif');
+        // $included_acronyms = array('gbif');
         
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
         $i = 0; $m = 466666; //466666; 280000
@@ -593,8 +593,14 @@ class DHSmasherOutputAPI
         if($first['acronym'] == "gbif") $rec['datasetID'] = @$d['fetched']['datasetID'];
         else                            $rec['datasetID'] = $first['acronym'];
         
+        
+        // print_r($d); exit;
+        $rec['EOLid'] = self::get_eol_id($rek, $first, $rec['scientificName']);
+        
+        
+        
         print_r($rec);
-        // exit("\nstop muna\n");
+        exit("\nstop muna\n");
         echo "\n-------------------------------------------------------------\n";
         
         $rec = array_map('trim', $rec);
@@ -821,7 +827,7 @@ class DHSmasherOutputAPI
         else echo "\nfound: [$txtfile]";
         $i = 0; $m = 466666; 
         $fields = array("EOLid", "richness_score", "scientificName", "he_id", "source_hierarchy");
-        echo "\nsearching...";
+        echo "\nsearching...$first[scientificName]..in EHE..";
         foreach(new FileIterator($txtfile) as $line => $row) {
             $i++; $rec = array(); //just to be sure
             $rec = explode("\t", $row);
