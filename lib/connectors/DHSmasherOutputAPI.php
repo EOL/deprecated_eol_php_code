@@ -255,13 +255,17 @@ class DHSmasherOutputAPI
     function utility2()
     {
         $included_acronyms = array("TPL");
-        // $included_acronyms = array("IOC");
-        // $included_acronyms = array("WOR");
-        // $included_acronyms = array("AMP");
-        // $included_acronyms = array("gbif");
-        // $included_acronyms = array("ictv");
-        // $included_acronyms = array("trunk");
-        // $included_acronyms = array("PHA");
+        $included_acronyms = array("IOC");
+        $included_acronyms = array("WOR");
+        $included_acronyms = array("AMP");
+        $included_acronyms = array("gbif");
+        $included_acronyms = array("ictv");
+        $included_acronyms = array("trunk");
+        $included_acronyms = array("PHA");
+        $included_acronyms = array("lhw");
+        // $included_acronyms = array("PLE");
+        
+        
         
         
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
@@ -315,8 +319,9 @@ class DHSmasherOutputAPI
                     {
                         $fetched = self::fetch_record($first_source);
                         if(!$fetched) continue;
-                        // if($eol_id = self::retrieve_cache_EOLid($first_source, $fetched['scientificName']))
-                        if(false)
+                        
+                        // if(false) // debug only debug only... change this tommorrow --------------------------------
+                        if($eol_id = self::retrieve_cache_EOLid($first_source, $fetched['scientificName']))
                         {
                             print_r($eol_id);
                             echo "\nRetrieved EOLid from cache\n";
