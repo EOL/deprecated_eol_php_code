@@ -75,7 +75,7 @@ class DHSmasherOutputAPI
         else return false;
     }
     
-    private function get_eol_id($rek, $first)
+    function get_eol_id($rek, $first)
     {
         print_r($rek); //debug only
         /* $rek => Array (
@@ -126,20 +126,66 @@ class DHSmasherOutputAPI
 
             if($first['acronym'] == "IOC") //==================================== start IOC
             {
+                //start costly IOC workflow - https://eol-jira.bibalex.org/browse/TRAM-581?focusedCommentId=61277&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61277
+                $avibase_hierarchy = "Avibase - IOC World Bird Names (2011) #860";
+                $others = array();
+                foreach($recs as $rec) {
+                    if($rec['source_hierarchy'] != $avibase_hierarchy)
+                    {
+                        if($first['scientificName'] == $rec['scientificName']) $others[$rec['EOLid']][] = $rec['source_hierarchy'];
+                    }
+                }
+                //end costly IOC workflow
+                
+                $Avibase_EOLid = false;
                 foreach($recs as $rec) {    //1st option
                     if($rec['source_hierarchy'] == "Avibase - IOC World Bird Names (2011) #860")
                     {
                         if(in_array($rek['taxonRank'], array("genus","family"))) //exact match
                         {
-                            if($rek['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
+                            if($rek['scientificName'] == $rec['scientificName']) $others[$rec['EOLid']][] = $avibase_hierarchy; //$Avibase_EOLid = $rec['EOLid'];
                         }
                         elseif($rek['taxonRank'] == "species") //begins_with
                         {
-                            if($rek['scientificName'] == substr($rec['scientificName'],0,strlen($rek['scientificName']))) return $rec['EOLid'];
+                            if($rek['scientificName'] == substr($rec['scientificName'],0,strlen($rek['scientificName']))) $others[$rec['EOLid']][] = $avibase_hierarchy; //$Avibase_EOLid = $rec['EOLid'];
                         }
                     }
                 }
-                foreach($recs as $rec) {    //3rd option -> get from any source hierarchy - exact match
+                
+                //start cont. costly  ===============================
+                $result = array(); 
+                $clements_hierarchy = "Clements Checklist resource #1128";
+                foreach(array_keys($others) as $eol_id)
+                {
+                    if(in_array($clements_hierarchy, $others[$eol_id])) 
+                    {
+                        $result['clements']['hierarchies using this id'] = count($others[$eol_id]);
+                        $result['clements']['EOLid'] = $eol_id;
+                    }
+                    if(in_array($avibase_hierarchy, $others[$eol_id])) 
+                    {
+                        $result['avibase']['hierarchies using this id'] = count($others[$eol_id]);
+                        $result['avibase']['EOLid'] = $eol_id;
+                    }
+                }
+                print_r($result);
+                print_r($others[$result['clements']['EOLid']]);
+                print_r($others[$result['avibase']['EOLid']]);
+                /*
+                [clements] => Array(
+                        [hierarchies using this id] => 12
+                        [EOLid] => 18990
+                    )
+                [avibase] => Array(
+                        [hierarchies using this id] => 1
+                        [EOLid] => 45509532
+                    )
+                */
+                if(@$result['avibase']['hierarchies using this id'] == 1 && @$result['clements']['hierarchies using this id'] > 1) return $result['clements']['EOLid'];
+                if(@$result['avibase']['hierarchies using this id'] == 1 && @$result['clements']['hierarchies using this id'] <= 1) return $result['avibase']['EOLid'];
+                //end cont. costly ===============================
+                
+                foreach($recs as $rec) {    //2nd option -> get from any source hierarchy - exact match
                     if($first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
                 }
                 return "";
@@ -150,12 +196,19 @@ class DHSmasherOutputAPI
                 foreach($recs as $rec) {    //1st option
                     if($rec['source_hierarchy'] == "WORMS Species Information (Marine Species) #123" && $first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
                 }
+                //additional 1st option just Eli
+                foreach($recs as $rec) {    //1st option
+                    if($rec['source_hierarchy'] == "WORMS Species Information (Marine Species) #123" && Functions::canonical_form($first['scientificName']) == Functions::canonical_form($rec['scientificName'])) return $rec['EOLid'];
+                }
+                
+                
                 foreach($recs as $rec) {    //2nd option
                     if($rec['source_hierarchy'] == "Algeabase resource #1280" && $first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
                 }
                 foreach($recs as $rec) {    //3rd option -> get from any source hierarchy - exact match
                     if($first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
                 }
+                echo "\n-wala worms-\n";
                 return "";
             } //================================================================ end WOR
             
@@ -784,10 +837,23 @@ class DHSmasherOutputAPI
             if($rek) {
                 $rek_scientificName = self::remove_quotes($rek['scientificName']);
                 $rek_source_hierarchy = self::remove_quotes($rek['source_hierarchy']);
+
+                /*
+                //eli's 1st try -> not so good
                 //gets records from EHE with BEGINS_WITH scientificName
                 if($first['scientificName'] == substr($rek_scientificName,0,strlen($first['scientificName']))) {
                     $recs[] = $rek;
                 }
+                */
+                
+                //eli's 2nd try
+                $canonical_sciname = Functions::canonical_form($first['scientificName']);
+                if($canonical_sciname == substr($rek_scientificName,0,strlen($canonical_sciname))) {
+                    $recs[] = $rek;
+                }
+                
+                
+                
             }
         }
         return $recs;
