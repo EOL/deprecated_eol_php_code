@@ -191,6 +191,9 @@ class DHSmasherOutputAPI
     function utility2()
     {
         $included_acronyms = array("AMP");
+        // $included_acronyms = array("IOC");
+        // $included_acronyms = array("WOR");
+        
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
         $i = 0; $m = 466666; //466666; 280000
         foreach(new FileIterator($smasher_file) as $line => $row) {
@@ -208,24 +211,24 @@ class DHSmasherOutputAPI
                 }
                 if($rek)
                 {
-                    // /* breakdown when caching:
+                    /* breakdown when caching:
                     $cont = false;
                     // if($i >=  1    && $i < $m) $cont = true;
                     // if($i >=  $m   && $i < $m*2) $cont = true;
                     // if($i >=  $m*2 && $i < $m*3) $cont = true;
                     // if($i >=  $m*3 && $i < $m*4) $cont = true;
-                    if($i >=  $m*4 && $i < $m*5) $cont = true;
+                    // if($i >=  $m*4 && $i < $m*5) $cont = true;
                     // if($i >=  $m*5 && $i < $m*6) $cont = true;
                     // if($i >=  $m*6 && $i < $m*7) $cont = true;
                     // if($i >=  $m*7 && $i < $m*8) $cont = true;
                     // if($i >=  $m*8 && $i < $m*9) $cont = true;
                     // if($i >=  $m*9 && $i < $m*10) $cont = true;
                     if(!$cont) continue;
-                    // */
+                    */
 
                     $sciname = $rek['scientificName'];
                     
-                    /* getting the EOLid ======================================= OK
+                    // /* getting the EOLid ======================================= OK
                     // echo "\nsmasher record: ----------------------------";
                     // print_r($rek); //debug only
                     $first_source = self::get_first_source($rek['source']);
@@ -241,17 +244,18 @@ class DHSmasherOutputAPI
                     {
                         if($eol_id = self::get_eol_id($rek, $first_source))
                         {
-                            echo "\nEOLid = [$eol_id]\n"; exit;
+                            echo "\nEOLid = [$eol_id]\n";
+                            // exit;
                         }
                         else echo "\n-NO EOLid-\n";
                     }
                     else continue;
-                    ==============================================================*/
+                    // ==============================================================*/
                     
                     
                     
                     
-                    // /* caching EOL API name search ===================================== OK
+                    /* caching EOL API name search ===================================== OK
                     $url1 = $this->url['api_search'].$sciname;
                     if($taxon_rec = self::search_ok($url1)) {}
                     else
@@ -260,19 +264,19 @@ class DHSmasherOutputAPI
                         if($taxon_rec = self::search_ok($url2)) {}
                         else
                         {
-                            /* not advisable to do, used the EHE instead. Sample why not good is sciname = "Abavorana", gives 46350291 using EHE while API gives 46350292 where exact=false.
-                            $url1 = str_ireplace("exact=true","exact=false",$url1);
-                            if($taxon_rec = self::search_ok($url1)) {}
-                            else
-                            {
-                                $url2 = str_ireplace("exact=true","exact=false",$url2);
-                                if($taxon_rec = self::search_ok($url2)) {}
-                                else echo("\ntalagang wala lang...[$sciname]\n");
-                            }
-                            */
+                            // ---------- not advisable to do, used the EHE instead. Sample why not good is sciname = "Abavorana", gives 46350291 using EHE while API gives 46350292 where exact=false.
+                            // $url1 = str_ireplace("exact=true","exact=false",$url1);
+                            // if($taxon_rec = self::search_ok($url1)) {}
+                            // else
+                            // {
+                            //     $url2 = str_ireplace("exact=true","exact=false",$url2);
+                            //     if($taxon_rec = self::search_ok($url2)) {}
+                            //     else echo("\ntalagang wala lang...[$sciname]\n");
+                            // }
+                            // ---------
                         }
                     }
-                     // =============================================================== */
+                     =============================================================== */
                     // exit("\n-end utility2-\n");
                 }
             }
