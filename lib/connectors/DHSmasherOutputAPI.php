@@ -118,10 +118,7 @@ class DHSmasherOutputAPI
                         }
                     }
                 }
-                foreach($recs as $rec) {    //3rd option -> get from any source hierarchy - exact match
-                    if($first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
-                }
-                return "";
+                //3rd option -> any exact match from any source hierarchy
             } //================================================================ end AMP
 
             if($first['acronym'] == "IOC") //==================================== start IOC
@@ -182,12 +179,11 @@ class DHSmasherOutputAPI
                 */
                 if(@$result['avibase']['hierarchies using this id'] == 1 && @$result['clements']['hierarchies using this id'] > 1) return $result['clements']['EOLid'];
                 if(@$result['avibase']['hierarchies using this id'] == 1 && @$result['clements']['hierarchies using this id'] <= 1) return $result['avibase']['EOLid'];
+                //just Eli
+                if(!@$result['avibase']['hierarchies using this id'] && @$result['clements']['hierarchies using this id'] > 0) return $result['clements']['EOLid'];
                 //end cont. costly ===============================
                 
-                foreach($recs as $rec) {    //2nd option -> get from any source hierarchy - exact match
-                    if($first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
-                }
-                return "";
+                //2nd option -> any exact match from any source hierarchy
             } //================================================================ end IOC
 
             if($first['acronym'] == "WOR") //==================================== start WOR
@@ -199,18 +195,11 @@ class DHSmasherOutputAPI
                 foreach($recs as $rec) {    //1st option
                     if($rec['source_hierarchy'] == "WORMS Species Information (Marine Species) #123" && Functions::canonical_form($first['scientificName']) == Functions::canonical_form($rec['scientificName'])) return $rec['EOLid'];
                 }
-                
-                
                 foreach($recs as $rec) {    //2nd option
                     if($rec['source_hierarchy'] == "Algeabase resource #1280" && $first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
                 }
-                foreach($recs as $rec) {    //3rd option -> get from any source hierarchy - exact match
-                    if($first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
-                }
-                echo "\n-wala worms-\n";
-                return "";
+                //3rd option -> any exact match from any source hierarchy
             } //================================================================ end WOR
-            
 
             if(!in_array($first['acronym'], array("AMP","IOC","WOR"))) // ===================== start REST of the acronyms
             {
@@ -224,11 +213,19 @@ class DHSmasherOutputAPI
                         if($rec['source_hierarchy'] == $source_hierarchy && $first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
                     }
                 }
-                foreach($recs as $rec) {    //option 2 -> any exact match from any source hierarchy
-                    if($first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
-                }
-                return "";
+                //option 2 -> any exact match from any source hierarchy
             } // =========================== end REST of the acronyms
+
+
+            //common to all -> any exact match from any source hierarchy
+            foreach($recs as $rec) {
+                if($first['scientificName'] == $rec['scientificName']) return $rec['EOLid'];
+            }
+            return "";
+            
+
+            
+
 
         }
         else echo "\nnext ...\n";

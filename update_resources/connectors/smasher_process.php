@@ -50,7 +50,7 @@ $p["ZOR"] = array("desc" => "Zoraptera Species File", "url" => "http://localhost
 
 $func = new DHSmasherOutputAPI($p);
 
-/* sample IOC process.txt
+// /* sample IOC process.txt 
 $rek = Array(
     'taxonID' => -725255,
     'acceptedNameUsageID' => -725255,
@@ -63,8 +63,9 @@ $first = Array(
     'first_source' => 'IOC:0a215d62991d7bce254cd66daea778ba',
     'acronym' => 'IOC',
     'taxon_id' => '0a215d62991d7bce254cd66daea778ba' );
-*/
+// */
 
+/* should get: 46501030
 $rek = Array(
     'taxonID' => -678537,
     'acceptedNameUsageID' => -678537,
@@ -77,6 +78,7 @@ $first = Array(
     'first_source' => 'WOR:769244',
     'acronym' => 'WOR',
     'taxon_id' => 769244);
+*/
 
 echo "\nEOLid = ".$func->get_eol_id($rek, $first)."\n";
 
