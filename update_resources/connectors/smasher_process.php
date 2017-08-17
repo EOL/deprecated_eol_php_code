@@ -7,6 +7,9 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 // echo "\n[".Functions::canonical_form("Aahithis Schallreuter 1988")."]";
 
 // echo "\n[".Functions::canonical_form("Abstrusomyzus Jensen & Stoetzel, 1999")."]";
+
+// echo "\n[".Functions::canonical_form("Aages prior Barovskij, 1926")."]";
+
 // exit("\n");
 
 require_library('connectors/DHSmasherOutputAPI');
@@ -52,7 +55,7 @@ $p["ZOR"] = array("desc" => "Zoraptera Species File", "url" => "http://localhost
 
 $func = new DHSmasherOutputAPI($p);
 
-/* sample IOC process.txt  -> should get 18990
+// /* sample IOC process.txt  -> should get 18990
 $rek = Array(
     'taxonID' => -725255,
     'acceptedNameUsageID' => -725255,
@@ -65,7 +68,8 @@ $first = Array(
     'first_source' => 'IOC:0a215d62991d7bce254cd66daea778ba',
     'acronym' => 'IOC',
     'taxon_id' => '0a215d62991d7bce254cd66daea778ba' );
-*/
+$sciname = "Abeillia";
+// */
 
 /* should get: 46501030
 $rek = Array(
@@ -80,13 +84,13 @@ $first = Array(
     'first_source' => 'WOR:769244',
     'acronym' => 'WOR',
     'taxon_id' => 769244);
+$sciname = "Aahithis Schallreuter, 1988";
 */
 
 
 
 /*
-$rek = Array
-(
+$rek = Array(
     'taxonID' => -2318121,
     'acceptedNameUsageID' => -2318121,
     'parentNameUsageID' => -2213496,
@@ -94,15 +98,14 @@ $rek = Array
     'taxonRank' => 'genus',
     'source' => 'APH:1166419',
     'taxonomicStatus' => 'accepted');
-$first = Array
-(
+$first = Array(
     'first_source' => 'APH:1166419',
     'acronym' => 'APH',
     'taxon_id' => 1166419,
     'scientificName' => 'Abstrusomyzus Jensen & Stoetzel, 1999');
 $sciname = "Abstrusomyzus Jensen & Stoetzel, 1999";
 */
-
+/*
 $rek = Array(
     'scientificName' => 'Abeillia abeillei abeillei',
     'taxonRank' => 'subspecies',
@@ -113,9 +116,60 @@ $first = Array(
     'taxon_id' => '5bccbf8955a2b2ad4b0722696a733326',
     'scientificName' => 'Abeillia abeillei abeillei (Lesson, R & Delattre, 1839)');
 $sciname = 'Abeillia abeillei abeillei (Lesson, R & Delattre, 1839)';
+*/
+/*
+$rek = Array(
+    'taxonID' => -1645981,
+    'acceptedNameUsageID' => -1645981,
+    'parentNameUsageID' => -1410966,
+    'scientificName' => 'Aages',
+    'taxonRank' => 'genus',
+    'source' => 'gbif:4741594',
+    'taxonomicStatus' => 'accepted');
+$first = Array(
+    'first_source' => 'gbif:4741594',
+    'acronym' => 'gbif',
+    'taxon_id' => 4741594,
+    'scientificName' => 'Aages Barovskii, 1926');
+$sciname = "Aages Barovskii, 1926";
+*/
+/*
+$rek = Array
+(
+    'taxonID' => -1311393,
+    'scientificName' => 'Abdopus',
+    'taxonRank' => 'genus',
+    'source' => "trunk:f013ee1d-ac41-4b26-8158-5a53b5d86a9b,WOR:409947");
+$first = Array
+(
+    'first_source' => "trunk:f013ee1d-ac41-4b26-8158-5a53b5d86a9b",
+    'acronym' => 'trunk',
+    'taxon_id' => "f013ee1d-ac41-4b26-8158-5a53b5d86a9b",
+    'scientificName' => 'Abdopus');
+$sciname = "Abdopus";
+*/
+/*
+$rek = Array(
+    'taxonID' => -1221427,
+    'scientificName' => 'Acanthagenys rufogularis',
+    'taxonRank' => 'species',
+    'source' => 'IOC:b65f3a45d872392933244436eaa2ceb9',
+    'taxonomicStatus' => 'accepted'
+);
+$first = Array
+(
+    'first_source' => 'IOC:b65f3a45d872392933244436eaa2ceb9',
+    'acronym' => 'IOC',
+    'taxon_id' => 'b65f3a45d872392933244436eaa2ceb9',
+    'scientificName' => 'Acanthagenys rufogularis Gould, 1838'
+);
+$sciname = "Acanthagenys rufogularis Gould, 1838";
+*/
 
 
-// echo "\nEOLid = ".$func->get_eol_id($rek, $first, $sciname)."\n";
+// $arr = $func->get_eol_id($rek, $first, $sciname); 
+// echo "\n------"; print_r($arr); echo "\n------";
+
 
 // $func->start();
 // $func->utility();    //creating local cache based on resource files from google sheet

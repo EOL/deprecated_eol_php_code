@@ -74,12 +74,19 @@ class DHSmasherOutputAPI
         }
         else return false;
     }
+    
+    private function smash_form($str)
+    {
+        $str = str_replace(",","",$str);
+        $str = Functions::remove_whitespace($str);
+        $str = str_replace(" ","",$str);
+        return $str;
+    }
     private function check_for_multiple($recs, $scientificName)
     {
         $check = array();
-        $sciname = Functions::canonical_form($scientificName);
-        for($recs as $rec) {
-            if($sciname == Functions::canonical_form($rec['scientificName'])) $check[$rec['EOLid']] = "";
+        foreach($recs as $rec) {
+            if(self::smash_form($scientificName) == self::smash_form($rec['scientificName'])) $check[$rec['EOLid']] = "";
         }
         if(count($check) > 1) return true;
         else return false;
@@ -101,6 +108,14 @@ class DHSmasherOutputAPI
         print_r($first);
         $recs = self::get_recs_from_EHE($first);
         $withMultiple = self::check_for_multiple($recs, $scientificName);
+        if($withMultiple)
+        {
+            echo "\nwith MULTIPLE ... investigate now\n";
+            echo("\n---------------------\n");
+            print_r($rek); print_r($first); echo"sciname: [$scientificName]";
+            print_r($recs);
+            // exit("\n--------end with MULTIPLE-------------\n");
+        }
         if($recs)
         {   /* [0] => Array (
                     [EOLid] => 42922
@@ -113,14 +128,14 @@ class DHSmasherOutputAPI
             if($first['acronym'] == "AMP") //==================================== start AMP
             {
                 foreach($recs as $rec) {    //1st option
-                    if($rec['source_hierarchy'] == "AmphibiaWeb #119" && $first['scientificName'] == $rec['scientificName']) return array($rec['EOLid'], $withMultiple);
+                    if($rec['source_hierarchy'] == "AmphibiaWeb #119" && self::smash_form($first['scientificName']) == self::smash_form($rec['scientificName'])) return array($rec['EOLid'], $withMultiple);
                 }
                 foreach($recs as $rec) {    //2nd option
                     if($rec['source_hierarchy'] == "Species 2000 & ITIS Catalogue of Life: April 2013 #1188")
                     {
                         if($rek['taxonRank'] == "genus") //exact match
                         {
-                            if($rek['scientificName'] == $rec['scientificName']) return array($rec['EOLid'], $withMultiple);
+                            if(self::smash_form($rek['scientificName']) == self::smash_form($rec['scientificName'])) return array($rec['EOLid'], $withMultiple);
                         }
                         elseif($rek['taxonRank'] == "species") //begins_with
                         {
@@ -139,9 +154,7 @@ class DHSmasherOutputAPI
                 foreach($recs as $rec) {
                     if($rec['source_hierarchy'] != $avibase_hierarchy)
                     {
-                        if($first['scientificName'] == $rec['scientificName']) $others[$rec['EOLid']][] = $rec['source_hierarchy'];
-                        //new by eli
-                        if(Functions::canonical_form($first['scientificName']) == Functions::canonical_form($rec['scientificName'])) $others[$rec['EOLid']][] = $rec['source_hierarchy'];
+                        if(self::smash_form($first['scientificName']) == self::smash_form($rec['scientificName'])) $others[$rec['EOLid']][] = $rec['source_hierarchy'];
                     }
                 }
                 //end costly IOC workflow
@@ -151,7 +164,7 @@ class DHSmasherOutputAPI
                     {
                         if(in_array($rek['taxonRank'], array("genus","family"))) //exact match
                         {
-                            if($rek['scientificName'] == $rec['scientificName']) $others[$rec['EOLid']][] = $avibase_hierarchy;
+                            if(self::smash_form($rek['scientificName']) == self::smash_form($rec['scientificName'])) $others[$rec['EOLid']][] = $avibase_hierarchy;
                         }
                         elseif($rek['taxonRank'] == "species") //begins_with
                         {
@@ -187,10 +200,10 @@ class DHSmasherOutputAPI
                         [hierarchies using this id] => 1
                         [EOLid] => 45509532)
                 */
-                if(@$result['avibase']['hierarchies using this id'] == 1 && @$result['clements']['hierarchies using this id'] > 1) return $result['clements']['EOLid'];
-                if(@$result['avibase']['hierarchies using this id'] == 1 && @$result['clements']['hierarchies using this id'] <= 1) return $result['avibase']['EOLid'];
+                if(@$result['avibase']['hierarchies using this id'] == 1 && @$result['clements']['hierarchies using this id'] > 1) return array($result['clements']['EOLid'], $withMultiple);
+                if(@$result['avibase']['hierarchies using this id'] == 1 && @$result['clements']['hierarchies using this id'] <= 1) return array($result['avibase']['EOLid'], $withMultiple);
                 //just Eli
-                if(!@$result['avibase']['hierarchies using this id'] && @$result['clements']['hierarchies using this id'] > 0) return $result['clements']['EOLid'];
+                if(!@$result['avibase']['hierarchies using this id'] && @$result['clements']['hierarchies using this id'] > 0) return array($result['clements']['EOLid'], $withMultiple);
                 //end cont. costly ===============================
                 
                 //2nd option -> any exact match from any source hierarchy
@@ -199,18 +212,10 @@ class DHSmasherOutputAPI
             if($first['acronym'] == "WOR") //==================================== start WOR
             {
                 foreach($recs as $rec) {    //1st option
-                    if($rec['source_hierarchy'] == "WORMS Species Information (Marine Species) #123" && $first['scientificName'] == $rec['scientificName']) return array($rec['EOLid'], $withMultiple);
-                }
-                //additional 1st option just Eli
-                foreach($recs as $rec) {    //1st option
-                    if($rec['source_hierarchy'] == "WORMS Species Information (Marine Species) #123" && Functions::canonical_form($first['scientificName']) == Functions::canonical_form($rec['scientificName'])) return array($rec['EOLid'], $withMultiple);
+                    if($rec['source_hierarchy'] == "WORMS Species Information (Marine Species) #123" && self::smash_form($first['scientificName']) == self::smash_form($rec['scientificName'])) return array($rec['EOLid'], $withMultiple);
                 }
                 foreach($recs as $rec) {    //2nd option
-                    if($rec['source_hierarchy'] == "Algeabase resource #1280" && $first['scientificName'] == $rec['scientificName']) return array($rec['EOLid'], $withMultiple);
-                }
-                //just by Eli
-                foreach($recs as $rec) {    //2nd option
-                    if($rec['source_hierarchy'] == "Algeabase resource #1280" && Functions::canonical_form($first['scientificName']) == Functions::canonical_form($rec['scientificName'])) return array($rec['EOLid'], $withMultiple);
+                    if($rec['source_hierarchy'] == "Algeabase resource #1280" && self::smash_form($first['scientificName']) == self::smash_form($rec['scientificName'])) return array($rec['EOLid'], $withMultiple);
                 }
                 //3rd option -> any exact match from any source hierarchy
             } //================================================================ end WOR
@@ -224,14 +229,8 @@ class DHSmasherOutputAPI
                 foreach($ordered_priority_hierarchies as $source_hierarchy) //option 1
                 {
                     foreach($recs as $rec) {
-                        if($rec['source_hierarchy'] == $source_hierarchy && $first['scientificName'] == $rec['scientificName']) return array($rec['EOLid'], $withMultiple);
+                        if($rec['source_hierarchy'] == $source_hierarchy && self::smash_form($first['scientificName']) == self::smash_form($rec['scientificName'])) return array($rec['EOLid'], $withMultiple);
                     }
-                    
-                    //by Eli
-                    foreach($recs as $rec) {
-                        if($rec['source_hierarchy'] == $source_hierarchy && Functions::canonical_form($first['scientificName']) == Functions::canonical_form($rec['scientificName'])) return array($rec['EOLid'], $withMultiple);
-                    }
-                    
                 }
                 //option 2 -> any exact match from any source hierarchy
             } // =========================== end REST of the acronyms
@@ -239,7 +238,8 @@ class DHSmasherOutputAPI
 
             //common to all -> any exact match from any source hierarchy
             foreach($recs as $rec) {
-                if($first['scientificName'] == $rec['scientificName']) return array($rec['EOLid'], $withMultiple);
+                if(self::smash_form($first['scientificName']) == self::smash_form($rec['scientificName'])) return array($rec['EOLid'], $withMultiple);
+                
             }
             return false;
 
@@ -254,14 +254,14 @@ class DHSmasherOutputAPI
     
     function utility2()
     {
-        // $included_acronyms = array("TPL");
+        $included_acronyms = array("TPL");
         // $included_acronyms = array("IOC");
         // $included_acronyms = array("WOR");
         // $included_acronyms = array("AMP");
         // $included_acronyms = array("gbif");
+        // $included_acronyms = array("ictv");
         // $included_acronyms = array("trunk");
-        $included_acronyms = array("ictv");
-        
+        // $included_acronyms = array("PHA");
         
         
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
@@ -297,6 +297,7 @@ class DHSmasherOutputAPI
                     */
 
                     $sciname = $rek['scientificName'];
+                    if(!$sciname) continue;
                     
                     // /* getting the EOLid ======================================= OK
                     // echo "\nsmasher record: ----------------------------";
@@ -313,16 +314,20 @@ class DHSmasherOutputAPI
                     if(in_array($first_source['acronym'], $included_acronyms))
                     {
                         $fetched = self::fetch_record($first_source);
-                        if($eol_id = self::retrieve_cache_EOLid($first_source, $fetched['scientificName']))
+                        if(!$fetched) continue;
+                        // if($eol_id = self::retrieve_cache_EOLid($first_source, $fetched['scientificName']))
+                        if(false)
                         {
-                            echo "\nRetrieved EOLid = [$eol_id] from cache\n";
+                            print_r($eol_id);
+                            echo "\nRetrieved EOLid from cache\n";
                             // exit;
                         }
                         else
                         {
                             if($eol_id = self::get_eol_id($rek, $first_source, $fetched['scientificName'])) //scientificName is now from resource file
                             {
-                                echo "\nEOLid = [$eol_id] SAVED to cache\n";
+                                print_r($eol_id);
+                                echo "\nEOLid SAVED to cache\n";
                                 self::write_cache_EOLid($eol_id, $first_source, $fetched['scientificName']);
                                 // exit;
                             }
@@ -604,6 +609,12 @@ class DHSmasherOutputAPI
         if($first['acronym'] == "TPL" && in_array($rek['taxonRank'], array("genus", "family"))) $d['fetched'] = array();
         else $d['fetched'] = self::fetch_record($first);
         print_r($d);
+        if(!$d['fetched'])
+        {
+            echo "\n--------------investigate cant fetch-------------------\n";
+            print_r($rek); print_r($first);
+            exit("\ncant fetch record, investigate\n");
+        }
         
         $rec = self::get_scientificName($rek, $first, $d);
         $rec['canonicalName'] = @$d['fetched']['canonicalName']; //only gbif has it
@@ -735,9 +746,10 @@ class DHSmasherOutputAPI
                         print_r($rek);
                         self::write_cache(json_encode($rek), $first);
                         echo("\nREST of the resources...$first[acronym]... saved cache\n");
-                        // exit;
+                        exit;
                         return $rek;
                     }
+                    // else echo "\nweird...\n"; //-> talagang wala lang
                 }
                 //========================================
                 
@@ -825,7 +837,9 @@ class DHSmasherOutputAPI
         if(!file_exists($main_path . "$cache1/$cache2")) mkdir($main_path . "$cache1/$cache2");
         $filename = $main_path . "$cache1/$cache2/$md5.eol";
         $WRITE = Functions::file_open($filename, "w");
-        fwrite($WRITE, $EOLid);
+        
+        $json = json_encode($EOLid);
+        fwrite($WRITE, $json);
         fclose($WRITE);
     }
     
@@ -839,8 +853,10 @@ class DHSmasherOutputAPI
         
         if(file_exists($filename))
         {
-            $eolid = file_get_contents($filename);
-            return $eolid;
+            $json = file_get_contents($filename);
+            $arr = json_decode($json, true);
+            if(is_array($arr)) return $arr;
+            else return false;
         }
         return false;
     }
@@ -890,12 +906,13 @@ class DHSmasherOutputAPI
         
         $txtfile = self::adjust_filename($this->params["EHE"]["url"]); //orig
         $txtfile = $this->path_EHE_tsv_files.substr($first['scientificName'],0,2).".tsv";
-        
+
         if(!file_exists($txtfile)) exit("\nfile does not exist: [$txtfile]\n");
         else echo "\nfound:4 [$txtfile]";
         $i = 0; $m = 466666; 
         $fields = array("EOLid", "richness_score", "scientificName", "he_id", "source_hierarchy");
-        echo "\nsearching...$first[scientificName]..in EHE..";
+        $canonical_sciname = Functions::canonical_form($first['scientificName']);
+        echo "\nsearching...$first[scientificName]..in EHE..[$canonical_sciname]";
         foreach(new FileIterator($txtfile) as $line => $row) {
             $i++; $rec = array(); //just to be sure
             $rec = explode("\t", $row);
@@ -917,7 +934,6 @@ class DHSmasherOutputAPI
                 */
                 
                 //eli's 2nd try
-                $canonical_sciname = Functions::canonical_form($first['scientificName']);
                 if($canonical_sciname == substr($rek_scientificName,0,strlen($canonical_sciname))) {
                     $recs[] = $rek;
                 }
