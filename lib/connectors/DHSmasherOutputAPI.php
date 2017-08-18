@@ -158,7 +158,7 @@ class DHSmasherOutputAPI
 
             if($first['acronym'] == "IOC") //==================================== start IOC
             {
-                /*
+                // /*
                 //start costly IOC workflow - https://eol-jira.bibalex.org/browse/TRAM-581?focusedCommentId=61277&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61277
                 $avibase_hierarchy = "Avibase - IOC World Bird Names (2011) #860";
                 $others = array();
@@ -218,11 +218,11 @@ class DHSmasherOutputAPI
                 //just Eli
                 if(!@$result['avibase']['hierarchies using this id'] && @$result['clements']['hierarchies using this id'] > 0) return array($result['clements']['EOLid'], $withMultiple);
                 //end cont. costly ===============================
-                */
+                // */
                 //================================================= divider ================================================= 
                 
                 // require("smasher_ioc_canonical.php");
-                /*
+                // /*
                 //start costly IOC workflow - https://eol-jira.bibalex.org/browse/TRAM-581?focusedCommentId=61277&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61277
                 $avibase_hierarchy = "Avibase - IOC World Bird Names (2011) #860";
                 $others = array();
@@ -280,7 +280,7 @@ class DHSmasherOutputAPI
                 if(!@$result['avibase']['hierarchies using this id'] && @$result['clements']['hierarchies using this id'] > 0) return array($result['clements']['EOLid'], $withMultiple, 'canonical');
                 //end cont. costly ===============================
                 
-                */
+                // */
                 
                 //2nd option -> any exact match from any source hierarchy
             } //================================================================ end IOC
@@ -343,36 +343,36 @@ class DHSmasherOutputAPI
         */
         $included_acronyms = array("TPL");
         // $included_acronyms = array("IOC");
-        $included_acronyms = array("WOR");
-        $included_acronyms = array("AMP");
-        $included_acronyms = array("gbif");
-        $included_acronyms = array("ictv");
-        $included_acronyms = array("trunk");
-        $included_acronyms = array("PHA");
-        $included_acronyms = array("lhw");
-        $included_acronyms = array("PLE");
-        
-        $included_acronyms = array("APH");
-        $included_acronyms = array("BLA");
-        $included_acronyms = array("COL");
-        $included_acronyms = array("COR");
-        $included_acronyms = array("DER");
-        $included_acronyms = array("EET");
-        $included_acronyms = array("EMB");
-        $included_acronyms = array("GRY");
-        $included_acronyms = array("LYG");
-        $included_acronyms = array("MAN");
-
-        $included_acronyms = array("MNT");
-        $included_acronyms = array("ODO");
-        $included_acronyms = array("ONY");
-        $included_acronyms = array("ORTH");
-        $included_acronyms = array("PLE");
-        $included_acronyms = array("PPG");
-        $included_acronyms = array("PSO");
-        $included_acronyms = array("SPI");
-        $included_acronyms = array("TER");
-        $included_acronyms = array("ZOR");
+        // $included_acronyms = array("WOR");
+        // $included_acronyms = array("AMP");
+        // $included_acronyms = array("gbif");
+        // $included_acronyms = array("ictv");
+        // $included_acronyms = array("trunk");
+        // $included_acronyms = array("PHA");
+        // $included_acronyms = array("lhw");
+        // $included_acronyms = array("PLE");
+        // 
+        // $included_acronyms = array("APH");
+        // $included_acronyms = array("BLA");
+        // $included_acronyms = array("COL"); done
+        // $included_acronyms = array("COR");
+        // $included_acronyms = array("DER");
+        // $included_acronyms = array("EET");
+        // $included_acronyms = array("EMB");
+        // $included_acronyms = array("GRY");
+        // $included_acronyms = array("LYG");
+        // $included_acronyms = array("MAN");
+        // 
+        // $included_acronyms = array("MNT");
+        // $included_acronyms = array("ODO");
+        // $included_acronyms = array("ONY");
+        // $included_acronyms = array("ORTH");
+        // $included_acronyms = array("PLE");
+        // $included_acronyms = array("PPG");
+        // $included_acronyms = array("PSO");
+        // $included_acronyms = array("SPI");
+        // $included_acronyms = array("TER");
+        // $included_acronyms = array("ZOR");
         
         
         
@@ -393,10 +393,10 @@ class DHSmasherOutputAPI
                 }
                 if($rek)
                 {
-                    /* breakdown when caching:
+                    // /* breakdown when caching:
                     $cont = false;
                     // if($i >=  1    && $i < $m) $cont = true;
-                    // if($i >=  $m   && $i < $m*2) $cont = true;
+                    if($i >=  $m   && $i < $m*2) $cont = true;
                     // if($i >=  $m*2 && $i < $m*3) $cont = true;
                     // if($i >=  $m*3 && $i < $m*4) $cont = true;
                     // if($i >=  $m*4 && $i < $m*5) $cont = true;
@@ -406,16 +406,16 @@ class DHSmasherOutputAPI
                     // if($i >=  $m*8 && $i < $m*9) $cont = true;
                     // if($i >=  $m*9 && $i < $m*10) $cont = true;
                     if(!$cont) continue;
-                    */
+                    // */
 
                     $sciname = $rek['scientificName'];
                     if(!$sciname) continue;
                     
                     // /* getting the EOLid ======================================= OK
                     // echo "\nsmasher record: ----------------------------";
-                    // print_r($rek); //debug only
+                    print_r($rek); //debug only
                     $first_source = self::get_first_source($rek['source']);
-                    // print_r($first_source);
+                    print_r($first_source);
                     
                     // normal operation
                     // self::get_eol_id($rek, $first_source);
@@ -425,33 +425,13 @@ class DHSmasherOutputAPI
                     
                     if(in_array($first_source['acronym'], $included_acronyms))
                     {
-                        $fetched = self::fetch_record($first_source);
+                        $fetched = self::fetch_record($first_source, $rek);
                         if(!$fetched) continue;
                         $fetched['scientificName'] = str_ireplace("†", "", $fetched['scientificName']);
                         
                         
                         // if(false) // debug only debug only... change this tommorrow --------------------------------
-                        if($eol_id = self::retrieve_cache_EOLid($first_source, $fetched['scientificName']))
-                        {
-                            print_r($eol_id);
-                            echo "\nRetrieved EOLid from cache\n";
-                            // exit;
-                        }
-                        else
-                        {
-                            if($eol_id = self::get_eol_id($rek, $first_source, $fetched['scientificName'])) //scientificName is now from resource file
-                            {
-                                print_r($eol_id);
-                                echo "\nEOLid SAVED to cache\n";
-                                self::write_cache_EOLid($eol_id, $first_source, $fetched['scientificName']);
-                                // exit;
-                            }
-                            else
-                            {
-                                echo "\n-NO EOLid-\n";
-                                // exit;
-                            }
-                        }
+                        self::kunin_eol_id($rek, $first_source, $fetched['scientificName']);
                         
                     }
                     else continue;
@@ -488,6 +468,32 @@ class DHSmasherOutputAPI
         }
     }
     
+    private function kunin_eol_id($rek, $first, $scientificName)
+    {
+        if($eol_id = self::retrieve_cache_EOLid($first, $scientificName)) {
+            print_r($eol_id);
+            echo "\nRetrieved EOLid from cache\n";
+            // exit;
+            return $eol_id;
+        }
+        else {
+            if($eol_id = self::get_eol_id($rek, $first, $scientificName)) //scientificName is now from resource file 
+            {
+                // print_r($eol_id);
+                echo "\nEOLid SAVED to cache\n";
+                self::write_cache_EOLid($eol_id, $first, $scientificName);
+                // exit;
+                return $eol_id;
+            }
+            else
+            {
+                echo "\n-NO EOLid-\n";
+                // exit;
+                return false;
+            }
+        }
+    }
+    
     function utility() //creating local cache based on resource files from google sheet
     {   /* */
         // $acronyms = array_keys($this->params);
@@ -498,7 +504,7 @@ class DHSmasherOutputAPI
         foreach($acronyms as $acronym)
         {
             $txtfile = self::adjust_filename($this->params[$acronym]["url"]);
-            if(!file_exists($txtfile)) exit("\nfile does not exist: [$txtfile]\n");
+            if(!file_exists($txtfile)) exit("\nfile does not exist:1 [$txtfile]\n");
             else echo "\nfound:1 [$txtfile]";
             $i = 0; $m = 200000;
             foreach(new FileIterator($txtfile) as $line => $row) {
@@ -647,23 +653,23 @@ class DHSmasherOutputAPI
                     $first_source = self::get_first_source($rek['source']);
                     print_r($first_source);
                     
-                    /* normal operation
+                    // /* normal operation
                     self::process_record($rek, $first_source, $func);
-                    */
+                    // */
                     
                     /*
                     if(in_array($first_source['acronym'], $excluded_acronyms)) continue;
                     self::process_record($rek, $first_source, $func);
                     */
                     
-                    // /*
+                    /*
                     if(in_array($first_source['acronym'], $included_acronyms)) self::process_record($rek, $first_source, $func);
                     else continue;
-                    // */
+                    */
                     
                 }
             }
-            // if($i >= 20) break; //debug only
+            if($i >= 20) break; //debug only
         }
         $func->last_part($this->folder); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
     }
@@ -680,7 +686,7 @@ class DHSmasherOutputAPI
         $sciname = @$fetched['fetched']['scientificName'];
         $sciname = str_ireplace("†", "", $sciname);
 
-        if(in_array($first_source['acronym'], $opt[1])) $final['scientificName'] = $sciname;
+        if(in_array($first_source['acronym'], $opt[1])) return $sciname;
         elseif(in_array($first_source['acronym'], $opt[2]))
         {
             /*if TPL:
@@ -688,25 +694,10 @@ class DHSmasherOutputAPI
                 canonicalName,scientificNameAuthorship,scientificNameID,taxonRemarks,namePublishedIn,furtherInformationURL: nothing
                 datasetID: TPL
             */
-            if($first_source['acronym'] == "TPL" && in_array($rek['taxonRank'], array("genus", "family")))
-            {
-                $final['scientificName'] = $rek['scientificName'];
-                $final['canonicalName'] = '';
-                $final['scientificNameAuthorship'] = '';
-                $final['scientificNameID'] = '';
-                $final['taxonRemarks'] = '';
-                $final['namePublishedIn'] = '';
-                $final['furtherInformationURL'] = '';
-                $final['datasetID'] = 'TPL';
-                $final['EOLid'] = '';
-            }
-            else
-            {
-                $final['scientificName'] = $sciname." ".$fetched['fetched']['scientificNameAuthorship'];
-            }
+            if($first_source['acronym'] == "TPL" && in_array($rek['taxonRank'], array("genus", "family"))) return $rek['scientificName'];
+            else return $sciname." ".$fetched['fetched']['scientificNameAuthorship'];
         }
         else exit("\ninvestigate: [".$first_source['acronym']."] not in the list\n");
-        return $final;
     }
     private function process_record($rek, $first, $func)
     {
@@ -721,8 +712,7 @@ class DHSmasherOutputAPI
         http://rs.tdwg.org/dwc/terms/datasetID
         http://eol.org/schema/EOLid - this is a made-up uri for now */
         
-        if($first['acronym'] == "TPL" && in_array($rek['taxonRank'], array("genus", "family"))) $d['fetched'] = array();
-        else $d['fetched'] = self::fetch_record($first);
+        $d['fetched'] = self::fetch_record($first, $rek); //$rek is smasher record
         print_r($d);
         if(!$d['fetched'])
         {
@@ -731,7 +721,7 @@ class DHSmasherOutputAPI
             exit("\ncant fetch record, investigate\n");
         }
         
-        $rec = self::get_scientificName($rek, $first, $d);
+        $rec['scientificName'] = self::get_scientificName($rek, $first, $d);
         $rec['canonicalName'] = @$d['fetched']['canonicalName']; //only gbif has it
         
         $arr = array("APH","BLA","COL","COR","DER","EMB","gbif","GRY","LYG","MAN","MNT","ORTH","PHA","PLE","PSO","TPL","trunk","ZOR");
@@ -753,18 +743,28 @@ class DHSmasherOutputAPI
         elseif($first['acronym'] == "WOR")      $rec['furtherInformationURL'] = @$d['fetched']['furtherInformationURL'];
         elseif(in_array($first['acronym'], array("ictv","IOC"))) $rec['furtherInformationURL'] = @$d['fetched']['source']; //in the future: $d['fetched']['furtherInformationURL']
         elseif($fiu = @$this->fiu[$first['acronym']])            $rec['furtherInformationURL'] = $fiu . $first['taxon_id'];
+        
+        if($first['acronym'] == "TPL" && in_array($rek['taxonRank'], array("genus", "family"))) $rec['furtherInformationURL'] = ""; //still blank based on above rule
+        
 
         if($first['acronym'] == "gbif") $rec['datasetID'] = @$d['fetched']['datasetID'];
         else                            $rec['datasetID'] = $first['acronym'];
         
         
         // print_r($d); exit;
-        $rec['EOLid'] = self::get_eol_id($rek, $first, $rec['scientificName']);
-        if(!$rec['EOLid']) exit("\nno EOLid\n");
+        // $eolid_arr =   self::get_eol_id($rek, $first, $rec['scientificName']); obsolete
+        $eolid_arr = self::kunin_eol_id($rek, $first, $rec['scientificName']);
+        // if(!$rec['EOLid']) exit("\nno EOLid\n");
+        print_r($eolid_arr);
+        
+        $rec['EOLid'] = $eolid_arr[0];
+        $rec['EOLidAnnotations'] = "";
+        if(@$eolid_arr[1])        $rec['EOLidAnnotations'] .= "multiple; "; //'multiple' for True, blank for False
+        if($val = @$eolid_arr[2]) $rec['EOLidAnnotations'] .= "$val; ";     //'canonical' or blank
         
         
         print_r($rec);
-        // exit("\nstop muna\n");
+        exit("\nstop muna\n");
         echo "\n-------------------------------------------------------------\n";
         
         $rec = array_map('trim', $rec);
@@ -773,11 +773,28 @@ class DHSmasherOutputAPI
         self::save_to_text_file($val);
     }
     
-    function fetch_record($first)
+    function fetch_record($first, $rek)
     {   /* Array (  [first_source] => gbif:2058421
                     [acronym] => gbif
                     [taxon_id] => 2058421   )*/
                     
+        if($first['acronym'] == "TPL" && in_array($rek['taxonRank'], array("genus", "family")))
+        {   //per TRAM-580
+            // scientificName: Smasher output verbatim
+            // canonicalName,scientificNameAuthorship,scientificNameID,taxonRemarks,namePublishedIn,furtherInformationURL: nothing
+            // datasetID: TPL
+            $a['scientificName'] = $rek['scientificName'];
+            $a['canonicalName'] = '';
+            $a['scientificNameAuthorship'] = '';
+            $a['scientificNameID'] = '';
+            $a['taxonRemarks'] = '';
+            $a['namePublishedIn'] = '';
+            $a['furtherInformationURL'] = '';
+            $a['datasetID'] = 'TPL';
+            $a['EOLid'] = '';
+            return $a;
+        }
+        
         if($first['acronym'] == "gbif")
         {
             if($arr = self::retrieve_cache($first)) //1st option is the cache from gbif's resource file
@@ -819,7 +836,7 @@ class DHSmasherOutputAPI
         }
         // the rest of the resources below...
         $txtfile = self::adjust_filename($this->params[$first['acronym']]["url"]);
-        if(!file_exists($txtfile)) exit("\nfile does not exist: [$txtfile]\n");
+        if(!file_exists($txtfile)) exit("\nfile does not exist:2 [$txtfile]\n");
         else echo "\nfound:2 [$txtfile] - ".$first['acronym']."\n";
         $i = 0;
         foreach(new FileIterator($txtfile) as $line => $row) {
@@ -905,7 +922,7 @@ class DHSmasherOutputAPI
         foreach($acronyms as $acronym)
         {
             $txtfile = self::adjust_filename($this->params[$acronym]["url"]);
-            if(!file_exists($txtfile)) exit("\nfile does not exist: [$txtfile]\n");
+            if(!file_exists($txtfile)) exit("\nfile does not exist:3 [$txtfile]\n");
             else echo "\nfound:3 [$txtfile]";
             $i = 0;
             foreach(new FileIterator($txtfile) as $line => $row) {
@@ -1020,7 +1037,11 @@ class DHSmasherOutputAPI
         $txtfile = self::adjust_filename($this->params["EHE"]["url"]); //orig
         $txtfile = $this->path_EHE_tsv_files.substr($first['scientificName'],0,2).".tsv";
 
-        if(!file_exists($txtfile)) exit("\nfile does not exist: [$txtfile]\n");
+        if(!file_exists($txtfile)) 
+        {
+            return array();
+            echo("\nfile does not exist:4 [$txtfile]\n");
+        }
         else echo "\nfound:4 [$txtfile]";
         $i = 0; $m = 466666; 
         $fields = array("EOLid", "richness_score", "scientificName", "he_id", "source_hierarchy");
@@ -1062,7 +1083,7 @@ class DHSmasherOutputAPI
     {
         exit("\n-disabled-\n"); //ran only once... worked OK
         $txtfile = self::adjust_filename($this->params["EHE"]["url"]);
-        if(!file_exists($txtfile)) exit("\nfile does not exist: [$txtfile]\n");
+        if(!file_exists($txtfile)) exit("\nfile does not exist:5 [$txtfile]\n");
         else echo "\nfound:5 [$txtfile]";
         $i = 0; $m = 466666; 
         $fields = array("EOLid", "richness_score", "scientificName", "he_id", "source_hierarchy");
