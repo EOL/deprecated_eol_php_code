@@ -34,7 +34,7 @@ class DHSmasherOutputAPI
         $this->url['api_search'] = "http://eol.org/api/search/1.0.json?page=1&exact=true&cache_ttl=&q=";
         $this->download_options2 = array("resource_id" => "trait_request", "download_wait_time" => 2000000, "timeout" => 3600, "download_attempts" => 1);
         $this->download_options2['expire_seconds'] = false;
-        $this->path_EHE_tsv_files = CONTENT_RESOURCE_LOCAL_PATH . "smasher_EHE/";
+        $this->path_EHE_tsv_files = CONTENT_RESOURCE_LOCAL_PATH . "smasher_EHE_2/";
         
         //furtherInformationURLs
         $this->fiu["APH"] = "http://aphid.speciesfile.org/Common/basic/Taxa.aspx?TaxonNameID=";
@@ -341,43 +341,45 @@ class DHSmasherOutputAPI
     function utility2()
     {   /*
         */
-        $included_acronyms = array("TPL");
+        
+        
         // $included_acronyms = array("IOC");
-        // $included_acronyms = array("WOR");
         // $included_acronyms = array("AMP");
-        // $included_acronyms = array("gbif");
         // $included_acronyms = array("ictv");
         // $included_acronyms = array("trunk");
-        // $included_acronyms = array("PHA");
+        // $included_acronyms = array("PHA"); done
         // $included_acronyms = array("lhw");
-        // $included_acronyms = array("PLE");
+        // $included_acronyms = array("PLE"); done
         // 
         // $included_acronyms = array("APH");
         // $included_acronyms = array("BLA");
         // $included_acronyms = array("COL"); done
-        // $included_acronyms = array("COR");
-        // $included_acronyms = array("DER");
+        // $included_acronyms = array("COR"); done
+        // $included_acronyms = array("DER"); done
         // $included_acronyms = array("EET");
-        // $included_acronyms = array("EMB");
-        // $included_acronyms = array("GRY");
+        // $included_acronyms = array("EMB"); done
+        // $included_acronyms = array("GRY"); done
         // $included_acronyms = array("LYG");
-        // $included_acronyms = array("MAN");
+        // $included_acronyms = array("MAN"); done
         // 
-        // $included_acronyms = array("MNT");
+        // $included_acronyms = array("MNT"); done
         // $included_acronyms = array("ODO");
-        // $included_acronyms = array("ONY");
+        // $included_acronyms = array("ONY"); done
         // $included_acronyms = array("ORTH");
-        // $included_acronyms = array("PLE");
-        // $included_acronyms = array("PPG");
+        // $included_acronyms = array("PLE"); done
+        // $included_acronyms = array("PPG"); done
         // $included_acronyms = array("PSO");
         // $included_acronyms = array("SPI");
-        // $included_acronyms = array("TER");
-        // $included_acronyms = array("ZOR");
+        // $included_acronyms = array("TER"); done
+        // $included_acronyms = array("ZOR"); done
         
+        // $included_acronyms = array("TPL");
+        // $included_acronyms = array("WOR");
+        $included_acronyms = array("gbif");
         
         
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
-        $i = 0; $m = 466666; //466666; 280000
+        $i = 0; $m = 466666; //466666/6; 280000/10   --- 933333/3
         foreach(new FileIterator($smasher_file) as $line => $row) {
             $i++;
             if(($i % 100000) == 0) echo " $i";
@@ -396,11 +398,11 @@ class DHSmasherOutputAPI
                     // /* breakdown when caching:
                     $cont = false;
                     // if($i >=  1    && $i < $m) $cont = true;
-                    if($i >=  $m   && $i < $m*2) $cont = true;
+                    // if($i >=  $m   && $i < $m*2) $cont = true;
                     // if($i >=  $m*2 && $i < $m*3) $cont = true;
                     // if($i >=  $m*3 && $i < $m*4) $cont = true;
                     // if($i >=  $m*4 && $i < $m*5) $cont = true;
-                    // if($i >=  $m*5 && $i < $m*6) $cont = true;
+                    if($i >=  $m*5 && $i < $m*6) $cont = true;
                     // if($i >=  $m*6 && $i < $m*7) $cont = true;
                     // if($i >=  $m*7 && $i < $m*8) $cont = true;
                     // if($i >=  $m*8 && $i < $m*9) $cont = true;
@@ -497,7 +499,7 @@ class DHSmasherOutputAPI
     function utility() //creating local cache based on resource files from google sheet
     {   /* */
         // $acronyms = array_keys($this->params);
-        $less = array('gbif','WOR'); //WOR TPL gbif
+        // $less = array('gbif','WOR'); //WOR TPL gbif
         $acronyms = array('WOR'); //WOR TPL gbif
         print_r($acronyms);
         // exit;
@@ -652,6 +654,7 @@ class DHSmasherOutputAPI
                     print_r($rek); //debug only
                     $first_source = self::get_first_source($rek['source']);
                     print_r($first_source);
+                    // exit("\n");
                     
                     // /* normal operation
                     self::process_record($rek, $first_source, $func);
@@ -669,7 +672,7 @@ class DHSmasherOutputAPI
                     
                 }
             }
-            if($i >= 20) break; //debug only
+            if($i >= 5) break; //debug only
         }
         $func->last_part($this->folder); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
     }
@@ -726,6 +729,7 @@ class DHSmasherOutputAPI
         
         $arr = array("APH","BLA","COL","COR","DER","EMB","gbif","GRY","LYG","MAN","MNT","ORTH","PHA","PLE","PSO","TPL","trunk","ZOR");
         if(in_array($first['acronym'], $arr)) $rec['scientificNameAuthorship'] = @$d['fetched']['scientificNameAuthorship'];
+        else $rec['scientificNameAuthorship'] = "";
         
         $arr = array("APH","BLA","COL","COR","DER","EMB","GRY","LYG","MAN","MNT","ORTH","PHA","PLE","PSO","TPL","ZOR");
         if(in_array($first['acronym'], $arr))   $rec['scientificNameID'] = @$d['fetched']['scientificNameID'];
@@ -733,17 +737,19 @@ class DHSmasherOutputAPI
         else                                    $rec['scientificNameID'] = '';
         
         $arr = array("APH","BLA","COL","COR","DER","EMB","gbif","GRY","IOC","LYG","MAN","MNT","ORTH","PHA","PLE","PSO","WOR","ZOR");
-        if(in_array($first['acronym'], $arr))   $rec['taxonRemarks'] = @$d['fetched']['taxonRemarks'];
+        if(in_array($first['acronym'], $arr)) $rec['taxonRemarks'] = @$d['fetched']['taxonRemarks'];
+        else                                  $rec['taxonRemarks'] = "";
         
         $arr = array("APH","BLA","COL","COR","DER","EMB","GRY","LYG","MAN","MNT","ORTH","PHA","PLE","PSO","TPL","WOR","ZOR");
-        if(in_array($first['acronym'], $arr))   $rec['namePublishedIn'] = @$d['fetched']['namePublishedIn'];
+        if(in_array($first['acronym'], $arr)) $rec['namePublishedIn'] = @$d['fetched']['namePublishedIn'];
+        else                                  $rec['namePublishedIn'] = "";
         
         $arr = array("AMP","EET","lhw","ODO","ONY","PPG","SPI","TER","trunk");
         if(in_array($first['acronym'], $arr))   $rec['furtherInformationURL'] = ''; //deliberately blank
         elseif($first['acronym'] == "WOR")      $rec['furtherInformationURL'] = @$d['fetched']['furtherInformationURL'];
         elseif(in_array($first['acronym'], array("ictv","IOC"))) $rec['furtherInformationURL'] = @$d['fetched']['source']; //in the future: $d['fetched']['furtherInformationURL']
         elseif($fiu = @$this->fiu[$first['acronym']])            $rec['furtherInformationURL'] = $fiu . $first['taxon_id'];
-        
+        else                                                     $rec['furtherInformationURL'] = '';
         if($first['acronym'] == "TPL" && in_array($rek['taxonRank'], array("genus", "family"))) $rec['furtherInformationURL'] = ""; //still blank based on above rule
         
 
@@ -764,7 +770,9 @@ class DHSmasherOutputAPI
         
         
         print_r($rec);
-        exit("\nstop muna\n");
+        if(count($rec) != 10) exit("\nnot 10\n");
+        
+        // exit("\nstop muna\n");
         echo "\n-------------------------------------------------------------\n";
         
         $rec = array_map('trim', $rec);
@@ -1035,7 +1043,7 @@ class DHSmasherOutputAPI
         $recs = array(); //recs to return
         
         $txtfile = self::adjust_filename($this->params["EHE"]["url"]); //orig
-        $txtfile = $this->path_EHE_tsv_files.substr($first['scientificName'],0,2).".tsv";
+        $txtfile = $this->path_EHE_tsv_files.trim(substr($first['scientificName'],0,3)).".tsv";
 
         if(!file_exists($txtfile)) 
         {
@@ -1105,7 +1113,7 @@ class DHSmasherOutputAPI
                     $rek['source_hierarchy'] = self::remove_quotes($rek['source_hierarchy']);
                     $row = implode("\t", $rek);
                     // print_r($rek);
-                    $substr = substr($rek['scientificName'],0,2);
+                    $substr = trim(substr($rek['scientificName'],0,3));
                     echo " - [$substr]";
                     self::append_to_EHE_text_file($this->path_EHE_tsv_files.$substr.".tsv", $row);
                 }
