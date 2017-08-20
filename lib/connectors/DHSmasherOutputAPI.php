@@ -29,6 +29,8 @@ class DHSmasherOutputAPI
         
         //services
         $this->smasher_cache = "/Volumes/Thunderbolt4/eol_cache_smasher/";
+        $this->smasher_cache_noID = "/Volumes/Thunderbolt4/eol_cache_smasher_noID/";
+        
         
         //TRAM-581
         $this->url['api_search'] = "http://eol.org/api/search/1.0.json?page=1&exact=true&cache_ttl=&q=";
@@ -339,21 +341,18 @@ class DHSmasherOutputAPI
     // Sending get request to http://eol.org/api/search/1.0.json?page=1&exact=false&cache_ttl=&q=Abrus pulchellus subsp. suffruticosus : only attempt :: [lib/Functions.php [204]]<br>
     
     function utility2()
-    {   /*
-        */
-        
-        
+    {   
         // $included_acronyms = array("IOC");
-        // $included_acronyms = array("AMP");
-        // $included_acronyms = array("ictv");
-        // $included_acronyms = array("trunk");
+        // $included_acronyms = array("AMP"); done
+        // $included_acronyms = array("ictv"); done
+        // $included_acronyms = array("trunk"); done
         // $included_acronyms = array("PHA"); done
-        // $included_acronyms = array("lhw");
+        // $included_acronyms = array("lhw"); done
         // $included_acronyms = array("PLE"); done
-        // 
-        // $included_acronyms = array("APH");
-        // $included_acronyms = array("BLA");
+        // $included_acronyms = array("APH"); done
+        // $included_acronyms = array("BLA"); done
         // $included_acronyms = array("COL"); done
+        // 
         // $included_acronyms = array("COR"); done
         // $included_acronyms = array("DER"); done
         // $included_acronyms = array("EET");
@@ -361,18 +360,28 @@ class DHSmasherOutputAPI
         // $included_acronyms = array("GRY"); done
         // $included_acronyms = array("LYG");
         // $included_acronyms = array("MAN"); done
-        // 
         // $included_acronyms = array("MNT"); done
         // $included_acronyms = array("ODO");
         // $included_acronyms = array("ONY"); done
+        // 
         // $included_acronyms = array("ORTH");
         // $included_acronyms = array("PLE"); done
         // $included_acronyms = array("PPG"); done
-        // $included_acronyms = array("PSO");
+        // $included_acronyms = array("PSO"); done
         // $included_acronyms = array("SPI");
         // $included_acronyms = array("TER"); done
         // $included_acronyms = array("ZOR"); done
         
+        // TPL 1
+        //     2
+        //     3
+        // WOR 1
+        //     2
+        //     3
+        // gbif    1
+        //         2
+        //         3
+
         // $included_acronyms = array("TPL");
         // $included_acronyms = array("WOR");
         $included_acronyms = array("gbif");
@@ -403,6 +412,7 @@ class DHSmasherOutputAPI
                     // if($i >=  $m*3 && $i < $m*4) $cont = true;
                     // if($i >=  $m*4 && $i < $m*5) $cont = true;
                     if($i >=  $m*5 && $i < $m*6) $cont = true;
+                    
                     // if($i >=  $m*6 && $i < $m*7) $cont = true;
                     // if($i >=  $m*7 && $i < $m*8) $cont = true;
                     // if($i >=  $m*8 && $i < $m*9) $cont = true;
@@ -474,14 +484,14 @@ class DHSmasherOutputAPI
     {
         if($eol_id = self::retrieve_cache_EOLid($first, $scientificName)) {
             print_r($eol_id);
-            echo "\nRetrieved EOLid from cache\n";
+            echo "\nRETRIEVED EOLid from cache\n";
             // exit;
-            return $eol_id;
+            return $eol_id; //this is array
         }
         else {
             if($eol_id = self::get_eol_id($rek, $first, $scientificName)) //scientificName is now from resource file 
             {
-                // print_r($eol_id);
+                print_r($eol_id);
                 echo "\nEOLid SAVED to cache\n";
                 self::write_cache_EOLid($eol_id, $first, $scientificName);
                 // exit;
@@ -489,7 +499,8 @@ class DHSmasherOutputAPI
             }
             else
             {
-                echo "\n-NO EOLid-\n";
+                echo "\n-NO EOLid- SAVED FALSE ON LOCAL\n";
+                self::write_cache_EOLid(array("NoID"), $first, $scientificName, true); //false here signifies there is no EOL id
                 // exit;
                 return false;
             }
@@ -762,12 +773,16 @@ class DHSmasherOutputAPI
         $eolid_arr = self::kunin_eol_id($rek, $first, $rec['scientificName']);
         // if(!$rec['EOLid']) exit("\nno EOLid\n");
         print_r($eolid_arr);
-        
-        $rec['EOLid'] = $eolid_arr[0];
+
+        $rec['EOLid']            = "";
         $rec['EOLidAnnotations'] = "";
-        if(@$eolid_arr[1])        $rec['EOLidAnnotations'] .= "multiple; "; //'multiple' for True, blank for False
-        if($val = @$eolid_arr[2]) $rec['EOLidAnnotations'] .= "$val; ";     //'canonical' or blank
-        
+        if($eolid_arr[0] != "NoID")
+        {
+            $rec['EOLid'] = $eolid_arr[0];
+            $rec['EOLidAnnotations'] = "";
+            if(@$eolid_arr[1])        $rec['EOLidAnnotations'] .= "multiple; "; //'multiple' for True, blank for False
+            if($val = @$eolid_arr[2]) $rec['EOLidAnnotations'] .= "$val; ";     //'canonical' or blank
+        }
         
         print_r($rec);
         if(count($rec) != 10) exit("\nnot 10\n");
@@ -967,9 +982,10 @@ class DHSmasherOutputAPI
         fclose($WRITE);
     }
 
-    private function write_cache_EOLid($EOLid, $first, $scientificName)
+    private function write_cache_EOLid($EOLid, $first, $scientificName, $NO_eolid = false)
     {
         $main_path = $this->smasher_cache;
+        if($NO_eolid) $main_path = $this->smasher_cache_noID;
         $md5 = md5($first['first_source']."-".$scientificName);
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
@@ -989,6 +1005,17 @@ class DHSmasherOutputAPI
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
         $filename = $main_path . "$cache1/$cache2/$md5.eol";
+        if($arr = self::get_json2array_from_local($filename)) return $arr;
+        else
+        {
+            $main_path = $this->smasher_cache_noID;
+            $filename = $main_path . "$cache1/$cache2/$md5.eol";
+            if($arr = self::get_json2array_from_local($filename)) return $arr;
+        }
+        return false;
+    }
+    private function get_json2array_from_local($filename)
+    {
         if(file_exists($filename))
         {
             $json = file_get_contents($filename);
