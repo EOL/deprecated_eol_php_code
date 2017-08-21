@@ -175,7 +175,6 @@ class DHSmasherOutputAPI
                     }
                 }
                 
-                // require("smasher_ioc_lastpart.php");
                 //start cont. costly  ===============================
                 $result = array(); 
                 $clements_hierarchy = "Clements Checklist resource #1128";
@@ -213,7 +212,6 @@ class DHSmasherOutputAPI
                 // */
                 //================================================= divider ================================================= 
                 
-                // require("smasher_ioc_canonical.php");
                 // /*
                 //start costly IOC workflow - https://eol-jira.bibalex.org/browse/TRAM-581?focusedCommentId=61277&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61277
                 $avibase_hierarchy = "Avibase - IOC World Bird Names (2011) #860";
@@ -233,7 +231,6 @@ class DHSmasherOutputAPI
                     }
                 }
 
-                // require("smasher_ioc_lastpart.php");
                 //start cont. costly  ===============================
                 $result = array(); 
                 $clements_hierarchy = "Clements Checklist resource #1128";
