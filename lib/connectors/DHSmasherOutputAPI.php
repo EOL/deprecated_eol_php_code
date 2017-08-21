@@ -36,7 +36,7 @@ class DHSmasherOutputAPI
         $this->url['api_search'] = "http://eol.org/api/search/1.0.json?page=1&exact=true&cache_ttl=&q=";
         $this->download_options2 = array("resource_id" => "trait_request", "download_wait_time" => 2000000, "timeout" => 3600, "download_attempts" => 1);
         $this->download_options2['expire_seconds'] = false;
-        $this->path_EHE_tsv_files = CONTENT_RESOURCE_LOCAL_PATH . "smasher_EHE_2/";
+        $this->path_EHE_tsv_files = CONTENT_RESOURCE_LOCAL_PATH . "smasher_EHE_3/";
         
         //furtherInformationURLs
         $this->fiu["APH"] = "http://aphid.speciesfile.org/Common/basic/Taxa.aspx?TaxonNameID=";
@@ -343,6 +343,12 @@ class DHSmasherOutputAPI
     function utility2()
     {   
         // $included_acronyms = array("IOC");
+        // $included_acronyms = array("EET"); done
+        // $included_acronyms = array("LYG"); done
+        // $included_acronyms = array("ODO");
+        // $included_acronyms = array("ORTH");
+        // $included_acronyms = array("SPI");
+        
         // $included_acronyms = array("AMP"); done
         // $included_acronyms = array("ictv"); done
         // $included_acronyms = array("trunk"); done
@@ -355,20 +361,15 @@ class DHSmasherOutputAPI
         // 
         // $included_acronyms = array("COR"); done
         // $included_acronyms = array("DER"); done
-        // $included_acronyms = array("EET");
         // $included_acronyms = array("EMB"); done
         // $included_acronyms = array("GRY"); done
-        // $included_acronyms = array("LYG");
         // $included_acronyms = array("MAN"); done
         // $included_acronyms = array("MNT"); done
-        // $included_acronyms = array("ODO");
         // $included_acronyms = array("ONY"); done
         // 
-        // $included_acronyms = array("ORTH");
         // $included_acronyms = array("PLE"); done
         // $included_acronyms = array("PPG"); done
         // $included_acronyms = array("PSO"); done
-        // $included_acronyms = array("SPI");
         // $included_acronyms = array("TER"); done
         // $included_acronyms = array("ZOR"); done
         
@@ -425,7 +426,7 @@ class DHSmasherOutputAPI
                     
                     // /* getting the EOLid ======================================= OK
                     // echo "\nsmasher record: ----------------------------";
-                    print_r($rek); //debug only
+                    // print_r($rek); //debug only
                     $first_source = self::get_first_source($rek['source']);
                     print_r($first_source);
                     
@@ -440,17 +441,11 @@ class DHSmasherOutputAPI
                         $fetched = self::fetch_record($first_source, $rek);
                         if(!$fetched) continue;
                         $fetched['scientificName'] = str_ireplace("†", "", $fetched['scientificName']);
-                        
-                        
                         // if(false) // debug only debug only... change this tommorrow --------------------------------
                         self::kunin_eol_id($rek, $first_source, $fetched['scientificName']);
-                        
                     }
                     else continue;
                     // ==============================================================*/
-                    
-                    
-                    
                     
                     /* caching EOL API name search ===================================== OK
                     $url1 = $this->url['api_search'].$sciname;
@@ -716,6 +711,24 @@ class DHSmasherOutputAPI
     private function process_record($rek, $first, $func)
     {
         $rec = array();
+        /* It has the following columns:
+        http://rs.tdwg.org/dwc/terms/taxonID (created by Smasher)
+        http://rs.tdwg.org/dwc/terms/acceptedNameUsageID (same as taxonID in the current file)
+        http://rs.tdwg.org/dwc/terms/parentNameUsageID
+        http://rs.tdwg.org/dwc/terms/scientificName (stripped down to the canonical form for Smasher processing)
+        http://rs.tdwg.org/dwc/terms/taxonRank
+        http://purl.org/dc/terms/source
+        http://rs.tdwg.org/dwc/terms/taxonomicStatus (all “accepted” in the current file)
+        */
+        $rec['taxonID'] = $rek['taxonID'];
+        $rec['acceptedNameUsageID'] = $rek['acceptedNameUsageID'];
+        $rec['parentNameUsageID'] = $rek['parentNameUsageID'];
+        $rec['scientificName'] = $rek['scientificName'];
+        $rec['taxonRank'] = $rek['taxonRank'];
+        $rec['source'] = $rek['source'];
+        $rec['taxonomicStatus'] = $rek['taxonomicStatus'];
+        
+        
         /* We want to update the values for the scientificName column and add the following columns to the Smasher output file:
         http://rs.gbif.org/terms/1.0/canonicalName
         http://rs.tdwg.org/dwc/terms/scientificNameAuthorship
@@ -724,10 +737,12 @@ class DHSmasherOutputAPI
         http://rs.tdwg.org/dwc/terms/namePublishedIn
         http://rs.tdwg.org/ac/terms/furtherInformationURL
         http://rs.tdwg.org/dwc/terms/datasetID
-        http://eol.org/schema/EOLid - this is a made-up uri for now */
+        http://eol.org/schema/EOLid - this is a made-up uri for now 
+        http://eol.org/schema/EOLidAnnotations - from TRAM-581
+        */
         
         $d['fetched'] = self::fetch_record($first, $rek); //$rek is smasher record
-        print_r($d);
+        // print_r($d);
         if(!$d['fetched'])
         {
             echo "\n--------------investigate cant fetch-------------------\n";
@@ -763,7 +778,6 @@ class DHSmasherOutputAPI
         else                                                     $rec['furtherInformationURL'] = '';
         if($first['acronym'] == "TPL" && in_array($rek['taxonRank'], array("genus", "family"))) $rec['furtherInformationURL'] = ""; //still blank based on above rule
         
-
         if($first['acronym'] == "gbif") $rec['datasetID'] = @$d['fetched']['datasetID'];
         else                            $rec['datasetID'] = $first['acronym'];
         
@@ -785,7 +799,7 @@ class DHSmasherOutputAPI
         }
         
         print_r($rec);
-        if(count($rec) != 10) exit("\nnot 10\n");
+        if(count($rec) != 16) exit("\nnot 16\n");
         
         // exit("\nstop muna\n");
         echo "\n-------------------------------------------------------------\n";
@@ -1069,10 +1083,19 @@ class DHSmasherOutputAPI
     {
         $recs = array(); //recs to return
         
-        $txtfile = self::adjust_filename($this->params["EHE"]["url"]); //orig
-        $txtfile = $this->path_EHE_tsv_files.trim(substr($first['scientificName'],0,3)).".tsv";
+        // $txtfile = self::adjust_filename($this->params["EHE"]["url"]); //orig
+        
+        //start =============
+        $main_path = $this->path_EHE_tsv_files;
+        $substr = trim(substr($first['scientificName'],0,4));
+        $md5 = md5($substr);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        $txtfile = $main_path . "$cache1/$cache2/$substr.tsv";
+        //end ===============
 
-        if(!file_exists($txtfile)) 
+
+        if(!file_exists($txtfile))
         {
             return array();
             echo("\nfile does not exist:4 [$txtfile]\n");
@@ -1140,17 +1163,27 @@ class DHSmasherOutputAPI
                     $rek['source_hierarchy'] = self::remove_quotes($rek['source_hierarchy']);
                     $row = implode("\t", $rek);
                     // print_r($rek);
-                    $substr = trim(substr($rek['scientificName'],0,3));
-                    echo " - [$substr]";
-                    self::append_to_EHE_text_file($this->path_EHE_tsv_files.$substr.".tsv", $row);
+                    self::append_to_EHE_text_file($rek['scientificName'], $row);
                 }
             }
             // if($i >= 1000) break; //debug only
         }
         exit("\n-end utility3-\n");
     }
-    private function append_to_EHE_text_file($filename, $row)
+    private function append_to_EHE_text_file($sciname, $row)
     {
+        $sciname = trim($sciname);
+        $substr = trim(substr($sciname,0,4));
+        echo " - [$substr]";
+        $main_path = $this->path_EHE_tsv_files;
+        
+        $md5 = md5($substr);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        if(!file_exists($main_path . $cache1))           mkdir($main_path . $cache1);
+        if(!file_exists($main_path . "$cache1/$cache2")) mkdir($main_path . "$cache1/$cache2");
+        $filename = $main_path . "$cache1/$cache2/".$substr.".tsv";
+        
         $WRITE = Functions::file_open($filename, "a");
         fwrite($WRITE, $row . "\n");
         fclose($WRITE);
