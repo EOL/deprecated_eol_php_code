@@ -26,6 +26,9 @@ class DHSmasherOutputAPI
         $this->gbif_record_count    = "http://api.gbif.org/v1/occurrence/count?taxonKey=";
         $this->gbif_occurrence_data = "http://api.gbif.org/v1/occurrence/search?taxonKey=";
         */
+
+        //WORMS services
+        $this->webservice['AphiaRecordByAphiaID'] = "http://www.marinespecies.org/rest/AphiaRecordByAphiaID/";
         
         //services
         $this->smasher_cache = "/Volumes/Thunderbolt4/eol_cache_smasher/";
@@ -602,15 +605,15 @@ class DHSmasherOutputAPI
         // $included_acronyms = array("IOC");
         // $included_acronyms = array("ORTH");
         // $included_acronyms = array("SPI");
-        // $included_acronyms = array("EET");
-        // $included_acronyms = array("LYG");
-        // $included_acronyms = array("ODO");
-        // $included_acronyms = array("AMP");
-        // $included_acronyms = array("ictv");
         // $included_acronyms = array("trunk");
-        // $included_acronyms = array("PHA");
+        // $included_acronyms = array("EET"); d
+        // $included_acronyms = array("LYG"); d
+        // $included_acronyms = array("ODO"); d
+        // $included_acronyms = array("AMP"); d
+        // $included_acronyms = array("ictv"); d
+        // $included_acronyms = array("PHA"); d
 
-        // $included_acronyms = array("lhw");
+        // $included_acronyms = array("lhw"); these 10 all done
         // $included_acronyms = array("PLE");
         // $included_acronyms = array("APH");
         // $included_acronyms = array("BLA");
@@ -621,7 +624,7 @@ class DHSmasherOutputAPI
         // $included_acronyms = array("GRY");
         // $included_acronyms = array("MAN");
 
-        // $included_acronyms = array("MNT");
+        // $included_acronyms = array("MNT"); these 7 all done
         // $included_acronyms = array("ONY");
         // $included_acronyms = array("PLE");
         // $included_acronyms = array("PPG");
@@ -634,7 +637,7 @@ class DHSmasherOutputAPI
         // $included_acronyms = array("gbif");
         
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
-        $i = 0; $m = 933333; ////466666/6; 280000/10   --- 933333/3
+        $i = 0; $m = 280000; ////466666/6; 280000/10   --- 933333/3
         foreach(new FileIterator($smasher_file) as $line => $row) {
             $i++;
             if(($i % 1000) == 0) echo " $i";
@@ -650,22 +653,20 @@ class DHSmasherOutputAPI
                 }
                 if($rek)
                 {
-                    // /* breakdown when caching:
+                    /* breakdown when caching:
                     $cont = false;
                     // if($i >=  1    && $i < $m) $cont = true;
                     // if($i >=  $m   && $i < $m*2) $cont = true;
-                    if($i >=  $m*2 && $i < $m*3) $cont = true;
-
+                    // if($i >=  $m*2 && $i < $m*3) $cont = true;
                     // if($i >=  $m*3 && $i < $m*4) $cont = true;
                     // if($i >=  $m*4 && $i < $m*5) $cont = true;
-                    // if($i >=  $m*5 && $i < $m*6) $cont = true;
-                    
+                    if($i >=  $m*5 && $i < $m*6) $cont = true;
                     // if($i >=  $m*6 && $i < $m*7) $cont = true;
                     // if($i >=  $m*7 && $i < $m*8) $cont = true;
                     // if($i >=  $m*8 && $i < $m*9) $cont = true;
                     // if($i >=  $m*9 && $i < $m*10) $cont = true;
                     if(!$cont) continue;
-                    // */
+                    */
                     
                     // echo "\nsmasher record: ----------------------------";
                     // print_r($rek); //debug only
@@ -748,15 +749,31 @@ class DHSmasherOutputAPI
         http://eol.org/schema/EOLidAnnotations - from TRAM-581
         */
         
+        /*
+        $rek = Array(
+            'taxonID' => -705347,
+            'acceptedNameUsageID' => -705347,
+            'parentNameUsageID' => -565502,
+            'scientificName' => 'Paurorhynchinae',
+            'taxonRank' => 'subfamily',
+            'source' => 'WOR:724953',
+            'taxonomicStatus' => 'accepted'
+        );
+        $first = Array(
+            'first_source' => 'WOR:724953',
+            'acronym' => 'WOR',
+            'taxon_id' => 724953); */
+        
         $d['fetched'] = self::fetch_record($first, $rek); //$rek is smasher record
         // print_r($d);
         if(!$d['fetched'])
         {
             echo "\n--------------investigate cant fetch-------------------\n";
             print_r($rek); print_r($first);
-            return;
+            // return;
             exit("\ncant fetch record, investigate\n");
         }
+        // exit("\nstop muna debugging...\n");
         
         $rec['scientificName'] = self::get_scientificName($rek, $first, $d);
         $rec['canonicalName'] = @$d['fetched']['canonicalName']; //only gbif has it
@@ -819,7 +836,28 @@ class DHSmasherOutputAPI
     {   /* Array (  [first_source] => gbif:2058421
                     [acronym] => gbif
                     [taxon_id] => 2058421   )*/
-                    
+
+                /*
+                $rek = Array
+                (
+                    ['taxonID'] => -5447000
+                    ['acceptedNameUsageID'] => -5447000
+                    ['parentNameUsageID'] => -17961
+                    ['scientificName'] => Cyclopteridaceae
+                    ['taxonRank'] => family
+                    ['source'] => trunk:00000000-76c9-439d-82a4-8f592fd6f68c
+                    ['taxonomicStatus'] => accepted
+                )
+                Array
+                (
+                    ['first_source'] => trunk:00000000-76c9-439d-82a4-8f592fd6f68c
+                    ['acronym'] => trunk
+                    ['taxon_id'] => 00000000-76c9-439d-82a4-8f592fd6f68c
+                )
+                */
+
+
+
         if($first['acronym'] == "TPL" && in_array($rek['taxonRank'], array("genus", "family")))
         {   //per TRAM-580
             // scientificName: Smasher output verbatim
@@ -859,6 +897,7 @@ class DHSmasherOutputAPI
         {
             if($arr = self::retrieve_cache($first)) {
                 // echo("\n WORMS retrieved cached json\n");
+                // exit("\ngoes here...111\n");
                 return $arr;
             }
         }
@@ -918,8 +957,87 @@ class DHSmasherOutputAPI
                 //========================================
             }
         }
-        // if($first['acronym'] == 'WOR') exit("\nfrom worms but not found in resource file [" . $first['taxon_id'] . "]\n"); //seen this
+        if($first['acronym'] == 'WOR') //exit("\nfrom worms but not found in resource file [" . $first['taxon_id'] . "]\n"); //seen this
+        {
+            if($rek = self::get_rec_from_WORMS($first['taxon_id']))
+            {
+                self::write_cache(json_encode($rek), $first);
+                echo("\n-WORMS...$first[acronym]... saved cache USING API RESULT\n");
+                return $rek;
+            }
+        }
+        // exit("\ngoes here...222\n");
         return false;
+    }
+    
+    private function get_rec_from_WORMS($AphiaID)
+    {   /* WORMS row in resource file
+        [taxonID] => urn:lsid:marinespecies.org:taxname:769244
+        [scientificName] => Aahithis Schallreuter, 1988
+        [parentNameUsageID] => urn:lsid:marinespecies.org:taxname:715486
+        [kingdom] => Animalia
+        [phylum] => Arthropoda
+        [class] => Ostracoda
+        [family] => Tetradellidae
+        [genus] => Aahithis
+        [taxonRank] => genus
+        [furtherInformationURL] => http://www.marinespecies.org/ostracoda/aphia.php?p=taxdetails&id=769244
+        [taxonomicStatus] => accepted
+        [referenceID] => WoRMS:citation:769244
+        [acceptedNameUsageID] => urn:lsid:marinespecies.org:taxname:769244
+        */
+        $f = array();
+        if($json = Functions::lookup_with_cache($this->webservice['AphiaRecordByAphiaID'].$AphiaID, $this->download_options)) {
+            $w = json_decode($json, true);
+            print_r($w);
+
+            $sciname = $w['scientificname'];
+            $author = $w['authority'];
+            if(stripos($sciname, $author) !== false) {}//string is found -- author is inside sciname already
+            else $sciname .= " $author";
+            
+            $f = array(
+                'taxonID' => $w['lsid'],
+                'scientificName' => trim($sciname),
+                'parentNameUsageID' => "",
+                'kingdom' => $w['kingdom'],
+                'phylum' => $w['phylum'],
+                'class' => $w['class'],
+                'family' => $w['family'],
+                'genus' => $w['genus'],
+                'taxonRank' => $w['rank'],
+                'furtherInformationURL' => $w['url'],
+                'taxonomicStatus' => $w['status'],
+                'referenceID' => "",
+                'acceptedNameUsageID' => "urn:lsid:marinespecies.org:taxname:".$w['valid_AphiaID']);
+            return $f;
+        }
+        /* Array - WORMS API result(
+            [AphiaID] => 724953
+            [url] => http://www.marinespecies.org/aphia.php?p=taxdetails&id=724953
+            [scientificname] => Paurorhynchinae
+            [authority] => Dickerman, 1954
+            [status] => accepted
+            [unacceptreason] => 
+            [rank] => Subfamily
+            [valid_AphiaID] => 724953
+            [valid_name] => Paurorhynchinae
+            [valid_authority] => Dickerman, 1954
+            [kingdom] => Animalia
+            [phylum] => Platyhelminthes
+            [class] => Trematoda
+            [order] => Plagiorchiida
+            [family] => Bucephalidae
+            [genus] => 
+            [citation] => Gibson, D. (2013). Paurorhynchinae. Accessed through:  World Register of Marine Species at http://www.marinespecies.org/aphia.php?p=taxdetails&id=724953 on 2017-08-22
+            [lsid] => urn:lsid:marinespecies.org:taxname:724953
+            [isMarine] => 0
+            [isBrackish] => 0
+            [isFreshwater] => 1
+            [isTerrestrial] => 
+            [isExtinct] => 
+            [match_type] => exact
+            [modified] => 2013-07-04T15:20:00Z)*/
     }
     
     private function adjust_filename($url)
