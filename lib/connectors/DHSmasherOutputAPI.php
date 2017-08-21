@@ -629,9 +629,9 @@ class DHSmasherOutputAPI
         // $included_acronyms = array("TER");
         // $included_acronyms = array("ZOR");
         
-        $included_acronyms = array("TPL");
+        // $included_acronyms = array("TPL");
         $included_acronyms = array("WOR");
-        $included_acronyms = array("gbif");
+        // $included_acronyms = array("gbif");
         
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
         $i = 0; $m = 933333; ////466666/6; 280000/10   --- 933333/3
@@ -732,7 +732,7 @@ class DHSmasherOutputAPI
         $rec['acceptedNameUsageID'] = $rek['acceptedNameUsageID'];
         $rec['parentNameUsageID'] = $rek['parentNameUsageID'];
         $rec['scientificName'] = $rek['scientificName'];
-        $rec['taxonRank'] = $rek['taxonRank'];
+        $rec['taxonRank'] = @$rek['taxonRank'];
         $rec['source'] = $rek['source'];
         $rec['taxonomicStatus'] = $rek['taxonomicStatus'];
         
@@ -754,6 +754,7 @@ class DHSmasherOutputAPI
         {
             echo "\n--------------investigate cant fetch-------------------\n";
             print_r($rek); print_r($first);
+            return;
             exit("\ncant fetch record, investigate\n");
         }
         
