@@ -21,7 +21,7 @@ class DHSmasherOutputAPI
 
         //GBIF services
         $this->gbif_NameUsage = "http://api.gbif.org/v1/species/";
-        /*
+        /* these 3 were not used here
         $this->gbif_taxon_info      = "http://api.gbif.org/v1/species/match?name="; //http://api.gbif.org/v1/species/match?name=felidae&kingdom=Animalia
         $this->gbif_record_count    = "http://api.gbif.org/v1/occurrence/count?taxonKey=";
         $this->gbif_occurrence_data = "http://api.gbif.org/v1/occurrence/search?taxonKey=";
@@ -30,7 +30,6 @@ class DHSmasherOutputAPI
         //services
         $this->smasher_cache = "/Volumes/Thunderbolt4/eol_cache_smasher/";
         $this->smasher_cache_noID = "/Volumes/Thunderbolt4/eol_cache_smasher_noID/";
-        
         
         //TRAM-581
         $this->url['api_search'] = "http://eol.org/api/search/1.0.json?page=1&exact=true&cache_ttl=&q=";
@@ -56,8 +55,6 @@ class DHSmasherOutputAPI
         $this->fiu["ZOR"] = "http://zoraptera.speciesfile.org/Common/basic/Taxa.aspx?TaxonNameID="; 
         $this->fiu["gbif"] = "https://www.gbif-uat.org/species/";
         $this->fiu["TPL"] = "http://www.theplantlist.org/tpl1.1/record/";
-        
-        
         
         $this->debug = array();
     }
@@ -103,22 +100,20 @@ class DHSmasherOutputAPI
             [scientificName] => Acanthixalus
             [taxonRank] => genus
             [source] => AMP:Acanthixalus
-            [taxonomicStatus] => accepted
-        ) */
+            [taxonomicStatus] => accepted) */
         
         $first['scientificName'] = $scientificName; //deliberately add sciname in $first array
         print_r($first);
         $recs = self::get_recs_from_EHE($first);
         $withMultiple = self::check_for_multiple($recs, $scientificName);
-        if($withMultiple)
-        {
+        if($withMultiple) {
             echo "\nwith MULTIPLE ... investigate now\n";
             echo("\n---------------------\n");
             print_r($rek); print_r($first); echo"sciname: [$scientificName]";
             print_r($recs);
             // exit("\n--------end with MULTIPLE-------------\n");
         }
-        if($recs)
+        if($recs) 
         {   /* [0] => Array (
                     [EOLid] => 42922
                     [richness_score] => 0
@@ -137,8 +132,7 @@ class DHSmasherOutputAPI
                 }
                 
                 foreach($recs as $rec) {    //2nd option
-                    if($rec['source_hierarchy'] == "Species 2000 & ITIS Catalogue of Life: April 2013 #1188")
-                    {
+                    if($rec['source_hierarchy'] == "Species 2000 & ITIS Catalogue of Life: April 2013 #1188") {
                         if($rek['taxonRank'] == "genus") { //exact match 
                             if(self::smash_form($rek['scientificName']) == self::smash_form($rec['scientificName'])) return array($rec['EOLid'], $withMultiple);
                         }
@@ -148,8 +142,7 @@ class DHSmasherOutputAPI
                     }
                 }
                 foreach($recs as $rec) {    //2nd option - canonical
-                    if($rec['source_hierarchy'] == "Species 2000 & ITIS Catalogue of Life: April 2013 #1188")
-                    {
+                    if($rec['source_hierarchy'] == "Species 2000 & ITIS Catalogue of Life: April 2013 #1188") {
                         if($rek['taxonRank'] == "genus") { //exact match 
                             if(Functions::canonical_form($rek['scientificName']) == Functions::canonical_form($rec['scientificName'])) return array($rec['EOLid'], $withMultiple, 'canonical');
                         }
@@ -172,8 +165,7 @@ class DHSmasherOutputAPI
                 //end costly IOC workflow
 
                 foreach($recs as $rec) {    //1st option
-                    if($rec['source_hierarchy'] == $avibase_hierarchy)
-                    {
+                    if($rec['source_hierarchy'] == $avibase_hierarchy) {
                         if(in_array($rek['taxonRank'], array("genus","family"))) { //exact match 
                             if(self::smash_form($rek['scientificName']) == self::smash_form($rec['scientificName'])) $others[$rec['EOLid']][] = $avibase_hierarchy;
                         }
@@ -187,10 +179,8 @@ class DHSmasherOutputAPI
                 //start cont. costly  ===============================
                 $result = array(); 
                 $clements_hierarchy = "Clements Checklist resource #1128";
-                foreach(array_keys($others) as $eol_id)
-                {
+                foreach(array_keys($others) as $eol_id) {
                     $others[$eol_id] = array_unique(@$others[$eol_id]);
-
                     if(in_array($clements_hierarchy, $others[$eol_id])) {
                         $result['clements']['hierarchies using this id'] = count($others[$eol_id]);
                         $result['clements']['EOLid'] = $eol_id;
@@ -236,8 +226,7 @@ class DHSmasherOutputAPI
                 //end costly IOC workflow
 
                 foreach($recs as $rec) {    //1st option - canonical
-                    if($rec['source_hierarchy'] == $avibase_hierarchy)
-                    {
+                    if($rec['source_hierarchy'] == $avibase_hierarchy) {
                         if(in_array($rek['taxonRank'], array("genus","family"))) { //exact match - canonical
                             if(Functions::canonical_form($rek['scientificName']) == Functions::canonical_form($rec['scientificName'])) $others[$rec['EOLid']][] = $avibase_hierarchy;
                         }
@@ -336,10 +325,6 @@ class DHSmasherOutputAPI
         return false;
     }
     
-    // Sending get request to http://eol.org/api/search/1.0.json?page=1&exact=true&cache_ttl=&q=Abrus pulchellus subsp. suffruticosus : only attempt :: [lib/Functions.php [204]]<br>
-    // Sending get request to http://eol.org/api/search/1.0.json?page=1&exact=true&cache_ttl=&q=Abrus pulchellus suffruticosus : only attempt :: [lib/Functions.php [204]]<br>
-    // Sending get request to http://eol.org/api/search/1.0.json?page=1&exact=false&cache_ttl=&q=Abrus pulchellus subsp. suffruticosus : only attempt :: [lib/Functions.php [204]]<br>
-    
     function utility2()
     {   
         // $included_acronyms = array("IOC");
@@ -373,20 +358,9 @@ class DHSmasherOutputAPI
         // $included_acronyms = array("TER"); done
         // $included_acronyms = array("ZOR"); done
         
-        // TPL 1
-        //     2
-        //     3
-        // WOR 1
-        //     2
-        //     3
-        // gbif    1
-        //         2
-        //         3
-
         // $included_acronyms = array("TPL");
         // $included_acronyms = array("WOR");
         $included_acronyms = array("gbif");
-        
         
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
         $i = 0; $m = 466666; //466666/6; 280000/10   --- 933333/3
@@ -483,17 +457,16 @@ class DHSmasherOutputAPI
             // exit;
             return $eol_id; //this is array
         }
-        else {
-            if($eol_id = self::get_eol_id($rek, $first, $scientificName)) //scientificName is now from resource file 
-            {
+        else 
+        {
+            if($eol_id = self::get_eol_id($rek, $first, $scientificName)) { //scientificName is now from resource file
                 print_r($eol_id);
                 echo "\nEOLid SAVED to cache\n";
                 self::write_cache_EOLid($eol_id, $first, $scientificName);
                 // exit;
                 return $eol_id;
             }
-            else
-            {
+            else {
                 echo "\n-NO EOLid- SAVED FALSE ON LOCAL\n";
                 self::write_cache_EOLid(array("NoID"), $first, $scientificName, true); //false here signifies there is no EOL id
                 // exit;
@@ -578,8 +551,7 @@ class DHSmasherOutputAPI
                         print_r($first);
                         
                         //try to retrieve
-                        if($arr = self::retrieve_cache($first))
-                        {
+                        if($arr = self::retrieve_cache($first)) {
                             echo("\n $acronym RETRIEVED cached json\n");
                             /* worked OK if you want to update resource files
                             echo("\n $acronym will delete since I will use a new version of WoRMS2EoL.zip dated 16-Aug-2017 \n");
@@ -587,8 +559,7 @@ class DHSmasherOutputAPI
                             */
                             // exit;
                         }
-                        else
-                        {
+                        else {
                             print_r($rek);
                             //start write
                             self::write_cache(json_encode($rek), $first);
@@ -603,7 +574,6 @@ class DHSmasherOutputAPI
         }
         exit("\n-end utility-\n");
     }
-    
     
     private function initialize()
     {
@@ -675,7 +645,6 @@ class DHSmasherOutputAPI
                     if(in_array($first_source['acronym'], $included_acronyms)) self::process_record($rek, $first_source, $func);
                     else continue;
                     */
-                    
                 }
             }
             if($i >= 5) break; //debug only
@@ -696,8 +665,7 @@ class DHSmasherOutputAPI
         $sciname = str_ireplace("†", "", $sciname);
 
         if(in_array($first_source['acronym'], $opt[1])) return $sciname;
-        elseif(in_array($first_source['acronym'], $opt[2]))
-        {
+        elseif(in_array($first_source['acronym'], $opt[2])) {
             /*if TPL:
                 scientificName: Smasher output verbatim
                 canonicalName,scientificNameAuthorship,scientificNameID,taxonRemarks,namePublishedIn,furtherInformationURL: nothing
@@ -727,7 +695,6 @@ class DHSmasherOutputAPI
         $rec['taxonRank'] = $rek['taxonRank'];
         $rec['source'] = $rek['source'];
         $rec['taxonomicStatus'] = $rek['taxonomicStatus'];
-        
         
         /* We want to update the values for the scientificName column and add the following columns to the Smasher output file:
         http://rs.gbif.org/terms/1.0/canonicalName
@@ -781,22 +748,18 @@ class DHSmasherOutputAPI
         if($first['acronym'] == "gbif") $rec['datasetID'] = @$d['fetched']['datasetID'];
         else                            $rec['datasetID'] = $first['acronym'];
         
-        
-        // print_r($d); exit;
-        // $eolid_arr =   self::get_eol_id($rek, $first, $rec['scientificName']); obsolete
+        // EOLid and annotations assignment ====================================
         $eolid_arr = self::kunin_eol_id($rek, $first, $rec['scientificName']);
-        // if(!$rec['EOLid']) exit("\nno EOLid\n");
         print_r($eolid_arr);
-
         $rec['EOLid']            = "";
         $rec['EOLidAnnotations'] = "";
-        if($eolid_arr[0] != "NoID")
-        {
+        if($eolid_arr[0] != "NoID") {
             $rec['EOLid'] = $eolid_arr[0];
             $rec['EOLidAnnotations'] = "";
             if(@$eolid_arr[1])        $rec['EOLidAnnotations'] .= "multiple; "; //'multiple' for True, blank for False
             if($val = @$eolid_arr[2]) $rec['EOLidAnnotations'] .= "$val; ";     //'canonical' or blank
         }
+        // end ========================================
         
         print_r($rec);
         if(count($rec) != 16) exit("\nnot 16\n");
@@ -834,16 +797,14 @@ class DHSmasherOutputAPI
         
         if($first['acronym'] == "gbif")
         {
-            if($arr = self::retrieve_cache($first)) //1st option is the cache from gbif's resource file
-            {
+            if($arr = self::retrieve_cache($first)) { //1st option is the cache from gbif's resource file
                 echo("\n gbif retrieved cached json\n");
                 return $arr;
             }
-            else
+            else //use GBIF's API
             {
                 // exit("\nwala pang cache\n");
-                if($json = Functions::lookup_with_cache($this->gbif_NameUsage . $first['taxon_id'], $this->download_options))
-                {
+                if($json = Functions::lookup_with_cache($this->gbif_NameUsage . $first['taxon_id'], $this->download_options)) {
                     $arr = json_decode($json, true);
                     print_r($arr);
                     return $arr;
@@ -854,24 +815,19 @@ class DHSmasherOutputAPI
         }
         elseif($first['acronym'] == "WOR")
         {
-            if($arr = self::retrieve_cache($first))
-            {
+            if($arr = self::retrieve_cache($first)) {
                 echo("\n WORMS retrieved cached json\n");
-                // exit;
                 return $arr;
             }
         }
         else
         {
-            if($arr = self::retrieve_cache($first))
-            {
+            if($arr = self::retrieve_cache($first)) {
                 echo("\nREST OF THE RESOURCES $first[acronym] retrieved cached json\n");
-                // exit;
                 return $arr;
             }
-            
         }
-        // the rest of the resources below...
+        // the rest of the resources below... checking each record of the resource file
         $txtfile = self::adjust_filename($this->params[$first['acronym']]["url"]);
         if(!file_exists($txtfile)) exit("\nfile does not exist:2 [$txtfile]\n");
         else echo "\nfound:2 [$txtfile] - ".$first['acronym']."\n";
@@ -892,13 +848,11 @@ class DHSmasherOutputAPI
                     $k++;
                     if($val = @$rec[$k]) $rek[$field] = $val;
                 }
-
                 //========================================
                 if($first['acronym'] == 'WOR')
                 {
                     // urn:lsid:marinespecies.org:taxname:325577
-                    if("urn:lsid:marinespecies.org:taxname:".trim($first['taxon_id']) == trim(@$rek['taxonID']))
-                    {
+                    if("urn:lsid:marinespecies.org:taxname:".trim($first['taxon_id']) == trim(@$rek['taxonID'])) {
                         print_r($rek);
                         self::write_cache(json_encode($rek), $first);
                         echo("\nWOR saved cache\n");
@@ -911,7 +865,6 @@ class DHSmasherOutputAPI
                     if($first['taxon_id'] == @$rek['taxonID'])
                     {
                         // if($first['acronym'] == 'gbif') {print_r($rek); exit("\ngbif test\n");} //testing...
-
                         print_r($rek);
                         self::write_cache(json_encode($rek), $first);
                         echo("\nREST of the resources...$first[acronym]... saved cache\n");
@@ -921,16 +874,11 @@ class DHSmasherOutputAPI
                     // else echo "\nweird...\n"; //-> talagang wala lang
                 }
                 //========================================
-                
-                
             }
         }
-
         // if($first['acronym'] == 'WOR') exit("\nfrom worms but not found in resource file [" . $first['taxon_id'] . "]\n"); //seen this
-        
         return false;
     }
-    
     
     private function adjust_filename($url)
     {   // /Library/WebServer/Documents/eol_php_code/
@@ -945,19 +893,16 @@ class DHSmasherOutputAPI
         $a = explode(":", $f['first_source']);
         $f['acronym'] = trim($a[0]);
 
-        // $f['taxon_id'] = trim($a[1]); //orig
         $a[0] = null;
         $a = array_filter($a); //remove null arrays
         $f['taxon_id'] = implode(":", $a); //orig
-
         return $f;
     }
     private function integrity_check()
     {
         $acronyms = array_keys($this->params);
         print_r($acronyms);
-        foreach($acronyms as $acronym)
-        {
+        foreach($acronyms as $acronym) {
             $txtfile = self::adjust_filename($this->params[$acronym]["url"]);
             if(!file_exists($txtfile)) exit("\nfile does not exist:3 [$txtfile]\n");
             else echo "\nfound:3 [$txtfile]";
@@ -1020,8 +965,7 @@ class DHSmasherOutputAPI
         $cache2 = substr($md5, 2, 2);
         $filename = $main_path . "$cache1/$cache2/$md5.eol";
         if($arr = self::get_json2array_from_local($filename)) return $arr;
-        else
-        {
+        else {
             $main_path = $this->smasher_cache_noID;
             $filename = $main_path . "$cache1/$cache2/$md5.eol";
             if($arr = self::get_json2array_from_local($filename)) return $arr;
@@ -1030,8 +974,7 @@ class DHSmasherOutputAPI
     }
     private function get_json2array_from_local($filename)
     {
-        if(file_exists($filename))
-        {
+        if(file_exists($filename)) {
             $json = file_get_contents($filename);
             $arr = json_decode($json, true);
             if(is_array($arr)) return $arr;
@@ -1046,8 +989,7 @@ class DHSmasherOutputAPI
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
         $filename = $main_path . "$cache1/$cache2/$md5.json";
-        if(file_exists($filename))
-        {
+        if(file_exists($filename)) {
             $json = file_get_contents($filename);
             $arr = json_decode($json, true);
             print_r($arr);
@@ -1062,8 +1004,7 @@ class DHSmasherOutputAPI
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
         $filename = $main_path . "$cache1/$cache2/$md5.json";
-        if(file_exists($filename))
-        {
+        if(file_exists($filename)) {
             if(unlink($filename)) echo " - deleted OK";
             else echo " - not deleted for some reason";
         }
@@ -1071,8 +1012,7 @@ class DHSmasherOutputAPI
 
     private function save_to_text_file($row)
     {
-        if($row)
-        {
+        if($row) {
             $WRITE = Functions::file_open($this->destination[$this->folder], "a");
             fwrite($WRITE, $row . "\n");
             fclose($WRITE);
@@ -1094,9 +1034,7 @@ class DHSmasherOutputAPI
         $txtfile = $main_path . "$cache1/$cache2/$substr.tsv";
         //end ===============
 
-
-        if(!file_exists($txtfile))
-        {
+        if(!file_exists($txtfile)) {
             return array();
             echo("\nfile does not exist:4 [$txtfile]\n");
         }
@@ -1116,22 +1054,15 @@ class DHSmasherOutputAPI
             if($rek) {
                 $rek_scientificName = self::remove_quotes($rek['scientificName']);
                 $rek_source_hierarchy = self::remove_quotes($rek['source_hierarchy']);
-
-                /*
-                //eli's 1st try -> not so good
+                /* //eli's 1st try -> not so good
                 //gets records from EHE with BEGINS_WITH scientificName
                 if($first['scientificName'] == substr($rek_scientificName,0,strlen($first['scientificName']))) {
                     $recs[] = $rek;
-                }
-                */
-                
+                } */
                 //eli's 2nd try
                 if($canonical_sciname == substr($rek_scientificName,0,strlen($canonical_sciname))) {
                     $recs[] = $rek;
                 }
-                
-                
-                
             }
         }
         return $recs;
@@ -1147,8 +1078,7 @@ class DHSmasherOutputAPI
         $fields = array("EOLid", "richness_score", "scientificName", "he_id", "source_hierarchy");
         foreach(new FileIterator($txtfile) as $line => $row) {
             $i++;
-            if(true)
-            {
+            if(true) {
                 $rec = array(); //just to be sure
                 $rec = explode("\t", $row);
                 $k = -1;
