@@ -171,9 +171,9 @@ $sciname = "Acanthagenys rufogularis Gould, 1838";
 // echo "\n------"; print_r($arr); echo "\n------";
 
 
-// $func->start();
+$func->start();
 // $func->utility();    //creating local cache based on resource files from google sheet
-$func->utility2();   //caching EOL API search name | AND | getting EOLid
+// $func->utility2();   //caching EOL API search name | AND | getting EOLid
 // $func->utility3();    // creation of EOL Hierarchy Entries (EHE) aa ab ac... text files  //last generated Aug 16, 2017 Eastern
 
 

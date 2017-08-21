@@ -327,7 +327,7 @@ class DHSmasherOutputAPI
         // $included_acronyms = array("IOC");
         // $included_acronyms = array("EET"); done
         // $included_acronyms = array("LYG"); done
-        // $included_acronyms = array("ODO");
+        // $included_acronyms = array("ODO"); done
         // $included_acronyms = array("ORTH");
         // $included_acronyms = array("SPI");
         
@@ -355,12 +355,12 @@ class DHSmasherOutputAPI
         // $included_acronyms = array("TER"); done
         // $included_acronyms = array("ZOR"); done
         
-        // $included_acronyms = array("TPL");
+        $included_acronyms = array("TPL");
         // $included_acronyms = array("WOR");
-        $included_acronyms = array("gbif");
+        // $included_acronyms = array("gbif");
         
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
-        $i = 0; $m = 466666; //466666/6; 280000/10   --- 933333/3
+        $i = 0; $m = 2000; //466666/6; 280000/10   --- 933333/3
         foreach(new FileIterator($smasher_file) as $line => $row) {
             $i++;
             if(($i % 100000) == 0) echo " $i";
@@ -378,12 +378,12 @@ class DHSmasherOutputAPI
                 {
                     // /* breakdown when caching:
                     $cont = false;
-                    // if($i >=  1    && $i < $m) $cont = true;
+                    if($i >=  1    && $i < $m) $cont = true;
                     // if($i >=  $m   && $i < $m*2) $cont = true;
                     // if($i >=  $m*2 && $i < $m*3) $cont = true;
                     // if($i >=  $m*3 && $i < $m*4) $cont = true;
                     // if($i >=  $m*4 && $i < $m*5) $cont = true;
-                    if($i >=  $m*5 && $i < $m*6) $cont = true;
+                    // if($i >=  $m*5 && $i < $m*6) $cont = true;
                     
                     // if($i >=  $m*6 && $i < $m*7) $cont = true;
                     // if($i >=  $m*7 && $i < $m*8) $cont = true;
@@ -399,7 +399,9 @@ class DHSmasherOutputAPI
                     // echo "\nsmasher record: ----------------------------";
                     // print_r($rek); //debug only
                     $first_source = self::get_first_source($rek['source']);
-                    print_r($first_source);
+                    
+                    
+                    
                     
                     // normal operation
                     // self::get_eol_id($rek, $first_source);
@@ -409,11 +411,17 @@ class DHSmasherOutputAPI
                     
                     if(in_array($first_source['acronym'], $included_acronyms))
                     {
-                        $fetched = self::fetch_record($first_source, $rek);
-                        if(!$fetched) continue;
-                        $fetched['scientificName'] = str_ireplace("†", "", $fetched['scientificName']);
-                        // if(false) // debug only debug only... change this tommorrow --------------------------------
-                        self::kunin_eol_id($rek, $first_source, $fetched['scientificName']);
+                        // print_r($first_source);
+                        $d['fetched'] = self::fetch_record($first_source, $rek);
+                        if(!$d['fetched']) continue;
+                        $fetched_sciname = self::get_scientificName($rek, $first_source, $d);
+                        $arr = self::kunin_eol_id($rek, $first_source, $fetched_sciname);
+                        
+                        // if($first_source['first_source'] == "TPL:ild-33576") { //debug only
+                        //     print_r($first_source);
+                        //     print_r($arr); exit("\nsearched: [".$fetched_sciname."]\n");
+                        // }
+                        
                     }
                     else continue;
                     // ==============================================================*/
@@ -449,13 +457,17 @@ class DHSmasherOutputAPI
     private function kunin_eol_id($rek, $first, $scientificName)
     {
         if($eol_id = self::retrieve_cache_EOLid($first, $scientificName)) {
-            print_r($eol_id);
-            echo "\nRETRIEVED EOLid from cache\n";
+            // print_r($eol_id);
+            // echo "\nRETRIEVED EOLid from cache\n";
             // exit;
             return $eol_id; //this is array
         }
         else 
         {
+            // echo "\nno eol id\n";
+            // print_r($rek); print_r($first);
+            // exit("\n[$scientificName]\n");
+            
             if($eol_id = self::get_eol_id($rek, $first, $scientificName)) { //scientificName is now from resource file
                 print_r($eol_id);
                 echo "\nEOLid SAVED to cache\n";
@@ -477,7 +489,7 @@ class DHSmasherOutputAPI
         // $acronyms = array_keys($this->params);
         // $less = array('gbif','WOR'); //WOR TPL gbif
         $acronyms = array('WOR'); //WOR TPL gbif
-        print_r($acronyms);
+        // print_r($acronyms);
         // exit;
         foreach($acronyms as $acronym)
         {
@@ -584,18 +596,48 @@ class DHSmasherOutputAPI
     {
         $func = self::initialize();
         /* self::integrity_check(); */ //works OK, will use it if there is a new batch of resource files
+        
         // $excluded_acronyms = array('WOR', 'gbif', 'ictv', 'TPL'); //gbif
-        // $included_acronyms = array('WOR'); //gbif TPL //debug only when caching
-        // $included_acronyms = array('APH');
-        $included_acronyms = array('TPL');
-        // $included_acronyms = array('AMP');
+
+        // $included_acronyms = array("IOC");
+        // $included_acronyms = array("ORTH");
+        // $included_acronyms = array("SPI");
+        // $included_acronyms = array("EET");
+        // $included_acronyms = array("LYG");
+        // $included_acronyms = array("ODO");
+        // $included_acronyms = array("AMP");
+        // $included_acronyms = array("ictv");
+        // $included_acronyms = array("trunk");
+        // $included_acronyms = array("PHA");
+
+        // $included_acronyms = array("lhw");
+        // $included_acronyms = array("PLE");
+        // $included_acronyms = array("APH");
+        // $included_acronyms = array("BLA");
+        // $included_acronyms = array("COL");
+        // $included_acronyms = array("COR");
+        // $included_acronyms = array("DER");
+        // $included_acronyms = array("EMB");
+        // $included_acronyms = array("GRY");
+        // $included_acronyms = array("MAN");
+
+        // $included_acronyms = array("MNT");
+        // $included_acronyms = array("ONY");
+        // $included_acronyms = array("PLE");
+        // $included_acronyms = array("PPG");
+        // $included_acronyms = array("PSO");
+        // $included_acronyms = array("TER");
+        // $included_acronyms = array("ZOR");
+        
+        $included_acronyms = array("TPL");
+        $included_acronyms = array("WOR");
+        $included_acronyms = array("gbif");
         
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
-        $i = 0; $m = 466666; //466666; 280000
+        $i = 0; $m = 933333; ////466666/6; 280000/10   --- 933333/3
         foreach(new FileIterator($smasher_file) as $line => $row) {
             $i++;
-            if(($i % 100000) == 0) echo " $i";
-            
+            if(($i % 1000) == 0) echo " $i";
             if($i == 1) $fields = explode("\t", $row);
             else {
                 $rec = array(); //just to be sure
@@ -608,43 +650,44 @@ class DHSmasherOutputAPI
                 }
                 if($rek)
                 {
-                    /* breakdown when caching:
+                    // /* breakdown when caching:
                     $cont = false;
-                    if($i >=  1    && $i < $m) $cont = true;
+                    // if($i >=  1    && $i < $m) $cont = true;
                     // if($i >=  $m   && $i < $m*2) $cont = true;
-                    // if($i >=  $m*2 && $i < $m*3) $cont = true;
+                    if($i >=  $m*2 && $i < $m*3) $cont = true;
+
                     // if($i >=  $m*3 && $i < $m*4) $cont = true;
                     // if($i >=  $m*4 && $i < $m*5) $cont = true;
                     // if($i >=  $m*5 && $i < $m*6) $cont = true;
+                    
                     // if($i >=  $m*6 && $i < $m*7) $cont = true;
                     // if($i >=  $m*7 && $i < $m*8) $cont = true;
                     // if($i >=  $m*8 && $i < $m*9) $cont = true;
                     // if($i >=  $m*9 && $i < $m*10) $cont = true;
                     if(!$cont) continue;
-                    */
-                    
-                    echo "\nsmasher record: ----------------------------";
-                    print_r($rek); //debug only
-                    $first_source = self::get_first_source($rek['source']);
-                    print_r($first_source);
-                    // exit("\n");
-                    
-                    // /* normal operation
-                    self::process_record($rek, $first_source, $func);
                     // */
+                    
+                    // echo "\nsmasher record: ----------------------------";
+                    // print_r($rek); //debug only
+                    $first_source = self::get_first_source($rek['source']);
+                    // print_r($first_source);
+                    
+                    /* normal operation
+                    self::process_record($rek, $first_source, $func);
+                    */
                     
                     /*
                     if(in_array($first_source['acronym'], $excluded_acronyms)) continue;
                     self::process_record($rek, $first_source, $func);
                     */
                     
-                    /*
+                    // /*
                     if(in_array($first_source['acronym'], $included_acronyms)) self::process_record($rek, $first_source, $func);
                     else continue;
-                    */
+                    // */
                 }
             }
-            if($i >= 5) break; //debug only
+            // if($i >= 2000) break; //debug only
         }
         $func->last_part($this->folder); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
     }
@@ -669,7 +712,7 @@ class DHSmasherOutputAPI
                 datasetID: TPL
             */
             if($first_source['acronym'] == "TPL" && in_array($rek['taxonRank'], array("genus", "family"))) return $rek['scientificName'];
-            else return $sciname." ".$fetched['fetched']['scientificNameAuthorship'];
+            else return $sciname." ".@$fetched['fetched']['scientificNameAuthorship'];
         }
         else exit("\ninvestigate: [".$first_source['acronym']."] not in the list\n");
     }
@@ -746,8 +789,9 @@ class DHSmasherOutputAPI
         else                            $rec['datasetID'] = $first['acronym'];
         
         // EOLid and annotations assignment ====================================
+        $fetched_sciname = str_ireplace("†", "", $d['fetched']['scientificName']); // so just to use same in utility2()
         $eolid_arr = self::kunin_eol_id($rek, $first, $rec['scientificName']);
-        print_r($eolid_arr);
+        // print_r($eolid_arr);
         $rec['EOLid']            = "";
         $rec['EOLidAnnotations'] = "";
         if($eolid_arr[0] != "NoID") {
@@ -758,16 +802,16 @@ class DHSmasherOutputAPI
         }
         // end ========================================
         
-        print_r($rec);
+        // print_r($rec);
         if(count($rec) != 16) exit("\nnot 16\n");
         
         // exit("\nstop muna\n");
-        echo "\n-------------------------------------------------------------\n";
+        // echo "\n-------------------------------------------------------------\n";
         
         $rec = array_map('trim', $rec);
         $func->print_header($rec, CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations.txt");
         $val = implode("\t", $rec);
-        self::save_to_text_file($val);
+        // self::save_to_text_file($val); //un-comment in real operation... comment during caching...
     }
     
     function fetch_record($first, $rek)
@@ -795,15 +839,15 @@ class DHSmasherOutputAPI
         if($first['acronym'] == "gbif")
         {
             if($arr = self::retrieve_cache($first)) { //1st option is the cache from gbif's resource file
-                echo("\n gbif retrieved cached json\n");
+                // echo("\n gbif retrieved cached json\n");
                 return $arr;
             }
             else //use GBIF's API
             {
-                // exit("\nwala pang cache\n");
+                // exit("\n wala pang cache let us try GBIF API instead\n");
                 if($json = Functions::lookup_with_cache($this->gbif_NameUsage . $first['taxon_id'], $this->download_options)) {
                     $arr = json_decode($json, true);
-                    print_r($arr);
+                    // print_r($arr);
                     return $arr;
                     //exit("\ngbif api\n");
                 }
@@ -813,14 +857,14 @@ class DHSmasherOutputAPI
         elseif($first['acronym'] == "WOR")
         {
             if($arr = self::retrieve_cache($first)) {
-                echo("\n WORMS retrieved cached json\n");
+                // echo("\n WORMS retrieved cached json\n");
                 return $arr;
             }
         }
         else
         {
             if($arr = self::retrieve_cache($first)) {
-                echo("\nREST OF THE RESOURCES $first[acronym] retrieved cached json\n");
+                // echo("\nREST OF THE RESOURCES $first[acronym] retrieved cached json\n");
                 return $arr;
             }
         }
@@ -850,7 +894,7 @@ class DHSmasherOutputAPI
                 {
                     // urn:lsid:marinespecies.org:taxname:325577
                     if("urn:lsid:marinespecies.org:taxname:".trim($first['taxon_id']) == trim(@$rek['taxonID'])) {
-                        print_r($rek);
+                        // print_r($rek);
                         self::write_cache(json_encode($rek), $first);
                         echo("\nWOR saved cache\n");
                         // exit;
@@ -862,10 +906,10 @@ class DHSmasherOutputAPI
                     if($first['taxon_id'] == @$rek['taxonID'])
                     {
                         // if($first['acronym'] == 'gbif') {print_r($rek); exit("\ngbif test\n");} //testing...
-                        print_r($rek);
+                        // print_r($rek);
                         self::write_cache(json_encode($rek), $first);
                         echo("\nREST of the resources...$first[acronym]... saved cache\n");
-                        exit;
+                        // exit;
                         return $rek;
                     }
                     // else echo "\nweird...\n"; //-> talagang wala lang
@@ -898,7 +942,7 @@ class DHSmasherOutputAPI
     private function integrity_check()
     {
         $acronyms = array_keys($this->params);
-        print_r($acronyms);
+        // print_r($acronyms);
         foreach($acronyms as $acronym) {
             $txtfile = self::adjust_filename($this->params[$acronym]["url"]);
             if(!file_exists($txtfile)) exit("\nfile does not exist:3 [$txtfile]\n");
@@ -989,7 +1033,6 @@ class DHSmasherOutputAPI
         if(file_exists($filename)) {
             $json = file_get_contents($filename);
             $arr = json_decode($json, true);
-            print_r($arr);
             if($arr) return $arr;
         }
         return false;
