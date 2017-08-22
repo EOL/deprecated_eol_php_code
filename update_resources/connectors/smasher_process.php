@@ -53,9 +53,6 @@ $p["trunk"] = array("desc" => "Dynamic Hierarchy Trunk 14 June 2017", "url" => "
 $p["WOR"] = array("desc" => "WoRMS: use original WoRMS2EOL file for this", "url" => "http://localhost/cp/WORMS/WoRMS2EoL/taxon.txt"); //will use downloaded Aug 16, 2017
 $p["ZOR"] = array("desc" => "Zoraptera Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-zoraptera-v1.4/taxon.txt");
 
-$p["folder"] = "IOC"; //default is 'smasher', but can be any of the 30 acronyms
-
-$func = new DHSmasherOutputAPI($p);
 
 // /* sample IOC process.txt  -> should get 18990
 $rek = Array(
@@ -172,8 +169,9 @@ $sciname = "Acanthagenys rufogularis Gould, 1838";
 // $arr = $func->get_eol_id($rek, $first, $sciname); 
 // echo "\n------"; print_r($arr); echo "\n------";
 
-
-$func->start();
+$p["folder"] = "trunk"; //"IOC"; //default is 'smasher', but can be any of the 30 acronyms
+$func = new DHSmasherOutputAPI($p);
+$func->start($p["folder"]); //value is any of the 30 acronyms, used to generate individual DWC-A files for each of the 30
 // $func->utility();    //creating local cache based on resource files from google sheet
 // $func->utility2();   //caching EOL API search name | AND | getting EOLid
 // $func->utility3();    // creation of EOL Hierarchy Entries (EHE) aa ab ac... text files  //last generated Aug 16, 2017 Eastern

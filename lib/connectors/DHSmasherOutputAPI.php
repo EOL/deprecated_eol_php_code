@@ -595,17 +595,19 @@ class DHSmasherOutputAPI
         return $func;
     }
     
-    function start() // total rows from smasher file 2,700,000+
+    function start($acronym) // total rows from smasher file 2,700,000+
     {
         $func = self::initialize();
         /* self::integrity_check(); */ //works OK, will use it if there is a new batch of resource files
         
         // $excluded_acronyms = array('WOR', 'gbif', 'ictv', 'TPL'); //gbif
 
-        $included_acronyms = array("IOC"); //d
+        $included_acronyms = array($acronym);
+        
+        // $included_acronyms = array("IOC"); //d xx
         // $included_acronyms = array("ORTH");
         // $included_acronyms = array("SPI");
-        // $included_acronyms = array("trunk");
+        // $included_acronyms = array("trunk"); //d xx
         
         // $included_acronyms = array("EET"); d
         // $included_acronyms = array("LYG"); d
@@ -636,12 +638,11 @@ class DHSmasherOutputAPI
         // $included_acronyms = array("TPL");
         // $included_acronyms = array("WOR");
         // $included_acronyms = array("gbif");
-        
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
         $i = 0; $m = 280000; ////466666/6; 280000/10   --- 933333/3
         foreach(new FileIterator($smasher_file) as $line => $row) {
             $i++;
-            if(($i % 1000) == 0) echo " --$i-- ";
+            if(($i % 1000) == 0) echo " --$i-- [$acronym] ";
             if($i == 1) $fields = explode("\t", $row);
             else {
                 $rec = array(); //just to be sure
@@ -673,6 +674,7 @@ class DHSmasherOutputAPI
                     // echo "\nsmasher record: ----------------------------";
                     // print_r($rek); //debug only
                     $first_source = self::get_first_source($rek['source']);
+                    
                     // print_r($first_source);
                     
                     /* normal operation
@@ -690,7 +692,7 @@ class DHSmasherOutputAPI
                     // */
                 }
             }
-            if($i >= 1000) break; //debug only
+            // if($i >= 1000) break; //debug only
         }
         $func->last_part($this->folder, "taxa.txt"); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
     }
