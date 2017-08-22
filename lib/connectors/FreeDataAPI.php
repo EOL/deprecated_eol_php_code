@@ -580,12 +580,12 @@ class FreeDataAPI
     }
     //end for Reeflife ================================================================================================================
     
-    function last_part($folder)
+    function last_part($folder, $txt_file = "observations.txt")
     {
-        self::generate_meta_xml_v2($folder); //creates a meta.xml file
+        self::generate_meta_xml_v2($folder, $txt_file); //creates a meta.xml file
 
         //copy 2 files inside /reef-life-survey/
-        copy(CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt", CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt");
+        copy(CONTENT_RESOURCE_LOCAL_PATH . "$folder/$txt_file", CONTENT_RESOURCE_LOCAL_PATH . "$folder/$txt_file");
         copy(CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml"        , CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml");
 
         //create reef-life-survey.tar.gz
@@ -723,14 +723,14 @@ class FreeDataAPI
         }
     }
     
-    private function generate_meta_xml_v2($folder)
+    private function generate_meta_xml_v2($folder, $txt_file)
     {
         if(!$WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml", "w")) return;
         fwrite($WRITE, '<?xml version="1.0" encoding="UTF-8"?>' . "\n");
         fwrite($WRITE, '<archive xmlns="http://rs.tdwg.org/dwc/text/">' . "\n");
         fwrite($WRITE, '  <core encoding="UTF-8" linesTerminatedBy="\n" fieldsTerminatedBy="\t" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/Occurrence">' . "\n");
         fwrite($WRITE, '    <files>' . "\n");
-        fwrite($WRITE, '      <location>observations.txt</location>' . "\n");
+        fwrite($WRITE, '      <location>'.$txt_file.'</location>' . "\n");
         fwrite($WRITE, '    </files>' . "\n");
         fwrite($WRITE, '    <id index="0"/>' . "\n");
         $terms = self::get_terms();
@@ -771,7 +771,10 @@ class FreeDataAPI
 
     function get_terms()
     {
-        //for smasher dynamic hierarchy
+        //added for smasher dynamic hierarchy
+        $terms['acceptedNameUsageID'] = "http://rs.tdwg.org/dwc/terms/acceptedNameUsageID";
+        $terms['parentNameUsageID'] = "http://rs.tdwg.org/dwc/terms/parentNameUsageID";
+        $terms['taxonomicStatus'] = "http://rs.tdwg.org/dwc/terms/taxonomicStatus";
         $terms['canonicalName'] = "http://rs.gbif.org/terms/1.0/canonicalName";
         $terms['scientificNameAuthorship'] = "http://rs.tdwg.org/dwc/terms/scientificNameAuthorship";
         $terms['scientificNameID'] = "http://rs.tdwg.org/dwc/terms/scientificNameID";

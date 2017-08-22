@@ -10,7 +10,7 @@ class DHSmasherOutputAPI
     {
         $this->params = $params;
         $this->folder = "smasher";
-        $this->destination[$this->folder] = CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations.txt";
+        $this->destination[$this->folder] = CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/taxa.txt";
         $this->print_header = true;
         
         $this->download_options = array(
@@ -473,14 +473,14 @@ class DHSmasherOutputAPI
             
             if($eol_id = self::get_eol_id($rek, $first, $scientificName)) { //scientificName is now from resource file
                 print_r($eol_id);
-                echo "\nEOLid SAVED to cache\n";
+                echo "\nEOLid SAVED to cache -> ".$first['acronym']."\n";
                 self::write_cache_EOLid($eol_id, $first, $scientificName);
                 // exit;
                 return $eol_id;
             }
             else {
-                echo "\n-NO EOLid- SAVED FALSE ON LOCAL\n";
-                self::write_cache_EOLid(array("NoID"), $first, $scientificName, true); //false here signifies there is no EOL id
+                echo "\n-NO EOLid- SAVED FALSE ON LOCAL -> ".$first['acronym']."\n";
+                self::write_cache_EOLid(array("NoID"), $first, $scientificName, true); //true here signifies there is no EOL id
                 // exit;
                 return false;
             }
@@ -602,10 +602,10 @@ class DHSmasherOutputAPI
         
         // $excluded_acronyms = array('WOR', 'gbif', 'ictv', 'TPL'); //gbif
 
-        // $included_acronyms = array("IOC"); d
+        $included_acronyms = array("IOC"); //d
         // $included_acronyms = array("ORTH");
         // $included_acronyms = array("SPI");
-        $included_acronyms = array("trunk");
+        // $included_acronyms = array("trunk");
         
         // $included_acronyms = array("EET"); d
         // $included_acronyms = array("LYG"); d
@@ -638,10 +638,10 @@ class DHSmasherOutputAPI
         // $included_acronyms = array("gbif");
         
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
-        $i = 0; $m = 466666; ////466666/6; 280000/10   --- 933333/3
+        $i = 0; $m = 280000; ////466666/6; 280000/10   --- 933333/3
         foreach(new FileIterator($smasher_file) as $line => $row) {
             $i++;
-            if(($i % 1000) == 0) echo " $i";
+            if(($i % 1000) == 0) echo " --$i-- ";
             if($i == 1) $fields = explode("\t", $row);
             else {
                 $rec = array(); //just to be sure
@@ -661,12 +661,12 @@ class DHSmasherOutputAPI
                     // if($i >=  $m*2 && $i < $m*3) $cont = true;
                     // if($i >=  $m*3 && $i < $m*4) $cont = true;
                     // if($i >=  $m*4 && $i < $m*5) $cont = true;
-                    if($i >=  $m*5 && $i < $m*6) $cont = true;
+                    // if($i >=  $m*5 && $i < $m*6) $cont = true;
                     
                     // if($i >=  $m*6 && $i < $m*7) $cont = true;
                     // if($i >=  $m*7 && $i < $m*8) $cont = true;
                     // if($i >=  $m*8 && $i < $m*9) $cont = true;
-                    // if($i >=  $m*9 && $i < $m*10) $cont = true;
+                    if($i >=  $m*9 && $i < $m*10) $cont = true;
                     if(!$cont) continue;
                     */
                     
@@ -690,7 +690,7 @@ class DHSmasherOutputAPI
                     // */
                 }
             }
-            // if($i >= 2000) break; //debug only
+            if($i >= 10000) break; //debug only
         }
         $func->last_part($this->folder); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
     }
@@ -850,9 +850,9 @@ class DHSmasherOutputAPI
         // echo "\n-------------------------------------------------------------\n";
         
         $rec = array_map('trim', $rec);
-        $func->print_header($rec, CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations.txt");
+        $func->print_header($rec, CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/taxa.txt");
         $val = implode("\t", $rec);
-        // self::save_to_text_file($val); //un-comment in real operation... comment during caching...
+        self::save_to_text_file($val); //un-comment in real operation... comment during caching...
     }
     
     function fetch_record($first, $rek)
