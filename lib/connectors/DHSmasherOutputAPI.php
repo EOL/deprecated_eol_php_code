@@ -600,7 +600,7 @@ class DHSmasherOutputAPI
         $func = self::initialize();
         /* self::integrity_check(); */ //works OK, will use it if there is a new batch of resource files
         
-        // $excluded_acronyms = array('WOR', 'gbif', 'ictv', 'TPL'); //gbif
+        $excluded_acronyms = array('WOR', 'gbif', 'TPL');
 
         $included_acronyms = array($acronym);
         
@@ -638,6 +638,7 @@ class DHSmasherOutputAPI
         // $included_acronyms = array("TPL");
         // $included_acronyms = array("WOR");
         // $included_acronyms = array("gbif");
+        
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
         $i = 0; $m = 280000; ////466666/6; 280000/10   --- 933333/3
         foreach(new FileIterator($smasher_file) as $line => $row) {
@@ -977,14 +978,12 @@ class DHSmasherOutputAPI
         
         if($first['acronym'] == 'trunk')
         {   /*
-        Array
-        (
+        Array(
             [first_source] => trunk:537ca6ee-8e80-44d7-814e-5e2d7d7d8e6a
             [acronym] => trunk
             [taxon_id] => 537ca6ee-8e80-44d7-814e-5e2d7d7d8e6a
         )
-        Array
-        (
+        Array(
             [taxonID] => -681050
             [acceptedNameUsageID] => -681050
             [parentNameUsageID] => -559210
@@ -993,10 +992,8 @@ class DHSmasherOutputAPI
             [source] => trunk:537ca6ee-8e80-44d7-814e-5e2d7d7d8e6a,gbif:4636023
             [taxonomicStatus] => accepted
         )
-        Array
-        (
-            [fetched] => Array
-                (
+        Array(
+            [fetched] => Array(
                     [id] => 4660
                     [taxonomicStatus] => accepted
                     [taxonRank] => family
@@ -1019,6 +1016,9 @@ class DHSmasherOutputAPI
                     'acceptedNameUsageID' => $first['taxon_id'],
                     'scientificName' => $orig_rek['scientificName'],
                     'taxonID' => $first['taxon_id']);
+
+            self::write_cache(json_encode($f), $first);
+            echo("\n-TRUNK...$first[acronym]... saved cache USING DEFAULT VALUES\n");
             return $f;
         }
         
