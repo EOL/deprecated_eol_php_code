@@ -605,10 +605,9 @@ class DHSmasherOutputAPI
         $included_acronyms = array($acronym);
         
         // $included_acronyms = array("IOC"); //d xx
-        // $included_acronyms = array("ORTH");
-        // $included_acronyms = array("SPI");
+        // $included_acronyms = array("ORTH"); d
+        // $included_acronyms = array("SPI"); d
         // $included_acronyms = array("trunk"); //d xx
-        
         // $included_acronyms = array("EET"); d
         // $included_acronyms = array("LYG"); d
         // $included_acronyms = array("ODO"); d
@@ -627,9 +626,8 @@ class DHSmasherOutputAPI
         // $included_acronyms = array("GRY");
         // $included_acronyms = array("MAN");
 
-        // $included_acronyms = array("MNT"); these 7 all done
+        // $included_acronyms = array("MNT"); these 6 all done
         // $included_acronyms = array("ONY");
-        // $included_acronyms = array("PLE");
         // $included_acronyms = array("PPG");
         // $included_acronyms = array("PSO");
         // $included_acronyms = array("TER");
@@ -682,15 +680,15 @@ class DHSmasherOutputAPI
                     self::process_record($rek, $first_source, $func);
                     */
                     
-                    /*
+                    // /*
                     if(in_array($first_source['acronym'], $excluded_acronyms)) continue;
                     self::process_record($rek, $first_source, $func);
-                    */
+                    // */
                     
-                    // /*
+                    /*
                     if(in_array($first_source['acronym'], $included_acronyms)) self::process_record($rek, $first_source, $func);
                     else continue;
-                    // */
+                    */
                 }
             }
             // if($i >= 1000) break; //debug only
@@ -981,8 +979,7 @@ class DHSmasherOutputAPI
         Array(
             [first_source] => trunk:537ca6ee-8e80-44d7-814e-5e2d7d7d8e6a
             [acronym] => trunk
-            [taxon_id] => 537ca6ee-8e80-44d7-814e-5e2d7d7d8e6a
-        )
+            [taxon_id] => 537ca6ee-8e80-44d7-814e-5e2d7d7d8e6a)
         Array(
             [taxonID] => -681050
             [acceptedNameUsageID] => -681050
@@ -990,8 +987,7 @@ class DHSmasherOutputAPI
             [scientificName] => Abadiellidae
             [taxonRank] => family
             [source] => trunk:537ca6ee-8e80-44d7-814e-5e2d7d7d8e6a,gbif:4636023
-            [taxonomicStatus] => accepted
-        )
+            [taxonomicStatus] => accepted)
         Array(
             [fetched] => Array(
                     [id] => 4660
@@ -1002,8 +998,7 @@ class DHSmasherOutputAPI
                     [higherClassification] => life,cellular organisms,Eukaryota,Opisthokonta,Metazoa,Bilateria,Protostomia,Ecdysozoa,Panarthropoda,Arthropoda,Trilobita,Redlichiida,Redlichiina,Redlichioidea
                     [acceptedNameUsageID] => 537ca6ee-8e80-44d7-814e-5e2d7d7d8e6a
                     [scientificName] => Abadiellidae
-                    [taxonID] => 537ca6ee-8e80-44d7-814e-5e2d7d7d8e6a
-                )
+                    [taxonID] => 537ca6ee-8e80-44d7-814e-5e2d7d7d8e6a)
         )
             */
             $f = Array(
@@ -1021,7 +1016,6 @@ class DHSmasherOutputAPI
             echo("\n-TRUNK...$first[acronym]... saved cache USING DEFAULT VALUES\n");
             return $f;
         }
-        
         // exit("\ngoes here...222\n");
         return false;
     }
