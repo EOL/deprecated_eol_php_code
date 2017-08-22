@@ -53,6 +53,8 @@ $p["trunk"] = array("desc" => "Dynamic Hierarchy Trunk 14 June 2017", "url" => "
 $p["WOR"] = array("desc" => "WoRMS: use original WoRMS2EOL file for this", "url" => "http://localhost/cp/WORMS/WoRMS2EoL/taxon.txt"); //will use downloaded Aug 16, 2017
 $p["ZOR"] = array("desc" => "Zoraptera Species File", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/dwca-zoraptera-v1.4/taxon.txt");
 
+$p["folder"] = "IOC"; //default is 'smasher', but can be any of the 30 acronyms
+
 $func = new DHSmasherOutputAPI($p);
 
 // /* sample IOC process.txt  -> should get 18990

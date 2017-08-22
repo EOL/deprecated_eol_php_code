@@ -9,7 +9,7 @@ class DHSmasherOutputAPI
     function __construct($params)
     {
         $this->params = $params;
-        $this->folder = "smasher";
+        $this->folder = $params['folder'];
         $this->destination[$this->folder] = CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/taxa.txt";
         $this->print_header = true;
         
@@ -690,9 +690,9 @@ class DHSmasherOutputAPI
                     // */
                 }
             }
-            if($i >= 10000) break; //debug only
+            if($i >= 1000) break; //debug only
         }
-        $func->last_part($this->folder); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
+        $func->last_part($this->folder, "taxa.txt"); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
     }
 
     private function get_scientificName($rek, $first_source, $fetched)
