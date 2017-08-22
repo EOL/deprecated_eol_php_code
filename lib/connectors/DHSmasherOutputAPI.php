@@ -602,10 +602,11 @@ class DHSmasherOutputAPI
         
         // $excluded_acronyms = array('WOR', 'gbif', 'ictv', 'TPL'); //gbif
 
-        // $included_acronyms = array("IOC");
+        // $included_acronyms = array("IOC"); d
         // $included_acronyms = array("ORTH");
         // $included_acronyms = array("SPI");
-        // $included_acronyms = array("trunk");
+        $included_acronyms = array("trunk");
+        
         // $included_acronyms = array("EET"); d
         // $included_acronyms = array("LYG"); d
         // $included_acronyms = array("ODO"); d
@@ -633,11 +634,11 @@ class DHSmasherOutputAPI
         // $included_acronyms = array("ZOR");
         
         // $included_acronyms = array("TPL");
-        $included_acronyms = array("WOR");
+        // $included_acronyms = array("WOR");
         // $included_acronyms = array("gbif");
         
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
-        $i = 0; $m = 280000; ////466666/6; 280000/10   --- 933333/3
+        $i = 0; $m = 466666; ////466666/6; 280000/10   --- 933333/3
         foreach(new FileIterator($smasher_file) as $line => $row) {
             $i++;
             if(($i % 1000) == 0) echo " $i";
@@ -661,6 +662,7 @@ class DHSmasherOutputAPI
                     // if($i >=  $m*3 && $i < $m*4) $cont = true;
                     // if($i >=  $m*4 && $i < $m*5) $cont = true;
                     if($i >=  $m*5 && $i < $m*6) $cont = true;
+                    
                     // if($i >=  $m*6 && $i < $m*7) $cont = true;
                     // if($i >=  $m*7 && $i < $m*8) $cont = true;
                     // if($i >=  $m*8 && $i < $m*9) $cont = true;
@@ -749,7 +751,7 @@ class DHSmasherOutputAPI
         http://eol.org/schema/EOLidAnnotations - from TRAM-581
         */
         
-        /*
+        /* debug only
         $rek = Array(
             'taxonID' => -705347,
             'acceptedNameUsageID' => -705347,
@@ -764,8 +766,29 @@ class DHSmasherOutputAPI
             'acronym' => 'WOR',
             'taxon_id' => 724953); */
         
+        /*
+        $rek = Array
+        (
+            'taxonID' => -5447000,
+            'acceptedNameUsageID' => -5447000,
+            'parentNameUsageID' => -17961,
+            'scientificName' => 'Cyclopteridaceae',
+            'taxonRank' => 'family',
+            'source' => 'trunk:00000000-76c9-439d-82a4-8f592fd6f68c',
+            'taxonomicStatus' => 'accepted'
+        );
+        $first = Array
+        (
+            'first_source' => 'trunk:00000000-76c9-439d-82a4-8f592fd6f68c',
+            'acronym' => 'trunk',
+            'taxon_id' => '00000000-76c9-439d-82a4-8f592fd6f68c'
+        );
+        */
+        
+        
+        
         $d['fetched'] = self::fetch_record($first, $rek); //$rek is smasher record
-        // print_r($d);
+        // print_r($d); //exit;
         if(!$d['fetched'])
         {
             echo "\n--------------investigate cant fetch-------------------\n";
@@ -837,26 +860,8 @@ class DHSmasherOutputAPI
                     [acronym] => gbif
                     [taxon_id] => 2058421   )*/
 
-                /*
-                $rek = Array
-                (
-                    ['taxonID'] => -5447000
-                    ['acceptedNameUsageID'] => -5447000
-                    ['parentNameUsageID'] => -17961
-                    ['scientificName'] => Cyclopteridaceae
-                    ['taxonRank'] => family
-                    ['source'] => trunk:00000000-76c9-439d-82a4-8f592fd6f68c
-                    ['taxonomicStatus'] => accepted
-                )
-                Array
-                (
-                    ['first_source'] => trunk:00000000-76c9-439d-82a4-8f592fd6f68c
-                    ['acronym'] => trunk
-                    ['taxon_id'] => 00000000-76c9-439d-82a4-8f592fd6f68c
-                )
-                */
-
-
+        $orig_rek = $rek;
+        // print_r($first); print_r($rek); //debug only
 
         if($first['acronym'] == "TPL" && in_array($rek['taxonRank'], array("genus", "family")))
         {   //per TRAM-580
@@ -957,7 +962,8 @@ class DHSmasherOutputAPI
                 //========================================
             }
         }
-        if($first['acronym'] == 'WOR') //exit("\nfrom worms but not found in resource file [" . $first['taxon_id'] . "]\n"); //seen this
+        
+        if($first['acronym'] == 'WOR') //exit("\n from worms but not found in resource file [" . $first['taxon_id'] . "]\n"); //seen this
         {
             if($rek = self::get_rec_from_WORMS($first['taxon_id']))
             {
@@ -966,6 +972,54 @@ class DHSmasherOutputAPI
                 return $rek;
             }
         }
+        
+        if($first['acronym'] == 'trunk')
+        {   /*
+        Array
+        (
+            [first_source] => trunk:537ca6ee-8e80-44d7-814e-5e2d7d7d8e6a
+            [acronym] => trunk
+            [taxon_id] => 537ca6ee-8e80-44d7-814e-5e2d7d7d8e6a
+        )
+        Array
+        (
+            [taxonID] => -681050
+            [acceptedNameUsageID] => -681050
+            [parentNameUsageID] => -559210
+            [scientificName] => Abadiellidae
+            [taxonRank] => family
+            [source] => trunk:537ca6ee-8e80-44d7-814e-5e2d7d7d8e6a,gbif:4636023
+            [taxonomicStatus] => accepted
+        )
+        Array
+        (
+            [fetched] => Array
+                (
+                    [id] => 4660
+                    [taxonomicStatus] => accepted
+                    [taxonRank] => family
+                    [datasetID] => dd18e3cf-04ba-4b0d-8349-1dd4b7ac5000
+                    [parentNameUsageID] => f06f37cb-87cd-44dc-8489-be8635923daa
+                    [higherClassification] => life,cellular organisms,Eukaryota,Opisthokonta,Metazoa,Bilateria,Protostomia,Ecdysozoa,Panarthropoda,Arthropoda,Trilobita,Redlichiida,Redlichiina,Redlichioidea
+                    [acceptedNameUsageID] => 537ca6ee-8e80-44d7-814e-5e2d7d7d8e6a
+                    [scientificName] => Abadiellidae
+                    [taxonID] => 537ca6ee-8e80-44d7-814e-5e2d7d7d8e6a
+                )
+        )
+            */
+            $f = Array(
+                    'id' => '',
+                    'taxonomicStatus' => $orig_rek['taxonomicStatus'],
+                    'taxonRank' => $orig_rek['taxonRank'],
+                    'datasetID' => '',
+                    'parentNameUsageID' => '',
+                    'higherClassification' => '',
+                    'acceptedNameUsageID' => $first['taxon_id'],
+                    'scientificName' => $orig_rek['scientificName'],
+                    'taxonID' => $first['taxon_id']);
+            return $f;
+        }
+        
         // exit("\ngoes here...222\n");
         return false;
     }
