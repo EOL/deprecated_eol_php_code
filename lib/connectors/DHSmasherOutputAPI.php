@@ -124,7 +124,7 @@ class DHSmasherOutputAPI
                     [he_id] => 52661717
                     [source_hierarchy] => "Species 2000 & ITIS Catalogue of Life: April 2013 #1188"
                 ) */
-            print_r($recs); //debug only -> there are the recs fetched from EHE
+            // print_r($recs); //debug only -> there are the recs fetched from EHE
             if($first['acronym'] == "AMP") //==================================== start AMP
             {
                 foreach($recs as $rec) {    //1st option
@@ -633,12 +633,12 @@ class DHSmasherOutputAPI
         // $included_acronyms = array("TER");
         // $included_acronyms = array("ZOR");
         
-        // $included_acronyms = array("TPL");
+        $included_acronyms = array("TPL");
         // $included_acronyms = array("WOR");
         // $included_acronyms = array("gbif");
         
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
-        $i = 0; $m = 280000; ////466666/6; 280000/10   --- 933333/3
+        $i = 0; $m = 466666; ////466666/6; 280000/10   --- 933333/3 -- 233333/12
         foreach(new FileIterator($smasher_file) as $line => $row) {
             $i++;
             if(($i % 1000) == 0) echo " --$i-- [$acronym] ";
@@ -654,21 +654,37 @@ class DHSmasherOutputAPI
                 }
                 if($rek)
                 {
-                    /* breakdown when caching:
+                    // /* breakdown when caching:   WOR  d - 1 2 3 5 6
+                    //                              TPL  d - 4 6
                     $cont = false;
                     // if($i >=  1    && $i < $m) $cont = true;
-                    // if($i >=  $m   && $i < $m*2) $cont = true;
+                    // if($i >=  $m   && $i < $m*2) $cont = true;   //TPL-d    gbif-?
+                    
                     // if($i >=  $m*2 && $i < $m*3) $cont = true;
-                    // if($i >=  $m*3 && $i < $m*4) $cont = true;
+                    // if($i >=  $m*3 && $i < $m*4) $cont = true;   //gbif-?    TPL-d
+                    
                     // if($i >=  $m*4 && $i < $m*5) $cont = true;
-                    // if($i >=  $m*5 && $i < $m*6) $cont = true;
+                    // if($i >=  $m*5 && $i < $m*6) $cont = true;      //TPL-d      gbif-?      WOR-d
                     
                     // if($i >=  $m*6 && $i < $m*7) $cont = true;
-                    // if($i >=  $m*7 && $i < $m*8) $cont = true;
+                    // if($i >=  $m*7 && $i < $m*8) $cont = true;   //gbif-?       WOR-d
+                    
                     // if($i >=  $m*8 && $i < $m*9) $cont = true;
-                    if($i >=  $m*9 && $i < $m*10) $cont = true;
+                    // if($i >=  $m*9 && $i < $m*10) $cont = true;         //  TPL-d     gbif-?    WOR-d
+
+                    // if($i >=  $m*10 && $i < $m*11) $cont = true;
+                    // if($i >=  $m*11 && $i < $m*12) $cont = true;     //gbif-?  WOR-d     TPL-d
+
+                    // if($i >=  (233333*3)+150000 && $i < $m*4) $cont = true;   //WOR-d
+
+                    // if($i >=  1+430000 && $i < $m) $cont = true;            //TPL-
+                    // if($i >=  $m+430000 && $i < $m*2) $cont = true;     //TPL-
+                    // if($i >=  ($m*2)+450000 && $i < $m*3) $cont = true;     //TPL-
+                    // if($i >=  ($m*3)+460000 && $i < $m*4) $cont = true;                //WOR-?
+                    if($i >=  ($m*4)+460000 && $i < $m*5) $cont = true;     //TPL
+
                     if(!$cont) continue;
-                    */
+                    // */
                     
                     // echo "\nsmasher record: ----------------------------";
                     // print_r($rek); //debug only
@@ -680,15 +696,15 @@ class DHSmasherOutputAPI
                     self::process_record($rek, $first_source, $func);
                     */
                     
-                    // /*
+                    /*
                     if(in_array($first_source['acronym'], $excluded_acronyms)) continue;
                     self::process_record($rek, $first_source, $func);
-                    // */
+                    */
                     
-                    /*
+                    // /*
                     if(in_array($first_source['acronym'], $included_acronyms)) self::process_record($rek, $first_source, $func);
                     else continue;
-                    */
+                    // */
                 }
             }
             // if($i >= 1000) break; //debug only
@@ -853,7 +869,7 @@ class DHSmasherOutputAPI
         $rec = array_map('trim', $rec);
         $func->print_header($rec, CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/taxa.txt");
         $val = implode("\t", $rec);
-        self::save_to_text_file($val); //un-comment in real operation... comment during caching...
+        // self::save_to_text_file($val); //un-comment in real operation... comment during caching...
     }
     
     function fetch_record($first, $rek)
