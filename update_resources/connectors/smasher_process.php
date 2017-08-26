@@ -169,7 +169,7 @@ $sciname = "Acanthagenys rufogularis Gould, 1838";
 // $arr = $func->get_eol_id($rek, $first, $sciname); 
 // echo "\n------"; print_r($arr); echo "\n------";
 
-$p["folder"] = "nothing";//""; //"trunk done"; //"IOC done"; //default is 'smasher', but can be any of the 30 acronyms
+$p["folder"] = "nothing";//"gbif";//"WOR";//"TPL";//""; //"trunk done"; //"IOC done"; //default is 'smasher', but can be any of the 30 acronyms
 // less3big running
 $func = new DHSmasherOutputAPI($p);
 $func->start($p["folder"]); //value is any of the 30 acronyms, used to generate individual DWC-A files for each of the 30

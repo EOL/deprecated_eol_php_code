@@ -595,13 +595,12 @@ class DHSmasherOutputAPI
         return $func;
     }
     
-    function start($acronym) // total rows from smasher file 2,700,000+
+    function start($acronym) // total rows from smasher file 2,700,000+ (2,724,000)
     {
         $func = self::initialize();
         /* self::integrity_check(); */ //works OK, will use it if there is a new batch of resource files
         
         $excluded_acronyms = array('WOR', 'gbif', 'TPL');
-
         $included_acronyms = array($acronym);
         
         // $included_acronyms = array("IOC"); //d xx
@@ -633,12 +632,12 @@ class DHSmasherOutputAPI
         // $included_acronyms = array("TER");
         // $included_acronyms = array("ZOR");
         
-        $included_acronyms = array("TPL");
+        // $included_acronyms = array("TPL");
         // $included_acronyms = array("WOR");
-        // $included_acronyms = array("gbif");
+        $included_acronyms = array("gbif");
         
         $smasher_file = self::adjust_filename($this->params["smasher"]["url"]);
-        $i = 0; $m = 466666; ////466666/6; 280000/10   --- 933333/3 -- 233333/12
+        $i = 0; $m = 113542; ////466666/6; 280000/10   --- 933333/3 -- 233333/12 (best option xxxxxx/24) 2725000/24=113542
         foreach(new FileIterator($smasher_file) as $line => $row) {
             $i++;
             if(($i % 1000) == 0) echo " --$i-- [$acronym] ";
@@ -654,34 +653,33 @@ class DHSmasherOutputAPI
                 }
                 if($rek)
                 {
-                    // /* breakdown when caching:   WOR  d - 1 2 3 5 6
-                    //                              TPL  d - 4 6
+                    // /* breakdown when caching:   WOR  d - 1 2 3 4 5 6
+                    //                              TPL  d - 1 2 3 4 5 6
                     $cont = false;
                     // if($i >=  1    && $i < $m) $cont = true;
-                    // if($i >=  $m   && $i < $m*2) $cont = true;   //TPL-d    gbif-?
-                    
+                    // if($i >=  $m   && $i < $m*2) $cont = true;
                     // if($i >=  $m*2 && $i < $m*3) $cont = true;
-                    // if($i >=  $m*3 && $i < $m*4) $cont = true;   //gbif-?    TPL-d
-                    
+                    // if($i >=  $m*3 && $i < $m*4) $cont = true;
                     // if($i >=  $m*4 && $i < $m*5) $cont = true;
-                    // if($i >=  $m*5 && $i < $m*6) $cont = true;      //TPL-d      gbif-?      WOR-d
-                    
+                    // if($i >=  $m*5 && $i < $m*6) $cont = true;
                     // if($i >=  $m*6 && $i < $m*7) $cont = true;
-                    // if($i >=  $m*7 && $i < $m*8) $cont = true;   //gbif-?       WOR-d
-                    
+                    // if($i >=  $m*7 && $i < $m*8) $cont = true;
                     // if($i >=  $m*8 && $i < $m*9) $cont = true;
-                    // if($i >=  $m*9 && $i < $m*10) $cont = true;         //  TPL-d     gbif-?    WOR-d
-
+                    // if($i >=  $m*9 && $i < $m*10) $cont = true;
                     // if($i >=  $m*10 && $i < $m*11) $cont = true;
-                    // if($i >=  $m*11 && $i < $m*12) $cont = true;     //gbif-?  WOR-d     TPL-d
-
-                    // if($i >=  (233333*3)+150000 && $i < $m*4) $cont = true;   //WOR-d
-
-                    // if($i >=  1+430000 && $i < $m) $cont = true;            //TPL-
-                    // if($i >=  $m+430000 && $i < $m*2) $cont = true;     //TPL-
-                    // if($i >=  ($m*2)+450000 && $i < $m*3) $cont = true;     //TPL-
-                    // if($i >=  ($m*3)+460000 && $i < $m*4) $cont = true;                //WOR-?
-                    if($i >=  ($m*4)+460000 && $i < $m*5) $cont = true;     //TPL
+                    // if($i >=  $m*11 && $i < $m*12) $cont = true;
+                    // if($i >=  $m*12 && $i < $m*13) $cont = true;
+                    // if($i >=  $m*13 && $i < $m*14) $cont = true;
+                    // if($i >=  $m*14 && $i < $m*15) $cont = true;
+                    // if($i >=  $m*15 && $i < $m*16) $cont = true;
+                    // if($i >=  $m*16 && $i < $m*17) $cont = true;
+                    // if($i >=  $m*17 && $i < $m*18) $cont = true;
+                    // if($i >=  $m*18 && $i < $m*19) $cont = true;
+                    // if($i >=  $m*19 && $i < $m*20) $cont = true;
+                    // if($i >=  $m*20 && $i < $m*21) $cont = true;
+                    // if($i >=  $m*21 && $i < $m*22) $cont = true;
+                    // if($i >=  $m*22 && $i < $m*23) $cont = true;
+                    // if($i >=  $m*23 && $i < $m*24) $cont = true;
 
                     if(!$cont) continue;
                     // */
@@ -689,7 +687,6 @@ class DHSmasherOutputAPI
                     // echo "\nsmasher record: ----------------------------";
                     // print_r($rek); //debug only
                     $first_source = self::get_first_source($rek['source']);
-                    
                     // print_r($first_source);
                     
                     /* normal operation
@@ -705,6 +702,7 @@ class DHSmasherOutputAPI
                     if(in_array($first_source['acronym'], $included_acronyms)) self::process_record($rek, $first_source, $func);
                     else continue;
                     // */
+                    
                 }
             }
             // if($i >= 1000) break; //debug only
@@ -913,14 +911,6 @@ class DHSmasherOutputAPI
                     //exit("\ngbif api\n");
                 }
                 else exit("\nFrom gbif but not found in API\n");
-            }
-        }
-        elseif($first['acronym'] == "WOR")
-        {
-            if($arr = self::retrieve_cache($first)) {
-                // echo("\n WORMS retrieved cached json\n");
-                // exit("\ngoes here...111\n");
-                return $arr;
             }
         }
         else
