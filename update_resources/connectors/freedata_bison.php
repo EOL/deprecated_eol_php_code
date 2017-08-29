@@ -11,6 +11,13 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/FreshDataBisonAPI');
 $timestart = time_elapsed();
 
+// $a1 = array(1,2,3,4);
+// if (($key = array_search('3', $a1)) !== false) {
+//     unset($a1[$key]);
+// }
+// print_r($a1);
+// exit("\n");
+
 $func = new FreshDataBisonAPI("bison"); //'bison' will be a folder name
 $func->start();
 

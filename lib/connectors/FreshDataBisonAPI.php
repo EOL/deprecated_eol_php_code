@@ -60,13 +60,6 @@ class FreshDataBisonAPI
             if($total < $this->increment) break;
         }
     }
-    private function get_itis_taxon($rec)
-    {
-        if($ITIStsn = @$rec['ITIStsn']) {
-            if($json = Functions::lookup_with_cache($this->solr_taxa_api.$ITIStsn, $this->download_options)) return json_decode($json, true);
-        }
-        return false;
-    }
     private function main_loop($func)
     {
         // if(@$rek['decimalLatitude']) self::process_record($rek, $func);
@@ -79,22 +72,137 @@ class FreshDataBisonAPI
                 $docs = json_decode($json, true);
                 $docs = $docs['response']['docs'];
                 $total = count($docs);
-                echo "\ntotalx = [$total]\n";
+                echo "\ntotal = [$total]\n";
                 
                 // /*
                 foreach($docs as $rec) {
+                    /* Array(
+                        [eventDate] => 2005-09-18
+                        [providedScientificName] => Abies procera
+                        [year] => 2005
+                        [countryCode] => US
+                        [providedCounty] => Clackamas
+                        [ambiguous] => 
+                        [generalComments] => Live DBH inches=19.9
+                        [verbatimLocality] => plot control number=41120028010497 subplotNbr=3 treeNbr=122
+                        [latlon] => -121.8547,45.12979
+                        [computedCountyFips] => 41005
+                        [] => 1432338409
+                        [decimalLongitude] => -121.8547
+                        [basisOfRecord] => observation
+                        [providedCommonName] => noble fir
+                        [collectionID] => https://bison.usgs.gov/ipt/resource?r=usfs-fia-trees-public-lands
+                        [] => USFS - Forest Inventory and Analysis - Trees (Public Lands)
+                        [scientificName] => Abies procera
+                        [institutionID] => https://bison.usgs.gov
+                        [computedStateFips] => 41
+                        [license] => http://creativecommons.org/publicdomain/zero/1.0/legalcode
+                        [TSNs] => Array([0] => 181835)
+                        [providerID] => 440
+                        [stateProvince] => Oregon
+                        [higherGeographyID] => 41005
+                        [decimalLatitude] => 45.12979
+                        [verbatimElevation] => 3900
+                        [geo] => -121.8547 45.12979
+                        [provider] => BISON
+                        [geodeticDatum] => NAD83
+                        [calculatedCounty] => Clackamas County
+                        [ITISscientificName] => Abies procera
+                        [pointPath] => /-121.8547,45.12979/observation
+                        [kingdom] => Plantae
+                        [calculatedState] => Oregon
+                        [hierarchy_homonym_string] => -202422-954898-846494-954900-846496-846504-500009-954916-500028-18030-18031-181835-
+                        [ITIScommonName] => noble fir;red fir;white fir
+                        [resourceID] => 440,100028
+                        [ITIStsn] => 181835
+                        [associatedReferences] => [{"url":"http://apps.fs.fed.us/fiadb-downloads/datamart.html","description":"US Forest Service Datamart"}]
+                        [_version_] => 1568324372682244096)
+                    */
                     
-                    $taxa = self::get_itis_taxa($rec);
-                }
-                // exit;
+                    
+                    $rek = array();
+                    $this->ctr++;
+                    $rek['id'] = $this->ctr;
+                    $rek['occurrenceID']    = $rec['occurrenceID'];
+                    $rek['basisOfRecord']   = $rec['basisOfRecord'];
+                    // $rek['catalogNumber']   = '';
+                    // $rek['recordedBy']      = '';
+                    $rek['institutionCode'] = $rec['ownerInstitutionCollectionCode'];
+                    $rek['eventDate']       = $rec['eventDate'];
+                    $rek['scientificName']  = $rec['ITISscientificName'];
+                    $rek['decimalLatitude'] = $rec['decimalLatitude'];
+                    $rek['decimalLongitude'] = $rec['decimalLongitude'];
+                    $rek['county']          = $rec['calculatedCounty'];
+                    $rek['stateProvince']   = $rec['calculatedState'];
+                    $rek['countryCode']     = $rec['countryCode'];
+                    $rek['institutionID']   = $rec['institutionID'];
+                    $rek['source'] = '';
+                    if($val = @$rec['occurrenceID']) $rek['source'] = "https://bison.usgs.gov/solr/occurrences/select/?q=occurrenceID:".$val;
+                        
+                    //start get hierarchy from ITIS
+                    $ancestry = self::get_itis_ancestry($rec);
+                    $rek['taxonRank'] = @$ancestry['taxonRank'];
+                    $rek['kingdom'] = @$ancestry['kingdom'];
+                    $rek['phylum']  = @$ancestry['phylum'];
+                    $rek['class']   = @$ancestry['class'];
+                    $rek['order']   = @$ancestry['order'];
+                    $rek['family']  = @$ancestry['family'];
+                    $rek['genus']   = @$ancestry['genus'];
+                    
+                    
+                    print_r($rek);
+            
+                    $rek = array_map('trim', $rek);
+                    $func->print_header($rek, CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations.txt");
+                    $val = implode("\t", $rek);
+                    self::save_to_text_file($val);
+                    
+                } //end loop
+                break; //debug
                 // */
             }
             $start += $this->increment; 
             if($total < $this->increment) break;
         }
-
-        
     }
+    private function get_itis_ancestry($rec)
+    {
+        $ranks = array();
+        $taxon = self::get_itis_taxon($rec);
+        // print_r($taxon);
+        if($str = $taxon['response']['docs'][0]['hierarchySoFarWRanks'][0])
+        {
+            $str = str_replace($taxon['response']['docs'][0]['tsn'].":", "", $str);
+            // echo "\n[$str]\n";
+            $a = explode("$", $str);
+            $a = array_map('trim', $a);
+            $a = array_filter($a); //remove null arrays
+            $a = array_values($a); //reindex key
+            print_r($a);
+            
+            $valid_ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'subgenus', 'species');
+            $taxonRank = strtolower($taxon['response']['docs'][0]['rank']);
+            if(($key = array_search($taxonRank, $valid_ranks)) !== false) {
+                unset($valid_ranks[$key]);
+            }
+            
+            foreach($a as $temp)
+            {
+                $t = explode(":", $temp);
+                $rank = strtolower($t[0]);
+                if(in_array($rank, $valid_ranks)) $ranks[$rank] = $t[1];
+            }
+            $ranks['taxonRank'] = $taxonRank;
+            print_r($ranks);
+            
+            
+            // exit;
+        }
+        // 181835:$Kingdom:Plantae$Subkingdom:Viridiplantae$Infrakingdom:Streptophyta$Superdivision:Embryophyta$Division:Tracheophyta$Subdivision:Spermatophytina$Class:Pinopsida$Subclass:Pinidae$Order:Pinales$Family:Pinaceae$Genus:Abies$Species:Abies procera$
+        return $ranks;
+    }
+    
+    
     function start()
     {
         // self::do_some_caching(); exit("\nexit muna\n");
@@ -104,101 +212,27 @@ class FreshDataBisonAPI
         
         self::main_loop($func);
         
-        // remove tmp dir
-        if($paths['temp_dir']) shell_exec("rm -fr ".$paths['temp_dir']);
-        
         $func->last_part($folder); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
         if($folder) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder);
     }
 
-
-
-    private function process_record($rek, $func)
-    {
-        $rec = array();
-        $this->ctr++;
-        $rec['id'] = $this->ctr;
-        $rec['taxonID'] = $rek['sourceTaxonId'];
-        $rec['scientificName'] = $rek['sourceTaxonName'];
-        $rec['lifeStage'] = @$rek['sourceLifeStage'];
-        $rec['sex'] = @$rek['sourceTaxonSex'];
-        $rec['taxonRemarks'] = $rek['interactionTypeName'] . " " . $rek['targetTaxonName'];
-        $rec['locality'] = $rek['localityName'];
-        $rec['decimalLatitude'] = $rek['decimalLatitude'];
-        $rec['decimalLongitude'] = $rek['decimalLongitude'];
-        $rec['eventDate'] = $rek['observationDateTime'];
-        $rec['bibliographicCitation'] = $rek['referenceCitation'];
-
-        $rec = array_map('trim', $rec);
-        $func->print_header($rec, CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations.txt");
-        $val = implode("\t", $rec);
-        self::save_to_text_file($val);
-        
-        /*
-        $this->ctr;
-        sourceTaxonId       http://rs.tdwg.org/dwc/terms/taxonID
-        sourceTaxonName     http://rs.tdwg.org/dwc/terms/scientificName
-        sourceLifeStage     http://rs.tdwg.org/dwc/terms/lifeStage
-        sourceTaxonSex      http://rs.tdwg.org/dwc/terms/sex
-                            http://rs.tdwg.org/dwc/terms/taxonRemarks
-        localityName        http://rs.tdwg.org/dwc/terms/locality
-        decimalLatitude     http://rs.tdwg.org/dwc/terms/decimalLatitude
-        decimalLongitude    http://rs.tdwg.org/dwc/terms/decimalLongitude
-        observationDateTime http://rs.tdwg.org/dwc/terms/eventDate
-        referenceCitation   http://purl.org/dc/terms/bibliographicCitation
-        */
-
-        /*
-        interactionTypeId       none
-        interactionTypeName     none
-        */
-        
-        $rec = array();
-        $this->ctr++;
-        $rec['id'] = $this->ctr;
-        $rec['taxonID'] = $rek['targetTaxonId'];
-        $rec['scientificName'] = $rek['targetTaxonName'];
-        $rec['lifeStage'] = @$rek['targetLifeStage'];
-        $rec['sex'] = "";
-        $rec['taxonRemarks'] = $rek['sourceTaxonName'] . " " . $rek['interactionTypeName'];
-        $rec['locality'] = $rek['localityName'];
-        $rec['decimalLatitude'] = $rek['decimalLatitude'];
-        $rec['decimalLongitude'] = $rek['decimalLongitude'];
-        $rec['eventDate'] = $rek['observationDateTime'];
-        $rec['bibliographicCitation'] = $rek['referenceCitation'];
-        $val = implode("\t", $rec);
-        self::save_to_text_file($val);
-
-        /*
-        targetTaxonId       http://rs.tdwg.org/dwc/terms/taxonID
-        targetTaxonName     http://rs.tdwg.org/dwc/terms/scientificName
-        targetLifeStage     http://rs.tdwg.org/dwc/terms/lifeStage
-        sex                 none
-                            http://rs.tdwg.org/dwc/terms/taxonRemarks
-        localityName        http://rs.tdwg.org/dwc/terms/locality
-        decimalLatitude     http://rs.tdwg.org/dwc/terms/decimalLatitude
-        decimalLongitude    http://rs.tdwg.org/dwc/terms/decimalLongitude
-        observationDateTime http://rs.tdwg.org/dwc/terms/eventDate
-        referenceCitation   http://purl.org/dc/terms/bibliographicCitation
-        */
-    }
+    private function process_record($rek, $func) {}
 
     private function save_to_text_file($row)
     {
-        if($row)
-        {
+        if($row) {
             $WRITE = Functions::file_open($this->destination[$this->folder], "a");
             fwrite($WRITE, $row . "\n");
             fclose($WRITE);
         }
     }
 
-    function extract_file($zip_path)
+    private function get_itis_taxon($rec)
     {
-        require_library('connectors/INBioAPI');
-        $func = new INBioAPI();
-        $paths = $func->extract_archive_file($zip_path, "interactions.tsv", array('timeout' => 172800, 'expire_seconds' => 2592000)); //expires in 1 month
-        return $paths;
+        if($ITIStsn = @$rec['ITIStsn']) {
+            if($json = Functions::lookup_with_cache($this->solr_taxa_api.$ITIStsn, $this->download_options)) return json_decode($json, true);
+        }
+        return false;
     }
 
 }

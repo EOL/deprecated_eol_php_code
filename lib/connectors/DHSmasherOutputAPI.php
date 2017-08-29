@@ -16,7 +16,7 @@ class DHSmasherOutputAPI
         $this->download_options = array(
             'cache_path'         => '/Volumes/Thunderbolt4/eol_cache_gbif/',  //used in MacBook - generating map data using GBIF API and also the dynamic hierarchy smasher file process.
             // 'expire_seconds'     => 5184000, //orig 2 months to expire
-            'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0);
+            'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->download_options['expire_seconds'] = false; //debug | true -- expires now
 
         //GBIF services

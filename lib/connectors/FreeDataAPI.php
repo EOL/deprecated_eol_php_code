@@ -785,6 +785,12 @@ class FreeDataAPI
         $terms['EOLid'] = "http://eol.org/schema/EOLid";
         $terms['EOLidAnnotations'] = "http://eol.org/schema/EOLidAnnotations";
         
+        //added for BISON
+        $terms['countryCode'] = "http://rs.tdwg.org/dwc/terms/countryCode";
+        $terms['institutionID'] = "http://rs.tdwg.org/dwc/terms/institutionID";
+        $terms['institutionCode'] = "http://rs.tdwg.org/dwc/terms/institutionCode";
+        $terms['subgenus'] = "http://rs.tdwg.org/dwc/terms/subgenus";
+        
         //for orig FreshData processing
         $terms['id'] = "http://rs.gbif.org/terms/1.0/RLSID";
         $terms['occurrenceID'] = "http://rs.tdwg.org/dwc/terms/occurrenceID";
