@@ -169,21 +169,45 @@ $sciname = "Acanthagenys rufogularis Gould, 1838";
 // $arr = $func->get_eol_id($rek, $first, $sciname); 
 // echo "\n------"; print_r($arr); echo "\n------";
 
-$p["folder"] = "nothing";//"gbif";//"WOR";//"TPL";//""; //"trunk done"; //"IOC done"; //default is 'smasher', but can be any of the 30 acronyms
+$p["folder"] = "nothing";//"gbif";//"WOR 43.8hrs";//"TPL 46.7hrs";//"nothing"; //"trunk done"; //"IOC done"; //default is 'smasher', but can be any of the 30 acronyms
 // less3big running
+// /*
 $func = new DHSmasherOutputAPI($p);
 $func->start($p["folder"]); //value is any of the 30 acronyms, used to generate individual DWC-A files for each of the 30
-
-
+// */
 // $func->utility();    //creating local cache based on resource files from google sheet
 // $func->utility2();   //caching EOL API search name | AND | getting EOLid
 // $func->utility3();    // creation of EOL Hierarchy Entries (EHE) aa ab ac... text files  //last generated Aug 16, 2017 Eastern
 
-
+/*
+append_multiple_hierarchies();
+$c = Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "/EOL_dynamic_hierarchy/taxa.txt"); echo "\nEOL: [$c]\n";
+$c = Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "/TPL/taxa.txt");                   echo "\nTPL: [$c]\n";
+$c = Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "/WOR/taxa.txt");                   echo "\nWOR: [$c]\n";
+$c = Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "/less3big/taxa.txt");              echo "\nless3big: [$c]\n";
+*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\nDone processing.\n";
+
+function append_multiple_hierarchies()
+{
+    $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/EOL_dynamic_hierarchy/taxa.txt", "a");
+    $arr = array("TPL", "less3big"); //started with WOR
+    foreach($arr as $acronym)
+    {
+        $filename = CONTENT_RESOURCE_LOCAL_PATH."/$acronym/taxa.txt";
+        $i = 0;
+        foreach(new FileIterator($filename) as $line => $row) {
+            $i++;
+            if(($i % 10000) == 0) echo " --$i-- [$acronym] ";
+            if($i > 1 && $row) fwrite($WRITE, $row . "\n");
+        }
+    }
+    fclose($WRITE);
+}
+
 ?>

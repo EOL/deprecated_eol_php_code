@@ -16,7 +16,7 @@ class DHSmasherOutputAPI
         $this->download_options = array(
             'cache_path'         => '/Volumes/Thunderbolt4/eol_cache_gbif/',  //used in MacBook - generating map data using GBIF API and also the dynamic hierarchy smasher file process.
             // 'expire_seconds'     => 5184000, //orig 2 months to expire
-            'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+            'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0);
         $this->download_options['expire_seconds'] = false; //debug | true -- expires now
 
         //GBIF services
@@ -656,6 +656,12 @@ class DHSmasherOutputAPI
                     // /* breakdown when caching:   WOR  d - 1 2 3 4 5 6
                     //                              TPL  d - 1 2 3 4 5 6
                     $cont = false;
+                    
+                    // if($i >=  2717000    && $i < 2730000) $cont = true;
+                    // if($i >=  2717200    && $i < 2730000) $cont = true;
+                    // if($i >=  2717300    && $i < 2730000) $cont = true;
+                    if($i >=  2718000    && $i < 2730000) $cont = true;
+                    
                     // if($i >=  1    && $i < $m) $cont = true;
                     // if($i >=  $m   && $i < $m*2) $cont = true;
                     // if($i >=  $m*2 && $i < $m*3) $cont = true;
@@ -748,7 +754,7 @@ class DHSmasherOutputAPI
         */
         $rec['taxonID'] = $rek['taxonID'];
         $rec['acceptedNameUsageID'] = $rek['acceptedNameUsageID'];
-        $rec['parentNameUsageID'] = $rek['parentNameUsageID'];
+        $rec['parentNameUsageID'] = @$rek['parentNameUsageID'];
         $rec['scientificName'] = $rek['scientificName'];
         $rec['taxonRank'] = @$rek['taxonRank'];
         $rec['source'] = $rek['source'];
@@ -910,7 +916,26 @@ class DHSmasherOutputAPI
                     return $arr;
                     //exit("\ngbif api\n");
                 }
-                else exit("\nFrom gbif but not found in API\n");
+                else
+                {
+                    echo("\nFrom GBIF but not found in API as well\n"); //before was exit()
+                    //just a duplicate of what is below: =====================================================
+                    $f = Array(
+                            'id' => '',
+                            'taxonomicStatus' => $orig_rek['taxonomicStatus'],
+                            'taxonRank' => $orig_rek['taxonRank'],
+                            'datasetID' => '',
+                            'parentNameUsageID' => '',
+                            'higherClassification' => '',
+                            'acceptedNameUsageID' => $first['taxon_id'],
+                            'scientificName' => $orig_rek['scientificName'],
+                            'taxonID' => $first['taxon_id']);
+
+                    self::write_cache(json_encode($f), $first);
+                    echo("\n-...$first[acronym]... saved cache USING DEFAULT VALUES\n");
+                    return $f;
+                    // =====================================================
+                }
             }
         }
         else
@@ -970,6 +995,7 @@ class DHSmasherOutputAPI
             }
         }
         
+        //start of 2nd options: either checking API if exists, or default Smasher values ==============================================
         if($first['acronym'] == 'WOR') //exit("\n from worms but not found in resource file [" . $first['taxon_id'] . "]\n"); //seen this
         {
             if($rek = self::get_rec_from_WORMS($first['taxon_id']))
@@ -980,7 +1006,8 @@ class DHSmasherOutputAPI
             }
         }
         
-        if($first['acronym'] == 'trunk')
+        // if($first['acronym'] == 'trunk')
+        if(in_array($first['acronym'], array("trunk", "gbif"))) //gbif here won't pass here. already placed above so it will no longer search its big resource file
         {   /*
         Array(
             [first_source] => trunk:537ca6ee-8e80-44d7-814e-5e2d7d7d8e6a
@@ -1019,9 +1046,11 @@ class DHSmasherOutputAPI
                     'taxonID' => $first['taxon_id']);
 
             self::write_cache(json_encode($f), $first);
-            echo("\n-TRUNK...$first[acronym]... saved cache USING DEFAULT VALUES\n");
+            echo("\n-...$first[acronym]... saved cache USING DEFAULT VALUES\n");
             return $f;
         }
+        
+        
         // exit("\ngoes here...222\n");
         return false;
     }
