@@ -379,7 +379,7 @@ class DHSmasherOutputAPI
                 }
                 if($rek)
                 {
-                    // /* breakdown when caching:
+                    /* breakdown when caching:
                     $cont = false;
                     if($i >=  1    && $i < $m) $cont = true;
                     // if($i >=  $m   && $i < $m*2) $cont = true;
@@ -393,17 +393,15 @@ class DHSmasherOutputAPI
                     // if($i >=  $m*8 && $i < $m*9) $cont = true;
                     // if($i >=  $m*9 && $i < $m*10) $cont = true;
                     if(!$cont) continue;
-                    // */
+                    */
 
                     $sciname = $rek['scientificName'];
                     if(!$sciname) continue;
                     
-                    // /* getting the EOLid ======================================= OK
+                    /* getting the EOLid ======================================= OK
                     // echo "\nsmasher record: ----------------------------";
                     // print_r($rek); //debug only
                     $first_source = self::get_first_source($rek['source']);
-                    
-                    
                     
                     
                     // normal operation
@@ -427,9 +425,9 @@ class DHSmasherOutputAPI
                         
                     }
                     else continue;
-                    // ==============================================================*/
+                    ==============================================================*/
                     
-                    /* caching EOL API name search ===================================== OK
+                    // /* caching EOL API name search ===================================== OK
                     $url1 = $this->url['api_search'].$sciname;
                     if($taxon_rec = self::search_ok($url1)) {}
                     else
@@ -450,7 +448,7 @@ class DHSmasherOutputAPI
                             // ---------
                         }
                     }
-                     =============================================================== */
+                     // =============================================================== */
                     // exit("\n-end utility2-\n");
                 }
             }
@@ -653,7 +651,7 @@ class DHSmasherOutputAPI
                 }
                 if($rek)
                 {
-                    // /* breakdown when caching:   WOR  d - 1 2 3 4 5 6
+                    /* breakdown when caching:   WOR  d - 1 2 3 4 5 6
                     //                              TPL  d - 1 2 3 4 5 6
                     $cont = false;
                     
@@ -688,7 +686,7 @@ class DHSmasherOutputAPI
                     // if($i >=  $m*23 && $i < $m*24) $cont = true;
 
                     if(!$cont) continue;
-                    // */
+                    */
                     
                     // echo "\nsmasher record: ----------------------------";
                     // print_r($rek); //debug only
@@ -903,7 +901,8 @@ class DHSmasherOutputAPI
         
         if($first['acronym'] == "gbif")
         {
-            if($arr = self::retrieve_cache($first)) { //1st option is the cache from gbif's resource file
+            // if($arr = self::retrieve_cache($first)) { //1st option is the cache from gbif's resource file -> used in normal operation
+            if(false) { //debug only
                 // echo("\n gbif retrieved cached json\n");
                 return $arr;
             }
