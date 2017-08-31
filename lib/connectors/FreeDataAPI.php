@@ -790,6 +790,7 @@ class FreeDataAPI
         $terms['institutionID'] = "http://rs.tdwg.org/dwc/terms/institutionID";
         $terms['institutionCode'] = "http://rs.tdwg.org/dwc/terms/institutionCode";
         $terms['subgenus'] = "http://rs.tdwg.org/dwc/terms/subgenus";
+        $terms['higherClassification'] = "http://rs.tdwg.org/dwc/terms/higherClassification";
         
         //for orig FreshData processing
         $terms['id'] = "http://rs.gbif.org/terms/1.0/RLSID";

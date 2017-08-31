@@ -17,7 +17,7 @@ class FreshDataBisonAPI
         'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->download_options['expire_seconds'] = false; //orig false | true -- expires now | maybe 5184000 2 months to expire
 
-        $this->increment = 2;
+        $this->increment = 10000;
         $this->solr_occurrence_api = "https://bison.usgs.gov/solr/occurrences/select/?q=providerID:440&fq=decimalLatitude:[* TO *]&wt=json&rows=$this->increment";
         // &indent=true -> for nice browser display
         
@@ -36,6 +36,16 @@ class FreshDataBisonAPI
         $func->create_folder_if_does_not_exist($this->folder);
         return $func;
     }
+    function start()
+    {
+        self::do_some_caching(); exit("\nexit muna\n");
+        
+        $folder = $this->folder;
+        $func = self::initialize(); //use some functions from FreeDataAPI
+        self::main_loop($func);
+        $func->last_part($folder); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
+        if($folder) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder);
+    }
 
     private function do_some_caching()
     {
@@ -43,21 +53,25 @@ class FreshDataBisonAPI
         while(true)
         {
             $url = $this->solr_occurrence_api."&start=$start";
-            if($json = Functions::lookup_with_cache($url, $this->download_options))
+            if($start > 20790000 && $start < 23210000) //23210000   //debug only
             {
-                $arr = json_decode($json, true);
-                $total = count($arr['response']['docs']);
-                echo "\ntotal = [$total]\n";
-                // /*
-                // print_r($arr); 
-                foreach($arr['response']['docs'] as $rec) {
-                    self::get_itis_taxon($rec);
+                if($json = Functions::lookup_with_cache($url, $this->download_options))
+                {
+                    $arr = json_decode($json, true);
+                    $total = count($arr['response']['docs']);
+                    echo "\ntotal = [$total] [$start]\n";
+                    // /*
+                    foreach($arr['response']['docs'] as $rec) {
+                        self::get_itis_taxon($rec);
+                    }
+                    // */
+                    if($total < $this->increment) break;
                 }
-                // exit;
-                // */
             }
-            $start += $this->increment; 
-            if($total < $this->increment) break;
+            $start += $this->increment;
+            // break; // debug only - gets the first 10k
+            if($start > 23210000) break;   //debug only
+            
         }
     }
     private function main_loop($func)
@@ -128,7 +142,7 @@ class FreshDataBisonAPI
                     // $rek['catalogNumber']   = '';
                     // $rek['recordedBy']      = '';
                     $rek['institutionCode'] = $rec['ownerInstitutionCollectionCode'];
-                    $rek['eventDate']       = $rec['eventDate'];
+                    $rek['eventDate']       = @$rec['eventDate'];
                     $rek['scientificName']  = $rec['ITISscientificName'];
                     $rek['decimalLatitude'] = $rec['decimalLatitude'];
                     $rek['decimalLongitude'] = $rec['decimalLongitude'];
@@ -142,6 +156,8 @@ class FreshDataBisonAPI
                     //start get hierarchy from ITIS
                     $ancestry = self::get_itis_ancestry($rec);
                     $rek['taxonRank'] = @$ancestry['taxonRank'];
+                    $rek['higherClassification'] = @$ancestry['higherClassification'];
+                    
                     $rek['kingdom'] = @$ancestry['kingdom'];
                     $rek['phylum']  = @$ancestry['phylum'];
                     $rek['class']   = @$ancestry['class'];
@@ -193,8 +209,20 @@ class FreshDataBisonAPI
                 if(in_array($rank, $valid_ranks)) $ranks[$rank] = $t[1];
             }
             $ranks['taxonRank'] = $taxonRank;
-            print_r($ranks);
             
+            //for higherClassification
+            //"566069:$Plantae$Viridiplantae$Streptophyta$Embryophyta$Tracheophyta$Spermatophytina$Magnoliopsida$Lilianae$Poales$Poaceae$Poa$Poa cusickii$Poa cusickii ssp. cusickii$"
+            
+            $str = $taxon['response']['docs'][0]['hierarchySoFar'][0];
+            $str = str_replace($taxon['response']['docs'][0]['tsn'].":", "", $str);
+            $a = explode("$", $str);
+            $a = array_map('trim', $a);
+            $a = array_filter($a); //remove null arrays
+            $a = array_values($a); //reindex key
+            array_pop($a);
+            // print_r($a); exit;
+            $ranks['higherClassification'] = implode("|", $a);
+            print_r($ranks);
             
             // exit;
         }
@@ -202,20 +230,6 @@ class FreshDataBisonAPI
         return $ranks;
     }
     
-    
-    function start()
-    {
-        // self::do_some_caching(); exit("\nexit muna\n");
-        
-        $folder = $this->folder;
-        $func = self::initialize(); //use some functions from FreeDataAPI
-        
-        self::main_loop($func);
-        
-        $func->last_part($folder); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
-        if($folder) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder);
-    }
-
     private function process_record($rek, $func) {}
 
     private function save_to_text_file($row)
