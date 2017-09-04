@@ -16,7 +16,7 @@ $timestart = time_elapsed();
 // print_r($a1);
 // exit("\n");
 
-$func = new FreshDataBisonAPI("bison2"); //'bison' will be a folder name
+$func = new FreshDataBisonAPI("bison3"); //'bison' will be a folder name
 $func->start();
 
 $elapsed_time_sec = time_elapsed() - $timestart;

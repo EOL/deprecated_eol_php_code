@@ -50,10 +50,11 @@ class FreshDataBisonAPI
     private function do_some_caching()
     {
         $start = 0;
+        $start = 50980000;
         while(true)
         {
             $url = $this->solr_occurrence_api."&start=$start";
-            if($start > 20790000 && $start < 23210000) //23210000   //debug only
+            if($start >= 50980000 && $start <= 54320000) //debug only
             {
                 if($json = Functions::lookup_with_cache($url, $this->download_options))
                 {
@@ -70,8 +71,7 @@ class FreshDataBisonAPI
             }
             $start += $this->increment;
             // break; // debug only - gets the first 10k
-            if($start > 23210000) break;   //debug only
-            
+            if($start > 54320000) break;   //debug only
         }
     }
     private function main_loop($func)
@@ -139,11 +139,12 @@ class FreshDataBisonAPI
                     $rek['id'] = $this->ctr;
                     $rek['occurrenceID']    = $rec['occurrenceID'];
                     $rek['basisOfRecord']   = $rec['basisOfRecord'];
-                    // $rek['catalogNumber']   = '';
-                    // $rek['recordedBy']      = '';
+                    $rek['catalogNumber']   = @$rec['catalogNumber'];
+                    $rek['recordedBy']      = @$rec['recordedBy'];
                     $rek['institutionCode'] = $rec['ownerInstitutionCollectionCode'];
                     $rek['eventDate']       = @$rec['eventDate'];
-                    $rek['scientificName']  = $rec['ITISscientificName'];
+                    $rek['scientificName']      = $rec['ITISscientificName'];
+                    $rek['ITISscientificName']  = $rec['ITISscientificName'];
                     $rek['decimalLatitude'] = $rec['decimalLatitude'];
                     $rek['decimalLongitude'] = $rec['decimalLongitude'];
                     $rek['county']          = $rec['calculatedCounty'];
@@ -174,7 +175,7 @@ class FreshDataBisonAPI
                     self::save_to_text_file($val);
                     
                 } //end loop
-                break; //debug
+                break; //debug -> gets only first 10K records
                 // */
             }
             $start += $this->increment; 
