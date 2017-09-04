@@ -38,7 +38,7 @@ class FreshDataBisonAPI
     }
     function start()
     {
-        self::do_some_caching(); exit("\nexit muna\n");
+        // self::do_some_caching(); exit("\nexit muna\n");
         
         $folder = $this->folder;
         $func = self::initialize(); //use some functions from FreeDataAPI
@@ -50,11 +50,11 @@ class FreshDataBisonAPI
     private function do_some_caching()
     {
         $start = 0;
-        $start = 50980000;
+        $start = 54320000;
         while(true)
         {
             $url = $this->solr_occurrence_api."&start=$start";
-            if($start >= 50980000 && $start <= 54320000) //debug only
+            if($start >= 54320000 && $start <= 55660000) //debug only
             {
                 if($json = Functions::lookup_with_cache($url, $this->download_options))
                 {
@@ -71,7 +71,7 @@ class FreshDataBisonAPI
             }
             $start += $this->increment;
             // break; // debug only - gets the first 10k
-            if($start > 54320000) break;   //debug only
+            if($start > 55660000) break;   //debug only
         }
     }
     private function main_loop($func)
@@ -133,42 +133,48 @@ class FreshDataBisonAPI
                         [_version_] => 1568324372682244096)
                     */
                     
+                    if(($this->ctr % 1000) == 0) echo " ".$this->ctr." ";
                     
                     $rek = array();
+                    if(!self::with_lat_long($rec)) continue;
+                    
                     $this->ctr++;
                     $rek['id'] = $this->ctr;
-                    $rek['occurrenceID']    = $rec['occurrenceID'];
-                    $rek['basisOfRecord']   = $rec['basisOfRecord'];
-                    $rek['catalogNumber']   = @$rec['catalogNumber'];
-                    $rek['recordedBy']      = @$rec['recordedBy'];
-                    $rek['institutionCode'] = $rec['ownerInstitutionCollectionCode'];
-                    $rek['eventDate']       = @$rec['eventDate'];
-                    $rek['scientificName']      = $rec['ITISscientificName'];
-                    $rek['ITISscientificName']  = $rec['ITISscientificName'];
-                    $rek['decimalLatitude'] = $rec['decimalLatitude'];
-                    $rek['decimalLongitude'] = $rec['decimalLongitude'];
-                    $rek['county']          = $rec['calculatedCounty'];
-                    $rek['stateProvince']   = $rec['calculatedState'];
-                    $rek['countryCode']     = $rec['countryCode'];
-                    $rek['institutionID']   = $rec['institutionID'];
-                    $rek['source'] = '';
-                    if($val = @$rec['occurrenceID']) $rek['source'] = "https://bison.usgs.gov/solr/occurrences/select/?q=occurrenceID:".$val;
-                        
+                    if($rek['scientificName'] = self::get_sciname($rec)) {}
+                    else
+                    {
+                        $this->ctr--;
+                        continue;
+                    }
+                    $rek['ITISscientificName']  = @$rec['ITISscientificName'];
                     //start get hierarchy from ITIS
                     $ancestry = self::get_itis_ancestry($rec);
                     $rek['taxonRank'] = @$ancestry['taxonRank'];
                     $rek['higherClassification'] = @$ancestry['higherClassification'];
-                    
                     $rek['kingdom'] = @$ancestry['kingdom'];
                     $rek['phylum']  = @$ancestry['phylum'];
                     $rek['class']   = @$ancestry['class'];
                     $rek['order']   = @$ancestry['order'];
                     $rek['family']  = @$ancestry['family'];
                     $rek['genus']   = @$ancestry['genus'];
+
+                    $rek['decimalLatitude'] = $rec['decimalLatitude'];
+                    $rek['decimalLongitude'] = $rec['decimalLongitude'];
+                    $rek['occurrenceID']    = $rec['occurrenceID'];
+                    $rek['basisOfRecord']   = $rec['basisOfRecord'];
+                    $rek['catalogNumber']   = @$rec['catalogNumber'];
+                    $rek['recordedBy']      = @$rec['recordedBy'];
+                    $rek['institutionCode'] = $rec['ownerInstitutionCollectionCode'];
+                    $rek['eventDate']       = @$rec['eventDate'];
+                    $rek['county']          = $rec['calculatedCounty'];
+                    $rek['stateProvince']   = $rec['calculatedState'];
+                    $rek['countryCode']     = $rec['countryCode'];
+                    $rek['institutionID']   = $rec['institutionID'];
+                    $rek['source'] = '';
+                    if($val = @$rec['occurrenceID']) $rek['source'] = "https://bison.usgs.gov/solr/occurrences/select/?q=occurrenceID:".$val;
+
                     
-                    
-                    print_r($rek);
-            
+                    // print_r($rek);
                     $rek = array_map('trim', $rek);
                     $func->print_header($rek, CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations.txt");
                     $val = implode("\t", $rek);
@@ -182,12 +188,25 @@ class FreshDataBisonAPI
             if($total < $this->increment) break;
         }
     }
+    private function get_sciname($rec)
+    {
+        if($val = @$rec['ITISscientificName']) return $val;
+        elseif($val = @$rec['scientificName']) return $val;
+        elseif($val = @$rec['providedScientificName']) return $val;
+        return false;
+    }
+    private function with_lat_long($rec)
+    {
+        if(!@$rec['decimalLatitude']) return false;
+        if(!@$rec['decimalLongitude']) return false;
+        return true;
+    }
     private function get_itis_ancestry($rec)
     {
         $ranks = array();
         $taxon = self::get_itis_taxon($rec);
         // print_r($taxon);
-        if($str = $taxon['response']['docs'][0]['hierarchySoFarWRanks'][0])
+        if($str = @$taxon['response']['docs'][0]['hierarchySoFarWRanks'][0])
         {
             $str = str_replace($taxon['response']['docs'][0]['tsn'].":", "", $str);
             // echo "\n[$str]\n";
@@ -195,7 +214,7 @@ class FreshDataBisonAPI
             $a = array_map('trim', $a);
             $a = array_filter($a); //remove null arrays
             $a = array_values($a); //reindex key
-            print_r($a);
+            // print_r($a); //good debug
             
             $valid_ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'subgenus', 'species');
             $taxonRank = strtolower($taxon['response']['docs'][0]['rank']);
@@ -223,9 +242,7 @@ class FreshDataBisonAPI
             array_pop($a);
             // print_r($a); exit;
             $ranks['higherClassification'] = implode("|", $a);
-            print_r($ranks);
-            
-            // exit;
+            // print_r($ranks); //good debug
         }
         // 181835:$Kingdom:Plantae$Subkingdom:Viridiplantae$Infrakingdom:Streptophyta$Superdivision:Embryophyta$Division:Tracheophyta$Subdivision:Spermatophytina$Class:Pinopsida$Subclass:Pinidae$Order:Pinales$Family:Pinaceae$Genus:Abies$Species:Abies procera$
         return $ranks;
