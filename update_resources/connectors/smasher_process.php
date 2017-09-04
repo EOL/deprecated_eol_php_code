@@ -169,24 +169,25 @@ $sciname = "Acanthagenys rufogularis Gould, 1838";
 // $arr = $func->get_eol_id($rek, $first, $sciname); 
 // echo "\n------"; print_r($arr); echo "\n------";
 
-$p["folder"] = "nothing";//"gbif 47.27";//"WOR 43.8hrs";//"TPL 46.7hrs";//"nothing"; //"trunk done"; //"IOC done"; //default is 'smasher', but can be any of the 30 acronyms
-// less3big running
+$p["folder"] = "nothing";//"gbif 47.27";//"WOR 43.8hrs";//"TPL 46.7hrs";//"nothing"; // "less3big" done //"trunk done"; //"IOC done"; //default is 'smasher', but can be any of the 30 acronyms
+
 // /*
 $func = new DHSmasherOutputAPI($p);
 // $func->start($p["folder"]); //value is any of the 30 acronyms, used to generate individual DWC-A files for each of the 30
 // */
+
 // $func->utility();    //creating local cache based on resource files from google sheet
-// $func->utility2();   //caching EOL API search name | AND | getting EOLid
+$func->utility2();   //caching EOL API search name | AND | getting EOLid
 // $func->utility3();    // creation of EOL Hierarchy Entries (EHE) aa ab ac... text files  //last generated Aug 16, 2017 Eastern
 
-// /*
+/*
 append_multiple_hierarchies();
 $c = Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "/EOL_dynamic_hierarchy/taxa.txt"); echo "\nEOL: [$c]\n";
 $c = Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "/gbif/taxa.txt");                  echo "\ngbif: [$c]\n";
 $c = Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "/TPL/taxa.txt");                   echo "\nTPL: [$c]\n";
 $c = Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "/WOR/taxa.txt");                   echo "\nWOR: [$c]\n";
 $c = Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "/less3big/taxa.txt");              echo "\nless3big: [$c]\n";
-// */
+*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
@@ -223,7 +224,7 @@ From gbif but not found in API
 Completed update_resources/connectors/smasher_process.php :: [ []]<br>
 */
 
-/* last count, success OK: actual total is: total: [2724673]
+/* last count, success OK: actual total count is: total: [2724673]
 
 --2723000-- [gbif]  --2724000-- [gbif] 
 

@@ -428,6 +428,7 @@ class DHSmasherOutputAPI
                     ==============================================================*/
                     
                     // /* caching EOL API name search ===================================== OK
+                    echo " $i ";
                     $url1 = $this->url['api_search'].$sciname;
                     if($taxon_rec = self::search_ok($url1)) {}
                     else
@@ -639,6 +640,7 @@ class DHSmasherOutputAPI
         foreach(new FileIterator($smasher_file) as $line => $row) {
             $i++;
             if(($i % 1000) == 0) echo " --$i-- [$acronym] ";
+            else echo " $i ";
             if($i == 1) $fields = explode("\t", $row);
             else {
                 $rec = array(); //just to be sure
