@@ -96,7 +96,8 @@ class FreshDataInatSupplementAPI
     private function process_record($rek, $func)
     {
         if($rek['geojson']['type'] != "Point") return;
-        print_r($rek); //exit;
+        if(!$rek['taxon']['name']) return;
+        print_r($rek); exit;
         $rec = array();
         $this->ctr++;
         $rec['id'] = $this->ctr;
@@ -106,11 +107,10 @@ class FreshDataInatSupplementAPI
         $rec['source']          = $rek['uri'];
         $rec['decimalLatitude'] = $rek['geojson']['coordinates'][1];
         $rec['decimalLongitude'] = $rek['geojson']['coordinates'][0];
+        $rec['eventDate']       = $rek['time_observed_at'];
         $rec['recordedBy']      = $rek['user']['name'];
         $rec['locality']        = $rek['place_guess'];
         $rec['modified']        = $rek['updated_at'];
-        
-        
         
         $ancestry = array();
         if($arr = @$rek['identifications'][0]['taxon']['ancestors']) $ancestry = self::parse_ancestors($arr);
@@ -123,28 +123,15 @@ class FreshDataInatSupplementAPI
         $rec['family']  = @$ancestry['family'];
         $rec['genus']   = @$ancestry['genus'];
         
-        
-        print_r($rec); exit;
+        print_r($rec); //exit;
         /*
-        [geojson] => Array
-                (
-                    [coordinates] => Array
-                        (
+        [geojson] => Array(
+                    [coordinates] => Array(
                             [0] => -111.73022474
                             [1] => 41.51918058
                         )
-
                     [type] => Point
-                )
-        */
-        
-
-        // $rec['lifeStage']       = @$rek['sourceLifeStage'];
-        // $rec['sex']             = @$rek['sourceTaxonSex'];
-        // $rec['taxonRemarks']    = $rek['interactionTypeName'] . " " . $rek['targetTaxonName'];
-        // $rec['locality']        = $rek['localityName'];
-        // $rec['eventDate']           = $rek['observationDateTime'];
-        // $rec['bibliographicCitation'] = $rek['referenceCitation'];
+                )*/
 
         $rec = array_map('trim', $rec);
         $func->print_header($rec, CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations.txt");
@@ -154,10 +141,7 @@ class FreshDataInatSupplementAPI
     private function parse_ancestors($recs)
     {
         $ancestors = array();
-        foreach($recs as $rec)
-        {
-            $ancestors[$rec['rank']] = $rec['name'];
-        }
+        foreach($recs as $rec) $ancestors[$rec['rank']] = $rec['name'];
         return $ancestors;
     }
     
@@ -167,8 +151,6 @@ class FreshDataInatSupplementAPI
         if(!@$rec['decimalLongitude']) return false;
         return true;
     }
-    
-
     private function save_to_text_file($row)
     {
         if($row) {
