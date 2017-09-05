@@ -35,224 +35,139 @@ class FreshDataInatSupplementAPI
     }
     function start()
     {
-        if(self::is_first_day_of_month()) self::reset_initial_resource();
-        if(true) self::reset_initial_resource();    //debug only
-        
-        exit("\njust starting...\n");
-        // self::do_some_caching(); exit("\nexit muna\n");
-        
         $folder = $this->folder;
         $func = self::initialize(); //use some functions from FreeDataAPI
-        self::main_loop($func);
+        //------------------------------------------------------------------------
+        if(self::is_first_day_of_month()) self::reset_initial_resource();
+        if(true) self::reset_initial_resource($func);    //debug only
+        
+        // exit("\njust starting...\n");
+        //------------------------------------------------------------------------
+        // self::main_loop($func);
         $func->last_part($folder); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
         if($folder) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder);
     }
 
-    private function format_date_params($url, $what)
+    private function reset_initial_resource($func)
     {
+        $uuids = array();
         $date = date('Y-m-d'); //e.g. 2017-08-01
-        $date = "2017-09-01"; //hard-coded for now  -- debug only
-        
-        if($what == "created_in") $str = "&created_d1=".$date;
-        else                      $str = "&updated_since=".$date."T00:00:00-00:00";
-        $url .= $str;
-        return $url;
-    }
-    private function reset_initial_resource()
-    {
-        $page = 1;
-        // $start = 60030000;
-        while(true)
+        $date = "2017-08-01"; //hard-coded for now  -- debug only
+        while($date <= date('Y-m-d'))
         {
-            $url = $this->inat_created_since_api."&page=$page";
-            $url = self::format_date_params($url, "created_in");
-            echo "\n$url\n";
-            if($json = Functions::lookup_with_cache($url, $this->download_options))
+            echo "\n$date";
+            //=======================start loop
+            $page = 1;
+            while(true)
             {
-                $arr = json_decode($json, true);
-                $total = count($arr['results']);
-                echo "\ntotal = [$total] [$page]\n";
-                if($total < $this->increment) break;
-            }
-            else break; //may have reached the 10k limit
-            $page++;
-        }
-    }
-    private function main_loop($func)
-    {
-        // if(@$rek['decimalLatitude']) self::process_record($rek, $func);
-        $start = 0;
-        while(true)
-        {
-            $url = $this->solr_occurrence_api."&start=$start";
-            if($json = Functions::lookup_with_cache($url, $this->download_options))
-            {
-                $docs = json_decode($json, true);
-                $docs = $docs['response']['docs'];
-                $total = count($docs);
-                echo "\ntotal = [$total]\n";
-                
-                // /*
-                foreach($docs as $rec) {
-                    /* Array(
-                        [eventDate] => 2005-09-18
-                        [providedScientificName] => Abies procera
-                        [year] => 2005
-                        [countryCode] => US
-                        [providedCounty] => Clackamas
-                        [ambiguous] => 
-                        [generalComments] => Live DBH inches=19.9
-                        [verbatimLocality] => plot control number=41120028010497 subplotNbr=3 treeNbr=122
-                        [latlon] => -121.8547,45.12979
-                        [computedCountyFips] => 41005
-                        [] => 1432338409
-                        [decimalLongitude] => -121.8547
-                        [basisOfRecord] => observation
-                        [providedCommonName] => noble fir
-                        [collectionID] => https://bison.usgs.gov/ipt/resource?r=usfs-fia-trees-public-lands
-                        [] => USFS - Forest Inventory and Analysis - Trees (Public Lands)
-                        [scientificName] => Abies procera
-                        [institutionID] => https://bison.usgs.gov
-                        [computedStateFips] => 41
-                        [license] => http://creativecommons.org/publicdomain/zero/1.0/legalcode
-                        [TSNs] => Array([0] => 181835)
-                        [providerID] => 440
-                        [stateProvince] => Oregon
-                        [higherGeographyID] => 41005
-                        [decimalLatitude] => 45.12979
-                        [verbatimElevation] => 3900
-                        [geo] => -121.8547 45.12979
-                        [provider] => BISON
-                        [geodeticDatum] => NAD83
-                        [calculatedCounty] => Clackamas County
-                        [ITISscientificName] => Abies procera
-                        [pointPath] => /-121.8547,45.12979/observation
-                        [kingdom] => Plantae
-                        [calculatedState] => Oregon
-                        [hierarchy_homonym_string] => -202422-954898-846494-954900-846496-846504-500009-954916-500028-18030-18031-181835-
-                        [ITIScommonName] => noble fir;red fir;white fir
-                        [resourceID] => 440,100028
-                        [ITIStsn] => 181835
-                        [associatedReferences] => [{"url":"http://apps.fs.fed.us/fiadb-downloads/datamart.html","description":"US Forest Service Datamart"}]
-                        [_version_] => 1568324372682244096)
-                    */
-                    
-                    if(($this->ctr % 1000) == 0) echo " ".$this->ctr." ";
-                    
-                    $rek = array();
-                    if(!self::with_lat_long($rec)) continue;
-                    
-                    $this->ctr++;
-                    $rek['id'] = $this->ctr;
-                    if($rek['scientificName'] = self::get_sciname($rec)) {}
-                    else
-                    {
-                        $this->ctr--;
-                        continue;
+                $url = $this->inat_created_since_api."&page=$page";
+                $url = self::format_date_params($url, "created_in", $date);
+                echo "\n$url\n";
+                if($json = Functions::lookup_with_cache($url, $this->download_options))
+                {
+                    $arr = json_decode($json, true);
+                    $total = count($arr['results']);
+                    echo "\ntotal = [$total] [$page]\n";
+                    // /* //---------------------------start loop
+                    $x = array();
+                    foreach($arr['results'] as $rec) {
+                        if(!in_array($rec['uuid'], $uuids)) { //start process here
+                            $uuids[] = $rec['uuid'];
+                            @$x['NOT in array']++;
+                            self::process_record($rec, $func);
+                        }
+                        else @$x['already in array']++;
                     }
-                    $rek['ITISscientificName']  = @$rec['ITISscientificName'];
-                    //start get hierarchy from ITIS
-                    $ancestry = self::get_itis_ancestry($rec);
-                    $rek['taxonRank'] = @$ancestry['taxonRank'];
-                    $rek['higherClassification'] = @$ancestry['higherClassification'];
-                    $rek['kingdom'] = @$ancestry['kingdom'];
-                    $rek['phylum']  = @$ancestry['phylum'];
-                    $rek['class']   = @$ancestry['class'];
-                    $rek['order']   = @$ancestry['order'];
-                    $rek['family']  = @$ancestry['family'];
-                    $rek['genus']   = @$ancestry['genus'];
-
-                    $rek['decimalLatitude'] = $rec['decimalLatitude'];
-                    $rek['decimalLongitude'] = $rec['decimalLongitude'];
-                    $rek['occurrenceID']    = $rec['occurrenceID'];
-                    $rek['basisOfRecord']   = $rec['basisOfRecord'];
-                    $rek['catalogNumber']   = @$rec['catalogNumber'];
-                    $rek['recordedBy']      = @$rec['recordedBy'];
-                    $rek['institutionCode'] = $rec['ownerInstitutionCollectionCode'];
-                    $rek['eventDate']       = @$rec['eventDate'];
-                    $rek['county']          = $rec['calculatedCounty'];
-                    $rek['stateProvince']   = $rec['calculatedState'];
-                    $rek['countryCode']     = $rec['countryCode'];
-                    $rek['institutionID']   = $rec['institutionID'];
-                    $rek['source'] = '';
-                    if($val = @$rec['occurrenceID']) $rek['source'] = "https://bison.usgs.gov/solr/occurrences/select/?q=occurrenceID:".$val;
-
-                    
-                    // print_r($rek);
-                    $rek = array_map('trim', $rek);
-                    $func->print_header($rek, CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations.txt");
-                    $val = implode("\t", $rek);
-                    self::save_to_text_file($val);
-                    
-                } //end loop
-                break; //debug -> gets only first 10K records
-                // */
+                    print_r($x);
+                    // */ //---------------------------end loop
+                    if($total < $this->increment) break; //it actually doesn't reach this bec. of the 10k limit
+                    if($page == 10) break; //used 10, if 25 that is half of the 50x200 = 10000
+                }
+                else break; //may have reached the 10k limit
+                $page++;
             }
-            $start += $this->increment; 
-            if($total < $this->increment) break;
+            //=======================end loop
+            $date = self::date_tomorrow($date);
+            break; //debug only
         }
+        // exit("\neli 01\n");
     }
-    private function get_sciname($rec)
+    
+    private function process_record($rek, $func)
     {
-        if($val = @$rec['ITISscientificName']) return $val;
-        elseif($val = @$rec['scientificName']) return $val;
-        elseif($val = @$rec['providedScientificName']) return $val;
-        return false;
+        if($rek['geojson']['type'] != "Point") return;
+        print_r($rek); //exit;
+        $rec = array();
+        $this->ctr++;
+        $rec['id'] = $this->ctr;
+        $rec['taxonID']         = $rek['taxon']['id'];
+        $rec['scientificName']  = $rek['taxon']['name'];
+        $rec['taxonRank']       = $rek['taxon']['rank'];
+        $rec['source']          = $rek['uri'];
+        $rec['decimalLatitude'] = $rek['geojson']['coordinates'][1];
+        $rec['decimalLongitude'] = $rek['geojson']['coordinates'][0];
+        $rec['recordedBy']      = $rek['user']['name'];
+        $rec['locality']        = $rek['place_guess'];
+        $rec['modified']        = $rek['updated_at'];
+        
+        
+        
+        $ancestry = array();
+        if($arr = @$rek['identifications'][0]['taxon']['ancestors']) $ancestry = self::parse_ancestors($arr);
+        print_r($ancestry); //exit;
+        
+        $rec['kingdom'] = @$ancestry['kingdom'];
+        $rec['phylum']  = @$ancestry['phylum'];
+        $rec['class']   = @$ancestry['class'];
+        $rec['order']   = @$ancestry['order'];
+        $rec['family']  = @$ancestry['family'];
+        $rec['genus']   = @$ancestry['genus'];
+        
+        
+        print_r($rec); exit;
+        /*
+        [geojson] => Array
+                (
+                    [coordinates] => Array
+                        (
+                            [0] => -111.73022474
+                            [1] => 41.51918058
+                        )
+
+                    [type] => Point
+                )
+        */
+        
+
+        // $rec['lifeStage']       = @$rek['sourceLifeStage'];
+        // $rec['sex']             = @$rek['sourceTaxonSex'];
+        // $rec['taxonRemarks']    = $rek['interactionTypeName'] . " " . $rek['targetTaxonName'];
+        // $rec['locality']        = $rek['localityName'];
+        // $rec['eventDate']           = $rek['observationDateTime'];
+        // $rec['bibliographicCitation'] = $rek['referenceCitation'];
+
+        $rec = array_map('trim', $rec);
+        $func->print_header($rec, CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations.txt");
+        $val = implode("\t", $rec);
+        self::save_to_text_file($val);
     }
+    private function parse_ancestors($recs)
+    {
+        $ancestors = array();
+        foreach($recs as $rec)
+        {
+            $ancestors[$rec['rank']] = $rec['name'];
+        }
+        return $ancestors;
+    }
+    
     private function with_lat_long($rec)
     {
         if(!@$rec['decimalLatitude']) return false;
         if(!@$rec['decimalLongitude']) return false;
         return true;
     }
-    private function get_itis_ancestry($rec)
-    {
-        $ranks = array();
-        $taxon = self::get_itis_taxon($rec);
-        // print_r($taxon);
-        if($str = @$taxon['response']['docs'][0]['hierarchySoFarWRanks'][0])
-        {
-            $str = str_replace($taxon['response']['docs'][0]['tsn'].":", "", $str);
-            // echo "\n[$str]\n";
-            $a = explode("$", $str);
-            $a = array_map('trim', $a);
-            $a = array_filter($a); //remove null arrays
-            $a = array_values($a); //reindex key
-            // print_r($a); //good debug
-            
-            $valid_ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'subgenus', 'species');
-            $taxonRank = strtolower($taxon['response']['docs'][0]['rank']);
-            if(($key = array_search($taxonRank, $valid_ranks)) !== false) {
-                unset($valid_ranks[$key]);
-            }
-            
-            foreach($a as $temp)
-            {
-                $t = explode(":", $temp);
-                $rank = strtolower($t[0]);
-                if(in_array($rank, $valid_ranks)) $ranks[$rank] = $t[1];
-            }
-            $ranks['taxonRank'] = $taxonRank;
-            
-            //for higherClassification
-            //"566069:$Plantae$Viridiplantae$Streptophyta$Embryophyta$Tracheophyta$Spermatophytina$Magnoliopsida$Lilianae$Poales$Poaceae$Poa$Poa cusickii$Poa cusickii ssp. cusickii$"
-            
-            $str = $taxon['response']['docs'][0]['hierarchySoFar'][0];
-            $str = str_replace($taxon['response']['docs'][0]['tsn'].":", "", $str);
-            $a = explode("$", $str);
-            $a = array_map('trim', $a);
-            $a = array_filter($a); //remove null arrays
-            $a = array_values($a); //reindex key
-            array_pop($a);
-            // print_r($a); exit;
-            $ranks['higherClassification'] = implode("|", $a);
-            // print_r($ranks); //good debug
-        }
-        // 181835:$Kingdom:Plantae$Subkingdom:Viridiplantae$Infrakingdom:Streptophyta$Superdivision:Embryophyta$Division:Tracheophyta$Subdivision:Spermatophytina$Class:Pinopsida$Subclass:Pinidae$Order:Pinales$Family:Pinaceae$Genus:Abies$Species:Abies procera$
-        return $ranks;
-    }
     
-    private function process_record($rek, $func) {}
 
     private function save_to_text_file($row)
     {
@@ -267,6 +182,19 @@ class FreshDataInatSupplementAPI
     {
         if("01" == date('d')) return true;
         else return false;
+    }
+    private function format_date_params($url, $what, $date)
+    {
+        if($what == "created_in") $str = "&created_d1=".$date;
+        else                      $str = "&updated_since=".$date."T00:00:00-00:00";
+        $url .= $str;
+        return $url;
+    }
+    private function date_tomorrow($date)
+    {
+        $date1 = str_replace('-', '/', $date);
+        $tomorrow = date('Y-m-d',strtotime($date1 . "+1 days"));
+        return $tomorrow;
     }
 
     /*

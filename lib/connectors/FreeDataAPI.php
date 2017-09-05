@@ -794,6 +794,11 @@ class FreeDataAPI
         $terms['recordedBy'] = "http://rs.tdwg.org/dwc/terms/recordedBy";
         $terms['ITISscientificName'] = "http://itis.gov/terms/ITISscientificName";
         
+        //added iNat supplemental resource
+        $terms['modified'] = "http://purl.org/dc/terms/modified";
+        
+        
+        
         //for orig FreshData processing
         $terms['id'] = "http://rs.gbif.org/terms/1.0/RLSID";
         $terms['occurrenceID'] = "http://rs.tdwg.org/dwc/terms/occurrenceID";

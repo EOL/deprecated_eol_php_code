@@ -3,6 +3,10 @@ namespace php_active_record;
 /* supplementary iNat records: https://eol-jira.bibalex.org/browse/DATA-1700
 1. Resource is then added to: https://github.com/gimmefreshdata
 2. then added to queue in: http://archive.effechecka.org/
+
+eol_inat_app in iNaturalist.org
+https://www.inaturalist.org/oauth/applications/187
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
