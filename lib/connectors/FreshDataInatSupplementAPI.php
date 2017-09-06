@@ -17,9 +17,11 @@ class FreshDataInatSupplementAPI
         $this->download_options['expire_seconds'] = false; // false -> doesn't expire | true -> expires now
 
         $this->increment = 200; //3;//10000; orig is 200 and the max allowable per_page
-        $this->inat_created_since_api = "http://api.inaturalist.org/v1/observations?quality_grade=needs_id&per_page=$this->increment"; //2017-08-01
-        $this->inat_updated_since_api = "http://api.inaturalist.org/v1/observations?quality_grade=needs_id&per_page=$this->increment"; //2017-08-30T09:40:00-07:00
+        $this->inat_created_since_api = "http://api.inaturalist.org/v1/observations?quality_grade=needs_id&order_by=date_added&order=asc&per_page=$this->increment"; //2017-08-01
+        $this->inat_updated_since_api = "http://api.inaturalist.org/v1/observations?quality_grade=needs_id&order_by=date_added&order=asc&per_page=$this->increment"; //2017-08-30T09:40:00-07:00
 
+        $this->destination_txt_file = "observations.txt";
+        
         /*
         GBIF occurrence extension   : file:///Library/WebServer/Documents/cp/GBIF_dwca/atlantic_cod/meta.xml
         DWC terms                   : http://rs.tdwg.org/dwc/terms/index.htm#Occurrence
@@ -45,8 +47,8 @@ class FreshDataInatSupplementAPI
         $folder = $this->folder;
         $func = self::initialize(); //use some functions from FreeDataAPI
         //------------------------------------------------------------------------
-        // if(self::is_today_first_day_of_month()) //un-comment in real operation
-        if(true) //debug only
+        if(self::is_today_first_day_of_month()) //un-comment in real operation
+        // if(true) //debug only
         {
             self::reset_initial_resource($func);
             $func->last_part($folder); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
@@ -54,25 +56,24 @@ class FreshDataInatSupplementAPI
             echo "\ntotal rows: [$total_rows]\n";
             if($folder) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder);
         }
-        else
-        {
-            self::start_daily_harvest();
-        }
+        else self::start_daily_harvest($func);
         //------------------------------------------------------------------------
     }
-    private function start_daily_harvest()
+    private function start_daily_harvest($func)
     {
-        
+        $this->destination_txt_file = "daily.txt";
+        self::reset_initial_resource($func, date('Y-m-d'));
     }
-    private function reset_initial_resource($func)
+    private function reset_initial_resource($func, $date = NULL)
     {
         $uuids = array();
-        $date = date('Y-m-d'); //e.g. 2017-08-01
-        
-        $date = "2017-09-01"; //hard-coded for now  -- debug only
-        
-        $date = self::date_operation($date, "-1 month"); //date last month
-        // $date = self::date_operation($date, "-5 days"); //less 5 days more, to have an overlap
+        if(!$date)
+        {
+            $date = date('Y-m-d'); //e.g. 2017-08-01 -> normal operation
+            $date = "2017-09-01"; //hard-coded for now  -- debug only
+            $date = self::date_operation($date, "-1 month"); //date last month
+            // $date = self::date_operation($date, "-5 days"); //less 5 days more, to have an overlap
+        }
 
         // exit("\n[$date]\n");
         $first_loop['created_in'] = true;
@@ -169,7 +170,7 @@ class FreshDataInatSupplementAPI
                 )*/
 
         $rec = array_map('trim', $rec);
-        $func->print_header($rec, CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations.txt");
+        $func->print_header($rec, CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/".$this->destination_txt_file);
         $val = implode("\t", $rec);
         self::save_to_text_file($val);
     }
