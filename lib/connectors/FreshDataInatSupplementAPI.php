@@ -46,6 +46,7 @@ class FreshDataInatSupplementAPI
         
         $folder = $this->folder;
         $func = self::initialize(); //use some functions from FreeDataAPI
+        if(!self::start_process()) exit("\nConnector is still running. Program will terminate.\n\n");
         //------------------------------------------------------------------------
         if(self::is_today_first_day_of_month()) //un-comment in real operation
         // if(true) //debug only
@@ -58,26 +59,36 @@ class FreshDataInatSupplementAPI
         }
         else self::start_daily_harvest($func);
         //------------------------------------------------------------------------
+        self::end_process();
     }
     private function start_daily_harvest($func)
     {
+        /*
         $this->destination_txt_file = "daily.txt";
-        self::reset_initial_resource($func, date('Y-m-d'));
+        $yesterday = self::date_operation(date('Y-m-d'), "-1 days"); //daily harvest will start from day before OR yesterday
+        self::reset_initial_resource($func, $yesterday);
+        */
+        self::append_daily_to_resource();
     }
     private function reset_initial_resource($func, $date = NULL)
     {
         $uuids = array();
-        if(!$date)
+        if(!$date) //this is: reset initial resource
         {
             $date = date('Y-m-d'); //e.g. 2017-08-01 -> normal operation
             $date = "2017-09-01"; //hard-coded for now  -- debug only
             $date = self::date_operation($date, "-1 month"); //date last month
-            // $date = self::date_operation($date, "-5 days"); //less 5 days more, to have an overlap
+            $date = self::date_operation($date, "-5 days"); //less 5 days more, to have an overlap
         }
+        else {} //this is: daily harvest
 
         // exit("\n[$date]\n");
         $first_loop['created_in'] = true;
         $first_loop['updated_since'] = true;
+        
+        $download_options = $this->download_options;
+        // if($this->destination_txt_file == "daily.txt") $download_options['expire_seconds'] = true; //cache expired
+        
         while($date <= date('Y-m-d'))
         {
             echo "\n$date";
@@ -90,7 +101,7 @@ class FreshDataInatSupplementAPI
                 // $url = $this->inat_created_since_api."&page=$page"; //moved inside the format_date_params()
                 $url = self::format_date_params($api, $date, $page);
                 echo "\n$url\n";
-                if($json = Functions::lookup_with_cache($url, $this->download_options))
+                if($json = Functions::lookup_with_cache($url, $download_options))
                 {
                     $arr = json_decode($json, true);
                     $total = count($arr['results']); echo "\ntotal = [$total] [$page]\n";
@@ -110,7 +121,7 @@ class FreshDataInatSupplementAPI
                     // /*
                     if(!$first_loop[$api] && !self::is_date_first_day_of_month($date))
                     {
-                        if($page == 10) break; //used 10, if 25 that is half of the 50x200 = 10000 limit
+                        if($page == 20) break; //used 10, if 25 that is half of the 50x200 = 10000 limit
                     }
                     // */
                 }
@@ -133,10 +144,13 @@ class FreshDataInatSupplementAPI
     {
         if($rek['geojson']['type'] != "Point") return;
         if(!$rek['taxon']['name']) return;
+        if(!self::with_lat_long($rek)) return;
+        
         // print_r($rek); exit;
         $rec = array();
         $this->ctr++;
         $rec['id'] = $this->ctr;
+        $rec['occurrenceID']    = $rek['uuid'];
         $rec['taxonID']         = $rek['taxon']['id'];
         $rec['scientificName']  = $rek['taxon']['name'];
         $rec['taxonRank']       = $rek['taxon']['rank'];
@@ -174,6 +188,81 @@ class FreshDataInatSupplementAPI
         $val = implode("\t", $rec);
         self::save_to_text_file($val);
     }
+    private function append_daily_to_resource()
+    {
+        $uuids_from_daily = self::get_uuids_from_daily();
+        // print_r($uuids_from_daily);
+        self::delete_records_from_resource_with_these_uuids($uuids_from_daily);
+        self::append_daily_2resource();
+        
+        unlink(CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations_test.txt");
+        rename(CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations_temp.txt", CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations_test.txt");
+    }
+    private function delete_records_from_resource_with_these_uuids($uuids_from_daily)
+    {
+        $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations_temp.txt", "w");
+        $resource = CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations_test.txt";
+        $i = 0;
+        foreach(new FileIterator($resource) as $line => $row) {
+            $i++;
+            if($i == 1)
+            {
+                $fields = explode("\t", $row);
+                fwrite($WRITE, $row . "\n");
+            }
+            else {
+                $rec = explode("\t", $row);
+                $k = -1;
+                $rek = array();
+                foreach($fields as $field) {
+                    $k++;
+                    if($val = @$rec[$k]) $rek[$field] = $val;
+                }
+                if($rek)
+                {
+                    if(!in_array($rek['occurrenceID'], $uuids_from_daily)) fwrite($WRITE, $row . "\n");
+                }
+            }
+        }
+        fclose($WRITE);
+    }
+    private function append_daily_2resource()
+    {
+        $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations_temp.txt", "a");
+        $daily = CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/daily.txt";
+        $i = 0;
+        foreach(new FileIterator($daily) as $line => $row) {
+            $i++;
+            if($i != 1) fwrite($WRITE, $row . "\n");
+        }
+        fclose($WRITE);
+    }
+
+    private function get_uuids_from_daily()
+    {
+        $uuids = array();
+        $daily = CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/daily.txt";
+        $i = 0;
+        foreach(new FileIterator($daily) as $line => $row) {
+            $i++;
+            if($i == 1) $fields = explode("\t", $row);
+            else {
+                $rec = explode("\t", $row);
+                $k = -1;
+                $rek = array();
+                foreach($fields as $field) {
+                    $k++;
+                    if($val = @$rec[$k]) $rek[$field] = $val;
+                }
+                if($rek)
+                {
+                    if($val = $rek['occurrenceID']) $uuids[$val] = '';
+                }
+            }
+        }
+        return array_keys($uuids);
+    }
+    
     private function parse_ancestors($recs)
     {
         $ancestors = array();
@@ -181,16 +270,30 @@ class FreshDataInatSupplementAPI
         return $ancestors;
     }
     
-    private function with_lat_long($rec)
+    private function with_lat_long($rek)
     {
-        if(!@$rec['decimalLatitude']) return false;
-        if(!@$rec['decimalLongitude']) return false;
+        if(!@$rek['geojson']['coordinates'][0]) return false;
+        if(!@$rek['geojson']['coordinates'][1]) return false;
         return true;
+    }
+    private function start_process()
+    {
+        $filename = CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/currently_running.txt";
+        if(file_exists($filename)) return false;
+        $WRITE = Functions::file_open($filename, "w");
+        fwrite($WRITE, "");
+        fclose($WRITE);
+        return true;
+    }
+    private function end_process()
+    {
+        $filename = CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/currently_running.txt";
+        if(file_exists($filename)) unlink($filename);
     }
     private function save_to_text_file($row)
     {
         if($row) {
-            $WRITE = Functions::file_open($this->destination[$this->folder], "a");
+            $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/".$this->destination_txt_file, "a");
             fwrite($WRITE, $row . "\n");
             fclose($WRITE);
         }
