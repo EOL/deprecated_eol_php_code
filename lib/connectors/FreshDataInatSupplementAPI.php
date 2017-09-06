@@ -63,11 +63,11 @@ class FreshDataInatSupplementAPI
     }
     private function start_daily_harvest($func)
     {
-        /*
+        // /*
         $this->destination_txt_file = "daily.txt";
-        $yesterday = self::date_operation(date('Y-m-d'), "-1 days"); //daily harvest will start from day before OR yesterday
+        $yesterday = self::date_operation(date('Y-m-d'), "-1 days"); //daily harvest will start from 1 day before OR yesterday
         self::start_harvest($func, $yesterday); //this is daily harvest
-        */
+        // */
         self::append_daily_to_resource();
     }
     private function start_harvest($func, $date = NULL)
@@ -75,7 +75,7 @@ class FreshDataInatSupplementAPI
         $uuids = array();
         if(!$date) //this is: reset initial resource
         {
-            $date = date('Y-m-d'); //e.g. 2017-08-01 -> normal operation
+            $date = date('Y-m-d'); //e.g. 2017-09-01 -> normal operation
             $date = "2017-09-01"; //hard-coded for now  -- debug only
             $date = self::date_operation($date, "-1 month"); //date last month
             $date = self::date_operation($date, "-5 days"); //less 5 days more, to have an overlap
@@ -89,7 +89,7 @@ class FreshDataInatSupplementAPI
         $download_options = $this->download_options;
         // if($this->destination_txt_file == "daily.txt") $download_options['expire_seconds'] = true; //cache expired
         
-        while($date <= date('Y-m-d'))
+        while($date <= date('Y-m-d')) //loops until date today
         {
             echo "\n$date";
             $apis = array("updated_since", "created_in");
@@ -120,7 +120,7 @@ class FreshDataInatSupplementAPI
                     if($total < $this->increment) break; //it actually doesn't reach this bec. of the 10k limit
                     // /*
                     if(!$first_loop[$api] && !self::is_date_first_day_of_month($date)) {
-                        if($page == 20) break; //used 10, if 25 that is half of the 50x200 = 10000 limit
+                        if($page == 15) break; //used 10, if 25 that is half of the 50x200 = 10000 limit
                     }
                     // */
                 }
@@ -132,61 +132,12 @@ class FreshDataInatSupplementAPI
             }//end foreach()
 
 
-
             $date = self::date_operation($date, "+1 days"); //date tomorrow
             // break; //debug only
         }
         // exit("\neli 01\n");
     }
     
-    private function process_record($rek, $func)
-    {
-        if($rek['geojson']['type'] != "Point") return;
-        if(!$rek['taxon']['name']) return;
-        if(!self::with_lat_long($rek)) return;
-        
-        // print_r($rek); exit;
-        $rec = array();
-        $this->ctr++;
-        $rec['id'] = $this->ctr;
-        $rec['occurrenceID']    = $rek['uuid'];
-        $rec['taxonID']         = $rek['taxon']['id'];
-        $rec['scientificName']  = $rek['taxon']['name'];
-        $rec['taxonRank']       = $rek['taxon']['rank'];
-        $rec['source']          = $rek['uri'];
-        $rec['decimalLatitude'] = $rek['geojson']['coordinates'][1];
-        $rec['decimalLongitude'] = $rek['geojson']['coordinates'][0];
-        $rec['eventDate']       = $rek['time_observed_at'];
-        $rec['recordedBy']      = $rek['user']['name'];
-        $rec['locality']        = $rek['place_guess'];
-        $rec['modified']        = $rek['updated_at'];
-        
-        $ancestry = array();
-        if($arr = @$rek['identifications'][0]['taxon']['ancestors']) $ancestry = self::parse_ancestors($arr);
-        // print_r($ancestry); //exit;
-        
-        $rec['kingdom'] = @$ancestry['kingdom'];
-        $rec['phylum']  = @$ancestry['phylum'];
-        $rec['class']   = @$ancestry['class'];
-        $rec['order']   = @$ancestry['order'];
-        $rec['family']  = @$ancestry['family'];
-        $rec['genus']   = @$ancestry['genus'];
-        
-        // print_r($rec); //exit;
-        /*
-        [geojson] => Array(
-                    [coordinates] => Array(
-                            [0] => -111.73022474
-                            [1] => 41.51918058
-                        )
-                    [type] => Point
-                )*/
-
-        $rec = array_map('trim', $rec);
-        $func->print_header($rec, CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/".$this->destination_txt_file);
-        $val = implode("\t", $rec);
-        self::save_to_text_file($val);
-    }
     private function append_daily_to_resource()
     {
         $uuids_from_daily = self::get_uuids_from_daily();
@@ -194,13 +145,13 @@ class FreshDataInatSupplementAPI
         self::delete_records_from_resource_with_these_uuids($uuids_from_daily);
         self::append_daily_2resource();
         
-        unlink(CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations_test.txt");
-        rename(CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations_temp.txt", CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations_test.txt");
+        unlink(CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations.txt");
+        rename(CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations_temp.txt", CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations.txt");
     }
     private function delete_records_from_resource_with_these_uuids($uuids_from_daily)
     {
         $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations_temp.txt", "w");
-        $resource = CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations_test.txt";
+        $resource = CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations.txt";
         $i = 0;
         foreach(new FileIterator($resource) as $line => $row) {
             $i++;
@@ -325,6 +276,54 @@ class FreshDataInatSupplementAPI
         $date1 = str_replace('-', '/', $date);
         $tomorrow = date('Y-m-d',strtotime($date1 . $operation));
         return $tomorrow;
+    }
+    private function process_record($rek, $func)
+    {
+        if($rek['geojson']['type'] != "Point") return;
+        if(!$rek['taxon']['name']) return;
+        if(!self::with_lat_long($rek)) return;
+        
+        // print_r($rek); exit;
+        $rec = array();
+        $this->ctr++;
+        $rec['id'] = $this->ctr;
+        $rec['occurrenceID']    = $rek['uuid'];
+        $rec['taxonID']         = $rek['taxon']['id'];
+        $rec['scientificName']  = $rek['taxon']['name'];
+        $rec['taxonRank']       = $rek['taxon']['rank'];
+        $rec['source']          = $rek['uri'];
+        $rec['decimalLatitude'] = $rek['geojson']['coordinates'][1];
+        $rec['decimalLongitude'] = $rek['geojson']['coordinates'][0];
+        $rec['eventDate']       = $rek['time_observed_at'];
+        $rec['recordedBy']      = @$rek['user']['name'];
+        $rec['locality']        = $rek['place_guess'];
+        $rec['modified']        = $rek['updated_at'];
+        
+        $ancestry = array();
+        if($arr = @$rek['identifications'][0]['taxon']['ancestors']) $ancestry = self::parse_ancestors($arr);
+        // print_r($ancestry); //exit;
+        
+        $rec['kingdom'] = @$ancestry['kingdom'];
+        $rec['phylum']  = @$ancestry['phylum'];
+        $rec['class']   = @$ancestry['class'];
+        $rec['order']   = @$ancestry['order'];
+        $rec['family']  = @$ancestry['family'];
+        $rec['genus']   = @$ancestry['genus'];
+        
+        // print_r($rec); //exit;
+        /*
+        [geojson] => Array(
+                    [coordinates] => Array(
+                            [0] => -111.73022474
+                            [1] => 41.51918058
+                        )
+                    [type] => Point
+                )*/
+
+        $rec = array_map('trim', $rec);
+        $func->print_header($rec, CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/".$this->destination_txt_file);
+        $val = implode("\t", $rec);
+        self::save_to_text_file($val);
     }
 
 }
