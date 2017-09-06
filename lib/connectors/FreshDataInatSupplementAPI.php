@@ -16,7 +16,7 @@ class FreshDataInatSupplementAPI
         'download_attempts' => 1); //'delay_in_minutes' => 1
         $this->download_options['expire_seconds'] = false; // false -> doesn't expire | true -> expires now
 
-        $this->increment = 200; //3;//10000; orig is 200 and the max allowable per_page
+        $this->increment = 200; //200 is the max allowable per_page
         $this->inat_created_since_api = "http://api.inaturalist.org/v1/observations?quality_grade=needs_id&order_by=date_added&order=asc&per_page=$this->increment"; //2017-08-01
         $this->inat_updated_since_api = "http://api.inaturalist.org/v1/observations?quality_grade=needs_id&order_by=date_added&order=asc&per_page=$this->increment"; //2017-08-30T09:40:00-07:00
 
@@ -119,8 +119,7 @@ class FreshDataInatSupplementAPI
                     // */ //---------------------------end loop
                     if($total < $this->increment) break; //it actually doesn't reach this bec. of the 10k limit
                     // /*
-                    if(!$first_loop[$api] && !self::is_date_first_day_of_month($date))
-                    {
+                    if(!$first_loop[$api] && !self::is_date_first_day_of_month($date)) {
                         if($page == 20) break; //used 10, if 25 that is half of the 50x200 = 10000 limit
                     }
                     // */
@@ -205,8 +204,7 @@ class FreshDataInatSupplementAPI
         $i = 0;
         foreach(new FileIterator($resource) as $line => $row) {
             $i++;
-            if($i == 1)
-            {
+            if($i == 1) {
                 $fields = explode("\t", $row);
                 fwrite($WRITE, $row . "\n");
             }
@@ -218,8 +216,7 @@ class FreshDataInatSupplementAPI
                     $k++;
                     if($val = @$rec[$k]) $rek[$field] = $val;
                 }
-                if($rek)
-                {
+                if($rek) {
                     if(!in_array($rek['occurrenceID'], $uuids_from_daily)) fwrite($WRITE, $row . "\n");
                 }
             }
@@ -254,8 +251,7 @@ class FreshDataInatSupplementAPI
                     $k++;
                     if($val = @$rec[$k]) $rek[$field] = $val;
                 }
-                if($rek)
-                {
+                if($rek) {
                     if($val = $rek['occurrenceID']) $uuids[$val] = '';
                 }
             }
@@ -313,13 +309,11 @@ class FreshDataInatSupplementAPI
     
     private function format_date_params($what, $date, $page)
     {
-        if($what == "created_in")
-        {
+        if($what == "created_in") {
             $url = $this->inat_created_since_api."&page=$page";
             $str = "&created_d1=".$date;
         }
-        else
-        {
+        else {
             $url = $this->inat_updated_since_api."&page=$page";
             $str = "&updated_since=".$date."T00:00:00-00:00";
         }
@@ -345,17 +339,6 @@ class FreshDataInatSupplementAPI
         $tomorrow = date('Y-m-d',strtotime($date1 . $operation));
         return $tomorrow;
     }
-
-
-    /*
-    private function get_itis_taxon($rec)
-    {
-        if($ITIStsn = @$rec['ITIStsn']) {
-            if($json = Functions::lookup_with_cache($this->solr_taxa_api.$ITIStsn, $this->download_options)) return json_decode($json, true);
-        }
-        return false;
-    }
-    */
 
 }
 ?>
