@@ -53,13 +53,14 @@ class FreshDataInatSupplementAPI
         {
             self::start_harvest($func); //this is the reset harvest
             $func->last_part($folder); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
-            $total_rows = Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt");
-            echo "\ntotal rows: [$total_rows]\n";
             if($folder) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder);
         }
         else self::start_daily_harvest($func);
         //------------------------------------------------------------------------
         self::end_process();
+        $total_rows = Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt");
+        echo "\ntotal rows observations: [$total_rows]\n";
+        
     }
     private function start_daily_harvest($func)
     {
@@ -69,6 +70,8 @@ class FreshDataInatSupplementAPI
         self::start_harvest($func, $yesterday); //this is daily harvest
         // */
         self::append_daily_to_resource();
+        $total_rows = Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/daily.txt");
+        echo "\ntotal rows daily: [$total_rows]\n";
     }
     private function start_harvest($func, $date = NULL)
     {
@@ -96,6 +99,7 @@ class FreshDataInatSupplementAPI
             foreach($apis as $api) {
             //=======================start loop
             $page = 1;
+            $ready_to_break = 0;
             while(true)
             {
                 // $url = $this->inat_created_since_api."&page=$page"; //moved inside the format_date_params()
@@ -104,10 +108,19 @@ class FreshDataInatSupplementAPI
                 if($json = Functions::lookup_with_cache($url, $download_options))
                 {
                     $arr = json_decode($json, true);
-                    $total = count($arr['results']); echo "\ntotal = [$total] [$page]\n";
+                    $total = count($arr['results']); echo "\ntotal = [$total] [$page] [$api]\n";
                     // /* //---------------------------start loop
                     $x = array();
+                    $should_break = false;
                     foreach($arr['results'] as $rec) {
+                        if($api == "created_in")
+                        {
+                            if($rec['created_at_details']['date'] > $date) {
+                                echo "\nWILL STOP: [".$rec['created_at_details']['date']."] > [$date]\n"; // exit;
+                                $should_break = true;
+                                break;
+                            }
+                        }
                         if(!in_array($rec['uuid'], $uuids)) { //start process here
                             $uuids[] = $rec['uuid'];
                             @$x['NOT yet processed - NEW']++;
@@ -116,13 +129,18 @@ class FreshDataInatSupplementAPI
                         else @$x['already processed - DUPLICATE']++;
                     }
                     print_r($x);
+                    if(@$x['already processed - DUPLICATE'] == 200) $ready_to_break++;
+                    else                                            $ready_to_break = 0; //reset
                     // */ //---------------------------end loop
                     if($total < $this->increment) break; //it actually doesn't reach this bec. of the 10k limit
-                    // /*
+                    if($should_break) break;
+                    if($api == "updated_since" && $ready_to_break >= 6) break;
+                    
+                    /* //seems best to comment this and be sure to get most of the 10k limit
                     if(!$first_loop[$api] && !self::is_date_first_day_of_month($date)) {
-                        if($page == 15) break; //used 10, if 25 that is half of the 50x200 = 10000 limit
+                        if($page == 25) break; //used 10, if 25 that is half of the 50x200 = 10000 limit
                     }
-                    // */
+                    */
                 }
                 else break; //may have reached the 10k limit
                 $page++;
