@@ -48,10 +48,10 @@ class FreshDataInatSupplementAPI
         $func = self::initialize(); //use some functions from FreeDataAPI
         if(!self::start_process()) exit("\nConnector is still running. Program will terminate.\n\n");
         //------------------------------------------------------------------------
-        if(self::is_today_first_day_of_month()) //un-comment in real operation
-        // if(true) //debug only
+        // if(self::is_today_first_day_of_month()) //un-comment in real operation
+        if(true) //debug only
         {
-            self::reset_initial_resource($func);
+            self::start_harvest($func); //this is the reset harvest
             $func->last_part($folder); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
             $total_rows = Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt");
             echo "\ntotal rows: [$total_rows]\n";
@@ -66,11 +66,11 @@ class FreshDataInatSupplementAPI
         /*
         $this->destination_txt_file = "daily.txt";
         $yesterday = self::date_operation(date('Y-m-d'), "-1 days"); //daily harvest will start from day before OR yesterday
-        self::reset_initial_resource($func, $yesterday);
+        self::start_harvest($func, $yesterday); //this is daily harvest
         */
         self::append_daily_to_resource();
     }
-    private function reset_initial_resource($func, $date = NULL)
+    private function start_harvest($func, $date = NULL)
     {
         $uuids = array();
         if(!$date) //this is: reset initial resource
@@ -133,7 +133,7 @@ class FreshDataInatSupplementAPI
 
 
 
-            $date = self::date_operation($date, "+1 days");
+            $date = self::date_operation($date, "+1 days"); //date tomorrow
             // break; //debug only
         }
         // exit("\neli 01\n");
@@ -320,19 +320,6 @@ class FreshDataInatSupplementAPI
         $url .= $str;
         return $url;
     }
-    private function date_tomorrow($date)
-    {
-        $date1 = str_replace('-', '/', $date);
-        $tomorrow = date('Y-m-d',strtotime($date1 . "+1 days"));
-        return $tomorrow;
-    }
-    private function date_last_month($date)
-    {
-        $date1 = str_replace('-', '/', $date);
-        $last_month = date('Y-m-d',strtotime($date1 . "-1 month"));
-        return $last_month;
-    }
-
     private function date_operation($date, $operation)
     {
         $date1 = str_replace('-', '/', $date);
