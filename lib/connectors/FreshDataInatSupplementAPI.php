@@ -35,60 +35,95 @@ class FreshDataInatSupplementAPI
     }
     function start()
     {
+        /*
+        $date = "2017-07-01";
+        if(self::is_date_first_day_of_month($date)) echo "\nfirst day";
+        else echo "\nnot first day";
+        exit("\n");
+        */
+        
         $folder = $this->folder;
         $func = self::initialize(); //use some functions from FreeDataAPI
         //------------------------------------------------------------------------
-        if(self::is_first_day_of_month()) self::reset_initial_resource();
-        if(true) self::reset_initial_resource($func);    //debug only
-        
-        // exit("\njust starting...\n");
+        // if(self::is_today_first_day_of_month()) //un-comment in real operation
+        if(true) //debug only
+        {
+            self::reset_initial_resource($func);
+            $func->last_part($folder); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
+            $total_rows = Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt");
+            echo "\ntotal rows: [$total_rows]\n";
+            if($folder) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder);
+        }
+        else
+        {
+            self::start_daily_harvest();
+        }
         //------------------------------------------------------------------------
-        // self::main_loop($func);
-        $func->last_part($folder); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
-        if($folder) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder);
     }
-
+    private function start_daily_harvest()
+    {
+        
+    }
     private function reset_initial_resource($func)
     {
         $uuids = array();
         $date = date('Y-m-d'); //e.g. 2017-08-01
-        $date = "2017-08-01"; //hard-coded for now  -- debug only
+        
+        $date = "2017-09-01"; //hard-coded for now  -- debug only
+        
+        $date = self::date_operation($date, "-1 month"); //date last month
+        // $date = self::date_operation($date, "-5 days"); //less 5 days more, to have an overlap
+
+        // exit("\n[$date]\n");
+        $first_loop['created_in'] = true;
+        $first_loop['updated_since'] = true;
         while($date <= date('Y-m-d'))
         {
             echo "\n$date";
+            $apis = array("updated_since", "created_in");
+            foreach($apis as $api) {
             //=======================start loop
             $page = 1;
             while(true)
             {
-                $url = $this->inat_created_since_api."&page=$page";
-                $url = self::format_date_params($url, "created_in", $date);
+                // $url = $this->inat_created_since_api."&page=$page"; //moved inside the format_date_params()
+                $url = self::format_date_params($api, $date, $page);
                 echo "\n$url\n";
                 if($json = Functions::lookup_with_cache($url, $this->download_options))
                 {
                     $arr = json_decode($json, true);
-                    $total = count($arr['results']);
-                    echo "\ntotal = [$total] [$page]\n";
+                    $total = count($arr['results']); echo "\ntotal = [$total] [$page]\n";
                     // /* //---------------------------start loop
                     $x = array();
                     foreach($arr['results'] as $rec) {
                         if(!in_array($rec['uuid'], $uuids)) { //start process here
                             $uuids[] = $rec['uuid'];
-                            @$x['NOT in array']++;
+                            @$x['NOT yet processed - NEW']++;
                             self::process_record($rec, $func);
                         }
-                        else @$x['already in array']++;
+                        else @$x['already processed - DUPLICATE']++;
                     }
                     print_r($x);
                     // */ //---------------------------end loop
                     if($total < $this->increment) break; //it actually doesn't reach this bec. of the 10k limit
-                    if($page == 10) break; //used 10, if 25 that is half of the 50x200 = 10000
+                    // /*
+                    if(!$first_loop[$api] && !self::is_date_first_day_of_month($date))
+                    {
+                        if($page == 10) break; //used 10, if 25 that is half of the 50x200 = 10000 limit
+                    }
+                    // */
                 }
                 else break; //may have reached the 10k limit
                 $page++;
             }
+            $first_loop[$api] = false;
             //=======================end loop
-            $date = self::date_tomorrow($date);
-            break; //debug only
+            }//end foreach()
+
+
+
+            $date = self::date_operation($date, "+1 days");
+            // break; //debug only
         }
         // exit("\neli 01\n");
     }
@@ -97,7 +132,7 @@ class FreshDataInatSupplementAPI
     {
         if($rek['geojson']['type'] != "Point") return;
         if(!$rek['taxon']['name']) return;
-        print_r($rek); exit;
+        // print_r($rek); exit;
         $rec = array();
         $this->ctr++;
         $rec['id'] = $this->ctr;
@@ -114,7 +149,7 @@ class FreshDataInatSupplementAPI
         
         $ancestry = array();
         if($arr = @$rek['identifications'][0]['taxon']['ancestors']) $ancestry = self::parse_ancestors($arr);
-        print_r($ancestry); //exit;
+        // print_r($ancestry); //exit;
         
         $rec['kingdom'] = @$ancestry['kingdom'];
         $rec['phylum']  = @$ancestry['phylum'];
@@ -123,7 +158,7 @@ class FreshDataInatSupplementAPI
         $rec['family']  = @$ancestry['family'];
         $rec['genus']   = @$ancestry['genus'];
         
-        print_r($rec); //exit;
+        // print_r($rec); //exit;
         /*
         [geojson] => Array(
                     [coordinates] => Array(
@@ -160,15 +195,30 @@ class FreshDataInatSupplementAPI
         }
     }
 
-    private function is_first_day_of_month()
+    private function is_today_first_day_of_month()
     {
         if("01" == date('d')) return true;
         else return false;
     }
-    private function format_date_params($url, $what, $date)
+    private function is_date_first_day_of_month($date) //$date e.g. "2017-08-01"
     {
-        if($what == "created_in") $str = "&created_d1=".$date;
-        else                      $str = "&updated_since=".$date."T00:00:00-00:00";
+        $date1 = str_replace('-', '/', $date);
+        if("01" == date('d',strtotime($date1))) return true;
+        else return false;
+    }
+    
+    private function format_date_params($what, $date, $page)
+    {
+        if($what == "created_in")
+        {
+            $url = $this->inat_created_since_api."&page=$page";
+            $str = "&created_d1=".$date;
+        }
+        else
+        {
+            $url = $this->inat_updated_since_api."&page=$page";
+            $str = "&updated_since=".$date."T00:00:00-00:00";
+        }
         $url .= $str;
         return $url;
     }
@@ -178,6 +228,20 @@ class FreshDataInatSupplementAPI
         $tomorrow = date('Y-m-d',strtotime($date1 . "+1 days"));
         return $tomorrow;
     }
+    private function date_last_month($date)
+    {
+        $date1 = str_replace('-', '/', $date);
+        $last_month = date('Y-m-d',strtotime($date1 . "-1 month"));
+        return $last_month;
+    }
+
+    private function date_operation($date, $operation)
+    {
+        $date1 = str_replace('-', '/', $date);
+        $tomorrow = date('Y-m-d',strtotime($date1 . $operation));
+        return $tomorrow;
+    }
+
 
     /*
     private function get_itis_taxon($rec)
