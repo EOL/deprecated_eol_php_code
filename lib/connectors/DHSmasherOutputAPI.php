@@ -379,6 +379,7 @@ class DHSmasherOutputAPI
                 }
                 if($rek)
                 {
+                    for getting EOLid start with 206542
                     /* breakdown when caching:
                     $cont = false;
                     if($i >=  1    && $i < $m) $cont = true;
@@ -653,14 +654,9 @@ class DHSmasherOutputAPI
                 }
                 if($rek)
                 {
-                    /* breakdown when caching:   WOR  d - 1 2 3 4 5 6
-                    //                              TPL  d - 1 2 3 4 5 6
+                    for caching gbif name service start with 335975
+                    /* breakdown when caching:
                     $cont = false;
-                    
-                    // if($i >=  2717000    && $i < 2730000) $cont = true;
-                    // if($i >=  2717200    && $i < 2730000) $cont = true;
-                    // if($i >=  2717300    && $i < 2730000) $cont = true;
-                    if($i >=  2718000    && $i < 2730000) $cont = true;
                     
                     // if($i >=  1    && $i < $m) $cont = true;
                     // if($i >=  $m   && $i < $m*2) $cont = true;
