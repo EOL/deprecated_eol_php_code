@@ -7,6 +7,8 @@ namespace php_active_record;
 eol_inat_app in iNaturalist.org
 https://www.inaturalist.org/oauth/applications/187
 
+a good source of API reference
+https://www.inaturalist.org/pages/api+reference
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

@@ -21,6 +21,7 @@ class FreshDataInatSupplementAPI
         $this->inat_updated_since_api = "http://api.inaturalist.org/v1/observations?quality_grade=needs_id&order_by=date_added&order=asc&per_page=$this->increment"; //2017-08-30T09:40:00-07:00
 
         $this->destination_txt_file = "observations.txt";
+        $this->temporary_file = CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations_temp.txt";
         
         /*
         GBIF occurrence extension   : file:///Library/WebServer/Documents/cp/GBIF_dwca/atlantic_cod/meta.xml
@@ -46,21 +47,20 @@ class FreshDataInatSupplementAPI
         
         $folder = $this->folder;
         $func = self::initialize(); //use some functions from FreeDataAPI
-        if(!self::start_process()) exit("\nConnector is still running. Program will terminate.\n\n");
+        if(!self::start_process()) exit("\nConnector is still running. Program will terminate. Will try again tomorrow " .self::date_operation(date('Y-m-d'), "+1 days"). ".\n\n");
         //------------------------------------------------------------------------
         // if(self::is_today_first_day_of_month()) //un-comment in real operation
         if(true) //debug only
         {
             self::start_harvest($func); //this is the reset harvest
             $func->last_part($folder); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
-            if($folder) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder);
+            // if($folder) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder); -> may remove this line permanently
         }
         else self::start_daily_harvest($func);
         //------------------------------------------------------------------------
         self::end_process();
-        $total_rows = Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt");
+        $total_rows = Functions::count_rows_from_text_file($this->destination[$this->folder]);
         echo "\ntotal rows observations: [$total_rows]\n";
-        
     }
     private function start_daily_harvest($func)
     {
@@ -163,13 +163,13 @@ class FreshDataInatSupplementAPI
         self::delete_records_from_resource_with_these_uuids($uuids_from_daily);
         self::append_daily_2resource();
         
-        unlink(CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations.txt");
-        rename(CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations_temp.txt", CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations.txt");
+        unlink($this->destination[$this->folder]);
+        rename($this->temporary_file, $this->destination[$this->folder]);
     }
     private function delete_records_from_resource_with_these_uuids($uuids_from_daily)
     {
-        $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations_temp.txt", "w");
-        $resource = CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations.txt";
+        $WRITE = Functions::file_open($this->temporary_file, "w");
+        $resource = $this->destination[$this->folder];
         $i = 0;
         foreach(new FileIterator($resource) as $line => $row) {
             $i++;
@@ -194,7 +194,7 @@ class FreshDataInatSupplementAPI
     }
     private function append_daily_2resource()
     {
-        $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations_temp.txt", "a");
+        $WRITE = Functions::file_open($this->temporary_file, "a");
         $daily = CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/daily.txt";
         $i = 0;
         foreach(new FileIterator($daily) as $line => $row) {
