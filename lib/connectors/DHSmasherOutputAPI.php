@@ -379,10 +379,13 @@ class DHSmasherOutputAPI
                 }
                 if($rek)
                 {
-                    for getting EOLid start with 206542
-                    /* breakdown when caching:
+                    // for getting EOLid start with 206542
+                    // /* breakdown when caching:
                     $cont = false;
-                    if($i >=  1    && $i < $m) $cont = true;
+                    
+                    if($i >= 206542) $cont = true;
+                    
+                    // if($i >=  1    && $i < $m) $cont = true;
                     // if($i >=  $m   && $i < $m*2) $cont = true;
                     // if($i >=  $m*2 && $i < $m*3) $cont = true;
                     // if($i >=  $m*3 && $i < $m*4) $cont = true;
@@ -394,7 +397,7 @@ class DHSmasherOutputAPI
                     // if($i >=  $m*8 && $i < $m*9) $cont = true;
                     // if($i >=  $m*9 && $i < $m*10) $cont = true;
                     if(!$cont) continue;
-                    */
+                    // */
 
                     $sciname = $rek['scientificName'];
                     if(!$sciname) continue;
@@ -654,9 +657,11 @@ class DHSmasherOutputAPI
                 }
                 if($rek)
                 {
-                    for caching gbif name service start with 335975
-                    /* breakdown when caching:
+                    // for caching gbif name service start with 335975
+                    // /* breakdown when caching:
                     $cont = false;
+
+                    if($i >= 335975) $cont = true;
                     
                     // if($i >=  1    && $i < $m) $cont = true;
                     // if($i >=  $m   && $i < $m*2) $cont = true;
@@ -684,7 +689,7 @@ class DHSmasherOutputAPI
                     // if($i >=  $m*23 && $i < $m*24) $cont = true;
 
                     if(!$cont) continue;
-                    */
+                    // */
                     
                     // echo "\nsmasher record: ----------------------------";
                     // print_r($rek); //debug only
