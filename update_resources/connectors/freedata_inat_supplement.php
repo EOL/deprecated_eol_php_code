@@ -9,6 +9,12 @@ https://www.inaturalist.org/oauth/applications/187
 
 a good source of API reference
 https://www.inaturalist.org/pages/api+reference
+
+Change in algorithm:
+
+1. no more every 2 month resets nor monthly resets. Daily harvest added/updated will continue.
+2. after daily harvest, we remove all that is 2 months old date_added and date_updated.
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

@@ -796,8 +796,7 @@ class FreeDataAPI
         
         //added iNat supplemental resource
         $terms['modified'] = "http://purl.org/dc/terms/modified";
-        
-        
+        $terms['created'] = "http://purl.org/dc/terms/created";
         
         //for orig FreshData processing
         $terms['id'] = "http://rs.gbif.org/terms/1.0/RLSID";

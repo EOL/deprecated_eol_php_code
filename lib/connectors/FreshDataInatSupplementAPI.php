@@ -50,7 +50,7 @@ class FreshDataInatSupplementAPI
         if(!self::start_process()) exit("\nConnector is still running. Program will terminate. Will try again tomorrow " .self::date_operation(date('Y-m-d'), "+1 days"). ".\n\n");
         //------------------------------------------------------------------------
         // if(self::is_today_first_day_of_month()) //un-comment in real operation
-        if(true) //debug only
+        if(true) //we may only run this once and never again
         {
             self::start_harvest($func); //this is the reset harvest
             $func->last_part($folder); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
@@ -58,19 +58,58 @@ class FreshDataInatSupplementAPI
         }
         else self::start_daily_harvest($func);
         //------------------------------------------------------------------------
-        self::end_process();
         $total_rows = Functions::count_rows_from_text_file($this->destination[$this->folder]);
-        echo "\ntotal rows observations: [$total_rows]\n";
+        echo "\ntotal rows observations before removing old records: [$total_rows]\n";
+        self::remove_old_records_from_source();
+        
+        self::end_process();
     }
+    private function remove_old_records_from_source()
+    {
+        $WRITE = Functions::file_open($this->temporary_file, "w");
+        $resource = $this->destination[$this->folder];
+        $i = 0;
+        foreach(new FileIterator($resource) as $line => $row) {
+            $i++;
+            if($i == 1) {
+                $fields = explode("\t", $row);
+                fwrite($WRITE, $row . "\n");
+            }
+            else {
+                $rec = explode("\t", $row);
+                $k = -1;
+                $rek = array();
+                foreach($fields as $field) {
+                    $k++;
+                    if($val = @$rec[$k]) $rek[$field] = $val;
+                }
+                if($rek) { //2017-08-28T16:05:21+02:00  -> orig value need to trim using substr()
+                           //2017-09-06T09:27:59+02:00
+                    $created  = substr($rek['created'],0,10);   //2017-08-28
+                    $modified = substr($rek['modified'],0,10);  //2017-09-06
+                    $date_2months_old = self::date_operation(date('Y-m-d'), "-2 months"); //2 months old from now
+                    if($created >= $date_2months_old || $modified >= $date_2months_old) fwrite($WRITE, $row . "\n");
+                }
+            }
+        }
+        fclose($WRITE);
+        //rename temp to resource
+        unlink($this->destination[$this->folder]);
+        rename($this->temporary_file, $this->destination[$this->folder]);
+        
+        $total_rows = Functions::count_rows_from_text_file($this->destination[$this->folder]);
+        echo "\ntotal rows observations after removing old records: [$total_rows]\n";
+    }
+    
     private function start_daily_harvest($func)
     {
         // /*
-        $this->destination_txt_file = "daily.txt";
+        $this->destination_txt_file = "daily_".date('Y-m-d').".txt";
         $yesterday = self::date_operation(date('Y-m-d'), "-1 days"); //daily harvest will start from 1 day before OR yesterday
         self::start_harvest($func, $yesterday); //this is daily harvest
         // */
         self::append_daily_to_resource();
-        $total_rows = Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/daily.txt");
+        $total_rows = Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/$this->destination_txt_file");
         echo "\ntotal rows daily: [$total_rows]\n";
     }
     private function start_harvest($func, $date = NULL)
@@ -79,9 +118,9 @@ class FreshDataInatSupplementAPI
         if(!$date) //this is: reset initial resource
         {
             $date = date('Y-m-d'); //e.g. 2017-09-01 -> normal operation
-            $date = "2017-09-01"; //hard-coded for now  -- debug only
-            $date = self::date_operation($date, "-1 month"); //date last month
-            $date = self::date_operation($date, "-5 days"); //less 5 days more, to have an overlap
+            // $date = "2017-09-01"; //hard-coded for now  -- debug only
+            $date = self::date_operation($date, "-2 months"); //date last month
+            // $date = self::date_operation($date, "-5 days"); //less 5 days more, to have an overlap
         }
         else {} //this is: daily harvest
 
@@ -90,7 +129,7 @@ class FreshDataInatSupplementAPI
         $first_loop['updated_since'] = true;
         
         $download_options = $this->download_options;
-        // if($this->destination_txt_file == "daily.txt") $download_options['expire_seconds'] = true; //cache expired
+        // if($this->destination_txt_file != "observations.txt") $download_options['expire_seconds'] = true; //cache expired
         
         while($date <= date('Y-m-d')) //loops until date today
         {
@@ -113,10 +152,9 @@ class FreshDataInatSupplementAPI
                     $x = array();
                     $should_break = false;
                     foreach($arr['results'] as $rec) {
-                        if($api == "created_in")
-                        {
+                        if($api == "created_in") {
                             if($rec['created_at_details']['date'] > $date) {
-                                echo "\nWILL STOP: [".$rec['created_at_details']['date']."] > [$date]\n"; // exit;
+                                echo "\nWILL STOP: [".$rec['created_at_details']['date']."] > [$date]\n";
                                 $should_break = true;
                                 break;
                             }
@@ -195,7 +233,7 @@ class FreshDataInatSupplementAPI
     private function append_daily_2resource()
     {
         $WRITE = Functions::file_open($this->temporary_file, "a");
-        $daily = CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/daily.txt";
+        $daily = CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/$this->destination_txt_file";
         $i = 0;
         foreach(new FileIterator($daily) as $line => $row) {
             $i++;
@@ -207,7 +245,7 @@ class FreshDataInatSupplementAPI
     private function get_uuids_from_daily()
     {
         $uuids = array();
-        $daily = CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/daily.txt";
+        $daily = CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/$this->destination_txt_file";
         $i = 0;
         foreach(new FileIterator($daily) as $line => $row) {
             $i++;
@@ -316,6 +354,7 @@ class FreshDataInatSupplementAPI
         $rec['recordedBy']      = @$rek['user']['name'];
         $rec['locality']        = $rek['place_guess'];
         $rec['modified']        = $rek['updated_at'];
+        $rec['created']         = $rek['created_at'];
         
         $ancestry = array();
         if($arr = @$rek['identifications'][0]['taxon']['ancestors']) $ancestry = self::parse_ancestors($arr);
