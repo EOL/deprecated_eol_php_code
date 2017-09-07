@@ -585,8 +585,8 @@ class FreeDataAPI
         self::generate_meta_xml_v2($folder, $txt_file); //creates a meta.xml file
 
         //copy 2 files inside /reef-life-survey/
-        copy(CONTENT_RESOURCE_LOCAL_PATH . "$folder/$txt_file", CONTENT_RESOURCE_LOCAL_PATH . "$folder/$txt_file");
-        copy(CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml"        , CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml");
+        copy(CONTENT_RESOURCE_LOCAL_PATH . "$folder/$txt_file"  , CONTENT_RESOURCE_LOCAL_PATH . "$folder/$txt_file");
+        copy(CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml"   , CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml");
 
         //create reef-life-survey.tar.gz
         $command_line = "zip -rj " . CONTENT_RESOURCE_LOCAL_PATH . str_replace("_","-",$folder) . ".zip " . CONTENT_RESOURCE_LOCAL_PATH . $folder . "/"; //may need 'sudo zip -rj...'
@@ -723,7 +723,7 @@ class FreeDataAPI
         }
     }
     
-    private function generate_meta_xml_v2($folder, $txt_file)
+    function generate_meta_xml_v2($folder, $txt_file)
     {
         if(!$WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml", "w")) return;
         fwrite($WRITE, '<?xml version="1.0" encoding="UTF-8"?>' . "\n");

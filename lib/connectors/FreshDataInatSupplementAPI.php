@@ -34,6 +34,7 @@ class FreshDataInatSupplementAPI
         require_library('connectors/FreeDataAPI');
         $func = new FreeDataAPI();
         $func->create_folder_if_does_not_exist($this->folder);
+        $func->create_folder_if_does_not_exist($this->folder."_final");
         return $func;
     }
     function start()
@@ -50,22 +51,37 @@ class FreshDataInatSupplementAPI
         if(!self::start_process()) exit("\nConnector is still running. Program will terminate. Will try again tomorrow " .self::date_operation(date('Y-m-d'), "+1 days"). ".\n\n");
         //------------------------------------------------------------------------
         // if(self::is_today_first_day_of_month()) //un-comment in real operation
-        if(true) //we may only run this once and never again
+        // if(true) //we may only run this once and never again
+        if(false) // will use in daily operation
         {
             self::start_harvest($func); //this is the reset harvest
-            $func->last_part($folder); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
-            // if($folder) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder); -> may remove this line permanently
+            /* if($folder) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder); -> may remove this line permanently */
         }
         else self::start_daily_harvest($func);
         //------------------------------------------------------------------------
         $total_rows = Functions::count_rows_from_text_file($this->destination[$this->folder]);
         echo "\ntotal rows observations before removing old records: [$total_rows]\n";
         self::remove_old_records_from_source();
-        
         self::end_process();
+
+        self::last_part($folder, $func); //this is a folder within CONTENT_RESOURCE_LOCAL_PATH
+        // maybe create a version of last_part here
     }
+    
+    private function last_part($folder, $func)
+    {
+        echo "\nZipping folder...";
+        $func->generate_meta_xml_v2($folder, "observations.txt"); //creates a meta.xml file
+        copy($this->destination[$this->folder]                  , CONTENT_RESOURCE_LOCAL_PATH . $folder."_final/observations.txt");
+        copy(CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml"   , CONTENT_RESOURCE_LOCAL_PATH . $folder."_final/meta.xml");
+        $command_line = "zip -rj " . CONTENT_RESOURCE_LOCAL_PATH . str_replace("_","-",$folder."_final") . ".zip " . CONTENT_RESOURCE_LOCAL_PATH . $folder."_final" . "/"; //may need 'sudo zip -rj...'
+        $output = shell_exec($command_line);
+        echo "Done.";
+    }
+    
     private function remove_old_records_from_source()
     {
+        echo "\nRemoving old records...";
         $WRITE = Functions::file_open($this->temporary_file, "w");
         $resource = $this->destination[$this->folder];
         $i = 0;
@@ -96,7 +112,7 @@ class FreshDataInatSupplementAPI
         //rename temp to resource
         unlink($this->destination[$this->folder]);
         rename($this->temporary_file, $this->destination[$this->folder]);
-        
+        echo "Done.";
         $total_rows = Functions::count_rows_from_text_file($this->destination[$this->folder]);
         echo "\ntotal rows observations after removing old records: [$total_rows]\n";
     }
@@ -196,13 +212,14 @@ class FreshDataInatSupplementAPI
     
     private function append_daily_to_resource()
     {
+        echo "\nAppend daily to resource...";
         $uuids_from_daily = self::get_uuids_from_daily();
         // print_r($uuids_from_daily);
         self::delete_records_from_resource_with_these_uuids($uuids_from_daily);
         self::append_daily_2resource();
-        
         unlink($this->destination[$this->folder]);
         rename($this->temporary_file, $this->destination[$this->folder]);
+        echo "Done.";
     }
     private function delete_records_from_resource_with_these_uuids($uuids_from_daily)
     {

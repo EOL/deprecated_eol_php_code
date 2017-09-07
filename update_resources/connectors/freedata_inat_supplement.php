@@ -15,6 +15,16 @@ Change in algorithm:
 1. no more every 2 month resets nor monthly resets. Daily harvest added/updated will continue.
 2. after daily harvest, we remove all that is 2 months old date_added and date_updated.
 
+---------------------------------------------------------------------
+Result of initial one-time harvest:
+total rows observations before removing old records: [195337]
+total rows observations after removing old records: [193056]
+---------------------------------------------------------------------
+Result of first daily harvest:
+total rows daily: [7559]
+total rows observations before removing old records: [193109]
+total rows observations after removing old records: [193108]
+---------------------------------------------------------------------
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
