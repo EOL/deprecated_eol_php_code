@@ -168,7 +168,7 @@ class FreshDataBisonAPI
                     $rek['eventDate']       = @$rec['eventDate'];
                     $rek['county']          = @$rec['calculatedCounty'];
                     $rek['stateProvince']   = @$rec['calculatedState'];
-                    $rek['countryCode']     = $rec['countryCode'];
+                    $rek['countryCode']     = @$rec['countryCode'];
                     $rek['institutionID']   = $rec['institutionID'];
                     $rek['source'] = '';
                     if($val = @$rec['occurrenceID']) $rek['source'] = "https://bison.usgs.gov/solr/occurrences/select/?q=occurrenceID:".$val;
