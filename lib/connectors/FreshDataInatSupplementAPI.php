@@ -19,6 +19,7 @@ class FreshDataInatSupplementAPI
         $this->increment = 200; //200 is the max allowable per_page
         $this->inat_created_since_api = "http://api.inaturalist.org/v1/observations?quality_grade=needs_id&order_by=date_added&order=asc&per_page=$this->increment"; //2017-08-01
         $this->inat_updated_since_api = "http://api.inaturalist.org/v1/observations?quality_grade=needs_id&order_by=date_added&order=asc&per_page=$this->increment"; //2017-08-30T09:40:00-07:00
+        $this->inat_updated_since_api = "http://api.inaturalist.org/v1/observations?quality_grade=needs_id&per_page=$this->increment"; //2017-08-30T09:40:00-07:00
 
         $this->destination_txt_file = "observations.txt";
         $this->temporary_file = CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations_temp.txt";
@@ -145,7 +146,7 @@ class FreshDataInatSupplementAPI
         $first_loop['updated_since'] = true;
         
         $download_options = $this->download_options;
-        // if($this->destination_txt_file != "observations.txt") $download_options['expire_seconds'] = true; //cache expired
+        if($this->destination_txt_file != "observations.txt") $download_options['expire_seconds'] = true; //cache expired
         
         while($date <= date('Y-m-d')) //loops until date today
         {

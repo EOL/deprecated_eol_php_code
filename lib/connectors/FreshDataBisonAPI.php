@@ -50,11 +50,11 @@ class FreshDataBisonAPI
     private function do_some_caching()
     {
         $start = 0;
-        $start = 54320000;
+        $start = 74330000;
         while(true)
         {
             $url = $this->solr_occurrence_api."&start=$start";
-            if($start >= 54320000 && $start <= 55660000) //debug only
+            if($start >= 74330000 && $start <= 76060000) //debug only
             {
                 if($json = Functions::lookup_with_cache($url, $this->download_options))
                 {
@@ -71,7 +71,7 @@ class FreshDataBisonAPI
             }
             $start += $this->increment;
             // break; // debug only - gets the first 10k
-            if($start > 55660000) break;   //debug only
+            if($start > 76060000) break;   //debug only
         }
     }
     private function main_loop($func)
@@ -166,8 +166,8 @@ class FreshDataBisonAPI
                     $rek['recordedBy']      = @$rec['recordedBy'];
                     $rek['institutionCode'] = $rec['ownerInstitutionCollectionCode'];
                     $rek['eventDate']       = @$rec['eventDate'];
-                    $rek['county']          = $rec['calculatedCounty'];
-                    $rek['stateProvince']   = $rec['calculatedState'];
+                    $rek['county']          = @$rec['calculatedCounty'];
+                    $rek['stateProvince']   = @$rec['calculatedState'];
                     $rek['countryCode']     = $rec['countryCode'];
                     $rek['institutionID']   = $rec['institutionID'];
                     $rek['source'] = '';
@@ -181,7 +181,7 @@ class FreshDataBisonAPI
                     self::save_to_text_file($val);
                     
                 } //end loop
-                break; //debug -> gets only first 10K records
+                // break; //debug -> gets only first 10K records
                 // */
             }
             $start += $this->increment; 
