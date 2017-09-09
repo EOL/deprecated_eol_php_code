@@ -18,8 +18,12 @@ class FreshDataInatSupplementAPI
 
         $this->increment = 200; //200 is the max allowable per_page
         $this->inat_created_since_api = "http://api.inaturalist.org/v1/observations?quality_grade=needs_id&order_by=date_added&order=asc&per_page=$this->increment"; //2017-08-01
+        /*initial versions
         $this->inat_updated_since_api = "http://api.inaturalist.org/v1/observations?quality_grade=needs_id&order_by=date_added&order=asc&per_page=$this->increment"; //2017-08-30T09:40:00-07:00
         $this->inat_updated_since_api = "http://api.inaturalist.org/v1/observations?quality_grade=needs_id&per_page=$this->increment"; //2017-08-30T09:40:00-07:00
+        */
+        //from pleary https://github.com/inaturalist/inaturalist/issues/1467#issuecomment-328147818
+        $this->inat_updated_since_api = "http://api.inaturalist.org/v1/observations?quality_grade=needs_id&order_by=updated_at&order=asc&per_page=$this->increment"; //2017-08-30T09:40:00-07:00
 
         $this->destination_txt_file = "observations.txt";
         $this->temporary_file = CONTENT_RESOURCE_LOCAL_PATH . "$this->folder/observations_temp.txt";
@@ -146,7 +150,7 @@ class FreshDataInatSupplementAPI
         $first_loop['updated_since'] = true;
         
         $download_options = $this->download_options;
-        if($this->destination_txt_file != "observations.txt") $download_options['expire_seconds'] = true; //cache expired
+        // if($this->destination_txt_file != "observations.txt") $download_options['expire_seconds'] = true; //cache expired
         
         while($date <= date('Y-m-d')) //loops until date today
         {
@@ -169,6 +173,7 @@ class FreshDataInatSupplementAPI
                     $x = array();
                     $should_break = false;
                     foreach($arr['results'] as $rec) {
+                        
                         if($api == "created_in") {
                             if($rec['created_at_details']['date'] > $date) {
                                 echo "\nWILL STOP: [".$rec['created_at_details']['date']."] > [$date]\n";
@@ -176,6 +181,18 @@ class FreshDataInatSupplementAPI
                                 break;
                             }
                         }
+
+                        if($api == "updated_since") {
+                            $updated_at = substr($rec['updated_at'],0,10); 
+                            // exit("\n[$updated_at]\n");
+                            if($updated_at > $date) {
+                                echo "\nWILL STOP: [".$updated_at."] > [$date]\n";
+                                $should_break = true;
+                                break;
+                            }
+                        }
+                        
+                        
                         if(!in_array($rec['uuid'], $uuids)) { //start process here
                             $uuids[] = $rec['uuid'];
                             @$x['NOT yet processed - NEW']++;
@@ -189,7 +206,7 @@ class FreshDataInatSupplementAPI
                     // */ //---------------------------end loop
                     if($total < $this->increment) break; //it actually doesn't reach this bec. of the 10k limit
                     if($should_break) break;
-                    if($api == "updated_since" && $ready_to_break >= 6) break;
+                    // if($api == "updated_since" && $ready_to_break >= 6) break;   //obsolete since pleary allowed us to order_by=updated_at
                     
                     /* //seems best to comment this and be sure to get most of the 10k limit
                     if(!$first_loop[$api] && !self::is_date_first_day_of_month($date)) {

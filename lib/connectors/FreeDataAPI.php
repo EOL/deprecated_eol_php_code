@@ -591,6 +591,7 @@ class FreeDataAPI
         //create reef-life-survey.tar.gz
         $command_line = "zip -rj " . CONTENT_RESOURCE_LOCAL_PATH . str_replace("_","-",$folder) . ".zip " . CONTENT_RESOURCE_LOCAL_PATH . $folder . "/"; //may need 'sudo zip -rj...'
         $output = shell_exec($command_line);
+        Functions::count_rows_from_text_file($this->destination[$folder]); //new
     }
     
     function process_csv($csv_file, $dbase, $collection = "")
