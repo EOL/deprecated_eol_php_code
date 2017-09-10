@@ -55,7 +55,6 @@ class FreshDataInatSupplementAPI
         $func = self::initialize(); //use some functions from FreeDataAPI
         if(!self::start_process()) exit("\nConnector is still running. Program will terminate. Will try again tomorrow " .self::date_operation(date('Y-m-d'), "+1 days"). ".\n\n");
         //------------------------------------------------------------------------
-        // if(self::is_today_first_day_of_month()) //un-comment in real operation
         // if(true) //we may only run this once and never again
         if(false) // will use in daily operation
         {
@@ -139,18 +138,15 @@ class FreshDataInatSupplementAPI
         if(!$date) //this is: reset initial resource
         {
             $date = date('Y-m-d'); //e.g. 2017-09-01 -> normal operation
-            // $date = "2017-09-01"; //hard-coded for now  -- debug only
             $date = self::date_operation($date, "-2 months"); //date 2 months ago
-            // $date = self::date_operation($date, "-5 days"); //less 5 days more, to have an overlap
         }
         else {} //this is: daily harvest
 
-        // exit("\n[$date]\n");
         $first_loop['created_in'] = true;
         $first_loop['updated_since'] = true;
         
         $download_options = $this->download_options;
-        if($this->destination_txt_file != "observations.txt") $download_options['expire_seconds'] = true; //cache expired
+        if($this->destination_txt_file != "observations.txt") $download_options['expire_seconds'] = true; //cache expired deliberately
         
         while($date <= date('Y-m-d')) //loops until date today
         {
@@ -232,7 +228,6 @@ class FreshDataInatSupplementAPI
     {
         echo "\nAppend daily to resource...";
         $uuids_from_daily = self::get_uuids_from_daily();
-        // print_r($uuids_from_daily);
         self::delete_records_from_resource_with_these_uuids($uuids_from_daily);
         self::append_daily_2resource();
         unlink($this->destination[$this->folder]);
