@@ -383,7 +383,7 @@ class DHSmasherOutputAPI
                     // /* breakdown when caching:
                     $cont = false;
                     
-                    if($i >= 210481) $cont = true;
+                    if($i >= 259065) $cont = true;
                     
                     // if($i >=  1    && $i < $m) $cont = true;
                     // if($i >=  $m   && $i < $m*2) $cont = true;
@@ -661,7 +661,7 @@ class DHSmasherOutputAPI
                     // /* breakdown when caching:
                     $cont = false;
 
-                    if($i >= 346887) $cont = true;
+                    if($i >= 420271) $cont = true;
                     
                     // if($i >=  1    && $i < $m) $cont = true;
                     // if($i >=  $m   && $i < $m*2) $cont = true;

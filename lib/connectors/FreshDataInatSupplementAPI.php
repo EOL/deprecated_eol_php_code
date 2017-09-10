@@ -140,7 +140,7 @@ class FreshDataInatSupplementAPI
         {
             $date = date('Y-m-d'); //e.g. 2017-09-01 -> normal operation
             // $date = "2017-09-01"; //hard-coded for now  -- debug only
-            $date = self::date_operation($date, "-2 months"); //date last month
+            $date = self::date_operation($date, "-2 months"); //date 2 months ago
             // $date = self::date_operation($date, "-5 days"); //less 5 days more, to have an overlap
         }
         else {} //this is: daily harvest
@@ -150,7 +150,7 @@ class FreshDataInatSupplementAPI
         $first_loop['updated_since'] = true;
         
         $download_options = $this->download_options;
-        // if($this->destination_txt_file != "observations.txt") $download_options['expire_seconds'] = true; //cache expired
+        if($this->destination_txt_file != "observations.txt") $download_options['expire_seconds'] = true; //cache expired
         
         while($date <= date('Y-m-d')) //loops until date today
         {

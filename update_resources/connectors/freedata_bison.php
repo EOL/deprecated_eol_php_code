@@ -16,6 +16,7 @@ $timestart = time_elapsed();
 // print_r($a1);
 // exit("\n");
 
+exit("\nend for now, might be accidentally overwritten\n");
 $func = new FreshDataBisonAPI("bison"); //'bison' will be a folder name
 $func->start();
 
