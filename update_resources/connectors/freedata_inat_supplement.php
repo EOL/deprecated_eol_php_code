@@ -25,6 +25,8 @@ total rows daily: [7559]
 total rows observations before removing old records: [193109]
 total rows observations after removing old records: [193108]
 ---------------------------------------------------------------------
+total rows observations before removing old records: [269204]
+total rows observations after removing old records: [266983]
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

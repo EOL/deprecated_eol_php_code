@@ -3,18 +3,39 @@ namespace php_active_record;
 /* Connector for BISON resource: https://eol-jira.bibalex.org/browse/DATA-1699
 1. Resource is then added to: https://github.com/gimmefreshdata
 2. then added to queue in: http://archive.effechecka.org/
+
+execution time: elapsed time = 13.2 hours ; that is when everything is cached already. Days if caching is included.
+
+split:
+tar cz "bison.zip" | split -b 300000000 - ./split_
+merge:
+cat split_* | tar xz
+OR
+sudo cat split_* | sudo tar xz
+-> works OK
+
+Notes:
+1. /temp/ in archive:~/ must be chown eagbayani:eagbayani 
+-> $ sudo chown eagbayani:eagbayani temp/ 
+
+copy from local to archive:
+scp split_aa archive:~/temp/.
+scp split_ab archive:~/temp/.
+scp split_ac archive:~/temp/.
+scp split_ad archive:~/temp/.
+scp split_ae archive:~/temp/.
+scp split_af archive:~/temp/.
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/FreshDataBisonAPI');
 $timestart = time_elapsed();
 
-// $a1 = array(1,2,3,4);
-// if (($key = array_search('3', $a1)) !== false) {
-//     unset($a1[$key]);
-// }
-// print_r($a1);
-// exit("\n");
+// Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "bison/observations.txt");
+Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "inat_supplement/observations.txt");
+Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "inat_supplement_final/observations.txt");
+
 
 exit("\nend for now, might be accidentally overwritten\n");
 $func = new FreshDataBisonAPI("bison"); //'bison' will be a folder name
