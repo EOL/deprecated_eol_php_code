@@ -12,8 +12,15 @@ class FreshDataInatSupplementAPI
         $this->debug = array();
         $this->print_header = true;
 
-        $this->download_options = array('cache_path' => '/Volumes/Thunderbolt4/eol_cache_bison/', 'expire_seconds' => 5184000, 'download_wait_time' => 2000000, 'timeout' => 600, 
-        'download_attempts' => 1); //'delay_in_minutes' => 1
+        /* //for mac mini
+        $this->download_options = array('cache_path' => '/Volumes/Thunderbolt4/eol_cache_bison/', 'expire_seconds' => 5184000, 'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1); //'delay_in_minutes' => 1
+        */
+        
+        // /* //for eol-archive
+        $this->download_options = array('expire_seconds' => 5184000, 'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1); //'delay_in_minutes' => 1
+        // */
+        
+        
         $this->download_options['expire_seconds'] = false; // false -> doesn't expire | true -> expires now
 
         $this->increment = 200; //200 is the max allowable per_page
