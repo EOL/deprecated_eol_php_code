@@ -9,11 +9,12 @@ The connector loops to this list and compiles each XML to 1 final XML for EOL in
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 
+/* just test
 $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "eli.txt", "a");
 fwrite($WRITE, date('l jS \of F Y h:i:s A') . "\n");
 fclose($WRITE);
 exit("\n-ends here\n");
-
+*/
 
 require_library('connectors/ConabioAPI');
 $resource_id = 100;
