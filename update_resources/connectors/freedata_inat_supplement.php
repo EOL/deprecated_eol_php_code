@@ -29,6 +29,7 @@ total rows observations before removing old records: [269204]
 total rows observations after removing old records: [266983]
 total rows observations after removing old records: [270268] 9-11 ?
 total rows observations after removing old records: [272798] 9-12
+total rows observations after removing old records: [273101] 9-13 from eol-archive already
 
 */
 
