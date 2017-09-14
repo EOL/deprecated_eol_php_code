@@ -200,19 +200,19 @@ class WikiDataAPI
             // /* breakdown when caching:
             $cont = false;
             
-            // if($k >=  1    && $k < $m) $cont = true;
-            // if($k >=  $m   && $k < $m*2) $cont = true;
-            // if($k >=  $m*2 && $k < $m*3) $cont = true;
-            // if($k >=  $m*3 && $k < $m*4) $cont = true;
-            // if($k >=  $m*4 && $k < $m*5) $cont = true;
+            // if($k >=  1    && $k < $m) $cont = true; done
+            // if($k >=  $m   && $k < $m*2) $cont = true; done
+            // if($k >=  $m*2 && $k < $m*3) $cont = true; done
+            // if($k >=  $m*3 && $k < $m*4) $cont = true;  done
+            // if($k >=  $m*4 && $k < $m*5) $cont = true; done
             // if($k >=  $m*5 && $k < $m*6) $cont = true;
-            if($k >=  $m*6 && $k < $m*7) $cont = true;
+            // if($k >=  $m*6 && $k < $m*7) $cont = true; done
             // if($k >=  $m*7 && $k < $m*8) $cont = true;   done
             // if($k >=  2400000 && $k < 3000000) $cont = true; //2,400,000 - 3,000,000 done
-            
-            // if($k >= 668,006 && $k < $m*5) $cont = true; // nl
-            // if($k >= 520,538 && $k < $m*5) $cont = true; // sv
-            // if($k >= 747,157 && $k < $m*5) $cont = true; // vi
+
+            if($k >= 959947 && $k < $m*5) $cont = true; // nl
+            // if($k >= 601476 && $k < $m*5) $cont = true; // sv
+            // if($k >= 930501 && $k < $m*5) $cont = true; // vi
 
             // if($k >= 1 && $k < 100) $cont = true;   //wikimedia total taxa = 2,208,086
 
