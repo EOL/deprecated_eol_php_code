@@ -34,6 +34,8 @@ class FreeDataAPI
         //----------------------------
         $this->destination['MarylandDNR'] = CONTENT_RESOURCE_LOCAL_PATH . "$folder/observations.txt";
         //----------------------------
+        $this->destination['GloBI-Ant-Plant-Interactions'] = CONTENT_RESOURCE_LOCAL_PATH . "GloBI-Ant-Plant-Interactions/observations.txt";
+        //----------------------------
         
         $this->ctr = 0; //for "reef-life-survey" and "eMammal" and "MarylandBio"
         $this->debug = array();
