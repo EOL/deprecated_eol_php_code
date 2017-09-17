@@ -15,7 +15,7 @@ class FreeDataAPI
     function __construct($folder = null)
     {
         $this->folder = $folder; //now used for all
-        $this->download_options = array('cache' => 1, 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 2592000); //expires in a month
+        $this->download_options = array('cache' => 1, 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*28); //expires in 28 days
 
         $this->print_header = true; //for all
         //----------------------------
@@ -260,7 +260,7 @@ class FreeDataAPI
         $options = $this->download_options;
         $options['resource_id'] = "usgs"; //a folder /usgs/ will be created in /eol_cache/
         $options['download_wait_time'] = 1000000; //1 second
-        $options['expire_seconds'] = false;
+        // $options['expire_seconds'] = false; //debug only - used only during development. Designed to expire in 28 days
         $options['download_attempts'] = 3;
         $options['delay_in_minutes'] = 2;
         

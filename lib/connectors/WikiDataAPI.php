@@ -196,7 +196,8 @@ class WikiDataAPI
         $k = 0; $m = 4624000; $m = 300000; //only for breakdown when caching
         foreach(new FileIterator($this->wiki_data_json) as $line_number => $row)
         {
-            $k++; echo " ".number_format($k)." ";
+            $k++; 
+            if(($k % 100000) == 0) echo " ".number_format($k)." ";
             // /* breakdown when caching:
             $cont = false;
             
@@ -210,9 +211,9 @@ class WikiDataAPI
             // if($k >=  $m*7 && $k < $m*8) $cont = true;   done
             // if($k >=  2400000 && $k < 3000000) $cont = true; //2,400,000 - 3,000,000 done
 
-            if($k >= 959947 && $k < $m*5) $cont = true; // nl
+            // if($k >= 1064785 && $k < $m*5) $cont = true; // nl
             // if($k >= 601476 && $k < $m*5) $cont = true; // sv
-            // if($k >= 930501 && $k < $m*5) $cont = true; // vi
+            if($k >= 930501 && $k < $m*5) $cont = true; // vi
 
             // if($k >= 1 && $k < 100) $cont = true;   //wikimedia total taxa = 2,208,086
 
