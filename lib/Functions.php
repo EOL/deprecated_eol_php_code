@@ -269,7 +269,13 @@ class Functions
 
     public static function count_resource_tab_files($resource_id, $file_extension = ".tab")
     {
-        foreach(glob(CONTENT_RESOURCE_LOCAL_PATH . "/$resource_id/*" . $file_extension) as $filename) self::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/" . pathinfo($filename, PATHINFO_BASENAME));
+        $arr = array();
+        foreach(glob(CONTENT_RESOURCE_LOCAL_PATH . "/$resource_id/*" . $file_extension) as $filename) {
+            $pathinfo = pathinfo($filename, PATHINFO_BASENAME);
+            $rows = self::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/" . $pathinfo);
+            $arr[$pathinfo] = $rows;
+        }
+        return $arr;
     }
 
     public static function remove_resource_working_dir($resource_id = false)
@@ -394,7 +400,8 @@ class Functions
             Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
             Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
             Functions::set_resource_status_to_harvest_requested($resource_id);
-            Functions::count_resource_tab_files($resource_id);
+            $arr = Functions::count_resource_tab_files($resource_id);
+            self::finalize_connector_run($resource_id, json_encode($arr));
             if(!$big_file)
             {
                 if($undefined_uris = Functions::get_undefined_uris_from_resource($resource_id)) print_r($undefined_uris);
@@ -406,10 +413,10 @@ class Functions
         }
     }
 
-    public static function finalize_freshdata_resource($resource_folder, $rows)
+    public static function finalize_connector_run($resource_folder, $rows)
     {
         //write log
-        $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "FreshData_connectors.txt", "a");
+        $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "EOL_FreshData_connectors.txt", "a");
         fwrite($WRITE, $resource_folder . "\t" . date('l Y-m-d h:i:s A') . "\t" . $rows . "\n"); //date('l jS \of F Y h:i:s A')
         fclose($WRITE);
     }

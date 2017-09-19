@@ -16,8 +16,8 @@ $params["dataset"]      = "EOL China";
 $params["resource_id"]  = 412;
 */
 
-$params["eol_xml_file"] = "http://localhost/cp/OpenData/DC%20Birds%20Video/dcbirds-video-xml-resource.xml";
-// $params["eol_xml_file"] = "http://opendata.eol.org/dataset/9676aab5-bef0-4b55-b626-911f49553337/resource/e439db03-c92a-49c2-bcb0-7e1aec4ebda2/download/dcbirds-video-xml-resource.xml";
+// $params["eol_xml_file"] = "http://localhost/cp/OpenData/DC%20Birds%20Video/dcbirds-video-xml-resource.xml";
+$params["eol_xml_file"] = "http://opendata.eol.org/dataset/9676aab5-bef0-4b55-b626-911f49553337/resource/e439db03-c92a-49c2-bcb0-7e1aec4ebda2/download/dcbirds-video-xml-resource.xml";
 $params["filename"]     = "dcbirds-video-xml-resource.xml";
 $params["dataset"]      = "EOL XML";
 $params["resource_id"]  = 367;
