@@ -31,6 +31,7 @@ total rows observations after removing old records: [270268] 9-11 ?
 total rows observations after removing old records: [272798] 9-12
 total rows observations after removing old records: [273101] 9-13 from eol-archive already
 total rows observations after removing old records: [257847] 9-15 first daily using Jenkins
+total rows observations after removing old records: [263650] 9-18
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

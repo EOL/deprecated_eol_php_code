@@ -133,7 +133,8 @@ class Functions
         // default expire time is 30 days
         if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 2592000;
         if(!isset($options['timeout'])) $options['timeout'] = 120;
-        if(!isset($options['cache_path'])) $options['cache_path'] = DOC_ROOT . "tmp/cache/";
+        if(!isset($options['cache_path'])) $options['cache_path'] = DOC_ROOT . "tmp/cache/";    //orig row
+        // if(!isset($options['cache_path'])) $options['cache_path'] = DOC_ROOT . "tmp/cache2/"; //a symlink; cache2 -> /Volumes/Thunderbolt4/eol_cache/ 
         
         $md5 = md5($url);
         $cache1 = substr($md5, 0, 2);
@@ -405,6 +406,14 @@ class Functions
         }
     }
 
+    public static function finalize_freshdata_resource($resource_folder, $rows)
+    {
+        //write log
+        $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "FreshData_connectors.txt", "a");
+        fwrite($WRITE, $resource_folder . "\t" . date('l Y-m-d h:i:s A') . "\t" . $rows . "\n"); //date('l jS \of F Y h:i:s A')
+        fclose($WRITE);
+    }
+    
     public static function get_undefined_uris_from_resource($resource_id)
     {
         $undefined_uris = array();
