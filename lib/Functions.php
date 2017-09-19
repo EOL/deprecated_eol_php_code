@@ -267,12 +267,12 @@ class Functions
         $output = shell_exec($command_line);
     }
 
-    public static function count_resource_tab_files($resource_id, $file_extension = ".tab")
+    public static function count_resource_tab_files($resource_id, $file_extension = ".tab", $ignoreFirstRowYN = true)
     {
         $arr = array();
         foreach(glob(CONTENT_RESOURCE_LOCAL_PATH . "/$resource_id/*" . $file_extension) as $filename) {
             $pathinfo = pathinfo($filename, PATHINFO_BASENAME);
-            $rows = self::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/" . $pathinfo);
+            $rows = self::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/" . $pathinfo, $ignoreFirstRowYN);
             $arr[$pathinfo] = $rows;
         }
         return $arr;
@@ -285,7 +285,7 @@ class Functions
         if(is_dir($working_dir)) recursive_rmdir($working_dir);
     }
 
-    public static function count_rows_from_text_file($file)
+    public static function count_rows_from_text_file($file, $ignoreFirstRowYN = true)
     {
         debug("\n counting: [$file]");
         $i = 0;
@@ -297,6 +297,7 @@ class Functions
             }
             fclose($handle);
         }
+        if($ignoreFirstRowYN) $i--;
         debug("\n total: [$i]\n");
         return $i;
     }
