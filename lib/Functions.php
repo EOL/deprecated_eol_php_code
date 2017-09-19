@@ -399,7 +399,7 @@ class Functions
             }
             Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
             Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
-            Functions::set_resource_status_to_harvest_requested($resource_id);
+            // Functions::set_resource_status_to_harvest_requested($resource_id);
             $arr = Functions::count_resource_tab_files($resource_id);
             self::finalize_connector_run($resource_id, json_encode($arr));
             if(!$big_file)
