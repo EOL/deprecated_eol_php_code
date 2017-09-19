@@ -1,8 +1,10 @@
 <?php
 namespace php_active_record;
 /* connector: generic connector to convert EOL XML to EOL DWC-A
-    412:    EOL China
-    306:    Reptile DB
+    412     EOL China
+    306     Reptile DB
+    21      AmphibiaWeb
+    367     DC Birds video
     
 */
 class ConvertEOLtoDWCaAPI
@@ -174,15 +176,21 @@ class ConvertEOLtoDWCaAPI
                 }
             }
 
-            /*
+            /* obsolete but good reference to history
             if(in_array($params["dataset"], array("EOL China", "EOL XML")))
             {
                 if($val = $o_dc->identifier) $identifier = (string) $val;
                 else echo("\n -- find or create your own object identifier -- \n");
             }
             */
-            if($val = $o_dc->identifier) $identifier = (string) $val;
-            else echo("\n -- find or create your own object identifier -- \n");
+            if($val = @$o_dc->identifier) $identifier = (string) $val;
+            else
+            {
+                echo("\n -- find or create your own object identifier -- \n");
+                //resources: 367, xxx, yyy are ok with this
+                $json = json_encode($o);
+                $identifier = md5($json);
+            }
             
             $rec["obj_identifier"] = $identifier;
             unset($rec["identifier"]);
@@ -215,25 +223,21 @@ class ConvertEOLtoDWCaAPI
             if(!$full_reference) continue;
             
             $identifier = ''; $uri = '';
-            if($params["dataset"] == "EOL China")
-            {
+            if($params["dataset"] == "EOL China") {
                 $uri = (string) $o{"url"};
                 if(preg_match("/\{(.*?)\}/ims", $uri, $arr)) $identifier = $arr[1];
-                else echo("\n -- find or create your own identifier -- \n");
+                else echo("\n -- find or create your own ref identifier -- \n");
             }
-            elseif($params["dataset"] == "Pensoft XML files")
-            {
+            elseif(in_array($params["dataset"], array("Pensoft XML files", "Amphibiaweb"))) {
                 if($val = $o{'doi'}) $identifier = (string) $val;
                 if($val = $o{'uri'}) $uri = $val;
             }
-            elseif($params["dataset"] == "Amphibiaweb")
-            {
-                if($val = $o{'doi'}) $identifier = (string) $val;
-                if($val = $o{'uri'}) $uri = $val;
+
+            if($params["dataset"] == "Amphibiaweb") {
                 if(!$identifier) $identifier = md5($full_reference);
             }
             
-            else echo "\nModule to create identifier and uri for this dataset has not yet been defined!\n";
+            if(!$identifier) echo "\nModule to create ref identifier and uri for this dataset has not yet been defined!\n";
             $records[] = array("full_reference" => $full_reference, "uri" => $uri, "ref_identifier" => $identifier);
         }
         // print_r($records);
