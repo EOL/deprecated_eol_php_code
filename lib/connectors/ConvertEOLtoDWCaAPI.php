@@ -11,6 +11,7 @@ class ConvertEOLtoDWCaAPI
 {
     function __construct($folder)
     {
+        $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
@@ -186,10 +187,18 @@ class ConvertEOLtoDWCaAPI
             if($val = @$o_dc->identifier) $identifier = (string) $val;
             else
             {
-                echo("\n -- find or create your own object identifier -- \n");
-                //resources: 367, xxx, yyy are ok with this
-                $json = json_encode($o);
-                $identifier = md5($json);
+                /* from above
+                412     EOL China
+                306     Reptile DB
+                21      AmphibiaWeb
+                367     DC Birds video
+                */
+                if(in_array($this->resource_id, array(412,306,21,367))) //add here resource_ids
+                {
+                    $json = json_encode($o);
+                    $identifier = md5($json);
+                }
+                else echo("\n -- find or create your own object identifier -- \n");
             }
             
             $rec["obj_identifier"] = $identifier;
