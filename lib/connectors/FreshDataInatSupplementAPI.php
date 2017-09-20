@@ -87,6 +87,10 @@ class FreshDataInatSupplementAPI
         copy(CONTENT_RESOURCE_LOCAL_PATH . "$folder/meta.xml"   , CONTENT_RESOURCE_LOCAL_PATH . $folder."_final/meta.xml");
         $command_line = "zip -rj " . CONTENT_RESOURCE_LOCAL_PATH . str_replace("_","-",$folder."_final") . ".zip " . CONTENT_RESOURCE_LOCAL_PATH . $folder."_final" . "/"; //may need 'sudo zip -rj...'
         $output = shell_exec($command_line);
+        
+        $arr = Functions::count_resource_tab_files($folder, "observations.txt");
+        Functions::finalize_connector_run($folder, json_encode($arr));
+        
         echo "Done.";
     }
     
@@ -160,68 +164,69 @@ class FreshDataInatSupplementAPI
             echo "\n$date";
             $apis = array("updated_since", "created_in");
             foreach($apis as $api) {
-            //=======================start loop
-            $page = 1;
-            $ready_to_break = 0;
-            while(true)
-            {
-                // $url = $this->inat_created_since_api."&page=$page"; //moved inside the format_date_params()
-                $url = self::format_date_params($api, $date, $page);
-                echo "\n$url\n";
-                if($json = Functions::lookup_with_cache($url, $download_options))
+                //=======================start loop
+                $page = 1;
+                $ready_to_break = 0;
+                while(true)
                 {
-                    $arr = json_decode($json, true);
-                    $total = count($arr['results']); echo "\ntotal = [$total] [$page] [$api]\n";
-                    // /* //---------------------------start loop
-                    $x = array();
-                    $should_break = false;
-                    foreach($arr['results'] as $rec) {
+                    // $url = $this->inat_created_since_api."&page=$page"; //moved inside the format_date_params()
+                    $url = self::format_date_params($api, $date, $page);
+                    echo "\n$url\n";
+                    if($json = Functions::lookup_with_cache($url, $download_options))
+                    {
+                        $arr = json_decode($json, true);
+                        $total = count($arr['results']); echo "\ntotal = [$total] [$page] [$api]\n";
+                        // /* //---------------------------start loop
+                        $x = array();
+                        $should_break = false;
+                        foreach($arr['results'] as $rec) {
                         
-                        if($api == "created_in") {
-                            if($rec['created_at_details']['date'] > $date) {
-                                echo "\nWILL STOP: [".$rec['created_at_details']['date']."] > [$date]\n";
-                                $should_break = true;
-                                break;
+                            if($api == "created_in") {
+                                if($rec['created_at_details']['date'] > $date) {
+                                    echo "\nWILL STOP: [".$rec['created_at_details']['date']."] > [$date]\n";
+                                    $should_break = true;
+                                    break;
+                                }
                             }
-                        }
 
-                        if($api == "updated_since") {
-                            $updated_at = substr($rec['updated_at'],0,10); 
-                            // exit("\n[$updated_at]\n");
-                            if($updated_at > $date) {
-                                echo "\nWILL STOP: [".$updated_at."] > [$date]\n";
-                                $should_break = true;
-                                break;
+                            if($api == "updated_since") {
+                                $updated_at = substr($rec['updated_at'],0,10); 
+                                // exit("\n[$updated_at]\n");
+                                if($updated_at > $date) {
+                                    echo "\nWILL STOP: [".$updated_at."] > [$date]\n";
+                                    $should_break = true;
+                                    break;
+                                }
                             }
-                        }
                         
                         
-                        if(!in_array($rec['uuid'], $uuids)) { //start process here
-                            $uuids[] = $rec['uuid'];
-                            @$x['NOT yet processed - NEW']++;
-                            self::process_record($rec, $func);
+                            if(!in_array($rec['uuid'], $uuids)) { //start process here
+                                $uuids[] = $rec['uuid'];
+                                @$x['NOT yet processed - NEW']++;
+                                self::process_record($rec, $func);
+                            }
+                            else @$x['already processed - DUPLICATE']++;
                         }
-                        else @$x['already processed - DUPLICATE']++;
-                    }
-                    print_r($x);
-                    if(@$x['already processed - DUPLICATE'] == 200) $ready_to_break++;
-                    else                                            $ready_to_break = 0; //reset
-                    // */ //---------------------------end loop
-                    if($total < $this->increment) break; //it actually doesn't reach this bec. of the 10k limit
-                    if($should_break) break;
-                    // if($api == "updated_since" && $ready_to_break >= 6) break;   //obsolete since pleary allowed us to order_by=updated_at
+                        print_r($x);
+                        if(@$x['already processed - DUPLICATE'] == 200) $ready_to_break++;
+                        else                                            $ready_to_break = 0; //reset
+                        // */ //---------------------------end loop
+                        if($total < $this->increment) break; //it actually doesn't reach this bec. of the 10k limit
+                        if($should_break) break;
+                        // if($api == "updated_since" && $ready_to_break >= 6) break;   //obsolete since pleary allowed us to order_by=updated_at
                     
-                    /* //seems best to comment this and be sure to get most of the 10k limit
-                    if(!$first_loop[$api] && !self::is_date_first_day_of_month($date)) {
-                        if($page == 25) break; //used 10, if 25 that is half of the 50x200 = 10000 limit
+                        /* //seems best to comment this and be sure to get most of the 10k limit
+                        if(!$first_loop[$api] && !self::is_date_first_day_of_month($date)) {
+                            if($page == 25) break; //used 10, if 25 that is half of the 50x200 = 10000 limit
+                        }
+                        */
                     }
-                    */
+                    else break; //may have reached the 10k limit
+                    // return; //debug only
+                    $page++;
                 }
-                else break; //may have reached the 10k limit
-                $page++;
-            }
-            $first_loop[$api] = false;
-            //=======================end loop
+                $first_loop[$api] = false;
+                //=======================end loop
             }//end foreach()
 
 
