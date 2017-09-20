@@ -65,10 +65,10 @@ class PHPExcel_Autoloader
      * @param    string    $pClassName        Name of the object to load
      */
     public static function Load($pClassName){
-        echo "\n-[$pClassName]-\n";
+        // echo "\n-[$pClassName]-\n"; //debug
         if ((class_exists($pClassName,FALSE)) || (strpos($pClassName, 'PHPExcel') !== 0)) {
             //    Either already loaded, or not a PHPExcel class request
-            echo("Either already loaded, or not a PHPExcel class request");
+            debug("Either already loaded, or not a PHPExcel class request");
             return FALSE;
         }
 
@@ -78,7 +78,7 @@ class PHPExcel_Autoloader
 
         if ((file_exists($pClassFilePath) === FALSE) || (is_readable($pClassFilePath) === FALSE)) {
             //    Can't load
-            echo("Can't load");
+            debug("Can't load");
             return FALSE;
         }
 
