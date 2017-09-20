@@ -4,7 +4,6 @@ namespace eol_schema;
 class MeasurementOrFact extends DarwinCoreExtensionBase
 {
     // const EXTENSION_URL = "https://dl.dropboxusercontent.com/u/1355101/ontology/measurement_extension.xml";
-
     const EXTENSION_URL = "http://editors.eol.org/other_files/ontology/measurement_extension.xml";
     
     const ROW_TYPE = "http://rs.tdwg.org/dwc/terms/MeasurementOrFact";

@@ -4,7 +4,7 @@ namespace eol_schema;
 class MediaResource extends DarwinCoreExtensionBase
 {
     // const EXTENSION_URL = "http://eol.org/schema/media_extension.xml";
-    const EXTENSION_URL = "http://eol.org/schema/media_extension.xml";
+    const EXTENSION_URL = "http://editors.eol.org/other_files/ontology/media_extension.xml";
     
     const ROW_TYPE = "http://eol.org/schema/media/Document";
     
