@@ -300,8 +300,8 @@ class LifeDeskToScratchpadAPI
 
         $classes = get_declared_classes();
         print_r($classes);
-
-        exit;
+        // exit;
+        
         if($path = Functions::save_remote_file_to_local($spreadsheet, $spreadsheet_options))
         {
             echo "\nlocal spreadsheet path: [$path]\n"; //debug
