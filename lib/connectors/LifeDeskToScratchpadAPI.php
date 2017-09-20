@@ -299,7 +299,7 @@ class LifeDeskToScratchpadAPI
         $parser = new XLSParser();
         if($path = Functions::save_remote_file_to_local($spreadsheet, $spreadsheet_options))
         {
-            echo "\nlocal spreadsheet path: [$path]\n"; exit;
+            echo "\nlocal spreadsheet path: [$path]\n"; //debug
             $arr = $parser->convert_sheet_to_array($path, $worksheet);
             unlink($path);
             return $arr;
