@@ -29,7 +29,7 @@ class FishBaseArchiveAPI
         $this->reference_ids        = array();
         $this->agent_ids            = array();
         $this->uri_mappings_spreadsheet = "http://localhost/cp/FishBase/fishbase mappings.xlsx";
-        $this->uri_mappings_spreadsheet = "https://dl.dropboxusercontent.com/u/7597512/FishBase/fishbase mappings.xlsx";
+        $this->uri_mappings_spreadsheet = "http://editors.eol.org/other_files/FishBase/fishbase mappings.xlsx";
         $this->download_options = array('resource_id' => 42, 'timeout' => 172800, 'expire_seconds' => false, 'download_wait_time' => 2000000);
     }
 
