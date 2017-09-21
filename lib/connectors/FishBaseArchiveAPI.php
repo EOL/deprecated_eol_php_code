@@ -30,7 +30,8 @@ class FishBaseArchiveAPI
         $this->agent_ids            = array();
         $this->uri_mappings_spreadsheet = "http://localhost/cp/FishBase/fishbase mappings.xlsx";
         $this->uri_mappings_spreadsheet = "http://editors.eol.org/other_files/FishBase/fishbase mappings.xlsx";
-        $this->download_options = array('resource_id' => 42, 'timeout' => 172800, 'expire_seconds' => false, 'download_wait_time' => 2000000);
+        $this->download_options = array('resource_id' => 42, 'timeout' => 172800, 'expire_seconds' => 60*60*24*45, 'download_wait_time' => 2000000); // expire_seconds = every 45 days in normal operation
+        // $this->download_options['expire_seconds'] = false; //doesn't expire - debug
     }
 
     function get_all_taxa($resource_id)
@@ -165,7 +166,7 @@ class FishBaseArchiveAPI
     {
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
         $download_options = $this->download_options;
-        $download_options['expire_seconds'] = 1728000; // expire_seconds = 20 days in normal operation 1728000
+        $download_options['expire_seconds'] = 60*60*24*45; // expire_seconds = every 45 days in normal operation
         if($file_contents = Functions::lookup_with_cache($this->fishbase_data, $download_options))
         {
             $temp_file_path = $this->TEMP_FILE_PATH . "/fishbase.zip";
