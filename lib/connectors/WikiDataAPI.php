@@ -198,6 +198,7 @@ class WikiDataAPI
         {
             $k++; 
             if(($k % 100000) == 0) echo " ".number_format($k)." ";
+            echo " ".number_format($k)." ";
             // /* breakdown when caching:
             $cont = false;
             
@@ -211,9 +212,10 @@ class WikiDataAPI
             // if($k >=  $m*7 && $k < $m*8) $cont = true;   done
             // if($k >=  2400000 && $k < 3000000) $cont = true; //2,400,000 - 3,000,000 done
 
-            // if($k >= 1064785 && $k < $m*5) $cont = true; // nl
+            // these 3 have many pages, but just a stub page with under-construction feel
+            // if($k >= 1132112 && $k < $m*5) $cont = true; // nl
             // if($k >= 601476 && $k < $m*5) $cont = true; // sv
-            if($k >= 930501 && $k < $m*5) $cont = true; // vi
+            if($k >= 1154430 && $k < $m*5) $cont = true; // vi
 
             // if($k >= 1 && $k < 100) $cont = true;   //wikimedia total taxa = 2,208,086
 

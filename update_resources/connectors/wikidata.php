@@ -4,7 +4,11 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikiDataAPI');
 $timestart = time_elapsed();
-$resource_id = "en";
+$resource_id = "vi";
+
+// $url = "http://opendata.eol.org/dataset/national_museum-of_natural_history%402017-09-07T18%3A37%3A28.199462";
+// exit("\n".urldecode($url)."\n");
+
 
 /* testing routines...
 $str = "Year: [https://www.flickr.com/search/?tags=bookyear1841 1841] ([https://www.flickr.com/search/?tags=bookdecade1840 1840s])";
@@ -45,12 +49,12 @@ exit("\n Finished: just exploring... \n");
 // $func = new WikiDataAPI($resource_id, "en");     //done final-en
 
 // $func = new WikiDataAPI($resource_id, "en", "taxonomy"); //3rd param is boolean taxonomy; true means will generate hierarchy resource. [wikidata-hierarchy]    //done
-$func = new WikiDataAPI($resource_id, "en", "wikimedia");     //done - Used for Commons - total taxa = 2,208,086
+// $func = new WikiDataAPI($resource_id, "en", "wikimedia");     //done - Used for Commons - total taxa = 2,208,086
 
 // not yet complete:
 // $func = new WikiDataAPI($resource_id, "nl");     //496940
 // $func = new WikiDataAPI($resource_id, "sv");     //317830    //still being run, many many bot inspired
-// $func = new WikiDataAPI($resource_id, "vi");     //459950
+$func = new WikiDataAPI($resource_id, "vi");     //459950
 
 //===================
 

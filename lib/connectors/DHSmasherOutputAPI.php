@@ -383,7 +383,7 @@ class DHSmasherOutputAPI
                     // /* breakdown when caching:
                     $cont = false;
                     
-                    if($i >= 393612) $cont = true;
+                    if($i >= 620336) $cont = true; //EOL id
                     
                     // if($i >=  1    && $i < $m) $cont = true;
                     // if($i >=  $m   && $i < $m*2) $cont = true;
@@ -661,7 +661,7 @@ class DHSmasherOutputAPI
                     // /* breakdown when caching:
                     $cont = false;
 
-                    if($i >= 615398) $cont = true;
+                    if($i >= 757836) $cont = true; //GBIF name service
                     
                     // if($i >=  1    && $i < $m) $cont = true;
                     // if($i >=  $m   && $i < $m*2) $cont = true;
