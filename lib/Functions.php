@@ -389,6 +389,11 @@ class Functions
         debug($msg);
     }
 
+    public static function fromJenkinsYN()
+    {
+        if(DOC_ROOT == "/html/eol_php_code/") return true;
+        else return false;
+    }
     public static function finalize_dwca_resource($resource_id, $big_file = false)
     {
         if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 200)
@@ -400,7 +405,7 @@ class Functions
             }
             Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
             Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
-            // Functions::set_resource_status_to_harvest_requested($resource_id);
+            if(!self::fromJenkinsYN()) Functions::set_resource_status_to_harvest_requested($resource_id);
             $arr = Functions::count_resource_tab_files($resource_id);
             self::finalize_connector_run($resource_id, json_encode($arr));
             if(!$big_file)
@@ -856,6 +861,7 @@ class Functions
 
     public static function get_accesspoint_url_if_available($resource_id, $backup_accesspoint_url)
     {
+        if(self::fromJenkinsYN()) return $backup_accesspoint_url;
         /* this will use if partner submits an accesspoint_url, othwerwise will use a hard-coded version of it */
         $mysqli =& $GLOBALS['mysqli_connection'];
         $result = $mysqli->query("SELECT accesspoint_url FROM resources WHERE id=" . $resource_id);
