@@ -7,7 +7,7 @@ This is a generic script that will convert EOL XML to EOL DWC-A
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/ConvertEOLtoDWCaAPI');
 $timestart = time_elapsed();
-exit("\nStopped. Source XML no longer exists OpenData.\n");
+exit("\nStopped. Just one-time import.\n");
 /* Sample way to access the generic script of converting EOL XML to EOL DWCA
 $params["eol_xml_file"] = "http://localhost/cp/EOL_China/FaunaSinica_Aves.zip";
 $params["eol_xml_file"] = "https://dl.dropboxusercontent.com/u/7597512/EOL_China/FaunaSinica_Aves.zip";
@@ -16,11 +16,12 @@ $params["dataset"]      = "EOL China";
 $params["resource_id"]  = 412;
 */
 
-// $params["eol_xml_file"] = "http://localhost/cp/OpenData/DC Birds Video/dcbirds-video-xml-resource.xml";      //works OK. This is local copy of XML. OpenData copy was already removed.
-// $params["eol_xml_file"] = "http://localhost/cp/OpenData/DC Birds Video/dcbirds-video-xml-resource.xml.zip";  //works OK also
+// $params["eol_xml_file"] = "http://localhost/cp/OpenData/EOLxml_2_DWCA/DC Birds Video/dcbirds-video-xml-resource.xml";      //works OK. This is local copy of XML. OpenData copy was already removed.
+// $params["eol_xml_file"] = "http://localhost/cp/OpenData/EOLxml_2_DWCA/DC Birds Video/dcbirds-video-xml-resource.xml.zip";  //works OK also
 
-// this one is removed from OpenData already but I have a copy localy.
+// this one is removed from OpenData already but I have a copy localy above.
 $params["eol_xml_file"] = "http://opendata.eol.org/dataset/9676aab5-bef0-4b55-b626-911f49553337/resource/e439db03-c92a-49c2-bcb0-7e1aec4ebda2/download/dcbirds-video-xml-resource.xml";
+$params["eol_xml_file"] = "http://services.eol.org/resources/367.xml"; //salvaged by Jen
 
 $params["filename"]     = "dcbirds-video-xml-resource.xml";
 $params["dataset"]      = "EOL XML";
