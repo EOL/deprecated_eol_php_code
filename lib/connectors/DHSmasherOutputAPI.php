@@ -661,7 +661,7 @@ class DHSmasherOutputAPI
                     // /* breakdown when caching:
                     $cont = false;
 
-                    if($i >= 757836) $cont = true; //GBIF name service
+                    if($i >= 857805) $cont = true; //GBIF name service
                     
                     // if($i >=  1    && $i < $m) $cont = true;
                     // if($i >=  $m   && $i < $m*2) $cont = true;
