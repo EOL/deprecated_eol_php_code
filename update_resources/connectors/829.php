@@ -10,7 +10,7 @@ $timestart = time_elapsed();
 
 $resource_id = 829;
 $params["eol_xml_file"] = "";
-$params["eol_xml_file"] = Functions::get_accesspoint_url_if_available($resource_id, "http://zookeys.pensoft.net/lib/eol_exports/ZK.xml");
+$params["eol_xml_file"] = Functions::get_accesspoint_url_if_available($resource_id, "https://zookeys.pensoft.net/lib/eol_exports/ZK.xml");
 $params["filename"]     = "no need to mention here.xml";
 $params["dataset"]      = "Pensoft XML files";
 $params["resource_id"]  = $resource_id;
