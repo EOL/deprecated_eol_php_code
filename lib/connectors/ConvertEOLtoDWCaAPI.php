@@ -17,16 +17,16 @@ class ConvertEOLtoDWCaAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         $this->occurrence_ids = array();
-        $this->download_options = array('download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1);
+        // $this->download_options = array('download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1);
     }
 
-    function export_xml_to_archive($params, $xml_file_YN = false)
+    function export_xml_to_archive($params, $xml_file_YN = false, $expire_seconds = 60*60*24*25) //expires in 25 days
     {
         if(!$xml_file_YN) {
             require_library('connectors/INBioAPI');
             $func = new INBioAPI();
-            $paths = $func->extract_archive_file($params["eol_xml_file"], $params["filename"], array("timeout" => 7200, "expire_seconds" => 0)); // "expire_seconds" -- false => won't expire; 0 => expires now //debug
-            
+            $paths = $func->extract_archive_file($params["eol_xml_file"], $params["filename"], array("timeout" => 7200, "expire_seconds" => $expire_seconds));
+            // "expire_seconds" -- false => won't expire; 0 => expires now //debug
             print_r($paths);
             $params["path"] = $paths["temp_dir"];
             self::convert_xml($params);
@@ -36,8 +36,8 @@ class ConvertEOLtoDWCaAPI
         else //is XML file
         {
             $params['path'] = DOC_ROOT . "tmp/";
-            $local_xml_file = Functions::save_remote_file_to_local($params['eol_xml_file'], array('file_extension' => "xml", 'cache' => 0, "timeout" => 7200, "download_attempts" => 2, "delay_in_minutes" => 2)); 
-            //debug - cache should be 0 zero in normal operation
+            $local_xml_file = Functions::save_remote_file_to_local($params['eol_xml_file'], array('file_extension' => "xml", 'cache' => 1, "expire_seconds" => $expire_seconds, "timeout" => 7200, "download_attempts" => 2, "delay_in_minutes" => 2)); 
+            // cache should be 1. It is in the param $expire_seconds in export_xml_to_archive() where expiration is dictated
             $params['filename'] = pathinfo($local_xml_file, PATHINFO_BASENAME);
             self::convert_xml($params);
             $this->archive_builder->finalize(TRUE);

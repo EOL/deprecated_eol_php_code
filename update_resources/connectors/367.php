@@ -20,14 +20,14 @@ $params["resource_id"]  = 412;
 // $params["eol_xml_file"] = "http://localhost/cp/OpenData/EOLxml_2_DWCA/DC Birds Video/dcbirds-video-xml-resource.xml.zip";  //works OK also
 
 // this one is removed from OpenData already but I have a copy localy above.
+$resource_id = 367;
 $params["eol_xml_file"] = "http://opendata.eol.org/dataset/9676aab5-bef0-4b55-b626-911f49553337/resource/e439db03-c92a-49c2-bcb0-7e1aec4ebda2/download/dcbirds-video-xml-resource.xml";
 $params["eol_xml_file"] = "http://services.eol.org/resources/367.xml"; //salvaged by Jen
 
 $params["filename"]     = "dcbirds-video-xml-resource.xml";
 $params["dataset"]      = "EOL XML";
-$params["resource_id"]  = 367;
+$params["resource_id"]  = $resource_id;
 
-$resource_id = $params["resource_id"];
 $func = new ConvertEOLtoDWCaAPI($resource_id);
 $func->export_xml_to_archive($params, true); //true here means it is an XML file and not .zip nor .gzip
 Functions::finalize_dwca_resource($resource_id);
