@@ -338,5 +338,33 @@ class ResourceDataObjectElementsSetting
         }
     }
 
+    //START of https://eol-jira.bibalex.org/browse/DATA-1702 =========================================================== converts EOL XML to EOL DWC-A
+    //added Sep 27, 2017 - fixed the invalid XML
+    public function fix_NMNH_xml($xml)
+    {
+        $xml = str_ireplace('xmlns:dwc="http://rs.tdwg.org/dwc/terms/"', 'xmlns:dwc="http://rs.tdwg.org/dwc/dwcore/"', $xml);
+        $xml = str_ireplace("dwc:kingdom", "dwc:Kingdom", $xml); echo "\nDone str replace Kingdom";
+        $xml = str_ireplace("dwc:phylum", "dwc:Phylum", $xml);   echo "\nDone str replace Phylum";
+        $xml = str_ireplace("dwc:class", "dwc:Class", $xml);     echo "\nDone str replace Class";
+        $xml = str_ireplace("dwc:order", "dwc:Order", $xml);     echo "\nDone str replace Order";
+        $xml = str_ireplace("dwc:family", "dwc:Family", $xml);   echo "\nDone str replace Family";
+        $xml = str_ireplace("dwc:genus", "dwc:Genus", $xml);     echo "\nDone str replace Genus";
+        $xml = str_ireplace("dwc:scientificName", "dwc:ScientificName", $xml); echo "\nDone str replace ScientificName\n\n";
+        return $xml;
+    }
+    public function call_xml_2_dwca($resource_id, $dataset)
+    {
+        require_library('connectors/ConvertEOLtoDWCaAPI');
+        $params["eol_xml_file"] = CONTENT_RESOURCE_LOCAL_PATH."/$resource_id".".xml";
+        $params["filename"]     = "no need to mention here.xml";
+        $params["dataset"]      = $dataset;
+        $params["resource_id"]  = $resource_id;
+        $func = new ConvertEOLtoDWCaAPI($resource_id);
+        $func->export_xml_to_archive($params, true, 60*60*24*25); // true => means it is an XML file, not an archive file nor a zip file. Expires in 25 days.
+        Functions::finalize_dwca_resource($resource_id);
+    }
+    //END of https://eol-jira.bibalex.org/browse/DATA-1702 ===========================================================
+
+
 }
 ?>
