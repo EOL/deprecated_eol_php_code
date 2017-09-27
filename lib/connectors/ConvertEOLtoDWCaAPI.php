@@ -59,7 +59,7 @@ class ConvertEOLtoDWCaAPI
             $t_dc       = $t->children("http://purl.org/dc/elements/1.1/");
             $t_dcterms  = $t->children("http://purl.org/dc/terms/");
             
-            $i++; if(($i % 100) == 0) echo "\n $i ";
+            $i++; if(($i % 5000) == 0) echo "\n $i ";
 
             $rec = array();
             foreach(array_keys((array) $t_dc) as $field)  $rec[$field] = (string) $t_dc->$field;
@@ -73,9 +73,18 @@ class ConvertEOLtoDWCaAPI
             if(isset($t_dc->identifier)) {
                 if    ($val = (string) $t_dc->identifier)      $taxon_id = $val;
                 elseif($val = (string) $t_dwc->ScientificName) $taxon_id = md5($val);
+                else continue; //meaning if there is no taxon id and sciname then ignore record
             }
             if($val = $taxon_id) $rec["identifier"] = $val;
-            else echo "\n -- try to figure how to get taxon_id for this resource -- \n";
+            else
+            {
+                if(in_array($params["dataset"], array("NMNH XML files"))) continue; //meaning if there is no taxon id and sciname then ignore record
+                else 
+                {
+                    echo "\n -- try to figure how to get taxon_id for this resource: $params[dataset] -- \n";
+                    // print_r($t); print_r($t_dc); print_r($t_dwc); exit; //debug
+                }
+            }
 
             if($obj = @$t->commonName) {
                 if($vernaculars = self::process_vernacular($obj, $taxon_id)) {
@@ -106,7 +115,9 @@ class ConvertEOLtoDWCaAPI
                 }
             }
             
-            self::create_archive($rec, "taxon");
+            $rec = array_map('trim', $rec);
+            if($rec['identifier'] && $rec['ScientificName']) self::create_archive($rec, "taxon");
+            
             // break; //debug
         }
     }
@@ -125,6 +136,9 @@ class ConvertEOLtoDWCaAPI
                 else $rec[$field] = (string) $o->$field;
             }
             foreach(array_keys((array) $o_dc) as $field) $rec[$field] = (string) $o_dc->$field;
+            
+            if(@$rec['language'] == "English") $rec['language'] = "En"; //used in resource_id = 120
+            
             foreach(array_keys((array) $o_dcterms) as $field)
             {
                 /* if(in_array($field, array("some_field"))) continue; //how to exclude fields, not in schema */
@@ -216,14 +230,14 @@ class ConvertEOLtoDWCaAPI
                 if(preg_match("/\{(.*?)\}/ims", $uri, $arr)) $identifier = $arr[1];
                 else echo("\n -- find or create your own ref identifier -- \n");
             }
-            elseif(in_array($params["dataset"], array("Pensoft XML files", "Amphibiaweb"))) {
+            // elseif(in_array($params["dataset"], array("Pensoft XML files", "Amphibiaweb", "NMNH XML files"))) 
+            else
+            {
                 if($val = $o{'doi'}) $identifier = (string) $val;
                 if($val = $o{'uri'}) $uri = $val;
             }
 
-            if($params["dataset"] == "Amphibiaweb") {
-                if(!$identifier) $identifier = md5($full_reference);
-            }
+            if(!$identifier) $identifier = md5($full_reference);
             
             if(!$identifier) echo "\nModule to create ref identifier and uri for this dataset has not yet been defined!\n";
             $records[] = array("full_reference" => $full_reference, "uri" => $uri, "ref_identifier" => $identifier);

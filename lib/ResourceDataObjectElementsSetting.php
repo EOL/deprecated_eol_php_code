@@ -10,9 +10,9 @@ class ResourceDataObjectElementsSetting
         $this->rating = $rating;
     }
 
-    public function set_data_object_rating_on_xml_document()
+    public function set_data_object_rating_on_xml_document($expire_seconds = 60*60*24*25) //default expires in 25 days
     {
-        $xml_string = self::load_xml_string();
+        $xml_string = self::load_xml_string($expire_seconds);
         if($xml_string === false) return false;
         if(!$xml = simplexml_load_string($xml_string)) return false;
         debug("set_data_object_rating_on_xml_document " . count($xml->taxon) . "-- please wait...");
@@ -40,7 +40,7 @@ class ResourceDataObjectElementsSetting
         return $xml->asXML();
     }
 
-    function load_xml_string()
+    function load_xml_string($expire_seconds)
     {
         $file_contents = "";
         debug("Please wait, downloading resource document...");
@@ -50,8 +50,10 @@ class ResourceDataObjectElementsSetting
             $filename = $path_parts['basename'];
             $temp_dir = create_temp_dir() . "/";
             debug("temp file path: " . $temp_dir);
-            if($file_contents = Functions::get_remote_file($this->xml_path, array('timeout' => 172800)))
+            if($local_file = Functions::save_remote_file_to_local($this->xml_path, array('timeout' => 172800, 'cache' => 1, 'expire_seconds' => $expire_seconds)))
             {
+                $file_contents = file_get_contents($local_file);
+
                 $temp_file_path = $temp_dir . "/" . $filename;
                 $TMP = fopen($temp_file_path, "w");
                 fwrite($TMP, $file_contents);
@@ -66,9 +68,12 @@ class ResourceDataObjectElementsSetting
                 return false;
             }
             echo "\n $temp_dir \n";
-            $file_contents = Functions::get_remote_file($this->xml_path, array('timeout' => 172800));
+
+            $file_contents = file_get_contents($this->xml_path);
+            
             recursive_rmdir($temp_dir); // remove temp dir
             echo ("\n temporary directory removed: [$temp_dir]\n");
+            unlink($local_file);
         }
         return $file_contents;
     }
