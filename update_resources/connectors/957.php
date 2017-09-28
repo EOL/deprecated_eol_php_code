@@ -10,6 +10,14 @@ require_library('connectors/WikipediaRegionalAPI');
 $timestart = time_elapsed();
 $resource_id = 957;
 $func = new WikipediaRegionalAPI($resource_id, 'de');
+
+// $resource_id = 1;
+// $func = new WikipediaRegionalAPI($resource_id, 'es');
+
+// $resource_id = 173;
+// $func = new WikipediaRegionalAPI($resource_id, 'fr');
+
+
 $func->generate_archive();
 Functions::finalize_dwca_resource($resource_id);
 

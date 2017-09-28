@@ -111,29 +111,38 @@ class DWCADiagnoseAPI
     }
 
     //============================================================
-    function check_if_all_parents_have_entries($resource_id)
+    function check_if_all_parents_have_entries($resource_id, $write_2text_file = false, $url = false)
     {
-        $var = self::get_fields_from_tab_file($resource_id, array("taxonID", "parentNameUsageID"));
+        if($write_2text_file) $WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_undefined_parent_ids.txt", "w");
+        
+        $var = self::get_fields_from_tab_file($resource_id, array("taxonID", "parentNameUsageID"), $url); //$url if to the tool genHigherClass
         $taxon_ids = array_keys($var['taxonID']);
         $parent_ids = array_keys($var['parentNameUsageID']);
-        // print_r($taxon_ids); print_r($parent_ids);
+        unset($var);
         $undefined = array();
         foreach($parent_ids as $parent_id)
         {
             if(!in_array($parent_id, $taxon_ids))
             {
-                echo "\n not defined parent [$parent_id]";
+                // echo "\n not defined parent [$parent_id]";
                 $undefined[$parent_id] = '';
             }
-            // else echo "\n defined OK parent [$parent_id]";
         }
-        // print_r($undefined);
-        echo "\n total undefined parent_id: " . count($undefined) . "\n";
+        // echo "\n total undefined parent_id: " . count($undefined) . "\n";
+
+        if($write_2text_file)
+        {
+            foreach(array_keys($undefined) as $id) fwrite($WRITE, $id . "\n");
+            fclose($WRITE);
+        }
+        $undefined = array_keys($undefined);
+        if(!$undefined) unlink(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_undefined_parent_ids.txt");
+        return $undefined;
     }
     
-    function get_fields_from_tab_file($resource_id, $cols)
+    function get_fields_from_tab_file($resource_id, $cols, $url = false)
     {
-        $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/taxon.tab";
+        if(!$url) $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/taxon.tab";
         if(!file_exists($url))
         {
             echo "\nFile does not exist: [$url]\n";
@@ -162,5 +171,66 @@ class DWCADiagnoseAPI
         return $var;
     }
     //============================================================
+    function get_all_taxa_without_parent($resource_id, $write_2text_file = false)
+    {
+        if($write_2text_file) 
+        {
+            $WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_taxa_without_parent.txt", "w");
+            fwrite($WRITE, 'taxonID' . "\t" . 'scientificName' . "\t" . 'taxonRank' . "\t" . 'source' . "\n");
+        }
+        //start loop =======================
+        $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/taxon.tab";
+        if(!file_exists($url))
+        {
+            echo "\nFile does not exist: [$url]\n";
+            return;
+        }
+        $i = 0;
+        foreach(new FileIterator($url) as $line_number => $temp)
+        {
+            $temp = explode("\t", $temp);
+            $i++;
+            if($i == 1) $fields = $temp;
+            else
+            {
+                $rec = array();
+                $k = 0;
+                if(!$temp) continue;
+                foreach($temp as $t)
+                {
+                    $rec[$fields[$k]] = $t;
+                    $k++;
+                }
+                if(!@$rec['parentNameUsageID'])
+                {
+                    $no_parent[$rec['taxonID']] = '';
+                    $row = $rec['taxonID'] . " -- " . @$rec['scientificName'] . " -- " . @$rec['taxonRank'] . " -- " . @$rec['source'];
+                    // echo "\n". $row; //use to display rows
+                    if($write_2text_file)
+                    {
+                        $row = str_ireplace(" -- ", "\t", $row);
+                        fwrite($WRITE, $row . "\n");
+                    }
+                }
+            }
+        }
+        //end loop =========================
+        fclose($WRITE);
+        return array_keys($no_parent);
+    }
+    
+    function count_rows_in_text_file($local_path = false, $url_path_to_text_file = false)
+    {
+        if($url_path_to_text_file) $local_path = Functions::save_remote_file_to_local($url_path_to_text_file);
+        
+        $i = 0;
+        foreach(new FileIterator($local_path) as $line_number => $temp)
+        {
+            $i++;
+        }
+        echo "local path: $local_path";
+        echo "\ntotal records: $i\n";
+    }
+
 }
 ?>

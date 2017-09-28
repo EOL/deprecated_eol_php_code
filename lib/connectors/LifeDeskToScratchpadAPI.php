@@ -297,8 +297,13 @@ class LifeDeskToScratchpadAPI
         if(!$spreadsheet_options) $spreadsheet_options = $this->spreadsheet_options;
         require_library('XLSParser');
         $parser = new XLSParser();
+        /* debug only
+        $classes = get_declared_classes();
+        print_r($classes);
+        */
         if($path = Functions::save_remote_file_to_local($spreadsheet, $spreadsheet_options))
         {
+            echo "\nlocal spreadsheet path: [$path]\n"; //debug
             $arr = $parser->convert_sheet_to_array($path, $worksheet);
             unlink($path);
             return $arr;

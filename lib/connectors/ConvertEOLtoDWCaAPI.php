@@ -1,46 +1,50 @@
 <?php
 namespace php_active_record;
 /* connector: generic connector to convert EOL XML to EOL DWC-A
-    412:    EOL China
-    306:    Reptile DB
+    412     EOL China
+    306     Reptile DB
+    21      AmphibiaWeb
+    367     DC Birds video
+    829     Zookeys
     
 */
 class ConvertEOLtoDWCaAPI
 {
     function __construct($folder)
     {
+        $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         $this->occurrence_ids = array();
-        $this->download_options = array('download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1);
+        $this->count = 0;
+        // $this->download_options = array('download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1);
     }
 
-    function export_xml_to_archive($params, $xml_file_YN = false)
+    function export_xml_to_archive($params, $xml_file_YN = false, $expire_seconds = 60*60*24*25) //expires in 25 days
     {
-        if(!$xml_file_YN)
-        {
+        if(!$xml_file_YN) {
             require_library('connectors/INBioAPI');
             $func = new INBioAPI();
-            $paths = $func->extract_archive_file($params["eol_xml_file"], $params["filename"], array("timeout" => 7200, "expire_seconds" => 0)); // "expire_seconds" -- false => won't expire; 0 => expires now //debug
-            
+            $paths = $func->extract_archive_file($params["eol_xml_file"], $params["filename"], array("timeout" => 7200, "expire_seconds" => $expire_seconds));
+            // "expire_seconds" -- false => won't expire; 0 => expires now //debug
             print_r($paths);
             $params["path"] = $paths["temp_dir"];
             self::convert_xml($params);
             $this->archive_builder->finalize(TRUE);
             recursive_rmdir($paths["temp_dir"]); // remove temp dir
-    
         }
         else //is XML file
         {
             $params['path'] = DOC_ROOT . "tmp/";
-            $local_xml_file = Functions::save_remote_file_to_local($params['eol_xml_file'], array('file_extension' => "xml", 'cache' => 0, "timeout" => 7200, "download_attempts" => 2, "delay_in_minutes" => 2)); 
-            //debug - cache should be 0 zero in normal operation
+            $local_xml_file = Functions::save_remote_file_to_local($params['eol_xml_file'], array('file_extension' => "xml", 'cache' => 1, "expire_seconds" => $expire_seconds, "timeout" => 7200, "download_attempts" => 2, "delay_in_minutes" => 2)); 
+            // cache should be 1. It is in the param $expire_seconds in export_xml_to_archive() where expiration is dictated
             $params['filename'] = pathinfo($local_xml_file, PATHINFO_BASENAME);
             self::convert_xml($params);
             $this->archive_builder->finalize(TRUE);
             unlink($local_xml_file);
         }
+        echo "\ntotal rows: $this->count\n";
     }
 
     private function convert_xml($params)
@@ -56,51 +60,58 @@ class ConvertEOLtoDWCaAPI
             $t_dwc      = $t->children("http://rs.tdwg.org/dwc/dwcore/");
             $t_dc       = $t->children("http://purl.org/dc/elements/1.1/");
             $t_dcterms  = $t->children("http://purl.org/dc/terms/");
-            
-            $i++; if(($i % 100) == 0) echo "\n $i ";
 
+            /*
+            if($i <= 2) {
+                print_r($t_dc);
+                print_r($t_dwc);
+            }
+            else return; //exit;
+            */
+            
+            $i++; if(($i % 5000) == 0) echo "\n $i ";
             $rec = array();
             foreach(array_keys((array) $t_dc) as $field)  $rec[$field] = (string) $t_dc->$field;
             foreach(array_keys((array) $t_dwc) as $field) $rec[$field] = (string) $t_dwc->$field;
-            foreach(array_keys((array) $t_dcterms) as $field)
-            {
+            foreach(array_keys((array) $t_dcterms) as $field) {
                 if(in_array($field, array("created"))) continue; //exclude these fields, not in schema - CreateDate not found in taxon extension
                 $rec[$field] = (string) $t_dcterms->$field;
             }
             
             $taxon_id = false;
-            if(isset($t_dc->identifier))
-            {
-                if    ($val = (string) $t_dc->identifier)      $taxon_id = $val;
-                elseif($val = (string) $t_dwc->ScientificName) $taxon_id = md5($val);
+            if(isset($t_dc->identifier)) {
+                if    ($val = trim($t_dc->identifier))      $taxon_id = $val;
+                elseif($val = trim($t_dwc->ScientificName)) $taxon_id = md5($val);
+                else continue; //meaning if there is no taxon id and sciname then ignore record
             }
+            else echo "\nwent here\n";
             if($val = $taxon_id) $rec["identifier"] = $val;
-            else echo "\n -- try to figure how to get taxon_id for this resource -- \n";
-
-            if($obj = @$t->commonName)
+            else
             {
-                if($vernaculars = self::process_vernacular($obj, $taxon_id))
+                if(in_array($params["dataset"], array("NMNH XML files"))) continue; //meaning if there is no taxon id and sciname then ignore record
+                else 
                 {
-                    foreach($vernaculars as $vernacular)
-                    {
+                    echo "\n -- try to figure how to get taxon_id for this resource: $params[dataset] -- \n";
+                    // print_r($t); print_r($t_dc); print_r($t_dwc); exit; //debug
+                }
+            }
+
+            if($obj = @$t->commonName) {
+                if($vernaculars = self::process_vernacular($obj, $taxon_id)) {
+                    foreach($vernaculars as $vernacular) {
                         if($vernacular) self::create_archive($vernacular, "vernacular");
                     }
                 }
             }
-            if($obj = @$t->synonym)
-            {
-                if($synonyms = self::process_synonym($obj, $taxon_id))
-                {
+            if($obj = @$t->synonym) {
+                if($synonyms = self::process_synonym($obj, $taxon_id)) {
                     foreach($synonyms as $synonym) self::create_archive($synonym, "taxon");
                 }
             }
-            if($obj = @$t->reference)
-            {
-                if($references = self::process_reference($obj, $taxon_id, $params))
-                {
+            if($obj = @$t->reference) {
+                if($references = self::process_reference($obj, $taxon_id, $params)) {
                     $reference_ids = array();
-                    foreach($references as $reference)
-                    {
+                    foreach($references as $reference) {
                         self::create_archive($reference, "reference");
                         $reference_ids[$reference["ref_identifier"]] = '';
                     }
@@ -108,18 +119,19 @@ class ConvertEOLtoDWCaAPI
                 }
             }
             
-            if($obj = @$t->dataObject)
-            {
-                if($data_objects = self::process_data_object($obj, $taxon_id, $params))
-                {
-                    foreach($data_objects as $data_object)
-                    {
-                        self::create_archive($data_object, "data object");
-                    }
+            if($obj = @$t->dataObject) {
+                if($data_objects = self::process_data_object($obj, $taxon_id, $params)) {
+                    foreach($data_objects as $data_object) self::create_archive($data_object, "data object");
                 }
             }
             
-            self::create_archive($rec, "taxon");
+            $rec = array_map('trim', $rec);
+            if($rec['identifier'] && $rec['ScientificName'])
+            {
+                self::create_archive($rec, "taxon");
+                $this->count++;
+            }
+            
             // break; //debug
         }
     }
@@ -138,6 +150,9 @@ class ConvertEOLtoDWCaAPI
                 else $rec[$field] = (string) $o->$field;
             }
             foreach(array_keys((array) $o_dc) as $field) $rec[$field] = (string) $o_dc->$field;
+            
+            if(@$rec['language'] == "English") $rec['language'] = "En"; //used in resource_id = 120
+            
             foreach(array_keys((array) $o_dcterms) as $field)
             {
                 /* if(in_array($field, array("some_field"))) continue; //how to exclude fields, not in schema */
@@ -147,11 +162,9 @@ class ConvertEOLtoDWCaAPI
             //for references in data_object
             if($obj = @$o->reference)
             {
-                if($references = self::process_reference($obj, $taxon_id, $params))
-                {
+                if($references = self::process_reference($obj, $taxon_id, $params)) {
                     $reference_ids = array();
-                    foreach($references as $reference)
-                    {
+                    foreach($references as $reference) {
                         self::create_archive($reference, "reference");
                         $reference_ids[$reference["ref_identifier"]] = '';
                     }
@@ -162,11 +175,9 @@ class ConvertEOLtoDWCaAPI
             //for agent
             if($obj = @$o->agent)
             {
-                if($agents = self::process_agent($obj, $params))
-                {
+                if($agents = self::process_agent($obj, $params)) {
                     $agent_ids = array();
-                    foreach($agents as $agent)
-                    {
+                    foreach($agents as $agent) {
                         self::create_archive($agent, "agent");
                         $agent_ids[$agent["agentID"]] = '';
                     }
@@ -174,15 +185,29 @@ class ConvertEOLtoDWCaAPI
                 }
             }
 
-            /*
+            /* obsolete but good reference to history
             if(in_array($params["dataset"], array("EOL China", "EOL XML")))
             {
                 if($val = $o_dc->identifier) $identifier = (string) $val;
                 else echo("\n -- find or create your own object identifier -- \n");
             }
             */
-            if($val = $o_dc->identifier) $identifier = (string) $val;
-            else echo("\n -- find or create your own object identifier -- \n");
+            if($val = @$o_dc->identifier) $identifier = (string) $val;
+            else
+            {
+                /* from above
+                412     EOL China
+                306     Reptile DB
+                21      AmphibiaWeb
+                367     DC Birds video
+                */
+                if(in_array($this->resource_id, array(412,306,21,367))) //add here resource_ids
+                {
+                    $json = json_encode($o);
+                    $identifier = md5($json);
+                }
+                else echo("\n -- find or create your own object identifier -- \n");
+            }
             
             $rec["obj_identifier"] = $identifier;
             unset($rec["identifier"]);
@@ -196,8 +221,7 @@ class ConvertEOLtoDWCaAPI
     private function process_agent($objects, $params)
     {
         $records = array();
-        foreach($objects as $o)
-        {
+        foreach($objects as $o) {
             if($params["dataset"] == "EOL China") {}
             if(!(string) $o) continue;
             $records[] = array("term_name" => (string) $o, "agentRole" => (string) $o{"role"}, "agentID" => md5((string) $o), "term_homepage" => (string) @$o{"homepage"});
@@ -215,25 +239,21 @@ class ConvertEOLtoDWCaAPI
             if(!$full_reference) continue;
             
             $identifier = ''; $uri = '';
-            if($params["dataset"] == "EOL China")
-            {
+            if($params["dataset"] == "EOL China") {
                 $uri = (string) $o{"url"};
                 if(preg_match("/\{(.*?)\}/ims", $uri, $arr)) $identifier = $arr[1];
-                else echo("\n -- find or create your own identifier -- \n");
+                else echo("\n -- find or create your own ref identifier -- \n");
             }
-            elseif($params["dataset"] == "Pensoft XML files")
+            // elseif(in_array($params["dataset"], array("Pensoft XML files", "Amphibiaweb", "NMNH XML files"))) 
+            else
             {
                 if($val = $o{'doi'}) $identifier = (string) $val;
                 if($val = $o{'uri'}) $uri = $val;
             }
-            elseif($params["dataset"] == "Amphibiaweb")
-            {
-                if($val = $o{'doi'}) $identifier = (string) $val;
-                if($val = $o{'uri'}) $uri = $val;
-                if(!$identifier) $identifier = md5($full_reference);
-            }
+
+            if(!$identifier) $identifier = md5($full_reference);
             
-            else echo "\nModule to create identifier and uri for this dataset has not yet been defined!\n";
+            if(!$identifier) echo "\nModule to create ref identifier and uri for this dataset has not yet been defined!\n";
             $records[] = array("full_reference" => $full_reference, "uri" => $uri, "ref_identifier" => $identifier);
         }
         // print_r($records);
@@ -252,8 +272,7 @@ class ConvertEOLtoDWCaAPI
     private function process_vernacular($objects, $taxon_id)
     {
         $records = array();
-        foreach($objects as $o)
-        {
+        foreach($objects as $o) {
             $lang = trim((string) $o{"xml_lang"});
             if($val = trim((string) $o)) $records[] = array("vernacularName" => $val, "language" => $lang, "taxonID" => (string) $taxon_id);
         }
@@ -290,38 +309,29 @@ class ConvertEOLtoDWCaAPI
             $t->$tfield = $rec[$orig_field];
         }
         
-        if($type == "taxon")
-        {
-            if(!isset($this->taxon_ids[$t->taxonID]))
-            {
+        if($type == "taxon") {
+            if(!isset($this->taxon_ids[$t->taxonID])) {
                 $this->taxon_ids[$t->taxonID] = '';
                 $this->archive_builder->write_object_to_file($t);
             }
         }
-        elseif($type == "data object")
-        {
-            if(!isset($this->media_ids[$t->identifier]))
-            {
+        elseif($type == "data object") {
+            if(!isset($this->media_ids[$t->identifier])) {
                 $this->media_ids[$t->identifier] = '';
                 $this->archive_builder->write_object_to_file($t);
             }
         }
-        elseif(in_array($type, array("vernacular")))
-        {
+        elseif(in_array($type, array("vernacular"))) {
             $this->archive_builder->write_object_to_file($t);
         }
-        elseif($type == "reference")
-        {
-            if(!isset($this->reference_ids[$t->identifier]))
-            {
+        elseif($type == "reference") {
+            if(!isset($this->reference_ids[$t->identifier])) {
                 $this->reference_ids[$t->identifier] = '';
                 $this->archive_builder->write_object_to_file($t);
             }
         }
-        elseif($type == "agent")
-        {
-            if(!isset($this->agent_ids[$t->identifier]))
-            {
+        elseif($type == "agent") {
+            if(!isset($this->agent_ids[$t->identifier])) {
                 $this->agent_ids[$t->identifier] = '';
                 $this->archive_builder->write_object_to_file($t);
             }

@@ -23,7 +23,7 @@ class BoldsImagesAPIv2
         $this->taxon_ids = array();
         $this->do_ids = array();
 
-        $this->old_bolds_image_ids_path = "https://dl.dropboxusercontent.com/u/7597512/BOLDS/old_BOLDS_image_ids.txt"; // image IDs of the 1st BOLDS image resource
+        $this->old_bolds_image_ids_path = "http://opendata.eol.org/dataset/965c35fa-2a4a-487d-a92c-da86febbe6c0/resource/538d0ec1-ad74-4c92-9468-b71eee633e57/download/oldboldsimageids.txt"; // image IDs of the 1st BOLDS image resource
         // $this->old_bolds_image_ids_path = "http://localhost/~eolit/cp/BOLDS/old_BOLDS_image_ids.txt"; // debug
         $this->old_bolds_image_ids = array();
         $this->old_bolds_image_ids_count = 0;
@@ -32,7 +32,7 @@ class BoldsImagesAPIv2
         // for generating the higher-level taxa list
         $this->MASTER_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt";
         // $this->OLD_MASTER_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list 2011 09 25.txt"; // debug
-        $this->OLD_MASTER_LIST = "https://dl.dropboxusercontent.com/u/7597512/BOLDS/hl_master_list 2011 09 25.txt";
+        $this->OLD_MASTER_LIST = "https://opendata.eol.org/u/7597512/BOLDS/hl_master_list 2011 09 25.txt";
         
         $this->download_options = array('cache' => 1, 'timeout' => 2400, 'download_attempts' => 5);
         // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/";

@@ -13,7 +13,7 @@ class ConabioAPI
     function __construct()
     {
         $this->download_options = array("download_wait_time" => 1000000, "timeout" => 3600, "delay_in_minutes" => 2);
-        $this->download_options['expire_seconds'] = false;
+        $this->download_options['expire_seconds'] = 60*60*24*30; //ideal is 1 month expiration //false - does not expire;
     }
 
     function combine_all_xmls($resource_id)

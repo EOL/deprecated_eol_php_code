@@ -131,9 +131,11 @@ class Functions
     public static function lookup_with_cache($url, $options = array())
     {
         // default expire time is 30 days
-        if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 2592000;
+        if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 60*60*24*25; //default expires in 25 days
         if(!isset($options['timeout'])) $options['timeout'] = 120;
-        if(!isset($options['cache_path'])) $options['cache_path'] = DOC_ROOT . "tmp/cache/";
+        if(!isset($options['cache_path'])) $options['cache_path'] = DOC_ROOT . "tmp/cache/";    //orig row
+        // if(!isset($options['cache_path'])) $options['cache_path'] = DOC_ROOT . "tmp/cache2/"; //a symlink; cache2 -> /Volumes/Thunderbolt4/eol_cache/ 
+        
         $md5 = md5($url);
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
@@ -265,9 +267,15 @@ class Functions
         $output = shell_exec($command_line);
     }
 
-    public static function count_resource_tab_files($resource_id, $file_extension = ".tab")
+    public static function count_resource_tab_files($resource_id, $file_extension = ".tab", $ignoreFirstRowYN = true)
     {
-        foreach(glob(CONTENT_RESOURCE_LOCAL_PATH . "/$resource_id/*" . $file_extension) as $filename) self::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/" . pathinfo($filename, PATHINFO_BASENAME));
+        $arr = array();
+        foreach(glob(CONTENT_RESOURCE_LOCAL_PATH . "/$resource_id/*" . $file_extension) as $filename) {
+            $pathinfo = pathinfo($filename, PATHINFO_BASENAME);
+            $rows = self::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/" . $pathinfo, $ignoreFirstRowYN);
+            $arr[$pathinfo] = $rows;
+        }
+        return $arr;
     }
 
     public static function remove_resource_working_dir($resource_id = false)
@@ -277,7 +285,7 @@ class Functions
         if(is_dir($working_dir)) recursive_rmdir($working_dir);
     }
 
-    public static function count_rows_from_text_file($file)
+    public static function count_rows_from_text_file($file, $ignoreFirstRowYN = true)
     {
         debug("\n counting: [$file]");
         $i = 0;
@@ -289,8 +297,27 @@ class Functions
             }
             fclose($handle);
         }
+        if($ignoreFirstRowYN) $i--;
         debug("\n total: [$i]\n");
         return $i;
+    }
+    
+    public static function remove_row_number_from_text_file($txtfile, $row_no)
+    {
+        $temp_file = DOC_ROOT . "temp/" . date("Y-m-d H:i:s");
+        $handle = Functions::file_open($temp_file, "w");
+        $line_no = 0;
+        foreach(new FileIterator($txtfile) as $line => $row) {
+            $line_no++;
+            if($line_no != $row_no) fwrite($handle, $row."\n");
+        }
+        if(copy($temp_file, $txtfile)) unlink($temp_file);
+    }
+    
+    public static function tar_gz_resource_folder($resource_id)
+    {
+        $command_line = "tar -czf " . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz --directory=" . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . " .";
+        $output = shell_exec($command_line);
     }
 
     public static function file_open($file_path, $mode)
@@ -380,6 +407,11 @@ class Functions
         debug($msg);
     }
 
+    public static function fromJenkinsYN()
+    {
+        if(DOC_ROOT == "/html/eol_php_code/") return true;
+        else return false;
+    }
     public static function finalize_dwca_resource($resource_id, $big_file = false)
     {
         if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 200)
@@ -392,7 +424,8 @@ class Functions
             Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
             Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
             Functions::set_resource_status_to_harvest_requested($resource_id);
-            Functions::count_resource_tab_files($resource_id);
+            $arr = Functions::count_resource_tab_files($resource_id);
+            self::finalize_connector_run($resource_id, json_encode($arr));
             if(!$big_file)
             {
                 if($undefined_uris = Functions::get_undefined_uris_from_resource($resource_id)) print_r($undefined_uris);
@@ -404,6 +437,14 @@ class Functions
         }
     }
 
+    public static function finalize_connector_run($resource_folder, $rows)
+    {
+        //write log
+        $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "EOL_FreshData_connectors.txt", "a");
+        fwrite($WRITE, $resource_folder . "\t" . date('l Y-m-d h:i:s A') . "\t" . $rows . "\n"); //date('l jS \of F Y h:i:s A')
+        fclose($WRITE);
+    }
+    
     public static function get_undefined_uris_from_resource($resource_id)
     {
         $undefined_uris = array();
@@ -455,11 +496,11 @@ class Functions
     public static function get_eol_defined_uris($download_options = false)
     {
         if(!$download_options) $download_options = array('resource_id' => 'URIs', 'download_wait_time' => 1000000, 'timeout' => 900, 'expire_seconds' => 86400, 'download_attempts' => 1); //expires in 24 hours
-        for($i=1; $i<=15; $i++)
+        for($i=1; $i<=16; $i++)
         {
             $urls = array();
             // $urls[] = "http://localhost/cp/TraitRequest/measurements/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
-            $urls[] = "https://dl.dropboxusercontent.com/u/7597512/TraitRequest/measurements/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
+            $urls[] = "http://editors.eol.org/tools/measurements/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
             foreach($urls as $url)
             {
                 if($html = Functions::lookup_with_cache($url, $download_options))
@@ -838,6 +879,7 @@ class Functions
 
     public static function get_accesspoint_url_if_available($resource_id, $backup_accesspoint_url)
     {
+        if(self::fromJenkinsYN()) return $backup_accesspoint_url;
         /* this will use if partner submits an accesspoint_url, othwerwise will use a hard-coded version of it */
         $mysqli =& $GLOBALS['mysqli_connection'];
         $result = $mysqli->query("SELECT accesspoint_url FROM resources WHERE id=" . $resource_id);
@@ -1897,16 +1939,14 @@ class Functions
 
     public static function set_resource_status_to_harvest_requested($resource_id)
     {
-        if(file_exists(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml"))
-        {
-            if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 600)
-            {
+        if(self::fromJenkinsYN()) return;
+        if(file_exists(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) {
+            if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 600) {
                 $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::harvest_requested()->id . " WHERE id=" . $resource_id);
             }
-        }elseif(file_exists(CONTENT_RESOURCE_LOCAL_PATH ."/$resource_id/taxon.tab"))
-        {
-            if(filesize(CONTENT_RESOURCE_LOCAL_PATH ."/$resource_id/taxon.tab") > 600)
-            {
+        }
+        elseif(file_exists(CONTENT_RESOURCE_LOCAL_PATH ."/$resource_id/taxon.tab")) {
+            if(filesize(CONTENT_RESOURCE_LOCAL_PATH ."/$resource_id/taxon.tab") > 600) {
                 $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::harvest_requested()->id . " WHERE id=" . $resource_id);
             }
         }

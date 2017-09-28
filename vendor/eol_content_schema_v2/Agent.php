@@ -3,7 +3,9 @@ namespace eol_schema;
 
 class Agent extends DarwinCoreExtensionBase
 {
-    const EXTENSION_URL = "http://eol.org/schema/agent_extension.xml";
+    // const EXTENSION_URL = "http://eol.org/schema/agent_extension.xml";
+    const EXTENSION_URL = "http://editors.eol.org/other_files/ontology/agent_extension.xml";
+    
     const ROW_TYPE = "http://eol.org/schema/agent/Agent";
     
     public static function validation_rules()

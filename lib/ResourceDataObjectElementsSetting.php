@@ -10,10 +10,11 @@ class ResourceDataObjectElementsSetting
         $this->rating = $rating;
     }
 
-    public function set_data_object_rating_on_xml_document()
+    public function set_data_object_rating_on_xml_document($expire_seconds = 60*60*24*25) //default expires in 25 days
     {
-        $xml_string = self::load_xml_string();
+        $xml_string = self::load_xml_string($expire_seconds);
         if($xml_string === false) return false;
+        if(!$xml_string) return false;
         if(!$xml = simplexml_load_string($xml_string)) return false;
         debug("set_data_object_rating_on_xml_document " . count($xml->taxon) . "-- please wait...");
         foreach($xml->taxon as $taxon)
@@ -40,7 +41,7 @@ class ResourceDataObjectElementsSetting
         return $xml->asXML();
     }
 
-    function load_xml_string()
+    function load_xml_string($expire_seconds)
     {
         $file_contents = "";
         debug("Please wait, downloading resource document...");
@@ -50,8 +51,10 @@ class ResourceDataObjectElementsSetting
             $filename = $path_parts['basename'];
             $temp_dir = create_temp_dir() . "/";
             debug("temp file path: " . $temp_dir);
-            if($file_contents = Functions::get_remote_file($this->xml_path, array('timeout' => 172800)))
+            if($local_file = Functions::save_remote_file_to_local($this->xml_path, array('timeout' => 172800, 'cache' => 1, 'expire_seconds' => $expire_seconds)))
             {
+                $file_contents = file_get_contents($local_file);
+
                 $temp_file_path = $temp_dir . "/" . $filename;
                 $TMP = fopen($temp_file_path, "w");
                 fwrite($TMP, $file_contents);
@@ -66,9 +69,12 @@ class ResourceDataObjectElementsSetting
                 return false;
             }
             echo "\n $temp_dir \n";
-            $file_contents = Functions::get_remote_file($this->xml_path, array('timeout' => 172800));
+
+            $file_contents = file_get_contents($this->xml_path);
+            
             recursive_rmdir($temp_dir); // remove temp dir
             echo ("\n temporary directory removed: [$temp_dir]\n");
+            unlink($local_file);
         }
         return $file_contents;
     }
@@ -332,6 +338,37 @@ class ResourceDataObjectElementsSetting
             return $xml_string;
         }
     }
+
+    //START of https://eol-jira.bibalex.org/browse/DATA-1702 =========================================================== converts EOL XML to EOL DWC-A
+    //added Sep 27, 2017 - fixed the invalid XML
+    public function fix_NMNH_xml($xml)
+    {
+        $xml = str_ireplace('xmlns:dwc="http://rs.tdwg.org/dwc/terms/"', 'xmlns:dwc="http://rs.tdwg.org/dwc/dwcore/"', $xml);
+        $xml = str_ireplace("dwc:kingdom", "dwc:Kingdom", $xml); echo "\nDone str replace Kingdom";
+        $xml = str_ireplace("dwc:phylum", "dwc:Phylum", $xml);   echo "\nDone str replace Phylum";
+        $xml = str_ireplace("dwc:class", "dwc:Class", $xml);     echo "\nDone str replace Class";
+        $xml = str_ireplace("dwc:order", "dwc:Order", $xml);     echo "\nDone str replace Order";
+        $xml = str_ireplace("dwc:family", "dwc:Family", $xml);   echo "\nDone str replace Family";
+        $xml = str_ireplace("dwc:genus", "dwc:Genus", $xml);     echo "\nDone str replace Genus";
+        $xml = str_ireplace("dwc:scientificName", "dwc:ScientificName", $xml); echo "\nDone str replace ScientificName\n\n";
+        return $xml;
+    }
+    public function call_xml_2_dwca($resource_id, $dataset)
+    {
+        require_library('connectors/ConvertEOLtoDWCaAPI');
+        $params["eol_xml_file"] = CONTENT_RESOURCE_LOCAL_PATH."/$resource_id".".xml";
+        $params["filename"]     = "no need to mention here.xml";
+        $params["dataset"]      = $dataset;
+        $params["resource_id"]  = $resource_id;
+        $func = new ConvertEOLtoDWCaAPI($resource_id);
+        $func->export_xml_to_archive($params, true, 0); // true => means it is an XML file, not an archive file nor a zip file. IMPORTANT: Expires now = 0.
+        Functions::finalize_dwca_resource($resource_id);
+        Functions::set_resource_status_to_harvest_requested($resource_id);
+        Functions::remove_row_number_from_text_file(CONTENT_RESOURCE_LOCAL_PATH."/$resource_id/taxon.tab", 2); //removes line 2 from tab file. Sol'n to a weird first row from taxon.tab.
+        Functions::tar_gz_resource_folder($resource_id); //repeat the tar process since taxon.tab is updated above remove_row_number_from_text_file()
+    }
+    //END of https://eol-jira.bibalex.org/browse/DATA-1702 ===========================================================
+
 
 }
 ?>

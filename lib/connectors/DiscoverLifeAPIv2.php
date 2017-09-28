@@ -17,7 +17,7 @@ class DiscoverLifeAPIv2
     // const DL_MAP_SPECIES_LIST   = "http://localhost/cp/DiscoverLife/species_map_small.txt";
 
     // this is temporary until DL fixes their list
-    // const DL_MAP_SPECIES_LIST   = "http://dl.dropbox.com/u/7597512/DiscoverLife/species_map 2012 06 26.txt";
+    // const DL_MAP_SPECIES_LIST   = "http://opendata.eol.org/u/7597512/DiscoverLife/species_map 2012 06 26.txt";
     
     const DL_SEARCH_URL         = "http://www.discoverlife.org/mp/20q?search=";
     const DL_MAP_URL            = "http://www.discoverlife.org/20/m?kind=";

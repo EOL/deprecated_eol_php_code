@@ -101,7 +101,8 @@ update_resources/connectors/XML_check.php
 vendor/eol_content_schema_v2/extension_cache/*
 !vendor/eol_content_schema_v2/extension_cache/.gitignore
 vendor/google_api/config.php
-
+vendor/geoPHP/
+applications/genHigherClass/sample/
 .DS_Store
 
 rake_tasks/e
@@ -191,3 +192,4 @@ applications/partner_requests/DiscoverLife_EOL_tc_list.php
 applications/partner_requests/TaxonConcept_check_if_name_inEOL.php
 
 applications/partner_requests/DiscoverLife_multiple_map_per_taxon.php
+vendor/google_client_library/json/sheets.googleapis.com-php-quickstart.json

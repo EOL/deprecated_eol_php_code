@@ -1,32 +1,32 @@
 <?php
 namespace php_active_record;
-/* connector for National Museum of Natural History Image Collection
+/* connector for National Museum of Natural History Image Collection - part of 120 176 341 342 343 344 346
 estimated execution time: 41 secs.
 Connector reads the XML provided by partner and 
 - sets the image rating.
 - If needed ingests TypeInformation text dataObjects
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+$GLOBALS['ENV_DEBUG'] = false;
 require_library('ResourceDataObjectElementsSetting');
 
 $timestart = time_elapsed();
 $resource_id = 344; 
-$resource_path = "http://collections.mnh.si.edu/services/eol/nmnh-mammals-response.xml.gz"; //Mammals Resource
 
-$result = $GLOBALS['db_connection']->select("SELECT accesspoint_url FROM resources WHERE id=$resource_id");
-$row = $result->fetch_row();
-$new_resource_path = $row[0];
-if($resource_path != $new_resource_path && $new_resource_path != '') $resource_path = $new_resource_path;
+$resource_path = Functions::get_accesspoint_url_if_available($resource_id, "http://collections.mnh.si.edu/services/eol/nmnh-mammals-response.xml.gz"); //Mammals Resource
 echo "\n processing resource:\n $resource_path \n\n";
 
-$nmnh = new ResourceDataObjectElementsSetting($resource_id, $resource_path, 'http://purl.org/dc/dcmitype/StillImage', 2);
-$xml = $nmnh->set_data_object_rating_on_xml_document();
 
+
+
+$nmnh = new ResourceDataObjectElementsSetting($resource_id, $resource_path, 'http://purl.org/dc/dcmitype/StillImage', 2);
+$xml = $nmnh->set_data_object_rating_on_xml_document(); //no params means will use default expire_seconds = 25 days
+$xml = $nmnh->fix_NMNH_xml($xml);
 require_library('connectors/INBioAPI');
 $xml = INBioAPI::assign_eol_subjects($xml);
-
 $nmnh->save_resource_document($xml);
-Functions::set_resource_status_to_harvest_requested($resource_id);
+$nmnh->call_xml_2_dwca($resource_id, "NMNH XML files");
+
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
 echo "elapsed time = $elapsed_time_sec seconds             \n";

@@ -15,8 +15,8 @@ class DiscoverLife_KeysAPI
     const TEXT_FILE_FOR_DL  = "/update_resources/connectors/files/DiscoverLife/names_without_pages_in_eol"; //report back to DiscoverLife
     const TEMP_FILE_PATH    = "/update_resources/connectors/files/DiscoverLife/";
 
-    // const ID_KEYS_FILE = "http://dl.dropbox.com/u/7597512/DiscoverLife/ID%20keys%20spreadsheet%2030March2011_small.txt";
-    const ID_KEYS_FILE = "http://dl.dropbox.com/u/7597512/DiscoverLife/ID%20keys%20spreadsheet%2030March2011.txt";
+    // const ID_KEYS_FILE = "http://localhost/cp/DiscoverLife/ID keys spreadsheet 30March2011_small.txt";
+    const ID_KEYS_FILE = "http://opendata.eol.org/dataset/d029964c-6948-4d4c-8f59-a8d3142cbdff/resource/92bdf53e-701a-4db9-a671-32ca7547b456/download/id-keys-spreadsheet-30march2011.txt";
 
     public function get_all_taxa_keys($resource_id)
     {

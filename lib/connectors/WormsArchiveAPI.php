@@ -20,29 +20,104 @@ Connector downloads the archive file, extracts, reads it, assembles the data and
            [excluded] =>                used
            [doubtful] =>                used
        )
+
+http://www.marinespecies.org/rest/#/
+http://www.marinespecies.org/aphia.php?p=taxdetails&id=9
 */
 
 class WormsArchiveAPI
 {
     function __construct($folder)
     {
+        $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         $this->object_ids = array();
-        // $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";                            //local
+        $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";                            //local
         // $this->dwca_file = "http://localhost/cp/WORMS/Archive.zip";                              //local subset copy
         // $this->dwca_file = "https://dl.dropboxusercontent.com/u/7597512/WORMS/WoRMS2EoL.zip";    //dropbox copy
-        $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";                 //WORMS online copy
+        // $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";              //WORMS online copy
         $this->occurrence_ids = array();
         $this->taxon_page = "http://www.marinespecies.org/aphia.php?p=taxdetails&id=";
+        
+        $this->webservice['AphiaClassificationByAphiaID'] = "http://www.marinespecies.org/rest/AphiaClassificationByAphiaID/";
+        $this->webservice['AphiaRecordByAphiaID']         = "http://www.marinespecies.org/rest/AphiaRecordByAphiaID/";
+        $this->webservice['AphiaChildrenByAphiaID']       = "http://www.marinespecies.org/rest/AphiaChildrenByAphiaID/";
+        
+        $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 26);
+        $this->download_options["expire_seconds"] = false; //debug - false means it will use cache
+        $this->debug = array();
     }
 
-    function get_all_taxa()
+    private function get_valid_parent_id($id)
     {
+        $taxa = self::AphiaClassificationByAphiaID($id);
+        $last_rec = end($taxa);
+        return $last_rec['parent_id'];
+    }
+
+    function get_all_taxa($what)
+    {
+        $temp = CONTENT_RESOURCE_LOCAL_PATH . "26_files";
+        if(!file_exists($temp)) mkdir($temp);
+        $this->what = $what; //either 'taxonomy' or 'media_objects'
+
+        /* last 2 bad parents:
+                Cristellaria Lamarck, 1816 (worms#390648)
+                Corbiculidae Gray, 1847 (worms#414789)
+        And there are six descendants of bad parents respectively:
+                *Cristellaria arcuatula Stache, 1864 (worms#895743)
+                *Cristellaria foliata Stache, 1864 (worms#903431)
+                *Cristellaria vestuta d'Orbigny, 1850 (worms#924530)
+                *Cristellaria obtusa (worms#925572)
+        
+                *Corbiculina Dall, 1903 (worms#818186)
+                *Cyrenobatissa Suzuki & Oyama, 1943 (worms#818201)            
+        */
+
+        /* tests
+        $this->children_of_synonyms = array(14769, 735405);
+        $id = "24"; $id = "142"; $id = "5"; $id = "25"; $id = "890992"; $id = "834546";
+        $id = "379702"; 
+        $id = "127";
+        $id = "14769";
+        $id = "930326";
+
+        $x2 = self::get_valid_parent_id($id);
+        echo "\n parent_id from api: $x1\n";
+        exit("\n valid parent_id: $x2\n");
+        exit("\n");
+        */
+        
+        /* tests
+        $this->synonyms_without_children = self::get_synonyms_without_children(); //used so script will no longer lookup if this syn is known to have no children.
+        // $taxo_tmp = self::get_children_of_taxon("100795");
+        // $taxo_tmp = self::get_children_of_taxon(13);
+        // $taxo_tmp = self::get_children_of_taxon(510462);
+        $taxo_tmp = self::get_children_of_taxon("390648");
+        print_r($taxo_tmp); exit("\n[".count($taxo_tmp)."] elix\n");
+        */
+        
+        /* tests
+        $this->synonyms_without_children = self::get_synonyms_without_children(); //used so script will no longer lookup if this syn is known to have no children.
+        $ids = self::get_all_ids_to_prune();
+        print_r($ids); exit("\n[".count($ids)."] total IDs to prune\n");
+        */
+        
+        /*
+        $str = "Cyclostomatida  incertae sedis";
+        // $str = "Tubuliporoidea Incertae sedis";
+        $str = "Lyssacinosida    incertae Sedis Tabachnick, 2002";
+        echo "\n[$str]\n";
+        $str = self::format_incertae_sedis($str);
+        exit("\n[$str]\n");
+        */
+        
+        
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($this->dwca_file, "meta.xml");
+        $paths = $func->extract_archive_file($this->dwca_file, "meta.xml", array('timeout' => 172800, 'expire_seconds' => true)); //true means it will re-download, will not use cache. Set TRUE when developing
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
 
@@ -54,13 +129,35 @@ class WormsArchiveAPI
             return false;
         }
 
-        self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
-        self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
-        self::get_objects($harvester->process_row_type('http://eol.org/schema/media/Document'));
-        self::get_references($harvester->process_row_type('http://rs.gbif.org/terms/1.0/Reference'));
-        self::get_agents($harvester->process_row_type('http://eol.org/schema/agent/Agent'));
-        self::get_vernaculars($harvester->process_row_type('http://rs.gbif.org/terms/1.0/VernacularName'));
-        $this->archive_builder->finalize(TRUE);
+        if($this->what == "taxonomy")
+        {
+            /* First, get all synonyms, then using api, get the list of children, then exclude these children
+            Based on latest: https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60756&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60756
+            */
+            $this->children_of_synonyms = self::get_all_children_of_synonyms($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon')); //then we will exclude this in the main operation
+
+            // /* uncomment in real operation
+            //add ids to prune for those to be excluded: https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60923&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60923
+            echo "\nBuilding up IDs to prune...\n"; $ids = self::get_all_ids_to_prune();
+            $this->children_of_synonyms = array_merge($this->children_of_synonyms, $ids);
+            $this->children_of_synonyms = array_unique($this->children_of_synonyms);
+            // */
+            
+        }
+        // exit("\n building up list of children of synonyms \n"); //comment in normal operation
+
+        echo "\n1 of 8\n";  self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
+        echo "\n2 of 8\n";  self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
+        echo "\n3 of 8\n";  self::add_taxa_from_undeclared_parent_ids();
+        if($this->what == "media_objects")
+        {
+            echo "\n4 of 8\n";  self::get_objects($harvester->process_row_type('http://eol.org/schema/media/Document'));
+            echo "\n5 of 8\n";  self::get_references($harvester->process_row_type('http://rs.gbif.org/terms/1.0/Reference'));
+            echo "\n6 of 8\n";  self::get_agents($harvester->process_row_type('http://eol.org/schema/agent/Agent'));
+            echo "\n7 of 8\n";  self::get_vernaculars($harvester->process_row_type('http://rs.gbif.org/terms/1.0/VernacularName'));
+        }
+        unset($harvester);
+        echo "\n8 of 8\n";  $this->archive_builder->finalize(TRUE);
 
         // remove temp dir
         recursive_rmdir($temp_dir);
@@ -68,6 +165,200 @@ class WormsArchiveAPI
         print_r($this->debug);
     }
 
+    // ===================================================================================
+    // START dynamic hierarchy ===========================================================
+    // ===================================================================================
+    private function add_taxa_from_undeclared_parent_ids() //text file here is generated by utility check_if_all_parents_have_entries() in 26.php
+    {
+        $url = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_undefined_parent_ids_archive.txt";
+        if(file_exists($url))
+        {
+            $i = 0;
+            foreach(new FileIterator($url) as $line_number => $id)
+            {
+                $i++;
+                $taxa = self::AphiaClassificationByAphiaID($id);
+                self::create_taxa($taxa);
+            }
+        }
+    }
+    
+    private function AphiaClassificationByAphiaID($id)
+    {
+        $taxa = self::get_ancestry_by_id($id);
+        $taxa = self::add_authorship($taxa);
+        // $taxa = self::add_parent_id($taxa); //obsolete
+        $taxa = self::add_parent_id_v2($taxa);
+        return $taxa;
+    }
+
+    private function get_ancestry_by_id($id)
+    {
+        $taxa = array();
+        if(!$id) return array();
+        if($json = Functions::lookup_with_cache($this->webservice['AphiaClassificationByAphiaID'].$id, $this->download_options))
+        {
+            $arr = json_decode($json, true);
+            // print_r($arr);
+            if(@$arr['scientificname'] && strlen(@$arr['scientificname']) > 1) $taxa[] = array('AphiaID' => @$arr['AphiaID'], 'rank' => @$arr['rank'], 'scientificname' => @$arr['scientificname']);
+            while(true)
+            {
+                if(!$arr) break;
+                foreach($arr as $i)
+                {
+                    if(@$i['scientificname'] && strlen(@$i['scientificname'])>1)
+                    {
+                        $taxa[] = array('AphiaID' => @$i['AphiaID'], 'rank' => @$i['rank'], 'scientificname' => @$i['scientificname']);
+                    }
+                    $arr = $i;
+                }
+            }
+        }
+        return $taxa;
+    }
+    
+    private function add_authorship($taxa) //and other metadata
+    {
+        $i = 0;
+        foreach($taxa as $taxon)
+        {   /*
+            [AphiaID] => 7
+            [rank] => Kingdom
+            [scientificname] => Chromista
+            [parent_id] => 1
+            */
+            if($json = Functions::lookup_with_cache($this->webservice['AphiaRecordByAphiaID'].$taxon['AphiaID'], $this->download_options))
+            {
+                $arr = json_decode($json, true);
+                // print_r($arr);
+                // [valid_AphiaID] => 1
+                // [valid_name] => Biota
+                // [valid_authority] => 
+                $taxa[$i]['authority'] = $arr['authority'];
+                $taxa[$i]['valid_name'] = trim($arr['valid_name'] . " " . $arr['valid_authority']);
+                $taxa[$i]['valid_AphiaID'] = $arr['valid_AphiaID'];
+                $taxa[$i]['status'] = $arr['status'];
+                $taxa[$i]['citation'] = $arr['citation'];
+            }
+            $i++;
+        }
+        return $taxa;
+    }
+    
+    private function create_taxa($taxa)
+    {
+        foreach($taxa as $t)
+        {   // [AphiaID] => 24
+            // [rank] => Class
+            // [scientificname] => Zoomastigophora
+            // [authority] => 
+            // [valid_name] => 
+            // [valid_AphiaID] => 
+            // [status] => unaccepted
+            // [parent_id] => 13
+            if($t['status'] != "accepted") continue; //only add those that are 'accepted'
+            $taxon = new \eol_schema\Taxon();
+            $taxon->taxonID         = $t['AphiaID'];
+            
+            if(in_array($taxon->taxonID, $this->children_of_synonyms)) continue; //exclude children of synonyms
+            
+            $taxon->scientificName  = trim($t['scientificname'] . " " . $t['authority']);
+            $taxon->scientificName = self::format_incertae_sedis($taxon->scientificName);
+            
+            $taxon->taxonRank       = $t['rank'];
+            $taxon->taxonomicStatus = $t['status'];
+            $taxon->source          = $this->taxon_page . $t['AphiaID'];
+            if($t['scientificname'] != "Biota") $taxon->parentNameUsageID = $t['parent_id'];
+            $taxon->acceptedNameUsageID     = $t['valid_AphiaID'];
+            $taxon->bibliographicCitation   = $t['citation'];
+            
+            if($taxon->taxonID == @$taxon->acceptedNameUsageID) $taxon->acceptedNameUsageID = '';
+            if($taxon->taxonID == @$taxon->parentNameUsageID)   $taxon->parentNameUsageID = '';
+            
+            if(!isset($this->taxon_ids[$taxon->taxonID]))
+            {
+                $this->taxon_ids[$taxon->taxonID] = '';
+                $this->archive_builder->write_object_to_file($taxon);
+            }
+        }
+    }
+
+    /*
+    private function add_parent_id($taxa) //works OK, but chooses parent whatever is in the line, even if it is 'unaccepted'.
+    {
+        $i = 0;
+        foreach($taxa as $taxon)
+        {
+            if($i != 0)
+            {
+                for ($x = 1; $x <= count($taxa); $x++)
+                {
+                    if($val = @$taxa[$i-$x]['AphiaID'])
+                    {
+                        $taxa[$i]['parent_id'] = $val;
+                        break;
+                    }
+                }
+            }
+            $i++;
+        }
+        return $taxa;
+    }
+    */
+
+    private function add_parent_id_v2($taxa)
+    {   /*Array
+        (
+            [AphiaID] => 25
+            [rank] => Order
+            [scientificname] => Choanoflagellida
+            [authority] => Kent, 1880
+            [valid_name] => Choanoflagellida Kent, 1880
+            [valid_AphiaID] => 25
+            [status] => accepted
+            [citation] => WoRMS (2013). Choanoflagellida. In: Guiry, M.D. & Guiry, G.M. (2016). AlgaeBase. World-wide electronic publication,...
+        )
+        */
+        $i = 0;
+        foreach($taxa as $taxon)
+        {
+            if($taxon['scientificname'] != "Biota")
+            {
+                $parent_id = self::get_parent_of_index($i, $taxa);
+                $taxa[$i]['parent_id'] = $parent_id;
+            }
+            $i++;
+        }
+        return $taxa;
+    }
+    private function get_parent_of_index($index, $taxa)
+    {
+        $parent_id = "";
+        for($k = 0; $k <= $index-1 ; $k++)
+        {
+            if($taxa[$k]['status'] == "accepted")
+            {
+                if(!in_array($taxa[$k]['AphiaID'], $this->children_of_synonyms)) $parent_id = $taxa[$k]['AphiaID']; //new
+            }
+        }
+        return $parent_id;
+    }
+    
+    private function get_undeclared_parent_ids()
+    {
+        $ids = array();
+        $url = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_undefined_parent_ids_archive.txt";
+        if(file_exists($url))
+        {
+            foreach(new FileIterator($url) as $line_number => $id) $ids[$id] = '';
+        }
+        return array_keys($ids);
+    }
+    
+    // ===================================================================================
+    // END dynamic hierarchy ===========================================================
+    // ===================================================================================
+    
     private function process_fields($records, $class)
     {
         foreach($records as $rec)
@@ -87,46 +378,348 @@ class WormsArchiveAPI
                 if(@$parts[1]) $field = $parts[1];
 
                 $c->$field = $rec[$key];
-                if($field == "taxonID") $c->$field = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $c->$field);
+                if($field == "taxonID") $c->$field = self::get_worms_taxon_id($c->$field);
             }
             $this->archive_builder->write_object_to_file($c);
         }
     }
 
+    /*
+    synonym ->  379702	WoRMS:citation:379702	255040	Leptasterias epichlora (Brandt, 1835)
+    child ->    934667	WoRMS:citation:934667		Leptasterias epichlora alaskensis Verrill, 1914	Verrill, A.E. (1914).
+    child ->    934669	WoRMS:citation:934669		Leptasterias epichlora alaskensis var. siderea Verrill, 1914	Verrill, A.E. (1914). Monograph of the shallow-water 
+    */
+    private function get_all_children_of_synonyms($records = array())
+    {
+        $this->synonyms_without_children = self::get_synonyms_without_children(); //used so script will no longer lookup if this syn is known to have no children.
+        //=====================================
+        // /* commented when building up the file 26_children_of_synonyms.txt. 6 connectors running during build-up
+        $filename = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_children_of_synonyms.txt";
+        if(file_exists($filename))
+        {
+            $txt = file_get_contents($filename);
+            $AphiaIDs = explode("\n", $txt);
+            $AphiaIDs = array_filter($AphiaIDs);
+            $AphiaIDs = array_unique($AphiaIDs);
+            return $AphiaIDs;
+        }
+        // */
+        
+        // Continues here if 26_children_of_synonyms.txt hasn't been created yet.
+        $filename = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_children_of_synonyms.txt";
+        $WRITE = fopen($filename, "a");
+        
+        $AphiaIDs = array();
+        $i = 0; //for debug
+        $k = 0; $m = 100000; //only for breakdown when caching
+        foreach($records as $rec)
+        {
+            $k++; echo " ".number_format($k)." ";
+            /* breakdown when caching: total ~565,280
+            $cont = false;
+            // if($k >=  1    && $k < $m) $cont = true;     //1 -   100,000
+            // if($k >=  $m   && $k < $m*2) $cont = true;   //100,000 - 200,000
+            // if($k >=  $m*2 && $k < $m*3) $cont = true;   //200,000 - 300,000
+            // if($k >=  $m*3 && $k < $m*4) $cont = true;   //300,000 - 400,000
+            // if($k >=  $m*4 && $k < $m*6) $cont = true;   //400,000 - 500,000
+            // if($k >=  $m*5 && $k < $m*6) $cont = true;   //500,000 - 600,000
+            if(!$cont) continue;
+            */
+            
+            $status = $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
+            
+            //special case where "REMAP_ON_EOL" -> status also becomes 'synonym'
+            $taxonRemarks = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRemarks"];
+            if(is_numeric(stripos($taxonRemarks, 'REMAP_ON_EOL'))) $status = "synonym";
+            
+            if($status == "synonym")
+            {
+                $i++;
+                $taxon_id = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
+                $taxo_tmp = self::get_children_of_taxon($taxon_id);
+                if($taxo_tmp) fwrite($WRITE, implode("\n", $taxo_tmp) . "\n");
+                // if($i >= 10) break; //debug
+            }
+        }
+        fclose($WRITE);
+
+        // /* //to make unique rows -> call the same function -> uncomment in real operation
+        $AphiaIDs = self::get_all_children_of_synonyms();
+        //save to text file
+        $WRITE = fopen($filename, "w"); //will overwrite existing
+        fwrite($WRITE, implode("\n", $AphiaIDs) . "\n");
+        fclose($WRITE);
+        // */
+        
+        return $AphiaIDs;
+        /* sample children of a synonym e.g. AphiaID = 13
+        [147416] =>
+        [24] =>
+        [147698] =>
+        */
+    }
+    
+    private function get_children_of_taxon($taxon_id)
+    {
+        $taxo_tmp = array();
+        //start ====
+        $temp = self::get_children_of_synonym($taxon_id);
+        $taxo_tmp = array_merge($taxo_tmp, $temp);
+
+        //start 2nd loop -> process children of children
+        foreach($temp as $id)
+        {
+            $temp2 = self::get_children_of_synonym($id);
+            $taxo_tmp = array_merge($taxo_tmp, $temp2);
+            //start 3rd loop -> process children of children of children
+            foreach($temp2 as $id)
+            {
+                $temp3 = self::get_children_of_synonym($id);
+                $taxo_tmp = array_merge($taxo_tmp, $temp3);
+                //start 4th loop -> process children of children of children
+                foreach($temp3 as $id)
+                {
+                    $temp4 = self::get_children_of_synonym($id);
+                    $taxo_tmp = array_merge($taxo_tmp, $temp4);
+                    //start 5th loop -> process children of children of children
+                    foreach($temp4 as $id)
+                    {
+                        $temp5 = self::get_children_of_synonym($id);
+                        $taxo_tmp = array_merge($taxo_tmp, $temp5);
+                        //start 6th loop -> process children of children of children
+                        foreach($temp5 as $id)
+                        {
+                            $temp6 = self::get_children_of_synonym($id);
+                            $taxo_tmp = array_merge($taxo_tmp, $temp6);
+                            //start 7th loop -> process children of children of children
+                            foreach($temp6 as $id)
+                            {
+                                $temp7 = self::get_children_of_synonym($id);
+                                $taxo_tmp = array_merge($taxo_tmp, $temp7);
+                                //start 8th loop -> process children of children of children
+                                foreach($temp7 as $id)
+                                {
+                                    $temp8 = self::get_children_of_synonym($id);
+                                    $taxo_tmp = array_merge($taxo_tmp, $temp8);
+                                    //start 9th loop -> process children of children of children
+                                    foreach($temp8 as $id)
+                                    {
+                                        $temp9 = self::get_children_of_synonym($id);
+                                        $taxo_tmp = array_merge($taxo_tmp, $temp9);
+                                        //start 10th loop -> process children of children of children
+                                        foreach($temp9 as $id)
+                                        {
+                                            $temp10 = self::get_children_of_synonym($id);
+                                            $taxo_tmp = array_merge($taxo_tmp, $temp10);
+                                            //start 11th loop -> process children of children of children
+                                            foreach($temp10 as $id)
+                                            {
+                                                $temp11 = self::get_children_of_synonym($id);
+                                                $taxo_tmp = array_merge($taxo_tmp, $temp11);
+                                                //start 12th loop -> process children of children of children
+                                                foreach($temp11 as $id)
+                                                {
+                                                    $temp12 = self::get_children_of_synonym($id);
+                                                    $taxo_tmp = array_merge($taxo_tmp, $temp12);
+                                                    //start 13th loop -> process children of children of children
+                                                    foreach($temp12 as $id)
+                                                    {
+                                                        print("\nreaches 13th loop\n");
+                                                        $temp13 = self::get_children_of_synonym($id);
+                                                        $taxo_tmp = array_merge($taxo_tmp, $temp13);
+                                                        //start 14th loop -> process children of children of children
+                                                        foreach($temp13 as $id)
+                                                        {
+                                                            print("\nreaches 14th loop\n");
+                                                            $temp14 = self::get_children_of_synonym($id);
+                                                            $taxo_tmp = array_merge($taxo_tmp, $temp14);
+                                                            //start 15th loop -> process children of children of children
+                                                            foreach($temp14 as $id)
+                                                            {
+                                                                print("\nreaches 15th loop\n");
+                                                                $temp15 = self::get_children_of_synonym($id);
+                                                                $taxo_tmp = array_merge($taxo_tmp, $temp15);
+                                                                //start 16th loop -> process children of children of children
+                                                                foreach($temp15 as $id)
+                                                                {
+                                                                    print("\nreaches 16th loop\n");
+                                                                    $temp16 = self::get_children_of_synonym($id);
+                                                                    $taxo_tmp = array_merge($taxo_tmp, $temp16);
+                                                                    //start 17th loop -> process children of children of children
+                                                                    foreach($temp16 as $id)
+                                                                    {
+                                                                        print("\nreaches 17th loop\n");
+                                                                        $temp17 = self::get_children_of_synonym($id);
+                                                                        $taxo_tmp = array_merge($taxo_tmp, $temp17);
+                                                                        //start 18th loop -> process children of children of children
+                                                                        foreach($temp17 as $id)
+                                                                        {
+                                                                            exit("\nreaches 18th loop\n");
+                                                                            $temp18 = self::get_children_of_synonym($id);
+                                                                            $taxo_tmp = array_merge($taxo_tmp, $temp18);
+                                                                        }
+                                                                        //end 18th loop
+                                                                    }
+                                                                    //end 17th loop
+                                                                }
+                                                                //end 16th loop
+                                                            }
+                                                            //end 15th loop
+                                                        }
+                                                        //end 14th loop
+                                                    }
+                                                    //end 13th loop
+                                                }
+                                                //end 12th loop
+                                            }
+                                            //end 11th loop
+                                        }
+                                        //end 10th loop
+                                    }
+                                    //end 9th loop
+                                }
+                                //end 8th loop
+                            }
+                            //end 7th loop
+                        }
+                        //end 6th loop
+                    }
+                    //end 5th loop
+                }
+                //end 4th loop
+            }
+            //end 3rd loop
+        }
+        //end 2nd loop
+        $taxo_tmp = array_unique($taxo_tmp);
+        $taxo_tmp = array_filter($taxo_tmp);
+        //end ====
+        return $taxo_tmp;
+    }
+    
+    private function get_children_of_synonym($taxon_id)
+    {
+        if(in_array($taxon_id, $this->synonyms_without_children)) return array();
+        $final = array();
+        $options = $this->download_options;
+        $options['download_wait_time'] = 1000000; //500000 -> half a second; 1 million is 1 second
+        $options['delay_in_minutes'] = 0;
+        $options['download_attempts'] = 1;
+
+        $offset = 1;
+        if($json = Functions::lookup_with_cache($this->webservice['AphiaChildrenByAphiaID'].$taxon_id, $options))
+        {
+            while(true)
+            {
+                // echo " $offset";
+                if($offset == 1) $url = $this->webservice['AphiaChildrenByAphiaID'].$taxon_id;
+                else             $url = $this->webservice['AphiaChildrenByAphiaID'].$taxon_id."?offset=$offset";
+                if($json = Functions::lookup_with_cache($url, $options))
+                {
+                    if($arr = json_decode($json, true))
+                    {
+                        foreach($arr as $a) $final[] = $a['AphiaID'];
+                    }
+                    if(count($arr) < 50) break;
+                }
+                else break;
+                $offset = $offset + 50;
+            }
+        }
+        else
+        {
+            echo "\nsave_2text_synonyms_without_children\n";
+            self::save_2text_synonyms_without_children($taxon_id);
+        }
+        return $final;
+    }
+    
+    private function save_2text_synonyms_without_children($taxon_id)
+    {
+        $filename = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_synonyms_without_children.txt";
+        $WRITE = fopen($filename, "a");
+        fwrite($WRITE, $taxon_id . "\n");
+        fclose($WRITE);
+    }
+    
+    private function get_synonyms_without_children()
+    {
+        $filename = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_synonyms_without_children.txt";
+        if(file_exists($filename))
+        {
+            $txt = file_get_contents($filename);
+            $AphiaIDs = explode("\n", $txt);
+            $AphiaIDs = array_filter($AphiaIDs);
+            // print_r($AphiaIDs); exit("\n 222 \n");
+            return $AphiaIDs;
+        }
+        return array();
+    }
+    
+    private function get_worms_taxon_id($worms_id)
+    {
+        return str_ireplace("urn:lsid:marinespecies.org:taxname:", "", (string) $worms_id);
+    }
+    
     private function build_taxa_rank_array($records)
     {
         foreach($records as $rec)
         {
-            $taxon_id = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
-            $this->taxa_rank[$taxon_id] = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
+            $taxon_id = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
+            $this->taxa_rank[$taxon_id]['r'] = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
+            $this->taxa_rank[$taxon_id]['s'] = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
         }
     }
     
     private function create_instances_from_taxon_object($records)
     {
+        $undeclared_ids = self::get_undeclared_parent_ids(); //uses a historical text file - undeclared parents. If not to use this, then there will be alot of API calls needed.
+        $k = 0;
         foreach($records as $rec)
         {
+            $rec = array_map('trim', $rec);
+            $k++;
+            // if(($k % 100) == 0) echo "\n count: $k";
+            /* breakdown when caching:
+            $cont = false;
+            // if($k >=  1   && $k < 200000) $cont = true;
+            // if($k >=  200000 && $k < 400000) $cont = true;
+            // if($k >=  400000 && $k < 600000) $cont = true;
+            if(!$cont) continue;
+            */
+            
             $taxon = new \eol_schema\Taxon();
-            $val = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
-            $taxon->taxonID         = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $val);
+            $taxon->taxonID = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
+            
+            if($this->what == "taxonomy")
+            {
+                if(in_array($taxon->taxonID, $this->children_of_synonyms)) continue; //exclude children of synonyms
+            }
+            
             $taxon->scientificName  = (string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"];
+            $taxon->scientificName = self::format_incertae_sedis($taxon->scientificName);
             
             if($taxon->scientificName != "Biota")
             {
-                $val = (string) $rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"];
-                $taxon->parentNameUsageID  = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $val);
+                $val = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"]);
+                if(in_array($val, $undeclared_ids)) $taxon->parentNameUsageID = self::get_valid_parent_id($taxon->taxonID); //based here: https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60658&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60658
+                else                                $taxon->parentNameUsageID = $val;
             }
             
             $taxon->taxonRank       = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
+            $this->debug['ranks'][$taxon->taxonRank] = '';
+            
             $taxon->taxonomicStatus = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
-
             $taxon->taxonRemarks    = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRemarks"];
-            if(is_numeric(stripos($taxon->taxonRemarks, 'REMAP_ON_EOL')))
+            
+            if($this->what == "taxonomy") //based on https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60923&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60923
             {
-                $taxon->taxonomicStatus = "synonym";
+                if($taxon->taxonomicStatus == "") continue; //synonymous to cases where "unassessed" in taxonRemarks
             }
+            
+            if(is_numeric(stripos($taxon->taxonRemarks, 'REMAP_ON_EOL'))) $taxon->taxonomicStatus = "synonym";
 
-            if($val = (string) $rec["http://rs.tdwg.org/dwc/terms/acceptedNameUsageID"]) $taxon->acceptedNameUsageID  = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $val);
+            if($val = (string) $rec["http://rs.tdwg.org/dwc/terms/acceptedNameUsageID"]) $taxon->acceptedNameUsageID  = self::get_worms_taxon_id($val);
             else $taxon->acceptedNameUsageID = '';
 
             if($taxon->taxonomicStatus == "accepted")
@@ -147,18 +740,27 @@ class WormsArchiveAPI
 
             if($taxon->taxonomicStatus == "synonym") // this will prevent names to become synonyms of another where the ranks are different
             {
-                if($taxon->taxonRank != @$this->taxa_rank[$taxon->acceptedNameUsageID]) continue;
+                if($taxon->taxonRank != @$this->taxa_rank[$taxon->acceptedNameUsageID]['r']) continue;
                 $taxon->parentNameUsageID = ''; //remove the ParentNameUsageID data from all of the synonym lines
             }
             
-            /* stats
-            $this->debug[$taxon->taxonomicStatus] = '';
+            if($this->what == "taxonomy") //based on https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60923&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60923
+            {
+                if(@$taxon->parentNameUsageID)
+                {
+                    if(!self::if_accepted_taxon($taxon->parentNameUsageID)) continue;
+                }
+            }
+            
+            
+            // /* stats
+            $this->debug["status"][$taxon->taxonomicStatus] = '';
             @$this->debug["count"][$taxon->taxonomicStatus]++;
             @$this->debug["count"]["count"]++;
-            */
+            // */
             $taxon->namePublishedIn = (string) $rec["http://rs.tdwg.org/dwc/terms/namePublishedIn"];
             $taxon->rightsHolder    = (string) $rec["http://purl.org/dc/terms/rightsHolder"];
-            $taxon->furtherInformationURL = (string) $rec["http://rs.tdwg.org/ac/terms/furtherInformationURL"];
+            $taxon->source = $this->taxon_page . $taxon->taxonID;
             if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/media/referenceID"])) $taxon->referenceID = $referenceID;
 
             if(!isset($this->taxon_ids[$taxon->taxonID]))
@@ -174,6 +776,26 @@ class WormsArchiveAPI
         }
     }
 
+    private function if_accepted_taxon($taxon_id)
+    {
+        if($status = @$this->taxa_rank[$taxon_id]['s'])
+        {
+            if($status == "accepted") return true;
+            else return false;
+        }
+        else //let the API decide
+        {
+            if($json = Functions::lookup_with_cache($this->webservice['AphiaRecordByAphiaID'].$taxon_id, $this->download_options))
+            {
+                $arr = json_decode($json, true);
+                // print_r($arr);
+                if($arr['status'] == "accepted") return true;
+            }
+            return false;
+        }
+        return false;
+    }
+    
     private function get_objects($records)
     {
         foreach($records as $rec)
@@ -181,8 +803,7 @@ class WormsArchiveAPI
             $identifier = (string) $rec["http://purl.org/dc/terms/identifier"];
             $type       = (string) $rec["http://purl.org/dc/terms/type"];
 
-            $rec["taxon_id"] = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
-            $rec["taxon_id"] = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $rec["taxon_id"]);
+            $rec["taxon_id"] = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
             $rec["catnum"] = "";
             
             if (strpos($identifier, "WoRMS:distribution:") !== false)
@@ -266,6 +887,59 @@ class WormsArchiveAPI
         $path = trim($path);
         if(substr($path, 0, 10) == "aphia.php?") return "http://www.marinespecies.org/" . $path;
         else return $path;
+    }
+    
+    private function get_branch_ids_to_prune()
+    {
+        //to do: access google sheets online: https://docs.google.com/spreadsheets/d/11jQ-6CUJIbZiNwZrHqhR_4rqw10mamdA17iaNELWCBQ/edit#gid=0
+        return array(12, 598929, 22718, 10, 503066, 234484, 596326, 886300, 147480, 742162, 1836, 178701, 1278, 1300, 719042, 741333, 393257, 598621, 719043, 719950, 164710, 167282, 510103, 719044, 719045, 719046, 397356, 724635, 719047, 719048, 719049, 598607, 719050, 549666, 709139);
+    }
+    
+    private function get_all_ids_to_prune()
+    {
+        $final = array();
+        $ids = self::get_branch_ids_to_prune(); //supposedly comes from a google spreadsheet
+        foreach($ids as $id)
+        {
+            $arr = self::get_children_of_taxon($id);
+            if($arr) $final = array_merge($final, $arr);
+            $final = array_unique($final);
+        }
+        $final = array_merge($final, $ids);
+        $final = array_unique($final);
+        $final = array_filter($final);
+        return $final;
+    }
+    
+    private function format_incertae_sedis($str)
+    {
+        /*
+        case 1: [One-word-name] incertae sedis
+            Example: Bivalvia incertae sedis
+            To: unplaced [One-word-name]
+        
+        case 2: [One-word-name] incertae sedis [other words]
+        Example: Lyssacinosida incertae sedis Tabachnick, 2002
+        To: unplaced [One-word-name]
+
+        case 3: [more than 1 word-name] incertae sedis
+        :: leave it alone for now
+        Examples: Ascorhynchoidea family incertae sedis
+        */
+        $str = Functions::remove_whitespace($str);
+        $str = trim($str);
+        if(is_numeric(stripos($str, " incertae sedis")))
+        {
+            $str = str_ireplace("incertae sedis", "incertae sedis", $str); //this will capture Incertae sedis
+            $arr = explode(" incertae sedis", $str);
+            if($val = @$arr[0])
+            {
+                $space_count = substr_count($val, " ");
+                if($space_count == 0) return "unplaced " . trim($val);
+                else return $str;
+            }
+        }
+        else return $str;
     }
 
     /*

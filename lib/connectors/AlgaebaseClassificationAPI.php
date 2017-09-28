@@ -15,7 +15,7 @@ class AlgaebaseClassificationAPI
         $this->object_ids = array();
         $this->text_path = array();
         $this->zip_path = "http://localhost/~eolit/cp/AlgaeBase/AlgaebaseClassification.zip";
-        $this->zip_path = "https://dl.dropboxusercontent.com/u/7597512/AlgaeBase/AlgaebaseClassification.zip";
+        $this->zip_path = "http://opendata.eol.org/dataset/d810e6b8-60b7-4405-8351-8bb20f2ed0a0/resource/a18eadd3-5846-4c21-830f-8f6dd0560a0b/download/algaebaseclassification.zip";
         $this->taxon_link["genus"] = "http://www.algaebase.org/search/genus/detail/?genus_id=";
         $this->taxon_link["species"] = "http://www.algaebase.org/search/species/detail/?species_id=";
         $this->csv_fields["genus"] = array("genus.genus", "genus.id", "genus.sStatus", "ta.taxon_authority", "ta.authority_year", "genus.Synonym_of_id", "empire", "kingdom", "subkingdom", "infrakingdom", "phylum", "subphylum", "class", "subclass", "order", "suborder", "family", "subfamily", "tribe");

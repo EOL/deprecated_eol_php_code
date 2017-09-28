@@ -7,7 +7,7 @@ Just a one-time import.
 */
 
 // define("BOLDS_IMAGE_EXPORT_FILE", "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/BOLD_images/BOLD Images - CreativeCommons - Nov 2011 small.txt");
-define("BOLDS_IMAGE_EXPORT_FILE", "http://dl.dropbox.com/u/7597512/resources/BOLD Images - CreativeCommons - Nov 2011.txt");
+define("BOLDS_IMAGE_EXPORT_FILE", "http://opendata.eol.org/u/7597512/resources/BOLD Images - CreativeCommons - Nov 2011.txt");
 define("BOLDS_SPECIES_URL", "http://www.boldsystems.org/views/taxbrowser.php?taxon=");
 
 class BoldsImagesAPI

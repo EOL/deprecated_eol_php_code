@@ -65,7 +65,9 @@ class PHPExcel_Autoloader
      * @param    string    $pClassName        Name of the object to load
      */
     public static function Load($pClassName){
+        // echo "\n-[$pClassName]-\n"; //debug
         if ((class_exists($pClassName,FALSE)) || (strpos($pClassName, 'PHPExcel') !== 0)) {
+            echo "\n-There is problem with this ClassName: [$pClassName]. Module may not be installed/enabled in PHP. -\n"; //debug
             //    Either already loaded, or not a PHPExcel class request
             debug("Either already loaded, or not a PHPExcel class request");
             return FALSE;
