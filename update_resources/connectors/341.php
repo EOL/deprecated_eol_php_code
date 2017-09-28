@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector for National Museum of Natural History Image Collection
+/* connector for National Museum of Natural History Image Collection - part of 120 176 341 342 343 344 346
 estimated execution time: 11 secs.
 Connector reads the XML provided by partner and 
 - sets the image rating.
@@ -17,6 +17,7 @@ $resource_id = 341;
 // $resource_path = "http://localhost/cp/NMNH/resources/nmnh-birds-response.xml.gz"; //local copy
 $resource_path = Functions::get_accesspoint_url_if_available($resource_id, "http://collections.mnh.si.edu/services/eol/nmnh-birds-response.xml.gz"); //Birds resource
 echo "\n processing resource:\n $resource_path \n\n";
+
 
 $nmnh = new ResourceDataObjectElementsSetting($resource_id, $resource_path, 'http://purl.org/dc/dcmitype/StillImage', 2);
 $xml = $nmnh->set_data_object_rating_on_xml_document(); //no params means will use default expire_seconds = 25 days

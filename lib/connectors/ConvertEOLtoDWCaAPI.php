@@ -17,6 +17,7 @@ class ConvertEOLtoDWCaAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         $this->occurrence_ids = array();
+        $this->count = 0;
         // $this->download_options = array('download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1);
     }
 
@@ -43,6 +44,7 @@ class ConvertEOLtoDWCaAPI
             $this->archive_builder->finalize(TRUE);
             unlink($local_xml_file);
         }
+        echo "\ntotal rows: $this->count\n";
     }
 
     private function convert_xml($params)
@@ -59,6 +61,14 @@ class ConvertEOLtoDWCaAPI
             $t_dc       = $t->children("http://purl.org/dc/elements/1.1/");
             $t_dcterms  = $t->children("http://purl.org/dc/terms/");
 
+            /*
+            if($i <= 2) {
+                print_r($t_dc);
+                print_r($t_dwc);
+            }
+            else return; //exit;
+            */
+            
             $i++; if(($i % 5000) == 0) echo "\n $i ";
             $rec = array();
             foreach(array_keys((array) $t_dc) as $field)  $rec[$field] = (string) $t_dc->$field;
@@ -116,7 +126,11 @@ class ConvertEOLtoDWCaAPI
             }
             
             $rec = array_map('trim', $rec);
-            if($rec['identifier'] && $rec['ScientificName']) self::create_archive($rec, "taxon");
+            if($rec['identifier'] && $rec['ScientificName'])
+            {
+                self::create_archive($rec, "taxon");
+                $this->count++;
+            }
             
             // break; //debug
         }

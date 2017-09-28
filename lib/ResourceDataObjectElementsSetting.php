@@ -14,6 +14,7 @@ class ResourceDataObjectElementsSetting
     {
         $xml_string = self::load_xml_string($expire_seconds);
         if($xml_string === false) return false;
+        if(!$xml_string) return false;
         if(!$xml = simplexml_load_string($xml_string)) return false;
         debug("set_data_object_rating_on_xml_document " . count($xml->taxon) . "-- please wait...");
         foreach($xml->taxon as $taxon)
@@ -363,6 +364,8 @@ class ResourceDataObjectElementsSetting
         $func->export_xml_to_archive($params, true, 0); // true => means it is an XML file, not an archive file nor a zip file. IMPORTANT: Expires now = 0.
         Functions::finalize_dwca_resource($resource_id);
         Functions::set_resource_status_to_harvest_requested($resource_id);
+        Functions::remove_row_number_from_text_file(CONTENT_RESOURCE_LOCAL_PATH."/$resource_id/taxon.tab", 2); //removes line 2 from tab file. Sol'n to a weird first row from taxon.tab.
+        Functions::tar_gz_resource_folder($resource_id); //repeat the tar process since taxon.tab is updated above remove_row_number_from_text_file()
     }
     //END of https://eol-jira.bibalex.org/browse/DATA-1702 ===========================================================
 

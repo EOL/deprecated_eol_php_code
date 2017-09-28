@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector for National Museum of Natural History Image Collection
+/* connector for National Museum of Natural History Image Collection - part of 120 176 341 342 343 344 346
 estimated execution time: 41 secs.
 Connector reads the XML provided by partner and 
 - sets the image rating.
@@ -15,6 +15,9 @@ $resource_id = 344;
 
 $resource_path = Functions::get_accesspoint_url_if_available($resource_id, "http://collections.mnh.si.edu/services/eol/nmnh-mammals-response.xml.gz"); //Mammals Resource
 echo "\n processing resource:\n $resource_path \n\n";
+
+
+
 
 $nmnh = new ResourceDataObjectElementsSetting($resource_id, $resource_path, 'http://purl.org/dc/dcmitype/StillImage', 2);
 $xml = $nmnh->set_data_object_rating_on_xml_document(); //no params means will use default expire_seconds = 25 days
