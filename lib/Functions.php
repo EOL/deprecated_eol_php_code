@@ -301,6 +301,24 @@ class Functions
         debug("\n total: [$i]\n");
         return $i;
     }
+    
+    public static function remove_row_number_from_text_file($txtfile, $row_no)
+    {
+        $temp_file = DOC_ROOT . "temp/" . date("Y-m-d H:i:s");
+        $handle = Functions::file_open($temp_file, "w");
+        $line_no = 0;
+        foreach(new FileIterator($txtfile) as $line => $row) {
+            $line_no++;
+            if($line_no != $row_no) fwrite($handle, $row."\n");
+        }
+        if(copy($temp_file, $txtfile)) unlink($temp_file);
+    }
+    
+    public static function tar_gz_resource_folder($resource_id)
+    {
+        $command_line = "tar -czf " . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz --directory=" . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . " .";
+        $output = shell_exec($command_line);
+    }
 
     public static function file_open($file_path, $mode)
     {
