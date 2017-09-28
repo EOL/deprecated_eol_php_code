@@ -131,7 +131,7 @@ class Functions
     public static function lookup_with_cache($url, $options = array())
     {
         // default expire time is 30 days
-        if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 2592000;
+        if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 60*60*24*25; //default expires in 25 days
         if(!isset($options['timeout'])) $options['timeout'] = 120;
         if(!isset($options['cache_path'])) $options['cache_path'] = DOC_ROOT . "tmp/cache/";    //orig row
         // if(!isset($options['cache_path'])) $options['cache_path'] = DOC_ROOT . "tmp/cache2/"; //a symlink; cache2 -> /Volumes/Thunderbolt4/eol_cache/ 
@@ -405,7 +405,7 @@ class Functions
             }
             Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
             Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
-            if(!self::fromJenkinsYN()) Functions::set_resource_status_to_harvest_requested($resource_id);
+            Functions::set_resource_status_to_harvest_requested($resource_id);
             $arr = Functions::count_resource_tab_files($resource_id);
             self::finalize_connector_run($resource_id, json_encode($arr));
             if(!$big_file)
@@ -1921,16 +1921,14 @@ class Functions
 
     public static function set_resource_status_to_harvest_requested($resource_id)
     {
-        if(file_exists(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml"))
-        {
-            if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 600)
-            {
+        if(self::fromJenkinsYN()) return;
+        if(file_exists(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) {
+            if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 600) {
                 $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::harvest_requested()->id . " WHERE id=" . $resource_id);
             }
-        }elseif(file_exists(CONTENT_RESOURCE_LOCAL_PATH ."/$resource_id/taxon.tab"))
-        {
-            if(filesize(CONTENT_RESOURCE_LOCAL_PATH ."/$resource_id/taxon.tab") > 600)
-            {
+        }
+        elseif(file_exists(CONTENT_RESOURCE_LOCAL_PATH ."/$resource_id/taxon.tab")) {
+            if(filesize(CONTENT_RESOURCE_LOCAL_PATH ."/$resource_id/taxon.tab") > 600) {
                 $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=" . ResourceStatus::harvest_requested()->id . " WHERE id=" . $resource_id);
             }
         }

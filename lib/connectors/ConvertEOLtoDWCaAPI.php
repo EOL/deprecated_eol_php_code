@@ -58,9 +58,8 @@ class ConvertEOLtoDWCaAPI
             $t_dwc      = $t->children("http://rs.tdwg.org/dwc/dwcore/");
             $t_dc       = $t->children("http://purl.org/dc/elements/1.1/");
             $t_dcterms  = $t->children("http://purl.org/dc/terms/");
-            
-            $i++; if(($i % 5000) == 0) echo "\n $i ";
 
+            $i++; if(($i % 5000) == 0) echo "\n $i ";
             $rec = array();
             foreach(array_keys((array) $t_dc) as $field)  $rec[$field] = (string) $t_dc->$field;
             foreach(array_keys((array) $t_dwc) as $field) $rec[$field] = (string) $t_dwc->$field;
@@ -71,10 +70,11 @@ class ConvertEOLtoDWCaAPI
             
             $taxon_id = false;
             if(isset($t_dc->identifier)) {
-                if    ($val = (string) $t_dc->identifier)      $taxon_id = $val;
-                elseif($val = (string) $t_dwc->ScientificName) $taxon_id = md5($val);
+                if    ($val = trim($t_dc->identifier))      $taxon_id = $val;
+                elseif($val = trim($t_dwc->ScientificName)) $taxon_id = md5($val);
                 else continue; //meaning if there is no taxon id and sciname then ignore record
             }
+            else echo "\nwent here\n";
             if($val = $taxon_id) $rec["identifier"] = $val;
             else
             {

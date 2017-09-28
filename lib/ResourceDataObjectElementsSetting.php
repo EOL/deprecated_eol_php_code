@@ -360,8 +360,9 @@ class ResourceDataObjectElementsSetting
         $params["dataset"]      = $dataset;
         $params["resource_id"]  = $resource_id;
         $func = new ConvertEOLtoDWCaAPI($resource_id);
-        $func->export_xml_to_archive($params, true, 60*60*24*25); // true => means it is an XML file, not an archive file nor a zip file. Expires in 25 days.
+        $func->export_xml_to_archive($params, true, 0); // true => means it is an XML file, not an archive file nor a zip file. IMPORTANT: Expires now = 0.
         Functions::finalize_dwca_resource($resource_id);
+        Functions::set_resource_status_to_harvest_requested($resource_id);
     }
     //END of https://eol-jira.bibalex.org/browse/DATA-1702 ===========================================================
 
