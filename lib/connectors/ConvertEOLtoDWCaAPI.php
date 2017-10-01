@@ -53,7 +53,8 @@ class ConvertEOLtoDWCaAPI
         echo "\n[$file]\n";
         $contents = file_get_contents($file);
         $contents = str_replace("xml:lang", "xml_lang", $contents);
-        $xml = simplexml_load_string($contents);
+        // $xml = simplexml_load_string($contents);
+        $xml = simplexml_load_string($contents, 'SimpleXMLElement', LIBXML_COMPACT | LIBXML_PARSEHUGE);
         $i = 0;
         foreach($xml->taxon as $t)
         {
@@ -150,14 +151,17 @@ class ConvertEOLtoDWCaAPI
                 else $rec[$field] = (string) $o->$field;
             }
             foreach(array_keys((array) $o_dc) as $field) $rec[$field] = (string) $o_dc->$field;
-            
-            if(@$rec['language'] == "English") $rec['language'] = "En"; //used in resource_id = 120
-            
             foreach(array_keys((array) $o_dcterms) as $field)
             {
                 /* if(in_array($field, array("some_field"))) continue; //how to exclude fields, not in schema */
                 $rec[$field] = (string) $o_dcterms->$field;
             }
+
+            //start filters - for quality control ================================================================
+            if(@$rec['language'] == "English") $rec['language'] = "En"; //used in resource_id = 120
+            if(@$rec['dataType'] == 'http://purl.org/dc/dcmitype/Text' && !@$rec['description']) continue;  //Text objects must have descriptions
+            //end filters - for quality control ==================================================================
+            
             
             //for references in data_object
             if($obj = @$o->reference)
