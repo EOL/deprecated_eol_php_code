@@ -31,7 +31,7 @@ class GBIFCountryTypeRecordAPI
         $this->debug = array();
         $this->spreadsheet_options = array('resource_id' => 'gbif', 'cache' => 0, 'timeout' => 3600, 'file_extension' => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2); //we don't want to cache spreadsheet
         // for iDigBio
-        $this->download_options = array('resource_id' => 'gbif', 'download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 1, 'expire_seconds' => false);
+        $this->download_options = array('resource_id' => 'gbif', 'download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 1, 'expire_seconds' => false); //60*60*24*365
         $this->IDB_service["record"] = "http://api.idigbio.org/v1/records/";
         $this->IDB_service["recordset"] = "http://api.idigbio.org/v1/recordsets/";
     }
@@ -157,7 +157,7 @@ class GBIFCountryTypeRecordAPI
                         
                         $i++;
                         if(($i % 10000) == 0) echo "\n" . $params["type"] . " - $i ";
-                        else                  echo "\n" . $params["type"] . " -> $i ";
+                        // else                  echo "\n" . $params["type"] . " -> $i ";
                         
                         /* breakdown when caching - iDigBIO up to 5 simultaneous connectors
                         $m = 200000;
