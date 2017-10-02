@@ -10,17 +10,10 @@ require_library('ResourceDataObjectElementsSetting');
 
 $timestart = time_elapsed();
 $resource_id = 20;
-$resource_path = "http://www.pensoft.net/J_FILES/EoLData/ZooKeys.xml";
-
-$result = $GLOBALS['db_connection']->select("SELECT accesspoint_url FROM resources WHERE id=$resource_id");
-if($result && $row = $result->fetch_row())
-{
-    $resource_path_from_registry = $row[0];
-    if($resource_path != $resource_path_from_registry && $resource_path_from_registry != '') $resource_path = $resource_path_from_registry;
-}
+$resource_path = Functions::get_accesspoint_url_if_available($resource_id, "http://www.pensoft.net/J_FILES/EoLData/ZooKeys.xml");
 echo "\n processing resource: $resource_path \n";
 
-if($local_path = Functions::save_remote_file_to_local($resource_path, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 5)))
+if($local_path = Functions::save_remote_file_to_local($resource_path, array('cache' => 1, 'download_wait_time' => 1000000, 'timeout' => 86400, 'download_attempts' => 3, 'delay_in_minutes' => 2))) //debug - cache should be 0 in normal operation
 {
     $func = new ResourceDataObjectElementsSetting($resource_id, $local_path);
     $dataObjects = get_values($local_path);
@@ -30,12 +23,24 @@ if($local_path = Functions::save_remote_file_to_local($resource_path, array('dow
     $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
     $xml = fill_up_values($resource_path, $dataObjects);
     $func->save_resource_document($xml);
-    Functions::set_resource_status_to_harvest_requested($resource_id);
 
-    // remove tmp file
     unlink($local_path);
-    debug("\n temporary file removed: [$local_path]");
 }
+
+//start creating the archive file using the generated EOL XML file above
+require_library('connectors/ConvertEOLtoDWCaAPI');
+
+$resource_id = 20;
+$params["eol_xml_file"] = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
+$params["filename"]     = "no need to mention here.xml";
+$params["dataset"]      = "Pensoft XML files";
+$params["resource_id"]  = $resource_id;
+
+$func = new ConvertEOLtoDWCaAPI($resource_id);
+$func->export_xml_to_archive($params, true); // true => means it is an XML file, not an archive file nor a zip file
+Functions::finalize_dwca_resource($resource_id);
+unlink(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");
+
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
@@ -48,7 +53,7 @@ echo "\n\n Done processing.";
 function get_values($resource_path)
 {
     $dataObjects = array();
-    if($xml = Functions::get_hashed_response($resource_path, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 5)))
+    if($xml = Functions::get_hashed_response($resource_path, array('download_wait_time' => 1000000, 'timeout' => 86400, 'download_attempts' => 5)))
     {
         foreach($xml->taxon as $taxon)
         {
