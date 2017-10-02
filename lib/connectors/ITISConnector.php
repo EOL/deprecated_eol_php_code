@@ -1,9 +1,11 @@
 <?php
 namespace php_active_record;
-
+// connector: [383]
 class ITISConnector
 {
-    const DUMP_URL = "http://www.itis.gov/downloads/itisInformix.tar.gz";
+    // const DUMP_URL = "http://www.itis.gov/downloads/itisInformix.tar.gz";
+    const DUMP_URL = "http://localhost/cp/ITIS/itisInformix.tar.gz";
+    const ITIS_TAXON_PAGE = "http://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=";
 
     public function __construct($resource_id)
     {
@@ -15,8 +17,9 @@ class ITISConnector
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . "/$this->resource_id/";
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
 
-        if($download_directory = ContentManager::download_temp_file_and_assign_extension(self::DUMP_URL))
+        if($download_directory = ContentManager::download_temp_file_and_assign_extension(self::DUMP_URL, "")) //added 2nd blank param to suffice: "Warning: Missing argument 2"
         {
+            echo "\ndownload_directory:[$download_directory]\n";
             // $download_directory = '/Library/WebServer/Webroot/eol_php_code/applications/content_server/tmp/9f508e44e8038fb56bbc0c9b34eb3ac7';
             if(is_dir($download_directory) && file_exists($download_directory ."/itis.sql"))
             {
@@ -374,6 +377,10 @@ class ITISConnector
                 $taxon->taxonomicStatus = $reason;
                 // if(isset($this->locations[$name_tsn])) $taxon->spatial = $this->locations[$name_tsn];
 
+                //newly added
+                if($val = @$this->locations[$name_tsn]) self::add_string_types($taxon->taxonID, md5($val), $val, "http://eol.org/schema/terms/Present", true);
+                // http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution - possible value for ITIS geographic division
+
                 if(!Functions::is_utf8($taxon->scientificName)) echo "NOT UTF8 SYN: $name_tsn : $taxon->scientificName\n";
                 $this->archive_builder->write_object_to_file($taxon);
                 @$this->all_statuses['synonyms'][$validity] += 1;
@@ -432,11 +439,43 @@ class ITISConnector
                 $taxon->taxonomicStatus = $validity;
                 // if(isset($this->locations[$name_tsn])) $taxon->spatial = $this->locations[$name_tsn];
 
+                //newly added
+                if($val = @$this->locations[$name_tsn]) self::add_string_types($taxon->taxonID, md5($val), $val, "http://eol.org/schema/terms/Present", true);
+
                 if(!Functions::is_utf8($taxon->scientificName)) echo "NOT UTF8: $name_tsn : $taxon->scientificName\n";
                 $this->archive_builder->write_object_to_file($taxon);
                 @$this->all_statuses['valids'][$validity] += 1;
             }
         }
+    }
+
+    //newly added
+    private function add_string_types($taxon_id, $catnum, $value, $mtype, $mtaxon = false)
+    {
+        $m = new \eol_schema\MeasurementOrFact();
+        $occurrence_id = $this->add_occurrence($taxon_id, $catnum);
+        $m->occurrenceID = $occurrence_id;
+        if($mtaxon)
+        {
+            $m->measurementOfTaxon = 'true';
+            $m->source = self::ITIS_TAXON_PAGE . $taxon_id;
+            // $m->measurementRemarks = "";
+        }
+        $m->measurementType = $mtype;
+        $m->measurementValue = $value;
+        $this->archive_builder->write_object_to_file($m);
+    }
+
+    private function add_occurrence($taxon_id, $catnum)
+    {
+        $occurrence_id = $taxon_id . '_' . $catnum;
+        if(isset($this->occurrence_ids[$occurrence_id])) return $occurrence_id;
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = $occurrence_id;
+        $o->taxonID = $taxon_id;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$occurrence_id] = '';
+        return $occurrence_id;
     }
 
     private static function get_iso_code_for_language($language)
@@ -448,7 +487,7 @@ class ITISConnector
             $lang['French']             = 'fr';
             $lang['English']            = 'en';
             $lang['Spanish']            = 'es';
-            // $lang['Hawaiian']           = '';
+            $lang['Hawaiian']           = 'Haw'; //newly added
             $lang['Native American']    = '';
             $lang['Portuguese']         = 'pt';
             $lang['Italian']            = 'it';
@@ -466,7 +505,8 @@ class ITISConnector
             // $lang['Djuka']              = '';
             $lang['Galibi']             = 'gl';
             $lang['Korean']             = 'ko';
-            // $lang['Australian']         = '';
+            $lang['Australian']         = 'au'; //newly added
+            $lang['Fijan']              = 'fj'; //newly added
         }
         if(isset($lang[$language])) return $lang[$language];
         return $language;

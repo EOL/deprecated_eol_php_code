@@ -1,5 +1,7 @@
 <?php
 namespace php_active_record;
+/* http://eol.org/content_partners/179/resources/383
+*/
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/ITISConnector');
 $timestart = time_elapsed();
