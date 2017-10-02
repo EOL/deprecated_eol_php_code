@@ -40,7 +40,7 @@ class ConabioAPI
         foreach($species_urls as $filename)
         {
             $i++;
-            print "\n $i of $total ";
+            if(($i % 500) == 0) print "\n $i of $total ";
             if($contents = Functions::lookup_with_cache($filename, $this->download_options))
             {
                 // manual adjustments
