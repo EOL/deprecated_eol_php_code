@@ -286,8 +286,11 @@ class ContentManager
         {
             Functions::file_rename($only_file, $directory_path . "_swap");
             rmdir($directory_path);
+            /* causes PHP error, cannot copy dir; used file_rename() below instead
             if(copy($directory_path . "_swap", $directory_path))
               unlink($directory_path . "_swap");
+            */
+            Functions::file_rename($directory_path . "_swap", $directory_path);
         }
     }
 
