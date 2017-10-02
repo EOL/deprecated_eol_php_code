@@ -22,6 +22,7 @@ class GBIFCountryTypeRecordAPI
 {
     function __construct($folder)
     {
+        $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
@@ -106,6 +107,7 @@ class GBIFCountryTypeRecordAPI
         else                                       $spreadsheet_options = $this->spreadsheet_options;
         
         $uris = array();
+        echo("\nspreadsheet: [$spreadsheet]\n"); //debug
         if($spreadsheet)
         {
             if($arr = $func->convert_spreadsheet($spreadsheet, 0, $spreadsheet_options))
@@ -155,6 +157,7 @@ class GBIFCountryTypeRecordAPI
                         
                         $i++;
                         if(($i % 10000) == 0) echo "\n" . $params["type"] . " - $i ";
+                        else                  echo "\n" . $params["type"] . " -> $i ";
                         
                         /* breakdown when caching - iDigBIO up to 5 simultaneous connectors
                         $m = 200000;
@@ -317,7 +320,7 @@ class GBIFCountryTypeRecordAPI
         return $taxon_id;
     }
 
-    private function get_institution_name($rec)
+    private function get_institution_name($rec) //only for iDigBio
     {
         $record_id = (string) $rec[""];
         if($html = Functions::lookup_with_cache($this->IDB_service["record"].$record_id, $this->download_options))
@@ -414,18 +417,59 @@ class GBIFCountryTypeRecordAPI
         }
     }
     
-    private function get_institution($rec)
+    private function get_institution($rec) //only for iDigBio
     {
-        $rightsHolder           = trim((string) $rec["http://purl.org/dc/terms/rightsHolder"]);
+        $rightsHolder = trim((string) $rec["http://purl.org/dc/terms/rightsHolder"]);
+        if(!$rightsHolder) $rightsHolder = trim((string) $rec["http://rs.tdwg.org/dwc/terms/rightsHolder"]);
+        
         $ownerInstitutionCode   = trim((string) $rec["http://rs.tdwg.org/dwc/terms/ownerInstitutionCode"]);
-        $datasetName            = trim((string) $rec["http://rs.tdwg.org/dwc/terms/datasetName"]);
+        if(!$ownerInstitutionCode) $ownerInstitutionCode = trim((string) $rec["http://rs.tdwg.org/dwc/terms/institutionCode"]);
+        
+        $datasetName = trim((string) $rec["http://rs.tdwg.org/dwc/terms/datasetName"]);
 
         if(is_numeric(substr($rightsHolder,0,2))) $rightsHolder = "";
         if(is_numeric(substr($ownerInstitutionCode,0,2))) $ownerInstitutionCode = "";
         if(is_numeric(substr($datasetName,0,2))) $datasetName = "";
 
         $institution = '';
-        if((!$rightsHolder && !$ownerInstitutionCode) || (!$rightsHolder && (is_numeric(substr($datasetName,0,3)) || !$datasetName))) $institution = self::get_institution_name($rec);
+        if((!$rightsHolder && !$ownerInstitutionCode) || (!$rightsHolder && (is_numeric(substr($datasetName,0,3)) || !$datasetName)))
+        {
+            echo "\n will start search for institution_name... =====";
+            echo "\n datasetID:" . $rec["http://rs.tdwg.org/dwc/terms/datasetID"];
+            echo "\n datasetName:" . $rec["http://rs.tdwg.org/dwc/terms/datasetName"];
+            echo "\n collectionID:" . $rec["http://rs.tdwg.org/dwc/terms/collectionID"];
+            echo "\n collectionCode:" . $rec["http://rs.tdwg.org/dwc/terms/collectionCode"];
+            echo "\n institutionID:" . $rec["http://rs.tdwg.org/dwc/terms/institutionID"];
+            echo "\n ownerInstitutionCode:" . $rec["http://rs.tdwg.org/dwc/terms/ownerInstitutionCode"];
+            echo "\n institutionCode:" . $rec["http://rs.tdwg.org/dwc/terms/institutionCode"];
+            echo "\n dwc:rightsHolder:" . $rec["http://rs.tdwg.org/dwc/terms/rightsHolder"];
+            echo "\n dc:rightsHolder:" . $rec["http://purl.org/dc/terms/rightsHolder"];
+            echo "\n recordID:" . $rec["http://portal.idigbio.org/terms/recordID"];
+            echo "\n recordId:" . $rec["http://portal.idigbio.org/terms/recordId"];
+            $institution = self::get_institution_name($rec);
+            echo "\n found institution_name1: [$institution] =====\n";
+
+            if(!$institution) // 2nd option for institution value
+            {
+                $institution_arr = array();
+                if($val = $rec["http://rs.tdwg.org/dwc/terms/institutionCode"]) $institution_arr[$val] = '';
+                if($val = $rec["http://rs.tdwg.org/dwc/terms/ownerInstitutionCode"]) $institution_arr[$val] = '';
+                if($val = $rec["http://rs.tdwg.org/dwc/terms/collectionCode"]) $institution_arr[$val] = '';
+                if($val = $rec["http://rs.tdwg.org/dwc/terms/collectionID"]) $institution_arr[$val] = '';
+                if($val = $rec["http://rs.tdwg.org/dwc/terms/institutionID"]) $institution_arr[$val] = '';
+                if($val = $rec["http://rs.tdwg.org/dwc/terms/datasetID"]) $institution_arr[$val] = '';
+                if($val = $rec["http://rs.tdwg.org/dwc/terms/rightsHolder"]) $institution_arr[$val] = '';
+                if($val = $rec["http://purl.org/dc/terms/rightsHolder"]) $institution_arr[$val] = '';
+                if($val = $rec["http://rs.tdwg.org/dwc/terms/datasetName"]) $institution_arr[$val] = '';
+                $institution_arr = array_keys($institution_arr);
+                foreach($institution_arr as $val)
+                {
+                    if(substr($val, 0, 4) != "urn:") $institution .= "($val) ";
+                }
+                $institution = trim($institution);
+            }
+            echo "\n found institution_name2: [$institution] =====\n";
+        }
         // else $institution = self::get_institution_name($rec); // debug --- comment in normal operation, use this if you want to API-call all institution recordsets
 
         /* for stats
@@ -671,6 +715,10 @@ class GBIFCountryTypeRecordAPI
 
         $m = new \eol_schema\MeasurementOrFact();
         $this->add_occurrence($taxon_id, $occurrence_id, $rec);
+        /* adding this seems not the sol'n
+        $this->measurementID++;
+        $m->measurementID = $this->resource_id . "_" . $this->measurementID;
+        */
         $m->occurrenceID = $occurrence_id;
         $m->measurementOfTaxon = $measurementOfTaxon;
         // =====================
