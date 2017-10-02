@@ -412,6 +412,12 @@ class Functions
         if(DOC_ROOT == "/html/eol_php_code/") return true;
         else return false;
     }
+    
+    public static function delete_if_exists($file_path)
+    {
+        if(file_exists($file_path)) unlink($file_path);
+    }
+    
     public static function finalize_dwca_resource($resource_id, $big_file = false)
     {
         if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 200)
