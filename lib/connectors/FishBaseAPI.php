@@ -167,7 +167,7 @@ class FishBaseAPI
                      "taxon_synonyms"               => $taxon_synonyms);
     }
 
-    function make_array($filename, $fields, $index_key="", $excluded_fields=array(), $separator="\t")
+    static function make_array($filename, $fields, $index_key="", $excluded_fields=array(), $separator="\t")
     {
         /*
         $excluded_fields can be array of fieldnames e.g. array("taxonID", "scientificName");
