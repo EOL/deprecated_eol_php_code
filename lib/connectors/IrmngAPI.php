@@ -16,6 +16,23 @@ for blank taxonomic_status - we first check if the name is already in EOL
 10918599    1383458    Navicula pseudony        Naviculaceae                                Navicula    species    Hustedt, 1955                        synonym     10691248
 *10691248   1265031    Fallacia pseudony        Sellaphoraceae                              Fallacia    species    (Hustedt) D.G. Mann, 1990            accepted    
 
+=============================
+https://eol-jira.bibalex.org/browse/WEB-5489?focusedCommentId=59921&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-59921
+Hi Katja, there are no more synonyms in the generated archive file.
+Below is the only relationship I saw (from taxon.tab) for the names in question you mentioned (http://eol.org/pages/9879/names/synonyms)
+
+taxonID ------ parentID ----- scientificName --------- taxonRank --- Authorship ---------- Status --- Remarks ----------------------- acceptedNameUsageID
+1205718 ------ 100100 ------- Alosternida ------------ genus ------- Podaný, 1961 -------- valid -----(null) ------------------------ (null)
+10655637 ----- 1205718 ------ Alosternida chalybaea -- species ----- (Haldeman, 1847) ---- valid -----(null) ------------------------ (null)
+11051589 ----- 1205718 ------ Alosternida chalybaea -- species ----- Monné, 1995 --------- valid ---- Presumed chresonym (IRMNG). --- 10655637
+11355212 ----- 1205718 ------ Alosternida chalybaea -- species ----- Yanega, 1996 -------- valid ---- Presumed chresonym (IRMNG). --- 10655637
+
+Would you suggest that I just ignore/exclude taxonIDs 11051589 & 11355212, basically those with remarks "Presumed chresonym (IRMNG).".
+OR maybe we just re-harvest the same resource and maybe this time our system will get the names right.
+What do you think?
+=============================
+
+
 */
 class IrmngAPI
 {

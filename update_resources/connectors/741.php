@@ -19,7 +19,7 @@ $func = new IrmngAPI($resource_id);
 // $func->get_taxa_without_status_but_with_eol_page(); //utility
 $func->get_all_taxa();
 
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, true);
 
 
 $elapsed_time_sec = time_elapsed() - $timestart;
