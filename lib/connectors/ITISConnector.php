@@ -3,8 +3,8 @@ namespace php_active_record;
 // connector: [383]
 class ITISConnector
 {
-    // const DUMP_URL = "http://www.itis.gov/downloads/itisInformix.tar.gz";
-    const DUMP_URL = "http://localhost/cp/ITIS/itisInformix.tar.gz";
+    // const DUMP_URL = "http://localhost/cp/ITIS/itisInformix.tar.gz";
+    const DUMP_URL = "http://www.itis.gov/downloads/itisInformix.tar.gz";
     const ITIS_TAXON_PAGE = "http://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=";
 
     public function __construct($resource_id)
@@ -14,10 +14,12 @@ class ITISConnector
 
     public function build_archive()
     {
+        $local_temp_file = Functions::save_remote_file_to_local(self::DUMP_URL, array("cache" => 1, "timeout" => 60*60*5, "expire_seconds" => 60*60*24*25)); //5 hours timeout | expires in 25 days
+        
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . "/$this->resource_id/";
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
 
-        if($download_directory = ContentManager::download_temp_file_and_assign_extension(self::DUMP_URL, "")) //added 2nd blank param to suffice: "Warning: Missing argument 2"
+        if($download_directory = ContentManager::download_temp_file_and_assign_extension($local_temp_file, "")) //added 2nd blank param to suffice: "Warning: Missing argument 2"
         {
             echo "\ndownload_directory:[$download_directory]\n";
             // $download_directory = '/Library/WebServer/Webroot/eol_php_code/applications/content_server/tmp/9f508e44e8038fb56bbc0c9b34eb3ac7';
@@ -55,6 +57,7 @@ class ITISConnector
         }
 
         $this->archive_builder->finalize(true);
+        unlink($local_temp_file);
     }
 
     private function get_file_names()
@@ -487,7 +490,7 @@ class ITISConnector
             $lang['French']             = 'fr';
             $lang['English']            = 'en';
             $lang['Spanish']            = 'es';
-            $lang['Hawaiian']           = 'Haw'; //newly added
+            $lang['Hawaiian']           = 'haw'; //newly added
             $lang['Native American']    = '';
             $lang['Portuguese']         = 'pt';
             $lang['Italian']            = 'it';
@@ -505,8 +508,8 @@ class ITISConnector
             // $lang['Djuka']              = '';
             $lang['Galibi']             = 'gl';
             $lang['Korean']             = 'ko';
-            $lang['Australian']         = 'au'; //newly added
-            $lang['Fijan']              = 'fj'; //newly added
+            $lang['Australian']         = 'au';
+            $lang['Fijan']              = 'fj';
         }
         if(isset($lang[$language])) return $lang[$language];
         return $language;
