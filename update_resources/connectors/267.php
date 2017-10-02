@@ -21,7 +21,7 @@ $xml_resource = "http://calphotos.berkeley.edu/eol.xml.gz";
 // $xml_resource = "http://localhost/cp/CalPhotos/eol.xml.gz"; //local debug only
 
 $func = new INBioAPI();
-$info = $func->extract_archive_file($xml_resource, "eol.xml", array('timeout' => 172800, 'expire_seconds' => 432000)); //expires in 5 days
+$info = $func->extract_archive_file($xml_resource, "eol.xml", array('timeout' => 172800, 'expire_seconds' => 60*60*24*5)); //expires in 5 days 432000
 if(!$info) return;
 print_r($info);
 $temp_dir = $info['temp_dir'];
@@ -36,8 +36,13 @@ fclose($WRITE);
 // remove tmp dir
 if($temp_dir) shell_exec("rm -fr $temp_dir");
 
-Functions::gzip_resource_xml($resource_id);
+// Functions::gzip_resource_xml($resource_id); no longer needed as it will be converted to DwC-A
 Functions::set_resource_status_to_harvest_requested($resource_id);
+
+//start convert EOL XML to EOL DwCA
+require_library('ResourceDataObjectElementsSetting');
+$nmnh = new ResourceDataObjectElementsSetting($resource_id);
+$nmnh->call_xml_2_dwca($resource_id, "CalPhotos");
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
