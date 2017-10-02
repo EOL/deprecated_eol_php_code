@@ -2,7 +2,7 @@
 namespace php_active_record;
 class ResourceDataObjectElementsSetting
 {
-    public function __construct($resource_id, $xml_path, $data_object_type = null, $rating = null)
+    public function __construct($resource_id, $xml_path = null, $data_object_type = null, $rating = null)
     {
         $this->resource_id = $resource_id;
         $this->xml_path = $xml_path;
