@@ -78,6 +78,19 @@ class ResourceDataObjectElementsSetting
             echo ("\n temporary directory removed: [$temp_dir]\n");
             unlink($local_file);
         }
+        elseif(preg_match("/^(.*)\.(xml)$/", $this->xml_path, $arr))
+        {
+            if($local_file = Functions::save_remote_file_to_local($this->xml_path, array('timeout' => 172800, 'cache' => 1, 'expire_seconds' => $expire_seconds)))
+            {
+                $file_contents = file_get_contents($local_file);
+                unlink($local_file);
+            }
+        }
+        else
+        {
+            echo "\nInput file not processed. Script to determine file not yet created.\n";
+            return false;
+        }
         return $file_contents;
     }
 
