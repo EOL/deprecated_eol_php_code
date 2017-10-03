@@ -20,13 +20,14 @@ $timestart = time_elapsed();
 /*
 //local source
 $params["dwca_file"]    = "http://localhost/cp/NMNH/type_specimen_resource/dwca-nmnhdwca.zip";
-$params["uri_file"]     = "http://localhost/cp/NMNH/type_specimen_resource/nmnh mappings.xlsx";
+$params["uri_file"]     = "http://localhost/cp/NMNH/type_specimen_resource/nmnh-mappings.xlsx"; //renamed; originally [nmnh mappings.xlsx]
 */
 
+// /*
 //remote source
-// $params["dwca_file"]    = "https://dl.dropboxusercontent.com/u/7597512/NMNH/type_specimen_resource/dwca-nmnhdwca.zip";
 $params["dwca_file"]    = "http://collections.mnh.si.edu/ipt/archive.do?r=nmnhdwca"; // true value - working
-$params["uri_file"]     = "https://dl.dropboxusercontent.com/u/7597512/NMNH/type_specimen_resource/nmnh mappings.xlsx";
+$params["uri_file"]     = "https://opendata.eol.org/dataset/6a470c75-5a7b-4caf-a9e8-8f95ca0e9820/resource/47df3054-bf18-4c74-b273-01a79a6dc50f/download/nmnh-mappings.xlsx";
+// */
 
 $params["row_type"]     = "http://rs.tdwg.org/dwc/terms/occurrence";
 $params["location"]     = "occurrence.txt";

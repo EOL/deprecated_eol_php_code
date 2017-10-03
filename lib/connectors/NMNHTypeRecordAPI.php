@@ -2,6 +2,46 @@
 namespace php_active_record;
 /*  connector: [891] NMNH type records
     connector: [947] NHM type records
+    
+    multimedia: 
+    _id,license,format,rightsHolder,title,identifier,type
+    _id,license,title,format,rightsHolder,identifier,type
+    
+    
+Hi Jen, good question.
+Yes there is only 1:1 per occurrence for every measurement record where "measurementOfTaxon" is TRUE.
+The other ~9 records are metadata where "measurementOfTaxon" is FALSE.
+Please see sample below:
+
+OCCURRENCE.TAB extension
+occurrenceID ========== taxonID
+1551370 ========== Bodianus_insularis
+2826799 ========== Zygomyia_eluta
+
+MEASUREMENT_OR_FACT.TAB extension
+occurrenceID ========== measurementOfTaxon ========== measurementType ========== measurementValue
+1551370 ========== true ========== http://eol.org/schema/terms/TypeSpecimenRepository ========== http://biocol.org/urn:lsid:biocol.org:col:34665
+1551370 ========== (null) ========== http://rs.tdwg.org/dwc/terms/typeStatus ========== http://rs.tdwg.org/ontology/voc/TaxonName#Paratype
+1551370 ========== (null) ========== http://rs.tdwg.org/dwc/terms/collectionID ========== ZOO
+1551370 ========== (null) ========== http://rs.tdwg.org/dwc/terms/otherCatalogNumbers ========== NHMUK:ecatalogue:3108644
+1551370 ========== (null) ========== http://rs.tdwg.org/dwc/terms/higherGeography ========== South America; Brazil
+1551370 ========== (null) ========== http://rs.tdwg.org/dwc/terms/continent ========== South America
+1551370 ========== (null) ========== http://rs.tdwg.org/dwc/terms/waterBody ========== Southwest Atlantic Ocean
+1551370 ========== (null) ========== http://rs.tdwg.org/dwc/terms/country ========== Brazil
+1551370 ========== (null) ========== http://rs.tdwg.org/dwc/terms/identificationQualifier ========== TYPE STATUS CHECKED (Eschmeyer Catalogue 2005).  See Notes.
+
+2826799 ========== true ========== http://eol.org/schema/terms/TypeSpecimenRepository ========== http://biocol.org/urn:lsid:biocol.org:col:34665
+2826799 ========== (null) ========== http://rs.tdwg.org/dwc/terms/typeStatus ========== http://rs.tdwg.org/ontology/voc/TaxonName#Paratype
+2826799 ========== (null) ========== http://rs.tdwg.org/dwc/terms/collectionID ========== BMNH(E)
+2826799 ========== (null) ========== http://rs.tdwg.org/dwc/terms/otherCatalogNumbers ========== NHMUK:ecatalogue:868838
+2826799 ========== (null) ========== http://rs.tdwg.org/dwc/terms/year ========== 1922
+2826799 ========== (null) ========== http://rs.tdwg.org/dwc/terms/month ========== 08
+2826799 ========== (null) ========== http://rs.tdwg.org/dwc/terms/day ========== 20
+2826799 ========== (null) ========== http://rs.tdwg.org/dwc/terms/higherGeography ========== New Zealand; Canterbury; Governor's Bay, Near Christchurch
+2826799 ========== (null) ========== http://rs.tdwg.org/dwc/terms/country ========== New Zealand
+2826799 ========== (null) ========== http://rs.tdwg.org/dwc/terms/stateProvince ========== Canterbury
+
+    
 */
 class NMNHTypeRecordAPI
 {
@@ -23,7 +63,7 @@ class NMNHTypeRecordAPI
         $this->uris = self::get_uris($params);
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($params["dwca_file"], "meta.xml", array("timeout" => 7200, "expire_seconds" => false)); // "expire_seconds" -- false => won't expire; 0 => expires now
+        $paths = $func->extract_archive_file($params["dwca_file"], "meta.xml", array("timeout" => 7200, "expire_seconds" => 60*60*24*25)); // "expire_seconds" -- false => won't expire; 0 => expires now
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         $this->harvester = new ContentArchiveReader(NULL, $archive_path);
@@ -56,7 +96,7 @@ class NMNHTypeRecordAPI
         require_library('connectors/LifeDeskToScratchpadAPI');
         $func = new LifeDeskToScratchpadAPI();
         $spreadsheet_options = array("cache" => 1, "timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2);
-        $spreadsheet_options["expire_seconds"] = 0; // false => won't expire; 0 => expires now
+        $spreadsheet_options["expire_seconds"] = 0; // false => won't expire; 0 => expires now (orig value)
         $uris = array();
         if($spreadsheet = @$params["uri_file"])
         {
