@@ -110,7 +110,7 @@ class NCBIGGIqueryAPI
 
             // /* working, a round-robin option of server load - per 100 calls each server
             $k = 0;
-            $calls = 10;
+            $calls = 10; //orig is 100
             for ($i = $k; $i <= count($families)+$calls; $i=$i+$calls) //orig value of i is 0
             {
                 $min = $i; $max = $min+$calls;
