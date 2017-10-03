@@ -17,24 +17,24 @@ $resource_path = Functions::get_accesspoint_url_if_available($resource_id, "http
 echo "\n processing resource:\n $resource_path \n\n";
 
 $nmnh = new ResourceDataObjectElementsSetting($resource_id, $resource_path, 'http://purl.org/dc/dcmitype/StillImage', 2);
-$xml = $nmnh->set_data_object_rating_on_xml_document(); //no params means will use default expire_seconds = 25 days
-$xml = $nmnh->fix_NMNH_xml($xml);
+$xml = $nmnh->set_data_object_rating_on_xml_document(); echo "\n --- set_data_object_rating_on_xml_document() DONE\n"; //no params means will use default expire_seconds = 25 days
+$xml = $nmnh->fix_NMNH_xml($xml); echo "\n --- fix_NMNH_xml() DONE\n";
 
 //manual fix DATA-1189, until partner fixes their data
-$xml = str_ireplace("Photograph of Photograph of", "Photograph of", $xml);
+$xml = str_ireplace("Photograph of Photograph of", "Photograph of", $xml); echo "\n --- str_replace() 1 DONE\n";
 
 //manual fix DATA-1205
-$xml = replace_Indet_sp($xml);
-$xml = remove_blank_taxon_entry($xml);
+$xml = replace_Indet_sp($xml); echo "\n - replace_Indet_sp() DONE\n";
+$xml = remove_blank_taxon_entry($xml); echo "\n --- remove_blank_taxon_entry() DONE\n";
 
 require_library('connectors/INBioAPI');
-$xml = INBioAPI::assign_eol_subjects($xml);
+$xml = INBioAPI::assign_eol_subjects($xml); echo "\n --- assign_eol_subjects() DONE\n";
 
 //fix DATA-1420
-$xml = $nmnh->remove_data_object_of_certain_element_value("mimeType", "image/x-adobe-dng", $xml); 
+$xml = $nmnh->remove_data_object_of_certain_element_value("mimeType", "image/x-adobe-dng", $xml); echo "\n --- remove_data_object_of_certain_element_value() DONE\n";
 
-$nmnh->save_resource_document($xml);
-$nmnh->call_xml_2_dwca($resource_id, "NMNH XML files");
+$nmnh->save_resource_document($xml); echo "\n --- save_resource_document() DONE\n";
+// $nmnh->call_xml_2_dwca($resource_id, "NMNH XML files"); echo "\n --- call_xml_2_dwca() DONE\n";
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
@@ -54,7 +54,8 @@ function replace_Indet_sp($xml_string)
 {
     if(!is_numeric(stripos($xml_string, "Indet"))) return $xml_string;
     echo "\n\n this resource has 'Indet.' taxa \n";
-    $xml = simplexml_load_string($xml_string);
+    // $xml = simplexml_load_string($xml_string);
+    $xml = simplexml_load_string($xml_string, 'SimpleXMLElement', LIBXML_COMPACT | LIBXML_PARSEHUGE);
     $i = 0;
     foreach($xml->taxon as $taxon)
     {

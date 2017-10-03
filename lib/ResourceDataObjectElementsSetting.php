@@ -15,7 +15,9 @@ class ResourceDataObjectElementsSetting
         $xml_string = self::load_xml_string($expire_seconds);
         if($xml_string === false) return false;
         if(!$xml_string) return false;
-        if(!$xml = simplexml_load_string($xml_string)) return false;
+        // if(!$xml = simplexml_load_string($xml_string)) return false;
+        if(!$xml = simplexml_load_string($xml_string, 'SimpleXMLElement', LIBXML_COMPACT | LIBXML_PARSEHUGE)) return false;
+        
         debug("set_data_object_rating_on_xml_document " . count($xml->taxon) . "-- please wait...");
         foreach($xml->taxon as $taxon)
         {
@@ -88,7 +90,8 @@ class ResourceDataObjectElementsSetting
             valid elements to handle are those without namespace e.g. :
             [dataType], [mimeType], [license], [subject]
         */
-        if($xml = simplexml_load_string($xml_string))
+        // if($xml = simplexml_load_string($xml_string))
+        if($xml = simplexml_load_string($xml_string, 'SimpleXMLElement', LIBXML_COMPACT | LIBXML_PARSEHUGE))
         {
             debug("remove_data_object_of_certain_element_value " . count($xml->taxon) . "-- please wait...");
             $t = -1;
@@ -216,11 +219,7 @@ class ResourceDataObjectElementsSetting
     public function save_resource_document($xml)
     {
         $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . ".xml";
-        if(!($OUT = fopen($resource_path, "w")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$resource_path);
-          return;
-        }
+        $OUT = Functions::file_open($resource_path, "w");
         fwrite($OUT, $xml);
         fclose($OUT);
     }
