@@ -26,7 +26,6 @@ audio/x-wav:        2
             image:  53
 vernacularname:    728
 taxon:             5260
-
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -54,10 +53,8 @@ function check_content()
     $filename = DOC_ROOT . "/media_resource.tab";
     // $filename = DOC_ROOT . "/vernacular_name.tab";
     $rec = array();
-    foreach(new FileIterator($filename) as $line_number => $line)
-    {
-        if($line)
-        {
+    foreach(new FileIterator($filename) as $line_number => $line) {
+        if($line) {
             $values = explode("\t", trim($line));
                 // [0] => map_1102231
                 // [1] => 1102231
@@ -70,10 +67,8 @@ function check_content()
             
             if(isset($rec["format"][$values[4]])) $rec["format"][$values[4]]++;
             else $rec["format"][$values[4]] = 0;
-            
         }
     }
     print_r($rec);
 }
 ?>
-
