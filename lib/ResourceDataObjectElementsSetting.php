@@ -117,7 +117,7 @@ class ResourceDataObjectElementsSetting
         }
         else
         {
-            echo "\nXML is invalid.\n";
+            echo "\nXML is invalid in remove_data_object_of_certain_element_value().\n";
             return $xml_string;
         }
     }
@@ -149,7 +149,7 @@ class ResourceDataObjectElementsSetting
         }
         else
         {
-            echo "\nXML is invalid.\n";
+            echo "\nXML is invalid in replace_data_object_element_value().\n";
             return $xml_string;
         }
     }
@@ -194,7 +194,7 @@ class ResourceDataObjectElementsSetting
         }
         else
         {
-            echo "\nXML is invalid.\n";
+            echo "\nXML is invalid in replace_data_object_element_value_with_condition().\n";
             return $xml_string;
         }
     }
@@ -263,7 +263,7 @@ class ResourceDataObjectElementsSetting
         }
         else
         {
-            echo "\nXML is invalid.\n";
+            echo "\nXML is invalid in delete_taxon_if_no_dataObject().\n";
             return $xml_string;
         }
     }
@@ -305,7 +305,7 @@ class ResourceDataObjectElementsSetting
         }
         else
         {
-            echo "\nXML is invalid.\n";
+            echo "\nXML is invalid in replace_taxon_element_value_with_condition().\n";
             return $xml_string;
         }
     }
@@ -333,7 +333,7 @@ class ResourceDataObjectElementsSetting
         }
         else
         {
-            echo "\nXML is invalid.\n";
+            echo "\nXML is invalid in replace_taxon_element_value().\n";
             return $xml_string;
         }
     }
