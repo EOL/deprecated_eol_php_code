@@ -14,14 +14,15 @@ class MycoBankAPI
         $this->service_search["startswith_legitimate"] = 'http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&limit=0&filter=NameStatus_="Legitimate" AND Name STARTSWITH ';
         $this->service_search["startswith"] = 'http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&limit=0&filter=Name STARTSWITH ';
         $this->service_search["exact"]      = 'http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&limit=0&filter=Name=';
-        $this->download_options = array('expire_seconds' => 5184000, 'timeout' => 7200); // 2 months expire_seconds
-        // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/";
-        /*
-        $this->mycobank_taxa_list              = "http://localhost/~eolit/cp/MycoBank/mycobank_taxon.tab";
-        $this->not_found_from_previous_harvest = "http://localhost/~eolit/cp/MycoBank/not_found_from_previous_harvest.txt"; // alias names_not_yet_entered.txt
-        */
-        $this->mycobank_taxa_list              = "https://dl.dropboxusercontent.com/u/7597512/MycoBank/mycobank_taxon.tab";
-        $this->not_found_from_previous_harvest = "https://dl.dropboxusercontent.com/u/7597512/MycoBank/not_found_from_previous_harvest.txt";
+        $this->download_options = array('download_wait_time' => 5000000, 'expire_seconds' => 5184000, 'timeout' => 7200, 'delay_in_minutes' => 3); // 2 months expire_seconds
+		$this->download_options['expire_seconds'] = false;
+        // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/"; -- no longer used
+        // /*
+        $this->mycobank_taxa_list              = "http://localhost/cp/MycoBank/mycobank_taxon.tab";
+        $this->not_found_from_previous_harvest = "http://localhost/cp/MycoBank/not_found_from_previous_harvest.txt"; // alias names_not_yet_entered.txt
+        // */
+        // $this->mycobank_taxa_list              = "https://dl.dropboxusercontent.com/u/7597512/MycoBank/mycobank_taxon.tab";
+        // $this->not_found_from_previous_harvest = "https://dl.dropboxusercontent.com/u/7597512/MycoBank/not_found_from_previous_harvest.txt";
 
         $this->dont_search_more_than_5h = array("Phoma ", "Uredo ", "Entoloma ", "Lichen ", "Patellaria ", "Hygrophorus ", "Mollisia ", "Omphalia ", "Cordyceps ", 
         "Gloeosporium ", "Collema ", "Pholiota ", "Sticta ", "Placodium ", "Biatora ", "Thelephora ", "Lycoperdon ", "Thelotrema ", "Peltigera ", "Hydnum ", "Passalora ", 
@@ -133,11 +134,7 @@ class MycoBankAPI
     {
         if($filename = Functions::save_remote_file_to_local($fname, $this->download_options))
         {
-            if(!($READ = fopen($filename, "r")))
-            {
-              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
-              return;
-            }
+            if(!($READ = Functions::file_open($filename, "r"))) return;
             $contents = fread($READ, filesize($filename));
             $contents = utf8_encode($contents);
             fclose($READ);
@@ -159,7 +156,7 @@ class MycoBankAPI
         $i = 0;
         foreach($params as $param)
         {
-            $param = ucfirst($param);
+            $param = trim(ucfirst($param));
             print "\n searching:[$param]";
             $i++;
             if(($i % $searches_per_dump) == 0)
@@ -892,7 +889,7 @@ class MycoBankAPI
         $counts = array();
         $names = array();
         $options = $this->download_options;
-        $options['cache'] = 0; // debug orig should be 1
+        $options['cache'] = 1; // debug orig should be 1
         if($filename = Functions::save_remote_file_to_local($fname, $options))
         {
             foreach(new FileIterator($filename) as $line_number => $line)
