@@ -352,7 +352,7 @@ class ResourceDataObjectElementsSetting
         $xml = str_ireplace("dwc:scientificName", "dwc:ScientificName", $xml); echo "\nDone str replace ScientificName\n\n";
         return $xml;
     }
-    public function call_xml_2_dwca($resource_id, $dataset)
+    public function call_xml_2_dwca($resource_id, $dataset, $NMNH_resourceYN = true)
     {
         require_library('connectors/ConvertEOLtoDWCaAPI');
         $params["eol_xml_file"] = CONTENT_RESOURCE_LOCAL_PATH."/$resource_id".".xml";
@@ -363,8 +363,10 @@ class ResourceDataObjectElementsSetting
         $func->export_xml_to_archive($params, true, 0); // true => means it is an XML file, not an archive file nor a zip file. IMPORTANT: Expires now = 0.
         Functions::finalize_dwca_resource($resource_id);
         Functions::set_resource_status_to_harvest_requested($resource_id);
-        Functions::remove_row_number_from_text_file(CONTENT_RESOURCE_LOCAL_PATH."/$resource_id/taxon.tab", 2); //removes line 2 from tab file. Sol'n to a weird first row from taxon.tab.
-        Functions::tar_gz_resource_folder($resource_id); //repeat the tar process since taxon.tab is updated above remove_row_number_from_text_file()
+        if($NMNH_resourceYN) {
+            Functions::remove_row_number_from_text_file(CONTENT_RESOURCE_LOCAL_PATH."/$resource_id/taxon.tab", 2); //removes line 2 from tab file. Sol'n to a weird first row from taxon.tab.
+            Functions::tar_gz_resource_folder($resource_id); //repeat the tar process since taxon.tab is updated above remove_row_number_from_text_file()
+        }
         Functions::delete_if_exists($params["eol_xml_file"]);
     }
     //END of https://eol-jira.bibalex.org/browse/DATA-1702 ===========================================================

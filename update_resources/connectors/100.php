@@ -24,7 +24,11 @@ $func->combine_all_xmls($resource_id);
 if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 1000)
 {
     // Functions::set_resource_status_to_harvest_requested($resource_id);
-    Functions::gzip_resource_xml($resource_id);
+    // Functions::gzip_resource_xml($resource_id); //un-comment if you want to investigate XML file
+    
+    require_library('ResourceDataObjectElementsSetting');
+    $nmnh = new ResourceDataObjectElementsSetting($resource_id);
+    $nmnh->call_xml_2_dwca($resource_id, "CONABIO", false); //3rd param false means this resource is not an NMNH resource
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;
