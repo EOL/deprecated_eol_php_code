@@ -41,7 +41,7 @@ Functions::set_resource_status_to_harvest_requested($resource_id);
 //start convert EOL XML to EOL DwCA
 require_library('ResourceDataObjectElementsSetting');
 $nmnh = new ResourceDataObjectElementsSetting($resource_id);
-$nmnh->call_xml_2_dwca($resource_id, "Moorea Biocode");
+$nmnh->call_xml_2_dwca($resource_id, "Moorea Biocode", false); //false means not NMNH resource
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
