@@ -9,15 +9,23 @@ Connector reads the XML provided by partner and
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;
 require_library('ResourceDataObjectElementsSetting');
-
+exit("\nAs of last check, XML has invalid chars. Not yet fixed by partner.\n");
 $timestart = time_elapsed();
 $resource_id = 346; 
 
+// $resource_path = "http://localhost/eol_php_code/applications/content_server/resources/eli.xml";
+// $resource_path = "http://localhost/cp/OpenData/EOLxml_2_DWCA/nmnh-botany-response.xml.gz";
 $resource_path = Functions::get_accesspoint_url_if_available($resource_id, "http://collections.mnh.si.edu/services/eol/nmnh-botany-response.xml.gz"); //Botany Resource
 echo "\n processing resource:\n $resource_path \n\n";
 
 $nmnh = new ResourceDataObjectElementsSetting($resource_id, $resource_path, 'http://purl.org/dc/dcmitype/StillImage', 2);
-$xml = $nmnh->set_data_object_rating_on_xml_document(); echo "\n --- set_data_object_rating_on_xml_document() DONE\n"; //no params means will use default expire_seconds = 25 days
+$xml = $nmnh->load_xml_string();
+
+$xml = remove_location_tag($xml); echo "\n --- remove_location_tag() DONE\n"; //kind a hack, totally removes <location> tags. Since there are invalid chars inside <location> tags. Makes the XML invalid.
+// will remove this line once NMNH fixes their XML.
+
+$xml = $nmnh->set_data_object_rating_on_xml_document(60*60*24*25, $xml); echo "\n --- set_data_object_rating_on_xml_document() DONE\n"; //no params means will use default expire_seconds = 25 days
+//debug 0 -> expire_seconds param debug only
 $xml = $nmnh->fix_NMNH_xml($xml); echo "\n --- fix_NMNH_xml() DONE\n";
 
 //manual fix DATA-1189, until partner fixes their data
@@ -42,6 +50,34 @@ echo "elapsed time = $elapsed_time_sec seconds             \n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes  \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\n\n Done processing.";
+
+function remove_location_tag($xml) //works OK for small XML files but not for NMNH Botany XML which is too big for memory. We need to wait for them until they fix their XML. Make it valid XML.
+{
+    /* 1st option works only for small XML size
+    if(preg_match_all("/<location>(.*?)<\/location>/ims", $xml, $arr)) {
+        $i = 0;
+        foreach($arr[1] as $str) {
+            $i++; echo " $i ";
+            $xml = str_replace("<location>$str</location>", "", $xml, 1);
+        }
+    }
+    */
+
+    /* still doesn't work for big XML, memory consumed
+    if(preg_match_all("/<location>(.*?)<\/location>/ims", $xml, $arr)) {
+        foreach($arr[1] as $str) {
+            $index = "<location>$str</location>";
+            $replacements[$index] = '';
+        }
+        $xml = str_replace(array_keys($replacements), array_values($replacements), $xml);
+    }
+    */
+    
+    // another option is to get chunks of the XML, do the str_replace for every chunk and save it cumulatively in a separate temp XML.
+    // will do it this way if needed or if partner won't fix their XML's invalid chars.
+
+    return $xml;
+}
 
 function remove_blank_taxon_entry($xml)
 {
