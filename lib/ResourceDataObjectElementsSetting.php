@@ -10,9 +10,9 @@ class ResourceDataObjectElementsSetting
         $this->rating = $rating;
     }
 
-    public function set_data_object_rating_on_xml_document($expire_seconds = 60*60*24*25) //default expires in 25 days
+    public function set_data_object_rating_on_xml_document($expire_seconds = 60*60*24*25, $xml_string = false) //default expires in 25 days
     {
-        $xml_string = self::load_xml_string($expire_seconds);
+        if(!$xml_string) $xml_string = self::load_xml_string($expire_seconds);
         if($xml_string === false) return false;
         if(!$xml_string) return false;
         // if(!$xml = simplexml_load_string($xml_string)) return false;
@@ -43,7 +43,7 @@ class ResourceDataObjectElementsSetting
         return $xml->asXML();
     }
 
-    function load_xml_string($expire_seconds)
+    public function load_xml_string($expire_seconds = 60*60*24*25)
     {
         $file_contents = "";
         debug("Please wait, downloading resource document...");
