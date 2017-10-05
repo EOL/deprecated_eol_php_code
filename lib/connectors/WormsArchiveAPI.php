@@ -193,17 +193,14 @@ class WormsArchiveAPI
     {
         $taxa = array();
         if(!$id) return array();
-        if($json = Functions::lookup_with_cache($this->webservice['AphiaClassificationByAphiaID'].$id, $this->download_options))
-        {
+        if($json = Functions::lookup_with_cache($this->webservice['AphiaClassificationByAphiaID'].$id, $this->download_options)) {
             $arr = json_decode($json, true);
             // print_r($arr);
             if(@$arr['scientificname'] && strlen(@$arr['scientificname']) > 1) $taxa[] = array('AphiaID' => @$arr['AphiaID'], 'rank' => @$arr['rank'], 'scientificname' => @$arr['scientificname']);
-            while(true)
-            {
+            while(true) {
                 if(!$arr) break;
                 foreach($arr as $i) {
-                    if(@$i['scientificname'] && strlen(@$i['scientificname'])>1)
-                    {
+                    if(@$i['scientificname'] && strlen(@$i['scientificname'])>1) {
                         $taxa[] = array('AphiaID' => @$i['AphiaID'], 'rank' => @$i['rank'], 'scientificname' => @$i['scientificname']);
                     }
                     $arr = $i;
@@ -212,7 +209,6 @@ class WormsArchiveAPI
         }
         return $taxa;
     }
-    
     private function add_authorship($taxa) //and other metadata
     {
         $i = 0;
@@ -223,8 +219,7 @@ class WormsArchiveAPI
             [scientificname] => Chromista
             [parent_id] => 1
             */
-            if($json = Functions::lookup_with_cache($this->webservice['AphiaRecordByAphiaID'].$taxon['AphiaID'], $this->download_options))
-            {
+            if($json = Functions::lookup_with_cache($this->webservice['AphiaRecordByAphiaID'].$taxon['AphiaID'], $this->download_options)) {
                 $arr = json_decode($json, true);
                 // print_r($arr);
                 // [valid_AphiaID] => 1
@@ -241,7 +236,7 @@ class WormsArchiveAPI
         return $taxa;
     }
     
-    private function create_taxa($taxa)
+    private function create_taxa($taxa) //for dynamic hierarchy only
     {
         foreach($taxa as $t)
         {   // [AphiaID] => 24
@@ -271,26 +266,20 @@ class WormsArchiveAPI
             if($taxon->taxonID == @$taxon->acceptedNameUsageID) $taxon->acceptedNameUsageID = '';
             if($taxon->taxonID == @$taxon->parentNameUsageID)   $taxon->parentNameUsageID = '';
             
-            if(!isset($this->taxon_ids[$taxon->taxonID]))
-            {
+            if(!isset($this->taxon_ids[$taxon->taxonID])) {
                 $this->taxon_ids[$taxon->taxonID] = '';
                 $this->archive_builder->write_object_to_file($taxon);
             }
         }
     }
-
     /*
     private function add_parent_id($taxa) //works OK, but chooses parent whatever is in the line, even if it is 'unaccepted'.
     {
         $i = 0;
-        foreach($taxa as $taxon)
-        {
-            if($i != 0)
-            {
-                for ($x = 1; $x <= count($taxa); $x++)
-                {
-                    if($val = @$taxa[$i-$x]['AphiaID'])
-                    {
+        foreach($taxa as $taxon) {
+            if($i != 0) {
+                for ($x = 1; $x <= count($taxa); $x++) {
+                    if($val = @$taxa[$i-$x]['AphiaID']) {
                         $taxa[$i]['parent_id'] = $val;
                         break;
                     }
@@ -301,10 +290,8 @@ class WormsArchiveAPI
         return $taxa;
     }
     */
-
     private function add_parent_id_v2($taxa)
-    {   /*Array
-        (
+    {   /*Array (
             [AphiaID] => 25
             [rank] => Order
             [scientificname] => Choanoflagellida
@@ -313,13 +300,10 @@ class WormsArchiveAPI
             [valid_AphiaID] => 25
             [status] => accepted
             [citation] => WoRMS (2013). Choanoflagellida. In: Guiry, M.D. & Guiry, G.M. (2016). AlgaeBase. World-wide electronic publication,...
-        )
-        */
+        )*/
         $i = 0;
-        foreach($taxa as $taxon)
-        {
-            if($taxon['scientificname'] != "Biota")
-            {
+        foreach($taxa as $taxon) {
+            if($taxon['scientificname'] != "Biota") {
                 $parent_id = self::get_parent_of_index($i, $taxa);
                 $taxa[$i]['parent_id'] = $parent_id;
             }
@@ -330,22 +314,18 @@ class WormsArchiveAPI
     private function get_parent_of_index($index, $taxa)
     {
         $parent_id = "";
-        for($k = 0; $k <= $index-1 ; $k++)
-        {
-            if($taxa[$k]['status'] == "accepted")
-            {
+        for($k = 0; $k <= $index-1 ; $k++) {
+            if($taxa[$k]['status'] == "accepted") {
                 if(!in_array($taxa[$k]['AphiaID'], $this->children_of_synonyms)) $parent_id = $taxa[$k]['AphiaID']; //new
             }
         }
         return $parent_id;
     }
-    
     private function get_undeclared_parent_ids()
     {
         $ids = array();
         $url = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_undefined_parent_ids_archive.txt";
-        if(file_exists($url))
-        {
+        if(file_exists($url)) {
             foreach(new FileIterator($url) as $line_number => $id) $ids[$id] = '';
         }
         return array_keys($ids);
