@@ -96,6 +96,8 @@ if(!defined('CONTENT_GNI_RESOURCE_PATH'))   define('CONTENT_GNI_RESOURCE_PATH', 
 # where datasets prepared by app servers will reside (must be web accessible)
 if(!defined('CONTENT_DATASET_PATH'))        define('CONTENT_DATASET_PATH',          DOC_ROOT . 'applications/content_server/datasets/');
 
+if(!isset($GLOBALS['MAIN_CACHE_PATH'])) $GLOBALS['MAIN_CACHE_PATH'] = 'tmp/cache/';
+
 // this may not be needed anymore
 if(!defined('WEB_ROOT')) define('MAGICK_HOME', '/usr/local/ImageMagick/');       // path to ImageMagick home directory
 

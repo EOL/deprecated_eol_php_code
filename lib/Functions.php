@@ -133,9 +133,8 @@ class Functions
         // default expire time is 30 days
         if(!isset($options['expire_seconds'])) $options['expire_seconds'] = 60*60*24*25; //default expires in 25 days
         if(!isset($options['timeout'])) $options['timeout'] = 120;
-        if(!isset($options['cache_path'])) $options['cache_path'] = DOC_ROOT . "tmp/cache/";    //orig row
-        // if(!isset($options['cache_path'])) $options['cache_path'] = DOC_ROOT . "tmp/cache2/"; //a symlink; cache2 -> /Volumes/Thunderbolt4/eol_cache/ 
-        
+        if(!isset($options['cache_path'])) $options['cache_path'] = DOC_ROOT . $GLOBALS['MAIN_CACHE_PATH'];    //orig value in environment.php is 'tmp/cache/'
+
         $md5 = md5($url);
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
