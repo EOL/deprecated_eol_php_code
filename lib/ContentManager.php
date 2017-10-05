@@ -285,7 +285,11 @@ class ContentManager
         if(is_dir($only_file))
         {
             Functions::file_rename($only_file, $directory_path . "_swap");
+            /* causes Warning: rmdir() Directory not empty
             rmdir($directory_path);
+            */
+            recursive_rmdir($directory_path);
+            
             /* causes PHP error, cannot copy dir; used file_rename() below instead
             if(copy($directory_path . "_swap", $directory_path))
               unlink($directory_path . "_swap");
