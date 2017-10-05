@@ -20,8 +20,10 @@ define("FLICKR_BHL_ID", "61021753@N02"); // BHL: BioDivLibrary's photostream - h
 define("FLICKR_SMITHSONIAN_ID", "51045845@N08"); // Smithsonian Wild's photostream - http://www.flickr.com/photos/51045845@N08
 define("OPENTREE_ID", "92803392@N02"); // OpenTree photostream - http://www.flickr.com/photos/92803392@N02 - no resource here, just a way to get all images for a certain Flickr user e.g EFB-1126
 
-$GLOBALS['flickr_cache_path'] = DOC_ROOT . "/update_resources/connectors/files/flickr_cache"; //old cache path
-$GLOBALS['flickr_cache_path'] = DOC_ROOT . "/public/tmp/flickr_cache";
+// $GLOBALS['flickr_cache_path'] = DOC_ROOT . "/update_resources/connectors/files/flickr_cache";    //old cache path
+// $GLOBALS['flickr_cache_path'] = DOC_ROOT . "/public/tmp/flickr_cache";                           //old cache path
+$GLOBALS['flickr_cache_path'] = DOC_ROOT . "/" . $GLOBALS['MAIN_CACHE_PATH'] . "flickr_cache";
+
 $GLOBALS['expire_seconds'] = 60*60*24*30; //0 -> expires now, false -> doesn't expire, 60*60*24*30 -> expires in 30 days
 
 // these two variables are used to limit the number of photos per taxon for Flickr photostream resources, if needed (e.g. Smithsonian Wild's photostream)
