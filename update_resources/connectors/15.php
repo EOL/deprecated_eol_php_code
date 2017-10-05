@@ -44,5 +44,9 @@ if(($fhandle = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . $resource_id .
 }
 
 //compress resource xml
-Functions::gzip_resource_xml($resource_id);
+// Functions::gzip_resource_xml($resource_id); //un-comment if you want to investigate the XML file
+
+require_library('ResourceDataObjectElementsSetting');
+$nmnh = new ResourceDataObjectElementsSetting($resource_id);
+$nmnh->call_xml_2_dwca($resource_id, "Flickr files", false); //3rd param false means it is not NMNH resource.
 ?>

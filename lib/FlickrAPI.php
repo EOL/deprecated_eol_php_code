@@ -22,7 +22,7 @@ define("OPENTREE_ID", "92803392@N02"); // OpenTree photostream - http://www.flic
 
 $GLOBALS['flickr_cache_path'] = DOC_ROOT . "/update_resources/connectors/files/flickr_cache"; //old cache path
 $GLOBALS['flickr_cache_path'] = DOC_ROOT . "/public/tmp/flickr_cache";
-$GLOBALS['expire_seconds'] = 2592000; //0 -> expires now, false -> doesn't expire, 2592000 -> expires in 30 days
+$GLOBALS['expire_seconds'] = 60*60*24*30; //0 -> expires now, false -> doesn't expire, 60*60*24*30 -> expires in 30 days
 
 // these two variables are used to limit the number of photos per taxon for Flickr photostream resources, if needed (e.g. Smithsonian Wild's photostream)
 $GLOBALS['taxa'] = array();
@@ -116,6 +116,7 @@ class FlickrAPI
                 }
 
                 $used_image_ids[$photo->id] = true;
+                // if($count_taxa >= 5) break; //debug - process just a subset and check the resource file...
             }
         }
         else
@@ -438,6 +439,7 @@ class FlickrAPI
     
     public static function auth_check_token($auth_token)
     {
+        /* this is deliberately designed to not cache request */
         $url = self::generate_rest_url("flickr.auth.checkToken", array("auth_token" => $auth_token), 1);
         return Functions::get_hashed_response($url);
         
