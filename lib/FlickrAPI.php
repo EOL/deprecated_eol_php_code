@@ -107,7 +107,7 @@ class FlickrAPI
             {
                 if(@$used_image_ids[$photo->id]) continue;
                 $count_taxa++;
-                echo "taxon $count_taxa ($photo->id): ".time_elapsed()."\n";
+                if(($count_taxa % 100) == 0) echo "taxon: $count_taxa ($photo->id): ".time_elapsed()."\n";
 
                 $taxa = self::get_taxa_for_photo($photo->id, $photo->secret, $photo->lastupdate, $auth_token, $user_id);
                 if($taxa)
