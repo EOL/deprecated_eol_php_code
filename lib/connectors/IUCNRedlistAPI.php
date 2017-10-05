@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [211] 
+/* connector: [211] http://eol.org/content_partners/10/resources/211
 
 A certain list of manual steps should be followed for IUCN resources to be re-harvested.
 
@@ -22,6 +22,8 @@ https://dl.dropboxusercontent.com/u/7597512/IUCN/export-?????.csv.zip
 
 I now put these steps in the connector. So we won’t forget.
 
+Github issue: https://github.com/EOL/eol_php_code/issues/155
+
 */
 class IUCNRedlistAPI
 {
@@ -32,40 +34,47 @@ class IUCNRedlistAPI
     function __construct()
     {
         $this->export_basename = "export-74550"; //previously "export-47427"
-        // $this->species_list_export = "http://localhost/cp/IUCN/" . $this->export_basename . ".csv.zip";
-        $this->species_list_export = "https://dl.dropboxusercontent.com/u/7597512/IUCN/" . $this->export_basename . ".csv.zip";
+        // $this->species_list_export = "http://localhost/cp_new/IUCN/" . $this->export_basename . ".csv.zip";
+        $this->species_list_export = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/IUCN/" . $this->export_basename . ".csv.zip";
         
         /* direct download from IUCN server does not work:
         $this->species_list_export = "http://www.iucnredlist.org/search/download/59026.csv"; -- this doesn't work
         */
         
-        $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 2592000 * 3); //expires in 3 months
+        $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*30*3); //expires in 3 months - orig value. NO sched yet in harvest frequency
+        // $this->download_options['expire_seconds'] = false; //debug only
     }
     
     public function get_taxon_xml($resource_file = null, $type = null)
     {
         $GLOBALS['language_to_iso_code'] = Functions::language_to_iso_code();
         if($type == "IUCN using .csv export") $taxa = self::get_all_taxa_v2($resource_file);
-        else $taxa = self::get_all_taxa($resource_file);
+        else                                  $taxa = self::get_all_taxa($resource_file); //seems for birdlife only
         return $taxa;
     }
     
     private function get_all_taxa_v2($resource_file = null) // this is using the IUCN CSV export
     {
+        $names_no_entry_from_partner = self::get_names_no_entry_from_partner();
+        
         $basename = $this->export_basename;
-        $text_path = self::load_zip_contents($this->species_list_export, $this->download_options, array($basename), ".csv");
+        $download_options = $this->download_options;
+        $download_options['expire_seconds'] = 60*60*24*25; //orig value is 60*60*24*25
+        $text_path = self::load_zip_contents($this->species_list_export, $download_options, array($basename), ".csv");
         print_r($text_path);
+        
         $taxon_ids = self::csv_to_array($text_path[$basename]);
         $all_taxa = array();
         $i = 0;
         foreach($taxon_ids as $taxon_id)
         {
             $i++;
-            if(($i % 1000) == 0) echo "\n$i.";
-            echo "\n$i. - ";
+            if(($i % 1000) == 0) echo "\nbatch $i";
             
             //http://api.iucnredlist.org/details/164845
             // $taxon_id = "164845"; //debug only
+            
+            if(in_array($taxon_id, $names_no_entry_from_partner)) continue;
             
             $taxon = self::get_taxa_for_species(null, $taxon_id);
             if(!$taxon) continue;
@@ -79,14 +88,14 @@ class IUCNRedlistAPI
             if($resource_file) fwrite($resource_file, $taxon_xml);
             else $all_taxa[] = $taxon;
             
-            // break; //debug only
+            // if($i >= 50) break; //debug only
         }
         // remove temp dir
         $path = $text_path[$basename];
         $parts = pathinfo($path);
         $parts["dirname"] = str_ireplace($basename, "", $parts["dirname"]);
         recursive_rmdir($parts["dirname"]);
-        debug("\n temporary directory removed: " . $parts["dirname"]);
+        echo "\n temporary directory removed: " . $parts["dirname"];
         return $all_taxa;
     }
 
@@ -130,7 +139,7 @@ class IUCNRedlistAPI
                 }
             }
         }
-        else debug("\n\n Connector terminated. Remote files are not ready.\n\n");
+        else echo "\n\n Connector terminated. Remote files are not ready.\n\n";
         return $text_path;
     }
 
@@ -160,7 +169,7 @@ class IUCNRedlistAPI
                 // if($i >= 100) break;
                 
                 $i++;
-                echo "$species_json->species_id ($i)\n";
+                debug("$species_json->species_id ($i)\n");
                 
                 $taxon = self::get_taxa_for_species($species_json);
                 $taxon_xml = $taxon->__toXML();
@@ -183,7 +192,7 @@ class IUCNRedlistAPI
         $download_options['validation_regex'] = 'x_section';
         
         $url = self::API_PREFIX . $species_id;
-        echo "\n$url\n";
+        debug("api call: $url");
         $details_html = Functions::lookup_with_cache($url, $download_options);
 
         if(!$details_html) return array();
@@ -416,6 +425,20 @@ class IUCNRedlistAPI
         $agents[] = new \SchemaAgent(array('fullName' => $assessors, 'role' => 'compiler'));
         
         return array($agents, $citation);
+    }
+    
+    public function get_names_no_entry_from_partner()
+    {
+        $names = array();
+        $dump_file = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/IUCN/names_no_entry_from_partner.txt";
+        $local = Functions::save_remote_file_to_local($dump_file, array("cache" => 1));
+        if(file_exists($local)) {
+            foreach(new FileIterator($local) as $line_number => $line) {
+                if($line) $names[$line] = "";
+            }
+        }
+        unlink($local);
+        return array_keys($names);
     }
     
     public static function parse_birdlife_checklist()

@@ -4,18 +4,23 @@ namespace php_active_record;
 define('DOWNLOAD_WAIT_TIME', '300000'); // .3 seconds wait time
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/IUCNRedlistAPI');
-$GLOBALS['ENV_DEBUG'] = true;
+$GLOBALS['ENV_DEBUG'] = false;
+error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); //report all errors except notice and warning
 $resource_id = 211;
-/*                          2016
-                            Aug25
+/*                          2016    2017
+                            Aug25   Oct10
 taxon =      73472  76021   81702
 reference =  10065  10425   10424
 synonym =    40378  43889   51115
 commonName = 64921  62781   72501
 texts =      452501 470233  511207
+START OF DwC-A                      
+agent.tab                           12591
+media_resource.tab                  506828
+reference.tab                       9804
+taxon.tab                           129835
+vernacular_name.tab                 71221
 */
-
-/* Commented temporarily, since resource has already been uploaded to server. Next month, this connector will run from the server.
 
 // create new _temp file
 if(!($resource_file = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", "w+"))) return;
@@ -45,12 +50,10 @@ $xml_string = Functions::remove_invalid_bytes_in_XML($xml_string);
 if(!($WRITE = Functions::file_open($resource_path, "w"))) return;
 fwrite($WRITE, $xml_string);
 fclose($WRITE);
-*/
 
-// set to Harvest Requested
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 600)
-{
-    Functions::set_resource_status_to_harvest_requested($resource_id);
-//    Functions::gzip_resource_xml($resource_id);
-}
+
+require_library('ResourceDataObjectElementsSetting');
+$nmnh = new ResourceDataObjectElementsSetting($resource_id);
+$nmnh->call_xml_2_dwca($resource_id, "IUCN files", false); //3rd param false means it is not NMNH resource.
+
 ?>

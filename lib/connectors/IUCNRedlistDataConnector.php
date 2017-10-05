@@ -23,8 +23,8 @@ class IUCNRedlistDataConnector
         /* direct download from IUCN server does not work:
         $this->species_list_export = "http://www.iucnredlist.org/search/download/59026.csv"; -- this doesn't work
         */
-        $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 2592000 * 3); //expires in 3 months
-        $this->download_options['expire_seconds'] = false; //debug only
+        $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*25); //expires in 25 days
+        // $this->download_options['expire_seconds'] = false; //debug only
 
         $this->categories = array("CR" => "Critically Endangered (CR)",
                                   "EN" => "Endangered (EN)",
@@ -72,7 +72,7 @@ class IUCNRedlistDataConnector
         require_library('connectors/IUCNRedlistAPI');
         $func = new IUCNRedlistAPI();
         
-        $names_no_entry_from_partner = self::get_names_no_entry_from_partner();
+        $names_no_entry_from_partner = $func->get_names_no_entry_from_partner();
         
         $i = 0;
         if(!$file = Functions::file_open($csv_file, "r")) return;
@@ -150,20 +150,6 @@ class IUCNRedlistDataConnector
             }
         } // end while{}
         fclose($file);
-    }
-
-    private function get_names_no_entry_from_partner()
-    {
-        $names = array();
-        $dump_file = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/IUCN/names_no_entry_from_partner.txt";
-        $local = Functions::save_remote_file_to_local($dump_file, array("cache" => 1));
-        if(file_exists($local)) {
-            foreach(new FileIterator($local) as $line_number => $line) {
-                if($line) $names[$line] = "";
-            }
-        }
-        unlink($local);
-        return array_keys($names);
     }
 
     private function process_profile_using_csv($rec)
