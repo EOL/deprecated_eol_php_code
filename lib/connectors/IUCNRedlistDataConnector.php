@@ -1,6 +1,8 @@
 <?php
 namespace php_active_record;
-/* connector: [737] */
+/* connector: [737] http://eol.org/content_partners/10/resources/737 
+Also see connector [211], related IUCNRedlistAPI().
+*/
 class IUCNRedlistDataConnector
 {
     const IUCN_DOMAIN = "http://www.iucnredlist.org";
@@ -15,13 +17,14 @@ class IUCNRedlistDataConnector
         $this->debug = array();
 
         $this->export_basename = "export-74550"; //previously "export-47427"
-        // $this->species_list_export = "http://localhost/cp/IUCN/" . $this->export_basename . ".csv.zip";
-        $this->species_list_export = "https://dl.dropboxusercontent.com/u/7597512/IUCN/" . $this->export_basename . ".csv.zip";
+        $this->species_list_export = "http://localhost/cp_new/IUCN/" . $this->export_basename . ".csv.zip";
+        // $this->species_list_export = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/IUCN/" . $this->export_basename . ".csv.zip";
         
         /* direct download from IUCN server does not work:
         $this->species_list_export = "http://www.iucnredlist.org/search/download/59026.csv"; -- this doesn't work
         */
         $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 2592000 * 3); //expires in 3 months
+        $this->download_options['expire_seconds'] = false; //debug only
 
         $this->categories = array("CR" => "Critically Endangered (CR)",
                                   "EN" => "Endangered (EN)",
@@ -36,11 +39,11 @@ class IUCNRedlistDataConnector
                                   "LR/cd" => "Lower Risk/conservation dependent (LR/cd)");
         $this->iucn_taxon_page = "http://www.iucnredlist.org/apps/redlist/details/";
 
-        /*
-        // stats
+        // /*
+        // stats only. Also use to generate names_no_entry_from_partner.txt, which happens maybe twice a year.
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->names_no_entry_from_partner_dump_file = $this->TEMP_DIR . "names_no_entry_from_partner.txt";
-        */
+        // */
     }
 
     function generate_IUCN_data()
@@ -57,7 +60,7 @@ class IUCNRedlistDataConnector
         $parts = pathinfo($path);
         $parts["dirname"] = str_ireplace($basename, "", $parts["dirname"]);
         recursive_rmdir($parts["dirname"]);
-        debug("\n temporary directory removed: " . $parts["dirname"]);
+        echo "\n temporary directory removed: " . $parts["dirname"];
         
         print_r($this->debug);
     }
@@ -77,7 +80,7 @@ class IUCNRedlistDataConnector
             $temp = fgetcsv($file);
             
             $i++;
-            echo "\n $i - ";
+            if(($i % 1000) == 0) echo "\nbatch $i";
             if($i == 1)
             {
                 $fields = $temp;
@@ -132,12 +135,12 @@ class IUCNRedlistDataConnector
                 }
                 else
                 {
-                    echo "\n no result for: " . $rec["Species ID"] . "\n";
-                    // self::save_to_dump($rec["Species ID"], $this->names_no_entry_from_partner_dump_file); //for stats only
+                    debug("\n no result for: " . $rec["Species ID"] . "\n");
+                    self::save_to_dump($rec["Species ID"], $this->names_no_entry_from_partner_dump_file); //for stats only. See above reminder.
                     // self::process_profile_using_csv($rec);
                 }
                 
-                // break; //debug only
+                // if($i >= 10) break; //debug only
                 
             }
         } // end while{}
@@ -148,9 +151,12 @@ class IUCNRedlistDataConnector
     {
         $names = array();
         $dump_file = DOC_ROOT . "/public/tmp/IUCN/names_no_entry_from_partner.txt";
-        foreach(new FileIterator($dump_file) as $line_number => $line)
+        if(file_exists($dump_file))
         {
-            if($line) $names[$line] = "";
+            foreach(new FileIterator($dump_file) as $line_number => $line)
+            {
+                if($line) $names[$line] = "";
+            }
         }
         return array_keys($names);
     }
@@ -204,7 +210,7 @@ class IUCNRedlistDataConnector
         $taxon->order                   = $rec->order;
         $taxon->family                  = $rec->family;
         $taxon->furtherInformationURL   = $rec->source;
-        echo " - " . $taxon->scientificName . " [$taxon->taxonID]";
+        debug(" - " . $taxon->scientificName . " [$taxon->taxonID]");
         $this->archive_builder->write_object_to_file($taxon);
     }
 
@@ -348,7 +354,7 @@ class IUCNRedlistDataConnector
     
     private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype, $measurementRemarks = null)
     {
-        echo "\n [$label]:[$value]\n";
+        // echo "\n [$label]:[$value]\n";
         $taxon_id = $rec["taxon_id"];
         $catnum = $rec["catnum"];
         $m = new \eol_schema\MeasurementOrFact();
@@ -400,7 +406,7 @@ class IUCNRedlistDataConnector
                 }
             }
         }
-        else debug("\n\n Connector terminated. Remote files are not ready.\n\n");
+        else echo "\n\n Connector terminated. Remote files are not ready.\n\n";
         return $text_path;
     }
 

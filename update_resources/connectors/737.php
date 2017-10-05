@@ -18,15 +18,18 @@ To be harvestd quarterly: https://jira.eol.org/browse/WEB-5427
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+$GLOBALS['ENV_DEBUG'] = false;
+error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); //report all errors except notice and warning
+
 require_library('connectors/IUCNRedlistDataConnector');
 $timestart = time_elapsed();
 $resource_id = 737;
 
-/* Commented temporarily, since resource has already been uploaded to server. Next month, this connector will run from the server.
+// /* Commented temporarily, since resource has already been uploaded to server. Next month, this connector will run from the server.
 $func = new IUCNRedlistDataConnector($resource_id);
 $func->generate_IUCN_data();
 Functions::finalize_dwca_resource($resource_id);
-*/
+// */
 
 Functions::set_resource_status_to_harvest_requested($resource_id);
 
