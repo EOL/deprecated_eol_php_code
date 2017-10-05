@@ -14,7 +14,7 @@ To be harvestd quarterly: https://jira.eol.org/browse/WEB-5427
 2014 05 27  73,465  533,549
 2014 08 14  76,022  554,047
 2016 08 25  81,703  597,586             243,525
-
+2017 10 05  80,823  591,236             240,800
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -25,7 +25,7 @@ require_library('connectors/IUCNRedlistDataConnector');
 $timestart = time_elapsed();
 $resource_id = 737;
 
-// /* Commented temporarily, since resource has already been uploaded to server. Next month, this connector will run from the server.
+// /* NOTE: like 211.php a manual step is needed to update partner source file (export-74550.csv.zip)
 $func = new IUCNRedlistDataConnector($resource_id);
 $func->generate_IUCN_data();
 Functions::finalize_dwca_resource($resource_id);

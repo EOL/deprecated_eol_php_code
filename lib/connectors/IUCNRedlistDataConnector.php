@@ -39,17 +39,19 @@ class IUCNRedlistDataConnector
                                   "LR/cd" => "Lower Risk/conservation dependent (LR/cd)");
         $this->iucn_taxon_page = "http://www.iucnredlist.org/apps/redlist/details/";
 
-        // /*
+        /*
         // stats only. Also use to generate names_no_entry_from_partner.txt, which happens maybe twice a year.
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->names_no_entry_from_partner_dump_file = $this->TEMP_DIR . "names_no_entry_from_partner.txt";
-        // */
+        */
     }
 
     function generate_IUCN_data()
     {
         $basename = $this->export_basename;
-        $text_path = self::load_zip_contents($this->species_list_export, $this->download_options, array($basename), ".csv");
+        $download_options = $this->download_options;
+        $download_options['expire_seconds'] = 60*60*24*25; //orig value is 60*60*24*25
+        $text_path = self::load_zip_contents($this->species_list_export, $download_options, array($basename), ".csv");
         print_r($text_path);
         
         self::csv_to_array($text_path[$basename]);
@@ -70,8 +72,7 @@ class IUCNRedlistDataConnector
         require_library('connectors/IUCNRedlistAPI');
         $func = new IUCNRedlistAPI();
         
-        // $names_no_entry_from_partner = self::get_names_no_entry_from_partner(); //debug
-        $names_no_entry_from_partner = array();
+        $names_no_entry_from_partner = self::get_names_no_entry_from_partner();
         
         $i = 0;
         if(!$file = Functions::file_open($csv_file, "r")) return;
@@ -136,7 +137,11 @@ class IUCNRedlistDataConnector
                 else
                 {
                     debug("\n no result for: " . $rec["Species ID"] . "\n");
-                    self::save_to_dump($rec["Species ID"], $this->names_no_entry_from_partner_dump_file); //for stats only. See above reminder.
+                    
+                    /* for stats only. See above reminder. Comment this line if there is no need to update text file.
+                    self::save_to_dump($rec["Species ID"], $this->names_no_entry_from_partner_dump_file); 
+                    */
+                    
                     // self::process_profile_using_csv($rec);
                 }
                 
@@ -150,14 +155,14 @@ class IUCNRedlistDataConnector
     private function get_names_no_entry_from_partner()
     {
         $names = array();
-        $dump_file = DOC_ROOT . "/public/tmp/IUCN/names_no_entry_from_partner.txt";
-        if(file_exists($dump_file))
-        {
-            foreach(new FileIterator($dump_file) as $line_number => $line)
-            {
+        $dump_file = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/IUCN/names_no_entry_from_partner.txt";
+        $local = Functions::save_remote_file_to_local($dump_file, array("cache" => 1));
+        if(file_exists($local)) {
+            foreach(new FileIterator($local) as $line_number => $line) {
                 if($line) $names[$line] = "";
             }
         }
+        unlink($local);
         return array_keys($names);
     }
 
