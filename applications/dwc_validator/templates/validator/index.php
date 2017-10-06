@@ -17,7 +17,7 @@ namespace php_active_record;
         <title>Archive and Spreadsheet Validator</title>
     </head>
     <body>
-        <h2 align="center">Archive and Spreadsheet Validator - Thu Oct 5</h2>
+        <h2 align="center">Archive and Spreadsheet Validator (eol-archive ver.)</h2>
         <?php render_template("validator/form", array("file_url" => $file_url)); ?>
         <hr/>
         <?php render_template("validator/result", array("file_url" => $file_url, "file_upload" => $file_upload, "errors" => $errors, "structural_errors" => $structural_errors, "warnings" => $warnings, "stats" => $stats)); ?>
