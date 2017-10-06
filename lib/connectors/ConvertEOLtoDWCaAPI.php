@@ -267,8 +267,15 @@ class ConvertEOLtoDWCaAPI
     private function process_synonym($objects, $taxon_id)
     {
         $records = array();
-        foreach($objects as $o) $records[] = array("scientificName" => (string) $o, "taxonomicStatus" => (string) $o{"relationship"}, 
-                                                   "taxonID" => str_replace(" ", "_", $o) ,"acceptedNameUsageID" => (string) $taxon_id);
+        foreach($objects as $o)
+        {
+            if(trim((string) $o))
+            {
+                // print_r($o); //debug
+                $records[] = array("scientificName" => (string) $o, "taxonomicStatus" => (string) $o{"relationship"}, 
+                                   "taxonID" => str_replace(" ", "_", $o) ,"acceptedNameUsageID" => (string) $taxon_id);
+            }
+        } 
         // print_r($records);
         return $records;
     }
