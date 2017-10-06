@@ -59,8 +59,9 @@ echo "\n\n Done processing.";
 
 function remove_bhl_images_already_existing_in_eol_group($resource_id)
 {
-    $file = "http://dl.dropbox.com/u/7597512/BHL_images/BHL_images_in_EOLGroup.txt";
-    // $file = "http://localhost/cp/BHL/BHL_images/BHL_images_in_EOLGroup.txt";
+    // $file = "http://localhost/cp_new/BHL/BHL_images/BHL_images_in_EOLGroup.txt";
+    // $file = "http://dl.dropbox.com/u/7597512/BHL_images/BHL_images_in_EOLGroup.txt"; //can no longer be accessed publicly. But file is still there in dropbox.
+    $file = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/BHL/BHL_images/BHL_images_in_EOLGroup.txt";
     $contents = Functions::get_remote_file($file, array('timeout' => 600, 'download_attempts' => 5));
     $do_ids = json_decode($contents,true);
     print "\n\n from text file: " . count($do_ids);
