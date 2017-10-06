@@ -80,6 +80,36 @@ class DwCA_Utility
         echo ("\n temporary directory removed: " . $temp_dir);
     }
     
+    function convert_archive() //same as convert_archive_by_adding_higherClassification(); just doesn't generate higherClassification
+    {
+        $info = self::start();
+        $temp_dir = $info['temp_dir'];
+        $harvester = $info['harvester'];
+        $tables = $info['tables'];
+        $index = $info['index'];
+        /*
+        Array
+            [0] => http://rs.tdwg.org/dwc/terms/taxon
+            [1] => http://rs.gbif.org/terms/1.0/vernacularname
+            [2] => http://rs.tdwg.org/dwc/terms/occurrence
+            [3] => http://rs.tdwg.org/dwc/terms/measurementorfact
+        */
+        echo "\nConverting archive to EOL DwCA...\n";
+        foreach($index as $row_type)
+        {
+            if(@$this->extensions[$row_type]) //process only defined row_types
+            {
+                self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
+            }
+        }
+        $this->archive_builder->finalize(TRUE);
+        
+        // remove temp dir
+        recursive_rmdir($temp_dir);
+        echo ("\n temporary directory removed: " . $temp_dir);
+        if($this->debug) print_r($this->debug);
+    }
+    
     function convert_archive_by_adding_higherClassification()
     {
         $info = self::start();
