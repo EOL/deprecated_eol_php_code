@@ -29,9 +29,10 @@ class DwCA_Utility
                                   "http://rs.gbif.org/terms/1.0/reference"          => "reference",
                                   "http://eol.org/schema/agent/agent"               => "agent",
 
-                                  //start of other row_types:
+                                  //start of other row_types: check for NOTICES or WARNINGS, add here those undefined URIs
                                   "http://rs.gbif.org/terms/1.0/description"        => "document",
                                   "http://rs.gbif.org/terms/1.0/multimedia"         => "document",
+                                  "http://eol.org/schema/reference/reference"       => "reference",
                                   );
 
                                   /*
@@ -151,11 +152,22 @@ class DwCA_Utility
                 if($parts[0]) $field = $parts[0];
                 if(@$parts[1]) $field = $parts[1];
 
+                //start some validations ---------------------------- put other validations in this block, as needed
+                if($field == "full_reference" && !@$rec[$key]) //meaning full_reference is blank or null. Assumed here that this is $class == 'reference'
+                {
+                    $c = false;
+                    break;
+                }
+                //end some validations ----------------------------
+
                 $c->$field = $rec[$key];
 
                 // if($field == "taxonID") $c->$field = self::get_worms_taxon_id($c->$field); //not used here, only in WoRMS connector
             }
-            if($generateArchive) $this->archive_builder->write_object_to_file($c);
+            if($generateArchive)
+            {
+                if($c) $this->archive_builder->write_object_to_file($c); //to facilitate validations
+            }
         }
         return $count;
     }
