@@ -207,8 +207,8 @@ class FlickrAPI
                     {   //remove value in array: $parameters["scientificName"]
                         echo "\n" . count($parameters["scientificName"]) . "\n";
                         $parameters["scientificName"] = array_diff($parameters["scientificName"], array($sciname));
-                        echo "\n[$sciname] is synonym or new name in eol.org\n";
-                        echo "\n" . count($parameters["scientificName"]) . "\n";
+                        debug("\n[$sciname] is synonym or new name in eol.org");
+                        debug("\n" . count($parameters["scientificName"]) . "\n");
                     }
                 }
             }
