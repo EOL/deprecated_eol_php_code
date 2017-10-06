@@ -34,10 +34,10 @@ class WormsArchiveAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         $this->object_ids = array();
-        $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";                            //local - when developing only
+        // $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";                            //local - when developing only
         // $this->dwca_file = "http://localhost/cp/WORMS/Archive.zip";                              //local subset copy
         // $this->dwca_file = "https://dl.dropboxusercontent.com/u/7597512/WORMS/WoRMS2EoL.zip";    //dropbox copy
-        // $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";              //WORMS online copy
+        $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";              //WORMS online copy
         $this->occurrence_ids = array();
         $this->taxon_page = "http://www.marinespecies.org/aphia.php?p=taxdetails&id=";
         
