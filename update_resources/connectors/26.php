@@ -33,11 +33,12 @@ exec time: ~30 minutes
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WormsArchiveAPI');
 $timestart = time_elapsed();
+ini_set('memory_limit','7096M'); //required
 $resource_id = 26;
 
 // /* //main operation
 $func = new WormsArchiveAPI($resource_id);
-$func->get_all_taxa("taxonomy"); //'taxonomy' or 'media_objects'
+$func->get_all_taxa("media_objects"); //'taxonomy' not sure when was used |OR| 'media_objects' is for original resource = 26
 Functions::finalize_dwca_resource($resource_id);
 // */
 
