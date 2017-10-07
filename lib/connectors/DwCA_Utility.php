@@ -197,6 +197,7 @@ class DwCA_Utility
                         }
                     }
                 }
+                /* not been tested yet. Was working with $ dwca_utility.php _ 430    -> iNaturalist
                 if($class == "document") { //meaning media objecs
                     if($field == "identifier") $do_id = @$rec[$key];
                     if(isset($do_ids[$do_id])) {
@@ -206,6 +207,7 @@ class DwCA_Utility
                     }
                     else $do_ids[$do_id] = '';
                 }
+                */
                 //end some validations ----------------------------  #########################################################################
 
                 $c->$field = $rec[$key];
