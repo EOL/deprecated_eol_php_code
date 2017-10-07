@@ -7,6 +7,7 @@ require_library('connectors/IUCNRedlistAPI');
 $GLOBALS['ENV_DEBUG'] = false;
 error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); //report all errors except notice and warning
 $resource_id = 211;
+if(!Functions::can_this_connector_run($resource_id)) return;
 /*                          2016    2017
                             Aug25   Oct10
 taxon =      73472  76021   81702

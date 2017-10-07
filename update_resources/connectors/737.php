@@ -24,6 +24,7 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); //report all errors except noti
 require_library('connectors/IUCNRedlistDataConnector');
 $timestart = time_elapsed();
 $resource_id = 737;
+if(!Functions::can_this_connector_run($resource_id)) return;
 
 // /* NOTE: like 211.php a manual step is needed to update partner source file (export-74550.csv.zip)
 $func = new IUCNRedlistDataConnector($resource_id);
