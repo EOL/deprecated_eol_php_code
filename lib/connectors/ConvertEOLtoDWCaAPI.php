@@ -269,7 +269,7 @@ class ConvertEOLtoDWCaAPI
         $records = array();
         foreach($objects as $o)
         {
-            if(trim((string) $o))
+            if(trim((string) $o)) //needed validation for IUCN 211.php and NMNH XML resources
             {
                 // print_r($o); //debug
                 $records[] = array("scientificName" => (string) $o, "taxonomicStatus" => (string) $o{"relationship"}, 
