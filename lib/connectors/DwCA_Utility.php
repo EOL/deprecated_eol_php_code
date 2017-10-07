@@ -71,7 +71,7 @@ class DwCA_Utility
         $totals = array();
         foreach($index as $row_type)
         {
-            $count = self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type], false); //3rd param = false means county only, no archive will be generated
+            $count = self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type], false); //3rd param = false means count only, no archive will be generated
             $totals[$row_type] = $count;
         }
         print_r($totals);
@@ -157,6 +157,9 @@ class DwCA_Utility
 
     private function process_fields($records, $class, $generateArchive = true)
     {
+        //start used in validation
+        $do_ids = array();
+        //end used in validation
         $count = 0;
         foreach($records as $rec)
         {
@@ -182,13 +185,28 @@ class DwCA_Utility
                 if($parts[0]) $field = $parts[0];
                 if(@$parts[1]) $field = $parts[1];
 
-                //start some validations ---------------------------- put other validations in this block, as needed
+                //start some validations ---------------------------- put other validations in this block, as needed #########################################################################
                 if($field == "full_reference" && !@$rec[$key]) //meaning full_reference is blank or null. Assumed here that this is $class == 'reference'
                 {
-                    $c = false;
-                    break;
+                    $c = false; break;
                 }
-                //end some validations ----------------------------
+                elseif(in_array($field, array("accessURI","thumbnailURL","furtherInformationURL"))) {
+                    if($val = @$rec[$key]) { //if not blank
+                        if(!self::valid_uri_url($val)) { //then should be valid URI or URL
+                            $c = false; break;
+                        }
+                    }
+                }
+                if($class == "document") { //meaning media objecs
+                    if($field == "identifier") $do_id = @$rec[$key];
+                    if(isset($do_ids[$do_id])) {
+                        print_r($do_ids);
+                        echo "\nduplicate [$do_id]\n";
+                        exit("\nexit now first...\n");
+                    }
+                    else $do_ids[$do_id] = '';
+                }
+                //end some validations ----------------------------  #########################################################################
 
                 $c->$field = $rec[$key];
 
@@ -258,6 +276,12 @@ class DwCA_Utility
         if(!isset($records[0]["http://rs.tdwg.org/dwc/terms/scientificName"])) return false;
         if(!isset($records[0]["http://rs.tdwg.org/dwc/terms/parentNameUsageID"])) return false;
         return true;
+    }
+    private function valid_uri_url($str)
+    {
+        if(substr(0,7,$str) == "http://") return true;
+        elseif(substr(0,8,$str) == "https://") return true;
+        return false;
     }
     //ends here 
     
