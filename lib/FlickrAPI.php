@@ -25,6 +25,7 @@ define("OPENTREE_ID", "92803392@N02"); // OpenTree photostream - http://www.flic
 $GLOBALS['flickr_cache_path'] = DOC_ROOT . "/" . $GLOBALS['MAIN_CACHE_PATH'] . "flickr_cache";
 
 $GLOBALS['expire_seconds'] = 60*60*24*30; //0 -> expires now, false -> doesn't expire, 60*60*24*30 -> expires in 30 days orig
+$GLOBALS['expire_seconds'] = false; //may use false permanently. Will check again next month to confirm.
 
 // these two variables are used to limit the number of photos per taxon for Flickr photostream resources, if needed (e.g. Smithsonian Wild's photostream)
 $GLOBALS['taxa'] = array();
@@ -205,7 +206,7 @@ class FlickrAPI
                     $sciname = ucfirst(trim($arr[1]));
                     if(self::is_sciname_synonym($sciname))
                     {   //remove value in array: $parameters["scientificName"]
-                        echo "\n" . count($parameters["scientificName"]) . "\n";
+                        debug("\n" . count($parameters["scientificName"]) . "\n");
                         $parameters["scientificName"] = array_diff($parameters["scientificName"], array($sciname));
                         debug("\n[$sciname] is synonym or new name in eol.org");
                         debug("\n" . count($parameters["scientificName"]) . "\n");
@@ -395,6 +396,7 @@ class FlickrAPI
     public static function photos_get_sizes($photo_id, $auth_token = "")
     {
         $url = self::generate_rest_url("flickr.photos.getSizes", array("photo_id" => $photo_id, "auth_token" => $auth_token, "format" => "json", "nojsoncallback" => 1), 1);
+        // echo "\naaa=[$url]\n"; //debug
         $response = Functions::lookup_with_cache($url, array('timeout' => 30, 'expire_seconds' => $GLOBALS['expire_seconds']));
         self::add_to_cache('photosGetSizes', $photo_id, $response);
         return json_decode($response);
@@ -416,6 +418,7 @@ class FlickrAPI
     {
         $download_options['expire_seconds'] = $GLOBALS['expire_seconds'];
         $url = self::generate_rest_url("flickr.photos.getInfo", array("photo_id" => $photo_id, "secret" => $secret, "auth_token" => $auth_token, "format" => "json", "nojsoncallback" => 1), 1);
+        // echo "\nbbb=[$url]\n"; //debug
         $response = Functions::lookup_with_cache($url, $download_options);
         self::add_to_cache('photosGetInfo', $photo_id, $response);
         return json_decode($response);
@@ -430,6 +433,7 @@ class FlickrAPI
             /* remove group_id param to get images from photostream, and not only those in the EOL Flickr group */
             $url = self::generate_rest_url("flickr.photos.search", array("machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, "license" => "1,2,4,5,7", "privacy_filter" => "1", "sort" => "date-taken-asc", "min_taken_date" => $start_date, "max_taken_date" => $end_date, "format" => "json", "nojsoncallback" => 1), 1);
         }
+        // echo "\nccc=[$url]\n"; //debug
         return json_decode(Functions::lookup_with_cache($url, array('timeout' => 30, 'expire_seconds' => $GLOBALS['expire_seconds'], 'resource_id' => 'flickr'))); //expires in 30 days; rsource_id here is just a folder name in cache
     }
     
