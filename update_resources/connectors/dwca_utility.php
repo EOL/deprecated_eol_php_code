@@ -30,18 +30,30 @@ if($val = $cmdline_params['resource_id'])
 {
     $resource_id = $val;
     if($resource_id == 704) $dwca_file = "https://opendata.eol.org/dataset/7a17dc15-cb08-4e41-b901-6af5fd89bcd7/resource/3c56c4e4-3be7-463b-b958-22fbc560cf0d/download/pantheria.zip";
+    elseif($resource_id == 430) // WIP
+    {
+        ini_set('memory_limit','7096M'); //required
+        // $dwc_file = "http://www.inaturalist.org/taxa/eol_media.dwca.zip";
+        $dwca_file = "http://localhost/cp/iNaturalist/eol_media.dwca.zip";
+    }
     else exit("\nProgram will terminate. Invalid resource_id [$resource_id].\n\n");
 }
 else //no resource_id
 {
     // $dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";
-    $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/ioc-birdlist.tar.gz";
+    // $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/ioc-birdlist.tar.gz";
     // $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/ICTV-virus_taxonomy.tar.gz";
     // $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/26.tar.gz";
     // $dwca_file = "http://localhost/cp/dynamic_hierarchy/amphibia.zip";
     // $dwca_file = "http://localhost/cp/dynamic_hierarchy/dwca-phasmida-v10.6.zip";
     // $dwca_file = "http://localhost/cp/dynamic_hierarchy/dwh_try3.zip"; //very big one
-    $resource_id = get_base_filename($dwca_file);
+    
+    // /* WIP - waiting for feedback...
+    $dwca_file = "http://localhost/cp/dynamic_hierarchy/z/eoldynamichierarchydraftaug2017.zip"; //needs to be fixed first: https://eol-jira.bibalex.org/browse/DATA-1709
+    $dwca_file = "http://localhost/cp/dynamic_hierarchy/z/dynamic.tar.gz"; //this is the fixed version
+    // */
+    
+    $resource_id = get_base_filename($dwca_file, $cmdline_params['generate_higherClassification_YN']);
 }
 //===========================================================================================new - end
 
@@ -53,19 +65,19 @@ Functions::finalize_dwca_resource($resource_id);
 unset($func);
 // */
 
-// /* //utility
+/* //utility - useful when generating higherClassification
 // $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/dwca-phasmida-v10-with-higherClassification.tar.gz"; //debug -> if you want to supply a diff. dwca
 $func = new DwCA_Utility(NULL, $dwca_file);
 $func->count_records_in_dwca();
 unset($func);
-// */
+*/
 
-// /* utility
+/* utility - useful when generating higherClassification
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
 $undefined_parents = $func->check_if_all_parents_have_entries($resource_id, false); //true means output will write to text file
 echo "\nTotal undefined parents:" . count($undefined_parents);
-// */
+*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
@@ -73,10 +85,11 @@ echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
 echo "\n Done processing.\n";
 
-function get_base_filename($dwca_file)
+function get_base_filename($dwca_file, $generate_higherClassification_YN)
 {
     $info = pathinfo($dwca_file);
     $arr = explode(".", $info['filename']);
-    return $arr[0]."-with-higherClassification";
+    if($generate_higherClassification_YN == "Y") return $arr[0]."-with-higherClassification";
+    else                                         return $arr[0]."-adjusted";
 }
 ?>
