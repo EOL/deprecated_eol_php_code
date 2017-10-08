@@ -10,11 +10,14 @@ class PaleoDBAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->resource_reference_ids = array();
-        $this->download_options = array('cache' => 1, 'resource_id' => $folder, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'expire_seconds' => 2592000); //cache expires in 30 days
+        $this->download_options = array('cache' => 1, 'resource_id' => $folder, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1, 
+        'expire_seconds' => 60*60*24*30*3); //cache expires in 3 months // orig
+        $this->download_options['expire_seconds'] = false; //debug
+
         $this->occurrence_ids = array();
         $this->invalid_names_status = array("replaced by", "invalid subgroup of", "nomen dubium", "nomen nudum", "nomen vanum", "nomen oblitum");
         
-        $this->service["taxon"] = "http://paleobiodb.org/data1.1/taxa/list.csv?rel=all_taxa&status=valid&show=attr,app,size,phylo,ent,entname,crmod&limit=1000000";
+        $this->service["taxon"] = "https://paleobiodb.org/data1.1/taxa/list.csv?rel=all_taxa&status=valid&show=attr,app,size,phylo,ent,entname,crmod&limit=1000000";
 
         /* paleobiodb.csv - old version, with just 32 cols
         // $this->service["taxon"] = "https://dl.dropboxusercontent.com/u/7597512/PaleoDB/paleobiodb.csv";
@@ -105,7 +108,9 @@ class PaleoDBAPI
         elseif($type == "taxon")
         {
             $no_of_fields = $this->taxon_no_of_cols;
-            $path = Functions::save_remote_file_to_local($this->service["taxon"], array("timeout" => 999999, "cache" => 0)); // debug cache should be 0; only when debugging should be 1
+            $download_options = $this->download_options;
+            $download_options['timeout'] = 999999;
+            $path = Functions::save_remote_file_to_local($this->service["taxon"], $download_options);
         }
 
         $j = 0;

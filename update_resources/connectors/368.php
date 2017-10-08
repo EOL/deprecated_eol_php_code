@@ -3,12 +3,12 @@ namespace php_active_record;
 /* PaleoDB connector - we use their data services to assemble their data and ingest it as structured data
 estimated execution time: 40 minutes | 1.9 hours
 This resource is formerly id = 719
-
-            4-Sep-2015  11-Jul-2016
-taxon       [234423]    [263815]
-occurrence  [972262]    [1103650]
-measurement [972262]    [1103650]
-vernacular  [3753]      [3911]
+                                    2017
+            4-Sep-2015  11-Jul-2016 8-Oct
+taxon       [234423]    [263815]    same
+occurrence  [972262]    [1103650]   same
+measurement [972262]    [1103650]   same
+vernacular  [3753]      [3911]      same
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
