@@ -2,6 +2,14 @@
 namespace php_active_record;
 /* connector for BHL BioDivLibrary's photostream -- http://www.flickr.com/photos/61021753@N02
 execution time: 18 hours
+------------------------------
+execution time (Jenkins initial): 23 hours
+execution time (Jenkins suceeding): 2 min 8 sec
+                                             7-Oct
+http://eol.org/schema/agent/agent:           1
+http://purl.org/dc/dcmitype/StillImage:      19103
+http://rs.tdwg.org/dwc/terms/taxon:          20654
+http://rs.gbif.org/terms/1.0/vernacularname: 4879
 */
 
 ini_set('error_reporting', E_ALL);
@@ -47,7 +55,7 @@ Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml",
 
 Functions::set_resource_status_to_harvest_requested($resource_id);
 remove_bhl_images_already_existing_in_eol_group($resource_id);
-Functions::gzip_resource_xml($resource_id);
+// Functions::gzip_resource_xml($resource_id); //un-comment if you want to investigate 544.gz.xml, otherwise remain commented
 
 //---------------------new start
 require_library('ResourceDataObjectElementsSetting');
