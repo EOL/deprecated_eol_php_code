@@ -136,7 +136,11 @@ class DWCADiagnoseAPI
             fclose($WRITE);
         }
         $undefined = array_keys($undefined);
-        if(!$undefined) unlink(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_undefined_parent_ids.txt");
+        if(!$undefined)
+        {
+            $file = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_undefined_parent_ids.txt";
+            if(file_exists($file)) unlink($file);
+        }
         return $undefined;
     }
     
