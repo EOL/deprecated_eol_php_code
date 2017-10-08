@@ -49,6 +49,12 @@ Functions::set_resource_status_to_harvest_requested($resource_id);
 remove_bhl_images_already_existing_in_eol_group($resource_id);
 Functions::gzip_resource_xml($resource_id);
 
+//---------------------new start
+require_library('ResourceDataObjectElementsSetting');
+$nmnh = new ResourceDataObjectElementsSetting($resource_id);
+$nmnh->call_xml_2_dwca($resource_id, "Flickr files", false); //3rd param false means it is not NMNH resource.
+//---------------------new end
+
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
 echo "elapsed time = $elapsed_time_sec seconds             \n";
