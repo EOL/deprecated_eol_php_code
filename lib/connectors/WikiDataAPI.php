@@ -199,7 +199,7 @@ class WikiDataAPI
             $k++; 
             if(($k % 100000) == 0) echo " ".number_format($k)." ";
             echo " ".number_format($k)." ";
-            // /* breakdown when caching:
+            /* breakdown when caching:
             $cont = false;
             
             // if($k >=  1    && $k < $m) $cont = true; done
@@ -220,7 +220,7 @@ class WikiDataAPI
             // if($k >= 1 && $k < 100) $cont = true;   //wikimedia total taxa = 2,208,086
 
             if(!$cont) continue;
-            // */
+            */
 
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
@@ -259,6 +259,16 @@ class WikiDataAPI
                              {
                                  if($url = @$rek['com_category'])   $rek['obj_category'] = self::get_commons_info($url);
                                  if($url = @$rek['com_gallery'])    $rek['obj_gallery'] = self::get_commons_info($url);
+                                 
+                                 //eli's debug
+                                 if($a = @$rek['obj_category']) {}//print_r($a);
+                                 if($b = @$rek['obj_gallery']) {}//print_r($b);
+                                 if($a || $b)
+                                 {
+                                     print_r($rek);
+                                     // exit("\nmeron commons\n");
+                                 }
+                                 //eli's debug end
                              }
                              
                              if($rek['taxon_id'])
@@ -267,15 +277,15 @@ class WikiDataAPI
                                  if($ret) self::save_ancestry_to_temp($rek['parent']);
                                  
                                  // if(!@$rek['other']['comprehensive_desc']) { print_r($rek); exit("\ninvestigate\n"); }
-                                 print_r($rek);
+                                 // print_r($rek);
                                  // break;              //debug - process just 1 rec
                                  
                                  $actual++; echo " [$actual] ";
                                  // if($actual >= 5000) break;   //debug - used only on batch of 5000 articles per language
                              }
                          }
-                         print_r($rek); //exit("\nstop muna\n");
-                         // if($i >= 100) break;   //debug
+                         // print_r($rek); //exit("\nstop muna\n");
+                         if($i >= 20) break;   //debug
                          // */
                          
                          /* utility: this is to count how many articles per language ==============
@@ -363,7 +373,7 @@ class WikiDataAPI
         //start media objects
         $media = array();
         
-        if($description = trim(@$rec['other']['comprehensive_desc']))
+        if($description = trim(@$rec['other']['comprehensive_desc'])) //only for wikipedia, not for wikimedia commons
         {
             // Comprehensive Description
             $media['identifier']             = md5($rec['taxon_id']."Comprehensive Description");
@@ -402,7 +412,7 @@ class WikiDataAPI
             if(preg_match_all("/<a href=\"\/wiki\/File:(.*?)\"/ims", $html, $arr))
             {
                 $files = array_values(array_unique($arr[1]));
-                print_r($files); //exit;
+                // print_r($files); //exit;
                 if($this->save_all_filenames)
                 {
                     self::save_filenames_2file($files);
@@ -414,7 +424,7 @@ class WikiDataAPI
                 {   // https://commons.wikimedia.org/wiki/File:Eyes_of_gorilla.jpg
                     $rek = self::process_file($file);
                     if($rek == "continue") continue;
-                    print_r($rek); //exit;
+                    // print_r($rek); //exit;
                     
                     if($rek['pageid'])
                     {
@@ -524,7 +534,7 @@ class WikiDataAPI
     {
         $json = file_get_contents($filename);
         $arr = json_decode($json, true);
-        print_r($arr); //exit;
+        // print_r($arr); //exit;
         $rek = array();
         $rek['pageid'] = $arr['id'];
         $rek['timestamp'] = $arr['revision']['timestamp'];
@@ -574,6 +584,16 @@ class WikiDataAPI
             $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']);
         }
         // parse this value = "[http://www.panoramio.com/user/6099584?with_photo_id=56065015 Greg N]"
+        
+        /* ================================ new Oct 7, 2017 -- comment it first...
+        if(is_array($rek['Artist']))
+        {
+            print_r($rek['Artist']);
+            $rek['Artist'] = $rek['Artist'][0]['name'];
+        }
+        else echo "\nartist: ".$rek['Artist']."\n";
+        ================================ */
+        
         if(substr($rek['Artist'],0,5) == "[http")
         {
             $arr = explode(" ", $rek['Artist']);
@@ -1154,7 +1174,7 @@ class WikiDataAPI
         */
         $main_path = "/Volumes/Thunderbolt4/wikimedia_cache/";
         $i = 0;
-        foreach(new FileIterator(CONTENT_RESOURCE_LOCAL_PATH."wikimedia_filenames_2017_04_19.txt") as $line_number => $file)
+        foreach(new FileIterator(CONTENT_RESOURCE_LOCAL_PATH."wikimedia_filenames_2017_10_08.txt") as $line_number => $file)
         {
             $md5 = md5($file);
             $cache1 = substr($md5, 0, 2);
@@ -1204,7 +1224,7 @@ class WikiDataAPI
                     }
                     else echo("\nalready saved: [$filename]\n");
                 }
-                else echo "\n negative \n";
+                else echo "\n negative \n"; //meaning this media file is not encountered in the wikidata process.
                 
                 /*
                 if(substr($title,0,5) == "File:")
