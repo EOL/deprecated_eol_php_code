@@ -46,9 +46,9 @@ class Spreadsheet2DwCA
         if($temp_dir = ContentManager::download_temp_file_and_assign_extension($url, $suffix, array('suffix' => $suffix, 'timeout' => 900))) //15 minutes timeout (900 seconds)
         {
             if($zipYN)
-            {   //remove these 3 that were use above if URL is a zip file
+            {   //remove these 3 that were used above if URL is a zip file
                 unlink($local);
-                unlink($new_local);
+                unlink($new_local); //$new_local is inside $test_temp_dir
                 recursive_rmdir($test_temp_dir);
             }
             
@@ -78,7 +78,6 @@ class Spreadsheet2DwCA
                             echo "\nFINAL archive_tmp_dir = [$archive_tmp_dir]\n";
                             if(Functions::file_rename($archive_tmp_dir, CONTENT_RESOURCE_LOCAL_PATH . "/" . $resource_id))
                             {
-                                echo "\nTarring folder...\n";
                                 $command_line = "tar -czf " . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz --directory=" . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . " .";
                                 $output = shell_exec($command_line);
                                 echo "\n$output\n";

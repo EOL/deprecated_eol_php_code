@@ -16,13 +16,13 @@ $resource_id = false;
 if($val = $cmdline_params['resource_id'])
 {
     $resource_id = $val;
-    if    ($resource_id == 1007) $params['spreadsheet'] = "http://localhost/cp/spreadsheets/Arctic spreadsheets/alaskanarthropoda.xls.zip";
+    if    ($resource_id == 1007) $params['spreadsheet'] = "http://localhost/cp/spreadsheets/Arctic spreadsheets/alaskanarthropoda.xls";
     elseif($resource_id == 727)  $params['spreadsheet'] = "http://opendata.eol.org/dataset/42fd51a0-e31a-4b2a-9f18-6e4f08242d42/resource/88e09288-0578-43b9-a618-b6e08f70fa47/download/usda-plants.xlsx.zip";
     else exit("\nProgram will terminate. Invalid resource_id [$resource_id].\n\n");
 }
 else //no resource_id
 {
-    $params['spreadsheet'] = "http://localhost/cp/spreadsheets/Arctic spreadsheets/test.xls";
+    $params['spreadsheet'] = "http://localhost/cp/spreadsheets/Arctic spreadsheets/alaskanarthropoda.xls";
     $resource_id = get_base_filename($params['spreadsheet']);
 }
 $params['resource_id'] = $resource_id;
