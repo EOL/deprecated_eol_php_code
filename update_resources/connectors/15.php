@@ -1,6 +1,8 @@
 <?php
 namespace php_active_record;
-
+/* execution time (Jenkins) - initial run:      took 3 days 6 hours
+                            - suceeding runs:   ???
+*/
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 define('DOWNLOAD_WAIT_TIME', '300000'); // .3 seconds wait time
