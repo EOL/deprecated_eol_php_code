@@ -4,7 +4,7 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikiDataAPI');
 $timestart = time_elapsed();
-$resource_id = "vi";
+$resource_id = "en";
 
 // $url = "http://opendata.eol.org/dataset/national_museum-of_natural_history%402017-09-07T18%3A37%3A28.199462";
 // exit("\n".urldecode($url)."\n");
@@ -49,12 +49,12 @@ exit("\n Finished: just exploring... \n");
 // $func = new WikiDataAPI($resource_id, "en");     //done final-en
 
 // $func = new WikiDataAPI($resource_id, "en", "taxonomy"); //3rd param is boolean taxonomy; true means will generate hierarchy resource. [wikidata-hierarchy]    //done
-// $func = new WikiDataAPI($resource_id, "en", "wikimedia");     //done - Used for Commons - total taxa = 2,208,086
+$func = new WikiDataAPI($resource_id, "en", "wikimedia");     //done - Used for Commons - total taxa = 2,208,086
 
 // not yet complete:
 // $func = new WikiDataAPI($resource_id, "nl");     //496940
 // $func = new WikiDataAPI($resource_id, "sv");     //317830    //still being run, many many bot inspired
-$func = new WikiDataAPI($resource_id, "vi");     //459950
+// $func = new WikiDataAPI($resource_id, "vi");     //459950
 
 //===================
 
@@ -71,11 +71,11 @@ not defined parent [Q18596649]
 total undefined parent_id: 2
 */
 
-// /* utility
+/* utility
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
 $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
-// */
+*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
