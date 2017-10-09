@@ -185,20 +185,33 @@ class DwCA_Utility
                 if($parts[0]) $field = $parts[0];
                 if(@$parts[1]) $field = $parts[1];
 
-                //start some validations ---------------------------- put other validations in this block, as needed #########################################################################
-                if($field == "full_reference" && !@$rec[$key]) //meaning full_reference is blank or null. Assumed here that this is $class == 'reference'
-                {
-                    $c = false; break;
+                //#################### start some validations ---------------------------- put other validations in this block, as needed ################################################
+                if($class == "reference") {
+                    if($field == "full_reference" && !@$rec[$key] && $field == "title" && !@$rec[$key]) { //meaning full_reference AND title are blank or null
+                        $c = false; break;
+                    }
                 }
-                elseif(in_array($field, array("accessURI","thumbnailURL","furtherInformationURL"))) {
+                /* some reference from DwCA: http://depot.globalbioticinteractions.org/release/org/eol/eol-globi-datasets/0.5/eol-globi-datasets-0.5-darwin-core-aggregated.tar.gz
+                <field index="0" term="http://purl.org/dc/terms/identifier"/>
+                <field index="1" term="http://eol.org/schema/reference/publicationType"/>
+                <field index="2" term="http://eol.org/schema/reference/full_reference"/>
+                <field index="3" term="http://eol.org/schema/reference/primaryTitle"/>
+                <field index="4" term="http://purl.org/dc/terms/title"/>
+                */
+                
+                if(in_array($field, array("accessURI","thumbnailURL","furtherInformationURL"))) {
                     if($val = @$rec[$key]) { //if not blank
                         if(!self::valid_uri_url($val)) { //then should be valid URI or URL
-                            $c = false; break;
+                            // $c = false; break; //you don't totally exclude the entire data_object but just set the field URI/URL to blank
+                            $rec[$key] = "";
+                            print_r($rec);
+                            echo "\nURI/URL set to blank because it is invalid.\n";
                         }
                     }
                 }
+                
                 /* not been tested yet. Was working with $ dwca_utility.php _ 430    -> iNaturalist
-                if($class == "document") { //meaning media objecs
+                if($class == "document") { //meaning media objecs ---> filter out duplicate data_object identifiers
                     if($field == "identifier") $do_id = @$rec[$key];
                     if(isset($do_ids[$do_id])) {
                         print_r($do_ids);
@@ -208,7 +221,7 @@ class DwCA_Utility
                     else $do_ids[$do_id] = '';
                 }
                 */
-                //end some validations ----------------------------  #########################################################################
+                //#################### end some validations ----------------------------  #########################################################################
 
                 $c->$field = $rec[$key];
 
