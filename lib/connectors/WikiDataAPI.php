@@ -1162,7 +1162,7 @@ class WikiDataAPI
     private function save_filenames_2file($files)
     {
         //save to text file
-        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_" . date("Y_m_d") . ".txt";
+        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_" . date("Y_m") . ".txt";
         $WRITE_pageid = fopen($txtfile, "a");
         fwrite($WRITE_pageid, implode("\n", $files) . "\n");
         fclose($WRITE_pageid);
@@ -1181,7 +1181,7 @@ class WikiDataAPI
         */
         $main_path = "/Volumes/Thunderbolt4/wikimedia_cache/";
         $i = 0;
-        foreach(new FileIterator(CONTENT_RESOURCE_LOCAL_PATH."wikimedia_filenames_2017_10_08.txt") as $line_number => $file)
+        foreach(new FileIterator(CONTENT_RESOURCE_LOCAL_PATH."wikimedia_filenames_2017_10.txt") as $line_number => $file)
         {
             $md5 = md5($file);
             $cache1 = substr($md5, 0, 2);
