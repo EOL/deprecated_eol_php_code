@@ -11,7 +11,7 @@ require_library('connectors/Spreadsheet2DwCA');
 // print_r($argv);
 $cmdline_params['jenkins_or_cron']                  = @$argv[1]; //irrelevant here
 $cmdline_params['resource_id']                      = @$argv[2]; //useful here
-print_r($cmdline_params);
+// print_r($cmdline_params);
 $resource_id = false;
 if($val = $cmdline_params['resource_id'])
 {

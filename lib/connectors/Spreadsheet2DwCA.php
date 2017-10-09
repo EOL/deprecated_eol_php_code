@@ -76,6 +76,7 @@ class Spreadsheet2DwCA
                         }
                         else {
                             echo "\nFINAL archive_tmp_dir = [$archive_tmp_dir]\n";
+                            unlink($archive_tmp_dir . ".tar.gz"); //e.g. /tmp/dwca_81087.tar.gz
                             if(Functions::file_rename($archive_tmp_dir, CONTENT_RESOURCE_LOCAL_PATH . "/" . $resource_id))
                             {
                                 $command_line = "tar -czf " . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz --directory=" . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . " .";
