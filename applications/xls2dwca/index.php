@@ -9,7 +9,7 @@
                 <br>
                 <font size="2">
                     <i>e.g. http://mydomain.org/my_spreadsheet.xlsx</i><br>
-                    <a href="https://dl.dropboxusercontent.com/u/1355101/schema/eol_import_spreadsheet.xlsx">Download</a> the EOL spreadsheet template here.
+                    <a href="https://github.com/eliagbayani/EOL-connector-data-files/raw/master/schema/eol_import_spreadsheet.xlsx">Download</a> the EOL spreadsheet template here.
                     <br>
                 </font>
             </td>

@@ -13,6 +13,14 @@ if(@$upload['tmp_name'])
     if(preg_match("/\.([^\.]+)$/", $upload['name'], $arr)) $suffix = strtolower(trim($arr[1]));
 }
 
+/*
+echo "<hr><pre>";
+print_r($_REQUEST);
+print_r($_FILES);
+echo "</pre>";
+echo "<br>url = [$url]<br>";
+echo "<br>suffix = [$suffix]<br>";
+*/
 
 $final_archive_gzip_url = null;
 $errors = array();
@@ -50,7 +58,7 @@ if($url)
                             $final_archive_gzip_url = WEB_ROOT . "tmp/" . $arr[1] . ".tar.gz";
                         }
                     }
-                }else $errors[] = "Unable to determine the template of the provided Excel file. Are you sure this matches the EOL template provided at https://dl.dropboxusercontent.com/u/1355101/schema/eol_import_spreadsheet.xlsx ?";
+                }else $errors[] = "Unable to determine the template of the provided Excel file. Are you sure this matches the EOL template provided at https://github.com/eliagbayani/EOL-connector-data-files/raw/master/schema/eol_import_spreadsheet.xlsx ?";
             }else $errors[] = "The file provided is not an Excel file";
             unlink($temp_dir);
         }
@@ -71,7 +79,7 @@ if($final_archive_gzip_url)
         You can also use this URL in our
         <a href='../dwc_validator/index.php' target='_blank'>Archive Validator</a> to ensure its contents are valid.
         <a href='../dwc_validator/index.php?file_url=$final_archive_gzip_url' target='_blank'>Click here</a> to validate now.<br><br>
-        Thank you.";
+        Thank you.<br><br><a href='index.php'>Try another</a>";
     echo "<br>=======================================================<br><br>";
 }else
 {
