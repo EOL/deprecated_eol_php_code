@@ -5,10 +5,10 @@ estimated execution time: 40 minutes | 1.9 hours
 This resource is formerly id = 719
                                     2017
             4-Sep-2015  11-Jul-2016 8-Oct
-taxon       [234423]    [263815]    same
-occurrence  [972262]    [1103650]   same
-measurement [972262]    [1103650]   same
-vernacular  [3753]      [3911]      same
+taxon       [234423]    [263815]    275509
+occurrence  [972262]    [1103650]   1156975
+measurement [972262]    [1103650]   1156975
+vernacular  [3753]      [3911]      4023
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
