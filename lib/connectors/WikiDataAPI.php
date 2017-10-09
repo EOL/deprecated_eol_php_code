@@ -285,7 +285,7 @@ class WikiDataAPI
                              }
                          }
                          // print_r($rek); //exit("\nstop muna\n");
-                         if($i >= 20) break;   //debug
+                         // if($i >= 20) break;   //debug
                          // */
                          
                          /* utility: this is to count how many articles per language ==============
@@ -331,12 +331,10 @@ class WikiDataAPI
     
     private function create_archive($rec)
     {
-        if($this->what == "wikimedia")
-        {
+        if($this->what == "wikimedia") {
             if(!@$rec['obj_gallery'] && !@$rec['obj_category']) return;
         }
-        if($this->what == "wikipedia")
-        {
+        if($this->what == "wikipedia") {
             if(!trim(@$rec['other']['comprehensive_desc'])) return;
         }
         
@@ -373,23 +371,32 @@ class WikiDataAPI
         //start media objects
         $media = array();
         
-        if($description = trim(@$rec['other']['comprehensive_desc'])) //only for wikipedia, not for wikimedia commons
-        {
-            // Comprehensive Description
-            $media['identifier']             = md5($rec['taxon_id']."Comprehensive Description");
-            $media['title']                  = $rec['other']['title'];
-            $media['description']            = $description;
-            $media['CVterm']                 = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description';
-            // below here is same for the next text object
-            $media['taxonID']                = $t->taxonID;
-            $media['type']                   = "http://purl.org/dc/dcmitype/Text";
-            $media['format']                 = "text/html";
-            $media['language']               = $this->language_code;
-            $media['Owner']                  = $this->trans['editors'][$this->language_code];
-            $media['UsageTerms']             = 'http://creativecommons.org/licenses/by-sa/3.0/';
-            $media['furtherInformationURL'] = $rec['other']['permalink'];
-            self::create_media_object($media);
+        if($this->what == "wikipedia") {
+            if($description = trim(@$rec['other']['comprehensive_desc'])) {
+                // Comprehensive Description
+                $media['identifier']             = md5($rec['taxon_id']."Comprehensive Description");
+                $media['title']                  = $rec['other']['title'];
+                $media['description']            = $description;
+                $media['CVterm']                 = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description';
+                // below here is same for the next text object
+                $media['taxonID']                = $t->taxonID;
+                $media['type']                   = "http://purl.org/dc/dcmitype/Text";
+                $media['format']                 = "text/html";
+                $media['language']               = $this->language_code;
+                $media['Owner']                  = $this->trans['editors'][$this->language_code];
+                $media['UsageTerms']             = 'http://creativecommons.org/licenses/by-sa/3.0/';
+                $media['furtherInformationURL'] = $rec['other']['permalink'];
+                self::create_media_object($media);
+            }
         }
+        
+        if($this->what == "wikimedia") {
+            loop    @$rec['obj_gallery']
+                    @$rec['obj_category']
+            and create_media_object() for commons
+
+        }
+        
 
         /* // Brief Summary - works well for 'de'
         $media['identifier']             = md5($rec['permalink']."Brief Summary");
@@ -442,7 +449,7 @@ class WikiDataAPI
     private function process_file($file) //e.g. Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg
     {
         $rek = array();
-        if($filename = self::has_cache_data($file)) //Eyes_of_gorilla.jpg - used in normal operation
+        if($filename = self::has_cache_data($file)) //Eyes_of_gorilla.jpg - used in normal operation -- get media info from commons
         // if(false) //will use API data - debug only
         {
             echo "\nused cache data";
