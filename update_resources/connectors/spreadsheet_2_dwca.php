@@ -16,8 +16,21 @@ $resource_id = false;
 if($val = $cmdline_params['resource_id'])
 {
     $resource_id = $val;
-    if    ($resource_id == 1007) $params['spreadsheet'] = "http://localhost/cp/spreadsheets/Arctic spreadsheets/alaskanarthropoda.xls";
-    elseif($resource_id == 727)  $params['spreadsheet'] = "http://opendata.eol.org/dataset/42fd51a0-e31a-4b2a-9f18-6e4f08242d42/resource/88e09288-0578-43b9-a618-b6e08f70fa47/download/usda-plants.xlsx.zip";
+    if    ($resource_id == 727)  $params['spreadsheet'] = "http://opendata.eol.org/dataset/42fd51a0-e31a-4b2a-9f18-6e4f08242d42/resource/88e09288-0578-43b9-a618-b6e08f70fa47/download/usda-plants.xlsx.zip";
+    elseif($resource_id == 991) $params['spreadsheet'] = "http://opendata.eol.org/dataset/bd2b0922-950a-4e7b-bf21-fbc7f734a4d7/resource/7e44255d-8350-4229-aaad-ead941420ab2/download/arctic-amphibians-and-reptiles.xls";
+    elseif($resource_id == 992) $params['spreadsheet'] = "http://opendata.eol.org/dataset/bd2b0922-950a-4e7b-bf21-fbc7f734a4d7/resource/b4a34e11-3ff8-4207-8cea-523a35b1241b/download/arctic-birds.xls";
+    elseif($resource_id == 993) $params['spreadsheet'] = "http://opendata.eol.org/dataset/bd2b0922-950a-4e7b-bf21-fbc7f734a4d7/resource/86c775f0-2808-47cf-875a-f1a2b560299e/download/arctic-freshwater-fishes.xls";
+    elseif($resource_id == 994) $params['spreadsheet'] = "http://opendata.eol.org/dataset/bd2b0922-950a-4e7b-bf21-fbc7f734a4d7/resource/b8d8bf5b-c07b-4cda-95bd-b842a22d9938/download/arctic-lichens.xls";
+    elseif($resource_id == 995) $params['spreadsheet'] = "http://opendata.eol.org/dataset/bd2b0922-950a-4e7b-bf21-fbc7f734a4d7/resource/0c9edb69-b5e1-4db3-b2da-9135ea79913a/download/arctic-lichen-ecology.xls";
+    elseif($resource_id == 996) $params['spreadsheet'] = "http://opendata.eol.org/dataset/bd2b0922-950a-4e7b-bf21-fbc7f734a4d7/resource/8b015ce0-660b-4047-98dd-e30573f9c08e/download/arctic-liverworts.xls";
+    elseif($resource_id == 997) $params['spreadsheet'] = "http://opendata.eol.org/dataset/bd2b0922-950a-4e7b-bf21-fbc7f734a4d7/resource/d073d077-d154-4df7-b135-c0fb3e003d8b/download/arctic-mammals.xls";
+    elseif($resource_id == 998) $params['spreadsheet'] = "http://opendata.eol.org/dataset/bd2b0922-950a-4e7b-bf21-fbc7f734a4d7/resource/cd37772b-d082-4959-b715-3cafd607923c/download/arctic-marine-fishes.xls";
+    elseif($resource_id == 999) $params['spreadsheet'] = "http://opendata.eol.org/dataset/bd2b0922-950a-4e7b-bf21-fbc7f734a4d7/resource/e07e6031-d94a-4bdd-9ebf-344c963b3a59/download/arctic-protists.xls";
+    elseif($resource_id == 1000) $params['spreadsheet'] = "http://opendata.eol.org/dataset/bd2b0922-950a-4e7b-bf21-fbc7f734a4d7/resource/03115419-3f59-4717-9fb0-ce3981ffa2ea/download/arctic-register-of-marine-species.xls";
+    elseif($resource_id == 1001) $params['spreadsheet'] = "http://opendata.eol.org/dataset/bd2b0922-950a-4e7b-bf21-fbc7f734a4d7/resource/fdef0cc5-953a-42cd-a310-e4be79130c35/download/arctic-vascular-plants.xls";
+    elseif($resource_id == 1002) $params['spreadsheet'] = "http://opendata.eol.org/dataset/bd2b0922-950a-4e7b-bf21-fbc7f734a4d7/resource/36456461-e99c-4c2a-8c82-0cb6609e8aec/download/arctic-algae.xls";
+    elseif($resource_id == 1005) $params['spreadsheet'] = "http://opendata.eol.org/dataset/bd2b0922-950a-4e7b-bf21-fbc7f734a4d7/resource/df09a527-c826-43c3-a9f4-ba8414695db7/download/alaskanarthropoda.xls";
+    elseif($resource_id == 1007) $params['spreadsheet'] = "http://opendata.eol.org/dataset/bd2b0922-950a-4e7b-bf21-fbc7f734a4d7/resource/aeb5f0a9-e506-4d9a-bec4-0b7f825902dd/download/arctic-arthropods-traits-1.xlsx"; //"http://localhost/cp/spreadsheets/Arctic spreadsheets/alaskanarthropoda.xls.zip";
     else exit("\nProgram will terminate. Invalid resource_id [$resource_id].\n\n");
 }
 else //no resource_id

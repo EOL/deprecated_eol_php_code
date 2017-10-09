@@ -33,11 +33,11 @@ class Spreadsheet2DwCA
             $output = shell_exec("unzip $local -d $test_temp_dir");
             $ext = self::get_real_extension_of_zip_file($url);
             $new_local = self::get_file_inside_dir_with_this_extension($test_temp_dir."/*.$ext");
-            // /* debug only
-            echo "\nlocal file = [$local]\n";
-            echo "\nlocal dir = [$test_temp_dir]\n";
-            echo "\nnew local file = [$new_local]\n";
-            // */
+            /* debug only
+            echo "\n\nlocal file = [$local]";
+            echo "\nlocal dir = [$test_temp_dir]";
+            echo "\nnew local file = [$new_local]\n\n";
+            */
             $url = $new_local;
         }
         else $zipYN = false;
@@ -52,7 +52,7 @@ class Spreadsheet2DwCA
                 recursive_rmdir($test_temp_dir);
             }
             
-            echo "\ntemp_dir = [$temp_dir]\n";
+            debug("\ntemp_dir = [$temp_dir]\n");
             if(is_dir($temp_dir)) {
                 $errors[] = "The file provided [$temp_dir] is not an Excel file";
                 recursive_rmdir($temp_dir);
@@ -75,13 +75,14 @@ class Spreadsheet2DwCA
                             recursive_rmdir($archive_tmp_dir);
                         }
                         else {
-                            echo "\nFINAL archive_tmp_dir = [$archive_tmp_dir]\n";
+                            debug("\nFINAL archive_tmp_dir = [$archive_tmp_dir]\n");
                             unlink($archive_tmp_dir . ".tar.gz"); //e.g. /tmp/dwca_81087.tar.gz
                             if(Functions::file_rename($archive_tmp_dir, CONTENT_RESOURCE_LOCAL_PATH . "/" . $resource_id))
                             {
                                 $command_line = "tar -czf " . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz --directory=" . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . " .";
                                 $output = shell_exec($command_line);
-                                echo "\n$output\n";
+                                debug("\n$output\n");
+                                recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id); //to save space, since this is not needed and the .tar.gz is already created
                             }
                             else echo "\nCopy problem encountered.\n";
                             /*not needed anymore
