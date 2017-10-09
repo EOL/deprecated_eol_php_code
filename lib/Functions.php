@@ -352,6 +352,7 @@ class Functions
             self::debug_line("Source file does not exist: [$oldname]");
             return false;
         }
+        return true;
     }
 
     public static function is_within_folders_where_file_change_is_allowed($file)
