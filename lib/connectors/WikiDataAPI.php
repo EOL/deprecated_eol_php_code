@@ -239,7 +239,7 @@ class WikiDataAPI
                      $rek['taxon_id'] = trim((string) $arr->id);
                      if($rek['taxon'] = self::get_taxon_name($arr)) //old working param is $arr->claims
                      {
-                         // /* normal operation
+                         // /* normal operation ==========================
                          if($rek['sitelinks'] = self::get_taxon_sitelinks_by_lang($arr->sitelinks)) //if true then create DwCA for it
                          {
                              // print_r($arr); //debug
@@ -285,13 +285,11 @@ class WikiDataAPI
                          }
                          // print_r($rek); //exit("\nstop muna\n");
                          // if($i >= 20) break;   //debug
-                         // */
+                         // ===============================*/ //end normal operation
                          
                          /* utility: this is to count how many articles per language ==============
-                         if($arr = self::get_taxon_sitelinks($arr->sitelinks))
-                         {
-                             foreach($arr as $a)
-                             {
+                         if($arr = self::get_taxon_sitelinks($arr->sitelinks)) {
+                             foreach($arr as $a) {
                                  $str = str_replace("wiki", "", $a->site);
                                  // echo " ".$str;
                                  $this->debug[$str]++;
@@ -304,13 +302,10 @@ class WikiDataAPI
                      // */
                 }
                 else exit("\nnot ok\n");
-            }
-            else
-            {
-                $j++;
-                echo " -x- ";
-            }
-        }
+                break; //debug get first taxon wiki only
+            } //end of taxon wiki
+            else $j++; //non-taxon wiki
+        } //main loop
         echo "\ntotal taxon wikis = [$i]\n";
         echo "\ntotal non-taxon wikis = [$j]\n";
         print_r($this->debug);
@@ -1221,10 +1216,8 @@ class WikiDataAPI
         $reader = new \XMLReader();
         $reader->open($path);
         $i = 0;
-        while(@$reader->read())
-        {
-            if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "page")
-            {
+        while(@$reader->read()) {
+            if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "page") {
                 $page_xml = $reader->readOuterXML();
                 $t = simplexml_load_string($page_xml, null, LIBXML_NOCDATA);
 
@@ -1232,10 +1225,8 @@ class WikiDataAPI
                 // $title = "File:Two Gambel's Quail (Callipepla gambelii) - Paradise Valley, Arizona, ca 2004.png";
                 $title = str_replace("File:", "", $title);
                 $title = str_replace(" ", "_", $title);
-                if($filename = self::taxon_media($title))
-                {
-                    if(filesize($filename) == 0)
-                    {
+                if($filename = self::taxon_media($title)) {
+                    if(filesize($filename) == 0) {
                         echo "\n found taxon wikimedia \n";
                         $json = json_encode($t);
                         if($FILE = Functions::file_open($filename, 'w')) // normal
