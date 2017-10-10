@@ -538,7 +538,7 @@ class WikiDataAPI
     {
         $json = file_get_contents($filename);
         $arr = json_decode($json, true);
-        // print_r($arr); //exit;
+        // print_r($arr); exit;
         $rek = array();
         $rek['pageid'] = $arr['id'];
         $rek['timestamp'] = $arr['revision']['timestamp'];
@@ -579,7 +579,7 @@ class WikiDataAPI
         if(preg_match("/\|author\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['author'] = trim($a[1]);
         if(preg_match("/\|source\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['source'] = $a[1];
         if(preg_match("/\|permission\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['permission'] = $a[1];
-        
+        $rek['date'] = @$rek['other']['date'];
         //================================================================ Artist
         $rek['Artist'] = @$rek['other']['author'];
         if(!$rek['Artist']) {
@@ -614,6 +614,7 @@ class WikiDataAPI
             if($temp) $rek['Artist'][] = $temp;
         }
         //================================================================ END
+        $rek['fromx'] = 'dump';
         return $rek;
     }
     
@@ -830,6 +831,7 @@ class WikiDataAPI
             $rek['LicenseShortName'] = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['LicenseShortName']['value']);
             if($val = @$arr['imageinfo'][0]['extmetadata']['DateTime']['value'])             $rek['date'] = self::format_wiki_substr($val);
             elseif($val = @$arr['imageinfo'][0]['extmetadata']['DateTimeOriginal']['value']) $rek['date'] = self::format_wiki_substr($val);
+            $rek['fromx'] = 'api'; //object metadata from API;
         }
         return $rek;
     }
