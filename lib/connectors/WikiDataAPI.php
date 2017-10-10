@@ -345,8 +345,7 @@ class WikiDataAPI
         $t->scientificName           = $rec['taxon'];
         if($t->scientificNameAuthorship = $rec['author'])
         {
-            if($year = $rec['author_yr'])
-            {
+            if($year = $rec['author_yr']) {
                 //+1831-01-01T00:00:00Z
                 $year = substr($year,1,4);
                 $t->scientificNameAuthorship .= ", $year";
@@ -359,8 +358,7 @@ class WikiDataAPI
         if($val = @$rec['other']['permalink']) $t->source = $val;
         else                                   $t->source = "https://www.wikidata.org/wiki/".$t->taxonID;
 
-        if(!isset($this->taxon_ids[$t->taxonID]))
-        {
+        if(!isset($this->taxon_ids[$t->taxonID])) {
             $this->taxon_ids[$t->taxonID] = '';
             $this->archive_builder->write_object_to_file($t);
         }
@@ -420,8 +418,7 @@ class WikiDataAPI
             {
                 $files = array_values(array_unique($arr[1]));
                 // print_r($files); //exit;
-                if($this->save_all_filenames)
-                {
+                if($this->save_all_filenames) {
                     self::save_filenames_2file($files);
                     return;
                 }
@@ -433,8 +430,7 @@ class WikiDataAPI
                     if($rek == "continue") continue;
                     // print_r($rek); //exit;
                     
-                    if($rek['pageid'])
-                    {
+                    if($rek['pageid']) {
                         $final[] = $rek;
                         $limit++;
                     }
@@ -492,10 +488,7 @@ class WikiDataAPI
             $arr = explode("|", $a[1]);
             $arr = array_unique($arr);
             $final = array();
-            foreach($arr as $t)
-            {
-                $final[] = array('name' => $t, 'homepage' => "https://commons.wikimedia.org/wiki/User:".str_replace(" ", "_", $t));
-            }
+            foreach($arr as $t) $final[] = array('name' => $t, 'homepage' => "https://commons.wikimedia.org/wiki/User:".str_replace(" ", "_", $t));
             if($final) return $final;
         }
         
@@ -505,16 +498,14 @@ class WikiDataAPI
             $temp = array();
             if(preg_match("/>(.*?)<\/a>/ims", $str, $a))    $temp['name'] = $a[1];
             if(preg_match("/href=\"(.*?)\"/ims", $str, $a)) $temp['homepage'] = $a[1];
-            if($temp)
-            {
+            if($temp) {
                 $final[] = $temp;
                 return $final;
             }
         }
         
         //[Artist] => <span lang="en">Anonymous</span>
-        if(substr($str,0,6) == "<span " && substr_count($str, '</span>') == 1)
-        {
+        if(substr($str,0,6) == "<span " && substr_count($str, '</span>') == 1) {
             return array(array('name' => strip_tags($str)));
         }
         
@@ -523,8 +514,7 @@ class WikiDataAPI
     
     private function has_cache_data($file)
     {
-        if($filename = self::taxon_media($file))
-        {
+        if($filename = self::taxon_media($file)) {
             if(filesize($filename) > 0) return $filename;
         }
         return false;
@@ -564,8 +554,7 @@ class WikiDataAPI
         }
         //================================================================ LicenseUrl
         //  -- http://creativecommons.org/licenses/by-sa/3.0 
-        if(preg_match("/http:\/\/creativecommons.org\/licenses\/(.*?)\"/ims", $rek['ImageDescription'], $a))
-        {
+        if(preg_match("/http:\/\/creativecommons.org\/licenses\/(.*?)\"/ims", $rek['ImageDescription'], $a)) {
             $rek['LicenseUrl'] = "http://creativecommons.org/licenses/" . $a[1];
         }
         //================================================================ title
@@ -586,8 +575,7 @@ class WikiDataAPI
         
         //================================================================ Artist
         $rek['Artist'] = @$rek['other']['author'];
-        if(!$rek['Artist'])
-        {
+        if(!$rek['Artist']) {
             $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']);
         }
         // parse this value = "[http://www.panoramio.com/user/6099584?with_photo_id=56065015 Greg N]"
@@ -632,13 +620,11 @@ class WikiDataAPI
             $final = array(); $atemp = array();
             if(preg_match("/href=\"(.*?)\"/ims", $temp, $a)) $atemp['homepage'] = trim($a[1]);
             if(preg_match("/\">(.*?)<\/a>/ims", $temp, $a)) $atemp['name'] = trim($a[1]);
-            if($atemp)
-            {
+            if($atemp) {
                 $final[] = $atemp;
                 return $final;
             }
-            else
-            {
+            else {
                 // <td lang="en">Author</td>
                 // <td>Museo Nacional de Chile.</td>
                 // echo("\n[@$a[1]]\n");
@@ -694,15 +680,13 @@ class WikiDataAPI
         
         $options = $this->download_options;
         $options['expire_seconds'] = false; //always false
-        if($json = Functions::lookup_with_cache($url.urlencode($wiki), $options))
-        {
+        if($json = Functions::lookup_with_cache($url.urlencode($wiki), $options)) {
             $arr = json_decode($json, true);
             // echo "\n==========\n";
             // print_r($arr);
             
             $html = $arr['parse']['text']['*'];
-            if(preg_match("/elix(.*?)<!--/ims", "elix".$html, $a))
-            {
+            if(preg_match("/elix(.*?)<!--/ims", "elix".$html, $a)) {
                 $html = trim($a[1]);
                 // exit("\n$html\n");
                 $html = str_ireplace('href="//', 'href="http://', $html);
@@ -719,8 +703,7 @@ class WikiDataAPI
                 */
                 
                 //remove style
-                if(preg_match_all("/style=\"(.*?)\"/ims", $html, $a))
-                {
+                if(preg_match_all("/style=\"(.*?)\"/ims", $html, $a)) {
                     foreach($a[1] as $style) $html = str_ireplace('style="'.$style.'"', "", $html);
                 }
 
@@ -748,8 +731,7 @@ class WikiDataAPI
                 foreach($arr as $attrib)
                 {
                     //remove class="" id=""
-                    if(preg_match_all("/$attrib=\"(.*?)\"/ims", $html, $a))
-                    {
+                    if(preg_match_all("/$attrib=\"(.*?)\"/ims", $html, $a)) {
                         foreach($a[1] as $style) $html = str_ireplace($attrib.'="'.$style.'"', "", $html);
                     }
                 }
@@ -837,7 +819,6 @@ class WikiDataAPI
             if(!$rek['Artist']) $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']);
             
             
-            
             $rek['LicenseUrl']       = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['LicenseUrl']['value']);
             $rek['LicenseShortName'] = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['LicenseShortName']['value']);
             if($val = @$arr['imageinfo'][0]['extmetadata']['DateTime']['value'])             $rek['date'] = self::format_wiki_substr($val);
@@ -855,11 +836,9 @@ class WikiDataAPI
     
     private function wiki2html($str)
     {
-        if(preg_match_all("/\[(.*?)\]/ims", $str, $a))
-        {
+        if(preg_match_all("/\[(.*?)\]/ims", $str, $a)) {
             $divided = array();
-            foreach($a[1] as $tmp)
-            {
+            foreach($a[1] as $tmp) {
                 $arr = explode(" ", $tmp);
                 $url = $arr[0];
                 array_shift($arr);
@@ -867,8 +846,7 @@ class WikiDataAPI
                 $divided[] = array("url" => $url, "link_text" => $link_text);
             }
             $i = 0;
-            foreach($a[1] as $tmp)
-            {
+            foreach($a[1] as $tmp) {
                 $str = str_replace("[" . $tmp . "]", "<a href='" . $divided[$i]['url'] . "'>" . $divided[$i]['link_text'] . "</a>", $str);
                 $i++;
             }
@@ -900,15 +878,13 @@ class WikiDataAPI
         $row = "";
         $i = 0;
         $total_cols = count($this->media_cols);
-        foreach($this->media_cols as $key)
-        {
+        foreach($this->media_cols as $key) {
             $i++;
             $row .= $media[$key];
             if($i == $total_cols) $row .= "\n";
             else                  $row .= "\t";
         }
-        if(!isset($this->object_ids[$media['identifier']]))
-        {
+        if(!isset($this->object_ids[$media['identifier']])) {
             if(!($f = Functions::file_open($this->media_extension, "a"))) return;
             fwrite($f, $row);
             fclose($f);
@@ -916,8 +892,7 @@ class WikiDataAPI
         // */
 
         // /*
-        if(!$this->passed_already)
-        {
+        if(!$this->passed_already) {
             $this->passed_already = true;
             
             $mr = new \eol_schema\MediaResource();
