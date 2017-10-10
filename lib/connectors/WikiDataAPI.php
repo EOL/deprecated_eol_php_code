@@ -53,6 +53,12 @@ class WikiDataAPI
 
     function get_all_taxa()
     {
+        /* VERY IMPORTANT - everytime we get a fresh new wikidata dump. The raw dump has all categories not just taxa.
+        This utility will create an all-taxon dump, which our connector will use.
+        self::create_all_taxon_dump(); //a utility that generates an all-taxon dump, generates overnight 
+        exit; 
+        */
+        
         /*testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
@@ -66,14 +72,11 @@ class WikiDataAPI
         exit("\n-Finished testing-\n");
         */
         
-        
         if(!@$this->trans['editors'][$this->language_code]) 
         {
             $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
             $this->trans['editors'][$this->language_code] = $func->translate_source_target_lang("Wikipedia authors and editors", "en", $this->language_code);
         }
-        
-        /* self::create_all_taxon_dump(); exit; //a utility, generates overnight */
         
         self::initialize_files();
         self::parse_wiki_data_json();
