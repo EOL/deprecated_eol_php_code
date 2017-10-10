@@ -389,12 +389,13 @@ class WikiDataAPI
         }
         
         if($this->what == "wikimedia") {
+            /*
             loop    @$rec['obj_gallery']
-                    @$rec['obj_category']
-            and create_media_object() for commons
+                    @$rec['obj_category'] and create_media_object() for commons */
 
+            if($commons = @$rec['obj_gallery'])     self::create_commons_objects($commons);
+            if($commons = @$rec['obj_category'])    self::create_commons_objects($commons);
         }
-        
 
         /* // Brief Summary - works well for 'de'
         $media['identifier']             = md5($rec['permalink']."Brief Summary");
@@ -405,12 +406,18 @@ class WikiDataAPI
         */
         return true;
     }
+    private function create_commons_objects($commons)
+    {
+        print_r($commons);
+        exit;
+    }
     
     private function get_commons_info($url)
     {
         $final = array();
         // <a href="/wiki/File:A_hand-book_to_the_primates_(Plate_XL)_(5589462024).jpg"
         // <a href="/wiki/File:Irrawaddy_Dolphin.jpg"
+        echo("\nelix:[$url]\n");
         $options = $this->download_options;
         if($html = Functions::lookup_with_cache($url, $options))
         {
@@ -418,7 +425,7 @@ class WikiDataAPI
             {
                 $files = array_values(array_unique($arr[1]));
                 // print_r($files); //exit;
-                if($this->save_all_filenames) {
+                if($this->save_all_filenames) { //for utility use only, will not pass here on normal operation
                     self::save_filenames_2file($files);
                     return;
                 }
@@ -439,6 +446,8 @@ class WikiDataAPI
                 // exit("\n cha222 \n");
             }
         }
+        
+        print_r($final);exit;
         return $final;
     }
     
