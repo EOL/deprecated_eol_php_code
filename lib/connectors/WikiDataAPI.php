@@ -425,10 +425,13 @@ class WikiDataAPI
             {
                 $files = array_values(array_unique($arr[1]));
                 // print_r($files); //exit;
-                if($this->save_all_filenames) { //for utility use only, will not pass here on normal operation
+                
+                //for utility use only, will not pass here on normal operation =========================== start
+                if($this->save_all_filenames) { 
                     self::save_filenames_2file($files);
                     return;
                 }
+                //for utility use only, will not pass here on normal operation =========================== end
                 
                 $limit = 0;
                 foreach($files as $file)
@@ -446,8 +449,7 @@ class WikiDataAPI
                 // exit("\n cha222 \n");
             }
         }
-        
-        print_r($final);exit;
+        // print_r($final);exit;
         return $final;
     }
     
@@ -463,12 +465,10 @@ class WikiDataAPI
             if(!$rek)
             {
                 echo "\njust used api data instead";
-
                 /*
                 if(!in_array($file, array("The_marine_mammals_of_the_north-western_coast_of_North_America,_described_and_illustrated;_together_with_an_account_of_the_American_whale-fishery_(1874)_(14598172619).jpg", 
                 "The_marine_mammals_of_the_north-western_coast_of_North_America_described_and_illustrated_(microform)_-_together_with_an_account_of_the_American_whale-fishery_(1874)_(20624848441).jpg"))) exit("\n111 [$file] 222\n");
                 */
-
                 $rek = self::get_media_metadata_from_api($file);
             }
             // print_r($rek); exit;
@@ -480,9 +480,7 @@ class WikiDataAPI
         }
         $rek['source_url']  = "https://commons.wikimedia.org/wiki/File:".$file;
         $rek['media_url']   = self::get_media_url($file);
-        
-        $rek['Artist'] = self::format_artist($rek['Artist']);
-        
+        $rek['Artist']      = self::format_artist($rek['Artist']);
         return $rek;
     }
 
