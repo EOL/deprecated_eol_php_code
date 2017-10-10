@@ -409,7 +409,40 @@ class WikiDataAPI
     private function create_commons_objects($commons)
     {
         print_r($commons);
-        exit;
+        foreach($commons as $com)
+        {
+            /*
+            [pageid] => 56279236
+            [timestamp] => 2017-03-23T23:20:37Z
+            [ImageDescription] => Summary <table cellpadding="4"> <tr> <td lang="en">DescriptionAPI</td> <td> English: Simplified cladogram showing that the whales are paraphyletic with respect to the dolphins and porpoises. The clade Cetacea includes all these animals. </td> </tr> <tr> <td lang="en">Date</td> <td lang="en">14 February 2017</td> </tr> <tr> <td lang="en">Source</td> <td>This file was derived from <a href="https://commons.wikimedia.org/wiki/File:Whales_are_Paraphyletic.png" title="File:Whales are Paraphyletic.png">Whales are Paraphyletic.png</a>: <a href="https://commons.wikimedia.org/wiki/File:Whales_are_Paraphyletic.png" ></a><br /></td> </tr> <tr> <td lang="en">Author</td> <td> Original: <a href="https://commons.wikimedia.org/wiki/User:Chiswick_Chap" title="User:Chiswick Chap">Chiswick Chap</a> Vectorisation: <a href="https://commons.wikimedia.org/wiki/User:CheChe" title="User:CheChe">CheChe</a> </td> </tr> </table> <br /> <table > <tr> <td></td> <td>This is a <i><a href="https://en.wikipedia.org/wiki/Image_editing" title="w:Image editing">retouched picture</a></i>, which means that it has been digitally altered from its original version. The original can be viewed here: <a href="https://commons.wikimedia.org/wiki/File:Whales_are_Paraphyletic.png" title="File:Whales are Paraphyletic.png">Whales are Paraphyletic.png</a>. Modifications made by <a href="https://commons.wikimedia.org/wiki/User:CheChe" title="User:CheChe">CheChe</a>. </td> </tr> </table> Licensing <table cellspacing="8" cellpadding="0" > <tr> <td> <table lang="en"> <tr> <td rowspan="3"><br /> </td> <td lang="en">This file is licensed under the <a href="https://en.wikipedia.org/wiki/en:Creative_Commons" title="w:en:Creative Commons">Creative Commons</a> <a rel="nofollow" href="http://creativecommons.org/licenses/by-sa/4.0/deed.en">Attribution-Share Alike 4.0 International</a> license.</td> <td rowspan="3"></td> </tr> <tr> <td></td> </tr> <tr lang="en"> <td> http://creativecommons.org/licenses/by-sa/4.0 CC BY-SA 4.0 Creative Commons Attribution-Share Alike 4.0 truetrue </td> </tr> </table> </td> </tr> </table>
+            [LicenseShortName] => self|cc-by-sa-4.0
+            [LicenseUrl] => http://creativecommons.org/licenses/by-sa/4.0/deed.en
+            [title] => Whales are Paraphyletic.svg
+            [other] => Array
+                (
+                    [date] => 2017-02-14
+                    [author] => *Original: [[User:Chiswick Chap|Chiswick Chap]]
+                    [source] => {{derived from|Whales are Paraphyletic.png|display=50}}
+                    [permission] => 
+                )
+            [date] => 2017-02-14
+            [Artist] => Array
+                (
+                    [0] => Array
+                        (
+                            [name] => Chiswick Chap
+                            [homepage] => https://commons.wikimedia.org/wiki/User:Chiswick_Chap
+                        )
+                )
+            [fromx] => dump
+            [source_url] => https://commons.wikimedia.org/wiki/File:Whales_are_Paraphyletic.svg
+            [media_url] => https://upload.wikimedia.org/wikipedia/commons/3/30/Whales_are_Paraphyletic.svg
+            */
+
+        }
+        
+        
+        exit("\nelix 100\n");
     }
     
     private function get_commons_info($url)
@@ -1212,6 +1245,7 @@ class WikiDataAPI
                             fclose($FILE);
                         }
                         echo("\n[$filename] saved content\n");
+                        exit("\nmeaning, this was not saved the last time this utility was ran...\n");
                     }
                     else echo("\nalready saved: [$filename]\n");
                 }
