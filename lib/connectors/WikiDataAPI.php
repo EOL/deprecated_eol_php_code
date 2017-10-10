@@ -13,7 +13,6 @@ wget -c http://dumps.wikimedia.org/commonswiki/latest/commonswiki-latest-pages-a
 
 
 https://dumps.wikimedia.org/commonswiki/20170320/commonswiki-20170320-pages-articles.xml.bz2
-
 wget -c https://dumps.wikimedia.org/commonswiki/20170320/commonswiki-20170320-pages-articles-multistream-index.txt.bz2
 
 used api for commons:
@@ -38,10 +37,7 @@ class WikiDataAPI
         $this->download_options = array('cache_path' => '/Volumes/Thunderbolt4/eol_cache_wiki_regions/', 'expire_seconds' => false, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->debug = array();
         
-        //start
-        // $this->wiki_data_json        = "/Volumes/Thunderbolt4/wikidata/latest-all.json"; //from fresh dump
-        // $this->wiki_data_taxa_json   = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //used in utility to create an all-taxon dump -> create_all_taxon_dump()
-        $this->wiki_data_json           = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //used in utility to create an all-taxon dump
+        $this->wiki_data_json           = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //an all_taxon dump generated from raw [latest-all.json.gz]
 
         // $this->property['taxon name'] = "P225";
         // $this->property['taxon rank'] = "P105";
@@ -1152,14 +1148,14 @@ class WikiDataAPI
 
     private function create_all_taxon_dump() // utility to create an all-taxon dump
     {
-        if(!($f = Functions::file_open($this->wiki_data_taxa_json, "w"))) return;
+        $raw_dump       = "/Volumes/Thunderbolt4/wikidata/latest-all.json";       //RAW fresh dump. NOT TO USE READILY - very big with all categories not just TAXA.
+        $all_taxon_dump = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //will use this instead. An all-taxon dump
+        $f = Functions::file_open($all_taxon_dump, "w");
         $e = 0; $i = 0; $k = 0;
-        foreach(new FileIterator($this->wiki_data_json) as $line_number => $row)
-        {
+        foreach(new FileIterator($raw_dump) as $line_number => $row) {
             $k++;
             if(($k % 20000) == 0) echo " $k";
-            if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
-            {
+            if(stripos($row, "Q16521") !== false) { //string is found -- "taxon"
                 $e++;
                 fwrite($f, $row."\n");
             }
