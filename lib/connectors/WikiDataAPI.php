@@ -216,9 +216,9 @@ class WikiDataAPI
             // these 3 have many pages, but just a stub page with under-construction feel
             // if($k >= 1132112 && $k < $m*5) $cont = true; // nl
             // if($k >= 601476 && $k < $m*5) $cont = true; // sv
-            if($k >= 1154430 && $k < $m*5) $cont = true; // vi
+            // if($k >= 1154430 && $k < $m*5) $cont = true; // vi
 
-            // if($k >= 1 && $k < 100) $cont = true;   //wikimedia total taxa = 2,208,086
+            if($k >= 1 && $k < 10) $cont = true;   //wikimedia total taxa = 2,208,086
 
             if(!$cont) continue;
             */
@@ -304,7 +304,11 @@ class WikiDataAPI
                      // */
                 }
                 else exit("\nnot ok\n");
-                break; //debug get first taxon wiki only
+                
+                // break; //debug get first taxon wiki only
+                if($k > 10000) break;
+                
+                
             } //end of taxon wiki
             else $j++; //non-taxon wiki
         } //main loop
@@ -404,13 +408,23 @@ class WikiDataAPI
         if(stripos($license, "http://creativecommons.org/licenses/by-nc/") !== false)   return "http://creativecommons.org/licenses/by-nc/3.0/";
         if(stripos($license, "creativecommons.org/licenses/by-sa/") !== false)          return "http://creativecommons.org/licenses/by-sa/3.0/";
         if(stripos($license, "creativecommons.org/licenses/by-nc-sa/") !== false)       return "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-        if(!$license && $LicenseShortName == "Public domain") return "http://creativecommons.org/licenses/publicdomain/";
+
+        if(!$license && $LicenseShortName == "Public domain")
+        {
+            return "http://creativecommons.org/licenses/publicdomain/";
+        }
+        if(!$license) $this->debug['blank_license'][$LicenseShortName] = '';
+        
+        if(stripos($license, "creativecommons.org/publicdomain/") !== false) return "http://creativecommons.org/licenses/publicdomain/";
+            
         return $license;
         // Line Value: https://www.flickr.com/commons/usage/
         // Line Value: http://creativecommons.org/licenses/by/2.0/deed.en
         // Line Value: http://creativecommons.org/licenses/by/2.5/deed.en
         // Line Value: http://creativecommons.org/licenses/by/4.0/deed.en
         // Line Value: http://creativecommons.org/licenses/by-sa/4.0/deed.en
+        // http://creativecommons.org/publicdomain/zero/1.0/deed.en
+        
     }
     private function valid_license_YN($license)
     {
@@ -423,7 +437,7 @@ class WikiDataAPI
         // print_r($commons);
         foreach($commons as $com)
         {
-            $formatted_license = self::format_license($com['LicenseUrl'], $com['LicenseShortName']);
+            $formatted_license = self::format_license(@$com['LicenseUrl'], @$com['LicenseShortName']);
             if(!self::valid_license_YN($formatted_license))
             {
                 $this->debug['invalid_LicenseUrl'][$formatted_license] = '';
@@ -678,14 +692,15 @@ class WikiDataAPI
         }
         // parse this value = "[http://www.panoramio.com/user/6099584?with_photo_id=56065015 Greg N]"
         
-        /* ================================ new Oct 7, 2017 -- comment it first...
+        // /* ================================ new Oct 7, 2017 -- comment it first...
         if(is_array($rek['Artist']))
         {
+            echo "\nartist is array()";
             print_r($rek['Artist']);
             $rek['Artist'] = $rek['Artist'][0]['name'];
         }
-        else echo "\nartist: ".$rek['Artist']."\n";
-        ================================ */
+        else echo "\nstring artist OK: ".$rek['Artist']."\n";
+        // ================================ */
         
         if(substr($rek['Artist'],0,5) == "[http")
         {
