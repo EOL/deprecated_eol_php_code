@@ -1768,6 +1768,12 @@ class Functions
         elseif ($extension === "ogx")        $mimetype = "application/ogg";
         return $mimetype;
     }
+    public static function get_datatype_given_mimetype($mimetype)
+    {
+        if(stripos($mimetype, "video/")     !== false) return "http://purl.org/dc/dcmitype/MovingImage"; //string is found
+        elseif(stripos($mimetype, "image/") !== false) return "http://purl.org/dc/dcmitype/StillImage"; //string is found
+        elseif(stripos($mimetype, "audio/") !== false) return "http://purl.org/dc/dcmitype/Sound"; //string is found
+    }
 
     public static function language_to_iso_code()
     {

@@ -80,7 +80,7 @@ class WikiDataAPI
         
         self::initialize_files();
         self::parse_wiki_data_json();
-        self::add_parent_entries(); //not sure if we need it but gives added value to taxonomy
+        // self::add_parent_entries(); //not sure if we need it but gives added value to taxonomy
         $this->archive_builder->finalize(TRUE);
 
         //start ============================================================= needed adjustments
@@ -101,6 +101,9 @@ class WikiDataAPI
         //end =============================================================
 
         unlink($this->TEMP_FILE_PATH);
+        
+        print_r($this->debug['invalid_LicenseUrl']); exit;
+        
     }
 
     private function initialize_files()
@@ -122,6 +125,7 @@ class WikiDataAPI
         <field index="10" term="http://ns.adobe.com/xap/1.0/rights/Owner"/>
         */
         // /*
+        
         if($this->what == "wikipedia")
         {
             $this->media_cols = "identifier,taxonID,type,format,CVterm,title,description,furtherInformationURL,language,UsageTerms,Owner";
@@ -257,7 +261,7 @@ class WikiDataAPI
                                  if($url = @$rek['com_category'])   $rek['obj_category'] = self::get_commons_info($url);
                                  if($url = @$rek['com_gallery'])    $rek['obj_gallery'] = self::get_commons_info($url);
                                  
-                                 //eli's debug
+                                 /* eli's debug
                                  if($a = @$rek['obj_category']) {}//print_r($a);
                                  if($b = @$rek['obj_gallery']) {}//print_r($b);
                                  if($a || $b)
@@ -265,7 +269,7 @@ class WikiDataAPI
                                      print_r($rek);
                                      // exit("\nmeron commons\n");
                                  }
-                                 //eli's debug end
+                                 */ //eli's debug end
                              }
                              
                              if($rek['taxon_id'])
@@ -392,43 +396,111 @@ class WikiDataAPI
         */
         return true;
     }
+    
+    private function format_license($license, $LicenseShortName)
+    {
+        if(stripos($license, "creativecommons.org/licenses/publicdomain/") !== false)   return "http://creativecommons.org/licenses/publicdomain/";
+        if(stripos($license, "creativecommons.org/licenses/by/") !== false)             return "http://creativecommons.org/licenses/by/3.0/";
+        if(stripos($license, "http://creativecommons.org/licenses/by-nc/") !== false)   return "http://creativecommons.org/licenses/by-nc/3.0/";
+        if(stripos($license, "creativecommons.org/licenses/by-sa/") !== false)          return "http://creativecommons.org/licenses/by-sa/3.0/";
+        if(stripos($license, "creativecommons.org/licenses/by-nc-sa/") !== false)       return "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+        if(!$license && $LicenseShortName == "Public domain") return "http://creativecommons.org/licenses/publicdomain/";
+        return $license;
+        // Line Value: https://www.flickr.com/commons/usage/
+        // Line Value: http://creativecommons.org/licenses/by/2.0/deed.en
+        // Line Value: http://creativecommons.org/licenses/by/2.5/deed.en
+        // Line Value: http://creativecommons.org/licenses/by/4.0/deed.en
+        // Line Value: http://creativecommons.org/licenses/by-sa/4.0/deed.en
+    }
+    private function valid_license_YN($license)
+    {
+        $valid = array("http://creativecommons.org/licenses/publicdomain/", "http://creativecommons.org/licenses/by/3.0/", "http://creativecommons.org/licenses/by-nc/3.0/", "http://creativecommons.org/licenses/by-sa/3.0/", "http://creativecommons.org/licenses/by-nc-sa/3.0/");
+        if(in_array($license, $valid)) return true;
+        else                           return false;
+    }
     private function create_commons_objects($commons, $t)
     {
-        print_r($commons);
+        // print_r($commons);
         foreach($commons as $com)
         {
-            /*
-            [pageid] => 56279236
-            [timestamp] => 2017-03-23T23:20:37Z
-            [ImageDescription] => Summary <table cellpadding="4"> <tr> <td lang="en">DescriptionAPI</td> <td> English: Simplified cladogram showing that the whales are paraphyletic with respect to the dolphins and porpoises. The clade Cetacea includes all these animals. </td> </tr> <tr> <td lang="en">Date</td> <td lang="en">14 February 2017</td> </tr> <tr> <td lang="en">Source</td> <td>This file was derived from <a href="https://commons.wikimedia.org/wiki/File:Whales_are_Paraphyletic.png" title="File:Whales are Paraphyletic.png">Whales are Paraphyletic.png</a>: <a href="https://commons.wikimedia.org/wiki/File:Whales_are_Paraphyletic.png" ></a><br /></td> </tr> <tr> <td lang="en">Author</td> <td> Original: <a href="https://commons.wikimedia.org/wiki/User:Chiswick_Chap" title="User:Chiswick Chap">Chiswick Chap</a> Vectorisation: <a href="https://commons.wikimedia.org/wiki/User:CheChe" title="User:CheChe">CheChe</a> </td> </tr> </table> <br /> <table > <tr> <td></td> <td>This is a <i><a href="https://en.wikipedia.org/wiki/Image_editing" title="w:Image editing">retouched picture</a></i>, which means that it has been digitally altered from its original version. The original can be viewed here: <a href="https://commons.wikimedia.org/wiki/File:Whales_are_Paraphyletic.png" title="File:Whales are Paraphyletic.png">Whales are Paraphyletic.png</a>. Modifications made by <a href="https://commons.wikimedia.org/wiki/User:CheChe" title="User:CheChe">CheChe</a>. </td> </tr> </table> Licensing <table cellspacing="8" cellpadding="0" > <tr> <td> <table lang="en"> <tr> <td rowspan="3"><br /> </td> <td lang="en">This file is licensed under the <a href="https://en.wikipedia.org/wiki/en:Creative_Commons" title="w:en:Creative Commons">Creative Commons</a> <a rel="nofollow" href="http://creativecommons.org/licenses/by-sa/4.0/deed.en">Attribution-Share Alike 4.0 International</a> license.</td> <td rowspan="3"></td> </tr> <tr> <td></td> </tr> <tr lang="en"> <td> http://creativecommons.org/licenses/by-sa/4.0 CC BY-SA 4.0 Creative Commons Attribution-Share Alike 4.0 truetrue </td> </tr> </table> </td> </tr> </table>
-            [LicenseShortName] => self|cc-by-sa-4.0
-            [LicenseUrl] => http://creativecommons.org/licenses/by-sa/4.0/deed.en
-            [title] => Whales are Paraphyletic.svg
-            [other] => Array
-                (
-                    [date] => 2017-02-14
-                    [author] => *Original: [[User:Chiswick Chap|Chiswick Chap]]
-                    [source] => {{derived from|Whales are Paraphyletic.png|display=50}}
-                    [permission] => 
-                )
-            [date] => 2017-02-14
-            [Artist] => Array
-                (
-                    [0] => Array
-                        (
-                            [name] => Chiswick Chap
-                            [homepage] => https://commons.wikimedia.org/wiki/User:Chiswick_Chap
-                        )
-                )
-            [fromx] => dump
-            [source_url] => https://commons.wikimedia.org/wiki/File:Whales_are_Paraphyletic.svg
-            [media_url] => https://upload.wikimedia.org/wikipedia/commons/3/30/Whales_are_Paraphyletic.svg
-            */
+            $formatted_license = self::format_license($com['LicenseUrl'], $com['LicenseShortName']);
+            if(!self::valid_license_YN($formatted_license))
+            {
+                $this->debug['invalid_LicenseUrl'][$formatted_license] = '';
+            }
+            else
+            {
+                /*
+                [pageid] => 56279236
+                [timestamp] => 2017-03-23T23:20:37Z
+                [ImageDescription] => Summary <table cellpadding="4"> <tr> <td lang="en">DescriptionAPI</td> <td> English: Simplified cladogram showing that the whales are paraphyletic with respect to the dolphins and porpoises. The clade Cetacea includes all these animals. </td> </tr> <tr> <td lang="en">Date</td> <td lang="en">14 February 2017</td> </tr> <tr> <td lang="en">Source</td> <td>This file was derived from <a href="https://commons.wikimedia.org/wiki/File:Whales_are_Paraphyletic.png" title="File:Whales are Paraphyletic.png">Whales are Paraphyletic.png</a>: <a href="https://commons.wikimedia.org/wiki/File:Whales_are_Paraphyletic.png" ></a><br /></td> </tr> <tr> <td lang="en">Author</td> <td> Original: <a href="https://commons.wikimedia.org/wiki/User:Chiswick_Chap" title="User:Chiswick Chap">Chiswick Chap</a> Vectorisation: <a href="https://commons.wikimedia.org/wiki/User:CheChe" title="User:CheChe">CheChe</a> </td> </tr> </table> <br /> <table > <tr> <td></td> <td>This is a <i><a href="https://en.wikipedia.org/wiki/Image_editing" title="w:Image editing">retouched picture</a></i>, which means that it has been digitally altered from its original version. The original can be viewed here: <a href="https://commons.wikimedia.org/wiki/File:Whales_are_Paraphyletic.png" title="File:Whales are Paraphyletic.png">Whales are Paraphyletic.png</a>. Modifications made by <a href="https://commons.wikimedia.org/wiki/User:CheChe" title="User:CheChe">CheChe</a>. </td> </tr> </table> Licensing <table cellspacing="8" cellpadding="0" > <tr> <td> <table lang="en"> <tr> <td rowspan="3"><br /> </td> <td lang="en">This file is licensed under the <a href="https://en.wikipedia.org/wiki/en:Creative_Commons" title="w:en:Creative Commons">Creative Commons</a> <a rel="nofollow" href="http://creativecommons.org/licenses/by-sa/4.0/deed.en">Attribution-Share Alike 4.0 International</a> license.</td> <td rowspan="3"></td> </tr> <tr> <td></td> </tr> <tr lang="en"> <td> http://creativecommons.org/licenses/by-sa/4.0 CC BY-SA 4.0 Creative Commons Attribution-Share Alike 4.0 truetrue </td> </tr> </table> </td> </tr> </table>
+                [LicenseShortName] => self|cc-by-sa-4.0
+                [LicenseUrl] => http://creativecommons.org/licenses/by-sa/4.0/deed.en
+                [title] => Whales are Paraphyletic.svg
+                [other] => Array
+                    (
+                        [date] => 2017-02-14
+                        [author] => *Original: [[User:Chiswick Chap|Chiswick Chap]]
+                        [source] => {{derived from|Whales are Paraphyletic.png|display=50}}
+                        [permission] => 
+                    )
+                [date] => 2017-02-14
+                [Artist] => Array
+                    (
+                        [0] => Array
+                            (
+                                [name] => Chiswick Chap
+                                [homepage] => https://commons.wikimedia.org/wiki/User:Chiswick_Chap
+                            )
+                    )
+                [fromx] => dump
+                [source_url] => https://commons.wikimedia.org/wiki/File:Whales_are_Paraphyletic.svg
+                [media_url] => https://upload.wikimedia.org/wikipedia/commons/3/30/Whales_are_Paraphyletic.svg
+                */
 
+                /*
+                $media = array();
+                $media['identifier']             = $com['pageid'];
+                $media['title']                  = $com['title'];
+                $media['description']            = $com['ImageDescription'];
+                // $media['CVterm']                 = ''; not applicable - EOL subject
+                // below here is same for the next text object
+                $media['taxonID']                = $t->taxonID;
+                $media['format']                 = Functions::get_mimetype($com['media_url']);
+                $media['type']                   = Functions::get_datatype_given_mimetype($media['format']);
+                $media['language']               = $this->language_code;
+                $media['Owner']                  = '';
+                $media['UsageTerms']             = $com['LicenseUrl']; //license
+                $media['furtherInformationURL']  = $com['source_url'];
+                $media['accessURI']              = $com['media_url'];
+
+                $mr = new \eol_schema\MediaResource();
+                $mr->taxonID                = $media['taxonID'];
+                $mr->identifier             = $media['identifier'];
+                $mr->type                   = $media['type'];
+                $mr->format                 = $media['format'];
+                $mr->language               = $media['language'];
+                $mr->UsageTerms             = $media['UsageTerms'];
+                // $mr->CVterm                 = $media['CVterm'];
+                $mr->description            = $media['description'];
+                $mr->accessURI              = $media["accessURI"];
+                $mr->furtherInformationURL  = $media['furtherInformationURL'];
+                $mr->title                  = $media['title'];
+                $mr->Owner                  = $media['Owner'];
+                if(!isset($this->object_ids[$mr->identifier]))
+                {
+                    $this->object_ids[$mr->identifier] = '';
+                    $this->archive_builder->write_object_to_file($mr);
+                }
+                */
+                
+            }
+            
+            
         }
         
         
-        exit("\nelix 100\n");
+        // exit("\nelix 100\n");
     }
     
     private function get_commons_info($url)
@@ -943,31 +1015,30 @@ class WikiDataAPI
         // */
         
         /*
-        $mr = new \eol_schema\MediaResource();
-        $mr->taxonID                = $media['taxonID'];
-        $mr->identifier             = $media['identifier'];
-        $mr->type                   = $media['type'];
-        $mr->format                 = $media['format'];
-        $mr->language               = $media['language'];
-        $mr->UsageTerms             = $media['UsageTerms'];
-        $mr->CVterm                 = $media['CVterm'];
-        $mr->description            = $media['description'];
-        $mr->furtherInformationURL  = $media['furtherInformationURL'];
-        $mr->title                  = $media['title'];
-        $mr->Owner                  = $media['Owner'];
-        if(!isset($this->object_ids[$mr->identifier]))
-        {
-            $this->object_ids[$mr->identifier] = '';
-            $this->archive_builder->write_object_to_file($mr);
-        }
+            $mr = new \eol_schema\MediaResource();
+            $mr->taxonID                = $media['taxonID'];
+            $mr->identifier             = $media['identifier'];
+            $mr->type                   = $media['type'];
+            $mr->format                 = $media['format'];
+            $mr->language               = $media['language'];
+            $mr->UsageTerms             = $media['UsageTerms'];
+            $mr->CVterm                 = $media['CVterm'];
+            $mr->description            = $media['description'];
+            $mr->furtherInformationURL  = $media['furtherInformationURL'];
+            $mr->title                  = $media['title'];
+            $mr->Owner                  = $media['Owner'];
+            if(!isset($this->object_ids[$mr->identifier]))
+            {
+                $this->object_ids[$mr->identifier] = '';
+                $this->archive_builder->write_object_to_file($mr);
+            }
         */
     }
     
     private function get_other_info($rek)
     {
         $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
-        if($title = $rek['sitelinks']->title)
-        {
+        if($title = $rek['sitelinks']->title) {
             // $title = "Dicorynia"; //debug
             $url = "https://" . $this->language_code . ".wikipedia.org/wiki/" . str_replace(" ", "_", $title);
             $domain_name = $func->get_domain_name($url);
@@ -975,14 +1046,11 @@ class WikiDataAPI
             $options = $this->download_options;
             // if($rek['taxon_id'] == "Q5113") $options['expire_seconds'] = true; //debug only force
 
-            if($html = Functions::lookup_with_cache($url, $options))
-            {
-                if(self::bot_inspired($html))
-                {
+            if($html = Functions::lookup_with_cache($url, $options)) {
+                if(self::bot_inspired($html)) {
                     echo("\nbot inspired: [$url]\n");
                     return $rek;
                 }
-                
                 $rek['other'] = array();
                 $html = $func->prepare_wiki_for_parsing($html, $domain_name);
                 $rek['other']['title'] = $title;
@@ -1229,9 +1297,9 @@ class WikiDataAPI
                     }
                     else echo("\nalready saved: [$filename]\n");
                 }
-                else echo "\n negative \n"; //meaning this media file is not encountered in the wikidata process.
+                else echo "\n negative \n"; //meaning this media file is not encountered in the taxa wikidata process.
                 
-                /*
+                /* just tests
                 if(substr($title,0,5) == "File:")
                 {
                     print_r($t); 
