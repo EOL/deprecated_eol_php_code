@@ -80,7 +80,7 @@ class WikiDataAPI
         
         self::initialize_files();
         self::parse_wiki_data_json();
-        self::add_parent_entries();
+        self::add_parent_entries(); //not sure if we need it but gives added value to taxonomy
         $this->archive_builder->finalize(TRUE);
 
         //start ============================================================= needed adjustments
@@ -137,11 +137,9 @@ class WikiDataAPI
     private function add_parent_entries()
     {
         echo "\n\nStart add parent entries...\n\n";
-        foreach(new FileIterator($this->TEMP_FILE_PATH) as $line_number => $row)
-        {
+        foreach(new FileIterator($this->TEMP_FILE_PATH) as $line_number => $row) {
             $arr = json_decode($row, true);
-            while(@$arr['parent'])
-            {
+            while(@$arr['parent']) {
                 //first record
                 $rec = array();
                 $rec['id']          = $arr['id'];
@@ -332,13 +330,11 @@ class WikiDataAPI
             if(!trim(@$rec['other']['comprehensive_desc'])) return;
         }
         
-        
         if(!@$rec['taxon']) return;
         $t = new \eol_schema\Taxon();
         $t->taxonID                  = $rec['taxon_id'];
         $t->scientificName           = $rec['taxon'];
-        if($t->scientificNameAuthorship = $rec['author'])
-        {
+        if($t->scientificNameAuthorship = $rec['author']) {
             if($year = $rec['author_yr']) {
                 //+1831-01-01T00:00:00Z
                 $year = substr($year,1,4);
@@ -383,12 +379,8 @@ class WikiDataAPI
         }
         
         if($this->what == "wikimedia") {
-            /*
-            loop    @$rec['obj_gallery']
-                    @$rec['obj_category'] and create_media_object() for commons */
-
-            if($commons = @$rec['obj_gallery'])     self::create_commons_objects($commons);
-            if($commons = @$rec['obj_category'])    self::create_commons_objects($commons);
+            if($commons = @$rec['obj_gallery'])     self::create_commons_objects($commons, $t);
+            if($commons = @$rec['obj_category'])    self::create_commons_objects($commons, $t);
         }
 
         /* // Brief Summary - works well for 'de'
@@ -400,7 +392,7 @@ class WikiDataAPI
         */
         return true;
     }
-    private function create_commons_objects($commons)
+    private function create_commons_objects($commons, $t)
     {
         print_r($commons);
         foreach($commons as $com)
@@ -930,7 +922,6 @@ class WikiDataAPI
         // /*
         if(!$this->passed_already) {
             $this->passed_already = true;
-            
             $mr = new \eol_schema\MediaResource();
             $mr->taxonID                = $media['taxonID'];
             $mr->identifier             = $media['identifier'];
@@ -975,7 +966,6 @@ class WikiDataAPI
     private function get_other_info($rek)
     {
         $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
-        
         if($title = $rek['sitelinks']->title)
         {
             // $title = "Dicorynia"; //debug
