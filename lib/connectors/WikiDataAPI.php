@@ -305,7 +305,7 @@ class WikiDataAPI
                 else exit("\nnot ok\n");
                 
                 // break; //debug get first taxon wiki only
-                if($k > 1000) break; //10000
+                if($k > 2000) break; //10000
                 
                 
             } //end of taxon wiki
@@ -424,15 +424,18 @@ class WikiDataAPI
             foreach($shortnames as $shortname)
             {
                 if(in_array($shortname, array("cc-zero", "cc0", "cc-0"))) return "http://creativecommons.org/licenses/publicdomain/";
-                if(substr(strtoupper($shortname),0,3) == "PD-")           return "http://creativecommons.org/licenses/publicdomain/"; //"PD-self" "PD-author" "pd-???" etc.
+                if(substr($shortname,0,3) == "pd-")                       return "http://creativecommons.org/licenses/publicdomain/"; //"PD-self" "PD-author" "pd-???" etc.
                 if(stripos($shortname, "no known copyright restriction") !== false) return "http://creativecommons.org/licenses/publicdomain/";
-                if(stripos($shortname, "Bild-PD") !== false)                        return "http://creativecommons.org/licenses/publicdomain/";
-                if(strtolower($shortname) == "attribution")                         return "http://creativecommons.org/licenses/by/3.0/";
+                if(stripos($shortname, "bild-pd") !== false)                        return "http://creativecommons.org/licenses/publicdomain/";
+                if($shortname == "attribution")                              return "http://creativecommons.org/licenses/by/3.0/";
+                if(substr($shortname,0,14) == strtolower("public domain "))  return "http://creativecommons.org/licenses/publicdomain/"; // e.g. "Public Domain Mark"
+                if(substr($shortname,0,3) == strtolower("pd/"))  return "http://creativecommons.org/licenses/publicdomain/"; // e.g. "Pd/1923|1982"
+                if($shortname == strtolower("FlickrVerifiedByUploadWizard")) return "http://creativecommons.org/licenses/by/3.0/";
 
-                if(substr(strtoupper($shortname),0,6) == "cc-by-")        return "http://creativecommons.org/licenses/by/3.0/";
-                if(substr(strtoupper($shortname),0,9) == "cc-by-nc-")     return "http://creativecommons.org/licenses/by-nc/3.0/";
-                if(substr(strtoupper($shortname),0,9) == "cc-by-sa-")     return "http://creativecommons.org/licenses/by-sa/3.0/";
-                if(substr(strtoupper($shortname),0,12) == "cc-by-nc-sa-") return "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+                if(substr($shortname,0,6) == "cc-by-")        return "http://creativecommons.org/licenses/by/3.0/";
+                if(substr($shortname,0,9) == "cc-by-nc-")     return "http://creativecommons.org/licenses/by-nc/3.0/";
+                if(substr($shortname,0,9) == "cc-by-sa-")     return "http://creativecommons.org/licenses/by-sa/3.0/";
+                if(substr($shortname,0,12) == "cc-by-nc-sa-") return "http://creativecommons.org/licenses/by-nc-sa/3.0/";
             }
             
             //last resort
