@@ -767,6 +767,18 @@ class WikiDataAPI
                 unset($rek['Artist']);
                 $rek['Artist'][] = array('name' => $arr[1], 'homepage' => "https://commons.wikimedia.org/wiki/".$arr[0]);
             }
+            elseif(stripos($rek['Artist'], "[[User:") !== false && stripos($rek['Artist'], "]]") !== false) //string is found //e.g. *Original: [[User:Chiswick Chap|Chiswick Chap]]
+            {
+                if(preg_match_all("/[[(.*?)]]/ims", $rek['Artist'], $a))
+                {
+                    unset($rek['Artist']);
+                    foreach($a[1] as $t)
+                    {
+                        $arr = explode("|", $t);
+                        $rek['Artist'][] = array('name' => $arr[1], 'homepage' => "https://commons.wikimedia.org/wiki/".$arr[0]);
+                    }
+                }
+            }
             else
             {
                 $name = $rek['Artist'];
@@ -774,7 +786,7 @@ class WikiDataAPI
                 $rek['Artist'][] = array('name' => $name);
             }
             // else exit("\nInvestiage this artist string\n");
-            echo "\nartist is now also ARRAY()";
+            echo "\nartist is now also ARRAY()\n";
             print_r($rek['Artist']);            
         }
         // ================================ */
@@ -794,7 +806,7 @@ class WikiDataAPI
             $final = array(); $atemp = array();
             if(preg_match("/href=\"(.*?)\"/ims", $temp, $a)) $atemp['homepage'] = trim($a[1]);
             if(preg_match("/\">(.*?)<\/a>/ims", $temp, $a)) $atemp['name'] = trim($a[1]);
-            if($atemp) {
+            if(@$atemp['name']) {
                 $final[] = $atemp;
                 return $final;
             }
@@ -977,7 +989,7 @@ class WikiDataAPI
             $arr = array_values($arr["query"]["pages"]);
             $arr = $arr[0];
             echo "\nresult: " . count($arr) . "\n";
-            // print_r($arr); exit;
+            // print_r($arr); //exit;
             if(!isset($arr['pageid'])) return array();
             $rek['pageid'] = self::format_wiki_substr($arr['pageid']);
             /* better to use just the one below
@@ -988,22 +1000,36 @@ class WikiDataAPI
 
             if($rek['title'] = self::get_title_from_ImageDescription($rek['ImageDescription'])) {}
             else $rek['title'] = self::format_wiki_substr($arr['title']);
-
+            //start artist ====================
             if($val = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Artist']['value']))
             {
                 $atemp = array();
                 if(preg_match("/href=\"(.*?)\"/ims", $val, $a)) $atemp['homepage'] = trim($a[1]);
                 if(preg_match("/\">(.*?)<\/a>/ims", $val, $a)) $atemp['name'] = trim($a[1]);
-                if($atemp) $rek['Artist'][] = $atemp;
+                if(@$atemp['name']) $rek['Artist'][] = $atemp;
+                else $rek['Artist'][] = array('name' => strip_tags($val)); // e.g. <span lang="en">Anonymous</span>
             }
             if(!@$rek['Artist']) $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']);
-            
+            //end artist ========================
             
             $rek['LicenseUrl']       = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['LicenseUrl']['value']);
             $rek['LicenseShortName'] = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['LicenseShortName']['value']);
             if($val = @$arr['imageinfo'][0]['extmetadata']['DateTime']['value'])             $rek['date'] = self::format_wiki_substr($val);
             elseif($val = @$arr['imageinfo'][0]['extmetadata']['DateTimeOriginal']['value']) $rek['date'] = self::format_wiki_substr($val);
             $rek['fromx'] = 'api'; //object metadata from API;
+            
+            /* debug only
+            if(!$rek['Artist']) {
+                print_r($arr);
+                exit("\nwala artist...\n");
+            }
+            */
+            /* debug only
+            if($rek['Artist'][0]['name'] == '<span lang="en">Anonymous</span>') {
+                print_r($arr);
+                exit("\n investigate...\n");
+            }
+            */
         }
         return $rek;
     }
