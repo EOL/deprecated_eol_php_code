@@ -103,7 +103,6 @@ class WikiDataAPI
         unlink($this->TEMP_FILE_PATH);
         
         print_r($this->debug['invalid_LicenseUrl']); exit;
-        
     }
 
     private function initialize_files()
@@ -306,7 +305,7 @@ class WikiDataAPI
                 else exit("\nnot ok\n");
                 
                 // break; //debug get first taxon wiki only
-                if($k > 10000) break;
+                if($k > 10) break; //10000
                 
                 
             } //end of taxon wiki
@@ -403,21 +402,34 @@ class WikiDataAPI
     
     private function format_license($license, $LicenseShortName)
     {
+        //regular EOL licenses
         if(stripos($license, "creativecommons.org/licenses/publicdomain/") !== false)   return "http://creativecommons.org/licenses/publicdomain/";
         if(stripos($license, "creativecommons.org/licenses/by/") !== false)             return "http://creativecommons.org/licenses/by/3.0/";
         if(stripos($license, "http://creativecommons.org/licenses/by-nc/") !== false)   return "http://creativecommons.org/licenses/by-nc/3.0/";
         if(stripos($license, "creativecommons.org/licenses/by-sa/") !== false)          return "http://creativecommons.org/licenses/by-sa/3.0/";
         if(stripos($license, "creativecommons.org/licenses/by-nc-sa/") !== false)       return "http://creativecommons.org/licenses/by-nc-sa/3.0/";
 
-        if(!$license) {
-            if(in_array($LicenseShortName, array("Public domain", "cc0", "self|Cc-zero"))) return "http://creativecommons.org/licenses/publicdomain/";
-            if(substr(strtoupper($LicenseShortName),0,3) == "PD-")                         return "http://creativecommons.org/licenses/publicdomain/"; //"PD-self" "PD-author" "pd-???" etc.
-            $this->debug['blank_license'][$LicenseShortName] = ''; //utility debug - important
-        }
-        
+        //others...
         if(stripos($license, "creativecommons.org/publicdomain/") !== false) return "http://creativecommons.org/licenses/publicdomain/";
         if(stripos($license, "creativecommons.org/licenses/sa/") !== false)  return "http://creativecommons.org/licenses/by-sa/3.0/"; //[http://creativecommons.org/licenses/sa/1.0/]
         if($license == "http://creativecommons.org/licenses/by")             return "http://creativecommons.org/licenses/by/3.0/"; //exact match
+        if($license == "https://www.flickr.com/commons/usage/")              return "http://creativecommons.org/licenses/publicdomain/"; //exact match
+
+        //blank license
+        if(!$license) {
+            if(in_array($LicenseShortName, array("Public domain", "cc0", "Flickr-no known copyright restrictions"))) return "http://creativecommons.org/licenses/publicdomain/";
+            if(substr(strtoupper($LicenseShortName),0,3) == "PD-")         return "http://creativecommons.org/licenses/publicdomain/"; //"PD-self" "PD-author" "pd-???" etc.
+
+            //multiple shortnames separated by "|"
+            $shortnames = explode("|", strtolower($LicenseShortName)); //"self|Cc-zero"
+            foreach($shortnames as $shortname)
+            {
+                if($shortname == "cc-zero") return "http://creativecommons.org/licenses/publicdomain/";
+            }
+            
+            //last resort
+            $this->debug['blank_license'][$LicenseShortName] = ''; //utility debug - important
+        }
         
         return $license;
         // Line Value: https://www.flickr.com/commons/usage/
@@ -562,8 +574,8 @@ class WikiDataAPI
     private function process_file($file) //e.g. Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg
     {
         $rek = array();
+        // if(false) //will force to use API data - debug only
         if($filename = self::has_cache_data($file)) //Eyes_of_gorilla.jpg - used in normal operation -- get media info from commons
-        // if(false) //will use API data - debug only
         {
             echo "\nused cache data";
             $rek = self::get_media_metadata_from_json($filename, $file);
