@@ -190,6 +190,11 @@ class WikipediaRegionalAPI
         $html = str_ireplace('href="//', "href=xxxxxx", $html);
         $html = str_ireplace('href="/', 'href="http://' . $domain_name . '/', $html);
         $html = str_ireplace('href=xxxxxx', 'href="//', $html);
+        
+        //new
+        $html = str_ireplace('src="//', 'src="https://', $html);
+        $html = str_ireplace('srcset="//', 'srcset="https://', $html);
+        
         return $html;
     }
     

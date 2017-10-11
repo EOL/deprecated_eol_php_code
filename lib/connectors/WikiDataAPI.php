@@ -305,8 +305,8 @@ class WikiDataAPI
                 }
                 else exit("\n --not ok-- \n");
                 
-                break; //debug get first taxon wiki only
-                // if($k > 2000) break; //10000
+                // break; //debug get first taxon wiki only
+                if($k > 10) break; //10000
                 
                 
             } //end of taxon wiki
