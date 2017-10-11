@@ -80,7 +80,7 @@ class WikiDataAPI
         
         self::initialize_files();
         self::parse_wiki_data_json();
-        // self::add_parent_entries(); //not sure if we need it but gives added value to taxonomy
+        self::add_parent_entries(); //not sure if we need it but gives added value to taxonomy
         $this->archive_builder->finalize(TRUE);
 
         //start ============================================================= needed adjustments
@@ -102,7 +102,8 @@ class WikiDataAPI
 
         unlink($this->TEMP_FILE_PATH);
         
-        print_r(@$this->debug['invalid_LicenseUrl']); exit;
+        print_r($this->debug); //exit;
+        
     }
 
     private function initialize_files()
@@ -302,10 +303,10 @@ class WikiDataAPI
                      else $j++;
                      // */
                 }
-                else exit("\nnot ok\n");
+                else exit("\n --not ok-- \n");
                 
-                // break; //debug get first taxon wiki only
-                if($k > 2000) break; //10000
+                break; //debug get first taxon wiki only
+                // if($k > 2000) break; //10000
                 
                 
             } //end of taxon wiki
@@ -313,7 +314,6 @@ class WikiDataAPI
         } //main loop
         echo "\ntotal taxon wikis = [$i]\n";
         echo "\ntotal non-taxon wikis = [$j]\n";
-        print_r($this->debug);
     }
 
     private function save_ancestry_to_temp($ancestry)
@@ -495,7 +495,7 @@ class WikiDataAPI
                 [media_url] => https://upload.wikimedia.org/wikipedia/commons/3/30/Whales_are_Paraphyletic.svg
                 */
 
-                /*
+                // /*
                 $media = array();
                 $media['identifier']             = $com['pageid'];
                 $media['title']                  = $com['title'];
@@ -507,7 +507,7 @@ class WikiDataAPI
                 $media['type']                   = Functions::get_datatype_given_mimetype($media['format']);
                 $media['language']               = $this->language_code;
                 $media['Owner']                  = '';
-                $media['UsageTerms']             = $com['LicenseUrl']; //license
+                $media['UsageTerms']             = $formatted_license; //$com['LicenseUrl']; //license
                 $media['furtherInformationURL']  = $com['source_url'];
                 $media['accessURI']              = $com['media_url'];
 
@@ -529,10 +529,9 @@ class WikiDataAPI
                     $this->object_ids[$mr->identifier] = '';
                     $this->archive_builder->write_object_to_file($mr);
                 }
-                */
+                // */
             }
         }
-        // exit("\nelix 100\n");
     }
     
     private function get_commons_info($url)
