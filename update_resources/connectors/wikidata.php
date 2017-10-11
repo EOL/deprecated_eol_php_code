@@ -4,10 +4,23 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikiDataAPI');
 $timestart = time_elapsed();
-$resource_id = "en";
+$resource_id = "957";
+
+/*
+$s = '<a rel="nofollow" class="external text" href="https://www.flickr.com/people/126377022@N07">Internet Archive Book Images</a>';
+echo "\nold = [$s]\n";
+$name = strip_tags($s);
+echo "\n name = [$name]\n";
+exit("\n");
+*/
 
 // $url = "http://opendata.eol.org/dataset/national_museum-of_natural_history%402017-09-07T18%3A37%3A28.199462";
 // exit("\n".urldecode($url)."\n");
+
+// $str = "Cc-zero";
+// $arr = explode("|", strtolower($str));
+// print_r($arr);
+// exit;
 
 
 /* testing routines...
@@ -36,7 +49,7 @@ exit("\n Finished: just exploring... \n");
 // /* //main operation
 // $func = new WikiDataAPI($resource_id, "es");     //done final-es
 // $func = new WikiDataAPI($resource_id, "fr");     //done final-fr
-// $func = new WikiDataAPI("957", "de");            //done final-de
+$func = new WikiDataAPI("957", "de");            //done final-de
 // $func = new WikiDataAPI($resource_id, "ja");     //done final-ja
 // $func = new WikiDataAPI($resource_id, "it");     //done final-it
 // $func = new WikiDataAPI($resource_id, "ru");     //done final-ru
@@ -49,7 +62,7 @@ exit("\n Finished: just exploring... \n");
 // $func = new WikiDataAPI($resource_id, "en");     //done final-en
 
 // $func = new WikiDataAPI($resource_id, "en", "taxonomy"); //3rd param is boolean taxonomy; true means will generate hierarchy resource. [wikidata-hierarchy]    //done
-$func = new WikiDataAPI($resource_id, "en", "wikimedia");     //done - Used for Commons - total taxa = 2,208,086
+// $func = new WikiDataAPI($resource_id, "en", "wikimedia");     //done - Used for Commons - total taxa = 2,208,086
 
 // not yet complete:
 // $func = new WikiDataAPI($resource_id, "nl");     //496940
