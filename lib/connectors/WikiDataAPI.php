@@ -305,7 +305,7 @@ class WikiDataAPI
                 else exit("\nnot ok\n");
                 
                 // break; //debug get first taxon wiki only
-                if($k > 10) break; //10000
+                if($k > 1000) break; //10000
                 
                 
             } //end of taxon wiki
@@ -418,13 +418,21 @@ class WikiDataAPI
         //blank license
         if(!$license) {
             if(in_array($LicenseShortName, array("Public domain", "cc0", "Flickr-no known copyright restrictions"))) return "http://creativecommons.org/licenses/publicdomain/";
-            if(substr(strtoupper($LicenseShortName),0,3) == "PD-")         return "http://creativecommons.org/licenses/publicdomain/"; //"PD-self" "PD-author" "pd-???" etc.
 
             //multiple shortnames separated by "|"
             $shortnames = explode("|", strtolower($LicenseShortName)); //"self|Cc-zero"
             foreach($shortnames as $shortname)
             {
-                if($shortname == "cc-zero") return "http://creativecommons.org/licenses/publicdomain/";
+                if(in_array($shortname, array("cc-zero", "cc0", "cc-0"))) return "http://creativecommons.org/licenses/publicdomain/";
+                if(substr(strtoupper($shortname),0,3) == "PD-")           return "http://creativecommons.org/licenses/publicdomain/"; //"PD-self" "PD-author" "pd-???" etc.
+                if(stripos($shortname, "no known copyright restriction") !== false) return "http://creativecommons.org/licenses/publicdomain/";
+                if(stripos($shortname, "Bild-PD") !== false)                        return "http://creativecommons.org/licenses/publicdomain/";
+                if(strtolower($shortname) == "attribution")                         return "http://creativecommons.org/licenses/by/3.0/";
+
+                if(substr(strtoupper($shortname),0,6) == "cc-by-")        return "http://creativecommons.org/licenses/by/3.0/";
+                if(substr(strtoupper($shortname),0,9) == "cc-by-nc-")     return "http://creativecommons.org/licenses/by-nc/3.0/";
+                if(substr(strtoupper($shortname),0,9) == "cc-by-sa-")     return "http://creativecommons.org/licenses/by-sa/3.0/";
+                if(substr(strtoupper($shortname),0,12) == "cc-by-nc-sa-") return "http://creativecommons.org/licenses/by-nc-sa/3.0/";
             }
             
             //last resort
