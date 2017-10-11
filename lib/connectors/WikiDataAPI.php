@@ -304,8 +304,8 @@ class WikiDataAPI
                 }
                 else exit("\nnot ok\n");
                 
-                break; //debug get first taxon wiki only
-                // if($k > 1000) break; //10000
+                // break; //debug get first taxon wiki only
+                if($k > 10) break; //10000
                 
                 
             } //end of taxon wiki
@@ -704,28 +704,46 @@ class WikiDataAPI
         {
             echo "\nartist is ARRAY()";
             print_r($rek['Artist']);
-            $rek['Artist'] = $rek['Artist'][0]['name'];
+            // $rek['Artist'] = $rek['Artist'][0]['name']; -- don't do this... should remain as array()
         }
-        else echo "\nartist is STRING: ".$rek['Artist']."\n";
+        else {
+            echo "\nartist is STRING: ".$rek['Artist']."\n";
+            if(substr($rek['Artist'],0,5) == "[http") { //[https://sites.google.com/site/thebrockeninglory/ Brocken Inaglory]
+                $arr = explode(" ", $rek['Artist']);
+                unset($rek['Artist']);
+                $temp = array();
+                $temp['homepage'] = trim($arr[0]);
+
+                $arr[0] = null;
+                $arr = array_filter($arr);
+                $temp['name'] = implode(" ", $arr);
+
+                // remove "[" "]"
+                $temp['name'] = str_replace(array("[","]"), "", $temp['name']);
+                $temp['homepage'] = str_replace(array("[","]"), "", $temp['homepage']);
+
+                if($temp) $rek['Artist'][] = $temp;
+            }
+            elseif(substr($rek['Artist'],0,7) == "[[User:") //[[User:Tomascastelazo|Tomas Castelazo]]
+            {
+                $temp = str_replace(array("[","]"), "", $rek['Artist']);
+                $arr = explode("|", $temp);
+                unset($rek['Artist']);
+                $rek['Artist']['name'] = $arr[1];
+                $rek['Artist']['homepage'] = "https://commons.wikimedia.org/wiki/".$arr[0];
+            }
+            else
+            {
+                $temp = $rek['Artist'];
+                unset($rek['Artist']);
+                $rek['Artist']['name'] = $temp;
+            }
+            // else exit("\nInvestiage this artist string\n");
+            echo "\nartist is now also ARRAY()";
+            print_r($rek['Artist']);            
+        }
         // ================================ */
         
-        if(substr($rek['Artist'],0,5) == "[http")
-        {
-            $arr = explode(" ", $rek['Artist']);
-            unset($rek['Artist']);
-            $temp = array();
-            $temp['homepage'] = trim($arr[0]);
-
-            $arr[0] = null;
-            $arr = array_filter($arr);
-            $temp['name'] = implode(" ", $arr);
-            
-            // remove "[" "]"
-            $temp['name'] = str_replace(array("[","]"), "", $temp['name']);
-            $temp['homepage'] = str_replace(array("[","]"), "", $temp['homepage']);
-            
-            if($temp) $rek['Artist'][] = $temp;
-        }
         //================================================================ END
         $rek['fromx'] = 'dump';
         return $rek;
