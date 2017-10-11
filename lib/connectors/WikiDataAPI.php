@@ -510,6 +510,10 @@ class WikiDataAPI
                 $media['UsageTerms']             = $formatted_license; //$com['LicenseUrl']; //license
                 $media['furtherInformationURL']  = $com['source_url'];
                 $media['accessURI']              = $com['media_url'];
+                
+                print_r($com);
+                if($agent_ids = self::gen_agent_ids($com['Artist'])) $media['agentID'] = implode("; ", $agent_ids);
+                
 
                 $mr = new \eol_schema\MediaResource();
                 $mr->taxonID                = $media['taxonID'];
@@ -524,6 +528,8 @@ class WikiDataAPI
                 $mr->furtherInformationURL  = $media['furtherInformationURL'];
                 $mr->title                  = $media['title'];
                 $mr->Owner                  = $media['Owner'];
+                $mr->agentID                = $media['agentID'];
+                
                 if(!isset($this->object_ids[$mr->identifier]))
                 {
                     $this->object_ids[$mr->identifier] = '';
@@ -532,6 +538,26 @@ class WikiDataAPI
                 // */
             }
         }
+    }
+    private function gen_agent_ids($artists)
+    {
+        $agent_ids = array();
+        foreach($artists as $a)
+        {
+            if(!$a['name']) continue;
+            $r = new \eol_schema\Agent();
+            $r->term_name       = $a['name'];
+            $r->agentRole       = "artist";
+            $r->term_homepage   = @$a['homepage'];
+            $r->identifier      = md5("$r->term_name|$r->agentRole");
+            $agent_ids[] = $r->identifier;
+            if(!isset($this->agent_ids[$r->identifier]))
+            {
+               $this->agent_ids[$r->identifier] = '';
+               $this->archive_builder->write_object_to_file($r);
+            }
+        }
+        return $agent_ids;
     }
     
     private function get_commons_info($url)
@@ -739,14 +765,13 @@ class WikiDataAPI
                 $temp = str_replace(array("[","]"), "", $rek['Artist']);
                 $arr = explode("|", $temp);
                 unset($rek['Artist']);
-                $rek['Artist']['name'] = $arr[1];
-                $rek['Artist']['homepage'] = "https://commons.wikimedia.org/wiki/".$arr[0];
+                $rek['Artist'][] = array('name' => $arr[1], 'homepage' => "https://commons.wikimedia.org/wiki/".$arr[0]);
             }
             else
             {
-                $temp = $rek['Artist'];
+                $name = $rek['Artist'];
                 unset($rek['Artist']);
-                $rek['Artist']['name'] = $temp;
+                $rek['Artist'][] = array('name' => $name);
             }
             // else exit("\nInvestiage this artist string\n");
             echo "\nartist is now also ARRAY()";
@@ -947,7 +972,7 @@ class WikiDataAPI
         if($json = Functions::lookup_with_cache("https://commons.wikimedia.org/w/api.php?format=json&action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:".$file, $options))
         {
             $arr = json_decode($json, true);
-            // print_r($arr); exit;
+            // print_r($arr); //exit;
 
             $arr = array_values($arr["query"]["pages"]);
             $arr = $arr[0];
@@ -964,8 +989,14 @@ class WikiDataAPI
             if($rek['title'] = self::get_title_from_ImageDescription($rek['ImageDescription'])) {}
             else $rek['title'] = self::format_wiki_substr($arr['title']);
 
-            $rek['Artist'] = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Artist']['value']);
-            if(!$rek['Artist']) $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']);
+            if($val = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Artist']['value']))
+            {
+                $atemp = array();
+                if(preg_match("/href=\"(.*?)\"/ims", $val, $a)) $atemp['homepage'] = trim($a[1]);
+                if(preg_match("/\">(.*?)<\/a>/ims", $val, $a)) $atemp['name'] = trim($a[1]);
+                if($atemp) $rek['Artist'][] = $atemp;
+            }
+            if(!@$rek['Artist']) $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']);
             
             
             $rek['LicenseUrl']       = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['LicenseUrl']['value']);
