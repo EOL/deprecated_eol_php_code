@@ -409,14 +409,16 @@ class WikiDataAPI
         if(stripos($license, "creativecommons.org/licenses/by-sa/") !== false)          return "http://creativecommons.org/licenses/by-sa/3.0/";
         if(stripos($license, "creativecommons.org/licenses/by-nc-sa/") !== false)       return "http://creativecommons.org/licenses/by-nc-sa/3.0/";
 
-        if(!$license && $LicenseShortName == "Public domain")
-        {
-            return "http://creativecommons.org/licenses/publicdomain/";
+        if(!$license) {
+            if(in_array($LicenseShortName, array("Public domain", "cc0", "self|Cc-zero"))) return "http://creativecommons.org/licenses/publicdomain/";
+            if(substr(strtoupper($LicenseShortName),0,3) == "PD-")                         return "http://creativecommons.org/licenses/publicdomain/"; //"PD-self" "PD-author" "pd-???" etc.
+            $this->debug['blank_license'][$LicenseShortName] = ''; //utility debug - important
         }
-        if(!$license) $this->debug['blank_license'][$LicenseShortName] = '';
         
         if(stripos($license, "creativecommons.org/publicdomain/") !== false) return "http://creativecommons.org/licenses/publicdomain/";
-            
+        if(stripos($license, "creativecommons.org/licenses/sa/") !== false)  return "http://creativecommons.org/licenses/by-sa/3.0/"; //[http://creativecommons.org/licenses/sa/1.0/]
+        if($license == "http://creativecommons.org/licenses/by")             return "http://creativecommons.org/licenses/by/3.0/"; //exact match
+        
         return $license;
         // Line Value: https://www.flickr.com/commons/usage/
         // Line Value: http://creativecommons.org/licenses/by/2.0/deed.en
@@ -424,7 +426,6 @@ class WikiDataAPI
         // Line Value: http://creativecommons.org/licenses/by/4.0/deed.en
         // Line Value: http://creativecommons.org/licenses/by-sa/4.0/deed.en
         // http://creativecommons.org/publicdomain/zero/1.0/deed.en
-        
     }
     private function valid_license_YN($license)
     {
