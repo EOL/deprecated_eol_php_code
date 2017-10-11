@@ -102,7 +102,7 @@ class WikiDataAPI
 
         unlink($this->TEMP_FILE_PATH);
         
-        print_r($this->debug['invalid_LicenseUrl']); exit;
+        print_r(@$this->debug['invalid_LicenseUrl']); exit;
     }
 
     private function initialize_files()
@@ -304,8 +304,8 @@ class WikiDataAPI
                 }
                 else exit("\nnot ok\n");
                 
-                // break; //debug get first taxon wiki only
-                if($k > 10) break; //10000
+                break; //debug get first taxon wiki only
+                // if($k > 1000) break; //10000
                 
                 
             } //end of taxon wiki
@@ -447,7 +447,7 @@ class WikiDataAPI
     }
     private function create_commons_objects($commons, $t)
     {
-        // print_r($commons);
+        // print_r($commons); exit;
         foreach($commons as $com)
         {
             $formatted_license = self::format_license(@$com['LicenseUrl'], @$com['LicenseShortName']);
@@ -464,8 +464,7 @@ class WikiDataAPI
                 [LicenseShortName] => self|cc-by-sa-4.0
                 [LicenseUrl] => http://creativecommons.org/licenses/by-sa/4.0/deed.en
                 [title] => Whales are Paraphyletic.svg
-                [other] => Array
-                    (
+                [other] => Array (
                         [date] => 2017-02-14
                         [author] => *Original: [[User:Chiswick Chap|Chiswick Chap]]
                         [source] => {{derived from|Whales are Paraphyletic.png|display=50}}
@@ -520,13 +519,8 @@ class WikiDataAPI
                     $this->archive_builder->write_object_to_file($mr);
                 }
                 */
-                
             }
-            
-            
         }
-        
-        
         // exit("\nelix 100\n");
     }
     
@@ -708,11 +702,11 @@ class WikiDataAPI
         // /* ================================ new Oct 7, 2017 -- comment it first...
         if(is_array($rek['Artist']))
         {
-            echo "\nartist is array()";
+            echo "\nartist is ARRAY()";
             print_r($rek['Artist']);
             $rek['Artist'] = $rek['Artist'][0]['name'];
         }
-        else echo "\nstring artist OK: ".$rek['Artist']."\n";
+        else echo "\nartist is STRING: ".$rek['Artist']."\n";
         // ================================ */
         
         if(substr($rek['Artist'],0,5) == "[http")
