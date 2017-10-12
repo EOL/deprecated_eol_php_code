@@ -1,16 +1,14 @@
 <?php
 namespace php_active_record;
-/* connector: [430] */
-class INaturalistImagesAPI
+/* connector: [430] 
+
+This can be a generic connector for CSV DwCA resources.
+
+*/
+class CSV2DwCA_Utility
 {
     function __construct($folder = NULL, $dwca_file = NULL)
     {
-        /*
-        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
-        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        $this->download_options = array('resource_id' => '959', 'expire_seconds' => false, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1); 
-        */
-        
         if($folder)
         {
             $this->resource_id = $folder;
@@ -65,8 +63,7 @@ class INaturalistImagesAPI
         $index = $info['index'];
 
         echo "\nConverting CSV archive to EOL DwCA...\n";
-        foreach($tables as $key => $values)
-        {
+        foreach($tables as $key => $values) {
             $tbl = $values[0];
             // print_r($tbl); exit;
             if($class = @$this->extensions[$tbl->row_type]) //process only defined row_types
@@ -106,7 +103,7 @@ class INaturalistImagesAPI
             if($i == 1) {
                 $fields = $row;
                 $count = count($fields);
-                print_r($fields); break; //debug
+                // print_r($fields); break; //debug
             }
             else { //main records
 
@@ -128,15 +125,14 @@ class INaturalistImagesAPI
                 // print_r($fields); print_r($rec);
                 
                 //start process record =============================================================================================
-                if($class == 'document')
-                {
+                if($class == 'document') {
                     if($rec['taxonID'] && $rec['accessURI']) {
                         if(!self::valid_uri_url($rec['accessURI'])) continue;
                         if(!self::valid_uri_url($rec['thumbnailURL'])) $rec['thumbnailURL'] = "";
+
                         $do_id = $rec['identifier'];
-                        if(in_array($do_id, $do_ids))
-                        {
-                            exit("\nduplicate do_id [$do_id]\n");
+                        if(in_array($do_id, $do_ids)) {
+                            // exit("\nduplicate do_id [$do_id]\n"); //debug
                             continue;
                         }
                         else $do_ids[] = $do_id;
@@ -144,8 +140,7 @@ class INaturalistImagesAPI
                 }
                 
                 // print_r($tbl); exit;
-                foreach($tbl->fields as $f)
-                {
+                foreach($tbl->fields as $f) {
                     $field = pathinfo($f['term'], PATHINFO_FILENAME);
                     
                     // some fields have '#', e.g. "http://schemas.talis.com/2005/address/schema#localityName" or "wgs84_pos#lat"
@@ -165,6 +160,7 @@ class INaturalistImagesAPI
         } //main loop
         fclose($file);
     }
+    
     private function valid_uri_url($str)
     {
         if(substr($str,0,7) == "http://") return true;
@@ -172,12 +168,12 @@ class INaturalistImagesAPI
         return false;
     }
     
+    /* was not used
     private function clean_html($html)
     {
         $html = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\11", "\011"), "", trim($html));
         return Functions::remove_whitespace($html);
     }
-    /* was not used
     function start_fix_supplied_archive_by_partner()
     {
         require_library('connectors/INBioAPI');
@@ -190,7 +186,6 @@ class INaturalistImagesAPI
         recursive_rmdir($temp_dir);
     }
     */
-    
 
 }
 ?>
