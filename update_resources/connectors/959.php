@@ -1,10 +1,11 @@
 <?php
 namespace php_active_record;
-/* DATA-1626
-                        Jul-14
-measurement_or_fact.tab [18948]
-occurrence.tab          [18877]
-taxon.tab               [7044]
+/* DATA-1626 - execution time (Jenkins) : 13 mins.
+                                2017
+                        Jul-14  Oct-11
+measurement_or_fact.tab [18948] 19421
+occurrence.tab          [18877] 19348
+taxon.tab               [7044]  7327
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/AmphibiawebDataAPI');
