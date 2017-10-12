@@ -160,6 +160,11 @@ class ConvertEOLtoDWCaAPI
             //start filters - for quality control ================================================================
             if(@$rec['language'] == "English") $rec['language'] = "En"; //used in resource_id = 120
             if(@$rec['dataType'] == 'http://purl.org/dc/dcmitype/Text' && !@$rec['description']) continue;  //Text objects must have descriptions
+
+            /* for debugging - OK
+            if(@$rec['subject'] == 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description') echo "\n ==> ". @$rec['description'] . " ==== ";
+            */
+
             //end filters - for quality control ==================================================================
             
             
