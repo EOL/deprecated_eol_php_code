@@ -95,7 +95,7 @@ class CSV2DwCA_Utility
             else exit("\nUndefined class [$class]\n");
 
             $row = fgetcsv($file);
-            $i++; if(($i % 1000) == 0) echo "\n $i ";
+            $i++; if(($i % 2000) == 0) echo "\n $i ";
             // if($i > 2000) break; //debug only - process a subset first 2k
             
             if($i == 1) {

@@ -418,12 +418,10 @@ class Functions
         if(file_exists($file_path)) unlink($file_path);
     }
     
-    public static function finalize_dwca_resource($resource_id, $big_file = false)
+    public static function finalize_dwca_resource($resource_id, $big_file = false, $deleteFolderYN = false)
     {
-        if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 200)
-        {
-            if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
-            {
+        if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 200) {
+            if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id)) {
                 recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
                 Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
             }
@@ -432,14 +430,17 @@ class Functions
             Functions::set_resource_status_to_harvest_requested($resource_id);
             $arr = Functions::count_resource_tab_files($resource_id);
             self::finalize_connector_run($resource_id, json_encode($arr));
-            if(!$big_file)
-            {
+            if(!$big_file) {
                 if($undefined_uris = Functions::get_undefined_uris_from_resource($resource_id)) print_r($undefined_uris);
                 echo "\nUndefined URIs: " . count($undefined_uris) . "\n";
                 require_library('connectors/DWCADiagnoseAPI');
                 $func = new DWCADiagnoseAPI();
                 $func->check_unique_ids($resource_id);
             }
+        }
+        if($deleteFolderYN) {
+            if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))               recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
+            if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous")) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
         }
     }
 
