@@ -1,7 +1,6 @@
 <?php
 namespace php_active_record;
 /* Converts EOL spreadsheets (based upon the EOL spreadsheet template) TO EOL DwcA */
-define("xxx", LOCAL_ROOT . "aaa/bbb");
 
 class Spreadsheet2DwCA
 {
