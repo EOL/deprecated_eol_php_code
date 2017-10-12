@@ -231,7 +231,7 @@ class DwCA_Utility
             {
                 if($c) $this->archive_builder->write_object_to_file($c); //to facilitate validations
             }
-        }
+        } //main loop
         return $count;
     }
 
@@ -294,8 +294,8 @@ class DwCA_Utility
     }
     private function valid_uri_url($str)
     {
-        if(substr(0,7,$str) == "http://") return true;
-        elseif(substr(0,8,$str) == "https://") return true;
+        if(substr($str,0,7) == "http://") return true;
+        elseif(substr($str,0,8) == "https://") return true;
         return false;
     }
     //ends here 

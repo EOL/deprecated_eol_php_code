@@ -30,7 +30,7 @@ if($val = $cmdline_params['resource_id'])
 {
     $resource_id = $val;
     if($resource_id == 704) $dwca_file = "https://opendata.eol.org/dataset/7a17dc15-cb08-4e41-b901-6af5fd89bcd7/resource/3c56c4e4-3be7-463b-b958-22fbc560cf0d/download/pantheria.zip";
-    elseif($resource_id == 430) // WIP
+    elseif($resource_id == 430) // won't work here since it is not tab-delimited files but CSV files. I eventually used its own connector 430.php
     {
         ini_set('memory_limit','7096M'); //required
         // $dwc_file = "http://www.inaturalist.org/taxa/eol_media.dwca.zip";
