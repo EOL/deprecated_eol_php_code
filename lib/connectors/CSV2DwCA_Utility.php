@@ -1,16 +1,13 @@
 <?php
 namespace php_active_record;
 /* connector: [430] 
-
 This can be a generic connector for CSV DwCA resources.
-
 */
 class CSV2DwCA_Utility
 {
     function __construct($folder = NULL, $dwca_file = NULL)
     {
-        if($folder)
-        {
+        if($folder) {
             $this->resource_id = $folder;
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -88,7 +85,6 @@ class CSV2DwCA_Utility
         $i = 0;
         $file = Functions::file_open($csv_file, "r");
         while(!feof($file)) {
-
             if    ($class == "vernacular")  $c = new \eol_schema\VernacularName();
             elseif($class == "agent")       $c = new \eol_schema\Agent();
             elseif($class == "reference")   $c = new \eol_schema\Reference();
@@ -186,6 +182,5 @@ class CSV2DwCA_Utility
         recursive_rmdir($temp_dir);
     }
     */
-
 }
 ?>
