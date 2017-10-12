@@ -3,13 +3,14 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 $new_resource_path = DOC_ROOT . "temp/22.xml.gz";
-$new_resource = Functions::get_remote_file("http://animaldiversity.ummz.umich.edu/XML/adw_eol.xml.gz");
-// $new_resource = Functions::get_remote_file("http://localhost/eol_php_code/applications/content_server/resources/adw_eol.xml.gz");
-if(!($OUT = fopen($new_resource_path, "w+")))
-{
-  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$new_resource_path);
-  return;
-}
+
+$download_options = array('cache' => 1, 'expire_seconds' => false, 'timeout' => 60*60); //doesn't expire since partner no longer hosts the file
+// $xml = "http://animaldiversity.ummz.umich.edu/XML/adw_eol.xml.gz";
+// $xml = "http://localhost/cp/ADW/resource_id_22/adw_eol.xml.gz";
+$xml = "https://opendata.eol.org/dataset/99da8344-22a4-4d9d-890d-44ac3fc34a33/resource/12f27411-1aeb-4d49-987e-f868de033da1/download/adweol.xml.gz";
+$new_resource = Functions::get_remote_file($xml, $download_options);
+
+if(!($OUT = Functions::file_open($new_resource_path, "w+"))) return;
 fwrite($OUT, $new_resource);
 fclose($OUT);
 shell_exec("gunzip -f ".$new_resource_path);
@@ -21,11 +22,7 @@ $xml = preg_replace("/<a>([^<]+)<\/a>/", "\\1", $xml);
 if(substr_count($xml, "<?xml") == 0) $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" . $xml;
 
 $old_resource_path = CONTENT_RESOURCE_LOCAL_PATH . "22.xml";
-if(!($OUT = fopen($old_resource_path, "w+")))
-{
-  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$old_resource_path);
-  return;
-}
+if(!($OUT = Functions::file_open($old_resource_path, "w+"))) return;
 fwrite($OUT, $xml);
 fclose($OUT);
 shell_exec("rm ".$new_resource_path);
@@ -37,6 +34,14 @@ $func = new ResourceDataObjectElementsSetting($resource_id, $resource_path);
 $xml_string = file_get_contents($resource_path);
 $xml = $func->remove_data_object_of_certain_element_value("mediaURL", "http://animaldiversity.ummz.umich.edu/", $xml_string);
 $func->save_resource_document($xml);
-Functions::set_resource_status_to_harvest_requested($resource_id);
-Functions::gzip_resource_xml($resource_id);
+
+$xml_string = file_get_contents($resource_path);
+$xml = $func->replace_data_object_element_value("subject", "", "http://eol.org/schema/eol_info_items.xml#Notes", $xml_string);
+$func->save_resource_document($xml);
+
+// Functions::gzip_resource_xml($resource_id); //un-comment if you want to investigate the 22.xml
+
+//start convert to EOL DwCA
+$nmnh = new ResourceDataObjectElementsSetting($resource_id);
+$nmnh->call_xml_2_dwca($resource_id, "ADW Web Descriptions");
 ?>

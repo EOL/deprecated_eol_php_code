@@ -31,6 +31,7 @@ if($val = $cmdline_params['resource_id'])
     elseif($resource_id == 1002) $params['spreadsheet'] = "http://opendata.eol.org/dataset/bd2b0922-950a-4e7b-bf21-fbc7f734a4d7/resource/36456461-e99c-4c2a-8c82-0cb6609e8aec/download/arctic-algae.xls";
     elseif($resource_id == 1005) $params['spreadsheet'] = "http://opendata.eol.org/dataset/bd2b0922-950a-4e7b-bf21-fbc7f734a4d7/resource/df09a527-c826-43c3-a9f4-ba8414695db7/download/alaskanarthropoda.xls";
     elseif($resource_id == 1007) $params['spreadsheet'] = "http://opendata.eol.org/dataset/bd2b0922-950a-4e7b-bf21-fbc7f734a4d7/resource/aeb5f0a9-e506-4d9a-bec4-0b7f825902dd/download/arctic-arthropods-traits-1.xlsx"; //"http://localhost/cp/spreadsheets/Arctic spreadsheets/alaskanarthropoda.xls.zip";
+    elseif($resource_id == 707) $params['spreadsheet'] = "http://opendata.eol.org/dataset/99da8344-22a4-4d9d-890d-44ac3fc34a33/resource/87a9bb7f-90f1-4cfd-a52c-09bb8f9c91f6/download/birds-animaldiversityweb.xlsx";
     else exit("\nProgram will terminate. Invalid resource_id [$resource_id].\n\n");
 }
 else //no resource_id
