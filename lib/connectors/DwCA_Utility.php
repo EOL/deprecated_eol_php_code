@@ -16,8 +16,10 @@ class DwCA_Utility
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         }
         $this->dwca_file = $dwca_file;
+        /* un-comment if it will cause probs to other connectors
         $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 26);
         $this->download_options["expire_seconds"] = false; //debug - false means it will use cache
+        */
         $this->debug = array();
         
         /* Please take note of some Meta XML entries have upper and lower case differences */
@@ -62,7 +64,7 @@ class DwCA_Utility
     
     function count_records_in_dwca()
     {
-        $info = self::start();
+        if(!($info = self::start())) return;
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
         $tables = $info['tables'];
