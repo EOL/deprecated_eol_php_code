@@ -33,6 +33,8 @@ class INaturalistImagesAPI
                                   "http://rs.gbif.org/terms/1.0/description"        => "document",
                                   "http://rs.gbif.org/terms/1.0/multimedia"         => "document",
                                   "http://eol.org/schema/reference/reference"       => "reference",
+                                  "http://rs.tdwg.org/dwc/terms/Taxon"              => "taxon",
+                                  "http://eol.org/schema/media/Document"            => "document"
                                   );
     }
 
@@ -66,9 +68,11 @@ class INaturalistImagesAPI
         foreach($tables as $key => $values)
         {
             $tbl = $values[0];
+            // print_r($tbl); exit;
             if($class = @$this->extensions[$tbl->row_type]) //process only defined row_types
             {
-                self::process_extension($tbl->file_uri, $class);
+                echo "\n -- Processing [$class]...\n";
+                self::process_extension($tbl->file_uri, $class, $tbl);
             }
             else exit("\nInvalid row_type [$tbl->row_type]\n");
         }
@@ -81,26 +85,28 @@ class INaturalistImagesAPI
         if($this->debug) print_r($this->debug);
     }
 
-    private function process_extension($csv_file, $class)
+    private function process_extension($csv_file, $class, $tbl)
     {
-        if    ($class == "vernacular")  $c = new \eol_schema\VernacularName();
-        elseif($class == "agent")       $c = new \eol_schema\Agent();
-        elseif($class == "reference")   $c = new \eol_schema\Reference();
-        elseif($class == "taxon")       $c = new \eol_schema\Taxon();
-        elseif($class == "document")    $c = new \eol_schema\MediaResource();
-        elseif($class == "occurrence")  $c = new \eol_schema\Occurrence();
-        elseif($class == "measurementorfact")   $c = new \eol_schema\MeasurementOrFact();
-        else exit("\nUndefined class [$class]\n");
-        
         $do_ids = array(); //for validation, prevent duplicate identifiers
         $i = 0;
         $file = Functions::file_open($csv_file, "r");
         while(!feof($file)) {
+
+            if    ($class == "vernacular")  $c = new \eol_schema\VernacularName();
+            elseif($class == "agent")       $c = new \eol_schema\Agent();
+            elseif($class == "reference")   $c = new \eol_schema\Reference();
+            elseif($class == "taxon")       $c = new \eol_schema\Taxon();
+            elseif($class == "document")    $c = new \eol_schema\MediaResource();
+            elseif($class == "occurrence")  $c = new \eol_schema\Occurrence();
+            elseif($class == "measurementorfact")   $c = new \eol_schema\MeasurementOrFact();
+            else exit("\nUndefined class [$class]\n");
+
             $row = fgetcsv($file);
             $i++;
             if($i == 1) {
                 $fields = $row;
                 $count = count($fields);
+                print_r($fields); break; //debug
             }
             else { //main records
 
@@ -108,7 +114,7 @@ class INaturalistImagesAPI
                 if($count != count($values)) { //row validation - correct no. of columns
                     // print_r($values); print_r($rec);
                     echo("\nWrong CSV format for this row.\n");
-                    $this->debug['wrong csv']['identifier'][$rec['identifier']] = '';
+                    $this->debug['wrong csv'][$class]['identifier'][$rec['identifier']] = '';
                     continue;
                 }
 
@@ -119,24 +125,45 @@ class INaturalistImagesAPI
                     $k++;
                 }
                 
+                // print_r($fields); print_r($rec);
+                
                 //start process record =============================================================================================
-                if($rec['taxonID'] && $rec['accessURI']) {
-                    if(self::valid_uri_url($rec['accessURI'])) continue;
-                    if(self::valid_uri_url($rec['thumbnailURL'])) $rec['thumbnailURL'] = "";
-                    $do_id = $rec['identifier'];
-                    if(in_array($do_id, $do_ids))
-                    {
-                        exit("\nduplicate do_id\n");
+                if($class == 'document')
+                {
+                    if($rec['taxonID'] && $rec['accessURI']) {
+                        if(!self::valid_uri_url($rec['accessURI'])) continue;
+                        if(!self::valid_uri_url($rec['thumbnailURL'])) $rec['thumbnailURL'] = "";
+                        $do_id = $rec['identifier'];
+                        if(in_array($do_id, $do_ids))
+                        {
+                            exit("\nduplicate do_id [$do_id]\n");
+                            continue;
+                        }
+                        else $do_ids[] = $do_id;
                     }
-                    else $do_ids[] = $do_id;
+                }
+                
+                // print_r($tbl); exit;
+                foreach($tbl->fields as $f)
+                {
+                    $field = pathinfo($f['term'], PATHINFO_FILENAME);
+                    
+                    // some fields have '#', e.g. "http://schemas.talis.com/2005/address/schema#localityName" or "wgs84_pos#lat"
+                    $parts = explode("#", $field);
+                    if($parts[0]) $field = $parts[0];
+                    if(@$parts[1]) $field = $parts[1];
+                    
+                    $c->$field = $rec[$field];
                 }
                 //end process record =============================================================================================
+
                 // print_r($rec); exit;
                 
             } //main records
+            $this->archive_builder->write_object_to_file($c);
+            
         } //main loop
         fclose($file);
-        print_r($this->debug);
     }
     private function valid_uri_url($str)
     {
@@ -150,6 +177,7 @@ class INaturalistImagesAPI
         $html = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\11", "\011"), "", trim($html));
         return Functions::remove_whitespace($html);
     }
+    /* was not used
     function start_fix_supplied_archive_by_partner()
     {
         require_library('connectors/INBioAPI');
@@ -161,6 +189,7 @@ class INaturalistImagesAPI
         self::process_extension($archive_path);
         recursive_rmdir($temp_dir);
     }
+    */
     
 
 }
