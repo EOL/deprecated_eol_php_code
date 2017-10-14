@@ -32,3 +32,5 @@
 </tr>
 </table>
 </form>
+<hr>
+<?php require_once("../tools.php") ?>

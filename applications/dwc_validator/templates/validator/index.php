@@ -23,3 +23,4 @@ namespace php_active_record;
         <?php render_template("validator/result", array("file_url" => $file_url, "file_upload" => $file_upload, "errors" => $errors, "structural_errors" => $structural_errors, "warnings" => $warnings, "stats" => $stats)); ?>
     </body>
 </html>
+<?php require_once("../tools.php") ?>

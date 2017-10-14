@@ -23,3 +23,4 @@ namespace php_active_record;
         <?php render_template("validator/result", array("file_url" => $file_url, "file_upload" => $file_upload, "is_eol_schema" => $is_eol_schema, "xsd" => $xsd, "errors" => $errors, "eol_errors" => $eol_errors, "eol_warnings" => $eol_warnings)); ?>
     </body>
 </html>
+<?php require_once("../tools.php") ?>
