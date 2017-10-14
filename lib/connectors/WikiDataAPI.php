@@ -426,7 +426,7 @@ class WikiDataAPI
 
         //blank license
         if(!$license) {
-            if(in_array($LicenseShortName, array("Public domain", "cc0", "Flickr-no known copyright restrictions"))) return "http://creativecommons.org/licenses/publicdomain/";
+            if(in_array($LicenseShortName, array("Public domain", "cc0"))) return "http://creativecommons.org/licenses/publicdomain/";
 
             //multiple shortnames separated by "|"
             $shortnames = explode("|", strtolower($LicenseShortName)); //"self|Cc-zero"
@@ -449,10 +449,9 @@ class WikiDataAPI
                 if(stripos($shortname, "BHL-no known restrictions") !== false) return "No known copyright restrictions";
             }
             
-            
-            
             //should be invalid per Jen
-            if(stripos($invalid_exact, "Custom license marker") !== false) return "invalid";
+            if(!$LicenseShortName) return "invalid";
+            if(stripos($LicenseShortName, "Custom license marker") !== false) return "invalid";
             if(stripos($LicenseShortName, "ExtractedFromNSRW") !== false) return "invalid";
             if(stripos($LicenseShortName, "copyright protection") !== false) return "invalid";
             if(stripos($LicenseShortName, "Copyrighted") !== false) return "invalid";
@@ -464,14 +463,12 @@ class WikiDataAPI
             if(stripos($LicenseShortName, " Monet ") !== false) return "invalid";
             if(stripos($LicenseShortName, "Bild-") !== false) return "invalid";
             if(stripos($LicenseShortName, "Pixabay|") !== false) return "invalid";
+            if(stripos($LicenseShortName, "illustration of the Saxaul Sparrow") !== false) return "invalid";
             $invalid_exact = array("BSD", "FAL", "Faroe stamps", "Fotothek-License", "FWS Image", "GPL", "NARA-cooperation", "NAUMANN", "NPS", "Parasite", "unsplash", "WikiAfrica/TNA", "јв-ја");
             foreach($invalid_exact as $exact) {
                 if($exact == $LicenseShortName) return "invalid";
             }
             // [Information|Description=en|1=An illustration of the Saxaul Sparrow (''Passer ammondendri'', called the "Turkestan Sparrow" in the book the illustration was published in)]
-            
-            
-            
             
             //last resort
             $this->debug['blank_license'][$LicenseShortName] = ''; //utility debug - important
@@ -487,7 +484,8 @@ class WikiDataAPI
     }
     private function valid_license_YN($license)
     {
-        $valid = array("http://creativecommons.org/licenses/publicdomain/", "http://creativecommons.org/licenses/by/3.0/", "http://creativecommons.org/licenses/by-nc/3.0/", "http://creativecommons.org/licenses/by-sa/3.0/", "http://creativecommons.org/licenses/by-nc-sa/3.0/");
+        $valid = array("http://creativecommons.org/licenses/publicdomain/", "http://creativecommons.org/licenses/by/3.0/", "http://creativecommons.org/licenses/by-nc/3.0/", 
+                       "http://creativecommons.org/licenses/by-sa/3.0/", "http://creativecommons.org/licenses/by-nc-sa/3.0/", "No known copyright restrictions");
         if(in_array($license, $valid)) return true;
         else                           return false;
     }
