@@ -101,8 +101,9 @@ class WikiDataAPI
         //end =============================================================
 
         unlink($this->TEMP_FILE_PATH);
-        
+        echo "\n----111";
         print_r($this->debug); //exit;
+        echo "\n----222";
         
     }
 
@@ -306,7 +307,7 @@ class WikiDataAPI
                 else exit("\n --not ok-- \n");
                 
                 // break; //debug get first taxon wiki only
-                if($k > 10) break; //10000
+                if($k > 2000) break; //10000
                 
                 
             } //end of taxon wiki
@@ -415,6 +416,14 @@ class WikiDataAPI
         if($license == "http://creativecommons.org/licenses/by")             return "http://creativecommons.org/licenses/by/3.0/"; //exact match
         if($license == "https://www.flickr.com/commons/usage/")              return "http://creativecommons.org/licenses/publicdomain/"; //exact match
 
+        //should be invalid per Jen:
+        if(stripos($license, "creativecommons.org/licenses/by-nc-nd/") !== false) return "invalid";
+        if(stripos($license, "commons.wikimedia.org/wiki/File:") !== false) return "invalid";
+        $proven_invalid_licenseurl = array("http://www.gnu.org/copyleft/fdl.html", "http://www.gnu.org/licenses/old-licenses/fdl-1.2.html", "http://www.gnu.org/licenses/gpl.html",
+        "www.gnu.org/licenses/fdl-1.3.html", "http://artlibre.org/licence/lal/en");
+        if(in_array($license, $proven_invalid_licenseurl)) return "invalid";
+        
+
         //blank license
         if(!$license) {
             if(in_array($LicenseShortName, array("Public domain", "cc0", "Flickr-no known copyright restrictions"))) return "http://creativecommons.org/licenses/publicdomain/";
@@ -425,7 +434,6 @@ class WikiDataAPI
             {
                 if(in_array($shortname, array("cc-zero", "cc0", "cc-0"))) return "http://creativecommons.org/licenses/publicdomain/";
                 if(substr($shortname,0,3) == "pd-")                       return "http://creativecommons.org/licenses/publicdomain/"; //"PD-self" "PD-author" "pd-???" etc.
-                if(stripos($shortname, "no known copyright restriction") !== false) return "http://creativecommons.org/licenses/publicdomain/";
                 if(stripos($shortname, "bild-pd") !== false)                        return "http://creativecommons.org/licenses/publicdomain/";
                 if($shortname == "attribution")                              return "http://creativecommons.org/licenses/by/3.0/";
                 if(substr($shortname,0,14) == strtolower("public domain "))  return "http://creativecommons.org/licenses/publicdomain/"; // e.g. "Public Domain Mark"
@@ -436,7 +444,34 @@ class WikiDataAPI
                 if(substr($shortname,0,9) == "cc-by-nc-")     return "http://creativecommons.org/licenses/by-nc/3.0/";
                 if(substr($shortname,0,9) == "cc-by-sa-")     return "http://creativecommons.org/licenses/by-sa/3.0/";
                 if(substr($shortname,0,12) == "cc-by-nc-sa-") return "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+                if(stripos($shortname, "self|own-pd") !== false) return "http://creativecommons.org/licenses/publicdomain/";
+                if(stripos($shortname, "no known copyright restriction") !== false) return "No known copyright restrictions";
+                if(stripos($shortname, "BHL-no known restrictions") !== false) return "No known copyright restrictions";
             }
+            
+            
+            
+            //should be invalid per Jen
+            if(stripos($invalid_exact, "Custom license marker") !== false) return "invalid";
+            if(stripos($LicenseShortName, "ExtractedFromNSRW") !== false) return "invalid";
+            if(stripos($LicenseShortName, "copyright protection") !== false) return "invalid";
+            if(stripos($LicenseShortName, "Copyrighted") !== false) return "invalid";
+            if(stripos($LicenseShortName, "FOLP|") !== false) return "invalid";
+            if(stripos($LicenseShortName, "GFDL") !== false) return "invalid";
+            if(stripos($LicenseShortName, "self|") !== false) return "invalid";
+            if(stripos($LicenseShortName, "User:Flickr") !== false) return "invalid";
+            if(stripos($LicenseShortName, "User:Ksd5") !== false) return "invalid";
+            if(stripos($LicenseShortName, " Monet ") !== false) return "invalid";
+            if(stripos($LicenseShortName, "Bild-") !== false) return "invalid";
+            if(stripos($LicenseShortName, "Pixabay|") !== false) return "invalid";
+            $invalid_exact = array("BSD", "FAL", "Faroe stamps", "Fotothek-License", "FWS Image", "GPL", "NARA-cooperation", "NAUMANN", "NPS", "Parasite", "unsplash", "WikiAfrica/TNA", "јв-ја");
+            foreach($invalid_exact as $exact) {
+                if($exact == $LicenseShortName) return "invalid";
+            }
+            // [Information|Description=en|1=An illustration of the Saxaul Sparrow (''Passer ammondendri'', called the "Turkestan Sparrow" in the book the illustration was published in)]
+            
+            
+            
             
             //last resort
             $this->debug['blank_license'][$LicenseShortName] = ''; //utility debug - important
