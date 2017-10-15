@@ -59,7 +59,7 @@ class WikiDataAPI
         exit; 
         */
         
-        /*testing
+        // /*testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // $arr = self::process_file("Rubus_parviflorus_3742.JPG");
@@ -67,10 +67,12 @@ class WikiDataAPI
         // $arr = self::process_file("(1)Cormorant_Centennial_Park-1.jpg");
         // $arr = self::process_file("Apis_mellifera_carnica_worker_hive_entrance_3.jpg");
         // $arr = self::process_file("Gardenology.org-IMG_2825_rbgs11jan.jpg");
-        $arr = self::process_file("The_marine_mammals_of_the_north-western_coast_of_North_America,_described_and_illustrated;_together_with_an_account_of_the_American_whale-fishery_(1874)_(14598304727).jpg");
+        // $arr = self::process_file("The_marine_mammals_of_the_north-western_coast_of_North_America,_described_and_illustrated;_together_with_an_account_of_the_American_whale-fishery_(1874)_(14598304727).jpg");
+        
+        $arr = self::process_file("Black_coyodog.jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
-        */
+        // */
         
         if(!@$this->trans['editors'][$this->language_code]) 
         {
@@ -104,6 +106,17 @@ class WikiDataAPI
         echo "\n----111";
         print_r($this->debug); //exit;
         echo "\n----222";
+        
+        
+        $f = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/wikimedia_debug.txt", "w");
+        $index = array_keys($this->debug);
+        foreach($index as $i) {
+            fwrite($f, "\n$i ---"."\n");
+            foreach($this->debug[$i] as $row) fwrite($f, "$row"."\n");
+        }
+        fclose($f);
+        
+        
         
     }
 
@@ -565,10 +578,11 @@ class WikiDataAPI
 
                 if(!@$media['agentID'])
                 {
-                    echo "\n-------start investigate-----------\n";
+                    echo "\n-------start investigate--------Undefined index: agentID---\n";
                     print_r($com);
                     print_r($media);
-                    exit("\nUndefined index: agentID\n");
+                    $this->debug['file in question'][pathinfo($media['furtherInformationURL'], PATHINFO_FILENAME)] = '';
+                    // exit("\nUndefined index: agentID --------------------\n");
                 }
                 
 
@@ -831,6 +845,10 @@ class WikiDataAPI
                 $temp['name'] = str_replace(array("[","]"), "", $temp['name']);
                 $temp['homepage'] = str_replace(array("[","]"), "", $temp['homepage']);
 
+                //start special
+                if(!$temp['name'] && $temp['homepage'] == "https://www.flickr.com/photos/hdport/") $temp['name'] = "Hunter Desportes";
+                //end special
+
                 if($temp) $rek['Artist'][] = $temp;
             }
             /* this is covered in elseif() below this
@@ -848,7 +866,7 @@ class WikiDataAPI
                 echo "\nartist value is: ".$rek['Artist']."\n";
                 if(preg_match_all("/\[\[(.*?)\]\]/ims", $rek['Artist'], $a))
                 {
-                    print_r($a);
+                    // print_r($a);
                     unset($rek['Artist']);
                     foreach($a[1] as $t)
                     {
@@ -877,16 +895,16 @@ class WikiDataAPI
         //================================================================ END
         $rek['fromx'] = 'dump';
         
-        /*good debug for Artist dump
-        if($rek['pageid'] == "36125309")
+        // /*good debug for Artist dump
+        if($rek['pageid'] == "46388906")
         {
-            echo "\n=================investigate dump data===========start\n"
+            echo "\n=================investigate dump data===========start\n";
             print_r($dump_arr);
             print_r($rek);
+            echo "\n=================investigate dump data===========end\n";
             exit("\nwait..investigate here...\n");
-            echo "\n=================investigate dump data===========end\n"
         }
-        */
+        // */
         return $rek;
     }
     private function second_option_for_artist_info($arr)
@@ -1154,12 +1172,16 @@ class WikiDataAPI
             if($rek['title'] = self::get_title_from_ImageDescription($rek['ImageDescription'])) {}
             else $rek['title'] = self::format_wiki_substr($arr['title']);
             
+            /*
             if($rek['pageid'] == "28986352") //good debug api
             {
                 echo "\n=======investigate api data =========== start\n";
-                print_r($arr); //exit;
+                print_r($arr); 
+                exit;
                 echo "\n=======investigate api data =========== end\n";
             }
+            */
+            
             //start artist ====================
             if($val = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Artist']['value']))
             {
