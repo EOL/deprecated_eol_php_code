@@ -307,7 +307,7 @@ class WikiDataAPI
                 else exit("\n --not ok-- \n");
                 
                 // break; //debug get first taxon wiki only
-                if($k > 2000) break; //10000
+                if($k > 100) break; //10000
                 
                 
             } //end of taxon wiki
@@ -538,14 +538,24 @@ class WikiDataAPI
                 $media['taxonID']                = $t->taxonID;
                 $media['format']                 = Functions::get_mimetype($com['media_url']);
                 $media['type']                   = Functions::get_datatype_given_mimetype($media['format']);
+                if(!$media['type']) $this->debug['undefined DataType'][$media['format'][$com['media_url']]] = '';
                 $media['language']               = $this->language_code;
                 $media['Owner']                  = '';
                 $media['UsageTerms']             = $formatted_license; //$com['LicenseUrl']; //license
                 $media['furtherInformationURL']  = $com['source_url'];
                 $media['accessURI']              = $com['media_url'];
                 
-                print_r($com);
-                if($agent_ids = self::gen_agent_ids($com['Artist'])) $media['agentID'] = implode("; ", $agent_ids);
+                // print_r($com);
+                $role = Functions::get_role_given_datatype($media['type']);
+                if($agent_ids = self::gen_agent_ids($com['Artist'], $role)) $media['agentID'] = implode("; ", $agent_ids);
+
+                if(!@$media['agentID'])
+                {
+                    echo "\n-------start investigate-----------\n";
+                    print_r($com);
+                    print_r($media);
+                    exit("\nUndefined index: agentID\n");
+                }
                 
 
                 $mr = new \eol_schema\MediaResource();
@@ -572,7 +582,7 @@ class WikiDataAPI
             }
         }
     }
-    private function gen_agent_ids($artists)
+    private function gen_agent_ids($artists, $role)
     {
         $agent_ids = array();
         foreach($artists as $a)
@@ -580,7 +590,7 @@ class WikiDataAPI
             if(!$a['name']) continue;
             $r = new \eol_schema\Agent();
             $r->term_name       = $a['name'];
-            $r->agentRole       = "artist";
+            $r->agentRole       = $role;
             $r->term_homepage   = @$a['homepage'];
             $r->identifier      = md5("$r->term_name|$r->agentRole");
             $agent_ids[] = $r->identifier;
@@ -718,13 +728,16 @@ class WikiDataAPI
     private function get_media_metadata_from_json($filename, $title)
     {
         $json = file_get_contents($filename);
-        $arr = json_decode($json, true);
-        // print_r($arr); exit;
+        $dump_arr = json_decode($json, true);
         $rek = array();
-        $rek['pageid'] = $arr['id'];
-        $rek['timestamp'] = $arr['revision']['timestamp'];
+        $rek['pageid'] = $dump_arr['id'];
+        
+        // if($rek['pageid'] == "36373984") print_r($dump_arr); //exit;
+        
+        
+        $rek['timestamp'] = $dump_arr['revision']['timestamp'];
 
-        $wiki = $arr['revision']['text'];
+        $wiki = $dump_arr['revision']['text'];
 
         if(self::wiki_protected($wiki)) return "protected";
 
@@ -762,9 +775,16 @@ class WikiDataAPI
         if(preg_match("/\|permission\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['permission'] = $a[1];
         $rek['date'] = @$rek['other']['date'];
         //================================================================ Artist
-        $rek['Artist'] = @$rek['other']['author'];
+        $rek['Artist'] = trim(@$rek['other']['author']);
         if(!$rek['Artist']) {
-            $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']);
+            // echo "\n==============investigate start\n";
+            // print_r($rek);
+            // echo "\n==============investigate end\n";
+            $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']); //get_media_metadata_from_json()
+            echo "\nelix went here\n";
+        }
+        if(!$rek['Artist']) {
+            if($val = self::second_option_for_artist_info($dump_arr)) $rek['Artist'][] = $val;
         }
         // parse this value = "[http://www.panoramio.com/user/6099584?with_photo_id=56065015 Greg N]"
         
@@ -775,17 +795,18 @@ class WikiDataAPI
             print_r($rek['Artist']);
             // $rek['Artist'] = $rek['Artist'][0]['name']; -- don't do this... should remain as array()
         }
-        else {
+        else 
+        {
             echo "\nartist is STRING: ".$rek['Artist']."\n";
             if(substr($rek['Artist'],0,5) == "[http") { //[https://sites.google.com/site/thebrockeninglory/ Brocken Inaglory]
-                $arr = explode(" ", $rek['Artist']);
+                $tmp_arr = explode(" ", $rek['Artist']);
                 unset($rek['Artist']);
                 $temp = array();
-                $temp['homepage'] = trim($arr[0]);
+                $temp['homepage'] = trim($tmp_arr[0]);
 
-                $arr[0] = null;
-                $arr = array_filter($arr);
-                $temp['name'] = implode(" ", $arr);
+                $tmp_arr[0] = null;
+                $tmp_arr = array_filter($tmp_arr);
+                $temp['name'] = implode(" ", $tmp_arr);
 
                 // remove "[" "]"
                 $temp['name'] = str_replace(array("[","]"), "", $temp['name']);
@@ -793,22 +814,32 @@ class WikiDataAPI
 
                 if($temp) $rek['Artist'][] = $temp;
             }
+            /* this is covered in elseif() below this
             elseif(substr($rek['Artist'],0,7) == "[[User:") //[[User:Tomascastelazo|Tomas Castelazo]]
             {
                 $temp = str_replace(array("[","]"), "", $rek['Artist']);
-                $arr = explode("|", $temp);
+                $tmp_arr = explode("|", $temp);
                 unset($rek['Artist']);
-                $rek['Artist'][] = array('name' => $arr[1], 'homepage' => "https://commons.wikimedia.org/wiki/".$arr[0]);
+                if($name = @$tmp_arr[1]) $rek['Artist'][] = array('name' => $name, 'homepage' => "https://commons.wikimedia.org/wiki/".$tmp_arr[0]);
             }
+            */
+            //possible values --> "[[User:Victuallers]]" "[[User:Tomascastelazo|Tomas Castelazo]]" "*Original: [[User:Chiswick Chap|Chiswick Chap]]"
             elseif(stripos($rek['Artist'], "[[User:") !== false && stripos($rek['Artist'], "]]") !== false) //string is found //e.g. *Original: [[User:Chiswick Chap|Chiswick Chap]]
             {
-                if(preg_match_all("/[[(.*?)]]/ims", $rek['Artist'], $a))
+                echo "\nartist value is: ".$rek['Artist']."\n";
+                if(preg_match_all("/\[\[(.*?)\]\]/ims", $rek['Artist'], $a))
                 {
+                    print_r($a);
                     unset($rek['Artist']);
                     foreach($a[1] as $t)
                     {
-                        $arr = explode("|", $t);
-                        $rek['Artist'][] = array('name' => $arr[1], 'homepage' => "https://commons.wikimedia.org/wiki/".$arr[0]);
+                        $tmp_arr = explode("|", $t); //"[[User:Tomascastelazo|Tomas Castelazo]]" "*Original: [[User:Chiswick Chap|Chiswick Chap]]"
+                        if($name = @$tmp_arr[1]) $rek['Artist'][] = array('name' => $name, 'homepage' => "https://commons.wikimedia.org/wiki/".$tmp_arr[0]);
+                        else //"[[User:Victuallers]]"
+                        {
+                            $user = str_ireplace("User:", "", $t);
+                            $rek['Artist'][] = array('name' => $user, 'homepage' => "https://commons.wikimedia.org/wiki/User:".$user);
+                        }
                     }
                 }
             }
@@ -826,15 +857,48 @@ class WikiDataAPI
         
         //================================================================ END
         $rek['fromx'] = 'dump';
+        
+        /*good debug for Artist dump
+        if($rek['pageid'] == "36373984")
+        {
+            print_r($rek);
+            exit("\nwait..investigate here...\n");
+        }
+        */
         return $rek;
     }
-    
+    private function second_option_for_artist_info($arr)
+    {
+        /*(
+            [title] => File:Brassica oleracea2.jpg
+            [ns] => 6
+            [id] => 56480
+            [revision] => Array
+                (
+                    [id] => 141570217
+                    [parentid] => 26626799
+                    [timestamp] => 2014-12-06T05:29:10Z
+                    [contributor] => Array
+                        (
+                            [username] => JarektBot
+                            [id] => 472310
+                        )
+        */
+        if($val = $arr['revision']['contributor']['username']) {
+            $a['name'] = $val;
+            $a['homepage'] = "https://commons.wikimedia.org/wiki/User:$val";
+            $a['role'] = "contributor";
+            return $a;
+        }
+        return false;
+    }
     private function get_artist_from_ImageDescription($description)
     {
         // <td lang="en">Author</td> 
         // <td><a href="https://commons.wikimedia.org/wiki/User:Sardaka" title="User:Sardaka">Sardaka</a></td> 
         if(preg_match("/>Author<\/td>(.*?)<\/td>/ims", $description, $a))
         {
+            echo "\nelix 111\n";
             $temp = $a[1];
             $final = array(); $atemp = array();
             if(preg_match("/href=\"(.*?)\"/ims", $temp, $a)) $atemp['homepage'] = trim($a[1]);
@@ -844,14 +908,40 @@ class WikiDataAPI
                 return $final;
             }
             else {
+                echo "\nelix 222\n";
                 // <td lang="en">Author</td>
                 // <td>Museo Nacional de Chile.</td>
                 // echo("\n[@$a[1]]\n");
-                
-                $atemp = array('name' => trim(strip_tags($temp)));
-                if($atemp)
+                if($name = trim(strip_tags($temp)))
                 {
-                    $final[] = $atemp;
+                    $final[] = array('name' => $name);
+                    return $final;
+                }
+                else
+                {
+                    echo "\nelix 333\n";
+                    
+                }
+            }
+        }
+        else
+        {
+            echo "\nelix 555\n";
+            echo "\n$description\n";
+            // wiki/User:Bewareofdog" title="en:User:Bewareofdog"
+            if(preg_match("/wiki\/User\:(.*?)\"/ims", $description, $a))
+            {
+                echo "\nelix 444\n";
+                $final[] = array('name' => $a[1], 'homepage' => "https://commons.wikimedia.org/wiki/User:".$a[1]);
+                // print_r($final); exit("\n$description\n");
+                return $final;
+            }
+            elseif(preg_match("/Fotograf oder Zeichner\:(.*?)Lizenzstatus/ims", $description, $a)) //Fotograf oder Zeichner: Goldlocki Lizenzstatus:
+            {
+                if($val = trim($a[1]))
+                {
+                    $final[] = array('name' => $val);
+                    // print_r($final); //exit("\n$description\n");
                     return $final;
                 }
             }
@@ -1033,6 +1123,13 @@ class WikiDataAPI
 
             if($rek['title'] = self::get_title_from_ImageDescription($rek['ImageDescription'])) {}
             else $rek['title'] = self::format_wiki_substr($arr['title']);
+            
+            if($rek['pageid'] == "989503") //good debug api
+            {
+                echo "\n=======investigate api data =========== start\n";
+                // print_r($arr); //exit;
+                echo "\n=======investigate api data =========== end\n";
+            }
             //start artist ====================
             if($val = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Artist']['value']))
             {
@@ -1043,6 +1140,15 @@ class WikiDataAPI
                 else $rek['Artist'][] = array('name' => strip_tags($val)); // e.g. <span lang="en">Anonymous</span>
             }
             if(!@$rek['Artist']) $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']);
+            if(!@$rek['Artist']) //e.g. Files from Wellcome Images
+            {
+                if($val = self::get_artist_from_special_source(@$arr['imageinfo'][0]['extmetadata']['Categories']['value'], $rek['title'])) $rek['Artist'][] = $val; 
+            }
+            if(!@$rek['Artist'])
+            {
+                if($val = @$arr['imageinfo'][0]['extmetadata']['Credit']['value']) $rek['Artist'][] = array('name' => strip_tags($val));
+            }
+            
             //end artist ========================
             
             $rek['LicenseUrl']       = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['LicenseUrl']['value']);
@@ -1064,9 +1170,21 @@ class WikiDataAPI
             }
             */
         }
-        return $rek;
+        return $rek; //$arr
     }
-    
+    private function get_artist_from_special_source($categories, $title = "")
+    {
+        if(stripos($categories, "Files from Wellcome Images") !== false) { //string is found
+            return array('name' => "Wellcome Images", 'homepage' => "https://wellcomeimages.org/", 'role' => 'contributor');
+        }
+        elseif(stripos($categories, "Files with no machine-readable author|Files with no machine-readable source") !== false) { //string is found
+            return array('name' => "Wikimedia Commons", 'homepage' => $title, 'role' => 'recorder');
+        }
+        
+        
+        
+        return false;
+    }
     private function get_title_from_ImageDescription($desc)
     {
         $desc = strip_tags($desc, "<br>");

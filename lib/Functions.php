@@ -1775,6 +1775,13 @@ class Functions
         elseif(stripos($mimetype, "image/") !== false) return "http://purl.org/dc/dcmitype/StillImage"; //string is found
         elseif(stripos($mimetype, "audio/") !== false) return "http://purl.org/dc/dcmitype/Sound"; //string is found
     }
+    
+    public static function get_role_given_datatype($type)
+    {
+        if    ($type == "http://purl.org/dc/dcmitype/MovingImage") return "Creator";
+        elseif($type == "http://purl.org/dc/dcmitype/StillImage")  return "Photographer";
+        elseif($type == "http://purl.org/dc/dcmitype/Sound")       return "Recorder";
+    }
 
     public static function language_to_iso_code()
     {
