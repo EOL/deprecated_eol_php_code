@@ -537,8 +537,16 @@ class WikiDataAPI
                 // below here is same for the next text object
                 $media['taxonID']                = $t->taxonID;
                 $media['format']                 = Functions::get_mimetype($com['media_url']);
+                if(!$media['format'])
+                {
+                    $this->debug['undefined ext'][pathinfo($com['media_url'], PATHINFO_EXTENSION)] = '';
+                    continue;
+                }
                 $media['type']                   = Functions::get_datatype_given_mimetype($media['format']);
-                if(!$media['type']) $this->debug['undefined DataType'][$media['format'][$com['media_url']]] = '';
+                
+                // if(!$media['type']) $this->debug['undefined DataType 1'][@$media['format']] = '';
+                // if(!$media['type']) $this->debug['undefined DataType 2'][@$com['media_url']] = '';
+                
                 $media['language']               = $this->language_code;
                 $media['Owner']                  = '';
                 $media['UsageTerms']             = $formatted_license; //$com['LicenseUrl']; //license

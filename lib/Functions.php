@@ -1761,6 +1761,7 @@ class Functions
         elseif ($extension === "jpeg")       $mimetype = "image/jpeg";
         elseif ($extension === "png")        $mimetype = "image/png";
         elseif ($extension === "tif")        $mimetype = "image/tiff";
+        elseif ($extension === "tiff")       $mimetype = "image/tiff";
         elseif ($extension === "svg")        $mimetype = "image/svg+xml";
         elseif ($extension === "mp3")        $mimetype = "audio/mpeg";
         elseif ($extension === "wav")        $mimetype = "audio/x-wav";
