@@ -307,7 +307,7 @@ class WikiDataAPI
                 else exit("\n --not ok-- \n");
                 
                 // break; //debug get first taxon wiki only
-                if($k > 100) break; //10000
+                if($k > 5000) break; //10000
                 
                 
             } //end of taxon wiki
@@ -537,6 +537,12 @@ class WikiDataAPI
                 // below here is same for the next text object
                 $media['taxonID']                = $t->taxonID;
                 $media['format']                 = Functions::get_mimetype($com['media_url']);
+                
+                // if($com['media_url'] == "https://upload.wikimedia.org/wikipedia/commons/0/07/Opilion_stalking_lavender_sunset_September.jpeg")
+                // {
+                //     print_r($com); exit;
+                // }
+                
                 if(!$media['format'])
                 {
                     $this->debug['undefined ext'][pathinfo($com['media_url'], PATHINFO_EXTENSION)] = '';
@@ -794,6 +800,11 @@ class WikiDataAPI
         if(!$rek['Artist']) {
             if($val = self::second_option_for_artist_info($dump_arr)) $rek['Artist'][] = $val;
         }
+        if(!$rek['Artist']) {
+            if($val = self::get_artist_from_special_source($wiki, '')) $rek['Artist'][] = $val; 
+        }
+        
+        
         // parse this value = "[http://www.panoramio.com/user/6099584?with_photo_id=56065015 Greg N]"
         
         // /* ================================ new Oct 7, 2017 -- comment it first...
@@ -867,10 +878,13 @@ class WikiDataAPI
         $rek['fromx'] = 'dump';
         
         /*good debug for Artist dump
-        if($rek['pageid'] == "36373984")
+        if($rek['pageid'] == "36125309")
         {
+            echo "\n=================investigate dump data===========start\n"
+            print_r($dump_arr);
             print_r($rek);
             exit("\nwait..investigate here...\n");
+            echo "\n=================investigate dump data===========end\n"
         }
         */
         return $rek;
@@ -892,7 +906,7 @@ class WikiDataAPI
                             [id] => 472310
                         )
         */
-        if($val = $arr['revision']['contributor']['username']) {
+        if($val = @$arr['revision']['contributor']['username']) {
             $a['name'] = $val;
             $a['homepage'] = "https://commons.wikimedia.org/wiki/User:$val";
             $a['role'] = "contributor";
@@ -1069,10 +1083,18 @@ class WikiDataAPI
                 $html = str_ireplace('Licensing <table cellspacing="8" cellpadding="0" > <tr> <td>This image is in the <a href="https://en.wikipedia.org/wiki/public_domain" title="w:public domain">public domain</a> because it is a mere mechanical scan or photocopy of a public domain original, or – from the available evidence – is so similar to such a scan or photocopy that no copyright protection can be expected to arise. The original itself is in the public domain for the following reason: <table > <tr> <td>Public domainPublic domainfalsefalse</td> </tr> </table> <table lang="en"> <tr> <td rowspan="2"></td> <td> This work is in the <a href="https://en.wikipedia.org/wiki/public_domain" title="en:public domain">public domain</a> in its country of origin and other countries and areas where the <a href="https://en.wikipedia.org/wiki/List_of_countries%27_copyright_length" title="w:List of countries'."'".' copyright length">copyright term</a> is the author'."'".'s life plus 100 years or less. You must also include a <a href="https://commons.wikimedia.org/wiki/Commons:Copyright_tags#United_States" title="Commons:Copyright tags">United States public domain tag</a> to indicate why this work is in the public domain in the United States. </td> </tr> <tr> <td colspan="2"> <a rel="nofollow" href="https://creativecommons.org/publicdomain/mark/1.0/deed.en">This file has been identified as being free of known restrictions under copyright law, including all related and neighboring rights.</a> </td> </tr> </table> This tag is designed for use where there may be a need to assert that any enhancements (eg brightness, contrast, colour-matching, sharpening) are in themselves insufficiently creative to generate a new copyright. It can be used where it is unknown whether any enhancements have been made, as well as when the enhancements are clear but insufficient. For known raw unenhanced scans you can use an appropriate <a href="https://commons.wikimedia.org/wiki/Template:PD-old" title="Template:PD-old">{{PD-old}}</a> tag instead. For usage, see <a href="https://commons.wikimedia.org/wiki/Commons:When_to_use_the_PD-scan_tag" title="Commons:When to use the PD-scan tag">Commons:When to use the PD-scan tag</a>. Note: This tag applies to scans and photocopies only. For photographs of public domain originals taken from afar, <a href="https://commons.wikimedia.org/wiki/Template:PD-Art" title="Template:PD-Art">{{PD-Art}}</a> may be applicable. See <a href="https://commons.wikimedia.org/wiki/Commons:When_to_use_the_PD-Art_tag" title="Commons:When to use the PD-Art tag">Commons:When to use the PD-Art tag</a>.</td> </tr> </table>', "", $html);
                 
             }
+            $html = self::clean_html($html);
             return $html;
         }
         return false;
     }
+    private function clean_html($html)
+    {
+        $html = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\11", "\011"), "", trim($html));
+        return $html;
+        // return Functions::remove_whitespace($html);
+    }
+    
     
     /*
     private function last_chance_for_description($str)
@@ -1132,10 +1154,10 @@ class WikiDataAPI
             if($rek['title'] = self::get_title_from_ImageDescription($rek['ImageDescription'])) {}
             else $rek['title'] = self::format_wiki_substr($arr['title']);
             
-            if($rek['pageid'] == "989503") //good debug api
+            if($rek['pageid'] == "28986352") //good debug api
             {
                 echo "\n=======investigate api data =========== start\n";
-                // print_r($arr); //exit;
+                print_r($arr); //exit;
                 echo "\n=======investigate api data =========== end\n";
             }
             //start artist ====================
