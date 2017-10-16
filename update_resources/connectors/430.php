@@ -2,6 +2,8 @@
 namespace php_active_record;
 /* This can be a generic connector for CSV DwCA resources.
 
+Jenkins execution time: 2 days 19 hours
+
 http://www.eol.org/content_partners/441/resources/430
 https://eol-jira.bibalex.org/browse/DATA-1707
 
@@ -29,18 +31,13 @@ require_library('connectors/CSV2DwCA_Utility');
 // ini_set('memory_limit','4096M');
 $timestart = time_elapsed();
 
-/*
-$s = "http://rs.tdwg.org/dwc/terms/taxonID";
-echo(pathinfo($s, PATHINFO_FILENAME)); exit;
-*/
-
 // $dwca_file = "http://localhost/cp/iNaturalist/eol_media.dwca.zip";
 $dwca_file = "http://www.inaturalist.org/taxa/eol_media.dwca.zip";
 
 $resource_id = 430;
 $func = new CSV2DwCA_Utility($resource_id, $dwca_file);
-$func->convert_archive();
-Functions::finalize_dwca_resource($resource_id, false, true); //3rd param is deleteFolderYN ------- 2nd params is mostly false
+/* $func->convert_archive(); */ //temporarily commented but works OK in real operation
+Functions::finalize_dwca_resource($resource_id, true, true); //3rd param is deleteFolderYN ------- 2nd params is true coz it is a big file
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
