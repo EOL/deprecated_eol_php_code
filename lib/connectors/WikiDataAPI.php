@@ -210,14 +210,12 @@ class WikiDataAPI
         $actual = 0;
         $i = 0; $j = 0;
         $k = 0; $m = 4624000; $m = 300000; //only for breakdown when caching
-        foreach(new FileIterator($this->wiki_data_json) as $line_number => $row)
-        {
+        foreach(new FileIterator($this->wiki_data_json) as $line_number => $row) {
             $k++; 
             if(($k % 100000) == 0) echo " ".number_format($k)." ";
             echo " ".number_format($k)." ";
             // /* breakdown when caching:
             $cont = false;
-            
             // if($k >=  1    && $k < $m) $cont = true; done
             // if($k >=  $m   && $k < $m*2) $cont = true; done
             // if($k >=  $m*2 && $k < $m*3) $cont = true; done
@@ -234,7 +232,6 @@ class WikiDataAPI
             // if($k >= 1154430 && $k < $m*5) $cont = true; // vi
 
             if($k >= 5000 && $k < 15000) $cont = true;   //wikimedia total taxa = 2,208,086
-
             if(!$cont) continue;
             // */
 
@@ -249,8 +246,7 @@ class WikiDataAPI
                 $arr = $arr->entities->Q6707390;
                 for debug end ======================== */
                 
-                if(is_object($arr))
-                {
+                if(is_object($arr)) {
                     $rek = array();
                      // /*
                      $rek['taxon_id'] = trim((string) $arr->id);
@@ -271,8 +267,7 @@ class WikiDataAPI
                              
                              echo "\n $this->language_code ".$rek['taxon_id']." - ";
                              if($this->what == "wikipedia") $rek = self::get_other_info($rek); //uncomment in normal operation
-                             if($this->what == "wikimedia")
-                             {
+                             if($this->what == "wikimedia") {
                                  if($url = @$rek['com_category'])   $rek['obj_category'] = self::get_commons_info($url);
                                  if($url = @$rek['com_gallery'])    $rek['obj_gallery'] = self::get_commons_info($url);
                                  
@@ -287,8 +282,7 @@ class WikiDataAPI
                                  */ //eli's debug end
                              }
                              
-                             if($rek['taxon_id'])
-                             {
+                             if($rek['taxon_id']) {
                                  $ret = self::create_archive($rek);
                                  if($ret) self::save_ancestry_to_temp($rek['parent']);
                                  
@@ -334,8 +328,7 @@ class WikiDataAPI
     private function save_ancestry_to_temp($ancestry)
     {
         $id = $ancestry['id'];
-        if(!isset($this->saved_ids[$id]))
-        {
+        if(!isset($this->saved_ids[$id])) {
             $this->saved_ids[$id] = '';
             if(!($f = Functions::file_open($this->TEMP_FILE_PATH, "a"))) return;
             fwrite($f, json_encode($ancestry)."\n");
@@ -446,8 +439,7 @@ class WikiDataAPI
 
             //multiple shortnames separated by "|"
             $shortnames = explode("|", strtolower($LicenseShortName)); //"self|Cc-zero"
-            foreach($shortnames as $shortname)
-            {
+            foreach($shortnames as $shortname) {
                 if(in_array($shortname, array("cc-zero", "cc0", "cc-0"))) return "http://creativecommons.org/licenses/publicdomain/";
                 if(substr($shortname,0,3) == "pd-")                       return "http://creativecommons.org/licenses/publicdomain/"; //"PD-self" "PD-author" "pd-???" etc.
                 if(stripos($shortname, "bild-pd") !== false)                        return "http://creativecommons.org/licenses/publicdomain/";
@@ -464,7 +456,6 @@ class WikiDataAPI
                 if(stripos($shortname, "no known copyright restriction") !== false) return "No known copyright restrictions";
                 if(stripos($shortname, "BHL-no known restriction") !== false) return "No known copyright restrictions";
             }
-            
             
             //should be invalid per Jen
             if(!$LicenseShortName) return "invalid";
@@ -499,7 +490,6 @@ class WikiDataAPI
             if($LicenseShortName == "FCO") return "invalid"; //exact match --- invalid coz OGL something...
             if(stripos($LicenseShortName, "OGL|") !== false) return "invalid"; //[OGL|1=Photo: MoD/MOD] --- invalid coz OGL
 
-            
             //last resort
             $this->debug['blank_license'][$LicenseShortName] = ''; //utility debug - important
         }
@@ -522,13 +512,9 @@ class WikiDataAPI
     private function create_commons_objects($commons, $t)
     {
         // print_r($commons); exit;
-        foreach($commons as $com)
-        {
+        foreach($commons as $com) {
             $formatted_license = self::format_license(@$com['LicenseUrl'], @$com['LicenseShortName']);
-            if(!self::valid_license_YN($formatted_license))
-            {
-                $this->debug['invalid_LicenseUrl'][$formatted_license] = '';
-            }
+            if(!self::valid_license_YN($formatted_license)) $this->debug['invalid_LicenseUrl'][$formatted_license] = '';
             else
             {
                 /*
@@ -545,10 +531,8 @@ class WikiDataAPI
                         [permission] => 
                     )
                 [date] => 2017-02-14
-                [Artist] => Array
-                    (
-                        [0] => Array
-                            (
+                [Artist] => Array (
+                        [0] => Array (
                                 [name] => Chiswick Chap
                                 [homepage] => https://commons.wikimedia.org/wiki/User:Chiswick_Chap
                             )
@@ -573,8 +557,7 @@ class WikiDataAPI
                 //     print_r($com); exit;
                 // }
                 
-                if(!$media['format'])
-                {
+                if(!$media['format']) {
                     $this->debug['undefined media ext. excluded'][pathinfo($com['media_url'], PATHINFO_EXTENSION)] = '';
                     continue;
                 }
@@ -593,15 +576,13 @@ class WikiDataAPI
                 $role = Functions::get_role_given_datatype($media['type']);
                 if($agent_ids = self::gen_agent_ids($com['Artist'], $role)) $media['agentID'] = implode("; ", $agent_ids);
 
-                if(!@$media['agentID'])
-                {
+                if(!@$media['agentID']) {
                     echo "\n-------start investigate--------Undefined index: agentID---\n";
                     print_r($com);
                     print_r($media);
                     $this->debug['file in question'][pathinfo($media['furtherInformationURL'], PATHINFO_BASENAME)] = '';
                     // exit("\nUndefined index: agentID --------------------\n");
                 }
-                
 
                 $mr = new \eol_schema\MediaResource();
                 $mr->taxonID                = $media['taxonID'];
@@ -618,8 +599,7 @@ class WikiDataAPI
                 $mr->Owner                  = $media['Owner'];
                 $mr->agentID                = $media['agentID'];
                 
-                if(!isset($this->object_ids[$mr->identifier]))
-                {
+                if(!isset($this->object_ids[$mr->identifier])) {
                     $this->object_ids[$mr->identifier] = '';
                     $this->archive_builder->write_object_to_file($mr);
                 }
@@ -630,8 +610,7 @@ class WikiDataAPI
     private function gen_agent_ids($artists, $role)
     {
         $agent_ids = array();
-        foreach($artists as $a)
-        {
+        foreach($artists as $a) {
             if(!$a['name']) continue;
             $r = new \eol_schema\Agent();
             $r->term_name       = $a['name'];
@@ -639,8 +618,7 @@ class WikiDataAPI
             $r->term_homepage   = @$a['homepage'];
             $r->identifier      = md5("$r->term_name|$r->agentRole");
             $agent_ids[] = $r->identifier;
-            if(!isset($this->agent_ids[$r->identifier]))
-            {
+            if(!isset($this->agent_ids[$r->identifier])) {
                $this->agent_ids[$r->identifier] = '';
                $this->archive_builder->write_object_to_file($r);
             }
@@ -655,10 +633,8 @@ class WikiDataAPI
         // <a href="/wiki/File:Irrawaddy_Dolphin.jpg"
         echo("\nelix:[$url]\n");
         $options = $this->download_options;
-        if($html = Functions::lookup_with_cache($url, $options))
-        {
-            if(preg_match_all("/<a href=\"\/wiki\/File:(.*?)\"/ims", $html, $arr))
-            {
+        if($html = Functions::lookup_with_cache($url, $options)) {
+            if(preg_match_all("/<a href=\"\/wiki\/File:(.*?)\"/ims", $html, $arr)) {
                 $files = array_values(array_unique($arr[1]));
                 // print_r($files); //exit;
                 
@@ -670,8 +646,7 @@ class WikiDataAPI
                 //for utility use only, will not pass here on normal operation =========================== end
                 
                 $limit = 0;
-                foreach($files as $file)
-                {   // https://commons.wikimedia.org/wiki/File:Eyes_of_gorilla.jpg
+                foreach($files as $file) { // https://commons.wikimedia.org/wiki/File:Eyes_of_gorilla.jpg
                     $rek = self::process_file($file);
                     if($rek == "continue") continue;
                     // print_r($rek); //exit;
@@ -698,8 +673,7 @@ class WikiDataAPI
             echo "\nused cache data";
             $rek = self::get_media_metadata_from_json($filename, $file);
             if($rek == "protected") return "continue";
-            if(!$rek)
-            {
+            if(!$rek) {
                 echo "\njust used api data instead";
                 /*
                 if(!in_array($file, array("The_marine_mammals_of_the_north-western_coast_of_North_America,_described_and_illustrated;_together_with_an_account_of_the_American_whale-fishery_(1874)_(14598172619).jpg", 
@@ -709,8 +683,7 @@ class WikiDataAPI
             }
             // print_r($rek); exit;
         }
-        else
-        {
+        else {
             echo "\nused api data";
             $rek = self::get_media_metadata_from_api($file);
         }
@@ -726,8 +699,7 @@ class WikiDataAPI
         
         $str = trim($str);
         // [Artist] => [[User:Chiswick Chap|Ian Alexander]]
-        if(preg_match("/\[\[User:(.*?)\]\]/ims", $str, $a))
-        {
+        if(preg_match("/\[\[User:(.*?)\]\]/ims", $str, $a)) {
             $arr = explode("|", $a[1]);
             $arr = array_unique($arr);
             $final = array();
@@ -736,8 +708,7 @@ class WikiDataAPI
         }
         
         //[Artist] => <a rel="nofollow" class="external text" href="https://www.flickr.com/people/126377022@N07">Internet Archive Book Images</a>
-        if(substr($str,0,3) == "<a " && substr_count($str, '</a>') == 1)
-        {
+        if(substr($str,0,3) == "<a " && substr_count($str, '</a>') == 1) {
             $temp = array();
             if(preg_match("/>(.*?)<\/a>/ims", $str, $a))    $temp['name'] = $a[1];
             if(preg_match("/href=\"(.*?)\"/ims", $str, $a)) $temp['homepage'] = $a[1];
@@ -778,7 +749,6 @@ class WikiDataAPI
         $rek['pageid'] = $dump_arr['id'];
         
         // if($rek['pageid'] == "36373984") print_r($dump_arr); //exit;
-        
         
         $rek['timestamp'] = $dump_arr['revision']['timestamp'];
 
@@ -835,18 +805,15 @@ class WikiDataAPI
             if($val = self::get_artist_from_special_source($wiki, '')) $rek['Artist'][] = $val; 
         }
         
-        
         // parse this value = "[http://www.panoramio.com/user/6099584?with_photo_id=56065015 Greg N]"
         
         // /* ================================ new Oct 7, 2017 -- comment it first...
-        if(is_array($rek['Artist']))
-        {
+        if(is_array($rek['Artist'])) {
             echo "\nartist is ARRAY()";
             print_r($rek['Artist']);
             // $rek['Artist'] = $rek['Artist'][0]['name']; -- don't do this... should remain as array()
         }
-        else 
-        {
+        else {
             echo "\nartist is STRING: ".$rek['Artist']."\n";
             
             /* //new first option
@@ -935,8 +902,7 @@ class WikiDataAPI
                     }
                 }
             }
-            else
-            {
+            else {
                 $name = $rek['Artist'];
                 unset($rek['Artist']);
                 $rek['Artist'][] = array('name' => $name);
@@ -991,8 +957,7 @@ class WikiDataAPI
     {
         // <td lang="en">Author</td> 
         // <td><a href="https://commons.wikimedia.org/wiki/User:Sardaka" title="User:Sardaka">Sardaka</a></td> 
-        if(preg_match("/>Author<\/td>(.*?)<\/td>/ims", $description, $a))
-        {
+        if(preg_match("/>Author<\/td>(.*?)<\/td>/ims", $description, $a)) {
             echo "\nelix 111\n";
             $temp = $a[1];
             $final = array(); $atemp = array();
@@ -1007,25 +972,18 @@ class WikiDataAPI
                 // <td lang="en">Author</td>
                 // <td>Museo Nacional de Chile.</td>
                 // echo("\n[@$a[1]]\n");
-                if($name = trim(strip_tags($temp)))
-                {
+                if($name = trim(strip_tags($temp))) {
                     $final[] = array('name' => $name);
                     return $final;
                 }
-                else
-                {
-                    echo "\nelix 333\n";
-                    
-                }
+                else echo "\nelix 333\n";
             }
         }
-        else
-        {
+        else {
             echo "\nelix 555\n";
             echo "\n$description\n";
             // wiki/User:Bewareofdog" title="en:User:Bewareofdog"
-            if(preg_match("/wiki\/User\:(.*?)\"/ims", $description, $a))
-            {
+            if(preg_match("/wiki\/User\:(.*?)\"/ims", $description, $a)) {
                 echo "\nelix 444\n";
                 $final[] = array('name' => $a[1], 'homepage' => "https://commons.wikimedia.org/wiki/User:".$a[1]);
                 // print_r($final); exit("\n$description\n");
@@ -1033,10 +991,8 @@ class WikiDataAPI
             }
             elseif(preg_match("/Fotograf oder Zeichner\:(.*?)Lizenzstatus/ims", $description, $a)) //Fotograf oder Zeichner: Goldlocki Lizenzstatus:
             {
-                if($val = trim($a[1]))
-                {
+                if($val = trim($a[1])) {
                     $final[] = array('name' => $val);
-                    // print_r($final); //exit("\n$description\n");
                     return $final;
                 }
             }
@@ -1068,7 +1024,6 @@ class WikiDataAPI
         */
         
         $wiki = str_ireplace("{{gardenology}}", "", $wiki); //e.g. Gardenology.org-IMG_2825_rbgs11jan.jpg
-        
         return $wiki;
     }
     
@@ -1238,8 +1193,7 @@ class WikiDataAPI
             */
             
             //start artist ====================
-            if($val = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Artist']['value']))
-            {
+            if($val = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Artist']['value'])) {
                 $atemp = array();
                 if(preg_match("/href=\"(.*?)\"/ims", $val, $a)) $atemp['homepage'] = trim($a[1]);
                 if(preg_match("/\">(.*?)<\/a>/ims", $val, $a)) $atemp['name'] = trim($a[1]);
@@ -1251,11 +1205,9 @@ class WikiDataAPI
             {
                 if($val = self::get_artist_from_special_source(@$arr['imageinfo'][0]['extmetadata']['Categories']['value'], $rek['title'])) $rek['Artist'][] = $val; 
             }
-            if(!@$rek['Artist'])
-            {
+            if(!@$rek['Artist']) {
                 if($val = @$arr['imageinfo'][0]['extmetadata']['Credit']['value']) $rek['Artist'][] = array('name' => strip_tags($val));
             }
-            
             //end artist ========================
             
             $rek['LicenseUrl']       = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['LicenseUrl']['value']);
@@ -1287,9 +1239,6 @@ class WikiDataAPI
         elseif(stripos($categories, "Files with no machine-readable author|Files with no machine-readable source") !== false) { //string is found
             return array('name' => "Wikimedia Commons", 'homepage' => $title, 'role' => 'recorder');
         }
-        
-        
-        
         return false;
     }
     private function get_title_from_ImageDescription($desc)
@@ -1483,10 +1432,8 @@ class WikiDataAPI
     private function get_taxon_parent($claims)
     {
         $parent = array();
-        if($id = (string) @$claims->P171[0]->mainsnak->datavalue->value->id)
-        {
+        if($id = (string) @$claims->P171[0]->mainsnak->datavalue->value->id) {
             $id = self::replace_id_if_redirected($id);
-
             $parent['id'] = $id;
             $parent['name'] = self::lookup_value($id);
             //start get rank
@@ -1527,11 +1474,9 @@ class WikiDataAPI
     
     private function lookup_value($id)
     {
-        if($obj = self::get_object($id))
-        {
+        if($obj = self::get_object($id)) {
             /* debug only
-            if($id == "Q27661141")
-            {
+            if($id == "Q27661141") {
                 print_r($obj); exit;
             }
             if(!isset($obj->entities->$id->labels->en->value)) //e.g. Q5614965 
@@ -1546,8 +1491,7 @@ class WikiDataAPI
     private function get_object($id)
     {
         $url = "https://www.wikidata.org/wiki/Special:EntityData/" . $id . ".json";
-        if($json = Functions::lookup_with_cache($url, $this->download_options))
-        {
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $obj = json_decode($json);
             return $obj;
         }
@@ -1615,16 +1559,14 @@ class WikiDataAPI
         */
         $main_path = "/Volumes/Thunderbolt4/wikimedia_cache/";
         $i = 0;
-        foreach(new FileIterator(CONTENT_RESOURCE_LOCAL_PATH."wikimedia_filenames_2017_10.txt") as $line_number => $file)
-        {
+        foreach(new FileIterator(CONTENT_RESOURCE_LOCAL_PATH."wikimedia_filenames_2017_10.txt") as $line_number => $file) {
             $md5 = md5($file);
             $cache1 = substr($md5, 0, 2);
             $cache2 = substr($md5, 2, 2);
             if(!file_exists($main_path . $cache1))           mkdir($main_path . $cache1);
             if(!file_exists($main_path . "$cache1/$cache2")) mkdir($main_path . "$cache1/$cache2");
             $filename = $main_path . "$cache1/$cache2/$md5.json";
-            if(!file_exists($filename))
-            {
+            if(!file_exists($filename)) {
                 echo "\n " . number_format($i) . " creating file: $file";
                 if($FILE = Functions::file_open($filename, 'w'))  fclose($FILE);
             }
@@ -1643,7 +1585,6 @@ class WikiDataAPI
             if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "page") {
                 $page_xml = $reader->readOuterXML();
                 $t = simplexml_load_string($page_xml, null, LIBXML_NOCDATA);
-
                 $title = $t->title;
                 // $title = "File:Two Gambel's Quail (Callipepla gambelii) - Paradise Valley, Arizona, ca 2004.png";
                 $title = str_replace("File:", "", $title);
@@ -1743,28 +1684,21 @@ class WikiDataAPI
         $reader = new \XMLReader();
         $reader->open($path);
         $i = 0;
-        while(@$reader->read())
-        {
-            if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "page")
-            {
+        while(@$reader->read()) {
+            if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "page") {
                 $page_xml = $reader->readOuterXML();
                 $t = simplexml_load_string($page_xml, null, LIBXML_NOCDATA);
-
                 $page_id = $t->id;
-                if($page_id == "47821")
-                {
+                if($page_id == "47821") {
                     print_r($t); exit("\nfound 47821\n");
                 }
                 echo "\n$page_id";
-                
                 $title = $t->title;
-                if(substr($title,0,5) == "File:")
-                {
+                if(substr($title,0,5) == "File:") {
                     print_r($t); 
                     exit("\n$page_xml\n");
                 }
-                if($title == "File:Abhandlungen aus dem Gebiete der Zoologie und vergleichenden Anatomie (1841) (16095238834).jpg")
-                {
+                if($title == "File:Abhandlungen aus dem Gebiete der Zoologie und vergleichenden Anatomie (1841) (16095238834).jpg") {
                     print_r($t); exit("\n111\n");
                 }
                 // $i++; if($i%100==0) debug("Parsed taxon $i");
@@ -1781,11 +1715,9 @@ class WikiDataAPI
     // }
     
     /* works but expensive
-    if($html = Functions::lookup_with_cache("https://commons.wikimedia.org/wiki/File:".str_replace(" ", "_", $file), $options))
-    {
+    if($html = Functions::lookup_with_cache("https://commons.wikimedia.org/wiki/File:".str_replace(" ", "_", $file), $options)) {
         //<a href="https://upload.wikimedia.org/wikipedia/commons/6/67/Western_Gorilla_area.png">
-        if(preg_match_all("/<a href=\"https:\/\/upload.wikimedia.org(.*?)\"/ims", $html, $arr))
-        {
+        if(preg_match_all("/<a href=\"https:\/\/upload.wikimedia.org(.*?)\"/ims", $html, $arr)) {
             $files2 = array_values(array_unique($arr[1]));
             $rek['media_url'] = "https://upload.wikimedia.org".$files2[0];
         }
@@ -1794,15 +1726,12 @@ class WikiDataAPI
     
     /*
     // for ImageDescription 1st option
-    if(preg_match("/== \{\{int:filedesc\}\} ==(.*?)\}\}\\\n/ims", $wiki, $a))
-    {
+    if(preg_match("/== \{\{int:filedesc\}\} ==(.*?)\}\}\\\n/ims", $wiki, $a)) {
         // echo "\n $a[1] \n";
-        if(preg_match_all("/\'\'\'(.*?)<br>/ims", $a[1], $a2))
-        {
+        if(preg_match_all("/\'\'\'(.*?)<br>/ims", $a[1], $a2)) {
             $tmp = $a2[1];
             $i = 0;
-            foreach($tmp as $t)
-            {
+            foreach($tmp as $t) {
                 $t = str_replace("'", "", $t); $tmp[$i] = $t;
                 if(stripos($t, "view book online") !== false) $tmp[$i] = null; //string is found
                 if(stripos($t, "Text Appearing") !== false) $tmp[$i] = null; //string is found
@@ -1812,8 +1741,7 @@ class WikiDataAPI
             }
             $tmp = array_filter($tmp);
             $i = 0;
-            foreach($tmp as $t)
-            {
+            foreach($tmp as $t) {
                 $tmp[$i] = self::wiki2html($t);
                 $i++;
             }
@@ -1822,11 +1750,9 @@ class WikiDataAPI
         
         //cases where ImageDescription is still blank
         // if($rek['pageid'] == "52428898")
-        if(true)
-        {
+        if(true) {
             //e.g. [pageid] => 52428898
-            if(!@$rek['ImageDescription'])
-            {
+            if(!@$rek['ImageDescription']) {
                 if(preg_match("/\|Description=\{\{(.*?)\}\}/ims", $a[1]. "}}", $a2)) //2nd option
                 {
                     $temp = $a2[1];
@@ -1834,19 +1760,16 @@ class WikiDataAPI
                     $rek['ImageDescription'] = $arr[1];
                     if($rek['ImageDescription']) {}
                     elseif($rek['ImageDescription'] = $temp) {}
-                    else
-                    {
+                    else {
                         // print_r($arr);
                         exit("\n $a[1] - investigate desc 111");
                     }
                 }
-                elseif($rek['ImageDescription'] = self::last_chance_for_description($wiki))
-                {
+                elseif($rek['ImageDescription'] = self::last_chance_for_description($wiki)) {
                     // print_r($rek);
                     // exit("\nstop muna 222\n");
                 }
-                else
-                {
+                else {
                     print("\n $wiki -->> investigate no ImageDescription 222\n");
                     return false;
                 }
@@ -1867,14 +1790,11 @@ class WikiDataAPI
         print_r($rek);
         // exit("\nstop muna\n");
     }
-    else 
-    {
+    else {
         print("\ninvestigate no ImageDescription 111\n");
         return false; // use API instead
     }
     */
-    
-    
 
 }
 ?>
