@@ -59,24 +59,17 @@ class WikiDataAPI
         exit; 
         */
         
-        // /* testing
+        /* testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
-        // $arr = self::process_file("Rubus_parviflorus_3742.JPG");
-        // $arr = self::process_file("Circle_Square_Ranch_Town_Hall_-_panoramio_(1).jpg");
-        // $arr = self::process_file("(1)Cormorant_Centennial_Park-1.jpg");
-        // $arr = self::process_file("Apis_mellifera_carnica_worker_hive_entrance_3.jpg");
-        // $arr = self::process_file("Gardenology.org-IMG_2825_rbgs11jan.jpg");
         // $arr = self::process_file("The_marine_mammals_of_the_north-western_coast_of_North_America,_described_and_illustrated;_together_with_an_account_of_the_American_whale-fishery_(1874)_(14598304727).jpg");
-        /*
-        file in question ---
-        File:Spinochordodes_in_Meconema.jpg
-        */
+        // file in question ---
+        // File:Spinochordodes_in_Meconema.jpg
         
-        $arr = self::process_file("Spinochordodes_in_Meconema.jpg");
+        $arr = self::process_file("Corvus_monedula_on_grass.jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
-        // */
+        */
         
         if(!@$this->trans['editors'][$this->language_code]) 
         {
@@ -232,7 +225,7 @@ class WikiDataAPI
             // if($k >= 601476 && $k < $m*5) $cont = true; // sv
             // if($k >= 1154430 && $k < $m*5) $cont = true; // vi
 
-            if($k >= 5000 && $k < 15000) $cont = true;   //wikimedia total taxa = 2,208,086
+            if($k >= 100000 && $k < 500000) $cont = true;   //wikimedia total taxa = 2,208,086
             if(!$cont) continue;
             // */
 
@@ -512,6 +505,18 @@ class WikiDataAPI
             if($LicenseShortName == "Dead link") return "invalid"; //exact match
             if(stripos($LicenseShortName, "Hans is short for Johan") !== false) return "http://creativecommons.org/licenses/publicdomain/";
             if(stripos($LicenseShortName, "user=Ww2censor") !== false) return "http://creativecommons.org/licenses/publicdomain/"; //[LicenseReview|site=http://biodiversitylibrary.org/page/43064802#page/440/mode/1up|user=Ww2censor|date=2015-09-04] => 
+            if($LicenseShortName == "insignia") return "invalid"; //exact match
+            if(stripos($LicenseShortName, "GNU|") !== false) return "invalid"; //[GNU|month=December|day=2|year=2008|migration=review] => 
+            if(stripos($LicenseShortName, "User:Fir0002") !== false) return "invalid"; //[User:Fir0002/20D|migration=relicense] => 
+            if(stripos($LicenseShortName, "Flickrreview|Lewis Hulbert") !== false) return "invalid"; //[Flickrreview|Lewis Hulbert|2014-10-25] => 
+
+/*
+[blank_license] => Array
+    (
+        
+        
+    )
+*/            
 
             //last resort
             $this->debug['blank_license'][$LicenseShortName] = ''; //utility debug - important
@@ -815,9 +820,6 @@ class WikiDataAPI
         //================================================================ Artist
         $rek['Artist'] = trim(@$rek['other']['author']);
         if(!$rek['Artist']) {
-            // echo "\n==============investigate start\n";
-            // print_r($rek);
-            // echo "\n==============investigate end\n";
             $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']); //get_media_metadata_from_json()
             echo "\nelix went here\n";
         }
@@ -942,7 +944,7 @@ class WikiDataAPI
         $rek['fromx'] = 'dump';
         
         /*good debug for Artist dump
-        if($rek['pageid'] == "497766")
+        if($rek['pageid'] == "31000135")
         {
             echo "\n=================investigate dump data===========start\n";
             print_r($dump_arr);
@@ -1148,7 +1150,6 @@ class WikiDataAPI
         // return Functions::remove_whitespace($html);
     }
     
-    
     /*
     private function last_chance_for_description($str)
     {
@@ -1189,7 +1190,7 @@ class WikiDataAPI
         $options['expire_seconds'] = false; //this can be 2 months
         if($json = Functions::lookup_with_cache("https://commons.wikimedia.org/w/api.php?format=json&action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:".$file, $options))
         {
-            // $json = self::clean_html($json); //new ditox eli
+            $json = self::clean_html($json); //new ditox eli
             $arr = json_decode($json, true);
             // print_r($arr); //exit;
 
