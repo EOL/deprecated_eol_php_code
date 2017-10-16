@@ -107,16 +107,14 @@ class WikiDataAPI
         print_r($this->debug); //exit;
         echo "\n----222";
         
-        
+        //write to file $this->debug contents
         $f = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/wikimedia_debug.txt", "w");
         $index = array_keys($this->debug);
         foreach($index as $i) {
             fwrite($f, "\n$i ---"."\n");
-            foreach($this->debug[$i] as $row) fwrite($f, "$row"."\n");
+            foreach(array_keys($this->debug[$i]) as $row) fwrite($f, "$row"."\n");
         }
         fclose($f);
-        
-        
         
     }
 
