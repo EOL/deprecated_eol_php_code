@@ -59,7 +59,7 @@ class WikiDataAPI
         exit; 
         */
         
-        // /*testing
+        /* testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // $arr = self::process_file("Rubus_parviflorus_3742.JPG");
@@ -68,11 +68,14 @@ class WikiDataAPI
         // $arr = self::process_file("Apis_mellifera_carnica_worker_hive_entrance_3.jpg");
         // $arr = self::process_file("Gardenology.org-IMG_2825_rbgs11jan.jpg");
         // $arr = self::process_file("The_marine_mammals_of_the_north-western_coast_of_North_America,_described_and_illustrated;_together_with_an_account_of_the_American_whale-fishery_(1874)_(14598304727).jpg");
-        
-        $arr = self::process_file("Black_coyodog.jpg");
+         [file in question] => Array (
+                [File:Canis_simensis_Bale_Mountains_National_Park_1] => 
+                [File:Canis_simensis_Bale_Mountains_National_Park_10] => 
+            )
+        $arr = self::process_file("Canis_simensis_Bale_Mountains_National_Park_6.jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
-        // */
+        */
         
         if(!@$this->trans['editors'][$this->language_code]) 
         {
@@ -212,7 +215,7 @@ class WikiDataAPI
             $k++; 
             if(($k % 100000) == 0) echo " ".number_format($k)." ";
             echo " ".number_format($k)." ";
-            /* breakdown when caching:
+            // /* breakdown when caching:
             $cont = false;
             
             // if($k >=  1    && $k < $m) $cont = true; done
@@ -230,10 +233,10 @@ class WikiDataAPI
             // if($k >= 601476 && $k < $m*5) $cont = true; // sv
             // if($k >= 1154430 && $k < $m*5) $cont = true; // vi
 
-            if($k >= 1 && $k < 10) $cont = true;   //wikimedia total taxa = 2,208,086
+            if($k >= 5000 && $k < 15000) $cont = true;   //wikimedia total taxa = 2,208,086
 
             if(!$cont) continue;
-            */
+            // */
 
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
@@ -318,7 +321,7 @@ class WikiDataAPI
                 else exit("\n --not ok-- \n");
                 
                 // break; //debug get first taxon wiki only
-                if($k > 5000) break; //10000
+                // if($k > 5000) break; //10000
                 
                 
             } //end of taxon wiki
@@ -414,6 +417,8 @@ class WikiDataAPI
     
     private function format_license($license, $LicenseShortName)
     {
+        $license          = self::clean_html($license);
+        $LicenseShortName = self::clean_html($LicenseShortName);
         //regular EOL licenses
         if(stripos($license, "creativecommons.org/licenses/publicdomain/") !== false)   return "http://creativecommons.org/licenses/publicdomain/";
         if(stripos($license, "creativecommons.org/licenses/by/") !== false)             return "http://creativecommons.org/licenses/by/3.0/";
@@ -457,8 +462,9 @@ class WikiDataAPI
                 if(substr($shortname,0,12) == "cc-by-nc-sa-") return "http://creativecommons.org/licenses/by-nc-sa/3.0/";
                 if(stripos($shortname, "self|own-pd") !== false) return "http://creativecommons.org/licenses/publicdomain/";
                 if(stripos($shortname, "no known copyright restriction") !== false) return "No known copyright restrictions";
-                if(stripos($shortname, "BHL-no known restrictions") !== false) return "No known copyright restrictions";
+                if(stripos($shortname, "BHL-no known restriction") !== false) return "No known copyright restrictions";
             }
+            
             
             //should be invalid per Jen
             if(!$LicenseShortName) return "invalid";
@@ -480,6 +486,19 @@ class WikiDataAPI
                 if($exact == $LicenseShortName) return "invalid";
             }
             // [Information|Description=en|1=An illustration of the Saxaul Sparrow (''Passer ammondendri'', called the "Turkestan Sparrow" in the book the illustration was published in)]
+            
+            //added Oct 16, 2017
+            if(stripos($LicenseShortName, "Permission= publiek domein") !== false) return "http://creativecommons.org/licenses/publicdomain/";
+            if(stripos($LicenseShortName, " PD-old") !== false) return "http://creativecommons.org/licenses/publicdomain/"; //"# PD-old"
+            if(stripos($LicenseShortName, " PD-US") !== false) return "http://creativecommons.org/licenses/publicdomain/"; //"<!-- PD-US"
+            if(stripos($LicenseShortName, "Brooklyn_Museum-no_known_restriction") !== false) return "No known copyright restrictions"; //"Brooklyn_Museum-no_known_restrictions"
+            if(stripos($LicenseShortName, "CDC-PHIL|") !== false) return "http://creativecommons.org/licenses/publicdomain/"; //"CDC-PHIL|id=2741"
+            if(stripos($LicenseShortName, "Massel_tow_Credit") !== false) return "invalid"; //"Template:Massel_tow_Credit"
+            if(stripos($LicenseShortName, "Blacknclick") !== false) return "invalid"; //[User:Blacknclick/Permission]
+            if($LicenseShortName == "FWS") return "http://creativecommons.org/licenses/publicdomain/"; //exact match
+            if($LicenseShortName == "FCO") return "invalid"; //exact match --- invalid coz OGL something...
+            if(stripos($LicenseShortName, "OGL|") !== false) return "invalid"; //[OGL|1=Photo: MoD/MOD] --- invalid coz OGL
+
             
             //last resort
             $this->debug['blank_license'][$LicenseShortName] = ''; //utility debug - important
@@ -556,7 +575,7 @@ class WikiDataAPI
                 
                 if(!$media['format'])
                 {
-                    $this->debug['undefined ext'][pathinfo($com['media_url'], PATHINFO_EXTENSION)] = '';
+                    $this->debug['undefined media ext. excluded'][pathinfo($com['media_url'], PATHINFO_EXTENSION)] = '';
                     continue;
                 }
                 $media['type']                   = Functions::get_datatype_given_mimetype($media['format']);
@@ -579,7 +598,7 @@ class WikiDataAPI
                     echo "\n-------start investigate--------Undefined index: agentID---\n";
                     print_r($com);
                     print_r($media);
-                    $this->debug['file in question'][pathinfo($media['furtherInformationURL'], PATHINFO_FILENAME)] = '';
+                    $this->debug['file in question'][pathinfo($media['furtherInformationURL'], PATHINFO_BASENAME)] = '';
                     // exit("\nUndefined index: agentID --------------------\n");
                 }
                 
@@ -829,7 +848,24 @@ class WikiDataAPI
         else 
         {
             echo "\nartist is STRING: ".$rek['Artist']."\n";
-            if(substr($rek['Artist'],0,5) == "[http") { //[https://sites.google.com/site/thebrockeninglory/ Brocken Inaglory]
+            
+            /* //new first option
+                [revision] => Array
+                    (
+                        [id] => 178748754
+                        [parentid] => 139462069
+                        [timestamp] => 2015-11-10T22:44:04Z
+                        [contributor] => Array
+                            (
+                                [username] => Mariomassone
+                                [id] => 412814
+            */
+            if($val = @$dump_arr['revision']['contributor']['username']) {
+                unset($rek['Artist']);
+                $rek['Artist'][] = array('name' => $val, 'homepage' => "https://commons.wikimedia.org/wiki/User:".$val, 'role' => 'contributor');
+            }
+            
+            elseif(substr($rek['Artist'],0,5) == "[http") { //[https://sites.google.com/site/thebrockeninglory/ Brocken Inaglory]
                 $tmp_arr = explode(" ", $rek['Artist']);
                 unset($rek['Artist']);
                 $temp = array();
@@ -846,8 +882,29 @@ class WikiDataAPI
                 //start special
                 if(!$temp['name'] && $temp['homepage'] == "https://www.flickr.com/photos/hdport/") $temp['name'] = "Hunter Desportes";
                 //end special
+                
+                if($temp['name']) $rek['Artist'][] = $temp;
+                
+                //start another special 
+                /*[other] => Array (
+                         [date] => 2009-03-13
+                         [author] => [https://www.flickr.com/photos/sempivirens/]
+                         [source] => [https://www.flickr.com/photos/sempivirens/3355235281]
+                         [permission] => {{User:FlickreviewR/reviewed-pass-change|Sequoia Hughes|http://flickr.com/photos/29225241@N04/3355235281|2015-01-23 19:50:34|cc-by-2.0|cc-by-sa-2.0}}
+                computed homepage is "https://www.flickr.com/photos/sempivirens/" but blank name */
+                // print_r($rek['other']); exit;
+                if(preg_match("/User\:(.*?)\//ims", $rek['other']['permission'], $a)) {
+                    $rek['Artist'][] = array('name' => $a[1], 'homepage' => "https://commons.wikimedia.org/wiki/User:".$a[1], 'role' => 'contributor');
+                }
+                //end another special
+                
+                //start another special 
+                /* [LicenseShortName] => User:FlickreviewR/reviewed-pass|Jon David Nelson|https://flickr.com/photos/65771669@N07/15115751721|2015-12-01 12:50:33|cc-by-2.0| */
+                if(preg_match("/User\:(.*?)\//ims", $rek['LicenseShortName'], $a)) {
+                    $rek['Artist'][] = array('name' => $a[1], 'homepage' => "https://commons.wikimedia.org/wiki/User:".$a[1], 'role' => 'contributor');
+                }
+                //end another special 
 
-                if($temp) $rek['Artist'][] = $temp;
             }
             /* this is covered in elseif() below this
             elseif(substr($rek['Artist'],0,7) == "[[User:") //[[User:Tomascastelazo|Tomas Castelazo]]
@@ -893,8 +950,8 @@ class WikiDataAPI
         //================================================================ END
         $rek['fromx'] = 'dump';
         
-        // /*good debug for Artist dump
-        if($rek['pageid'] == "46388906")
+        /*good debug for Artist dump
+        if($rek['pageid'] == "36758386")
         {
             echo "\n=================investigate dump data===========start\n";
             print_r($dump_arr);
@@ -902,7 +959,7 @@ class WikiDataAPI
             echo "\n=================investigate dump data===========end\n";
             exit("\nwait..investigate here...\n");
         }
-        // */
+        */
         return $rek;
     }
     private function second_option_for_artist_info($arr)
