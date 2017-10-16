@@ -59,7 +59,7 @@ class WikiDataAPI
         exit; 
         */
         
-        /* testing
+        // /* testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // $arr = self::process_file("Rubus_parviflorus_3742.JPG");
@@ -68,14 +68,15 @@ class WikiDataAPI
         // $arr = self::process_file("Apis_mellifera_carnica_worker_hive_entrance_3.jpg");
         // $arr = self::process_file("Gardenology.org-IMG_2825_rbgs11jan.jpg");
         // $arr = self::process_file("The_marine_mammals_of_the_north-western_coast_of_North_America,_described_and_illustrated;_together_with_an_account_of_the_American_whale-fishery_(1874)_(14598304727).jpg");
-         [file in question] => Array (
-                [File:Canis_simensis_Bale_Mountains_National_Park_1] => 
-                [File:Canis_simensis_Bale_Mountains_National_Park_10] => 
-            )
-        $arr = self::process_file("Canis_simensis_Bale_Mountains_National_Park_6.jpg");
+        /*
+        file in question ---
+        File:Spinochordodes_in_Meconema.jpg
+        */
+        
+        $arr = self::process_file("Spinochordodes_in_Meconema.jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
-        */
+        // */
         
         if(!@$this->trans['editors'][$this->language_code]) 
         {
@@ -432,6 +433,8 @@ class WikiDataAPI
         "www.gnu.org/licenses/fdl-1.3.html", "http://artlibre.org/licence/lal/en");
         if(in_array($license, $proven_invalid_licenseurl)) return "invalid";
         
+        // added Oct 16, 2017
+        if(stripos($license, "nationalarchives.gov.uk/doc/open-government-licence") !== false) return "invalid"; //"http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3"
 
         //blank license
         if(!$license) {
@@ -482,6 +485,7 @@ class WikiDataAPI
             if(stripos($LicenseShortName, "Permission= publiek domein") !== false) return "http://creativecommons.org/licenses/publicdomain/";
             if(stripos($LicenseShortName, " PD-old") !== false) return "http://creativecommons.org/licenses/publicdomain/"; //"# PD-old"
             if(stripos($LicenseShortName, " PD-US") !== false) return "http://creativecommons.org/licenses/publicdomain/"; //"<!-- PD-US"
+            if(stripos($LicenseShortName, "Template:PD-") !== false) return "http://creativecommons.org/licenses/publicdomain/"; //    [Template:PD-Australia] => 
             if(stripos($LicenseShortName, "Brooklyn_Museum-no_known_restriction") !== false) return "No known copyright restrictions"; //"Brooklyn_Museum-no_known_restrictions"
             if(stripos($LicenseShortName, "CDC-PHIL|") !== false) return "http://creativecommons.org/licenses/publicdomain/"; //"CDC-PHIL|id=2741"
             if(stripos($LicenseShortName, "Massel_tow_Credit") !== false) return "invalid"; //"Template:Massel_tow_Credit"
@@ -489,6 +493,25 @@ class WikiDataAPI
             if($LicenseShortName == "FWS") return "http://creativecommons.org/licenses/publicdomain/"; //exact match
             if($LicenseShortName == "FCO") return "invalid"; //exact match --- invalid coz OGL something...
             if(stripos($LicenseShortName, "OGL|") !== false) return "invalid"; //[OGL|1=Photo: MoD/MOD] --- invalid coz OGL
+            if($LicenseShortName == "OGL") return "invalid"; //exact match
+            if(stripos($LicenseShortName, "KOGL-") !== false) return "invalid"; //[KOGL-type1]
+            if($LicenseShortName == "PAOC") return "invalid"; //exact match
+            if($LicenseShortName == "LGPL") return "invalid"; //exact match
+            if($LicenseShortName == "LarsenCopyright") return "invalid"; //exact match
+            if($LicenseShortName == "Attribution Entomart") return "invalid"; //exact match
+            if(stripos($LicenseShortName, "CC-BY-2.0 stated") !== false) return "http://creativecommons.org/licenses/by/3.0/"; //[(photo: CC-BY-2.0 stated)PD-US] => 
+            if($LicenseShortName == "Flickr-Brooklyn-Museum-image") return "http://creativecommons.org/licenses/by-sa/3.0/"; //exact match
+            if(stripos($LicenseShortName, "license=GPL") !== false) return "invalid"; //[Free screenshot|license=GPL] => 
+            if(stripos($LicenseShortName, "Jim Deacon") !== false) return "invalid"; //[=From the website of the author:"IMPORTANT: COPYRIGHT WAIVERAll of the author's images are shown as [© Jim Deacon]. They can be used freely, for any purpose, without restriction.Please ACKNOWLEDGE THE SOURCE AS: Courtesy of Jim Deacon, The University of Edinburg" http://helios.bto.ed.ac.uk/bto/FungalBiology/index.htm#top== int:license-header] => 
+            if($LicenseShortName == "NOAA") return "http://creativecommons.org/licenses/publicdomain/"; //exact match
+            if($LicenseShortName == "anonymous-EU") return "http://creativecommons.org/licenses/publicdomain/"; //exact match
+            if($LicenseShortName == "AerialPhotograph-mlitJP") return "invalid"; //exact match
+            if(stripos($LicenseShortName, "flickrreview|Leoboudv|") !== false) return "http://creativecommons.org/licenses/by-sa/3.0/"; //[flickrreview|Leoboudv|2014-10-26] => 
+            if(stripos($LicenseShortName, "authored by [[User:Arp|Arp]]") !== false) return "http://creativecommons.org/licenses/by/3.0/"; //[This image is authored by [[User:Arp|Arp]]. It was uploaded to waarneming.nl and later copied to commons at a time that waarneming.nl did not yet properly support the only ''really'' free and unhampered license (CC0 Public Domain dedication) preferred by the author, so it was originally uploaded (here) as CC-BY, but it's '''not''' limited in it's use for remixing by that hampered license scheme. It is in fact available as: cc0] => 
+            if(stripos($LicenseShortName, "user:Anonymous101") !== false) return "http://creativecommons.org/licenses/publicdomain/"; //[user:Anonymous101/template] => 
+            if($LicenseShortName == "Dead link") return "invalid"; //exact match
+            if(stripos($LicenseShortName, "Hans is short for Johan") !== false) return "http://creativecommons.org/licenses/publicdomain/";
+            if(stripos($LicenseShortName, "user=Ww2censor") !== false) return "http://creativecommons.org/licenses/publicdomain/"; //[LicenseReview|site=http://biodiversitylibrary.org/page/43064802#page/440/mode/1up|user=Ww2censor|date=2015-09-04] => 
 
             //last resort
             $this->debug['blank_license'][$LicenseShortName] = ''; //utility debug - important
@@ -799,9 +822,11 @@ class WikiDataAPI
             echo "\nelix went here\n";
         }
         if(!$rek['Artist']) {
+            echo "\nelix went here 111\n";
             if($val = self::second_option_for_artist_info($dump_arr)) $rek['Artist'][] = $val;
         }
         if(!$rek['Artist']) {
+            echo "\nelix went here 222\n";
             if($val = self::get_artist_from_special_source($wiki, '')) $rek['Artist'][] = $val; 
         }
         
@@ -814,7 +839,7 @@ class WikiDataAPI
             // $rek['Artist'] = $rek['Artist'][0]['name']; -- don't do this... should remain as array()
         }
         else {
-            echo "\nartist is STRING: ".$rek['Artist']."\n";
+            echo "\nartist is STRING: [".$rek['Artist']."]\n";
             
             /* //new first option
                 [revision] => Array
@@ -917,7 +942,7 @@ class WikiDataAPI
         $rek['fromx'] = 'dump';
         
         /*good debug for Artist dump
-        if($rek['pageid'] == "36758386")
+        if($rek['pageid'] == "497766")
         {
             echo "\n=================investigate dump data===========start\n";
             print_r($dump_arr);
@@ -1118,7 +1143,7 @@ class WikiDataAPI
     }
     private function clean_html($html)
     {
-        $html = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\11", "\011"), "", trim($html));
+        $html = str_ireplace(array(" |	", "\n", "\r", "\t", "\o", "\xOB", "\11", "\011"), "", trim($html));
         return $html;
         // return Functions::remove_whitespace($html);
     }
@@ -1164,6 +1189,7 @@ class WikiDataAPI
         $options['expire_seconds'] = false; //this can be 2 months
         if($json = Functions::lookup_with_cache("https://commons.wikimedia.org/w/api.php?format=json&action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:".$file, $options))
         {
+            // $json = self::clean_html($json); //new ditox eli
             $arr = json_decode($json, true);
             // print_r($arr); //exit;
 
@@ -1239,7 +1265,31 @@ class WikiDataAPI
         elseif(stripos($categories, "Files with no machine-readable author|Files with no machine-readable source") !== false) { //string is found
             return array('name' => "Wikimedia Commons", 'homepage' => $title, 'role' => 'recorder');
         }
+        if(preg_match("/Photographer\:(.*?)\\n/ims", $categories, $a)) { //Photographer: Richard Ling <wikipedia@rling.com>
+            return array('name' => trim($a[1]), 'homepage' => $title, 'role' => 'photographer');
+        }
+        if(preg_match("/Uploader\:(.*?)\\n/ims", $categories, $a)) { //Uploader: [[user:de:Necrophorus|Necrophorus]] 15:30, 8. Sep 2004 (CEST)
+            $str = trim($a[1]);
+            if($arr = self::parse_str_with_User_enclosed_in_brackets($str)) return $arr;
+            else return array('name' => $str, 'homepage' => $title, 'role' => 'contributor');
+        }
         return false;
+    }
+    private function parse_str_with_User_enclosed_in_brackets($str)
+    {
+        if(stripos($str, "[[User:") !== false && stripos($str, "]]") !== false) //string is found //e.g. *Original: [[User:Chiswick Chap|Chiswick Chap]]
+        {
+            if(preg_match("/\[\[(.*?)\]\]/ims", $str, $a))
+            {
+                $tmp_arr = explode("|", $a[1]); //"[[User:Tomascastelazo|Tomas Castelazo]]" "*Original: [[User:Chiswick Chap|Chiswick Chap]]"
+                if($name = @$tmp_arr[1]) return array('name' => $name, 'homepage' => "https://commons.wikimedia.org/wiki/".$tmp_arr[0]);
+                else //"[[User:Victuallers]]"
+                {
+                    $user = str_ireplace("User:", "", $a[1]);
+                    return array('name' => $user, 'homepage' => "https://commons.wikimedia.org/wiki/User:".$user);
+                }
+            }
+        }
     }
     private function get_title_from_ImageDescription($desc)
     {
