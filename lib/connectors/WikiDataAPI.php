@@ -876,8 +876,7 @@ class WikiDataAPI
         
         // /* ================================ new Oct 7, 2017 -- comment it first...
         if(is_array($rek['Artist'])) {
-            echo "\nartist is ARRAY()";
-            print_r($rek['Artist']);
+            // echo "\nartist is ARRAY()"; print_r($rek['Artist']); //debug only
         }
         else {
             echo "\nartist is STRING: [".$rek['Artist']."]\n";
@@ -973,8 +972,12 @@ class WikiDataAPI
                 $rek['Artist'][] = array('name' => $name);
             }
             // else exit("\nInvestiage this artist string\n");
-            echo "\nartist is now also ARRAY()\n";
-            print_r($rek['Artist']);            
+            
+            if(is_array($rek['Artist'])) {
+                // echo "\nartist is now also ARRAY()\n"; print_r($rek['Artist']);
+            }
+            else echo "\nSTILL not an array...investigate...\n";
+            
         }
         // ================================ */
         
