@@ -203,7 +203,7 @@ class WikiDataAPI
 
     private function parse_wiki_data_json()
     {
-        $exit_now = false;
+        $exit_now = false; //only used during debug
         
         $actual = 0;
         $i = 0; $j = 0;
@@ -212,7 +212,7 @@ class WikiDataAPI
             $k++; 
             if(($k % 100000) == 0) echo " ".number_format($k)." ";
             echo " ".number_format($k)." ";
-            /* breakdown when caching:
+            // /* breakdown when caching:
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true; done
             // if($k >=  $m   && $k < $m*2) $cont = true; done
@@ -229,9 +229,9 @@ class WikiDataAPI
             // if($k >= 601476 && $k < $m*5) $cont = true; // sv
             // if($k >= 1154430 && $k < $m*5) $cont = true; // vi
 
-            if($k >= 500000 && $k < 2000000) $cont = true;   //wikimedia total taxa = 2,208,086
+            if($k >= 1 && $k < 500000) $cont = true;   //wikimedia total taxa = 2,208,086
             if(!$cont) continue;
-            */
+            // */
 
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
@@ -269,7 +269,7 @@ class WikiDataAPI
                                  if($url = @$rek['com_category'])   $rek['obj_category'] = self::get_commons_info($url);
                                  if($url = @$rek['com_gallery'])    $rek['obj_gallery'] = self::get_commons_info($url);
                                  
-                                 // /* eli's debug
+                                 /* eli's debug
                                  if($a = @$rek['obj_category']) {}//print_r($a);
                                  if($b = @$rek['obj_gallery']) {}//print_r($b);
                                  if($a || $b)
@@ -278,7 +278,7 @@ class WikiDataAPI
                                      $exit_now = true;
                                      // exit("\nmeron commons\n");
                                  }
-                                 // */ //eli's debug end
+                                 */ //eli's debug end
                              }
                              
                              if($rek['taxon_id']) {
@@ -315,11 +315,11 @@ class WikiDataAPI
                 
                 // break; //debug get first taxon wiki only
                 // if($k > 5000) break; //10000
-                if($exit_now) break;
+                // if($exit_now) break;
                 
             } //end of taxon wiki
             else $j++; //non-taxon wiki
-            if($exit_now) break;
+            // if($exit_now) break;
             
         } //main loop
         echo "\ntotal taxon wikis = [$i]\n";
@@ -711,11 +711,11 @@ class WikiDataAPI
                     $rek = self::process_file($file);
                     if($rek == "continue") continue;
                     
-                    // /* debug only
+                    /* debug only
                     $rek = self::process_file("FUM-5-diptera.jpg");
                     $final[] = $rek;
                     break; //debug
-                    // */
+                    */
                     
                     // print_r($rek); //exit;
                     
