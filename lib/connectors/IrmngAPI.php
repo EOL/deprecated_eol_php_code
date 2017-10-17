@@ -248,7 +248,7 @@ class IrmngAPI
         if($rec["TAXONID"] != $rec["ACCEPTEDNAMEUSAGEID"]) $taxon->acceptedNameUsageID = $rec["ACCEPTEDNAMEUSAGEID"];
         
         //new requirement from DATA-1710: only accept synonyms that are mapped to accepted names that have the same rank as the synonym.
-        if($taxon->taxonomicStatus == 'synonym' && $val = $taxon->acceptedNameUsageID) //meaning it is a synonym
+        if($taxon->taxonomicStatus == 'synonym' && $val = @$taxon->acceptedNameUsageID) //meaning it is a synonym
         {
             //the synonym's rank must be == to the accepted name's rank
             if($this->list_of_taxon_ids[$taxon->taxonID] == $this->list_of_taxon_ids[$val]) {}
