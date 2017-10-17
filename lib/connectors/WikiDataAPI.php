@@ -51,6 +51,13 @@ class WikiDataAPI
         $this->save_all_filenames = false; //use to save all media filenames to text file; normal operation is false; => not being used since a lookup is still needed
         
         $this->license['public domain'] = "http://creativecommons.org/licenses/publicdomain/";
+        $this->license['by'] = "http://creativecommons.org/licenses/by/3.0/";
+        $this->license['by-nc'] = "http://creativecommons.org/licenses/by-nc/3.0/";
+        $this->license['by-sa'] = "http://creativecommons.org/licenses/by-sa/3.0/";
+        $this->license['by-nc-sa'] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+        $this->license['no restrictions'] = "No known copyright restrictions";
+        
+        
     }
 
     function get_all_taxa()
@@ -415,17 +422,17 @@ class WikiDataAPI
         $LicenseShortName = self::clean_html($LicenseShortName);
         //regular EOL licenses
         if(stripos($license, "creativecommons.org/licenses/publicdomain/") !== false)   return $this->license['public domain'];
-        if(stripos($license, "creativecommons.org/licenses/by/") !== false)             return "http://creativecommons.org/licenses/by/3.0/";
-        if(stripos($license, "http://creativecommons.org/licenses/by-nc/") !== false)   return "http://creativecommons.org/licenses/by-nc/3.0/";
-        if(stripos($license, "creativecommons.org/licenses/by-sa/") !== false)          return "http://creativecommons.org/licenses/by-sa/3.0/";
-        if(stripos($license, "creativecommons.org/licenses/by-nc-sa/") !== false)       return "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+        if(stripos($license, "creativecommons.org/licenses/by/") !== false)             return $this->license['by'];
+        if(stripos($license, "http://creativecommons.org/licenses/by-nc/") !== false)   return $this->license['by-nc'];
+        if(stripos($license, "creativecommons.org/licenses/by-sa/") !== false)          return $this->license['by-sa'];
+        if(stripos($license, "creativecommons.org/licenses/by-nc-sa/") !== false)       return $this->license['by-nc-sa'];
 
         //others...
         if(stripos($license, "creativecommons.org/publicdomain/") !== false) return $this->license['public domain'];
-        if(stripos($license, "creativecommons.org/licenses/sa/") !== false)  return "http://creativecommons.org/licenses/by-sa/3.0/"; //[http://creativecommons.org/licenses/sa/1.0/]
-        if($license == "http://creativecommons.org/licenses/by")             return "http://creativecommons.org/licenses/by/3.0/"; //exact match
+        if(stripos($license, "creativecommons.org/licenses/sa/") !== false)  return $this->license['by-sa']; //[http://creativecommons.org/licenses/sa/1.0/]
+        if($license == "http://creativecommons.org/licenses/by")             return $this->license['by']; //exact match
         if($license == "https://www.flickr.com/commons/usage/")              return $this->license['public domain']; //exact match
-        if(urldecode($license) == "http://biodivlib.wikispaces.com/Permissions#Content provided under Due Diligence") return "No known copyright restrictions"; //exact match
+        if(urldecode($license) == "http://biodivlib.wikispaces.com/Permissions#Content provided under Due Diligence") return $this->license['no restrictions']; //exact match
         if($license == "http://wiki.data.gouv.fr/wiki/Licence_Ouverte_/_Open_Licence") return $this->license['public domain']; //exact match
 
         //should be invalid per Jen:
@@ -448,18 +455,18 @@ class WikiDataAPI
                 if(in_array($shortname, array("cc-zero", "cc0", "cc-0"))) return $this->license['public domain'];
                 if(substr($shortname,0,3) == "pd-")                       return $this->license['public domain']; //"PD-self" "PD-author" "pd-???" etc.
                 if(stripos($shortname, "bild-pd") !== false)                        return $this->license['public domain'];
-                if($shortname == "attribution")                              return "http://creativecommons.org/licenses/by/3.0/";
+                if($shortname == "attribution")                              return $this->license['by'];
                 if(substr($shortname,0,14) == strtolower("public domain "))  return $this->license['public domain']; // e.g. "Public Domain Mark"
                 if(substr($shortname,0,3) == strtolower("pd/"))  return $this->license['public domain']; // e.g. "Pd/1923|1982"
-                if($shortname == strtolower("FlickrVerifiedByUploadWizard")) return "http://creativecommons.org/licenses/by/3.0/";
+                if($shortname == strtolower("FlickrVerifiedByUploadWizard")) return $this->license['by'];
 
-                if(substr($shortname,0,6) == "cc-by-")        return "http://creativecommons.org/licenses/by/3.0/";
-                if(substr($shortname,0,9) == "cc-by-nc-")     return "http://creativecommons.org/licenses/by-nc/3.0/";
-                if(substr($shortname,0,9) == "cc-by-sa-")     return "http://creativecommons.org/licenses/by-sa/3.0/";
-                if(substr($shortname,0,12) == "cc-by-nc-sa-") return "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+                if(substr($shortname,0,6) == "cc-by-")        return $this->license['by'];
+                if(substr($shortname,0,9) == "cc-by-nc-")     return $this->license['by-nc'];
+                if(substr($shortname,0,9) == "cc-by-sa-")     return $this->license['by-sa'];
+                if(substr($shortname,0,12) == "cc-by-nc-sa-") return $this->license['by-nc-sa'];
                 if(stripos($shortname, "self|own-pd") !== false) return $this->license['public domain'];
-                if(stripos($shortname, "no known copyright restriction") !== false) return "No known copyright restrictions";
-                if(stripos($shortname, "BHL-no known restriction") !== false) return "No known copyright restrictions";
+                if(stripos($shortname, "no known copyright restriction") !== false) return $this->license['no restrictions'];
+                if(stripos($shortname, "BHL-no known restriction") !== false) return $this->license['no restrictions'];
             }
             
             //should be invalid per Jen
@@ -488,7 +495,7 @@ class WikiDataAPI
             if(stripos($LicenseShortName, " PD-old") !== false) return $this->license['public domain']; //"# PD-old"
             if(stripos($LicenseShortName, " PD-US") !== false) return $this->license['public domain']; //"<!-- PD-US"
             if(stripos($LicenseShortName, "Template:PD-") !== false) return $this->license['public domain']; //    [Template:PD-Australia] => 
-            if(stripos($LicenseShortName, "Brooklyn_Museum-no_known_restriction") !== false) return "No known copyright restrictions"; //"Brooklyn_Museum-no_known_restrictions"
+            if(stripos($LicenseShortName, "Brooklyn_Museum-no_known_restriction") !== false) return $this->license['no restrictions']; //"Brooklyn_Museum-no_known_restrictions"
             if(stripos($LicenseShortName, "CDC-PHIL|") !== false) return $this->license['public domain']; //"CDC-PHIL|id=2741"
             if(stripos($LicenseShortName, "Massel_tow_Credit") !== false) return "invalid"; //"Template:Massel_tow_Credit"
             if(stripos($LicenseShortName, "Blacknclick") !== false) return "invalid"; //[User:Blacknclick/Permission]
@@ -501,15 +508,15 @@ class WikiDataAPI
             if($LicenseShortName == "LGPL") return "invalid"; //exact match
             if($LicenseShortName == "LarsenCopyright") return "invalid"; //exact match
             if($LicenseShortName == "Attribution Entomart") return "invalid"; //exact match
-            if(stripos($LicenseShortName, "CC-BY-2.0 stated") !== false) return "http://creativecommons.org/licenses/by/3.0/"; //[(photo: CC-BY-2.0 stated)PD-US] => 
-            if($LicenseShortName == "Flickr-Brooklyn-Museum-image") return "http://creativecommons.org/licenses/by-sa/3.0/"; //exact match
+            if(stripos($LicenseShortName, "CC-BY-2.0 stated") !== false) return $this->license['by']; //[(photo: CC-BY-2.0 stated)PD-US] => 
+            if($LicenseShortName == "Flickr-Brooklyn-Museum-image") return $this->license['by-sa']; //exact match
             if(stripos($LicenseShortName, "license=GPL") !== false) return "invalid"; //[Free screenshot|license=GPL] => 
             if(stripos($LicenseShortName, "Jim Deacon") !== false) return "invalid"; //[=From the website of the author:"IMPORTANT: COPYRIGHT WAIVERAll of the author's images are shown as [© Jim Deacon]. They can be used freely, for any purpose, without restriction.Please ACKNOWLEDGE THE SOURCE AS: Courtesy of Jim Deacon, The University of Edinburg" http://helios.bto.ed.ac.uk/bto/FungalBiology/index.htm#top== int:license-header] => 
             if($LicenseShortName == "NOAA") return $this->license['public domain']; //exact match
             if($LicenseShortName == "anonymous-EU") return $this->license['public domain']; //exact match
             if($LicenseShortName == "AerialPhotograph-mlitJP") return "invalid"; //exact match
-            if(stripos($LicenseShortName, "flickrreview|Leoboudv|") !== false) return "http://creativecommons.org/licenses/by-sa/3.0/"; //[flickrreview|Leoboudv|2014-10-26] => 
-            if(stripos($LicenseShortName, "authored by [[User:Arp|Arp]]") !== false) return "http://creativecommons.org/licenses/by/3.0/"; //[This image is authored by [[User:Arp|Arp]]. It was uploaded to waarneming.nl and later copied to commons at a time that waarneming.nl did not yet properly support the only ''really'' free and unhampered license (CC0 Public Domain dedication) preferred by the author, so it was originally uploaded (here) as CC-BY, but it's '''not''' limited in it's use for remixing by that hampered license scheme. It is in fact available as: cc0] => 
+            if(stripos($LicenseShortName, "flickrreview|Leoboudv|") !== false) return $this->license['by-sa']; //[flickrreview|Leoboudv|2014-10-26] => 
+            if(stripos($LicenseShortName, "authored by [[User:Arp|Arp]]") !== false) return $this->license['by']; //[This image is authored by [[User:Arp|Arp]]. It was uploaded to waarneming.nl and later copied to commons at a time that waarneming.nl did not yet properly support the only ''really'' free and unhampered license (CC0 Public Domain dedication) preferred by the author, so it was originally uploaded (here) as CC-BY, but it's '''not''' limited in it's use for remixing by that hampered license scheme. It is in fact available as: cc0] => 
             if(stripos($LicenseShortName, "user:Anonymous101") !== false) return $this->license['public domain']; //[user:Anonymous101/template] => 
             if($LicenseShortName == "Dead link") return "invalid"; //exact match
             if(stripos($LicenseShortName, "Hans is short for Johan") !== false) return $this->license['public domain'];
@@ -524,11 +531,11 @@ class WikiDataAPI
             if(stripos($LicenseShortName, "public domain=") !== false) return $this->license['public domain'];
             if(stripos($LicenseShortName, "PD-old") !== false) return $this->license['public domain'];
             if(stripos($LicenseShortName, "PD-self") !== false) return $this->license['public domain'];
-            if(stripos($LicenseShortName, "a CC-0") !== false) return "http://creativecommons.org/licenses/by/3.0/";
+            if(stripos($LicenseShortName, "a CC-0") !== false) return $this->license['by'];
             if(stripos($LicenseShortName, "PD-user") !== false) return $this->license['public domain'];
             if(stripos($LicenseShortName, "in the public domain") !== false) return $this->license['public domain'];
-            if($LicenseShortName == "Flickr-State-Library-NSW-image") return "No known copyright restrictions"; //exact match
-            if($LicenseShortName == "WikiAfrica/SIA") return "No known copyright restrictions"; //exact match
+            if($LicenseShortName == "Flickr-State-Library-NSW-image") return $this->license['no restrictions']; //exact match
+            if($LicenseShortName == "WikiAfrica/SIA") return $this->license['no restrictions']; //exact match
             if(stripos($LicenseShortName, "No license since|") !== false) return "invalid";
             if(stripos($LicenseShortName, "Latvian coins") !== false) return $this->license['public domain'];
             if($LicenseShortName == "East German Post") return "invalid"; //exact match
@@ -562,8 +569,8 @@ class WikiDataAPI
     }
     private function valid_license_YN($license)
     {
-        $valid = array($this->license['public domain'], "http://creativecommons.org/licenses/by/3.0/", "http://creativecommons.org/licenses/by-nc/3.0/", 
-                       "http://creativecommons.org/licenses/by-sa/3.0/", "http://creativecommons.org/licenses/by-nc-sa/3.0/", "No known copyright restrictions");
+        $valid = array($this->license['public domain'], $this->license['by'], $this->license['by-nc'], 
+                       $this->license['by-sa'], $this->license['by-nc-sa'], $this->license['no restrictions']);
         if(in_array($license, $valid)) return true;
         else                           return false;
     }
