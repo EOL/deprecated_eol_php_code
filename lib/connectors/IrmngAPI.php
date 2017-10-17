@@ -142,6 +142,14 @@ class IrmngAPI
                     $k++;
                 }
                 $rec = array_map('trim', $rec);
+
+                /*
+                print_r($fields);
+                print_r($temp);
+                print_r($rec);
+                exit("\n");
+                */
+                
                 /* stats
                 $this->debug["TAXONOMICSTATUS"][$rec["TAXONOMICSTATUS"]] = '';
                 $this->debug["NOMENCLATURALSTATUS"][$rec["NOMENCLATURALSTATUS"]] = '';
@@ -181,7 +189,8 @@ class IrmngAPI
             if(!$rec["TAXONRANK"])              return; // won't get synonyms for blank ranks
             if(!$rec["ACCEPTEDNAMEUSAGEID"])    return; // won't get synonyms for blank acceptedNameUsageID
         }
-        $this->list_of_taxon_ids[$rec["TAXONID"]] = '';
+        // $this->list_of_taxon_ids[$rec["TAXONID"]] = ''; orig
+        $this->list_of_taxon_ids[$rec["TAXONID"]] = $rec["TAXONRANK"]; // new per https://eol-jira.bibalex.org/browse/DATA-1710
     }
 
 
@@ -195,7 +204,7 @@ class IrmngAPI
         }
         if($rec["TAXONOMICSTATUS"] == "synonym")
         {
-            return; // won't get synonyms for now, to check if IRMNG is the culprit in WEB-5489
+            // return; // won't get synonyms for now, to check if IRMNG is the culprit in WEB-5489
             if($rec["TAXONRANK"] != "species")  return; // won't get synonyms for level higher than species
             if(!$rec["TAXONRANK"])              return; // won't get synonyms for blank ranks
             if(!$rec["ACCEPTEDNAMEUSAGEID"])    return; // won't get synonyms for blank acceptedNameUsageID
@@ -237,6 +246,14 @@ class IrmngAPI
         $taxon->scientificNameAuthorship = $rec["SCIENTIFICNAMEAUTHORSHIP"];
         $taxon->parentNameUsageID        = $rec["PARENTNAMEUSAGEID"];
         if($rec["TAXONID"] != $rec["ACCEPTEDNAMEUSAGEID"]) $taxon->acceptedNameUsageID = $rec["ACCEPTEDNAMEUSAGEID"];
+        
+        //new requirement from DATA-1710: only accept synonyms that are mapped to accepted names that have the same rank as the synonym.
+        if($taxon->taxonomicStatus == 'synonym' && $val = $taxon->acceptedNameUsageID) //meaning it is a synonym
+        {
+            //the synonym's rank must be == to the accepted name's rank
+            if($this->list_of_taxon_ids[$taxon->taxonID] == $this->list_of_taxon_ids[$val]) {}
+            else return; //meaning exclude this synonym
+        }
 
         // used so that MeasurementOrFact will have source link
         if(!in_array($taxon->taxonRank, array("family", "genus"))) $this->names[$taxon->taxonID]["n"] = $taxon->scientificName; // save only K,P,C,O & S; excludes family & genus
