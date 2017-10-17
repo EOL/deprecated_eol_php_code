@@ -872,18 +872,15 @@ class WikiDataAPI
             echo "\nelix went here 222\n";
             if($val = self::get_artist_from_special_source($wiki, '')) $rek['Artist'][] = $val; //get_media_metadata_from_json()
         }
-        
         // parse this value = "[http://www.panoramio.com/user/6099584?with_photo_id=56065015 Greg N]"
         
         // /* ================================ new Oct 7, 2017 -- comment it first...
         if(is_array($rek['Artist'])) {
             echo "\nartist is ARRAY()";
             print_r($rek['Artist']);
-            // $rek['Artist'] = $rek['Artist'][0]['name']; -- don't do this... should remain as array()
         }
         else {
             echo "\nartist is STRING: [".$rek['Artist']."]\n";
-            
             /* //new first option
                 [revision] => Array
                     (

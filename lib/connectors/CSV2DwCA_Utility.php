@@ -79,6 +79,17 @@ class CSV2DwCA_Utility
         if($this->debug) print_r($this->debug);
     }
 
+    private function clean_html($arr)
+    {
+        $delimeter = "elicha173";
+        $html = implode($delimeter, $arr);
+        $html = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\11", "\011"), "", trim($html));
+        $html = str_ireplace("> |", ">", $html);
+        $arr = explode($delimeter, $html);
+        return $arr;
+        // return Functions::remove_whitespace($html);
+    }
+
     private function process_extension($csv_file, $class, $tbl)
     {
         $do_ids = array(); //for validation, prevent duplicate identifiers
@@ -95,6 +106,10 @@ class CSV2DwCA_Utility
             else exit("\nUndefined class [$class]\n");
 
             $row = fgetcsv($file);
+            // print_r($row);
+            $row = self::clean_html($row);
+            // print_r($row);
+            
             $i++; if(($i % 2000) == 0) echo "\n $i ";
             // if($i > 2000) break; //debug only - process a subset first 2k
             
@@ -154,6 +169,8 @@ class CSV2DwCA_Utility
                 
             } //main records
             $this->archive_builder->write_object_to_file($c);
+            
+            // if($i > 100000) break; //debug
             
         } //main loop
         fclose($file);
