@@ -229,7 +229,7 @@ class WikiDataAPI
             // if($k >= 601476 && $k < $m*5) $cont = true; // sv
             // if($k >= 1154430 && $k < $m*5) $cont = true; // vi
 
-            if($k >= 1 && $k < 500000) $cont = true;   //wikimedia total taxa = 2,208,086
+            if($k >= 500000 && $k < 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
             if(!$cont) continue;
             // */
 
@@ -541,14 +541,11 @@ class WikiDataAPI
             //last resorts...
             if(stripos($LicenseShortName, "Information|Description") !== false) return "invalid";
             if(stripos($LicenseShortName, "Information |Description") !== false) return "invalid";
+            if(stripos($LicenseShortName, "Information| Desc") !== false) return "invalid";
             if(stripos($LicenseShortName, "flickrreview|") !== false) return "invalid";
             if(stripos($LicenseShortName, "ImageNote|") !== false) return "invalid";
             if(stripos($LicenseShortName, "Check categories|") !== false) return "invalid";
             if(stripos($LicenseShortName, "LOC-image|") !== false) return "invalid";
-            
-            
-            
-            
             
 
             //last resort
@@ -712,7 +709,10 @@ class WikiDataAPI
                     if($rek == "continue") continue;
                     
                     /* debug only
-                    $rek = self::process_file("FUM-5-diptera.jpg");
+                    $rek = self::process_file("Red_stingray2.jpg"); //8680729
+                    // $rek = self::process_file("Soft-shell_crab_on_ice.jpg"); //10964578
+                    // $rek = self::process_file("Slifkin.jpg"); //11930268
+                    // $rek = self::process_file("Clone_war_of_sea_anemones_3.jpg"); //18645958
                     $final[] = $rek;
                     break; //debug
                     */
@@ -758,9 +758,23 @@ class WikiDataAPI
         $rek['source_url']  = "https://commons.wikimedia.org/wiki/File:".$file;
         $rek['media_url']   = self::get_media_url($file);
         $rek['Artist']      = self::format_artist($rek['Artist']);
+        $rek['ImageDescription'] = self::adjust_desc($rek['ImageDescription']);
+        // print_r($rek); exit;
         return $rek;
     }
-
+    private function adjust_desc($str)
+    {
+        $str = trim($str);
+        $last_char = substr($str, strlen($str)-1, 1);
+        while($last_char == "|")
+        {
+            echo "\n-ICE-173-\n";
+            $str = substr($str,0,strlen($str)-1);
+            $last_char = substr($str, strlen($str)-1, 1);
+        }
+        return $str;
+    }
+    
     private function format_artist($str)
     {
         if(is_array($str)) return $str;
