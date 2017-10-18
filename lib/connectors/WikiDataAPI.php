@@ -789,7 +789,7 @@ blank_license ---
         $rek['source_url']  = "https://commons.wikimedia.org/wiki/File:".$file;
         $rek['media_url']   = self::get_media_url($file);
         $rek['Artist']      = self::format_artist($rek['Artist']);
-        $rek['ImageDescription'] = self::adjust_desc($rek['ImageDescription']);
+        $rek['ImageDescription'] = Functions::remove_this_last_char_from_str($rek['ImageDescription'], "|");
         
         //will capture in report source of various invalid data (to check afterwards) but will not stop process.
         if(!self::url_is_valid($rek['source_url']))
@@ -838,19 +838,7 @@ blank_license ---
         if(strlen($lang) <= 3) return true;
         else                   return false;
     }
-    private function adjust_desc($str)
-    {
-        $str = trim($str);
-        $last_char = substr($str, strlen($str)-1, 1);
-        while($last_char == "|")
-        {
-            echo "\n-ICE-173-\n";
-            $str = substr($str,0,strlen($str)-1);
-            $last_char = substr($str, strlen($str)-1, 1);
-        }
-        return $str;
-    }
-    
+
     private function format_artist($str)
     {
         if(is_array($str)) return $str;

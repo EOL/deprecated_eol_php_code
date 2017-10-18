@@ -1803,6 +1803,18 @@ class Functions
         return $iso_639_2_codes;
     }
 
+    public static function remove_this_last_char_from_str($str, $char = "|")
+    {
+        $str = trim($str);
+        $last_char = substr($str, -1); //$last_char = substr($str, strlen($str)-1, 1); - long method to get last char
+        while($last_char == $char) {
+            echo "\n-ICE-173-\n";
+            $str = substr($str,0,strlen($str)-1);
+            $last_char = substr($str, -1);
+        }
+        return $str;
+    }
+
     public static function cardinal_to_ordinal($number)
     {
         switch(substr($number, -1))
