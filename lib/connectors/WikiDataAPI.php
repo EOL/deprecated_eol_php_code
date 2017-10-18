@@ -50,13 +50,12 @@ class WikiDataAPI
         
         $this->save_all_filenames = false; //use to save all media filenames to text file; normal operation is false; => not being used since a lookup is still needed
         
-        $this->license['public domain'] = "http://creativecommons.org/licenses/publicdomain/";
-        $this->license['by'] = "http://creativecommons.org/licenses/by/3.0/";
-        $this->license['by-nc'] = "http://creativecommons.org/licenses/by-nc/3.0/";
-        $this->license['by-sa'] = "http://creativecommons.org/licenses/by-sa/3.0/";
-        $this->license['by-nc-sa'] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+        $this->license['public domain']   = "http://creativecommons.org/licenses/publicdomain/";
+        $this->license['by']              = "http://creativecommons.org/licenses/by/3.0/";
+        $this->license['by-nc']           = "http://creativecommons.org/licenses/by-nc/3.0/";
+        $this->license['by-sa']           = "http://creativecommons.org/licenses/by-sa/3.0/";
+        $this->license['by-nc-sa']        = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $this->license['no restrictions'] = "No known copyright restrictions";
-        
         
     }
 
@@ -75,7 +74,7 @@ class WikiDataAPI
         // [file in question] => Array
         //        (
         //        )
-        $arr = self::process_file("Acanthochondria_cornuta_on_flounder.jpg");
+        $arr = self::process_file("AlienusTrimen1898OD.jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
         */
@@ -418,14 +417,14 @@ class WikiDataAPI
         return true;
     }
     
-    private function format_license($license, $LicenseShortName)
+    private function format_license($license, $LicenseShortName="")
     {
         $license          = self::clean_html($license);
         $LicenseShortName = self::clean_html($LicenseShortName);
         //regular EOL licenses
         if(stripos($license, "creativecommons.org/licenses/publicdomain/") !== false)   return $this->license['public domain'];
         if(stripos($license, "creativecommons.org/licenses/by/") !== false)             return $this->license['by'];
-        if(stripos($license, "http://creativecommons.org/licenses/by-nc/") !== false)   return $this->license['by-nc'];
+        if(stripos($license, "creativecommons.org/licenses/by-nc/") !== false)          return $this->license['by-nc'];
         if(stripos($license, "creativecommons.org/licenses/by-sa/") !== false)          return $this->license['by-sa'];
         if(stripos($license, "creativecommons.org/licenses/by-nc-sa/") !== false)       return $this->license['by-nc-sa'];
 
@@ -604,8 +603,7 @@ blank_license ---
     }
     private function valid_license_YN($license)
     {
-        $valid = array($this->license['public domain'], $this->license['by'], $this->license['by-nc'], 
-                       $this->license['by-sa'], $this->license['by-nc-sa'], $this->license['no restrictions']);
+        $valid = array($this->license['public domain'], $this->license['by'], $this->license['by-nc'], $this->license['by-sa'], $this->license['by-nc-sa'], $this->license['no restrictions']);
         if(in_array($license, $valid)) return true;
         else                           return false;
     }
@@ -749,6 +747,7 @@ blank_license ---
                 foreach($files as $file) { // https://commons.wikimedia.org/wiki/File:Eyes_of_gorilla.jpg
                     $rek = self::process_file($file);
                     if($rek == "continue") continue;
+                    if(!$rek) continue;
                     
                     /* debug only
                     $rek = self::process_file("Red_stingray2.jpg"); //8680729
@@ -801,8 +800,53 @@ blank_license ---
         $rek['media_url']   = self::get_media_url($file);
         $rek['Artist']      = self::format_artist($rek['Artist']);
         $rek['ImageDescription'] = self::adjust_desc($rek['ImageDescription']);
-        // print_r($rek); exit;
+        
+        //will capture in report source of various invalid data (to check afterwards) but will not stop process.
+        if(!self::url_is_valid($rek['source_url']))
+        {
+            $this->debug['invalid source_url'][$rek['pageid']] = '';
+            $rek['source_url'] = '';
+        }
+        if(!self::url_is_valid($rek['media_url'])) 
+        {
+            $this->debug['invalid media_url'][$rek['pageid']] = '';
+            return false;
+        }
+
+        /* not the proper place here...
+        if(!self::valid_license_YN($rek['LicenseUrl'])) {
+            $rek['LicenseUrl'] = self::format_license($rek['LicenseUrl']);
+            if(!self::valid_license_YN($rek['LicenseUrl'])) {
+                print_r($rek); exit("\nstop muna tayo\n");
+                
+                $this->debug['invalid license pageid is'][$rek['pageid']] = '';
+                return false;
+            }
+        }
+        */
+        
+        // if(!self::lang_is_valid())
+        // print_r($rek); exit("\nice\n");
+        /* ditox
+        URI: http://purl.org/dc/terms/language
+        Message: Language should use standardized ISO 639 language codes
+        Line Value:  Burma creeper, Chinese honeysuckle, Rangoon creeper (English) 
+        */
+        
         return $rek;
+    }
+    private function url_is_valid($url)
+    {
+        $url = trim($url);
+        if(substr($url,0,7) == "http://") return true;
+        if(substr($url,0,8) == "https://") return true;
+        return false;
+    }
+    private function lang_is_valid($lang)
+    {
+        $lang = trim($lang);
+        if(strlen($lang) <= 3) return true;
+        else                   return false;
     }
     private function adjust_desc($str)
     {
@@ -1041,7 +1085,7 @@ blank_license ---
         $rek['fromx'] = 'dump';
         
         /*good debug for Artist dump
-        if($rek['pageid'] == "3670473")
+        if($rek['pageid'] == "53245352")
         {
             echo "\n=================investigate dump data===========start\n";
             print_r($dump_arr);
