@@ -1291,9 +1291,23 @@ blank_license ---
                 
             }
             $html = self::clean_html($html);
+            $html = self::more_desc_removed($html);
             return $html;
         }
         return false;
+    }
+    private function more_desc_removed($html)
+    {
+        $findme = '</table> Licensing <table';
+        $html = trim($html);
+        $pos = stripos($html, $findme);
+        // The !== operator can also be used.  Using != would not work as expected because the position of 'a' is 0. The statement (0 != false) evaluates to false.
+        if($pos !== false) { //echo "The string '$findme' exists at position $pos";
+            $html = substr($html,0,$pos);
+            $html .= "</table>";
+        }
+        else echo "\nLICENSING NOT FOUND IN DESC.\n";  //--- means not found
+        return Functions::remove_whitespace($html);
     }
     private function clean_html($html)
     {
