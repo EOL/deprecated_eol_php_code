@@ -75,7 +75,7 @@ class WikiDataAPI
         // [file in question] => Array
         //        (
         //        )
-        $arr = self::process_file("FUM-5-diptera.jpg");
+        $arr = self::process_file("Acanthochondria_cornuta_on_flounder.jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
         */
@@ -236,7 +236,9 @@ class WikiDataAPI
             // if($k >= 601476 && $k < $m*5) $cont = true; // sv
             // if($k >= 1154430 && $k < $m*5) $cont = true; // vi
 
-            if($k >= 500000 && $k < 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
+            // if($k >= 500000 && $k < 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
+            if($k >= 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
+            
             if(!$cont) continue;
             // */
 
@@ -544,7 +546,25 @@ class WikiDataAPI
             if($LicenseShortName == "Business journal") return "invalid"; //exact match
             if($LicenseShortName == "<!-- !-") return "invalid"; //exact match
             if($LicenseShortName == "== int:filedesc") return "invalid"; //exact match
+            if(substr($LicenseShortName,0,12) == "SLNSW-image|") return $this->license['public domain'];
+            
+            
+            
+            if($LicenseShortName == "Anonymous-EU") return $this->license['public domain'];
+            if($LicenseShortName == "USFWS") return $this->license['public domain'];
+            if($LicenseShortName == "USDA") return $this->license['public domain'];
+            
+            
+            
+            if(stripos($LicenseShortName, "Malayalam loves Wikimedia") !== false) return "invalid"; //Malayalam loves Wikimedia event|year=2011|month=April
+            if(stripos($LicenseShortName, "Images by Rob Lavinsky") !== false) return $this->license['by-sa']; //Images by Rob Lavinsky
+            if($LicenseShortName == "AndréWadman") return "invalid"; //exact match
 
+            if(stripos($LicenseShortName, "user=INeverCry") !== false) return "invalid";
+            if(stripos($LicenseShortName, "User:Ram-Man") !== false) return "invalid";
+            if(stripos($LicenseShortName, "User:Sidpatil") !== false) return "invalid";
+
+            
             //last resorts...
             if(stripos($LicenseShortName, "Information|Description") !== false) return "invalid";
             if(stripos($LicenseShortName, "Information |Description") !== false) return "invalid";
@@ -553,10 +573,25 @@ class WikiDataAPI
             if(stripos($LicenseShortName, "ImageNote|") !== false) return "invalid";
             if(stripos($LicenseShortName, "Check categories|") !== false) return "invalid";
             if(stripos($LicenseShortName, "LOC-image|") !== false) return "invalid";
+            if(stripos($LicenseShortName, "gebruiker:Jürgen") !== false) return "invalid";
             
 
-            //last resort
+            $arr = "Link,WTFPL-1,En|A person kneeling next to a seal.,self2|FAL|,Fifty Birds,Laboratorio grafico,== Original upload log,Norwegian coat of arms";
+            $arr = explode(",", $arr);
+            foreach($arr as $a) {
+                if($LicenseShortName == $a) return "invalid"; //exact match
+            }
+            
+
+/*
+blank_license ---
+<div class="boilerplate metadata" id="cleanup" style="text-align: center; background: #ffe; margin: .75em 15%; padding: .5em; border: 1px solid #e3e3b0; direction: Dir|int:lang
+*/
+
             $this->debug['blank_license'][$LicenseShortName] = ''; //utility debug - important
+            
+            //finally if LicenseShortName is still undefined it will be considered 'invalid'
+            return "invalid";
         }
         
         return $license;
@@ -1006,7 +1041,7 @@ class WikiDataAPI
         $rek['fromx'] = 'dump';
         
         /*good debug for Artist dump
-        if($rek['pageid'] == "300983")
+        if($rek['pageid'] == "3670473")
         {
             echo "\n=================investigate dump data===========start\n";
             print_r($dump_arr);
@@ -1066,6 +1101,17 @@ class WikiDataAPI
                     return $final;
                 }
                 else echo "\nelix 333\n";
+            }
+        }
+        elseif(preg_match("/Photographer<\/td>(.*?)<\/td>/ims", $description, $a)) { //<td >Photographer</td> <td>Hans Hillewaert</td>
+            echo "\nelix 333 333\n";
+            $temp = $a[1];
+            $final = array(); $atemp = array();
+            if(preg_match("/href=\"(.*?)\"/ims", $temp, $a)) $atemp['homepage'] = trim($a[1]);
+            $atemp['name'] = strip_tags(trim($temp));
+            if(@$atemp['name']) {
+                $final[] = $atemp;
+                return $final;
             }
         }
         else {
