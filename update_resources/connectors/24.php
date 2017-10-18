@@ -11,8 +11,14 @@ $timestart = time_elapsed();
 
 $resource_id = 24;
 $params["eol_xml_file"] = "";
-// $params["eol_xml_file"] = Functions::get_accesspoint_url_if_available($resource_id, "http://localhost/cp/OpenData/EOLxml_2_DWCA/AntWeb/eol.xml");
+
+/* old
+$params["eol_xml_file"] = Functions::get_accesspoint_url_if_available($resource_id, "http://localhost/cp/OpenData/EOLxml_2_DWCA/AntWeb/eol.xml");
 $params["eol_xml_file"] = Functions::get_accesspoint_url_if_available($resource_id, "http://antweb.org/web/eol/eol.xml");
+*/
+
+// $params["eol_xml_file"] = "http://localhost/cp/OpenData/EOLxml_2_DWCA/AntWeb/eol.xml";
+$params["eol_xml_file"] = "http://antweb.org/web/eol/eol.xml";
 $params["filename"]     = "no need to mention here.xml";
 $params["dataset"]      = "EOL XML files";
 $params["resource_id"]  = $resource_id;
