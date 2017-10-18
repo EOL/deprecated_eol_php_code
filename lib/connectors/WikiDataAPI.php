@@ -79,8 +79,7 @@ class WikiDataAPI
         exit("\n-Finished testing-\n");
         */
         
-        if(!@$this->trans['editors'][$this->language_code]) 
-        {
+        if(!@$this->trans['editors'][$this->language_code]) {
             $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
             $this->trans['editors'][$this->language_code] = $func->translate_source_target_lang("Wikipedia authors and editors", "en", $this->language_code);
         }
@@ -91,8 +90,7 @@ class WikiDataAPI
         $this->archive_builder->finalize(TRUE);
 
         //start ============================================================= needed adjustments
-        if($this->what == "wikipedia")
-        {
+        if($this->what == "wikipedia") {
             unlink(CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_working" . "/media_resource.tab");  //remove generated orig test media_resource.tab
             Functions::file_rename($this->media_extension, CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_working" . "/media_resource.tab");  //rename .eli to .tab
 
@@ -143,8 +141,7 @@ class WikiDataAPI
         */
         // /*
         
-        if($this->what == "wikipedia")
-        {
+        if($this->what == "wikipedia") {
             $this->media_cols = "identifier,taxonID,type,format,CVterm,title,description,furtherInformationURL,language,UsageTerms,Owner";
             $this->media_cols = explode(",", $this->media_cols);
             $this->media_extension = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id . "_working" . "/media_resource.eli";
@@ -453,21 +450,21 @@ class WikiDataAPI
             //multiple shortnames separated by "|"
             $shortnames = explode("|", strtolower($LicenseShortName)); //"self|Cc-zero"
             foreach($shortnames as $shortname) {
-                if(in_array($shortname, array("cc-zero", "cc0", "cc-0"))) return $this->license['public domain'];
-                if(substr($shortname,0,3) == "pd-")                       return $this->license['public domain']; //"PD-self" "PD-author" "pd-???" etc.
-                if(stripos($shortname, "bild-pd") !== false)                        return $this->license['public domain'];
+                if(in_array($shortname, array("cc-zero", "cc0", "cc-0")))    return $this->license['public domain'];
+                if(substr($shortname,0,3) == "pd-")                          return $this->license['public domain']; //"PD-self" "PD-author" "pd-???" etc.
+                if(stripos($shortname, "bild-pd") !== false)                 return $this->license['public domain'];
                 if($shortname == "attribution")                              return $this->license['by'];
                 if(substr($shortname,0,14) == strtolower("public domain "))  return $this->license['public domain']; // e.g. "Public Domain Mark"
-                if(substr($shortname,0,3) == strtolower("pd/"))  return $this->license['public domain']; // e.g. "Pd/1923|1982"
+                if(substr($shortname,0,3) == strtolower("pd/"))              return $this->license['public domain']; // e.g. "Pd/1923|1982"
                 if($shortname == strtolower("FlickrVerifiedByUploadWizard")) return $this->license['by'];
 
-                if(substr($shortname,0,6) == "cc-by-")        return $this->license['by'];
-                if(substr($shortname,0,9) == "cc-by-nc-")     return $this->license['by-nc'];
-                if(substr($shortname,0,9) == "cc-by-sa-")     return $this->license['by-sa'];
-                if(substr($shortname,0,12) == "cc-by-nc-sa-") return $this->license['by-nc-sa'];
-                if(stripos($shortname, "self|own-pd") !== false) return $this->license['public domain'];
+                if(substr($shortname,0,6) == "cc-by-")                          return $this->license['by'];
+                if(substr($shortname,0,9) == "cc-by-nc-")                       return $this->license['by-nc'];
+                if(substr($shortname,0,9) == "cc-by-sa-")                       return $this->license['by-sa'];
+                if(substr($shortname,0,12) == "cc-by-nc-sa-")                   return $this->license['by-nc-sa'];
+                if(stripos($shortname, "self|own-pd") !== false)                return $this->license['public domain'];
                 if(stripos($shortname, "no known copyright restriction") !== false) return $this->license['no restrictions'];
-                if(stripos($shortname, "BHL-no known restriction") !== false) return $this->license['no restrictions'];
+                if(stripos($shortname, "BHL-no known restriction") !== false)       return $this->license['no restrictions'];
             }
             
             //should be invalid per Jen
@@ -547,23 +544,17 @@ class WikiDataAPI
             if($LicenseShortName == "== int:filedesc") return "invalid"; //exact match
             if(substr($LicenseShortName,0,12) == "SLNSW-image|") return $this->license['public domain'];
             
-            
-            
+            //added Oct 18
             if($LicenseShortName == "Anonymous-EU") return $this->license['public domain'];
             if($LicenseShortName == "USFWS") return $this->license['public domain'];
             if($LicenseShortName == "USDA") return $this->license['public domain'];
-            
-            
-            
             if(stripos($LicenseShortName, "Malayalam loves Wikimedia") !== false) return "invalid"; //Malayalam loves Wikimedia event|year=2011|month=April
             if(stripos($LicenseShortName, "Images by Rob Lavinsky") !== false) return $this->license['by-sa']; //Images by Rob Lavinsky
             if($LicenseShortName == "AndréWadman") return "invalid"; //exact match
-
             if(stripos($LicenseShortName, "user=INeverCry") !== false) return "invalid";
             if(stripos($LicenseShortName, "User:Ram-Man") !== false) return "invalid";
             if(stripos($LicenseShortName, "User:Sidpatil") !== false) return "invalid";
 
-            
             //last resorts...
             if(stripos($LicenseShortName, "Information|Description") !== false) return "invalid";
             if(stripos($LicenseShortName, "Information |Description") !== false) return "invalid";
@@ -573,7 +564,6 @@ class WikiDataAPI
             if(stripos($LicenseShortName, "Check categories|") !== false) return "invalid";
             if(stripos($LicenseShortName, "LOC-image|") !== false) return "invalid";
             if(stripos($LicenseShortName, "gebruiker:Jürgen") !== false) return "invalid";
-            
 
             $arr = "Link,WTFPL-1,En|A person kneeling next to a seal.,self2|FAL|,Fifty Birds,Laboratorio grafico,== Original upload log,Norwegian coat of arms";
             $arr = explode(",", $arr);
