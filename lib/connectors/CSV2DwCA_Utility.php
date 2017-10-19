@@ -89,7 +89,7 @@ class CSV2DwCA_Utility
         return $arr;
         // return Functions::remove_whitespace($html);
     }
-
+    
     private function process_extension($csv_file, $class, $tbl)
     {
         $do_ids = array(); //for validation, prevent duplicate identifiers
@@ -140,8 +140,8 @@ class CSV2DwCA_Utility
                 //start process record =============================================================================================
                 if($class == 'document') {
                     if($rec['taxonID'] && $rec['accessURI']) {
-                        if(!self::valid_uri_url($rec['accessURI'])) continue;
-                        if(!self::valid_uri_url($rec['thumbnailURL'])) $rec['thumbnailURL'] = "";
+                        if(!Functions::valid_uri_url($rec['accessURI'])) continue;
+                        if(!Functions::valid_uri_url($rec['thumbnailURL'])) $rec['thumbnailURL'] = "";
 
                         $do_id = $rec['identifier'];
                         if(in_array($do_id, $do_ids)) {
@@ -176,12 +176,12 @@ class CSV2DwCA_Utility
         fclose($file);
     }
     
-    private function valid_uri_url($str)
-    {
-        if(substr($str,0,7) == "http://") return true;
-        elseif(substr($str,0,8) == "https://") return true;
-        return false;
-    }
+    // private function valid_uri_url($str)
+    // {
+    //     if(substr($str,0,7) == "http://") return true;
+    //     elseif(substr($str,0,8) == "https://") return true;
+    //     return false;
+    // }
     
     /* was not used
     private function clean_html($html)

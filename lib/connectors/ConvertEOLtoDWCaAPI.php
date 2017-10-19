@@ -161,9 +161,14 @@ class ConvertEOLtoDWCaAPI
             if(@$rec['language'] == "English") $rec['language'] = "En"; //used in resource_id = 120
             if(@$rec['dataType'] == 'http://purl.org/dc/dcmitype/Text' && !@$rec['description']) continue;  //Text objects must have descriptions
 
+
             /* for debugging - OK
             if(@$rec['subject'] == 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description') echo "\n ==> ". @$rec['description'] . " ==== ";
             */
+
+            if(self::is_media_object($rec['dataType'])) { //fore resource_id = 39
+                if(!Functions::valid_uri_url($rec['mediaURL'])) continue; //Media objects must have accessURI
+            }
 
             //end filters - for quality control ==================================================================
             
@@ -227,6 +232,13 @@ class ConvertEOLtoDWCaAPI
         return $records;
     }
 
+    private function is_media_object($data_type)
+    {
+        $media = array("http://purl.org/dc/dcmitype/MovingImage", "http://purl.org/dc/dcmitype/Sound", "http://purl.org/dc/dcmitype/StillImage");
+        if(in_array($data_type, $media)) return true;
+        else return false;
+    }
+    
     private function process_agent($objects, $params)
     {
         $records = array();
