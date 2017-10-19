@@ -66,21 +66,15 @@ class WikiDataAPI
         exit; 
         */
         
-        // /* testing
+        /* testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
-        // $arr = self::process_file("The_marine_mammals_of_the_north-western_coast_of_North_America,_described_and_illustrated;_together_with_an_account_of_the_American_whale-fishery_(1874)_(14598304727).jpg");
-
         // file in question ---
         // File:
-        // File:
-        // File:
-
-
         $arr = self::process_file("Clothes.jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
-        // */
+        */
         
         if(!@$this->trans['editors'][$this->language_code]) {
             $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
@@ -109,9 +103,9 @@ class WikiDataAPI
         //end =============================================================
 
         unlink($this->TEMP_FILE_PATH);
-        echo "\n----111";
+        echo "\n----start debug array";
         print_r($this->debug); //exit;
-        echo "\n----222";
+        echo "\n----end debug array";
         
         //write to file $this->debug contents
         $f = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/wikimedia_debug.txt", "w");
@@ -121,7 +115,6 @@ class WikiDataAPI
             foreach(array_keys($this->debug[$i]) as $row) fwrite($f, "$row"."\n");
         }
         fclose($f);
-        
     }
 
     private function initialize_files()
@@ -193,8 +186,7 @@ class WikiDataAPI
         $t->taxonRank               = $rec['rank'];
         $t->parentNameUsageID       = @$rec['parent_id'];
         $t->source                  = "https://www.wikidata.org/wiki/".$t->taxonID;
-        if(!isset($this->taxon_ids[$t->taxonID]))
-        {
+        if(!isset($this->taxon_ids[$t->taxonID])) {
             $this->taxon_ids[$t->taxonID] = '';
             $this->archive_builder->write_object_to_file($t);
         }
@@ -218,7 +210,7 @@ class WikiDataAPI
             $k++; 
             if(($k % 100000) == 0) echo " ".number_format($k)." ";
             echo " ".number_format($k)." ";
-            /* breakdown when caching:
+            // /* breakdown when caching:
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true; done
             // if($k >=  $m   && $k < $m*2) $cont = true; done
@@ -235,11 +227,11 @@ class WikiDataAPI
             // if($k >= 601476 && $k < $m*5) $cont = true; // sv
             // if($k >= 1154430 && $k < $m*5) $cont = true; // vi
 
-            // if($k >= 500000 && $k < 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
-            if($k >= 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
+            if($k >= 1 && $k < 100000) $cont = true;   //wikimedia total taxa = 2,208,086
+            // if($k >= 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
             
             if(!$cont) continue;
-            */
+            // */
 
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
@@ -580,6 +572,7 @@ class WikiDataAPI
             $inv[] = "Frank FrägerGPL";
             $inv[] = "GPL|";
             $inv[] = "Remove this line and insert a license";
+            $inv[] = "boilerplate metadata";
             foreach($inv as $p) {
                 if(stripos($LicenseShortName, $p) !== false) return "invalid";
             }
@@ -600,13 +593,6 @@ class WikiDataAPI
             foreach($arr as $a) {
                 if($LicenseShortName == $a) return "invalid"; //exact match
             }
-            
-
-/*
-blank_license ---
-<div class="boilerplate metadata" id="cleanup" style="text-align: center; background: #ffe; margin: .75em 15%; padding: .5em; border: 1px solid #e3e3b0; direction: Dir|int:lang
-<div class="boilerplate metadata" id="cleanup" style="text-align: center; background: #ffe; margin: .75em 15%; padding: .5em; border: 1px solid #e3e3b0; direction: Dir|int:lang
-*/
 
             $this->debug['blank_license'][$LicenseShortName] = ''; //utility debug - important
             
