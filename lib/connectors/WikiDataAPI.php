@@ -56,7 +56,6 @@ class WikiDataAPI
         $this->license['by-sa']           = "http://creativecommons.org/licenses/by-sa/3.0/";
         $this->license['by-nc-sa']        = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $this->license['no restrictions'] = "No known copyright restrictions";
-        
     }
 
     function get_all_taxa()
@@ -67,17 +66,21 @@ class WikiDataAPI
         exit; 
         */
         
-        /* testing
+        // /* testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // $arr = self::process_file("The_marine_mammals_of_the_north-western_coast_of_North_America,_described_and_illustrated;_together_with_an_account_of_the_American_whale-fishery_(1874)_(14598304727).jpg");
-        // [file in question] => Array
-        //        (
-        //        )
-        $arr = self::process_file("AlienusTrimen1898OD.jpg");
+
+        // file in question ---
+        // File:
+        // File:The_American_Museum_journal_(c1900-(1918))_(17973569239).jpg
+        // File:Clothes.jpg
+
+
+        $arr = self::process_file("Cypron-Range_Aquila_chrysaetos.svg");
         print_r($arr);
         exit("\n-Finished testing-\n");
-        */
+        // */
         
         if(!@$this->trans['editors'][$this->language_code]) {
             $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
@@ -215,7 +218,7 @@ class WikiDataAPI
             $k++; 
             if(($k % 100000) == 0) echo " ".number_format($k)." ";
             echo " ".number_format($k)." ";
-            // /* breakdown when caching:
+            /* breakdown when caching:
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true; done
             // if($k >=  $m   && $k < $m*2) $cont = true; done
@@ -236,7 +239,7 @@ class WikiDataAPI
             if($k >= 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
             
             if(!$cont) continue;
-            // */
+            */
 
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
@@ -319,7 +322,7 @@ class WikiDataAPI
                 else exit("\n --not ok-- \n");
                 
                 // break; //debug get first taxon wiki only
-                // if($k > 5000) break; //10000
+                if($k > 5000) break; //10000
                 // if($exit_now) break;
                 
             } //end of taxon wiki
@@ -386,6 +389,7 @@ class WikiDataAPI
                 $media['identifier']             = md5($rec['taxon_id']."Comprehensive Description");
                 $media['title']                  = $rec['other']['title'];
                 $media['description']            = $description;
+                // echo "\n[$t->scientificName]:[$description]\n"; //debug only
                 $media['CVterm']                 = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description';
                 // below here is same for the next text object
                 $media['taxonID']                = $t->taxonID;
