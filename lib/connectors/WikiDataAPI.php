@@ -564,6 +564,8 @@ class WikiDataAPI
             if($LicenseShortName == "IUCN map permission") return $this->license['public domain']; //exact match
             if($LicenseShortName == "Justphotos.ru") return $this->license['by-sa']; //exact match
             if($LicenseShortName == "MAV-FMVZ USP-license") return $this->license['by-sa']; //exact match
+            if($LicenseShortName == "cc-world66") return $this->license['by-sa']; //exact match
+            if($LicenseShortName == "Cc-sa") return $this->license['by-sa']; //exact match
             
             // for public domain - stripos
             $pd = array();
@@ -587,6 +589,10 @@ class WikiDataAPI
             $inv[] = "Remove this line and insert a license";
             $inv[] = "boilerplate metadata";
             $inv[] = "by-nc-nd";
+            $inv[] = "PermissionOTRS";
+            $inv[] = "You may choose one of the following licenses";
+            $inv[] = "Mindaugas Urbonas";
+            $inv[] = "Warsaw_ZOO_-_Bovidae_young";
             foreach($inv as $p) {
                 if(stripos($LicenseShortName, $p) !== false) return "invalid";
             }
@@ -602,7 +608,7 @@ class WikiDataAPI
             if(stripos($LicenseShortName, "gebruiker:Jürgen") !== false) return "invalid";
             
             // for invalid - exact match
-            $arr = "KIT-license,Open Beelden,MUSE permission,plos,PLoS,volganet.ru,NoCoins,Stan Shebs photo,self,Multi-license,Link,WTFPL-1,En|A person kneeling next to a seal.,self2|FAL|,Fifty Birds,Laboratorio grafico,== Original upload log,Norwegian coat of arms,User:Arp/License,User:Erin Silversmith/Licence,trademark,benjamint5D,custom,Lang,User:Arjun01/I,Apache|Google,easy-border,LA2-Blitz,Autotranslate|1=1|,Frianvändning,Self,Location|57|47|35|N|152|23|39|W,OGL2,User:Pudding4brains/License,ScottForesman,FoP-Hungary,License";
+            $arr = "Imagicity,MaleneThyssenCredit,Fdrange,Arne and Bent Larsen license,Korea.net,Atelier graphique,KIT-license,Open Beelden,MUSE permission,plos,PLoS,volganet.ru,NoCoins,Stan Shebs photo,self,Multi-license,Link,WTFPL-1,En|A person kneeling next to a seal.,self2|FAL|,Fifty Birds,Laboratorio grafico,== Original upload log,Norwegian coat of arms,User:Arp/License,User:Erin Silversmith/Licence,trademark,benjamint5D,custom,Lang,User:Arjun01/I,Apache|Google,easy-border,LA2-Blitz,Autotranslate|1=1|,Frianvändning,Self,Location|57|47|35|N|152|23|39|W,OGL2,User:Pudding4brains/License,ScottForesman,FoP-Hungary,License,<!-- Ambox";
             $arr = explode(",", $arr);
             foreach($arr as $a) {
                 if($LicenseShortName == $a) return "invalid"; //exact match
