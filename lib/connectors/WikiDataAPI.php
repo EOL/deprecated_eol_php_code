@@ -541,7 +541,6 @@ class WikiDataAPI
             if($LicenseShortName == "Flickr-State-Library-NSW-image") return $this->license['no restrictions']; //exact match
             if($LicenseShortName == "WikiAfrica/SIA") return $this->license['no restrictions']; //exact match
             if(stripos($LicenseShortName, "No license since|") !== false) return "invalid";
-            if(stripos($LicenseShortName, "Latvian coins") !== false) return $this->license['public domain'];
             if($LicenseShortName == "East German Post") return "invalid"; //exact match
             if($LicenseShortName == "Kopimi") return "invalid"; //exact match
             if(stripos($LicenseShortName, "TARS631") !== false) return "invalid"; //TARS631 at Tramwayforum.at
@@ -551,15 +550,39 @@ class WikiDataAPI
             if(substr($LicenseShortName,0,12) == "SLNSW-image|") return $this->license['public domain'];
             
             //added Oct 18
-            if($LicenseShortName == "Anonymous-EU") return $this->license['public domain'];
-            if($LicenseShortName == "USFWS") return $this->license['public domain'];
-            if($LicenseShortName == "USDA") return $this->license['public domain'];
+            $valid_pd = array("USDA", "USFWS", "USGS", "Anonymous-EU", "DEA");
+            if(in_array($LicenseShortName, $valid_pd)) return $this->license['public domain'];
             if(stripos($LicenseShortName, "Malayalam loves Wikimedia") !== false) return "invalid"; //Malayalam loves Wikimedia event|year=2011|month=April
             if(stripos($LicenseShortName, "Images by Rob Lavinsky") !== false) return $this->license['by-sa']; //Images by Rob Lavinsky
             if($LicenseShortName == "AndréWadman") return "invalid"; //exact match
             if(stripos($LicenseShortName, "user=INeverCry") !== false) return "invalid";
             if(stripos($LicenseShortName, "User:Ram-Man") !== false) return "invalid";
             if(stripos($LicenseShortName, "User:Sidpatil") !== false) return "invalid";
+
+            // added Oct 19
+            // for public domain - stripos
+            $pd = array();
+            $pd[] = "PD-US";
+            $pd[] = "PD-NASA";
+            $pd[] = "RatEatingSunflowerseads.jpg";
+            $pd[] = "under public domain term";
+            $pd[] = "From U.S. Fish and Wildlife";
+            $pd[] = "Koninklijke Bibliotheek";
+            $pd[] = "Latvian coins";
+            foreach($pd as $p) {
+                if(stripos($LicenseShortName, $p) !== false) return $this->license['public domain'];
+            }
+
+            // for invalid - stripos
+            $inv = array();
+            $inv[] = "editor=Kilom691";
+            $inv[] = "LicenseReview|";
+            $inv[] = "Frank FrägerGPL";
+            $inv[] = "GPL|";
+            $inv[] = "Remove this line and insert a license";
+            foreach($inv as $p) {
+                if(stripos($LicenseShortName, $p) !== false) return "invalid";
+            }
 
             //last resorts...
             if(stripos($LicenseShortName, "Information|Description") !== false) return "invalid";
@@ -570,8 +593,9 @@ class WikiDataAPI
             if(stripos($LicenseShortName, "Check categories|") !== false) return "invalid";
             if(stripos($LicenseShortName, "LOC-image|") !== false) return "invalid";
             if(stripos($LicenseShortName, "gebruiker:Jürgen") !== false) return "invalid";
-
-            $arr = "Link,WTFPL-1,En|A person kneeling next to a seal.,self2|FAL|,Fifty Birds,Laboratorio grafico,== Original upload log,Norwegian coat of arms";
+            
+            // for invalid - exact match
+            $arr = "Link,WTFPL-1,En|A person kneeling next to a seal.,self2|FAL|,Fifty Birds,Laboratorio grafico,== Original upload log,Norwegian coat of arms,User:Arp/License,User:Erin Silversmith/Licence,trademark,benjamint5D,custom,Lang,User:Arjun01/I,Apache|Google,easy-border,LA2-Blitz,Autotranslate|1=1|,Frianvändning,Self,Location|57|47|35|N|152|23|39|W,OGL2,User:Pudding4brains/License,ScottForesman,FoP-Hungary,License";
             $arr = explode(",", $arr);
             foreach($arr as $a) {
                 if($LicenseShortName == $a) return "invalid"; //exact match
@@ -580,6 +604,7 @@ class WikiDataAPI
 
 /*
 blank_license ---
+<div class="boilerplate metadata" id="cleanup" style="text-align: center; background: #ffe; margin: .75em 15%; padding: .5em; border: 1px solid #e3e3b0; direction: Dir|int:lang
 <div class="boilerplate metadata" id="cleanup" style="text-align: center; background: #ffe; margin: .75em 15%; padding: .5em; border: 1px solid #e3e3b0; direction: Dir|int:lang
 */
 
