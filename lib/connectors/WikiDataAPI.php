@@ -73,11 +73,11 @@ class WikiDataAPI
 
         // file in question ---
         // File:
-        // File:The_American_Museum_journal_(c1900-(1918))_(17973569239).jpg
-        // File:Clothes.jpg
+        // File:
+        // File:
 
 
-        $arr = self::process_file("Cypron-Range_Aquila_chrysaetos.svg");
+        $arr = self::process_file("Clothes.jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
         // */
@@ -429,7 +429,9 @@ class WikiDataAPI
         if(stripos($license, "creativecommons.org/licenses/by-sa/") !== false)          return $this->license['by-sa'];
         if(stripos($license, "creativecommons.org/licenses/by-nc-sa/") !== false)       return $this->license['by-nc-sa'];
 
+        
         //others...
+        if($license == "http://creativecommons.org/licenses/by-sa")          return $this->license['by-sa']; //exact match
         if(stripos($license, "creativecommons.org/publicdomain/") !== false) return $this->license['public domain'];
         if(stripos($license, "creativecommons.org/licenses/sa/") !== false)  return $this->license['by-sa']; //[http://creativecommons.org/licenses/sa/1.0/]
         if($license == "http://creativecommons.org/licenses/by")             return $this->license['by']; //exact match
@@ -441,7 +443,7 @@ class WikiDataAPI
         if(stripos($license, "creativecommons.org/licenses/by-nc-nd/") !== false) return "invalid";
         if(stripos($license, "commons.wikimedia.org/wiki/File:") !== false) return "invalid";
         $proven_invalid_licenseurl = array("http://www.gnu.org/copyleft/fdl.html", "http://www.gnu.org/licenses/old-licenses/fdl-1.2.html", "http://www.gnu.org/licenses/gpl.html",
-        "www.gnu.org/licenses/fdl-1.3.html", "http://artlibre.org/licence/lal/en");
+        "www.gnu.org/licenses/fdl-1.3.html", "http://artlibre.org/licence/lal/en", "http://www.gnu.org/licenses/lgpl.html");
         if(in_array($license, $proven_invalid_licenseurl)) return "invalid";
         
         // added Oct 16, 2017
@@ -1066,8 +1068,8 @@ blank_license ---
         //================================================================ END
         $rek['fromx'] = 'dump';
         
-        /*good debug for Artist dump
-        if($rek['pageid'] == "53245352")
+        // /* good debug for Artist dump
+        if($rek['pageid'] == "947855")
         {
             echo "\n=================investigate dump data===========start\n";
             print_r($dump_arr);
@@ -1075,7 +1077,7 @@ blank_license ---
             echo "\n=================investigate dump data===========end\n";
             exit("\nwait..investigate here...\n");
         }
-        */
+        // */
         return $rek;
     }
     private function second_option_for_artist_info($arr)
@@ -1142,7 +1144,7 @@ blank_license ---
         }
         else {
             echo "\nelix 555\n";
-            echo "\n$description\n";
+            // echo "\n$description\n";
             // wiki/User:Bewareofdog" title="en:User:Bewareofdog"
             if(preg_match("/wiki\/User\:(.*?)\"/ims", $description, $a)) {
                 echo "\nelix 444\n";
@@ -1157,6 +1159,11 @@ blank_license ---
                     return $final;
                 }
             }
+
+            elseif(stripos($description, "Category:Wikigraphists") !== false) { //string is found
+                return array('name' => "Wikigraphists", 'homepage' => "https://en.wikipedia.org/wiki/Wikipedia:Graphics_Lab", 'role' => 'creator');
+            }
+            
         }
         return false;
     }
@@ -1359,11 +1366,10 @@ blank_license ---
             else $rek['title'] = self::format_wiki_substr($arr['title']);
             
             /*
-            if($rek['pageid'] == "28986352") //good debug api
+            if($rek['pageid'] == "41854689") //good debug api
             {
                 echo "\n=======investigate api data =========== start\n";
-                print_r($arr); 
-                exit;
+                print_r($arr); exit;
                 echo "\n=======investigate api data =========== end\n";
             }
             */
@@ -1414,6 +1420,8 @@ blank_license ---
     }
     private function get_artist_from_special_source($categories, $title = "") //$categories can be any block of string
     {
+        $categories = Functions::remove_whitespace($categories);
+        
         if(stripos($categories, "Files from Wellcome Images") !== false) { //string is found
             return array('name' => "Wellcome Images", 'homepage' => "https://wellcomeimages.org/", 'role' => 'contributor');
         }
@@ -1442,6 +1450,13 @@ blank_license ---
         if(preg_match("/Source\: (.*?)\\n/ims", $categories, $a)) { //:Source: WO-EE-4138
             return array('name' => trim($a[1]), 'homepage' => $title, 'role' => 'source');
         }
+
+        if(stripos($categories, "User:The Emirr") !== false && stripos($categories, "Permission ={{Cypron}}") !== false) { //strings are found
+            return array('name' => 'The Emirr/MapLab', 'homepage' => 'https://commons.wikimedia.org/wiki/User:The_Emirr/MapLab/Cypron', 'role' => 'author');
+        }
+        
+        
+        
         
         //last options
         if(preg_match("/Photo by (.*?)\./ims", $categories, $a)) { //from wiki text - description: "...Photo by Gus van Vliet."
@@ -1450,10 +1465,15 @@ blank_license ---
         if(preg_match("/\[\[Category:Photographs by (.*?)\]\]/ims", $categories, $a)) { //from wiki text - description: "...[[Category:Photographs by Ernst Schäfer]]..."
             return array('name' => trim($a[1]), 'homepage' => $title, 'role' => 'photographer');
         }
+
+        if(stripos($categories, "Files from Flickr's 'The Commons'") !== false) { //string is found
+            return array('name' => "Flickr's 'The Commons'", 'homepage' => "https://flickr.com/commons", 'role' => 'source');
+        }
         //real last option
         if(stripos($categories, "[[Category:Media missing infobox template]]") !== false) { //string is found
             return array('name' => "Wikimedia Commons", 'homepage' => "https://commons.wikimedia.org/wiki/Main_Page", 'role' => 'source');
         }
+        
         
         return false;
     }
