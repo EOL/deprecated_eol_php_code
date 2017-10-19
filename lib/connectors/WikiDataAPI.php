@@ -70,8 +70,8 @@ class WikiDataAPI
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // file in question ---
-        // File:
-        $arr = self::process_file("Fotografi_fr%C3%A5n_Museo,_oggetti_preziosi._Neapel,_Italien_-_Hallwylska_museet_-_106861.tif");
+        // File:Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg
+        $arr = self::process_file("Viburnum_rhytidophyllum_in_Budapest.jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
         */
@@ -227,7 +227,7 @@ class WikiDataAPI
             // if($k >= 601476 && $k < $m*5) $cont = true; // sv
             // if($k >= 1154430 && $k < $m*5) $cont = true; // vi
 
-            if($k >= 1 && $k < 100000) $cont = true;   //wikimedia total taxa = 2,208,086
+            if($k >= 1 && $k < 50000) $cont = true;   //wikimedia total taxa = 2,208,086
             // if($k >= 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
             
             if(!$cont) continue;
@@ -1321,6 +1321,23 @@ class WikiDataAPI
         }
         return false;
     }
+    
+    private function adjust_image_desc($html)
+    {
+        $html = trim(self::remove_space($html));
+        $html = self::get_str_up_to_this_chars_only($html, "<b>Text Appearing Before Image: </b>");
+        $html = strip_tags($html,'<a><b><br>');
+        return $html;
+    }
+    private function get_str_up_to_this_chars_only($html, $findme)
+    {
+        $pos = stripos($html, $findme);
+        if($pos !== false) { //echo "The string '$findme' exists at position $pos";
+            $html = substr($html,0,$pos);
+        }
+        return Functions::remove_whitespace($html);
+    }
+
     private function more_desc_removed($html)
     {
         $findme = '</table> Licensing <table';
@@ -1331,7 +1348,17 @@ class WikiDataAPI
             $html = substr($html,0,$pos);
             $html .= "</table>";
         }
-        else echo "\nLICENSING NOT FOUND IN DESC.\n";  //--- means not found
+        else 
+        {
+            $findme = '</table> Licensing[';
+            $html = trim($html);
+            $pos = stripos($html, $findme);
+            // The !== operator can also be used.  Using != would not work as expected because the position of 'a' is 0. The statement (0 != false) evaluates to false.
+            if($pos !== false) { //echo "The string '$findme' exists at position $pos";
+                $html = substr($html,0,$pos);
+                $html .= "</table>";
+            }
+        }
         return Functions::remove_whitespace($html);
     }
     private function clean_html($html)
@@ -1397,6 +1424,7 @@ class WikiDataAPI
             else                                                                    $rek['title'] = self::format_wiki_substr($arr['title']);
             */
             $rek['ImageDescription'] = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['ImageDescription']['value']);
+            $rek['ImageDescription'] = self::adjust_image_desc($rek['ImageDescription']);
 
             if($rek['title'] = self::get_title_from_ImageDescription($rek['ImageDescription'])) {}
             else $rek['title'] = self::format_wiki_substr($arr['title']);
