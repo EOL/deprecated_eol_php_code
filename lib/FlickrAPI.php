@@ -328,12 +328,14 @@ class FlickrAPI
         
         $agent_parameters = array();
         if(trim($photo->owner->realname) != "") $agent_parameters["fullName"] = $photo->owner->realname;
-        else $agent_parameters["fullName"] = $photo->owner->username;
+        else                                    $agent_parameters["fullName"] = $photo->owner->username;
+        $rights_holder = $agent_parameters["fullName"];
         $agent_parameters["homepage"] = "http://www.flickr.com/photos/".$photo->owner->nsid;
         $agent_parameters["role"] = "photographer";
+        if($user_id == FLICKR_BHL_ID) $agent_parameters = array(); //no need for BHL Flicker Photostream (544). Based here: https://eol-jira.bibalex.org/browse/DATA-1703?focusedCommentId=61446&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61446
         
         if($user_id == FLICKR_SMITHSONIAN_ID) $data_object_parameters["rightsHolder"] = "Smithsonian Wild";
-        else $data_object_parameters["rightsHolder"] = $agent_parameters["fullName"];
+        else                                  $data_object_parameters["rightsHolder"] = $rights_holder;
         
         $data_object_parameters["agents"] = array();
         $data_object_parameters["agents"][] = new \SchemaAgent($agent_parameters);
