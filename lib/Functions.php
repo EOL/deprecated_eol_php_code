@@ -1815,6 +1815,13 @@ class Functions
         return $str;
     }
 
+    public static function valid_uri_url($str)
+    {
+        if(substr($str,0,7) == "http://") return true;
+        elseif(substr($str,0,8) == "https://") return true;
+        return false;
+    }
+
     public static function cardinal_to_ordinal($number)
     {
         switch(substr($number, -1))
