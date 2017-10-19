@@ -71,7 +71,7 @@ class WikiDataAPI
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // file in question ---
         // File:
-        $arr = self::process_file("Clothes.jpg");
+        $arr = self::process_file("Fotografi_fr%C3%A5n_Museo,_oggetti_preziosi._Neapel,_Italien_-_Hallwylska_museet_-_106861.tif");
         print_r($arr);
         exit("\n-Finished testing-\n");
         */
@@ -1104,7 +1104,7 @@ class WikiDataAPI
         //================================================================ END
         $rek['fromx'] = 'dump';
         
-        // /* good debug for Artist dump
+        /* good debug for Artist dump
         if($rek['pageid'] == "947855")
         {
             echo "\n=================investigate dump data===========start\n";
@@ -1113,7 +1113,7 @@ class WikiDataAPI
             echo "\n=================investigate dump data===========end\n";
             exit("\nwait..investigate here...\n");
         }
-        // */
+        */
         return $rek;
     }
     private function second_option_for_artist_info($arr)
@@ -1402,7 +1402,7 @@ class WikiDataAPI
             else $rek['title'] = self::format_wiki_substr($arr['title']);
             
             /*
-            if($rek['pageid'] == "41854689") //good debug api
+            if($rek['pageid'] == "53760123") //good debug api
             {
                 echo "\n=======investigate api data =========== start\n";
                 print_r($arr); exit;
@@ -1414,9 +1414,9 @@ class WikiDataAPI
             if($val = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Artist']['value'])) {
                 $atemp = array();
                 if(preg_match("/href=\"(.*?)\"/ims", $val, $a)) $atemp['homepage'] = trim($a[1]);
-                if(preg_match("/\">(.*?)<\/a>/ims", $val, $a)) $atemp['name'] = trim($a[1]);
+                if(preg_match("/\">(.*?)<\/a>/ims", $val, $a)) $atemp['name'] = self::remove_space(strip_tags(trim($a[1]),''));
                 if(@$atemp['name']) $rek['Artist'][] = $atemp;
-                else $rek['Artist'][] = array('name' => strip_tags($val)); // e.g. <span lang="en">Anonymous</span>
+                else $rek['Artist'][] = array('name' => self::remove_space(strip_tags($val,''))); // e.g. <span lang="en">Anonymous</span>
             }
             if(!@$rek['Artist']) $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']);
             if(!@$rek['Artist']) {
@@ -1453,6 +1453,11 @@ class WikiDataAPI
             */
         }
         return $rek; //$arr
+    }
+    private function remove_space($str)
+    {
+        $str = str_replace("&nbsp;", " ", $str);
+        return Functions::remove_whitespace($str);
     }
     private function get_artist_from_special_source($categories, $title = "") //$categories can be any block of string
     {
