@@ -15,10 +15,12 @@ require_library('ResourceDataObjectElementsSetting');
 // $resource_path = "http://localhost/cp/UnivAlberta/data.xml.gz";
 $resource_path = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/UnivAlberta/data.xml.gz";
 
+/*
 $result = $GLOBALS['db_connection']->select("SELECT accesspoint_url FROM resources WHERE id=$resource_id");
 $row = $result->fetch_row();
 $new_resource_path = @$row[0];
 if($resource_path != $new_resource_path && $new_resource_path != '') $resource_path = $new_resource_path;
+*/
 
 print "\n processing resource:\n $resource_path \n\n"; 
 $func = new ResourceDataObjectElementsSetting($resource_id, $resource_path);
