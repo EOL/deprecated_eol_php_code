@@ -552,6 +552,19 @@ class WikiDataAPI
             if(stripos($LicenseShortName, "User:Sidpatil") !== false) return "invalid";
 
             // added Oct 19
+            if(stripos($LicenseShortName, "ZooKeys-License") !== false) return $this->license['by'];
+            if(stripos($LicenseShortName, "Flickr-change-of-license") !== false) return $this->license['by'];
+            if(stripos($LicenseShortName, "-cc-by-") !== false) return $this->license['by']; //ifb-cc-by-2.5|Vesselina Lazarova|http://www.imagesfrombulgaria.com/v/bulgarian-food/Parjena_Caca.JPG.html
+            if(stripos($LicenseShortName, "cc-by-sa") !== false) return $this->license['by-sa'];
+            if(stripos($LicenseShortName, "Geograph|") !== false) return $this->license['by-sa']; //Geograph|691836|Trish Steel
+            if(stripos($LicenseShortName, " cc-by-sa") !== false) return $this->license['by-sa']; //Thomas Pruß cc-by-sa
+            if(stripos($LicenseShortName, "WikiAfrica") !== false) return $this->license['by-sa']; //WikiAfrica/Ton Rulkens|2012-10-07
+            if(stripos($LicenseShortName, "Wiki Loves Earth") !== false) return $this->license['by-sa']; //Wiki Loves Earth 2014|cat
+            if(stripos($LicenseShortName, "Walters Art Museum") !== false) return $this->license['by-sa']; //Walters Art Museum license|type=2D
+            if($LicenseShortName == "IUCN map permission") return $this->license['public domain']; //exact match
+            if($LicenseShortName == "Justphotos.ru") return $this->license['by-sa']; //exact match
+            if($LicenseShortName == "MAV-FMVZ USP-license") return $this->license['by-sa']; //exact match
+            
             // for public domain - stripos
             $pd = array();
             $pd[] = "PD-US";
@@ -573,6 +586,7 @@ class WikiDataAPI
             $inv[] = "GPL|";
             $inv[] = "Remove this line and insert a license";
             $inv[] = "boilerplate metadata";
+            $inv[] = "by-nc-nd";
             foreach($inv as $p) {
                 if(stripos($LicenseShortName, $p) !== false) return "invalid";
             }
@@ -588,11 +602,22 @@ class WikiDataAPI
             if(stripos($LicenseShortName, "gebruiker:Jürgen") !== false) return "invalid";
             
             // for invalid - exact match
-            $arr = "Link,WTFPL-1,En|A person kneeling next to a seal.,self2|FAL|,Fifty Birds,Laboratorio grafico,== Original upload log,Norwegian coat of arms,User:Arp/License,User:Erin Silversmith/Licence,trademark,benjamint5D,custom,Lang,User:Arjun01/I,Apache|Google,easy-border,LA2-Blitz,Autotranslate|1=1|,Frianvändning,Self,Location|57|47|35|N|152|23|39|W,OGL2,User:Pudding4brains/License,ScottForesman,FoP-Hungary,License";
+            $arr = "KIT-license,Open Beelden,MUSE permission,plos,PLoS,volganet.ru,NoCoins,Stan Shebs photo,self,Multi-license,Link,WTFPL-1,En|A person kneeling next to a seal.,self2|FAL|,Fifty Birds,Laboratorio grafico,== Original upload log,Norwegian coat of arms,User:Arp/License,User:Erin Silversmith/Licence,trademark,benjamint5D,custom,Lang,User:Arjun01/I,Apache|Google,easy-border,LA2-Blitz,Autotranslate|1=1|,Frianvändning,Self,Location|57|47|35|N|152|23|39|W,OGL2,User:Pudding4brains/License,ScottForesman,FoP-Hungary,License";
             $arr = explode(",", $arr);
             foreach($arr as $a) {
                 if($LicenseShortName == $a) return "invalid"; //exact match
             }
+            
+            /*
+            User:Chell Hill/CHillPix
+            User:Beria/License
+            User:Kadellar/credit
+            User:Goodshort/Credit
+            User:Anton_17/Licensing
+            User:Ralf Roletschek/Lizenz
+            ...and many many more...
+            */
+            if(substr($LicenseShortName,0,5) == "User:") return "invalid"; //starts with "User:"
 
             $this->debug['blank_license'][$LicenseShortName] = ''; //utility debug - important
             
