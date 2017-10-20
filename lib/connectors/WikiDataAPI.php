@@ -66,7 +66,7 @@ class WikiDataAPI
         exit; 
         */
         
-        // /* testing
+        /* testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // file in question ---
@@ -74,7 +74,7 @@ class WikiDataAPI
         $arr = self::process_file("Plate_1,_Lepas._Illustrations_of_goose_barnicles,_1851._Wellcome_L0076813.jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
-        // */
+        */
         
         if(!@$this->trans['editors'][$this->language_code]) {
             $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
@@ -986,13 +986,15 @@ class WikiDataAPI
         $rek['date'] = @$rek['other']['date'];
         //================================================================ Artist
         $rek['Artist'] = trim(@$rek['other']['author']);
+
+        if(!$rek['Artist']) { //became the 1st option. Before was just the 2nd option
+            echo "\nelix went here 111\n";
+            if($val = self::second_option_for_artist_info($dump_arr)) $rek['Artist'][] = $val;
+        }
+        
         if(!$rek['Artist']) {
             $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']); //get_media_metadata_from_json()
             echo "\nelix went here\n";
-        }
-        if(!$rek['Artist']) {
-            echo "\nelix went here 111\n";
-            if($val = self::second_option_for_artist_info($dump_arr)) $rek['Artist'][] = $val;
         }
         if(!$rek['Artist']) {
             echo "\nelix went here 222\n";
@@ -1110,7 +1112,7 @@ class WikiDataAPI
         //================================================================ END
         $rek['fromx'] = 'dump';
         
-        // /* good debug for Artist dump
+        /* good debug for Artist dump
         if($rek['pageid'] == "37707429")
         {
             echo "\n=================investigate dump data===========start\n";
@@ -1119,7 +1121,7 @@ class WikiDataAPI
             echo "\n=================investigate dump data===========end\n";
             exit("\nwait..investigate here...\n");
         }
-        // */
+        */
         return $rek;
     }
     private function second_option_for_artist_info($arr)
@@ -1174,9 +1176,11 @@ class WikiDataAPI
             }
         }
 
+        /* heavy so commented first, will see how the preview goes in V3 and get back to this
         elseif(stripos($description, "{{Wellcome Images}}") !== false) { //string is found
             return array('name' => "Wellcome Images", 'homepage' => "https://wellcomeimages.org/", 'role' => 'creator');
         }
+        */
         
         elseif(preg_match("/Photographer<\/td>(.*?)<\/td>/ims", $description, $a)) { //<td >Photographer</td> <td>Hans Hillewaert</td>
             echo "\nelix 333 333\n";
