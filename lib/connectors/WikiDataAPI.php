@@ -71,7 +71,7 @@ class WikiDataAPI
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // file in question ---
         // File:Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg
-        $arr = self::process_file("Plate_1,_Lepas._Illustrations_of_goose_barnicles,_1851._Wellcome_L0076813.jpg");
+        $arr = self::process_file("Macrolepiota procera, Ondřejovsko (1).jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
         */
@@ -834,6 +834,8 @@ class WikiDataAPI
             echo "\nused api data";
             $rek = self::get_media_metadata_from_api($file);
         }
+        if(!$rek) return false;
+        
         $rek['source_url']  = "https://commons.wikimedia.org/wiki/File:".$file;
         $rek['media_url']   = self::get_media_url($file);
         $rek['Artist']      = self::format_artist($rek['Artist']);
@@ -1442,7 +1444,7 @@ class WikiDataAPI
             else $rek['title'] = self::format_wiki_substr($arr['title']);
             
             /*
-            if($rek['pageid'] == "53760123") //good debug api
+            if($rek['pageid'] == "14516672") //good debug api
             {
                 echo "\n=======investigate api data =========== start\n";
                 print_r($arr); exit;
@@ -1450,8 +1452,17 @@ class WikiDataAPI
             }
             */
             
+            if($val = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Credit']['value'])) {
+                if(stripos($val, "int-own-work") !== false) return false; //string is found ---- invalid license
+            }
+            
             //start artist ====================
             if($val = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Artist']['value'])) {
+                
+                if(stripos($val, "User:Aktron") !== false) return false; //string is found ---- invalid license
+                // User:Sevela.p
+                
+                
                 $atemp = array();
                 if(preg_match("/href=\"(.*?)\"/ims", $val, $a)) $atemp['homepage'] = trim($a[1]);
                 if(preg_match("/\">(.*?)<\/a>/ims", $val, $a)) $atemp['name'] = self::remove_space(strip_tags(trim($a[1]),''));
