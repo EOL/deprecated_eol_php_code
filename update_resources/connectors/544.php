@@ -10,6 +10,9 @@ http://eol.org/schema/agent/agent:           1
 http://purl.org/dc/dcmitype/StillImage:      19103
 http://rs.tdwg.org/dwc/terms/taxon:          20654
 http://rs.gbif.org/terms/1.0/vernacularname: 4879
+
+544	Saturday 2017-10-07 09:33:30 PM	{"agent.tab":1,"media_resource.tab":19103,"taxon.tab":20654,"vernacular_name.tab":4879}
+544	Thursday 2017-10-19 10:49:56 PM	{              "media_resource.tab":13654,"taxon.tab":12554,"vernacular_name.tab":2610}
 */
 
 ini_set('error_reporting', E_ALL);
