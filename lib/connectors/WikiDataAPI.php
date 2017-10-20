@@ -66,15 +66,15 @@ class WikiDataAPI
         exit; 
         */
         
-        /* testing
+        // /* testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // file in question ---
         // File:Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg
-        $arr = self::process_file("Viburnum_rhytidophyllum_in_Budapest.jpg");
+        $arr = self::process_file("Plate_1,_Lepas._Illustrations_of_goose_barnicles,_1851._Wellcome_L0076813.jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
-        */
+        // */
         
         if(!@$this->trans['editors'][$this->language_code]) {
             $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
@@ -1110,8 +1110,8 @@ class WikiDataAPI
         //================================================================ END
         $rek['fromx'] = 'dump';
         
-        /* good debug for Artist dump
-        if($rek['pageid'] == "947855")
+        // /* good debug for Artist dump
+        if($rek['pageid'] == "37707429")
         {
             echo "\n=================investigate dump data===========start\n";
             print_r($dump_arr);
@@ -1119,7 +1119,7 @@ class WikiDataAPI
             echo "\n=================investigate dump data===========end\n";
             exit("\nwait..investigate here...\n");
         }
-        */
+        // */
         return $rek;
     }
     private function second_option_for_artist_info($arr)
@@ -1173,12 +1173,17 @@ class WikiDataAPI
                 else echo "\nelix 333\n";
             }
         }
+
+        elseif(stripos($description, "{{Wellcome Images}}") !== false) { //string is found
+            return array('name' => "Wellcome Images", 'homepage' => "https://wellcomeimages.org/", 'role' => 'creator');
+        }
+        
         elseif(preg_match("/Photographer<\/td>(.*?)<\/td>/ims", $description, $a)) { //<td >Photographer</td> <td>Hans Hillewaert</td>
             echo "\nelix 333 333\n";
             $temp = $a[1];
             $final = array(); $atemp = array();
             if(preg_match("/href=\"(.*?)\"/ims", $temp, $a)) $atemp['homepage'] = trim($a[1]);
-            $atemp['name'] = strip_tags(trim($temp));
+            $atemp['name'] = strip_tags(trim($temp)); //format_artist
             if(@$atemp['name']) {
                 $final[] = $atemp;
                 return $final;
@@ -1425,10 +1430,7 @@ class WikiDataAPI
             // print_r($arr); //exit;
             if(!isset($arr['pageid'])) return array();
             $rek['pageid'] = self::format_wiki_substr($arr['pageid']);
-            /* better to use just the one below
-            if($val = @$arr['imageinfo'][0]['extmetadata']['ObjectName']['value'])  $rek['title'] = self::format_wiki_substr($val);
-            else                                                                    $rek['title'] = self::format_wiki_substr($arr['title']);
-            */
+
             $rek['ImageDescription'] = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['ImageDescription']['value']);
             $rek['ImageDescription'] = self::adjust_image_desc($rek['ImageDescription']);
 
