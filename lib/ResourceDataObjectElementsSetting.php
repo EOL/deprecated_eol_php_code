@@ -237,7 +237,7 @@ class ResourceDataObjectElementsSetting
         fclose($OUT);
     }
 
-    public function delete_taxon_if_no_dataObject($xml_string)
+    public static function delete_taxon_if_no_dataObject($xml_string)
     {
         if($xml = simplexml_load_string($xml_string))
         {
