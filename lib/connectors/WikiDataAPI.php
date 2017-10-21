@@ -66,15 +66,15 @@ class WikiDataAPI
         exit; 
         */
         
-        /* testing
+        // /* testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // file in question ---
         // File:Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg
-        $arr = self::process_file("Viola_alba_%2B_Lamium_purpureum.jpg");
+        $arr = self::process_file("An_Opossum_Wellcome_L0047664.jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
-        */
+        // */
         
         if(!@$this->trans['editors'][$this->language_code]) {
             $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
@@ -990,16 +990,16 @@ class WikiDataAPI
         $rek['Artist'] = trim(@$rek['other']['author']);
 
         if(!$rek['Artist']) { //became the 1st option. Before was just the 2nd option
-            echo "\nelix went here 111\n";
+            echo "\nelix went here aaa\n";
             if($val = self::second_option_for_artist_info($dump_arr)) $rek['Artist'][] = $val;
         }
         
         if(!$rek['Artist']) {
+            echo "\nelix went here bbb\n";
             $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']); //get_media_metadata_from_json()
-            echo "\nelix went here\n";
         }
         if(!$rek['Artist']) {
-            echo "\nelix went here 222\n";
+            echo "\nelix went here ccc\n";
             if($val = self::get_artist_from_special_source($wiki, '')) $rek['Artist'][] = $val; //get_media_metadata_from_json()
         }
         // parse this value = "[http://www.panoramio.com/user/6099584?with_photo_id=56065015 Greg N]"
@@ -1115,7 +1115,7 @@ class WikiDataAPI
         $rek['fromx'] = 'dump';
         
         /* good debug for Artist dump
-        if($rek['pageid'] == "37707429")
+        if($rek['pageid'] == "36125309")
         {
             echo "\n=================investigate dump data===========start\n";
             print_r($dump_arr);
@@ -1149,6 +1149,14 @@ class WikiDataAPI
             $a['role'] = "contributor";
             return $a;
         }
+        elseif($val = @$arr['revision']['text']) {
+            if(stripos($val, "{{Wellcome Images}}") !== false) { //string is found
+                return array('name' => "Wellcome Images", 'homepage' => "https://wellcomeimages.org/", 'role' => 'creator');
+            }
+            
+        }
+        
+        
         return false;
     }
     private function get_artist_from_ImageDescription($description)
