@@ -71,7 +71,7 @@ class WikiDataAPI
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // file in question ---
         // File:Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg
-        $arr = self::process_file("An_Opossum_Wellcome_L0047664.jpg");
+        $arr = self::process_file("Anas_boschas_-_1845-1863_-_Print_-_Iconographia_Zoologica_-_Special_Collections_University_of_Amsterdam_-_UBA01_IZ17600371.tif");
         print_r($arr);
         exit("\n-Finished testing-\n");
         // */
@@ -1452,7 +1452,7 @@ class WikiDataAPI
             else $rek['title'] = self::format_wiki_substr($arr['title']);
             
             /*
-            if($rek['pageid'] == "26906555") //good debug api
+            if($rek['pageid'] == "56736527") //good debug api
             {
                 echo "\n=======investigate api data =========== start\n";
                 print_r($arr); exit;
@@ -1477,12 +1477,17 @@ class WikiDataAPI
                     {
                         $hpage = trim($a[1]);
                         if(substr($hpage,0,24) == '//commons.wikimedia.org/') $atemp['homepage'] = "https:".$hpage;
-                        else $atemp['homepage'] = trim($a[1]); //orig
+                        else                                                  $atemp['homepage'] = trim($a[1]); //orig
                         
                     }
-                    if(preg_match("/\">(.*?)<\/a>/ims", $val, $a)) $atemp['name'] = self::remove_space(strip_tags(trim($a[1]),''));
+                    if(preg_match("/\">(.*?)<\/a>/ims", $val, $a))
+                    {
+                        echo "\nelicha 111\n";
+                        $atemp['name'] = self::remove_role_from_name(strip_tags(trim($a[1]),''));
+                        $atemp['role'] = 'author';
+                    }
                     if(@$atemp['name']) $rek['Artist'][] = $atemp;
-                    else $rek['Artist'][] = array('name' => self::remove_space(strip_tags($val,''))); // e.g. <span lang="en">Anonymous</span>
+                    else                $rek['Artist'][] = array('name' => self::remove_space(strip_tags($val,'')), 'role' => 'author'); // e.g. <span lang="en">Anonymous</span>
                 }
                 
                 
@@ -1527,6 +1532,12 @@ class WikiDataAPI
             */
         }
         return $rek; //$arr
+    }
+    private function remove_role_from_name($str)
+    {
+        $str = self::remove_space($str);
+        $remove = array("Creator:");
+        return str_ireplace($remove, "", $str);
     }
     private function remove_space($str)
     {
