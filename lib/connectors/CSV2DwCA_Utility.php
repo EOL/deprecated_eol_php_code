@@ -131,7 +131,8 @@ class CSV2DwCA_Utility
                 $k = 0;
                 $rec = array();
                 foreach($fields as $field) {
-                    $rec[$field] = $values[$k];
+                    if($this->resource_id == 430) $rec[$field] = Functions::remove_this_last_char_from_str($values[$k], "|");
+                    else                          $rec[$field] = $values[$k];
                     $k++;
                 }
                 
