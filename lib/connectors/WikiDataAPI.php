@@ -71,7 +71,7 @@ class WikiDataAPI
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // file in question ---
         // File:Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg
-        $arr = self::process_file("Macrolepiota procera, Ondřejovsko (1).jpg");
+        $arr = self::process_file("Viola_alba_%2B_Lamium_purpureum.jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
         */
@@ -1444,7 +1444,7 @@ class WikiDataAPI
             else $rek['title'] = self::format_wiki_substr($arr['title']);
             
             /*
-            if($rek['pageid'] == "14516672") //good debug api
+            if($rek['pageid'] == "26906555") //good debug api
             {
                 echo "\n=======investigate api data =========== start\n";
                 print_r($arr); exit;
@@ -1461,17 +1461,32 @@ class WikiDataAPI
                 
                 if(stripos($val, "User:Aktron") !== false) return false; //string is found ---- invalid license
                 // User:Sevela.p
+                elseif(stripos($val, "Tom Habibi") !== false) $rek['Artist'][] = array('name' => 'Tom Habibi', 'homepage' => 'http://commons.wikimedia.org/wiki/User:Tomhab~commonswiki', 'role' => 'source');
+                else
+                { //original block
+                    $atemp = array();
+                    if(preg_match("/href=\"(.*?)\"/ims", $val, $a))
+                    {
+                        $hpage = trim($a[1]);
+                        if(substr($hpage,0,24) == '//commons.wikimedia.org/') $atemp['homepage'] = "https:".$hpage;
+                        else $atemp['homepage'] = trim($a[1]); //orig
+                        
+                    }
+                    if(preg_match("/\">(.*?)<\/a>/ims", $val, $a)) $atemp['name'] = self::remove_space(strip_tags(trim($a[1]),''));
+                    if(@$atemp['name']) $rek['Artist'][] = $atemp;
+                    else $rek['Artist'][] = array('name' => self::remove_space(strip_tags($val,''))); // e.g. <span lang="en">Anonymous</span>
+                }
                 
                 
-                $atemp = array();
-                if(preg_match("/href=\"(.*?)\"/ims", $val, $a)) $atemp['homepage'] = trim($a[1]);
-                if(preg_match("/\">(.*?)<\/a>/ims", $val, $a)) $atemp['name'] = self::remove_space(strip_tags(trim($a[1]),''));
-                if(@$atemp['name']) $rek['Artist'][] = $atemp;
-                else $rek['Artist'][] = array('name' => self::remove_space(strip_tags($val,''))); // e.g. <span lang="en">Anonymous</span>
             }
             if(!@$rek['Artist']) $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']);
             if(!@$rek['Artist']) {
-                if($val = @$arr['imageinfo'][0]['extmetadata']['Credit']['value']) $rek['Artist'][] = array('name' => strip_tags($val));
+                if($val = @$arr['imageinfo'][0]['extmetadata']['Credit']['value']) {
+                    $credit_value = strip_tags($val);
+                    if(stripos($credit_value, "http://wellcomeimages.org") !== false) $rek['Artist'][] = array('name' => 'Wellcome Images', 'homepage' => 'http://wellcomeimages.org', 'role' => 'source');
+                    elseif(stripos($credit_value, "by the British Library") !== false) $rek['Artist'][] = array('name' => 'The British Library', 'homepage' => 'https://www.bl.uk/', 'role' => 'source');
+                    else $rek['Artist'][] = array('name' => strip_tags($val));
+                }
             }
             if(!@$rek['Artist']) //e.g. Files from Wellcome Images
             {
