@@ -79,11 +79,9 @@ class TropicosArchiveAPI
         foreach(new FileIterator($this->tropicos_ids_list_file) as $line_number => $taxon_id)
         {
             // self::check_server_downtime();
-            if($taxon_id)
-            {
+            if($taxon_id) {
                 $i++; $j++;
-                if($i == 1)
-                {
+                if($i == 1) {
                     $this->taxon_ids = array();
                     $this->object_ids = array();
                     $k++;
@@ -120,8 +118,7 @@ class TropicosArchiveAPI
                 if(($i % 500) == 0) echo "\n" . number_format($i) . " - ";
                 self::process_taxon($taxon_id);
                 
-                if(($i % $temp_archive_batch_count) == 0)
-                {
+                if(($i % $temp_archive_batch_count) == 0) {
                     $old_k = $k;
                     echo "\nfinalizing batch [$k]\n";
                     $this->archive_builder->finalize(TRUE);
@@ -131,8 +128,7 @@ class TropicosArchiveAPI
             }
         }
         
-        if($old_k != $k)
-        {
+        if($old_k != $k) {
             echo "\nfinalizing batch [$k]\n";
             $this->archive_builder->finalize(TRUE);
         }
@@ -180,8 +176,7 @@ class TropicosArchiveAPI
         $taxon->family          = @$taxonomy['family'];
         $taxon->genus           = @$taxonomy['genus'];
         if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
-        if(!isset($this->taxon_ids[$taxon->taxonID]))
-        {
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->taxon_ids[$taxon->taxonID] = '';
             $this->archive_builder->write_object_to_file($taxon);
         }
@@ -194,8 +189,7 @@ class TropicosArchiveAPI
         $xml = self::create_cache("images", $taxon_id);
         $xml = simplexml_load_string($xml);
         $with_image = 0;
-        foreach($xml->Image as $rec)
-        {
+        foreach($xml->Image as $rec) {
             if($rec->Error) continue; // echo "\n no images - " . $rec->DetailUrl;
             $with_image++;
             if($with_image > 15) break; // max no. of images per taxon //debug orig 15
@@ -210,8 +204,7 @@ class TropicosArchiveAPI
             if(!in_array(trim($rec->LicenseUrl), $valid_licenses)) continue; // echo "\n invalid image license - " . $rec->DetailUrl . "\n";
             $license = $rec->LicenseUrl;
             $agent_ids = array();
-            if(trim($rec->Photographer) != "")
-            {
+            if(trim($rec->Photographer) != "") {
                 $agents = array();
                 $agents[] = array("role" => "photographer", "homepage" => "", "fullName" => $rec->Photographer);
                 $agent_ids = self::create_agents($agents);
@@ -223,13 +216,11 @@ class TropicosArchiveAPI
             $title      = "";
             $subject    = "";
             $source = $rec->DetailUrl;
-            if($rec->DetailJpgUrl == 'http://www.tropicos.org/images/imageprotected.jpg') 
-            {
+            if($rec->DetailJpgUrl == 'http://www.tropicos.org/images/imageprotected.jpg') {
                 $mediaURL = $rec->ThumbnailUrl;
                 $rating = 1;
             }
-            else
-            {
+            else {
                 $mediaURL = $rec->DetailJpgUrl;
                 $rating = 2;
             }
@@ -251,8 +242,7 @@ class TropicosArchiveAPI
             $mr->description    = $description;
             $mr->accessURI      = $mediaURL;
             $mr->Rating         = $rating;
-            if(!isset($this->object_ids[$mr->identifier]))
-            {
+            if(!isset($this->object_ids[$mr->identifier])) {
                 $this->object_ids[$mr->identifier] = '';
                 $this->archive_builder->write_object_to_file($mr);
             }
@@ -265,8 +255,7 @@ class TropicosArchiveAPI
         $xml = self::create_cache("distribution", $taxon_id);
         $xml = simplexml_load_string($xml);
         $lines = array();
-        foreach($xml->Distribution as $rec)
-        {
+        foreach($xml->Distribution as $rec) {
             if(!isset($rec->Location->CountryName)) continue;
 
             $line = trim($rec->Location->CountryName) . trim($rec->Location->RegionName) . trim($rec->Location->UpperName);
@@ -293,8 +282,7 @@ class TropicosArchiveAPI
             self::add_string_types($taxon_id, $text_id, "Taxon", $sciname, "http://rs.tdwg.org/dwc/terms/scientificName");
             self::add_string_types($taxon_id, $text_id, "Country", trim($rec->Location->CountryName), "http://rs.tdwg.org/dwc/terms/country");
             self::add_string_types($taxon_id, $text_id, "Continent", trim($rec->Location->RegionName), "http://rs.tdwg.org/dwc/terms/continent");
-            if($upper_name = @$rec->Location->UpperName)
-            {
+            if($upper_name = @$rec->Location->UpperName) {
                 self::add_string_types($taxon_id, $text_id, "Upper name", $upper_name, "http://tropicos.org/". SparqlClient::to_underscore("Upper name"));
             }
         }
@@ -310,8 +298,7 @@ class TropicosArchiveAPI
         $m = new \eol_schema\MeasurementOrFact();
         $occurrence_id = $this->add_occurrence($taxon_id, $catnum);
         $m->occurrenceID = $occurrence_id;
-        if($mtaxon)
-        {
+        if($mtaxon) {
             $m->measurementOfTaxon = 'true';
             $m->source = TROPICOS_DOMAIN . "/Name/" . $taxon_id . "?tab=distribution";
             /* temporarily excluded to reduce size of measurement tab
@@ -338,8 +325,7 @@ class TropicosArchiveAPI
     private function create_agents($agents)
     {
         $agent_ids = array();
-        foreach($agents as $rec)
-        {
+        foreach($agents as $rec) {
             $agent = (string) trim($rec["fullName"]);
             if(!$agent) continue;
             $r = new \eol_schema\Agent();
@@ -348,8 +334,7 @@ class TropicosArchiveAPI
             $r->agentRole = $rec["role"];
             $r->term_homepage = $rec["homepage"];
             $agent_ids[] = $r->identifier;
-            if(!isset($this->resource_agent_ids[$r->identifier]))
-            {
+            if(!isset($this->resource_agent_ids[$r->identifier])) {
                $this->resource_agent_ids[$r->identifier] = '';
                $this->archive_builder->write_object_to_file($r);
             }
@@ -362,10 +347,8 @@ class TropicosArchiveAPI
         $xml = self::create_cache("taxon_ref", $taxon_id);
         $xml = simplexml_load_string($xml);
         $reference_ids = array();
-        foreach($xml->NameReference as $rec)
-        {
-            if($ref_id = trim($rec->Reference->ReferenceId))
-            {
+        foreach($xml->NameReference as $rec) {
+            if($ref_id = trim($rec->Reference->ReferenceId)) {
                 $reference_ids[] = $ref_id;
                 $ref_url = TROPICOS_DOMAIN . "/Reference/" . $ref_id;
                 $citation = trim($rec->Reference->FullCitation);
@@ -380,14 +363,12 @@ class TropicosArchiveAPI
         $records = array();
         $xml = self::create_cache("synonyms", $taxon_id);
         $xml = simplexml_load_string($xml);
-        foreach($xml->Synonym as $syn)
-        {
+        foreach($xml->Synonym as $syn) {
             $synonym = trim($syn->SynonymName->ScientificNameWithAuthors);
             $NameId = trim($syn->SynonymName->NameId);
             $Family = trim($syn->SynonymName->Family);
             $reference_ids = array();
-            if($ref_id = (string) $syn->Reference->ReferenceId)
-            {
+            if($ref_id = (string) $syn->Reference->ReferenceId) {
                 $citation = $syn->Reference->AuthorString . ". " . $syn->Reference->ArticleTitle . ". " . $syn->Reference->AbbreviatedTitle . ". " . $syn->Reference->Collation . ".";
                 $citation = str_replace("..", ".", $citation);
                 $reference_ids[] = $ref_id;
@@ -400,14 +381,12 @@ class TropicosArchiveAPI
 
     private function add_reference($citation, $ref_id, $ref_url = false)
     {
-        if($citation)
-        {
+        if($citation) {
             $r = new \eol_schema\Reference();
             $r->full_reference = (string) $citation;
             $r->identifier = $ref_id;
             if($ref_url) $r->uri = $ref_url;
-            if(!isset($this->resource_reference_ids[$r->identifier]))
-            {
+            if(!isset($this->resource_reference_ids[$r->identifier])) {
                $this->resource_reference_ids[$r->identifier] = '';
                $this->archive_builder->write_object_to_file($r);
             }
@@ -416,8 +395,7 @@ class TropicosArchiveAPI
 
     private function add_synonyms($records, $acceptedNameUsageID)
     {
-        foreach($records as $rec)
-        {
+        foreach($records as $rec) {
             $synonym = new \eol_schema\Taxon();
             $synonym->taxonID               = $rec["id"];
             $synonym->scientificName        = $rec["synonym"];
@@ -444,8 +422,7 @@ class TropicosArchiveAPI
         $taxonomy = array();
         $xml = self::create_cache("taxonomy", $taxon_id);
         $xml = simplexml_load_string($xml);
-        foreach($xml->Name as $rec)
-        {
+        foreach($xml->Name as $rec) {
             if($rec->Rank == "kingdom") $taxonomy['kingdom'] = $rec->ScientificNameWithAuthors;
             if($rec->Rank == "phylum")  $taxonomy['phylum'] = $rec->ScientificNameWithAuthors;
             if($rec->Rank == "class")   $taxonomy['class'] = $rec->ScientificNameWithAuthors;
@@ -467,16 +444,14 @@ class TropicosArchiveAPI
         $GametophyticCount = array();
         $SporophyticCount = array();
         $IPCNReferenceID = array();
-        foreach($xml->ChromosomeCount as $rec)
-        {
+        foreach($xml->ChromosomeCount as $rec) {
             if(!isset($rec->GametophyticCount) && !isset($rec->SporophyticCount)) continue;
             $with_content = true;
             $citation = trim($rec->Reference->FullCitation);
             $ref_url = TROPICOS_DOMAIN . "/Reference/" . trim($rec->Reference->ReferenceId);
             if($rec->GametophyticCount) $GametophyticCount["$rec->GametophyticCount"] = 1;
             if($rec->SporophyticCount) $SporophyticCount["$rec->SporophyticCount"] = 1;
-            if(trim($rec->IPCNReferenceID))
-            {                
+            if(trim($rec->IPCNReferenceID)) {
                 $IPCNref_url = TROPICOS_DOMAIN . "/Reference/" . trim($rec->IPCNReferenceID);
                 $index = "<a target='tropicos' href='" . $IPCNref_url . "'>" . $rec->IPCNAbbreviation . "</a>";
                 $IPCNReferenceID[$index] = 1;
@@ -492,8 +467,7 @@ class TropicosArchiveAPI
         if($GametophyticCount) $description .= "Gametophyte chromosome count = " . implode("; ", $GametophyticCount) . "<br><br>";
         if($SporophyticCount) $description .= "Sporophyte chromosome count = " . implode("; ", $SporophyticCount) . "<br><br>";
         if($IPCNReferenceID) $description .= "IPCN Ref. = " . implode("; ", $IPCNReferenceID) . "<br><br>";
-        if($with_content)
-        {
+        if($with_content) {
             $source = TROPICOS_DOMAIN . "/Name/" . $taxon_id . "?tab=chromosomecounts";
             $identifier = $taxon_id . "_chromosome";
             $mimeType   = "text/html";
@@ -514,20 +488,16 @@ class TropicosArchiveAPI
         if(!($OUT = Functions::file_open($this->tropicos_ids_list_file, "w"))) return;
         $startid = 0; // debug orig value 0; 1600267 with mediaURL and <location>; 1201245 with thumbnail size images; 100391155 near the end
         $count = 0;
-        while(true)
-        {
+        while(true) {
             $count++;
             $contents = self::create_cache("id_list", $startid);
-            if($contents)
-            {
+            if($contents) {
                 $ids = json_decode($contents, true);
                 if(($count % 100) == 0) echo "\n count:[$count] " . count($ids);
                 $str = "";
-                foreach($ids as $id)
-                {
+                foreach($ids as $id) {
                     if(isset($id["Error"])) return; // no more ids --- [{"Error":"No names were found"}]
-                    if($id["NameId"])
-                    {
+                    if($id["NameId"]) {
                         $str .= $id["NameId"] . "\n";
                         $startid = $id["NameId"];
                     }
@@ -536,8 +506,7 @@ class TropicosArchiveAPI
                 $startid++; // to avoid duplicate ids, set next id to get
                 if($str != "") fwrite($OUT, $str);
             }
-            else
-            {
+            else {
                 echo "\n --server not accessible-- \n";
                 break;
             }
@@ -598,8 +567,7 @@ class TropicosArchiveAPI
     private function check_server_downtime()
     {
         $time = date('H:i:s', time());
-        if($time >= "06:40:00" && $time <= "07:00:00")
-        {
+        if($time >= "06:40:00" && $time <= "07:00:00") {
             echo "\n\n Process stopped at [$time], will resume in 1.5 hours...";
             sleep((60*60)+(60*30)); //sleep 1.5 hours
         }
@@ -611,8 +579,7 @@ class TropicosArchiveAPI
         
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . '_working/';
         $this->archive_builder_final = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        for($i=1; $i <= $batches; $i++)
-        {
+        for($i=1; $i <= $batches; $i++) {
             $dir = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_" . $i . "_working/";
             $harvester = new ContentArchiveReader(NULL, $dir);
             $tables = $harvester->tables;
