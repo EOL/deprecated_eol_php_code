@@ -3,7 +3,7 @@ namespace php_active_record;
 /* Tropicos Archive resource
 estimated execution time:
 */
-return;
+// return;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/TropicosArchiveAPI');
 
@@ -14,7 +14,7 @@ require_library('connectors/TropicosArchiveAPI');
 
 $timestart = time_elapsed();
 $resource_id = 218;
-// if(!Functions::can_this_connector_run($resource_id)) return;
+if(!Functions::can_this_connector_run($resource_id)) return;
 $func = new TropicosArchiveAPI($resource_id);
 
 $func->get_all_taxa($resource_id);

@@ -16,6 +16,8 @@ http://services.tropicos.org/Name/25510055/HigherTaxa?format=xml&apikey=2810ce68
 
 * Tropicos web service goes down daily between 7-8am Eastern. So the connector process sleeps for an hour during this downtime.
 * Connector runs for a long time because the sheer number of server requests to get all data for all taxa.
+
+1 - 49
 */
 
 define("TROPICOS_DOMAIN", "http://www.tropicos.org");
@@ -28,21 +30,19 @@ class TropicosArchiveAPI
 {
     function __construct($folder)
     {
-        $this->taxa = array();
-        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
-        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->resource_reference_ids = array();
         $this->resource_agent_ids = array();
-        $this->vernacular_name_ids = array();
         $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
         $this->occurrence_ids = array();
         $this->taxon_ids = array();
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->tropicos_ids_list_file = $this->TEMP_DIR . "tropicos_ids.txt";
-        $this->download_options = array('expire_seconds' => false, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->download_options = array('resource_id' => 218, 'cache_path' => '/Volumes/Thunderbolt4/eol_cache_tropicos/', 'expire_seconds' => false, 
+        'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1); 
+        //, 'delay_in_minutes' => 1
     }
 
-    function get_all_taxa()
+    function get_all_taxa($resource_id)
     {
         /*
         $id = "100001";
@@ -58,39 +58,83 @@ class TropicosArchiveAPI
             elseif($type == "chromosome") $url = TROPICOS_API_SERVICE . $id . "/ChromosomeCounts?format=xml&apikey=" . TROPICOS_API_KEY;
             echo "\n $type: [$url]";
         }
-        exit;
+        return;
         */
 
         self::assemble_id_list();
-        self::process_taxa();
-        $this->archive_builder->finalize(TRUE);
-        
+        $batches = self::process_taxa($resource_id);
+        // exit;
+        self::combine_all_temp_archives($batches, $resource_id);
         // remove temp dir
         recursive_rmdir($this->TEMP_DIR);
         echo ("\n temporary directory removed: " . $this->TEMP_DIR);
     }
 
-    private function process_taxa()
+    private function process_taxa($resource_id)
     {
+        $temp_archive_batch_count = 200; //debug orig is 10k //when testing use 200
+        $k = 0;
         $i = 0;
+        $j = 0;
         foreach(new FileIterator($this->tropicos_ids_list_file) as $line_number => $taxon_id)
         {
-            self::check_server_downtime();
+            // self::check_server_downtime();
             if($taxon_id)
             {
-                $i++;
-                /* breakdown when caching
-                $m = 50000;
+                $i++; $j++;
+                if($i == 1)
+                {
+                    $this->taxon_ids = array();
+                    $this->object_ids = array();
+                    $k++;
+                    echo "\n batch:[$k]\n";
+                    $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . "_$k" . '_working/';
+                    $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+                }
+                
+                /* breakdown when caching - up to 5 simultaneous connectors
+                $m = 250000;
+                // $m = 300000;
                 $cont = false;
                 // if($i >=  1    && $i < $m)    $cont = true;
                 // if($i >=  $m   && $i < $m*2)  $cont = true;
                 // if($i >=  $m*2 && $i < $m*3)  $cont = true;
                 // if($i >=  $m*3 && $i < $m*4)  $cont = true;
+                
+                // if($j >= 1    && $j < $m) $cont = true;
+                // if($j >= $m   && $j < $m*2) $cont = true;
+                if($j >= $m*2 && $j < $m*3) $cont = true;
+                // if($j >= $m*3 && $j < $m*4) $cont = true;
+                // if($j >= $m*4 && $j < $m*5) $cont = true;
+
+                if(($i % $temp_archive_batch_count) == 0)
+                {
+                    $old_k = $k;
+                    echo "\nfinalizing batch [$k]\n";
+                    $i = 0; //reset to 0
+                }
+
                 if(!$cont) continue;
                 */
-                if(($i % 100) == 0) echo "\n" . number_format($i) . " - ";
+                
+                if(($i % 500) == 0) echo "\n" . number_format($i) . " - ";
                 self::process_taxon($taxon_id);
+                
+                if(($i % $temp_archive_batch_count) == 0)
+                {
+                    $old_k = $k;
+                    echo "\nfinalizing batch [$k]\n";
+                    $this->archive_builder->finalize(TRUE);
+                    $i = 0; //reset to 0
+                }
+                
             }
+        }
+        
+        if($old_k != $k)
+        {
+            echo "\nfinalizing batch [$k]\n";
+            $this->archive_builder->finalize(TRUE);
         }
         
         /* during preview mode -- debug
@@ -100,6 +144,7 @@ class TropicosArchiveAPI
             self::process_taxon($taxon_id);
         }
         */
+        return $k;
     }
 
     function process_taxon($taxon_id)
@@ -141,7 +186,7 @@ class TropicosArchiveAPI
             $this->archive_builder->write_object_to_file($taxon);
         }
         self::get_distributions($taxon_id, $sciname);
-        self::get_synonyms($taxon_id);
+        self::get_synonyms($taxon_id); //debug - uncomment in real operation
     }
 
     private function get_images($taxon_id)
@@ -216,6 +261,7 @@ class TropicosArchiveAPI
 
     private function get_distributions($taxon_id, $sciname)
     {
+        $this->occurrence_ids = array();
         $xml = self::create_cache("distribution", $taxon_id);
         $xml = simplexml_load_string($xml);
         $lines = array();
@@ -234,7 +280,9 @@ class TropicosArchiveAPI
             // $agents[] = array("role" => "source", "homepage" => "http://www.tropicos.org", "fullName" => "Tropicos");
             // $agent_ids = self::create_agents($agents);
 
-            $text_id = $rec->Location->LocationID;
+            $text_id = (string) $rec->Location->LocationID;
+            // if(isset($location_ids[$text_id])) continue;
+            // $location_ids[$text_id] = '';
             
             $region = "";
             if($RegionName = trim($rec->Location->RegionName)) $region .= $RegionName;
@@ -258,6 +306,7 @@ class TropicosArchiveAPI
 
     private function add_string_types($taxon_id, $catnum, $label, $value, $mtype, $mtaxon = false)
     {
+        if(!trim($value)) return;
         $m = new \eol_schema\MeasurementOrFact();
         $occurrence_id = $this->add_occurrence($taxon_id, $catnum);
         $m->occurrenceID = $occurrence_id;
@@ -462,11 +511,7 @@ class TropicosArchiveAPI
 
     private function assemble_id_list()
     {
-        if(!($OUT = fopen($this->tropicos_ids_list_file, "w")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->tropicos_ids_list_file);
-          return;
-        }
+        if(!($OUT = Functions::file_open($this->tropicos_ids_list_file, "w"))) return;
         $startid = 0; // debug orig value 0; 1600267 with mediaURL and <location>; 1201245 with thumbnail size images; 100391155 near the end
         $count = 0;
         while(true)
@@ -496,7 +541,8 @@ class TropicosArchiveAPI
                 echo "\n --server not accessible-- \n";
                 break;
             }
-            // if($count == 1300) break; // normal operation
+            if($count == 1300) break; // normal operation
+            break; //debug - when developing
         }
         fclose($OUT);
     }
@@ -506,6 +552,7 @@ class TropicosArchiveAPI
         if($type == "id_list") // $id here is the startid
         {
             $pagesize = 1000; // debug orig value max size is 1000; pagesize is the no. of records returned from Tropicos master list service
+            // $pagesize = 100; //debug
             $url = TROPICOS_API_SERVICE . "List?startid=$id&PageSize=$pagesize&apikey=" . TROPICOS_API_KEY . "&format=json";
         }
         // $id here is the taxon_id
@@ -557,6 +604,84 @@ class TropicosArchiveAPI
             sleep((60*60)+(60*30)); //sleep 1.5 hours
         }
     }
+    
+    private function combine_all_temp_archives($batches, $resource_id)
+    {
+        $this->unique_ids = array();
+        
+        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . '_working/';
+        $this->archive_builder_final = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        for($i=1; $i <= $batches; $i++)
+        {
+            $dir = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_" . $i . "_working/";
+            $harvester = new ContentArchiveReader(NULL, $dir);
+            $tables = $harvester->tables;
+            if(!($this->fields["taxa"] = $tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) return false; // take note the index key is all lower case
+            foreach(array_keys($tables) as $table) self::process_fields($harvester->process_row_type($table), pathinfo($table, PATHINFO_BASENAME));
+            print_r(array_keys($tables));
 
+            // /* debug - uncomment in normal operation
+            //delete temp dir and file.tar.gz
+            if(is_dir($dir)) recursive_rmdir($dir);
+            $file = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_" . $i . "_working.tar.gz";
+            if(is_file($file)) unlink($file);
+            // */
+        }
+        $this->archive_builder_final->finalize(TRUE);
+    }
+    
+    private function process_fields($records, $class)
+    {
+        /* you can add here a way to append only unique records */
+        $unique_id_for['taxon']          = "taxonID";
+        $unique_id_for['occurrence']     = "occurrenceID";
+        $unique_id_for['reference']      = "identifier";
+        $unique_id_for['document']       = "identifier";
+        $unique_id_for['agent']          = "identifier";
+        $unique_id_for['vernacularname'] = "vernacularName";
+        
+        $field_name_of_unique_id = @$unique_id_for[$class];
+        
+        foreach($records as $rec) {
+            if    ($class == "vernacular")          $c = new \eol_schema\VernacularName();
+            elseif($class == "agent")               $c = new \eol_schema\Agent();
+            elseif($class == "reference")           $c = new \eol_schema\Reference();
+            elseif($class == "taxon")               $c = new \eol_schema\Taxon();
+            elseif($class == "document")            $c = new \eol_schema\MediaResource();
+            elseif($class == "occurrence")          $c = new \eol_schema\Occurrence();
+            elseif($class == "measurementorfact")   $c = new \eol_schema\MeasurementOrFact();
+            else {
+                echo "\nundefined class [$class]\n";
+                return;
+            }
+            echo "\nclass [$class] [$field_name_of_unique_id]\n";
+            $keys = array_keys($rec);
+            foreach($keys as $key) {
+                $temp = pathinfo($key);
+                $field = $temp["basename"];
+
+                // some fields have '#', e.g. "http://schemas.talis.com/2005/address/schema#localityName"
+                $parts = explode("#", $field);
+                if($parts[0]) $field = $parts[0];
+                if(@$parts[1]) $field = $parts[1];
+
+                $c->$field = $rec[$key];
+            }
+            
+            //this will allow only unique records to be appended to the final tab file
+            if($field_name_of_unique_id) //for the rest of the tab files except measurementorfact
+            {
+                $var = (string) $c->{$field_name_of_unique_id};
+                if(!in_array($var, $this->unique_ids[$class])) {
+                    $this->unique_ids[$class][] = $var;
+                    $this->archive_builder_final->write_object_to_file($c);
+                    echo "\n" . count($this->unique_ids[$class]) . " - " . "[$var]";
+                }
+                else echo "\nwill not add, will coz duplicates [$class]-[$field_name_of_unique_id]-[$var]\n";
+            }
+            else $this->archive_builder_final->write_object_to_file($c); //for measurementorfact
+        }
+    }
+    
 }
 ?>
