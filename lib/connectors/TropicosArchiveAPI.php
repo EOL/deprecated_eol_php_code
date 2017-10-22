@@ -38,7 +38,8 @@ class TropicosArchiveAPI
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->tropicos_ids_list_file = $this->TEMP_DIR . "tropicos_ids.txt";
         $this->download_options = array('resource_id' => 218, 'cache_path' => '/Volumes/Thunderbolt4/eol_cache_tropicos/', 'expire_seconds' => false, 
-        'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1); 
+        'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1); //timeout is 60 secs. * 3 = 3 mins.
+                                                                                       //download_wait_time = 1000000 = 1 second; 300000 => .3 seconds
         //, 'delay_in_minutes' => 1
     }
 
@@ -72,7 +73,7 @@ class TropicosArchiveAPI
 
     private function process_taxa($resource_id)
     {
-        $temp_archive_batch_count = 200; //debug orig is 10k //when testing use 200
+        $temp_archive_batch_count = 10000; //debug orig is 10k //when testing use 200
         $k = 0;
         $i = 0;
         $j = 0;
@@ -180,7 +181,7 @@ class TropicosArchiveAPI
             $this->taxon_ids[$taxon->taxonID] = '';
             $this->archive_builder->write_object_to_file($taxon);
         }
-        self::get_distributions($taxon_id, $sciname);
+        // self::get_distributions($taxon_id, $sciname); un-comment first Oct 22, 2017 - Traitbank data
         self::get_synonyms($taxon_id); //debug - uncomment in real operation
     }
 
@@ -511,7 +512,7 @@ class TropicosArchiveAPI
                 break;
             }
             if($count == 1300) break; // normal operation
-            break; //debug - when developing
+            // break; //debug - when developing
         }
         fclose($OUT);
     }
@@ -521,7 +522,7 @@ class TropicosArchiveAPI
         if($type == "id_list") // $id here is the startid
         {
             $pagesize = 1000; // debug orig value max size is 1000; pagesize is the no. of records returned from Tropicos master list service
-            // $pagesize = 100; //debug
+            // $pagesize = 100; //debug only
             $url = TROPICOS_API_SERVICE . "List?startid=$id&PageSize=$pagesize&apikey=" . TROPICOS_API_KEY . "&format=json";
         }
         // $id here is the taxon_id

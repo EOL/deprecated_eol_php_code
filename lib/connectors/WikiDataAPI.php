@@ -66,7 +66,7 @@ class WikiDataAPI
         exit; 
         */
         
-        // /* testing
+        /* testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // file in question ---
@@ -74,7 +74,7 @@ class WikiDataAPI
         $arr = self::process_file("Salvadori%27s_Serin.jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
-        // */
+        */
         
         if(!@$this->trans['editors'][$this->language_code]) {
             $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
