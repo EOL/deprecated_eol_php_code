@@ -66,15 +66,15 @@ class WikiDataAPI
         exit; 
         */
         
-        // /* testing
+        /* testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // file in question ---
         // File:Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg
-        $arr = self::process_file("IRG_activation_following_pathogen_entry.jpg");
+        $arr = self::process_file("Viverrids_mosaic.jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
-        // */
+        */
         
         if(!@$this->trans['editors'][$this->language_code]) {
             $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
@@ -1458,7 +1458,7 @@ class WikiDataAPI
             else $rek['title'] = self::format_wiki_substr($arr['title']);
             
             /*
-            if($rek['pageid'] == "15095668") //good debug api
+            if($rek['pageid'] == "17717291") //good debug api
             {
                 echo "\n=======investigate api data =========== start\n";
                 print_r($arr); exit;
@@ -1563,6 +1563,10 @@ class WikiDataAPI
     private function get_artist_from_special_source($categories, $title = "") //$categories can be any block of string
     {
         $categories = Functions::remove_whitespace($categories);
+        
+        if(stripos($categories, "Template Unknown (author)") !== false) { //string is found
+            return array('name' => "Wikimedia Commons", 'homepage' => "https://commons.wikimedia.org/wiki/$title", 'role' => 'recorder');
+        }
         
         if(stripos($categories, "Files from Wellcome Images") !== false) { //string is found
             return array('name' => "Wellcome Images", 'homepage' => "https://wellcomeimages.org/", 'role' => 'contributor');
