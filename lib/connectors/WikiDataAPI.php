@@ -66,15 +66,15 @@ class WikiDataAPI
         exit; 
         */
         
-        /* testing
+        // /* testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // file in question ---
         // File:Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg
-        $arr = self::process_file("Viverrids_mosaic.jpg");
+        $arr = self::process_file("Salvadori%27s_Serin.jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
-        */
+        // */
         
         if(!@$this->trans['editors'][$this->language_code]) {
             $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
@@ -108,7 +108,7 @@ class WikiDataAPI
         echo "\n----end debug array";
         
         //write to file $this->debug contents
-        $f = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/wikimedia_debug.txt", "w");
+        $f = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/wikimedia_debug_".date("Y-m-d H").".txt", "w");
         $index = array_keys($this->debug);
         foreach($index as $i) {
             fwrite($f, "\n$i ---"."\n");
@@ -202,7 +202,6 @@ class WikiDataAPI
     private function parse_wiki_data_json()
     {
         $exit_now = false; //only used during debug
-        
         $actual = 0;
         $i = 0; $j = 0;
         $k = 0; $m = 4624000; $m = 300000; //only for breakdown when caching
@@ -227,7 +226,7 @@ class WikiDataAPI
             // if($k >= 601476 && $k < $m*5) $cont = true; // sv
             // if($k >= 1154430 && $k < $m*5) $cont = true; // vi
 
-            if($k >= 1 && $k < 50000) $cont = true;   //wikimedia total taxa = 2,208,086
+            if($k >= 1 && $k < 10000) $cont = true;   //wikimedia total taxa = 2,208,086
             // if($k >= 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
             
             if(!$cont) continue;
@@ -437,6 +436,9 @@ class WikiDataAPI
         $proven_invalid_licenseurl = array("http://www.gnu.org/copyleft/fdl.html", "http://www.gnu.org/licenses/old-licenses/fdl-1.2.html", "http://www.gnu.org/licenses/gpl.html",
         "www.gnu.org/licenses/fdl-1.3.html", "http://artlibre.org/licence/lal/en", "http://www.gnu.org/licenses/lgpl.html");
         if(in_array($license, $proven_invalid_licenseurl)) return "invalid";
+        
+        if(stripos($license, "gpl") !== false) return $this->debug['gpl count']++;
+        
         
         // added Oct 16, 2017
         if(stripos($license, "nationalarchives.gov.uk/doc/open-government-licence") !== false) return "invalid"; //"http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3"
@@ -1458,7 +1460,7 @@ class WikiDataAPI
             else $rek['title'] = self::format_wiki_substr($arr['title']);
             
             /*
-            if($rek['pageid'] == "17717291") //good debug api
+            if($rek['pageid'] == "15170504") //good debug api
             {
                 echo "\n=======investigate api data =========== start\n";
                 print_r($arr); exit;
@@ -1477,6 +1479,8 @@ class WikiDataAPI
                 // User:Sevela.p
                 elseif(stripos($val, "Tom Habibi") !== false) $rek['Artist'][] = array('name' => 'Tom Habibi', 'homepage' => 'http://commons.wikimedia.org/wiki/User:Tomhab~commonswiki', 'role' => 'source');
 
+                elseif(preg_match_all("/<li>(.*?)<\/li>/ims", $val, $a)) $rek['Artist'] = self::process_li_separated_artists($a);
+                
                 else
                 { //original block
                     $atemp = array();
@@ -1521,6 +1525,10 @@ class WikiDataAPI
                 echo "\n ice 444\n";
                 if($val = self::get_artist_from_special_source($rek['ImageDescription'])) $rek['Artist'][] = $val; //get_media_metadata_from_api()
             }
+            
+            if($rek['Artist']) $rek['Artist'] = self::flickr_lookup_if_needed($rek['Artist']);
+            
+            
             //end artist ========================
             
             $rek['LicenseUrl']       = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['LicenseUrl']['value']);
@@ -1544,10 +1552,69 @@ class WikiDataAPI
         }
         return $rek; //$arr
     }
+    private function flickr_lookup_if_needed($arr)
+    {
+        $i = 0;
+        foreach($arr as $a) {
+            if($name = $a['name']) {
+                if(substr($name,0,strlen("http://www.flickr.com/photos/")) == "http://www.flickr.com/photos/") $arr[$i]['name'] = self::realname_Flickr_lookup($a['name']);
+                if(substr($name,0,strlen("https://www.flickr.com/photos/")) == "https://www.flickr.com/photos/") $arr[$i]['name'] = self::realname_Flickr_lookup($a['name']);
+            }
+        }
+        return $arr;
+    }
+    private function realname_Flickr_lookup($url)
+    {
+        $options = $this->download_options;
+        $options['expire_seconds'] = false; //this can always be false
+        $options['delay_in_minutes'] = 0;
+        // 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        if(preg_match("/photos\/(.*?)xxx/ims", $url."xxx", $a)) {
+            $user_id = $a[1];
+            $user_id = Functions::remove_this_last_char_from_str($user_id, "/");
+            if(stripos($user_id, "@N") !== false) return self::get_Flickr_user_realname_using_userID($user_id, $options); //string is found
+            else { //$user_id is a username
+                // $user_id = 'dkeats'; //debug only
+                $api_call = "https://api.flickr.com/services/rest/?method=flickr.people.findByUsername&api_key=".FLICKR_API_KEY."&username=".$user_id."&format=json&nojsoncallback=1";
+                if($json = Functions::lookup_with_cache($api_call, $options)) {
+                    $arr = json_decode($json, true);
+                    // print_r($arr); exit;
+                    if($user_id = @$arr['user']['id']) {
+                        return self::get_Flickr_user_realname_using_userID($user_id, $options);
+                    }
+                }
+            }
+        }
+        return $url;
+    }
+    private function get_Flickr_user_realname_using_userID($user_id, $options)
+    {
+        $api_call = "https://api.flickr.com/services/rest/?method=flickr.people.getInfo&api_key=".FLICKR_API_KEY."&user_id=".$user_id."&format=json&nojsoncallback=1";
+        if($json = Functions::lookup_with_cache($api_call, $options)) {
+            $arr = json_decode($json, true);
+            // print_r($arr); //exit;
+            if($val = @$arr['person']['realname']['_content']) return "$val ($user_id)";
+            elseif($val = @$arr['person']['username']['_content']) return "$val ($user_id)";
+            else return "Flickr user_id $user_id";
+        }
+        else return "Flickr user_id $user_id";
+    }
+    private function process_li_separated_artists($arr)
+    {
+        $final = array();
+        print_r($arr[1]); //exit;
+        foreach($arr[1] as $item)
+        {
+            if(preg_match("/wiki\/User\:(.*?)\"/ims", $item, $a)) $final[] = array("name" => $a[1], 'homepage' => 'https://commons.wikimedia.org/wiki/User:'.$a[1], 'role' => 'artist');
+            else                                                  $final[] = array("name" => self::remove_space(strip_tags($item)), 'role' => 'artist', 'homepagae' => 'media_urlx');
+        }
+        return $final;
+    }
     private function invalid_artist_name_value($rek)
     {
         if(Functions::get_mimetype($rek['Artist'][0]['name'])) return true; //name should not be an image path
-        elseif(self::url_is_valid($rek['Artist'][0]['name']))  return true; //name should not be a url
+        // elseif(self::url_is_valid($rek['Artist'][0]['name']))  return true; //name should not be a url
+        return false;
     }
     private function remove_role_from_name($str)
     {
