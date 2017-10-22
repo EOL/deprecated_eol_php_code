@@ -66,15 +66,15 @@ class WikiDataAPI
         exit; 
         */
         
-        /* testing
+        // /* testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // file in question ---
         // File:Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg
-        $arr = self::process_file("Medicago_species_4%E2%80%94La_flore_et_la_pomone_francaises_(clean).jpg");
+        $arr = self::process_file("IRG_activation_following_pathogen_entry.jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
-        */
+        // */
         
         if(!@$this->trans['editors'][$this->language_code]) {
             $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
@@ -1457,14 +1457,14 @@ class WikiDataAPI
             if($rek['title'] = self::get_title_from_ImageDescription($rek['ImageDescription'])) {}
             else $rek['title'] = self::format_wiki_substr($arr['title']);
             
-            /*
-            if($rek['pageid'] == "7851645") //good debug api
+            // /*
+            if($rek['pageid'] == "15095668") //good debug api
             {
                 echo "\n=======investigate api data =========== start\n";
                 print_r($arr); exit;
                 echo "\n=======investigate api data =========== end\n";
             }
-            */
+            // */
             
             if($val = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Credit']['value'])) {
                 if(stripos($val, "int-own-work") !== false) return false; //string is found ---- invalid license
@@ -1472,7 +1472,6 @@ class WikiDataAPI
             
             //start artist ====================
             if($val = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Artist']['value'])) {
-                
                 if(stripos($val, "User:Aktron") !== false) return false; //string is found ---- invalid license
                 // User:Sevela.p
                 elseif(stripos($val, "Tom Habibi") !== false) $rek['Artist'][] = array('name' => 'Tom Habibi', 'homepage' => 'http://commons.wikimedia.org/wiki/User:Tomhab~commonswiki', 'role' => 'source');
@@ -1480,15 +1479,12 @@ class WikiDataAPI
                 else
                 { //original block
                     $atemp = array();
-                    if(preg_match("/href=\"(.*?)\"/ims", $val, $a))
-                    {
+                    if(preg_match("/href=\"(.*?)\"/ims", $val, $a)) {
                         $hpage = trim($a[1]);
                         if(substr($hpage,0,24) == '//commons.wikimedia.org/') $atemp['homepage'] = "https:".$hpage;
                         else                                                  $atemp['homepage'] = trim($a[1]); //orig
-                        
                     }
-                    if(preg_match("/\">(.*?)<\/a>/ims", $val, $a))
-                    {
+                    if(preg_match("/\">(.*?)<\/a>/ims", $val, $a)) {
                         echo "\nelicha 111\n";
                         $atemp['name'] = self::remove_role_from_name(strip_tags(trim($a[1]),''));
                         $atemp['role'] = 'author';
@@ -1498,11 +1494,7 @@ class WikiDataAPI
                     
                     if(Functions::get_mimetype($rek['Artist'][0]['name'])) $rek['Artist'] = array(); //name should not be an image path
                     if(self::url_is_valid($rek['Artist'][0]['name'])) $rek['Artist']      = array(); //name should not be a url
-                    
-                    
-                    
                 }
-                
                 
             }
             if(!@$rek['Artist']) $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']);
