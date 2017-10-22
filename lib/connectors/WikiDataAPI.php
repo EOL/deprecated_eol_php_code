@@ -1457,14 +1457,14 @@ class WikiDataAPI
             if($rek['title'] = self::get_title_from_ImageDescription($rek['ImageDescription'])) {}
             else $rek['title'] = self::format_wiki_substr($arr['title']);
             
-            // /*
+            /*
             if($rek['pageid'] == "15095668") //good debug api
             {
                 echo "\n=======investigate api data =========== start\n";
                 print_r($arr); exit;
                 echo "\n=======investigate api data =========== end\n";
             }
-            // */
+            */
             
             if($val = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Credit']['value'])) {
                 if(stripos($val, "int-own-work") !== false) return false; //string is found ---- invalid license
@@ -1472,6 +1472,7 @@ class WikiDataAPI
             
             //start artist ====================
             if($val = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Artist']['value'])) {
+                $val = str_ireplace("\n", "", $val);
                 if(stripos($val, "User:Aktron") !== false) return false; //string is found ---- invalid license
                 // User:Sevela.p
                 elseif(stripos($val, "Tom Habibi") !== false) $rek['Artist'][] = array('name' => 'Tom Habibi', 'homepage' => 'http://commons.wikimedia.org/wiki/User:Tomhab~commonswiki', 'role' => 'source');
@@ -1492,29 +1493,34 @@ class WikiDataAPI
                     if(@$atemp['name']) $rek['Artist'][] = $atemp;
                     else                $rek['Artist'][] = array('name' => self::remove_space(strip_tags($val,'')), 'role' => 'author'); // e.g. <span lang="en">Anonymous</span>
                     
-                    if(Functions::get_mimetype($rek['Artist'][0]['name'])) $rek['Artist'] = array(); //name should not be an image path
-                    if(self::url_is_valid($rek['Artist'][0]['name'])) $rek['Artist']      = array(); //name should not be a url
+                    if(self::invalid_artist_name_value($rek)) $rek['Artist'] = array();
                 }
-                
             }
-            if(!@$rek['Artist']) $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']);
+            if(!@$rek['Artist'])
+            {
+                $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']);
+                echo "\n ice 111\n";
+                if(self::invalid_artist_name_value($rek)) $rek['Artist'] = array();
+            }
             if(!@$rek['Artist']) {
                 if($val = @$arr['imageinfo'][0]['extmetadata']['Credit']['value']) {
+                    $val = str_ireplace("\n", "", $val);
+                    echo "\n ice 222\n";
                     $credit_value = strip_tags($val);
                     if(stripos($credit_value, "http://wellcomeimages.org") !== false) $rek['Artist'][] = array('name' => 'Wellcome Images', 'homepage' => 'http://wellcomeimages.org', 'role' => 'source');
                     elseif(stripos($credit_value, "by the British Library") !== false) $rek['Artist'][] = array('name' => 'The British Library', 'homepage' => 'https://www.bl.uk/', 'role' => 'source');
                     else $rek['Artist'][] = array('name' => strip_tags($val));
                 }
+                if(self::invalid_artist_name_value($rek)) $rek['Artist'] = array();
             }
-            if(!@$rek['Artist']) //e.g. Files from Wellcome Images
-            {
+            if(!@$rek['Artist']) { //e.g. Files from Wellcome Images
+                echo "\n ice 333\n";
                 if($val = self::get_artist_from_special_source(@$arr['imageinfo'][0]['extmetadata']['Categories']['value'], $rek['title'])) $rek['Artist'][] = $val; //get_media_metadata_from_api()
             }
-            if(!@$rek['Artist'])
-            {
+            if(!@$rek['Artist']) {
+                echo "\n ice 444\n";
                 if($val = self::get_artist_from_special_source($rek['ImageDescription'])) $rek['Artist'][] = $val; //get_media_metadata_from_api()
             }
-            
             //end artist ========================
             
             $rek['LicenseUrl']       = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['LicenseUrl']['value']);
@@ -1537,6 +1543,11 @@ class WikiDataAPI
             */
         }
         return $rek; //$arr
+    }
+    private function invalid_artist_name_value($rek)
+    {
+        if(Functions::get_mimetype($rek['Artist'][0]['name'])) return true; //name should not be an image path
+        elseif(self::url_is_valid($rek['Artist'][0]['name']))  return true; //name should not be a url
     }
     private function remove_role_from_name($str)
     {
@@ -1586,6 +1597,10 @@ class WikiDataAPI
             return array('name' => 'The Emirr/MapLab', 'homepage' => 'https://commons.wikimedia.org/wiki/User:The_Emirr/MapLab/Cypron', 'role' => 'author');
         }
         
+        //Images from the CDC Public Health Image Library
+        if(stripos($categories, "Public Health Image") !== false) { //strings are found
+            return array('name' => 'CDC Public Health Image Library', 'homepage' => 'https://commons.wikimedia.org/wiki/Template:CDC-PHIL', 'role' => 'source');
+        }
         
         
         
