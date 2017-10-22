@@ -71,7 +71,7 @@ class WikiDataAPI
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // file in question ---
         // File:Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg
-        $arr = self::process_file("Anas_boschas_-_1845-1863_-_Print_-_Iconographia_Zoologica_-_Special_Collections_University_of_Amsterdam_-_UBA01_IZ17600371.tif");
+        $arr = self::process_file("Medicago_species_4%E2%80%94La_flore_et_la_pomone_francaises_(clean).jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
         */
@@ -1225,6 +1225,12 @@ class WikiDataAPI
                 return array('name' => "Wikigraphists", 'homepage' => "https://en.wikipedia.org/wiki/Wikipedia:Graphics_Lab", 'role' => 'creator');
             }
             
+            
+            elseif(stripos($description, "Medicago italica") !== false) { //string is found
+                return array('name' => "Medicago italica", 'homepage' => "", 'role' => 'source');
+            }
+            
+            
         }
         return false;
     }
@@ -1452,7 +1458,7 @@ class WikiDataAPI
             else $rek['title'] = self::format_wiki_substr($arr['title']);
             
             /*
-            if($rek['pageid'] == "56736527") //good debug api
+            if($rek['pageid'] == "7851645") //good debug api
             {
                 echo "\n=======investigate api data =========== start\n";
                 print_r($arr); exit;
@@ -1470,6 +1476,7 @@ class WikiDataAPI
                 if(stripos($val, "User:Aktron") !== false) return false; //string is found ---- invalid license
                 // User:Sevela.p
                 elseif(stripos($val, "Tom Habibi") !== false) $rek['Artist'][] = array('name' => 'Tom Habibi', 'homepage' => 'http://commons.wikimedia.org/wiki/User:Tomhab~commonswiki', 'role' => 'source');
+
                 else
                 { //original block
                     $atemp = array();
@@ -1488,6 +1495,12 @@ class WikiDataAPI
                     }
                     if(@$atemp['name']) $rek['Artist'][] = $atemp;
                     else                $rek['Artist'][] = array('name' => self::remove_space(strip_tags($val,'')), 'role' => 'author'); // e.g. <span lang="en">Anonymous</span>
+                    
+                    if(Functions::get_mimetype($rek['Artist'][0]['name'])) $rek['Artist'] = array(); //name should not be an image path
+                    if(self::url_is_valid($rek['Artist'][0]['name'])) $rek['Artist']      = array(); //name should not be a url
+                    
+                    
+                    
                 }
                 
                 
