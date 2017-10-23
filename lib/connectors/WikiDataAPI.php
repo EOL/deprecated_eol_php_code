@@ -209,7 +209,7 @@ class WikiDataAPI
             $k++; 
             if(($k % 100000) == 0) echo " ".number_format($k)." ";
             echo " ".number_format($k)." ";
-            /* breakdown when caching:
+            // /* breakdown when caching:
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true; done
             // if($k >=  $m   && $k < $m*2) $cont = true; done
@@ -226,11 +226,11 @@ class WikiDataAPI
             // if($k >= 601476 && $k < $m*5) $cont = true; // sv
             // if($k >= 1154430 && $k < $m*5) $cont = true; // vi
 
-            if($k >= 1 && $k < 10000) $cont = true;   //wikimedia total taxa = 2,208,086
+            if($k >= 1 && $k < 10) $cont = true;   //wikimedia total taxa = 2,208,086
             // if($k >= 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
             
             if(!$cont) continue;
-            */
+            // */
 
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
@@ -1150,10 +1150,7 @@ class WikiDataAPI
             if(stripos($val, "{{Wellcome Images}}") !== false) { //string is found
                 return array('name' => "Wellcome Images", 'homepage' => "https://wellcomeimages.org/", 'role' => 'creator');
             }
-            
         }
-        
-        
         return false;
     }
     private function get_artist_from_ImageDescription($description)
@@ -1217,17 +1214,12 @@ class WikiDataAPI
                     return $final;
                 }
             }
-
             elseif(stripos($description, "Category:Wikigraphists") !== false) { //string is found
                 return array('name' => "Wikigraphists", 'homepage' => "https://en.wikipedia.org/wiki/Wikipedia:Graphics_Lab", 'role' => 'creator');
             }
-            
-            
             elseif(stripos($description, "Medicago italica") !== false) { //string is found
                 return array('name' => "Medicago italica", 'homepage' => "", 'role' => 'source');
             }
-            
-            
         }
         return false;
     }
@@ -1341,7 +1333,6 @@ class WikiDataAPI
              
                 //remove {{PD-scan|PD-old-100}} long licensing portion
                 $html = str_ireplace('Licensing <table cellspacing="8" cellpadding="0" > <tr> <td>This image is in the <a href="https://en.wikipedia.org/wiki/public_domain" title="w:public domain">public domain</a> because it is a mere mechanical scan or photocopy of a public domain original, or – from the available evidence – is so similar to such a scan or photocopy that no copyright protection can be expected to arise. The original itself is in the public domain for the following reason: <table > <tr> <td>Public domainPublic domainfalsefalse</td> </tr> </table> <table lang="en"> <tr> <td rowspan="2"></td> <td> This work is in the <a href="https://en.wikipedia.org/wiki/public_domain" title="en:public domain">public domain</a> in its country of origin and other countries and areas where the <a href="https://en.wikipedia.org/wiki/List_of_countries%27_copyright_length" title="w:List of countries'."'".' copyright length">copyright term</a> is the author'."'".'s life plus 100 years or less. You must also include a <a href="https://commons.wikimedia.org/wiki/Commons:Copyright_tags#United_States" title="Commons:Copyright tags">United States public domain tag</a> to indicate why this work is in the public domain in the United States. </td> </tr> <tr> <td colspan="2"> <a rel="nofollow" href="https://creativecommons.org/publicdomain/mark/1.0/deed.en">This file has been identified as being free of known restrictions under copyright law, including all related and neighboring rights.</a> </td> </tr> </table> This tag is designed for use where there may be a need to assert that any enhancements (eg brightness, contrast, colour-matching, sharpening) are in themselves insufficiently creative to generate a new copyright. It can be used where it is unknown whether any enhancements have been made, as well as when the enhancements are clear but insufficient. For known raw unenhanced scans you can use an appropriate <a href="https://commons.wikimedia.org/wiki/Template:PD-old" title="Template:PD-old">{{PD-old}}</a> tag instead. For usage, see <a href="https://commons.wikimedia.org/wiki/Commons:When_to_use_the_PD-scan_tag" title="Commons:When to use the PD-scan tag">Commons:When to use the PD-scan tag</a>. Note: This tag applies to scans and photocopies only. For photographs of public domain originals taken from afar, <a href="https://commons.wikimedia.org/wiki/Template:PD-Art" title="Template:PD-Art">{{PD-Art}}</a> may be applicable. See <a href="https://commons.wikimedia.org/wiki/Commons:When_to_use_the_PD-Art_tag" title="Commons:When to use the PD-Art tag">Commons:When to use the PD-Art tag</a>.</td> </tr> </table>', "", $html);
-                
             }
             $html = self::clean_html($html);
             $html = self::more_desc_removed($html);
@@ -1816,6 +1807,12 @@ class WikiDataAPI
                 $html = $func->prepare_wiki_for_parsing($html, $domain_name);
                 $rek['other']['title'] = $title;
                 $rek['other']['comprehensive_desc'] = $func->get_comprehensive_desc($html);
+                echo "\n----------------------------------";
+                echo "\n".self::create_brief_summary($rek['other']['comprehensive_desc']);
+                echo "\n----------------------------------";
+                exit;
+                
+                
                 // $rek['other']['comprehensive_desc'] = "the quick brown fox jumps over the lazy dog...";  //debug
                 $rek['other']['permalink']        = $func->get_permalink($html);
                 $rek['other']['last_modified']    = $func->get_last_modified($html);
@@ -1824,6 +1821,11 @@ class WikiDataAPI
             }
         }
         return $rek;
+    }
+    
+    private function create_brief_summary($desc)
+    {
+        
     }
     
     private function get_taxon_name($arr)
