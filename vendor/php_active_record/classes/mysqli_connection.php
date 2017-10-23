@@ -530,6 +530,7 @@ class MysqliConnection
     {
         // $arr = array('s' => $this->server, "u" => $this->user, 'p' => $this->password, "prt" => $this->port, "skt" => $this->socket);
         // print_r($arr);
+        if(Functions::fromJenkinsYN()) return;
         
         echo "\n\n";
         mysql_debug("Connecting to host:$this->server, database:$this->database");
