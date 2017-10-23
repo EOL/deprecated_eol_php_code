@@ -62,10 +62,27 @@ class ExcelToText
     public function is_new_schema_spreadsheet()
     {
         // previous problems reading spreadsheet
-        if($this->errors || @!$this->spreadsheet_reader) return false;
-        if(!$this->has_proper_new_schema_worksheets()) return false;
-        if(!$this->has_proper_new_schema_control_rows()) return false;
-        if($this->errors) return false;
+        if($this->errors || @!$this->spreadsheet_reader) 
+        {
+            debug("\nis new schema 111\n");
+            return false;
+        }
+        if(!$this->has_proper_new_schema_worksheets())
+        {
+            debug("\nis new schema 222\n");
+            return false;
+        }
+        if(!$this->has_proper_new_schema_control_rows())
+        {
+            debug("\nis new schema 333\n");
+            return false;
+        }
+        if($this->errors)
+        {
+            debug("\nis new schema 444\n");
+            return false;
+        }
+        debug("\nis new schema TRUE\n");
         return true;
     }
 
