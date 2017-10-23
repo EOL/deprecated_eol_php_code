@@ -858,7 +858,6 @@ class WikiDataAPI
             $rek['LicenseUrl'] = self::format_license($rek['LicenseUrl']);
             if(!self::valid_license_YN($rek['LicenseUrl'])) {
                 print_r($rek); exit("\nstop muna tayo\n");
-                
                 $this->debug['invalid license pageid is'][$rek['pageid']] = '';
                 return false;
             }
@@ -892,7 +891,6 @@ class WikiDataAPI
     private function format_artist($str)
     {
         if(is_array($str)) return $str;
-        
         $str = trim($str);
         // [Artist] => [[User:Chiswick Chap|Ian Alexander]]
         if(preg_match("/\[\[User:(.*?)\]\]/ims", $str, $a)) {
@@ -950,7 +948,6 @@ class WikiDataAPI
         $rek['timestamp'] = $dump_arr['revision']['timestamp'];
 
         $wiki = $dump_arr['revision']['text'];
-
         if(self::wiki_protected($wiki)) return "protected";
 
         //================================================================ ImageDescription
@@ -1819,7 +1816,7 @@ class WikiDataAPI
                 $html = $func->prepare_wiki_for_parsing($html, $domain_name);
                 $rek['other']['title'] = $title;
                 $rek['other']['comprehensive_desc'] = $func->get_comprehensive_desc($html);
-                // $rek['other']['comprehensive_desc'] = "elix elix elicha elicha";  //debug
+                // $rek['other']['comprehensive_desc'] = "the quick brown fox jumps over the lazy dog...";  //debug
                 $rek['other']['permalink']        = $func->get_permalink($html);
                 $rek['other']['last_modified']    = $func->get_last_modified($html);
                 $rek['other']['phrase']           = $func->get_wikipedia_phrase($html);
