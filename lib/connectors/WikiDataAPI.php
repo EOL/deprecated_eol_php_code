@@ -226,7 +226,7 @@ class WikiDataAPI
             // if($k >= 601476 && $k < $m*5) $cont = true; // sv
             // if($k >= 1154430 && $k < $m*5) $cont = true; // vi
 
-            if($k >= 1 && $k < 10) $cont = true;   //wikimedia total taxa = 2,208,086
+            if($k >= 1 && $k < 15) $cont = true;   //wikimedia total taxa = 2,208,086
             // if($k >= 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
             
             if(!$cont) continue;
@@ -1344,19 +1344,31 @@ class WikiDataAPI
     private function adjust_image_desc($html)
     {
         $html = trim(self::remove_space($html));
-        $html = self::get_str_up_to_this_chars_only($html, "<b>Text Appearing Before Image: </b>");
+        $html = Functions::get_str_up_to_this_chars_only($html, "<b>Text Appearing Before Image: </b>");
+        $html = Functions::remove_whitespace($html);
         $html = strip_tags($html,'<a><b><br>');
         return $html;
     }
-    private function get_str_up_to_this_chars_only($html, $findme)
+    /*
+    private function get_str_up_to_this_chars_only($str, $findme, $order = "first")
     {
-        $pos = stripos($html, $findme);
+        if    ($order == "first") $pos = stripos($str, $findme);
+        elseif($order == "last")  $pos = strripos($str, $findme);
         if($pos !== false) { //echo "The string '$findme' exists at position $pos";
-            $html = substr($html,0,$pos);
+            $str = substr($str,0,$pos);
         }
-        return Functions::remove_whitespace($html);
+        return Functions::remove_whitespace($str);
     }
-
+    private function exclude_str_before_this_chars($str, $findme, $order = "last") //e.g. exclude all before last occurrence of string "</table>"
+    {
+        if    ($order == "first") $pos = stripos($str, $findme);
+        elseif($order == "last")  $pos = strripos($str, $findme);
+        if($pos !== false) { //echo "The string '$findme' exists at position $pos";
+            $str = trim(substr($str, $pos+strlen($findme), strlen($str)));
+        }
+        return $str;
+    }
+    */
     private function more_desc_removed($html)
     {
         $findme = '</table> Licensing <table';
@@ -1807,9 +1819,9 @@ class WikiDataAPI
                 $html = $func->prepare_wiki_for_parsing($html, $domain_name);
                 $rek['other']['title'] = $title;
                 $rek['other']['comprehensive_desc'] = $func->get_comprehensive_desc($html);
-                echo "\n----------------------------------";
+                // echo "\n----------------------------------";
                 echo "\n".self::create_brief_summary($rek['other']['comprehensive_desc']);
-                echo "\n----------------------------------";
+                // echo "\n----------------------------------";
                 exit;
                 
                 
@@ -1825,7 +1837,24 @@ class WikiDataAPI
     
     private function create_brief_summary($desc)
     {
+        $tmp = Functions::get_str_up_to_this_chars_only($desc, "<h2");
+        $tmp = self::remove_space($tmp);
+        $tmp = strip_tags($tmp,'<table><tr><td><a><img><br><p>');
+
+        $tmp = Functions::exclude_str_before_this_chars($tmp, "</table>"); //3rd param by default is "last" occurrence
+        // //exclude all before last occurrence of "</table>"
+        // $pos = strripos($tmp, "</table>");
+        // $tmp = trim(substr($tmp, $pos+8, strlen($tmp)));
         
+        //remove inline anchor e.g. <a href="#cite_note-1">[1]</a>
+        
+        
+        echo "\norig: ".strlen($desc);
+        echo "\nbrief: ".strlen($tmp);
+        echo "\n----------------------------------";
+        echo "\n".$tmp."\n";
+        echo "\n----------------------------------";
+        exit;
     }
     
     private function get_taxon_name($arr)

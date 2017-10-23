@@ -1802,7 +1802,7 @@ class Functions
         }
         return $iso_639_2_codes;
     }
-
+    //string manipulations
     public static function remove_this_last_char_from_str($str, $char = "|")
     {
         $str = trim($str);
@@ -1811,6 +1811,24 @@ class Functions
             echo "\n-ICE-173-\n";
             $str = substr($str,0,strlen($str)-1);
             $last_char = substr($str, -1);
+        }
+        return $str;
+    }
+    public static function get_str_up_to_this_chars_only($str, $findme, $order = "first")
+    {
+        if    ($order == "first") $pos = stripos($str, $findme);
+        elseif($order == "last")  $pos = strripos($str, $findme);
+        if($pos !== false) { //echo "The string '$findme' exists at position $pos";
+            $str = substr($str,0,$pos);
+        }
+        return $str;
+    }
+    public static function exclude_str_before_this_chars($str, $findme, $order = "last") //e.g. exclude all before last occurrence of string "</table>"
+    {
+        if    ($order == "first") $pos = stripos($str, $findme);
+        elseif($order == "last")  $pos = strripos($str, $findme);
+        if($pos !== false) { //echo "The string '$findme' exists at position $pos";
+            $str = trim(substr($str, $pos+strlen($findme), strlen($str)));
         }
         return $str;
     }
