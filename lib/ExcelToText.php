@@ -437,10 +437,11 @@ class ExcelToText
         elseif($extension == "xlsx") $excel_reader = \PHPExcel_IOFactory::createReader('Excel2007');
         elseif($extension == "zip") $excel_reader = \PHPExcel_IOFactory::createReader('Excel2007');
         elseif($extension == "csv") $excel_reader = new \PHPExcel_Reader_CSV();
-
+        print "\nOK 111\n";
         if(!$excel_reader->canRead($path_to_spreadsheet)) throw new \Exception('Cannot read this file');
         if($extension != "csv") $excel_reader->setReadDataOnly(true);
         $objPHPExcel = $excel_reader->load($path_to_spreadsheet);
+        print "\nOK 222\n";
         return $objPHPExcel;
     }
 
