@@ -64,25 +64,25 @@ class ExcelToText
         // previous problems reading spreadsheet
         if($this->errors || @!$this->spreadsheet_reader) 
         {
-            debug("\nis new schema 111\n");
+            print("\nis new schema 111\n");
             return false;
         }
         if(!$this->has_proper_new_schema_worksheets())
         {
-            debug("\nis new schema 222\n");
+            print("\nis new schema 222\n");
             return false;
         }
         if(!$this->has_proper_new_schema_control_rows())
         {
-            debug("\nis new schema 333\n");
+            print("\nis new schema 333\n");
             return false;
         }
         if($this->errors)
         {
-            debug("\nis new schema 444\n");
+            print("\nis new schema 444\n");
             return false;
         }
-        debug("\nis new schema TRUE\n");
+        print("\nis new schema TRUE\n");
         return true;
     }
 
