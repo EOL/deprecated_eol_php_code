@@ -209,7 +209,7 @@ class WikiDataAPI
             $k++; 
             if(($k % 100000) == 0) echo " ".number_format($k)." ";
             echo " ".number_format($k)." ";
-            // /* breakdown when caching:
+            /* breakdown when caching:
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true; done
             // if($k >=  $m   && $k < $m*2) $cont = true; done
@@ -230,7 +230,7 @@ class WikiDataAPI
             // if($k >= 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
             
             if(!$cont) continue;
-            // */
+            */
 
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
@@ -313,7 +313,7 @@ class WikiDataAPI
                 else exit("\n --not ok-- \n");
                 
                 // break; //debug get first taxon wiki only
-                if($k > 5000) break; //10000
+                // if($k > 5000) break; //10000
                 // if($exit_now) break;
                 
             } //end of taxon wiki
@@ -419,8 +419,9 @@ class WikiDataAPI
         if(stripos($license, "creativecommons.org/licenses/by-nc/") !== false)          return $this->license['by-nc'];
         if(stripos($license, "creativecommons.org/licenses/by-sa/") !== false)          return $this->license['by-sa'];
         if(stripos($license, "creativecommons.org/licenses/by-nc-sa/") !== false)       return $this->license['by-nc-sa'];
-
         
+        if(stripos($license, "gpl") !== false) return $this->debug['gpl count']++;
+
         //others...
         if($license == "http://creativecommons.org/licenses/by-sa")          return $this->license['by-sa']; //exact match
         if(stripos($license, "creativecommons.org/publicdomain/") !== false) return $this->license['public domain'];
@@ -436,9 +437,6 @@ class WikiDataAPI
         $proven_invalid_licenseurl = array("http://www.gnu.org/copyleft/fdl.html", "http://www.gnu.org/licenses/old-licenses/fdl-1.2.html", "http://www.gnu.org/licenses/gpl.html",
         "www.gnu.org/licenses/fdl-1.3.html", "http://artlibre.org/licence/lal/en", "http://www.gnu.org/licenses/lgpl.html");
         if(in_array($license, $proven_invalid_licenseurl)) return "invalid";
-        
-        if(stripos($license, "gpl") !== false) return $this->debug['gpl count']++;
-        
         
         // added Oct 16, 2017
         if(stripos($license, "nationalarchives.gov.uk/doc/open-government-licence") !== false) return "invalid"; //"http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3"
@@ -1563,7 +1561,7 @@ class WikiDataAPI
         }
         return $arr;
     }
-    private function realname_Flickr_lookup($url)
+    private function realname_Flickr_lookup($url) //from https://www.flickr.com/services/api/
     {
         $options = $this->download_options;
         $options['expire_seconds'] = false; //this can always be false
