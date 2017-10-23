@@ -1566,7 +1566,6 @@ class WikiDataAPI
         $options = $this->download_options;
         $options['expire_seconds'] = false; //this can always be false
         $options['delay_in_minutes'] = 0;
-        // 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         if(preg_match("/photos\/(.*?)xxx/ims", $url."xxx", $a)) {
             $user_id = $a[1];
             $user_id = Functions::remove_this_last_char_from_str($user_id, "/");
@@ -1576,7 +1575,6 @@ class WikiDataAPI
                 $api_call = "https://api.flickr.com/services/rest/?method=flickr.people.findByUsername&api_key=".FLICKR_API_KEY."&username=".$user_id."&format=json&nojsoncallback=1";
                 if($json = Functions::lookup_with_cache($api_call, $options)) {
                     $arr = json_decode($json, true);
-                    // print_r($arr); exit;
                     if($user_id = @$arr['user']['id']) {
                         return self::get_Flickr_user_realname_using_userID($user_id, $options);
                     }
@@ -1590,7 +1588,6 @@ class WikiDataAPI
         $api_call = "https://api.flickr.com/services/rest/?method=flickr.people.getInfo&api_key=".FLICKR_API_KEY."&user_id=".$user_id."&format=json&nojsoncallback=1";
         if($json = Functions::lookup_with_cache($api_call, $options)) {
             $arr = json_decode($json, true);
-            // print_r($arr); //exit;
             if($val = @$arr['person']['realname']['_content']) return "$val ($user_id)";
             elseif($val = @$arr['person']['username']['_content']) return "$val ($user_id)";
             else return "Flickr user_id $user_id";
@@ -1600,9 +1597,7 @@ class WikiDataAPI
     private function process_li_separated_artists($arr)
     {
         $final = array();
-        print_r($arr[1]); //exit;
-        foreach($arr[1] as $item)
-        {
+        foreach($arr[1] as $item) {
             if(preg_match("/wiki\/User\:(.*?)\"/ims", $item, $a)) $final[] = array("name" => $a[1], 'homepage' => 'https://commons.wikimedia.org/wiki/User:'.$a[1], 'role' => 'artist');
             else                                                  $final[] = array("name" => self::remove_space(strip_tags($item)), 'role' => 'artist', 'homepagae' => 'media_urlx');
         }
@@ -1611,7 +1606,7 @@ class WikiDataAPI
     private function invalid_artist_name_value($rek)
     {
         if(Functions::get_mimetype($rek['Artist'][0]['name'])) return true; //name should not be an image path
-        // elseif(self::url_is_valid($rek['Artist'][0]['name']))  return true; //name should not be a url
+        // elseif(self::url_is_valid($rek['Artist'][0]['name']))  return true; //name should not be a url - DON'T USE THIS, WILL REMAIN COMMENTED, at this point we can accept URL values as it will be resolved later
         return false;
     }
     private function remove_role_from_name($str)
@@ -1632,7 +1627,6 @@ class WikiDataAPI
         if(stripos($categories, "Template Unknown (author)") !== false) { //string is found
             return array('name' => "Wikimedia Commons", 'homepage' => "https://commons.wikimedia.org/wiki/$title", 'role' => 'recorder');
         }
-        
         if(stripos($categories, "Files from Wellcome Images") !== false) { //string is found
             return array('name' => "Wellcome Images", 'homepage' => "https://wellcomeimages.org/", 'role' => 'contributor');
         }
@@ -1650,7 +1644,6 @@ class WikiDataAPI
             if($arr = self::parse_str_with_User_enclosed_in_brackets($str)) return $arr;
             else return array('name' => $str, 'homepage' => $title, 'role' => 'contributor');
         }
-
 
         if(preg_match("/Creator\: (.*?)\\n/ims", $categories, $a)) { //:Creator: Harrison, George
             return array('name' => trim($a[1]), 'homepage' => $title, 'role' => 'creator');
@@ -1671,8 +1664,6 @@ class WikiDataAPI
             return array('name' => 'CDC Public Health Image Library', 'homepage' => 'https://commons.wikimedia.org/wiki/Template:CDC-PHIL', 'role' => 'source');
         }
         
-        
-        
         //last options
         if(preg_match("/Photo by (.*?)\./ims", $categories, $a)) { //from wiki text - description: "...Photo by Gus van Vliet."
             return array('name' => trim($a[1]), 'homepage' => $title, 'role' => 'photographer');
@@ -1688,20 +1679,15 @@ class WikiDataAPI
         if(stripos($categories, "[[Category:Media missing infobox template]]") !== false) { //string is found
             return array('name' => "Wikimedia Commons", 'homepage' => "https://commons.wikimedia.org/wiki/Main_Page", 'role' => 'source');
         }
-        
-        
         return false;
     }
     private function parse_str_with_User_enclosed_in_brackets($str)
     {
-        if(stripos($str, "[[User:") !== false && stripos($str, "]]") !== false) //string is found //e.g. *Original: [[User:Chiswick Chap|Chiswick Chap]]
-        {
-            if(preg_match("/\[\[(.*?)\]\]/ims", $str, $a))
-            {
+        if(stripos($str, "[[User:") !== false && stripos($str, "]]") !== false) { //string is found //e.g. *Original: [[User:Chiswick Chap|Chiswick Chap]]
+            if(preg_match("/\[\[(.*?)\]\]/ims", $str, $a)) {
                 $tmp_arr = explode("|", $a[1]); //"[[User:Tomascastelazo|Tomas Castelazo]]" "*Original: [[User:Chiswick Chap|Chiswick Chap]]"
                 if($name = @$tmp_arr[1]) return array('name' => $name, 'homepage' => "https://commons.wikimedia.org/wiki/".$tmp_arr[0]);
-                else //"[[User:Victuallers]]"
-                {
+                else { //"[[User:Victuallers]]"
                     $user = str_ireplace("User:", "", $a[1]);
                     return array('name' => $user, 'homepage' => "https://commons.wikimedia.org/wiki/User:".$user);
                 }
@@ -1787,16 +1773,14 @@ class WikiDataAPI
             $mr->furtherInformationURL  = $media['furtherInformationURL'];
             $mr->title                  = $media['title'];
             $mr->Owner                  = $media['Owner'];
-            if(!isset($this->object_ids[$mr->identifier]))
-            {
+            if(!isset($this->object_ids[$mr->identifier])) {
                 $this->object_ids[$mr->identifier] = '';
                 $this->archive_builder->write_object_to_file($mr);
             }
         }
         // */
         
-        /*
-            $mr = new \eol_schema\MediaResource();
+        /*  $mr = new \eol_schema\MediaResource();
             $mr->taxonID                = $media['taxonID'];
             $mr->identifier             = $media['identifier'];
             $mr->type                   = $media['type'];
@@ -1808,8 +1792,7 @@ class WikiDataAPI
             $mr->furtherInformationURL  = $media['furtherInformationURL'];
             $mr->title                  = $media['title'];
             $mr->Owner                  = $media['Owner'];
-            if(!isset($this->object_ids[$mr->identifier]))
-            {
+            if(!isset($this->object_ids[$mr->identifier])) {
                 $this->object_ids[$mr->identifier] = '';
                 $this->archive_builder->write_object_to_file($mr);
             }
