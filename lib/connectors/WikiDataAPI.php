@@ -226,7 +226,7 @@ class WikiDataAPI
             // if($k >= 601476 && $k < $m*5) $cont = true; // sv
             // if($k >= 1154430 && $k < $m*5) $cont = true; // vi
 
-            if($k >= 1 && $k < 15) $cont = true;   //wikimedia total taxa = 2,208,086
+            if($k >= 1 && $k < 50000) $cont = true;   //wikimedia total taxa = 2,208,086
             // if($k >= 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
             
             if(!$cont) continue;
@@ -380,7 +380,6 @@ class WikiDataAPI
                 $media['identifier']             = md5($rec['taxon_id']."Comprehensive Description");
                 $media['title']                  = $rec['other']['title'];
                 $media['description']            = $description;
-                // echo "\n[$t->scientificName]:[$description]\n"; //debug only
                 $media['CVterm']                 = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description';
                 // below here is same for the next text object
                 $media['taxonID']                = $t->taxonID;
@@ -391,6 +390,13 @@ class WikiDataAPI
                 $media['UsageTerms']             = 'http://creativecommons.org/licenses/by-sa/3.0/';
                 $media['furtherInformationURL'] = $rec['other']['permalink'];
                 self::create_media_object($media);
+                
+                // Brief Summary
+                $media['identifier']             = md5($rec['taxon_id']."Brief Summary");
+                $media['title']                  = $rec['other']['title'] . ': Brief Summary';
+                $media['description']            = $rec['other']['brief_summary'];
+                $media['CVterm']                 = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology';
+                if($media['description']) self::create_media_object($media);
             }
         }
         
@@ -1819,13 +1825,8 @@ class WikiDataAPI
                 $html = $func->prepare_wiki_for_parsing($html, $domain_name);
                 $rek['other']['title'] = $title;
                 $rek['other']['comprehensive_desc'] = $func->get_comprehensive_desc($html);
-                // echo "\n----------------------------------";
-                echo "\n".self::create_brief_summary($rek['other']['comprehensive_desc']);
-                // echo "\n----------------------------------";
-                exit;
-                
-                
                 // $rek['other']['comprehensive_desc'] = "the quick brown fox jumps over the lazy dog...";  //debug
+                $rek['other']['brief_summary'] = self::create_brief_summary($rek['other']['comprehensive_desc']);
                 $rek['other']['permalink']        = $func->get_permalink($html);
                 $rek['other']['last_modified']    = $func->get_last_modified($html);
                 $rek['other']['phrase']           = $func->get_wikipedia_phrase($html);
@@ -1840,21 +1841,22 @@ class WikiDataAPI
         $tmp = Functions::get_str_up_to_this_chars_only($desc, "<h2");
         $tmp = self::remove_space($tmp);
         $tmp = strip_tags($tmp,'<table><tr><td><a><img><br><p>');
-
         $tmp = Functions::exclude_str_before_this_chars($tmp, "</table>"); //3rd param by default is "last" occurrence
-        // //exclude all before last occurrence of "</table>"
-        // $pos = strripos($tmp, "</table>");
-        // $tmp = trim(substr($tmp, $pos+8, strlen($tmp)));
-        
-        //remove inline anchor e.g. <a href="#cite_note-1">[1]</a>
-        
-        
+        // remove inline anchor e.g. <a href="#cite_note-1">[1]</a>
+        if(preg_match_all("/<a href=\"#(.*?)<\/a>/ims", $tmp, $arr)) {
+            foreach($arr[1] as $item) {
+                $tmp = str_replace('<a href="#'.$item.'</a>', "", $tmp);
+            }
+        }
+        $remove = array("<p></p>");
+        $tmp = trim(str_ireplace($remove, "", $tmp));
+
         echo "\norig: ".strlen($desc);
         echo "\nbrief: ".strlen($tmp);
         echo "\n----------------------------------";
-        echo "\n".$tmp."\n";
-        echo "\n----------------------------------";
-        exit;
+        echo "\n[$tmp]\n";
+        echo "\n----------------------------------"; //exit;
+        return $tmp;
     }
     
     private function get_taxon_name($arr)
