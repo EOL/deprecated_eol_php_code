@@ -23,6 +23,7 @@ class ExcelToText
             $this->spreadsheet_reader = self::prepare_reader($this->path_to_spreadsheet);
         }catch (\Exception $e)
         {
+            echo "\nhas errors\n";
             $this->errors[] = "Unable to read Excel file";
         }
     }
