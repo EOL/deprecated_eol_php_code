@@ -21,7 +21,7 @@ define('DOWNLOAD_WAIT_TIME', '300000'); // .3 seconds wait time
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('FlickrAPI');
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = false;
+$GLOBALS['ENV_DEBUG'] = true;
 
 $resource_id = 544;
 $user_id = "61021753@N02"; // BHL BioDivLibrary's photostream -- http://www.flickr.com/photos/61021753@N02
@@ -56,9 +56,8 @@ fclose($resource_file);
 Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous.xml");
 Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");
 
-Functions::set_resource_status_to_harvest_requested($resource_id);
 remove_bhl_images_already_existing_in_eol_group($resource_id);
-// Functions::gzip_resource_xml($resource_id); //un-comment if you want to investigate 544.gz.xml, otherwise remain commented
+Functions::gzip_resource_xml($resource_id); //un-comment if you want to investigate 544.gz.xml, otherwise remain commented
 
 //---------------------new start
 require_library('ResourceDataObjectElementsSetting');
@@ -79,7 +78,7 @@ function remove_bhl_images_already_existing_in_eol_group($resource_id)
     // $file = "http://localhost/cp_new/BHL/BHL_images/BHL_images_in_EOLGroup.txt";
     // $file = "http://dl.dropbox.com/u/7597512/BHL_images/BHL_images_in_EOLGroup.txt"; //can no longer be accessed publicly. But file is still there in dropbox.
     $file = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/BHL/BHL_images/BHL_images_in_EOLGroup.txt";
-    $contents = Functions::get_remote_file($file, array('timeout' => 600, 'download_attempts' => 5));
+    $contents = Functions::get_remote_file($file, array('cache' => 0, 'timeout' => 600, 'download_attempts' => 5));
     $do_ids = json_decode($contents,true);
     print "\n\n from text file: " . count($do_ids);
     $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
