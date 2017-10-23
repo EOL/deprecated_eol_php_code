@@ -1824,7 +1824,10 @@ class WikiDataAPI
                 $rek['other'] = array();
                 $html = $func->prepare_wiki_for_parsing($html, $domain_name);
                 $rek['other']['title'] = $title;
-                $rek['other']['comprehensive_desc'] = $func->get_comprehensive_desc($html);
+
+                $desc = $func->get_comprehensive_desc($html);
+                $rek['other']['comprehensive_desc'] = self::additional_desc_format($desc);
+                
                 // $rek['other']['comprehensive_desc'] = "the quick brown fox jumps over the lazy dog...";  //debug
                 $rek['other']['brief_summary'] = self::create_brief_summary($rek['other']['comprehensive_desc']);
                 $rek['other']['permalink']        = $func->get_permalink($html);
@@ -1835,27 +1838,62 @@ class WikiDataAPI
         }
         return $rek;
     }
-    
+    private function additional_desc_format($desc)
+    {
+        // $arr = array("<p></p>");
+        // $desc = str_ireplace($arr, "", $desc);
+        // $desc = trim(self::remove_space($desc));
+        
+        // class="infobox biota" 
+        // style="text-align: left; width: 200px; font-size: 100%"
+
+        // remove class and style attributes in tags
+        if(preg_match_all("/class=\"(.*?)\"/ims", $desc, $arr)) {
+            foreach($arr[1] as $item) $desc = str_replace('class="'.$item.'"', "", $desc);
+        }
+        if(preg_match_all("/style=\"(.*?)\"/ims", $desc, $arr)) {
+            foreach($arr[1] as $item) $desc = str_replace('style="'.$item.'"', "", $desc);
+        }
+        
+        // <!-- xx -->
+        if(preg_match_all("/<\!\-\-(.*?)\-\->/ims", $desc, $arr)) {
+            foreach($arr[1] as $item) $desc = str_replace('<!--'.$item.'-->', "", $desc);
+        }
+
+        $desc = Functions::remove_whitespace($desc);
+        $desc = str_replace(' >',">",$desc);
+
+        $arr = array("<p></p>","<div></div>");
+        $desc = str_ireplace($arr, "", $desc);
+        $desc = trim(self::remove_space($desc));
+
+        
+        echo "\n----------------------------------Comprehensive Desc";
+        echo "\n[".$desc."]";
+        echo "\n----------------------------------\n";
+        return $desc;
+    }
     private function create_brief_summary($desc)
     {
         $tmp = Functions::get_str_up_to_this_chars_only($desc, "<h2");
         $tmp = self::remove_space($tmp);
         $tmp = strip_tags($tmp,'<table><tr><td><a><img><br><p>');
         $tmp = Functions::exclude_str_before_this_chars($tmp, "</table>"); //3rd param by default is "last" occurrence
+
         // remove inline anchor e.g. <a href="#cite_note-1">[1]</a>
         if(preg_match_all("/<a href=\"#(.*?)<\/a>/ims", $tmp, $arr)) {
             foreach($arr[1] as $item) {
                 $tmp = str_replace('<a href="#'.$item.'</a>', "", $tmp);
             }
         }
-        $remove = array("<p></p>");
-        $tmp = trim(str_ireplace($remove, "", $tmp));
 
-        echo "\norig: ".strlen($desc);
-        echo "\nbrief: ".strlen($tmp);
-        echo "\n----------------------------------";
-        echo "\n[$tmp]\n";
-        echo "\n----------------------------------"; //exit;
+        $arr = array("<p></p>");
+        $tmp = trim(str_ireplace($arr, "", $tmp));
+        // /* debug
+        echo "\n----------------------------------Brief Summary";
+        echo "\n[$tmp]";
+        echo "\n----------------------------------\n";
+        // */
         return $tmp;
     }
     
