@@ -528,6 +528,10 @@ class MysqliConnection
 
     function initialize()
     {
+        $arr = array('s' => $this->server, "u" => $this->user, 'p' => $this->password, "prt" => $this->port, "skt" => $this->socket);
+        print_r($arr);
+        
+        echo "\n\n";
         mysql_debug("Connecting to host:$this->server, database:$this->database");
         $this->mysqli = new \mysqli();
         $this->mysqli->init();
