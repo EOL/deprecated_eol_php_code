@@ -88,6 +88,9 @@ class Spreadsheet2DwCA
                                 $command_line = "tar -czf " . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz --directory=" . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . " .";
                                 $output = shell_exec($command_line);
                                 debug("\n$output\n");
+                                
+                                self::optional_diagnostics($resource_id); //optional diagnostics
+                                
                                 recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id); //to save space, since this is not needed and the .tar.gz is already created
                             }
                             else echo "\nCopy problem encountered.\n";
@@ -105,7 +108,21 @@ class Spreadsheet2DwCA
         else $errors[] = "There was a problem with the uploaded $suffix file.";
         if($errors) print_r($errors);
     }
-    
+
+    private function optional_diagnostics($resource_id)
+    {
+        $arr = Functions::count_resource_tab_files($resource_id, ".txt");
+        print_r($arr);
+        Functions::finalize_connector_run($resource_id, json_encode($arr));
+        if(false) { //optional
+            if($undefined_uris = Functions::get_undefined_uris_from_resource($resource_id)) print_r($undefined_uris);
+            echo "\nUndefined URIs: " . count($undefined_uris) . "\n";
+            require_library('connectors/DWCADiagnoseAPI');
+            $func = new DWCADiagnoseAPI();
+            $func->check_unique_ids($resource_id);
+        }
+    }
+
     private function get_real_extension_of_zip_file($zip_file)
     {
         $fn = pathinfo($zip_file, PATHINFO_FILENAME);
