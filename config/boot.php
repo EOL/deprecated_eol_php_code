@@ -133,6 +133,7 @@ function prepare_jenkins($argv, $root)
     {
         if($jenkins_or_cron == "jenkins")
         {
+            $GLOBALS['ENV_NAME'] = 'jenkins_env';
             if($root != "/Library/WebServer/Documents/eol_php_code/") return '/html/eol_php_code/'; //means Jenkins in eol-archive is running
             // else {} //means Jenkins in Mac mini is running
         }
