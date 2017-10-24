@@ -65,25 +65,25 @@ class ExcelToText
         // previous problems reading spreadsheet
         if($this->errors || @!$this->spreadsheet_reader) 
         {
-            print("\nis new schema 111\n");
+            // print("\nis new schema 111\n");
             return false;
         }
         if(!$this->has_proper_new_schema_worksheets())
         {
-            print("\nis new schema 222\n");
+            // print("\nis new schema 222\n");
             return false;
         }
         if(!$this->has_proper_new_schema_control_rows())
         {
-            print("\nis new schema 333\n");
+            // print("\nis new schema 333\n");
             return false;
         }
         if($this->errors)
         {
-            print("\nis new schema 444\n");
+            // print("\nis new schema 444\n");
             return false;
         }
-        print("\nis new schema TRUE\n");
+        // print("\nis new schema TRUE\n");
         return true;
     }
 
@@ -438,11 +438,11 @@ class ExcelToText
         elseif($extension == "xlsx") $excel_reader = \PHPExcel_IOFactory::createReader('Excel2007');
         elseif($extension == "zip") $excel_reader = \PHPExcel_IOFactory::createReader('Excel2007');
         elseif($extension == "csv") $excel_reader = new \PHPExcel_Reader_CSV();
-        print "\nOK 111\n";
+        // print "\nOK 111\n";
         if(!$excel_reader->canRead($path_to_spreadsheet)) throw new \Exception('Cannot read this file');
         if($extension != "csv") $excel_reader->setReadDataOnly(true);
         $objPHPExcel = $excel_reader->load($path_to_spreadsheet);
-        print "\nOK 222\n";
+        // print "\nOK 222\n";
         return $objPHPExcel;
     }
 
