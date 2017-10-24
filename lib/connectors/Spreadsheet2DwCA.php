@@ -53,38 +53,38 @@ class Spreadsheet2DwCA
             
             debug("\ntemp_dir = [$temp_dir]\n");
             if(is_dir($temp_dir)) {
-                debug("\nwent 111\n");
+                // debug("\nwent 111\n");
                 $errors[] = "The file provided [$temp_dir] is not an Excel file";
                 recursive_rmdir($temp_dir);
             }
             else {  //$temp_dir is a file
-                debug("\nwent 222\n");
+                // debug("\nwent 222\n");
                 $path_parts = pathinfo($temp_dir);
                 $extension = @$path_parts['extension'];
                 $archive_tmp_dir = @$path_parts['dirname'] ."/". @$path_parts['filename'];
                 if($extension == 'xlsx' || $extension == 'xls')
                 {
-                    debug("\nwent 333\n");
+                    // debug("\nwent 333\n");
                     require_library('ExcelToText');
                     $archive_converter = new ExcelToText($temp_dir);
                     if($archive_converter->errors()) {
-                        debug("\nwent 444\n");
+                        // debug("\nwent 444\n");
                         $errors = $archive_converter->errors();
                     }
                     elseif($archive_converter->is_new_schema_spreadsheet()) {
-                        debug("\nwent 555\n");
+                        // debug("\nwent 555\n");
                         $archive_tmp_dir = $archive_converter->convert_to_new_schema_archive();
                         if($archive_converter->errors()) {
                             $errors = $archive_converter->errors();
                             recursive_rmdir($archive_tmp_dir);
                         }
                         else {
-                            debug("\nwent 777\n");
+                            // debug("\nwent 777\n");
                             debug("\nFINAL archive_tmp_dir = [$archive_tmp_dir]\n");
                             unlink($archive_tmp_dir . ".tar.gz"); //e.g. /tmp/dwca_81087.tar.gz
                             if(Functions::file_rename($archive_tmp_dir, CONTENT_RESOURCE_LOCAL_PATH . "/" . $resource_id))
                             {
-                                debug("\nwent 888\n");
+                                // debug("\nwent 888\n");
                                 $command_line = "tar -czf " . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz --directory=" . CONTENT_RESOURCE_LOCAL_PATH . $resource_id . " .";
                                 $output = shell_exec($command_line);
                                 debug("\n$output\n");
