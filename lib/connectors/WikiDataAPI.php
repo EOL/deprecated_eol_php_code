@@ -1862,9 +1862,9 @@ class WikiDataAPI
         $desc = str_ireplace($arr, "", $desc);
         $desc = trim(self::remove_space($desc));
 
-        echo "\n----------------------------------Comprehensive Desc";
-        echo "\n[".$desc."]";
-        echo "\n----------------------------------\n";
+        // echo "\n----------------------------------Comprehensive Desc";
+        // echo "\n[".$desc."]";
+        // echo "\n----------------------------------\n";
         return $desc;
     }
     private function create_brief_summary($desc)
@@ -1884,9 +1884,9 @@ class WikiDataAPI
         $arr = array("<p></p>");
         $tmp = trim(str_ireplace($arr, "", $tmp));
         // /* debug
-        echo "\n----------------------------------Brief Summary";
-        echo "\n[$tmp]";
-        echo "\n----------------------------------\n";
+        // echo "\n----------------------------------Brief Summary";
+        // echo "\n[$tmp]";
+        // echo "\n----------------------------------\n";
         // */
         return $tmp;
     }
