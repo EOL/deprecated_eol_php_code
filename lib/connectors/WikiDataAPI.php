@@ -1840,14 +1840,9 @@ class WikiDataAPI
     }
     private function additional_desc_format($desc)
     {
-        // $arr = array("<p></p>");
-        // $desc = str_ireplace($arr, "", $desc);
-        // $desc = trim(self::remove_space($desc));
-        
-        // class="infobox biota" 
-        // style="text-align: left; width: 200px; font-size: 100%"
-
         // remove class and style attributes in tags
+        // e.g. class="infobox biota" 
+        // e.g. style="text-align: left; width: 200px; font-size: 100%"
         if(preg_match_all("/class=\"(.*?)\"/ims", $desc, $arr)) {
             foreach($arr[1] as $item) $desc = str_replace('class="'.$item.'"', "", $desc);
         }
@@ -1855,7 +1850,7 @@ class WikiDataAPI
             foreach($arr[1] as $item) $desc = str_replace('style="'.$item.'"', "", $desc);
         }
         
-        // <!-- xx -->
+        // removes html comments <!-- ??? -->
         if(preg_match_all("/<\!\-\-(.*?)\-\->/ims", $desc, $arr)) {
             foreach($arr[1] as $item) $desc = str_replace('<!--'.$item.'-->', "", $desc);
         }
@@ -1867,7 +1862,6 @@ class WikiDataAPI
         $desc = str_ireplace($arr, "", $desc);
         $desc = trim(self::remove_space($desc));
 
-        
         echo "\n----------------------------------Comprehensive Desc";
         echo "\n[".$desc."]";
         echo "\n----------------------------------\n";
