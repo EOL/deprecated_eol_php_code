@@ -213,7 +213,7 @@ class WikiDataAPI
             $k++; 
             if(($k % 100000) == 0) echo " ".number_format($k)." ";
             echo " ".number_format($k)." ";
-            // /* breakdown when caching:
+            /* breakdown when caching:
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true; done
             // if($k >=  $m   && $k < $m*2) $cont = true; done
@@ -230,13 +230,13 @@ class WikiDataAPI
             // if($k >= 601476 && $k < $m*5) $cont = true; // sv
             // if($k >= 1154430 && $k < $m*5) $cont = true; // vi
 
-            if($k >= 1 && $k < 10) $cont = true;   //wikimedia total taxa = 2,208,086
+            if($k >= 1 && $k < 1000) $cont = true;   //wikimedia total taxa = 2,208,086
             else break;
             
             // if($k >= 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
             
             if(!$cont) continue;
-            // */
+            */
 
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
