@@ -36,7 +36,7 @@ $dwca_file = "http://www.inaturalist.org/taxa/eol_media.dwca.zip";
 
 $resource_id = 430;
 $func = new CSV2DwCA_Utility($resource_id, $dwca_file);
-/* $func->convert_archive(); */ //temporarily commented but works OK in real operation
+$func->convert_archive();
 Functions::finalize_dwca_resource($resource_id, true, true); //3rd param is deleteFolderYN ------- 2nd params is true coz it is a big file
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
