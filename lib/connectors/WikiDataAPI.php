@@ -66,15 +66,19 @@ class WikiDataAPI
         exit; 
         */
         
-        /* testing
+        // /* testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
-        // file in question ---
-        // File:Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg
-        $arr = self::process_file("Salvadori%27s_Serin.jpg");
+        // [file in question] => Array
+        //     (
+        //         [File:] => Aix_sponsa_dis.PNG
+        //         [File:] => Aix_sponsa_dis1.PNG
+        //         [File:] => 
+        //     )
+        $arr = self::process_file("Strip_of_API%C2%AE_PHIL_3629_lores.JPG");
         print_r($arr);
         exit("\n-Finished testing-\n");
-        */
+        // */
         
         if(!@$this->trans['editors'][$this->language_code]) {
             $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
@@ -529,7 +533,6 @@ class WikiDataAPI
             if(stripos($LicenseShortName, "Flickrreview|Lewis Hulbert") !== false) return "invalid"; //[Flickrreview|Lewis Hulbert|2014-10-25] => 
 
             //added Oct 17
-            if($LicenseShortName == "cc-pd") return $this->license['public domain'];
             if(stripos($LicenseShortName, "public domain=") !== false) return $this->license['public domain'];
             if(stripos($LicenseShortName, "PD-old") !== false) return $this->license['public domain'];
             if(stripos($LicenseShortName, "PD-self") !== false) return $this->license['public domain'];
@@ -573,6 +576,117 @@ class WikiDataAPI
             if($LicenseShortName == "cc-world66") return $this->license['by-sa']; //exact match
             if($LicenseShortName == "Cc-sa") return $this->license['by-sa']; //exact match
             
+            //Oct 25
+            if($LicenseShortName == "YouTube CC-BY") return $this->license['by']; //exact match
+            $arr = array("cc-a-", "cc-by-") //findme exists (case insensitive) anywhere in string and followed by digit OR space
+            foreach($arr as $findme) {
+                $findme = preg_quote($findme, '/');
+                if(preg_match("/".$findme."[0-9| ]/ims", $str, $arr)) {
+                    return $this->license['by'];
+                }
+            }
+            $findme = "cc-sa-";
+            $findme = preg_quote($findme, '/');
+            if(preg_match("/".$findme."[0-9| ]/ims", $str, $arr)) { //findme exists (case insensitive) anywhere in string and followed by digit OR space
+                return $this->license['by-sa'];
+            }
+            
+            // [public domain] exact
+            $arr = array("cc-pd", "pdphoto.org")
+            foreach($arr as $p) {
+                if(strtolower($LicenseShortName) == $p) return $this->license['public domain'];
+            }
+            
+            //['by'] stripos
+            $arr = array("CC BY ", "CC-BY ", " CC-BY|", "CC-BY ", "CC-Layout", "picasareview", "AntWeb permission");
+            foreach($arr as $p) {
+                if(stripos($LicenseShortName, $p) !== false) return $this->license['by'];
+            }
+            //[by-sa] stripos
+            $arr = array("Nationaal Archief");
+            foreach($arr as $p) {
+                if(stripos($LicenseShortName, $p) !== false) return $this->license['by-sa'];
+            }
+
+            //[by] exact match
+            $arr = array("Premier.gov.ru");
+            foreach($arr as $p) {
+                if($LicenseShortName == $p) return $this->license['by']; //exact match
+            }
+
+            //[by-sa] exact match
+            $arr = array("TamilWiki Media Contest", "RCE-license", "Wikimedia trademark", "gardenology");
+            foreach($arr as $p) {
+                if($LicenseShortName == $p) return $this->license['by-sa']; //exact match
+            }
+
+            /* WILL REMAIN INVALID: as of Oct 24
+            blank_license ---
+            Mauricio Rivera Correa permission
+            Akkasemosalman
+            MLW3‬
+            Raquel Rocha Santos permission
+            Stanley Trauth permission
+            *Image use: You must attribute the work in the manner specified (but not in any way that suggests endorsement).*Image citation: ''Whitney Cranshaw, Colorado State University, Bugwood.org''*License: ''Creative Commons Attribution 3.0 United States License''cc-by-3.0-us
+            LarsCurfsCCSA3.0
+            dvdm-h6|migration=relicense
+            Alessandro Catenazzi permission
+            BMC
+            civertan license
+            Zachi Evenor
+            Team|event=Wikipedia Takes Waroona|team=Team Flower|id=19
+            Wuzur
+            <br/>(original text|nobold=1|1=Klettenlabkraut in Weizen
+            Andes
+            Assessments|enwiki=1|enwiki-nom=Bicolored Antbird
+            Pierre Fidenci permission
+            Diogo B. Provete permission
+            Youtube|Junichi Kubota
+            Personality rights
+            Josiah H. Townsend permission
+            USPresidentialTransition|source=change
+            personality rights
+            NO Facebook Youtube license
+            spomenikSVN|7914
+            Location|36|2|59.1|N|139|9|1.8|E|type:landmark_region:JP-29_scale:2000
+            Malayalam loves Wikipedia event|year=2011
+            s*derivative work: [[User:B kimmel|B kimmel]] ([[User talk:B kimmel|<span class="signature-talk">talk</span>]])|Permission=|other_versions=
+            Flickreview|Yuval Y|20:49, 16 June 2011 (UTC)
+            Tasnim
+            OTRS|2008072210012641
+            IBC
+            QualityImage
+            youtube
+            MUSE|OTRS=yes
+            DYKfile|28 December|2006|type=image
+            Václav Gvoždík permission
+            Mehregan Ebrahimi permission
+            Vladlen Henríquez permission
+            Bilderwerkstatt|editor=[[:de:Benutzer:Denis Barthel|Denis Barthel]]|orig=Yucca_recurvifolia_fh_1183.24_ALA_AAA.jpg|changes=Perspektive, Ausschnitt, kleinere Edits
+            OTRS|2012011510006576
+            Location dec|46.122186|7.071841|source:Flickr
+            Beeld en Geluid Wiki
+            [[:en:Category:Frog images]]|Source=Transferred from|en.wikipedia
+            Bilderwerkstatt|editor=[[:de:Benutzer:Saman|Saman]]|orig=|changes=Etwas Staub entfernt, Kontrast und Tonwertkorrektur verändert
+            retouched|cropped
+            RetouchedPicture|cropped ''Sciurus spadiceus'' (frame) into a portrait|editor=Jacek555|orig=Sciurus spadiceus (frame).jpg
+            piqs|101897|babychen
+            personality
+            RetouchedPicture|Created GIF animation from sequence of images
+            !-
+            Franco Andreone permission
+            Youtube|channelxxxvol1
+            Picswiss|migration=relicense
+            Volganet.ru
+            @|link=http://www.opencage.info/pics.e/large_8238.asp|txt=opencage-
+            "
+            RetouchedPicture|Screenshot for distribution map|editor=Obsidian Soul|orig=Australia Victoria location map highways.svg
+            |Source=transferred from|en.wikipedia|Syp|CommonsHelper
+            Folger Shakespeare Library partnership
+            DYKfile|25 March|2008|type=image
+            [[Category:Megalops atlanticus]]
+            */
+            
             // for public domain - stripos
             $pd = array();
             $pd[] = "PD-US";
@@ -582,6 +696,7 @@ class WikiDataAPI
             $pd[] = "From U.S. Fish and Wildlife";
             $pd[] = "Koninklijke Bibliotheek";
             $pd[] = "Latvian coins";
+            $pd[] = "Russian museum photo";
             foreach($pd as $p) {
                 if(stripos($LicenseShortName, $p) !== false) return $this->license['public domain'];
             }
@@ -599,6 +714,7 @@ class WikiDataAPI
             $inv[] = "You may choose one of the following licenses";
             $inv[] = "Mindaugas Urbonas";
             $inv[] = "Warsaw_ZOO_-_Bovidae_young";
+            $inv[] = "plos";
             foreach($inv as $p) {
                 if(stripos($LicenseShortName, $p) !== false) return "invalid";
             }
@@ -614,26 +730,22 @@ class WikiDataAPI
             if(stripos($LicenseShortName, "gebruiker:Jürgen") !== false) return "invalid";
             
             // for invalid - exact match
-            $arr = "Imagicity,MaleneThyssenCredit,Fdrange,Arne and Bent Larsen license,Korea.net,Atelier graphique,KIT-license,Open Beelden,MUSE permission,plos,PLoS,volganet.ru,NoCoins,Stan Shebs photo,self,Multi-license,Link,WTFPL-1,En|A person kneeling next to a seal.,self2|FAL|,Fifty Birds,Laboratorio grafico,== Original upload log,Norwegian coat of arms,User:Arp/License,User:Erin Silversmith/Licence,trademark,benjamint5D,custom,Lang,User:Arjun01/I,Apache|Google,easy-border,LA2-Blitz,Autotranslate|1=1|,Frianvändning,Self,Location|57|47|35|N|152|23|39|W,OGL2,User:Pudding4brains/License,ScottForesman,FoP-Hungary,License,<!-- Ambox";
+            $arr = "Youtube|TimeScience,Imagicity,MaleneThyssenCredit,Fdrange,Arne and Bent Larsen license,Korea.net,Atelier graphique,KIT-license,Open Beelden,MUSE permission,volganet.ru,NoCoins,Stan Shebs photo,self,Multi-license,Link,WTFPL-1,En|A person kneeling next to a seal.,self2|FAL|,Fifty Birds,Laboratorio grafico,== Original upload log,Norwegian coat of arms,User:Arp/License,User:Erin Silversmith/Licence,trademark,benjamint5D,custom,Lang,User:Arjun01/I,Apache|Google,easy-border,LA2-Blitz,Autotranslate|1=1|,Frianvändning,Self,Location|57|47|35|N|152|23|39|W,OGL2,User:Pudding4brains/License,ScottForesman,FoP-Hungary,License,<!-- Ambox";
             $arr = explode(",", $arr);
             foreach($arr as $a) {
                 if($LicenseShortName == $a) return "invalid"; //exact match
             }
-            
+
             /*
             User:Chell Hill/CHillPix
             User:Beria/License
             User:Kadellar/credit
-            User:Goodshort/Credit
-            User:Anton_17/Licensing
-            User:Ralf Roletschek/Lizenz
             ...and many many more...
             */
-            if(substr($LicenseShortName,0,5) == "User:") return "invalid"; //starts with "User:"
+            if(substr(strtolower($LicenseShortName),0,5) == "user:") return "invalid"; //starts with "User:"
 
             $this->debug['blank_license'][$LicenseShortName] = ''; //utility debug - important
-            
-            //finally if LicenseShortName is still undefined it will be considered 'invalid'
+            /* finally if LicenseShortName is still undefined it will be considered 'invalid' */
             return "invalid";
         }
         
@@ -1464,7 +1576,7 @@ class WikiDataAPI
             else $rek['title'] = self::format_wiki_substr($arr['title']);
             
             /*
-            if($rek['pageid'] == "15170504") //good debug api
+            if($rek['pageid'] == "865581") //good debug api
             {
                 echo "\n=======investigate api data =========== start\n";
                 print_r($arr); exit;
@@ -1668,6 +1780,10 @@ class WikiDataAPI
         //Images from the CDC Public Health Image Library
         if(stripos($categories, "Public Health Image") !== false) { //strings are found
             return array('name' => 'CDC Public Health Image Library', 'homepage' => 'https://commons.wikimedia.org/wiki/Template:CDC-PHIL', 'role' => 'source');
+        }
+
+        if(stripos($categories, "PD US HHS CDC") !== false) { //strings are found
+            return array('name' => 'Centers for Disease Control and Prevention', 'homepage' => 'https://en.wikipedia.org/wiki/Centers_for_Disease_Control_and_Prevention', 'role' => 'source');
         }
         
         //last options
