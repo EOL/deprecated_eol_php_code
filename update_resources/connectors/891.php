@@ -19,14 +19,16 @@ $timestart = time_elapsed();
 
 /*
 //local source
-$params["dwca_file"]    = "http://localhost/cp/NMNH/type_specimen_resource/dwca-nmnhdwca.zip";
-$params["uri_file"]     = "http://localhost/cp/NMNH/type_specimen_resource/nmnh-mappings.xlsx"; //renamed; originally [nmnh mappings.xlsx]
+// $params["dwca_file"]    = "http://localhost/cp_new/NMNH/type_specimen_resource/dwca-nmnhdwca.zip"; //obsolete
+$params["dwca_file"]    = "http://localhost/cp_new/NMNH/type_specimen_resource/dwca-nmnh_extant_dwc-a-v1.8.zip"; //latest as of 25-Oct-2017
+$params["uri_file"]     = "http://localhost/cp_new/NMNH/type_specimen_resource/nmnh-mappings.xlsx"; //renamed; originally [nmnh mappings.xlsx]
 */
 
 // /*
 //remote source
-$params["dwca_file"]    = "http://collections.mnh.si.edu/ipt/archive.do?r=nmnhdwca"; // true value - working
-$params["uri_file"]     = "https://opendata.eol.org/dataset/6a470c75-5a7b-4caf-a9e8-8f95ca0e9820/resource/47df3054-bf18-4c74-b273-01a79a6dc50f/download/nmnh-mappings.xlsx";
+// $params["dwca_file"]    = "https://collections.mnh.si.edu/ipt/archive.do?r=nmnhdwca"; //obsolete
+$params["dwca_file"]    = "https://collections.nmnh.si.edu/ipt/archive.do?r=nmnh_extant_dwc-a&v=1.8"; //latest as of 25-Oct-2017
+$params["uri_file"]     = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/NMNH/type_specimen_resource/nmnh-mappings.xlsx";
 // */
 
 $params["row_type"]     = "http://rs.tdwg.org/dwc/terms/occurrence";
