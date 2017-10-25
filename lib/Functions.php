@@ -452,12 +452,26 @@ class Functions
         fclose($WRITE);
     }
     
-    public static function get_undefined_uris_from_resource($resource_id, $file = "measurement_or_fact.tab")
+    public static function get_fields_of_this_extension($archive_path, $extension)
+    {   /* e.g. self::get_fields_of_this_extension(CONTENT_RESOURCE_LOCAL_PATH . $resource_id, "http://rs.tdwg.org/dwc/terms/measurementorfact"); */
+        $harvester = new ContentArchiveReader(NULL, $archive_path);
+        // print_r($harvester->tables[$extension]); exit;
+        $fields = array();
+        foreach($harvester->tables[$extension][0]->fields as $rec) {
+            $fields[] = pathinfo($rec['term'], PATHINFO_FILENAME);
+        }
+        return array('file_uri' =>  $harvester->tables[$extension][0]->file_uri, 'fields' => $fields);
+    }
+    public static function get_undefined_uris_from_resource($resource_id)
     {
+        $info = self::get_fields_of_this_extension(CONTENT_RESOURCE_LOCAL_PATH . $resource_id, "http://rs.tdwg.org/dwc/terms/measurementorfact");
+        $fields = $info['fields'];
+        $url = $info['file_uri'];
+        //-----------------------------
         $undefined_uris = array();
         $defined_uris = self::get_eol_defined_uris();
         // check the measurement_or_fact.tab
-        $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/$file";
+        // $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/measurement_or_fact.tab"; //replaced by one above
         if(!file_exists($url))
         {
             echo "\nFile does not exist: [$url]\n";
@@ -469,8 +483,8 @@ class Functions
         {
             $temp = explode("\t", $temp);
             $i++;
-            if($i == 1) $fields = $temp;
-            else
+            // if($i == 1) $fields = $temp; //replaced by one above
+            if($i != 1)
             {
                 $rec = array();
                 $k = 0;
