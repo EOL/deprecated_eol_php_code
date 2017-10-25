@@ -472,43 +472,35 @@ class Functions
         $defined_uris = self::get_eol_defined_uris();
         // check the measurement_or_fact.tab
         // $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/measurement_or_fact.tab"; //replaced by one above
-        if(!file_exists($url))
-        {
+        if(!file_exists($url)) {
             echo "\nFile does not exist: [$url]\n";
             return $undefined_uris;
         }
         $i = 0;
         $exclude = array("http://rs.tdwg.org/dwc/terms/georeferenceRemarks");
-        foreach(new FileIterator($url) as $line_number => $temp)
-        {
+        foreach(new FileIterator($url) as $line_number => $temp) {
             $temp = explode("\t", $temp);
             $i++;
             // if($i == 1) $fields = $temp; //replaced by one above
-            if($i != 1)
-            {
+            if($i != 1) {
                 $rec = array();
                 $k = 0;
                 if(!$temp) continue;
-                foreach($temp as $t)
-                {
+                foreach($temp as $t) {
                     $rec[$fields[$k]] = $t;
                     $k++;
                 }
-                if($val = @$rec['measurementType'])
-                {
+                if($val = @$rec['measurementType']) {
                     if(substr($val,0,4) == "http") $uris[$val] = '';
                 }
-                if($val = @$rec['measurementValue'])
-                {
-                    if(!in_array(@$rec['measurementType'], $exclude))
-                    {
+                if($val = @$rec['measurementValue']) {
+                    if(!in_array(@$rec['measurementType'], $exclude)) {
                         if(substr($val,0,4) == "http") $uris[$val] = '';
                     }
                 }
             }
         }
-        foreach(array_keys($uris) as $uri)
-        {
+        foreach(array_keys($uris) as $uri) {
             if(!isset($defined_uris[$uri])) $undefined_uris[$uri] = '';
         }
         return $undefined_uris;
