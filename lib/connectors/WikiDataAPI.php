@@ -107,9 +107,9 @@ class WikiDataAPI
         //end =============================================================
 
         unlink($this->TEMP_FILE_PATH);
-        echo "\n----start debug array";
+        echo "\n----start debug array\n";
         print_r($this->debug); //exit;
-        echo "\n----end debug array";
+        echo "\n----end debug array\n";
         
         //write to file $this->debug contents
         $f = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/wikimedia_debug_".date("Y-m-d H").".txt", "w");
@@ -230,7 +230,9 @@ class WikiDataAPI
             // if($k >= 601476 && $k < $m*5) $cont = true; // sv
             // if($k >= 1154430 && $k < $m*5) $cont = true; // vi
 
-            if($k >= 1 && $k < 1000) $cont = true;   //wikimedia total taxa = 2,208,086
+            if($k >= 1 && $k < 10) $cont = true;   //wikimedia total taxa = 2,208,086
+            else break;
+            
             // if($k >= 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
             
             if(!$cont) continue;
@@ -581,13 +583,13 @@ class WikiDataAPI
             $arr = array("cc-a-", "cc-by-"); //findme exists (case insensitive) anywhere in string and followed by digit OR space
             foreach($arr as $findme) {
                 $findme = preg_quote($findme, '/');
-                if(preg_match("/".$findme."[0-9| ]/ims", $str, $arr)) {
+                if(preg_match("/".$findme."[0-9| ]/ims", $LicenseShortName, $arr)) {
                     return $this->license['by'];
                 }
             }
             $findme = "cc-sa-";
             $findme = preg_quote($findme, '/');
-            if(preg_match("/".$findme."[0-9| ]/ims", $str, $arr)) { //findme exists (case insensitive) anywhere in string and followed by digit OR space
+            if(preg_match("/".$findme."[0-9| ]/ims", $LicenseShortName, $arr)) { //findme exists (case insensitive) anywhere in string and followed by digit OR space
                 return $this->license['by-sa'];
             }
             
