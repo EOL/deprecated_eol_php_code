@@ -66,7 +66,7 @@ class WikiDataAPI
         exit; 
         */
         
-        // /* testing
+        /* testing
         // $arr = self::process_file("Dark_Blue_Tiger_-_tirumala_septentrionis_02614.jpg");
         // $arr = self::process_file("Prairie_Dog_(Cynomys_sp.),_Auchingarrich_Wildlife_Centre_-_geograph.org.uk_-_1246985.jpg");
         // [file in question] => Array
@@ -78,7 +78,7 @@ class WikiDataAPI
         $arr = self::process_file("Strip_of_API%C2%AE_PHIL_3629_lores.JPG");
         print_r($arr);
         exit("\n-Finished testing-\n");
-        // */
+        */
         
         if(!@$this->trans['editors'][$this->language_code]) {
             $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
@@ -230,7 +230,7 @@ class WikiDataAPI
             // if($k >= 601476 && $k < $m*5) $cont = true; // sv
             // if($k >= 1154430 && $k < $m*5) $cont = true; // vi
 
-            if($k >= 1 && $k < 50000) $cont = true;   //wikimedia total taxa = 2,208,086
+            if($k >= 1 && $k < 1000) $cont = true;   //wikimedia total taxa = 2,208,086
             // if($k >= 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
             
             if(!$cont) continue;
@@ -578,7 +578,7 @@ class WikiDataAPI
             
             //Oct 25
             if($LicenseShortName == "YouTube CC-BY") return $this->license['by']; //exact match
-            $arr = array("cc-a-", "cc-by-") //findme exists (case insensitive) anywhere in string and followed by digit OR space
+            $arr = array("cc-a-", "cc-by-"); //findme exists (case insensitive) anywhere in string and followed by digit OR space
             foreach($arr as $findme) {
                 $findme = preg_quote($findme, '/');
                 if(preg_match("/".$findme."[0-9| ]/ims", $str, $arr)) {
@@ -592,7 +592,7 @@ class WikiDataAPI
             }
             
             // [public domain] exact
-            $arr = array("cc-pd", "pdphoto.org")
+            $arr = array("cc-pd", "pdphoto.org");
             foreach($arr as $p) {
                 if(strtolower($LicenseShortName) == $p) return $this->license['public domain'];
             }
@@ -838,6 +838,8 @@ class WikiDataAPI
                     // exit("\nUndefined index: agentID --------------------\n");
                 }
 
+                $media = self::last_quality_check($media); //removes /n and /t inside values. May revisit this as it may not be the sol'n for 2 rows with wrong no. of columns.
+                
                 $mr = new \eol_schema\MediaResource();
                 $mr->taxonID                = $media['taxonID'];
                 $mr->identifier             = $media['identifier'];
@@ -860,6 +862,16 @@ class WikiDataAPI
                 // */
             }
         }
+    }
+    private function last_quality_check($media)
+    {
+        $fields = array_keys($media);
+        foreach($fields as $field)
+        {
+            $media[$field] = str_replace("\t", " ", $media[$field]);
+            $media[$field] = str_replace("\n", "<br>", $media[$field]);
+        }
+        return $media;
     }
     private function gen_agent_ids($artists, $role)
     {
