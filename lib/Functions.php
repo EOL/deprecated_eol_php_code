@@ -452,12 +452,12 @@ class Functions
         fclose($WRITE);
     }
     
-    public static function get_undefined_uris_from_resource($resource_id)
+    public static function get_undefined_uris_from_resource($resource_id, $file = "measurement_or_fact.tab")
     {
         $undefined_uris = array();
         $defined_uris = self::get_eol_defined_uris();
         // check the measurement_or_fact.tab
-        $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/measurement_or_fact.tab";
+        $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/$file";
         if(!file_exists($url))
         {
             echo "\nFile does not exist: [$url]\n";

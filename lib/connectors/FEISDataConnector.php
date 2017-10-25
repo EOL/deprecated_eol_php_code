@@ -28,8 +28,9 @@ class FEISDataConnector
                                         ); // "Cactus" is excluded (DATA-1413)
 
         $this->life_forms = array("Vine", "Tree", "Shrub", "Graminoid", "Forb", "Fern", "Bryophyte");
-        $this->species_list_export = "http://localhost/~eolit/cp/FEIS/FEIS.zip";
-        $this->species_list_export = "https://dl.dropboxusercontent.com/u/7597512/FEIS/FEIS.zip";
+        // $this->species_list_export = "https://dl.dropboxusercontent.com/u/7597512/FEIS/FEIS.zip";
+        // $this->species_list_export = "http://localhost/cp_new/FEIS/FEIS.zip";
+        $this->species_list_export = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/FEIS/FEIS.zip";
     }
 
     function generate_FEIS_data()
