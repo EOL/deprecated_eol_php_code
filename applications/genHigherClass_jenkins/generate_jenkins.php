@@ -16,8 +16,11 @@ php.ini:
     post_max_size = 10M
 */
 
-$file = "" . $_GET["file"];
-$orig_file = "" . $_GET["orig_file"];
+print_r($argv);
+
+$file      = $argv[1];
+$orig_file = @$argv[2];
+
 
 // echo "<pre>";
 // echo "<br>$file<br>";
@@ -58,12 +61,18 @@ if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
 require_library('connectors/DwCA_Utility');
 $func = new DwCA_Utility();
 
+$scriptname=end(explode('/',$_SERVER['PHP_SELF']));
+$scriptpath=str_replace($scriptname,'',$_SERVER['PHP_SELF']);
+
+echo "\nscriptname: [$scriptname]\n";
+echo "\nscriptpath: [$scriptpath]\n";
+
 if($info = $func->tool_generate_higherClassification($file))
 {
     $filename = "temp/" . pathinfo($file, PATHINFO_BASENAME);
-    $domain = $_SERVER['HTTP_HOST'];
+    $domain = $_SERVER['PHP_SELF']; //HTTP_HOST
     $temp   = $_SERVER['SCRIPT_NAME'];
-    $temp   = str_ireplace("generate.php", $filename, $temp);
+    $temp   = str_ireplace("generate_jenkins.php", $filename, $temp);
     $url    = "http://$domain" . $temp;
 
     //start zip
