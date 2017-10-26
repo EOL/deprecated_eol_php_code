@@ -4,7 +4,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
-set_time_limit(0);
+// set_time_limit(60*60); //1 hour --- Commented, problematic in MacMini. It doesn't render page, browser just loading... endlessly
 ini_set("memory_limit","5000M");
 
 /* Important settings
@@ -36,8 +36,7 @@ if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
     mkdir($destination);
     
     if(file_exists($file)) echo "<br>[$file] file exists - OK<br>";
-    else
-    {
+    else {
         echo "<br>[$file] file does not exist - ERROR<br>";
         return;
     }
@@ -46,8 +45,7 @@ if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
     $status = shell_exec("unzip $file -d $destination");    echo "<br>unzip status: <i>$status</i><br>";
     $status = unlink("temp/$filenamez".".zip");             echo "<br>unlink status: <i>$status</i><br>";
     
-    foreach (glob("$destination/*.*") as $filename) //source
-    {
+    foreach (glob("$destination/*.*") as $filename) { //source
         // echo "<br>file = [$filename]<br>";
         $file = "temp/" . "$filenamez.$extensionz"; //destination
         if(!copy($filename, $file)) exit("<hr>Failed to copy file. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
@@ -89,16 +87,14 @@ if($info = $func->tool_generate_higherClassification($file))
     <br><br> <a target='$filename' href='$url.zip'>$url.zip</a>
     <br><hr></b>";
     
-    if($undefined_parents)
-    {
+    if($undefined_parents) {
         echo "Undefined parents found: " . count($undefined_parents) . "<br>";
         echo "Report <a href='../content_server/resources/" . pathinfo($filename, PATHINFO_FILENAME) . "_undefined_parent_ids.txt'>here</a><hr>";
     }
 
     echo "<a href='javascript:history.go(-1)'> &lt;&lt; Back to main</a><br><hr>";
 }
-else
-{
+else {
     echo "The file is not ready for processing. The file needs the minimum three fields column header: '<i>taxonID</i>', '<i>scientificName</i>' and '<i>parentNameUsageID</i>'.
     <br><a href='javascript:history.go(-1)'> &lt;&lt; Go back</a>
     <br><hr>";
