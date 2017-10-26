@@ -63,8 +63,7 @@ function get_val_var($v)
 }
 
 /*
-function excel_extension($type) //not used
-{
+function excel_extension($type) { //not used
     if      ($type == "application/vnd.ms-excel") return "xls";
     elseif  ($type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") return "xlsx";
     elseif  ($type == "application/octet-stream") return "eli";
