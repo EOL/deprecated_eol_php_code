@@ -21,7 +21,7 @@
         File Upload: <input type="file" name="file_upload" id="file_upload" size="100" style="font-family : Arial;">
         <small><br><br>(.tab, .txt, .tsv) OR<br> Recommended (.tab.zip, .txt.zip, .tsv.zip)
         <br><br>
-        Recommended if you zip your file before uploading.</small>
+        *It is recommended that you zip your file before uploading.</small>
     </td>
 </tr>
 <tr align="center">
