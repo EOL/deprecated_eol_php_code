@@ -14,10 +14,7 @@ ini_set('display_errors', true);
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $url = @get_val_var('url');
 
-// echo "<pre>";
-// print_r(@$_FILES);
-// echo "</pre>";
-// exit;
+/* echo "<pre>"; print_r(@$_FILES); echo "</pre>"; exit; */
 
 if($url) { //URL is pasted.
     $parts = pathinfo($url);
@@ -50,9 +47,7 @@ print"<META HTTP-EQUIV='Refresh' Content='0; URL=generate.php?file=$newfile&orig
 exit;
 */
 
-// ----------------------------------------------------------------- start Jenkins call
 require_once("jenkins_call.php");
-// ----------------------------------------------------------------- end Jenkins call
 
 function get_val_var($v)
 {

@@ -6,7 +6,7 @@ ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 // set_time_limit(60*60); //1 hour --- Commented, problematic in MacMini. It doesn't render page, browser just loading... endlessly
 ini_set("memory_limit","5000M");
-$GLOBALS['ENV_DEBUG'] = true;
+// $GLOBALS['ENV_DEBUG'] = true;
 
 /* Important settings
 Apache httpd.conf:
@@ -62,13 +62,7 @@ else
 require_library('connectors/DwCA_Utility');
 $func = new DwCA_Utility();
 
-// $scriptname=end(explode('/',$_SERVER['PHP_SELF']));
-// $scriptpath=str_replace($scriptname,'',$_SERVER['PHP_SELF']);
-// echo "\nscriptname: [$scriptname]\n";
-// echo "\nscriptpath: [$scriptpath]\n";
-
-if($info = $func->tool_generate_higherClassification($file))
-{
+if($info = $func->tool_generate_higherClassification($file)) {
     $filename = "temp/" . pathinfo($file, PATHINFO_BASENAME);
     $domain = $server_http_host; //$_SERVER['HTTP_HOST'];
     $temp   = $server_script_name; //$_SERVER['SCRIPT_NAME'];
