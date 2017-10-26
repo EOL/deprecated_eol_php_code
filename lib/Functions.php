@@ -1814,7 +1814,7 @@ class Functions
         $str = trim($str);
         $last_char = substr($str, -1); //$last_char = substr($str, strlen($str)-1, 1); - long method to get last char
         while($last_char == $char) {
-            echo "\n-ICE-173-\n";
+            echo "\n-removing this last char from str:[$char]-\n";
             $str = substr($str,0,strlen($str)-1);
             $last_char = substr($str, -1);
         }
