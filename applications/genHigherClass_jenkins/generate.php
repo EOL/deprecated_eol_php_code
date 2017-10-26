@@ -105,7 +105,6 @@ echo "elapsed time = $elapsed_time_sec seconds                  ";
 echo "<br>elapsed time = " . $elapsed_time_sec/60 . " minutes   ";
 echo "<br>Done processing.<br><br>";
 
-
 function get_ext_of_orig_file_in_zip($orig)
 {
     $temp = pathinfo($orig, PATHINFO_FILENAME);
