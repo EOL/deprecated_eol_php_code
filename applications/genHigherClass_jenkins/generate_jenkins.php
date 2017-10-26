@@ -6,6 +6,7 @@ ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 // set_time_limit(60*60); //1 hour --- Commented, problematic in MacMini. It doesn't render page, browser just loading... endlessly
 ini_set("memory_limit","5000M");
+$GLOBALS['ENV_DEBUG'] = true;
 
 /* Important settings
 Apache httpd.conf:
@@ -16,22 +17,13 @@ php.ini:
     post_max_size = 10M
 */
 
-print_r($argv);
-
+// print_r($argv);
 $file      = $argv[1];
 $orig_file = @$argv[2];
 $server_http_host = @$argv[3];
 $server_script_name = @$argv[4];
 
-
-
-// echo "<pre>";
-// echo "<br>$file<br>";
-// echo "<br>$orig_file<br>";
-// echo "</pre>";
-// exit;
-
-echo "<br>Working file: [$file]<br>";
+debug("<br>Working file: [$file]<br>");
 
 if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
 {
@@ -41,24 +33,30 @@ if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
     $destination = "temp/".$filenamez;
     mkdir($destination);
     
-    if(file_exists($file)) echo "<br>[$file] file exists - OK<br>";
+    if(file_exists($file)) debug("<br>[$file] file exists - OK<br>");
     else {
         echo "<br>[$file] file does not exist - ERROR<br>";
         return;
     }
     
     //start of new routine ================================
-    $status = shell_exec("unzip $file -d $destination");    echo "<br>unzip status: <i>$status</i><br>";
-    $status = unlink("temp/$filenamez".".zip");             echo "<br>unlink status: <i>$status</i><br>";
+    $status = shell_exec("unzip $file -d $destination");    debug("<br>unzip status: <i>$status</i><br>");
+    $status = unlink("temp/$filenamez".".zip");             debug("<br>unlink status: <i>$status</i><br>");
     
     foreach (glob("$destination/*.*") as $filename) { //source
-        // echo "<br>file = [$filename]<br>";
         $file = "temp/" . "$filenamez.$extensionz"; //destination
         if(!copy($filename, $file)) exit("<hr>Failed to copy file. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
         else recursive_rmdir($destination);
         break;
     }
     //end of new routine ================================
+}
+else
+{
+    // shell_exec(CHMOD_PATH." 777 $file"); //https://www.shellscript.sh/
+    shell_exec("zip $file.zip $file");
+    unlink($file);
+    shell_exec("unzip $file.zip");
 }
 
 require_library('connectors/DwCA_Utility');
@@ -78,9 +76,8 @@ if($info = $func->tool_generate_higherClassification($file))
     $url    = "http://$domain" . $temp;
 
     //start zip
-    echo "<br>filename = $filename<br>";
+    debug("<br>filename = $filename<br>");
     $command_line = "zip -rj " . $filename . ".zip " . $filename;
-    // echo "<br><i>$command_line</i><br>";
     $output = shell_exec($command_line);
     //end zip
 
