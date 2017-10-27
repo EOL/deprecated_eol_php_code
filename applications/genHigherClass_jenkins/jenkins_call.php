@@ -45,7 +45,7 @@ $shell_debug = shell_exec($c);
 // echo "<pre><hr>cmd: $cmd<hr>c: $c<hr></pre>";
 // echo "<pre><hr>shell_debug: [$shell_debug]<hr></pre>";
 
-
+/*
 // the $build_status should come from the status for uuid in question not just the currently last_build
 $build_status = $ctrler->get_last_build_console_text($task, $params['uuid']."_getHC");
 if($ctrler->did_build_fail($build_status)) {
@@ -53,16 +53,16 @@ if($ctrler->did_build_fail($build_status)) {
 }
 elseif($ctrler->is_build_currently_running($build_status)) {
     $ctrler->display_message(array('type' => "highlight", 'msg' => "Processing..."));
-    $ctrler->display_message(array('type' => "highlight", 'msg' => "Please check back later. You can use this <a>link to check status</a> anytime."));
+    $ctrler->display_message(array('type' => "highlight", 'msg' => "Please check back later. You can use this <a href='task_status.php?task=$task&uuid=$params[uuid]&destination=".urlencode($params['destination'])."'>link to check status</a> anytime."));
     return;
 }
 else {
     if(file_exists($params['destination']) && filesize($params['destination'])) $ctrler->display_message(array('type' => "highlight", 'msg' => "Job completed OK."));
     else                                                                        $ctrler->display_message(array('type' => "highlight", 'msg' => "Build is in unknown state. Will investigate"));
 }
-
 echo "<hr>Build status:<pre>".$build_status."</pre><hr>";
-
+*/
+require_once("show_build_status.php");
 
 function compute_destination($newfile, $orig_file)
 {
