@@ -10,9 +10,6 @@ if(!$params) $params =& $_POST;
 $ctrler = new freshdata_controller($params);
 $task = $ctrler->get_available_job("genHigherClass_job");
 
-//worked on script
-//generate.php?file=$newfile&orig_file=$orig_file
-
 $server_http_host = $_SERVER['HTTP_HOST'];
 $server_script_name = $_SERVER['SCRIPT_NAME'];
 $server_script_name = str_replace("form_result.php", "generate_jenkins.php", $server_script_name);
@@ -40,7 +37,7 @@ if(file_exists($params['destination'])) unlink($params['destination']);
 */
 
 $shell_debug = shell_exec($c);
-sleep(5);
+// sleep(5);
 
 // echo "<pre><hr>cmd: $cmd<hr>c: $c<hr></pre>";
 // echo "<pre><hr>shell_debug: [$shell_debug]<hr></pre>";
