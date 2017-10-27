@@ -95,7 +95,7 @@ if($info = $func->tool_generate_higherClassification($file)) {
         echo "Report <a href='../content_server/resources/" . pathinfo($filename, PATHINFO_FILENAME) . "_undefined_parent_ids.txt'>here</a><hr>";
     }
 
-    echo "<a href='javascript:history.go(-1)'>&lt;&lt;Back to main</a><br><hr>";
+    echo "<a href='index.php'>&lt;&lt; Back to main</a><br><hr>";
 }
 else {
     echo "The file is not ready for processing. The file needs the minimum three fields column header: '<i>taxonID</i>', '<i>scientificName</i>' and '<i>parentNameUsageID</i>'.
