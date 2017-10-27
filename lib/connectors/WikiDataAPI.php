@@ -594,7 +594,7 @@ class WikiDataAPI
             }
             
             // [public domain] exact
-            $arr = array("cc-pd", "pdphoto.org");
+            $arr = array("cc-pd", "pdphoto.org", "Folger Shakespeare Library partnership");
             foreach($arr as $p) {
                 if(strtolower($LicenseShortName) == $p) return $this->license['public domain'];
             }
@@ -605,7 +605,7 @@ class WikiDataAPI
                 if(stripos($LicenseShortName, $p) !== false) return $this->license['by'];
             }
             //[by-sa] stripos
-            $arr = array("Nationaal Archief");
+            $arr = array("Nationaal Archief", "Malayalam loves Wikipedia event");
             foreach($arr as $p) {
                 if(stripos($LicenseShortName, $p) !== false) return $this->license['by-sa'];
             }
@@ -629,7 +629,6 @@ class WikiDataAPI
             MLW3‬
             Raquel Rocha Santos permission
             Stanley Trauth permission
-            *Image use: You must attribute the work in the manner specified (but not in any way that suggests endorsement).*Image citation: ''Whitney Cranshaw, Colorado State University, Bugwood.org''*License: ''Creative Commons Attribution 3.0 United States License''cc-by-3.0-us
             LarsCurfsCCSA3.0
             dvdm-h6|migration=relicense
             Alessandro Catenazzi permission
@@ -651,7 +650,6 @@ class WikiDataAPI
             NO Facebook Youtube license
             spomenikSVN|7914
             Location|36|2|59.1|N|139|9|1.8|E|type:landmark_region:JP-29_scale:2000
-            Malayalam loves Wikipedia event|year=2011
             s*derivative work: [[User:B kimmel|B kimmel]] ([[User talk:B kimmel|<span class="signature-talk">talk</span>]])|Permission=|other_versions=
             Flickreview|Yuval Y|20:49, 16 June 2011 (UTC)
             Tasnim
@@ -679,14 +677,12 @@ class WikiDataAPI
             Franco Andreone permission
             Youtube|channelxxxvol1
             Picswiss|migration=relicense
+            [[Category:Megalops atlanticus]]
             Volganet.ru
             @|link=http://www.opencage.info/pics.e/large_8238.asp|txt=opencage-
-            "
             RetouchedPicture|Screenshot for distribution map|editor=Obsidian Soul|orig=Australia Victoria location map highways.svg
             |Source=transferred from|en.wikipedia|Syp|CommonsHelper
-            Folger Shakespeare Library partnership
             DYKfile|25 March|2008|type=image
-            [[Category:Megalops atlanticus]]
             */
             
             // for public domain - stripos
