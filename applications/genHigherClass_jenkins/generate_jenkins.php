@@ -88,19 +88,19 @@ if($info = $func->tool_generate_higherClassification($file)) {
     <br><br>This is the URL of the converted file [<i>$orig_file</i>] with higherClassification:
     <br><br> <a target='$filename' href='$url'>$url</a>
     <br><br> <a target='$filename' href='$url.zip'>$url.zip</a>
-    <br><hr></b>";
+    <br><p></b>";
     
     if($undefined_parents) {
         echo "Undefined parents found: " . count($undefined_parents) . "<br>";
         echo "Report <a href='../content_server/resources/" . pathinfo($filename, PATHINFO_FILENAME) . "_undefined_parent_ids.txt'>here</a><hr>";
     }
 
-    echo "<a href='index.php'>&lt;&lt; Back to main</a><br><hr>";
+    echo "<a href='index.php'>&lt;&lt; Back to main</a><br><p>";
 }
 else {
     echo "The file is not ready for processing. The file needs the minimum three fields column header: '<i>taxonID</i>', '<i>scientificName</i>' and '<i>parentNameUsageID</i>'.
     <br><a href='javascript:history.go(-1)'> &lt;&lt; Go back</a>
-    <br><hr>";
+    <br><p>";
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;
