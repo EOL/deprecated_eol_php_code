@@ -3,22 +3,25 @@
 require_once("../../../LiteratureEditor/Custom/lib/Functions.php");
 require_once("../../../FreshData/controllers/other.php");
 require_once("../../../FreshData/controllers/freshdata.php");
+
+/* params are no longer transferred this way
 $params =& $_GET;
 if(!$params) $params =& $_POST;
-// echo "<pre>"; print_r($params); echo "</pre>";
+*/
 
-$ctrler = new freshdata_controller($params);
+$ctrler = new freshdata_controller(array());
 $task = $ctrler->get_available_job("genHigherClass_job");
 
 $server_http_host = $_SERVER['HTTP_HOST'];
 $server_script_name = $_SERVER['SCRIPT_NAME'];
 $server_script_name = str_replace("form_result.php", "generate_jenkins.php", $server_script_name);
 
-// exit("<pre><hr>$server_http_host<hr>$server_script_name</pre>");
+// //temp/1509076643.txt | dwh_taxa.txt
+// print_r(pathinfo($newfile));
+// exit("$newfile | $orig_file");
 
-$params['uuid'] = "eli173";
+$params['uuid'] = pathinfo($newfile, PATHINFO_FILENAME);
 $params['destination'] = dirname(__FILE__) . "/temp/" . compute_destination($newfile, $orig_file);
-
 
 // echo "<br>newfile: [$newfile]";
 // echo "<br>orig_file: [$orig_file]";
@@ -51,6 +54,7 @@ if($ctrler->did_build_fail($build_status)) {
 elseif($ctrler->is_build_currently_running($build_status)) {
     $ctrler->display_message(array('type' => "highlight", 'msg' => "Processing..."));
     $ctrler->display_message(array('type' => "highlight", 'msg' => "Please check back later. You can use this <a>link to check status</a> anytime."));
+    return;
 }
 else {
     if(file_exists($params['destination']) && filesize($params['destination'])) $ctrler->display_message(array('type' => "highlight", 'msg' => "Job completed OK."));
@@ -62,15 +66,12 @@ echo "<hr>Build status:<pre>".$build_status."</pre><hr>";
 
 function compute_destination($newfile, $orig_file)
 {
-    // echo "\n newfile: [$newfile] ";
-    // echo "\n orig_file: [$orig_file] ";
     $filename = pathinfo($newfile, PATHINFO_FILENAME);
     if(pathinfo($orig_file, PATHINFO_EXTENSION) == "zip") {
         $temp = pathinfo($orig_file, PATHINFO_FILENAME);
         $ext = pathinfo($temp, PATHINFO_EXTENSION);
     }
     else $ext = pathinfo($orig_file, PATHINFO_EXTENSION);
-    // echo "\n ext = [$ext]";
     $final = "$filename.$ext";
     return $final;
 }

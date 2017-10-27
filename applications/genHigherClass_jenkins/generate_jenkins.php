@@ -53,10 +53,12 @@ if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
 }
 else
 {
-    // shell_exec(CHMOD_PATH." 777 $file"); //https://www.shellscript.sh/
+    // shell_exec(CHMOD_PATH." 777 $file"); //https://www.shellscript.sh/ -- didn't work
+    /* this will zip the uploaded file then delete the uploaded file then unzip it. This is so that Jenkins will own the file to be processed */
     shell_exec("zip $file.zip $file");
     unlink($file);
     shell_exec("unzip $file.zip");
+    unlink("$file.zip");
 }
 
 require_library('connectors/DwCA_Utility_cmd');
