@@ -5,7 +5,7 @@ $timestart = time_elapsed();
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 // set_time_limit(60*60); //1 hour --- Commented, problematic in MacMini. It doesn't render page, browser just loading... endlessly
-ini_set("memory_limit","5000M");
+ini_set("memory_limit","8000M");
 // $GLOBALS['ENV_DEBUG'] = true;
 
 /* Important settings
@@ -98,7 +98,7 @@ if($info = $func->tool_generate_higherClassification($file)) {
 }
 else {
     echo "The file is not ready for processing. The file needs the minimum three fields column header: '<i>taxonID</i>', '<i>scientificName</i>' and '<i>parentNameUsageID</i>'.
-    <br><a href='javascript:history.go(-1)'> &lt;&lt; Go back</a>
+    <br><a href='index.php'>&lt;&lt; Go back</a>
     <br><p>";
 }
 

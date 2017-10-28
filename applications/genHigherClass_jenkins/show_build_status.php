@@ -14,5 +14,6 @@ else {
     if(file_exists($params['destination']) && filesize($params['destination'])) $ctrler->display_message(array('type' => "highlight", 'msg' => "Job completed OK."));
     else $ctrler->display_message(array('type' => "highlight", 'msg' => "Build is in unknown state. &nbsp; $str"));
 }
-echo "<hr>Build status:<pre>".$build_status."</pre><hr>";
+if($build_status) echo "<hr><b>Build status:</b><pre>".$build_status."</pre><hr>";
+else              echo "<hr><b>Build status:</b><pre>Preparing files...</pre><hr>";
 ?>
