@@ -139,8 +139,6 @@ class WikiDataAPI
         <field index="9" term="http://ns.adobe.com/xap/1.0/rights/UsageTerms"/>
         <field index="10" term="http://ns.adobe.com/xap/1.0/rights/Owner"/>
         */
-        // /*
-        
         if($this->what == "wikipedia") {
             $this->media_cols = "identifier,taxonID,type,format,CVterm,title,description,furtherInformationURL,language,UsageTerms,Owner";
             $this->media_cols = explode(",", $this->media_cols);
@@ -149,7 +147,6 @@ class WikiDataAPI
             fwrite($f, implode("\t", $this->media_cols)."\n");
             fclose($f);
         }
-        // */
     }
     
     private function add_parent_entries()
@@ -165,11 +162,8 @@ class WikiDataAPI
                 $rec['rank']        = $arr['rank'];
                 $rec['parent_id']   = @$arr['parent']['id'];
                 self::create_parent_taxon($rec);
-                
                 $arr = @$arr['parent']; //trigger a loop
-
-                if(!@$arr['parent'])  //if true, then get the last record
-                {
+                if(!@$arr['parent']) {  //if true, then get the last record
                     $rec = array();
                     $rec['id']          = $arr['id'];
                     $rec['taxon_name']  = $arr['taxon_name'];
@@ -194,7 +188,6 @@ class WikiDataAPI
             $this->taxon_ids[$t->taxonID] = '';
             $this->archive_builder->write_object_to_file($t);
         }
-        // print_r($rec);
         /*
         [id] => Q25833
         [taxon_name] => Eutheria
@@ -213,7 +206,7 @@ class WikiDataAPI
             $k++; 
             if(($k % 100000) == 0) echo " ".number_format($k)." ";
             echo " ".number_format($k)." ";
-            // /* breakdown when caching:
+            /* breakdown when caching:
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true; done
             // if($k >=  $m   && $k < $m*2) $cont = true; done
@@ -236,7 +229,7 @@ class WikiDataAPI
             // if($k >= 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
             
             if(!$cont) continue;
-            // */
+            */
 
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
@@ -258,7 +251,6 @@ class WikiDataAPI
                          // /* normal operation ==========================
                          if($rek['sitelinks'] = self::get_taxon_sitelinks_by_lang($arr->sitelinks)) //if true then create DwCA for it
                          {
-                             // print_r($arr); //debug
                              $i++; 
                              $rek['rank'] = self::get_taxon_rank($arr->claims);
                              $rek['author'] = self::get_authorship($arr->claims);
@@ -432,7 +424,10 @@ class WikiDataAPI
         if(stripos($license, "creativecommons.org/licenses/by-sa/") !== false)          return $this->license['by-sa'];
         if(stripos($license, "creativecommons.org/licenses/by-nc-sa/") !== false)       return $this->license['by-nc-sa'];
         
-        if(stripos($license, "gpl") !== false) return $this->debug['gpl count']++;
+        if(stripos($license, "gpl") !== false) {
+            $this->debug['gpl count']++;
+            return "invalid";
+        }
 
         //others...
         if($license == "http://creativecommons.org/licenses/by-sa")          return $this->license['by-sa']; //exact match
@@ -748,12 +743,6 @@ class WikiDataAPI
         }
         
         return $license;
-        // Line Value: https://www.flickr.com/commons/usage/
-        // Line Value: http://creativecommons.org/licenses/by/2.0/deed.en
-        // Line Value: http://creativecommons.org/licenses/by/2.5/deed.en
-        // Line Value: http://creativecommons.org/licenses/by/4.0/deed.en
-        // Line Value: http://creativecommons.org/licenses/by-sa/4.0/deed.en
-        // http://creativecommons.org/publicdomain/zero/1.0/deed.en
     }
     private function valid_license_YN($license)
     {
@@ -763,7 +752,6 @@ class WikiDataAPI
     }
     private function create_commons_objects($commons, $t)
     {
-        // print_r($commons); exit;
         foreach($commons as $com) {
             $formatted_license = self::format_license(@$com['LicenseUrl'], @$com['LicenseShortName']);
             if(!self::valid_license_YN($formatted_license)) $this->debug['invalid_LicenseUrl'][$formatted_license] = '';
@@ -864,8 +852,7 @@ class WikiDataAPI
     private function last_quality_check($media)
     {
         $fields = array_keys($media);
-        foreach($fields as $field)
-        {
+        foreach($fields as $field) {
             $media[$field] = str_replace("\t", " ", $media[$field]);
             $media[$field] = str_replace("\n", "<br>", $media[$field]);
         }
@@ -943,8 +930,7 @@ class WikiDataAPI
     {
         $rek = array();
         // if(false) //will force to use API data - debug only
-        if($filename = self::has_cache_data($file)) //Eyes_of_gorilla.jpg - used in normal operation -- get media info from commons
-        {
+        if($filename = self::has_cache_data($file)) { //Eyes_of_gorilla.jpg - used in normal operation -- get media info from commons
             echo "\nused cache data";
             $rek = self::get_media_metadata_from_json($filename, $file);
             if($rek == "protected") return "continue";
@@ -970,13 +956,11 @@ class WikiDataAPI
         $rek['ImageDescription'] = Functions::remove_this_last_char_from_str($rek['ImageDescription'], "|");
         
         //will capture in report source of various invalid data (to check afterwards) but will not stop process.
-        if(!self::url_is_valid($rek['source_url']))
-        {
+        if(!self::url_is_valid($rek['source_url'])) {
             $this->debug['invalid source_url'][$rek['pageid']] = '';
             $rek['source_url'] = '';
         }
-        if(!self::url_is_valid($rek['media_url'])) 
-        {
+        if(!self::url_is_valid($rek['media_url'])) {
             $this->debug['invalid media_url'][$rek['pageid']] = '';
             return false;
         }
@@ -1399,7 +1383,6 @@ class WikiDataAPI
             $html = $arr['parse']['text']['*'];
             if(preg_match("/elix(.*?)<!--/ims", "elix".$html, $a)) {
                 $html = trim($a[1]);
-                // exit("\n$html\n");
                 $html = str_ireplace('href="//', 'href="http://', $html);
                 $html = str_ireplace('href="/', 'href="https://commons.wikimedia.org/', $html);
                 $html = self::format_wiki_substr($html);
@@ -1477,26 +1460,7 @@ class WikiDataAPI
         $html = strip_tags($html,'<a><b><br>');
         return $html;
     }
-    /*
-    private function get_str_up_to_this_chars_only($str, $findme, $order = "first")
-    {
-        if    ($order == "first") $pos = stripos($str, $findme);
-        elseif($order == "last")  $pos = strripos($str, $findme);
-        if($pos !== false) { //echo "The string '$findme' exists at position $pos";
-            $str = substr($str,0,$pos);
-        }
-        return Functions::remove_whitespace($str);
-    }
-    private function exclude_str_before_this_chars($str, $findme, $order = "last") //e.g. exclude all before last occurrence of string "</table>"
-    {
-        if    ($order == "first") $pos = stripos($str, $findme);
-        elseif($order == "last")  $pos = strripos($str, $findme);
-        if($pos !== false) { //echo "The string '$findme' exists at position $pos";
-            $str = trim(substr($str, $pos+strlen($findme), strlen($str)));
-        }
-        return $str;
-    }
-    */
+
     private function more_desc_removed($html)
     {
         $findme = '</table> Licensing <table';
