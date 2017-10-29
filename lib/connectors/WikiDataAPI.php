@@ -75,7 +75,7 @@ class WikiDataAPI
         //         [File:] => Aix_sponsa_dis1.PNG
         //         [File:] => 
         //     )
-        $arr = self::process_file("Strip_of_API%C2%AE_PHIL_3629_lores.JPG");
+        $arr = self::process_file("Chinese_Honeysuckle_(349237385).jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
         */
@@ -213,7 +213,7 @@ class WikiDataAPI
             $k++; 
             if(($k % 100000) == 0) echo " ".number_format($k)." ";
             echo " ".number_format($k)." ";
-            /* breakdown when caching:
+            // /* breakdown when caching:
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true; done
             // if($k >=  $m   && $k < $m*2) $cont = true; done
@@ -230,13 +230,13 @@ class WikiDataAPI
             // if($k >= 601476 && $k < $m*5) $cont = true; // sv
             // if($k >= 1154430 && $k < $m*5) $cont = true; // vi
 
-            if($k >= 1 && $k < 1000) $cont = true;   //wikimedia total taxa = 2,208,086
+            if($k >= 1 && $k < 50000) $cont = true;   //wikimedia total taxa = 2,208,086
             else break;
             
             // if($k >= 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
             
             if(!$cont) continue;
-            */
+            // */
 
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
@@ -611,7 +611,7 @@ class WikiDataAPI
             }
 
             //[by] exact match
-            $arr = array("Premier.gov.ru");
+            $arr = array("Premier.gov.ru", "Akkasemosalman");
             foreach($arr as $p) {
                 if($LicenseShortName == $p) return $this->license['by']; //exact match
             }
@@ -878,7 +878,7 @@ class WikiDataAPI
             if(!$a['name']) continue;
             $r = new \eol_schema\Agent();
             $r->term_name       = $a['name'];
-            $r->agentRole       = $role;
+            $r->agentRole       = ($val = @$a['role']) ? $val : $role;
             $r->term_homepage   = @$a['homepage'];
             $r->identifier      = md5("$r->term_name|$r->agentRole");
             $agent_ids[] = $r->identifier;
@@ -1524,6 +1524,7 @@ class WikiDataAPI
     {
         $html = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\11", "\011"), "", trim($html));
         $html = str_ireplace("</table> |", "</table>", $html);
+        $html = str_ireplace(" |||| ", "; ", $html); //was a weird sol'n to an imageDescription with weird chars. But it worked :-)
         return $html;
         // return Functions::remove_whitespace($html);
     }
