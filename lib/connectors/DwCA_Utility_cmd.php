@@ -144,7 +144,7 @@ class DwCA_Utility_cmd
     
     private function create_records_array($file)
     {
-        echo "\n[$file]\n";
+        // echo "\n[$file]\n";
         $records = array();
         $i = 0;
         foreach(new FileIterator($file) as $line => $row)
