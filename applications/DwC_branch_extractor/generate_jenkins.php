@@ -5,7 +5,7 @@ $timestart = time_elapsed();
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 // set_time_limit(60*60); //1 hour --- Commented, problematic in MacMini. It doesn't render page, browser just loading... endlessly
-ini_set("memory_limit","8000M");
+ini_set("memory_limit","5000M");
 // $GLOBALS['ENV_DEBUG'] = true;
 
 /* Important settings
