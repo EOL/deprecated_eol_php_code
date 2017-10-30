@@ -153,7 +153,7 @@ class DwCA_Utility_cmd
             if($i == 1)
             {
                 $fields = explode("\t", $row);
-                
+                /* original scheme
                 // this is for specific resource criteria
                 if($file == "sample/GBIF_Taxon.tsv") //https://eol-jira.bibalex.org/browse/TRAM-552
                 {
@@ -168,6 +168,14 @@ class DwCA_Utility_cmd
                 }
                 elseif($file == "something else") {}
                 else $fieldz = $fields; //no criteria needed, for normal operation
+                */
+                
+                //became default for all resources as of 29-Oct-2017
+                $fieldz = array();
+                $proposed = array("taxonID", "acceptedNameUsageID", "parentNameUsageID", "scientificName", "taxonRank", "taxonomicStatus"); 
+                foreach($proposed as $p) {
+                    if(in_array($p, $fields)) $fieldz[] = $p;
+                }
                 
             }
             else
