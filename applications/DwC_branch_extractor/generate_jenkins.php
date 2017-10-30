@@ -60,8 +60,8 @@ else
     unlink("$file.zip");
 }
 
-require_library('connectors/DwCA_Utility_cmd');
-$func = new DwCA_Utility_cmd();
+require_library('connectors/DwCA_Branch_Extractor');
+$func = new DwCA_Branch_Extractor();
 
 if($info = $func->tool_generate_higherClassification($file)) {
     $filename = "temp/" . pathinfo($file, PATHINFO_BASENAME);
