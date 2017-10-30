@@ -10,8 +10,7 @@ class DwCA_Utility_cmd
 {
     function __construct($folder = NULL, $dwca_file = NULL)
     {
-        if($folder)
-        {
+        if($folder) {
             $this->resource_id = $folder;
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -38,7 +37,6 @@ class DwCA_Utility_cmd
                                   [6] => http://rs.gbif.org/terms/1.0/typesandspecimen
                                   [7] => http://rs.gbif.org/terms/1.0/distribution
                                   */
-                                  
     }
 
     private function start()
@@ -51,8 +49,7 @@ class DwCA_Utility_cmd
         $harvester = new ContentArchiveReader(NULL, $archive_path);
         $tables = $harvester->tables;
         $index = array_keys($tables);
-        if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) // take note the index key is all lower case
-        {
+        if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) { // take note the index key is all lower case
             debug("Invalid archive file. Program will terminate.");
             return false;
         }
@@ -61,8 +58,7 @@ class DwCA_Utility_cmd
     
     private function build_id_name_array($records)
     {
-        foreach($records as $rec)
-        {
+        foreach($records as $rec) {
             // [tID] => 6de0dc42e8f4fc2610cb4287a4505764
             // [sN] => Accipiter cirrocephalus rosselianus Mayr, 1940
             $taxon_id = (string) $rec["tID"];
@@ -79,8 +75,7 @@ class DwCA_Utility_cmd
             [pID] => 49fc924007e33cc43908fed677d5499a
         */
         $i = 0;
-        foreach($records as $rec)
-        {
+        foreach($records as $rec) {
             $higherClassification = self::get_higherClassification($rec);
             $records[$i]["hC"] = $higherClassification; //assign value to main $records -> UNCOMMENT in real operation
             $i++;
@@ -92,20 +87,16 @@ class DwCA_Utility_cmd
     {
         $parent_id = $rek['pID'];
         $str = "";
-        while($parent_id)
-        {
-            if($parent_id)
-            {
+        while($parent_id) {
+            if($parent_id) {
                 $str .= Functions::canonical_form(trim(@$this->id_name[$parent_id]['sN']))."|";
                 $parent_id = @$this->id_name[$parent_id]['pID'];
             }
         }
-        $str = substr($str, 0, strlen($str)-1);
-        // echo "\norig: [$str]";
+        $str = substr($str, 0, strlen($str)-1); // echo "\norig: [$str]";
         $arr = explode("|", $str);
         $arr = array_reverse($arr);
-        $str = implode("|", $arr);
-        // echo "\n new: [$str]\n";
+        $str = implode("|", $arr); // echo "\n new: [$str]\n";
         return $str;
     }
 
@@ -124,8 +115,7 @@ class DwCA_Utility_cmd
     
     function tool_generate_higherClassification($file)
     {
-        if($records = self::create_records_array($file))
-        {
+        if($records = self::create_records_array($file)) {
             self::build_id_name_array($records);                                //echo "\n1 of 3\n";
             $records = self::generate_higherClassification_field($records);     //echo "\n2 of 3\n";
             $fields = self::normalize_fields($records[0]);
@@ -147,11 +137,9 @@ class DwCA_Utility_cmd
         // echo "\n[$file]\n";
         $records = array();
         $i = 0;
-        foreach(new FileIterator($file) as $line => $row)
-        {
+        foreach(new FileIterator($file) as $line => $row) {
             $i++;
-            if($i == 1)
-            {
+            if($i == 1) {
                 $fields = explode("\t", $row);
                 /* original scheme
                 // this is for specific resource criteria
@@ -178,32 +166,26 @@ class DwCA_Utility_cmd
                 }
                 
             }
-            else
-            {
+            else {
                 $rec = array();
                 $cols = explode("\t", $row);
                 $k = 0;
-                foreach($fields as $field)
-                {
+                foreach($fields as $field) {
                     $short_field = self::shorten_field($field);
                     if(in_array($field, $fieldz)) $rec[$short_field] = @$cols[$k];
                     $k++;
                 }
-                if($rec)
-                {
+                if($rec) {
                     // this is for specific resource criteria
-                    if($file == "sample/GBIF_Taxon.tsv") //https://eol-jira.bibalex.org/browse/TRAM-552
-                    {
+                    if($file == "sample/GBIF_Taxon.tsv") { //https://eol-jira.bibalex.org/browse/TRAM-552
                         if($rec['tS'] != 'accepted') continue;
                     }
-                    elseif($file == "sample/dwh_taxa.txt") //https://eol-jira.bibalex.org/browse/TRAM-575
-                    {
+                    elseif($file == "sample/dwh_taxa.txt") { //https://eol-jira.bibalex.org/browse/TRAM-575
                         if($rec['tS'] != 'accepted') continue;
                     }
 
                     $records[] = $rec;
-                    if($i > 3 && $i <= 10) //can check this early if we can compute for higherClassification, used a range so it will NOT check for every record but just 7 records.
-                    {
+                    if($i > 3 && $i <= 10) { //can check this early if we can compute for higherClassification, used a range so it will NOT check for every record but just 7 records.
                         if(!self::can_compute_higherClassification($rec)) return false;
                     }
                     
@@ -217,8 +199,7 @@ class DwCA_Utility_cmd
     {
         $fields = array_keys($arr);
         $k = 0;
-        foreach($fields as $field)
-        {
+        foreach($fields as $field) {
             $fields[$k] = self::lengthen_field($field);
             $k++;
         }
