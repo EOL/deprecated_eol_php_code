@@ -109,13 +109,13 @@ class DwCA_Branch_Extractor
     
     private function extract_branch($taxon_id)
     {
-        echo "taxon_id: [$taxon_id]";
-        print_r($this->id_name[$taxon_id]);
+        echo "<br>taxon_id: [$taxon_id]";
+        echo "<br>name: ".$this->id_name[$taxon_id]['sN'];
+        echo "<br>parent: ". $this->id_name[$taxon_id]['pID'];
         /*
         [sN] => Struthio camelus Linnaeus, 1758
         [pID] => cc26d87dc5a15502a9d00af428f93101
-        [anak] => Array
-            (
+        [cx] => Array (
                 [0] => 8b0bb34c6485a0a791818a2b93cc7212
                 [1] => 7288a29751c0ffc544c7fe2cf9dbac4b
                 [2] => 3a3dbb738053311b6dfff3ced501cb85
@@ -126,19 +126,30 @@ class DwCA_Branch_Extractor
         // print_r($upwards);
         /*
         echo "<hr>upwards:<br>";
-        foreach($upwards as $taxon_id)
-        {
+        foreach($upwards as $taxon_id) {
             echo "taxon is $taxon_id ";
             print_r($this->id_name[$taxon_id]);
         }
         */
         
         $downwards = self::get_ancestry_downwards($taxon_id);
-        // print_r($downwards);
+        /*
+        echo "<hr>downwards:<br>";
+        foreach($downwards as $taxon_id) {
+            echo "taxon is $taxon_id ";
+            print_r($this->id_name[$taxon_id]);
+        }
+        */
         echo "<br>total upwards: ".count($upwards);
         echo "<br>total downwards: ".count($downwards);
+
+        unset($this->id_name);
+        $final = array_merge($upwards, $downwards);
+        $final = array_unique($final);
+        echo "<br>total: ".count($final)."<br>";
         
-        exit("<hr>");
+        exit;
+        return $final;
     }
     private function get_ancestry_downwards($sought_taxon_id)
     {
@@ -149,43 +160,33 @@ class DwCA_Branch_Extractor
         else return array();
 
         //2nd step loop onwards:
-        foreach(@$children[1] as $taxon_id)
-        {
+        foreach(@$children[1] as $taxon_id) {
             if($children[2] = self::get_immediate_children($taxon_id)) $final = array_merge($final, $children[2]);
             else continue;
-            foreach(@$children[2] as $taxon_id2)
-            {
+            foreach(@$children[2] as $taxon_id2) {
                 if($children[3] = self::get_immediate_children($taxon_id2)) $final = array_merge($final, $children[3]);
                 else continue;
-                foreach(@$children[3] as $taxon_id3)
-                {
+                foreach(@$children[3] as $taxon_id3) {
                     if($children[4] = self::get_immediate_children($taxon_id3)) $final = array_merge($final, $children[4]);
                     else continue;
-                    foreach(@$children[4] as $taxon_id4)
-                    {
+                    foreach(@$children[4] as $taxon_id4) {
                         if($children[5] = self::get_immediate_children($taxon_id4)) $final = array_merge($final, $children[5]);
                         else continue;
-                        foreach(@$children[5] as $taxon_id5)
-                        {
+                        foreach(@$children[5] as $taxon_id5) {
                             if($children[6] = self::get_immediate_children($taxon_id5)) $final = array_merge($final, $children[6]);
                             else continue;
-                            foreach(@$children[6] as $taxon_id6)
-                            {
+                            foreach(@$children[6] as $taxon_id6) {
                                 if($children[7] = self::get_immediate_children($taxon_id6)) $final = array_merge($final, $children[7]);
                                 else continue;
-                                foreach(@$children[7] as $taxon_id7)
-                                {
+                                foreach(@$children[7] as $taxon_id7) {
                                     if($children[8] = self::get_immediate_children($taxon_id7)) $final = array_merge($final, $children[8]);
                                     else continue;
-                                    foreach(@$children[8] as $taxon_id8)
-                                    {
+                                    foreach(@$children[8] as $taxon_id8) {
                                         if($children[9] = self::get_immediate_children($taxon_id8)) $final = array_merge($final, $children[9]);
                                         else continue;
-                                        foreach(@$children[9] as $taxon_id9)
-                                        {
+                                        foreach(@$children[9] as $taxon_id9) {
                                             if($children[10] = self::get_immediate_children($taxon_id9)) $final = array_merge($final, $children[10]);
                                             else continue;
-                                            
                                         }
                                     }
                                 }
@@ -197,32 +198,13 @@ class DwCA_Branch_Extractor
         }
         
         $indexes = array_keys($children);
-        print_r($indexes);
+        // print_r($indexes);
         echo "<br>Reached level: ". end($indexes);
-        
-        // wrong last step
-        // //last step: append all $children
-        // $final = array();
-        // foreach($children as $index => $value) {
-        //     if($arr = @$children[$index]) $final = array_merge($final, $arr);
-        // }
-        // echo "<hr>total downwards [$index level]: ".count($final)."<hr>";
-
         return $final;
     }
     private function get_immediate_children($sought_taxon_id)
     {
-        return @$this->id_name[$sought_taxon_id]['anak'];
-        /* veeeery long to process
-        $children = array();
-        foreach($this->id_name as $taxon_id => $item) {
-            if($sought_taxon_id == $item['pID']) {
-                // print_r($this->id_name[$taxon_id]);
-                $children[] = (string) $taxon_id;
-            }
-        }
-        return $children;
-        */
+        return @$this->id_name[$sought_taxon_id]['cx'];
     }
     private function get_ancestry_upwards($parent_id)
     {
@@ -241,7 +223,7 @@ class DwCA_Branch_Extractor
     function tool_generate_higherClassification($file)
     {
         if(self::create_records_array($file)) {
-            // $records = self::extract_branch("ceab0b65522ca514b497c009eb60c834");     //species
+            $records = self::extract_branch("ceab0b65522ca514b497c009eb60c834");     //species
             // $records = self::extract_branch("cc26d87dc5a15502a9d00af428f93101");     //genus
             // $records = self::extract_branch("e86ef0e503d2961a3da298cea6da8021");     //family
             // $records = self::extract_branch("eea14f4c044d251bf3ee9ee99417c91f");     //order
@@ -250,12 +232,8 @@ class DwCA_Branch_Extractor
             //dwh_taxa.txt
             // $records = self::extract_branch("4807313");     //viruses
             // $records = self::extract_branch("-2");     //order
-            $records = self::extract_branch("805080");     //top node
-
-            
-            
-            
-            
+            // $records = self::extract_branch("805080");     //top node
+            // $records = self::extract_branch("-1647692");     //genus
 
             //start write to file
             $fields = self::normalize_fields($records[0]);
@@ -271,7 +249,6 @@ class DwCA_Branch_Extractor
     private function create_records_array($file)
     {
         // echo "\n[$file]\n";
-        // $records = array();
         $i = 0;
         foreach(new FileIterator($file) as $line => $row) {
             $i++;
@@ -296,11 +273,10 @@ class DwCA_Branch_Extractor
                 
                 //became default for all resources as of 29-Oct-2017
                 $fieldz = array();
-                $proposed = array("taxonID", "acceptedNameUsageID", "parentNameUsageID", "scientificName", "taxonRank", "taxonomicStatus"); 
+                $proposed = array("taxonID", "acceptedNameUsageID", "parentNameUsageID", "scientificName", "taxonRank", "taxonomicStatus");
                 foreach($proposed as $p) {
                     if(in_array($p, $fields)) $fieldz[] = $p;
                 }
-                
             }
             else {
                 $rec = array();
@@ -325,11 +301,10 @@ class DwCA_Branch_Extractor
                     [tID] => 6de0dc42e8f4fc2610cb4287a4505764
                     [sN] => Accipiter cirrocephalus rosselianus Mayr, 1940
                     */
-                    if($taxon_id = (string) $rec["tID"])
-                    {
+                    if($taxon_id = (string) $rec["tID"]) {
                         $this->id_name[$taxon_id]['sN'] = (string) $rec["sN"];
                         $this->id_name[$taxon_id]['pID'] = (string) $rec["pID"];
-                        $this->id_name[$rec["pID"]]['anak'][] = $taxon_id;
+                        $this->id_name[$rec["pID"]]['cx'][] = $taxon_id; //cx is children
                     }
                     
                     if($i > 3 && $i <= 10) { //can check this early if we can compute for higherClassification, used a range so it will NOT check for every record but just 7 records.
@@ -339,7 +314,6 @@ class DwCA_Branch_Extractor
                 }
             }
         }
-        // return $records;
         return true;
     }
     
