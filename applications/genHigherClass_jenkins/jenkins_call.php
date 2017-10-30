@@ -5,6 +5,7 @@ require_once("../../../FreshData/controllers/freshdata.php");
 
 $ctrler = new freshdata_controller(array());
 $task = $ctrler->get_available_job("genHigherClass_job");
+$postfix = "_getHC";
 
 $server_http_host = $_SERVER['HTTP_HOST'];
 $server_script_name = $_SERVER['SCRIPT_NAME'];
@@ -24,9 +25,9 @@ echo "<br>destination: " . $params['destination'];
 
 $cmd = PHP_PATH.' generate_jenkins.php ' . "'$newfile' '$orig_file' '$server_http_host' '$server_script_name'";
 $cmd .= " 2>&1";
-$ctrler->write_to_sh($params['uuid']."_getHC", $cmd);
+$ctrler->write_to_sh($params['uuid'].$postfix, $cmd);
 
-$cmd = $ctrler->generate_exec_command($params['uuid']."_getHC"); //pass the desired basename of the .sh filename (e.g. xxx.sh then pass "xxx")
+$cmd = $ctrler->generate_exec_command($params['uuid'].$postfix); //pass the desired basename of the .sh filename (e.g. xxx.sh then pass "xxx")
 $c = $ctrler->build_curl_cmd_for_jenkins($cmd, $task);
 
 /* to TSV destination here... not sure purpose of this one ???

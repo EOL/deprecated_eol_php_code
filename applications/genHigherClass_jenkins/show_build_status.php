@@ -1,7 +1,8 @@
 <?php
+$postfix = "_getHC";
 $str = "Copy 'Build status' and send to <i>eagbayani@eol.org</i>. &nbsp; Or you can try it again when system resources are free. &nbsp; <a href='index.php'>&lt;&lt; Back to main</a>";
 // the $build_status should come from the status for uuid in question not just the currently last_build
-$build_status = $ctrler->get_last_build_console_text($task, $params['uuid']."_getHC");
+$build_status = $ctrler->get_last_build_console_text($task, $params['uuid'].$postfix);
 if($ctrler->did_build_fail($build_status)) {
     $ctrler->display_message(array('type' => "error", 'msg' => "Process failed. &nbsp; $str"));
 }
@@ -15,15 +16,12 @@ else {
     else $ctrler->display_message(array('type' => "highlight", 'msg' => "Build is in unknown state. &nbsp; $str"));
 }
 if($build_status) echo "<hr><b>Build status:</b><pre>".$build_status."</pre><hr>";
-else              
+else
 {
-    // short_task: wget_job | basename: 5b6d8474-fcb4-5e16-b5cf-8f8a9a502fc3
-    
-    if($ctrler->is_task_in_queue("genHigherClass_job", $params['uuid']."_getHC")) {
+    if($ctrler->is_task_in_queue("genHigherClass_job", $params['uuid'].$postfix)) {
         echo "<hr><b>Build status:</b><pre>This job is still in queue...</pre><hr>";
     }
     else echo "<hr><b>Build status:</b><pre>Preparing files...</pre><hr>";
-    
 }
 
 if($build_status) {
