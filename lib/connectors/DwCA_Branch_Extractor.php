@@ -222,12 +222,12 @@ class DwCA_Branch_Extractor
             // $taxon_ids = self::extract_branch("eea14f4c044d251bf3ee9ee99417c91f");     //order
             // $taxon_ids = self::extract_branch("6168a5808fb28ee5581c52a1994b97ab");     //top node
             //dwh_taxa.txt
-            // $taxon_ids = self::extract_branch("4807313");     //viruses
-            // $taxon_ids = self::extract_branch("-2");     //order
+            // $taxon_ids = self::extract_branch("4807313");    //viruses
+            // $taxon_ids = self::extract_branch("-2");         //order
             // $taxon_ids = self::extract_branch("805080");     //top node
-            // $taxon_ids = self::extract_branch("-1647692");     //genus
+            // $taxon_ids = self::extract_branch("-1647692");   //genus
 
-            $taxon_ids = self::extract_branch($taxonID);     //genus
+            $taxon_ids = self::extract_branch($taxonID);
             echo "<hr>filename source: [$file]<hr>";
             $filename_tmp = str_replace("temp/", "temp/temp_", $file);
             
@@ -238,10 +238,8 @@ class DwCA_Branch_Extractor
                 fclose($f);
                 /* important step: rename from: [temp/temp_1509427898.tab] to: [temp/1509427898.tab] */
                 unlink($file);
-                //long-cut for Functions::file_rename where latter didn't work
+                //long-cut since Functions::file_rename didn't work
                 if(copy($filename_tmp, $file)) unlink($filename_tmp);
-                // echo "<hr>filename old: [$filename_tmp]<hr>";
-                // echo "<hr>filename new: [$file]<hr>";
                 return true;
             }
             else echo "<hr>something is wrong<hr>";
@@ -274,7 +272,6 @@ class DwCA_Branch_Extractor
     
     private function create_records_array($file)
     {
-        // echo "\n[$file]\n";
         $i = 0;
         foreach(new FileIterator($file) as $line => $row) {
             $i++;
