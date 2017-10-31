@@ -617,67 +617,70 @@ class WikiDataAPI
                 if($LicenseShortName == $p) return $this->license['by-sa']; //exact match
             }
 
-            /* WILL REMAIN INVALID: as of Oct 24
-            blank_license ---
-            Mauricio Rivera Correa permission
-            Akkasemosalman
-            MLW3‬
-            Raquel Rocha Santos permission
-            Stanley Trauth permission
-            LarsCurfsCCSA3.0
-            dvdm-h6|migration=relicense
-            Alessandro Catenazzi permission
-            BMC
-            civertan license
-            Zachi Evenor
-            Team|event=Wikipedia Takes Waroona|team=Team Flower|id=19
-            Wuzur
-            <br/>(original text|nobold=1|1=Klettenlabkraut in Weizen
-            Andes
-            Assessments|enwiki=1|enwiki-nom=Bicolored Antbird
-            Pierre Fidenci permission
-            Diogo B. Provete permission
-            Youtube|Junichi Kubota
-            Personality rights
-            Josiah H. Townsend permission
-            USPresidentialTransition|source=change
-            personality rights
-            NO Facebook Youtube license
-            spomenikSVN|7914
-            Location|36|2|59.1|N|139|9|1.8|E|type:landmark_region:JP-29_scale:2000
-            s*derivative work: [[User:B kimmel|B kimmel]] ([[User talk:B kimmel|<span class="signature-talk">talk</span>]])|Permission=|other_versions=
-            Flickreview|Yuval Y|20:49, 16 June 2011 (UTC)
-            Tasnim
-            OTRS|2008072210012641
-            IBC
-            QualityImage
-            youtube
-            MUSE|OTRS=yes
-            DYKfile|28 December|2006|type=image
-            Václav Gvoždík permission
-            Mehregan Ebrahimi permission
-            Vladlen Henríquez permission
-            Bilderwerkstatt|editor=[[:de:Benutzer:Denis Barthel|Denis Barthel]]|orig=Yucca_recurvifolia_fh_1183.24_ALA_AAA.jpg|changes=Perspektive, Ausschnitt, kleinere Edits
-            OTRS|2012011510006576
-            Location dec|46.122186|7.071841|source:Flickr
-            Beeld en Geluid Wiki
-            [[:en:Category:Frog images]]|Source=Transferred from|en.wikipedia
-            Bilderwerkstatt|editor=[[:de:Benutzer:Saman|Saman]]|orig=|changes=Etwas Staub entfernt, Kontrast und Tonwertkorrektur verändert
-            retouched|cropped
-            RetouchedPicture|cropped ''Sciurus spadiceus'' (frame) into a portrait|editor=Jacek555|orig=Sciurus spadiceus (frame).jpg
-            piqs|101897|babychen
-            personality
-            RetouchedPicture|Created GIF animation from sequence of images
-            !-
-            Franco Andreone permission
-            Youtube|channelxxxvol1
-            Picswiss|migration=relicense
-            [[Category:Megalops atlanticus]]
-            Volganet.ru
-            @|link=http://www.opencage.info/pics.e/large_8238.asp|txt=opencage-
-            RetouchedPicture|Screenshot for distribution map|editor=Obsidian Soul|orig=Australia Victoria location map highways.svg
-            |Source=transferred from|en.wikipedia|Syp|CommonsHelper
-            DYKfile|25 March|2008|type=image
+            /* WILL REMAIN INVALID: as of Oct 30
+            [blank_license] => Array
+                (
+            [Mauricio Rivera Correa permission] => 
+            [MLW3‬] => 
+            [Raquel Rocha Santos permission] => 
+            [Stanley Trauth permission] => 
+            [LarsCurfsCCSA3.0] => 
+            [dvdm-h6|migration=relicense] => 
+            [Alessandro Catenazzi permission] => 
+            [BMC] => 
+            [civertan license] => 
+            [Zachi Evenor] => 
+            [Team|event=Wikipedia Takes Waroona|team=Team Flower|id=19] => 
+            [Wuzur] => 
+            [<br/>(original text|nobold=1|1=Klettenlabkraut in Weizen] => 
+            [Andes] => 
+            [Assessments|enwiki=1|enwiki-nom=Bicolored Antbird] => 
+            [Pierre Fidenci permission] => 
+            [Diogo B. Provete permission] => 
+            [Youtube|Junichi Kubota] => 
+            [Personality rights] => 
+            [Josiah H. Townsend permission] => 
+            [USPresidentialTransition|source=change] => 
+            [personality rights] => 
+            [NO Facebook Youtube license] => 
+            [spomenikSVN|7914] => 
+            [Location|36|2|59.1|N|139|9|1.8|E|type:landmark_region:JP-29_scale:2000] => 
+            [s*derivative work: [[User:B kimmel|B kimmel]] ([[User talk:B kimmel|<span class="signature-talk">talk</span>]])|Permission=|other_versions=] => 
+            [Flickreview|Yuval Y|20:49, 16 June 2011 (UTC)] => 
+            [Tasnim] => 
+            [OTRS|2008072210012641] => 
+            [IBC] => 
+            [QualityImage] => 
+            [youtube] => 
+            [MUSE|OTRS=yes] => 
+            [DYKfile|28 December|2006|type=image] => 
+            [Václav Gvoždík permission] => 
+            [Mehregan Ebrahimi permission] => 
+            [Vladlen Henríquez permission] => 
+            [Bilderwerkstatt|editor=[[:de:Benutzer:Denis Barthel|Denis Barthel]]|orig=Yucca_recurvifolia_fh_1183.24_ALA_AAA.jpg|changes=Perspektive, Ausschnitt, kleinere Edits] => 
+            [OTRS|2012011510006576] => 
+            [Location dec|46.122186|7.071841|source:Flickr] => 
+            [Beeld en Geluid Wiki] => 
+            [[[:en:Category:Frog images]]|Source=Transferred from|en.wikipedia] => 
+            [Bilderwerkstatt|editor=[[:de:Benutzer:Saman|Saman]]|orig=|changes=Etwas Staub entfernt, Kontrast und Tonwertkorrektur verändert] => 
+            [retouched|cropped] => 
+            [RetouchedPicture|cropped ''Sciurus spadiceus'' (frame) into a portrait|editor=Jacek555|orig=Sciurus spadiceus (frame).jpg] => 
+            [piqs|101897|babychen] => 
+            [personality] => 
+            [RetouchedPicture|Created GIF animation from sequence of images] => 
+            [!-] => 
+            [Franco Andreone permission] => 
+            [Youtube|channelxxxvol1] => 
+            [Picswiss|migration=relicense] => 
+            [[[Category:Megalops atlanticus]]] => 
+            [Volganet.ru] => 
+            [@|link=http://www.opencage.info/pics.e/large_8238.asp|txt=opencage-] => 
+            ["] => 
+            [RetouchedPicture|Screenshot for distribution map|editor=Obsidian Soul|orig=Australia Victoria location map highways.svg] => 
+            [|Source=transferred from|en.wikipedia|Syp|CommonsHelper] => 
+            [Folger Shakespeare Library partnership] => 
+            [DYKfile|25 March|2008|type=image] => 
+                )
             */
             
             // for public domain - stripos
@@ -1132,7 +1135,7 @@ class WikiDataAPI
             */
             if($val = @$dump_arr['revision']['contributor']['username']) {
                 unset($rek['Artist']);
-                $rek['Artist'][] = array('name' => $val, 'homepage' => "https://commons.wikimedia.org/wiki/User:".$val, 'role' => 'contributor');
+                $rek['Artist'][] = array('name' => $val, 'homepage' => "https://commons.wikimedia.org/wiki/User:".$val, 'role' => 'source');
             }
             
             elseif(substr($rek['Artist'],0,5) == "[http") { //[https://sites.google.com/site/thebrockeninglory/ Brocken Inaglory]
@@ -1164,14 +1167,14 @@ class WikiDataAPI
                 computed homepage is "https://www.flickr.com/photos/sempivirens/" but blank name */
                 // print_r($rek['other']); exit;
                 if(preg_match("/User\:(.*?)\//ims", $rek['other']['permission'], $a)) {
-                    $rek['Artist'][] = array('name' => $a[1], 'homepage' => "https://commons.wikimedia.org/wiki/User:".$a[1], 'role' => 'contributor');
+                    $rek['Artist'][] = array('name' => $a[1], 'homepage' => "https://commons.wikimedia.org/wiki/User:".$a[1], 'role' => 'source');
                 }
                 //end another special
                 
                 //start another special 
                 /* [LicenseShortName] => User:FlickreviewR/reviewed-pass|Jon David Nelson|https://flickr.com/photos/65771669@N07/15115751721|2015-12-01 12:50:33|cc-by-2.0| */
                 if(preg_match("/User\:(.*?)\//ims", $rek['LicenseShortName'], $a)) {
-                    $rek['Artist'][] = array('name' => $a[1], 'homepage' => "https://commons.wikimedia.org/wiki/User:".$a[1], 'role' => 'contributor');
+                    $rek['Artist'][] = array('name' => $a[1], 'homepage' => "https://commons.wikimedia.org/wiki/User:".$a[1], 'role' => 'source');
                 }
                 //end another special 
 
@@ -1255,7 +1258,7 @@ class WikiDataAPI
         if($val = @$arr['revision']['contributor']['username']) {
             $a['name'] = $val;
             $a['homepage'] = "https://commons.wikimedia.org/wiki/User:$val";
-            $a['role'] = "contributor";
+            $a['role'] = "source";
             return $a;
         }
         elseif($val = @$arr['revision']['text']) {
@@ -1691,8 +1694,8 @@ class WikiDataAPI
     {
         $final = array();
         foreach($arr[1] as $item) {
-            if(preg_match("/wiki\/User\:(.*?)\"/ims", $item, $a)) $final[] = array("name" => $a[1], 'homepage' => 'https://commons.wikimedia.org/wiki/User:'.$a[1], 'role' => 'artist');
-            else                                                  $final[] = array("name" => self::remove_space(strip_tags($item)), 'role' => 'artist', 'homepagae' => 'media_urlx');
+            if(preg_match("/wiki\/User\:(.*?)\"/ims", $item, $a)) $final[] = array("name" => $a[1], 'homepage' => 'https://commons.wikimedia.org/wiki/User:'.$a[1], 'role' => 'author');
+            else                                                  $final[] = array("name" => self::remove_space(strip_tags($item)), 'role' => 'author', 'homepagae' => 'media_urlx');
         }
         return $final;
     }
@@ -1721,10 +1724,10 @@ class WikiDataAPI
             return array('name' => "Wikimedia Commons", 'homepage' => "https://commons.wikimedia.org/wiki/$title", 'role' => 'recorder');
         }
         if(stripos($categories, "Files from Wellcome Images") !== false) { //string is found
-            return array('name' => "Wellcome Images", 'homepage' => "https://wellcomeimages.org/", 'role' => 'contributor');
+            return array('name' => "Wellcome Images", 'homepage' => "https://wellcomeimages.org/", 'role' => 'source');
         }
         elseif(stripos($categories, "{{Wellcome Images}}") !== false) { //string is found
-            return array('name' => "Wellcome Images", 'homepage' => "https://wellcomeimages.org/", 'role' => 'contributor');
+            return array('name' => "Wellcome Images", 'homepage' => "https://wellcomeimages.org/", 'role' => 'source');
         }
         elseif(stripos($categories, "Files with no machine-readable author|Files with no machine-readable source") !== false) { //string is found
             return array('name' => "Wikimedia Commons", 'homepage' => $title, 'role' => 'recorder');
@@ -1735,7 +1738,7 @@ class WikiDataAPI
         if(preg_match("/Uploader\:(.*?)\\n/ims", $categories, $a)) { //Uploader: [[user:de:Necrophorus|Necrophorus]] 15:30, 8. Sep 2004 (CEST)
             $str = trim($a[1]);
             if($arr = self::parse_str_with_User_enclosed_in_brackets($str)) return $arr;
-            else return array('name' => $str, 'homepage' => $title, 'role' => 'contributor');
+            else return array('name' => $str, 'homepage' => $title, 'role' => 'source');
         }
 
         if(preg_match("/Creator\: (.*?)\\n/ims", $categories, $a)) { //:Creator: Harrison, George
