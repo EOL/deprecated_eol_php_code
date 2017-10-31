@@ -120,7 +120,6 @@ class DwCA_Branch_Extractor
         $upwards = self::get_ancestry_upwards($parent_id);
         $upwards[] = $taxon_id;
         // print_r($upwards);
-        
         /*
         echo "<hr>upwards:<br>";
         foreach($upwards as $taxon_id) {
@@ -137,7 +136,7 @@ class DwCA_Branch_Extractor
             print_r($this->id_name[$taxon_id]);
         }
         */
-        echo "<br>total upwards: ".count($upwards)-1;
+        echo "<br>total upwards: ".(count($upwards)-1);
         echo "<br>total downwards: ".count($downwards);
 
         unset($this->id_name);
@@ -218,7 +217,7 @@ class DwCA_Branch_Extractor
     {
         if(!$taxonID)
         {
-            echo "<br>taxonID is blank. Will terminate<br><br>";
+            echo "<br>taxonID is blank. Will terminate.<br><br>";
             return false;
         }
         if(self::create_records_array($file)) {
