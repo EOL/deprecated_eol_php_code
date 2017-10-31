@@ -7,8 +7,13 @@ if($ctrler->did_build_fail($build_status)) {
     $ctrler->display_message(array('type' => "error", 'msg' => "Process failed. &nbsp; $str"));
 }
 elseif($ctrler->is_build_currently_running($build_status)) {
-    $ctrler->display_message(array('type' => "highlight", 'msg' => "Processing..."));
-    $ctrler->display_message(array('type' => "highlight", 'msg' => "Please check back later. &nbsp; You can use this <a href='task_status.php?task=$task&uuid=$params[uuid]&destination=".urlencode($params['destination'])."'>link to check status</a> anytime."));
+    $ctrler->display_message(array('type' => "highlight", 'msg' => "Processing... Page will refresh every 5 seconds."));
+    $path = "task_status.php?task=$task&uuid=$params[uuid]&destination=".urlencode($params['destination']);
+    $ctrler->display_message(array('type' => "highlight", 'msg' => "OR you can check back later. &nbsp; You can use this <a href='$path'>link to check status</a> anytime."));
+
+    $actual_link = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+    $actual_link = str_ireplace("form_result.php", $path, $actual_link);
+    echo "<meta http-equiv='refresh' content='5;url=".$actual_link."'>";
     // return;
 }
 else {

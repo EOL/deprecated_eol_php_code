@@ -35,7 +35,7 @@ if(file_exists($params['destination'])) unlink($params['destination']);
 */
 
 $shell_debug = shell_exec($c);
-sleep(10);
+// sleep(10);
 
 /* for more debugging...
 echo "<pre><hr>cmd: $cmd<hr>c: $c<hr></pre>";
