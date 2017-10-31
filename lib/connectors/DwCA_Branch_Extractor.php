@@ -35,7 +35,7 @@ class DwCA_Branch_Extractor
                                   [7] => http://rs.gbif.org/terms/1.0/distribution
                                   */
     }
-
+    /*
     private function start()
     {
         require_library('connectors/INBioAPI');
@@ -52,7 +52,6 @@ class DwCA_Branch_Extractor
         }
         return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
     }
-    
     private function build_id_name_array($records)
     {
         foreach($records as $rec) {
@@ -63,8 +62,6 @@ class DwCA_Branch_Extractor
             $this->id_name[$taxon_id]['pID'] = (string) $rec["pID"];
         }
     }
-    
-    /*
     private function generate_higherClassification_field($records)
     {
         e.g. $rec
@@ -98,20 +95,18 @@ class DwCA_Branch_Extractor
     }
     */
     
-    private function can_compute_higherClassification($single_rec)
+    private function can_compute_higherClassification($single_rec) shorten
     {
         if(!isset($single_rec["tID"])) return false;
         if(!isset($single_rec["sN"])) return false;
         if(!isset($single_rec["pID"])) return false;
         return true;
     }
-    //ends here 
-    
     private function extract_branch($taxon_id)
     {
-        echo "<br>taxon_id: [$taxon_id]";
-        echo "<br>name: ".$this->id_name[$taxon_id]['sN'];
-        echo "<br>parent: ". $this->id_name[$taxon_id]['pID'];
+        echo "<br>taxonID: [$taxon_id]";
+        echo "<br>scientificName: ".$this->id_name[$taxon_id]['sN'];
+        echo "<br>parentNameUsageID: ". $this->id_name[$taxon_id]['pID'];
         /*
         [sN] => Struthio camelus Linnaeus, 1758
         [pID] => cc26d87dc5a15502a9d00af428f93101
@@ -196,15 +191,13 @@ class DwCA_Branch_Extractor
                 }
             }
         }
-        
         $indexes = array_keys($children);
-        // print_r($indexes);
         echo "<br>Reached level: ". end($indexes);
         return $final;
     }
-    private function get_immediate_children($sought_taxon_id)
+    private function get_immediate_children($taxon_id)
     {
-        return @$this->id_name[$sought_taxon_id]['cx'];
+        return @$this->id_name[$taxon_id]['cx']; //cx is children
     }
     private function get_ancestry_upwards($parent_id)
     {
