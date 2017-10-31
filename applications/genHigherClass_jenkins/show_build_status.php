@@ -19,7 +19,7 @@ if($build_status) echo "<hr><b>Build status:</b><pre>".$build_status."</pre><hr>
 else
 {
     if($ctrler->is_task_in_queue("genHigherClass_job", $params['uuid'].$postfix)) {
-        echo "<hr><b>Build status:</b><pre>This job is still in queue...</pre><hr>";
+        echo "<hr><b>Build status:</b><pre>This job is now in queue...</pre><hr>";
     }
     else echo "<hr><b>Build status:</b><pre>Preparing files...</pre><hr>";
 }

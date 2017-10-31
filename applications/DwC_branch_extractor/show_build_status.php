@@ -21,7 +21,7 @@ else
     // short_task: wget_job | basename: 5b6d8474-fcb4-5e16-b5cf-8f8a9a502fc3
     
     if($ctrler->is_task_in_queue("extract_DwC_branch_job", $params['uuid'].$postfix)) {
-        echo "<hr><b>Build status:</b><pre>This job is still in queue...</pre><hr>";
+        echo "<hr><b>Build status:</b><pre>This job is now in queue...</pre><hr>";
     }
     else echo "<hr><b>Build status:</b><pre>Preparing files...</pre><hr>";
     
