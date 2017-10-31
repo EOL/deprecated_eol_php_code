@@ -35,7 +35,7 @@ $cmd = $ctrler->generate_exec_command($params['uuid'].$postfix); //pass the desi
 $c = $ctrler->build_curl_cmd_for_jenkins($cmd, $task);
 
 $shell_debug = shell_exec($c);
-sleep(5);
+// sleep(5);
 
 /* for more debugging...
 echo "<pre><hr>cmd: $cmd<hr>c: $c<hr></pre>";
