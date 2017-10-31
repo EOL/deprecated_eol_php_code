@@ -8,6 +8,7 @@ echo '<a href="' . WEB_ROOT .'/applications/xls2dwca/">Excel to EOL Archive Conv
 echo '<a href="' . WEB_ROOT .'/applications/genHigherClass/">Generate highClassification Tool</a> | ';
 echo '<a href="' . WEB_ROOT .'/applications/genHigherClass_jenkins/">Generate highClassification Tool (Jenkins)</a> | ';
 echo '<a href="' . WEB_ROOT .'/applications/DwC_branch_extractor/">Darwin Core Branch Extractor</a> | ';
+echo "{".$GLOBALS['ENV_NAME']."}";
 ?>
 
 
