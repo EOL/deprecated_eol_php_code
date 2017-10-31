@@ -95,7 +95,7 @@ class DwCA_Branch_Extractor
     }
     */
     
-    private function can_compute_higherClassification($single_rec) shorten
+    private function can_compute_higherClassification($single_rec)
     {
         if(!isset($single_rec["tID"])) return false;
         if(!isset($single_rec["sN"])) return false;
@@ -105,8 +105,9 @@ class DwCA_Branch_Extractor
     private function extract_branch($taxon_id)
     {
         echo "<br>taxonID: [$taxon_id]";
-        echo "<br>scientificName: ".$this->id_name[$taxon_id]['sN'];
-        echo "<br>parentNameUsageID: ". $this->id_name[$taxon_id]['pID'];
+        echo "<br>scientificName: ".@$this->id_name[$taxon_id]['sN'];
+        $parent_id = @$this->id_name[$taxon_id]['pID'];
+        echo "<br>parentNameUsageID: $parent_id<br>";
         /*
         [sN] => Struthio camelus Linnaeus, 1758
         [pID] => cc26d87dc5a15502a9d00af428f93101
@@ -116,7 +117,6 @@ class DwCA_Branch_Extractor
                 [2] => 3a3dbb738053311b6dfff3ced501cb85
                 [3] => 70cd71beb6615b4bcf2cc4d0004739ac
             ) */
-        $parent_id = $this->id_name[$taxon_id]['pID'];
         $upwards = self::get_ancestry_upwards($parent_id);
         // print_r($upwards);
         /*
@@ -143,7 +143,6 @@ class DwCA_Branch_Extractor
         $final = array_unique($final);
         echo "<br>total: ".count($final)."<br>";
         
-        exit;
         return $final;
     }
     private function get_ancestry_downwards($sought_taxon_id)
@@ -216,27 +215,60 @@ class DwCA_Branch_Extractor
     function tool_generate_higherClassification($file)
     {
         if(self::create_records_array($file)) {
-            $records = self::extract_branch("ceab0b65522ca514b497c009eb60c834");     //species
-            // $records = self::extract_branch("cc26d87dc5a15502a9d00af428f93101");     //genus
-            // $records = self::extract_branch("e86ef0e503d2961a3da298cea6da8021");     //family
-            // $records = self::extract_branch("eea14f4c044d251bf3ee9ee99417c91f");     //order
-            // $records = self::extract_branch("6168a5808fb28ee5581c52a1994b97ab");     //top node
+            $taxon_ids = self::extract_branch("ceab0b65522ca514b497c009eb60c834");     //species
+            // $taxon_ids = self::extract_branch("cc26d87dc5a15502a9d00af428f93101");     //genus
+            // $taxon_ids = self::extract_branch("e86ef0e503d2961a3da298cea6da8021");     //family
+            // $taxon_ids = self::extract_branch("eea14f4c044d251bf3ee9ee99417c91f");     //order
+            // $taxon_ids = self::extract_branch("6168a5808fb28ee5581c52a1994b97ab");     //top node
             
             //dwh_taxa.txt
-            // $records = self::extract_branch("4807313");     //viruses
-            // $records = self::extract_branch("-2");     //order
-            // $records = self::extract_branch("805080");     //top node
-            // $records = self::extract_branch("-1647692");     //genus
+            // $taxon_ids = self::extract_branch("4807313");     //viruses
+            // $taxon_ids = self::extract_branch("-2");     //order
+            // $taxon_ids = self::extract_branch("805080");     //top node
+            // $taxon_ids = self::extract_branch("-1647692");     //genus
 
+            echo "<hr>filename source: [$file]<hr>";
+            $filename_tmp = str_replace("temp/", "temp/temp_", $file);
+            
             //start write to file
-            $fields = self::normalize_fields($records[0]);
-            if(!($f = Functions::file_open(str_replace("sample/", "temp/", $file), "w"))) return;
-            fwrite($f, implode("\t", $fields)."\n");
-            foreach($records as $rec) fwrite($f, implode("\t", $rec)."\n");
-            fclose($f);
-            return true;
+            if($f = Functions::file_open($filename_tmp, "w"))
+            {
+                self::remove_row_using_taxonID_from_text_file($file, $taxon_ids, $f);
+                fclose($f);
+                /* important step: rename from: [temp/temp_1509427898.tab] to: [temp/1509427898.tab] */
+                unlink($file);
+                //long-cut for Functions::file_rename where latter didn't work
+                if(copy($filename_tmp, $file)) unlink($filename_tmp);
+                // echo "<hr>filename old: [$filename_tmp]<hr>";
+                // echo "<hr>filename new: [$file]<hr>";
+                return true;
+            }
+            else echo "<hr>something is wrong<hr>";
         }
         else return false;
+    }
+    private function remove_row_using_taxonID_from_text_file($source, $taxon_ids, $fhandle)
+    {
+        $i = 0;
+        foreach(new FileIterator($source) as $line => $row) {
+            $i++;
+            if($i == 1) {
+                $fields = explode("\t", $row);
+                fwrite($fhandle, $row."\n");
+            }
+            else {
+                $rec = array();
+                $cols = explode("\t", $row);
+                $k = 0;
+                foreach($fields as $field) {
+                    $rec[$field] = @$cols[$k];
+                    $k++;
+                }
+                if($rec) {
+                    if(in_array($rec['taxonID'], $taxon_ids)) fwrite($fhandle, $row."\n");
+                }
+            }
+        }
     }
     
     private function create_records_array($file)
@@ -309,6 +341,9 @@ class DwCA_Branch_Extractor
         }
         return true;
     }
+    
+    
+    
     
     private function normalize_fields($arr)
     {
