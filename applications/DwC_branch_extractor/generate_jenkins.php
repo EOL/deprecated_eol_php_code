@@ -86,7 +86,7 @@ if($info = $func->tool_generate_higherClassification($file, $taxonID)) {
     $undefined_parents = array();
 
     print"<b><br>Conversion completed. 
-    <br><br>This is the URL of the converted file [<i>$orig_file</i>] with higherClassification:
+    <br><br>This is the URL of the converted file [<i>$orig_file</i>]:
     <br><br> <a target='$filename' href='$url'>$url</a>
     <br><br> <a target='$filename' href='$url.zip'>$url.zip</a>
     <br><p></b>";
