@@ -47,6 +47,8 @@ print"<META HTTP-EQUIV='Refresh' Content='0; URL=generate.php?file=$newfile&orig
 exit;
 */
 
+$taxonID = get_val_var('taxonID');
+
 require_once("jenkins_call.php");
 
 function get_val_var($v)

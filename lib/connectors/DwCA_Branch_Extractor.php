@@ -118,6 +118,7 @@ class DwCA_Branch_Extractor
                 [3] => 70cd71beb6615b4bcf2cc4d0004739ac
             ) */
         $upwards = self::get_ancestry_upwards($parent_id);
+        $upwards[] = $taxon_id;
         // print_r($upwards);
         /*
         echo "<hr>upwards:<br>";
@@ -212,21 +213,21 @@ class DwCA_Branch_Extractor
     //=====================================================================================================================
     //start functions for the interface tool
     //=====================================================================================================================
-    function tool_generate_higherClassification($file)
+    function tool_generate_higherClassification($file, $taxonID)
     {
         if(self::create_records_array($file)) {
-            $taxon_ids = self::extract_branch("ceab0b65522ca514b497c009eb60c834");     //species
+            // $taxon_ids = self::extract_branch("ceab0b65522ca514b497c009eb60c834");     //species
             // $taxon_ids = self::extract_branch("cc26d87dc5a15502a9d00af428f93101");     //genus
             // $taxon_ids = self::extract_branch("e86ef0e503d2961a3da298cea6da8021");     //family
             // $taxon_ids = self::extract_branch("eea14f4c044d251bf3ee9ee99417c91f");     //order
             // $taxon_ids = self::extract_branch("6168a5808fb28ee5581c52a1994b97ab");     //top node
-            
             //dwh_taxa.txt
             // $taxon_ids = self::extract_branch("4807313");     //viruses
             // $taxon_ids = self::extract_branch("-2");     //order
             // $taxon_ids = self::extract_branch("805080");     //top node
             // $taxon_ids = self::extract_branch("-1647692");     //genus
 
+            $taxon_ids = self::extract_branch($taxonID);     //genus
             echo "<hr>filename source: [$file]<hr>";
             $filename_tmp = str_replace("temp/", "temp/temp_", $file);
             
@@ -301,6 +302,11 @@ class DwCA_Branch_Extractor
                 $proposed = array("taxonID", "acceptedNameUsageID", "parentNameUsageID", "scientificName", "taxonRank", "taxonomicStatus");
                 foreach($proposed as $p) {
                     if(in_array($p, $fields)) $fieldz[] = $p;
+                }
+                if(!in_array("taxonID", $fields)) 
+                {
+                    echo "<hr>Cannot proceed, column headers not found.<hr>";
+                    return false;
                 }
             }
             else {

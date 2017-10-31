@@ -22,6 +22,8 @@ $file      = $argv[1];
 $orig_file = @$argv[2];
 $server_http_host = @$argv[3];
 $server_script_name = @$argv[4];
+$taxonID = @$argv[5];
+
 
 debug("<br>Working file: [$file]<br>");
 
@@ -63,7 +65,7 @@ else
 require_library('connectors/DwCA_Branch_Extractor');
 $func = new DwCA_Branch_Extractor();
 
-if($info = $func->tool_generate_higherClassification($file)) {
+if($info = $func->tool_generate_higherClassification($file, $taxonID)) {
     $filename = "temp/" . pathinfo($file, PATHINFO_BASENAME);
     $domain = $server_http_host; //$_SERVER['HTTP_HOST'];
     $temp   = $server_script_name; //$_SERVER['SCRIPT_NAME'];

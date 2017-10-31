@@ -17,13 +17,17 @@ $server_script_name = str_replace("form_result.php", "generate_jenkins.php", $se
 $params['uuid'] = pathinfo($newfile, PATHINFO_FILENAME);
 $params['destination'] = dirname(__FILE__) . "/temp/" . compute_destination($newfile, $orig_file);
 
+// echo "<pre>";
+// print_r($params); exit;
+// echo "</pre>";
+
 /* for more debugging...
 echo "<br>newfile: [$newfile]";
 echo "<br>orig_file: [$orig_file]";
 echo "<br>destination: " . $params['destination']; 
 */
 
-$cmd = PHP_PATH.' generate_jenkins.php ' . "'$newfile' '$orig_file' '$server_http_host' '$server_script_name'";
+$cmd = PHP_PATH.' generate_jenkins.php ' . "'$newfile' '$orig_file' '$server_http_host' '$server_script_name' '$taxonID'";
 $cmd .= " 2>&1";
 $ctrler->write_to_sh($params['uuid'].$postfix, $cmd);
 
