@@ -120,6 +120,7 @@ class DwCA_Branch_Extractor
         $upwards = self::get_ancestry_upwards($parent_id);
         $upwards[] = $taxon_id;
         // print_r($upwards);
+        
         /*
         echo "<hr>upwards:<br>";
         foreach($upwards as $taxon_id) {
@@ -136,7 +137,7 @@ class DwCA_Branch_Extractor
             print_r($this->id_name[$taxon_id]);
         }
         */
-        echo "<br>total upwards: ".count($upwards);
+        echo "<br>total upwards: ".count($upwards)-1;
         echo "<br>total downwards: ".count($downwards);
 
         unset($this->id_name);
@@ -202,7 +203,7 @@ class DwCA_Branch_Extractor
     private function get_ancestry_upwards($parent_id)
     {
         $parent_ids = array();
-        $parent_ids[] = (string) $parent_id; //first taxon
+        if($parent_id) $parent_ids[] = (string) $parent_id; //first taxon
         while($parent_id) {
             if($parent_id) {
                 if($parent_id = @$this->id_name[$parent_id]['pID']) $parent_ids[] = (string) $parent_id;
@@ -215,7 +216,17 @@ class DwCA_Branch_Extractor
     //=====================================================================================================================
     function tool_generate_higherClassification($file, $taxonID)
     {
+        if(!$taxonID)
+        {
+            echo "<br>taxonID is blank. Will terminate<br><br>";
+            return false;
+        }
         if(self::create_records_array($file)) {
+            if(!@$this->name_id[$taxonID])
+            {
+                echo "<br>taxonID not found. Will terminate.<br><br>";
+                return false;
+            }
             // $taxon_ids = self::extract_branch("ceab0b65522ca514b497c009eb60c834");     //species
             // $taxon_ids = self::extract_branch("cc26d87dc5a15502a9d00af428f93101");     //genus
             // $taxon_ids = self::extract_branch("e86ef0e503d2961a3da298cea6da8021");     //family
