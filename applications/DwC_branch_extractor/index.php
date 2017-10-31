@@ -24,8 +24,6 @@
         *It is recommended that you zip your file before uploading.</small>
     </td>
 </tr>
-
-
 <tr align="center">
     <td>
         taxonID: <input type="text" name="taxonID" size="50" style="font-family : Arial;">
@@ -33,8 +31,6 @@
         <i></i><br>
     </td>
 </tr>
-
-
 <tr align="center">
     <td>
         <input type="submit" value="Start">
