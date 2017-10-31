@@ -222,7 +222,7 @@ class DwCA_Branch_Extractor
             return false;
         }
         if(self::create_records_array($file)) {
-            if(!@$this->name_id[$taxonID])
+            if(!@$this->id_name[$taxonID])
             {
                 echo "<br>taxonID not found. Will terminate.<br><br>";
                 return false;
