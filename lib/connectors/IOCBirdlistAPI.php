@@ -10,9 +10,9 @@ class IOCBirdlistAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxa_ids             = array();
         $this->download_options = array('resource_id' => $folder, 'timeout' => 172800, 'expire_seconds' => 60*60*24*25, 'download_wait_time' => 2000000); //expires 25 days
-        
-        $this->xml_data = "http://www.worldbirdnames.org/master_ioc-names_xml.xml";
+
         // $this->xml_data = "http://localhost/cp/IOCBirdlist/data/master_ioc-names_xml.xml";
+        $this->xml_data = "http://www.worldbirdnames.org/master_ioc-names_xml.xml"; //so far this URL will get whatever is the latest version in http://www.worldbirdnames.org/ioc-lists/master-list-2/
         
         $this->source = "http://www.worldbirdnames.org";
         
