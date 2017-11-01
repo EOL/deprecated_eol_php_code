@@ -55,7 +55,8 @@ class DwCA_Utility_cmd
         }
         return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
     }
-    
+
+    /* moved inside create_records_array()
     private function build_id_name_array($records)
     {
         foreach($records as $rec) {
@@ -66,14 +67,16 @@ class DwCA_Utility_cmd
             $this->id_name[$taxon_id]['pID'] = (string) $rec["pID"];
         }
     }
+    */
     
+    /* old version, doesn't scale
     private function generate_higherClassification_field($records)
-    {   /* e.g. $rec
-        Array
-            [tID] => 5e2712849c197671c260f53809836273
-            [sN] => Passerina leclancherii leclancherii Lafresnaye, 1840
-            [pID] => 49fc924007e33cc43908fed677d5499a
-        */
+    {   
+        // e.g. $rec
+        // Array
+        //     [tID] => 5e2712849c197671c260f53809836273
+        //     [sN] => Passerina leclancherii leclancherii Lafresnaye, 1840
+        //     [pID] => 49fc924007e33cc43908fed677d5499a
         $i = 0;
         foreach($records as $rec) {
             $higherClassification = self::get_higherClassification($rec);
@@ -81,6 +84,38 @@ class DwCA_Utility_cmd
             $i++;
         }
         return $records;
+    }
+    */
+    private function generate_higherClassification_field($file)
+    {
+        $filename_tmp = str_replace("temp/", "temp/temp_", $file);
+        $f = Functions::file_open($filename_tmp, "w");
+        $i = 0;
+        foreach(new FileIterator($file) as $line => $row) {
+            $i++;
+            if($i == 1) {
+                $fields = explode("\t", $row);
+                $fields[] = "higherClassification";
+                fwrite($f, implode("\t", $fields)."\n");
+                $fieldz = $fields; //no criteria needed, for normal operation
+            }
+            else {
+                $rec = array();
+                $cols = explode("\t", $row);
+                $k = 0;
+                foreach($fields as $field) {
+                    $short_field = self::shorten_field($field);
+                    if(in_array($field, $fieldz)) $rec[$short_field] = @$cols[$k];
+                    $k++;
+                }
+                if($rec) {
+                    $higherClassification = self::get_higherClassification($rec);
+                    $rec["hC"] = $higherClassification;
+                    fwrite($f, implode("\t", $rec)."\n");
+                }
+            }
+        }
+        fclose($f);
     }
     
     private function get_higherClassification($rek)
@@ -116,18 +151,13 @@ class DwCA_Utility_cmd
     
     function tool_generate_higherClassification($file)
     {
-        if($records = self::create_records_array($file)) {
-            self::build_id_name_array($records);                                //echo "\n1 of 3\n";
-            $records = self::generate_higherClassification_field($records);     //echo "\n2 of 3\n";
-            $fields = self::normalize_fields($records[0]);
-
-            //start write to file
-            // $file = str_replace(".", "_higherClassification.", $file); //working but didn't use it
-            if(!($f = Functions::file_open(str_replace("sample/", "temp/", $file), "w"))) return;
-            fwrite($f, implode("\t", $fields)."\n");
-            foreach($records as $rec) fwrite($f, implode("\t", $rec)."\n");
-            fclose($f);
-            // echo "\n3 of 3\n";
+        if(self::create_records_array($file)) {
+            self::generate_higherClassification_field($file);
+            /* important step: rename from: [temp/temp_1509427898.tab] to: [temp/1509427898.tab] */
+            unlink($file);
+            //long-cut since Functions::file_rename didn't work
+            $filename_tmp = str_replace("temp/", "temp/temp_", $file);
+            if(copy($filename_tmp, $file)) unlink($filename_tmp);
             return true;
         }
         else return false;
@@ -135,8 +165,6 @@ class DwCA_Utility_cmd
 
     private function create_records_array($file)
     {
-        // echo "\n[$file]\n";
-        $records = array();
         $i = 0;
         foreach(new FileIterator($file) as $line => $row) {
             $i++;
@@ -177,6 +205,12 @@ class DwCA_Utility_cmd
                     $k++;
                 }
                 if($rec) {
+                    
+                    //originally from build_id_name_array()
+                    $taxon_id = (string) $rec["tID"];
+                    $this->id_name[$taxon_id]['sN'] = (string) $rec["sN"];
+                    $this->id_name[$taxon_id]['pID'] = (string) $rec["pID"];
+                    
                     // this is for specific resource criteria
                     if($file == "sample/GBIF_Taxon.tsv") { //https://eol-jira.bibalex.org/browse/TRAM-552
                         if($rec['tS'] != 'accepted') continue;
@@ -185,7 +219,7 @@ class DwCA_Utility_cmd
                         if($rec['tS'] != 'accepted') continue;
                     }
 
-                    $records[] = $rec;
+                    // $records[] = $rec;
                     if($i > 3 && $i <= 10) { //can check this early if we can compute for higherClassification, used a range so it will NOT check for every record but just 7 records.
                         if(!self::can_compute_higherClassification($rec)) return false;
                     }
@@ -193,7 +227,7 @@ class DwCA_Utility_cmd
                 }
             }
         }
-        return $records;
+        return true;
     }
     
     private function normalize_fields($arr)
