@@ -7,6 +7,7 @@ ini_set('display_errors', true);
 set_time_limit(0);
 ini_set("memory_limit","9000M"); // worked for the dwh_taxa.txt (https://eol-jira.bibalex.org/browse/TRAM-575)
 
+exit("\nThis is now obsolete, instead use gen_higherClass.php in /update_resources/connectors/ \n");
 
 /* Important settings
 Apache httpd.conf:
