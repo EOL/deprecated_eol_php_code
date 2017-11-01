@@ -9,13 +9,12 @@ class IOCBirdlistAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxa_ids             = array();
-        $this->download_options = array('resource_id' => $folder, 'timeout' => 172800, 'expire_seconds' => 2592000, 'download_wait_time' => 2000000); //expires monthly, 30 days
+        $this->download_options = array('resource_id' => $folder, 'timeout' => 172800, 'expire_seconds' => 60*60*24*25, 'download_wait_time' => 2000000); //expires 25 days
         
         $this->xml_data = "http://www.worldbirdnames.org/master_ioc-names_xml.xml";
         // $this->xml_data = "http://localhost/cp/IOCBirdlist/data/master_ioc-names_xml.xml";
         
         $this->source = "http://www.worldbirdnames.org";
-        $this->bibliographic_citation = "Gill F & D Donsker (Eds). 2017. IOC World Bird List (v 7.1). http://dx.doi.org/10.14344/IOC.ML.7.1";
         
         $this->debug = array();
         $this->regions = array( "AF" => "http://www.geonames.org/6255146",
@@ -36,8 +35,21 @@ class IOCBirdlistAPI
                                 "OR" => "http://eol.org/schema/terms/OrientalRegion");
     }
 
+    private function get_bibliographic_citation()
+    {
+        $url = "http://www.worldbirdnames.org/ioc-lists/master-list-2/";
+        $html = Functions::lookup_with_cache($url, $this->download_options);
+        /* <p class="tagline">version 7.3</p> */
+        if(preg_match("/>version (.*?)<\//ims", $html, $a)) $version = $a[1];
+        else                                                $version = "7.1";
+        // $this->bibliographic_citation = "Gill F & D Donsker (Eds). 2017. IOC World Bird List (v 7.1). http://dx.doi.org/10.14344/IOC.ML.7.1";
+        $this->bibliographic_citation    = "Gill F & D Donsker (Eds). 2017. IOC World Bird List (v $version). http://dx.doi.org/10.14344/IOC.ML.".$version;
+        echo "\n$this->bibliographic_citation\n";
+    }
+    
     function get_all_taxa($resource_id)
     {
+        self::get_bibliographic_citation();
         self::create_aves();
         self::process_taxa();
         $this->archive_builder->finalize(true);
@@ -298,7 +310,11 @@ class IOCBirdlistAPI
         //get parent
         $rek['order']['parent']      = "Aves"; //this will be overwritten anyway...
         $rek['family']['parent']     = $rek['order']['taxon'];
-        $rek['genus']['parent']      = $rek['family']['taxon'];
+        
+        //per https://eol-jira.bibalex.org/browse/TRAM-499?focusedCommentId=61471&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61471
+        if(stripos($rek['family']['taxon'], "Incertae Sedis") !== false) $rek['genus']['parent'] = $rek['order']['taxon'];  //string is found
+        else                                                             $rek['genus']['parent'] = $rek['family']['taxon'];
+
         $rek['species']['parent']    = $rek['genus']['taxon'];
         if($with_subspecies) $rek['subspecies']['parent'] = $rek['species']['taxon'];
         return $rek;
