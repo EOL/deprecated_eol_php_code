@@ -26,17 +26,25 @@ $cmdline_params['resource_id']                      = @$argv[2]; //useful here
 $cmdline_params['generate_higherClassification_YN'] = @$argv[3]; //useful here ('Y' or 'N')
 print_r($cmdline_params);
 $resource_id = false;
-if($val = $cmdline_params['resource_id'])
+if(($val = $cmdline_params['resource_id']) && ($cmdline_params['resource_id'] != "_"))
 {
     $resource_id = $val;
-    if($resource_id == 704) $dwca_file = "https://opendata.eol.org/dataset/7a17dc15-cb08-4e41-b901-6af5fd89bcd7/resource/3c56c4e4-3be7-463b-b958-22fbc560cf0d/download/pantheria.zip";
+    if    ($resource_id == 704) $dwca_file = "https://opendata.eol.org/dataset/7a17dc15-cb08-4e41-b901-6af5fd89bcd7/resource/3c56c4e4-3be7-463b-b958-22fbc560cf0d/download/pantheria.zip";
     elseif($resource_id == 430) // won't work here since it is not tab-delimited files but CSV files. I eventually used its own connector 430.php
     {
         ini_set('memory_limit','7096M'); //required
         // $dwc_file = "http://www.inaturalist.org/taxa/eol_media.dwca.zip";
         $dwca_file = "http://localhost/cp/iNaturalist/eol_media.dwca.zip";
     }
-    else exit("\nProgram will terminate. Invalid resource_id [$resource_id].\n\n");
+    else
+    {
+        if(is_dir(CONTENT_RESOURCE_LOCAL_PATH.$resource_id))
+        {
+            $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.".tar.gz";
+            $resource_id = get_base_filename($dwca_file, $cmdline_params['generate_higherClassification_YN']);
+        }
+        else exit("\nProgram will terminate. Invalid resource_id [$resource_id].\n\n");
+    }
 }
 else //no resource_id
 {
@@ -45,17 +53,20 @@ else //no resource_id
     // $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/ICTV-virus_taxonomy.tar.gz";
     // $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/26.tar.gz";
     // $dwca_file = "http://localhost/cp/dynamic_hierarchy/amphibia.zip";
-    // $dwca_file = "http://localhost/cp/dynamic_hierarchy/dwca-phasmida-v10.6.zip";
+    $dwca_file = "http://localhost/cp/dynamic_hierarchy/dwca-phasmida-v10.6.zip";
     // $dwca_file = "http://localhost/cp/dynamic_hierarchy/dwh_try3.zip"; //very big one
     
-    // /* WIP - waiting for feedback...
+    /* WIP - waiting for feedback...
     $dwca_file = "http://localhost/cp/dynamic_hierarchy/z/eoldynamichierarchydraftaug2017.zip"; //needs to be fixed first: https://eol-jira.bibalex.org/browse/DATA-1709
     $dwca_file = "http://localhost/cp/dynamic_hierarchy/z/dynamic.tar.gz"; //this is the fixed version
-    // */
-    
+    */
+
     $resource_id = get_base_filename($dwca_file, $cmdline_params['generate_higherClassification_YN']);
 }
 //===========================================================================================new - end
+
+echo "\n[$resource_id] [$dwca_file] [".$cmdline_params['generate_higherClassification_YN']."]\n";
+// exit("\nstopped\n");
 
 // /* //main operation
 $func = new DwCA_Utility($resource_id, $dwca_file);

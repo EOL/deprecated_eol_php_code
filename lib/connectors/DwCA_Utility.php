@@ -114,6 +114,7 @@ class DwCA_Utility
     
     function convert_archive_by_adding_higherClassification()
     {
+        echo "\ndoing this: convert_archive_by_adding_higherClassification()\n";
         $info = self::start();
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
