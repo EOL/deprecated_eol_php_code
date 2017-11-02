@@ -1,7 +1,6 @@
 <?php
 namespace php_active_record;
 /*  connector: [891] NMNH type records
-    connector: [947] NHM type records
     
     multimedia: 
     _id,license,format,rightsHolder,title,identifier,type
@@ -58,7 +57,7 @@ class NMNHTypeRecordAPI
         $this->service['specimen'] = "http://data.nhm.ac.uk/api/action/datastore_search?resource_id=05ff2255-c38a-40c9-b657-4ccb55ab2feb";
     }
 
-    function start($params) // NMNH and NHM uses this script
+    function export_gbif_to_eol($params) // NMNH and NHM uses this script
     {
         $this->uris = self::get_uris($params);
         require_library('connectors/INBioAPI');
@@ -72,8 +71,7 @@ class NMNHTypeRecordAPI
             debug("Invalid archive file. Program will terminate.");
             return false;
         }
-        if    ($params["dataset"] == "NMNH")    self::process_row_type($params);
-        elseif($params["dataset"] == "NHM")     self::process_row_type_from_NHM($temp_dir . "/" . $params['location']);
+        self::process_row_type($params);
         $this->archive_builder->finalize(TRUE);
         
         // remove temp dir
@@ -669,156 +667,6 @@ class NMNHTypeRecordAPI
         elseif(in_array($value, array("PARATYPE #5", "PARATYPE V", "PARATYPE I", "PARATYPE II", "PARATYPE #2", "PARATYPE #3", "PARATYPE (NO.52)", "PARATYPE #1", "PARATYPE #9", "PARATYPE III", "PARATYPE II AND III", "PARATYPE III AND IV", "PARATYPE #10", "PARATYPE #7", "PARATYPE #4", "PARATYPE #6", "PARATYPE (NO.65)", "PARATYPE #8", "PARAYPE", "PARATYPE)"))) $value = "PARATYPE";
         return array("type_status" => $value, "measurement_remarks" => $measurement_remarks);
     }
-    
-    private function process_row_type_from_NHM($csv_file)
-    {
-        $i = 0;
-        if(!($file = Functions::file_open($csv_file,"r"))) return;
-        while(!feof($file))
-        {
-            $temp = fgetcsv($file);
-            $i++;
-            if(($i % 100000) == 0) echo "\n" . number_format($i) . " - ";
-            if($i == 1)
-            {
-                $fields = $temp;
-                if(count($fields) != 71)
-                {
-                    // $this->debug["not71"][$fields[0]] = '';
-                    @$this->debug["not71"]++;
-                    continue;
-                }
-            }
-            else
-            {
-                $rec = array();
-                $k = 0;
-                // 2 checks if valid record
-                if(!$temp) continue;
-                if(count($temp) != 71)
-                {
-                    // $this->debug["not71"][$temp[0]] = '';
-                    @$this->debug["not71"]++;
-                    continue;
-                }
-                foreach($temp as $t)
-                {
-                    $rec[$fields[$k]] = $t;
-                    $k++;
-                }
-                $rec_object = json_decode(json_encode($rec), FALSE); //convert array to object
-                $f = self::convert_rec_object_to_array($rec_object);
-                if(!self::valid_typestatus($f["http://rs.tdwg.org/dwc/terms/typeStatus"], $f["http://rs.tdwg.org/dwc/terms/scientificName"])) continue;
-                self::create_type_records_nmnh($f);
-            }
-            // if($i >= 1000) break; //debug
-        } // end while{}
-        fclose($file);
-    }
-
-    private function convert_rec_object_to_array($rec)
-    {
-        $f = array();
-        $f['http://rs.tdwg.org/dwc/terms/institutionCode']      = $rec->institutionCode;
-        $f['http://rs.tdwg.org/dwc/terms/typeStatus']           = (string) $rec->typeStatus;
-        $f['http://rs.tdwg.org/dwc/terms/scientificName']       = trim(str_replace($rec->scientificNameAuthorship, " ", $rec->scientificName));
-        $f['taxon_id']                                          = str_replace(" ", "_", $f['http://rs.tdwg.org/dwc/terms/scientificName']);
-        $f["dataset"]                                           = "NHM";
-        $f[""]                                                  = $rec->_id;
-        $f["http://rs.tdwg.org/dwc/terms/occurrenceID"]            = $rec->occurrenceID;
-        $f['http://rs.tdwg.org/dwc/terms/collectionCode']       = $rec->collectionCode;
-        $f['institutionCode']                                   = $rec->institutionCode; //e.g. NHMUK
-        $f['http://rs.tdwg.org/dwc/terms/catalogNumber']        = $rec->catalogNumber;
-        $f['http://rs.tdwg.org/dwc/terms/recordedBy']           = $rec->recordedBy;
-        $f['http://rs.tdwg.org/dwc/terms/individualCount']      = $rec->individualCount;
-        $f['http://rs.tdwg.org/dwc/terms/sex']                  = $rec->sex;
-        $f['http://rs.tdwg.org/dwc/terms/lifeStage']            = $rec->lifeStage;
-        $f['http://rs.tdwg.org/dwc/terms/preparations']         = $rec->preparations;
-        $f['http://rs.tdwg.org/dwc/terms/locality']             = $rec->locality;
-        $f['http://rs.tdwg.org/dwc/terms/verbatimLatitude']     = $rec->verbatimLatitude;
-        $f['http://rs.tdwg.org/dwc/terms/verbatimLongitude']    = $rec->verbatimLongitude;
-        $f['http://rs.tdwg.org/dwc/terms/decimalLatitude']      = $rec->decimalLatitude;
-        $f['http://rs.tdwg.org/dwc/terms/decimalLongitude']     = $rec->decimalLongitude;
-        $f['http://rs.tdwg.org/dwc/terms/identifiedBy']         = $rec->identifiedBy;
-        $f['http://rs.tdwg.org/dwc/terms/recordNumber']         = $rec->recordNumber;
-        $f['http://rs.tdwg.org/dwc/terms/otherCatalogNumbers']  = $rec->otherCatalogNumbers;
-        $f['http://rs.tdwg.org/dwc/terms/year']                 = $rec->year;
-        $f['http://rs.tdwg.org/dwc/terms/month']                = $rec->month;
-        $f['http://rs.tdwg.org/dwc/terms/day']                  = $rec->day;
-        $f['http://rs.tdwg.org/dwc/terms/higherGeography']      = $rec->higherGeography;
-        $f['http://rs.tdwg.org/dwc/terms/continent']            = $rec->continent;
-        $f['http://rs.tdwg.org/dwc/terms/waterBody']            = $rec->waterBody;
-        $f['http://rs.tdwg.org/dwc/terms/islandGroup']          = $rec->islandGroup;
-        $f['http://rs.tdwg.org/dwc/terms/island']               = $rec->island;
-        $f['http://rs.tdwg.org/dwc/terms/country']              = $rec->country;
-        $f['http://rs.tdwg.org/dwc/terms/stateProvince']        = $rec->stateProvince;
-        $f['http://rs.tdwg.org/dwc/terms/minimumElevationInMeters'] = $rec->minimumElevationInMeters;
-        $f['http://rs.tdwg.org/dwc/terms/maximumElevationInMeters'] = $rec->maximumElevationInMeters;
-        $f['http://rs.tdwg.org/dwc/terms/minimumDepthInMeters']     = $rec->minimumDepthInMeters;
-        $f['http://rs.tdwg.org/dwc/terms/maximumDepthInMeters']     = $rec->maximumDepthInMeters;
-        $f['http://rs.tdwg.org/dwc/terms/geodeticDatum']            = $rec->geodeticDatum;
-        $f['http://rs.tdwg.org/dwc/terms/georeferenceProtocol']     = $rec->georeferenceProtocol;
-        $f['http://rs.tdwg.org/dwc/terms/identificationQualifier']  = $rec->identificationQualifier;
-        $f['http://rs.tdwg.org/dwc/terms/scientificNameAuthorship'] = $rec->scientificNameAuthorship;
-        $f['http://rs.tdwg.org/dwc/terms/kingdom']                  = $rec->kingdom;
-        $f['http://rs.tdwg.org/dwc/terms/phylum']                   = $rec->phylum;
-        $f['http://rs.tdwg.org/dwc/terms/class']                    = $rec->class;
-        $f['http://rs.tdwg.org/dwc/terms/order']                    = $rec->order;
-        $f['http://rs.tdwg.org/dwc/terms/family']                   = $rec->family;
-        $f['http://rs.tdwg.org/dwc/terms/genus']                    = $rec->genus;
-        $f['http://rs.tdwg.org/dwc/terms/taxonRank']                = $rec->taxonRank;
-        $f['source']                                                     = '';
-        $f['http://rs.tdwg.org/dwc/terms/occurrenceRemarks']             = '';
-        $f['http://rs.tdwg.org/dwc/terms/fieldNotes']                    = '';
-        $f['http://rs.tdwg.org/dwc/terms/verbatimElevation']             = '';
-        $f['http://rs.tdwg.org/dwc/terms/associatedSequences']           = '';
-        $f['http://rs.tdwg.org/dwc/terms/startDayOfYear']                = '';
-        $f['http://rs.tdwg.org/dwc/terms/endDayOfYear']                  = '';
-        $f['http://rs.tdwg.org/dwc/terms/verbatimEventDate']             = '';
-        $f['http://rs.tdwg.org/dwc/terms/fieldNumber']                   = '';
-        $f['http://rs.tdwg.org/dwc/terms/county']                        = '';
-        $f['http://rs.tdwg.org/dwc/terms/verbatimDepth']                 = '';
-        $f['http://rs.tdwg.org/dwc/terms/verbatimCoordinateSystem']      = '';
-        $f['http://rs.tdwg.org/dwc/terms/coordinateUncertaintyInMeters'] = '';
-        $f['http://rs.tdwg.org/dwc/terms/georeferenceRemarks']           = '';
-        if($val = @$rec->associatedMedia) $f['http://rs.tdwg.org/dwc/terms/associatedMedia'] = $val;
-        return $f;
-    }
-
-    /* working but not being used at the moment, we are making use of their dwc-a file
-    function export_nhm_gbif_to_eol($params) // using the NHM API service
-    {
-        $this->uris = self::get_uris($params);
-        $limit = 500; $offset = 0; //orig limit=500 offset=0
-        while(true)
-        {
-            $url = $this->service['specimen'] . "&limit=$limit&offset=$offset";
-            if($contents = Functions::lookup_with_cache($url, $this->download_options))
-            {
-                $json = json_decode($contents);
-                $returned = count($json->result->records);
-                if(($offset % 100000) == 0) echo "\n offset: [" . number_format($offset) . "]\n";
-                self::process_nhm_specimen_records($json);
-                // break; //debug
-            }
-            $offset += $limit;
-            if($returned < $limit) break;
-            // break; //debug
-        }
-        $this->archive_builder->finalize(TRUE);
-        print_r($this->debug);
-    }
-
-    private function process_nhm_specimen_records($recs) // using the NHM API service
-    {
-        foreach($recs->result->records as $rec)
-        {
-            $f = self::convert_rec_object_to_array($rec);
-            if(!self::valid_typestatus($f["http://rs.tdwg.org/dwc/terms/typeStatus"], $f["http://rs.tdwg.org/dwc/terms/scientificName"])) continue;
-            self::create_type_records_nmnh($f);
-        }
-    }
-    */
-
 }
+
 ?>
