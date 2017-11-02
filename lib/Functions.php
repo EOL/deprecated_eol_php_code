@@ -477,7 +477,7 @@ class Functions
             return $undefined_uris;
         }
         $i = 0;
-        $exclude = array("http://rs.tdwg.org/dwc/terms/georeferenceRemarks");
+        $exclude = array("http://rs.tdwg.org/dwc/terms/georeferenceRemarks", "http://rs.tdwg.org/dwc/terms/associatedSequences");
         foreach(new FileIterator($url) as $line_number => $temp) {
             $temp = explode("\t", $temp);
             $i++;

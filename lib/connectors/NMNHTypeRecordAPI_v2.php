@@ -69,6 +69,7 @@ class NMNHTypeRecordAPI_v2
     function start($params)
     {
         $this->uris = self::get_uris($params);
+        // print_r($this->uris); exit;
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($params["dwca_file"], "meta.xml", $this->download_options, "zip"); 
@@ -393,7 +394,8 @@ class NMNHTypeRecordAPI_v2
         }
         
         if($field == "lifeStage") {
-            /* NMNH
+            /* 
+            NMNH
               [EXUVIAE] => 
               [HALF-GROWN] => 
               [; JUVENILE; LARVAE V] => 
@@ -416,6 +418,10 @@ class NMNHTypeRecordAPI_v2
               [PREMATURE; JUVENILE] => 
               [AGED] => 
             */
+
+            /*
+            */
+
             
             $value = str_replace(";;", ";", $value);
             $value = str_replace(";;", ";", $value);
@@ -443,7 +449,6 @@ class NMNHTypeRecordAPI_v2
             elseif($value == "FLOWERING AND IMMATURE FRUIT")            $value = "IMMATURE FRUIT";
             elseif(in_array($value, array("; MANCA", "MANCA III", "MANCA (1)", "MANCA I AND II"))) $value = "MANCA";
             elseif(in_array($value, array("SEXUALLY MATURE MALE", "SEXUALLY MATURE"))) $value = "MATURE";
-            elseif(is_numeric(stripos($value, "ADULT; EXUVIAE")))       $value = "ADULT";               // by Eli
             elseif(is_numeric(stripos($value, "ADULT; SUBADULT")))      $value = "ADULT & SUBADULT";
             elseif(is_numeric(stripos($value, "ADULT; NYMPH")))         $value = "ADULT & NYMPH";
             elseif(is_numeric(stripos($value, "JUVENILE A")))           $value = "JUVENILE";
@@ -462,6 +467,22 @@ class NMNHTypeRecordAPI_v2
             elseif(is_numeric(stripos($value, "ADULT; ADULT; ADULT")))  $value = "ADULT";
             elseif(is_numeric(stripos($value, "OVIGEROUS; IMMATURE")))  $value = "IMMATURE & OVIGEROUS";
             elseif(is_numeric(stripos($value, "JUVENILE; JUVENILE")))   $value = "JUVENILE";
+            
+            elseif(stripos($value, "ADULT;") !== false) $value = "ADULT"; //string is found
+            elseif(stripos($value, "MATURE;") !== false) $value = "ADULT"; //string is found
+            elseif(stripos($value, "SUBADULT;") !== false) $value = "IMMATURE"; //string is found
+            elseif(stripos($value, "JUVENILE;") !== false) $value = "JUVENILE"; //string is found
+            elseif(stripos($value, "IMMATURE;") !== false) $value = "IMMATURE"; //string is found
+            
+            
+            //last options
+            elseif(stripos($value, "OVIGEROUS") !== false) $value = "OVIGEROUS"; //string is found
+            elseif(stripos($value, "MANCA") !== false) $value = "MANCA"; //string is found
+            elseif(stripos($value, "LARVAE") !== false) $value = "LARVA"; //string is found
+            elseif(stripos($value, "SUBADULT") !== false) $value = "IMMATURE"; //string is found
+            
+            
+            
         }
 
         if($val = @$this->uris[$value]) {
@@ -575,6 +596,7 @@ class NMNHTypeRecordAPI_v2
         return;
     }
     
+                  
     private function format_typeStatus($value)
     {
         $value = trim(Functions::remove_whitespace($value));
@@ -597,7 +619,11 @@ class NMNHTypeRecordAPI_v2
         elseif(in_array($value, array("SYNTYTPE", "SYTNTYPE", "SYNYPES", "SYNTPE", "SYNTYPE MAMILLATA")))                                    $value = "SYNTYPE";
         elseif(in_array($value, array("PARALECTO", "PARALECTOYPES", "PARALECTOYPE")))                                                        $value = "PARALECTOTYPE";
         elseif(in_array($value, array("SYNTYPE OR HOLOTYPE?", "?HOLOTYPE OR SYNTYPE", "HOLOTYPE OR SYNTYPE", "SYNTYPE OR HOLOTYPE")))        $value = "SYNTYPE? + HOLOTYPE?";
-        elseif(in_array($value, array("POSS./PROB. PARALECTOTYPE", "PARALECTOTYPE (POSSIBLE)", "POSSIBLE PARALECTOTYPE", "?PARALECTOTYPE"))) $value = "PARALECTOTYPE?";
+
+        elseif(in_array($value, array("UNCONFIRMED PARALECTOTYPE", "POSS./PROB. PARALECTOTYPE", "PARALECTOTYPE (POSSIBLE)", "POSSIBLE PARALECTOTYPE", "?PARALECTOTYPE"))) $value = "PARALECTOTYPE?";
+
+
+
         elseif(in_array($value, array("PT OF HOLOTYPE", "PART OF HOLOTYPE", "HOLOTYPE (PART)")))                                             $value = "HOLOTYPE FRAGMENT";
         elseif(in_array($value, array("PART OF TYPE", "PT OF TYPE", "PART OF TYPE MATERIAL", "PT OF TYPE MATERIAL", "TYPE (PART)")))         $value = "TYPE FRAGMENT";
         elseif(in_array($value, array("?PT OF TYPE?", "?PT OF TYPE OF REGULARIS?")))                                                         $value = "UNCONFIRMED TYPE"; //same as 'TYPE?'
@@ -621,6 +647,20 @@ class NMNHTypeRecordAPI_v2
         elseif($value == "PART OF PARATYPE")                                $value = "PARATYPE FRAGMENT";
         elseif($value == "ISTOTYPE")                                        $value = "ISOTYPE";
         elseif($value == "PARATYPE (ALLOTYPE)")                             $value = "ALLOTYPE";
+
+        //Nov 2, 2017
+        elseif($value == "PHOTOPARATYPE") $value = "PHOTOPARATYPE";
+        elseif($value == "PHOTOTYPE") $value = "PHOTOTYPE";
+        elseif($value == "PHOTONEOTYPE") $value = "PHOTONEOTYPE";
+        elseif($value == "PHOTOSYNTYPE") $value = "PHOTOSYNTYPE";
+        elseif($value == "PHOTONEOSYNTYPE") $value = "PHOTONEOSYNTYPE";
+        elseif($value == "NEOPARAHAPANTOTYPE") $value = "NEOPARAHAPANTOTYPE";
+        elseif($value == "LECTOHAPANTOTYPE") $value = "LECTOHAPANTOTYPE";
+        elseif($value == "PARANEOHAPANTOTYPE") $value = "PARANEOHAPANTOTYPE";
+        elseif($value == "PHOTOHAPANTOTYPE") $value = "PHOTOHAPANTOTYPE";
+        elseif($value == "PARALECTOHAPANTOTYPE") $value = "PARALECTOHAPANTOTYPE";
+
+        
         elseif(in_array($value, array("PARATYPE #5", "PARATYPE V", "PARATYPE I", "PARATYPE II", "PARATYPE #2", "PARATYPE #3", "PARATYPE (NO.52)", "PARATYPE #1", "PARATYPE #9", "PARATYPE III", "PARATYPE II AND III", "PARATYPE III AND IV", "PARATYPE #10", "PARATYPE #7", "PARATYPE #4", "PARATYPE #6", "PARATYPE (NO.65)", "PARATYPE #8", "PARAYPE", "PARATYPE)"))) $value = "PARATYPE";
         return array("type_status" => $value, "measurement_remarks" => $measurement_remarks);
     }
