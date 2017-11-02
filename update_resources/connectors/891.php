@@ -1,12 +1,12 @@
 <?php
 namespace php_active_record;
 /* WEB-5843 Import Smithsonian type specimen data to TraitBank
-                                        2017      START   2017
-                    14Jan       16Apr   2Nov      NEW IPT 3Nov
-measurement_or_fact 4,768,256   4768226 4,768,196 ---     4,348,898
-occurrence          468,454     468454  468,450   ---     350,602
-taxon               295903      295903  295,899   ---     255,887
-
+                                        2017      START   2017      from eol-archive
+                    14Jan       16Apr   2Nov      NEW IPT 3Nov      3Nov latest
+measurement_or_fact 4,768,256   4768226 4,768,196 ---     4,348,898 4,380,745
+occurrence          468,454     468454  468,450   ---     350,602   351,781
+taxon               295903      295903  295,899   ---     255,887   256,211
+                                                                    
 10k records:        9Jan
 measurement_or_fact 9218
 occurrence          1708
@@ -43,8 +43,11 @@ $resource_id = $params["resource_id"];
 // $func = new NMNHTypeRecordAPI($resource_id); //old
 $func = new NMNHTypeRecordAPI_v2($resource_id); //latest, but based from the old one
 
+// /* debug - un-comment in real operation
 if($params["dwca_file"] = $func->get_dwca_download_url()) {}
 else exit("\nCannot get download URL for the DwCA.\n");
+// */
+
 print_r($params);
 
 $func->start($params); //renamed, it was $func->export_gbif_to_eol() before

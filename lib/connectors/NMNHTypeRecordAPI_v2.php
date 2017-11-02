@@ -387,7 +387,7 @@ class NMNHTypeRecordAPI_v2
                 elseif(self::has_male($value) && !self::has_female($value) && !self::has_hermaphrodite($value)) $value = "MALE";
                 elseif(!self::has_male($value) && self::has_female($value) && !self::has_hermaphrodite($value)) $value = "FEMALE";
                 elseif(!self::has_male($value) && !self::has_female($value) && self::has_hermaphrodite($value)) $value = "HERMAPHRODITE";
-                elseif(in_array($value, array("UNCERTAIN", "SEX UNKNOWN", "UNKNOWN; UNKNOWN", "UNSEXED", "(UNSEXED)"))) $value = "UNKNOWN";
+                elseif(in_array($value, array("UNABLE TO DETERMINE", "UNCERTAIN", "SEX UNKNOWN", "UNKNOWN; UNKNOWN", "UNSEXED", "(UNSEXED)"))) $value = "UNKNOWN";
                 else {} // use verbatim value
             }
             else {} // use verbatim value
