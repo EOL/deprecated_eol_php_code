@@ -77,8 +77,7 @@ class NMNHTypeRecordAPI_v2
     private function get_uris($params)
     {
         $fields = array();
-        if(in_array($params["dataset"], array("NMNH", "NHM")))
-        {
+        if(in_array($params["dataset"], array("NMNH", "NHM"))) {
             $fields["institutionCode"]  = "institutionCode_uri";
             $fields["sex"]              = "sex_uri";
             $fields["typeStatus"]       = "typeStatus_uri";
@@ -90,15 +89,11 @@ class NMNHTypeRecordAPI_v2
         $spreadsheet_options = array("cache" => 1, "timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2);
         $spreadsheet_options["expire_seconds"] = 0; // false => won't expire; 0 => expires now (orig value)
         $uris = array();
-        if($spreadsheet = @$params["uri_file"])
-        {
-            if($arr = $func->convert_spreadsheet($spreadsheet, 0, $spreadsheet_options))
-            {
-                 foreach($fields as $key => $value)
-                 {
+        if($spreadsheet = @$params["uri_file"]) {
+            if($arr = $func->convert_spreadsheet($spreadsheet, 0, $spreadsheet_options)) {
+                 foreach($fields as $key => $value) {
                      $i = 0;
-                     foreach($arr[$key] as $item)
-                     {
+                     foreach($arr[$key] as $item) {
                          $item = trim($item);
                          if($item) $uris[$item] = $arr[$value][$i];
                          $i++;
@@ -113,32 +108,17 @@ class NMNHTypeRecordAPI_v2
     {
         $row_type = $params["row_type"];
         $location = $params["location"];
-        if(isset($this->harvester->tables[strtolower($row_type)]))
-        {
-            foreach($this->harvester->tables[strtolower($row_type)] as $table_definition)
-            {
+        if(isset($this->harvester->tables[strtolower($row_type)])) {
+            foreach($this->harvester->tables[strtolower($row_type)] as $table_definition) {
                 if($table_definition->location != $location) continue;
                 $this->harvester->file_iterator_index = 0;
                 // rows are on newlines, so we can stream the file with an iterator
-                if($table_definition->lines_terminated_by == "\n")
-                {
+                if($table_definition->lines_terminated_by == "\n") {
                     $parameters['archive_table_definition'] =& $table_definition;
                     $i = 0;
-                    foreach(new FileIterator($table_definition->file_uri) as $line_number => $line)
-                    {
+                    foreach(new FileIterator($table_definition->file_uri) as $line_number => $line) {
                         $i++;
                         if(($i % 10000) == 0) echo "\n" . $params["type"] . " - $i ";
-                        
-                        /* breakdown when caching
-                        $m = 200000;
-                        $cont = false;
-                        // if($i >=  1    && $i < $m)    $cont = true;
-                        // if($i >=  $m   && $i < $m*2)  $cont = true;
-                        // if($i >=  $m*2 && $i < $m*3)  $cont = true;
-                        // if($i >=  $m*3 && $i < $m*4)  $cont = true;
-                        // if($i >=  $m*4 && $i < $m*5)  $cont = true;
-                        if(!$cont) continue;
-                        */
                         
                         $parameters['archive_line_number'] = $line_number;
                         if($table_definition->ignore_header_lines) $parameters['archive_line_number'] += 1;
@@ -149,17 +129,17 @@ class NMNHTypeRecordAPI_v2
                         {
                             if(!self::valid_typestatus($fields["http://rs.tdwg.org/dwc/terms/typeStatus"], $fields["http://rs.tdwg.org/dwc/terms/scientificName"])) continue;
                             $fields["taxon_id"] = self::get_taxon_id($fields);
-                            if($params["dataset"] == "NMNH")
-                            {
-                                $fields["dataset"] = "NMNH";
+                            
+                            $fields["dataset"] = "NMNH";
+                            // print_r($fields); //good debug to see individual records or row
 
-                                // print_r($fields);
-                                // if(@$fields['http://purl.org/dc/terms/references']) print_r($fields);
-                                // continue;
-                                
-                                if($params["type"] == "structured data")                self::create_type_records_nmnh($fields);
-                                // elseif($params["type"] == "classification resource")    self::create_classification_gbif($fields); was never used here
-                            }
+                            /* debug to check if references have values
+                            if(@$fields['http://purl.org/dc/terms/references']) print_r($fields);
+                            continue;
+                            */
+
+                            if($params["type"] == "structured data") self::create_type_records_nmnh($fields);
+                            // elseif($params["type"] == "classification resource") self::create_classification_gbif($fields); was never used here
                             // old ways: elseif($row_type == "http://rs.gbif.org/terms/1.0/Multimedia") self::get_media_objects($fields);
                         }
                         // if($i >= 1000) break; //debug - used during preview mode
@@ -183,8 +163,7 @@ class NMNHTypeRecordAPI_v2
         $arr = array_values($arr); //reindex key
         //remove array values with separator chars
         $i = 0;
-        foreach($arr as $value)
-        {
+        foreach($arr as $value) {
             $info = self::format_typeStatus($value);
             $value = $info['type_status'];
             if(self::valid_typestatus($value, $sciname)) {
@@ -314,7 +293,6 @@ class NMNHTypeRecordAPI_v2
         }
         $institutionCode_uri = "http://biocol.org/urn:lsid:biocol.org:col:34871";
 
-        
         $typeStatus_uri = false;
         $typeStatus_uri_arr = false;
         $typeStatus = $rec["http://rs.tdwg.org/dwc/terms/typeStatus"];
@@ -329,8 +307,7 @@ class NMNHTypeRecordAPI_v2
         if($institutionCode_uri && ($typeStatus_uri || $typeStatus_uri_arr))
         {
             self::add_string_types($rec, $institutionCode_uri, "http://eol.org/schema/terms/TypeSpecimenRepository", "true");
-            if($typeStatus_uri_arr)
-            {
+            if($typeStatus_uri_arr) {
                 foreach($typeStatus_uri_arr as $typeStatus_uri) self::add_string_types($rec, $typeStatus_uri, "http://rs.tdwg.org/dwc/terms/typeStatus");
             }
             else self::add_string_types($rec, $typeStatus_uri, "http://rs.tdwg.org/dwc/terms/typeStatus");
@@ -342,8 +319,7 @@ class NMNHTypeRecordAPI_v2
 
             $fields = array("http://rs.tdwg.org/dwc/terms/recordNumber", "http://rs.tdwg.org/dwc/terms/otherCatalogNumbers", "http://rs.tdwg.org/dwc/terms/startDayOfYear", "http://rs.tdwg.org/dwc/terms/endDayOfYear", "http://rs.tdwg.org/dwc/terms/year", "http://rs.tdwg.org/dwc/terms/month", "http://rs.tdwg.org/dwc/terms/day", "http://rs.tdwg.org/dwc/terms/verbatimEventDate", "http://rs.tdwg.org/dwc/terms/fieldNumber", "http://rs.tdwg.org/dwc/terms/higherGeography", "http://rs.tdwg.org/dwc/terms/continent", "http://rs.tdwg.org/dwc/terms/waterBody", "http://rs.tdwg.org/dwc/terms/islandGroup", "http://rs.tdwg.org/dwc/terms/island", "http://rs.tdwg.org/dwc/terms/country", "http://rs.tdwg.org/dwc/terms/stateProvince", "http://rs.tdwg.org/dwc/terms/county", "http://rs.tdwg.org/dwc/terms/minimumElevationInMeters", "http://rs.tdwg.org/dwc/terms/maximumElevationInMeters", "http://rs.tdwg.org/dwc/terms/verbatimDepth", "http://rs.tdwg.org/dwc/terms/minimumDepthInMeters", "http://rs.tdwg.org/dwc/terms/maximumDepthInMeters", "http://rs.tdwg.org/dwc/terms/verbatimCoordinateSystem", "http://rs.tdwg.org/dwc/terms/geodeticDatum", "http://rs.tdwg.org/dwc/terms/coordinateUncertaintyInMeters", "http://rs.tdwg.org/dwc/terms/georeferenceProtocol", "http://rs.tdwg.org/dwc/terms/georeferenceRemarks", "http://rs.tdwg.org/dwc/terms/identificationQualifier");
             if($rec['dataset'] == "NMNH") $fields[] = "http://rs.tdwg.org/dwc/terms/associatedMedia";
-            foreach($fields as $field)
-            {
+            foreach($fields as $field) {
                 if($val = $rec[$field]) self::add_string_types($rec, $val, $field);
             }
 
@@ -356,14 +332,12 @@ class NMNHTypeRecordAPI_v2
         $value = trim(str_replace("'", "", $value));
         if(in_array($field, array("sex", "typeStatus"))) $value = strtoupper($value);
         
-        if($field == "typeStatus")
-        {
+        if($field == "typeStatus") {
             $info = self::format_typeStatus($value);
             $value = $info['type_status'];
         }
         
-        if($field == "sex")
-        {
+        if($field == "sex") {
             //remove "s"
             $value = str_ireplace("MALES", "MALE", $value);
             $value = str_ireplace("HERMAPHRODITES", "HERMAPHRODITE", $value);
@@ -389,8 +363,7 @@ class NMNHTypeRecordAPI_v2
             elseif(self::has_male($value) && !self::has_female($value) && !self::has_hermaphrodite($value)) $value = "MALE";
             elseif(!self::has_male($value) && self::has_female($value) && !self::has_hermaphrodite($value)) $value = "FEMALE";
             elseif(!self::has_male($value) && !self::has_female($value) && self::has_hermaphrodite($value)) $value = "HERMAPHRODITE";
-            elseif(self::has_unknown($value))
-            {
+            elseif(self::has_unknown($value)) {
                 if(    self::has_male($value) && self::has_female($value) && !self::has_hermaphrodite($value))  $value = "MALE_FEMALE";
                 elseif(self::has_male($value) && self::has_female($value) && self::has_hermaphrodite($value))   $value = "MALE_FEMALE_HERMAPHRODITE";
                 elseif(self::has_male($value) && !self::has_female($value) && self::has_hermaphrodite($value))  $value = "MALE_HERMAPHRODITE";
@@ -404,8 +377,7 @@ class NMNHTypeRecordAPI_v2
             else {} // use verbatim value
         }
         
-        if($field == "lifeStage")
-        {
+        if($field == "lifeStage") {
             /* NMNH
               [EXUVIAE] => 
               [HALF-GROWN] => 
@@ -477,13 +449,11 @@ class NMNHTypeRecordAPI_v2
             elseif(is_numeric(stripos($value, "JUVENILE; JUVENILE")))   $value = "JUVENILE";
         }
 
-        if($val = @$this->uris[$value])
-        {
+        if($val = @$this->uris[$value]) {
             if(in_array($val, array("Exclude- literature dataset", "EXCLUDE"))) return '';
             else                                                                return $val; //success
         }
-        else
-        {
+        else {
             $this->debug["undefined"][$field][$value] = '';
             return $value; // returned verbatim
         }
@@ -531,8 +501,8 @@ class NMNHTypeRecordAPI_v2
         $this->add_occurrence($taxon_id, $occurrence_id, $rec);
         $m->occurrenceID = $occurrence_id;
         $m->measurementOfTaxon = $measurementOfTaxon;
-        if($measurementOfTaxon ==  "true")
-        {   // so that measurementRemarks (and source, contributor, etc.) appears only once in the [measurement_or_fact.tab]
+        if($measurementOfTaxon ==  "true") {
+            // so that measurementRemarks (and source, contributor, etc.) appears only once in the [measurement_or_fact.tab]
             $m->measurementRemarks = @$rec['measurement_remarks'];
             $m->source = $rec["source"];
             $m->contributor = @$rec["contributor"];

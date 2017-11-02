@@ -17,19 +17,19 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/NMNHTypeRecordAPI_v2');
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true;
-// /*
+/*
 //local source
 // $params["dwca_file"]    = "http://localhost/cp_new/NMNH/type_specimen_resource/dwca-nmnhdwca.zip"; //obsolete
 $params["dwca_file"]    = "http://localhost/cp_new/NMNH/type_specimen_resource/dwca-nmnh_extant_dwc-a-v1.8.zip"; //latest as of 25-Oct-2017
 $params["uri_file"]     = "http://localhost/cp_new/NMNH/type_specimen_resource/nmnh-mappings.xlsx"; //renamed; originally [nmnh mappings.xlsx]
-// */
+*/
 
-/*
+// /*
 //remote source
 // $params["dwca_file"]    = "https://collections.mnh.si.edu/ipt/archive.do?r=nmnhdwca"; //obsolete
 $params["dwca_file"]    = "https://collections.nmnh.si.edu/ipt/archive.do?r=nmnh_extant_dwc-a&v=1.8"; //latest as of 25-Oct-2017
 $params["uri_file"]     = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/NMNH/type_specimen_resource/nmnh-mappings.xlsx";
-*/
+// */
 
 $params["row_type"]     = "http://rs.tdwg.org/dwc/terms/occurrence";
 $params["location"]     = "occurrence.txt";
