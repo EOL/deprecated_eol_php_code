@@ -56,7 +56,7 @@ class INBioAPI
         return $all_taxa;
     }
 
-    function extract_archive_file($dwca_file, $check_file_or_folder_name, $download_options = array('timeout' => 172800, 'expire_seconds' => 0))
+    function extract_archive_file($dwca_file, $check_file_or_folder_name, $download_options = array('timeout' => 172800, 'expire_seconds' => 0), $force_extension = false)
     {
         debug("Please wait, downloading resource document...");
         $path_parts = pathinfo($dwca_file);
@@ -72,29 +72,33 @@ class INBioAPI
             fwrite($TMP, $file_contents);
             fclose($TMP);
             sleep(5);
-            if(preg_match("/^(.*)\.(tar.gz|tgz)$/", $dwca_file, $arr)) 
-            {
-                $cur_dir = getcwd();
-                chdir($temp_dir);
-                shell_exec("tar -zxvf $temp_file_path");
-                chdir($cur_dir);
-                $archive_path = str_ireplace(".tar.gz", "", $temp_file_path);
-            }
-            elseif(preg_match("/^(.*)\.(gz|gzip)$/", $dwca_file, $arr)) 
-            {
-                shell_exec("gunzip -f $temp_file_path");
-                $archive_path = str_ireplace(".gz", "", $temp_file_path);
-            }
-            elseif(preg_match("/^(.*)\.(zip)$/", $dwca_file, $arr) || preg_match("/mcz_for_eol(.*?)/ims", $dwca_file, $arr))
-            {
+            if($force_extension == 'zip') {
                 shell_exec("unzip -ad $temp_dir $temp_file_path");
                 $archive_path = str_ireplace(".zip", "", $temp_file_path);
-            } 
+            }
             else
             {
-                debug("-- archive not gzip or zip. [$dwca_file]");
-                return;
+                if(preg_match("/^(.*)\.(tar.gz|tgz)$/", $dwca_file, $arr)) {
+                    $cur_dir = getcwd();
+                    chdir($temp_dir);
+                    shell_exec("tar -zxvf $temp_file_path");
+                    chdir($cur_dir);
+                    $archive_path = str_ireplace(".tar.gz", "", $temp_file_path);
+                }
+                elseif(preg_match("/^(.*)\.(gz|gzip)$/", $dwca_file, $arr)) {
+                    shell_exec("gunzip -f $temp_file_path");
+                    $archive_path = str_ireplace(".gz", "", $temp_file_path);
+                }
+                elseif(preg_match("/^(.*)\.(zip)$/", $dwca_file, $arr) || preg_match("/mcz_for_eol(.*?)/ims", $dwca_file, $arr)) {
+                    shell_exec("unzip -ad $temp_dir $temp_file_path");
+                    $archive_path = str_ireplace(".zip", "", $temp_file_path);
+                } 
+                else {
+                    debug("-- archive not gzip or zip. [$dwca_file]");
+                    return;
+                }
             }
+            
             debug("archive path: [" . $archive_path . "]");
         }
         else

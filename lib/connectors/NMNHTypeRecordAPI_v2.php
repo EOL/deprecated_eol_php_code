@@ -71,7 +71,7 @@ class NMNHTypeRecordAPI_v2
         $this->uris = self::get_uris($params);
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($params["dwca_file"], "meta.xml", $this->download_options); 
+        $paths = $func->extract_archive_file($params["dwca_file"], "meta.xml", $this->download_options, "zip"); 
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         $this->harvester = new ContentArchiveReader(NULL, $archive_path);
