@@ -61,7 +61,7 @@ class INBioAPI
         debug("Please wait, downloading resource document...");
         $path_parts = pathinfo($dwca_file);
         $filename = $path_parts['basename'];
-        if($force_extension) $filename .= ".".$force_extension;
+        if($force_extension) $filename = "elix.".$force_extension; //you can just make-up a name here
         $temp_dir = create_temp_dir() . "/";
         debug($temp_dir);
         if($file_contents = Functions::lookup_with_cache($dwca_file, $download_options))
