@@ -1,11 +1,11 @@
 <?php
 namespace php_active_record;
 /* WEB-5843 Import Smithsonian type specimen data to TraitBank
-                                        2017    START   2017
-                    14Jan       16Apr   2Nov    NEW IPT 3Nov
-measurement_or_fact 4,768,256   4768226 4768196 ---     
-occurrence          468,454     468454          ---     
-taxon               295903      295903  295899  ---     
+                                        2017      START   2017
+                    14Jan       16Apr   2Nov      NEW IPT 3Nov
+measurement_or_fact 4,768,256   4768226 4,768,196 ---     4,348,898
+occurrence          468,454     468454  468,450   ---     350,602
+taxon               295903      295903  295,899   ---     255,887
 
 10k records:        9Jan
 measurement_or_fact 9218
