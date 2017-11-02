@@ -27,7 +27,8 @@ $params["uri_file"]     = "http://localhost/cp_new/NMNH/type_specimen_resource/n
 // /*
 //remote source
 // $params["dwca_file"]    = "https://collections.mnh.si.edu/ipt/archive.do?r=nmnhdwca"; //obsolete
-$params["dwca_file"]    = "https://collections.nmnh.si.edu/ipt/archive.do?r=nmnh_extant_dwc-a&v=1.8"; //latest as of 25-Oct-2017
+$params["dwca_file"]    = ""; //e.g. "https://collections.nmnh.si.edu/ipt/archive.do?r=nmnh_extant_dwc-a&v=1.8"; //latest as of 25-Oct-2017. From https://eol-jira.bibalex.org/browse/DATA-1711
+//will be generated below get_dwca_download_url()
 $params["uri_file"]     = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/NMNH/type_specimen_resource/nmnh-mappings.xlsx";
 // */
 
@@ -41,6 +42,10 @@ $resource_id = $params["resource_id"];
 
 // $func = new NMNHTypeRecordAPI($resource_id); //old
 $func = new NMNHTypeRecordAPI_v2($resource_id); //latest, but based from the old one
+
+if($params["dwca_file"] = $func->get_dwca_download_url()) {}
+else exit("\nCannot get download URL for the DwCA.\n");
+print_r($params);
 
 $func->start($params); //renamed, it was $func->export_gbif_to_eol() before
 Functions::finalize_dwca_resource($resource_id);

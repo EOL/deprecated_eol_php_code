@@ -49,14 +49,29 @@ class NMNHTypeRecordAPI_v2
         $this->occurrence_ids = array();
         $this->debug = array();
         $this->typeStatus_separators = array(";", "+", " & ", " AND ", ",");
+        $this->source_for_download_url = "https://collections.nmnh.si.edu/ipt/resource?r=nmnh_extant_dwc-a";
+        $this->download_options = array("timeout" => 60*60*24*5, "expire_seconds" => 60*60*24*25); //large timeout bec. the dwca_file is +1GB in size
     }
 
+    function get_dwca_download_url()
+    {
+        // <li class="box"><a href="https://collections.nmnh.si.edu/ipt/archive.do?r=nmnh_extant_dwc-a&amp;v=1.10" class="icon icon-download">DwC-A</a></li>
+        $html = Functions::lookup_with_cache($this->source_for_download_url, $this->download_options);
+        $url_without_version = "https://collections.nmnh.si.edu/ipt/archive.do?r=nmnh_extant_dwc-a&amp;v=";
+        $escapedURL = preg_quote($url_without_version, '/');
+        if(preg_match("/".$escapedURL."(.*?)\"/ims", $html, $a)) {
+            $final = $url_without_version.$a[1];
+            $final = str_ireplace("&amp;", "&", $final);
+            return $final;
+        }
+        return false;
+    }
     function start($params)
     {
         $this->uris = self::get_uris($params);
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($params["dwca_file"], "meta.xml", array("timeout" => 7200, "expire_seconds" => 60*60*24*25)); // "expire_seconds" -- 60*60*24*25 orig value; 0 => expires now
+        $paths = $func->extract_archive_file($params["dwca_file"], "meta.xml", $this->download_options); 
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         $this->harvester = new ContentArchiveReader(NULL, $archive_path);
