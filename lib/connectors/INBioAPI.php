@@ -56,12 +56,12 @@ class INBioAPI
         return $all_taxa;
     }
 
-    function extract_archive_file($dwca_file, $check_file_or_folder_name, $download_options = array('timeout' => 172800, 'expire_seconds' => 0), $force_extension = false)
+    function extract_archive_file($dwca_file, $check_file_or_folder_name, $download_options = array('timeout' => 172800, 'expire_seconds' => 0), $force_extension = false) //e.g. with force_extension is NMNHTypeRecordAPI_v2.php
     {
         debug("Please wait, downloading resource document...");
         $path_parts = pathinfo($dwca_file);
         $filename = $path_parts['basename'];
-        if($force_extension) $filename = "elix.".$force_extension; //you can just make-up a name here
+        if($force_extension) $filename = "elix.".$force_extension; //you can just make-up a filename (elix) here and add the forced extension.
         $temp_dir = create_temp_dir() . "/";
         debug($temp_dir);
         if($file_contents = Functions::lookup_with_cache($dwca_file, $download_options))
