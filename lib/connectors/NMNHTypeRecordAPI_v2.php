@@ -6,7 +6,6 @@ namespace php_active_record;
     _id,license,format,rightsHolder,title,identifier,type
     _id,license,title,format,rightsHolder,identifier,type
     
-    
 Hi Jen, good question.
 Yes there is only 1:1 per occurrence for every measurement record where "measurementOfTaxon" is TRUE.
 The other ~9 records are metadata where "measurementOfTaxon" is FALSE.
@@ -39,10 +38,8 @@ occurrenceID ========== measurementOfTaxon ========== measurementType ==========
 2826799 ========== (null) ========== http://rs.tdwg.org/dwc/terms/higherGeography ========== New Zealand; Canterbury; Governor's Bay, Near Christchurch
 2826799 ========== (null) ========== http://rs.tdwg.org/dwc/terms/country ========== New Zealand
 2826799 ========== (null) ========== http://rs.tdwg.org/dwc/terms/stateProvince ========== Canterbury
-
-    
 */
-class NMNHTypeRecordAPI
+class NMNHTypeRecordAPI_v2
 {
     function __construct($folder)
     {
@@ -52,17 +49,14 @@ class NMNHTypeRecordAPI
         $this->occurrence_ids = array();
         $this->debug = array();
         $this->typeStatus_separators = array(";", "+", " & ", " AND ", ",");
-        //for NHM
-        $this->download_options = array('expire_seconds' => false, 'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-        $this->service['specimen'] = "http://data.nhm.ac.uk/api/action/datastore_search?resource_id=05ff2255-c38a-40c9-b657-4ccb55ab2feb";
     }
 
-    function export_gbif_to_eol($params) // NMNH and NHM uses this script
+    function start($params)
     {
         $this->uris = self::get_uris($params);
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($params["dwca_file"], "meta.xml", array("timeout" => 7200, "expire_seconds" => 60*60*24*25)); // "expire_seconds" -- false => won't expire; 0 => expires now
+        $paths = $func->extract_archive_file($params["dwca_file"], "meta.xml", array("timeout" => 7200, "expire_seconds" => 60*60*24*25)); // "expire_seconds" -- 60*60*24*25 orig value; 0 => expires now
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         $this->harvester = new ContentArchiveReader(NULL, $archive_path);
@@ -158,6 +152,11 @@ class NMNHTypeRecordAPI
                             if($params["dataset"] == "NMNH")
                             {
                                 $fields["dataset"] = "NMNH";
+                                
+                                if(@$fields['http://purl.org/dc/terms/references']) print_r($fields);
+                                continue;
+                                //Yes, there is now a 'reference' field included in their occurrence extension but all have blank (null) values.
+                                
                                 if($params["type"] == "structured data")                self::create_type_records_nmnh($fields);
                                 // elseif($params["type"] == "classification resource")    self::create_classification_gbif($fields); was never used here
                             }
@@ -175,8 +174,7 @@ class NMNHTypeRecordAPI
     private function process_multiple_typestatuses($string, $sciname)
     {
         $arr = array();
-        foreach($this->typeStatus_separators as $separator)
-        {
+        foreach($this->typeStatus_separators as $separator) {
             $temp = array_map('trim', explode($separator, $string));
             $arr = array_merge($arr, $temp);
         }
@@ -189,10 +187,8 @@ class NMNHTypeRecordAPI
         {
             $info = self::format_typeStatus($value);
             $value = $info['type_status'];
-            if(self::valid_typestatus($value, $sciname))
-            {
-                foreach($this->typeStatus_separators as $separator)
-                {
+            if(self::valid_typestatus($value, $sciname)) {
+                foreach($this->typeStatus_separators as $separator) {
                     if(is_numeric(stripos($value, $separator))) $arr[$i] = null;
                 }
             }
@@ -203,8 +199,7 @@ class NMNHTypeRecordAPI
         $arr = array_unique($arr); //make unique
         $arr = array_values($arr); //reindex key
         $URIs = array();
-        foreach($arr as $typeStatus)
-        {
+        foreach($arr as $typeStatus) {
             $info = self::format_typeStatus($typeStatus);
             $typeStatus = $info['type_status'];
             $URIs[] = self::get_uri($typeStatus, "typeStatus");
@@ -235,8 +230,7 @@ class NMNHTypeRecordAPI
     {
         $no_separator = array("TYPE, NO.17 = LECTOTYPE", "TYPE, NO. 15 = LECTOTYPE", "LECTOTYPE, TYPE", "HOLOTYPE, TYPE", "SYNTYPE OF LEPRALIA ERRATA, WATERS");
         if(in_array($string, $no_separator)) return false;
-        foreach($this->typeStatus_separators as $separator)
-        {
+        foreach($this->typeStatus_separators as $separator) {
             if(is_numeric(stripos($string, $separator))) return true;
         }
         return false;
@@ -247,17 +241,7 @@ class NMNHTypeRecordAPI
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = $rec["taxon_id"];
         $taxon->scientificName  = (string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"];
-    
-        if($rec['dataset'] == "NMNH")
-        {
-            if($val = $rec["http://rs.tdwg.org/dwc/terms/scientificNameAuthorship"]) $taxon->scientificName .= " " . $val;
-        }
-        elseif($rec['dataset'] == "NHM")
-        {
-            /* this is excluded since our name matching algorithm isn't able to match names correctly to its correct taxon_concept, thus decided to strip the author part of the name. 
-            https://jira.eol.org/browse/DATA-1615?focusedCommentId=59928&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-59928 */
-        }
-        
+        if($val = $rec["http://rs.tdwg.org/dwc/terms/scientificNameAuthorship"]) $taxon->scientificName .= " " . $val;
         $taxon->kingdom         = (string) $rec["http://rs.tdwg.org/dwc/terms/kingdom"];
         $taxon->phylum          = (string) $rec["http://rs.tdwg.org/dwc/terms/phylum"];
         $taxon->class           = (string) $rec["http://rs.tdwg.org/dwc/terms/class"];
@@ -269,10 +253,8 @@ class NMNHTypeRecordAPI
         $taxon = self::check_sciname_ancestry_values($taxon);
 
         if(in_array($taxon->taxonRank, array("var.", "f.", "var"))) $taxon->taxonRank = "";
-        if($taxon->scientificName || $taxon->genus || $taxon->family || $taxon->order || $taxon->class || $taxon->phylum || $taxon->kingdom)
-        {
-            if(!isset($this->taxon_ids[$taxon->taxonID]))
-            {
+        if($taxon->scientificName || $taxon->genus || $taxon->family || $taxon->order || $taxon->class || $taxon->phylum || $taxon->kingdom) {
+            if(!isset($this->taxon_ids[$taxon->taxonID])) {
                 $this->taxon_ids[$taxon->taxonID] = '';
                 $this->archive_builder->write_object_to_file($taxon);
             }
@@ -311,37 +293,27 @@ class NMNHTypeRecordAPI
     private function create_type_records_nmnh($rec) // structured data
     {
         $rec["catnum"] = $rec[""];
-        if($rec['dataset'] == "NMNH")
-        {
-            //source
-            $collectionCode = $rec["http://rs.tdwg.org/dwc/terms/collectionCode"]; // e.g. Invertebrate Zoology
-            $coll1 = array("Amphibians & Reptiles" => "herps", "Birds" => "birds", "Botany" => "botany", "Fishes" => "fishes", "Mammals" => "mammals", "Paleobiology" => "paleo");
-            $coll2 = array("Entomology" => "ento", "Invertebrate Zoology" => "iz");
-            $colls = array_merge($coll1, $coll2);
-            if(in_array($collectionCode, array_keys($colls)))
-            {
-                if(in_array($collectionCode, array_keys($coll1)))
-                {
-                    $catalogNumber = $rec["http://rs.tdwg.org/dwc/terms/catalogNumber"]; // e.g. 537358.11032345
-                    $temp = explode(".", $catalogNumber);
-                    $id = strtolower($temp[0]);
-                    $rec["source"] = "http://collections.mnh.si.edu/search/" . $coll1[$collectionCode] . "/?nb=" . $id;
-                }
-                elseif(in_array($collectionCode, array_keys($coll2))) $rec["source"] = "http://collections.mnh.si.edu/search/" . $coll2[$collectionCode] . "/?qt=" . str_replace(" ", "+", $rec["http://rs.tdwg.org/dwc/terms/scientificName"]);
+
+        //source
+        $collectionCode = $rec["http://rs.tdwg.org/dwc/terms/collectionCode"]; // e.g. Invertebrate Zoology
+        $coll1 = array("Amphibians & Reptiles" => "herps", "Birds" => "birds", "Botany" => "botany", "Fishes" => "fishes", "Mammals" => "mammals", "Paleobiology" => "paleo");
+        $coll2 = array("Entomology" => "ento", "Invertebrate Zoology" => "iz");
+        $colls = array_merge($coll1, $coll2);
+        if(in_array($collectionCode, array_keys($colls))) {
+            if(in_array($collectionCode, array_keys($coll1))) {
+                $catalogNumber = $rec["http://rs.tdwg.org/dwc/terms/catalogNumber"]; // e.g. 537358.11032345
+                $temp = explode(".", $catalogNumber);
+                $id = strtolower($temp[0]);
+                $rec["source"] = "http://collections.mnh.si.edu/search/" . $coll1[$collectionCode] . "/?nb=" . $id;
             }
-            else
-            {
-                print_r($rec);
-                echo "\nundefined collectionCode [$collectionCode]\n"; exit;
-            }
-            $institutionCode_uri = "http://biocol.org/urn:lsid:biocol.org:col:34871";
+            elseif(in_array($collectionCode, array_keys($coll2))) $rec["source"] = "http://collections.mnh.si.edu/search/" . $coll2[$collectionCode] . "/?qt=" . str_replace(" ", "+", $rec["http://rs.tdwg.org/dwc/terms/scientificName"]);
         }
-        elseif($rec['dataset'] == "NHM")
-        {
-            // if(!$institutionCode_uri = self::get_uri($rec['institutionCode'], "institutionCode")) return;
-            if(!$institutionCode_uri = self::get_uri($rec['http://rs.tdwg.org/dwc/terms/institutionCode'], "institutionCode")) return;
-            if($val = @$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']) $rec["source"] = "http://data.nhm.ac.uk/specimen/" . $val;
+        else {
+            print_r($rec);
+            echo "\nundefined collectionCode [$collectionCode]\n"; exit;
         }
+        $institutionCode_uri = "http://biocol.org/urn:lsid:biocol.org:col:34871";
+
         
         $typeStatus_uri = false;
         $typeStatus_uri_arr = false;
