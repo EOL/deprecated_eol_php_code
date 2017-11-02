@@ -152,10 +152,10 @@ class NMNHTypeRecordAPI_v2
                             if($params["dataset"] == "NMNH")
                             {
                                 $fields["dataset"] = "NMNH";
-                                
-                                if(@$fields['http://purl.org/dc/terms/references']) print_r($fields);
-                                continue;
-                                //Yes, there is now a 'reference' field included in their occurrence extension but all have blank (null) values.
+
+                                // print_r($fields);
+                                // if(@$fields['http://purl.org/dc/terms/references']) print_r($fields);
+                                // continue;
                                 
                                 if($params["type"] == "structured data")                self::create_type_records_nmnh($fields);
                                 // elseif($params["type"] == "classification resource")    self::create_classification_gbif($fields); was never used here
