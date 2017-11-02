@@ -84,6 +84,7 @@ class DwCA_Utility
     
     function convert_archive() //same as convert_archive_by_adding_higherClassification(); just doesn't generate higherClassification
     {
+        echo "\nConverting archive to EOL DwCA...\n";
         $info = self::start();
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
@@ -96,13 +97,14 @@ class DwCA_Utility
             [2] => http://rs.tdwg.org/dwc/terms/occurrence
             [3] => http://rs.tdwg.org/dwc/terms/measurementorfact
         */
-        echo "\nConverting archive to EOL DwCA...\n";
         foreach($index as $row_type)
         {
             if(@$this->extensions[$row_type]) //process only defined row_types
             {
+                echo "\nprocessed: [$row_type]: ".@$this->extensions[$row_type]."\n";
                 self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
             }
+            else echo "\nun-processed: [$row_type]: ".@$this->extensions[$row_type]."\n";
         }
         $this->archive_builder->finalize(TRUE);
         
@@ -194,13 +196,12 @@ class DwCA_Utility
                         $c = false; break;
                     }
                 }
-                /* some reference from DwCA: http://depot.globalbioticinteractions.org/release/org/eol/eol-globi-datasets/0.5/eol-globi-datasets-0.5-darwin-core-aggregated.tar.gz
-                <field index="0" term="http://purl.org/dc/terms/identifier"/>
-                <field index="1" term="http://eol.org/schema/reference/publicationType"/>
-                <field index="2" term="http://eol.org/schema/reference/full_reference"/>
-                <field index="3" term="http://eol.org/schema/reference/primaryTitle"/>
-                <field index="4" term="http://purl.org/dc/terms/title"/>
-                */
+                // some reference from DwCA: http://depot.globalbioticinteractions.org/release/org/eol/eol-globi-datasets/0.5/eol-globi-datasets-0.5-darwin-core-aggregated.tar.gz
+                // <field index="0" term="http://purl.org/dc/terms/identifier"/>
+                // <field index="1" term="http://eol.org/schema/reference/publicationType"/>
+                // <field index="2" term="http://eol.org/schema/reference/full_reference"/>
+                // <field index="3" term="http://eol.org/schema/reference/primaryTitle"/>
+                // <field index="4" term="http://purl.org/dc/terms/title"/>
                 
                 if(in_array($field, array("accessURI","thumbnailURL","furtherInformationURL"))) {
                     if($val = @$rec[$key]) { //if not blank
@@ -213,17 +214,16 @@ class DwCA_Utility
                     }
                 }
                 
-                /* not been tested yet. Was working with $ dwca_utility.php _ 430    -> iNaturalist
-                if($class == "document") { //meaning media objecs ---> filter out duplicate data_object identifiers
-                    if($field == "identifier") $do_id = @$rec[$key];
-                    if(isset($do_ids[$do_id])) {
-                        print_r($do_ids);
-                        echo "\nduplicate [$do_id]\n";
-                        exit("\nexit now first...\n");
-                    }
-                    else $do_ids[$do_id] = '';
-                }
-                */
+                // not been tested yet. Was working with $ dwca_utility.php _ 430    -> iNaturalist
+                // if($class == "document") { //meaning media objecs ---> filter out duplicate data_object identifiers
+                //     if($field == "identifier") $do_id = @$rec[$key];
+                //     if(isset($do_ids[$do_id])) {
+                //         print_r($do_ids);
+                //         echo "\nduplicate [$do_id]\n";
+                //         exit("\nexit now first...\n");
+                //     }
+                //     else $do_ids[$do_id] = '';
+                // }
                 //#################### end some validations ----------------------------  #########################################################################
 
                 $c->$field = $rec[$key];
