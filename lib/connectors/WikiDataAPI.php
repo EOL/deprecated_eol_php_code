@@ -862,13 +862,45 @@ class WikiDataAPI
         return $media;
     }
     private function gen_agent_ids($artists, $role)
-    {
+    {   
+        /* $artists must not be:
+        Array (
+            [name] => Wikigraphists
+            [homepage] => https://en.wikipedia.org/wiki/Wikipedia:Graphics_Lab
+            [role] => creator
+        )
+        but rather:
+        Array(
+            0 => Array
+            (
+                [name] => Wikigraphists
+                [homepage] => https://en.wikipedia.org/wiki/Wikipedia:Graphics_Lab
+                [role] => creator
+            )
+        )
+        */
+        if(isset($artists['name']))
+        {
+            $temp = $artists;
+            $artists = array();
+            $artists[] = $temp;
+        }
+        
         $agent_ids = array();
         foreach($artists as $a) {
             if(!$a['name']) continue;
             $r = new \eol_schema\Agent();
             $r->term_name       = $a['name'];
-            $r->agentRole       = ($val = @$a['role']) ? $val : $role;
+            $r->agentRole       = ($val = @$a['role']) ? (string) $val : (string) $role;
+
+            /* to capture erroneous artist entries
+            if(strlen($r->agentRole) == 1)
+            {
+                print_r($artists);
+                exit("\nagent role is just 1 char\n");
+            }
+            */
+
             $r->term_homepage   = @$a['homepage'];
             $r->identifier      = md5("$r->term_name|$r->agentRole");
             $agent_ids[] = $r->identifier;
