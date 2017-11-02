@@ -58,7 +58,7 @@ class NMNHTypeRecordAPI
         $this->service['specimen'] = "http://data.nhm.ac.uk/api/action/datastore_search?resource_id=05ff2255-c38a-40c9-b657-4ccb55ab2feb";
     }
 
-    function start($params) // NMNH and NHM uses this script
+    function start($params) // NMNH and NHM uses this script --- formerly export_gbif_to_eol()
     {
         $this->uris = self::get_uris($params);
         require_library('connectors/INBioAPI');
@@ -160,6 +160,7 @@ class NMNHTypeRecordAPI
                             if($params["dataset"] == "NMNH")
                             {
                                 $fields["dataset"] = "NMNH";
+                                // print_r($fields); //good debug -- show single record or row
                                 if($params["type"] == "structured data")                self::create_type_records_nmnh($fields);
                                 // elseif($params["type"] == "classification resource")    self::create_classification_gbif($fields); was never used here
                             }
