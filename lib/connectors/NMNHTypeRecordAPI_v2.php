@@ -390,6 +390,7 @@ class NMNHTypeRecordAPI_v2
                 elseif(in_array($value, array("UNABLE TO DETERMINE", "UNCERTAIN", "SEX UNKNOWN", "UNKNOWN; UNKNOWN", "UNSEXED", "(UNSEXED)"))) $value = "UNKNOWN";
                 else {} // use verbatim value
             }
+            elseif(in_array($value, array("UNABLE TO DETERMINE", "UNCERTAIN", "SEX UNKNOWN", "UNKNOWN; UNKNOWN", "UNSEXED", "(UNSEXED)"))) $value = "UNKNOWN";
             else {} // use verbatim value
         }
         
