@@ -620,27 +620,19 @@ class WikiDataAPI
             /* WILL REMAIN INVALID: as of Oct 30
             [blank_license] => Array
                 (
-            [Mauricio Rivera Correa permission] => 
             [MLW3‬] => 
-            [Raquel Rocha Santos permission] => 
-            [Stanley Trauth permission] => 
-            [LarsCurfsCCSA3.0] => 
+            [] => 
             [dvdm-h6|migration=relicense] => 
-            [Alessandro Catenazzi permission] => 
             [BMC] => 
-            [civertan license] => 
+            [] => 
             [Zachi Evenor] => 
             [Team|event=Wikipedia Takes Waroona|team=Team Flower|id=19] => 
             [Wuzur] => 
             [<br/>(original text|nobold=1|1=Klettenlabkraut in Weizen] => 
             [Andes] => 
             [Assessments|enwiki=1|enwiki-nom=Bicolored Antbird] => 
-            [Pierre Fidenci permission] => 
-            [Diogo B. Provete permission] => 
             [Youtube|Junichi Kubota] => 
             [Personality rights] => 
-            [Josiah H. Townsend permission] => 
-            [USPresidentialTransition|source=change] => 
             [personality rights] => 
             [NO Facebook Youtube license] => 
             [spomenikSVN|7914] => 
@@ -654,9 +646,6 @@ class WikiDataAPI
             [youtube] => 
             [MUSE|OTRS=yes] => 
             [DYKfile|28 December|2006|type=image] => 
-            [Václav Gvoždík permission] => 
-            [Mehregan Ebrahimi permission] => 
-            [Vladlen Henríquez permission] => 
             [Bilderwerkstatt|editor=[[:de:Benutzer:Denis Barthel|Denis Barthel]]|orig=Yucca_recurvifolia_fh_1183.24_ALA_AAA.jpg|changes=Perspektive, Ausschnitt, kleinere Edits] => 
             [OTRS|2012011510006576] => 
             [Location dec|46.122186|7.071841|source:Flickr] => 
@@ -669,7 +658,7 @@ class WikiDataAPI
             [personality] => 
             [RetouchedPicture|Created GIF animation from sequence of images] => 
             [!-] => 
-            [Franco Andreone permission] => 
+            [] => 
             [Youtube|channelxxxvol1] => 
             [Picswiss|migration=relicense] => 
             [[[Category:Megalops atlanticus]]] => 
@@ -683,6 +672,12 @@ class WikiDataAPI
                 )
             */
             
+            //seemingly calphotos images:
+            $arr = array("Vladlen Henríquez permission", "Mehregan Ebrahimi permission", "Václav Gvoždík permission", "Diogo B. Provete permission", "Franco Andreone permission", 
+            "Josiah H. Townsend permission", "Pierre Fidenci permission", "Alessandro Catenazzi permission", "Stanley Trauth permission", 
+            "Raquel Rocha Santos permission", "Mauricio Rivera Correa permission", "LarsCurfsCCSA3.0", "civertan license");
+            if(in_array($LicenseShortName, $arr)) return $this->license['by-sa'];
+            
             // for public domain - stripos
             $pd = array();
             $pd[] = "PD-US";
@@ -693,6 +688,7 @@ class WikiDataAPI
             $pd[] = "Koninklijke Bibliotheek";
             $pd[] = "Latvian coins";
             $pd[] = "Russian museum photo";
+            $pd[] = "USPresidentialTransition";
             foreach($pd as $p) {
                 if(stripos($LicenseShortName, $p) !== false) return $this->license['public domain'];
             }
@@ -739,6 +735,7 @@ class WikiDataAPI
             ...and many many more...
             */
             if(substr(strtolower($LicenseShortName),0,5) == "user:") return "invalid"; //starts with "User:"
+
 
             $this->debug['blank_license'][$LicenseShortName] = ''; //utility debug - important
             /* finally if LicenseShortName is still undefined it will be considered 'invalid' */
@@ -2009,11 +2006,13 @@ class WikiDataAPI
 
         $arr = array("<p></p>");
         $tmp = trim(str_ireplace($arr, "", $tmp));
-        // /* debug
-        // echo "\n----------------------------------Brief Summary";
-        // echo "\n[$tmp]";
-        // echo "\n----------------------------------\n";
-        // */
+        /* debug
+        echo "\n----------------------------------Brief Summary";
+        echo "\n[".$tmp."]";
+        echo "\n---------------------------------- no tags";
+        echo "\n[".strip_tags($tmp)."]";
+        echo "\n----------------------------------\n";
+        */
         return $tmp;
     }
     
