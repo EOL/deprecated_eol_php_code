@@ -1,10 +1,9 @@
 <?php
 namespace php_active_record;
-/* */
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikiDataAPI');
 $timestart = time_elapsed();
-$resource_id = "wikimedia";
 
 /*
 $str = "abcd|e|||";
@@ -36,10 +35,11 @@ $func->process_wikimedia_txt_dump(); //initial verification of the wikimedia dum
 exit("\n Finished: just exploring... \n");
 */
 
-
 // /* main operation
-// $func = new WikiDataAPI($resource_id, "en", "taxonomy"); //3rd param is boolean taxonomy; true means will generate hierarchy resource. [wikidata-hierarchy]    //done
-$func = new WikiDataAPI($resource_id, "en", "wikimedia");     //done - Used for Commons - total taxa = 2,208,086
+$resource_id = "71"; //Wikimedia Commons is EOL resource = 71
+
+/* $func = new WikiDataAPI($resource_id, "en", "taxonomy"); //3rd param is boolean taxonomy; true means will generate hierarchy resource. [wikidata-hierarchy] */
+$func = new WikiDataAPI($resource_id, "en", "wikimedia"); //Used for Commons - total taxa = 2,208,086
 $func->get_all_taxa();
 Functions::finalize_dwca_resource($resource_id);
 // */

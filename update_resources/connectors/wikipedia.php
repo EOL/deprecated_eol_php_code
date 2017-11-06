@@ -66,6 +66,8 @@ $func = new WikiDataAPI($resource_id, "en", "wikimedia");   //done - Used for Co
 //===================
 // $func = new WikiDataAPI($resource_id, "ceb");
 
+// Wikipedia English is EOL resource_id = 80 --> http://www.eol.org/content_partners/129/resources/80
+
 // /* //----------start main operation
 $language = "ja";
 $resource_id = "wikipedia-".$language;
