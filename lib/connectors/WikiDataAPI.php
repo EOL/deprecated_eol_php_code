@@ -826,7 +826,7 @@ class WikiDataAPI
 
                 $media = self::last_quality_check($media); //removes /n and /t inside values. May revisit this as it may not be the sol'n for 2 rows with wrong no. of columns.
                 
-                $mr = new \eol_schema\MediaResource();
+                $mr = new \eol_schema\MediaResource(); //for Wikimedia objects only
                 $mr->taxonID                = $media['taxonID'];
                 $mr->identifier             = $media['identifier'];
                 $mr->type                   = $media['type'];
@@ -835,6 +835,11 @@ class WikiDataAPI
                 $mr->UsageTerms             = $media['UsageTerms'];
                 // $mr->CVterm                 = $media['CVterm'];
                 $mr->description            = $media['description'];
+                /* debug only
+                echo "\n=========================\n";
+                echo "[".$mr->description."]";
+                echo "\n=========================\n";
+                */
                 $mr->accessURI              = $media["accessURI"];
                 $mr->furtherInformationURL  = $media['furtherInformationURL'];
                 $mr->title                  = $media['title'];
@@ -1868,7 +1873,7 @@ class WikiDataAPI
         return str_replace(array("\n", "\t", "\r", chr(9), chr(10), chr(13)), "", $substr);
     }
 
-    private function create_media_object($media)
+    private function create_media_object($media) //for wikipedia only
     {
         // /*
         $row = "";
