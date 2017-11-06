@@ -487,6 +487,7 @@ class NMNHTypeRecordAPI_v2
         }
 
         if($val = @$this->uris[$value]) {
+            if($val == "use verbatim text") return trim($value);
             if(in_array($val, array("Exclude- literature dataset", "EXCLUDE"))) return '';
             else                                                                return $val; //success
         }
