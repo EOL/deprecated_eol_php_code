@@ -143,6 +143,8 @@ class NMNHTypeRecordAPI_v2
                         if($fields && $callback) call_user_func($callback, $fields, $parameters);
                         elseif($fields)
                         {
+                            print_r($fields);
+                            
                             if(!self::valid_typestatus($fields["http://rs.tdwg.org/dwc/terms/typeStatus"], $fields["http://rs.tdwg.org/dwc/terms/scientificName"])) continue;
                             $fields["taxon_id"] = self::get_taxon_id($fields);
                             
@@ -209,7 +211,7 @@ class NMNHTypeRecordAPI_v2
                 "?", "additional specimen", "an", "bleeker specimen", "c", "cited", "cited; cited; cited",
                 "figured", "figured; cited", "figured; figured", "figured; referred", "g.incrassatus and genus sphoerocephalus",
                 "juvenile", "nomen nudem", "nomenclatural standard", "pt", "referred", "referred; referred", "referred; referred; referred",
-                "schubotzi", "stated not type on evac.", "trophotype", "typestatus", "voucher");
+                "schubotzi", "stated not type on evac.", "trophotype", "typestatus", "voucher", "renamed");
         if(in_array($typestatus, $exclude)) return false;
         //ms *type (e.g., MS Holotype, MS Lectotype, MS Paralectotype, MS Paratype)
         if(substr($typestatus,0,3) == "ms " && !self::string_with_separator($typestatus)) return false;
@@ -532,29 +534,42 @@ class NMNHTypeRecordAPI_v2
         $taxon_id = $rec["taxon_id"];
         $catnum = $rec["catnum"];
         
-        if(in_array($rec["dataset"], array("NMNH", "NHM"))) $occurrence_id = $catnum;
-        else                                                $occurrence_id = $taxon_id . '_' . $catnum;
-        
-        $m = new \eol_schema\MeasurementOrFact();
-        $this->add_occurrence($taxon_id, $occurrence_id, $rec);
-        $m->occurrenceID = $occurrence_id;
-        $m->measurementOfTaxon = $measurementOfTaxon;
-        if($measurementOfTaxon ==  "true") {
-            // so that measurementRemarks (and source, contributor, etc.) appears only once in the [measurement_or_fact.tab]
-            $m->measurementRemarks = @$rec['measurement_remarks'];
-            $m->source = $rec["source"];
-            $m->contributor = @$rec["contributor"];
-            /* not used at the moment
-            if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/reference/referenceID"]))
-            {
-                $m->referenceID = $referenceID;
-            }
-            */
+        // -------------------------------------------------------------start here, check if lifeStage is multiple -------------------------------------------------------------
+        $lifeStage = strtoupper((string) $rec["http://rs.tdwg.org/dwc/terms/lifeStage"]);
+        /* There is no consistent pattern for multiple lifeStage values. Thus this is explicitly set if multiple or not. */
+        $multiple = array("CERCARIA; REDIAE", "CERCARIAE; REDIA", "CERCARIA; PARTHENITAE", "CERCARIA; SPOROCYST");
+        if(in_array($lifeStage, $multiple)) {
+            $lifeStages = explode("; ", $lifeStage);
         }
-        $m->measurementType = $measurementType;
-        $m->measurementValue = (string) $value;
-        $m->measurementMethod = '';
-        $this->archive_builder->write_object_to_file($m);
+        else $lifeStages = array($lifeStage);
+        // -------------------------------------------------------------end here, check if lifeStage is multiple -------------------------------------------------------------
+        
+        foreach($lifeStages as $lifeStage)
+        {
+            $rec["http://rs.tdwg.org/dwc/terms/lifeStage"] = $lifeStage;
+            //=========================================start of orig=========================================
+            // $occurrence_id = $catnum; //orig
+            $occurrence_id = ($lifeStage) ? $catnum."_".md5($lifeStage): $catnum;
+            
+            $m = new \eol_schema\MeasurementOrFact();
+            $this->add_occurrence($taxon_id, $occurrence_id, $rec);
+            $m->occurrenceID = $occurrence_id;
+            $m->measurementOfTaxon = $measurementOfTaxon;
+            if($measurementOfTaxon ==  "true") {
+                // so that measurementRemarks (and source, contributor, etc.) appears only once in the [measurement_or_fact.tab]
+                $m->measurementRemarks = @$rec['measurement_remarks'];
+                $m->source = $rec["source"];
+                $m->contributor = @$rec["contributor"];
+                /* not used at the moment
+                if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/reference/referenceID"])) $m->referenceID = $referenceID;
+                */
+            }
+            $m->measurementType = $measurementType;
+            $m->measurementValue = (string) $value;
+            $m->measurementMethod = '';
+            $this->archive_builder->write_object_to_file($m);
+            //=========================================endof orig=========================================
+        }
     }
 
     private function add_occurrence($taxon_id, $occurrence_id, $rec)
