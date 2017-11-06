@@ -144,10 +144,10 @@ class NMNHTypeRecordAPI_v2
                         elseif($fields)
                         {
                             //for debug only - start
-                            if(strtoupper($fields["http://rs.tdwg.org/dwc/terms/typeStatus"]) == 'RENAMED') $this->debug['RENAMED'][] $fields;
+                            if(strtoupper($fields["http://rs.tdwg.org/dwc/terms/typeStatus"]) == 'RENAMED') $this->debug['RENAMED'][] = $fields;
                             //for debug only - end
                             
-                            print_r($fields);
+                            // print_r($fields);
                             
                             if(!self::valid_typestatus($fields["http://rs.tdwg.org/dwc/terms/typeStatus"], $fields["http://rs.tdwg.org/dwc/terms/scientificName"])) continue;
                             $fields["taxon_id"] = self::get_taxon_id($fields);
