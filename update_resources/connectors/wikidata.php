@@ -37,47 +37,12 @@ exit("\n Finished: just exploring... \n");
 */
 
 
-// /* //main operation
-// $func = new WikiDataAPI($resource_id, "es");     //done final-es
-// $func = new WikiDataAPI($resource_id, "fr");     //done final-fr
-
-// $func = new WikiDataAPI("957", "de");            //done final-de
-// $func = new WikiDataAPI($resource_id, "de");            //done final-de
-
-
-// $func = new WikiDataAPI($resource_id, "ja");     //done final-ja
-// $func = new WikiDataAPI($resource_id, "it");     //done final-it
-// $func = new WikiDataAPI($resource_id, "ru");     //done final-ru
-// $func = new WikiDataAPI($resource_id, "ko");     //done final-ko
-// $func = new WikiDataAPI($resource_id, "cu");     //done final-cu ? investigate why so few...
-// $func = new WikiDataAPI($resource_id, "uk");     //done final-uk
-// $func = new WikiDataAPI($resource_id, "pl");     //done final-pl
-// $func = new WikiDataAPI($resource_id, "zh");     //done final-zh
-// $func = new WikiDataAPI($resource_id, "pt");     //done final
-// $func = new WikiDataAPI($resource_id, "en");     //done final-en
-
+// /* main operation
 // $func = new WikiDataAPI($resource_id, "en", "taxonomy"); //3rd param is boolean taxonomy; true means will generate hierarchy resource. [wikidata-hierarchy]    //done
 $func = new WikiDataAPI($resource_id, "en", "wikimedia");     //done - Used for Commons - total taxa = 2,208,086
-
-// not yet complete:
-// $func = new WikiDataAPI($resource_id, "nl");     //496940
-// $func = new WikiDataAPI($resource_id, "sv");     //317830    //still being run, many many bot inspired
-// $func = new WikiDataAPI($resource_id, "vi");     //459950
-
-//===================
-
-// $func = new WikiDataAPI($resource_id, "ceb");
-
-
 $func->get_all_taxa();
 Functions::finalize_dwca_resource($resource_id);
 // */
-
-/* final-pt
-not defined parent [Q4674600]
-not defined parent [Q18596649]
-total undefined parent_id: 2
-*/
 
 /* utility
 require_library('connectors/DWCADiagnoseAPI');
@@ -90,28 +55,6 @@ echo "\n\n";
 echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
 echo "\n Done processing.\n";
-
-/* http://opendata.eol.org/dataset/wikipedia_5k
-Data and Resources
-wikipedia-en.tar.gz
-wikipedia-es.tar.gz
-wikipedia-de.tar.gz
-wikipedia-ja.tar.gz
-wikipedia-fr.tar.gz
-
-wikipedia-zh.tar.gz Chinese
-wikipedia-pl.tar.gz Polish
-wikipedia-ko.tar.gz Korean
-wikipedia-it.tar.gz Italian
-wikipedia-ru.tar.gz Russian
-wikipedia-uk.tar.gz Ukrainian
-wikipedia-pt.tar.gz Portuguese
-wikipedia-nl.tar.gz Dutch
-wikipedia-vi.tar.gz Vietnamese
-wikipedia-sv.tar.gz Swedish
-wikipedia-cu.tar.gz Indo-European 	Church Slavic, Church Slavonic, Old Church Slavonic, Old Slavonic, Old Bulgarian
-
-*/
 
 /*
 this is a request made by wikimedia harvester (71): this 2 are same, first is a subset of the 2nd. And one is urlencoded() other is not.
