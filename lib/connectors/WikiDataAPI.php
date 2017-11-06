@@ -11,6 +11,7 @@ postponed: eliagbayani@ELIs-Mac-mini ~:
 wget    http://dumps.wikimedia.org/commonswiki/latest/commonswiki-latest-pages-articles.xml.bz2
 wget -c http://dumps.wikimedia.org/commonswiki/latest/commonswiki-latest-pages-articles.xml.bz2
 
+https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.gz
 
 https://dumps.wikimedia.org/commonswiki/20170320/commonswiki-20170320-pages-articles.xml.bz2
 wget -c https://dumps.wikimedia.org/commonswiki/20170320/commonswiki-20170320-pages-articles-multistream-index.txt.bz2
@@ -37,7 +38,9 @@ class WikiDataAPI
         $this->download_options = array('cache_path' => '/Volumes/Thunderbolt4/eol_cache_wiki_regions/', 'expire_seconds' => false, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->debug = array();
         
-        $this->wiki_data_json           = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //an all_taxon dump generated from raw [latest-all.json.gz]
+        $this->path['raw_dump']       = "/Volumes/Thunderbolt4/wikidata/latest-all.json";
+        $this->path['wiki_data_json'] = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //an all_taxon dump generated from raw [latest-all.json.gz]
+        $this->path['commons']        = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-latest-pages-articles.xml";
 
         // $this->property['taxon name'] = "P225";
         // $this->property['taxon rank'] = "P105";
@@ -202,7 +205,7 @@ class WikiDataAPI
         $actual = 0;
         $i = 0; $j = 0;
         $k = 0; $m = 4624000; $m = 300000; //only for breakdown when caching
-        foreach(new FileIterator($this->wiki_data_json) as $line_number => $row) {
+        foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
             $k++; 
             if(($k % 100000) == 0) echo " ".number_format($k)." ";
             echo " ".number_format($k)." ";
@@ -2155,8 +2158,8 @@ class WikiDataAPI
 
     private function create_all_taxon_dump() // utility to create an all-taxon dump
     {
-        $raw_dump       = "/Volumes/Thunderbolt4/wikidata/latest-all.json";       //RAW fresh dump. NOT TO USE READILY - very big with all categories not just TAXA.
-        $all_taxon_dump = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //will use this instead. An all-taxon dump
+        $raw_dump       = $this->path['raw_dump'];       //RAW fresh dump. NOT TO USE READILY - very big with all categories not just TAXA.
+        $all_taxon_dump = $this->path['wiki_data_json']; //will use this instead. An all-taxon dump
         $f = Functions::file_open($all_taxon_dump, "w");
         $e = 0; $i = 0; $k = 0;
         foreach(new FileIterator($raw_dump) as $line_number => $row) {
@@ -2219,7 +2222,7 @@ class WikiDataAPI
 
     function fill_in_temp_files_with_wikimedia_dump_data()
     {
-        $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-latest-pages-articles.xml";
+        $path = $this->path['commons']
         $reader = new \XMLReader();
         $reader->open($path);
         $i = 0;
@@ -2311,7 +2314,7 @@ class WikiDataAPI
         $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/commonswiki-20170320-pages-articles-multistream-index.txt";
         $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-20170320-pages-articles1.xml-p000000001p006457504";
         $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-20170320-pages-articles2.xml-p006457505p016129764";
-        $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-latest-pages-articles.xml";
+        $path = $this->path['commons'];
         /*
         $i = 0;
         foreach(new FileIterator($path) as $line_number => $row)
