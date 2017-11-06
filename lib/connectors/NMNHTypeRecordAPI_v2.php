@@ -143,6 +143,10 @@ class NMNHTypeRecordAPI_v2
                         if($fields && $callback) call_user_func($callback, $fields, $parameters);
                         elseif($fields)
                         {
+                            //for debug only - start
+                            if(strtoupper($fields["http://rs.tdwg.org/dwc/terms/typeStatus"]) == 'RENAMED') $this->debug['RENAMED'][] $fields;
+                            //for debug only - end
+                            
                             print_r($fields);
                             
                             if(!self::valid_typestatus($fields["http://rs.tdwg.org/dwc/terms/typeStatus"], $fields["http://rs.tdwg.org/dwc/terms/scientificName"])) continue;
@@ -531,6 +535,9 @@ class NMNHTypeRecordAPI_v2
 
     private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
     {
+        $value = trim((string) $value);
+        if(!$value) return false; //MeasurementOrFacts must have measurementValues
+        
         $taxon_id = $rec["taxon_id"];
         $catnum = $rec["catnum"];
         
@@ -565,7 +572,7 @@ class NMNHTypeRecordAPI_v2
                 */
             }
             $m->measurementType = $measurementType;
-            $m->measurementValue = (string) $value;
+            $m->measurementValue = $value;
             $m->measurementMethod = '';
             $this->archive_builder->write_object_to_file($m);
             //=========================================endof orig=========================================
