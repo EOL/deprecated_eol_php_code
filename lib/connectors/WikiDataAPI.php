@@ -2163,7 +2163,7 @@ class WikiDataAPI
         return false;
     }
 
-    private function create_all_taxon_dump() // utility to create an all-taxon dump
+    function create_all_taxon_dump() // utility to create an all-taxon dump
     {
         $raw_dump       = $this->path['raw_dump'];       //RAW fresh dump. NOT TO USE READILY - very big with all categories not just TAXA.
         $all_taxon_dump = $this->path['wiki_data_json']; //will use this instead. An all-taxon dump
