@@ -8,7 +8,6 @@ https://en.wikipedia.org/wiki/List_of_Wikipedias
 
 commons dump: https://dumps.wikimedia.org/commonswiki/20170320/
 postponed: eliagbayani@ELIs-Mac-mini ~: 
-wget    http://dumps.wikimedia.org/commonswiki/latest/commonswiki-latest-pages-articles.xml.bz2
 wget -c http://dumps.wikimedia.org/commonswiki/latest/commonswiki-latest-pages-articles.xml.bz2
 
 https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.gz
@@ -38,9 +37,11 @@ class WikiDataAPI
         $this->download_options = array('cache_path' => '/Volumes/Thunderbolt4/eol_cache_wiki_regions/', 'expire_seconds' => false, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->debug = array();
         
-        $this->path['raw_dump']       = "/Volumes/Thunderbolt4/wikidata/latest-all.json";
+        $this->path['raw_dump']       = "/Volumes/Thunderbolt4/wikidata/latest-all.json";       //from https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.gz
         $this->path['wiki_data_json'] = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //an all_taxon dump generated from raw [latest-all.json.gz]
-        $this->path['commons']        = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-latest-pages-articles.xml";
+        $this->path['commons']        = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-latest-pages-articles.xml"; //from http://dumps.wikimedia.org/commonswiki/latest/commonswiki-latest-pages-articles.xml.bz2
+        $this->path['wikimedia_cache'] = "/Volumes/Thunderbolt4/wikimedia_cache/";
+        
 
         // $this->property['taxon name'] = "P225";
         // $this->property['taxon rank'] = "P105";
@@ -2202,7 +2203,7 @@ class WikiDataAPI
         $files[] = str_replace(" ", "_", "Two Gambel's Quail (Callipepla gambelii) - Paradise Valley, Arizona, ca 2004.png");
         foreach($files as $file)
         */
-        $main_path = "/Volumes/Thunderbolt4/wikimedia_cache/";
+        $main_path = $this->path['wikimedia_cache'];
         $i = 0;
         foreach(new FileIterator(CONTENT_RESOURCE_LOCAL_PATH."wikimedia_filenames_2017_10.txt") as $line_number => $file) {
             $md5 = md5($file);
@@ -2291,7 +2292,7 @@ class WikiDataAPI
 
     private function taxon_media($title)
     {
-        $main_path = "/Volumes/Thunderbolt4/wikimedia_cache/";
+        $main_path = $this->path['wikimedia_cache'];
         $md5 = md5($title);
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
