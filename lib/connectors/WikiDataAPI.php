@@ -6,14 +6,17 @@ require_library('connectors/WikipediaRegionalAPI');
 /* 
 https://en.wikipedia.org/wiki/List_of_Wikipedias
 
-commons dump: https://dumps.wikimedia.org/commonswiki/20170320/
-postponed: eliagbayani@ELIs-Mac-mini ~: 
+commons dump: 
+https://dumps.wikimedia.org/commonswiki/
+https://dumps.wikimedia.org/commonswiki/
+https://dumps.wikimedia.org/commonswiki/
+
+
+
+
 wget -c http://dumps.wikimedia.org/commonswiki/latest/commonswiki-latest-pages-articles.xml.bz2
+wget -c https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.gz
 
-https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.gz
-
-https://dumps.wikimedia.org/commonswiki/20170320/commonswiki-20170320-pages-articles.xml.bz2
-wget -c https://dumps.wikimedia.org/commonswiki/20170320/commonswiki-20170320-pages-articles-multistream-index.txt.bz2
 
 used api for commons:
 https://commons.wikimedia.org/wiki/Commons:API/MediaWiki
@@ -2312,14 +2315,10 @@ class WikiDataAPI
     
     function process_wikimedia_txt_dump() //initial verification of the wikimedia dump file
     {
-        $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/commonswiki-20170320-pages-articles-multistream-index.txt";
-        $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-20170320-pages-articles1.xml-p000000001p006457504";
-        $path = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-20170320-pages-articles2.xml-p006457505p016129764";
         $path = $this->path['commons'];
         /*
         $i = 0;
-        foreach(new FileIterator($path) as $line_number => $row)
-        {
+        foreach(new FileIterator($path) as $line_number => $row) {
             $i++;
             // $arr = json_decode($row);
             echo "\n" . $row;
