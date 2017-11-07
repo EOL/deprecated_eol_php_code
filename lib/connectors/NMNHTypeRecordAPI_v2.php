@@ -339,7 +339,26 @@ class NMNHTypeRecordAPI_v2
             $associatedSequences = $rec["http://rs.tdwg.org/dwc/terms/associatedSequences"];
             if($associatedSequences && $associatedSequences != "Genbank:") self::add_string_types($rec, $associatedSequences, "http://rs.tdwg.org/dwc/terms/associatedSequences");
 
-            $fields = array("http://rs.tdwg.org/dwc/terms/recordNumber", "http://rs.tdwg.org/dwc/terms/otherCatalogNumbers", "http://rs.tdwg.org/dwc/terms/startDayOfYear", "http://rs.tdwg.org/dwc/terms/endDayOfYear", "http://rs.tdwg.org/dwc/terms/year", "http://rs.tdwg.org/dwc/terms/month", "http://rs.tdwg.org/dwc/terms/day", "http://rs.tdwg.org/dwc/terms/verbatimEventDate", "http://rs.tdwg.org/dwc/terms/fieldNumber", "http://rs.tdwg.org/dwc/terms/higherGeography", "http://rs.tdwg.org/dwc/terms/continent", "http://rs.tdwg.org/dwc/terms/waterBody", "http://rs.tdwg.org/dwc/terms/islandGroup", "http://rs.tdwg.org/dwc/terms/island", "http://rs.tdwg.org/dwc/terms/country", "http://rs.tdwg.org/dwc/terms/stateProvince", "http://rs.tdwg.org/dwc/terms/county", "http://rs.tdwg.org/dwc/terms/minimumElevationInMeters", "http://rs.tdwg.org/dwc/terms/maximumElevationInMeters", "http://rs.tdwg.org/dwc/terms/verbatimDepth", "http://rs.tdwg.org/dwc/terms/minimumDepthInMeters", "http://rs.tdwg.org/dwc/terms/maximumDepthInMeters", "http://rs.tdwg.org/dwc/terms/verbatimCoordinateSystem", "http://rs.tdwg.org/dwc/terms/geodeticDatum", "http://rs.tdwg.org/dwc/terms/coordinateUncertaintyInMeters", "http://rs.tdwg.org/dwc/terms/georeferenceProtocol", "http://rs.tdwg.org/dwc/terms/georeferenceRemarks", "http://rs.tdwg.org/dwc/terms/identificationQualifier");
+            //additional requirement: from https://docs.google.com/spreadsheets/d/1Wepvr0FcaY8Y-LXcAY_8NXQD2jj8p11a4bKBeCr23jM/edit?ts=5a00b75a#gid=0
+            $life_stage = $rec["http://rs.tdwg.org/dwc/terms/lifeStage"];
+            if($life_stage == 'EXUVIAE') self::add_string_types($rec, self::get_uri($life_stage, 'lifeStage'), "http://eol.org/schema/terms/bodyPart");
+                /*
+                http://eol.org/schema/terms/bodyPart
+                http://eol.org/globi/terms/bodyPart
+                http://eol.org/known_uris?page=5&uri_type_id=1
+                */
+            //end additional requirement
+
+            $fields = array("http://rs.tdwg.org/dwc/terms/recordNumber", "http://rs.tdwg.org/dwc/terms/otherCatalogNumbers", "http://rs.tdwg.org/dwc/terms/startDayOfYear", 
+                            "http://rs.tdwg.org/dwc/terms/endDayOfYear", "http://rs.tdwg.org/dwc/terms/year", "http://rs.tdwg.org/dwc/terms/month", "http://rs.tdwg.org/dwc/terms/day", 
+                            "http://rs.tdwg.org/dwc/terms/verbatimEventDate", "http://rs.tdwg.org/dwc/terms/fieldNumber", "http://rs.tdwg.org/dwc/terms/higherGeography", 
+                            "http://rs.tdwg.org/dwc/terms/continent", "http://rs.tdwg.org/dwc/terms/waterBody", "http://rs.tdwg.org/dwc/terms/islandGroup", 
+                            "http://rs.tdwg.org/dwc/terms/island", "http://rs.tdwg.org/dwc/terms/country", "http://rs.tdwg.org/dwc/terms/stateProvince", 
+                            "http://rs.tdwg.org/dwc/terms/county", "http://rs.tdwg.org/dwc/terms/minimumElevationInMeters", "http://rs.tdwg.org/dwc/terms/maximumElevationInMeters", 
+                            "http://rs.tdwg.org/dwc/terms/verbatimDepth", "http://rs.tdwg.org/dwc/terms/minimumDepthInMeters", "http://rs.tdwg.org/dwc/terms/maximumDepthInMeters", 
+                            "http://rs.tdwg.org/dwc/terms/verbatimCoordinateSystem", "http://rs.tdwg.org/dwc/terms/geodeticDatum", 
+                            "http://rs.tdwg.org/dwc/terms/coordinateUncertaintyInMeters", "http://rs.tdwg.org/dwc/terms/georeferenceProtocol", 
+                            "http://rs.tdwg.org/dwc/terms/georeferenceRemarks", "http://rs.tdwg.org/dwc/terms/identificationQualifier");
             if($rec['dataset'] == "NMNH") $fields[] = "http://rs.tdwg.org/dwc/terms/associatedMedia";
             foreach($fields as $field) {
                 if($val = $rec[$field]) self::add_string_types($rec, $val, $field);
@@ -401,35 +420,6 @@ class NMNHTypeRecordAPI_v2
         }
         
         if($field == "lifeStage") {
-            /* 
-            NMNH
-              [EXUVIAE] => 
-              [HALF-GROWN] => 
-              [; JUVENILE; LARVAE V] => 
-              [OVIGEROUS; LARVAE V] => 
-              [; AMPLEXUS] => 
-              [I; II; OVIGEROUS;] => 
-              [I; OVIGEROUS;] => 
-              [I; OVIGEROUS] => 
-              [I; II; OVIGEROUS] => 
-              [II; OVIGEROUS] => 
-              [NEUTER] => 
-              [; NEUTER] => 
-              [; OVIGEROUS; SUBADULT] => 
-              [METAMORPH, LARVAE] => 
-              [YOUNG OF THE YEAR] => 
-              [FIRST YEAR] => 
-              [; OVIGEROUS; PRANIZA] => 
-              [; IMMATURE; JUVENILE; MANCA] => 
-              [; IMMATURE; JUVENILE] => 
-              [PREMATURE; JUVENILE] => 
-              [AGED] => 
-            */
-
-            /*
-            */
-
-            
             $value = str_replace(";;", ";", $value);
             $value = str_replace(";;", ";", $value);
             $value = str_ireplace("JUVENILES", "JUVENILE", $value);
@@ -533,6 +523,18 @@ class NMNHTypeRecordAPI_v2
         return false;
     }
 
+    private function put_in_measurementRemarks($rec) //based here: https://docs.google.com/spreadsheets/d/1Wepvr0FcaY8Y-LXcAY_8NXQD2jj8p11a4bKBeCr23jM/edit?ts=5a00b75a#gid=0
+    {
+        $life_stage = $rec["http://rs.tdwg.org/dwc/terms/lifeStage"];
+        //where lifeStage is these; put verbatim text in measurementRemarks
+        if(in_array($life_stage, array("MATURE SPORES", "PROTOZOAN STAGE SPORES", "FIRST YEAR", "HALF-GROWN")))
+        {
+            if($val = @$rec['measurement_remarks']) $rec['measurement_remarks'] .= ". Life stage ($life_stage).";
+            else                                    $rec['measurement_remarks'] = "Life stage ($life_stage).";
+            $rec = array_map('trim', $rec);
+        }
+        return $rec;
+    }
     private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
     {
         $value = trim((string) $value);
@@ -554,6 +556,8 @@ class NMNHTypeRecordAPI_v2
         foreach($lifeStages as $lifeStage)
         {
             $rec["http://rs.tdwg.org/dwc/terms/lifeStage"] = $lifeStage;
+            $rec = self::put_in_measurementRemarks($rec);
+            
             //=========================================start of orig=========================================
             // $occurrence_id = $catnum; //orig
             $occurrence_id = ($lifeStage) ? $catnum."_".md5($lifeStage): $catnum;
