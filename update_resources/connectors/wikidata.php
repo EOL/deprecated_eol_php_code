@@ -24,14 +24,6 @@ exit("\n");
 
 /* utility
 $func = new WikiDataAPI($resource_id, "");
-//these 2 functions are ran one after the other, preferably. This is process a new WikiMedia dump
-$func->create_temp_files_based_on_wikimedia_filenames();     //create blank json files
-$func->fill_in_temp_files_with_wikimedia_dump_data();        //fill-in those blank json files
-exit("\n Finished preparing new WikiMedia dump \n");
-*/
-
-/* utility
-$func = new WikiDataAPI($resource_id, "");
 $func->process_wikimedia_txt_dump(); //initial verification of the wikimedia dump file. Not part of the normal operation
 exit("\n Finished: just exploring... \n");
 */
@@ -52,8 +44,16 @@ if(@$cmdline_params['task'] == "generate_resource") {
     $func->generate_resource();
     Functions::finalize_dwca_resource($resource_id);
 }
-elseif(@$cmdline_params['task'] == "create_all_taxon_dump")  $func->create_all_taxon_dump();
-elseif(@$cmdline_params['task'] == "save_all_media_filenames")  $func->save_all_media_filenames();
+elseif(@$cmdline_params['task'] == "create_all_taxon_dump")         $func->create_all_taxon_dump();     //step 1 (ran 1 connector)
+elseif(@$cmdline_params['task'] == "save_all_media_filenames")      $func->save_all_media_filenames();  //step 2 (ran 4 connectors bec of lookup caching. Then ran 1 connector to finalize.)
+elseif(@$cmdline_params['task'] == "create_then_fill_commons_data")                                     //step 3 (ran 1 connector)
+{
+    $func = new WikiDataAPI($resource_id, "");
+    //these 2 functions are ran one after the other, preferably. This is to process a new WikiMedia dump
+    $func->create_temp_files_based_on_wikimedia_filenames();     //create blank json files
+    $func->fill_in_temp_files_with_wikimedia_dump_data();        //fill-in those blank json files
+    echo("\n ==Finished preparing new WikiMedia dump== \n");
+}
 
 
 // */

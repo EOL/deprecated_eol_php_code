@@ -36,7 +36,7 @@ class WikiDataAPI
         /* local
         $this->path['raw_dump']         = "/Volumes/Thunderbolt4/wikidata/latest-all.json";       //from https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.gz
         $this->path['wiki_data_json']   = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //an all_taxon dump generated from raw [latest-all.json.gz]
-        $this->path['commons']          = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-latest-pages-articles.xml"; //from http://dumps.wikimedia.org/commonswiki/latest/commonswiki-latest-pages-articles.xml.bz2
+        $this->path['commons']          = "/Volumes/Thunderbolt4/wikidata/wikimedia/commonswiki-latest-pages-articles.xml"; //from http://dumps.wikimedia.org/commonswiki/latest/commonswiki-latest-pages-articles.xml.bz2
         $this->path['wikimedia_cache']  = "/Volumes/Thunderbolt4/wikimedia_cache/";
         $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache_wiki_regions/";
         */
