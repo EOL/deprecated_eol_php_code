@@ -6,17 +6,10 @@ require_library('connectors/WikipediaRegionalAPI');
 /* 
 https://en.wikipedia.org/wiki/List_of_Wikipedias
 
-commons dump: 
-https://dumps.wikimedia.org/commonswiki/
-https://dumps.wikimedia.org/commonswiki/
-https://dumps.wikimedia.org/commonswiki/
+commons dump: https://dumps.wikimedia.org/commonswiki/
 
-
-
-
-wget -c http://dumps.wikimedia.org/commonswiki/latest/commonswiki-latest-pages-articles.xml.bz2
+wget -c https://dumps.wikimedia.org/commonswiki/latest/commonswiki-latest-pages-articles.xml.bz2
 wget -c https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.gz
-
 
 used api for commons:
 https://commons.wikimedia.org/wiki/Commons:API/MediaWiki
