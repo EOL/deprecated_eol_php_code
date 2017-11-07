@@ -2229,7 +2229,7 @@ class WikiDataAPI
 
     function fill_in_temp_files_with_wikimedia_dump_data()
     {
-        $path = $this->path['commons']
+        $path = $this->path['commons'];
         $reader = new \XMLReader();
         $reader->open($path);
         $i = 0;

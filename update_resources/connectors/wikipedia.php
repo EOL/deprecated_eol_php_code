@@ -72,7 +72,7 @@ $func = new WikiDataAPI($resource_id, "en", "wikimedia");   //done - Used for Co
 $language = "ja";
 $resource_id = "wikipedia-".$language;
 $func = new WikiDataAPI($resource_id, $language); //generic call
-$func->get_all_taxa();
+$func->generate_resource();
 Functions::finalize_dwca_resource($resource_id);
 // ----------end main operation */
 
