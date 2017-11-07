@@ -30,15 +30,25 @@ class WikiDataAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         $this->object_ids = array();
-        $this->download_options = array('cache_path' => '/Volumes/Thunderbolt4/eol_cache_wiki_regions/', 'expire_seconds' => false, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->debug = array();
+        $this->download_options = array('expire_seconds' => false, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         
-        $this->path['raw_dump']       = "/Volumes/Thunderbolt4/wikidata/latest-all.json";       //from https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.gz
-        $this->path['wiki_data_json'] = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //an all_taxon dump generated from raw [latest-all.json.gz]
-        $this->path['commons']        = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-latest-pages-articles.xml"; //from http://dumps.wikimedia.org/commonswiki/latest/commonswiki-latest-pages-articles.xml.bz2
-        $this->path['wikimedia_cache'] = "/Volumes/Thunderbolt4/wikimedia_cache/";
+        /* local
+        $this->path['raw_dump']         = "/Volumes/Thunderbolt4/wikidata/latest-all.json";       //from https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.gz
+        $this->path['wiki_data_json']   = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //an all_taxon dump generated from raw [latest-all.json.gz]
+        $this->path['commons']          = "/Volumes/Thunderbolt4/wikidata/wikimedia/pages-articles.xml.bz2/commonswiki-latest-pages-articles.xml"; //from http://dumps.wikimedia.org/commonswiki/latest/commonswiki-latest-pages-articles.xml.bz2
+        $this->path['wikimedia_cache']  = "/Volumes/Thunderbolt4/wikimedia_cache/";
+        $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache_wiki_regions/";
+        */
         
-
+        // /* eol-archive
+        $this->path['raw_dump']         = "/extra/dumps/wikidata/latest-all.json";
+        $this->path['wiki_data_json']   = "/extra/dumps/wikidata/latest-all-taxon.json";
+        $this->path['commons']          = "/extra/dumps/wikidata/wikimedia/commonswiki-latest-pages-articles.xml";
+        $this->path['wikimedia_cache']  = "/extra/wikimedia_cache/";
+        $this->download_options['cache_path'] = "/extra/eol_cache_wiki_regions/";
+        // */
+        
         // $this->property['taxon name'] = "P225";
         // $this->property['taxon rank'] = "P105";
 
@@ -58,7 +68,7 @@ class WikiDataAPI
         $this->license['no restrictions'] = "No known copyright restrictions";
     }
 
-    function get_all_taxa()
+    function generate_resource()
     {
         /* VERY IMPORTANT - everytime we get a fresh new wikidata dump. The raw dump has all categories not just taxa.
         This utility will create an all-taxon dump, which our connector will use.

@@ -35,13 +35,23 @@ $func->process_wikimedia_txt_dump(); //initial verification of the wikimedia dum
 exit("\n Finished: just exploring... \n");
 */
 
+// print_r($argv);
+$cmdline_params['jenkins_or_cron']  = @$argv[1];
+$cmdline_params['task']             = @$argv[2];
+print_r($cmdline_params);
+
+
 // /* main operation
 $resource_id = "71"; //Wikimedia Commons is EOL resource = 71
 
 /* $func = new WikiDataAPI($resource_id, "en", "taxonomy"); //3rd param is boolean taxonomy; true means will generate hierarchy resource. [wikidata-hierarchy] */
 $func = new WikiDataAPI($resource_id, "en", "wikimedia"); //Used for Commons - total taxa = 2,208,086
-$func->get_all_taxa();
-Functions::finalize_dwca_resource($resource_id);
+
+if(@$cmdline_params['task'] == "generate_resource") {
+    $func->generate_resource();
+    Functions::finalize_dwca_resource($resource_id);
+}
+elseif(@$cmdline_params['task'] == "create_all_taxon_dump")  $func->create_all_taxon_dump();
 // */
 
 /* utility
