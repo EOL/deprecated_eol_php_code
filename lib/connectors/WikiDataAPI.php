@@ -68,6 +68,17 @@ class WikiDataAPI
         $this->license['no restrictions'] = "No known copyright restrictions";
     }
 
+    function save_all_media_filenames() //one of pre-requisite steps
+    {
+        //initialize:
+        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_" . date("Y_m") . ".txt";
+        if(!($f = Functions::file_open($txtfile, "w"))) return;
+        fclose($f);
+        echo "\n-Filename created OK\n";
+        
+        $this->save_all_filenames = true; //use to save all media filenames to text file
+        self::parse_wiki_data_json();
+    }
     function generate_resource()
     {
         /* VERY IMPORTANT - everytime we get a fresh new wikidata dump. The raw dump has all categories not just taxa.

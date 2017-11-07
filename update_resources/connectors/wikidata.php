@@ -4,6 +4,7 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikiDataAPI');
 $timestart = time_elapsed();
+$GLOBALS['ENV_DEBUG'] = true;
 
 /*
 $str = "abcd|e|||";
@@ -52,6 +53,9 @@ if(@$cmdline_params['task'] == "generate_resource") {
     Functions::finalize_dwca_resource($resource_id);
 }
 elseif(@$cmdline_params['task'] == "create_all_taxon_dump")  $func->create_all_taxon_dump();
+elseif(@$cmdline_params['task'] == "save_all_media_filenames")  $func->save_all_media_filenames();
+
+
 // */
 
 /* utility
