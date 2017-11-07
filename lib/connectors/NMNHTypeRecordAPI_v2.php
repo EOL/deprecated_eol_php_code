@@ -343,8 +343,7 @@ class NMNHTypeRecordAPI_v2
             $life_stage = $rec["http://rs.tdwg.org/dwc/terms/lifeStage"];
             if($life_stage == 'EXUVIAE') self::add_string_types($rec, self::get_uri($life_stage, 'lifeStage'), "http://eol.org/schema/terms/bodyPart");
                 /*
-                http://eol.org/schema/terms/bodyPart
-                http://eol.org/globi/terms/bodyPart
+                http://eol.org/globi/terms/bodyPart - should be phased out as advised by Jen. Never use.
                 http://eol.org/known_uris?page=5&uri_type_id=1
                 */
             //end additional requirement
