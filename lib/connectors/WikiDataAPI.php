@@ -222,35 +222,34 @@ class WikiDataAPI
         $exit_now = false; //only used during debug
         $actual = 0;
         $i = 0; $j = 0;
-        $k = 0; $m = 4624000; $m = 300000; //only for breakdown when caching
+        $k = 0; $m = 250000; //only for breakdown when caching
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
             $k++; 
             if(($k % 100000) == 0) echo " ".number_format($k)." ";
             echo " ".number_format($k)." ";
-            /* breakdown when caching:
+            // /* breakdown when caching:
             $cont = false;
-            // if($k >=  1    && $k < $m) $cont = true; done
-            // if($k >=  $m   && $k < $m*2) $cont = true; done
-            // if($k >=  $m*2 && $k < $m*3) $cont = true; done
-            // if($k >=  $m*3 && $k < $m*4) $cont = true;  done
-            // if($k >=  $m*4 && $k < $m*5) $cont = true; done
+            // if($k >=  1    && $k < $m) $cont = true;
+            if($k >=  $m   && $k < $m*2) $cont = true;
+            // if($k >=  $m*2 && $k < $m*3) $cont = true;
+            // if($k >=  $m*3 && $k < $m*4) $cont = true;
+            // if($k >=  $m*4 && $k < $m*5) $cont = true;
             // if($k >=  $m*5 && $k < $m*6) $cont = true;
-            // if($k >=  $m*6 && $k < $m*7) $cont = true; done
-            // if($k >=  $m*7 && $k < $m*8) $cont = true;   done
-            // if($k >=  2400000 && $k < 3000000) $cont = true; //2,400,000 - 3,000,000 done
+            // if($k >=  $m*6 && $k < $m*7) $cont = true;
+            // if($k >=  $m*7 && $k < $m*8) $cont = true;
 
             // these 3 have many pages, but just a stub page with under-construction feel
             // if($k >= 1132112 && $k < $m*5) $cont = true; // nl
             // if($k >= 601476 && $k < $m*5) $cont = true; // sv
             // if($k >= 1154430 && $k < $m*5) $cont = true; // vi
 
-            if($k >= 1 && $k < 50000) $cont = true;   //wikimedia total taxa = 2,208,086
-            else break;
+            // if($k >= 1 && $k < 50000) $cont = true;   //wikimedia total taxa = 2,208,086
+            // else break;
             
             // if($k >= 1000000) $cont = true;   //wikimedia total taxa = 2,208,086
             
             if(!$cont) continue;
-            */
+            // */
 
             if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
             {
