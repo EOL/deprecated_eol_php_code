@@ -68,6 +68,8 @@ class NMNHTypeRecordAPI_v2
     }
     function start($params)
     {
+        $this->debug['RENAMED'] = array(); //debug stats only
+        
         $this->uris = self::get_uris($params);
         // print_r($this->uris); exit;
         require_library('connectors/INBioAPI');
@@ -675,19 +677,6 @@ class NMNHTypeRecordAPI_v2
         elseif($value == "ISTOTYPE")                                        $value = "ISOTYPE";
         elseif($value == "PARATYPE (ALLOTYPE)")                             $value = "ALLOTYPE";
 
-        //Nov 2, 2017
-        elseif($value == "PHOTOPARATYPE") $value = "PHOTOPARATYPE";
-        elseif($value == "PHOTOTYPE") $value = "PHOTOTYPE";
-        elseif($value == "PHOTONEOTYPE") $value = "PHOTONEOTYPE";
-        elseif($value == "PHOTOSYNTYPE") $value = "PHOTOSYNTYPE";
-        elseif($value == "PHOTONEOSYNTYPE") $value = "PHOTONEOSYNTYPE";
-        elseif($value == "NEOPARAHAPANTOTYPE") $value = "NEOPARAHAPANTOTYPE";
-        elseif($value == "LECTOHAPANTOTYPE") $value = "LECTOHAPANTOTYPE";
-        elseif($value == "PARANEOHAPANTOTYPE") $value = "PARANEOHAPANTOTYPE";
-        elseif($value == "PHOTOHAPANTOTYPE") $value = "PHOTOHAPANTOTYPE";
-        elseif($value == "PARALECTOHAPANTOTYPE") $value = "PARALECTOHAPANTOTYPE";
-
-        
         elseif(in_array($value, array("PARATYPE #5", "PARATYPE V", "PARATYPE I", "PARATYPE II", "PARATYPE #2", "PARATYPE #3", "PARATYPE (NO.52)", "PARATYPE #1", "PARATYPE #9", "PARATYPE III", "PARATYPE II AND III", "PARATYPE III AND IV", "PARATYPE #10", "PARATYPE #7", "PARATYPE #4", "PARATYPE #6", "PARATYPE (NO.65)", "PARATYPE #8", "PARAYPE", "PARATYPE)"))) $value = "PARATYPE";
         return array("type_status" => $value, "measurement_remarks" => $measurement_remarks);
     }

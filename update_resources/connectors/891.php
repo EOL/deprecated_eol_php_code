@@ -41,7 +41,7 @@ $params["resource_id"]  = 891;
 
 $resource_id = $params["resource_id"];
 
-// $func = new NMNHTypeRecordAPI($resource_id); //old
+// $func = new NMNHTypeRecordAPI($resource_id); //old, obsolete for NMNH
 $func = new NMNHTypeRecordAPI_v2($resource_id); //latest, but based from the old one
 
 // /* debug - un-comment in real operation
