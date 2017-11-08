@@ -11,14 +11,13 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/FreeDataAPI');
 $timestart = time_elapsed();
 
-// /*
-//local - during development
+/* local - during development
 $local_path = "/Library/WebServer/Documents/cp/FreshData/eMammal";
-// */
-
-/*
-//remote - actual
 */
+
+// /* remote - actual
+$local_path = "/extra/other_files/FreshData/eMammal";
+// */
 
 $func = new FreeDataAPI("eMammal");
 $func->generate_eMammal_archive($local_path);
