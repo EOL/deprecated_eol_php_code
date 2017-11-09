@@ -1330,7 +1330,7 @@ class WikiDataAPI
         // <td lang="en">Author</td> 
         // <td><a href="https://commons.wikimedia.org/wiki/User:Sardaka" title="User:Sardaka">Sardaka</a></td> 
         if(preg_match("/>Author<\/td>(.*?)<\/td>/ims", $description, $a)) {
-            echo "\nelix 111\n";
+            // echo "\nelix 111\n";
             $temp = $a[1];
             $final = array(); $atemp = array();
             if(preg_match("/href=\"(.*?)\"/ims", $temp, $a)) $atemp['homepage'] = trim($a[1]);
@@ -1340,7 +1340,7 @@ class WikiDataAPI
                 return $final;
             }
             else {
-                echo "\nelix 222\n";
+                // echo "\nelix 222\n";
                 // <td lang="en">Author</td>
                 // <td>Museo Nacional de Chile.</td>
                 // echo("\n[@$a[1]]\n");
@@ -1348,7 +1348,7 @@ class WikiDataAPI
                     $final[] = array('name' => $name);
                     return $final;
                 }
-                else echo "\nelix 333\n";
+                // else echo "\nelix 333\n";
             }
         }
 
@@ -1359,7 +1359,7 @@ class WikiDataAPI
         */
         
         elseif(preg_match("/Photographer<\/td>(.*?)<\/td>/ims", $description, $a)) { //<td >Photographer</td> <td>Hans Hillewaert</td>
-            echo "\nelix 333 333\n";
+            // echo "\nelix 333 333\n";
             $temp = $a[1];
             $final = array(); $atemp = array();
             if(preg_match("/href=\"(.*?)\"/ims", $temp, $a)) $atemp['homepage'] = trim($a[1]);
@@ -1370,11 +1370,11 @@ class WikiDataAPI
             }
         }
         else {
-            echo "\nelix 555\n";
+            // echo "\nelix 555\n";
             // echo "\n$description\n";
             // wiki/User:Bewareofdog" title="en:User:Bewareofdog"
             if(preg_match("/wiki\/User\:(.*?)\"/ims", $description, $a)) {
-                echo "\nelix 444\n";
+                // echo "\nelix 444\n";
                 $final[] = array('name' => $a[1], 'homepage' => "https://commons.wikimedia.org/wiki/User:".$a[1]);
                 // print_r($final); exit("\n$description\n");
                 return $final;
@@ -1599,7 +1599,7 @@ class WikiDataAPI
 
             $arr = array_values($arr["query"]["pages"]);
             $arr = $arr[0];
-            echo "\nresult: " . count($arr) . "\n";
+            debug("\nresult: " . count($arr) . "\n");
             // print_r($arr); //exit;
             if(!isset($arr['pageid'])) return array();
             $rek['pageid'] = self::format_wiki_substr($arr['pageid']);
@@ -1653,13 +1653,13 @@ class WikiDataAPI
             if(!@$rek['Artist'])
             {
                 $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']);
-                echo "\n ice 111\n";
+                // echo "\n ice 111\n";
                 if(self::invalid_artist_name_value($rek)) $rek['Artist'] = array();
             }
             if(!@$rek['Artist']) {
                 if($val = @$arr['imageinfo'][0]['extmetadata']['Credit']['value']) {
                     $val = str_ireplace("\n", "", $val);
-                    echo "\n ice 222\n";
+                    // echo "\n ice 222\n";
                     $credit_value = strip_tags($val);
                     if(stripos($credit_value, "http://wellcomeimages.org") !== false) $rek['Artist'][] = array('name' => 'Wellcome Images', 'homepage' => 'http://wellcomeimages.org', 'role' => 'source');
                     elseif(stripos($credit_value, "by the British Library") !== false) $rek['Artist'][] = array('name' => 'The British Library', 'homepage' => 'https://www.bl.uk/', 'role' => 'source');
@@ -1668,11 +1668,11 @@ class WikiDataAPI
                 if(self::invalid_artist_name_value($rek)) $rek['Artist'] = array();
             }
             if(!@$rek['Artist']) { //e.g. Files from Wellcome Images
-                echo "\n ice 333\n";
+                // echo "\n ice 333\n";
                 if($val = self::get_artist_from_special_source(@$arr['imageinfo'][0]['extmetadata']['Categories']['value'], $rek['title'])) $rek['Artist'][] = $val; //get_media_metadata_from_api()
             }
             if(!@$rek['Artist']) {
-                echo "\n ice 444\n";
+                // echo "\n ice 444\n";
                 if($val = self::get_artist_from_special_source($rek['ImageDescription'])) $rek['Artist'][] = $val; //get_media_metadata_from_api()
             }
             
