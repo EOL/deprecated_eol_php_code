@@ -440,339 +440,6 @@ class WikiDataAPI
         return true;
     }
     
-    private function format_license($license, $LicenseShortName="")
-    {
-        $license          = self::clean_html($license);
-        $LicenseShortName = self::clean_html($LicenseShortName);
-        //regular EOL licenses
-        if(stripos($license, "creativecommons.org/licenses/publicdomain/") !== false)   return $this->license['public domain'];
-        if(stripos($license, "creativecommons.org/licenses/by/") !== false)             return $this->license['by'];
-        if(stripos($license, "creativecommons.org/licenses/by-nc/") !== false)          return $this->license['by-nc'];
-        if(stripos($license, "creativecommons.org/licenses/by-sa/") !== false)          return $this->license['by-sa'];
-        if(stripos($license, "creativecommons.org/licenses/by-nc-sa/") !== false)       return $this->license['by-nc-sa'];
-        
-        if(stripos($license, "gpl") !== false) {
-            $this->debug['gpl count']++;
-            return "invalid";
-        }
-
-        //others...
-        if($license == "http://creativecommons.org/licenses/by-sa")          return $this->license['by-sa']; //exact match
-        if(stripos($license, "creativecommons.org/publicdomain/") !== false) return $this->license['public domain'];
-        if(stripos($license, "creativecommons.org/licenses/sa/") !== false)  return $this->license['by-sa']; //[http://creativecommons.org/licenses/sa/1.0/]
-        if($license == "http://creativecommons.org/licenses/by")             return $this->license['by']; //exact match
-        if($license == "https://www.flickr.com/commons/usage/")              return $this->license['public domain']; //exact match
-        if(urldecode($license) == "http://biodivlib.wikispaces.com/Permissions#Content provided under Due Diligence") return $this->license['no restrictions']; //exact match
-        if($license == "http://wiki.data.gouv.fr/wiki/Licence_Ouverte_/_Open_Licence") return $this->license['public domain']; //exact match
-
-        //should be invalid per Jen:
-        if(stripos($license, "creativecommons.org/licenses/by-nc-nd/") !== false) return "invalid";
-        if(stripos($license, "commons.wikimedia.org/wiki/File:") !== false) return "invalid";
-        $proven_invalid_licenseurl = array("http://www.gnu.org/copyleft/fdl.html", "http://www.gnu.org/licenses/old-licenses/fdl-1.2.html", "http://www.gnu.org/licenses/gpl.html",
-        "www.gnu.org/licenses/fdl-1.3.html", "http://artlibre.org/licence/lal/en", "http://www.gnu.org/licenses/lgpl.html");
-        if(in_array($license, $proven_invalid_licenseurl)) return "invalid";
-        
-        // added Oct 16, 2017
-        if(stripos($license, "nationalarchives.gov.uk/doc/open-government-licence") !== false) return "invalid"; //"http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3"
-
-        //blank license
-        if(!$license) {
-            if(in_array($LicenseShortName, array("Public domain", "cc0"))) return $this->license['public domain'];
-
-            //multiple shortnames separated by "|"
-            $shortnames = explode("|", strtolower($LicenseShortName)); //"self|Cc-zero"
-            foreach($shortnames as $shortname) {
-                if(in_array($shortname, array("cc-zero", "cc0", "cc-0")))    return $this->license['public domain'];
-                if(substr($shortname,0,3) == "pd-")                          return $this->license['public domain']; //"PD-self" "PD-author" "pd-???" etc.
-                if(stripos($shortname, "bild-pd") !== false)                 return $this->license['public domain'];
-                if($shortname == "attribution")                              return $this->license['by'];
-                if(substr($shortname,0,14) == strtolower("public domain "))  return $this->license['public domain']; // e.g. "Public Domain Mark"
-                if(substr($shortname,0,3) == strtolower("pd/"))              return $this->license['public domain']; // e.g. "Pd/1923|1982"
-                if($shortname == strtolower("FlickrVerifiedByUploadWizard")) return $this->license['by'];
-
-                if(substr($shortname,0,6) == "cc-by-")                          return $this->license['by'];
-                if(substr($shortname,0,9) == "cc-by-nc-")                       return $this->license['by-nc'];
-                if(substr($shortname,0,9) == "cc-by-sa-")                       return $this->license['by-sa'];
-                if(substr($shortname,0,12) == "cc-by-nc-sa-")                   return $this->license['by-nc-sa'];
-                if(stripos($shortname, "self|own-pd") !== false)                return $this->license['public domain'];
-                if(stripos($shortname, "no known copyright restriction") !== false) return $this->license['no restrictions'];
-                if(stripos($shortname, "BHL-no known restriction") !== false)       return $this->license['no restrictions'];
-            }
-            
-            //should be invalid per Jen
-            if(!$LicenseShortName) return "invalid";
-            if(stripos($LicenseShortName, "Custom license marker") !== false) return "invalid";
-            if(stripos($LicenseShortName, "ExtractedFromNSRW") !== false) return "invalid";
-            if(stripos($LicenseShortName, "copyright protection") !== false) return "invalid";
-            if(stripos($LicenseShortName, "Copyrighted") !== false) return "invalid";
-            if(stripos($LicenseShortName, "FOLP|") !== false) return "invalid";
-            if(stripos($LicenseShortName, "GFDL") !== false) return "invalid";
-            if(stripos($LicenseShortName, "self|") !== false) return "invalid";
-            if(stripos($LicenseShortName, "User:Flickr") !== false) return "invalid";
-            if(stripos($LicenseShortName, "User:Ksd5") !== false) return "invalid";
-            if(stripos($LicenseShortName, " Monet ") !== false) return "invalid";
-            if(stripos($LicenseShortName, "Bild-") !== false) return "invalid";
-            if(stripos($LicenseShortName, "Pixabay|") !== false) return "invalid";
-            if(stripos($LicenseShortName, "illustration of the Saxaul Sparrow") !== false) return "invalid";
-            $invalid_exact = array("BSD", "FAL", "Faroe stamps", "Fotothek-License", "FWS Image", "GPL", "NARA-cooperation", "NAUMANN", "NPS", "Parasite", "unsplash", "WikiAfrica/TNA", "јв-ја");
-            foreach($invalid_exact as $exact) {
-                if($exact == $LicenseShortName) return "invalid";
-            }
-            // [Information|Description=en|1=An illustration of the Saxaul Sparrow (''Passer ammondendri'', called the "Turkestan Sparrow" in the book the illustration was published in)]
-            
-            //added Oct 16, 2017
-            if(stripos($LicenseShortName, "Permission= publiek domein") !== false) return $this->license['public domain'];
-            if(stripos($LicenseShortName, " PD-old") !== false) return $this->license['public domain']; //"# PD-old"
-            if(stripos($LicenseShortName, " PD-US") !== false) return $this->license['public domain']; //"<!-- PD-US"
-            if(stripos($LicenseShortName, "Template:PD-") !== false) return $this->license['public domain']; //    [Template:PD-Australia] => 
-            if(stripos($LicenseShortName, "Brooklyn_Museum-no_known_restriction") !== false) return $this->license['no restrictions']; //"Brooklyn_Museum-no_known_restrictions"
-            if(stripos($LicenseShortName, "CDC-PHIL|") !== false) return $this->license['public domain']; //"CDC-PHIL|id=2741"
-            if(stripos($LicenseShortName, "Massel_tow_Credit") !== false) return "invalid"; //"Template:Massel_tow_Credit"
-            if(stripos($LicenseShortName, "Blacknclick") !== false) return "invalid"; //[User:Blacknclick/Permission]
-            if($LicenseShortName == "FWS") return $this->license['public domain']; //exact match
-            if($LicenseShortName == "FCO") return "invalid"; //exact match --- invalid coz OGL something...
-            if(stripos($LicenseShortName, "OGL|") !== false) return "invalid"; //[OGL|1=Photo: MoD/MOD] --- invalid coz OGL
-            if($LicenseShortName == "OGL") return "invalid"; //exact match
-            if(stripos($LicenseShortName, "KOGL-") !== false) return "invalid"; //[KOGL-type1]
-            if($LicenseShortName == "PAOC") return "invalid"; //exact match
-            if($LicenseShortName == "LGPL") return "invalid"; //exact match
-            if($LicenseShortName == "LarsenCopyright") return "invalid"; //exact match
-            if($LicenseShortName == "Attribution Entomart") return "invalid"; //exact match
-            if(stripos($LicenseShortName, "CC-BY-2.0 stated") !== false) return $this->license['by']; //[(photo: CC-BY-2.0 stated)PD-US] => 
-            if($LicenseShortName == "Flickr-Brooklyn-Museum-image") return $this->license['by-sa']; //exact match
-            if(stripos($LicenseShortName, "license=GPL") !== false) return "invalid"; //[Free screenshot|license=GPL] => 
-            if(stripos($LicenseShortName, "Jim Deacon") !== false) return "invalid"; //[=From the website of the author:"IMPORTANT: COPYRIGHT WAIVERAll of the author's images are shown as [© Jim Deacon]. They can be used freely, for any purpose, without restriction.Please ACKNOWLEDGE THE SOURCE AS: Courtesy of Jim Deacon, The University of Edinburg" http://helios.bto.ed.ac.uk/bto/FungalBiology/index.htm#top== int:license-header] => 
-            if($LicenseShortName == "NOAA") return $this->license['public domain']; //exact match
-            if($LicenseShortName == "anonymous-EU") return $this->license['public domain']; //exact match
-            if($LicenseShortName == "AerialPhotograph-mlitJP") return "invalid"; //exact match
-            if(stripos($LicenseShortName, "flickrreview|Leoboudv|") !== false) return $this->license['by-sa']; //[flickrreview|Leoboudv|2014-10-26] => 
-            if(stripos($LicenseShortName, "authored by [[User:Arp|Arp]]") !== false) return $this->license['by']; //[This image is authored by [[User:Arp|Arp]]. It was uploaded to waarneming.nl and later copied to commons at a time that waarneming.nl did not yet properly support the only ''really'' free and unhampered license (CC0 Public Domain dedication) preferred by the author, so it was originally uploaded (here) as CC-BY, but it's '''not''' limited in it's use for remixing by that hampered license scheme. It is in fact available as: cc0] => 
-            if(stripos($LicenseShortName, "user:Anonymous101") !== false) return $this->license['public domain']; //[user:Anonymous101/template] => 
-            if($LicenseShortName == "Dead link") return "invalid"; //exact match
-            if(stripos($LicenseShortName, "Hans is short for Johan") !== false) return $this->license['public domain'];
-            if(stripos($LicenseShortName, "user=Ww2censor") !== false) return $this->license['public domain']; //[LicenseReview|site=http://biodiversitylibrary.org/page/43064802#page/440/mode/1up|user=Ww2censor|date=2015-09-04] => 
-            if($LicenseShortName == "insignia") return "invalid"; //exact match
-            if(stripos($LicenseShortName, "GNU|") !== false) return "invalid"; //[GNU|month=December|day=2|year=2008|migration=review] => 
-            if(stripos($LicenseShortName, "User:Fir0002") !== false) return "invalid"; //[User:Fir0002/20D|migration=relicense] => 
-            if(stripos($LicenseShortName, "Flickrreview|Lewis Hulbert") !== false) return "invalid"; //[Flickrreview|Lewis Hulbert|2014-10-25] => 
-
-            //added Oct 17
-            if(stripos($LicenseShortName, "public domain=") !== false) return $this->license['public domain'];
-            if(stripos($LicenseShortName, "PD-old") !== false) return $this->license['public domain'];
-            if(stripos($LicenseShortName, "PD-self") !== false) return $this->license['public domain'];
-            if(stripos($LicenseShortName, "a CC-0") !== false) return $this->license['by'];
-            if(stripos($LicenseShortName, "PD-user") !== false) return $this->license['public domain'];
-            if(stripos($LicenseShortName, "in the public domain") !== false) return $this->license['public domain'];
-            if($LicenseShortName == "Flickr-State-Library-NSW-image") return $this->license['no restrictions']; //exact match
-            if($LicenseShortName == "WikiAfrica/SIA") return $this->license['no restrictions']; //exact match
-            if(stripos($LicenseShortName, "No license since|") !== false) return "invalid";
-            if($LicenseShortName == "East German Post") return "invalid"; //exact match
-            if($LicenseShortName == "Kopimi") return "invalid"; //exact match
-            if(stripos($LicenseShortName, "TARS631") !== false) return "invalid"; //TARS631 at Tramwayforum.at
-            if($LicenseShortName == "Business journal") return "invalid"; //exact match
-            if($LicenseShortName == "<!-- !-") return "invalid"; //exact match
-            if($LicenseShortName == "== int:filedesc") return "invalid"; //exact match
-            if(substr($LicenseShortName,0,12) == "SLNSW-image|") return $this->license['public domain'];
-            
-            //added Oct 18
-            $valid_pd = array("USDA", "USFWS", "USGS", "Anonymous-EU", "DEA");
-            if(in_array($LicenseShortName, $valid_pd)) return $this->license['public domain'];
-            if(stripos($LicenseShortName, "Malayalam loves Wikimedia") !== false) return "invalid"; //Malayalam loves Wikimedia event|year=2011|month=April
-            if(stripos($LicenseShortName, "Images by Rob Lavinsky") !== false) return $this->license['by-sa']; //Images by Rob Lavinsky
-            if($LicenseShortName == "AndréWadman") return "invalid"; //exact match
-            if(stripos($LicenseShortName, "user=INeverCry") !== false) return "invalid";
-            if(stripos($LicenseShortName, "User:Ram-Man") !== false) return "invalid";
-            if(stripos($LicenseShortName, "User:Sidpatil") !== false) return "invalid";
-
-            // added Oct 19
-            if(stripos($LicenseShortName, "ZooKeys-License") !== false) return $this->license['by'];
-            if(stripos($LicenseShortName, "Flickr-change-of-license") !== false) return $this->license['by'];
-            if(stripos($LicenseShortName, "-cc-by-") !== false) return $this->license['by']; //ifb-cc-by-2.5|Vesselina Lazarova|http://www.imagesfrombulgaria.com/v/bulgarian-food/Parjena_Caca.JPG.html
-            if(stripos($LicenseShortName, "cc-by-sa") !== false) return $this->license['by-sa'];
-            if(stripos($LicenseShortName, "Geograph|") !== false) return $this->license['by-sa']; //Geograph|691836|Trish Steel
-            if(stripos($LicenseShortName, " cc-by-sa") !== false) return $this->license['by-sa']; //Thomas Pruß cc-by-sa
-            if(stripos($LicenseShortName, "WikiAfrica") !== false) return $this->license['by-sa']; //WikiAfrica/Ton Rulkens|2012-10-07
-            if(stripos($LicenseShortName, "Wiki Loves Earth") !== false) return $this->license['by-sa']; //Wiki Loves Earth 2014|cat
-            if(stripos($LicenseShortName, "Walters Art Museum") !== false) return $this->license['by-sa']; //Walters Art Museum license|type=2D
-            if($LicenseShortName == "IUCN map permission") return $this->license['public domain']; //exact match
-            if($LicenseShortName == "Justphotos.ru") return $this->license['by-sa']; //exact match
-            if($LicenseShortName == "MAV-FMVZ USP-license") return $this->license['by-sa']; //exact match
-            if($LicenseShortName == "cc-world66") return $this->license['by-sa']; //exact match
-            if($LicenseShortName == "Cc-sa") return $this->license['by-sa']; //exact match
-            
-            //Oct 25
-            if($LicenseShortName == "YouTube CC-BY") return $this->license['by']; //exact match
-            $arr = array("cc-a-", "cc-by-"); //findme exists (case insensitive) anywhere in string and followed by digit OR space
-            foreach($arr as $findme) {
-                $findme = preg_quote($findme, '/');
-                if(preg_match("/".$findme."[0-9| ]/ims", $LicenseShortName, $arr)) {
-                    return $this->license['by'];
-                }
-            }
-            $findme = "cc-sa-";
-            $findme = preg_quote($findme, '/');
-            if(preg_match("/".$findme."[0-9| ]/ims", $LicenseShortName, $arr)) { //findme exists (case insensitive) anywhere in string and followed by digit OR space
-                return $this->license['by-sa'];
-            }
-            
-            // [public domain] exact
-            $arr = array("cc-pd", "pdphoto.org", "Folger Shakespeare Library partnership");
-            foreach($arr as $p) {
-                if(strtolower($LicenseShortName) == $p) return $this->license['public domain'];
-            }
-            
-            //['by'] stripos
-            $arr = array("CC BY ", "CC-BY ", " CC-BY|", "CC-BY ", "CC-Layout", "picasareview", "AntWeb permission");
-            foreach($arr as $p) {
-                if(stripos($LicenseShortName, $p) !== false) return $this->license['by'];
-            }
-            //[by-sa] stripos
-            $arr = array("Nationaal Archief", "Malayalam loves Wikipedia event", "Category:Megalops atlanticus");
-            foreach($arr as $p) {
-                if(stripos($LicenseShortName, $p) !== false) return $this->license['by-sa'];
-            }
-
-            //[by] exact match
-            $arr = array("Premier.gov.ru", "Akkasemosalman");
-            foreach($arr as $p) {
-                if($LicenseShortName == $p) return $this->license['by']; //exact match
-            }
-
-            //[by-sa] exact match
-            $arr = array("TamilWiki Media Contest", "RCE-license", "Wikimedia trademark", "gardenology");
-            foreach($arr as $p) {
-                if($LicenseShortName == $p) return $this->license['by-sa']; //exact match
-            }
-
-            /* WILL REMAIN INVALID: as of Nov 9
-            [blank_license] => Array
-                (
-                    [MLW3‬] => 
-                    [dvdm-h6|migration=relicense] => 
-                    [BMC] => 
-                    [Zachi Evenor] => 
-                    [Team|event=Wikipedia Takes Waroona|team=Team Flower|id=19] => 
-                    [Wuzur] => 
-                    [<br/>(original text|nobold=1|1=Klettenlabkraut in Weizen] => 
-                    [Andes] => 
-                    [Assessments|enwiki=1|enwiki-nom=Bicolored Antbird] => 
-                    [Youtube|Junichi Kubota] => 
-                    [Personality rights] => 
-                    [personality rights] => 
-                    [NO Facebook Youtube license] => 
-                    [spomenikSVN|7914] => 
-                    [Location|36|2|59.1|N|139|9|1.8|E|type:landmark_region:JP-29_scale:2000] => 
-                    [s*derivative work: [[User:B kimmel|B kimmel]] ([[User talk:B kimmel|<span class="signature-talk">talk</span>]])|Permission=|other_versions=] => 
-                    [Flickreview|Yuval Y|20:49, 16 June 2011 (UTC)] => 
-                    [Tasnim] => 
-                    [OTRS|2008072210012641] => 
-                    [IBC] => 
-                    [QualityImage] => 
-                    [youtube] => 
-                    [MUSE|OTRS=yes] => 
-                    [DYKfile|28 December|2006|type=image] => 
-                    [Bilderwerkstatt|editor=[[:de:Benutzer:Denis Barthel|Denis Barthel]]|orig=Yucca_recurvifolia_fh_1183.24_ALA_AAA.jpg|changes=Perspektive, Ausschnitt, kleinere Edits] => 
-                    [OTRS|2012011510006576] => 
-                    [Location dec|46.122186|7.071841|source:Flickr] => 
-                    [Beeld en Geluid Wiki] => 
-                    [[[:en:Category:Frog images]]|Source=Transferred from|en.wikipedia] => 
-                    [Bilderwerkstatt|editor=[[:de:Benutzer:Saman|Saman]]|orig=|changes=Etwas Staub entfernt, Kontrast und Tonwertkorrektur verändert] => 
-                    [retouched|cropped] => 
-                    [RetouchedPicture|cropped ''Sciurus spadiceus'' (frame) into a portrait|editor=Jacek555|orig=Sciurus spadiceus (frame).jpg] => 
-                    [piqs|101897|babychen] => 
-                    [personality] => 
-                    [RetouchedPicture|Created GIF animation from sequence of images] => 
-                    [!-] => 
-                    [Youtube|channelxxxvol1] => 
-                    [Picswiss|migration=relicense] => 
-                    [Volganet.ru] => 
-                    [@|link=http://www.opencage.info/pics.e/large_8238.asp|txt=opencage-] => 
-                    ["] => 
-                    [RetouchedPicture|Screenshot for distribution map|editor=Obsidian Soul|orig=Australia Victoria location map highways.svg] => 
-                    [|Source=transferred from|en.wikipedia|Syp|CommonsHelper] => 
-                    [Folger Shakespeare Library partnership] => 
-                    [DYKfile|25 March|2008|type=image] => 
-                )
-            */
-            
-            //seemingly calphotos images:
-            $arr = array("Vladlen Henríquez permission", "Mehregan Ebrahimi permission", "Václav Gvoždík permission", "Diogo B. Provete permission", "Franco Andreone permission", 
-            "Josiah H. Townsend permission", "Pierre Fidenci permission", "Alessandro Catenazzi permission", "Stanley Trauth permission", 
-            "Raquel Rocha Santos permission", "Mauricio Rivera Correa permission", "LarsCurfsCCSA3.0", "civertan license");
-            if(in_array($LicenseShortName, $arr)) return $this->license['by-sa'];
-            
-            // for public domain - stripos
-            $pd = array();
-            $pd[] = "PD-US";
-            $pd[] = "PD-NASA";
-            $pd[] = "RatEatingSunflowerseads.jpg";
-            $pd[] = "under public domain term";
-            $pd[] = "From U.S. Fish and Wildlife";
-            $pd[] = "Koninklijke Bibliotheek";
-            $pd[] = "Latvian coins";
-            $pd[] = "Russian museum photo";
-            $pd[] = "USPresidentialTransition";
-            foreach($pd as $p) {
-                if(stripos($LicenseShortName, $p) !== false) return $this->license['public domain'];
-            }
-
-            // for invalid - stripos
-            $inv = array();
-            $inv[] = "editor=Kilom691";
-            $inv[] = "LicenseReview|";
-            $inv[] = "Frank FrägerGPL";
-            $inv[] = "GPL|";
-            $inv[] = "Remove this line and insert a license";
-            $inv[] = "boilerplate metadata";
-            $inv[] = "by-nc-nd";
-            $inv[] = "PermissionOTRS";
-            $inv[] = "You may choose one of the following licenses";
-            $inv[] = "Mindaugas Urbonas";
-            $inv[] = "Warsaw_ZOO_-_Bovidae_young";
-            $inv[] = "plos";
-            foreach($inv as $p) {
-                if(stripos($LicenseShortName, $p) !== false) return "invalid";
-            }
-
-            //last resorts...
-            if(stripos($LicenseShortName, "Information|Description") !== false) return "invalid";
-            if(stripos($LicenseShortName, "Information |Description") !== false) return "invalid";
-            if(stripos($LicenseShortName, "Information| Desc") !== false) return "invalid";
-            if(stripos($LicenseShortName, "flickrreview|") !== false) return "invalid";
-            if(stripos($LicenseShortName, "ImageNote|") !== false) return "invalid";
-            if(stripos($LicenseShortName, "Check categories|") !== false) return "invalid";
-            if(stripos($LicenseShortName, "LOC-image|") !== false) return "invalid";
-            if(stripos($LicenseShortName, "gebruiker:Jürgen") !== false) return "invalid";
-            
-            // for invalid - exact match
-            $arr = "Youtube|TimeScience,Imagicity,MaleneThyssenCredit,Fdrange,Arne and Bent Larsen license,Korea.net,Atelier graphique,KIT-license,Open Beelden,MUSE permission,volganet.ru,NoCoins,Stan Shebs photo,self,Multi-license,Link,WTFPL-1,En|A person kneeling next to a seal.,self2|FAL|,Fifty Birds,Laboratorio grafico,== Original upload log,Norwegian coat of arms,User:Arp/License,User:Erin Silversmith/Licence,trademark,benjamint5D,custom,Lang,User:Arjun01/I,Apache|Google,easy-border,LA2-Blitz,Autotranslate|1=1|,Frianvändning,Self,Location|57|47|35|N|152|23|39|W,OGL2,User:Pudding4brains/License,ScottForesman,FoP-Hungary,License,<!-- Ambox";
-            $arr = explode(",", $arr);
-            foreach($arr as $a) {
-                if($LicenseShortName == $a) return "invalid"; //exact match
-            }
-
-            /*
-            User:Chell Hill/CHillPix
-            User:Beria/License
-            User:Kadellar/credit
-            ...and many many more...
-            */
-            if(substr(strtolower($LicenseShortName),0,5) == "user:") return "invalid"; //starts with "User:"
-
-
-            $this->debug['blank_license'][$LicenseShortName] = ''; //utility debug - important
-            /* finally if LicenseShortName is still undefined it will be considered 'invalid' */
-            return "invalid";
-        }
-        
-        return $license;
-    }
-    private function valid_license_YN($license)
-    {
-        $valid = array($this->license['public domain'], $this->license['by'], $this->license['by-nc'], $this->license['by-sa'], $this->license['by-nc-sa'], $this->license['no restrictions']);
-        if(in_array($license, $valid)) return true;
-        else                           return false;
-    }
     private function create_commons_objects($commons, $t)
     {
         foreach($commons as $com) {
@@ -2368,6 +2035,334 @@ class WikiDataAPI
         }
     }
     // ============================ end temp file generation ==================================================================================================
+
+    private function format_license($license, $LicenseShortName="")
+    {
+        $license          = self::clean_html($license);
+        $LicenseShortName = self::clean_html($LicenseShortName);
+        //regular EOL licenses
+        if(stripos($license, "creativecommons.org/licenses/publicdomain/") !== false)   return $this->license['public domain'];
+        if(stripos($license, "creativecommons.org/licenses/by/") !== false)             return $this->license['by'];
+        if(stripos($license, "creativecommons.org/licenses/by-nc/") !== false)          return $this->license['by-nc'];
+        if(stripos($license, "creativecommons.org/licenses/by-sa/") !== false)          return $this->license['by-sa'];
+        if(stripos($license, "creativecommons.org/licenses/by-nc-sa/") !== false)       return $this->license['by-nc-sa'];
+        
+        if(stripos($license, "gpl") !== false) {
+            $this->debug['gpl count']++;
+            return "invalid";
+        }
+
+        //others...
+        if($license == "http://creativecommons.org/licenses/by-sa")          return $this->license['by-sa']; //exact match
+        if(stripos($license, "creativecommons.org/publicdomain/") !== false) return $this->license['public domain'];
+        if(stripos($license, "creativecommons.org/licenses/sa/") !== false)  return $this->license['by-sa']; //[http://creativecommons.org/licenses/sa/1.0/]
+        if($license == "http://creativecommons.org/licenses/by")             return $this->license['by']; //exact match
+        if($license == "https://www.flickr.com/commons/usage/")              return $this->license['public domain']; //exact match
+        if(urldecode($license) == "http://biodivlib.wikispaces.com/Permissions#Content provided under Due Diligence") return $this->license['no restrictions']; //exact match
+        if($license == "http://wiki.data.gouv.fr/wiki/Licence_Ouverte_/_Open_Licence") return $this->license['public domain']; //exact match
+
+        //should be invalid per Jen:
+        if(stripos($license, "creativecommons.org/licenses/by-nc-nd/") !== false) return "invalid";
+        if(stripos($license, "commons.wikimedia.org/wiki/File:") !== false) return "invalid";
+        $proven_invalid_licenseurl = array("http://www.gnu.org/copyleft/fdl.html", "http://www.gnu.org/licenses/old-licenses/fdl-1.2.html", "http://www.gnu.org/licenses/gpl.html",
+        "www.gnu.org/licenses/fdl-1.3.html", "http://artlibre.org/licence/lal/en", "http://www.gnu.org/licenses/lgpl.html");
+        if(in_array($license, $proven_invalid_licenseurl)) return "invalid";
+        
+        // added Oct 16, 2017
+        if(stripos($license, "nationalarchives.gov.uk/doc/open-government-licence") !== false) return "invalid"; //"http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3"
+
+        //blank license
+        if(!$license) {
+            if(in_array($LicenseShortName, array("Public domain", "cc0"))) return $this->license['public domain'];
+
+            //multiple shortnames separated by "|"
+            $shortnames = explode("|", strtolower($LicenseShortName)); //"self|Cc-zero"
+            foreach($shortnames as $shortname) {
+                if(in_array($shortname, array("cc-zero", "cc0", "cc-0")))    return $this->license['public domain'];
+                if(substr($shortname,0,3) == "pd-")                          return $this->license['public domain']; //"PD-self" "PD-author" "pd-???" etc.
+                if(stripos($shortname, "bild-pd") !== false)                 return $this->license['public domain'];
+                if($shortname == "attribution")                              return $this->license['by'];
+                if(substr($shortname,0,14) == strtolower("public domain "))  return $this->license['public domain']; // e.g. "Public Domain Mark"
+                if(substr($shortname,0,3) == strtolower("pd/"))              return $this->license['public domain']; // e.g. "Pd/1923|1982"
+                if($shortname == strtolower("FlickrVerifiedByUploadWizard")) return $this->license['by'];
+
+                if(substr($shortname,0,6) == "cc-by-")                          return $this->license['by'];
+                if(substr($shortname,0,9) == "cc-by-nc-")                       return $this->license['by-nc'];
+                if(substr($shortname,0,9) == "cc-by-sa-")                       return $this->license['by-sa'];
+                if(substr($shortname,0,12) == "cc-by-nc-sa-")                   return $this->license['by-nc-sa'];
+                if(stripos($shortname, "self|own-pd") !== false)                return $this->license['public domain'];
+                if(stripos($shortname, "no known copyright restriction") !== false) return $this->license['no restrictions'];
+                if(stripos($shortname, "BHL-no known restriction") !== false)       return $this->license['no restrictions'];
+            }
+            
+            //should be invalid per Jen
+            if(!$LicenseShortName) return "invalid";
+            if(stripos($LicenseShortName, "Custom license marker") !== false) return "invalid";
+            if(stripos($LicenseShortName, "ExtractedFromNSRW") !== false) return "invalid";
+            if(stripos($LicenseShortName, "copyright protection") !== false) return "invalid";
+            if(stripos($LicenseShortName, "Copyrighted") !== false) return "invalid";
+            if(stripos($LicenseShortName, "FOLP|") !== false) return "invalid";
+            if(stripos($LicenseShortName, "GFDL") !== false) return "invalid";
+            if(stripos($LicenseShortName, "self|") !== false) return "invalid";
+            if(stripos($LicenseShortName, "User:Flickr") !== false) return "invalid";
+            if(stripos($LicenseShortName, "User:Ksd5") !== false) return "invalid";
+            if(stripos($LicenseShortName, " Monet ") !== false) return "invalid";
+            if(stripos($LicenseShortName, "Bild-") !== false) return "invalid";
+            if(stripos($LicenseShortName, "Pixabay|") !== false) return "invalid";
+            if(stripos($LicenseShortName, "illustration of the Saxaul Sparrow") !== false) return "invalid";
+            $invalid_exact = array("BSD", "FAL", "Faroe stamps", "Fotothek-License", "FWS Image", "GPL", "NARA-cooperation", "NAUMANN", "NPS", "Parasite", "unsplash", "WikiAfrica/TNA", "јв-ја");
+            foreach($invalid_exact as $exact) {
+                if($exact == $LicenseShortName) return "invalid";
+            }
+            // [Information|Description=en|1=An illustration of the Saxaul Sparrow (''Passer ammondendri'', called the "Turkestan Sparrow" in the book the illustration was published in)]
+            
+            //added Oct 16, 2017
+            if(stripos($LicenseShortName, "Permission= publiek domein") !== false) return $this->license['public domain'];
+            if(stripos($LicenseShortName, " PD-old") !== false) return $this->license['public domain']; //"# PD-old"
+            if(stripos($LicenseShortName, " PD-US") !== false) return $this->license['public domain']; //"<!-- PD-US"
+            if(stripos($LicenseShortName, "Template:PD-") !== false) return $this->license['public domain']; //    [Template:PD-Australia] => 
+            if(stripos($LicenseShortName, "Brooklyn_Museum-no_known_restriction") !== false) return $this->license['no restrictions']; //"Brooklyn_Museum-no_known_restrictions"
+            if(stripos($LicenseShortName, "CDC-PHIL|") !== false) return $this->license['public domain']; //"CDC-PHIL|id=2741"
+            if(stripos($LicenseShortName, "Massel_tow_Credit") !== false) return "invalid"; //"Template:Massel_tow_Credit"
+            if(stripos($LicenseShortName, "Blacknclick") !== false) return "invalid"; //[User:Blacknclick/Permission]
+            if($LicenseShortName == "FWS") return $this->license['public domain']; //exact match
+            if($LicenseShortName == "FCO") return "invalid"; //exact match --- invalid coz OGL something...
+            if(stripos($LicenseShortName, "OGL|") !== false) return "invalid"; //[OGL|1=Photo: MoD/MOD] --- invalid coz OGL
+            if($LicenseShortName == "OGL") return "invalid"; //exact match
+            if(stripos($LicenseShortName, "KOGL-") !== false) return "invalid"; //[KOGL-type1]
+            if($LicenseShortName == "PAOC") return "invalid"; //exact match
+            if($LicenseShortName == "LGPL") return "invalid"; //exact match
+            if($LicenseShortName == "LarsenCopyright") return "invalid"; //exact match
+            if($LicenseShortName == "Attribution Entomart") return "invalid"; //exact match
+            if(stripos($LicenseShortName, "CC-BY-2.0 stated") !== false) return $this->license['by']; //[(photo: CC-BY-2.0 stated)PD-US] => 
+            if($LicenseShortName == "Flickr-Brooklyn-Museum-image") return $this->license['by-sa']; //exact match
+            if(stripos($LicenseShortName, "license=GPL") !== false) return "invalid"; //[Free screenshot|license=GPL] => 
+            if(stripos($LicenseShortName, "Jim Deacon") !== false) return "invalid"; //[=From the website of the author:"IMPORTANT: COPYRIGHT WAIVERAll of the author's images are shown as [© Jim Deacon]. They can be used freely, for any purpose, without restriction.Please ACKNOWLEDGE THE SOURCE AS: Courtesy of Jim Deacon, The University of Edinburg" http://helios.bto.ed.ac.uk/bto/FungalBiology/index.htm#top== int:license-header] => 
+            if($LicenseShortName == "NOAA") return $this->license['public domain']; //exact match
+            if($LicenseShortName == "anonymous-EU") return $this->license['public domain']; //exact match
+            if($LicenseShortName == "AerialPhotograph-mlitJP") return "invalid"; //exact match
+            if(stripos($LicenseShortName, "flickrreview|Leoboudv|") !== false) return $this->license['by-sa']; //[flickrreview|Leoboudv|2014-10-26] => 
+            if(stripos($LicenseShortName, "authored by [[User:Arp|Arp]]") !== false) return $this->license['by']; //[This image is authored by [[User:Arp|Arp]]. It was uploaded to waarneming.nl and later copied to commons at a time that waarneming.nl did not yet properly support the only ''really'' free and unhampered license (CC0 Public Domain dedication) preferred by the author, so it was originally uploaded (here) as CC-BY, but it's '''not''' limited in it's use for remixing by that hampered license scheme. It is in fact available as: cc0] => 
+            if(stripos($LicenseShortName, "user:Anonymous101") !== false) return $this->license['public domain']; //[user:Anonymous101/template] => 
+            if($LicenseShortName == "Dead link") return "invalid"; //exact match
+            if(stripos($LicenseShortName, "Hans is short for Johan") !== false) return $this->license['public domain'];
+            if(stripos($LicenseShortName, "user=Ww2censor") !== false) return $this->license['public domain']; //[LicenseReview|site=http://biodiversitylibrary.org/page/43064802#page/440/mode/1up|user=Ww2censor|date=2015-09-04] => 
+            if($LicenseShortName == "insignia") return "invalid"; //exact match
+            if(stripos($LicenseShortName, "GNU|") !== false) return "invalid"; //[GNU|month=December|day=2|year=2008|migration=review] => 
+            if(stripos($LicenseShortName, "User:Fir0002") !== false) return "invalid"; //[User:Fir0002/20D|migration=relicense] => 
+            if(stripos($LicenseShortName, "Flickrreview|Lewis Hulbert") !== false) return "invalid"; //[Flickrreview|Lewis Hulbert|2014-10-25] => 
+
+            //added Oct 17
+            if(stripos($LicenseShortName, "public domain=") !== false) return $this->license['public domain'];
+            if(stripos($LicenseShortName, "PD-old") !== false) return $this->license['public domain'];
+            if(stripos($LicenseShortName, "PD-self") !== false) return $this->license['public domain'];
+            if(stripos($LicenseShortName, "a CC-0") !== false) return $this->license['by'];
+            if(stripos($LicenseShortName, "PD-user") !== false) return $this->license['public domain'];
+            if(stripos($LicenseShortName, "in the public domain") !== false) return $this->license['public domain'];
+            if($LicenseShortName == "Flickr-State-Library-NSW-image") return $this->license['no restrictions']; //exact match
+            if($LicenseShortName == "WikiAfrica/SIA") return $this->license['no restrictions']; //exact match
+            if(stripos($LicenseShortName, "No license since|") !== false) return "invalid";
+            if($LicenseShortName == "East German Post") return "invalid"; //exact match
+            if($LicenseShortName == "Kopimi") return "invalid"; //exact match
+            if(stripos($LicenseShortName, "TARS631") !== false) return "invalid"; //TARS631 at Tramwayforum.at
+            if($LicenseShortName == "Business journal") return "invalid"; //exact match
+            if($LicenseShortName == "<!-- !-") return "invalid"; //exact match
+            if($LicenseShortName == "== int:filedesc") return "invalid"; //exact match
+            if(substr($LicenseShortName,0,12) == "SLNSW-image|") return $this->license['public domain'];
+            
+            //added Oct 18
+            $valid_pd = array("USDA", "USFWS", "USGS", "Anonymous-EU", "DEA");
+            if(in_array($LicenseShortName, $valid_pd)) return $this->license['public domain'];
+            if(stripos($LicenseShortName, "Malayalam loves Wikimedia") !== false) return "invalid"; //Malayalam loves Wikimedia event|year=2011|month=April
+            if(stripos($LicenseShortName, "Images by Rob Lavinsky") !== false) return $this->license['by-sa']; //Images by Rob Lavinsky
+            if($LicenseShortName == "AndréWadman") return "invalid"; //exact match
+            if(stripos($LicenseShortName, "user=INeverCry") !== false) return "invalid";
+            if(stripos($LicenseShortName, "User:Ram-Man") !== false) return "invalid";
+            if(stripos($LicenseShortName, "User:Sidpatil") !== false) return "invalid";
+
+            // added Oct 19
+            if(stripos($LicenseShortName, "ZooKeys-License") !== false) return $this->license['by'];
+            if(stripos($LicenseShortName, "Flickr-change-of-license") !== false) return $this->license['by'];
+            if(stripos($LicenseShortName, "-cc-by-") !== false) return $this->license['by']; //ifb-cc-by-2.5|Vesselina Lazarova|http://www.imagesfrombulgaria.com/v/bulgarian-food/Parjena_Caca.JPG.html
+            if(stripos($LicenseShortName, "cc-by-sa") !== false) return $this->license['by-sa'];
+            if(stripos($LicenseShortName, "Geograph|") !== false) return $this->license['by-sa']; //Geograph|691836|Trish Steel
+            if(stripos($LicenseShortName, " cc-by-sa") !== false) return $this->license['by-sa']; //Thomas Pruß cc-by-sa
+            if(stripos($LicenseShortName, "WikiAfrica") !== false) return $this->license['by-sa']; //WikiAfrica/Ton Rulkens|2012-10-07
+            if(stripos($LicenseShortName, "Wiki Loves Earth") !== false) return $this->license['by-sa']; //Wiki Loves Earth 2014|cat
+            if(stripos($LicenseShortName, "Walters Art Museum") !== false) return $this->license['by-sa']; //Walters Art Museum license|type=2D
+            if($LicenseShortName == "IUCN map permission") return $this->license['public domain']; //exact match
+            if($LicenseShortName == "Justphotos.ru") return $this->license['by-sa']; //exact match
+            if($LicenseShortName == "MAV-FMVZ USP-license") return $this->license['by-sa']; //exact match
+            if($LicenseShortName == "cc-world66") return $this->license['by-sa']; //exact match
+            if($LicenseShortName == "Cc-sa") return $this->license['by-sa']; //exact match
+            
+            //Oct 25
+            if($LicenseShortName == "YouTube CC-BY") return $this->license['by']; //exact match
+            $arr = array("cc-a-", "cc-by-"); //findme exists (case insensitive) anywhere in string and followed by digit OR space
+            foreach($arr as $findme) {
+                $findme = preg_quote($findme, '/');
+                if(preg_match("/".$findme."[0-9| ]/ims", $LicenseShortName, $arr)) {
+                    return $this->license['by'];
+                }
+            }
+            $findme = "cc-sa-";
+            $findme = preg_quote($findme, '/');
+            if(preg_match("/".$findme."[0-9| ]/ims", $LicenseShortName, $arr)) { //findme exists (case insensitive) anywhere in string and followed by digit OR space
+                return $this->license['by-sa'];
+            }
+            
+            // [public domain] exact
+            $arr = array("cc-pd", "pdphoto.org", "Folger Shakespeare Library partnership");
+            foreach($arr as $p) {
+                if(strtolower($LicenseShortName) == $p) return $this->license['public domain'];
+            }
+            
+            //['by'] stripos
+            $arr = array("CC BY ", "CC-BY ", " CC-BY|", "CC-BY ", "CC-Layout", "picasareview", "AntWeb permission");
+            foreach($arr as $p) {
+                if(stripos($LicenseShortName, $p) !== false) return $this->license['by'];
+            }
+            //[by-sa] stripos
+            $arr = array("Nationaal Archief", "Malayalam loves Wikipedia event", "Category:Megalops atlanticus");
+            foreach($arr as $p) {
+                if(stripos($LicenseShortName, $p) !== false) return $this->license['by-sa'];
+            }
+
+            //[by] exact match
+            $arr = array("Premier.gov.ru", "Akkasemosalman");
+            foreach($arr as $p) {
+                if($LicenseShortName == $p) return $this->license['by']; //exact match
+            }
+
+            //[by-sa] exact match
+            $arr = array("TamilWiki Media Contest", "RCE-license", "Wikimedia trademark", "gardenology");
+            foreach($arr as $p) {
+                if($LicenseShortName == $p) return $this->license['by-sa']; //exact match
+            }
+
+            /* WILL REMAIN INVALID: as of Nov 9
+            [blank_license] => Array
+                (
+                    [MLW3‬] => 
+                    [dvdm-h6|migration=relicense] => 
+                    [BMC] => 
+                    [Zachi Evenor] => 
+                    [Team|event=Wikipedia Takes Waroona|team=Team Flower|id=19] => 
+                    [Wuzur] => 
+                    [<br/>(original text|nobold=1|1=Klettenlabkraut in Weizen] => 
+                    [Andes] => 
+                    [Assessments|enwiki=1|enwiki-nom=Bicolored Antbird] => 
+                    [Youtube|Junichi Kubota] => 
+                    [Personality rights] => 
+                    [personality rights] => 
+                    [NO Facebook Youtube license] => 
+                    [spomenikSVN|7914] => 
+                    [Location|36|2|59.1|N|139|9|1.8|E|type:landmark_region:JP-29_scale:2000] => 
+                    [s*derivative work: [[User:B kimmel|B kimmel]] ([[User talk:B kimmel|<span class="signature-talk">talk</span>]])|Permission=|other_versions=] => 
+                    [Flickreview|Yuval Y|20:49, 16 June 2011 (UTC)] => 
+                    [Tasnim] => 
+                    [OTRS|2008072210012641] => 
+                    [IBC] => 
+                    [QualityImage] => 
+                    [youtube] => 
+                    [MUSE|OTRS=yes] => 
+                    [DYKfile|28 December|2006|type=image] => 
+                    [Bilderwerkstatt|editor=[[:de:Benutzer:Denis Barthel|Denis Barthel]]|orig=Yucca_recurvifolia_fh_1183.24_ALA_AAA.jpg|changes=Perspektive, Ausschnitt, kleinere Edits] => 
+                    [OTRS|2012011510006576] => 
+                    [Location dec|46.122186|7.071841|source:Flickr] => 
+                    [Beeld en Geluid Wiki] => 
+                    [[[:en:Category:Frog images]]|Source=Transferred from|en.wikipedia] => 
+                    [Bilderwerkstatt|editor=[[:de:Benutzer:Saman|Saman]]|orig=|changes=Etwas Staub entfernt, Kontrast und Tonwertkorrektur verändert] => 
+                    [retouched|cropped] => 
+                    [RetouchedPicture|cropped ''Sciurus spadiceus'' (frame) into a portrait|editor=Jacek555|orig=Sciurus spadiceus (frame).jpg] => 
+                    [piqs|101897|babychen] => 
+                    [personality] => 
+                    [RetouchedPicture|Created GIF animation from sequence of images] => 
+                    [!-] => 
+                    [Youtube|channelxxxvol1] => 
+                    [Picswiss|migration=relicense] => 
+                    [Volganet.ru] => 
+                    [@|link=http://www.opencage.info/pics.e/large_8238.asp|txt=opencage-] => 
+                    ["] => 
+                    [RetouchedPicture|Screenshot for distribution map|editor=Obsidian Soul|orig=Australia Victoria location map highways.svg] => 
+                    [|Source=transferred from|en.wikipedia|Syp|CommonsHelper] => 
+                    [Folger Shakespeare Library partnership] => 
+                    [DYKfile|25 March|2008|type=image] => 
+                )
+            */
+            
+            //seemingly calphotos images:
+            $arr = array("Vladlen Henríquez permission", "Mehregan Ebrahimi permission", "Václav Gvoždík permission", "Diogo B. Provete permission", "Franco Andreone permission", 
+            "Josiah H. Townsend permission", "Pierre Fidenci permission", "Alessandro Catenazzi permission", "Stanley Trauth permission", 
+            "Raquel Rocha Santos permission", "Mauricio Rivera Correa permission", "LarsCurfsCCSA3.0", "civertan license");
+            if(in_array($LicenseShortName, $arr)) return $this->license['by-sa'];
+            
+            // for public domain - stripos
+            $pd = array();
+            $pd[] = "PD-US";
+            $pd[] = "PD-NASA";
+            $pd[] = "RatEatingSunflowerseads.jpg";
+            $pd[] = "under public domain term";
+            $pd[] = "From U.S. Fish and Wildlife";
+            $pd[] = "Koninklijke Bibliotheek";
+            $pd[] = "Latvian coins";
+            $pd[] = "Russian museum photo";
+            $pd[] = "USPresidentialTransition";
+            foreach($pd as $p) {
+                if(stripos($LicenseShortName, $p) !== false) return $this->license['public domain'];
+            }
+
+            // for invalid - stripos
+            $inv = array();
+            $inv[] = "editor=Kilom691";
+            $inv[] = "LicenseReview|";
+            $inv[] = "Frank FrägerGPL";
+            $inv[] = "GPL|";
+            $inv[] = "Remove this line and insert a license";
+            $inv[] = "boilerplate metadata";
+            $inv[] = "by-nc-nd";
+            $inv[] = "PermissionOTRS";
+            $inv[] = "You may choose one of the following licenses";
+            $inv[] = "Mindaugas Urbonas";
+            $inv[] = "Warsaw_ZOO_-_Bovidae_young";
+            $inv[] = "plos";
+            foreach($inv as $p) {
+                if(stripos($LicenseShortName, $p) !== false) return "invalid";
+            }
+
+            //last resorts...
+            if(stripos($LicenseShortName, "Information|Description") !== false) return "invalid";
+            if(stripos($LicenseShortName, "Information |Description") !== false) return "invalid";
+            if(stripos($LicenseShortName, "Information| Desc") !== false) return "invalid";
+            if(stripos($LicenseShortName, "flickrreview|") !== false) return "invalid";
+            if(stripos($LicenseShortName, "ImageNote|") !== false) return "invalid";
+            if(stripos($LicenseShortName, "Check categories|") !== false) return "invalid";
+            if(stripos($LicenseShortName, "LOC-image|") !== false) return "invalid";
+            if(stripos($LicenseShortName, "gebruiker:Jürgen") !== false) return "invalid";
+            
+            // for invalid - exact match
+            $arr = "Youtube|TimeScience,Imagicity,MaleneThyssenCredit,Fdrange,Arne and Bent Larsen license,Korea.net,Atelier graphique,KIT-license,Open Beelden,MUSE permission,volganet.ru,NoCoins,Stan Shebs photo,self,Multi-license,Link,WTFPL-1,En|A person kneeling next to a seal.,self2|FAL|,Fifty Birds,Laboratorio grafico,== Original upload log,Norwegian coat of arms,User:Arp/License,User:Erin Silversmith/Licence,trademark,benjamint5D,custom,Lang,User:Arjun01/I,Apache|Google,easy-border,LA2-Blitz,Autotranslate|1=1|,Frianvändning,Self,Location|57|47|35|N|152|23|39|W,OGL2,User:Pudding4brains/License,ScottForesman,FoP-Hungary,License,<!-- Ambox";
+            $arr = explode(",", $arr);
+            foreach($arr as $a) {
+                if($LicenseShortName == $a) return "invalid"; //exact match
+            }
+
+            if(substr(strtolower($LicenseShortName),0,5) == "user:") return "invalid"; //starts with "User:"
+
+            $this->debug['blank_license'][$LicenseShortName] = ''; //utility debug - important
+            /* finally if LicenseShortName is still undefined it will be considered 'invalid' */
+            return "invalid";
+        }
+        return $license;
+    }
+    private function valid_license_YN($license)
+    {
+        $valid = array($this->license['public domain'], $this->license['by'], $this->license['by-nc'], $this->license['by-sa'], $this->license['by-nc-sa'], $this->license['no restrictions']);
+        if(in_array($license, $valid)) return true;
+        else                           return false;
+    }
+
+
 
     // private function checkaddslashes($str){
     //     if(strpos(str_replace("\'",""," $str"),"'")!=false)
