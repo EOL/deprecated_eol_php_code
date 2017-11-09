@@ -17,19 +17,18 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/NMNHTypeRecordAPI_v2');
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true;
-/*
-//local source
-// $params["dwca_file"]    = "http://localhost/cp_new/NMNH/type_specimen_resource/dwca-nmnhdwca.zip"; //obsolete
+/* local source
+$params["dwca_file"]    = "http://localhost/cp_new/NMNH/type_specimen_resource/dwca-nmnhdwca.zip"; //obsolete
 $params["dwca_file"]    = "http://localhost/cp_new/NMNH/type_specimen_resource/dwca-nmnh_extant_dwc-a-v1.8.zip"; //latest as of 25-Oct-2017
 $params["dwca_file"]    = "http://localhost/cp_new/NMNH/type_specimen_resource/dwca-nmnh_extant_dwc-a-v1.10.zip"; //latest as of 03-Nov-2017
 $params["uri_file"]     = "http://localhost/cp_new/NMNH/type_specimen_resource/nmnh-mappings.xlsx"; //renamed; originally [nmnh mappings.xlsx]
 */
 
-// /*
-//remote source
-// $params["dwca_file"]    = "https://collections.mnh.si.edu/ipt/archive.do?r=nmnhdwca"; //obsolete
-$params["dwca_file"]    = ""; //e.g. "https://collections.nmnh.si.edu/ipt/archive.do?r=nmnh_extant_dwc-a&v=1.8"; //latest as of 25-Oct-2017. From https://eol-jira.bibalex.org/browse/DATA-1711
-//will be generated below get_dwca_download_url()
+// /* remote source
+$params["dwca_file"]    = "https://collections.mnh.si.edu/ipt/archive.do?r=nmnhdwca"; //obsolete
+$params["dwca_file"]    = ""; // e.g. "https://collections.nmnh.si.edu/ipt/archive.do?r=nmnh_extant_dwc-a&v=1.8"; 
+                              // latest as of 25-Oct-2017. From https://eol-jira.bibalex.org/browse/DATA-1711
+                              // will be generated below get_dwca_download_url()
 $params["uri_file"]     = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/NMNH/type_specimen_resource/nmnh-mappings.xlsx";
 // */
 
@@ -44,7 +43,7 @@ $resource_id = $params["resource_id"];
 // $func = new NMNHTypeRecordAPI($resource_id); //old, obsolete for NMNH
 $func = new NMNHTypeRecordAPI_v2($resource_id); //latest, but based from the old one
 
-// /* debug - un-comment in real operation
+// /* debug - un-comment in real operation - for eol-archive
 if($params["dwca_file"] = $func->get_dwca_download_url()) {}
 else exit("\nCannot get download URL for the DwCA.\n");
 // */
