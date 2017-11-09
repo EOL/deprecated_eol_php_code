@@ -2257,18 +2257,18 @@ class WikiDataAPI
                 $title = str_replace("File:", "", $title);
                 $title = str_replace(" ", "_", $title);
                 if($filename = self::taxon_media($title)) {
+                    $++;
                     if(filesize($filename) == 0) {
-                        echo "\n found taxon wikimedia \n";
+                        // echo "\n found taxon wikimedia \n"; //just for debug
                         $json = json_encode($t);
-                        if($FILE = Functions::file_open($filename, 'w')) // normal
-                        {
+                        if($FILE = Functions::file_open($filename, 'w')) { // normal
                             fwrite($FILE, $json);
                             fclose($FILE);
                         }
-                        echo("\n[$filename] saved content\n");
+                        if(($i % 500) == 0) echo("\nsample [$filename] saved content"); 
                         // exit("\nmeaning, this was not saved the last time this utility was ran...\n");
                     }
-                    else echo("\nalready saved: [$filename]\n");
+                    // else echo("\nalready saved: [$filename]"); //just for debug...
                 }
                 // else echo " negative"; //meaning this media file is not encountered in the taxa wikidata process. //just for debug...
                 
