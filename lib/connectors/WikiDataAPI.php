@@ -942,7 +942,7 @@ class WikiDataAPI
         $final = array();
         // <a href="/wiki/File:A_hand-book_to_the_primates_(Plate_XL)_(5589462024).jpg"
         // <a href="/wiki/File:Irrawaddy_Dolphin.jpg"
-        echo("\nelix:[$url]\n");
+        debug("\nelix:[$url]\n");
         $options = $this->download_options;
         if($html = Functions::lookup_with_cache($url, $options)) {
             if(preg_match_all("/<a href=\"\/wiki\/File:(.*?)\"/ims", $html, $arr)) {
@@ -991,7 +991,7 @@ class WikiDataAPI
         $rek = array();
         // if(false) //will force to use API data - debug only
         if($filename = self::has_cache_data($file)) { //Eyes_of_gorilla.jpg - used in normal operation -- get media info from commons
-            echo "\nused cache data";
+            debug("\nused cache data");
             $rek = self::get_media_metadata_from_json($filename, $file);
             if($rek == "protected") return "continue";
             if(!$rek) {
@@ -1178,7 +1178,7 @@ class WikiDataAPI
             // echo "\nartist is ARRAY()"; print_r($rek['Artist']); //debug only
         }
         else {
-            echo "\nartist is STRING: [".$rek['Artist']."]\n";
+            debug("\nartist is STRING: [".$rek['Artist']."]\n");
             /* //new first option
                 [revision] => Array
                     (
@@ -1430,7 +1430,7 @@ class WikiDataAPI
 
         $wiki = self::remove_portions_of_wiki($wiki);
         $count = strlen($wiki);
-        echo "\ncount = [$count]\n";
+        debug("\ncount = [$count]\n");
         if($count >= 2995) return false; //2995 //4054 //6783
         
         $options = $this->download_options;
