@@ -15,8 +15,8 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/FreeDataAPI');
 $timestart = time_elapsed();
 
-$csv_url = "http://editors.eol.org/data_files/FreshData/USGS/SpeciesList.csv";
-// $csv_url = "http://localhost/cp/FreshData/USGS/SpeciesList.csv"; //use [csv] button below this page: https://nas.er.usgs.gov/queries/SpeciesList.aspx
+$csv_url = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/FreshData/USGS/SpeciesList.csv"
+// $csv_url = "http://localhost/cp_new/FreshData/USGS/SpeciesList.csv"; //use [csv] button below this page: https://nas.er.usgs.gov/queries/SpeciesList.aspx
 
 $func = new FreeDataAPI("usgs-nas"); //usgs_nonindigenous_aquatic_species
 $func->generate_usgs_archive($csv_url);
