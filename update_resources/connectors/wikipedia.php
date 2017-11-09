@@ -45,14 +45,15 @@ exit("\n Finished: just exploring... \n");
 // $func = new WikiDataAPI($resource_id, "ja");     ja Japanese
 
 //2nd batch:
-// $func = new WikiDataAPI($resource_id, "it");     it (it) Italian
-// $func = new WikiDataAPI($resource_id, "ru");     ru (ru) Russian
-// $func = new WikiDataAPI($resource_id, "ko");     ko (ko) Korean
+// $func = new WikiDataAPI($resource_id, "it");     it (it) Italian OK
+// $func = new WikiDataAPI($resource_id, "ru");     ru (ru) Russian OK
+// $func = new WikiDataAPI($resource_id, "pt");     pt (pt) Portuguese OK
+// $func = new WikiDataAPI($resource_id, "ko");     ko (ko) Korean OK
+// $func = new WikiDataAPI($resource_id, "zh");     zh (zh) Chinese OK
+
 // $func = new WikiDataAPI($resource_id, "cu");     cu ? investigate why so few...
 // $func = new WikiDataAPI($resource_id, "uk");     uk (uk) Ukrainian
 // $func = new WikiDataAPI($resource_id, "pl");     pl (pl) Polish
-// $func = new WikiDataAPI($resource_id, "zh");     zh (zh) Chinese
-// $func = new WikiDataAPI($resource_id, "pt");     pt (pt) Portuguese
 
 // not yet complete:
 // $func = new WikiDataAPI($resource_id, "nl");     //496940    (nl) Dutch
@@ -69,7 +70,7 @@ $func = new WikiDataAPI($resource_id, "en", "wikimedia");   //done - Used for Co
 // Wikipedia English is EOL resource_id = 80 --> http://www.eol.org/content_partners/129/resources/80
 
 // /* //----------start main operation
-$language = "ja";
+$language = "zh";
 $resource_id = "wikipedia-".$language;
 $func = new WikiDataAPI($resource_id, $language); //generic call
 $func->generate_resource();
