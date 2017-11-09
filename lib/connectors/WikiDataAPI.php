@@ -2225,7 +2225,7 @@ class WikiDataAPI
         $main_path = $this->path['wikimedia_cache'];
         $i = 0;
         $filename = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_" . date("Y_m") . ".txt";
-        if(!file_exists($filename)) exit("\nFile doesn't exist: [$filename]\n");
+        if(!file_exists($filename)) exit("\nFile doesn't exist: [$filename]\nRun php5.6 wikidata.php jenkins save_all_media_filenames\n");
         foreach(new FileIterator($filename) as $line_number => $file) {
             $md5 = md5($file);
             $cache1 = substr($md5, 0, 2);
