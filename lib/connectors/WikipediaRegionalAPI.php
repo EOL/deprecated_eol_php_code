@@ -16,8 +16,10 @@ class WikipediaRegionalAPI
         $this->language_code = $language_code;
         $this->wikipedia_api = "http://en.wikipedia.org/w/api.php";
         
+        $path = '/Volumes/Thunderbolt4/eol_cache_wiki_regions/';
+        $path = '/extra/eol_cache_wiki_regions/';
         if($resource_id == 957) $this->download_options = array('resource_id' => $resource_id, 'expire_seconds' => false, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1); //'delay_in_minutes' => 1
-        else                    $this->download_options = array('cache_path' => '/Volumes/Thunderbolt4/eol_cache_wiki_regions/', 'expire_seconds' => false, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1); //'delay_in_minutes' => 1
+        else                    $this->download_options = array('cache_path' => $path, 'expire_seconds' => false, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1); //'delay_in_minutes' => 1
 
         $this->ranks['de'] = array("reich", "klasse", "ordnung", "familie", "gattung");
         $this->ranks_en['reich']    = "kingdom";
