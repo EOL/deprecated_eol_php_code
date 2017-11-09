@@ -148,8 +148,13 @@ class NMNHTypeRecordAPI_v2
                             //for debug only - start
                             if(strtoupper($fields["http://rs.tdwg.org/dwc/terms/typeStatus"]) == 'RENAMED') $this->debug['RENAMED'][] = $fields;
                             //for debug only - end
-                            
+
+                            // /* debug only
                             // print_r($fields);
+                            $this->debug['eli']['sex'] = (string) @$fields['http://rs.tdwg.org/dwc/terms/sex'];
+                            $this->debug['eli']['lifeStage'] = (string) @$fields['http://rs.tdwg.org/dwc/terms/lifeStage'];
+                            // */
+                            
                             
                             if(!self::valid_typestatus($fields["http://rs.tdwg.org/dwc/terms/typeStatus"], $fields["http://rs.tdwg.org/dwc/terms/scientificName"])) continue;
                             $fields["taxon_id"] = self::get_taxon_id($fields);
@@ -341,14 +346,14 @@ class NMNHTypeRecordAPI_v2
             $associatedSequences = $rec["http://rs.tdwg.org/dwc/terms/associatedSequences"];
             if($associatedSequences && $associatedSequences != "Genbank:") self::add_string_types($rec, $associatedSequences, "http://rs.tdwg.org/dwc/terms/associatedSequences");
 
-            //additional requirement: from https://docs.google.com/spreadsheets/d/1Wepvr0FcaY8Y-LXcAY_8NXQD2jj8p11a4bKBeCr23jM/edit?ts=5a00b75a#gid=0
-            $life_stage = $rec["http://rs.tdwg.org/dwc/terms/lifeStage"];
+            //additional requirement: from https://docs.google.com/spreadsheets/d/1Wepvr0FcaY8Y-LXcAY_8NXQD2jj8p11a4bKBeCr23jM/edit?ts=5a00b75a#gid=0  =====================================
+            $life_stage = strtoupper($rec["http://rs.tdwg.org/dwc/terms/lifeStage"]);
             if($life_stage == 'EXUVIAE') self::add_string_types($rec, self::get_uri($life_stage, 'lifeStage'), "http://eol.org/schema/terms/bodyPart");
                 /*
                 http://eol.org/globi/terms/bodyPart - should be phased out as advised by Jen. Never use.
                 http://eol.org/known_uris?page=5&uri_type_id=1
                 */
-            //end additional requirement
+            //end additional requirement  =====================================
 
             $fields = array("http://rs.tdwg.org/dwc/terms/recordNumber", "http://rs.tdwg.org/dwc/terms/otherCatalogNumbers", "http://rs.tdwg.org/dwc/terms/startDayOfYear", 
                             "http://rs.tdwg.org/dwc/terms/endDayOfYear", "http://rs.tdwg.org/dwc/terms/year", "http://rs.tdwg.org/dwc/terms/month", "http://rs.tdwg.org/dwc/terms/day", 
@@ -526,7 +531,7 @@ class NMNHTypeRecordAPI_v2
 
     private function put_in_measurementRemarks($rec) //based here: https://docs.google.com/spreadsheets/d/1Wepvr0FcaY8Y-LXcAY_8NXQD2jj8p11a4bKBeCr23jM/edit?ts=5a00b75a#gid=0
     {
-        $life_stage = $rec["http://rs.tdwg.org/dwc/terms/lifeStage"];
+        $life_stage = strtoupper($rec["http://rs.tdwg.org/dwc/terms/lifeStage"]);
         //where lifeStage is these; put verbatim text in measurementRemarks
         if(in_array($life_stage, array("MATURE SPORES", "PROTOZOAN STAGE SPORES", "FIRST YEAR", "HALF-GROWN")))
         {
@@ -545,43 +550,53 @@ class NMNHTypeRecordAPI_v2
         $catnum = $rec["catnum"];
         
         // -------------------------------------------------------------start here, check if lifeStage is multiple -------------------------------------------------------------
-        $lifeStage = strtoupper((string) $rec["http://rs.tdwg.org/dwc/terms/lifeStage"]);
+        $lifeStage = strtoupper($rec["http://rs.tdwg.org/dwc/terms/lifeStage"]);
         /* There is no consistent pattern for multiple lifeStage values. Thus this is explicitly set if multiple or not. */
         $multiple = array("CERCARIA; REDIAE", "CERCARIAE; REDIA", "CERCARIA; PARTHENITAE", "CERCARIA; SPOROCYST");
-        if(in_array($lifeStage, $multiple)) {
-            $lifeStages = explode("; ", $lifeStage);
-        }
-        else $lifeStages = array($lifeStage);
+        if(in_array($lifeStage, $multiple)) $lifeStages = explode("; ", $lifeStage);
+        elseif($val = $lifeStage)           $lifeStages = array($val);
+        else                                $lifeStages = array();
+        $lifeStages = array_map('trim', $lifeStages);
         // -------------------------------------------------------------end here, check if lifeStage is multiple -------------------------------------------------------------
         
-        foreach($lifeStages as $lifeStage)
-        {
-            $rec["http://rs.tdwg.org/dwc/terms/lifeStage"] = $lifeStage;
-            $rec = self::put_in_measurementRemarks($rec);
-            
-            //=========================================start of orig=========================================
-            // $occurrence_id = $catnum; //orig
-            $occurrence_id = ($lifeStage) ? $catnum."_".md5($lifeStage): $catnum;
-            
-            $m = new \eol_schema\MeasurementOrFact();
-            $this->add_occurrence($taxon_id, $occurrence_id, $rec);
-            $m->occurrenceID = $occurrence_id;
-            $m->measurementOfTaxon = $measurementOfTaxon;
-            if($measurementOfTaxon ==  "true") {
-                // so that measurementRemarks (and source, contributor, etc.) appears only once in the [measurement_or_fact.tab]
-                $m->measurementRemarks = @$rec['measurement_remarks'];
-                $m->source = $rec["source"];
-                $m->contributor = @$rec["contributor"];
-                /* not used at the moment
-                if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/reference/referenceID"])) $m->referenceID = $referenceID;
-                */
+        if($lifeStages) {
+            foreach($lifeStages as $lifeStage)
+            {
+                $rec["http://rs.tdwg.org/dwc/terms/lifeStage"] = $lifeStage;
+                $rec = self::put_in_measurementRemarks($rec);
+                //=========================================start of orig=========================================
+                // $occurrence_id = $catnum; //orig
+                $occurrence_id = ($lifeStage) ? $catnum."_".md5($lifeStage): $catnum;
+                self::create_measurement($taxon_id, $occurrence_id, $rec, $measurementOfTaxon, $measurementType, $value);
+                //=========================================endof orig=========================================
             }
-            $m->measurementType = $measurementType;
-            $m->measurementValue = $value;
-            $m->measurementMethod = '';
-            $this->archive_builder->write_object_to_file($m);
-            //=========================================endof orig=========================================
         }
+        else {
+                //=========================================start of orig=========================================
+                $occurrence_id = $catnum; //orig
+                self::create_measurement($taxon_id, $occurrence_id, $rec, $measurementOfTaxon, $measurementType, $value);
+                //=========================================endof orig=========================================
+        }
+    }
+    private function create_measurement($taxon_id, $occurrence_id, $rec, $measurementOfTaxon, $measurementType, $value)
+    {
+        $m = new \eol_schema\MeasurementOrFact();
+        $this->add_occurrence($taxon_id, $occurrence_id, $rec);
+        $m->occurrenceID = $occurrence_id;
+        $m->measurementOfTaxon = $measurementOfTaxon;
+        if($measurementOfTaxon ==  "true") {
+            // so that measurementRemarks (and source, contributor, etc.) appears only once in the [measurement_or_fact.tab]
+            $m->measurementRemarks = @$rec['measurement_remarks'];
+            $m->source = $rec["source"];
+            $m->contributor = @$rec["contributor"];
+            /* not used at the moment
+            if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/reference/referenceID"])) $m->referenceID = $referenceID;
+            */
+        }
+        $m->measurementType = $measurementType;
+        $m->measurementValue = $value;
+        $m->measurementMethod = '';
+        $this->archive_builder->write_object_to_file($m);
     }
 
     private function add_occurrence($taxon_id, $occurrence_id, $rec)
