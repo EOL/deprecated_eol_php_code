@@ -2266,7 +2266,7 @@ class WikiDataAPI
                             fclose($FILE);
                         }
                         echo("\n[$filename] saved content\n");
-                        exit("\nmeaning, this was not saved the last time this utility was ran...\n");
+                        // exit("\nmeaning, this was not saved the last time this utility was ran...\n");
                     }
                     else echo("\nalready saved: [$filename]\n");
                 }
