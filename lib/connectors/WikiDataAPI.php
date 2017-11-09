@@ -2224,7 +2224,9 @@ class WikiDataAPI
         */
         $main_path = $this->path['wikimedia_cache'];
         $i = 0;
-        foreach(new FileIterator(CONTENT_RESOURCE_LOCAL_PATH."wikimedia_filenames_2017_10.txt") as $line_number => $file) {
+        $filename = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_" . date("Y_m") . ".txt";
+        if(!file_exists($filename)) exit("\nFile doesn't exist: [$filename]\n");
+        foreach(new FileIterator($filename) as $line_number => $file) {
             $md5 = md5($file);
             $cache1 = substr($md5, 0, 2);
             $cache2 = substr($md5, 2, 2);
