@@ -4,7 +4,7 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikiDataAPI');
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = true;
+$GLOBALS['ENV_DEBUG'] = false;
 
 /*
 $str = "abcd|e|||";
@@ -35,7 +35,7 @@ print_r($cmdline_params);
 
 
 // /* main operation
-$resource_id = "71"; //Wikimedia Commons is EOL resource = 71
+$resource_id = "commons"; //Wikimedia Commons is EOL resource = 71
 
 /* $func = new WikiDataAPI($resource_id, "en", "taxonomy"); //3rd param is boolean taxonomy; true means will generate hierarchy resource. [wikidata-hierarchy] */
 $func = new WikiDataAPI($resource_id, "en", "wikimedia"); //Used for Commons - total taxa = 2,208,086
