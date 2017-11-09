@@ -1230,7 +1230,7 @@ class WikiDataAPI
                 
                 //start another special 
                 /* [LicenseShortName] => User:FlickreviewR/reviewed-pass|Jon David Nelson|https://flickr.com/photos/65771669@N07/15115751721|2015-12-01 12:50:33|cc-by-2.0| */
-                if(preg_match("/User\:(.*?)\//ims", $rek['LicenseShortName'], $a)) {
+                if(preg_match("/User\:(.*?)\//ims", @$rek['LicenseShortName'], $a)) {
                     $rek['Artist'][] = array('name' => $a[1], 'homepage' => "https://commons.wikimedia.org/wiki/User:".$a[1], 'role' => 'source');
                 }
                 //end another special 
@@ -1248,7 +1248,7 @@ class WikiDataAPI
             //possible values --> "[[User:Victuallers]]" "[[User:Tomascastelazo|Tomas Castelazo]]" "*Original: [[User:Chiswick Chap|Chiswick Chap]]"
             elseif(stripos($rek['Artist'], "[[User:") !== false && stripos($rek['Artist'], "]]") !== false) //string is found //e.g. *Original: [[User:Chiswick Chap|Chiswick Chap]]
             {
-                echo "\nartist value is: ".$rek['Artist']."\n";
+                debug("\nartist value is: ".$rek['Artist']."\n");
                 if(preg_match_all("/\[\[(.*?)\]\]/ims", $rek['Artist'], $a))
                 {
                     // print_r($a);
