@@ -2257,7 +2257,7 @@ class WikiDataAPI
                 $title = str_replace("File:", "", $title);
                 $title = str_replace(" ", "_", $title);
                 if($filename = self::taxon_media($title)) {
-                    $++;
+                    $i++;
                     if(filesize($filename) == 0) {
                         // echo "\n found taxon wikimedia \n"; //just for debug
                         $json = json_encode($t);
