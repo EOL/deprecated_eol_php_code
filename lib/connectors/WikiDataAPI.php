@@ -144,7 +144,11 @@ class WikiDataAPI
 
     private function initialize_files()
     {
-        $this->TEMP_FILE_PATH = temp_filepath();
+        // $this->TEMP_FILE_PATH = temp_filepath(); //orig. worked well but it goes to /tmp/ folder. We need to put it in /extra/ in eol-archive
+        
+        //creates a temp file
+        $this->TEMP_FILE_PATH = CONTENT_RESOURCE_LOCAL_PATH."/wikipedia_".$this->language_code."_".date("Y-m-d_H_s").".tmp";
+        
         if(!($f = Functions::file_open($this->TEMP_FILE_PATH, "w"))) return;
         fclose($f);
         /*
