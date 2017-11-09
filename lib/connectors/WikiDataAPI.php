@@ -96,7 +96,7 @@ class WikiDataAPI
         //         [File:] => Aix_sponsa_dis1.PNG
         //         [File:] => 
         //     )
-        $arr = self::process_file("Chinese_Honeysuckle_(349237385).jpg");
+        $arr = self::process_file("Aix_sponsa_dis1.PNG");
         print_r($arr);
         exit("\n-Finished testing-\n");
         */
@@ -627,7 +627,7 @@ class WikiDataAPI
                 if(stripos($LicenseShortName, $p) !== false) return $this->license['by'];
             }
             //[by-sa] stripos
-            $arr = array("Nationaal Archief", "Malayalam loves Wikipedia event");
+            $arr = array("Nationaal Archief", "Malayalam loves Wikipedia event", "Category:Megalops atlanticus");
             foreach($arr as $p) {
                 if(stripos($LicenseShortName, $p) !== false) return $this->license['by-sa'];
             }
@@ -644,58 +644,54 @@ class WikiDataAPI
                 if($LicenseShortName == $p) return $this->license['by-sa']; //exact match
             }
 
-            /* WILL REMAIN INVALID: as of Oct 30
+            /* WILL REMAIN INVALID: as of Nov 9
             [blank_license] => Array
                 (
-            [MLW3‬] => 
-            [] => 
-            [dvdm-h6|migration=relicense] => 
-            [BMC] => 
-            [] => 
-            [Zachi Evenor] => 
-            [Team|event=Wikipedia Takes Waroona|team=Team Flower|id=19] => 
-            [Wuzur] => 
-            [<br/>(original text|nobold=1|1=Klettenlabkraut in Weizen] => 
-            [Andes] => 
-            [Assessments|enwiki=1|enwiki-nom=Bicolored Antbird] => 
-            [Youtube|Junichi Kubota] => 
-            [Personality rights] => 
-            [personality rights] => 
-            [NO Facebook Youtube license] => 
-            [spomenikSVN|7914] => 
-            [Location|36|2|59.1|N|139|9|1.8|E|type:landmark_region:JP-29_scale:2000] => 
-            [s*derivative work: [[User:B kimmel|B kimmel]] ([[User talk:B kimmel|<span class="signature-talk">talk</span>]])|Permission=|other_versions=] => 
-            [Flickreview|Yuval Y|20:49, 16 June 2011 (UTC)] => 
-            [Tasnim] => 
-            [OTRS|2008072210012641] => 
-            [IBC] => 
-            [QualityImage] => 
-            [youtube] => 
-            [MUSE|OTRS=yes] => 
-            [DYKfile|28 December|2006|type=image] => 
-            [Bilderwerkstatt|editor=[[:de:Benutzer:Denis Barthel|Denis Barthel]]|orig=Yucca_recurvifolia_fh_1183.24_ALA_AAA.jpg|changes=Perspektive, Ausschnitt, kleinere Edits] => 
-            [OTRS|2012011510006576] => 
-            [Location dec|46.122186|7.071841|source:Flickr] => 
-            [Beeld en Geluid Wiki] => 
-            [[[:en:Category:Frog images]]|Source=Transferred from|en.wikipedia] => 
-            [Bilderwerkstatt|editor=[[:de:Benutzer:Saman|Saman]]|orig=|changes=Etwas Staub entfernt, Kontrast und Tonwertkorrektur verändert] => 
-            [retouched|cropped] => 
-            [RetouchedPicture|cropped ''Sciurus spadiceus'' (frame) into a portrait|editor=Jacek555|orig=Sciurus spadiceus (frame).jpg] => 
-            [piqs|101897|babychen] => 
-            [personality] => 
-            [RetouchedPicture|Created GIF animation from sequence of images] => 
-            [!-] => 
-            [] => 
-            [Youtube|channelxxxvol1] => 
-            [Picswiss|migration=relicense] => 
-            [[[Category:Megalops atlanticus]]] => 
-            [Volganet.ru] => 
-            [@|link=http://www.opencage.info/pics.e/large_8238.asp|txt=opencage-] => 
-            ["] => 
-            [RetouchedPicture|Screenshot for distribution map|editor=Obsidian Soul|orig=Australia Victoria location map highways.svg] => 
-            [|Source=transferred from|en.wikipedia|Syp|CommonsHelper] => 
-            [Folger Shakespeare Library partnership] => 
-            [DYKfile|25 March|2008|type=image] => 
+                    [MLW3‬] => 
+                    [dvdm-h6|migration=relicense] => 
+                    [BMC] => 
+                    [Zachi Evenor] => 
+                    [Team|event=Wikipedia Takes Waroona|team=Team Flower|id=19] => 
+                    [Wuzur] => 
+                    [<br/>(original text|nobold=1|1=Klettenlabkraut in Weizen] => 
+                    [Andes] => 
+                    [Assessments|enwiki=1|enwiki-nom=Bicolored Antbird] => 
+                    [Youtube|Junichi Kubota] => 
+                    [Personality rights] => 
+                    [personality rights] => 
+                    [NO Facebook Youtube license] => 
+                    [spomenikSVN|7914] => 
+                    [Location|36|2|59.1|N|139|9|1.8|E|type:landmark_region:JP-29_scale:2000] => 
+                    [s*derivative work: [[User:B kimmel|B kimmel]] ([[User talk:B kimmel|<span class="signature-talk">talk</span>]])|Permission=|other_versions=] => 
+                    [Flickreview|Yuval Y|20:49, 16 June 2011 (UTC)] => 
+                    [Tasnim] => 
+                    [OTRS|2008072210012641] => 
+                    [IBC] => 
+                    [QualityImage] => 
+                    [youtube] => 
+                    [MUSE|OTRS=yes] => 
+                    [DYKfile|28 December|2006|type=image] => 
+                    [Bilderwerkstatt|editor=[[:de:Benutzer:Denis Barthel|Denis Barthel]]|orig=Yucca_recurvifolia_fh_1183.24_ALA_AAA.jpg|changes=Perspektive, Ausschnitt, kleinere Edits] => 
+                    [OTRS|2012011510006576] => 
+                    [Location dec|46.122186|7.071841|source:Flickr] => 
+                    [Beeld en Geluid Wiki] => 
+                    [[[:en:Category:Frog images]]|Source=Transferred from|en.wikipedia] => 
+                    [Bilderwerkstatt|editor=[[:de:Benutzer:Saman|Saman]]|orig=|changes=Etwas Staub entfernt, Kontrast und Tonwertkorrektur verändert] => 
+                    [retouched|cropped] => 
+                    [RetouchedPicture|cropped ''Sciurus spadiceus'' (frame) into a portrait|editor=Jacek555|orig=Sciurus spadiceus (frame).jpg] => 
+                    [piqs|101897|babychen] => 
+                    [personality] => 
+                    [RetouchedPicture|Created GIF animation from sequence of images] => 
+                    [!-] => 
+                    [Youtube|channelxxxvol1] => 
+                    [Picswiss|migration=relicense] => 
+                    [Volganet.ru] => 
+                    [@|link=http://www.opencage.info/pics.e/large_8238.asp|txt=opencage-] => 
+                    ["] => 
+                    [RetouchedPicture|Screenshot for distribution map|editor=Obsidian Soul|orig=Australia Victoria location map highways.svg] => 
+                    [|Source=transferred from|en.wikipedia|Syp|CommonsHelper] => 
+                    [Folger Shakespeare Library partnership] => 
+                    [DYKfile|25 March|2008|type=image] => 
                 )
             */
             
@@ -1618,7 +1614,7 @@ class WikiDataAPI
             if($rek['pageid'] == "865581") //good debug api
             {
                 echo "\n=======investigate api data =========== start\n";
-                print_r($arr); exit;
+                print_r($arr); exit("\nelix\n");
                 echo "\n=======investigate api data =========== end\n";
             }
             */
