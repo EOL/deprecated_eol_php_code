@@ -229,7 +229,7 @@ class WikiDataAPI
         $k = 0; $m = 250000; //only for breakdown when caching
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
             $k++; 
-            if(($k % 100000) == 0) echo " ".number_format($k)." ";
+            if(($k % 1000) == 0) echo " ".number_format($k)." ";
             echo " ".number_format($k)." ";
             /* breakdown when caching:
             $cont = false;
@@ -287,7 +287,7 @@ class WikiDataAPI
                              $rek['com_gallery'] = self::get_commons_gallery($arr->claims);
                              $rek['com_category'] = self::get_commons_category($arr->claims);
                              
-                             echo "\n $this->language_code ".$rek['taxon_id']." - ";
+                             debug("\n $this->language_code ".$rek['taxon_id']." - ");
                              if($this->what == "wikipedia") $rek = self::get_other_info($rek); //uncomment in normal operation
                              if($this->what == "wikimedia") {
                                  if($url = @$rek['com_category'])   $rek['obj_category'] = self::get_commons_info($url);
