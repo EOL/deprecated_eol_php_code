@@ -2270,7 +2270,7 @@ class WikiDataAPI
                     }
                     else echo("\nalready saved: [$filename]\n");
                 }
-                else echo "\n negative \n"; //meaning this media file is not encountered in the taxa wikidata process.
+                // else echo " negative"; //meaning this media file is not encountered in the taxa wikidata process. //just for debug...
                 
                 /* just tests
                 if(substr($title,0,5) == "File:")
