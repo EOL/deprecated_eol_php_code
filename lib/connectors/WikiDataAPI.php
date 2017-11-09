@@ -1101,7 +1101,7 @@ class WikiDataAPI
         if($count >= 2995) return false; //2995 //4054 //6783
         
         $options = $this->download_options;
-        $options['expire_seconds'] = false; //always false
+        $options['expire_seconds'] = false; //always false bec. you're just converting wiki to html
         if($json = Functions::lookup_with_cache($url.urlencode($wiki), $options)) {
             $arr = json_decode($json, true);
             // echo "\n==========\n";
