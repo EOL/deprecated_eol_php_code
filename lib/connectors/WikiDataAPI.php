@@ -995,7 +995,7 @@ class WikiDataAPI
             $rek = self::get_media_metadata_from_json($filename, $file);
             if($rek == "protected") return "continue";
             if(!$rek) {
-                echo "\njust used api data instead";
+                // echo "\njust used api data instead";
                 /*
                 if(!in_array($file, array("The_marine_mammals_of_the_north-western_coast_of_North_America,_described_and_illustrated;_together_with_an_account_of_the_American_whale-fishery_(1874)_(14598172619).jpg", 
                 "The_marine_mammals_of_the_north-western_coast_of_North_America_described_and_illustrated_(microform)_-_together_with_an_account_of_the_American_whale-fishery_(1874)_(20624848441).jpg"))) exit("\n111 [$file] 222\n");
@@ -1005,7 +1005,7 @@ class WikiDataAPI
             // print_r($rek); exit;
         }
         else {
-            echo "\nused api data";
+            debug("\nused api data");
             $rek = self::get_media_metadata_from_api($file);
         }
         if(!$rek) return false;
@@ -1159,16 +1159,16 @@ class WikiDataAPI
         $rek['Artist'] = trim(@$rek['other']['author']);
 
         if(!$rek['Artist']) { //became the 1st option. Before was just the 2nd option
-            echo "\nelix went here aaa\n";
+            // echo "\nelix went here aaa\n";
             if($val = self::second_option_for_artist_info($dump_arr)) $rek['Artist'][] = $val;
         }
         
         if(!$rek['Artist']) {
-            echo "\nelix went here bbb\n";
+            // echo "\nelix went here bbb\n";
             $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']); //get_media_metadata_from_json()
         }
         if(!$rek['Artist']) {
-            echo "\nelix went here ccc\n";
+            // echo "\nelix went here ccc\n";
             if($val = self::get_artist_from_special_source($wiki, '')) $rek['Artist'][] = $val; //get_media_metadata_from_json()
         }
         // parse this value = "[http://www.panoramio.com/user/6099584?with_photo_id=56065015 Greg N]"
@@ -1641,7 +1641,6 @@ class WikiDataAPI
                         else                                                  $atemp['homepage'] = trim($a[1]); //orig
                     }
                     if(preg_match("/\">(.*?)<\/a>/ims", $val, $a)) {
-                        echo "\nelicha 111\n";
                         $atemp['name'] = self::remove_role_from_name(strip_tags(trim($a[1]),''));
                         $atemp['role'] = 'author';
                     }
