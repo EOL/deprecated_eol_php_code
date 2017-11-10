@@ -41,11 +41,7 @@ $resource_id = "commons"; //Wikimedia Commons is EOL resource = 71
 /* $func = new WikiDataAPI($resource_id, "en", "taxonomy"); //3rd param is boolean taxonomy; true means will generate hierarchy resource. [wikidata-hierarchy] */
 $func = new WikiDataAPI($resource_id, "en", "wikimedia"); //Used for Commons - total taxa = 2,208,086
 
-if(@$params['task'] == "generate_resource") { //step 4 (ran 1 connector)
-    $func->generate_resource();
-    Functions::finalize_dwca_resource($resource_id);
-}
-elseif(@$params['task'] == "create_all_taxon_dump")         $func->create_all_taxon_dump();     //step 1 (ran 1 connector)
+    if(@$params['task'] == "create_all_taxon_dump")         $func->create_all_taxon_dump();     //step 1 (ran 1 connector)
 elseif(@$params['task'] == "save_all_media_filenames")      $func->save_all_media_filenames($params['task'], $params['range_from'], $params['range_to']);  //step 2 (ran 6 connectors bec of lookup caching. Then ran 1 connector to finalize.)
 elseif(@$params['task'] == "create_then_fill_commons_data")                                     //step 3 (ran 1 connector)
 {
@@ -54,6 +50,10 @@ elseif(@$params['task'] == "create_then_fill_commons_data")                     
     $func->create_temp_files_based_on_wikimedia_filenames();     //create blank json files
     $func->fill_in_temp_files_with_wikimedia_dump_data();        //fill-in those blank json files
     echo("\n ==Finished preparing new WikiMedia dump== \n");
+}
+elseif(@$params['task'] == "generate_resource") { //step 4 (ran 1 connector)
+    $func->generate_resource();
+    Functions::finalize_dwca_resource($resource_id);
 }
 
 
