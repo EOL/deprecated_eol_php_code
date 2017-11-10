@@ -31,8 +31,8 @@ class WikiDataAPI
         $this->taxon_ids = array();
         $this->object_ids = array();
         $this->debug = array();
-        $this->download_options = array('expire_seconds' => false, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-        
+        $this->download_options = array('expire_seconds' => 60*60*24*25, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        // $this->download_options['expire_seconds'] = false;
         /* local
         $this->path['raw_dump']         = "/Volumes/Thunderbolt4/wikidata/latest-all.json";       //from https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.gz
         $this->path['wiki_data_json']   = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //an all_taxon dump generated from raw [latest-all.json.gz]
@@ -232,7 +232,7 @@ class WikiDataAPI
             if(($k % 1000) == 0) echo " ".number_format($k)." ";
             echo " ".number_format($k)." ";
             
-            if($task == "save_all_media_filenames")
+            if(($task == "save_all_media_filenames") && $range_from && $range_to)
             {
                 $cont = false;
                 if($k >= $range_from && $k < $range_to) $cont = true;
@@ -620,7 +620,7 @@ class WikiDataAPI
         // <a href="/wiki/File:Irrawaddy_Dolphin.jpg"
         debug("\nelix:[$url]\n");
         $options = $this->download_options;
-        if($html = Functions::lookup_with_cache($url, $options)) {
+        if($html = Functions::lookup_with_cache($url, $options)) { //preferably monthly cache expires. This gets filenames from page-gallery & page-category
             if(preg_match_all("/<a href=\"\/wiki\/File:(.*?)\"/ims", $html, $arr)) {
                 $files = array_values(array_unique($arr[1]));
                 // print_r($files); //exit;
@@ -1266,7 +1266,7 @@ class WikiDataAPI
     {   //https://commons.wikimedia.org/w/api.php?action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:Gorilla_498.jpg
         $rek = array();
         $options = $this->download_options;
-        $options['expire_seconds'] = false; //this can be 2 months
+        // $options['expire_seconds'] = false; //preferably monthly cache expires
         if($json = Functions::lookup_with_cache("https://commons.wikimedia.org/w/api.php?format=json&action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:".$file, $options))
         {
             $json = self::clean_html($json); //new ditox eli
@@ -1414,7 +1414,7 @@ class WikiDataAPI
     private function get_Flickr_user_realname_using_userID($user_id, $options)
     {
         $api_call = "https://api.flickr.com/services/rest/?method=flickr.people.getInfo&api_key=".FLICKR_API_KEY."&user_id=".$user_id."&format=json&nojsoncallback=1";
-        if($json = Functions::lookup_with_cache($api_call, $options)) {
+        if($json = Functions::lookup_with_cache($api_call, $options)) { //always cache expire false
             $arr = json_decode($json, true);
             if($val = @$arr['person']['realname']['_content']) return "$val ($user_id)";
             elseif($val = @$arr['person']['username']['_content']) return "$val ($user_id)";
@@ -1642,7 +1642,7 @@ class WikiDataAPI
             $options = $this->download_options;
             // if($rek['taxon_id'] == "Q5113") $options['expire_seconds'] = true; //debug only force
 
-            if($html = Functions::lookup_with_cache($url, $options)) {
+            if($html = Functions::lookup_with_cache($url, $options)) { //preferabley monthly expires
                 if(self::bot_inspired($html)) {
                     echo("\nbot inspired: [$url]\n");
                     return $rek;
@@ -1831,7 +1831,9 @@ class WikiDataAPI
     private function get_object($id)
     {
         $url = "https://www.wikidata.org/wiki/Special:EntityData/" . $id . ".json";
-        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+        $options = $this->download_options;
+        $options['expire_seconds'] = false; //can always be false, bec. valued by ID normally don't change
+        if($json = Functions::lookup_with_cache($url, $options)) {
             $obj = json_decode($json);
             return $obj;
         }
