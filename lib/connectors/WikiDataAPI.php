@@ -68,7 +68,7 @@ class WikiDataAPI
         $this->license['no restrictions'] = "No known copyright restrictions";
     }
 
-    function save_all_media_filenames() //one of pre-requisite steps
+    function save_all_media_filenames($task, $range_from, $range_to) //one of pre-requisite steps
     {
         //initialize:
         $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_" . date("Y_m") . ".txt";
@@ -77,7 +77,7 @@ class WikiDataAPI
         echo "\n-Filename created OK\n";
         
         $this->save_all_filenames = true; //use to save all media filenames to text file
-        self::parse_wiki_data_json();
+        self::parse_wiki_data_json($task, $range_from, $range_to);
     }
     function generate_resource()
     {
@@ -221,7 +221,7 @@ class WikiDataAPI
         */
     }
 
-    private function parse_wiki_data_json()
+    private function parse_wiki_data_json($task = false, $range_from = false, $range_to = false)
     {
         $exit_now = false; //only used during debug
         $actual = 0;
@@ -231,6 +231,15 @@ class WikiDataAPI
             $k++; 
             if(($k % 1000) == 0) echo " ".number_format($k)." ";
             echo " ".number_format($k)." ";
+            
+            if($task == "save_all_media_filenames")
+            {
+                $cont = false;
+                if($k >= $range_from && $k < $range_to) $cont = true;
+                if(!$cont) continue;
+            }
+            
+            
             /* breakdown when caching:
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true;
