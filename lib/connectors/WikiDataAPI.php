@@ -262,6 +262,10 @@ class WikiDataAPI
                 if($k >= $range_from && $k < $range_to) $cont = true;
                 if(!$cont) continue;
             }
+
+            //just testing...
+            if($k >= 1 && $k < 10) $cont = true;
+            else break;
             
             
             /* breakdown when caching:
