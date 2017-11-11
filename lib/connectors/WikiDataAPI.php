@@ -88,7 +88,7 @@ class WikiDataAPI
 
         //log this task finished
         $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . date("Y_m") . ".txt";
-        if(!($f = Functions::file_open($txtfile, "w"))) return;
+        if(!($f = Functions::file_open($txtfile, "a"))) return;
         fwrite($f, "$actual_task DONE"."\n"); fclose($f); echo "\n-$actual_task DONE\n";
         return true;
     }

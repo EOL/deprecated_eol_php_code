@@ -42,9 +42,14 @@ $resource_id = "commons"; //Wikimedia Commons is EOL resource = 71
 /* $func = new WikiDataAPI($resource_id, "en", "taxonomy"); //3rd param is boolean taxonomy; true means will generate hierarchy resource. [wikidata-hierarchy] */
 $func = new WikiDataAPI($resource_id, "en", "wikimedia"); //Used for Commons - total taxa = 2,208,086
 
-    if(@$params['task'] == "create_all_taxon_dump")         $func->create_all_taxon_dump();     //step 1 (ran 1 connector)
-elseif(@$params['task'] == "save_all_media_filenames")
-{
+if(@$params['task'] == "create_all_taxon_dump") {
+    $func->create_all_taxon_dump();     //step 1 (ran 1 connector)
+    //initialize status file
+    $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . date("Y_m") . ".txt";
+    if(!($f = Functions::file_open($txtfile, "w"))) return;
+    fclose($f); echo "\nInitialized: [$txtfile]\n";
+}    
+elseif(@$params['task'] == "save_all_media_filenames") {
     $status = $func->save_all_media_filenames($params['task'], $params['range_from'], $params['range_to'], $params['actual']);  //step 2 (ran 6 connectors bec of lookup caching. Then ran 1 connector to finalize.)
     if($status) echo "\n---Can now proceed to next step...---\n\n";
     else        exit(1);
