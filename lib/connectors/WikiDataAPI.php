@@ -79,7 +79,10 @@ class WikiDataAPI
         $this->save_all_filenames = true; //use to save all media filenames to text file
         if($actual_task) self::parse_wiki_data_json($task, $range_from, $range_to);
         else { //means finalize file
-            if(self::finalize_media_filenames_ready()) self::parse_wiki_data_json($task, false, false);
+            if(self::finalize_media_filenames_ready())
+            {
+                self::parse_wiki_data_json($task, false, false);
+            }
             else {
                 echo "\n\n ---Cannot finalize media filenames yet.---\n\n";
                 return false;
@@ -1898,10 +1901,6 @@ class WikiDataAPI
         fclose($f);
         echo "\ntaxa  wikis: [$e]\n";
         echo "\nnon-taxa  wikis: [$i]\n";
-
-        //initialize status file
-        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . date("Y_m") . ".txt";
-        if(file_exists($txtfile)) unlink($txtfile);
     }
 
     private function bot_inspired($html)

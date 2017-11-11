@@ -43,6 +43,12 @@ $resource_id = "commons"; //Wikimedia Commons is EOL resource = 71
 $func = new WikiDataAPI($resource_id, "en", "wikimedia"); //Used for Commons - total taxa = 2,208,086
 
 if(@$params['task'] == "create_all_taxon_dump") {
+    
+    //initialize status file
+    $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . date("Y_m") . ".txt";
+    if(file_exists($txtfile)) unlink($txtfile);
+    
+    
     $func->create_all_taxon_dump();     //step 1 (ran 1 connector)
 }
 elseif(@$params['task'] == "save_all_media_filenames") {
