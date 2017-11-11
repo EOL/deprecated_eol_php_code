@@ -81,7 +81,7 @@ class WikiDataAPI
         else { //means finalize file
             if(self::finalize_media_filenames_ready()) self::parse_wiki_data_json($task, false, false);
             else {
-                echo "\nCannot finalized media filenames yet.\n";
+                echo "\n\n ---Cannot finalize media filenames yet.---\n\n";
                 return false;
             }
         }
