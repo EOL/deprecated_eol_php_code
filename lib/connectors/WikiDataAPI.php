@@ -93,7 +93,7 @@ class WikiDataAPI
         if(!file_exists($txtfile)) return false;
         $contents = file_get_contents($txtfile);
         for($i=1; $i<=6; $i++) {
-            if(stripos($contents, "$iof6 DONE") !== false) {} //string is found
+            if(stripos($contents, $i."of6 DONE") !== false) {} //string is found
             else return false;
         }
         return true;
@@ -1742,7 +1742,7 @@ class WikiDataAPI
     {
         $claims = @$arr->claims;
         if($val = @$claims->P225[0]->mainsnak->datavalue->value) return (string) $val;
-        elseif(in_array($arr->id, array("Q4589415")))   //special case for a ko & en article
+        elseif(in_array(@$arr->id, array("Q4589415")))   //special case for a ko & en article
         {
             if($val = @$arr->labels->en->value) return (string) $val;
         }
