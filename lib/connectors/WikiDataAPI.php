@@ -256,8 +256,7 @@ class WikiDataAPI
             if(($k % 1000) == 0) echo " ".number_format($k)." ";
             echo " ".number_format($k)." ";
             
-            if(($task == "save_all_media_filenames") && $range_from && $range_to)
-            {
+            if(($task == "save_all_media_filenames") && $range_from && $range_to) {
                 $cont = false;
                 if($k >= $range_from && $k < $range_to) $cont = true;
                 if(!$cont) continue;
@@ -1899,6 +1898,11 @@ class WikiDataAPI
         fclose($f);
         echo "\ntaxa  wikis: [$e]\n";
         echo "\nnon-taxa  wikis: [$i]\n";
+
+        //initialize status file
+        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . date("Y_m") . ".txt";
+        if(!($f = Functions::file_open($txtfile, "w"))) return;
+        fwrite($f, "Processing..."."\n"); fclose($f);
     }
 
     private function bot_inspired($html)
