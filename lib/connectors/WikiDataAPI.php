@@ -68,7 +68,7 @@ class WikiDataAPI
         $this->license['no restrictions'] = "No known copyright restrictions";
     }
 
-    function save_all_media_filenames($task, $range_from, $range_to) //one of pre-requisite steps
+    function save_all_media_filenames($task, $range_from, $range_to, $actual_task = false) //one of pre-requisite steps
     {
         //initialize:
         $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_" . date("Y_m") . ".txt";
@@ -77,7 +77,26 @@ class WikiDataAPI
         echo "\n-Filename created OK\n";
         
         $this->save_all_filenames = true; //use to save all media filenames to text file
-        self::parse_wiki_data_json($task, $range_from, $range_to);
+        if($actual_task) self::parse_wiki_data_json($task, $range_from, $range_to);
+        else { //means finalize file
+            if(self::finalize_media_filenames_ready()) self::parse_wiki_data_json($task, false, false);
+        }
+
+        //log this task finished
+        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . date("Y_m") . ".txt";
+        if(!($f = Functions::file_open($txtfile, "w"))) return;
+        fwrite($f, "$actual_task DONE"."\n"); fclose($f); echo "\n-$actual_task DONE\n";
+    }
+    private function finalize_media_filenames_ready()
+    {
+        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . date("Y_m") . ".txt";
+        if(!file_exists($txtfile)) return false;
+        $contents = file_get_contents($txtfile);
+        for($i=1; $i<=6; $i++;) {
+            if(stripos($contents, "$iof6 DONE") !== false) {} //string is found
+            else return false;
+        }
+        return true;
     }
     function generate_resource()
     {
