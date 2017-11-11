@@ -18,9 +18,10 @@ class WikipediaRegionalAPI
         
         $path = '/Volumes/Thunderbolt4/eol_cache_wiki_regions/';    //for local
         $path = '/extra/eol_cache_wiki_regions/';                   //for eol-archive
-        if($resource_id == 957) $this->download_options = array('resource_id' => $resource_id, 'expire_seconds' => false, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1); //'delay_in_minutes' => 1
-        else                    $this->download_options = array('cache_path' => $path, 'expire_seconds' => false, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1); //'delay_in_minutes' => 1
-
+        if($resource_id == 957) $this->download_options = array('resource_id' => $resource_id,  'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1); //'delay_in_minutes' => 1
+        else                    $this->download_options = array('cache_path' => $path,          'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1); //'delay_in_minutes' => 1
+        $this->download_options['expire_seconds'] = 60*60*24*25;
+        
         $this->ranks['de'] = array("reich", "klasse", "ordnung", "familie", "gattung");
         $this->ranks_en['reich']    = "kingdom";
         $this->ranks_en['klasse']   = "class";
@@ -338,7 +339,7 @@ class WikipediaRegionalAPI
         $url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=" . $source_lang . "&tl=" . $target_lang . "&dt=t&q=" . $source_text;
         $options = $this->download_options;
         $options['expire_seconds'] = false;
-        if($json = Functions::lookup_with_cache($url, $options))
+        if($json = Functions::lookup_with_cache($url, $options)) //always cache expires false, since this is just a term translation
         {
             // echo "\n $json \n";
             // if(preg_match("/\"(.*?)\"/ims", $json, $arr)) return ucfirst($arr[1]); //orig
