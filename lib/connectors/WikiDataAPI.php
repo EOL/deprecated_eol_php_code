@@ -270,9 +270,9 @@ class WikiDataAPI
                 if(!$cont) continue;
             }
 
-            //just testing...
-            if($k >= 1 && $k < 10) $cont = true;
-            else break;
+            // //just testing...
+            // if($k >= 1 && $k < 10) $cont = true;
+            // else break;
             
             
             /* breakdown when caching:
