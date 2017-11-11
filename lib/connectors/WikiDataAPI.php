@@ -1901,8 +1901,7 @@ class WikiDataAPI
 
         //initialize status file
         $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . date("Y_m") . ".txt";
-        if(!($f = Functions::file_open($txtfile, "w"))) return;
-        fwrite($f, "Processing..."."\n"); fclose($f);
+        if(file_exists($txtfile)) unlink($txtfile);
     }
 
     private function bot_inspired($html)
