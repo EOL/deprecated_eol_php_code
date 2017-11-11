@@ -82,6 +82,11 @@ class WikiDataAPI
             if(self::finalize_media_filenames_ready())
             {
                 self::parse_wiki_data_json($task, false, false);
+
+                //truncate for next run
+                $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . date("Y_m") . ".txt";
+                if(!($f = Functions::file_open($txtfile, "w"))) return;
+                fwrite($f, "Truncated now."."\n"); fclose($f); 
             }
             else {
                 echo "\n\n ---Cannot finalize media filenames yet.---\n\n";
