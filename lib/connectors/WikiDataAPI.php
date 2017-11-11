@@ -1307,9 +1307,9 @@ class WikiDataAPI
             $json = self::clean_html($json); //new ditox eli
             $arr = json_decode($json, true);
             // print_r($arr); exit;
-
-            $arr = array_values($arr["query"]["pages"]);
-            $arr = $arr[0];
+            if(is_array(@$arr["query"]["pages"])) $arr = array_values($arr["query"]["pages"]); //normal
+            else                                  $arr = array();
+            $arr = @$arr[0];
             debug("\nresult: " . count($arr) . "\n");
             // print_r($arr); //exit;
             if(!isset($arr['pageid'])) return array();
@@ -1814,9 +1814,9 @@ class WikiDataAPI
             //start get rank
             if($obj = self::get_object($id))
             {
-                $parent['taxon_name'] = self::get_taxon_name($obj->entities->$id); //old working param is $obj->entities->$id->claims
-                $parent['rank'] = self::get_taxon_rank($obj->entities->$id->claims);
-                $parent['parent'] = self::get_taxon_parent($obj->entities->$id->claims);
+                $parent['taxon_name'] = self::get_taxon_name(@$obj->entities->$id); //old working param is $obj->entities->$id->claims
+                $parent['rank'] = self::get_taxon_rank(@$obj->entities->$id->claims);
+                $parent['parent'] = self::get_taxon_parent(@$obj->entities->$id->claims);
             }
             return $parent;
         }
