@@ -92,7 +92,7 @@ class WikiDataAPI
         $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . date("Y_m") . ".txt";
         if(!file_exists($txtfile)) return false;
         $contents = file_get_contents($txtfile);
-        for($i=1; $i<=6; $i++;) {
+        for($i=1; $i<=6; $i++) {
             if(stripos($contents, "$iof6 DONE") !== false) {} //string is found
             else return false;
         }
