@@ -1721,7 +1721,7 @@ class WikiDataAPI
     
     private function get_taxon_name($arr)
     {
-        $claims = $arr->claims;
+        $claims = @$arr->claims;
         if($val = @$claims->P225[0]->mainsnak->datavalue->value) return (string) $val;
         elseif(in_array($arr->id, array("Q4589415")))   //special case for a ko & en article
         {
