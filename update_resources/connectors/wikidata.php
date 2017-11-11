@@ -43,7 +43,12 @@ $resource_id = "commons"; //Wikimedia Commons is EOL resource = 71
 $func = new WikiDataAPI($resource_id, "en", "wikimedia"); //Used for Commons - total taxa = 2,208,086
 
     if(@$params['task'] == "create_all_taxon_dump")         $func->create_all_taxon_dump();     //step 1 (ran 1 connector)
-elseif(@$params['task'] == "save_all_media_filenames")      $func->save_all_media_filenames($params['task'], $params['range_from'], $params['range_to'], $params['actual']);  //step 2 (ran 6 connectors bec of lookup caching. Then ran 1 connector to finalize.)
+elseif(@$params['task'] == "save_all_media_filenames")
+{
+    $status = $func->save_all_media_filenames($params['task'], $params['range_from'], $params['range_to'], $params['actual']);  //step 2 (ran 6 connectors bec of lookup caching. Then ran 1 connector to finalize.)
+    if($status) echo "\nCan now proceed to next step...\n";
+    else        exit(1);
+}
 elseif(@$params['task'] == "create_then_fill_commons_data")                                     //step 3 (ran 1 connector)
 {
     $func = new WikiDataAPI($resource_id, "");

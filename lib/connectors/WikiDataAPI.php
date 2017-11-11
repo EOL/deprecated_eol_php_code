@@ -80,12 +80,17 @@ class WikiDataAPI
         if($actual_task) self::parse_wiki_data_json($task, $range_from, $range_to);
         else { //means finalize file
             if(self::finalize_media_filenames_ready()) self::parse_wiki_data_json($task, false, false);
+            else {
+                echo "\nCannot finalized media filenames yet.\n";
+                return false;
+            }
         }
 
         //log this task finished
         $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . date("Y_m") . ".txt";
         if(!($f = Functions::file_open($txtfile, "w"))) return;
         fwrite($f, "$actual_task DONE"."\n"); fclose($f); echo "\n-$actual_task DONE\n";
+        return true;
     }
     private function finalize_media_filenames_ready()
     {
