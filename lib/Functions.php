@@ -457,10 +457,10 @@ class Functions
         $harvester = new ContentArchiveReader(NULL, $archive_path);
         // print_r($harvester->tables[$extension]); exit;
         $fields = array();
-        foreach($harvester->tables[$extension][0]->fields as $rec) {
+        foreach(@$harvester->tables[$extension][0]->fields as $rec) {
             $fields[] = pathinfo($rec['term'], PATHINFO_FILENAME);
         }
-        return array('file_uri' =>  $harvester->tables[$extension][0]->file_uri, 'fields' => $fields);
+        return array('file_uri' =>  @$harvester->tables[$extension][0]->file_uri, 'fields' => $fields);
     }
     public static function get_undefined_uris_from_resource($resource_id)
     {
@@ -593,8 +593,7 @@ class Functions
         debug("Sending post request to $url with params ".print_r($parameters_array, 1).": only attempt");
         $result = curl_exec($ch);
 
-        if(0 == curl_errno($ch))
-        {
+        if(0 == curl_errno($ch)) {
             curl_close($ch);
             return $result;
         }
@@ -649,7 +648,6 @@ class Functions
     public static function cmp_references($a, $b)
     {
         if ($a->fullReference == $b->fullReference) return 0;
-
         return ($a->fullReference < $b->fullReference) ? -1 : 1;
     }
 
@@ -669,7 +667,6 @@ class Functions
     public static function cmp_nodes($a, $b)
     {
         if ($a->name == $b->name) return 0;
-
         return ($a->name < $b->name) ? -1 : 1;
     }
 
