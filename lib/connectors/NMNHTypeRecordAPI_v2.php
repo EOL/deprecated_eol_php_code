@@ -83,6 +83,7 @@ class NMNHTypeRecordAPI_v2
             debug("Invalid archive file. Program will terminate.");
             return false;
         }
+        //start type specimen data
         self::process_row_type($params);
 
         //start media objects
@@ -167,6 +168,10 @@ class NMNHTypeRecordAPI_v2
                                 if(!self::valid_typestatus($fields["http://rs.tdwg.org/dwc/terms/typeStatus"], $fields["http://rs.tdwg.org/dwc/terms/scientificName"])) continue;
                                 $fields["taxon_id"] = self::get_taxon_id($fields);
 
+                                //to record taxon_id for each occurrence record. Will be used as reference for create_media_objects()
+                                $occur_id = pathinfo($fields[""], PATHINFO_BASENAME); //e.g. http://n2t.net/ark:/65665/303992fb2-fb0a-4d26-8d4d-d9d0f948311c
+                                $this->occurrenceID_taxonID[$occur_id] = $fields["taxon_id"];  //e.g. $occur_id = 303992fb2-fb0a-4d26-8d4d-d9d0f948311c
+
                                 $fields["dataset"] = "NMNH";
                                 // print_r($fields); //good debug to see individual records or row
 
@@ -176,9 +181,7 @@ class NMNHTypeRecordAPI_v2
                                 */
                                 self::create_type_records_nmnh($fields);
                             }
-                            elseif($params["type"] == "media data") {
-                                self::get_media_objects($fields);
-                            }
+                            elseif($params["type"] == "media data") self::create_media_objects($fields);
                         }
                         // if($i >= 1000) break; //debug - used during preview mode
                     }
@@ -306,11 +309,86 @@ class NMNHTypeRecordAPI_v2
         $taxon_id .= (string) $rec["http://rs.tdwg.org/dwc/terms/infraspecificEpithet"];
         return md5($taxon_id);
     }
+    private function create_media_objects($rec) // media data
+    {
+        // print_r($rec);
+        /*
+        *[] => http://n2t.net/ark:/65665/37d08137e-60cc-4fb1-90d8-0d92beb43515
+        *[http://purl.org/dc/terms/identifier] => http://collections.nmnh.si.edu/media/index.php?irn=10346833
+        [http://purl.org/dc/elements/1.1/type] => image
+        *[http://purl.org/dc/terms/title] => Ratufa; USNM 113162; Skin, ventral
+        [http://ns.adobe.com/xap/1.0/rights/WebStatement] => http://si.edu/Termsofuse
+        *[http://purl.org/dc/elements/1.1/source] => NMNH-National Museum of Natural
+        
+        these 2 set as agents:
+        *[http://purl.org/dc/elements/1.1/creator] => Renee Regan
+        *[http://rs.tdwg.org/ac/terms/providerLiteral] => Smithsonian Institution, NMNH, Mammals
 
+        *[http://purl.org/dc/terms/description] => Mammals type image; Ratufa palliata Miller, 1902; Skin, ventral
+        [http://rs.tdwg.org/ac/terms/subjectCategoryVocabulary] => Specimen/Object
+        [http://rs.tdwg.org/dwc/terms/scientificName] => 
+        *[http://rs.tdwg.org/ac/terms/accessURI] => http://collections.nmnh.si.edu/media/index.php?irn=10346833
+        *[http://purl.org/dc/elements/1.1/format] => image/jpeg
+        [http://ns.adobe.com/exif/1.0/PixelXDimension] => 5496
+        [http://ns.adobe.com/exif/1.0/PixelYDimension] => 1092
+        */
+        
+        $occur_id = pathinfo($rec[""], PATHINFO_BASENAME); //e.g. from http://n2t.net/ark:/65665/303992fb2-fb0a-4d26-8d4d-d9d0f948311c u'll get: 303992fb2-fb0a-4d26-8d4d-d9d0f948311c
+        $taxonID = @$this->occurrenceID_taxonID[$occur_id];
+        if(!$taxonID) {
+            print_r($rec);
+            exit("\nNo taxonID, investigate occur_id:[$occur_id]\n");
+        }
+
+        $mr = new \eol_schema\MediaResource();
+        $mr->taxonID        = $taxonID;
+        $mr->identifier     = $rec['http://purl.org/dc/terms/identifier'];
+        $mr->format         = $rec['http://purl.org/dc/elements/1.1/format']; //e.g. image/jpeg
+        $mr->type           = Functions::get_datatype_given_mimetype($mr->format);
+        $mr->language       = 'en';
+        $mr->furtherInformationURL = $rec[""];
+        $mr->accessURI      = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
+
+        $mr->rights         = $rec['http://purl.org/dc/elements/1.1/source'];
+        $mr->title          = $rec['http://purl.org/dc/terms/title'];
+        $mr->UsageTerms     = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
+        $mr->description    = $rec['http://purl.org/dc/terms/description'];
+        
+        $agents = array();
+        $agents[] = array('agent' => @$rec['http://purl.org/dc/elements/1.1/creator'], 'role' => 'creator');
+        $agents[] = array('agent' => @$rec['http://rs.tdwg.org/ac/terms/providerLiteral'], 'role' => 'project');
+        if($agent_ids = self::create_agent($agents)) $mr->agentID = implode("; ", $agent_ids);
+
+        /* not used at the moment
+        $mr->Owner          = $rec['http://purl.org/dc/elements/1.1/source']; //processed 3 agents instead
+        $mr->LocationCreated = $o['location'];
+        $mr->bibliographicCitation = $o['dcterms_bibliographicCitation'];
+        $mr->thumbnailURL   = $o['thumbnailURL'];
+        $mr->CVterm         = $o['subject'];
+        $mr->audience       = 'Everyone';
+        if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
+        */
+        
+        $this->archive_builder->write_object_to_file($mr);
+    }
+    private function create_agent($a)
+    {
+        $agent_ids = array();
+        foreach($agents as $a) {
+            if(!$a['agent']) return array();
+            $r = new \eol_schema\Agent();
+            $r->term_name       = $a['agent'];
+            $r->agentRole       = $a['role'];
+            $r->identifier      = md5("$r->term_name|$r->agentRole");
+            $r->term_homepage   = @$a['homepage'];
+            $agent_ids[] = $r->identifier;
+            if(!isset($this->agent_ids[$r->identifier])) $this->archive_builder->write_object_to_file($r);
+        }
+        return $agent_ids;
+    }
     private function create_type_records_nmnh($rec) // structured data
     {
         $rec["catnum"] = $rec[""];
-
         //source
         $collectionCode = $rec["http://rs.tdwg.org/dwc/terms/collectionCode"]; // e.g. Invertebrate Zoology
         $coll1 = array("Amphibians & Reptiles" => "herps", "Birds" => "birds", "Botany" => "botany", "Fishes" => "fishes", "Mammals" => "mammals", "Paleobiology" => "paleo");
