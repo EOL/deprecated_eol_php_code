@@ -84,6 +84,14 @@ class NMNHTypeRecordAPI_v2
             return false;
         }
         self::process_row_type($params);
+
+        //start media objects
+        $params["row_type"]     = "http://rs.tdwg.org/ac/terms/Multimedia";
+        $params["location"]     = "multimedia.txt";
+        $params["type"]         = "media data";
+        self::process_row_type($params);
+
+        //finalize dwc-a
         $this->archive_builder->finalize(TRUE);
         
         // remove temp dir
@@ -145,31 +153,32 @@ class NMNHTypeRecordAPI_v2
                         if($fields && $callback) call_user_func($callback, $fields, $parameters);
                         elseif($fields)
                         {
-                            //for debug only - start
-                            if(strtoupper($fields["http://rs.tdwg.org/dwc/terms/typeStatus"]) == 'RENAMED') $this->debug['RENAMED'][] = $fields;
-                            //for debug only - end
+                            if($params["type"] == "structured data") {
+                                //for debug only - start
+                                if(strtoupper(trim($fields["http://rs.tdwg.org/dwc/terms/typeStatus"])) == 'RENAMED') $this->debug['RENAMED'][] = $fields;
+                                //for debug only - end
 
-                            // /* debug only
-                            // print_r($fields);
-                            $this->debug['eli']['sex'] = (string) @$fields['http://rs.tdwg.org/dwc/terms/sex'];
-                            $this->debug['eli']['lifeStage'] = (string) @$fields['http://rs.tdwg.org/dwc/terms/lifeStage'];
-                            // */
-                            
-                            
-                            if(!self::valid_typestatus($fields["http://rs.tdwg.org/dwc/terms/typeStatus"], $fields["http://rs.tdwg.org/dwc/terms/scientificName"])) continue;
-                            $fields["taxon_id"] = self::get_taxon_id($fields);
-                            
-                            $fields["dataset"] = "NMNH";
-                            // print_r($fields); //good debug to see individual records or row
+                                // /* debug only
+                                // print_r($fields);
+                                $this->debug['eli']['sex'] = (string) @$fields['http://rs.tdwg.org/dwc/terms/sex'];
+                                $this->debug['eli']['lifeStage'] = (string) @$fields['http://rs.tdwg.org/dwc/terms/lifeStage'];
+                                // */
 
-                            /* debug to check if references have values
-                            if(@$fields['http://purl.org/dc/terms/references']) print_r($fields);
-                            continue;
-                            */
+                                if(!self::valid_typestatus($fields["http://rs.tdwg.org/dwc/terms/typeStatus"], $fields["http://rs.tdwg.org/dwc/terms/scientificName"])) continue;
+                                $fields["taxon_id"] = self::get_taxon_id($fields);
 
-                            if($params["type"] == "structured data") self::create_type_records_nmnh($fields);
-                            // elseif($params["type"] == "classification resource") self::create_classification_gbif($fields); was never used here
-                            // old ways: elseif($row_type == "http://rs.gbif.org/terms/1.0/Multimedia") self::get_media_objects($fields);
+                                $fields["dataset"] = "NMNH";
+                                // print_r($fields); //good debug to see individual records or row
+
+                                /* debug to check if references have values
+                                if(@$fields['http://purl.org/dc/terms/references']) print_r($fields);
+                                continue;
+                                */
+                                self::create_type_records_nmnh($fields);
+                            }
+                            elseif($params["type"] == "media data") {
+                                self::get_media_objects($fields);
+                            }
                         }
                         // if($i >= 1000) break; //debug - used during preview mode
                     }
