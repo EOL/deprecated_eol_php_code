@@ -1746,10 +1746,8 @@ class Functions
     /* Given the file path (or just the extension, if $is_extension == true) get the MIME type */
     public static function get_mimetype($file_path, $is_extension=false)
     {
-        if ($is_extension)
-        {
-            $extension = strtolower($file_path);
-        } else {
+        if($is_extension) $extension = strtolower($file_path);
+        else {
             $path_info = pathinfo($file_path);
             $extension = strtolower(@$path_info['extension']);
         }
@@ -1780,9 +1778,9 @@ class Functions
     }
     public static function get_datatype_given_mimetype($mimetype)
     {
-        if(stripos($mimetype, "video/")     !== false) return "http://purl.org/dc/dcmitype/MovingImage"; //string is found
-        elseif(stripos($mimetype, "image/") !== false) return "http://purl.org/dc/dcmitype/StillImage"; //string is found
-        elseif(stripos($mimetype, "audio/") !== false) return "http://purl.org/dc/dcmitype/Sound"; //string is found
+        if(stripos($mimetype, "video/")     !== false) return "http://purl.org/dc/dcmitype/MovingImage";
+        elseif(stripos($mimetype, "image/") !== false) return "http://purl.org/dc/dcmitype/StillImage";
+        elseif(stripos($mimetype, "audio/") !== false) return "http://purl.org/dc/dcmitype/Sound";
     }
     
     public static function get_role_given_datatype($type)
@@ -1795,15 +1793,12 @@ class Functions
     public static function language_to_iso_code()
     {
         $iso_639_2_codes = array();
-        if(file_exists(DOC_ROOT . 'vendor/wikipedia/iso_639_2.txt'))
-        {
+        if(file_exists(DOC_ROOT . 'vendor/wikipedia/iso_639_2.txt')) {
             $lines = file(DOC_ROOT . 'vendor/wikipedia/iso_639_2.txt');
-            foreach($lines as $line)
-            {
+            foreach($lines as $line) {
                 $line = rtrim($line, "\n");
                 $parts = explode("\t", $line);
-                if(isset($parts[0]) && strlen($parts[0])==2 && isset($parts[1]))
-                {
+                if(isset($parts[0]) && strlen($parts[0])==2 && isset($parts[1])) {
                     $iso_639_2_codes[$parts[1]] = $parts[0];
                 }
             }
@@ -1879,20 +1874,16 @@ class Functions
         $taxon["scientificName"] = ucfirst(trim(@$rec["sciname"]));
         $taxon["rank"]           = @$rec["rank"];
         //-------------------------------------------------------------------------------------------------
-        if(@$rec["commonNames"])
-        {
+        if(@$rec["commonNames"]) {
             $taxon["commonNames"] = array();
-            foreach($rec["commonNames"] as $comname)
-            {
+            foreach($rec["commonNames"] as $comname) {
                 $taxon["commonNames"][] = new \SchemaCommonName(array("name" => $comname["name"], "language" => $comname["language"]));
             }
         }
         //-------------------------------------------------------------------------------------------------
-        if(@$rec["synonyms"])
-        {
+        if(@$rec["synonyms"]) {
             $taxon["synonyms"] = array();
-            foreach($rec["synonyms"] as $syn)
-            {
+            foreach($rec["synonyms"] as $syn) {
                 $taxon["synonyms"][] = new \SchemaSynonym(array("synonym" => $syn["synonym"], "relationship" => $syn["relationship"]));
             }
         }
@@ -1903,10 +1894,8 @@ class Functions
         $taxon = Functions::prepare_reference_params($rec, $taxon);
         $taxon["additionalInformation"] = trim(@$rec["additionalInformation"]);
         //-------------------------------------------------------------------------------------------------
-        if(@$rec["data_objects"])
-        {
-            foreach($rec["data_objects"] as $object)
-            {
+        if(@$rec["data_objects"]) {
+            foreach($rec["data_objects"] as $object) {
                 if($data_object = Functions::prepare_data_object_params($object)) $taxon["dataObjects"][] = new \SchemaDataObject($data_object);
             }
         }
@@ -1931,12 +1920,10 @@ class Functions
         $data_object_parameters["rightsHolder"]          = trim(@$rec["rightsHolder"]);
         $data_object_parameters["bibliographicCitation"] = trim(@$rec["bibliographicCitation"]);
         //-------------------------------------------------------------------------------------------------
-        if(@$rec["audience"])
-        {
+        if(@$rec["audience"]) {
             $data_object_parameters["audiences"] = array();
             $audienceParameters = array();
-            foreach(@$rec["audience"] as $audience)
-            {
+            foreach(@$rec["audience"] as $audience) {
                 $audienceParameters["label"] = $audience;
                 $data_object_parameters["audiences"][] = new \SchemaAudience($audienceParameters);
             }
@@ -1944,8 +1931,7 @@ class Functions
         //-------------------------------------------------------------------------------------------------
         $data_object_parameters["source"] = trim(@$rec["source"]);
         //-------------------------------------------------------------------------------------------------
-        if(trim(@$rec["subject"]))
-        {
+        if(trim(@$rec["subject"])) {
             $data_object_parameters["subjects"] = array();
             $subjectParameters = array();
             $subjectParameters["label"] = trim(@$rec["subject"]);
@@ -1964,17 +1950,14 @@ class Functions
 
     public static function prepare_reference_params($rec, $taxon_or_data_object_param)
     {
-        if(@$rec["reference"])
-        {
+        if(@$rec["reference"]) {
             $taxon_or_data_object_param["references"] = array();
             $reference = array();
             $attributes = array("bici", "coden", "doi", "eissn", "handle", "isbn", "issn", "lsid", "oclc", "sici", "url", "urn");
-            foreach(@$rec["reference"] as $ref)
-            {
+            foreach(@$rec["reference"] as $ref) {
                 $referenceParam = array();
                 $referenceParam["fullReference"] = $ref["fullReference"];
-                foreach($attributes as $attribute)
-                {
+                foreach($attributes as $attribute) {
                     if(@$ref[$attribute]) $referenceParam["referenceIdentifiers"][] = new \SchemaReferenceIdentifier(array("label" => $attribute, "value" => trim(@$ref[$attribute])));
                 }
                 $reference[] = new \SchemaReference($referenceParam);
@@ -1986,11 +1969,9 @@ class Functions
 
     public static function prepare_agent_params($rec, $taxon_or_data_object_param)
     {
-        if(@$rec["agent"])
-        {
+        if(@$rec["agent"]) {
             $agents = array();
-            foreach(@$rec["agent"] as $agent)
-            {
+            foreach(@$rec["agent"] as $agent) {
                 $agentParameters = array();
                 $agentParameters["role"]     = @$agent["role"];
                 $agentParameters["homepage"] = @$agent["homepage"];
@@ -2021,8 +2002,7 @@ class Functions
     //4 functions for queueing task in connectors
     public static function add_a_task($task, $filename)
     {
-        if($READ = Functions::file_open($filename, "a"))
-        {
+        if($READ = Functions::file_open($filename, "a")) {
             fwrite($READ, $task);
             fclose($READ);
         }
@@ -2030,8 +2010,7 @@ class Functions
 
     public static function get_a_task($filename)
     {
-        if($READ = Functions::file_open($filename, "r"))
-        {
+        if($READ = Functions::file_open($filename, "r")) {
             $line = fgets($READ);
             fclose($READ);
             return $line;
@@ -2040,8 +2019,7 @@ class Functions
 
     public static function delete_a_task($task, $filename)
     {
-        if($READ = Functions::file_open($filename, 'r'))
-        {
+        if($READ = Functions::file_open($filename, 'r')) {
             $task_list = fread($READ, filesize($filename));
             fclose($READ);
             $task_list = str_ireplace($task, "", $task_list);
@@ -2054,8 +2032,7 @@ class Functions
 
     public static function run_another_connector_instance($resource_id, $times)
     {
-        for($i = 1; $i <= $times; $i++)
-        {
+        for($i = 1; $i <= $times; $i++) {
             print "\n run " . self::cardinal_to_ordinal($i + 1) . " instance--";
             shell_exec(PHP_BIN_PATH . DOC_ROOT . 'update_resources/connectors/' . $resource_id . '_next.php 0 > null &');
             sleep(5);
@@ -2064,18 +2041,15 @@ class Functions
 
     public static function process_work_list($class, $batch = null)
     {
-        while(true)
-        {
+        while(true) {
             $task = Functions::get_a_task($class->WORK_LIST); //get task to work on
-            if($task)
-            {
+            if($task) {
                 print "\n Process this: $task";
                 Functions::delete_a_task($task, $class->WORK_LIST); //remove a task from task list
                 Functions::add_a_task($task, $class->WORK_IN_PROGRESS_LIST);
                 print "$task \n";
                 $task = str_ireplace("\n", "", $task); //remove carriage return got from text file
-                if($class->call_multiple_instance) //call other instances of the connector
-                {
+                if($class->call_multiple_instance) { //call other instances of the connector
                     Functions::run_another_connector_instance($class->resource_id, $class->connectors_to_run);
                     $class->call_multiple_instance = 0;
                 }
@@ -2083,8 +2057,7 @@ class Functions
                 print"\n Task $task is done. \n";
                 Functions::delete_a_task("$task\n", $class->WORK_IN_PROGRESS_LIST);//remove a task from task list
             }
-            else
-            {
+            else {
                 print "\n\n [$task] Work list done or list hasn't been created yet " . date('Y-m-d h:i:s a', time());
                 break;
             }
@@ -2103,13 +2076,10 @@ class Functions
         $pids = array();
         foreach($jobs as $job) if($job) $pids[] = substr($job, 0, strpos($job, ' '));
         asort($pids);
-        if($pids)
-        {
+        if($pids) {
             print_r($jobs);
-            foreach($pids as $pid)
-            {
-                if($pid <> $myPID)
-                {
+            foreach($pids as $pid) {
+                if($pid <> $myPID) {
                     print "\n kill $pid ";
                     shell_exec('kill ' . $pid);
                 }
@@ -2121,23 +2091,19 @@ class Functions
 
     public function create_work_list_from_master_file($master_file, $divisor, $destination_folder, $filename_prefix, $work_list)
     {
-        if(!($FILE = Functions::file_open($master_file, "r")))
-        {
+        if(!($FILE = Functions::file_open($master_file, "r"))) {
             echo "\n File not found: \n $master_file \n Program will terminate.\n\n";
             return false;
         }
         $i = 0;
         $file_ctr = 0;
         $str = "";
-        while(!feof($FILE))
-        {
-            if($line = fgets($FILE))
-            {
+        while(!feof($FILE)) {
+            if($line = fgets($FILE)) {
                 $i++;
                 $str .= $line;
                 print "\n$i. $line";
-                if($i == $divisor)//no. of rows per text file
-                {
+                if($i == $divisor) { //no. of rows per text file
                     $file_ctr++;
                     $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
                     if(!($OUT = Functions::file_open($destination_folder . $filename_prefix . $file_ctr_str . ".txt", "w"))) return;
@@ -2149,8 +2115,7 @@ class Functions
             }
         }
         //last writes
-        if($str)
-        {
+        if($str) {
             $file_ctr++;
             $file_ctr_str = Functions::format_number_with_leading_zeros($file_ctr, 3);
             if(!($OUT = Functions::file_open($destination_folder . $filename_prefix . $file_ctr_str . ".txt", "w"))) return;
@@ -2160,8 +2125,7 @@ class Functions
         //create work_list
         $str = "";
         for($i = 1; $i <= $file_ctr; $i++) $str .= $filename_prefix . Functions::format_number_with_leading_zeros($i, 3) . "\n";
-        if($fp = Functions::file_open($work_list, "w"))
-        {
+        if($fp = Functions::file_open($work_list, "w")) {
             fwrite($fp, $str);
             fclose($fp);
         }
@@ -2183,14 +2147,12 @@ class Functions
         $str .= "  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'\n";
         $str .= "  xsi:schemaLocation='http://www.eol.org/transfer/content/0.3 http://services.eol.org/schema/content_0_3.xsd'>\n";
         fwrite($OUT, $str);
-        foreach (glob($files) as $filename)
-        {
+        foreach (glob($files) as $filename) {
             debug("\n $filename");
             if(!($READ = Functions::file_open($filename, "r"))) return;
             $contents = fread($READ, filesize($filename));
             fclose($READ);
-            if($contents)
-            {
+            if($contents) {
                 $pos1 = stripos($contents, "<taxon>");
                 $pos2 = stripos($contents, "</response>");
                 $str  = substr($contents, $pos1, $pos2-$pos1);
@@ -2231,8 +2193,7 @@ class Functions
     public function get_google_spreadsheet($options)
     {
         /* This will return an array of $sheet[col][row] values */
-        if(!isset($options["spreadsheet_title"]))
-        {
+        if(!isset($options["spreadsheet_title"])) {
             debug("[spreadsheet_title] is a required paramemter \n");
             return false;
         }
@@ -2246,10 +2207,8 @@ class Functions
         $params = array("timeout" => $options["timeout"]); // parameters for the google_api
         $spreadsheet_tables_api = new \google_api\GoogleSpreadsheetsAPI($options["google_username"], $options["google_password"], @$_SESSION['GOOGLE_AUTH_TOKEN'], '', $params);
         $response = $spreadsheet_tables_api->get_spreadsheets($params);
-        foreach($response->entry as $entry)
-        {
-            if($entry->title == $options["spreadsheet_title"]) // e.g "BOLD image mappings", "SPG Hotlist Official Version"
-            {
+        foreach($response->entry as $entry) {
+            if($entry->title == $options["spreadsheet_title"]) { // e.g "BOLD image mappings", "SPG Hotlist Official Version"
                 $URL_for_spreadsheet = $entry->content['src'];
                 $spreadsheet_repsonse = $spreadsheet_tables_api->get_response($URL_for_spreadsheet, $params);
                 $sheet_url = $spreadsheet_repsonse->entry->link[0]['href'];
@@ -2258,25 +2217,19 @@ class Functions
                 foreach($worksheet_repsonse->entry as $entry) $cols[substr($entry->title,0,1)][substr($entry->title,1,strlen($entry->title)-1)] = $entry->content;
                 $letters = array_keys($cols);
                 $max_count = 0;
-                foreach($letters as $letter) // to get the max_count of rows
-                {
+                foreach($letters as $letter) { // to get the max_count of rows
                     if(count($cols[$letter]) > $max_count) $max_count = count($cols[$letter]);
                 }
                 $sheet = array(); // to be returned
                 $col_count = 0;
-                foreach($letters as $letter)
-                {
+                foreach($letters as $letter) {
                     $col_count++;
                     for($i=1; $i<=$max_count; $i++) $sheet[$col_count][$i] = @$cols[$letter][$i];
-                    if($options["number_of_columns_to_return"] != "all")
-                    {
+                    if($options["number_of_columns_to_return"] != "all") {
                         if($col_count >= $options["number_of_columns_to_return"]) return $sheet;
                     }
                 }
-                if($options["column_number_to_return"])
-                {
-                    return $sheet[$options["column_number_to_return"]];
-                }
+                if($options["column_number_to_return"]) return $sheet[$options["column_number_to_return"]];
                 return $sheet;
             }
         }
