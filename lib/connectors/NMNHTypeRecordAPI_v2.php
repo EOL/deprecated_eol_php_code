@@ -337,7 +337,9 @@ class NMNHTypeRecordAPI_v2
         $taxonID = @$this->occurrenceID_taxonID[$occur_id];
         if(!$taxonID) {
             print_r($rec);
-            exit("\nNo taxonID, investigate occur_id:[$occur_id]\n");
+            // exit("\nNo taxonID, investigate occur_id:[$occur_id]\n");
+            $this->debug['no taxonID for this occurrence'][$rec[""]] = '';
+            return;
         }
 
         $mr = new \eol_schema\MediaResource();
