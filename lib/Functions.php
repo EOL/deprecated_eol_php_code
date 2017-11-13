@@ -128,6 +128,11 @@ class Functions
         return false;
     }
 
+    public static function is_production()
+    {
+        if($GLOBALS['ENV_NAME'] == 'production') return true;
+        else                                     return false;
+    }
     public static function lookup_with_cache($url, $options = array())
     {
         // default expire time is 30 days
