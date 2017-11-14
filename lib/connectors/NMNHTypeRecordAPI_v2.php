@@ -346,7 +346,6 @@ class NMNHTypeRecordAPI_v2
                 print_r($rec);
                 exit("\nhas sciname\n");
             }
-            print_r($rec);
             // exit("\nNo taxonID, investigate occur_id:[$occur_id]\n");
             $this->debug['no taxonID for this occurrence'][$rec[""]] = '';
             return;
@@ -357,6 +356,12 @@ class NMNHTypeRecordAPI_v2
         $mr->identifier     = $rec['http://purl.org/dc/terms/identifier'];
         $mr->format         = $rec['http://purl.org/dc/elements/1.1/format']; //e.g. image/jpeg
         $mr->type           = Functions::get_datatype_given_mimetype($mr->format);
+        
+        if(!$mr->type) {
+            $this->debug['wrong format'][$mr->format] = ''; //no datatype coz wrong format!
+            return;
+        }
+        
         $mr->language       = 'en';
         $mr->furtherInformationURL = $rec[""];
         $mr->accessURI      = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
@@ -385,7 +390,6 @@ class NMNHTypeRecordAPI_v2
             $this->archive_builder->write_object_to_file($mr);
             $this->media_ids[$mr->identifier] = '';
         }
-        
     }
     private function create_agent($agents)
     {
