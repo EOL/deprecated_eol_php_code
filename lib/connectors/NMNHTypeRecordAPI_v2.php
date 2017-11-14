@@ -68,6 +68,26 @@ class NMNHTypeRecordAPI_v2
         }
         return false;
     }
+    
+    private function get_irns_from_departmental_resources()
+    {
+        $irns = array();
+        require_library('connectors/DWCADiagnoseAPI');
+        $func = new DWCADiagnoseAPI();
+        $resources = array(120=>'NMNH IZ',176=>'NMNH Entomology',341=>'NMNH Birds',342=>'NMNH fishes',343=>'NMNH herpetology',344=>'NMNH mammals');
+        $resource_ids = array_keys($resources);
+        foreach($resource_ids as $resource_id) {
+            $name = $resources[$resource_id];
+            $irns2 = $func->get_irn_from_media_extension($resource_id);
+            $irns = array_merge($irns, $irns2);
+            echo "\ntotal $name: ". count($irns2);
+        }
+        $irns = array_filter($irns); //remove null arrays
+        $irns = array_unique($irns); //make unique
+        $irns = array_values($irns); //reindex key
+        echo "\ntotal : ". count($irns);
+        $this->irns = $irns;
+    }
     function start($params)
     {
         $this->debug['RENAMED'] = array(); //debug stats only
@@ -89,10 +109,12 @@ class NMNHTypeRecordAPI_v2
         self::process_row_type($params);
 
         //start media objects
+        self::get_irns_from_departmental_resources();
         $params["row_type"]     = "http://rs.tdwg.org/ac/terms/Multimedia";
         $params["location"]     = "multimedia.txt";
         $params["type"]         = "media data";
         self::process_row_type($params);
+        $this->irns = null;
 
         //finalize dwc-a
         $this->archive_builder->finalize(TRUE);
@@ -100,10 +122,12 @@ class NMNHTypeRecordAPI_v2
         // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
-        print_r($this->debug);
         echo "\n no taxonID for this occurrence: ".count($this->debug['no taxonID for this occurrence'])."\n";
-
-        
+        echo "\n".$this->debug['no taxonID for this occurrence'][0];
+        echo "\n".$this->debug['no taxonID for this occurrence'][1];
+        echo "\n".$this->debug['no taxonID for this occurrence'][2]."\n";
+        $this->debug['no taxonID for this occurrence'] = array();
+        print_r($this->debug);
     }
 
     private function get_uris($params)
@@ -374,6 +398,10 @@ class NMNHTypeRecordAPI_v2
         $mr->language       = 'en';
         $mr->furtherInformationURL = $rec[""];
         $mr->accessURI      = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
+        if(preg_match("/irn=(.*?)elix/ims", $mr->accessURI."elix", $a)) { //get irn value from accessURI
+            if(in_array($a[1], $this->irns)) return; //exclude media from all departmental resources
+        }
+        
         $mr->rights         = $rec['http://purl.org/dc/elements/1.1/source'];
         $mr->title          = $rec['http://purl.org/dc/terms/title'];
         $mr->UsageTerms     = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
