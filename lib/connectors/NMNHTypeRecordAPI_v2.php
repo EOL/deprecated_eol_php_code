@@ -47,6 +47,8 @@ class NMNHTypeRecordAPI_v2
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         $this->occurrence_ids = array();
+        $this->media_ids = array();
+        $this->agent_ids = array();
         $this->debug = array();
         $this->typeStatus_separators = array(";", "+", " & ", " AND ", ",");
         $this->source_for_download_url = "https://collections.nmnh.si.edu/ipt/resource?r=nmnh_extant_dwc-a";
@@ -99,6 +101,9 @@ class NMNHTypeRecordAPI_v2
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
         print_r($this->debug);
+        echo "\n no taxonID for this occurrence: ".count($this->debug['no taxonID for this occurrence'])."\n";
+
+        
     }
 
     private function get_uris($params)
@@ -336,6 +341,11 @@ class NMNHTypeRecordAPI_v2
         $occur_id = pathinfo($rec[""], PATHINFO_BASENAME); //e.g. from http://n2t.net/ark:/65665/303992fb2-fb0a-4d26-8d4d-d9d0f948311c u'll get: 303992fb2-fb0a-4d26-8d4d-d9d0f948311c
         $taxonID = @$this->occurrenceID_taxonID[$occur_id];
         if(!$taxonID) {
+            if(@$rec['http://rs.tdwg.org/dwc/terms/scientificName'])
+            {
+                print_r($rec);
+                exit("\nhas sciname\n");
+            }
             print_r($rec);
             // exit("\nNo taxonID, investigate occur_id:[$occur_id]\n");
             $this->debug['no taxonID for this occurrence'][$rec[""]] = '';
@@ -371,9 +381,13 @@ class NMNHTypeRecordAPI_v2
         if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
         */
         
-        $this->archive_builder->write_object_to_file($mr);
+        if(!isset($this->media_ids[$mr->identifier])) {
+            $this->archive_builder->write_object_to_file($mr);
+            $this->media_ids[$mr->identifier] = '';
+        }
+        
     }
-    private function create_agent($a)
+    private function create_agent($agents)
     {
         $agent_ids = array();
         foreach($agents as $a) {
@@ -384,7 +398,10 @@ class NMNHTypeRecordAPI_v2
             $r->identifier      = md5("$r->term_name|$r->agentRole");
             $r->term_homepage   = @$a['homepage'];
             $agent_ids[] = $r->identifier;
-            if(!isset($this->agent_ids[$r->identifier])) $this->archive_builder->write_object_to_file($r);
+            if(!isset($this->agent_ids[$r->identifier])) {
+                $this->archive_builder->write_object_to_file($r);
+                $this->agent_ids[$r->identifier] = '';
+            }
         }
         return $agent_ids;
     }
