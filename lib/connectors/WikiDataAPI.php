@@ -2094,7 +2094,7 @@ class WikiDataAPI
         if(stripos($license, "creativecommons.org/licenses/by-nc-sa/") !== false)       return $this->license['by-nc-sa'];
         
         if(stripos($license, "gpl") !== false) {
-            $this->debug['gpl count']++;
+            @$this->debug['gpl count']++;
             return "invalid";
         }
 

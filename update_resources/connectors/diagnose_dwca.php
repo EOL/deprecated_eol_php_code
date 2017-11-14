@@ -42,13 +42,40 @@ names_breakdown(26);
 exit;
 */
 
-
-// /*
+/*
 $resource_id = "primate-measurements";
 $func = new DWCADiagnoseAPI();
 Functions::count_resource_tab_files($resource_id, ".txt");
 $result['undefined_uris'] = Functions::get_undefined_uris_from_resource($resource_id);
 print_r($result);
+exit("\n-end-\n");
+*/
+
+
+// /* this is for 891.php NMNH media extension | https://eol-jira.bibalex.org/browse/DATA-1711
+$func = new DWCADiagnoseAPI();
+$resource_id = "891";
+$irns = $func->get_irn_from_media_extension($resource_id);
+echo "\ntotal $resource_id: ". count($irns);
+
+// NMNH Botany (346) - not yet processed
+$resources = array(120=>'NMNH IZ',176=>'NMNH Entomology',341=>'NMNH Birds',342=>'NMNH fishes',343=>'NMNH herpetology',344=>'NMNH mammals');
+
+$debug = array();
+$resource_ids = array_keys($resources);
+
+foreach($resource_ids as $resource_id) {
+    $name = $resources[$resource_id];
+    $irns2 = $func->get_irn_from_media_extension($resource_id);
+    echo "\ntotal $name: ". count($irns2);
+    foreach($irns2 as $irn)
+    {
+        if(in_array($irn, $irns)) @$debug[$name]["found"]++;
+        else                      @$debug[$name]["not found"]++;
+    }
+}
+
+print_r($debug);
 exit("\n-end-\n");
 // */
 

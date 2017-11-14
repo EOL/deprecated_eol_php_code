@@ -32,30 +32,40 @@ class DWCADiagnoseAPI
     {
         $temp_ids = array();
         echo "\n[$class]";
-        foreach($records as $rec)
-        {
+        foreach($records as $rec) {
             $keys = array_keys($rec);
-            if(!($field_index_key = @$this->file[$class]))
-            {
+            if(!($field_index_key = @$this->file[$class])) {
                 echo "\nnot yet defined [$class]\n";
                 print_r($keys);
                 print_r($rec);
                 return false;
             }
-
             if(!isset($temp_ids[$rec[$field_index_key]])) $temp_ids[$rec[$field_index_key]] = '';
-            else
-            {
-                if($val = $rec[$field_index_key])
-                {
+            else {
+                if($val = $rec[$field_index_key]) {
                     echo "\n -- not unique ID in [$class] - {" . $rec[$field_index_key] . "} - [$field_index_key]";
                     return false;
                 }
             }
-            
         }
         echo "\n -- OK\n";
         return true;
+    }
+
+    function get_irn_from_media_extension($resource_id)
+    {
+        // e.g. https://collections.nmnh.si.edu/services/media.php?env=mammals&irn=7005395
+        // e.g. https://collections.nmnh.si.edu/media/index.php?irn=10295934
+        $irns = array();
+        $harvester = new ContentArchiveReader(NULL, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/");
+        // $tables = $harvester->tables; print_r($tables);
+        $records = $harvester->process_row_type('http://eol.org/schema/media/document');
+        // print_r($records); echo "\n".count($records)."\n";
+        foreach($records as $rec) {
+            $url = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
+            if(preg_match("/irn=(.*?)elix/ims", $url."elix", $a)) $irns[$a[1]] = '';
+        }
+        return array_keys($irns);
     }
 
     function cannot_delete() // a utility
