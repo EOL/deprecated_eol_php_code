@@ -354,7 +354,17 @@ class NMNHTypeRecordAPI_v2
         $mr->taxonID        = $taxonID;
         $mr->identifier     = $rec['http://purl.org/dc/terms/identifier'];
         $mr->format         = $rec['http://purl.org/dc/elements/1.1/format']; //e.g. image/jpeg
+        
+        if    ($mr->format == 'png')        $mr->format = 'image/png';
+        elseif($mr->format == 'quicktime')  $mr->format = 'video/quicktime';
+        elseif($mr->format == 'mp4')        $mr->format = 'video/mp4';
+        elseif($mr->format == 'bmp')        $mr->format = 'image/bmp';
+
         $mr->type           = Functions::get_datatype_given_mimetype($mr->format);
+        
+        // [application] => 
+        // [application/vnd.ms-excel] => 
+        // [x-unknown] => 
         
         if(!$mr->type) {
             $this->debug['wrong format'][$mr->format] = ''; //no datatype coz wrong format!

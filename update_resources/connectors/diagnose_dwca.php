@@ -52,7 +52,7 @@ exit("\n-end-\n");
 */
 
 
-// /* this is for 891.php NMNH media extension | https://eol-jira.bibalex.org/browse/DATA-1711
+/* this is for 891.php NMNH media extension | https://eol-jira.bibalex.org/browse/DATA-1711
 $func = new DWCADiagnoseAPI();
 $resource_id = "891";
 $irns = $func->get_irn_from_media_extension($resource_id);
@@ -68,8 +68,32 @@ foreach($resource_ids as $resource_id) {
     $name = $resources[$resource_id];
     $irns2 = $func->get_irn_from_media_extension($resource_id);
     echo "\ntotal $name: ". count($irns2);
-    foreach($irns2 as $irn)
-    {
+    foreach($irns2 as $irn) {
+        if(in_array($irn, $irns)) @$debug[$name]["found"]++;
+        else                      @$debug[$name]["not found"]++;
+    }
+}
+print_r($debug);
+exit("\n-end-\n");
+*/
+
+// /*
+$func = new DWCADiagnoseAPI();
+$resource_id = "176";
+$irns = $func->get_irn_from_media_extension($resource_id);
+echo "\ntotal $resource_id: ". count($irns);
+
+// NMNH Botany (346) - not yet processed
+$resources = array(891=>'NMNH specimen resource');
+
+$debug = array();
+$resource_ids = array_keys($resources);
+
+foreach($resource_ids as $resource_id) {
+    $name = $resources[$resource_id];
+    $irns2 = $func->get_irn_from_media_extension($resource_id);
+    echo "\ntotal $name: ". count($irns2);
+    foreach($irns2 as $irn) {
         if(in_array($irn, $irns)) @$debug[$name]["found"]++;
         else                      @$debug[$name]["not found"]++;
     }
@@ -78,6 +102,8 @@ foreach($resource_ids as $resource_id) {
 print_r($debug);
 exit("\n-end-\n");
 // */
+
+
 
 //=========================================================
 // $func->check_unique_ids($resource_id); return;
