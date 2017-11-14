@@ -341,8 +341,7 @@ class NMNHTypeRecordAPI_v2
         $occur_id = pathinfo($rec[""], PATHINFO_BASENAME); //e.g. from http://n2t.net/ark:/65665/303992fb2-fb0a-4d26-8d4d-d9d0f948311c u'll get: 303992fb2-fb0a-4d26-8d4d-d9d0f948311c
         $taxonID = @$this->occurrenceID_taxonID[$occur_id];
         if(!$taxonID) {
-            if(@$rec['http://rs.tdwg.org/dwc/terms/scientificName'])
-            {
+            if(@$rec['http://rs.tdwg.org/dwc/terms/scientificName']) {
                 print_r($rec);
                 exit("\nhas sciname\n");
             }
@@ -365,7 +364,6 @@ class NMNHTypeRecordAPI_v2
         $mr->language       = 'en';
         $mr->furtherInformationURL = $rec[""];
         $mr->accessURI      = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
-
         $mr->rights         = $rec['http://purl.org/dc/elements/1.1/source'];
         $mr->title          = $rec['http://purl.org/dc/terms/title'];
         $mr->UsageTerms     = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
