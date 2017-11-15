@@ -374,7 +374,10 @@ class ResourceDataObjectElementsSetting
         $params["resource_id"]  = $resource_id;
         $func = new ConvertEOLtoDWCaAPI($resource_id);
         $func->export_xml_to_archive($params, true, 0); // true => means it is an XML file, not an archive file nor a zip file. IMPORTANT: Expires now = 0.
-        Functions::finalize_dwca_resource($resource_id, false, true);
+
+        if($dataset == "NMNH XML files") $deleteYN = false; //can't afford to delete NMNH departmental folders bec. we need it in processing media extension from type speciemen resource 891.
+        else                             $deleteYN = true;
+        Functions::finalize_dwca_resource($resource_id, false, $deleteYN);
         Functions::set_resource_status_to_harvest_requested($resource_id);
         
         /* no longer needed, it was a wrong sol'n to the problem. The problem was the missing validation in process_synonym() in ConvertEOLtoDWCaAPI.php. Validation now added.
