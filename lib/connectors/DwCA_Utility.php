@@ -104,7 +104,7 @@ class DwCA_Utility
         // /* un-comment in real operation
         foreach($index as $row_type) {
             if(@$this->extensions[$row_type]) { //process only defined row_types
-                if(@$this->extensions[$row_type] == 'document') continue; //debug only
+                // if(@$this->extensions[$row_type] == 'document') continue; //debug only
                 echo "\nprocessed: [$row_type]: ".@$this->extensions[$row_type]."\n";
                 self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
             }
@@ -118,12 +118,8 @@ class DwCA_Utility
             require_library('connectors/AntWebDataAPI');
             $func = new AntWebDataAPI($this->taxon_ids, $this->archive_builder);
             $func->start($harvester, 'http://rs.tdwg.org/dwc/terms/taxon');
-            
         }
-        
         // ================================= end of customization ================================= */ 
-        
-        
         
         $this->archive_builder->finalize(TRUE);
         // remove temp dir
