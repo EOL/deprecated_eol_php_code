@@ -6,6 +6,7 @@ This is a generic script that will convert EOL XML to EOL DWC-A
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/ConvertEOLtoDWCaAPI');
+$GLOBALS['ENV_DEBUG'] = true;
 ini_set('memory_limit','4096M'); //314,5728,000
 $timestart = time_elapsed();
 
