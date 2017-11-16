@@ -16,7 +16,7 @@ class AntWebDataAPI
         // $this->occurrence_ids = array();
         // $this->media_ids = array();
         // $this->agent_ids = array();
-        // $this->debug = array();
+        $this->debug = array();
         $this->api['genus_list'] = 'http://www.antweb.org/api/v2/?rank=genus&limit=100&offset=';
         $this->api['specimens'] = 'http://www.antweb.org/api/v2/?limit=100&offset='; //&genus=Acanthognathus
         
@@ -34,14 +34,16 @@ class AntWebDataAPI
         echo "\n total genus: ".count($genus_list);
         /* $genus_list = self::get_all_genus_using_api(); //working but instead of genus; family values are given by API */
         self::process_genus($genus_list);
+        print_r($this->debug);
     }
     
     private function process_genus($genus_list)
     {
+        $i = 0; $total = count($genus_list);
         foreach($genus_list as $genus) {
-            echo "\n processing $genus...";
+            $i++; echo "\n processing $genus... $i of $total";
             $specimens = self::get_specimens_per_genus($genus);
-            print_r($specimens);
+            // print_r($specimens);
             echo("\n".count($specimens)."\n");
             foreach($specimens as $rec)
             {   /* Array(
@@ -81,6 +83,7 @@ class AntWebDataAPI
                     else $this->debug['undefined country'][$country] = '';
                 }
             }
+            // break; //debug - get only first genus
         }
     }
     private function add_taxon($rec)
@@ -88,7 +91,7 @@ class AntWebDataAPI
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = $rec['taxon_id'];
         $taxon->scientificName  = ucfirst($rec['scientific_name']);
-        if($family = @$rec['family']) $taxon->family = $family;
+        if($family = @$rec['family']) $taxon->family = ucfirst($family);
         /*
         $taxon->kingdom         = $t['dwc_Kingdom'];
         $taxon->phylum          = $t['dwc_Phylum'];
@@ -111,7 +114,7 @@ class AntWebDataAPI
         $m->occurrenceID       = $occurrence_id;
         $m->measurementOfTaxon = $measurementOfTaxon;
         if($measurementOfTaxon == "true") {
-            $m->source      = @$rec["source"];
+            $m->source      = @$rec["url"];
             $m->contributor = @$rec["contributor"];
             if($referenceID = @$rec["referenceID"]) $m->referenceID = $referenceID;
         }
@@ -130,10 +133,49 @@ class AntWebDataAPI
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
-        if($val = @$rec['sex']) $o->sex = $val;
+        /* Array(
+                   [url] => http://antweb.org/api/v2/?occurrenceId=CAS:ANTWEB:jtl725991
+                   *[catalogNumber] => jtl725991
+                   [family] => formicidae
+                   [subfamily] => myrmicinae
+                   [genus] => Acanthomyrmex
+                   [specificEpithet] => indet
+                   [scientific_name] => acanthomyrmex indet
+                   [typeStatus] => 
+                   *[stateProvince] => Sabah
+                   *[country] => Malaysia
+                   *[dateIdentified] => 2014-10-01
+                   *[dateCollected] => 2014-08-02
+                   [habitat] => mature wet forest ex sifted leaf litter
+                   [minimumElevationInMeters] => 350
+                   *[biogeographicregion] => Indomalaya
+                   [geojson] => Array(
+                           [type] => point
+                           [coord] => Array(
+                                   [0] => 4.64045
+                                   [1] => 116.61342)
+                       )
+               )*/
+        $o->catalogNumber = @$rec['catalogNumber'];
+        $o->dateIdentified = @$rec['dateIdentified'];
+        $o->eventDate = @$rec['dateCollected'];
+        $o->locality = '';
+        if($val = @$rec['stateProvince']) {
+            if($o->locality) $o->locality .= " stateProvince: $val.";
+            else             $o->locality  = " stateProvince: $val.";
+        }
+        if($val = @$rec['country']) {
+            if($o->locality) $o->locality .= " country: $val.";
+            else             $o->locality  = " country: $val.";
+        }
+        if($val = @$rec['biogeographicregion']) {
+            if($o->locality) $o->locality .= " biogeographicregion: $val.";
+            else             $o->locality  = " biogeographicregion: $val.";
+        }
+        // $o->decimalLatitude
+        // $o->decimalLongitude
         $this->archive_builder->write_object_to_file($o);
         $this->occurrence_ids[$occurrence_id] = '';
-        return;
     }
 
     private function get_specimens_per_genus($genus)

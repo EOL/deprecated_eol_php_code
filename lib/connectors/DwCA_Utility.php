@@ -42,6 +42,10 @@ class DwCA_Utility
                                   [6] => http://rs.gbif.org/terms/1.0/typesandspecimen
                                   [7] => http://rs.gbif.org/terms/1.0/distribution
                                   */
+    
+        if($this->resource_id == 24) {
+            $this->taxon_ids = array();
+        }
     }
 
     private function start()
@@ -71,8 +75,7 @@ class DwCA_Utility
         $index = $info['index'];
 
         $totals = array();
-        foreach($index as $row_type)
-        {
+        foreach($index as $row_type) {
             $count = self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type], false); //3rd param = false means count only, no archive will be generated
             $totals[$row_type] = $count;
         }
@@ -97,13 +100,31 @@ class DwCA_Utility
             [2] => http://rs.tdwg.org/dwc/terms/occurrence
             [3] => http://rs.tdwg.org/dwc/terms/measurementorfact
         */
+        
+        // /* un-comment in real operation
         foreach($index as $row_type) {
             if(@$this->extensions[$row_type]) { //process only defined row_types
+                if(@$this->extensions[$row_type] == 'document') continue; //debug only
                 echo "\nprocessed: [$row_type]: ".@$this->extensions[$row_type]."\n";
                 self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
             }
             else echo "\nun-processed: [$row_type]: ".@$this->extensions[$row_type]."\n";
         }
+        // */
+        
+        // /* ================================= start of customization =================================
+        if($this->resource_id == 24)
+        {
+            require_library('connectors/AntWebDataAPI');
+            $func = new AntWebDataAPI($this->taxon_ids, $this->archive_builder);
+            $func->start($harvester, 'http://rs.tdwg.org/dwc/terms/taxon');
+            
+        }
+        
+        // ================================= end of customization ================================= */ 
+        
+        
+        
         $this->archive_builder->finalize(TRUE);
         // remove temp dir
         recursive_rmdir($temp_dir);
@@ -219,7 +240,19 @@ class DwCA_Utility
             }
             if($generateArchive)
             {
-                if($c) $this->archive_builder->write_object_to_file($c); //to facilitate validations
+                if($c) 
+                {
+                    $this->archive_builder->write_object_to_file($c); //to facilitate validations
+                    
+                    //start customization here ========================================
+                    if($this->resource_id == 24) {
+                        if($class == "taxon") {
+                            $this->taxon_ids[$c->taxonID] = '';
+                            // print_r($c); exit;
+                        }
+                    }
+                    //end customization here ========================================
+                }
             }
         } //main loop
         return $count;
