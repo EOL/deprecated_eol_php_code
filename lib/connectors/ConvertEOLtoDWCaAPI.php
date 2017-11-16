@@ -37,7 +37,8 @@ class ConvertEOLtoDWCaAPI
         else //is XML file
         {
             $params['path'] = DOC_ROOT . "tmp/";
-            $local_xml_file = Functions::save_remote_file_to_local($params['eol_xml_file'], array('file_extension' => "xml", "expire_seconds" => $expire_seconds, "timeout" => 7200, "download_attempts" => 2, "delay_in_minutes" => 2)); 
+            $local_xml_file = Functions::save_remote_file_to_local($params['eol_xml_file'], array('file_extension' => "xml", "cache" => 1, "expire_seconds" => $expire_seconds, "timeout" => 7200, "download_attempts" => 2, "delay_in_minutes" => 2)); 
+            /* expire_seconds is irrelevant if there is no cache => 1 in save_remote_file_to_local() */ 
             $params['filename'] = pathinfo($local_xml_file, PATHINFO_BASENAME);
             self::convert_xml($params);
             $this->archive_builder->finalize(TRUE);
