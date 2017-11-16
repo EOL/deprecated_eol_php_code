@@ -42,14 +42,14 @@ names_breakdown(26);
 exit;
 */
 
-/*
+// /*
 $resource_id = "primate-measurements";
 $func = new DWCADiagnoseAPI();
 Functions::count_resource_tab_files($resource_id, ".txt");
 $result['undefined_uris'] = Functions::get_undefined_uris_from_resource($resource_id);
 print_r($result);
 exit("\n-end-\n");
-*/
+// */
 
 // /*
 $resource_id = "991";
