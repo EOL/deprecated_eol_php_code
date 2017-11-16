@@ -89,7 +89,7 @@ if($info = $func->tool_generate_higherClassification($file, $taxonID)) {
     <br><br>This is the URL of the converted file [<i>$orig_file</i>]:
     <br><br> <a target='$filename' href='$url'>$url</a>
     <br><br> <a target='$filename' href='$url.zip'>$url.zip</a>
-    <br><br> Reminder: These files will be deleted from the server after three (3) days.
+    <br><br> Reminder: These files will be deleted from the server after 24 hours.
     <br><p></b>";
     
     if($undefined_parents) {
