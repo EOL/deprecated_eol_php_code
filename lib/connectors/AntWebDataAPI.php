@@ -5,8 +5,11 @@ namespace php_active_record;
 */
 class AntWebDataAPI
 {
-    function __construct()
+    function __construct($taxon_ids, $archive_builder)
     {
+        $this->taxon_ids = $taxon_ids;
+        $this->archive_builder = $archive_builder;
+        
         // $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         // $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         // $this->taxon_ids = array();
@@ -23,6 +26,7 @@ class AntWebDataAPI
     
     function start($harvester, $row_type)
     {
+        // print_r($this->taxon_ids); exit;
         $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         // print_r($this->uri_values);
         // echo("\n Philippines: ".$this->uri_values['Philippines']."\n"); exit;
@@ -37,8 +41,99 @@ class AntWebDataAPI
         foreach($genus_list as $genus) {
             echo "\n processing $genus...";
             $specimens = self::get_specimens_per_genus($genus);
-            exit("\n".count($specimens)."\n");
+            print_r($specimens);
+            echo("\n".count($specimens)."\n");
+            foreach($specimens as $rec)
+            {   /* Array(
+                       [url] => http://antweb.org/api/v2/?occurrenceId=CAS:ANTWEB:jtl725991
+                       [catalogNumber] => jtl725991
+                       [family] => formicidae
+                       [subfamily] => myrmicinae
+                       [genus] => Acanthomyrmex
+                       [specificEpithet] => indet
+                       [scientific_name] => acanthomyrmex indet
+                       [typeStatus] => 
+                       [stateProvince] => Sabah
+                       [country] => Malaysia
+                       [dateIdentified] => 2014-10-01
+                       [dateCollected] => 2014-08-02
+                       [habitat] => mature wet forest ex sifted leaf litter
+                       [minimumElevationInMeters] => 350
+                       [biogeographicregion] => Indomalaya
+                       [geojson] => Array(
+                               [type] => point
+                               [coord] => Array(
+                                       [0] => 4.64045
+                                       [1] => 116.61342)
+                           )
+                   )*/
+                $rec['taxon_id'] = strtolower($rec['scientific_name']);
+                $rec['catnum'] = $rec['url'];
+                if(!$rec['url']) {
+                    print_r($rec);
+                    exit("\ninvestigate no url\n");
+                }
+                if($country = @$rec['country']) {
+                    if($country_uri = @$this->uri_values[$country]) {
+                        if(!isset($this->taxon_ids[$rec['taxon_id']])) self::add_taxon($rec);
+                        self::add_string_types($rec, $country_uri, "http://eol.org/schema/terms/Present", "true");
+                    }
+                    else $this->debug['undefined country'][$country] = '';
+                }
+            }
         }
+    }
+    private function add_taxon($rec)
+    {
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID         = $rec['taxon_id'];
+        $taxon->scientificName  = ucfirst($rec['scientific_name']);
+        if($family = @$rec['family']) $taxon->family = $family;
+        /*
+        $taxon->kingdom         = $t['dwc_Kingdom'];
+        $taxon->phylum          = $t['dwc_Phylum'];
+        $taxon->class           = $t['dwc_Class'];
+        $taxon->order           = $t['dwc_Order'];
+        $taxon->genus           = $t['dwc_Genus'];
+        $taxon->furtherInformationURL = $t['dc_source'];
+        if($reference_ids = @$this->taxa_reference_ids[$t['int_id']]) $taxon->referenceID = implode("; ", $reference_ids);
+        */
+        $this->taxon_ids[$taxon->taxonID] = '';
+        $this->archive_builder->write_object_to_file($taxon);
+    }
+    private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
+    {
+        $taxon_id = $rec["taxon_id"];
+        $catnum   = $rec["catnum"];
+        $occurrence_id = $catnum; // simply used catnum
+        $m = new \eol_schema\MeasurementOrFact();
+        $this->add_occurrence($taxon_id, $occurrence_id, $rec);
+        $m->occurrenceID       = $occurrence_id;
+        $m->measurementOfTaxon = $measurementOfTaxon;
+        if($measurementOfTaxon == "true") {
+            $m->source      = @$rec["source"];
+            $m->contributor = @$rec["contributor"];
+            if($referenceID = @$rec["referenceID"]) $m->referenceID = $referenceID;
+        }
+        $m->measurementType  = $measurementType;
+        $m->measurementValue = $value;
+        // $m->bibliographicCitation = $this->bibliographic_citation;
+        if($val = @$rec['measurementUnit'])     $m->measurementUnit = $val;
+        if($val = @$rec['measurementMethod'])   $m->measurementMethod = $val;
+        if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
+        if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
+        $this->archive_builder->write_object_to_file($m);
+    }
+    private function add_occurrence($taxon_id, $occurrence_id, $rec)
+    {
+        if(isset($this->occurrence_ids[$occurrence_id])) return;
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = $occurrence_id;
+        $o->taxonID = $taxon_id;
+        if($val = @$rec['sex']) $o->sex = $val;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$occurrence_id] = '';
+        return;
     }
 
     private function get_specimens_per_genus($genus)
