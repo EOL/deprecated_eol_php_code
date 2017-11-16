@@ -536,7 +536,10 @@ class Functions
                         }
                     }
                 }
-                else return $rec;
+                else {
+                    // echo "\n".$rec['http://www.wikidata.org/entity/Q186198']."\n"; //good debug
+                    return $rec;
+                }
             }
         }
         return $rec;
