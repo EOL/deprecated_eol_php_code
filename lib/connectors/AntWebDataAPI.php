@@ -43,6 +43,7 @@ class AntWebDataAPI
         foreach($genus_list as $genus) {
             $i++; echo "\n processing $genus... $i of $total";
             $specimens = self::get_specimens_per_genus($genus);
+            if(!$specimens) continue;
             // print_r($specimens);
             echo("\n".count($specimens)."\n");
             foreach($specimens as $rec)
@@ -75,6 +76,7 @@ class AntWebDataAPI
                     print_r($rec);
                     exit("\ninvestigate no url\n");
                 }
+                
                 if($country = @$rec['country']) {
                     if($country_uri = @$this->uri_values[$country]) {
                         if(!isset($this->taxon_ids[$rec['taxon_id']])) self::add_taxon($rec);
@@ -82,6 +84,15 @@ class AntWebDataAPI
                     }
                     else $this->debug['undefined country'][$country] = '';
                 }
+                
+                if($habitat = @$rec['habitat']) {
+                    if($habitat_uri = @$this->uri_values[$habitat]) {
+                        if(!isset($this->taxon_ids[$rec['taxon_id']])) self::add_taxon($rec);
+                        self::add_string_types($rec, $habitat_uri, "http://eol.org/schema/terms/Habitat", "true");
+                    }
+                    else $this->debug['undefined habitat'][$habitat] = '';
+                }
+                
             }
             // break; //debug - get only first genus
         }
@@ -184,10 +195,11 @@ class AntWebDataAPI
         $offset = 0;
         while(true) {
             $url = $this->api['specimens'].$offset."&genus=$genus";
-            echo "\n[$url]";
+            // echo "\n[$url]";
             if($json = Functions::lookup_with_cache($url, $this->download_options)) {
                 $arr = json_decode($json, true);
-                $final = array_merge($final, $arr['specimens']);
+                if(isset($arr['specimens']['empty_set'])) break;
+                else $final = array_merge($final, $arr['specimens']);
                 if(count($arr['specimens']) < $this->limit) break;
             }
             $offset += $this->limit;
