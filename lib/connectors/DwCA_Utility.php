@@ -126,11 +126,8 @@ class DwCA_Utility
         $records = $harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon');
         if(self::can_compute_higherClassification($records))
         {
-            // /*
             echo "\n1 of 3\n";  self::build_id_name_array($records);
             echo "\n2 of 3\n";  $records = self::generate_higherClassification_field($records);
-            // */
-            
             /*
             Array
                 [0] => http://rs.tdwg.org/dwc/terms/taxon
@@ -138,9 +135,7 @@ class DwCA_Utility
                 [2] => http://rs.tdwg.org/dwc/terms/occurrence
                 [3] => http://rs.tdwg.org/dwc/terms/measurementorfact
             */
-
             echo "\n3 of 3\n";
-            // /*
             foreach($index as $row_type)
             {
                 if(@$this->extensions[$row_type]) //process only defined row_types
@@ -150,7 +145,6 @@ class DwCA_Utility
                 }
             }
             $this->archive_builder->finalize(TRUE);
-            // */
         }
         else echo "\nCannot compute higherClassification.\n";
 
