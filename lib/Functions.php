@@ -515,10 +515,10 @@ class Functions
         return $undefined_uris;
     }
 
-    public static function get_eol_defined_uris($download_options = false)
+    public static function get_eol_defined_uris($download_options = false, $directionOpposite = false)
     {
         if(!$download_options) $download_options = array('resource_id' => 'URIs', 'download_wait_time' => 1000000, 'timeout' => 900, 'expire_seconds' => 60*60*24, 'download_attempts' => 0); //expires in 24 hours
-        for($i=1; $i<=20; $i++) {
+        for($i=1; $i<=17; $i++) {
             $urls = array();
             // $urls[] = "http://localhost/cp/TraitRequest/measurements/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
             $urls[] = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/TraitRequest/measurements/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
@@ -532,7 +532,8 @@ class Functions
                                 if(preg_match("/<td class='uri'>(.*?)<\/td>/ims", $t, $arr2) || preg_match("/<td class='excluded uri'>(.*?)<\/td>/ims", $t, $arr2)) {
                                     $val = '';
                                     if(preg_match("/<td>(.*?)<\/td>/ims", $t, $arr3)) $val = $arr3[1];
-                                    $rec[$arr2[1]] = $val;
+                                    if($directionOpposite)  $rec[$val] = $arr2[1]; //opposite direction
+                                    else                    $rec[$arr2[1]] = $val; //normal
                                 }
                             }
                         }
@@ -540,13 +541,14 @@ class Functions
                 }
                 else {
                     // echo "\n".$rec['http://www.wikidata.org/entity/Q186198']."\n"; //good debug
+                    // echo "\n".$rec['http://www.geonames.org/1694008']."\n"; //good debug
                     return $rec;
                 }
             }
         }
         return $rec;
     }
-    
+
     public static function remove_invalid_bytes_in_XML($string)
     {
         $string = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $string);
