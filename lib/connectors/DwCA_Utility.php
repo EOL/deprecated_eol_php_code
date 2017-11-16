@@ -97,17 +97,14 @@ class DwCA_Utility
             [2] => http://rs.tdwg.org/dwc/terms/occurrence
             [3] => http://rs.tdwg.org/dwc/terms/measurementorfact
         */
-        foreach($index as $row_type)
-        {
-            if(@$this->extensions[$row_type]) //process only defined row_types
-            {
+        foreach($index as $row_type) {
+            if(@$this->extensions[$row_type]) { //process only defined row_types
                 echo "\nprocessed: [$row_type]: ".@$this->extensions[$row_type]."\n";
                 self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
             }
             else echo "\nun-processed: [$row_type]: ".@$this->extensions[$row_type]."\n";
         }
         $this->archive_builder->finalize(TRUE);
-        
         // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
@@ -124,8 +121,7 @@ class DwCA_Utility
         $index = $info['index'];
 
         $records = $harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon');
-        if(self::can_compute_higherClassification($records))
-        {
+        if(self::can_compute_higherClassification($records)) {
             echo "\n1 of 3\n";  self::build_id_name_array($records);
             echo "\n2 of 3\n";  $records = self::generate_higherClassification_field($records);
             /*
@@ -136,10 +132,8 @@ class DwCA_Utility
                 [3] => http://rs.tdwg.org/dwc/terms/measurementorfact
             */
             echo "\n3 of 3\n";
-            foreach($index as $row_type)
-            {
-                if(@$this->extensions[$row_type]) //process only defined row_types
-                {
+            foreach($index as $row_type) {
+                if(@$this->extensions[$row_type]) { //process only defined row_types
                     if($this->extensions[$row_type] == "taxon") self::process_fields($records, $this->extensions[$row_type]);
                     else                                        self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
                 }
@@ -147,7 +141,6 @@ class DwCA_Utility
             $this->archive_builder->finalize(TRUE);
         }
         else echo "\nCannot compute higherClassification.\n";
-
         // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
