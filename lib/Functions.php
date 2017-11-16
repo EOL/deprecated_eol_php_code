@@ -464,8 +464,10 @@ class Functions
         $harvester = new ContentArchiveReader(NULL, $archive_path);
         // print_r($harvester->tables[$extension]); exit;
         $fields = array();
-        foreach(@$harvester->tables[$extension][0]->fields as $rec) {
-            $fields[] = pathinfo($rec['term'], PATHINFO_FILENAME);
+        if($val = @$harvester->tables[$extension][0]->fields) {
+            foreach($val as $rec) {
+                $fields[] = pathinfo($rec['term'], PATHINFO_FILENAME);
+            }
         }
         return array('file_uri' =>  @$harvester->tables[$extension][0]->file_uri, 'fields' => $fields);
     }
@@ -515,7 +517,7 @@ class Functions
 
     public static function get_eol_defined_uris($download_options = false)
     {
-        if(!$download_options) $download_options = array('resource_id' => 'URIs', 'download_wait_time' => 1000000, 'timeout' => 900, 'expire_seconds' => 60*60*24, 'download_attempts' => 1); //expires in 24 hours
+        if(!$download_options) $download_options = array('resource_id' => 'URIs', 'download_wait_time' => 1000000, 'timeout' => 900, 'expire_seconds' => 60*60*24, 'download_attempts' => 0); //expires in 24 hours
         for($i=1; $i<=20; $i++) {
             $urls = array();
             // $urls[] = "http://localhost/cp/TraitRequest/measurements/URIs for Data on EOL - Encyclopedia of Life" . $i . ".html";
