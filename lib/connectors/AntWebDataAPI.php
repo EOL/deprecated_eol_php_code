@@ -120,6 +120,7 @@ class AntWebDataAPI
         $occurrence_id = $catnum; // simply used catnum
         
         $unique_id = md5($taxon_id.$measurementType.$value);
+        $occurrence_id = $unique_id; //becase one catalog no. can have 2 MeasurementOrFact entries. Each for country and habitat.
 
         $cont = $this->add_occurrence($taxon_id, $occurrence_id, $rec, $unique_id);
 
