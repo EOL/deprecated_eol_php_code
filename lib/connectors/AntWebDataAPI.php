@@ -122,28 +122,31 @@ class AntWebDataAPI
         $occurrence_id = $catnum; // simply used catnum
         
         $unique_id = md5($taxon_id.$measurementType.$value);
-        
-        $m = new \eol_schema\MeasurementOrFact();
-        $this->add_occurrence($taxon_id, $occurrence_id, $rec, $unique_id);
-        $m->occurrenceID       = $occurrence_id;
-        $m->measurementOfTaxon = $measurementOfTaxon;
-        if($measurementOfTaxon == "true") {
-            $m->source      = @$rec["url"];
-            $m->contributor = @$rec["contributor"];
-            if($referenceID = @$rec["referenceID"]) $m->referenceID = $referenceID;
+
+        $cont = $this->add_occurrence($taxon_id, $occurrence_id, $rec, $unique_id);
+
+        if($cont) {
+            $m = new \eol_schema\MeasurementOrFact();
+            $m->occurrenceID       = $occurrence_id;
+            $m->measurementOfTaxon = $measurementOfTaxon;
+            if($measurementOfTaxon == "true") {
+                $m->source      = @$rec["url"];
+                $m->contributor = @$rec["contributor"];
+                if($referenceID = @$rec["referenceID"]) $m->referenceID = $referenceID;
+            }
+            $m->measurementType  = $measurementType;
+            $m->measurementValue = $value;
+            // $m->bibliographicCitation = $this->bibliographic_citation;
+            if($val = @$rec['measurementUnit'])     $m->measurementUnit = $val;
+            if($val = @$rec['measurementMethod'])   $m->measurementMethod = $val;
+            if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
+            if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
+            $this->archive_builder->write_object_to_file($m);
         }
-        $m->measurementType  = $measurementType;
-        $m->measurementValue = $value;
-        // $m->bibliographicCitation = $this->bibliographic_citation;
-        if($val = @$rec['measurementUnit'])     $m->measurementUnit = $val;
-        if($val = @$rec['measurementMethod'])   $m->measurementMethod = $val;
-        if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
-        if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
-        $this->archive_builder->write_object_to_file($m);
     }
     private function add_occurrence($taxon_id, $occurrence_id, $rec, $unique_id)
     {
-        if(isset($this->occurrence_ids[$unique_id])) return;
+        if(isset($this->occurrence_ids[$unique_id])) return false;
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
@@ -190,6 +193,7 @@ class AntWebDataAPI
         // $o->decimalLongitude
         $this->archive_builder->write_object_to_file($o);
         $this->occurrence_ids[$unique_id] = '';
+        return true;
     }
 
     private function get_specimens_per_genus($genus)
