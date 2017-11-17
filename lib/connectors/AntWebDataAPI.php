@@ -1,8 +1,6 @@
 <?php
 namespace php_active_record;
-/*  connector: [dwca_utility.php _ 24]
-    
-*/
+/*  connector: [dwca_utility.php _ 24 | first run took: 4 hrs 57 mins] */
 class AntWebDataAPI
 {
     function __construct($taxon_ids, $archive_builder)
@@ -213,7 +211,6 @@ class AntWebDataAPI
         }
         return $final;
     }
-
 
     private function get_all_genus_using_api()
     {
