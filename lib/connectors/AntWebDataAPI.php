@@ -120,8 +120,11 @@ class AntWebDataAPI
         $taxon_id = $rec["taxon_id"];
         $catnum   = $rec["catnum"];
         $occurrence_id = $catnum; // simply used catnum
+        
+        $unique_id = md5($taxon_id.$measurementType.$value);
+        
         $m = new \eol_schema\MeasurementOrFact();
-        $this->add_occurrence($taxon_id, $occurrence_id, $rec);
+        $this->add_occurrence($taxon_id, $occurrence_id, $rec, $unique_id);
         $m->occurrenceID       = $occurrence_id;
         $m->measurementOfTaxon = $measurementOfTaxon;
         if($measurementOfTaxon == "true") {
@@ -138,9 +141,9 @@ class AntWebDataAPI
         if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
         $this->archive_builder->write_object_to_file($m);
     }
-    private function add_occurrence($taxon_id, $occurrence_id, $rec)
+    private function add_occurrence($taxon_id, $occurrence_id, $rec, $unique_id)
     {
-        if(isset($this->occurrence_ids[$occurrence_id])) return;
+        if(isset($this->occurrence_ids[$unique_id])) return;
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
@@ -186,7 +189,7 @@ class AntWebDataAPI
         // $o->decimalLatitude
         // $o->decimalLongitude
         $this->archive_builder->write_object_to_file($o);
-        $this->occurrence_ids[$occurrence_id] = '';
+        $this->occurrence_ids[$unique_id] = '';
     }
 
     private function get_specimens_per_genus($genus)
