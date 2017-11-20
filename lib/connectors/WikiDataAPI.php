@@ -77,32 +77,34 @@ class WikiDataAPI
         echo "\n-Filename created OK\n";
         
         $this->save_all_filenames = true; //use to save all media filenames to text file
-        if($actual_task) self::parse_wiki_data_json($task, $range_from, $range_to);
+        if($actual_task)
+        {
+            self::parse_wiki_data_json($task, $range_from, $range_to);
+            //log this task finished
+            $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . date("Y_m") . ".txt";
+            if(!($f = Functions::file_open($txtfile, "a"))) return;
+            fwrite($f, "$actual_task DONE"."\n"); fclose($f); echo "\n-$actual_task DONE\n";
+            return true; //so it can run and test final step if ready
+        }
         else { //means finalize file
-            if(self::finalize_media_filenames_ready())
+            if(self::finalize_media_filenames_ready("wikimedia_filenames_status_"))
             {
                 self::parse_wiki_data_json($task, false, false);
-
                 //truncate for next run
                 $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . date("Y_m") . ".txt";
                 if(!($f = Functions::file_open($txtfile, "w"))) return;
                 fwrite($f, "Truncated now."."\n"); fclose($f); 
+                return true; //so it can run next step...
             }
             else {
                 echo "\n\n ---Cannot finalize media filenames yet.---\n\n";
                 return false;
             }
         }
-
-        //log this task finished
-        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . date("Y_m") . ".txt";
-        if(!($f = Functions::file_open($txtfile, "a"))) return;
-        fwrite($f, "$actual_task DONE"."\n"); fclose($f); echo "\n-$actual_task DONE\n";
-        return true;
     }
-    private function finalize_media_filenames_ready()
+    private function finalize_media_filenames_ready($status) //e.g. "wikimedia_filenames_status_" or "wikimedia_generation_status_"
     {
-        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . date("Y_m") . ".txt";
+        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "$status" . date("Y_m") . ".txt";
         if(!file_exists($txtfile)) return false;
         $contents = file_get_contents($txtfile);
         for($i=1; $i<=6; $i++) {
@@ -111,7 +113,7 @@ class WikiDataAPI
         }
         return true;
     }
-    function generate_resource()
+    function generate_resource($task = false, $range_from = false, $range_to = false, $actual_task = false)
     {
         /* VERY IMPORTANT - everytime we get a fresh new wikidata dump. The raw dump has all categories not just taxa.
         This utility will create an all-taxon dump, which our connector will use.
@@ -139,7 +141,38 @@ class WikiDataAPI
         }
         
         self::initialize_files();
-        self::parse_wiki_data_json();
+        if($this->what == "wikipedia") self::parse_wiki_data_json();
+        else
+        {
+            //start new block ---------------------------------------
+            if($actual_task)
+            {
+                self::parse_wiki_data_json($task, $range_from, $range_to);
+                //log this task finished
+                $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_generation_status_" . date("Y_m") . ".txt";
+                if(!($f = Functions::file_open($txtfile, "a"))) return;
+                fwrite($f, "$actual_task DONE"."\n"); fclose($f); echo "\n-$actual_task DONE\n";
+                return true; //so it can run and test final step if ready
+            }
+            else { //means finalize file
+                if(self::finalize_media_filenames_ready("wikimedia_generation_status_"))
+                {
+                    self::parse_wiki_data_json($task, false, false);
+                    //truncate for next run
+                    $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_generation_status_" . date("Y_m") . ".txt";
+                    if(!($f = Functions::file_open($txtfile, "w"))) return;
+                    fwrite($f, "Truncated now."."\n"); fclose($f); 
+                    /* no more {return true;} here... bec it still has steps below */
+                }
+                else {
+                    echo "\n\n ---Cannot finalize media filenames yet.---\n\n";
+                    return false;
+                }
+            }
+            //end new block ---------------------------------------
+        }
+        
+        
         self::add_parent_entries(); //not sure if we need it but gives added value to taxonomy
         $this->archive_builder->finalize(TRUE);
 
@@ -264,7 +297,7 @@ class WikiDataAPI
             if(($k % 1000) == 0) echo " ".number_format($k)." ";
             echo " ".number_format($k)." ";
             
-            if(($task == "save_all_media_filenames") && $range_from && $range_to) {
+            if(in_array($task, array("save_all_media_filenames", "generate_resource")) && $range_from && $range_to) {
                 $cont = false;
                 if($k >= $range_from && $k < $range_to) $cont = true;
                 if(!$cont) continue;

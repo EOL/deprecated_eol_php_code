@@ -58,9 +58,18 @@ elseif(@$params['task'] == "create_then_fill_commons_data")                     
     $func->fill_in_temp_files_with_wikimedia_dump_data();        //fill-in those blank json files
     echo("\n ==Finished preparing new WikiMedia dump== \n");
 }
-elseif(@$params['task'] == "generate_resource") { //step 4 (ran 1 connector)
+elseif(@$params['task'] == "generate_resource") { //step 4 (ran 6 connectors initially)
+    /* orig when just 1 connector
     $func->generate_resource();
     Functions::finalize_dwca_resource($resource_id);
+    */
+
+    $status = $func->generate_resource($params['task'], $params['range_from'], $params['range_to'], $params['actual']);  //step 4 (ran 6 connectors bec of lookup caching. Then ran 1 connector to finalize.)
+    if($status) {
+        echo "\n---Can now proceed to next step...---\n\n";
+        Functions::finalize_dwca_resource($resource_id);
+    }
+    else exit(1);
 }
 
 
