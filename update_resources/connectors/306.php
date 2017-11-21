@@ -5,44 +5,35 @@ SPG bought their CD. BIG exports their data from the CD to a spreadsheet.
 This connector processes the spreadsheet.
 Estimated execution time: 6 minutes
 
-bad char in <dc:description>:
-<dc:identifier>rdb_Agama_finchi_BÖHME,_WAGNER,_MALONZA,_LÖTTERS_&amp;_KÖHLER_2005</dc:identifier>
-<dc:identifier>rdb_Boiga_bengkuluensis_ORLOV,_KUDRYAVTZEV,_RYABOV_&amp;_SHUMAKOV_2003</dc:identifier>
-<dc:identifier>rdb_Trioceros_harennae_LARGEN_1995</dc:identifier>
-
-<taxon>
-  <dc:identifier>rdb_Plestiodon_gilberti_VAN_DENBURGH_1896</dc:identifier>
-  <dc:source>http://reptile-database.reptarium.cz/species?genus=Plestiodon&amp;species=gilberti</dc:source>
-  <dwc:Family>Scincidae</dwc:Family>
-  <dwc:Genus>Plestiodon</dwc:Genus>
-  <dwc:ScientificName>Plestiodon gilberti VAN DENBURGH 1896</dwc:ScientificName>
-<commonName xml:lang="en">arizonensis: Arizona Skink</commonName>
-<commonName xml:lang="en">cancellosus: Variegated Skink</commonName>
-<commonName xml:lang="en">gilberti: Greater Brown Skink</commonName>
-<commonName xml:lang="en">placerensis: Northern Brown Skink</commonName>
-<commonName xml:lang="en">rubricaudatus: Western Redtail Skink</commonName> -- this common name has bad char
+Steps:
+1. after running 306.php, 
+2. open 306.xml using FireFox. You will see which characters to delete
+3. open 306.xml using TextMate then delete those bad chars.
+4. repeate #2 and #3 until you have a valid XML. *No need to run XML validator for 306.xml.
+5. then run 306_dwca.php to convert XML to DwCA. 306.tar.gz validates OK
 */
+
+echo("\nJust a one-time resource, already generated. Program will terminate.\n\n"); return;
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 require_library('connectors/EMBLreptiles');
 $resource_id = 306; 
-$taxa = EMBLreptiles::get_all_taxa($resource_id);
+
+$func = new EMBLreptiles();
+$taxa = $func->get_all_taxa($resource_id);
+
 $xml = \SchemaDocument::get_taxon_xml($taxa);
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-if(!($OUT = fopen($resource_path, "w")))
-{
-  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$resource_path);
-  return;
-}
+if(!($OUT = Functions::file_open($resource_path, "w"))) return;
 fwrite($OUT, $xml);
 fclose($OUT);
 
-// set to Harvest Requested
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 25000)
-{
+/* no longer needed:
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 25000) {
     Functions::set_resource_status_to_harvest_requested($resource_id);
-    Functions::gzip_resource_xml($resource_id);
 }
+*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
