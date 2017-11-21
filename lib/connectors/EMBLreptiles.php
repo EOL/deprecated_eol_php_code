@@ -27,7 +27,7 @@ class EMBLreptiles
         
         $temp = "http://localhost/cp/EMBL/reptile_DB_small.xls"; // use this when testing
         $temp = "http://localhost/cp/EMBL/reptile_DB.xls";       // use this in normal operation
-        $temp = "https://dl.dropboxusercontent.com/u/5763406/resources/306/reptile_DB.xls";
+        // $temp = "https://dl.dropboxusercontent.com/u/5763406/resources/306/reptile_DB.xls";
         $source_data = Functions::save_remote_file_to_local($temp, array("file_extension" => "xls", "cache" => 1, "expire_seconds" => false, "timeout" => 60*60)); //1hr timeout
 
         /* seems not being used at the moment
