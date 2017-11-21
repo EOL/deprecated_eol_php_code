@@ -64,10 +64,14 @@ elseif(@$params['task'] == "generate_resource") { //step 4 (ran 6 connectors ini
     Functions::finalize_dwca_resource($resource_id);
     */
 
-    $status = $func->generate_resource($params['task'], $params['range_from'], $params['range_to'], $params['actual']);  //step 4 (ran 6 connectors bec of lookup caching. Then ran 1 connector to finalize.)
-    if($status) {
-        echo "\n---Can now proceed to next step...---\n\n";
-        Functions::finalize_dwca_resource($resource_id);
+    $status_arr = $func->generate_resource($params['task'], $params['range_from'], $params['range_to'], $params['actual']);  //step 4 (ran 6 connectors bec of lookup caching. Then ran 1 connector to finalize.)
+    if($status_arr[0]) {
+        echo "\n".$params['actual']." -- finished\n";
+        if($status_arr[1]) {
+            echo "\n---Can now proceed - finalize dwca...---\n\n";
+            Functions::finalize_dwca_resource($resource_id);
+        }
+        else echo "\nCannot finalize dwca yet.\n";
     }
     else exit(1);
 }

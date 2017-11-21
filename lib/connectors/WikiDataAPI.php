@@ -141,8 +141,8 @@ class WikiDataAPI
         }
         
         self::initialize_files();
-        if($this->what == "wikipedia") self::parse_wiki_data_json();
-        else
+        if    ($this->what == "wikipedia") self::parse_wiki_data_json();
+        elseif($this->what == "wikimedia")
         {
             //start new block ---------------------------------------
             if($actual_task)
@@ -152,7 +152,7 @@ class WikiDataAPI
                 $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_generation_status_" . date("Y_m") . ".txt";
                 if(!($f = Functions::file_open($txtfile, "a"))) return;
                 fwrite($f, "$actual_task DONE"."\n"); fclose($f); echo "\n-$actual_task DONE\n";
-                return true; //so it can run and test final step if ready
+                return array(true, false); //so it can run and test final step if ready
             }
             else { //means finalize file
                 if(self::finalize_media_filenames_ready("wikimedia_generation_status_"))
@@ -165,8 +165,8 @@ class WikiDataAPI
                     /* no more {return true;} here... bec it still has steps below */
                 }
                 else {
-                    echo "\n\n ---Cannot finalize media filenames yet.---\n\n";
-                    return false;
+                    echo "\n\n ---Cannot finalize generate resource yet.---\n\n";
+                    return array(false, false);
                 }
             }
             //end new block ---------------------------------------
@@ -191,7 +191,7 @@ class WikiDataAPI
               unlink($temporary_tarball_path);
         }
         //end =============================================================
-
+        
         unlink($this->TEMP_FILE_PATH);
         echo "\n----start debug array\n";
         print_r($this->debug); //exit;
@@ -205,6 +205,8 @@ class WikiDataAPI
             foreach(array_keys($this->debug[$i]) as $row) fwrite($f, "$row"."\n");
         }
         fclose($f);
+        
+        if($this->what == "wikimedia") return array(true, true);
     }
 
     private function initialize_files()
