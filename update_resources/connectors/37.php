@@ -1,17 +1,17 @@
 <?php
 namespace php_active_record;
-/*connector for [USDA PLANTS text] http://www.eol.org/content_partners/36/resources/108
-https://opendata.eol.org/dataset/usda_plants/resource/aca53f69-b18a-40b9-adbc-34ff282874ea
+/*connector for [USDA PLANTS images] http://www.eol.org/content_partners/36/resources/37
+https://opendata.eol.org/dataset/usda_plants/resource/fcbdd9c9-f33f-4ec6-8c9f-218510e74d04
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
-$resource_id = 108;
+$resource_id = 37;
 $GLOBALS['ENV_DEBUG'] = true;
 
 require_library('connectors/ConvertEOLtoDWCaAPI');
-$params["eol_xml_file"] = "https://opendata.eol.org/dataset/42fd51a0-e31a-4b2a-9f18-6e4f08242d42/resource/aca53f69-b18a-40b9-adbc-34ff282874ea/download/usda-plants-text.xml.zip";
-$params["filename"]     = "USDA PLANTS text 2.xml"; //extract usda-plants-text.xml.zip to get this filename
+$params["eol_xml_file"] = "https://opendata.eol.org/dataset/42fd51a0-e31a-4b2a-9f18-6e4f08242d42/resource/fcbdd9c9-f33f-4ec6-8c9f-218510e74d04/download/usda-plants-images.xml.zip";
+$params["filename"]     = "USDA PLANTS images 2.xml"; //extract usda-plants-images.xml.zip to get this filename
 $params["dataset"]      = "USDA resource";
 $params["resource_id"]  = $resource_id;
 $func = new ConvertEOLtoDWCaAPI($resource_id);
