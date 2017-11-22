@@ -288,6 +288,10 @@ class ContentArchiveValidator
                     $archive = new ContentArchiveReader(null, $temp_dir);
                     $validator = new ContentArchiveValidator($archive);
                     $validator->get_validation_errors();
+
+                    recursive_rmdir($temp_dir); //Nov 21, 2017
+                    echo "<hr>temp_dir deleted [$temp_dir]</hr>";
+
                     return array( 'errors' => $validator->display_errors(),
                                   'structural_errors' => $validator->structural_errors(),
                                   'warnings' => $validator->display_warnings(),
@@ -296,6 +300,10 @@ class ContentArchiveValidator
                 {
                     $error = new \eol_schema\ContentArchiveError();
                     $error->message = "Unable to locate a meta.xml file. Make sure the archive does not contain a directory - just the archive files.";
+                    
+                    recursive_rmdir($temp_dir); //Nov 21, 2017
+                    echo "<hr>temp_dir deleted [$temp_dir]</hr>";
+                    
                     return array( 'structural_errors' => array( $error ));
                 }
                 recursive_rmdir($temp_dir);

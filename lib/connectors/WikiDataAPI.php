@@ -493,14 +493,14 @@ class WikiDataAPI
                 $media['Owner']                  = $this->trans['editors'][$this->language_code];
                 $media['UsageTerms']             = 'http://creativecommons.org/licenses/by-sa/3.0/';
                 $media['furtherInformationURL'] = $rec['other']['permalink'];
-                self::create_media_object($media);
+                self::create_wikipedia_object($media);
                 
                 // Brief Summary
                 $media['identifier']             = md5($rec['taxon_id']."Brief Summary");
                 $media['title']                  = $rec['other']['title'] . ': Brief Summary';
                 $media['description']            = $rec['other']['brief_summary'];
                 $media['CVterm']                 = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology';
-                if($media['description']) self::create_media_object($media);
+                if($media['description']) self::create_wikipedia_object($media);
             }
         }
         
@@ -514,7 +514,7 @@ class WikiDataAPI
         $media['title']                  = $rec['title'] . ': Brief Summary';
         $media['description']            = $rec['brief_desc'];
         $media['CVterm']                 = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology';
-        if($media['description']) self::create_media_object($media);
+        if($media['description']) self::create_wikipedia_object($media);
         */
         return true;
     }
@@ -1641,7 +1641,7 @@ class WikiDataAPI
         return str_replace(array("\n", "\t", "\r", chr(9), chr(10), chr(13)), "", $substr);
     }
 
-    private function create_media_object($media) //for wikipedia only
+    private function create_wikipedia_object($media) //for wikipedia only
     {
         // /*
         $row = "";
