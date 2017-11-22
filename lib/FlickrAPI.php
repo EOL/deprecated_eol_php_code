@@ -51,8 +51,7 @@ class FlickrAPI
             $total_pages = ceil($total / $per_page);
             
             $taxa = array();
-            for($i=1 ; $i<=$total_pages ; $i++)
-            {
+            for($i=1 ; $i<=$total_pages ; $i++) {
                 /* when running 2 or more connectors...
                 $m = 265;
                 $cont = false;
@@ -63,21 +62,16 @@ class FlickrAPI
                 
                 echo "getting page $i: ".time_elapsed()."\n";
                 $page_taxa = self::get_eol_photos($per_page, $i, $auth_token, $user_id, $start_date, $end_date);
-                if($page_taxa)
-                {
-                    foreach($page_taxa as $t)
-                    {
+                if($page_taxa) {
+                    foreach($page_taxa as $t) {
                         if($resource_file) fwrite($resource_file, $t->__toXML());
                         else $all_taxa[] = $t;
                     }
                 }
-                
                 // if($i > 3) break; //debug - process just a subset and check the resource file...
-                
             }
         }
-        else
-        {
+        else {
             if(isset($response->stat)) print_r($response);
         }
         
@@ -90,14 +84,12 @@ class FlickrAPI
         
         $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", $per_page, $page, $auth_token, $user_id, $start_date, $end_date);
         
-        if(isset($response->photos->photo))
-        {
+        if(isset($response->photos->photo)) {
             echo "\n page " . $response->photos->page . " of " . $response->photos->pages . " | total taxa =  " . $response->photos->total . "\n";
             echo "\n -- response count: " . count($response);
             echo "\n -- response photos count per page: " . count($response->photos->photo) . "\n";
         }
-        else
-        {
+        else {
             echo "\n Access failed. Will try again in 2 minutes";
             sleep(120);
             $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", $per_page, $page, $auth_token, $user_id, $start_date, $end_date);
@@ -105,17 +97,14 @@ class FlickrAPI
         
         static $count_taxa = 0;
         $page_taxa = array();
-        if(isset($response->photos->photo))
-        {
-            foreach($response->photos->photo as $photo)
-            {
+        if(isset($response->photos->photo)) {
+            foreach($response->photos->photo as $photo) {
                 if(@$used_image_ids[$photo->id]) continue;
                 $count_taxa++;
                 if(($count_taxa % 100) == 0) echo "taxon: $count_taxa ($photo->id): ".time_elapsed()."\n";
 
                 $taxa = self::get_taxa_for_photo($photo->id, $photo->secret, $photo->lastupdate, $auth_token, $user_id);
-                if($taxa)
-                {
+                if($taxa) {
                     foreach($taxa as $t) $page_taxa[] = $t;
                 }
 
@@ -123,8 +112,7 @@ class FlickrAPI
                 // if($count_taxa >= 5) break; //debug - process just a subset and check the resource file...
             }
         }
-        else
-        {
+        else {
             echo "\nAccess failed. Will continue next page or you can stop process and try again later.\n";
             sleep(60);
         }
@@ -133,11 +121,10 @@ class FlickrAPI
     
     public static function get_taxa_for_photo($photo_id, $secret, $last_update, $auth_token = "", $user_id = NULL)
     {
-        if($file_json_object = self::check_cache('photosGetInfo', $photo_id, $last_update))
-        {
+        if($file_json_object = self::check_cache('photosGetInfo', $photo_id, $last_update)) {
             $photo = @$file_json_object->photo;
-        }else
-        {
+        }
+        else {
             $photo_response = self::photos_get_info($photo_id, $secret, $auth_token);
             $photo = @$photo_response->photo;
         }
@@ -187,12 +174,9 @@ class FlickrAPI
             
             /* Photos from Smithsonian photostream that have tag "taxonomy:binomial" is already being shared in the EOL Flickr group.
             So here we will only get those photos with tag "taxonomy:species" only, without "taxonomy:binomial" */
-            if($user_id == FLICKR_SMITHSONIAN_ID)
-            {
-                if(!preg_match("/^taxonomy:binomial=(.+ .+)$/i", $string, $arr))
-                {
-                    if(preg_match("/^taxonomy:species=(.+ .+)$/i", $string, $arr))
-                    {
+            if($user_id == FLICKR_SMITHSONIAN_ID) {
+                if(!preg_match("/^taxonomy:binomial=(.+ .+)$/i", $string, $arr)) {
+                    if(preg_match("/^taxonomy:species=(.+ .+)$/i", $string, $arr)) {
                         if(!preg_match("/(unknown|unkown|company|worker|species)/i", $arr[1])) $parameters["scientificName"][] = ucfirst(trim($arr[1]));
                     }
                 }
@@ -200,10 +184,8 @@ class FlickrAPI
             }
             
             /* BHL photostream resource should not assign images to synonyms */
-            if($user_id == FLICKR_BHL_ID)
-            {
-                if(preg_match("/^taxonomy:binomial=(.+ .+)$/i", $string, $arr))
-                {
+            if($user_id == FLICKR_BHL_ID) {
+                if(preg_match("/^taxonomy:binomial=(.+ .+)$/i", $string, $arr)) {
                     $sciname = ucfirst(trim($arr[1]));
                     if(self::is_sciname_synonym($sciname))
                     {   //remove value in array: $parameters["scientificName"]
@@ -219,17 +201,13 @@ class FlickrAPI
         
         $taxon_parameters = array();
         $return_false = false;
-        foreach($parameters as $key => $value)
-        {
-            if(count($value) > 1)
-            {
+        foreach($parameters as $key => $value) {
+            if(count($value) > 1) {
                 // there can be more than one common name
                 if($key == "commonNames") continue;
                 // if there is more than one scientific name disregard all other parameters
-                elseif($key == "scientificName")
-                {
-                    foreach($value as $name)
-                    {
+                elseif($key == "scientificName") {
+                    foreach($value as $name) {
                         if($name) $taxon_parameters[] = array("scientificName" => $name);
                     }
                 }else $return_false = true;
@@ -239,11 +217,9 @@ class FlickrAPI
         if($return_false && !$taxon_parameters) return false;
         
         // if there weren't two scientific names it will get here
-        if(!$taxon_parameters)
-        {
+        if(!$taxon_parameters) {
             $temp_params = array();
-            foreach($parameters as $key => $value)
-            {
+            foreach($parameters as $key => $value) {
                 if($key == "commonNames") $temp_params[$key] = $value;
                 elseif(@$value[0]) $temp_params[$key] = $value[0];
             }
@@ -258,13 +234,10 @@ class FlickrAPI
 
         if($user_id == FLICKR_SMITHSONIAN_ID) // we need to limit the number of photos per taxon for Smithsonian Wild Photostream
         {
-            if($GLOBALS['max_photos_per_taxon'])
-            {
-                if($scientificName = @$taxon_parameters[0]["scientificName"])
-                {
+            if($GLOBALS['max_photos_per_taxon']) {
+                if($scientificName = @$taxon_parameters[0]["scientificName"]) {
                     if(!@$GLOBALS['taxa'][$scientificName]) $GLOBALS['taxa'][$scientificName] = array();
-                    if(count(@$GLOBALS['taxa'][$scientificName]) >= $GLOBALS['max_photos_per_taxon']) 
-                    {
+                    if(count(@$GLOBALS['taxa'][$scientificName]) >= $GLOBALS['max_photos_per_taxon']) {
                         echo "\n Info: " . $scientificName . " has " . $GLOBALS['max_photos_per_taxon'] . " photos now \n";
                         return false;
                     }
@@ -275,18 +248,15 @@ class FlickrAPI
         
         // get the data objects and add them to the parameter arrays
         $data_objects = self::get_data_objects($photo, $user_id);
-        if($data_objects)
-        {
-            foreach($taxon_parameters as &$p)
-            {
+        if($data_objects) {
+            foreach($taxon_parameters as &$p) {
                 $p["dataObjects"] = $data_objects;
             }
         }else return false;
         
         // turn the parameter arrays into objects to return
         $taxa = array();
-        foreach($taxon_parameters as &$p)
-        {
+        foreach($taxon_parameters as &$p) {
             $taxa[] = new \SchemaTaxon($p);
         }
         
@@ -316,13 +286,11 @@ class FlickrAPI
         $data_object_parameters["language"] = 'en';
         if(isset($photo->dates->taken)) $data_object_parameters["created"] = $photo->dates->taken;
         // only the original forms need rotation
-        if(isset($photo->rotation) && $photo->rotation && preg_match("/_o\./", $data_object_parameters["mediaURL"]))
-        {
+        if(isset($photo->rotation) && $photo->rotation && preg_match("/_o\./", $data_object_parameters["mediaURL"])) {
             $data_object_parameters["additionalInformation"] = '<rotation>'.$photo->rotation.'</rotation>';
         }
         
-        foreach($photo->urls->url as $url)
-        {
+        foreach($photo->urls->url as $url) {
             if($url->type=="photopage") $data_object_parameters["source"] = $url->_content;
         }
         
@@ -357,42 +325,35 @@ class FlickrAPI
         
         // If the media type is video, there should be a Video Player type linking to the video
         // move the image into the thumbnail and video into mediaURL
-        if($photo->media == "video")
-        {
+        if($photo->media == "video") {
             debug("getting sizes for id: ".$photo->id."\n");
             
             $data_object_parameters["thumbnailURL"] = $data_object_parameters["mediaURL"];
             $data_object_parameters["mediaURL"] = NULL;
-            if($file_json_object = self::check_cache('photosGetSizes', $photo->id))
-            {
+            if($file_json_object = self::check_cache('photosGetSizes', $photo->id)) {
                 $sizes = $file_json_object;
-            }else
-            {
+            }
+            else {
                 $sizes = self::photos_get_sizes($photo->id);
             }
             
-            if(@$sizes)
-            {
+            if(@$sizes) {
                 foreach($sizes->sizes->size as $size)
                 {
-                    if($size->label == "Video Player")
-                    {
+                    if($size->label == "Video Player") {
                         $data_object_parameters["identifier"] .= "_video";
                         $data_object_parameters["dataType"] = "http://purl.org/dc/dcmitype/MovingImage";
                         $data_object_parameters["mimeType"] = "video/x-flv";
                         $data_object_parameters["mediaURL"] = $size->source;
-                        
                         $data_objects[] = new \SchemaDataObject($data_object_parameters);
                     }
                 }
             }
-        }else
-        {
+        }
+        else {
             // if its not a video, its an image so add it to the list
             $data_objects[] = new \SchemaDataObject($data_object_parameters);
         }
-        
-        
         return $data_objects;
     }
     
@@ -431,8 +392,7 @@ class FlickrAPI
     {
         $extras = "last_update,media,url_o";
         $url = self::generate_rest_url("flickr.groups.pools.getPhotos", array("group_id" => $group_id, "machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, "format" => "json", "nojsoncallback" => 1), 1);
-        if(in_array($user_id, array(FLICKR_BHL_ID, FLICKR_SMITHSONIAN_ID)))
-        {
+        if(in_array($user_id, array(FLICKR_BHL_ID, FLICKR_SMITHSONIAN_ID))) {
             /* remove group_id param to get images from photostream, and not only those in the EOL Flickr group */
             $url = self::generate_rest_url("flickr.photos.search", array("machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, "license" => "1,2,4,5,7", "privacy_filter" => "1", "sort" => "date-taken-asc", "min_taken_date" => $start_date, "max_taken_date" => $end_date, "format" => "json", "nojsoncallback" => 1), 1);
         }
@@ -467,24 +427,18 @@ class FlickrAPI
     public static function photo_url($photo_id, $secret, $server, $farm)
     {
         $photo_url = "http://farm".$farm.".static.flickr.com/".$server."/".$photo_id."_".$secret.".jpg";
-        
-        if($file_json_object = self::check_cache('photosGetSizes', $photo_id))
-        {
+        if($file_json_object = self::check_cache('photosGetSizes', $photo_id)) {
             $sizes = $file_json_object;
-        }else
-        {
+        }else {
             $sizes = self::photos_get_sizes($photo_id);
         }
         
-        if(@$sizes)
-        {
-            foreach($sizes->sizes->size as $size)
-            {
+        if(@$sizes) {
+            foreach($sizes->sizes->size as $size) {
                 if(preg_match("/(video|mp4)/i", $size->label)) continue;
                 $photo_url = $size->source;
             }
         }
-        
         return $photo_url;
     }
     
@@ -499,22 +453,16 @@ class FlickrAPI
     {
         $parameters = self::request_parameters(false);
         $parameters["perms"] = "write";
-        
         $encoded_parameters = self::encode_parameters($parameters);
-        
         return FLICKR_AUTH_PREFIX . implode("&", $encoded_parameters) . "&api_sig=" . self::generate_signature($parameters);
     }
     
     public static function generate_rest_url($method, $params, $sign)
     {
         $parameters = self::request_parameters($method);
-        
         foreach($params as $k => $v) $parameters[$k] = $v;
-        
         $encoded_paramameters = self::encode_parameters($parameters);
-        
         $url = FLICKR_REST_PREFIX.implode("&", $encoded_paramameters);
-        
         if($sign) $url.="&api_sig=".self::generate_signature($parameters);
         $url = str_ireplace("http://", "https://", $url);
         return $url;
@@ -531,20 +479,16 @@ class FlickrAPI
     {
         $parameters = array("api_key" => FLICKR_API_KEY);
         if($method) $parameters["method"] = $method;
-        
         return $parameters;
     }
     
     public static function generate_signature($parameters)
     {
         $signature = FLICKR_SHARED_SECRET;
-        
         ksort($parameters);
-        foreach($parameters as $k => $v)
-        {
+        foreach($parameters as $k => $v) {
             $signature .= $k.$v;
         }
-        
         return md5($signature);
     }
     
@@ -567,14 +511,12 @@ class FlickrAPI
     {
         $filter_dir = substr($photo_id, -2);
         $file_path = $GLOBALS['flickr_cache_path'] . "/$dir_name/$filter_dir/$photo_id.json";
-        if(file_exists($file_path))
-        {
+        if(file_exists($file_path)) {
             $file_contents = file_get_contents($file_path);
             $json_object = json_decode($file_contents);
             // if we're checking the cache for GetInfo and there is a later copy, then
             // delete BOTH the GetInfo and GetSizes calls for that media
-            if($dir_name == 'photosGetInfo' && (!$last_update || @$json_object->photo->dates->lastupdate != $last_update))
-            {
+            if($dir_name == 'photosGetInfo' && (!$last_update || @$json_object->photo->dates->lastupdate != $last_update)) {
                 unlink($file_path);
                 $sizes_path = $GLOBALS['flickr_cache_path'] . "/photosGetSizes/$filter_dir/$photo_id.json";
                 @unlink($sizes_path);
@@ -599,8 +541,7 @@ class FlickrAPI
             $xml = simplexml_load_string($xml);
             $sciname = Functions::canonical_form($sciname);
             if($sciname == Functions::canonical_form(@$xml->entry[0]->title)) return false; //sciname is not a synonym but accepted name
-            else
-            {
+            else {
                 $titles = array();
                 foreach($xml->entry as $entry) $titles[] = Functions::canonical_form($entry->title);
                 if(in_array($sciname, $titles)) return false; //sciname is not a synonym but accepted name
@@ -616,13 +557,11 @@ class FlickrAPI
         $all_taxa = array();
         $date_range = self::get_date_ranges($start_year);
         echo "\n count: " . count($date_range);
-        if($months_to_be_broken_down)
-        {
+        if($months_to_be_broken_down) {
             foreach($months_to_be_broken_down as $date) $date_range = array_merge($date_range, self::get_date_ranges($date["year"], $date["month"]));
             echo "\n count: " . count($date_range);
         }
-        foreach($date_range as $range)
-        {
+        foreach($date_range as $range) {
             echo "\n\n From: " . $range["start"] . " To: " . $range["end"] . "\n";
             $taxa = self::get_all_eol_photos($auth_token, $resource_file, $user_id, $range["start_timestamp"], $range["end_timestamp"]);
             $all_taxa = array_merge($all_taxa, $taxa);
@@ -635,15 +574,12 @@ class FlickrAPI
     public static function get_date_ranges($start_year, $month = NULL)
     {
         $range = array();
-        if(!$month)
-        {
+        if(!$month) {
             $current_year = date("Y");
-            for ($year = $start_year; $year <= $current_year; $year++)
-            {
+            for ($year = $start_year; $year <= $current_year; $year++) {
                 if($year == $current_year) $month_limit = date("n");
                 else $month_limit = 12;
-                for ($month = 1; $month <= $month_limit; $month++)
-                {
+                for ($month = 1; $month <= $month_limit; $month++) {
                     $start_date = $year . "-" . Functions::format_number_with_leading_zeros($month, 2) . "-01";
                     $end_date = $year . "-" . Functions::format_number_with_leading_zeros($month, 2) . "-31";
                     $range[] = self::get_timestamp_range($start_date, $end_date);
@@ -653,19 +589,16 @@ class FlickrAPI
         else
         {
             $month = Functions::format_number_with_leading_zeros($month, 2);
-            for ($day = 1; $day <= 30; $day++)
-            {
+            for ($day = 1; $day <= 30; $day++) {
                 $start_date = $start_year . "-" . $month . "-" . Functions::format_number_with_leading_zeros($day, 2);
                 $end_date = $start_year . "-" . $month . "-" . Functions::format_number_with_leading_zeros($day+1, 2);
                 $range[] = self::get_timestamp_range($start_date, $end_date);
             }
-            if($month == "12") // last day of the month to first day of the next month
-            {
+            if($month == "12") { // last day of the month to first day of the next month
                 $next_year = $start_year + 1;
                 $next_month = "01";
             }
-            else
-            {
+            else {
                 $next_year = $start_year;
                 $next_month = Functions::format_number_with_leading_zeros(intval($month) + 1, 2);
             } 
