@@ -190,7 +190,7 @@ class TropicosArchiveAPI
         $xml = self::create_cache("images", $taxon_id);
         $xml = simplexml_load_string($xml);
         $with_image = 0;
-        foreach($xml->Image as $rec) {
+        foreach(@$xml->Image as $rec) {
             if($rec->Error) continue; // echo "\n no images - " . $rec->DetailUrl;
             $with_image++;
             if($with_image > 15) break; // max no. of images per taxon //debug orig 15
@@ -348,7 +348,7 @@ class TropicosArchiveAPI
         $xml = self::create_cache("taxon_ref", $taxon_id);
         $xml = simplexml_load_string($xml);
         $reference_ids = array();
-        foreach($xml->NameReference as $rec) {
+        foreach(@$xml->NameReference as $rec) {
             if($ref_id = trim($rec->Reference->ReferenceId)) {
                 $reference_ids[] = $ref_id;
                 $ref_url = TROPICOS_DOMAIN . "/Reference/" . $ref_id;
@@ -364,7 +364,7 @@ class TropicosArchiveAPI
         $records = array();
         $xml = self::create_cache("synonyms", $taxon_id);
         $xml = simplexml_load_string($xml);
-        foreach($xml->Synonym as $syn) {
+        foreach(@$xml->Synonym as $syn) {
             $synonym = trim($syn->SynonymName->ScientificNameWithAuthors);
             $NameId = trim($syn->SynonymName->NameId);
             $Family = trim($syn->SynonymName->Family);
@@ -423,7 +423,7 @@ class TropicosArchiveAPI
         $taxonomy = array();
         $xml = self::create_cache("taxonomy", $taxon_id);
         $xml = simplexml_load_string($xml);
-        foreach($xml->Name as $rec) {
+        foreach(@$xml->Name as $rec) {
             if($rec->Rank == "kingdom") $taxonomy['kingdom'] = $rec->ScientificNameWithAuthors;
             if($rec->Rank == "phylum")  $taxonomy['phylum'] = $rec->ScientificNameWithAuthors;
             if($rec->Rank == "class")   $taxonomy['class'] = $rec->ScientificNameWithAuthors;
