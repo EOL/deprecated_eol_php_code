@@ -150,6 +150,25 @@ class IOCBirdlistAPI
         unlink($temp_path);
     }
 
+    private function get_canonical_name($rek, $rank)
+    {
+        $final = "";
+        if    ($rank == 'order')  $final = ucfirst(strtolower($rek[$rank]['latin']));
+        elseif($rank == 'family') $final = ucfirst(strtolower($rek[$rank]['latin']));
+        elseif($rank == 'genus')  $final = ucfirst(strtolower($rek[$rank]['latin']));
+        elseif($rank == 'species')    $final = ucfirst(strtolower($rek['genus']['latin']." ".$rek['species']['latin']));
+        elseif($rank == 'subspecies') $final = ucfirst(strtolower($rek['genus']['latin']." ".$rek['species']['latin']." ".$rek['subspecies']['latin']));
+        
+        /* just checking
+        $raw = Functions::canonical_form($rek[$rank]['taxon']);
+        if($final != $raw) {
+            echo("\n[$rank] computed canonical [$final] NEQ with raw canonical [$raw]\n"); 
+            print_r($rek); exit;
+        }
+        this proves that $final is the correct way to get canonical name and not $raw
+        */
+        return $final;
+    }
     private function create_taxa($rek, $with_subspecies)
     {   /*
     [order] => Array
@@ -215,6 +234,12 @@ class IOCBirdlistAPI
                 $taxon->taxonID             = $taxonID;
                 $taxon->taxonRank           = $rank;
                 $taxon->scientificName      = $taxon_name;
+                
+                //per https://eol-jira.bibalex.org/browse/TRAM-499?focusedCommentId=61533&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61533
+                if(stripos($taxon_name, "Incertae Sedis") !== false) continue;  //string is found
+                $taxon->scientificNameAuthorship = @$rek[$rank]['authority'];;
+                $taxon->canonicalName            = self::get_canonical_name($rek, $rank);
+                
                 $taxon->parentNameUsageID   = $parentNameUsageID;
                 if($val = @$rek[$rank]['url'])      $taxon->source = $this->source."/".$val;
                 if($val = @$rek[$rank]['note'])     $taxon->taxonRemarks = $val;
