@@ -109,6 +109,7 @@ class DarwinCoreExtensionBase
                 $this->accepted_properties_by_name[$property['name']] = $property;
                 $this->accepted_properties_by_uri[$property['uri']] = $property;
             }
+            self::add_property(); //per https://eol-jira.bibalex.org/browse/TRAM-499?focusedCommentId=61534&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61534
             
             if($row_type = $xml['rowType']) $this->extension_row_type = $row_type;
             
@@ -117,7 +118,21 @@ class DarwinCoreExtensionBase
             $GLOBALS['DarwinCoreExtensionProperties'][static::EXTENSION_URL]['accepted_properties_by_uri'] = $this->accepted_properties_by_uri;
         }
     }
-    
+    private function add_property() //per https://eol-jira.bibalex.org/browse/TRAM-499?focusedCommentId=61534&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61534
+    {
+        $property = array();
+        $property['name']       = 'canonicalName';
+        $property['namespace']  = 'http://rs.gbif.org/terms';
+        $property['uri']        = 'http://rs.gbif.org/terms/1.0/canonicalName';
+        $property['group']          = '';
+        $property['columnLength']   = '';
+        $property['thesaurus']      = '';
+        $property['required']       = '';
+        
+        $this->accepted_properties[] = $property;
+        $this->accepted_properties_by_name[$property['name']] = $property;
+        $this->accepted_properties_by_uri[$property['uri']] = $property;
+    }
     protected static function download_extension($url)
     {
         $cache_location = __DIR__ . "/extension_cache/schema_". md5($url) .".xml";
@@ -135,6 +150,8 @@ class DarwinCoreExtensionBase
     
     public function assigned_properties()
     {
+        self::add_property(); //per https://eol-jira.bibalex.org/browse/TRAM-499?focusedCommentId=61534&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61534
+        
         $properties = array();
         foreach($this->accepted_properties as $property)
         {
@@ -149,6 +166,9 @@ class DarwinCoreExtensionBase
     
     public function __set($name, $value)
     {
+        //per https://eol-jira.bibalex.org/browse/TRAM-499?focusedCommentId=61534&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61534
+        $this->accepted_properties_by_name['canonicalName'] = array('name' => 'canonicalName', 'namespace' => 'http://rs.gbif.org/terms', 'uri' => 'http://rs.gbif.org/terms/1.0/canonicalName');
+        
         if($name == "extension_row_type")
         {
             $this->$name = $value;
