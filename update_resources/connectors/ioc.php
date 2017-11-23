@@ -2,11 +2,11 @@
 namespace php_active_record;
 /* connector for IOC Birdlist https://eol-jira.bibalex.org/browse/TRAM-499
 estimated execution time:
-                Feb2017 Apr2017 1-Nov2017
-taxon:          33750   33750   33507
-vernaculars:    11068   11068   11092
+                Feb2017 Apr2017 1-Nov2017   23Nov
+taxon:          33750   33750   33507       33505
+vernaculars:    11068   11068   11092       11090
 occurrence      31172           42992
-measurements    31172   43214   42992
+measurements    31172   43214   42992       42992
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
