@@ -234,10 +234,8 @@ class DwCA_Utility
 
                 // if($field == "taxonID") $c->$field = self::get_worms_taxon_id($c->$field); //not used here, only in WoRMS connector
             }
-            if($generateArchive)
-            {
-                if($c) 
-                {
+            if($generateArchive) {
+                if($c) {
                     $this->archive_builder->write_object_to_file($c); //to facilitate validations
                     
                     //start customization here ========================================
