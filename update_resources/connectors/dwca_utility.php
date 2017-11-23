@@ -20,6 +20,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DwCA_Utility');
 $timestart = time_elapsed();
 ini_set("memory_limit","4000M"); // trying for the dwh_try3.zip, didn't work yet
+$GLOBALS['ENV_DEBUG'] = true;
 //===========================================================================================new - start -- handles cmdline params
 // print_r($argv);
 $cmdline_params['jenkins_or_cron']                  = @$argv[1]; //irrelevant here
@@ -31,12 +32,15 @@ if(($val = $cmdline_params['resource_id']) && ($cmdline_params['resource_id'] !=
 {
     $resource_id = $val;
     if    ($resource_id == 704) $dwca_file = "https://opendata.eol.org/dataset/7a17dc15-cb08-4e41-b901-6af5fd89bcd7/resource/3c56c4e4-3be7-463b-b958-22fbc560cf0d/download/pantheria.zip";
+    /*
     elseif($resource_id == 430) // won't work here since it is not tab-delimited files but CSV files. I eventually used its own connector 430.php
     {
         ini_set('memory_limit','7096M'); //required
-        // $dwc_file = "http://www.inaturalist.org/taxa/eol_media.dwca.zip";
+        $dwc_file = "http://www.inaturalist.org/taxa/eol_media.dwca.zip";
         $dwca_file = "http://localhost/cp/iNaturalist/eol_media.dwca.zip";
     }
+    */
+    elseif($resource_id == "whatever") {}
     else // e.g. what goes here: $ php dwca_utility.php _ ioc-birdlist Y 
     {
         if(is_dir(CONTENT_RESOURCE_LOCAL_PATH.$resource_id)) {
@@ -53,13 +57,15 @@ else //no resource_id
     // $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/ICTV-virus_taxonomy.tar.gz";
     // $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/26.tar.gz";
     // $dwca_file = "http://localhost/cp/dynamic_hierarchy/amphibia.zip";
-    $dwca_file = "http://localhost/cp/dynamic_hierarchy/dwca-phasmida-v10.6.zip";
+    // $dwca_file = "http://localhost/cp/dynamic_hierarchy/dwca-phasmida-v10.6.zip";
     // $dwca_file = "http://localhost/cp/dynamic_hierarchy/dwh_try3.zip"; //very big one
     
     /* WIP - waiting for feedback...
     $dwca_file = "http://localhost/cp/dynamic_hierarchy/z/eoldynamichierarchydraftaug2017.zip"; //needs to be fixed first: https://eol-jira.bibalex.org/browse/DATA-1709
     $dwca_file = "http://localhost/cp/dynamic_hierarchy/z/dynamic.tar.gz"; //this is the fixed version
     */
+
+    $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/americaninsects.zip"; //this is ghostly weird...
 
     $resource_id = get_base_filename($dwca_file, $cmdline_params['generate_higherClassification_YN']);
 }

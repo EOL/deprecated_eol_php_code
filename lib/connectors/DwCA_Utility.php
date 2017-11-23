@@ -164,6 +164,35 @@ class DwCA_Utility
         if($this->debug) print_r($this->debug);
     }
 
+    function convert_archive_normalized() //this same as above two, but this removes taxa that don't have objects. Only taxa with objects will remain in taxon.tab.
+    {
+        echo "\ndoing this: convert_archive_normalized()\n";
+        $info = self::start();
+        $temp_dir = $info['temp_dir'];
+        $harvester = $info['harvester'];
+        $tables = $info['tables'];
+        $index = $info['index'];
+
+                            $records = $harvester->process_row_type('http://eol.org/schema/media/Document');
+        echo "\n1 of 3\n";  $taxon_ids_with_objects = self::build_taxonIDs_with_objects_array($records);
+                            $records = $harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon');
+        echo "\n2 of 3\n";  $records = self::remove_taxa_without_objects($records, $taxon_ids_with_objects);
+        echo "\n3 of 3\n";
+        foreach($index as $row_type) {
+            if(@$this->extensions[$row_type]) { //process only defined row_types
+                if($this->extensions[$row_type] == "taxon") self::process_fields($records, $this->extensions[$row_type]);
+                else                                        self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
+            }
+        }
+        $this->archive_builder->finalize(TRUE);
+        
+        // remove temp dir
+        recursive_rmdir($temp_dir);
+        echo ("\n temporary directory removed: " . $temp_dir);
+        if($this->debug) print_r($this->debug);
+    }
+
+
     private function process_fields($records, $class, $generateArchive = true)
     {
         //start used in validation
@@ -420,6 +449,31 @@ class DwCA_Utility
     //=====================================================================================================================
     //end functions for the interface tool "genHigherClass"
     //=====================================================================================================================
+
+    // these 2 functions used in convert_archive_normalized()
+    private function build_taxonIDs_with_objects_array($records)
+    {
+        $taxon_ids = array();
+        foreach($records as $rec) {
+            $taxon_id = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
+            $taxon_ids[$taxon_id] = '';
+        }
+        return array_keys($taxon_ids);
+    }
+    private function remove_taxa_without_objects($records, $taxon_ids_with_objects)
+    {
+        echo "\n start taxa count: ".count($records);
+        $i = -1;
+        foreach($records as $rec) {
+            $i++;
+            $taxon_id = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
+            if(!in_array($taxon_id, $taxon_ids_with_objects)) $records[$i] = null;
+        }
+        $records = array_filter($records); //remove null arrays
+        $records = array_values($records); //reindex key
+        echo "\n end taxa count: ".count($records);
+        return $records;
+    }
 
 }
 ?>
