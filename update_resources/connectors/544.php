@@ -13,6 +13,7 @@ http://rs.gbif.org/terms/1.0/vernacularname: 4879
 
 544	Saturday 2017-10-07 09:33:30 PM	{"agent.tab":1,"media_resource.tab":19103,"taxon.tab":20654,"vernacular_name.tab":4879}
 544	Thursday 2017-10-19 10:49:56 PM	{              "media_resource.tab":13654,"taxon.tab":12554,"vernacular_name.tab":2610}
+544	Thursday 2017-11-23 06:23:13 AM	{              "media_resource.tab":13654,"taxon.tab":8119,"vernacular_name.tab":2610}
 */
 
 ini_set('error_reporting', E_ALL);
@@ -22,8 +23,9 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('FlickrAPI');
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true;
-
 $resource_id = 544;
+
+// /* start main block
 $user_id = "61021753@N02"; // BHL BioDivLibrary's photostream -- http://www.flickr.com/photos/61021753@N02
 $start_year = 2010;
 
@@ -64,6 +66,15 @@ Functions::gzip_resource_xml($resource_id); //un-comment if you want to investig
 require_library('ResourceDataObjectElementsSetting');
 $nmnh = new ResourceDataObjectElementsSetting($resource_id);
 $nmnh->call_xml_2_dwca($resource_id, "Flickr files", false); //3rd param false means it is not NMNH resource.
+//---------------------new end
+
+// end main block */
+
+//---------------------new start generic_normalize_dwca() meaning remove taxa without objects, only leave taxa with objects in final dwca
+require_library('connectors/DwCA_Utility');
+$func = new DwCA_Utility($resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
+$func->convert_archive_normalized();
+Functions::finalize_dwca_resource($resource_id);
 //---------------------new end
 
 $elapsed_time_sec = time_elapsed() - $timestart;
