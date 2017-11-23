@@ -20,6 +20,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DwCA_Utility');
 $timestart = time_elapsed();
 ini_set("memory_limit","4000M"); // trying for the dwh_try3.zip, didn't work yet
+$GLOBALS['ENV_DEBUG'] = true;
 //===========================================================================================new - start -- handles cmdline params
 // print_r($argv);
 $cmdline_params['jenkins_or_cron']                  = @$argv[1]; //irrelevant here
@@ -53,13 +54,16 @@ else //no resource_id
     // $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/ICTV-virus_taxonomy.tar.gz";
     // $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/26.tar.gz";
     // $dwca_file = "http://localhost/cp/dynamic_hierarchy/amphibia.zip";
-    $dwca_file = "http://localhost/cp/dynamic_hierarchy/dwca-phasmida-v10.6.zip";
+    // $dwca_file = "http://localhost/cp/dynamic_hierarchy/dwca-phasmida-v10.6.zip";
     // $dwca_file = "http://localhost/cp/dynamic_hierarchy/dwh_try3.zip"; //very big one
     
     /* WIP - waiting for feedback...
     $dwca_file = "http://localhost/cp/dynamic_hierarchy/z/eoldynamichierarchydraftaug2017.zip"; //needs to be fixed first: https://eol-jira.bibalex.org/browse/DATA-1709
     $dwca_file = "http://localhost/cp/dynamic_hierarchy/z/dynamic.tar.gz"; //this is the fixed version
     */
+
+    $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/americaninsects.zip"; //this is ghostly weird...
+
 
     $resource_id = get_base_filename($dwca_file, $cmdline_params['generate_higherClassification_YN']);
 }
