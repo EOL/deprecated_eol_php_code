@@ -20,7 +20,12 @@ Functions::finalize_dwca_resource($resource_id);
 // /* utility
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
-$func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
+$undefined = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
+if($undefined) {
+    echo "\nThere is undefined parent(s):\n";
+    print_r($undefined);
+}
+else echo "\nAll parents have entries.\n";
 // */
 
 $elapsed_time_sec = time_elapsed() - $timestart;

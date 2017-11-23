@@ -13,7 +13,8 @@ http://rs.gbif.org/terms/1.0/vernacularname: 4879
 
 544	Saturday 2017-10-07 09:33:30 PM	{"agent.tab":1,"media_resource.tab":19103,"taxon.tab":20654,"vernacular_name.tab":4879}
 544	Thursday 2017-10-19 10:49:56 PM	{              "media_resource.tab":13654,"taxon.tab":12554,"vernacular_name.tab":2610}
-544	Thursday 2017-11-23 06:23:13 AM	{              "media_resource.tab":13654,"taxon.tab":8119,"vernacular_name.tab":2610}
+544	Thursday 2017-11-23 06:23:13 AM	{              "media_resource.tab":13654,"taxon.tab":8119,"vernacular_name.tab":2610}  - MacMini
+544	Thursday 2017-11-23 07:49:49 AM	{              "media_resource.tab":19088,"taxon.tab":11393,"vernacular_name.tab":4878} - eol-archive
 */
 
 ini_set('error_reporting', E_ALL);
