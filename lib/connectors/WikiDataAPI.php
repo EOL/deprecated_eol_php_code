@@ -297,7 +297,6 @@ class WikiDataAPI
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
             $k++; 
             if(($k % 1000) == 0) echo " ".number_format($k)." ";
-            echo " ".number_format($k)." ";
             
             if(in_array($task, array("save_all_media_filenames", "generate_resource")) && $range_from && $range_to) {
                 $cont = false;
