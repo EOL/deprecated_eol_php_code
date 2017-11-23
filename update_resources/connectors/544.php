@@ -21,7 +21,7 @@ define('DOWNLOAD_WAIT_TIME', '300000'); // .3 seconds wait time
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('FlickrAPI');
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = false;
+$GLOBALS['ENV_DEBUG'] = true;
 
 $resource_id = 544;
 $user_id = "61021753@N02"; // BHL BioDivLibrary's photostream -- http://www.flickr.com/photos/61021753@N02
@@ -55,6 +55,7 @@ fclose($resource_file);
 @unlink(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous.xml");
 Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous.xml");
 Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");
+exit("\nstop here first\n");
 
 remove_bhl_images_already_existing_in_eol_group($resource_id);
 Functions::gzip_resource_xml($resource_id); //un-comment if you want to investigate 544.gz.xml, otherwise remain commented
@@ -88,28 +89,24 @@ function remove_bhl_images_already_existing_in_eol_group($resource_id)
     $i = 0;
     $deleted_ids = array();
     $deleted = 0;
-    foreach($xml->taxon as $taxon)
-    {
+    foreach($xml->taxon as $taxon) {
         $i++;
         $dwc = $taxon->children("http://rs.tdwg.org/dwc/dwcore/");
         echo "\n[" . $dwc->ScientificName."]";
         $j = 0;
         $deleted_do_keys = array();
-        foreach($taxon->dataObject as $do)
-        {
+        foreach($taxon->dataObject as $do) {
             $j++;
             $dc2 = $do->children("http://purl.org/dc/elements/1.1/");
             $do_id = trim($dc2->identifier);
-            if(in_array($do_id, $do_ids))
-            {
+            if(in_array($do_id, $do_ids)) {
                 $deleted++;
                 $deleted_ids[$do_id] = 1;
                 print "\n --- deleting $do_id";
                 $deleted_do_keys[] = $j-1;
             }
         }
-        foreach($deleted_do_keys as $key)
-        {
+        foreach($deleted_do_keys as $key) {
             unset($xml->taxon[$i-1]->dataObject[$key]);
         }
     }
@@ -134,10 +131,8 @@ function bhl_image_count() // just for stats
     $i = 0;
     $do_ids = array();
     $names = array();
-    while(@$reader->read())
-    {
-        if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "taxon")
-        {
+    while(@$reader->read()) {
+        if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "taxon") {
             $string = $reader->readOuterXML();
             $taxon = simplexml_load_string($string);
             $t_dc = $taxon->children("http://purl.org/dc/elements/1.1/");
@@ -149,8 +144,7 @@ function bhl_image_count() // just for stats
             $i++;
             print "\n $i. $scientificname [$taxon_identifier]";
             $names[$scientificname] = 1;
-            foreach($taxon->dataObject as $do)
-            {
+            foreach($taxon->dataObject as $do) {
                 $t_dc2 = $do->children("http://purl.org/dc/elements/1.1/");
                 $id = trim($t_dc2->identifier);
                 $do_ids[$id] = 1;

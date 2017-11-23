@@ -1,6 +1,9 @@
 <?php
 namespace php_active_record;
 
+// while working on bhl flickr update DATA ticket
+// https://api.flickr.com/services/rest/?&method=flickr.photos.getInfo?api_key=7856957eced5a8ddbad50f1bca0db452&photo_id=2636
+
 /* See http://www.flickr.com/services/api/flickr.photos.licenses.getInfo.html */
 $GLOBALS['flickr_licenses'] = array();
 //$GLOBALS['flickr_licenses'][0] = "All Rights Reserved";
