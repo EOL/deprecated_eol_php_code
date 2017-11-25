@@ -2,8 +2,19 @@
 namespace php_active_record;
 /*
 
-#cd /html/eol_php_code/update_resources/connectors
-#php5.6 dwca_utility.php jenkins 24
+--------------------------------------------------------------------- in Jenkins eol-archive:
+cd /html/eol_php_code/update_resources/connectors
+php5.6 24.php jenkins
+
+cd /html/eol_php_code/applications/content_server/resources
+cp 24.tar.gz 24_temp.tar.gz
+rm 24.tar.gz
+
+#for Trait data
+cd /html/eol_php_code/update_resources/connectors
+php5.6 dwca_utility.php jenkins 24
+---------------------------------------------------------------------
+
 
 Processes a DwCA file, preferably an EOL DwCA file.
 For non-EOL DwCA file, the result archive will only consist of extensions and fields that are understood by the EOL DwCA.
@@ -44,7 +55,7 @@ if(($val = $cmdline_params['resource_id']) && ($cmdline_params['resource_id'] !=
         $dwca_file = "http://localhost/cp/iNaturalist/eol_media.dwca.zip";
     }
     */
-    elseif($resource_id == "whatever") {}
+    elseif($resource_id == 24) $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/24_temp.tar.gz";
     else // e.g. what goes here: $ php dwca_utility.php _ ioc-birdlist Y 
     {
         if(is_dir(CONTENT_RESOURCE_LOCAL_PATH.$resource_id)) {
@@ -54,7 +65,7 @@ if(($val = $cmdline_params['resource_id']) && ($cmdline_params['resource_id'] !=
         else exit("\nProgram will terminate. Invalid resource_id [$resource_id].\n\n");
     }
 }
-else //no resource_id
+else //no resource_id --- used only for testing... not a real scheduled resource yet
 {
     // $dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";
     // $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/ioc-birdlist.tar.gz";
