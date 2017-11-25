@@ -1,6 +1,10 @@
 <?php
 namespace php_active_record;
 /*
+
+#cd /html/eol_php_code/update_resources/connectors
+#php5.6 dwca_utility.php jenkins 24
+
 Processes a DwCA file, preferably an EOL DwCA file.
 For non-EOL DwCA file, the result archive will only consist of extensions and fields that are understood by the EOL DwCA.
 *Another similar library is DWCA_Utility_cmd.php. This one will process a DwCA taxa extension (taxon.tab/txt/tsv). And this one is run as command-line in terminal.
@@ -105,6 +109,9 @@ function get_base_filename($dwca_file, $generate_higherClassification_YN)
     $info = pathinfo($dwca_file);
     $arr = explode(".", $info['filename']);
     if($generate_higherClassification_YN == "Y") return $arr[0]."-with-higherClassification";
-    else                                         return $arr[0]."-adjusted";
+    else {
+        if(in_array($arr[0], array(24))) return $arr[0]."";             // 24.tar.gz
+        else                             return $arr[0]."-adjusted";    // 24-adjusted.tar.gz
+    }
 }
 ?>
