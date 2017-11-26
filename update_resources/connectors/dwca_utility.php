@@ -55,7 +55,7 @@ if(($val = $cmdline_params['resource_id']) && ($cmdline_params['resource_id'] !=
         $dwca_file = "http://localhost/cp/iNaturalist/eol_media.dwca.zip";
     }
     */
-    elseif($resource_id == 24) $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/24_temp.tar.gz";
+//    elseif($resource_id == 24) $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/24_temp.tar.gz";
     else // e.g. what goes here: $ php dwca_utility.php _ ioc-birdlist Y 
     {
         if(is_dir(CONTENT_RESOURCE_LOCAL_PATH.$resource_id)) {
@@ -121,8 +121,9 @@ function get_base_filename($dwca_file, $generate_higherClassification_YN)
     $arr = explode(".", $info['filename']);
     if($generate_higherClassification_YN == "Y") return $arr[0]."-with-higherClassification";
     else {
-        if(in_array($arr[0], array(24))) return $arr[0]."";             // 24.tar.gz
-        else                             return $arr[0]."-adjusted";    // 24-adjusted.tar.gz
-    }
+  //      if(in_array($arr[0], array(24))) return $arr[0]."";             // 24.tar.gz
+  //      else                             return $arr[0]."-adjusted";    // 24-adjusted.tar.gz
+  return $arr[0]."-adjusted";   
+ }
 }
 ?>
