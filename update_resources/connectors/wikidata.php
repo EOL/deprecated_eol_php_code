@@ -68,7 +68,7 @@ elseif(@$params['task'] == "generate_resource") { //step 4 (ran 6 connectors ini
         echo "\n".$params['actual']." -- finished\n";
         if($status_arr[1]) {
             echo "\n---Can now proceed - finalize dwca...---\n\n";
-            Functions::finalize_dwca_resource($resource_id);
+            Functions::finalize_dwca_resource($resource_id, true); //true means big file
         }
         else echo "\nCannot finalize dwca yet.\n";
     }
