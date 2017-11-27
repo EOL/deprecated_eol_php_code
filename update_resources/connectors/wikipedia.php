@@ -70,8 +70,14 @@ $func = new WikiDataAPI($resource_id, "en", "wikimedia");   //done - Used for Co
 // Wikipedia English is EOL resource_id = 80 --> http://www.eol.org/content_partners/129/resources/80
 
 // print_r($argv);
+// php5.6 wikipedia.php jenkins en generate_resource 1 300000 1of6
 $cmdline_params['jenkins_or_cron']  = @$argv[1];
 $cmdline_params['language']         = @$argv[2];
+
+$cmdline_params['task']             = @$argv[3];
+$cmdline_params['range_from']       = @$argv[4];
+$cmdline_params['range_to']         = @$argv[5];
+$cmdline_params['actual']           = @$argv[6];
 print_r($cmdline_params);
 
 // /* //----------start main operation
