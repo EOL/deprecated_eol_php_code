@@ -147,8 +147,7 @@ class WikiDataAPI
         if(($this->what == "wikimedia") || ($this->what == "wikipedia" && $this->language_code == "en"))
         {
             //start new block ---------------------------------------
-            if($actual_task)
-            {
+            if($actual_task) {
                 self::parse_wiki_data_json($task, $range_from, $range_to);
                 //log this task finished
                 $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . date("Y_m") . ".txt";
