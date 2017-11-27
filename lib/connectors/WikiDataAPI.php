@@ -141,14 +141,10 @@ class WikiDataAPI
         }
         
         self::initialize_files();
-        if    ($this->what == "wikipedia") $what_generation_status = "wikipedia_generation_status_";
+        if    ($this->what == "wikipedia") $what_generation_status = "wikipedia_generation_status_".$this->language_code."_";
         elseif($this->what == "wikimedia") $what_generation_status = "wikimedia_generation_status_";
 
-        /* orig 
-        if    ($this->what == "wikipedia") self::parse_wiki_data_json();
-        */
-        
-        if(in_array($this->what, array("wikipedia", "wikimedia")))
+        if(($this->what == "wikimedia") || ($this->what == "wikipedia" && $this->language_code == "en"))
         {
             //start new block ---------------------------------------
             if($actual_task)
@@ -177,6 +173,7 @@ class WikiDataAPI
             }
             //end new block ---------------------------------------
         }
+        else self::parse_wiki_data_json(); //for non-English wikipedia --- orig
         
         
         self::add_parent_entries(); //not sure if we need it but gives added value to taxonomy
