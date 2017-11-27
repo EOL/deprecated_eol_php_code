@@ -79,8 +79,27 @@ if($val = $cmdline_params['language']) $language = $val;
 else                                   $language = "zh"; //manually supplied
 $resource_id = "wikipedia-".$language;
 $func = new WikiDataAPI($resource_id, $language); //generic call
-$func->generate_resource();
-Functions::finalize_dwca_resource($resource_id);
+
+if(in_array($language, array("en"))) {
+    $status_arr = $func->generate_resource($params['task'], $params['range_from'], $params['range_to'], $params['actual']);  //ran 6 connectors bec of lookup caching. Then ran 1 connector to finalize.
+    if($status_arr[0]) {
+        echo "\n".$params['actual']." -- finished\n";
+        if($status_arr[1]) {
+            echo "\n---Can now proceed - finalize dwca...---\n\n";
+            Functions::finalize_dwca_resource($resource_id, true); //true means big file
+        }
+        else echo "\nCannot finalize dwca yet.\n";
+    }
+    else exit(1);
+}
+else { //orig - just one connector
+    $func->generate_resource();
+    Functions::finalize_dwca_resource($resource_id);
+}
+
+
+
+
 // ----------end main operation */
 
 /* final-pt

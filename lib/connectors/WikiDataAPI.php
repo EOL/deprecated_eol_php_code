@@ -102,7 +102,7 @@ class WikiDataAPI
             }
         }
     }
-    private function finalize_media_filenames_ready($status) //e.g. "wikimedia_filenames_status_" or "wikimedia_generation_status_"
+    private function finalize_media_filenames_ready($status) //e.g. "wikimedia_filenames_status_" or "wikimedia_generation_status_" or "wikipedia_generation_status_"
     {
         $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "$status" . date("Y_m") . ".txt";
         if(!file_exists($txtfile)) return false;
@@ -141,25 +141,31 @@ class WikiDataAPI
         }
         
         self::initialize_files();
+        if    ($this->what == "wikipedia") $what_generation_status = "wikipedia_generation_status_";
+        elseif($this->what == "wikimedia") $what_generation_status = "wikimedia_generation_status_";
+
+        /* orig 
         if    ($this->what == "wikipedia") self::parse_wiki_data_json();
-        elseif($this->what == "wikimedia")
+        */
+        
+        if(in_array($this->what, array("wikipedia", "wikimedia")))
         {
             //start new block ---------------------------------------
             if($actual_task)
             {
                 self::parse_wiki_data_json($task, $range_from, $range_to);
                 //log this task finished
-                $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_generation_status_" . date("Y_m") . ".txt";
+                $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . date("Y_m") . ".txt";
                 if(!($f = Functions::file_open($txtfile, "a"))) return;
                 fwrite($f, "$actual_task DONE"."\n"); fclose($f); echo "\n-$actual_task DONE\n";
                 return array(true, false); //so it can run and test final step if ready
             }
             else { //means finalize file
-                if(self::finalize_media_filenames_ready("wikimedia_generation_status_"))
+                if(self::finalize_media_filenames_ready($what_generation_status))
                 {
                     self::parse_wiki_data_json($task, false, false);
                     //truncate for next run
-                    $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_generation_status_" . date("Y_m") . ".txt";
+                    $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . date("Y_m") . ".txt";
                     if(!($f = Functions::file_open($txtfile, "w"))) return;
                     fwrite($f, "Truncated now."."\n"); fclose($f); 
                     /* no more {return true;} here... bec it still has steps below */
