@@ -393,8 +393,11 @@ class WikiDataAPI
                                  // print_r($rek);
                                  // break;              //debug - process just 1 rec
                                  
+                                 /*
                                  $actual++; echo " [$actual] ";
-                                 // if($actual >= 5000) break;   //debug - used only on batch of 5000 articles per language
+                                 if($actual >= 5000) break;   //debug - used only on batch of 5000 articles per language
+                                 */
+                                 
                              }
                          }
                          // print_r($rek); //exit("\nstop muna\n");
