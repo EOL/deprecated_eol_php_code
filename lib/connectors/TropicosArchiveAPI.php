@@ -93,7 +93,7 @@ class TropicosArchiveAPI
                 
                 /* breakdown when caching - up to 5 simultaneous connectors
                 $m = 250000;
-                // $m = 300000;
+                $m = 800000;
                 $cont = false;
                 // if($i >=  1    && $i < $m)    $cont = true;
                 // if($i >=  $m   && $i < $m*2)  $cont = true;
@@ -102,22 +102,27 @@ class TropicosArchiveAPI
                 
                 // if($j >= 1    && $j < $m) $cont = true;
                 // if($j >= $m   && $j < $m*2) $cont = true;
-                if($j >= $m*2 && $j < $m*3) $cont = true;
+                // if($j >= $m*2 && $j < $m*3) $cont = true;
                 // if($j >= $m*3 && $j < $m*4) $cont = true;
                 // if($j >= $m*4 && $j < $m*5) $cont = true;
-
-                if(($i % $temp_archive_batch_count) == 0)
-                {
+                
+                if(($i % $temp_archive_batch_count) == 0) {
                     $old_k = $k;
                     echo "\nfinalizing batch [$k]\n";
                     $i = 0; //reset to 0
                 }
-
                 if(!$cont) continue;
                 */
                 
                 if(($i % 500) == 0) echo "\n" . number_format($i) . " - ";
-                self::process_taxon($taxon_id);
+                // self::process_taxon($taxon_id); //orig
+
+                /*  worked by batch ($k) for multiple connectors */
+                if($k >= 0 && $k <= 50) self::process_taxon($taxon_id);
+                // if($k >= 50 && $k <= 100) self::process_taxon($taxon_id);
+                // if($k >= 100 && $k <= 110) self::process_taxon($taxon_id);
+                // if($k >= 110 && $k <= 120) self::process_taxon($taxon_id);
+                // if($k >= 120 && $k <= 130) self::process_taxon($taxon_id);
                 
                 if(($i % $temp_archive_batch_count) == 0) {
                     $old_k = $k;
