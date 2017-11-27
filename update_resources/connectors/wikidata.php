@@ -37,7 +37,7 @@ $params['actual']           = @$argv[5];
 print_r($params);
 
 // /* main operation
-$resource_id = "commons"; //Wikimedia Commons is EOL resource = 71
+$resource_id = 71; //Wikimedia Commons is EOL resource = 71 //historical commons.tar.gz also exists on Nov 2017
 
 /* $func = new WikiDataAPI($resource_id, "en", "taxonomy"); //3rd param is boolean taxonomy; true means will generate hierarchy resource. [wikidata-hierarchy] */
 $func = new WikiDataAPI($resource_id, "en", "wikimedia"); //Used for Commons - total taxa = 2,208,086
@@ -63,7 +63,6 @@ elseif(@$params['task'] == "generate_resource") { //step 4 (ran 6 connectors ini
     $func->generate_resource();
     Functions::finalize_dwca_resource($resource_id);
     */
-
     $status_arr = $func->generate_resource($params['task'], $params['range_from'], $params['range_to'], $params['actual']);  //step 4 (ran 6 connectors bec of lookup caching. Then ran 1 connector to finalize.)
     if($status_arr[0]) {
         echo "\n".$params['actual']." -- finished\n";
@@ -75,8 +74,6 @@ elseif(@$params['task'] == "generate_resource") { //step 4 (ran 6 connectors ini
     }
     else exit(1);
 }
-
-
 // */
 
 /* utility
@@ -99,39 +96,27 @@ http://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo%7
 http://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo|categories&iiprop=url|mime|mediatype&cllimit=500&redirects&titles=File:Whales are Paraphyletic.png
 */
 /* wikimedia stats:
+commons	Sunday 2017-11-26 01:34:01 PM	{"agent.tab":19055,"media_resource.tab":909996,"taxon.tab":89054}
 Statistics
-
     http://rs.tdwg.org/dwc/terms/taxon:
-
         Total: 73533
-
     http://eol.org/schema/agent/agent:
-
         Total: 17793
-
     http://eol.org/schema/media/document:
-
         Total by type:
-
             http://purl.org/dc/dcmitype/StillImage: 806464
             http://purl.org/dc/dcmitype/MovingImage: 6223
             http://purl.org/dc/dcmitype/Sound: 1610
-
         Total by license:
-
             http://creativecommons.org/licenses/publicdomain/: 192680
             http://creativecommons.org/licenses/by/3.0/: 495316
             http://creativecommons.org/licenses/by-sa/3.0/: 124755
             http://creativecommons.org/licenses/by-nc/3.0/: 731
             No known copyright restrictions: 804
             http://creativecommons.org/licenses/by-nc-sa/3.0/: 11
-
         Total by language:
-
             en: 814297
-
         Total by format:
-
             image/jpeg: 769547
             image/png: 18712
             image/svg+xml: 3954
@@ -141,7 +126,6 @@ Statistics
             image/gif: 1296
             video/webm: 1725
             audio/x-wav: 29
-
         Total: 814297
 */
 ?>
