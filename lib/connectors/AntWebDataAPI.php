@@ -1,6 +1,10 @@
 <?php
 namespace php_active_record;
-/*  connector: [dwca_utility.php _ 24 | first run took: 4 hrs 57 mins] */
+/*  connector: [dwca_utility.php _ 24 | first run took: 4 hrs 57 mins] 
+
+This is run after 24.php
+
+*/
 class AntWebDataAPI
 {
     function __construct($taxon_ids, $archive_builder)
@@ -144,6 +148,8 @@ class AntWebDataAPI
         $taxon->taxonID         = $rec['taxon_id'];
         $taxon->scientificName  = ucfirst($rec['scientific_name']);
         if($family = @$rec['family']) $taxon->family = ucfirst($family);
+        $taxon->furtherInformationURL = self::compute_furtherInformationURL($taxon->scientificName);
+
         /*
         $taxon->kingdom         = $t['dwc_Kingdom'];
         $taxon->phylum          = $t['dwc_Phylum'];
@@ -320,6 +326,25 @@ class AntWebDataAPI
                 case "Mariana Islands":                 return "https://www.wikidata.org/entity/Q153732";
             }
         }
+    }
+    private function compute_furtherInformationURL($sciname)
+    {
+        $rank = '';
+        $sciname = trim($sciname);
+        $parts = explode(" ", $sciname);
+        if($val = $parts[0]) {
+            $genus = $val;
+            $rank = "genus";
+        }
+        if($val = @$parts[1]) {
+            $species = $val;
+            $rank = "species";
+        }
+        if($rank == "genus") return "https://www.antweb.org/description.do?genus=".$genus."&rank=genus";
+        if($rank == "species") return "https://www.antweb.org/description.do?genus=".$genus."&name=".$species."&rank=species";
+        // https://www.antweb.org/description.do?genus=Zatania&rank=genus
+        // https://www.antweb.org/description.do?genus=tetramorium&name=krishnani&rank=species
+        return "";
     }
     
 }

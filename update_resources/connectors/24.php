@@ -2,6 +2,13 @@
 namespace php_active_record;
 /* http://eol.org/content_partners/6/resources/24 - DATA-1705
 This is a generic script that will convert EOL XML to EOL DWC-A
+
+After 24.php, then run dwca_utility.php _ 24
+Both scripts will generate 24.tar.gz.
+
+Stats:
+24	Tuesday 2017-11-28 03:58:39 AM	{"agent.tab":158,"measurement_or_fact.tab":28655,"media_resource.tab":169091,"occurrence.tab":28655,"taxon.tab":16514} - eol-archive
+24	Tuesday 2017-11-28 02:36:35 AM	{"agent.tab":158,"measurement_or_fact.tab":28660,"media_resource.tab":169091,"occurrence.tab":28660,"taxon.tab":16516} - mac mini
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
