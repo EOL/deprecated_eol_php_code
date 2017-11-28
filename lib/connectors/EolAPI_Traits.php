@@ -11,7 +11,7 @@ class EolAPI_Traits
     {
         /* add: 'resource_id' => "gbif" ;if you want to add cache inside a folder [gbif] inside [eol_cache_gbif] */
         $this->download_options = array(
-            'cache_path'         => '/Volumes/Thunderbolt4/eol_cache/',     //used in Functions.php for all general cache
+            'cache_path'         => DOC_ROOT . $GLOBALS['MAIN_CACHE_PATH'], //used in Functions.php for all general cache
             'resource_id'        => 'eol_api_traits',                       //resource_id here is just a folder name in cache
             'expire_seconds'     => false,                                  //another option is 1 year to expire
             'download_wait_time' => 3000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0);
@@ -41,7 +41,7 @@ class EolAPI_Traits
         */
     }
     
-    function start()
+    function start($data_sets = array())
     {
         $datasets = array();
         /*
@@ -69,7 +69,7 @@ class EolAPI_Traits
         $datasets[] = array("name" => "life cycle habit", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FTO_0002725&q=&sort=desc");
 
         // DATA-1654 growth habit // 1091 pages!
-        $datasets[] = array("name" => "growth habit", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPlantHabit&q=&sort=desc");
+        $datasets[] = array("name" => "growth habit", "attribute" => "http://eol.org/schema/terms/PlantHabit&q=&sort=desc");
 
         // DATA-1657 derivative file: All Body Mass
         $datasets[] = array("name" => "body mass", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FVT_0001259&q=&sort=desc");
@@ -353,6 +353,7 @@ class EolAPI_Traits
         // $datasets[] = array("name" => "cell mass from Jen", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&taxon_name=Halosphaera&q=&taxon_concept_id=90645");
         // $datasets[] = array("name" => "cell mass from Jen2", "attribute" => "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FOBA_1000036&commit=Search&q=");
 
+        if($val = $data_sets) $datasets = $val;
         foreach($datasets as $dataset)
         {
             $temp = CONTENT_RESOURCE_LOCAL_PATH . "/eol_traits";

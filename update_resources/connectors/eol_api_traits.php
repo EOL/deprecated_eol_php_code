@@ -16,18 +16,24 @@ $strs[] = "< 2.5mm";
 $strs[] = ">=100 mm";
 $strs[] = "3.5+17 mm";
 $func = new EolAPI_Traits($resource_id);
-foreach($strs as $str)
-{
+foreach($strs as $str) {
     $arr = $func->get_correct_Value_from_string($str);
     print_r($arr);
 }
 exit;
 */
 
+/* php5.6 eol_api_traits.php jenkins growth_habit */
+$params['jenkins_or_cron']  = @$argv[1];
+$params['name']             = @$argv[2];
+print_r($params);
+$datasets = array();
+if($params['name'] == "growth_habit") $datasets[] = array("name" => "growth habit", "attribute" => "http://eol.org/schema/terms/PlantHabit&q=&sort=desc");
+
 $resource_id = 'eol';
 // /* normal operation ============================================
 $func = new EolAPI_Traits($resource_id);
-$func->start(); //normal operation
+$func->start($datasets); //normal operation
 // ================================================================*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
