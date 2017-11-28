@@ -43,7 +43,7 @@ class AntWebDataAPI
             $specimens = self::get_specimens_per_genus($genus);
             if(!$specimens) continue;
             // print_r($specimens);
-            echo("\n".count($specimens)."\n");
+            echo("\nNo. of specimens: ".count($specimens)."\n");
             foreach($specimens as $rec)
             {   /* Array(
                        [url] => http://antweb.org/api/v2/?occurrenceId=CAS:ANTWEB:jtl725991
@@ -68,6 +68,12 @@ class AntWebDataAPI
                                        [1] => 116.61342)
                            )
                    )*/
+                // $this->debug['typeStatus'][$rec['typeStatus']] = '';
+                
+                //start fix/select scientific_name | per https://eol-jira.bibalex.org/browse/DATA-1713?focusedCommentId=61541&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61541
+                $rec['scientific_name'] = self::fix_scientific_name($rec);
+                //end 
+                
                 $rec['taxon_id'] = strtolower($rec['scientific_name']);
                 $rec['catnum'] = $rec['url'];
                 if(!$rec['url']) {
@@ -88,12 +94,49 @@ class AntWebDataAPI
                         if(!isset($this->taxon_ids[$rec['taxon_id']])) self::add_taxon($rec);
                         self::add_string_types($rec, $habitat_uri, "http://eol.org/schema/terms/Habitat", "true");
                     }
-                    else $this->debug['undefined habitat'][$habitat] = '';
+                    // else $this->debug['undefined habitat'][$habitat] = '';
                 }
                 
             }
             // break; //debug - get only first genus
         }
+    }
+    private function fix_scientific_name($rec)
+    {
+        /*
+        tetramorium kgac-afr02		Tetramorium kgac-afr02				Formicidae
+        tetraponera psw105		Tetraponera psw105				Formicidae
+        tetraponera continua_nr		Tetraponera continua_nr				Formicidae
+        tetraponera indet		Tetraponera indet				Formicidae
+        */
+        $arr = explode(" ", $rec['scientific_name']);
+        $genus = trim($arr[0]);
+        if($val = @$arr[1]) $species = trim($val);
+        else return $genus;
+        
+        if(strlen($species) <= 1) { //e.g. "Tapinoma a"
+            echo "\ntypeStatus: ".$rec['typeStatus'];
+            return $genus;            
+        }
+        $chars = "- _ 0 1 2 3 4 5 6 7 8 9 cf. sp. indet.";
+        $chars = explode(" ", $chars);
+        foreach($chars as $char) {
+            if(stripos($species, $char) !== false) { //string is found
+                echo "\ntypeStatus: ".$rec['typeStatus'];
+                return $genus;
+            }
+        }
+
+        $strings = "cf sp indet"; //exact match
+        $strings = explode(" ", $strings);
+        foreach($strings as $string) {
+            if($string == $species) {
+                echo "\ntypeStatus: ".$rec['typeStatus'];
+                return $genus;
+            }
+        }
+        
+        return $rec['scientific_name'];
     }
     private function add_taxon($rec)
     {
