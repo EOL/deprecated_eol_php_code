@@ -147,14 +147,13 @@ class AntWebDataAPI
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = $rec['taxon_id'];
         $taxon->scientificName  = ucfirst($rec['scientific_name']);
+        $taxon->phylum          = 'Arthropoda';
+        $taxon->class           = 'Insecta';
+        $taxon->order           = 'Hymenoptera';
         if($family = @$rec['family']) $taxon->family = ucfirst($family);
         $taxon->furtherInformationURL = self::compute_furtherInformationURL($taxon->scientificName);
-
         /*
         $taxon->kingdom         = $t['dwc_Kingdom'];
-        $taxon->phylum          = $t['dwc_Phylum'];
-        $taxon->class           = $t['dwc_Class'];
-        $taxon->order           = $t['dwc_Order'];
         $taxon->genus           = $t['dwc_Genus'];
         $taxon->furtherInformationURL = $t['dc_source'];
         if($reference_ids = @$this->taxa_reference_ids[$t['int_id']]) $taxon->referenceID = implode("; ", $reference_ids);
