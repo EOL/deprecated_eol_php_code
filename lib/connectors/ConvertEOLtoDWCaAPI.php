@@ -121,7 +121,7 @@ class ConvertEOLtoDWCaAPI
             }
             
             if($obj = @$t->dataObject) {
-                if($data_objects = self::process_data_object($obj, $taxon_id, $params)) {
+                if($data_objects = self::process_data_object($obj, $taxon_id, $params, $t_dwc->ScientificName)) {
                     foreach($data_objects as $data_object) self::create_archive($data_object, "data object");
                 }
             }
@@ -137,7 +137,7 @@ class ConvertEOLtoDWCaAPI
         }
     }
 
-    private function process_data_object($objects, $taxon_id, $params)
+    private function process_data_object($objects, $taxon_id, $params, $sciname) //$sciname here was added for AntWeb (24)
     {
         $records = array();
         foreach($objects as $o)
@@ -168,6 +168,13 @@ class ConvertEOLtoDWCaAPI
 
             if(self::is_media_object($rec['dataType'])) { //fore resource_id = 39
                 if(!Functions::valid_uri_url($rec['mediaURL'])) continue; //Media objects must have accessURI
+            }
+
+            if($this->resource_id == 24) { //AntWeb per https://eol-jira.bibalex.org/browse/DATA-1713?focusedCommentId=61546&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61546
+                if($val = @$rec['mediaURL']) $rec['source'] = self::compute_AntWeb_source_from_mediaURL($val); //source becomes furtherInformationURL in DwCA
+                else                         $rec['source'] = self::compute_AntWeb_source_from_sciname($sciname); //for text objects
+                if(stripos(@$rec['rightsHolder'], "California Academy of Sciences") !== false) $rec['rightsHolder'] = 'California Academy of Sciences'; //rightsHolder becomes Owner in DwCA. Removes extra ", xxx" string.
+                if(!@$rec['rightsHolder'])                                                     $rec['rightsHolder'] = 'California Academy of Sciences'; //text objects need Owner as well, forced.
             }
 
             //end filters - for quality control ==================================================================
@@ -369,6 +376,32 @@ class ConvertEOLtoDWCaAPI
             }
         }
 
+    }
+    
+    private function compute_AntWeb_source_from_mediaURL($mediaURL)
+    {
+        // $mediaURL = "http://www.antweb.org/images/casent0103174/casent0103174_h_1_high.jpg";
+        // $mediaURL = "http://www.antweb.org/images/casent0103174/casent0103174_l_1_high.jpg";
+        /* Array (
+            [dirname] => http://www.antweb.org/images/casent0103174
+            [basename] => casent0103174_l_1_high.jpg
+            [extension] => jpg
+            [filename] => casent0103174_l_1_high
+        ) */
+        $parts = explode("_", pathinfo($mediaURL, PATHINFO_FILENAME));
+        if(count($parts) >= 4) return "https://www.antweb.org/bigPicture.do?name=".$parts[0]."&shot=".$parts[1]."&number=".$parts[2];
+        // https://www.antweb.org/bigPicture.do?name=casent0103174&shot=h&number=1
+        // https://www.antweb.org/bigPicture.do?name=casent0103174&shot=l&number=1
+    }
+    private function compute_AntWeb_source_from_sciname($sciname)
+    {   //e.g. https://www.antweb.org/description.do?genus=acanthognathus&species=teledectus
+        $url = '';
+        $sciname = trim($sciname);
+        $parts = explode(" ", $sciname);
+        if($val = $parts[0]) $genus = $val;
+        $url = "https://www.antweb.org/description.do?genus=".$genus;
+        if($species = $parts[1]) $url .= "&species=".$species;
+        return $url;
     }
 
 }

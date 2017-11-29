@@ -84,6 +84,7 @@ class AntWebDataAPI
                     print_r($rec);
                     exit("\ninvestigate no url\n");
                 }
+                $rec['url'] = self::compute_furtherInformationURL($rec['scientific_name']);
                 
                 if($country = @$rec['country']) {
                     if($country_uri = self::get_country_uri($country)) {
@@ -119,14 +120,14 @@ class AntWebDataAPI
         else return $genus;
         
         if(strlen($species) <= 1) { //e.g. "Tapinoma a"
-            echo "\ntypeStatus: ".$rec['typeStatus'];
+            // echo "\ntypeStatus: ".$rec['typeStatus'];
             return $genus;            
         }
         $chars = "- _ 0 1 2 3 4 5 6 7 8 9 cf. sp. indet.";
         $chars = explode(" ", $chars);
         foreach($chars as $char) {
             if(stripos($species, $char) !== false) { //string is found
-                echo "\ntypeStatus: ".$rec['typeStatus'];
+                // echo "\ntypeStatus: ".$rec['typeStatus'];
                 return $genus;
             }
         }
@@ -135,7 +136,7 @@ class AntWebDataAPI
         $strings = explode(" ", $strings);
         foreach($strings as $string) {
             if($string == $species) {
-                echo "\ntypeStatus: ".$rec['typeStatus'];
+                // echo "\ntypeStatus: ".$rec['typeStatus'];
                 return $genus;
             }
         }
@@ -147,10 +148,12 @@ class AntWebDataAPI
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = $rec['taxon_id'];
         $taxon->scientificName  = ucfirst($rec['scientific_name']);
-        $taxon->phylum          = 'Arthropoda';
-        $taxon->class           = 'Insecta';
-        $taxon->order           = 'Hymenoptera';
         if($family = @$rec['family']) $taxon->family = ucfirst($family);
+        if($taxon->family == "Formicidae") {
+            $taxon->phylum  = 'Arthropoda';
+            $taxon->class   = 'Insecta';
+            $taxon->order   = 'Hymenoptera';
+        }
         $taxon->furtherInformationURL = self::compute_furtherInformationURL($taxon->scientificName);
         /*
         $taxon->kingdom         = $t['dwc_Kingdom'];
