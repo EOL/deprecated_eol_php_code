@@ -245,7 +245,7 @@ class ConvertEOLtoDWCaAPI
         foreach($objects as $o) {
             if($params["dataset"] == "EOL China") {}
             if(!(string) $o) continue;
-            $records[] = array("term_name" => (string) $o, "agentRole" => (string) $o{"role"}, "agentID" => md5((string) $o), "term_homepage" => (string) @$o{"homepage"});
+            $records[] = array("term_name" => strip_tags((string) $o), "agentRole" => (string) $o{"role"}, "agentID" => md5((string) $o), "term_homepage" => (string) @$o{"homepage"});
         }
         // print_r($records);
         return $records;
@@ -331,7 +331,11 @@ class ConvertEOLtoDWCaAPI
             elseif($field == "mediaURL")        $tfield = "accessURI";
             elseif($field == "created")         $tfield = "CreateDate";
             elseif($field == "subject")         $tfield = "CVterm";
-            elseif($field == "agentID")         $tfield = "identifier";
+            elseif($field == "agentID")
+            {
+                if($type == "data object")      $tfield = "agentID";
+                elseif($type == "agent")        $tfield = "identifier";
+            }
             elseif($field == "location")        $tfield = "LocationCreated";
             else                                $tfield = $field;
             $t->$tfield = $rec[$orig_field];
