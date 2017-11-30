@@ -1,7 +1,6 @@
 <?php
 namespace php_active_record;
-/* 
-*/
+/*  */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/NMNHBotanyAPI');
@@ -19,13 +18,13 @@ $params["xmlYN"] = true;
 // $params["filename"] = 'eli.xml';
 // $params["xmlYN"] = false;
 
-//actual resource
-/*
+//actual resource - works OK
+// /*
 $params["eol_xml_file"] = 'http://collections.mnh.si.edu/services/eol/nmnh-botany-response.xml.gz';
 $params["eol_xml_file"] = 'http://localhost/cp/OpenData/EOLxml_2_DWCA/nmnh-botany-response.xml.gz';
 $params["filename"] = 'nmnh-botany-response.xml';
 $params["xmlYN"] = false;
-*/
+// */
 
 $func = new NMNHBotanyAPI($resource_id);
 $func->start($params);

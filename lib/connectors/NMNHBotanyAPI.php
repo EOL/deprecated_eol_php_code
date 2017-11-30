@@ -1,7 +1,6 @@
 <?php
 namespace php_active_record;
-/*  connector: 
-*/
+/*  connector: botany_nmnh.php */
 class NMNHBotanyAPI
 {
     function __construct($folder)
@@ -40,7 +39,6 @@ class NMNHBotanyAPI
         echo "\ntotal rows: $this->count\n";
     }
     
-    
     function convert_xml($local_path)
     {
         $reader = new \XMLReader();
@@ -54,15 +52,26 @@ class NMNHBotanyAPI
                 $t_dc = $t->children("http://purl.org/dc/elements/1.1/");
                 $t_dcterms = $t->children("http://purl.org/dc/terms/");
                 $t_dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
-                
                 if($val = $t_dc) print_r($val);
                 if($val = $t_dcterms) print_r($val);
                 if($val = $t_dwc) print_r($val);
-                print_r($t);
+
+                // print_r($t);
+
+                foreach($t->commonName as $c) {
+                    echo "\n $c - ". $c->attributes('xml', TRUE)->lang; //works OK
+                }
+                $xml_string = $t->asXML();
+                echo "\n[$xml_string]\n";
+                exit("\nJust making tests...OK\n");
             }
         }
     }
     
+    private function xml_attribute($object, $attribute)
+    {
+        if(isset($object[$attribute])) return (string) $object[$attribute];
+    }
     /*
     private function add_taxon($rec)
     {
