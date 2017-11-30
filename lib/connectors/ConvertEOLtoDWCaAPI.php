@@ -10,6 +10,8 @@ namespace php_active_record;
 */
 class ConvertEOLtoDWCaAPI
 {
+    const SPM = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#";
+    const EOL = "http://www.eol.org/voc/table_of_contents#";
     function __construct($folder)
     {
         $this->resource_id = $folder;
@@ -57,7 +59,12 @@ class ConvertEOLtoDWCaAPI
             if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "taxon") {
                 $page_xml = $reader->readOuterXML();
                 $t = simplexml_load_string($page_xml, null, LIBXML_NOCDATA);
-                $i = self::process_t($t, $i, $params);
+                if($this->resource_id == 1) //346
+                {
+                    $t = self::assgn_eol_subjects($t);
+                    if($t = self::replace_Indet_sp($t)) $i = self::process_t($t, $i, $params);
+                }
+                else $i = self::process_t($t, $i, $params);
             }
         }
     }
@@ -96,6 +103,7 @@ class ConvertEOLtoDWCaAPI
                     {
                         if($val = (string) $o->$field->rating) $rec['rating'] = $val;
                         if($val = (string) $o->$field->subtype) $rec['subtype'] = $val;
+                        // if($val = (string) $o->$field->subject) $rec['addl_subject'] = $val; --- don't know yet where to put it
                     }
                 }
             }
@@ -115,7 +123,7 @@ class ConvertEOLtoDWCaAPI
             if(@$rec['subject'] == 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description') echo "\n ==> ". @$rec['description'] . " ==== ";
             */
 
-            if(self::is_media_object($rec['dataType'])) { //fore resource_id = 39
+            if(self::is_media_object($rec['dataType'])) { //for resource_id = 39
                 if(!Functions::valid_uri_url($rec['mediaURL'])) continue; //Media objects must have accessURI
             }
 
@@ -126,6 +134,11 @@ class ConvertEOLtoDWCaAPI
                 if(!@$rec['rightsHolder'])                                                     $rec['rightsHolder'] = 'California Academy of Sciences'; //text objects need Owner as well, forced.
             }
 
+            if($this->resource_id == 346) {
+                if($rec['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') $rec['rating'] = 2;
+                
+                
+            }
             //end filters - for quality control ==================================================================
             
             
@@ -257,7 +270,8 @@ class ConvertEOLtoDWCaAPI
     {
         $records = array();
         foreach($objects as $o) {
-            $lang = trim((string) $o{"xml_lang"});
+            $lang = trim((string) $o{"xml_lang"}); //not used anymore
+            $lang = @$o->attributes('xml', TRUE)->lang; //works OK
             if($val = trim((string) $o)) $records[] = array("vernacularName" => $val, "language" => $lang, "taxonID" => (string) $taxon_id);
         }
         // print_r($records);
@@ -409,7 +423,88 @@ class ConvertEOLtoDWCaAPI
         return $i;
     }
     
-    
+    // =============================================================== start customized functions =============================================
+    private function replace_Indet_sp($taxon) //resource_id 346 - NMNH Botany
+    {
+        $orig_taxon = $taxon;
+        $dc = $taxon->children("http://purl.org/dc/elements/1.1/");
+        $dwc = $taxon->children("http://rs.tdwg.org/dwc/dwcore/");
+        $dcterms = $taxon->children("http://purl.org/dc/terms/");
+        echo "\n " . $dc->identifier . " -- sciname: [" . $dwc->ScientificName."]";
+        if(is_numeric(stripos($dwc->ScientificName, "Indet")) || is_numeric(stripos($dwc->Kingdom, "Indet")) || is_numeric(stripos($dwc->Phylum, "Indet")) ||
+           is_numeric(stripos($dwc->Class, "Indet")) || is_numeric(stripos($dwc->Order, "Indet")) || is_numeric(stripos($dwc->Family, "Indet")) || is_numeric(stripos($dwc->Genus, "Indet")))
+        {
+            if(isset($dwc->Genus)) $ancestry['Genus'] = (string) $dwc->Genus;
+            if(isset($dwc->Family)) $ancestry['Family'] = (string) $dwc->Family;
+            if(isset($dwc->Order)) $ancestry['Order'] = (string) $dwc->Order;
+            if(isset($dwc->Class)) $ancestry['Class'] = (string) $dwc->Class;
+            if(isset($dwc->Phylum)) $ancestry['Phylum'] = (string) $dwc->Phylum;
+            if(isset($dwc->Kingdom)) $ancestry['Kingdom'] = (string) $dwc->Kingdom;
+            $ancestry['ScientificName'] = (string) $dwc->ScientificName;
+
+            $ancestry = self::get_names($ancestry);
+            echo "\n final sciname: [" . $ancestry['ScientificName'] . "]";
+
+            $dwc->ScientificName = $ancestry['ScientificName'];
+            if(isset($dwc->Genus)) $dwc->Genus = $ancestry['Genus'];
+            if(isset($dwc->Family)) $dwc->Family = $ancestry['Family'];
+            if(isset($dwc->Order)) $dwc->Order = $ancestry['Order'];
+            if(isset($dwc->Class)) $dwc->Class = $ancestry['Class'];
+            if(isset($dwc->Phylum)) $dwc->Phylum = $ancestry['Phylum'];
+            if(isset($dwc->Kingdom)) $dwc->Kingdom = $ancestry['Kingdom'];
+            if(!$ancestry['ScientificName']) return false;
+            else {
+                $xml = $taxon->asXML();
+                return simplexml_load_string($xml, null, LIBXML_NOCDATA);
+            }
+        }
+        return $orig_taxon;
+    }
+    private function get_names($ancestry)
+    {
+        // first loop is to remove all Indet taxon entries
+        foreach($ancestry as $rank => $name) {
+            if(is_numeric(stripos($name, "Indet"))) {
+                $ancestry[$rank] = "";
+                echo "\n $rank has [$name] now removed.";
+            }
+        }
+        // if ScientificName is blank, then it will get the immediate higher taxon if it exists
+        if($ancestry['ScientificName'] == "") {
+            foreach($ancestry as $rank => $name)
+            {
+                if(trim($name) != "") {
+                    echo "\n This will be the new ScientificName: [$name] \n";
+                    $ancestry['ScientificName'] = $name;
+                    $ancestry[$rank] = "";
+                    return $ancestry;
+                }
+            }
+        }
+        return $ancestry;
+    }
+    private function assgn_eol_subjects($taxon)
+    {
+        foreach($taxon->dataObject as $dataObject) {
+            $eol_subjects[] = self::EOL . "SystematicsOrPhylogenetics";
+            $eol_subjects[] = self::EOL . "TypeInformation";
+            $eol_subjects[] = self::EOL . "Notes";
+            if(@$dataObject->subject)
+            {
+                if(in_array($dataObject->subject, $eol_subjects))
+                {
+                    $dataObject->addChild("additionalInformation", "");
+                    $dataObject->additionalInformation->addChild("subject", $dataObject->subject);
+                    if    ($dataObject->subject == self::EOL . "SystematicsOrPhylogenetics") $dataObject->subject = self::SPM . "Evolution";
+                    elseif($dataObject->subject == self::EOL . "TypeInformation")            $dataObject->subject = self::SPM . "DiagnosticDescription";
+                    elseif($dataObject->subject == self::EOL . "Notes")                      $dataObject->subject = self::SPM . "Description";
+                }
+            }
+        }
+        $xml = $taxon->asXML();
+        return simplexml_load_string($xml, null, LIBXML_NOCDATA);
+    }
+    //================================================================================
     private function compute_AntWeb_source_from_mediaURL($mediaURL)
     {
         // $mediaURL = "http://www.antweb.org/images/casent0103174/casent0103174_h_1_high.jpg";
