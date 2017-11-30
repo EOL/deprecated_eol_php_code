@@ -131,7 +131,6 @@ class INBioAPI
             debug($i);
             foreach($taxon->dataObject as $dataObject)
             {
-                $dataObject_dc = $dataObject->children("http://purl.org/dc/elements/1.1/");
                 $eol_subjects[] = self::EOL . "SystematicsOrPhylogenetics";
                 $eol_subjects[] = self::EOL . "TypeInformation";
                 $eol_subjects[] = self::EOL . "Notes";
