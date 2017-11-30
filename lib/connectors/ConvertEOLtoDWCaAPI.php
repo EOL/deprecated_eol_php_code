@@ -30,7 +30,7 @@ class ConvertEOLtoDWCaAPI
             // "expire_seconds" -- false => won't expire; 0 => expires now //debug
             print_r($paths);
             $params["path"] = $paths["temp_dir"];
-            self::convert_xml($params);
+            self::convert_stream_xml($params);
             $this->archive_builder->finalize(TRUE);
             recursive_rmdir($paths["temp_dir"]); // remove temp dir
         }
@@ -40,11 +40,26 @@ class ConvertEOLtoDWCaAPI
             $local_xml_file = Functions::save_remote_file_to_local($params['eol_xml_file'], array('file_extension' => "xml", "cache" => 1, "expire_seconds" => $expire_seconds, "timeout" => 7200, "download_attempts" => 2, "delay_in_minutes" => 2)); 
             /* expire_seconds is irrelevant if there is no cache => 1 in save_remote_file_to_local() */ 
             $params['filename'] = pathinfo($local_xml_file, PATHINFO_BASENAME);
-            self::convert_xml($params);
+            self::convert_stream_xml($params);
             $this->archive_builder->finalize(TRUE);
             unlink($local_xml_file);
         }
         echo "\ntotal rows: $this->count\n";
+    }
+
+    private function convert_stream_xml($params)
+    {
+        $file = $params["path"] . $params["filename"];
+        $reader = new \XMLReader();
+        $reader->open($file);
+        $i = 0;
+        while(@$reader->read()) {
+            if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "taxon") {
+                $page_xml = $reader->readOuterXML();
+                $t = simplexml_load_string($page_xml, null, LIBXML_NOCDATA);
+                $i = self::process_t($t, $i, $params);
+            }
+        }
     }
 
     private function convert_xml($params)
@@ -58,81 +73,7 @@ class ConvertEOLtoDWCaAPI
         $i = 0;
         foreach($xml->taxon as $t)
         {
-            $t_dwc      = $t->children("http://rs.tdwg.org/dwc/dwcore/");
-            $t_dc       = $t->children("http://purl.org/dc/elements/1.1/");
-            $t_dcterms  = $t->children("http://purl.org/dc/terms/");
-
-            /*
-            if($i <= 2) {
-                print_r($t_dc);
-                print_r($t_dwc);
-            }
-            else return; //exit;
-            */
-            
-            $i++; if(($i % 5000) == 0) echo "\n $i ";
-            $rec = array();
-            foreach(array_keys((array) $t_dc) as $field)  $rec[$field] = (string) $t_dc->$field;
-            foreach(array_keys((array) $t_dwc) as $field) $rec[$field] = (string) $t_dwc->$field;
-            foreach(array_keys((array) $t_dcterms) as $field) {
-                if(in_array($field, array("created"))) continue; //exclude these fields, not in schema - CreateDate not found in taxon extension
-                $rec[$field] = (string) $t_dcterms->$field;
-            }
-            
-            $taxon_id = false;
-            if(isset($t_dc->identifier)) {
-                if    ($val = trim($t_dc->identifier))      $taxon_id = $val;
-                elseif($val = trim($t_dwc->ScientificName)) $taxon_id = md5($val);
-                else continue; //meaning if there is no taxon id and sciname then ignore record
-            }
-            else echo "\nwent here\n";
-            if($val = $taxon_id) $rec["identifier"] = $val;
-            else
-            {
-                if(in_array($params["dataset"], array("NMNH XML files"))) continue; //meaning if there is no taxon id and sciname then ignore record
-                else 
-                {
-                    echo "\n -- try to figure how to get taxon_id for this resource: $params[dataset] -- \n";
-                    // print_r($t); print_r($t_dc); print_r($t_dwc); exit; //debug
-                }
-            }
-
-            if($obj = @$t->commonName) {
-                if($vernaculars = self::process_vernacular($obj, $taxon_id)) {
-                    foreach($vernaculars as $vernacular) {
-                        if($vernacular) self::create_archive($vernacular, "vernacular");
-                    }
-                }
-            }
-            if($obj = @$t->synonym) {
-                if($synonyms = self::process_synonym($obj, $taxon_id)) {
-                    foreach($synonyms as $synonym) self::create_archive($synonym, "taxon");
-                }
-            }
-            if($obj = @$t->reference) {
-                if($references = self::process_reference($obj, $taxon_id, $params)) {
-                    $reference_ids = array();
-                    foreach($references as $reference) {
-                        self::create_archive($reference, "reference");
-                        $reference_ids[$reference["ref_identifier"]] = '';
-                    }
-                    $rec["referenceID"] = implode(";", array_keys($reference_ids));
-                }
-            }
-            
-            if($obj = @$t->dataObject) {
-                if($data_objects = self::process_data_object($obj, $taxon_id, $params, $t_dwc->ScientificName)) {
-                    foreach($data_objects as $data_object) self::create_archive($data_object, "data object");
-                }
-            }
-            
-            $rec = array_map('trim', $rec);
-            if($rec['identifier'] && $rec['ScientificName'])
-            {
-                self::create_archive($rec, "taxon");
-                $this->count++;
-            }
-            
+            $i = self::process_t($t, $i, $params);
             // break; //debug
         }
     }
@@ -377,6 +318,86 @@ class ConvertEOLtoDWCaAPI
         }
 
     }
+    
+    private function process_t($t, $i, $params)
+    {
+        $t_dwc      = $t->children("http://rs.tdwg.org/dwc/dwcore/");
+        $t_dc       = $t->children("http://purl.org/dc/elements/1.1/");
+        $t_dcterms  = $t->children("http://purl.org/dc/terms/");
+
+        /*
+        if($i <= 2) {
+            print_r($t_dc);
+            print_r($t_dwc);
+        }
+        else return; //exit;
+        */
+        
+        $i++; if(($i % 5000) == 0) echo "\n $i ";
+        $rec = array();
+        foreach(array_keys((array) $t_dc) as $field)  $rec[$field] = (string) $t_dc->$field;
+        foreach(array_keys((array) $t_dwc) as $field) $rec[$field] = (string) $t_dwc->$field;
+        foreach(array_keys((array) $t_dcterms) as $field) {
+            if(in_array($field, array("created"))) continue; //exclude these fields, not in schema - CreateDate not found in taxon extension
+            $rec[$field] = (string) $t_dcterms->$field;
+        }
+        
+        $taxon_id = false;
+        if(isset($t_dc->identifier)) {
+            if    ($val = trim($t_dc->identifier))      $taxon_id = $val;
+            elseif($val = trim($t_dwc->ScientificName)) $taxon_id = md5($val);
+            else continue; //meaning if there is no taxon id and sciname then ignore record
+        }
+        else echo "\nwent here\n";
+        if($val = $taxon_id) $rec["identifier"] = $val;
+        else
+        {
+            if(in_array($params["dataset"], array("NMNH XML files"))) continue; //meaning if there is no taxon id and sciname then ignore record
+            else 
+            {
+                echo "\n -- try to figure how to get taxon_id for this resource: $params[dataset] -- \n";
+                // print_r($t); print_r($t_dc); print_r($t_dwc); exit; //debug
+            }
+        }
+
+        if($obj = @$t->commonName) {
+            if($vernaculars = self::process_vernacular($obj, $taxon_id)) {
+                foreach($vernaculars as $vernacular) {
+                    if($vernacular) self::create_archive($vernacular, "vernacular");
+                }
+            }
+        }
+        if($obj = @$t->synonym) {
+            if($synonyms = self::process_synonym($obj, $taxon_id)) {
+                foreach($synonyms as $synonym) self::create_archive($synonym, "taxon");
+            }
+        }
+        if($obj = @$t->reference) {
+            if($references = self::process_reference($obj, $taxon_id, $params)) {
+                $reference_ids = array();
+                foreach($references as $reference) {
+                    self::create_archive($reference, "reference");
+                    $reference_ids[$reference["ref_identifier"]] = '';
+                }
+                $rec["referenceID"] = implode(";", array_keys($reference_ids));
+            }
+        }
+        
+        if($obj = @$t->dataObject) {
+            if($data_objects = self::process_data_object($obj, $taxon_id, $params, $t_dwc->ScientificName)) {
+                foreach($data_objects as $data_object) self::create_archive($data_object, "data object");
+            }
+        }
+        
+        $rec = array_map('trim', $rec);
+        if($rec['identifier'] && $rec['ScientificName'])
+        {
+            self::create_archive($rec, "taxon");
+            $this->count++;
+        }
+        return $i;
+    }
+    
     
     private function compute_AntWeb_source_from_mediaURL($mediaURL)
     {
