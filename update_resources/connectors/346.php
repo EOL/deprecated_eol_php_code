@@ -147,29 +147,25 @@ function replace_Indet_sp($xml_string)
                 unset($xml->taxon[$i-1]->dataObject);
             }
         }
-    }
+    } //end foreach
     return $xml->asXML();
 }
 
 function get_names($ancestry)
 {
     // first loop is to remove all Indet taxon entries
-    foreach($ancestry as $rank => $name)
-    {
-        if(is_numeric(stripos($name, "Indet")))
-        {
+    foreach($ancestry as $rank => $name) {
+        if(is_numeric(stripos($name, "Indet"))) {
             $ancestry[$rank] = "";
             echo "\n $rank has [$name] now removed.";
         }
     }
 
     // if ScientificName is blank, then it will get the immediate higher taxon if it exists
-    if($ancestry['ScientificName'] == "")
-    {
+    if($ancestry['ScientificName'] == "") {
         foreach($ancestry as $rank => $name)
         {
-            if(trim($name) != "")
-            {
+            if(trim($name) != "") {
                 echo "\n This will be the new ScientificName: [$name] \n";
                 $ancestry['ScientificName'] = $name;
                 $ancestry[$rank] = "";
