@@ -124,11 +124,8 @@ class INBioAPI
         if(!stripos($xml_string, "http://www.eol.org/voc/table_of_contents#")) return $xml_string;
         debug("this resource has http://www.eol.org/voc/table_of_contents# ");
         $xml = simplexml_load_string($xml_string);
-        $i = 0;
         foreach($xml->taxon as $taxon)
         {
-            $i++;
-            debug($i);
             foreach($taxon->dataObject as $dataObject)
             {
                 $eol_subjects[] = self::EOL . "SystematicsOrPhylogenetics";
