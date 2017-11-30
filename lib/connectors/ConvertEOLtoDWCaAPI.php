@@ -89,7 +89,14 @@ class ConvertEOLtoDWCaAPI
             foreach(array_keys((array) $o) as $field)
             {
                 if(in_array($field, array("agent", "reference"))) continue; //processed separately below
-                else $rec[$field] = (string) $o->$field;
+                else 
+                {
+                    $rec[$field] = (string) $o->$field;
+                    if($field == "additionalInformation")
+                    {
+                        if($val = (string) $o->$field->rating) $rec['rating'] = $val;
+                    }
+                }
             }
             foreach(array_keys((array) $o_dc) as $field) $rec[$field] = (string) $o_dc->$field;
             foreach(array_keys((array) $o_dcterms) as $field)
@@ -264,6 +271,8 @@ class ConvertEOLtoDWCaAPI
         elseif($type == "data object") $t = new \eol_schema\MediaResource();
         elseif($type == "agent")       $t = new \eol_schema\Agent();
         
+        // if($type == "data object") print_r($rec);
+        
         foreach(array_keys($rec) as $orig_field)
         {
             $field = lcfirst($orig_field);
@@ -285,6 +294,7 @@ class ConvertEOLtoDWCaAPI
                 elseif($type == "agent")        $tfield = "identifier";
             }
             elseif($field == "location")        $tfield = "LocationCreated";
+            elseif($field == "rating")          $tfield = "Rating";
             else                                $tfield = $field;
             $t->$tfield = $rec[$orig_field];
         }
