@@ -95,6 +95,7 @@ class ConvertEOLtoDWCaAPI
                     if($field == "additionalInformation")
                     {
                         if($val = (string) $o->$field->rating) $rec['rating'] = $val;
+                        if($val = (string) $o->$field->subtype) $rec['subtype'] = $val;
                     }
                 }
             }
