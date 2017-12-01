@@ -2,7 +2,7 @@
 namespace php_active_record;
 class ResourceDataObjectElementsSetting
 {
-    public function __construct($resource_id, $xml_path = null, $data_object_type = null, $rating = null)
+    public function __construct($resource_id = null, $xml_path = null, $data_object_type = null, $rating = null)
     {
         $this->resource_id = $resource_id;
         $this->xml_path = $xml_path;
@@ -356,13 +356,13 @@ class ResourceDataObjectElementsSetting
     public function fix_NMNH_xml($xml)
     {
         $xml = str_ireplace('xmlns:dwc="http://rs.tdwg.org/dwc/terms/"', 'xmlns:dwc="http://rs.tdwg.org/dwc/dwcore/"', $xml);
-        $xml = str_ireplace("dwc:kingdom", "dwc:Kingdom", $xml); echo "\nDone str replace Kingdom";
-        $xml = str_ireplace("dwc:phylum", "dwc:Phylum", $xml);   echo "\nDone str replace Phylum";
-        $xml = str_ireplace("dwc:class", "dwc:Class", $xml);     echo "\nDone str replace Class";
-        $xml = str_ireplace("dwc:order", "dwc:Order", $xml);     echo "\nDone str replace Order";
-        $xml = str_ireplace("dwc:family", "dwc:Family", $xml);   echo "\nDone str replace Family";
-        $xml = str_ireplace("dwc:genus", "dwc:Genus", $xml);     echo "\nDone str replace Genus";
-        $xml = str_ireplace("dwc:scientificName", "dwc:ScientificName", $xml); echo "\nDone str replace ScientificName\n\n";
+        $xml = str_ireplace("dwc:kingdom", "dwc:Kingdom", $xml); //echo "\nDone str replace Kingdom";
+        $xml = str_ireplace("dwc:phylum", "dwc:Phylum", $xml);   //echo "\nDone str replace Phylum";
+        $xml = str_ireplace("dwc:class", "dwc:Class", $xml);     //echo "\nDone str replace Class";
+        $xml = str_ireplace("dwc:order", "dwc:Order", $xml);     //echo "\nDone str replace Order";
+        $xml = str_ireplace("dwc:family", "dwc:Family", $xml);   //echo "\nDone str replace Family";
+        $xml = str_ireplace("dwc:genus", "dwc:Genus", $xml);     //echo "\nDone str replace Genus";
+        $xml = str_ireplace("dwc:scientificName", "dwc:ScientificName", $xml); //echo "\nDone str replace ScientificName\n\n";
         return $xml;
     }
     public function call_xml_2_dwca($resource_id, $dataset, $NMNH_resourceYN = true)
