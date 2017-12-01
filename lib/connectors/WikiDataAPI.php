@@ -200,7 +200,7 @@ class WikiDataAPI
         echo "\n----end debug array\n";
         
         //write to file $this->debug contents
-        $f = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/wikimedia_debug_".date("Y-m-d H").".txt", "w");
+        $f = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/".$this->what."_debug_".date("Y-m-d H").".txt", "w");
         $index = array_keys($this->debug);
         foreach($index as $i) {
             fwrite($f, "\n$i ---"."\n");
@@ -208,7 +208,8 @@ class WikiDataAPI
         }
         fclose($f);
         
-        if($this->what == "wikimedia") return array(true, true);
+        // if(($this->what == "wikimedia") || ($this->what == "wikipedia" && $this->language_code == "en")) return array(true, true);
+        return array(true, true); //all that reaches this point will return true true
     }
 
     private function initialize_files()
