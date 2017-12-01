@@ -114,7 +114,7 @@ class ConvertEOLtoDWCaAPI
                 $rec[$field] = (string) $o_dcterms->$field;
             }
 
-            //start filters - for quality control ================================================================
+            // ================================================================start filters - for quality control ================================================================
             if(@$rec['language'] == "English") $rec['language'] = "En"; //used in resource_id = 120
             if(@$rec['dataType'] == 'http://purl.org/dc/dcmitype/Text' && !@$rec['description']) continue;  //Text objects must have descriptions
 
@@ -136,12 +136,15 @@ class ConvertEOLtoDWCaAPI
 
             if($this->resource_id == 346) {
                 if($rec['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') $rec['rating'] = 2;
-                
-                
+                if(@$rec['mimeType'] == "image/x-adobe-dng") continue; // remove_data_object_of_certain_element_value("mimeType", "image/x-adobe-dng", $xml);
             }
-            //end filters - for quality control ==================================================================
-            
-            
+            if($this->resource_id == 1) {
+                if($rec['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') $rec['rating'] = 2;
+                if(@$rec['mimeType'] == "image/x-adobe-dng") continue; // remove_data_object_of_certain_element_value("mimeType", "image/x-adobe-dng", $xml);
+            }
+            // ================================================================end filters - for quality control ==================================================================
+
+
             //for references in data_object
             if($obj = @$o->reference)
             {

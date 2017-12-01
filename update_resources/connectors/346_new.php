@@ -12,22 +12,30 @@ require_library('ResourceDataObjectElementsSetting');
 $timestart = time_elapsed();
 $resource_id = 1; 
 
-$resource_path = "http://localhost/eol_php_code/applications/content_server/resources/eli.xml";
-// $resource_path = "http://localhost/cp/OpenData/EOLxml_2_DWCA/nmnh-botany-response.xml.gz";
-// $resource_path = Functions::get_accesspoint_url_if_available($resource_id, "http://collections.mnh.si.edu/services/eol/nmnh-botany-response.xml.gz"); //Botany Resource
-echo "\n processing resource:\n $resource_path \n\n";
+$resource_path = "http://localhost/cp/OpenData/EOLxml_2_DWCA/nmnh-botany-response.xml.gz";
+$resource_path = Functions::get_accesspoint_url_if_available($resource_id, "http://collections.mnh.si.edu/services/eol/nmnh-botany-response.xml.gz"); //Botany Resource
 
 // $nmnh = new ResourceDataObjectElementsSetting($resource_id, $resource_path);
 // $nmnh->call_xml_2_dwca($resource_id, "NMNH XML files");
 
 
 require_library('connectors/ConvertEOLtoDWCaAPI');
-$params["eol_xml_file"] = $resource_path;
-$params["filename"]     = "no need to mention here.xml";
+$params["eol_xml_file"] = 'http://localhost/eol_php_code/applications/content_server/resources/eli.xml.zip';
+$params['xmlYN'] = false;
+
+// $params["eol_xml_file"] = 'http://localhost/eol_php_code/applications/content_server/resources/eli.xml';
+// $params['xmlYN'] = true;
+$params["filename"]     = "eli.xml";
+
+
+// $params["eol_xml_file"] = $resource_path;
+// $params['xmlYN'] = false;
+// $params["filename"]     = "nmnh-botany-response.xml";
+
 $params["dataset"]      = 'NMNH Botany';
 $params["resource_id"]  = $resource_id;
 $func = new ConvertEOLtoDWCaAPI($resource_id);
-$func->export_xml_to_archive($params, true, 0); // true => means it is an XML file, not an archive file nor a zip file. IMPORTANT: Expires now = 0.
+$func->export_xml_to_archive($params, $params['xmlYN'], 0); // true => means it is an XML file, not an archive file nor a zip file. IMPORTANT: Expires now = 0.
 
 $deleteYN = false; //can't afford to delete NMNH departmental folders bec. we need it in processing media extension from type speciemen resource 891.
 Functions::finalize_dwca_resource($resource_id, false, $deleteYN);
