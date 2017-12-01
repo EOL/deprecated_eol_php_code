@@ -57,18 +57,27 @@ class ConvertEOLtoDWCaAPI
         $i = 0;
         while(@$reader->read()) {
             if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "taxon") {
-                $page_xml = $reader->readOuterXML();
-                $t = simplexml_load_string($page_xml, null, LIBXML_NOCDATA);
-                if($this->resource_id == 1) //346
+                if($page_xml = @$reader->readOuterXML())
                 {
-                    $t = self::assgn_eol_subjects($t);
-                    if($t = self::replace_Indet_sp($t)) $i = self::process_t($t, $i, $params);
+                    if($this->resource_id == 346)
+                    {
+                        require_library('ResourceDataObjectElementsSetting');
+                        $nmnh = new ResourceDataObjectElementsSetting();
+                        $page_xml = $nmnh->fix_NMNH_xml($page_xml);
+                    }
+
+                    $t = simplexml_load_string($page_xml, null, LIBXML_NOCDATA);
+                    
+                    if($this->resource_id == 346) {
+                        $t = self::assgn_eol_subjects($t);
+                        if($t = self::replace_Indet_sp($t)) $i = self::process_t($t, $i, $params);
+                    }
+                    else $i = self::process_t($t, $i, $params);
                 }
-                else $i = self::process_t($t, $i, $params);
             }
         }
     }
-
+    /* not used anymore...
     private function convert_xml($params)
     {
         $file = $params["path"] . $params["filename"];
@@ -84,7 +93,7 @@ class ConvertEOLtoDWCaAPI
             // break; //debug
         }
     }
-
+    */
     private function process_data_object($objects, $taxon_id, $params, $sciname) //$sciname here was added for AntWeb (24)
     {
         $records = array();
@@ -135,10 +144,6 @@ class ConvertEOLtoDWCaAPI
             }
 
             if($this->resource_id == 346) {
-                if($rec['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') $rec['rating'] = 2;
-                if(@$rec['mimeType'] == "image/x-adobe-dng") continue; // remove_data_object_of_certain_element_value("mimeType", "image/x-adobe-dng", $xml);
-            }
-            if($this->resource_id == 1) {
                 if($rec['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') $rec['rating'] = 2;
                 if(@$rec['mimeType'] == "image/x-adobe-dng") continue; // remove_data_object_of_certain_element_value("mimeType", "image/x-adobe-dng", $xml);
             }
@@ -346,13 +351,12 @@ class ConvertEOLtoDWCaAPI
         }
 
     }
-    
+
     private function process_t($t, $i, $params)
     {
-        $t_dwc      = $t->children("http://rs.tdwg.org/dwc/dwcore/");
+        $t_dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
         $t_dc       = $t->children("http://purl.org/dc/elements/1.1/");
         $t_dcterms  = $t->children("http://purl.org/dc/terms/");
-
         /*
         if($i <= 2) {
             print_r($t_dc);
@@ -374,7 +378,10 @@ class ConvertEOLtoDWCaAPI
         if(isset($t_dc->identifier)) {
             if    ($val = trim($t_dc->identifier))      $taxon_id = $val;
             elseif($val = trim($t_dwc->ScientificName)) $taxon_id = md5($val);
-            else continue; //meaning if there is no taxon id and sciname then ignore record
+            else //continue; is obsolete coz loop is gone here, use return; instead... //meaning if there is no taxon id and sciname then ignore record
+            {
+                return $i;
+            }
         }
         else echo "\nwent here\n";
         if($val = $taxon_id) $rec["identifier"] = $val;
@@ -418,6 +425,7 @@ class ConvertEOLtoDWCaAPI
         }
         
         $rec = array_map('trim', $rec);
+        // echo "\nidentifier: ".$rec['identifier']. " ScientificName: " . $rec['ScientificName']; exit("\nelix\n");
         if($rec['identifier'] && $rec['ScientificName'])
         {
             self::create_archive($rec, "taxon");
