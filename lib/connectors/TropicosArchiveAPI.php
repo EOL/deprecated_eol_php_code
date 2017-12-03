@@ -76,12 +76,11 @@ class TropicosArchiveAPI
         $temp_archive_batch_count = 10000; //debug orig is 10k //when testing use 200
         $k = 0;
         $i = 0;
-        $j = 0;
         foreach(new FileIterator($this->tropicos_ids_list_file) as $line_number => $taxon_id)
         {
             // self::check_server_downtime();
             if($taxon_id) {
-                $i++; $j++;
+                $i++;
                 if($i == 1) {
                     $this->taxon_ids = array();
                     $this->object_ids = array();
@@ -90,22 +89,13 @@ class TropicosArchiveAPI
                     $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . "_$k" . '_working/';
                     $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
                 }
-                
-                /* breakdown when caching - up to 5 simultaneous connectors
+                /* breakdown when caching - up to 5 simultaneous connectors --- NOT BEING USED ANYMORE, replaced by batch ($k) for multiple connectors below...
                 $m = 250000;
-                $m = 800000;
                 $cont = false;
                 // if($i >=  1    && $i < $m)    $cont = true;
                 // if($i >=  $m   && $i < $m*2)  $cont = true;
                 // if($i >=  $m*2 && $i < $m*3)  $cont = true;
                 // if($i >=  $m*3 && $i < $m*4)  $cont = true;
-                
-                // if($j >= 1    && $j < $m) $cont = true;
-                // if($j >= $m   && $j < $m*2) $cont = true;
-                // if($j >= $m*2 && $j < $m*3) $cont = true;
-                // if($j >= $m*3 && $j < $m*4) $cont = true;
-                // if($j >= $m*4 && $j < $m*5) $cont = true;
-                
                 if(($i % $temp_archive_batch_count) == 0) {
                     $old_k = $k;
                     echo "\nfinalizing batch [$k]\n";
@@ -117,12 +107,23 @@ class TropicosArchiveAPI
                 if(($i % 500) == 0) echo "\n" . number_format($i) . " - ";
                 // self::process_taxon($taxon_id); //orig
 
-                /*  worked by batch ($k) for multiple connectors */
-                if($k >= 0 && $k <= 50) self::process_taxon($taxon_id);
-                // if($k >= 50 && $k <= 100) self::process_taxon($taxon_id);
-                // if($k >= 100 && $k <= 110) self::process_taxon($taxon_id);
-                // if($k >= 110 && $k <= 120) self::process_taxon($taxon_id);
-                // if($k >= 120 && $k <= 130) self::process_taxon($taxon_id);
+                // /*  worked by batch ($k) for multiple connectors - 130 batches total
+                // if($k >= 1 && $k <= 50) self::process_taxon($taxon_id); done =========================
+
+
+                // if($k >= 66 && $k <= 85) self::process_taxon($taxon_id);
+                // if($k >= 85 && $k <= 95) self::process_taxon($taxon_id);
+
+
+                // if($k >= 100 && $k <= 110) self::process_taxon($taxon_id); 108 done =========================
+                // if($k >= 96 && $k <= 100) self::process_taxon($taxon_id); //running as 3of6
+
+                // if($k >= 111 && $k <= 120) self::process_taxon($taxon_id);
+                if($k >= 126 && $k <= 130) self::process_taxon($taxon_id);
+                
+                echo " [batch $k] ";
+                // */
+                
                 
                 if(($i % $temp_archive_batch_count) == 0) {
                     $old_k = $k;

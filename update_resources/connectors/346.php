@@ -12,25 +12,28 @@ require_library('ResourceDataObjectElementsSetting');
 $timestart = time_elapsed();
 $resource_id = 346;
 
-$resource_path = "http://localhost/cp/OpenData/EOLxml_2_DWCA/nmnh-botany-response.xml.gz";
-// $resource_path = Functions::get_accesspoint_url_if_available($resource_id, "http://collections.mnh.si.edu/services/eol/nmnh-botany-response.xml.gz"); //Botany Resource
 
 require_library('connectors/ConvertEOLtoDWCaAPI');
 
-/* ================================================ test resource ================================================
-$params["eol_xml_file"] = 'http://localhost/eol_php_code/applications/content_server/resources/eli.xml.zip';
-$params['xmlYN']        = false;
+// /* ================================================ test resource ================================================
+// $params["eol_xml_file"] = 'http://localhost/eol_php_code/applications/content_server/resources/eli.xml.zip';
+// $params['xmlYN']        = false;
+// $params["filename"]     = "eli.xml";
+
+$params["eol_xml_file"] = 'http://localhost/eol_php_code/applications/content_server/resources/eli.xml';
+$params['xmlYN'] = true;
 $params["filename"]     = "eli.xml";
+// ================================================================================================ */
 
-// $params["eol_xml_file"] = 'http://localhost/eol_php_code/applications/content_server/resources/eli.xml';
-// $params['xmlYN'] = true;
-================================================================================================ */
+/* ================================================ actual resource ================================================
+// $resource_path = "http://localhost/cp/OpenData/EOLxml_2_DWCA/nmnh-botany-response.xml.gz";
+$resource_path = Functions::get_accesspoint_url_if_available($resource_id, "http://collections.mnh.si.edu/services/eol/nmnh-botany-response.xml.gz"); //Botany Resource
+$resource_path = "http://collections.mnh.si.edu/services/eol/nmnh-botany-response.xml.gz";
 
-// /* ================================================ actual resource ================================================
 $params["eol_xml_file"] = $resource_path;
 $params['xmlYN']        = false;
 $params["filename"]     = "nmnh-botany-response.xml";
-// ================================================================================================ */
+================================================================================================ */
 
 $params["dataset"]      = 'NMNH Botany';
 $params["resource_id"]  = $resource_id;

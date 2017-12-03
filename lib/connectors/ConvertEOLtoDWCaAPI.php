@@ -434,7 +434,7 @@ class ConvertEOLtoDWCaAPI
         return $i;
     }
     
-    // =============================================================== start customized functions =============================================
+    // =============================================================== start customized functions [346]=============================================
     private function replace_Indet_sp($taxon) //resource_id 346 - NMNH Botany
     {
         $orig_taxon = $taxon;
@@ -515,7 +515,9 @@ class ConvertEOLtoDWCaAPI
         $xml = $taxon->asXML();
         return simplexml_load_string($xml, null, LIBXML_NOCDATA);
     }
-    //================================================================================
+    //================================================================================ end
+    
+    // =============================================================== start customized functions [24]=============================================
     private function compute_AntWeb_source_from_mediaURL($mediaURL)
     {
         // $mediaURL = "http://www.antweb.org/images/casent0103174/casent0103174_h_1_high.jpg";
@@ -541,6 +543,7 @@ class ConvertEOLtoDWCaAPI
         if($species = $parts[1]) $url .= "&species=".$species;
         return $url;
     }
+    //================================================================================ end
 
 }
 ?>
