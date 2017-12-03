@@ -83,7 +83,10 @@ print_r($params);
 // /* //----------start main operation
 if($val = $params['language']) $language = $val;
 else                           $language = "zh"; //manually supplied
-$resource_id = "wikipedia-".$language;
+
+if    ($language == 'en') $resource_id = 80;
+elseif($language == 'de') $resource_id = 957;
+else $resource_id = "wikipedia-".$language;
 $func = new WikiDataAPI($resource_id, $language); //generic call
 
 if(in_array($language, array("en"))) {
