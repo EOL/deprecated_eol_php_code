@@ -74,7 +74,7 @@ class NMNHTypeRecordAPI_v2
         $irns = array();
         require_library('connectors/DWCADiagnoseAPI');
         $func = new DWCADiagnoseAPI();
-        $resources = array(120=>'NMNH IZ',176=>'NMNH Entomology',341=>'NMNH Birds',342=>'NMNH fishes',343=>'NMNH herpetology',344=>'NMNH mammals');
+        $resources = array(120=>'NMNH IZ',176=>'NMNH Entomology',341=>'NMNH Birds',342=>'NMNH fishes',343=>'NMNH herpetology',344=>'NMNH mammals',346=>'NMNH botany');
         $resource_ids = array_keys($resources);
         foreach($resource_ids as $resource_id) {
             $name = $resources[$resource_id];
