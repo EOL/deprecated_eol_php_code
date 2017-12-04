@@ -15,7 +15,7 @@ class FishBaseArchiveAPI
         // $this->fishbase_data = "http://localhost/cp/FishBase/fishbase_in_folder.zip";
         // $this->fishbase_data = "http://localhost/cp/FishBase/fishbase_not_in_folder.zip";
         // $this->fishbase_data = "http://localhost/cp/FishBase/fishbase.zip";
-        $this->fishbase_data = "http://www.fishbase.us/FB_data_for_EOL/fishbase.zip";
+        $this->fishbase_data = "http://www.fishbase.org/FB_data_for_EOL/fishbase.zip";
         if($this->test_run) $this->fishbase_data = "http://dl.dropbox.com/u/7597512/FishBase/fishbase_not_in_folder.zip";
         $this->text_path = array();
         $this->TEMP_FILE_PATH = "";
@@ -188,17 +188,18 @@ class FishBaseArchiveAPI
             $this->text_path['TAXON_DATAOBJECT_REFERENCE_PATH']  = $this->TEMP_FILE_PATH . "/taxon_dataobject_reference.txt";
             $this->text_path['TAXON_REFERENCES_PATH']            = $this->TEMP_FILE_PATH . "/taxon_references.txt";
             $this->text_path['TAXON_SYNONYMS_PATH']              = $this->TEMP_FILE_PATH . "/taxon_synonyms.txt";
+            return true;
         }
         else
         {
             echo("\n\n Connector terminated. Remote files are not ready.\n\n");
-            return;
+            return false;
         }
     }
     
     function prepare_data()
     {
-        self::load_zip_contents();
+        if(!self::load_zip_contents()) return false;
 
         /* to be used when developing
         $this->TEMP_FILE_PATH = DOC_ROOT . "tmp/fb_dir_88795";
@@ -220,6 +221,7 @@ class FishBaseArchiveAPI
         self::process_taxa_object_agents();     echo "\n agents -- DONE";
         self::process_taxa_objects();           echo "\n dataObjects -- DONE";
         $this->archive_builder->finalize(true);
+        return true;
     }
 
     private function process_taxa_synonyms()
@@ -493,9 +495,9 @@ class FishBaseArchiveAPI
                     $mr->type           = $o['dataType'];
                     $mr->language       = 'en';
                     $mr->format         = $o['mimeType'];
-                    if(substr($o['dc_source'], 0, 4) == "http") $mr->furtherInformationURL = $o['dc_source'];
-                    $mr->accessURI      = $o['mediaURL'];
-                    $mr->thumbnailURL   = $o['thumbnailURL'];
+                    if(substr($o['dc_source'], 0, 4) == "http") $mr->furtherInformationURL = self::use_best_fishbase_server($o['dc_source']);
+                    $mr->accessURI      = self::use_best_fishbase_server($o['mediaURL']);
+                    $mr->thumbnailURL   = self::use_best_fishbase_server($o['thumbnailURL']);
                     $mr->CVterm         = $o['subject'];
                     $mr->Owner          = $o['dc_rightsHolder'];
                     $mr->rights         = $o['dc_rights'];
@@ -514,7 +516,10 @@ class FishBaseArchiveAPI
             // if($k > 10) break; //debug
         }
     }
-    
+    private function use_best_fishbase_server($url)
+    {
+        if(trim($url)) return str_ireplace('fishbase.us', 'fishbase.org', $url);
+    }
     private function process_taxa_comnames()
     {
         /*
