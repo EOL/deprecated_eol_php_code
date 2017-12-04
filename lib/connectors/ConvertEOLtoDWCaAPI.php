@@ -441,7 +441,7 @@ class ConvertEOLtoDWCaAPI
         $dc = $taxon->children("http://purl.org/dc/elements/1.1/");
         $dwc = $taxon->children("http://rs.tdwg.org/dwc/dwcore/");
         $dcterms = $taxon->children("http://purl.org/dc/terms/");
-        echo "\n " . $dc->identifier . " -- sciname: [" . $dwc->ScientificName."]";
+        // echo "\n " . $dc->identifier . " -- sciname: [" . $dwc->ScientificName."]";
         if(is_numeric(stripos($dwc->ScientificName, "Indet")) || is_numeric(stripos($dwc->Kingdom, "Indet")) || is_numeric(stripos($dwc->Phylum, "Indet")) ||
            is_numeric(stripos($dwc->Class, "Indet")) || is_numeric(stripos($dwc->Order, "Indet")) || is_numeric(stripos($dwc->Family, "Indet")) || is_numeric(stripos($dwc->Genus, "Indet")))
         {
@@ -454,7 +454,7 @@ class ConvertEOLtoDWCaAPI
             $ancestry['ScientificName'] = (string) $dwc->ScientificName;
 
             $ancestry = self::get_names($ancestry);
-            echo "\n final sciname: [" . $ancestry['ScientificName'] . "]";
+            echo "\n old sciname: [$dwc->ScientificName] --- final sciname: [" . $ancestry['ScientificName'] . "]";
 
             $dwc->ScientificName = $ancestry['ScientificName'];
             if(isset($dwc->Genus)) $dwc->Genus = $ancestry['Genus'];
@@ -477,13 +477,12 @@ class ConvertEOLtoDWCaAPI
         foreach($ancestry as $rank => $name) {
             if(is_numeric(stripos($name, "Indet"))) {
                 $ancestry[$rank] = "";
-                echo "\n $rank has [$name] now removed.";
+                // echo "\n $rank has [$name] now removed.";
             }
         }
         // if ScientificName is blank, then it will get the immediate higher taxon if it exists
         if($ancestry['ScientificName'] == "") {
-            foreach($ancestry as $rank => $name)
-            {
+            foreach($ancestry as $rank => $name) {
                 if(trim($name) != "") {
                     echo "\n This will be the new ScientificName: [$name] \n";
                     $ancestry['ScientificName'] = $name;
@@ -500,10 +499,8 @@ class ConvertEOLtoDWCaAPI
             $eol_subjects[] = self::EOL . "SystematicsOrPhylogenetics";
             $eol_subjects[] = self::EOL . "TypeInformation";
             $eol_subjects[] = self::EOL . "Notes";
-            if(@$dataObject->subject)
-            {
-                if(in_array($dataObject->subject, $eol_subjects))
-                {
+            if(@$dataObject->subject) {
+                if(in_array($dataObject->subject, $eol_subjects)) {
                     $dataObject->addChild("additionalInformation", "");
                     $dataObject->additionalInformation->addChild("subject", $dataObject->subject);
                     if    ($dataObject->subject == self::EOL . "SystematicsOrPhylogenetics") $dataObject->subject = self::SPM . "Evolution";
@@ -515,7 +512,7 @@ class ConvertEOLtoDWCaAPI
         $xml = $taxon->asXML();
         return simplexml_load_string($xml, null, LIBXML_NOCDATA);
     }
-    //================================================================================ end
+    //================================================================================ end [346]
     
     // =============================================================== start customized functions [24]=============================================
     private function compute_AntWeb_source_from_mediaURL($mediaURL)
@@ -543,7 +540,7 @@ class ConvertEOLtoDWCaAPI
         if($species = $parts[1]) $url .= "&species=".$species;
         return $url;
     }
-    //================================================================================ end
+    //================================================================================ end [24]
 
 }
 ?>
