@@ -7,6 +7,7 @@ Connector reads the XML provided by partner and
 - If needed ingests TypeInformation text dataObjects
 
 346	Monday 2017-12-04 12:38:00 AM	{"agent.tab":106,"media_resource.tab":510761,"reference.tab":71767,"taxon.tab":109583} - Mac Mini
+346	Monday 2017-12-04 01:01:00 AM	{"agent.tab":96, "media_resource.tab":494622,"reference.tab":70199,"taxon.tab":107355} - eol-archive
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
