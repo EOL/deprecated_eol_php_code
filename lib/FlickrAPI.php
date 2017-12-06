@@ -27,8 +27,8 @@ define("OPENTREE_ID", "92803392@N02"); // OpenTree photostream - http://www.flic
 // $GLOBALS['flickr_cache_path'] = DOC_ROOT . "/public/tmp/flickr_cache";                           //old cache path
 $GLOBALS['flickr_cache_path'] = DOC_ROOT . "/" . $GLOBALS['MAIN_CACHE_PATH'] . "flickr_cache";
 
-$GLOBALS['expire_seconds'] = 60*60*24*30; //0 -> expires now, false -> doesn't expire, 60*60*24*30 -> expires in 30 days orig
-$GLOBALS['expire_seconds'] = false; //may use false permanently. Will check again next month to confirm. 
+$GLOBALS['expire_seconds'] = 60*60*24*20; //0 -> expires now, false -> doesn't expire, 60*60*24*30 -> expires in 30 days orig
+// $GLOBALS['expire_seconds'] = false; //may use false permanently. Will check again next month to confirm. 
 // ON 2ND THOUGHT IT SHOULD ALWAYS BE false. Since mostly only new photos are what we're after. Very seldom, a photo gets updated in its lifetime.
 
 // these two variables are used to limit the number of photos per taxon for Flickr photostream resources, if needed (e.g. Smithsonian Wild's photostream)
