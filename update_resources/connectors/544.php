@@ -24,7 +24,7 @@ define('DOWNLOAD_WAIT_TIME', '300000'); // .3 seconds wait time
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('FlickrAPI');
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = true;
+$GLOBALS['ENV_DEBUG'] = false;
 $resource_id = 544;
 
 // /* start main block
