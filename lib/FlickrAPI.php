@@ -133,6 +133,13 @@ class FlickrAPI
         }
         if(!$photo) debug("\n\nERROR:Photo $photo_id is not available\n\n");
         
+        /* ----- start
+        if($photo_id == "6070544906") {
+            print_r($photo);
+            exit;
+        }
+        ---- end */
+        
         if($user_id == FLICKR_BHL_ID) $photo->bhl_addtl = self::add_additional_BHL_meta($photo); // https://eol-jira.bibalex.org/browse/DATA-1703
         
         if(@$photo->visibility->ispublic != 1) return false;
@@ -396,13 +403,6 @@ class FlickrAPI
         $url = self::generate_rest_url("flickr.photos.getInfo", array("photo_id" => $photo_id, "secret" => $secret, "auth_token" => $auth_token, "format" => "json", "nojsoncallback" => 1), 1);
         // echo "\nbbb=[$url]\n"; //debug
         $response = Functions::lookup_with_cache($url, $download_options);
-        /* ----- start
-        if($photo_id == "6070544906") {
-            echo "\nurl: [$url]\n";
-            echo "\nxml: [$response]\n";
-            print_r(json_decode($response));
-        }
-        ---- end */
         self::add_to_cache('photosGetInfo', $photo_id, $response);
         return json_decode($response);
     }
