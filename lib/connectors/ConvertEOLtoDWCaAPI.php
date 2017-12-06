@@ -112,6 +112,12 @@ class ConvertEOLtoDWCaAPI
                     {
                         if($val = (string) $o->$field->rating) $rec['rating'] = $val;
                         if($val = (string) $o->$field->subtype) $rec['subtype'] = $val;
+                        
+                        //known client for these 3 is BHL Flickr (544) - https://eol-jira.bibalex.org/browse/DATA-1703
+                        if($val = (string) $o->$field->spatial) $rec['spatial'] = $val;
+                        if($val = (string) $o->$field->latitude) $rec['lat'] = $val;
+                        if($val = (string) $o->$field->longitude) $rec['long'] = $val;
+                        
                         // if($val = (string) $o->$field->subject) $rec['addl_subject'] = $val; --- don't know yet where to put it
                     }
                 }
@@ -294,11 +300,11 @@ class ConvertEOLtoDWCaAPI
         elseif($type == "data object") $t = new \eol_schema\MediaResource();
         elseif($type == "agent")       $t = new \eol_schema\Agent();
         
-        // if($type == "data object") print_r($rec);
-        
         foreach(array_keys($rec) as $orig_field)
         {
             $field = lcfirst($orig_field);
+            if($field == 'additionalInformation') continue; //the actual field 'additionalInformation' is excluded in DwCA. Its contents (e.g. <rating>,<latitude>) are used elsewhere, not here.
+            
             if    ($field == "identifier")      $tfield = "taxonID";
             elseif($field == "source")          $tfield = "furtherInformationURL";
             elseif($field == "ref_identifier")  $tfield = "identifier";

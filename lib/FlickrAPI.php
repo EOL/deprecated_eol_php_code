@@ -133,6 +133,8 @@ class FlickrAPI
         }
         if(!$photo) debug("\n\nERROR:Photo $photo_id is not available\n\n");
         
+        if($user_id == FLICKR_BHL_ID) $photo->bhl_addtl = self::add_additional_BHL_meta($photo); // https://eol-jira.bibalex.org/browse/DATA-1703
+        
         if(@$photo->visibility->ispublic != 1) return false;
         if($photo->usage->candownload != 1) return false;
         
@@ -311,6 +313,13 @@ class FlickrAPI
         $data_object_parameters["agents"] = array();
         $data_object_parameters["agents"][] = new \SchemaAgent($agent_parameters);
         
+        if($user_id == FLICKR_BHL_ID) { //https://eol-jira.bibalex.org/browse/DATA-1703
+            foreach(@$photo->bhl_addtl['bhl_agents_parameters'] as $agent_parameters) $data_object_parameters["agents"][] = new \SchemaAgent($agent_parameters);
+            if($val = @$final['bhl_spatial']) $data_object_parameters["additionalInformation"] .= "<spatial>$val</spatial>";        //http://eol.org/schema/media_extension.xml#spatial
+            if($val = @$final['latitude'])    $data_object_parameters["additionalInformation"] .= "<latitude>$val</latitude>";      //http://www.w3.org/2003/01/geo/wgs84_pos#lat
+            if($val = @$final['longitude'])   $data_object_parameters["additionalInformation"] .= "<longitude>$val</longitude>";    //http://www.w3.org/2003/01/geo/wgs84_pos#long
+        }
+
         if(@$photo->geoperms->ispublic = 1)
         {
             $geo_point_parameters = array();
@@ -387,6 +396,13 @@ class FlickrAPI
         $url = self::generate_rest_url("flickr.photos.getInfo", array("photo_id" => $photo_id, "secret" => $secret, "auth_token" => $auth_token, "format" => "json", "nojsoncallback" => 1), 1);
         // echo "\nbbb=[$url]\n"; //debug
         $response = Functions::lookup_with_cache($url, $download_options);
+        /* ----- start
+        if($photo_id == "6070544906") {
+            echo "\nurl: [$url]\n";
+            echo "\nxml: [$response]\n";
+            print_r(json_decode($response));
+        }
+        ---- end */
         self::add_to_cache('photosGetInfo', $photo_id, $response);
         return json_decode($response);
     }
@@ -625,6 +641,66 @@ class FlickrAPI
         if(!file_exists($GLOBALS['flickr_cache_path']."/photosGetInfo")) mkdir($GLOBALS['flickr_cache_path']."/photosGetInfo");
         if(!file_exists($GLOBALS['flickr_cache_path']."/photosGetSizes")) mkdir($GLOBALS['flickr_cache_path']."/photosGetSizes");
     }
+    
+    //========== additional BHL functions: per https://eol-jira.bibalex.org/browse/DATA-1703 ===============================================
+    private static function create_bhl_spatial($tags)
+    {
+        if($val = @$tags['geo:locality']) return $val;
+        if($val = @$tags['geo:county']) return $val;
+        if($val = @$tags['geo:state']) return $val;
+        if($val = @$tags['geo:country']) return $val;
+        if($val = @$tags['geo:continent']) return $val;
+    }
+    private static function create_bhl_agent_parameters($tags)
+    {
+        $agents_parameters = array();
+        $jobs = array("artist", "author", "engraver");
+        foreach($jobs as $job) {
+            $agent_parameters = array();
+            if($name = @$tags["$job:name"]) {
+                $agent_parameters["fullName"] = $name;
+                if($viaf = @$tags["$job:viaf"])     $agent_parameters["homepage"] = "http://www.viaf.org/viaf/".$viaf."/";
+                elseif($val = @$tags['bhl:page'])   $agent_parameters["homepage"] = "http://biodiversitylibrary.org/page/".$val;
+                $agent_parameters["role"] = "creator";
+                $agents_parameters[] = $agent_parameters;
+            }
+        }
+        return $agents_parameters;
+    }
+    public static function add_additional_BHL_meta($p) //per https://eol-jira.bibalex.org/browse/DATA-1703
+    {
+        $final = array();
+        if($p) {
+            $tags = self::get_all_tags($p);
+            $final['bhl_agents_parameters'] = self::create_bhl_agent_parameters($tags);
+            if($val = self::create_bhl_spatial($tags)) $final['bhl_spatial'] = $val;    //http://eol.org/schema/media_extension.xml#spatial
+            if($val = @$tags['geo:lat']) $final['latitude'] = $val;                     //http://www.w3.org/2003/01/geo/wgs84_pos#lat
+            if($val = @$tags['geo:lon']) $final['longitude'] = $val;                    //http://www.w3.org/2003/01/geo/wgs84_pos#long
+        }
+        return $final;
+    }
+    private static function get_all_tags($p)
+    {
+        $tags = array();
+        foreach($p->tags->tag as $tag) {
+            $arr = explode("=", @$tag->raw);
+            if($val = @$arr[1]) $tags[$arr[0]] = $val;
+        }
+        return $tags;
+        /* sample output for photo_id = 6070544906
+        Array (
+            [bhl:page] => 30029640
+            [dc:identifier] => http://biodiversitylibrary.org/page/30029640
+            [artist:name] => Edward Donovan
+            [taxonomy:common] => Weevil
+            [taxonomy:binomial] => Curculio bachus
+            [author:name] => Edward Donovan
+            [author:viaf] => 15714278
+            [artist:viaf] => 15714278
+            [geo:locality] => Great Britain
+        ) */
+    }
+    //========== end =======================================================================================================================
 
 }
 

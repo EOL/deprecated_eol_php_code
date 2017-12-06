@@ -34,6 +34,23 @@ $start_year = 2010;
 $auth_token = NULL;
 if(FlickrAPI::valid_auth_token(FLICKR_AUTH_TOKEN)) $auth_token = FLICKR_AUTH_TOKEN;
 
+/* ----- start
+$photo_id = 5860461193;
+$photo_id = 6070544906;
+// $photo_id = 37971173321;
+$photo = FlickrAPI::photos_get_info($photo_id, "0ab954923d");
+$p = $photo->photo;
+$photo->bhl_addtl = FlickrAPI::add_additional_BHL_meta($p);
+
+// print_r($photo);
+echo "\n".$photo->photo->id;
+echo "\n".$p->id;
+
+print_r($photo->bhl_addtl['bhl_agents_parameters']);
+
+exit("\nelix\n");
+----- end */
+
 // create new _temp file
 if(!($resource_file = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", "w+"))) return;
 
