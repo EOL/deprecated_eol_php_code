@@ -137,20 +137,14 @@ class FlickrAPI
         }
         // */
 
-        /*
-        //new: exclusively use photos_get_info()
-        $photo_response = self::photos_get_info($photo_id, $secret, $auth_token);
-        $photo = @$photo_response->photo;
-        */
-        
         if(!$photo) debug("\n\nERROR:Photo $photo_id is not available\n\n");
         
-        // /* ----- start
+        /* ----- start -- good way to debug a photo: where data is coming from and see its actual contents
         if($photo_id == "6070544906") {
             print_r($photo);
             exit("\nlast_update: [$last_update][$eli]\n");
         }
-        // ---- end */
+        ---- end */
         
         if($user_id == FLICKR_BHL_ID) $photo->bhl_addtl = self::add_additional_BHL_meta($photo); // https://eol-jira.bibalex.org/browse/DATA-1703
         
