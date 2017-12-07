@@ -44,9 +44,9 @@ $photo->bhl_addtl = FlickrAPI::add_additional_BHL_meta($p);
 
 // print_r($photo);
 echo "\n".$photo->photo->id;
-echo "\n".$p->id;
 
-print_r($photo->bhl_addtl['bhl_agents_parameters']);
+// print_r($photo->bhl_addtl);
+// print_r($photo->photo->notes);
 
 exit("\nelix\n");
 ----- end */

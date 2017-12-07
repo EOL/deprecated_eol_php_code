@@ -579,6 +579,11 @@ class FlickrAPI
 
     public static function get_photostream_photos($auth_token = "", $resource_file = null, $user_id = NULL, $start_year = NULL, $months_to_be_broken_down = NULL, $max_photos_per_taxon = NULL)
     {
+        if($user_id == FLICKR_BHL_ID) {
+            $file = CONTENT_RESOURCE_LOCAL_PATH.'bhl_images_with_box_coordinates.txt';
+            if(file_exists($file)) unlink($file);
+        }
+        
         if($max_photos_per_taxon) $GLOBALS['max_photos_per_taxon'] = $max_photos_per_taxon;
         $all_taxa = array();
         $date_range = self::get_date_ranges($start_year);
@@ -683,8 +688,21 @@ class FlickrAPI
             if($val = self::create_bhl_spatial($tags)) $final['bhl_spatial'] = $val;    //http://eol.org/schema/media_extension.xml#spatial
             if($val = @$tags['geo:lat']) $final['latitude'] = $val;                     //http://www.w3.org/2003/01/geo/wgs84_pos#lat
             if($val = @$tags['geo:lon']) $final['longitude'] = $val;                    //http://www.w3.org/2003/01/geo/wgs84_pos#long
+            self::save_bhl_photo_id_with_box_coordinates($p);
         }
         return $final;
+    }
+    private static function save_bhl_photo_id_with_box_coordinates($p)
+    {
+        $with_box = false;
+        foreach(@$p->notes->note as $note) {
+            if(@$note->x && @$note->y && @$note->w && @$note->h) $with_box = true;
+        }
+        if($with_box) {
+            if(!($FILE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH.'bhl_images_with_box_coordinates.txt', "a"))) return;
+            fwrite($FILE, $p->id."\n");
+            fclose($FILE);
+        }
     }
     private static function get_all_tags($p)
     {
