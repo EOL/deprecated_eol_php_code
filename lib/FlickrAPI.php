@@ -307,6 +307,7 @@ class FlickrAPI
         if(isset($photo->rotation) && $photo->rotation && preg_match("/_o\./", $data_object_parameters["mediaURL"])) {
             $data_object_parameters["additionalInformation"] = '<rotation>'.$photo->rotation.'</rotation>';
         }
+        else $data_object_parameters["additionalInformation"] = '';
         
         foreach($photo->urls->url as $url) {
             if($url->type=="photopage") $data_object_parameters["source"] = $url->_content;
