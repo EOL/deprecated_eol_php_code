@@ -124,21 +124,33 @@ class FlickrAPI
     
     public static function get_taxa_for_photo($photo_id, $secret, $last_update, $auth_token = "", $user_id = NULL)
     {
+        // /* old orig
+        $eli = 0;
         if($file_json_object = self::check_cache('photosGetInfo', $photo_id, $last_update)) {
             $photo = @$file_json_object->photo;
+            $eli = 1;
         }
         else {
             $photo_response = self::photos_get_info($photo_id, $secret, $auth_token);
             $photo = @$photo_response->photo;
+            $eli = 2;
         }
+        // */
+
+        /*
+        //new: exclusively use photos_get_info()
+        $photo_response = self::photos_get_info($photo_id, $secret, $auth_token);
+        $photo = @$photo_response->photo;
+        */
+        
         if(!$photo) debug("\n\nERROR:Photo $photo_id is not available\n\n");
         
-        /* ----- start
+        // /* ----- start
         if($photo_id == "6070544906") {
             print_r($photo);
-            exit;
+            exit("\nlast_update: [$last_update][$eli]\n");
         }
-        ---- end */
+        // ---- end */
         
         if($user_id == FLICKR_BHL_ID) $photo->bhl_addtl = self::add_additional_BHL_meta($photo); // https://eol-jira.bibalex.org/browse/DATA-1703
         
