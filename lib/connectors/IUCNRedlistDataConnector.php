@@ -254,7 +254,7 @@ class IUCNRedlistDataConnector
         if($pop_trend = @$details["pop_trend"])
         {
             $rec["catnum"] = "_pop_trend";
-            self::add_string_types("true", $rec, "Population trend", $pop_trend, null);
+            self::add_string_types("true", $rec, "Population trend", $pop_trend, 'http://eol.org/schema/terms/population_trend');
         }
     }
     
@@ -352,7 +352,10 @@ class IUCNRedlistDataConnector
         $occurrence = $this->add_occurrence($taxon_id, $catnum);
         $m->occurrenceID = $occurrence->occurrenceID;
         if($mtype)  $m->measurementType = $mtype;
-        else        $m->measurementType = "http://iucn.org/". SparqlClient::to_underscore($label);
+        else {
+            $m->measurementType = "http://iucn.org/". SparqlClient::to_underscore($label);
+            echo "\n*Need to add URI for this [$label] [$value]\n";
+        }
         $m->measurementValue = $value;
         if($val = $measurementOfTaxon) $m->measurementOfTaxon = $val;
         if($measurementOfTaxon)
