@@ -328,9 +328,9 @@ class FlickrAPI
         
         if($user_id == FLICKR_BHL_ID) { //https://eol-jira.bibalex.org/browse/DATA-1703
             foreach(@$photo->bhl_addtl['bhl_agents_parameters'] as $agent_parameters) $data_object_parameters["agents"][] = new \SchemaAgent($agent_parameters);
-            if($val = @$final['bhl_spatial']) $data_object_parameters["additionalInformation"] .= "<spatial>$val</spatial>";        //http://eol.org/schema/media_extension.xml#spatial
-            if($val = @$final['latitude'])    $data_object_parameters["additionalInformation"] .= "<latitude>$val</latitude>";      //http://www.w3.org/2003/01/geo/wgs84_pos#lat
-            if($val = @$final['longitude'])   $data_object_parameters["additionalInformation"] .= "<longitude>$val</longitude>";    //http://www.w3.org/2003/01/geo/wgs84_pos#long
+            if($val = @$photo->bhl_addtl['bhl_spatial']) $data_object_parameters["additionalInformation"] .= "<spatial>$val</spatial>";        //http://eol.org/schema/media_extension.xml#spatial
+            if($val = @$photo->bhl_addtl['latitude'])    $data_object_parameters["additionalInformation"] .= "<latitude>$val</latitude>";      //http://www.w3.org/2003/01/geo/wgs84_pos#lat
+            if($val = @$photo->bhl_addtl['longitude'])   $data_object_parameters["additionalInformation"] .= "<longitude>$val</longitude>";    //http://www.w3.org/2003/01/geo/wgs84_pos#long
         }
 
         if(@$photo->geoperms->ispublic = 1)
