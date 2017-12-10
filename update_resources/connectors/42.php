@@ -12,6 +12,9 @@ agents:             144     145         146         146     146     146
 references:         32739   33068       30003       30195   30782   30782
 occurrence                              157763      157061  158020  158020
 measurements                            173768      175317  176490  176490
+
+42	Monday 2017-12-04 02:51:18 AM	{"agent.tab":146,"measurement_or_fact.tab":176490,"media_resource.tab":133384,"occurrence.tab":158020,"reference.tab":30782,"taxon.tab":93769,"vernacular_name.tab":244112}
+42	Saturday 2017-12-09 09:46:55 PM	{"agent.tab":146,"measurement_or_fact.tab":179865,"media_resource.tab":135707,"occurrence.tab":160981,"reference.tab":32237,"taxon.tab":95593,"vernacular_name.tab":248126} Mac Mini
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
