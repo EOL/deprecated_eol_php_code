@@ -156,7 +156,6 @@ class ConvertEOLtoDWCaAPI
             
             if($this->resource_id == 367) { //DC Birds Video - https://eol-jira.bibalex.org/browse/DATA-1721
                 $rec['obj_identifier'] = pathinfo($rec['mediaURL'], PATHINFO_BASENAME);
-                echo "\nsudo wget ".$rec['mediaURL'];
                 $rec['mediaURL'] = "https://editors.eol.org/other_files/DCBirds_video/".$rec['obj_identifier'];
             }
             // ================================================================end filters - for quality control ==================================================================
