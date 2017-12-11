@@ -55,7 +55,19 @@ if($url)
                     {
                         if(preg_match("/\/(dwca_[0-9]+)$/", $archive_tmp_dir, $arr))
                         {
-                            $final_archive_gzip_url = WEB_ROOT . "tmp/" . $arr[1] . ".tar.gz";
+                            $final_archive_gzip_file = DOC_ROOT . "tmp/" . $arr[1] . ".tar.gz";
+                            if($arr[1]) {
+                                $temp_folder = DOC_ROOT . "tmp/" . $arr[1];
+                                recursive_rmdir($temp_folder); // remove dir e.g. dwca_xxxxx
+                                echo "<hr>[temp_folder deleted: $temp_folder]<hr>";
+                            }
+                            
+                            //start copy to /resources/xls2dwca/ folder
+                            $resource_xls2dwca_folder = CONTENT_RESOURCE_LOCAL_PATH . "/xls2dwca";
+                            if(!is_dir($resource_xls2dwca_folder)) mkdir($resource_xls2dwca_folder);
+                            copy($final_archive_gzip_file, $resource_xls2dwca_folder . "/". $arr[1] . ".tar.gz");
+                            unlink($final_archive_gzip_file);
+                            $final_archive_gzip_url = WEB_ROOT . "applications/content_server/resources/xls2dwca/" . $arr[1] . ".tar.gz";
                         }
                     }
                 }else $errors[] = "Unable to determine the template of the provided Excel file. Are you sure this matches the EOL template provided at https://github.com/eliagbayani/EOL-connector-data-files/raw/master/schema/eol_import_spreadsheet.xlsx ?";
