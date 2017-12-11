@@ -153,6 +153,12 @@ class ConvertEOLtoDWCaAPI
                 if($rec['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') $rec['rating'] = 2;
                 if(@$rec['mimeType'] == "image/x-adobe-dng") continue; // remove_data_object_of_certain_element_value("mimeType", "image/x-adobe-dng", $xml);
             }
+            
+            if($this->resource_id == 367) { //DC Birds Video - https://eol-jira.bibalex.org/browse/DATA-1721
+                $rec['obj_identifier'] = pathinfo($rec['mediaURL'], PATHINFO_BASENAME);
+                echo "\nsudo wget ".$rec['mediaURL'];
+                $rec['mediaURL'] = "https://editors.eol.org/other_files/DCBirds_video/".$rec['obj_identifier'];
+            }
             // ================================================================end filters - for quality control ==================================================================
 
 
@@ -189,24 +195,23 @@ class ConvertEOLtoDWCaAPI
                 else echo("\n -- find or create your own object identifier -- \n");
             }
             */
-            if($val = @$o_dc->identifier) $identifier = (string) $val;
-            else
-            {
-                /* from above
-                412     EOL China
-                306     Reptile DB
-                21      AmphibiaWeb
-                367     DC Birds video
-                */
-                if(in_array($this->resource_id, array(412,306,21,367))) //add here resource_ids
-                {
-                    $json = json_encode($o);
-                    $identifier = md5($json);
+            if(!@$rec['obj_identifier']) { //e.g. resource_id = 367
+                if($val = @$o_dc->identifier) $identifier = (string) $val;
+                else {
+                    /* from above
+                    412     EOL China
+                    306     Reptile DB
+                    21      AmphibiaWeb
+                    */
+                    if(in_array($this->resource_id, array(412,306,21))) { //add here resource_ids
+                        $json = json_encode($o);
+                        $identifier = md5($json);
+                    }
+                    else echo("\n -- find or create your own object identifier -- \n");
                 }
-                else echo("\n -- find or create your own object identifier -- \n");
+                $rec["obj_identifier"] = $identifier;
             }
-            
-            $rec["obj_identifier"] = $identifier;
+
             unset($rec["identifier"]);
             $rec["taxonID"] = $taxon_id;
             $records[] = $rec;
