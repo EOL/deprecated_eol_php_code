@@ -25,6 +25,7 @@ class FishBaseArchiveAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxa_ids             = array();
         $this->taxa_reference_ids   = array(); // $this->taxa_reference_ids[taxon_id] = reference_ids
+        $this->object_ids           = array();
         $this->object_reference_ids = array();
         $this->object_agent_ids     = array();
         $this->reference_ids        = array();
@@ -511,7 +512,11 @@ class FishBaseArchiveAPI
                     $mr->bibliographicCitation = $o['dcterms_bibliographicCitation'];
                     if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
                     if($agent_ids     =     @$this->object_agent_ids[$o['int_do_id']])  $mr->agentID = implode("; ", $agent_ids);
-                    $this->archive_builder->write_object_to_file($mr);
+                    
+                    if(!isset($this->object_ids[$mr->identifier])) {
+                        $this->archive_builder->write_object_to_file($mr);
+                        $this->object_ids[$mr->identifier] = '';
+                    }
                 }
             }
             // if($k > 10) break; //debug
