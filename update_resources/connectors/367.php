@@ -21,8 +21,8 @@ $params["resource_id"]  = 412;
 
 // this one is removed from OpenData already but I have a copy localy above.
 $resource_id = 367;
-$params["eol_xml_file"] = "http://opendata.eol.org/dataset/9676aab5-bef0-4b55-b626-911f49553337/resource/e439db03-c92a-49c2-bcb0-7e1aec4ebda2/download/dcbirds-video-xml-resource.xml";
-$params["eol_xml_file"] = "http://services.eol.org/resources/367.xml"; //salvaged by Jen
+// $params["eol_xml_file"] = "http://opendata.eol.org/dataset/9676aab5-bef0-4b55-b626-911f49553337/resource/e439db03-c92a-49c2-bcb0-7e1aec4ebda2/download/dcbirds-video-xml-resource.xml";
+// $params["eol_xml_file"] = "http://services.eol.org/resources/367.xml"; //salvaged by Jen
 $params["eol_xml_file"] = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/OpenData/EOLxml_2_DWCA/DC Birds Video/dcbirds-video-xml-resource.xml"; //edited by Jen: dropbox.com to media.eol.org
 
 $params["filename"]     = "dcbirds-video-xml-resource.xml";
@@ -30,7 +30,7 @@ $params["dataset"]      = "EOL XML";
 $params["resource_id"]  = $resource_id;
 
 $func = new ConvertEOLtoDWCaAPI($resource_id);
-$func->export_xml_to_archive($params, true); //true here means it is an XML file and not .zip nor .gzip
+$func->export_xml_to_archive($params, true, 0); //true here means it is an XML file and not .zip nor .gzip | 3rd param 0 means cache expires now.
 Functions::finalize_dwca_resource($resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
