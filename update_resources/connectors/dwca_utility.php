@@ -47,6 +47,10 @@ if(($val = $cmdline_params['resource_id']) && ($cmdline_params['resource_id'] !=
             $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.".tar.gz";
             $resource_id = get_base_filename($dwca_file, $cmdline_params['generate_higherClassification_YN']);
         }
+        elseif(file_exists(CONTENT_RESOURCE_LOCAL_PATH.$resource_id.".tar.gz")) { //e.g. those dwca generated from spreadsheet_2_dwca.php
+            $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.".tar.gz";
+            $resource_id = get_base_filename($dwca_file, $cmdline_params['generate_higherClassification_YN']);
+        }
         else exit("\nProgram will terminate. Invalid resource_id [$resource_id].\n\n");
     }
 }
