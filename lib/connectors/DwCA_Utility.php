@@ -9,8 +9,7 @@ class DwCA_Utility
 {
     function __construct($folder = NULL, $dwca_file = NULL)
     {
-        if($folder)
-        {
+        if($folder) {
             $this->resource_id = $folder;
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -197,6 +196,8 @@ class DwCA_Utility
     {
         //start used in validation
         $do_ids = array();
+        $taxon_ids = array();
+        $ref_ids = array();
         //end used in validation
         $count = 0;
         foreach($records as $rec)
@@ -247,16 +248,50 @@ class DwCA_Utility
                     }
                 }
                 
-                // not been tested yet. Was working with $ dwca_utility.php _ 430    -> iNaturalist
-                // if($class == "document") { //meaning media objecs ---> filter out duplicate data_object identifiers
-                //     if($field == "identifier") $do_id = @$rec[$key];
-                //     if(isset($do_ids[$do_id])) {
-                //         print_r($do_ids);
-                //         echo "\nduplicate [$do_id]\n";
-                //         exit("\nexit now first...\n");
-                //     }
-                //     else $do_ids[$do_id] = '';
-                // }
+                // not been tested yet. Was working with dwca_utility.php _ 430 -> iNaturalist
+                /* should work
+                if($class == "document") { //meaning media objecs ---> filter out duplicate data_object identifiers
+                    if($field == "identifier") {
+                        $do_id = @$rec[$key];
+                        if(isset($do_ids[$do_id])) {
+                            $c = false; break; //exclude entire data_object entry if id already exists
+                        }
+                        else $do_ids[$do_id] = '';
+                    }
+                }
+                */
+
+                /* Need to have unique taxon ids. It is confined to a pre-defined list of resources bec. it is memory intensive and some resources have already unique taxon ids.
+                Useful for e.g. DATA-1724 resource 'plant_forms_habitat_and_distribution'.
+                */
+                if(in_array($this->resource_id, array('plant_forms_habitat_and_distribution-adjusted'))) {
+                    if($class == "taxon") {
+                        if($field == "taxonID") {
+                            $taxon_id = @$rec[$key];
+                            if(isset($taxon_ids[$taxon_id])) {
+                                $this->debug['duplicate_taxon_ids'][$taxon_id] = '';
+                                $c = false; break; //exclude entire taxon entry if id already exists
+                            }
+                            else $taxon_ids[$taxon_id] = '';
+                        }
+                    }
+                }
+
+                /* Need to have unique reference ids. It is confined to a pre-defined list of resources bec. it is memory intensive and some resources have already unique ref ids.
+                Useful for e.g. DATA-1724 resource 'plant_forms_habitat_and_distribution'.
+                */
+                if(in_array($this->resource_id, array('plant_forms_habitat_and_distribution-adjusted'))) {
+                    if($class == "reference") {
+                        if($field == "identifier") {
+                            $identifier = @$rec[$key];
+                            if(isset($ref_ids[$identifier])) {
+                                $this->debug['duplicate_ref_ids'][$identifier] = '';
+                                $c = false; break; //exclude entire reference entry if id already exists
+                            }
+                            else $ref_ids[$identifier] = '';
+                        }
+                    }
+                }
                 //#################### end some validations ----------------------------  #########################################################################
 
                 $c->$field = $rec[$key];
