@@ -1908,6 +1908,7 @@ class WikiDataAPI
             $official = array();
             if($refs = @$rec['refs']['info']) {
                 foreach($refs as $ref) $official[] = @$ref['official website'];
+                $official = array_unique($official); //make unique
                 $v->source = implode(";", $official);
             }
             else $v->source = "https://www.wikidata.org/wiki/$taxon_id";
