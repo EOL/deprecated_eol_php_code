@@ -308,11 +308,11 @@ class WikiDataAPI
                 if(!$cont) continue;
             }
 
-            // //just testing...
-            // if($k >= 1 && $k < 10) $cont = true;
-            // else break;
-            
-            
+            /* good way to limit foreach loop
+            if($k >= 1 && $k < 10) $cont = true;
+            else break;
+            */
+
             /* breakdown when caching:
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true;
@@ -365,7 +365,8 @@ class WikiDataAPI
                              $rek['author'] = self::get_authorship($arr->claims);
                              $rek['author_yr'] = self::get_authorship_date($arr->claims);
                              $rek['parent'] = self::get_taxon_parent($arr->claims);
-                             $rek['vernaculars'] = self::get_vernacular_names($arr->claims, $rek);
+                             
+                             if($this->what == "wikimedia") $rek['vernaculars'] = self::get_vernacular_names($arr->claims, $rek);
 
                              $rek['com_gallery'] = self::get_commons_gallery($arr->claims);
                              $rek['com_category'] = self::get_commons_category($arr->claims);
@@ -479,7 +480,7 @@ class WikiDataAPI
             $this->archive_builder->write_object_to_file($t);
         }
 
-        if($val = $rec['vernaculars']) self::add_vernaculars($val, $rec['taxon_id']);
+        if($val = @$rec['vernaculars']) self::add_vernaculars($val, $rec['taxon_id']);
 
         // if($rec['taxon_id'] == "Q5113" && $this->language_code == "ja") return; //debug force
         // if($rec['taxon_id'] == "Q5113") return; //Aves is problematic...debug force
@@ -1909,6 +1910,7 @@ class WikiDataAPI
                 foreach($refs as $ref) $official[] = @$ref['official website'];
                 $v->source = implode(";", $official);
             }
+            else $v->source = "https://www.wikidata.org/wiki/$taxon_id";
 
             $this->archive_builder->write_object_to_file($v);
         }
