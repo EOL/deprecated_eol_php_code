@@ -144,6 +144,7 @@ class FreeDataAPI
     //start for MarylandBio ==============================================================================================================
     function generate_MarylandBio_archive($csv_url)
     {
+        $this->download_options['expire_seconds'] = 60*60*24; //expires in 24 hours - DATA-1712
         $folder = $this->folder;
         self::create_folder_if_does_not_exist($folder);
         $this->country_lat_lon = self::get_country_lat_lon(); // print_r($this->country_lat_lon);
@@ -254,6 +255,7 @@ class FreeDataAPI
         2. get occurrences for each species
         3. create the zip file
         */
+        $this->download_options['expire_seconds'] = 60*60*24; //expires in 24 hours - DATA-1712
         $folder = $this->folder;
         self::create_folder_if_does_not_exist($folder);
         
@@ -517,6 +519,7 @@ class FreeDataAPI
     //start for Reeflife ================================================================================================================
     function generate_ReefLifeSurvey_archive($params)
     {
+        $this->download_options['expire_seconds'] = 60*60*24; //expires in 24 hours - DATA-1712
         $folder = $this->folder;
         self::create_folder_if_does_not_exist($folder);
         
