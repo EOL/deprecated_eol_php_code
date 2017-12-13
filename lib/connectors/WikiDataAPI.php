@@ -156,7 +156,8 @@ class WikiDataAPI
                 return array(true, false); //so it can run and test final step if ready
             }
             else { //means finalize file
-                if(self::finalize_media_filenames_ready($what_generation_status))
+                // if(true) //use this when developing
+                if(self::finalize_media_filenames_ready($what_generation_status)) //un-comment in real operation
                 {
                     self::parse_wiki_data_json($task, false, false);
                     //truncate for next run
@@ -364,6 +365,7 @@ class WikiDataAPI
                              $rek['author'] = self::get_authorship($arr->claims);
                              $rek['author_yr'] = self::get_authorship_date($arr->claims);
                              $rek['parent'] = self::get_taxon_parent($arr->claims);
+                             $rek['vernaculars'] = self::get_vernacular_names($arr->claims, $rek);
 
                              $rek['com_gallery'] = self::get_commons_gallery($arr->claims);
                              $rek['com_category'] = self::get_commons_category($arr->claims);
@@ -476,6 +478,8 @@ class WikiDataAPI
             $this->taxon_ids[$t->taxonID] = '';
             $this->archive_builder->write_object_to_file($t);
         }
+
+        if($val = $rec['vernaculars']) self::add_vernaculars($val, $rec['taxon_id']);
 
         // if($rec['taxon_id'] == "Q5113" && $this->language_code == "ja") return; //debug force
         // if($rec['taxon_id'] == "Q5113") return; //Aves is problematic...debug force
@@ -1832,6 +1836,84 @@ class WikiDataAPI
         return false;
     }
 
+///
+    private function get_vernacular_names($claims, $rek)
+    {
+        $names = array();
+        if($recs = @$claims->P1843) {
+            foreach($recs as $rec) {
+                $name = array();
+                $name['comname'] = @$rec->mainsnak->datavalue->value->text;
+                $name['lang'] = @$rec->mainsnak->datavalue->value->language;
+                $name['refs'] = self::get_vernacular_refs(@$rec->references);
+                if(@$name['comname']) $names[] = $name;
+            }
+        }
+        return $names;
+    }
+    private function get_vernacular_refs($recs)
+    {
+        if(!$recs) return array();
+        $final = array();
+        //step1: get all ids e.g. Q13679 (Wikispecies) for https://www.wikidata.org/wiki/Q160 (Cetacea) -- ids of all references (or organizations)
+        $ids = array();
+        foreach(@$recs as $rec) {
+            if($imported_from = @$rec->snaks->P143) { if($id = $imported_from[0]->datavalue->value->id) $ids[$id] = ''; }
+            if($stated_in = @$rec->snaks->P248)     { if($id = $stated_in[0]->datavalue->value->id)     $ids[$id] = ''; }
+            if($retrieved = @$rec->snaks->P813)     { if($val = $retrieved[0]->datavalue->value->time)  $final['retrieved'] = $val; }
+            /* debug only -- good debug
+            if(@$final['retrieved']) { 
+                print_r($final); exit("\nelix1\n");
+            } */
+        }
+        //step2 loop to all ids, and lookup to get
+        $reks = array();
+        foreach(array_keys($ids) as $id) {
+            $rek = array();
+            $obj = self::get_object($id);
+            if($val = (string) @$obj->entities->$id->labels->en->value) $rek['organization'] = $val;
+            if($val = (string) @$obj->entities->$id->descriptions->en->value) $rek['desc'] = $val;
+            if($val = (string) @$obj->entities->$id->claims->P856[0]->mainsnak->datavalue->value) $rek['official website'] = $val;
+            if(!@$rek['official website']) $rek['official website'] = "https://www.wikidata.org/wiki/$id";
+            if($many = @$obj->entities->$id->claims->P112) { //founded by
+                foreach($many as $one) {
+                    if($val = $one->mainsnak->datavalue->value->id) $rek['founded by'][] = self::lookup_value($val);
+                }
+            }
+            if($val = (string) @$obj->entities->$id->claims->P571[0]->mainsnak->datavalue->value->time) $rek['inception'] = $val;
+            if($many = @$obj->entities->$id->claims->P127) { //owned by
+                foreach($many as $one) {
+                    if($val = $one->mainsnak->datavalue->value->id) $rek['owned by'][] = self::lookup_value($val);
+                }
+            }
+            if(@$rek['organization']) $reks[] = $rek;
+            // /* debug only
+            if($org = @$rek['organization']) {
+                $this->debug['org'][$org] = $rek;
+            } 
+            // */
+        }
+        $final['info'] = $reks;
+        return $final;
+    }
+    private function add_vernaculars($recs, $taxon_id)
+    {
+        foreach($recs as $rec) {
+            $v = new \eol_schema\VernacularName();
+            $v->taxonID         = $taxon_id;
+            $v->vernacularName  = Functions::import_decode($rec['comname']);
+            $v->language        = $rec['lang'];
+
+            $official = array();
+            if($refs = @$rec['refs']['info']) {
+                foreach($refs as $ref) $official[] = @$ref['official website'];
+                $v->source = implode(";", $official);
+            }
+
+            $this->archive_builder->write_object_to_file($v);
+        }
+    }
+///
     private function get_commons_gallery($claims) //https://commons.wikimedia.org/wiki/Gorilla%20gorilla
     {
         if($val = (string) @$claims->P935[0]->mainsnak->datavalue->value) return "https://commons.wikimedia.org/wiki/" . str_replace(" ", "_", $val);
