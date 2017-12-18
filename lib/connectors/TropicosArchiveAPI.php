@@ -650,7 +650,7 @@ class TropicosArchiveAPI
                 if(!in_array($var, $this->unique_ids[$class])) {
                     $this->unique_ids[$class][] = $var;
                     $this->archive_builder_final->write_object_to_file($c);
-                    echo "\n" . count($this->unique_ids[$class]) . " -> " . "[$var]";
+                    debug("\n" . count($this->unique_ids[$class]) . " -> " . "[$var]");
                 }
                 // else debug("\nwill not add, will coz duplicates [$class]-[$field_name_of_unique_id]-[$var]\n"); //working
             }
