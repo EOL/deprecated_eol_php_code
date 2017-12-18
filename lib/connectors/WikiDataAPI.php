@@ -127,10 +127,10 @@ class WikiDataAPI
         // [file in question] => Array
         //     (
         //         [File:] => Aix_sponsa_dis.PNG
-        //         [File:] => Aix_sponsa_dis1.PNG
+        //         [File:] => Aix_sponsa_dis1.PNG Aix sponsa dis1.PNG | Alnus acuminata 4.jpg
         //         [File:] => 
         //     )
-        $arr = self::process_file("Aix_sponsa_dis1.PNG");
+        $arr = self::process_file("Virgin's bower (Clematis terniflora).jpg");
         print_r($arr);
         exit("\n-Finished testing-\n");
         */
@@ -1040,8 +1040,7 @@ class WikiDataAPI
         $rek['fromx'] = 'dump';
         
         /* good debug for Artist dump
-        if($rek['pageid'] == "36125309")
-        {
+        if($rek['pageid'] == "36125309") {
             echo "\n=================investigate dump data===========start\n";
             print_r($dump_arr);
             print_r($rek);
@@ -1367,8 +1366,7 @@ class WikiDataAPI
             else $rek['title'] = self::format_wiki_substr($arr['title']);
             
             /*
-            if($rek['pageid'] == "865581") //good debug api
-            {
+            if($rek['pageid'] == "2317457") { //good debug api
                 echo "\n=======investigate api data =========== start\n";
                 print_r($arr); exit("\nelix\n");
                 echo "\n=======investigate api data =========== end\n";
@@ -1419,6 +1417,7 @@ class WikiDataAPI
                     $credit_value = strip_tags($val);
                     if(stripos($credit_value, "http://wellcomeimages.org") !== false) $rek['Artist'][] = array('name' => 'Wellcome Images', 'homepage' => 'http://wellcomeimages.org', 'role' => 'source');
                     elseif(stripos($credit_value, "by the British Library") !== false) $rek['Artist'][] = array('name' => 'The British Library', 'homepage' => 'https://www.bl.uk/', 'role' => 'source');
+                    elseif(stripos($credit_value, "Iconographia Zoologica") !== false) $rek['Artist'][] = array('name' => 'Iconographia Zoologica', 'homepage' => 'https://commons.wikimedia.org/wiki/Category:Iconographia_Zoologica', 'role' => 'source');
                     else $rek['Artist'][] = array('name' => strip_tags($val));
                 }
                 if(self::invalid_artist_name_value($rek)) $rek['Artist'] = array();
