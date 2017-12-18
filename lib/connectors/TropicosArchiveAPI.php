@@ -73,7 +73,7 @@ class TropicosArchiveAPI
 
     private function process_taxa($resource_id)
     {
-        $temp_archive_batch_count = 10000; //debug orig is 10k //when testing use 200
+        $temp_archive_batch_count = 20000; //debug orig is 10k //when testing use 200
         $k = 0;
         $i = 0;
         foreach(new FileIterator($this->tropicos_ids_list_file) as $line_number => $taxon_id)
@@ -105,24 +105,24 @@ class TropicosArchiveAPI
                 */
                 
                 if(($i % 500) == 0) echo "\n" . number_format($i) . " - ";
-                // self::process_taxon($taxon_id); //orig
+                self::process_taxon($taxon_id); //orig
 
-                // /*  worked by batch ($k) for multiple connectors - 130 batches total
+                /*  worked by batch ($k) for multiple connectors - 130 batches total
                 // if($k >= 1 && $k <= 50) self::process_taxon($taxon_id); done =========================
 
-
-                // if($k >= 66 && $k <= 85) self::process_taxon($taxon_id);
-                // if($k >= 85 && $k <= 95) self::process_taxon($taxon_id);
-
-
+                // if($k >= 71 && $k <= 72) self::process_taxon($taxon_id);
+                // if($k >= 74 && $k <= 75) self::process_taxon($taxon_id);
+                // if($k >= 76 && $k <= 80) self::process_taxon($taxon_id); done ======================
+                // if($k >= 84 && $k <= 85) self::process_taxon($taxon_id); done ======================
+                if($k >= 90 && $k <= 93) self::process_taxon($taxon_id);
+                // if($k >= 93 && $k <= 95) self::process_taxon($taxon_id); done =================
                 // if($k >= 100 && $k <= 110) self::process_taxon($taxon_id); 108 done =========================
-                // if($k >= 96 && $k <= 100) self::process_taxon($taxon_id); //running as 3of6
-
-                // if($k >= 111 && $k <= 120) self::process_taxon($taxon_id);
-                if($k >= 126 && $k <= 130) self::process_taxon($taxon_id);
+                // if($k >= 99 && $k <= 100) self::process_taxon($taxon_id); done ======================
+                // if($k >= 119 && $k <= 120) self::process_taxon($taxon_id); done ===============
+                // if($k >= 130 && $k <= 130) self::process_taxon($taxon_id); done ======================
                 
                 echo " [batch $k] ";
-                // */
+                */
                 
                 
                 if(($i % $temp_archive_batch_count) == 0) {
@@ -615,8 +615,9 @@ class TropicosArchiveAPI
         $unique_id_for['vernacularname'] = "vernacularName";
         
         $field_name_of_unique_id = @$unique_id_for[$class];
-        
+        $i = 0;
         foreach($records as $rec) {
+            $i++;
             if    ($class == "vernacular")          $c = new \eol_schema\VernacularName();
             elseif($class == "agent")               $c = new \eol_schema\Agent();
             elseif($class == "reference")           $c = new \eol_schema\Reference();
@@ -628,7 +629,7 @@ class TropicosArchiveAPI
                 echo "\nundefined class [$class]\n";
                 return;
             }
-            echo "\nclass [$class] [$field_name_of_unique_id]\n";
+            if(($i % 1000) == 0) debug("\nclass [$class] [$field_name_of_unique_id]\n");
             $keys = array_keys($rec);
             foreach($keys as $key) {
                 $temp = pathinfo($key);
@@ -649,9 +650,9 @@ class TropicosArchiveAPI
                 if(!in_array($var, $this->unique_ids[$class])) {
                     $this->unique_ids[$class][] = $var;
                     $this->archive_builder_final->write_object_to_file($c);
-                    echo "\n" . count($this->unique_ids[$class]) . " - " . "[$var]";
+                    echo "\n" . count($this->unique_ids[$class]) . " -> " . "[$var]";
                 }
-                else echo "\nwill not add, will coz duplicates [$class]-[$field_name_of_unique_id]-[$var]\n";
+                // else debug("\nwill not add, will coz duplicates [$class]-[$field_name_of_unique_id]-[$var]\n"); //working
             }
             else $this->archive_builder_final->write_object_to_file($c); //for measurementorfact
         }
