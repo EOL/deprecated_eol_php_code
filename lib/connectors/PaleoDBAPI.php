@@ -24,11 +24,11 @@ class PaleoDBAPI
         // $this->service["taxon"] = "http://localhost/cp/PaleoDB/paleobiodb_small.csv";
         */
         
-        // /* pbdb_taxa.csv - new version with 33 cols - working as of 11-Jul-2016
+        /* pbdb_taxa.csv - new version with 33 cols - working as of 11-Jul-2016
         // $this->service["taxon"] = "https://dl.dropboxusercontent.com/u/5763406/resources/PaleoDB/pbdb_taxa.csv";
         $this->service["taxon"] = "http://localhost/cp/PaleoDB/pbdb_taxa.csv";
         // $this->service["taxon"] = "http://localhost/cp/PaleoDB/pbdb_taxa_small.csv";
-        // */
+        */
 
         $this->service["collection"] = "http://paleobiodb.org/data1.1/colls/list.csv?vocab=pbdb&limit=10&show=bin,attr,ref,loc,paleoloc,prot,time,strat,stratext,lith,lithext,geo,rem,ent,entname,crmod&taxon_name=";
         $this->service["occurrence"] = "http://paleobiodb.org/data1.1/occs/list.csv?show=loc,time&limit=10&base_name=";
@@ -75,7 +75,7 @@ class PaleoDBAPI
 
     function get_all_taxa()
     {
-        $this->path['temp_dir'] = create_temp_dir() . "/";
+        $this->path['temp_dir'] = DOC_ROOT . $GLOBALS['MAIN_CACHE_PATH'] . "368/";
         $this->parse_csv_file("taxon");
         $this->create_archive();
         // stats
@@ -85,7 +85,6 @@ class PaleoDBAPI
         print_r($statuses);
         foreach($statuses as $status) echo "\n $status: " . count($this->debug["status"][$status]);
         echo "\nDeleting temporary folder...";
-        recursive_rmdir($this->path['temp_dir']);
     }
 
     private function parse_csv_file($type, $taxon = array())
@@ -212,10 +211,16 @@ class PaleoDBAPI
         if(!file_exists($main_path . $cache1))           mkdir($main_path . $cache1);
         if(!file_exists($main_path . "$cache1/$cache2")) mkdir($main_path . "$cache1/$cache2");
         $filename = $main_path . "$cache1/$cache2/$taxon_id.json";
-        if($FILE = Functions::file_open($filename, 'w')) {
-            fwrite($FILE, $json);
-            fclose($FILE);
+
+        if(file_exists($filename)) {
+            $file_age_in_seconds = time() - filemtime($filename);
+            if($file_age_in_seconds < $this->download_options['expire_seconds'])    return; //no need to save
+            if($this->download_options['expire_seconds'] === false)                 return; //no need to save
         }
+        //saving...
+        $FILE = Functions::file_open($filename, 'w');
+        fwrite($FILE, $json);
+        fclose($FILE);
     }
     private function get_ancestry_from_json($taxon_id) //opposite of save_ancestry_to_json()
     {
@@ -352,7 +357,7 @@ class PaleoDBAPI
             if($taxon_id = $t->parentNameUsageID) {
                 if(@$this->taxa[$taxon_id]->taxonomicStatus == "synonym") {
                     $t->parentNameUsageID = $this->taxa[$taxon_id]->acceptedNameUsageID;
-                    echo "\n parent_id of $t->taxonID is replaced from: [$taxon_id] to: [$t->parentNameUsageID]\n";
+                    // echo "\n parent_id of $t->taxonID is replaced from: [$taxon_id] to: [$t->parentNameUsageID]\n";
                 }
             }
             
