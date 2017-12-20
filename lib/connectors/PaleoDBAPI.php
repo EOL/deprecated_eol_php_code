@@ -342,14 +342,14 @@ class PaleoDBAPI
         echo "\n Creating archive...\n";
         foreach($this->taxa as $t) {
             if(!isset($this->taxa[$t->parentNameUsageID]) && $t->parentNameUsageID) {
-                print "\n parent_id of $t->taxonID does not exist:[$t->parentNameUsageID]";
+                // print "\n parent_id of $t->taxonID does not exist:[$t->parentNameUsageID]";
                 if    ($id = self::create_missing_taxon($t))       $t->parentNameUsageID = $id;
                 elseif($id = self::get_missing_parent_via_api($t)) $t->parentNameUsageID = $id;
                 else                                               $t->parentNameUsageID = "";
-                echo " - new parent id = [$t->parentNameUsageID]\n";
+                // echo " - new parent id = [$t->parentNameUsageID]\n";
             }
             if(!isset($this->taxa[$t->acceptedNameUsageID]) && $t->acceptedNameUsageID) {
-                print "\n acceptedNameUsageID of $t->taxonID does not exist:[$t->acceptedNameUsageID]";
+                // print "\n acceptedNameUsageID of $t->taxonID does not exist:[$t->acceptedNameUsageID]";
                 $t->acceptedNameUsageID = '';
             }
             
@@ -406,7 +406,7 @@ class PaleoDBAPI
             */
             $obj = json_decode($json);
             foreach($obj->records as $rec) {
-                echo "\n" . $rec->nam;
+                // echo "\n" . $rec->nam;
                 //start create archive
                 $taxon = new \eol_schema\Taxon();
                 $taxon->taxonID                  = $t->parentNameUsageID;
@@ -428,7 +428,7 @@ class PaleoDBAPI
                     $this->archive_builder->write_object_to_file($taxon);
                     $this->name_id[$taxon->scientificName] = $taxon->taxonID;
                 }
-                echo " --- $taxon->taxonID used as parent ccc \n";
+                // echo " --- $taxon->taxonID used as parent ccc \n";
                 return $taxon->taxonID;
             }
         }
@@ -446,7 +446,7 @@ class PaleoDBAPI
         else return false;
         if($id = @$this->name_id[$info["sciname"]]) // there is an existing taxon for the parent either from k.p.c.o.f.
         {
-            echo " --- $id used as parent aaa \n";
+            // echo " --- $id used as parent aaa \n";
             return $id;
         }
         $taxon = new \eol_schema\Taxon();
@@ -460,7 +460,7 @@ class PaleoDBAPI
             $this->archive_builder->write_object_to_file($taxon);
             $this->name_id[$taxon->scientificName] = $taxon->taxonID;
         }
-        echo " --- $taxon->taxonID used as parent bbb \n";
+        // echo " --- $taxon->taxonID used as parent bbb \n";
         return $taxon->taxonID;
     }
 

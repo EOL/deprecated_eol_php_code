@@ -15,7 +15,7 @@ vernacular  [3753]      [3911]      4023
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-// ini_set('memory_limit','7096M');
+ini_set('memory_limit','7096M');
 $timestart = time_elapsed();
 $resource_id = 368;
 
@@ -23,6 +23,7 @@ $resource_id = 368;
 require_library('connectors/PaleoDBAPI');
 $func = new PaleoDBAPI($resource_id);
 $func->get_all_taxa();
+unset($func);
 Functions::finalize_dwca_resource($resource_id);
 // */
 
