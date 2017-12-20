@@ -9,9 +9,13 @@ taxon       [234423]    [263815]    275509
 occurrence  [972262]    [1103650]   1156975
 measurement [972262]    [1103650]   1156975
 vernacular  [3753]      [3911]      4023
+
+368 Sunday 2017-10-08 03:17:15 AM       {"measurement_or_fact.tab":1156975,"occurrence.tab":1156975,"taxon.tab":275509,"vernacular_name.tab":4023} eol-archive
+368 Wednesday 2017-12-20 05:33:15 AM    {"measurement_or_fact.tab":1103650,"occurrence.tab":1103650,"taxon.tab":263656,"vernacular_name.tab":3911} mac-mini
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+// ini_set('memory_limit','7096M');
 $timestart = time_elapsed();
 $resource_id = 368;
 
@@ -25,7 +29,8 @@ Functions::finalize_dwca_resource($resource_id);
 // /* utility
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
-$func->check_if_all_parents_have_entries($resource_id);
+if($undefined = $func->check_if_all_parents_have_entries($resource_id)) print_r($undefined);
+else echo "\nAll parents have entries OK\n";
 // */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
@@ -33,5 +38,4 @@ echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\nDone processing.\n";
-
 ?>
