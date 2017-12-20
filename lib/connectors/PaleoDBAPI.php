@@ -89,24 +89,21 @@ class PaleoDBAPI
     private function parse_csv_file($type, $taxon = array())
     {
         echo "\n Processing $type...\n";
-        if($type == "collection")
-        {
+        if($type == "collection") {
             $no_of_fields = 68;
             if(!in_array(@$taxon["rank"], array("species", "subspecies"))) return;
             $taxon_id = $taxon["orig_no"];
             $url = $this->service[$type] . $taxon["taxon_name"];
             $path = Functions::save_remote_file_to_local($url, $this->download_options);
         }
-        elseif($type == "occurrence")
-        {
+        elseif($type == "occurrence") {
             $no_of_fields = 25;
             if(!in_array(@$taxon["rank"], array("species", "subspecies"))) return;
             $taxon_id = $taxon["orig_no"];
             $url = $this->service[$type] . $taxon["taxon_name"];
             $path = Functions::save_remote_file_to_local($url, $this->download_options);
         }
-        elseif($type == "taxon")
-        {
+        elseif($type == "taxon") {
             $no_of_fields = $this->taxon_no_of_cols;
             $download_options = $this->download_options;
             $download_options['timeout'] = 999999;
@@ -123,8 +120,7 @@ class PaleoDBAPI
             if($line)
             {
                 $line = trim($line);
-                if($j == 1)
-                {
+                if($j == 1) {
                     $fields = explode(",", $line);
                     continue;
                 }
@@ -132,24 +128,20 @@ class PaleoDBAPI
                 {
                     $values = explode(",", $line);
                     $values = str_getcsv($line);
-                    if(count($values) == $no_of_fields)
-                    {
+                    if(count($values) == $no_of_fields) {
                         $i = 0;
-                        foreach($values as $value)
-                        {
+                        foreach($values as $value) {
                             $field = str_replace('"', '', $fields[$i]);
                             $rec[$field] = str_replace('"', '', $value);
                             $i++;
                         }
                     }
-                    else
-                    {
+                    else {
                         print_r($values);
                         echo "\n investigate rec is not $no_of_fields";
                     }
                 }
-                if($rec)
-                {
+                if($rec) {
                     if    ($type == "collection")   self::process_taxon_collection($rec, $taxon_id, $url);
                     elseif($type == "occurrence")   self::process_taxon_occurrence($rec, $taxon_id, $url);
                     elseif($type == "taxon")        self::process_taxon($rec);
@@ -181,13 +173,11 @@ class PaleoDBAPI
         else                                     $taxon->acceptedNameUsageID = '';
         $taxon->taxonomicStatus             = self::process_status($rec["status"]);
         // if($taxon->taxonomicStatus == "synonym") return; //debug - exclude synonyms during preview phase
-        if(!isset($this->taxa[$taxon->taxonID]))
-        {
+        if(!isset($this->taxa[$taxon->taxonID])) {
             $this->taxa[$taxon->taxonID] = $taxon;
             $this->name_id[$taxon->scientificName] = $taxon->taxonID;
             
-            if($v = $rec["common_name"])
-            {
+            if($v = $rec["common_name"]) {
                 $vernacular = new \eol_schema\VernacularName();
                 $vernacular->taxonID = $taxon->taxonID;
                 $vernacular->vernacularName = $v;
@@ -212,21 +202,17 @@ class PaleoDBAPI
         if(!$ref_nos) return array();
         $ref_nos = array_map('trim', $ref_nos);
         $reference_ids = array();
-        foreach($ref_nos as $ref_no)
-        {
+        foreach($ref_nos as $ref_no) {
             $url = $this->service["reference"] . $ref_no;
-            if($html = Functions::lookup_with_cache($url, $this->download_options))
-            {
-                if(preg_match("/Full reference<\/span>(.*?)<span/ims", $html, $arr))
-                {
+            if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+                if(preg_match("/Full reference<\/span>(.*?)<span/ims", $html, $arr)) {
                     $full_ref = strip_tags($arr[1], "<i>");
                     $r = new \eol_schema\Reference();
                     $r->full_reference = $full_ref;
                     $r->identifier = md5($r->full_reference);
                     $r->uri = $url;
                     $reference_ids[] = $r->identifier;
-                    if(!isset($this->resource_reference_ids[$r->identifier]))
-                    {
+                    if(!isset($this->resource_reference_ids[$r->identifier])) {
                        $this->resource_reference_ids[$r->identifier] = '';
                        $this->archive_builder->write_object_to_file($r);
                     }
@@ -291,8 +277,7 @@ class PaleoDBAPI
         $m->measurementType = $measurementType;
         $m->measurementValue = $value;
         if($val = @$rec["source_url"]) $m->source = $val;
-        if($label == "is_extant")
-        {
+        if($label == "is_extant") {
             // if($reference_ids = self::get_reference_ids(trim($rec["reference_no"]))) $m->referenceID = implode("; ", $reference_ids); deliberately commented for now.
         }
         if($measurementOfTaxon == "true") $m->source = $this->service["source"] . $taxon_id;
@@ -315,27 +300,22 @@ class PaleoDBAPI
     function create_archive()
     {
         echo "\n Creating archive...\n";
-        foreach($this->taxa as $t)
-        {
-            if(!isset($this->taxa[$t->parentNameUsageID]) && $t->parentNameUsageID)
-            {
+        foreach($this->taxa as $t) {
+            if(!isset($this->taxa[$t->parentNameUsageID]) && $t->parentNameUsageID) {
                 print "\n parent_id of $t->taxonID does not exist:[$t->parentNameUsageID]";
                 if    ($id = self::create_missing_taxon($t))       $t->parentNameUsageID = $id;
                 elseif($id = self::get_missing_parent_via_api($t)) $t->parentNameUsageID = $id;
                 else                                               $t->parentNameUsageID = "";
                 echo " - new parent id = [$t->parentNameUsageID]\n";
             }
-            if(!isset($this->taxa[$t->acceptedNameUsageID]) && $t->acceptedNameUsageID)
-            {
+            if(!isset($this->taxa[$t->acceptedNameUsageID]) && $t->acceptedNameUsageID) {
                 print "\n acceptedNameUsageID of $t->taxonID does not exist:[$t->acceptedNameUsageID]";
                 $t->acceptedNameUsageID = '';
             }
             
             // check if parent_id is a synonym, if yes get the acceptedNameUsageID of the synonym taxon as parent_id
-            if($taxon_id = $t->parentNameUsageID)
-            {
-                if(@$this->taxa[$taxon_id]->taxonomicStatus == "synonym")
-                {
+            if($taxon_id = $t->parentNameUsageID) {
+                if(@$this->taxa[$taxon_id]->taxonomicStatus == "synonym") {
                     $t->parentNameUsageID = $this->taxa[$taxon_id]->acceptedNameUsageID;
                     echo "\n parent_id of $t->taxonID is replaced from: [$taxon_id] to: [$t->parentNameUsageID]\n";
                 }
@@ -365,10 +345,7 @@ class PaleoDBAPI
         
         $ids_to_set_cache_expires = array(); //just a check, put here parent_ids that needed a fresh http access, cache expires.
         $download_options = $this->download_options;
-        if(in_array($t->parentNameUsageID, $ids_to_set_cache_expires))
-        {
-            $download_options['expire_seconds'] = 0; //cache expires
-        }
+        if(in_array($t->parentNameUsageID, $ids_to_set_cache_expires)) $download_options['expire_seconds'] = 0; //cache expires
         
         if($json = Functions::lookup_with_cache($url, $download_options))
         {
@@ -388,30 +365,25 @@ class PaleoDBAPI
                 )
             */
             $obj = json_decode($json);
-            foreach($obj->records as $rec)
-            {
+            foreach($obj->records as $rec) {
                 echo "\n" . $rec->nam;
-                
                 //start create archive
                 $taxon = new \eol_schema\Taxon();
                 $taxon->taxonID                  = $t->parentNameUsageID;
                 $taxon->scientificName           = $rec->nam;
                 $taxon->scientificNameAuthorship = @$rec->att;
                 
-                if($parent_id = $rec->par)  $taxon->parentNameUsageID = $parent_id;
+                if($parent_id = $rec->par && $rec->par != 0 && $rec->par != "0")  $taxon->parentNameUsageID = $parent_id;
                 if($rank = @$rnk[$rec->rnk]) $taxon->taxonRank = $rank;
-                else
-                {
-                    if($rank != "")
-                    {
+                else {
+                    if($rank != "") {
                         echo "\nundefined rank: [$rec->rnk]\n";
                         exit("\ninvestigate 001\n");
                     }
                 }
                 $taxon->taxonomicStatus = "valid";
                 
-                if(!isset($this->taxa[$taxon->taxonID]))
-                {
+                if(!isset($this->taxa[$taxon->taxonID])) {
                     $this->taxa[$taxon->taxonID] = '';
                     $this->archive_builder->write_object_to_file($taxon);
                     $this->name_id[$taxon->scientificName] = $taxon->taxonID;
