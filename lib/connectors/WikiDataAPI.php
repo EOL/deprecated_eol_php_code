@@ -33,20 +33,20 @@ class WikiDataAPI
         $this->debug = array();
         $this->download_options = array('expire_seconds' => 60*60*24*25, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         // $this->download_options['expire_seconds'] = false;
-        if(!Functions::is_production()) {
-            $this->path['raw_dump']         = "/Volumes/Thunderbolt4/wikidata/latest-all.json";       //from https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.gz
-            $this->path['wiki_data_json']   = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //an all_taxon dump generated from raw [latest-all.json.gz]
-            $this->path['commons']          = "/Volumes/Thunderbolt4/wikidata/wikimedia/commonswiki-latest-pages-articles.xml"; //from http://dumps.wikimedia.org/commonswiki/latest/commonswiki-latest-pages-articles.xml.bz2
-            $this->path['wikimedia_cache']  = "/Volumes/Thunderbolt4/wikimedia_cache/";
-            $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache_wiki_regions/";
-        }
-        
+
         if(Functions::is_production()) {
             $this->path['raw_dump']         = "/extra/dumps/wikidata/latest-all.json";
             $this->path['wiki_data_json']   = "/extra/dumps/wikidata/latest-all-taxon.json";
             $this->path['commons']          = "/extra/dumps/wikidata/wikimedia/commonswiki-latest-pages-articles.xml";
             $this->path['wikimedia_cache']  = "/extra/wikimedia_cache/";
             $this->download_options['cache_path'] = "/extra/eol_cache_wiki_regions/";
+        }
+        else {
+            $this->path['raw_dump']         = "/Volumes/Thunderbolt4/wikidata/latest-all.json";       //from https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.gz
+            $this->path['wiki_data_json']   = "/Volumes/Thunderbolt4/wikidata/latest-all-taxon.json"; //an all_taxon dump generated from raw [latest-all.json.gz]
+            $this->path['commons']          = "/Volumes/Thunderbolt4/wikidata/wikimedia/commonswiki-latest-pages-articles.xml"; //from http://dumps.wikimedia.org/commonswiki/latest/commonswiki-latest-pages-articles.xml.bz2
+            $this->path['wikimedia_cache']  = "/Volumes/Thunderbolt4/wikimedia_cache/";
+            $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache_wiki_regions/";
         }
         
         // $this->property['taxon name'] = "P225";
