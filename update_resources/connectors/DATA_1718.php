@@ -8,9 +8,18 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 
 $timestart = time_elapsed();
 
+/*
+$url1 = "http://www.eol.org/files/pdfs/mou/EOL_ToL-mou.pdf";
+$url2 = "/Library/WebServer/Documents/eol_php_code/tmp/tmp_72243.file.pdf";
+echo "\n$url1 - ".pathinfo($url1, PATHINFO_FILENAME);
+echo "\n$url2 - ".pathinfo($url2, PATHINFO_FILENAME);
+exit("\n");
+*/
+
 require_library('connectors/EOLv2MetadataAPI');
 $func = new EOLv2MetadataAPI();
-$func->start();
+// $func->start();
+$func->save_all_MOUs();
 
 
 $elapsed_time_sec = time_elapsed() - $timestart;
