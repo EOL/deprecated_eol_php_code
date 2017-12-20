@@ -24,11 +24,11 @@ class PaleoDBAPI
         // $this->service["taxon"] = "http://localhost/cp/PaleoDB/paleobiodb_small.csv";
         */
         
-        /* pbdb_taxa.csv - new version with 33 cols - working as of 11-Jul-2016
+        // /* pbdb_taxa.csv - new version with 33 cols - working as of 11-Jul-2016
         // $this->service["taxon"] = "https://dl.dropboxusercontent.com/u/5763406/resources/PaleoDB/pbdb_taxa.csv";
-        // $this->service["taxon"] = "http://localhost/cp/PaleoDB/pbdb_taxa.csv";
+        $this->service["taxon"] = "http://localhost/cp/PaleoDB/pbdb_taxa.csv";
         // $this->service["taxon"] = "http://localhost/cp/PaleoDB/pbdb_taxa_small.csv";
-        */
+        // */
 
         $this->service["collection"] = "http://paleobiodb.org/data1.1/colls/list.csv?vocab=pbdb&limit=10&show=bin,attr,ref,loc,paleoloc,prot,time,strat,stratext,lith,lithext,geo,rem,ent,entname,crmod&taxon_name=";
         $this->service["occurrence"] = "http://paleobiodb.org/data1.1/occs/list.csv?show=loc,time&limit=10&base_name=";
@@ -399,7 +399,7 @@ class PaleoDBAPI
                 $taxon->scientificNameAuthorship = @$rec->att;
                 
                 if($parent_id = $rec->par)  $taxon->parentNameUsageID = $parent_id;
-                if($rank = $rnk[$rec->rnk]) $taxon->taxonRank = $rank;
+                if($rank = @$rnk[$rec->rnk]) $taxon->taxonRank = $rank;
                 else
                 {
                     if($rank != "")
