@@ -152,6 +152,13 @@ class PaleoDBAPI
         unlink($path);
     }
     
+    private function no_zero_value($val)
+    {
+        $val = trim((string) $val);
+        if($val == 0) return "";
+        if($val == "0") return "";
+        return $val;
+    }
     private function process_taxon($rec)
     {
         // for stats
@@ -173,7 +180,7 @@ class PaleoDBAPI
         $ancestry['family']                      = $rec["family"];
         self::save_ancestry_to_json($taxon->taxonID, $ancestry);
         
-        $taxon->parentNameUsageID           = $rec["parent_no"];
+        $taxon->parentNameUsageID           = self::no_zero_value($rec["parent_no"]);
         if($rec["senior_no"] != $rec["orig_no"]) $taxon->acceptedNameUsageID = $rec["senior_no"];
         else                                     $taxon->acceptedNameUsageID = '';
         $taxon->taxonomicStatus             = self::process_status($rec["status"]);
@@ -343,8 +350,8 @@ class PaleoDBAPI
         foreach($this->taxa as $t) {
             if(!isset($this->taxa[$t->parentNameUsageID]) && $t->parentNameUsageID) {
                 // print "\n parent_id of $t->taxonID does not exist:[$t->parentNameUsageID]";
-                if    ($id = self::create_missing_taxon($t))       $t->parentNameUsageID = $id;
-                elseif($id = self::get_missing_parent_via_api($t)) $t->parentNameUsageID = $id;
+                if    ($id = self::create_missing_taxon($t))       $t->parentNameUsageID = self::no_zero_value($id);
+                elseif($id = self::get_missing_parent_via_api($t)) $t->parentNameUsageID = self::no_zero_value($id);
                 else                                               $t->parentNameUsageID = "";
                 // echo " - new parent id = [$t->parentNameUsageID]\n";
             }
@@ -356,7 +363,7 @@ class PaleoDBAPI
             // check if parent_id is a synonym, if yes get the acceptedNameUsageID of the synonym taxon as parent_id
             if($taxon_id = $t->parentNameUsageID) {
                 if(@$this->taxa[$taxon_id]->taxonomicStatus == "synonym") {
-                    $t->parentNameUsageID = $this->taxa[$taxon_id]->acceptedNameUsageID;
+                    $t->parentNameUsageID = self::no_zero_value($this->taxa[$taxon_id]->acceptedNameUsageID);
                     // echo "\n parent_id of $t->taxonID is replaced from: [$taxon_id] to: [$t->parentNameUsageID]\n";
                 }
             }
@@ -412,8 +419,8 @@ class PaleoDBAPI
                 $taxon->taxonID                  = $t->parentNameUsageID;
                 $taxon->scientificName           = $rec->nam;
                 $taxon->scientificNameAuthorship = @$rec->att;
+                $taxon->parentNameUsageID        = self::no_zero_value(@$rec->par);
                 
-                if($parent_id = $rec->par && $rec->par != 0 && $rec->par != "0")  $taxon->parentNameUsageID = $parent_id;
                 if($rank = @$rnk[$rec->rnk]) $taxon->taxonRank = $rank;
                 else {
                     if($rank != "") {

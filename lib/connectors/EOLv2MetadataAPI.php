@@ -33,7 +33,7 @@ class EOLv2MetadataAPI
             
             JOIN content_partner_agreements cpa ON (cp.id=cpa.content_partner_id)
             WHERE s.language_id = 152 AND s2.language_id = 152
-            ORDER BY cp.id limit 6";
+            ORDER BY cp.id limit 6000";
 
             // $result = $mysqli->query("SELECT r.hierarchy_id, max(he.id) as max FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) GROUP BY r.hierarchy_id");
             // $result = $mysqli->query("SELECT r.hierarchy_id, max(he.id) as max FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) GROUP BY r.hierarchy_id");
@@ -63,18 +63,50 @@ class EOLv2MetadataAPI
                 // $harvest_event = HarvestEvent::find($row['max']);
                 // if(!$harvest_event->published_at) $GLOBALS['hierarchy_preview_harvest_event'][$row['hierarchy_id']] = $row['max'];
             }
-            print_r($recs);
+            // print_r($recs[165]);
     }
     private function fix_agreement_url($url_from_db)
     {
         //                   /files/pdfs/mou/EOL_FishBase-mou.pdf
         // http://www.eol.org/files/pdfs/mou/EOL_FishBase-mou.pdf
-        if(substr($url_from_db, 0, 16) == "/files/pdfs/mou/") return "http://www.eol.org".$url_from_db;
+        if(substr($url_from_db, 0, 16) == "/files/pdfs/mou/") $url_from_db = "http://www.eol.org".$url_from_db;
         $url_from_db = str_replace("content8.eol.org", "content.eol.org", $url_from_db);
         $url_from_db = str_replace("content4.eol.org", "content.eol.org", $url_from_db);
         $url_from_db = str_replace("content1.eol.org", "content.eol.org", $url_from_db);
-        return $url_from_db;
+        
+        self::save_mou_to_local($url_from_db); //will comment this line once MOUs are saved
+        
+        return $url_from_db; //returns a transformed $url_from_db
     }
+    private function save_mou_to_local($url)
+    {
+        if(!$url) return;
+        if(substr($url,0,5) != "http:") return;
+        
+        // exit("\nurl: [$url]\n");
+        $options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*30*3); //cache expires in 3 months
+        $options['file_extension'] = "pdf";
+        if($file = Functions::save_remote_file_to_local($url, $options))
+        {
+            echo "\n [$url]: $file\n";
+            
+            $final = pathinfo($url, PATHINFO_FILENAME);
+            $local = pathinfo($file, PATHINFO_FILENAME);
+            $destination = str_replace($local, $final, $file);
+            rename($file, $destination);
+        }
+    }
+    public function save_all_MOUs()
+    {
+        $sql = "SELECT c.mou_url as url FROM content_partner_agreements c WHERE c.mou_url is not null GROUP BY c.mou_url ORDER BY c.mou_url";
+        $result = $this->mysqli->query($sql);
+        $recs = array();
+        while($result && $row=$result->fetch_assoc()) {
+            if($val = @$row['url']) self::fix_agreement_url($val);
+            // echo "\n".$row['url'];
+        }
+    }
+    
     
     /*
     public function begin()
