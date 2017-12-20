@@ -75,6 +75,7 @@ class PaleoDBAPI
 
     function get_all_taxa()
     {
+        $this->path['temp_dir'] = create_temp_dir() . "/";
         $this->parse_csv_file("taxon");
         $this->create_archive();
         // stats
@@ -83,7 +84,8 @@ class PaleoDBAPI
         $statuses = array_keys($this->debug["status"]);
         print_r($statuses);
         foreach($statuses as $status) echo "\n $status: " . count($this->debug["status"][$status]);
-        echo "\n";
+        echo "\nDeleting temporary folder...";
+        recursive_rmdir($this->path['temp_dir']);
     }
 
     private function parse_csv_file($type, $taxon = array())
@@ -163,11 +165,15 @@ class PaleoDBAPI
         $taxon->scientificName              = $rec["taxon_name"];
         $taxon->scientificNameAuthorship    = $rec["attribution"];
         $taxon->taxonRank                   = $rec["rank"];
-        $taxon->kingdom                     = $rec["kingdom"];
-        $taxon->phylum                      = $rec["phylum"];
-        $taxon->class                       = $rec["class"];
-        $taxon->order                       = $rec["order"];
-        $taxon->family                      = $rec["family"];
+        
+        $ancestry = array();
+        $ancestry['kingdom']                     = $rec["kingdom"];
+        $ancestry['phylum']                      = $rec["phylum"];
+        $ancestry['class']                       = $rec["class"];
+        $ancestry['order']                       = $rec["order"];
+        $ancestry['family']                      = $rec["family"];
+        self::save_ancestry_to_json($taxon->taxonID, $ancestry);
+        
         $taxon->parentNameUsageID           = $rec["parent_no"];
         if($rec["senior_no"] != $rec["orig_no"]) $taxon->acceptedNameUsageID = $rec["senior_no"];
         else                                     $taxon->acceptedNameUsageID = '';
@@ -194,6 +200,35 @@ class PaleoDBAPI
             // self::parse_csv_file("collection", $rec);
             // self::parse_csv_file("occurrence", $rec);
         }
+    }
+    
+    private function save_ancestry_to_json($taxon_id, $ancestry) //opposite of get_ancestry_from_json()
+    {
+        $json = json_encode($ancestry);
+        $main_path = $this->path['temp_dir'];
+        $md5 = md5($taxon_id);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        if(!file_exists($main_path . $cache1))           mkdir($main_path . $cache1);
+        if(!file_exists($main_path . "$cache1/$cache2")) mkdir($main_path . "$cache1/$cache2");
+        $filename = $main_path . "$cache1/$cache2/$taxon_id.json";
+        if($FILE = Functions::file_open($filename, 'w')) {
+            fwrite($FILE, $json);
+            fclose($FILE);
+        }
+    }
+    private function get_ancestry_from_json($taxon_id) //opposite of save_ancestry_to_json()
+    {
+        $main_path = $this->path['temp_dir'];
+        $md5 = md5($taxon_id);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        $filename = $main_path . "$cache1/$cache2/$taxon_id.json";
+        if(file_exists($filename)) {
+            $json = file_get_contents($filename);
+            return json_decode($json, true);
+        }
+        else return array();
     }
 
     private function get_reference_ids($ref_nos)
@@ -397,11 +432,12 @@ class PaleoDBAPI
     
     private function create_missing_taxon($t)
     {
-        if(    $t->family  && $t->scientificName != $t->family)    $info = array("sciname" => $t->family, "rank" => "family");
-        elseif($t->order   && $t->scientificName != $t->order)     $info = array("sciname" => $t->order, "rank" => "order");
-        elseif($t->class   && $t->scientificName != $t->class)     $info = array("sciname" => $t->class, "rank" => "class");
-        elseif(@$t->phylum  && $t->scientificName != @$t->phylumm) $info = array("sciname" => @$t->phylum, "rank" => "phylum");
-        elseif($t->kingdom && $t->scientificName != $t->kingdom)   $info = array("sciname" => $t->kingdom, "rank" => "kingdom");
+        $ancestry = self::get_ancestry_from_json($t->taxonID);
+        if(    $val = @$ancestry['family']  && $t->scientificName != @$ancestry['family'])  $info = array("sciname" => $val, "rank" => "family");
+        elseif($val = @$ancestry['order']   && $t->scientificName != @$ancestry['order'])   $info = array("sciname" => $val, "rank" => "order");
+        elseif($val = @$ancestry['class']   && $t->scientificName != @$ancestry['class'])   $info = array("sciname" => $val, "rank" => "class");
+        elseif($val = @$ancestry['phylum']  && $t->scientificName != @$ancestry['phylum'])  $info = array("sciname" => $val, "rank" => "phylum");
+        elseif($val = @$ancestry['kingdom'] && $t->scientificName != @$ancestry['kingdom']) $info = array("sciname" => $val, "rank" => "kingdom");
         else return false;
         if($id = @$this->name_id[$info["sciname"]]) // there is an existing taxon for the parent either from k.p.c.o.f.
         {
