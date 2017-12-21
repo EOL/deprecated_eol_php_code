@@ -3,25 +3,14 @@ namespace php_active_record;
 
 class EOLv2MetadataAPI
 {
-    // private $mysqli;
-    // private $name_parser_client;
-    
     public function __construct()
     {
         $this->mysqli =& $GLOBALS['db_connection'];
-        // $mysqli       =& $GLOBALS['mysqli_connection'];
         // IF(cp.description_of_data IS NOT NULL, cp.description_of_data, r.description) as desc_of_data
     }
 
     public function start()
     {
-        // $sql = "SELECT cp.id, cp.full_name, r.title, he.published_at
-        // FROM content_partners cp
-        // JOIN resources r ON (cp.id=r.content_partner_id)
-        // JOIN harvest_events he ON (r.id=he.resource_id)
-        // WHERE r.id = 42
-        // ORDER BY cp.id";
-                
         $sql = "SELECT cp.id as partner_id, cp.full_name as partner_name, s.label as status, r.id as resource_id, r.title as resource_title, s2.label as resource_status,
         cp.description as overview, cp.homepage as url, 
         cpa.mou_url as agreement_url, cpa.signed_on_date as signed_date, cpa.signed_by, cpa.created_at as create_date,
@@ -49,7 +38,7 @@ class EOLv2MetadataAPI
             'manager_eol_id' => $row['manager_eol_id']
             );
             $recs[$row['partner_id']]['mou_url_editors'] = self::move_url_to_editors($recs[$row['partner_id']]['agreement_url']);
-            $recs[$row['partner_id']]['resources'][] = array('resource_title' => $row['resource_title'], 'first_pub' => $first_pub, 'last_pub' => $last_pub, 'status' => $row['resource_status']);
+            $recs[$row['partner_id']]['resources'][] = array('resource_id' => $row['resource_id'], 'resource_title' => $row['resource_title'], 'first_pub' => $first_pub, 'last_pub' => $last_pub, 'status' => $row['resource_status']);
             
             $sql = "SELECT cpc.id as eol_contact_id, cpc.given_name, cpc.family_name, cpc.email, cpc.homepage, cpc.telephone, cpc.address, s.label as contact_role
             FROM content_partner_contacts cpc JOIN translated_contact_roles s ON (cpc.contact_role_id=s.id) 
@@ -59,11 +48,59 @@ class EOLv2MetadataAPI
                 $recs[$row['partner_id']]['contacts'][] = array('eol_contact_id' => $row2['eol_contact_id'], 'given_name' => $row2['given_name'], 'family_name' => $row2['family_name'], 'email' => $row2['email'],
                 'homepage' => $row2['homepage'], 'telephone' => $row2['telephone'], 'address' => $row2['address'], 'contact_role' => $row2['contact_role'],);
             }
-            
             // $harvest_event = HarvestEvent::find($row['max']);
             // if(!$harvest_event->published_at) $GLOBALS['hierarchy_preview_harvest_event'][$row['hierarchy_id']] = $row['max'];
         }
-        print_r($recs);
+        // print_r($recs);
+        self::write_to_text($recs);
+    }
+    private function write_to_text($recs)
+    {
+        $partner_head = array("Partner ID", "Partner name", "Overview", "URL", "Agreement URL", "Signed By", "Signed Date", "Create Date", "Description of Data", "Manager EOL ID", "Status");
+        $resource_head = array("Resource ID", "Title", "First Published", "Last Updated", "Status");
+        $contact_head = array("Contact ID", "Given Name", "Family Name", "Email", "Homepage", "Telephone", "Address", "Role");
+        
+        // [agreement_url_from_db] [agreement_url] -> not used for partner
+        $partner_fields = array("partner_id", "partner_name", "overview", "url", "mou_url_editors", "signed_by", "signed_date", "create_date", "desc_of_data", "manager_eol_id", "status");
+        $resource_fields = array("resource_id", "resource_title", "first_pub", "last_pub", "status");
+        $contact_fields = array("eol_contact_id", "given_name", "family_name", "email", "homepage", "telephone", "address", "contact_role");
+        
+        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "partner_metadata.txt";
+        $FILE = Functions::file_open($txtfile, "w");
+        fwrite($FILE, implode("\t", $partner_head)."\n");
+        
+        foreach($recs as $partner_id => $rec) {
+            $cols = array();
+            foreach($partner_fields as $fld) $cols[] = self::clean_str($rec[$fld]);
+            fwrite($FILE, implode("\t", $cols)."\n");
+
+            //resources
+            fwrite($FILE, "\t".implode("\t", $resource_head)."\n");
+            foreach(@$rec['resources'] as $rec2) {
+                $cols = array();
+                foreach($resource_fields as $fld) $cols[] = self::clean_str($rec2[$fld]);
+                fwrite($FILE, "\t".implode("\t", $cols)."\n");
+            }
+
+            //contacts
+            if(@$rec['contacts'])
+            {
+                fwrite($FILE, "\t".implode("\t", $contact_head)."\n");
+                foreach(@$rec['contacts'] as $rec3) {
+                    $cols = array();
+                    foreach($contact_fields as $fld) $cols[] = self::clean_str($rec3[$fld]);
+                    fwrite($FILE, "\t".implode("\t", $cols)."\n");
+                }
+            }
+        }
+        fclose($FILE);
+    }
+    private function clean_str($str)
+    {
+        return str_replace(array("\t", "\n", chr(9), chr(13), chr(10)), " ", $str);
+        // chr(9) tab key
+        // chr(13) = Carriage Return - (moves cursor to lefttmost side)
+        // chr(10) = New Line (drops cursor down one line) 
     }
     private function fix_agreement_url($url_from_db)
     {
@@ -80,11 +117,9 @@ class EOLv2MetadataAPI
     {
         if(!$url) return;
         if(substr($url,0,5) != "http:") return;
-        
         $options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*30*3); //cache expires in 3 months
         $options['file_extension'] = "pdf";
-        if($file = Functions::save_remote_file_to_local($url, $options))
-        {
+        if($file = Functions::save_remote_file_to_local($url, $options)) {
             echo "\n [$url]: $file\n";
             $final = pathinfo($url, PATHINFO_FILENAME);
             $local = pathinfo($file, PATHINFO_FILENAME);
