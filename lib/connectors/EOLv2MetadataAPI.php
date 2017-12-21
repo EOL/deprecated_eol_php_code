@@ -64,7 +64,7 @@ class EOLv2MetadataAPI
             // if(!$harvest_event->published_at) $GLOBALS['hierarchy_preview_harvest_event'][$row['hierarchy_id']] = $row['max'];
         }
         // print_r($recs);
-        // self::write_to_text($recs);
+        self::write_to_text($recs);
         self::write_to_html($recs);
     }
     private function write_to_html($recs)
@@ -82,13 +82,11 @@ class EOLv2MetadataAPI
         $FILE = Functions::file_open($txtfile, "w");
         fwrite($FILE, "<html><body><table border='1'>"."\n");
         
-        
         $i = 0;
         foreach($recs as $partner_id => $rec) {
             $i++;
             if(($i % 2) == 0) $bgcolor = 'lightblue';
             else              $bgcolor = 'lightyellow';
-            
             
             fwrite($FILE, "<tr bgcolor='$bgcolor'>"."\n");
             foreach($partner_head as $header) fwrite($FILE, "<td align='center' style='font-weight:bold;'>$header</td>"."\n");
@@ -132,15 +130,15 @@ class EOLv2MetadataAPI
 
             
             fwrite($FILE, "</tr>"."\n");
-            
-            
         }
         fwrite($FILE, "</table></body></html>"."\n");
         fclose($FILE);
     }
     private function clean_str($str)
     {
-        return str_replace(array("\t", "\n", chr(9), chr(13), chr(10)), " ", $str);
+        $str = str_replace(array("\t", "\n", chr(9), chr(13), chr(10)), " ", $str);
+        if(substr($str,0,4) == 'http') $str = "<a href='$str'>$str</a>";
+        return $str;
         // chr(9) tab key
         // chr(13) = Carriage Return - (moves cursor to lefttmost side)
         // chr(10) = New Line (drops cursor down one line) 
