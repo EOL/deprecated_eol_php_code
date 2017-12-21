@@ -18,8 +18,8 @@ exit("\n");
 
 require_library('connectors/EOLv2MetadataAPI');
 $func = new EOLv2MetadataAPI();
-// $func->start();
-$func->save_all_MOUs();
+$func->start();
+// $func->save_all_MOUs();
 
 
 $elapsed_time_sec = time_elapsed() - $timestart;

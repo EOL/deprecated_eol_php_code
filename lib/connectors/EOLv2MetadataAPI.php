@@ -49,6 +49,7 @@ class EOLv2MetadataAPI
                 'signed_by' => $row['signed_by'], 'signed_date' => $row['signed_date'], 'create_date' => $row['create_date'], 'desc_of_data' => $row['desc_of_data'],
                 'manager_eol_id' => $row['manager_eol_id']
                 );
+                $recs[$row['partner_id']]['mou_url_editors'] = self::move_url_to_editors($recs[$row['partner_id']]['agreement_url']);
                 $recs[$row['partner_id']]['resources'][] = array('resource_title' => $row['resource_title'], 'first_pub' => $first_pub, 'last_pub' => $last_pub, 'status' => $row['resource_status']);
                 
                 $sql = "SELECT cpc.id as eol_contact_id, cpc.given_name, cpc.family_name, cpc.email, cpc.homepage, cpc.telephone, cpc.address, s.label as contact_role
@@ -63,7 +64,7 @@ class EOLv2MetadataAPI
                 // $harvest_event = HarvestEvent::find($row['max']);
                 // if(!$harvest_event->published_at) $GLOBALS['hierarchy_preview_harvest_event'][$row['hierarchy_id']] = $row['max'];
             }
-            // print_r($recs[165]);
+            print_r($recs);
     }
     private function fix_agreement_url($url_from_db)
     {
@@ -74,7 +75,7 @@ class EOLv2MetadataAPI
         $url_from_db = str_replace("content4.eol.org", "content.eol.org", $url_from_db);
         $url_from_db = str_replace("content1.eol.org", "content.eol.org", $url_from_db);
         
-        self::save_mou_to_local($url_from_db); //will comment this line once MOUs are saved
+        // self::save_mou_to_local($url_from_db); //will comment this line once MOUs are saved
         
         return $url_from_db; //returns a transformed $url_from_db
     }
@@ -89,7 +90,6 @@ class EOLv2MetadataAPI
         if($file = Functions::save_remote_file_to_local($url, $options))
         {
             echo "\n [$url]: $file\n";
-            
             $final = pathinfo($url, PATHINFO_FILENAME);
             $local = pathinfo($file, PATHINFO_FILENAME);
             $destination = str_replace($local, $final, $file);
@@ -104,6 +104,14 @@ class EOLv2MetadataAPI
         while($result && $row=$result->fetch_assoc()) {
             if($val = @$row['url']) self::fix_agreement_url($val);
             // echo "\n".$row['url'];
+        }
+    }
+    private function move_url_to_editors($url)
+    {
+        if(substr($url,0,4) == 'http') {
+            //https://editors.eol.org/other_files/EOL_Partner_MOUs/EOL_Naturalis-mou.pdf
+            $basename = pathinfo($url, PATHINFO_BASENAME);
+            return "https://editors.eol.org/other_files/EOL_Partner_MOUs/".$basename;
         }
     }
     
