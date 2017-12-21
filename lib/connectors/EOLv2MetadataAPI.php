@@ -20,7 +20,7 @@ class EOLv2MetadataAPI
         JOIN resources r ON (cp.id=r.content_partner_id)
         JOIN translated_resource_statuses s2 ON (r.resource_status_id=s2.id)
         JOIN content_partner_agreements cpa ON (cp.id=cpa.content_partner_id)
-        WHERE s.language_id = 152 AND s2.language_id = 152
+        WHERE s.language_id = 152 AND s2.language_id = 152 
         ORDER BY cp.id limit 6000";
 
         // $result = $mysqli->query("SELECT r.hierarchy_id, max(he.id) as max FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) GROUP BY r.hierarchy_id");
@@ -52,10 +52,10 @@ class EOLv2MetadataAPI
                 
                 $sql = "SELECT r.id as resource_id, r.title as resource_title, s2.label as resource_status
                 FROM resources r
-                JOIN translated_resource_statuses s2 ON (r.resource_status_id=s2.id)
+                JOIN translated_resource_statuses s2 ON (r.resource_status_id=s2.resource_status_id)
                 WHERE s2.language_id = 152 and r.content_partner_id = ".$row['partner_id']." ORDER BY r.id";
-                $contacts = $this->mysqli->query($sql);
-                while($contacts && $row3=$contacts->fetch_assoc()) {
+                $resources = $this->mysqli->query($sql);
+                while($resources && $row3=$resources->fetch_assoc()) {
                     $recs[$row['partner_id']]['resources'][] = array('resource_id' => $row3['resource_id'], 'resource_title' => $row3['resource_title'], 'first_pub' => $first_pub, 'last_pub' => $last_pub, 'status' => $row3['resource_status']);
                 }
             }
@@ -99,8 +99,8 @@ class EOLv2MetadataAPI
             fwrite($FILE, "<tr bgcolor='$bgcolor'>"."\n");
 
             //contacts
+            fwrite($FILE, "<td colspan='5' align='center'>"."\n");
             if(@$rec['contacts']) {
-                fwrite($FILE, "<td colspan='5' align='center'>"."\n");
                     fwrite($FILE, "<table border='1'>"."\n");
                     fwrite($FILE, "<tr>"."\n");
                     foreach($contact_head as $header) fwrite($FILE, "<td align='center' style='font-weight:bold;'>$header</td>"."\n");
@@ -111,8 +111,8 @@ class EOLv2MetadataAPI
                         fwrite($FILE, "</tr>"."\n");
                     }
                     fwrite($FILE, "</table>"."\n");
-                fwrite($FILE, "</td>"."\n");
             }
+            fwrite($FILE, "</td>"."\n");
 
             fwrite($FILE, "<td colspan='6' align='center'>"."\n");
                 fwrite($FILE, "<table border='1'>"."\n");
