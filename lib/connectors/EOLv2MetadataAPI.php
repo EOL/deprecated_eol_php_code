@@ -20,41 +20,47 @@ class EOLv2MetadataAPI
         JOIN resources r ON (cp.id=r.content_partner_id)
         JOIN translated_resource_statuses s2 ON (r.resource_status_id=s2.id)
         JOIN content_partner_agreements cpa ON (cp.id=cpa.content_partner_id)
-        WHERE s.language_id = 152 AND s2.language_id = 152
+        WHERE s.language_id = 152 AND s2.language_id = 152 and cp.id = 196
         ORDER BY cp.id limit 6000";
 
         // $result = $mysqli->query("SELECT r.hierarchy_id, max(he.id) as max FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) GROUP BY r.hierarchy_id");
         // $result = $mysqli->query("SELECT r.hierarchy_id, max(he.id) as max FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) GROUP BY r.hierarchy_id");
             
         $result = $this->mysqli->query($sql);
+        // print_r($result); exit;
         $recs = array();
         while($result && $row=$result->fetch_assoc()) {
             $first_pub = $this->mysqli->select_value("SELECT min(he.published_at) as last_published FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) WHERE r.id = ".$row['resource_id']);
             $last_pub = $this->mysqli->select_value("SELECT max(he.published_at) as last_published FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) WHERE r.id = ".$row['resource_id']);
 
-            $recs[$row['partner_id']] = array('partner_name' => $row['partner_name'], 'partner_id' => $row['partner_id'], 'status' => $row['status'],
-            'overview' => $row['overview'], 'url' => $row['url'], 'agreement_url_from_db' => $row['agreement_url'], 'agreement_url' => self::fix_agreement_url($row['agreement_url']), 
-            'signed_by' => $row['signed_by'], 'signed_date' => $row['signed_date'], 'create_date' => $row['create_date'], 'desc_of_data' => $row['desc_of_data'],
-            'manager_eol_id' => $row['manager_eol_id']
-            );
-            $recs[$row['partner_id']]['mou_url_editors'] = self::move_url_to_editors($recs[$row['partner_id']]['agreement_url']);
-            $recs[$row['partner_id']]['resources'][] = array('resource_id' => $row['resource_id'], 'resource_title' => $row['resource_title'], 'first_pub' => $first_pub, 'last_pub' => $last_pub, 'status' => $row['resource_status']);
-            
-            $sql = "SELECT cpc.id as eol_contact_id, cpc.given_name, cpc.family_name, cpc.email, cpc.homepage, cpc.telephone, cpc.address, s.label as contact_role
-            FROM content_partner_contacts cpc JOIN translated_contact_roles s ON (cpc.contact_role_id=s.id) 
-            WHERE cpc.content_partner_id = ".$row['partner_id']." AND s.language_id = 152";
-            $contacts = $this->mysqli->query($sql);
-            while($contacts && $row2=$contacts->fetch_assoc()) {
-                $recs[$row['partner_id']]['contacts'][] = array('eol_contact_id' => $row2['eol_contact_id'], 'given_name' => $row2['given_name'], 'family_name' => $row2['family_name'], 'email' => $row2['email'],
-                'homepage' => $row2['homepage'], 'telephone' => $row2['telephone'], 'address' => $row2['address'], 'contact_role' => $row2['contact_role'],);
+            if(!isset($recs[$row['partner_id']])) {
+                $recs[$row['partner_id']] = array('partner_name' => $row['partner_name'], 'partner_id' => $row['partner_id'], 'status' => $row['status'],
+                'overview' => $row['overview'], 'url' => $row['url'], 'agreement_url_from_db' => $row['agreement_url'], 'agreement_url' => self::fix_agreement_url($row['agreement_url']), 
+                'signed_by' => $row['signed_by'], 'signed_date' => $row['signed_date'], 'create_date' => $row['create_date'], 'desc_of_data' => $row['desc_of_data'],
+                'manager_eol_id' => $row['manager_eol_id']
+                );
+                $recs[$row['partner_id']]['mou_url_editors'] = self::move_url_to_editors($recs[$row['partner_id']]['agreement_url']);
+
+                $sql = "SELECT cpc.id as eol_contact_id, cpc.given_name, cpc.family_name, cpc.email, cpc.homepage, cpc.telephone, cpc.address, s.label as contact_role
+                FROM content_partner_contacts cpc JOIN translated_contact_roles s ON (cpc.contact_role_id=s.id) 
+                WHERE cpc.content_partner_id = ".$row['partner_id']." AND s.language_id = 152";
+                $contacts = $this->mysqli->query($sql);
+                while($contacts && $row2=$contacts->fetch_assoc()) {
+                    $recs[$row['partner_id']]['contacts'][] = array('eol_contact_id' => $row2['eol_contact_id'], 'given_name' => $row2['given_name'], 'family_name' => $row2['family_name'], 'email' => $row2['email'],
+                    'homepage' => $row2['homepage'], 'telephone' => $row2['telephone'], 'address' => $row2['address'], 'contact_role' => $row2['contact_role'],);
+                }
             }
+            
+            $recs[$row['partner_id']]['resources'][] = array('resource_id' => $row['resource_id'], 'resource_title' => $row['resource_title'], 'first_pub' => $first_pub, 'last_pub' => $last_pub, 'status' => $row['resource_status']);
+
             // $harvest_event = HarvestEvent::find($row['max']);
             // if(!$harvest_event->published_at) $GLOBALS['hierarchy_preview_harvest_event'][$row['hierarchy_id']] = $row['max'];
         }
         // print_r($recs);
-        self::write_to_text($recs);
+        // self::write_to_text($recs);
+        self::write_to_html($recs);
     }
-    private function write_to_text($recs)
+    private function write_to_html($recs)
     {
         $partner_head = array("Partner ID", "Partner name", "Overview", "URL", "Agreement URL", "Signed By", "Signed Date", "Create Date", "Description of Data", "Manager EOL ID", "Status");
         $resource_head = array("Resource ID", "Title", "First Published", "Last Updated", "Status");
@@ -65,34 +71,64 @@ class EOLv2MetadataAPI
         $resource_fields = array("resource_id", "resource_title", "first_pub", "last_pub", "status");
         $contact_fields = array("eol_contact_id", "given_name", "family_name", "email", "homepage", "telephone", "address", "contact_role");
         
-        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "partner_metadata.txt";
+        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "partner_metadata.html";
         $FILE = Functions::file_open($txtfile, "w");
-        fwrite($FILE, implode("\t", $partner_head)."\n");
+        fwrite($FILE, "<html><body><table border='1'>"."\n");
         
+        
+        $i = 0;
         foreach($recs as $partner_id => $rec) {
-            $cols = array();
-            foreach($partner_fields as $fld) $cols[] = self::clean_str($rec[$fld]);
-            fwrite($FILE, implode("\t", $cols)."\n");
+            $i++;
+            if(($i % 2) == 0) $bgcolor = 'lightblue';
+            else              $bgcolor = 'lightyellow';
+            
+            
+            fwrite($FILE, "<tr bgcolor='$bgcolor'>"."\n");
+            foreach($partner_head as $header) fwrite($FILE, "<td align='center' style='font-weight:bold;'>$header</td>"."\n");
+            fwrite($FILE, "</tr>"."\n");
 
-            //resources
-            fwrite($FILE, "\t".implode("\t", $resource_head)."\n");
-            foreach(@$rec['resources'] as $rec2) {
-                $cols = array();
-                foreach($resource_fields as $fld) $cols[] = self::clean_str($rec2[$fld]);
-                fwrite($FILE, "\t".implode("\t", $cols)."\n");
-            }
+            fwrite($FILE, "<tr bgcolor='$bgcolor'>"."\n");
+            foreach($partner_fields as $fld) fwrite($FILE, "<td>".self::clean_str($rec[$fld])."</td>"."\n");
+            fwrite($FILE, "</tr>"."\n");
+
+            fwrite($FILE, "<tr bgcolor='$bgcolor'>"."\n");
 
             //contacts
-            if(@$rec['contacts'])
-            {
-                fwrite($FILE, "\t".implode("\t", $contact_head)."\n");
-                foreach(@$rec['contacts'] as $rec3) {
-                    $cols = array();
-                    foreach($contact_fields as $fld) $cols[] = self::clean_str($rec3[$fld]);
-                    fwrite($FILE, "\t".implode("\t", $cols)."\n");
-                }
+            if(@$rec['contacts']) {
+                fwrite($FILE, "<td colspan='5' align='center'>"."\n");
+                    fwrite($FILE, "<table border='1'>"."\n");
+                    fwrite($FILE, "<tr>"."\n");
+                    foreach($contact_head as $header) fwrite($FILE, "<td align='center' style='font-weight:bold;'>$header</td>"."\n");
+                    fwrite($FILE, "</tr>"."\n");
+                    foreach(@$rec['contacts'] as $rec3) {
+                        fwrite($FILE, "<tr>"."\n");
+                        foreach($contact_fields as $fld) fwrite($FILE, "<td>".self::clean_str($rec3[$fld])."</td>"."\n");
+                        fwrite($FILE, "</tr>"."\n");
+                    }
+                    fwrite($FILE, "</table>"."\n");
+                fwrite($FILE, "</td>"."\n");
             }
+
+            fwrite($FILE, "<td colspan='6' align='center'>"."\n");
+                fwrite($FILE, "<table border='1'>"."\n");
+                // resources
+                fwrite($FILE, "<tr>"."\n");
+                foreach($resource_head as $header) fwrite($FILE, "<td align='center' style='font-weight:bold;'>$header</td>"."\n");
+                fwrite($FILE, "</tr>"."\n");
+                foreach(@$rec['resources'] as $rec2) {
+                    fwrite($FILE, "<tr>"."\n");
+                    foreach($resource_fields as $fld) fwrite($FILE, "<td>".self::clean_str($rec2[$fld])."</td>"."\n");
+                    fwrite($FILE, "</tr>"."\n");
+                }
+                fwrite($FILE, "</table>"."\n");
+            fwrite($FILE, "</td>"."\n");
+
+            
+            fwrite($FILE, "</tr>"."\n");
+            
+            
         }
+        fwrite($FILE, "</table></body></html>"."\n");
         fclose($FILE);
     }
     private function clean_str($str)
@@ -145,6 +181,47 @@ class EOLv2MetadataAPI
         }
     }
     
+    private function write_to_text($recs)
+    {
+        $partner_head = array("Partner ID", "Partner name", "Overview", "URL", "Agreement URL", "Signed By", "Signed Date", "Create Date", "Description of Data", "Manager EOL ID", "Status");
+        $resource_head = array("Resource ID", "Title", "First Published", "Last Updated", "Status");
+        $contact_head = array("Contact ID", "Given Name", "Family Name", "Email", "Homepage", "Telephone", "Address", "Role");
+        
+        // [agreement_url_from_db] [agreement_url] -> not used for partner
+        $partner_fields = array("partner_id", "partner_name", "overview", "url", "mou_url_editors", "signed_by", "signed_date", "create_date", "desc_of_data", "manager_eol_id", "status");
+        $resource_fields = array("resource_id", "resource_title", "first_pub", "last_pub", "status");
+        $contact_fields = array("eol_contact_id", "given_name", "family_name", "email", "homepage", "telephone", "address", "contact_role");
+        
+        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "partner_metadata.txt";
+        $FILE = Functions::file_open($txtfile, "w");
+        fwrite($FILE, implode("\t", $partner_head)."\n");
+        
+        foreach($recs as $partner_id => $rec) {
+            $cols = array();
+            foreach($partner_fields as $fld) $cols[] = self::clean_str($rec[$fld]);
+            fwrite($FILE, implode("\t", $cols)."\n");
+
+            //resources
+            fwrite($FILE, "\t".implode("\t", $resource_head)."\n");
+            foreach(@$rec['resources'] as $rec2) {
+                $cols = array();
+                foreach($resource_fields as $fld) $cols[] = self::clean_str($rec2[$fld]);
+                fwrite($FILE, "\t".implode("\t", $cols)."\n");
+            }
+
+            //contacts
+            if(@$rec['contacts'])
+            {
+                fwrite($FILE, "\t".implode("\t", $contact_head)."\n");
+                foreach(@$rec['contacts'] as $rec3) {
+                    $cols = array();
+                    foreach($contact_fields as $fld) $cols[] = self::clean_str($rec3[$fld]);
+                    fwrite($FILE, "\t".implode("\t", $cols)."\n");
+                }
+            }
+        }
+        fclose($FILE);
+    }
     
     /*
     public function begin()
