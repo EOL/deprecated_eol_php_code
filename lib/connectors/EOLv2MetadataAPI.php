@@ -20,7 +20,7 @@ class EOLv2MetadataAPI
         JOIN resources r ON (cp.id=r.content_partner_id)
         JOIN translated_resource_statuses s2 ON (r.resource_status_id=s2.id)
         JOIN content_partner_agreements cpa ON (cp.id=cpa.content_partner_id)
-        WHERE s.language_id = 152 AND s2.language_id = 152 and cp.id = 196
+        WHERE s.language_id = 152 AND s2.language_id = 152
         ORDER BY cp.id limit 6000";
 
         // $result = $mysqli->query("SELECT r.hierarchy_id, max(he.id) as max FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) GROUP BY r.hierarchy_id");
@@ -43,15 +43,22 @@ class EOLv2MetadataAPI
 
                 $sql = "SELECT cpc.id as eol_contact_id, cpc.given_name, cpc.family_name, cpc.email, cpc.homepage, cpc.telephone, cpc.address, s.label as contact_role
                 FROM content_partner_contacts cpc JOIN translated_contact_roles s ON (cpc.contact_role_id=s.id) 
-                WHERE cpc.content_partner_id = ".$row['partner_id']." AND s.language_id = 152";
+                WHERE cpc.content_partner_id = ".$row['partner_id']." AND s.language_id = 152 ORDER BY cpc.id";
                 $contacts = $this->mysqli->query($sql);
                 while($contacts && $row2=$contacts->fetch_assoc()) {
                     $recs[$row['partner_id']]['contacts'][] = array('eol_contact_id' => $row2['eol_contact_id'], 'given_name' => $row2['given_name'], 'family_name' => $row2['family_name'], 'email' => $row2['email'],
                     'homepage' => $row2['homepage'], 'telephone' => $row2['telephone'], 'address' => $row2['address'], 'contact_role' => $row2['contact_role'],);
                 }
+                
+                $sql = "SELECT r.id as resource_id, r.title as resource_title, s2.label as resource_status
+                FROM resources r
+                JOIN translated_resource_statuses s2 ON (r.resource_status_id=s2.id)
+                WHERE s2.language_id = 152 and r.content_partner_id = ".$row['partner_id']." ORDER BY r.id";
+                $contacts = $this->mysqli->query($sql);
+                while($contacts && $row3=$contacts->fetch_assoc()) {
+                    $recs[$row['partner_id']]['resources'][] = array('resource_id' => $row3['resource_id'], 'resource_title' => $row3['resource_title'], 'first_pub' => $first_pub, 'last_pub' => $last_pub, 'status' => $row3['resource_status']);
+                }
             }
-            
-            $recs[$row['partner_id']]['resources'][] = array('resource_id' => $row['resource_id'], 'resource_title' => $row['resource_title'], 'first_pub' => $first_pub, 'last_pub' => $last_pub, 'status' => $row['resource_status']);
 
             // $harvest_event = HarvestEvent::find($row['max']);
             // if(!$harvest_event->published_at) $GLOBALS['hierarchy_preview_harvest_event'][$row['hierarchy_id']] = $row['max'];
