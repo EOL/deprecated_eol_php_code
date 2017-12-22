@@ -121,7 +121,7 @@ class TropicosArchiveAPI
                 if(!$cont) continue;
                 */
                 
-                if(($i % 500) == 0) echo "\n" . number_format($i) . " - ";
+                if(($i % 500) == 0) echo "\n" . number_format($i) . " - [batch $k] ";
                 self::process_taxon($taxon_id); //orig
 
                 /*  worked by batch ($k) for multiple connectors - 130 batches total
