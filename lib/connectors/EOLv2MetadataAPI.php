@@ -9,7 +9,17 @@ class EOLv2MetadataAPI
         // IF(cp.description_of_data IS NOT NULL, cp.description_of_data, r.description) as desc_of_data
     }
 
-    public function start()
+    // $func->start_partner_metadata();
+    // $func->save_all_MOUs();
+    $func->start_resource_metadata();
+    public function xxx()
+    {
+        // "Resource ID", "Resource name", "First Published", "Last Published", "Collection ID", "Description", "Original Data Source URL", "Harvest URL (direct)", 
+        // "Harvest URL (for connector)", "connector info", "Dataset license", "Dataset Rights Holder", "Dataset Rights Statement", "Default license", "Default Rights Holder", 
+        // "Default Rights Statement", "Bibliographic Citation", "Default Language", "Vetted?"
+    }
+    
+    public function start_partner_metadata()
     {
         $sql = "SELECT cp.id as partner_id, cp.full_name as partner_name, s.label as status, r.id as resource_id, r.title as resource_title, s2.label as resource_status,
         cp.description as overview, cp.homepage as url, 

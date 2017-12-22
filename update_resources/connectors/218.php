@@ -14,10 +14,11 @@ $GLOBALS['ENV_DEBUG'] = true;
 
 $timestart = time_elapsed();
 $resource_id = 218;
-if(!Functions::can_this_connector_run($resource_id)) return;
+// if(!Functions::can_this_connector_run($resource_id)) return;
 $func = new TropicosArchiveAPI($resource_id);
 
 $func->get_all_taxa($resource_id);
+unset($func);
 Functions::finalize_dwca_resource($resource_id);
 
 
