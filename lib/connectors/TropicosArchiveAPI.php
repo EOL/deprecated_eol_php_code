@@ -46,8 +46,15 @@ class TropicosArchiveAPI
     function get_all_taxa($resource_id)
     {
         /*
-        $id = "100001";
+        $c = self::create_cache("taxon_name", "1800503");
+        exit("\n[$c]\n");
+        */
+        
+        /* 1800472  100001
+        $id = "1800470";
         $arr = array("distribution", "chromosome", "taxon_name", "taxonomy", "synonyms", "taxon_ref", "images");
+        $arr = array("taxon_name");
+        
         foreach($arr as $type)
         {
             if($type == "taxon_name") $url = TROPICOS_API_SERVICE . $id . "?format=json&apikey=" . TROPICOS_API_KEY;
@@ -58,7 +65,17 @@ class TropicosArchiveAPI
             elseif($type == "images") $url = TROPICOS_API_SERVICE . $id . "/Images?format=xml&apikey=" . TROPICOS_API_KEY;
             elseif($type == "chromosome") $url = TROPICOS_API_SERVICE . $id . "/ChromosomeCounts?format=xml&apikey=" . TROPICOS_API_KEY;
             echo "\n $type: [$url]";
+            if($type == 'taxon_name')
+            {
+                // $this->download_options['expire_seconds'] = 0;
+                if($contents = Functions::lookup_with_cache($url, $this->download_options)) {
+                    echo "\n $type OK \n";
+                    echo "\n [$contents] \n";
+                }
+                else echo "\n $type failed \n"; //{"Error":"Exception occurred"}
+            }
         }
+        exit("\nexit muna\n");
         return;
         */
 
@@ -539,7 +556,18 @@ class TropicosArchiveAPI
         elseif($type == "distribution") $url = TROPICOS_API_SERVICE . $id . "/Distributions?format=xml&apikey=" . TROPICOS_API_KEY;
         elseif($type == "images")       $url = TROPICOS_API_SERVICE . $id . "/Images?format=xml&apikey=" . TROPICOS_API_KEY;
         elseif($type == "chromosome")   $url = TROPICOS_API_SERVICE . $id . "/ChromosomeCounts?format=xml&apikey=" . TROPICOS_API_KEY;
-        if($contents = Functions::lookup_with_cache($url, $this->download_options)) return $contents;
+        if($contents = Functions::lookup_with_cache($url, $this->download_options))
+        {
+            // sample error return -> {"Error":"Exception occurred"}
+            if(stripos($contents, "Exception occurred") !== false) //string is found
+            {   //let us try a fresh lookup
+                $options = $this->download_options;
+                $options['expire_seconds'] = 0;
+                if($contents = Functions::lookup_with_cache($url, $options)) return $contents;
+                else return false;
+            }
+            else return $contents;
+        }
         else return false;
     }
 
