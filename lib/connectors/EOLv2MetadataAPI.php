@@ -7,12 +7,13 @@ class EOLv2MetadataAPI
     {
         $this->mysqli =& $GLOBALS['db_connection'];
         // IF(cp.description_of_data IS NOT NULL, cp.description_of_data, r.description) as desc_of_data
+        // $result = $mysqli->query("SELECT r.hierarchy_id, max(he.id) as max FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) GROUP BY r.hierarchy_id");
+        // $result = $mysqli->query("SELECT r.hierarchy_id, max(he.id) as max FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) GROUP BY r.hierarchy_id");
+        // $harvest_event = HarvestEvent::find($row['max']);
+        // if(!$harvest_event->published_at) $GLOBALS['hierarchy_preview_harvest_event'][$row['hierarchy_id']] = $row['max'];
     }
 
-    // $func->start_partner_metadata();
-    // $func->save_all_MOUs();
-    $func->start_resource_metadata();
-    public function xxx()
+    public function start_resource_metadata()
     {
         // "Resource ID", "Resource name", "First Published", "Last Published", "Collection ID", "Description", "Original Data Source URL", "Harvest URL (direct)", 
         // "Harvest URL (for connector)", "connector info", "Dataset license", "Dataset Rights Holder", "Dataset Rights Statement", "Default license", "Default Rights Holder", 
@@ -21,6 +22,7 @@ class EOLv2MetadataAPI
     
     public function start_partner_metadata()
     {
+        /* orig
         $sql = "SELECT cp.id as partner_id, cp.full_name as partner_name, s.label as status, r.id as resource_id, r.title as resource_title, s2.label as resource_status,
         cp.description as overview, cp.homepage as url, 
         cpa.mou_url as agreement_url, cpa.signed_on_date as signed_date, cpa.signed_by, cpa.created_at as create_date,
@@ -32,23 +34,28 @@ class EOLv2MetadataAPI
         JOIN content_partner_agreements cpa ON (cp.id=cpa.content_partner_id)
         WHERE s.language_id = 152 AND s2.language_id = 152 
         ORDER BY cp.id limit 6000";
+        */
 
-        // $result = $mysqli->query("SELECT r.hierarchy_id, max(he.id) as max FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) GROUP BY r.hierarchy_id");
-        // $result = $mysqli->query("SELECT r.hierarchy_id, max(he.id) as max FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) GROUP BY r.hierarchy_id");
-            
+        //better query than above
+        $sql = "SELECT cp.id as partner_id, cp.full_name as partner_name, s.label as status, cpa.is_current,
+        cp.description as overview, cp.homepage as url, 
+        cpa.mou_url as agreement_url, cpa.signed_on_date as signed_date, cpa.signed_by, cpa.created_at as create_date,
+        cp.description_of_data as desc_of_data, cp.user_id as manager_eol_id
+        FROM content_partners cp
+        LEFT OUTER JOIN translated_content_partner_statuses s ON (cp.content_partner_status_id=s.id)
+        LEFT OUTER JOIN content_partner_agreements cpa ON (cp.id=cpa.content_partner_id)
+        WHERE s.language_id = 152 
+        ORDER BY cp.id, cpa.is_current desc limit 6000";
+
         $result = $this->mysqli->query($sql);
-        // print_r($result); exit;
+        // echo "\n". $result->num_rows; exit;
         $recs = array();
         while($result && $row=$result->fetch_assoc()) {
-            $first_pub = $this->mysqli->select_value("SELECT min(he.published_at) as last_published FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) WHERE r.id = ".$row['resource_id']);
-            $last_pub = $this->mysqli->select_value("SELECT max(he.published_at) as last_published FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) WHERE r.id = ".$row['resource_id']);
-
             if(!isset($recs[$row['partner_id']])) {
                 $recs[$row['partner_id']] = array('partner_name' => $row['partner_name'], 'partner_id' => $row['partner_id'], 'status' => $row['status'],
                 'overview' => $row['overview'], 'url' => $row['url'], 'agreement_url_from_db' => $row['agreement_url'], 'agreement_url' => self::fix_agreement_url($row['agreement_url']), 
                 'signed_by' => $row['signed_by'], 'signed_date' => $row['signed_date'], 'create_date' => $row['create_date'], 'desc_of_data' => $row['desc_of_data'],
-                'manager_eol_id' => $row['manager_eol_id']
-                );
+                'manager_eol_id' => $row['manager_eol_id'] );
                 $recs[$row['partner_id']]['mou_url_editors'] = self::move_url_to_editors($recs[$row['partner_id']]['agreement_url']);
 
                 $sql = "SELECT cpc.id as eol_contact_id, cpc.given_name, cpc.family_name, cpc.email, cpc.homepage, cpc.telephone, cpc.address, s.label as contact_role
@@ -66,12 +73,11 @@ class EOLv2MetadataAPI
                 WHERE s2.language_id = 152 and r.content_partner_id = ".$row['partner_id']." ORDER BY r.id";
                 $resources = $this->mysqli->query($sql);
                 while($resources && $row3=$resources->fetch_assoc()) {
+                    $first_pub = $this->mysqli->select_value("SELECT min(he.published_at) as last_published FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) WHERE r.id = ".$row3['resource_id']);
+                    $last_pub = $this->mysqli->select_value("SELECT max(he.published_at) as last_published FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) WHERE r.id = ".$row3['resource_id']);
                     $recs[$row['partner_id']]['resources'][] = array('resource_id' => $row3['resource_id'], 'resource_title' => $row3['resource_title'], 'first_pub' => $first_pub, 'last_pub' => $last_pub, 'status' => $row3['resource_status']);
                 }
             }
-
-            // $harvest_event = HarvestEvent::find($row['max']);
-            // if(!$harvest_event->published_at) $GLOBALS['hierarchy_preview_harvest_event'][$row['hierarchy_id']] = $row['max'];
         }
         // print_r($recs);
         self::write_to_text($recs);
@@ -125,6 +131,7 @@ class EOLv2MetadataAPI
             fwrite($FILE, "</td>"."\n");
 
             fwrite($FILE, "<td colspan='6' align='center'>"."\n");
+            if(@$rec['resources']) {
                 fwrite($FILE, "<table border='1'>"."\n");
                 // resources
                 fwrite($FILE, "<tr>"."\n");
@@ -136,6 +143,7 @@ class EOLv2MetadataAPI
                     fwrite($FILE, "</tr>"."\n");
                 }
                 fwrite($FILE, "</table>"."\n");
+            }
             fwrite($FILE, "</td>"."\n");
 
             
@@ -217,11 +225,13 @@ class EOLv2MetadataAPI
             fwrite($FILE, implode("\t", $cols)."\n");
 
             //resources
-            fwrite($FILE, "\t".implode("\t", $resource_head)."\n");
-            foreach(@$rec['resources'] as $rec2) {
-                $cols = array();
-                foreach($resource_fields as $fld) $cols[] = self::clean_str($rec2[$fld]);
-                fwrite($FILE, "\t".implode("\t", $cols)."\n");
+            if(@$rec['resources']) {
+                fwrite($FILE, "\t".implode("\t", $resource_head)."\n");
+                foreach(@$rec['resources'] as $rec2) {
+                    $cols = array();
+                    foreach($resource_fields as $fld) $cols[] = self::clean_str($rec2[$fld]);
+                    fwrite($FILE, "\t".implode("\t", $cols)."\n");
+                }
             }
 
             //contacts
