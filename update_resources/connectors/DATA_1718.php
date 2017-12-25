@@ -1,7 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector for DATA-1718.php
-*/
+/* connector for DATA-1718.php */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
@@ -18,9 +17,9 @@ exit("\n");
 
 require_library('connectors/EOLv2MetadataAPI');
 $func = new EOLv2MetadataAPI();
-$func->start_partner_metadata();
+// $func->start_partner_metadata();
 // $func->save_all_MOUs();
-// $func->start_resource_metadata();
+$func->start_resource_metadata();
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";

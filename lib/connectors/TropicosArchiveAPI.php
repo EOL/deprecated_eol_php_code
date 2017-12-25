@@ -106,6 +106,7 @@ class TropicosArchiveAPI
                     $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . "_$k" . '_working/';
                     $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
                 }
+
                 /* breakdown when caching - up to 5 simultaneous connectors --- NOT BEING USED ANYMORE, replaced by batch ($k) for multiple connectors below...
                 $m = 250000;
                 $cont = false;
@@ -120,27 +121,16 @@ class TropicosArchiveAPI
                 }
                 if(!$cont) continue;
                 */
-                
+
+
                 if(($i % 500) == 0) echo "\n" . number_format($i) . " - [batch $k] ";
-                self::process_taxon($taxon_id); //orig
+                // self::process_taxon($taxon_id); //orig - uncomment in real operation... when not caching...
 
-                /*  worked by batch ($k) for multiple connectors - 130 batches total
-                // if($k >= 1 && $k <= 50) self::process_taxon($taxon_id); done =========================
-
-                // if($k >= 71 && $k <= 72) self::process_taxon($taxon_id);
-                // if($k >= 74 && $k <= 75) self::process_taxon($taxon_id);
-                // if($k >= 76 && $k <= 80) self::process_taxon($taxon_id); done ======================
-                // if($k >= 84 && $k <= 85) self::process_taxon($taxon_id); done ======================
-                if($k >= 90 && $k <= 93) self::process_taxon($taxon_id);
-                // if($k >= 93 && $k <= 95) self::process_taxon($taxon_id); done =================
-                // if($k >= 100 && $k <= 110) self::process_taxon($taxon_id); 108 done =========================
-                // if($k >= 99 && $k <= 100) self::process_taxon($taxon_id); done ======================
-                // if($k >= 119 && $k <= 120) self::process_taxon($taxon_id); done ===============
-                // if($k >= 130 && $k <= 130) self::process_taxon($taxon_id); done ======================
-                
-                echo " [batch $k] ";
-                */
-                
+                // /*
+                if($k >=  1   && $k < 30) self::process_taxon($taxon_id);
+                // if($k >=  30   && $k < 45) self::process_taxon($taxon_id);
+                // if($k >=  45   && $k < 70) self::process_taxon($taxon_id);
+                // */
                 
                 if(($i % $temp_archive_batch_count) == 0) {
                     $old_k = $k;

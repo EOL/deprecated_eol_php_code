@@ -15,9 +15,53 @@ class EOLv2MetadataAPI
 
     public function start_resource_metadata()
     {
+        $sql = "SELECT r.id as resource_id, r.title as resource_name, r.collection_id, r.description, r.accesspoint_url as orig_data_source_url
+        , r.bibliographic_citation, IF(r.vetted = 1, 'Yes','No') as vettedYN
+        , concat(cp.full_name, ' (',cp.id,')') as content_partner
+        , '-to be filled up-' as harvest_url_direct
+        , '-to be filled up-' as harvest_url_4connector
+        , '-to be filled up-' as connector_info
+        , l.title  as dataset_license , r.dataset_rights_holder,                  r.dataset_rights_statement
+        , l2.title as default_license , r.rights_holder as default_rights_holder, r.rights_statement as default_rights_statement
+        , s2.label as resource_status, s3.label as default_language
+        FROM resources r
+        LEFT OUTER JOIN content_partners cp ON  (r.content_partner_id = cp.id)
+        LEFT OUTER JOIN licenses l ON  (r.dataset_license_id = l.id)
+        LEFT OUTER JOIN licenses l2 ON (r.license_id         = l2.id)
+        LEFT OUTER JOIN translated_resource_statuses s2 ON (r.resource_status_id=s2.resource_status_id)
+        LEFT OUTER JOIN translated_languages         s3 ON (r.language_id=s3.original_language_id)
+        WHERE s2.language_id = 152 AND s3.language_id = 152
+        AND r.id = 727";
+        
+        $result = $this->mysqli->query($sql);
+        // echo "\n". $result->num_rows; exit;
+        
+        $recs = array();
+        while($result && $row=$result->fetch_assoc()) {
+            if(!isset($recs[$row['resource_id']])) {
+                $first_pub = $this->mysqli->select_value("SELECT min(he.published_at) as last_published FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) WHERE r.id = ".$row['resource_id']);
+                $last_pub = $this->mysqli->select_value("SELECT max(he.published_at) as last_published FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) WHERE r.id = ".$row['resource_id']);
+                
+                $recs[$row['resource_id']] = array('resource_id' => $row['resource_id'], 'resource_name' => $row['resource_name']
+                , 'first_pub' => $first_pub, 'last_pub' => $last_pub, 'collection_id' => $row['collection_id']
+                , 'description' => $row['description']
+                , 'orig_data_source_url' => $row['orig_data_source_url']
+                , 'harvest_url_direct' => $row['harvest_url_direct']
+                , 'harvest_url_4connector' => $row['harvest_url_4connector']
+                , 'connector_info' => $row['connector_info']
+                , 'dataset_license' => $row['dataset_license'], 'dataset_rights_holder' => $row['dataset_rights_holder'], 'dataset_rights_statement' => $row['dataset_rights_statement']
+                , 'default_license' => $row['default_license'], 'default_rights_holder' => $row['default_rights_holder'], 'default_rights_statement' => $row['default_rights_statement']
+                , 'bibliographic_citation' => $row['bibliographic_citation']
+                , 'default_language' => $row['default_language'], 'vettedYN' => $row['vettedYN']
+                , 'content_partner' => $row['content_partner']
+                );
+            }
+        }
+        print_r($recs);
         // "Resource ID", "Resource name", "First Published", "Last Published", "Collection ID", "Description", "Original Data Source URL", "Harvest URL (direct)", 
         // "Harvest URL (for connector)", "connector info", "Dataset license", "Dataset Rights Holder", "Dataset Rights Statement", "Default license", "Default Rights Holder", 
         // "Default Rights Statement", "Bibliographic Citation", "Default Language", "Vetted?"
+        
     }
     
     public function start_partner_metadata()
