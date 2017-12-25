@@ -30,18 +30,15 @@ class EOLv2MetadataAPI
         LEFT OUTER JOIN licenses l2 ON (r.license_id         = l2.id)
         LEFT OUTER JOIN translated_resource_statuses s2 ON (r.resource_status_id=s2.resource_status_id)
         LEFT OUTER JOIN translated_languages         s3 ON (r.language_id=s3.original_language_id)
-        WHERE s2.language_id = 152 AND s3.language_id = 152
-        AND r.id = 727";
-        
+        WHERE s2.language_id = 152 AND s3.language_id = 152";
+        // AND r.id = 42";
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows; exit;
-        
         $recs = array();
         while($result && $row=$result->fetch_assoc()) {
             if(!isset($recs[$row['resource_id']])) {
                 $first_pub = $this->mysqli->select_value("SELECT min(he.published_at) as last_published FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) WHERE r.id = ".$row['resource_id']);
                 $last_pub = $this->mysqli->select_value("SELECT max(he.published_at) as last_published FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) WHERE r.id = ".$row['resource_id']);
-                
                 $recs[$row['resource_id']] = array('resource_id' => $row['resource_id'], 'resource_name' => $row['resource_name']
                 , 'first_pub' => $first_pub, 'last_pub' => $last_pub, 'collection_id' => $row['collection_id']
                 , 'description' => $row['description']
@@ -58,15 +55,32 @@ class EOLv2MetadataAPI
             }
         }
         print_r($recs);
-        // "Resource ID", "Resource name", "First Published", "Last Published", "Collection ID", "Description", "Original Data Source URL", "Harvest URL (direct)", 
-        // "Harvest URL (for connector)", "connector info", "Dataset license", "Dataset Rights Holder", "Dataset Rights Statement", "Default license", "Default Rights Holder", 
-        // "Default Rights Statement", "Bibliographic Citation", "Default Language", "Vetted?"
+        self::write_to_text_resource($recs);
+    }
+    private function write_to_text_resource($recs)
+    {
+        $resource_head = array("Resource ID", "Resource name", "First Published", "Last Published", "Collection ID", "Description", "Original Data Source URL", "Harvest URL (direct)", 
+        "Harvest URL (for connector)", "connector info", "Dataset license", "Dataset Rights Holder", "Dataset Rights Statement", "Default license", "Default Rights Holder", 
+        "Default Rights Statement", "Bibliographic Citation", "Default Language", "VettedYN", "Content Partner");
+        $resource_fields = array("resource_id", "resource_name", "first_pub", "last_pub", "collection_id", "description", "orig_data_source_url", "harvest_url_direct",
+        "harvest_url_4connector", "connector_info", 
+        "dataset_license", "dataset_rights_holder", "dataset_rights_statement", 
+        "default_license", "default_rights_holder", "default_rights_statement", "bibliographic_citation", "default_language", "vettedYN", "content_partner");
         
+        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "resource_metadata.txt";
+        $FILE = Functions::file_open($txtfile, "w");
+        fwrite($FILE, implode("\t", $resource_head)."\n");
+        
+        foreach($recs as $resource_id => $rec) {
+            $cols = array();
+            foreach($resource_fields as $fld) $cols[] = self::clean_str($rec[$fld], false);
+            fwrite($FILE, implode("\t", $cols)."\n");
+        }
+        fclose($FILE);
     }
     
     public function start_partner_metadata()
-    {
-        /* orig
+    {   /* orig
         $sql = "SELECT cp.id as partner_id, cp.full_name as partner_name, s.label as status, r.id as resource_id, r.title as resource_title, s2.label as resource_status,
         cp.description as overview, cp.homepage as url, 
         cpa.mou_url as agreement_url, cpa.signed_on_date as signed_date, cpa.signed_by, cpa.created_at as create_date,
@@ -77,9 +91,7 @@ class EOLv2MetadataAPI
         JOIN translated_resource_statuses s2 ON (r.resource_status_id=s2.id)
         JOIN content_partner_agreements cpa ON (cp.id=cpa.content_partner_id)
         WHERE s.language_id = 152 AND s2.language_id = 152 
-        ORDER BY cp.id limit 6000";
-        */
-
+        ORDER BY cp.id limit 6000"; */
         //better query than above
         $sql = "SELECT cp.id as partner_id, cp.full_name as partner_name, s.label as status, cpa.is_current,
         cp.description as overview, cp.homepage as url, 
@@ -90,7 +102,6 @@ class EOLv2MetadataAPI
         LEFT OUTER JOIN content_partner_agreements cpa ON (cp.id=cpa.content_partner_id)
         WHERE s.language_id = 152 
         ORDER BY cp.id, cpa.is_current desc limit 6000";
-
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows; exit;
         $recs = array();
@@ -190,16 +201,17 @@ class EOLv2MetadataAPI
             }
             fwrite($FILE, "</td>"."\n");
 
-            
             fwrite($FILE, "</tr>"."\n");
         }
         fwrite($FILE, "</table></body></html>"."\n");
         fclose($FILE);
     }
-    private function clean_str($str)
+    private function clean_str($str, $htmlYN = true)
     {
         $str = str_replace(array("\t", "\n", chr(9), chr(13), chr(10)), " ", $str);
-        if(substr($str,0,4) == 'http') $str = "<a href='$str'>$str</a>";
+        if($htmlYN) {
+            if(substr($str,0,4) == 'http') $str = "<a href='$str'>$str</a>";
+        }
         return $str;
         // chr(9) tab key
         // chr(13) = Carriage Return - (moves cursor to lefttmost side)
@@ -265,7 +277,7 @@ class EOLv2MetadataAPI
         
         foreach($recs as $partner_id => $rec) {
             $cols = array();
-            foreach($partner_fields as $fld) $cols[] = self::clean_str($rec[$fld]);
+            foreach($partner_fields as $fld) $cols[] = self::clean_str($rec[$fld], false);
             fwrite($FILE, implode("\t", $cols)."\n");
 
             //resources
@@ -273,7 +285,7 @@ class EOLv2MetadataAPI
                 fwrite($FILE, "\t".implode("\t", $resource_head)."\n");
                 foreach(@$rec['resources'] as $rec2) {
                     $cols = array();
-                    foreach($resource_fields as $fld) $cols[] = self::clean_str($rec2[$fld]);
+                    foreach($resource_fields as $fld) $cols[] = self::clean_str($rec2[$fld], false);
                     fwrite($FILE, "\t".implode("\t", $cols)."\n");
                 }
             }
@@ -284,7 +296,7 @@ class EOLv2MetadataAPI
                 fwrite($FILE, "\t".implode("\t", $contact_head)."\n");
                 foreach(@$rec['contacts'] as $rec3) {
                     $cols = array();
-                    foreach($contact_fields as $fld) $cols[] = self::clean_str($rec3[$fld]);
+                    foreach($contact_fields as $fld) $cols[] = self::clean_str($rec3[$fld], false);
                     fwrite($FILE, "\t".implode("\t", $cols)."\n");
                 }
             }
