@@ -124,13 +124,13 @@ class TropicosArchiveAPI
 
 
                 if(($i % 500) == 0) echo "\n" . number_format($i) . " - [batch $k] ";
-                // self::process_taxon($taxon_id); //orig - uncomment in real operation... when not caching...
+                self::process_taxon($taxon_id); //orig - uncomment in real operation... when not caching...
 
-                // /*
-                if($k >=  1   && $k < 30) self::process_taxon($taxon_id);
-                // if($k >=  30   && $k < 45) self::process_taxon($taxon_id);
-                // if($k >=  45   && $k < 70) self::process_taxon($taxon_id);
-                // */
+                /*
+                // if($k >=  26   && $k < 28) self::process_taxon($taxon_id);
+                // if($k >=  28   && $k < 29) self::process_taxon($taxon_id);
+                if($k >=  29   && $k < 30) self::process_taxon($taxon_id);
+                */
                 
                 if(($i % $temp_archive_batch_count) == 0) {
                     $old_k = $k;
