@@ -16,7 +16,7 @@ class EOLv2MetadataAPI
     public function start_resource_metadata()
     {
         $sql = "SELECT r.id as resource_id, r.title as resource_name, r.collection_id, r.description, r.accesspoint_url as orig_data_source_url
-        , r.bibliographic_citation, IF(r.vetted = 1, 'Yes','No') as vettedYN
+        , r.bibliographic_citation, IF(r.vetted = 1, 'Yes','No') as vettedYN, IF(r.auto_publish = 1, 'Yes','No') as auto_publishYN, r.notes
         , concat(cp.full_name, ' (',cp.id,')') as content_partner
         , '-to be filled up-' as harvest_url_direct
         , '-to be filled up-' as harvest_url_4connector
@@ -31,7 +31,7 @@ class EOLv2MetadataAPI
         LEFT OUTER JOIN translated_resource_statuses s2 ON (r.resource_status_id=s2.resource_status_id)
         LEFT OUTER JOIN translated_languages         s3 ON (r.language_id=s3.original_language_id)
         WHERE s2.language_id = 152 AND s3.language_id = 152";
-        // AND r.id = 42";
+        // $sql .= " AND r.id = 42";
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows; exit;
         $recs = array();
@@ -48,34 +48,68 @@ class EOLv2MetadataAPI
                 , 'connector_info' => $row['connector_info']
                 , 'dataset_license' => $row['dataset_license'], 'dataset_rights_holder' => $row['dataset_rights_holder'], 'dataset_rights_statement' => $row['dataset_rights_statement']
                 , 'default_license' => $row['default_license'], 'default_rights_holder' => $row['default_rights_holder'], 'default_rights_statement' => $row['default_rights_statement']
-                , 'bibliographic_citation' => $row['bibliographic_citation']
-                , 'default_language' => $row['default_language'], 'vettedYN' => $row['vettedYN']
-                , 'content_partner' => $row['content_partner']
-                );
+                , 'bibliographic_citation' => $row['bibliographic_citation'], 'resource_status' => $row['resource_status']
+                , 'default_language' => $row['default_language'], 'vettedYN' => $row['vettedYN'], 'auto_publishYN' => $row['auto_publishYN'], 'notes' => $row['notes']
+                , 'content_partner' => $row['content_partner']);
             }
         }
-        print_r($recs);
+        // print_r($recs);
         self::write_to_text_resource($recs);
+        self::write_to_html_resource($recs);
     }
     private function write_to_text_resource($recs)
     {
         $resource_head = array("Resource ID", "Resource name", "First Published", "Last Published", "Collection ID", "Description", "Original Data Source URL", "Harvest URL (direct)", 
         "Harvest URL (for connector)", "connector info", "Dataset license", "Dataset Rights Holder", "Dataset Rights Statement", "Default license", "Default Rights Holder", 
-        "Default Rights Statement", "Bibliographic Citation", "Default Language", "VettedYN", "Content Partner");
+        "Default Rights Statement", "Bibliographic Citation", "Default Language", "Vetted", "Auto Publish", "Notes", "Status", "Content Partner");
         $resource_fields = array("resource_id", "resource_name", "first_pub", "last_pub", "collection_id", "description", "orig_data_source_url", "harvest_url_direct",
         "harvest_url_4connector", "connector_info", 
         "dataset_license", "dataset_rights_holder", "dataset_rights_statement", 
-        "default_license", "default_rights_holder", "default_rights_statement", "bibliographic_citation", "default_language", "vettedYN", "content_partner");
-        
+        "default_license", "default_rights_holder", "default_rights_statement", "bibliographic_citation", "default_language", "vettedYN", "auto_publishYN", "notes", "resource_status", "content_partner");
         $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "resource_metadata.txt";
         $FILE = Functions::file_open($txtfile, "w");
         fwrite($FILE, implode("\t", $resource_head)."\n");
-        
+        $i = 0;
         foreach($recs as $resource_id => $rec) {
-            $cols = array();
+            $cols = array(); $i++;
             foreach($resource_fields as $fld) $cols[] = self::clean_str($rec[$fld], false);
+            if((($i % 30) == 0)) fwrite($FILE, implode("\t", $resource_head)."\n");
             fwrite($FILE, implode("\t", $cols)."\n");
         }
+        fclose($FILE);
+    }
+    private function write_to_html_resource($recs)
+    {
+        $resource_head = array("Resource ID", "Resource name", "First Published", "Last Published", "Collection ID", "Description", "Original Data Source URL", "Harvest URL (direct)", 
+        "Harvest URL (for connector)", "connector info", "Dataset license", "Dataset Rights Holder", "Dataset Rights Statement", "Default license", "Default Rights Holder", 
+        "Default Rights Statement", "Bibliographic Citation", "Default Language", "Vetted", "Auto Publish", "Notes", "Status", "Content Partner");
+        $resource_fields = array("resource_id", "resource_name", "first_pub", "last_pub", "collection_id", "description", "orig_data_source_url", "harvest_url_direct",
+        "harvest_url_4connector", "connector_info", 
+        "dataset_license", "dataset_rights_holder", "dataset_rights_statement", 
+        "default_license", "default_rights_holder", "default_rights_statement", "bibliographic_citation", "default_language", "vettedYN", "auto_publishYN", 
+        "notes", "resource_status", "content_partner");
+
+        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "resource_metadata.html";
+        $FILE = Functions::file_open($txtfile, "w");
+        fwrite($FILE, "<html><body><table border='1'>"."\n");
+        
+        $i = 0;
+        foreach($recs as $resource_id => $rec) {
+            $i++;
+            if(($i % 2) == 0) $bgcolor = 'lightblue';
+            else              $bgcolor = 'lightyellow';
+            
+            if((($i % 10) == 0) || $i == 1) {
+                fwrite($FILE, "<tr bgcolor='$bgcolor'>"."\n");
+                foreach($resource_head as $header) fwrite($FILE, "<td align='center' style='font-weight:bold;'>$header</td>"."\n");
+                fwrite($FILE, "</tr>"."\n");
+            }
+
+            fwrite($FILE, "<tr bgcolor='$bgcolor'>"."\n");
+            foreach($resource_fields as $fld) fwrite($FILE, "<td>".self::clean_str($rec[$fld], true, $fld)."</td>"."\n");
+            fwrite($FILE, "</tr>"."\n");
+        }
+        fwrite($FILE, "</table></body></html>"."\n");
         fclose($FILE);
     }
     
@@ -206,11 +240,19 @@ class EOLv2MetadataAPI
         fwrite($FILE, "</table></body></html>"."\n");
         fclose($FILE);
     }
-    private function clean_str($str, $htmlYN = true)
+    private function clean_str($str, $htmlYN = true, $fld = "")
     {
         $str = str_replace(array("\t", "\n", chr(9), chr(13), chr(10)), " ", $str);
+        $str = trim($str);
         if($htmlYN) {
-            if(substr($str,0,4) == 'http') $str = "<a href='$str'>$str</a>";
+            $display = $str;
+            if($fld == "notes") {
+                if(strlen($str) > 200) $str = substr($str, 0, 200)."...";
+            }
+            if($fld == "orig_data_source_url") {
+                if(strlen($display) > 75) $display = substr($display, 0, 75)."...";
+            }
+            if(substr($str,0,4) == 'http') $str = "<a href='$str'>".$display."</a>";
         }
         return $str;
         // chr(9) tab key
