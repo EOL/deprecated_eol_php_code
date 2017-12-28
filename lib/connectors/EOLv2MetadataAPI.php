@@ -13,6 +13,69 @@ class EOLv2MetadataAPI
         // if(!$harvest_event->published_at) $GLOBALS['hierarchy_preview_harvest_event'][$row['hierarchy_id']] = $row['max'];
     }
 
+    public function start_user_added_comnames()
+    {
+        $sql = "select cal.user_id, cal.taxon_concept_id, cal.activity_id, cal.target_id, cal.changeable_object_type_id
+        , s.name_id, s.language_id
+        , n.string as common_name
+        , concat(u.given_name, ' ', u.family_name, ' (', u.username, ')') as user_name
+        , s3.label
+        , if(l.iso_639_1 is not null, l.iso_639_1, '') as iso_lang
+        from eol_logging_production.curator_activity_logs cal 
+        left join eol_logging_production.synonyms s on (cal.target_id=s.id)
+        left join eol_logging_production.names n on (s.name_id=n.id)
+        left join users u on (cal.user_id=u.id)
+        left JOIN eol_v2.translated_languages s3 ON (s.language_id=s3.original_language_id)
+        left JOIN languages l ON (s.language_id=l.id)
+        where 1=1 
+        and cal.activity_id = 61
+        and cal.user_id = 20470 
+        and s.name_id is not null
+        and s3.language_id = 152
+        order by n.string";
+        // and cal.taxon_concept_id = 209718 #922651 #209718 #
+        // 61 add_common_name
+        // 47 vetted_common_name
+        // 73 trust_common_name
+        // 26 added_common_name --- NO RECORD
+        $result = $this->mysqli->query($sql);
+        // echo "\n". $result->num_rows; exit;
+        $recs = array();
+        while($result && $row=$result->fetch_assoc()) {
+            if(!isset($recs[$row['name_id']])) {
+                $recs[$row['name_id']] = array('common_name' => $row['common_name'], 'iso_lang' => $row['iso_lang']
+                , 'user_name' => $row['user_name']
+                , 'user_id' => $row['user_id']
+                , 'taxon_name' => self::get_taxon_name($row['taxon_concept_id'])
+                , 'taxon_id' => $row['taxon_concept_id']
+                );
+            }
+        }
+        // print_r($recs);
+        self::write_to_text_comnames($recs);
+    }
+    private function get_taxon_name($taxon_concept_id)
+    {
+        return "Eli Isaiah";
+    }
+    private function write_to_text_comnames($recs)
+    {
+        $comname_head = array("Namestring", "Language", "User name (displayed)", "User EOL ID", "Taxon name and ancestry", "Taxon ID");
+        $comname_fields = array('common_name', 'iso_lang', 'user_name', 'user_id', 'taxon_name', 'taxon_id');
+        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "user_added_comnames.txt";
+        $FILE = Functions::file_open($txtfile, "w");
+        fwrite($FILE, implode("\t", $comname_head)."\n");
+        $i = 0;
+        foreach($recs as $resource_id => $rec) {
+            $cols = array(); $i++;
+            foreach($comname_fields as $fld) $cols[] = self::clean_str($rec[$fld], false);
+            // if((($i % 30) == 0)) fwrite($FILE, implode("\t", $comname_head)."\n"); --- not needed coz we'll use this text file to generate the final DwCA resource
+            fwrite($FILE, implode("\t", $cols)."\n");
+        }
+        fclose($FILE);
+    }
+
+
     public function start_resource_metadata()
     {
         $sql = "SELECT r.id as resource_id, r.title as resource_name, r.collection_id, r.description, r.accesspoint_url as orig_data_source_url

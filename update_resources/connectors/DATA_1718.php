@@ -17,9 +17,10 @@ exit("\n");
 
 require_library('connectors/EOLv2MetadataAPI');
 $func = new EOLv2MetadataAPI();
-$func->start_partner_metadata();
+// $func->start_partner_metadata();
 // $func->save_all_MOUs();
-$func->start_resource_metadata();
+// $func->start_resource_metadata();
+$func->start_user_added_comnames();
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
