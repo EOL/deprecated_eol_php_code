@@ -3,7 +3,7 @@ namespace php_active_record;
 
 class EOLv2MetadataAPI
 {
-    public function __construct()
+    public function __construct($folder)
     {
         $this->mysqli =& $GLOBALS['db_connection'];
         // IF(cp.description_of_data IS NOT NULL, cp.description_of_data, r.description) as desc_of_data
@@ -12,6 +12,8 @@ class EOLv2MetadataAPI
         // $harvest_event = HarvestEvent::find($row['max']);
         // if(!$harvest_event->published_at) $GLOBALS['hierarchy_preview_harvest_event'][$row['hierarchy_id']] = $row['max'];
         $this->path['temp_dir'] = "/Volumes/Thunderbolt4/EOL_V2/";
+        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
+        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
     }
 
     public function start_user_added_comnames() //total records: 87127
@@ -26,11 +28,14 @@ class EOLv2MetadataAPI
         left JOIN eol_v2.translated_languages s3 ON (s.language_id=s3.original_language_id)
         left JOIN languages l ON (s.language_id=l.id)
         where cal.activity_id = 61 and s.name_id is not null and s3.language_id = 152
+        and cal.user_id = 20470 
         order by n.string";
-        $m = 10000;
-        // $sql .= " limit $m";                     //running...
-        // $sql .= " LIMIT $m OFFSET ".$m;          //running...
-        $sql .= " LIMIT $m OFFSET ".$m*2;
+        $sql .= " limit 5";
+        
+        // $m = 10000;
+        // $sql .= " limit $m";
+        // $sql .= " LIMIT $m OFFSET ".$m;
+        // $sql .= " LIMIT $m OFFSET ".$m*2;
         // $sql .= " LIMIT $m OFFSET ".$m*3;
         // $sql .= " LIMIT $m OFFSET ".$m*4;
         // $sql .= " LIMIT $m OFFSET ".$m*5;
@@ -64,10 +69,84 @@ class EOLv2MetadataAPI
                 );
             }
         }
-        // print_r($recs); exit("\n".count($recs)."\n");
+        print_r($recs); //exit("\n".count($recs)."\n");
         // self::write_to_text_comnames($recs);
-        // self::gen_dwca_resource('user_added_comnames.txt');
+        self::gen_dwca_resource($recs);
     }
+    private function gen_dwca_resource($recs)
+    {
+        /* 
+        [common_name] => Bobbit worm
+        [iso_lang] => en
+        [lang_native] => English
+        [lang_english] => English
+        [user_name] => Jennifer Hammock (jhammock)
+        [user_id] => 20470
+        [taxon_name] => Eunice aphroditois
+        [taxon_id] => 404312
+        [rank] => species
+        [he_parent_id] => 52691614
+        */
+        foreach($recs as $rec) {
+            $taxon = new \eol_schema\Taxon();
+            $taxon->taxonID         = $rec['taxon_id'];
+            $taxon->scientificName  = $rec['taxon_name'];
+            $taxon->taxonRank         = $rec['rank'];
+            foreach($rec['ancestry'] as $a) {
+                /* 
+                [he_id] => 52691614
+                [taxon_name] => Eunice
+                [taxon_concept_id] => 50908
+                [he_parent_id] => 52691523
+                [rank] => genus
+                */
+                if(in_array($a['rank'], array('kingdom','phylum','class','order','family','genus'))) {
+                    $taxon->$a['rank'] = $a['taxon_name'];
+                }
+            }
+            // $taxon->kingdom         = $t['dwc_Kingdom'];
+            // $taxon->phylum          = $t['dwc_Phylum'];
+            // $taxon->class           = $t['dwc_Class'];
+            // $taxon->order           = $t['dwc_Order'];
+            // $taxon->family          = $t['dwc_Family'];
+            // $taxon->genus           = $t['dwc_Genus'];
+            // if($agent_ids = self::create_agent_extension($rec)) $taxon->agentID = implode("; ", $agent_ids);
+
+            $taxon->recordedBy = "eli";
+            
+            $this->archive_builder->write_object_to_file($taxon);
+            
+            if($common_name = $rec['common_name']) {
+                $v = new \eol_schema\VernacularName();
+                $v->taxonID         = $taxon->taxonID;
+                $v->vernacularName  = $common_name;
+                $v->language        = $rec['iso_lang'];
+                $v->taxonRemarks    = "Contributed by: ".$rec['user_name']." (".$rec['user_id'].").";
+                $v->source          = "http://www.eol.org/users/".$rec['user_id'];
+                // if($agent_ids = self::create_agent_extension($rec)) $v->agentID = implode("; ", $agent_ids);
+                $this->archive_builder->write_object_to_file($v);
+            }
+        }
+        $this->archive_builder->finalize(true);
+    }
+    private function create_agent_extension($rec)
+    {
+        // [user_name] => Jennifer Hammock (jhammock)
+        // [user_id] => 20470
+        $r = new \eol_schema\Agent();
+        $r->term_name       = $rec['user_name'];
+        $r->agentRole       = 'contributor';
+        $r->identifier      = $rec['user_id'];
+        $r->term_homepage   = '';
+        $agent_ids[] = $r->identifier;
+        if(!isset($this->agent_ids[$r->identifier]))
+        {
+           $this->agent_ids[$r->identifier] = $r->term_name;
+           $this->archive_builder->write_object_to_file($r);
+        }
+        return $agent_ids;
+    }
+    
     private function get_ancestry($he_id)
     {
         $ancestry = array();
