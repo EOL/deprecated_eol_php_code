@@ -11,16 +11,14 @@ class EOLv2MetadataAPI
         // $result = $mysqli->query("SELECT r.hierarchy_id, max(he.id) as max FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) GROUP BY r.hierarchy_id");
         // $harvest_event = HarvestEvent::find($row['max']);
         // if(!$harvest_event->published_at) $GLOBALS['hierarchy_preview_harvest_event'][$row['hierarchy_id']] = $row['max'];
+        $this->path['temp_dir'] = "/Volumes/Thunderbolt4/EOL_V2/";
     }
 
     public function start_user_added_comnames()
     {
         $sql = "select cal.user_id, cal.taxon_concept_id, cal.activity_id, cal.target_id, cal.changeable_object_type_id
-        , s.name_id, s.language_id
-        , n.string as common_name
-        , concat(u.given_name, ' ', u.family_name, ' (', u.username, ')') as user_name
-        , s3.label
-        , if(l.iso_639_1 is not null, l.iso_639_1, '') as iso_lang
+        , s.name_id, s.language_id, n.string as common_name, concat(u.given_name, ' ', u.family_name, ' (', u.username, ')') as user_name, s3.label
+        , if(l.iso_639_1 is not null, l.iso_639_1, '') as iso_lang, l.source_form as lang_native, s3.label as lang_english
         from eol_logging_production.curator_activity_logs cal 
         left join eol_logging_production.synonyms s on (cal.target_id=s.id)
         left join eol_logging_production.names n on (s.name_id=n.id)
@@ -28,11 +26,11 @@ class EOLv2MetadataAPI
         left JOIN eol_v2.translated_languages s3 ON (s.language_id=s3.original_language_id)
         left JOIN languages l ON (s.language_id=l.id)
         where 1=1 
-        and cal.activity_id = 61
+        and cal.activity_id = 61 and s.name_id is not null and s3.language_id = 152
         and cal.user_id = 20470 
-        and s.name_id is not null
-        and s3.language_id = 152
+        and cal.taxon_concept_id = 382622
         order by n.string";
+        // and cal.user_id = 20470 
         // and cal.taxon_concept_id = 209718 #922651 #209718 #
         // 61 add_common_name
         // 47 vetted_common_name
@@ -43,25 +41,116 @@ class EOLv2MetadataAPI
         $recs = array();
         while($result && $row=$result->fetch_assoc()) {
             if(!isset($recs[$row['name_id']])) {
-                $recs[$row['name_id']] = array('common_name' => $row['common_name'], 'iso_lang' => $row['iso_lang']
+                $info = self::get_taxon_info($row['taxon_concept_id']);
+                $recs[$row['name_id']] = array('common_name' => $row['common_name'], 'iso_lang' => $row['iso_lang'], 'lang_native' => $row['lang_native']
+                , 'lang_english' => $row['lang_english']
                 , 'user_name' => $row['user_name']
                 , 'user_id' => $row['user_id']
-                , 'taxon_name' => self::get_taxon_name($row['taxon_concept_id'])
+                , 'taxon_name' => $info['taxon_name']
                 , 'taxon_id' => $row['taxon_concept_id']
+                , 'rank' => $info['rank']
+                , 'he_parent_id' =>$info['he_parent_id']
                 );
             }
         }
-        // print_r($recs);
+        print_r($recs); exit("\n".count($recs)."\n");
         self::write_to_text_comnames($recs);
+        // self::gen_dwca_resource('user_added_comnames.txt');
     }
-    private function get_taxon_name($taxon_concept_id)
+    private function get_taxon_info($taxon_id)
     {
-        return "Eli Isaiah";
+        if    ($rec = self::get_taxon_info_from_json($taxon_id)) return $rec;
+        elseif($rec = self::query_taxon_info($taxon_id)) return $rec;
+    }
+    private function query_taxon_info($taxon_concept_id)
+    {
+        echo "\nquerying dbase...[$taxon_concept_id]";
+        $sql = "SELECT tc.id, n.string, cf.string as final_name, he.rank_id, h.label, he.id as he_id, he.parent_id as he_parent_id, r.label as rank
+                FROM taxon_concepts tc
+                JOIN taxon_concept_preferred_entries pe ON (tc.id=pe.taxon_concept_id)
+                JOIN hierarchy_entries he ON (pe.hierarchy_entry_id=he.id)
+                JOIN eol_logging_production.names n ON (he.name_id=n.id)
+                JOIN hierarchies h ON (he.hierarchy_id=h.id)
+                LEFT JOIN canonical_forms cf ON (n.canonical_form_id=cf.id)
+                LEFT JOIN translated_ranks r ON (he.rank_id=r.rank_id)
+                WHERE tc.supercedure_id = 0
+                AND tc.published = 1
+                AND tc.id = $taxon_concept_id
+                AND r.language_id = 152";
+        $result = $this->mysqli->query($sql);
+        $recs = array();
+        while($result && $row=$result->fetch_assoc()) {
+            $info = array('taxon_name' => $row['final_name'], 'taxon_concept_id' => $row['id'], 'he_parent_id' => $row['he_parent_id'], 'rank' => $row['rank']);
+            self::save_taxon_info_to_json($taxon_concept_id, $info);
+            return self::get_taxon_info_from_json($taxon_concept_id);
+        }
+        echo "\n[$taxon_concept_id get supercedure]\n";
+        if($supercedure_id = self::get_supercedure_id($taxon_concept_id))
+        {
+            if($supercedure_id != $taxon_concept_id) return self::get_taxon_info($supercedure_id);
+        }
+    }
+    private function get_supercedure_id($taxon_concept_id)
+    {
+        $orig = $taxon_concept_id;
+        while(true) {
+            $sql = "select * from taxon_concepts t where t.id = $taxon_concept_id";
+            $result = $this->mysqli->query($sql);
+            if($result && $row=$result->fetch_assoc()) {
+                // print_r($row);
+                $supercedure_id = $row['supercedure_id'];
+                if($supercedure_id && $supercedure_id != 0) {
+                    $taxon_concept_id = $supercedure_id;
+                    echo "\n new tc_id [$taxon_concept_id]";
+                }
+                else break;
+            }
+            else break;
+        }
+        echo("\nfrom: [$orig] to final: tc_id [$taxon_concept_id]\n");
+        return $taxon_concept_id;
+    }
+    private function save_taxon_info_to_json($taxon_id, $info)
+    {
+        echo "\nsaving to json...";
+        $json = json_encode($info);
+        $main_path = $this->path['temp_dir'];
+        $md5 = md5($taxon_id);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        if(!file_exists($main_path . $cache1))           mkdir($main_path . $cache1);
+        if(!file_exists($main_path . "$cache1/$cache2")) mkdir($main_path . "$cache1/$cache2");
+        $filename = $main_path . "$cache1/$cache2/$taxon_id.json";
+        /*
+        if(file_exists($filename)) {
+            $file_age_in_seconds = time() - filemtime($filename);
+            if($file_age_in_seconds < $this->download_options['expire_seconds'])    return; //no need to save
+            if($this->download_options['expire_seconds'] === false)                 return; //no need to save
+        } */
+        //saving...
+        $FILE = Functions::file_open($filename, 'w');
+        fwrite($FILE, $json);
+        fclose($FILE);
+    }
+    private function get_taxon_info_from_json($taxon_id)
+    {
+        echo "\nretrieving json...";
+        $main_path = $this->path['temp_dir'];
+        $md5 = md5($taxon_id);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        $filename = $main_path . "$cache1/$cache2/$taxon_id.json";
+        if(file_exists($filename)) {
+            $json = file_get_contents($filename);
+            print_r(json_decode($json, true));
+            return json_decode($json, true);
+        }
+        else return array();
     }
     private function write_to_text_comnames($recs)
     {
-        $comname_head = array("Namestring", "Language", "User name (displayed)", "User EOL ID", "Taxon name and ancestry", "Taxon ID");
-        $comname_fields = array('common_name', 'iso_lang', 'user_name', 'user_id', 'taxon_name', 'taxon_id');
+        $comname_head   = array("Namestring",  "ISO lang.", "Language"    , "User name", "User EOL ID", "Taxon name and ancestry", "Taxon ID", "he_parent_id", "Rank");
+        $comname_fields = array('common_name', 'iso_lang', 'lang_english' , 'user_name', 'user_id'    , 'taxon_name'             , 'taxon_id', 'he_parent_id', 'rank');
         $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "user_added_comnames.txt";
         $FILE = Functions::file_open($txtfile, "w");
         fwrite($FILE, implode("\t", $comname_head)."\n");
@@ -74,6 +163,7 @@ class EOLv2MetadataAPI
         }
         fclose($FILE);
     }
+
 
 
     public function start_resource_metadata()
