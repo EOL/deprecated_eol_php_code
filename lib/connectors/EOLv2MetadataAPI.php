@@ -13,7 +13,8 @@ class EOLv2MetadataAPI
         // if(!$harvest_event->published_at) $GLOBALS['hierarchy_preview_harvest_event'][$row['hierarchy_id']] = $row['max'];
         $this->path['temp_dir'] = "/Volumes/Thunderbolt4/EOL_V2/";
     }
-
+    
+// 1883764|1770216|5986515|1685272|1679340|230572|425266|230574|425262|216536|230464|216533|2549842|175577|113875|4366569|5304987|2478620|10131449|2481498|5322957|2481721|2481729
     public function start_user_added_comnames()
     {
         $sql = "select cal.user_id, cal.taxon_concept_id, cal.activity_id, cal.target_id, cal.changeable_object_type_id
@@ -28,14 +29,14 @@ class EOLv2MetadataAPI
         where 1=1 
         and cal.activity_id = 61 and s.name_id is not null and s3.language_id = 152
         and cal.user_id = 20470 
-        and cal.taxon_concept_id = 382622
+        and cal.taxon_concept_id = 10569302
         order by n.string";
         // and cal.user_id = 20470 
-        // and cal.taxon_concept_id = 209718 #922651 #209718 #
+        // and cal.taxon_concept_id = 209718 #922651 #209718
         // 61 add_common_name
         // 47 vetted_common_name
         // 73 trust_common_name
-        // 26 added_common_name --- NO RECORD
+        // 26 added_common_name --- NO RECORD 4454117 (no supercedure) 382622 (with supercedure_id)
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows; exit;
         $recs = array();
@@ -49,13 +50,40 @@ class EOLv2MetadataAPI
                 , 'taxon_name' => $info['taxon_name']
                 , 'taxon_id' => $row['taxon_concept_id']
                 , 'rank' => $info['rank']
-                , 'he_parent_id' =>$info['he_parent_id']
+                , 'he_parent_id' => $info['he_parent_id']
+                , 'ancestry' => $info['ancestry']
                 );
             }
         }
         print_r($recs); exit("\n".count($recs)."\n");
-        self::write_to_text_comnames($recs);
+        // self::write_to_text_comnames($recs);
         // self::gen_dwca_resource('user_added_comnames.txt');
+    }
+    private function get_ancestry($he_id)
+    {
+        $ancestry = array();
+        while(true) {
+            echo "\n querying he_id [$he_id]";
+            $sql = "SELECT n.string as final_name, he.rank_id, h.label, he.id as he_id, he.parent_id as he_parent_id, r.label as rank, he.ancestry, he.lft, he.rgt, he.name_id, he.taxon_concept_id
+            FROM hierarchy_entries he
+            left outer JOIN eol_logging_production.names n ON (he.name_id=n.id)
+            left outer JOIN hierarchies h ON (he.hierarchy_id=h.id)
+            LEFT outer JOIN translated_ranks r ON (he.rank_id=r.rank_id)
+            WHERE r.language_id = 152 and he.id = $he_id and he.vetted_id = 5";
+            $result = $this->mysqli->query($sql);
+            $new_he_id = false;
+            while($result && $row=$result->fetch_assoc()) {
+                $info = array('he_id' => $row['he_id'], 'taxon_name' => $row['final_name'], 'taxon_concept_id' => $row['taxon_concept_id'], 'he_parent_id' => $row['he_parent_id'], 'rank' => $row['rank']);
+                $ancestry[] = $info;
+                // print_r($info);
+                $new_he_id = $row['he_parent_id'];
+                echo "\n new he_id [$new_he_id]";
+            }
+            if($he_id != $new_he_id && $new_he_id) $he_id = $new_he_id;
+            else break;
+        }
+        // print_r($ancestry); exit;
+        return $ancestry;
     }
     private function get_taxon_info($taxon_id)
     {
@@ -78,18 +106,40 @@ class EOLv2MetadataAPI
                 AND tc.id = $taxon_concept_id
                 AND r.language_id = 152";
         $result = $this->mysqli->query($sql);
-        $recs = array();
         while($result && $row=$result->fetch_assoc()) {
             $info = array('taxon_name' => $row['final_name'], 'taxon_concept_id' => $row['id'], 'he_parent_id' => $row['he_parent_id'], 'rank' => $row['rank']);
+            if($info) $info['ancestry'] = self::get_ancestry($info['he_parent_id']);
             self::save_taxon_info_to_json($taxon_concept_id, $info);
             return self::get_taxon_info_from_json($taxon_concept_id);
         }
-        echo "\n[$taxon_concept_id get supercedure]\n";
-        if($supercedure_id = self::get_supercedure_id($taxon_concept_id))
-        {
+        
+        //2nd option is supercedure_id
+        if($supercedure_id = self::get_supercedure_id($taxon_concept_id)) {
             if($supercedure_id != $taxon_concept_id) return self::get_taxon_info($supercedure_id);
         }
+        echo "\n[$taxon_concept_id get supercedure UN-SUCCESSFUL]\n";
+        
+        
+        //3rd option
+        $sql = "SELECT n.string as final_name, he.taxon_concept_id,
+        he.rank_id, h.label, he.id as he_id, he.parent_id as he_parent_id, r.label as rank, he.ancestry, he.lft, he.rgt, he.name_id, he.guid
+        FROM hierarchy_entries he
+        left outer JOIN eol_logging_production.names n ON (he.name_id=n.id)
+        left outer JOIN hierarchies h ON (he.hierarchy_id=h.id)
+        LEFT outer JOIN translated_ranks r ON (he.rank_id=r.rank_id)
+        WHERE r.language_id = 152 and he.taxon_concept_id = $taxon_concept_id and he.vetted_id = 5";
+        $result = $this->mysqli->query($sql);
+        while($result && $row=$result->fetch_assoc()) {
+            $info = array('taxon_name' => $row['final_name'], 'taxon_concept_id' => $taxon_concept_id, 'he_parent_id' => $row['he_parent_id'], 'rank' => $row['rank']);
+            if($info) $info['ancestry'] = self::get_ancestry($info['he_parent_id']);
+            self::save_taxon_info_to_json($taxon_concept_id, $info);
+            return self::get_taxon_info_from_json($taxon_concept_id);
+        }
     }
+    // private function
+    // {
+    //     
+    // }
     private function get_supercedure_id($taxon_concept_id)
     {
         $orig = $taxon_concept_id;
@@ -142,7 +192,7 @@ class EOLv2MetadataAPI
         $filename = $main_path . "$cache1/$cache2/$taxon_id.json";
         if(file_exists($filename)) {
             $json = file_get_contents($filename);
-            print_r(json_decode($json, true));
+            // print_r(json_decode($json, true));
             return json_decode($json, true);
         }
         else return array();
