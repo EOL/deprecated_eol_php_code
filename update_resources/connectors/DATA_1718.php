@@ -16,11 +16,13 @@ exit("\n");
 */
 
 require_library('connectors/EOLv2MetadataAPI');
-$func = new EOLv2MetadataAPI();
+$resource_id = "user_added_comnames";
+$func = new EOLv2MetadataAPI($resource_id);
 // $func->start_partner_metadata();
 // $func->save_all_MOUs();
 // $func->start_resource_metadata();
 $func->start_user_added_comnames();
+Functions::finalize_dwca_resource($resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
