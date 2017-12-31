@@ -13,12 +13,11 @@ class EOLv2MetadataAPI
         // if(!$harvest_event->published_at) $GLOBALS['hierarchy_preview_harvest_event'][$row['hierarchy_id']] = $row['max'];
         $this->path['temp_dir'] = "/Volumes/Thunderbolt4/EOL_V2/";
     }
-    
-// 1883764|1770216|5986515|1685272|1679340|230572|425266|230574|425262|216536|230464|216533|2549842|175577|113875|4366569|5304987|2478620|10131449|2481498|5322957|2481721|2481729
-    public function start_user_added_comnames()
+
+    public function start_user_added_comnames() //total records: 87127
     {
         $sql = "select cal.user_id, cal.taxon_concept_id, cal.activity_id, cal.target_id, cal.changeable_object_type_id
-        , s.name_id, s.language_id, n.string as common_name, concat(u.given_name, ' ', u.family_name, ' (', u.username, ')') as user_name, s3.label
+        , s.name_id, s.language_id, n.string as common_name, concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' (', ifnull(u.username,''), ')') as user_name, s3.label
         , if(l.iso_639_1 is not null, l.iso_639_1, '') as iso_lang, l.source_form as lang_native, s3.label as lang_english
         from eol_logging_production.curator_activity_logs cal 
         left join eol_logging_production.synonyms s on (cal.target_id=s.id)
@@ -26,11 +25,21 @@ class EOLv2MetadataAPI
         left join users u on (cal.user_id=u.id)
         left JOIN eol_v2.translated_languages s3 ON (s.language_id=s3.original_language_id)
         left JOIN languages l ON (s.language_id=l.id)
-        where 1=1 
-        and cal.activity_id = 61 and s.name_id is not null and s3.language_id = 152
-        and cal.user_id = 20470 
-        and cal.taxon_concept_id = 10569302
+        where cal.activity_id = 61 and s.name_id is not null and s3.language_id = 152
         order by n.string";
+        $m = 10000;
+        // $sql .= " limit $m";                     //running...
+        // $sql .= " LIMIT $m OFFSET ".$m;          //running...
+        $sql .= " LIMIT $m OFFSET ".$m*2;
+        // $sql .= " LIMIT $m OFFSET ".$m*3;
+        // $sql .= " LIMIT $m OFFSET ".$m*4;
+        // $sql .= " LIMIT $m OFFSET ".$m*5;
+        // $sql .= " LIMIT $m OFFSET ".$m*6;
+        // $sql .= " LIMIT $m OFFSET ".$m*7;
+        // $sql .= " LIMIT $m OFFSET ".$m*8;
+        
+        // investigate 46326157 46326105
+        // and cal.taxon_concept_id = 46326157
         // and cal.user_id = 20470 
         // and cal.taxon_concept_id = 209718 #922651 #209718
         // 61 add_common_name
@@ -38,7 +47,7 @@ class EOLv2MetadataAPI
         // 73 trust_common_name
         // 26 added_common_name --- NO RECORD 4454117 (no supercedure) 382622 (with supercedure_id)
         $result = $this->mysqli->query($sql);
-        // echo "\n". $result->num_rows; exit;
+        // echo "\n". $result->num_rows . "\n"; exit;
         $recs = array();
         while($result && $row=$result->fetch_assoc()) {
             if(!isset($recs[$row['name_id']])) {
@@ -55,7 +64,7 @@ class EOLv2MetadataAPI
                 );
             }
         }
-        print_r($recs); exit("\n".count($recs)."\n");
+        // print_r($recs); exit("\n".count($recs)."\n");
         // self::write_to_text_comnames($recs);
         // self::gen_dwca_resource('user_added_comnames.txt');
     }
@@ -89,6 +98,10 @@ class EOLv2MetadataAPI
     {
         if    ($rec = self::get_taxon_info_from_json($taxon_id)) return $rec;
         elseif($rec = self::query_taxon_info($taxon_id)) return $rec;
+        
+        // $rec = self::query_taxon_info($taxon_id);
+        // return $rec;
+        
     }
     private function query_taxon_info($taxon_concept_id)
     {
@@ -135,6 +148,27 @@ class EOLv2MetadataAPI
             self::save_taxon_info_to_json($taxon_concept_id, $info);
             return self::get_taxon_info_from_json($taxon_concept_id);
         }
+        echo "\n3rd option UN-SUCCESSFULL \n";
+        
+        //4th option
+        $sql = "SELECT n.string as final_name, he.taxon_concept_id,
+                he.rank_id, h.label, he.id as he_id, he.parent_id as he_parent_id, r.label as rank, he.ancestry, he.lft, he.rgt, he.name_id, he.guid
+                FROM hierarchy_entries he
+                left outer JOIN eol_logging_production.names n ON (he.name_id=n.id)
+                left outer JOIN hierarchies h ON (he.hierarchy_id=h.id)
+                LEFT outer JOIN translated_ranks r ON (he.rank_id=r.rank_id)
+                WHERE (r.language_id = 152 or r.language_id is null) and he.taxon_concept_id = $taxon_concept_id"; // and he.vetted_id = 5
+        $result = $this->mysqli->query($sql);
+        while($result && $row=$result->fetch_assoc()) {
+            $info = array('taxon_name' => $row['final_name'], 'taxon_concept_id' => $taxon_concept_id, 'he_parent_id' => $row['he_parent_id'], 'rank' => $row['rank']);
+            if($info) $info['ancestry'] = self::get_ancestry($info['he_parent_id']);
+            self::save_taxon_info_to_json($taxon_concept_id, $info);
+            return self::get_taxon_info_from_json($taxon_concept_id);
+        }
+        echo "\n4th option UN-SUCCESSFULL \n";
+        exit("\nInvestigate [$taxon_concept_id]\n");
+        
+        
     }
     // private function
     // {
@@ -184,7 +218,7 @@ class EOLv2MetadataAPI
     }
     private function get_taxon_info_from_json($taxon_id)
     {
-        echo "\nretrieving json...";
+        // echo "\nretrieving json...";
         $main_path = $this->path['temp_dir'];
         $md5 = md5($taxon_id);
         $cache1 = substr($md5, 0, 2);
