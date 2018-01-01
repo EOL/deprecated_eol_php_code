@@ -69,8 +69,8 @@ class EOLv2MetadataAPI
                 );
             }
         }
-        print_r($recs); //exit("\n".count($recs)."\n");
-        // self::write_to_text_comnames($recs);
+        // print_r($recs); //exit("\n".count($recs)."\n");
+        self::write_to_text_comnames($recs);
         self::gen_dwca_resource($recs);
     }
     private function gen_dwca_resource($recs)
@@ -112,7 +112,7 @@ class EOLv2MetadataAPI
             // $taxon->genus           = $t['dwc_Genus'];
             // if($agent_ids = self::create_agent_extension($rec)) $taxon->agentID = implode("; ", $agent_ids);
 
-            $taxon->recordedBy = "eli";
+            // $taxon->recordedBy = "eli"; - not working
             
             $this->archive_builder->write_object_to_file($taxon);
             
@@ -123,7 +123,7 @@ class EOLv2MetadataAPI
                 $v->language        = $rec['iso_lang'];
                 $v->taxonRemarks    = "Contributed by: ".$rec['user_name']." (".$rec['user_id'].").";
                 $v->source          = "http://www.eol.org/users/".$rec['user_id'];
-                // if($agent_ids = self::create_agent_extension($rec)) $v->agentID = implode("; ", $agent_ids);
+                // if($agent_ids = self::create_agent_extension($rec)) $v->agentID = implode("; ", $agent_ids); - not working
                 $this->archive_builder->write_object_to_file($v);
             }
         }
@@ -177,10 +177,10 @@ class EOLv2MetadataAPI
     {
         if    ($rec = self::get_taxon_info_from_json($taxon_id)) return $rec;
         elseif($rec = self::query_taxon_info($taxon_id)) return $rec;
-        
-        // $rec = self::query_taxon_info($taxon_id);
-        // return $rec;
-        
+        /* debugging only
+        $rec = self::query_taxon_info($taxon_id);
+        return $rec;
+        */
     }
     private function query_taxon_info($taxon_concept_id)
     {
@@ -210,7 +210,6 @@ class EOLv2MetadataAPI
             if($supercedure_id != $taxon_concept_id) return self::get_taxon_info($supercedure_id);
         }
         echo "\n[$taxon_concept_id get supercedure UN-SUCCESSFUL]\n";
-        
         
         //3rd option
         $sql = "SELECT n.string as final_name, he.taxon_concept_id,
@@ -246,13 +245,7 @@ class EOLv2MetadataAPI
         }
         echo "\n4th option UN-SUCCESSFULL \n";
         exit("\nInvestigate [$taxon_concept_id]\n");
-        
-        
     }
-    // private function
-    // {
-    //     
-    // }
     private function get_supercedure_id($taxon_concept_id)
     {
         $orig = $taxon_concept_id;
@@ -312,7 +305,7 @@ class EOLv2MetadataAPI
     }
     private function write_to_text_comnames($recs)
     {
-        $comname_head   = array("Namestring",  "ISO lang.", "Language"    , "User name", "User EOL ID", "Taxon name and ancestry", "Taxon ID", "he_parent_id", "Rank");
+        $comname_head   = array("Namestring",  "ISO lang.", "Language"    , "User name", "User EOL ID", "Taxon name and ancestry", "Taxon ID", "he_parent_id", "Rank", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus");
         $comname_fields = array('common_name', 'iso_lang', 'lang_english' , 'user_name', 'user_id'    , 'taxon_name'             , 'taxon_id', 'he_parent_id', 'rank');
         $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "user_added_comnames.txt";
         $FILE = Functions::file_open($txtfile, "w");
@@ -322,13 +315,29 @@ class EOLv2MetadataAPI
             $cols = array(); $i++;
             foreach($comname_fields as $fld) $cols[] = self::clean_str($rec[$fld], false);
             // if((($i % 30) == 0)) fwrite($FILE, implode("\t", $comname_head)."\n"); --- not needed coz we'll use this text file to generate the final DwCA resource
+
+            //start ancestry inclusion
+            $ancestry = array('kingdom' => "", 'phylum' => "", 'class' => "", 'order' => "", 'family' => "", 'genus' => "");
+            foreach($rec['ancestry'] as $a) {
+                /* 
+                [he_id] => 52691614
+                [taxon_name] => Eunice
+                [taxon_concept_id] => 50908
+                [he_parent_id] => 52691523
+                [rank] => genus
+                */
+                if(in_array($a['rank'], array('kingdom','phylum','class','order','family','genus'))) {
+                    $ancestry[$a['rank']] = $a['taxon_name'];
+                }
+            }
+            //end ancestry
+            $cols = array_merge($cols, $ancestry);
             fwrite($FILE, implode("\t", $cols)."\n");
         }
         fclose($FILE);
     }
 
-
-
+    //==========================================================================================
     public function start_resource_metadata()
     {
         $sql = "SELECT r.id as resource_id, r.title as resource_name, r.collection_id, r.description, r.accesspoint_url as orig_data_source_url
