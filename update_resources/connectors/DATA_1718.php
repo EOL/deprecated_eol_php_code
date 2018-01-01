@@ -16,7 +16,9 @@ exit("\n");
 */
 
 require_library('connectors/EOLv2MetadataAPI');
+$resource_id = "user_added_comnames_20470";
 $resource_id = "user_added_comnames";
+
 $func = new EOLv2MetadataAPI($resource_id);
 // $func->start_partner_metadata();
 // $func->save_all_MOUs();
@@ -29,3 +31,41 @@ echo "\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 ?>
+
+uerying dbase...[5488184]
+ new tc_id [5488098]
+from: [5488184] to final: tc_id [5488098]
+
+querying dbase...[5828987]
+ new tc_id [5828941]
+from: [5828987] to final: tc_id [5828941]
+
+querying dbase...[184041]
+ new tc_id [183928]
+ new tc_id [182546]
+ new tc_id [182545]
+ new tc_id [182542]
+from: [184041] to final: tc_id [182542]
+
+querying dbase...[184041]
+ new tc_id [183928]
+ new tc_id [182546]
+ new tc_id [182545]
+ new tc_id [182542]
+from: [184041] to final: tc_id [182542]
+
+querying dbase...[184041]
+ new tc_id [183928]
+ new tc_id [182546]
+ new tc_id [182545]
+ new tc_id [182542]
+from: [184041] to final: tc_id [182542]
+
+querying dbase...[163158]
+ new tc_id [158670]
+ new tc_id [158668]
+from: [163158] to final: tc_id [158668]
+
+
+
+

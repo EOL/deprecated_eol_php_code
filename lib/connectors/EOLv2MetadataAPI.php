@@ -5,6 +5,7 @@ class EOLv2MetadataAPI
 {
     public function __construct($folder)
     {
+        $this->folder = $folder;
         $this->mysqli =& $GLOBALS['db_connection'];
         // IF(cp.description_of_data IS NOT NULL, cp.description_of_data, r.description) as desc_of_data
         // $result = $mysqli->query("SELECT r.hierarchy_id, max(he.id) as max FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) GROUP BY r.hierarchy_id");
@@ -27,10 +28,10 @@ class EOLv2MetadataAPI
         left join users u on (cal.user_id=u.id)
         left JOIN eol_v2.translated_languages s3 ON (s.language_id=s3.original_language_id)
         left JOIN languages l ON (s.language_id=l.id)
-        where cal.activity_id = 61 and s.name_id is not null and s3.language_id = 152
-        and cal.user_id = 20470 
-        order by n.string";
-        $sql .= " limit 5";
+        where cal.activity_id = 61 and s.name_id is not null and s3.language_id = 152";
+        // $sql .= " and cal.user_id = 20470";
+        $sql .= " order by n.string";
+        // $sql .= " limit 5";
         
         // $m = 10000;
         // $sql .= " limit $m";
@@ -305,9 +306,9 @@ class EOLv2MetadataAPI
     }
     private function write_to_text_comnames($recs)
     {
-        $comname_head   = array("Namestring",  "ISO lang.", "Language"    , "User name", "User EOL ID", "Taxon name and ancestry", "Taxon ID", "he_parent_id", "Rank", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus");
-        $comname_fields = array('common_name', 'iso_lang', 'lang_english' , 'user_name', 'user_id'    , 'taxon_name'             , 'taxon_id', 'he_parent_id', 'rank');
-        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "user_added_comnames.txt";
+        $comname_head   = array("Namestring",  "ISO lang.", "Language"     , "User name", "User EOL ID", "Taxon name", "Taxon ID", "Rank", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus");
+        $comname_fields = array('common_name', 'iso_lang' , 'lang_english' , 'user_name', 'user_id'    , 'taxon_name', 'taxon_id', 'rank'); //was removed but working: he_parent_id
+        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $this->folder.".txt";
         $FILE = Functions::file_open($txtfile, "w");
         fwrite($FILE, implode("\t", $comname_head)."\n");
         $i = 0;
