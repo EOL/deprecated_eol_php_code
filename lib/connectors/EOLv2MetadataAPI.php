@@ -15,6 +15,7 @@ class EOLv2MetadataAPI
         $this->path['temp_dir'] = "/Volumes/Thunderbolt4/EOL_V2/";
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        $this->taxon_ids = array();
     }
 
     public function start_user_added_comnames() //total records: 87127
@@ -114,8 +115,10 @@ class EOLv2MetadataAPI
             // if($agent_ids = self::create_agent_extension($rec)) $taxon->agentID = implode("; ", $agent_ids);
 
             // $taxon->recordedBy = "eli"; - not working
-            
-            $this->archive_builder->write_object_to_file($taxon);
+            if(!isset($this->taxon_ids[$taxon->taxonID])) {
+                $this->archive_builder->write_object_to_file($taxon);
+                $this->taxon_ids[$taxon->taxonID] = '';
+            }
             
             if($common_name = $rec['common_name']) {
                 $v = new \eol_schema\VernacularName();
@@ -124,6 +127,7 @@ class EOLv2MetadataAPI
                 $v->language        = $rec['iso_lang'];
                 $v->taxonRemarks    = "Contributed by: ".$rec['user_name']." (".$rec['user_id'].").";
                 $v->source          = "http://www.eol.org/users/".$rec['user_id'];
+                $v->source          = "http://eol.org/pages/".$taxon->taxonID."/names/common_names";
                 // if($agent_ids = self::create_agent_extension($rec)) $v->agentID = implode("; ", $agent_ids); - not working
                 $this->archive_builder->write_object_to_file($v);
             }
