@@ -171,8 +171,13 @@ class FreshDataBisonAPI
                     $rek['countryCode']     = @$rec['countryCode'];
                     $rek['institutionID']   = $rec['institutionID'];
                     $rek['source'] = '';
+                    
+                    /* working but commented per: Jen https://eol-jira.bibalex.org/browse/DATA-1699?focusedCommentId=61781&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61781
                     if($val = @$rec['occurrenceID']) $rek['source'] = "https://bison.usgs.gov/solr/occurrences/select/?q=occurrenceID:".$val;
-
+                    ...replaced by below:
+                    */
+                    if($val = @$rec['occurrenceID']) $rek['occurrenceID'] = "https://bison.usgs.gov/solr/occurrences/select/?q=occurrenceID:".$val;
+                    
                     
                     // print_r($rek);
                     $rek = array_map('trim', $rek);

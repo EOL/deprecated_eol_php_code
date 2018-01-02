@@ -302,6 +302,7 @@ class FreshDataInatSupplementAPI
                 }
                 if($rek) {
                     if($val = $rek['occurrenceID']) $uuids[$val] = '';
+                    if($val = @$rek['uuid']) $uuids[$val] = ''; //consequence of Jen: https://eol-jira.bibalex.org/browse/DATA-1699?focusedCommentId=61781&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61781
                 }
             }
         }
@@ -397,6 +398,12 @@ class FreshDataInatSupplementAPI
         $rec['locality']        = $rek['place_guess'];
         $rec['modified']        = $rek['updated_at'];
         $rec['created']         = $rek['created_at'];
+        
+        // per: Jen https://eol-jira.bibalex.org/browse/DATA-1699?focusedCommentId=61781&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61781
+        $rec['occurrenceID']    = $rek['uri'];
+        $rec['source']          = '';
+        $rec['uuid']            = $rek['uuid'];
+        //end new instruction - per: Jen
         
         $ancestry = array();
         if($arr = @$rek['identifications'][0]['taxon']['ancestors']) $ancestry = self::parse_ancestors($arr);
