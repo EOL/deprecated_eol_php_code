@@ -16,8 +16,8 @@ class FreshDataInatSupplementAPI
         $this->download_options = array('cache_path' => '/Volumes/Thunderbolt4/eol_cache_bison/', 'expire_seconds' => 5184000, 'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1); //'delay_in_minutes' => 1
         */
         
-        // /* //for eol-archive
-        $this->download_options = array('expire_seconds' => 5184000, 'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1); //'delay_in_minutes' => 1
+        // /* //for eol-archive - orig 2 months expire
+        $this->download_options = array('expire_seconds' => 60*60*24*60, 'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1); //'delay_in_minutes' => 1
         // */
         
         
@@ -157,7 +157,7 @@ class FreshDataInatSupplementAPI
         $first_loop['updated_since'] = true;
         
         $download_options = $this->download_options;
-        if($this->destination_txt_file != "observations.txt") $download_options['expire_seconds'] = true; //cache expired deliberately for daily harvest
+        if($this->destination_txt_file != "observations.txt") $download_options['expire_seconds'] = false;//orig is true; //cache expired deliberately for daily harvest
         
         while($date <= date('Y-m-d')) //loops until date today
         {
