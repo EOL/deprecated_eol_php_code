@@ -11,11 +11,12 @@ class FreshDataBisonAPI
         $this->ctr = 0;
         $this->debug = array();
         $this->print_header = true;
-        
 
-        $this->download_options = array('cache_path' => '/Volumes/Thunderbolt4/eol_cache_bison/', 'expire_seconds' => 5184000, 'download_wait_time' => 2000000, 'timeout' => 600, 
-        'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->download_options = array('expire_seconds' => 5184000, 'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->download_options['expire_seconds'] = false; //orig false | true -- expires now | maybe 5184000 2 months to expire
+
+        if(Functions::is_production()) $this->download_options['cache_path'] = '/extra/eol_cache_bison/';
+        else                           $this->download_options['cache_path'] = '/Volumes/Thunderbolt4/eol_cache_bison/';
 
         $this->increment = 10000;
         $this->solr_occurrence_api = "https://bison.usgs.gov/solr/occurrences/select/?q=providerID:440&fq=decimalLatitude:[* TO *]&wt=json&rows=$this->increment";

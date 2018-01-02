@@ -1,6 +1,8 @@
 <?php
 namespace php_active_record;
-/* connector: freedata_inat_supplement.php */
+/* connector: freedata_inat_supplement.php 
+REMINDER!: a change in column, meaning add a new column or delete or re-arrange the position of any column would mean running the RESET HARVEST
+*/
 class FreshDataInatSupplementAPI
 {
     function __construct($folder = null)
@@ -12,16 +14,11 @@ class FreshDataInatSupplementAPI
         $this->debug = array();
         $this->print_header = true;
 
-        /* //for mac mini
-        $this->download_options = array('cache_path' => '/Volumes/Thunderbolt4/eol_cache_bison/', 'expire_seconds' => 5184000, 'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1); //'delay_in_minutes' => 1
-        */
-        
-        // /* //for eol-archive - orig 2 months expire
         $this->download_options = array('expire_seconds' => 60*60*24*60, 'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1); //'delay_in_minutes' => 1
-        // */
+        //'expire_seconds' => false -> doesn't expire | true -> expires now
         
-        
-        $this->download_options['expire_seconds'] = false; // false -> doesn't expire | true -> expires now
+        if(!Functions::is_production()) $this->download_options['cache_path'] = '/Volumes/Thunderbolt4/eol_cache_bison/';
+        else {} //no cache_path in production
 
         $this->increment = 200; //200 is the max allowable per_page
         $this->inat_created_since_api = "http://api.inaturalist.org/v1/observations?quality_grade=needs_id&order_by=date_added&order=asc&per_page=$this->increment"; //2017-08-01
@@ -65,7 +62,7 @@ class FreshDataInatSupplementAPI
         // if(true) //we may only run this once and never again
         if(false) // will use in daily operation
         {
-            self::start_harvest($func); //this is the reset harvest
+            self::start_harvest($func); //this is the RESET HARVEST
             /* if($folder) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $folder); -> may remove this line permanently */
         }
         else self::start_daily_harvest($func);
