@@ -157,7 +157,7 @@ class FreshDataInatSupplementAPI
         $first_loop['updated_since'] = true;
         
         $download_options = $this->download_options;
-        if($this->destination_txt_file != "observations.txt") $download_options['expire_seconds'] = false;//orig is true; //cache expired deliberately for daily harvest
+        if($this->destination_txt_file != "observations.txt") $download_options['expire_seconds'] = true;//orig is true; //cache expired deliberately for daily harvest
         
         while($date <= date('Y-m-d')) //loops until date today
         {
