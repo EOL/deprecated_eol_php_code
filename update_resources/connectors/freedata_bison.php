@@ -5,6 +5,7 @@ namespace php_active_record;
 2. then added to queue in: http://archive.effechecka.org/
 
 execution time: elapsed time = 13.2 hours ; that is when everything is cached already. Days if caching is included.
+                elapsed time = 30.152849213333 hours as of Jan 3, 2018
 
 split:
 tar cz "bison.zip" | split -b 300000000 - ./split_
@@ -33,8 +34,8 @@ require_library('connectors/FreshDataBisonAPI');
 $timestart = time_elapsed();
 
 // Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "bison/observations.txt");
-Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "inat_supplement/observations.txt");
-Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "inat_supplement_final/observations.txt");
+// Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "inat_supplement/observations.txt");
+// Functions::count_rows_from_text_file(CONTENT_RESOURCE_LOCAL_PATH . "inat_supplement_final/observations.txt");
 
 
 exit("\nend for now, might be accidentally overwritten\n");
