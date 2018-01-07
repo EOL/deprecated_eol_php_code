@@ -42,7 +42,7 @@ class EOLv2MetadataAPI
         // $sql .= ' and n.string like "brown bear%"';
         // $sql .= ' and n.string = "Karhu"';
         $sql .= " order by n.string, s3.label";
-        $sql .= " limit 1000";
+        // $sql .= " limit 1000";
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows . "\n"; exit;
         $recs = array();
