@@ -20,12 +20,12 @@ class EOLv2MetadataAPI
     
     public function user_preferred_comnames() //total recs for agents_synonyms: 113283
     {
+        //select if(field_a is not null, field_a, field_b) --- if then else in MySQL
         $sql = "select asy.synonym_id, n.id as name_id, n.string as common_name, asy.agent_id, u.given_name, u.family_name, s.hierarchy_entry_id, s.vetted_id, s.preferred
         , he.taxon_concept_id
         , tv.label as vettedness
         , if(l.iso_639_1 is not null, l.iso_639_1, '') as iso_lang, l.source_form as lang_native, s3.label as lang_english
-        , concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' (', ifnull(u.username,''), ')') as user_name, u.id as user_id
-        
+        , concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' ', if(u.username is not null, concat('(',u.username,')'), '')) as user_name, u.id as user_id 
         from agents_synonyms asy
         left outer join eol_logging_production.synonyms s on (asy.synonym_id = s.id)
         left outer join eol_logging_production.names n on (s.name_id = n.id)
@@ -33,21 +33,18 @@ class EOLv2MetadataAPI
         left outer JOIN users u ON (asy.agent_id = u.agent_id)
         left outer join hierarchy_entries he on (s.hierarchy_entry_id = he.id)
         left outer join translated_vetted tv on (s.vetted_id = tv.vetted_id)
-
         left JOIN eol_v2.translated_languages s3 ON (s.language_id=s3.original_language_id)
         left JOIN languages l ON (s.language_id=l.id)
-        
-        where (tv.language_id = 152 OR tv.language_id is null)
-        and   (s3.language_id = 152 OR s3.language_id is null)";
+        where (tv.language_id = 152 OR tv.language_id is null) and (s3.language_id = 152 OR s3.language_id is null)";
+        // $sql .= " and he.taxon_concept_id is null"; //just for testing asy.synonym_id that is no longer existing in synonyms table
         // $sql .= ' and n.string like "atlantic cod%"';
         // $sql .= ' and n.string like "white-throated sparrow%"';
         // $sql .= ' and n.string like "brown bear%"';
         // $sql .= ' and n.string = "Karhu"';
         $sql .= " order by n.string, s3.label";
-        // $sql .= " limit 1";
+        $sql .= " limit 1000";
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows . "\n"; exit;
-        
         $recs = array();
         while($result && $row=$result->fetch_assoc()) {
             if(!isset($recs[$row['name_id']])) {
@@ -56,18 +53,18 @@ class EOLv2MetadataAPI
                 , 'lang_english' => $row['lang_english']
                 , 'user_name' => $row['user_name']
                 , 'user_id' => $row['user_id']
-                , 'taxon_name' => $info['taxon_name']
+                , 'taxon_name' => @$info['taxon_name']
                 , 'taxon_id' => $row['taxon_concept_id']
-                , 'rank' => $info['rank']
-                , 'he_parent_id' => $info['he_parent_id']
-                // , 'ancestry' => $info['ancestry'] //working OK but just commented for now
+                , 'rank' => @$info['rank']
+                , 'he_parent_id' => @$info['he_parent_id']
+                , 'ancestry' => $info['ancestry'] //working OK but just commented for now
                 );
+                echo "\n".$recs[$row['name_id']]['common_name'];
             }
-            echo "\n".$recs[$row['name_id']]['common_name'];
         }
         // print_r($recs);
-        echo "\n". $result->num_rows . "\n"; exit;
-        
+        self::write_to_text_comnames($recs);
+        echo "\n". $result->num_rows . "\n"; //exit;
     }
 
     public function start_user_added_comnames() //total records: 87127
@@ -373,19 +370,20 @@ class EOLv2MetadataAPI
             $cols = array(); $i++;
             foreach($comname_fields as $fld) $cols[] = self::clean_str($rec[$fld], false);
             // if((($i % 30) == 0)) fwrite($FILE, implode("\t", $comname_head)."\n"); --- not needed coz we'll use this text file to generate the final DwCA resource
-
             //start ancestry inclusion
             $ancestry = array('kingdom' => "", 'phylum' => "", 'class' => "", 'order' => "", 'family' => "", 'genus' => "");
-            foreach($rec['ancestry'] as $a) {
-                /* 
-                [he_id] => 52691614
-                [taxon_name] => Eunice
-                [taxon_concept_id] => 50908
-                [he_parent_id] => 52691523
-                [rank] => genus
-                */
-                if(in_array($a['rank'], array('kingdom','phylum','class','order','family','genus'))) {
-                    $ancestry[$a['rank']] = $a['taxon_name'];
+            if(@$rec['ancestry']) {
+                foreach(@$rec['ancestry'] as $a) {
+                    /* 
+                    [he_id] => 52691614
+                    [taxon_name] => Eunice
+                    [taxon_concept_id] => 50908
+                    [he_parent_id] => 52691523
+                    [rank] => genus
+                    */
+                    if(in_array($a['rank'], array('kingdom','phylum','class','order','family','genus'))) {
+                        $ancestry[$a['rank']] = $a['taxon_name'];
+                    }
                 }
             }
             //end ancestry
