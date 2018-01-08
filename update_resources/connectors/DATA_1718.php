@@ -35,7 +35,7 @@ Functions::finalize_dwca_resource($resource_id);
 // /* https://eol-jira.bibalex.org/browse/DATA-1726
 $resource_id = "user_preferred_comnames";
 $func = new EOLv2MetadataAPI($resource_id);
-$func->user_preferred_comnames();
+$func->start_user_preferred_comnames();
 // */
 
 $elapsed_time_sec = time_elapsed() - $timestart;

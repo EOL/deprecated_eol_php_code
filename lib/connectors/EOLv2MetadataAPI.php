@@ -18,7 +18,7 @@ class EOLv2MetadataAPI
         $this->taxon_ids = array();
     }
     
-    public function user_preferred_comnames() //total recs for agents_synonyms: 113283
+    public function start_user_preferred_comnames() //total recs for agents_synonyms: 113283
     {
         //select if(field_a is not null, field_a, field_b) --- if then else in MySQL
         $sql = "select asy.synonym_id, n.id as name_id, n.string as common_name, asy.agent_id, u.given_name, u.family_name, s.hierarchy_entry_id, s.vetted_id, s.preferred
@@ -47,9 +47,11 @@ class EOLv2MetadataAPI
         // echo "\n". $result->num_rows . "\n"; exit;
         $recs = array();
         while($result && $row=$result->fetch_assoc()) {
+            $row = array_map('trim', $row);
             if(!isset($recs[$row['name_id']])) {
+                if(!trim($row['common_name'])) continue;
                 $info = self::get_taxon_info($row['taxon_concept_id']);
-                $recs[$row['name_id']] = array('common_name' => $row['common_name'], 'iso_lang' => $row['iso_lang'], 'lang_native' => $row['lang_native']
+                $recs[$row['name_id']] = array('common_name' => $row['common_name'], 'preferred' => $row['preferred'], 'iso_lang' => $row['iso_lang'], 'lang_native' => $row['lang_native']
                 , 'lang_english' => $row['lang_english']
                 , 'user_name' => $row['user_name']
                 , 'user_id' => $row['user_id']
@@ -70,7 +72,7 @@ class EOLv2MetadataAPI
     public function start_user_added_comnames() //total records: 87127
     {
         $sql = "select cal.user_id, cal.taxon_concept_id, cal.activity_id, cal.target_id, cal.changeable_object_type_id
-        , s.name_id, s.language_id, n.string as common_name, concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' (', ifnull(u.username,''), ')') as user_name, s3.label
+        , s.name_id, s.language_id, n.string as common_name, s.preferred, concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' (', ifnull(u.username,''), ')') as user_name, s3.label
         , if(l.iso_639_1 is not null, l.iso_639_1, '') as iso_lang, l.source_form as lang_native, s3.label as lang_english
         from eol_logging_production.curator_activity_logs cal 
         left join eol_logging_production.synonyms s on (cal.target_id=s.id)
@@ -108,7 +110,7 @@ class EOLv2MetadataAPI
         while($result && $row=$result->fetch_assoc()) {
             if(!isset($recs[$row['name_id']])) {
                 $info = self::get_taxon_info($row['taxon_concept_id']);
-                $recs[$row['name_id']] = array('common_name' => $row['common_name'], 'iso_lang' => $row['iso_lang'], 'lang_native' => $row['lang_native']
+                $recs[$row['name_id']] = array('common_name' => $row['common_name'], 'preferred' => $row['preferred'], 'iso_lang' => $row['iso_lang'], 'lang_native' => $row['lang_native']
                 , 'lang_english' => $row['lang_english']
                 , 'user_name' => $row['user_name']
                 , 'user_id' => $row['user_id']
@@ -360,8 +362,8 @@ class EOLv2MetadataAPI
     }
     private function write_to_text_comnames($recs)
     {
-        $comname_head   = array("Namestring",  "ISO lang.", "Language"     , "User name", "User EOL ID", "Taxon name", "Taxon ID", "Rank", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus");
-        $comname_fields = array('common_name', 'iso_lang' , 'lang_english' , 'user_name', 'user_id'    , 'taxon_name', 'taxon_id', 'rank'); //was removed but working: he_parent_id
+        $comname_head   = array("Namestring", "Preferred",  "ISO lang.", "Language"     , "User name", "User EOL ID", "Taxon name", "Taxon ID", "Rank", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus");
+        $comname_fields = array('common_name', "preferred", 'iso_lang' , 'lang_english' , 'user_name', 'user_id'    , 'taxon_name', 'taxon_id', 'rank'); //was removed but working: he_parent_id
         $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $this->folder.".txt";
         $FILE = Functions::file_open($txtfile, "w");
         fwrite($FILE, implode("\t", $comname_head)."\n");
