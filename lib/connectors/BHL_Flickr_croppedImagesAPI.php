@@ -35,7 +35,7 @@ class BHL_Flickr_croppedImagesAPI
             if(!$photo_id) continue;
             echo "\n[$photo_id]\n";
             $j = self::process_photo($photo_id);
-            self::create_cropped_images($photo_id, $j);
+            $cropped_imgs = self::create_cropped_images($photo_id, $j);
             break; //debug - process just 1 photo
         }
         unlink($local);
@@ -64,8 +64,9 @@ class BHL_Flickr_croppedImagesAPI
     }
     private function create_cropped_images($photo_id, $j)
     {
+        $final = array();
         foreach($j->photo->notes->note as $note) {
-            print_r($note);
+            // print_r($note);
             /*
             [cmd_orig] => 485.0701754386x631.008+699.40350877193+1932.462
             [cmd_medium] => 86x112+124+343
@@ -75,16 +76,21 @@ class BHL_Flickr_croppedImagesAPI
             $path = $this->cropped_images_path;
             $file_extension = pathinfo($note->orig_file, PATHINFO_EXTENSION);
             
-            $cmd_line = "convert ".$path.$note->orig_file." -crop ".$note->cmd_orig." ".$path.$note->id."_orig".".$file_extension";
-            echo "\n[$cmd_line]\n";
+            $filename = $note->id."_orig".".$file_extension";
+            $note->orig_cropped = $filename;
+            $cmd_line = "convert ".$path.$note->orig_file." -crop ".$note->cmd_orig." ".$path.$filename;
+            // echo "\n[$cmd_line]\n";
             shell_exec($cmd_line);
 
-            $cmd_line = "convert ".$path.$note->medium_file." -crop ".$note->cmd_medium." ".$path.$note->id."_medium".".$file_extension";
-            echo "\n[$cmd_line]\n";
+            $filename = $note->id."_medium".".$file_extension";
+            $note->medium_cropped = $filename;
+            $cmd_line = "convert ".$path.$note->medium_file." -crop ".$note->cmd_medium." ".$path.$filename;
+            // echo "\n[$cmd_line]\n";
             shell_exec($cmd_line);
-
-            
+            $final[] = $note;
         }
+        // print_r($final);
+        return $final;
     }
     
     private function download_photo($photo_id, $size)
