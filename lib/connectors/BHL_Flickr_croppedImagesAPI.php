@@ -30,13 +30,15 @@ class BHL_Flickr_croppedImagesAPI
     {
         if(!is_dir($this->cropped_images_path)) mkdir($this->cropped_images_path);
         $local = Functions::save_remote_file_to_local($this->flickr_photo_ids_file, array("cache" => 1, 'expire_seconds' => 60*60*24*30));
+        $i = 0;
         foreach(new FileIterator($local) as $line_number => $line) {
-            $photo_id = trim($line);
+            $i++; $photo_id = trim($line);
             if(!$photo_id) continue;
             echo "\n[$photo_id]\n";
             $j = self::process_photo($photo_id);
             $cropped_imgs = self::create_cropped_images($photo_id, $j);
-            break; //debug - process just 1 photo
+            // self::create_archive($photo_id, $j, $cropped_imgs);
+            if($i >= 3) break; //debug - process just 1 photo
         }
         unlink($local);
     }
@@ -96,7 +98,7 @@ class BHL_Flickr_croppedImagesAPI
     private function download_photo($photo_id, $size)
     {
         $rec = self::get_size_details($photo_id, $size);
-        print_r($rec);
+        // print_r($rec);
         /* stdClass Object (
             [label] => Original
             [width] => 1929
@@ -111,8 +113,8 @@ class BHL_Flickr_croppedImagesAPI
         $local = Functions::save_remote_file_to_local($rec->source, $options);
         $destination = $this->cropped_images_path.$photo_id."_".$size.".".pathinfo($rec->source, PATHINFO_EXTENSION);
         Functions::file_rename($local, $destination);
-        echo "\n[$local]\n[$destination]";
-        print_r(pathinfo($destination));
+        // echo "\n[$local]\n[$destination]";
+        // print_r(pathinfo($destination));
         // exit;
         return pathinfo($destination, PATHINFO_BASENAME);
     }
