@@ -41,6 +41,7 @@ class TropicosArchiveAPI
         'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1); //timeout is 60 secs. * 3 = 3 mins.
                                                                                        //download_wait_time = 1000000 = 1 second; 300000 => .3 seconds
         //, 'delay_in_minutes' => 1
+        $this->preview_mode = true; //false is orig value
     }
 
     function get_all_taxa($resource_id)
@@ -79,10 +80,15 @@ class TropicosArchiveAPI
         return;
         */
 
-        self::assemble_id_list();
-        $batches = self::process_taxa($resource_id);
-        // exit;
-        self::combine_all_temp_archives($batches, $resource_id);
+        if(!$this->preview_mode) {
+            self::assemble_id_list();
+            $batches = self::process_taxa($resource_id);
+            // exit;
+            self::combine_all_temp_archives($batches, $resource_id);
+        }
+        else {
+            self::process_taxa($resource_id);
+        }
         // remove temp dir
         recursive_rmdir($this->TEMP_DIR);
         echo ("\n temporary directory removed: " . $this->TEMP_DIR);
@@ -90,71 +96,59 @@ class TropicosArchiveAPI
 
     private function process_taxa($resource_id)
     {
-        $temp_archive_batch_count = 20000; //debug orig is 10k //when testing use 200
-        $k = 0;
-        $i = 0;
-        foreach(new FileIterator($this->tropicos_ids_list_file) as $line_number => $taxon_id)
-        {
-            // self::check_server_downtime();
-            if($taxon_id) {
-                $i++;
-                if($i == 1) {
-                    $this->taxon_ids = array();
-                    $this->object_ids = array();
-                    $k++;
-                    echo "\n batch:[$k]\n";
-                    $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . "_$k" . '_working/';
-                    $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        if(!$this->preview_mode) {
+            // /* normal operation - orig block
+            $temp_archive_batch_count = 20000; //debug orig is 10k //when testing use 200
+            $k = 0;
+            $i = 0;
+            foreach(new FileIterator($this->tropicos_ids_list_file) as $line_number => $taxon_id)
+            {
+                // self::check_server_downtime();
+                if($taxon_id) {
+                    $i++;
+                    if($i == 1) {
+                        $this->taxon_ids = array();
+                        $this->object_ids = array();
+                        $k++;
+                        echo "\n batch:[$k]\n";
+                        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . "_$k" . '_working/';
+                        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+                    }
+
+                    if(($i % 500) == 0) echo "\n" . number_format($i) . " - [batch $k] ";
+                    self::process_taxon($taxon_id); //orig - uncomment in real operation... when not caching...
+
+                    // if($k >=  26   && $k < 28) self::process_taxon($taxon_id);
+                    // if($k >=  28   && $k < 29) self::process_taxon($taxon_id);
+                    // if($k >=  29   && $k < 30) self::process_taxon($taxon_id);
+
+                    if(($i % $temp_archive_batch_count) == 0) {
+                        $old_k = $k;
+                        echo "\nfinalizing batch [$k]\n";
+                        $this->archive_builder->finalize(TRUE);
+                        $i = 0; //reset to 0
+                    }
+
                 }
-
-                /* breakdown when caching - up to 5 simultaneous connectors --- NOT BEING USED ANYMORE, replaced by batch ($k) for multiple connectors below...
-                $m = 250000;
-                $cont = false;
-                // if($i >=  1    && $i < $m)    $cont = true;
-                // if($i >=  $m   && $i < $m*2)  $cont = true;
-                // if($i >=  $m*2 && $i < $m*3)  $cont = true;
-                // if($i >=  $m*3 && $i < $m*4)  $cont = true;
-                if(($i % $temp_archive_batch_count) == 0) {
-                    $old_k = $k;
-                    echo "\nfinalizing batch [$k]\n";
-                    $i = 0; //reset to 0
-                }
-                if(!$cont) continue;
-                */
-
-
-                if(($i % 500) == 0) echo "\n" . number_format($i) . " - [batch $k] ";
-                self::process_taxon($taxon_id); //orig - uncomment in real operation... when not caching...
-
-                /*
-                // if($k >=  26   && $k < 28) self::process_taxon($taxon_id);
-                // if($k >=  28   && $k < 29) self::process_taxon($taxon_id);
-                if($k >=  29   && $k < 30) self::process_taxon($taxon_id);
-                */
-                
-                if(($i % $temp_archive_batch_count) == 0) {
-                    $old_k = $k;
-                    echo "\nfinalizing batch [$k]\n";
-                    $this->archive_builder->finalize(TRUE);
-                    $i = 0; //reset to 0
-                }
-                
             }
+            if($old_k != $k) {
+                echo "\nfinalizing batch [$k]\n";
+                $this->archive_builder->finalize(TRUE);
+            }
+            return $k;
+            // */
         }
         
-        if($old_k != $k) {
-            echo "\nfinalizing batch [$k]\n";
+        if($this->preview_mode) {
+            // /* during preview mode -- debug
+            $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . '_working/';
+            $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+            $ids = array("100184", "100423", "21300106", "21300477", "21300646", "21300647", "21301287", "21301354", "21301544");
+            foreach($ids as $taxon_id) self::process_taxon($taxon_id);
             $this->archive_builder->finalize(TRUE);
+            // */
         }
-        
-        /* during preview mode -- debug
-        $ids = array("100184", "100423", "21300106", "21300477", "21300646", "21300647", "21301287", "21301354", "21301544");
-        foreach($ids as $taxon_id)
-        {
-            self::process_taxon($taxon_id);
-        }
-        */
-        return $k;
+
     }
 
     function process_taxon($taxon_id)
