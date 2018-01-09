@@ -46,11 +46,14 @@ class BHL_Flickr_croppedImagesAPI
         foreach(new FileIterator($local) as $line_number => $line) {
             $i++; $photo_id = trim($line);
             if(!$photo_id) continue;
+            // if($photo_id != "6001792845") continue; //debug only
+            if($photo_id != "6001785977") continue; // debug only - multiple binomial
+            
             echo "\n[$photo_id]\n";
             $j = self::process_photo($photo_id);
             $cropped_imgs = self::create_cropped_images($photo_id, $j);
             self::create_archive($photo_id, $j, $cropped_imgs);
-            if($i >= 1) break; //debug - process just 1 photo
+            if($i >= 10) break; //debug - process just 1 photo
         }
         unlink($local);
         $this->archive_builder->finalize(true);
@@ -219,19 +222,36 @@ class BHL_Flickr_croppedImagesAPI
                 [orig_cropped] => 72157680051511041_orig.jpg
                 [medium_cropped] => 72157680051511041_medium.jpg)*/
             $rec['sciname'] = self::get_sciname($note);
+            if(!$rec['sciname']) continue;
             $rec['taxon_id'] = str_replace(" ", "_", $rec['sciname']);
             $rec['source'] = self::get_photo_page($j);
             $rec['agents'][] = self::get_agent($note);
             $rec['agents'][] = self::bhl_as_agent();
             $rec['objects'][] = self::get_objects($note, $j);
-            print_r($rec);
+            // print_r($rec);
             self::write_archive($rec);
         }
     }
     private function get_sciname($note) // e.g. "taxonomy:binomial=&quot;Rhynchites similis&quot;"
     {
-        if(preg_match("/^taxonomy:binomial=(.+ .+)$/i", $note->_content, $arr)) return str_replace("&quot;", "", $arr[1]);
-        exit("\nInvestigate no binomial [$note->id]\n");
+        // if(preg_match("/^taxonomy:binomial=(.+ .+)$/i", $str, $arr)) return str_replace("&quot;", "", $arr[1]);
+        // taxonomy:binomial=&quot;Ischnura pumilio&quot;
+        
+        if(preg_match_all("/taxonomy:binomial=&quot;(.*?)&quot;/ims", $note->_content, $arr)) {
+            // echo "\nfound OK\n";
+            // print_r($arr[1]);
+            if(count($arr[1]) > 1)
+            {
+                print_r($note);
+                exit("\nMore than 1 binomials found [$note->id]\n");
+            }
+            else return $arr[1][0];
+        }
+        else echo "\nnothing found\n";
+        
+        print_r($note);
+        echo("\nInvestigate no binomial [$note->id]\n");
+        return false;
     }
     private function get_photo_page($j)
     {
