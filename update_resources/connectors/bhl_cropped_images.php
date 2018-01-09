@@ -37,6 +37,8 @@ $resource_id = "bhl_cropped_images";
 require_library('connectors/BHL_Flickr_croppedImagesAPI');
 $func = new BHL_Flickr_croppedImagesAPI($resource_id);
 $func->start();
+Functions::finalize_dwca_resource($resource_id);
+
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
