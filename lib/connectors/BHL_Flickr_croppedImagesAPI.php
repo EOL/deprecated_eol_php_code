@@ -49,16 +49,17 @@ class BHL_Flickr_croppedImagesAPI
             
             // if($photo_id != "6001792845") continue; //debug only
             // if($photo_id != "6001785977") continue; // debug only - multiple binomial
+            if($photo_id != "6105705787") continue; //debug only
             
             echo "\n[$photo_id]\n";
             $j = self::process_photo($photo_id);
             $cropped_imgs = self::create_cropped_images($photo_id, $j);
             self::create_archive($photo_id, $j, $cropped_imgs);
-            if($i >= 10) break; //debug - process just 1 photo
+            if($i >= 10) break; //debug - process limited no. of photos during development
         }
         unlink($local);
         $this->archive_builder->finalize(true);
-        print_r($this->debug);
+        if($this->debug) print_r($this->debug);
     }
     private function process_photo($photo_id)
     {
@@ -224,7 +225,12 @@ class BHL_Flickr_croppedImagesAPI
                 [medium_cropped] => 72157680051511041_medium.jpg)*/
 
             $info = self::get_sciname($note, $j->photo->id);
-            if(!@$info['binomials']) continue;
+            if(!@$info['binomials'])
+            {
+                $info = self::adjust_names($info);
+            }
+            print_r($info);
+            
             /*Array (
                 [common] => Array (
                         [0] => Black Meadowhawk
@@ -270,8 +276,28 @@ class BHL_Flickr_croppedImagesAPI
             self::write_archive($rec, 'object', $taxon_ids);
         }
     }
+    private function adjust_names($info)
+    {
+        $ranks = array("genus", "family", "order", "class", "phylum", "kingdom");
+        /* algorithm:
+        if($sciname = $info['genus']) {
+            $info['genus'] = '';
+            $info['binomials'][] = $sciname;
+            return $info;
+        }
+        */
+        foreach($ranks as $rank) {
+            if($sciname = @$info[$rank]) {
+                $info[$rank] = '';
+                $info['binomials'][] = $sciname;
+                return $info;
+            }
+        }
+        return $info;
+    }
     private function get_sciname($note, $photo_id) // e.g. "taxonomy:binomial=&quot;Rhynchites similis&quot;"
     {
+        echo "\n$note->_content\n";
         // if(preg_match("/^taxonomy:binomial=(.+ .+)$/i", $str, $arr)) return str_replace("&quot;", "", $arr[1]);
         // taxonomy:binomial=&quot;Ischnura pumilio&quot;
         
@@ -293,18 +319,37 @@ class BHL_Flickr_croppedImagesAPI
         if(preg_match("/taxonomy:family=(.*?)\\\n/ims", $note->_content, $arr)) $final['family'] = $arr[1];
         if(preg_match("/taxonomy:genus=(.*?)\\\n/ims", $note->_content, $arr)) $final['genus'] = $arr[1];
 
+        // $final = self::extra_string_process_for_ancestry($note->_content, $final);
+
+        // where ending string is end of XML tag, nothing. So replaced it with string 'elix'
+        if(preg_match("/taxonomy:kingdom=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['kingdom'] = $arr[1];
+        if(preg_match("/taxonomy:phylum=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['phylum'] = $arr[1];
+        if(preg_match("/taxonomy:class=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['class'] = $arr[1];
+        if(preg_match("/taxonomy:order=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['order'] = $arr[1];
+        if(preg_match("/taxonomy:family=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['family'] = $arr[1];
+        if(preg_match("/taxonomy:genus=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['genus'] = $arr[1];
+        
 
         if(preg_match_all("/taxonomy:binomial=&quot;(.*?)&quot;/ims", $note->_content, $arr)) {
             $final['binomials'] = $arr[1];
-            // print_r($final); exit;
             return $final;
         }
-        else echo "\nnothing found\n";
+        elseif(@$final['kingdom']||@$final['phylum']||@$final['class']||@$final['order']||@$final['family']||@$final['genus'])
+        {
+            return $final;
+        }
+        else echo "\nnothing found: no binomial nor any ancestry\n";
 
-        $this->debug['no binomial'][$photo_id][$note->id] = '';
+        $this->debug['no binomial nor ancestry'][$photo_id][$note->id] = '';
         print_r($note);
-        echo("\nInvestigate no binomial [$note->id]\n");
+        echo("\nInvestigate no binomial nor ancestry [$photo_id][$note->id]\n");
         return false;
+    }
+    private function extra_string_process_for_ancestry($str, $final)
+    {
+        $arr = explode("\n", $str);
+        print_r($arr); exit;
+        return $final;
     }
     private function get_photo_page($j)
     {
