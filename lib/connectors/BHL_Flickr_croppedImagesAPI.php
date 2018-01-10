@@ -87,7 +87,10 @@ class BHL_Flickr_croppedImagesAPI
         $origsize_file_page = $rec->url;
 
         $rec = self::get_size_details($photo_id, "Medium");
-        $medium_file = self::download_photo($photo_id, "Medium", $rec);
+        /*
+        $medium_file = self::download_photo($photo_id, "Medium", $rec); //works OK but just commented as we don't crop the Medium size image
+        */
+        $medium_file = "";
         $mediumsize_file_page = $rec->url;
         
         //compute & save new coordinates
@@ -104,8 +107,6 @@ class BHL_Flickr_croppedImagesAPI
                 
                 $note->origsize_file_page = $origsize_file_page;
                 $note->mediumsize_file_page = $mediumsize_file_page;
-                
-                
                 // print_r($note);
             }
             return $j;
@@ -131,10 +132,13 @@ class BHL_Flickr_croppedImagesAPI
             $cmd_line = "convert ".$path.$note->orig_file." -crop ".$note->cmd_orig." ".$path.$filename;
             if(!file_exists($path.$filename)) shell_exec($cmd_line); //don't re-create image
 
+            /*
             $filename = $note->id."_medium".".$file_extension";
             $note->medium_cropped = $filename;
             $cmd_line = "convert ".$path.$note->medium_file." -crop ".$note->cmd_medium." ".$path.$filename;
             if(!file_exists($path.$filename)) shell_exec($cmd_line); //don't re-create image
+            */
+            
             $final[] = $note;
         }
         // print_r($final);
