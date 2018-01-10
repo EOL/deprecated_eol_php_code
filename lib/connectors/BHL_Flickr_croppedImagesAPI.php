@@ -54,7 +54,7 @@ class BHL_Flickr_croppedImagesAPI
             // if($photo_id != "6105705787") continue; //debug only
             // if($photo_id != "6266864276") continue; //debug only
             // if($photo_id != "8220470473") continue; //debug only
-            // if($photo_id != "8570737975") continue; //debug only
+            // if($photo_id != "6358019045") continue; //debug only
             
             echo "\n[$photo_id]\n";
             $j = self::process_photo($photo_id);
@@ -129,14 +129,12 @@ class BHL_Flickr_croppedImagesAPI
             $filename = $note->id."_orig".".$file_extension";
             $note->orig_cropped = $filename;
             $cmd_line = "convert ".$path.$note->orig_file." -crop ".$note->cmd_orig." ".$path.$filename;
-            // echo "\n[$cmd_line]\n";
-            shell_exec($cmd_line);
+            if(!file_exists($path.$filename)) shell_exec($cmd_line); //don't re-create image
 
             $filename = $note->id."_medium".".$file_extension";
             $note->medium_cropped = $filename;
             $cmd_line = "convert ".$path.$note->medium_file." -crop ".$note->cmd_medium." ".$path.$filename;
-            // echo "\n[$cmd_line]\n";
-            shell_exec($cmd_line);
+            if(!file_exists($path.$filename)) shell_exec($cmd_line); //don't re-create image
             $final[] = $note;
         }
         // print_r($final);
@@ -289,7 +287,7 @@ class BHL_Flickr_croppedImagesAPI
     }
     private function adjust_names($info)
     {
-        $ranks = array("genus", "family", "order", "class", "phylum", "kingdom", "superfamily");
+        $ranks = array("genus", "family", "order", "class", "phylum", "kingdom", "superfamily","suborder");
         /* algorithm:
         if($sciname = $info['genus']) {
             $info['genus'] = '';
@@ -345,11 +343,15 @@ class BHL_Flickr_croppedImagesAPI
         if(!@$final['common']) if(preg_match_all("/taxonomy:common=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['common'] = $arr[1];
 
         if(!@$final['order']) if(preg_match("/taxonomy: order=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['order'] = $arr[1];
+        if(!@$final['suborder']) if(preg_match("/taxonomy:suborder=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['suborder'] = $arr[1];
 
         // binomail
-        
+        // $new_str = trim($note->_content)."\n";
         if(preg_match_all("/taxonomy:binomial=&quot;(.*?)&quot;/ims", $note->_content, $arr) ||
-           preg_match_all("/taxonomy:binomail=&quot;(.*?)&quot;/ims", $note->_content, $arr)
+           preg_match_all("/taxonomy:binomail=&quot;(.*?)&quot;/ims", $note->_content, $arr) ||
+           preg_match_all("/taxonomy:binomial=(.*?)\\\n/ims", $note->_content, $arr) ||
+           preg_match_all("/taxonomy:binomial=(.*?)elix/ims", $note->_content.'elix', $arr)
+           // preg_match_all("/taxonomy:binomial=(.*?)\\\n/ims", $new_str, $arr)
         ) {
             $final['binomials'] = $arr[1];
             $final['rank'] = 'species';
@@ -369,7 +371,7 @@ class BHL_Flickr_croppedImagesAPI
             $final['rank'] = '';
             return $final;
         }
-        elseif(@$final['kingdom']||@$final['phylum']||@$final['class']||@$final['order']||@$final['family']||@$final['genus']||@$final['superfamily'])
+        elseif(@$final['kingdom']||@$final['phylum']||@$final['class']||@$final['order']||@$final['family']||@$final['genus']||@$final['superfamily']||@$final['suborder'])
         {
             return $final;
         }
@@ -405,7 +407,7 @@ class BHL_Flickr_croppedImagesAPI
     }
     private function get_agent($note)
     {
-        $agent['name'] = $note->authorrealname;
+        $agent['name'] = $note->authorrealname != "" ? $note->authorrealname: $note->authorname;
         $agent['role'] = 'creator';
         $agent['homepage'] = "https://www.flickr.com/photos/".$note->author."/";
         return $agent;
