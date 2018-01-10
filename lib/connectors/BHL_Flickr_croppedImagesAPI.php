@@ -21,7 +21,8 @@ class BHL_Flickr_croppedImagesAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         $this->download_options = array('cache' => 1, 'resource_id' => 'flickr', 'expire_seconds' => 60*60*24*30, 'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-
+        $this->download_options['expire_seconds'] = false;
+        
         $this->flickr_photo_ids_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/bhl_images_with_box_coordinates.txt";
         $this->api['getInfo'] = "https://api.flickr.com/services/rest/?&method=flickr.photos.getInfo&api_key=".FLICKR_API_KEY."&extras=geo,tags,machine_tags,o_dims,views,media";
         $this->api['getInfo'] .= "&format=json&nojsoncallback=1";
@@ -37,6 +38,7 @@ class BHL_Flickr_croppedImagesAPI
         $this->media_path = "https://editors.eol.org/other_files/BHL_cropped_images/";
         
         // https://api.flickr.com/services/rest/?&method=flickr.photos.getSizes&api_key=7856957eced5a8ddbad50f1bca0db452&format=rest&nojsoncallback=1&photo_id=5987276725
+        $this->debug = array();
     }
     public function start()
     {
@@ -49,17 +51,21 @@ class BHL_Flickr_croppedImagesAPI
             
             // if($photo_id != "6001792845") continue; //debug only
             // if($photo_id != "6001785977") continue; // debug only - multiple binomial
-            if($photo_id != "6105705787") continue; //debug only
+            // if($photo_id != "6105705787") continue; //debug only
+            // if($photo_id != "6266864276") continue; //debug only
+            // if($photo_id != "8220470473") continue; //debug only
+            
             
             echo "\n[$photo_id]\n";
             $j = self::process_photo($photo_id);
             $cropped_imgs = self::create_cropped_images($photo_id, $j);
             self::create_archive($photo_id, $j, $cropped_imgs);
-            if($i >= 10) break; //debug - process limited no. of photos during development
+            // if($i >= 10) break; //debug - process limited no. of photos during development
         }
         unlink($local);
         $this->archive_builder->finalize(true);
         if($this->debug) print_r($this->debug);
+        else echo "\n-No debug errors-\n";
     }
     private function process_photo($photo_id)
     {
@@ -155,7 +161,6 @@ class BHL_Flickr_croppedImagesAPI
         Functions::file_rename($local, $destination);
         // echo "\n[$local]\n[$destination]";
         // print_r(pathinfo($destination));
-        // exit;
         return pathinfo($destination, PATHINFO_BASENAME);
     }
     private function compute_new_coordinates_for_default_medium($note, $medium) // w x h + x + y
@@ -259,6 +264,7 @@ class BHL_Flickr_croppedImagesAPI
                 $rec['order'] = @$info['order'];
                 $rec['family'] = @$info['family'];
                 $rec['genus'] = @$info['genus'];
+                $rec['rank'] = @$info['rank'];
                 
                 $rec['source'] = self::get_photo_page($j);
                 self::write_archive($rec, 'taxon');
@@ -290,6 +296,7 @@ class BHL_Flickr_croppedImagesAPI
             if($sciname = @$info[$rank]) {
                 $info[$rank] = '';
                 $info['binomials'][] = $sciname;
+                $info['rank'] = $rank;
                 return $info;
             }
         }
@@ -298,9 +305,6 @@ class BHL_Flickr_croppedImagesAPI
     private function get_sciname($note, $photo_id) // e.g. "taxonomy:binomial=&quot;Rhynchites similis&quot;"
     {
         echo "\n$note->_content\n";
-        // if(preg_match("/^taxonomy:binomial=(.+ .+)$/i", $str, $arr)) return str_replace("&quot;", "", $arr[1]);
-        // taxonomy:binomial=&quot;Ischnura pumilio&quot;
-        
         $final = array();
         
         if(preg_match("/taxonomy:kingdom=&quot;(.*?)&quot;/ims", $note->_content, $arr)) $final['kingdom'] = $arr[1];
@@ -312,25 +316,38 @@ class BHL_Flickr_croppedImagesAPI
         if(preg_match_all("/taxonomy:common=&quot;(.*?)&quot;/ims", $note->_content, $arr)) $final['common'] = $arr[1];
 
         //seems separated by \n or 'next line'
-        if(preg_match("/taxonomy:kingdom=(.*?)\\\n/ims", $note->_content, $arr)) $final['kingdom'] = $arr[1];
-        if(preg_match("/taxonomy:phylum=(.*?)\\\n/ims", $note->_content, $arr)) $final['phylum'] = $arr[1];
-        if(preg_match("/taxonomy:class=(.*?)\\\n/ims", $note->_content, $arr)) $final['class'] = $arr[1];
-        if(preg_match("/taxonomy:order=(.*?)\\\n/ims", $note->_content, $arr)) $final['order'] = $arr[1];
-        if(preg_match("/taxonomy:family=(.*?)\\\n/ims", $note->_content, $arr)) $final['family'] = $arr[1];
-        if(preg_match("/taxonomy:genus=(.*?)\\\n/ims", $note->_content, $arr)) $final['genus'] = $arr[1];
+        if(!@$final['kingdom']) if(preg_match("/taxonomy:kingdom=(.*?)\\\n/ims", $note->_content, $arr)) $final['kingdom'] = $arr[1];
+        if(!@$final['phylum']) if(preg_match("/taxonomy:phylum=(.*?)\\\n/ims", $note->_content, $arr)) $final['phylum'] = $arr[1];
+        if(!@$final['class']) if(preg_match("/taxonomy:class=(.*?)\\\n/ims", $note->_content, $arr)) $final['class'] = $arr[1];
+        if(!@$final['order']) if(preg_match("/taxonomy:order=(.*?)\\\n/ims", $note->_content, $arr)) $final['order'] = $arr[1];
+        if(!@$final['family']) if(preg_match("/taxonomy:family=(.*?)\\\n/ims", $note->_content, $arr)) $final['family'] = $arr[1];
+        if(!@$final['genus']) if(preg_match("/taxonomy:genus=(.*?)\\\n/ims", $note->_content, $arr)) $final['genus'] = $arr[1];
+        if(!@$final['common']) if(preg_match_all("/taxonomy:common=(.*?)\\\n/ims", $note->_content, $arr)) $final['common'] = $arr[1];
 
-        // $final = self::extra_string_process_for_ancestry($note->_content, $final);
+        if(!@$final['order']) if(preg_match("/taxonomy: order=(.*?)\\\n/ims", $note->_content, $arr)) $final['order'] = $arr[1];
 
         // where ending string is end of XML tag, nothing. So replaced it with string 'elix'
-        if(preg_match("/taxonomy:kingdom=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['kingdom'] = $arr[1];
-        if(preg_match("/taxonomy:phylum=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['phylum'] = $arr[1];
-        if(preg_match("/taxonomy:class=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['class'] = $arr[1];
-        if(preg_match("/taxonomy:order=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['order'] = $arr[1];
-        if(preg_match("/taxonomy:family=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['family'] = $arr[1];
-        if(preg_match("/taxonomy:genus=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['genus'] = $arr[1];
-        
+        if(!@$final['kingdom']) if(preg_match("/taxonomy:kingdom=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['kingdom'] = $arr[1];
+        if(!@$final['phylum']) if(preg_match("/taxonomy:phylum=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['phylum'] = $arr[1];
+        if(!@$final['class']) if(preg_match("/taxonomy:class=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['class'] = $arr[1];
+        if(!@$final['order']) if(preg_match("/taxonomy:order=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['order'] = $arr[1];
+        if(!@$final['family']) if(preg_match("/taxonomy:family=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['family'] = $arr[1];
+        if(!@$final['genus']) if(preg_match("/taxonomy:genus=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['genus'] = $arr[1];
+        if(!@$final['common']) if(preg_match_all("/taxonomy:common=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['common'] = $arr[1];
+
+        if(!@$final['order']) if(preg_match("/taxonomy: order=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['order'] = $arr[1];
 
         if(preg_match_all("/taxonomy:binomial=&quot;(.*?)&quot;/ims", $note->_content, $arr)) {
+            $final['binomials'] = $arr[1];
+            $final['rank'] = 'species';
+            return $final;
+        }
+        elseif(preg_match_all("/taxonomy:binomial=(.*?)&quot;/ims", $note->_content, $arr)) { // [_content] => &quot;taxonomy:binomial=Melittia snowii&quot;
+            $final['binomials'] = $arr[1];
+            $final['rank'] = 'species';
+            return $final;
+        }
+        if(preg_match_all("/taxonomy:trinomial=&quot;(.*?)&quot;/ims", $note->_content, $arr)) {
             $final['binomials'] = $arr[1];
             return $final;
         }
@@ -345,12 +362,14 @@ class BHL_Flickr_croppedImagesAPI
         echo("\nInvestigate no binomial nor ancestry [$photo_id][$note->id]\n");
         return false;
     }
+    /*
     private function extra_string_process_for_ancestry($str, $final)
     {
         $arr = explode("\n", $str);
-        print_r($arr); exit;
+        print_r($arr);
         return $final;
     }
+    */
     private function get_photo_page($j)
     {
         foreach($j->photo->urls->url as $url) {
@@ -393,6 +412,8 @@ class BHL_Flickr_croppedImagesAPI
             $taxon->order = @$rec['order'];
             $taxon->family = @$rec['family'];
             $taxon->genus = @$rec['genus'];
+            $taxon->taxonRank = @$rec['rank'];
+            
             
             $taxon->furtherInformationURL = $rec['source'];
             if(!isset($this->taxon_ids[$taxon->taxonID])) {
@@ -402,7 +423,6 @@ class BHL_Flickr_croppedImagesAPI
         }
         
         if($what == 'vernacular') {
-            // print_r($rec); exit;
             foreach($rec as $comname) {
                 $v = new \eol_schema\VernacularName();
                 $v->taxonID         = implode("; ", $taxon_ids); //this is just one id
