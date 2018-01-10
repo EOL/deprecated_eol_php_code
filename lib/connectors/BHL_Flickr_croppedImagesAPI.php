@@ -54,7 +54,7 @@ class BHL_Flickr_croppedImagesAPI
             // if($photo_id != "6105705787") continue; //debug only
             // if($photo_id != "6266864276") continue; //debug only
             // if($photo_id != "8220470473") continue; //debug only
-            
+            // if($photo_id != "8570737975") continue; //debug only
             
             echo "\n[$photo_id]\n";
             $j = self::process_photo($photo_id);
@@ -64,7 +64,11 @@ class BHL_Flickr_croppedImagesAPI
         }
         unlink($local);
         $this->archive_builder->finalize(true);
-        if($this->debug) print_r($this->debug);
+        if($this->debug)
+        {
+            print_r($this->debug);
+            echo "\n".count($this->debug['no binomial nor ancestry'])."\n";
+        }
         else echo "\n-No debug errors-\n";
     }
     private function process_photo($photo_id)
@@ -251,6 +255,7 @@ class BHL_Flickr_croppedImagesAPI
                     )
             )*/
             $taxon_ids = array();
+            if(!@$info['binomials']) continue;
             foreach($info['binomials'] as $sciname) {
                 $rec = array();
                 $rec['sciname'] = $sciname;
@@ -284,7 +289,7 @@ class BHL_Flickr_croppedImagesAPI
     }
     private function adjust_names($info)
     {
-        $ranks = array("genus", "family", "order", "class", "phylum", "kingdom");
+        $ranks = array("genus", "family", "order", "class", "phylum", "kingdom", "superfamily");
         /* algorithm:
         if($sciname = $info['genus']) {
             $info['genus'] = '';
@@ -314,6 +319,7 @@ class BHL_Flickr_croppedImagesAPI
         if(preg_match("/taxonomy:family=&quot;(.*?)&quot;/ims", $note->_content, $arr)) $final['family'] = $arr[1];
         if(preg_match("/taxonomy:genus=&quot;(.*?)&quot;/ims", $note->_content, $arr)) $final['genus'] = $arr[1];
         if(preg_match_all("/taxonomy:common=&quot;(.*?)&quot;/ims", $note->_content, $arr)) $final['common'] = $arr[1];
+        
 
         //seems separated by \n or 'next line'
         if(!@$final['kingdom']) if(preg_match("/taxonomy:kingdom=(.*?)\\\n/ims", $note->_content, $arr)) $final['kingdom'] = $arr[1];
@@ -325,6 +331,9 @@ class BHL_Flickr_croppedImagesAPI
         if(!@$final['common']) if(preg_match_all("/taxonomy:common=(.*?)\\\n/ims", $note->_content, $arr)) $final['common'] = $arr[1];
 
         if(!@$final['order']) if(preg_match("/taxonomy: order=(.*?)\\\n/ims", $note->_content, $arr)) $final['order'] = $arr[1];
+        if(!@$final['superfamily']) if(preg_match("/taxonomy:superfamily=(.*?)\\\n/ims", $note->_content, $arr)) $final['superfamily'] = $arr[1];
+        
+        
 
         // where ending string is end of XML tag, nothing. So replaced it with string 'elix'
         if(!@$final['kingdom']) if(preg_match("/taxonomy:kingdom=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['kingdom'] = $arr[1];
@@ -337,7 +346,11 @@ class BHL_Flickr_croppedImagesAPI
 
         if(!@$final['order']) if(preg_match("/taxonomy: order=(.*?)elix/ims", $note->_content.'elix', $arr)) $final['order'] = $arr[1];
 
-        if(preg_match_all("/taxonomy:binomial=&quot;(.*?)&quot;/ims", $note->_content, $arr)) {
+        // binomail
+        
+        if(preg_match_all("/taxonomy:binomial=&quot;(.*?)&quot;/ims", $note->_content, $arr) ||
+           preg_match_all("/taxonomy:binomail=&quot;(.*?)&quot;/ims", $note->_content, $arr)
+        ) {
             $final['binomials'] = $arr[1];
             $final['rank'] = 'species';
             return $final;
@@ -351,7 +364,12 @@ class BHL_Flickr_croppedImagesAPI
             $final['binomials'] = $arr[1];
             return $final;
         }
-        elseif(@$final['kingdom']||@$final['phylum']||@$final['class']||@$final['order']||@$final['family']||@$final['genus'])
+        elseif(preg_match_all("/taxonomy:current=&quot;(.*?)&quot;/ims", $note->_content, $arr)) {
+            $final['binomials'] = $arr[1];
+            $final['rank'] = '';
+            return $final;
+        }
+        elseif(@$final['kingdom']||@$final['phylum']||@$final['class']||@$final['order']||@$final['family']||@$final['genus']||@$final['superfamily'])
         {
             return $final;
         }
@@ -413,7 +431,6 @@ class BHL_Flickr_croppedImagesAPI
             $taxon->family = @$rec['family'];
             $taxon->genus = @$rec['genus'];
             $taxon->taxonRank = @$rec['rank'];
-            
             
             $taxon->furtherInformationURL = $rec['source'];
             if(!isset($this->taxon_ids[$taxon->taxonID])) {
