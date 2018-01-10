@@ -203,7 +203,6 @@ class BHL_Flickr_croppedImagesAPI
     private function create_archive($photo_id, $j, $cropped_imgs)
     {
         foreach($j->photo->notes->note as $note) {
-            $rec = array();
             /* stdClass Object (
                 [id] => 72157680051511041
                 [author] => 126912357@N06
@@ -221,15 +220,31 @@ class BHL_Flickr_croppedImagesAPI
                 [medium_file] => 5987276725_Medium.jpg
                 [orig_cropped] => 72157680051511041_orig.jpg
                 [medium_cropped] => 72157680051511041_medium.jpg)*/
-            $rec['sciname'] = self::get_sciname($note);
-            if(!$rec['sciname']) continue;
-            $rec['taxon_id'] = str_replace(" ", "_", $rec['sciname']);
-            $rec['source'] = self::get_photo_page($j);
+
+            $rec = array();
+            $scinames_arr = self::get_sciname($note);
+            if(!$scinames_arr) continue;
+            
+            $taxon_ids = array();
+            foreach($scinames_arr as $sciname) {
+                $rec['sciname'] = $sciname;
+                if(!$rec['sciname']) continue;
+                $rec['taxon_id'] = str_replace(" ", "_", $rec['sciname']);
+                $taxon_ids[$rec['taxon_id']] = ''; //to be use when writing objects
+                $rec['source'] = self::get_photo_page($j);
+                self::write_archive($rec, 'taxon');
+            }
+            
+            $taxon_ids = array_keys($taxon_ids);
+            $scinames_arr['taxon_ids'] = $taxon_ids;
+            
             $rec['agents'][] = self::get_agent($note);
             $rec['agents'][] = self::bhl_as_agent();
             $rec['objects'][] = self::get_objects($note, $j);
-            // print_r($rec);
-            self::write_archive($rec);
+            print_r($rec);
+            self::write_archive($rec, 'object', $taxon_ids);
+            
+            
         }
     }
     private function get_sciname($note) // e.g. "taxonomy:binomial=&quot;Rhynchites similis&quot;"
@@ -237,16 +252,7 @@ class BHL_Flickr_croppedImagesAPI
         // if(preg_match("/^taxonomy:binomial=(.+ .+)$/i", $str, $arr)) return str_replace("&quot;", "", $arr[1]);
         // taxonomy:binomial=&quot;Ischnura pumilio&quot;
         
-        if(preg_match_all("/taxonomy:binomial=&quot;(.*?)&quot;/ims", $note->_content, $arr)) {
-            // echo "\nfound OK\n";
-            // print_r($arr[1]);
-            if(count($arr[1]) > 1)
-            {
-                print_r($note);
-                exit("\nMore than 1 binomials found [$note->id]\n");
-            }
-            else return $arr[1][0];
-        }
+        if(preg_match_all("/taxonomy:binomial=&quot;(.*?)&quot;/ims", $note->_content, $arr)) return $arr[1];
         else echo "\nnothing found\n";
         
         print_r($note);
@@ -282,50 +288,54 @@ class BHL_Flickr_croppedImagesAPI
         $agent['homepage'] = "https://www.flickr.com/photos/biodivlibrary/";
         return $agent;
     }
-    private function write_archive($rec)
+    private function write_archive($rec, $what, $taxon_ids = false)
     {
-        $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID         = $rec['taxon_id'];
-        $taxon->scientificName  = $rec['sciname'];
-        // $taxon->kingdom         = $t['dwc_Kingdom'];
-        $taxon->furtherInformationURL = $rec['source'];
-        if(!isset($this->taxon_ids[$taxon->taxonID])) {
-            $this->archive_builder->write_object_to_file($taxon);
-            $this->taxon_ids[$taxon->taxonID] = '';
-        }
-        //start objects
-        foreach($rec['objects'] as $o) {
-            $mr = new \eol_schema\MediaResource();
-            $mr->taxonID        = $rec['taxon_id'];
-            $mr->identifier     = $o['identifier'];
-            $mr->format         = Functions::get_mimetype($o['media_url']);
-            $mr->type           = Functions::get_datatype_given_mimetype($mr->format);
-            $mr->furtherInformationURL = $rec['source'];
-            $mr->accessURI      = $o['media_url'];
-            $mr->UsageTerms     = $o['license'];
-            if($agent_ids = self::create_agents($rec['agents'])) $mr->agentID = implode("; ", $agent_ids);
-
-            /* not included
-            $mr->language       = '';
-            $mr->thumbnailURL   = '';
-            $mr->CVterm         = '';
-            $mr->Owner          = '';
-            $mr->rights         = '';
-            $mr->title          = '';
-            $mr->description    = '';
-            $mr->LocationCreated = '';
-            $mr->bibliographicCitation = '';
-            $mr->audience       = 'Everyone';
-            if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
-            */
-            
-            if(!isset($this->object_ids[$mr->identifier])) {
-                $this->archive_builder->write_object_to_file($mr);
-                $this->object_ids[$mr->identifier] = '';
+        if($what == 'taxon') {
+            $taxon = new \eol_schema\Taxon();
+            $taxon->taxonID         = $rec['taxon_id'];
+            $taxon->scientificName  = $rec['sciname'];
+            // $taxon->kingdom         = $t['dwc_Kingdom'];
+            $taxon->furtherInformationURL = $rec['source'];
+            if(!isset($this->taxon_ids[$taxon->taxonID])) {
+                $this->archive_builder->write_object_to_file($taxon);
+                $this->taxon_ids[$taxon->taxonID] = '';
             }
         }
-        
-        
+
+        if($what == 'object') {
+            //start objects
+            foreach($rec['objects'] as $o) {
+                $mr = new \eol_schema\MediaResource();
+                $mr->taxonID        = implode("; ", $taxon_ids); //$rec['taxon_id'];
+                $mr->identifier     = $o['identifier'];
+                $mr->format         = Functions::get_mimetype($o['media_url']);
+                $mr->type           = Functions::get_datatype_given_mimetype($mr->format);
+                $mr->furtherInformationURL = $rec['source'];
+                $mr->accessURI      = $o['media_url'];
+                $mr->UsageTerms     = $o['license'];
+                if($agent_ids = self::create_agents($rec['agents'])) $mr->agentID = implode("; ", $agent_ids);
+
+                /* not included
+                $mr->language       = '';
+                $mr->thumbnailURL   = '';
+                $mr->CVterm         = '';
+                $mr->Owner          = '';
+                $mr->rights         = '';
+                $mr->title          = '';
+                $mr->description    = '';
+                $mr->LocationCreated = '';
+                $mr->bibliographicCitation = '';
+                $mr->audience       = 'Everyone';
+                if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
+                */
+
+                if(!isset($this->object_ids[$mr->identifier])) {
+                    $this->archive_builder->write_object_to_file($mr);
+                    $this->object_ids[$mr->identifier] = '';
+                }
+            }
+        }
+
     }
     private function create_agents($agents)
     {
@@ -343,6 +353,7 @@ class BHL_Flickr_croppedImagesAPI
                $this->archive_builder->write_object_to_file($r);
             }
         }
+        return $agent_ids;
     }
     
 }
