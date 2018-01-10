@@ -6,6 +6,7 @@ https://github.com/eliagbayani/EOL-connector-data-files/raw/master/schema/eol_im
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
+exit("\nDown due to system maintenance.\n");
 require_library('connectors/Spreadsheet2DwCA');
 //===========================================================================================new - start -- handles cmdline params
 // print_r($argv);
