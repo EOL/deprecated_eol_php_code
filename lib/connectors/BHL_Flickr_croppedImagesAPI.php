@@ -46,8 +46,9 @@ class BHL_Flickr_croppedImagesAPI
         foreach(new FileIterator($local) as $line_number => $line) {
             $i++; $photo_id = trim($line);
             if(!$photo_id) continue;
+            
             // if($photo_id != "6001792845") continue; //debug only
-            if($photo_id != "6001785977") continue; // debug only - multiple binomial
+            // if($photo_id != "6001785977") continue; // debug only - multiple binomial
             
             echo "\n[$photo_id]\n";
             $j = self::process_photo($photo_id);
@@ -57,6 +58,7 @@ class BHL_Flickr_croppedImagesAPI
         }
         unlink($local);
         $this->archive_builder->finalize(true);
+        print_r($this->debug);
     }
     private function process_photo($photo_id)
     {
@@ -221,40 +223,85 @@ class BHL_Flickr_croppedImagesAPI
                 [orig_cropped] => 72157680051511041_orig.jpg
                 [medium_cropped] => 72157680051511041_medium.jpg)*/
 
-            $rec = array();
-            $scinames_arr = self::get_sciname($note);
-            if(!$scinames_arr) continue;
-            
+            $info = self::get_sciname($note, $j->photo->id);
+            if(!@$info['binomials']) continue;
+            /*Array (
+                [common] => Array (
+                        [0] => Black Meadowhawk
+                        [1] => Black Darter
+                    )
+                [phylum] => Arthropoda
+                [class] => Insecta
+                [order] => Odonata
+                [family] => Libellulidae
+                [binomials] => Array (
+                        [0] => Sympetrum scoticum
+                        [1] => Sympetrum danae
+                    )
+            )*/
             $taxon_ids = array();
-            foreach($scinames_arr as $sciname) {
+            foreach($info['binomials'] as $sciname) {
+                $rec = array();
                 $rec['sciname'] = $sciname;
                 if(!$rec['sciname']) continue;
                 $rec['taxon_id'] = str_replace(" ", "_", $rec['sciname']);
                 $taxon_ids[$rec['taxon_id']] = ''; //to be use when writing objects
+
+                $rec['kingdom'] = @$info['kingdom'];
+                $rec['phylum'] = @$info['phylum'];
+                $rec['class'] = @$info['class'];
+                $rec['order'] = @$info['order'];
+                $rec['family'] = @$info['family'];
+                $rec['genus'] = @$info['genus'];
+                
                 $rec['source'] = self::get_photo_page($j);
                 self::write_archive($rec, 'taxon');
             }
-            
             $taxon_ids = array_keys($taxon_ids);
-            $scinames_arr['taxon_ids'] = $taxon_ids;
+
+            if(count($info['binomials']) == 1) //only when there is only 1 binomial where we process vernaculars
+            {
+                if($val = @$info['common']) self::write_archive($val, 'vernacular', $taxon_ids); 
+            }
             
             $rec['agents'][] = self::get_agent($note);
             $rec['agents'][] = self::bhl_as_agent();
             $rec['objects'][] = self::get_objects($note, $j);
-            print_r($rec);
             self::write_archive($rec, 'object', $taxon_ids);
-            
-            
         }
     }
-    private function get_sciname($note) // e.g. "taxonomy:binomial=&quot;Rhynchites similis&quot;"
+    private function get_sciname($note, $photo_id) // e.g. "taxonomy:binomial=&quot;Rhynchites similis&quot;"
     {
         // if(preg_match("/^taxonomy:binomial=(.+ .+)$/i", $str, $arr)) return str_replace("&quot;", "", $arr[1]);
         // taxonomy:binomial=&quot;Ischnura pumilio&quot;
         
-        if(preg_match_all("/taxonomy:binomial=&quot;(.*?)&quot;/ims", $note->_content, $arr)) return $arr[1];
-        else echo "\nnothing found\n";
+        $final = array();
         
+        if(preg_match("/taxonomy:kingdom=&quot;(.*?)&quot;/ims", $note->_content, $arr)) $final['kingdom'] = $arr[1];
+        if(preg_match("/taxonomy:phylum=&quot;(.*?)&quot;/ims", $note->_content, $arr)) $final['phylum'] = $arr[1];
+        if(preg_match("/taxonomy:class=&quot;(.*?)&quot;/ims", $note->_content, $arr)) $final['class'] = $arr[1];
+        if(preg_match("/taxonomy:order=&quot;(.*?)&quot;/ims", $note->_content, $arr)) $final['order'] = $arr[1];
+        if(preg_match("/taxonomy:family=&quot;(.*?)&quot;/ims", $note->_content, $arr)) $final['family'] = $arr[1];
+        if(preg_match("/taxonomy:genus=&quot;(.*?)&quot;/ims", $note->_content, $arr)) $final['genus'] = $arr[1];
+        if(preg_match_all("/taxonomy:common=&quot;(.*?)&quot;/ims", $note->_content, $arr)) $final['common'] = $arr[1];
+
+        //seems separated by \n or 'next line'
+        if(preg_match("/taxonomy:kingdom=(.*?)\\\n/ims", $note->_content, $arr)) $final['kingdom'] = $arr[1];
+        if(preg_match("/taxonomy:phylum=(.*?)\\\n/ims", $note->_content, $arr)) $final['phylum'] = $arr[1];
+        if(preg_match("/taxonomy:class=(.*?)\\\n/ims", $note->_content, $arr)) $final['class'] = $arr[1];
+        if(preg_match("/taxonomy:order=(.*?)\\\n/ims", $note->_content, $arr)) $final['order'] = $arr[1];
+        if(preg_match("/taxonomy:family=(.*?)\\\n/ims", $note->_content, $arr)) $final['family'] = $arr[1];
+        if(preg_match("/taxonomy:genus=(.*?)\\\n/ims", $note->_content, $arr)) $final['genus'] = $arr[1];
+
+
+        if(preg_match_all("/taxonomy:binomial=&quot;(.*?)&quot;/ims", $note->_content, $arr)) {
+            $final['binomials'] = $arr[1];
+            // print_r($final); exit;
+            return $final;
+        }
+        else echo "\nnothing found\n";
+
+        $this->debug['no binomial'][$photo_id][$note->id] = '';
         print_r($note);
         echo("\nInvestigate no binomial [$note->id]\n");
         return false;
@@ -294,11 +341,29 @@ class BHL_Flickr_croppedImagesAPI
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID         = $rec['taxon_id'];
             $taxon->scientificName  = $rec['sciname'];
-            // $taxon->kingdom         = $t['dwc_Kingdom'];
+            
+            $taxon->kingdom = @$rec['kingdom'];
+            $taxon->phylum = @$rec['phylum'];
+            $taxon->class = @$rec['class'];
+            $taxon->order = @$rec['order'];
+            $taxon->family = @$rec['family'];
+            $taxon->genus = @$rec['genus'];
+            
             $taxon->furtherInformationURL = $rec['source'];
             if(!isset($this->taxon_ids[$taxon->taxonID])) {
                 $this->archive_builder->write_object_to_file($taxon);
                 $this->taxon_ids[$taxon->taxonID] = '';
+            }
+        }
+        
+        if($what == 'vernacular') {
+            // print_r($rec); exit;
+            foreach($rec as $comname) {
+                $v = new \eol_schema\VernacularName();
+                $v->taxonID         = implode("; ", $taxon_ids); //this is just one id
+                $v->vernacularName  = trim($comname);
+                $v->language        = 'en';
+                $this->archive_builder->write_object_to_file($v);
             }
         }
 
