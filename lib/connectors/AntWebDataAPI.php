@@ -24,10 +24,11 @@ class AntWebDataAPI
         
         $this->limit = 100;
         $this->download_options = array("timeout" => 60*60, "expire_seconds" => 60*60*24*25);
+        $this->ant_habitat_mapping_file = "https://github.com/eliagbayani/EOL-connector-data-files/blob/master/AntWeb/ant habitats mapping.xlsx?raw=true";
     }
     
     function start($harvester, $row_type)
-    {
+    {   
         // print_r($this->taxon_ids); exit;
         $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         // print_r($this->uri_values);
@@ -41,6 +42,7 @@ class AntWebDataAPI
     
     private function process_genus($genus_list)
     {
+        $habitat_map = self::initialize_habitat_mapping();
         $i = 0; $total = count($genus_list);
         foreach($genus_list as $genus) {
             $i++; echo "\n processing $genus... $i of $total";
@@ -99,12 +101,57 @@ class AntWebDataAPI
                         if(!isset($this->taxon_ids[$rec['taxon_id']])) self::add_taxon($rec);
                         self::add_string_types($rec, $habitat_uri, "http://eol.org/schema/terms/Habitat", "true");
                     }
-                    // else $this->debug['undefined habitat'][$habitat] = '';
+                    elseif($val = $habitat_map[$habitat])
+                    {
+                        $habitat_uris = explode(";", $val);
+                        $habitat_uris = array_map($habitat_uris);
+                        foreach($habitat_uris as $habitat_uri)
+                        {
+                            if(!isset($this->taxon_ids[$rec['taxon_id']])) self::add_taxon($rec);
+                            self::add_string_types($rec, $habitat_uri, "http://eol.org/schema/terms/Habitat", "true");
+                        }
+                    }
+                    else $this->debug['undefined habitat'][$habitat] = '';
                 }
                 
             }
             // break; //debug - get only first genus
         }
+    }
+    private function habitat_value_mapped($habitat) {}
+    public function initialize_habitat_mapping()
+    {
+        // if($local_xls = Functions::save_remote_file_to_local($this->ant_habitat_mapping_file, array('cache' => 1, 'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'file_extension' => 'xlsx', 'expire_seconds' => false)))
+        if(true)
+        {
+            $local_xls = DOC_ROOT."/tmp/tmp_82784.file.xlsx";
+            require_library('XLSParser');
+            $parser = new XLSParser();
+            debug("\n reading: " . $local_xls . "\n");
+            $temp = $parser->convert_sheet_to_array($local_xls);
+            
+            $choices = array_keys($temp);
+            array_shift($choices);
+            // print_r($choices);
+            
+            $final = array();
+            $i = -1;
+            foreach($temp['string'] as $s)
+            {
+                $i++;
+                if(!$s) continue;
+                if(preg_match("/\[(.*?)\]/ims", $s, $arr)) $s = trim($arr[1]); //removes the brackets
+                
+                $val = "";
+                foreach($choices as $choice) {
+                    if($val = trim(@$temp[$choice][$i])) $final[$s] = $val;
+                }
+            }
+            // print_r($final); exit;
+            return $final;
+        }
+        // unlink($local_xls);
+        return array();
     }
     private function fix_scientific_name($rec)
     {
