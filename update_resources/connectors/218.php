@@ -13,14 +13,23 @@ $GLOBALS['ENV_DEBUG'] = true;
 // print_r($xml); exit("\n\n");
 
 $timestart = time_elapsed();
+
+/* normal operation
 $resource_id = 218;
 $resource_id = "218_sample_with_trait_data";
 if(!Functions::can_this_connector_run($resource_id)) return;
 $func = new TropicosArchiveAPI($resource_id);
-
 $func->get_all_taxa($resource_id);
 unset($func);
 Functions::finalize_dwca_resource($resource_id);
+*/
+
+// /* utility
+exit;
+$resource_id = "";
+$func = new TropicosArchiveAPI($resource_id);
+$func->get_all_countries($resource_id);
+// */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

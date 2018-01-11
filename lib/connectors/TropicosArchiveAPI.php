@@ -43,7 +43,35 @@ class TropicosArchiveAPI
         //, 'delay_in_minutes' => 1
         $this->preview_mode = true; //false is orig value
     }
-
+    function get_all_countries()
+    {
+        $countries = array();
+        //start process_taxa()
+        $i = 0;
+        foreach(new FileIterator(DOC_ROOT."/tmp/tropicos_ids/tropicos_ids.txt") as $line_number => $taxon_id)
+        {
+            if($taxon_id) {
+                $i++;
+                if(($i % 500) == 0) echo "\n" . number_format($i);
+                $xml = self::create_cache("distribution", $taxon_id);
+                $xml = simplexml_load_string($xml);
+                $lines = array();
+                foreach($xml->Distribution as $rec) {
+                    if(!isset($rec->Location->CountryName)) continue;
+                    // echo "\n".$rec->Location->CountryName;
+                    $countries[(string) $rec->Location->CountryName] = '';
+                }
+                // if($i > 100) break;
+            }
+        }
+        //end process_taxa()
+        // print_r($countries);
+        $OUT = Functions::file_open(DOC_ROOT."/tmp/tropicos_ids/countries.txt", "w");
+        $countries = array_keys($countries);
+        sort($countries);
+        foreach($countries as $c) fwrite($OUT, $c."\n");
+        fclose($OUT);
+    }
     function get_all_taxa($resource_id)
     {
         /*
