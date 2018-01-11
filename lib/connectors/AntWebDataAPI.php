@@ -23,7 +23,7 @@ class AntWebDataAPI
         $this->api['specimens'] = 'http://www.antweb.org/api/v2/?limit=100&offset='; //&genus=Acanthognathus
         
         $this->limit = 100;
-        $this->download_options = array("timeout" => 60*60, "expire_seconds" => 60*60*24*25);
+        $this->download_options = array("timeout" => 60*60, "expire_seconds" => 60*60*24*60); //60 days = 2 months before cache expires
         $this->ant_habitat_mapping_file = "https://github.com/eliagbayani/EOL-connector-data-files/blob/master/AntWeb/ant habitats mapping.xlsx?raw=true";
     }
     
