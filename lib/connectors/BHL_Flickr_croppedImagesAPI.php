@@ -54,7 +54,7 @@ class BHL_Flickr_croppedImagesAPI
             // if($photo_id != "6105705787") continue; //debug only
             // if($photo_id != "6266864276") continue; //debug only
             // if($photo_id != "8220470473") continue; //debug only
-            // if($photo_id != "6358019045") continue; //debug only
+            // if($photo_id != "32645072266") continue; //debug only
             
             echo "\n[$photo_id]\n";
             $j = self::process_photo($photo_id);
