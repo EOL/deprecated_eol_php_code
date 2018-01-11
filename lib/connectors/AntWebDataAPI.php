@@ -24,7 +24,6 @@ class AntWebDataAPI
         
         $this->limit = 100;
         $this->download_options = array("timeout" => 60*60, "expire_seconds" => 60*60*24*25);
-        $this->download_options['expire_seconds'] = false;
         $this->ant_habitat_mapping_file = "https://github.com/eliagbayani/EOL-connector-data-files/blob/master/AntWeb/ant habitats mapping.xlsx?raw=true";
     }
     
@@ -111,6 +110,7 @@ class AntWebDataAPI
                         {
                             if(!$habitat_uri) continue;
                             if(!isset($this->taxon_ids[$rec['taxon_id']])) self::add_taxon($rec);
+                            $rec['measurementRemarks'] = $habitat;
                             self::add_string_types($rec, $habitat_uri, "http://eol.org/schema/terms/Habitat", "true");
                         }
                     }
@@ -124,8 +124,7 @@ class AntWebDataAPI
     public function initialize_habitat_mapping()
     {
         $final = array();
-        // if($local_xls = Functions::save_remote_file_to_local($this->ant_habitat_mapping_file, array('cache' => 1, 'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'file_extension' => 'xlsx', 'expire_seconds' => false)))
-        if(true)
+        if($local_xls = Functions::save_remote_file_to_local($this->ant_habitat_mapping_file, array('cache' => 1, 'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'file_extension' => 'xlsx', 'expire_seconds' => false)))
         {
             $local_xls = DOC_ROOT."/tmp/tmp_82784.file.xlsx";
             require_library('XLSParser');
@@ -149,7 +148,7 @@ class AntWebDataAPI
                 }
             }
         }
-        // unlink($local_xls);
+        unlink($local_xls);
         return $final;
     }
     private function fix_scientific_name($rec)
