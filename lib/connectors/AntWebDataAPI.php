@@ -103,7 +103,7 @@ class AntWebDataAPI
                     }
                     elseif($val = @$habitat_map[$habitat])
                     {
-                        echo "\nmapping OK [$val][$habitat]\n";
+                        // echo "\nmapping OK [$val][$habitat]\n"; //good debug info
                         $habitat_uris = explode(";", $val);
                         $habitat_uris = array_map('trim', $habitat_uris);
                         foreach($habitat_uris as $habitat_uri)
