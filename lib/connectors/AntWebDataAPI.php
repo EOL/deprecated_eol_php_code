@@ -126,7 +126,7 @@ class AntWebDataAPI
         $final = array();
         if($local_xls = Functions::save_remote_file_to_local($this->ant_habitat_mapping_file, array('cache' => 1, 'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'file_extension' => 'xlsx', 'expire_seconds' => false)))
         {
-            $local_xls = DOC_ROOT."/tmp/tmp_82784.file.xlsx";
+            // $local_xls = DOC_ROOT."/tmp/tmp_82784.file.xlsx";
             require_library('XLSParser');
             $parser = new XLSParser();
             debug("\n reading: " . $local_xls . "\n");
