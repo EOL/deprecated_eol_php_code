@@ -24,6 +24,7 @@ class AntWebDataAPI
         
         $this->limit = 100;
         $this->download_options = array("timeout" => 60*60, "expire_seconds" => 60*60*24*25);
+        $this->download_options['expire_seconds'] = false;
         $this->ant_habitat_mapping_file = "https://github.com/eliagbayani/EOL-connector-data-files/blob/master/AntWeb/ant habitats mapping.xlsx?raw=true";
     }
     
@@ -101,12 +102,14 @@ class AntWebDataAPI
                         if(!isset($this->taxon_ids[$rec['taxon_id']])) self::add_taxon($rec);
                         self::add_string_types($rec, $habitat_uri, "http://eol.org/schema/terms/Habitat", "true");
                     }
-                    elseif($val = $habitat_map[$habitat])
+                    elseif($val = @$habitat_map[$habitat])
                     {
+                        echo "\nmapping OK [$val][$habitat]\n";
                         $habitat_uris = explode(";", $val);
-                        $habitat_uris = array_map($habitat_uris);
+                        $habitat_uris = array_map('trim', $habitat_uris);
                         foreach($habitat_uris as $habitat_uri)
                         {
+                            if(!$habitat_uri) continue;
                             if(!isset($this->taxon_ids[$rec['taxon_id']])) self::add_taxon($rec);
                             self::add_string_types($rec, $habitat_uri, "http://eol.org/schema/terms/Habitat", "true");
                         }
@@ -118,9 +121,9 @@ class AntWebDataAPI
             // break; //debug - get only first genus
         }
     }
-    private function habitat_value_mapped($habitat) {}
     public function initialize_habitat_mapping()
     {
+        $final = array();
         // if($local_xls = Functions::save_remote_file_to_local($this->ant_habitat_mapping_file, array('cache' => 1, 'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'file_extension' => 'xlsx', 'expire_seconds' => false)))
         if(true)
         {
@@ -132,9 +135,7 @@ class AntWebDataAPI
             
             $choices = array_keys($temp);
             array_shift($choices);
-            // print_r($choices);
             
-            $final = array();
             $i = -1;
             foreach($temp['string'] as $s)
             {
@@ -147,11 +148,9 @@ class AntWebDataAPI
                     if($val = trim(@$temp[$choice][$i])) $final[$s] = $val;
                 }
             }
-            // print_r($final); exit;
-            return $final;
         }
         // unlink($local_xls);
-        return array();
+        return $final;
     }
     private function fix_scientific_name($rec)
     {
