@@ -114,7 +114,7 @@ class AntWebDataAPI
                             self::add_string_types($rec, $habitat_uri, "http://eol.org/schema/terms/Habitat", "true");
                         }
                     }
-                    else $this->debug['undefined habitat'][$habitat] = '';
+                    // else $this->debug['undefined habitat'][$habitat] = ''; //commented so that build text will not be too long.
                 }
                 
             }
