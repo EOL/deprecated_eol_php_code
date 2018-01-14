@@ -47,12 +47,23 @@ class TropicosArchiveAPI
     {
         $countries = array();
         //start process_taxa()
-        $i = 0;
+        $i = 0; $m = 259200; //total seems 1,296,000
         foreach(new FileIterator(DOC_ROOT."/tmp/tropicos_ids/tropicos_ids.txt") as $line_number => $taxon_id)
         {
             if($taxon_id) {
                 $i++;
                 if(($i % 500) == 0) echo "\n" . number_format($i);
+                
+                // /* breakdown when caching:
+                $cont = false;
+                // if($i >=  1    && $i < $m) $cont = true;
+                // if($i >=  $m   && $i < $m*2) $cont = true;
+                // if($i >=  $m*2 && $i < $m*3) $cont = true;
+                // if($i >=  $m*3 && $i < $m*4) $cont = true;
+                if($i >=  $m*4 && $i < $m*5) $cont = true; 
+                if(!$cont) continue;
+                // */
+                
                 $xml = self::create_cache("distribution", $taxon_id);
                 $xml = simplexml_load_string($xml);
                 $lines = array();
