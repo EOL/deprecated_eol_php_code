@@ -5,6 +5,7 @@ accesspoint_url = "http://dumps.wikimedia.org/commonswiki/latest/commonswiki-lat
 */
 define('DOWNLOAD_WAIT_TIME', '1000000');  // 2 second wait after every web request
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+return;
 // $GLOBALS['ENV_DEBUG'] = false;
 define("WIKI_USER_PREFIX", "http://commons.wikimedia.org/wiki/User:");
 define("WIKI_PREFIX", "http://commons.wikimedia.org/wiki/");

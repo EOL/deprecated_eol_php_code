@@ -1,5 +1,9 @@
 <?php
 namespace php_active_record;
+/*
+this is auxilliary script that calls function(s) in diff. libraries for testing.
+*/
+
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = true;
