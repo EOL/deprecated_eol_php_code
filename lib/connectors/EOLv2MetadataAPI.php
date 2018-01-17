@@ -17,9 +17,7 @@ class EOLv2MetadataAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
     }
-    
-    
-    public function start_user_added_text()
+    public function start_user_added_text() //udo = 23848 | published = 13143
     {
         // -- udo.*, tcpe.hierarchy_entry_id, dt.schema_value
         // -- , ii.schema_value
@@ -31,7 +29,7 @@ class EOLv2MetadataAPI
         , if(l.iso_639_1 is not null, l.iso_639_1, '') as iso_lang
         , concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' ', if(u.username is not null, concat('(',u.username,')'), '')) as user_name
         , lic.title as license
-        , d.data_rating, d.description, d.data_type_id
+        , d.data_rating, d.description, d.data_type_id, d.rights_statement, d.rights_holder, d.bibliographic_citation, d.object_title as title, d.location
         , ttoc.label as subject , tdt.label as data_type
         , dotoc.toc_id
         FROM users_data_objects udo
@@ -45,8 +43,9 @@ class EOLv2MetadataAPI
         LEFT JOIN translated_table_of_contents ttoc ON (dotoc.toc_id = ttoc.table_of_contents_id)
         LEFT JOIN translated_data_types tdt ON (d.data_type_id = tdt.data_type_id)
         where (ttoc.language_id = 152 OR ttoc.language_id is null) and
-              (tdt.language_id = 152 OR tdt.language_id is null)";
-        // $sql .= "and udo.user_id = 20470 and d.id = 23862470";
+              (tdt.language_id = 152 OR tdt.language_id is null) and d.published = 1";
+        // $sql .= " and udo.user_id = 20470 and d.id = 23862470";
+        $sql .= " limit 10";
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows . "\n"; exit;
         $recs = array();
@@ -71,7 +70,7 @@ class EOLv2MetadataAPI
                 );
             }
         }
-        print_r($recs); //exit("\n".count($recs)."\n");
+        // print_r($recs); //exit("\n".count($recs)."\n");
         // self::write_to_text_comnames($recs);
         self::gen_dwca_resource($recs);
     }
@@ -269,8 +268,70 @@ class EOLv2MetadataAPI
                 // if($agent_ids = self::create_agent_extension($rec)) $v->agentID = implode("; ", $agent_ids); - not working
                 $this->archive_builder->write_object_to_file($v);
             }
+            
+            if($obj = @$rec['objects'])
+            {   /* [objects] => Array(
+                                    [data_object_id] => 1893733
+                                    [user_id] => 11
+                                    [taxon_concept_id] => 918848
+                                    [iso_lang] => en
+                                    [user_name] => Paddy Patterson (paddy)
+                                    [license] => public domain
+                                    [data_rating] => 2.5
+                                    [description] => This species has been reported on several continents, and may be presumed to have a world-wide distribution.
+                                    [data_type_id] => 3
+                                    [subject] => Distribution
+                                    [data_type] => Text
+                                    [toc_id] => 309
+                                    [subjectURI] => http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution
+                                )
+                */
+                if($obj['data_type'] != "Text") {
+                    echo "\n\nObject not Text\n";
+                    print_r($rec); exit;
+                }
+                
+                $mr = new \eol_schema\MediaResource();
+                $mr->taxonID        = $obj['taxon_concept_id'];
+                $mr->identifier     = $obj['data_object_id'];
+                $mr->type           = "http://purl.org/dc/dcmitype/Text";
+                $mr->language       = $obj['iso_lang'];
+                $mr->format         = "text/html";
+                $mr->furtherInformationURL = "http://www.eol.org/data_objects/".$obj['data_object_id'];
+                // $mr->accessURI      = '';
+                // $mr->thumbnailURL   = '';
+                
+                $mr->CVterm         = $obj['subjectURI'];
+                $mr->Owner          = $obj['rights_holder'];
+                $mr->rights         = $obj['rights_statement'];
+                $mr->title          = $obj['title'];
+                $mr->UsageTerms     = self::get_license_url($obj['license']);
+                // $mr->audience       = 'Everyone';
+                $mr->description    = $obj['description'];
+                $mr->LocationCreated = $obj['location'];
+                $mr->bibliographicCitation = $obj['bibliographic_citation'];
+                $mr->Rating                = $obj['data_rating'];
+
+                if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
+                
+                if($agent_ids = self::create_agent_extension($obj)) $mr->agentID = implode("; ", $agent_ids);
+                
+            
+                if(!isset($this->object_ids[$mr->identifier])) {
+                    $this->archive_builder->write_object_to_file($mr);
+                    $this->object_ids[$mr->identifier] = '';
+                }
+            }
         }
         $this->archive_builder->finalize(true);
+    }
+    private function get_license_url($license) //e.g. public domain
+    {
+        if($license == "public domain") return "http://creativecommons.org/licenses/publicdomain/";
+        $sql = "SELECT l.source_url from licenses l where l.title = '".$license."' and l.source_url is not null";
+        if($val = $this->mysqli->select_value($sql)) return $val;
+        elseif($license == "all rights reserved") return $license;
+        else exit("\n\nInvestigate no license [$license]\n");
     }
     private function create_agent_extension($rec)
     {
@@ -278,13 +339,12 @@ class EOLv2MetadataAPI
         // [user_id] => 20470
         $r = new \eol_schema\Agent();
         $r->term_name       = $rec['user_name'];
-        $r->agentRole       = 'contributor';
+        $r->agentRole       = 'author';
         $r->identifier      = $rec['user_id'];
-        $r->term_homepage   = '';
+        $r->term_homepage   = "http://www.eol.org/users/".$rec['user_id'];
         $agent_ids[] = $r->identifier;
-        if(!isset($this->agent_ids[$r->identifier]))
-        {
-           $this->agent_ids[$r->identifier] = $r->term_name;
+        if(!isset($this->agent_ids[$r->identifier])) {
+           $this->agent_ids[$r->identifier] = '';
            $this->archive_builder->write_object_to_file($r);
         }
         return $agent_ids;
@@ -304,7 +364,7 @@ class EOLv2MetadataAPI
             $result = $this->mysqli->query($sql);
             $new_he_id = false;
             while($result && $row=$result->fetch_assoc()) {
-                $info = array('he_id' => $row['he_id'], 'taxon_name' => $row['final_name'], 'taxon_concept_id' => $row['taxon_concept_id'], 'he_parent_id' => $row['he_parent_id'], 'rank' => $row['rank']);
+                $info = array('he_id' => $row['he_id'], 'taxon_name' => ucfirst($row['final_name']), 'taxon_concept_id' => $row['taxon_concept_id'], 'he_parent_id' => $row['he_parent_id'], 'rank' => $row['rank']);
                 $ancestry[] = $info;
                 // print_r($info);
                 $new_he_id = $row['he_parent_id'];
