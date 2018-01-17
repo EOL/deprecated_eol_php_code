@@ -32,11 +32,20 @@ $func->start_user_added_comnames();
 Functions::finalize_dwca_resource($resource_id);
 */
 
-// /* https://eol-jira.bibalex.org/browse/DATA-1726
+/* https://eol-jira.bibalex.org/browse/DATA-1726
 $resource_id = "user_preferred_comnames";
 $func = new EOLv2MetadataAPI($resource_id);
 $func->start_user_preferred_comnames();
+*/
+
+// /* https://eol-jira.bibalex.org/browse/DATA-xxxx
+$resource_id = "user_added_text";
+$func = new EOLv2MetadataAPI($resource_id);
+$func->start_user_added_text();
+Functions::finalize_dwca_resource($resource_id);
 // */
+
+
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";

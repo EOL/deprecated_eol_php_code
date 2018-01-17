@@ -18,9 +18,96 @@ class EOLv2MetadataAPI
         $this->taxon_ids = array();
     }
     
+    
+    public function start_user_added_text()
+    {
+        // -- udo.*, tcpe.hierarchy_entry_id, dt.schema_value
+        // -- , ii.schema_value
+        // -- , tii.label, doii.info_item_id
+        // -- LEFT JOIN info_items ii ON (dotoc.toc_id = ii.toc_id)
+        // -- LEFT JOIN data_objects_info_items doii ON (udo.data_object_id = doii.data_object_id)
+        // -- LEFT JOIN translated_info_items tii ON (doii.info_item_id = tii.info_item_id)
+        $sql = "SELECT udo.data_object_id, udo.user_id, udo.taxon_concept_id
+        , if(l.iso_639_1 is not null, l.iso_639_1, '') as iso_lang
+        , concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' ', if(u.username is not null, concat('(',u.username,')'), '')) as user_name
+        , lic.title as license
+        , d.data_rating, d.description, d.data_type_id
+        , ttoc.label as subject , tdt.label as data_type
+        , dotoc.toc_id
+        FROM users_data_objects udo
+        LEFT JOIN data_objects d ON (udo.data_object_id = d.id) 
+        LEFT JOIN data_types dt ON (d.data_type_id = dt.id)
+        LEFT JOIN users u ON (udo.user_id = u.id)
+        LEFT JOIN taxon_concept_preferred_entries tcpe ON (udo.taxon_concept_id = tcpe.taxon_concept_id)
+        LEFT JOIN languages l ON (d.language_id=l.id)
+        LEFT JOIN licenses lic ON  (d.license_id = lic.id)
+        LEFT JOIN data_objects_table_of_contents dotoc ON (udo.data_object_id = dotoc.data_object_id)
+        LEFT JOIN translated_table_of_contents ttoc ON (dotoc.toc_id = ttoc.table_of_contents_id)
+        LEFT JOIN translated_data_types tdt ON (d.data_type_id = tdt.data_type_id)
+        where (ttoc.language_id = 152 OR ttoc.language_id is null) and
+              (tdt.language_id = 152 OR tdt.language_id is null)";
+        // $sql .= "and udo.user_id = 20470 and d.id = 23862470";
+        $result = $this->mysqli->query($sql);
+        // echo "\n". $result->num_rows . "\n"; exit;
+        $recs = array();
+        while($result && $row=$result->fetch_assoc()) {
+            if(!isset($recs[$row['data_object_id']])) {
+                $info = self::get_taxon_info($row['taxon_concept_id']);
+                $objects = $row;
+                $temp = self::get_object_info($row);
+                $objects = array_merge($objects, $temp);
+                $recs[$row['data_object_id']] = array(
+                // 'iso_lang' => $row['iso_lang']
+                // , 'lang_native' => $row['lang_native']
+                // , 'lang_english' => $row['lang_english']
+                'user_name' => $row['user_name']
+                , 'user_id' => $row['user_id']
+                , 'taxon_name' => $info['taxon_name']
+                , 'taxon_id' => $row['taxon_concept_id']
+                , 'rank' => $info['rank']
+                , 'he_parent_id' => $info['he_parent_id']
+                , 'objects' => $objects
+                , 'ancestry' => $info['ancestry'] //temporarily commented
+                );
+            }
+        }
+        print_r($recs); //exit("\n".count($recs)."\n");
+        // self::write_to_text_comnames($recs);
+        self::gen_dwca_resource($recs);
+    }
+    private function get_object_info($row)
+    {
+        $final = array();
+        $final['subjectURI'] = self::get_subjectURI($row);
+        // print_r($row);
+        return $final;
+    }
+    private function get_subjectURI($row)
+    {
+        $sql = "SELECT ii.schema_value as subjectURI from info_items ii where ii.toc_id = ".$row['toc_id'];
+        /* works OK but doesn't detect if > 1 row is returned
+        if($val = $this->mysqli->select_value($sql)) return $val;
+        else {
+            echo("\n\nInvestigate no toc_id\n");
+            print_r($row); exit;
+        } */
+        $result = $this->mysqli->query($sql);
+        // echo "\n".count($result)."\n"; exit;
+        if(count($result) > 1) {
+            echo("\n\nInvestigate > 1 subjectURI \n");
+            print_r($row); print_r($result); exit;
+        }
+        while($result && $row2=$result->fetch_assoc()) {
+            if($val = $row2['subjectURI']) return $val;
+        }
+        if(!$result) {
+            echo("\n\nInvestigate no subjectURI found\n");
+            print_r($row); exit;
+        }
+    }
+    //select if(field_a is not null, field_a, field_b) --- if then else in MySQL
     public function start_user_preferred_comnames() //total recs for agents_synonyms: 113283
     {
-        //select if(field_a is not null, field_a, field_b) --- if then else in MySQL
         $sql = "select asy.synonym_id, n.id as name_id, n.string as common_name, asy.agent_id, u.given_name, u.family_name, s.hierarchy_entry_id, s.vetted_id, s.preferred
         , he.taxon_concept_id
         , tv.label as vettedness
@@ -171,7 +258,7 @@ class EOLv2MetadataAPI
                 $this->taxon_ids[$taxon->taxonID] = '';
             }
             
-            if($common_name = $rec['common_name']) {
+            if($common_name = @$rec['common_name']) {
                 $v = new \eol_schema\VernacularName();
                 $v->taxonID         = $taxon->taxonID;
                 $v->vernacularName  = $common_name;
