@@ -37,7 +37,7 @@ class TropicosArchiveAPI
         $this->taxon_ids = array();
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->tropicos_ids_list_file = $this->TEMP_DIR . "tropicos_ids.txt";
-        $this->download_options = array('resource_id' => 218, 'cache_path' => '/Volumes/Thunderbolt4/eol_cache_tropicos/', 'expire_seconds' => false, 
+        $this->download_options = array('resource_id' => 218, 'cache_path' => '/Volumes/AKiTiO4/eol_cache_tropicos/', 'expire_seconds' => false, 
         'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1); //timeout is 60 secs. * 3 = 3 mins.
                                                                                        //download_wait_time = 1000000 = 1 second; 300000 => .3 seconds
         //, 'delay_in_minutes' => 1
@@ -45,43 +45,41 @@ class TropicosArchiveAPI
     }
     function get_all_countries()
     {
+        $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         $countries = array();
-        //start process_taxa()
         $i = 0; $m = 129600; //$m = 259200 orig; //total seems 1,296,000
-        foreach(new FileIterator(DOC_ROOT."/tmp/tropicos_ids/tropicos_ids.txt") as $line_number => $taxon_id)
-        {
+        foreach(new FileIterator(DOC_ROOT."/tmp/tropicos_ids/tropicos_ids.txt") as $line_number => $taxon_id) {
             if($taxon_id) {
                 $i++;
                 if(($i % 500) == 0) echo "\n" . number_format($i);
-                
-                // /* breakdown when caching:
+                /* breakdown when caching:
                 $cont = false;
                 // if($i >=  1    && $i < $m) $cont = true;
                 // if($i >=  $m   && $i < $m*2) $cont = true;
-                // if($i >=  $m*2 && $i < $m*3) $cont = true; //done
+                // if($i >=  $m*2 && $i < $m*3) $cont = true;
                 // if($i >=  $m*3 && $i < $m*4) $cont = true;
-                if($i >=  $m*4 && $i < $m*5) $cont = true;  //done
+                // if($i >=  $m*4 && $i < $m*5) $cont = true;
                 if(!$cont) continue;
-                // */
-                
+                */
                 $xml = self::create_cache("distribution", $taxon_id);
                 $xml = simplexml_load_string($xml);
                 $lines = array();
                 foreach($xml->Distribution as $rec) {
                     if(!isset($rec->Location->CountryName)) continue;
-                    // echo "\n".$rec->Location->CountryName;
-                    $countries[(string) $rec->Location->CountryName] = '';
+                    $ctry = trim((string) $rec->Location->CountryName);
+                    if($val = @$this->uri_values[$ctry]) {} //$mappedOK[$ctry] = '';
+                    else $countries[$ctry] = '';
                 }
-                // if($i > 100) break;
+                // if($i > 10) break; //debug
             }
         }
-        //end process_taxa()
         // print_r($countries);
         $OUT = Functions::file_open(DOC_ROOT."/tmp/tropicos_ids/countries.txt", "w");
         $countries = array_keys($countries);
         sort($countries);
         foreach($countries as $c) fwrite($OUT, $c."\n");
         fclose($OUT);
+        // print_r($mappedOK);
     }
     function get_all_taxa($resource_id)
     {
