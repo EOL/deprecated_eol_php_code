@@ -53,7 +53,7 @@ class EOLv2MetadataAPI
         $recs = array();
         while($result && $row=$result->fetch_assoc()) {
             
-            if(in_array($row['data_object_id'], array(22464391))) continue;
+            // if(in_array($row['data_object_id'], array(22464391))) continue;
             
             if(!isset($recs[$row['data_object_id']])) {
                 $info = self::get_taxon_info($row['taxon_concept_id']);
@@ -349,8 +349,10 @@ class EOLv2MetadataAPI
                     echo "\n\nObject not Text\n";
                     print_r($rec); exit;
                 }
+
+                $desc = self::format_str($obj['description'], $obj['data_object_id']);
                 
-                if(!$obj['description']) continue;
+                if(!$desc) continue;
                 $mr = new \eol_schema\MediaResource();
                 $mr->taxonID        = $obj['taxon_concept_id'];
                 $mr->identifier     = $obj['data_object_id'];
@@ -368,8 +370,7 @@ class EOLv2MetadataAPI
                 $mr->UsageTerms     = self::get_license_url($obj['license']);
                 // $mr->audience       = 'Everyone';
                 
-                /* working - good for debug
-                $desc = self::format_str($obj['description'], $obj['data_object_id']);
+                /* working - good for debug ------------------------------------------------------
                 $filename = CONTENT_RESOURCE_LOCAL_PATH ."eli.html";
                 $FILE = Functions::file_open($filename, 'w');
                 fwrite($FILE, $desc);
@@ -377,7 +378,7 @@ class EOLv2MetadataAPI
                 $desc = file_get_contents($filename);
                 */
                 
-                $mr->description    = self::format_str($obj['description'], $obj['data_object_id']);;
+                $mr->description    = $desc;
                 $mr->LocationCreated = $obj['location'];
                 $mr->bibliographicCitation = $obj['bibliographic_citation'];
                 $mr->Rating                = $obj['data_rating'];
@@ -399,7 +400,6 @@ class EOLv2MetadataAPI
     }
     private function format_str($str, $data_object_id)
     {
-        // $str = 'eli';
         // if(stripos($str, "style=") !== false) $this->debug['data_object_id'][$data_object_id] = ''; //just debug
         $str = str_replace(array("\n", "\t", "\r", chr(9), chr(10), chr(13)), " ", $str);
         $str = Functions::remove_whitespace($str);
@@ -410,15 +410,20 @@ class EOLv2MetadataAPI
         }
         
         // <!--[if gte mso 9]><xml> <o:OfficeDocumentSettings> <o:AllowPNG/> </o:OfficeDocumentSettings> </xml><![endif]--> 
-        /*
         if(preg_match_all("/<!--(.*?)-->/ims", $str, $arr)) {
             foreach($arr[1] as $remove) {
                 $str = str_ireplace('<!--'.$remove.'-->', "", $str);
             }
         }
-        $str = strip_tags($str, "<img><br>");
-        */
         
+        // e.g. http://www.eol.org/data_objects/22464391 | http://www.eol.org/data_objects/27431054
+        if(stripos($str, 'src="data:image') !== false) { //string is found
+            if(preg_match_all("/src=\"data:image(.*?)\"/ims", $str, $arr)) {
+                foreach($arr[1] as $remove) {
+                    $str = str_ireplace('src="data:image'.$remove.'"', "", $str);
+                }
+            }
+        }
         return trim($str);
     }
     private function remove_utf8_bom($text)
