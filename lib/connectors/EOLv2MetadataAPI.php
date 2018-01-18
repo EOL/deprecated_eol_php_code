@@ -46,7 +46,7 @@ class EOLv2MetadataAPI
         where (ttoc.language_id = 152 OR ttoc.language_id is null) and
               (tdt.language_id = 152 OR tdt.language_id is null) and d.published = 1";
         // $sql .= " and udo.user_id = 20470 and d.id = 23862470";
-        // $sql .= " and d.id = 29733168"; //22464391"; //27221235"; //29321098"; //"; //32590447";//"; //10523111";//4926441";
+        // $sql .= " and d.id = 4926441"; //10194243"; //29733168"; //22464391"; //27221235"; //29321098"; //"; //32590447";//"; //10523111";//4926441";
         // $sql .= " limit 10";
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows . "\n"; exit;
@@ -55,26 +55,27 @@ class EOLv2MetadataAPI
             
             // if(in_array($row['data_object_id'], array(22464391))) continue;
             
-            if(!isset($recs[$row['data_object_id']])) {
-                $info = self::get_taxon_info($row['taxon_concept_id']);
-                $objects = $row;
-                $temp = self::get_object_info($row);
-                $objects = array_merge($objects, $temp);
-                $objects['refs'] = self::get_refs($row['data_object_id']);
-                $recs[$row['data_object_id']] = array(
-                // 'iso_lang' => $row['iso_lang']
-                // , 'lang_native' => $row['lang_native']
-                // , 'lang_english' => $row['lang_english']
-                'user_name' => $row['user_name']
-                , 'user_id' => $row['user_id']
-                , 'taxon_name' => $info['taxon_name']
-                , 'taxon_id' => $row['taxon_concept_id']
-                , 'rank' => $info['rank']
-                , 'he_parent_id' => $info['he_parent_id']
-                , 'objects' => $objects
-                , 'ancestry' => $info['ancestry'] //temporarily commented
-                );
-            }
+            if(!isset($recs[$row['data_object_id']])) {}
+            
+            $info = self::get_taxon_info($row['taxon_concept_id']);
+            $objects = $row;
+            $temp = self::get_object_info($row);
+            $objects = array_merge($objects, $temp);
+            $objects['refs'] = self::get_refs($row['data_object_id']);
+            $recs[] = array(
+            // 'iso_lang' => $row['iso_lang']
+            // , 'lang_native' => $row['lang_native']
+            // , 'lang_english' => $row['lang_english']
+            'user_name' => $row['user_name']
+            , 'user_id' => $row['user_id']
+            , 'taxon_name' => $info['taxon_name']
+            , 'taxon_id' => $row['taxon_concept_id']
+            , 'rank' => $info['rank']
+            , 'he_parent_id' => $info['he_parent_id']
+            , 'objects' => $objects
+            , 'ancestry' => $info['ancestry'] //temporarily commented
+            );
+            
         }
         // print_r($recs); //exit("\n".count($recs)."\n");
         // self::write_to_text_comnames($recs);
