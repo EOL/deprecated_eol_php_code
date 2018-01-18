@@ -46,7 +46,7 @@ class EOLv2MetadataAPI
         where (ttoc.language_id = 152 OR ttoc.language_id is null) and
               (tdt.language_id = 152 OR tdt.language_id is null) and d.published = 1";
         // $sql .= " and udo.user_id = 20470 and d.id = 23862470";
-        // $sql .= " and d.id = 22464391"; //27221235"; //29321098"; //"; //32590447";//"; //10523111";//4926441";
+        // $sql .= " and d.id = 29733168"; //22464391"; //27221235"; //29321098"; //"; //32590447";//"; //10523111";//4926441";
         // $sql .= " limit 10";
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows . "\n"; exit;
@@ -128,26 +128,35 @@ class EOLv2MetadataAPI
     }
     private function get_subjectURI($row)
     {
-        $sql = "SELECT ii.schema_value as subjectURI from info_items ii where ii.toc_id = ".$row['toc_id'];
-        /* works OK but doesn't detect if > 1 row is returned
-        if($val = $this->mysqli->select_value($sql)) return $val;
-        else {
-            echo("\n\nInvestigate no toc_id\n");
-            print_r($row); exit;
-        } */
-        $result = $this->mysqli->query($sql);
-        // echo "\n".count($result)."\n"; 
-        if(count($result) > 1) {
-            echo("\n\nInvestigate > 1 subjectURI \n");
-            print_r($row); print_r($result); exit;
+        if($row['toc_id'] == 322) return "http://eol.org/schema/eol_info_items.xml#FossilHistory";
+        
+        if($row['toc_id']) {
+            $sql = "SELECT ii.schema_value as subjectURI from info_items ii where ii.toc_id = ".$row['toc_id'];
+            /* works OK but doesn't detect if > 1 row is returned
+            if($val = $this->mysqli->select_value($sql)) return $val;
+            else {
+                echo("\n\nInvestigate no toc_id\n");
+                print_r($row); exit;
+            } */
+            $result = $this->mysqli->query($sql);
+            // echo "\n".count($result)."\n"; 
+            if(count($result) > 1) {
+                echo("\n\nInvestigate > 1 subjectURI \n");
+                print_r($row); print_r($result); exit;
+            }
+            while($result && $row2=$result->fetch_assoc()) {
+                if($val = $row2['subjectURI']) return $val;
+            }
+            if(!$result) {
+                echo("\n\nInvestigate no subjectURI found\n");
+                print_r($row); exit;
+            }
         }
-        while($result && $row2=$result->fetch_assoc()) {
-            if($val = $row2['subjectURI']) return $val;
-        }
-        if(!$result) {
-            echo("\n\nInvestigate no subjectURI found\n");
-            print_r($row); exit;
-        }
+
+
+        // http://www.eol.org/voc/table_of_contents#FossilHistory (322)
+        // http://eol.org/schema/eol_info_items.xml#FossilHistory
+        if($row['subject'] == "Fossil History") return "http://eol.org/schema/eol_info_items.xml#FossilHistory";
         
         //2nd option if above didn't get anything
         //loop to info_items.schema_value and find #Education
@@ -157,7 +166,6 @@ class EOLv2MetadataAPI
         while($result && $row2=$result->fetch_assoc()) {
             if(preg_match("/\\#".$row['subject']."(.*?)xxx/ims", $row2['schema_value']."xxx", $arr)) return $row2['schema_value'];
         }
-        
 
         echo("\n\nInvestigate STILL no subjectURI found\n");
         print_r($row); exit;
