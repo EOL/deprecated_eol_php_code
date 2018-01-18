@@ -29,7 +29,8 @@ class EOLv2MetadataAPI
         , if(l.iso_639_1 is not null, l.iso_639_1, '') as iso_lang
         , concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' ', if(u.username is not null, concat('(',u.username,')'), '')) as user_name
         , lic.title as license
-        , d.data_rating, d.description, d.data_type_id, d.rights_statement, d.rights_holder, d.bibliographic_citation, d.object_title as title, d.location
+        , d.data_rating, d.description, d.data_type_id, d.rights_statement, d.rights_holder, d.bibliographic_citation, d.object_title as title, d.location, d.source_url
+        , d.created_at, d.updated_at
         , ttoc.label as subject , tdt.label as data_type
         , dotoc.toc_id
         FROM users_data_objects udo
@@ -45,7 +46,8 @@ class EOLv2MetadataAPI
         where (ttoc.language_id = 152 OR ttoc.language_id is null) and
               (tdt.language_id = 152 OR tdt.language_id is null) and d.published = 1";
         // $sql .= " and udo.user_id = 20470 and d.id = 23862470";
-        $sql .= " limit 10";
+        // $sql .= " and d.id = 27221235"; //29321098"; //"; //32590447";//"; //10523111";//4926441";
+        // $sql .= " limit 10";
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows . "\n"; exit;
         $recs = array();
@@ -55,6 +57,7 @@ class EOLv2MetadataAPI
                 $objects = $row;
                 $temp = self::get_object_info($row);
                 $objects = array_merge($objects, $temp);
+                $objects['refs'] = self::get_refs($row['data_object_id']);
                 $recs[$row['data_object_id']] = array(
                 // 'iso_lang' => $row['iso_lang']
                 // , 'lang_native' => $row['lang_native']
@@ -73,6 +76,45 @@ class EOLv2MetadataAPI
         // print_r($recs); //exit("\n".count($recs)."\n");
         // self::write_to_text_comnames($recs);
         self::gen_dwca_resource($recs);
+        print_r($this->debug);
+    }
+    private function get_refs($data_object_id)
+    {
+        $final = array();
+        $sql = "select r.* FROM data_objects_refs dor JOIN refs r ON (dor.ref_id = r.id) where dor.data_object_id = $data_object_id and r.published = 1";
+        $result = $this->mysqli->query($sql);
+        while($result && $row=$result->fetch_assoc()) {
+            /*
+            `provider_mangaed_id` varchar(255) DEFAULT NULL,
+            `volume` varchar(50) DEFAULT NULL,
+            `edition` varchar(50) DEFAULT NULL,
+            `publisher` varchar(255) DEFAULT NULL,
+            `user_submitted` tinyint(1) NOT NULL DEFAULT '0',
+            `visibility_id` tinyint(3) unsigned NOT NULL DEFAULT '0',
+            `published` tinyint(3) unsigned NOT NULL DEFAULT '0',
+            */
+            $rec = array();
+            $rec["identifier"] = $row['id'];
+            $rec["publicationType"] = '';
+            $rec["full_reference"] = $row['full_reference'];
+            $rec["primaryTitle"] = '';
+            $rec["title"] = $row['title'];
+            $rec["pages"] = $row['pages'];
+            $rec["pageStart"] = $row['page_start'];
+            $rec["pageEnd"] = $row['page_end'];
+            $rec["volume"] = $row['volume'];
+            $rec["edition"] = $row['edition'];
+            $rec["publisher"] = $row['publisher'];
+            $rec["authorList"] = $row['authors'];
+            $rec["editorList"] = $row['editors'];
+            $rec["created"] = $row['publication_created_at'];
+            $rec["language"] = $row['language_id'];
+            $rec["uri"] = "";
+            $rec["doi"] = "";
+            $rec["localityName"] = "";
+            if($rec['full_reference']) $final[] = $rec;
+        }
+        return $final;
     }
     private function get_object_info($row)
     {
@@ -91,7 +133,7 @@ class EOLv2MetadataAPI
             print_r($row); exit;
         } */
         $result = $this->mysqli->query($sql);
-        // echo "\n".count($result)."\n"; exit;
+        // echo "\n".count($result)."\n"; 
         if(count($result) > 1) {
             echo("\n\nInvestigate > 1 subjectURI \n");
             print_r($row); print_r($result); exit;
@@ -102,6 +144,15 @@ class EOLv2MetadataAPI
         if(!$result) {
             echo("\n\nInvestigate no subjectURI found\n");
             print_r($row); exit;
+        }
+        
+        //2nd option if above didn't get anything
+        //loop to info_items.schema_value and find #Education
+        $sql = "SELECT ii.schema_value from info_items ii";
+        $result = $this->mysqli->query($sql);
+        // echo "\n".$row['subject']."\n"; //exit;
+        while($result && $row2=$result->fetch_assoc()) {
+            if(preg_match("/\\#".$row['subject']."(.*?)xxx/ims", $row2['schema_value']."xxx", $arr)) return $row2['schema_value'];
         }
     }
     //select if(field_a is not null, field_a, field_b) --- if then else in MySQL
@@ -291,13 +342,14 @@ class EOLv2MetadataAPI
                     print_r($rec); exit;
                 }
                 
+                if(!$obj['description']) continue;
                 $mr = new \eol_schema\MediaResource();
                 $mr->taxonID        = $obj['taxon_concept_id'];
                 $mr->identifier     = $obj['data_object_id'];
                 $mr->type           = "http://purl.org/dc/dcmitype/Text";
                 $mr->language       = $obj['iso_lang'];
                 $mr->format         = "text/html";
-                $mr->furtherInformationURL = "http://www.eol.org/data_objects/".$obj['data_object_id'];
+                $mr->furtherInformationURL = $obj['source_url']; //"http://www.eol.org/data_objects/".$obj['data_object_id'];
                 // $mr->accessURI      = '';
                 // $mr->thumbnailURL   = '';
                 
@@ -307,15 +359,25 @@ class EOLv2MetadataAPI
                 $mr->title          = $obj['title'];
                 $mr->UsageTerms     = self::get_license_url($obj['license']);
                 // $mr->audience       = 'Everyone';
-                $mr->description    = $obj['description'];
+                
+                /* working - good for debug
+                $desc = self::format_str($obj['description'], $obj['data_object_id']);
+                $filename = CONTENT_RESOURCE_LOCAL_PATH ."eli.html";
+                $FILE = Functions::file_open($filename, 'w');
+                fwrite($FILE, $desc);
+                fclose($FILE);
+                $desc = file_get_contents($filename);
+                */
+                
+                $mr->description    = self::format_str($obj['description'], $obj['data_object_id']);;
                 $mr->LocationCreated = $obj['location'];
                 $mr->bibliographicCitation = $obj['bibliographic_citation'];
                 $mr->Rating                = $obj['data_rating'];
+                $mr->CreateDate = $obj['created_at'];
+                $mr->modified = $obj['updated_at'];
 
-                if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
-                
+                if($reference_ids = self::create_ref_extension($obj['refs']))  $mr->referenceID = implode("; ", $reference_ids);
                 if($agent_ids = self::create_agent_extension($obj)) $mr->agentID = implode("; ", $agent_ids);
-                
             
                 if(!isset($this->object_ids[$mr->identifier])) {
                     $this->archive_builder->write_object_to_file($mr);
@@ -323,7 +385,69 @@ class EOLv2MetadataAPI
                 }
             }
         }
+        
         $this->archive_builder->finalize(true);
+        return;
+    }
+    private function format_str($str, $data_object_id)
+    {
+        // if(stripos($str, "style=") !== false) $this->debug['data_object_id'][$data_object_id] = ''; //just debug
+        $str = str_replace(array("\n", "\t", "\r", chr(9), chr(10), chr(13)), " ", $str);
+        $str = Functions::remove_whitespace($str);
+        if(preg_match_all("/style=\"(.*?)\"/ims", $str, $arr)) {
+            foreach($arr[1] as $remove) {
+                $str = str_ireplace('style="'.$remove.'"', "", $str);
+            }
+        }
+        return trim($str);
+    }
+    private function remove_utf8_bom($text)
+    {
+        $bom = pack('H*','EFBBBF');
+        $text = preg_replace("/^$bom/", '', $text);
+        /* another option:
+        text = str_replace("\xEF\xBB\xBF",'',$text); 
+        */
+        return $text;
+    }
+    
+    private function create_ref_extension($refs)
+    {
+        $reference_ids = array();
+        foreach($refs as $rec)
+        {
+            $r = new \eol_schema\Reference();
+            $fields = array_keys($rec);
+            foreach($fields as $field) {
+                $r->$field = $rec[$field];
+            }
+            $reference_ids[] = $r->identifier;
+            if(!isset($this->reference_ids[$r->identifier])) {
+                $this->reference_ids[$r->identifier] = '';
+                $this->archive_builder->write_object_to_file($r);
+            }
+            /* just for reference...
+            $rec["identifier"] = $row['id'];
+            $rec["publicationType"] = 
+            $rec["full_reference"] = $row['full_reference'];
+            $rec["primaryTitle"] = 
+            $rec["title"] = $row['title'];
+            $rec["pages"] = $row['pages'];
+            $rec["pageStart"] = $row['page_start'];
+            $rec["pageEnd"] = $row['page_end'];
+            $rec["volume"] = $row['volume'];
+            $rec["edition"] = $row['edition'];
+            $rec["publisher"] = $row['publisher'];
+            $rec["authorList"] = $row['authors'];
+            $rec["editorList"] = $row['editors'];
+            $rec["created"] = $row['publication_created_at'];
+            $rec["language"] = $row['language_id']
+            $rec["uri"] = "";
+            $rec["doi"] = "";
+            $rec["localityName"] = "";
+            */
+        }
+        return $reference_ids;
     }
     private function get_license_url($license) //e.g. public domain
     {
