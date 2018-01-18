@@ -46,12 +46,15 @@ class EOLv2MetadataAPI
         where (ttoc.language_id = 152 OR ttoc.language_id is null) and
               (tdt.language_id = 152 OR tdt.language_id is null) and d.published = 1";
         // $sql .= " and udo.user_id = 20470 and d.id = 23862470";
-        // $sql .= " and d.id = 27221235"; //29321098"; //"; //32590447";//"; //10523111";//4926441";
+        // $sql .= " and d.id = 22464391"; //27221235"; //29321098"; //"; //32590447";//"; //10523111";//4926441";
         // $sql .= " limit 10";
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows . "\n"; exit;
         $recs = array();
         while($result && $row=$result->fetch_assoc()) {
+            
+            if(in_array($row['data_object_id'], array(22464391))) continue;
+            
             if(!isset($recs[$row['data_object_id']])) {
                 $info = self::get_taxon_info($row['taxon_concept_id']);
                 $objects = $row;
@@ -154,6 +157,11 @@ class EOLv2MetadataAPI
         while($result && $row2=$result->fetch_assoc()) {
             if(preg_match("/\\#".$row['subject']."(.*?)xxx/ims", $row2['schema_value']."xxx", $arr)) return $row2['schema_value'];
         }
+        
+
+        echo("\n\nInvestigate STILL no subjectURI found\n");
+        print_r($row); exit;
+        
     }
     //select if(field_a is not null, field_a, field_b) --- if then else in MySQL
     public function start_user_preferred_comnames() //total recs for agents_synonyms: 113283
@@ -391,6 +399,7 @@ class EOLv2MetadataAPI
     }
     private function format_str($str, $data_object_id)
     {
+        // $str = 'eli';
         // if(stripos($str, "style=") !== false) $this->debug['data_object_id'][$data_object_id] = ''; //just debug
         $str = str_replace(array("\n", "\t", "\r", chr(9), chr(10), chr(13)), " ", $str);
         $str = Functions::remove_whitespace($str);
@@ -399,6 +408,17 @@ class EOLv2MetadataAPI
                 $str = str_ireplace('style="'.$remove.'"', "", $str);
             }
         }
+        
+        // <!--[if gte mso 9]><xml> <o:OfficeDocumentSettings> <o:AllowPNG/> </o:OfficeDocumentSettings> </xml><![endif]--> 
+        /*
+        if(preg_match_all("/<!--(.*?)-->/ims", $str, $arr)) {
+            foreach($arr[1] as $remove) {
+                $str = str_ireplace('<!--'.$remove.'-->', "", $str);
+            }
+        }
+        $str = strip_tags($str, "<img><br>");
+        */
+        
         return trim($str);
     }
     private function remove_utf8_bom($text)
