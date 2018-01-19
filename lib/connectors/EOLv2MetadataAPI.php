@@ -46,7 +46,7 @@ class EOLv2MetadataAPI
         where (ttoc.language_id = 152 OR ttoc.language_id is null) and
               (tdt.language_id = 152 OR tdt.language_id is null) and d.published = 1 and udo.visibility_id = 1";
         // $sql .= " and udo.user_id = 20470 and d.id = 23862470";
-        // $sql .= " and d.id = 16900774"; //4926441"; //10194243"; //29733168"; //22464391"; //27221235"; //29321098"; //"; //32590447";//"; //10523111";//4926441";
+        // $sql .= " and d.id = 18679745"; //4926441"; //10194243"; //29733168"; //22464391"; //27221235"; //29321098"; //"; //32590447";//"; //10523111";//4926441";
         // $sql .= " limit 10"; //16900774 data_object_id with associated taxa
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows . "\n"; exit;
