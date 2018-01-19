@@ -46,6 +46,7 @@ class TropicosArchiveAPI
     function get_all_countries()
     {
         $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        self::add_additional_mappings(); //add more mappings specific only to this resource
         $countries = array();
         $i = 0; $m = 129600; //$m = 259200 orig; //total seems 1,296,000
         foreach(new FileIterator(DOC_ROOT."/tmp/tropicos_ids/tropicos_ids.txt") as $line_number => $taxon_id) {
@@ -83,6 +84,12 @@ class TropicosArchiveAPI
     }
     function get_all_taxa($resource_id)
     {
+        $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        // echo "\n".count($this->uri_values)."\n";
+        self::add_additional_mappings(); //add more mappings specific only to this resource
+        // echo "\n".count($this->uri_values)."\n";
+        // print_r($this->uri_values);
+
         /*
         $c = self::create_cache("taxon_name", "1800503");
         exit("\n[$c]\n");
@@ -126,6 +133,10 @@ class TropicosArchiveAPI
         else {
             self::process_taxa($resource_id);
         }
+        
+        
+        print_r($this->debug);
+        
         // remove temp dir
         recursive_rmdir($this->TEMP_DIR);
         echo ("\n temporary directory removed: " . $this->TEMP_DIR);
@@ -225,7 +236,7 @@ class TropicosArchiveAPI
             $this->taxon_ids[$taxon->taxonID] = '';
             $this->archive_builder->write_object_to_file($taxon);
         }
-        // self::get_distributions($taxon_id, $sciname); un-comment first Oct 22, 2017 - Traitbank data
+        self::get_distributions($taxon_id, $sciname); //un-comment first Oct 22, 2017 - Traitbank data
         self::get_synonyms($taxon_id); //debug - uncomment in real operation
     }
 
@@ -323,6 +334,8 @@ class TropicosArchiveAPI
             if($CountryName = trim($rec->Location->CountryName)) $region .= " - " . $CountryName;
             if($UpperName = trim($rec->Location->UpperName)) $region .= " - " . $UpperName;
             
+            
+            /* orig Eli's version
             self::add_string_types($taxon_id, $text_id, "Distribution", $region, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution", true);
             self::add_string_types($taxon_id, $text_id, "Taxon", $sciname, "http://rs.tdwg.org/dwc/terms/scientificName");
             self::add_string_types($taxon_id, $text_id, "Country", trim($rec->Location->CountryName), "http://rs.tdwg.org/dwc/terms/country");
@@ -330,11 +343,32 @@ class TropicosArchiveAPI
             if($upper_name = @$rec->Location->UpperName) {
                 self::add_string_types($taxon_id, $text_id, "Upper name", $upper_name, "http://tropicos.org/". SparqlClient::to_underscore("Upper name"));
             }
+            */
+            //based from: https://eol-jira.bibalex.org/browse/DATA-1722?focusedCommentId=61829&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61829
+            if($country_uri = self::get_country_uri($CountryName)) {
+                self::add_string_types($taxon_id, $text_id, "Country", $country_uri, "http://eol.org/schema/terms/Present", true);
+                self::add_string_types($taxon_id, $text_id, "Taxon"  , $sciname    , "http://rs.tdwg.org/dwc/terms/scientificName");
+            }
+            else $this->debug[$CountryName] = '';
+            
         }
 
         //     $title      = "Localities documented in Tropicos sources";
         //     $subject    = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution";
         //     $license    = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+    }
+
+    private function get_country_uri($country)
+    {
+        if($country_uri = @$this->uri_values[$country]) return $country_uri;
+        else {
+            /* working OK but too hard-coded, better to read the mapping from external file
+            switch ($country) {
+                case "United States of America":return "http://www.wikidata.org/entity/Q30";
+                case "Myanmar":                 return "http://www.wikidata.org/entity/Q836";
+            }
+            */
+        }
     }
 
     private function add_string_types($taxon_id, $catnum, $label, $value, $mtype, $mtaxon = false)
@@ -707,5 +741,24 @@ class TropicosArchiveAPI
         }
     }
     
+    private function add_additional_mappings()
+    {
+        $url = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/Tropicos/countries with added URIs.txt";
+        $options = $this->download_options;
+        $options['cache'] = 1;
+        $options['expire_seconds'] = 60*60*24;
+        $local = Functions::save_remote_file_to_local($url, $options);
+        $handle = fopen($local, "r");
+        if ($handle) {
+            while (($line = fgets($handle)) !== false) {
+                $line = str_replace("\n", "", $line);
+                $a = explode("\t", $line); $a = array_map('trim', $a);
+                $this->uri_values[$a[0]] = $a[1];
+            }
+            fclose($handle);
+        } 
+        else echo "\nCannot read!\n";
+        unlink($local);
+    }
 }
 ?>
