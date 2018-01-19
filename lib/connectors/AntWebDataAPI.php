@@ -352,6 +352,7 @@ class AntWebDataAPI
                 case "Myanmar":                         return "http://www.wikidata.org/entity/Q836";
                 case "Congo":                           return "http://www.wikidata.org/entity/Q974";
                 case "C?te d Ivoire":                   return "http://www.wikidata.org/entity/Q1008";
+                case "Côte d'Ivoire":                   return "http://www.wikidata.org/entity/Q1008";
                 case "United States Virgin Islands":    return "http://www.wikidata.org/entity/Q11703";
                 case "Netherlands Antilles":            return "http://www.wikidata.org/entity/Q25227";
                 case "Bonaire, Sint Eustatius and Saba": return "http://www.wikidata.org/entity/Q25227";

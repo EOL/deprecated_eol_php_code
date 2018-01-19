@@ -363,7 +363,7 @@ class TropicosArchiveAPI
 
     private function get_country_uri($country)
     {
-        if($country_uri = @$this->uri_values[$country]) return $country_uri;
+        if($val = @$this->uri_values[$country]) return $val;
         else {
             /* working OK but too hard-coded, better to read the mapping from external file
             switch ($country) {
