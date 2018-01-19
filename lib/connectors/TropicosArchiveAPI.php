@@ -46,7 +46,10 @@ class TropicosArchiveAPI
     function get_all_countries()
     {
         $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        echo "\n".count($this->uri_values)."\n";
         self::add_additional_mappings(); //add more mappings specific only to this resource
+        echo "\n".count($this->uri_values)."\n";
+
         $countries = array();
         $i = 0; $m = 129600; //$m = 259200 orig; //total seems 1,296,000
         foreach(new FileIterator(DOC_ROOT."/tmp/tropicos_ids/tropicos_ids.txt") as $line_number => $taxon_id) {
