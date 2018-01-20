@@ -41,7 +41,7 @@ class TropicosArchiveAPI
         'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1); //timeout is 60 secs. * 3 = 3 mins.
                                                                                        //download_wait_time = 1000000 = 1 second; 300000 => .3 seconds
         //, 'delay_in_minutes' => 1
-        $this->preview_mode = true; //false is orig value
+        $this->preview_mode = false; //false is orig value
     }
     function get_all_countries()
     {
@@ -349,8 +349,10 @@ class TropicosArchiveAPI
             */
             //based from: https://eol-jira.bibalex.org/browse/DATA-1722?focusedCommentId=61829&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61829
             if($country_uri = self::get_country_uri($CountryName)) {
-                self::add_string_types($taxon_id, $text_id, "Country", $country_uri, "http://eol.org/schema/terms/Present", true);
-                self::add_string_types($taxon_id, $text_id, "Taxon"  , $sciname    , "http://rs.tdwg.org/dwc/terms/scientificName");
+                if(in_array($CountryName, $this->ctrys_with_diff_name)) $mremarks = $CountryName;
+                else $mremarks = "";
+                self::add_string_types($taxon_id, $text_id, "Country", $country_uri, "http://eol.org/schema/terms/Present", true, $mremarks);
+                self::add_string_types($taxon_id, $text_id, "Taxon"  , $sciname    , "http://rs.tdwg.org/dwc/terms/scientificName", false);
             }
             else $this->debug[$CountryName] = '';
             
@@ -374,7 +376,7 @@ class TropicosArchiveAPI
         }
     }
 
-    private function add_string_types($taxon_id, $catnum, $label, $value, $mtype, $mtaxon = false)
+    private function add_string_types($taxon_id, $catnum, $label, $value, $mtype, $mtaxon = false, $mremarks = '')
     {
         if(!trim($value)) return;
         $m = new \eol_schema\MeasurementOrFact();
@@ -386,6 +388,7 @@ class TropicosArchiveAPI
             /* temporarily excluded to reduce size of measurement tab
             $m->measurementRemarks = "Note: This information is based on publications available through <a href='http://tropicos.org/'>Tropicos</a> and may not represent the entire distribution. Tropicos does not categorize distributions as native or non-native.";
             */
+            $m->measurementRemarks = $mremarks;
         }
         $m->measurementType = $mtype;
         $m->measurementValue = (string) $value;
@@ -757,6 +760,7 @@ class TropicosArchiveAPI
                 $line = str_replace("\n", "", $line);
                 $a = explode("\t", $line); $a = array_map('trim', $a);
                 $this->uri_values[$a[0]] = $a[1];
+                $this->ctrys_with_diff_name[] = $a[0]; //what goes here is e.g. 'Burma Rep.', if orig ctry name is 'Burma' and Tropicos calls it differently e.g. 'Burma Rep.'.
             }
             fclose($handle);
         } 
