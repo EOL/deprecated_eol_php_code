@@ -10,10 +10,17 @@ $GLOBALS['ENV_DEBUG'] = true;
 ini_set('memory_limit','4096M'); //314,5728,000
 $timestart = time_elapsed();
 
-
+/* works OK
 require_library('connectors/AntWebDataAPI');
 $func = new AntWebDataAPI(null, null);
 $func->initialize_habitat_mapping();
+*/
+
+// /*
+$file = "/Volumes/AKiTiO4/FreshData resource/monitors v2/occurrences.tsv";
+$count = Functions::count_rows_from_text_file($file);
+exit("\n[$count]\n");
+// */
 
 
 $elapsed_time_sec = time_elapsed() - $timestart;
