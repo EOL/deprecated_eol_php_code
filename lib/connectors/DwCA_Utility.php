@@ -299,9 +299,11 @@ class DwCA_Utility
                 /* measurementType must have value. It is confined to a pre-defined list of resources bec. it is memory intensive and most resources have non-null measurementType.
                 Useful for e.g. https://eol-jira.bibalex.org/browse/DATA-1733 - 'Shelled_animal_body_mass'
                 */
-                if($class == "measurementorfact") {
-                    if($field == "measurementType" && !@$rec[$key]) { //meaning measurementType is blank or null, then exclude entire row.
-                        $c = false; break;
+                if(in_array($this->resource_id, array('Shelled_animal_body_mass-adjusted'))) {
+                    if($class == "measurementorfact") {
+                        if($field == "measurementType" && !@$rec[$key]) { //meaning measurementType is blank or null, then exclude entire row.
+                            $c = false; break;
+                        }
                     }
                 }
                 
