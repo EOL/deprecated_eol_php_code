@@ -261,7 +261,7 @@ class DwCA_Utility
                 }
                 */
 
-                /* Need to have unique taxon ids. It is confined to a pre-defined list of resources bec. it is memory intensive and some resources have already unique taxon ids.
+                /* Need to have unique taxon ids. It is confined to a pre-defined list of resources bec. it is memory intensive and most resources have already unique taxon ids.
                 Useful for e.g. DATA-1724 resource 'plant_forms_habitat_and_distribution'.
                 */
                 if(in_array($this->resource_id, array('plant_forms_habitat_and_distribution-adjusted'))) {
@@ -277,10 +277,13 @@ class DwCA_Utility
                     }
                 }
 
-                /* Need to have unique reference ids. It is confined to a pre-defined list of resources bec. it is memory intensive and some resources have already unique ref ids.
+                /* Need to have unique reference ids. It is confined to a pre-defined list of resources bec. it is memory intensive and most resources have already unique ref ids.
                 Useful for e.g. DATA-1724 resource 'plant_forms_habitat_and_distribution'.
                 */
-                if(in_array($this->resource_id, array('plant_forms_habitat_and_distribution-adjusted'))) {
+                /*
+                Also used for: https://eol-jira.bibalex.org/browse/DATA-1733 --> Shelled_animal_body_mass, added this resource bec. it doesn't have unique ref ids.
+                */
+                if(in_array($this->resource_id, array('plant_forms_habitat_and_distribution-adjusted', 'Shelled_animal_body_mass-adjusted'))) {
                     if($class == "reference") {
                         if($field == "identifier") {
                             $identifier = @$rec[$key];
@@ -292,12 +295,24 @@ class DwCA_Utility
                         }
                     }
                 }
+                
+                /* measurementType must have value. It is confined to a pre-defined list of resources bec. it is memory intensive and most resources have non-null measurementType.
+                Useful for e.g. https://eol-jira.bibalex.org/browse/DATA-1733 - 'Shelled_animal_body_mass'
+                */
+                if($class == "measurementorfact") {
+                    if($field == "measurementType" && !@$rec[$key]) { //meaning measurementType is blank or null, then exclude entire row.
+                        $c = false; break;
+                    }
+                }
+                
+                
+                
                 //#################### end some validations ----------------------------  #########################################################################
 
                 $c->$field = $rec[$key];
 
                 // if($field == "taxonID") $c->$field = self::get_worms_taxon_id($c->$field); //not used here, only in WoRMS connector
-            }
+            }//end loop foreach()
             if($generateArchive) {
                 if($c) {
                     $this->archive_builder->write_object_to_file($c); //to facilitate validations

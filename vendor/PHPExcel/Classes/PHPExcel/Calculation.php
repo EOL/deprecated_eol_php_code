@@ -3498,13 +3498,13 @@ class PHPExcel_Calculation {
 				if ($operand > '' && $operand{0} == '#') {
 					$stack->push('Value', $operand);
 					$this->_debugLog->writeDebugLog('Evaluation Result is ', $this->_showTypeDetails($operand));
-					debug('Evaluation Result is '. $this->_showTypeDetails($operand));
+					echo("\nEvaluation Result is ". $this->_showTypeDetails($operand)); //by Eli orig is debug() to echo
 					return FALSE;
 				} elseif (!PHPExcel_Shared_String::convertToNumberIfFraction($operand)) {
 					//	If not a numeric or a fraction, then it's a text string, and so can't be used in mathematical binary operations
 					$stack->push('Value', '#VALUE!');
 					$this->_debugLog->writeDebugLog('Evaluation Result is a ', $this->_showTypeDetails('#VALUE!'));
-					debug('Evaluation Result is a '. $this->_showTypeDetails('#VALUE!'));
+					echo("\nEvaluation Result is a ". $this->_showTypeDetails('#VALUE!')); //by Eli orig is debug() to echo
 					return FALSE;
 				}
 			}
@@ -3592,11 +3592,11 @@ class PHPExcel_Calculation {
 	private function _executeNumericBinaryOperation($cellID,$operand1,$operand2,$operation,$matrixFunction,&$stack) {
 		//	Validate the two operands
 		if (!$this->_validateBinaryOperand($cellID,$operand1,$stack)) {
-			debug("Invalid operand: $operand1");
+			echo("\nInvalid operand: $operand1"); //by Eli orig is debug() to echo
 			return FALSE;	
 		}
 		if (!$this->_validateBinaryOperand($cellID,$operand2,$stack)) {
-			debug("Invalid operand: $operand2");
+			echo("\nInvalid operand: $operand2"); //by Eli orig is debug() to echo
 			return FALSE;
 		}
 

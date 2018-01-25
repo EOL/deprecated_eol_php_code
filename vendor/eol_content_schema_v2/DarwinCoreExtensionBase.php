@@ -166,6 +166,8 @@ class DarwinCoreExtensionBase
     
     public function __set($name, $value)
     {
+        if(!$name) return; //DATA-1733 - 'Shelled_animal_body_mass' by Eli. This means there is/are column(s) in spreadsheet template e.g. under 'measurements or facts' sheet, 4 undefined columns between "Measurement Value" and "Unit". See orig body-size-shells.xlsx
+        
         //per https://eol-jira.bibalex.org/browse/TRAM-499?focusedCommentId=61534&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61534
         $this->accepted_properties_by_name['canonicalName'] = array('name' => 'canonicalName', 'namespace' => 'http://rs.gbif.org/terms', 'uri' => 'http://rs.gbif.org/terms/1.0/canonicalName');
         
