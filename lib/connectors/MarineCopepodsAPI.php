@@ -72,7 +72,7 @@ class MarineCopepodsAPI
                             $final['F']['min'] = $range[0];
                             $final['F']['max'] = $range[1];
                         }
-                        if(strpos($k, "M:") !== false) { //string is found
+                        elseif(strpos($k, "M:") !== false) { //string is found
                             $k = str_replace("M: ", "", $k);
                             $range = explode("-", $k);
                             $final['M']['min'] = $range[0];
@@ -85,11 +85,70 @@ class MarineCopepodsAPI
                 if(preg_match_all("/\((.*?)\)/ims", $str_for_refs, $a)) {
                     $final['ref nos'] = $a[1];
                 }
-                
+
+                //start ref assignments ==================================================================
+                //for ref assignments: e.g. //(5) F: 1,7; (37) F: 2,7-2,65; M: 2,2-1,5; (65) F: 2,65; M: 2,2; <b>{F: 1,70-2,70; M: 1,50-2,20}</b>
+                echo "\n[$str_for_refs]\n";
+                $pos = strpos($str_for_refs, "<b>");
+                if($pos)
+                {
+                    $str = trim(substr($str_for_refs,0,$pos));
+                    echo "\n[$str]\n"; //(5) F: 1,7; (37) F: 2,7-2,65; M: 2,2-1,5; (65) F: 2,65; M: 2,2;
+                    $arr = explode(";", $str);
+                    $arr = array_map('trim', $arr);
+                    $arr = array_filter($arr); //remove null array values
+                    print_r($arr);
+                    /* Array (
+                        [0] => (5) F: 1,7
+                        [1] => (37) F: 2,7-2,65
+                        [2] => M: 2,2-1,5
+                        [3] => (65) F: 2,65
+                        [4] => M: 2,2
+                        [5] => 
+                    ) */
+                    
+                    $refx = array();
+                    foreach($arr as $k) {
+                        if(preg_match("/\((.*?)\)/ims", $k, $a)) { //uses preg_match not preg_match_all coz I assume that there is only 1 ref no. inside parenthesis
+                            $refno = $a[1];
+                            $k = trim(preg_replace('/\s*\([^)]*\)/', '', $k)); //remove parenthesis
+                            
+                            if(strpos($k, "F:") !== false) { //string is found
+                                $k = str_replace("F: ", "", $k);
+                                $range = explode("-", $k);
+                                // if($val = $range[0]) $refx['F'][$refno][] = self::convert_num_with_comma_to_2decimal_places($val);
+                                // if($val = @$range[1]) $refx['F'][$refno][] = self::convert_num_with_comma_to_2decimal_places($val);
+                                // if($val = $range[0]) $refx['F'][] = array("val" => self::convert_num_with_comma_to_2decimal_places($val), "refno" => $refno);
+                                // if($val = @$range[1]) $refx['F'][] = array("val" => self::convert_num_with_comma_to_2decimal_places($val), "refno" => $refno);
+                                if($val = $range[0]) $refx['F'][self::convert_num_with_comma_to_2decimal_places($val)][] = $refno;
+                                if($val = @$range[1]) $refx['F'][self::convert_num_with_comma_to_2decimal_places($val)][] = $refno;
+                            }
+                            elseif(strpos($k, "M:") !== false) { //string is found
+                                $k = str_replace("M: ", "", $k);
+                                $range = explode("-", $k);
+                                // if($val = $range[0]) $refx['M'][$refno][] = self::convert_num_with_comma_to_2decimal_places($val);
+                                // if($val = @$range[1]) $refx['M'][$refno][] = self::convert_num_with_comma_to_2decimal_places($val);
+                                // if($val = $range[0]) $refx['M'][] = array("val" => self::convert_num_with_comma_to_2decimal_places($val), "refno" => $refno);
+                                // if($val = @$range[1]) $refx['M'][] = array("val" => self::convert_num_with_comma_to_2decimal_places($val), "refno" => $refno);
+                                if($val = $range[0]) $refx['M'][self::convert_num_with_comma_to_2decimal_places($val)] = $refno;
+                                if($val = @$range[1]) $refx['M'][self::convert_num_with_comma_to_2decimal_places($val)] = $refno;
+                            }
+                        }
+                    }//end foreach()
+                    if($refx) $final['refx'] = $refx;
+                }
+                //end ref assignments ==================================================================
             }
         }
         else exit("\nInvestigate: no Lg [$sp]\n");
         return $final;
+    }
+    private function convert_num_with_comma_to_2decimal_places($num)
+    {   //e.g. 1,7 to 1,70
+        $num = str_replace(",", ".", $num);
+        $num = number_format($num, 2);
+        $num = str_replace(".", ",", $num);
+        return $num;
     }
     private function get_NZ($html, $sp)
     {   //<tr><td valign="top" width="30">NZ: </td><td>13 + 1 doubtful</td></tr>
