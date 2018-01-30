@@ -14,12 +14,69 @@ class MarineCopepodsAPI
         $this->debug = array();
         $this->download_options = array("timeout" => 60*60, "expire_seconds" => 60*60*24*25, "resource_id" => "MPC"); //marine planktonic copepods
         $this->page['species'] = "https://copepodes.obs-banyuls.fr/en/fichesp.php?sp=";
+        $this->page['ref_list'] = "https://copepodes.obs-banyuls.fr/en/ref_auteursd.php";
+        $this->page['biblio_1'] = "https://copepodes.obs-banyuls.fr/en/biblio_pre.php?deb=";
+        $this->page['biblio_2'] = "https://copepodes.obs-banyuls.fr/en/biblio.php?deb=";
         $this->bibliographic_citation = "Razouls C., de Bovée F., Kouwenberg J. et Desreumaux N., 2005-2017. - Diversity and Geographic Distribution of Marine Planktonic Copepods. Available at http://copepodes.obs-banyuls.fr/en";
     }
     
+    private function get_ref_minimum()
+    {
+        $final = array();
+        if($html = Functions::lookup_with_cache($this->page['ref_list'], $this->download_options)) {
+            if(preg_match("/InstanceBeginEditable name=\"Contenu\"(.*?)<\/table>/ims", $html, $a1)) {
+                if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $a1[1], $a2)) {
+                    foreach($a2[1] as $r) {
+                        if(preg_match_all("/<div (.*?)<\/div>/ims", $r, $a3)) {
+                            $div = array();
+                            foreach($a3[1] as $s) {
+                                $s = strip_tags("<div ".$s);
+                                $div[] = $s;
+                            }
+                            $div[0] = str_replace("-", "", $div[0]);
+                            $div = array_map('trim', $div);
+                            // print_r($div);
+                            $final[$div[0]] = $div[1];
+                        }
+                    }
+                }
+            }
+            else exit("\nInvestigate: No ref 1\n");
+        }
+        print_r($final);
+        return $final;
+    }
+    private function get_ref_maximum($what)
+    {
+        $final = array();
+        $letters = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z";
+        $letters = explode(" ", $letters);
+        foreach($letters as $deb) {
+            if($html = Functions::lookup_with_cache($this->page[$what].$deb, $this->download_options)) {
+                if(preg_match("/<a name\=$deb>(.*?)<\/table>/ims", $html, $a1)) {
+                    // exit("\n".$a1[1]."\n");
+                    if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $a1[1], $a2)) {
+                        foreach($a2[1] as $r) {
+                            $r = strip_tags($r, "<em>");
+                            echo "\n[$r]";
+                        }
+                    }
+                    else exit("\nInvestigate: No ref 4\n");
+                }
+                else exit("\nInvestigate: No ref 3\n");
+            }
+            else exit("\nInvestigate: No ref 2\n");
+            exit("\nxxx\n");
+        }
+    }
     function start()
     {
+        $this->refno_author_list = self::get_ref_minimum(); exit;
+        $part1 = self::get_ref_maximum("biblio_1");
+        exit;
+        
         $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+
         /* echo("\n Philippines: ".$this->uri_values['Philippines']."\n"); */
         
         /* just testing...
@@ -62,6 +119,9 @@ class MarineCopepodsAPI
            
         $sp = 111; //111; 
         $rec = self::parse_species_page($sp);
+        
+        $this->refs_no_author = self::get_ref_minimum();
+        
         self::write_archive($rec);
         // */
         // print_r($this->debug);
