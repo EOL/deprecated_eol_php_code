@@ -527,5 +527,24 @@ class DwCA_Utility
         return $records;
     }
 
+    //=====================================================================================================================
+    //start OTHER functions
+    //=====================================================================================================================
+    function get_uri_value($raw, $uri_values) //$raw e.g. "Philippines" ---- good func but not yet used, soon...
+    {
+        if($uri = @$uri_values[$raw]) return $uri;
+        else {
+            switch ($raw) { //put here customized mapping
+                case "United States of America":    return "http://www.wikidata.org/entity/Q30";
+                case "Port of Entry":               return false; //"DO NOT USE"
+            }
+        }
+        return false;
+    }
+    
+    //=====================================================================================================================
+    //end OTHER functions
+    //=====================================================================================================================
+
 }
 ?>

@@ -14,22 +14,63 @@ class MarineCopepodsAPI
         $this->debug = array();
         $this->download_options = array("timeout" => 60*60, "expire_seconds" => 60*60*24*25, "resource_id" => "MPC"); //marine planktonic copepods
         $this->page['species'] = "https://copepodes.obs-banyuls.fr/en/fichesp.php?sp=";
+        $this->bibliographic_citation = "Razouls C., de Bovée F., Kouwenberg J. et Desreumaux N., 2005-2017. - Diversity and Geographic Distribution of Marine Planktonic Copepods. Available at http://copepodes.obs-banyuls.fr/en";
     }
     
     function start()
     {
-        /*
-        for($sp=1; $sp<=459; $sp++) {
+        $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        /* echo("\n Philippines: ".$this->uri_values['Philippines']."\n"); */
+        
+        /* just testing...
+        for($sp=1; $sp<=470; $sp++) { //459
             $rec = self::parse_species_page($sp);
-        } */
-        $sp = 111;
-        $rec = self::parse_species_page($sp); return;
+        } 
+        */
+        /* <select name="sp" id="sp" onChange="javascript:form.submit();">
+                              <option value="0">Choose another species</option>
+                              <option value="1">Acartia (Acanthacartia) bacorehuiensis</option>
+                              </select>
+        */
+        
+        /* normal operation
+        if($html = Functions::lookup_with_cache($this->page['species']."1", $this->download_options)) {
+            $html = str_ireplace('<option value="0">Choose another species</option>', "", $html);
+            if(preg_match("/<select name=\"sp\"(.*?)<\/select>/ims", $html, $a1)) {
+                if(preg_match_all("/<option value=(.*?)<\/option>/ims", $a1[1], $a2)) {
+                    // print_r($a2[1]);
+                    // echo "\n".count($a2[1])."\n";
+                    foreach($a2[1] as $str) { // "1173">Xanthocalanus squamatus
+                        if(preg_match("/\"(.*?)\"/ims", $str, $a3)) {
+                            $rec = self::parse_species_page($a3[1]);
+                            self::write_archive($rec);
+                        }
+                    }
+                }
+            }
+        }
+        */
+        
+        // /* 
+           // 466 - not range but single value
+           // 1198 - fix ['refx][M] ... problematic string is "; (91) M: ? 1,9;"
+           // 187 - fix saw this: has * asterisk
+           // [] => Array
+           // (
+           //     [0] => 1125
+           // )
+           
+        $sp = 111; //111; 
+        $rec = self::parse_species_page($sp);
+        self::write_archive($rec);
+        // */
         // print_r($this->debug);
     }
     private function parse_species_page($sp)
     {
         $rec = array();
         if($html = Functions::lookup_with_cache($this->page['species'].$sp, $this->download_options)) {
+            $rec['taxon_id'] = $sp;
             // <div class="Style4"><b><em>Bradyidius armatus</em></b>&nbsp;&nbsp;Giesbrecht, 1897&nbsp;&nbsp;&nbsp;(F,M)</div>
             if(preg_match("/<div class=\"Style4\">(.*?)<\/div>/ims", $html, $a1)) {
                 // echo "\n". $a1[1]; //<b><em>Bradyidius armatus</em></b>&nbsp;&nbsp;Giesbrecht, 1897&nbsp;&nbsp;&nbsp;(F,M)
@@ -43,6 +84,7 @@ class MarineCopepodsAPI
             $rec['Lg'] = self::get_Lg($html, $sp);
         }
         print_r($rec);
+        return $rec;
     }
     private function get_Lg($html, $sp)
     {   /* Lg.: </td><td><div align="left">	(&nbsp;<a href="javascript:popUpWindow('ref_auteursd.php',700,800);">
@@ -60,7 +102,7 @@ class MarineCopepodsAPI
                     // echo "\n".$a3[1]."\n"; //F: 1,70-2,70; M: 1,50-2,20
                     $arr = explode(";", $a3[1]);
                     $arr = array_map('trim', $arr);
-                    print_r($arr);
+                    // print_r($arr);
                     // Array (
                     //     [0] => F: 1,70-2,70
                     //     [1] => M: 1,50-2,20
@@ -70,13 +112,13 @@ class MarineCopepodsAPI
                             $k = str_replace("F: ", "", $k);
                             $range = explode("-", $k);
                             $final['F']['min'] = $range[0];
-                            $final['F']['max'] = $range[1];
+                            $final['F']['max'] = @$range[1];
                         }
                         elseif(strpos($k, "M:") !== false) { //string is found
                             $k = str_replace("M: ", "", $k);
                             $range = explode("-", $k);
                             $final['M']['min'] = $range[0];
-                            $final['M']['max'] = $range[1];
+                            $final['M']['max'] = @$range[1];
                         }
                     }//end foreach()
                 }
@@ -88,16 +130,16 @@ class MarineCopepodsAPI
 
                 //start ref assignments ==================================================================
                 //for ref assignments: e.g. //(5) F: 1,7; (37) F: 2,7-2,65; M: 2,2-1,5; (65) F: 2,65; M: 2,2; <b>{F: 1,70-2,70; M: 1,50-2,20}</b>
-                echo "\n[$str_for_refs]\n";
+                // echo "\n[$str_for_refs]\n";
                 $pos = strpos($str_for_refs, "<b>");
                 if($pos)
                 {
                     $str = trim(substr($str_for_refs,0,$pos));
-                    echo "\n[$str]\n"; //(5) F: 1,7; (37) F: 2,7-2,65; M: 2,2-1,5; (65) F: 2,65; M: 2,2;
+                    // echo "\n[$str]\n"; //(5) F: 1,7; (37) F: 2,7-2,65; M: 2,2-1,5; (65) F: 2,65; M: 2,2;
                     $arr = explode(";", $str);
                     $arr = array_map('trim', $arr);
                     $arr = array_filter($arr); //remove null array values
-                    print_r($arr);
+                    // print_r($arr);
                     /* Array (
                         [0] => (5) F: 1,7
                         [1] => (37) F: 2,7-2,65
@@ -140,20 +182,26 @@ class MarineCopepodsAPI
                 //end ref assignments ==================================================================
             }
         }
-        else exit("\nInvestigate: no Lg [$sp]\n");
+        else $this->debug['no Lg'][$sp]; //exit("\nInvestigate: no Lg [$sp]\n");
         return $final;
     }
     private function convert_num_with_comma_to_2decimal_places($num)
     {   //e.g. 1,7 to 1,70
+        $orig = $num;
         $num = str_replace(",", ".", $num);
-        $num = number_format($num, 2);
-        $num = str_replace(".", ",", $num);
-        return $num;
+        if(is_numeric($num)) {
+            if(strlen($num) <= 4) $decimal_places = 2;
+            else                  $decimal_places = 3;
+            $num = number_format($num, $decimal_places);
+            $num = str_replace(".", ",", $num);
+            return $num;
+        }
+        else return $orig;
     }
     private function get_NZ($html, $sp)
     {   //<tr><td valign="top" width="30">NZ: </td><td>13 + 1 doubtful</td></tr>
         if(preg_match("/>NZ: <\/td>(.*?)<\/tr>/ims", $html, $a)) return strip_tags($a[1]);
-        else exit("\nInvestigate: no NZ [$sp]\n");
+        else $this->debug['no NZ'][$sp]; //exit("\nInvestigate: no NZ [$sp]\n");
     }
     private function parse_ancestry($html, $sp)
     {
@@ -173,47 +221,138 @@ class MarineCopepodsAPI
         if(!$ancestry) exit("\nInvestigate: no ancestry [$sp]\n");
         return $ancestry;
     }
-    /*
-    private function write_trait()
+    private function write_archive($rec)
     {
-        foreach($items as $item)
-        {
-            $rec["catnum"] = '';
-            $rec["referenceID"] = '';
-            $rec["measurementMethod"] = '';
-            $rec["statisticalMethod"] = '';
-            $rec["measurementRemarks"] = '';
-            $rec["measurementUnit"] = '';
-            $rec["sex"] = '';
-            //sample $item
-                [measurement] => http://rs.tdwg.org/dwc/terms/verbatimDepth
-                [value] => 0
-                [unit] => http://purl.obolibrary.org/obo/UO_0000008
-                [ref_id] => Array([0] => 58018)
-                [sMethod] => http://semanticscience.org/resource/SIO_001113
-                [sex] => http://purl.obolibrary.org/obo/PATO_0000383
-                [mMethod] => Total length; the length of a fish, measured from the tip of the snout to the tip of the longest rays of the caudal fin (but excluding filaments), when the caudal fin lobes are aligned with the main body axis.
-                [mRemarks] => demersal
-            //
-            if($item['value'] === "") exit("\nblank value\n");
-            
-            if($val = @$item['range_value']) $rec["catnum"] = $orig_catnum . "_" . md5($item['measurement'].$val);
-            else                             $rec["catnum"] = $orig_catnum . "_" . md5($item['measurement'].$item['value'].@$item['mRemarks']); //specifically used for TraitBank; mRemarks is added to differentiate e.g. freshwater and catadromous.
-            
-            if($val = @$item['ref_id'])
-            {
-                if($ref_ids = self::convert_FBrefID_with_archiveID($val)) $rec["referenceID"] = implode("; ", $ref_ids);
-                // else print_r($items);
+        self::add_taxon($rec);
+        // self::add_trait($rec);
+    }
+    private function add_taxon($rec)
+    {   /* [taxon_id] = 111
+        [species] => Bradyidius armatus
+        [author] => Giesbrecht, 1897
+        [ancestry] => Array
+        (
+            [Order] => Calanoida
+            [Superfamily] => Clausocalanoidea
+            [Family] => Aetideidae
+            [Genus] => Bradyidius
+        )*/
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID         = $rec['taxon_id'];
+        $taxon->scientificName  = $rec['species'];
+        if($val = @$rec['ancestry']['Order']) $taxon->order = $val;
+        if($val = @$rec['ancestry']['Family']) $taxon->family = $val;
+        if($val = @$rec['ancestry']['Genus']) $taxon->genus = $val;
+        $taxon->furtherInformationURL = $this->page['species'].$rec['taxon_id'];
+        // if($reference_ids = @$this->taxa_reference_ids[$t['int_id']]) $taxon->referenceID = implode("; ", $reference_ids);
+        $this->taxon_ids[$taxon->taxonID] = '';
+        $this->archive_builder->write_object_to_file($taxon);
+    }
+    private function add_trait($rec)
+    {   //for NZ: ----------------------------------------------------- 1st trait
+        if($nz = @$rec['NZ']) { //e.g. "13 + 1 doubtful"
+            if($nz_uri = self::get_country_uri($nz)) {
+                $rec['catnum'] = $rec['taxon_id']."_NZ";
+                $rec['measurementRemarks'] = $nz;
+                self::add_string_types($rec, $nz_uri, "http://eol.org/schema/terms/Present", "true");
             }
-            if($val = @$item['mMethod'])  $rec['measurementMethod'] = $val;
-            if($val = @$item['sMethod'])  $rec['statisticalMethod'] = $val;
-            if($val = @$item['mRemarks']) $rec['measurementRemarks'] = $val;
-            if($val = @$item['unit'])     $rec['measurementUnit'] = $val;
-            if($val = @$item['sex'])      $rec['sex'] = $val;
-            self::add_string_types($rec, $item['value'], $item['measurement'], "true");
+            else $this->debug['undefined NZ'][$nz] = '';
+        }
+        //for Lg: : ----------------------------------------------------- 2nd trait
+        /* [Lg] => Array
+                [F] => Array
+                        [min] => 0,73
+                        [max] => 0,91
+                [M] => Array
+                        [min] => 0,73
+                        [max] => 
+                [ref nos] => Array
+                        [0] => 226
+                [refx] => Array
+                    (
+                        [F] => Array
+                            (
+                                [0,91] => Array
+                                        [0] => 226
+                                [0,73] => Array
+                                        [0] => 226
+                            )
+                    )
+            )*/
+        //initialize some vars:
+        $rec['catnum'] = "";
+        $rec['sex'] = "";
+        $rec['measurementAccuracy'] = "http://purl.bioontology.org/ontology/LNC/LP64451-5";
+        $rec['measurementMethod'] = "Literature review";
+        
+        if(@$rec['Lg']['F']['min'] && @$rec['Lg']['F']['max']) { //has both min & max
+            $rec['catnum'] = $rec['taxon_id']."_Lg";
+            if($min = $rec['Lg']['F']['min']) {
+                $rec['statisticalMethod'] = "http://eol.org/schema/terms/statisticalMethod=http://semanticscience.org/resource/SIO_001113"; //min value
+                $rec['sex'] = "http://rs.tdwg.org/dwc/terms/sex=http://purl.obolibrary.org/obo/PATO_0000383"; //female sex
+                self::add_string_types($rec, $min, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
+            }
+            if($max = $rec['Lg']['F']['max']) {
+                $rec['statisticalMethod'] = "http://eol.org/schema/terms/statisticalMethod=http://semanticscience.org/resource/SIO_001114"; //max value
+                $rec['sex'] = "http://rs.tdwg.org/dwc/terms/sex=http://purl.obolibrary.org/obo/PATO_0000383"; //female sex
+                self::add_string_types($rec, $max, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
+            }
+        }
+        /* sample from FishBase:
+        FB-Habitat-2_7112bfabffc2954c164c64cf0b2057bd	true	http://rs.tdwg.org/dwc/terms/verbatimDepth	0	   http://semanticscience.org/resource/SIO_001113	
+        FB-Habitat-2_7112bfabffc2954c164c64cf0b2057bd	true	http://rs.tdwg.org/dwc/terms/verbatimDepth	20	   http://semanticscience.org/resource/SIO_001114	
+        */
+        
+        
+    }
+
+    private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
+    {
+        $taxon_id = $rec["taxon_id"];
+        $catnum   = $rec["catnum"];
+        $occurrence_id = $catnum; // simply used catnum
+
+        /* not needed for this resource
+        $unique_id = md5($taxon_id.$measurementType.$value);
+        $occurrence_id = $unique_id; //because one catalog no. can have 2 MeasurementOrFact entries. Each for country and habitat.
+        */
+        
+        $cont = $this->add_occurrence($taxon_id, $occurrence_id, $rec);
+
+        if($cont) {
+            $m = new \eol_schema\MeasurementOrFact();
+            $m->occurrenceID       = $occurrence_id;
+            $m->measurementOfTaxon = $measurementOfTaxon;
+            if($measurementOfTaxon == "true") {
+                $m->source      = $this->page['species'].$rec["taxon_id"];
+                $m->contributor = '';
+                if($referenceID = @$rec["referenceID"]) $m->referenceID = $referenceID;
+            }
+            $m->measurementType  = $measurementType;
+            $m->measurementValue = $value;
+            $m->bibliographicCitation = $this->bibliographic_citation." (".date("m/d/Y").")."; //same for all, for this resource
+            if($val = @$rec['measurementUnit'])     $m->measurementUnit = $val;
+            if($val = @$rec['measurementMethod'])   $m->measurementMethod = $val;
+            if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
+            if($val = @$rec['measurementAccuracy'])   $m->measurementAccuracy = $val;
+            if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
+            $this->archive_builder->write_object_to_file($m);
         }
     }
+    private function add_occurrence($taxon_id, $occurrence_id, $rec)
+    {
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = $occurrence_id;
+        $o->taxonID = $taxon_id;
+        $o->sex = @$rec['sex'];
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$unique_id] = '';
+        return true;
+    }
+
     
+    
+    /*
     private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
     {
         $taxon_id = $rec["taxon_id"];
@@ -281,92 +420,6 @@ class MarineCopepodsAPI
         }
     }
 
-    private function add_taxon($rec)
-    {
-        $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID         = $rec['taxon_id'];
-        $taxon->scientificName  = ucfirst($rec['scientific_name']);
-        if($family = @$rec['family']) $taxon->family = ucfirst($family);
-        if($taxon->family == "Formicidae") {
-            $taxon->phylum  = 'Arthropoda';
-            $taxon->class   = 'Insecta';
-            $taxon->order   = 'Hymenoptera';
-        }
-        $taxon->furtherInformationURL = self::compute_furtherInformationURL($taxon->scientificName);
-        // if($reference_ids = @$this->taxa_reference_ids[$t['int_id']]) $taxon->referenceID = implode("; ", $reference_ids);
-        $this->taxon_ids[$taxon->taxonID] = '';
-        $this->archive_builder->write_object_to_file($taxon);
-    }
-    private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
-    {
-        $taxon_id = $rec["taxon_id"];
-        $catnum   = $rec["catnum"];
-        $occurrence_id = $catnum; // simply used catnum
-
-        $unique_id = md5($taxon_id.$measurementType.$value);
-        $occurrence_id = $unique_id; //becase one catalog no. can have 2 MeasurementOrFact entries. Each for country and habitat.
-
-        $cont = $this->add_occurrence($taxon_id, $occurrence_id, $rec, $unique_id);
-
-        if($cont) {
-            $m = new \eol_schema\MeasurementOrFact();
-            $m->occurrenceID       = $occurrence_id;
-            $m->measurementOfTaxon = $measurementOfTaxon;
-            if($measurementOfTaxon == "true") {
-                $m->source      = @$rec["url"];
-                $m->contributor = @$rec["contributor"];
-                if($referenceID = @$rec["referenceID"]) $m->referenceID = $referenceID;
-            }
-            $m->measurementType  = $measurementType;
-            $m->measurementValue = $value;
-            // $m->bibliographicCitation = $this->bibliographic_citation;
-            if($val = @$rec['measurementUnit'])     $m->measurementUnit = $val;
-            if($val = @$rec['measurementMethod'])   $m->measurementMethod = $val;
-            if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
-            if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
-            $this->archive_builder->write_object_to_file($m);
-        }
-    }
-    private function add_occurrence($taxon_id, $occurrence_id, $rec, $unique_id)
-    {
-        if(isset($this->occurrence_ids[$unique_id])) return false;
-        $o = new \eol_schema\Occurrence();
-        $o->occurrenceID = $occurrence_id;
-        $o->taxonID = $taxon_id;
-        $o->catalogNumber = @$rec['catalogNumber'];
-        $o->dateIdentified = @$rec['dateIdentified'];
-        $o->eventDate = @$rec['dateCollected'];
-        $o->locality = '';
-        if($val = @$rec['stateProvince']) {
-            if($o->locality) $o->locality .= " stateProvince: $val.";
-            else             $o->locality  = " stateProvince: $val.";
-        }
-        if($val = @$rec['country']) {
-            if($o->locality) $o->locality .= " country: $val.";
-            else             $o->locality  = " country: $val.";
-        }
-        if($val = @$rec['biogeographicregion']) {
-            if($o->locality) $o->locality .= " biogeographicregion: $val.";
-            else             $o->locality  = " biogeographicregion: $val.";
-        }
-        // $o->decimalLatitude
-        // $o->decimalLongitude
-        $this->archive_builder->write_object_to_file($o);
-        $this->occurrence_ids[$unique_id] = '';
-        return true;
-    }
-
-    private function get_country_uri($country)
-    {
-        if($country_uri = @$this->uri_values[$country]) return $country_uri;
-        else {
-            switch ($country) {
-                case "United States of America":        return "http://www.wikidata.org/entity/Q30";
-                case "Mariana Islands":                 return "http://www.wikidata.org/entity/Q153732";
-            }
-        }
-    }
-    
     */
 }
 ?>

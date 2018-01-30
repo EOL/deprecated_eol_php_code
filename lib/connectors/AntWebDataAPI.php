@@ -344,7 +344,7 @@ class AntWebDataAPI
     {
         if($country_uri = @$this->uri_values[$country]) return $country_uri;
         else {
-            switch ($country) {
+            switch ($country) { //put here customized mapping
                 case "United States of America":        return "http://www.wikidata.org/entity/Q30";
                 case "Port of Entry":                   return false; //"DO NOT USE";
                 case "Dutch West Indies":               return "http://www.wikidata.org/entity/Q25227";
