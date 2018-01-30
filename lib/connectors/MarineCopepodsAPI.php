@@ -74,6 +74,22 @@ class MarineCopepodsAPI
         $refno_author_list = self::get_ref_minimum();
         if($str = $refno_author_list[$refno]) {
             echo "\n[$refno] [$str]\n"; //[65] [Sars, 1903] | [67] [Grice & Hulsemann, 1967] []
+            
+            //manual: special cases
+            if($refno == 22) $str = "Brodsky, 1967"; //22 - Brodsky, 1950 (1967)
+            if($refno == 46) $str = 'Giesbrecht, ["1892"]'; //46 - Giesbrecht, 1892
+            if($refno == 138) $str = "Bowshall, 1979"; //138 - Boxshall, 1979     ---> this is typo on their website
+            if($refno == 67) $str = "Hulsemann & Grice, 1964"; //"Hulsemann K. & Grice G.D., 1964"; //67 - Grice & Hulsemann, 1967
+            if($refno == 226) $str = "Hulsemann & Grice, 1964";                                    //226 - Grice & Hulsemann, 1965
+            if($refno == 100) $str = "Hulsemann & Grice, 1964";                                    //100 - Grice & Hulsemann, 1968
+
+            if($refno == 1) $str = "Sars, 1924-1925"; //"Sars G.O., 1924-1925" //1 - Sars, 1925
+            if($refno == 262) $str = "Guangshan & Honglin, 1997"; // 262 - Guangshan & Honglin, 1998
+            
+            if($refno == 610) $str = "Boxhall & Roe, 1980"; //"Boxhall G.A. & Roe H.S.J., 1980"  //610 - Boxshall & Roe, 1980      ---> this is typo on their website
+            
+            
+            
             $str = str_replace(array("al.", ",", "&"), "", $str);
             $str = Functions::remove_whitespace($str);
             $str = self::clean_str($str);
@@ -151,7 +167,7 @@ class MarineCopepodsAPI
     function start()
     {
         /* testing... 5 37 65
-        $refno = 5; 
+        $refno = 189; 
         $full_reference = self::get_fullreference_by_refno($refno); 
         print_r($full_reference);
         exit("\n[$refno]\n");
@@ -175,7 +191,7 @@ class MarineCopepodsAPI
                               </select>
         */
         
-        /* normal operation
+        // /* normal operation
         if($html = Functions::lookup_with_cache($this->page['species']."1", $this->download_options)) {
             $html = str_ireplace('<option value="0">Choose another species</option>', "", $html);
             if(preg_match("/<select name=\"sp\"(.*?)<\/select>/ims", $html, $a1)) {
@@ -191,9 +207,10 @@ class MarineCopepodsAPI
                 }
             }
         }
-        */
+        $this->archive_builder->finalize(TRUE);
+        // */
         
-        // /* 
+        /* 
            // 466 - not range but single value
            // 1198 - fix ['refx][M] ... problematic string is "; (91) M: ? 1,9;"
            // 187 - fix saw this: has * asterisk
@@ -205,7 +222,8 @@ class MarineCopepodsAPI
         $sp = 111; //111; 
         $rec = self::parse_species_page($sp);
         self::write_archive($rec);
-        // */
+        $this->archive_builder->finalize(TRUE);
+        */
         // print_r($this->debug);
     }
     private function parse_species_page($sp)
@@ -562,7 +580,10 @@ class MarineCopepodsAPI
                    $this->archive_builder->write_object_to_file($r);
                 }
             }
-            else exit("\nInvestigate no fullref [$refno]\n");
+            else 
+            {
+                if(!in_array($refno, array("189"))) exit("\nInvestigate no fullref [$refno]\n");
+            }
         }
         return $refids;
     }
