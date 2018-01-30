@@ -224,7 +224,7 @@ class MarineCopepodsAPI
     private function write_archive($rec)
     {
         self::add_taxon($rec);
-        // self::add_trait($rec);
+        self::add_trait($rec);
     }
     private function add_taxon($rec)
     {   /* [taxon_id] = 111
@@ -251,7 +251,7 @@ class MarineCopepodsAPI
     private function add_trait($rec)
     {   //for NZ: ----------------------------------------------------- 1st trait
         if($nz = @$rec['NZ']) { //e.g. "13 + 1 doubtful"
-            if($nz_uri = self::get_country_uri($nz)) {
+            if($nz_uri = self::get_value_uri($nz)) {
                 $rec['catnum'] = $rec['taxon_id']."_NZ";
                 $rec['measurementRemarks'] = $nz;
                 self::add_string_types($rec, $nz_uri, "http://eol.org/schema/terms/Present", "true");
@@ -284,24 +284,69 @@ class MarineCopepodsAPI
         $rec['sex'] = "";
         $rec['measurementAccuracy'] = "http://purl.bioontology.org/ontology/LNC/LP64451-5";
         $rec['measurementMethod'] = "Literature review";
-        
+
+        //for female --------
         if(@$rec['Lg']['F']['min'] && @$rec['Lg']['F']['max']) { //has both min & max
-            $rec['catnum'] = $rec['taxon_id']."_Lg";
+            $rec['catnum'] = $rec['taxon_id']."_Lg_F";
             if($min = $rec['Lg']['F']['min']) {
-                $rec['statisticalMethod'] = "http://eol.org/schema/terms/statisticalMethod=http://semanticscience.org/resource/SIO_001113"; //min value
-                $rec['sex'] = "http://rs.tdwg.org/dwc/terms/sex=http://purl.obolibrary.org/obo/PATO_0000383"; //female sex
+                $rec['statisticalMethod'] = "http://semanticscience.org/resource/SIO_001113"; //min value
+                $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000383"; //female sex
                 self::add_string_types($rec, $min, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
             }
             if($max = $rec['Lg']['F']['max']) {
-                $rec['statisticalMethod'] = "http://eol.org/schema/terms/statisticalMethod=http://semanticscience.org/resource/SIO_001114"; //max value
-                $rec['sex'] = "http://rs.tdwg.org/dwc/terms/sex=http://purl.obolibrary.org/obo/PATO_0000383"; //female sex
+                $rec['statisticalMethod'] = "http://semanticscience.org/resource/SIO_001114"; //max value
+                $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000383"; //female sex
+                self::add_string_types($rec, $max, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
+            }
+            /* sample from FishBase:
+            FB-Habitat-2_7112bfabffc2954c164c64cf0b2057bd	true	http://rs.tdwg.org/dwc/terms/verbatimDepth	0	   http://semanticscience.org/resource/SIO_001113	
+            FB-Habitat-2_7112bfabffc2954c164c64cf0b2057bd	true	http://rs.tdwg.org/dwc/terms/verbatimDepth	20	   http://semanticscience.org/resource/SIO_001114	
+            */
+        }
+        else { //not a range value but just one value
+            $rec['catnum'] = $rec['taxon_id']."_Lg_F";
+            if($min = $rec['Lg']['F']['min']) {
+                $rec['statisticalMethod'] = ""; //not a range
+                $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000383"; //female sex
+                self::add_string_types($rec, $min, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
+            }
+            if($max = $rec['Lg']['F']['max']) {
+                $rec['statisticalMethod'] = ""; //not a range
+                $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000383"; //female sex
                 self::add_string_types($rec, $max, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
             }
         }
-        /* sample from FishBase:
-        FB-Habitat-2_7112bfabffc2954c164c64cf0b2057bd	true	http://rs.tdwg.org/dwc/terms/verbatimDepth	0	   http://semanticscience.org/resource/SIO_001113	
-        FB-Habitat-2_7112bfabffc2954c164c64cf0b2057bd	true	http://rs.tdwg.org/dwc/terms/verbatimDepth	20	   http://semanticscience.org/resource/SIO_001114	
-        */
+        //for male --------
+        if(@$rec['Lg']['M']['min'] && @$rec['Lg']['M']['max']) { //has both min & max
+            $rec['catnum'] = $rec['taxon_id']."_Lg_M";
+            if($min = $rec['Lg']['M']['min']) {
+                $rec['statisticalMethod'] = "http://semanticscience.org/resource/SIO_001113"; //min value
+                $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000384"; //male sex
+                self::add_string_types($rec, $min, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
+            }
+            if($max = $rec['Lg']['M']['max']) {
+                $rec['statisticalMethod'] = "http://semanticscience.org/resource/SIO_001114"; //max value
+                $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000384"; //male sex
+                self::add_string_types($rec, $max, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
+            }
+            /* sample from FishBase:
+            FB-Habitat-2_7112bfabffc2954c164c64cf0b2057bd	true	http://rs.tdwg.org/dwc/terms/verbatimDepth	0	   http://semanticscience.org/resource/SIO_001113	
+            FB-Habitat-2_7112bfabffc2954c164c64cf0b2057bd	true	http://rs.tdwg.org/dwc/terms/verbatimDepth	20	   http://semanticscience.org/resource/SIO_001114	
+            */
+        }
+        else { //not a range value but just one value
+            $rec['catnum'] = $rec['taxon_id']."_Lg_M";
+            if($min = $rec['Lg']['M']['min']) {
+                $rec['statisticalMethod'] = ""; //not a range
+                $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000384"; //male sex
+                self::add_string_types($rec, $min, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
+            }
+            if($max = $rec['Lg']['M']['max']) {
+                $rec['statisticalMethod'] = ""; //not a range
+                $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000384"; //male sex
+                self::add_string_types($rec, $max, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
+            }
+        }
         
         
     }
@@ -346,8 +391,18 @@ class MarineCopepodsAPI
         $o->taxonID = $taxon_id;
         $o->sex = @$rec['sex'];
         $this->archive_builder->write_object_to_file($o);
-        $this->occurrence_ids[$unique_id] = '';
+        $this->occurrence_ids[$occurrence_id] = '';
         return true;
+    }
+    private function get_value_uri($value)
+    {
+        if($uri = @$this->uri_values[$value]) return $uri;
+        else {
+            switch ($value) { //put here customized mapping
+                case "United States of America":        return "http://www.wikidata.org/entity/Q30";
+                case "Port of Entry":                   return false; //"DO NOT USE";
+            }
+        }
     }
 
     
@@ -394,31 +449,6 @@ class MarineCopepodsAPI
     
     
     /*
-    if($country = @$rec['country']) {
-        if($country_uri = self::get_country_uri($country)) {
-            if(!isset($this->taxon_ids[$rec['taxon_id']])) self::add_taxon($rec);
-            self::add_string_types($rec, $country_uri, "http://eol.org/schema/terms/Present", "true");
-        }
-        else $this->debug['undefined country'][$country] = '';
-    }
-    if($habitat = @$rec['habitat']) {
-        if($habitat_uri = @$this->uri_values[$habitat]) {
-            if(!isset($this->taxon_ids[$rec['taxon_id']])) self::add_taxon($rec);
-            self::add_string_types($rec, $habitat_uri, "http://eol.org/schema/terms/Habitat", "true");
-        }
-        elseif($val = @$habitat_map[$habitat])
-        {
-            $habitat_uris = explode(";", $val);
-            $habitat_uris = array_map('trim', $habitat_uris);
-            foreach($habitat_uris as $habitat_uri)
-            {
-                if(!$habitat_uri) continue;
-                if(!isset($this->taxon_ids[$rec['taxon_id']])) self::add_taxon($rec);
-                $rec['measurementRemarks'] = $habitat;
-                self::add_string_types($rec, $habitat_uri, "http://eol.org/schema/terms/Habitat", "true");
-            }
-        }
-    }
 
     */
 }
