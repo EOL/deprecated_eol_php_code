@@ -43,7 +43,7 @@ class MarineCopepodsAPI
             }
             else exit("\nInvestigate: No ref 1\n");
         }
-        print_r($final);
+        // print_r($final);
         return $final;
     }
     private function get_ref_maximum($what)
@@ -59,6 +59,8 @@ class MarineCopepodsAPI
                         foreach($a2[1] as $r) {
                             $r = strip_tags($r, "<em>");
                             echo "\n[$r]";
+                            $parts = explode(". - ", $r);
+                            $final[$parts[0]] = @$parts[1];
                         }
                     }
                     else exit("\nInvestigate: No ref 4\n");
@@ -66,13 +68,15 @@ class MarineCopepodsAPI
                 else exit("\nInvestigate: No ref 3\n");
             }
             else exit("\nInvestigate: No ref 2\n");
-            exit("\nxxx\n");
+            // exit("\nxxx\n");
         }
     }
     function start()
     {
-        $this->refno_author_list = self::get_ref_minimum(); exit;
+        // $this->refno_author_list = self::get_ref_minimum(); exit;
         $part1 = self::get_ref_maximum("biblio_1");
+        $part2 = self::get_ref_maximum("biblio_2");
+        
         exit;
         
         $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
