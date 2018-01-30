@@ -18,6 +18,7 @@ class MarineCopepodsAPI
         $this->page['biblio_1'] = "https://copepodes.obs-banyuls.fr/en/biblio_pre.php?deb=";
         $this->page['biblio_2'] = "https://copepodes.obs-banyuls.fr/en/biblio.php?deb=";
         $this->bibliographic_citation = "Razouls C., de Bovée F., Kouwenberg J. et Desreumaux N., 2005-2017. - Diversity and Geographic Distribution of Marine Planktonic Copepods. Available at http://copepodes.obs-banyuls.fr/en";
+        $this->resource_reference_ids = array();
     }
     
     private function get_ref_minimum()
@@ -75,10 +76,9 @@ class MarineCopepodsAPI
             echo "\n[$refno] [$str]\n"; //[65] [Sars, 1903] | [67] [Grice & Hulsemann, 1967] []
             $str = str_replace(array("al.", ",", "&"), "", $str);
             $str = Functions::remove_whitespace($str);
+            $str = self::clean_str($str);
             $words = explode(" ", $str);
-            // print_r($words);
-            asort($words);
-            $words = array_values($words); //reindex key
+            $words = self::clean_words($words);
             print_r($words); //exit;
             if($fullref_by_letter = self::get_ref_maximum("biblio_1", substr($str,0,1))) {
                 if($fullref = self::search_words($fullref_by_letter, $words)) return $fullref;
@@ -89,6 +89,25 @@ class MarineCopepodsAPI
             }
         }
         else exit("\nInvestigate can't find refno [$refno]\n");
+    }
+    private function clean_str($str) //e.g. "A. Scott, 1909" will just be "Scott, 1909"
+    {
+        if(substr($str,1,2) == ". ") return trim(substr($str,3,strlen($str)));
+        return $str;
+    }
+    private function clean_words($words) //e.g. "A. Scott, 1909". The first array value "A." will be removed from $words
+    {
+        asort($words);
+        $words = array_values($words); //reindex key
+        $i = 0;
+        foreach($words as $word) {
+            if(strlen($word) == 2 && substr($word,1,1) == ".") $words[$i] = null;
+            $i++;
+        }
+        $words = array_filter($words); //remove null arrays
+        asort($words);
+        $words = array_values($words); //reindex key
+        return $words;
     }
     private function search_words($fullref_by_letter, $words)
     {
@@ -108,7 +127,7 @@ class MarineCopepodsAPI
             */
 
             //start search each word
-            if(self::all_words_are_inside_phrase($words, $phrase_arr)) return $orig;
+            if(self::all_words_are_inside_phrase($words, $phrase_arr)) return array($orig, $fullref_by_letter[$orig]);
             
         }
         return false;
@@ -120,7 +139,6 @@ class MarineCopepodsAPI
         [1] => Grice
         [2] => Hulsemann
     )
-    
     */
     private function all_words_are_inside_phrase($words, $phrase_arr)
     {
@@ -132,14 +150,15 @@ class MarineCopepodsAPI
     }
     function start()
     {
-        // /* testing... 5 37 65
+        /* testing... 5 37 65
         $refno = 5; 
         $full_reference = self::get_fullreference_by_refno($refno); 
-        exit("\n [$refno] [$full_reference] \n");
+        print_r($full_reference);
+        exit("\n[$refno]\n");
         // $refno_author_list = self::get_ref_minimum(); exit;
         // $part1 = self::get_ref_maximum("biblio_1"); exit;
         // $part2 = self::get_ref_maximum("biblio_2"); exit;
-        // */
+        */
         
         $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
 
@@ -185,9 +204,6 @@ class MarineCopepodsAPI
            
         $sp = 111; //111; 
         $rec = self::parse_species_page($sp);
-        
-        $this->refs_no_author = self::get_ref_minimum();
-        
         self::write_archive($rec);
         // */
         // print_r($this->debug);
@@ -417,11 +433,13 @@ class MarineCopepodsAPI
             if($min = $rec['Lg']['F']['min']) {
                 $rec['statisticalMethod'] = "http://semanticscience.org/resource/SIO_001113"; //min value
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000383"; //female sex
+                $rec["referenceID"] = @$rec['Lg']['refx']['F'][$min];
                 self::add_string_types($rec, $min, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
             }
             if($max = $rec['Lg']['F']['max']) {
                 $rec['statisticalMethod'] = "http://semanticscience.org/resource/SIO_001114"; //max value
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000383"; //female sex
+                $rec["referenceID"] = @$rec['Lg']['refx']['F'][$max];
                 self::add_string_types($rec, $max, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
             }
             /* sample from FishBase:
@@ -434,11 +452,13 @@ class MarineCopepodsAPI
             if($min = $rec['Lg']['F']['min']) {
                 $rec['statisticalMethod'] = ""; //not a range
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000383"; //female sex
+                $rec["referenceID"] = @$rec['Lg']['refx']['F'][$min];
                 self::add_string_types($rec, $min, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
             }
             if($max = $rec['Lg']['F']['max']) {
                 $rec['statisticalMethod'] = ""; //not a range
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000383"; //female sex
+                $rec["referenceID"] = @$rec['Lg']['refx']['F'][$max];
                 self::add_string_types($rec, $max, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
             }
         }
@@ -448,11 +468,13 @@ class MarineCopepodsAPI
             if($min = $rec['Lg']['M']['min']) {
                 $rec['statisticalMethod'] = "http://semanticscience.org/resource/SIO_001113"; //min value
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000384"; //male sex
+                $rec["referenceID"] = @$rec['Lg']['refx']['M'][$min];
                 self::add_string_types($rec, $min, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
             }
             if($max = $rec['Lg']['M']['max']) {
                 $rec['statisticalMethod'] = "http://semanticscience.org/resource/SIO_001114"; //max value
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000384"; //male sex
+                $rec["referenceID"] = @$rec['Lg']['refx']['M'][$max];
                 self::add_string_types($rec, $max, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
             }
             /* sample from FishBase:
@@ -465,18 +487,18 @@ class MarineCopepodsAPI
             if($min = $rec['Lg']['M']['min']) {
                 $rec['statisticalMethod'] = ""; //not a range
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000384"; //male sex
+                $rec["referenceID"] = @$rec['Lg']['refx']['M'][$min];
                 self::add_string_types($rec, $min, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
             }
             if($max = $rec['Lg']['M']['max']) {
                 $rec['statisticalMethod'] = ""; //not a range
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000384"; //male sex
+                $rec["referenceID"] = @$rec['Lg']['refx']['M'][$max];
                 self::add_string_types($rec, $max, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
             }
         }
         
-        
     }
-
     private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
     {
         $taxon_id = $rec["taxon_id"];
@@ -497,7 +519,9 @@ class MarineCopepodsAPI
             if($measurementOfTaxon == "true") {
                 $m->source      = $this->page['species'].$rec["taxon_id"];
                 $m->contributor = '';
-                if($referenceID = @$rec["referenceID"]) $m->referenceID = $referenceID;
+                if($val = @$rec["referenceID"]) {
+                    if($reference_ids = self::write_references($val)) $m->referenceID = implode("; ", $reference_ids);
+                }
             }
             $m->measurementType  = $measurementType;
             $m->measurementValue = $value;
@@ -519,6 +543,28 @@ class MarineCopepodsAPI
         $this->archive_builder->write_object_to_file($o);
         $this->occurrence_ids[$occurrence_id] = '';
         return true;
+    }
+    private function write_references($arr)
+    {
+        $refids = array();
+        foreach($arr as $refno)
+        {
+            if($fullref = self::get_fullreference_by_refno($refno))
+            {
+                $fullref = implode(". - ", $fullref);
+                $r = new \eol_schema\Reference();
+                $r->full_reference = $fullref;
+                $r->identifier = $refno;
+                // $r->uri = '';
+                $refids[] = $refno;
+                if(!isset($this->resource_reference_ids[$r->identifier])) {
+                   $this->resource_reference_ids[$r->identifier] = '';
+                   $this->archive_builder->write_object_to_file($r);
+                }
+            }
+            else exit("\nInvestigate no fullref [$refno]\n");
+        }
+        return $refids;
     }
     private function get_value_uri($value)
     {
