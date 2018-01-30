@@ -36,7 +36,7 @@ class MarineCopepodsAPI
                             $div[0] = str_replace("-", "", $div[0]);
                             $div = array_map('trim', $div);
                             // print_r($div);
-                            $final[$div[0]] = $div[1];
+                            $final[$div[0]] = @$div[1];
                         }
                     }
                 }
@@ -46,38 +46,100 @@ class MarineCopepodsAPI
         // print_r($final);
         return $final;
     }
-    private function get_ref_maximum($what)
+    private function get_ref_maximum($what, $letter)
     {
         $final = array();
-        $letters = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z";
-        $letters = explode(" ", $letters);
-        foreach($letters as $deb) {
-            if($html = Functions::lookup_with_cache($this->page[$what].$deb, $this->download_options)) {
-                if(preg_match("/<a name\=$deb>(.*?)<\/table>/ims", $html, $a1)) {
-                    // exit("\n".$a1[1]."\n");
-                    if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $a1[1], $a2)) {
-                        foreach($a2[1] as $r) {
-                            $r = strip_tags($r, "<em>");
-                            echo "\n[$r]";
-                            $parts = explode(". - ", $r);
-                            $final[$parts[0]] = @$parts[1];
-                        }
+        if($html = Functions::lookup_with_cache($this->page[$what].$letter, $this->download_options)) {
+            if(preg_match("/<a name\=$letter>(.*?)<\/table>/ims", $html, $a1)) {
+                // exit("\n".$a1[1]."\n");
+                if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $a1[1], $a2)) {
+                    foreach($a2[1] as $r) {
+                        $r = strip_tags($r, "<em>");
+                        // echo "\n[$r]\n";
+                        $parts = explode(". - ", $r);
+                        $final[$parts[0]] = @$parts[1];
                     }
-                    else exit("\nInvestigate: No ref 4\n");
                 }
-                else exit("\nInvestigate: No ref 3\n");
+                else exit("\nInvestigate: No ref 4\n");
             }
-            else exit("\nInvestigate: No ref 2\n");
-            // exit("\nxxx\n");
+            else exit("\nInvestigate: No ref 3\n");
         }
+        else exit("\nInvestigate: No ref 2\n");
+        // print_r($final); exit;
+        return $final;
+    }
+    private function get_fullreference_by_refno($refno)
+    {
+        $refno_author_list = self::get_ref_minimum();
+        if($str = $refno_author_list[$refno]) {
+            echo "\n[$refno] [$str]\n"; //[65] [Sars, 1903] | [67] [Grice & Hulsemann, 1967] []
+            $str = str_replace(array("al.", ",", "&"), "", $str);
+            $str = Functions::remove_whitespace($str);
+            $words = explode(" ", $str);
+            // print_r($words);
+            asort($words);
+            $words = array_values($words); //reindex key
+            print_r($words); //exit;
+            if($fullref_by_letter = self::get_ref_maximum("biblio_1", substr($str,0,1))) {
+                if($fullref = self::search_words($fullref_by_letter, $words)) return $fullref;
+            }
+            if($fullref_by_letter = self::get_ref_maximum("biblio_2", substr($str,0,1))) {
+                echo "\n2nd try\n";
+                if($fullref = self::search_words($fullref_by_letter, $words)) return $fullref;
+            }
+        }
+        else exit("\nInvestigate can't find refno [$refno]\n");
+    }
+    private function search_words($fullref_by_letter, $words)
+    {
+        // print_r($fullref_by_letter);
+        // print_r($words);
+        $arr = array_keys($fullref_by_letter);
+        foreach($arr as $phrase) //$pharse e.g. "Gurney R., 1933 a"
+        {
+            $orig = $phrase;
+            $phrase = str_replace(array(","), "", $phrase);
+            $phrase = Functions::remove_whitespace($phrase);
+            $phrase_arr = explode(" ", $phrase);
+            /*
+            $result = array_intersect($words, $phrase_arr);
+            $result = array_values($result);
+            if($words == $result) return $orig;
+            */
+
+            //start search each word
+            if(self::all_words_are_inside_phrase($words, $phrase_arr)) return $orig;
+            
+        }
+        return false;
+    }
+    /*
+    Array
+    (
+        [0] => 1967
+        [1] => Grice
+        [2] => Hulsemann
+    )
+    
+    */
+    private function all_words_are_inside_phrase($words, $phrase_arr)
+    {
+        // print_r($phrase_arr);
+        foreach($words as $word) {
+            if(!in_array($word, $phrase_arr)) return false;
+        }
+        return true;
     }
     function start()
     {
-        // $this->refno_author_list = self::get_ref_minimum(); exit;
-        $part1 = self::get_ref_maximum("biblio_1");
-        $part2 = self::get_ref_maximum("biblio_2");
-        
-        exit;
+        // /* testing... 5 37 65
+        $refno = 5; 
+        $full_reference = self::get_fullreference_by_refno($refno); 
+        exit("\n [$refno] [$full_reference] \n");
+        // $refno_author_list = self::get_ref_minimum(); exit;
+        // $part1 = self::get_ref_maximum("biblio_1"); exit;
+        // $part2 = self::get_ref_maximum("biblio_2"); exit;
+        // */
         
         $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
 
