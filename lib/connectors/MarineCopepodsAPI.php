@@ -25,6 +25,10 @@ class MarineCopepodsAPI
     {
         $final = array();
         if($html = Functions::lookup_with_cache($this->page['ref_list'], $this->download_options)) {
+            
+            $html = str_replace("23'-", "23a -", $html);
+            $html = str_replace("49'-", "49a -", $html);
+
             if(preg_match("/InstanceBeginEditable name=\"Contenu\"(.*?)<\/table>/ims", $html, $a1)) {
                 if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $a1[1], $a2)) {
                     foreach($a2[1] as $r) {
@@ -48,7 +52,7 @@ class MarineCopepodsAPI
             }
             else exit("\nInvestigate: No ref 1\n");
         }
-        // print_r($final);
+        // print_r($final); //exit;
         return $final;
     }
     private function get_ref_maximum($what, $letter)
@@ -80,6 +84,7 @@ class MarineCopepodsAPI
     private function get_fullreference_by_refno($refno)
     {
         $refno_author_list = self::get_ref_minimum();
+        // print_r($refno_author_list);
         if($str = $refno_author_list[$refno]) {
             echo "\n[$refno] [$str]\n"; //[65] [Sars, 1903] | [67] [Grice & Hulsemann, 1967] []
             
@@ -91,9 +96,9 @@ class MarineCopepodsAPI
             if($refno == 22) $str = "Brodsky, 1967"; //22 - Brodsky, 1950 (1967)
             if($refno == 46) $str = 'Giesbrecht, ["1892"]'; //46 - Giesbrecht, 1892
             if($refno == 138) $str = "Bowshall, 1979"; //138 - Boxshall, 1979     ---> this is typo on their website
-            if($refno == 67) $str = "Hulsemann & Grice, 1964"; //"Hulsemann K. & Grice G.D., 1964"; //67 - Grice & Hulsemann, 1967
-            if($refno == 226) $str = "Hulsemann & Grice, 1964";                                    //226 - Grice & Hulsemann, 1965
-            if($refno == 100) $str = "Hulsemann & Grice, 1964";                                    //100 - Grice & Hulsemann, 1968
+            if($refno == 67) $str = "Grice & Hülsemann, 1967";  //67 - Grice & Hulsemann, 1967 "Grice G.D. & Hülsemann K., 1967"
+            if($refno == 226) $str = "Grice & Hülsemann, 1965"; //226 - Grice & Hulsemann, 1965 "Grice G.D. & Hülsemann K., 1965"
+            if($refno == 100) $str = "Grice & Hülsemann, 1968"; //100 - Grice & Hulsemann, 1968 "Grice G.D. & Hülsemann K., 1968"
 
             if($refno == 1) $str = "Sars, 1924-1925"; //"Sars G.O., 1924-1925" //1 - Sars, 1925
             if($refno == 262) $str = "Guangshan & Honglin, 1997"; // 262 - Guangshan & Honglin, 1998
@@ -116,7 +121,7 @@ class MarineCopepodsAPI
             if($refno == 432) $str = "Unterüberbacher, 1964"; //432 - Unterüberbacher, 1984  //"Unterüberbacher H.K., 1964"
             if($refno == 132) $str = "Sars, 1921"; //"Sars G.O., 1921"  //132 - Sars, 1919 (1921)
             if($refno == 234) $str = "Alvarez, 1986"; // 234 - Jimenez Alvarez, 1986
-            if($refno == 531) $str = "Krishnaswami, 1953"; //531 - Krishnaswamy, 1953 (n°1)
+            if($refno == 531) $str = "Krishnaswami, 1953"; //531 - Krishnaswamy, 1953 (n°1)    ---> this is typo on their website
             if($refno == 783) $str = "Thompson, 1973"; // 783 - Martin Thompson, 1973 (76)
             if($refno == 782) $str = "Thompson & Easterson, 1983"; //782 - Martin Thompson & Easterson, 1983
             if($refno == 217) $str = "Alvarez, 1984"; // [217] [Jimenez Alvarez, 1984]
@@ -125,7 +130,10 @@ class MarineCopepodsAPI
             if($refno == 400) $str = "Ohtsuka Roe Boxshall, 1993";  // "Ohtsuka S., Roe H.S.J. & Boxshall G.A., 1993"   //[400] [Ohtsuka & al., 1993 a]
             if($refno == 1172) $str = "Markhaseva, 2014 a"; // [1172] [Marrkhaseva, 2014 a]
             if($refno == 461) $str = "Krishnaswami, 1952"; // [461] [Krishnaswamy, 1952]
-            
+            if($refno == 457) $str = "Silas & Pillai, 1967"; // "Silas E.G. & Parameswaran Pillai P., 1967" //[457] [Silas & Pillai, 1967 (1969)]
+            if($refno == 21) $str = "Hülsemann, 1966"; //"Hülsemann K., 1966" // [21] [Hulsemann, 1966]
+            if($refno == 781) $str = "Thompson Martin & Meiyappan, 1980"; // "Thompson P.K., Martin & Meiyappan M.M, 1980"  //[781] [Martin Thompson & Meiyappan, 1977 (80)]
+            if($refno == 886) $str = "Schulz & Kwasniewski, 2004"; //"Schulz K. & Kwasniewski S., 2004" // [886] [Schulz & Kwasnievwski, 2004]
             
             $str = str_replace(array("al.", ",", "&"), " ", $str);
             $str = Functions::remove_whitespace($str);
@@ -168,8 +176,7 @@ class MarineCopepodsAPI
         // print_r($fullref_by_letter);
         // print_r($words);
         $arr = array_keys($fullref_by_letter);
-        foreach($arr as $phrase) //$pharse e.g. "Gurney R., 1933 a"
-        {
+        foreach($arr as $phrase) { //$pharse e.g. "Gurney R., 1933 a"
             $orig = $phrase;
             $phrase = str_replace(array(","), "", $phrase);
             $phrase = Functions::remove_whitespace($phrase);
@@ -197,7 +204,7 @@ class MarineCopepodsAPI
     function start()
     {
         /* testing... 5 37 65
-        $refno = 779; 
+        $refno = 781; 
         if($fullref = self::get_fullreference_by_refno($refno)) {
             print_r($fullref);
             exit("\nxxx[$refno]yyy\n");
@@ -244,10 +251,7 @@ class MarineCopepodsAPI
             }
         }
         $this->archive_builder->finalize(TRUE);
-        /*
-        $a = array_keys($this->debug['NZ']); asort($a); $a = array_values($a); print_r($a);
-        */
-        
+        // $a = array_keys($this->debug['NZ']); asort($a); $a = array_values($a); print_r($a);
         // */
         
         /* 
@@ -259,7 +263,7 @@ class MarineCopepodsAPI
            //     [0] => 1125
            // )
            
-        $sp = 111; //666; //111; 
+        $sp = 937; //666; //111; 
         $rec = self::parse_species_page($sp);
         self::write_archive($rec);
         $this->archive_builder->finalize(TRUE);
@@ -300,7 +304,18 @@ class MarineCopepodsAPI
         */
         $final = array();
         if(preg_match("/>Lg.: <\/td>(.*?)\}/ims", $html, $a)) {
+
+            // special case
+            if($sp == 937) 
+            {
+                // (23’) 
+                $a[1] = utf8_encode($a[1]);
+                $a[1] = str_replace("23’", "23a", $a[1]);
+                $a[1] = str_replace("23", "23a", $a[1]);
+            }
+            
             echo "\nLg = [$a[1]]\n";
+            
             if(preg_match("/<td>\((.*?)<\/td>/ims", $a[1]."}</b></td>", $a2)) {
                 // echo "\nLg = $a2[1]\n"; //5) F: 1,7; (37) F: 2,7-2,65; M: 2,2-1,5; (65) F: 2,65; M: 2,2; <b>{F: 1,70-2,70; M: 1,50-2,20}</b>
                 $str_for_refs = "(".$a2[1]; //to be used below...
@@ -625,7 +640,7 @@ class MarineCopepodsAPI
                 }
             }
             else {
-                if(!in_array($refno, array(189,415,200,584,880))) exit("\nInvestigate no fullref [$refno]\n");
+                if(!in_array($refno, array(189,415,200,584,880,407))) exit("\nInvestigate no fullref [$refno]\n");
             }
         }
         return $refids;

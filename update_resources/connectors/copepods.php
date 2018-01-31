@@ -10,7 +10,7 @@ $GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
 
 // /* normal operation
-$resource_id = 1;
+$resource_id = "copepods";
 $func = new MarineCopepodsAPI($resource_id);
 $func->start();
 unset($func);
