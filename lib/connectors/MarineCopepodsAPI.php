@@ -55,6 +55,9 @@ class MarineCopepodsAPI
     {
         $final = array();
         if($html = Functions::lookup_with_cache($this->page[$what].$letter, $this->download_options)) {
+            //special case
+            $html = str_replace(".- ", ". - ", $html);
+            
             if(preg_match("/<a name\=$letter>(.*?)<\/table>/ims", $html, $a1)) {
                 // exit("\n".$a1[1]."\n");
                 if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $a1[1], $a2)) {
@@ -106,8 +109,13 @@ class MarineCopepodsAPI
             *Ohtsuka S., Shimozu M., Tanimura A., Fukuchi, M., Hattori H., Sasaki H. & Matsuda O., 1996. - Relationships between mouthpart structures and in situ feeding habits of five neritic calanoid copepods in the Chukchi and northern Bering Seas in october 1988. Proceedings of the NIPR Symposium on Polar Biology, 9: 153-168.
             */
             if($refno == 91) $str = "Mori, (1937) 1964"; // "Mori T., (1937) 1964" //91 - Mori, 1937 (1964)
-            
             if($refno == 432) $str = "Unterüberbacher, 1964"; //432 - Unterüberbacher, 1984  //"Unterüberbacher H.K., 1964"
+            if($refno == 132) $str = "Sars, 1921"; //"Sars G.O., 1921"  //132 - Sars, 1919 (1921)
+            if($refno == 234) $str = "Alvarez, 1986"; // 234 - Jimenez Alvarez, 1986
+            if($refno == 531) $str = "Krishnaswami, 1953"; //531 - Krishnaswamy, 1953 (n°1)
+            if($refno == 783) $str = "Thompson, 1973"; // 783 - Martin Thompson, 1973 (76)
+            if($refno == 782) $str = "Thompson & Easterson, 1983"; //782 - Martin Thompson & Easterson, 1983
+            if($refno == 217) $str = "Alvarez, 1984"; // [217] [Jimenez Alvarez, 1984]
             
             
             $str = str_replace(array("al.", ",", "&"), " ", $str);
@@ -165,24 +173,13 @@ class MarineCopepodsAPI
 
             //start search each word
             if(self::all_words_are_inside_phrase($words, $phrase_arr)) return array($orig, $fullref_by_letter[$orig]);
-            
         }
         return false;
     }
-    /*
-    Array
-    (
-        [0] => 1967
-        [1] => Grice
-        [2] => Hulsemann
-    )
-    */
     private function all_words_are_inside_phrase($words, $phrase_arr)
     {
         $phrase_arr = array_map('strtoupper', $phrase_arr);
-        // print_r($phrase_arr);
-        // print_r($words);
-        
+        // print_r($phrase_arr); //print_r($words);
         foreach($words as $word) {
             if(!in_array(strtoupper($word), $phrase_arr)) return false;
         }
@@ -191,7 +188,7 @@ class MarineCopepodsAPI
     function start()
     {
         /* testing... 5 37 65
-        $refno = 432; 
+        $refno = 779; 
         if($fullref = self::get_fullreference_by_refno($refno)) {
             print_r($fullref);
             exit("\nxxx[$refno]yyy\n");
@@ -250,7 +247,7 @@ class MarineCopepodsAPI
            //     [0] => 1125
            // )
            
-        $sp = 111; //111; 
+        $sp = 111; //666; //111; 
         $rec = self::parse_species_page($sp);
         self::write_archive($rec);
         $this->archive_builder->finalize(TRUE);
@@ -261,6 +258,11 @@ class MarineCopepodsAPI
     {
         $rec = array();
         if($html = Functions::lookup_with_cache($this->page['species'].$sp, $this->download_options)) {
+
+            //special cases, manual fix
+            if($sp == 2249) $html = str_replace("(349'*)", "(349)", $html);
+            elseif($sp == 387) $html = str_replace("(ou 5,62 !?)", "", $html);
+            
             $rec['taxon_id'] = $sp;
             // <div class="Style4"><b><em>Bradyidius armatus</em></b>&nbsp;&nbsp;Giesbrecht, 1897&nbsp;&nbsp;&nbsp;(F,M)</div>
             if(preg_match("/<div class=\"Style4\">(.*?)<\/div>/ims", $html, $a1)) {
@@ -364,8 +366,8 @@ class MarineCopepodsAPI
                                 // if($val = @$range[1]) $refx['M'][$refno][] = self::convert_num_with_comma_to_2decimal_places($val);
                                 // if($val = $range[0]) $refx['M'][] = array("val" => self::convert_num_with_comma_to_2decimal_places($val), "refno" => $refno);
                                 // if($val = @$range[1]) $refx['M'][] = array("val" => self::convert_num_with_comma_to_2decimal_places($val), "refno" => $refno);
-                                if($val = $range[0]) $refx['M'][self::convert_num_with_comma_to_2decimal_places($val)] = $refno;
-                                if($val = @$range[1]) $refx['M'][self::convert_num_with_comma_to_2decimal_places($val)] = $refno;
+                                if($val = $range[0]) $refx['M'][self::convert_num_with_comma_to_2decimal_places($val)][] = $refno;
+                                if($val = @$range[1]) $refx['M'][self::convert_num_with_comma_to_2decimal_places($val)][] = $refno;
                             }
                         }
                     }//end foreach()
@@ -611,7 +613,7 @@ class MarineCopepodsAPI
                 }
             }
             else {
-                if(!in_array($refno, array(189,415,200,584))) exit("\nInvestigate no fullref [$refno]\n");
+                if(!in_array($refno, array(189,415,200,584,880))) exit("\nInvestigate no fullref [$refno]\n");
             }
         }
         return $refids;
