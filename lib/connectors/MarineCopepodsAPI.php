@@ -37,6 +37,10 @@ class MarineCopepodsAPI
                             $div[0] = str_replace("-", "", $div[0]);
                             $div = array_map('trim', $div);
                             // print_r($div);
+
+                            // if($val = $div[0]) $div[0] = utf8_encode($val);
+                            // if($val = @$div[1]) $div[1] = utf8_encode($val);
+                            $div = array_map('utf8_encode', $div);
                             $final[$div[0]] = @$div[1];
                         }
                     }
@@ -58,6 +62,7 @@ class MarineCopepodsAPI
                         $r = strip_tags($r, "<em>");
                         // echo "\n[$r]\n";
                         $parts = explode(". - ", $r);
+                        $parts = array_map('utf8_encode', $parts);
                         $final[$parts[0]] = @$parts[1];
                     }
                 }
@@ -100,9 +105,10 @@ class MarineCopepodsAPI
             Ohtsuka S., Böttger-Schnack R., Okada M. & Onbé T., 1996. - In situ feeding habits of Oncaea (Copepoda: Poecilostomatoida) from the upper 250 m of the central Red Sea, with special reference to consumption of appendicularian houses. Bulletin of Plankton Society of Japan, 43 (2): 89-105.
             *Ohtsuka S., Shimozu M., Tanimura A., Fukuchi, M., Hattori H., Sasaki H. & Matsuda O., 1996. - Relationships between mouthpart structures and in situ feeding habits of five neritic calanoid copepods in the Chukchi and northern Bering Seas in october 1988. Proceedings of the NIPR Symposium on Polar Biology, 9: 153-168.
             */
-            if($refno == 91) $str = "Mori, (1937) 1964";
-            // "Mori T., (1937) 1964"
-            // 91 - Mori, 1937 (1964)
+            if($refno == 91) $str = "Mori, (1937) 1964"; // "Mori T., (1937) 1964" //91 - Mori, 1937 (1964)
+            
+            if($refno == 432) $str = "Unterüberbacher, 1964"; //432 - Unterüberbacher, 1984  //"Unterüberbacher H.K., 1964"
+            
             
             $str = str_replace(array("al.", ",", "&"), " ", $str);
             $str = Functions::remove_whitespace($str);
@@ -111,7 +117,7 @@ class MarineCopepodsAPI
             $words = self::clean_words($words);
             print_r($words); //exit;
             if($fullref_by_letter = self::get_ref_maximum("biblio_1", substr($str,0,1))) {
-                echo "\n1nd try\n";
+                echo "\n1st try\n";
                 if($fullref = self::search_words($fullref_by_letter, $words)) return $fullref;
             }
             if($fullref_by_letter = self::get_ref_maximum("biblio_2", substr($str,0,1))) {
@@ -175,6 +181,8 @@ class MarineCopepodsAPI
     {
         $phrase_arr = array_map('strtoupper', $phrase_arr);
         // print_r($phrase_arr);
+        // print_r($words);
+        
         foreach($words as $word) {
             if(!in_array(strtoupper($word), $phrase_arr)) return false;
         }
@@ -183,10 +191,16 @@ class MarineCopepodsAPI
     function start()
     {
         /* testing... 5 37 65
-        $refno = 189; 
-        $full_reference = self::get_fullreference_by_refno($refno); 
-        print_r($full_reference);
-        exit("\n[$refno]\n");
+        $refno = 432; 
+        if($fullref = self::get_fullreference_by_refno($refno)) {
+            print_r($fullref);
+            exit("\nxxx[$refno]yyy\n");
+        }
+        else {
+            if(!in_array($refno, array(189,415,200,584))) exit("\nInvestigate no fullref [$refno]\n");
+        }
+        exit("\n---end testing---\n");
+        
         // $refno_author_list = self::get_ref_minimum(); exit;
         // $part1 = self::get_ref_maximum("biblio_1"); exit;
         // $part2 = self::get_ref_maximum("biblio_2"); exit;
