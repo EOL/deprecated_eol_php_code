@@ -84,6 +84,10 @@ class MarineCopepodsAPI
             echo "\n[$refno] [$str]\n"; //[65] [Sars, 1903] | [67] [Grice & Hulsemann, 1967] []
             
             //manual: special cases
+            
+            //[563] [M.S. Wilson, 1953 a]
+            if(substr($str,1,1) == "." && substr($str,3,1) == "." && substr($str,4,1) == " ") $str = trim(substr($str,5,strlen($str)));
+
             if($refno == 22) $str = "Brodsky, 1967"; //22 - Brodsky, 1950 (1967)
             if($refno == 46) $str = 'Giesbrecht, ["1892"]'; //46 - Giesbrecht, 1892
             if($refno == 138) $str = "Bowshall, 1979"; //138 - Boxshall, 1979     ---> this is typo on their website
@@ -116,6 +120,11 @@ class MarineCopepodsAPI
             if($refno == 783) $str = "Thompson, 1973"; // 783 - Martin Thompson, 1973 (76)
             if($refno == 782) $str = "Thompson & Easterson, 1983"; //782 - Martin Thompson & Easterson, 1983
             if($refno == 217) $str = "Alvarez, 1984"; // [217] [Jimenez Alvarez, 1984]
+            if($refno == 573) $str = "Herdman, Thompson & Scott, (1897)"; // "Herdman W.A., Thompson I.C. & Scott A., (1897) 1898"  //573 - Herdman, Thompson & Scott, 1897
+            if($refno == 928) $str = "Sarala Devi, 1977"; // "Sarala Devi K., 1977"     // 928 - Saraladevi, 1977
+            if($refno == 400) $str = "Ohtsuka Roe Boxshall, 1993";  // "Ohtsuka S., Roe H.S.J. & Boxshall G.A., 1993"   //[400] [Ohtsuka & al., 1993 a]
+            if($refno == 1172) $str = "Markhaseva, 2014 a"; // [1172] [Marrkhaseva, 2014 a]
+            if($refno == 461) $str = "Krishnaswami, 1952"; // [461] [Krishnaswamy, 1952]
             
             
             $str = str_replace(array("al.", ",", "&"), " ", $str);
@@ -235,7 +244,10 @@ class MarineCopepodsAPI
             }
         }
         $this->archive_builder->finalize(TRUE);
-        print_r($this->debug['NZ']);
+        /*
+        $a = array_keys($this->debug['NZ']); asort($a); $a = array_values($a); print_r($a);
+        */
+        
         // */
         
         /* 
