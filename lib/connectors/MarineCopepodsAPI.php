@@ -134,6 +134,11 @@ class MarineCopepodsAPI
             if($refno == 21) $str = "Hülsemann, 1966"; //"Hülsemann K., 1966" // [21] [Hulsemann, 1966]
             if($refno == 781) $str = "Thompson Martin & Meiyappan, 1980"; // "Thompson P.K., Martin & Meiyappan M.M, 1980"  //[781] [Martin Thompson & Meiyappan, 1977 (80)]
             if($refno == 886) $str = "Schulz & Kwasniewski, 2004"; //"Schulz K. & Kwasniewski S., 2004" // [886] [Schulz & Kwasnievwski, 2004]
+            if($refno == 613) $str = "Sars, 1911";  // "Sars G.O., 1911"   //[613] [Sars, 1903 a (1911)]
+            if($refno == 742) $str = "Suarez Morales, 1994 a";  // "Suarez Morales E., 1994 a"  // [742] [Suarez-Morales, 1914 a]
+            if($refno == 744) $str = "Suarez Morales & Palomares-Garcia, 1995"; // "Suarez Morales E. & Palomares-Garcia R., 1995" // [744] [Suarez-Morales & Palomares-Garcia, 1995]
+            if($refno == 189) $str = "Itö, 1956"; //"Itö T., 1956" // [189] [Ito, 1956]
+            if($refno == 200) $str = "Grice & Hülsemann, 1970";  //"Grice G.D. & Hülsemann K., 1970" //[200] [Grice & Hulsemann, 1970]
             
             $str = str_replace(array("al.", ",", "&"), " ", $str);
             $str = Functions::remove_whitespace($str);
@@ -204,13 +209,13 @@ class MarineCopepodsAPI
     function start()
     {
         /* testing... 5 37 65
-        $refno = 781; 
+        $refno = 189; 
         if($fullref = self::get_fullreference_by_refno($refno)) {
             print_r($fullref);
             exit("\nxxx[$refno]yyy\n");
         }
         else {
-            if(!in_array($refno, array(189,415,200,584))) exit("\nInvestigate no fullref [$refno]\n");
+            if(!in_array($refno, array(189,415,200,584,880,407))) exit("\nInvestigate no fullref [$refno]\n");
         }
         exit("\n---end testing---\n");
         
@@ -640,7 +645,8 @@ class MarineCopepodsAPI
                 }
             }
             else {
-                if(!in_array($refno, array(189,415,200,584,880,407))) exit("\nInvestigate no fullref [$refno]\n");
+                //
+                if(!in_array($refno, array(415,584,880,407))) exit("\nInvestigate no fullref [$refno]\n");
             }
         }
         return $refids;
