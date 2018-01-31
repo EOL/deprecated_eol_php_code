@@ -93,6 +93,16 @@ class MarineCopepodsAPI
             if($refno == 909) $str = "Bradford-Grieve, 1999 b"; //909 - Bradford-Grieve, 1999b
             if($refno == 344) $str = "Grice & Lawson, (1977) 1978"; // 344 - Grice & Lawson, 1977 (1978)
             if($refno == 795) $str = "Krishnaswami, 1953"; //795 - Krishnaswamy, 1953 (n°2)
+            if($refno == 1013) $str = "Suarez, 1989"; //1013 - Suarez M, 1989
+            if($refno == 280) $str = "Ohtsuka 1996 Shimozu"; //280 - Ohtsuka & al., 1996 b
+            /*
+            Ohtsuka S., Fosshagen A. & Soh H.Y., 1996. - Three species of the demersal calanoid copepod Placocalanus (Ridgewayiidae) from Okinawa, southern Japan. Sarsia, 81: 247-263.
+            Ohtsuka S., Böttger-Schnack R., Okada M. & Onbé T., 1996. - In situ feeding habits of Oncaea (Copepoda: Poecilostomatoida) from the upper 250 m of the central Red Sea, with special reference to consumption of appendicularian houses. Bulletin of Plankton Society of Japan, 43 (2): 89-105.
+            *Ohtsuka S., Shimozu M., Tanimura A., Fukuchi, M., Hattori H., Sasaki H. & Matsuda O., 1996. - Relationships between mouthpart structures and in situ feeding habits of five neritic calanoid copepods in the Chukchi and northern Bering Seas in october 1988. Proceedings of the NIPR Symposium on Polar Biology, 9: 153-168.
+            */
+            if($refno == 91) $str = "Mori, (1937) 1964";
+            // "Mori T., (1937) 1964"
+            // 91 - Mori, 1937 (1964)
             
             $str = str_replace(array("al.", ",", "&"), " ", $str);
             $str = Functions::remove_whitespace($str);
@@ -163,9 +173,10 @@ class MarineCopepodsAPI
     */
     private function all_words_are_inside_phrase($words, $phrase_arr)
     {
+        $phrase_arr = array_map('strtoupper', $phrase_arr);
         // print_r($phrase_arr);
         foreach($words as $word) {
-            if(!in_array($word, $phrase_arr)) return false;
+            if(!in_array(strtoupper($word), $phrase_arr)) return false;
         }
         return true;
     }
@@ -474,13 +485,13 @@ class MarineCopepodsAPI
         }
         else { //not a range value but just one value
             $rec['catnum'] = $rec['taxon_id']."_Lg_F";
-            if($min = $rec['Lg']['F']['min']) {
+            if($min = @$rec['Lg']['F']['min']) {
                 $rec['statisticalMethod'] = ""; //not a range
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000383"; //female sex
                 $rec["referenceID"] = @$rec['Lg']['refx']['F'][$min];
                 self::add_string_types($rec, $min, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
             }
-            if($max = $rec['Lg']['F']['max']) {
+            if($max = @$rec['Lg']['F']['max']) {
                 $rec['statisticalMethod'] = ""; //not a range
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000383"; //female sex
                 $rec["referenceID"] = @$rec['Lg']['refx']['F'][$max];
@@ -509,13 +520,13 @@ class MarineCopepodsAPI
         }
         else { //not a range value but just one value
             $rec['catnum'] = $rec['taxon_id']."_Lg_M";
-            if($min = $rec['Lg']['M']['min']) {
+            if($min = @$rec['Lg']['M']['min']) {
                 $rec['statisticalMethod'] = ""; //not a range
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000384"; //male sex
                 $rec["referenceID"] = @$rec['Lg']['refx']['M'][$min];
                 self::add_string_types($rec, $min, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
             }
-            if($max = $rec['Lg']['M']['max']) {
+            if($max = @$rec['Lg']['M']['max']) {
                 $rec['statisticalMethod'] = ""; //not a range
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000384"; //male sex
                 $rec["referenceID"] = @$rec['Lg']['refx']['M'][$max];
@@ -572,10 +583,8 @@ class MarineCopepodsAPI
     private function write_references($arr)
     {
         $refids = array();
-        foreach($arr as $refno)
-        {
-            if($fullref = self::get_fullreference_by_refno($refno))
-            {
+        foreach($arr as $refno) {
+            if($fullref = self::get_fullreference_by_refno($refno)) {
                 $fullref = implode(". - ", $fullref);
                 $r = new \eol_schema\Reference();
                 $r->full_reference = $fullref;
@@ -588,7 +597,7 @@ class MarineCopepodsAPI
                 }
             }
             else {
-                if(!in_array($refno, array(189,415,200))) exit("\nInvestigate no fullref [$refno]\n");
+                if(!in_array($refno, array(189,415,200,584))) exit("\nInvestigate no fullref [$refno]\n");
             }
         }
         return $refids;
