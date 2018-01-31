@@ -85,18 +85,23 @@ class MarineCopepodsAPI
 
             if($refno == 1) $str = "Sars, 1924-1925"; //"Sars G.O., 1924-1925" //1 - Sars, 1925
             if($refno == 262) $str = "Guangshan & Honglin, 1997"; // 262 - Guangshan & Honglin, 1998
-            
             if($refno == 610) $str = "Boxhall & Roe, 1980"; //"Boxhall G.A. & Roe H.S.J., 1980"  //610 - Boxshall & Roe, 1980      ---> this is typo on their website
+            if($refno == 964) $str = "M. Ali, Al-Yamani & Prusova, 2007"; //"Ali M., Al-Yamani F. & Prusova I., 2007"     //964 - M. Ali, Faiza Al-Yamani & Prusova, 2007
+            if($refno == 971) $str = "Othsuka, Boxshall & Shimomura, 2005"; //"Othsuka S., Boxshall G.A. & Shimomura M., 2005"     //971 - Ohtsuka, Boxshall & Shimomura, 2005
+            if($refno == 78) $str = "Wolfenden, 1905";  //"Wolfenden R.N., 1905"   //78 - Wolfenden, 1905 (1906)
+            if($refno == 906) $str = "Unal & Shmeleva, 2002";  //"Unal E. & Shmeleva A.A., 2002"   //906 - Ünal & Shmeleva, 2002
+            if($refno == 909) $str = "Bradford-Grieve, 1999 b"; //909 - Bradford-Grieve, 1999b
+            if($refno == 344) $str = "Grice & Lawson, (1977) 1978"; // 344 - Grice & Lawson, 1977 (1978)
+            if($refno == 795) $str = "Krishnaswami, 1953"; //795 - Krishnaswamy, 1953 (n°2)
             
-            
-            
-            $str = str_replace(array("al.", ",", "&"), "", $str);
+            $str = str_replace(array("al.", ",", "&"), " ", $str);
             $str = Functions::remove_whitespace($str);
             $str = self::clean_str($str);
             $words = explode(" ", $str);
             $words = self::clean_words($words);
             print_r($words); //exit;
             if($fullref_by_letter = self::get_ref_maximum("biblio_1", substr($str,0,1))) {
+                echo "\n1nd try\n";
                 if($fullref = self::search_words($fullref_by_letter, $words)) return $fullref;
             }
             if($fullref_by_letter = self::get_ref_maximum("biblio_2", substr($str,0,1))) {
@@ -208,6 +213,7 @@ class MarineCopepodsAPI
             }
         }
         $this->archive_builder->finalize(TRUE);
+        print_r($this->debug['NZ']);
         // */
         
         /* 
@@ -241,6 +247,7 @@ class MarineCopepodsAPI
             else exit("\nInvestigate: no species 1 [$sp]\n");
             $rec['ancestry'] = self::parse_ancestry($html, $sp);
             $rec['NZ'] = self::get_NZ($html, $sp);
+            $this->debug['NZ'][$rec['NZ']] = '';
             $rec['Lg'] = self::get_Lg($html, $sp);
         }
         print_r($rec);
@@ -580,9 +587,8 @@ class MarineCopepodsAPI
                    $this->archive_builder->write_object_to_file($r);
                 }
             }
-            else 
-            {
-                if(!in_array($refno, array("189"))) exit("\nInvestigate no fullref [$refno]\n");
+            else {
+                if(!in_array($refno, array(189,415,200))) exit("\nInvestigate no fullref [$refno]\n");
             }
         }
         return $refids;
