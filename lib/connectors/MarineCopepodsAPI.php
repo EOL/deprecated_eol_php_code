@@ -13,6 +13,7 @@ class MarineCopepodsAPI
         // $this->agent_ids = array();
         $this->debug = array();
         $this->download_options = array("timeout" => 60*60, "expire_seconds" => 60*60*24*25, "resource_id" => "MPC"); //marine planktonic copepods
+        $this->download_options['expire_seconds'] = false; //debug only
         $this->page['species'] = "https://copepodes.obs-banyuls.fr/en/fichesp.php?sp=";
         $this->page['ref_list'] = "https://copepodes.obs-banyuls.fr/en/ref_auteursd.php";
         $this->page['biblio_1'] = "https://copepodes.obs-banyuls.fr/en/biblio_pre.php?deb=";
@@ -155,7 +156,11 @@ class MarineCopepodsAPI
             if($refno == 434) $str = "Marques, 1958"; // [434] [Marques, 1957]
             if($refno == 1079) $str = "Patel, 1975";    // "Patel M.I., 1975" //[1079] [Palet, 1975]
             if($refno == 480) $str = "Lubbock, 1853 (1854)"; // "Lubbock J., 1853 (1854)" // [480] [Lubbock, 1853 a (1854)]
-            
+            if($refno == 773) $str = "Vyshkvartzeva, 2000"; // "Vyshkvartzeva N.V., 2000" //[773] [Vyshkvartzeva, 1999 (2000)]
+            if($refno == 1301) $str = "Lee, 2011"; // [1301] [C.-H. Lee & al., 2011]
+            if($refno == 1062) $str = "Shen, 1963"; // "Shen C.-j. & Lee F.-s., 1963" [1062] [Shen & Tai, 1962]
+            if($refno == 1078) $str = "Ohtsuka Ueda 2000"; //"Ohtsuka S., El-Sherbiny M.M. & Ueda H., 2000" [1078] [Othtuka & al., 2000 a]
+
             /*
             if($refno == xxx) $str = "";
             */
@@ -182,46 +187,69 @@ class MarineCopepodsAPI
         $final = array();
         for($zone=3; $zone<=24; $zone++) {
             if($html = Functions::lookup_with_cache($this->page['species_zones'].$zone, $this->download_options)) {
-                //<a href=fichesp.php?sp=13>
-                // exit("\n$html\n");
-                if(preg_match_all("/<a href=fichesp.php\?sp=(.*?)>/ims", $html, $a)) {
-                    foreach($a[1] as $sp) $final[$sp][] = $zone;
+                //<a href=fichesp.php?sp=13>details</a>
+                if(preg_match_all("/<a href=fichesp.php\?sp\=(.*?)>/ims", $html, $a)) {
+                    echo "\n [$zone] ".count($a[1])."\n";
+                    foreach($a[1] as $sp) {
+                        $final[$sp][] = $zone;
+                        $final[$sp] = array_unique($final[$sp]);
+                    }
                 }
                 else exit("\nInvestigate zone A [$zone]\n");
             }
             else exit("\nInvestigate zone B [$zone]\n");
         }
-        print_r($final);
+        /* [2138] => Array
+                [0] => 23
+                [2] => 24
+        [281] => Array
+                [0] => 23
+        */
+        return $final;
     }
-    private function sea_mapping($zone)
+    private function get_presentTrait_for_sp($sp)
+    {
+        $final = array();
+        if($zones = $this->all_sp_zone_assignment[$sp]) {
+            echo "\n zones for [$sp]: "; print_r($zones); 
+            foreach($zones as $zone) {
+                $arr = self::get_uri_for_zone($zone);
+                $final = array_merge($final, $arr);
+            }
+        }
+        else exit("\nInvestigate: no zone assignment [$sp]\n");
+        $final = array_unique($final);
+        return $final;
+    }
+    private function get_uri_for_zone($zone)
     {
         $var = false;
         switch ($zone) {
-            case 3: $var = "http://www.wikidata.org/entity/Q1141556";
-            case 4: $var = "http://www.geonames.org/4036776";
-            case 5: $var = "http://www.geonames.org/3358844";
-            case 6: $var = "http://www.geonames.org/2363255";
-            case 7: $var = "http://www.geonames.org/4563233, http://www.geonames.org/3523271, http://www.geonames.org/3373404";
-            case 8: $var = "http://www.geonames.org/3411923, http://www.geonames.org/2960858";
-            case 9: $var = "http://www.geonames.org/2649991, http://www.geonames.org/6640368, http://www.geonames.org/2633321, http://www.geonames.org/2960848";
-            case 10: $var = "http://www.geonames.org/3424929, http://www.geonames.org/4962170, http://www.geonames.org/3411923";
-            case 11: $var = "http://www.geonames.org/3411923, http://www.geonames.org/3424929";
-            case 12: $var = "http://www.geonames.org/3358844";
-            case 13: $var = "http://www.geonames.org/3358844";
-            case 14: $var = "http://www.geonames.org/363196, http://www.geonames.org/630673";
-            case 15: $var = "http://www.geonames.org/350155";
-            case 16: $var = "http://www.geonames.org/1545739";
-            case 17: $var = "http://www.geonames.org/1818185";
-            case 18: $var = "http://www.geonames.org/4030483";
-            case 19: $var = "http://www.geonames.org/4030959";
-            case 20: $var = "http://www.wikidata.org/entity/Q7845790";
-            case 21: $var = "http://www.geonames.org/1567570";
-            case 22: $var = "http://www.geonames.org/2038684";
-            case 23: $var = "http://www.geonames.org/2113242";
-            case 24: $var = "http://www.geonames.org/4019877";
-            case 25: $var = "http://www.geonames.org/4016118";
-            case 26: $var = "http://www.wikidata.org/entity/Q1251080";
-            case 27: $var = "http://www.geonames.org/2960860";
+            case 3: $var = "http://www.wikidata.org/entity/Q1141556"; break;
+            case 4: $var = "http://www.geonames.org/4036776"; break;
+            case 5: $var = "http://www.geonames.org/3358844"; break;
+            case 6: $var = "http://www.geonames.org/2363255"; break;
+            case 7: $var = "http://www.geonames.org/4563233, http://www.geonames.org/3523271, http://www.geonames.org/3373404"; break;
+            case 8: $var = "http://www.geonames.org/3411923, http://www.geonames.org/2960858"; break;
+            case 9: $var = "http://www.geonames.org/2649991, http://www.geonames.org/6640368, http://www.geonames.org/2633321, http://www.geonames.org/2960848"; break;
+            case 10: $var = "http://www.geonames.org/3424929, http://www.geonames.org/4962170, http://www.geonames.org/3411923"; break;
+            case 11: $var = "http://www.geonames.org/3411923, http://www.geonames.org/3424929"; break;
+            case 12: $var = "http://www.geonames.org/3358844"; break;
+            case 13: $var = "http://www.geonames.org/3358844"; break;
+            case 14: $var = "http://www.geonames.org/363196, http://www.geonames.org/630673"; break;
+            case 15: $var = "http://www.geonames.org/350155"; break;
+            case 16: $var = "http://www.geonames.org/1545739"; break;
+            case 17: $var = "http://www.geonames.org/1818185"; break;
+            case 18: $var = "http://www.geonames.org/4030483"; break;
+            case 19: $var = "http://www.geonames.org/4030959"; break;
+            case 20: $var = "http://www.wikidata.org/entity/Q7845790"; break;
+            case 21: $var = "http://www.geonames.org/1567570"; break;
+            case 22: $var = "http://www.geonames.org/2038684"; break;
+            case 23: $var = "http://www.geonames.org/2113242"; break;
+            case 24: $var = "http://www.geonames.org/4019877"; break;
+            case 25: $var = "http://www.geonames.org/4016118"; break;
+            case 26: $var = "http://www.wikidata.org/entity/Q1251080"; break;
+            case 27: $var = "http://www.geonames.org/2960860"; break;
         }
         if($var) {
             $var = explode(",", $var);
@@ -282,7 +310,12 @@ class MarineCopepodsAPI
     }
     function start()
     {
-        // self::get_all_sp_zone_assignment(); exit;
+        $this->all_sp_zone_assignment = self::get_all_sp_zone_assignment();
+        
+        /*
+        self::get_all_sp_zone_assignment(); exit;
+        */
+        
         /* testing... 5 37 65
         $refno = 189; 
         if($fullref = self::get_fullreference_by_refno($refno)) {
@@ -298,10 +331,11 @@ class MarineCopepodsAPI
         // $part1 = self::get_ref_maximum("biblio_1"); exit;
         // $part2 = self::get_ref_maximum("biblio_2"); exit;
         */
-        
-        $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
 
-        /* echo("\n Philippines: ".$this->uri_values['Philippines']."\n"); */
+        /* not being used here... 
+        $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        echo("\n Philippines: ".$this->uri_values['Philippines']."\n"); 
+        */
         
         /* just testing...
         for($sp=1; $sp<=470; $sp++) { //459
@@ -314,7 +348,7 @@ class MarineCopepodsAPI
                               </select>
         */
         
-        // /* normal operation
+        /* normal operation
         if($html = Functions::lookup_with_cache($this->page['species']."1", $this->download_options)) {
             $html = str_ireplace('<option value="0">Choose another species</option>', "", $html);
             if(preg_match("/<select name=\"sp\"(.*?)<\/select>/ims", $html, $a1)) {
@@ -332,9 +366,9 @@ class MarineCopepodsAPI
         }
         $this->archive_builder->finalize(TRUE);
         // $a = array_keys($this->debug['NZ']); asort($a); $a = array_values($a); print_r($a);
-        // */
+        */
         
-        /* 
+        // /* 
            // 466 - not range but single value
            // 1198 - fix ['refx][M] ... problematic string is "; (91) M: ? 1,9;"
            // 187 - fix saw this: has * asterisk
@@ -343,11 +377,11 @@ class MarineCopepodsAPI
            //     [0] => 1125
            // )
            
-        $sp = 937; //666; //111; 
+        $sp = 13; //666; //111; 
         $rec = self::parse_species_page($sp);
         self::write_archive($rec);
         $this->archive_builder->finalize(TRUE);
-        */
+        // */
         // print_r($this->debug);
     }
     private function parse_species_page($sp)
@@ -554,6 +588,8 @@ class MarineCopepodsAPI
     }
     private function add_trait($rec)
     {   //for NZ: ----------------------------------------------------- 1st trait
+        
+        /* working but strategy changed
         if($nz = @$rec['NZ']) { //e.g. "13 + 1 doubtful"
             if($nz_uri = self::get_value_uri($nz)) {
                 $rec['catnum'] = $rec['taxon_id']."_NZ";
@@ -562,6 +598,17 @@ class MarineCopepodsAPI
             }
             else $this->debug['undefined NZ'][$nz] = '';
         }
+        */
+        //new strategy for measurementType /Present
+        if($present_uris = self::get_presentTrait_for_sp($rec['taxon_id'])) {
+            // print_r($present_uris);
+            foreach($present_uris as $uri) {
+                $rec['catnum'] = $rec['taxon_id']."_".md5($uri);
+                $rec['measurementRemarks'] = "Species found in zone(s): ".implode(", ", $this->all_sp_zone_assignment[$rec['taxon_id']]);
+                self::add_string_types($rec, $uri, "http://eol.org/schema/terms/Present", "true");
+            }
+        }
+        
         //for Lg: : ----------------------------------------------------- 2nd trait
         /* [Lg] => Array
                 [F] => Array
@@ -730,6 +777,8 @@ class MarineCopepodsAPI
         }
         return $refids;
     }
+    
+    /* working but no used:
     private function get_value_uri($value)
     {
         if($uri = @$this->uri_values[$value]) return $uri;
@@ -739,42 +788,6 @@ class MarineCopepodsAPI
                 case "Port of Entry":                   return false; //"DO NOT USE";
             }
         }
-    }
-    
-    /*
-    private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
-    {
-        $taxon_id = $rec["taxon_id"];
-        $catnum   = $rec["catnum"];
-        $occurrence_id = $catnum; // simply used catnum
-        $m = new \eol_schema\MeasurementOrFact();
-        $this->add_occurrence($taxon_id, $occurrence_id, $rec);
-        $m->occurrenceID       = $occurrence_id;
-        $m->measurementOfTaxon = $measurementOfTaxon;
-        if($measurementOfTaxon == "true") {
-            $m->source      = @$rec["source"];
-            $m->contributor = @$rec["contributor"];
-            if($referenceID = @$rec["referenceID"]) $m->referenceID = $referenceID;
-        }
-        $m->measurementType  = $measurementType;
-        $m->measurementValue = $value;
-        $m->bibliographicCitation = $this->bibliographic_citation;
-        if($val = @$rec['measurementUnit'])     $m->measurementUnit = $val;
-        if($val = @$rec['measurementMethod'])   $m->measurementMethod = $val;
-        if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
-        if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
-        $this->archive_builder->write_object_to_file($m);
-    }
-    private function add_occurrence($taxon_id, $occurrence_id, $rec)
-    {
-        if(isset($this->occurrence_ids[$occurrence_id])) return;
-        $o = new \eol_schema\Occurrence();
-        $o->occurrenceID = $occurrence_id;
-        $o->taxonID = $taxon_id;
-        if($val = @$rec['sex']) $o->sex = $val;
-        $this->archive_builder->write_object_to_file($o);
-        $this->occurrence_ids[$occurrence_id] = '';
-        return;
     }
     */
 }
