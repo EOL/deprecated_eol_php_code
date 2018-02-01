@@ -3,7 +3,7 @@ namespace php_active_record;
 /* Tropicos Archive resource
 estimated execution time:
 */
-// return;
+return; //hasn't been cached yet in Archive
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/TropicosArchiveAPI');
 $GLOBALS['ENV_DEBUG'] = true;

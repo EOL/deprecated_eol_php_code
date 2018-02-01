@@ -154,6 +154,8 @@ class MarineCopepodsAPI
             //end
             if($refno == 434) $str = "Marques, 1958"; // [434] [Marques, 1957]
             if($refno == 1079) $str = "Patel, 1975";    // "Patel M.I., 1975" //[1079] [Palet, 1975]
+            if($refno == 480) $str = "Lubbock, 1853 (1854)"; // "Lubbock J., 1853 (1854)" // [480] [Lubbock, 1853 a (1854)]
+            
             /*
             if($refno == xxx) $str = "";
             */
@@ -280,7 +282,7 @@ class MarineCopepodsAPI
     }
     function start()
     {
-        self::get_all_sp_zone_assignment(); exit;
+        // self::get_all_sp_zone_assignment(); exit;
         /* testing... 5 37 65
         $refno = 189; 
         if($fullref = self::get_fullreference_by_refno($refno)) {
@@ -384,12 +386,15 @@ class MarineCopepodsAPI
         if(preg_match("/>Lg.: <\/td>(.*?)\}/ims", $html, $a)) {
 
             // special case
-            if($sp == 937) 
-            {
-                // (23’) 
+            if($sp == 937) { // (23’) 
                 $a[1] = utf8_encode($a[1]);
                 $a[1] = str_replace("23’", "23a", $a[1]);
                 $a[1] = str_replace("23", "23a", $a[1]);
+            }
+            elseif($sp == 456)  {
+                $a[1] = utf8_encode($a[1]);
+                $a[1] = str_replace("49’", "49a", $a[1]);
+                $a[1] = str_replace("49", "49a", $a[1]);
             }
             
             echo "\nLg = [$a[1]]\n";
