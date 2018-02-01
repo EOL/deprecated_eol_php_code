@@ -160,9 +160,24 @@ class MarineCopepodsAPI
             if($refno == 1301) $str = "Lee, 2011"; // [1301] [C.-H. Lee & al., 2011]
             if($refno == 1062) $str = "Shen, 1963"; // "Shen C.-j. & Lee F.-s., 1963" [1062] [Shen & Tai, 1962]
             if($refno == 1078) $str = "Ohtsuka Ueda 2000"; //"Ohtsuka S., El-Sherbiny M.M. & Ueda H., 2000" [1078] [Othtuka & al., 2000 a]
-
+            if($refno == 905) $str = "Por, 1978"; // "Por F.D., 1978" [905] [Por, 1979]
+            if($refno == 522) $str = "Markhaseva & Ferrari, (1996)"; //"Markhaseva E.L. & Ferrari F.D., 1995 (1996)"; [522] [Markhaseva & Ferrari, 1996]
+            if($refno == 594) $str = "Schulz & Beckmann, 1995"; // "Schulz K. & Beckmann W., 1995" [594] [Schulz & Beckman, 1995]
+            if($refno == 560) $str = "Strømgren, 1969"; //"Strømgren T., 1969" [560] [Strömgren, 1969]
+            if($refno == 1195) $str = "Prusova I-Yu, Gubanova, Shadrin, Kurashova & Tinenkova, 2002"; // "Prusova I-Yu, Gubanova A.D., Shadrin N.V., Kurashova E.K. & Tinenkova D.Ch., 2002" [1195] [Prusova & al., 2001]
+            if($refno == 1128) $str = "Andronov, 2013 a"; //"Andronov V.N., 2013 a" [1128] [Androbov, 2013 a]
+            if($refno == 1142) $str = "Markhaseva, Laakmann & Renz, 2014"; // "Markhaseva E.L., Laakmann S. & Renz J., 2014" [1142] [Markhaseva, Laakmann & Renz, 2013]
+            if($refno == 153) $str = "Grindley, 1977"; //"Grindley J.R., 1977" [153] [Grindley, 1978]
+            if($refno == 641) $str = "Ohtsuka, Yoon & Endo, 1992"; //"Ohtsuka S., Yoon Y.H. & Endo Y., 1992" [641] [Ohtsuka & al., 1992 b]
+            if($refno == 1134) $str = "Vanhöffen E., 1897 a"; //"Vanhöffen E., 1897 a" [1134] [Wanhöffen, 1897 a]
             /*
             if($refno == xxx) $str = "";
+            [no fullref] => Array
+                        [1128] => 
+                        [1142] => 
+                        [153] => 
+                        [641] => 
+                        [1134] => 
             */
             
             $str = str_replace(array(" al.", " al;", ",", "&"), " ", $str);
@@ -210,14 +225,17 @@ class MarineCopepodsAPI
     private function get_presentTrait_for_sp($sp)
     {
         $final = array();
-        if($zones = $this->all_sp_zone_assignment[$sp]) {
+        if($zones = @$this->all_sp_zone_assignment[$sp]) {
             echo "\n zones for [$sp]: "; print_r($zones); 
             foreach($zones as $zone) {
                 $arr = self::get_uri_for_zone($zone);
                 $final = array_merge($final, $arr);
             }
         }
-        else exit("\nInvestigate: no zone assignment [$sp]\n");
+        else  {
+            // exit("\nInvestigate: no zone assignment [$sp]\n");
+            $this->debug['sp with no zones'][$sp] = '';
+        }
         $final = array_unique($final);
         return $final;
     }
@@ -311,50 +329,12 @@ class MarineCopepodsAPI
     function start()
     {
         $this->all_sp_zone_assignment = self::get_all_sp_zone_assignment();
-        
-        /*
-        self::get_all_sp_zone_assignment(); exit;
-        */
-        
-        /* testing... 5 37 65
-        $refno = 189; 
-        if($fullref = self::get_fullreference_by_refno($refno)) {
-            print_r($fullref);
-            exit("\nxxx[$refno]yyy\n");
-        }
-        else {
-            if(!in_array($refno, array(189,415,200,584,880,407))) exit("\nInvestigate no fullref [$refno]\n");
-        }
-        exit("\n---end testing---\n");
-        
-        // $refno_author_list = self::get_ref_minimum(); exit;
-        // $part1 = self::get_ref_maximum("biblio_1"); exit;
-        // $part2 = self::get_ref_maximum("biblio_2"); exit;
-        */
-
-        /* not being used here... 
-        $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
-        echo("\n Philippines: ".$this->uri_values['Philippines']."\n"); 
-        */
-        
-        /* just testing...
-        for($sp=1; $sp<=470; $sp++) { //459
-            $rec = self::parse_species_page($sp);
-        } 
-        */
-        /* <select name="sp" id="sp" onChange="javascript:form.submit();">
-                              <option value="0">Choose another species</option>
-                              <option value="1">Acartia (Acanthacartia) bacorehuiensis</option>
-                              </select>
-        */
-        
-        /* normal operation
+        // /* normal operation
         if($html = Functions::lookup_with_cache($this->page['species']."1", $this->download_options)) {
             $html = str_ireplace('<option value="0">Choose another species</option>', "", $html);
             if(preg_match("/<select name=\"sp\"(.*?)<\/select>/ims", $html, $a1)) {
                 if(preg_match_all("/<option value=(.*?)<\/option>/ims", $a1[1], $a2)) {
-                    // print_r($a2[1]);
-                    // echo "\n".count($a2[1])."\n";
+                    // print_r($a2[1]); echo "\n".count($a2[1])."\n";
                     foreach($a2[1] as $str) { // "1173">Xanthocalanus squamatus
                         if(preg_match("/\"(.*?)\"/ims", $str, $a3)) {
                             $rec = self::parse_species_page($a3[1]);
@@ -365,24 +345,31 @@ class MarineCopepodsAPI
             }
         }
         $this->archive_builder->finalize(TRUE);
-        // $a = array_keys($this->debug['NZ']); asort($a); $a = array_values($a); print_r($a);
-        */
+        // $a = array_keys($this->debug['NZ']); asort($a); $a = array_values($a); print_r($a); //for stats OK
+        print_r($this->debug);
+        // */
         
-        // /* 
-           // 466 - not range but single value
-           // 1198 - fix ['refx][M] ... problematic string is "; (91) M: ? 1,9;"
-           // 187 - fix saw this: has * asterisk
-           // [] => Array
-           // (
-           //     [0] => 1125
-           // )
-           
+        /* testing... refnos: 5 37 65
+        $refno = 1134; 
+        if($fullref = self::get_fullreference_by_refno($refno)) {
+            print_r($fullref);
+            exit("\n refno has fullReference OK [$refno]\n");
+        }
+        else {
+            if(!in_array($refno, array(880,415,407))) exit("\nInvestigate no fullref [$refno]\n");
+        }
+        exit("\n---end testing---\n");
+        */
+
+        /* 
+        // 466 - not range but single value
+        // 1198 - fix ['refx][M] ... problematic string is "; (91) M: ? 1,9;"
+        // 187 - fix saw this: has * asterisk
         $sp = 13; //666; //111; 
         $rec = self::parse_species_page($sp);
         self::write_archive($rec);
         $this->archive_builder->finalize(TRUE);
-        // */
-        // print_r($this->debug);
+        */
     }
     private function parse_species_page($sp)
     {
@@ -392,6 +379,7 @@ class MarineCopepodsAPI
             //special cases, manual fix
             if($sp == 2249) $html = str_replace("(349'*)", "(349)", $html);
             elseif($sp == 387) $html = str_replace("(ou 5,62 !?)", "", $html);
+            elseif($sp == 1640) $html = str_replace("(88')", "(88)", $html);
             
             $rec['taxon_id'] = $sp;
             // <div class="Style4"><b><em>Bradyidius armatus</em></b>&nbsp;&nbsp;Giesbrecht, 1897&nbsp;&nbsp;&nbsp;(F,M)</div>
@@ -539,7 +527,7 @@ class MarineCopepodsAPI
     private function get_NZ($html, $sp)
     {   //<tr><td valign="top" width="30">NZ: </td><td>13 + 1 doubtful</td></tr>
         if(preg_match("/>NZ: <\/td>(.*?)<\/tr>/ims", $html, $a)) return strip_tags($a[1]);
-        else $this->debug['no NZ'][$sp]; //exit("\nInvestigate: no NZ [$sp]\n");
+        //else $this->debug['no NZ'][$sp] = ''; //exit("\nInvestigate: no NZ [$sp]\n"); --> no NZ is acceptable no need to monitor
     }
     private function parse_ancestry($html, $sp)
     {
@@ -769,10 +757,11 @@ class MarineCopepodsAPI
                    $this->archive_builder->write_object_to_file($r);
                 }
             }
-            else {
-                //
+            else { //880 415 407 - mainstay
+                /*
                 if(!in_array($refno, array(880,415,407))) exit("\nInvestigate no fullref [$refno]\n");
-                //415 880 407 - mainstay
+                */
+                $this->debug['no fullref'][$refno] = '';
             }
         }
         return $refids;
@@ -790,6 +779,10 @@ class MarineCopepodsAPI
         }
     }
     */
+    /* not being used here... 
+    $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+    echo("\n Philippines: ".$this->uri_values['Philippines']."\n"); 
+    */
+    
 }
 ?>
-
