@@ -349,8 +349,12 @@ class TropicosArchiveAPI
             */
             //based from: https://eol-jira.bibalex.org/browse/DATA-1722?focusedCommentId=61829&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61829
             if($country_uri = self::get_country_uri($CountryName)) {
+                /* strategy changed. better to just put original country string to remarks
                 if(in_array($CountryName, $this->ctrys_with_diff_name)) $mremarks = $CountryName;
                 else $mremarks = "";
+                */
+                $mremarks = $CountryName;
+                
                 self::add_string_types($taxon_id, $text_id, "Country", $country_uri, "http://eol.org/schema/terms/Present", true, $mremarks);
                 self::add_string_types($taxon_id, $text_id, "Taxon"  , $sciname    , "http://rs.tdwg.org/dwc/terms/scientificName", false);
             }
