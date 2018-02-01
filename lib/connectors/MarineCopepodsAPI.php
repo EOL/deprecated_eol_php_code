@@ -17,6 +17,7 @@ class MarineCopepodsAPI
         $this->page['ref_list'] = "https://copepodes.obs-banyuls.fr/en/ref_auteursd.php";
         $this->page['biblio_1'] = "https://copepodes.obs-banyuls.fr/en/biblio_pre.php?deb=";
         $this->page['biblio_2'] = "https://copepodes.obs-banyuls.fr/en/biblio.php?deb=";
+        $this->page['species_zones'] = "https://copepodes.obs-banyuls.fr/en/loc.php?loc=";
         $this->bibliographic_citation = "Razouls C., de Bovée F., Kouwenberg J. et Desreumaux N., 2005-2017. - Diversity and Geographic Distribution of Marine Planktonic Copepods. Available at http://copepodes.obs-banyuls.fr/en";
         $this->resource_reference_ids = array();
     }
@@ -139,12 +140,25 @@ class MarineCopepodsAPI
             if($refno == 742) $str = "Suarez Morales, 1994 a";  // "Suarez Morales E., 1994 a"  // [742] [Suarez-Morales, 1914 a]
             if($refno == 744) $str = "Suarez Morales & Palomares-Garcia, 1995"; // "Suarez Morales E. & Palomares-Garcia R., 1995" // [744] [Suarez-Morales & Palomares-Garcia, 1995]
             if($refno == 752) $str = "Suarez Morales & Islas-Landeros, 1993"; // "Suarez Morales E. & Islas-Landeros M.E., 1993" // [752] [Suarez-Morales & Islas-Landeros, 1993]
-            if($refno == 756) $str = "Suarez Morales, 1993 a";      // "Suarez Morales E., 1993 a"       // [756] [Suarez-Morales, 1993 a]
-            
+            if($refno == 756) $str = "Suarez Morales, 1993 a";  // "Suarez Morales E., 1993 a"       // [756] [Suarez-Morales, 1993 a]
+            if($refno == 757) $str = "Suarez Morales, 1993 b";  //[757] [Suarez-Morales, 1993 b]
+            if($refno == 760) $str = "Suarez Morales & Vasquez-Yeomans, 1996"; //"Suarez Morales E. & Vasquez-Yeomans R., 1996" [760] [Suerez-Morales & Vasquez-Yeomans, 1996]
             if($refno == 189) $str = "Itö, 1956"; //"Itö T., 1956" // [189] [Ito, 1956]
             if($refno == 200) $str = "Grice & Hülsemann, 1970";  //"Grice G.D. & Hülsemann K., 1970" //[200] [Grice & Hulsemann, 1970]
+            //start include daily standup
+            if($refno == 277) $str = "Dolgopol'skaya, 1948"; // "Dolgopol'skaya M.A., 1948"  // [277] [Dolgopolskaya, 1948]
+            if($refno == 698) $str = "Kazachenko & Avdeev, 1977";     // "Kazachenko V.N. & Avdeev G.V., 1977" // [698] [Kazatchenko & Avdeev, 1977]
+            if($refno == 75) $str = "Marques, (1953)"; // "Marques E., (1953) 1956" //    [75] [Marques, 1953]
+            if($refno == 299) $str = "Krishnaswami, 1959 c"; //[299] [Krishnaswamy, 1959 c]
+            if($refno == 301) $str = "Gaudy, 1972 (1973)"; // "Gaudy R., 1972 (1973)" // [301] [Gaudy (1972) 1973 a]
+            //end
+            if($refno == 434) $str = "Marques, 1958"; // [434] [Marques, 1957]
+            if($refno == 1079) $str = "Patel, 1975";    // "Patel M.I., 1975" //[1079] [Palet, 1975]
+            /*
+            if($refno == xxx) $str = "";
+            */
             
-            $str = str_replace(array("al.", ",", "&"), " ", $str);
+            $str = str_replace(array(" al.", " al;", ",", "&"), " ", $str);
             $str = Functions::remove_whitespace($str);
             $str = self::clean_str($str);
             $words = explode(" ", $str);
@@ -161,6 +175,60 @@ class MarineCopepodsAPI
         }
         else exit("\nInvestigate can't find refno [$refno]\n");
     }
+    private function get_all_sp_zone_assignment()
+    {
+        $final = array();
+        for($zone=3; $zone<=24; $zone++) {
+            if($html = Functions::lookup_with_cache($this->page['species_zones'].$zone, $this->download_options)) {
+                //<a href=fichesp.php?sp=13>
+                // exit("\n$html\n");
+                if(preg_match_all("/<a href=fichesp.php\?sp=(.*?)>/ims", $html, $a)) {
+                    foreach($a[1] as $sp) $final[$sp][] = $zone;
+                }
+                else exit("\nInvestigate zone A [$zone]\n");
+            }
+            else exit("\nInvestigate zone B [$zone]\n");
+        }
+        print_r($final);
+    }
+    private function sea_mapping($zone)
+    {
+        $var = false;
+        switch ($zone) {
+            case 3: $var = "http://www.wikidata.org/entity/Q1141556";
+            case 4: $var = "http://www.geonames.org/4036776";
+            case 5: $var = "http://www.geonames.org/3358844";
+            case 6: $var = "http://www.geonames.org/2363255";
+            case 7: $var = "http://www.geonames.org/4563233, http://www.geonames.org/3523271, http://www.geonames.org/3373404";
+            case 8: $var = "http://www.geonames.org/3411923, http://www.geonames.org/2960858";
+            case 9: $var = "http://www.geonames.org/2649991, http://www.geonames.org/6640368, http://www.geonames.org/2633321, http://www.geonames.org/2960848";
+            case 10: $var = "http://www.geonames.org/3424929, http://www.geonames.org/4962170, http://www.geonames.org/3411923";
+            case 11: $var = "http://www.geonames.org/3411923, http://www.geonames.org/3424929";
+            case 12: $var = "http://www.geonames.org/3358844";
+            case 13: $var = "http://www.geonames.org/3358844";
+            case 14: $var = "http://www.geonames.org/363196, http://www.geonames.org/630673";
+            case 15: $var = "http://www.geonames.org/350155";
+            case 16: $var = "http://www.geonames.org/1545739";
+            case 17: $var = "http://www.geonames.org/1818185";
+            case 18: $var = "http://www.geonames.org/4030483";
+            case 19: $var = "http://www.geonames.org/4030959";
+            case 20: $var = "http://www.wikidata.org/entity/Q7845790";
+            case 21: $var = "http://www.geonames.org/1567570";
+            case 22: $var = "http://www.geonames.org/2038684";
+            case 23: $var = "http://www.geonames.org/2113242";
+            case 24: $var = "http://www.geonames.org/4019877";
+            case 25: $var = "http://www.geonames.org/4016118";
+            case 26: $var = "http://www.wikidata.org/entity/Q1251080";
+            case 27: $var = "http://www.geonames.org/2960860";
+        }
+        if($var) {
+            $var = explode(",", $var);
+            $var = array_map('trim', $var);
+            return $var;
+        }
+        else exit("\nInvestigate undefined zone [$zone]\n");
+    }
+    
     private function clean_str($str) //e.g. "A. Scott, 1909" will just be "Scott, 1909"
     {
         if(substr($str,1,2) == ". ") return trim(substr($str,3,strlen($str)));
@@ -212,6 +280,7 @@ class MarineCopepodsAPI
     }
     function start()
     {
+        self::get_all_sp_zone_assignment(); exit;
         /* testing... 5 37 65
         $refno = 189; 
         if($fullref = self::get_fullreference_by_refno($refno)) {
@@ -649,9 +718,9 @@ class MarineCopepodsAPI
                 }
             }
             else {
-                //407
-                if(!in_array($refno, array(880,415))) exit("\nInvestigate no fullref [$refno]\n");
-                //415 880 - mainstay
+                //
+                if(!in_array($refno, array(880,415,407))) exit("\nInvestigate no fullref [$refno]\n");
+                //415 880 407 - mainstay
             }
         }
         return $refids;
@@ -666,8 +735,6 @@ class MarineCopepodsAPI
             }
         }
     }
-
-    
     
     /*
     private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
@@ -679,8 +746,7 @@ class MarineCopepodsAPI
         $this->add_occurrence($taxon_id, $occurrence_id, $rec);
         $m->occurrenceID       = $occurrence_id;
         $m->measurementOfTaxon = $measurementOfTaxon;
-        if($measurementOfTaxon == "true")
-        {
+        if($measurementOfTaxon == "true") {
             $m->source      = @$rec["source"];
             $m->contributor = @$rec["contributor"];
             if($referenceID = @$rec["referenceID"]) $m->referenceID = $referenceID;
@@ -694,7 +760,6 @@ class MarineCopepodsAPI
         if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
         $this->archive_builder->write_object_to_file($m);
     }
-
     private function add_occurrence($taxon_id, $occurrence_id, $rec)
     {
         if(isset($this->occurrence_ids[$occurrence_id])) return;
@@ -706,12 +771,6 @@ class MarineCopepodsAPI
         $this->occurrence_ids[$occurrence_id] = '';
         return;
     }
-    
-    */
-    
-    
-    /*
-
     */
 }
 ?>
