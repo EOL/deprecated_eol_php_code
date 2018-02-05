@@ -324,6 +324,7 @@ class MarineCopepodsAPI
         //for female --------
         if(@$rec['Lg']['F']['min'] && @$rec['Lg']['F']['max']) { //has both min & max
             $rec['catnum'] = $rec['taxon_id']."_Lg_F";
+            $rec['measurementUnit'] = "http://purl.obolibrary.org/obo/UO_0000016";
             if($min = $rec['Lg']['F']['min']) {
                 $rec['statisticalMethod'] = "http://semanticscience.org/resource/SIO_001113"; //min value
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000383"; //female sex
@@ -343,6 +344,7 @@ class MarineCopepodsAPI
         }
         else { //not a range value but just one value
             $rec['catnum'] = $rec['taxon_id']."_Lg_F";
+            $rec['measurementUnit'] = "http://purl.obolibrary.org/obo/UO_0000016";
             if($min = @$rec['Lg']['F']['min']) {
                 $rec['statisticalMethod'] = ""; //not a range
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000383"; //female sex
@@ -359,6 +361,7 @@ class MarineCopepodsAPI
         //for male --------
         if(@$rec['Lg']['M']['min'] && @$rec['Lg']['M']['max']) { //has both min & max
             $rec['catnum'] = $rec['taxon_id']."_Lg_M";
+            $rec['measurementUnit'] = "http://purl.obolibrary.org/obo/UO_0000016";
             if($min = $rec['Lg']['M']['min']) {
                 $rec['statisticalMethod'] = "http://semanticscience.org/resource/SIO_001113"; //min value
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000384"; //male sex
@@ -378,6 +381,7 @@ class MarineCopepodsAPI
         }
         else { //not a range value but just one value
             $rec['catnum'] = $rec['taxon_id']."_Lg_M";
+            $rec['measurementUnit'] = "http://purl.obolibrary.org/obo/UO_0000016";
             if($min = @$rec['Lg']['M']['min']) {
                 $rec['statisticalMethod'] = ""; //not a range
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000384"; //male sex
