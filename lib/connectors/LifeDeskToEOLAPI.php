@@ -45,6 +45,12 @@ class LifeDeskToEOLAPI
         $xml = $func->replace_taxon_element_value("dc:source", "replace any existing value", "", $xml, false);
         $xml = $func->replace_data_object_element_value("dc:source", "replace any existing value", "", $xml, false);
         $xml = self::remove_tags_in_references($xml);
+
+        //remove non-text objects per: https://eol-jira.bibalex.org/browse/DATA-1569?focusedCommentId=62038&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62038
+        $xml = $func->remove_data_object_of_certain_element_value("dataType", "http://purl.org/dc/dcmitype/StillImage", $xml);
+        $xml = $func->remove_data_object_of_certain_element_value("dataType", "http://purl.org/dc/dcmitype/MovingImage", $xml);
+        $xml = $func->remove_data_object_of_certain_element_value("dataType", "http://purl.org/dc/dcmitype/Sound", $xml);
+
         $func->save_resource_document($xml);
         // zip the xml
         $command_line = "gzip -c " . CONTENT_RESOURCE_LOCAL_PATH . $lifedesk_name . ".xml >" . CONTENT_RESOURCE_LOCAL_PATH . $lifedesk_name . ".xml.gz";

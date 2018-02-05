@@ -425,7 +425,7 @@ class Functions
     
     public static function finalize_dwca_resource($resource_id, $big_file = false, $deleteFolderYN = false)
     {
-        if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 200) {
+        if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 100) {
             if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id)) {
                 recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
                 Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");

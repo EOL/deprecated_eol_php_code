@@ -47,8 +47,10 @@ class DwCA_Utility
         }
     }
 
-    private function start()
+    private function start($dwca_file = false)
     {
+        if($dwca_file) $this->dwca_file = $dwca_file; //used by /conncectors/lifedesk_eol_export.php
+        
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->dwca_file, "meta.xml", array('timeout' => 172800, 'expire_seconds' => true)); //true means it will re-download, will not use cache. Set TRUE when developing
@@ -100,7 +102,6 @@ class DwCA_Utility
             [3] => http://rs.tdwg.org/dwc/terms/measurementorfact
         */
         
-        // /* un-comment in real operation
         foreach($index as $row_type) {
             if(@$this->extensions[$row_type]) { //process only defined row_types
                 // if(@$this->extensions[$row_type] == 'document') continue; //debug only
@@ -109,7 +110,6 @@ class DwCA_Utility
             }
             else echo "\nun-processed: [$row_type]: ".@$this->extensions[$row_type]."\n";
         }
-        // */
         
         // /* ================================= start of customization =================================
         if($this->resource_id == 24)
@@ -124,6 +124,40 @@ class DwCA_Utility
         // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
+        if($this->debug) print_r($this->debug);
+    }
+    function convert_archive_files($lifedesks) //used by: connectors/lifedesk_eol_export.php
+    {
+        foreach($lifedesks as $ld) //e.g. $ld = "afrotropicalbirds" or "araneae"
+        {
+            $dwca_file = CONTENT_RESOURCE_LOCAL_PATH."LD_".$ld.".tar.gz";
+            // $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/"."LD_".$ld.".tar.gz";
+            echo "\nConverting multiple DwCA files [$ld] into one final DwCA...\n";
+            $info = self::start($dwca_file);
+            $temp_dir = $info['temp_dir'];
+            $harvester = $info['harvester'];
+            $tables = $info['tables'];
+            $index = $info['index'];
+            /*
+            Array
+                [0] => http://rs.tdwg.org/dwc/terms/taxon
+                [1] => http://rs.gbif.org/terms/1.0/vernacularname
+                [2] => http://rs.tdwg.org/dwc/terms/occurrence
+                [3] => http://rs.tdwg.org/dwc/terms/measurementorfact
+            */
+            foreach($index as $row_type) {
+                if(@$this->extensions[$row_type]) { //process only defined row_types
+                    // if(@$this->extensions[$row_type] == 'document') continue; //debug only
+                    echo "\nprocessed: [$ld][$row_type]: ".@$this->extensions[$row_type]."\n";
+                    self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
+                }
+                else echo "\nun-processed: [$row_type]: ".@$this->extensions[$row_type]."\n";
+            }
+            // remove temp dir
+            recursive_rmdir($temp_dir); echo ("\n temporary directory removed: " . $temp_dir);
+        } //end foreach()
+
+        $this->archive_builder->finalize(TRUE);
         if($this->debug) print_r($this->debug);
     }
     
@@ -307,6 +341,21 @@ class DwCA_Utility
                     }
                 }
                 
+                /* Need to have unique agent ids. It is confined to a pre-defined list of resources bec. it is memory intensive and most resources have already unique ref ids.
+                First used for DATA-1569 resource 'lifedesks.tar.gz', connector [lifedesk_eol_export.php]
+                */
+                if(in_array($this->resource_id, array('lifedesks'))) {
+                    if($class == "agent") {
+                        if($field == "identifier") {
+                            $identifier = @$rec[$key];
+                            if(isset($this->ref_ids[$identifier])) {
+                                $this->debug['duplicate_ref_ids'][$identifier] = '';
+                                $c = false; break; //exclude entire reference entry if id already exists
+                            }
+                            else $this->ref_ids[$identifier] = '';
+                        }
+                    }
+                }
                 
                 
                 //#################### end some validations ----------------------------  #########################################################################

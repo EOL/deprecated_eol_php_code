@@ -32,7 +32,9 @@ class MarineCopepodsAPI
             if(preg_match("/<select name=\"sp\"(.*?)<\/select>/ims", $html, $a1)) {
                 if(preg_match_all("/<option value=(.*?)<\/option>/ims", $a1[1], $a2)) {
                     // print_r($a2[1]); echo "\n".count($a2[1])."\n";
+                    $i = 0;
                     foreach($a2[1] as $str) { // "1173">Xanthocalanus squamatus
+                        $i++; if(($i % 100) == 0) echo "\n - $i";
                         if(preg_match("/\"(.*?)\"/ims", $str, $a3)) {
                             $rec = self::parse_species_page($a3[1]);
                             self::write_archive($rec);
@@ -92,7 +94,7 @@ class MarineCopepodsAPI
             $this->debug['NZ'][$rec['NZ']] = '';
             $rec['Lg'] = self::get_Lg($html, $sp);
         }
-        print_r($rec);
+        // print_r($rec); //good debug
         return $rec;
     }
     private function get_Lg($html, $sp)
@@ -116,7 +118,7 @@ class MarineCopepodsAPI
                 $a[1] = str_replace("49", "49a", $a[1]);
             }
             
-            echo "\nLg = [$a[1]]\n";
+            // echo "\nLg = [$a[1]]\n"; //good debug
             
             if(preg_match("/<td>\((.*?)<\/td>/ims", $a[1]."}</b></td>", $a2)) {
                 // echo "\nLg = $a2[1]\n"; //5) F: 1,7; (37) F: 2,7-2,65; M: 2,2-1,5; (65) F: 2,65; M: 2,2; <b>{F: 1,70-2,70; M: 1,50-2,20}</b>
@@ -205,7 +207,7 @@ class MarineCopepodsAPI
                 //end ref assignments ==================================================================
             }
         }
-        else $this->debug['no Lg'][$sp]; //exit("\nInvestigate: no Lg [$sp]\n");
+        else $this->debug['no Lg'][$sp] = ''; //exit("\nInvestigate: no Lg [$sp]\n");
         return $final;
     }
     private function convert_num_with_comma_to_2decimal_places($num)
@@ -416,7 +418,7 @@ class MarineCopepodsAPI
             $m->measurementOfTaxon = $measurementOfTaxon;
             if($measurementOfTaxon == "true") {
                 $m->source      = $this->page['species'].$rec["taxon_id"];
-                $m->contributor = '';
+                // $m->contributor = ''; //commented since it is blank for now...
                 if($val = @$rec["referenceID"]) {
                     if($reference_ids = self::write_references($val)) $m->referenceID = implode("; ", $reference_ids);
                 }
@@ -536,7 +538,7 @@ class MarineCopepodsAPI
         $refno_author_list = self::get_ref_minimum();
         // print_r($refno_author_list);
         if($str = $refno_author_list[$refno]) {
-            echo "\n[$refno] [$str]\n"; //[65] [Sars, 1903] | [67] [Grice & Hulsemann, 1967] []
+            // echo "\n[$refno] [$str]\n"; //[65] [Sars, 1903] | [67] [Grice & Hulsemann, 1967] [] //good debug
             
             //manual: special cases
             
@@ -633,13 +635,13 @@ class MarineCopepodsAPI
             $str = self::clean_str($str);
             $words = explode(" ", $str);
             $words = self::clean_words($words);
-            print_r($words); //exit;
+            // print_r($words); //exit;
             if($fullref_by_letter = self::get_ref_maximum("biblio_1", substr($str,0,1))) {
-                echo "\n1st try\n";
+                // echo "\n1st try\n";
                 if($fullref = self::search_words($fullref_by_letter, $words)) return $fullref;
             }
             if($fullref_by_letter = self::get_ref_maximum("biblio_2", substr($str,0,1))) {
-                echo "\n2nd try\n";
+                // echo "\n2nd try\n";
                 if($fullref = self::search_words($fullref_by_letter, $words)) return $fullref;
             }
         }
@@ -652,7 +654,7 @@ class MarineCopepodsAPI
             if($html = Functions::lookup_with_cache($this->page['species_zones'].$zone, $this->download_options)) {
                 //<a href=fichesp.php?sp=13>details</a>
                 if(preg_match_all("/<a href=fichesp.php\?sp\=(.*?)>/ims", $html, $a)) {
-                    echo "\n [$zone] ".count($a[1])."\n";
+                    echo "\n [$zone] ".count($a[1]);
                     foreach($a[1] as $sp) {
                         $final[$sp][] = $zone;
                         $final[$sp] = array_unique($final[$sp]);
@@ -674,7 +676,7 @@ class MarineCopepodsAPI
     {
         $final = array();
         if($zones = @$this->all_sp_zone_assignment[$sp]) {
-            echo "\n zones for [$sp]: "; print_r($zones); 
+            // echo "\n zones for [$sp]: "; print_r($zones); 
             foreach($zones as $zone) {
                 $arr = self::get_uri_for_zone($zone);
                 $final = array_merge($final, $arr);

@@ -13,22 +13,26 @@ require_library('connectors/LifeDeskToEOLAPI');
 $timestart = time_elapsed();
 $func = new LifeDeskToEOLAPI();
 
-$lifedesks = array("afrotropicalbirds");
-$lifedesks = array("araneae", "drosophilidae", "mochokidae", "batrach", "berry");                   //DATA-1597
-$lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife", "diptera");          //DATA-1599
-$lifedesks = array("trilobites", "echinoderms", "snakesoftheworld", "pleurotomariidae", "psora");   //DATA-1600
-$lifedesks = array("plantsoftibet", "philbreo", "rotifera", "maldivesnlaccadives", "mexinverts");   //DATA-1601
-$lifedesks = array("araneoidea", "archaeoceti", "arczoo", "calintertidalinverts", "caprellids");    //DATA-1607
-$lifedesks = array("chileanbees", "corvidae", "deepseafishes", "eleodes", "empidinae");             //DATA-1608
-$lifedesks = array("surinamewaterbeetles", "scarabaeoidea", "pipunculidae", "ncfishes", "indianadunes"); //DATA-1609
-$lifedesks = array("idorids", "evaniidae", "eolinterns", "halictidae", "eolspecies");                    //DATA-1611
-$lifedesks = array("spiderindia", "speciesindia", "skinklink", "scarab", "nzicn");                       //DATA-1612
-$lifedesks = array("bcbiodiversity", "pterioidea", "halictidae", "westernghatfishes", "cephalopoda");    //DATA-1613
-$lifedesks = array("calintertidalinverts", "biomarks", "nlbio", "thrasops");                             //DATA-1614
-$lifedesks = array("echinoderms"); //DATA-1631
+$final = array();
+$lifedesks = array("diptera");                                                      $final = array_merge($final, $lifedesks);    //testing...
 
-foreach($lifedesks as $ld)
-{
+// /*
+$lifedesks = array("afrotropicalbirds");                                                                 $final = array_merge($final, $lifedesks);    //DATA-1516
+$lifedesks = array("araneae", "drosophilidae", "mochokidae", "batrach", "berry");                        $final = array_merge($final, $lifedesks);    //DATA-1597
+$lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife", "diptera");               $final = array_merge($final, $lifedesks);    //DATA-1599
+$lifedesks = array("trilobites", "echinoderms", "snakesoftheworld", "pleurotomariidae", "psora");        $final = array_merge($final, $lifedesks);    //DATA-1600
+$lifedesks = array("plantsoftibet", "philbreo", "rotifera", "maldivesnlaccadives", "mexinverts");        $final = array_merge($final, $lifedesks);    //DATA-1601
+$lifedesks = array("araneoidea", "archaeoceti", "arczoo", "calintertidalinverts", "caprellids");         $final = array_merge($final, $lifedesks);    //DATA-1607
+$lifedesks = array("chileanbees", "corvidae", "deepseafishes", "eleodes", "empidinae");                  $final = array_merge($final, $lifedesks);    //DATA-1608
+$lifedesks = array("surinamewaterbeetles", "scarabaeoidea", "pipunculidae", "ncfishes", "indianadunes"); $final = array_merge($final, $lifedesks);    //DATA-1609
+$lifedesks = array("idorids", "evaniidae", "eolinterns", "halictidae", "eolspecies");                    $final = array_merge($final, $lifedesks);    //DATA-1611
+$lifedesks = array("spiderindia", "speciesindia", "skinklink", "scarab", "nzicn");                       $final = array_merge($final, $lifedesks);    //DATA-1612
+$lifedesks = array("bcbiodiversity", "pterioidea", "halictidae", "westernghatfishes", "cephalopoda");    $final = array_merge($final, $lifedesks);    //DATA-1613
+$lifedesks = array("calintertidalinverts", "biomarks", "nlbio", "thrasops");                             $final = array_merge($final, $lifedesks);    //DATA-1614
+$lifedesks = array("echinoderms");                                                                       $final = array_merge($final, $lifedesks);    //DATA-1631
+// */
+// /*
+foreach($final as $ld) {
     $params[$ld]["remote"]["lifedesk"]      = "http://" . $ld . ".lifedesks.org/eol-partnership.xml.gz";
     $params[$ld]["remote"]["name"]          = $ld;
     $params[$ld]["dropbox"]["lifedesk"]     = "";
@@ -36,12 +40,51 @@ foreach($lifedesks as $ld)
     $params[$ld]["local"]["lifedesk"]       = "http://localhost/cp/LD2EOL/" . $ld . "/eol-partnership.xml.gz";
     $params[$ld]["local"]["name"]           = $ld;
 }
+$final = array_unique($final);
+print_r($final); echo "\n".count($final)."\n"; //exit;
+foreach($final as $lifedesk) $func->export_lifedesk_to_eol($params[$lifedesk]["local"]);
+// */
 
-foreach($lifedesks as $lifedesk) $func->export_lifedesk_to_eol($params[$lifedesk]["local"]);
+/* Below are steps made to accomplish this: Basically to ingest what is left with LifeDesk in EoL V3.
+https://eol-jira.bibalex.org/browse/DATA-1569?focusedCommentId=62037&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62037
+*/
+
+//  --------------------------------------------------- start conversion XML to DwCA --------------------------------------------------- http://services.eol.org/resources/LD_afrotropicalbirds.xml.gz
+// /*
+require_library('connectors/ConvertEOLtoDWCaAPI');
+foreach($final as $lifedesk) convert("LD_".$lifedesk);
+// */
+//  --------------------------------------------------- end conversion XML to DwCA ---------------------------------------------------
+
+//  --------------------------------------------------- start compiling all DwCA files into 1 final DwCA --------------------------------------------------- 
+require_library('connectors/DwCA_Utility');
+$dwca_file = false;
+$resource_id = "lifedesks";
+$func = new DwCA_Utility($resource_id, $dwca_file); //2nd param is false bec. it'll process multiple archives, see convert_archive_files() in library DwCA_Utility.php
+$func->convert_archive_files($final); //this is same as convert_archive(), only it processes multiple DwCA files not just one.
+Functions::finalize_dwca_resource($resource_id);
+unset($func);
+//  --------------------------------------------------- end compiling all DwCA files into 1 final DwCA --------------------------------------------------- 
+
+
+
+
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\nDone processing.\n";
+
+function convert($resource_id)
+{
+    $params["eol_xml_file"] = "http://localhost/eol_php_code/applications/content_server/resources/".$resource_id.".xml"; //e.g. LD_afrotropicalbirds
+    $params["filename"]     = "no need to mention here.xml";
+    $params["dataset"]      = "LifeDesk XML files";
+    $params["resource_id"]  = $resource_id;
+    $func = new ConvertEOLtoDWCaAPI($resource_id);
+    $func->export_xml_to_archive($params, true, 60*60*24*15); // true => means it is an XML file, not an archive file nor a zip file. Expires in 15 days.
+    Functions::finalize_dwca_resource($resource_id);
+}
+
 ?>
