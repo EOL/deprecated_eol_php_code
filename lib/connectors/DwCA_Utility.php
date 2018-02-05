@@ -348,11 +348,11 @@ class DwCA_Utility
                     if($class == "agent") {
                         if($field == "identifier") {
                             $identifier = @$rec[$key];
-                            if(isset($this->ref_ids[$identifier])) {
-                                $this->debug['duplicate_ref_ids'][$identifier] = '';
+                            if(isset($this->agent_ids[$identifier])) {
+                                $this->debug['duplicate_agent_ids'][$identifier] = '';
                                 $c = false; break; //exclude entire reference entry if id already exists
                             }
-                            else $this->ref_ids[$identifier] = '';
+                            else $this->agent_ids[$identifier] = '';
                         }
                     }
                 }
