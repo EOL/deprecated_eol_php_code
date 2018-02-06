@@ -13,7 +13,7 @@ require_library('connectors/CollectionsScrapeAPI');
 $timestart = time_elapsed();
 
 $resource_id = "afrotropicalbirds";
-$collection_id = 9528;
+$collection_id = 106941; //242; //358; //260; //325; //9528;
 
 $func = new CollectionsScrapeAPI($resource_id, $collection_id);
 $func->start(); exit; 
