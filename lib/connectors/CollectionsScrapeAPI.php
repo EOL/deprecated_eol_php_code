@@ -15,7 +15,7 @@ class CollectionsScrapeAPI
         $this->taxon_page = "http://www.marinespecies.org/aphia.php?p=taxdetails&id=";
         $this->accessURI = array();
         
-        $this->download_options = array("download_wait_time" => 2000000, "timeout" => 3600, "download_attempts" => 1); //"delay_in_minutes" => 1
+        $this->download_options = array("cache" => 1, "download_wait_time" => 2000000, "timeout" => 3600, "download_attempts" => 1); //"delay_in_minutes" => 1
         $this->download_options['expire_seconds'] = false; //always false, will not change anymore...
         if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_cache_collections/";
         else                           $this->download_options['cache_path'] = "/Volumes/AKiTiO4/eol_cache_collections/";
@@ -26,6 +26,10 @@ class CollectionsScrapeAPI
         $this->url["eol_object"]     = "http://eol.org/api/data_objects/1.0/";
         
         $this->multimedia_data_types = array('images', 'video', 'sounds'); //multimedia types
+        
+        if(Functions::is_production()) $this->lifedesk_images_path = '/extra/other_files/LifeDesk_images/';
+        else                           $this->lifedesk_images_path = '/Volumes/AKiTiO4/other_files/LifeDesk_images/';
+        $this->media_path = "https://editors.eol.org/other_files/LifeDesk_images/";
     }
 
     // http://media.eol.org/content/2011/12/18/03/38467_orig.jpg        -> orig
@@ -33,21 +37,39 @@ class CollectionsScrapeAPI
     
     function start()
     {
+        if(!is_dir($this->lifedesk_images_path)) mkdir($this->lifedesk_images_path);
+        /* normal operation
         foreach($this->multimedia_data_types as $data_type) {
-            // /* normal operation
             $do_ids_sciname = self::get_obj_ids_from_html($data_type);
             $arr = array_keys($do_ids_sciname);                 echo "\n".count($arr)."\n";
             $do_ids = self::get_obj_ids_from_collections_api($data_type); echo "\n".count($do_ids)."\n";
             $do_ids = array_merge($do_ids, $arr);
             $do_ids = array_unique($do_ids);                    echo "\n".count($do_ids)."\n";
             unset($arr); //not needed anymore
-            // */
-            // $do_ids = array(13230214, 30865886, 30866171); $do_ids_sciname = array(); //preview mode  ??? no taxon 29246746 29189521 //debug
             foreach($do_ids as $do_id) self::process_do_id($do_id, @$do_ids_sciname[$do_id]);
         }
-        
+        */
+        // /* preview mode
+        $do_ids = array(13230214, 30865886, 30866171, 30866142); $do_ids_sciname = array(); //preview mode  ??? no taxon 29246746 29189521 //debug
+        foreach($do_ids as $do_id) self::process_do_id($do_id, @$do_ids_sciname[$do_id]);
+        // */
         $this->archive_builder->finalize(TRUE);
     }
+    private function download_multimedia_object($rec)
+    {   /* 
+        $mr->identifier     = $rec['dataObjectVersionID']; //$rec['identifier'];
+        $mr->accessURI      = $rec['eolMediaURL'];
+        */
+        $options = $this->download_options;
+        $options['expire_seconds'] = false; //doesn't need to expire at all
+        $destination = $this->lifedesk_images_path.$rec['dataObjectVersionID'].".".pathinfo($rec['eolMediaURL'], PATHINFO_EXTENSION);
+        if(!file_exists($destination)) {
+            $local = Functions::save_remote_file_to_local($rec['eolMediaURL'], $options);
+            Functions::file_rename($local, $destination);
+            // echo "\n[$local]\n[$destination]";
+        }
+    }
+    
     private function process_do_id($do_id, $sciname)
     {
         if($json = Functions::lookup_with_cache($this->url["eol_object"] . $do_id . ".json?cache_ttl=", $this->download_options)) {
@@ -125,6 +147,7 @@ class CollectionsScrapeAPI
             $mr->language       = $rec['language'];
             $mr->format         = $rec['mimeType'];
             $mr->furtherInformationURL = @$rec['source'];
+            self::download_multimedia_object($rec);
             $mr->accessURI      = $rec['eolMediaURL'];
             $mr->thumbnailURL   = $rec['eolThumbnailURL'];
             $mr->title          = $rec['title'];
