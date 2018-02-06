@@ -33,19 +33,27 @@ class CollectionsScrapeAPI
     
     function start()
     {
-        $arr = self::get_obj_ids_from_html();               echo "\n".count($arr)."\n";
+        // /* normal operation
+        $do_ids_sciname = self::get_obj_ids_from_html();               
+        $arr = array_keys($do_ids_sciname);                 echo "\n".count($arr)."\n";
         $do_ids = self::get_obj_ids_from_collections_api(); echo "\n".count($do_ids)."\n";
         $do_ids = array_merge($do_ids, $arr);
         $do_ids = array_unique($do_ids);                    echo "\n".count($do_ids)."\n";
         unset($arr); //not needed anymore
-        foreach($do_ids as $do_id) self::process_do_id($do_id);
+        // */
+        // exit;
+        // $do_ids = array(13230214, 29189521); //preview mode  ??? no taxon 29246746 //debug
+
+        foreach($do_ids as $do_id) self::process_do_id($do_id, $do_ids_sciname[$do_id]);
     }
-    private function process_do_id($do_id)
+    private function process_do_id($do_id, $sciname)
     {
         if($json = Functions::lookup_with_cache($this->url["eol_object"] . $do_id . ".json?cache_ttl=", $this->download_options)) {
-            $object = json_decode($json);
+            $obj = json_decode($json, true);
+            if(!@$obj['scientificName']) $obj['scientificName'] = $sciname;
+            // print_r($obj); exit;
+            self::create_archive($obj);
         }
-        
     }
 
     private function get_obj_ids_from_collections_api() //this is kinda hack since param 'page' is not working in API. Just used max per_page 500 to get the first 500 records.
@@ -81,6 +89,7 @@ class CollectionsScrapeAPI
                 // <a href="/data_objects/26326917"><img alt="84925_88_88" height="68" src="http://media.eol.org/content/2013/09/13/13/84925_88_88.jpg" width="68" /></a>
                 if(preg_match_all("/<a href=\"\/data_objects\/(.*?)<\/a>/ims", $html, $arr)) {
                     $rows = $arr[1];
+                    // print_r($rows); exit;
                     $total_rows = count($rows)/4; 
                     $k = 0;
                     foreach($rows as $row) {
@@ -92,20 +101,38 @@ class CollectionsScrapeAPI
                             if(preg_match("/_xxx(.*?)\"/ims", "_xxx".$row, $arr)) {
                                 $rec['do_id'] = $arr[1];
                                 $do_ids[$arr[1]] = '';
-                                if($json = Functions::lookup_with_cache($this->url["eol_object"] . $rec['do_id'] . ".json?cache_ttl=", $this->download_options)) {
-                                    $object = json_decode($json);
-                                }
                             }
                         }
+                        /* this part is for the scientificname - only used if dataObject API dosn't give taxon information e.g. https://eol.org/api/data_objects/1.0?id=29246746&taxonomy=true&cache_ttl=&language=en&format=json
+                        [12] => 30865705"><img alt="07567_88_88" height="68" src="http://media.eol.org/content/2011/12/18/03/07567_88_88.jpg" width="68" />
+                        [13] => 30865705"><span class="icon" title="This item is an image"></span>
+                        [14] => 30865705">Cossypha roberti - (partial) distribution map (only focused o...
+                        [15] => 30865705">Image of Cossypha roberti
+                        */
+                        if(preg_match("/\">(.*?)_xxx/ims", $row."_xxx", $arr)) {
+                            $temp = $arr[1];
+                            if(stripos($temp, " of ") !== false) //string is found -- "taxon"
+                            {
+                                if(preg_match("/_xxx(.*?)\"/ims", "_xxx".$row, $arr)) {
+                                    $do_id = $arr[1];
+                                    $temp_arr = explode(" of ", $temp);
+                                    $do_ids_sciname[$do_id] = trim($temp_arr[1]);
+                                }
+                                
+                            }
+                        }
+                        //end for the scientificname
+                        
                         if($rec) $final[] = $rec;
-                    }
+                    } //end foreach()
                 }
                 // if($page >= 3) break; //debug
             }
         }
-        // print_r($final);
-        // echo "\n".count($final)."\n";
-        return array_keys($do_ids);
+        // print_r($final); echo "\n".count($final)."\n"; exit;
+        // print_r($do_ids_sciname); echo "\n".count($do_ids_sciname)."\n"; exit;
+        // return array_keys($do_ids);
+        return $do_ids_sciname;
     }
     
     /*
