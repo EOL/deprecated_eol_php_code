@@ -33,29 +33,147 @@ class CollectionsScrapeAPI
     
     function start()
     {
-        // /* normal operation
+        /* normal operation
         $do_ids_sciname = self::get_obj_ids_from_html();               
         $arr = array_keys($do_ids_sciname);                 echo "\n".count($arr)."\n";
         $do_ids = self::get_obj_ids_from_collections_api(); echo "\n".count($do_ids)."\n";
         $do_ids = array_merge($do_ids, $arr);
         $do_ids = array_unique($do_ids);                    echo "\n".count($do_ids)."\n";
         unset($arr); //not needed anymore
-        // */
+        */
         // exit;
-        // $do_ids = array(13230214, 29189521); //preview mode  ??? no taxon 29246746 //debug
-
-        foreach($do_ids as $do_id) self::process_do_id($do_id, $do_ids_sciname[$do_id]);
+        $do_ids = array(13230214, 30865886, 30866171); $do_ids_sciname = array(); //preview mode  ??? no taxon 29246746 29189521 //debug
+        foreach($do_ids as $do_id) self::process_do_id($do_id, @$do_ids_sciname[$do_id]);
+        $this->archive_builder->finalize(TRUE);
     }
     private function process_do_id($do_id, $sciname)
     {
         if($json = Functions::lookup_with_cache($this->url["eol_object"] . $do_id . ".json?cache_ttl=", $this->download_options)) {
             $obj = json_decode($json, true);
-            if(!@$obj['scientificName']) $obj['scientificName'] = $sciname;
-            // print_r($obj); exit;
+            if(!@$obj['scientificName']) {//e.g. collection_id = 106941 -> has hidden data_objects and dataObject API doesn't have taxon info.
+                $obj['scientificName'] = $sciname;
+                $obj['identifier'] = str_replace(" ", "_", strtolower($sciname));
+            }
+            print_r($obj); //exit;
             self::create_archive($obj);
         }
     }
-
+    private function create_archive($o)
+    {   // FOR TAXON  ================================================
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID         = $o['identifier'];
+        $taxon->scientificName  = $o['scientificName'];
+        // $taxon->furtherInformationURL = $this->page['species'].$rec['taxon_id'];
+        // if($reference_ids = @$this->taxa_reference_ids[$t['int_id']]) $taxon->referenceID = implode("; ", $reference_ids);
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->taxon_ids[$taxon->taxonID] = '';
+            $this->archive_builder->write_object_to_file($taxon);
+        }
+        // FOR DATA_OBJECT ================================================
+        /* [dataObjects] => Array
+                    [0] => Array
+                            [identifier] => 40a44c87cf6688bf6f531c75eb33c773
+                            [dataObjectVersionID] => 13230214
+                            [dataType] => http://purl.org/dc/dcmitype/StillImage
+                            [dataSubtype] => 
+                            [vettedStatus] => Trusted
+                            [dataRatings] => Array
+                                    [1] => 0
+                                    [2] => 0
+                                    [3] => 0
+                                    [4] => 0
+                                    [5] => 0
+                            [dataRating] => 2.5
+                            [mimeType] => image/jpeg
+                            [created] => 2010-05-13T22:18:58Z
+                            [modified] => 2010-05-13T22:18:58Z
+                            [title] => Nectophrynoides viviparus from Udzungwa Scarp
+                            [language] => en
+                            [license] => http://creativecommons.org/licenses/by-nc/3.0/
+                            [source] => http://africanamphibians.lifedesks.org/node/768
+                            [description] => Nectophrynoides viviparus from Udzungwa Scarp<br><p><em>Nectophrynoides viviparus </em>from Udzungwa Scarp.</p>
+                            [mediaURL] => http://africanamphibians.lifedesks.org/image/view/768/_original
+                            [eolMediaURL] => http://media.eol.org/content/2011/10/14/16/90814_orig.jpg
+                            [eolThumbnailURL] => http://media.eol.org/content/2011/10/14/16/90814_98_68.jpg
+                            [agents] => Array
+                                    [0] => Array
+                                            [full_name] => Zimkus, Breda
+                                            [homepage] => 
+                                            [role] => photographer
+                                        )
+                                    [1] => Array
+                                            [full_name] => Zimkus, Breda
+                                            [homepage] => 
+                                            [role] => publisher
+                                        )
+                            [references] => Array
+                                (
+                                )
+                        )
+                )
+        */
+        if($rec = $o['dataObjects'][0]) {
+            $mr = new \eol_schema\MediaResource();
+            $mr->taxonID        = $taxon->taxonID;
+            $mr->identifier     = $rec['dataObjectVersionID']; //$rec['identifier'];
+            $mr->type           = $rec['dataType'];
+            $mr->subtype        = $rec['dataSubtype'];
+            $mr->Rating         = $rec['dataRating'];
+            $mr->Owner          = @$rec['rightsHolder'];
+            $mr->language       = $rec['language'];
+            $mr->format         = $rec['mimeType'];
+            $mr->furtherInformationURL = @$rec['source'];
+            $mr->accessURI      = $rec['eolMediaURL'];
+            $mr->thumbnailURL   = $rec['eolThumbnailURL'];
+            $mr->title          = $rec['title'];
+            $mr->UsageTerms     = $rec['license'];
+            $mr->description    = $rec['description'];
+            $mr->modified       = $rec['modified'];
+            $mr->CreateDate     = $rec['created'];
+            /*
+            $mr->rights = '';
+            $mr->CVterm = '';
+            $mr->LocationCreated = '';
+            $mr->bibliographicCitation = '';
+            $mr->audience = 'Everyone';
+            if($reference_ids = some_func() $mr->referenceID = implode("; ", $reference_ids);
+            */
+            if($agent_ids = self::create_agents(@$rec['agents'])) $mr->agentID = implode("; ", $agent_ids);
+            if(!isset($this->object_ids[$mr->identifier])) {
+                $this->archive_builder->write_object_to_file($mr);
+                $this->object_ids[$mr->identifier] = '';
+            }
+        }
+    }
+    private function create_agents($agents)
+    {   /* [agents] => Array
+            [0] => Array
+                    [full_name] => Zimkus, Breda
+                    [homepage] => 
+                    [role] => photographer
+                )
+            [1] => Array
+                    [full_name] => Zimkus, Breda
+                    [homepage] => 
+                    [role] => publisher
+                )
+        */
+        $agent_ids = array();
+        foreach($agents as $a) {
+            if(!$a['full_name']) continue;
+            $r = new \eol_schema\Agent();
+            $r->term_name       = $a['full_name'];
+            $r->agentRole       = $a['role'];
+            $r->identifier      = md5("$r->term_name|$r->agentRole");
+            $r->term_homepage   = $a['homepage'];
+            $agent_ids[] = $r->identifier;
+            if(!isset($this->agent_ids[$r->identifier])) {
+               $this->agent_ids[$r->identifier] = '';
+               $this->archive_builder->write_object_to_file($r);
+            }
+        }
+        return $agent_ids;
+    }
     private function get_obj_ids_from_collections_api() //this is kinda hack since param 'page' is not working in API. Just used max per_page 500 to get the first 500 records.
     {
         $do_ids = array();

@@ -12,11 +12,11 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/CollectionsScrapeAPI');
 $timestart = time_elapsed();
 
-$resource_id = "afrotropicalbirds";
+$resource_id = "afrotropicalbirds_multimedia";
 $collection_id = 106941; //106941 no taxon for its data_objects; //242; //358; //260; //325; //9528;
 
 $func = new CollectionsScrapeAPI($resource_id, $collection_id);
-$func->start(); exit; 
+$func->start();
 Functions::finalize_dwca_resource($resource_id);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
