@@ -14,9 +14,9 @@ $timestart = time_elapsed();
 $func = new LifeDeskToEOLAPI();
 
 $final = array();
-$lifedesks = array("diptera");                                                      $final = array_merge($final, $lifedesks);    //testing...
+// $lifedesks = array("afrotropicalbirds");                                                      $final = array_merge($final, $lifedesks);    //testing...
 
-// /*
+// /* normal operation
 $lifedesks = array("afrotropicalbirds");                                                                 $final = array_merge($final, $lifedesks);    //DATA-1516
 $lifedesks = array("araneae", "drosophilidae", "mochokidae", "batrach", "berry");                        $final = array_merge($final, $lifedesks);    //DATA-1597
 $lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife", "diptera");               $final = array_merge($final, $lifedesks);    //DATA-1599
@@ -31,7 +31,7 @@ $lifedesks = array("bcbiodiversity", "pterioidea", "halictidae", "westernghatfis
 $lifedesks = array("calintertidalinverts", "biomarks", "nlbio", "thrasops");                             $final = array_merge($final, $lifedesks);    //DATA-1614
 $lifedesks = array("echinoderms");                                                                       $final = array_merge($final, $lifedesks);    //DATA-1631
 // */
-// /*
+// /* normal operation
 foreach($final as $ld) {
     $params[$ld]["remote"]["lifedesk"]      = "http://" . $ld . ".lifedesks.org/eol-partnership.xml.gz";
     $params[$ld]["remote"]["name"]          = $ld;
@@ -45,12 +45,12 @@ print_r($final); echo "\n".count($final)."\n"; //exit;
 foreach($final as $lifedesk) $func->export_lifedesk_to_eol($params[$lifedesk]["local"]);
 // */
 
-/* Below are steps made to accomplish this: Basically to ingest what is left with LifeDesk in EoL V3.
+/* Below are steps made to accomplish this: Basically to ingest what is left with LifeDesk from EoL V2.
 https://eol-jira.bibalex.org/browse/DATA-1569?focusedCommentId=62037&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62037
 */
 
 //  --------------------------------------------------- start conversion XML to DwCA --------------------------------------------------- http://services.eol.org/resources/LD_afrotropicalbirds.xml.gz
-// /*
+// /* normal operation
 require_library('connectors/ConvertEOLtoDWCaAPI');
 foreach($final as $lifedesk) convert("LD_".$lifedesk);
 // */
@@ -65,10 +65,6 @@ $func->convert_archive_files($final); //this is same as convert_archive(), only 
 Functions::finalize_dwca_resource($resource_id);
 unset($func);
 //  --------------------------------------------------- end compiling all DwCA files into 1 final DwCA --------------------------------------------------- 
-
-
-
-
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
