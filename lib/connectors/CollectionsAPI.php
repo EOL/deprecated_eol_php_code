@@ -23,9 +23,7 @@ class CollectionsAPI
 {
     function __construct($collection_id)
     {
-        $this->url["eol_collection"] = "http://eol.org/api/collections/1.0/".$collection_id.".json?filter=images&sort_by=recently_added&sort_field=&cache_ttl=";
-                                        http://eol.org/api/collections/1.0?id=176&page=2&per_page=50&filter=&sort_by=recently_added&sort_field=&cache_ttl=&language=en&format=json
-                                     // = "http://eol.org/collections/9528/images?sort_by=1&view_as=3";
+        $this->url["eol_collection"] = "https://eol.org/api/collections/1.0/".$collection_id.".json?filter=images&sort_by=recently_added&sort_field=&cache_ttl=";
         $this->url["eol_object"]     = "http://eol.org/api/data_objects/1.0/";
         $this->download_options = array("download_wait_time" => 2000000, "timeout" => 3600, "download_attempts" => 1, "delay_in_minutes" => 1);
         $this->download_options['expire_seconds'] = false; //always false, will not change anymore...

@@ -1,10 +1,10 @@
 <?php
 namespace php_active_record;
-/* connector: [520] India Biodiversity Portal archive connector
+/* connector: [collections_scrape.php]
 */
-class IndiaBiodiversityPortalAPI
+class CollectionsScrapeAPI
 {
-    function __construct($folder)
+    function __construct($folder, $collection_id)
     {
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -14,49 +14,75 @@ class IndiaBiodiversityPortalAPI
         $this->dwca_file = "https://dl.dropboxusercontent.com/u/7597512/India Biodiversity Portal/520.tar.gz";
         $this->taxon_page = "http://www.marinespecies.org/aphia.php?p=taxdetails&id=";
         $this->accessURI = array();
+        
+        $this->download_options = array("download_wait_time" => 2000000, "timeout" => 3600, "download_attempts" => 1); //"delay_in_minutes" => 1
+        $this->download_options['expire_seconds'] = false; //always false, will not change anymore...
+        if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_cache_collections/";
+        else                           $this->download_options['cache_path'] = "/Volumes/AKiTiO4/eol_cache_collections/";
+        
+        $this->url["eol_collection"] = "https://eol.org/api/collections/1.0/".$collection_id.".json?filter=images&sort_by=recently_added&sort_field=&cache_ttl=";
+        $this->url["eol_collection_page"] = "http://eol.org/collections/".$collection_id."/data_type?sort_by=1&view_as=3"; //&page=2 
+        //e.g. "http://eol.org/collections/9528/images?page=2&sort_by=1&view_as=3";
+        $this->url["eol_object"]     = "http://eol.org/api/data_objects/1.0/";
+        
+        $this->multimedia_data_types = array('images', 'video', 'sounds'); //multimedia types
     }
 
-    function check_if_image_is_broken() // utility
+    // http://media.eol.org/content/2011/12/18/03/38467_orig.jpg        -> orig
+    // http://media.eol.org/content/2012/03/28/09/98457_88_88.jpg       -> thumbnail
+    
+    function start()
     {
-        $options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 1); // 15mins timeout
-        $broken = array();
-        for($i=1; $i<=58; $i++)
-        {
-            $url = "http://eol.org/collections/94950/images?page=$i&sort_by=3&view_as=3";
-            $html = Functions::lookup_with_cache($url, $options);
-            {
-                echo "\n$i. [$url]";
+        self::get_obj_ids_from_html();
+    }
+
+    private function get_total_pages()
+    {
+        $page = 1; $per_page = 50;
+        if($json = Functions::lookup_with_cache($this->url["eol_collection"] . "&page=$page&per_page=$per_page", $this->download_options)) {
+            $arr = json_decode($json);
+            return ceil($arr->total_items/50);
+        }
+    }
+    private function get_obj_ids_from_html()
+    {
+        $total_pages = self::get_total_pages();
+        $final = array();
+        for($page=1; $page<=$total_pages; $page++) {
+            $url = $this->url["eol_collection_page"]."&page=$page";
+            $url = str_replace('data_type', 'images', $url);
+            $html = Functions::lookup_with_cache($url, $this->download_options); {
+                echo "\n$page. [$url]";
                 // <a href="/data_objects/26326917"><img alt="84925_88_88" height="68" src="http://media.eol.org/content/2013/09/13/13/84925_88_88.jpg" width="68" /></a>
-                if(preg_match_all("/<a href=\"\/data_objects\/(.*?)<\/a>/ims", $html, $arr))
-                {
+                if(preg_match_all("/<a href=\"\/data_objects\/(.*?)<\/a>/ims", $html, $arr)) {
                     $rows = $arr[1];
-                    $total_rows = count($rows);
+                    $total_rows = count($rows)/4; 
                     $k = 0;
-                    foreach($rows as $row)
-                    {
+                    foreach($rows as $row) {
                         $k++;
-                        echo "\n$i of 58 - $k of $total_rows";
-                        if(preg_match("/_xxx(.*?)\"/ims", "_xxx".$row, $arr)) $id = $arr[1];
-                        if(preg_match("/src=\"(.*?)\"/ims", "_xxx".$row, $arr))
-                        {
-                            $url = $arr[1];
-                            $options['cache_path'] = "/Volumes/Eli blue/eol_cache_2/";
-                            if($html = Functions::lookup_with_cache($url, $options)) echo "\nexists:[$url]";
-                            else
-                            {
-                                echo "\nbroken: [$url]";
-                                $broken[$id] = $url;
+                        // echo "\n$page of $total_pages - $k of $total_rows";
+                        $rec = array();
+                        if(preg_match("/src=\"(.*?)\"/ims", "_xxx".$row, $arr)) {
+                            $rec['media_url'] = $arr[1];
+                            if(preg_match("/_xxx(.*?)\"/ims", "_xxx".$row, $arr)) {
+                                $rec['do_id'] = $arr[1];
+                                if($json = Functions::lookup_with_cache($this->url["eol_object"] . $rec['do_id'] . ".json?cache_ttl=", $this->download_options)) {
+                                    $object = json_decode($json);
+                                    // print_r($object);
+                                }
                             }
-                            unset($options['cache_path']);
                         }
+                        if($rec) $final[] = $rec;
                     }
                 }
-                // if($i >= 3) break; //debug
+                // if($page >= 3) break; //debug
             }
         }
-        print_r($broken);
+        print_r($final);
+        echo "\n".count($final)."\n";
     }
     
+    /*
     function get_all_taxa()
     {
         require_library('connectors/INBioAPI');
@@ -192,6 +218,7 @@ class IndiaBiodiversityPortalAPI
     {
         self::process_fields($records, "reference");
     }
+    */
 
 }
 ?>
