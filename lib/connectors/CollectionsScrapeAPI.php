@@ -33,9 +33,33 @@ class CollectionsScrapeAPI
     
     function start()
     {
-        self::get_obj_ids_from_html();
+        $arr = self::get_obj_ids_from_html();               echo "\n".count($arr)."\n";
+        $do_ids = self::get_obj_ids_from_collections_api(); echo "\n".count($do_ids)."\n";
+        $do_ids = array_merge($do_ids, $arr);
+        $do_ids = array_unique($do_ids);                    echo "\n".count($do_ids)."\n";
+        unset($arr); //not needed anymore
+        foreach($do_ids as $do_id) self::process_do_id($do_id);
+    }
+    private function process_do_id($do_id)
+    {
+        if($json = Functions::lookup_with_cache($this->url["eol_object"] . $do_id . ".json?cache_ttl=", $this->download_options)) {
+            $object = json_decode($json);
+        }
+        
     }
 
+    private function get_obj_ids_from_collections_api() //this is kinda hack since param 'page' is not working in API. Just used max per_page 500 to get the first 500 records.
+    {
+        $do_ids = array();
+        $url = $this->url["eol_collection"] . "&page=1&per_page=500";
+        if($json = Functions::lookup_with_cache($url, $this->download_options))
+        {
+            $arr = json_decode($json);
+            count($arr->collection_items);
+            foreach($arr->collection_items as $r) $do_ids[$r->object_id] = '';
+        }
+        return array_keys($do_ids);
+    }
     private function get_total_pages()
     {
         $page = 1; $per_page = 50;
@@ -46,6 +70,7 @@ class CollectionsScrapeAPI
     }
     private function get_obj_ids_from_html()
     {
+        $do_ids = array();
         $total_pages = self::get_total_pages();
         $final = array();
         for($page=1; $page<=$total_pages; $page++) {
@@ -66,9 +91,9 @@ class CollectionsScrapeAPI
                             $rec['media_url'] = $arr[1];
                             if(preg_match("/_xxx(.*?)\"/ims", "_xxx".$row, $arr)) {
                                 $rec['do_id'] = $arr[1];
+                                $do_ids[$arr[1]] = '';
                                 if($json = Functions::lookup_with_cache($this->url["eol_object"] . $rec['do_id'] . ".json?cache_ttl=", $this->download_options)) {
                                     $object = json_decode($json);
-                                    // print_r($object);
                                 }
                             }
                         }
@@ -78,8 +103,9 @@ class CollectionsScrapeAPI
                 // if($page >= 3) break; //debug
             }
         }
-        print_r($final);
-        echo "\n".count($final)."\n";
+        // print_r($final);
+        // echo "\n".count($final)."\n";
+        return array_keys($do_ids);
     }
     
     /*
