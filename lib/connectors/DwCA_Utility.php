@@ -350,7 +350,7 @@ class DwCA_Utility
                             $identifier = @$rec[$key];
                             if(isset($this->agent_ids[$identifier])) {
                                 $this->debug['duplicate_agent_ids'][$identifier] = '';
-                                $c = false; break; //exclude entire reference entry if id already exists
+                                $c = false; break; //exclude entire agent entry if id already exists
                             }
                             else $this->agent_ids[$identifier] = '';
                         }
