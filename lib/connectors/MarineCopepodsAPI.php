@@ -331,13 +331,13 @@ class MarineCopepodsAPI
                 $rec['statisticalMethod'] = "http://semanticscience.org/resource/SIO_001113"; //min value
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000383"; //female sex
                 $rec["referenceID"] = @$rec['Lg']['refx']['F'][$min];
-                self::add_string_types($rec, $min, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
+                self::add_string_types($rec, self::comma_2decimalpt($min), "http://purl.obolibrary.org/obo/CMO_0000013", "true");
             }
             if($max = $rec['Lg']['F']['max']) {
                 $rec['statisticalMethod'] = "http://semanticscience.org/resource/SIO_001114"; //max value
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000383"; //female sex
                 $rec["referenceID"] = @$rec['Lg']['refx']['F'][$max];
-                self::add_string_types($rec, $max, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
+                self::add_string_types($rec, self::comma_2decimalpt($max), "http://purl.obolibrary.org/obo/CMO_0000013", "true");
             }
             /* sample from FishBase:
             FB-Habitat-2_7112bfabffc2954c164c64cf0b2057bd	true	http://rs.tdwg.org/dwc/terms/verbatimDepth	0	   http://semanticscience.org/resource/SIO_001113	
@@ -351,13 +351,13 @@ class MarineCopepodsAPI
                 $rec['statisticalMethod'] = ""; //not a range
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000383"; //female sex
                 $rec["referenceID"] = @$rec['Lg']['refx']['F'][$min];
-                self::add_string_types($rec, $min, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
+                self::add_string_types($rec, self::comma_2decimalpt($min), "http://purl.obolibrary.org/obo/CMO_0000013", "true");
             }
             if($max = @$rec['Lg']['F']['max']) {
                 $rec['statisticalMethod'] = ""; //not a range
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000383"; //female sex
                 $rec["referenceID"] = @$rec['Lg']['refx']['F'][$max];
-                self::add_string_types($rec, $max, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
+                self::add_string_types($rec, self::comma_2decimalpt($max), "http://purl.obolibrary.org/obo/CMO_0000013", "true");
             }
         }
         //for male --------
@@ -368,13 +368,13 @@ class MarineCopepodsAPI
                 $rec['statisticalMethod'] = "http://semanticscience.org/resource/SIO_001113"; //min value
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000384"; //male sex
                 $rec["referenceID"] = @$rec['Lg']['refx']['M'][$min];
-                self::add_string_types($rec, $min, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
+                self::add_string_types($rec, self::comma_2decimalpt($min), "http://purl.obolibrary.org/obo/CMO_0000013", "true");
             }
             if($max = $rec['Lg']['M']['max']) {
                 $rec['statisticalMethod'] = "http://semanticscience.org/resource/SIO_001114"; //max value
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000384"; //male sex
                 $rec["referenceID"] = @$rec['Lg']['refx']['M'][$max];
-                self::add_string_types($rec, $max, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
+                self::add_string_types($rec, self::comma_2decimalpt($max), "http://purl.obolibrary.org/obo/CMO_0000013", "true");
             }
             /* sample from FishBase:
             FB-Habitat-2_7112bfabffc2954c164c64cf0b2057bd	true	http://rs.tdwg.org/dwc/terms/verbatimDepth	0	   http://semanticscience.org/resource/SIO_001113	
@@ -388,16 +388,20 @@ class MarineCopepodsAPI
                 $rec['statisticalMethod'] = ""; //not a range
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000384"; //male sex
                 $rec["referenceID"] = @$rec['Lg']['refx']['M'][$min];
-                self::add_string_types($rec, $min, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
+                self::add_string_types($rec, self::comma_2decimalpt($min), "http://purl.obolibrary.org/obo/CMO_0000013", "true");
             }
             if($max = @$rec['Lg']['M']['max']) {
                 $rec['statisticalMethod'] = ""; //not a range
                 $rec['sex'] = "http://purl.obolibrary.org/obo/PATO_0000384"; //male sex
                 $rec["referenceID"] = @$rec['Lg']['refx']['M'][$max];
-                self::add_string_types($rec, $max, "http://purl.obolibrary.org/obo/CMO_0000013", "true");
+                self::add_string_types($rec, self::comma_2decimalpt($max), "http://purl.obolibrary.org/obo/CMO_0000013", "true");
             }
         }
         
+    }
+    private function comma_2decimalpt($str)
+    {
+        return str_replace(",", ".", $str);
     }
     private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
     {
