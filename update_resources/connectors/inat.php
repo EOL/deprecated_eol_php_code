@@ -7,7 +7,8 @@ estimated execution time:
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 require_library('connectors/INaturalistAPI');
-$func = new INaturalistAPI();
+$collection_id = 36789; //for iNat
+$func = new INaturalistAPI($collection_id);
 $func->generate_link_backs();
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\nelapsed time = " . $elapsed_time_sec/60 . " minutes \n";
