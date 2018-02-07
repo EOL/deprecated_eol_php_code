@@ -62,12 +62,16 @@ class CollectionsScrapeAPI
         */
         $options = $this->download_options;
         $options['expire_seconds'] = false; //doesn't need to expire at all
-        $destination = $this->lifedesk_images_path.$rec['dataObjectVersionID'].".".pathinfo($rec['eolMediaURL'], PATHINFO_EXTENSION);
+        $filename = $rec['dataObjectVersionID'].".".pathinfo($rec['eolMediaURL'], PATHINFO_EXTENSION);
+        $destination = $this->lifedesk_images_path.$filename;
+        // /* uncomment in real operation. This is just to stop downloading of images.
         if(!file_exists($destination)) {
             $local = Functions::save_remote_file_to_local($rec['eolMediaURL'], $options);
             Functions::file_rename($local, $destination);
             // echo "\n[$local]\n[$destination]";
         }
+        // */
+        return $this->media_path.$filename; //this is media_url for the data_object;
     }
     
     private function process_do_id($do_id, $sciname)
@@ -148,8 +152,8 @@ class CollectionsScrapeAPI
             $mr->language       = $rec['language'];
             $mr->format         = $rec['mimeType'];
             $mr->furtherInformationURL = @$rec['source'];
-            // self::download_multimedia_object($rec); //working OK - uncomment in real operation
-            $mr->accessURI      = $rec['eolMediaURL'];
+            $media_url = self::download_multimedia_object($rec); //working OK - uncomment in real operation
+            $mr->accessURI      = $media_url; //$rec['eolMediaURL']; eolMediaURL is e.g. 'http://media.eol.org/content/2011/12/18/03/66694_orig.jpg'
             $mr->thumbnailURL   = $rec['eolThumbnailURL'];
             $mr->title          = $rec['title'];
             $mr->UsageTerms     = $rec['license'];
