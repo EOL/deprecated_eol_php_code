@@ -13,11 +13,12 @@ require_library('connectors/CollectionsScrapeAPI');
 $timestart = time_elapsed();
 
 $resource_id = "afrotropicalbirds_multimedia";
-$collection_id = 36734; //106941 no taxon for its data_objects; //242; //358; //260; //325; //9528;
+$collection_id = 9528; //106941 no taxon for its data_objects; //242; //358; //260; //325; //9528; 36734 => "Squat Lobster LIFEDESK"
 
 $func = new CollectionsScrapeAPI($resource_id, $collection_id);
 $func->start();
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, true); //3rd param true means resource folder will be deleted
+
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
@@ -26,7 +27,7 @@ echo "\n Done processing.\n";
 
 function lifedesk_multimedia_resources()
 {
-    //EOL address	collection	lifedesk domain	title for opendata
+    //EOL collection ID	lifedesk domain	title for opendata
     $a[203] = array('LD_domain' => 'http://araneae.lifedesks.org/', 'OpenData_title' => 'Spiders LifeDesk');
     $a[204] = array('LD_domain' => 'http://eolspecies.lifedesks.org/', 'OpenData_title' => 'EOL Rapid Response Team LifeDesk');
     $a[206] = array('LD_domain' => 'http://trilobites.lifedesks.org/', 'OpenData_title' => 'Trilobites Online Database LifeDesk');
