@@ -119,7 +119,7 @@ class ResourceDataObjectElementsSetting
                     $use_field = self::get_field_name($field);
                     if(@$do->$use_field == $value) 
                     {
-                        debug("this <dataObject> will not be ingested -- $use_field = $value");
+                        // debug("this <dataObject> will not be ingested -- $use_field = $value");
                         $xml->taxon[$t]->dataObject[$obj] = NULL;
                     }
                 }
