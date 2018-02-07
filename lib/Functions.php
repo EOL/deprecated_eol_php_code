@@ -422,7 +422,17 @@ class Functions
     {
         if(file_exists($file_path)) unlink($file_path);
     }
-    
+    public static function url_exists($url)
+    {   //HTTP/1.1 200 OK
+        //HTTP/1.1 404 Not Found
+        $file_headers = @get_headers($url);
+        /* works OK
+        if($file_headers[0] == 'HTTP/1.1 404 Not Found') return false;
+        else return true;
+        */
+        if(stripos($file_headers[0], "Not Found") !== false) return false; //string is found
+        else return true;
+    }
     public static function finalize_dwca_resource($resource_id, $big_file = false, $deleteFolderYN = false)
     {
         if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 100) {
