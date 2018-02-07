@@ -84,7 +84,7 @@ function convert($resource_id)
     $params["resource_id"]  = $resource_id;
     $func = new ConvertEOLtoDWCaAPI($resource_id);
     $func->export_xml_to_archive($params, true, 60*60*24*15); // true => means it is an XML file, not an archive file nor a zip file. Expires in 15 days.
-    Functions::finalize_dwca_resource($resource_id, false, true); //3rd param true means resource folder will be deleted
+    Functions::finalize_dwca_resource($resource_id, false, false); //3rd param true means resource folder will be deleted
     Functions::delete_if_exists(CONTENT_RESOURCE_LOCAL_PATH.$resource_id.".xml");
 }
 

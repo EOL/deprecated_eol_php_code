@@ -12,12 +12,12 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/CollectionsScrapeAPI');
 $timestart = time_elapsed();
 
-$resource_id = "afrotropicalbirds_multimedia";
+$resource_id = "LD_afrotropicalbirds_multimedia";
 $collection_id = 9528; //106941 no taxon for its data_objects; //242; //358; //260; //325; //9528; 36734 => "Squat Lobster LIFEDESK"
 
 $func = new CollectionsScrapeAPI($resource_id, $collection_id);
 $func->start();
-Functions::finalize_dwca_resource($resource_id, false, true); //3rd param true means resource folder will be deleted
+Functions::finalize_dwca_resource($resource_id, false, false); //3rd param true means resource folder will be deleted
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
