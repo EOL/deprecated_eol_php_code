@@ -14,7 +14,7 @@ $timestart = time_elapsed();
 $func = new LifeDeskToEOLAPI();
 
 $final = array();
-$lifedesks = array("afrotropicalbirds");                                                      $final = array_merge($final, $lifedesks);    //testing...
+$lifedesks = array("afrotropicalbirds");                                                      $final = array_merge($final, $lifedesks);    //testing...leptogastrinae
 
 /* normal operation
 $lifedesks = array("afrotropicalbirds");                                                                 $final = array_merge($final, $lifedesks);    //DATA-1516
@@ -52,7 +52,10 @@ https://eol-jira.bibalex.org/browse/DATA-1569?focusedCommentId=62037&page=com.at
 //  --------------------------------------------------- start conversion XML to DwCA --------------------------------------------------- http://services.eol.org/resources/LD_afrotropicalbirds.xml.gz
 // /* normal operation
 require_library('connectors/ConvertEOLtoDWCaAPI');
-foreach($final as $lifedesk) convert("LD_".$lifedesk);
+foreach($final as $lifedesk) 
+{
+    if(Functions::url_exists($params[$lifedesk]["local"]["lifedesk"])) convert_xml_2_dwca("LD_".$lifedesk);
+}
 // */
 //  --------------------------------------------------- end conversion XML to DwCA ---------------------------------------------------
 
@@ -76,7 +79,7 @@ echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\nDone processing.\n";
 
-function convert($resource_id)
+function convert_xml_2_dwca($resource_id)
 {
     $params["eol_xml_file"] = "http://localhost/eol_php_code/applications/content_server/resources/".$resource_id.".xml"; //e.g. LD_afrotropicalbirds
     $params["filename"]     = "no need to mention here.xml";

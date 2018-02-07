@@ -11,16 +11,19 @@ class LifeDeskToEOLAPI
 
     function export_lifedesk_to_eol($params)
     {
-        require_library('connectors/LifeDeskToScratchpadAPI');
-        $func = new LifeDeskToScratchpadAPI();
-        if($this->text_path = $func->load_zip_contents($params["lifedesk"]))
-        {
-            self::update_eol_xml("LD_".$params["name"]);
+        if(Functions::url_exists($params["lifedesk"])) {
+            require_library('connectors/LifeDeskToScratchpadAPI');
+            $func = new LifeDeskToScratchpadAPI();
+            if($this->text_path = $func->load_zip_contents($params["lifedesk"]))
+            {
+                self::update_eol_xml("LD_".$params["name"]);
+            }
+            // remove temp dir
+            $parts = pathinfo($this->text_path["eol_xml"]);
+            recursive_rmdir($parts["dirname"]);
+            debug("\n temporary directory removed: " . $parts["dirname"]);
         }
-        // remove temp dir
-        $parts = pathinfo($this->text_path["eol_xml"]);
-        recursive_rmdir($parts["dirname"]);
-        debug("\n temporary directory removed: " . $parts["dirname"]);
+        else debug("\n LifeDesk main XML not found: ".$params["lifedesk"]."\n");
     }
     
     private function update_eol_xml($lifedesk_name)

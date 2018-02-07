@@ -17,7 +17,7 @@ require_library('connectors/DwCA_Utility');
 
 
 $final = array();
-$lifedesks = array("afrotropicalbirds"); $final = array_merge($final, $lifedesks);    //testing...
+$lifedesks = array("afrotropicalbirds"); $final = array_merge($final, $lifedesks);    //testing...afrotropicalbirds        leptogastrinae
 
 /* normal operation
 $lifedesks = array("");                                                                 $final = array_merge($final, $lifedesks);    //DATA-1516
@@ -74,32 +74,43 @@ foreach($final as $ld) {
 }
 $final = array_unique($final);
 print_r($final); echo "\n".count($final)."\n"; //exit;
+$cont_compile = false;
+
 foreach($final as $lifedesk) 
 {
     $func1->export_lifedesk_to_eol($params[$lifedesk]["local"]); unset($func1);
-    convert("LD_".$lifedesk); //convert XML to DwCA
+    if(Functions::url_exists($params[$lifedesk]["local"]["lifedesk"])) 
+    {
+        convert("LD_".$lifedesk); //convert XML to DwCA
+        $cont_compile = true;
+    }
 
     // start generate the 2nd DwCA -------------------------------
     $resource_id = "LD_".$lifedesk."_multimedia";
-    $collection_id = 9528; 
-    $func2 = new CollectionsScrapeAPI($resource_id, $collection_id);
-    $func2->start();
-    Functions::finalize_dwca_resource($resource_id, false, false); //3rd param true means resource folder will be deleted
+    if($collection_id = @$info[$lifedesk]['id']) { //9528;
+        $func2 = new CollectionsScrapeAPI($resource_id, $collection_id);
+        $func2->start();
+        Functions::finalize_dwca_resource($resource_id, false, false); //3rd param true means resource folder will be deleted
+        $cont_compile = true;
+    }
+    else echo "\nNo Collection for this LifeDesk.\n";
     // end generate the 2nd DwCA -------------------------------
     
     //  --------------------------------------------------- start compiling the 2 DwCA files into 1 final DwCA --------------------------------------------------- 
-    $dwca_file = false;
-    $resource_id = "LD_".$lifedesk."_final";
-    $func2 = new DwCA_Utility($resource_id, $dwca_file); //2nd param is false bec. it'll process multiple archives, see convert_archive_files() in library DwCA_Utility.php
-    
-    $final = array();
-    if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."LD_".$lifedesk.".tar.gz"))            $final[] = "LD_".$lifedesk;
-    if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."LD_".$lifedesk."_multimedia.tar.gz")) $final[] = "LD_".$lifedesk."_multimedia";
+    if($cont_compile) {
+        $dwca_file = false;
+        $resource_id = "LD_".$lifedesk."_final";
+        $func2 = new DwCA_Utility($resource_id, $dwca_file); //2nd param is false bec. it'll process multiple archives, see convert_archive_files() in library DwCA_Utility.php
 
-    // $final = array("LD_".$lifedesk, "LD_".$lifedesk."_multimedia"); //e.g. this assumes this file exists => CONTENT_RESOURCE_LOCAL_PATH."LD_afrotropicalbirds.tar.gz"
-    $func2->convert_archive_files($final); //this is same as convert_archive(), only it processes multiple DwCA files not just one.
-    unset($func2);
-    Functions::finalize_dwca_resource($resource_id);
+        $final = array();
+        if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."LD_".$lifedesk.".tar.gz"))            $final[] = "LD_".$lifedesk;
+        if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."LD_".$lifedesk."_multimedia.tar.gz")) $final[] = "LD_".$lifedesk."_multimedia";
+
+        // $final = array("LD_".$lifedesk, "LD_".$lifedesk."_multimedia"); //e.g. this assumes this file exists => CONTENT_RESOURCE_LOCAL_PATH."LD_afrotropicalbirds.tar.gz"
+        $func2->convert_archive_files($final); //this is same as convert_archive(), only it processes multiple DwCA files not just one.
+        unset($func2);
+        Functions::finalize_dwca_resource($resource_id);
+    }
     //  --------------------------------------------------- end compiling the 2 DwCA files into 1 final DwCA --------------------------------------------------- 
 }
 // */
