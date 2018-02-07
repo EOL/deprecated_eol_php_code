@@ -14,9 +14,9 @@ $timestart = time_elapsed();
 $func = new LifeDeskToEOLAPI();
 
 $final = array();
-// $lifedesks = array("afrotropicalbirds");                                                      $final = array_merge($final, $lifedesks);    //testing...
+$lifedesks = array("afrotropicalbirds");                                                      $final = array_merge($final, $lifedesks);    //testing...
 
-// /* normal operation
+/* normal operation
 $lifedesks = array("afrotropicalbirds");                                                                 $final = array_merge($final, $lifedesks);    //DATA-1516
 $lifedesks = array("araneae", "drosophilidae", "mochokidae", "batrach", "berry");                        $final = array_merge($final, $lifedesks);    //DATA-1597
 $lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife", "diptera");               $final = array_merge($final, $lifedesks);    //DATA-1599
@@ -30,7 +30,7 @@ $lifedesks = array("spiderindia", "speciesindia", "skinklink", "scarab", "nzicn"
 $lifedesks = array("bcbiodiversity", "pterioidea", "halictidae", "westernghatfishes", "cephalopoda");    $final = array_merge($final, $lifedesks);    //DATA-1613
 $lifedesks = array("calintertidalinverts", "biomarks", "nlbio", "thrasops");                             $final = array_merge($final, $lifedesks);    //DATA-1614
 $lifedesks = array("echinoderms");                                                                       $final = array_merge($final, $lifedesks);    //DATA-1631
-// */
+*/
 // /* normal operation
 foreach($final as $ld) {
     $params[$ld]["remote"]["lifedesk"]      = "http://" . $ld . ".lifedesks.org/eol-partnership.xml.gz";
@@ -57,13 +57,17 @@ foreach($final as $lifedesk) convert("LD_".$lifedesk);
 //  --------------------------------------------------- end conversion XML to DwCA ---------------------------------------------------
 
 //  --------------------------------------------------- start compiling all DwCA files into 1 final DwCA --------------------------------------------------- 
+/* working OK - but was never used. Idea was good but maintenance wise it is better to have individual DwCA files.
 require_library('connectors/DwCA_Utility');
 $dwca_file = false;
 $resource_id = "lifedesks";
 $func = new DwCA_Utility($resource_id, $dwca_file); //2nd param is false bec. it'll process multiple archives, see convert_archive_files() in library DwCA_Utility.php
+
+$final = array("LD_afrotropicalbirds", "somefile"); //e.g. this assumes this file exists => CONTENT_RESOURCE_LOCAL_PATH."LD_afrotropicalbirds.tar.gz"
 $func->convert_archive_files($final); //this is same as convert_archive(), only it processes multiple DwCA files not just one.
 Functions::finalize_dwca_resource($resource_id);
 unset($func);
+*/
 //  --------------------------------------------------- end compiling all DwCA files into 1 final DwCA --------------------------------------------------- 
 
 $elapsed_time_sec = time_elapsed() - $timestart;
@@ -80,7 +84,8 @@ function convert($resource_id)
     $params["resource_id"]  = $resource_id;
     $func = new ConvertEOLtoDWCaAPI($resource_id);
     $func->export_xml_to_archive($params, true, 60*60*24*15); // true => means it is an XML file, not an archive file nor a zip file. Expires in 15 days.
-    Functions::finalize_dwca_resource($resource_id);
+    Functions::finalize_dwca_resource($resource_id, false, true); //3rd param true means resource folder will be deleted
+    Functions::delete_if_exists(CONTENT_RESOURCE_LOCAL_PATH.$resource_id.".xml");
 }
 
 ?>
