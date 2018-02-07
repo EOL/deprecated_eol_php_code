@@ -38,21 +38,21 @@ class CollectionsScrapeAPI
     function start()
     {
         if(!is_dir($this->lifedesk_images_path)) mkdir($this->lifedesk_images_path);
-        /* normal operation
+        // /* normal operation
         foreach($this->multimedia_data_types as $data_type) {
             $do_ids_sciname = self::get_obj_ids_from_html($data_type);
-            $arr = array_keys($do_ids_sciname);                 echo "\n".count($arr)."\n";
-            $do_ids = self::get_obj_ids_from_collections_api($data_type); echo "\n".count($do_ids)."\n";
+            $arr = array_keys($do_ids_sciname);                             echo "\n".count($arr)."\n";
+            $do_ids = self::get_obj_ids_from_collections_api($data_type);   echo "\n".count($do_ids)."\n";
             $do_ids = array_merge($do_ids, $arr);
-            $do_ids = array_unique($do_ids);                    echo "\n".count($do_ids)."\n";
+            $do_ids = array_unique($do_ids);                                echo "\n".count($do_ids)."\n";
             unset($arr); //not needed anymore
             foreach($do_ids as $do_id) self::process_do_id($do_id, @$do_ids_sciname[$do_id]);
         }
-        */
-        // /* preview mode
+        // */
+        /* preview mode
         $do_ids = array(13230214, 30865886, 30866171, 30866142); $do_ids_sciname = array(); //preview mode  ??? no taxon 29246746 29189521 //debug
         foreach($do_ids as $do_id) self::process_do_id($do_id, @$do_ids_sciname[$do_id]);
-        // */
+        */
         $this->archive_builder->finalize(TRUE);
     }
     private function download_multimedia_object($rec)
