@@ -430,7 +430,38 @@ class ConvertEOLtoDWCaAPI
         
         if($obj = @$t->dataObject) {
             if($data_objects = self::process_data_object($obj, $taxon_id, $params, $t_dwc->ScientificName)) {
-                foreach($data_objects as $data_object) self::create_archive($data_object, "data object");
+                foreach($data_objects as $data_object) 
+                {
+                    // print_r($rec); print_r($data_object); exit;
+                    /*
+                    $rec = Array (
+                        [identifier] => afrotropicalbirds:tid:315
+                        [source] => 
+                        [ScientificName] => Ploceus ruweti Louette & Benson, 1982
+                        [referenceID] => f4e71071e04dd117aec938ddb10a9031;5445e9a2b2148dfcf751fa7d5ea28aa9;9153811b0388946d329a780afc27c318;84eaad628f7cfe8e20c72ffb47a25c6e;a96732dcddd607e79d644e1730cdaba8;502078912fef71e6450ea603a7579531;3165367b7845d44e292cdc6bd5731b48;e4d83c107757ee2e6a14ce98da8259ab;447f18df3894ce7d754939861c42fa4e;2f1f8acd1ee764ae8c648166f7717d91;11460b4cfeedfc01b2677fddd3d480b6
+                    )
+                    $data_object = Array(
+                        [dataType] => http://purl.org/dc/dcmitype/Text
+                        [license] => http://creativecommons.org/licenses/by-nc-sa/3.0/
+                        [subject] => http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description
+                        [title] => Description
+                        [source] => 
+                        [description] => <p>The Lufira Masked Weaver is previously only known from the unique type specimen collected in 1960 at Lake Lufira (= Lake Tshangalele) in Katanga (Democratic Republic of Congo). For many years the status of <em>Ploceus ruweti </em>remained obscure, until it was rediscovered nesting at the same locality in February–March 2009.</p><p>The males of this sexually dimorphic ploceid are yellow and rufous coloured with a black mask differing from other members of the <em>P. velatus </em>complex by some detailed diagnostic characteristics.<strong><em> </em></strong></p>
+                        [created] => 2011-04-18 15:15:15
+                        [modified] => 2012-05-10 8:08:39
+                        [rightsHolder] => Cooleman, Stijn
+                        [agentID] => 6051bea39c0d43a6c245803166ad5ed2
+                        [obj_identifier] => afrotropicalbirds:nid:1:tid_chapter:261
+                        [taxonID] => afrotropicalbirds:tid:315
+                    )
+                    */
+                    // ==================================start customize============================
+                    if(substr($this->resource_id,0,3) == "LD_") $data_object['taxonID'] = md5($rec['ScientificName']);
+                    /* Used md5(sciname) here so we can combine taxon.tab with LifeDesk multimedia resource (e.g. LD_afrotropicalbirds_multimedia.tar.gz). See CollectionsScrapeAPI.php */
+                    // ==================================end customize==============================
+                    
+                    self::create_archive($data_object, "data object");
+                }
             }
         }
         

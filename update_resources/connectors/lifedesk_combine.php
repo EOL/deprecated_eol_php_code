@@ -17,7 +17,7 @@ require_library('connectors/DwCA_Utility');
 
 
 $final = array();
-$lifedesks = array("afrotropicalbirds");                                                      $final = array_merge($final, $lifedesks);    //testing...
+$lifedesks = array("afrotropicalbirds"); $final = array_merge($final, $lifedesks);    //testing...
 
 /* normal operation
 $lifedesks = array("");                                                                 $final = array_merge($final, $lifedesks);    //DATA-1516
