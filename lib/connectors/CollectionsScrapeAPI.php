@@ -85,7 +85,8 @@ class CollectionsScrapeAPI
     private function create_archive($o)
     {   // FOR TAXON  ================================================
         $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID         = $o['identifier'];
+        $taxon->taxonID         = md5($o['scientificName']); //$o['identifier']; orig value. 
+        /* Used md5(sciname) here so we can combine taxon.tab with LifeDesk text resource (e.g. LD_afrotropicalbirds.tar.gz). See ConvertEOLtoDWCaAPI.php */
         $taxon->scientificName  = $o['scientificName'];
         // $taxon->furtherInformationURL = $this->page['species'].$rec['taxon_id'];
         // if($reference_ids = @$this->taxa_reference_ids[$t['int_id']]) $taxon->referenceID = implode("; ", $reference_ids);
@@ -147,7 +148,7 @@ class CollectionsScrapeAPI
             $mr->language       = $rec['language'];
             $mr->format         = $rec['mimeType'];
             $mr->furtherInformationURL = @$rec['source'];
-            self::download_multimedia_object($rec);
+            // self::download_multimedia_object($rec); //working OK - uncomment in real operation
             $mr->accessURI      = $rec['eolMediaURL'];
             $mr->thumbnailURL   = $rec['eolThumbnailURL'];
             $mr->title          = $rec['title'];
