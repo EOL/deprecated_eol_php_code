@@ -128,7 +128,7 @@ class DwCA_Utility
     }
     function convert_archive_files($lifedesks) //used by: connectors/lifedesk_eol_export.php
     {
-        foreach($lifedesks as $ld) //e.g. $ld = "afrotropicalbirds" or "araneae"
+        foreach($lifedesks as $ld) //e.g. $ld = "LD_afrotropicalbirds" or "LD_afrotropicalbirds_multimedia"
         {
             $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.$ld.".tar.gz";
             // $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/".$ld.".tar.gz";
@@ -298,15 +298,15 @@ class DwCA_Utility
                 /* Need to have unique taxon ids. It is confined to a pre-defined list of resources bec. it is memory intensive and most resources have already unique taxon ids.
                 Useful for e.g. DATA-1724 resource 'plant_forms_habitat_and_distribution'.
                 */
-                if(in_array($this->resource_id, array('plant_forms_habitat_and_distribution-adjusted'))) {
+                if(in_array($this->resource_id, array('plant_forms_habitat_and_distribution-adjusted')) || substr($this->resource_id,0,3) == "LD_") {
                     if($class == "taxon") {
                         if($field == "taxonID") {
                             $taxon_id = @$rec[$key];
-                            if(isset($taxon_ids[$taxon_id])) {
+                            if(isset($this->taxon_ids[$taxon_id])) {
                                 $this->debug['duplicate_taxon_ids'][$taxon_id] = '';
                                 $c = false; break; //exclude entire taxon entry if id already exists
                             }
-                            else $taxon_ids[$taxon_id] = '';
+                            else $this->taxon_ids[$taxon_id] = '';
                         }
                     }
                 }

@@ -438,6 +438,12 @@ class ConvertEOLtoDWCaAPI
         // echo "\nidentifier: ".$rec['identifier']. " ScientificName: " . $rec['ScientificName']; exit("\nelix\n");
         if($rec['identifier'] && $rec['ScientificName'])
         {
+            // ==================================start customize============================
+            /* if($this->resource_id == "LD_afrotropicalbirds") works OK but we will be forced to list all LifeDesks here. */
+            if(substr($this->resource_id,0,3) == "LD_") $rec['identifier'] = md5($rec['ScientificName']);
+            /* Used md5(sciname) here so we can combine taxon.tab with LifeDesk multimedia resource (e.g. LD_afrotropicalbirds_multimedia.tar.gz). See CollectionsScrapeAPI.php */
+            // ==================================end customize==============================
+            
             self::create_archive($rec, "taxon");
             $this->count++;
         }
