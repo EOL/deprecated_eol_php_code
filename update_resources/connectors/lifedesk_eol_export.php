@@ -35,9 +35,8 @@ $lifedesks = array("echinoderms");                                              
 foreach($final as $ld) {
     $params[$ld]["remote"]["lifedesk"]      = "http://" . $ld . ".lifedesks.org/eol-partnership.xml.gz";
     $params[$ld]["remote"]["name"]          = $ld;
-    $params[$ld]["dropbox"]["lifedesk"]     = "";
-    $params[$ld]["dropbox"]["name"]         = $ld;
-    $params[$ld]["local"]["lifedesk"]       = "http://localhost/cp/LD2EOL/" . $ld . "/eol-partnership.xml.gz";
+    $params[$ld]["local"]["lifedesk"]       = "http://localhost/cp_new/LD2EOL/" . $ld . "/eol-partnership.xml.gz";
+    $params[$ld]["local"]["lifedesk"]       = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/LD2EOL/$ld/eol-partnership.xml.gz";
     $params[$ld]["local"]["name"]           = $ld;
 }
 $final = array_unique($final);

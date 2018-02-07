@@ -64,13 +64,13 @@ class CollectionsScrapeAPI
         $options['expire_seconds'] = false; //doesn't need to expire at all
         $filename = $rec['dataObjectVersionID'].".".pathinfo($rec['eolMediaURL'], PATHINFO_EXTENSION);
         $destination = $this->lifedesk_images_path.$filename;
-        // /* uncomment in real operation. This is just to stop downloading of images.
+        /* uncomment in real operation. This is just to stop downloading of images.
         if(!file_exists($destination)) {
             $local = Functions::save_remote_file_to_local($rec['eolMediaURL'], $options);
             Functions::file_rename($local, $destination);
             // echo "\n[$local]\n[$destination]";
         }
-        // */
+        */
         return $this->media_path.$filename; //this is media_url for the data_object;
     }
     
@@ -154,13 +154,13 @@ class CollectionsScrapeAPI
             $mr->furtherInformationURL = @$rec['source'];
             $media_url = self::download_multimedia_object($rec); //working OK - uncomment in real operation
             $mr->accessURI      = $media_url; //$rec['eolMediaURL']; eolMediaURL is e.g. 'http://media.eol.org/content/2011/12/18/03/66694_orig.jpg'
-            $mr->thumbnailURL   = $rec['eolThumbnailURL'];
             $mr->title          = $rec['title'];
             $mr->UsageTerms     = $rec['license'];
             $mr->description    = $rec['description'];
             $mr->modified       = $rec['modified'];
             $mr->CreateDate     = $rec['created'];
             /*
+            $mr->thumbnailURL   = $rec['eolThumbnailURL'];
             $mr->rights = '';
             $mr->CVterm = '';
             $mr->LocationCreated = '';

@@ -6,7 +6,9 @@ class LifeDeskToScratchpadAPI
     function __construct()
     {
         $this->download_options = array('resource_id' => 'LD_Scratchpad', 'download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 2, 'delay_in_minutes' => 2); // 15mins timeout
-        $this->download_options["expire_seconds"] = 0; // zip file, bibtex
+        $this->download_options["expire_seconds"] = false;// normal operation is 0, needs to be 0; // zip file, bibtex
+        /* Just set to false Feb 7, 2018 since there is no more Scratchpad conversion going on. and load_zip_contents() is being used elsewhere. e.g. LifeDeskToEOLAPI.php */
+        
         /*
         $this->file_importer_xls["image"] = "http://localhost/cp/LD2Scratchpad/templates/file_importer_image_xls.xls";
         $this->file_importer_xls["text"] = "http://localhost/cp/LD2Scratchpad/templates/TEMPLATE-import_into_taxon_description_xls.xls";
