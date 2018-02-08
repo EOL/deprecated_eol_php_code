@@ -11,6 +11,8 @@ class LifeDeskToEOLAPI
 
     function export_lifedesk_to_eol($params)
     {
+        $this->ancestry = @$params['ancestry'];
+        
         if(Functions::url_exists($params["lifedesk"])) {
             require_library('connectors/LifeDeskToScratchpadAPI');
             $func = new LifeDeskToScratchpadAPI();
@@ -49,6 +51,8 @@ class LifeDeskToEOLAPI
         $xml = $func->replace_data_object_element_value("dc:source", "replace any existing value", "", $xml, false);
         $xml = self::remove_tags_in_references($xml);
 
+        $xml = self::add_some_ancestry($xml); //adds some ancestry info if available
+
         //remove non-text objects per: https://eol-jira.bibalex.org/browse/DATA-1569?focusedCommentId=62038&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62038
         $xml = $func->remove_data_object_of_certain_element_value("dataType", "http://purl.org/dc/dcmitype/StillImage", $xml);
         $xml = $func->remove_data_object_of_certain_element_value("dataType", "http://purl.org/dc/dcmitype/MovingImage", $xml);
@@ -59,7 +63,23 @@ class LifeDeskToEOLAPI
         $command_line = "gzip -c " . CONTENT_RESOURCE_LOCAL_PATH . $lifedesk_name . ".xml >" . CONTENT_RESOURCE_LOCAL_PATH . $lifedesk_name . ".xml.gz";
         $output = shell_exec($command_line);
     }
-
+    private function add_some_ancestry($xml)
+    {
+        $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
+        foreach($ranks as $rank) {
+            if($val = @$this->ancestry[$rank]) {
+                if(strpos($xml, "<dwc:".ucfirst($rank).">") !== false) {} //string is found
+                else $xml = str_replace("<dwc:ScientificName>", "<dwc:".ucfirst($rank).">$val</dwc:".ucfirst($rank)."><dwc:ScientificName>", $xml);
+            }
+        }
+        return $xml;
+        /*
+        if($kingdom = @$this->ancestry['kingdom']) {
+            if(strpos($xml, "<dwc:Kingdom>") !== false) {} //string is found
+            else $xml = str_replace("<dwc:ScientificName>", "<dwc:Kingdom>$kingdom</dwc:Kingdom><dwc:ScientificName>", $xml);
+        }
+        */
+    }
     private function remove_tags_in_references($xml_string)
     {
         $field = "reference";
