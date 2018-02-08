@@ -206,18 +206,23 @@ class DwCA_Utility
         $tables = $info['tables'];
         $index = $info['index'];
 
-                            $records = $harvester->process_row_type('http://eol.org/schema/media/Document');
-        echo "\n1 of 3\n";  $taxon_ids_with_objects = self::build_taxonIDs_with_objects_array($records);
-                            $records = $harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon');
-        echo "\n2 of 3\n";  $records = self::remove_taxa_without_objects($records, $taxon_ids_with_objects);
-        echo "\n3 of 3\n";
-        foreach($index as $row_type) {
-            if(@$this->extensions[$row_type]) { //process only defined row_types
-                if($this->extensions[$row_type] == "taxon") self::process_fields($records, $this->extensions[$row_type]);
-                else                                        self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
+        if($records = $harvester->process_row_type('http://eol.org/schema/media/Document'))
+        {
+            $taxon_ids_with_objects = self::build_taxonIDs_with_objects_array($records);        echo "\n1 of 3\n";
+            $records = $harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon');      echo "\n2 of 3\n";
+            $records = self::remove_taxa_without_objects($records, $taxon_ids_with_objects);    echo "\n3 of 3\n";
+            foreach($index as $row_type) {
+                if(@$this->extensions[$row_type]) { //process only defined row_types
+                    if($this->extensions[$row_type] == "taxon") self::process_fields($records, $this->extensions[$row_type]);
+                    else                                        self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
+                }
             }
+            $this->archive_builder->finalize(TRUE);
         }
-        $this->archive_builder->finalize(TRUE);
+        else {
+            echo "\nNo data objects for this resource [$this->resource_id].\n";
+            recursive_rmdir($this->path_to_archive_directory);
+        }
         
         // remove temp dir
         recursive_rmdir($temp_dir);

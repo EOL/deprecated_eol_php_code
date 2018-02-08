@@ -16,9 +16,9 @@ require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
 $final = array();
-$lifedesks = array("afrotropicalbirds"); $final = array_merge($final, $lifedesks);    //testing...afrotropicalbirds        leptogastrinae
+$lifedesks = array("mochokidae"); $final = array_merge($final, $lifedesks);    //testing...afrotropicalbirds        leptogastrinae
 
-// /* normal operation
+/* normal operation
 $lifedesks = array("drosophilidae", "mochokidae", "berry", "echinoderms");                  $final = array_merge($final, $lifedesks);
 $lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife");             $final = array_merge($final, $lifedesks);
 $lifedesks = array("araneoidea", "archaeoceti", "calintertidalinverts");                    $final = array_merge($final, $lifedesks);
@@ -28,7 +28,7 @@ $lifedesks = array("idorids", "evaniidae", "halictidae");                       
 $lifedesks = array("spiderindia", "speciesindia", "skinklink", "scarab", "nzicn");          $final = array_merge($final, $lifedesks);
 $lifedesks = array("bcbiodiversity", "pterioidea", "westernghatfishes", "cephalopoda");     $final = array_merge($final, $lifedesks);
 $lifedesks = array("calintertidalinverts", "biomarks", "nlbio");                            $final = array_merge($final, $lifedesks);
-// */
+*/
 
 $info['araneae'] = array('id'=>203, 'LD_domain' => 'http://araneae.lifedesks.org/', 'OpenData_title' => 'Spiders LifeDesk');
 $info['eolspecies'] = array('id'=>204, 'LD_domain' => 'http://eolspecies.lifedesks.org/', 'OpenData_title' => 'EOL Rapid Response Team LifeDesk');
@@ -70,7 +70,7 @@ print_r($final); echo "\n".count($final)."\n"; //exit;
 $cont_compile = false;
 
 foreach($final as $lifedesk) {
-    $func1->export_lifedesk_to_eol($params[$lifedesk]["local"]); unset($func1);
+    $func1->export_lifedesk_to_eol($params[$lifedesk]["local"]);
     if(Functions::url_exists($params[$lifedesk]["local"]["lifedesk"])) {
         convert("LD_".$lifedesk); //convert XML to DwCA
         $cont_compile = true;
