@@ -276,7 +276,9 @@ class ConvertEOLtoDWCaAPI
             if(trim((string) $o)) //needed validation for IUCN 211.php and NMNH XML resources
             {
                 // print_r($o); //debug
-                $records[] = array("scientificName" => (string) $o, "taxonomicStatus" => (string) $o{"relationship"}, 
+                $status = (string) @$o{"relationship"};
+                if(!$status) $status = 'synonym';
+                $records[] = array("scientificName" => (string) $o, "taxonomicStatus" => $status, 
                                    "taxonID" => str_replace(" ", "_", $o) ,"acceptedNameUsageID" => (string) $taxon_id);
             }
         } 
@@ -405,6 +407,12 @@ class ConvertEOLtoDWCaAPI
             }
         }
 
+        // ==================================start customize============================
+        if(substr($this->resource_id,0,3) == "LD_") $taxon_id = md5(trim($t_dwc->ScientificName));
+        /* Used md5(sciname) here so we can combine taxon.tab with LifeDesk multimedia resource (e.g. LD_afrotropicalbirds_multimedia.tar.gz). See CollectionsScrapeAPI.php */
+        // ==================================end customize==============================
+        
+
         if($obj = @$t->commonName) {
             if($vernaculars = self::process_vernacular($obj, $taxon_id)) {
                 foreach($vernaculars as $vernacular) {
@@ -455,10 +463,6 @@ class ConvertEOLtoDWCaAPI
                         [taxonID] => afrotropicalbirds:tid:315
                     )
                     */
-                    // ==================================start customize============================
-                    if(substr($this->resource_id,0,3) == "LD_") $data_object['taxonID'] = md5($rec['ScientificName']);
-                    /* Used md5(sciname) here so we can combine taxon.tab with LifeDesk multimedia resource (e.g. LD_afrotropicalbirds_multimedia.tar.gz). See CollectionsScrapeAPI.php */
-                    // ==================================end customize==============================
                     
                     self::create_archive($data_object, "data object");
                 }
