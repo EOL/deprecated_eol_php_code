@@ -102,10 +102,9 @@ foreach($final as $lifedesk)
         $func2 = new DwCA_Utility($resource_id, $dwca_file); //2nd param is false bec. it'll process multiple archives, see convert_archive_files() in library DwCA_Utility.php
 
         $final = array();
-        if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."LD_".$lifedesk.".tar.gz"))            $final[] = "LD_".$lifedesk;
         if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."LD_".$lifedesk."_multimedia.tar.gz")) $final[] = "LD_".$lifedesk."_multimedia";
+        if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."LD_".$lifedesk.".tar.gz"))            $final[] = "LD_".$lifedesk;
 
-        // $final = array("LD_".$lifedesk, "LD_".$lifedesk."_multimedia"); //e.g. this assumes this file exists => CONTENT_RESOURCE_LOCAL_PATH."LD_afrotropicalbirds.tar.gz"
         $func2->convert_archive_files($final); //this is same as convert_archive(), only it processes multiple DwCA files not just one.
         unset($func2);
         Functions::finalize_dwca_resource($resource_id);
