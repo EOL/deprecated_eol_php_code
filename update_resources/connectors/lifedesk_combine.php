@@ -16,18 +16,15 @@ require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
 $final = array();
-$lifedesks = array("mochokidae"); $final = array_merge($final, $lifedesks);    //testing...afrotropicalbirds        leptogastrinae
+$lifedesks = array("afrotropicalbirds"); $final = array_merge($final, $lifedesks);    //testing...afrotropicalbirds        leptogastrinae
 
 /* normal operation
-$lifedesks = array("drosophilidae", "mochokidae", "berry", "echinoderms");                  $final = array_merge($final, $lifedesks);
-$lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife");             $final = array_merge($final, $lifedesks);
-$lifedesks = array("araneoidea", "archaeoceti", "calintertidalinverts");                    $final = array_merge($final, $lifedesks);
-$lifedesks = array("chileanbees", "eleodes", "empidinae");                                  $final = array_merge($final, $lifedesks);
-$lifedesks = array("surinamewaterbeetles", "scarabaeoidea", "pipunculidae", "ncfishes");    $final = array_merge($final, $lifedesks);
-$lifedesks = array("idorids", "evaniidae", "halictidae");                                   $final = array_merge($final, $lifedesks);
-$lifedesks = array("spiderindia", "speciesindia", "skinklink", "scarab", "nzicn");          $final = array_merge($final, $lifedesks);
-$lifedesks = array("bcbiodiversity", "pterioidea", "westernghatfishes", "cephalopoda");     $final = array_merge($final, $lifedesks);
-$lifedesks = array("calintertidalinverts", "biomarks", "nlbio");                            $final = array_merge($final, $lifedesks);
+$lifedesks = array("drosophilidae", "mochokidae", "berry", "echinoderms", "eleodes", "empidinae");                              $final = array_merge($final, $lifedesks);
+$lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife", "idorids", "evaniidae");                         $final = array_merge($final, $lifedesks);
+$lifedesks = array("araneoidea", "archaeoceti", "calintertidalinverts", "chileanbees", "halictidae", "nlbio");                  $final = array_merge($final, $lifedesks);
+$lifedesks = array("surinamewaterbeetles", "scarabaeoidea", "pipunculidae", "ncfishes", "calintertidalinverts", "biomarks");    $final = array_merge($final, $lifedesks);
+$lifedesks = array("spiderindia", "speciesindia", "skinklink", "scarab", "nzicn", "bcbiodiversity");                            $final = array_merge($final, $lifedesks);
+$lifedesks = array("pterioidea", "westernghatfishes", "cephalopoda");                                                           $final = array_merge($final, $lifedesks);
 */
 
 $info['araneae'] = array('id'=>203, 'LD_domain' => 'http://araneae.lifedesks.org/', 'OpenData_title' => 'Spiders LifeDesk');
@@ -35,25 +32,31 @@ $info['eolspecies'] = array('id'=>204, 'LD_domain' => 'http://eolspecies.lifedes
 $info['trilobites'] = array('id'=>206, 'LD_domain' => 'http://trilobites.lifedesks.org/', 'OpenData_title' => 'Trilobites Online Database LifeDesk');
 $info['indianadunes'] = array('id'=>211, 'LD_domain' => 'http://indianadunes.lifedesks.org/', 'OpenData_title' => 'Indiana Dunes Bioblitz LifeDesk');
 $info['eolinterns'] = array('id'=>228, 'LD_domain' => 'http://eolinterns.lifedesks.org/', 'OpenData_title' => 'EOL Interns LifeDesk LifeDesk');
+
 $info['psora'] = array('id'=>232, 'LD_domain' => 'http://psora.lifedesks.org/', 'OpenData_title' => 'The lichen genus Psora LifeDesk');
 $info['corvidae'] = array('id'=>234, 'LD_domain' => 'http://corvidae.lifedesks.org/', 'OpenData_title' => 'Corvid Corroborree LifeDesk');
 $info['plantsoftibet'] = array('id'=>241, 'LD_domain' => 'http://plantsoftibet.lifedesks.org/', 'OpenData_title' => 'Plants of Tibet LifeDesk');
 $info['caprellids'] = array('id'=>242, 'LD_domain' => 'http://caprellids.lifedesks.org/', 'OpenData_title' => 'Caprellids LifeDesk LifeDesk');
 $info['pleurotomariidae'] = array('id'=>268, 'LD_domain' => 'http://pleurotomariidae.lifedesks.org/', 'OpenData_title' => 'Pleurotomariidae LifeDesk');
+
 $info['halictidae'] = array('id'=>299, 'LD_domain' => 'http://halictidae.lifedesks.org/', 'OpenData_title' => 'Halictidae LifeDesk');
 $info['batrach'] = array('id'=>307, 'LD_domain' => 'http://batrach.lifedesks.org/', 'OpenData_title' => 'Batrachospermales LifeDesk');
 $info['deepseafishes'] = array('id'=>308, 'LD_domain' => 'http://deepseafishes.lifedesks.org/', 'OpenData_title' => 'Deep-sea Fishes of the World LifeDesk');
 $info['arczoo'] = array('id'=>322, 'LD_domain' => 'http://arczoo.lifedesks.org/', 'OpenData_title' => 'iArcZoo LifeDesk');
 $info['snakesoftheworld'] = array('id'=>328, 'LD_domain' => 'http://snakesoftheworld.lifedesks.org/', 'OpenData_title' => 'Snake Species of the World LifeDesk');
+
 $info['mexinverts'] = array('id'=>330, 'LD_domain' => 'http://mexinverts.lifedesks.org/', 'OpenData_title' => 'LifeDesk Invertebrados Marinos de México LifeDesk');
 $info['rotifera'] = array('id'=>336, 'LD_domain' => 'http://rotifera.lifedesks.org/', 'OpenData_title' => 'Marine Rotifera LifeDesk');
 $info['echinoderms'] = array('id'=>340, 'LD_domain' => 'http://echinoderms.lifedesks.org/', 'OpenData_title' => 'Discover Life LifeDesk');
 $info['maldivesnlaccadives'] = array('id'=>346, 'LD_domain' => 'http://maldivesnlaccadives.lifedesks.org/', 'OpenData_title' => 'Maldives and Laccadives LifeDesk');
 $info['thrasops'] = array('id'=>347, 'LD_domain' => 'http://thrasops.lifedesks.org/', 'OpenData_title' => 'African Snakes of the Genus Thrasops LifeDesk');
+
 $info['afrotropicalbirds'] = array('id'=>9528, 'LD_domain' => 'http://afrotropicalbirds.lifedesks.org/', 'OpenData_title' => 'Afrotropical birds in the RMCA LifeDesk');
 $info['philbreo'] = array('id'=>16553, 'LD_domain' => 'http://philbreo.lifedesks.org/', 'OpenData_title' => 'Amphibians and Reptiles of the Philippines LifeDesk');
 $info['diptera'] = array('id'=>111622, 'LD_domain' => 'http://diptera.lifedesks.org/', 'OpenData_title' => 'EOL Rapid Response Team Diptera LifeDesk');
 $info['leptogastrinae'] = array('id'=>219, 'LD_domain' => 'http://leptogastrinae.lifedesks.org/', 'OpenData_title' => 'Leptogastrinae LifeDesk');
+
+// $final = array_keys($info);
 
 // /* normal operation
 foreach($final as $ld) {
