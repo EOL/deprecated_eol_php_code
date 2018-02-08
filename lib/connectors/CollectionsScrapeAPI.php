@@ -48,7 +48,23 @@ class CollectionsScrapeAPI
             $do_ids = array_merge($do_ids, $arr);
             $do_ids = array_unique($do_ids);                                echo "\n".count($do_ids)."\n";
             unset($arr); //not needed anymore
-            foreach($do_ids as $do_id) self::process_do_id($do_id, @$do_ids_sciname[$do_id]);
+
+            $k = 0; $m = 559/5;
+            foreach($do_ids as $do_id) 
+            {
+                /* breakdown when caching:
+                $k++;
+                $cont = false;
+                // if($k >=  1    && $k < $m) $cont = true;
+                // if($k >=  $m   && $k < $m*2) $cont = true;
+                // if($k >=  $m*2 && $k < $m*3) $cont = true;
+                // if($k >=  $m*3 && $k < $m*4) $cont = true;
+                if($k >=  $m*4 && $k < $m*5) $cont = true;
+                if(!$cont) continue;
+                */
+
+                self::process_do_id($do_id, @$do_ids_sciname[$do_id]);
+            }
         }
         // */
         /* preview mode
@@ -89,12 +105,59 @@ class CollectionsScrapeAPI
             self::create_archive($obj);
         }
     }
+    private function get_taxon_info($hierarchy_entry_id)
+    {
+        $final = array();
+        $url = str_replace("hierarchy_entry_id", $hierarchy_entry_id, $this->url['eol_hierarchy_entries']);
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+            $obj = json_decode($json, true);
+            // print_r($obj); //exit;
+            /*
+            [ancestors] => Array
+                        [0] => Array
+                                [sourceIdentifier] => 202423
+                                [taxonID] => 46216568
+                                [parentNameUsageID] => 0
+                                [taxonConceptID] => 1
+                                [scientificName] => Animalia
+                                [taxonRank] => kingdom
+                                [source] => http://eol.org/pages/1/hierarchy_entries/46216568/overview
+                        [1] => Array ...
+                        [2] => Array ...
+            */
+            if($recs = @$obj['ancestors']) {
+                foreach($recs as $rec) {
+                    $final[@$rec['taxonRank']] = $rec['scientificName'];
+                }
+            }
+        }
+        return $final;
+    }
     private function create_archive($o)
     {   //   ================================================ FOR TAXON  ================================================
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = md5($o['scientificName']); //$o['identifier']; orig value. 
         /* Used md5(sciname) here so we can combine taxon.tab with LifeDesk text resource (e.g. LD_afrotropicalbirds.tar.gz). See ConvertEOLtoDWCaAPI.php */
         $taxon->scientificName  = $o['scientificName'];
+        if($rank = @$o['taxonConcepts'][0]['taxonRank']) $taxon->taxonRank = $rank;
+        // print_r($o);
+        if($hierarchy_entry_id = @$o['taxonConcepts'][0]['identifier']) {
+            $ancestry = self::get_taxon_info($hierarchy_entry_id);
+            // print_r($ancestry); exit;
+            /* Array
+                [kingdom] => Animalia
+                [subkingdom] => Bilateria
+                [class] => Aves
+                [order] => Passeriformes
+                [family] => Muscicapidae Fleming, 1822
+                [genus] => Cossypha Vigors 1825
+                [species] => Cossypha archeri Sharpe 1902
+            */
+            $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
+            foreach($ranks as $rank) {
+                if($sciname = @$ancestry[$rank]) $taxon->$rank = $sciname;
+            }
+        }
         
         // $taxon->furtherInformationURL = $this->page['species'].$rec['taxon_id'];
         // if($reference_ids = @$this->taxa_reference_ids[$t['int_id']]) $taxon->referenceID = implode("; ", $reference_ids);
