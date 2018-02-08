@@ -24,6 +24,8 @@ class CollectionsScrapeAPI
         $this->url["eol_collection_page"] = "http://eol.org/collections/".$collection_id."/data_type?sort_by=1&view_as=3"; //&page=2 
         //e.g. "http://eol.org/collections/9528/images?page=2&sort_by=1&view_as=3";
         $this->url["eol_object"]     = "http://eol.org/api/data_objects/1.0/";
+        $this->url["eol_object"]     = "http://eol.org/api/data_objects/1.0/data_object_id.json?taxonomy=true&cache_ttl=";
+        $this->url['eol_hierarchy_entries'] = "http://eol.org/api/hierarchy_entries/1.0/hierarchy_entry_id.json?common_names=false&synonyms=false&cache_ttl=&language=en";
         
         $this->multimedia_data_types = array('images', 'video', 'sounds'); //multimedia types
         
@@ -76,7 +78,8 @@ class CollectionsScrapeAPI
     
     private function process_do_id($do_id, $sciname)
     {
-        if($json = Functions::lookup_with_cache($this->url["eol_object"] . $do_id . ".json?cache_ttl=", $this->download_options)) {
+        $url = str_replace("data_object_id", $do_id, $this->url["eol_object"]);
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $obj = json_decode($json, true);
             if(!@$obj['scientificName']) {//e.g. collection_id = 106941 -> has hidden data_objects and dataObject API doesn't have taxon info.
                 $obj['scientificName'] = $sciname;
@@ -87,18 +90,19 @@ class CollectionsScrapeAPI
         }
     }
     private function create_archive($o)
-    {   // FOR TAXON  ================================================
+    {   //   ================================================ FOR TAXON  ================================================
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = md5($o['scientificName']); //$o['identifier']; orig value. 
         /* Used md5(sciname) here so we can combine taxon.tab with LifeDesk text resource (e.g. LD_afrotropicalbirds.tar.gz). See ConvertEOLtoDWCaAPI.php */
         $taxon->scientificName  = $o['scientificName'];
+        
         // $taxon->furtherInformationURL = $this->page['species'].$rec['taxon_id'];
         // if($reference_ids = @$this->taxa_reference_ids[$t['int_id']]) $taxon->referenceID = implode("; ", $reference_ids);
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->taxon_ids[$taxon->taxonID] = '';
             $this->archive_builder->write_object_to_file($taxon);
         }
-        // FOR DATA_OBJECT ================================================
+        //  ================================================ FOR DATA_OBJECT ================================================
         /* [dataObjects] => Array
                     [0] => Array
                             [identifier] => 40a44c87cf6688bf6f531c75eb33c773
