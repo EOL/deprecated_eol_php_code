@@ -108,6 +108,15 @@ foreach($final as $lifedesk)
         $func2->convert_archive_files($final); //this is same as convert_archive(), only it processes multiple DwCA files not just one.
         unset($func2);
         Functions::finalize_dwca_resource($resource_id);
+        
+        
+        //---------------------new start generic_normalize_dwca() meaning remove taxa without objects, only leave taxa with objects in final dwca
+        $func = new DwCA_Utility($resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
+        $func->convert_archive_normalized();
+        Functions::finalize_dwca_resource($resource_id);
+        //---------------------new end
+        
+        
     }
     //  --------------------------------------------------- end compiling the 2 DwCA files into 1 final DwCA --------------------------------------------------- 
 }

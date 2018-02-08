@@ -27,7 +27,7 @@ class CollectionsScrapeAPI
         $this->url["eol_object"]     = "http://eol.org/api/data_objects/1.0/data_object_id.json?taxonomy=true&cache_ttl=";
         $this->url['eol_hierarchy_entries'] = "http://eol.org/api/hierarchy_entries/1.0/hierarchy_entry_id.json?common_names=false&synonyms=false&cache_ttl=&language=en";
         
-        $this->multimedia_data_types = array('images', 'video', 'sounds'); //multimedia types
+        $this->multimedia_data_types = array('images', 'video', 'sounds', 'text'); //multimedia types
         
         if(Functions::is_production()) $this->lifedesk_images_path = '/extra/other_files/LifeDesk_images/';
         else                           $this->lifedesk_images_path = '/Volumes/AKiTiO4/other_files/LifeDesk_images/';
@@ -42,6 +42,7 @@ class CollectionsScrapeAPI
         if(!is_dir($this->lifedesk_images_path)) mkdir($this->lifedesk_images_path);
         // /* normal operation
         foreach($this->multimedia_data_types as $data_type) {
+            $this->data_type = $data_type;
             $do_ids_sciname = self::get_obj_ids_from_html($data_type);
             $arr = array_keys($do_ids_sciname);                             echo "\n".count($arr)."\n";
             $do_ids = self::get_obj_ids_from_collections_api($data_type);   echo "\n".count($do_ids)."\n";
@@ -134,7 +135,9 @@ class CollectionsScrapeAPI
         return $final;
     }
     private function create_archive($o)
-    {   //   ================================================ FOR TAXON  ================================================
+    {   
+        if(!@$o['scientificName']) return;
+        //   ================================================ FOR TAXON  ================================================
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = md5($o['scientificName']); //$o['identifier']; orig value. 
         /* Used md5(sciname) here so we can combine taxon.tab with LifeDesk text resource (e.g. LD_afrotropicalbirds.tar.gz). See ConvertEOLtoDWCaAPI.php */
@@ -208,6 +211,8 @@ class CollectionsScrapeAPI
                         )
                 )
         */
+        if($this->data_type == 'text') return;
+        
         if($rec = $o['dataObjects'][0]) {
             $mr = new \eol_schema\MediaResource();
             $mr->taxonID        = $taxon->taxonID;
