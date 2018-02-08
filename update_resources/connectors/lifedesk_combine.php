@@ -56,6 +56,8 @@ $info['philbreo'] = array('id'=>16553, 'LD_domain' => 'http://philbreo.lifedesks
 $info['diptera'] = array('id'=>111622, 'LD_domain' => 'http://diptera.lifedesks.org/', 'OpenData_title' => 'EOL Rapid Response Team Diptera LifeDesk');
 $info['leptogastrinae'] = array('id'=>219, 'LD_domain' => 'http://leptogastrinae.lifedesks.org/', 'OpenData_title' => 'Leptogastrinae LifeDesk');
 
+$ancestry['afrotropicalbirds'] = array('kingdom' => 'Animalia', 'phylum' => 'Chordata', 'class' => 'Aves');
+
 // $final = array_keys($info);
 
 // /* normal operation
@@ -67,6 +69,7 @@ foreach($final as $ld) {
     $params[$ld]["local"]["lifedesk"]       = "http://localhost/cp_new/LD2EOL/" . $ld . "/eol-partnership.xml.gz";
     $params[$ld]["local"]["lifedesk"]       = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/LD2EOL/$ld/eol-partnership.xml.gz";
     $params[$ld]["local"]["name"]           = $ld;
+    $params[$ld]["local"]["ancestry"]       = @$ancestry[$ld];
 }
 $final = array_unique($final);
 print_r($final); echo "\n".count($final)."\n"; //exit;
@@ -129,7 +132,11 @@ function convert($resource_id)
     $params["dataset"]      = "LifeDesk XML files";
     $params["resource_id"]  = $resource_id;
     $func = new ConvertEOLtoDWCaAPI($resource_id);
-    $func->export_xml_to_archive($params, true, 60*60*24*15); // true => means it is an XML file, not an archive file nor a zip file. Expires in 15 days.
+    
+    /* u need to set this to expire now = 0 ... if there is change in ancestry information... */
+    // $func->export_xml_to_archive($params, true, 60*60*24*15); // true => means it is an XML file, not an archive file nor a zip file. Expires in 15 days.
+    $func->export_xml_to_archive($params, true, 0); // true => means it is an XML file, not an archive file nor a zip file. Expires now.
+
     Functions::finalize_dwca_resource($resource_id, false, false); //3rd param true means resource folder will be deleted
     Functions::delete_if_exists(CONTENT_RESOURCE_LOCAL_PATH.$resource_id.".xml");
 }
