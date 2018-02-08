@@ -170,7 +170,7 @@ class ConvertEOLtoDWCaAPI
                         self::create_archive($reference, "reference");
                         $reference_ids[$reference["ref_identifier"]] = '';
                     }
-                    $rec["referenceID"] = implode(";", array_keys($reference_ids));
+                    $rec["referenceID"] = implode("; ", array_keys($reference_ids));
                 }
             }
             
@@ -183,7 +183,7 @@ class ConvertEOLtoDWCaAPI
                         self::create_archive($agent, "agent");
                         $agent_ids[$agent["agentID"]] = '';
                     }
-                    $rec["agentID"] = implode(";", array_keys($agent_ids));
+                    $rec["agentID"] = implode("; ", array_keys($agent_ids));
                 }
             }
 
@@ -432,7 +432,7 @@ class ConvertEOLtoDWCaAPI
                     self::create_archive($reference, "reference");
                     $reference_ids[$reference["ref_identifier"]] = '';
                 }
-                $rec["referenceID"] = implode(";", array_keys($reference_ids));
+                $rec["referenceID"] = implode("; ", array_keys($reference_ids));
             }
         }
         

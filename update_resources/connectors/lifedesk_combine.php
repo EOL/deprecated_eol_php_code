@@ -15,25 +15,20 @@ require_library('connectors/ConvertEOLtoDWCaAPI');
 require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
-
 $final = array();
 $lifedesks = array("afrotropicalbirds"); $final = array_merge($final, $lifedesks);    //testing...afrotropicalbirds        leptogastrinae
 
-/* normal operation
-$lifedesks = array("");                                                                 $final = array_merge($final, $lifedesks);    //DATA-1516
-$lifedesks = array("", "drosophilidae", "mochokidae", "", "berry");                        $final = array_merge($final, $lifedesks);    //DATA-1597
-$lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife", "");               $final = array_merge($final, $lifedesks);    //DATA-1599
-$lifedesks = array("", "echinoderms", "", "", "");        $final = array_merge($final, $lifedesks);    //DATA-1600
-$lifedesks = array("", "", "", "", "");        $final = array_merge($final, $lifedesks);    //DATA-1601
-$lifedesks = array("araneoidea", "archaeoceti", "", "calintertidalinverts", "");         $final = array_merge($final, $lifedesks);    //DATA-1607
-$lifedesks = array("chileanbees", "", "", "eleodes", "empidinae");                  $final = array_merge($final, $lifedesks);    //DATA-1608
-$lifedesks = array("surinamewaterbeetles", "scarabaeoidea", "pipunculidae", "ncfishes", ""); $final = array_merge($final, $lifedesks);    //DATA-1609
-$lifedesks = array("idorids", "evaniidae", "", "halictidae", "");                    $final = array_merge($final, $lifedesks);    //DATA-1611
-$lifedesks = array("spiderindia", "speciesindia", "skinklink", "scarab", "nzicn");                       $final = array_merge($final, $lifedesks);    //DATA-1612
-$lifedesks = array("bcbiodiversity", "pterioidea", "", "westernghatfishes", "cephalopoda");    $final = array_merge($final, $lifedesks);    //DATA-1613
-$lifedesks = array("calintertidalinverts", "biomarks", "nlbio", "");                             $final = array_merge($final, $lifedesks);    //DATA-1614
-$lifedesks = array("");                                                                       $final = array_merge($final, $lifedesks);    //DATA-1631
-*/
+// /* normal operation
+$lifedesks = array("drosophilidae", "mochokidae", "berry", "echinoderms");                  $final = array_merge($final, $lifedesks);
+$lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife");             $final = array_merge($final, $lifedesks);
+$lifedesks = array("araneoidea", "archaeoceti", "calintertidalinverts");                    $final = array_merge($final, $lifedesks);
+$lifedesks = array("chileanbees", "eleodes", "empidinae");                                  $final = array_merge($final, $lifedesks);
+$lifedesks = array("surinamewaterbeetles", "scarabaeoidea", "pipunculidae", "ncfishes");    $final = array_merge($final, $lifedesks);
+$lifedesks = array("idorids", "evaniidae", "halictidae");                                   $final = array_merge($final, $lifedesks);
+$lifedesks = array("spiderindia", "speciesindia", "skinklink", "scarab", "nzicn");          $final = array_merge($final, $lifedesks);
+$lifedesks = array("bcbiodiversity", "pterioidea", "westernghatfishes", "cephalopoda");     $final = array_merge($final, $lifedesks);
+$lifedesks = array("calintertidalinverts", "biomarks", "nlbio");                            $final = array_merge($final, $lifedesks);
+// */
 
 $info['araneae'] = array('id'=>203, 'LD_domain' => 'http://araneae.lifedesks.org/', 'OpenData_title' => 'Spiders LifeDesk');
 $info['eolspecies'] = array('id'=>204, 'LD_domain' => 'http://eolspecies.lifedesks.org/', 'OpenData_title' => 'EOL Rapid Response Team LifeDesk');
@@ -60,7 +55,6 @@ $info['philbreo'] = array('id'=>16553, 'LD_domain' => 'http://philbreo.lifedesks
 $info['diptera'] = array('id'=>111622, 'LD_domain' => 'http://diptera.lifedesks.org/', 'OpenData_title' => 'EOL Rapid Response Team Diptera LifeDesk');
 $info['leptogastrinae'] = array('id'=>219, 'LD_domain' => 'http://leptogastrinae.lifedesks.org/', 'OpenData_title' => 'Leptogastrinae LifeDesk');
 
-
 // /* normal operation
 foreach($final as $ld) {
     /*
@@ -75,11 +69,9 @@ $final = array_unique($final);
 print_r($final); echo "\n".count($final)."\n"; //exit;
 $cont_compile = false;
 
-foreach($final as $lifedesk) 
-{
+foreach($final as $lifedesk) {
     $func1->export_lifedesk_to_eol($params[$lifedesk]["local"]); unset($func1);
-    if(Functions::url_exists($params[$lifedesk]["local"]["lifedesk"])) 
-    {
+    if(Functions::url_exists($params[$lifedesk]["local"]["lifedesk"])) {
         convert("LD_".$lifedesk); //convert XML to DwCA
         $cont_compile = true;
     }
@@ -109,13 +101,11 @@ foreach($final as $lifedesk)
         unset($func2);
         Functions::finalize_dwca_resource($resource_id);
         
-        
         //---------------------new start generic_normalize_dwca() meaning remove taxa without objects, only leave taxa with objects in final dwca
         $func = new DwCA_Utility($resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
         $func->convert_archive_normalized();
         Functions::finalize_dwca_resource($resource_id);
         //---------------------new end
-        
         
     }
     //  --------------------------------------------------- end compiling the 2 DwCA files into 1 final DwCA --------------------------------------------------- 
