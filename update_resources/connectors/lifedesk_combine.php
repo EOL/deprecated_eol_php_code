@@ -16,13 +16,13 @@ require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
 $final = array();
-$lifedesks = array("afrotropicalbirds"); $final = array_merge($final, $lifedesks);    //testing...afrotropicalbirds        leptogastrinae
+// $lifedesks = array("calintertidalinverts"); $final = array_merge($final, $lifedesks);    //testing...afrotropicalbirds        leptogastrinae
 
 /* normal operation
 $lifedesks = array("drosophilidae", "mochokidae", "berry", "echinoderms", "eleodes", "empidinae");                              $final = array_merge($final, $lifedesks);
 $lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife", "idorids", "evaniidae");                         $final = array_merge($final, $lifedesks);
 $lifedesks = array("araneoidea", "archaeoceti", "calintertidalinverts", "chileanbees", "halictidae", "nlbio");                  $final = array_merge($final, $lifedesks);
-$lifedesks = array("surinamewaterbeetles", "scarabaeoidea", "pipunculidae", "ncfishes", "calintertidalinverts", "biomarks");    $final = array_merge($final, $lifedesks);
+$lifedesks = array("surinamewaterbeetles", "scarabaeoidea", "pipunculidae", "ncfishes", "biomarks");    $final = array_merge($final, $lifedesks);
 $lifedesks = array("spiderindia", "speciesindia", "skinklink", "scarab", "nzicn", "bcbiodiversity");                            $final = array_merge($final, $lifedesks);
 $lifedesks = array("pterioidea", "westernghatfishes", "cephalopoda");                                                           $final = array_merge($final, $lifedesks);
 */
@@ -56,9 +56,11 @@ $info['philbreo'] = array('id'=>16553, 'LD_domain' => 'http://philbreo.lifedesks
 $info['diptera'] = array('id'=>111622, 'LD_domain' => 'http://diptera.lifedesks.org/', 'OpenData_title' => 'EOL Rapid Response Team Diptera LifeDesk');
 $info['leptogastrinae'] = array('id'=>219, 'LD_domain' => 'http://leptogastrinae.lifedesks.org/', 'OpenData_title' => 'Leptogastrinae LifeDesk');
 
-$ancestry['afrotropicalbirds'] = array('kingdom' => 'Animalia', 'phylum' => 'Chordata', 'class' => 'Aves');
+/* this works OK. but was decided not to add ancestry if original source doesn't have ancestry. Makes sense.
+$ancestry['afrotropicalbirds'] = array('kingdom' => 'Animalia', 'phylum' => 'Chordata', 'class' => 'Aves'); 
+*/
 
-// $final = array_keys($info);
+$final = array_merge($final, array_keys($info));
 
 // /* normal operation
 foreach($final as $ld) {
@@ -108,9 +110,12 @@ foreach($final as $lifedesk) {
         Functions::finalize_dwca_resource($resource_id);
         
         //---------------------new start generic_normalize_dwca() meaning remove taxa without objects, only leave taxa with objects in final dwca
-        $func = new DwCA_Utility($resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
-        $func->convert_archive_normalized();
-        Functions::finalize_dwca_resource($resource_id);
+        $tar_gz = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz";
+        if(file_exists($tar_gz)) {
+            $func = new DwCA_Utility($resource_id, $tar_gz);
+            $func->convert_archive_normalized();
+            Functions::finalize_dwca_resource($resource_id);
+        }
         //---------------------new end
         
     }
