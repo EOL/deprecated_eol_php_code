@@ -285,7 +285,10 @@ class CollectionsScrapeAPI
         {
             $arr = json_decode($json);
             count($arr->collection_items);
-            foreach($arr->collection_items as $r) $do_ids[$r->object_id] = '';
+            foreach($arr->collection_items as $r) 
+            {
+                if($r->object_type != 'TaxonConcept') $do_ids[$r->object_id] = ''; // accepted values: Text, Image, ???
+            }
         }
         return array_keys($do_ids);
     }

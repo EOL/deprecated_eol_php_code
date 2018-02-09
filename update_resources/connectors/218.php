@@ -2,6 +2,9 @@
 namespace php_active_record;
 /* Tropicos Archive resource
 estimated execution time:
+
+218	Thursday 2018-02-08 12:42:33 PM	{"agent.tab":383,"measurement_or_fact.tab":2997020,"media_resource.tab":193473,"occurrence.tab":1498510,"reference.tab":21639,"taxon.tab":1298052}
+
 */
 return; //hasn't been cached yet in Archive
 include_once(dirname(__FILE__) . "/../../config/environment.php");
