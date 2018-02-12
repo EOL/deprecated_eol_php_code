@@ -36,6 +36,7 @@ if($val = $cmdline_params['resource_id'])
     elseif($resource_id == 'plant_forms_habitat_and_distribution') $params['spreadsheet'] = "https://opendata.eol.org/dataset/aab3818f-d538-4d5f-a3b8-b52d233c7ac0/resource/8e46a838-0394-42bd-9272-0a8591834713/download/plant-habit-habitat-and-distribution.xlsx";
     elseif($resource_id == 'world_wildlife_fund') $params['spreadsheet'] = "http://opendata.eol.org/dataset/8ace52ee-4c87-4231-8c38-7fa04b2efd37/resource/c2b5b9e3-0b87-498f-bf3a-84cbc937a28e/download/wff-regions-version-2.xlsx";
     elseif($resource_id == 'Shelled_animal_body_mass') $params['spreadsheet'] = "https://opendata.eol.org/dataset/d5242c81-873f-48a2-8e1e-824272869361/resource/21f1f27b-fa10-405a-81dc-00cb48700064/download/body-size-shells.xlsx";
+    elseif($resource_id == 990) $params['spreadsheet'] = "https://opendata.eol.org/dataset/60b861a7-5530-4cb2-8737-b5a3340d0578/resource/5dd1890d-551a-452e-82de-ec36daea444a/download/chen-and-moles.xlsx";
     else exit("\nProgram will terminate. Invalid resource_id [$resource_id].\n\n");
 }
 else //no resource_id
