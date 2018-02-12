@@ -61,6 +61,9 @@ class LifeDeskToEOLAPI
         $xml = $func->remove_data_object_of_certain_element_value("dataType", "http://purl.org/dc/dcmitype/MovingImage", $xml);
         $xml = $func->remove_data_object_of_certain_element_value("dataType", "http://purl.org/dc/dcmitype/Sound", $xml);
 
+        $xml = str_replace("<dc:source></dc:source>", "", $xml);
+        $xml = str_replace("<dc:source/>", "", $xml); //seems like the correct one to remove after above statements.
+
         $func->save_resource_document($xml);
         // zip the xml
         $command_line = "gzip -c " . CONTENT_RESOURCE_LOCAL_PATH . $lifedesk_name . ".xml >" . CONTENT_RESOURCE_LOCAL_PATH . $lifedesk_name . ".xml.gz";
