@@ -16,15 +16,15 @@ require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
 $final = array();
-// $lifedesks = array("calintertidalinverts"); $final = array_merge($final, $lifedesks);    //testing...afrotropicalbirds        leptogastrinae
+$lifedesks = array("afrotropicalbirds"); $final = array_merge($final, $lifedesks);    //testing...afrotropicalbirds  leptogastrinae    calintertidalinverts
 
 /* normal operation
-$lifedesks = array("drosophilidae", "mochokidae", "berry", "echinoderms", "eleodes", "empidinae");                              $final = array_merge($final, $lifedesks);
-$lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife", "idorids", "evaniidae");                         $final = array_merge($final, $lifedesks);
-$lifedesks = array("araneoidea", "archaeoceti", "calintertidalinverts", "chileanbees", "halictidae", "nlbio");                  $final = array_merge($final, $lifedesks);
-$lifedesks = array("surinamewaterbeetles", "scarabaeoidea", "pipunculidae", "ncfishes", "biomarks");    $final = array_merge($final, $lifedesks);
-$lifedesks = array("spiderindia", "speciesindia", "skinklink", "scarab", "nzicn", "bcbiodiversity");                            $final = array_merge($final, $lifedesks);
-$lifedesks = array("pterioidea", "westernghatfishes", "cephalopoda");                                                           $final = array_merge($final, $lifedesks);
+$lifedesks = array("drosophilidae", "mochokidae", "berry", "echinoderms", "eleodes", "empidinae");                  $final = array_merge($final, $lifedesks);
+$lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife", "idorids", "evaniidae");             $final = array_merge($final, $lifedesks);
+$lifedesks = array("araneoidea", "archaeoceti", "calintertidalinverts", "chileanbees", "halictidae", "nlbio");      $final = array_merge($final, $lifedesks);
+$lifedesks = array("surinamewaterbeetles", "scarabaeoidea", "pipunculidae", "ncfishes", "biomarks");                $final = array_merge($final, $lifedesks);
+$lifedesks = array("spiderindia", "speciesindia", "skinklink", "scarab", "nzicn", "bcbiodiversity");                $final = array_merge($final, $lifedesks);
+$lifedesks = array("pterioidea", "westernghatfishes", "cephalopoda");                                               $final = array_merge($final, $lifedesks);
 */
 
 $info['araneae'] = array('id'=>203, 'LD_domain' => 'http://araneae.lifedesks.org/', 'OpenData_title' => 'Spiders LifeDesk');
@@ -60,7 +60,9 @@ $info['leptogastrinae'] = array('id'=>219, 'LD_domain' => 'http://leptogastrinae
 $ancestry['afrotropicalbirds'] = array('kingdom' => 'Animalia', 'phylum' => 'Chordata', 'class' => 'Aves'); 
 */
 
-$final = array_merge($final, array_keys($info));
+/* un-comment in normal operation
+$final = array_merge($final, array_keys($info)); 
+*/
 
 // /* normal operation
 foreach($final as $ld) {
@@ -78,9 +80,10 @@ print_r($final); echo "\n".count($final)."\n"; //exit;
 $cont_compile = false;
 
 foreach($final as $lifedesk) {
-    $func1->export_lifedesk_to_eol($params[$lifedesk]["local"]);
+    $taxa_from_orig_LifeDesk_XML = array(); //https://eol-jira.bibalex.org/browse/DATA-1569?focusedCommentId=62081&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62081
+    $taxa_from_orig_LifeDesk_XML = $func1->export_lifedesk_to_eol($params[$lifedesk]["local"]);
     if(Functions::url_exists($params[$lifedesk]["local"]["lifedesk"])) {
-        convert("LD_".$lifedesk); //convert XML to DwCA
+        convert_xml_2_dwca("LD_".$lifedesk); //convert XML to DwCA
         $cont_compile = true;
     }
 
@@ -88,7 +91,7 @@ foreach($final as $lifedesk) {
     $resource_id = "LD_".$lifedesk."_multimedia";
     if($collection_id = @$info[$lifedesk]['id']) { //9528;
         $func2 = new CollectionsScrapeAPI($resource_id, $collection_id);
-        $func2->start();
+        $func2->start($taxa_from_orig_LifeDesk_XML);
         Functions::finalize_dwca_resource($resource_id, false, false); //3rd param true means resource folder will be deleted
         $cont_compile = true;
     }
@@ -130,7 +133,7 @@ echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\nDone processing.\n";
 
-function convert($resource_id)
+function convert_xml_2_dwca($resource_id)
 {
     $params["eol_xml_file"] = "http://localhost/eol_php_code/applications/content_server/resources/".$resource_id.".xml"; //e.g. LD_afrotropicalbirds
     $params["filename"]     = "no need to mention here.xml";

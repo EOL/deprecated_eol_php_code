@@ -7,6 +7,7 @@ class LifeDeskToEOLAPI
     {
         $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 2); // 15mins timeout
         $this->text_path = array();
+        $this->taxa_from_orig_LifeDesk_XML = array();
     }
 
     function export_lifedesk_to_eol($params)
@@ -26,10 +27,12 @@ class LifeDeskToEOLAPI
             debug("\n temporary directory removed: " . $parts["dirname"]);
         }
         else debug("\n LifeDesk main XML not found: ".$params["lifedesk"]."\n");
+        return $this->taxa_from_orig_LifeDesk_XML;
     }
     
     private function update_eol_xml($lifedesk_name)
     {
+        $this->taxa_from_orig_LifeDesk_XML = self::get_taxa_from_orig_LifeDesk_XML(); //used for this purpose: https://eol-jira.bibalex.org/browse/DATA-1569?focusedCommentId=62079&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62079
         /*
         taxon = 434
         dwc:ScientificName = 434
@@ -51,7 +54,7 @@ class LifeDeskToEOLAPI
         $xml = $func->replace_data_object_element_value("dc:source", "replace any existing value", "", $xml, false);
         $xml = self::remove_tags_in_references($xml);
 
-        $xml = self::add_some_ancestry($xml); //adds some ancestry info if available
+        $xml = self::add_some_ancestry($xml); //adds some ancestry info if available. Working OK. Used initially in lifedesk_combine.php but changed strategy and wasn't used eventually. But this works OK.
 
         //remove non-text objects per: https://eol-jira.bibalex.org/browse/DATA-1569?focusedCommentId=62038&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62038
         $xml = $func->remove_data_object_of_certain_element_value("dataType", "http://purl.org/dc/dcmitype/StillImage", $xml);
@@ -62,6 +65,20 @@ class LifeDeskToEOLAPI
         // zip the xml
         $command_line = "gzip -c " . CONTENT_RESOURCE_LOCAL_PATH . $lifedesk_name . ".xml >" . CONTENT_RESOURCE_LOCAL_PATH . $lifedesk_name . ".xml.gz";
         $output = shell_exec($command_line);
+    }
+    private function get_taxa_from_orig_LifeDesk_XML()
+    {
+        $final = array();
+        $xml = simplexml_load_file($this->text_path["eol_xml"]);
+        foreach($xml->taxon as $t) {
+            $t_dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
+            $t_dc = $t->children("http://purl.org/dc/elements/1.1/");
+            $identifier = Functions::import_decode($t_dc->identifier);
+            $sciname    = Functions::import_decode($t_dwc->ScientificName);
+            $final[$identifier] = $sciname;
+        }
+        // print_r($final); exit;
+        return $final;
     }
     private function add_some_ancestry($xml)
     {

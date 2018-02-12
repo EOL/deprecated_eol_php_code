@@ -28,7 +28,9 @@ class CollectionsScrapeAPI
         $this->url['eol_hierarchy_entries'] = "http://eol.org/api/hierarchy_entries/1.0/hierarchy_entry_id.json?common_names=false&synonyms=false&cache_ttl=&language=en";
         
         $this->multimedia_data_types = array('images', 'video', 'sounds', 'text'); //multimedia types
-        
+        /* added 'text' here even if text objects came from the orig LifeDesk XML and not from Collections because to have a more complete list of taxa. 
+           We used the taxa info to get ancestry and other info. */
+
         if(Functions::is_production()) $this->lifedesk_images_path = '/extra/other_files/LifeDesk_images/';
         else                           $this->lifedesk_images_path = '/Volumes/AKiTiO4/other_files/LifeDesk_images/';
         $this->media_path = "https://editors.eol.org/other_files/LifeDesk_images/";
@@ -37,8 +39,9 @@ class CollectionsScrapeAPI
     // http://media.eol.org/content/2011/12/18/03/38467_orig.jpg        -> orig
     // http://media.eol.org/content/2012/03/28/09/98457_88_88.jpg       -> thumbnail
     
-    function start()
+    function start($taxa_from_orig_LifeDesk_XML)
     {
+        $this->taxa_from_orig_LifeDesk_XML = $taxa_from_orig_LifeDesk_XML;
         if(!is_dir($this->lifedesk_images_path)) mkdir($this->lifedesk_images_path);
         // /* normal operation
         foreach($this->multimedia_data_types as $data_type) {
@@ -102,9 +105,19 @@ class CollectionsScrapeAPI
                 $obj['scientificName'] = $sciname;
                 $obj['identifier'] = str_replace(" ", "_", strtolower($sciname));
             }
+            else $obj['identifier'] = self::match_taxa_from_original_LifeDesk_XML($obj);
             //print_r($obj); //exit;
             self::create_archive($obj);
         }
+    }
+    private function match_taxa_from_original_LifeDesk_XML($obj)
+    {
+        $canonical = Functions::canonical_form($obj['scientificName']); //[scientificName] => Cossypha archeri archeri Sharpe, 1902
+        // print_r($obj); print_r($this->taxa_from_orig_LifeDesk_XML); exit;
+        foreach($this->taxa_from_orig_LifeDesk_XML as $taxon_id => $name) {
+            if($canonical == Functions::canonical_form($name)) return $taxon_id;
+        }
+        return md5($obj['scientificName']);
     }
     private function get_taxon_info($hierarchy_entry_id)
     {
@@ -139,7 +152,7 @@ class CollectionsScrapeAPI
         if(!@$o['scientificName']) return;
         //   ================================================ FOR TAXON  ================================================
         $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID         = md5($o['scientificName']); //$o['identifier']; orig value. 
+        $taxon->taxonID         = $o['identifier'];
         /* Used md5(sciname) here so we can combine taxon.tab with LifeDesk text resource (e.g. LD_afrotropicalbirds.tar.gz). See ConvertEOLtoDWCaAPI.php */
         $taxon->scientificName  = $o['scientificName'];
         if($rank = @$o['taxonConcepts'][0]['taxonRank']) $taxon->taxonRank = $rank;
