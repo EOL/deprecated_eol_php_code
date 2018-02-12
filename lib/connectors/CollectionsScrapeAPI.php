@@ -27,8 +27,8 @@ class CollectionsScrapeAPI
         $this->url["eol_object"]     = "http://eol.org/api/data_objects/1.0/data_object_id.json?taxonomy=true&cache_ttl=";
         $this->url['eol_hierarchy_entries'] = "http://eol.org/api/hierarchy_entries/1.0/hierarchy_entry_id.json?common_names=false&synonyms=false&cache_ttl=&language=en";
         
-        $this->multimedia_data_types = array('images', 'video', 'sounds', 'text'); //multimedia types
-        /* added 'text' here even if text objects came from the orig LifeDesk XML and not from Collections because to have a more complete list of taxa. 
+        $this->multimedia_data_types = array('images', 'video', 'sounds'); //multimedia types
+        /* we can add 'text' here even if text objects came from the orig LifeDesk XML and not from Collections because to have a more complete list of taxa. 
            We used the taxa info to get ancestry and other info. */
 
         if(Functions::is_production()) $this->lifedesk_images_path = '/extra/other_files/LifeDesk_images/';
@@ -139,11 +139,14 @@ class CollectionsScrapeAPI
                         [1] => Array ...
                         [2] => Array ...
             */
+            /* working OK but removed. Use policy where only what is provided by partner will be included (e.g. taxon rank, ancestry, etc.)
             if($recs = @$obj['ancestors']) {
                 foreach($recs as $rec) {
                     $final[@$rec['taxonRank']] = $rec['scientificName'];
                 }
             }
+            */
+            
         }
         return $final;
     }
@@ -155,11 +158,18 @@ class CollectionsScrapeAPI
         $taxon->taxonID         = $o['identifier'];
         /* Used md5(sciname) here so we can combine taxon.tab with LifeDesk text resource (e.g. LD_afrotropicalbirds.tar.gz). See ConvertEOLtoDWCaAPI.php */
         $taxon->scientificName  = $o['scientificName'];
+        
+        /* working OK but removed. Use policy where only what is provided by partner will be included (e.g. taxon rank, ancestry, etc.)
         if($rank = @$o['taxonConcepts'][0]['taxonRank']) $taxon->taxonRank = $rank;
+        */
+        
         // print_r($o);
         if($hierarchy_entry_id = @$o['taxonConcepts'][0]['identifier']) {
-            $ancestry = self::get_taxon_info($hierarchy_entry_id);
-            // print_r($ancestry); exit;
+
+            /* $ancestry = self::get_taxon_info($hierarchy_entry_id); //working OK but was decided not to force adding of ancestry if partner didn't provide one.
+            based here: https://eol-jira.bibalex.org/browse/DATA-1569?focusedCommentId=62079&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62079 */
+            $ancestry = array();
+            
             /* Array
                 [kingdom] => Animalia
                 [subkingdom] => Bilateria

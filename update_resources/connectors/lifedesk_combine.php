@@ -105,13 +105,19 @@ foreach($final as $lifedesk) {
         $func2 = new DwCA_Utility($resource_id, $dwca_file); //2nd param is false bec. it'll process multiple archives, see convert_archive_files() in library DwCA_Utility.php
 
         $archives = array();
+        /* use this if we're getting taxa info (e.g. ancestry) from Collection
         if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."LD_".$lifedesk."_multimedia.tar.gz")) $archives[] = "LD_".$lifedesk."_multimedia";
         if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."LD_".$lifedesk.".tar.gz"))            $archives[] = "LD_".$lifedesk;
+        */
+        if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."LD_".$lifedesk."_multimedia.tar.gz")) $archives[] = "LD_".$lifedesk."_multimedia";
+        if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."LD_".$lifedesk.".tar.gz"))            $archives[] = "LD_".$lifedesk;
+
 
         $func2->convert_archive_files($archives); //this is same as convert_archive(), only it processes multiple DwCA files not just one.
         unset($func2);
         Functions::finalize_dwca_resource($resource_id);
         
+        /* working but removed since sometimes a LifeDesk only provides names without objects at all
         //---------------------new start generic_normalize_dwca() meaning remove taxa without objects, only leave taxa with objects in final dwca
         $tar_gz = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz";
         if(file_exists($tar_gz)) {
@@ -120,7 +126,7 @@ foreach($final as $lifedesk) {
             Functions::finalize_dwca_resource($resource_id);
         }
         //---------------------new end
-        
+        */
     }
     //  --------------------------------------------------- end compiling the 2 DwCA files into 1 final DwCA --------------------------------------------------- 
 }

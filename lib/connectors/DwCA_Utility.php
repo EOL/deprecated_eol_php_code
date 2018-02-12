@@ -149,6 +149,16 @@ class DwCA_Utility
                 if(@$this->extensions[$row_type]) { //process only defined row_types
                     // if(@$this->extensions[$row_type] == 'document') continue; //debug only
                     echo "\nprocessed: [$ld][$row_type]: ".@$this->extensions[$row_type]."\n";
+
+                    /* good debug; debug only
+                    if($ld == "LD_afrotropicalbirds") {
+                        if($row_type == "http://rs.tdwg.org/dwc/terms/taxon") {
+                            print_r($harvester->process_row_type($row_type));
+                            // exit;
+                        }
+                    }
+                    */
+                    
                     self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
                 }
                 else echo "\nun-processed: [$row_type]: ".@$this->extensions[$row_type]."\n";
@@ -573,7 +583,8 @@ class DwCA_Utility
         foreach($records as $rec) {
             $i++;
             $taxon_id = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
-            if(!in_array($taxon_id, $taxon_ids_with_objects)) $records[$i] = null;
+            $taxon_status = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
+            if(!in_array($taxon_id, $taxon_ids_with_objects) && !in_array($taxon_status, array('synonym'))) $records[$i] = null;
         }
         $records = array_filter($records); //remove null arrays
         $records = array_values($records); //reindex key
