@@ -109,8 +109,9 @@ foreach($final as $lifedesk) {
         if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."LD_".$lifedesk."_multimedia.tar.gz")) $archives[] = "LD_".$lifedesk."_multimedia";
         if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."LD_".$lifedesk.".tar.gz"))            $archives[] = "LD_".$lifedesk;
         */
-        if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."LD_".$lifedesk."_multimedia.tar.gz")) $archives[] = "LD_".$lifedesk."_multimedia";
+        // Otherwise let the taxa from LifeDesk XML be prioritized
         if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."LD_".$lifedesk.".tar.gz"))            $archives[] = "LD_".$lifedesk;
+        if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."LD_".$lifedesk."_multimedia.tar.gz")) $archives[] = "LD_".$lifedesk."_multimedia";
 
 
         $func2->convert_archive_files($archives); //this is same as convert_archive(), only it processes multiple DwCA files not just one.
