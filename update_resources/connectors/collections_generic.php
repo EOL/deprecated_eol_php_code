@@ -19,17 +19,28 @@ $func1 = new LifeDeskToEOLAPI();
 
 // $s = "12345601"; echo "\n".substr($s, -2)."\n"; exit;
 
+
+
+
+
 require_library('connectors/ConvertEOLtoDWCaAPI');
 require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
 $final = array();
-$lifedesks = array('AnAge_text'); $final = array_merge($final, $lifedesks);
+$lifedesks = array('MicroScope'); $final = array_merge($final, $lifedesks); //AnAge_text
 
 $info['AnAge_text'] = array('id' => 195, 'domain' => 'http://www.eol.org/content_partners/33/resources/40', 'OpenData_title' => 'AnAge text', 'resource_id' => 40);
+$info['MicroScope'] = array('id' => 180, 'domain' => 'http://eol.org/content_partners/5/resources/19',      'OpenData_title' => 'micro*scope', 'resource_id' => 19);
+
+$xml_path['MicroScope'] = "http://localhost/cp_new/OpenData/EOLxml_2_DWCA/microscope/microscope.xml.gz";
+$xml_path['MicroScope'] = "https://opendata.eol.org/dataset/4a668cee-f1da-4e95-9ed1-cb755a9aca4f/resource/55ad629d-dd89-4bac-8fff-96f219f4b323/download/microscope.xml.gz";
+$data_types['MicroScope'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
+
 $xml_path['AnAge_text'] = "http://localhost/cp_new/OpenData/EOLxml_2_DWCA/AnAge_text/anagetext.xml.gz";
 $xml_path['AnAge_text'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/OpenData/EOLxml_2_DWCA/AnAge_text/anagetext.xml.gz";
 $xml_path['AnAge_text'] = "https://opendata.eol.org/dataset/cf4c5598-3a7c-464d-be87-d72bc98b066e/resource/b9bdc248-d2db-427a-af38-90313b168f0e/download/anagetext.xml.gz";
+$data_types['AnAge_text'] = array('text');
 
 /* this works OK. but was decided not to add ancestry if original source doesn't have ancestry. Makes sense.
 $ancestry[40] = array('kingdom' => 'Animalia', 'phylum' => 'Chordata', 'class' => 'Aves'); 
@@ -62,7 +73,7 @@ foreach($final as $lifedesk) {
     // start generate the 2nd DwCA -------------------------------
     $resource_id = "EOL_".$lifedesk."_multimedia";
     if($collection_id = @$info[$lifedesk]['id']) { //9528;
-        $func2 = new CollectionsScrapeAPI($resource_id, $collection_id, array('text'));
+        $func2 = new CollectionsScrapeAPI($resource_id, $collection_id, $data_types[$lifedesk]);
         $func2->start($taxa_from_orig_LifeDesk_XML);
         Functions::finalize_dwca_resource($resource_id, false, false); //3rd param true means resource folder will be deleted
         $cont_compile = true;
