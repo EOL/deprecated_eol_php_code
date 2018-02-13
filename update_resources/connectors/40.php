@@ -5,8 +5,8 @@ http://www.eol.org/content_partners/33/resources/40 - https://eol-jira.bibalex.o
 This is a generic script that will convert EOL XML to EOL DWC-A
 */
 
-
-echo "\nUsed [/connectors/collections_generic.php] instead\n";
+echo "\nUsed [/connectors/collections_generic.php] instead\n"; //since the numbers from XML is lower than what is published in EOL - 
+// https://eol-jira.bibalex.org/browse/DATA-1735?focusedCommentId=62087&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62087
 return;
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

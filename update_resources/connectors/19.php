@@ -6,6 +6,7 @@ This is a generic script that will convert EOL XML to EOL DWC-A
 */
 
 echo "\nUsed [/connectors/collections_generic.php] instead\n"; //since the media_url from XML is no longer available. And media will be taken from EOL server.
+// https://eol-jira.bibalex.org/browse/DATA-1735?focusedCommentId=62086&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62086
 return;
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
