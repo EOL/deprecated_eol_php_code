@@ -17,30 +17,28 @@ $timestart = time_elapsed();
 require_library('connectors/LifeDeskToEOLAPI');
 $func1 = new LifeDeskToEOLAPI();
 
-// $s = "12345601"; echo "\n".substr($s, -2)."\n"; exit;
-
-
-
-
-
 require_library('connectors/ConvertEOLtoDWCaAPI');
 require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
 $final = array();
-$lifedesks = array('MicroScope'); $final = array_merge($final, $lifedesks); //AnAge_text
+$lifedesks = array('AskNature'); $final = array_merge($final, $lifedesks); //AnAge_text    MicroScope
 
-$info['AnAge_text'] = array('id' => 195, 'domain' => 'http://www.eol.org/content_partners/33/resources/40', 'OpenData_title' => 'AnAge text', 'resource_id' => 40);
+
 $info['MicroScope'] = array('id' => 180, 'domain' => 'http://eol.org/content_partners/5/resources/19',      'OpenData_title' => 'micro*scope', 'resource_id' => 19);
+$info['MicroScope']['xml_path'] = "http://localhost/cp_new/OpenData/EOLxml_2_DWCA/microscope/microscope.xml.gz";
+$info['MicroScope']['xml_path'] = "https://opendata.eol.org/dataset/4a668cee-f1da-4e95-9ed1-cb755a9aca4f/resource/55ad629d-dd89-4bac-8fff-96f219f4b323/download/microscope.xml.gz";
+$info['MicroScope']['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
 
-$xml_path['MicroScope'] = "http://localhost/cp_new/OpenData/EOLxml_2_DWCA/microscope/microscope.xml.gz";
-$xml_path['MicroScope'] = "https://opendata.eol.org/dataset/4a668cee-f1da-4e95-9ed1-cb755a9aca4f/resource/55ad629d-dd89-4bac-8fff-96f219f4b323/download/microscope.xml.gz";
-$data_types['MicroScope'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
+$info['AskNature'] = array('id' => 189, 'domain' => 'http://www.eol.org/content_partners/41/resources/33', 'OpenData_title' => 'AskNature', 'resource_id' => 33);
+$info['AskNature']['xml_path'] = "https://opendata.eol.org/dataset/f57501e3-b65e-41bc-b4b8-ccd93cb82bea/resource/6dd97eb0-d386-4f29-acc2-1c36f6323713/download/asknature.xml.gz";
+$info['AskNature']['data_types'] = array('text'); //what is available in its Collection
 
-$xml_path['AnAge_text'] = "http://localhost/cp_new/OpenData/EOLxml_2_DWCA/AnAge_text/anagetext.xml.gz";
-$xml_path['AnAge_text'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/OpenData/EOLxml_2_DWCA/AnAge_text/anagetext.xml.gz";
-$xml_path['AnAge_text'] = "https://opendata.eol.org/dataset/cf4c5598-3a7c-464d-be87-d72bc98b066e/resource/b9bdc248-d2db-427a-af38-90313b168f0e/download/anagetext.xml.gz";
-$data_types['AnAge_text'] = array('text');
+/*
+$info['AnAge_text'] = array('id' => 195, 'domain' => 'http://www.eol.org/content_partners/33/resources/40', 'OpenData_title' => 'AnAge text', 'resource_id' => 40);
+$info['AnAge_text']['xml_path'] = "";
+$info['AnAge_text']['data_types'] = array('text');
+*/
 
 /* this works OK. but was decided not to add ancestry if original source doesn't have ancestry. Makes sense.
 $ancestry[40] = array('kingdom' => 'Animalia', 'phylum' => 'Chordata', 'class' => 'Aves'); 
@@ -52,28 +50,28 @@ $final = array_merge($final, array_keys($info));
 
 // /* normal operation
 foreach($final as $ld) {
-    $params[$ld]["local"]["lifedesk"] = $xml_path[$ld];
+    $params[$ld]["local"]["lifedesk"] = $info[$ld]['xml_path'];
     $params[$ld]["local"]["name"]     = $ld;
     $params[$ld]["local"]["ancestry"] = @$ancestry[$ld];
 }
 $final = array_unique($final);
-print_r($final); echo "\n".count($final)."\n"; //exit;
+print_r($final); echo "\nTotal resource(s): ".count($final)."\n"; //exit;
 $cont_compile = false;
 
 foreach($final as $lifedesk) {
-    $infox = $func1->get_taxa_from_EOL_XML($xml_path[$lifedesk]);
+    $infox = $func1->get_taxa_from_EOL_XML($info[$lifedesk]['xml_path']);
     $taxa_from_orig_LifeDesk_XML = $infox['taxa_from_EOL_XML'];
     $path                        = $infox['xml_path']; //e.g. '/Library/WebServer/Documents/eol_php_code/tmp/dir_50900/anagetext.xml'
-    // print_r($info); exit;
-    if(Functions::url_exists($xml_path[$lifedesk])) {
-        convert_xml_2_dwca($path, $lifedesk); //convert XML to DwCA
+    // print_r($infox); exit;
+    if(Functions::url_exists($info[$lifedesk]['xml_path'])) {
+        convert_xml_2_dwca($path, "EOL_".$lifedesk); //convert XML to DwCA
         $cont_compile = true;
     }
 
     // start generate the 2nd DwCA -------------------------------
     $resource_id = "EOL_".$lifedesk."_multimedia";
     if($collection_id = @$info[$lifedesk]['id']) { //9528;
-        $func2 = new CollectionsScrapeAPI($resource_id, $collection_id, $data_types[$lifedesk]);
+        $func2 = new CollectionsScrapeAPI($resource_id, $collection_id, $info[$lifedesk]['data_types']);
         $func2->start($taxa_from_orig_LifeDesk_XML);
         Functions::finalize_dwca_resource($resource_id, false, false); //3rd param true means resource folder will be deleted
         $cont_compile = true;
@@ -113,7 +111,12 @@ foreach($final as $lifedesk) {
         */
     }
     //  --------------------------------------------------- end compiling the 2 DwCA files into 1 final DwCA --------------------------------------------------- 
-}
+
+    // remove temp dir
+    $parts = pathinfo($path);
+    recursive_rmdir($parts["dirname"]); debug("\n temporary directory removed: " . $parts["dirname"]);
+    
+} //end foreach()
 // */
 
 

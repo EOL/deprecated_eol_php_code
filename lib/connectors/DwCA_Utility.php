@@ -313,7 +313,7 @@ class DwCA_Utility
                 /* Need to have unique taxon ids. It is confined to a pre-defined list of resources bec. it is memory intensive and most resources have already unique taxon ids.
                 Useful for e.g. DATA-1724 resource 'plant_forms_habitat_and_distribution'.
                 */
-                if(in_array($this->resource_id, array('plant_forms_habitat_and_distribution-adjusted')) || substr($this->resource_id,0,3) == "LD_") {
+                if(in_array($this->resource_id, array('plant_forms_habitat_and_distribution-adjusted')) || in_array(substr($this->resource_id,0,3), array('LD_', 'EOL'))) {
                     if($class == "taxon") {
                         if($field == "taxonID") {
                             $taxon_id = @$rec[$key];
@@ -359,7 +359,7 @@ class DwCA_Utility
                 /* Need to have unique agent ids. It is confined to a pre-defined list of resources bec. it is memory intensive and most resources have already unique ref ids.
                 First used for DATA-1569 resource 'lifedesks.tar.gz', connector [lifedesk_eol_export.php]
                 */
-                if(in_array($this->resource_id, array('lifedesks')) || substr($this->resource_id,0,3) == "LD_") {
+                if(in_array($this->resource_id, array('lifedesks')) || in_array(substr($this->resource_id,0,3), array('LD_', 'EOL'))) {
                     if($class == "agent") {
                         if($field == "identifier") {
                             $identifier = @$rec[$key];
