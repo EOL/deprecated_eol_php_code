@@ -4,7 +4,7 @@ namespace php_active_record;
 */
 class CollectionsScrapeAPI
 {
-    function __construct($folder, $collection_id)
+    function __construct($folder, $collection_id, $data_types = array('images', 'video', 'sounds')) //for LifeDesks images, video, sounds
     {
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -27,13 +27,14 @@ class CollectionsScrapeAPI
         $this->url["eol_object"]     = "http://eol.org/api/data_objects/1.0/data_object_id.json?taxonomy=true&cache_ttl=";
         $this->url['eol_hierarchy_entries'] = "http://eol.org/api/hierarchy_entries/1.0/hierarchy_entry_id.json?common_names=false&synonyms=false&cache_ttl=&language=en";
         
-        $this->multimedia_data_types = array('images', 'video', 'sounds'); //multimedia types
+        
+        $this->multimedia_data_types = $data_types; //multimedia types
         /* we can add 'text' here even if text objects came from the orig LifeDesk XML and not from Collections because to have a more complete list of taxa. 
            We used the taxa info to get ancestry and other info. */
 
-        if(Functions::is_production()) $this->lifedesk_images_path = '/extra/other_files/LifeDesk_images/';
-        else                           $this->lifedesk_images_path = '/Volumes/AKiTiO4/other_files/LifeDesk_images/';
-        $this->media_path = "https://editors.eol.org/other_files/LifeDesk_images/";
+        if(Functions::is_production()) $this->lifedesk_images_path = '/extra/other_files/EOL_images/';
+        else                           $this->lifedesk_images_path = '/Volumes/AKiTiO4/other_files/EOL_images/';
+        $this->media_path = "https://editors.eol.org/other_files/EOL_images/";
     }
 
     // http://media.eol.org/content/2011/12/18/03/38467_orig.jpg        -> orig
@@ -85,15 +86,20 @@ class CollectionsScrapeAPI
         $options = $this->download_options;
         $options['expire_seconds'] = false; //doesn't need to expire at all
         $filename = $rec['dataObjectVersionID'].".".pathinfo($rec['eolMediaURL'], PATHINFO_EXTENSION);
-        $destination = $this->lifedesk_images_path.$filename;
-        /* uncomment in real operation. This is just to stop downloading of images.
+        
+        $folder = substr($rec['dataObjectVersionID'], -2)."/";
+        if(!is_dir($this->lifedesk_images_path.$folder)) mkdir($this->lifedesk_images_path.$folder);
+        
+        $destination = $this->lifedesk_images_path.$folder.$filename;
+        
+        // /* uncomment in real operation. This is just to stop downloading of images.
         if(!file_exists($destination)) {
             $local = Functions::save_remote_file_to_local($rec['eolMediaURL'], $options);
             Functions::file_rename($local, $destination);
             // echo "\n[$local]\n[$destination]";
         }
-        */
-        return $this->media_path.$filename; //this is media_url for the data_object;
+        // */
+        return $this->media_path.$folder.$filename; //this is media_url for the data_object;
     }
     
     private function process_do_id($do_id, $sciname)
@@ -234,9 +240,12 @@ class CollectionsScrapeAPI
                         )
                 )
         */
-        if($this->data_type == 'text') return;
+        // if($this->data_type == 'text') return;  ---> should be commented. Since other EOL XML files use this library now. Filtering should be using $this->multimedia_data_types variable.
         
         if($rec = $o['dataObjects'][0]) {
+            
+            // print_r($rec);
+            
             $mr = new \eol_schema\MediaResource();
             $mr->taxonID        = $taxon->taxonID;
             $mr->identifier     = $rec['dataObjectVersionID']; //$rec['identifier'];
@@ -244,25 +253,29 @@ class CollectionsScrapeAPI
             $mr->subtype        = $rec['dataSubtype'];
             $mr->Rating         = $rec['dataRating'];
             $mr->Owner          = @$rec['rightsHolder'];
+            $mr->rights         = @$rec['rights'];
             $mr->language       = $rec['language'];
-            $mr->format         = $rec['mimeType'];
             $mr->furtherInformationURL = @$rec['source'];
-            $media_url = self::download_multimedia_object($rec); //working OK - uncomment in real operation
-            $mr->accessURI      = $media_url; //$rec['eolMediaURL']; eolMediaURL is e.g. 'http://media.eol.org/content/2011/12/18/03/66694_orig.jpg'
             $mr->title          = $rec['title'];
             $mr->UsageTerms     = $rec['license'];
             $mr->description    = $rec['description'];
-            $mr->modified       = $rec['modified'];
-            $mr->CreateDate     = $rec['created'];
+            $mr->modified       = @$rec['modified'];
+            $mr->CreateDate     = @$rec['created'];
+            if($this->data_type == 'text') {
+                $mr->CVterm = $rec['subject'];
+            }
+            else {
+                $mr->format = $rec['mimeType'];
+                $media_url = self::download_multimedia_object($rec); //working OK - uncomment in real operation
+                $mr->accessURI = $media_url; //$rec['eolMediaURL']; eolMediaURL is e.g. 'http://media.eol.org/content/2011/12/18/03/66694_orig.jpg'
+            }
             /*
             $mr->thumbnailURL   = $rec['eolThumbnailURL'];
-            $mr->rights = '';
-            $mr->CVterm = '';
             $mr->LocationCreated = '';
             $mr->bibliographicCitation = '';
-            $mr->audience = 'Everyone';
             if($reference_ids = some_func() $mr->referenceID = implode("; ", $reference_ids);
             */
+            if($val = @$rec['audience']) $mr->audience = implode("; ", $val);
             if($agent_ids = self::create_agents(@$rec['agents'])) $mr->agentID = implode("; ", $agent_ids);
             if(!isset($this->object_ids[$mr->identifier])) {
                 $this->archive_builder->write_object_to_file($mr);
