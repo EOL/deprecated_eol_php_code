@@ -10,6 +10,58 @@ class LifeDeskToEOLAPI
         $this->taxa_from_orig_LifeDesk_XML = array();
     }
 
+    //=================================================================================================================================
+    // start utility - not necessarily used in this library 'LifeDeskToEOLAPI'
+    //=================================================================================================================================
+    function get_taxa_from_EOL_XML($xml_path) // a new utility used elsewhere e.g. /connectors/collections_generic.php
+    {
+        $final = array();
+        if(Functions::url_exists($xml_path)) {
+            if($temp_path = self::load_zip_contents($xml_path)) {
+                $xml = simplexml_load_file($temp_path["eol_xml"]);
+                foreach($xml->taxon as $t) {
+                    $t_dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
+                    $t_dc = $t->children("http://purl.org/dc/elements/1.1/");
+                    $identifier = Functions::import_decode($t_dc->identifier);
+                    $sciname    = Functions::import_decode($t_dwc->ScientificName);
+                    $final[$identifier] = $sciname;
+                }
+            }
+            /*
+            // remove temp dir
+            $parts = pathinfo($temp_path["eol_xml"]);
+            recursive_rmdir($parts["dirname"]);
+            debug("\n temporary directory removed: " . $parts["dirname"]);
+            */
+        }
+        else debug("\n EOL XML not found: ".$xml_path."\n");
+        return array('taxa_from_EOL_XML' => $final, 'xml_path' => $temp_path["eol_xml"]);
+    }
+    private function load_zip_contents($zip_file) //used by get_taxa_from_EOL_XML()
+    {
+        $temp_dir = create_temp_dir() . "/";
+        if($file_contents = Functions::lookup_with_cache($zip_file, $this->download_options)) {
+            $parts = pathinfo($zip_file);
+            $temp_file_path = $temp_dir . "/" . $parts["basename"];
+            if(!($TMP = Functions::file_open($temp_file_path, "w"))) return;
+            fwrite($TMP, $file_contents);
+            fclose($TMP);
+            
+            if(is_numeric(stripos($zip_file, ".tar.gz"))) $output = shell_exec("tar -xzf $temp_file_path -C $temp_dir");
+            elseif(is_numeric(stripos($zip_file, ".xml.gz"))) $output = shell_exec("gzip -d $temp_file_path -q "); //$temp_dir
+            
+            $temp_path["eol_xml"] = $temp_dir . Functions::get_file_of_this_extension_in_this_folder($temp_dir, 'xml');
+            return $temp_path;
+        }
+        else {
+            debug("\n\n Connector terminated. Remote files are not ready.\n\n");
+            return false;
+        }
+    }
+    //=================================================================================================================================
+    // end utility
+    //=================================================================================================================================
+
     function export_lifedesk_to_eol($params)
     {
         $this->ancestry = @$params['ancestry'];
