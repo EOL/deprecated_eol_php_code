@@ -2183,6 +2183,12 @@ class Functions
         foreach (glob($file_path . "*." . $file_extension) as $filename) unlink($filename);
     }
 
+    public static function get_file_of_this_extension_in_this_folder($file_path, $file_extension = 'txt')
+    {
+        if(!$file_path) return;
+        foreach (glob($file_path . "*." . $file_extension) as $filename) return pathinfo($filename, PATHINFO_BASENAME);
+    }
+
     function last_day_of_month($month, $year)
     {
         return idate('d', mktime(0, 0, 0, ($month + 1), 0, $year));
