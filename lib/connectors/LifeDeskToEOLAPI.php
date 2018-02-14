@@ -27,12 +27,6 @@ class LifeDeskToEOLAPI
                     $final[$identifier] = $sciname;
                 }
             }
-            /*
-            // remove temp dir
-            $parts = pathinfo($temp_path["eol_xml"]);
-            recursive_rmdir($parts["dirname"]);
-            debug("\n temporary directory removed: " . $parts["dirname"]);
-            */
         }
         else debug("\n EOL XML not found: ".$xml_path."\n");
         return array('taxa_from_EOL_XML' => $final, 'xml_path' => $temp_path["eol_xml"]);

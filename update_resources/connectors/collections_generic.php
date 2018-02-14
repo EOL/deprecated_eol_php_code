@@ -22,7 +22,7 @@ require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
 $final = array();
-$lifedesks = array('AskNature'); $final = array_merge($final, $lifedesks); //AnAge_text    MicroScope
+$lifedesks = array('AskNature', 'MicroScope'); $final = array_merge($final, $lifedesks); //AnAge_text    MicroScope
 
 
 $info['MicroScope'] = array('id' => 180, 'domain' => 'http://eol.org/content_partners/5/resources/19',      'OpenData_title' => 'micro*scope', 'resource_id' => 19);
@@ -34,7 +34,7 @@ $info['AskNature'] = array('id' => 189, 'domain' => 'http://www.eol.org/content_
 $info['AskNature']['xml_path'] = "https://opendata.eol.org/dataset/f57501e3-b65e-41bc-b4b8-ccd93cb82bea/resource/6dd97eb0-d386-4f29-acc2-1c36f6323713/download/asknature.xml.gz";
 $info['AskNature']['data_types'] = array('text'); //what is available in its Collection
 
-/*
+/* transferred to 40.php, where it suppose to be
 $info['AnAge_text'] = array('id' => 195, 'domain' => 'http://www.eol.org/content_partners/33/resources/40', 'OpenData_title' => 'AnAge text', 'resource_id' => 40);
 $info['AnAge_text']['xml_path'] = "";
 $info['AnAge_text']['data_types'] = array('text');
