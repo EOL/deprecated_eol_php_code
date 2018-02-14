@@ -42,6 +42,7 @@ class CollectionsScrapeAPI
     
     function start($taxa_from_orig_LifeDesk_XML)
     {
+        if(!is_dir($this->download_options['cache_path'])) mkdir($this->download_options['cache_path']);
         $this->taxa_from_orig_LifeDesk_XML = $taxa_from_orig_LifeDesk_XML;
         if(!is_dir($this->lifedesk_images_path)) mkdir($this->lifedesk_images_path);
         // /* normal operation
