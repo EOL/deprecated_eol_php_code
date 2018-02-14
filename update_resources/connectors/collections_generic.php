@@ -22,7 +22,16 @@ require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
 $final = array();
-$lifedesks = array('MicroScope', 'AskNature'); $final = array_merge($final, $lifedesks); //AnAge_text    MicroScope
+// $lifedesks = array('MicroScope', 'AskNature'); $final = array_merge($final, $lifedesks); //AskNature    MicroScope
+
+
+$lifedesks = array('MicroScope'); $final = array_merge($final, $lifedesks); //Biscayne_BioBlitz
+
+$info['Biscayne_BioBlitz'] = array('id' => 251, 'domain' => 'http://www.eol.org/content_partners/58/resources/126', 'OpenData_title' => 'Biscayne BioBlitz Resource', 'resource_id' => 126);
+// $info['Biscayne_BioBlitz']['xml_path'] = "http://localhost/eol_php_code/applications/content_server/resources/blank.xml";
+$info['Biscayne_BioBlitz']['xml_path'] = "";
+$info['Biscayne_BioBlitz']['data_types'] = array('images'); //what is available in its Collection
+
 
 
 $info['MicroScope'] = array('id' => 180, 'domain' => 'http://eol.org/content_partners/5/resources/19',      'OpenData_title' => 'micro*scope', 'resource_id' => 19);
@@ -59,11 +68,13 @@ print_r($final); echo "\nTotal resource(s): ".count($final)."\n"; //exit;
 $cont_compile = false;
 
 foreach($final as $lifedesk) {
-    $infox = $func1->get_taxa_from_EOL_XML($info[$lifedesk]['xml_path']);
-    $taxa_from_orig_LifeDesk_XML = $infox['taxa_from_EOL_XML'];
-    $path                        = $infox['xml_path']; //e.g. '/Library/WebServer/Documents/eol_php_code/tmp/dir_50900/anagetext.xml'
-    // print_r($infox); exit;
+    $taxa_from_orig_LifeDesk_XML = array();
+    $path = false;
     if(Functions::url_exists($info[$lifedesk]['xml_path'])) {
+        $infox = $func1->get_taxa_from_EOL_XML($info[$lifedesk]['xml_path']);
+        $taxa_from_orig_LifeDesk_XML = $infox['taxa_from_EOL_XML'];
+        $path                        = $infox['xml_path']; //e.g. '/Library/WebServer/Documents/eol_php_code/tmp/dir_50900/anagetext.xml'
+        // print_r($infox); exit;
         convert_xml_2_dwca($path, "EOL_".$lifedesk); //convert XML to DwCA
         $cont_compile = true;
     }
@@ -73,7 +84,7 @@ foreach($final as $lifedesk) {
     if($collection_id = @$info[$lifedesk]['id']) { //9528;
         $func2 = new CollectionsScrapeAPI($resource_id, $collection_id, $info[$lifedesk]['data_types']);
         $func2->start($taxa_from_orig_LifeDesk_XML);
-        Functions::finalize_dwca_resource($resource_id, false, false); //3rd param true means resource folder will be deleted
+        Functions::finalize_dwca_resource($resource_id, false, true); //3rd param true means resource folder will be deleted
         $cont_compile = true;
     }
     else echo "\nNo Collection for this resource.\n";
@@ -112,9 +123,11 @@ foreach($final as $lifedesk) {
     }
     //  --------------------------------------------------- end compiling the 2 DwCA files into 1 final DwCA --------------------------------------------------- 
 
-    // remove temp dir
-    $parts = pathinfo($path);
-    recursive_rmdir($parts["dirname"]); debug("\n temporary directory removed: " . $parts["dirname"]);
+    if($path) {
+        // remove temp dir
+        $parts = pathinfo($path);
+        recursive_rmdir($parts["dirname"]); debug("\n temporary directory removed: " . $parts["dirname"]);
+    }
     
 } //end foreach()
 // */
@@ -138,7 +151,7 @@ function convert_xml_2_dwca($path, $resource_id)
     // $func->export_xml_to_archive($params, true, 60*60*24*15); // true => means it is an XML file, not an archive file nor a zip file. Expires in 15 days.
     $func->export_xml_to_archive($params, true, 0); // true => means it is an XML file, not an archive file nor a zip file. Expires now.
 
-    Functions::finalize_dwca_resource($resource_id, false, false); //3rd param true means resource folder will be deleted
+    Functions::finalize_dwca_resource($resource_id, false, true); //3rd param true means resource folder will be deleted
     Functions::delete_if_exists(CONTENT_RESOURCE_LOCAL_PATH.$resource_id.".xml");
 }
 

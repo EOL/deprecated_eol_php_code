@@ -423,7 +423,9 @@ class Functions
         if(file_exists($file_path)) unlink($file_path);
     }
     public static function url_exists($url)
-    {   //HTTP/1.1 200 OK
+    {   
+        if(!$url) return false;
+        //HTTP/1.1 200 OK
         //HTTP/1.1 404 Not Found
         $file_headers = @get_headers($url);
         /* works OK
@@ -439,7 +441,7 @@ class Functions
         if(stripos($resource_id, ".") !== false) return; //string is found
         if(stripos($resource_id, "*") !== false) return; //string is found
         
-        if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 100) {
+        if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 10) {
             if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id)) {
                 recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
                 Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
