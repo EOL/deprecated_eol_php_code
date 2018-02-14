@@ -22,7 +22,7 @@ require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
 $final = array();
-$lifedesks = array('AskNature', 'MicroScope'); $final = array_merge($final, $lifedesks); //AnAge_text    MicroScope
+$lifedesks = array('MicroScope', 'AskNature'); $final = array_merge($final, $lifedesks); //AnAge_text    MicroScope
 
 
 $info['MicroScope'] = array('id' => 180, 'domain' => 'http://eol.org/content_partners/5/resources/19',      'OpenData_title' => 'micro*scope', 'resource_id' => 19);
@@ -97,7 +97,7 @@ foreach($final as $lifedesk) {
 
         $func2->convert_archive_files($archives); //this is same as convert_archive(), only it processes multiple DwCA files not just one.
         unset($func2);
-        Functions::finalize_dwca_resource($resource_id);
+        Functions::finalize_dwca_resource($resource_id, false, true); //3rd param true means it will delete workind directory e.g. /40/ inside /resources/40/
         
         /* working but removed since sometimes a LifeDesk only provides names without objects at all
         //---------------------new start generic_normalize_dwca() meaning remove taxa without objects, only leave taxa with objects in final dwca

@@ -435,6 +435,10 @@ class Functions
     }
     public static function finalize_dwca_resource($resource_id, $big_file = false, $deleteFolderYN = false)
     {
+        if(!$resource_id) return;
+        if(stripos($resource_id, ".") !== false) return; //string is found
+        if(stripos($resource_id, "*") !== false) return; //string is found
+        
         if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 100) {
             if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id)) {
                 recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
