@@ -56,23 +56,25 @@ class LifeDeskToEOLAPI
     // end utility
     //=================================================================================================================================
 
-    function export_lifedesk_to_eol($params)
+    function export_lifedesk_to_eol($params, $prefix)
     {
         $this->ancestry = @$params['ancestry'];
         
         if(Functions::url_exists($params["lifedesk"])) {
-            require_library('connectors/LifeDeskToScratchpadAPI');
-            $func = new LifeDeskToScratchpadAPI();
-            if($this->text_path = $func->load_zip_contents($params["lifedesk"]))
-            {
-                self::update_eol_xml("LD_".$params["name"]);
+            if($prefix == "LD_") {
+                require_library('connectors/LifeDeskToScratchpadAPI');
+                $func = new LifeDeskToScratchpadAPI();
+                if($this->text_path = $func->load_zip_contents($params["lifedesk"])) self::update_eol_xml("LD_".$params["name"]);
+            }
+            if($prefix == "EOL_") {
+                if($this->text_path = self::load_zip_contents($params["lifedesk"])) self::update_eol_xml("EOL_".$params["name"]);
             }
             // remove temp dir
             $parts = pathinfo($this->text_path["eol_xml"]);
             recursive_rmdir($parts["dirname"]);
             debug("\n temporary directory removed: " . $parts["dirname"]);
         }
-        else debug("\n LifeDesk main XML not found: ".$params["lifedesk"]."\n");
+        else debug("\n LifeDesk ($prefix) main XML not found: ".$params["lifedesk"]."\n");
         return $this->taxa_from_orig_LifeDesk_XML;
     }
     

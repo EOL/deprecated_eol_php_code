@@ -9,6 +9,9 @@ This connector will use COLLECTIONS and dataObject API to process EOL XML:
 e.g.
 - EOL_afrotropicalbirds.tar.gz               ---> for text objects
 - EOL_afrotropicalbirds_multimedia.tar.gz    ---> for media objects
+
+http://services.eol.org/resources/40.xml.gz
+shhh quiet... - a hack in services.eol.org
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -23,21 +26,18 @@ require_library('connectors/DwCA_Utility');
 
 $final = array();
 // $lifedesks = array('MicroScope', 'AskNature'); $final = array_merge($final, $lifedesks); //AskNature    MicroScope
-
-
-$lifedesks = array('MicroScope'); $final = array_merge($final, $lifedesks); //Biscayne_BioBlitz
-
+$lifedesks = array('Biscayne_BioBlitz'); $final = array_merge($final, $lifedesks); //Biscayne_BioBlitz
+//==============================================================================================================================
 $info['Biscayne_BioBlitz'] = array('id' => 251, 'domain' => 'http://www.eol.org/content_partners/58/resources/126', 'OpenData_title' => 'Biscayne BioBlitz Resource', 'resource_id' => 126);
-// $info['Biscayne_BioBlitz']['xml_path'] = "http://localhost/eol_php_code/applications/content_server/resources/blank.xml";
-$info['Biscayne_BioBlitz']['xml_path'] = "";
+$info['Biscayne_BioBlitz']['xml_path'] = "http://services.eol.org/resources/126.xml";
 $info['Biscayne_BioBlitz']['data_types'] = array('images'); //what is available in its Collection
 
-
-
+/* moved to lifedesk_combine.php since the XML has media objects that are offline, needed to be removed.
 $info['MicroScope'] = array('id' => 180, 'domain' => 'http://eol.org/content_partners/5/resources/19',      'OpenData_title' => 'micro*scope', 'resource_id' => 19);
 $info['MicroScope']['xml_path'] = "http://localhost/cp_new/OpenData/EOLxml_2_DWCA/microscope/microscope.xml.gz";
 $info['MicroScope']['xml_path'] = "https://opendata.eol.org/dataset/4a668cee-f1da-4e95-9ed1-cb755a9aca4f/resource/55ad629d-dd89-4bac-8fff-96f219f4b323/download/microscope.xml.gz";
 $info['MicroScope']['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
+*/
 
 $info['AskNature'] = array('id' => 189, 'domain' => 'http://www.eol.org/content_partners/41/resources/33', 'OpenData_title' => 'AskNature', 'resource_id' => 33);
 $info['AskNature']['xml_path'] = "https://opendata.eol.org/dataset/f57501e3-b65e-41bc-b4b8-ccd93cb82bea/resource/6dd97eb0-d386-4f29-acc2-1c36f6323713/download/asknature.xml.gz";
@@ -48,13 +48,10 @@ $info['AnAge_text'] = array('id' => 195, 'domain' => 'http://www.eol.org/content
 $info['AnAge_text']['xml_path'] = "";
 $info['AnAge_text']['data_types'] = array('text');
 */
+//==============================================================================================================================
 
 /* this works OK. but was decided not to add ancestry if original source doesn't have ancestry. Makes sense.
 $ancestry[40] = array('kingdom' => 'Animalia', 'phylum' => 'Chordata', 'class' => 'Aves'); 
-*/
-
-/* un-comment in normal operation -- BUT may not need here at all...
-$final = array_merge($final, array_keys($info)); 
 */
 
 // /* normal operation
@@ -104,7 +101,6 @@ foreach($final as $lifedesk) {
         // Otherwise let the taxa from LifeDesk XML be prioritized
         if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."EOL_".$lifedesk.".tar.gz"))            $archives[] = "EOL_".$lifedesk;
         if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."EOL_".$lifedesk."_multimedia.tar.gz")) $archives[] = "EOL_".$lifedesk."_multimedia";
-
 
         $func2->convert_archive_files($archives); //this is same as convert_archive(), only it processes multiple DwCA files not just one.
         unset($func2);

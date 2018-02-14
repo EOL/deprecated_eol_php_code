@@ -3,6 +3,9 @@ namespace php_active_record;
 /* This will combine 2 LifeDesk DwCA e.g.
 - LD_afrotropicalbirds.tar.gz
 - LD_afrotropicalbirds_multimedia.tar.gz
+
+http://services.eol.org/resources/40.xml.gz
+shhh quiet... - a hack in services.eol.org
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -15,20 +18,30 @@ require_library('connectors/ConvertEOLtoDWCaAPI');
 require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
-$final = array();
-// $lifedesks = array("drosophilidae"); $final = array_merge($final, $lifedesks);    //testing...afrotropicalbirds  leptogastrinae    calintertidalinverts
+/* MicroScope & FieldScope -> have EOL XML, with media objects that are offline. Has Collections for source of media objects. */
 
-// /* normal operation
+$final = array();
+$lifedesks = array("FieldScope"); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope
+
+/* normal operation
 $lifedesks = array("drosophilidae", "mochokidae", "berry", "echinoderms", "eleodes", "empidinae");                  $final = array_merge($final, $lifedesks);
 $lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife", "idorids", "evaniidae");             $final = array_merge($final, $lifedesks);
 $lifedesks = array("araneoidea", "archaeoceti", "calintertidalinverts", "chileanbees", "halictidae", "nlbio");      $final = array_merge($final, $lifedesks);
 $lifedesks = array("surinamewaterbeetles", "scarabaeoidea", "pipunculidae", "ncfishes", "biomarks");                $final = array_merge($final, $lifedesks);
 $lifedesks = array("spiderindia", "speciesindia", "skinklink", "scarab", "nzicn", "bcbiodiversity");                $final = array_merge($final, $lifedesks);
 $lifedesks = array("pterioidea", "westernghatfishes", "cephalopoda");                                               $final = array_merge($final, $lifedesks);
-// */
+*/
 
-// http://services.eol.org/resources/41.xml
-// https://github.com/eliagbayani/EOL-connector-data-files/raw/master/OpenData/EOLxml_2_DWCA/FieldScope_41/41.xml.gz
+
+$info['FieldScope'] = array('id'=>196, 'LD_domain' => 'http://www.eol.org/content_partners/58/resources/41', 'OpenData_title' => 'FieldScope', 'resource_id' => 41, 'prefix' => "EOL_");
+$info['FieldScope']['xml_path'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/OpenData/EOLxml_2_DWCA/FieldScope_41/41.xml.gz";
+$info['FieldScope']['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text') - get objects of this data_type from Collections
+
+
+$info['MicroScope'] = array('id'=>180, 'LD_domain' => 'http://eol.org/content_partners/5/resources/19', 'OpenData_title' => 'micro*scope', 'resource_id' => 19, 'prefix' => "EOL_");
+$info['MicroScope']['xml_path'] = "http://localhost/cp_new/OpenData/EOLxml_2_DWCA/microscope/microscope.xml.gz";
+$info['MicroScope']['xml_path'] = "https://opendata.eol.org/dataset/4a668cee-f1da-4e95-9ed1-cb755a9aca4f/resource/55ad629d-dd89-4bac-8fff-96f219f4b323/download/microscope.xml.gz";
+$info['MicroScope']['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
 
 $info['araneae']            = array('id'=>203, 'LD_domain' => 'http://araneae.lifedesks.org/', 'OpenData_title' => 'Spiders LifeDesk');
 $info['eolspecies']         = array('id'=>204, 'LD_domain' => 'http://eolspecies.lifedesks.org/', 'OpenData_title' => 'EOL Rapid Response Team LifeDesk');
@@ -59,9 +72,9 @@ $info['leptogastrinae']     = array('id'=>219, 'LD_domain' => 'http://leptogastr
 $ancestry['afrotropicalbirds'] = array('kingdom' => 'Animalia', 'phylum' => 'Chordata', 'class' => 'Aves'); 
 */
 
-// /* un-comment in normal operation
-$final = array_merge($final, array_keys($info)); 
-// */
+/* un-comment in normal operation
+$final = array_merge($final, array_keys($info));
+*/
 
 $final = array_unique($final);
 print_r($final); echo "\n".count($final)."\n"; //exit;
@@ -76,21 +89,27 @@ foreach($final as $ld) {
     $params[$ld]["local"]["lifedesk"]       = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/LD2EOL/$ld/eol-partnership.xml.gz";
     $params[$ld]["local"]["name"]           = $ld;
     $params[$ld]["local"]["ancestry"]       = @$ancestry[$ld];
+    
+    // start EOL regular resources e.g. MicroScope
+    if($val = $info[$ld]['xml_path']) $params[$ld]["local"]["lifedesk"] = $val;
 }
 $cont_compile = false;
 
 foreach($final as $lifedesk) {
+    if($val = $info[$lifedesk]['prefix']) $prefix = $val;
+    else                                  $prefix = "LD_";
+    
     $taxa_from_orig_LifeDesk_XML = array(); //https://eol-jira.bibalex.org/browse/DATA-1569?focusedCommentId=62081&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62081
-    $taxa_from_orig_LifeDesk_XML = $func1->export_lifedesk_to_eol($params[$lifedesk]["local"]);
+    $taxa_from_orig_LifeDesk_XML = $func1->export_lifedesk_to_eol($params[$lifedesk]["local"], $prefix);
     if(Functions::url_exists($params[$lifedesk]["local"]["lifedesk"])) {
-        convert_xml_2_dwca("LD_".$lifedesk); //convert XML to DwCA
+        convert_xml_2_dwca($prefix.$lifedesk); //convert XML to DwCA
         $cont_compile = true;
     }
 
     // start generate the 2nd DwCA -------------------------------
-    $resource_id = "LD_".$lifedesk."_multimedia";
+    $resource_id = $prefix.$lifedesk."_multimedia";
     if($collection_id = @$info[$lifedesk]['id']) { //9528;
-        $func2 = new CollectionsScrapeAPI($resource_id, $collection_id);
+        $func2 = new CollectionsScrapeAPI($resource_id, $collection_id, @$info[$lifedesk]['data_types']); //3rd param only has values for EOL_. Blank is for LD_.
         $func2->start($taxa_from_orig_LifeDesk_XML);
         Functions::finalize_dwca_resource($resource_id, false, true); //3rd param true means resource folder will be deleted
         $cont_compile = true;
@@ -101,17 +120,17 @@ foreach($final as $lifedesk) {
     //  --------------------------------------------------- start compiling the 2 DwCA files into 1 final DwCA --------------------------------------------------- 
     if($cont_compile) {
         $dwca_file = false;
-        $resource_id = "LD_".$lifedesk."_final";
+        $resource_id = $prefix.$lifedesk."_final";
         $func2 = new DwCA_Utility($resource_id, $dwca_file); //2nd param is false bec. it'll process multiple archives, see convert_archive_files() in library DwCA_Utility.php
 
         $archives = array();
         /* use this if we're getting taxa info (e.g. ancestry) from Collection
-        if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."LD_".$lifedesk."_multimedia.tar.gz")) $archives[] = "LD_".$lifedesk."_multimedia";
-        if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."LD_".$lifedesk.".tar.gz"))            $archives[] = "LD_".$lifedesk;
+        if(file_exists(CONTENT_RESOURCE_LOCAL_PATH.$prefix.$lifedesk."_multimedia.tar.gz")) $archives[] = $prefix.$lifedesk."_multimedia";
+        if(file_exists(CONTENT_RESOURCE_LOCAL_PATH.$prefix.$lifedesk.".tar.gz"))            $archives[] = $prefix.$lifedesk;
         */
         // Otherwise let the taxa from LifeDesk XML be prioritized
-        if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."LD_".$lifedesk.".tar.gz"))            $archives[] = "LD_".$lifedesk;
-        if(file_exists(CONTENT_RESOURCE_LOCAL_PATH."LD_".$lifedesk."_multimedia.tar.gz")) $archives[] = "LD_".$lifedesk."_multimedia";
+        if(file_exists(CONTENT_RESOURCE_LOCAL_PATH.$prefix.$lifedesk.".tar.gz"))            $archives[] = $prefix.$lifedesk;
+        if(file_exists(CONTENT_RESOURCE_LOCAL_PATH.$prefix.$lifedesk."_multimedia.tar.gz")) $archives[] = $prefix.$lifedesk."_multimedia";
 
 
         $func2->convert_archive_files($archives); //this is same as convert_archive(), only it processes multiple DwCA files not just one.
