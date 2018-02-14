@@ -21,7 +21,7 @@ require_library('connectors/DwCA_Utility');
 /* MicroScope, FieldScope, Biscayne_BioBlitz -> have EOL XML, with media objects that are offline. Has Collections for source of media objects. Media objects from XML will be removed like that of LifeDesks */
 
 $final = array();
-$lifedesks = array("Biscayne_BioBlitz"); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope
+$lifedesks = array("Biscayne_BioBlitz"); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope   Biscayne_BioBlitz
 
 // /* normal operation
 $lifedesks = array("drosophilidae", "mochokidae", "berry", "echinoderms", "eleodes", "empidinae");                  $final = array_merge($final, $lifedesks);
@@ -32,7 +32,7 @@ $lifedesks = array("spiderindia", "speciesindia", "skinklink", "scarab", "nzicn"
 $lifedesks = array("pterioidea", "westernghatfishes", "cephalopoda");                                               $final = array_merge($final, $lifedesks);
 // */
 
-$info['Biscayne_BioBlitz'] = array('id' => 251, 'domain' => 'http://www.eol.org/content_partners/58/resources/126', 'OpenData_title' => 'Biscayne BioBlitz Resource', 'resource_id' => 126);
+$info['Biscayne_BioBlitz'] = array('id' => 251, 'domain' => 'http://www.eol.org/content_partners/58/resources/126', 'OpenData_title' => 'Biscayne BioBlitz Resource', 'resource_id' => 126, 'prefix' => "EOL_");
 $info['Biscayne_BioBlitz']['xml_path'] = "http://services.eol.org/resources/126.xml";
 $info['Biscayne_BioBlitz']['data_types'] = array('images'); //what is available in its Collection
 
@@ -113,7 +113,11 @@ foreach($final as $lifedesk) {
     // start generate the 2nd DwCA -------------------------------
     $resource_id = $prefix.$lifedesk."_multimedia";
     if($collection_id = @$info[$lifedesk]['id']) { //9528;
-        $func2 = new CollectionsScrapeAPI($resource_id, $collection_id, @$info[$lifedesk]['data_types']); //3rd param only has values for EOL_. Blank is for LD_.
+        
+        if($val = @$info[$lifedesk]['data_types']) $data_types = $val; //for EOL_
+        else                                       $data_types = array('images', 'video', 'sounds'); //for LD_
+        
+        $func2 = new CollectionsScrapeAPI($resource_id, $collection_id, $data_types); //3rd param only has values for EOL_. Blank is for LD_.
         $func2->start($taxa_from_orig_LifeDesk_XML);
         Functions::finalize_dwca_resource($resource_id, false, true); //3rd param true means resource folder will be deleted
         $cont_compile = true;
