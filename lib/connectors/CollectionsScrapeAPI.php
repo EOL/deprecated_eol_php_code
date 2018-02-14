@@ -10,10 +10,11 @@ class CollectionsScrapeAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         $this->object_ids = array();
-        $this->dwca_file = "http://localhost/~eolit/cp/India Biodiversity Portal/520.tar.gz";
-        $this->dwca_file = "https://dl.dropboxusercontent.com/u/7597512/India Biodiversity Portal/520.tar.gz";
-        $this->taxon_page = "http://www.marinespecies.org/aphia.php?p=taxdetails&id=";
-        $this->accessURI = array();
+        
+        // $this->dwca_file = "http://localhost/~eolit/cp/India Biodiversity Portal/520.tar.gz";
+        // $this->dwca_file = "https://dl.dropboxusercontent.com/u/7597512/India Biodiversity Portal/520.tar.gz";
+        // $this->taxon_page = "http://www.marinespecies.org/aphia.php?p=taxdetails&id=";
+        // $this->accessURI = array();
         
         $this->download_options = array("cache" => 1, "download_wait_time" => 2000000, "timeout" => 3600, "download_attempts" => 1); //"delay_in_minutes" => 1
         $this->download_options['expire_seconds'] = false; //always false, will not change anymore...

@@ -143,7 +143,10 @@ echo "\nDone processing.\n";
 
 function convert_xml_2_dwca($resource_id)
 {
-    $params["eol_xml_file"] = "http://localhost/eol_php_code/applications/content_server/resources/".$resource_id.".xml"; //e.g. LD_afrotropicalbirds
+    if(Functions::is_production()) $params["eol_xml_file"] = "http://editors.eol.org/eol_php_code/applications/content_server/resources/".$resource_id.".xml"; //e.g. LD_afrotropicalbirds
+    else                           $params["eol_xml_file"] = "http://localhost/eol_php_code/applications/content_server/resources/".$resource_id.".xml"; //e.g. LD_afrotropicalbirds
+    
+    
     $params["filename"]     = "no need to mention here.xml";
     $params["dataset"]      = "LifeDesk XML files";
     $params["resource_id"]  = $resource_id;

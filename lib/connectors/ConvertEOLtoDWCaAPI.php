@@ -44,7 +44,8 @@ class ConvertEOLtoDWCaAPI
             $params['filename'] = pathinfo($local_xml_file, PATHINFO_BASENAME);
             self::convert_stream_xml($params);
             $this->archive_builder->finalize(TRUE);
-            unlink($local_xml_file);
+            if(unlink($local_xml_file)) echo "\nSuccesfully deleted [$local_xml_file]\n";
+            else                        echo "\nERROR: not deleted [$local_xml_file]\n";
         }
         echo "\ntotal rows: $this->count\n";
     }
