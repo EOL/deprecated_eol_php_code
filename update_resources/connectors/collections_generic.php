@@ -25,17 +25,12 @@ require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
 $final = array();
-$lifedesks = array('Biscayne_BioBlitz'); $final = array_merge($final, $lifedesks); //    Biscayne_BioBlitz
+$lifedesks = array('Biscayne_BioBlitz'); $final = array_merge($final, $lifedesks); //Biscayne_BioBlitz
 //==============================================================================================================================
-$info['Biscayne_BioBlitz'] = array('id' => 251, 'domain' => 'http://www.eol.org/content_partners/58/resources/126', 'OpenData_title' => 'Biscayne BioBlitz Resource', 'resource_id' => 126);
-$info['Biscayne_BioBlitz']['xml_path'] = "http://services.eol.org/resources/126.xml";
-$info['Biscayne_BioBlitz']['data_types'] = array('images'); //what is available in its Collection
 
 /* moved to lifedesk_combine.php since the XML has media objects that are offline, needed to be removed.
+$info['Biscayne_BioBlitz'] = array('id' => 251, 'domain' => 'http://www.eol.org/content_partners/58/resources/126', 'OpenData_title' => 'Biscayne BioBlitz Resource', 'resource_id' => 126);
 $info['MicroScope'] = array('id' => 180, 'domain' => 'http://eol.org/content_partners/5/resources/19',      'OpenData_title' => 'micro*scope', 'resource_id' => 19);
-$info['MicroScope']['xml_path'] = "http://localhost/cp_new/OpenData/EOLxml_2_DWCA/microscope/microscope.xml.gz";
-$info['MicroScope']['xml_path'] = "https://opendata.eol.org/dataset/4a668cee-f1da-4e95-9ed1-cb755a9aca4f/resource/55ad629d-dd89-4bac-8fff-96f219f4b323/download/microscope.xml.gz";
-$info['MicroScope']['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
 */
 
 
