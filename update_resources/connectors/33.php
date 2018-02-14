@@ -3,6 +3,8 @@ namespace php_active_record;
 /* 
 http://www.eol.org/content_partners/41/resources/33
 This is a generic script that will convert EOL XML to EOL DWC-A
+
+33	Wednesday 2018-02-14 09:28:24 AM	{"agent.tab":22,"media_resource.tab":1438,"reference.tab":1008,"taxon.tab":970}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
