@@ -25,8 +25,7 @@ require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
 $final = array();
-// $lifedesks = array('MicroScope', 'AskNature'); $final = array_merge($final, $lifedesks); //AskNature    MicroScope
-$lifedesks = array('Biscayne_BioBlitz'); $final = array_merge($final, $lifedesks); //Biscayne_BioBlitz
+$lifedesks = array('Biscayne_BioBlitz'); $final = array_merge($final, $lifedesks); //    Biscayne_BioBlitz
 //==============================================================================================================================
 $info['Biscayne_BioBlitz'] = array('id' => 251, 'domain' => 'http://www.eol.org/content_partners/58/resources/126', 'OpenData_title' => 'Biscayne BioBlitz Resource', 'resource_id' => 126);
 $info['Biscayne_BioBlitz']['xml_path'] = "http://services.eol.org/resources/126.xml";
@@ -39,15 +38,7 @@ $info['MicroScope']['xml_path'] = "https://opendata.eol.org/dataset/4a668cee-f1d
 $info['MicroScope']['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
 */
 
-$info['AskNature'] = array('id' => 189, 'domain' => 'http://www.eol.org/content_partners/41/resources/33', 'OpenData_title' => 'AskNature', 'resource_id' => 33);
-$info['AskNature']['xml_path'] = "https://opendata.eol.org/dataset/f57501e3-b65e-41bc-b4b8-ccd93cb82bea/resource/6dd97eb0-d386-4f29-acc2-1c36f6323713/download/asknature.xml.gz";
-$info['AskNature']['data_types'] = array('text'); //what is available in its Collection
 
-/* transferred to 40.php, where it suppose to be
-$info['AnAge_text'] = array('id' => 195, 'domain' => 'http://www.eol.org/content_partners/33/resources/40', 'OpenData_title' => 'AnAge text', 'resource_id' => 40);
-$info['AnAge_text']['xml_path'] = "";
-$info['AnAge_text']['data_types'] = array('text');
-*/
 //==============================================================================================================================
 
 /* this works OK. but was decided not to add ancestry if original source doesn't have ancestry. Makes sense.

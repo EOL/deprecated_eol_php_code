@@ -18,10 +18,10 @@ require_library('connectors/ConvertEOLtoDWCaAPI');
 require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
-/* MicroScope & FieldScope -> have EOL XML, with media objects that are offline. Has Collections for source of media objects. */
+/* MicroScope & FieldScope -> have EOL XML, with media objects that are offline. Has Collections for source of media objects. Media objects from XML will be removed like that of LifeDesks */
 
 $final = array();
-$lifedesks = array("FieldScope"); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope
+$lifedesks = array("FieldScope", "MicroScope"); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope
 
 /* normal operation
 $lifedesks = array("drosophilidae", "mochokidae", "berry", "echinoderms", "eleodes", "empidinae");                  $final = array_merge($final, $lifedesks);
@@ -32,11 +32,9 @@ $lifedesks = array("spiderindia", "speciesindia", "skinklink", "scarab", "nzicn"
 $lifedesks = array("pterioidea", "westernghatfishes", "cephalopoda");                                               $final = array_merge($final, $lifedesks);
 */
 
-
 $info['FieldScope'] = array('id'=>196, 'LD_domain' => 'http://www.eol.org/content_partners/58/resources/41', 'OpenData_title' => 'FieldScope', 'resource_id' => 41, 'prefix' => "EOL_");
 $info['FieldScope']['xml_path'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/OpenData/EOLxml_2_DWCA/FieldScope_41/41.xml.gz";
 $info['FieldScope']['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text') - get objects of this data_type from Collections
-
 
 $info['MicroScope'] = array('id'=>180, 'LD_domain' => 'http://eol.org/content_partners/5/resources/19', 'OpenData_title' => 'micro*scope', 'resource_id' => 19, 'prefix' => "EOL_");
 $info['MicroScope']['xml_path'] = "http://localhost/cp_new/OpenData/EOLxml_2_DWCA/microscope/microscope.xml.gz";
