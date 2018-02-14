@@ -16,16 +16,16 @@ require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
 $final = array();
-$lifedesks = array("afrotropicalbirds"); $final = array_merge($final, $lifedesks);    //testing...afrotropicalbirds  leptogastrinae    calintertidalinverts
+// $lifedesks = array("afrotropicalbirds"); $final = array_merge($final, $lifedesks);    //testing...afrotropicalbirds  leptogastrinae    calintertidalinverts
 
-/* normal operation
+// /* normal operation
 $lifedesks = array("drosophilidae", "mochokidae", "berry", "echinoderms", "eleodes", "empidinae");                  $final = array_merge($final, $lifedesks);
 $lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife", "idorids", "evaniidae");             $final = array_merge($final, $lifedesks);
 $lifedesks = array("araneoidea", "archaeoceti", "calintertidalinverts", "chileanbees", "halictidae", "nlbio");      $final = array_merge($final, $lifedesks);
 $lifedesks = array("surinamewaterbeetles", "scarabaeoidea", "pipunculidae", "ncfishes", "biomarks");                $final = array_merge($final, $lifedesks);
 $lifedesks = array("spiderindia", "speciesindia", "skinklink", "scarab", "nzicn", "bcbiodiversity");                $final = array_merge($final, $lifedesks);
 $lifedesks = array("pterioidea", "westernghatfishes", "cephalopoda");                                               $final = array_merge($final, $lifedesks);
-*/
+// */
 
 $info['araneae']            = array('id'=>203, 'LD_domain' => 'http://araneae.lifedesks.org/', 'OpenData_title' => 'Spiders LifeDesk');
 $info['eolspecies']         = array('id'=>204, 'LD_domain' => 'http://eolspecies.lifedesks.org/', 'OpenData_title' => 'EOL Rapid Response Team LifeDesk');
@@ -60,9 +60,9 @@ $info['leptogastrinae']     = array('id'=>219, 'LD_domain' => 'http://leptogastr
 $ancestry['afrotropicalbirds'] = array('kingdom' => 'Animalia', 'phylum' => 'Chordata', 'class' => 'Aves'); 
 */
 
-/* un-comment in normal operation
+// /* un-comment in normal operation
 $final = array_merge($final, array_keys($info)); 
-*/
+// */
 
 $final = array_unique($final);
 print_r($final); echo "\n".count($final)."\n"; //exit;
