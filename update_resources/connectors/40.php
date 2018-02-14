@@ -12,7 +12,7 @@ $timestart = time_elapsed();
 $resource_id = 40;
 $params["eol_xml_file"] = "";
 $params["eol_xml_file"] = "https://opendata.eol.org/dataset/cf4c5598-3a7c-464d-be87-d72bc98b066e/resource/b9bdc248-d2db-427a-af38-90313b168f0e/download/40.xml.gz";
-$params["filename"]     = "40.xml";
+$params["filename"]     = "40.xml"; //need to mention 40.xml here because eol_xml_file is .xml.gz
 $params["dataset"]      = "EOL XML files";
 $params["resource_id"]  = $resource_id;
 

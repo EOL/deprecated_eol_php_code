@@ -11,7 +11,7 @@ $timestart = time_elapsed();
 $resource_id = 85;
 $params["eol_xml_file"] = "";
 $params["eol_xml_file"] = "http://opendata.eol.org/dataset/fff84c38-bd30-434a-93bb-cab84a3d2db8/resource/ad9bad24-5452-46b3-84c6-5ea2fed6c073/download/northamericanmammals.xml";
-$params["filename"]     = "no need to mention here.xml";
+$params["filename"]     = "no need to mention here.xml"; //no need to mention if eol_xml_file is already .xml and not .xml.gz
 $params["dataset"]      = "EOL XML files";
 $params["resource_id"]  = $resource_id;
 
