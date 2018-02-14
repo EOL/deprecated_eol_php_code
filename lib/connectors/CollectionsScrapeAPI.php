@@ -111,7 +111,8 @@ class CollectionsScrapeAPI
             $obj = json_decode($json, true);
             if(!@$obj['scientificName']) {//e.g. collection_id = 106941 -> has hidden data_objects and dataObject API doesn't have taxon info.
                 $obj['scientificName'] = $sciname;
-                $obj['identifier'] = str_replace(" ", "_", strtolower($sciname));
+                if($val = self::match_taxa_from_original_LifeDesk_XML($obj)) $obj['identifier'] = $val;
+                else                                                         $obj['identifier'] = str_replace(" ", "_", strtolower($sciname));
             }
             else $obj['identifier'] = self::match_taxa_from_original_LifeDesk_XML($obj);
             //print_r($obj); //exit;
