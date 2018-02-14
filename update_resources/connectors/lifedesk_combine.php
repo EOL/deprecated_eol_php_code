@@ -95,7 +95,7 @@ foreach($final as $ld) {
     $params[$ld]["local"]["ancestry"]       = @$ancestry[$ld];
     
     // start EOL regular resources e.g. MicroScope
-    if($val = $info[$ld]['xml_path']) $params[$ld]["local"]["lifedesk"] = $val;
+    if($val = @$info[$ld]['xml_path']) $params[$ld]["local"]["lifedesk"] = $val;
 }
 $cont_compile = false;
 
