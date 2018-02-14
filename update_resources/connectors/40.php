@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* 
+/* AnAge database
 http://www.eol.org/content_partners/33/resources/40 - https://eol-jira.bibalex.org/browse/DATA-1735
 This is a generic script that will convert EOL XML to EOL DWC-A
 */
