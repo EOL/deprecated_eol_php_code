@@ -100,8 +100,8 @@ foreach($final as $ld) {
 $cont_compile = false;
 
 foreach($final as $lifedesk) {
-    if($val = $info[$lifedesk]['prefix']) $prefix = $val;
-    else                                  $prefix = "LD_";
+    if($val = @$info[$lifedesk]['prefix']) $prefix = $val;
+    else                                   $prefix = "LD_";
     
     $taxa_from_orig_LifeDesk_XML = array(); //https://eol-jira.bibalex.org/browse/DATA-1569?focusedCommentId=62081&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62081
     $taxa_from_orig_LifeDesk_XML = $func1->export_lifedesk_to_eol($params[$lifedesk]["local"], $prefix);
