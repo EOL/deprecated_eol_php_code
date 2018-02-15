@@ -21,13 +21,23 @@ require_library('connectors/DwCA_Utility');
 /* MicroScope, FieldScope, Biscayne_BioBlitz -> have EOL XML, with media objects that are offline. Has Collections for source of media objects. Media objects from XML will be removed like that of LifeDesks */
 
 $final = array();
-$lifedesks = array('103', '119', '133', '137', '154'); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope   Biscayne_BioBlitz
+$lifedesks = array('154', '155', '159'); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope   Biscayne_BioBlitz
 
 /* template
 $info['res_id'] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxx', 'resource_id' => res_id, 'prefix' => "EOL_");
 $info['res_id']['xml_path'] = "http";
 $info['res_id']['data_types'] = array('xxx'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 */
+
+//has xml, has text and media with offline media, has collection
+$info['159'] = array('id' => 272, 'domain' => 'http://www.eol.org/content_partners/223/resources/159', 'OpenData_title' => 'xxx', 'resource_id' => 159, 'prefix' => "EOL_");
+$info['159']['xml_path'] = "http://services.eol.org/resources/159.xml";
+$info['159']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
+
+//has xml with offline media, has collection
+$info['155'] = array('id' => 270, 'domain' => 'http://www.eol.org/content_partners/213/resources/155', 'OpenData_title' => 'Sedges of Carex subgenus Vignea', 'resource_id' => 155, 'prefix' => "EOL_");
+$info['155']['xml_path'] = "http://services.eol.org/resources/155.xml";
+$info['155']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 
 //has xml with offline media, has collection
 $info['154'] = array('id' => 269, 'domain' => 'http://www.eol.org/content_partners/247/resources/154', 'OpenData_title' => 'Carex of the World', 'resource_id' => 154, 'prefix' => "EOL_");
