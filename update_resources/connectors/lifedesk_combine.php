@@ -21,13 +21,23 @@ require_library('connectors/DwCA_Utility');
 /* MicroScope, FieldScope, Biscayne_BioBlitz -> have EOL XML, with media objects that are offline. Has Collections for source of media objects. Media objects from XML will be removed like that of LifeDesks */
 
 $final = array();
-$lifedesks = array('137', '133', '119', '154', '155', '159'); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope   Biscayne_BioBlitz
+$lifedesks = array('172', '217'); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope   Biscayne_BioBlitz
 
 /* template
 $info['res_id'] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxx', 'resource_id' => res_id, 'prefix' => "EOL_");
 $info['res_id']['xml_path'] = "http";
 $info['res_id']['data_types'] = array('xxx'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 */
+
+//has xml, has text and media with offline media, has collection
+$info['217'] = array('id' => 315, 'domain' => 'http://www.eol.org/content_partners/254/resources/217', 'OpenData_title' => 'OEB130_2010', 'resource_id' => 217, 'prefix' => "EOL_");
+$info['217']['xml_path'] = "http://services.eol.org/resources/217.xml";
+$info['217']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
+
+//has xml, has text and media with offline media, has collection
+$info['172'] = array('id' => 282, 'domain' => 'http://www.eol.org/content_partners/265/resources/172', 'OpenData_title' => 'xxx', 'resource_id' => 172, 'prefix' => "EOL_");
+$info['172']['xml_path'] = "http://services.eol.org/resources/172.xml";
+$info['172']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 
 //has xml, has text and media with offline media, has collection
 $info['159'] = array('id' => 272, 'domain' => 'http://www.eol.org/content_partners/223/resources/159', 'OpenData_title' => 'xxx', 'resource_id' => 159, 'prefix' => "EOL_");
