@@ -141,7 +141,8 @@ class ResourceDataObjectElementsSetting
             replace_data_object_element_value("mimeType", "audio/wav", "audio/x-wav", $xml);
             replace_data_object_element_value("dcterms:modified", "", "07/13/1972", $xml, false);
         */
-        if($xml = simplexml_load_string($xml_string))
+        // if($xml = simplexml_load_string($xml_string))
+        if($xml = simplexml_load_string($xml_string, 'SimpleXMLElement', LIBXML_COMPACT | LIBXML_PARSEHUGE))
         {
             debug("replace_data_object_element_value " . count($xml->taxon) . "-- please wait...");
             foreach($xml->taxon as $taxon)
@@ -328,7 +329,9 @@ class ResourceDataObjectElementsSetting
         /*
             replace_taxon_element_value("dc:source", "any value", "", $xml);
         */
-        if($xml = simplexml_load_string($xml_string))
+        
+        // if($xml = simplexml_load_string($xml_string))
+        if($xml = simplexml_load_string($xml_string, 'SimpleXMLElement', LIBXML_COMPACT | LIBXML_PARSEHUGE))
         {
             debug("replace_taxon_element_value_with_condition " . count($xml->taxon) . "-- please wait...");
             foreach($xml->taxon as $taxon)

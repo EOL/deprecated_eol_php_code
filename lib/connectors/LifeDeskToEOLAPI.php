@@ -151,7 +151,8 @@ class LifeDeskToEOLAPI
     private function remove_tags_in_references($xml_string)
     {
         $field = "reference";
-        $xml = simplexml_load_string($xml_string);
+        // $xml = simplexml_load_string($xml_string);
+        $xml = simplexml_load_string($xml_string, 'SimpleXMLElement', LIBXML_COMPACT | LIBXML_PARSEHUGE);
         debug("remove_tags_in_references " . count($xml->taxon) . "-- please wait...");
         foreach($xml->taxon as $taxon)
         {
