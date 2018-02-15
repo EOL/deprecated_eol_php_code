@@ -21,7 +21,19 @@ require_library('connectors/DwCA_Utility');
 /* MicroScope, FieldScope, Biscayne_BioBlitz -> have EOL XML, with media objects that are offline. Has Collections for source of media objects. Media objects from XML will be removed like that of LifeDesks */
 
 $final = array();
-$lifedesks = array(180); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope   Biscayne_BioBlitz
+$lifedesks = array(374); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope   Biscayne_BioBlitz
+
+/* template
+$info['res_id'] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxx', 'resource_id' => res_id, 'prefix' => "EOL_");
+$info['res_id']['xml_path'] = "http";
+$info['res_id']['data_types'] = array('xxx'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
+*/
+
+//has xml with text and media, media is offline
+$info['374'] = array('id' => 26210, 'domain' => 'http://www.eol.org/content_partners/478/resources/374', 'OpenData_title' => 'Butterfly Master Upload File', 'resource_id' => 374, 'prefix' => "EOL_");
+$info['374']['xml_path'] = "http://services.eol.org/resources/374.xml";
+$info['374']['data_types'] = array('images'); //what is available in its Collection
+
 
 //has xml with text and media, media is offline
 $info['180'] = array('id' => 290, 'domain' => 'http://www.eol.org/content_partners/269/resources/180', 'OpenData_title' => 'Keys to Babamunida, Crosnierita, Onconida, Phylladiorhynchus, Plesionida', 'resource_id' => 180, 'prefix' => "EOL_");
