@@ -33,11 +33,6 @@ $info[res_id]['xml_path'] = ""; //http
 $info[res_id]['data_types'] = array('datatype'); //possible values array('images', 'video', 'sounds', 'text')
 */
 
-//has XML, with valid media, also has collection. Same no. of objects bet. XML and collection. SPECIAL also has 36.php which is also valid
-$info['36_snapshot_2018_02_15'] = array('id' => 192, 'domain' => 'http://www.eol.org/content_partners/47/resources/36', 'OpenData_title' => 'Scott Namestnik', 'resource_id' => 36);
-$info['36_snapshot_2018_02_15']['xml_path'] = "http://services.eol.org/resources/36.xml"; //http
-$info['36_snapshot_2018_02_15']['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
-
 //flickr (15) special case, no xml, with collection
 $info['Flickr_snapshot_2018_02_14'] = array('id' => 176, 'domain' => 'http://www.eol.org/content_partners/18/resources/15', 'OpenData_title' => 'Flickr snapshot 2018_Feb_14', 'resource_id' => 'Flickr_snapshot_2018_02_14');
 $info['Flickr_snapshot_2018_02_14']['xml_path'] = ""; //http

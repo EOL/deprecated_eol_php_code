@@ -21,13 +21,18 @@ require_library('connectors/DwCA_Utility');
 /* MicroScope, FieldScope, Biscayne_BioBlitz -> have EOL XML, with media objects that are offline. Has Collections for source of media objects. Media objects from XML will be removed like that of LifeDesks */
 
 $final = array();
-$lifedesks = array(43); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope   Biscayne_BioBlitz
+$lifedesks = array('36_snapshot_2018_02_15'); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope   Biscayne_BioBlitz
 
 /* template
 $info['res_id'] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxx', 'resource_id' => res_id, 'prefix' => "EOL_");
 $info['res_id']['xml_path'] = "http";
 $info['res_id']['data_types'] = array('xxx'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 */
+
+//has XML, with valid media, also has collection. Same no. of objects bet. XML and collection. SPECIAL also has 36.php which is also valid
+$info['36_snapshot_2018_02_15'] = array('id' => 192, 'domain' => 'http://www.eol.org/content_partners/47/resources/36', 'OpenData_title' => 'Scott Namestnik', 'resource_id' => 36, 'prefix' => "EOL_");
+$info['36_snapshot_2018_02_15']['xml_path'] = "http://services.eol.org/resources/36.xml"; //http
+$info['36_snapshot_2018_02_15']['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
 
 //has xml with media, media is offline
 $info['43'] = array('id' => 199, 'domain' => 'http://www.eol.org/content_partners/53/resources/43', 'OpenData_title' => 'Finding Species', 'resource_id' => 43, 'prefix' => "EOL_");
