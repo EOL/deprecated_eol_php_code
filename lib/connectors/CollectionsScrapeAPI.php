@@ -387,9 +387,8 @@ class CollectionsScrapeAPI
                                 if(preg_match("/_xxx(.*?)\"/ims", "_xxx".$row, $arr)) {
                                     $do_id = $arr[1];
                                     $temp_arr = explode(" of ", $temp);
-                                    $do_ids_sciname[$do_id] = trim($temp_arr[1]);
+                                    if($val = @$temp_arr[1]) $do_ids_sciname[$do_id] = trim($val);
                                 }
-                                
                             }
                         }
                         //end for the scientificname
@@ -403,6 +402,7 @@ class CollectionsScrapeAPI
         // print_r($final); echo "\n".count($final)."\n"; exit;
         // print_r($do_ids_sciname); echo "\n".count($do_ids_sciname)."\n"; exit;
         // return array_keys($do_ids);
+        // print_r($do_ids_sciname); exit;
         return $do_ids_sciname;
     }
 
