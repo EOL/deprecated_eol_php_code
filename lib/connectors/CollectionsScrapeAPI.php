@@ -56,19 +56,19 @@ class CollectionsScrapeAPI
             $do_ids = array_unique($do_ids);                                echo "\n".count($do_ids)."\n";
             unset($arr); //not needed anymore
 
-            $k = 0; $m = 1438/5;
+            $k = 0; $m = 198270/4;
             foreach($do_ids as $do_id) 
             {
-                /* breakdown when caching:
+                // /* breakdown when caching:
                 $k++;
                 $cont = false;
-                // if($k >=  1    && $k < $m) $cont = true;
+                if($k >=  1    && $k < $m) $cont = true;
                 // if($k >=  $m   && $k < $m*2) $cont = true;
                 // if($k >=  $m*2 && $k < $m*3) $cont = true;
                 // if($k >=  $m*3 && $k < $m*4) $cont = true;
-                if($k >=  $m*4 && $k < $m*5) $cont = true;
+                // if($k >=  $m*4 && $k < $m*5) $cont = true;
                 if(!$cont) continue;
-                */
+                // */
 
                 self::process_do_id($do_id, @$do_ids_sciname[$do_id]);
             }

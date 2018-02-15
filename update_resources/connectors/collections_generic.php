@@ -25,7 +25,7 @@ require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
 $final = array();
-$lifedesks = array('36_snapshot_2018_02_15'); $final = array_merge($final, $lifedesks); //12 785
+$lifedesks = array('Flickr_snapshot_2018_02_14'); $final = array_merge($final, $lifedesks); //12 785
 //==============================================================================================================================
 /* template
 $info[res_id] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => '?????', 'resource_id' => res_id);
@@ -36,7 +36,7 @@ $info[res_id]['data_types'] = array('datatype'); //possible values array('images
 //flickr (15) special case, no xml, with collection
 $info['Flickr_snapshot_2018_02_14'] = array('id' => 176, 'domain' => 'http://www.eol.org/content_partners/18/resources/15', 'OpenData_title' => 'Flickr snapshot 2018_Feb_14', 'resource_id' => 'Flickr_snapshot_2018_02_14');
 $info['Flickr_snapshot_2018_02_14']['xml_path'] = ""; //http
-$info['Flickr_snapshot_2018_02_14']['data_types'] = array('video', 'images'); //possible values array('images', 'video', 'sounds', 'text')
+$info['Flickr_snapshot_2018_02_14']['data_types'] = array('images', 'video'); //possible values array('images', 'video', 'sounds', 'text')
 
 //todo: has a dwca with text objects but media_url is offline
 $info[785] = array('id' => 103533, 'domain' => 'http://www.eol.org/content_partners/700/resources/785', 'OpenData_title' => 'Inventaire National du Patrimoine Naturel', 'resource_id' => 785);
