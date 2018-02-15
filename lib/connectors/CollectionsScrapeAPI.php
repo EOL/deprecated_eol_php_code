@@ -257,7 +257,7 @@ class CollectionsScrapeAPI
             $mr->Rating         = $rec['dataRating'];
             $mr->Owner          = @$rec['rightsHolder'];
             $mr->rights         = @$rec['rights'];
-            $mr->language       = $rec['language'];
+            $mr->language       = @$rec['language'];
             $mr->furtherInformationURL = @$rec['source'];
             $mr->title          = @$rec['title'];
             $mr->UsageTerms     = $rec['license'];

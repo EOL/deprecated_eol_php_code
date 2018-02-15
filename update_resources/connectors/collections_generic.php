@@ -25,9 +25,14 @@ require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
 $final = array();
-$lifedesks = array(12); $final = array_merge($final, $lifedesks); //12
+$lifedesks = array(785); $final = array_merge($final, $lifedesks); //12 785
 //==============================================================================================================================
 
+
+//todo: has a dwca with text objects but media_url is offline
+$info[785] = array('id' => 103533, 'domain' => 'http://www.eol.org/content_partners/700/resources/785', 'OpenData_title' => 'Inventaire National du Patrimoine Naturel', 'resource_id' => 785);
+$info[785]['xml_path'] = "";
+$info[785]['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
 
 $info[12] = array('id' => 174, 'domain' => 'http://www.eol.org/content_partners/12/resources/12', 'OpenData_title' => 'Initial Biolib.de Import', 'resource_id' => 12);
 $info[12]['xml_path'] = "";
