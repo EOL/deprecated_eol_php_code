@@ -21,13 +21,33 @@ require_library('connectors/DwCA_Utility');
 /* MicroScope, FieldScope, Biscayne_BioBlitz -> have EOL XML, with media objects that are offline. Has Collections for source of media objects. Media objects from XML will be removed like that of LifeDesks */
 
 $final = array();
-$lifedesks = array('103'); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope   Biscayne_BioBlitz
+$lifedesks = array('103', '119', '133', '137', '154'); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope   Biscayne_BioBlitz
 
 /* template
 $info['res_id'] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxx', 'resource_id' => res_id, 'prefix' => "EOL_");
 $info['res_id']['xml_path'] = "http";
 $info['res_id']['data_types'] = array('xxx'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 */
+
+//has xml with offline media, has collection
+$info['154'] = array('id' => 269, 'domain' => 'http://www.eol.org/content_partners/247/resources/154', 'OpenData_title' => 'Carex of the World', 'resource_id' => 154, 'prefix' => "EOL_");
+$info['154']['xml_path'] = "http://services.eol.org/resources/154.xml";
+$info['154']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
+
+//has xml, offline media_url, has collection
+$info['137'] = array('id' => 258, 'domain' => 'http://www.eol.org/content_partners/230/resources/137', 'OpenData_title' => "The Field Museum Member's Night EOL Photo Scavenger Hunt 2010", 'resource_id' => 137, 'prefix' => "EOL_");
+$info['137']['xml_path'] = "http://services.eol.org/resources/137.xml";
+$info['137']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
+
+//has xml, offline media_url, has collection. BTW a lifedesk
+$info['133'] = array('id' => 256, 'domain' => 'http://www.eol.org/content_partners/227/resources/133', 'OpenData_title' => 'Embiotocidae LifeDesk', 'resource_id' => 133, 'prefix' => "EOL_");
+$info['133']['xml_path'] = "http://services.eol.org/resources/133.xml";
+$info['133']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
+
+//has XML with offline media_url, has collection
+$info['119'] = array('id' => 245, 'domain' => 'http://www.eol.org/content_partners/195/resources/119', 'OpenData_title' => 'Photosynth Resource', 'resource_id' => 119, 'prefix' => "EOL_");
+$info['119']['xml_path'] = "http://services.eol.org/resources/119.xml";
+$info['119']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 
 //has provider XML, has text and media where media_url is offline. has collection
 $info['103'] = array('id' => 233, 'domain' => 'http://www.eol.org/content_partners/151/resources/103', 'OpenData_title' => 'Braconidae resource', 'resource_id' => 103, 'prefix' => "EOL_");
