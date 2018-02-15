@@ -16,7 +16,7 @@ shhh quiet... - a hack in services.eol.org
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
-
+$GLOBALS['ENV_DEBUG'] = true;
 require_library('connectors/LifeDeskToEOLAPI');
 $func1 = new LifeDeskToEOLAPI();
 
