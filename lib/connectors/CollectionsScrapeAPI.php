@@ -85,23 +85,28 @@ class CollectionsScrapeAPI
         $mr->identifier     = $rec['dataObjectVersionID']; //$rec['identifier'];
         $mr->accessURI      = $rec['eolMediaURL'];
         */
-        $options = $this->download_options;
-        $options['expire_seconds'] = false; //doesn't need to expire at all
-        $filename = $rec['dataObjectVersionID'].".".pathinfo($rec['eolMediaURL'], PATHINFO_EXTENSION);
-        
-        $folder = substr($rec['dataObjectVersionID'], -2)."/";
-        if(!is_dir($this->lifedesk_images_path.$folder)) mkdir($this->lifedesk_images_path.$folder);
-        
-        $destination = $this->lifedesk_images_path.$folder.$filename;
-        
-        // /* uncomment in real operation. This is just to stop downloading of images.
-        if(!file_exists($destination)) {
-            $local = Functions::save_remote_file_to_local($rec['eolMediaURL'], $options);
-            Functions::file_rename($local, $destination);
-            // echo "\n[$local]\n[$destination]";
+        if(@$rec['eolMediaURL']) {
+            $options = $this->download_options;
+            $options['expire_seconds'] = false; //doesn't need to expire at all
+            $filename = $rec['dataObjectVersionID'].".".pathinfo($rec['eolMediaURL'], PATHINFO_EXTENSION);
+
+            $folder = substr($rec['dataObjectVersionID'], -2)."/";
+            if(!is_dir($this->lifedesk_images_path.$folder)) mkdir($this->lifedesk_images_path.$folder);
+
+            $destination = $this->lifedesk_images_path.$folder.$filename;
+
+            // /* uncomment in real operation. This is just to stop downloading of images.
+            if(!file_exists($destination)) {
+                $local = Functions::save_remote_file_to_local($rec['eolMediaURL'], $options);
+                Functions::file_rename($local, $destination);
+                // echo "\n[$local]\n[$destination]";
+            }
+            // */
+            return $this->media_path.$folder.$filename; //this is media_url for the data_object;
         }
-        // */
-        return $this->media_path.$folder.$filename; //this is media_url for the data_object;
+        elseif(@$rec['mediaURL'] && $rec['dataType'] == 'YouTube') {
+            return $rec['mediaURL'];
+        }
     }
     
     private function process_do_id($do_id, $sciname)
