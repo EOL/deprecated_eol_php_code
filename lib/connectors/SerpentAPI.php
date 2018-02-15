@@ -22,7 +22,7 @@ class SerpentAPI
             $page_taxa              = $arr[0];
             $used_collection_ids    = $arr[1];
             $all_taxa = array_merge($all_taxa, $page_taxa);
-            if($i >= 10) break;
+            // if($i >= 10) break; //debug only
         }
         return $all_taxa;
     }
