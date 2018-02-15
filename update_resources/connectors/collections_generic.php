@@ -25,13 +25,14 @@ require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
 $final = array();
-$lifedesks = array('Biscayne_BioBlitz'); $final = array_merge($final, $lifedesks); //Biscayne_BioBlitz
+$lifedesks = array(12); $final = array_merge($final, $lifedesks); //12
 //==============================================================================================================================
 
-/* moved to lifedesk_combine.php since the XML has media objects that are offline, needed to be removed.
-$info['Biscayne_BioBlitz'] = array('id' => 251, 'domain' => 'http://www.eol.org/content_partners/58/resources/126', 'OpenData_title' => 'Biscayne BioBlitz Resource', 'resource_id' => 126);
-$info['MicroScope'] = array('id' => 180, 'domain' => 'http://eol.org/content_partners/5/resources/19',      'OpenData_title' => 'micro*scope', 'resource_id' => 19);
-*/
+
+$info[12] = array('id' => 174, 'domain' => 'http://www.eol.org/content_partners/12/resources/12', 'OpenData_title' => 'Initial Biolib.de Import', 'resource_id' => 12);
+$info[12]['xml_path'] = "";
+$info[12]['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
+
 
 
 //==============================================================================================================================
