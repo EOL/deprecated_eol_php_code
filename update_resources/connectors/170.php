@@ -10,7 +10,10 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 
 require_library('connectors/SerpentAPI');
-$taxa = SerpentAPI::get_all_taxa();
+
+$func = new SerpentAPI();
+$taxa = $func->get_all_taxa();
+/* $taxa = SerpentAPI::get_all_taxa();  --- old code */
 $xml = \SchemaDocument::get_taxon_xml($taxa);
 
 $resource_id = 170;

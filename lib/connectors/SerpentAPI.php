@@ -8,7 +8,7 @@ http://archive.serpentproject.com/view/species/
 define("SERPENT_PAGE_URL", "http://archive.serpentproject.com/view/species/");
 class SerpentAPI
 {
-    public static function get_all_taxa()
+    public function get_all_taxa()
     {
         $urls = self::compile_taxon_urls();
         $all_taxa = array();
@@ -22,11 +22,12 @@ class SerpentAPI
             $page_taxa              = $arr[0];
             $used_collection_ids    = $arr[1];
             $all_taxa = array_merge($all_taxa, $page_taxa);
+            if($i >= 10) break;
         }
         return $all_taxa;
     }
 
-    public static function get_Serpent_taxa($url, $used_collection_ids)
+    public function get_Serpent_taxa($url, $used_collection_ids)
     {
         $response = self::search_collections($url);//this will output the raw (but structured) output from the external service
         $page_taxa = array();
@@ -73,7 +74,9 @@ class SerpentAPI
     function taxon_url_extractor($url, $searched1, $searched2, $with_page_url, $html = NULL)
     {
         $urls = array();
-        if(!$html) $html = Functions::get_remote_file_fake_browser($url, array('download_wait_time' => 1000000)); // 1 second wait-time
+        // if(!$html) $html = Functions::get_remote_file_fake_browser($url, array('download_wait_time' => 1000000)); // 1 second wait-time
+        if(!$html) $html = Functions::lookup_with_cache($url, array('download_wait_time' => 1000000, 'expire_seconds' => 60*60*24*25)); // 1 second wait-time
+        
 
         //Species: Asterias rubens</title>
         if(preg_match("/<h1 class=\"pagetitle\">(.*?)<\/h1>/ims", $html, $matches))
@@ -115,7 +118,7 @@ class SerpentAPI
 
     function search_collections($species_page_url)//this will output the raw (but structured) array
     {
-        $html = Functions::get_remote_file_fake_browser($species_page_url, array('download_wait_time' => 1000000)); // 1 second wait-time
+        $html = Functions::lookup_with_cache($species_page_url, array('download_wait_time' => 1000000, 'expire_seconds' => 60*60*24*25)); // 1 second wait-time
         $html = utf8_decode($html);
         $response = self::scrape_species_page($html, $species_page_url);
         return $response;
@@ -298,7 +301,7 @@ class SerpentAPI
         $arr_total = array();
         foreach($arr as $url)
         {
-            $html = Functions::get_remote_file_fake_browser($url['url'], array('download_wait_time' => 1000000)); // 1 second wait-time
+            $html = Functions::lookup_with_cache($url['url'], array('download_wait_time' => 1000000, 'expire_seconds' => 60*60*24*25)); // 1 second wait-time
             $html = utf8_decode($html);
             $arr_scraped = self::scrape_page($html, $url['url'], $url['sciname']);
             if($arr_scraped)$arr_total = array_merge($arr_total, $arr_scraped);
