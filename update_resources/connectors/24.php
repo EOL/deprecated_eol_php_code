@@ -17,7 +17,7 @@ eol-archive
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/ConvertEOLtoDWCaAPI');
-$GLOBALS['ENV_DEBUG'] = true;
+$GLOBALS['ENV_DEBUG'] = false;
 ini_set('memory_limit','4096M'); //314,5728,000
 $timestart = time_elapsed();
 
