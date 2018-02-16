@@ -11,6 +11,9 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 $resource_id = 281;
 
+echo "\nUsed lifedesk_combine.php instead.\n";
+return;
+
 require_library('ResourceDataObjectElementsSetting');
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
 
