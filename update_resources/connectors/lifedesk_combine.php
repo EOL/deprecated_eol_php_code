@@ -21,14 +21,22 @@ require_library('connectors/DwCA_Utility');
 /* MicroScope, FieldScope, Biscayne_BioBlitz -> have EOL XML, with media objects that are offline. Has Collections for source of media objects. Media objects from XML will be removed like that of LifeDesks */
 
 $final = array();
-// $lifedesks = array('288', '297', '281', '279'); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope   Biscayne_BioBlitz
-$lifedesks = array('277', '276', '275', '271'); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope   Biscayne_BioBlitz
-
+$lifedesks = array('277', '172', '155', '154'); $final = array_merge($final, $lifedesks); //rerun as LifeDesk
+$lifedesks = array('335', '324'); $final = array_merge($final, $lifedesks); //normal operation
 /* template
 $info['res_id'] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxx', 'resource_id' => res_id, 'prefix' => "EOL_");
 $info['res_id']['xml_path'] = "http";
 $info['res_id']['data_types'] = array('xxx'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 */
+
+$info['335'] = array('id' => 16350, 'domain' => 'http://www.eol.org/content_partners/74/resources/335', 'OpenData_title' => 'BibAlex LifeDesk', 'resource_id' => 335);
+$info['335']['xml_path'] = "http://services.eol.org/resources/335.xml";
+$info['335']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
+
+//has static xml, offline media, has collection
+$info['324'] = array('id' => 12378, 'domain' => 'http://www.eol.org/content_partners/440/resources/324', 'OpenData_title' => 'Macalester College Biology 476 - Fall 2011 Education LifeDesk Pages', 'resource_id' => 324, 'prefix' => "EOL_");
+$info['324']['xml_path'] = "http://services.eol.org/resources/324.xml";
+$info['324']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 
 //has static xml, offline media, has collection
 $info['288'] = array('id' => 362, 'domain' => 'http://www.eol.org/content_partners/261/resources/288', 'OpenData_title' => 'mx2EOL release candidate', 'resource_id' => 288, 'prefix' => "EOL_");
@@ -51,7 +59,7 @@ $info['279']['xml_path'] = "http://services.eol.org/resources/279.xml";
 $info['279']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 
 //has static xml, offline media, has collection
-$info['277'] = array('id' => 358, 'domain' => 'http://www.eol.org/content_partners/379/resources/277', 'OpenData_title' => 'Bryozoa LifeDesk', 'resource_id' => 277, 'prefix' => "EOL_");
+$info['277'] = array('id' => 358, 'domain' => 'http://www.eol.org/content_partners/379/resources/277', 'OpenData_title' => 'Bryozoa LifeDesk', 'resource_id' => 277);
 $info['277']['xml_path'] = "http://services.eol.org/resources/277.xml";
 $info['277']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 
@@ -103,22 +111,22 @@ $info['217']['xml_path'] = "http://services.eol.org/resources/217.xml";
 $info['217']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 
 //has xml, has text and media with offline media, has collection
-$info['172'] = array('id' => 282, 'domain' => 'http://www.eol.org/content_partners/265/resources/172', 'OpenData_title' => 'xxx', 'resource_id' => 172, 'prefix' => "EOL_");
+$info['172'] = array('id' => 282, 'domain' => 'http://www.eol.org/content_partners/265/resources/172', 'OpenData_title' => 'eNemo', 'resource_id' => 172);
 $info['172']['xml_path'] = "http://services.eol.org/resources/172.xml";
 $info['172']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 
 //has xml, has text and media with offline media, has collection
-$info['159'] = array('id' => 272, 'domain' => 'http://www.eol.org/content_partners/223/resources/159', 'OpenData_title' => 'xxx', 'resource_id' => 159, 'prefix' => "EOL_");
+$info['159'] = array('id' => 272, 'domain' => 'http://www.eol.org/content_partners/223/resources/159', 'OpenData_title' => 'The Harvard University Herpetology Course', 'resource_id' => 159, 'prefix' => "EOL_");
 $info['159']['xml_path'] = "http://services.eol.org/resources/159.xml";
 $info['159']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 
 //has xml with offline media, has collection
-$info['155'] = array('id' => 270, 'domain' => 'http://www.eol.org/content_partners/213/resources/155', 'OpenData_title' => 'Sedges of Carex subgenus Vignea', 'resource_id' => 155, 'prefix' => "EOL_");
+$info['155'] = array('id' => 270, 'domain' => 'http://www.eol.org/content_partners/213/resources/155', 'OpenData_title' => 'Sedges of Carex subgenus Vignea', 'resource_id' => 155);
 $info['155']['xml_path'] = "http://services.eol.org/resources/155.xml";
 $info['155']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 
 //has xml with offline media, has collection
-$info['154'] = array('id' => 269, 'domain' => 'http://www.eol.org/content_partners/247/resources/154', 'OpenData_title' => 'Carex of the World', 'resource_id' => 154, 'prefix' => "EOL_");
+$info['154'] = array('id' => 269, 'domain' => 'http://www.eol.org/content_partners/247/resources/154', 'OpenData_title' => 'Carex of the World', 'resource_id' => 154);
 $info['154']['xml_path'] = "http://services.eol.org/resources/154.xml";
 $info['154']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 
@@ -128,7 +136,7 @@ $info['137']['xml_path'] = "http://services.eol.org/resources/137.xml";
 $info['137']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 
 //has xml, offline media_url, has collection. BTW a lifedesk
-$info['133'] = array('id' => 256, 'domain' => 'http://www.eol.org/content_partners/227/resources/133', 'OpenData_title' => 'Embiotocidae LifeDesk', 'resource_id' => 133, 'prefix' => "EOL_");
+$info['133'] = array('id' => 256, 'domain' => 'http://www.eol.org/content_partners/227/resources/133', 'OpenData_title' => 'Embiotocidae LifeDesk', 'resource_id' => 133);
 $info['133']['xml_path'] = "http://services.eol.org/resources/133.xml";
 $info['133']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 
