@@ -59,7 +59,7 @@ class CollectionsScrapeAPI
             $k = 0; $m = 198270/4;
             foreach($do_ids as $do_id) 
             {
-                // /* breakdown when caching:
+                /* breakdown when caching:
                 $k++; echo " $k ";
                 $cont = false;
                 // if($k >=  1    && $k < $m) $cont = true;
@@ -68,7 +68,7 @@ class CollectionsScrapeAPI
                 if($k >=  $m*3 && $k < $m*4) $cont = true;
                 // if($k >=  $m*4 && $k < $m*5) $cont = true;
                 if(!$cont) continue;
-                // */
+                */
 
                 self::process_do_id($do_id, @$do_ids_sciname[$do_id]);
             }
