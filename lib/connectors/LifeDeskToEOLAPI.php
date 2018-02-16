@@ -61,6 +61,7 @@ class LifeDeskToEOLAPI
         $this->ancestry = @$params['ancestry'];
         
         if(Functions::url_exists($params["lifedesk"])) {
+            /*
             if($prefix == "LD_") {
                 require_library('connectors/LifeDeskToScratchpadAPI');
                 $func = new LifeDeskToScratchpadAPI();
@@ -69,6 +70,11 @@ class LifeDeskToEOLAPI
             if($prefix == "EOL_") {
                 if($this->text_path = self::load_zip_contents($params["lifedesk"])) self::update_eol_xml("EOL_".$params["name"]);
             }
+            */
+            // Just use the local load_zip_contents() rather than from LifeDeskToScratchpadAPI()
+            if($this->text_path = self::load_zip_contents($params["lifedesk"])) self::update_eol_xml($prefix.$params["name"]);
+            print_r($this->text_path);
+
             // remove temp dir
             $parts = pathinfo($this->text_path["eol_xml"]);
             recursive_rmdir($parts["dirname"]);
