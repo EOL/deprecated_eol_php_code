@@ -26,19 +26,33 @@ require_library('connectors/DwCA_Utility');
 
 $final = array();
 // $lifedesks = array('388', '221'); $final = array_merge($final, $lifedesks);
-$lifedesks = array('414'); $final = array_merge($final, $lifedesks);
+$lifedesks = array(414, 420, 428, 431, 434, 460); $final = array_merge($final, $lifedesks);
 
 //==============================================================================================================================
 /* template
 $info[res_id] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxxx', 'resource_id' => res_id);
-$info[res_id]['xml_path'] = ""; //http
-$info[res_id]['data_types'] = array('datatype'); //possible values array('images', 'video', 'sounds', 'text')
+$info[res_id]['xml_path'] = ""; $info[res_id]['data_types'] = array('datatype'); //possible values array('images', 'video', 'sounds', 'text')
 */
+
+//all five xls submitted, used collections.
+$info[420] = array('id' => 53328, 'domain' => 'http://www.eol.org/content_partners/513/resources/420', 'OpenData_title' => 'Latin Botanical Illustrations', 'resource_id' => 420);
+$info[420]['xml_path'] = ""; $info[420]['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
+
+$info[428] = array('id' => 53329, 'domain' => 'http://www.eol.org/content_partners/513/resources/428', 'OpenData_title' => 'African Flora', 'resource_id' => 428);
+$info[428]['xml_path'] = ""; $info[428]['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
+
+$info[431] = array('id' => 53331, 'domain' => 'http://www.eol.org/content_partners/513/resources/431', 'OpenData_title' => 'Addisonia volume 1, 1916', 'resource_id' => 431);
+$info[431]['xml_path'] = ""; $info[431]['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
+
+$info[434] = array('id' => 53332, 'domain' => 'http://www.eol.org/content_partners/513/resources/434', 'OpenData_title' => 'Addisonia volume 2, 1917', 'resource_id' => 434);
+$info[434]['xml_path'] = ""; $info[434]['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
+
+$info[460] = array('id' => 53333, 'domain' => 'http://www.eol.org/content_partners/513/resources/460', 'OpenData_title' => 'Addisonia volume 3, 1918', 'resource_id' => 460);
+$info[460]['xml_path'] = ""; $info[460]['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
 
 //has connector but partner site already down. no xml nor dwca, used collections instead.
 $info[414] = array('id' => 49850, 'domain' => 'http://www.eol.org/content_partners/503/resources/414', 'OpenData_title' => 'Dutch Marine and Coastal Species Encyclopedia', 'resource_id' => 414);
-$info[414]['xml_path'] = ""; //http
-$info[414]['data_types'] = array('images', 'text'); //possible values array('images', 'video', 'sounds', 'text')
+$info[414]['xml_path'] = ""; $info[414]['data_types'] = array('images', 'text'); //possible values array('images', 'video', 'sounds', 'text')
 
 //has static dwca, offline media, has collection
 $info[388] = array('id' => 31834, 'domain' => 'http://www.eol.org/content_partners/487/resources/388', 'OpenData_title' => 'Freshwater and Marine Image Bank, University Libraries, U Washington', 'resource_id' => 388);
