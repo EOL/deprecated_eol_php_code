@@ -21,13 +21,18 @@ require_library('connectors/DwCA_Utility');
 /* MicroScope, FieldScope, Biscayne_BioBlitz -> have EOL XML, with media objects that are offline. Has Collections for source of media objects. Media objects from XML will be removed like that of LifeDesks */
 
 $final = array();
-$lifedesks = array('256', '233', '254'); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope   Biscayne_BioBlitz
+$lifedesks = array('257', '256', '233', '254'); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope   Biscayne_BioBlitz
 
 /* template
 $info['res_id'] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxx', 'resource_id' => res_id, 'prefix' => "EOL_");
 $info['res_id']['xml_path'] = "http";
 $info['res_id']['data_types'] = array('xxx'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 */
+
+//has xml, has audio but offline, has collection
+$info['257'] = array('id' => 344, 'domain' => 'http://www.eol.org/content_partners/359/resources/257', 'OpenData_title' => 'One Species at a Time Podcasts', 'resource_id' => 257, 'prefix' => "EOL_");
+$info['257']['xml_path'] = "http://services.eol.org/resources/257.xml";
+$info['257']['data_types'] = array('sounds'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 
 //with xml, no connector, offline media, has collection
 $info['256'] = array('id' => 343, 'domain' => 'http://www.eol.org/content_partners/358/resources/256', 'OpenData_title' => 'Harmful Phytoplankton Resource', 'resource_id' => 256, 'prefix' => "EOL_");

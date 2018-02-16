@@ -203,7 +203,7 @@ class ConvertEOLtoDWCaAPI
                     306     Reptile DB
                     21      AmphibiaWeb
                     */
-                    if(in_array($this->resource_id, array(412,306,21,"EOL_180","EOL_374",181,'EOL_256'))) { //add here resource_ids
+                    if(in_array($this->resource_id, array(412,306,21,"EOL_180","EOL_374",181,'EOL_256','EOL_257'))) { //add here resource_ids
                         $json = json_encode($o);
                         $identifier = md5($json);
                     }
