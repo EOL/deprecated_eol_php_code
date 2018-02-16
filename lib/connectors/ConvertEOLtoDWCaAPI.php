@@ -212,7 +212,7 @@ class ConvertEOLtoDWCaAPI
                     */
                     $json = json_encode($o);
                     $identifier = md5($json);
-                    echo "\nSystem generated object identifier, since XML doesn't have it.\n";
+                    // echo "\nSystem generated object identifier, since XML doesn't have it.\n";
                 }
                 $rec["obj_identifier"] = $identifier;
             }

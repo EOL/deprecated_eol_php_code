@@ -21,13 +21,22 @@ require_library('connectors/DwCA_Utility');
 /* MicroScope, FieldScope, Biscayne_BioBlitz -> have EOL XML, with media objects that are offline. Has Collections for source of media objects. Media objects from XML will be removed like that of LifeDesks */
 
 $final = array();
-$lifedesks = array('358', '277', '172', '155', '154', '338', '352', '335', '324'); $final = array_merge($final, $lifedesks); //normal operation
+$lifedesks = array('375', '193'); $final = array_merge($final, $lifedesks);
 
 /* template
 $info['res_id'] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxx', 'resource_id' => res_id, 'prefix' => "EOL_");
 $info['res_id']['xml_path'] = "http";
 $info['res_id']['data_types'] = array('xxx'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 */
+
+$info['193'] = array('id' => 27254, 'domain' => 'http://www.eol.org/content_partners/271/resources/193', 'OpenData_title' => 'Field Museum Class in Phylogenetics: 2010', 'resource_id' => 193, 'prefix' => "EOL_");
+$info['193']['xml_path'] = "http://services.eol.org/resources/193.xml";
+$info['193']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
+
+//has static xml, offline media, has collection
+$info['375'] = array('id' => 26543, 'domain' => 'http://www.eol.org/content_partners/486/resources/375', 'OpenData_title' => 'BOT 323 Flowering Plants of the World, Oregon State University', 'resource_id' => 375, 'prefix' => "EOL_");
+$info['375']['xml_path'] = "http://services.eol.org/resources/375.xml";
+$info['375']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 
 //has static xml, offline media, has collection
 $info['358'] = array('id' => 22742, 'domain' => 'http://www.eol.org/content_partners/44/resources/358', 'OpenData_title' => 'STRI Neotropical fish distribution maps', 'resource_id' => 358, 'prefix' => "EOL_");
