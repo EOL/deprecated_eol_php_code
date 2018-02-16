@@ -25,13 +25,18 @@ require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
 $final = array();
-$lifedesks = array('221'); $final = array_merge($final, $lifedesks); //12 785
+$lifedesks = array('388', '221'); $final = array_merge($final, $lifedesks); //12 785
 //==============================================================================================================================
 /* template
 $info[res_id] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxxx', 'resource_id' => res_id);
 $info[res_id]['xml_path'] = ""; //http
 $info[res_id]['data_types'] = array('datatype'); //possible values array('images', 'video', 'sounds', 'text')
 */
+
+//has static dwca, offline media, has collection
+$info[388] = array('id' => 31834, 'domain' => 'http://www.eol.org/content_partners/487/resources/388', 'OpenData_title' => 'Freshwater and Marine Image Bank, University Libraries, U Washington', 'resource_id' => 388);
+$info[388]['xml_path'] = ""; //http
+$info[388]['data_types'] = array('images', 'text'); //possible values array('images', 'video', 'sounds', 'text')
 
 //with connector, partner site now offline, cannot recreate resource, with collection
 $info[221] = array('id' => 318, 'domain' => 'http://www.eol.org/content_partners/302/resources/221', 'OpenData_title' => 'Invertebrates of the Salish Sea', 'resource_id' => 221);
