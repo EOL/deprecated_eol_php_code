@@ -38,7 +38,7 @@ $info[res_id]['data_types'] = array('datatype'); //possible values array('images
 //has connector but partner site already down. no xml nor dwca, used collections instead.
 $info[414] = array('id' => 49850, 'domain' => 'http://www.eol.org/content_partners/503/resources/414', 'OpenData_title' => 'Dutch Marine and Coastal Species Encyclopedia', 'resource_id' => 414);
 $info[414]['xml_path'] = ""; //http
-$info[414]['data_types'] = array('datatype'); //possible values array('images', 'video', 'sounds', 'text')
+$info[414]['data_types'] = array('images', 'text'); //possible values array('images', 'video', 'sounds', 'text')
 
 //has static dwca, offline media, has collection
 $info[388] = array('id' => 31834, 'domain' => 'http://www.eol.org/content_partners/487/resources/388', 'OpenData_title' => 'Freshwater and Marine Image Bank, University Libraries, U Washington', 'resource_id' => 388);
