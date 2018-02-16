@@ -30,6 +30,9 @@ image/gif   : 6
 - we are also now getting Scientific Articles as references
 */
 
+echo "\nPartner site is now offline.\n";
+return;
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/RosarioBeachMarineLabAPI');
 $timestart = time_elapsed();
