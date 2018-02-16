@@ -22,13 +22,23 @@ require_library('connectors/DwCA_Utility');
 
 $final = array();
 $lifedesks = array('277', '172', '155', '154'); $final = array_merge($final, $lifedesks); //rerun as LifeDesk
-$lifedesks = array('335', '324'); $final = array_merge($final, $lifedesks); //normal operation
+$lifedesks = array('338', '352', '335', '324'); $final = array_merge($final, $lifedesks); //normal operation
 /* template
 $info['res_id'] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxx', 'resource_id' => res_id, 'prefix' => "EOL_");
 $info['res_id']['xml_path'] = "http";
 $info['res_id']['data_types'] = array('xxx'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 */
 
+$info['338'] = array('id' => 22050, 'domain' => 'http://www.eol.org/content_partners/451/resources/338', 'OpenData_title' => 'Entiminae', 'resource_id' => 338, 'prefix' => "EOL_");
+$info['338']['xml_path'] = "http://services.eol.org/resources/338.xml";
+$info['338']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
+
+//has static xml, offline media, has collection
+$info['352'] = array('id' => 21245, 'domain' => 'http://www.eol.org/content_partners/271/resources/352', 'OpenData_title' => '2011 Field Museum REU and Intern Program', 'resource_id' => 352);
+$info['352']['xml_path'] = "http://services.eol.org/resources/352.xml";
+$info['352']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
+
+//has static xml, offline media, has collection
 $info['335'] = array('id' => 16350, 'domain' => 'http://www.eol.org/content_partners/74/resources/335', 'OpenData_title' => 'BibAlex LifeDesk', 'resource_id' => 335);
 $info['335']['xml_path'] = "http://services.eol.org/resources/335.xml";
 $info['335']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
