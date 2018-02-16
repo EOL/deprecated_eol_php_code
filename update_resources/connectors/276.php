@@ -10,11 +10,16 @@ $timestart = time_elapsed();
 require_library('connectors/INBioAPI');
 $resource_id = 276;
 
+
+echo "\nThe media from their DwCA is now offline. Will use collections_generic.php instead.\n";
+return;
+
 // $dwca_file = "http://localhost/~eolit/dwca-inbio-eol.zip"; //zip extracts directly to temp_dir
 // $dwca_file = "http://localhost/~eolit/dwca_inbio.zip"; //zip extracts it within a folder inside temp_dir
 // $dwca_file = "http://localhost/~eolit/dwca_inbio_small.zip";
 // $dwca_file = "http://localhost/~eolit/dwca.tar.gz";
 $dwca_file = "http://dl.dropbox.com/u/7597512/INBIO/dwca_inbio.zip";
+$dwca_file = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/INBIO/dwca_inbio.zip";
 $func = new INBioAPI();
 if($taxa = $func->get_all_taxa($dwca_file))
 {
