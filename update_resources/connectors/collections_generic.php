@@ -26,7 +26,7 @@ require_library('connectors/DwCA_Utility');
 
 $final = array();
 // $lifedesks = array('388', '221'); $final = array_merge($final, $lifedesks);
-$lifedesks = array(414, 420, 428, 431, 434, 460); $final = array_merge($final, $lifedesks);
+$lifedesks = array(420, 428, 431, 434, 460); $final = array_merge($final, $lifedesks);
 
 //==============================================================================================================================
 /* template
