@@ -25,7 +25,7 @@ require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
 $final = array();
-$lifedesks = array('221'); $final = array_merge($final, $lifedesks); //12 785
+$lifedesks = array('221', '', ''); $final = array_merge($final, $lifedesks); //12 785
 //==============================================================================================================================
 /* template
 $info[res_id] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxxx', 'resource_id' => res_id);
@@ -33,10 +33,12 @@ $info[res_id]['xml_path'] = ""; //http
 $info[res_id]['data_types'] = array('datatype'); //possible values array('images', 'video', 'sounds', 'text')
 */
 
-//with connector, partner site now offline, with collection
+//with connector, partner site now offline, cannot recreate resource, with collection
 $info[221] = array('id' => 318, 'domain' => 'http://www.eol.org/content_partners/302/resources/221', 'OpenData_title' => 'Invertebrates of the Salish Sea', 'resource_id' => 221);
 $info[221]['xml_path'] = ""; //http
 $info[221]['data_types'] = array('images', 'text'); //possible values array('images', 'video', 'sounds', 'text')
+
+// start above new items ------------
 
 //flickr (15) special case, no xml, with collection
 $info['Flickr_snapshot_2018_02_14'] = array('id' => 176, 'domain' => 'http://www.eol.org/content_partners/18/resources/15', 'OpenData_title' => 'Flickr snapshot 2018_Feb_14', 'resource_id' => 'Flickr_snapshot_2018_02_14');

@@ -21,13 +21,20 @@ require_library('connectors/DwCA_Utility');
 /* MicroScope, FieldScope, Biscayne_BioBlitz -> have EOL XML, with media objects that are offline. Has Collections for source of media objects. Media objects from XML will be removed like that of LifeDesks */
 
 $final = array();
-$lifedesks = array('172', '217'); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope   Biscayne_BioBlitz
+$lifedesks = array('233', ''); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope   Biscayne_BioBlitz
 
 /* template
 $info['res_id'] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxx', 'resource_id' => res_id, 'prefix' => "EOL_");
 $info['res_id']['xml_path'] = "http";
 $info['res_id']['data_types'] = array('xxx'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 */
+
+//no connector, with xml but cannot recreate, with online video but offline thumbnail
+$info[233] = array('id' => 327, 'domain' => 'http://www.eol.org/content_partners/100/resources/233', 'OpenData_title' => 'Undersea Production test 2', 'resource_id' => 233);
+$info[233]['xml_path'] = "http://services.eol.org/resources/233.xml"; //http
+$info[233]['data_types'] = array('video'); //possible values array('images', 'video', 'sounds', 'text')
+
+//start new items above ----------------------------
 
 //has xml, has text and media with offline media, has collection
 $info['217'] = array('id' => 315, 'domain' => 'http://www.eol.org/content_partners/254/resources/217', 'OpenData_title' => 'OEB130_2010', 'resource_id' => 217, 'prefix' => "EOL_");
