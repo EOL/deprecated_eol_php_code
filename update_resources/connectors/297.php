@@ -7,6 +7,10 @@ estimated execution time: 2 minutes
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
+
+echo "\n Connector obsolete. Used lifedesk_combination.php instead. \n";
+return;
+
 require_library('connectors/INBioAPI');
 require_library('connectors/IabinAPI');
 $resource_id = 297; 

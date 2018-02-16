@@ -25,7 +25,7 @@ require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
 $final = array();
-$lifedesks = array('221', '', ''); $final = array_merge($final, $lifedesks); //12 785
+$lifedesks = array('221'); $final = array_merge($final, $lifedesks); //12 785
 //==============================================================================================================================
 /* template
 $info[res_id] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxxx', 'resource_id' => res_id);

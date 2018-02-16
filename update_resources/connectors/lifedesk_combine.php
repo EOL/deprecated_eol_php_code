@@ -21,13 +21,24 @@ require_library('connectors/DwCA_Utility');
 /* MicroScope, FieldScope, Biscayne_BioBlitz -> have EOL XML, with media objects that are offline. Has Collections for source of media objects. Media objects from XML will be removed like that of LifeDesks */
 
 $final = array();
-$lifedesks = array('281', '279', '277', '276', '275', '271'); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope   Biscayne_BioBlitz
+$lifedesks = array('288', '297', '281', '279'); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope   Biscayne_BioBlitz
+// $lifedesks = array('277', '276', '275', '271'); $final = array_merge($final, $lifedesks);    //testing...MicroScope   FieldScope   Biscayne_BioBlitz
 
 /* template
 $info['res_id'] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxx', 'resource_id' => res_id, 'prefix' => "EOL_");
 $info['res_id']['xml_path'] = "http";
 $info['res_id']['data_types'] = array('xxx'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 */
+
+//has static xml, offline media, has collection
+$info['288'] = array('id' => 362, 'domain' => 'http://www.eol.org/content_partners/261/resources/288', 'OpenData_title' => 'mx2EOL release candidate', 'resource_id' => 288, 'prefix' => "EOL_");
+$info['288']['xml_path'] = "http://services.eol.org/resources/288.xml";
+$info['288']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
+
+//has static xml, offline media, has collection
+$info['297'] = array('id' => 7744, 'domain' => 'http://www.eol.org/content_partners/390/resources/297', 'OpenData_title' => 'IABIN resource', 'resource_id' => 297, 'prefix' => "EOL_");
+$info['297']['xml_path'] = "http://services.eol.org/resources/297.xml";
+$info['297']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 
 //has static xml, offline media, has collection
 $info['281'] = array('id' => 361, 'domain' => 'http://www.eol.org/content_partners/381/resources/281', 'OpenData_title' => 'Natural History Museum Species of the day', 'resource_id' => 281, 'prefix' => "EOL_");
