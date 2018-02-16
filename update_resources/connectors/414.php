@@ -5,6 +5,10 @@ estimated execution time: 18 minutes
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+
+echo "\nPartner site no longer available. Used collections_generic.php instead.\n";
+return;
+
 $timestart = time_elapsed();
 require_library('connectors/EcomareAPI');
 $resource_id = 414;
