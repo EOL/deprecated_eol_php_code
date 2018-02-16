@@ -38,7 +38,7 @@ $info[221] = array('id' => 318, 'domain' => 'http://www.eol.org/content_partners
 $info[221]['xml_path'] = ""; //http
 $info[221]['data_types'] = array('images', 'text'); //possible values array('images', 'video', 'sounds', 'text')
 
-// start above new items ------------
+// start above new items --------------------------------------------------------------
 
 //flickr (15) special case, no xml, with collection
 $info['Flickr_snapshot_2018_02_14'] = array('id' => 176, 'domain' => 'http://www.eol.org/content_partners/18/resources/15', 'OpenData_title' => 'Flickr snapshot 2018_Feb_14', 'resource_id' => 'Flickr_snapshot_2018_02_14');
