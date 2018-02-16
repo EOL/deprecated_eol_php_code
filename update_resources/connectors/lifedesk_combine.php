@@ -21,11 +21,7 @@ require_library('connectors/DwCA_Utility');
 /* MicroScope, FieldScope, Biscayne_BioBlitz -> have EOL XML, with media objects that are offline. Has Collections for source of media objects. Media objects from XML will be removed like that of LifeDesks */
 
 $final = array();
-// $lifedesks = array('277', '172', '155', '154'); $final = array_merge($final, $lifedesks); //rerun as LifeDesk
-$lifedesks = array('277'); $final = array_merge($final, $lifedesks); //normal operation afrotropicalbirds
-// $lifedesks = array('358'); $final = array_merge($final, $lifedesks); //normal operation
-
-// [0] => 338, 352, 335, 324
+$lifedesks = array('358', '277', '172', '155', '154', '338', '352', '335', '324'); $final = array_merge($final, $lifedesks); //normal operation
 
 /* template
 $info['res_id'] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxx', 'resource_id' => res_id, 'prefix' => "EOL_");
