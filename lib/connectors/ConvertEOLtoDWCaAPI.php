@@ -203,11 +203,16 @@ class ConvertEOLtoDWCaAPI
                     306     Reptile DB
                     21      AmphibiaWeb
                     */
+                    /* orig, but decided to make this automatic
                     if(in_array($this->resource_id, array(412,306,21,"EOL_180","EOL_374",181,'EOL_256','EOL_257','EOL_275'))) { //add here resource_ids
                         $json = json_encode($o);
                         $identifier = md5($json);
                     }
                     else echo("\n -- find or create your own object identifier -- \n");
+                    */
+                    $json = json_encode($o);
+                    $identifier = md5($json);
+                    echo "\nSystem generated object identifier, since XML doesn't have it.\n";
                 }
                 $rec["obj_identifier"] = $identifier;
             }
