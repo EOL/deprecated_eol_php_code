@@ -10,11 +10,15 @@ class STRImapsAPI
     {
         $this->map_url = 'http://biogeodb.stri.si.edu/sftep/images/automaps/smapxxx.png';
         $this->taxon_page = 'http://biogeodb.stri.si.edu/sftep/taxon_option_main.php?lvl=S&id=';
+        
+        $this->orig_xml = 'http://services.eol.org/resources/35.xml';
     }
 
     function get_all_taxa($resource_id)
     {
-        $xml = Functions::get_hashed_response(CONTENT_RESOURCE_LOCAL_PATH . "35.xml");
+        // $xml = Functions::get_hashed_response(CONTENT_RESOURCE_LOCAL_PATH . "35.xml");
+        $xml = Functions::get_hashed_response($this->orig_xml, array('expire_seconds' => false));
+        
         $all_taxa = array();
         $i = 0;
         $total = count($xml->taxon);

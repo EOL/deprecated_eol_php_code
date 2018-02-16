@@ -6,6 +6,10 @@ Connector processes the original XML resource (http://eol.org/content_partners/4
 and checks if the map image exists. If it does, it generates a map dataObject for the Maps tab.
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+
+echo "\nUsed lifedesk_combine.php instead.\n";
+return;
+
 require_library('connectors/STRImapsAPI');
 $timestart = time_elapsed();
 $resource_id = 358;
