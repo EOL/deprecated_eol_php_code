@@ -267,8 +267,11 @@ $final = array("diatoms", "deepseacoral", "choreutidae",
     "taiwanseagrasses", "odonata", "alpheidae", "tearga", "canopy", "naididae", "ebivalvia", "compositae", "korupplants", "scarabaeinae", "cyanolichens", "annelida", 
     "polychaetasouthocean");
 
-// liquensbr liquensms staurozoa porifera hawaiilandsnails agrilus tabanidae proctotrupidae katydidsfrombrazil ebasidiolichens molluscacolombia lincolnsflorafauna arachnids indiareeffishes
-// olivirv deepseacoral taiwanseagrasses tearga naididae
+/* these are those without Collection ID
+liquensbr liquensms staurozoa porifera hawaiilandsnails agrilus tabanidae proctotrupidae katydidsfrombrazil ebasidiolichens molluscacolombia lincolnsflorafauna arachnids indiareeffishes
+olivirv deepseacoral taiwanseagrasses tearga naididae
+*/
+
 $info['nemertea']['id'] = 202;          $info['peracarida']['id'] = 25958;  $info['syrphidae']['id'] = 266;     $info['tunicata']['id'] = 235;          $info['leptogastrinae']['id'] = 219;
 $info['continenticola']['id'] = 244;    $info['pelagics']['id'] = 35533;    $info['parmotrema']['id'] = 355;    $info['cnidaria']['id'] = 106941;       $info['sacoglossa']['id'] = 253;
 $info['buccinids']['id'] = 254;         $info['apoidea']['id'] = 345;       $info['opisthostoma']['id'] = 271;  $info['borneanlandsnails']['id'] = 276; $info['malaypeninsularsnail']['id'] = 275;
@@ -280,7 +283,7 @@ $info['quercus']['id'] = 252;           $info['caterpillars']['id'] = 42097; $in
 $info['chess']['id'] = 263;             $info['diatoms']['id'] = 213;       $info['choreutidae']['id'] = 205;   $info['odonata']['id'] = 248;           $info['alpheidae']['id'] = 225;
 $info['canopy']['id'] = 277;            $info['ebivalvia']['id'] = 311;     $info['compositae']['id'] = 302;    $info['korupplants']['id'] = 337;       $info['scarabaeinae']['id'] = 250;
 $info['cyanolichens']['id'] = 239;      $info['annelida']['id'] = 325;      $info['polychaetasouthocean']['id'] = 261;
-// $final = array('apoidea');
+$final = array('apoidea');
 // */
 //scratchpad lifedesk list ==============================================================
 

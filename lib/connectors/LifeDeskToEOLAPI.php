@@ -33,6 +33,8 @@ class LifeDeskToEOLAPI
     }
     private function load_zip_contents($zip_file) //used by get_taxa_from_EOL_XML()
     {
+        if($zip_file == "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/LD2Scratchpad_EOL/apoidea/eol-partnership.xml.gz") $this->download_options['expire_seconds'] = 0;
+        
         $temp_dir = create_temp_dir() . "/";
         if($file_contents = Functions::lookup_with_cache($zip_file, $this->download_options)) {
             $parts = pathinfo($zip_file);
