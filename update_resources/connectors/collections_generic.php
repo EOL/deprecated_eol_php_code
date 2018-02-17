@@ -35,16 +35,21 @@ require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
 $final = array();
-// $lifedesks = array(420, 428, 431, 434, 460); $final = array_merge($final, $lifedesks); // running 551 520 676 679 // running 729 742
-if($resource_id_2process) $lifedesks = array($resource_id_2process); $final = array_merge($final, $lifedesks);
+if($resource_id_2process) $lifedesks = array($resource_id_2process); 
 
-$lifedesks = array(882, 717, xxx); $final = array_merge($final, $lifedesks);
+// $lifedesks = array(420, 428, 431, 434, 460); $final = array_merge($final, $lifedesks); // running 551 520 676 679 // running 729 742
+$lifedesks = array(882, 717, 545); $final = array_merge($final, $lifedesks);
 
 //============================================================================================================================== 717 has 218 images
 /* template
 $info[res_id] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxxx', 'resource_id' => res_id);
 $info[res_id]['xml_path'] = ""; $info[res_id]['data_types'] = array('datatype'); //possible values array('images', 'video', 'sounds', 'text')
+
+$info[res_id] = array('id' => col_id, 'data_types' => array('datatype'), 'xml_path' => '');
 */
+
+//no xml nor dwca, has collection
+$info[545] = array('id' => 53390, 'data_types' => array('video'), 'xml_path' => '');
 
 //has static dwca, with offline media, has collection
 $info[717] = array('id' => 105511, 'domain' => 'http://www.eol.org/content_partners/666/resources/717', 'OpenData_title' => 'Okeanos, Gulf of Mexico', 'resource_id' => 717);

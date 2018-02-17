@@ -21,14 +21,30 @@ require_library('connectors/DwCA_Utility');
 /* MicroScope, FieldScope, Biscayne_BioBlitz -> have EOL XML, with media objects that are offline. Has Collections for source of media objects. Media objects from XML will be removed like that of LifeDesks */
 
 $final = array();
-$lifedesks = array('375', '193'); $final = array_merge($final, $lifedesks);
+// $lifedesks = array('375', '193'); $final = array_merge($final, $lifedesks);
+
+$lifedesks = array(647, 655, 280, 517, 508, 499, 419, 378); $final = array_merge($final, $lifedesks);
 
 /* template
 $info['res_id'] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxx', 'resource_id' => res_id, 'prefix' => "EOL_");
 $info['res_id']['xml_path'] = "http";
 $info['res_id']['data_types'] = array('xxx'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
+
+$info['res_id'] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path' => 'http', 'prefix' => "EOL_");
 */
 
+$info['378'] = array('id' => 31582, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/378.xml', 'prefix' => "EOL_");
+$info['419'] = array('id' => 34648, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/419.xml', 'prefix' => "EOL_");
+$info['499'] = array('id' => 46752, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/499.xml', 'prefix' => "EOL_");
+$info['508'] = array('id' => 47767, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/508.xml', 'prefix' => "EOL_");
+$info['517'] = array('id' => 48845, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/517.xml', 'prefix' => "EOL_");
+$info['280'] = array('id' => 52209, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/280.xml', 'prefix' => "EOL_"); 
+$info['655'] = array('id' => 57492, 'data_types' => array('images'), 'xml_path' => 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/CIEE Tropical Ecology and Conservation Program Spring 2013/655.xml', 'prefix' => "EOL_");
+
+//has static xml, offline media, has collection
+$info['647'] = array('id' => 59900, 'domain' => 'http', 'OpenData_title' => 'xxx', 'resource_id' => 647, 'prefix' => "EOL_");
+$info['647']['xml_path'] = "http://services.eol.org/resources/647.xml";
+$info['647']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 
 //start new items above -------------------------------------------------------------- 02
 
@@ -253,7 +269,7 @@ $info['leptogastrinae']     = array('id'=>219, 'LD_domain' => 'http://leptogastr
 $scratchpad = false;
 
 //scratchpad lifedesk list ============================================================== removed apoidea
-/*
+// /*
 $scratchpad = true;
 // $final = array("nemertea", "peracarida", "syrphidae", "tunicata", "leptogastrinae", "continenticola", "pelagics", "parmotrema", "liquensbr", "liquensms", "staurozoa", 
 //     "cnidaria", "porifera", "sacoglossa", "buccinids"); //done
@@ -287,7 +303,7 @@ $info['quercus']['id'] = 252;           $info['caterpillars']['id'] = 42097; $in
 $info['chess']['id'] = 263;             $info['diatoms']['id'] = 213;       $info['choreutidae']['id'] = 205;   $info['odonata']['id'] = 248;           $info['alpheidae']['id'] = 225;
 $info['canopy']['id'] = 277;            $info['ebivalvia']['id'] = 311;     $info['compositae']['id'] = 302;    $info['korupplants']['id'] = 337;       $info['scarabaeinae']['id'] = 250;
 $info['cyanolichens']['id'] = 239;      $info['annelida']['id'] = 325;      $info['polychaetasouthocean']['id'] = 261;
-*/
+// */
 //scratchpad lifedesk list ==============================================================
 
 /* this works OK. but was decided not to add ancestry if original source doesn't have ancestry. Makes sense.
