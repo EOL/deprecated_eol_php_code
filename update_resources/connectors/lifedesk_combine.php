@@ -248,6 +248,28 @@ $info['philbreo']           = array('id'=>16553, 'LD_domain' => 'http://philbreo
 $info['diptera']            = array('id'=>111622, 'LD_domain' => 'http://diptera.lifedesks.org/', 'OpenData_title' => 'EOL Rapid Response Team Diptera LifeDesk');
 $info['leptogastrinae']     = array('id'=>219, 'LD_domain' => 'http://leptogastrinae.lifedesks.org/', 'OpenData_title' => 'Leptogastrinae LifeDesk');
 
+//scratchpad lifedesk list ==============================================================
+$lifedesks = array("nemertea", "peracarida", "syrphidae", "tunicata", "leptogastrinae", "continenticola", "pelagics", "parmotrema", "liquensbr", "liquensms", "staurozoa", 
+    "cnidaria", "porifera", "sacoglossa", "buccinids", "apoidea", "opisthostoma", "borneanlandsnails", "malaypeninsularsnail", "sipuncula", "hawaiilandsnails", 
+    "ostracoda", "ampullariidae", "cephaloleia", "mormyrids", "terrslugs", "agrilus", "camptosomata", "urbanfloranyc", "marineinvaders", "neritopsine", 
+    "polycladida", "tabanidae", "squatlobsters", "simuliidae", "proctotrupidae", "opisthobranchia", "katydidsfrombrazil", "hypogymnia", "salamandersofchina", 
+    "ebasidiolichens", "hundrednewlichens", "molluscacolombia", "lincolnsflorafauna", "arachnids", "congofishes", "indiareeffishes", "olivirv", "avesamericanas", 
+    "neotropnathistory", "quercus", "caterpillars", "africanamphibians", "neotropicalfishes", "dinoflagellate", "chess", "diatoms", "deepseacoral", "choreutidae", 
+    "taiwanseagrasses", "odonata", "alpheidae", "tearga", "canopy", "naididae", "ebivalvia", "compositae", "korupplants", "scarabaeinae", "cyanolichens", "annelida", 
+    "polychaetasouthocean", "batrach", "echinoderms");
+// liquensbr liquensms staurozoa porifera
+$info['nemertea']['id'] = 202;          $info['peracarida']['id'] = 25958;  $info['syrphidae']['id'] = 266;     $info['tunicata']['id'] = 235;          $info['leptogastrinae']['id'] = 219;
+$info['continenticola']['id'] = 244;    $info['pelagics']['id'] = 35533;    $info['parmotrema']['id'] = 355;    $info['cnidaria']['id'] = 106941;       $info['sacoglossa']['id'] = 253;
+$info['buccinids']['id'] = 254;         $info['apoidea']['id'] = 345;       $info['opisthostoma']['id'] = 271;  $info['borneanlandsnails']['id'] = 276; $info['malaypeninsularsnail']['id'] = 275;
+
+$info['xxx']['id'] = col_id;
+$info['xxx']['id'] = col_id;
+$info['xxx']['id'] = col_id;
+$info['xxx']['id'] = col_id;
+$info['xxx']['id'] = col_id;
+
+//scratchpad lifedesk list ==============================================================
+
 /* this works OK. but was decided not to add ancestry if original source doesn't have ancestry. Makes sense.
 $ancestry['afrotropicalbirds'] = array('kingdom' => 'Animalia', 'phylum' => 'Chordata', 'class' => 'Aves'); 
 */
