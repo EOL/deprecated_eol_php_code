@@ -44,6 +44,12 @@ $info[res_id] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'x
 $info[res_id]['xml_path'] = ""; $info[res_id]['data_types'] = array('datatype'); //possible values array('images', 'video', 'sounds', 'text')
 */
 
+//has static dwca, with offline media, has collection
+$info[res_id] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxxx', 'resource_id' => res_id);
+$info[res_id]['xml_path'] = ""; $info[res_id]['data_types'] = array('datatype'); //possible values array('images', 'video', 'sounds', 'text')
+
+// start above new items -------------------------------------------------------------- 02
+
 // has no more xml nor dwca, without connector, but with collection
 $info[742] = array('id' => 100795, 'domain' => 'http://www.eol.org/content_partners/679/resources/742', 'OpenData_title' => 'AquaParadox: The Diversity of Planktonic Microorganisms', 'resource_id' => 742);
 $info[742]['xml_path'] = ""; $info[742]['data_types'] = array('video', 'images'); //possible values array('images', 'video', 'sounds', 'text')
@@ -98,7 +104,7 @@ $info[221] = array('id' => 318, 'domain' => 'http://www.eol.org/content_partners
 $info[221]['xml_path'] = ""; //http
 $info[221]['data_types'] = array('images', 'text'); //possible values array('images', 'video', 'sounds', 'text')
 
-// start above new items --------------------------------------------------------------
+// start above new items -------------------------------------------------------------- 01
 
 //flickr (15) special case, no xml, with collection
 $info['Flickr_snapshot_2018_02_14'] = array('id' => 176, 'domain' => 'http://www.eol.org/content_partners/18/resources/15', 'OpenData_title' => 'Flickr snapshot 2018_Feb_14', 'resource_id' => 'Flickr_snapshot_2018_02_14');
