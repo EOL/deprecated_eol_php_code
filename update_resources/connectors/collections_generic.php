@@ -28,13 +28,17 @@ $final = array();
 // $lifedesks = array('388', '221'); $final = array_merge($final, $lifedesks);
 // $lifedesks = array(420, 428, 431, 434, 460); $final = array_merge($final, $lifedesks); // running 551 520 676 679
 $lifedesks = array('729'); $final = array_merge($final, $lifedesks); //to be run
-$lifedesks = array('res_id'); $final = array_merge($final, $lifedesks); //to be run
+$lifedesks = array('742'); $final = array_merge($final, $lifedesks); //to be run
 
 //==============================================================================================================================
 /* template
 $info[res_id] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxxx', 'resource_id' => res_id);
 $info[res_id]['xml_path'] = ""; $info[res_id]['data_types'] = array('datatype'); //possible values array('images', 'video', 'sounds', 'text')
 */
+
+// has no more xml nor dwca, without connector, but with collection
+$info[742] = array('id' => 100795, 'domain' => 'http://www.eol.org/content_partners/679/resources/742', 'OpenData_title' => 'AquaParadox: The Diversity of Planktonic Microorganisms', 'resource_id' => 742);
+$info[742]['xml_path'] = ""; $info[742]['data_types'] = array('video', 'images'); //possible values array('images', 'video', 'sounds', 'text')
 
 // has no more xml nor dwca, with connector, but with collection
 $info[729] = array('id' => 99799, 'domain' => 'http://www.eol.org/content_partners/669/resources/729', 'OpenData_title' => 'Marine Life in Koh Phangan resource', 'resource_id' => 729);
