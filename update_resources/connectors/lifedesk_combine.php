@@ -249,11 +249,11 @@ $info['diptera']            = array('id'=>111622, 'LD_domain' => 'http://diptera
 $info['leptogastrinae']     = array('id'=>219, 'LD_domain' => 'http://leptogastrinae.lifedesks.org/', 'OpenData_title' => 'Leptogastrinae LifeDesk');
 $scratchpad = false;
 
-//scratchpad lifedesk list ============================================================== 
+//scratchpad lifedesk list ============================================================== removed apoidea
 // /*
 $scratchpad = true;
 $final = array("nemertea", "peracarida", "syrphidae", "tunicata", "leptogastrinae", "continenticola", "pelagics", "parmotrema", "liquensbr", "liquensms", "staurozoa", 
-    "cnidaria", "porifera", "sacoglossa", "buccinids", "apoidea", "opisthostoma", "borneanlandsnails", "malaypeninsularsnail", "sipuncula", "hawaiilandsnails", 
+    "cnidaria", "porifera", "sacoglossa", "buccinids", "opisthostoma", "borneanlandsnails", "malaypeninsularsnail", "sipuncula", "hawaiilandsnails", 
     "ostracoda", "ampullariidae", "cephaloleia", "mormyrids", "terrslugs", "agrilus", "camptosomata", "urbanfloranyc", "marineinvaders", "neritopsine", 
     "polycladida", "tabanidae", "squatlobsters", "simuliidae", "proctotrupidae", "opisthobranchia", "katydidsfrombrazil", "hypogymnia", "salamandersofchina", 
     "ebasidiolichens", "hundrednewlichens", "molluscacolombia", "lincolnsflorafauna", "arachnids", "congofishes", "indiareeffishes", "olivirv", "avesamericanas", 
@@ -274,7 +274,7 @@ $info['quercus']['id'] = 252;           $info['caterpillars']['id'] = 42097; $in
 $info['chess']['id'] = 263;             $info['diatoms']['id'] = 213;       $info['choreutidae']['id'] = 205;   $info['odonata']['id'] = 248;           $info['alpheidae']['id'] = 225;
 $info['canopy']['id'] = 277;            $info['ebivalvia']['id'] = 311;     $info['compositae']['id'] = 302;    $info['korupplants']['id'] = 337;       $info['scarabaeinae']['id'] = 250;
 $info['cyanolichens']['id'] = 239;      $info['annelida']['id'] = 325;      $info['polychaetasouthocean']['id'] = 261;
-
+// $final = array('apoidea');
 // */
 //scratchpad lifedesk list ==============================================================
 
