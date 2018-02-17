@@ -29,6 +29,9 @@ $info['res_id']['xml_path'] = "http";
 $info['res_id']['data_types'] = array('xxx'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 */
 
+
+//start new items above -------------------------------------------------------------- 02
+
 $info['193'] = array('id' => 27254, 'domain' => 'http://www.eol.org/content_partners/271/resources/193', 'OpenData_title' => 'Field Museum Class in Phylogenetics: 2010', 'resource_id' => 193, 'prefix' => "EOL_");
 $info['193']['xml_path'] = "http://services.eol.org/resources/193.xml";
 $info['193']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
@@ -127,7 +130,7 @@ $info[233] = array('id' => 327, 'domain' => 'http://www.eol.org/content_partners
 $info[233]['xml_path'] = "http://services.eol.org/resources/233.xml"; //http
 $info[233]['data_types'] = array('video'); //possible values array('images', 'video', 'sounds', 'text')
 
-//start new items above --------------------------------------------------------------
+//start new items above -------------------------------------------------------------- 01
 
 //has xml, has text and media with offline media, has collection
 $info['217'] = array('id' => 315, 'domain' => 'http://www.eol.org/content_partners/254/resources/217', 'OpenData_title' => 'OEB130_2010', 'resource_id' => 217, 'prefix' => "EOL_");
@@ -263,14 +266,15 @@ $scratchpad = true;
 //     "ebasidiolichens", "hundrednewlichens", "molluscacolombia", "lincolnsflorafauna", "arachnids", "congofishes", "indiareeffishes", "olivirv", "avesamericanas", 
 //     "neotropnathistory", "quercus", "caterpillars", "africanamphibians", "neotropicalfishes", "dinoflagellate", "chess");
 
-$final = array("diatoms", "deepseacoral", "choreutidae", 
+$final = array("apoidea", "diatoms", "deepseacoral", "choreutidae", 
     "taiwanseagrasses", "odonata", "alpheidae", "tearga", "canopy", "naididae", "ebivalvia", "compositae", "korupplants", "scarabaeinae", "cyanolichens", "annelida", 
     "polychaetasouthocean");
 
-/* these are those without Collection ID
-liquensbr liquensms staurozoa porifera hawaiilandsnails agrilus tabanidae proctotrupidae katydidsfrombrazil ebasidiolichens molluscacolombia lincolnsflorafauna arachnids indiareeffishes
-olivirv deepseacoral taiwanseagrasses tearga naididae
-*/
+
+// these are those without Collection ID
+$final = array("liquensbr", "liquensms", "staurozoa", "porifera", "hawaiilandsnails", "agrilus", "tabanidae", "proctotrupidae", "katydidsfrombrazil", "ebasidiolichens", "molluscacolombia", 
+"lincolnsflorafauna", "arachnids", "indiareeffishes", "olivirv", "deepseacoral", "taiwanseagrasses", "tearga", "naididae");
+
 
 $info['nemertea']['id'] = 202;          $info['peracarida']['id'] = 25958;  $info['syrphidae']['id'] = 266;     $info['tunicata']['id'] = 235;          $info['leptogastrinae']['id'] = 219;
 $info['continenticola']['id'] = 244;    $info['pelagics']['id'] = 35533;    $info['parmotrema']['id'] = 355;    $info['cnidaria']['id'] = 106941;       $info['sacoglossa']['id'] = 253;
@@ -283,7 +287,6 @@ $info['quercus']['id'] = 252;           $info['caterpillars']['id'] = 42097; $in
 $info['chess']['id'] = 263;             $info['diatoms']['id'] = 213;       $info['choreutidae']['id'] = 205;   $info['odonata']['id'] = 248;           $info['alpheidae']['id'] = 225;
 $info['canopy']['id'] = 277;            $info['ebivalvia']['id'] = 311;     $info['compositae']['id'] = 302;    $info['korupplants']['id'] = 337;       $info['scarabaeinae']['id'] = 250;
 $info['cyanolichens']['id'] = 239;      $info['annelida']['id'] = 325;      $info['polychaetasouthocean']['id'] = 261;
-$final = array('apoidea');
 // */
 //scratchpad lifedesk list ==============================================================
 
