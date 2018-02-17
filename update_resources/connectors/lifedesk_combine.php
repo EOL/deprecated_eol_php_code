@@ -259,13 +259,13 @@ $scratchpad = true;
 //     "ostracoda", "ampullariidae", "cephaloleia", "mormyrids", "terrslugs", "agrilus", "camptosomata", "urbanfloranyc", "marineinvaders", "neritopsine", 
 //     "polycladida", "tabanidae", "squatlobsters", "simuliidae", "proctotrupidae", "opisthobranchia");
 
-$final = array("katydidsfrombrazil", "hypogymnia", "salamandersofchina", 
-    "ebasidiolichens", "hundrednewlichens", "molluscacolombia", "lincolnsflorafauna", "arachnids", "congofishes", "indiareeffishes", "olivirv", "avesamericanas", 
-    "neotropnathistory", "quercus", "caterpillars", "africanamphibians", "neotropicalfishes", "dinoflagellate", "chess");
+// $final = array("katydidsfrombrazil", "hypogymnia", "salamandersofchina", 
+//     "ebasidiolichens", "hundrednewlichens", "molluscacolombia", "lincolnsflorafauna", "arachnids", "congofishes", "indiareeffishes", "olivirv", "avesamericanas", 
+//     "neotropnathistory", "quercus", "caterpillars", "africanamphibians", "neotropicalfishes", "dinoflagellate", "chess");
 
-// $final = array("diatoms", "deepseacoral", "choreutidae", 
-//     "taiwanseagrasses", "odonata", "alpheidae", "tearga", "canopy", "naididae", "ebivalvia", "compositae", "korupplants", "scarabaeinae", "cyanolichens", "annelida", 
-//     "polychaetasouthocean");
+$final = array("diatoms", "deepseacoral", "choreutidae", 
+    "taiwanseagrasses", "odonata", "alpheidae", "tearga", "canopy", "naididae", "ebivalvia", "compositae", "korupplants", "scarabaeinae", "cyanolichens", "annelida", 
+    "polychaetasouthocean");
 
 // liquensbr liquensms staurozoa porifera hawaiilandsnails agrilus tabanidae proctotrupidae katydidsfrombrazil ebasidiolichens molluscacolombia lincolnsflorafauna arachnids indiareeffishes
 // olivirv deepseacoral taiwanseagrasses tearga naididae
