@@ -41,7 +41,7 @@ $final = array();
 // $lifedesks = array('742'); $final = array_merge($final, $lifedesks); //to be run
 if($resource_id_2process) $lifedesks = array($resource_id_2process); $final = array_merge($final, $lifedesks);
 
-//==============================================================================================================================
+//============================================================================================================================== 717 has 218 images
 /* template
 $info[res_id] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxxx', 'resource_id' => res_id);
 $info[res_id]['xml_path'] = ""; $info[res_id]['data_types'] = array('datatype'); //possible values array('images', 'video', 'sounds', 'text')
