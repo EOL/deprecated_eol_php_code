@@ -247,22 +247,19 @@ $info['afrotropicalbirds']  = array('id'=>9528, 'LD_domain' => 'http://afrotropi
 $info['philbreo']           = array('id'=>16553, 'LD_domain' => 'http://philbreo.lifedesks.org/', 'OpenData_title' => 'Amphibians and Reptiles of the Philippines LifeDesk');
 $info['diptera']            = array('id'=>111622, 'LD_domain' => 'http://diptera.lifedesks.org/', 'OpenData_title' => 'EOL Rapid Response Team Diptera LifeDesk');
 $info['leptogastrinae']     = array('id'=>219, 'LD_domain' => 'http://leptogastrinae.lifedesks.org/', 'OpenData_title' => 'Leptogastrinae LifeDesk');
+$scratchpad = false;
 
-//scratchpad lifedesk list ==============================================================
-$lifedesks = array("nemertea", "peracarida", "syrphidae", "tunicata", "leptogastrinae", "continenticola", "pelagics", "parmotrema", "liquensbr", "liquensms", "staurozoa", 
+//scratchpad lifedesk list ============================================================== 
+// /*
+$scratchpad = true;
+$final = array("nemertea", "peracarida", "syrphidae", "tunicata", "leptogastrinae", "continenticola", "pelagics", "parmotrema", "liquensbr", "liquensms", "staurozoa", 
     "cnidaria", "porifera", "sacoglossa", "buccinids", "apoidea", "opisthostoma", "borneanlandsnails", "malaypeninsularsnail", "sipuncula", "hawaiilandsnails", 
     "ostracoda", "ampullariidae", "cephaloleia", "mormyrids", "terrslugs", "agrilus", "camptosomata", "urbanfloranyc", "marineinvaders", "neritopsine", 
     "polycladida", "tabanidae", "squatlobsters", "simuliidae", "proctotrupidae", "opisthobranchia", "katydidsfrombrazil", "hypogymnia", "salamandersofchina", 
     "ebasidiolichens", "hundrednewlichens", "molluscacolombia", "lincolnsflorafauna", "arachnids", "congofishes", "indiareeffishes", "olivirv", "avesamericanas", 
     "neotropnathistory", "quercus", "caterpillars", "africanamphibians", "neotropicalfishes", "dinoflagellate", "chess", "diatoms", "deepseacoral", "choreutidae", 
     "taiwanseagrasses", "odonata", "alpheidae", "tearga", "canopy", "naididae", "ebivalvia", "compositae", "korupplants", "scarabaeinae", "cyanolichens", "annelida", 
-    "polychaetasouthocean", "batrach", "echinoderms");
-
-$info['cyanolichens']['id'] = 239;
-$info['annelida']['id'] = 325;
-$info['polychaetasouthocean']['id'] = 261;
-$info['batrach']['id'] = 307;
-$info['echinoderms']['id'] = 334;
+    "polychaetasouthocean");
 
 // liquensbr liquensms staurozoa porifera hawaiilandsnails agrilus tabanidae proctotrupidae katydidsfrombrazil ebasidiolichens molluscacolombia lincolnsflorafauna arachnids indiareeffishes
 // olivirv deepseacoral taiwanseagrasses tearga naididae
@@ -276,10 +273,9 @@ $info['salamandersofchina']['id'] = 339; $info['hundrednewlichens']['id'] = 314;
 $info['quercus']['id'] = 252;           $info['caterpillars']['id'] = 42097; $info['africanamphibians']['id'] = 260; $info['neotropicalfishes']['id'] = 294; $info['dinoflagellate']['id'] = 230;
 $info['chess']['id'] = 263;             $info['diatoms']['id'] = 213;       $info['choreutidae']['id'] = 205;   $info['odonata']['id'] = 248;           $info['alpheidae']['id'] = 225;
 $info['canopy']['id'] = 277;            $info['ebivalvia']['id'] = 311;     $info['compositae']['id'] = 302;    $info['korupplants']['id'] = 337;       $info['scarabaeinae']['id'] = 250;
+$info['cyanolichens']['id'] = 239;      $info['annelida']['id'] = 325;      $info['polychaetasouthocean']['id'] = 261;
 
-
-
-
+// */
 //scratchpad lifedesk list ==============================================================
 
 /* this works OK. but was decided not to add ancestry if original source doesn't have ancestry. Makes sense.
@@ -290,8 +286,7 @@ $ancestry['afrotropicalbirds'] = array('kingdom' => 'Animalia', 'phylum' => 'Cho
 $final = array_merge($final, array_keys($info));
 */
 
-$final = array_unique($final);
-print_r($final); echo "\n".count($final)."\n"; //exit;
+$final = array_unique($final); print_r($final); 
 
 // /* normal operation
 foreach($final as $ld) {
@@ -299,9 +294,10 @@ foreach($final as $ld) {
     $params[$ld]["remote"]["lifedesk"]      = "http://" . $ld . ".lifedesks.org/eol-partnership.xml.gz";
     $params[$ld]["remote"]["name"]          = $ld;
     */
-    $params[$ld]["local"]["lifedesk"]       = "http://localhost/cp_new/LD2EOL/" . $ld . "/eol-partnership.xml.gz";
-    $params[$ld]["local"]["lifedesk"]       = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/LD2EOL/$ld/eol-partnership.xml.gz";
-                                            // https://github.com/eliagbayani/EOL-connector-data-files/raw/master/LD2Scratchpad_EOL/$ld/eol-partnership.xml.gz
+    $params[$ld]["local"]["lifedesk"]                 = "http://localhost/cp_new/LD2EOL/" . $ld . "/eol-partnership.xml.gz";
+    $params[$ld]["local"]["lifedesk"]                 = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/LD2EOL/"            .$ld. "/eol-partnership.xml.gz";
+    if($scratchpad) $params[$ld]["local"]["lifedesk"] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/LD2Scratchpad_EOL/" .$ld. "/eol-partnership.xml.gz";
+
     $params[$ld]["local"]["name"]           = $ld;
     $params[$ld]["local"]["ancestry"]       = @$ancestry[$ld];
     
