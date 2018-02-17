@@ -257,22 +257,23 @@ $lifedesks = array("nemertea", "peracarida", "syrphidae", "tunicata", "leptogast
     "neotropnathistory", "quercus", "caterpillars", "africanamphibians", "neotropicalfishes", "dinoflagellate", "chess", "diatoms", "deepseacoral", "choreutidae", 
     "taiwanseagrasses", "odonata", "alpheidae", "tearga", "canopy", "naididae", "ebivalvia", "compositae", "korupplants", "scarabaeinae", "cyanolichens", "annelida", 
     "polychaetasouthocean", "batrach", "echinoderms");
-// liquensbr liquensms staurozoa porifera hawaiilandsnails agrilus tabanidae
+
+
+// liquensbr liquensms staurozoa porifera hawaiilandsnails agrilus tabanidae proctotrupidae katydidsfrombrazil ebasidiolichens molluscacolombia lincolnsflorafauna arachnids indiareeffishes
+// olivirv deepseacoral taiwanseagrasses tearga naididae
 $info['nemertea']['id'] = 202;          $info['peracarida']['id'] = 25958;  $info['syrphidae']['id'] = 266;     $info['tunicata']['id'] = 235;          $info['leptogastrinae']['id'] = 219;
 $info['continenticola']['id'] = 244;    $info['pelagics']['id'] = 35533;    $info['parmotrema']['id'] = 355;    $info['cnidaria']['id'] = 106941;       $info['sacoglossa']['id'] = 253;
 $info['buccinids']['id'] = 254;         $info['apoidea']['id'] = 345;       $info['opisthostoma']['id'] = 271;  $info['borneanlandsnails']['id'] = 276; $info['malaypeninsularsnail']['id'] = 275;
 $info['sipuncula']['id'] = 284;         $info['ostracoda']['id'] = 324;     $info['ampullariidae']['id'] = 273; $info['cephaloleia']['id'] = 8573;      $info['mormyrids']['id'] = 319;
+$info['terrslugs']['id'] = 313;         $info['camptosomata']['id'] = 240;  $info['urbanfloranyc']['id'] = 36676; $info['marineinvaders']['id'] = 326;  $info['neritopsine']['id'] = 267;
+$info['polycladida']['id'] = 329;       $info['squatlobsters']['id'] = 36734; $info['simuliidae']['id'] = 265;  $info['opisthobranchia']['id'] = 12239; $info['hypogymnia']['id'] = 217;
+$info['salamandersofchina']['id'] = 339; $info['hundrednewlichens']['id'] = 314; $info['congofishes']['id'] = 338; $info['avesamericanas']['id'] = 12040; $info['neotropnathistory']['id'] = 335;
+$info['quercus']['id'] = 252;           $info['caterpillars']['id'] = 42097; $info['africanamphibians']['id'] = 260; $info['neotropicalfishes']['id'] = 294; $info['dinoflagellate']['id'] = 230;
+$info['chess']['id'] = 263;             $info['diatoms']['id'] = 213;       $info['choreutidae']['id'] = 205;   $info['odonata']['id'] = 248;           $info['alpheidae']['id'] = 225;
+$info['canopy']['id'] = 277;            $info['ebivalvia']['id'] = 311;     $info['compositae']['id'] = 302;    $info['korupplants']['id'] = 337;       $info['scarabaeinae']['id'] = 250;
 
-$info['terrslugs']['id'] = 313;
-$info['camptosomata']['id'] = 240;
-$info['urbanfloranyc']['id'] = 36676;
-$info['marineinvaders']['id'] = 326;
-$info['neritopsine']['id'] = 267;
-$info['polycladida']['id'] = 329;
-$info['xxx']['id'] = col_id;
-$info['xxx']['id'] = col_id;
-$info['xxx']['id'] = col_id;
-$info['xxx']['id'] = col_id;
+
+
 
 //scratchpad lifedesk list ==============================================================
 
