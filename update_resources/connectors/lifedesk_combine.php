@@ -269,7 +269,7 @@ $info['leptogastrinae']     = array('id'=>219, 'LD_domain' => 'http://leptogastr
 $scratchpad = false;
 
 //scratchpad lifedesk list ============================================================== removed apoidea
-// /*
+/*
 $scratchpad = true;
 // $final = array("nemertea", "peracarida", "syrphidae", "tunicata", "leptogastrinae", "continenticola", "pelagics", "parmotrema", "liquensbr", "liquensms", "staurozoa", 
 //     "cnidaria", "porifera", "sacoglossa", "buccinids"); //done
@@ -303,7 +303,7 @@ $info['quercus']['id'] = 252;           $info['caterpillars']['id'] = 42097; $in
 $info['chess']['id'] = 263;             $info['diatoms']['id'] = 213;       $info['choreutidae']['id'] = 205;   $info['odonata']['id'] = 248;           $info['alpheidae']['id'] = 225;
 $info['canopy']['id'] = 277;            $info['ebivalvia']['id'] = 311;     $info['compositae']['id'] = 302;    $info['korupplants']['id'] = 337;       $info['scarabaeinae']['id'] = 250;
 $info['cyanolichens']['id'] = 239;      $info['annelida']['id'] = 325;      $info['polychaetasouthocean']['id'] = 261;
-// */
+*/
 //scratchpad lifedesk list ==============================================================
 
 /* this works OK. but was decided not to add ancestry if original source doesn't have ancestry. Makes sense.
