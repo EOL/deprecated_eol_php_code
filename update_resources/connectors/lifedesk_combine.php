@@ -255,13 +255,13 @@ $scratchpad = true;
 // $final = array("nemertea", "peracarida", "syrphidae", "tunicata", "leptogastrinae", "continenticola", "pelagics", "parmotrema", "liquensbr", "liquensms", "staurozoa", 
 //     "cnidaria", "porifera", "sacoglossa", "buccinids"); //done
 
-$final = array("opisthostoma", "borneanlandsnails", "malaypeninsularsnail", "sipuncula", "hawaiilandsnails", 
-    "ostracoda", "ampullariidae", "cephaloleia", "mormyrids", "terrslugs", "agrilus", "camptosomata", "urbanfloranyc", "marineinvaders", "neritopsine", 
-    "polycladida", "tabanidae", "squatlobsters", "simuliidae", "proctotrupidae", "opisthobranchia");
+// $final = array("opisthostoma", "borneanlandsnails", "malaypeninsularsnail", "sipuncula", "hawaiilandsnails", 
+//     "ostracoda", "ampullariidae", "cephaloleia", "mormyrids", "terrslugs", "agrilus", "camptosomata", "urbanfloranyc", "marineinvaders", "neritopsine", 
+//     "polycladida", "tabanidae", "squatlobsters", "simuliidae", "proctotrupidae", "opisthobranchia");
 
-// $final = array("katydidsfrombrazil", "hypogymnia", "salamandersofchina", 
-//     "ebasidiolichens", "hundrednewlichens", "molluscacolombia", "lincolnsflorafauna", "arachnids", "congofishes", "indiareeffishes", "olivirv", "avesamericanas", 
-//     "neotropnathistory", "quercus", "caterpillars", "africanamphibians", "neotropicalfishes", "dinoflagellate", "chess");
+$final = array("katydidsfrombrazil", "hypogymnia", "salamandersofchina", 
+    "ebasidiolichens", "hundrednewlichens", "molluscacolombia", "lincolnsflorafauna", "arachnids", "congofishes", "indiareeffishes", "olivirv", "avesamericanas", 
+    "neotropnathistory", "quercus", "caterpillars", "africanamphibians", "neotropicalfishes", "dinoflagellate", "chess");
 
 // $final = array("diatoms", "deepseacoral", "choreutidae", 
 //     "taiwanseagrasses", "odonata", "alpheidae", "tearga", "canopy", "naididae", "ebivalvia", "compositae", "korupplants", "scarabaeinae", "cyanolichens", "annelida", 
