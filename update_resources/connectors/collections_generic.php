@@ -38,6 +38,8 @@ $final = array();
 // $lifedesks = array(420, 428, 431, 434, 460); $final = array_merge($final, $lifedesks); // running 551 520 676 679 // running 729 742
 if($resource_id_2process) $lifedesks = array($resource_id_2process); $final = array_merge($final, $lifedesks);
 
+$lifedesks = array(882, 717, xxx); $final = array_merge($final, $lifedesks);
+
 //============================================================================================================================== 717 has 218 images
 /* template
 $info[res_id] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxxx', 'resource_id' => res_id);
@@ -45,8 +47,12 @@ $info[res_id]['xml_path'] = ""; $info[res_id]['data_types'] = array('datatype');
 */
 
 //has static dwca, with offline media, has collection
-$info[res_id] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxxx', 'resource_id' => res_id);
-$info[res_id]['xml_path'] = ""; $info[res_id]['data_types'] = array('datatype'); //possible values array('images', 'video', 'sounds', 'text')
+$info[717] = array('id' => 105511, 'domain' => 'http://www.eol.org/content_partners/666/resources/717', 'OpenData_title' => 'Okeanos, Gulf of Mexico', 'resource_id' => 717);
+$info[717]['xml_path'] = ""; $info[717]['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
+
+//has static dwca, with offline media, has collection
+$info[882] = array('id' => 111809, 'domain' => 'http://www.eol.org/content_partners/394/resources/882', 'OpenData_title' => 'eMammal Camera Trap Photos', 'resource_id' => 882);
+$info[882]['xml_path'] = ""; $info[882]['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
 
 // start above new items -------------------------------------------------------------- 02
 
