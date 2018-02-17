@@ -257,12 +257,18 @@ $lifedesks = array("nemertea", "peracarida", "syrphidae", "tunicata", "leptogast
     "neotropnathistory", "quercus", "caterpillars", "africanamphibians", "neotropicalfishes", "dinoflagellate", "chess", "diatoms", "deepseacoral", "choreutidae", 
     "taiwanseagrasses", "odonata", "alpheidae", "tearga", "canopy", "naididae", "ebivalvia", "compositae", "korupplants", "scarabaeinae", "cyanolichens", "annelida", 
     "polychaetasouthocean", "batrach", "echinoderms");
-// liquensbr liquensms staurozoa porifera
+// liquensbr liquensms staurozoa porifera hawaiilandsnails agrilus tabanidae
 $info['nemertea']['id'] = 202;          $info['peracarida']['id'] = 25958;  $info['syrphidae']['id'] = 266;     $info['tunicata']['id'] = 235;          $info['leptogastrinae']['id'] = 219;
 $info['continenticola']['id'] = 244;    $info['pelagics']['id'] = 35533;    $info['parmotrema']['id'] = 355;    $info['cnidaria']['id'] = 106941;       $info['sacoglossa']['id'] = 253;
 $info['buccinids']['id'] = 254;         $info['apoidea']['id'] = 345;       $info['opisthostoma']['id'] = 271;  $info['borneanlandsnails']['id'] = 276; $info['malaypeninsularsnail']['id'] = 275;
+$info['sipuncula']['id'] = 284;         $info['ostracoda']['id'] = 324;     $info['ampullariidae']['id'] = 273; $info['cephaloleia']['id'] = 8573;      $info['mormyrids']['id'] = 319;
 
-$info['xxx']['id'] = col_id;
+$info['terrslugs']['id'] = 313;
+$info['camptosomata']['id'] = 240;
+$info['urbanfloranyc']['id'] = 36676;
+$info['marineinvaders']['id'] = 326;
+$info['neritopsine']['id'] = 267;
+$info['polycladida']['id'] = 329;
 $info['xxx']['id'] = col_id;
 $info['xxx']['id'] = col_id;
 $info['xxx']['id'] = col_id;
