@@ -4,7 +4,6 @@ namespace php_active_record;
 estimated execution time:
 This generates an archive (.tar.gz) file in: DOC_ROOT/tmp/ folder
 */
-
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/LifeDeskToScratchpadAPI');
 $timestart = time_elapsed();
@@ -19,13 +18,8 @@ $desks = array("nemertea", "peracarida", "syrphidae", "tunicata", "leptogastrina
     "taiwanseagrasses", "odonata", "alpheidae", "tearga", "canopy", "naididae", "ebivalvia", "compositae", "korupplants", "scarabaeinae", "cyanolichens", "annelida", 
     "polychaetasouthocean", "batrach", "echinoderms"); // "terrslugs" ***
 
-    $desks = array("canopy", "naididae", "ebivalvia", "compositae", "korupplants", "scarabaeinae", "cyanolichens", "annelida", 
-        "polychaetasouthocean", "batrach", "echinoderms"); // "terrslugs" ***
-
-
 $desks = array("echinoderms");
-foreach($desks as $desk)
-{
+foreach($desks as $desk) {
     //remote
     $params[$desk]["remote"]["lifedesk"]          = "http://" . $desk . ".lifedesks.org/eol-partnership.xml.gz";
     $params[$desk]["remote"]["bibtex_file"]       = "";

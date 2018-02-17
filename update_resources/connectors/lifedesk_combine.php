@@ -267,6 +267,7 @@ foreach($final as $ld) {
     */
     $params[$ld]["local"]["lifedesk"]       = "http://localhost/cp_new/LD2EOL/" . $ld . "/eol-partnership.xml.gz";
     $params[$ld]["local"]["lifedesk"]       = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/LD2EOL/$ld/eol-partnership.xml.gz";
+                                            // https://github.com/eliagbayani/EOL-connector-data-files/raw/master/LD2Scratchpad_EOL/$ld/eol-partnership.xml.gz
     $params[$ld]["local"]["name"]           = $ld;
     $params[$ld]["local"]["ancestry"]       = @$ancestry[$ld];
     
