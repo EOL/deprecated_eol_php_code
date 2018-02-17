@@ -26,13 +26,18 @@ require_library('connectors/DwCA_Utility');
 
 $final = array();
 // $lifedesks = array('388', '221'); $final = array_merge($final, $lifedesks);
-$lifedesks = array(420, 428, 431, 434, 460); $final = array_merge($final, $lifedesks);
+// $lifedesks = array(420, 428, 431, 434, 460); $final = array_merge($final, $lifedesks);
+$lifedesks = array('551'); $final = array_merge($final, $lifedesks);
 
 //==============================================================================================================================
 /* template
 $info[res_id] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxxx', 'resource_id' => res_id);
 $info[res_id]['xml_path'] = ""; $info[res_id]['data_types'] = array('datatype'); //possible values array('images', 'video', 'sounds', 'text')
 */
+
+//has static dwca but audio is already offline, has collections though
+$info[551] = array('id' => 59318, 'domain' => 'http://www.eol.org/content_partners/584/resources/551', 'OpenData_title' => 'Thomas J. Walker sound recordings from Macaulay Library of Natural Sounds', 'resource_id' => 551);
+$info[551]['xml_path'] = ""; $info[551]['data_types'] = array('sounds'); //possible values array('images', 'video', 'sounds', 'text')
 
 //all five xls submitted, used collections.
 $info[420] = array('id' => 53328, 'domain' => 'http://www.eol.org/content_partners/513/resources/420', 'OpenData_title' => 'Latin Botanical Illustrations', 'resource_id' => 420);
