@@ -27,13 +27,17 @@ require_library('connectors/DwCA_Utility');
 $final = array();
 // $lifedesks = array('388', '221'); $final = array_merge($final, $lifedesks);
 // $lifedesks = array(420, 428, 431, 434, 460); $final = array_merge($final, $lifedesks);
-$lifedesks = array('520'); $final = array_merge($final, $lifedesks); // running 551
+$lifedesks = array('676'); $final = array_merge($final, $lifedesks); // running 551 520
 
 //==============================================================================================================================
 /* template
 $info[res_id] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxxx', 'resource_id' => res_id);
 $info[res_id]['xml_path'] = ""; $info[res_id]['data_types'] = array('datatype'); //possible values array('images', 'video', 'sounds', 'text')
 */
+
+// has no more xml nor dwca, but with collection
+$info[676] = array('id' => 95012, 'domain' => 'http://www.eol.org/content_partners/616/resources/676', 'OpenData_title' => 'Wikipeixes', 'resource_id' => 676);
+$info[676]['xml_path'] = ""; $info[676]['data_types'] = array('images', 'text'); //possible values array('images', 'video', 'sounds', 'text')
 
 //has static dwca but media is already offline, has collections though
 $info[520] = array('id' => 94950, 'domain' => 'http://www.eol.org/content_partners/533/resources/520', 'OpenData_title' => 'India Biodiversity Portal Species Data', 'resource_id' => 520);
