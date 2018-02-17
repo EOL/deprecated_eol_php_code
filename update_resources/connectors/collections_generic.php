@@ -17,6 +17,16 @@ shhh quiet... - a hack in services.eol.org
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = false;
+
+/* $ collections_generic.php jenkins 729 */
+$cmdline_params['jenkins_or_cron']      = @$argv[1]; //irrelevant here
+$cmdline_params['resource_id_2process'] = @$argv[2]; //useful here
+// print_r($cmdline_params);
+$resource_id_2process = false;
+if($val = @$cmdline_params['resource_id_2process']) $resource_id_2process = $val;
+if($resource_id_2process) echo "\n with resource_id_2process";
+else echo "\n without resource_id_2process";
+
 require_library('connectors/LifeDeskToEOLAPI');
 $func1 = new LifeDeskToEOLAPI();
 
@@ -27,8 +37,9 @@ require_library('connectors/DwCA_Utility');
 $final = array();
 // $lifedesks = array('388', '221'); $final = array_merge($final, $lifedesks);
 // $lifedesks = array(420, 428, 431, 434, 460); $final = array_merge($final, $lifedesks); // running 551 520 676 679
-$lifedesks = array('729'); $final = array_merge($final, $lifedesks); //to be run
-$lifedesks = array('742'); $final = array_merge($final, $lifedesks); //to be run
+// $lifedesks = array('729'); $final = array_merge($final, $lifedesks); //to be run
+// $lifedesks = array('742'); $final = array_merge($final, $lifedesks); //to be run
+if($resource_id_2process) $lifedesks = array($resource_id_2process); $final = array_merge($final, $lifedesks);
 
 //==============================================================================================================================
 /* template
