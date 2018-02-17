@@ -27,13 +27,17 @@ require_library('connectors/DwCA_Utility');
 $final = array();
 // $lifedesks = array('388', '221'); $final = array_merge($final, $lifedesks);
 // $lifedesks = array(420, 428, 431, 434, 460); $final = array_merge($final, $lifedesks);
-$lifedesks = array('551'); $final = array_merge($final, $lifedesks);
+$lifedesks = array('520'); $final = array_merge($final, $lifedesks); // running 551
 
 //==============================================================================================================================
 /* template
 $info[res_id] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxxx', 'resource_id' => res_id);
 $info[res_id]['xml_path'] = ""; $info[res_id]['data_types'] = array('datatype'); //possible values array('images', 'video', 'sounds', 'text')
 */
+
+//has static dwca but media is already offline, has collections though
+$info[520] = array('id' => 94950, 'domain' => 'http://www.eol.org/content_partners/533/resources/520', 'OpenData_title' => 'India Biodiversity Portal Species Data', 'resource_id' => 520);
+$info[520]['xml_path'] = ""; $info[520]['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
 
 //has static dwca but audio is already offline, has collections though
 $info[551] = array('id' => 59318, 'domain' => 'http://www.eol.org/content_partners/584/resources/551', 'OpenData_title' => 'Thomas J. Walker sound recordings from Macaulay Library of Natural Sounds', 'resource_id' => 551);
