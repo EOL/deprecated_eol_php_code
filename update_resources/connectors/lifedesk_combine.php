@@ -258,6 +258,11 @@ $lifedesks = array("nemertea", "peracarida", "syrphidae", "tunicata", "leptogast
     "taiwanseagrasses", "odonata", "alpheidae", "tearga", "canopy", "naididae", "ebivalvia", "compositae", "korupplants", "scarabaeinae", "cyanolichens", "annelida", 
     "polychaetasouthocean", "batrach", "echinoderms");
 
+$info['cyanolichens']['id'] = 239;
+$info['annelida']['id'] = 325;
+$info['polychaetasouthocean']['id'] = 261;
+$info['batrach']['id'] = 307;
+$info['echinoderms']['id'] = 334;
 
 // liquensbr liquensms staurozoa porifera hawaiilandsnails agrilus tabanidae proctotrupidae katydidsfrombrazil ebasidiolichens molluscacolombia lincolnsflorafauna arachnids indiareeffishes
 // olivirv deepseacoral taiwanseagrasses tearga naididae
