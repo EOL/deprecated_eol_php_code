@@ -16,7 +16,7 @@ shhh quiet... - a hack in services.eol.org
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = false;
+$GLOBALS['ENV_DEBUG'] = true;
 
 /* $ collections_generic.php jenkins 729 */
 $cmdline_params['jenkins_or_cron']      = @$argv[1]; //irrelevant here

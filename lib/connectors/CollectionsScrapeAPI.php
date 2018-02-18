@@ -33,9 +33,9 @@ class CollectionsScrapeAPI
         /* we can add 'text' here even if text objects came from the orig LifeDesk XML and not from Collections because to have a more complete list of taxa. 
            We used the taxa info to get ancestry and other info. */
 
-        if(Functions::is_production()) $this->lifedesk_images_path = '/extra/other_files/EOL_images/';
-        else                           $this->lifedesk_images_path = '/Volumes/AKiTiO4/other_files/EOL_images/';
-        $this->media_path = "https://editors.eol.org/other_files/EOL_images/";
+        if(Functions::is_production()) $this->lifedesk_images_path = '/extra/other_files/EOL_media/';
+        else                           $this->lifedesk_images_path = '/Volumes/AKiTiO4/other_files/EOL_media/';
+        $this->media_path = "https://editors.eol.org/other_files/EOL_media/";
     }
 
     // http://media.eol.org/content/2011/12/18/03/38467_orig.jpg        -> orig
