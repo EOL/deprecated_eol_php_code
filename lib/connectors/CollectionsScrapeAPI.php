@@ -269,12 +269,13 @@ class CollectionsScrapeAPI
             $mr->description    = self::fix(@$rec['description']);
             $mr->modified       = @$rec['modified'];
             $mr->CreateDate     = @$rec['created'];
-            if($this->data_type == 'text') {
-                $mr->CVterm = @$rec['subject'];
-                if(!@$rec['subject']) {
-                    echo "\n No subject ? -- ";
-                    print_r($rec);
-                }
+            
+            if($rec['dataType'] == "http://purl.org/dc/dcmitype/Text") {
+                $mr->CVterm = $rec['subject'];
+                // if(!@$rec['subject']) {
+                //     echo "\n No subject ? -- ";
+                //     print_r($rec);
+                // }
             }
             else {
                 $mr->format = $rec['mimeType'];
