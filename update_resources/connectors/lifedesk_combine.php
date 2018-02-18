@@ -319,9 +319,9 @@ $info['cyanolichens']['id'] = 239;      $info['annelida']['id'] = 325;      $inf
 $ancestry['afrotropicalbirds'] = array('kingdom' => 'Animalia', 'phylum' => 'Chordata', 'class' => 'Aves'); 
 */
 
-/* un-comment in normal operation
+// /* un-comment if you want to RUN ALL
 $final = array_merge($final, array_keys($info));
-*/
+// */
 
 $final = array_unique($final); print_r($final); 
 

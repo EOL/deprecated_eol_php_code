@@ -16,7 +16,7 @@ shhh quiet... - a hack in services.eol.org
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = true;
+$GLOBALS['ENV_DEBUG'] = false;
 
 /* $ collections_generic.php jenkins 729 */
 $cmdline_params['jenkins_or_cron']      = @$argv[1]; //irrelevant here
@@ -124,9 +124,9 @@ $info[221]['data_types'] = array('images', 'text'); //possible values array('ima
 // start above new items -------------------------------------------------------------- 01
 
 //flickr (15) special case, no xml, with collection
-$info['Flickr_snapshot_2018_02_14'] = array('id' => 176, 'domain' => 'http://www.eol.org/content_partners/18/resources/15', 'OpenData_title' => 'Flickr snapshot 2018_Feb_14', 'resource_id' => 'Flickr_snapshot_2018_02_14');
-$info['Flickr_snapshot_2018_02_14']['xml_path'] = ""; //http
-$info['Flickr_snapshot_2018_02_14']['data_types'] = array('images', 'video'); //possible values array('images', 'video', 'sounds', 'text')
+// $info['Flickr_snapshot_2018_02_14'] = array('id' => 176, 'domain' => 'http://www.eol.org/content_partners/18/resources/15', 'OpenData_title' => 'Flickr snapshot 2018_Feb_14', 'resource_id' => 'Flickr_snapshot_2018_02_14');
+// $info['Flickr_snapshot_2018_02_14']['xml_path'] = ""; //http
+// $info['Flickr_snapshot_2018_02_14']['data_types'] = array('images', 'video'); //possible values array('images', 'video', 'sounds', 'text')
 
 //todo: has a dwca with text objects but media_url is offline
 $info[785] = array('id' => 103533, 'domain' => 'http://www.eol.org/content_partners/700/resources/785', 'OpenData_title' => 'Inventaire National du Patrimoine Naturel', 'resource_id' => 785);
@@ -136,8 +136,6 @@ $info[785]['data_types'] = array('images'); //possible values array('images', 'v
 $info[12] = array('id' => 174, 'domain' => 'http://www.eol.org/content_partners/12/resources/12', 'OpenData_title' => 'Initial Biolib.de Import', 'resource_id' => 12);
 $info[12]['xml_path'] = "";
 $info[12]['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
-
-
 
 //==============================================================================================================================
 
@@ -151,6 +149,11 @@ foreach($final as $ld) {
     $params[$ld]["local"]["name"]     = $ld;
     $params[$ld]["local"]["ancestry"] = @$ancestry[$ld];
 }
+
+// /* un-comment if you want to RUN ALL
+$final = array_merge($final, array_keys($info));
+// */
+
 $final = array_unique($final);
 print_r($final); echo "\nTotal resource(s): ".count($final)."\n"; //exit;
 $cont_compile = false;
