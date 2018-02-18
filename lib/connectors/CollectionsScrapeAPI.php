@@ -270,7 +270,11 @@ class CollectionsScrapeAPI
             $mr->modified       = @$rec['modified'];
             $mr->CreateDate     = @$rec['created'];
             if($this->data_type == 'text') {
-                $mr->CVterm = $rec['subject'];
+                $mr->CVterm = @$rec['subject'];
+                if(!@$rec['subject']) {
+                    echo "\n No subject ? -- ";
+                    print_r($rec);
+                }
             }
             else {
                 $mr->format = $rec['mimeType'];
