@@ -36,7 +36,7 @@ require_library('connectors/DwCA_Utility');
 
 $final = array();
 if($resource_id_2process) {
-    $lifedesks = array($resource_id_2process); array_merge($final, $lifedesks);
+    $lifedesks = array($resource_id_2process); $final = array_merge($final, $lifedesks);
 }
 
 // $lifedesks = array(420, 428, 431, 434, 460); $final = array_merge($final, $lifedesks); // running 551 520 676 679 // running 729 742

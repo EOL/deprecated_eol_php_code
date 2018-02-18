@@ -30,7 +30,7 @@ require_library('connectors/DwCA_Utility');
 
 $final = array();
 if($resource_id_2process) {
-    $lifedesks = array($resource_id_2process); array_merge($final, $lifedesks);
+    $lifedesks = array($resource_id_2process); $final = array_merge($final, $lifedesks);
 }
 
 // $lifedesks = array(647, 655, 280, 517, 508, 499, 419, 378, 375, 193); $final = array_merge($final, $lifedesks);
