@@ -266,7 +266,7 @@ class CollectionsScrapeAPI
             $mr->furtherInformationURL = @$rec['source'];
             $mr->title          = @$rec['title'];
             $mr->UsageTerms     = $rec['license'];
-            $mr->description    = @$rec['description'];
+            $mr->description    = self::fix(@$rec['description']);
             $mr->modified       = @$rec['modified'];
             $mr->CreateDate     = @$rec['created'];
             if($this->data_type == 'text') {
@@ -290,6 +290,11 @@ class CollectionsScrapeAPI
                 $this->object_ids[$mr->identifier] = '';
             }
         }
+    }
+    private function fix($str)
+    {
+        if(strpos($str, "foRAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5") !== false) return ""; //string is found -- "taxon"
+        return $str;
     }
     private function create_agents($agents)
     {   /* [agents] => Array
