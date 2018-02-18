@@ -150,9 +150,9 @@ foreach($final as $ld) {
     $params[$ld]["local"]["ancestry"] = @$ancestry[$ld];
 }
 
-/* un-comment if you want to RUN ALL
+// /* un-comment if you want to RUN ALL
 $final = array_merge($final, array_keys($info));
-*/
+// */
 
 $final = array_unique($final);
 print_r($final); echo "\nTotal resource(s): ".count($final)."\n"; //exit;
