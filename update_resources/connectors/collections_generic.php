@@ -39,8 +39,8 @@ if($resource_id_2process) {
     $lifedesks = array($resource_id_2process); $final = array_merge($final, $lifedesks);
 }
 
-// $lifedesks = array(420, 428, 431, 434, 460); $final = array_merge($final, $lifedesks); // running 551 520 676 679 // running 729 742
-$lifedesks = array(367, 369, 882, 717, 545); $final = array_merge($final, $lifedesks);
+// $lifedesks = array(420, 428, 431, 434, 460); $final = array_merge($final, $lifedesks); // running 551 520 676 679 // running 729 742 DONE
+// $lifedesks = array(367, 369, 882, 717, 545); $final = array_merge($final, $lifedesks); DONE
 
 //============================================================================================================================== 717 has 218 images
 /* template
