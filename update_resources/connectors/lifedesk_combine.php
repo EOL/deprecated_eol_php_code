@@ -26,7 +26,8 @@ require_library('connectors/ConvertEOLtoDWCaAPI');
 require_library('connectors/CollectionsScrapeAPI');
 require_library('connectors/DwCA_Utility');
 
-/* MicroScope, FieldScope, Biscayne_BioBlitz -> have EOL XML, with media objects that are offline. Has Collections for source of media objects. Media objects from XML will be removed like that of LifeDesks */
+/* MicroScope, FieldScope, Biscayne_BioBlitz -> have EOL XML, with media objects that are offline. Has Collections for source of media objects. 
+Media objects from XML will be removed like that of LifeDesks */
 
 $final = array();
 if($resource_id_2process) {
@@ -235,25 +236,25 @@ $info['Biscayne_BioBlitz'] = array('id' => 251, 'domain' => 'http://www.eol.org/
 $info['Biscayne_BioBlitz']['xml_path'] = "http://services.eol.org/resources/126.xml";
 $info['Biscayne_BioBlitz']['data_types'] = array('images'); //what is available in its Collection
 
-/* ran in Archive already
-$info['FieldScope'] = array('id'=>196, 'LD_domain' => 'http://www.eol.org/content_partners/58/resources/41', 'OpenData_title' => 'FieldScope', 'resource_id' => 41, 'prefix' => "EOL_");
-$info['FieldScope']['xml_path'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/OpenData/EOLxml_2_DWCA/FieldScope_41/41.xml.gz";
-$info['FieldScope']['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text') - get objects of this data_type from Collections
+// /* ran in Archive already
+$info['41'] = array('id'=>196, 'LD_domain' => 'http://www.eol.org/content_partners/58/resources/41', 'OpenData_title' => 'FieldScope', 'resource_id' => 41, 'prefix' => "EOL_");
+$info['41']['xml_path'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/OpenData/EOLxml_2_DWCA/FieldScope_41/41.xml.gz";
+$info['41']['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text') - get objects of this data_type from Collections
 
-$info['MicroScope'] = array('id'=>180, 'LD_domain' => 'http://eol.org/content_partners/5/resources/19', 'OpenData_title' => 'micro*scope', 'resource_id' => 19, 'prefix' => "EOL_");
-$info['MicroScope']['xml_path'] = "http://localhost/cp_new/OpenData/EOLxml_2_DWCA/microscope/microscope.xml.gz";
-$info['MicroScope']['xml_path'] = "https://opendata.eol.org/dataset/4a668cee-f1da-4e95-9ed1-cb755a9aca4f/resource/55ad629d-dd89-4bac-8fff-96f219f4b323/download/microscope.xml.gz";
-$info['MicroScope']['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
-*/
+$info['19'] = array('id'=>180, 'LD_domain' => 'http://eol.org/content_partners/5/resources/19', 'OpenData_title' => 'micro*scope', 'resource_id' => 19, 'prefix' => "EOL_");
+$info['19']['xml_path'] = "http://localhost/cp_new/OpenData/EOLxml_2_DWCA/microscope/microscope.xml.gz";
+$info['19']['xml_path'] = "https://opendata.eol.org/dataset/4a668cee-f1da-4e95-9ed1-cb755a9aca4f/resource/55ad629d-dd89-4bac-8fff-96f219f4b323/download/microscope.xml.gz";
+$info['19']['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
+// */
 
-/* normal operation
+// /* normal operation
 $lifedesks = array("drosophilidae", "mochokidae", "berry", "echinoderms", "eleodes", "empidinae");                  $final = array_merge($final, $lifedesks);
 $lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife", "idorids", "evaniidae");             $final = array_merge($final, $lifedesks);
 $lifedesks = array("araneoidea", "archaeoceti", "calintertidalinverts", "chileanbees", "halictidae", "nlbio");      $final = array_merge($final, $lifedesks);
 $lifedesks = array("surinamewaterbeetles", "scarabaeoidea", "pipunculidae", "ncfishes", "biomarks");                $final = array_merge($final, $lifedesks);
 $lifedesks = array("spiderindia", "speciesindia", "skinklink", "scarab", "nzicn", "bcbiodiversity");                $final = array_merge($final, $lifedesks);
 $lifedesks = array("pterioidea", "westernghatfishes", "cephalopoda");                                               $final = array_merge($final, $lifedesks);
-*/
+// */
 
 $info['araneae']            = array('id'=>203, 'LD_domain' => 'http://araneae.lifedesks.org/', 'OpenData_title' => 'Spiders LifeDesk');
 $info['eolspecies']         = array('id'=>204, 'LD_domain' => 'http://eolspecies.lifedesks.org/', 'OpenData_title' => 'EOL Rapid Response Team LifeDesk');
@@ -338,7 +339,7 @@ foreach($final as $ld) {
     $params[$ld]["local"]["name"]           = $ld;
     $params[$ld]["local"]["ancestry"]       = @$ancestry[$ld];
     
-    // start EOL regular resources e.g. MicroScope
+    // start EOL regular resources e.g. MicroScope (19)
     if($val = @$info[$ld]['xml_path']) $params[$ld]["local"]["lifedesk"] = $val;
 }
 $cont_compile = false;
