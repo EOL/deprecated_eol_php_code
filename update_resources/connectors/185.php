@@ -17,6 +17,10 @@ no parent information -- 10408
 1411,1412,1413,10407,10408,10409
 */
 
+
+echo "\nWill need to re-create connector https://eol-jira.bibalex.org/browse/TRAM-709 \n";
+return;
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/TurbellarianAPI');
 $timestart = time_elapsed();

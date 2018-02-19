@@ -26,6 +26,7 @@ class TurbellarianAPI
         $this->dump_file = $this->TEMP_DIR . "turbellarian_dump.txt";
         $this->dump_file_hierarchy = $this->TEMP_DIR . "turbellarian_hierarchy_dump.txt";
         $this->dump_file_synonyms = $this->TEMP_DIR . "turbellarian_synonyms_dump.txt";
+        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 9600, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'expire_seconds' => 60*60*24*25);
     }
 
     function get_all_taxa()
@@ -64,7 +65,7 @@ class TurbellarianAPI
     private function save_data_to_text()
     {
         $urls = array();
-        $limit = 14543; //hard-coded number of taxon ID //debug orig: 14543
+        $limit = 100; //hard-coded number of taxon ID //debug orig: 14543
         for ($i = 2; $i <= $limit; $i++) $urls[] = $this->taxa_url . $i; // $i first value is 2
         /* foreach(array(321, 512, 2336, 2337, 2376, 2776, 2797, 5116, 5426, 10894, 10895, 10978, 11393, 12032, 12276, 12823, 12949, 13985) as $i) $urls[] = $this->taxa_url . $i; */ //debug
         $j = 0;
@@ -321,7 +322,7 @@ class TurbellarianAPI
 
     private function process_diagnosis($rec, $url)
     {
-        if($html = Functions::get_remote_file($url, array('download_wait_time' => 1000000, 'timeout' => 9600, 'download_attempts' => 2, 'delay_in_minutes' => 1)))
+        if($html = Functions::lookup_with_cache($url, $this->download_options))
         {
             if(preg_match_all("/<pre>(.*?)<\/pre>/ims", $html, $arr) || preg_match_all("/<hr>(.*?)<hr>/ims", $html, $arr) || preg_match_all("/<hr>(.*?)xxx/ims", $html."xxx", $arr)) //ditox
             {
@@ -587,7 +588,7 @@ class TurbellarianAPI
 
     private function get_html($url)
     {
-        if($html = Functions::get_remote_file($url, array('download_wait_time' => 1000000, 'timeout' => 9600, 'download_attempts' => 2, 'delay_in_minutes' => 2))) return $html;
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) return $html;
         else
         {
             if($html = self::curl_get_file_contents($url))

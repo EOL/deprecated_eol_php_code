@@ -47,8 +47,11 @@ if($resource_id_2process) {
 $info[res_id] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxxx', 'resource_id' => res_id);
 $info[res_id]['xml_path'] = ""; $info[res_id]['data_types'] = array('datatype'); //possible values array('images', 'video', 'sounds', 'text')
 
-$info[res_id] = array('id' => col_id, 'data_types' => array('datatype'), 'xml_path' => '');
+$info[res_id] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path' => '');
 */
+
+//has connector, new site, must re-create connector, so will backup media for now.
+$info[185] = array('id' => 293, 'data_types' => array('images'), 'xml_path' => '');
 
 //no xml nor dwca, has collection
 $info[367] = array('id' => 24776, 'data_types' => array('video'), 'xml_path' => '');
