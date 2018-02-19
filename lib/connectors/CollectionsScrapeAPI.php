@@ -113,6 +113,12 @@ class CollectionsScrapeAPI
                 if(file_exists($local)) unlink($local);
             }
         }
+        else {
+            if(filesize($destination)) return $this->media_path.$folder.$filename;
+            else {
+                echo "\ninvestigate destination is zero bytes [$destination]\n"; //exit("\n");
+            }
+        }
         // */
         return false;
     }
