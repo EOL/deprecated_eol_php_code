@@ -50,6 +50,8 @@ $info[res_id]['xml_path'] = ""; $info[res_id]['data_types'] = array('datatype');
 $info[res_id] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path' => '');
 */
 
+
+
 //has connector, new site, must re-create connector, so will backup media for now.
 $info[185] = array('id' => 293, 'data_types' => array('images'), 'xml_path' => '');
 
