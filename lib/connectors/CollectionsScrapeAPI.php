@@ -85,28 +85,32 @@ class CollectionsScrapeAPI
         $mr->identifier     = $rec['dataObjectVersionID']; //$rec['identifier'];
         $mr->accessURI      = $rec['eolMediaURL'];
         */
-        if(@$rec['eolMediaURL']) {
-            $options = $this->download_options;
-            $options['expire_seconds'] = false; //doesn't need to expire at all
-            $filename = $rec['dataObjectVersionID'].".".pathinfo($rec['eolMediaURL'], PATHINFO_EXTENSION);
-
-            $folder = substr($rec['dataObjectVersionID'], -2)."/";
-            if(!is_dir($this->lifedesk_images_path.$folder)) mkdir($this->lifedesk_images_path.$folder);
-
-            $destination = $this->lifedesk_images_path.$folder.$filename;
-
-            // /* uncomment in real operation. This is just to stop downloading of images.
-            if(!file_exists($destination)) {
-                $local = Functions::save_remote_file_to_local($rec['eolMediaURL'], $options);
-                Functions::file_rename($local, $destination);
-                // echo "\n[$local]\n[$destination]";
-            }
-            // */
-            return $this->media_path.$folder.$filename; //this is media_url for the data_object;
-        }
-        elseif($val = @$rec['mediaURL']) return $val;
-        // elseif(@$rec['mediaURL'] && $rec['dataType'] == 'YouTube') return $rec['mediaURL'];
+        if($url = @$rec['eolMediaURL']) return self::download_proper($rec, $url);
+        elseif(@$rec['mediaURL'] && $rec['dataType'] == 'YouTube') return $rec['mediaURL'];
+        elseif($url = @$rec['mediaURL']) return self::download_proper($rec, $url);
     }
+    private function download_proper($rec, $url)
+    {
+        $options = $this->download_options;
+        $options['expire_seconds'] = false; //doesn't need to expire at all
+        $filename = $rec['dataObjectVersionID'].".".pathinfo($url, PATHINFO_EXTENSION);
+
+        $folder = substr($rec['dataObjectVersionID'], -2)."/";
+        if(!is_dir($this->lifedesk_images_path.$folder)) mkdir($this->lifedesk_images_path.$folder);
+
+        $destination = $this->lifedesk_images_path.$folder.$filename;
+
+        // /* uncomment in real operation. This is just to stop downloading of images.
+        if(!file_exists($destination)) {
+            $local = Functions::save_remote_file_to_local($url, $options);
+            Functions::file_rename($local, $destination);
+            // echo "\n[$local]\n[$destination]";
+        }
+        // */
+        return $this->media_path.$folder.$filename; //this is media_url for the data_object;
+    }
+    
+    
     
     private function process_do_id($do_id, $sciname)
     {
