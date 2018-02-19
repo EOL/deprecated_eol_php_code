@@ -131,15 +131,38 @@ class CollectionsScrapeAPI
         if($json = Functions::lookup_with_cache($url, $this->download_options)) {
             $obj = json_decode($json, true);
             if(!@$obj['scientificName']) {//e.g. collection_id = 106941 -> has hidden data_objects and dataObject API doesn't have taxon info.
+                if($sciname) {
+                    $obj['scientificName'] = $sciname;
+                    if($val = self::match_taxa_from_original_LifeDesk_XML($obj)) $obj['identifier'] = $val;
+                    else                                                         $obj['identifier'] = str_replace(" ", "_", strtolower($sciname));
+                }
+                else {
+                    $obj = self::scrape_eol_data_object_page($do_id, $obj);
+                    // print_r($obj); exit("\n -elix- \n");
+                }
+            }
+            else $obj['identifier'] = self::match_taxa_from_original_LifeDesk_XML($obj);
+            // print_r($obj); //exit;
+            self::create_archive($obj);
+        }
+    }
+    private function scrape_eol_data_object_page($do_id, $obj)
+    {
+        $url = "http://www.eol.org/data_objects/$do_id";
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            /*  /overview">Austroserphus albofaciatus Dodd, 1933</a>  */
+            if(preg_match("/\/overview\">(.*?)<\/a>/ims", $html, $arr)) {
+                $sciname = $arr[1];
                 $obj['scientificName'] = $sciname;
                 if($val = self::match_taxa_from_original_LifeDesk_XML($obj)) $obj['identifier'] = $val;
                 else                                                         $obj['identifier'] = str_replace(" ", "_", strtolower($sciname));
             }
-            else $obj['identifier'] = self::match_taxa_from_original_LifeDesk_XML($obj);
-            //print_r($obj); //exit;
-            self::create_archive($obj);
+            else echo "\n --- not found 1 --- \n";
         }
+        else echo "\n --- not found 2 --- \n";
+        return $obj;
     }
+    
     private function match_taxa_from_original_LifeDesk_XML($obj)
     {
         $canonical = Functions::canonical_form($obj['scientificName']); //[scientificName] => Cossypha archeri archeri Sharpe, 1902
