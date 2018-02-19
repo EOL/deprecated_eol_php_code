@@ -168,7 +168,7 @@ class DwCA_Utility
         } //end foreach()
 
         $this->archive_builder->finalize(TRUE);
-        if($this->debug) print_r($this->debug);
+        // if($this->debug) print_r($this->debug); //to limit lines of output
     }
     
     function convert_archive_by_adding_higherClassification()
