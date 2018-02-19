@@ -85,9 +85,10 @@ class CollectionsScrapeAPI
         $mr->identifier     = $rec['dataObjectVersionID']; //$rec['identifier'];
         $mr->accessURI      = $rec['eolMediaURL'];
         */
-        if($url = @$rec['eolMediaURL']) return self::download_proper($rec, $url);
-        elseif(@$rec['mediaURL'] && $rec['dataType'] == 'YouTube') return $rec['mediaURL'];
-        elseif($url = @$rec['mediaURL']) return self::download_proper($rec, $url);
+        if($url = @$rec['eolMediaURL'])                             return self::download_proper($rec, $url);
+        elseif(@$rec['mediaURL'] && $rec['dataType'] == 'YouTube')  return $rec['mediaURL'];
+        elseif($url = @$rec['mediaURL'])                            return self::download_proper($rec, $url);
+        return false;
     }
     private function download_proper($rec, $url)
     {
@@ -103,11 +104,17 @@ class CollectionsScrapeAPI
         // /* uncomment in real operation. This is just to stop downloading of images.
         if(!file_exists($destination)) {
             $local = Functions::save_remote_file_to_local($url, $options);
-            Functions::file_rename($local, $destination);
             // echo "\n[$local]\n[$destination]";
+            if(filesize($local)) {
+                Functions::file_rename($local, $destination);
+                return $this->media_path.$folder.$filename; //this is media_url for the data_object;
+            }
+            else {
+                if(file_exists($local)) unlink($local);
+            }
         }
         // */
-        return $this->media_path.$folder.$filename; //this is media_url for the data_object;
+        return false;
     }
     
     
@@ -283,6 +290,7 @@ class CollectionsScrapeAPI
             else {
                 $mr->format = $rec['mimeType'];
                 $media_url = self::download_multimedia_object($rec); //working OK - uncomment in real operation
+                if(!$media_url) return; //don't save object since the media object wasn't downloaded at all
                 $mr->accessURI = $media_url; //$rec['eolMediaURL']; eolMediaURL is e.g. 'http://media.eol.org/content/2011/12/18/03/66694_orig.jpg'
             }
             /*
