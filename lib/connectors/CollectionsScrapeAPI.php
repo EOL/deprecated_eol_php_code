@@ -104,9 +104,8 @@ class CollectionsScrapeAPI
             // */
             return $this->media_path.$folder.$filename; //this is media_url for the data_object;
         }
-        elseif(@$rec['mediaURL'] && $rec['dataType'] == 'YouTube') {
-            return $rec['mediaURL'];
-        }
+        elseif($val = @$rec['mediaURL']) return $val;
+        // elseif(@$rec['mediaURL'] && $rec['dataType'] == 'YouTube') return $rec['mediaURL'];
     }
     
     private function process_do_id($do_id, $sciname)
