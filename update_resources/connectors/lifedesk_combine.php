@@ -34,7 +34,8 @@ if($resource_id_2process) {
     $lifedesks = array($resource_id_2process); $final = array_merge($final, $lifedesks);
 }
 
-$lifedesks = array('avesamericanas', 647, 655, 280, 517, 508, 499, 419, 378, 375, 193); $final = array_merge($final, $lifedesks);
+// $lifedesks = array('avesamericanas', 647, 655, 280, 517, 508, 499, 419, 378, 375, 193); $final = array_merge($final, $lifedesks); // done
+
 
 /* template
 $info['res_id'] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxx', 'resource_id' => res_id, 'prefix' => "EOL_");
@@ -43,6 +44,9 @@ $info['res_id']['data_types'] = array('xxx'); //what is available in its Collect
 
 $info['res_id'] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path' => 'http', 'prefix' => "EOL_");
 */
+
+//static xml, offline media, has collection
+$info['145'] = array('id' => 264, 'data_types' => array('video'), 'xml_path' => 'http://services.eol.org/resources/145.xml', 'prefix' => "EOL_");
 
 //has edited lifedesk xml, offline media, has collection
 $info['avesamericanas'] = array('id' => 12040, 'data_types' => array('images'), 'xml_path' => 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/LD2Scratchpad_EOL/avesamericanas/eol-partnership.xml.gz', 'prefix' => "EOL_");
@@ -247,14 +251,14 @@ $info['19']['xml_path'] = "https://opendata.eol.org/dataset/4a668cee-f1da-4e95-9
 $info['19']['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
 // */
 
-// /* normal operation
+/* normal operation
 $lifedesks = array("drosophilidae", "mochokidae", "berry", "echinoderms", "eleodes", "empidinae");                  $final = array_merge($final, $lifedesks);
 $lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife", "idorids", "evaniidae");             $final = array_merge($final, $lifedesks);
 $lifedesks = array("araneoidea", "archaeoceti", "calintertidalinverts", "chileanbees", "halictidae", "nlbio");      $final = array_merge($final, $lifedesks);
 $lifedesks = array("surinamewaterbeetles", "scarabaeoidea", "pipunculidae", "ncfishes", "biomarks");                $final = array_merge($final, $lifedesks);
 $lifedesks = array("spiderindia", "speciesindia", "skinklink", "scarab", "nzicn", "bcbiodiversity");                $final = array_merge($final, $lifedesks);
 $lifedesks = array("pterioidea", "westernghatfishes", "cephalopoda");                                               $final = array_merge($final, $lifedesks);
-// */
+*/
 
 $info['araneae']            = array('id'=>203, 'LD_domain' => 'http://araneae.lifedesks.org/', 'OpenData_title' => 'Spiders LifeDesk');
 $info['eolspecies']         = array('id'=>204, 'LD_domain' => 'http://eolspecies.lifedesks.org/', 'OpenData_title' => 'EOL Rapid Response Team LifeDesk');
@@ -284,7 +288,7 @@ $scratchpad = false;
 
 
 //scratchpad lifedesk list ============================================================== START
-// /*
+/*
 $scratchpad = true;
 $info = array();
 $xxx = array("nemertea", "peracarida", "syrphidae", "tunicata", "leptogastrinae", "continenticola", "pelagics", "parmotrema", "liquensbr", "liquensms", "staurozoa", 
@@ -313,16 +317,16 @@ $info['quercus']['id'] = 252;           $info['caterpillars']['id'] = 42097; $in
 $info['chess']['id'] = 263;             $info['diatoms']['id'] = 213;       $info['choreutidae']['id'] = 205;   $info['odonata']['id'] = 248;           $info['alpheidae']['id'] = 225;
 $info['canopy']['id'] = 277;            $info['ebivalvia']['id'] = 311;     $info['compositae']['id'] = 302;    $info['korupplants']['id'] = 337;       $info['scarabaeinae']['id'] = 250;
 $info['cyanolichens']['id'] = 239;      $info['annelida']['id'] = 325;      $info['polychaetasouthocean']['id'] = 261;
-// */
+*/
 //scratchpad lifedesk list ============================================================== END
 
 /* this works OK. but was decided not to add ancestry if original source doesn't have ancestry. Makes sense.
 $ancestry['afrotropicalbirds'] = array('kingdom' => 'Animalia', 'phylum' => 'Chordata', 'class' => 'Aves'); 
 */
 
-// /* un-comment if you want to RUN ALL
+/* un-comment if you want to RUN ALL
 $final = array_merge($final, array_keys($info));
-// */
+*/
 
 $final = array_unique($final); print_r($final); 
 
