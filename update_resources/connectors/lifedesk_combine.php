@@ -257,14 +257,14 @@ $info['19']['xml_path'] = "https://opendata.eol.org/dataset/4a668cee-f1da-4e95-9
 $info['19']['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
 // */
 
-/* normal operation
+// /* normal operation
 $lifedesks = array("drosophilidae", "mochokidae", "berry", "echinoderms", "eleodes", "empidinae");                  $final = array_merge($final, $lifedesks);
 $lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife", "idorids", "evaniidae");             $final = array_merge($final, $lifedesks);
 $lifedesks = array("araneoidea", "archaeoceti", "calintertidalinverts", "chileanbees", "halictidae", "nlbio");      $final = array_merge($final, $lifedesks);
 $lifedesks = array("surinamewaterbeetles", "scarabaeoidea", "pipunculidae", "ncfishes", "biomarks");                $final = array_merge($final, $lifedesks);
 $lifedesks = array("spiderindia", "speciesindia", "skinklink", "scarab", "nzicn", "bcbiodiversity");                $final = array_merge($final, $lifedesks);
 $lifedesks = array("pterioidea", "westernghatfishes", "cephalopoda");                                               $final = array_merge($final, $lifedesks);
-*/
+// */
 
 $info['araneae']            = array('id'=>203, 'LD_domain' => 'http://araneae.lifedesks.org/', 'OpenData_title' => 'Spiders LifeDesk');
 $info['eolspecies']         = array('id'=>204, 'LD_domain' => 'http://eolspecies.lifedesks.org/', 'OpenData_title' => 'EOL Rapid Response Team LifeDesk');
@@ -333,9 +333,9 @@ if($scratchpad) {
 $ancestry['afrotropicalbirds'] = array('kingdom' => 'Animalia', 'phylum' => 'Chordata', 'class' => 'Aves'); 
 */
 
-/* un-comment if you want to RUN ALL
+// /* un-comment if you want to RUN ALL
 $final = array_merge($final, array_keys($info));
-*/
+// */
 
 $final = array_unique($final); print_r($final); 
 

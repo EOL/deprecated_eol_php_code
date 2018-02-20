@@ -86,11 +86,12 @@ class CollectionsScrapeAPI
         $mr->accessURI      = $rec['eolMediaURL'];
         */
         // print_r($rec); exit;
-        if($url = @$rec['eolMediaURL'])                                 return self::download_proper($rec, $url);
-        elseif(@$rec['mediaURL'] && $rec['dataType'] == 'YouTube')      return $rec['mediaURL'];
-        elseif(@$rec['mediaURL'] && $rec['mimeType'] == 'video/x-flv')  return $rec['mediaURL'];
-        elseif(@$rec['mediaURL'] && $rec['mimeType'] == 'application/x-shockwave-flash')  return $rec['mediaURL'];
-        elseif($url = @$rec['mediaURL'])                                return self::download_proper($rec, $url);
+        if($url = @$rec['eolMediaURL'])                                                  return self::download_proper($rec, $url);
+        elseif(@$rec['mediaURL'] && $rec['dataType'] == 'YouTube')                       return $rec['mediaURL'];
+        elseif(@$rec['mediaURL'] && $rec['dataType'] == 'Flash')                         return $rec['mediaURL'];
+        elseif(@$rec['mediaURL'] && $rec['mimeType'] == 'video/x-flv')                   return $rec['mediaURL'];
+        elseif(@$rec['mediaURL'] && $rec['mimeType'] == 'application/x-shockwave-flash') return $rec['mediaURL'];
+        elseif($url = @$rec['mediaURL'])                                                 return self::download_proper($rec, $url);
         return false;
     }
     private function download_proper($rec, $url)
