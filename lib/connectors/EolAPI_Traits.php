@@ -342,7 +342,7 @@ class EolAPI_Traits
         // invasive in, flower color, dispersal vector, leaf area, leaf color, nitrogen fixation, plant height, plant propagation method, salt tolerance, soil pH, soil requirements, vegetative spread rate
         
         // uses
-        $datasets[] = array("name" => "Uses", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FUses");
+        // $datasets[] = array("name" => "Uses", "attribute" => "http%3A%2F%2Feol.org%2Fschema%2Fterms%2FUses");
         
         //archiving...
         // $datasets[] = array("name" => "latitude + latitude", "attribute" => "http%3A%2F%2Frs.tdwg.org%2Fdwc%2Fterms%2FdecimalLatitude&required_equivalent_attributes[]=2281&commit=Search&taxon_name=&q=");

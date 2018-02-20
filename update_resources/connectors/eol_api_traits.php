@@ -28,7 +28,11 @@ $params['jenkins_or_cron']  = @$argv[1];
 $params['name']             = @$argv[2];
 print_r($params);
 $datasets = array();
-if($params['name'] == "growth_habit") $datasets[] = array("name" => "growth habit", "attribute" => "http://eol.org/schema/terms/PlantHabit&q=&sort=desc");
+if($params['name'] == "growth_habit")   $datasets[] = array("name" => "growth habit", "attribute" => "http://eol.org/schema/terms/PlantHabit&q=&sort=desc");
+
+// DATA-1736 Data request- bat body masses
+if($params['name'] == "bat_body_mass")  $datasets[] = array("name" => "bat body masses", "attribute" => "http://purl.obolibrary.org/obo/VT_0001259&commit=Search&taxon_name=Pteropodidae&q=&taxon_concept_id=7636");
+
 
 $resource_id = 'eol';
 // /* normal operation ============================================
