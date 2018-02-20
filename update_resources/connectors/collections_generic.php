@@ -39,8 +39,7 @@ if($resource_id_2process) {
     $lifedesks = array($resource_id_2process); $final = array_merge($final, $lifedesks);
 }
 
-// $lifedesks = array(420, 428, 431, 434, 460); $final = array_merge($final, $lifedesks); // running 551 520 676 679 // running 729 742 DONE
-// $lifedesks = array(367, 369, 882, 717, 545); $final = array_merge($final, $lifedesks); DONE
+// $lifedesks = array(185, 367); $final = array_merge($final, $lifedesks);
 
 //============================================================================================================================== 717 has 218 images
 /* template
@@ -49,8 +48,6 @@ $info[res_id]['xml_path'] = ""; $info[res_id]['data_types'] = array('datatype');
 
 $info[res_id] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path' => '');
 */
-
-
 
 //has connector, new site, must re-create connector, so will backup media for now.
 $info[185] = array('id' => 293, 'data_types' => array('images'), 'xml_path' => '');
@@ -148,6 +145,13 @@ $info[12]['data_types'] = array('images'); //possible values array('images', 'vi
 $ancestry[40] = array('kingdom' => 'Animalia', 'phylum' => 'Chordata', 'class' => 'Aves'); 
 */
 
+// /* un-comment if you want to RUN ALL
+$final = array_merge($final, array_keys($info));
+// */
+
+$final = array_unique($final);
+print_r($final); echo "\nTotal resource(s): ".count($final)."\n"; //exit;
+
 // /* normal operation
 foreach($final as $ld) {
     $params[$ld]["local"]["lifedesk"] = $info[$ld]['xml_path'];
@@ -155,12 +159,6 @@ foreach($final as $ld) {
     $params[$ld]["local"]["ancestry"] = @$ancestry[$ld];
 }
 
-/* un-comment if you want to RUN ALL
-$final = array_merge($final, array_keys($info));
-*/
-
-$final = array_unique($final);
-print_r($final); echo "\nTotal resource(s): ".count($final)."\n"; //exit;
 $cont_compile = false;
 
 foreach($final as $lifedesk) {
