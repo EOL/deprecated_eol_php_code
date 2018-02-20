@@ -38,12 +38,17 @@ $func = new EOLv2MetadataAPI($resource_id);
 $func->start_user_preferred_comnames();
 */
 
-// /* https://eol-jira.bibalex.org/browse/DATA-xxxx
+/* https://eol-jira.bibalex.org/browse/DATA-xxxx
 // $resource_id = "1"; //"UA_text"; //
 $resource_id = "user_added_text";
 $func = new EOLv2MetadataAPI($resource_id);
 $func->start_user_added_text();
 Functions::finalize_dwca_resource($resource_id);
+*/
+
+// /* https://eol-jira.bibalex.org/browse/TRAM-708
+$func = new EOLv2MetadataAPI('wala lang');
+$func->download_resource_files();
 // */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
