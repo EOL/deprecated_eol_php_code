@@ -14,11 +14,15 @@ $timestart = time_elapsed();
 /* $ collections_generic.php jenkins 729 */
 $cmdline_params['jenkins_or_cron']      = @$argv[1]; //irrelevant here
 $cmdline_params['resource_id_2process'] = @$argv[2]; //useful here
+$cmdline_params['scratchpad']           = @$argv[3]; //useful here
+
 // print_r($cmdline_params);
-$resource_id_2process = false;
+$resource_id_2process = false;  $scratchpad = false;
 if($val = @$cmdline_params['resource_id_2process']) $resource_id_2process = $val;
+if(@$cmdline_params['scratchpad'] == 'scratchpad')  $scratchpad = true;
+
 if($resource_id_2process) echo "\n with resource_id_2process";
-else echo "\n without resource_id_2process";
+else                      echo "\n without resource_id_2process";
 
 require_library('connectors/LifeDeskToEOLAPI');
 $func1 = new LifeDeskToEOLAPI();
@@ -29,13 +33,12 @@ require_library('connectors/DwCA_Utility');
 /* MicroScope, FieldScope, Biscayne_BioBlitz -> have EOL XML, with media objects that are offline. Has Collections for source of media objects. 
 Media objects from XML will be removed like that of LifeDesks */
 
-$final = array();
+$lifedesks = array(); $info = array(); $final = array();
 if($resource_id_2process) {
     $lifedesks = array($resource_id_2process); $final = array_merge($final, $lifedesks);
 }
 
-// $lifedesks = array('avesamericanas', 647, 655, 280, 517, 508, 499, 419, 378, 375, 193); $final = array_merge($final, $lifedesks); // done
-
+// $lifedesks = array(145, 378); $final = array_merge($final, $lifedesks); // done
 
 /* template
 $info['res_id'] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxx', 'resource_id' => res_id, 'prefix' => "EOL_");
@@ -236,9 +239,9 @@ $info['180'] = array('id' => 290, 'domain' => 'http://www.eol.org/content_partne
 $info['180']['xml_path'] = "http://services.eol.org/resources/180.xml";
 $info['180']['data_types'] = array('images'); //what is available in its Collection
 
-$info['Biscayne_BioBlitz'] = array('id' => 251, 'domain' => 'http://www.eol.org/content_partners/58/resources/126', 'OpenData_title' => 'Biscayne BioBlitz Resource', 'resource_id' => 126, 'prefix' => "EOL_");
-$info['Biscayne_BioBlitz']['xml_path'] = "http://services.eol.org/resources/126.xml";
-$info['Biscayne_BioBlitz']['data_types'] = array('images'); //what is available in its Collection
+$info['126'] = array('id' => 251, 'domain' => 'http://www.eol.org/content_partners/58/resources/126', 'OpenData_title' => 'Biscayne BioBlitz Resource', 'resource_id' => 126, 'prefix' => "EOL_");
+$info['126']['xml_path'] = "http://services.eol.org/resources/126.xml";
+$info['126']['data_types'] = array('images'); //what is available in its Collection
 
 // /* ran in Archive already
 $info['41'] = array('id'=>196, 'LD_domain' => 'http://www.eol.org/content_partners/58/resources/41', 'OpenData_title' => 'FieldScope', 'resource_id' => 41, 'prefix' => "EOL_");
@@ -284,52 +287,52 @@ $info['afrotropicalbirds']  = array('id'=>9528, 'LD_domain' => 'http://afrotropi
 $info['philbreo']           = array('id'=>16553, 'LD_domain' => 'http://philbreo.lifedesks.org/', 'OpenData_title' => 'Amphibians and Reptiles of the Philippines LifeDesk');
 $info['diptera']            = array('id'=>111622, 'LD_domain' => 'http://diptera.lifedesks.org/', 'OpenData_title' => 'EOL Rapid Response Team Diptera LifeDesk');
 $info['leptogastrinae']     = array('id'=>219, 'LD_domain' => 'http://leptogastrinae.lifedesks.org/', 'OpenData_title' => 'Leptogastrinae LifeDesk');
-$scratchpad = false;
 
 
 //scratchpad lifedesk list ============================================================== START
 // /*
-$scratchpad = true;
-$info = array();
-$xxx = array("nemertea", "peracarida", "syrphidae", "tunicata", "leptogastrinae", "continenticola", "pelagics", "parmotrema", "liquensbr", "liquensms", "staurozoa", 
-    "cnidaria", "porifera", "sacoglossa", "buccinids", "opisthostoma", "borneanlandsnails", "malaypeninsularsnail", "sipuncula", "hawaiilandsnails", 
-    "ostracoda", "ampullariidae", "cephaloleia", "mormyrids", "terrslugs", "agrilus", "camptosomata", "urbanfloranyc", "marineinvaders", "neritopsine", 
-    "polycladida", "tabanidae", "squatlobsters", "simuliidae", "proctotrupidae", "opisthobranchia", "katydidsfrombrazil", "hypogymnia", "salamandersofchina", 
-    "ebasidiolichens", "hundrednewlichens", "molluscacolombia", "lincolnsflorafauna", "arachnids", "congofishes", "indiareeffishes", "olivirv", 
-    "neotropnathistory", "quercus", "caterpillars", "africanamphibians", "neotropicalfishes", "dinoflagellate", "chess", "apoidea", "diatoms", "deepseacoral", "choreutidae", 
-    "taiwanseagrasses", "odonata", "alpheidae", "tearga", "canopy", "naididae", "ebivalvia", "compositae", "korupplants", "scarabaeinae", "cyanolichens", "annelida", 
-    "polychaetasouthocean");
+if($scratchpad) {
+    $lifedesks = array(); $info = array(); $final = array();
+    $lifedesks = array("nemertea", "peracarida", "syrphidae", "tunicata", "leptogastrinae", "continenticola", "pelagics", "parmotrema", "liquensbr", "liquensms", "staurozoa", 
+        "cnidaria", "porifera", "sacoglossa", "buccinids", "opisthostoma", "borneanlandsnails", "malaypeninsularsnail", "sipuncula", "hawaiilandsnails", 
+        "ostracoda", "ampullariidae", "cephaloleia", "mormyrids", "terrslugs", "agrilus", "camptosomata", "urbanfloranyc", "marineinvaders", "neritopsine", 
+        "polycladida", "tabanidae", "squatlobsters", "simuliidae", "", "opisthobranchia", "", "hypogymnia", "salamandersofchina", 
+        "ebasidiolichens", "hundrednewlichens", "molluscacolombia", "lincolnsflorafauna", "arachnids", "congofishes", "indiareeffishes", "olivirv", 
+        "neotropnathistory", "quercus", "caterpillars", "africanamphibians", "neotropicalfishes", "dinoflagellate", "chess", "apoidea", "diatoms", "deepseacoral", "choreutidae", 
+        "taiwanseagrasses", "odonata", "alpheidae", "tearga", "canopy", "naididae", "ebivalvia", "compositae", "korupplants", "scarabaeinae", "cyanolichens", "annelida", 
+        "polychaetasouthocean"); $final = array_merge($final, $lifedesks);
 
-// these are those without Collection ID -- to run
-$final = array("liquensbr", "liquensms", "staurozoa", "porifera", "hawaiilandsnails", "agrilus", "tabanidae", "", "katydidsfrombrazil", "ebasidiolichens", "molluscacolombia", 
-"lincolnsflorafauna", "arachnids", "indiareeffishes", "olivirv", "deepseacoral", "taiwanseagrasses", "tearga", "naididae");
+    // these are those without Collection ID -- to run
+    $lifedesks = array("liquensbr", "liquensms", "staurozoa", "porifera", "hawaiilandsnails", "agrilus", "tabanidae", "", "", "ebasidiolichens", "molluscacolombia", 
+    "lincolnsflorafauna", "arachnids", "indiareeffishes", "olivirv", "deepseacoral", "taiwanseagrasses", "tearga", "naididae"); $final = array_merge($final, $lifedesks);
 
-$final = array_merge($final, $xxx);
+    $info['nemertea']['id'] = 202;          $info['peracarida']['id'] = 25958;  $info['syrphidae']['id'] = 266;     $info['tunicata']['id'] = 235;          $info['leptogastrinae']['id'] = 219;
+    $info['continenticola']['id'] = 244;    $info['pelagics']['id'] = 35533;    $info['parmotrema']['id'] = 355;    $info['cnidaria']['id'] = 106941;       $info['sacoglossa']['id'] = 253;
+    $info['buccinids']['id'] = 254;         $info['apoidea']['id'] = 345;       $info['opisthostoma']['id'] = 271;  $info['borneanlandsnails']['id'] = 276; $info['malaypeninsularsnail']['id'] = 275;
+    $info['sipuncula']['id'] = 284;         $info['ostracoda']['id'] = 324;     $info['ampullariidae']['id'] = 273; $info['cephaloleia']['id'] = 8573;      $info['mormyrids']['id'] = 319;
+    $info['terrslugs']['id'] = 313;         $info['camptosomata']['id'] = 240;  $info['urbanfloranyc']['id'] = 36676; $info['marineinvaders']['id'] = 326;  $info['neritopsine']['id'] = 267;
+    $info['polycladida']['id'] = 329;       $info['squatlobsters']['id'] = 36734; $info['simuliidae']['id'] = 265;  $info['opisthobranchia']['id'] = 12239; $info['hypogymnia']['id'] = 217;
+    $info['salamandersofchina']['id'] = 339; $info['hundrednewlichens']['id'] = 314; $info['congofishes']['id'] = 338; $info['neotropnathistory']['id'] = 335;
+    $info['quercus']['id'] = 252;           $info['caterpillars']['id'] = 42097; $info['africanamphibians']['id'] = 260; $info['neotropicalfishes']['id'] = 294; $info['dinoflagellate']['id'] = 230;
+    $info['chess']['id'] = 263;             $info['diatoms']['id'] = 213;       $info['choreutidae']['id'] = 205;   $info['odonata']['id'] = 248;           $info['alpheidae']['id'] = 225;
+    $info['canopy']['id'] = 277;            $info['ebivalvia']['id'] = 311;     $info['compositae']['id'] = 302;    $info['korupplants']['id'] = 337;       $info['scarabaeinae']['id'] = 250;
+    $info['cyanolichens']['id'] = 239;      $info['annelida']['id'] = 325;      $info['polychaetasouthocean']['id'] = 261;
 
-$info['nemertea']['id'] = 202;          $info['peracarida']['id'] = 25958;  $info['syrphidae']['id'] = 266;     $info['tunicata']['id'] = 235;          $info['leptogastrinae']['id'] = 219;
-$info['continenticola']['id'] = 244;    $info['pelagics']['id'] = 35533;    $info['parmotrema']['id'] = 355;    $info['cnidaria']['id'] = 106941;       $info['sacoglossa']['id'] = 253;
-$info['buccinids']['id'] = 254;         $info['apoidea']['id'] = 345;       $info['opisthostoma']['id'] = 271;  $info['borneanlandsnails']['id'] = 276; $info['malaypeninsularsnail']['id'] = 275;
-$info['sipuncula']['id'] = 284;         $info['ostracoda']['id'] = 324;     $info['ampullariidae']['id'] = 273; $info['cephaloleia']['id'] = 8573;      $info['mormyrids']['id'] = 319;
-$info['terrslugs']['id'] = 313;         $info['camptosomata']['id'] = 240;  $info['urbanfloranyc']['id'] = 36676; $info['marineinvaders']['id'] = 326;  $info['neritopsine']['id'] = 267;
-$info['polycladida']['id'] = 329;       $info['squatlobsters']['id'] = 36734; $info['simuliidae']['id'] = 265;  $info['opisthobranchia']['id'] = 12239; $info['hypogymnia']['id'] = 217;
-$info['salamandersofchina']['id'] = 339; $info['hundrednewlichens']['id'] = 314; $info['congofishes']['id'] = 338; $info['neotropnathistory']['id'] = 335;
-$info['quercus']['id'] = 252;           $info['caterpillars']['id'] = 42097; $info['africanamphibians']['id'] = 260; $info['neotropicalfishes']['id'] = 294; $info['dinoflagellate']['id'] = 230;
-$info['chess']['id'] = 263;             $info['diatoms']['id'] = 213;       $info['choreutidae']['id'] = 205;   $info['odonata']['id'] = 248;           $info['alpheidae']['id'] = 225;
-$info['canopy']['id'] = 277;            $info['ebivalvia']['id'] = 311;     $info['compositae']['id'] = 302;    $info['korupplants']['id'] = 337;       $info['scarabaeinae']['id'] = 250;
-$info['cyanolichens']['id'] = 239;      $info['annelida']['id'] = 325;      $info['polychaetasouthocean']['id'] = 261;
-
-$info['proctotrupidae']['id'] = 20185; $final = array('proctotrupidae');
-
-// */
+    //mga pahabol
+    $info['proctotrupidae']['id'] = 20185;       //http://www.eol.org/content_partners/457/resources/347
+    $info['katydidsfrombrazil']['id'] = 54270;   //http://www.eol.org/content_partners/594/resources/583 ---> blank collection though
+    $info['lichensbr']['id'] = 54104;            //http://www.eol.org/content_partners/593/resources/580 ---> no XML
+    // */
+}
 //scratchpad lifedesk list ============================================================== END
 
 /* this works OK. but was decided not to add ancestry if original source doesn't have ancestry. Makes sense.
 $ancestry['afrotropicalbirds'] = array('kingdom' => 'Animalia', 'phylum' => 'Chordata', 'class' => 'Aves'); 
 */
 
-/* un-comment if you want to RUN ALL
+// /* un-comment if you want to RUN ALL
 $final = array_merge($final, array_keys($info));
-*/
+// */
 
 $final = array_unique($final); print_r($final); 
 
