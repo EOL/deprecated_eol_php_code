@@ -293,7 +293,7 @@ $info['leptogastrinae']     = array('id'=>219, 'LD_domain' => 'http://leptogastr
 
 
 //scratchpad lifedesk list ============================================================== START
-/*
+// /*
 if($scratchpad) {
     $lifedesks = array(); $info = array(); $final = array();
     $lifedesks = array("nemertea", "peracarida", "syrphidae", "tunicata", "leptogastrinae", "continenticola", "pelagics", "parmotrema", "liquensbr", "liquensms", "staurozoa", 
@@ -326,7 +326,7 @@ if($scratchpad) {
     $info['katydidsfrombrazil']['id'] = 54270;   //http://www.eol.org/content_partners/594/resources/583 ---> blank collection though
     $info['lichensbr']['id'] = 54104;            //http://www.eol.org/content_partners/593/resources/580 ---> no XML
 }
-*/
+// */
 //scratchpad lifedesk list ============================================================== END
 
 /* this works OK. but was decided not to add ancestry if original source doesn't have ancestry. Makes sense.
