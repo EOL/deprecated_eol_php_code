@@ -50,7 +50,7 @@ class EOLv2MetadataAPI
                     $info = shell_exec($cmd);
                     echo "\n $info";
                 }
-                // if(!filesize($p['destination'])) unlink($p['destination']); //final for cleaning zero size files
+                if(!filesize($p['destination'])) unlink($p['destination']); //final for cleaning zero size files
             }
         }
     }
