@@ -18,8 +18,8 @@ $cmdline_params['scratchpad']           = @$argv[3]; //useful here
 
 // print_r($cmdline_params);
 $resource_id_2process = false;  $scratchpad = false;
-if($val = @$cmdline_params['resource_id_2process']) $resource_id_2process = $val;
-if(@$cmdline_params['scratchpad'] == 'scratchpad')  $scratchpad = true;
+if(@$cmdline_params['resource_id_2process'] != '_')           $resource_id_2process = $cmdline_params['resource_id_2process'];
+if(@$cmdline_params['scratchpad']           == 'scratchpad')  $scratchpad = true;
 
 if($resource_id_2process) echo "\n with resource_id_2process";
 else                      echo "\n without resource_id_2process";
