@@ -85,9 +85,11 @@ class CollectionsScrapeAPI
         $mr->identifier     = $rec['dataObjectVersionID']; //$rec['identifier'];
         $mr->accessURI      = $rec['eolMediaURL'];
         */
-        if($url = @$rec['eolMediaURL'])                             return self::download_proper($rec, $url);
-        elseif(@$rec['mediaURL'] && $rec['dataType'] == 'YouTube')  return $rec['mediaURL'];
-        elseif($url = @$rec['mediaURL'])                            return self::download_proper($rec, $url);
+        // print_r($rec); exit;
+        if($url = @$rec['eolMediaURL'])                                 return self::download_proper($rec, $url);
+        elseif(@$rec['mediaURL'] && $rec['dataType'] == 'YouTube')      return $rec['mediaURL'];
+        elseif(@$rec['mediaURL'] && $rec['mimeType'] == 'video/x-flv')  return $rec['mediaURL'];
+        elseif($url = @$rec['mediaURL'])                                return self::download_proper($rec, $url);
         return false;
     }
     private function download_proper($rec, $url)

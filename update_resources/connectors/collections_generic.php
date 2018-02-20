@@ -50,17 +50,17 @@ $info[res_id] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path'
 */
 
 //has no more xml nor dwca, has collection.
-$info[79] = array('id' => 214, 'data_types' => array('images'), 'xml_path' => '');
+$info[79] = array('id' => 214, 'data_types' => array('images'), 'xml_path' => ''); //Public Health Image Library
 
 //has connector, new site, must re-create connector, so will backup media for now.
-$info[185] = array('id' => 293, 'data_types' => array('images'), 'xml_path' => '');
+$info[185] = array('id' => 293, 'data_types' => array('images'), 'xml_path' => ''); //Turbellarian Taxonomic Database resource
 
 //no xml nor dwca, has collection
-$info[367] = array('id' => 24776, 'data_types' => array('video'), 'xml_path' => '');
-$info[369] = array('id' => 24607, 'data_types' => array('images'), 'xml_path' => '');
+$info[367] = array('id' => 24776, 'data_types' => array('video'), 'xml_path' => ''); //DCbirds video
+$info[369] = array('id' => 24607, 'data_types' => array('images'), 'xml_path' => ''); //Birds of DC maps
 
 //no xml nor dwca, has collection
-$info[545] = array('id' => 53390, 'data_types' => array('video'), 'xml_path' => '');
+$info[545] = array('id' => 53390, 'data_types' => array('video'), 'xml_path' => ''); //Creaturecast
 
 //has static dwca, with offline media, has collection
 $info[717] = array('id' => 105511, 'domain' => 'http://www.eol.org/content_partners/666/resources/717', 'OpenData_title' => 'Okeanos, Gulf of Mexico', 'resource_id' => 717);

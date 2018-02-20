@@ -49,7 +49,7 @@ Functions::finalize_dwca_resource($resource_id);
 // /* https://eol-jira.bibalex.org/browse/TRAM-708
 $func = new EOLv2MetadataAPI('wala lang');
 $func->download_resource_files();
-// $func->test_xml_files();
+$func->test_xml_files();
 // */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
