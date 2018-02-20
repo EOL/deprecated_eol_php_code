@@ -30,9 +30,11 @@ class EOLv2MetadataAPI
         $services_url = 'http://services.eol.org/resources/';
         $ids = self::get_resource_ids();
         // $ids = array(36, 43); //43
-        print_r($ids);
+        // print_r($ids);
+        $i = 0; $total = count($ids);
         foreach($ids as $id)
         {
+            $i++; echo "\n $i of $total - ";
             $p = array();
             // /opt/local/bin/wget --tries=1 -O /Library/WebServer/Documents/cp_new/services.eol.org_xml/eli.xml "http://services.eol.org/resources/eli.xml" 2>&1
             
@@ -48,12 +50,24 @@ class EOLv2MetadataAPI
                     $info = shell_exec($cmd);
                     echo "\n $info";
                 }
-                
                 // if(!filesize($p['destination'])) unlink($p['destination']); //final for cleaning zero size files
-                
             }
         }
-        
+    }
+    function test_xml_files()
+    {
+        $target_folder = '/Library/WebServer/Documents/cp_new/services.eol.org_xml/';
+        $ids = self::get_resource_ids();
+        foreach($ids as $id) {
+            $filename = $id.".xml";
+            $filename = $target_folder.$filename;
+            // echo "\n [$id] - ";
+            if(file_exists($filename)) {
+                $xml = simplexml_load_file($filename);
+                // echo " total: ".count($xml->taxon)."\n";
+            }
+            // else echo " - invalid XML";
+        }
     }
     public function start_user_added_text() //udo = 23848 | published = 13143
     {

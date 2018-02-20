@@ -49,6 +49,9 @@ $info[res_id]['xml_path'] = ""; $info[res_id]['data_types'] = array('datatype');
 $info[res_id] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path' => '');
 */
 
+//has no more xml nor dwca, has collection.
+$info[79] = array('id' => 214, 'data_types' => array('images'), 'xml_path' => '');
+
 //has connector, new site, must re-create connector, so will backup media for now.
 $info[185] = array('id' => 293, 'data_types' => array('images'), 'xml_path' => '');
 
@@ -145,9 +148,9 @@ $info[12]['data_types'] = array('images'); //possible values array('images', 'vi
 $ancestry[40] = array('kingdom' => 'Animalia', 'phylum' => 'Chordata', 'class' => 'Aves'); 
 */
 
-// /* un-comment if you want to RUN ALL
+/* un-comment if you want to RUN ALL
 $final = array_merge($final, array_keys($info));
-// */
+*/
 
 $final = array_unique($final);
 print_r($final); echo "\nTotal resource(s): ".count($final)."\n"; //exit;
