@@ -16,7 +16,6 @@ fwrite($OUT, $xml);
 fclose($OUT);
 // Functions::set_resource_status_to_harvest_requested($resource_id);
 Functions::gzip_resource_xml($resource_id);
-unlink($resource_path);
 
 
 //start converting to DwCA
