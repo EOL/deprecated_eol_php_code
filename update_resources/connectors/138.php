@@ -3,7 +3,11 @@
 estimated execution time: 41 mins.
 This connector reads an EOL XML and converts PDF files stored in <mediaURL> into text description objects.
 */
-exit;
+
+
+/* will use generic_services.eol.org.php instead */
+return;
+
 $timestart = microtime(1);
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
