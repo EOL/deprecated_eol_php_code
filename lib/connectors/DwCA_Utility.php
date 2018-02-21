@@ -292,7 +292,7 @@ class DwCA_Utility
                             // $c = false; break; //you don't totally exclude the entire data_object but just set the field URI/URL to blank
                             $rec[$key] = "";
                             print_r($rec);
-                            echo "\nURI/URL set to blank because it is invalid.\n";
+                            echo "\nURI/URL [$key] [$val] set to blank because it is invalid.\n";
                         }
                     }
                 }
@@ -456,6 +456,7 @@ class DwCA_Utility
     }
     private function valid_uri_url($str)
     {
+        $str = str_replace('http', 'http', $str); //bec some have something like Http://...
         if(substr($str,0,7) == "http://") return true;
         elseif(substr($str,0,8) == "https://") return true;
         return false;
