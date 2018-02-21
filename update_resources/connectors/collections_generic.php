@@ -70,7 +70,7 @@ $info[717]['xml_path'] = ""; $info[717]['data_types'] = array('images'); //possi
 $info[882] = array('id' => 111809, 'domain' => 'http://www.eol.org/content_partners/394/resources/882', 'OpenData_title' => 'eMammal Camera Trap Photos', 'resource_id' => 882);
 $info[882]['xml_path'] = ""; $info[882]['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
 
-// start above new items -------------------------------------------------------------- 02
+// start above new items -------------------------------------------------------------- 02 reported Thurs Feb 22
 
 // has no more xml nor dwca, without connector, but with collection
 $info[742] = array('id' => 100795, 'domain' => 'http://www.eol.org/content_partners/679/resources/742', 'OpenData_title' => 'AquaParadox: The Diversity of Planktonic Microorganisms', 'resource_id' => 742);

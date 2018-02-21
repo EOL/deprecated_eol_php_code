@@ -48,29 +48,26 @@ $info['res_id']['data_types'] = array('xxx'); //what is available in its Collect
 $info['res_id'] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path' => 'http', 'prefix' => "EOL_");
 */
 
+//start new items above -------------------------------------------------------------- 03 reported Wed Feb 21
 //has static xml, offline image and videos, has collection
-$info['106'] = array('id' => 236, 'data_types' => array('video'), 'xml_path' => 'http://services.eol.org/resources/106.xml', 'prefix' => "EOL_");
-
+$info['106'] = array('id' => 236, 'data_types' => array('video'), 'xml_path' => 'http://services.eol.org/resources/106.xml', 'prefix' => "EOL_"); //The Biodiversity of Tamborine Mountain: images & videos
 //static xml, offline media, has collection
-$info['145'] = array('id' => 264, 'data_types' => array('video'), 'xml_path' => 'http://services.eol.org/resources/145.xml', 'prefix' => "EOL_");
-
+$info['145'] = array('id' => 264, 'data_types' => array('video'), 'xml_path' => 'http://services.eol.org/resources/145.xml', 'prefix' => "EOL_"); //Natural History Services Resource
 //has edited lifedesk xml, offline media, has collection
 $info['avesamericanas'] = array('id' => 12040, 'data_types' => array('images'), 'xml_path' => 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/LD2Scratchpad_EOL/avesamericanas/eol-partnership.xml.gz', 'prefix' => "EOL_");
-
-$info['378'] = array('id' => 31582, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/378.xml', 'prefix' => "EOL_");
-$info['419'] = array('id' => 34648, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/419.xml', 'prefix' => "EOL_");
-$info['499'] = array('id' => 46752, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/499.xml', 'prefix' => "EOL_");
-$info['508'] = array('id' => 47767, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/508.xml', 'prefix' => "EOL_");
-$info['517'] = array('id' => 48845, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/517.xml', 'prefix' => "EOL_");
-$info['280'] = array('id' => 52209, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/280.xml', 'prefix' => "EOL_"); 
-$info['655'] = array('id' => 57492, 'data_types' => array('images'), 'xml_path' => 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/CIEE Tropical Ecology and Conservation Program Spring 2013/655.xml', 'prefix' => "EOL_");
+$info['378'] = array('id' => 31582, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/378.xml', 'prefix' => "EOL_"); //Sailinsteve
+$info['419'] = array('id' => 34648, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/419.xml', 'prefix' => "EOL_"); //Conifers and Hardwoods
+$info['499'] = array('id' => 46752, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/499.xml', 'prefix' => "EOL_"); //Nasonia Symbiont Database
+$info['508'] = array('id' => 47767, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/508.xml', 'prefix' => "EOL_"); //Hungarian Ornithological and Nature Conservation Society
+$info['517'] = array('id' => 48845, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/517.xml', 'prefix' => "EOL_"); //Principles of Ecology (ENV SCI 302), University of Wisconsin-Green Bay
+$info['280'] = array('id' => 52209, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/280.xml', 'prefix' => "EOL_"); //Australian Desert Fishes
+$info['655'] = array('id' => 57492, 'data_types' => array('images'), 'xml_path' => 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/CIEE Tropical Ecology and Conservation Program Spring 2013/655.xml', 'prefix' => "EOL_"); //CIEE Tropical Ecology and Conservation Program Spring 2013
 
 //has static xml, offline media, has collection
-$info['647'] = array('id' => 59900, 'domain' => 'http', 'OpenData_title' => 'xxx', 'resource_id' => 647, 'prefix' => "EOL_");
+$info['647'] = array('id' => 59900, 'domain' => 'http', 'OpenData_title' => '', 'resource_id' => 647, 'prefix' => "EOL_"); //Honors Desert Ecology - Empire High School
 $info['647']['xml_path'] = "http://services.eol.org/resources/647.xml";
-$info['647']['data_types'] = array('images'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
-
-//start new items above -------------------------------------------------------------- 02
+$info['647']['data_types'] = array('images'); 
+//start new items above -------------------------------------------------------------- 02 : reported in standup already
 
 $info['193'] = array('id' => 27254, 'domain' => 'http://www.eol.org/content_partners/271/resources/193', 'OpenData_title' => 'Field Museum Class in Phylogenetics: 2010', 'resource_id' => 193, 'prefix' => "EOL_");
 $info['193']['xml_path'] = "http://services.eol.org/resources/193.xml";
