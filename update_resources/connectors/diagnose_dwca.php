@@ -33,14 +33,14 @@ exit("\n\n");
 */
 
 
-/*
-$resource_id = "Coral_Skeletons";//355;
+// /*
+$resource_id = "EOL_12_multimedia";//355; //EOL_12_multimedia.tar.gz
 $func = new DWCADiagnoseAPI();
-$resource_id = 26; //435609
+$resource_id = 'EOL_12_multimedia'; //435609 26
 Functions::count_resource_tab_files($resource_id);
-names_breakdown(26);
+names_breakdown('EOL_12_multimedia'); //26
 exit;
-*/
+// */
 
 // /*
 $resource_id = "primate-measurements";
@@ -141,21 +141,25 @@ function names_breakdown($resource_id)
     {
         $i++;
         $arr = explode("\t", $line);
-        if($i == 1) $fields = $arr;
+        if($i == 1)
+        {
+            $fields = $arr;
+            // print_r($fields);
+        }
         else
         {
             $k = 0;
             $rec = array();
             foreach($fields as $field)
             {
-                $rec[$field] = $arr[$k];
+                if($val = @$arr[$k]) $rec[$field] = $val;
                 $k++;
             }
-            // print_r($rec); exit;
+            // print_r($rec); //exit;
             //start investigation here
-            $debug[$rec['taxonomicStatus']]++;
+            if($val = @$rec['taxonomicStatus']) $debug[$val]++;
         }
     }
-    print_r($debug);
+    if(isset($debug)) print_r($debug);
 }
 ?>
