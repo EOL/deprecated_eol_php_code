@@ -299,14 +299,14 @@ if($scratchpad) {
     $lifedesks = array("nemertea", "peracarida", "syrphidae", "tunicata", "leptogastrinae", "continenticola", "pelagics", "parmotrema", "liquensbr", "liquensms", "staurozoa", 
         "cnidaria", "porifera", "sacoglossa", "buccinids", "opisthostoma", "borneanlandsnails", "malaypeninsularsnail", "sipuncula", "hawaiilandsnails", 
         "ostracoda", "ampullariidae", "cephaloleia", "mormyrids", "terrslugs", "agrilus", "camptosomata", "urbanfloranyc", "marineinvaders", "neritopsine", 
-        "polycladida", "tabanidae", "squatlobsters", "simuliidae", "", "opisthobranchia", "", "hypogymnia", "salamandersofchina", 
+        "polycladida", "tabanidae", "squatlobsters", "simuliidae", "opisthobranchia", "hypogymnia", "salamandersofchina", 
         "ebasidiolichens", "hundrednewlichens", "molluscacolombia", "lincolnsflorafauna", "arachnids", "congofishes", "indiareeffishes", "olivirv", 
         "neotropnathistory", "quercus", "caterpillars", "africanamphibians", "neotropicalfishes", "dinoflagellate", "chess", "apoidea", "diatoms", "deepseacoral", "choreutidae", 
         "taiwanseagrasses", "odonata", "alpheidae", "tearga", "canopy", "naididae", "ebivalvia", "compositae", "korupplants", "scarabaeinae", "cyanolichens", "annelida", 
         "polychaetasouthocean"); $final = array_merge($final, $lifedesks);
 
     // these are those without Collection ID -- to run
-    $lifedesks = array("liquensbr", "liquensms", "staurozoa", "porifera", "hawaiilandsnails", "agrilus", "tabanidae", "", "", "ebasidiolichens", "molluscacolombia", 
+    $lifedesks = array("liquensbr", "liquensms", "staurozoa", "porifera", "hawaiilandsnails", "agrilus", "tabanidae", "ebasidiolichens", "molluscacolombia", 
     "lincolnsflorafauna", "arachnids", "indiareeffishes", "olivirv", "deepseacoral", "taiwanseagrasses", "tearga", "naididae"); $final = array_merge($final, $lifedesks);
 
     $info['nemertea']['id'] = 202;          $info['peracarida']['id'] = 25958;  $info['syrphidae']['id'] = 266;     $info['tunicata']['id'] = 235;          $info['leptogastrinae']['id'] = 219;
@@ -341,6 +341,7 @@ $final = array_unique($final); print_r($final);
 
 // /* normal operation
 foreach($final as $ld) {
+    echo "\n -------------------------------------------- Processing [$ld] -------------------------------------------- \n";
     /*
     $params[$ld]["remote"]["lifedesk"]      = "http://" . $ld . ".lifedesks.org/eol-partnership.xml.gz";
     $params[$ld]["remote"]["name"]          = $ld;

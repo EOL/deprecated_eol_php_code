@@ -165,6 +165,7 @@ foreach($final as $ld) {
 $cont_compile = false;
 
 foreach($final as $lifedesk) {
+    echo "\n -------------------------------------------- Processing [$lifedesk] -------------------------------------------- \n";
     $taxa_from_orig_LifeDesk_XML = array();
     $path = false;
     if(Functions::url_exists($info[$lifedesk]['xml_path'])) {
