@@ -148,9 +148,9 @@ $info[12]['data_types'] = array('images'); //possible values array('images', 'vi
 $ancestry[40] = array('kingdom' => 'Animalia', 'phylum' => 'Chordata', 'class' => 'Aves'); 
 */
 
-// /* un-comment if you want to RUN ALL
+/* un-comment if you want to RUN ALL
 $final = array_merge($final, array_keys($info));
-// */
+*/
 
 $final = array_unique($final);
 print_r($final); echo "\nTotal resource(s): ".count($final)."\n"; //exit;
