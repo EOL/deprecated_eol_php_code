@@ -456,7 +456,7 @@ class DwCA_Utility
     }
     private function valid_uri_url($str)
     {
-        $str = str_replace('http', 'http', $str); //bec some have something like Http://...
+        $str = str_ireplace('http', 'http', $str); //bec some have something like Http://...
         if(substr($str,0,7) == "http://") return true;
         elseif(substr($str,0,8) == "https://") return true;
         return false;
