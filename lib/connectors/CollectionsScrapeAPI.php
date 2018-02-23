@@ -147,6 +147,13 @@ class CollectionsScrapeAPI
             }
             else $obj['identifier'] = self::match_taxa_from_original_LifeDesk_XML($obj);
             // print_r($obj); //exit;
+            
+            /* for debugging
+            if(@$obj['references']) {
+                print_r($obj); exit;
+            }
+            */
+            
             self::create_archive($obj);
         }
     }
