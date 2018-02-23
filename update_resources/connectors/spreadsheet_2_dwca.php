@@ -38,6 +38,7 @@ if($val = $cmdline_params['resource_id'])
     elseif($resource_id == 'Shelled_animal_body_mass') $params['spreadsheet'] = "https://opendata.eol.org/dataset/d5242c81-873f-48a2-8e1e-824272869361/resource/21f1f27b-fa10-405a-81dc-00cb48700064/download/body-size-shells.xlsx";
     elseif($resource_id == 990) $params['spreadsheet'] = "https://opendata.eol.org/dataset/60b861a7-5530-4cb2-8737-b5a3340d0578/resource/5dd1890d-551a-452e-82de-ec36daea444a/download/chen-and-moles.xlsx";
     elseif($resource_id == 489) $params['spreadsheet'] = "https://opendata.eol.org/dataset/3851e293-6d35-453d-a54e-d6ecedb796b2/resource/2537dc6d-97b8-4b1d-a0ca-8e94ceb2450c/download/newispotsalinks.xlsx"; //iSpot links
+    //----------------------- start new below
     else exit("\nProgram will terminate. Invalid resource_id [$resource_id].\n\n");
 }
 else //no resource_id
