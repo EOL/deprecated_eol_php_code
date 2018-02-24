@@ -15,6 +15,9 @@ $timestart = time_elapsed();
 // $GLOBALS['ENV_DEBUG'] = false;
 $resource_id = 650;
 
+/* will use generic_services.eol.org.ph for the meantime until extra hardisk is installed in Archive */
+return;
+
 // /*
 $user_id = "51045845@N08"; // Smithsonian Wild's photostream - http://www.flickr.com/photos/51045845@N08
 $start_year = 2001;
