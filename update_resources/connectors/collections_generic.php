@@ -49,6 +49,9 @@ $info[res_id]['xml_path'] = ""; $info[res_id]['data_types'] = array('datatype');
 $info[res_id] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path' => '');
 */
 
+//has dwca, no XML, has collection
+$info[815] = array('id' => 105853, 'data_types' => array('images'), 'xml_path' => ''); //Smithsonian Gardens Orchid Images
+
 //has no more xml nor dwca, has collection. Ran it locally to save space in Archive
 $info[18] = array('id' => 179, 'data_types' => array('text'), 'xml_path' => ''); //BioPedia
 
