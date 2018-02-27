@@ -14,10 +14,12 @@ class MCZHarvardArchiveAPI
         $this->object_ids = array();
         $this->EOL = 'http://www.eol.org/voc/table_of_contents';
         $this->dwca_file = "http://digir.mcz.harvard.edu/ipt/archive.do?r=mcz_for_eol";
-        $this->first40k = "https://dl.dropboxusercontent.com/u/7597512/MCZHarvard/First40k.txt";
+        // $this->first40k = "https://dl.dropboxusercontent.com/u/7597512/MCZHarvard/First40k.txt";
+        $this->first40k = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MCZ/First40k.txt";
+
         /* 
-        $this->dwca_file = "http://localhost/~eolit/cp/MCZ/dwca-mcz_for_eol.zip";
-        $this->first40k  = "http://localhost/~eolit/cp/MCZ/First40k.txt";
+        $this->dwca_file = "http://localhost/cp_new/MCZ/dwca-mcz_for_eol.zip";
+        $this->first40k  = "http://localhost/cp_new/MCZ/First40k.txt";
         */
         $this->occurrence_ids = array();
         $this->types = array(); // for stats
@@ -116,7 +118,7 @@ class MCZHarvardArchiveAPI
             $mr->CreateDate     = (string) $rec["http://ns.adobe.com/xap/1.0/CreateDate"];
             $mr->Owner          = (string) $rec["http://ns.adobe.com/xap/1.0/rights/Owner"];
             $mr->rights         = "";
-            $mr->UsageTerms     = (string) $rec["http://ns.adobe.com/xap/1.0/rights/UsageTerms"];
+            $mr->UsageTerms     = self::get_license((string) $rec["http://ns.adobe.com/xap/1.0/rights/UsageTerms"]);
             $mr->audience       = 'Everyone';
             $mr->description    = (string) $rec["http://purl.org/dc/terms/description"];
             $mr->accessURI      = $mediaURL;
@@ -129,6 +131,12 @@ class MCZHarvardArchiveAPI
                $this->archive_builder->write_object_to_file($mr);
             }
         }
+    }
+    private function get_license($str)
+    {
+        if($str == "Available under Creative Commons Attribution Share Alike Non Commerical (CC-BY-NC-SA 3.0) license") return "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+        else echo "\nUpdate code, unknown license\n";
+        return;
     }
 
     /* no longer being used at the moment, but working before...
@@ -235,8 +243,11 @@ class MCZHarvardArchiveAPI
 
     private function get_uris()
     {
-        $spreadsheet = "http://localhost/cp/NMNH/type_specimen_resource/nmnh mappings.xlsx"; //a good source of typeStatus URI's
+        /*
+        $spreadsheet = "http://localhost/cp_new/NMNH/type_specimen_resource/nmnh-mappings.xlsx"; //a good source of typeStatus URI's
         $spreadsheet = "https://dl.dropboxusercontent.com/u/7597512/NMNH/type_specimen_resource/nmnh mappings.xlsx";
+        */
+        $spreadsheet  = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/NMNH/type_specimen_resource/nmnh-mappings.xlsx";
         $params["uri_file"] = $spreadsheet;
         $params["dataset"]  = "GBIF";
         require_library('connectors/GBIFCountryTypeRecordAPI');
@@ -291,7 +302,7 @@ class MCZHarvardArchiveAPI
         {
             require_library('connectors/BOLDSysAPI');
             $func = new BOLDSysAPI();
-            $first40k = $func::get_array_from_json_file($temp_filepath);
+            $first40k = $func->get_array_from_json_file($temp_filepath);
             unlink($temp_filepath);
         }
         else echo "\n Investigate: first 40k images text file is missing. \n";
