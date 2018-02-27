@@ -48,6 +48,7 @@ $info['res_id']['data_types'] = array('xxx'); //what is available in its Collect
 $info['res_id'] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path' => 'http', 'prefix' => "EOL_");
 */
 
+//has XML (text and image, image is already offline), collection is broken. We can only get what we have in XML, that is taxa and text objects.
 $info['191'] = array('id' => 297, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/191.xml', 'prefix' => "EOL_"); //PhytoKeys for EOL - has text & images
 
 //start new items above -------------------------------------------------------------- 03 reported Wed Feb 21
