@@ -38,7 +38,7 @@ if($resource_id_2process) {
     $lifedesks = array($resource_id_2process); $final = array_merge($final, $lifedesks);
 }
 
-$lifedesks = array(106); $final = array_merge($final, $lifedesks); //
+// $lifedesks = array(106); $final = array_merge($final, $lifedesks); //
 
 /* template
 $info['res_id'] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxx', 'resource_id' => res_id, 'prefix' => "EOL_");
@@ -47,6 +47,8 @@ $info['res_id']['data_types'] = array('xxx'); //what is available in its Collect
 
 $info['res_id'] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path' => 'http', 'prefix' => "EOL_");
 */
+
+$info['191'] = array('id' => 297, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/191.xml', 'prefix' => "EOL_"); //PhytoKeys for EOL - has text & images
 
 //start new items above -------------------------------------------------------------- 03 reported Wed Feb 21
 //has static xml, offline image and videos, has collection
@@ -254,14 +256,14 @@ $info['19']['xml_path'] = "https://opendata.eol.org/dataset/4a668cee-f1da-4e95-9
 $info['19']['data_types'] = array('images'); //possible values array('images', 'video', 'sounds', 'text')
 // */
 
-// /* normal operation
+/* normal operation
 $lifedesks = array("drosophilidae", "mochokidae", "berry", "echinoderms", "eleodes", "empidinae");                  $final = array_merge($final, $lifedesks);
 $lifedesks = array("gastrotricha", "reduviidae", "heteroptera", "capecodlife", "idorids", "evaniidae");             $final = array_merge($final, $lifedesks);
 $lifedesks = array("araneoidea", "archaeoceti", "calintertidalinverts", "chileanbees", "halictidae", "nlbio");      $final = array_merge($final, $lifedesks);
 $lifedesks = array("surinamewaterbeetles", "scarabaeoidea", "pipunculidae", "ncfishes", "biomarks");                $final = array_merge($final, $lifedesks);
 $lifedesks = array("spiderindia", "speciesindia", "skinklink", "scarab", "nzicn", "bcbiodiversity");                $final = array_merge($final, $lifedesks);
 $lifedesks = array("pterioidea", "westernghatfishes", "cephalopoda");                                               $final = array_merge($final, $lifedesks);
-// */
+*/
 
 $info['araneae']            = array('id'=>203, 'LD_domain' => 'http://araneae.lifedesks.org/', 'OpenData_title' => 'Spiders LifeDesk');
 $info['eolspecies']         = array('id'=>204, 'LD_domain' => 'http://eolspecies.lifedesks.org/', 'OpenData_title' => 'EOL Rapid Response Team LifeDesk');
@@ -330,9 +332,9 @@ if($scratchpad) {
 $ancestry['afrotropicalbirds'] = array('kingdom' => 'Animalia', 'phylum' => 'Chordata', 'class' => 'Aves'); 
 */
 
-// /* un-comment if you want to RUN ALL
+/* un-comment if you want to RUN ALL
 $final = array_merge($final, array_keys($info));
-// */
+*/
 
 $final = array_unique($final); print_r($final); 
 
