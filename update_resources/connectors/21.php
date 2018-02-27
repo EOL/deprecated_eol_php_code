@@ -16,7 +16,7 @@ start($resource_id); // this generates the 21.xml in CONTENT_RESOURCE_LOCAL_PATH
 require_library('connectors/ConvertEOLtoDWCaAPI');
 $timestart = time_elapsed();
 
-$params["eol_xml_file"] = "http://localhost/eol_php_code/applications/content_server/resources/21.xml";
+// $params["eol_xml_file"] = "http://localhost/eol_php_code/applications/content_server/resources/21.xml";
 $params["eol_xml_file"] = CONTENT_RESOURCE_LOCAL_PATH . "21.xml";
 $params["filename"]     = "21.xml";
 $params["dataset"]      = "Amphibiaweb";
@@ -44,7 +44,7 @@ function start($resource_id)
 
     // $file = 'http://localhost/cp/Amphibiaweb/amphib_dump.xml';
     $file = 'http://amphibiaweb.org/amphib_dump.xml';
-    if(!$new_resource_xml = Functions::lookup_with_cache($file, array('timeout' => 1200, 'download_attempts' => 5, 'expire_seconds' => 86400))) //cache expires in 1 day
+    if(!$new_resource_xml = Functions::lookup_with_cache($file, array('timeout' => 1200, 'download_attempts' => 5, 'expire_seconds' => 60*60*24*25))) //cache expires in 25 days
     {
         echo("\n\n Content partner's server is down, connector will now terminate.\n");
     }else
