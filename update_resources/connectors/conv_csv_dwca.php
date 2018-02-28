@@ -24,12 +24,14 @@ $resources[363] = array('dwca' => "http://pngbirds.myspecies.info/eol-dwca.zip",
 $resources[754] = array('dwca' => "http://anolislizards.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Anolis Scratchpad
 $resources[755] = array('dwca' => "http://xyleborini.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Xyleborini Ambrosia Beetles
 $resources[756] = array('dwca' => "http://neotropical-pollination.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Neotropical Pollination
-$resources[884] = array('dwca' => "http://phthiraptera.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Phthiraptera
+// $resources[884] = array('dwca' => "http://phthiraptera.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Phthiraptera
 
 foreach($resources as $resource_id => $info) {
     $func = new CSV2DwCA_Utility_generic($resource_id, $info['dwca']);
-    $func->convert_archive();
-    Functions::finalize_dwca_resource($resource_id, $info['bigfileYN'], true); //3rd param is deleteFolderYN ------- 2nd params is true coz it is a big file
+    if($func->convert_archive()) {
+        Functions::finalize_dwca_resource($resource_id, $info['bigfileYN'], true); //3rd param is deleteFolderYN ------- 2nd params is true coz it is a big file
+    }
+    else echo "\nPartner's DwCA has a problem. [$resource_id] [".$info['dwca']."]\n";
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;

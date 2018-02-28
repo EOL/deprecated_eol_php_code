@@ -44,6 +44,8 @@ class CSV2DwCA_Utility_generic
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->dwca_file, "meta.xml", array('timeout' => 172800, 'expire_seconds' => 60*60*24*25)); //expires in 25 days
+        if(!$paths) return false;
+        // print_r($paths); exit;
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         $harvester = new ContentArchiveReader(NULL, $archive_path);
@@ -59,7 +61,7 @@ class CSV2DwCA_Utility_generic
 
     function convert_archive()
     {
-        if(!($info = self::start())) return;
+        if(!($info = self::start())) return false;
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
         $tables = $info['tables'];
@@ -89,6 +91,7 @@ class CSV2DwCA_Utility_generic
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
         if($this->debug) print_r($this->debug);
+        return true;
     }
 
     private function clean_html($arr)

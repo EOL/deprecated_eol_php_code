@@ -119,8 +119,9 @@ class INBioAPI
             echo "\n".$archive_path . "/" . $check_file_or_folder_name."\n";
             echo "\n".$temp_dir ."dwca/". $check_file_or_folder_name."\n";
             debug("Can't find check_file_or_folder_name [$check_file_or_folder_name].");
-            exit;
-            return array('archive_path' => $temp_dir, 'temp_dir' => $temp_dir);
+            recursive_rmdir($temp_dir);
+            return false;
+            // return array('archive_path' => $temp_dir, 'temp_dir' => $temp_dir);
         }
     }
 
