@@ -80,7 +80,10 @@ class CSV2DwCA_Utility_generic
                     echo "\n -- Processing [$class]...\n";
                     self::process_extension($tbl->file_uri, $class, $tbl);
                 }
-                else exit("\nInvalid row_type [$tbl->row_type]\n");
+                else {
+                    if(in_array($tbl->row_type, array("http://rs.gbif.org/terms/1.0/TypesAndSpecimen"))) $debug['undefined row_type'][$tbl->row_type] = '';
+                    else exit("\nInvalid row_type [$tbl->row_type]\n");
+                }
             }
             
         }
