@@ -1808,6 +1808,14 @@ class Functions
         elseif($type == "http://purl.org/dc/dcmitype/Sound")       return "Recorder";
     }
 
+    public static function is_mediaYN($type)
+    {
+        if($type == "http://purl.org/dc/dcmitype/StillImage")       return true;
+        elseif($type == "http://purl.org/dc/dcmitype/MovingImage")  return true;
+        elseif($type == "http://purl.org/dc/dcmitype/Sound")        return true;
+        return false;
+    }
+
     public static function language_to_iso_code()
     {
         $iso_639_2_codes = array();
