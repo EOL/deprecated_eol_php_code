@@ -17,25 +17,28 @@ require_library('connectors/CSV2DwCA_Utility_generic');
 $timestart = time_elapsed();
 
 
-// $resources[268] = array('dwca' => "http://britishbryozoans.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Bryozoa of the British Isles
-// $resources[220] = array('dwca' => "http://diptera.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Scratchpad export - Diptera taxon pages
-// $resources[549] = array('dwca' => "http://antkey.org/eol-dwca.zip", 'bigfileYN' => false); //Antkey
-// $resources[363] = array('dwca' => "http://pngbirds.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //PNG_Birds
-// $resources[754] = array('dwca' => "http://anolislizards.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Anolis Scratchpad
-// $resources[755] = array('dwca' => "http://xyleborini.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Xyleborini Ambrosia Beetles
-// $resources[756] = array('dwca' => "http://neotropical-pollination.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Neotropical Pollination
+$resources[268] = array('dwca' => "http://britishbryozoans.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Bryozoa of the British Isles
+$resources[220] = array('dwca' => "http://diptera.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Scratchpad export - Diptera taxon pages
+$resources[549] = array('dwca' => "http://antkey.org/eol-dwca.zip", 'bigfileYN' => false); //Antkey
+$resources[363] = array('dwca' => "http://pngbirds.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //PNG_Birds
+$resources[754] = array('dwca' => "http://anolislizards.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Anolis Scratchpad
+$resources[755] = array('dwca' => "http://xyleborini.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Xyleborini Ambrosia Beetles
+$resources[756] = array('dwca' => "http://neotropical-pollination.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Neotropical Pollination
 $resources[884] = array('dwca' => "http://phthiraptera.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Phthiraptera
-
+$debug = array();
 foreach($resources as $resource_id => $info) {
     echo "\n --------------------processing $resource_id --------------------\n";
     $func = new CSV2DwCA_Utility_generic($resource_id, $info['dwca']);
     if($func->convert_archive()) {
         Functions::finalize_dwca_resource($resource_id, $info['bigfileYN'], true); //3rd param is deleteFolderYN ------- 2nd params is true coz it is a big file
     }
-    else echo "\nPartner's DwCA has a problem. [$resource_id] [".$info['dwca']."]\n";
+    else {
+        echo "\nPartner's DwCA has a problem. [$resource_id] [".$info['dwca']."]\n";
+        $debug['problem with dwca'][$resource_id] = '';
+    }
     echo "\n --------------------END $resource_id --------------------\n";
 }
-
+if($debug) print_r($debug);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
