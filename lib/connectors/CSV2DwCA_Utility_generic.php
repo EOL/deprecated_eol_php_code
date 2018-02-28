@@ -32,6 +32,7 @@ class CSV2DwCA_Utility_generic
                                   "http://rs.gbif.org/terms/1.0/multimedia"         => "document",
                                   "http://eol.org/schema/reference/reference"       => "reference",
                                   "http://eol.org/schema/reference/Reference"       => "reference",
+                                  "http://rs.gbif.org/terms/1.0/Reference"          => "reference",
                                   "http://rs.tdwg.org/dwc/terms/Taxon"              => "taxon",
                                   "http://rs.gbif.org/terms/1.0/VernacularName"     => "vernacular",
                                   "http://eol.org/schema/agent/Agent"               => "agent",
