@@ -36,7 +36,10 @@ class CSV2DwCA_Utility_generic
                                   "http://rs.tdwg.org/dwc/terms/Taxon"              => "taxon",
                                   "http://rs.gbif.org/terms/1.0/VernacularName"     => "vernacular",
                                   "http://eol.org/schema/agent/Agent"               => "agent",
-                                  "http://eol.org/schema/media/Document"            => "document"
+                                  "http://eol.org/schema/media/Document"            => "document",
+                                  "http://rs.gbif.org/terms/1.0/Distribution"       => "document",
+                                  "http://rs.gbif.org/terms/1.0/Image"              => "document",
+                                  "http://rs.gbif.org/terms/1.0/Description"        => "document"
                                   );
     }
 
@@ -82,7 +85,7 @@ class CSV2DwCA_Utility_generic
                     self::process_extension($tbl->file_uri, $class, $tbl);
                 }
                 else {
-                    if(in_array($tbl->row_type, array("http://rs.gbif.org/terms/1.0/TypesAndSpecimen"))) $debug['undefined row_type'][$tbl->row_type] = '';
+                    if(in_array($tbl->row_type, array("http://rs.gbif.org/terms/1.0/TypesAndSpecimen", "http://www.w3.org/ns/oa#Annotationt"))) $debug['undefined row_type'][$tbl->row_type] = '';
                     else exit("\nInvalid row_type [$tbl->row_type]\n");
                 }
             }
@@ -159,8 +162,9 @@ class CSV2DwCA_Utility_generic
                 $values = $row;
                 if($count != count($values)) { //row validation - correct no. of columns
                     // print_r($values); print_r($rec);
-                    echo("\nWrong CSV format for this row.\n");
+                    // echo("\nWrong CSV format for this row.\n");
                     $this->debug['wrong csv'][$class]['identifier'][@$rec['identifier']] = '';
+                    $this->debug['wrong csv 2'][$class][$csv_file][$count][count($values)] = '';
                     continue;
                 }
 

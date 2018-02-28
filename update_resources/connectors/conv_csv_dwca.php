@@ -29,6 +29,8 @@ $resources[756] = array('dwca' => "http://neotropical-pollination.myspecies.info
 
 $resources[550] = array('dwca' => "http://continenticola.myspecies.info/eol-dwca.zip/", 'bigfileYN' => false); //Continenticola Classification
 $resources[812] = array('dwca' => "http://eolhotlist.myspecies.info/dwca.zip", 'bigfileYN' => false); //EOL hotlist Scratchpad
+
+// /*
 $resources[139] = array('dwca' => "http://africanamphibians.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //African Amphibian Lifedesk
 $resources[222] = array('dwca' => "http://africhthy.org/eol-dwca.zip", 'bigfileYN' => false); //Mormyridae - African weakly electric fishes
 $resources[92] = array('dwca' => "http://alpheidae.myspecies.info/eol-dwca.zip/", 'bigfileYN' => false); //Alpheidae
@@ -76,7 +78,7 @@ $resources[147] = array('dwca' => "http://syrphidae.myspecies.info/eol-dwca.zip/
 $resources[215] = array('dwca' => "http://terrslugs.myspecies.info/eol-dwca.zip/", 'bigfileYN' => false); //slug tree
 $resources[105] = array('dwca' => "http://tunicata.myspecies.info/eol-dwca.zip/", 'bigfileYN' => false); //Tunicata
 $resources[410] = array('dwca' => "http://urbanfloranyc.myspecies.info/eol-dwca.zip/", 'bigfileYN' => false); //Urban Flora of NYC
-
+// */
 
 $debug = array();
 foreach($resources as $resource_id => $info) {
