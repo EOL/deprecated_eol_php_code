@@ -110,11 +110,16 @@ class INBioAPI
             return;
         }
 
-        if(file_exists($temp_dir . $check_file_or_folder_name))               return array('archive_path' => $temp_dir,     'temp_dir' => $temp_dir);
+        if    (file_exists($temp_dir . $check_file_or_folder_name))           return array('archive_path' => $temp_dir,     'temp_dir' => $temp_dir);
         elseif(file_exists($archive_path . "/" . $check_file_or_folder_name)) return array('archive_path' => $archive_path, 'temp_dir' => $temp_dir);
+        elseif(file_exists($temp_dir ."dwca/". $check_file_or_folder_name))   return array('archive_path' => $temp_dir."dwca/", 'temp_dir' => $temp_dir); //for http://britishbryozoans.myspecies.info/eol-dwca.zip where it extracts to /dwca/ folder instead of usual /eol-dwca/.
         else
         {
-            debug("Can't find check_file_or_folder_name.");
+            echo "\n".$temp_dir . $check_file_or_folder_name."\n";
+            echo "\n".$archive_path . "/" . $check_file_or_folder_name."\n";
+            echo "\n".$temp_dir ."dwca/". $check_file_or_folder_name."\n";
+            debug("Can't find check_file_or_folder_name [$check_file_or_folder_name].");
+            exit;
             return array('archive_path' => $temp_dir, 'temp_dir' => $temp_dir);
         }
     }
