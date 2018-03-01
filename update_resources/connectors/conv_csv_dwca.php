@@ -31,6 +31,12 @@ $resources[756] = array('dwca' => "http://neotropical-pollination.myspecies.info
 $resources[550] = array('dwca' => "http://continenticola.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Continenticola Classification -- https://opendata.eol.org/dataset/continenticola-classification-550
 $resources[812] = array('dwca' => "http://eolhotlist.myspecies.info/dwca.zip", 'bigfileYN' => false); //EOL hotlist Scratchpad -- https://opendata.eol.org/dataset/eol-hotlist-scratchpad
 
+/* these 3 were actually included already in lifedesk_combine.php
+$resources[156] = array('dwca' => "LD", 'bigfileYN' => false); //Genus Opisthostoma -- https://opendata.eol.org/dataset/genus-opisthostoma
+$resources[163] = array('dwca' => "LD", 'bigfileYN' => false); //Malay Peninsular Terrestrial Molluscs -- https://opendata.eol.org/dataset/malay-peninsular-terrestrial-molluscs
+$resources[129] = array('dwca' => "LD", 'bigfileYN' => false); //Cataloging Diversity in the Sacoglossa
+*/
+
 // /*
 $resources[139] = array('dwca' => "http://africanamphibians.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //African Amphibian Lifedesk
 $resources[222] = array('dwca' => "http://africhthy.org/eol-dwca.zip", 'bigfileYN' => false); //Mormyridae - African weakly electric fishes
@@ -40,10 +46,7 @@ $resources[231] = array('dwca' => "http://annelida.myspecies.info/eol-dwca.zip",
 $resources[84] = array('dwca' => "http://leptogastrinae.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Leptogastrinae LifeDesk
 $resources[258] = array('dwca' => "http://apoidea.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Leafcutter, mason, and resin bees
 $resources[273] = array('dwca' => "http://avesamericanas.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Colaboraciones Americanas Sobre Aves
-// $resources[156] = array('dwca' => "LD", 'bigfileYN' => false); //Genus Opisthostoma
-// $resources[163] = array('dwca' => "LD", 'bigfileYN' => false); //Malay Peninsular Terrestrial Molluscs
-$resources[164] = array('dwca' => "http://borneanlandsnails.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Bornean Terrestrial Molluscs
-// $resources[129] = array('dwca' => "LD", 'bigfileYN' => false); //Cataloging Diversity in the Sacoglossa
+$resources[164] = array('dwca' => "http://borneanlandsnails.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Bornean Terrestrial Molluscs -- https://opendata.eol.org/dataset/bornean-terrestrial-molluscs
 $resources[130] = array('dwca' => "http://buccinids.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Buccinid Gastropods
 $resources[110] = array('dwca' => "http://camptosomata.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Cryptocephalinae of the World
 $resources[485] = array('dwca' => "http://caterpillars.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Plant-Caterpillar-Parasitoid Interactions

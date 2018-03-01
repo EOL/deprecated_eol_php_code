@@ -26,7 +26,7 @@ class EOLv2MetadataAPI
     }
     public function start_user_object_curation() //total 155,763
     {
-        $sql = "SELECT cal.user_id, cal.taxon_concept_id, cal.activity_id, cal.target_id as data_object_id ,cot.ch_object_type ,t.name
+        $sql = "SELECT cal.user_id, cal.taxon_concept_id, cal.activity_id, cal.target_id as data_object_id ,cot.ch_object_type ,t.name as activity
         ,concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' ', if(u.username is not null, concat('(',u.username,')'), '')) as user_name
         ,d.guid
         from eol_logging_production.curator_activity_logs cal 
@@ -39,12 +39,47 @@ class EOLv2MetadataAPI
         and cot.ch_object_type != 'comment'
         and t.language_id = 152";
         $result = $this->mysqli->query($sql);
-        echo "\n". $result->num_rows . "\n"; exit;
+        // echo "\n". $result->num_rows . "\n"; exit;
         $recs = array();
         while($result && $row=$result->fetch_assoc()) {
+            $tc_id = false;
+            if($tc_id = $row['taxon_concept_id']) echo "\n With tc_id \n";
+            else {
+                echo "\n NO tc_id \n";
+                if($tc_id = self::get_tc_id_using_do_id($row['data_object_id'])) {}
+                else {
+                    echo("\n\nNo taxon_concept_id found for ".$row['data_object_id']."\n");
+                    print_r($row); //exit;
+                }
+            }
+            $info = false;
+            if($tc_id) {
+                $info = self::get_taxon_info($tc_id);
+                print_r($info); //exit;
+            }
+            $rec = array();
+            $rec['user_id'] = $row['user_id'];
+            $rec['user_name'] = $row['user_name'];
+            $rec['activity'] = $row['activity'];
+            $rec['ch_object_type'] = $row['ch_object_type'];
+            $rec['target_id'] = $row['data_object_id'];
+            $rec['taxon_concept_id'] = $tc_id;
+            $rec['sciname'] = @$info['taxon_name'];
+            
+            print_r($rec); exit;
             
         }
     }
+    private function get_tc_id_using_do_id($do_id)
+    {
+        $url = str_replace("data_object_id", $do_id, $this->url["eol_object"]);
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+            $obj = json_decode($json, true);
+            if($val = @$obj['identifier']) return $val; //this is the taxon_concept_id
+        }
+        return false;
+    }
+    //======================================================================================================================================
     public function start_user_added_text() //udo = 23848 | published = 13143
     {
         // -- udo.*, tcpe.hierarchy_entry_id, dt.schema_value
