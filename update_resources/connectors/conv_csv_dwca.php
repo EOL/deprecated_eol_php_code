@@ -28,8 +28,8 @@ $resources[756] = array('dwca' => "http://neotropical-pollination.myspecies.info
 */
 
 
-$resources[550] = array('dwca' => "http://continenticola.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Continenticola Classification
-$resources[812] = array('dwca' => "http://eolhotlist.myspecies.info/dwca.zip", 'bigfileYN' => false); //EOL hotlist Scratchpad
+$resources[550] = array('dwca' => "http://continenticola.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Continenticola Classification -- https://opendata.eol.org/dataset/continenticola-classification-550
+$resources[812] = array('dwca' => "http://eolhotlist.myspecies.info/dwca.zip", 'bigfileYN' => false); //EOL hotlist Scratchpad -- https://opendata.eol.org/dataset/eol-hotlist-scratchpad
 
 // /*
 $resources[139] = array('dwca' => "http://africanamphibians.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //African Amphibian Lifedesk
