@@ -17,58 +17,6 @@ class EOLv2MetadataAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
     }
-    function download_resource_files() //
-    {
-        /* saved the ids to array()
-        $sql = "SELECT r.id from resources r order by r.id"; $result = $this->mysqli->query($sql);
-        while($result && $row=$result->fetch_assoc()) echo ", " .$row['id'];
-        echo "\n";
-        */
-        $possible = array(".xml", ".xml.gz", ".tar.gz");
-        $wget_path = '/opt/local/bin/wget';
-        $target_folder = '/Library/WebServer/Documents/cp_new/services.eol.org_xml/';
-        $services_url = 'http://services.eol.org/resources/';
-        $ids = self::get_resource_ids();
-        // $ids = array(36, 43); //43
-        // print_r($ids);
-        $i = 0; $total = count($ids);
-        foreach($ids as $id)
-        {
-            $i++; echo "\n $i of $total - ";
-            $p = array();
-            // /opt/local/bin/wget --tries=1 -O /Library/WebServer/Documents/cp_new/services.eol.org_xml/eli.xml "http://services.eol.org/resources/eli.xml" 2>&1
-            
-            foreach($possible as $extension) {
-                $filename = $id.$extension;
-                $p['destination'] = $target_folder.$filename;
-                $p['url'] = $services_url.$filename;
-                
-                if(!file_exists($p['destination'])) {
-                    //worked on script
-                    $cmd = $wget_path.' --tries=3 -O '.$p['destination'].' "'.$p['url'].'"'; //working well with shell_exec()
-                    $cmd .= " 2>&1";
-                    $info = shell_exec($cmd);
-                    echo "\n $info";
-                }
-                if(!filesize($p['destination'])) unlink($p['destination']); //final for cleaning zero size files
-            }
-        }
-    }
-    function test_xml_files()
-    {
-        $target_folder = '/Library/WebServer/Documents/cp_new/services.eol.org_xml/';
-        $ids = self::get_resource_ids();
-        foreach($ids as $id) {
-            $filename = $id.".xml";
-            $filename = $target_folder.$filename;
-            // echo "\n [$id] - ";
-            if(file_exists($filename)) {
-                $xml = simplexml_load_file($filename);
-                // echo " total: ".count($xml->taxon)."\n";
-            }
-            // else echo " - invalid XML";
-        }
-    }
     public function start_user_added_text() //udo = 23848 | published = 13143
     {
         // -- udo.*, tcpe.hierarchy_entry_id, dt.schema_value
@@ -1069,7 +1017,6 @@ class EOLv2MetadataAPI
             return "https://editors.eol.org/other_files/EOL_Partner_MOUs/".$basename;
         }
     }
-    
     private function write_to_text($recs)
     {
         $partner_head = array("Partner ID", "Partner name", "Overview", "URL", "Agreement URL", "Signed By", "Signed Date", "Create Date", "Description of Data", "Manager EOL ID", "Status");
@@ -1114,6 +1061,57 @@ class EOLv2MetadataAPI
         fclose($FILE);
     }
     
+    function download_resource_files() //
+    {
+        /* saved the ids to array()
+        $sql = "SELECT r.id from resources r order by r.id"; $result = $this->mysqli->query($sql);
+        while($result && $row=$result->fetch_assoc()) echo ", " .$row['id'];
+        echo "\n";
+        */
+        $possible = array(".xml", ".xml.gz", ".tar.gz");
+        $wget_path = '/opt/local/bin/wget';
+        $target_folder = '/Library/WebServer/Documents/cp_new/services.eol.org_xml/';
+        $services_url = 'http://services.eol.org/resources/';
+        $ids = self::get_resource_ids();
+        // $ids = array(36, 43); //43
+        // print_r($ids);
+        $i = 0; $total = count($ids);
+        foreach($ids as $id) {
+            $i++; echo "\n $i of $total - ";
+            $p = array();
+            // /opt/local/bin/wget --tries=1 -O /Library/WebServer/Documents/cp_new/services.eol.org_xml/eli.xml "http://services.eol.org/resources/eli.xml" 2>&1
+            
+            foreach($possible as $extension) {
+                $filename = $id.$extension;
+                $p['destination'] = $target_folder.$filename;
+                $p['url'] = $services_url.$filename;
+                
+                if(!file_exists($p['destination'])) {
+                    //worked on script
+                    $cmd = $wget_path.' --tries=3 -O '.$p['destination'].' "'.$p['url'].'"'; //working well with shell_exec()
+                    $cmd .= " 2>&1";
+                    $info = shell_exec($cmd);
+                    echo "\n $info";
+                }
+                if(!filesize($p['destination'])) unlink($p['destination']); //final for cleaning zero size files
+            }
+        }
+    }
+    function test_xml_files()
+    {
+        $target_folder = '/Library/WebServer/Documents/cp_new/services.eol.org_xml/';
+        $ids = self::get_resource_ids();
+        foreach($ids as $id) {
+            $filename = $id.".xml";
+            $filename = $target_folder.$filename;
+            // echo "\n [$id] - ";
+            if(file_exists($filename)) {
+                $xml = simplexml_load_file($filename);
+                // echo " total: ".count($xml->taxon)."\n";
+            }
+            // else echo " - invalid XML";
+        }
+    }
     private function get_resource_ids()
     {
         return array(4, 6, 8, 9, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, 24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 39, 40, 41, 42, 43, 44, 45, 48, 51, 58, 59, 61, 62, 63, 64, 
