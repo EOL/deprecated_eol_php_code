@@ -16,6 +16,34 @@ class EOLv2MetadataAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
+        
+        $this->download_options = array("cache" => 1, "download_wait_time" => 2000000, "timeout" => 3600, "download_attempts" => 1); //"delay_in_minutes" => 1
+        $this->download_options['expire_seconds'] = false; //always false, will not change anymore...
+        if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_cache_collections/";
+        else                           $this->download_options['cache_path'] = "/Volumes/AKiTiO4/eol_cache_collections/";
+        $this->url["eol_object"]     = "http://eol.org/api/data_objects/1.0/data_object_id.json?taxonomy=true&cache_ttl=";
+        
+    }
+    public function start_user_object_curation() //total 155,763
+    {
+        $sql = "SELECT cal.user_id, cal.taxon_concept_id, cal.activity_id, cal.target_id as data_object_id ,cot.ch_object_type ,t.name
+        ,concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' ', if(u.username is not null, concat('(',u.username,')'), '')) as user_name
+        ,d.guid
+        from eol_logging_production.curator_activity_logs cal 
+        LEFT JOIN eol_development.changeable_object_types cot on (cal.changeable_object_type_id = cot.id)
+        LEFT JOIN users u ON (cal.user_id = u.id)
+        LEFT JOIN eol_logging_production.translated_activities t ON (cal.activity_id = t.activity_id)
+        LEFT JOIN eol_development.data_objects_curation d on (cal.target_id = d.id)
+        where 1=1 
+        and cal.activity_id in(37,82,81,60,53,90,55,89,58,59,50)
+        and cot.ch_object_type != 'comment'
+        and t.language_id = 152";
+        $result = $this->mysqli->query($sql);
+        echo "\n". $result->num_rows . "\n"; exit;
+        $recs = array();
+        while($result && $row=$result->fetch_assoc()) {
+            
+        }
     }
     public function start_user_added_text() //udo = 23848 | published = 13143
     {
@@ -215,8 +243,8 @@ class EOLv2MetadataAPI
         left outer JOIN users u ON (asy.agent_id = u.agent_id)
         left outer join hierarchy_entries he on (s.hierarchy_entry_id = he.id)
         left outer join translated_vetted tv on (s.vetted_id = tv.vetted_id)
-        left JOIN eol_v2.translated_languages s3 ON (s.language_id=s3.original_language_id)
-        left JOIN languages l ON (s.language_id=l.id)
+        LEFT JOIN eol_v2.translated_languages s3 ON (s.language_id=s3.original_language_id)
+        LEFT JOIN languages l ON (s.language_id=l.id)
         where (tv.language_id = 152 OR tv.language_id is null) and (s3.language_id = 152 OR s3.language_id is null)";
         // $sql .= " and he.taxon_concept_id is null"; //just for testing asy.synonym_id that is no longer existing in synonyms table
         // $sql .= ' and n.string like "atlantic cod%"';
@@ -257,11 +285,11 @@ class EOLv2MetadataAPI
         , s.name_id, s.language_id, n.string as common_name, s.preferred, concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' (', ifnull(u.username,''), ')') as user_name, s3.label
         , if(l.iso_639_1 is not null, l.iso_639_1, '') as iso_lang, l.source_form as lang_native, s3.label as lang_english
         from eol_logging_production.curator_activity_logs cal 
-        left join eol_logging_production.synonyms s on (cal.target_id=s.id)
-        left join eol_logging_production.names n on (s.name_id=n.id)
-        left join users u on (cal.user_id=u.id)
-        left JOIN eol_v2.translated_languages s3 ON (s.language_id=s3.original_language_id)
-        left JOIN languages l ON (s.language_id=l.id)
+        LEFT JOIN eol_logging_production.synonyms s on (cal.target_id=s.id)
+        LEFT JOIN eol_logging_production.names n on (s.name_id=n.id)
+        LEFT JOIN users u on (cal.user_id=u.id)
+        LEFT JOIN eol_v2.translated_languages s3 ON (s.language_id=s3.original_language_id)
+        LEFT JOIN languages l ON (s.language_id=l.id)
         where cal.activity_id = 61 and s.name_id is not null and s3.language_id = 152";
         // $sql .= " and cal.user_id = 20470";
         $sql .= " order by n.string";
