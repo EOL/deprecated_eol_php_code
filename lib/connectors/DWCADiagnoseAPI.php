@@ -20,7 +20,7 @@ class DWCADiagnoseAPI
         $harvester = new ContentArchiveReader(NULL, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/");
         $tables = $harvester->tables;
         $tables = array_keys($tables);
-        $tables = array_diff($tables, array("http://rs.tdwg.org/dwc/terms/measurementorfact")); //exclude measurementorfact
+        // $tables = array_diff($tables, array("http://rs.tdwg.org/dwc/terms/measurementorfact")); //exclude measurementorfact
         $tables = array_diff($tables, array("http://rs.gbif.org/terms/1.0/vernacularname")); //exclude vernacular name
         $tables = array_diff($tables, array("http://eol.org/schema/association")); //exclude association name
 

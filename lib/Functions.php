@@ -1816,6 +1816,24 @@ class Functions
         return false;
     }
 
+    public static function generate_measurementID($m, $resource_id)
+    {
+        $final = '';
+        if($xml = Functions::lookup_with_cache('https://editors.eol.org/other_files/ontology/measurement_extension.xml', array('expire_seconds' => false))) {
+            if(preg_match_all("/<property name=\"(.*?)\"/ims", $xml, $a)) { // <property name="measurementID"
+                foreach($a[1] as $field) {
+                    if($val = @$m->$field) $final .= $val."_";
+                }
+            }
+        }
+        if($final) return md5($final)."_".$resource_id;
+        else {
+            echo "\n\n Cannot compute for measurementID! Need to investigate. \n";
+            print_r($m);
+            exit("\n\n");
+        }
+    }
+
     public static function language_to_iso_code()
     {
         $iso_639_2_codes = array();
