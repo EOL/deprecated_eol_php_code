@@ -11,6 +11,7 @@ class FishBaseArchiveAPI
 {
     public function __construct($test_run = false, $folder)
     {
+        $this->resource_id = $folder;
         $this->test_run = $test_run;
         // $this->fishbase_data = "http://localhost/cp/FishBase/fishbase_in_folder.zip";
         // $this->fishbase_data = "http://localhost/cp/FishBase/fishbase_not_in_folder.zip";
@@ -955,7 +956,7 @@ class FishBaseArchiveAPI
         $catnum   = $rec["catnum"];
         $occurrence_id = $catnum; // simply used catnum
         $m = new \eol_schema\MeasurementOrFact();
-        $this->add_occurrence($taxon_id, $occurrence_id, $rec);
+        $occurrence_id = $this->add_occurrence($taxon_id, $occurrence_id, $rec);
         $m->occurrenceID       = $occurrence_id;
         $m->measurementOfTaxon = $measurementOfTaxon;
         if($measurementOfTaxon == "true")
@@ -971,19 +972,22 @@ class FishBaseArchiveAPI
         if($val = @$rec['measurementMethod'])   $m->measurementMethod = $val;
         if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
         if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
     }
 
     private function add_occurrence($taxon_id, $occurrence_id, $rec)
     {
-        if(isset($this->occurrence_ids[$occurrence_id])) return;
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
         if($val = @$rec['sex']) $o->sex = $val;
+
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
         $this->archive_builder->write_object_to_file($o);
-        $this->occurrence_ids[$occurrence_id] = '';
-        return;
+        $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
     }
 
     private function get_description_parts($string, $for_stats = true)
