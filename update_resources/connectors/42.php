@@ -27,7 +27,7 @@ $resource_id = 42;
 $fishbase = new FishBaseArchiveAPI(false, $resource_id);
 $fishbase->get_all_taxa($resource_id);
 
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, true);
 
 
 /* Generating the EOL XML

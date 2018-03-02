@@ -29,7 +29,7 @@ if(!Functions::can_this_connector_run($resource_id)) return;
 // /* NOTE: like 211.php a manual step is needed to update partner source file (export-74550.csv.zip)
 $func = new IUCNRedlistDataConnector($resource_id);
 $func->generate_IUCN_data();
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, true);
 // */
 
 Functions::set_resource_status_to_harvest_requested($resource_id);
