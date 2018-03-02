@@ -10,6 +10,7 @@ class IUCNRedlistDataConnector
     
     function __construct($folder = null)
     {
+        $this->resource_id = $folder;
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -349,8 +350,8 @@ class IUCNRedlistDataConnector
         $taxon_id = $rec["taxon_id"];
         $catnum = $rec["catnum"];
         $m = new \eol_schema\MeasurementOrFact();
-        $occurrence = $this->add_occurrence($taxon_id, $catnum);
-        $m->occurrenceID = $occurrence->occurrenceID;
+        $occurrence_id = $this->add_occurrence($taxon_id, $catnum);
+        $m->occurrenceID = $occurrence_id;
         if($mtype)  $m->measurementType = $mtype;
         else {
             $m->measurementType = "http://iucn.org/". SparqlClient::to_underscore($label);
@@ -365,19 +366,23 @@ class IUCNRedlistDataConnector
             // $m->contributor = '';
             // $m->measurementMethod = '';
         }
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
     }
 
     private function add_occurrence($taxon_id, $catnum)
     {
         $occurrence_id = $taxon_id . 'O' . $catnum;
-        if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
+
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
+
         $this->archive_builder->write_object_to_file($o);
-        $this->occurrence_ids[$occurrence_id] = $o;
-        return $o;
+        $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
     }
 
     function load_zip_contents($zip_path, $download_options, $files, $extension)
