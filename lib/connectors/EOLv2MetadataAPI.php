@@ -37,7 +37,9 @@ class EOLv2MetadataAPI
         where 1=1 
         and cal.activity_id in(37,82,81,60,53,90,55,89,58,59,50)
         and cot.ch_object_type != 'comment' and cot.ch_object_type != 'data_point_uri'
-        and t.language_id = 152";
+        and t.language_id = 152
+        -- and cot.ch_object_type = 'users_submitted_text'
+        order by cal.target_id";
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows . "\n"; exit;
         $recs = array();
@@ -52,8 +54,14 @@ class EOLv2MetadataAPI
             else {
                 // echo "\n NO tc_id \n";
                 if($tc_id = self::get_tc_id_using_do_id($row['data_object_id'])) {}
+                elseif($tc_id = self::get_tc_id_using_dotc($row['data_object_id'])) {} //dotc - data_objects_taxon_concepts
+                elseif($row['ch_object_type'] == "users_submitted_text")
+                {
+                    $a = self::get_tc_id_from_udo($row['data_object_id']); //udo - users_data_objects
+                    $tc_id = @$a['taxon_concept_id'];
+                }
                 else {
-                    // echo("\n\nNo taxon_concept_id found for ".$row['data_object_id']."\n");
+                    echo("\n\nNo taxon_concept_id found for ".$row['data_object_id']."\n");
                     // print_r($row); //exit;
                     $no_tc_id = true;
                 }
@@ -74,7 +82,7 @@ class EOLv2MetadataAPI
             $rec['rank'] = @$info['rank'];
             $rec['ancestry'] = self::generate_ancestry_as_json($info);
             
-            $resource_info = self::lookup_resource_info($row['data_object_id']);
+            $resource_info = self::lookup_resource_info($row);
             $rec['resource_id'] = @$resource_info['resource_id'];
             $rec['resource_name'] = $resource_info['resource_name'];
             $rec['partner_id'] = @$resource_info['cp_id'];
@@ -119,6 +127,27 @@ class EOLv2MetadataAPI
         fclose($FILE);
         
     }
+    private function get_tc_id_using_dotc($do_id)
+    {
+        $sql = "SELECT dotc.* from data_objects_taxon_concepts dotc where dotc.data_object_id = $do_id";
+        $result = $this->mysqli->query($sql);
+        if($result && $row=$result->fetch_assoc()) {
+            return $row['taxon_concept_id'];
+        }
+        return false;
+    }
+    private function get_tc_id_from_udo($do_id)
+    {
+        $sql = "SELECT udo.* ,concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' ', if(u.username is not null, concat('(',u.username,')'), '')) as user_name
+        from users_data_objects udo 
+        left join users u on (udo.user_id = u.id)
+        where udo.data_object_id = $do_id";
+        $result = $this->mysqli->query($sql);
+        if($result && $row=$result->fetch_assoc()) {
+            // print_r($row);
+            return array('taxon_concept_id' => $row['taxon_concept_id'], 'udo_username' => $row['user_name'], 'udo_userid' => $row['user_id']);
+        }
+    }
     private function generate_ancestry_as_json($info)
     {
         $a = array();
@@ -130,19 +159,28 @@ class EOLv2MetadataAPI
         // print_r($a); exit;
         if($a) return json_encode($a);
     }
-    private function lookup_resource_info($do_id)
+    private function lookup_resource_info($row)
     {
-        $sql = "SELECT dohe.*, he.resource_id, r.content_partner_id as cp_id, r.title as resource_name, r.collection_id as coll_id, cp.full_name as cp_name
-        from data_objects_harvest_events_curation dohe
-        left join harvest_events he on (dohe.harvest_event_id = he.id)
-        left join resources r on (he.resource_id = r.id)
-        left join content_partners cp on (r.content_partner_id = cp.id)
-        where dohe.data_object_id = $do_id";
-        $result = $this->mysqli->query($sql);
-        if($result && $row=$result->fetch_assoc()) {
-            // print_r($row);
-            return array('resource_name' => $row['resource_name'], 'resource_id' => $row['resource_id'], 'cp_name' => $row['cp_name'], 'cp_id' => $row['cp_id'], 'coll_id' => $row['coll_id']);
+        $do_id = $row['data_object_id'];
+        
+        if($row['ch_object_type'] == 'users_submitted_text') {
+            $a = self::get_tc_id_from_udo($do_id); //udo - users_data_objects
+            return array('resource_name' => $a['udo_username'], 'resource_id' => $a['udo_userid']);
         }
+        else {
+            $sql = "SELECT dohe.*, he.resource_id, r.content_partner_id as cp_id, r.title as resource_name, r.collection_id as coll_id, cp.full_name as cp_name
+            from data_objects_harvest_events_curation dohe
+            left join harvest_events he on (dohe.harvest_event_id = he.id)
+            left join resources r on (he.resource_id = r.id)
+            left join content_partners cp on (r.content_partner_id = cp.id)
+            where dohe.data_object_id = $do_id";
+            $result = $this->mysqli->query($sql);
+            if($result && $row=$result->fetch_assoc()) {
+                // print_r($row);
+                return array('resource_name' => $row['resource_name'], 'resource_id' => $row['resource_id'], 'cp_name' => $row['cp_name'], 'cp_id' => $row['cp_id'], 'coll_id' => $row['coll_id']);
+            }
+        }
+        
         return array('resource_name' => 'Cannot find resource anymore.');
         // exit("\n Investigate cannot lookup resource for this do_id [$do_id] \n");
         return array();
