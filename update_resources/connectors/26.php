@@ -56,7 +56,7 @@ $func = new WormsArchiveAPI($resource_id);
 $func->get_all_taxa("media_objects"); //'media_objects' is for original resource = 26
 // $func->get_all_taxa("taxonomy");      //'taxonomy' not sure when was used
 
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, true);
 // */
 
 // /* utility ==========================
