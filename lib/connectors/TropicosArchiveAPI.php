@@ -138,8 +138,7 @@ class TropicosArchiveAPI
             self::process_taxa($resource_id);
         }
         
-        
-        print_r($this->debug);
+        if(isset($this->debug)) print_r($this->debug);
         
         // remove temp dir
         recursive_rmdir($this->TEMP_DIR);
@@ -404,13 +403,22 @@ class TropicosArchiveAPI
     private function add_occurrence($taxon_id, $catnum)
     {
         $occurrence_id = $taxon_id . '_' . $catnum;
-        if(isset($this->occurrence_ids[$occurrence_id])) return $occurrence_id;
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
+
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+
+        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
         $this->archive_builder->write_object_to_file($o);
+
+        $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
+
+        /* old ways
         $this->occurrence_ids[$occurrence_id] = '';
         return $occurrence_id;
+        */
     }
 
     private function create_agents($agents)
