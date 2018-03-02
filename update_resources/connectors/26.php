@@ -38,7 +38,7 @@ Total taxa without parents: 207577
 Historical:
 26	Tuesday 2017-10-10 12:02:32 AM	{"agent.tab":1388,"measurement_or_fact.tab":428106,"media_resource.tab":160716,"occurrence.tab":425583,"reference.tab":637206,"taxon.tab":581849,"vernacular_name.tab":73967}
 26	Monday 2017-12-04 07:53:33 PM	{"agent.tab":1403,"measurement_or_fact.tab":431072,"media_resource.tab":164848,"occurrence.tab":428547,"reference.tab":661032,"taxon.tab":603823,"vernacular_name.tab":74103}
-
+26	Friday 2018-03-02 08:54:46 AM	{"agent.tab":1434,"measurement_or_fact.tab":433025,"media_resource.tab":170476,"occurrence.tab":430498,"reference.tab":671182,"taxon.tab":608250,"vernacular_name.tab":74116}
 exec time: ~30 minutes
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -56,7 +56,7 @@ $func = new WormsArchiveAPI($resource_id);
 $func->get_all_taxa("media_objects"); //'media_objects' is for original resource = 26
 // $func->get_all_taxa("taxonomy");      //'taxonomy' not sure when was used
 
-Functions::finalize_dwca_resource($resource_id, false, true);
+Functions::finalize_dwca_resource($resource_id, false, false); //3rd param should be false so it doesn't remove the /26/ folder which will be used below when diagnosing...
 // */
 
 // /* utility ==========================
