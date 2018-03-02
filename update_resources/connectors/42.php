@@ -18,6 +18,7 @@ measurements                            173768      175317  176490  176490
 42	Saturday 2017-12-09 11:41:48 PM	{"agent.tab":146,"measurement_or_fact.tab":179865,"media_resource.tab":135707,"occurrence.tab":160981,"reference.tab":32237,"taxon.tab":95593,"vernacular_name.tab":248126} eol-archive
 42	Monday 2017-12-11 01:19:27 AM	{"agent.tab":146,"measurement_or_fact.tab":179865,"media_resource.tab":135702,"occurrence.tab":160981,"reference.tab":32237,"taxon.tab":95593,"vernacular_name.tab":248126} Mac Mini
 42	Monday 2017-12-11 01:36:02 AM	{"agent.tab":146,"measurement_or_fact.tab":179865,"media_resource.tab":135702,"occurrence.tab":160981,"reference.tab":32237,"taxon.tab":95593,"vernacular_name.tab":248126} eol-archive
+42	Friday 2018-03-02 03:42:53 AM	{"agent.tab":146,"measurement_or_fact.tab":179865,"media_resource.tab":135702,"occurrence.tab":160994,"reference.tab":32237,"taxon.tab":95593,"vernacular_name.tab":248126} eol-archive
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
