@@ -41,6 +41,10 @@ class EOLv2MetadataAPI
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows . "\n"; exit;
         $recs = array();
+        
+        $FILE = Functions::file_open($filename = CONTENT_RESOURCE_LOCAL_PATH ."user_object_curation.txt", "w");
+        
+        $headers_printed_already = false;
         while($result && $row=$result->fetch_assoc()) {
             $tc_id = false;
             if($tc_id = $row['taxon_concept_id']) echo "\n With tc_id \n";
@@ -55,7 +59,7 @@ class EOLv2MetadataAPI
             $info = false;
             if($tc_id) {
                 $info = self::get_taxon_info($tc_id);
-                print_r($info); //exit;
+                // print_r($info); exit;
             }
             $rec = array();
             $rec['user_id'] = $row['user_id'];
@@ -65,10 +69,74 @@ class EOLv2MetadataAPI
             $rec['target_id'] = $row['data_object_id'];
             $rec['taxon_concept_id'] = $tc_id;
             $rec['sciname'] = @$info['taxon_name'];
+            $rec['rank'] = @$info['rank'];
+            $rec['ancestry'] = self::generate_ancestry_as_json($info);
             
-            print_r($rec); exit;
+            $resource_info = self::lookup_resource_info($row['data_object_id']);
+            $rec['resource_id'] = @$resource_info['resource_id'];
+            $rec['resource_name'] = $resource_info['resource_name'];
+            $rec['partner_id'] = @$resource_info['cp_id'];
+            $rec['partner_name'] = @$resource_info['cp_name'];
+            $rec['collection_id'] = @$resource_info['coll_id'];
             
+            /* good debug
+            if($rec['resource_id']) {
+                print_r($rec); exit;
+            }
+            */
+            
+            /*   [user_id] => 35779
+                 [user_name] => Barna Páll-Gergely (Alopia)
+                 [activity] => trusted
+                 [ch_object_type] => data_object
+                 [target_id] => 1495237
+                 [taxon_concept_id] => 2366
+                 [sciname] => Gastropoda
+                 [rank] => class
+                 [ancestry] => {"phylum":{"name":"Mollusca","taxon_concept_id":"2195"},"kingdom":{"name":"Animalia","taxon_concept_id":"1"}}
+                 [resource_id] => 15
+                 [resource_name] => EOL Group on Flickr
+                 [cp_id] => 18
+                 [cp_name] => Flickr: Encyclopedia of Life Images
+                 [coll_id] => 176
+            */
+            //start writing
+            if(!$headers_printed_already) {
+                fwrite($FILE, implode("\t", array_keys($rec))."\n");
+                $headers_printed_already = true;
+            }
+            fwrite($FILE, implode("\t", $rec)."\n");
         }
+        fclose($FILE);
+        
+    }
+    private function generate_ancestry_as_json($info)
+    {
+        $a = array();
+        if($val = @$info['ancestry']) {
+            foreach($val as $rec) {
+                $a[$rec['rank']] = array("name" => $rec['taxon_name'], "taxon_concept_id" => $rec['taxon_concept_id']);
+            }
+        }
+        // print_r($a); exit;
+        if($a) return json_encode($a);
+    }
+    private function lookup_resource_info($do_id)
+    {
+        $sql = "SELECT dohe.*, he.resource_id, r.content_partner_id as cp_id, r.title as resource_name, r.collection_id as coll_id, cp.full_name as cp_name
+        from data_objects_harvest_events_curation dohe
+        left join harvest_events he on (dohe.harvest_event_id = he.id)
+        left join resources r on (he.resource_id = r.id)
+        left join content_partners cp on (r.content_partner_id = cp.id)
+        where dohe.data_object_id = $do_id";
+        $result = $this->mysqli->query($sql);
+        if($result && $row=$result->fetch_assoc()) {
+            // print_r($row);
+            return array('resource_name' => $row['resource_name'], 'resource_id' => $row['resource_id'], 'cp_name' => $row['cp_name'], 'cp_id' => $row['cp_id'], 'coll_id' => $row['coll_id']);
+        }
+        return array('resource_name' => 'Cannot find resource anymore.');
+        // exit("\n Investigate cannot lookup resource for this do_id [$do_id] \n");
+        return array();
     }
     private function get_tc_id_using_do_id($do_id)
     {
