@@ -46,14 +46,16 @@ class EOLv2MetadataAPI
         
         $headers_printed_already = false;
         while($result && $row=$result->fetch_assoc()) {
+            $no_tc_id = false;
             $tc_id = false;
-            if($tc_id = $row['taxon_concept_id']) echo "\n With tc_id \n";
+            if($tc_id = $row['taxon_concept_id']) {} //echo "\n With tc_id \n";
             else {
-                echo "\n NO tc_id \n";
+                // echo "\n NO tc_id \n";
                 if($tc_id = self::get_tc_id_using_do_id($row['data_object_id'])) {}
                 else {
-                    echo("\n\nNo taxon_concept_id found for ".$row['data_object_id']."\n");
-                    print_r($row); //exit;
+                    // echo("\n\nNo taxon_concept_id found for ".$row['data_object_id']."\n");
+                    // print_r($row); //exit;
+                    $no_tc_id = true;
                 }
             }
             $info = false;
@@ -79,11 +81,18 @@ class EOLv2MetadataAPI
             $rec['partner_name'] = @$resource_info['cp_name'];
             $rec['collection_id'] = @$resource_info['coll_id'];
             
+            // /* good debug
+            // if($rec['resource_id']) {
+                // print_r($rec); exit;
+            // }
+            // */
+            
             /* good debug
-            if($rec['resource_id']) {
+            if($no_tc_id) {
                 print_r($rec); exit;
             }
             */
+            
             
             /*   [user_id] => 35779
                  [user_name] => Barna Páll-Gergely (Alopia)
