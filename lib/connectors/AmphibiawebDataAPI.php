@@ -5,6 +5,7 @@ class AmphibiawebDataAPI
 {
     function __construct($folder)
     {
+        $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->strings_to_search = "http://localhost/cp/Amphibiaweb/region strings for queries.txt";
@@ -134,19 +135,29 @@ class AmphibiawebDataAPI
         // $m->measurementMethod   = '';
         // $m->measurementRemarks  = '';
         // $m->contributor         = '';
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
     }
 
     private function add_occurrence($taxon_id, $catnum, $rec)
     {
         $occurrence_id = $catnum; //can be just this, no need to add taxon_id
-        if(isset($this->occurrence_ids[$occurrence_id])) return $occurrence_id;
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID      = $taxon_id;
+        
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
+        
         $this->archive_builder->write_object_to_file($o);
+
+        $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
+        
+        /* old ways
         $this->occurrence_ids[$occurrence_id] = '';
         return $occurrence_id;
+        */
     }
 
     private function clean_html($html)

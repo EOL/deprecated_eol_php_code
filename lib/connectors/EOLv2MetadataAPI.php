@@ -24,7 +24,7 @@ class EOLv2MetadataAPI
         $this->url["eol_object"]     = "http://eol.org/api/data_objects/1.0/data_object_id.json?taxonomy=true&cache_ttl=";
         
     }
-    public function start_user_object_curation() //total 155,763
+    public function start_user_object_curation() //total 155,763 --> 153,370 without data_point_uri
     {
         $sql = "SELECT cal.user_id, cal.taxon_concept_id, cal.activity_id, cal.target_id as data_object_id ,cot.ch_object_type ,t.name as activity
         ,concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' ', if(u.username is not null, concat('(',u.username,')'), '')) as user_name
@@ -36,7 +36,7 @@ class EOLv2MetadataAPI
         LEFT JOIN eol_development.data_objects_curation d on (cal.target_id = d.id)
         where 1=1 
         and cal.activity_id in(37,82,81,60,53,90,55,89,58,59,50)
-        and cot.ch_object_type != 'comment'
+        and cot.ch_object_type != 'comment' and cot.ch_object_type != 'data_point_uri'
         and t.language_id = 152";
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows . "\n"; exit;
