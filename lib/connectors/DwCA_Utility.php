@@ -115,7 +115,7 @@ class DwCA_Utility
         if($this->resource_id == 24)
         {
             require_library('connectors/AntWebDataAPI');
-            $func = new AntWebDataAPI($this->taxon_ids, $this->archive_builder);
+            $func = new AntWebDataAPI($this->taxon_ids, $this->archive_builder, 24);
             $func->start($harvester, 'http://rs.tdwg.org/dwc/terms/taxon');
         }
         // ================================= end of customization ================================= */ 
