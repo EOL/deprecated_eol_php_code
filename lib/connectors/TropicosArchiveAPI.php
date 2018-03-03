@@ -356,7 +356,7 @@ class TropicosArchiveAPI
                 $mremarks = $CountryName;
                 
                 self::add_string_types($taxon_id, $text_id, "Country", $country_uri, "http://eol.org/schema/terms/Present", true, $mremarks);
-                self::add_string_types($taxon_id, $text_id, "Taxon"  , $sciname    , "http://rs.tdwg.org/dwc/terms/scientificName", false);
+                // self::add_string_types($taxon_id, $text_id, "Taxon"  , $sciname    , "http://rs.tdwg.org/dwc/terms/scientificName", false); --not needed since redundant, sciname is same as in taxon extension
             }
             else $this->debug[$CountryName] = '';
             
