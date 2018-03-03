@@ -7,8 +7,9 @@ This is run after 24.php
 */
 class AntWebDataAPI
 {
-    function __construct($taxon_ids, $archive_builder)
+    function __construct($taxon_ids, $archive_builder, $resource_id)
     {
+        $this->resource_id = $resource_id;
         $this->taxon_ids = $taxon_ids;
         $this->archive_builder = $archive_builder;
         
@@ -212,36 +213,32 @@ class AntWebDataAPI
     private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
     {
         $taxon_id = $rec["taxon_id"];
-        $catnum   = $rec["catnum"];
-        $occurrence_id = $catnum; // simply used catnum
+        $catnum   = $rec["catnum"].$measurementType; //becase one catalog no. can have 2 MeasurementOrFact entries. Each for country and habitat.
         
-        $unique_id = md5($taxon_id.$measurementType.$value);
-        $occurrence_id = $unique_id; //becase one catalog no. can have 2 MeasurementOrFact entries. Each for country and habitat.
+        $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
 
-        $cont = $this->add_occurrence($taxon_id, $occurrence_id, $rec, $unique_id);
-
-        if($cont) {
-            $m = new \eol_schema\MeasurementOrFact();
-            $m->occurrenceID       = $occurrence_id;
-            $m->measurementOfTaxon = $measurementOfTaxon;
-            if($measurementOfTaxon == "true") {
-                $m->source      = @$rec["url"];
-                $m->contributor = @$rec["contributor"];
-                if($referenceID = @$rec["referenceID"]) $m->referenceID = $referenceID;
-            }
-            $m->measurementType  = $measurementType;
-            $m->measurementValue = $value;
-            // $m->bibliographicCitation = $this->bibliographic_citation;
-            if($val = @$rec['measurementUnit'])     $m->measurementUnit = $val;
-            if($val = @$rec['measurementMethod'])   $m->measurementMethod = $val;
-            if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
-            if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
-            $this->archive_builder->write_object_to_file($m);
+        $m = new \eol_schema\MeasurementOrFact();
+        $m->occurrenceID       = $occurrence_id;
+        $m->measurementOfTaxon = $measurementOfTaxon;
+        if($measurementOfTaxon == "true") {
+            $m->source      = @$rec["url"];
+            $m->contributor = @$rec["contributor"];
+            if($referenceID = @$rec["referenceID"]) $m->referenceID = $referenceID;
         }
+        $m->measurementType  = $measurementType;
+        $m->measurementValue = $value;
+        // $m->bibliographicCitation = $this->bibliographic_citation;
+        if($val = @$rec['measurementUnit'])     $m->measurementUnit = $val;
+        if($val = @$rec['measurementMethod'])   $m->measurementMethod = $val;
+        if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
+        if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        $this->archive_builder->write_object_to_file($m);
     }
-    private function add_occurrence($taxon_id, $occurrence_id, $rec, $unique_id)
+    private function add_occurrence($taxon_id, $catnum, $rec)
     {
-        if(isset($this->occurrence_ids[$unique_id])) return false;
+        $occurrence_id = $taxon_id . '_' . $catnum;
+        
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
@@ -286,9 +283,20 @@ class AntWebDataAPI
         }
         // $o->decimalLatitude
         // $o->decimalLongitude
+        
+        
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+
+        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
         $this->archive_builder->write_object_to_file($o);
+
+        $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
+
+        /* old ways
         $this->occurrence_ids[$unique_id] = '';
         return true;
+        */
     }
 
     private function get_specimens_per_genus($genus)
