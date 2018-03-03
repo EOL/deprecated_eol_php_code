@@ -13,6 +13,7 @@ eol-archive
 24	Tuesday 2017-11-28 03:58:39 AM	{"agent.tab":158,"measurement_or_fact.tab":28655,"media_resource.tab":169091,"occurrence.tab":28655,"taxon.tab":16514} - eol-archive
 24	Thursday 2018-01-11 09:21:02 AM	{"agent.tab":158,"media_resource.tab":169091,"taxon.tab":16054}
 24	Thursday 2018-01-11 09:26:29 AM	{"agent.tab":158,"measurement_or_fact.tab":42848,"media_resource.tab":169091,"occurrence.tab":42848,"taxon.tab":16526} - eol-archive
+24	Saturday 2018-03-03 01:55:50 AM	{"agent.tab":158,"measurement_or_fact.tab":1046972,"media_resource.tab":169091,"occurrence.tab":1022432,"taxon.tab":16546} -- not unique measurementID ERROR
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
