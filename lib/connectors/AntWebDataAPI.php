@@ -234,6 +234,8 @@ class AntWebDataAPI
         if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
         if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        if(isset($this->measurement_ids[$m->measurementID])) return;
+        $this->measurement_ids[$m->measurementID] = '';
         $this->archive_builder->write_object_to_file($m);
     }
     private function add_occurrence($taxon_id, $catnum, $rec)
