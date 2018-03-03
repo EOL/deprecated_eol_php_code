@@ -15,6 +15,8 @@ To be harvestd quarterly: https://jira.eol.org/browse/WEB-5427
 2014 08 14  76,022  554,047
 2016 08 25  81,703  597,586             243,525
 2017 10 05  80,823  591,236             240,800
+
+737	Friday 2018-03-02 04:19:52 PM	{"measurement_or_fact.tab":591236,"occurrence.tab":240800,"taxon.tab":80823}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
