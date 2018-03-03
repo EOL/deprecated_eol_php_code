@@ -25,6 +25,7 @@ class AntWebDataAPI
         
         $this->limit = 100;
         $this->download_options = array("timeout" => 60*60, "expire_seconds" => 60*60*24*25);
+        $this->download_options['expire_seconds'] = false; //comment in normal operation
         $this->ant_habitat_mapping_file = "https://github.com/eliagbayani/EOL-connector-data-files/blob/master/AntWeb/ant habitats mapping.xlsx?raw=true";
     }
     
