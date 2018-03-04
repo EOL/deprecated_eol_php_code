@@ -94,8 +94,7 @@ class EOLv2MetadataAPI
             $rec['partner_name'] = @$resource_info['cp_name'];
             $rec['collection_id'] = @$resource_info['coll_id'];
             
-            // if($rec['description'] && $rec['resource_id'] && $rec['type'] == 'Image' && $rec['taxon_concept_id']) 
-            // {
+            // if($rec['description'] && $rec['resource_id'] && $rec['type'] == 'Image' && $rec['taxon_concept_id'] && $rec['resource_name']) {
             //     print_r($rec);
             //     exit;
             // }
