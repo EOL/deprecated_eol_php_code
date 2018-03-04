@@ -1819,18 +1819,25 @@ class Functions
     public static function generate_measurementID($m, $resource_id, $extension = 'measurement')
     {
         $url['measurement'] = "https://editors.eol.org/other_files/ontology/measurement_extension.xml";
-        $url['occurrence'] = "https://editors.eol.org/other_files/ontology/occurrence_extension.xml";
+        $url['occurrence'] = "https://editors.eol.org/other_files/ontology/occurrence_extension.xml"; //not used for now coz it will generate many many records both for occurrence and measurement extensions...
         $final = '';
-        if($xml = Functions::lookup_with_cache($url[$extension], array('expire_seconds' => false))) {
-            if(preg_match_all("/<property name=\"(.*?)\"/ims", $xml, $a)) { // <property name="measurementID"
-                foreach($a[1] as $field) {
-                    if($val = @$m->$field) $final .= $val."_";
+        if($extension == 'measurement') {
+            if($xml = Functions::lookup_with_cache($url[$extension], array('expire_seconds' => false))) {
+                if(preg_match_all("/<property name=\"(.*?)\"/ims", $xml, $a)) { // <property name="measurementID"
+                    foreach($a[1] as $field) {
+                        if($val = @$m->$field) $final .= $val."_";
+                    }
                 }
+            }
+        }
+        elseif($extension == 'occurrence') {
+            foreach(array('sex', 'lifeStage') as $field) {
+                if($val = @$m->$field) $final .= $val."_";
             }
         }
         if($final) return md5($final)."_".$resource_id;
         else {
-            echo "\n\n Cannot compute for measurementID! Need to investigate. \n";
+            echo "\n\n Cannot compute for $extension ID! Need to investigate. \n";
             print_r($m);
             exit("\n\n");
         }
