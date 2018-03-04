@@ -28,7 +28,7 @@ class EOLv2MetadataAPI
     {
         $sql = "SELECT cal.user_id, cal.taxon_concept_id, cal.activity_id, cal.target_id as data_object_id ,cot.ch_object_type ,t.name as activity
         ,concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' ', if(u.username is not null, concat('(',u.username,')'), '')) as user_name
-        ,d.guid
+        ,d.guid, d.description, d.object_url, d.data_type_id
         from eol_logging_production.curator_activity_logs cal 
         LEFT JOIN eol_development.changeable_object_types cot on (cal.changeable_object_type_id = cot.id)
         LEFT JOIN users u ON (cal.user_id = u.id)
@@ -78,6 +78,10 @@ class EOLv2MetadataAPI
             $rec['ch_object_type'] = $row['ch_object_type'];
             $rec['target_id'] = $row['data_object_id'];
             $rec['guid'] = $row['guid'];
+            $rec['type'] = self::lookup_data_type($row['data_type_id']);
+            $rec['description'] = $row['description'];
+            $rec['object_url'] = self::lookup_object_url($row, $rec['type']);
+            
             $rec['taxon_concept_id'] = $tc_id;
             $rec['sciname'] = @$info['taxon_name'];
             $rec['rank'] = @$info['rank'];
@@ -90,6 +94,12 @@ class EOLv2MetadataAPI
             $rec['partner_name'] = @$resource_info['cp_name'];
             $rec['collection_id'] = @$resource_info['coll_id'];
             
+            // if($rec['description'] && $rec['resource_id'] && $rec['type'] == 'Image' && $rec['taxon_concept_id']) 
+            // {
+            //     print_r($rec);
+            //     exit;
+            // }
+
             // /* good debug
             // if($rec['resource_id']) {
                 // print_r($rec); exit;
@@ -127,6 +137,30 @@ class EOLv2MetadataAPI
         }
         fclose($FILE);
         
+    }
+    private function lookup_object_url($row, $type)
+    {
+        if($val = $row['object_url']) return $val;
+
+        if($type != 'Text') {
+            $url = str_replace("data_object_id", $row['data_object_id'], $this->url["eol_object"]);
+            if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+                $obj = json_decode($json, true);
+                if($val = @$obj['dataObjects'][0]['mediaURL']) return $val;
+                elseif($val = @$obj['dataObjects'][0]['eolMediaURL']) return $val;
+            }
+        }
+        return false;
+    }
+    private function lookup_data_type($data_type_id)
+    {
+        $sql = "SELECT t.label as data_type from translated_data_types t where t.language_id = 152 and t.data_type_id = $data_type_id";
+        $result = $this->mysqli->query($sql);
+        if($result && $row=$result->fetch_assoc()) {
+            return $row['data_type'];
+        }
+        return false;
+
     }
     private function get_tc_id_using_dotc($do_id)
     {
