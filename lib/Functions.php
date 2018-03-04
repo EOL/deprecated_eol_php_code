@@ -1831,7 +1831,7 @@ class Functions
             }
         }
         elseif($extension == 'occurrence') {
-            foreach(array('sex', 'lifeStage') as $field) {
+            foreach(array('occurrenceID', 'sex', 'lifeStage') as $field) {
                 if($val = @$m->$field) $final .= $val."_";
             }
         }
