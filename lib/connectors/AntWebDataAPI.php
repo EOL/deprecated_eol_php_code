@@ -51,7 +51,7 @@ class AntWebDataAPI
             $specimens = self::get_specimens_per_genus($genus);
             if(!$specimens) continue;
             // print_r($specimens);
-            echo("\nNo. of specimens: ".count($specimens)."\n");
+            // echo("\nNo. of specimens: ".count($specimens)."\n"); //good debug
             foreach($specimens as $rec)
             {   /* Array(
                        [url] => http://antweb.org/api/v2/?occurrenceId=CAS:ANTWEB:jtl725991
