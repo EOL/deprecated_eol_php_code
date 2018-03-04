@@ -77,6 +77,7 @@ class EOLv2MetadataAPI
             $rec['activity'] = $row['activity'];
             $rec['ch_object_type'] = $row['ch_object_type'];
             $rec['target_id'] = $row['data_object_id'];
+            $rec['guid'] = $row['guid'];
             $rec['taxon_concept_id'] = $tc_id;
             $rec['sciname'] = @$info['taxon_name'];
             $rec['rank'] = @$info['rank'];
