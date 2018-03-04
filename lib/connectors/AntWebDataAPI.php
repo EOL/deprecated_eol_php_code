@@ -233,7 +233,7 @@ class AntWebDataAPI
         if($val = @$rec['measurementMethod'])   $m->measurementMethod = $val;
         if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
         if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
-        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('measurementValue')); //3rd param is optional. If blank then it will consider all properties of the extension
         if(isset($this->measurement_ids[$m->measurementID])) return;
         $this->measurement_ids[$m->measurementID] = '';
         $this->archive_builder->write_object_to_file($m);
