@@ -42,7 +42,7 @@ class TropicosArchiveAPI
         'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1); //timeout is 60 secs. * 3 = 3 mins.
                                                                                        //download_wait_time = 1000000 = 1 second; 300000 => .3 seconds
         //, 'delay_in_minutes' => 1
-        $this->preview_mode = true; //false is orig value
+        $this->preview_mode = false; //false is orig value
     }
     function get_all_countries()
     {
