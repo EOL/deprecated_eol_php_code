@@ -975,7 +975,8 @@ class FishBaseArchiveAPI
         if($val = @$rec['measurementMethod'])   $m->measurementMethod = $val;
         if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
         if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
-        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue'));
+        // $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue'));
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
         
         //start of special -------------------------------------------------------------
@@ -991,7 +992,7 @@ class FishBaseArchiveAPI
         $o->taxonID = $taxon_id;
         if($val = @$rec['sex']) $o->sex = $val;
 
-        /* $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence'); */
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
         if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
         $this->archive_builder->write_object_to_file($o);
         $this->occurrence_ids[$o->occurrenceID] = '';

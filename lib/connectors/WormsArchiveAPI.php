@@ -876,15 +876,15 @@ class WormsArchiveAPI
             $m->source = (string) $rec["http://rs.tdwg.org/ac/terms/accessURI"]; // http://www.marinespecies.org/aphia.php?p=distribution&id=274241
             $m->bibliographicCitation = (string) $rec["http://purl.org/dc/terms/bibliographicCitation"];
             $m->contributor = (string) $rec["http://purl.org/dc/terms/contributor"];
-            if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/reference/referenceID"]))
-            {
+            if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/reference/referenceID"])) {
                 $m->referenceID = $referenceID;
             }
         }
         $m->measurementType = $measurementType;
         $m->measurementValue = (string) $value;
         $m->measurementMethod = '';
-        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue'));
+        // $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue'));
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
     }
 
@@ -909,7 +909,7 @@ class WormsArchiveAPI
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
         
-        /* $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence'); */
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
 
         if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
         $this->archive_builder->write_object_to_file($o);
