@@ -214,7 +214,7 @@ class AntWebDataAPI
     private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
     {
         $taxon_id = $rec["taxon_id"];
-        $catnum   = $rec["catnum"].$measurementType; //becase one catalog no. can have 2 MeasurementOrFact entries. Each for country and habitat.
+        $catnum   = $rec["catnum"].$measurementType; //because one catalog no. can have 2 MeasurementOrFact entries. Each for country and habitat.
         
         $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
 
@@ -288,7 +288,7 @@ class AntWebDataAPI
         // $o->decimalLongitude
         
         
-        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        /* $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence'); */
 
         if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
         $this->archive_builder->write_object_to_file($o);
