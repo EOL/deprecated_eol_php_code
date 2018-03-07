@@ -366,7 +366,7 @@ class IUCNRedlistDataConnector
             // $m->contributor = '';
             // $m->measurementMethod = '';
         }
-        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue'));
         $this->archive_builder->write_object_to_file($m);
     }
 
@@ -377,7 +377,7 @@ class IUCNRedlistDataConnector
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
 
-        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        /* $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence'); */
         if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
 
         $this->archive_builder->write_object_to_file($o);
