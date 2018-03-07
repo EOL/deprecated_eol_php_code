@@ -211,10 +211,18 @@ class AntWebDataAPI
         $this->taxon_ids[$taxon->taxonID] = '';
         $this->archive_builder->write_object_to_file($taxon);
     }
+    
+    /* There is a special case for AntWeb. Multiple records with diff catnum have the same country information for a taxon.
+    We need to exclude those redundant records. So we put here an additional script 'special' to handle that. */
     private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
     {
         $taxon_id = $rec["taxon_id"];
         $catnum   = $rec["catnum"].$measurementType; //because one catalog no. can have 2 MeasurementOrFact entries. Each for country and habitat.
+        
+        //start special -------------------------------------------------------------
+        $var = md5($measurementType . $value . $rec['taxon_id']);
+        if(isset($this->unique_measurements[$var])) return;
+        //end special -------------------------------------------------------------
         
         $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
 
@@ -234,9 +242,12 @@ class AntWebDataAPI
         if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
         if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID','measurementValue')); //3rd param is optional. If blank then it will consider all properties of the extension
-        if(isset($this->measurement_ids[$m->measurementID])) return;
-        $this->measurement_ids[$m->measurementID] = '';
         $this->archive_builder->write_object_to_file($m);
+        
+        //start of special -------------------------------------------------------------
+        $var = md5($m->measurementType . $m->measurementValue . $taxon_id);
+        $this->unique_measurements[$var] = '';
+        //end special -------------------------------------------------------------
     }
     private function add_occurrence($taxon_id, $catnum, $rec)
     {
