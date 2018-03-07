@@ -166,7 +166,6 @@ function require_vendor($module)
 function require_library($library)
 {
     $library_path = DOC_ROOT . "lib/$library.php";
-    echo "\n\n[$library_path]\n\n";
     require_once($library_path);
 }
 
