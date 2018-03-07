@@ -42,7 +42,7 @@ class DwCA_Utility
                                   [7] => http://rs.gbif.org/terms/1.0/distribution
                                   */
     
-        if($this->resource_id == 24) {
+        if(@$this->resource_id == 24) {
             $this->taxon_ids = array();
         }
     }
