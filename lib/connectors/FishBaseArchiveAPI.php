@@ -469,14 +469,11 @@ class FishBaseArchiveAPI
                     // self::add_string_types($rec, $description, "http://eol.org/schema/terms/Present", "true"); => changed to what is below, per DATA-1630
                     $texts = self::process_distribution_text($description);
                     /*
-                    [0] => Array
-                        (
+                    [0] => Array (
                             [desc] => Western Atlantic: Panama to southern Brazil and Uruguay (Ref. 58839)
-                            [reference_ids] => Array
-                                (
+                            [reference_ids] => Array (
                                     [0] => 58839
                                 )
-
                         )
                     */
                     foreach($texts as $text)
@@ -955,6 +952,12 @@ class FishBaseArchiveAPI
         $taxon_id = $rec["taxon_id"];
         $catnum   = $rec["catnum"];
         $occurrence_id = $catnum; // simply used catnum
+        
+        //start special -------------------------------------------------------------
+        $var = md5($measurementType . $value . $taxon_id);
+        if(isset($this->unique_measurements[$var])) return;
+        //end special -------------------------------------------------------------
+        
         $m = new \eol_schema\MeasurementOrFact();
         $occurrence_id = $this->add_occurrence($taxon_id, $occurrence_id, $rec);
         $m->occurrenceID       = $occurrence_id;
@@ -972,8 +975,13 @@ class FishBaseArchiveAPI
         if($val = @$rec['measurementMethod'])   $m->measurementMethod = $val;
         if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
         if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
-        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue'));
         $this->archive_builder->write_object_to_file($m);
+        
+        //start of special -------------------------------------------------------------
+        $var = md5($m->measurementType . $m->measurementValue . $taxon_id);
+        $this->unique_measurements[$var] = '';
+        //end special -------------------------------------------------------------
     }
 
     private function add_occurrence($taxon_id, $occurrence_id, $rec)
@@ -983,7 +991,7 @@ class FishBaseArchiveAPI
         $o->taxonID = $taxon_id;
         if($val = @$rec['sex']) $o->sex = $val;
 
-        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        /* $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence'); */
         if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
         $this->archive_builder->write_object_to_file($o);
         $this->occurrence_ids[$o->occurrenceID] = '';

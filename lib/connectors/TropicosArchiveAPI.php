@@ -396,7 +396,7 @@ class TropicosArchiveAPI
         }
         $m->measurementType = $mtype;
         $m->measurementValue = (string) $value;
-        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID','measurementValue'));
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue'));
         $this->archive_builder->write_object_to_file($m);
     }
 
