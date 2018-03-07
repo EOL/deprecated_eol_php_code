@@ -25,7 +25,7 @@ class AntWebDataAPI
         
         $this->limit = 100;
         $this->download_options = array("timeout" => 60*60, "expire_seconds" => 60*60*24*25);
-        $this->download_options['expire_seconds'] = false; //comment in normal operation
+        // $this->download_options['expire_seconds'] = false; //comment in normal operation
         $this->ant_habitat_mapping_file = "https://github.com/eliagbayani/EOL-connector-data-files/blob/master/AntWeb/ant habitats mapping.xlsx?raw=true";
     }
     
@@ -251,7 +251,7 @@ class AntWebDataAPI
     }
     private function add_occurrence($taxon_id, $catnum, $rec)
     {
-        $occurrence_id = $taxon_id . '_' . $catnum;
+        $occurrence_id = md5($taxon_id . '_' . $catnum);
         
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
