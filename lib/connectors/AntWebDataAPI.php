@@ -76,6 +76,10 @@ class AntWebDataAPI
                                        [1] => 116.61342)
                            )
                    )*/
+                
+                // if($rec['country'] == 'Malaysia') print_r($rec); //good debug
+                print_r($rec);
+                
                 // $this->debug['typeStatus'][$rec['typeStatus']] = '';
                 
                 //start fix/select scientific_name | per https://eol-jira.bibalex.org/browse/DATA-1713?focusedCommentId=61541&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61541
