@@ -78,7 +78,7 @@ class AntWebDataAPI
                    )*/
                 
                 // if($rec['country'] == 'Malaysia') print_r($rec); //good debug
-                print_r($rec);
+                // print_r($rec);
                 
                 // $this->debug['typeStatus'][$rec['typeStatus']] = '';
                 
