@@ -632,6 +632,9 @@ class TropicosArchiveAPI
         elseif($type == "distribution") $url = TROPICOS_API_SERVICE . $id . "/Distributions?format=xml&apikey=" . TROPICOS_API_KEY;
         elseif($type == "images")       $url = TROPICOS_API_SERVICE . $id . "/Images?format=xml&apikey=" . TROPICOS_API_KEY;
         elseif($type == "chromosome")   $url = TROPICOS_API_SERVICE . $id . "/ChromosomeCounts?format=xml&apikey=" . TROPICOS_API_KEY;
+
+        // if($type == "distribution") exit("\n[$url]\n"); //good debug
+
         if($contents = Functions::lookup_with_cache($url, $this->download_options))
         {
             // sample error return -> {"Error":"Exception occurred"}
