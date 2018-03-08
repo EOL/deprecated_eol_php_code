@@ -15,6 +15,11 @@ $GLOBALS['ENV_DEBUG'] = true;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = true;
 
+echo "<hr>";
+print_r(@$GLOBALS);
+echo "<hr>";
+
+
 $url = @get_val_var('url');
 
 // echo "<pre>";
