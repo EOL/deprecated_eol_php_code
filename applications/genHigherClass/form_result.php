@@ -11,7 +11,10 @@ ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 // */
 
+$GLOBALS['ENV_DEBUG'] = true;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+$GLOBALS['ENV_DEBUG'] = true;
+
 $url = @get_val_var('url');
 
 // echo "<pre>";
