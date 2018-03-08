@@ -9,6 +9,7 @@ class FEISDataConnector
 {
     function __construct($folder)
     {
+        $this->resource_id = $folder;
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -212,8 +213,8 @@ class FEISDataConnector
         $taxon_id = $rec["taxon_id"];
         $catnum = $rec["catnum"];
         $m = new \eol_schema\MeasurementOrFact();
-        $occurrence = $this->add_occurrence($taxon_id, $catnum);
-        $m->occurrenceID = $occurrence->occurrenceID;
+        $occurrence_id = $this->add_occurrence($taxon_id, $catnum);
+        $m->occurrenceID = $occurrence_id;
         
         if($mtype)  $m->measurementType = $mtype;
         else        $m->measurementType = "http://feis.org/". SparqlClient::to_underscore($label); // currently won't pass here
@@ -226,19 +227,26 @@ class FEISDataConnector
             $m->measurementRemarks = $measurementRemarks;
             // not used... $m->contributor, $m->measurementMethod
         }
-        $this->archive_builder->write_object_to_file($m);
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        if(!isset($this->measurement_ids[$m->measurementID])) {
+            $this->archive_builder->write_object_to_file($m);
+            $this->measurement_ids[$m->measurementID] = '';
+        }
+        
     }
 
     private function add_occurrence($taxon_id, $catnum)
     {
         $occurrence_id = $taxon_id . '_' . $catnum;
-        if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
+
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
         $this->archive_builder->write_object_to_file($o);
-        $this->occurrence_ids[$occurrence_id] = $o;
-        return $o;
+        $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
     }
 
     private function life_form_remarks($type)

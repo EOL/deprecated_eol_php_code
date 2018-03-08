@@ -310,12 +310,9 @@ class AntWebDataAPI
         // $o->decimalLatitude
         // $o->decimalLongitude
         
-        
         $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
-
         if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
         $this->archive_builder->write_object_to_file($o);
-
         $this->occurrence_ids[$o->occurrenceID] = '';
         return $o->occurrenceID;
 
