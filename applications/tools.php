@@ -1,8 +1,6 @@
 <?php
 namespace php_active_record;
-echo "<hr>01<hr>";
 include_once(dirname(__FILE__) . "/../config/environment.php");
-echo "<hr>02<hr>";
 $GLOBALS['ENV_DEBUG'] = true;
 echo '<a href="' . WEB_ROOT .'/applications/dwc_validator/">Archive and Spreadsheet Validator</a> | ';
 echo '<a href="' . WEB_ROOT .'/applications/validator/">XML File Validator</a> | ';

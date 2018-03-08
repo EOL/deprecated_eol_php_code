@@ -14,9 +14,9 @@ setlocale(LC_ALL, 'en_US.utf8');
 /* set the root paths */
 $root = preg_replace("/config$/", "", dirname(__FILE__));
 
-echo "\norig: [$root]\n";
+// echo "\norig: [$root]\n";
 $root = prepare_jenkins($argv, $root);
-echo "\nnew: [$root]\n";
+// echo "\nnew: [$root]\n";
 
 define('DOC_ROOT', $root);
 define('LOCAL_ROOT', DOC_ROOT);
