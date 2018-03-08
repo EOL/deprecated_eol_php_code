@@ -1,11 +1,7 @@
 <?php
 namespace php_active_record;
 
-echo "<hr>test 01<hr>";
-
 require_once(dirname(__FILE__) ."/../../config/environment.php");
-
-echo "<hr>test 02<hr>";
 
 $mysqli = $GLOBALS['db_connection'];
 $GLOBALS['ENV_DEBUG'] = true;
