@@ -4,6 +4,7 @@ namespace php_active_record;
         Expects:
             $file_url
     */
+$GLOBALS['ENV_DEBUG'] = true;
 ?>
 
 <form name="validator_form" action="index.php" method="post" enctype="multipart/form-data">

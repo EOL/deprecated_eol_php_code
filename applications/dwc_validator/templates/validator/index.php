@@ -10,6 +10,7 @@ namespace php_active_record;
             $eol_errors
             $eol_warnings
     */
+$GLOBALS['ENV_DEBUG'] = true;
 ?>
 
 <html>
