@@ -34,5 +34,4 @@
 </form>
 <hr>
 <?php require_once("../tools.php");
-echo "<hr>".DOC_ROOT;
 ?>
