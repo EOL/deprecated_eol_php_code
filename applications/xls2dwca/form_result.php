@@ -1,9 +1,6 @@
 <?php
 namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-echo "<hr>";
-print_r(@$GLOBALS);
-echo "<hr>";
 
 $url = $_REQUEST['url'];
 $upload = $_FILES["file_upload"];
