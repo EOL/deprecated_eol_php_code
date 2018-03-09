@@ -5,6 +5,7 @@ class MarineCopepodsAPI
 {
     function __construct($folder)
     {
+        $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         // $this->taxon_ids = array();
@@ -414,29 +415,28 @@ class MarineCopepodsAPI
         $occurrence_id = $unique_id; //because one catalog no. can have 2 MeasurementOrFact entries. Each for country and habitat.
         */
         
-        $cont = $this->add_occurrence($taxon_id, $occurrence_id, $rec);
-
-        if($cont) {
-            $m = new \eol_schema\MeasurementOrFact();
-            $m->occurrenceID       = $occurrence_id;
-            $m->measurementOfTaxon = $measurementOfTaxon;
-            if($measurementOfTaxon == "true") {
-                $m->source      = $this->page['species'].$rec["taxon_id"];
-                // $m->contributor = ''; //commented since it is blank for now...
-                if($val = @$rec["referenceID"]) {
-                    if($reference_ids = self::write_references($val)) $m->referenceID = implode("; ", $reference_ids);
-                }
+        $occurrence_id = $this->add_occurrence($taxon_id, $occurrence_id, $rec);
+        $m = new \eol_schema\MeasurementOrFact();
+        $m->occurrenceID       = $occurrence_id;
+        $m->measurementOfTaxon = $measurementOfTaxon;
+        if($measurementOfTaxon == "true") {
+            $m->source      = $this->page['species'].$rec["taxon_id"];
+            // $m->contributor = ''; //commented since it is blank for now...
+            if($val = @$rec["referenceID"]) {
+                if($reference_ids = self::write_references($val)) $m->referenceID = implode("; ", $reference_ids);
             }
-            $m->measurementType  = $measurementType;
-            $m->measurementValue = $value;
-            $m->bibliographicCitation = $this->bibliographic_citation." (".date("m/d/Y").")."; //same for all, for this resource
-            if($val = @$rec['measurementUnit'])     $m->measurementUnit = $val;
-            if($val = @$rec['measurementMethod'])   $m->measurementMethod = $val;
-            if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
-            if($val = @$rec['measurementAccuracy'])   $m->measurementAccuracy = $val;
-            if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
-            $this->archive_builder->write_object_to_file($m);
         }
+        $m->measurementType  = $measurementType;
+        $m->measurementValue = $value;
+        $m->bibliographicCitation = $this->bibliographic_citation." (".date("m/d/Y").")."; //same for all, for this resource
+        if($val = @$rec['measurementUnit'])     $m->measurementUnit = $val;
+        if($val = @$rec['measurementMethod'])   $m->measurementMethod = $val;
+        if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
+        if($val = @$rec['measurementAccuracy'])   $m->measurementAccuracy = $val;
+        if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
+
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        $this->archive_builder->write_object_to_file($m);
     }
     private function add_occurrence($taxon_id, $occurrence_id, $rec)
     {
@@ -444,11 +444,19 @@ class MarineCopepodsAPI
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
         $o->sex = @$rec['sex'];
+        /* old ways
         if(!isset($this->occurrence_ids[$occurrence_id])) {
             $this->archive_builder->write_object_to_file($o);
             $this->occurrence_ids[$occurrence_id] = '';
         }
         return true;
+        */
+        
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
     }
     private function write_references($arr)
     {

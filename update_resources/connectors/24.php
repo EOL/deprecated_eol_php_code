@@ -15,6 +15,7 @@ eol-archive
 24	Thursday 2018-01-11 09:26:29 AM	{"agent.tab":158,"measurement_or_fact.tab":42848,"media_resource.tab":169091,"occurrence.tab":42848,"taxon.tab":16526} - eol-archive
 24	Wednesday 2018-03-07 06:52:19 AM{"agent.tab":158,"measurement_or_fact.tab":42728,"media_resource.tab":169091,"occurrence.tab":42538,"taxon.tab":16546}
 24	Wednesday 2018-03-07 07:03:49 PM{"agent.tab":158,"measurement_or_fact.tab":42728,"media_resource.tab":169091,"occurrence.tab":42538,"taxon.tab":16546} - all-hash measurementID
+24	Thursday 2018-03-08 09:25:21 AM	{"agent.tab":158,"measurement_or_fact.tab":1046808,"media_resource.tab":169091,"occurrence.tab":1022432,"taxon.tab":16546} - with duplicate 'Present' values
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
