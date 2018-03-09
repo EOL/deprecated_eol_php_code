@@ -7,8 +7,7 @@ measurement_or_fact.tab]    [10618]     10312
 occurrence.tab]             [3537]      3435
 taxon.tab]                  [1176]      1141
 
-750	Thursday 2018-03-08 10:20:05 AM	{"measurement_or_fact.tab":10308,"occurrence.tab":3434,"taxon.tab":1140}
-
+750	Thursday 2018-03-08 10:24:33 AM	{"measurement_or_fact.tab":10308,"occurrence.tab":3434,"taxon.tab":1140} eol-archive
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
