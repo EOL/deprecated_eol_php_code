@@ -1844,10 +1844,21 @@ class Functions
                 }
             }
             else {
+                if($xml = Functions::lookup_with_cache($url[$extension], array('expire_seconds' => false))) {
+                    if(preg_match_all("/<property name=\"(.*?)\"/ims", $xml, $a)) { // <property name="occurrenceID"
+                        foreach($a[1] as $field) {
+                            if($val = @$m->$field) $final .= $val."_";
+                        }
+                    }
+                }
+            }
+            /* limited properties included just three here...
+            else {
                 foreach(array('occurrenceID', 'sex', 'lifeStage') as $field) {
                     if($val = @$m->$field) $final .= $val."_";
                 }
             }
+            */
         }
         if($final) return md5($final)."_".$resource_id;
         else {
