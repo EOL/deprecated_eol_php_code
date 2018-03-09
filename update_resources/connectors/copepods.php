@@ -3,6 +3,8 @@ namespace php_active_record;
 /* https://eol-jira.bibalex.org/browse/DATA-1734
 estimated execution time: 4.4 mins. when lookup is cached already.
 copepods	Tuesday 2018-02-13 11:14:09 PM	{"measurement_or_fact.tab":21345,"occurrence.tab":18259,"reference.tab":931,"taxon.tab":2644}
+copepods	Thursday 2018-03-08 08:00:12 PM	{"measurement_or_fact.tab":21345,"occurrence.tab":18259,"reference.tab":931,"taxon.tab":2644}
+
 */
 // return;
 include_once(dirname(__FILE__) . "/../../config/environment.php");

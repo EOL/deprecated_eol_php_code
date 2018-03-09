@@ -37,7 +37,7 @@ if($val = $cmdline_params['resource_id'])
     elseif($resource_id == 'world_wildlife_fund') $params['spreadsheet'] = "http://opendata.eol.org/dataset/8ace52ee-4c87-4231-8c38-7fa04b2efd37/resource/c2b5b9e3-0b87-498f-bf3a-84cbc937a28e/download/wff-regions-version-2.xlsx";
     elseif($resource_id == 'Shelled_animal_body_mass') $params['spreadsheet'] = "https://opendata.eol.org/dataset/d5242c81-873f-48a2-8e1e-824272869361/resource/21f1f27b-fa10-405a-81dc-00cb48700064/download/body-size-shells.xlsx";
     elseif($resource_id == 990) $params['spreadsheet'] = "https://opendata.eol.org/dataset/60b861a7-5530-4cb2-8737-b5a3340d0578/resource/5dd1890d-551a-452e-82de-ec36daea444a/download/chen-and-moles.xlsx";
-    // 990  Thursday 2018-03-08 10:40:30 AM {"agents.txt":0,"associations.txt":17600,"common names.txt":0,"events.txt":0,"measurements or facts.txt":24369,"media.txt":0,"occurrences.txt":3721,"references.txt":0,"taxa.txt":3721}
+    // 990  Friday 2018-03-09 12:02:16 AM   {"agents.txt":0,"associations.txt":17600,"common names.txt":0,"events.txt":0,"measurements or facts.txt":24369,"media.txt":0,"occurrences.txt":3721,"references.txt":0,"taxa.txt":3721}
     elseif($resource_id == 489) $params['spreadsheet'] = "https://opendata.eol.org/dataset/3851e293-6d35-453d-a54e-d6ecedb796b2/resource/2537dc6d-97b8-4b1d-a0ca-8e94ceb2450c/download/newispotsalinks.xlsx"; //iSpot links
     //----------------------- start new below
     else exit("\nProgram will terminate. Invalid resource_id [$resource_id].\n\n");
