@@ -16,7 +16,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/CSV2DwCA_Utility_generic');
 $timestart = time_elapsed();
 
-/*
+// /*
 $resources[220] = array('dwca' => "http://diptera.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Scratchpad export - Diptera taxon pages
 $resources[268] = array('dwca' => "http://britishbryozoans.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Bryozoa of the British Isles
 $resources[549] = array('dwca' => "http://antkey.org/eol-dwca.zip", 'bigfileYN' => false); //Antkey
@@ -24,17 +24,18 @@ $resources[363] = array('dwca' => "http://pngbirds.myspecies.info/eol-dwca.zip",
 $resources[754] = array('dwca' => "http://anolislizards.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Anolis Scratchpad
 $resources[755] = array('dwca' => "http://xyleborini.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Xyleborini Ambrosia Beetles
 $resources[756] = array('dwca' => "http://neotropical-pollination.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Neotropical Pollination
-// $resources[884] = array('dwca' => "http://phthiraptera.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Phthiraptera
-*/
+// $resources[884] = array('dwca' => "http://phthiraptera.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Phthiraptera --> doesn't exist in myspecies.info
+// */
 
-
+// /*
 $resources[550] = array('dwca' => "http://continenticola.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Continenticola Classification -- https://opendata.eol.org/dataset/continenticola-classification-550
 $resources[812] = array('dwca' => "http://eolhotlist.myspecies.info/dwca.zip", 'bigfileYN' => false); //EOL hotlist Scratchpad -- https://opendata.eol.org/dataset/eol-hotlist-scratchpad
+$resources[129] = array('dwca' => "http://sacoglossa.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Cataloging Diversity in the Sacoglossa
+// */
 
-/* these 3 were actually included already in lifedesk_combine.php
+/* these 2 were actually included already in lifedesk_combine.php
 $resources[156] = array('dwca' => "LD", 'bigfileYN' => false); //Genus Opisthostoma -- https://opendata.eol.org/dataset/genus-opisthostoma
 $resources[163] = array('dwca' => "LD", 'bigfileYN' => false); //Malay Peninsular Terrestrial Molluscs -- https://opendata.eol.org/dataset/malay-peninsular-terrestrial-molluscs
-$resources[129] = array('dwca' => "LD", 'bigfileYN' => false); //Cataloging Diversity in the Sacoglossa
 */
 
 // /*

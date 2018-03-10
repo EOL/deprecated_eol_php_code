@@ -183,12 +183,10 @@ class CSV2DwCA_Utility_generic
                         }
                         */
                         if($field == "UsageTerms" && substr($rec[$field],0,21) == "//creativecommons.org") $rec[$field] = "http:".$rec[$field];
-                        if($field == "UsageTerms" && !$rec[$field]) $rec[$field] = "http://creativecommons.org/licences/by-nc/3.0/";
+                        elseif($field == "UsageTerms" && $rec[$field] == "http://creativecommons.org/about/pdm") $rec[$field] = "http://creativecommons.org/licenses/publicdomain/";
+                        elseif($field == "UsageTerms" && !$rec[$field]) $rec[$field] = "http://creativecommons.org/licences/by-nc/3.0/";
 
-                        
                         // accessURI
-                        
-
                         //================================================================== end customization ==================================================================
                         
                     }

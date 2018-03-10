@@ -297,7 +297,7 @@ $info['leptogastrinae']     = array('id'=>219, 'LD_domain' => 'http://leptogastr
 if($scratchpad) {
     $lifedesks = array(); $info = array(); $final = array();
     $lifedesks = array("nemertea", "peracarida", "syrphidae", "tunicata", "leptogastrinae", "continenticola", "pelagics", "parmotrema", "liquensbr", "liquensms", "staurozoa", 
-        "cnidaria", "porifera", "sacoglossa", "buccinids", "opisthostoma", "malaypeninsularsnail", "sipuncula", "hawaiilandsnails", 
+        "cnidaria", "porifera", "buccinids", "opisthostoma", "malaypeninsularsnail", "sipuncula", "hawaiilandsnails", 
         "ostracoda", "ampullariidae", "cephaloleia", "mormyrids", "terrslugs", "agrilus", "camptosomata", "urbanfloranyc", "marineinvaders", "neritopsine", 
         "polycladida", "tabanidae", "squatlobsters", "simuliidae", "opisthobranchia", "hypogymnia", "salamandersofchina", 
         "ebasidiolichens", "hundrednewlichens", "molluscacolombia", "lincolnsflorafauna", "arachnids", "congofishes", "indiareeffishes", "olivirv", 
@@ -305,7 +305,9 @@ if($scratchpad) {
         "taiwanseagrasses", "odonata", "alpheidae", "tearga", "canopy", "naididae", "ebivalvia", "compositae", "korupplants", "scarabaeinae", "cyanolichens", "annelida", 
         "polychaetasouthocean"); $final = array_merge($final, $lifedesks);
 
-        /* was moved to myspecies.info group: borneanlandsnails -> $info['borneanlandsnails']['id'] = 276;
+        /* was moved to myspecies.info group: 
+            borneanlandsnails   -> $info['borneanlandsnails']['id'] = 276;
+            sacoglossa          -> $info['sacoglossa']['id'] = 253;
         */
 
     // these are those without Collection ID -- to run
@@ -313,7 +315,7 @@ if($scratchpad) {
     "lincolnsflorafauna", "arachnids", "indiareeffishes", "olivirv", "deepseacoral", "taiwanseagrasses", "tearga", "naididae"); $final = array_merge($final, $lifedesks);
 
     $info['nemertea']['id'] = 202;          $info['peracarida']['id'] = 25958;  $info['syrphidae']['id'] = 266;     $info['tunicata']['id'] = 235;          $info['leptogastrinae']['id'] = 219;
-    $info['continenticola']['id'] = 244;    $info['pelagics']['id'] = 35533;    $info['parmotrema']['id'] = 355;    $info['cnidaria']['id'] = 106941;       $info['sacoglossa']['id'] = 253;
+    $info['continenticola']['id'] = 244;    $info['pelagics']['id'] = 35533;    $info['parmotrema']['id'] = 355;    $info['cnidaria']['id'] = 106941;
     $info['buccinids']['id'] = 254;         $info['apoidea']['id'] = 345;       $info['opisthostoma']['id'] = 271;  $info['malaypeninsularsnail']['id'] = 275;
     $info['sipuncula']['id'] = 284;         $info['ostracoda']['id'] = 324;     $info['ampullariidae']['id'] = 273; $info['cephaloleia']['id'] = 8573;      $info['mormyrids']['id'] = 319;
     $info['terrslugs']['id'] = 313;         $info['camptosomata']['id'] = 240;  $info['urbanfloranyc']['id'] = 36676; $info['marineinvaders']['id'] = 326;  $info['neritopsine']['id'] = 267;
