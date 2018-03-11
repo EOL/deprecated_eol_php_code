@@ -11,7 +11,7 @@ class DWCADiagnoseAPI
         $this->file['document']          = "http://purl.org/dc/terms/identifier";
         $this->file['agent']             = "http://purl.org/dc/terms/identifier";
         $this->file['vernacularname']    = "http://rs.tdwg.org/dwc/terms/vernacularName";
-        $this->file['measurementorfact'] = "http://rs.tdwg.org/dwc/terms/measurementID";
+        $this->file['measurementorfact'] = "http://rs.tdwg.org/dwc/terms/measurementID"; //newly added
         // $this->file['association']       = "http://eol.org/schema/associationID";
     }
 

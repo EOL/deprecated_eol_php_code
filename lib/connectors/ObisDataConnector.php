@@ -10,11 +10,13 @@ class ObisDataConnector
     public function __construct($resource_id)
     {
         $this->resource_id = $resource_id;
-        
-        // $this->obis_csv_zip_file = "http://localhost/~eolit/cp/OBIS/OBIS_ranges.zip";
-        // $this->worms_taxon_tab_zip_file = "http://localhost/~eolit/cp/OBIS/worms_taxon.tab.zip";
-        $this->obis_csv_zip_file = "https://dl.dropboxusercontent.com/u/7597512/OBIS/OBIS_ranges.zip";
-        $this->worms_taxon_tab_zip_file = "https://dl.dropboxusercontent.com/u/7597512/OBIS/worms_taxon.tab.zip";
+
+        /* local
+        $this->obis_csv_zip_file = "http://localhost/cp/OBIS/OBIS_ranges.zip";
+        $this->worms_taxon_tab_zip_file = "http://localhost/cp/OBIS/worms_taxon.tab.zip";
+        */
+        $this->obis_csv_zip_file = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/OBIS/OBIS_ranges.zip";
+        $this->worms_taxon_tab_zip_file = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/OBIS/worms_taxon.tab.zip";
         
         $this->text_path = array();
         $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
@@ -97,6 +99,7 @@ class ObisDataConnector
         if($latlong_count = @$line_data[$this->column_indices['n']]) $latlong_occurrence->individualCount = $latlong_count;
         if($taxon_count_remark) $latlong_occurrence->occurrenceRemarks = $taxon_count_remark;
         if($occurrence_date) $latlong_occurrence->eventDate = $occurrence_date;
+        $latlong_occurrence->occurrenceID = Functions::generate_measurementID($latlong_occurrence, $this->resource_id, 'occurrence');
         $this->archive_builder->write_object_to_file($latlong_occurrence);
 
         $depth_occurrence = new \eol_schema\Occurrence();
@@ -105,6 +108,7 @@ class ObisDataConnector
         if($depth_count = @$line_data[$this->column_indices['ndepth']]) $depth_occurrence->individualCount = $depth_count;
         if($taxon_count_remark) $depth_occurrence->occurrenceRemarks = $taxon_count_remark;
         if($occurrence_date) $depth_occurrence->eventDate = $occurrence_date;
+        $depth_occurrence->occurrenceID = Functions::generate_measurementID($depth_occurrence, $this->resource_id, 'occurrence');
         $this->archive_builder->write_object_to_file($depth_occurrence);
 
         $chemistry_occurrence = new \eol_schema\Occurrence();
@@ -113,6 +117,7 @@ class ObisDataConnector
         if($chemistry_count = @$line_data[$this->column_indices['nwoa']]) $chemistry_occurrence->individualCount = $chemistry_count;
         if($taxon_count_remark) $chemistry_occurrence->occurrenceRemarks = $taxon_count_remark;
         if($occurrence_date) $chemistry_occurrence->eventDate = $occurrence_date;
+        $chemistry_occurrence->occurrenceID = Functions::generate_measurementID($chemistry_occurrence, $this->resource_id, 'occurrence');
         $this->archive_builder->write_object_to_file($chemistry_occurrence);
 
         foreach($this->field_metadata as $field_name => $metadata)
@@ -141,6 +146,7 @@ class ObisDataConnector
                 $m->measurementValue = $value;
                 $m->statisticalMethod = $metadata['modifier_uri'];
                 if(isset($metadata['unit_uri'])) $m->measurementUnit = $metadata['unit_uri'];
+                $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
                 $this->archive_builder->write_object_to_file($m);
             } // else echo "Skipping $field_name on $t->taxonID\n";
         }
