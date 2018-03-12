@@ -5,6 +5,7 @@ SPG provides mappings for values and URI's. The DWC-A file is requested from GBI
 This connector assembles the data and generates the EOL archive for ingestion.
 estimated execution time: this will vary depending on how big the archive file is.
 
+https://eol-jira.bibalex.org/browse/DATA-1557
 DATA-1557 GBIF national node type records- Germany
 Germany:                    10k     5k
 taxon:                      6692    3786    80,093
@@ -19,7 +20,6 @@ for 1k taxa:
 measurement_or_fact.tab     [3655]
 occurrence.tab              [970]
 taxon.tab                   [875]
-
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -33,7 +33,7 @@ $params["dwca_file"] = "http://localhost/~eolit/cp/GBIF_dwca/birds.zip";
 $params["dataset"] = "All audio for birds";
 */
 
-/*// local
+/* local
 $params["citation_file"] = "http://127.0.0.1/cp_new/GBIF_dwca/countries/Germany/Citation Mapping Germany.xlsx";
 $params["dwca_file"]     = "http://127.0.0.1/cp_new/GBIF_dwca/countries/Germany/Germany.zip";
 $params["uri_file"]      = "http://127.0.0.1/cp_new/GBIF_dwca/countries/Germany/germany mappings.xlsx";
@@ -41,7 +41,7 @@ $params["uri_file"]      = "http://127.0.0.1/cp_new/GBIF_dwca/countries/Germany/
 
 // remote
 $params["citation_file"] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GBIF_dwca/countries/Germany/Citation Mapping Germany.xlsx";
-$params["dwca_file"]     = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GBIF_dwca/countries/Germany/Germany.zip";
+$params["dwca_file"]    = "https://editors.eol.org/other_files/GBIF_DwCA/Germany.zip";
 $params["uri_file"]      = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GBIF_dwca/countries/Germany/germany mappings.xlsx";
 
 $params["dataset"]      = "GBIF";

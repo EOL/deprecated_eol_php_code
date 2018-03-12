@@ -16,16 +16,16 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/GBIFCountryTypeRecordAPI');
 $timestart = time_elapsed();
 
-/*//local
-$params["citation_file"] = "http://localhost/cp/GBIF_dwca/countries/Netherlands/Citation mapping Netherlands.xlsx";
-$params["dwca_file"]    = "http://localhost/cp/GBIF_dwca/countries/Netherlands/Netherlands.zip";
-$params["uri_file"]     = "http://localhost/cp/GBIF_dwca/countries/Netherlands/GBIF Netherlands mapping.xlsx";
+/* local
+$params["citation_file"] = "http://localhost/cp_new/GBIF_dwca/countries/Netherlands/Citation mapping Netherlands.xlsx";
+$params["dwca_file"]    = "http://localhost/cp_new/GBIF_dwca/countries/Netherlands/Netherlands.zip";
+$params["uri_file"]     = "http://localhost/cp_new/GBIF_dwca/countries/Netherlands/GBIF Netherlands mapping.xlsx";
 */
 
 //remote
-$params["citation_file"] = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/Netherlands/Citation mapping Netherlands.xlsx";
-$params["dwca_file"]    = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/Netherlands/Netherlands.zip";
-$params["uri_file"]     = "https://dl.dropboxusercontent.com/u/7597512/GBIF_dwca/countries/Netherlands/GBIF Netherlands mapping.xlsx";
+$params["citation_file"] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GBIF_dwca/countries/Netherlands/Citation mapping Netherlands.xlsx";
+$params["dwca_file"]    = "https://editors.eol.org/other_files/GBIF_DwCA/Netherlands.zip";
+$params["uri_file"]     = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GBIF_dwca/countries/Netherlands/GBIF Netherlands mapping.xlsx";
 
 $params["dataset"]      = "GBIF";
 $params["country"]      = "Netherlands";

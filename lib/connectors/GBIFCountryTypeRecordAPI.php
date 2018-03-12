@@ -29,8 +29,9 @@ class GBIFCountryTypeRecordAPI
         $this->object_ids = array();
         $this->occurrence_ids = array();
         $this->debug = array();
-        $this->spreadsheet_options = array('resource_id' => 'gbif', 'cache' => 0, 'timeout' => 3600, 'file_extension' => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2); //we don't want to cache spreadsheet
-        // for iDigBio
+        $this->spreadsheet_options = array('resource_id' => 'gbif', 'cache' => 1, 'timeout' => 3600, 'file_extension' => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2); //set 'cache' to 0 if you don't want to cache spreadsheet
+        $this->spreadsheet_options['expire_seconds'] = 60*60*24*25; //expires after 25 days
+        
         $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 1, 'expire_seconds' => false); //60*60*24*365
         
         if(Functions::is_production()) {
@@ -40,7 +41,8 @@ class GBIFCountryTypeRecordAPI
             $this->download_options['resource_id'] = "gbif";
             $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache/";
         }
-        
+
+        // for iDigBio
         $this->IDB_service["record"] = "http://api.idigbio.org/v1/records/";
         $this->IDB_service["recordset"] = "http://api.idigbio.org/v1/recordsets/";
     }
