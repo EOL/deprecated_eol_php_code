@@ -31,13 +31,24 @@ class GBIFCountryTypeRecordAPI
         $this->debug = array();
         $this->spreadsheet_options = array('resource_id' => 'gbif', 'cache' => 0, 'timeout' => 3600, 'file_extension' => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2); //we don't want to cache spreadsheet
         // for iDigBio
-        $this->download_options = array('resource_id' => 'gbif', 'download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 1, 'expire_seconds' => false); //60*60*24*365
+        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 1, 'expire_seconds' => false); //60*60*24*365
+        
+        if(Functions::is_production()) {
+            $this->download_options['cache_path'] = "/extra/eol_cache_gbif/";
+        }
+        else {
+            $this->download_options['resource_id'] = "gbif";
+            $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache/";
+        }
+        
         $this->IDB_service["record"] = "http://api.idigbio.org/v1/records/";
         $this->IDB_service["recordset"] = "http://api.idigbio.org/v1/recordsets/";
     }
 
     function export_gbif_to_eol($params)
     {
+        if(!is_dir($this->download_options['cache_path']))  mkdir($this->download_options['cache_path']);
+        
         $this->uris = self::get_uris($params, $params["uri_file"]);
         $params["uri_type"] = "citation";
         if($file = @$params["citation_file"]) $this->citations = self::get_uris($params, $file);
