@@ -423,6 +423,7 @@ class GBIFCountryTypeRecordAPI
         $institution = '';
         if((!$rightsHolder && !$ownerInstitutionCode) || (!$rightsHolder && (is_numeric(substr($datasetName,0,3)) || !$datasetName)))
         {
+            /*
             echo "\n will start search for institution_name... =====";
             echo "\n datasetID:" . $rec["http://rs.tdwg.org/dwc/terms/datasetID"];
             echo "\n datasetName:" . $rec["http://rs.tdwg.org/dwc/terms/datasetName"];
@@ -435,6 +436,7 @@ class GBIFCountryTypeRecordAPI
             echo "\n dc:rightsHolder:" . $rec["http://purl.org/dc/terms/rightsHolder"];
             echo "\n recordID:" . $rec["http://portal.idigbio.org/terms/recordID"];
             echo "\n recordId:" . $rec["http://portal.idigbio.org/terms/recordId"];
+            */
             $institution = self::get_institution_name($rec);
             echo "\n found institution_name1: [$institution] =====\n";
 
