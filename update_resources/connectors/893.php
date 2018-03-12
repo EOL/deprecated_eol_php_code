@@ -10,6 +10,9 @@ DATA-1579 GBIF national node type records- Sweden
 measurement_or_fact         262882  341939
 occurrence                  87628   87628
 taxon                       50395   50395
+
+893	Monday 2018-03-12 03:06:53 AM	{"measurement_or_fact.tab":341938,"occurrence.tab":87627,"taxon.tab":50393}
+
 classification resource:
 */
 

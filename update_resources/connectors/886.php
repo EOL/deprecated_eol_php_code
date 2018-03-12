@@ -10,6 +10,9 @@ DATA-1577 GBIF national node type records- France
 measurement_or_fact         [27223] 638236      837638
 occurrence                  [9075]  212746      212746
 taxon                       [4291]  95625       95625
+
+886	Monday 2018-03-12 03:21:31 AM	{"measurement_or_fact.tab":837637,"occurrence.tab":212745,"taxon.tab":95622}
+
 classification resource:
 */
 

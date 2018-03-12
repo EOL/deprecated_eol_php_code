@@ -10,6 +10,9 @@ DATA-1583 GBIF national node type records- UK
 measurement_or_fact         499599
 occurrence                  135122
 taxon                       81258
+
+894	Monday 2018-03-12 03:31:57 AM	{"measurement_or_fact.tab":499598,"occurrence.tab":135121,"taxon.tab":81241}
+
 classification resource:
 */
 

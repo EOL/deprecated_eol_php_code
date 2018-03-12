@@ -9,6 +9,9 @@ DATA-1578 GBIF national node type records- Netherlands
 measurement_or_fact         [29989] 418450  533799
 occurrence                  [9997]  139484  139484
 taxon                       [3214]  52763   52763
+
+887	Monday 2018-03-12 03:12:29 AM	{"measurement_or_fact.tab":533798,"occurrence.tab":139483,"taxon.tab":52758}
+
 classification resource:
 */
 

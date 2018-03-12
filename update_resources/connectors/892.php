@@ -9,6 +9,9 @@ DATA-1582 GBIF national node type records- Brazil
 measurement_or_fact         70725   49470
 occurrence                  23159   12434
 taxon                       12662   5954
+
+892	Monday 2018-03-12 02:44:43 AM	{"measurement_or_fact.tab":49469,"occurrence.tab":12433,"taxon.tab":5953}
+
 classification resource:
 */
 
