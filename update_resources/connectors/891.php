@@ -64,6 +64,7 @@ if(Functions::is_production()) {
 print_r($params);
 
 $func->start($params); //renamed, it was $func->export_gbif_to_eol() before
+unset($func);
 Functions::finalize_dwca_resource($resource_id);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

@@ -11,10 +11,12 @@ Germany:                    10k     5k
 taxon:                      6692    3786    80,093
 measurementorfact:          28408   14251   639,196
 occurrence                  9470    4751    167,663
+
 classification resource:    33,377
+873	Monday 2018-03-12 07:20:24 AM	{"taxon.tab":33377} - MacMini
 
 872	Sunday 2018-03-11 11:11:45 PM	{"measurement_or_fact.tab":639195,"occurrence.tab":167662,"taxon.tab":80072} - local, no measurementID
-872	Monday 2018-03-12 12:09:00 AM	{"measurement_or_fact.tab":639195,"occurrence.tab":167662,"taxon.tab":80072} - local with measurementID
+872	Monday 2018-03-12 12:09:00 AM	{"measurement_or_fact.tab":639195,"occurrence.tab":167662,"taxon.tab":80072} - local with measurementID - MacMini
 
 for 1k taxa:
 measurement_or_fact.tab     [3655]
@@ -49,8 +51,10 @@ $params["country"]      = "Germany";
 $params["type"]         = "structured data";
 $params["resource_id"]  = 872;
 
-// $params["type"]         = "classification resource";
-// $params["resource_id"]  = 873;
+// /* un-comment to run: GBIF national node classification resource: Germany -> http://www.eol.org/content_partners/4/resources/873
+$params["type"]         = "classification resource";
+$params["resource_id"]  = 873;
+// */
 
 $resource_id = $params["resource_id"];
 $func = new GBIFCountryTypeRecordAPI($resource_id);
