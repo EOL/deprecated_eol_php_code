@@ -671,7 +671,7 @@ class GBIFCountryTypeRecordAPI
         $occurrence_id = $catnum;
 
         $m = new \eol_schema\MeasurementOrFact();
-        $this->add_occurrence($taxon_id, $occurrence_id, $rec);
+        $occurrence_id = $this->add_occurrence($taxon_id, $occurrence_id, $rec);
         $m->occurrenceID = $occurrence_id;
         $m->measurementOfTaxon = $measurementOfTaxon;
         // =====================
@@ -691,6 +691,8 @@ class GBIFCountryTypeRecordAPI
         // =====================
         $m->measurementType = $measurementType;
         $m->measurementValue = Functions::import_decode($value);
+
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
     }
     
@@ -711,7 +713,6 @@ class GBIFCountryTypeRecordAPI
 
     private function add_occurrence($taxon_id, $occurrence_id, $rec)
     {
-        if(isset($this->occurrence_ids[$occurrence_id])) return;
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
@@ -789,9 +790,16 @@ class GBIFCountryTypeRecordAPI
             $o->reproductiveCondition       = $rec["http://rs.tdwg.org/dwc/terms/reproductiveCondition"];
         }
 
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
         $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
+
+        /* old ways
         $this->occurrence_ids[$occurrence_id] = '';
         return;
+        */
     }
 
     private function get_contributor_name($url)
