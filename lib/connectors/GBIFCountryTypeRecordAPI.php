@@ -715,26 +715,19 @@ class GBIFCountryTypeRecordAPI
 
         $m = new \eol_schema\MeasurementOrFact();
         $this->add_occurrence($taxon_id, $occurrence_id, $rec);
-        /* adding this seems not the sol'n
-        $this->measurementID++;
-        $m->measurementID = $this->resource_id . "_" . $this->measurementID;
-        */
         $m->occurrenceID = $occurrence_id;
         $m->measurementOfTaxon = $measurementOfTaxon;
         // =====================
-        if($measurementOfTaxon == "true")
-        {
+        if($measurementOfTaxon == "true") {
             $m->source              = $rec["source"];
             $m->contributor         = @$rec["contributor"];
             if($val = @$rec["http://rs.gbif.org/terms/1.0/datasetKey"]) //only for GBIF resources (not for iDigBio)
             {
-                if($citation = @$this->citations[$val])
-                {
+                if($citation = @$this->citations[$val]) {
                     if($citation != "EXCLUDE") $m->bibliographicCitation = $citation;
                 }
             }
-            if($rec["dataset"] == "iDigBio")
-            {
+            if($rec["dataset"] == "iDigBio") {
                 if($referenceID = self::prepare_reference(trim((string) $rec["http://purl.org/dc/terms/references"]))) $m->referenceID = $referenceID;
             }
         }
