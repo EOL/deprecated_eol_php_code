@@ -57,7 +57,7 @@ class GBIFCountryTypeRecordAPI
         
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($params["dwca_file"], "meta.xml", array("timeout" => 7200, "expire_seconds" => 0));
+        $paths = $func->extract_archive_file($params["dwca_file"], "meta.xml", array("timeout" => 7200, "expire_seconds" => false)); //60*60*24*25
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         $this->harvester = new ContentArchiveReader(NULL, $archive_path);
