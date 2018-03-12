@@ -1,13 +1,15 @@
 <?php
 namespace php_active_record;
 /* WEB-5843 Import Smithsonian type specimen data to TraitBank
-                                        2017      START   2017      from eol-archive            local   remote
-                    14Jan       16Apr   2Nov      NEW IPT 3Nov      3Nov latest 6Nov    13Nov   14Nov   14Nov
-measurement_or_fact 4,768,256   4768226 4,768,196 ---     4,348,898 4,380,745   4380783 4380784 4380784 4380784
-occurrence          468,454     468454  468,450   ---     350,602   351,781     351786  351786  351786  351786
-taxon               295903      295903  295,899   ---     255,887   256,211     256211  256211  256211  256211
-media                                                                                   221045  143979  143944
-agents                                                                                  322     98      98
+                                        2017      START   2017      from eol-archive            local   remote  remote
+                    14Jan       16Apr   2Nov      NEW IPT 3Nov      3Nov latest 6Nov    13Nov   14Nov   14Nov   4Dec
+measurement_or_fact 4,768,256   4768226 4,768,196 ---     4,348,898 4,380,745   4380783 4380784 4380784 4380784 4388232
+occurrence          468,454     468454  468,450   ---     350,602   351,781     351786  351786  351786  351786  352216
+taxon               295903      295903  295,899   ---     255,887   256,211     256211  256211  256211  256211  256316
+media                                                                                   221045  143979  143944  47515
+agents                                                                                  322     98      98      84
+
+891	Monday 2017-12-04 07:13:36 AM	{"agent.tab":84,"measurement_or_fact.tab":4388232,"media_resource.tab":47515,"occurrence.tab":352216,"taxon.tab":256316} - eol-archive
 
 10k records:        9Jan
 measurement_or_fact 9218
@@ -26,6 +28,7 @@ exit("\n");
 */
 
 require_library('connectors/NMNHTypeRecordAPI_v2');
+ini_set('memory_limit','5096M'); //needed so it can process checking of identifier uniqueness in measurement and occurrence extensions.
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true;
 
