@@ -49,6 +49,9 @@ $info[res_id]['xml_path'] = ""; $info[res_id]['data_types'] = array('datatype');
 $info[res_id] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path' => '');
 */
 
+//has no more xml nor dwca, has collection. Has connector but scrape connecter is obsolete, site has changed a lot.
+$info[79] = array('id' => 214, 'data_types' => array('images'), 'xml_path' => ''); //Public Health Image Library Resource
+
 //has dwca, no XML, has collection
 $info[815] = array('id' => 105853, 'data_types' => array('images'), 'xml_path' => ''); //Smithsonian Gardens Orchid Images
 

@@ -8,6 +8,10 @@ This is screen scraping task all throughout
 ***
 
 */
+
+echo "\n\n To do: update scrape connector, now obsolete. Site has changed a lot. Have backed-up images in Archive using collections_generic.php \n\n";
+return;
+
 $timestart = microtime(1);
 
 //refer files not with a url path but a dir path only
