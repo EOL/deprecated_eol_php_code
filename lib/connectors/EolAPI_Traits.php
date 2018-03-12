@@ -9,7 +9,7 @@ class EolAPI_Traits
 {
     function __construct($folder = null, $query = null)
     {
-        /* add: 'resource_id' => "gbif" ;if you want to add cache inside a folder [gbif] inside [eol_cache_gbif] */
+        /* add: 'resource_id' => "eol_api" ;if you want to add cache inside a folder [eol_api] inside [eol_cache] */
         $this->download_options = array(
             'cache_path'         => DOC_ROOT . $GLOBALS['MAIN_CACHE_PATH'], //used in Functions.php for all general cache
             'resource_id'        => 'eol_api_traits',                       //resource_id here is just a folder name in cache
