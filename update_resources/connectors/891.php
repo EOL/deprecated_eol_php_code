@@ -10,6 +10,7 @@ media                                                                           
 agents                                                                                  322     98      98      84
 
 891	Monday 2017-12-04 07:13:36 AM	{"agent.tab":84,"measurement_or_fact.tab":4388232,"media_resource.tab":47515,"occurrence.tab":352216,"taxon.tab":256316} - eol-archive
+891	Monday 2018-03-12 09:29:40 AM	{"agent.tab":86,"measurement_or_fact.tab":4402583,"media_resource.tab":137786,"occurrence.tab":352671,"taxon.tab":256523}
 
 10k records:        9Jan
 measurement_or_fact 9218
@@ -28,7 +29,7 @@ exit("\n");
 */
 
 require_library('connectors/NMNHTypeRecordAPI_v2');
-ini_set('memory_limit','5096M'); //needed so it can process checking of identifier uniqueness in measurement and occurrence extensions.
+ini_set('memory_limit','6096M'); //needed so it can process checking of identifier uniqueness in measurement and occurrence extensions.
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true;
 
