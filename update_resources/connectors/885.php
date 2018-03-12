@@ -6,23 +6,37 @@ measurement     6748    1385056     3191194
 occurrence      2250    461686      461686
 taxon           2157    224065      224065
 reference							189866
+
+Undefined:
+[institution] => Array
+       (
+           [University of California Museum of Paleontology {http://ucmpdb.berkeley.edu}] => 
+           [George Safford Torrey Herbarium (CONN) {http://bgbaseserver.eeb.uconn.edu/}] => 
+           [MSB Parasite Collection (Arctos) {http://msb.unm.edu/divisions/parasites/index.html}] => 
+           [Ohio State University Fish Division (OSUM) {http://fish-division.osu.edu​}] => 
+           [Kathryn Kalmbach Herbarium {http://www.botanicgardens.org/content/kathryn-kalmbach-herbarium}] => 
+           [Illinois Natural History Survey] => 
+           [(BMNH, London, U. K.)] => 
+       )
+
+
 */
-return;
+// return;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/GBIFCountryTypeRecordAPI');
 $timestart = time_elapsed();
 
-/*
+// /*
 //local
 $params["dwca_file"]    = "http://localhost/cp/iDigBio/iDigBioTypes.zip";
 $params["uri_file"]     = "http://localhost/cp/iDigBio/idigbio mappings.xlsx";
-*/
+// */
 
-/*
+// /*
 //remote
-$params["dwca_file"]    = "";
-$params["uri_file"]     = "https://dl.dropboxusercontent.com/u/7597512/iDigBio/idigbio mappings.xlsx";
-*/
+// $params["dwca_file"]    = ""; //will move to Archive once it gets more hardisk space
+$params["uri_file"]     = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/iDigBio/idigbio mappings.xlsx";
+// */
 
 $params["dataset"]      = "iDigBio";
 $params["type"]         = "structured data";
