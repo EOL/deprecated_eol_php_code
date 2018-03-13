@@ -188,7 +188,12 @@ class WikipediaMycologicalAPI
         }
         else self::save_to_dump($url, $this->dump_file);
         $rec["source"] = $url;
-        if($rec["sciname"]) self::create_instances_from_taxon_object($rec);
+        if(@$rec["sciname"]) self::create_instances_from_taxon_object($rec);
+        else
+        {
+            echo "\n No sciname";
+            print_r($rec);
+        }
     }
     
     private function get_urls_from_dump($fname)
