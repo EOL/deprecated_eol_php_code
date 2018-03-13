@@ -17,9 +17,11 @@ $timestart = time_elapsed();
 $resource_id = 17;
 // $resource_path = "http://localhost/~eolit/eol_php_code/applications/content_server/resources/17_test.xml"; //test data
 $resource_path = "http://dl.dropbox.com/u/7597512/resources/17_orig.xml.gz";
+$resource_path = "http://services.eol.org/resources/17.xml";
+// $resource_path = "http://localhost/cp_new/services.eol.org_xml/17.xml";
 
 $func = new ResourceDataObjectElementsSetting($resource_id, $resource_path);
-$xml = $func->load_xml_string();
+$xml = $func->load_xml_string(false); //false here means expire_seconds set to false, meaning it won't expire.
 
 //removes the <reference> entries, faster this way than to loop each entry.
 $xml = preg_replace("/<reference (.*?)>/ims", "<reference>", $xml);
@@ -36,15 +38,25 @@ $xml = str_ireplace("<subject>http://rs.tdwg.org/ontology/voc/SPMInfoItems#Gener
 $xml = split_habitat_and_distribution($xml);
 
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-if(!($OUT = fopen($resource_path, "w")))
-{
-  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$resource_path);
-  return;
-}
+if(!($OUT = Functions::file_open($resource_path, "w"))) return;
 fwrite($OUT, $xml);
 fclose($OUT);
 
-Functions::set_resource_status_to_harvest_requested($resource_id);
+// Functions::set_resource_status_to_harvest_requested($resource_id);
+
+//start converting to DwCA
+require_library('connectors/ConvertEOLtoDWCaAPI');
+$params["eol_xml_file"] = $resource_path;
+$params["filename"]     = "no need to mention here.xml"; //no need to mention if eol_xml_file is already .xml and not .xml.gz
+$params["dataset"]      = "EOL XML files";
+$params["resource_id"]  = $resource_id;
+
+$func = new ConvertEOLtoDWCaAPI($resource_id);
+$func->export_xml_to_archive($params, true, 60*60*24*25); // true => means it is an XML file, not an archive file nor a zip file. Expires in 25 days.
+Functions::finalize_dwca_resource($resource_id, false, true); //3rd param true means to delete the dwca folder.
+//end conversion
+
+
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
 echo "elapsed time = $elapsed_time_sec seconds             \n";
@@ -64,7 +76,7 @@ function split_habitat_and_distribution($xml_string)
         {
             $dataObject_dc = $dataObject->children($dc_namespace);
             $dataObject_dcterms = $dataObject->children($dcterms_namespace);
-            print "\n" . $dataObject_dc->identifier . "\n";
+            // print "\n" . $dataObject_dc->identifier . "\n";
             if($dataObject_dc->title == "Habitat & Distribution")
             {
                 $agents = array();
