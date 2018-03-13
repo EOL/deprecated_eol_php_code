@@ -9,15 +9,21 @@ class WikipediaMycologicalAPI
     {
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 172800, 'download_attempts' => 1);
+        $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 172800, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*25); //expires in 25 days
+        if(Functions::is_production()) {
+            $this->download_options['cache_path'] = "/extra/eol_cache_wiki_regions/";
+        }
+        else {
+            $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache_wiki_regions/";
+        }
 
         $this->wikipedia_fungal_species = "http://en.wikipedia.org/wiki/Category:Lists_of_fungal_species";
         $this->mushroom_observer_eol    = "https://dl.dropboxusercontent.com/u/7597512/Wikipedia/mushroom_observer_eol.xml";
         $this->triple_uris_spreadsheet  = "https://dl.dropboxusercontent.com/u/7597512/Wikipedia/wikimushrooms.xlsx";
-        /*
-        $this->mushroom_observer_eol    = "http://localhost/~eolit/cp/Wikipedia/mushroom_observer_eol.xml";
-        $this->triple_uris_spreadsheet  = "http://localhost/~eolit/cp/Wikipedia/wikimushrooms.xlsx";a
-        */
+        // /*
+        $this->mushroom_observer_eol    = "http://localhost/cp/Wikipedia/mushroom_observer_eol.xml";
+        $this->triple_uris_spreadsheet  = "http://localhost/cp/Wikipedia/wikimushrooms.xlsx";
+        // */
         
         $this->dump_file = DOC_ROOT . "temp/wikipedia_wrong_urls.txt";
         $this->triples_file = DOC_ROOT . "temp/wikipedia_triples.txt";
