@@ -71,7 +71,7 @@ class CSV2DwCA_Utility_generic
         $tables = $info['tables'];
         $index = $info['index'];
 
-        // print_r($tables); //exit;
+        // print_r($tables); exit;
 
         echo "\nConverting CSV archive to EOL DwCA...\n";
         foreach($tables as $key => $values) {
@@ -209,15 +209,15 @@ class CSV2DwCA_Utility_generic
                 
                 // ---------------------------- START putting furtherInformationURL from taxa to objects ----------------------------
                 if($class == 'taxon') {
-                    $special[$rec['taxonID']]['furtherInformationURL'] = @$rec['furtherInformationURL'];
+                    $this->special[$rec['taxonID']]['furtherInformationURL'] = @$rec['furtherInformationURL'];
                 }
                 /* use this if u want to put taxon furtherInfoURL in obj furtherInfoURL only if former is blank. Not used though.
                 if($class == 'document') {
-                    if(!@$rec['furtherInformationURL']) $rec['furtherInformationURL'] = @$special[$rec['taxonID']]['furtherInformationURL'];
+                    if(!@$rec['furtherInformationURL']) $rec['furtherInformationURL'] = @$this->special[$rec['taxonID']]['furtherInformationURL'];
                 }
                 */
                 if($class == 'document') {
-                    if($val = @$special[$rec['taxonID']]['furtherInformationURL']) $rec['furtherInformationURL'] = $val;
+                    if($val = @$this->special[$rec['taxonID']]['furtherInformationURL']) $rec['furtherInformationURL'] = $val;
                 }
                 // ---------------------------- END putting furtherInformationURL from taxa to objects ----------------------------
                 
