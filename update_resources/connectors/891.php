@@ -11,7 +11,7 @@ agents                                                                          
 
 891	Monday 2017-12-04 07:13:36 AM	{"agent.tab":84,"measurement_or_fact.tab":4388232,"media_resource.tab":47515,"occurrence.tab":352216,"taxon.tab":256316} - eol-archive
 891	Monday 2018-03-12 09:29:40 AM	{"agent.tab":86,"measurement_or_fact.tab":4402583,"media_resource.tab":137786,"occurrence.tab":352671,"taxon.tab":256523} - eol-archive, no measurementID
-
+891	Tuesday 2018-03-13 03:24:51 AM	{"agent.tab":86,"measurement_or_fact.tab":4402583,"media_resource.tab":137786,"occurrence.tab":352671,"taxon.tab":256523} - with measurementID
 10k records:        9Jan
 measurement_or_fact 9218
 occurrence          1708
