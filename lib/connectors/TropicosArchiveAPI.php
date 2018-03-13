@@ -149,7 +149,7 @@ class TropicosArchiveAPI
     {
         if(!$this->preview_mode) {
             // /* normal operation - orig block
-            $temp_archive_batch_count = 20000; //debug orig is 10k //when testing use 200
+            $temp_archive_batch_count = 20000; //for 20k total batch is 65.     //when testing use 200
             $k = 0;
             $i = 0;
             foreach(new FileIterator($this->tropicos_ids_list_file) as $line_number => $taxon_id)
