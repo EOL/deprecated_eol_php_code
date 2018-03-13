@@ -6,7 +6,7 @@ measurement     6748    1385056     3191194
 occurrence      2250    461686      461686
 taxon           2157    224065      224065
 reference							189866
-
+885	Monday 2018-03-12 02:12:34 PM	{"measurement_or_fact.tab":3263772,"occurrence.tab":475706,"reference.tab":195897,"taxon.tab":215141}
 Undefined:
 [institution] => Array
        (
@@ -54,7 +54,7 @@ $fields["typeStatus"]       = "typeStatus_uri";
 $fields["lifeStage"]        = "lifeStage_uri";
 $params["fields"] = $fields;
 
-$params["resource_id"]  = 885;
+$params["resource_id"] = 885;
 
 $resource_id = $params["resource_id"];
 $func = new GBIFCountryTypeRecordAPI($resource_id);
