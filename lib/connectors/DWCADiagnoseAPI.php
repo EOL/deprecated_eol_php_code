@@ -53,7 +53,7 @@ class DWCADiagnoseAPI
                 }
             }
         }
-        echo "\n -- OK\n";
+        echo " -- OK\n";
         return true;
     }
 
