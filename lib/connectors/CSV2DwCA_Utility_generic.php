@@ -71,7 +71,7 @@ class CSV2DwCA_Utility_generic
         $tables = $info['tables'];
         $index = $info['index'];
 
-        // print_r($tables); exit;
+        print_r($tables); //exit;
 
         echo "\nConverting CSV archive to EOL DwCA...\n";
         foreach($tables as $key => $values) {
