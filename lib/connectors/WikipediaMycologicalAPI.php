@@ -10,12 +10,9 @@ class WikipediaMycologicalAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 172800, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*25); //expires in 25 days
-        if(Functions::is_production()) {
-            $this->download_options['cache_path'] = "/extra/eol_cache_wiki_regions/";
-        }
-        else {
-            $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache_wiki_regions/";
-        }
+
+        if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_cache_wiki_regions/";
+        else                           $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache_wiki_regions/";
 
         $this->wikipedia_fungal_species = "http://en.wikipedia.org/wiki/Category:Lists_of_fungal_species";
         $this->mushroom_observer_eol    = "https://dl.dropboxusercontent.com/u/7597512/Wikipedia/mushroom_observer_eol.xml";
@@ -36,11 +33,8 @@ class WikipediaMycologicalAPI
         $wrong_urls = self::get_urls_from_dump($this->dump_file);
         self::process_wikepedia_fungal_list($wrong_urls);
         self::process_mushroom_observer_list($wrong_urls);
-        if(!($WRITE = fopen($this->triples_file, "w")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->triples_file);
-          return;
-        } else fclose($WRITE); //initialize file
+        if(!($WRITE = fopen($this->triples_file, "w"))) return;
+        else fclose($WRITE); //initialize file
         foreach(array_keys($this->unique_triples) as $triple) self::save_to_dump($triple, $this->triples_file);
         echo "\n count of scinames: "              . count($this->debug["sciname"]);
         echo "\n count of scinames with triples: " . count($this->debug["sciname with triples"]);
@@ -116,7 +110,9 @@ class WikipediaMycologicalAPI
     
     private function process_mushroom_observer_list($wrong_urls)
     {
-        if($file = Functions::lookup_with_cache($this->mushroom_observer_eol, $this->download_options))
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        if($file = Functions::lookup_with_cache($this->mushroom_observer_eol, $options))
         {
             $xml = simplexml_load_string($file);
             $i = 0;
