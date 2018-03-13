@@ -40,6 +40,8 @@ class WikipediaMycologicalAPI
         echo "\n count of scinames: "              . count($this->debug["sciname"]);
         echo "\n count of scinames with triples: " . count($this->debug["sciname with triples"]);
         $this->archive_builder->finalize(TRUE);
+        
+        if($val = @$this->debug['undefined']) print_r($val);
     }
 
     private function get_uris()
@@ -265,7 +267,8 @@ class WikipediaMycologicalAPI
                 {
                     print_r($rec);
                     echo "\n[$triple]";
-                    exit("\n-investigate-\n");
+                    $this->debug['undefined'][$triple] = '';
+                    // exit("\n-investigate-\n");
                 }
             }
         }
