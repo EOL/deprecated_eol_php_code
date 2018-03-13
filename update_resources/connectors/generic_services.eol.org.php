@@ -35,7 +35,7 @@ $params["dataset"]      = "EOL XML files";
 $params["resource_id"]  = $resource_id;
 
 $func = new ConvertEOLtoDWCaAPI($resource_id);
-$func->export_xml_to_archive($params, true, 60*60*24*25); // true => means it is an XML file, not an archive file nor a zip file. Expires in 25 days.
+$func->export_xml_to_archive($params, true, false); // true => means it is an XML file, not an archive file nor a zip file. 3rd param should always be false -> expire_seconds. Since XML is from services.eol.org, not chaning anymore.
 Functions::finalize_dwca_resource($resource_id, false, true); //3rd param true means to delete the dwca folder.
 //end conversion
 
