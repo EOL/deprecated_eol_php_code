@@ -182,8 +182,10 @@ class GBIFCountryTypeRecordAPI
                         elseif($fields) {
                             $fields = array_map('trim', $fields);
                             if(!trim((string) $fields["http://rs.tdwg.org/dwc/terms/scientificName"])) continue;
-                            $fields["taxon_id"] = self::get_taxon_id($fields);
-                            
+
+                            if($val = self::get_taxon_id($fields)) $fields["taxon_id"] = $val;
+                            else continue; //no taxon_id - found just 1 record here, maybe the last row in text file.
+
                             if($params["dataset"] == "GBIF") {
                                 $fields["dataset"] = "GBIF";
                                 $fields["country"] = $params["country"];
