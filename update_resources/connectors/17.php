@@ -16,9 +16,10 @@ require_library('ResourceDataObjectElementsSetting');
 $timestart = time_elapsed();
 $resource_id = 17;
 // $resource_path = "http://localhost/~eolit/eol_php_code/applications/content_server/resources/17_test.xml"; //test data
-$resource_path = "http://dl.dropbox.com/u/7597512/resources/17_orig.xml.gz";
-$resource_path = "http://services.eol.org/resources/17.xml";
+// $resource_path = "http://dl.dropbox.com/u/7597512/resources/17_orig.xml.gz";
+// $resource_path = "http://services.eol.org/resources/17.xml";
 // $resource_path = "http://localhost/cp_new/services.eol.org_xml/17.xml";
+$resource_path = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/services.eol.org_resources/17.xml.gz";
 
 $func = new ResourceDataObjectElementsSetting($resource_id, $resource_path);
 $xml = $func->load_xml_string(false); //false here means expire_seconds set to false, meaning it won't expire.
