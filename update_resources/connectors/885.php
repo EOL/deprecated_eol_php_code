@@ -18,11 +18,18 @@ Undefined:
            [Illinois Natural History Survey] => 
            [(BMNH, London, U. K.)] => 
        )
-
-
 */
 // return;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+ini_set('memory_limit','7096M'); //needed so it can process checking of identifier uniqueness in measurement and occurrence extensions.
+
+/* just a utility - this is already inside -> Functions::finalize_dwca_resource($resource_id);
+require_library('connectors/DWCADiagnoseAPI');
+$func = new DWCADiagnoseAPI();
+$func->check_unique_ids(885); //885
+return;
+*/
+
 require_library('connectors/GBIFCountryTypeRecordAPI');
 $timestart = time_elapsed();
 
