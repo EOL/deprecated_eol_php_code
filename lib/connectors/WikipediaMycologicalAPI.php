@@ -15,12 +15,12 @@ class WikipediaMycologicalAPI
         else                           $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache_wiki_regions/";
 
         $this->wikipedia_fungal_species = "http://en.wikipedia.org/wiki/Category:Lists_of_fungal_species";
-        $this->mushroom_observer_eol    = "https://dl.dropboxusercontent.com/u/7597512/Wikipedia/mushroom_observer_eol.xml";
-        $this->triple_uris_spreadsheet  = "https://dl.dropboxusercontent.com/u/7597512/Wikipedia/wikimushrooms.xlsx";
-        // /*
+        $this->mushroom_observer_eol    = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Wikipedia/mushroom_observer_eol.xml";
+        $this->triple_uris_spreadsheet  = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Wikipedia/wikimushrooms.xlsx";
+        /*
         $this->mushroom_observer_eol    = "http://localhost/cp/Wikipedia/mushroom_observer_eol.xml";
         $this->triple_uris_spreadsheet  = "http://localhost/cp/Wikipedia/wikimushrooms.xlsx";
-        // */
+        */
         
         $this->dump_file = DOC_ROOT . "temp/wikipedia_wrong_urls.txt";
         $this->triples_file = DOC_ROOT . "temp/wikipedia_triples.txt";
