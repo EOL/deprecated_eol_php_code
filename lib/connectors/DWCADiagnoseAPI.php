@@ -25,7 +25,12 @@ class DWCADiagnoseAPI
         $tables = array_diff($tables, array("http://eol.org/schema/association")); //exclude association name
 
         print_r($tables);
-        foreach($tables as $table) self::process_fields($harvester->process_row_type($table), pathinfo($table, PATHINFO_BASENAME));
+        foreach($tables as $table)
+        {
+            $records = $harvester->process_row_type($table);
+            self::process_fields($records, pathinfo($table, PATHINFO_BASENAME));
+            $records = null;
+        }
     }
 
     private function process_fields($records, $class)
