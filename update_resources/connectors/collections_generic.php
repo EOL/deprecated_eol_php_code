@@ -49,6 +49,10 @@ $info[res_id]['xml_path'] = ""; $info[res_id]['data_types'] = array('datatype');
 $info[res_id] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path' => '');
 */
 
+//has dwca but media is already offline, has collection.
+$info[426] = array('id' => 34928, 'data_types' => array('video'), 'xml_path' => ''); //Spinus tristis
+
+
 //has dwca, no XML, has collection
 $info[815] = array('id' => 105853, 'data_types' => array('images'), 'xml_path' => ''); //Smithsonian Gardens Orchid Images
 
