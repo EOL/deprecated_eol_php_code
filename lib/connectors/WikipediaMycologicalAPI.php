@@ -7,6 +7,7 @@ class WikipediaMycologicalAPI
 {
     function __construct($folder)
     {
+        $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 172800, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*25); //expires in 25 days
@@ -282,6 +283,8 @@ class WikipediaMycologicalAPI
         $m->measurementOfTaxon  = 'true';
         $m->measurementMethod   = 'crowdsourced';
         $m->source              = $rec["source"];
+
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
     }
 
@@ -291,8 +294,17 @@ class WikipediaMycologicalAPI
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
+        
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
+        
+        /* old ways
         $this->archive_builder->write_object_to_file($o);
         return $occurrence_id;
+        */
     }
 
     private function save_to_dump($data, $filename) // utility
