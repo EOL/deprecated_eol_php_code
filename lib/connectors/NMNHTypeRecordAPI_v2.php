@@ -43,6 +43,7 @@ class NMNHTypeRecordAPI_v2
 {
     function __construct($folder)
     {
+        $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
@@ -727,7 +728,7 @@ class NMNHTypeRecordAPI_v2
     private function create_measurement($taxon_id, $occurrence_id, $rec, $measurementOfTaxon, $measurementType, $value)
     {
         $m = new \eol_schema\MeasurementOrFact();
-        $this->add_occurrence($taxon_id, $occurrence_id, $rec);
+        $occurrence_id = $this->add_occurrence($taxon_id, $occurrence_id, $rec);
         $m->occurrenceID = $occurrence_id;
         $m->measurementOfTaxon = $measurementOfTaxon;
         if($measurementOfTaxon ==  "true") {
@@ -742,16 +743,16 @@ class NMNHTypeRecordAPI_v2
         $m->measurementType = $measurementType;
         $m->measurementValue = $value;
         $m->measurementMethod = '';
+        
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
     }
 
     private function add_occurrence($taxon_id, $occurrence_id, $rec)
     {
-        if(isset($this->occurrence_ids[$occurrence_id])) return;
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
-        
         /*
             connector: [891] NMNH type records -- should have $->institutionCode = USNM
             connector: [947] NHM type records -- should have $->institutionCode = NHMUK
@@ -759,7 +760,6 @@ class NMNHTypeRecordAPI_v2
             // [http://rs.tdwg.org/dwc/terms/institutionCode] => USNM
             // [http://rs.tdwg.org/dwc/terms/institutionCode] => NHMUK
         */
-        
         $o->institutionCode     = $rec["http://rs.tdwg.org/dwc/terms/institutionCode"];
         $o->collectionCode      = $rec["http://rs.tdwg.org/dwc/terms/collectionCode"]; //verbatim here
         $o->catalogNumber       = $rec["http://rs.tdwg.org/dwc/terms/catalogNumber"];
@@ -781,9 +781,17 @@ class NMNHTypeRecordAPI_v2
         $o->decimalLongitude    = $rec["http://rs.tdwg.org/dwc/terms/decimalLongitude"];
         $o->identifiedBy        = $rec["http://rs.tdwg.org/dwc/terms/identifiedBy"];
 
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
+        
+        /*
         $this->archive_builder->write_object_to_file($o);
         $this->occurrence_ids[$occurrence_id] = '';
         return;
+        */
     }
     
                   
