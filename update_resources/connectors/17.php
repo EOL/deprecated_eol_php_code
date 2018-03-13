@@ -9,6 +9,7 @@ This script will modify the original Efloras resource (17_orig.xml).
     - then split habitat further into #cyclicity (flowering-time) and #habitat
     - re-map text objects with title 'Comments' to http://www.eol.org/voc/table_of_contents#Notes
     - change schema ver. from 0.1 to 0.3
+17	Tuesday 2018-03-13 02:08:41 AM	{"agent.tab":19,"media_resource.tab":124726,"taxon.tab":32792}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('ResourceDataObjectElementsSetting');
@@ -57,7 +58,6 @@ $func->export_xml_to_archive($params, true, 60*60*24*25); // true => means it is
 Functions::finalize_dwca_resource($resource_id, false, true); //3rd param true means to delete the dwca folder.
 //end conversion
 
-
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
 echo "elapsed time = $elapsed_time_sec seconds             \n";
@@ -71,15 +71,12 @@ function split_habitat_and_distribution($xml_string)
     $dcterms_namespace = "http://purl.org/dc/terms/";
 
     $xml = simplexml_load_string($xml_string);
-    foreach($xml->taxon as $taxon)
-    {
-        foreach($taxon->dataObject as $dataObject)
-        {
+    foreach($xml->taxon as $taxon) {
+        foreach($taxon->dataObject as $dataObject) {
             $dataObject_dc = $dataObject->children($dc_namespace);
             $dataObject_dcterms = $dataObject->children($dcterms_namespace);
             // print "\n" . $dataObject_dc->identifier . "\n";
-            if($dataObject_dc->title == "Habitat & Distribution")
-            {
+            if($dataObject_dc->title == "Habitat & Distribution") {
                 $agents = array();
                 foreach($dataObject->agent as $agent) $agents[] = $agent;
                 $license = $dataObject->license;
@@ -89,8 +86,7 @@ function split_habitat_and_distribution($xml_string)
                 $dc_source = $dataObject_dc->source;
 
                 $texts = split_description($dataObject_dc->description); //splits the description into 2: habitat and distribution texts
-                if($texts)
-                {
+                if($texts) {
                     $dataObject_dc->title = "Habitat";
                     $dataObject_dc->description = trim($texts[0]); //habitat
                     $text_distribution = trim($texts[1]); //distribution
@@ -101,8 +97,7 @@ function split_habitat_and_distribution($xml_string)
                     $dc_source, 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution', $text_distribution, 'Distribution');
 
                     //see if #habitat can further be divided into #cyclicity (flowering/fruiting time) and #habitat.
-                    if($texts = get_flowering_time($dataObject_dc->description))
-                    {
+                    if($texts = get_flowering_time($dataObject_dc->description)) {
                         $dataObject_dc->description = trim($texts[1]); //habitat
                         $text_cyclicity = trim($texts[0]); //cyclicity - flowering/fruiting time
                         //create a new #Cyclicity <dataObject>
@@ -113,8 +108,7 @@ function split_habitat_and_distribution($xml_string)
                 }
             }
 
-            if($dataObject_dc->title == "Comments")
-            {
+            if($dataObject_dc->title == "Comments") {
                 $dataObject->addChild("additionalInformation", "");
                 $dataObject->additionalInformation->addChild("subject", "http://www.eol.org/voc/table_of_contents#Notes");
             }
@@ -127,11 +121,9 @@ function split_habitat_and_distribution($xml_string)
 function get_flowering_time($text)
 {
     $texts = array();
-    if(substr($text, 0, 9) == 'Flowering' || substr($text, 0, 8) == 'Fruiting')
-    {
+    if(substr($text, 0, 9) == 'Flowering' || substr($text, 0, 8) == 'Fruiting') {
         $pos_of_first_period = stripos($text, '.');
-        if ($pos_of_first_period !== false) 
-        {
+        if ($pos_of_first_period !== false) {
             $texts[0] = substr($text, 0, $pos_of_first_period + 1);
             $texts[1] = trim(substr($text, $pos_of_first_period + 2, strlen($text)));
         }
@@ -142,11 +134,9 @@ function get_flowering_time($text)
 function split_description($text)
 {
     $separators = array(' m; ', 'm. '); //possible separators between 'habitat' and 'distribution' string in dc:description
-    foreach($separators as $separator)
-    {
+    foreach($separators as $separator) {
         $texts = explode($separator, $text);
-        if(count($texts) > 1) 
-        {
+        if(count($texts) > 1) {
             $texts[0] .= "m. ";
             return $texts;
         }
@@ -161,8 +151,7 @@ function add_dataObject($taxon, $identifier, $dc_namespace, $agents, $license, $
     $obj->addChild('identifier', $identifier, $dc_namespace);
     $obj->addChild('dataType', 'http://purl.org/dc/dcmitype/Text');
     $obj->addChild('mimeType', 'text/html');
-    foreach($agents as $agent)
-    {
+    foreach($agents as $agent) {
         $a = $obj->addChild('agent', htmlentities($agent));
         $a->addAttribute('role', $agent['role']);
         $a->addAttribute('logoURL', $agent['logoURL']);
@@ -180,5 +169,4 @@ function add_dataObject($taxon, $identifier, $dc_namespace, $agents, $license, $
     $obj->addChild('description', '', $dc_namespace);
     $obj->description = $text_distribution;
 }
-
 ?>
