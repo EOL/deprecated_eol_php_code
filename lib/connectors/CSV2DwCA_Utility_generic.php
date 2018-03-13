@@ -206,6 +206,23 @@ class CSV2DwCA_Utility_generic
 
                     }
                 }
+                
+                // ---------------------------- START putting furtherInformationURL from taxa to objects ----------------------------
+                if($class == 'taxon') {
+                    $special[$rec['taxonID']]['furtherInformationURL'] = @$rec['furtherInformationURL'];
+                }
+                /* use this if u want to put taxon furtherInfoURL in obj furtherInfoURL only if former is blank. Not used though.
+                if($class == 'document') {
+                    if(!@$rec['furtherInformationURL']) $rec['furtherInformationURL'] = @$special[$rec['taxonID']]['furtherInformationURL'];
+                }
+                */
+                if($class == 'document') {
+                    if($val = @$special[$rec['taxonID']]['furtherInformationURL']) $rec['furtherInformationURL'] = $val;
+                }
+                // ---------------------------- END putting furtherInformationURL from taxa to objects ----------------------------
+                
+                
+                
                 //================================================================== end customization ==================================================================
                 
                 
