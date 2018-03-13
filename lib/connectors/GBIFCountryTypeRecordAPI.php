@@ -438,7 +438,7 @@ class GBIFCountryTypeRecordAPI
             echo "\n recordId:" . $rec["http://portal.idigbio.org/terms/recordId"];
             */
             $institution = self::get_institution_name($rec);
-            echo "\n found institution_name1: [$institution] =====\n";
+            // echo "\n found institution_name1: [$institution] =====\n";
 
             if(!$institution) // 2nd option for institution value
             {
@@ -458,7 +458,7 @@ class GBIFCountryTypeRecordAPI
                 }
                 $institution = trim($institution);
             }
-            echo "\n found institution_name2: [$institution] =====\n";
+            // echo "\n found institution_name2: [$institution] =====\n";
         }
         // else $institution = self::get_institution_name($rec); // debug --- comment in normal operation, use this if you want to API-call all institution recordsets
 
