@@ -46,12 +46,14 @@ if($resource_id_2process) {
 $info[res_id] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 'xxxx', 'resource_id' => res_id);
 $info[res_id]['xml_path'] = ""; $info[res_id]['data_types'] = array('datatype'); //possible values array('images', 'video', 'sounds', 'text')
 
-$info[res_id] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path' => '');
+$info[res_id] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path' => ''); //resource_name
 */
+
+//no XML nor DwCA, has collection
+$info[350] = array('id' => 21244, 'data_types' => array('test', 'images'), 'xml_path' => ''); //From so simple a beginning: 2011
 
 //has dwca but media is already offline, has collection.
 $info[426] = array('id' => 34928, 'data_types' => array('video'), 'xml_path' => ''); //Spinus tristis
-
 
 //has dwca, no XML, has collection
 $info[815] = array('id' => 105853, 'data_types' => array('images'), 'xml_path' => ''); //Smithsonian Gardens Orchid Images
