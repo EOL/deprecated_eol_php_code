@@ -10,7 +10,7 @@ $timestart = time_elapsed();
 
 $resource_id = 553;
 $params["eol_xml_file"] = "";
-$params["eol_xml_file"] = "http://www.pensoft.net/J_FILES/EoLData/IJM.xml"; //Functions::get_accesspoint_url_if_available($resource_id, "http://www.pensoft.net/J_FILES/EoLData/IJM.xml");
+$params["eol_xml_file"] = "https://ijm.pensoft.net/lib/eol_exports/IJM.xml"; //Functions::get_accesspoint_url_if_available($resource_id, "http://www.pensoft.net/J_FILES/EoLData/IJM.xml");
 $params["filename"]     = "no need to mention here.xml";
 $params["dataset"]      = "Pensoft XML files";
 $params["resource_id"]  = $resource_id;
