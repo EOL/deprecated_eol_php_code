@@ -45,8 +45,19 @@ $info['res_id'] = array('id' => col_id, 'domain' => 'http', 'OpenData_title' => 
 $info['res_id']['xml_path'] = "http";
 $info['res_id']['data_types'] = array('xxx'); //what is available in its Collection - //possible values array('images', 'video', 'sounds', 'text')
 
-$info['res_id'] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path' => 'http', 'prefix' => "EOL_");
+$info['res_id'] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path' => 'http', 'prefix' => "EOL_"); //res_name
 */
+
+//has XML (text and image, image is already offline), has collection
+$info['193'] = array('id' => 27254, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/193.xml', 'prefix' => "EOL_"); //Field Museum Class in Phylogenetics: 2010
+
+//has XML (text and image, image is already offline), has collection
+$info['352'] = array('id' => 21245, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/352.xml', 'prefix' => "EOL_"); //2011 Field Museum REU and Intern Program
+
+//has XML (text only), has collection 27255 but not needed
+$info['357'] = array('id' => '', 'data_types' => array('dtype'), 'xml_path' => 'http://services.eol.org/resources/357.xml', 'prefix' => "EOL_"); //From so simple a beginning: 2010
+
+// ========================================================================= new batch above =========================================================================
 
 //has XML (text and image, image is already offline), collection is broken. We can only get what we have in XML, that is taxa and text objects.
 $info['191'] = array('id' => 297, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/191.xml', 'prefix' => "EOL_"); //PhytoKeys for EOL - has text & images

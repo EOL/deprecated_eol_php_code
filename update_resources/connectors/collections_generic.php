@@ -52,6 +52,8 @@ $info[res_id] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path'
 //no XML nor DwCA, has collection
 $info[350] = array('id' => 21244, 'data_types' => array('text', 'images'), 'xml_path' => ''); //From so simple a beginning: 2011
 
+// ========================================================================= new batch above =========================================================================
+
 //has dwca but media is already offline, has collection.
 $info[426] = array('id' => 34928, 'data_types' => array('video'), 'xml_path' => ''); //Spinus tristis
 
