@@ -1280,7 +1280,7 @@ class EOLv2MetadataAPI
         while($result && $row=$result->fetch_assoc()) echo ", " .$row['id'];
         echo "\n";
         */
-        $possible = array(".xml", ".xml.gz", ".tar.gz");
+        $possible = array(".xml", ".xml.gz", ".tar.gz", ".zip");
         $wget_path = '/opt/local/bin/wget';
         $target_folder = '/Library/WebServer/Documents/cp_new/services.eol.org_xml/';
         $services_url = 'http://services.eol.org/resources/';
