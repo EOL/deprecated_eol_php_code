@@ -54,8 +54,7 @@ class WikipediaMycologicalAPI
         /* spreadsheet headers: Wikipedia triple - Measurement Type - Measurement Value1 - Measurement Value2 */
         $uris = array();
         $i = -1;
-        foreach($temp["Wikipedia triple"] as $triple)
-        {
+        foreach($temp["Wikipedia triple"] as $triple) {
             $i++;
             if($temp["Measurement Type"][$i] == "EXCLUDE") continue;
             $uris[$triple]["mtype"] = $temp["Measurement Type"][$i];
@@ -68,29 +67,23 @@ class WikipediaMycologicalAPI
     private function process_wikepedia_fungal_list($wrong_urls)
     {
         $urls = array();
-        if($html = Functions::lookup_with_cache($this->wikipedia_fungal_species, $this->download_options))
-        {
+        if($html = Functions::lookup_with_cache($this->wikipedia_fungal_species, $this->download_options)) {
             //<a href="/wiki/List_of_Agaricus_species" title="List of Agaricus species">
-            if(preg_match_all("/<li><a href=\"\/wiki\/List_of_(.*?)\"/ims", $html, $arr))
-            {
+            if(preg_match_all("/<li><a href=\"\/wiki\/List_of_(.*?)\"/ims", $html, $arr)) {
                 print_r($arr[1]);
-                foreach($arr[1] as $path)
-                {
+                foreach($arr[1] as $path) {
                     if(!is_numeric(stripos($path, "_species"))) continue;
                     $parts = explode("_", $path);
                     $genus = $parts[0];
-                    if($html = Functions::lookup_with_cache("http://en.wikipedia.org/wiki/List_of_" . $path, $this->download_options))
-                    {
+                    if($html = Functions::lookup_with_cache("http://en.wikipedia.org/wiki/List_of_" . $path, $this->download_options)) {
                         $html = strip_tags($html, "<li><a>");
                         //<a href="/wiki/Amanita_albocreata"
-                        if(preg_match_all("/<a href=\"\/wiki\/" . $genus . "(.*?)\"/ims", $html, $arr2))
-                        {
+                        if(preg_match_all("/<a href=\"\/wiki\/" . $genus . "(.*?)\"/ims", $html, $arr2)) {
                             foreach($arr2[1] as $path) $urls[] = "http://en.wikipedia.org/" . "wiki/$genus" . $path;
                         }
                         // /*
                         //http://en.wikipedia.org/w/index.php?title=Pertusaria_aberrans&action=edit&redlink=1
-                        if(preg_match_all("/<a href=\"\/w\/index.php\?title=" . $genus . "(.*?)\"/ims", $html, $arr2))
-                        {
+                        if(preg_match_all("/<a href=\"\/w\/index.php\?title=" . $genus . "(.*?)\"/ims", $html, $arr2)) {
                             foreach($arr2[1] as $path) $urls[] = "http://en.wikipedia.org/" . "w/index.php?title=$genus" . $path;
                         }
                         // */
@@ -103,8 +96,7 @@ class WikipediaMycologicalAPI
         $urls = array_filter($urls);
         $i = 0;
         $total = count($urls);
-        foreach($urls as $url)
-        {
+        foreach($urls as $url) {
             $i++; 
             if(($i % 50) == 0) echo "\n$i of $total";
             $url = str_ireplace("&amp;", "&", $url);
@@ -116,13 +108,11 @@ class WikipediaMycologicalAPI
     {
         $options = $this->download_options;
         $options['expire_seconds'] = false;
-        if($file = Functions::lookup_with_cache($this->mushroom_observer_eol, $options))
-        {
+        if($file = Functions::lookup_with_cache($this->mushroom_observer_eol, $options)) {
             $xml = simplexml_load_string($file);
             $i = 0;
             $total = count($xml->taxon);
-            foreach($xml->taxon as $t)
-            {
+            foreach($xml->taxon as $t) {
                 $i++;
                 // if($i > 40) break; //debug
                 $t_dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
@@ -140,23 +130,18 @@ class WikipediaMycologicalAPI
     {
         if(in_array($url, $wrong_urls)) return;
         $rec = array();
-        if($html = Functions::lookup_with_cache($url, $this->download_options))
-        {
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
             //sciname
             if(preg_match("/<h1 id=\"firstHeading\"(.*?)<\/h1>/ims", $html, $arr)) $rec["sciname"] = strip_tags("<h1 " . $arr[1]);
             //ancestry
             $ranks = array("kingdom", "division", "phylum", "class", "order", "family", "genus");
-            foreach($ranks as $rank)
-            {
+            foreach($ranks as $rank) {
                 if(preg_match("/<span class=\"" . $rank . "\"(.*?)<\/span>/ims", $html, $arr)) $rec["ancestry"][$rank] = strip_tags("<span " . $arr[1]);
             }
             //triples
-            if(preg_match("/title=\"Mycology\">Mycological characteristics(.*?)<\/table>/ims", $html, $arr))
-            {
-                if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $arr[1], $arr))
-                {
-                    foreach($arr[1] as $row)
-                    {
+            if(preg_match("/title=\"Mycology\">Mycological characteristics(.*?)<\/table>/ims", $html, $arr)) {
+                if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $arr[1], $arr)) {
+                    foreach($arr[1] as $row) {
                         $row = strip_tags($row);
                         $row = trim(str_replace(array("\n"), " ", $row));
                         $rec["triples"][] = $row;
@@ -164,13 +149,10 @@ class WikipediaMycologicalAPI
                 }
             }
             // fix the 'or ' phrase; and saving it to $this->unique_triples
-            if(@$rec["triples"])
-            {
+            if(@$rec["triples"]) {
                 $i = 0;
-                foreach(@$rec["triples"] as $triple)
-                {
-                    if(substr($triple, 0, 3) == "or ")
-                    {
+                foreach(@$rec["triples"] as $triple) {
+                    if(substr($triple, 0, 3) == "or ") {
                         $rec["triples"][$i-1] .= " " . $rec["triples"][$i];
                         $rec["triples"][$i] = "";
                     }
@@ -180,8 +162,7 @@ class WikipediaMycologicalAPI
                 foreach($rec["triples"] as $triple) $this->unique_triples[$triple] = '';
             }
             
-            if($sciname = $rec["sciname"])
-            {
+            if($sciname = $rec["sciname"]) {
                 if($sciname) $this->debug["sciname"][$sciname] = '';
                 if(@$rec["triples"]) $this->debug["sciname with triples"][$sciname] = '';
             }
@@ -190,20 +171,19 @@ class WikipediaMycologicalAPI
         else self::save_to_dump($url, $this->dump_file);
         $rec["source"] = $url;
         if(@$rec["sciname"]) self::create_instances_from_taxon_object($rec);
-        else
-        {
+        else {
+            /*
             echo "\n No sciname";
             print_r($rec);
+            */
         }
     }
     
     private function get_urls_from_dump($fname)
     {
         $urls = array();
-        if($filename = Functions::save_remote_file_to_local($fname, $this->download_options))
-        {
-            foreach(new FileIterator($filename) as $line_number => $line)
-            {
+        if($filename = Functions::save_remote_file_to_local($fname, $this->download_options)) {
+            foreach(new FileIterator($filename) as $line_number => $line) {
                 if($line) $urls[$line] = '';
             }
             unlink($filename);
@@ -234,8 +214,7 @@ class WikipediaMycologicalAPI
                 [6] => edibility: inedible
             )
         */
-        if(@$rec["triples"])
-        {
+        if(@$rec["triples"]) {
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID         = str_replace(" ", "_", $rec["sciname"]);
             $taxon->scientificName  = $rec["sciname"];
@@ -245,32 +224,26 @@ class WikipediaMycologicalAPI
             $taxon->order           = @$rec["ancestry"]["order"];
             $taxon->family          = @$rec["ancestry"]["family"];
             $taxon->genus           = @$rec["ancestry"]["genus"];
-            if(!isset($this->taxon_ids[$taxon->taxonID]))
-            {
+            if(!isset($this->taxon_ids[$taxon->taxonID])) {
                 $this->taxon_ids[$taxon->taxonID] = '';
                 $this->archive_builder->write_object_to_file($taxon);
             }
             $rec["taxon_id"] = $taxon->taxonID;
             
             // structured data
-            foreach($rec["triples"] as $triple)
-            {
+            foreach($rec["triples"] as $triple) {
                 if($triple == "hymenium attachment is not applicable") continue; //excluded per Jen's spreadsheet
-                if($mtype = $this->uris[$triple]["mtype"])
-                {
-                    if($v1 = $this->uris[$triple]["v1"])
-                    {
+                if($mtype = $this->uris[$triple]["mtype"]) {
+                    if($v1 = $this->uris[$triple]["v1"]) {
                         $rec["catnum"] = pathinfo($v1, PATHINFO_FILENAME);
                         self::add_string_types($rec, $v1, $mtype);
                     }
-                    if($v2 = $this->uris[$triple]["v2"])
-                    {
+                    if($v2 = $this->uris[$triple]["v2"]) {
                         $rec["catnum"] = pathinfo($v2, PATHINFO_FILENAME);
                         self::add_string_types($rec, $v2, $mtype);
                     }
                 }
-                else
-                {
+                else {
                     print_r($rec);
                     echo "\n[$triple]";
                     $this->debug['undefined'][$triple] = '';
@@ -318,11 +291,7 @@ class WikipediaMycologicalAPI
 
     private function save_to_dump($data, $filename) // utility
     {
-        if(!($WRITE = fopen($filename, "a")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$filename);
-          return;
-        }
+        if(!($WRITE = Functions::file_open($filename, "a"))) return;
         if($data && is_array($data)) fwrite($WRITE, json_encode($data) . "\n");
         else                         fwrite($WRITE, $data . "\n");
         fclose($WRITE);
