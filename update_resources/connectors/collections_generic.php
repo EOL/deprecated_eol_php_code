@@ -49,7 +49,7 @@ $info[res_id]['xml_path'] = ""; $info[res_id]['data_types'] = array('datatype');
 $info[res_id] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path' => ''); //resource_name
 */
 
-//no XML nor DwCA, has collection
+//no XML nor DwCA, has collection - https://opendata.eol.org/dataset/edulifedesks-archive/resource/a3ff059a-2eaa-49fc-96c1-566fccf86e47
 $info[350] = array('id' => 21244, 'data_types' => array('text', 'images'), 'xml_path' => ''); //From so simple a beginning: 2011
 
 // ========================================================================= new batch above =========================================================================

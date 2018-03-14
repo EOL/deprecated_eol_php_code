@@ -10,9 +10,8 @@ namespace php_active_record;
 (0219) SPIRE
 -----------------------------------------start new Feb 21
 (0252) DiscoverLife ID keys resource
-
-
 */
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 
