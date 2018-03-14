@@ -19,6 +19,14 @@ taxon               716
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+ini_set('memory_limit','12096M'); //needed so it can process checking of identifier uniqueness in measurement and occurrence extensions.
+
+// /* just a utility - this is already inside -> Functions::finalize_dwca_resource($resource_id);
+require_library('connectors/DWCADiagnoseAPI');
+$func = new DWCADiagnoseAPI();
+$func->check_unique_ids('891');
+return;
+// */
 
 /*
 $url = "https://collections.nmnh.si.edu/services/media.php?env=mammals&irn=7005395";
@@ -29,7 +37,6 @@ exit("\n");
 */
 
 require_library('connectors/NMNHTypeRecordAPI_v2');
-ini_set('memory_limit','7096M'); //needed so it can process checking of identifier uniqueness in measurement and occurrence extensions.
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true;
 
