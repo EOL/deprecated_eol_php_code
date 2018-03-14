@@ -48,13 +48,8 @@ $info['res_id']['data_types'] = array('xxx'); //what is available in its Collect
 $info['res_id'] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path' => 'http', 'prefix' => "EOL_"); //res_name
 */
 
-//has XML (text and image, image is already offline), has collection
-$info['193'] = array('id' => 27254, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/193.xml', 'prefix' => "EOL_"); //Field Museum Class in Phylogenetics: 2010
 
-//has XML (text and image, image is already offline), has collection
-$info['352'] = array('id' => 21245, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/352.xml', 'prefix' => "EOL_"); //2011 Field Museum REU and Intern Program
-
-//has XML (text only), has collection 27255 but not needed
+//has XML (text only), has collection 27255 but not needed - https://opendata.eol.org/dataset/edulifedesks-archive/resource/e42aa8de-1dab-4ad6-b88f-c164f2a89ecd
 $info['357'] = array('id' => '', 'data_types' => array('dtype'), 'xml_path' => 'http://services.eol.org/resources/357.xml', 'prefix' => "EOL_"); //From so simple a beginning: 2010
 
 // ========================================================================= new batch above =========================================================================
