@@ -745,7 +745,10 @@ class NMNHTypeRecordAPI_v2
         $m->measurementMethod = '';
         
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
-        $this->archive_builder->write_object_to_file($m);
+        if(!isset($this->measurement_ids[$m->measurementID])) {
+            $this->archive_builder->write_object_to_file($m);
+            $this->measurement_ids[$m->measurementID] = '';
+        }
     }
 
     private function add_occurrence($taxon_id, $occurrence_id, $rec)
