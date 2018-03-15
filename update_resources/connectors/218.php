@@ -4,9 +4,9 @@ namespace php_active_record;
 estimated execution time:
 
 218	Thursday 2018-02-08 12:42:33 PM	{"agent.tab":383,"measurement_or_fact.tab":2997020,"media_resource.tab":193473,"occurrence.tab":1498510,"reference.tab":21639,"taxon.tab":1298052}
-
+218	Wednesday 2018-03-14 01:43:01 PM{"agent.tab":383,"measurement_or_fact.tab":1498510,"media_resource.tab":193473,"occurrence.tab":1498510,"reference.tab":21639,"taxon.tab":1298052} with measurementID
 */
-return; //hasn't been cached yet in Archive
+return; //hasn't been cached yet in Archive. Waiting for extra harddisk space.
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/TropicosArchiveAPI');
 $GLOBALS['ENV_DEBUG'] = true;
