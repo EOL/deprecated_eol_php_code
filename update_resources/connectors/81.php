@@ -7,6 +7,10 @@ estimated execution time: 15,33,30,41 hours for slow connection
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
+
+//used generic_services.eol.org for now. So just to bring it to V3. Might need to update connector to get latest data.
+return;
+
 require_library('connectors/BoldsAPI');
 
 $folder = DOC_ROOT . "update_resources/connectors/files/BOLD";
