@@ -169,6 +169,8 @@ $ancestry[40] = array('kingdom' => 'Animalia', 'phylum' => 'Chordata', 'class' =
 $final = array_merge($final, array_keys($info));
 */
 
+if(!$resource_id_2process) $final = array_merge($final, array_keys($info));
+
 $final = array_unique($final);
 print_r($final); echo "\nTotal resource(s): ".count($final)."\n"; //exit;
 
