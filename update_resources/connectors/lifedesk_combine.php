@@ -347,6 +347,9 @@ $ancestry['afrotropicalbirds'] = array('kingdom' => 'Animalia', 'phylum' => 'Cho
 /* un-comment if you want to RUN ALL
 $final = array_merge($final, array_keys($info));
 */
+if(!$scratchpad) {
+    if(!$resource_id_2process) $final = array_merge($final, array_keys($info));
+}
 
 $final = array_unique($final); print_r($final); 
 
