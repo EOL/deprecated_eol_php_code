@@ -75,7 +75,7 @@ class LifeDeskToEOLAPI
             }
             */
             // Just use the local load_zip_contents() rather than from LifeDeskToScratchpadAPI()
-            if($this->text_path = self::load_zip_contents($params["lifedesk"])) self::update_eol_xml($prefix.$params["name"]);
+            if($this->text_path = self::load_zip_contents($params["lifedesk"])) self::update_eol_xml($prefix.$params["name"], $prefix);
             print_r($this->text_path);
 
             // remove temp dir
@@ -87,7 +87,7 @@ class LifeDeskToEOLAPI
         return $this->taxa_from_orig_LifeDesk_XML;
     }
     
-    private function update_eol_xml($lifedesk_name)
+    private function update_eol_xml($lifedesk_name, $prefix)
     {
         $this->taxa_from_orig_LifeDesk_XML = self::get_taxa_from_orig_LifeDesk_XML(); //used for this purpose: https://eol-jira.bibalex.org/browse/DATA-1569?focusedCommentId=62079&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62079
         /*
@@ -107,9 +107,12 @@ class LifeDeskToEOLAPI
         $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $lifedesk_name . ".xml";
         $func = new ResourceDataObjectElementsSetting($lifedesk_name, $resource_path);
         $xml = file_get_contents($this->text_path["eol_xml"]);
-        $xml = $func->replace_taxon_element_value("dc:source", "replace any existing value", "", $xml, false);
-        $xml = $func->replace_data_object_element_value("dc:source", "replace any existing value", "", $xml, false);
-        $xml = self::remove_tags_in_references($xml);
+        
+        // if($prefix == "LD_") {
+            $xml = $func->replace_taxon_element_value("dc:source", "replace any existing value", "", $xml, false);
+            $xml = $func->replace_data_object_element_value("dc:source", "replace any existing value", "", $xml, false);
+            $xml = self::remove_tags_in_references($xml);
+        // }
 
         $xml = self::add_some_ancestry($xml); //adds some ancestry info if available. Working OK. Used initially in lifedesk_combine.php but changed strategy and wasn't used eventually. But this works OK.
 
