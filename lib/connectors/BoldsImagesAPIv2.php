@@ -65,7 +65,7 @@ class BoldsImagesAPIv2
                 if($xml = simplexml_load_string($string)) {
                     $i++;
                     self::parse_record_element($xml);
-                    if(($i % 5000) == 0) echo "\n".number_format($i)." ";
+                    if(($i % 10000) == 0) echo "\n".number_format($i)." ";
                 }
                 // debug - to process by batch
                 // $i++;
