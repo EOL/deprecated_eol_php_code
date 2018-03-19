@@ -9,6 +9,13 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/BoldsImagesAPI');
 $timestart = time_elapsed();
 
+
+/* used generic_services.eol.org for now. So just to bring it to V3. Might need to update connector to get latest data.
+329	Sunday 2018-03-18 09:31:35 PM	{"agent.tab":55,"media_resource.tab":90564,"taxon.tab":9190}
+*/
+return;
+
+
 $resource_id = 329;
 BoldsImagesAPI::get_all_taxa($resource_id);
 

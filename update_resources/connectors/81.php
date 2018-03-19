@@ -8,7 +8,9 @@ estimated execution time: 15,33,30,41 hours for slow connection
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 
-//used generic_services.eol.org for now. So just to bring it to V3. Might need to update connector to get latest data.
+/* used generic_services.eol.org for now. So just to bring it to V3. Might need to update connector to get latest data.
+81	Sunday 2018-03-18 11:51:40 AM	{"agent.tab":2,"media_resource.tab":126506,"taxon.tab":47943}
+*/
 return;
 
 require_library('connectors/BoldsAPI');

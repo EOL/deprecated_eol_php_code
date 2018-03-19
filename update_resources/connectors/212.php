@@ -8,6 +8,15 @@ No need to run multiple connectors anymore since we got the big XML file.
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
+
+/* used generic_services.eol.org for now. So just to bring it to V3. Might need to update connector to get latest data.
+212	Sunday 2018-03-18 12:02:18 PM	{"agent.tab":2,"media_resource.tab":449425,"taxon.tab":241347}
+*/
+return;
+
+
+
+
 $resource_id = 212;
 
 /* utility Functions::count_rows_from_text_file(DOC_ROOT . "temp/media_resource.tab"); */
