@@ -16,6 +16,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 
 /* $ generic_services.eol.org.php jenkins 28 */
+/* normal operation
 $cmdline_params['jenkins_or_cron']      = @$argv[1]; //irrelevant here
 $cmdline_params['resource_id_2process'] = @$argv[2]; //useful here
 $resource_id = false;
@@ -37,6 +38,26 @@ $func = new ConvertEOLtoDWCaAPI($resource_id);
 $func->export_xml_to_archive($params, true, false); // true => means it is an XML file, not an archive file nor a zip file. 3rd param should always be false -> expire_seconds. Since XML is from services.eol.org, not chaning anymore.
 Functions::finalize_dwca_resource($resource_id, false, true); //3rd param true means to delete the dwca folder.
 //end conversion
+*/
+
+// /* utility - loop an array of resource IDs instead
+$ids = array(30, 169, 81, 212, 329, 98);
+foreach($ids as $resource_id) {
+    //start converting to DwCA
+    require_library('connectors/ConvertEOLtoDWCaAPI');
+    $params["eol_xml_file"] = "http://services.eol.org/resources/".$resource_id.".xml";
+    $params["filename"]     = "no need to mention here.xml"; //no need to mention if eol_xml_file is already .xml and not .xml.gz
+    $params["dataset"]      = "EOL XML files";
+    $params["resource_id"]  = $resource_id;
+
+    $func = new ConvertEOLtoDWCaAPI($resource_id);
+    $func->export_xml_to_archive($params, true, false); // true => means it is an XML file, not an archive file nor a zip file. 3rd param should always be false -> expire_seconds. Since XML is from services.eol.org, not chaning anymore.
+    Functions::finalize_dwca_resource($resource_id, false, true); //3rd param true means to delete the dwca folder.
+    //end conversion
+}
+// */
+
+
 
 $elapsed_time_sec = time_elapsed()-$timestart;
 echo "\n";
