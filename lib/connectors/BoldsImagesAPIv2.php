@@ -10,7 +10,7 @@ class BoldsImagesAPIv2
     {
         $this->max_images_per_taxon = 10;
         $this->data_dump_url = "http://www.boldsystems.org/export/boldrecords.xml.gz";
-        // $this->data_dump_url = "http://localhost/~eolit/cp/BOLDS/boldrecords.xml.gz"; // debug
+        $this->data_dump_url = "http://localhost/cp/BOLDS/boldrecords.xml.gz"; // debug
         // $this->data_dump_url = "http://localhost/~eolit/cp/BOLDS/bolds_sample_data.xml.gz"; // debug
 
         $this->sourceURL = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
@@ -24,15 +24,15 @@ class BoldsImagesAPIv2
         $this->do_ids = array();
 
         $this->old_bolds_image_ids_path = "http://opendata.eol.org/dataset/965c35fa-2a4a-487d-a92c-da86febbe6c0/resource/538d0ec1-ad74-4c92-9468-b71eee633e57/download/oldboldsimageids.txt"; // image IDs of the 1st BOLDS image resource
-        // $this->old_bolds_image_ids_path = "http://localhost/~eolit/cp/BOLDS/old_BOLDS_image_ids.txt"; // debug
+        $this->old_bolds_image_ids_path = "http://localhost/cp/BOLDS/old_BOLDS_image_ids.txt"; // debug
         $this->old_bolds_image_ids = array();
         $this->old_bolds_image_ids_count = 0;
         $this->info = array();
 
         // for generating the higher-level taxa list
         $this->MASTER_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt";
-        // $this->OLD_MASTER_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list 2011 09 25.txt"; // debug
-        $this->OLD_MASTER_LIST = "https://opendata.eol.org/u/7597512/BOLDS/hl_master_list 2011 09 25.txt";
+        $this->OLD_MASTER_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list 2011 09 25.txt"; // debug
+        // $this->OLD_MASTER_LIST = "https://opendata.eol.org/u/7597512/BOLDS/hl_master_list 2011 09 25.txt";
         
         $this->download_options = array('cache' => 1, 'timeout' => 2400, 'download_attempts' => 5);
         // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/";
@@ -51,11 +51,7 @@ class BoldsImagesAPIv2
         $options = $this->download_options;
         $options['expire_seconds'] = false;
         $this->old_bolds_image_ids_path = Functions::save_remote_file_to_local($this->old_bolds_image_ids_path, $options);
-         if(!($READ =fopen($this->old_bolds_image_ids_path, "r")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->old_bolds_image_ids_path);
-          return;
-        }
+        if(!($READ = Functions::file_open($this->old_bolds_image_ids_path, "r"))) return;
         $contents = fread($READ, filesize($this->old_bolds_image_ids_path));
         fclose($READ);
         $this->old_bolds_image_ids = json_decode($contents, true);
@@ -63,18 +59,14 @@ class BoldsImagesAPIv2
         // end
 
         $i = 0;
-        while(@$reader->read())
-        {
-            if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "record")
-            {
+        while(@$reader->read()) {
+            if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "record") {
                 $string = $reader->readOuterXML();
-                if($xml = simplexml_load_string($string))
-                {
+                if($xml = simplexml_load_string($string)) {
                     $i++;
                     self::parse_record_element($xml);
-                    echo("\n $i. ");
+                    if(($i % 5000) == 0) echo "\n".number_format($i)." ";
                 }
-
                 // debug - to process by batch
                 // $i++;
                 // if($i > 1000000)
@@ -83,7 +75,6 @@ class BoldsImagesAPIv2
                 //     echo "\n $i. ";
                 //     if($i > 1500000) break;
                 // }
-
             }
         }
         $this->archive_builder->finalize(true);
@@ -126,19 +117,16 @@ class BoldsImagesAPIv2
         </media>
         */
         $agent_ids = array();
-        if(@$rec->photographer)
-        {
+        if(@$rec->photographer) {
             $agent = (string) trim($rec->photographer);
-            if($agent != "")
-            {
+            if($agent != "") {
                 $r = new \eol_schema\Agent();
                 $r->term_name = $agent;
                 $r->identifier = md5("$agent|photographer");
                 $r->agentRole = "photographer";
                 $r->term_homepage = "";
                 $agent_ids[] = $r->identifier;
-                if(!in_array($r->identifier, $this->resource_agent_ids))
-                {
+                if(!in_array($r->identifier, $this->resource_agent_ids)) {
                    $this->resource_agent_ids[] = $r->identifier;
                    $this->archive_builder->write_object_to_file($r);
                 }
@@ -166,30 +154,25 @@ class BoldsImagesAPIv2
         */
         if(!@$rec->specimen_multimedia) return;
         $count = 0;
-        foreach(@$rec->specimen_multimedia->media as $media)
-        {
-            if(trim(@$media->image_link) != "" && !is_numeric(stripos($media->licensing->license, "No Derivatives")))
-            {
+        foreach(@$rec->specimen_multimedia->media as $media) {
+            if(trim(@$media->image_link) != "" && !is_numeric(stripos($media->licensing->license, "No Derivatives"))) {
                 $SampleID = trim($rec->specimen_identifiers->sampleid);
                 $ProcessID = trim($rec->processid);
                 $Orientation = trim($media->caption);
 
                 // start checking if image already exists from first/original images resource
                 $old_id = $SampleID . "_" . $ProcessID . "_" . $Orientation;
-                if(in_array($old_id, $this->old_bolds_image_ids)) 
-                {
-                    echo "\n [$old_id] Found an old ID, will ignore \n";
+                if(in_array($old_id, $this->old_bolds_image_ids)) {
+                    // echo "\n [$old_id] Found an old ID, will ignore \n";
                     $this->old_bolds_image_ids_count++;
                     continue;
                 }
                 // end -
 
                 $taxon_id = trim($rec->taxon_id);
-                if(@$this->info[$taxon_id]) 
-                {
-                    if($this->info[$taxon_id] == $this->max_images_per_taxon)
-                    {
-                        echo(" --- max $this->max_images_per_taxon images reached for [$taxon_id][$rec->sciname] -- ");
+                if(@$this->info[$taxon_id]) {
+                    if($this->info[$taxon_id] == $this->max_images_per_taxon) {
+                        // echo(" --- max $this->max_images_per_taxon images reached for [$taxon_id][$rec->sciname] -- ");
                         break;
                     }
                     $this->info[$taxon_id]++;
@@ -212,10 +195,8 @@ class BoldsImagesAPIv2
 
                 $mediaID = trim($media->mediaID);
                 $license = self::get_license($media->licensing->license);
-                if(trim($rec->taxon_id) != "" && $mediaID != "" && $license && Functions::get_mimetype($media->image_link) != "")
-                {
-                    if(in_array($mediaID, $this->do_ids))
-                    {
+                if(trim($rec->taxon_id) != "" && $mediaID != "" && $license && Functions::get_mimetype($media->image_link) != "") {
+                    if(in_array($mediaID, $this->do_ids)) {
                         echo("\n it should not pass here, just in case... \n");
                         continue;
                     }
@@ -271,8 +252,7 @@ class BoldsImagesAPIv2
         $taxon->genus                       = (string) @$ancestry->genus->taxon->name;
         $taxon->taxonRemarks                = (string) @$rec->taxonomy->identification_provided_by ? "Taxonomy identification provided by " . $rec->taxonomy->identification_provided_by : '';
         
-        if(!isset($this->taxa[$taxon_id]))
-        {
+        if(!isset($this->taxa[$taxon_id])) {
             $this->taxa[$taxon_id] = '';
             $this->archive_builder->write_object_to_file($taxon);
         }
@@ -298,56 +278,48 @@ class BoldsImagesAPIv2
 
     private function get_sciname($name)
     {
-        if(@$name->species->taxon->name != "")
-        {
+        if(@$name->species->taxon->name != "") {
             $taxon_name = (string) $name->species->taxon->name;
             $taxon_id = (string) $name->species->taxon->taxon_id;
             $rank = "species";
         }
-        elseif(@$name->genus->taxon->name != "")
-        {
+        elseif(@$name->genus->taxon->name != "") {
             $taxon_name = (string) $name->genus->taxon->name;
             $taxon_id = (string) $name->genus->taxon->taxon_id;
             $rank = "genus";
             $name->genus->taxon->name = "";
         }
-        elseif(@$name->subfamily->taxon->name != "") 
-        {
+        elseif(@$name->subfamily->taxon->name != "") {
             $taxon_name = (string) $name->subfamily->taxon->name;
             $taxon_id = (string) $name->subfamily->taxon->taxon_id;
             $rank = "subfamily";
             $name->subfamily->taxon->name = "";
         }
-        elseif(@$name->family->taxon->name != "")
-        {
+        elseif(@$name->family->taxon->name != "") {
             $taxon_name = (string) $name->family->taxon->name;
             $taxon_id = (string) $name->family->taxon->taxon_id;
             $rank = "family";
             $name->family->taxon->name = "";
         }
-        elseif(@$name->order->taxon->name != "")
-        {
+        elseif(@$name->order->taxon->name != "") {
             $taxon_name = (string) $name->order->taxon->name;
             $taxon_id = (string) $name->order->taxon->taxon_id;
             $rank = "order";
             $name->order->taxon->name = "";
         }
-        elseif(@$name->class->taxon->name != "")
-        {
+        elseif(@$name->class->taxon->name != "") {
             $taxon_name = (string) $name->class->taxon->name;
             $taxon_id = (string) $name->class->taxon->taxon_id;
             $rank = "class";
             $name->class->taxon->name = "";
         }
-        elseif(@$name->phylum->taxon->name != "")
-        {
+        elseif(@$name->phylum->taxon->name != "") {
             $taxon_name = (string) $name->phylum->taxon->name;
             $taxon_id = (string) $name->phylum->taxon->taxon_id;
             $rank = "phylum";
             $name->phylum->taxon->name = "";
         }
-        elseif(@$name->kingdom->taxon->name != "")
-        {
+        elseif(@$name->kingdom->taxon->name != "") {
             $taxon_name = (string) $name->kingdom->taxon->name;
             $taxon_id = (string) $name->kingdom->taxon->taxon_id;
             $rank = "kingdom";
@@ -367,51 +339,41 @@ class BoldsImagesAPIv2
         $i = 0;
         $sl_taxa = array(); // species-level taxa
         $hl_taxa = array(); // higher-level taxa
-        while(@$reader->read())
-        {
-            if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "record")
-            {
+        while(@$reader->read()) {
+            if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "record") {
                 $string = $reader->readOuterXML();
                 $xml = simplexml_load_string($string);
                 //for species-level taxa
-                if($sciname = @$xml->taxonomy->species->taxon->name)
-                {
+                if($sciname = @$xml->taxonomy->species->taxon->name) {
                    $sl_taxa["$sciname"]["rank"] = "species";
                    $sl_taxa["$sciname"]["taxon_id"] = $xml->taxonomy->species->taxon->taxon_id;
                 }
                 //for higher-level taxa
-                if($sciname = @$xml->taxonomy->genus->taxon->name)
-                {
+                if($sciname = @$xml->taxonomy->genus->taxon->name) {
                     $hl_taxa["$sciname"]["rank"] = "genus"; 
                     $hl_taxa["$sciname"]["taxon_id"] = $xml->taxonomy->genus->taxon->taxon_id;
                 }
-                if($sciname = @$xml->taxonomy->subfamily->taxon->name)
-                {
+                if($sciname = @$xml->taxonomy->subfamily->taxon->name) {
                     $hl_taxa["$sciname"]["rank"] = "subfamily";
                     $hl_taxa["$sciname"]["taxon_id"] = $xml->taxonomy->subfamily->taxon->taxon_id;
                 }
-                if($sciname = @$xml->taxonomy->family->taxon->name)
-                {
+                if($sciname = @$xml->taxonomy->family->taxon->name) {
                     $hl_taxa["$sciname"]["rank"] = "family";
                     $hl_taxa["$sciname"]["taxon_id"] = $xml->taxonomy->family->taxon->taxon_id;
                 }
-                if($sciname = @$xml->taxonomy->order->taxon->name)
-                {
+                if($sciname = @$xml->taxonomy->order->taxon->name) {
                     $hl_taxa["$sciname"]["rank"] = "order";
                     $hl_taxa["$sciname"]["taxon_id"] = $xml->taxonomy->order->taxon->taxon_id;
                 }
-                if($sciname = @$xml->taxonomy->class->taxon->name)
-                {
+                if($sciname = @$xml->taxonomy->class->taxon->name) {
                     $hl_taxa["$sciname"]["rank"] = "class";
                     $hl_taxa["$sciname"]["taxon_id"] = $xml->taxonomy->class->taxon->taxon_id;
                 }
-                if($sciname = @$xml->taxonomy->phylum->taxon->name)
-                {
+                if($sciname = @$xml->taxonomy->phylum->taxon->name) {
                     $hl_taxa["$sciname"]["rank"] = "phylum";
                     $hl_taxa["$sciname"]["taxon_id"] = $xml->taxonomy->phylum->taxon->taxon_id;
                 }
-                if($sciname = @$xml->taxonomy->kingdom->taxon->name)
-                {
+                if($sciname = @$xml->taxonomy->kingdom->taxon->name) {
                     $hl_taxa["$sciname"]["rank"] = "kingdom";
                     $hl_taxa["$sciname"]["taxon_id"] = $xml->taxonomy->kingdom->taxon->taxon_id;
                 }
@@ -422,13 +384,8 @@ class BoldsImagesAPIv2
         ksort($sl_taxa);
         echo "\n\n higher-level taxa count: " . count($hl_taxa);
         $i = 0;
-        if(!($fn = fopen($this->MASTER_LIST, "w")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->MASTER_LIST);
-          return;
-        }
-        foreach($hl_taxa as $key => $value)
-        {
+        if(!($fn = Functions::file_open($this->MASTER_LIST, "w"))) return;
+        foreach($hl_taxa as $key => $value) {
             $i++; echo "\n $i. $key -- $value[rank] $value[taxon_id]";
             fwrite($fn, $value["taxon_id"] . "\t" . $key . "\t" . $value["rank"] . "\n");
         }
@@ -440,22 +397,16 @@ class BoldsImagesAPIv2
 
     private function reconcile_with_old_master_list($hl_taxa)
     {
-        if(!($write = fopen($this->MASTER_LIST, "a")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->MASTER_LIST);
-          return;
-        }
+        if(!($write = Functions::file_open($this->MASTER_LIST, "a"))) return;
         $options = $this->download_options;
         $options['expire_seconds'] = false;
         $temp_filepath = Functions::save_remote_file_to_local($this->OLD_MASTER_LIST, $options);
         foreach(new FileIterator($temp_filepath, true) as $line_number => $line) // 'true' will auto delete temp_filepath
         {
             $split = explode("\t", trim($line));
-            if($sciname = @$split[1])
-            {
+            if($sciname = @$split[1]) {
                 $id = $split[0];
-                if(!isset($hl_taxa[$sciname]["taxon_id"]))
-                {
+                if(!isset($hl_taxa[$sciname]["taxon_id"])) {
                     // echo "\n to be added: [$sciname - $id]";
                     fwrite($write, $id . "\t" . $sciname . "\t" . "" . "\n");
                 }
