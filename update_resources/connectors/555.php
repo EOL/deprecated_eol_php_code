@@ -5,6 +5,10 @@ This is a generic script that will convert EOL XML to EOL DWC-A
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+
+//use collections_generic.php instead. offline XML, with collection
+return;
+
 require_library('connectors/ConvertEOLtoDWCaAPI');
 $timestart = time_elapsed();
 
