@@ -6,6 +6,10 @@ DATA-1702
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+
+//zero records in collection, offline XML
+return;
+
 require_library('connectors/ConvertEOLtoDWCaAPI');
 $timestart = time_elapsed();
 
