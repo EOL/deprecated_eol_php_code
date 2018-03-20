@@ -25,7 +25,7 @@ require_library('connectors/ConvertEOLtoDWCaAPI');
 $timestart = time_elapsed();
 
 $params["eol_xml_file"] = "http://localhost/cp/EOL_China/FaunaSinica_Aves.zip";
-$params["eol_xml_file"] = "https://dl.dropboxusercontent.com/u/7597512/EOL_China/FaunaSinica_Aves.zip";
+$params["eol_xml_file"] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/EOL_China/FaunaSinica_Aves.zip";
 $params["filename"]     = "FaunaSinica_Aves.xml";
 $params["dataset"]      = "EOL China";
 $params["resource_id"]  = 412;
