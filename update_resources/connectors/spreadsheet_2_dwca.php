@@ -39,7 +39,28 @@ if($val = $cmdline_params['resource_id'])
     elseif($resource_id == 990) $params['spreadsheet'] = "https://opendata.eol.org/dataset/60b861a7-5530-4cb2-8737-b5a3340d0578/resource/5dd1890d-551a-452e-82de-ec36daea444a/download/chen-and-moles.xlsx";
     // 990  Friday 2018-03-09 12:02:16 AM   {"agents.txt":0,"associations.txt":17600,"common names.txt":0,"events.txt":0,"measurements or facts.txt":24369,"media.txt":0,"occurrences.txt":3721,"references.txt":0,"taxa.txt":3721}
     elseif($resource_id == 495) $params['spreadsheet'] = "https://opendata.eol.org/dataset/3851e293-6d35-453d-a54e-d6ecedb796b2/resource/2537dc6d-97b8-4b1d-a0ca-8e94ceb2450c/download/newispotsalinks.xlsx"; //iSpot links
+
     //----------------------- start new below
+    elseif($resource_id == 1014) $params['spreadsheet'] = "https://opendata.eol.org/dataset/89f382c4-53e1-4df1-9b7c-0f97bc30ded2/resource/530c1eaa-31d7-4c7c-b3bd-eb4d4ab924b0/download/life-history-data-of-lizards-of-the-world-export.xlsx"; //Life history data of lizards of the world
+    elseif($resource_id == 1017) $params['spreadsheet'] = "http://opendata.eol.org/dataset/ba96c75b-0864-42d9-9c05-89db2dec2a91/resource/ccb99dc8-0a89-4c49-83c2-8a12ac3c55d9/download/male-tenure-length-and-variance-in-lifetime-reproductive-success-recorded-for-mammals-transfer.xls"; //Male tenure length
+    elseif($resource_id == 1024) $params['spreadsheet'] = "https://opendata.eol.org/dataset/0266ba72-d6cb-428e-adb0-aa8c176973ce/resource/552522eb-9b98-40d9-b992-2c4e098abe79/download/egg-characteristics-and-breeding-season-for-woods-hole-species2.xlsx"; //Woods Hole Species
+    elseif($resource_id == 1019) $params['spreadsheet'] = "http://opendata.eol.org/dataset/8fea7f08-d4c3-42c5-bcf3-402364c8ca7f/resource/f3deb884-0fe7-4588-8d46-721d3e1838c8/download/avian-mass-export.xlsx"; //Avian Mass Data
+    elseif($resource_id == 1013) $params['spreadsheet'] = "http://opendata.eol.org/dataset/8fea7f08-d4c3-42c5-bcf3-402364c8ca7f/resource/e31881d5-c270-4b8a-ba9d-51a6a1ab0a7d/download/pterosaurdata-transfer.xlsx"; //Pterosaur Data
+    elseif($resource_id == 986) $params['spreadsheet'] = "http://opendata.eol.org/dataset/68dbf477-b1ab-4a65-ada7-615470dd4c84/resource/9be267ec-cd28-458c-aae3-e834d2f1f20b/download/bird-incubation.xlsx"; //Bird incubation
+    elseif($resource_id == 1009) $params['spreadsheet'] = "http://opendata.eol.org/dataset/dab92513-fccc-4418-bd8d-70095654edf1/resource/d2d12cf6-378d-4af0-8719-0bdaada455ec/download/carnivore-dinosaurs.xlsx"; //Predatory Dinosaurs of the World
+    elseif($resource_id == 1010) $params['spreadsheet'] = "http://opendata.eol.org/dataset/442b9b6f-e5d5-4972-a8e6-a65cdbe7721b/resource/3fde5a51-3000-482e-95ab-55e16bfd28cc/download/parrot-fish.xlsx"; //Evolutionary History Of The Parrotfishes
+    elseif($resource_id == 1012) $params['spreadsheet'] = "http://opendata.eol.org/dataset/e33a9544-1aa1-4e50-9efa-c04ef4098d57/resource/678d8a40-3375-4ad1-b8d5-eedb12619936/download/dana-dinosaur-transfer.xlsx"; //Dinosaur Papers
+    elseif($resource_id == 1016) $params['spreadsheet'] = "http://opendata.eol.org/dataset/8fea7f08-d4c3-42c5-bcf3-402364c8ca7f/resource/3b63d19a-1689-4767-8b75-551ec4ee2ae2/download/reptile-export.xlsx"; //Body Size datasets
+    elseif($resource_id == 1018) $params['spreadsheet'] = "http://opendata.eol.org/dataset/4420d805-45e1-4e28-b7fd-2b563abbb3ea/resource/7479d3d0-e329-41ba-bf34-7e1177572ab8/download/social-systems-of-mammalian-species-transfer.xlsx"; //Social systems of mammals
+    elseif($resource_id == 1020) $params['spreadsheet'] = "http://opendata.eol.org/dataset/763de247-67c1-4656-97b1-19919dba1334/resource/bd9b9a3e-c7ae-4d55-920a-a5f184726ea5/download/life-history-characteristics-of-placental-non-volant-mammals.xlsx"; //Life History Characteristics of Placental Non-Volant Mammals
+    elseif($resource_id == 1021) $params['spreadsheet'] = "http://opendata.eol.org/dataset/f14533f7-793a-416d-952d-f73fb02413e8/resource/7273e829-7dd7-4b9e-a4ea-296a373f8bfa/download/macroecological-mammalian-body-mass-copy.xlsx"; //Macroecological database of mammalian body mass
+    elseif($resource_id == 1022) $params['spreadsheet'] = "http://opendata.eol.org/dataset/b417c9b9-5246-4a9a-9f9d-39aae9954303/resource/0b223325-19ea-427a-9499-fa9c254f39f6/download/mikesell-phenological-data.xlsx"; //Mikesell phenological data from Wauseon, Ohio, USA, 1883-1912
+    elseif($resource_id == 1023) $params['spreadsheet'] = "http://opendata.eol.org/dataset/d339b8df-a57f-4612-9dc5-c7963b50f4f4/resource/71d952ec-af42-40b2-b1a8-b4f8d56f6ad6/download/eastern-export.xlsx"; //Eastern US old fields plant traits
+    elseif($resource_id == 985) $params['spreadsheet'] = "http://opendata.eol.org/dataset/f49ee7e9-65d4-4d00-af86-29ca98f83739/resource/c36f8fdb-750b-4301-ac3b-30c2e93a90b2/download/toxic-set-done.xlsx"; //Toxic
+    
+    // template
+    // elseif($resource_id == res_id) $params['spreadsheet'] = "https_xls_path"; //res_name
+    
     else exit("\nProgram will terminate. Invalid resource_id [$resource_id].\n\n");
 }
 else //no resource_id
