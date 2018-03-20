@@ -10,7 +10,7 @@ namespace php_active_record;
 <table align="center">
     <tr>
         <td>XML File URL:</td>
-        <td><input type="text" size="30" name="file_url"<?php if($file_url) echo " value=\"$file_url\""; ?>/></td>
+        <td><input type="text" size="150" name="file_url"<?php if($file_url) echo " value=\"$file_url\""; ?>/></td>
     </tr>
     <tr>
         <td>XML File Upload:</td>

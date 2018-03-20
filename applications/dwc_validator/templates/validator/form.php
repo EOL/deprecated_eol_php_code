@@ -11,7 +11,7 @@ $GLOBALS['ENV_DEBUG'] = true;
 <table align="center">
     <tr>
         <td>File URL:</td>
-        <td><input type="text" size="30" name="file_url"<?php if($file_url) echo " value=\"$file_url\""; ?>/></td>
+        <td><input type="text" size="150" name="file_url"<?php if($file_url) echo " value=\"$file_url\""; ?>/></td>
     </tr>
     <tr>
         <td>File Upload:</td>
