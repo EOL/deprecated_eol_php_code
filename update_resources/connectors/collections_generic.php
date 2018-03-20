@@ -50,7 +50,7 @@ $info[res_id] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path'
 */
 
 //offline XML, with collection
-$info[555] = array('id' => 118667, 'data_types' => array('test', 'images'), 'xml_path' => ''); //Subterranean Biology
+$info[555] = array('id' => 118667, 'data_types' => array('text', 'images'), 'xml_path' => ''); //Subterranean Biology
 
 
 // ========================================================================= new batch above =========================================================================
