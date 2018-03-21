@@ -240,7 +240,10 @@ class MCZHarvardArchiveAPI
             $m->contributor = 'Museum of Comparative Zoology, Harvard';
         }
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
-        $this->archive_builder->write_object_to_file($m);
+        if(!isset($this->measurement_ids[$m->measurementID])) {
+            $this->archive_builder->write_object_to_file($m);
+            $this->measurement_ids[$m->measurementID] = '';
+        }
     }
 
     private function get_uris()
