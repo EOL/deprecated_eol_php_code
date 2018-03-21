@@ -11,6 +11,10 @@ estimated execution time: 55 minutes for:
  measurementorfact:     201,088     201,088     239,256     106,336
  occurrences                                                26,154
  taxa:                  17,499      17,499      19,627      19,627
+
+201	Tuesday 2018-02-27 09:28:41 AM	{"measurement_or_fact.tab":129220,"media_resource.tab":180170,"occurrence.tab":31424,"taxon.tab":25467}
+201	Wednesday 2018-03-21 12:24:43 AM{"measurement_or_fact.tab":130476,"media_resource.tab":181033,"occurrence.tab":31733,"taxon.tab":25494} no measurementID yet
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

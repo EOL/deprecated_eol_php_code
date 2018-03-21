@@ -8,6 +8,7 @@ class MCZHarvardArchiveAPI
 {
     function __construct($folder)
     {
+        $this->resource_id = $folder;
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -238,6 +239,7 @@ class MCZHarvardArchiveAPI
             $m->source = $this->page_by_guid . $rec["http://rs.tdwg.org/dwc/terms/occurrenceID"];
             $m->contributor = 'Museum of Comparative Zoology, Harvard';
         }
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
     }
 
@@ -282,7 +284,6 @@ class MCZHarvardArchiveAPI
     private function add_occurrence($taxon_id, $catnum, $rec)
     {
         $occurrence_id = $taxon_id . 'O' . $catnum;
-        if(isset($this->occurrence_ids[$occurrence_id])) return $occurrence_id;
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID      = $taxon_id;
@@ -290,9 +291,18 @@ class MCZHarvardArchiveAPI
         if($val = $rec["http://rs.tdwg.org/dwc/terms/collectionCode"])  $o->collectionCode = $val;
         if($val = $rec["http://rs.tdwg.org/dwc/terms/catalogNumber"])   $o->catalogNumber = $val;
         if($val = $rec["http://rs.tdwg.org/dwc/terms/locality"])        $o->locality = $val;
+
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
+        
+        /* old ways
         $this->archive_builder->write_object_to_file($o);
         $this->occurrence_ids[$occurrence_id] = '';
         return $occurrence_id;
+        */
     }
 
     private function get_first40k_images()
