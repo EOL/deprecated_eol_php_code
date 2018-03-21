@@ -74,11 +74,10 @@ class EOLv2MetadataAPI
                 }
                 else {
                     echo("\n\nNo taxon_concept_id found for ".$row['data_object_id']."\n");
-                    print_r($row); //exit;
+                    // print_r($row); //exit;
                     $no_tc_id = true;
                 }
             }
-            continue; //debug
             $info = false;
             if($tc_id) {
                 $info = self::get_taxon_info($tc_id);
@@ -87,27 +86,23 @@ class EOLv2MetadataAPI
             $rec = array();
             $rec['user_id'] = $row['user_id'];
             $rec['user_name'] = $row['user_name'];
-            $rec['activity'] = $row['activity'];
-            $rec['ch_object_type'] = 'DataObject';
-            $rec['target_id'] = $row['data_object_id'];
-            $rec['guid'] = $row['guid'];
-            $rec['type'] = self::lookup_data_type($row['data_type_id']);
-            $rec['description'] = $row['description'];
+            $rec['type'] = $row['parent_type'];
+            $rec['target_id'] = $row['parent_id'];
+            $rec['comment'] = $row['body'];
+            $rec['updated_at'] = $row['updated_at'];
+            
+            $rec['obj_guid'] = $row['guid'];
+            $rec['obj_type'] = self::lookup_data_type($row['data_type_id']);
+            $rec['obj_description'] = $row['description'];
             $rec['object_url'] = self::lookup_object_url($row, $rec['type']);
             
             $rec['taxon_concept_id'] = $tc_id;
             $rec['sciname'] = @$info['taxon_name'];
             $rec['rank'] = @$info['rank'];
             $rec['ancestry'] = self::generate_ancestry_as_json($info);
-            
-            /*
-            $resource_info = self::lookup_resource_info($row);
-            $rec['resource_id'] = @$resource_info['resource_id'];
-            $rec['resource_name'] = $resource_info['resource_name'];
-            $rec['partner_id'] = @$resource_info['cp_id'];
-            $rec['partner_name'] = @$resource_info['cp_name'];
-            $rec['collection_id'] = @$resource_info['coll_id'];
-            */
+
+            print_r($rec); //exit;
+            // continue; //debug
             
             //start writing
             if(!$headers_printed_already) {
