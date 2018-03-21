@@ -257,7 +257,23 @@ class MCZHarvardArchiveAPI
         $params["dataset"]  = "GBIF";
         require_library('connectors/GBIFCountryTypeRecordAPI');
         $func = new GBIFCountryTypeRecordAPI("x");
+        
+        $spreadsheet_options = array('resource_id' => 'gbif', 'cache' => 1, 'timeout' => 3600, 'file_extension' => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2); //set 'cache' to 0 if you don't want to cache spreadsheet
+        $spreadsheet_options['expire_seconds'] = 60*60*24; //expires in 24 hours
+        $params['spreadsheet_options'] = $spreadsheet_options;
+        
         $uris = $func->get_uris($params, $spreadsheet);
+        // echo "\n".count($uris)."\n";
+        $uris = array_merge(Functions::get_eol_defined_uris(false, true), $uris);
+        // echo "\n".count($uris)."\n";
+        
+        /*
+        print_r($uris); 
+        echo "\n".$uris['GENETIC VOUCHER']."\n";
+        echo "\n".$uris['HOLOTPYE BY MONOTYPY']."\n";
+        echo "\n".$uris['HOLOTYPE BY MONOTYPY']."\n";
+        echo "\n".$uris['ERGATOTYPE']."\n";
+        */
         return $uris;
     }
 
