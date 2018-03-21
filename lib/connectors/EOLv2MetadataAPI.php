@@ -50,7 +50,7 @@ class EOLv2MetadataAPI
         $m = 3488; $k = 0;
         while($result && $row=$result->fetch_assoc()) {
             $k++;
-            // /* breakdown when caching:
+            /* breakdown when caching:
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true;
             // if($k >=  $m   && $k < $m*2) $cont = true;
@@ -58,7 +58,7 @@ class EOLv2MetadataAPI
             // if($k >=  $m*3 && $k < $m*4) $cont = true;
             if($k >=  $m*4 && $k < $m*5) $cont = true;
             if(!$cont) continue;
-            // */
+            */
 
             $no_tc_id = false;
             $tc_id = false;
@@ -67,11 +67,6 @@ class EOLv2MetadataAPI
                 // echo "\n NO tc_id \n";
                 if($tc_id = self::get_tc_id_using_do_id($row['data_object_id'])) {}
                 elseif($tc_id = self::get_tc_id_using_dotc($row['data_object_id'])) {} //dotc - data_objects_taxon_concepts
-                elseif($row['ch_object_type'] == "users_submitted_text")
-                {
-                    $a = self::get_tc_id_from_udo($row['data_object_id']); //udo - users_data_objects
-                    $tc_id = @$a['taxon_concept_id'];
-                }
                 else {
                     echo("\n\nNo taxon_concept_id found for ".$row['data_object_id']."\n");
                     // print_r($row); //exit;
@@ -101,7 +96,7 @@ class EOLv2MetadataAPI
             $rec['rank'] = @$info['rank'];
             $rec['ancestry'] = self::generate_ancestry_as_json($info);
 
-            print_r($rec); //exit;
+            // print_r($rec); //exit;
             // continue; //debug
             
             //start writing
