@@ -14,10 +14,12 @@ class EnvironmentsEOLDataConnector
         
         /* add: 'resource_id' => "eol_api" ;if you want to add the cache inside a folder [eol_api] inside [eol_cache] */
         $this->download_options = array(
-            'cache_path'         => '/Volumes/Thunderbolt4/eol_cache/',     //used in Functions.php for all general cache
             'resource_id'        => 'eol_api',                              //resource_id here is just a folder name in cache
             'expire_seconds'     => false, //since taxon_concept_id and hierarchy_entry_id won't change the resulting API response won't also change. Another option is 1 year to expire
             'download_wait_time' => 3000000, 'timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        
+        if(Functions::is_production()) $this->download_options['cache_path'] = '/extra/eol_php_cache/';
+        else                           $this->download_options['cache_path'] = '/Volumes/Thunderbolt4/eol_cache/'; //used in Functions.php for all general cache
         
         // stats
         $this->TEMP_DIR = create_temp_dir() . "/";
