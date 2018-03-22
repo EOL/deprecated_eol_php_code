@@ -90,13 +90,13 @@ class EOLv2MetadataAPI
             $rec['type'] = $row['parent_type'];
             $rec['target_id'] = $row['parent_id'];
             $rec['comment'] = $row['body'];
-            $rec['updated_at'] = $row['updated_at'];
+            $rec['date_stamp'] = $row['updated_at'];
             
             if($type == 'DataObject') {
                 $rec['obj_guid'] = $row['guid'];
                 $rec['obj_type'] = self::lookup_data_type($row['data_type_id']);
                 $rec['obj_description'] = $row['description'];
-                $rec['object_url'] = self::lookup_object_url($row, $rec['type']);
+                $rec['object_url'] = self::lookup_object_url($row, $rec['obj_type']);
             }
 
             if(in_array($type, array('DataObject', 'TaxonConcept'))) {
