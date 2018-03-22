@@ -9,12 +9,16 @@ class EnvironmentsEOLDataConnector
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->occurrence_ids = array();
-        // $this->species_list_export = "http://localhost/~eolit/cp/Environments/eol_env_annotations_noParentTerms.tar.gz"; //local
+        // $this->species_list_export = "http://localhost/cp/Environments/eol_env_annotations_noParentTerms.tar.gz"; //local
         $this->species_list_export = "http://download.jensenlab.org/EOL/eol_env_annotations_noParentTerms.tar.gz";
-        $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-        $this->download_options['expire_seconds'] = false; // since taxon_concept_id and hierarchy_entry_id won't change the resulting API response won't also change
-        // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/";
-        // $this->download_options['expire_seconds'] = 0;
+        
+        /* add: 'resource_id' => "eol_api" ;if you want to add the cache inside a folder [eol_api] inside [eol_cache] */
+        $this->download_options = array(
+            'cache_path'         => '/Volumes/Thunderbolt4/eol_cache/',     //used in Functions.php for all general cache
+            'resource_id'        => 'eol_api',                              //resource_id here is just a folder name in cache
+            'expire_seconds'     => false, //since taxon_concept_id and hierarchy_entry_id won't change the resulting API response won't also change. Another option is 1 year to expire
+            'download_wait_time' => 3000000, 'timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        
         // stats
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->need_to_check_tc_id_dump_file = $this->TEMP_DIR . "need_to_check_tc_id.txt";
@@ -22,17 +26,27 @@ class EnvironmentsEOLDataConnector
 
     function generate_EnvEOL_data()
     {
+        /* obsolete doesn't work anymore...
         require_library('connectors/IUCNRedlistDataConnector');
         $func = new IUCNRedlistDataConnector();
         $basenames = array("eol_env_annotations_noParentTerms"); // list of needed basenames
         $options = $this->download_options;
-        $options['expire_seconds'] = 2592000 * 3; // 3 months before cache expires
+        $options['expire_seconds'] = 0; //2592000 * 3; // 3 months before cache expires
         $text_path = $func->load_zip_contents($this->species_list_export, $options, $basenames, ".tsv");
-        print_r($text_path);
-        self::csv_to_array($text_path[$basenames[0]]);
+        print_r($text_path); exit;
+        */
+        
+        $tsv_filename = 'eol_env_annotations_noParentTerms.tsv';
+        require_library('connectors/INBioAPI');
+        $func = new INBioAPI();
+        $paths = $func->extract_archive_file($this->species_list_export, $tsv_filename, array('timeout' => 172800, 'expire_seconds' => 60*60*24*25)); //expires in 25 days
+        $temp_dir = $paths['temp_dir'];
+        // print_r($paths); exit;
+        
+        self::csv_to_array($temp_dir.$tsv_filename);
         $this->archive_builder->finalize(TRUE);
         // remove temp dir
-        $parts = pathinfo($text_path[$basenames[0]]);
+        $parts = pathinfo($temp_dir.$tsv_filename);
         recursive_rmdir($parts["dirname"]);
         debug("\n temporary directory removed: " . $parts["dirname"]);
         recursive_rmdir($this->TEMP_DIR); // comment this if u want to check "need_to_check_tc_id.txt"
@@ -51,7 +65,7 @@ class EnvironmentsEOLDataConnector
     private function csv_to_array($tsv_file)
     {
         $fields = array("taxon_id", "do_id_subchapter", "text", "envo");
-        $i = 0;
+        $i = 0; $m = 400000;
         foreach(new FileIterator($tsv_file) as $line_number => $line)
         {
             $temp = explode("\t", $line);
@@ -59,11 +73,11 @@ class EnvironmentsEOLDataConnector
             if(($i % 5000) == 0) echo "\n".number_format($i)." - ";
             /* breakdown when caching
             $cont = false;
-            // if($i >= 1      && $i < 400000)  $cont = true;
-            // if($i >= 400000 && $i < 400000*2)  $cont = true;
-            // if($i >= 400000*2 && $i < 400000*3)  $cont = true;
-            // if($i >= 400000*3 && $i < 400000*4)  $cont = true;
-            // if($i >= 400000*4 && $i < 400000*5)  $cont = true;
+            // if($i >= 1      && $i < $m)  $cont = true;
+            // if($i >= $m && $i < $m*2)  $cont = true;
+            // if($i >= $m*2 && $i < $m*3)  $cont = true;
+            // if($i >= $m*3 && $i < $m*4)  $cont = true;
+            if($i >= $m*4 && $i < $m*5)  $cont = true;
             if(!$cont) continue;
             */
             $rec = array();
