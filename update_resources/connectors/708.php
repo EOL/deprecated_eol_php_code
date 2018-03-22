@@ -9,7 +9,7 @@ taxa:               230,808     217,964
 measurementorfact:  1,052,641   940,408
 occurrence                      940,408
 */
-return;
+// return;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/EnvironmentsEOLDataConnector');
 $timestart = time_elapsed();
