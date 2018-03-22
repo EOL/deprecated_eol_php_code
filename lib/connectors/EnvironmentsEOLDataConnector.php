@@ -26,6 +26,24 @@ class EnvironmentsEOLDataConnector
         $this->need_to_check_tc_id_dump_file = $this->TEMP_DIR . "need_to_check_tc_id.txt";
     }
 
+    /*
+    Array
+    (
+        [0] => EOL:194
+        [1] => 25066375;http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat
+        [2] => scrub forest
+        [3] => ENVO:00000300
+    )
+    Array
+    (
+        [0] => EOL:21586
+        [1] => 31568075;http://www.eol.org/voc/table_of_contents#Wikipedia;http://en.wikipedia.org/w/index.php?title=Beenakia_dacostae&oldid=632149823
+        [2] => forests
+        [3] => ENVO:01000174
+        [4] => "Beenakia dacostae." <i>Wikipedia, The Free Encyclopedia</i>. 22 Jul 2014, 07:03 UTC. 3 Nov 2014 &lt;<a href="http://en.wikipedia.org/w/index.php?title=Beenakia_dacostae&oldid=632149823">http://en.wikipedia.org/w/index.php?title=Beenakia_dacostae&oldid=632149823</a>&gt;.
+    )
+    */
+
     function generate_EnvEOL_data()
     {
         /* obsolete doesn't work anymore...
@@ -66,13 +84,13 @@ class EnvironmentsEOLDataConnector
 
     private function csv_to_array($tsv_file)
     {
-        $fields = array("taxon_id", "do_id_subchapter", "text", "envo");
+        $fields = array("taxon_id", "do_id_subchapter", "text", "envo", "5th_col");
         $i = 0; $m = 400000;
         foreach(new FileIterator($tsv_file) as $line_number => $line)
         {
             $temp = explode("\t", $line);
             $i++;
-            if(($i % 5000) == 0) echo "\n".number_format($i)." - ";
+            if(($i % 100) == 0) echo "\n".number_format($i)." - ";
             /* breakdown when caching
             $cont = false;
             // if($i >= 1      && $i < $m)  $cont = true;
@@ -84,7 +102,9 @@ class EnvironmentsEOLDataConnector
             */
             $rec = array();
             if(!$temp) continue;
-            if(count($temp) != 4) continue;
+            // if(count($temp) != 4) continue; -- obsolete
+            if(count($temp) != 5) continue;
+
             // fill-up record
             $k = 0;
             foreach($temp as $t)
