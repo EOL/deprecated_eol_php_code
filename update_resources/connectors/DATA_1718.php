@@ -61,7 +61,10 @@ Functions::finalize_dwca_resource($resource_id);
 
 // /*
 $func = new EOLv2MetadataAPI("");
-$func->start_user_comments('DataObject');
+// $func->start_user_comments('DataObject');
+// $func->start_user_comments('TaxonConcept');
+$func->start_user_comments('Collection');
+
 // */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
