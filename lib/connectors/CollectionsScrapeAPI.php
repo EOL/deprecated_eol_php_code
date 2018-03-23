@@ -36,11 +36,35 @@ class CollectionsScrapeAPI
         if(Functions::is_production()) $this->lifedesk_images_path = '/extra/other_files/EOL_media/';
         else                           $this->lifedesk_images_path = '/Volumes/AKiTiO4/other_files/EOL_media/';
         $this->media_path = "https://editors.eol.org/other_files/EOL_media/";
+        $this->normal_operation = true;
     }
 
     // http://media.eol.org/content/2011/12/18/03/38467_orig.jpg        -> orig
     // http://media.eol.org/content/2012/03/28/09/98457_88_88.jpg       -> thumbnail
     
+    function start_image_sizes()
+    {   /*
+        http://media.eol.org/content/2009/05/19/22/92185_orig.jpg                                                          
+                                     2009 05 19 22 92185
+        */
+        $this->lifedesk_images_path = '/Volumes/AKiTiO4/other_files/EOL_media/image_sizes/';
+        if(!is_dir($this->lifedesk_images_path)) mkdir($this->lifedesk_images_path);
+        
+        $this->mysqli =& $GLOBALS['db_connection'];
+        $this->normal_operation = false;
+        $sql = "SELECT * from image_sizes order by updated_at desc limit 10";
+        $result = $this->mysqli->query($sql);
+        // echo "\n". $result->num_rows . "\n"; exit;
+        while($result && $row=$result->fetch_assoc()) {
+            self::process_do_id($row['data_object_id'], array());
+        }
+
+        /*
+        $do_ids = array(27732849);
+        foreach($do_ids as $do_id) self::process_do_id($do_id, array());
+        */
+        $this->archive_builder->finalize(TRUE);
+    }
     function start($taxa_from_orig_LifeDesk_XML)
     {
         if(!is_dir($this->download_options['cache_path'])) mkdir($this->download_options['cache_path']);
@@ -179,8 +203,10 @@ class CollectionsScrapeAPI
     {
         $canonical = Functions::canonical_form($obj['scientificName']); //[scientificName] => Cossypha archeri archeri Sharpe, 1902
         // print_r($obj); print_r($this->taxa_from_orig_LifeDesk_XML); exit;
-        foreach($this->taxa_from_orig_LifeDesk_XML as $taxon_id => $name) {
-            if($canonical == Functions::canonical_form($name)) return $taxon_id;
+        if($val = @$this->taxa_from_orig_LifeDesk_XML) {
+            foreach($val as $taxon_id => $name) {
+                if($canonical == Functions::canonical_form($name)) return $taxon_id;
+            }
         }
         return md5($obj['scientificName']);
     }
@@ -318,6 +344,21 @@ class CollectionsScrapeAPI
             $mr->title          = @$rec['title'];
             $mr->UsageTerms     = $rec['license'];
             $mr->description    = self::fix(@$rec['description']);
+
+            /*
+            if($this->normal_operation) $mr->description    = self::fix(@$rec['description']);
+            else {
+                $arr = array("height" => @$rec['height'], 'width' => @$rec['width'], 'crop_x' => @$rec['crop_x'], 'crop_y' => @$rec['crop_width'], 'crop_x' => @$rec['crop_width']);
+                $json = json_encode($arr);
+                $mr->description = $json;
+            }
+            [height] => 2304
+            [width] => 3072
+            [crop_x] => 563.0976
+            [crop_y] => 300.9024
+            [crop_width] => 2003.2512
+            */
+
             $mr->modified       = @$rec['modified'];
             $mr->CreateDate     = @$rec['created'];
             
