@@ -42,7 +42,7 @@ class CollectionsScrapeAPI
     // http://media.eol.org/content/2011/12/18/03/38467_orig.jpg        -> orig
     // http://media.eol.org/content/2012/03/28/09/98457_88_88.jpg       -> thumbnail
     
-    function start_image_sizes()
+    function start_image_sizes() //this became just a caching utility for data_object API call
     {   /*
         http://media.eol.org/content/2009/05/19/22/92185_orig.jpg                                                          
                                      2009 05 19 22 92185
@@ -52,11 +52,28 @@ class CollectionsScrapeAPI
         
         $this->mysqli =& $GLOBALS['db_connection'];
         $this->normal_operation = false;
-        $sql = "SELECT * from image_sizes order by updated_at desc limit 10";
+        $sql = "SELECT * from image_sizes order by updated_at desc"; // limit 10
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows . "\n"; exit;
+        $i = 0;
+        $m = 19446/5; 
         while($result && $row=$result->fetch_assoc()) {
-            self::process_do_id($row['data_object_id'], array());
+            $i++;
+            // self::process_do_id($row['data_object_id'], array());
+            
+            // /* breakdown when caching
+            $cont = false;
+            // if($i >= 1    && $i < $m)    $cont = true;
+            // if($i >= $m   && $i < $m*2)  $cont = true;
+            // if($i >= $m*2 && $i < $m*3)  $cont = true;
+            // if($i >= $m*3 && $i < $m*4)  $cont = true;
+            if($i >= $m*4 && $i < $m*5)  $cont = true;
+            if(!$cont) continue;
+            // */
+            
+            echo "\n[$i]";
+            $url = str_replace("data_object_id", $row['data_object_id'], $this->url["eol_object"]);
+            if($json = Functions::lookup_with_cache($url, $this->download_options)) {}
         }
 
         /*
