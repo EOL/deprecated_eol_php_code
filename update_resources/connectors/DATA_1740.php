@@ -5,6 +5,10 @@ This will use the image_sizes table and the dataObjects API to generate a DwCA f
 https://eol-jira.bibalex.org/browse/DATA-1740
 estimated execution time:
 */
+
+/* this didn't quite get the desired result. Used the EOLv2MetadataAPI.php, DATA-1718.php instead. */
+exit;
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/CollectionsScrapeAPI');
 $timestart = time_elapsed();
@@ -20,5 +24,4 @@ echo "\n\n";
 echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
 echo "\n Done processing.\n";
-
 ?>
