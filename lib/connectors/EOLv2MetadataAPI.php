@@ -25,9 +25,13 @@ class EOLv2MetadataAPI
         
         // http://eol.org/api/data_objects/1.0/29829638.json?taxonomy=true&cache_ttl=
     }
-    public function start_image_sizes() //
+    public function start_image_sizes() //DATA-1740 - unique do_id in image_sizes = 19,429
     {
-        $sql = "SELECT i.* from image_sizes i order by i.id desc";
+        $sql = "SELECT i.*, o.* from image_sizes i left join data_objects_ImageSizes o on (i.data_object_id = o.id) 
+        -- order by i.updated_at desc
+        -- limit 10
+        ";
+
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows . "\n"; exit;
         $recs = array();
@@ -38,20 +42,21 @@ class EOLv2MetadataAPI
         while($result && $row=$result->fetch_assoc()) {
             $no_tc_id = false;
             $tc_id = false;
-            if($tc_id = $row['taxon_concept_id']) {} //echo "\n With tc_id \n";
+            if($tc_id = @$row['taxon_concept_id']) {} //echo "\n With tc_id \n";
             else {
                 // echo "\n NO tc_id \n";
                 if($tc_id = self::get_tc_id_using_do_id($row['data_object_id'])) {}
                 elseif($tc_id = self::get_tc_id_using_dotc($row['data_object_id'])) {} //dotc - data_objects_taxon_concepts
-                elseif($row['ch_object_type'] == "users_submitted_text")
-                {
-                    $a = self::get_tc_id_from_udo($row['data_object_id']); //udo - users_data_objects
-                    $tc_id = @$a['taxon_concept_id'];
-                }
+                // elseif($row['ch_object_type'] == "users_submitted_text")
+                // {
+                //     $a = self::get_tc_id_from_udo($row['data_object_id']); //udo - users_data_objects
+                //     $tc_id = @$a['taxon_concept_id'];
+                // }
                 else {
                     echo("\n\nNo taxon_concept_id found for ".$row['data_object_id']."\n");
-                    // print_r($row); //exit;
+                    print_r($row); //exit;
                     $no_tc_id = true;
+                    $info['taxon_name'] = '-orphan object-';
                 }
             }
             $info = false;
@@ -60,12 +65,13 @@ class EOLv2MetadataAPI
                 // print_r($info); exit;
             }
             $rec = array();
-            $rec['user_id'] = $row['user_id'];
-            $rec['user_name'] = $row['user_name'];
-            $rec['activity'] = $row['activity'];
-            $rec['ch_object_type'] = $row['ch_object_type'];
-            $rec['target_id'] = $row['data_object_id'];
+            // $rec['user_id'] = $row['user_id'];
+            // $rec['user_name'] = $row['user_name'];
+            // $rec['activity'] = $row['activity'];
+            // $rec['ch_object_type'] = $row['ch_object_type'];
+            $rec['data_object_id'] = $row['data_object_id'];
             $rec['guid'] = $row['guid'];
+            $rec['crop_dimensions'] = self::get_crop_dimensions($row);
             $rec['type'] = self::lookup_data_type($row['data_type_id']);
             $rec['description'] = $row['description'];
             $rec['object_url'] = self::lookup_object_url($row, $rec['type']);
@@ -82,39 +88,6 @@ class EOLv2MetadataAPI
             $rec['partner_name'] = @$resource_info['cp_name'];
             $rec['collection_id'] = @$resource_info['coll_id'];
             
-            // if($rec['description'] && $rec['resource_id'] && $rec['type'] == 'Image' && $rec['taxon_concept_id'] && $rec['resource_name']) {
-            //     print_r($rec);
-            //     exit;
-            // }
-
-            // /* good debug
-            // if($rec['resource_id']) {
-                // print_r($rec); exit;
-            // }
-            // */
-            
-            /* good debug
-            if($no_tc_id) {
-                print_r($rec); exit;
-            }
-            */
-            
-            
-            /*   [user_id] => 35779
-                 [user_name] => Barna Páll-Gergely (Alopia)
-                 [activity] => trusted
-                 [ch_object_type] => data_object
-                 [target_id] => 1495237
-                 [taxon_concept_id] => 2366
-                 [sciname] => Gastropoda
-                 [rank] => class
-                 [ancestry] => {"phylum":{"name":"Mollusca","taxon_concept_id":"2195"},"kingdom":{"name":"Animalia","taxon_concept_id":"1"}}
-                 [resource_id] => 15
-                 [resource_name] => EOL Group on Flickr
-                 [cp_id] => 18
-                 [cp_name] => Flickr: Encyclopedia of Life Images
-                 [coll_id] => 176
-            */
             //start writing
             if(!$headers_printed_already) {
                 fwrite($FILE, implode("\t", array_keys($rec))."\n");
@@ -125,7 +98,15 @@ class EOLv2MetadataAPI
         fclose($FILE);
         
     }
-    
+    private function get_crop_dimensions($rec)
+    {
+        $arr = array("height" => $rec['height'], 'width' => $rec['width'], 'crop_x' => ($rec['crop_x_pct']/100) * $rec['width'], 
+                                                                             'crop_y' => ($rec['crop_y_pct']/100) * $rec['height'], 
+                                                                             'crop_width' => ($rec['crop_width_pct']/100) * $rec['width'],
+                                                                             'crop_height' => ($rec['crop_height_pct']/100) * $rec['height']
+                                                                             );
+        return json_encode($arr);
+    }
     public function start_user_comments($type)
     {
         if($type == 'DataObject') $sql = "SELECT c.parent_id as data_object_id, c.*
@@ -391,7 +372,7 @@ class EOLv2MetadataAPI
     {
         $do_id = $row['data_object_id'];
         
-        if($row['ch_object_type'] == 'users_submitted_text') {
+        if(@$row['ch_object_type'] == 'users_submitted_text') {
             $a = self::get_tc_id_from_udo($do_id); //udo - users_data_objects
             return array('resource_name' => $a['udo_username'], 'resource_id' => $a['udo_userid']);
         }
