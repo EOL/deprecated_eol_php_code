@@ -39,8 +39,6 @@ if($val = $cmdline_params['resource_id'])
     elseif($resource_id == 990) $params['spreadsheet'] = "https://opendata.eol.org/dataset/60b861a7-5530-4cb2-8737-b5a3340d0578/resource/5dd1890d-551a-452e-82de-ec36daea444a/download/chen-and-moles.xlsx";
     // 990  Friday 2018-03-09 12:02:16 AM   {"agents.txt":0,"associations.txt":17600,"common names.txt":0,"events.txt":0,"measurements or facts.txt":24369,"media.txt":0,"occurrences.txt":3721,"references.txt":0,"taxa.txt":3721}
     elseif($resource_id == 495) $params['spreadsheet'] = "https://opendata.eol.org/dataset/3851e293-6d35-453d-a54e-d6ecedb796b2/resource/2537dc6d-97b8-4b1d-a0ca-8e94ceb2450c/download/newispotsalinks.xlsx"; //iSpot links
-
-    //----------------------- start new below
     elseif($resource_id == 1014) $params['spreadsheet'] = "https://opendata.eol.org/dataset/89f382c4-53e1-4df1-9b7c-0f97bc30ded2/resource/530c1eaa-31d7-4c7c-b3bd-eb4d4ab924b0/download/life-history-data-of-lizards-of-the-world-export.xlsx"; //Life history data of lizards of the world
     elseif($resource_id == 1017) $params['spreadsheet'] = "http://opendata.eol.org/dataset/ba96c75b-0864-42d9-9c05-89db2dec2a91/resource/ccb99dc8-0a89-4c49-83c2-8a12ac3c55d9/download/male-tenure-length-and-variance-in-lifetime-reproductive-success-recorded-for-mammals-transfer.xls"; //Male tenure length
     elseif($resource_id == 1024) $params['spreadsheet'] = "https://opendata.eol.org/dataset/0266ba72-d6cb-428e-adb0-aa8c176973ce/resource/552522eb-9b98-40d9-b992-2c4e098abe79/download/egg-characteristics-and-breeding-season-for-woods-hole-species2.xlsx"; //Woods Hole Species
@@ -57,6 +55,8 @@ if($val = $cmdline_params['resource_id'])
     elseif($resource_id == 1022) $params['spreadsheet'] = "http://opendata.eol.org/dataset/b417c9b9-5246-4a9a-9f9d-39aae9954303/resource/0b223325-19ea-427a-9499-fa9c254f39f6/download/mikesell-phenological-data.xlsx"; //Mikesell phenological data from Wauseon, Ohio, USA, 1883-1912
     elseif($resource_id == 1023) $params['spreadsheet'] = "http://opendata.eol.org/dataset/d339b8df-a57f-4612-9dc5-c7963b50f4f4/resource/71d952ec-af42-40b2-b1a8-b4f8d56f6ad6/download/eastern-export.xlsx"; //Eastern US old fields plant traits
     elseif($resource_id == 985) $params['spreadsheet'] = "http://opendata.eol.org/dataset/f49ee7e9-65d4-4d00-af86-29ca98f83739/resource/c36f8fdb-750b-4301-ac3b-30c2e93a90b2/download/toxic-set-done.xlsx"; //Toxic
+    //----------------------- start new below
+    elseif($resource_id == "x") $params['spreadsheet'] = "http://localhost/tests/aBrose%20et%20al.xlsx"; //Brose et al -- undefined columns, not working
     
     // template
     // elseif($resource_id == res_id) $params['spreadsheet'] = "https_xls_path"; //res_name
