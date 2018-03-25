@@ -23,9 +23,7 @@ class EOLv2MetadataAPI
         else                           $this->download_options['cache_path'] = "/Volumes/AKiTiO4/eol_cache_collections/";
         $this->url["eol_object"]     = "http://eol.org/api/data_objects/1.0/data_object_id.json?taxonomy=true&cache_ttl=";
         
-        
         // http://eol.org/api/data_objects/1.0/29829638.json?taxonomy=true&cache_ttl=
-        
     }
     public function start_image_sizes() //
     {
