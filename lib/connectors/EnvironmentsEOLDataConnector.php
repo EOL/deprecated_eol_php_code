@@ -5,12 +5,16 @@ class EnvironmentsEOLDataConnector
 {
     function __construct($folder = null)
     {
+        $this->resource_id = $folder;
         $this->taxon_ids = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->occurrence_ids = array();
-        // $this->species_list_export = "http://localhost/cp/Environments/eol_env_annotations_noParentTerms.tar.gz"; //local
-        $this->species_list_export = "http://download.jensenlab.org/EOL/eol_env_annotations_noParentTerms.tar.gz";
+
+        $this->species_list_export = "http://localhost/cp/Environments/eol_env_annotations_noParentTerms.tar.gz"; //local
+        // $this->species_list_export = "http://localhost/cp/Environments/eol_env_annotations_noParentTerms_02.tar.gz"; //local
+
+        // $this->species_list_export = "http://download.jensenlab.org/EOL/eol_env_annotations_noParentTerms.tar.gz";
         
         /* add: 'resource_id' => "eol_api" ;if you want to add the cache inside a folder [eol_api] inside [eol_cache] */
         $this->download_options = array(
@@ -85,12 +89,13 @@ class EnvironmentsEOLDataConnector
     private function csv_to_array($tsv_file)
     {
         $fields = array("taxon_id", "do_id_subchapter", "text", "envo", "5th_col");
-        $i = 0; $m = 400000;
+        $i = 0; $m = 1700000/5;
         foreach(new FileIterator($tsv_file) as $line_number => $line)
         {
             $temp = explode("\t", $line);
             $i++;
             if(($i % 100) == 0) echo "\n".number_format($i)." - ";
+            
             /* breakdown when caching
             $cont = false;
             // if($i >= 1      && $i < $m)  $cont = true;
@@ -100,9 +105,10 @@ class EnvironmentsEOLDataConnector
             if($i >= $m*4 && $i < $m*5)  $cont = true;
             if(!$cont) continue;
             */
+            
             $rec = array();
             if(!$temp) continue;
-            // if(count($temp) != 4) continue; -- obsolete
+            // if(count($temp) != 4) continue; //-- obsolete
             if(count($temp) != 5) continue;
 
             // fill-up record
@@ -119,7 +125,7 @@ class EnvironmentsEOLDataConnector
                 self::create_instances_from_taxon_object($taxon);
                 self::create_data($taxon, $rec);
             }
-            // if($i >= 31) break; //debug
+            if($i >= 31) break; //debug
         } // end foreach
     }
 
@@ -251,19 +257,49 @@ class EnvironmentsEOLDataConnector
     private function create_data($record, $line)
     {
         /*
+        Old:
         [taxon_id] => 57534
         [do_id_subchapter] => 26258437;http://www.eol.org/voc/table_of_contents#Wikipedia
         [text] => freshwater
         [envo] => ENVO:00002011
+        
+        New:
+        Array
+        (
+            [taxon_id] => EOL:7
+            [do_id_subchapter] => 25937933;http://www.eol.org/voc/table_of_contents#Wikipedia
+            [text] => terrestrial
+            [envo] => ENVO:00000446
+        )
+        
         */
+        
         $line['text'] = str_replace(array("  ", "   "), " ", $line['text']);
         $line['text'] = strtolower($line['text']);
+        
+        /* old ways
+        //works for: [do_id_subchapter] => 17763523;http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description
         $parts = explode("#", $line['do_id_subchapter']);
         $subject = str_replace(" ", "_", strtolower(trim($parts[1])));
+        */
+        
+        //works for: [do_id_subchapter] => 17763523;http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description;http://eolspecies.lifedesks.org/pages/30554
+        $temp = explode(";", $line['do_id_subchapter']);
+        $parts = explode("#", $temp[1]);
+        $subject = str_replace(" ", "_", strtolower(trim($parts[1])));
+        
+        
         if($subject == 'taxonbiology')           $subject = 'brief_summary';
         elseif($subject == 'biology')            $subject = 'comprehensive_description';
         elseif($subject == 'generaldescription') $subject = 'comprehensive_description';
         elseif($subject == 'description')        $subject = 'comprehensive_description';
+        elseif($subject == 'wikipedia')             $subject = 'comprehensive_description';
+        else {
+            print_r($line); exit("\nInvestigate subject: [$subject]\n");
+        }
+
+        print_r($line); exit("\n[$subject]\n");
+
         $uri = "http://purl.obolibrary.org/obo/" . str_replace(":", "_", $line['envo']);
         $rec = array();
         $rec["taxon_id"]            = $line['taxon_id'];
@@ -280,6 +316,7 @@ class EnvironmentsEOLDataConnector
     
     private function add_string_types($rec)
     {
+        /* old ways
         // since all measurements have measurementOfTaxon = 'true' then the occurrence_id will not be used twice
         if($occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"]))
         {
@@ -290,19 +327,45 @@ class EnvironmentsEOLDataConnector
             foreach($rec as $key => $value) $m->$key = $value;
             $this->archive_builder->write_object_to_file($m);
         }
+        */
+
+        $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"]);
+        unset($rec['catnum']);
+        unset($rec['taxon_id']);
+        $m = new \eol_schema\MeasurementOrFact();
+        $m->occurrenceID = $occurrence_id;
+        foreach($rec as $key => $value) $m->$key = $value;
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        if(!isset($this->measurement_ids[$m->measurementID])) {
+            $this->archive_builder->write_object_to_file($m);
+            $this->measurement_ids[$m->measurementID] = '';
+        }
     }
 
     private function add_occurrence($taxon_id, $catnum)
     {
         $occurrence_id = str_replace('EOL:', '', $taxon_id) . $catnum;
+
+        /* old ways
         // since all measurements have measurementOfTaxon = 'true' then the occurrence_id will not be used twice
         if(isset($this->occurrence_ids[$occurrence_id])) return false;
+        */
+        
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
+        
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
+        
+        /* old ways
         $this->archive_builder->write_object_to_file($o);
         $this->occurrence_ids[$occurrence_id] = '';
         return $occurrence_id;
+        */
     }
 
     private function save_to_dump($rec, $filename)
