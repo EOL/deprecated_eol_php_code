@@ -54,7 +54,7 @@ class EOLv2MetadataAPI
                 // }
                 else {
                     echo("\n\nNo taxon_concept_id found for ".$row['data_object_id']."\n");
-                    print_r($row); //exit;
+                    // print_r($row); //exit;
                     $no_tc_id = true;
                     $info['taxon_name'] = '-orphan object-';
                 }
@@ -70,11 +70,11 @@ class EOLv2MetadataAPI
             // $rec['activity'] = $row['activity'];
             // $rec['ch_object_type'] = $row['ch_object_type'];
             $rec['data_object_id'] = $row['data_object_id'];
-            $rec['guid'] = $row['guid'];
+            $rec['obj_guid'] = $row['guid'];
             $rec['crop_dimensions'] = self::get_crop_dimensions($row);
-            $rec['type'] = self::lookup_data_type($row['data_type_id']);
-            $rec['description'] = $row['description'];
-            $rec['object_url'] = self::lookup_object_url($row, $rec['type']);
+            $rec['obj_type'] = self::lookup_data_type($row['data_type_id']);
+            $rec['obj_url'] = self::lookup_object_url($row, $rec['obj_type']);
+            $rec['obj_description'] = $row['description'];
             
             $rec['taxon_concept_id'] = $tc_id;
             $rec['sciname'] = @$info['taxon_name'];
