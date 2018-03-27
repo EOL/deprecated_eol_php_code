@@ -7,7 +7,7 @@ estimated execution time:
 */
 
 /* this didn't quite get the desired result. Used the EOLv2MetadataAPI.php, DATA-1718.php instead. */
-// exit;
+exit;
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/CollectionsScrapeAPI');
