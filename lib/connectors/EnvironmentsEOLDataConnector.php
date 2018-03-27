@@ -99,19 +99,11 @@ class EnvironmentsEOLDataConnector
             
             /* breakdown when caching
             $cont = false;
-            // if($i >= 1      && $i < $m)  $cont = true;
-            // if($i >= $m && $i < $m*2)  $cont = true;
+            // if($i >= 1    && $i < $m)    $cont = true;
+            // if($i >= $m   && $i < $m*2)  $cont = true;
             // if($i >= $m*2 && $i < $m*3)  $cont = true;
             // if($i >= $m*3 && $i < $m*4)  $cont = true;
-            // if($i >= $m*4 && $i < $m*5)  $cont = true; //1700000
-
-            // if($i >= 1350500 && $i < 1352500)  $cont = true;
-            // if($i >= 1352500 && $i < 1354500)  $cont = true;
-            // if($i >= 1354500 && $i < 1356500)  $cont = true;
-            // if($i >= 1356500 && $i < 1358500)  $cont = true;
-            // if($i >= 1358500 && $i < 1360500)  $cont = true;
-            if($i >= 1360500 && $i < $m*5)  $cont = true;
-
+            // if($i >= $m*4 && $i < $m*5)  $cont = true;
             if(!$cont) continue;
             */
             

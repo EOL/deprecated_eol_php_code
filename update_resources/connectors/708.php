@@ -12,10 +12,12 @@ occurrence                      940,408
 // return;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/EnvironmentsEOLDataConnector');
+ini_set('memory_limit','7096M'); //required
 $timestart = time_elapsed();
 $resource_id = 708;
 $func = new EnvironmentsEOLDataConnector($resource_id);
 $func->generate_EnvEOL_data();
+$func = NULL;
 Functions::finalize_dwca_resource($resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
