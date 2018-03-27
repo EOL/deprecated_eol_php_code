@@ -36,7 +36,7 @@ class NCBIGGIqueryAPI
 
         // local
         $this->families_list = "http://localhost/cp/NCBIGGI/falo2.in";
-        $this->families_list = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/falo2.in";
+        // $this->families_list = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/falo2.in";
 
         // NCBI service
         $this->family_service_ncbi = "http://www.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nucleotide&usehistory=y&term=";
@@ -75,7 +75,7 @@ class NCBIGGIqueryAPI
         */
 
         $this->ggi_databases = array("ncbi", "ggbn", "gbif", "bhl", "bolds");
-        // $this->ggi_databases = array("gbif"); //debug - use to process 1 database
+        $this->ggi_databases = array("gbif"); //debug - use to process 1 database
         $this->ggi_path = DOC_ROOT . "temp/GGI/";
 
         $this->eol_api["search"]    = "http://eol.org/api/search/1.0.json?page=1&exact=true&filter_by_taxon_concept_id=&filter_by_hierarchy_entry_id=&filter_by_string=&cache_ttl=&q=";
@@ -442,6 +442,7 @@ class NCBIGGIqueryAPI
         // return false; //debug - remove in normal operation
         $canonical = "";
         $d_options = $this->download_options;
+        $d_options['resource_id'] = "eol_api";
         $d_options['expire_seconds'] = 15552000; //6 months to expire
         // $d_options['expire_seconds'] = false; //debug
 
@@ -921,9 +922,9 @@ class NCBIGGIqueryAPI
         $fields = array("SpK", "K", "SbK", "IK", "SpP", "P", "SbP", "IP", "PvP", "SpC", "C", "SbC", "IC", "SpO", "O");
 
         // $dropbox_xlsx[] = "http://tiny.cc/FALO"; // from Cyndy's Dropbox
-        $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/ALF2015.xlsx"; // from Eli's Dropbox
+        // $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/ALF2015.xlsx"; // from Eli's Dropbox
         // $dropbox_xlsx[] = "http://localhost/cp/NCBIGGI/FALO.xlsx"; // local
-        // $dropbox_xlsx[] = "http://localhost/cp/NCBIGGI/ALF2015.xlsx"; // local
+        $dropbox_xlsx[] = "http://localhost/cp/NCBIGGI/ALF2015.xlsx"; // local
 
         foreach($dropbox_xlsx as $doc)
         {
