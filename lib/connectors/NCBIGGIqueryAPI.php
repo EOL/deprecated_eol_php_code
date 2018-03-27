@@ -79,6 +79,13 @@ class NCBIGGIqueryAPI
 
         $this->ggi_databases = array("ncbi", "ggbn", "gbif", "bhl", "bolds");
         $this->ggi_databases = array("gbif"); //debug - use to process 1 database
+        $this->ggi_databases = array("bhl"); //debug - use to process 1 database
+        $this->ggi_databases = array("ncbi"); //debug - use to process 1 database
+        // $this->ggi_databases = array("ggbn"); //debug - use to process 1 database
+        // $this->ggi_databases = array("bolds"); //debug - use to process 1 database
+        $this->ggi_databases = array("ncbi", "ggbn", "gbif", "bhl");
+
+        
         $this->ggi_path = DOC_ROOT . "temp/GGI/";
 
         $this->eol_api["search"]    = "http://eol.org/api/search/1.0.json?page=1&exact=true&filter_by_taxon_concept_id=&filter_by_hierarchy_entry_id=&filter_by_string=&cache_ttl=&q=";
