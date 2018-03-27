@@ -84,12 +84,13 @@ class EnvironmentsEOLDataConnector
         }
         exit("\n-exit-\n");
         */
+        print_r($this->debug);
     }
 
     private function csv_to_array($tsv_file)
     {
         $fields = array("taxon_id", "do_id_subchapter", "text", "envo", "5th_col");
-        $i = 0; $m = 1700000/5;
+        $i = 0; $m = 1700000/5; // = 340000
         foreach(new FileIterator($tsv_file) as $line_number => $line)
         {
             $temp = explode("\t", $line);
@@ -102,7 +103,15 @@ class EnvironmentsEOLDataConnector
             // if($i >= $m && $i < $m*2)  $cont = true;
             // if($i >= $m*2 && $i < $m*3)  $cont = true;
             // if($i >= $m*3 && $i < $m*4)  $cont = true;
-            if($i >= $m*4 && $i < $m*5)  $cont = true;
+            // if($i >= $m*4 && $i < $m*5)  $cont = true; //1700000
+
+            // if($i >= 1350500 && $i < 1352500)  $cont = true;
+            // if($i >= 1352500 && $i < 1354500)  $cont = true;
+            // if($i >= 1354500 && $i < 1356500)  $cont = true;
+            // if($i >= 1356500 && $i < 1358500)  $cont = true;
+            // if($i >= 1358500 && $i < 1360500)  $cont = true;
+            if($i >= 1360500 && $i < $m*5)  $cont = true;
+
             if(!$cont) continue;
             */
             
@@ -125,7 +134,7 @@ class EnvironmentsEOLDataConnector
                 self::create_instances_from_taxon_object($taxon);
                 self::create_data($taxon, $rec);
             }
-            if($i >= 31) break; //debug
+            // if($i >= 10) break; //debug
         } // end foreach
     }
 
@@ -293,12 +302,29 @@ class EnvironmentsEOLDataConnector
         elseif($subject == 'biology')            $subject = 'comprehensive_description';
         elseif($subject == 'generaldescription') $subject = 'comprehensive_description';
         elseif($subject == 'description')        $subject = 'comprehensive_description';
-        elseif($subject == 'wikipedia')             $subject = 'comprehensive_description';
+        elseif($subject == 'wikipedia')             $subject = 'comprehensive_description'; // 'wikipedia' in EoL V2
+        elseif($subject == 'habitat')               $subject = 'habitat';
+        elseif($subject == 'reproduction')          $subject = 'reproduction';
+        elseif($subject == 'distribution')          $subject = 'distribution';
+        elseif($subject == 'trophicstrategy')       $subject = 'trophic_strategy';
+        elseif($subject == 'behaviour')             $subject = 'behavior';
+        elseif($subject == 'conservationstatus')    $subject = 'conservation_status';
+        elseif($subject == 'lifecycle')             $subject = 'life_cycle';
+        elseif($subject == 'dispersal')             $subject = 'dispersal';
+        elseif($subject == 'ecology')               $subject = 'ecology';
+        elseif($subject == 'physiology')            $subject = 'physiology';
+        elseif($subject == 'conservation')          $subject = 'conservation';
+        elseif($subject == 'populationbiology')     $subject = 'population_biology';
+        elseif($subject == 'migration')             $subject = 'migration';
+        elseif($subject == 'development')           $subject = 'development';
+        
+        
         else {
-            print_r($line); exit("\nInvestigate subject: [$subject]\n");
+            // print_r($line); exit("\nInvestigate subject: [$subject]\n");
+            $this->debug['undefined subjects'][$subject] = '';
         }
 
-        print_r($line); exit("\n[$subject]\n");
+        // print_r($line); exit("\n[$subject]\n");
 
         $uri = "http://purl.obolibrary.org/obo/" . str_replace(":", "_", $line['envo']);
         $rec = array();
@@ -311,7 +337,23 @@ class EnvironmentsEOLDataConnector
         $rec["contributor"]         = '<a href="http://environments-eol.blogspot.com/2013/03/welcome-to-environments-eol-few-words.html">Environments-EOL</a>';
         $rec["source"]              = "http://eol.org/pages/" . str_replace('EOL:', '', $rec["taxon_id"]) . "/details#". $subject;
         $rec['measurementRemarks']  = "source text: \"" . $line['text'] . "\"";
+        if($val = self::get_reference_ids($line)) $rec['referenceID'] = implode("; ", $val);
         self::add_string_types($rec);
+    }
+    private function get_reference_ids($line)
+    {
+        if($ref = $line['5th_col']) {
+            $r = new \eol_schema\Reference();
+            $r->full_reference = $ref;
+            $r->identifier = md5($ref);
+            // $r->uri = '';
+            if(!isset($this->resource_reference_ids[$r->identifier])) {
+               $this->resource_reference_ids[$r->identifier] = '';
+               $this->archive_builder->write_object_to_file($r);
+            }
+            return array($r->identifier);
+        }
+        return false;
     }
     
     private function add_string_types($rec)
