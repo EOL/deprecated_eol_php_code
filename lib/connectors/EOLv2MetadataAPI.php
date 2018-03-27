@@ -27,7 +27,11 @@ class EOLv2MetadataAPI
     }
     public function start_image_sizes() //DATA-1740 - unique do_id in image_sizes = 19,429
     {
-        // self::last_resort_for_resource_info(); exit;
+        /*
+        $res_info = self::get_resource_info_using_obj_url("http://farm5.static.flickr.com/4097/4776265549_15a03b0c1c.jpg");
+        print_r($res_info);
+        exit;
+        */
         
         $sql = "SELECT i.*, o.* from image_sizes i left join data_objects_ImageSizes o on (i.data_object_id = o.id) 
         -- order by i.updated_at desc
@@ -83,7 +87,8 @@ class EOLv2MetadataAPI
             $rec['rank'] = @$info['rank'];
             $rec['ancestry'] = self::generate_ancestry_as_json($info);
             
-            $resource_info = self::lookup_resource_info($row);
+            $row['obj_url'] = $rec['obj_url']; //used in lookup_resource_info()
+            $resource_info = self::lookup_resource_info($row, 'data_objects_harvest_events_ImageSizes');
             $rec['resource_id'] = @$resource_info['resource_id'];
             $rec['resource_name'] = $resource_info['resource_name'];
             $rec['partner_id'] = @$resource_info['cp_id'];
@@ -264,7 +269,8 @@ class EOLv2MetadataAPI
             $rec['rank'] = @$info['rank'];
             $rec['ancestry'] = self::generate_ancestry_as_json($info);
             
-            $resource_info = self::lookup_resource_info($row);
+            $row['obj_url'] = $rec['object_url']; //used in lookup_resource_info()
+            $resource_info = self::lookup_resource_info($row, 'data_objects_harvest_events_curation');
             $rec['resource_id'] = @$resource_info['resource_id'];
             $rec['resource_name'] = $resource_info['resource_name'];
             $rec['partner_id'] = @$resource_info['cp_id'];
@@ -385,16 +391,21 @@ class EOLv2MetadataAPI
             left join content_partners cp on (r.content_partner_id = cp.id)
             where dohe.data_object_id = $do_id";
             $result = $this->mysqli->query($sql);
-            if($result && $row=$result->fetch_assoc()) {
-                // print_r($row);
-                return array('resource_name' => $row['resource_name'], 'resource_id' => $row['resource_id'], 'cp_name' => $row['cp_name'], 'cp_id' => $row['cp_id'], 'coll_id' => $row['coll_id']);
+            if($result && $row2=$result->fetch_assoc()) {
+                return array('resource_name' => $row2['resource_name'], 'resource_id' => $row2['resource_id'], 'cp_name' => $row2['cp_name'], 'cp_id' => $row2['cp_id'], 'coll_id' => $row2['coll_id']);
             }
             else { //bases here: https://eol-jira.bibalex.org/browse/DATA-1740?focusedCommentId=62313&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62313
-                print_r($row);
+                if($res_info = self::get_resource_info_using_obj_url($row['obj_url'])) {
+                    print_r($res_info);
+                    return $res_info;
+                }
+                else {
+                    // print_r($row);
+                    // exit("\n--Cannot find resource anymore for this do_id [$do_id]--\n");
+                }
             }
         }
         return array('resource_name' => 'Cannot find resource anymore.');
-        // exit("\n Investigate cannot lookup resource for this do_id [$do_id] \n");
     }
     private function last_resort_for_resource_info()
     {
@@ -409,8 +420,6 @@ class EOLv2MetadataAPI
         , 1.bp.blogspot.com 424, 2.bp.blogspot.com 424, 3.bp.blogspot.com 424, 4.bp.blogspot.com 424, 89.26.108.66 660";
         $temp = explode(",", $temp);
         $temp = array_map('trim', $temp);
-        print_r($temp);
-
         $final = array();
         foreach($temp as $t) {
             $arr = explode(" ", $t);
@@ -421,7 +430,7 @@ class EOLv2MetadataAPI
             $arr = array_values($arr); //reindex key
             $final[$index] = $arr;
         }
-        print_r($final);
+        return $final;
     }
     private function get_resource_info_using_resource_id($resource_id)
     {
@@ -431,6 +440,18 @@ class EOLv2MetadataAPI
         if($result && $row=$result->fetch_assoc()) {
             return array('resource_name' => $row['resource_name'], 'resource_id' => $resource_id, 'cp_name' => $row['cp_name'], 'cp_id' => $row['cp_id'], 'coll_id' => $row['coll_id']);
         }
+        return false;
+    }
+    private function get_domain_from_url($url)
+    {
+        $temp = parse_url($url);
+        return @$temp['host'];
+    }
+    private function get_resource_info_using_obj_url($url)
+    {
+        $arr_domain_resource_ids = self::last_resort_for_resource_info();
+        $domain = self::get_domain_from_url($url);
+        if($resource_id = @$arr_domain_resource_ids[$domain][0]) return self::get_resource_info_using_resource_id($resource_id);
         return false;
     }
     private function get_tc_id_using_do_id($do_id)
