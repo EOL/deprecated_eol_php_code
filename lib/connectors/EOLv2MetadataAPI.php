@@ -27,11 +27,19 @@ class EOLv2MetadataAPI
     }
     public function start_image_sizes() //DATA-1740 - unique do_id in image_sizes = 19,429
     {
-        /*
+        /* test
         $res_info = self::get_resource_info_using_obj_url("http://farm5.static.flickr.com/4097/4776265549_15a03b0c1c.jpg");
         print_r($res_info);
         exit;
         */
+        
+        // /* test
+        $res_info = self::get_resource_info_last_resort(3286228);
+        print_r($res_info);
+        exit;
+        // */
+        
+        
         
         $sql = "SELECT i.*, o.* from image_sizes i left join data_objects_ImageSizes o on (i.data_object_id = o.id) 
         -- order by i.updated_at desc
@@ -395,19 +403,53 @@ class EOLv2MetadataAPI
                 return array('resource_name' => $row2['resource_name'], 'resource_id' => $row2['resource_id'], 'cp_name' => $row2['cp_name'], 'cp_id' => $row2['cp_id'], 'coll_id' => $row2['coll_id']);
             }
             else { //bases here: https://eol-jira.bibalex.org/browse/DATA-1740?focusedCommentId=62313&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62313
-                if($res_info = self::get_resource_info_using_obj_url($row['obj_url'])) {
+                if($res_info = self::get_resource_info_last_resort($do_id)) {
                     print_r($res_info);
                     return $res_info;
                 }
                 else {
-                    // print_r($row);
-                    // exit("\n--Cannot find resource anymore for this do_id [$do_id]--\n");
+                    if($res_info = self::get_resource_info_using_obj_url($row['obj_url'])) {
+                        print_r($res_info);
+                        return $res_info;
+                    }
+                    else {
+                        // print_r($row);
+                        // exit("\n--Cannot find resource anymore for this do_id [$do_id]--\n");
+                    }
                 }
             }
         }
         return array('resource_name' => 'Cannot find resource anymore.');
     }
-    private function last_resort_for_resource_info()
+    private function get_resource_info_last_resort($do_id) //3286228
+    {
+        //step 1 get all do_ids from page: <li><a href="/data_objects/14375915">2011-12-03 08:35:47 UTC</a></li>
+        if($html = Functions::lookup_with_cache("http://www.eol.org/data_objects/$do_id", $this->download_options)) {
+            if(preg_match_all("/\"\/data_objects\/(.*?)\"/ims", $html, $arr)) {
+                $do_ids = $arr[1];
+                $do_ids[] = $do_id;
+                $do_ids = array_reverse($do_ids);
+                print_r($do_ids);
+                $DOHE_tbl = 'data_objects_harvest_events';
+                foreach($do_ids as $do_id) {
+                    $sql = "SELECT dohe.*, he.resource_id, r.content_partner_id as cp_id, r.title as resource_name, r.collection_id as coll_id, cp.full_name as cp_name
+                    from $DOHE_tbl dohe
+                    left join harvest_events he on (dohe.harvest_event_id = he.id)
+                    left join resources r on (he.resource_id = r.id)
+                    left join content_partners cp on (r.content_partner_id = cp.id)
+                    where dohe.data_object_id = $do_id";
+                    $result = $this->mysqli->query($sql);
+                    if($result && $row2=$result->fetch_assoc()) {
+                        echo "\n OK $do_id";
+                        return array('resource_name' => $row2['resource_name'], 'resource_id' => $row2['resource_id'], 'cp_name' => $row2['cp_name'], 'cp_id' => $row2['cp_id'], 'coll_id' => $row2['coll_id']);
+                    }
+                    else echo "\n not OK $do_id";
+                }
+            }
+        }
+        return false;
+    }
+    private function tbl_from_Jen() //https://eol-jira.bibalex.org/browse/DATA-1740?focusedCommentId=62313&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62313
     {
         // obj_url_domain resource_ID
         $temp = "www.biolib.cz 11, caliban.mpiz-koeln.mpg.de 12, farm1.staticflickr.com 15, farm2.staticflickr.com 15, farm3.static.flickr.com 15, farm3.staticflickr.com 15, farm4.static.flickr.com 15, farm4.staticflickr.com 15, farm5.static.flickr.com 15, farm5.staticflickr.com 15, farm6.static.flickr.com 15, farm6.staticflickr.com 15, farm7.staticflickr.com 15, farm8.staticflickr.com 15, farm9.static.flickr.com 15, farm9.staticflickr.com 15, mushroomobserver.org 16, pinkava.asu.edu 19, animaldiversity.ummz.umich.edu 22, www.antweb.org 24, images.marinespecies.org 26, www.biopix.com 31, neotropicalfishes.lifedesks.org 35, www.neotropicalfishes.org 35, plants.usda.gov 37, www.fishbase.us 42, www.findingspecies.org 43, eolspecies.lifedesks.org 59, www.tropicallichens.net 69, upload.wikimedia.org 71, indianadunes.lifedesks.org 72, phil.cdc.gov 79, www.morphbank.net 83, alpheidae.lifedesks.org 92, ampullariidae.lifedesks.org 92, eolinterns.lifedesks.org 96, conabioweb.conabio.gob.mx 100, www.sharkeylab.org 103, www.biodiversity.com.au 106, www.habitas.org.uk 107, plantsoftibet.lifedesks.org 114, www.ascidians.com 116, continenticola.lifedesks.org 118, odonata.lifedesks.org 122, scarabaeinae.lifedesks.org 124, sacoglossa.lifedesks.org 129, projects.bebif.be 138, africanamphibians.lifedesks.org 139, chess.lifedesks.org 144, syrphidae.lifedesks.org 147, carex.lifedesks.org 154, vignea.lifedesks.org 155, canopy.lifedesks.org 166, www.bioimages.org.uk 168, archive.serpentproject.com 170, sipuncula.lifedesks.org 174, www.arcodiv.org 181, turbellaria.umaine.edu 185, www.fishwisepro.com 190, compositae.lifedesks.org 199, bioimages.vanderbilt.edu 200, mczbase.mcz.harvard.edu 201, tolweb.org 204, ebivalvia.lifedesks.org 213, terrslugs.lifedesks.org 215, images.mobot.org 218, diptera.myspecies.info 220, www.wallawalla.edu 221, mormyrids.lifedesks.org 222, annelida.lifedesks.org 231, marineinvaders.lifedesks.org 232, snakesoftheworld.lifedesks.org 234, polycladida.lifedesks.org 235, mexinverts.lifedesks.org 236, echinoderms.lifedesks.org 243, neotropnathistory.lifedesks.org 246, korupplants.lifedesks.org 248, salamandersofchina.lifedesks.org 250, www.discoverlife.org 252, liv.ac.uk 256, apoidea.lifedesks.org 258, britishbryozoans.myspecies.info 268, mothphotographersgroup.msstate.edu 270, avesamericanas.lifedesks.org 273, multimedia.inbio.ac.cr 276, www.nhm.ac.uk 281, cephaloleia.lifedesks.org 287, peet.tamu.edu 288, opisthobranchia.lifedesks.org 294, afrotropicalbirds.lifedesks.org 304, www.zimbabweflora.co.zw 327, www.boldsystems.org 329, philbreo.lifedesks.org 331, lifedesk.bibalex.org 335, pngbirds.myspecies.info 363, www.moroccoherps.com 370, butterfliesofamerica.com 374, www.butterfliesandmoths.org 374, www.planetscott.com 380, content.lib.washington.edu 388, www.ecomare.nl 414, lh3.ggpht.com 430, lh4.ggpht.com 430, lh5.ggpht.com 430, lh6.ggpht.com 430, sphotos-a.xx.fbcdn.net 430, sphotos-b.xx.fbcdn.net 430, static.inaturalist.org 430, fbcdn-sphotos-b-a.akamaihd.net 430, scontent-a.xx.fbcdn.net 430, scontent-b.xx.fbcdn.net 430, www.westafricanplants.senckenberg.de 435, caterpillars.lifedesks.org 485, pamba.strandls.com 520, fishdb.sinica.edu.tw 547, entnemdept.ufl.edu 642, erast.ut.ee 677, geokogud.info 677, ubio.org 679, www.chaloklum-diving.com 729, www.obs-vlfr.fr 742, neotropical-pollination.myspecies.info 756, oceandatacenter.ucsc.edu 781, inpn.mnhn.fr 785, www.femorale.com 793, eoldata.taibif.tw 802, phthiraptera.info 884, i1.treknature.com 895, biogeodb.stri.si.edu 902
@@ -423,7 +465,7 @@ class EOLv2MetadataAPI
         $final = array();
         foreach($temp as $t) {
             $arr = explode(" ", $t);
-            print_r($arr);
+            // print_r($arr);
             $index = $arr[0];
             $arr[0] = null;
             $arr = array_filter($arr); //remove null values
@@ -449,7 +491,7 @@ class EOLv2MetadataAPI
     }
     private function get_resource_info_using_obj_url($url)
     {
-        $arr_domain_resource_ids = self::last_resort_for_resource_info();
+        $arr_domain_resource_ids = self::tbl_from_Jen();
         $domain = self::get_domain_from_url($url);
         if($resource_id = @$arr_domain_resource_ids[$domain][0]) return self::get_resource_info_using_resource_id($resource_id);
         return false;
