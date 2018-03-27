@@ -317,8 +317,7 @@ class EnvironmentsEOLDataConnector
         elseif($subject == 'populationbiology')     $subject = 'population_biology';
         elseif($subject == 'migration')             $subject = 'migration';
         elseif($subject == 'development')           $subject = 'development';
-        
-        
+        elseif($subject == 'notes')                 $subject = 'notes';
         else {
             // print_r($line); exit("\nInvestigate subject: [$subject]\n");
             $this->debug['undefined subjects'][$subject] = '';
