@@ -33,7 +33,7 @@ class EOLv2MetadataAPI
         exit("\n-just test-\n");
         */
         // /* test
-        $res_info = self::get_resource_info_last_resort(27489312); //27489312 //3286228
+        $res_info = self::get_resource_info_last_resort(15177392); //27489312 //3286228
         print_r($res_info);
         exit("\n-just test-\n");
         // */
@@ -226,19 +226,23 @@ class EOLv2MetadataAPI
         $recs = array();
         $FILE = Functions::file_open($filename = CONTENT_RESOURCE_LOCAL_PATH ."user_object_curation.txt", "w");
         $headers_printed_already = false;
-        $m = 153370/5; $i = 0;
+        $m = 153370/5; $i = 0; //30674
         while($result && $row=$result->fetch_assoc()) {
             $i++;
             if(($i % 100) == 0) echo "\n".number_format($i)." - ";
-            /* breakdown when caching
+            // /* breakdown when caching
             $cont = false;
-            if($i >= 1    && $i < $m)    $cont = true;
+            // if($i >= 1    && $i < $m)    $cont = true;
             // if($i >= $m   && $i < $m*2)  $cont = true;
-            // if($i >= $m*2 && $i < $m*3)  $cont = true;
+            // if($i >= $m*2 && $i < $m*3)  $cont = true; //61348 - 92022
             // if($i >= $m*3 && $i < $m*4)  $cont = true;
             // if($i >= $m*4 && $i < $m*5)  $cont = true;
+
+            // if($i >= 80000 && $i < 90000)  $cont = true; //61348 - 92022
+            if($i >= 90000 && $i < 92022)  $cont = true; //61348 - 92022
+
             if(!$cont) continue;
-            */
+            // */
             
             $no_tc_id = false;
             $tc_id = false;
@@ -447,20 +451,20 @@ class EOLv2MetadataAPI
                     $do_ids[] = $do_id;
                     $do_ids = array_reverse($do_ids);
                     // print_r($do_ids);
-                    $DOHE_tbl = 'data_objects_harvest_events';
                     foreach($do_ids as $do_id) {
-                        $sql = "SELECT dohe.*, he.resource_id, r.content_partner_id as cp_id, r.title as resource_name, r.collection_id as coll_id, cp.full_name as cp_name
-                        from $DOHE_tbl dohe
-                        left join harvest_events he on (dohe.harvest_event_id = he.id)
-                        left join resources r on (he.resource_id = r.id)
-                        left join content_partners cp on (r.content_partner_id = cp.id)
-                        where dohe.data_object_id = $do_id";
-                        $result = $this->mysqli->query($sql);
-                        if($result && $row2=$result->fetch_assoc()) {
-                            echo "\n OK $do_id";
-                            return array('resource_name' => $row2['resource_name'], 'resource_id' => $row2['resource_id'], 'cp_name' => $row2['cp_name'], 'cp_id' => $row2['cp_id'], 'coll_id' => $row2['coll_id']);
+                        $tbls = array('data_objects_harvest_events', 'data_objects_harvest_events_curation', 'data_objects_harvest_events_ImageSizes');
+                        foreach($tbls as $tbl) {
+                            $sql = "SELECT dohe.*, he.resource_id, r.content_partner_id as cp_id, r.title as resource_name, r.collection_id as coll_id, cp.full_name as cp_name
+                            from $tbl dohe
+                            left join harvest_events he on (dohe.harvest_event_id = he.id) left join resources r on (he.resource_id = r.id)
+                            left join content_partners cp on (r.content_partner_id = cp.id) where dohe.data_object_id = $do_id";
+                            $result = $this->mysqli->query($sql);
+                            if($result && $row2=$result->fetch_assoc()) {
+                                echo "\n OK $do_id";
+                                return array('resource_name' => $row2['resource_name'], 'resource_id' => $row2['resource_id'], 'cp_name' => $row2['cp_name'], 'cp_id' => $row2['cp_id'], 'coll_id' => $row2['coll_id']);
+                            }
+                            // else echo "\n not OK $do_id";
                         }
-                        // else echo "\n not OK $do_id";
                     }
                 }
             }
