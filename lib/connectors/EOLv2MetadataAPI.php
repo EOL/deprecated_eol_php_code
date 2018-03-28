@@ -123,24 +123,20 @@ class EOLv2MetadataAPI
     public function start_user_comments($type)
     {
         if($type == 'DataObject') $sql = "SELECT c.parent_id as data_object_id, c.*
-        ,concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' ', if(u.username is not null, concat('(',u.username,')'), '')) as user_name 
-        ,o.* from comments c left join data_objects_comments o on (c.parent_id = o.id)
-        LEFT JOIN users u ON (c.user_id = u.id) where c.parent_type = 'DataObject' and o.id is not null and c.deleted = 0 order by c.id desc;"; //17440
-        
+            ,concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' ', if(u.username is not null, concat('(',u.username,')'), '')) as user_name 
+            ,o.* from comments c left join data_objects_comments o on (c.parent_id = o.id)
+            LEFT JOIN users u ON (c.user_id = u.id) where c.parent_type = 'DataObject' and o.id is not null and c.deleted = 0 order by c.id desc;"; //17440
         elseif($type == 'TaxonConcept') $sql = "SELECT c.parent_id as taxon_concept_id, c.* 
-        ,concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' ', if(u.username is not null, concat('(',u.username,')'), '')) as user_name
-        from comments c LEFT JOIN users u ON (c.user_id = u.id) where c.parent_type = 'TaxonConcept' and c.deleted = 0 order by c.id desc;"; //9426
-        
+            ,concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' ', if(u.username is not null, concat('(',u.username,')'), '')) as user_name
+            from comments c LEFT JOIN users u ON (c.user_id = u.id) where c.parent_type = 'TaxonConcept' and c.deleted = 0 order by c.id desc;"; //9426
         elseif($type == 'Collection') $sql = "SELECT c.* 
-        ,concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' ', if(u.username is not null, concat('(',u.username,')'), '')) as user_name
-        from comments c LEFT JOIN users u ON (c.user_id = u.id) where c.parent_type = 'Collection' and c.deleted = 0 order by c.id desc;"; //1172
+            ,concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' ', if(u.username is not null, concat('(',u.username,')'), '')) as user_name
+            from comments c LEFT JOIN users u ON (c.user_id = u.id) where c.parent_type = 'Collection' and c.deleted = 0 order by c.id desc;"; //1172
 
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows . "\n"; exit;
         $recs = array();
-        
         $FILE = Functions::file_open($filename = CONTENT_RESOURCE_LOCAL_PATH ."user_comments_".$type.".txt", "w");
-        
         $headers_printed_already = false;
         $m = 3488; $k = 0;
         while($result && $row=$result->fetch_assoc()) {
