@@ -123,6 +123,9 @@ class NCBIGGIqueryAPI
             $calls = 10; //orig is 100
             for ($i = $k; $i <= count($families)+$calls; $i=$i+$calls) //orig value of i is 0
             {
+                
+                
+                
                 $min = $i; $max = $min+$calls;
                 foreach($this->ggi_databases as $database)
                 {
@@ -316,6 +319,37 @@ class NCBIGGIqueryAPI
 
     private function get_best_bolds_taxid($json)
     {
+        // $a = json_decode($json); print_r($a);
+        /* stdClass Object(
+            [top_matched_names] => Array(
+                    [0] => stdClass Object
+                        (
+                            [taxid] => 701984
+                            [taxon] => Thermoproteaceae
+                            [tax_rank] => family
+                            [tax_division] => Bacteria
+                            [parentid] => 701983
+                            [parentname] => Thermoproteales
+                            [specimenrecords] => 1
+                        )
+                )
+            [total_matched_names] => 1
+        )
+        */
+        
+        $ranks = array("family", "subfamily", "genus", "order"); // best rank for FALO family, in this order
+        if($arr = json_decode($json)) {
+            foreach($ranks as $rank) {
+                foreach(@$arr->top_matched_names as $rec) {
+                    if(!$rec) return false;
+                    if($rec->tax_rank == $rank) return $rec->taxid;
+                }
+            }
+            foreach(@$arr->top_matched_names as $rec) return $rec->taxid;
+        }
+        
+        
+        /* old ways
         $ranks = array("family", "subfamily", "genus", "order"); // best rank for FALO family, in this order
         if($arr = json_decode($json)) {
             foreach($ranks as $rank) {
@@ -326,6 +360,7 @@ class NCBIGGIqueryAPI
             }
             foreach($arr as $taxid => $rec) return $taxid;
         }
+        */
         return false;
     }
 
@@ -466,8 +501,8 @@ class NCBIGGIqueryAPI
                                 }
                                 elseif($html = Functions::lookup_with_cache($this->bolds_taxon_page_id . $arr[1], $this->download_options)) // original means, more or less it won't go here anymore
                                 {
-                                    if(preg_match("/BOLD Systems: Taxonomy Browser -(.*?)\{/ims", $html, $arr))
-                                    {
+                                   // <h3>TAXONOMY BROWSER: Gadidae</h3>
+                                    if(preg_match("/<h3>TAXONOMY BROWSER\: (.*?)<\/h3>/ims", $html, $arr)) {
                                         $canonical = trim($arr[1]);
                                         echo "\n Got from bolds.org 2: [" . $canonical . "]\n";
                                     }
