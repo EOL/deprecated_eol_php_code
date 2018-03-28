@@ -24,6 +24,7 @@ class NCBIGGIqueryAPI
     {
         if($folder)
         {
+            $this->resource_id = $folder;
             $this->query = $query;
             $this->taxa = array();
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
@@ -78,14 +79,13 @@ class NCBIGGIqueryAPI
         */
 
         $this->ggi_databases = array("ncbi", "ggbn", "gbif", "bhl", "bolds");
-        $this->ggi_databases = array("gbif"); //debug - use to process 1 database
-        $this->ggi_databases = array("bhl"); //debug - use to process 1 database
-        $this->ggi_databases = array("ncbi"); //debug - use to process 1 database
+        // $this->ggi_databases = array("gbif"); //debug - use to process 1 database
+        // $this->ggi_databases = array("bhl"); //debug - use to process 1 database
+        // $this->ggi_databases = array("ncbi"); //debug - use to process 1 database
         // $this->ggi_databases = array("ggbn"); //debug - use to process 1 database
-        // $this->ggi_databases = array("bolds"); //debug - use to process 1 database
-        $this->ggi_databases = array("ncbi", "ggbn", "gbif", "bhl");
+        $this->ggi_databases = array("bolds"); //debug - use to process 1 database
+        // $this->ggi_databases = array("ncbi", "ggbn", "gbif", "bhl");
 
-        
         $this->ggi_path = DOC_ROOT . "temp/GGI/";
 
         $this->eol_api["search"]    = "http://eol.org/api/search/1.0.json?page=1&exact=true&filter_by_taxon_concept_id=&filter_by_hierarchy_entry_id=&filter_by_string=&cache_ttl=&q=";
@@ -768,8 +768,8 @@ class NCBIGGIqueryAPI
         $taxon_id = (string) $rec["taxon_id"];
         $object_id = (string) $rec["object_id"];
         $m = new \eol_schema\MeasurementOrFact();
-        $occurrence = $this->add_occurrence($taxon_id, $object_id);
-        $m->occurrenceID        = $occurrence->occurrenceID;
+        $occurrence_id = $this->add_occurrence($taxon_id, $object_id);
+        $m->occurrenceID        = $occurrence_id;
         $m->measurementOfTaxon  = 'true';
         $m->source              = @$rec["source"];
         if($val = $measurementType) $m->measurementType = $val;
@@ -777,6 +777,7 @@ class NCBIGGIqueryAPI
         $m->measurementValue = (string) $value;
         if(!isset($this->measurement_ids[$m->occurrenceID]))
         {
+            $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
             $this->archive_builder->write_object_to_file($m);
             $this->measurement_ids[$m->occurrenceID] = '';
         }
@@ -785,13 +786,21 @@ class NCBIGGIqueryAPI
     private function add_occurrence($taxon_id, $object_id)
     {
         $occurrence_id = $taxon_id . 'O' . $object_id;
-        if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
+
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
+
+        /* old ways
         $this->archive_builder->write_object_to_file($o);
         $this->occurrence_ids[$occurrence_id] = $o;
         return $o;
+        */
     }
 
     private function create_archive()
