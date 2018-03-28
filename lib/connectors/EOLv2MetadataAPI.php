@@ -1501,7 +1501,7 @@ class EOLv2MetadataAPI
     {
         if(!$url) return;
         if(substr($url,0,5) != "http:") return;
-        $options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*30*3); //cache expires in 3 months
+        $options = array('cache' => 1, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1, 'expire_seconds' => false); //cache expires in 3 months
         $options['file_extension'] = "pdf";
         if($file = Functions::save_remote_file_to_local($url, $options)) {
             echo "\n [$url]: $file\n";

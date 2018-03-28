@@ -484,8 +484,7 @@ class NCBIGGIqueryAPI
         $canonical = "";
         $d_options = $this->download_options;
         $d_options['resource_id'] = "eol_api";
-        $d_options['expire_seconds'] = 15552000; //6 months to expire
-        // $d_options['expire_seconds'] = false; //debug
+        $d_options['expire_seconds'] = false; //15552000; //6 months to expire
 
         if($json = Functions::lookup_with_cache($this->eol_api["search"] . $family, $d_options)) {
             $json = json_decode($json, true);
