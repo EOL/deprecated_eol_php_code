@@ -62,8 +62,8 @@ class NCBIGGIqueryAPI
         $this->bhl_taxon_in_xml = "http://www.biodiversitylibrary.org/api2/httpquery.ashx?op=NameGetDetail&apikey=deabdd14-65fb-4cde-8c36-93dc2a5de1d8&name=";
 
         // BOLDS portal
-        $this->bolds_taxon_page = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?searchTax=&taxon=";
-        $this->bolds_taxon_page_id = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
+        $this->bolds_taxon_page_by_name = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?searchTax=&taxon=";
+        $this->bolds_taxon_page_by_id = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
         $this->bolds["TaxonSearch"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonSearch?taxName=";
         $this->bolds["TaxonData"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=basic,stats&taxId=";
 
@@ -259,10 +259,10 @@ class NCBIGGIqueryAPI
     {
         $rec["family"] = $family;
         $rec["taxon_id"] = $family;
-        $rec["source"] = $this->bolds_taxon_page . $family;
+        $rec["source"] = $this->bolds_taxon_page_by_name . $family;
         if($json = Functions::lookup_with_cache($this->bolds["TaxonSearch"] . $family, $this->download_options)) {
             if($info = self::parse_bolds_taxon_search($json)) {
-                $rec["source"] = $this->bolds_taxon_page_id . $info["taxid"];
+                $rec["source"] = $this->bolds_taxon_page_by_id . $info["taxid"];
                 if(@$info["specimens"] > 0) {
                     $rec["object_id"]   = "_no_of_rec_in_bolds";
                     $rec["count"]       = $info["specimens"];
@@ -509,7 +509,7 @@ class NCBIGGIqueryAPI
                                         echo "\n Got from bolds.org: [" . $canonical . "]\n";
                                     }
                                 }
-                                elseif($html = Functions::lookup_with_cache($this->bolds_taxon_page_id . $arr[1], $this->download_options)) // original means, more or less it won't go here anymore
+                                elseif($html = Functions::lookup_with_cache($this->bolds_taxon_page_by_id . $arr[1], $this->download_options)) // original means, more or less it won't go here anymore
                                 {
                                    // <h3>TAXONOMY BROWSER: Gadidae</h3>
                                     if(preg_match("/<h3>TAXONOMY BROWSER\: (.*?)<\/h3>/ims", $html, $arr)) {
