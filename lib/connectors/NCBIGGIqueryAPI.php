@@ -487,24 +487,16 @@ class NCBIGGIqueryAPI
         $d_options['expire_seconds'] = 15552000; //6 months to expire
         // $d_options['expire_seconds'] = false; //debug
 
-        if($json = Functions::lookup_with_cache($this->eol_api["search"] . $family, $d_options))
-        {
+        if($json = Functions::lookup_with_cache($this->eol_api["search"] . $family, $d_options)) {
             $json = json_decode($json, true);
-            if($json["results"])
-            {
-                if($id = $json["results"][0]["id"])
-                {
-                    if($database == "bolds")
-                    {
-                        if($html = Functions::lookup_with_cache("http://eol.org/pages/$id/resources/partner_links", $d_options))
-                        {
-                            if(preg_match("/boldsystems\.org\/index.php\/Taxbrowser_Taxonpage\?taxid=(.*?)\"/ims", $html, $arr))
-                            {
+            if($json["results"]) {
+                if($id = $json["results"][0]["id"]) {
+                    if($database == "bolds") {
+                        if($html = Functions::lookup_with_cache("http://eol.org/pages/$id/resources/partner_links", $d_options)) {
+                            if(preg_match("/boldsystems\.org\/index.php\/Taxbrowser_Taxonpage\?taxid=(.*?)\"/ims", $html, $arr)) {
                                 echo "\n bolds id: " . $arr[1] . "\n";
-                                if($json = Functions::lookup_with_cache($this->bolds["TaxonData"] . $arr[1], $this->download_options))
-                                {
-                                    if($arr = json_decode($json))
-                                    {
+                                if($json = Functions::lookup_with_cache($this->bolds["TaxonData"] . $arr[1], $this->download_options)) {
+                                    if($arr = json_decode($json)) {
                                         $canonical = trim($arr->taxon);
                                         echo "\n Got from bolds.org: [" . $canonical . "]\n";
                                     }
@@ -522,20 +514,15 @@ class NCBIGGIqueryAPI
                     }
                     else // ncbi, gbif, ggbn
                     {
-                        if($json = Functions::lookup_with_cache($this->eol_api["page"][0] . $id . $this->eol_api["page"][1], $d_options))
-                        {
+                        if($json = Functions::lookup_with_cache($this->eol_api["page"][0] . $id . $this->eol_api["page"][1], $d_options)) {
                             $json = json_decode($json, true);
-                            foreach($json["taxonConcepts"] as $tc)
-                            {
-                                if(in_array($database, array("ncbi", "gbif")))
-                                {
-                                    if($this->databases_to_check_eol_api[$database] == $tc["nameAccordingTo"])
-                                    {
+                            foreach($json["taxonConcepts"] as $tc) {
+                                if(in_array($database, array("ncbi", "gbif"))) {
+                                    if($this->databases_to_check_eol_api[$database] == $tc["nameAccordingTo"]) {
                                         if($family != $tc["canonicalForm"]) $canonical = $tc["canonicalForm"];
                                     }
                                 }
-                                elseif($database == "ggbn")
-                                {
+                                elseif($database == "ggbn") {
                                     if(is_numeric(stripos($tc["nameAccordingTo"], $this->databases_to_check_eol_api[$database]))) $canonical = $tc["canonicalForm"];
                                 }
                             }
@@ -546,8 +533,7 @@ class NCBIGGIqueryAPI
         }
         // echo "\n [$database] taxonomy:[" . $this->databases_to_check_eol_api[$database] . "]\n";
         if($canonical) $canonical = ucfirst(strtolower($canonical));
-        if($canonical && $canonical != $family)
-        {
+        if($canonical && $canonical != $family) {
             echo "\n has diff name in eol api:[$canonical]\n";
             $this->families_with_no_data[$canonical] = '';
             self::save_to_dump($family . "\t" . $canonical . "\t" . $database, $this->name_from_eol_api_dump_file);
@@ -563,25 +549,20 @@ class NCBIGGIqueryAPI
         $rec["family"] = $family;
         $rec["taxon_id"] = $family;
         $rec["source"] = $this->gbif_taxon_info . $family;
-        if($json = Functions::lookup_with_cache($this->gbif_taxon_info . $family, $this->gbif_download_options))
-        {
+        if($json = Functions::lookup_with_cache($this->gbif_taxon_info . $family, $this->gbif_download_options)) {
             $json = json_decode($json);
             $usageKey = false;
-            if(!isset($json->usageKey))
-            {
+            if(!isset($json->usageKey)) {
                 if(isset($json->note)) $usageKey = self::get_usage_key($family);
                 else {} // e.g. Fervidicoccaceae
             }
             else $usageKey = trim((string) $json->usageKey);
 
-            if($usageKey)
-            {
+            if($usageKey) {
                 $count = Functions::lookup_with_cache($this->gbif_record_count . $usageKey, $this->gbif_download_options);
-                if($count || strval($count) == "0")
-                {
+                if($count || strval($count) == "0") {
                     $rec["source"] = $this->gbif_record_count . $usageKey;
-                    if($count > 0)
-                    {
+                    if($count > 0) {
                         $rec["object_id"]   = "_no_of_rec_in_gbif";
                         $rec["count"]       = $count;
                         $rec["label"]       = "Number records in GBIF";
@@ -600,8 +581,7 @@ class NCBIGGIqueryAPI
         }
         else self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
 
-        if(!$is_subfamily)
-        {
+        if(!$is_subfamily) {
             $rec["object_id"] = "_no_of_rec_in_gbif";
             self::add_string_types($rec, "Number records in GBIF", 0, "http://eol.org/schema/terms/NumberRecordsInGBIF", $family);
             $rec["object_id"] = "_rec_in_gbif";
@@ -614,22 +594,18 @@ class NCBIGGIqueryAPI
 
     private function get_usage_key($family)
     {
-        if($json = Functions::lookup_with_cache($this->gbif_taxon_info . $family . "&verbose=true", $this->gbif_download_options))
-        {
+        if($json = Functions::lookup_with_cache($this->gbif_taxon_info . $family . "&verbose=true", $this->gbif_download_options)) {
             $usagekeys = array();
             $options = array();
             $json = json_decode($json);
             if(!isset($json->alternatives)) return false;
-            foreach($json->alternatives as $rec)
-            {
-                if($rec->canonicalName == $family)
-                {
+            foreach($json->alternatives as $rec) {
+                if($rec->canonicalName == $family) {
                     $options[$rec->rank][] = $rec->usageKey;
                     $usagekeys[] = $rec->usageKey;
                 }
             }
-            if($options)
-            {
+            if($options) {
                 if(isset($options["FAMILY"])) return min($options["FAMILY"]);
                 else return min($usagekeys);
             }
@@ -641,8 +617,7 @@ class NCBIGGIqueryAPI
     {
         $names = array();
         $dump_file = DOC_ROOT . "/public/tmp/gbif/names_no_entry_from_partner.txt";
-        foreach(new FileIterator($dump_file) as $line_number => $line)
-        {
+        foreach(new FileIterator($dump_file) as $line_number => $line) {
             if($line) $names[$line] = "";
         }
         return array_keys($names);
@@ -650,8 +625,7 @@ class NCBIGGIqueryAPI
 
     private function save_to_dump($rec, $filename)
     {
-        if(isset($rec["measurement"]) && is_array($rec))
-        {
+        if(isset($rec["measurement"]) && is_array($rec)) {
             $fields = array("family", "count", "taxon_id", "object_id", "source", "label", "measurement");
             $data = "";
             foreach($fields as $field) $data .= $rec[$field] . "\t";
@@ -659,8 +633,7 @@ class NCBIGGIqueryAPI
             fwrite($WRITE, $data . "\n");
             fclose($WRITE);
         }
-        else
-        {
+        else {
             if(!($WRITE = Functions::file_open($filename, "a"))) return;
             if($rec && is_array($rec)) fwrite($WRITE, json_encode($rec) . "\n");
             else                       fwrite($WRITE, $rec . "\n");
@@ -674,12 +647,10 @@ class NCBIGGIqueryAPI
         $rec["family"] = $family;
         $rec["source"] = $this->family_service_ggbn . $family;
         $rec["taxon_id"] = $family;
-        if($html = Functions::lookup_with_cache($rec["source"], $this->download_options))
-        {
+        if($html = Functions::lookup_with_cache($rec["source"], $this->download_options)) {
             $obj = json_decode($html);
             $has_data = false;
-            if(@$obj->sampletype->DNA > 0)
-            {
+            if(@$obj->sampletype->DNA > 0) {
                 $rec["object_id"]   = "NumberDNAInGGBN";
                 $rec["count"]       = (string) $obj->sampletype->DNA;
                 $rec["label"]       = "Number of DNA records in GGBN";
@@ -687,17 +658,14 @@ class NCBIGGIqueryAPI
                 self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
                 $has_data = true;
             }
-            if(!$has_data)
-            {
-                if(!$is_subfamily)
-                {
+            if(!$has_data) {
+                if(!$is_subfamily) {
                     $rec["object_id"] = "NumberDNAInGGBN";
                     self::add_string_types($rec, "Number of DNA records in GGBN", 0, "http://eol.org/schema/terms/NumberDNARecordsInGGBN", $family);
                 }
             }
 
-            if(@$obj->sampletype->specimen > 0)
-            {
+            if(@$obj->sampletype->specimen > 0) {
                 $rec["object_id"] = "NumberSpecimensInGGBN";
                 $rec["count"] = (string) $obj->sampletype->specimen;
                 $rec["label"] = "NumberSpecimensInGGBN";
@@ -710,10 +678,8 @@ class NCBIGGIqueryAPI
                 $rec["measurement"] = "http://eol.org/schema/terms/SpecimensInGGBN";
                 self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
             }
-            else
-            {
-                if(!$is_subfamily)
-                {
+            else {
+                if(!$is_subfamily) {
                     $rec["object_id"] = "NumberSpecimensInGGBN";
                     self::add_string_types($rec, "NumberSpecimensInGGBN", 0, "http://eol.org/schema/terms/NumberSpecimensInGGBN", $family);
                     $rec["object_id"] = "SpecimensInGGBN";
@@ -722,8 +688,7 @@ class NCBIGGIqueryAPI
             }
             if(@$obj->sampletype->DNA || @$obj->sampletype->specimen) return true;
         }
-        if(!$is_subfamily)
-        {
+        if(!$is_subfamily) {
             $rec["object_id"] = "NumberSpecimensInGGBN";
             self::add_string_types($rec, "NumberSpecimensInGGBN", 0, "http://eol.org/schema/terms/NumberSpecimensInGGBN", $family);
             $rec["object_id"] = "SpecimensInGGBN";
@@ -746,10 +711,8 @@ class NCBIGGIqueryAPI
     {
         $temp = array();
         $html = str_ireplace("<tr style='border-top-width:1px;border-top-style:solid;border-color:#CCCCCC'>", "<tr style='elix'>", $html);
-        if(preg_match_all("/<tr style=\'elix\'>(.*?)<\/tr>/ims", $html, $arr))
-        {
-            foreach($arr[1] as $r)
-            {
+        if(preg_match_all("/<tr style=\'elix\'>(.*?)<\/tr>/ims", $html, $arr)) {
+            foreach($arr[1] as $r) {
                 $r = strip_tags($r, "<td>");
                 if(preg_match_all("/<td valign=\'top\'>(.*?)<\/td>/ims", $r, $arr2)) $temp[] = $arr2[1][2]; //get last coloumn (specimen no.)
             }
@@ -763,10 +726,8 @@ class NCBIGGIqueryAPI
         $rec["source"] = $this->family_service_ncbi . $family;
         $rec["taxon_id"] = $family;
         $contents = Functions::lookup_with_cache($rec["source"], $this->download_options);
-        if($xml = simplexml_load_string($contents))
-        {
-            if($xml->Count > 0)
-            {
+        if($xml = simplexml_load_string($contents)) {
+            if($xml->Count > 0) {
                 $rec["object_id"] = "_no_of_seq_in_genbank";
                 $rec["count"]       = $xml->Count;
                 $rec["label"]       = "Number Of Sequences In GenBank";
@@ -782,8 +743,7 @@ class NCBIGGIqueryAPI
                 return true;
             }
         }
-        if(!$is_subfamily)
-        {
+        if(!$is_subfamily) {
             $rec["object_id"] = "_no_of_seq_in_genbank";
             self::add_string_types($rec, "Number Of Sequences In GenBank", 0, "http://eol.org/schema/terms/NumberOfSequencesInGenBank", $family);
             $rec["object_id"] = "SequenceInGenBank";
@@ -806,11 +766,11 @@ class NCBIGGIqueryAPI
         if($val = $measurementType) $m->measurementType = $val;
         else                        $m->measurementType = "http://ggbn.org/". SparqlClient::to_underscore($label);
         $m->measurementValue = (string) $value;
-        if(!isset($this->measurement_ids[$m->occurrenceID]))
-        {
-            $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        if(!isset($this->measurement_ids[$m->measurementID])) {
             $this->archive_builder->write_object_to_file($m);
-            $this->measurement_ids[$m->occurrenceID] = '';
+            $this->measurement_ids[$m->measurementID] = '';
         }
     }
 
