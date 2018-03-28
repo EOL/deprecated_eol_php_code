@@ -248,13 +248,10 @@ class NCBIGGIqueryAPI
         $rec["family"] = $family;
         $rec["taxon_id"] = $family;
         $rec["source"] = $this->bolds_taxon_page . $family;
-        if($json = Functions::lookup_with_cache($this->bolds["TaxonSearch"] . $family, $this->download_options))
-        {
-            if($info = self::parse_bolds_taxon_search($json))
-            {
+        if($json = Functions::lookup_with_cache($this->bolds["TaxonSearch"] . $family, $this->download_options)) {
+            if($info = self::parse_bolds_taxon_search($json)) {
                 $rec["source"] = $this->bolds_taxon_page_id . $info["taxid"];
-                if(@$info["specimens"] > 0)
-                {
+                if(@$info["specimens"] > 0) {
                     $rec["object_id"]   = "_no_of_rec_in_bolds";
                     $rec["count"]       = $info["specimens"];
                     $rec["label"]       = "Number records in BOLDS";
@@ -266,28 +263,23 @@ class NCBIGGIqueryAPI
                     $rec["measurement"] = "http://eol.org/schema/terms/RecordInBOLD";
                     self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
                 }
-                else
-                {
-                    if(!$is_subfamily)
-                    {
+                else {
+                    if(!$is_subfamily) {
                         $rec["object_id"] = "_no_of_rec_in_bolds";
                         self::add_string_types($rec, "Number records in BOLDS", 0, "http://eol.org/schema/terms/NumberRecordsInBOLD", $family);
                         $rec["object_id"] = "_rec_in_bolds";
                         self::add_string_types($rec, "Records in BOLDS", "http://eol.org/schema/terms/no", "http://eol.org/schema/terms/RecordInBOLD", $family);
                     }
                 }
-                if(@$info["public records"] > 0)
-                {
+                if(@$info["public records"] > 0) {
                     $rec["object_id"]   = "_no_of_public_rec_in_bolds";
                     $rec["count"]       = $info["public records"];
                     $rec["label"]       = "Number public records in BOLDS";
                     $rec["measurement"] = "http://eol.org/schema/terms/NumberPublicRecordsInBOLD";
                     self::save_to_dump($rec, $this->ggi_text_file[$database]["current"]);
                 }
-                else
-                {
-                    if(!$is_subfamily)
-                    {
+                else {
+                    if(!$is_subfamily) {
                         $rec["object_id"] = "_no_of_public_rec_in_bolds";
                         self::add_string_types($rec, "Number public records in BOLDS", 0, "http://eol.org/schema/terms/NumberPublicRecordsInBOLD", $family);
                     }
@@ -298,8 +290,7 @@ class NCBIGGIqueryAPI
         }
         else self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
 
-        if(!$is_subfamily)
-        {
+        if(!$is_subfamily) {
             $rec["object_id"] = "_no_of_rec_in_bolds";
             self::add_string_types($rec, "Number records in BOLDS", 0, "http://eol.org/schema/terms/NumberRecordsInBOLD", $family);
             $rec["object_id"] = "_rec_in_bolds";
@@ -314,10 +305,8 @@ class NCBIGGIqueryAPI
 
     private function parse_bolds_taxon_search($json)
     {
-        if($taxid = self::get_best_bolds_taxid($json))
-        {
-            if($json = Functions::lookup_with_cache($this->bolds["TaxonData"] . $taxid, $this->download_options))
-            {
+        if($taxid = self::get_best_bolds_taxid($json)) {
+            if($json = Functions::lookup_with_cache($this->bolds["TaxonData"] . $taxid, $this->download_options)) {
                 $arr = json_decode($json);
                 return array("taxid" => $taxid, "public records" => $arr->stats->publicrecords, "specimens" => $arr->stats->sequencedspecimens);
             }
@@ -328,12 +317,9 @@ class NCBIGGIqueryAPI
     private function get_best_bolds_taxid($json)
     {
         $ranks = array("family", "subfamily", "genus", "order"); // best rank for FALO family, in this order
-        if($arr = json_decode($json))
-        {
-            foreach($ranks as $rank)
-            {
-                foreach($arr as $taxid => $rec)
-                {
+        if($arr = json_decode($json)) {
+            foreach($ranks as $rank) {
+                foreach($arr as $taxid => $rec) {
                     if(!$rec) return false;
                     if($rec->tax_rank == $rank) return $taxid;
                 }
