@@ -29,7 +29,6 @@ class EnvironmentsEOLDataConnector
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->need_to_check_tc_id_dump_file = $this->TEMP_DIR . "need_to_check_tc_id.txt";
     }
-
     /*
     Array
     (
@@ -47,7 +46,6 @@ class EnvironmentsEOLDataConnector
         [4] => "Beenakia dacostae." <i>Wikipedia, The Free Encyclopedia</i>. 22 Jul 2014, 07:03 UTC. 3 Nov 2014 &lt;<a href="http://en.wikipedia.org/w/index.php?title=Beenakia_dacostae&oldid=632149823">http://en.wikipedia.org/w/index.php?title=Beenakia_dacostae&oldid=632149823</a>&gt;.
     )
     */
-
     function generate_EnvEOL_data()
     {
         /* obsolete doesn't work anymore...
@@ -77,8 +75,7 @@ class EnvironmentsEOLDataConnector
 
         /* run problematic tc_ids with cache=0 --- a utility
         $tc_ids = self::get_dump();
-        foreach($tc_ids as $tc_id)
-        {
+        foreach($tc_ids as $tc_id) {
             $rec['taxon_id'] = $tc_id;
             self::prepare_taxon($rec);
         }
@@ -91,8 +88,7 @@ class EnvironmentsEOLDataConnector
     {
         $fields = array("taxon_id", "do_id_subchapter", "text", "envo", "5th_col");
         $i = 0; $m = 1700000/5; // = 340000
-        foreach(new FileIterator($tsv_file) as $line_number => $line)
-        {
+        foreach(new FileIterator($tsv_file) as $line_number => $line) {
             $temp = explode("\t", $line);
             $i++;
             if(($i % 100) == 0) echo "\n".number_format($i)." - ";
@@ -326,7 +322,12 @@ class EnvironmentsEOLDataConnector
         $rec['measurementValue']    = $uri;
         $rec['measurementMethod']   = 'text mining';
         $rec["contributor"]         = '<a href="http://environments-eol.blogspot.com/2013/03/welcome-to-environments-eol-few-words.html">Environments-EOL</a>';
+
+        /* old
         $rec["source"]              = "http://eol.org/pages/" . str_replace('EOL:', '', $rec["taxon_id"]) . "/details#". $subject;
+        */
+        $rec["source"]              = "http://eol.org/pages/" . str_replace('EOL:', '', $rec["taxon_id"]);
+        
         $rec['measurementRemarks']  = "source text: \"" . $line['text'] . "\"";
         if($val = self::get_reference_ids($line)) $rec['referenceID'] = implode("; ", $val);
         self::add_string_types($rec);
