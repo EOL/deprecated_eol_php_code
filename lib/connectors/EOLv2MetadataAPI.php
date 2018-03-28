@@ -446,7 +446,7 @@ class EOLv2MetadataAPI
                     $do_ids = $arr[1];
                     $do_ids[] = $do_id;
                     $do_ids = array_reverse($do_ids);
-                    print_r($do_ids);
+                    // print_r($do_ids);
                     $DOHE_tbl = 'data_objects_harvest_events';
                     foreach($do_ids as $do_id) {
                         $sql = "SELECT dohe.*, he.resource_id, r.content_partner_id as cp_id, r.title as resource_name, r.collection_id as coll_id, cp.full_name as cp_name
@@ -460,7 +460,7 @@ class EOLv2MetadataAPI
                             echo "\n OK $do_id";
                             return array('resource_name' => $row2['resource_name'], 'resource_id' => $row2['resource_id'], 'cp_name' => $row2['cp_name'], 'cp_id' => $row2['cp_id'], 'coll_id' => $row2['coll_id']);
                         }
-                        else echo "\n not OK $do_id";
+                        // else echo "\n not OK $do_id";
                     }
                 }
             }
