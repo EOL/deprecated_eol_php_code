@@ -30,16 +30,13 @@ class EOLv2MetadataAPI
         /* test
         $res_info = self::get_resource_info_using_obj_url("http://farm5.static.flickr.com/4097/4776265549_15a03b0c1c.jpg");
         print_r($res_info);
-        exit;
+        exit('\n-just test-\n');
         */
-        
         // /* test
         $res_info = self::get_resource_info_last_resort(3286228);
         print_r($res_info);
-        exit;
+        exit('\n-just test-\n');
         // */
-        
-        
         
         $sql = "SELECT i.*, o.* from image_sizes i left join data_objects_ImageSizes o on (i.data_object_id = o.id) 
         -- order by i.updated_at desc
@@ -79,10 +76,12 @@ class EOLv2MetadataAPI
                 // print_r($info); exit;
             }
             $rec = array();
-            // $rec['user_id'] = $row['user_id'];
-            // $rec['user_name'] = $row['user_name'];
-            // $rec['activity'] = $row['activity'];
-            // $rec['ch_object_type'] = $row['ch_object_type'];
+            /* excluded for this report
+            $rec['user_id'] = $row['user_id'];
+            $rec['user_name'] = $row['user_name'];
+            $rec['activity'] = $row['activity'];
+            $rec['ch_object_type'] = $row['ch_object_type'];
+            */
             $rec['data_object_id'] = $row['data_object_id'];
             $rec['obj_guid'] = $row['guid'];
             $rec['crop_dimensions'] = self::get_crop_dimensions($row);
@@ -115,11 +114,10 @@ class EOLv2MetadataAPI
     }
     private function get_crop_dimensions($rec)
     {
-        $arr = array("height" => $rec['height'], 'width' => $rec['width'], 'crop_x' => ($rec['crop_x_pct']/100) * $rec['width'], 
-                                                                             'crop_y' => ($rec['crop_y_pct']/100) * $rec['height'], 
-                                                                             'crop_width' => ($rec['crop_width_pct']/100) * $rec['width'],
-                                                                             'crop_height' => ($rec['crop_height_pct']/100) * $rec['height']
-                                                                             );
+        $arr = array("height" => $rec['height'], 'width' => $rec['width'], 'crop_x'      => ($rec['crop_x_pct']/100) * $rec['width'], 
+                                                                           'crop_y'      => ($rec['crop_y_pct']/100) * $rec['height'], 
+                                                                           'crop_width'  => ($rec['crop_width_pct']/100) * $rec['width'],
+                                                                           'crop_height' => ($rec['crop_height_pct']/100) * $rec['height']);
         return json_encode($arr);
     }
     public function start_user_comments($type)
