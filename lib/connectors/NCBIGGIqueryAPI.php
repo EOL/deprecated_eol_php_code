@@ -119,11 +119,20 @@ class NCBIGGIqueryAPI
             */
 
             // /* working, a round-robin option of server load - per 100 calls each server
-            $k = 0;
+            $k = 0; $m = 9646/5;
             $calls = 10; //orig is 100
             for ($i = $k; $i <= count($families)+$calls; $i=$i+$calls) //orig value of i is 0
             {
-                
+                echo "\n[$i] - ";
+                /* breakdown when caching
+                $cont = false;
+                // if($i >= 1    && $i < $m)    $cont = true;
+                // if($i >= $m   && $i < $m*2)  $cont = true;
+                // if($i >= $m*2 && $i < $m*3)  $cont = true;
+                // if($i >= $m*3 && $i < $m*4)  $cont = true;
+                if($i >= $m*4 && $i < $m*5)  $cont = true;
+                if(!$cont) continue;
+                */
                 
                 
                 $min = $i; $max = $min+$calls;
@@ -133,7 +142,7 @@ class NCBIGGIqueryAPI
                     $this->families_with_no_data = array_keys($this->families_with_no_data);
                     if($this->families_with_no_data) self::create_instances_from_taxon_object($this->families_with_no_data, true, $database);
                 }
-                // break; //debug - process just a subset
+                break; //debug - process just a subset
             }
             // */
 
@@ -311,6 +320,7 @@ class NCBIGGIqueryAPI
         if($taxid = self::get_best_bolds_taxid($json)) {
             if($json = Functions::lookup_with_cache($this->bolds["TaxonData"] . $taxid, $this->download_options)) {
                 $arr = json_decode($json);
+                print_r($arr);
                 return array("taxid" => $taxid, "public records" => $arr->stats->publicrecords, "specimens" => $arr->stats->sequencedspecimens);
             }
         }
