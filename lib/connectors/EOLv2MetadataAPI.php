@@ -30,12 +30,12 @@ class EOLv2MetadataAPI
         /* test
         $res_info = self::get_resource_info_using_obj_url("http://farm5.static.flickr.com/4097/4776265549_15a03b0c1c.jpg");
         print_r($res_info);
-        exit('\n-just test-\n');
+        exit("\n-just test-\n");
         */
         // /* test
-        $res_info = self::get_resource_info_last_resort(3286228);
+        $res_info = self::get_resource_info_last_resort(27489312); //27489312 //3286228
         print_r($res_info);
-        exit('\n-just test-\n');
+        exit("\n-just test-\n");
         // */
         
         $sql = "SELECT i.*, o.* from image_sizes i left join data_objects_ImageSizes o on (i.data_object_id = o.id) 
@@ -226,7 +226,20 @@ class EOLv2MetadataAPI
         $recs = array();
         $FILE = Functions::file_open($filename = CONTENT_RESOURCE_LOCAL_PATH ."user_object_curation.txt", "w");
         $headers_printed_already = false;
+        $m = 153370/5; $i = 0;
         while($result && $row=$result->fetch_assoc()) {
+            $i++;
+            if(($i % 100) == 0) echo "\n".number_format($i)." - ";
+            /* breakdown when caching
+            $cont = false;
+            if($i >= 1    && $i < $m)    $cont = true;
+            // if($i >= $m   && $i < $m*2)  $cont = true;
+            // if($i >= $m*2 && $i < $m*3)  $cont = true;
+            // if($i >= $m*3 && $i < $m*4)  $cont = true;
+            // if($i >= $m*4 && $i < $m*5)  $cont = true;
+            if(!$cont) continue;
+            */
+            
             $no_tc_id = false;
             $tc_id = false;
             if($tc_id = $row['taxon_concept_id']) {} //echo "\n With tc_id \n";
@@ -413,25 +426,42 @@ class EOLv2MetadataAPI
     {
         //step 1 get all do_ids from page: <li><a href="/data_objects/14375915">2011-12-03 08:35:47 UTC</a></li>
         if($html = Functions::lookup_with_cache("http://www.eol.org/data_objects/$do_id", $this->download_options)) {
-            if(preg_match_all("/\"\/data_objects\/(.*?)\"/ims", $html, $arr)) {
-                $do_ids = $arr[1];
-                $do_ids[] = $do_id;
-                $do_ids = array_reverse($do_ids);
-                print_r($do_ids);
-                $DOHE_tbl = 'data_objects_harvest_events';
-                foreach($do_ids as $do_id) {
-                    $sql = "SELECT dohe.*, he.resource_id, r.content_partner_id as cp_id, r.title as resource_name, r.collection_id as coll_id, cp.full_name as cp_name
-                    from $DOHE_tbl dohe
-                    left join harvest_events he on (dohe.harvest_event_id = he.id)
-                    left join resources r on (he.resource_id = r.id)
-                    left join content_partners cp on (r.content_partner_id = cp.id)
-                    where dohe.data_object_id = $do_id";
-                    $result = $this->mysqli->query($sql);
-                    if($result && $row2=$result->fetch_assoc()) {
-                        echo "\n OK $do_id";
-                        return array('resource_name' => $row2['resource_name'], 'resource_id' => $row2['resource_id'], 'cp_name' => $row2['cp_name'], 'cp_id' => $row2['cp_id'], 'coll_id' => $row2['coll_id']);
+            
+            /*
+            <h3>Revisions</h3>
+            </div>
+            <ul>
+            <li><a href="/data_objects/14375915">2011-12-03 08:35:47 UTC</a></li>
+            <li><a href="/data_objects/7387926">2010-09-16 05:55:46 UTC</a></li>
+            <li><a href="/data_objects/5615598">2010-03-16 08:03:15 UTC</a></li>
+            <li><a href="/data_objects/3670118">2009-12-01 00:22:28 UTC</a></li>
+            <li>2009-11-07 10:03:41 UTC</li>
+            <li><a href="/data_objects/2539109">2009-09-10 09:13:54 UTC</a></li>
+            <li><a href="/data_objects/1078742">2009-02-25 15:42:46 UTC</a></li>
+            </ul>
+            */
+            if(preg_match("/<h3>Revisions<\/h3>(.*?)<\/ul>/ims", $html, $arr)) {
+                $html = $arr[1];
+                if(preg_match_all("/\"\/data_objects\/(.*?)\"/ims", $html, $arr)) {
+                    $do_ids = $arr[1];
+                    $do_ids[] = $do_id;
+                    $do_ids = array_reverse($do_ids);
+                    print_r($do_ids);
+                    $DOHE_tbl = 'data_objects_harvest_events';
+                    foreach($do_ids as $do_id) {
+                        $sql = "SELECT dohe.*, he.resource_id, r.content_partner_id as cp_id, r.title as resource_name, r.collection_id as coll_id, cp.full_name as cp_name
+                        from $DOHE_tbl dohe
+                        left join harvest_events he on (dohe.harvest_event_id = he.id)
+                        left join resources r on (he.resource_id = r.id)
+                        left join content_partners cp on (r.content_partner_id = cp.id)
+                        where dohe.data_object_id = $do_id";
+                        $result = $this->mysqli->query($sql);
+                        if($result && $row2=$result->fetch_assoc()) {
+                            echo "\n OK $do_id";
+                            return array('resource_name' => $row2['resource_name'], 'resource_id' => $row2['resource_id'], 'cp_name' => $row2['cp_name'], 'cp_id' => $row2['cp_id'], 'coll_id' => $row2['coll_id']);
+                        }
+                        else echo "\n not OK $do_id";
                     }
-                    else echo "\n not OK $do_id";
                 }
             }
         }
