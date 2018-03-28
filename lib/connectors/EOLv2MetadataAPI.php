@@ -218,18 +218,13 @@ class EOLv2MetadataAPI
         LEFT JOIN users u ON (cal.user_id = u.id)
         LEFT JOIN eol_logging_production.translated_activities t ON (cal.activity_id = t.activity_id)
         LEFT JOIN eol_development.data_objects_curation d on (cal.target_id = d.id)
-        where 1=1 
-        and cal.activity_id in(37,82,81,60,53,90,55,89,58,59,50)
-        and cot.ch_object_type != 'comment' and cot.ch_object_type != 'data_point_uri'
-        and t.language_id = 152
+        where 1=1 and cal.activity_id in(37,82,81,60,53,90,55,89,58,59,50) and cot.ch_object_type != 'comment' and cot.ch_object_type != 'data_point_uri' and t.language_id = 152
         -- and cot.ch_object_type = 'users_submitted_text'
         order by cal.target_id";
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows . "\n"; exit;
         $recs = array();
-        
         $FILE = Functions::file_open($filename = CONTENT_RESOURCE_LOCAL_PATH ."user_object_curation.txt", "w");
-        
         $headers_printed_already = false;
         while($result && $row=$result->fetch_assoc()) {
             $no_tc_id = false;
@@ -239,8 +234,7 @@ class EOLv2MetadataAPI
                 // echo "\n NO tc_id \n";
                 if($tc_id = self::get_tc_id_using_do_id($row['data_object_id'])) {}
                 elseif($tc_id = self::get_tc_id_using_dotc($row['data_object_id'])) {} //dotc - data_objects_taxon_concepts
-                elseif($row['ch_object_type'] == "users_submitted_text")
-                {
+                elseif($row['ch_object_type'] == "users_submitted_text") {
                     $a = self::get_tc_id_from_udo($row['data_object_id']); //udo - users_data_objects
                     $tc_id = @$a['taxon_concept_id'];
                 }
