@@ -110,14 +110,12 @@ class EnvironmentsEOLDataConnector
 
             // fill-up record
             $k = 0;
-            foreach($temp as $t)
-            {
+            foreach($temp as $t) {
                 $rec[$fields[$k]] = $t;
                 $k++;
             }
             // $rec['taxon_id'] = "EOL:7225673"; //debug
-            if($taxon = self::prepare_taxon($rec))
-            {
+            if($taxon = self::prepare_taxon($rec)) {
                 // print_r($taxon); // good thing to show
                 self::create_instances_from_taxon_object($taxon);
                 self::create_data($taxon, $rec);
@@ -139,37 +137,29 @@ class EnvironmentsEOLDataConnector
         $taxon = array();
         $url = "http://eol.org/api/pages/1.0/" . str_replace('EOL:', '', $taxon_id) . ".json?images=0&videos=0&sounds=0&maps=0&text=0&iucn=false&subjects=overview&licenses=all&details=true&common_names=false&synonyms=false&references=false&vetted=0&cache_ttl=";
         $options = $this->download_options;
-        if($json = Functions::lookup_with_cache($url, $options))
-        {
+        if($json = Functions::lookup_with_cache($url, $options)) {
             $arr = json_decode($json, true);
             // print_r($arr);
             $sciname = $arr['scientificName'];
             $match = false;
-            if($tc = self::get_the_right_tc_record(@$arr['taxonConcepts'], $sciname))
-            {
+            if($tc = self::get_the_right_tc_record(@$arr['taxonConcepts'], $sciname)) {
                 $match = true;
-                if($he_id = $tc['identifier'])
-                {
+                if($he_id = $tc['identifier']) {
                     // echo "\n chosen tc: [$he_id]\n";
                     $taxon['taxon_id']       = $taxon_id;
                     $taxon['scientificName'] = $tc['scientificName']; // this is equal to $sciname
                     $taxon['rank']           = @$tc['taxonRank'];
                     $url = "http://eol.org/api/hierarchy_entries/1.0/" . $he_id . ".json?common_names=false&synonyms=false&cache_ttl=";
-                    if($json = Functions::lookup_with_cache($url, $options))
-                    {
+                    if($json = Functions::lookup_with_cache($url, $options)) {
                         $arr = json_decode($json, true);
                         // print_r($arr);
                         if(!$taxon['rank']) $taxon['rank'] = @$arr['taxonRank'];
                         $i = 0;
 
-                        if($loop = @$arr['ancestors'])
-                        {
-                            foreach($loop as $ancestor)
-                            {
-                                if($rank = @$ancestor['taxonRank'])
-                                {
-                                    if(in_array($rank, $included_ranks))
-                                    {
+                        if($loop = @$arr['ancestors']) {
+                            foreach($loop as $ancestor) {
+                                if($rank = @$ancestor['taxonRank']) {
+                                    if(in_array($rank, $included_ranks)) {
                                         $taxon['ancestry'][$rank] = $ancestor['scientificName'];
                                         $i++;
                                     }
@@ -180,8 +170,7 @@ class EnvironmentsEOLDataConnector
                     }
                 }
             } // if $tc exists
-            if(!@$match)
-            {
+            if(!@$match) {
                 // echo "\ninvestigate no real match [$taxon_id], no hierarchy_entry therefore no ancestry\n"; //e.g. http://eol.org/api/pages/1.0/6862766.xml?images=0&videos=0&sounds=0&maps=0&text=0&iucn=false&subjects=overview&licenses=all&details=true&common_names=false&synonyms=false&references=false&vetted=0&cache_ttl=
                 $taxon['taxon_id']       = $taxon_id;
                 $taxon['scientificName'] = $sciname;
@@ -196,18 +185,15 @@ class EnvironmentsEOLDataConnector
     {
         if(!$tcs) return false;
         $tc_rec = false;
-        foreach($tcs as $tc)
-        {
+        foreach($tcs as $tc) {
             if($tc['scientificName'] == $sciname) // 1st option
             {
                 $tc_rec = $tc;
                 break;
             }
         }
-        if(!$tc_rec)
-        {
-            foreach($tcs as $tc)
-            {
+        if(!$tc_rec) {
+            foreach($tcs as $tc) {
                 if($tc['scientificName'] == Functions::canonical_form($sciname)) // 2nd option
                 {
                     $tc_rec = $tc;
@@ -215,10 +201,8 @@ class EnvironmentsEOLDataConnector
                 }
             }
         }
-        if(!$tc_rec)
-        {
-            foreach($tcs as $tc)
-            {
+        if(!$tc_rec) {
+            foreach($tcs as $tc) {
                 if(Functions::canonical_form($tc['scientificName']) == Functions::canonical_form($sciname)) // 3rd option
                 {
                     $tc_rec = $tc;
@@ -235,17 +219,14 @@ class EnvironmentsEOLDataConnector
         $taxon->taxonID                 = $rec['taxon_id'];
         $taxon->scientificName          = $rec['scientificName'];
         if(!isset($rec['ancestry'])) self::save_to_dump($taxon->taxonID, $this->need_to_check_tc_id_dump_file);
-        else
-        {
-            foreach(@$rec['ancestry'] as $rank => $name)
-            {
+        else {
+            foreach(@$rec['ancestry'] as $rank => $name) {
                 if(!$rank) continue;
                 $taxon->$rank = $name;
             }
         }
         // echo " - $taxon->scientificName [$taxon->taxonID]";
-        if(!isset($this->taxon_ids[$taxon->taxonID]))
-        {
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);
             $this->taxon_ids[$taxon->taxonID] = '';
         }
@@ -268,7 +249,6 @@ class EnvironmentsEOLDataConnector
             [text] => terrestrial
             [envo] => ENVO:00000446
         )
-        
         */
         
         $line['text'] = str_replace(array("  ", "   "), " ", $line['text']);
@@ -404,26 +384,16 @@ class EnvironmentsEOLDataConnector
 
     private function save_to_dump($rec, $filename)
     {
-        if(isset($rec["measurement"]) && is_array($rec))
-        {
+        if(isset($rec["measurement"]) && is_array($rec)) {
             $fields = array("family", "count", "taxon_id", "object_id", "source", "label", "measurement");
             $data = "";
             foreach($fields as $field) $data .= $rec[$field] . "\t";
-            if(!($WRITE = fopen($filename, "a")))
-            {
-              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
-              return;
-            }
+            if(!($WRITE = Functions::file_open($filename, "a"))) return;
             fwrite($WRITE, $data . "\n");
             fclose($WRITE);
         }
-        else
-        {
-            if(!($WRITE = fopen($filename, "a")))
-            {
-              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
-              return;
-            }
+        else {
+            if(!($WRITE = Functions::file_open($filename, "a"))) return;
             if($rec && is_array($rec)) fwrite($WRITE, json_encode($rec) . "\n");
             else                       fwrite($WRITE, $rec . "\n");
             fclose($WRITE);
@@ -434,8 +404,7 @@ class EnvironmentsEOLDataConnector
     {
         $names = array();
         $dump_file = DOC_ROOT . "/temp/need_to_check_tc_id.txt";
-        foreach(new FileIterator($dump_file) as $line_number => $line)
-        {
+        foreach(new FileIterator($dump_file) as $line_number => $line) {
             if($line) $names[$line] = "";
         }
         return array_keys($names);
@@ -444,8 +413,7 @@ class EnvironmentsEOLDataConnector
     function list_folders_with_corrupt_files() // utility
     {
         $folders = array();
-        foreach(new FileIterator(DOC_ROOT . "/temp/cant_delete.txt") as $line_number => $line)
-        {
+        foreach(new FileIterator(DOC_ROOT . "/temp/cant_delete.txt") as $line_number => $line) {
             $parts = pathinfo($line);
             $folders[@$parts["dirname"]] = '';
         }
