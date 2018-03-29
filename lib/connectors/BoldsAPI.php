@@ -40,24 +40,12 @@ class BoldsAPI
 
     function initialize_text_files()
     {
-        if(!($f = fopen($this->WORK_LIST, "w")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->WORK_LIST);
-        }else{
-          fclose($f);
-        }
-        if(!($f = fopen($this->WORK_IN_PROGRESS_LIST, "w")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$this->WORK_IN_PROGRESS_LIST);
-        }else{
-          fclose($f);
-        }
-        if(!($f = fopen($this->INITIAL_PROCESS_STATUS, "w")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->INITIAL_PROCESS_STATUS);
-        }else{
-          fclose($f);
-        }
+        if(!($f = Functions::file_open($this->WORK_LIST, "w"))) {}
+        else fclose($f);
+        if(!($f = Functions::file_open($this->WORK_IN_PROGRESS_LIST, "w"))) {}
+        else fclose($f);
+        if(!($f = Functions::file_open($this->INITIAL_PROCESS_STATUS, "w"))) {}
+        else fclose($f);
         //this is not needed but just to have a clean directory
         Functions::delete_temp_files($this->TEMP_FILE_PATH . "batch_", "txt");
         Functions::delete_temp_files($this->TEMP_FILE_PATH . "temp_Bolds_" . "batch_", "xml");
@@ -117,11 +105,7 @@ class BoldsAPI
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $xml = str_replace("</mediaURL>", "</mediaURL><additionalInformation><subtype>map</subtype>\n</additionalInformation>\n", $xml);
         $resource_path = $this->TEMP_FILE_PATH . "temp_Bolds_" . $task . ".xml";
-        if(!($OUT = fopen($resource_path, "w")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $resource_path);
-          return;
-        } 
+        if(!($OUT = Functions::file_open($resource_path, "w"))) return;
         fwrite($OUT, $xml); 
         fclose($OUT);
         echo "\n\n total = $i \n\n";
@@ -313,11 +297,7 @@ class BoldsAPI
 
     private function save_to_dump($data, $filename)
     {
-        if(!($WRITE = fopen($filename, "a")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
-          return;
-        }
+        if(!($WRITE = Functions::file_open($filename, "a"))) return;
         if($data && is_array($data)) fwrite($WRITE, json_encode($data) . "\n");
         else                         fwrite($WRITE, $data . "\n");
         fclose($WRITE);
