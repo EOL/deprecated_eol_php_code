@@ -5,6 +5,7 @@ class PaleoDBAPI
 {
     function __construct($folder)
     {
+        $this->resource_id = $folder;
         $this->taxa = array();
         $this->name_id = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
@@ -329,19 +330,28 @@ class PaleoDBAPI
         }
         if($measurementOfTaxon == "true") $m->source = $this->service["source"] . $taxon_id;
         if(in_array($label, array("firstapp_ea", "firstapp_la", "lastapp_ea", "lastapp_la"))) $m->measurementUnit = "http://eol.org/schema/terms/paleo_megaannum";
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
     }
 
     private function add_occurrence($taxon_id, $id)
     {
         $occurrence_id = $taxon_id . '_' .  $id;
-        if(isset($this->occurrence_ids[$occurrence_id])) return $occurrence_id;
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
+
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
+
+        /* old ways
         $this->archive_builder->write_object_to_file($o);
         $this->occurrence_ids[$occurrence_id] = '';
         return $occurrence_id;
+        */
     }
 
     function create_archive()
