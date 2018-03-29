@@ -10,10 +10,14 @@ occurrence  [972262]    [1103650]   1156975
 measurement [972262]    [1103650]   1156975
 vernacular  [3753]      [3911]      4023
 
+eol-archive:
 368 Sunday 2017-10-08 03:17:15 AM       {"measurement_or_fact.tab":1156975,"occurrence.tab":1156975,"taxon.tab":275509,"vernacular_name.tab":4023} eol-archive
 368	Wednesday 2017-12-20 10:07:26 AM	{"measurement_or_fact.tab":1156975,"occurrence.tab":1156975,"taxon.tab":275391,"vernacular_name.tab":4023} eol-archive
 
-368 Wednesday 2017-12-20 05:33:15 AM    {"measurement_or_fact.tab":1103650,"occurrence.tab":1103650,"taxon.tab":263656,"vernacular_name.tab":3911} mac-mini
+MacMini:
+368 Wednesday 2017-12-20 05:33:15 AM    {"measurement_or_fact.tab":1103650,"occurrence.tab":1103650,"taxon.tab":263656,"vernacular_name.tab":3911}
+368	Thursday 2018-03-29 12:56:30 PM	    {"measurement_or_fact.tab":1156975,"occurrence.tab":1156975,"taxon.tab":275389,"vernacular_name.tab":4023}
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
