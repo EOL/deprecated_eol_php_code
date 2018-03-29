@@ -57,6 +57,7 @@ $resource_id = "user_curated_object";
 $func = new EOLv2MetadataAPI($resource_id);
 $func->start_user_object_curation();
 // Functions::finalize_dwca_resource($resource_id);
+// Cannot find resource anymore = 347 last count
 // */
 
 /*
