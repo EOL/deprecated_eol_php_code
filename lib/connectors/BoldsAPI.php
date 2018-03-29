@@ -29,12 +29,12 @@ class BoldsAPI
         $this->INITIAL_PROCESS_STATUS = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_initial_process_status.txt";
         $this->MASTER_LIST            = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list.txt";
         // $this->MASTER_LIST            = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list_small.txt"; // debug
-        $this->service["id"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=basic,stats,geo&includeTree=true&taxId=";
+        $this->service["id"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=all&includeTree=true&taxId=";
         // for stats
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->erroneous_ids = $this->TEMP_DIR . "erroneous_ids.txt";
         $this->does_not_exist_anymore = $this->TEMP_DIR . "does_not_exist_anymore.txt";
-        $this->download_options = array('expire_seconds' => 7776000, 'download_wait_time' => 500000, 'timeout' => 1200, 'download_attempts' => 2);
+        $this->download_options = array('resource_id' => 'bolds', 'expire_seconds' => 60*60*24*30*6, 'download_wait_time' => 500000, 'timeout' => 1200, 'download_attempts' => 2);
         // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/";
     }
 
