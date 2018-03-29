@@ -10,6 +10,7 @@ measurementorfact:  1,052,641   940,408
 occurrence                      940,408
 
 708	Tuesday 2018-03-27 03:01:54 PM	{"measurement_or_fact.tab":1266616,"occurrence.tab":955315,"reference.tab":215861,"taxon.tab":227582} - MacMini only, since still limited space in Archive.
+708	Wednesday 2018-03-28 02:48:18 PM{"measurement_or_fact.tab":1174597,"occurrence.tab":955315,"reference.tab":215861,"taxon.tab":227582}
 */
 // return;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
