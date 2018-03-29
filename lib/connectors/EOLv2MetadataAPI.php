@@ -33,7 +33,7 @@ class EOLv2MetadataAPI
         exit("\n-just test-\n");
         */
         // /* test
-        $res_info = self::get_resource_info_last_resort(15177392); //27489312 //3286228
+        $res_info = self::get_resource_info_last_resort(1895418); //27489312 //3286228 //1895418 - user-submitted text
         print_r($res_info);
         exit("\n-just test-\n");
         // */
@@ -230,19 +230,16 @@ class EOLv2MetadataAPI
         while($result && $row=$result->fetch_assoc()) {
             $i++;
             if(($i % 100) == 0) echo "\n".number_format($i)." - ";
-            // /* breakdown when caching
+
+            /* breakdown when caching
             $cont = false;
             // if($i >= 1    && $i < $m)    $cont = true;
             // if($i >= $m   && $i < $m*2)  $cont = true;
             // if($i >= $m*2 && $i < $m*3)  $cont = true; //61348 - 92022
             // if($i >= $m*3 && $i < $m*4)  $cont = true;
             // if($i >= $m*4 && $i < $m*5)  $cont = true;
-
-            // if($i >= 80000 && $i < 90000)  $cont = true; //61348 - 92022
-            if($i >= 90000 && $i < 92022)  $cont = true; //61348 - 92022
-
             if(!$cont) continue;
-            // */
+            */
             
             $no_tc_id = false;
             $tc_id = false;
@@ -409,12 +406,12 @@ class EOLv2MetadataAPI
             }
             else { //bases here: https://eol-jira.bibalex.org/browse/DATA-1740?focusedCommentId=62313&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62313
                 if($res_info = self::get_resource_info_last_resort($do_id)) {
-                    print_r($res_info);
+                    // print_r($res_info);
                     return $res_info;
                 }
                 else {
                     if($res_info = self::get_resource_info_using_obj_url($row['obj_url'])) {
-                        print_r($res_info);
+                        // print_r($res_info);
                         return $res_info;
                     }
                     else {
@@ -460,7 +457,7 @@ class EOLv2MetadataAPI
                             left join content_partners cp on (r.content_partner_id = cp.id) where dohe.data_object_id = $do_id";
                             $result = $this->mysqli->query($sql);
                             if($result && $row2=$result->fetch_assoc()) {
-                                echo "\n OK $do_id";
+                                // echo "\n OK $do_id";
                                 return array('resource_name' => $row2['resource_name'], 'resource_id' => $row2['resource_id'], 'cp_name' => $row2['cp_name'], 'cp_id' => $row2['cp_id'], 'coll_id' => $row2['coll_id']);
                             }
                             // else echo "\n not OK $do_id";
@@ -469,6 +466,11 @@ class EOLv2MetadataAPI
                 }
             }
         }
+        
+        if($a = self::get_tc_id_from_udo($do_id)) { //udo - users_data_objects
+            return array('resource_name' => $a['udo_username'], 'resource_id' => $a['udo_userid']);
+        }
+        
         return false;
     }
     private function tbl_from_Jen() //https://eol-jira.bibalex.org/browse/DATA-1740?focusedCommentId=62313&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62313
