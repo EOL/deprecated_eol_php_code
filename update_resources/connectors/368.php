@@ -17,7 +17,7 @@ vernacular  [3753]      [3911]      4023
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-ini_set('memory_limit','7096M');
+ini_set('memory_limit','8096M');
 $timestart = time_elapsed();
 $resource_id = 368;
 
