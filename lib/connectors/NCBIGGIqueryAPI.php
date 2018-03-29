@@ -110,8 +110,7 @@ class NCBIGGIqueryAPI
         */
         if($families = self::get_families_xlsx()) {
             /* working but not round-robin, rather each database is processed one after the other.
-            foreach($this->ggi_databases as $database)
-            {
+            foreach($this->ggi_databases as $database) {
                 self::create_instances_from_taxon_object($families, false, $database);
                 $this->families_with_no_data = array_keys($this->families_with_no_data);
                 if($this->families_with_no_data) self::create_instances_from_taxon_object($this->families_with_no_data, true, $database);
@@ -897,9 +896,9 @@ class NCBIGGIqueryAPI
         $fields = array("SpK", "K", "SbK", "IK", "SpP", "P", "SbP", "IP", "PvP", "SpC", "C", "SbC", "IC", "SpO", "O");
 
         // $dropbox_xlsx[] = "http://tiny.cc/FALO"; // from Cyndy's Dropbox
-        // $dropbox_xlsx[] = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/ALF2015.xlsx"; // from Eli's Dropbox
         // $dropbox_xlsx[] = "http://localhost/cp/NCBIGGI/FALO.xlsx"; // local
-        $dropbox_xlsx[] = "http://localhost/cp/NCBIGGI/ALF2015.xlsx"; // local
+        // $dropbox_xlsx[] = "http://localhost/cp/NCBIGGI/ALF2015.xlsx"; // local
+        $dropbox_xlsx[] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/NCBIGGI/ALF2015.xlsx" //used in normal operation
 
         foreach($dropbox_xlsx as $doc) {
             echo "\n processing [$doc]...\n";
