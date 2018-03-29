@@ -83,7 +83,7 @@ class NCBIGGIqueryAPI
         // $this->ggi_databases = array("bhl"); //debug - use to process 1 database
         // $this->ggi_databases = array("ncbi"); //debug - use to process 1 database
         // $this->ggi_databases = array("ggbn"); //debug - use to process 1 database
-        $this->ggi_databases = array("bolds"); //debug - use to process 1 database
+        // $this->ggi_databases = array("bolds"); //debug - use to process 1 database
         // $this->ggi_databases = array("ncbi", "ggbn", "gbif", "bhl");
 
         $this->ggi_path = DOC_ROOT . "temp/GGI/";
@@ -107,8 +107,7 @@ class NCBIGGIqueryAPI
         $families = self::get_families(); use to read a plain text file
         $families = self::get_families_with_missing_data_xlsx(); - utility
         */
-        if($families = self::get_families_xlsx())
-        {
+        if($families = self::get_families_xlsx()) {
             /* working but not round-robin, rather each database is processed one after the other.
             foreach($this->ggi_databases as $database)
             {
@@ -134,15 +133,13 @@ class NCBIGGIqueryAPI
                 if(!$cont) continue;
                 */
                 
-                
                 $min = $i; $max = $min+$calls;
-                foreach($this->ggi_databases as $database)
-                {
+                foreach($this->ggi_databases as $database) {
                     self::create_instances_from_taxon_object($families, false, $database, $min, $max);
                     $this->families_with_no_data = array_keys($this->families_with_no_data);
                     if($this->families_with_no_data) self::create_instances_from_taxon_object($this->families_with_no_data, true, $database);
                 }
-                break; //debug - process just a subset
+                // break; //debug - process just a subset
             }
             // */
 
@@ -157,8 +154,7 @@ class NCBIGGIqueryAPI
     private function initialize_files()
     {
         if(!file_exists($this->ggi_path)) mkdir($this->ggi_path);
-        foreach($this->ggi_databases as $database)
-        {
+        foreach($this->ggi_databases as $database) {
             $this->ggi_text_file[$database]["previous"] = $this->ggi_path . $database  . ".txt";
             if(!file_exists($this->ggi_text_file[$database]["previous"])) self::initialize_dump_file($this->ggi_text_file[$database]["previous"]);
             //initialize current batch
@@ -180,8 +176,7 @@ class NCBIGGIqueryAPI
         {
             $previous = $this->ggi_text_file[$database]["previous"];
             $current = $this->ggi_text_file[$database]["current"];
-            if(Functions::count_rows_from_text_file($current) >= Functions::count_rows_from_text_file($previous))
-            {
+            if(Functions::count_rows_from_text_file($current) >= Functions::count_rows_from_text_file($previous)) {
                 self::process_text_file($current, $database);
                 unlink($previous);
                 if(copy($current, $previous))
@@ -193,19 +188,15 @@ class NCBIGGIqueryAPI
 
     private function process_text_file($filename, $database)
     {
-        foreach(new FileIterator($filename) as $line_number => $line)
-        {
-            if($line)
-            {
+        foreach(new FileIterator($filename) as $line_number => $line) {
+            if($line) {
                 $line = trim($line);
                 $values = explode("\t", $line);
-                if(count($values) != 7)
-                {
+                if(count($values) != 7) {
                     echo "\n investigate: wrong no. of tabs";
                     print_r($values);
                 }
-                else
-                {
+                else {
                     $family             = $values[0];
                     $count              = $values[1];
                     $rec["taxon_id"]    = $values[2];
@@ -224,12 +215,9 @@ class NCBIGGIqueryAPI
         $this->families_with_no_data = array();
         $i = 0;
         $total = count($families);
-        foreach($families as $family)
-        {
+        foreach($families as $family) {
             $i++;
-
-            if($min || $max)
-            {
+            if($min || $max) {
                 // /* breakdown when caching
                 $cont = false;
                 if($i >= $min && $i < $max) $cont = true;
@@ -244,8 +232,7 @@ class NCBIGGIqueryAPI
             elseif($database == "bhl")   $with_data = self::query_family_BHL_info($family, $is_subfamily, $database);
             elseif($database == "bolds") $with_data = self::query_family_BOLDS_info($family, $is_subfamily, $database);
 
-            if(($is_subfamily && $with_data) || !$is_subfamily)
-            {
+            if(($is_subfamily && $with_data) || !$is_subfamily) {
                 $taxon = new \eol_schema\Taxon();
                 $taxon->taxonID         = $family;
                 $taxon->scientificName  = $family;
@@ -320,7 +307,7 @@ class NCBIGGIqueryAPI
         if($taxid = self::get_best_bolds_taxid($json)) {
             if($json = Functions::lookup_with_cache($this->bolds["TaxonData"] . $taxid, $this->download_options)) {
                 $arr = json_decode($json);
-                print_r($arr);
+                // print_r($arr); //good debug
                 return array("taxid" => $taxid, "public records" => $arr->stats->publicrecords, "specimens" => $arr->stats->sequencedspecimens);
             }
         }
@@ -379,12 +366,9 @@ class NCBIGGIqueryAPI
         $rec["family"] = $family;
         $rec["taxon_id"] = $family;
         $rec["source"] = $this->bhl_taxon_page . $family;
-        if($contents = Functions::lookup_with_cache($this->bhl_taxon_in_xml . $family, $this->download_options))
-        {
-            if($count = self::get_page_count_from_BHL_xml($contents))
-            {
-                if($count > 0)
-                {
+        if($contents = Functions::lookup_with_cache($this->bhl_taxon_in_xml . $family, $this->download_options)) {
+            if($count = self::get_page_count_from_BHL_xml($contents)) {
+                if($count > 0) {
                     $rec["object_id"]   = "_no_of_page_in_bhl";
                     $rec["count"]       = $count;
                     $rec["label"]       = "Number pages in BHL";
@@ -398,14 +382,10 @@ class NCBIGGIqueryAPI
                     return true;
                 }
             }
-            else
-            {
-                if($contents = Functions::lookup_with_cache($this->bhl_taxon_in_csv . $family, $this->download_options))
-                {
-                    if($count = self::get_page_count_from_BHL_csv($contents))
-                    {
-                        if($count > 0)
-                        {
+            else {
+                if($contents = Functions::lookup_with_cache($this->bhl_taxon_in_csv . $family, $this->download_options)) {
+                    if($count = self::get_page_count_from_BHL_csv($contents)) {
+                        if($count > 0) {
                             $rec["object_id"] = "_no_of_page_in_bhl";
                             $rec["count"]       = $count;
                             $rec["label"]       = "Number pages in BHL";
@@ -425,8 +405,7 @@ class NCBIGGIqueryAPI
         }
         else self::save_to_dump($family, $this->names_no_entry_from_partner_dump_file);
 
-        if(!$is_subfamily)
-        {
+        if(!$is_subfamily) {
             $rec["object_id"] = "_no_of_page_in_bhl";
             self::add_string_types($rec, "Number pages in BHL", 0, "http://eol.org/schema/terms/NumberReferencesInBHL", $family);
             $rec["object_id"] = "_page_in_bhl";
@@ -445,8 +424,7 @@ class NCBIGGIqueryAPI
     private function get_page_count_from_BHL_csv($contents)
     {
         $temp_path = temp_filepath();
-        if($contents)
-        {
+        if($contents) {
             if(!($file = Functions::file_open($temp_path, "w"))) return;
             fwrite($file, $contents);
             fclose($file);
@@ -454,18 +432,15 @@ class NCBIGGIqueryAPI
         $page_ids = array();
         $i = 0;
         if(!($file = Functions::file_open($temp_path, "r"))) return;
-        while(!feof($file))
-        {
+        while(!feof($file)) {
             $i++;
             if($i == 1) $fields = fgetcsv($file);
-            else
-            {
+            else {
                 $rec = array();
                 $temp = fgetcsv($file);
                 $k = 0;
                 if(!$temp) continue;
-                foreach($temp as $t)
-                {
+                foreach($temp as $t) {
                     $rec[$fields[$k]] = $t;
                     $k++;
                 }
@@ -805,17 +780,13 @@ class NCBIGGIqueryAPI
         $parser = new XLSParser();
         $families = array();
         $dropbox_xlsx[] = "http://localhost/cp/NCBIGGI/missing from GBIF.xlsx";
-        foreach($dropbox_xlsx as $doc)
-        {
+        foreach($dropbox_xlsx as $doc) {
             echo "\n processing [$doc]...\n";
-            if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2)))
-            {
+            if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2))) {
                 $arr = $parser->convert_sheet_to_array($path);
-                foreach($arr as $key => $fams)
-                {
+                foreach($arr as $key => $fams) {
                     $fams[] = "Cenarchaeaceae";
-                    foreach($fams as $family)
-                    {
+                    foreach($fams as $family) {
                         if($family) $families[$family] = '';
                     }
                 }
@@ -833,11 +804,9 @@ class NCBIGGIqueryAPI
         $google_spreadsheets[] = array("title" => "falo_version 2.0.a.11_03-01-14 minus unassigned", "column_number_to_return" => 16);
         $google_spreadsheets[] = array("title" => "FALO_Version 2.0.a.1 minus unassigned",           "column_number_to_return" => 14);
         $sheet = array();
-        foreach($google_spreadsheets as $doc)
-        {
+        foreach($google_spreadsheets as $doc) {
             echo "\n processing spreadsheet: " . $doc["title"] . "\n";
-            if($sheet = Functions::get_google_spreadsheet(array("spreadsheet_title" => $doc["title"], "column_number_to_return" => $doc["column_number_to_return"], "timeout" => 999999)))
-            {
+            if($sheet = Functions::get_google_spreadsheet(array("spreadsheet_title" => $doc["title"], "column_number_to_return" => $doc["column_number_to_return"], "timeout" => 999999))) {
                 echo "\n successful process: " . $doc["title"] . "\n";
                 break;
             }
@@ -845,8 +814,7 @@ class NCBIGGIqueryAPI
         }
         if(!$sheet) return array();
         $families = array();
-        foreach($sheet as $family)
-        {
+        foreach($sheet as $family) {
             $family = trim(str_ireplace(array("Family ", '"', "FAMILY"), "", $family));
             if(is_numeric($family)) continue;
             if($family) $families[$family] = '';
@@ -858,10 +826,8 @@ class NCBIGGIqueryAPI
     {
         $families = array();
         if(!$temp_path_filename = Functions::save_remote_file_to_local($this->families_list, $this->download_options)) return;
-        foreach(new FileIterator($temp_path_filename) as $line_number => $line)
-        {
-            if($line)
-            {
+        foreach(new FileIterator($temp_path_filename) as $line_number => $line) {
+            if($line) {
                 $line = trim($line);
                 $temp = explode("[", $line);
                 $family = trim($temp[0]);
@@ -904,8 +870,7 @@ class NCBIGGIqueryAPI
 
     private function check_for_sub_family($family)
     {
-        if(substr($family, -3) == "dae")
-        {
+        if(substr($family, -3) == "dae") {
             $orig = $family;
             $family = str_replace("dae" . "xxx", "nae", $family . "xxx");
             $this->families_with_no_data[$family] = '';
@@ -935,19 +900,15 @@ class NCBIGGIqueryAPI
         // $dropbox_xlsx[] = "http://localhost/cp/NCBIGGI/FALO.xlsx"; // local
         $dropbox_xlsx[] = "http://localhost/cp/NCBIGGI/ALF2015.xlsx"; // local
 
-        foreach($dropbox_xlsx as $doc)
-        {
+        foreach($dropbox_xlsx as $doc) {
             echo "\n processing [$doc]...\n";
-            if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2, 'cache' => 1)))
-            {
+            if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2, 'cache' => 1))) {
                 $arr = $parser->convert_sheet_to_array($path);
                 $i = 0;
-                foreach($arr["FAMILY"] as $family)
-                {
+                foreach($arr["FAMILY"] as $family) {
                     $family = trim(str_ireplace(array("Family", '"'), "", $family));
                     if(is_numeric($family)) continue;
-                    if($family)
-                    {
+                    if($family) {
                         $families[$family] = '';
                         foreach($fields as $field) $family_table[$family][$field] = $arr[$field][$i]; // for family table
                     }
@@ -970,10 +931,8 @@ class NCBIGGIqueryAPI
     function count_subfamily_per_database($file, $database)
     {
         $subfamilies = array();
-        foreach(new FileIterator($file) as $line_number => $line)
-        {
-            if($line)
-            {
+        foreach(new FileIterator($file) as $line_number => $line) {
+            if($line) {
                 $line = trim($line);
                 $temp = explode("\t", $line);
                 $str = explode("naeO", $temp[0]);
@@ -982,7 +941,6 @@ class NCBIGGIqueryAPI
         }
         print "\n $database: " . count($subfamilies) . "\n";
     }
-
 
     private function generate_spreadsheet($resource_id)
     {
@@ -1007,12 +965,9 @@ class NCBIGGIqueryAPI
         $uris = array("http://eol.org/schema/terms/NumberReferencesInBHL",          "http://eol.org/schema/terms/NumberPublicRecordsInBOLD",
                       "http://eol.org/schema/terms/NumberRichSpeciesPagesInEOL",    "http://eol.org/schema/terms/NumberRecordsInGBIF",
                       "http://eol.org/schema/terms/NumberOfSequencesInGenBank",     "http://eol.org/schema/terms/NumberSpecimensInGGBN");
-        foreach($xls as $family => $rec)
-        {
-            if($fam_rec = @$family_counts[$family])
-            {
-                if(self::family_has_totals($fam_rec, $uris))
-                {
+        foreach($xls as $family => $rec) {
+            if($fam_rec = @$family_counts[$family]) {
+                if(self::family_has_totals($fam_rec, $uris)) {
                     echo "\n $family";
                     print_r($family_counts[$family]);
                 }
@@ -1023,8 +978,7 @@ class NCBIGGIqueryAPI
 
     private function family_has_totals($fam_rec, $uris)
     {
-        foreach($uris as $uri)
-        {
+        foreach($uris as $uri) {
             if(@$fam_rec[$uri] > 0) return true;
         }
         return false;
@@ -1037,20 +991,17 @@ class NCBIGGIqueryAPI
                         "http://eol.org/schema/terms/NumberOfSequencesInGenBank", "http://eol.org/schema/terms/NumberSpecimensInGGBN");
         $file = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/measurement_or_fact.tab";
         $records = array();
-        foreach(new FileIterator($file) as $line_number => $line)
-        {
+        foreach(new FileIterator($file) as $line_number => $line) {
             $rec = array();
             /*  [0] => CharaciosiphonaceaeO_no_of_public_rec_in_bolds
                 [1] => true
                 [2] => http://eol.org/schema/terms/NumberPublicRecordsInBOLD
                 [3] => 2
                 [4] => http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=414014 */
-            if($line)
-            {
+            if($line) {
                 $line = trim($line);
                 $row = explode("\t", $line);
-                if(in_array($row[2], $fields))
-                {
+                if(in_array($row[2], $fields)) {
                     $temp = explode("O_", $row[0]);
                     $sciname = $temp[0];
                     $records[$sciname][$row[2]] = $row[3];
