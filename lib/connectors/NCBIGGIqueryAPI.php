@@ -35,9 +35,11 @@ class NCBIGGIqueryAPI
         $this->download_options = array('resource_id' => 723, 'expire_seconds' => 60*60*24*30*3, 'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1); //3 months to expire
         // $this->download_options['expire_seconds'] = false; //debug - false -> wont expire; 0 -> expires now
 
+        /* obsolete, no longer used
         // local
         $this->families_list = "http://localhost/cp/NCBIGGI/falo2.in";
-        // $this->families_list = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/falo2.in";
+        $this->families_list = "https://dl.dropboxusercontent.com/u/7597512/NCBI_GGI/falo2.in";
+        */
 
         // NCBI service
         $this->family_service_ncbi = "http://www.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nucleotide&usehistory=y&term=";
@@ -822,6 +824,7 @@ class NCBIGGIqueryAPI
         return array_keys($families);
     }
 
+    /* works but seems obsolete - commented Mar 29, 2018
     private function get_families()
     {
         $families = array();
@@ -837,6 +840,7 @@ class NCBIGGIqueryAPI
         unlink($temp_path_filename);
         return array_keys($families);
     }
+    */
 
     function falo_gbif_report()
     {
