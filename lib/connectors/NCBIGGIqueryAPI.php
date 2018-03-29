@@ -22,8 +22,7 @@ class NCBIGGIqueryAPI
 {
     function __construct($folder = null, $query = null)
     {
-        if($folder)
-        {
+        if($folder) {
             $this->resource_id = $folder;
             $this->query = $query;
             $this->taxa = array();
@@ -122,8 +121,7 @@ class NCBIGGIqueryAPI
             // /* working, a round-robin option of server load - per 100 calls each server
             $k = 0; $m = 9646/5;
             $calls = 10; //orig is 100
-            for ($i = $k; $i <= count($families)+$calls; $i=$i+$calls) //orig value of i is 0
-            {
+            for ($i = $k; $i <= count($families)+$calls; $i=$i+$calls) { //orig value of i is 0
                 echo "\n[$i] - ";
                 /* breakdown when caching
                 $cont = false;
@@ -174,8 +172,7 @@ class NCBIGGIqueryAPI
 
     private function compare_previuos_and_current_dumps()
     {
-        foreach($this->ggi_databases as $database)
-        {
+        foreach($this->ggi_databases as $database) {
             $previous = $this->ggi_text_file[$database]["previous"];
             $current = $this->ggi_text_file[$database]["current"];
             if(Functions::count_rows_from_text_file($current) >= Functions::count_rows_from_text_file($previous)) {
