@@ -9,7 +9,7 @@ class BoldsImagesAPIv2
     function __construct($folder = false)
     {
         $this->max_images_per_taxon = 10;
-        $this->data_dump_url = "http://www.boldsystems.org/export/boldrecords.xml.gz";
+        // $this->data_dump_url = "http://www.boldsystems.org/export/boldrecords.xml.gz"; --- obsolete, no longer being offered by partner.
         $this->data_dump_url = "http://localhost/cp/BOLDS/boldrecords.xml.gz"; // debug
         // $this->data_dump_url = "http://localhost/~eolit/cp/BOLDS/bolds_sample_data.xml.gz"; // debug
 
@@ -34,7 +34,7 @@ class BoldsImagesAPIv2
         $this->OLD_MASTER_LIST = DOC_ROOT . "/update_resources/connectors/files/BOLD/hl_master_list 2011 09 25.txt"; // debug
         // $this->OLD_MASTER_LIST = "https://opendata.eol.org/u/7597512/BOLDS/hl_master_list 2011 09 25.txt";
         
-        $this->download_options = array('cache' => 1, 'timeout' => 2400, 'download_attempts' => 5);
+        $this->download_options = array('cache' => 1, 'timeout' => 2400, 'download_attempts' => 2);
         // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/";
     }
 
