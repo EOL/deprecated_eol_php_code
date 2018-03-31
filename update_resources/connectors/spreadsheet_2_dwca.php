@@ -57,6 +57,9 @@ if($val = $cmdline_params['resource_id'])
     elseif($resource_id == 985) $params['spreadsheet'] = "http://opendata.eol.org/dataset/f49ee7e9-65d4-4d00-af86-29ca98f83739/resource/c36f8fdb-750b-4301-ac3b-30c2e93a90b2/download/toxic-set-done.xlsx"; //Toxic
     //----------------------- start new below
     elseif($resource_id == "x") $params['spreadsheet'] = "http://localhost/tests/aBrose%20et%20al.xlsx"; //Brose et al -- undefined columns, not working
+
+    elseif($resource_id == 'NMNHPlantGrowthFormData') $params['spreadsheet'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/spreadsheet_resources/NMNHPlantGrowthFormData.xlsx"; //from Katja
+    
     
     // template
     // elseif($resource_id == res_id) $params['spreadsheet'] = "https_xls_path"; //res_name
