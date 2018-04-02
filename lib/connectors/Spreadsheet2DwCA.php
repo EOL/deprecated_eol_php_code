@@ -23,8 +23,6 @@ class Spreadsheet2DwCA
             return;
         }
 
-        // exit("<hr>elix [$url]<hr>");
-        
         //============
         if(pathinfo($url, PATHINFO_EXTENSION) == "zip") //e.g. usda-plants.xlsx.zip of resource_id = 727
         {
@@ -46,6 +44,8 @@ class Spreadsheet2DwCA
         }
         else $zipYN = false;
         //============
+
+        // echo("<hr>elix [$url]<hr>");
 
         if($temp_dir = ContentManager::download_temp_file_and_assign_extension($url, $suffix, array('suffix' => $suffix, 'timeout' => 900))) //15 minutes timeout (900 seconds)
         {
