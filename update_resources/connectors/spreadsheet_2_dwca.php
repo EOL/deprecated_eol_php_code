@@ -15,7 +15,7 @@ $cmdline_params['resource_id']                      = @$argv[2]; //useful here
 $cmdline_params['spreadsheet']                      = @$argv[3]; //first used by tool: /applications/xls2dwca_jenkins/
 // print_r($cmdline_params);
 $resource_id = false;
-if($val = $cmdline_params['resource_id'] && $cmdline_params['resource_id'] != "_")
+if( ($val = $cmdline_params['resource_id']) && ($cmdline_params['resource_id'] != "_"))
 {
     $resource_id = $val;
     if    ($resource_id == 727)  $params['spreadsheet'] = "http://opendata.eol.org/dataset/42fd51a0-e31a-4b2a-9f18-6e4f08242d42/resource/88e09288-0578-43b9-a618-b6e08f70fa47/download/usda-plants.xlsx.zip";
