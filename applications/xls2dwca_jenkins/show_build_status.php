@@ -20,6 +20,8 @@ else {
     if(file_exists($params['destination']) && filesize($params['destination'])) 
     {
         $ctrler->display_message(array('type' => "highlight", 'msg' => "Job completed OK."));
+        unlink($params['destination']);
+        // print_r($params);
         $from                   = DOC_ROOT . "applications/content_server/resources/" . $params['uuid'] . ".tar.gz";
         $final_archive_gzip_url = DOC_ROOT . "applications/content_server/resources/xls2dwca/" . $params['uuid'] . ".tar.gz";
         Functions::file_rename($from, $final_archive_gzip_url);
@@ -32,7 +34,7 @@ else {
                 You can also use this URL in our 
                 <a href='../dwc_validator/index.php' target='_blank'>Archive Validator</a> to ensure its contents are valid.
                 <a href='../dwc_validator/index.php?file_url=$final_archive_gzip_url' target='_blank'>Click here</a> to validate now.<br><br>
-                Thank you.<br><br><a href='index.php'>Try another</a>";
+                Thank you. &nbsp;<a href='index.php'>Try another</a>";
             echo "<br>=======================================================<br><br>";
         }
         else {
