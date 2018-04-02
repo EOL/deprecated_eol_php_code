@@ -12,9 +12,10 @@ require_library('connectors/Spreadsheet2DwCA');
 // print_r($argv);
 $cmdline_params['jenkins_or_cron']                  = @$argv[1]; //irrelevant here
 $cmdline_params['resource_id']                      = @$argv[2]; //useful here
+$cmdline_params['spreadsheet']                      = @$argv[3]; //first used by tool: /applications/xls2dwca_jenkins/
 // print_r($cmdline_params);
 $resource_id = false;
-if($val = $cmdline_params['resource_id'])
+if($val = $cmdline_params['resource_id'] && $cmdline_params['resource_id'] != "_")
 {
     $resource_id = $val;
     if    ($resource_id == 727)  $params['spreadsheet'] = "http://opendata.eol.org/dataset/42fd51a0-e31a-4b2a-9f18-6e4f08242d42/resource/88e09288-0578-43b9-a618-b6e08f70fa47/download/usda-plants.xlsx.zip";
@@ -70,6 +71,11 @@ else //no resource_id
 {
     $params['spreadsheet'] = "http://localhost/cp/spreadsheets/Arctic spreadsheets/alaskanarthropoda.xls";
     $resource_id = get_base_filename($params['spreadsheet']);
+
+    if($val = $cmdline_params['spreadsheet']) {
+        $params['spreadsheet'] = $val;
+        $resource_id = get_base_filename($params['spreadsheet'], false);
+    }
 }
 $params['resource_id'] = $resource_id;
 //===========================================================================================new - end
@@ -80,11 +86,12 @@ echo "\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 
-function get_base_filename($file)
+function get_base_filename($file, $boolean = true)
 {
     $info = pathinfo($file);
     $arr = explode(".", $info['filename']);
-    return $arr[0]."-adjusted";
+    if($boolean) return $arr[0]."-adjusted";
+    else         return $arr[0];
 }
 
 ?>
