@@ -17,17 +17,17 @@ $server_script_name = str_replace("form_result.php", "generate_jenkins.php", $se
 $params['uuid'] = pathinfo($newfile, PATHINFO_FILENAME);
 $params['destination'] = dirname(__FILE__) . "/temp/" . compute_destination($newfile, $orig_file);
 
-// /* for more debugging...
+/* for more debugging...
 echo "<br>newfile: [$newfile]";
 echo "<br>orig_file: [$orig_file]";
 echo "<br>destination: " . $params['destination']; 
 echo "<br>uuid: " . $params['uuid']; 
 echo "<br>server_http_host: [$server_http_host]";
 echo "<br>server_script_name: [$server_script_name]";
-echo "<hr>"; //exit;
-// */
+echo "<hr>";
+*/
 
-// $cmd = PHP_PATH.' generate_jenkins.php ' . "'$newfile' '$orig_file' '$server_http_host' '$server_script_name'";
+/* $cmd = PHP_PATH.' generate_jenkins.php ' . "'$newfile' '$orig_file' '$server_http_host' '$server_script_name'"; */
 $cmd = PHP_PATH.' spreadsheet_2_dwca.php jenkins _ ' . "'" . $params['destination'] . "'";
 
 $cmd .= " 2>&1";
