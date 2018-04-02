@@ -56,6 +56,9 @@ applications/xls2EOL/WhyReef-EOL(2).xls
 applications/xls2EOL/WhyReef-EOL.xls
 applications/xls2EOL/WhyReef-EOL.xml
 applications/xls2EOL/xml/*.xml
+
+applications/xls2dwca_jenkins/temp/*
+
 config/constants.php
 config/database.yml
 config/environments/*
