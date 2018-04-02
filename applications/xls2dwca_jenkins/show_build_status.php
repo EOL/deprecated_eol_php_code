@@ -24,6 +24,7 @@ else {
         $final_archive_gzip_url = DOC_ROOT . "applications/content_server/resources/xls2dwca/" . $params['uuid'] . ".tar.gz";
         Functions::file_rename($from, $final_archive_gzip_url);
         if($final_archive_gzip_url) {
+            $final_archive_gzip_url = str_replace(DOC_ROOT, WEB_ROOT, $final_archive_gzip_url);
             echo "=======================================================<br>";
             echo "The archive is now available at <a href='$final_archive_gzip_url'>$final_archive_gzip_url</a><br><br>
                 You can save this file to your computer.<br><br>
