@@ -12,14 +12,16 @@ $server_script_name = $_SERVER['SCRIPT_NAME'];
 $server_script_name = str_replace("form_result.php", "generate_jenkins.php", $server_script_name);
 
 // print_r(pathinfo($newfile));
-// exit("$newfile | $orig_file"); //e.g. temp/1509076643.txt | dwh_taxa.txt
+// exit("$newfile | $orig_file"); //e.g. temp/1522675623.zip | eol_import_spreadsheet(3).xlsx.zip
+                                  //e.g. temp/1522675752.xlsx | eol_import_spreadsheet(3).xlsx
 
 $params['uuid'] = pathinfo($newfile, PATHINFO_FILENAME);
 
 /* $params['destination'] = dirname(__FILE__) . "/temp/" . compute_destination($newfile, $orig_file); */
-   $params['destination'] = $for_DOC_ROOT . "/applications/xls2dwca_jenkins/temp/" . compute_destination($newfile, $orig_file); 
-   //always use DOC_ROOT so u can switch from jenkins to cmdline. BUT DOC_ROOT won't work here either since /config/boot.php is not called here.
+/* $params['destination'] = $for_DOC_ROOT . "/applications/xls2dwca_jenkins/temp/" . compute_destination($newfile, $orig_file); */
 
+   $params['destination'] = $for_DOC_ROOT . "/applications/xls2dwca_jenkins/" . $newfile;
+   //always use DOC_ROOT so u can switch from jenkins to cmdline. BUT DOC_ROOT won't work here either since /config/boot.php is not called here. So use $for_DOC_ROOT instead.
 
 /* for more debugging...
 echo "<br>newfile: [$newfile]";
@@ -28,7 +30,7 @@ echo "<br>destination: " . $params['destination'];
 echo "<br>uuid: " . $params['uuid']; 
 echo "<br>server_http_host: [$server_http_host]";
 echo "<br>server_script_name: [$server_script_name]";
-echo "<hr>";
+echo "<hr>"; //exit;
 */
 
 /* $cmd = PHP_PATH.' generate_jenkins.php ' . "'$newfile' '$orig_file' '$server_http_host' '$server_script_name'"; */
