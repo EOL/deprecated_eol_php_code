@@ -23,6 +23,8 @@ class Spreadsheet2DwCA
             return;
         }
 
+        // exit("<hr>elix [$url]<hr>");
+        
         //============
         if(pathinfo($url, PATHINFO_EXTENSION) == "zip") //e.g. usda-plants.xlsx.zip of resource_id = 727
         {
@@ -30,14 +32,17 @@ class Spreadsheet2DwCA
             $test_temp_dir = create_temp_dir();
             $local = Functions::save_remote_file_to_local($url);
             $output = shell_exec("unzip $local -d $test_temp_dir");
-            $ext = self::get_real_extension_of_zip_file($url);
-            $new_local = self::get_file_inside_dir_with_this_extension($test_temp_dir."/*.$ext");
+            echo "<hr> [$output] <hr>";
+            /* $ext = self::get_real_extension_of_zip_file($url); --- not used anymore */
+            $ext = "xls";
+            $new_local = self::get_file_inside_dir_with_this_extension($test_temp_dir."/*.$ext*");
             /* debug only
             echo "\n\nlocal file = [$local]";
             echo "\nlocal dir = [$test_temp_dir]";
             echo "\nnew local file = [$new_local]\n\n";
             */
             $url = $new_local;
+            // exit("<hr>elix<hr>");
         }
         else $zipYN = false;
         //============
@@ -105,7 +110,7 @@ class Spreadsheet2DwCA
                 unlink($temp_dir);
             }
         }
-        else $errors[] = "There was a problem with the uploaded $suffix file.";
+        else $errors[] = "There was a problem with the uploaded [$suffix] file.";
         if($errors) print_r($errors);
     }
 
@@ -123,11 +128,14 @@ class Spreadsheet2DwCA
         }
     }
 
+    /*
     private function get_real_extension_of_zip_file($zip_file)
     {
         $fn = pathinfo($zip_file, PATHINFO_FILENAME);
-        return pathinfo($fn, PATHINFO_EXTENSION);
+        $fn = pathinfo($fn, PATHINFO_EXTENSION);
+        return $fn;
     }
+    */
     
     private function get_file_inside_dir_with_this_extension($files)
     {
