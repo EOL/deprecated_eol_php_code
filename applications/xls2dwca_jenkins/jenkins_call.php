@@ -17,7 +17,8 @@ $server_script_name = str_replace("form_result.php", "generate_jenkins.php", $se
 $params['uuid'] = pathinfo($newfile, PATHINFO_FILENAME);
 
 /* $params['destination'] = dirname(__FILE__) . "/temp/" . compute_destination($newfile, $orig_file); */
-   $params['destination'] = DOC_ROOT . "/applications/xls2dwca_jenkins/temp/" . compute_destination($newfile, $orig_file); //always use DOC_ROOT so u can switch from jenkins to cmdline
+   $params['destination'] = "/html/eol_php_code/applications/xls2dwca_jenkins/temp/" . compute_destination($newfile, $orig_file); 
+   //always use DOC_ROOT so u can switch from jenkins to cmdline. BUT DOC_ROOT won't work here either since /config/boot.php is not called here.
 
 
 /* for more debugging...
