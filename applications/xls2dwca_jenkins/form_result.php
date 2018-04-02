@@ -43,7 +43,12 @@ elseif($file_type = @$_FILES["file_upload"]["type"]) {
 }
 else exit("<hr>File maybe too big for the system. Please browse a new file to continue. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 
-echo "<hr>001<hr>";
+/* replaced by Jenkins call
+print "<br><b>Processing, please wait...</b><br><hr>";
+print"<META HTTP-EQUIV='Refresh' Content='0; URL=generate.php?file=$newfile&orig_file=$orig_file'>";
+exit;
+*/
+
 require_once("jenkins_call.php");
 
 function get_val_var($v)
