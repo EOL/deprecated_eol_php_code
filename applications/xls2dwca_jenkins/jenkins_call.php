@@ -15,7 +15,10 @@ $server_script_name = str_replace("form_result.php", "generate_jenkins.php", $se
 // exit("$newfile | $orig_file"); //e.g. temp/1509076643.txt | dwh_taxa.txt
 
 $params['uuid'] = pathinfo($newfile, PATHINFO_FILENAME);
-$params['destination'] = dirname(__FILE__) . "/temp/" . compute_destination($newfile, $orig_file);
+
+/* $params['destination'] = dirname(__FILE__) . "/temp/" . compute_destination($newfile, $orig_file); */
+   $params['destination'] = DOC_ROOT . "/applications/xls2dwca_jenkins/temp/" . compute_destination($newfile, $orig_file); //always use DOC_ROOT so u can switch from jenkins to cmdline
+
 
 /* for more debugging...
 echo "<br>newfile: [$newfile]";
