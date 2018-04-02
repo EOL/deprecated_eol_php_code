@@ -34,7 +34,7 @@ class BoldsAPI
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->erroneous_ids = $this->TEMP_DIR . "erroneous_ids.txt";
         $this->does_not_exist_anymore = $this->TEMP_DIR . "does_not_exist_anymore.txt";
-        $this->download_options = array('resource_id' => 'BOLDS', 'expire_seconds' => false, 'download_wait_time' => 200000, 'timeout' => 1200, 'download_attempts' => 2); //orig 60*60*24*30*6 - 6 months
+        $this->download_options = array('resource_id' => 'BOLDS', 'expire_seconds' => false, 'download_wait_time' => 200000, 'timeout' => 1200, 'download_attempts' => 1); //orig 60*60*24*30*6 - 6 months
         // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/";
     }
 

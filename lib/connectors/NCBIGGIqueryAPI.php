@@ -31,7 +31,7 @@ class NCBIGGIqueryAPI
             $this->occurrence_ids = array();
             $this->measurement_ids = array();
         }
-        $this->download_options = array('resource_id' => 723, 'expire_seconds' => 60*60*24*30*3, 'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1); //3 months to expire
+        $this->download_options = array('resource_id' => 723, 'expire_seconds' => 60*60*24*30*9, 'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1); //9 months to expire
         // $this->download_options['expire_seconds'] = false; //debug - false -> wont expire; 0 -> expires now
 
         /* obsolete, no longer used
@@ -66,7 +66,13 @@ class NCBIGGIqueryAPI
         $this->bolds_taxon_page_by_name = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?searchTax=&taxon=";
         $this->bolds_taxon_page_by_id = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
         $this->bolds["TaxonSearch"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonSearch?taxName=";
-        $this->bolds["TaxonData"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=basic,stats&taxId=";
+        $this->bolds["TaxonData_orig"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=basic,stats&taxId="; //orig call; enough for 723
+        /* new below
+        REMINDER: the new call sometimes gives out a wrong json bec. of some maybe un-escaped chars, thus a fallback of the orig call is needed.
+        The new call is just to uniform the BOLDS API calls.
+        */
+        $this->bolds["TaxonData"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=all&includeTree=true&taxId="; //new call, will be used in BOLDS new connector
+        $this->download_options_BOLDS = array('resource_id' => 'BOLDS', 'expire_seconds' => 60*60*24*30*9, 'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1); //9 months to expire
 
         // stats
         $this->TEMP_DIR = create_temp_dir() . "/";
@@ -245,7 +251,7 @@ class NCBIGGIqueryAPI
         $rec["family"] = $family;
         $rec["taxon_id"] = $family;
         $rec["source"] = $this->bolds_taxon_page_by_name . $family;
-        if($json = Functions::lookup_with_cache($this->bolds["TaxonSearch"] . $family, $this->download_options)) {
+        if($json = Functions::lookup_with_cache($this->bolds["TaxonSearch"] . $family, $this->download_options_BOLDS)) {
             if($info = self::parse_bolds_taxon_search($json)) {
                 $rec["source"] = $this->bolds_taxon_page_by_id . $info["taxid"];
                 if(@$info["specimens"] > 0) {
@@ -303,10 +309,16 @@ class NCBIGGIqueryAPI
     private function parse_bolds_taxon_search($json)
     {
         if($taxid = self::get_best_bolds_taxid($json)) {
-            if($json = Functions::lookup_with_cache($this->bolds["TaxonData"] . $taxid, $this->download_options)) {
+            if($json = Functions::lookup_with_cache($this->bolds["TaxonData"] . $taxid, $this->download_options_BOLDS)) {
                 $arr = json_decode($json);
                 // print_r($arr); //good debug
-                return array("taxid" => $taxid, "public records" => $arr->stats->publicrecords, "specimens" => $arr->stats->sequencedspecimens);
+                if(isset($arr->stats)) return array("taxid" => $taxid, "public records" => $arr->stats->publicrecords, "specimens" => $arr->stats->sequencedspecimens);
+                else { //use orig API call
+                    if($json = Functions::lookup_with_cache($this->bolds["TaxonData_orig"] . $taxid, $this->download_options_BOLDS)) {
+                        $arr = json_decode($json);
+                        return array("taxid" => $taxid, "public records" => $arr->stats->publicrecords, "specimens" => $arr->stats->sequencedspecimens);
+                    }
+                }
             }
         }
         else return false;
@@ -467,13 +479,13 @@ class NCBIGGIqueryAPI
                         if($html = Functions::lookup_with_cache("http://eol.org/pages/$id/resources/partner_links", $d_options)) {
                             if(preg_match("/boldsystems\.org\/index.php\/Taxbrowser_Taxonpage\?taxid=(.*?)\"/ims", $html, $arr)) {
                                 echo "\n bolds id: " . $arr[1] . "\n";
-                                if($json = Functions::lookup_with_cache($this->bolds["TaxonData"] . $arr[1], $this->download_options)) {
+                                if($json = Functions::lookup_with_cache($this->bolds["TaxonData"] . $arr[1], $this->download_options_BOLDS)) {
                                     if($arr = json_decode($json)) {
                                         $canonical = trim($arr->taxon);
                                         echo "\n Got from bolds.org: [" . $canonical . "]\n";
                                     }
                                 }
-                                elseif($html = Functions::lookup_with_cache($this->bolds_taxon_page_by_id . $arr[1], $this->download_options)) // original means, more or less it won't go here anymore
+                                elseif($html = Functions::lookup_with_cache($this->bolds_taxon_page_by_id . $arr[1], $this->download_options_BOLDS)) // original means, more or less it won't go here anymore
                                 {
                                    // <h3>TAXONOMY BROWSER: Gadidae</h3>
                                     if(preg_match("/<h3>TAXONOMY BROWSER\: (.*?)<\/h3>/ims", $html, $arr)) {
@@ -898,7 +910,7 @@ class NCBIGGIqueryAPI
         // $dropbox_xlsx[] = "http://tiny.cc/FALO"; // from Cyndy's Dropbox
         // $dropbox_xlsx[] = "http://localhost/cp/NCBIGGI/FALO.xlsx"; // local
         // $dropbox_xlsx[] = "http://localhost/cp/NCBIGGI/ALF2015.xlsx"; // local
-        $dropbox_xlsx[] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/NCBIGGI/ALF2015.xlsx" //used in normal operation
+        $dropbox_xlsx[] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/NCBIGGI/ALF2015.xlsx"; //used in normal operation
 
         foreach($dropbox_xlsx as $doc) {
             echo "\n processing [$doc]...\n";
