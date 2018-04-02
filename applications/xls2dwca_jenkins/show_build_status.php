@@ -17,15 +17,18 @@ elseif($ctrler->is_build_currently_running($build_status)) {
     // return;
 }
 else {
-    // if(file_exists($params['destination']) && filesize($params['destination'])) --- for some reason it wasn't working, maybe folder permissions... abandoned this for the one below...
+    // if(file_exists($params['destination']) && filesize($params['destination'])) --- has to be converted to the correct path... abandoned this for the one below...
     $from                   = DOC_ROOT . "applications/content_server/resources/" . $params['uuid'] . ".tar.gz";
     $final_archive_gzip_url = DOC_ROOT . "applications/content_server/resources/xls2dwca/" . $params['uuid'] . ".tar.gz";
     // print_r($params); echo "<br>from: [$from] <hr>";
     if(file_exists($from))
     {
         $ctrler->display_message(array('type' => "highlight", 'msg' => "Job completed OK."));
-        unlink($params['destination']);
+        
+        $to_delete = DOC_ROOT . "applications/xls2dwca_jenkins/temp/" . pathinfo($params['destination'], PATHINFO_BASENAME); //to delete the temporary spreadsheet (.xlsx .xls)
+        unlink($to_delete);
         // print_r($params);
+        
         Functions::file_rename($from, $final_archive_gzip_url);
         if($final_archive_gzip_url) {
             $final_archive_gzip_url = str_replace(DOC_ROOT, WEB_ROOT, $final_archive_gzip_url);
