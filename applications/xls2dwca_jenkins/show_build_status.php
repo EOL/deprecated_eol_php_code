@@ -20,9 +20,9 @@ else {
     if(file_exists($params['destination']) && filesize($params['destination'])) 
     {
         $ctrler->display_message(array('type' => "highlight", 'msg' => "Job completed OK."));
-        $from                   = WEB_ROOT . "applications/content_server/resources/" . $params['uuid'] . ".tar.gz";
-        $final_archive_gzip_url = WEB_ROOT . "applications/content_server/resources/xls2dwca/" . $params['uuid'] . ".tar.gz";
-        Functions::file_rename($from, $final_archive_gzip_url)
+        $from                   = DOC_ROOT . "applications/content_server/resources/" . $params['uuid'] . ".tar.gz";
+        $final_archive_gzip_url = DOC_ROOT . "applications/content_server/resources/xls2dwca/" . $params['uuid'] . ".tar.gz";
+        Functions::file_rename($from, $final_archive_gzip_url);
         if($final_archive_gzip_url) {
             echo "=======================================================<br>";
             echo "The archive is now available at <a href='$final_archive_gzip_url'>$final_archive_gzip_url</a><br><br>
@@ -37,10 +37,12 @@ else {
         }
         else {
             echo "There were problems processing this file:<br><br>";
+            /* from orig tool, not here.
             if($errors) {
                 foreach($errors as $error) echo "$error<br>";
             }
             else echo "An unknown error occurred<br>";
+            */
         }
         // echo "<a href='../../applications/tools.php'>Back to Tools</a>";
     }
