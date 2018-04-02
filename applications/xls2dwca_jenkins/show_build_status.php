@@ -19,13 +19,15 @@ elseif($ctrler->is_build_currently_running($build_status)) {
 else {
     
     print_r($params);
-    if(file_exists($params['destination']) && filesize($params['destination'])) 
+    echo "<br>from: [$from] <hr>";
+    // if(file_exists($params['destination']) && filesize($params['destination']))
+    $from                   = DOC_ROOT . "applications/content_server/resources/" . $params['uuid'] . ".tar.gz";
+    $final_archive_gzip_url = DOC_ROOT . "applications/content_server/resources/xls2dwca/" . $params['uuid'] . ".tar.gz";
+    if(file_exists($from))
     {
         $ctrler->display_message(array('type' => "highlight", 'msg' => "Job completed OK."));
         // unlink($params['destination']);
         // print_r($params);
-        $from                   = DOC_ROOT . "applications/content_server/resources/" . $params['uuid'] . ".tar.gz";
-        $final_archive_gzip_url = DOC_ROOT . "applications/content_server/resources/xls2dwca/" . $params['uuid'] . ".tar.gz";
         Functions::file_rename($from, $final_archive_gzip_url);
         if($final_archive_gzip_url) {
             $final_archive_gzip_url = str_replace(DOC_ROOT, WEB_ROOT, $final_archive_gzip_url);
@@ -50,7 +52,7 @@ else {
         }
         // echo "<a href='../../applications/tools.php'>Back to Tools</a>";
     }
-    else $ctrler->display_message(array('type' => "highlight", 'msg' => "Build is in unknown state. &nbsp; $str"));
+    else $ctrler->display_message(array('type' => "highlight", 'msg' => "Build is in unknown state xyz. &nbsp; $str"));
 }
 if($build_status) echo "<hr><b>Build status:</b><pre>".$build_status."</pre><hr>";
 else
