@@ -21,6 +21,10 @@ $params['destination'] = dirname(__FILE__) . "/temp/" . compute_destination($new
 echo "<br>newfile: [$newfile]";
 echo "<br>orig_file: [$orig_file]";
 echo "<br>destination: " . $params['destination']; 
+echo "<br>uuid: " . $params['uuid']; 
+echo "<br>server_http_host: [$server_http_host]";
+echo "<br>server_script_name: [$server_script_name]";
+echo "<hr>"; exit;
 */
 
 $cmd = PHP_PATH.' generate_jenkins.php ' . "'$newfile' '$orig_file' '$server_http_host' '$server_script_name'";
