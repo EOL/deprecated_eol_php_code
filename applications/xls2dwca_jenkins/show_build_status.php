@@ -20,7 +20,7 @@ else {
     if(file_exists($params['destination']) && filesize($params['destination'])) 
     {
         $ctrler->display_message(array('type' => "highlight", 'msg' => "Job completed OK."));
-        unlink($params['destination']);
+        // unlink($params['destination']);
         // print_r($params);
         $from                   = DOC_ROOT . "applications/content_server/resources/" . $params['uuid'] . ".tar.gz";
         $final_archive_gzip_url = DOC_ROOT . "applications/content_server/resources/xls2dwca/" . $params['uuid'] . ".tar.gz";
