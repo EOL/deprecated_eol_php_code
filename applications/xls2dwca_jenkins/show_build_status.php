@@ -17,16 +17,14 @@ elseif($ctrler->is_build_currently_running($build_status)) {
     // return;
 }
 else {
-    
-    print_r($params);
-    echo "<br>from: [$from] <hr>";
-    // if(file_exists($params['destination']) && filesize($params['destination']))
+    // if(file_exists($params['destination']) && filesize($params['destination'])) --- for some reason it wasn't working, maybe folder permissions... abandoned this for the one below...
     $from                   = DOC_ROOT . "applications/content_server/resources/" . $params['uuid'] . ".tar.gz";
     $final_archive_gzip_url = DOC_ROOT . "applications/content_server/resources/xls2dwca/" . $params['uuid'] . ".tar.gz";
+    // print_r($params); echo "<br>from: [$from] <hr>";
     if(file_exists($from))
     {
         $ctrler->display_message(array('type' => "highlight", 'msg' => "Job completed OK."));
-        // unlink($params['destination']);
+        unlink($params['destination']);
         // print_r($params);
         Functions::file_rename($from, $final_archive_gzip_url);
         if($final_archive_gzip_url) {
