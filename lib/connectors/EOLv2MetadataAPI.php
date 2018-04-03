@@ -25,6 +25,123 @@ class EOLv2MetadataAPI
         
         // http://eol.org/api/data_objects/1.0/29829638.json?taxonomy=true&cache_ttl=
     }
+    
+    public function start_image_ratings()
+    {
+        /* testing...
+        $guid = '002569e2b3e998bff44538ef798d36f7';
+        $total_rows = self::number_of_rating_actions($guid);
+        // exit("\n[$total_rows]\n");
+        
+        $data = self::object_with_overall_rating($guid);
+        print_r($data);
+        exit;
+        
+        */
+        
+        // $sql = "SELECT distinct(d.data_object_guid) from users_data_objects_ratings d"; //235,245
+        $sql = "SELECT d.id as data_object_id, d.* from data_objects_Ratings d order by d.guid"; //226,862 total rows | 202,530 unique d.guid
+        $result = $this->mysqli->query($sql);
+        // echo "\n". $result->num_rows . "\n"; exit;
+        $recs = array();
+        $FILE = Functions::file_open($filename = CONTENT_RESOURCE_LOCAL_PATH ."image_ratings.txt", "w");
+        $headers_printed_already = false;
+        
+        $guids = array(); $k = 0; $m = 226862/5;
+        while($result && $row=$result->fetch_assoc()) {
+            if(!isset($guids[$row['guid']])) {
+                //======================================================================
+                echo "\n[$k] - ";
+                $k++;
+                // /* breakdown when caching:
+                $cont = false;
+                // if($k >=  1    && $k < $m) $cont = true;
+                if($k >=  $m   && $k < $m*2) $cont = true;
+                // if($k >=  $m*2 && $k < $m*3) $cont = true;
+                // if($k >=  $m*3 && $k < $m*4) $cont = true;
+                // if($k >=  $m*4 && $k < $m*5) $cont = true;
+                if(!$cont) continue;
+                // */
+                
+                
+                $no_tc_id = false;
+                $tc_id = false;
+                if($tc_id = @$row['taxon_concept_id']) {} //echo "\n With tc_id \n";
+                else {
+                    // echo "\n NO tc_id \n";
+                    if($tc_id = self::get_tc_id_using_do_id($row['data_object_id'])) {}
+                    elseif($tc_id = self::get_tc_id_using_dotc($row['data_object_id'])) {} //dotc - data_objects_taxon_concepts
+                    else {
+                        echo("\n\nNo taxon_concept_id found for ".$row['data_object_id']."\n");
+                        // print_r($row); //exit;
+                        $no_tc_id = true;
+                        $info['taxon_name'] = '-orphan object-';
+                    }
+                }
+                $info = false;
+                if($tc_id) {
+                    $info = self::get_taxon_info($tc_id);
+                    // print_r($info); exit;
+                }
+                $rec = array();
+                $rec['data_object_id'] = $row['data_object_id'];
+                $rec['obj_guid'] = $row['guid'];
+                
+                /*
+                $rec['total_rating_actions'] = self::number_of_rating_actions($row['guid']);
+                $data = self::object_with_overall_rating($row['guid']);
+                $rec['obj_with_overall_rating'] = @$data['data_object_id'];
+                $rec['overall_rating'] = @$data['overall_rating'];
+                */
+                
+                $rec['obj_type'] = self::lookup_data_type($row['data_type_id']);
+                $rec['obj_url'] = self::lookup_object_url($row, $rec['obj_type']);
+                $rec['obj_description'] = $row['description'];
+
+                $rec['taxon_concept_id'] = $tc_id;
+                $rec['sciname'] = @$info['taxon_name'];
+                $rec['rank'] = @$info['rank'];
+                $rec['ancestry'] = self::generate_ancestry_as_json($info);
+
+                $row['obj_url'] = $rec['obj_url']; //used in lookup_resource_info()
+                $resource_info = self::lookup_resource_info($row, 'data_objects_harvest_events_Ratings'); //data_objects_harvest_events_ImageSizes
+                $rec['resource_id'] = @$resource_info['resource_id'];
+                $rec['resource_name'] = $resource_info['resource_name'];
+                $rec['partner_id'] = @$resource_info['cp_id'];
+                $rec['partner_name'] = @$resource_info['cp_name'];
+                $rec['collection_id'] = @$resource_info['coll_id'];
+
+                //start writing
+                if(!$headers_printed_already) {
+                    fwrite($FILE, implode("\t", array_keys($rec))."\n");
+                    $headers_printed_already = true;
+                }
+                fwrite($FILE, implode("\t", $rec)."\n");
+
+                //======================================================================
+                $guids[$row['guid']] = '';
+            }
+        }
+        fclose($FILE);
+        echo "\n" . count($guids) . "\n";
+        echo "\n" . $k . "\n";
+    }
+    private function number_of_rating_actions($guid)
+    {
+        $sql = "SELECT count(*) total_rows from users_data_objects_ratings d where d.data_object_guid = '$guid'";
+        if($val = $this->mysqli->select_value($sql)) return $val;
+        else exit("\n\nInvestigate no record for [$guid] \n");
+    }
+    private function object_with_overall_rating($guid)
+    {
+        $sql = "SELECT d.id as data_object_id, d.data_rating as overall_rating from data_objects_Ratings d where d.guid = '$guid' and d.published = 1 order by d.id desc limit 1";
+        $result = $this->mysqli->query($sql);
+        while($result && $row=$result->fetch_assoc()) {
+            return $row;
+        }
+        return false;
+    }
+    
     public function start_image_sizes() //DATA-1740 - unique do_id in image_sizes = 19,429
     {
         /* test
