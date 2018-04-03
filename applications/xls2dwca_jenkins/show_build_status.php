@@ -35,7 +35,7 @@ else {
             echo "=======================================================<br>";
             echo "The archive is now available at <a href='$final_archive_gzip_url'>$final_archive_gzip_url</a><br><br>
                 You can save this file to your computer.<br><br>
-                This file will be stored on our server for two (2) weeks, after which it will be removed.<br><br>
+                This file will be stored on our server for a week, after which it will be removed.<br><br>
                 You can also use this URL in our 
                 <a href='../dwc_validator/index.php' target='_blank'>Archive Validator</a> to ensure its contents are valid.
                 <a href='../dwc_validator/index.php?file_url=$final_archive_gzip_url' target='_blank'>Click here</a> to validate now.<br><br>
