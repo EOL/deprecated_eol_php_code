@@ -4,7 +4,7 @@ include_once(dirname(__FILE__) . "/../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;
 
 
-if($GLOBALS['ENV_NAME'] == 'development') echo '<a href="' . WEB_ROOT .'/applications/dwc_validator/">Archive and Spreadsheet Validator</a> | ';
+echo '<a href="' . WEB_ROOT .'/applications/dwc_validator/">Archive and Spreadsheet Validator (orig)</a> | <br>';
 echo '<a href="' . WEB_ROOT .'/applications/dwc_validator_jenkins/">Archive and Spreadsheet Validator (Jenkins)</a> | <br>';
 
 
