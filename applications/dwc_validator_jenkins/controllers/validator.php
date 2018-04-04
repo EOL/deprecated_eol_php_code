@@ -9,9 +9,6 @@ class dwc_validator_controller extends ControllerBase
         
         extract($parameters);
         
-        
-        
-        
         $errors = array();
         $eol_errors = array();
         $eol_warnings = array();
