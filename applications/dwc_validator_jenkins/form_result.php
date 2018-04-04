@@ -10,12 +10,13 @@ if(@$_FILES['dwca_upload']) $_POST['dwca_upload'] = $_FILES['dwca_upload'];
 $parameters =& $_GET;
 if(!$parameters) $parameters =& $_POST;
 
-/*
+/* from original copied script (index.php)
 require_once("controllers/validator.php");
 $validator_controller = new dwc_validator_controller();
 */
 
-echo "<pre>*************"; print_r($parameters); echo "*************</pre>"; //exit;
+// echo "<pre>*************"; print_r($parameters); echo "*************</pre>"; //good debug
+
 /* Array(
     [file_url] => 
     [dwca_upload] => Array(
@@ -32,7 +33,7 @@ echo "<pre>*************"; print_r($parameters); echo "*************</pre>"; //e
 if(false) { //URL is pasted.
 }
 elseif($file_type = @$_FILES["dwca_upload"]["type"]) {
-    if(in_array($file_type, array("application/x-gzip", "application/zip"))) {
+    if(in_array($file_type, array("application/x-gzip", "application/zip", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel"))) {
         $timex = time();
         if($_FILES["dwca_upload"]["error"] > 0) {}
         else {
@@ -41,7 +42,6 @@ elseif($file_type = @$_FILES["dwca_upload"]["type"]) {
             $url = "temp/" . time() . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
             if(move_uploaded_file($_FILES["dwca_upload"]["tmp_name"] , $url)) {
                 debug("<br>file uploaded - OK<br>");
-                // echo "<br>destination: $url<br>";
             }
             else echo "<br>uploading file - ERROR<br>";
         }
@@ -55,6 +55,8 @@ $newfile = DOC_ROOT . "applications/dwc_validator_jenkins/" . $newfile;
 // echo "<br>newfile: [$newfile]<br>"; exit;
 
 $parameters['dwca_upload']['tmp_name'] = $newfile;
+$parameters['from_jenkins'] = '';
+
 require_once("jenkins_call.php");
 
 ?>

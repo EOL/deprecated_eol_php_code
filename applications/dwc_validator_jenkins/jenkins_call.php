@@ -12,7 +12,6 @@ $server_http_host = $_SERVER['HTTP_HOST'];
 $server_script_name = $_SERVER['SCRIPT_NAME'];
 $server_script_name = str_replace("form_result.php", "generate_jenkins.php", $server_script_name);
 $params['uuid'] = pathinfo($newfile, PATHINFO_FILENAME);
-$params['destination'] = $for_DOC_ROOT . "/applications/xls2dwca_jenkins/" . $newfile;
 //always use DOC_ROOT so u can switch from jenkins to cmdline. BUT DOC_ROOT won't work here either since /config/boot.php is not called here. So use $for_DOC_ROOT instead.
 */
 
@@ -22,7 +21,6 @@ $params['destination'] = $for_DOC_ROOT . "/applications/xls2dwca_jenkins/" . $ne
 // echo "<pre>"; print_r($parameters); echo "</pre>"; exit;
 
 $json = json_encode($parameters, true);
-
 
 $params['uuid'] = time();
 $cmd = PHP_PATH.' index.php jenkins ' . "'" . $json . "'";

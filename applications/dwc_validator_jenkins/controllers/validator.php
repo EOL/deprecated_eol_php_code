@@ -5,7 +5,7 @@ class dwc_validator_controller extends ControllerBase
 {
     public static function index($parameters)
     {
-        echo "<pre>====="; print_r($parameters); echo "=====</pre>";
+        // echo "<pre>====="; print_r($parameters); echo "=====</pre>"; //good debug
         
         extract($parameters);
         
@@ -43,15 +43,84 @@ class dwc_validator_controller extends ControllerBase
             return;
         }
         else {
-            render_template("validator/index", array("file_url"             => @$file_url, 
-                                                     "file_upload"          => @$dwca_upload['name'], 
-                                                     "errors"               => @$errors, 
-                                                     "structural_errors"    => @$structural_errors, 
-                                                     "warnings"             => @$warnings, 
-                                                     "stats"                => $stats));
+            
+            $final = array("file_url"           => @$file_url, 
+                           "file_upload"        => @$dwca_upload['name'], 
+                           "errors"             => @$errors, 
+                           "structural_errors"  => @$structural_errors, 
+                           "warnings"           => @$warnings, 
+                           "stats"              => $stats);
+                                                     
+            if(isset($parameters['from_jenkins']))
+            {
+                // print_r($final);
+                /* Array (
+                    [file_url] => 
+                    [file_upload] => 723_bolds.tar.gz
+                    [errors] => Array
+                        (
+                        )
+                    [structural_errors] => Array
+                        (
+                        )
+                    [warnings] => Array
+                        (
+                        )
+                    [stats] => Array
+                        (
+                            [http://rs.tdwg.org/dwc/terms/measurementorfact] => Array
+                                (
+                                    [Total] => 17629
+                                )
+                            [http://rs.tdwg.org/dwc/terms/taxon] => Array
+                                (
+                                    [Total] => 9
+                                )
+                        )
+                )
+                */
+                self::show_results($final);
+                unlink($parameters['dwca_upload']['tmp_name']);
+                return;
+            }
+            render_template("validator/index", $final);
         }
     }
-
+    private static function show_results($p)
+    {
+        if(@$p['errors'] || @$p['structural_errors']) echo "<br>With errors";
+        else
+        {
+            if(@$p['warnings'] && @$p['stats']) echo "<br>Valid Archive but with Warnings";
+            if(!@$p['warnings'] && @$p['stats']) echo "<br>Valid Archive";
+        }
+        echo "<br>";
+        
+        foreach($p as $topic => $arr) {
+            if($p[$topic]) {
+                if($arr && is_array($arr)) {
+                    echo "<br>----------------------------[$topic]----------------------------";
+                    foreach(@$arr as $index => $value) {
+                        if(is_array($value)) {
+                            echo "<br><b>$index</b>";
+                            foreach(@$value as $index2 => $value2) {
+                                if(is_array($value2)) {
+                                    echo "<br>$index2";
+                                    foreach(@$value2 as $index3 => $value3) {
+                                        echo "<br>------ $index3 = ".json_encode($value3);
+                                    }
+                                }
+                                else echo "<br>--- $index2 = ".json_encode($value2);
+                            }
+                        }
+                        else echo "<br>$index = ".json_encode($value);
+                    }
+                    echo "<br>--------------------------------------------------------" . str_repeat("-", strlen($topic)+2) . "<br>";
+                }
+            }
+            // else echo "<hr>No $topic<hr>";
+        }
+    }
     private static function add_errors_to_json($errors, &$json, $index)
     {
         if($errors) {
