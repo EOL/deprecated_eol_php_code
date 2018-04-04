@@ -88,13 +88,16 @@ class dwc_validator_controller extends ControllerBase
     }
     private static function show_results($p)
     {
-        if(@$p['errors'] || @$p['structural_errors']) echo "<br>With errors";
+        echo "You uploaded: <b>$p[file_upload]</b><br>";
+        echo "<b>";
+        if(@$p['errors'] || @$p['structural_errors']) echo "With errors";
         else
         {
-            if(@$p['warnings'] && @$p['stats']) echo "<br>Valid Archive but with Warnings";
-            if(!@$p['warnings'] && @$p['stats']) echo "<br>Valid Archive";
+            if(@$p['warnings'] && @$p['stats']) echo "Valid Archive but with Warnings";
+            elseif(!@$p['warnings'] && @$p['stats']) echo "Valid Archive";
+            else echo "Unknown state";
         }
-        echo "<br>";
+        echo "</b>";
         
         foreach($p as $topic => $arr) {
             if($p[$topic]) {
@@ -115,11 +118,12 @@ class dwc_validator_controller extends ControllerBase
                         }
                         else echo "<br>$index = ".json_encode($value);
                     }
-                    echo "<br>--------------------------------------------------------" . str_repeat("-", strlen($topic)+2) . "<br>";
+                    echo "<br>--------------------------------------------------------" . str_repeat("-", strlen($topic)+2) . "";
                 }
             }
             // else echo "<hr>No $topic<hr>";
         }
+        echo " <a href='index.php'>Back to main</a><br>";
     }
     private static function add_errors_to_json($errors, &$json, $index)
     {

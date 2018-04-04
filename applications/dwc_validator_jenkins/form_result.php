@@ -49,7 +49,7 @@ elseif($file_type = @$_FILES["dwca_upload"]["type"]) {
     }
     else exit("<hr>$file_type<hr>Invalid file. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 }
-else exit("<hr>File maybe too big for the system. Please browse a new file to continue. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
+else exit("<hr>File missing or maybe too big for the system. Please browse a new file to continue. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 
 $newfile = DOC_ROOT . "applications/dwc_validator_jenkins/" . $newfile;
 // echo "<br>newfile: [$newfile]<br>"; exit;
