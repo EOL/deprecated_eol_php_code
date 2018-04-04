@@ -5,7 +5,7 @@ class dwc_validator_controller extends ControllerBase
 {
     public static function index($parameters)
     {
-        print_r($parameters);
+        echo "<pre>====="; print_r($parameters); echo "=====</pre>";
         
         extract($parameters);
         

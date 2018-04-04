@@ -7,7 +7,10 @@ namespace php_active_record;
 $GLOBALS['ENV_DEBUG'] = true;
 ?>
 
-<form name="validator_form" action="index.php" method="post" enctype="multipart/form-data">
+
+<!--- <form name="validator_form" action="index.php" method="post" enctype="multipart/form-data"> --->
+
+<form name="validator_form" action="form_result.php" method="post" enctype="multipart/form-data">
 <table align="center">
     <tr>
         <td>File URL:</td>
