@@ -44,16 +44,15 @@ class EOLv2MetadataAPI
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows . "\n"; exit;
         $recs = array();
-        $FILE = Functions::file_open($filename = CONTENT_RESOURCE_LOCAL_PATH ."image_ratings.txt", "w");
+        $FILE = Functions::file_open($filename = CONTENT_RESOURCE_LOCAL_PATH ."image_ratings_d.txt", "w");
         $headers_printed_already = false;
         
         $guids = array(); $k = 0; $m = 226862/5;
         while($result && $row=$result->fetch_assoc()) {
             if(!isset($guids[$row['guid']])) {
                 //======================================================================
-                echo "\n[$k] - ";
-                $k++;
-                // /* breakdown when caching:
+                echo "\n[$k] - "; $k++;
+                /* breakdown when caching:
                 $cont = false;
                 // if($k >=  1    && $k < $m) $cont = true;
                 if($k >=  $m   && $k < $m*2) $cont = true;
@@ -61,16 +60,17 @@ class EOLv2MetadataAPI
                 // if($k >=  $m*3 && $k < $m*4) $cont = true;
                 // if($k >=  $m*4 && $k < $m*5) $cont = true;
                 if(!$cont) continue;
-                // */
+                */
                 
+                if($row['data_type_id'] == 3) continue; //text data_type
                 
                 $no_tc_id = false;
                 $tc_id = false;
                 if($tc_id = @$row['taxon_concept_id']) {} //echo "\n With tc_id \n";
                 else {
                     // echo "\n NO tc_id \n";
-                    if($tc_id = self::get_tc_id_using_do_id($row['data_object_id'])) {}
-                    elseif($tc_id = self::get_tc_id_using_dotc($row['data_object_id'])) {} //dotc - data_objects_taxon_concepts
+                    if($tc_id = self::get_tc_id_using_dotc($row['data_object_id'])) {echo " - taxon found in DOTC";} //dotc - data_objects_taxon_concepts
+                    elseif($tc_id = self::get_tc_id_using_do_id($row['data_object_id'])) {echo " - taxon found in API call";}
                     else {
                         echo("\n\nNo taxon_concept_id found for ".$row['data_object_id']."\n");
                         // print_r($row); //exit;
@@ -84,15 +84,15 @@ class EOLv2MetadataAPI
                     // print_r($info); exit;
                 }
                 $rec = array();
-                $rec['data_object_id'] = $row['data_object_id'];
+                // $rec['data_object_id'] = $row['data_object_id'];
                 $rec['obj_guid'] = $row['guid'];
                 
-                /*
+                // /* -------------------------------
                 $rec['total_rating_actions'] = self::number_of_rating_actions($row['guid']);
                 $data = self::object_with_overall_rating($row['guid']);
-                $rec['obj_with_overall_rating'] = @$data['data_object_id'];
                 $rec['overall_rating'] = @$data['overall_rating'];
-                */
+                $rec['obj_with_overall_rating'] = @$data['data_object_id'];
+                // ------------------------------- */
                 
                 $rec['obj_type'] = self::lookup_data_type($row['data_type_id']);
                 $rec['obj_url'] = self::lookup_object_url($row, $rec['obj_type']);
@@ -118,19 +118,20 @@ class EOLv2MetadataAPI
                 }
                 fwrite($FILE, implode("\t", $rec)."\n");
 
+                // if($k > 5) break; //debug
                 //======================================================================
                 $guids[$row['guid']] = '';
             }
         }
         fclose($FILE);
-        echo "\n" . count($guids) . "\n";
-        echo "\n" . $k . "\n";
+        echo "\n" . count($guids) . "\n";   //197383
+        echo "\n" . $k . "\n";              //202591
     }
     private function number_of_rating_actions($guid)
     {
         $sql = "SELECT count(*) total_rows from users_data_objects_ratings d where d.data_object_guid = '$guid'";
         if($val = $this->mysqli->select_value($sql)) return $val;
-        else exit("\n\nInvestigate no record for [$guid] \n");
+        else return "-no rating action-"; //exit("\n\nInvestigate no record for [$guid] \n");
     }
     private function object_with_overall_rating($guid)
     {
