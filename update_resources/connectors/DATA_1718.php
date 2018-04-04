@@ -52,13 +52,13 @@ $func->download_resource_files();
 // $func->test_xml_files();
 */
 
-// /* https://eol-jira.bibalex.org/browse/DATA-xxxx
+/* https://eol-jira.bibalex.org/browse/DATA-xxxx
 $resource_id = "user_curated_object";
 $func = new EOLv2MetadataAPI($resource_id);
 $func->start_user_object_curation();
 // Functions::finalize_dwca_resource($resource_id);
 // Cannot find resource anymore = 347 last count
-// */
+*/
 
 /*
 $func = new EOLv2MetadataAPI("");
@@ -71,6 +71,11 @@ $func->start_user_comments('Collection');
 $func = new EOLv2MetadataAPI("");
 $func->start_image_sizes();
 */
+
+// /* https://eol-jira.bibalex.org/browse/DATA-1741
+$func = new EOLv2MetadataAPI("");
+$func->start_image_ratings();
+// */
 
 
 $elapsed_time_sec = time_elapsed() - $timestart;
