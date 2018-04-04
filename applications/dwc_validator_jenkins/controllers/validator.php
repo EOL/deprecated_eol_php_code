@@ -88,6 +88,9 @@ class dwc_validator_controller extends ControllerBase
     }
     private static function show_results($p)
     {
+        if(stripos($p['file_upload'], "xls") !== false) {} //string is found
+        else echo "<br>"; //for some reason there are extra lines for spreadsheets.
+        
         echo "You uploaded: <b>$p[file_upload]</b><br>";
         echo "<b>";
         if(@$p['errors'] || @$p['structural_errors']) echo "With errors";
