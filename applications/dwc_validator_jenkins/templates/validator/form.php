@@ -13,8 +13,11 @@ $GLOBALS['ENV_DEBUG'] = true;
 <form name="validator_form" action="form_result.php" method="post" enctype="multipart/form-data">
 <table align="center">
     <tr>
+        <!---
         <td>File URL:</td>
         <td><input type="text" size="150" name="file_url"<?php if($file_url) echo " value=\"$file_url\""; ?>/></td>
+        --->
+        <input type="hidden" name="file_url">
     </tr>
     <tr>
         <td>File Upload:</td>
