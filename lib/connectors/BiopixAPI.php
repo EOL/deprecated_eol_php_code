@@ -19,14 +19,18 @@ class BiopixAPI
         // download the dump file to temporary file on the server
         $filepath = self::download_resource_data();
         
+        echo "\nfilepath: [$filepath]\n";
         // read each line in the file
-        foreach(new FileIterator($filepath) as $line_number => $line)
-        {
+        $i = 0;
+        foreach(new FileIterator($filepath) as $line_number => $line) {
+            // $i++; echo "\n[$i] ";
             $this->create_instances_from_row($line);
         }
         
         // finalize the process and create the archive
         $this->create_archive();
+        
+        unlink($filepath);
     }
     
     function create_instances_from_row($line)
@@ -50,11 +54,9 @@ class BiopixAPI
         
         // add the family the first time we see it
         $family_id = null;
-        if($family)
-        {
+        if($family) {
             $family_id = md5($family);
-            if(!isset($this->taxon_ids_written[$family_id]))
-            {
+            if(!isset($this->taxon_ids_written[$family_id])) {
                 $t = new \eol_schema\Taxon();
                 $t->taxonID = $family_id;
                 $t->taxonRank = 'family';
@@ -67,8 +69,7 @@ class BiopixAPI
         
         // add the taxon the first time we see them
         $taxon_id = str_replace(" ", "_", $scientific_name);
-        if(!isset($this->taxa[$taxon_id]))
-        {
+        if(!isset($this->taxa[$taxon_id])) {
             $t = new \eol_schema\Taxon();
             $t->taxonID = str_replace(" ", "_", $scientific_name);
             if($family_id) $t->parentNameUsageID = $family_id;
@@ -95,16 +96,14 @@ class BiopixAPI
     function create_archive()
     {
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        foreach($this->taxa as $t)
-        {
+        foreach($this->taxa as $t) {
             $this->archive_builder->write_object_to_file($t);
         }
         
-        foreach($this->media as $m)
-        {
+        foreach($this->media as $m) {
             $this->archive_builder->write_object_to_file($m);
         }
-        $this->archive_builder->finalize();
+        $this->archive_builder->finalize(true);
     }
     
     static function convert_biopix_rating($rating)
@@ -121,22 +120,18 @@ class BiopixAPI
         $category = strtolower($category);
         if(!$kingdoms) $kingdoms = $this->category_kingdoms();
         // we've figured out the parent ID before, so return it
-        if(isset($this->parent_taxon_id_from_category[$category]))
-        {
+        if(isset($this->parent_taxon_id_from_category[$category])) {
             return $this->parent_taxon_id_from_category[$category];
         }
         
         // otherwise if we recognize the category
-        if(isset($kingdoms[$category]))
-        {
+        if(isset($kingdoms[$category])) {
             $parent_taxon_id = null;
             $taxon_id = null;
-            foreach($kingdoms[$category] as $rank => $taxon_name)
-            {
+            foreach($kingdoms[$category] as $rank => $taxon_name) {
                 $taxon_id = md5($taxon_name);
                 
-                if(!isset($this->taxon_ids_written[$taxon_id]))
-                {
+                if(!isset($this->taxon_ids_written[$taxon_id])) {
                     $t = new \eol_schema\Taxon();
                     $t->taxonID = $taxon_id;
                     $t->taxonRank = $rank;
@@ -178,16 +173,8 @@ class BiopixAPI
     
     private function download_resource_data()
     {
-        $biopix_data_path = DOC_ROOT . "/update_resources/connectors/files/biopix_tab.txt";
-        $biopix_tab_data = Functions::get_remote_file($this->data_dump_url, array('timeout' => 300));
-        if(!($OUT = fopen($biopix_data_path, "w+")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $biopix_data_path);
-          return;
-        }
-        fwrite($OUT, $biopix_tab_data);
-        fclose($OUT);
-        return $biopix_data_path;
+        $biopix_tab_data = Functions::save_remote_file_to_local($this->data_dump_url, array('cache' => 1, 'expire_seconds' => 60*60*24*25, 'timeout' => 300));
+        return $biopix_tab_data;
     }
 }
 ?>
