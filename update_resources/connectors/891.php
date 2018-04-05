@@ -53,6 +53,7 @@ else {
     $params["dwca_file"]    = "http://localhost/cp_new/NMNH/type_specimen_resource/dwca-nmnhdwca.zip"; //obsolete
     $params["dwca_file"]    = "http://localhost/cp_new/NMNH/type_specimen_resource/dwca-nmnh_extant_dwc-a-v1.8.zip"; //latest as of 25-Oct-2017
     $params["dwca_file"]    = "http://localhost/cp_new/NMNH/type_specimen_resource/dwca-nmnh_extant_dwc-a-v1.10.zip"; //latest as of 03-Nov-2017
+    $params["dwca_file"]    = "http://localhost/cp_new/NMNH/type_specimen_resource/dwca-nmnh_extant_dwc-a-v1.16.zip"; //latest as of 05-Apr-2018
     $params["uri_file"]     = "http://localhost/cp_new/NMNH/type_specimen_resource/nmnh-mappings.xlsx"; //renamed; originally [nmnh mappings.xlsx]
 }
 
@@ -68,10 +69,11 @@ $resource_id = $params["resource_id"];
 $func = new NMNHTypeRecordAPI_v2($resource_id); //latest, but based from the old one
 
 if(Functions::is_production()) {
+// if(true) {
     if($params["dwca_file"] = $func->get_dwca_download_url()) {}
     else exit("\nCannot get download URL for the DwCA.\n");
 }
-print_r($params);
+print_r($params); //exit;
 
 $func->start($params); //renamed, it was $func->export_gbif_to_eol() before
 $func = null;

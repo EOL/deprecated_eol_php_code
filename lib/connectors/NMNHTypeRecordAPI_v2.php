@@ -109,6 +109,7 @@ class NMNHTypeRecordAPI_v2
         //start type specimen data
         self::process_row_type($params);
 
+        /* media objects where removed per Katja: https://eol-jira.bibalex.org/browse/DATA-1711?focusedCommentId=62350&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62350
         //start media objects
         self::get_irns_from_departmental_resources();
         $params["row_type"]     = "http://rs.tdwg.org/ac/terms/Multimedia";
@@ -116,7 +117,8 @@ class NMNHTypeRecordAPI_v2
         $params["type"]         = "media data";
         self::process_row_type($params);
         $this->irns = null; //to save on memory
-
+        */
+        
         //finalize dwc-a
         $this->archive_builder->finalize(TRUE);
         
@@ -488,6 +490,12 @@ class NMNHTypeRecordAPI_v2
             }
             else self::add_string_types($rec, $typeStatus_uri, "http://rs.tdwg.org/dwc/terms/typeStatus");
             
+            //new child measurements per Katja: https://eol-jira.bibalex.org/browse/DATA-1711?focusedCommentId=62350&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62350
+            if($val = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID']) self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/occurrenceID");
+            if($val = $rec['http://rs.tdwg.org/dwc/terms/institutionID']) self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/institutionID");
+            if($val = $rec['http://rs.tdwg.org/dwc/terms/collectionCode']) self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/collectionCode");
+            //end new child measurements ------------------------------
+            
             if($val = $rec["http://rs.tdwg.org/dwc/terms/collectionCode"]) self::add_string_types($rec, self::get_uri($val, "collectionCode"), "http://rs.tdwg.org/dwc/terms/collectionID");
 
             $associatedSequences = $rec["http://rs.tdwg.org/dwc/terms/associatedSequences"];
@@ -734,7 +742,11 @@ class NMNHTypeRecordAPI_v2
         if($measurementOfTaxon ==  "true") {
             // so that measurementRemarks (and source, contributor, etc.) appears only once in the [measurement_or_fact.tab]
             $m->measurementRemarks = @$rec['measurement_remarks'];
-            $m->source = $rec["source"];
+            
+            //per Katja https://eol-jira.bibalex.org/browse/DATA-1711?focusedCommentId=62350&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62350
+            if($source = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID']) $m->source = $source;
+            else                                                            $m->source = $rec["source"];
+            
             $m->contributor = @$rec["contributor"];
             /* not used at the moment
             if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/reference/referenceID"])) $m->referenceID = $referenceID;
@@ -784,7 +796,12 @@ class NMNHTypeRecordAPI_v2
         $o->decimalLongitude    = $rec["http://rs.tdwg.org/dwc/terms/decimalLongitude"];
         $o->identifiedBy        = $rec["http://rs.tdwg.org/dwc/terms/identifiedBy"];
 
-        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        // new scheme per Katja
+        // [http://rs.tdwg.org/dwc/terms/occurrenceID] => http://n2t.net/ark:/65665/3008b2260-9b4c-45f7-b4f7-0e56151e6979
+        if($val = @$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']) $o->occurrenceID = $val;
+        else                                                          $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        // end new scheme
+        
         if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
         $this->archive_builder->write_object_to_file($o);
         $this->occurrence_ids[$o->occurrenceID] = '';
