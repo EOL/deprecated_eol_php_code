@@ -115,7 +115,7 @@ class NMNHTypeRecordAPI_v2
         $params["location"]     = "multimedia.txt";
         $params["type"]         = "media data";
         self::process_row_type($params);
-        $this->irns = null;
+        $this->irns = null; //to save on memory
 
         //finalize dwc-a
         $this->archive_builder->finalize(TRUE);
