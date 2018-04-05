@@ -48,6 +48,8 @@ $info['res_id']['data_types'] = array('xxx'); //what is available in its Collect
 $info['res_id'] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path' => 'http', 'prefix' => "EOL_"); //res_name
 */
 
+//broken static XML, has collection, has text objects only
+$info['504'] = array('id' => 47474, 'data_types' => array('text'), 'xml_path' => '', 'prefix' => "EOL_"); //BIOL204- Botany, Jacksonville University
 
 //has XML (text only), has collection 27255 but not needed - https://opendata.eol.org/dataset/edulifedesks-archive/resource/e42aa8de-1dab-4ad6-b88f-c164f2a89ecd
 $info['357'] = array('id' => '', 'data_types' => array('dtype'), 'xml_path' => 'http://services.eol.org/resources/357.xml', 'prefix' => "EOL_"); //From so simple a beginning: 2010
