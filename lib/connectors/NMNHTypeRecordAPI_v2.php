@@ -125,10 +125,10 @@ class NMNHTypeRecordAPI_v2
         // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
-        echo "\n no taxonID for this occurrence: ".count($this->debug['no taxonID for this occurrence'])."\n";
-        echo "\n".$this->debug['no taxonID for this occurrence'][0];
-        echo "\n".$this->debug['no taxonID for this occurrence'][1];
-        echo "\n".$this->debug['no taxonID for this occurrence'][2]."\n";
+        echo "\n no taxonID for this occurrence: ".count(@$this->debug['no taxonID for this occurrence'])."\n";
+        echo "\n".@$this->debug['no taxonID for this occurrence'][0];
+        echo "\n".@$this->debug['no taxonID for this occurrence'][1];
+        echo "\n".@$this->debug['no taxonID for this occurrence'][2]."\n";
         $this->debug['no taxonID for this occurrence'] = array();
         print_r($this->debug);
     }
@@ -177,7 +177,7 @@ class NMNHTypeRecordAPI_v2
                     $i = 0;
                     foreach(new FileIterator($table_definition->file_uri) as $line_number => $line) {
                         $i++;
-                        if(($i % 10000) == 0) echo "\n" . $params["type"] . " - $i ";
+                        if(($i % 100000) == 0) echo "\n" . $params["type"] . " - $i ";
                         
                         $parameters['archive_line_number'] = $line_number;
                         if($table_definition->ignore_header_lines) $parameters['archive_line_number'] += 1;
