@@ -503,6 +503,9 @@ class Functions
         }
         $i = 0;
         $exclude = array("http://rs.tdwg.org/dwc/terms/georeferenceRemarks", "http://rs.tdwg.org/dwc/terms/associatedSequences", "http://rs.tdwg.org/dwc/terms/georeferenceProtocol");
+        if($resource_id == 891) {
+            $exclude[] = "http://rs.tdwg.org/dwc/terms/occurrenceID"; //bec values here are real URLs e.g. http://n2t.net/ark:/65665/3009027b4-15fb-4c19-aaaa-d99a5862f95d
+        }
         foreach(new FileIterator($url) as $line_number => $temp) {
             $temp = explode("\t", $temp);
             $i++;

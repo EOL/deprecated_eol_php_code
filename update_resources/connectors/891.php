@@ -13,7 +13,7 @@ agents                                                                          
 891	Monday 2018-03-12 09:29:40 AM	{"agent.tab":86,"measurement_or_fact.tab":4402583,"media_resource.tab":137786,"occurrence.tab":352671,"taxon.tab":256523} - eol-archive, no measurementID
 891	Tuesday 2018-03-13 03:24:51 AM	{"agent.tab":86,"measurement_or_fact.tab":4402583,"media_resource.tab":137786,"occurrence.tab":352671,"taxon.tab":256523} - with measurementID
 891	Wednesday 2018-03-14 03:47:24 PM{"agent.tab":86,"measurement_or_fact.tab":4402580,"media_resource.tab":137786,"occurrence.tab":352671,"taxon.tab":256523} - ran in Archive with more memory to finish DwCADiagnose.
-
+891	Thursday 2018-04-05 10:26:11 AM	{               "measurement_or_fact.tab":5460512,                            "occurrence.tab":352666,"taxon.tab":256523} - after removing media per Katja
 10k records:        9Jan
 measurement_or_fact 9218
 occurrence          1708
