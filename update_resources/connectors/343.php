@@ -17,8 +17,6 @@ $resource_path = Functions::get_accesspoint_url_if_available($resource_id, "http
 echo "\n processing resource:\n $resource_path \n\n";
 
 
-
-
 $nmnh = new ResourceDataObjectElementsSetting($resource_id, $resource_path, 'http://purl.org/dc/dcmitype/StillImage', 2);
 $xml = $nmnh->set_data_object_rating_on_xml_document(); //no params means will use default expire_seconds = 25 days
 $xml = $nmnh->fix_NMNH_xml($xml);
