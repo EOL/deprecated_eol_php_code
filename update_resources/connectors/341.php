@@ -22,6 +22,10 @@ echo "\n processing resource:\n $resource_path \n\n";
 $nmnh = new ResourceDataObjectElementsSetting($resource_id, $resource_path, 'http://purl.org/dc/dcmitype/StillImage', 2);
 $xml = $nmnh->set_data_object_rating_on_xml_document(); //no params means will use default expire_seconds = 25 days
 $xml = $nmnh->fix_NMNH_xml($xml);
+
+//remove text objects per: https://eol-jira.bibalex.org/browse/DATA-1743
+$xml = $nmnh->remove_data_object_of_certain_element_value("dataType", "http://purl.org/dc/dcmitype/Text", $xml);
+
 require_library('connectors/INBioAPI');
 $xml = INBioAPI::assign_eol_subjects($xml);
 $xml = other_transformations($xml, $nmnh);

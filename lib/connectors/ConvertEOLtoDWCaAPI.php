@@ -446,6 +446,7 @@ class ConvertEOLtoDWCaAPI
             if($data_objects = self::process_data_object($obj, $taxon_id, $params, $t_dwc->ScientificName)) {
                 foreach($data_objects as $data_object) 
                 {
+                    if($this->resource_id == 346 && $data_object['dataType'] == "http://purl.org/dc/dcmitype/Text") continue; //exclude text objects for resource (346) per DATA-1743
                     // print_r($rec); print_r($data_object); exit;
                     /*
                     $rec = Array (
@@ -510,7 +511,7 @@ class ConvertEOLtoDWCaAPI
             $ancestry['ScientificName'] = (string) $dwc->ScientificName;
 
             $ancestry = self::get_names($ancestry);
-            echo "\n old sciname: [$dwc->ScientificName] --- final sciname: [" . $ancestry['ScientificName'] . "]";
+            // echo "\n old sciname: [$dwc->ScientificName] --- final sciname: [" . $ancestry['ScientificName'] . "]"; //good debug
 
             $dwc->ScientificName = $ancestry['ScientificName'];
             if(isset($dwc->Genus)) $dwc->Genus = $ancestry['Genus'];
@@ -540,7 +541,7 @@ class ConvertEOLtoDWCaAPI
         if($ancestry['ScientificName'] == "") {
             foreach($ancestry as $rank => $name) {
                 if(trim($name) != "") {
-                    echo "\n This will be the new ScientificName: [$name] \n";
+                    // echo "\n This will be the new ScientificName: [$name] \n"; //good debug
                     $ancestry['ScientificName'] = $name;
                     $ancestry[$rank] = "";
                     return $ancestry;

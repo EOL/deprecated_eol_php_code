@@ -366,10 +366,6 @@ class ResourceDataObjectElementsSetting
         $xml = str_ireplace("dwc:family", "dwc:Family", $xml);   //echo "\nDone str replace Family";
         $xml = str_ireplace("dwc:genus", "dwc:Genus", $xml);     //echo "\nDone str replace Genus";
         $xml = str_ireplace("dwc:scientificName", "dwc:ScientificName", $xml); //echo "\nDone str replace ScientificName\n\n";
-        
-        //remove text objects per: https://eol-jira.bibalex.org/browse/DATA-1743
-        $xml = self::remove_data_object_of_certain_element_value("dataType", "http://purl.org/dc/dcmitype/Text", $xml);
-        
         return $xml;
     }
     public function call_xml_2_dwca($resource_id, $dataset, $NMNH_resourceYN = true)
