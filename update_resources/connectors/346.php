@@ -9,14 +9,13 @@ Connector reads the XML provided by partner and
 346	Monday 2017-12-04 12:38:00 AM	{"agent.tab":106,"media_resource.tab":510761,"reference.tab":71767,"taxon.tab":109583} - Mac Mini
 346	Monday 2017-12-04 01:01:00 AM	{"agent.tab":96, "media_resource.tab":494622,"reference.tab":70199,"taxon.tab":107355} - eol-archive
 
+IMPORTANT: since 346 has a big resource (nmnh-botany-response.xml.gz) it can't be processed similarly like 120, 176, 341, 342, 343, 344.
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = true;
-require_library('ResourceDataObjectElementsSetting');
+// require_library('ResourceDataObjectElementsSetting'); --- not used anymore here, see IMPORTANT
 $timestart = time_elapsed();
 $resource_id = 346;
-
-
 require_library('connectors/ConvertEOLtoDWCaAPI');
 
 /* ================================================ test resource ================================================
