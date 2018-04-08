@@ -511,7 +511,7 @@ class ConvertEOLtoDWCaAPI
             $ancestry['ScientificName'] = (string) $dwc->ScientificName;
 
             $ancestry = self::get_names($ancestry);
-            echo "\n old sciname: [$dwc->ScientificName] --- final sciname: [" . $ancestry['ScientificName'] . "]";
+            // echo "\n old sciname: [$dwc->ScientificName] --- final sciname: [" . $ancestry['ScientificName'] . "]"; //good debug
 
             $dwc->ScientificName = $ancestry['ScientificName'];
             if(isset($dwc->Genus)) $dwc->Genus = $ancestry['Genus'];
@@ -541,7 +541,7 @@ class ConvertEOLtoDWCaAPI
         if($ancestry['ScientificName'] == "") {
             foreach($ancestry as $rank => $name) {
                 if(trim($name) != "") {
-                    echo "\n This will be the new ScientificName: [$name] \n";
+                    // echo "\n This will be the new ScientificName: [$name] \n"; //good debug
                     $ancestry['ScientificName'] = $name;
                     $ancestry[$rank] = "";
                     return $ancestry;
