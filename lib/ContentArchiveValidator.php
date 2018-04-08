@@ -320,6 +320,18 @@ class ContentArchiveValidator
                         $archive = new ContentArchiveReader(null, $archive_tmp_dir);
                         $validator = new ContentArchiveValidator($archive);
                         $validator->get_validation_errors();
+
+                        //--------------------------------------added Apr 7, 2018
+                        /* $temp_dir value at this point is:
+                        [/Library/WebServer/Documents/eol_php_code/applications/content_server/tmp/34b9691942ddfd05b2feda198493316f.xlsx]
+                        Should delete (.xls or .xlsx and .tar.gz) and the temp folder
+                        */
+                        Functions::delete_if_exists($temp_dir);                                         //this deletes filename.xlsx or .xls
+                        Functions::delete_if_exists(str_ireplace(".xlsx", ".tar.gz", $temp_dir));       //this deletes the filename.tar.gz OR the one below
+                        Functions::delete_if_exists(str_ireplace(".xls", ".tar.gz", $temp_dir));        //this deletes the filename.tar.gz
+                        recursive_rmdir(str_ireplace(array(".xlsx", ".xls"), "", $archive_tmp_dir));    //this removes the temp folder /34b9691942ddfd05b2feda198493316f/
+                        //--------------------------------------added Apr 7, 2018
+
                         return array( 'errors' => $validator->display_errors(),
                                       'structural_errors' => $validator->structural_errors(),
                                       'warnings' => $validator->display_warnings(),
