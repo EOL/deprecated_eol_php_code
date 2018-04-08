@@ -446,6 +446,7 @@ class ConvertEOLtoDWCaAPI
             if($data_objects = self::process_data_object($obj, $taxon_id, $params, $t_dwc->ScientificName)) {
                 foreach($data_objects as $data_object) 
                 {
+                    if($this->resource_id == 346 && $data_object['dataType'] == "http://purl.org/dc/dcmitype/Text") continue; //exclude text objects for resource (346) per DATA-1743
                     // print_r($rec); print_r($data_object); exit;
                     /*
                     $rec = Array (
