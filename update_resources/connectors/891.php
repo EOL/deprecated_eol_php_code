@@ -15,6 +15,7 @@ agents                                                                          
 891	Wednesday 2018-03-14 03:47:24 PM{"agent.tab":86,"measurement_or_fact.tab":4402580,"media_resource.tab":137786,"occurrence.tab":352671,"taxon.tab":256523} - ran in Archive with more memory to finish DwCADiagnose.
 891	Thursday 2018-04-05 10:26:11 AM	{               "measurement_or_fact.tab":5460512,                            "occurrence.tab":352666,"taxon.tab":256523} - after removing media per Katja
 891	Thursday 2018-04-05 10:27:25 PM	{               "measurement_or_fact.tab":5460512,                            "occurrence.tab":352666,"taxon.tab":256523}
+891	Saturday 2018-04-07 10:56:13 AM	{               "measurement_or_fact.tab":5481279,                            "occurrence.tab":352782,"taxon.tab":256626}
 
 10k records:        9Jan
 measurement_or_fact 9218
