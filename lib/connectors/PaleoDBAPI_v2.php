@@ -112,6 +112,10 @@ class PaleoDBAPI_v2
         $taxon->parentNameUsageID        = $a[$this->map['parentNameUsageID']];
         $taxon->acceptedNameUsageID      = @$a[$this->map['acceptedNameUsageID']];
         
+        $taxon->nameAccordingTo = $a[$this->map['nameAccordingTo']];
+        
+        
+        
         if($val = @$a[$this->map['taxonID']]) $taxon->furtherInformationURL = "https://paleobiodb.org/classic/checkTaxonInfo?taxon_no=" . self::numerical_part($val);
 
         if(!@$a[$this->map['acceptedNameUsageID']]) { //acceptedNameUsageID => "acc"
@@ -121,6 +125,9 @@ class PaleoDBAPI_v2
             $taxon->order   = @$a[$this->map['order']];
             $taxon->family  = @$a[$this->map['family']];
             $taxon->genus   = @$a[$this->map['genus']];
+        }
+        if($rank = @$taxon->taxonRank) { //by Eli alone: if taxon is genus then exclude genus from ancestry.
+            if(in_array($rank, array('kingdom', 'phylum', 'class', 'order', 'family', 'genus'))) $taxon->$rank = "";
         }
 
         $this->archive_builder->write_object_to_file($taxon);
