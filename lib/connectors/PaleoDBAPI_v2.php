@@ -69,13 +69,125 @@ class PaleoDBAPI_v2
                     if($flg == "V") continue;
                 }
                 self::create_vernacular_archive($arr, $taxon_id);
-                
-                
+                self::create_trait_archive($arr, $taxon_id);
             }
-            if($i > 10000) break; //debug
+            if($i > 100) break; //debug
         }
         unlink($jsonfile);
     }
+    private function generate_id_from_array_record($arr)
+    {
+        $json = json_encode($arr);
+        // exit("\n[$json]\n");
+        return md5($json);
+    }
+    private function create_trait_archive($a, $taxon_id)
+    {
+        if(@$a['ext'] == '0') {
+            $rec = array();
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = "http://eol.org/schema/terms/ExtinctionStatus";
+            $rec['measurementValue']    = "http://eol.org/schema/terms/extinct";
+            $rec['measurementUnit']     = '';
+            $rec['statisticalMethod']   = '';
+            $rec["taxon_id"]    = $taxon_id;
+            // $rec["catnum"]      = md5($rec['measurementType'] . self::generate_id_from_array_record($a));
+            $rec["catnum"]      = self::generate_id_from_array_record($a);
+            self::add_string_types($rec);
+        }
+        if(@$a['ext'] == '1') {
+            $rec = array();
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = "http://eol.org/schema/terms/ExtinctionStatus";
+            $rec['measurementValue']    = "http://eol.org/schema/terms/extant";
+            $rec['measurementUnit']     = '';
+            $rec['statisticalMethod']   = '';
+            $rec["taxon_id"]    = $taxon_id;
+            // $rec["catnum"]      = md5($rec['measurementType'] . self::generate_id_from_array_record($a));
+            $rec["catnum"]      = self::generate_id_from_array_record($a);
+            self::add_string_types($rec);
+        }
+        
+        /*
+        $rec = array();
+        $rec["taxon_id"]            = $line['taxon_id'];
+        $rec["catnum"]              = "_" . str_replace(" ", "_", $line['text']);
+        $rec['measurementOfTaxon']  = "true";
+        $rec['measurementType']     = "http://eol.org/schema/terms/Habitat";
+        $rec['measurementValue']    = $uri;
+        $rec['measurementMethod']   = 'text mining';
+        $rec["contributor"]         = '<a href="http://environments-eol.blogspot.com/2013/03/welcome-to-environments-eol-few-words.html">Environments-EOL</a>';
+        $rec["source"]              = "http://eol.org/pages/" . str_replace('EOL:', '', $rec["taxon_id"]);
+        $rec['measurementRemarks']  = "source text: \"" . $line['text'] . "\"";
+        if($val = self::get_reference_ids($line)) $rec['referenceID'] = implode("; ", $val);
+        self::add_string_types($rec);
+        */
+    }
+    private function add_string_types($rec)
+    {
+        $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"]);
+        unset($rec['catnum']);
+        unset($rec['taxon_id']);
+        $m = new \eol_schema\MeasurementOrFact();
+        $m->occurrenceID = $occurrence_id;
+        foreach($rec as $key => $value) $m->$key = $value;
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        if(!isset($this->measurement_ids[$m->measurementID])) {
+            $this->archive_builder->write_object_to_file($m);
+            $this->measurement_ids[$m->measurementID] = '';
+        }
+    }
+
+    private function add_occurrence($taxon_id, $catnum)
+    {
+        $occurrence_id = $catnum;
+
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = $occurrence_id;
+        
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        $o->taxonID = $taxon_id;
+        
+        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
+    }
+    private function get_uris($spreadsheet)
+    {
+        $fields = array();
+        $fields["sex"] = "sex_uri";
+        $fields["typeStatus"] = "typeStatus_uri";
+        $fields["institutionCode"] = "institutionCode_uri";
+        
+        require_library('connectors/LifeDeskToScratchpadAPI');
+        $func = new LifeDeskToScratchpadAPI();
+        $spreadsheet_options = $this->spreadsheet_options;
+        
+        $uris = array();
+        echo("\nspreadsheet: [$spreadsheet]\n"); //debug
+        if($spreadsheet) {
+            if($arr = $func->convert_spreadsheet($spreadsheet, 0, $spreadsheet_options)) {
+                 foreach($fields as $key => $value) {
+                     $i = 0;
+                     if(@$arr[$key]) {
+                         foreach($arr[$key] as $item) {
+                             $item = trim($item);
+                             if($item) {
+                                 $temp = $arr[$value][$i];
+                                 $temp = trim(str_replace(array("\n"), "", $temp));
+                                 $uris[$item] = $temp;
+                                 if(!Functions::is_utf8($temp)) echo "\nnot utf8: [$temp]\n";
+                             }
+                             $i++;
+                         }
+                     }
+                 }
+            }
+        }
+        return $uris;
+    }
+    
     private function create_vernacular_archive($a, $taxon_id)
     {
         if($vernacular = @$a[$this->map['vernacularName']]) {
