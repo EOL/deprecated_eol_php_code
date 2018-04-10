@@ -3,7 +3,7 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/PaleobiologyAPI');
 
-
+exit("\nThis seems obsolete already.\n");
 $paleobiology_connector = new PaleobiologyAPI;
 $paleobiology_connector->get_all_taxa();
 
