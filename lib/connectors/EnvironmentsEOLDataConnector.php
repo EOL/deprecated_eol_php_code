@@ -28,6 +28,7 @@ class EnvironmentsEOLDataConnector
         // stats
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->need_to_check_tc_id_dump_file = $this->TEMP_DIR . "need_to_check_tc_id.txt";
+        $this->debug = array();
     }
     /*
     Array
@@ -81,7 +82,7 @@ class EnvironmentsEOLDataConnector
         }
         exit("\n-exit-\n");
         */
-        print_r($this->debug);
+        if($this->debug) print_r($this->debug);
     }
 
     private function csv_to_array($tsv_file)

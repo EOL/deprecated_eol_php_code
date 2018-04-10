@@ -20,6 +20,7 @@ MacMini:
 368	Thursday 2018-03-29 12:56:30 PM	    {"measurement_or_fact.tab":1156975,"occurrence.tab":1156975,"taxon.tab":275389,"vernacular_name.tab":4023}
 */
 
+return; //this is now replaced by PaleoDBAPI_v2.php
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 ini_set('memory_limit','8096M');
 $timestart = time_elapsed();

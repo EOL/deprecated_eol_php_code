@@ -12,6 +12,7 @@ class PaleoDBAPI_v2
         'expire_seconds' => 60*60*24*30*3); //cache expires in 3 months // orig
         $this->download_options['expire_seconds'] = false; //debug
 
+        $this->service["taxon"] = "https://paleobiodb.org/data1.2/taxa/list.json?all_taxa&variant=all&pres=regular&show=full,attr,app,classext,etbasis,ref&rowcount=true&datainfo=true&save=alltaxa.json";
         $this->service["taxon"] = "http://localhost/cp/PaleoDB/TRAM-746/alltaxa.json";
 
         $this->map['acceptedNameUsageID']       = "acc";
@@ -31,6 +32,9 @@ class PaleoDBAPI_v2
         $this->map['taxonRank']                 = "rnk";
         $this->map['taxonomicStatus']           = "tdf";
         $this->map['nameAccordingTo']           = "ref";
+        
+        $this->map['vernacularName']            = "nm2";
+        
 
 
         /* used in PaleoDBAPI.php
@@ -44,6 +48,7 @@ class PaleoDBAPI_v2
     function get_all_taxa()
     {
         self::parse_big_json_file();
+        $this->archive_builder->finalize(TRUE);
     }
     
     private function parse_big_json_file()
@@ -56,12 +61,30 @@ class PaleoDBAPI_v2
             if(substr($line, 0, strlen('{"oid":')) == '{"oid":') {
                 $str = substr($line, 0, -1); //remove last char (",") the comma, very important to convert from json to array.
                 $arr = json_decode($str, true);
-                self::create_taxon_archive($arr);
+                $taxon_id = self::create_taxon_archive($arr);
+                
+                // Important: Taxa that have "flg":"V" are synonyms, spelling variants, and variants with alternative ranks. For these we only want to use the taxon information as 
+                // outlined in the taxa sheet.  Ignore measurements and vernaculars associated with these records.  
+                if($flg = @$arr['flg']) {
+                    if($flg == "V") continue;
+                }
+                self::create_vernacular_archive($arr, $taxon_id);
+                
+                
             }
-            if($i > 30) break; //debug
+            if($i > 10000) break; //debug
         }
         unlink($jsonfile);
-        $this->archive_builder->finalize(TRUE);
+    }
+    private function create_vernacular_archive($a, $taxon_id)
+    {
+        if($vernacular = @$a[$this->map['vernacularName']]) {
+            $v = new \eol_schema\VernacularName();
+            $v->taxonID         = $taxon_id;
+            $v->vernacularName  = $vernacular;
+            $v->language        = 'en';
+            $this->archive_builder->write_object_to_file($v);
+        }
     }
     private function create_taxon_archive($a)
     {
@@ -108,29 +131,25 @@ class PaleoDBAPI_v2
         $taxon->scientificNameAuthorship = @$a[$this->map['scientificNameAuthorship']];
         $taxon->taxonRank                = self::compute_taxonRank($a);
         $taxon->taxonomicStatus          = self::compute_taxonomicStatus($a);
-        
-        $taxon->parentNameUsageID        = $a[$this->map['parentNameUsageID']];
-        $taxon->acceptedNameUsageID      = @$a[$this->map['acceptedNameUsageID']];
-        
-        $taxon->nameAccordingTo = $a[$this->map['nameAccordingTo']];
-        
-        
-        
+        $taxon->acceptedNameUsageID      = self::numerical_part(@$a[$this->map['acceptedNameUsageID']]);
+        $taxon->nameAccordingTo          = $a[$this->map['nameAccordingTo']];
+
         if($val = @$a[$this->map['taxonID']]) $taxon->furtherInformationURL = "https://paleobiodb.org/classic/checkTaxonInfo?taxon_no=" . self::numerical_part($val);
 
         if(!@$a[$this->map['acceptedNameUsageID']]) { //acceptedNameUsageID => "acc"
-            $taxon->parentNameUsageID = @$a[$this->map['parentNameUsageID']];
+            $taxon->parentNameUsageID = self::numerical_part(@$a[$this->map['parentNameUsageID']]);
             $taxon->phylum  = @$a[$this->map['phylum']];
             $taxon->class   = @$a[$this->map['class']];
             $taxon->order   = @$a[$this->map['order']];
             $taxon->family  = @$a[$this->map['family']];
             $taxon->genus   = @$a[$this->map['genus']];
         }
+
         if($rank = @$taxon->taxonRank) { //by Eli alone: if taxon is genus then exclude genus from ancestry.
             if(in_array($rank, array('kingdom', 'phylum', 'class', 'order', 'family', 'genus'))) $taxon->$rank = "";
         }
-
         $this->archive_builder->write_object_to_file($taxon);
+        return $taxon->taxonID;
     }
     private function compute_taxonID($a)
     {
@@ -139,6 +158,7 @@ class PaleoDBAPI_v2
     }
     private function numerical_part($var)
     {
+        if(!$var) return "";
         $temp = explode(":", $var);
         return $temp[1];
     }
