@@ -11,8 +11,10 @@ occurrence                      940,408
 
 708	Tuesday 2018-03-27 03:01:54 PM	{"measurement_or_fact.tab":1266616,"occurrence.tab":955315,"reference.tab":215861,"taxon.tab":227582} - MacMini only, since still limited space in Archive.
 708	Wednesday 2018-03-28 02:48:18 PM{"measurement_or_fact.tab":1174597,"occurrence.tab":955315,"reference.tab":215861,"taxon.tab":227582}
+
+NOTE: this is still run only on local, since addt'l harddisks in Archive aren't installed yet.
 */
-// return;
+return;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/EnvironmentsEOLDataConnector');
 ini_set('memory_limit','7096M'); //required for checking uniqueness of measurementID
