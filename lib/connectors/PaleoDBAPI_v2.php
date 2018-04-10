@@ -14,6 +14,23 @@ class PaleoDBAPI_v2
 
         $this->service["taxon"] = "http://localhost/cp/PaleoDB/TRAM-746/alltaxa.json";
 
+        $this->map['acceptedNameUsageID']       = "acc";
+        $this->map['scientificNameAuthorship']  = "att";
+        $this->map['class']                     = "cll";
+        $this->map['family']                    = "fml";
+        $this->map['genus']                     = "gnl";
+        $this->map['scientificName']            = "nam";
+        $this->map['order']                     = "odl";
+        $this->map['taxonID']                   = "oid";
+        $this->map['furtherInformationURL']     = "oid";
+        $this->map['parentNameUsageID']         = "par";
+        $this->map['phylum']                    = "phl";
+        $this->map['taxonRank']                 = "rnk";
+        $this->map['taxonomicStatus']           = "tdf";
+        $this->map['taxonID']                   = "vid";
+        $this->map['nameAccordingTo']           = "ref";
+
+
         /* used in PaleoDBAPI.php
         $this->service["collection"] = "http://paleobiodb.org/data1.1/colls/list.csv?vocab=pbdb&limit=10&show=bin,attr,ref,loc,paleoloc,prot,time,strat,stratext,lith,lithext,geo,rem,ent,entname,crmod&taxon_name=";
         $this->service["occurrence"] = "http://paleobiodb.org/data1.1/occs/list.csv?show=loc,time&limit=10&base_name=";
@@ -39,11 +56,16 @@ class PaleoDBAPI_v2
                 $arr = json_decode($str, true);
                 echo "\n start arr() ------- \n";
                 print_r($arr);
+                self::create_taxon_archive($arr);
                 echo "\n----end arr()---\n";
             }
             if($i > 30) break; //debug
         }
         unlink($jsonfile);
+    }
+    private function create_taxon_archive($a)
+    {
+        
     }
 
 }

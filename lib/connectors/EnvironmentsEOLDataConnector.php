@@ -86,6 +86,7 @@ class EnvironmentsEOLDataConnector
 
     private function csv_to_array($tsv_file)
     {
+        $excluded_uris = self::excluded_measurement_values(); //from here: https://eol-jira.bibalex.org/browse/DATA-1739?focusedCommentId=62373&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62373
         $fields = array("taxon_id", "do_id_subchapter", "text", "envo", "5th_col");
         $i = 0; $m = 1700000/5; // = 340000
         foreach(new FileIterator($tsv_file) as $line_number => $line) {
@@ -117,6 +118,10 @@ class EnvironmentsEOLDataConnector
             // $rec['taxon_id'] = "EOL:7225673"; //debug
             if($taxon = self::prepare_taxon($rec)) {
                 // print_r($taxon); // good thing to show
+                
+                $uri = self::format_uri($rec['envo']);
+                if(in_array($uri, $excluded_uris)) continue;
+                
                 self::create_instances_from_taxon_object($taxon);
                 self::create_data($taxon, $rec);
             }
@@ -293,7 +298,7 @@ class EnvironmentsEOLDataConnector
 
         // print_r($line); exit("\n[$subject]\n");
 
-        $uri = "http://purl.obolibrary.org/obo/" . str_replace(":", "_", $line['envo']);
+        $uri = self::format_uri($line['envo']);
         $rec = array();
         $rec["taxon_id"]            = $line['taxon_id'];
         $rec["catnum"]              = "_" . str_replace(" ", "_", $line['text']);
@@ -311,6 +316,15 @@ class EnvironmentsEOLDataConnector
         $rec['measurementRemarks']  = "source text: \"" . $line['text'] . "\"";
         if($val = self::get_reference_ids($line)) $rec['referenceID'] = implode("; ", $val);
         self::add_string_types($rec);
+    }
+    private function format_uri($raw_envo)
+    {
+        return "http://purl.obolibrary.org/obo/" . str_replace(":", "_", $raw_envo);
+    }
+    private function excluded_measurement_values() //from here: https://eol-jira.bibalex.org/browse/DATA-1739?focusedCommentId=62373&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62373
+    {
+        $a = "http://purl.obolibrary.org/obo/ENVO_2000000 http://purl.obolibrary.org/obo/ENVO_00003893 http://purl.obolibrary.org/obo/ENVO_00003895 http://purl.obolibrary.org/obo/ENVO_00010625 http://purl.obolibrary.org/obo/ENVO_00000375 http://purl.obolibrary.org/obo/ENVO_00000374 http://purl.obolibrary.org/obo/ENVO_00003963 http://purl.obolibrary.org/obo/ENVO_00010622 http://purl.obolibrary.org/obo/ENVO_00000349 http://purl.obolibrary.org/obo/ENVO_00002197 http://purl.obolibrary.org/obo/ENVO_00000515 http://purl.obolibrary.org/obo/ENVO_00000064 http://purl.obolibrary.org/obo/ENVO_00000062 http://purl.obolibrary.org/obo/ENVO_02000055 http://purl.obolibrary.org/obo/ENVO_00002061 http://purl.obolibrary.org/obo/ENVO_00002183 http://purl.obolibrary.org/obo/ENVO_01000003 http://purl.obolibrary.org/obo/ENVO_00002185 http://purl.obolibrary.org/obo/ENVO_00002985 http://purl.obolibrary.org/obo/ENVO_00000363 http://purl.obolibrary.org/obo/ENVO_00000366 http://purl.obolibrary.org/obo/ENVO_00000367 http://purl.obolibrary.org/obo/ENVO_00000364 http://purl.obolibrary.org/obo/ENVO_00000479 http://purl.obolibrary.org/obo/ENVO_00000561 http://purl.obolibrary.org/obo/ENVO_00002267 http://purl.obolibrary.org/obo/ENVO_00000000 http://purl.obolibrary.org/obo/ENVO_00000373 http://purl.obolibrary.org/obo/ENVO_00002215 http://purl.obolibrary.org/obo/ENVO_00002198 http://purl.obolibrary.org/obo/ENVO_00000176 http://purl.obolibrary.org/obo/ENVO_00000075 http://purl.obolibrary.org/obo/ENVO_00000168 http://purl.obolibrary.org/obo/ENVO_00003864 http://purl.obolibrary.org/obo/ENVO_00002196 http://purl.obolibrary.org/obo/ENVO_00000002 http://purl.obolibrary.org/obo/ENVO_00005803 http://purl.obolibrary.org/obo/ENVO_00002874 http://purl.obolibrary.org/obo/ENVO_00002046 http://purl.obolibrary.org/obo/ENVO_00000077";
+        return explode(" ", $a);
     }
     private function get_reference_ids($line)
     {
