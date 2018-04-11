@@ -137,6 +137,8 @@ class PaleoDBAPI_v2
         $rec = array();
         $rec["taxon_id"] = $taxon_id;
         $rec["catnum"]   = self::generate_id_from_array_record($a);
+        $rec['source']                = 'https://paleobiodb.org/classic/checkTaxonInfo?taxon_no='.self::numerical_part($a['oid']);
+        $rec['bibliographicCitation'] = 'The Paleobiology Database, https://paleobiodb.org';
         //--------------------------------------------------------------------------------------------------------------------------------
         if(@$a['ext'] == '0') {
             $rec['measurementOfTaxon']  = "true";
@@ -495,11 +497,10 @@ class PaleoDBAPI_v2
             $rec['measurementRemarks']  = '';
             $rec['measurementUnit']     = '';
             $rec['statisticalMethod']   = '';
+            $rec['lifestage']           = '';
             self::add_string_types($rec);
         }
         //-------------------------------------------------------------------------------------------------------------------------------- for all measurements:
-        $rec['source']                = 'https://paleobiodb.org/classic/checkTaxonInfo?taxon_no='.self::numerical_part($a['oid']);
-        $rec['bibliographicCitation'] = 'The Paleobiology Database, https://paleobiodb.org';
         
         /* just a template from another resource
         $rec = array();
