@@ -417,7 +417,7 @@ class PaleoDBAPI_v2
         $taxon->taxonRank                = self::compute_taxonRank($a);
         $taxon->taxonomicStatus          = self::compute_taxonomicStatus($a);
         $taxon->acceptedNameUsageID      = self::numerical_part(@$a[$this->map['acceptedNameUsageID']]);
-        $taxon->nameAccordingTo          = $a[$this->map['nameAccordingTo']];
+        $taxon->nameAccordingTo          = @$a[$this->map['nameAccordingTo']];
 
         if($val = @$a[$this->map['taxonID']]) $taxon->furtherInformationURL = "https://paleobiodb.org/classic/checkTaxonInfo?taxon_no=" . self::numerical_part($val);
 
