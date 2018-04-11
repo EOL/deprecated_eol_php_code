@@ -15,6 +15,12 @@ class PaleoDBAPI_v2
         $this->service["taxon"] = "https://paleobiodb.org/data1.2/taxa/list.json?all_taxa&variant=all&pres=regular&show=full,attr,app,classext,etbasis,ref&rowcount=true&datainfo=true&save=alltaxa.json";
         $this->service["taxon"] = "http://localhost/cp/PaleoDB/TRAM-746/alltaxa.json";
 
+        $this->spreadsheet_mappings = "http://localhost/cp_new/PaleoDB/pbdb_mappings.xlsx";
+        $this->spreadsheet_options = array('resource_id' => $folder, 'cache' => 1, 'timeout' => 3600, 'file_extension' => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2); //set 'cache' to 0 if you don't want to cache spreadsheet
+        $this->spreadsheet_options['expire_seconds'] = 60*60*24; //expires after 1 day
+        
+        
+        
         $this->map['acceptedNameUsageID']       = "acc";
         $this->map['phylum']                    = "phl";
         $this->map['class']                     = "cll";
@@ -47,8 +53,60 @@ class PaleoDBAPI_v2
 
     function get_all_taxa()
     {
+        $arr = self::get_uris($this->spreadsheet_mappings);
+        print_r($arr);
+        exit("\nstop muna\n");
         self::parse_big_json_file();
         $this->archive_builder->finalize(TRUE);
+    }
+    private function get_uris($spreadsheet)
+    {
+        $fields = array();
+        $fields["FIELD"] = "VALUE";
+        // $fields["typeStatus"] = "typeStatus_uri";
+        // $fields["institutionCode"] = "institutionCode_uri";
+        
+        require_library('connectors/LifeDeskToScratchpadAPI');
+        $func = new LifeDeskToScratchpadAPI();
+        $spreadsheet_options = $this->spreadsheet_options;
+        
+        $uris = array();
+        // echo("\nspreadsheet: [$spreadsheet]\n"); //debug
+        if($spreadsheet) {
+            if($arr = $func->convert_spreadsheet($spreadsheet, 0, $spreadsheet_options)) {
+                // print_r($arr);
+                // FIELD    VALUE   URI measurementType measurementRemarks  eol life stage (in occurrence)
+                $i = 0;
+                foreach($arr['FIELD'] as $field) {
+                    // echo "-$field- ";
+                    $final[$field][$arr['VALUE'][$i]] = array('uri' => $arr['URI'][$i], 'mtype' => $arr['measurementType'][$i], 'mrem' => $arr['measurementRemarks'][$i], 'lifestage' => $arr['eol life stage'][$i]);
+                    $i++;
+                }
+            }
+        }
+        return $final;
+        /* orig working
+        if($spreadsheet) {
+            if($arr = $func->convert_spreadsheet($spreadsheet, 0, $spreadsheet_options)) {
+                 foreach($fields as $key => $value) {
+                     $i = 0;
+                     if(@$arr[$key]) {
+                         foreach($arr[$key] as $item) {
+                             $item = trim($item);
+                             if($item) {
+                                 $temp = $arr[$value][$i];
+                                 $temp = trim(str_replace(array("\n"), "", $temp));
+                                 $uris[$item] = $temp;
+                                 if(!Functions::is_utf8($temp)) echo "\nnot utf8: [$temp]\n";
+                             }
+                             $i++;
+                         }
+                     }
+                 }
+            }
+        }
+        return $uris;
+        */
     }
     
     private function parse_big_json_file()
@@ -83,32 +141,39 @@ class PaleoDBAPI_v2
     }
     private function create_trait_archive($a, $taxon_id)
     {
+        $rec = array();
+        $rec["taxon_id"] = $taxon_id;
+        $rec["catnum"]   = self::generate_id_from_array_record($a);
         if(@$a['ext'] == '0') {
-            $rec = array();
             $rec['measurementOfTaxon']  = "true";
             $rec['measurementType']     = "http://eol.org/schema/terms/ExtinctionStatus";
             $rec['measurementValue']    = "http://eol.org/schema/terms/extinct";
             $rec['measurementUnit']     = '';
             $rec['statisticalMethod']   = '';
-            $rec["taxon_id"]    = $taxon_id;
-            // $rec["catnum"]      = md5($rec['measurementType'] . self::generate_id_from_array_record($a));
-            $rec["catnum"]      = self::generate_id_from_array_record($a);
             self::add_string_types($rec);
         }
         if(@$a['ext'] == '1') {
-            $rec = array();
             $rec['measurementOfTaxon']  = "true";
             $rec['measurementType']     = "http://eol.org/schema/terms/ExtinctionStatus";
             $rec['measurementValue']    = "http://eol.org/schema/terms/extant";
             $rec['measurementUnit']     = '';
             $rec['statisticalMethod']   = '';
-            $rec["taxon_id"]    = $taxon_id;
-            // $rec["catnum"]      = md5($rec['measurementType'] . self::generate_id_from_array_record($a));
-            $rec["catnum"]      = self::generate_id_from_array_record($a);
+            self::add_string_types($rec);
+        }
+        if($val = @$a['tei']) { //interval values
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = "http://eol.org/schema/terms/FossilFirst";
+            $rec['measurementValue']    = "";
+            $rec['measurementUnit']     = '';
+            $rec['statisticalMethod']   = '';
             self::add_string_types($rec);
         }
         
-        /*
+        
+        // $rec["catnum"]      = md5($rec['measurementType'] . self::generate_id_from_array_record($a));
+        
+        
+        /* just a template from another resource
         $rec = array();
         $rec["taxon_id"]            = $line['taxon_id'];
         $rec["catnum"]              = "_" . str_replace(" ", "_", $line['text']);
@@ -152,40 +217,6 @@ class PaleoDBAPI_v2
         $this->archive_builder->write_object_to_file($o);
         $this->occurrence_ids[$o->occurrenceID] = '';
         return $o->occurrenceID;
-    }
-    private function get_uris($spreadsheet)
-    {
-        $fields = array();
-        $fields["sex"] = "sex_uri";
-        $fields["typeStatus"] = "typeStatus_uri";
-        $fields["institutionCode"] = "institutionCode_uri";
-        
-        require_library('connectors/LifeDeskToScratchpadAPI');
-        $func = new LifeDeskToScratchpadAPI();
-        $spreadsheet_options = $this->spreadsheet_options;
-        
-        $uris = array();
-        echo("\nspreadsheet: [$spreadsheet]\n"); //debug
-        if($spreadsheet) {
-            if($arr = $func->convert_spreadsheet($spreadsheet, 0, $spreadsheet_options)) {
-                 foreach($fields as $key => $value) {
-                     $i = 0;
-                     if(@$arr[$key]) {
-                         foreach($arr[$key] as $item) {
-                             $item = trim($item);
-                             if($item) {
-                                 $temp = $arr[$value][$i];
-                                 $temp = trim(str_replace(array("\n"), "", $temp));
-                                 $uris[$item] = $temp;
-                                 if(!Functions::is_utf8($temp)) echo "\nnot utf8: [$temp]\n";
-                             }
-                             $i++;
-                         }
-                     }
-                 }
-            }
-        }
-        return $uris;
     }
     
     private function create_vernacular_archive($a, $taxon_id)
