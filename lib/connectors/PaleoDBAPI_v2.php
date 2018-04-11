@@ -12,15 +12,15 @@ class PaleoDBAPI_v2
         'expire_seconds' => 60*60*24*25); //cache expires in 25 days // orig
         // $this->download_options['expire_seconds'] = false; //debug
 
-        /* local
+        // /* local
         $this->service["taxon"] = "http://localhost/cp/PaleoDB/TRAM-746/alltaxa.json";
         $this->spreadsheet_mappings = "http://localhost/cp_new/PaleoDB/pbdb_mappings.xlsx";
-        */
+        // */
         
-        // /* remote
+        /* remote
         $this->service["taxon"] = "https://paleobiodb.org/data1.2/taxa/list.json?all_taxa&variant=all&pres=regular&show=full,attr,app,classext,etbasis,ref&rowcount=true&datainfo=true&save=alltaxa.json";
         $this->spreadsheet_mappings = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/PaleoDB/pbdb_mappings.xlsx";
-        // */
+        */
         
         $this->spreadsheet_options = array('resource_id' => $folder, 'cache' => 1, 'timeout' => 3600, 'file_extension' => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2); //set 'cache' to 0 if you don't want to cache spreadsheet
         $this->spreadsheet_options['expire_seconds'] = 60*60*24; //expires after 1 day
@@ -122,7 +122,7 @@ class PaleoDBAPI_v2
                 self::create_vernacular_archive($arr, $taxon_id);
                 self::create_trait_archive($arr, $taxon_id);
             }
-            // if($i > 1000) break; //debug
+            if($i > 1000) break; //debug
         }
         unlink($jsonfile);
     }
@@ -142,12 +142,20 @@ class PaleoDBAPI_v2
             $rec['measurementOfTaxon']  = "true";
             $rec['measurementType']     = "http://eol.org/schema/terms/ExtinctionStatus";
             $rec['measurementValue']    = "http://eol.org/schema/terms/extinct";
+            $rec['measurementRemarks']  = '';
+            $rec['measurementUnit']     = '';
+            $rec['statisticalMethod']   = '';
+            $rec['lifestage']           = '';
             self::add_string_types($rec);
         }
         if(@$a['ext'] == '1') {
             $rec['measurementOfTaxon']  = "true";
             $rec['measurementType']     = "http://eol.org/schema/terms/ExtinctionStatus";
             $rec['measurementValue']    = "http://eol.org/schema/terms/extant";
+            $rec['measurementRemarks']  = '';
+            $rec['measurementUnit']     = '';
+            $rec['statisticalMethod']   = '';
+            $rec['lifestage']           = '';
             self::add_string_types($rec);
         }
         //--------------------------------------------------------------------------------------------------------------------------------
@@ -156,6 +164,9 @@ class PaleoDBAPI_v2
             $rec['measurementType']     = "http://eol.org/schema/terms/FossilFirst"; //hard-coded
             $rec['measurementValue']    = $arr['uri'];
             $rec['measurementRemarks']  = $arr['mrem'];
+            $rec['measurementUnit']     = '';
+            $rec['statisticalMethod']   = '';
+            $rec['lifestage']           = '';
             self::add_string_types($rec);
         }
         if($arr = @$this->uris['interval values'][@$a['tli']]) { //interval values
@@ -163,6 +174,9 @@ class PaleoDBAPI_v2
             $rec['measurementType']     = "http://eol.org/schema/terms/FossilLast"; //hard-coded
             $rec['measurementValue']    = $arr['uri'];
             $rec['measurementRemarks']  = $arr['mrem'];
+            $rec['measurementUnit']     = '';
+            $rec['statisticalMethod']   = '';
+            $rec['lifestage']           = '';
             self::add_string_types($rec);
         }
         //--------------------------------------------------------------------------------------------------------------------------------
@@ -170,22 +184,27 @@ class PaleoDBAPI_v2
             $rec['measurementOfTaxon']  = "true";
             $rec['measurementType']     = "http://eol.org/schema/terms/FossilFirst";
             $rec['measurementValue']    = $val;
+            $rec['measurementRemarks']  = '';
             $rec['measurementUnit']     = 'http://eol.org/schema/terms/paleo_megaannum';
             $rec['statisticalMethod']   = 'http://semanticscience.org/resource/SIO_001114';
+            $rec['lifestage']           = '';
             self::add_string_types($rec);
         }
         if($val = @$a['lla']) {
             $rec['measurementOfTaxon']  = "true";
             $rec['measurementType']     = "http://eol.org/schema/terms/FossilLast";
             $rec['measurementValue']    = $val;
+            $rec['measurementRemarks']  = '';
             $rec['measurementUnit']     = 'http://eol.org/schema/terms/paleo_megaannum';
             $rec['statisticalMethod']   = 'http://semanticscience.org/resource/SIO_001113';
+            $rec['lifestage']           = '';
             self::add_string_types($rec);
         }
         
         if($val = @$a['jtc']) $jco_jsa_jth_jsr_addtl_rem = "Inferred from $val.";
         else                  $jco_jsa_jth_jsr_addtl_rem = "";
         //--------------------------------------------------------------------------------------------------------------------------------
+        /* working OK but only for single values
         if($arr = @$this->uris['skeletal composition values'][@$a['jco']]) {
             $cont = true;
             $val = @$a['jco'];
@@ -199,12 +218,38 @@ class PaleoDBAPI_v2
                 self::add_string_types($rec);
             }
         }
+        */
+        if($var = @$a['jco']) { //an approach that also deals with multiple values
+            $var_arr = explode(",", $var);
+            $var_arr = array_map('trim', $var_arr);
+            $i = 0;
+            foreach($var_arr as $var) {
+                if($arr = @$this->uris['skeletal composition values'][$var]) {
+                    $cont = true;
+                    if($var == "no hard parts") $cont = false;
+                    if($cont) {
+                        $i++;
+                        $rec['measurementOfTaxon']  = "true";
+                        $rec['measurementType']     = ($i == 1) ? $arr['mtype'] : "http://eol.org/schema/terms/skeletalComp2";
+                        $rec['measurementValue']    = $arr['uri'];
+                        $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jco_jsa_jth_jsr_addtl_rem);
+                        $rec['measurementUnit']     = '';
+                        $rec['statisticalMethod']   = '';
+                        $rec['lifestage']           = '';
+                        self::add_string_types($rec);
+                    }
+                }
+            }
+        }
         //--------------------------------------------------------------------------------------------------------------------------------
         if($arr = @$this->uris['skeletal structure values'][@$a['jsa']]) {
             $rec['measurementOfTaxon']  = "true";
             $rec['measurementType']     = $arr['mtype'];
             $rec['measurementValue']    = $arr['uri'];
             $rec['measurementRemarks']  = $arr['mrem'];
+            $rec['measurementUnit']     = '';
+            $rec['statisticalMethod']   = '';
+            $rec['lifestage']           = '';
             self::add_string_types($rec);
         }
         //--------------------------------------------------------------------------------------------------------------------------------
@@ -213,15 +258,41 @@ class PaleoDBAPI_v2
             $rec['measurementType']     = $arr['mtype'];
             $rec['measurementValue']    = $arr['uri'];
             $rec['measurementRemarks']  = $arr['mrem'];
+            $rec['measurementUnit']     = '';
+            $rec['statisticalMethod']   = '';
+            $rec['lifestage']           = '';
             self::add_string_types($rec);
         }
         //--------------------------------------------------------------------------------------------------------------------------------
+        /* working but just single values
         if($arr = @$this->uris['skeletal reinforcement values'][@$a['jsr']]) {
             $rec['measurementOfTaxon']  = "true";
             $rec['measurementType']     = $arr['mtype'];
             $rec['measurementValue']    = $arr['uri'];
             $rec['measurementRemarks']  = $arr['mrem'];
             self::add_string_types($rec);
+        }
+        */
+        if($var = @$a['jsr']) { //an approach that also deals with multiple values
+            $var_arr = explode(",", $var);
+            $var_arr = array_map('trim', $var_arr);
+            $i = 0;
+            foreach($var_arr as $var) {
+                if($arr = @$this->uris['skeletal reinforcement values'][$var]) {
+                    $cont = true;
+                    if($cont) {
+                        $i++;
+                        $rec['measurementOfTaxon']  = "true";
+                        $rec['measurementType']     = $arr['mtype'];
+                        $rec['measurementValue']    = $arr['uri'];
+                        $rec['measurementRemarks']  = $arr['mrem'];
+                        $rec['measurementUnit']     = '';
+                        $rec['statisticalMethod']   = '';
+                        $rec['lifestage']           = '';
+                        self::add_string_types($rec);
+                    }
+                }
+            }
         }
         
         if($val = @$a['jdc']) $jdt_addtl_rem = "Inferred from $val.";
@@ -232,6 +303,9 @@ class PaleoDBAPI_v2
             $rec['measurementType']     = $arr['mtype'];
             $rec['measurementValue']    = $arr['uri'];
             $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jdt_addtl_rem);
+            $rec['measurementUnit']     = '';
+            $rec['statisticalMethod']   = '';
+            $rec['lifestage']           = '';
             self::add_string_types($rec);
         }
 
@@ -243,6 +317,8 @@ class PaleoDBAPI_v2
             $rec['measurementType']     = $arr['mtype'];
             $rec['measurementValue']    = $arr['uri'];
             $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jev_addtl_rem);
+            $rec['measurementUnit']     = '';
+            $rec['statisticalMethod']   = '';
             $rec['lifestage']           = $arr['lifestage'];
             /*
             if($rec['lifestage']) {
@@ -260,6 +336,9 @@ class PaleoDBAPI_v2
             $rec['measurementType']     = $arr['mtype'];
             $rec['measurementValue']    = $arr['uri'];
             $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jlh_addtl_rem);
+            $rec['measurementUnit']     = '';
+            $rec['statisticalMethod']   = '';
+            $rec['lifestage']           = '';
             self::add_string_types($rec);
         }
 
@@ -271,6 +350,8 @@ class PaleoDBAPI_v2
             $rec['measurementType']     = $arr['mtype'];
             $rec['measurementValue']    = $arr['uri'];
             $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jmo_addtl_rem);
+            $rec['measurementUnit']     = '';
+            $rec['statisticalMethod']   = '';
             $rec['lifestage']           = $arr['lifestage'];
             self::add_string_types($rec);
         }
@@ -293,6 +374,9 @@ class PaleoDBAPI_v2
                 $rec['measurementType']     = $arr['mtype'];
                 $rec['measurementValue']    = $arr['uri'];
                 $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jre_addtl_rem);
+                $rec['measurementUnit']     = '';
+                $rec['statisticalMethod']   = '';
+                $rec['lifestage']           = '';
                 self::add_string_types($rec);
             }
         }
@@ -305,6 +389,9 @@ class PaleoDBAPI_v2
             $rec['measurementType']     = $arr['mtype'];
             $rec['measurementValue']    = $arr['uri'];
             $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jvs_addtl_rem);
+            $rec['measurementUnit']     = '';
+            $rec['statisticalMethod']   = '';
+            $rec['lifestage']           = '';
             self::add_string_types($rec);
         }
         //--------------------------------------------------------------------------------------------------------------------------------
@@ -312,6 +399,7 @@ class PaleoDBAPI_v2
             $rec['measurementOfTaxon']  = "true";
             $rec['measurementType']     = "http://eol.org/schema/terms/fossilOccPBDB";
             $rec['measurementValue']    = $val;
+            $rec['measurementRemarks']  = '';
             $rec['measurementUnit']     = '';
             $rec['statisticalMethod']   = '';
             self::add_string_types($rec);

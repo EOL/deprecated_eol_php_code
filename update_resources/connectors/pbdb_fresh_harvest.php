@@ -3,6 +3,10 @@ namespace php_active_record;
 /* PaleoDB connector - from https://eol-jira.bibalex.org/browse/TRAM-746
 we use their data service to assemble their data and ingest it as structured data
 estimated execution time: 
+
+368	Wednesday 2018-04-11 09:41:49 AM	{"measurement_or_fact.tab":2450420,"occurrence.tab":528288,"taxon.tab":359968,"vernacular_name.tab":4273} - local
+368	Wednesday 2018-04-11 11:17:47 AM	{"measurement_or_fact.tab":2451203,"occurrence.tab":528502,"taxon.tab":360156,"vernacular_name.tab":4366} - eol-archive (without 'ignore' and multiple values yet)
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
