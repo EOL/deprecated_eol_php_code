@@ -221,7 +221,7 @@ class PaleoDBAPI_v2
         */
         if($var = @$a['jco']) { //an approach that also deals with multiple values
             $var_arr = explode(",", $var);
-            $var_arr = array_map('trim', $var_arr);
+            $var_arr = self::optimize_array($var_arr);
             $i = 0;
             foreach($var_arr as $var) {
                 if($arr = @$this->uris['skeletal composition values'][$var]) {
@@ -275,7 +275,7 @@ class PaleoDBAPI_v2
         */
         if($var = @$a['jsr']) { //an approach that also deals with multiple values
             $var_arr = explode(",", $var);
-            $var_arr = array_map('trim', $var_arr);
+            $var_arr = self::optimize_array($var_arr);
             $i = 0;
             foreach($var_arr as $var) {
                 if($arr = @$this->uris['skeletal reinforcement values'][$var]) {
@@ -298,6 +298,7 @@ class PaleoDBAPI_v2
         if($val = @$a['jdc']) $jdt_addtl_rem = "Inferred from $val.";
         else                  $jdt_addtl_rem = "";
         //--------------------------------------------------------------------------------------------------------------------------------
+        /* OK but only for single values
         if($arr = @$this->uris['diet values'][@$a['jdt']]) {
             $rec['measurementOfTaxon']  = "true";
             $rec['measurementType']     = $arr['mtype'];
@@ -308,10 +309,33 @@ class PaleoDBAPI_v2
             $rec['lifestage']           = '';
             self::add_string_types($rec);
         }
+        */
+        if($var = @$a['jdt']) { //an approach that also deals with multiple values
+            $var_arr = explode(",", $var);
+            $var_arr = self::optimize_array($var_arr);
+            $i = 0;
+            foreach($var_arr as $var) {
+                if($arr = @$this->uris['diet values'][$var]) {
+                    $cont = true;
+                    if($cont) {
+                        $i++;
+                        $rec['measurementOfTaxon']  = "true";
+                        $rec['measurementType']     = $arr['mtype'];
+                        $rec['measurementValue']    = $arr['uri'];
+                        $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jdt_addtl_rem);
+                        $rec['measurementUnit']     = '';
+                        $rec['statisticalMethod']   = '';
+                        $rec['lifestage']           = '';
+                        self::add_string_types($rec);
+                    }
+                }
+            }
+        }
 
         if($val = @$a['jec']) $jev_addtl_rem = "Inferred from $val.";
         else                  $jev_addtl_rem = "";
         //--------------------------------------------------------------------------------------------------------------------------------
+        /* OK but only for single values
         if($arr = @$this->uris['environment values'][@$a['jev']]) {
             $rec['measurementOfTaxon']  = "true";
             $rec['measurementType']     = $arr['mtype'];
@@ -320,13 +344,32 @@ class PaleoDBAPI_v2
             $rec['measurementUnit']     = '';
             $rec['statisticalMethod']   = '';
             $rec['lifestage']           = $arr['lifestage'];
-            /*
-            if($rec['lifestage']) {
-                print_r($a); print_r($rec); exit;
-            }
-            */
             self::add_string_types($rec);
         }
+        */
+        if($var = @$a['jev']) { //an approach that also deals with multiple values
+            $var_arr = explode(",", $var);
+            $var_arr = self::optimize_array($var_arr);
+            $i = 0;
+            foreach($var_arr as $var) {
+                if($arr = @$this->uris['environment values'][$var]) {
+                    $cont = true;
+                    if($cont) {
+                        $i++;
+                        $rec['measurementOfTaxon']  = "true";
+                        $rec['measurementType']     = $arr['mtype'];
+                        $rec['measurementValue']    = $arr['uri'];
+                        $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jev_addtl_rem);
+                        $rec['measurementUnit']     = '';
+                        $rec['statisticalMethod']   = '';
+                        $rec['lifestage']           = $arr['lifestage'];
+                        self::add_string_types($rec);
+                    }
+                }
+            }
+        }
+
+
 
         if($val = @$a['jhc']) $jlh_addtl_rem = "Inferred from $val.";
         else                  $jlh_addtl_rem = "";
@@ -345,6 +388,7 @@ class PaleoDBAPI_v2
         if($val = @$a['jmc']) $jmo_addtl_rem = "Inferred from $val.";
         else                  $jmo_addtl_rem = "";
         //--------------------------------------------------------------------------------------------------------------------------------
+        /* OK but just for single values
         if($arr = @$this->uris['motility values'][@$a['jmo']]) {
             $rec['measurementOfTaxon']  = "true";
             $rec['measurementType']     = $arr['mtype'];
@@ -355,20 +399,43 @@ class PaleoDBAPI_v2
             $rec['lifestage']           = $arr['lifestage'];
             self::add_string_types($rec);
         }
+        */
+        if($var = @$a['jmo']) { //an approach that also deals with multiple values
+            $var_arr = explode(",", $var);
+            $var_arr = self::optimize_array($var_arr);
+            $i = 0;
+            foreach($var_arr as $var) {
+                if($arr = @$this->uris['motility values'][$var]) {
+                    $cont = true;
+                    if($cont) {
+                        $i++;
+                        $rec['measurementOfTaxon']  = "true";
+                        $rec['measurementType']     = $arr['mtype'];
+                        $rec['measurementValue']    = $arr['uri'];
+                        $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jmo_addtl_rem);
+                        $rec['measurementUnit']     = '';
+                        $rec['statisticalMethod']   = '';
+                        $rec['lifestage']           = $arr['lifestage'];
+                        self::add_string_types($rec);
+                    }
+                }
+            }
+        }
+        
+        
 
         if($val = @$a['jrc']) $jre_addtl_rem = "Inferred from $val.";
         else                  $jre_addtl_rem = "";
         //--------------------------------------------------------------------------------------------------------------------------------
+        /* OK but only for single values
         if($arr = @$this->uris['reproduction values'][@$a['jre']]) {
-            /* ignore these
-            brooding
-            dispersal=.*?
-            */
+            // ignore these:
+            // brooding
+            // dispersal=.*?
             $cont = true;
             $val = @$a['jre'];
             if($val == "brooding") $cont = false;
             if(substr($val, 0, 10) == "dispersal=") $cont = false;
-            
             if($cont) {
                 $rec['measurementOfTaxon']  = "true";
                 $rec['measurementType']     = $arr['mtype'];
@@ -380,6 +447,32 @@ class PaleoDBAPI_v2
                 self::add_string_types($rec);
             }
         }
+        */
+        if($var = @$a['jre']) { //an approach that also deals with multiple values
+            $var_arr = explode(",", $var);
+            $var_arr = self::optimize_array($var_arr);
+            $i = 0;
+            foreach($var_arr as $var) {
+                if($arr = @$this->uris['reproduction values'][$var]) {
+                    $cont = true;
+                    $val = @$a['jre'];
+                    if($val == "brooding") $cont = false;
+                    if(substr($val, 0, 10) == "dispersal=") $cont = false;
+                    if($cont) {
+                        $i++;
+                        $rec['measurementOfTaxon']  = "true";
+                        $rec['measurementType']     = $arr['mtype'];
+                        $rec['measurementValue']    = $arr['uri'];
+                        $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jre_addtl_rem);
+                        $rec['measurementUnit']     = '';
+                        $rec['statisticalMethod']   = '';
+                        $rec['lifestage']           = '';
+                        self::add_string_types($rec);
+                    }
+                }
+            }
+        }
+        
 
         if($val = @$a['jvc']) $jvs_addtl_rem = "Inferred from $val.";
         else                  $jvs_addtl_rem = "";
@@ -567,6 +660,14 @@ class PaleoDBAPI_v2
             if($val = $mappings[$str_index]) return $val;
         }
         return "";
+    }
+    private function optimize_array($arr)
+    {
+        $arr = array_map('trim', $arr); //trim all individual array values
+        $arr = array_filter($arr); //remove null arrays
+        $arr = array_unique($arr); //make unique
+        $arr = array_values($arr); //reindex key
+        return $arr;
     }
     private function get_taxon_status_mappings()
     {
