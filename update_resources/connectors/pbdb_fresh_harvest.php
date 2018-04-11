@@ -6,7 +6,7 @@ estimated execution time:
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-// ini_set('memory_limit','8096M');
+ini_set('memory_limit','8096M');
 $timestart = time_elapsed();
 $resource_id = 368;
 
