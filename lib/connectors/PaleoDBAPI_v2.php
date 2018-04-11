@@ -187,11 +187,17 @@ class PaleoDBAPI_v2
         else                  $jco_jsa_jth_jsr_addtl_rem = "";
         //--------------------------------------------------------------------------------------------------------------------------------
         if($arr = @$this->uris['skeletal composition values'][@$a['jco']]) {
-            $rec['measurementOfTaxon']  = "true";
-            $rec['measurementType']     = $arr['mtype'];
-            $rec['measurementValue']    = $arr['uri'];
-            $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jco_jsa_jth_jsr_addtl_rem);
-            self::add_string_types($rec);
+            $cont = true;
+            $val = @$a['jco'];
+            if($val == "no hard parts") $cont = false;
+            
+            if($cont) {
+                $rec['measurementOfTaxon']  = "true";
+                $rec['measurementType']     = $arr['mtype'];
+                $rec['measurementValue']    = $arr['uri'];
+                $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jco_jsa_jth_jsr_addtl_rem);
+                self::add_string_types($rec);
+            }
         }
         //--------------------------------------------------------------------------------------------------------------------------------
         if($arr = @$this->uris['skeletal structure values'][@$a['jsa']]) {
@@ -273,11 +279,22 @@ class PaleoDBAPI_v2
         else                  $jre_addtl_rem = "";
         //--------------------------------------------------------------------------------------------------------------------------------
         if($arr = @$this->uris['reproduction values'][@$a['jre']]) {
-            $rec['measurementOfTaxon']  = "true";
-            $rec['measurementType']     = $arr['mtype'];
-            $rec['measurementValue']    = $arr['uri'];
-            $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jre_addtl_rem);
-            self::add_string_types($rec);
+            /* ignore these
+            brooding
+            dispersal=.*?
+            */
+            $cont = true;
+            $val = @$a['jre'];
+            if($val == "brooding") $cont = false;
+            if(substr($val, 0, 10) == "dispersal=") $cont = false;
+            
+            if($cont) {
+                $rec['measurementOfTaxon']  = "true";
+                $rec['measurementType']     = $arr['mtype'];
+                $rec['measurementValue']    = $arr['uri'];
+                $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jre_addtl_rem);
+                self::add_string_types($rec);
+            }
         }
 
         if($val = @$a['jvc']) $jvs_addtl_rem = "Inferred from $val.";
