@@ -293,9 +293,9 @@ class PaleoDBAPI_v2
             $rec['statisticalMethod']   = '';
             self::add_string_types($rec);
         }
-
-        // $rec["catnum"]      = md5($rec['measurementType'] . self::generate_id_from_array_record($a));
-        
+        //-------------------------------------------------------------------------------------------------------------------------------- for all measurements:
+        $rec['source']                = 'https://paleobiodb.org/classic/checkTaxonInfo?taxon_no='.self::numerical_part($a['oid']);
+        $rec['bibliographicCitation'] = 'The Paleobiology Database, https://paleobiodb.org';
         
         /* just a template from another resource
         $rec = array();
