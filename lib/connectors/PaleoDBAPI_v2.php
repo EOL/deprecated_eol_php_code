@@ -12,15 +12,15 @@ class PaleoDBAPI_v2
         'expire_seconds' => 60*60*24*25); //cache expires in 25 days // orig
         // $this->download_options['expire_seconds'] = false; //debug
 
-        // /* local
+        /* local
         $this->service["taxon"] = "http://localhost/cp/PaleoDB/TRAM-746/alltaxa.json";
         $this->spreadsheet_mappings = "http://localhost/cp_new/PaleoDB/pbdb_mappings.xlsx";
-        // */
+        */
         
-        /* remote
+        // /* remote
         $this->service["taxon"] = "https://paleobiodb.org/data1.2/taxa/list.json?all_taxa&variant=all&pres=regular&show=full,attr,app,classext,etbasis,ref&rowcount=true&datainfo=true&save=alltaxa.json";
         $this->spreadsheet_mappings = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/PaleoDB/pbdb_mappings.xlsx";
-        */
+        // */
         
         $this->spreadsheet_options = array('resource_id' => $folder, 'cache' => 1, 'timeout' => 3600, 'file_extension' => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2); //set 'cache' to 0 if you don't want to cache spreadsheet
         $this->spreadsheet_options['expire_seconds'] = 60*60*24; //expires after 1 day
@@ -122,7 +122,7 @@ class PaleoDBAPI_v2
                 self::create_vernacular_archive($arr, $taxon_id);
                 self::create_trait_archive($arr, $taxon_id);
             }
-            if($i > 1000) break; //debug
+            // if($i > 1000) break; //debug
         }
         unlink($jsonfile);
     }
