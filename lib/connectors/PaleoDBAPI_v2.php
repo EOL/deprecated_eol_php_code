@@ -17,7 +17,7 @@ class PaleoDBAPI_v2
 
         $this->spreadsheet_mappings = "http://localhost/cp_new/PaleoDB/pbdb_mappings.xlsx";
         $this->spreadsheet_options = array('resource_id' => $folder, 'cache' => 1, 'timeout' => 3600, 'file_extension' => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2); //set 'cache' to 0 if you don't want to cache spreadsheet
-        $this->spreadsheet_options['expire_seconds'] = 60*60*24; //expires after 1 day
+        $this->spreadsheet_options['expire_seconds'] = 0; //60*60*24; //expires after 1 day
         
         
         
@@ -53,32 +53,25 @@ class PaleoDBAPI_v2
 
     function get_all_taxa()
     {
+        /* test
         $arr = self::get_uris($this->spreadsheet_mappings);
         print_r($arr);
         exit("\nstop muna\n");
+        */
         self::parse_big_json_file();
         $this->archive_builder->finalize(TRUE);
     }
     private function get_uris($spreadsheet)
     {
-        $fields = array();
-        $fields["FIELD"] = "VALUE";
-        // $fields["typeStatus"] = "typeStatus_uri";
-        // $fields["institutionCode"] = "institutionCode_uri";
-        
         require_library('connectors/LifeDeskToScratchpadAPI');
         $func = new LifeDeskToScratchpadAPI();
         $spreadsheet_options = $this->spreadsheet_options;
-        
-        $uris = array();
-        // echo("\nspreadsheet: [$spreadsheet]\n"); //debug
         if($spreadsheet) {
             if($arr = $func->convert_spreadsheet($spreadsheet, 0, $spreadsheet_options)) {
-                // print_r($arr);
+                // print_r($arr); exit;
                 // FIELD    VALUE   URI measurementType measurementRemarks  eol life stage (in occurrence)
                 $i = 0;
                 foreach($arr['FIELD'] as $field) {
-                    // echo "-$field- ";
                     $final[$field][$arr['VALUE'][$i]] = array('uri' => $arr['URI'][$i], 'mtype' => $arr['measurementType'][$i], 'mrem' => $arr['measurementRemarks'][$i], 'lifestage' => $arr['eol life stage'][$i]);
                     $i++;
                 }
@@ -108,9 +101,9 @@ class PaleoDBAPI_v2
         return $uris;
         */
     }
-    
     private function parse_big_json_file()
     {
+        $this->uris = self::get_uris($this->spreadsheet_mappings);
         $jsonfile = Functions::save_remote_file_to_local($this->service["taxon"], $this->download_options);
         $i = 0;
         foreach(new FileIterator($jsonfile) as $line_number => $line) {
@@ -144,32 +137,163 @@ class PaleoDBAPI_v2
         $rec = array();
         $rec["taxon_id"] = $taxon_id;
         $rec["catnum"]   = self::generate_id_from_array_record($a);
+        //--------------------------------------------------------------------------------------------------------------------------------
         if(@$a['ext'] == '0') {
             $rec['measurementOfTaxon']  = "true";
             $rec['measurementType']     = "http://eol.org/schema/terms/ExtinctionStatus";
             $rec['measurementValue']    = "http://eol.org/schema/terms/extinct";
-            $rec['measurementUnit']     = '';
-            $rec['statisticalMethod']   = '';
             self::add_string_types($rec);
         }
         if(@$a['ext'] == '1') {
             $rec['measurementOfTaxon']  = "true";
             $rec['measurementType']     = "http://eol.org/schema/terms/ExtinctionStatus";
             $rec['measurementValue']    = "http://eol.org/schema/terms/extant";
-            $rec['measurementUnit']     = '';
-            $rec['statisticalMethod']   = '';
             self::add_string_types($rec);
         }
-        if($val = @$a['tei']) { //interval values
+        //--------------------------------------------------------------------------------------------------------------------------------
+        if($arr = @$this->uris['interval values'][@$a['tei']]) { //interval values
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = "http://eol.org/schema/terms/FossilFirst"; //hard-coded
+            $rec['measurementValue']    = $arr['uri'];
+            $rec['measurementRemarks']  = $arr['mrem'];
+            // $rec['lifestage']           = $arr['lifestage'];
+            self::add_string_types($rec);
+        }
+        if($arr = @$this->uris['interval values'][@$a['tli']]) { //interval values
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = "http://eol.org/schema/terms/FossilLast"; //hard-coded
+            $rec['measurementValue']    = $arr['uri'];
+            $rec['measurementRemarks']  = $arr['mrem'];
+            self::add_string_types($rec);
+        }
+        //--------------------------------------------------------------------------------------------------------------------------------
+        if($val = @$a['fea']) {
             $rec['measurementOfTaxon']  = "true";
             $rec['measurementType']     = "http://eol.org/schema/terms/FossilFirst";
-            $rec['measurementValue']    = "";
+            $rec['measurementValue']    = $val;
+            $rec['measurementUnit']     = 'http://eol.org/schema/terms/paleo_megaannum';
+            $rec['statisticalMethod']   = 'http://semanticscience.org/resource/SIO_001114';
+            self::add_string_types($rec);
+        }
+        if($val = @$a['lla']) {
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = "http://eol.org/schema/terms/FossilLast";
+            $rec['measurementValue']    = $val;
+            $rec['measurementUnit']     = 'http://eol.org/schema/terms/paleo_megaannum';
+            $rec['statisticalMethod']   = 'http://semanticscience.org/resource/SIO_001113';
+            self::add_string_types($rec);
+        }
+        
+        if($val = @$a['jtc']) $jco_jsa_jth_jsr_addtl_rem = "Inferred from $val.";
+        else                  $jco_jsa_jth_jsr_addtl_rem = "";
+        //--------------------------------------------------------------------------------------------------------------------------------
+        if($arr = @$this->uris['skeletal composition values'][@$a['jco']]) {
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = $arr['mtype'];
+            $rec['measurementValue']    = $arr['uri'];
+            $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jco_jsa_jth_jsr_addtl_rem);
+            self::add_string_types($rec);
+        }
+        //--------------------------------------------------------------------------------------------------------------------------------
+        if($arr = @$this->uris['skeletal structure values'][@$a['jsa']]) {
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = $arr['mtype'];
+            $rec['measurementValue']    = $arr['uri'];
+            $rec['measurementRemarks']  = $arr['mrem'];
+            self::add_string_types($rec);
+        }
+        //--------------------------------------------------------------------------------------------------------------------------------
+        if($arr = @$this->uris['skeleton thickness values'][@$a['jth']]) {
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = $arr['mtype'];
+            $rec['measurementValue']    = $arr['uri'];
+            $rec['measurementRemarks']  = $arr['mrem'];
+            self::add_string_types($rec);
+        }
+        //--------------------------------------------------------------------------------------------------------------------------------
+        if($arr = @$this->uris['skeletal reinforcement values'][@$a['jsr']]) {
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = $arr['mtype'];
+            $rec['measurementValue']    = $arr['uri'];
+            $rec['measurementRemarks']  = $arr['mrem'];
+            self::add_string_types($rec);
+        }
+        
+        if($val = @$a['jdc']) $jdt_addtl_rem = "Inferred from $val.";
+        else                  $jdt_addtl_rem = "";
+        //--------------------------------------------------------------------------------------------------------------------------------
+        if($arr = @$this->uris['diet values'][@$a['jdt']]) {
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = $arr['mtype'];
+            $rec['measurementValue']    = $arr['uri'];
+            $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jdt_addtl_rem);
+            self::add_string_types($rec);
+        }
+
+        if($val = @$a['jec']) $jev_addtl_rem = "Inferred from $val.";
+        else                  $jev_addtl_rem = "";
+        //--------------------------------------------------------------------------------------------------------------------------------
+        if($arr = @$this->uris['environment values'][@$a['jev']]) {
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = $arr['mtype'];
+            $rec['measurementValue']    = $arr['uri'];
+            $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jev_addtl_rem);
+            self::add_string_types($rec);
+        }
+
+        if($val = @$a['jhc']) $jlh_addtl_rem = "Inferred from $val.";
+        else                  $jlh_addtl_rem = "";
+        //--------------------------------------------------------------------------------------------------------------------------------
+        if($arr = @$this->uris['life mode values'][@$a['jlh']]) {
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = $arr['mtype'];
+            $rec['measurementValue']    = $arr['uri'];
+            $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jlh_addtl_rem);
+            self::add_string_types($rec);
+        }
+
+        if($val = @$a['jmc']) $jmo_addtl_rem = "Inferred from $val.";
+        else                  $jmo_addtl_rem = "";
+        //--------------------------------------------------------------------------------------------------------------------------------
+        if($arr = @$this->uris['motility values'][@$a['jmo']]) {
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = $arr['mtype'];
+            $rec['measurementValue']    = $arr['uri'];
+            $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jmo_addtl_rem);
+            self::add_string_types($rec);
+        }
+
+        if($val = @$a['jrc']) $jre_addtl_rem = "Inferred from $val.";
+        else                  $jre_addtl_rem = "";
+        //--------------------------------------------------------------------------------------------------------------------------------
+        if($arr = @$this->uris['reproduction values'][@$a['jre']]) {
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = $arr['mtype'];
+            $rec['measurementValue']    = $arr['uri'];
+            $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jre_addtl_rem);
+            self::add_string_types($rec);
+        }
+
+        if($val = @$a['jvc']) $jvs_addtl_rem = "Inferred from $val.";
+        else                  $jvs_addtl_rem = "";
+        //--------------------------------------------------------------------------------------------------------------------------------
+        if($arr = @$this->uris['vision values'][@$a['jvs']]) {
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = $arr['mtype'];
+            $rec['measurementValue']    = $arr['uri'];
+            $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jvs_addtl_rem);
+            self::add_string_types($rec);
+        }
+        //--------------------------------------------------------------------------------------------------------------------------------
+        if($val = @$a['noc']) {
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = "http://eol.org/schema/terms/fossilOccPBDB";
+            $rec['measurementValue']    = $val;
             $rec['measurementUnit']     = '';
             $rec['statisticalMethod']   = '';
             self::add_string_types($rec);
         }
-        
-        
+
         // $rec["catnum"]      = md5($rec['measurementType'] . self::generate_id_from_array_record($a));
         
         
@@ -187,6 +311,15 @@ class PaleoDBAPI_v2
         if($val = self::get_reference_ids($line)) $rec['referenceID'] = implode("; ", $val);
         self::add_string_types($rec);
         */
+    }
+    private function write_remarks($rem1, $rem2)
+    {
+        $rem1 = trim($rem1);
+        $rem2 = trim($rem2);
+        $final = "";
+        if($rem1) $final = $rem1;
+        if($rem2) $final .= " $rem2";
+        return trim($final);
     }
     private function add_string_types($rec)
     {
