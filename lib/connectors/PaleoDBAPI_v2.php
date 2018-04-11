@@ -9,17 +9,21 @@ class PaleoDBAPI_v2
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->download_options = array('cache' => 1, 'resource_id' => $folder, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1, 
-        'expire_seconds' => 60*60*24*30*3); //cache expires in 3 months // orig
-        $this->download_options['expire_seconds'] = false; //debug
+        'expire_seconds' => 60*60*24*25); //cache expires in 25 days // orig
+        // $this->download_options['expire_seconds'] = false; //debug
 
-        $this->service["taxon"] = "https://paleobiodb.org/data1.2/taxa/list.json?all_taxa&variant=all&pres=regular&show=full,attr,app,classext,etbasis,ref&rowcount=true&datainfo=true&save=alltaxa.json";
+        // /* local
         $this->service["taxon"] = "http://localhost/cp/PaleoDB/TRAM-746/alltaxa.json";
-
         $this->spreadsheet_mappings = "http://localhost/cp_new/PaleoDB/pbdb_mappings.xlsx";
+        // */
+        
+        /* remote
+        $this->service["taxon"] = "https://paleobiodb.org/data1.2/taxa/list.json?all_taxa&variant=all&pres=regular&show=full,attr,app,classext,etbasis,ref&rowcount=true&datainfo=true&save=alltaxa.json";
+        $this->spreadsheet_mappings = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/PaleoDB/pbdb_mappings.xlsx";
+        */
+        
         $this->spreadsheet_options = array('resource_id' => $folder, 'cache' => 1, 'timeout' => 3600, 'file_extension' => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2); //set 'cache' to 0 if you don't want to cache spreadsheet
-        $this->spreadsheet_options['expire_seconds'] = 0; //60*60*24; //expires after 1 day
-        
-        
+        $this->spreadsheet_options['expire_seconds'] = 60*60*24; //expires after 1 day
         
         $this->map['acceptedNameUsageID']       = "acc";
         $this->map['phylum']                    = "phl";
@@ -27,21 +31,16 @@ class PaleoDBAPI_v2
         $this->map['order']                     = "odl";
         $this->map['family']                    = "fml";
         $this->map['genus']                     = "gnl";
-
         $this->map['taxonID']                   = "oid";
         // $this->map['taxonID']                   = "vid";
         $this->map['scientificName']            = "nam";
         $this->map['scientificNameAuthorship']  = "att";
-        
         // $this->map['furtherInformationURL']     = "oid";
         $this->map['parentNameUsageID']         = "par";
         $this->map['taxonRank']                 = "rnk";
         $this->map['taxonomicStatus']           = "tdf";
         $this->map['nameAccordingTo']           = "ref";
-        
         $this->map['vernacularName']            = "nm2";
-        
-
 
         /* used in PaleoDBAPI.php
         $this->service["collection"] = "http://paleobiodb.org/data1.1/colls/list.csv?vocab=pbdb&limit=10&show=bin,attr,ref,loc,paleoloc,prot,time,strat,stratext,lith,lithext,geo,rem,ent,entname,crmod&taxon_name=";
@@ -108,6 +107,7 @@ class PaleoDBAPI_v2
         $i = 0;
         foreach(new FileIterator($jsonfile) as $line_number => $line) {
             $i++;
+            if(($i % 10000) == 0) echo "\n" . " - $i ";
             // echo "\n-------------------------\n".$line;
             if(substr($line, 0, strlen('{"oid":')) == '{"oid":') {
                 $str = substr($line, 0, -1); //remove last char (",") the comma, very important to convert from json to array.
@@ -122,7 +122,7 @@ class PaleoDBAPI_v2
                 self::create_vernacular_archive($arr, $taxon_id);
                 self::create_trait_archive($arr, $taxon_id);
             }
-            if($i > 1000) break; //debug
+            // if($i > 1000) break; //debug
         }
         unlink($jsonfile);
     }

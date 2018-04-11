@@ -19,12 +19,16 @@ unset($func);
 Functions::finalize_dwca_resource($resource_id);
 // */
 
-/* utility
+// /* utility
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
-if($undefined = $func->check_if_all_parents_have_entries($resource_id)) print_r($undefined);
+if($undefined = $func->check_if_all_parents_have_entries($resource_id))
+{
+    $arr['parents without entries'] = $undefined;
+    print_r($arr);
+}
 else echo "\nAll parents have entries OK\n";
-*/
+// */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
