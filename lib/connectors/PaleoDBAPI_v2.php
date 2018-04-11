@@ -122,7 +122,7 @@ class PaleoDBAPI_v2
                 self::create_vernacular_archive($arr, $taxon_id);
                 self::create_trait_archive($arr, $taxon_id);
             }
-            if($i > 100) break; //debug
+            if($i > 1000) break; //debug
         }
         unlink($jsonfile);
     }
@@ -156,7 +156,6 @@ class PaleoDBAPI_v2
             $rec['measurementType']     = "http://eol.org/schema/terms/FossilFirst"; //hard-coded
             $rec['measurementValue']    = $arr['uri'];
             $rec['measurementRemarks']  = $arr['mrem'];
-            // $rec['lifestage']           = $arr['lifestage'];
             self::add_string_types($rec);
         }
         if($arr = @$this->uris['interval values'][@$a['tli']]) { //interval values
@@ -238,6 +237,12 @@ class PaleoDBAPI_v2
             $rec['measurementType']     = $arr['mtype'];
             $rec['measurementValue']    = $arr['uri'];
             $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jev_addtl_rem);
+            $rec['lifestage']           = $arr['lifestage'];
+            /*
+            if($rec['lifestage']) {
+                print_r($a); print_r($rec); exit;
+            }
+            */
             self::add_string_types($rec);
         }
 
@@ -260,6 +265,7 @@ class PaleoDBAPI_v2
             $rec['measurementType']     = $arr['mtype'];
             $rec['measurementValue']    = $arr['uri'];
             $rec['measurementRemarks']  = self::write_remarks($arr['mrem'], $jmo_addtl_rem);
+            $rec['lifestage']           = $arr['lifestage'];
             self::add_string_types($rec);
         }
 
@@ -323,9 +329,11 @@ class PaleoDBAPI_v2
     }
     private function add_string_types($rec)
     {
-        $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"]);
+        $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"], $rec);
         unset($rec['catnum']);
         unset($rec['taxon_id']);
+        unset($rec['lifestage']);
+        
         $m = new \eol_schema\MeasurementOrFact();
         $m->occurrenceID = $occurrence_id;
         foreach($rec as $key => $value) $m->$key = $value;
@@ -336,15 +344,16 @@ class PaleoDBAPI_v2
         }
     }
 
-    private function add_occurrence($taxon_id, $catnum)
+    private function add_occurrence($taxon_id, $catnum, $rec)
     {
         $occurrence_id = $catnum;
 
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
-        
-        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        if($val = @$rec['lifestage']) $o->lifeStage = $val;
         $o->taxonID = $taxon_id;
+
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
         
         if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
         $this->archive_builder->write_object_to_file($o);
