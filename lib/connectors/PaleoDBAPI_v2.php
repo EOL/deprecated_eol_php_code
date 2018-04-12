@@ -23,7 +23,7 @@ class PaleoDBAPI_v2
         // */
         
         $this->spreadsheet_options = array('resource_id' => $folder, 'cache' => 1, 'timeout' => 3600, 'file_extension' => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2); //set 'cache' to 0 if you don't want to cache spreadsheet
-        $this->spreadsheet_options['expire_seconds'] = 60*60*24; //expires after 1 day
+        $this->spreadsheet_options['expire_seconds'] = 0; //60*60*24; //expires after 1 day
         
         $this->map['acceptedNameUsageID']       = "acc";
         $this->map['phylum']                    = "phl";
@@ -457,9 +457,8 @@ class PaleoDBAPI_v2
             foreach($var_arr as $var) {
                 if($arr = @$this->uris['reproduction values'][$var]) {
                     $cont = true;
-                    $val = @$a['jre'];
-                    if($val == "brooding") $cont = false;
-                    if(substr($val, 0, 10) == "dispersal=") $cont = false;
+                    if($var == "brooding") $cont = false;
+                    if(substr($var, 0, 10) == "dispersal=") $cont = false;
                     if($cont) {
                         $i++;
                         $rec['measurementOfTaxon']  = "true";
@@ -469,7 +468,7 @@ class PaleoDBAPI_v2
                         $rec['measurementUnit']     = '';
                         $rec['statisticalMethod']   = '';
                         $rec['lifestage']           = '';
-                        self::add_string_types($rec);
+                        self::add_string_types($rec, $a);
                     }
                 }
             }
@@ -526,8 +525,14 @@ class PaleoDBAPI_v2
         if($rem2) $final .= " $rem2";
         return trim($final);
     }
-    private function add_string_types($rec)
+    private function add_string_types($rec, $a = false) //$a is only for debugging
     {
+        if(!@$rec['measurementType']) {
+            print_r($rec);
+            print_r($a);
+            exit;
+        }
+        
         $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"], $rec);
         unset($rec['catnum']);
         unset($rec['taxon_id']);
