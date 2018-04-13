@@ -1705,13 +1705,14 @@ class EOLv2MetadataAPI
         $services_url = 'http://services.eol.org/resources/';
         $ids = self::get_resource_ids();
         // $ids = array(36, 43); //43
+        // $ids = array(892);
         // print_r($ids);
         $i = 0; $total = count($ids);
         foreach($ids as $id) {
             $i++; echo "\n $i of $total - ";
             $p = array();
             // /opt/local/bin/wget --tries=1 -O /Library/WebServer/Documents/cp_new/services.eol.org_xml/eli.xml "http://services.eol.org/resources/eli.xml" 2>&1
-            
+            /* working OK, temporarily commented
             foreach($possible as $extension) {
                 $filename = $id.$extension;
                 $p['destination'] = $target_folder.$filename;
@@ -1719,13 +1720,58 @@ class EOLv2MetadataAPI
                 
                 if(!file_exists($p['destination'])) {
                     //worked on script
-                    $cmd = $wget_path.' --tries=3 -O '.$p['destination'].' "'.$p['url'].'"'; //working well with shell_exec()
+                    $cmd = $wget_path.' --tries=3 -O "'.$p['destination'].'" "'.$p['url'].'"'; //working well with shell_exec()
                     $cmd .= " 2>&1";
                     $info = shell_exec($cmd);
                     echo "\n $info";
                 }
                 if(!filesize($p['destination'])) unlink($p['destination']); //final for cleaning zero size files
             }
+            */
+            // /*
+            //start DATA-1719
+            if(Functions::url_exists("https://editors.eol.org/eol_php_code/applications/content_server/resources/".$id.".tar.gz")) {
+                echo "\n Already in editors.eol.org [$id]";
+                continue;
+            }
+            $target_folder2 = '/Library/WebServer/Documents/cp_new/services.eol.org_dwca/';
+            $filename = $id.".tar.gz";
+            $tar_gz_file = $target_folder.$filename;
+            if(file_exists($tar_gz_file)) continue;
+            else
+            {
+                $meta_xml = "$services_url/$id/meta.xml";
+                if(!Functions::url_exists($meta_xml)) continue;
+                $xml = Functions::lookup_with_cache($meta_xml, array('expire_seconds' => false));
+                if(preg_match_all("/<location>(.*?)<\/location>/ims", $xml, $arr)) {
+                    $arr[1][] = "meta.xml";
+                    print_r($arr[1]);
+                    $dwca_folder = "$target_folder2/$id";
+                    if(!file_exists($dwca_folder)) mkdir($dwca_folder);
+                    else {
+                        echo "\nFolder already created\n";
+                        continue;
+                    }
+                    foreach($arr[1] as $filename) {
+                        echo "\n$filename";
+                        $p['destination'] = $target_folder2."$id/$filename";
+                        $p['url'] = $services_url."$id/$filename";
+
+                        if(!file_exists($p['destination'])) {
+                            //worked on script
+                            $cmd = $wget_path.' --tries=3 -O "'.$p['destination'].'" "'.$p['url'].'"'; //working well with shell_exec()
+                            $cmd .= " 2>&1";
+                            $info = shell_exec($cmd);
+                            echo "\n $info";
+                        }
+                        else echo "\nAlready downloaded [$p[destination]]";
+                        
+                        
+                    }
+                }
+            }
+            // */
+            
         }
     }
     function test_xml_files()
