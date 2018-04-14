@@ -95,7 +95,9 @@ class BioImagesAPI
             $i = 0;
             foreach($xml->taxon as $t) {
                 $i++;
-                echo "\n $i of $total";
+                if(($i % 5000) == 0) echo " ".number_format($i)." of $total";
+                
+                
                 $do_count = sizeof($t->dataObject);
                 if($do_count > 0) {
                     $t_dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
@@ -113,7 +115,7 @@ class BioImagesAPI
                     $taxon->order                       = $t_dwc->Order;
                     $taxon->family                      = $t_dwc->Family;
                     $taxon->furtherInformationURL       = $source;
-                    echo "\n $taxon->taxonID - $taxon->scientificName [$source]";
+                    // echo "\n $taxon->taxonID - $taxon->scientificName [$source]";
                     if(isset($this->taxa[$taxonID])) echo " -- already exists";
                     else $this->taxa[$taxonID] = $taxon;
                     //---------------------------------
@@ -197,8 +199,7 @@ class BioImagesAPI
     {
         $agent_ids = array();
         $agents_array = explode(",", $row[$col['Recorded/Collected by']]);
-        foreach($agents_array as $agent)
-        {
+        foreach($agents_array as $agent) {
             $agent = (string)trim($agent);
             if(!$agent) continue;
             $r = new \eol_schema\Agent();
@@ -206,8 +207,7 @@ class BioImagesAPI
             $r->identifier = md5("$agent|compiler");
             $r->agentRole = "compiler";
             $agent_ids[] = $r->identifier;
-            if(!in_array($r->identifier, $this->resource_agent_ids))
-            {
+            if(!in_array($r->identifier, $this->resource_agent_ids)) {
                $this->resource_agent_ids[] = $r->identifier;
                $this->archive_builder->write_object_to_file($r);
             }
@@ -320,8 +320,7 @@ class BioImagesAPI
 
     private function create_archive()
     {
-        foreach($this->taxa as $t)
-        {
+        foreach($this->taxa as $t) {
             $this->archive_builder->write_object_to_file($t);
         }
         $this->archive_builder->finalize(true);
