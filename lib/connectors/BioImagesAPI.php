@@ -116,7 +116,7 @@ class BioImagesAPI
                     $taxon->family                      = $t_dwc->Family;
                     $taxon->furtherInformationURL       = $source;
                     // echo "\n $taxon->taxonID - $taxon->scientificName [$source]";
-                    if(isset($this->taxa[$taxonID])) echo " -- already exists";
+                    if(isset($this->taxa[$taxonID])) {} //echo " -- already exists";
                     else $this->taxa[$taxonID] = $taxon;
                     //---------------------------------
 
