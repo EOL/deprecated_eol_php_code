@@ -36,7 +36,7 @@ class BioImagesAPI
         $taxon_id = @$row[$col['NWB taxon id']];
         if($sciname && $taxon_id)
         {
-            echo "\n" . " - " . $sciname . " - " . $taxon_id;
+            // echo "\n" . " - " . $sciname . " - " . $taxon_id;
             $reference_ids = array(); // no taxon references yet
             $ref_ids = array(); // no data_object references yet
             $agent_ids = self::get_object_agents($row, $col);
@@ -61,19 +61,15 @@ class BioImagesAPI
             {
                 $line = trim($line);
                 $row = explode("\t", $line);
-                if($line_num == 0)
-                {
-                    foreach($row as $id => $value)
-                    {
-                        echo "\n $id -- $value";
+                if($line_num == 0) {
+                    foreach($row as $id => $value) {
+                        // echo "\n $id -- $value";
                         $col[trim($value)] = $id;
                     }
                 }
-                else
-                {
-                    if(@$row[$col['Taxon']])
-                    {
-                        echo "\n" . $row[$col['Taxon']];
+                else {
+                    if(@$row[$col['Taxon']]) {
+                        // echo "\n" . $row[$col['Taxon']];
                         self::parse_record_element($row, $col);
                     }
                 }
