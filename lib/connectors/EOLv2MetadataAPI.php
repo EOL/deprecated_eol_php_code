@@ -1709,7 +1709,7 @@ class EOLv2MetadataAPI
         // print_r($ids);
         $i = 0; $total = count($ids);
         foreach($ids as $id) {
-            $i++; echo "\n $i of $total - ";
+            $i++; echo "\n $i of $total - [$id] ";
             $p = array();
             // /opt/local/bin/wget --tries=1 -O /Library/WebServer/Documents/cp_new/services.eol.org_xml/eli.xml "http://services.eol.org/resources/eli.xml" 2>&1
             /* working OK, temporarily commented
@@ -1751,7 +1751,7 @@ class EOLv2MetadataAPI
                 if(preg_match_all("/<location>(.*?)<\/location>/ims", $xml, $arr)) {
                     $arr[1][] = "meta.xml";
                     print_r($arr[1]);
-                    $target_folder2 = '/Library/WebServer/Documents/cp_new/services.eol.org_dwca2/';
+                    $target_folder2 = '/Library/WebServer/Documents/cp_new/services.eol.org_dwca/';
                     $dwca_folder = "$target_folder2/$id";
                     if(!file_exists($dwca_folder)) mkdir($dwca_folder);
                     else {
@@ -1759,7 +1759,7 @@ class EOLv2MetadataAPI
                         continue;
                     }
                     
-                    /* working OK - un-comment in real operation - portion where it starts downloading files
+                    // /* working OK - un-comment in real operation - portion where it starts downloading files
                     foreach($arr[1] as $filename) {
                         echo "\n$filename";
                         $p['destination'] = $target_folder2."$id/$filename";
@@ -1774,7 +1774,7 @@ class EOLv2MetadataAPI
                         }
                         else echo "\nAlready downloaded [$p[destination]]";
                     }
-                    */
+                    // */
                 }
             }
             // */
