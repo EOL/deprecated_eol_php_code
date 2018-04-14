@@ -1731,27 +1731,35 @@ class EOLv2MetadataAPI
             // /*
             //start DATA-1719
             if(Functions::url_exists("https://editors.eol.org/eol_php_code/applications/content_server/resources/".$id.".tar.gz")) {
-                echo "\n Already in editors.eol.org [$id]";
-                continue;
+                echo "\n Already in editors.eol.org [$id]"; continue;
             }
-            $target_folder2 = '/Library/WebServer/Documents/cp_new/services.eol.org_dwca/';
+            if(Functions::url_exists("https://editors.eol.org/eol_php_code/applications/content_server/resources/EOL_".$id."_final.tar.gz")) {
+                echo "\n Already in editors.eol.org [EOL_ $id _final]"; continue;
+            }
+            if(Functions::url_exists("https://editors.eol.org/eol_php_code/applications/content_server/resources/LD_".$id."_final.tar.gz")) {
+                echo "\n Already in editors.eol.org [LD_ $id _final]"; continue;
+            }
+            
             $filename = $id.".tar.gz";
             $tar_gz_file = $target_folder.$filename;
             if(file_exists($tar_gz_file)) continue;
             else
             {
-                $meta_xml = "$services_url/$id/meta.xml";
+                $meta_xml = $services_url."$id/meta.xml";
                 if(!Functions::url_exists($meta_xml)) continue;
                 $xml = Functions::lookup_with_cache($meta_xml, array('expire_seconds' => false));
                 if(preg_match_all("/<location>(.*?)<\/location>/ims", $xml, $arr)) {
                     $arr[1][] = "meta.xml";
                     print_r($arr[1]);
+                    $target_folder2 = '/Library/WebServer/Documents/cp_new/services.eol.org_dwca2/';
                     $dwca_folder = "$target_folder2/$id";
                     if(!file_exists($dwca_folder)) mkdir($dwca_folder);
                     else {
                         echo "\nFolder already created\n";
                         continue;
                     }
+                    
+                    /* working OK - un-comment in real operation - portion where it starts downloading files
                     foreach($arr[1] as $filename) {
                         echo "\n$filename";
                         $p['destination'] = $target_folder2."$id/$filename";
@@ -1765,9 +1773,8 @@ class EOLv2MetadataAPI
                             echo "\n $info";
                         }
                         else echo "\nAlready downloaded [$p[destination]]";
-                        
-                        
                     }
+                    */
                 }
             }
             // */
