@@ -86,17 +86,15 @@ class BioImagesAPI
     {
         require_library('connectors/BoldsImagesAPIv2');
         $func = new BoldsImagesAPIv2("");
-        $path = $func->download_and_extract_remote_file($this->original_resource);
+        $path = $func->download_and_extract_remote_file($this->original_resource, true); //2nd param True meqns will use cache.
 
-        if($xml = Functions::lookup_with_cache($path, array('timeout' => 172800, 'download_attempts' => 2, 'delay_in_minutes' => 3)))
-        {
+        if($xml = Functions::lookup_with_cache($path, array('timeout' => 172800, 'download_attempts' => 2, 'delay_in_minutes' => 3))) {
             $xml = simplexml_load_string($xml);
             $total = count($xml->taxon);
             $i = 0;
             foreach($xml->taxon as $t) {
                 $i++;
-                if(($i % 5000) == 0) echo " ".number_format($i)." of $total";
-                
+                if(($i % 5000) == 0) echo "\n ".number_format($i)." of $total";
                 
                 $do_count = sizeof($t->dataObject);
                 if($do_count > 0) {
