@@ -85,19 +85,19 @@ class BioImagesAPI
     private function get_texts()
     {
         require_library('connectors/BoldsImagesAPIv2');
-        $path = BoldsImagesAPIv2::download_and_extract_remote_file($this->original_resource);
+        $func = new BoldsImagesAPIv2("");
+        $path = $func->download_and_extract_remote_file($this->original_resource);
+
         if($xml = Functions::lookup_with_cache($path, array('timeout' => 172800, 'download_attempts' => 2, 'delay_in_minutes' => 3)))
         {
             $xml = simplexml_load_string($xml);
             $total = count($xml->taxon);
             $i = 0;
-            foreach($xml->taxon as $t)
-            {
+            foreach($xml->taxon as $t) {
                 $i++;
                 echo "\n $i of $total";
                 $do_count = sizeof($t->dataObject);
-                if($do_count > 0)
-                {
+                if($do_count > 0) {
                     $t_dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
                     $t_dc = $t->children("http://purl.org/dc/elements/1.1/");
                     $taxonID = (string)trim($t_dc->identifier);
@@ -118,8 +118,7 @@ class BioImagesAPI
                     else $this->taxa[$taxonID] = $taxon;
                     //---------------------------------
 
-                    foreach($t->dataObject as $do)
-                    {
+                    foreach($t->dataObject as $do) {
                         if($do->dataType != "http://purl.org/dc/dcmitype/Text") continue;
                         $t_dc2      = $do->children("http://purl.org/dc/elements/1.1/");
                         $t_dcterms  = $do->children("http://purl.org/dc/terms/");
@@ -132,8 +131,7 @@ class BioImagesAPI
                         $r->agentRole = $do->agent['role'];
                         $r->term_homepage = "http://www.bioimages.org.uk/index.htm";
                         $agent_ids[] = $r->identifier;
-                        if(!in_array($r->identifier, $this->resource_agent_ids))
-                        {
+                        if(!in_array($r->identifier, $this->resource_agent_ids)) {
                            $this->resource_agent_ids[] = $r->identifier;
                            $this->archive_builder->write_object_to_file($r);
                         }
