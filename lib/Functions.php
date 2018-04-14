@@ -573,6 +573,13 @@ class Functions
         $string = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $string);
         return $string;
     }
+    
+    public static function remove_utf8_bom($text)
+    {
+        $bom = pack('H*','EFBBBF');
+        $text = preg_replace("/^$bom/", '', $text);
+        return $text;
+    }
 
     // see http://www.php.net/manual/en/function.filesize.php#92462
     public static function remote_file_size($uri)
