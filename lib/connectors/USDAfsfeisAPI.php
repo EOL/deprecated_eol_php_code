@@ -865,8 +865,7 @@ class USDAfsfeisAPI
 
         $html = str_ireplace("OTHER STATUS :", "OTHER STATUS:", $html);
         if(preg_match("/OTHER STATUS\:(.*?)<a name\=/ims", $html, $arr)) $other_stat = $arr[1];
-        if(isset($other_stat))
-        {
+        if(isset($other_stat)) {
             $descriptions["OTHER STATUS"] = $other_stat;
             if(stripos($other_stat, "Management considerations") != "") //for http://www.fs.fed.us/database/feis/animals/bird/piar/all.html
             {
@@ -877,13 +876,11 @@ class USDAfsfeisAPI
         
         /* DISTRIBUTION AND OCCURRENCE */
         $html = str_ireplace("GENERAL DISTRIBUTION :", "GENERAL DISTRIBUTION:", $html);
-        if(in_array($rec["url"], array("http://www.fs.fed.us/database/feis/plants/shrub/ceaoph/all.html", "http://www.fs.fed.us/database/feis/plants/shrub/bernev/all.html")))
-        {
+        if(in_array($rec["url"], array("http://www.fs.fed.us/database/feis/plants/shrub/ceaoph/all.html", "http://www.fs.fed.us/database/feis/plants/shrub/bernev/all.html"))) {
             if(preg_match("/GENERAL DISTRIBUTION\:(.*?)United States\:/ims", $html, $arr)) $general_dist = $arr[1];
             elseif(preg_match("/GENERAL DISTRIBUTION\:(.*?)States\:/ims", $html, $arr)) $general_dist = $arr[1];
         }
-        else
-        {
+        else {
             if(preg_match("/GENERAL DISTRIBUTION\:(.*?)<b>ECOSYSTEMS/ims", $html, $arr)) $general_dist = $arr[1];
             elseif(preg_match("/GENERAL DISTRIBUTION\:(.*?)<span/ims", $html, $arr)) $general_dist = $arr[1];
         }
@@ -895,23 +892,20 @@ class USDAfsfeisAPI
             $descriptions["ECOSYSTEMS"] = $ecosystems;
         }
 
-        if(in_array($rec["url"], array("http://www.fs.fed.us/database/feis/plants/shrub/ceaoph/all.html", "http://www.fs.fed.us/database/feis/plants/shrub/bernev/all.html")))
-        {
+        if(in_array($rec["url"], array("http://www.fs.fed.us/database/feis/plants/shrub/ceaoph/all.html", "http://www.fs.fed.us/database/feis/plants/shrub/bernev/all.html"))) {
             if(preg_match("/states\:(.*?)Site Characteristics\:/ims", $html, $arr)) $states = $arr[1];
         }
-        else
-        {
+        else {
             if(preg_match("/STATES \:(.*?)<b>BLM/ims", $html, $arr) || preg_match("/STATES\:(.*?)<a name\=\"BLM PHYSIOGRAPHIC REGIONS\"/ims", $html, $arr) || //animals
                preg_match("/<a name\=\"STATES\/PROVINCES\">(.*?)<a name\=\"BLM PHYSIOGRAPHIC REGIONS\"/ims", $html, $arr)) $states = $arr[1];
         }
-        if(isset($states)) 
-        {
+        if(isset($states)) {
             $states = str_ireplace("(key to state/province abbreviations)", "", $states);
             $descriptions["STATES"] = $states;
         }
         
         if(preg_match("/BLM PHYSIOGRAPHIC REGIONS \:(.*?)<b>KUCHLER/ims", $html, $arr) || preg_match("/BLM PHYSIOGRAPHIC REGIONS\:(.*?)<a name\=\"KUCHLER PLANT ASSOCIATIONS\"/ims", $html, $arr) || //animals
-           preg_match("/<a name\=\"BLM PHYSIOGRAPHIC REGIONS\">(.*?)<a name\=\"KUCHLER PLANT ASSOCIATIONS\"/ims", $html, $arr))
+           preg_match("/<a name\=\"BLM PHYSIOGRAPHIC REGIONS\">(.*?)<a name\=\"KUCHLER PLANT ASSOCIATIONS\"/ims", $html, $arr)) 
         {
             $blm_regions = $arr[1];
             $descriptions["BLM PHYSIOGRAPHIC REGIONS"] = $blm_regions;
@@ -1279,10 +1273,8 @@ class USDAfsfeisAPI
     {
         $problems = array("NRCS PLANT CODE", "TAXONOMY", "LIFE FORM", "FEDERAL LEGAL STATUS", "OTHER STATUS", "DISTRIBUTION AND OCCURRENCE", "GENERAL DISTRIBUTION", "ECOSYSTEMS", "STATES", "BLM PHYSIOGRAPHIC REGIONS", "KUCHLER PLANT ASSOCIATIONS", "SAF COVER TYPES", "SRM (RANGELAND) COVER TYPES", "HABITAT TYPES AND PLANT COMMUNITIES", "GENERAL DISTRIBUTION", "ECOSYSTEMS");
         if($what == "COMMON NAMES") $problems[] = "SYNONYMS";
-        foreach($problems as $problem)
-        {
-            if(is_numeric(stripos($names, $problem))) 
-            {
+        foreach($problems as $problem) {
+            if(is_numeric(stripos($names, $problem))) {
                 // echo "\n problem hit: $problem ($what)";
                 if(preg_match("/$what\:(.*?)<span/ims", $html, $arr)) {
                     // echo "\n further_cleaned...$what\n";
@@ -1462,8 +1454,7 @@ class USDAfsfeisAPI
                 $mr->furtherInformationURL = (string) self::clean_str(trim($rec['url']), true);
                 $mr->CVterm         = (string) $spm;
                 $mr->Owner          = "";
-                if(isset($this->subject[$subject]['link']))
-                {
+                if(isset($this->subject[$subject]['link'])) {
                     if(!($rec["kingdom"] == "Animalia" && in_array($subject, array("RAUNKIAER LIFE FORM", "SUCCESSIONAL STATUS", "SEASONAL DEVELOPMENT")))) $description = "<a alt='" . $title . "' href='" . $this->subject[$subject]['link'] . "'>" . "More info on this topic." . "</a><br> <br>" . $description;
                 }
                 $mr->title          = (string) $title;
@@ -1482,11 +1473,9 @@ class USDAfsfeisAPI
     {
         $html = self::clean_str(strip_tags($html, "<a><br><b><table><tr><td><ul><ol><li><strong><p>"), true);
         $start_pos = stripos($html, "Photo by");
-        if(is_numeric($start_pos))
-        {
+        if(is_numeric($start_pos)) {
             $pos = $start_pos + 8;
-            while(true)
-            {
+            while(true) {
                 $char = substr($html, $pos, 1);
                 if($char == "<") break;
                 if($pos-$start_pos >= 500) return $html;
@@ -1515,24 +1504,19 @@ class USDAfsfeisAPI
         $terms = $this->word;
         $more_info = "";
         $used = array();
-        foreach(array_keys($terms) as $word)
-        {
+        foreach(array_keys($terms) as $word) {
             $link = $terms[$word];
             $strings = array();
             if($subject == "LIFE FORM") $strings[] = $word;
-            else
-            {
+            else {
                 $strings[] = " " . $word . " ";
                 $strings[] = " " . $word . ".";
                 $strings[] = " " . $word . ",";
                 $strings[] = " " . $word . ";";
             }
-            foreach($strings as $string)
-            {
-                if(is_numeric(stripos(strip_tags($description), $string)))
-                {
-                    if(!in_array($word, $used))
-                    {
+            foreach($strings as $string) {
+                if(is_numeric(stripos(strip_tags($description), $string))) {
+                    if(!in_array($word, $used)) {
                         if($more_info) $more_info .= ", <a href='$link'><i>$word</i></a>";
                         else $more_info .= "<a href='$link'><i>$word</i></a>";
                         $used[] = $word;
@@ -1548,10 +1532,8 @@ class USDAfsfeisAPI
     private function adjust_paragraph($description)
     {
         $pos = stripos($description, "<p>");
-        if(is_numeric($pos))
-        {
-            if($pos > 0)
-            {
+        if(is_numeric($pos)) {
+            if($pos > 0) {
                 $first = trim(substr($description, 0, $pos));
                 $second = trim(substr($description, $pos, strlen($description)));
                 if(substr($first, -4) == "</p>") $description = "<p>$first" . $second;
@@ -1566,11 +1548,9 @@ class USDAfsfeisAPI
     {
         $reference_ids = array();
         $temp = array();
-        if(preg_match_all("/\/all\.html\#(.*?)\"/ims", $description, $arr))
-        {
+        if(preg_match_all("/\/all\.html\#(.*?)\"/ims", $description, $arr)) {
             asort($arr[1]);
-            foreach(array_unique($arr[1]) as $page_ref_no)
-            {
+            foreach(array_unique($arr[1]) as $page_ref_no) {
                 if($page_ref_no == 77) echo "\n[" . $this->temp_page_reference_nos[$page_ref_no] . "]";
                 if(is_numeric($page_ref_no)) $reference_ids[] = @$this->temp_page_reference_nos[$page_ref_no];
             }
@@ -1580,11 +1560,9 @@ class USDAfsfeisAPI
 
     private function remove_first_part_of_string($chars_2be_removed, $string)
     {
-        foreach($chars_2be_removed as $chars)
-        {
+        foreach($chars_2be_removed as $chars) {
             $len = strlen($chars);
-            while(substr($string, 0, $len) == $chars)
-            {
+            while(substr($string, 0, $len) == $chars) {
                $string = trim(substr($string, $len, strlen($string))); //chars at the beginning of the string is removed
             }
         }
@@ -1593,10 +1571,8 @@ class USDAfsfeisAPI
 
     private function remove_last_part_of_string($chars_2be_removed, $string)
     {
-        foreach($chars_2be_removed as $chars)
-        {
-            while(substr($string, -strlen($chars)) == $chars)
-            {
+        foreach($chars_2be_removed as $chars) {
+            while(substr($string, -strlen($chars)) == $chars) {
                 $string = trim(substr($string, 0, strlen($string) - strlen($chars)));
             }
         }
@@ -1611,16 +1587,14 @@ class USDAfsfeisAPI
 
     private function loop_references($references_array, $reference_ids)
     {
-        foreach($references_array as $ref)
-        {
+        foreach($references_array as $ref) {
             $ref = (string) trim($ref);
             if(!$ref) continue;
             $r = new \eol_schema\Reference();
             $r->full_reference = (string) $ref;
             $r->identifier = md5($r->full_reference);
             $reference_ids[] = $r->identifier;
-            if(!in_array($r->identifier, $this->resource_reference_ids))
-            {
+            if(!in_array($r->identifier, $this->resource_reference_ids)) {
                $this->resource_reference_ids[] = $r->identifier;
                $this->archive_builder->write_object_to_file($r);
             }
@@ -1636,8 +1610,7 @@ class USDAfsfeisAPI
         if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
         $taxon->taxonRank = '';
         $scientificName = (string) utf8_encode($rec['sciname']);
-        if(!$scientificName)
-        {
+        if(!$scientificName) {
             echo "\n ALERT: blank scientificName [$scientificName]";
             return; //blank
         } 
