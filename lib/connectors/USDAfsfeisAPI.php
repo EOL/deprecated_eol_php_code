@@ -70,7 +70,8 @@ class USDAfsfeisAPI
         // sub-sub-sub-topics ==================================================================================
         $this->sub_sub_subtopics["Movements and home range"] = array("Daily activity", "Seasonal movements and migration", "Dispersal", "Home range");
         $this->sub_sub_subtopics["Life span and survival"] = array("Predators", "Diseases and parasites", "Malnutrition and weather", "Fawn survival", "Hunting", "Calf survival");
-        $this->download_options = array('resource_id' => 'FEIS', 'expire_seconds' => false, 'download_wait_time' => 1500000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->download_options = array('resource_id' => 'FEIS', 'expire_seconds' => false, 'download_wait_time' => 1500000, 'timeout' => 10800, 'download_attempts' => 1, 
+        'delay_in_minutes' => 0.5);
     }
 
     private function find_spm_given_subject($subject)
@@ -98,7 +99,7 @@ class USDAfsfeisAPI
         $taxonIDs = array();
         foreach($this->main_groups as $kingdom => $group)
         {
-            echo "\n Group: $group";
+            // echo "\n Group: $group";
             if($html = Functions::lookup_with_cache($this->fsfeis_domain . $group . "/index.html", $this->download_options))
             {
                 if(preg_match("/Choose one of the following(.*?)<\/ol>/ims", $html, $arr)) $html = trim($arr[1]);
@@ -147,7 +148,7 @@ class USDAfsfeisAPI
                                         if(preg_match("/\">(.*?)<\/a>/ims", $pagex[0], $arr)) $taxonID = trim($arr[1]);
                                         // http://www.fs.fed.us/database/feis/plants/bryophyte/aulpal/all.html
                                         $url = str_ireplace("/index.html", "", $filename) . "/" . $part;
-                                        echo "\n --- $url \n";
+                                        // echo "\n --- $url \n";
                                         if(!in_array($taxonID, $taxonIDs))
                                         {
                                             $taxonIDs[] = $taxonID;
@@ -205,7 +206,7 @@ class USDAfsfeisAPI
         $ref_ids = array();
         $agent_ids = array();
         $descriptions = array();
-        echo "\n\n" . " - " . $rec['sciname'] . " - " . $rec['taxonID'] . " - " . $rec['url'];
+        // echo "\n\n" . " - " . $rec['sciname'] . " - " . $rec['taxonID'] . " - " . $rec['url'];
         if($html = Functions::lookup_with_cache($rec['url'], $this->download_options))
         {
             $html = str_ireplace('href="all.html#', 'href="#', $html);
@@ -284,21 +285,17 @@ class USDAfsfeisAPI
     {
         $chapters = array();
         $topics = array();
-        if($html)
-        {
+        if($html) {
             $html = str_ireplace("<ul></ul>", "", $html);
             // manual adjustments
-            if(preg_match_all("/<ul>(.*?)<\/ul>/ims", $html, $arr))
-            {
+            if(preg_match_all("/<ul>(.*?)<\/ul>/ims", $html, $arr)) {
                 $temp = $arr[1];
                 $temp = self::clean_li_tags($temp);
                 $i = 0;
-                foreach($temp as $t)
-                {
+                foreach($temp as $t) {
                     // manual fix; add "</li>"
                     if(!preg_match_all("/<li>(.*?)<\/li>/ims", $t, $arr)) $t = str_ireplace("</a>", "</a></li>", $t);
-                    if(preg_match_all("/<li>(.*?)<\/li>/ims", $t, $arr))
-                    {
+                    if(preg_match_all("/<li>(.*?)<\/li>/ims", $t, $arr)) {
                         $arr[1] = array_filter(array_map('trim', $arr[1])); // will trim all values of the array
                         if($i == 0) $chapters = $arr[1];
                         else $topics[] = $arr[1];
@@ -311,22 +308,19 @@ class USDAfsfeisAPI
         // print_r($chapters); print_r($topics); exit; // debug
         $urls_to_use_old_script = array("http://www.fs.fed.us/database/feis/animals/reptile/crho/all.html", "http://www.fs.fed.us/database/feis/plants/forb/potnew/all.html", "http://www.fs.fed.us/database/feis/plants/tree/poptre/all.html");
         $urls_to_use_new_script = array("");
-        if(count(@$topics) < 3 || in_array($rec["url"], $urls_to_use_old_script))
-        {
-            echo "\n Page used the OLD script " . $rec["url"] . " [" . count($topics) . "] \n";
+        if(count(@$topics) < 3 || in_array($rec["url"], $urls_to_use_old_script)) {
+            // echo "\n Page used the OLD script " . $rec["url"] . " [" . count($topics) . "] \n";
             $this->script_count["old"]++;
             if(!in_array($rec["url"], $urls_to_use_new_script)) return false;
         } 
-        else 
-        {
-            echo "\n Page used the NEW script " . $rec["url"] . " [" . count($topics) . "] \n";
+        else {
+            // echo "\n Page used the NEW script " . $rec["url"] . " [" . count($topics) . "] \n";
             $this->script_count["new"]++;
         }
         $chapters = self::get_href_and_link_texts($chapters);
         // set all chapters' link to uppercase
         $i = 0;
-        foreach($chapters as $chapter)
-        {
+        foreach($chapters as $chapter) {
             $chapters[$i]["link"] = strtoupper($chapter["link"]);
             $i++;
         }
@@ -346,8 +340,7 @@ class USDAfsfeisAPI
         $chapters = self::assign_topics_for_sub_sub_subchapters($chapters, $topicx, $rec["url"]);
 
         //manual adjustment
-        if($rec["url"] == "http://www.fs.fed.us/database/feis/animals/bird/apco/all.html")
-        {
+        if($rec["url"] == "http://www.fs.fed.us/database/feis/animals/bird/apco/all.html") {
             $chapters[2]["connect"][0]["connect2"][0]["connect3"][3]["link"] = "Dispersal";
             $chapters[2]["connect"][0]["connect2"][0]["connect3"][3]["href"] = "#Dispersal";
             $chapters[2]["connect"][0]["connect2"][0]["connect3"][4]["link"] = "Survival";
@@ -364,32 +357,23 @@ class USDAfsfeisAPI
     private function generate_articles($chapters, $rec, $html)
     {
         $items = array();
-        foreach($chapters as $chapter)
-        {
+        foreach($chapters as $chapter) {
             $link = str_ireplace(array("\n", "\t"), "", $chapter["link"]); // not yet needed
             $items[] = array("topic" => $link, "href" => $chapter["href"]);
-            if(@$chapter["connect"])
-            {
-                foreach($chapter["connect"] as $con1)
-                {
+            if(@$chapter["connect"]) {
+                foreach($chapter["connect"] as $con1) {
                     $link = str_ireplace(array("\n", "\t"), "", $con1["link"]);
                     $items[] = array("topic" => $link, "href" => $con1["href"]);
-                    if(@$con1["connect2"])
-                    {
-                        foreach($con1["connect2"] as $con2)
-                        {
+                    if(@$con1["connect2"]) {
+                        foreach($con1["connect2"] as $con2) {
                             $link = str_ireplace(array("\n", "\t"), "", $con2["link"]);
                             $items[] = array("topic" => $link, "href" => $con2["href"]);
-                            if(@$con2["connect3"])
-                            {
-                                foreach($con2["connect3"] as $con3)
-                                {
+                            if(@$con2["connect3"]) {
+                                foreach($con2["connect3"] as $con3) {
                                     $link = str_ireplace(array("\n", "\t"), "", $con3["link"]); // not yet needed
                                     $items[] = array("topic" => $link, "href" => $con3["href"]);
-                                    if(@$con3["connect4"])
-                                    {
-                                        foreach($con3["connect4"] as $con4)
-                                        {
+                                    if(@$con3["connect4"]) {
+                                        foreach($con3["connect4"] as $con4) {
                                             $link = str_ireplace(array("\n", "\t"), "", $con4["link"]); // not yet needed
                                             $items[] = array("topic" => $link, "href" => $con4["href"]);
                                         }
@@ -401,17 +385,20 @@ class USDAfsfeisAPI
                 }
             }
         }
+        
         // print_r($items); //debug
-        if(count($items) != count(array_unique($items))) echo "\n ALERT: with duplicate entries. " . $rec["url"] . "\n";
+        if(is_array($items) && $items) {
+            // if(count($items) != count(array_unique($items))) {} //echo "\n ALERT: with duplicate entries. " . $rec["url"] . "\n";
+        }
+        
         $descriptions = array();
         $i = -1;
         $items_tobe_excluded = array("INTRODUCTORY", "FEIS ABBREVIATION", "NRCS PLANT CODE", "ABBREVIATION" , "FIRE CASE STUDIES");
         $topics_to_check = array("BIOLOGICAL DATA AND HABITAT REQUIREMENTS", "DISTRIBUTION AND OCCURRENCE", "WILDLIFE DISTRIBUTION AND OCCURRENCE", "BOTANICAL AND ECOLOGICAL CHARACTERISTICS", "FIRE ECOLOGY", "MANAGEMENT CONSIDERATIONS", "FIRE EFFECTS", "FIRE EFFECTS AND USE", "FIRE EFFECTS AND MANAGEMENT");
-        foreach($items as $item)
-        {
-            $i++; echo "[$i]";
+        foreach($items as $item) {
+            $i++; //echo "[$i]";
             $href1 = str_ireplace(array("#", "all.html"), "", $item["href"]);
-            $href2 = $items[$i+1]["href"];
+            $href2 = @$items[$i+1]["href"];
             $href2 = str_ireplace(array("#", "all.html"), "", $href2);
             $topic = trim($item["topic"]);
             
@@ -419,12 +406,11 @@ class USDAfsfeisAPI
             if($topic == "155 LIFE FORM") $topic = "LIFE FORM";
             if(in_array($topic, array("170 PLANT ASSOCIATIONS", "65 PLANT ASSOCIATIONS", "49 PLANT ASSOCIATIONS"))) $topic = "PLANT ASSOCIATIONS";
             
-            echo "\n $topic --- $href1 -- $href2";
+            // echo "\n $topic --- $href1 -- $href2";
             if(in_array($topic, $items_tobe_excluded)) continue;
 
             $to_be_excluded = false;
-            if(in_array($topic, $topics_to_check))
-            {
+            if(in_array($topic, $topics_to_check)) {
                 $to_be_excluded = self::check_if_topic_will_be_excluded($topic, $items);
                 if($to_be_excluded) continue;
             }
@@ -451,8 +437,7 @@ class USDAfsfeisAPI
                 if($topic == "LIFE FORM") $lifeform = $descriptions[$topic];
 
                 // APPENDIX: FIRE REGIME TABLE
-                if(in_array($href1, array("APPENDIX: FIRE REGIME TABLE", "AppendixFireRegimeTable")))
-                {
+                if(in_array($href1, array("APPENDIX: FIRE REGIME TABLE", "AppendixFireRegimeTable"))) {
                     $link_text = "Follow this link to the U.S. Forest Service Fire Effects Information Service to see a table with fire regime information that may be relevant to habitats in which this species occurs";
                     $link = false;
                     if($href1 == "APPENDIX: FIRE REGIME TABLE") $link = $rec['url'] . "#APPENDIX: FIRE REGIME TABLE";
@@ -464,19 +449,17 @@ class USDAfsfeisAPI
                 if($topic == "AUTHORSHIP AND CITATION") $descriptions[$topic] = self::get_authorship_citation(self::clean_str(strip_tags($arr[1]), true));
 
                 // ORDER, CLASS
-                if(in_array($topic, array("ORDER", "CLASS")))
-                {
+                if(in_array($topic, array("ORDER", "CLASS"))) {
                     $rec[strtolower($topic)] = self::clean_str(strip_tags($arr[1]), true);
                     unset($descriptions[$topic]);
-                    echo "\n $topic: [" . $rec[strtolower($topic)] . "] \n";
+                    // echo "\n $topic: [" . $rec[strtolower($topic)] . "] \n";
                 }
                 
                 // SYNONYMS, COMMON NAMES
                 if(in_array($topic, array("SYNONYMS", "COMMON NAMES")))
                 {
                     if($topic == "COMMON NAMES" && in_array($rec["url"], $this->exclude_vernaculars)) {}
-                    else
-                    {
+                    else {
                         $temp = self::clean_str(strip_tags($arr[1], "<br><a>"));
                         $temp = self::further_clean($temp, $topic, $html);
                         $descriptions[$topic] = $temp;
@@ -484,8 +467,7 @@ class USDAfsfeisAPI
                 }
 
                 // TAXONOMY
-                if($topic == "TAXONOMY")
-                {
+                if($topic == "TAXONOMY") {
                     $strings_2be_removed = array("\n", "</a>", "</span>", "</b>", "<br>");
                     $temp = self::remove_first_part_of_string($strings_2be_removed, $arr[1]);
                     $temp = utf8_encode($temp);
@@ -495,22 +477,18 @@ class USDAfsfeisAPI
 
             }
         }
-        echo "\n count: " . count($descriptions) . "\n";
+        // echo "\n count: " . count($descriptions) . "\n";
         $rec['texts'] = $descriptions;
         return $rec;
     }
 
     private function check_if_topic_will_be_excluded($topic, $items)
     {
-        if(isset($this->topics[$topic]))
-        {
-            foreach($this->topics[$topic] as $t)
-            {
-                foreach($items as $item)
-                {
-                    if($t == $item["topic"]) 
-                    {
-                        echo "\n ALERT: excluded: $topic [$t]==[" . $item["topic"] . "]\n";
+        if(isset($this->topics[$topic])) {
+            foreach($this->topics[$topic] as $t) {
+                foreach($items as $item) {
+                    if($t == $item["topic"]) {
+                        // echo "\n ALERT: excluded: $topic [$t]==[" . $item["topic"] . "]\n";
                         return true;
                     }
                 }
@@ -522,43 +500,35 @@ class USDAfsfeisAPI
     private function assign_topics_for_sub_sub_subchapters($chapters, $topics, $url)
     {
         $j = -1;
-        foreach($chapters as $chapter)
-        {
+        foreach($chapters as $chapter) {
             $j++;
             $k = -1;
-            echo "\n" . $chapter["link"];
+            // echo "\n" . $chapter["link"];
             if(!@$chapter["connect"]) continue;
-            foreach($chapter["connect"] as $connect)
-            {
+            foreach($chapter["connect"] as $connect) {
                 $k++;
                 if(!@$connect["connect2"]) continue;
                 $k2 = -1;
-                foreach($connect["connect2"] as $c)
-                {
+                foreach($connect["connect2"] as $c) {
                     $k2++;
                     if(!@$c["connect3"]) continue;
                     $k3 = 0;
-                    foreach($c["connect3"] as $c2)
-                    {
-                        echo "\n - " . $c2["link"];
+                    foreach($c["connect3"] as $c2) {
+                        // echo "\n - " . $c2["link"];
                         $subtopic = $c2["link"];
-                        if(isset($this->sub_sub_subtopics[$subtopic]))
-                        {
+                        if(isset($this->sub_sub_subtopics[$subtopic])) {
                             $arr = self::topics_indexkey_for_chapter($this->sub_sub_subtopics[$subtopic], $topics);
                             $topics_indexkey_for_chapter = $arr[0];
                             $score = $arr[1];
                             $scorevalue = $arr[2];
-                            if(is_numeric($topics_indexkey_for_chapter)) 
-                            {
+                            if(is_numeric($topics_indexkey_for_chapter)) {
                                 $chapters[$j]["connect"][$k]["connect2"][$k2]["connect3"][$k3]["url"] = $url;
                                 $chapters[$j]["connect"][$k]["connect2"][$k2]["connect3"][$k3]["score"] = $scorevalue;
-                                if($scorevalue >= count($topics[$topics_indexkey_for_chapter])/2)
-                                {
+                                if($scorevalue >= count($topics[$topics_indexkey_for_chapter])/2) {
                                     $chapters[$j]["connect"][$k]["connect2"][$k2]["connect3"][$k3]["connect4_score"] = $score;
                                     $chapters[$j]["connect"][$k]["connect2"][$k2]["connect3"][$k3]["connect4"] = $topics[$topics_indexkey_for_chapter];
                                 }
-                                else
-                                {
+                                else {
                                     $chapters[$j]["connect"][$k]["connect2"][$k2]["connect3"][$k3]["connect4_score_x"] = $score;
                                     $chapters[$j]["connect"][$k]["connect2"][$k2]["connect3"][$k3]["connect4_x"] = $topics[$topics_indexkey_for_chapter];
                                 }
@@ -582,7 +552,7 @@ class USDAfsfeisAPI
         {
             $j++;
             $k = -1;
-            echo "\n" . $chapter["link"];
+            // echo "\n" . $chapter["link"];
             if(!@$chapter["connect"]) continue;
             foreach($chapter["connect"] as $connect)
             {
@@ -591,11 +561,11 @@ class USDAfsfeisAPI
                 $k2 = 0;
                 foreach($connect["connect2"] as $c)
                 {
-                    echo "\n - " . $c["link"];
+                    // echo "\n - " . $c["link"];
                     $subtopic = $c["link"];
                     if(isset($this->sub_subtopics[$subtopic]) && !in_array(array("main" => $connect["link"], "connect" => $subtopic), $not_allowed))
                     {
-                        echo "\n === " . $connect["link"] . " === ". $subtopic;
+                        // echo "\n === " . $connect["link"] . " === ". $subtopic;
                         $arr = self::topics_indexkey_for_chapter($this->sub_subtopics[$subtopic], $topics);
                         $topics_indexkey_for_chapter = $arr[0];
                         $score = $arr[1];
@@ -630,11 +600,11 @@ class USDAfsfeisAPI
         {
             $j++;
             $k = 0;
-            echo "\n" . $chapter["link"];
+            // echo "\n" . $chapter["link"];
             if(!@$chapter["connect"]) continue;
             foreach($chapter["connect"] as $connect)
             {
-                echo "\n - " . $connect["link"];
+                // echo "\n - " . $connect["link"];
                 $subtopic = $connect["link"];
                 if(isset($this->subtopics[$subtopic]))
                 {
@@ -669,11 +639,11 @@ class USDAfsfeisAPI
         $j = 0;
         foreach($chapters as $chapter)
         {
-            echo "\n --- " . $chapter["link"];
+            // echo "\n --- " . $chapter["link"];
             $index = $chapter["link"];
             if(!isset($this->topics[$index])) 
             {
-                echo "\n ALERT: Topics for chapter [$index] is not yet initialized.\n";
+                // echo "\n ALERT: Topics for chapter [$index] is not yet initialized.\n";
                 continue;
             }
             $arr = self::topics_indexkey_for_chapter($this->topics[$index], $topics);
@@ -702,7 +672,7 @@ class USDAfsfeisAPI
             }
             $i++;
         }
-        echo "\n";
+        // echo "\n";
         if($scores)
         {
             $this->page_scores[] = $scores;
@@ -738,7 +708,7 @@ class USDAfsfeisAPI
         $pos = stripos($authorship_citation, "var months");
         if(is_numeric($pos)) $authorship_citation = trim(substr($authorship_citation, 0, $pos));
         $authorship_citation = self::remove_last_part_of_string(array("["), $authorship_citation);
-        echo "\n meron authorship and citation:\n[$authorship_citation]\n";
+        // echo "\n meron authorship and citation:\n[$authorship_citation]\n";
         return $authorship_citation;
     }
     
@@ -761,7 +731,7 @@ class USDAfsfeisAPI
             if(isset($order))
             {
                 if(preg_match("/(.*?)\(/ims", $order, $arr)) $order = trim($arr[1]); //remove parenthesis
-                echo "\n order:[$order]\n";
+                // echo "\n order:[$order]\n";
                 $rec["order"] = $order;
             }
             if(isset($rec["order"]))
@@ -784,7 +754,7 @@ class USDAfsfeisAPI
                        $rec["class"] = $class;
                    }
             }
-            if(isset($rec["class"])) echo "\n class:" . $rec["class"];
+            if(isset($rec["class"])) {} //echo "\n class:" . $rec["class"];
         }
 
         // taxonomy
@@ -808,7 +778,7 @@ class USDAfsfeisAPI
         if(isset($synonyms)) $synonyms = self::further_clean($synonyms, "SYNONYMS", $html);
 
         if(isset($synonyms)) $descriptions["SYNONYMS"] = $synonyms;
-        else echo "\n -no synonyms- \n"; //debug
+        else {} //echo "\n -no synonyms- \n"; //debug
 
         // COMMON NAMES
         if(preg_match("/COMMON NAMES \:(.*?)<b>/ims", $html, $arr)) $comnames = self::clean_str(strip_tags($arr[1], "<br><a>"));
@@ -819,7 +789,7 @@ class USDAfsfeisAPI
             $comnames = self::further_clean($comnames, "COMMON NAMES", $html);
             $descriptions["COMMON NAMES"] = $comnames;
         }
-        else echo "\n -no comnames- \n"; //debug
+        else {} //echo "\n -no comnames- \n"; //debug
 
         if(in_array($rec["url"], array("http://www.fs.fed.us/database/feis/plants/shrub/ceaoph/all.html", "http://www.fs.fed.us/database/feis/plants/shrub/bernev/all.html")))
         {
@@ -1313,14 +1283,12 @@ class USDAfsfeisAPI
         {
             if(is_numeric(stripos($names, $problem))) 
             {
-                echo "\n problem hit: $problem ($what)";
-                if(preg_match("/$what\:(.*?)<span/ims", $html, $arr)) 
-                {
-                    echo "\n further_cleaned...$what\n";
+                // echo "\n problem hit: $problem ($what)";
+                if(preg_match("/$what\:(.*?)<span/ims", $html, $arr)) {
+                    // echo "\n further_cleaned...$what\n";
                     $names = self::clean_str(strip_tags($arr[1], "<br><a>"));
                     //test again
-                    foreach($problems as $problem)
-                    {
+                    foreach($problems as $problem) {
                         if(is_numeric(stripos($names, $problem))) return "";
                     }
                     return $names;
@@ -1333,7 +1301,7 @@ class USDAfsfeisAPI
     private function remove_tag_attribute($html, $attribute)
     {
         $dom = new \DOMDocument;                                        // init new DOMDocument
-        $dom->loadHTML($html);                                          // load HTML into it
+        @$dom->loadHTML($html);                                         // load HTML into it --- REMINDER: put @ to disable Warnings. Remove it otherwise.
         $xpath = new \DOMXPath($dom);                                   // create a new XPath
         $nodes = $xpath->query('//*[@' . $attribute . ']');             // Find elements with a style attribute
         foreach ($nodes as $node) $node->removeAttribute($attribute);   // Remove style attribute
@@ -1345,17 +1313,16 @@ class USDAfsfeisAPI
     {
         $texts = $rec['texts'];
         $subjects = array_keys($texts);
-        echo "\n arr1: " . count($texts);
-        echo "\n arr2: " . count($subjects);
+        // echo "\n arr1: " . count($texts);
+        // echo "\n arr2: " . count($subjects);
         // this loop will just check if all topics are mapped with a subject
         $i = 0;
-        foreach($subjects as $subject)
-        {
+        foreach($subjects as $subject) {
             if(!in_array(strtolower(self::clean_str(strip_tags($texts[$subject]), true)), array("", "no-entry", "none", "no special status", "no entry", "no_entry", "no additional information is available on this topic.", "see other status", "no information is available on this topic.")) && 
                !in_array($subject, array("AUTHORSHIP AND CITATION", "FIRE CASE STUDY CITATION", "FIRE CASE STUDY REFERENCE")) && // these won't be text objects
                !is_numeric(stripos($subject, "case stud"))) // to exclude all Case Studies
             {
-                echo "\n\n $subject: " . @$this->subject[$subject]['category'] . "\n";
+                // echo "\n\n $subject: " . @$this->subject[$subject]['category'] . "\n";
                 $description = (string) utf8_encode($texts[$subject]);
                 $description = str_ireplace("\n<a ", " <a ", $description);
                 $description = str_ireplace("</a> \n", "</a> ", $description);
@@ -1439,16 +1406,13 @@ class USDAfsfeisAPI
                 
                 /* FIRE CASE STUDY */
                 $fire_case_study_topics = array("SEASON/SEVERITY CLASSIFICATION", "STUDY LOCATION", "PREFIRE HABITAT", "SITE DESCRIPTION", "FIRE DESCRIPTION", "FIRE EFFECTS ON ANIMAL SPECIES AND HABITAT", "FIRE MANAGEMENT IMPLICATIONS");
-                if(in_array($subject, $fire_case_study_topics))
-                {
-                    if(@$texts["FIRE CASE STUDY REFERENCE"])
-                    {
+                if(in_array($subject, $fire_case_study_topics)) {
+                    if(@$texts["FIRE CASE STUDY REFERENCE"]) {
                         $r = new \eol_schema\Reference();
                         $r->full_reference = (string) $texts["FIRE CASE STUDY REFERENCE"];
                         $r->identifier = md5($r->full_reference);
                         $reference_ids[] = $r->identifier;
-                        if(!in_array($r->identifier, $this->resource_reference_ids)) 
-                        {
+                        if(!in_array($r->identifier, $this->resource_reference_ids)) {
                            $this->resource_reference_ids[] = $r->identifier;
                            $this->archive_builder->write_object_to_file($r);
                         }
@@ -1457,21 +1421,18 @@ class USDAfsfeisAPI
                 }
                 else $bibliographic_citation = @$texts["AUTHORSHIP AND CITATION"]  != '' ? $texts["AUTHORSHIP AND CITATION"] : '';
                 
-                if(!@$this->subject[$subject]['category']) 
-                {
-                    if($spm = self::find_spm_given_subject($subject)) echo "\n found SPM for subject [$subject]: [$spm]\n"; 
-                    else echo "\n no SPM found for subject [$subject]\n";
+                if(!@$this->subject[$subject]['category']) {
+                    if($spm = self::find_spm_given_subject($subject)) {} //echo "\n found SPM for subject [$subject]: [$spm]\n"; 
+                    else {} //echo "\n no SPM found for subject [$subject]\n";
                 }
                 else $spm = $this->subject[$subject]['category'];
-                if(!@$this->subject[$subject]['title']) 
-                {
+                if(!@$this->subject[$subject]['title']) {
                     $title = $subject;
-                    echo "\n subject becomes the title: [$subject]\n";
+                    // echo "\n subject becomes the title: [$subject]\n";
                 }
                 else $title = @$this->subject[$subject]['title'];
-                if($description == "" || $spm == "")
-                {
-                    echo "\n will continue...[$description][$spm]";
+                if($description == "" || $spm == "") {
+                    // echo "\n will continue...[$description][$spm]";
                     continue;
                 }
                 $description = self::adjust_paragraph(trim($description));
@@ -1485,7 +1446,7 @@ class USDAfsfeisAPI
 
                 $description = self::disable_photos($description);
                 
-                echo "\n description: \nsss[$description]jjj"; //debug
+                // echo "\n description: \nsss[$description]jjj"; //debug
                 // start debug display
                 // if(in_array($subject, array("PLANT RESPONSE TO FIRE"))) exit("\n\n $subject: \nsss[$description]jjj\n\n"); //debug
 
@@ -1513,8 +1474,8 @@ class USDAfsfeisAPI
                 $this->archive_builder->write_object_to_file($mr);
             }
         }
-        echo "\n\n count = $i\n";
-        if($i <= 10) echo "ALERT: - less than 10x - " . $rec["url"] . "\n"; 
+        // echo "\n\n count = $i\n";
+        if($i <= 10) {} //echo "ALERT: - less than 10x - " . $rec["url"] . "\n"; 
     }
     
     private function disable_photos($html)
@@ -1532,7 +1493,7 @@ class USDAfsfeisAPI
                 $pos++;
             }
             $string_tobe_removed = substr($html, $start_pos, $pos-$start_pos);
-            echo "\n to be removed: [" . $string_tobe_removed . "]\n";
+            // echo "\n to be removed: [" . $string_tobe_removed . "]\n";
             $this->debug_toberemoved[$string_tobe_removed] = 1;
             return str_ireplace($string_tobe_removed, "", $html);
         }
@@ -1611,7 +1572,7 @@ class USDAfsfeisAPI
             foreach(array_unique($arr[1]) as $page_ref_no)
             {
                 if($page_ref_no == 77) echo "\n[" . $this->temp_page_reference_nos[$page_ref_no] . "]";
-                if(is_numeric($page_ref_no)) $reference_ids[] = $this->temp_page_reference_nos[$page_ref_no];
+                if(is_numeric($page_ref_no)) $reference_ids[] = @$this->temp_page_reference_nos[$page_ref_no];
             }
         }
         return $reference_ids;
