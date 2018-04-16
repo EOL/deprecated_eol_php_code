@@ -1,6 +1,12 @@
 <?php
 namespace php_active_record;
-/* execution time: 2.7 hours */
+/* execution time: 2.7 hours 
+
+http://www.eol.org/content_partners/557/resources
+
+505	Sunday 2018-04-15 03:05:41 AM	{"media_resource.tab":26654,"reference.tab":78635,"taxon.tab":1015} - MacMini
+*/
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/USDAfsfeisAPI');
 $timestart = time_elapsed();
