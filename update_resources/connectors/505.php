@@ -10,6 +10,7 @@ http://www.eol.org/content_partners/557/resources
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+$GLOBALS['ENV_DEBUG'] = true;
 require_library('connectors/USDAfsfeisAPI');
 $timestart = time_elapsed();
 
