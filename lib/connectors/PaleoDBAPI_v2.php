@@ -732,5 +732,96 @@ class PaleoDBAPI_v2
         return $r;
     }
 
+    function get_descendants_given_parent_ids($dwca_file, $parent_ids)
+    {
+        require_library('connectors/INBioAPI');
+        $func = new INBioAPI();
+        $paths = $func->extract_archive_file($dwca_file, "meta.xml", array('timeout' => 172800, 'expire_seconds' => true)); //true means it will re-download, will not use cache. Set TRUE when developing
+        $archive_path = $paths['archive_path'];
+        $temp_dir = $paths['temp_dir'];
+
+        $harvester = new ContentArchiveReader(NULL, $archive_path);
+        $tables = $harvester->tables;
+        if(!($this->fields["taxa"] = $tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) // take note the index key is all lower case
+        {
+            debug("Invalid archive file. Program will terminate.");
+            return false;
+        }
+        
+        $taxa_records = $harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon');
+        $this->parentID_taxonID = self::get_ids($taxa_records);
+        $descendant_ids = self::get_all_descendants_of_these_parents($parent_ids);
+        
+        // remove temp dir
+        recursive_rmdir($temp_dir);
+        echo ("\n temporary directory removed: " . $temp_dir);
+        
+        return $descendant_ids;
+    }
+    private function get_all_descendants_of_these_parents($parent_ids)
+    {
+        echo "\ncount parent_ids = ".count($parent_ids)."\n";
+        echo "\ncount parentID_taxonID = ".count($this->parentID_taxonID)."\n";
+        
+        $final = array();
+        foreach($parent_ids as $parent_id) {
+            $ids = self::get_descendants_of_this_parent($parent_id);
+            if($ids) $final = array_merge($final, $ids);
+        }
+        return array_unique($final);
+    }
+    private function get_descendants_of_this_parent($parent_id)
+    {
+        $final = array();
+        if($arr = @$this->parentID_taxonID[$parent_id]) {
+            $final = array_merge($final, $arr);
+            foreach($arr as $parent_id2) {
+                if($arr2 = @$this->parentID_taxonID[$parent_id2]) {
+                    $final = array_merge($final, $arr2);
+                    foreach($arr2 as $parent_id3) {
+                        if($arr3 = @$this->parentID_taxonID[$parent_id3]) {
+                            $final = array_merge($final, $arr3);
+                            foreach($arr3 as $parent_id4) {
+                                if($arr4 = @$this->parentID_taxonID[$parent_id4]) {
+                                    $final = array_merge($final, $arr4);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return array_unique($final);
+    }
+    private function get_ids($records)
+    {
+        $final = array();
+        foreach($records as $rec) {
+            /* sample $rec
+            Array(
+                [http://rs.tdwg.org/dwc/terms/taxonID] => 15082
+                [http://rs.tdwg.org/ac/terms/furtherInformationURL] => https://paleobiodb.org/classic/checkTaxonInfo?taxon_no=15082
+                [http://rs.tdwg.org/dwc/terms/acceptedNameUsageID] => 
+                [http://rs.tdwg.org/dwc/terms/scientificName] => Kosmermoceras
+                [http://rs.tdwg.org/dwc/terms/nameAccordingTo] => W. J. Arkell. 1952. Jurassic ammonites from Jebel Tuwaiq, central Arabia. Philosophical Transactions of the Royal Society of London, Series B, Biological Sciences 236:241-313
+                [http://rs.tdwg.org/dwc/terms/kingdom] => 
+                [http://rs.tdwg.org/dwc/terms/taxonRank] => genus
+                [http://rs.tdwg.org/dwc/terms/scientificNameAuthorship] => (Arkell 1952)
+                [http://rs.tdwg.org/dwc/terms/taxonomicStatus] => 
+                [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => 298980
+                [http://rs.tdwg.org/dwc/terms/phylum] => Mollusca
+                [http://rs.tdwg.org/dwc/terms/class] => Cephalopoda
+                [http://rs.tdwg.org/dwc/terms/order] => Ammonitida
+                [http://rs.tdwg.org/dwc/terms/family] => Stephanoceratidae
+                [http://rs.tdwg.org/dwc/terms/genus] => 
+            )
+            */
+            $parent_id = @$rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"];
+            $taxon_id = @$rec["http://rs.tdwg.org/dwc/terms/taxonID"];
+            if($parent_id && $taxon_id) $final[$parent_id][] = $taxon_id;
+        }
+        return $final;
+    }
+
 }
 ?>

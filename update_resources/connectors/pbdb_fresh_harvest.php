@@ -18,8 +18,8 @@ ini_set('memory_limit','8096M');
 $timestart = time_elapsed();
 $resource_id = 368;
 
-// /*
 require_library('connectors/PaleoDBAPI_v2');
+// /*
 $func = new PaleoDBAPI_v2($resource_id);
 $func->get_all_taxa();
 unset($func);
@@ -29,29 +29,35 @@ Functions::finalize_dwca_resource($resource_id);
 // /* utility - but also now became part of the entire process since we're going to remove taxa that are descendants of 'parents without entries'.
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
-$arr = array();
-if($undefined = $func->check_if_all_parents_have_entries($resource_id)) {
-    $arr['parents without entries'] = $undefined;
-    print_r($arr);
+if($parents_without_entries = $func->check_if_all_parents_have_entries($resource_id, true)) { //2nd param True means write to text file
+    print_r($parents_without_entries);
 }
 else echo "\nAll parents have entries OK (1st try)\n";
 // */
 
+if($parents_without_entries)
+{
+    /* Given a list of parent_ids, get all descendants of these taxa. Get all the taxon_ids of descendants. */
+    $func = new PaleoDBAPI_v2($resource_id);
+    $dwca_file = CONTENT_RESOURCE_LOCAL_PATH . "$resource_id".".tar.gz";
+    $descendant_taxon_ids = $func->get_descendants_given_parent_ids($dwca_file, $parents_without_entries);
+    // print_r($descendant_taxon_ids);
+}
+else $descendant_taxon_ids = array();
 
+// /* 2nd round
 $func = new PaleoDBAPI_v2($resource_id);
-$func->get_all_taxa(@$arr['parents without entries']);
+$func->get_all_taxa($descendant_taxon_ids);
 unset($func);
 Functions::finalize_dwca_resource($resource_id);
 
-// /* utility - but also now became part of the entire process since we're going to remove taxa that are descendants of 'parents without entries'.
 $func = new DWCADiagnoseAPI();
-if($undefined = $func->check_if_all_parents_have_entries($resource_id)) {
+if($undefined = $func->check_if_all_parents_have_entries($resource_id, true)) { //2nd param True means write to text file
     $arr['parents without entries'] = $undefined;
     print_r($arr);
 }
 else echo "\nAll parents have entries OK (2nd try)\n";
 // */
-
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
