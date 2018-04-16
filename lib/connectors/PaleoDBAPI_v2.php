@@ -784,6 +784,16 @@ class PaleoDBAPI_v2
                             foreach($arr3 as $parent_id4) {
                                 if($arr4 = @$this->parentID_taxonID[$parent_id4]) {
                                     $final = array_merge($final, $arr4);
+                                    foreach($arr4 as $parent_id5) {
+                                        if($arr5 = @$this->parentID_taxonID[$parent_id5]) {
+                                            $final = array_merge($final, $arr5);
+                                            foreach($arr5 as $parent_id6) {
+                                                if($arr6 = @$this->parentID_taxonID[$parent_id6]) {
+                                                    $final = array_merge($final, $arr6);
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
