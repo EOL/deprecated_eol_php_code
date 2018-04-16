@@ -50,10 +50,10 @@ class PaleoDBAPI_v2
         */
     }
 
-    function get_all_taxa($parents_without_entries = false)
+    function get_all_taxa($descendants_of_parents_without_entries = false)
     {
-        if($val = $parents_without_entries) $this->parents_without_entries = $val;
-        else                                $this->parents_without_entries = array();
+        if($val = $descendants_of_parents_without_entries) $this->descendants_of_parents_without_entries = $val;
+        else                                               $this->descendants_of_parents_without_entries = array();
 
         /* test
         $arr = self::get_uris($this->spreadsheet_mappings);
@@ -642,8 +642,8 @@ class PaleoDBAPI_v2
             if(in_array($rank, array('kingdom', 'phylum', 'class', 'order', 'family', 'genus'))) $taxon->$rank = "";
         }
         
-        if($parent_id = @$taxon->parentNameUsageID) {
-            if(in_array($parent_id, $this->parents_without_entries)) {
+        if($taxonID = @$taxon->taxonID) {
+            if(in_array($taxonID, $this->descendants_of_parents_without_entries)) {
                 return false;
             }
         }

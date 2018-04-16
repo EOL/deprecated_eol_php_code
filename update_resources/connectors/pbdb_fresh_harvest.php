@@ -18,8 +18,8 @@ ini_set('memory_limit','8096M');
 $timestart = time_elapsed();
 $resource_id = 368;
 
-require_library('connectors/PaleoDBAPI_v2');
 // /*
+require_library('connectors/PaleoDBAPI_v2');
 $func = new PaleoDBAPI_v2($resource_id);
 $func->get_all_taxa();
 unset($func);
