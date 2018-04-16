@@ -1,7 +1,10 @@
 <?php
 namespace php_active_record;
 /* Featured Creatures Taxa Outlinks
-estimated execution time: 8 seconds */
+estimated execution time: 8 seconds 
+
+http://www.eol.org/content_partners/602/resources/648
+*/
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/FeaturedCreaturesAPI');

@@ -2,6 +2,7 @@
 namespace php_active_record;
 /* Catalogue of Hymenoptera
 estimated execution time: 10 minutes
+http://www.eol.org/content_partners/611/resources/664
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
