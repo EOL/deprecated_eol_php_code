@@ -14,8 +14,11 @@ class SouthAfricanVertebratesAPI
         // $this->taxa_path = DOC_ROOT . "/update_resources/connectors/files/SouthAfricanVertebrates/taxa.txt";
         // $this->vernacular_path = DOC_ROOT . "/update_resources/connectors/files/SouthAfricanVertebrates/common names.txt";
 
-        $this->taxa_path = "http://dl.dropbox.com/u/7597512/SouthAfricanVertebrates/taxa.txt";
-        $this->vernacular_path = "http://dl.dropbox.com/u/7597512/SouthAfricanVertebrates/common names.txt";
+        // $this->taxa_path = "http://dl.dropbox.com/u/7597512/SouthAfricanVertebrates/taxa.txt";
+        // $this->vernacular_path = "http://dl.dropbox.com/u/7597512/SouthAfricanVertebrates/common names.txt";
+
+        $this->vernacular_path = "http://localhost/cp_new/SouthAfricanVertebrates/common names.txt";
+        $this->taxa_path = "http://localhost/cp_new/SouthAfricanVertebrates/taxa.txt";
 
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';

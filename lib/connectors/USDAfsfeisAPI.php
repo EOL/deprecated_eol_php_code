@@ -300,7 +300,7 @@ class USDAfsfeisAPI
                         if($i == 0) $chapters = $arr[1];
                         else $topics[] = $arr[1];
                     }
-                    else echo "\n ALERT: Need to investigate: [$t]\n";
+                    else {} //echo "\n ALERT: Need to investigate: [$t]\n";
                     $i++;
                 }
             }
@@ -1551,8 +1551,11 @@ class USDAfsfeisAPI
         if(preg_match_all("/\/all\.html\#(.*?)\"/ims", $description, $arr)) {
             asort($arr[1]);
             foreach(array_unique($arr[1]) as $page_ref_no) {
-                if($page_ref_no == 77) echo "\n[" . $this->temp_page_reference_nos[$page_ref_no] . "]";
+                /* old ways
+                if($page_ref_no == 77) echo "\n[" .              $this->temp_page_reference_nos[$page_ref_no] . "]";
                 if(is_numeric($page_ref_no)) $reference_ids[] = @$this->temp_page_reference_nos[$page_ref_no];
+                */
+                if($val = @$this->temp_page_reference_nos[$page_ref_no]) $reference_ids[] = $val;
             }
         }
         return $reference_ids;
