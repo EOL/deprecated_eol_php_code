@@ -23,20 +23,35 @@ require_library('connectors/PaleoDBAPI_v2');
 $func = new PaleoDBAPI_v2($resource_id);
 $func->get_all_taxa();
 unset($func);
-// exit;
 Functions::finalize_dwca_resource($resource_id);
 // */
 
-// /* utility
+// /* utility - but also now became part of the entire process since we're going to remove taxa that are descendants of 'parents without entries'.
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
-if($undefined = $func->check_if_all_parents_have_entries($resource_id))
-{
+$arr = array();
+if($undefined = $func->check_if_all_parents_have_entries($resource_id)) {
     $arr['parents without entries'] = $undefined;
     print_r($arr);
 }
-else echo "\nAll parents have entries OK\n";
+else echo "\nAll parents have entries OK (1st try)\n";
 // */
+
+
+$func = new PaleoDBAPI_v2($resource_id);
+$func->get_all_taxa(@$arr['parents without entries']);
+unset($func);
+Functions::finalize_dwca_resource($resource_id);
+
+// /* utility - but also now became part of the entire process since we're going to remove taxa that are descendants of 'parents without entries'.
+$func = new DWCADiagnoseAPI();
+if($undefined = $func->check_if_all_parents_have_entries($resource_id)) {
+    $arr['parents without entries'] = $undefined;
+    print_r($arr);
+}
+else echo "\nAll parents have entries OK (2nd try)\n";
+// */
+
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

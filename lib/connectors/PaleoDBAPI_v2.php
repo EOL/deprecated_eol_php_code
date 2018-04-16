@@ -50,8 +50,11 @@ class PaleoDBAPI_v2
         */
     }
 
-    function get_all_taxa()
+    function get_all_taxa($parents_without_entries = false)
     {
+        if($val = $parents_without_entries) $this->parents_without_entries = $val;
+        else                                $this->parents_without_entries = array();
+
         /* test
         $arr = self::get_uris($this->spreadsheet_mappings);
         print_r($arr);
@@ -113,6 +116,7 @@ class PaleoDBAPI_v2
                 $str = substr($line, 0, -1); //remove last char (",") the comma, very important to convert from json to array.
                 $arr = json_decode($str, true);
                 $taxon_id = self::create_taxon_archive($arr);
+                if($taxon_id === false) continue;
                 
                 // Important: Taxa that have "flg":"V" are synonyms, spelling variants, and variants with alternative ranks. For these we only want to use the taxon information as 
                 // outlined in the taxa sheet.  Ignore measurements and vernaculars associated with these records.  
@@ -637,6 +641,13 @@ class PaleoDBAPI_v2
         if($rank = @$taxon->taxonRank) { //by Eli alone: if taxon is genus then exclude genus from ancestry.
             if(in_array($rank, array('kingdom', 'phylum', 'class', 'order', 'family', 'genus'))) $taxon->$rank = "";
         }
+        
+        if($parent_id = @$taxon->parentNameUsageID) {
+            if(in_array($parent_id, $this->parents_without_entries)) {
+                return false;
+            }
+        }
+        
         $this->archive_builder->write_object_to_file($taxon);
         return $taxon->taxonID;
     }
