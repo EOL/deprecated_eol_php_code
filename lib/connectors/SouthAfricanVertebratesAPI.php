@@ -11,15 +11,16 @@ class SouthAfricanVertebratesAPI
         $this->rank_order = array_reverse(array("Kingdom", "Phylum", "Sub Phylum", "Class", "Infraclass", "Super Cohort", "Cohort", "Super Order", "Order", "Suborder", "Infraorder", "Superfamily", "Family", "Subfamily", "Tribe", "Genus", "Species", "Infraspecies"));
         $this->taxa_all = array();
 
-        // $this->taxa_path = DOC_ROOT . "/update_resources/connectors/files/SouthAfricanVertebrates/taxa.txt";
-        // $this->vernacular_path = DOC_ROOT . "/update_resources/connectors/files/SouthAfricanVertebrates/common names.txt";
-
-        // $this->taxa_path = "http://dl.dropbox.com/u/7597512/SouthAfricanVertebrates/taxa.txt";
-        // $this->vernacular_path = "http://dl.dropbox.com/u/7597512/SouthAfricanVertebrates/common names.txt";
-
+        /* local
         $this->vernacular_path = "http://localhost/cp_new/SouthAfricanVertebrates/common names.txt";
         $this->taxa_path = "http://localhost/cp_new/SouthAfricanVertebrates/taxa.txt";
-
+        */
+        
+        // /* remote
+        $this->taxa_path = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/SouthAfricanVertebrates/taxa.txt";
+        $this->vernacular_path = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/SouthAfricanVertebrates/common names.txt";
+        // */
+        
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -36,19 +37,16 @@ class SouthAfricanVertebratesAPI
         foreach(new FileIterator($temp_filepath, true) as $line_number => $line) // 'true' will auto delete temp_filepath
         {
             $i++;
-            if($line)
-            {
+            if($line) {
                 $fields = explode("\t", trim($line));
                 $fields = array_map('trim', $fields); //trims all array values in the array
                 if($i == 1) $labels = $fields;
-                else
-                {
+                else {
                     $j = 0;
                     $rows = array();
                     $sciname = utf8_encode(trim($fields[1])); // fields[1] is the ScientificName
                     $canonical = Functions::canonical_form(trim($sciname));
-                    foreach($fields as $field)
-                    {
+                    foreach($fields as $field) {
                         if($j == 1) $rows['canonical'] = $canonical;
                         $rows[$labels[$j]] = utf8_encode($fields[$j]); 
                         $j++;
@@ -68,8 +66,7 @@ class SouthAfricanVertebratesAPI
 
     private function prepare_archive($taxa)
     {
-        foreach($taxa as $canonical => $taxon)
-        {
+        foreach($taxa as $canonical => $taxon) {
             if(@$taxon['TaxonomicStatus'] != "synonym") self::parse_record_element($taxon);
         }
         self::get_vernacular_names();
@@ -81,15 +78,11 @@ class SouthAfricanVertebratesAPI
     {
         $rank_order = $this->rank_order;
         $rank_order = array_diff($rank_order, array('Infraspecies', 'Species'));
-        foreach($taxa as $taxon)
-        {
+        foreach($taxa as $taxon) {
             if(@$taxon['TaxonomicStatus'] == "synonym") continue;
-            foreach($rank_order as $rank)
-            {
-                if($name = trim($taxon[$rank]))
-                {
-                    if(!isset($this->taxa_all[$name])) 
-                    {
+            foreach($rank_order as $rank) {
+                if($name = trim($taxon[$rank])) {
+                    if(!isset($this->taxa_all[$name])) {
                         $this->taxa_all[$name]['Identifier'] = $name . "_id";
                         $this->taxa_all[$name]['ScientificName'] = $name;
                         $this->taxa_all[$name]['Parent TaxonID'] = "";
@@ -104,8 +97,7 @@ class SouthAfricanVertebratesAPI
 
     private function assign_parent_id($taxa)
     {
-        foreach($taxa as $canonical => $taxon)
-        {
+        foreach($taxa as $canonical => $taxon) {
             if(@$taxon['TaxonomicStatus'] != "synonym") $taxa[$canonical]['Parent TaxonID'] = self::get_parent_id($taxon, $canonical);
         }
         return $taxa;
@@ -115,25 +107,20 @@ class SouthAfricanVertebratesAPI
     {
         $start = false;
         $rank = $taxon['TaxonRank'];
-        foreach($this->rank_order as $rangk)
-        {
-            if($rank == $rangk)
-            {
+        foreach($this->rank_order as $rangk) {
+            if($rank == $rangk) {
                 $start = true;
                 continue;
             }
-            if($start)
-            {
+            if($start) {
                 if($rangk == "Species") // if Species meaning you are looking for the parent of an Infraspecies...
                 {
                     $sciname = trim($taxon['Genus']) . " " . trim($taxon['Species']); // if Species then get the Genus...
                     if(isset($this->taxa_all[$sciname])) return $this->taxa_all[$sciname]['Identifier'];
                     else debug("\n Warning: [$sciname] not yet in all_taxa.\n"); // will cont. searching for the parent id on the next higher rank
                 }
-                else
-                {
-                    if($taxon_name = trim(@$taxon[$rangk]))
-                    {
+                else {
+                    if($taxon_name = trim(@$taxon[$rangk])) {
                         if(isset($this->taxa_all[$taxon_name]['Identifier'])) return $this->taxa_all[$taxon_name]['Identifier'];
                         else debug("\n Warning2: [$sciname] not yet in all_taxa.\n"); // will cont. searching for the parent id on the next higher rank
                     }
@@ -155,8 +142,7 @@ class SouthAfricanVertebratesAPI
         $temp_filepath = Functions::save_remote_file_to_local($this->vernacular_path, array('timeout' => 4800, 'download_attempts' => 5));
         foreach(new FileIterator($temp_filepath, true) as $line_number => $line) // 'true' will auto delete temp_filepath
         {
-            if($line)
-            {
+            if($line) {
                 $fields = explode("\t", trim($line));
                 $fields = array_map('trim', $fields); //trims all array values in the array
                 $common_name = @$fields[1];
@@ -169,8 +155,7 @@ class SouthAfricanVertebratesAPI
                 $vernacular->vernacularName = (string) $common_name;
                 $vernacular->language = $language;
                 $vernacular_id = md5("$vernacular->taxonID|$vernacular->vernacularName|$vernacular->language");
-                if(!isset($this->vernacular_name_ids[$vernacular_id]))
-                {
+                if(!isset($this->vernacular_name_ids[$vernacular_id])) {
                     $this->archive_builder->write_object_to_file($vernacular);
                     $this->vernacular_name_ids[$vernacular_id] = 1;
                 }
@@ -180,8 +165,7 @@ class SouthAfricanVertebratesAPI
 
     private function get_synonyms()
     {
-        foreach($this->taxa_all as $canonical => $taxon)
-        {
+        foreach($this->taxa_all as $canonical => $taxon) {
             if(@$taxon['TaxonomicStatus'] != 'synonym') continue;
             $synonym = new \eol_schema\Taxon();
             $synonym->scientificName = (string) $taxon['ScientificName'];
@@ -189,8 +173,7 @@ class SouthAfricanVertebratesAPI
             $synonym->taxonomicStatus = 'synonym';
             $synonym->taxonID = md5($taxon['Parent TaxonID'] . "|$synonym->scientificName|$synonym->taxonomicStatus");
             if(!$synonym->scientificName) continue;
-            if(!isset($this->taxon_ids[$synonym->taxonID]))
-            {
+            if(!isset($this->taxon_ids[$synonym->taxonID])) {
                 $this->archive_builder->write_object_to_file($synonym);
                 $this->taxon_ids[$synonym->taxonID] = 1;
             }
@@ -248,8 +231,7 @@ class SouthAfricanVertebratesAPI
 
     function create_archive()
     {
-        foreach($this->taxa as $t)
-        {
+        foreach($this->taxa as $t) {
             $this->archive_builder->write_object_to_file($t);
         }
         $this->archive_builder->finalize(true);
