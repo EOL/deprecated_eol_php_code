@@ -533,8 +533,64 @@ class Functions
         }
         return $undefined_uris;
     }
-
     public static function get_eol_defined_uris($download_options = false, $directionOpposite = false)
+    {
+        $url = "http://beta-repo.eol.org/terms?per_page=1000&page=";
+        if(!$download_options) $download_options = array('resource_id' => 'URIs', 'download_wait_time' => 1000000, 'timeout' => 900, 'expire_seconds' => 60*60*24, 'download_attempts' => 1);
+        /*
+        <span class="last">
+        <a href="/terms?page=8&amp;per_page=1000">Last &raquo;</a>
+        </span>
+        */
+        //get total no. of pages
+        if($html = Functions::lookup_with_cache($url."1", $download_options)) {
+            if(preg_match("/<span class=\"last\">(.*?)<\/span>/ims", $html, $arr)) {
+                // print_r($arr[1]);
+                if(preg_match("/page=(.*?)&/ims", $arr[1], $arr)) {
+                    $pages = $arr[1];
+                }
+            }
+        }
+        //start loop
+        /*
+        <div class='item'>
+        <a href="/terms/2993">calcium carbonate</a>
+        (
+        <a href="/terms/2993">http://purl.obolibrary.org/obo/CHEBI_3311</a>
+        )
+        </div>
+        */
+        $final = array();
+        for ($i = 1; $i <= $pages; $i++) {
+            if($html = Functions::lookup_with_cache($url.$i, $download_options)) {
+                if(preg_match_all("/<div class='item'>(.*?)<\/div>/ims", $html, $arr)) {
+                    // print_r($arr[1]); exit;
+                    foreach($arr[1] as $temp) {
+                        /*
+                        <a href="/terms/16349"> AMPLEXUS</a>
+                        (
+                        <a href="/terms/16349">; AMPLEXUS</a>
+                        )
+                        */
+                        if(preg_match_all("/\">(.*?)<\/a>/ims", $temp, $arr)) {
+                            if(count($arr[1]) == 2) {
+                                // print_r($arr[1]); exit;
+                                $index = $arr[1][1];
+                                $value = $arr[1][0];
+                                if($directionOpposite) {
+                                    $index = $arr[1][0];
+                                    $value = $arr[1][1];
+                                }
+                                $final[$index] = $value;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $final;
+    }
+    public static function get_eol_defined_uris_v1($download_options = false, $directionOpposite = false)
     {
         if(!$download_options) $download_options = array('resource_id' => 'URIs', 'download_wait_time' => 1000000, 'timeout' => 900, 'expire_seconds' => 60*60*24, 'download_attempts' => 1); //expires in 24 hours
         for($i=1; $i<=17; $i++) {
