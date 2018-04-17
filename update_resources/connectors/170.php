@@ -3,6 +3,9 @@ namespace php_active_record;
 /* connector for SERPENT
 estimated execution time: 23 mins. | 1.5 hours (total taxa has increased and I increased download wait time to 1 sec.)
 Connector screen scrapes the partner website.
+
+170	Monday 2018-04-16 11:34:23 PM	{"media_resource.tab":1880,"taxon.tab":513} eol-archive
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
