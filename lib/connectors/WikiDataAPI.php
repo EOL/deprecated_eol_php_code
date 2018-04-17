@@ -623,7 +623,7 @@ class WikiDataAPI
                 $mr->furtherInformationURL  = $media['furtherInformationURL'];
                 $mr->title                  = $media['title'];
                 $mr->Owner                  = $media['Owner'];
-                $mr->agentID                = $media['agentID'];
+                $mr->agentID                = @$media['agentID'];
                 
                 if(!isset($this->object_ids[$mr->identifier])) {
                     $this->object_ids[$mr->identifier] = '';
@@ -979,7 +979,7 @@ class WikiDataAPI
                          [permission] => {{User:FlickreviewR/reviewed-pass-change|Sequoia Hughes|http://flickr.com/photos/29225241@N04/3355235281|2015-01-23 19:50:34|cc-by-2.0|cc-by-sa-2.0}}
                 computed homepage is "https://www.flickr.com/photos/sempivirens/" but blank name */
                 // print_r($rek['other']); exit;
-                if(preg_match("/User\:(.*?)\//ims", $rek['other']['permission'], $a)) {
+                if(preg_match("/User\:(.*?)\//ims", @$rek['other']['permission'], $a)) {
                     $rek['Artist'][] = array('name' => $a[1], 'homepage' => "https://commons.wikimedia.org/wiki/User:".$a[1], 'role' => 'source');
                 }
                 //end another special
