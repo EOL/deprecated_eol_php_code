@@ -2070,7 +2070,7 @@ class WikiDataAPI
             if(!file_exists($main_path . "$cache1/$cache2")) mkdir($main_path . "$cache1/$cache2");
             $filename = $main_path . "$cache1/$cache2/$md5.json";
             if(!file_exists($filename)) {
-                echo "\n " . number_format($i) . " creating file: $file";
+                // echo "\n " . number_format($i) . " creating file: $file"; //this prints many lines when un-commented, > 1 million lines
                 if($FILE = Functions::file_open($filename, 'w'))  fclose($FILE);
             }
             $i++; 
