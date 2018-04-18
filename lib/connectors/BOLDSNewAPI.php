@@ -36,14 +36,15 @@ class BOLDSNewAPI
         // $phylums = array('Onychophora', 'Platyhelminthes', 'Porifera', 'Priapulida', 'Rotifera', 'Sipuncula'); done
         // $phylums = array('Basidiomycota', 'Chytridiomycota', 'Glomeromycota', 'Myxomycota', 'Zygomycota', 'Chlorarachniophyta', 'Ciliophora'); done
         // $phylums = array('Brachiopoda', 'Bryozoa', 'Chaetognatha', 'Cnidaria', 'Cycliophora', '', 'Gnathostomulida', 'Hemichordata', 'Nematoda', 'Nemertea'); done
+        $phylums = array('Acanthocephala', 'Annelida'); //done
         //-------------------------
-        // $phylums = array('Arthropoda', 'Ascomycota');
+        // $phylums = array('Arthropoda');
         // $phylums = array('Magnoliophyta');
-        // $phylums = array('Acanthocephala', 'Annelida'); //done
+        // $phylums = array('Ascomycota');
         // $phylums = array('Chordata');
         // $phylums = array('Tardigrada', 'Xenoturbellida', 'Bryophyta', 'Chlorophyta', 'Lycopodiophyta', 'Pinophyta', 'Pteridophyta', 'Rhodophyta');
         // $phylums = array('Echinodermata'); done
-        $phylums = array('Mollusca');
+        // $phylums = array('Mollusca');
 
         foreach($phylums as $phylum) {
             echo "\n$phylum ";
@@ -58,7 +59,7 @@ class BOLDSNewAPI
                         // if(($i % 10000) == 0) echo "\n".number_format($i)." ";
                         $ranks = array('phylum', 'class', 'order', 'family', 'genus', 'species');
                         foreach($ranks as $rank) {
-                            echo "\n - $phylum ".@$xml->taxonomy->$rank->taxon->taxid;
+                            echo "\n - $phylum ".@$xml->taxonomy->$rank->taxon->taxid."\n";
                             if($taxid = (string) @$xml->taxonomy->$rank->taxon->taxid) {
                                 $final[$taxid] = '';
                                 self::process_record($taxid);
@@ -139,11 +140,11 @@ class BOLDSNewAPI
                                    [external] => 
                                )
         */
-        if($json = Functions::lookup_with_cache($this->service['taxId'].$taxid, $this->download_options))
-        {
+        if($json = Functions::lookup_with_cache($this->service['taxId'].$taxid, $this->download_options)) {
             $a = json_decode($json, true);
-            $a = @$a[$taxid];
             // print_r($a); echo "\n[$taxid]\n"; //exit;
+
+            $a = @$a[$taxid]; //needed
             if(@$a['taxon']) {
                 self::create_taxon_archive($a);
                 // self::create_media_archive($a);
