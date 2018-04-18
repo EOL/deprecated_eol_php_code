@@ -28,57 +28,22 @@ class BOLDSNewAPI
         $phylums = self::get_all_phylums();
         $download_options = $this->download_options;
         $download_options['expire_seconds'] = false;
-        $k = 0; $m = count($phylums)/5;
-        
-        
-        /*
-            [3] => Brachiopoda
-            [4] => Bryozoa
-            [5] => Chaetognatha
-            [7] => Cnidaria
-            [8] => Cycliophora
-            [9] => Echinodermata
-            [10] => Gnathostomulida
-            [11] => Hemichordata
-            [12] => Mollusca
-            [13] => Nematoda
-            [14] => Nemertea
-            [15] => Onychophora
-            [16] => Platyhelminthes
-            [17] => Porifera
-            [18] => Priapulida
-            [19] => Rotifera
-            [20] => Sipuncula
-            
-            'Tardigrada', 'Xenoturbellida', 'Bryophyta', 'Chlorophyta', 'Lycopodiophyta', 'Pinophyta', 'Pteridophyta', 'Rhodophyta'
-            'Ascomycota', 'Basidiomycota', 'Chytridiomycota', 'Glomeromycota'
-            'Myxomycota', 'Zygomycota', 'Chlorarachniophyta', 'Ciliophora'
-        */
-        
+
         $phylums = array_keys($phylums);
-        $phylums = array('Arthropoda');
-        $phylums = array('Magnoliophyta');
-        $phylums = array('Acanthocephala', 'Annelida');
-        $phylums = array('Chordata');
-        $phylums = array('Pyrrophycophyta', 'Heterokontophyta');
-        
-        
+
+        // $phylums = array('Pyrrophycophyta', 'Heterokontophyta'); done
+        // $phylums = array('Onychophora', 'Platyhelminthes', 'Porifera', 'Priapulida', 'Rotifera', 'Sipuncula'); done
+        // $phylums = array('Basidiomycota', 'Chytridiomycota', 'Glomeromycota', 'Myxomycota', 'Zygomycota', 'Chlorarachniophyta', 'Ciliophora'); done
+        //-------------------------
+        // $phylums = array('Arthropoda', 'Ascomycota');
+        // $phylums = array('Magnoliophyta');
+        // $phylums = array('Acanthocephala', 'Annelida');
+        // $phylums = array('Chordata', 'Echinodermata');
+        // $phylums = array('Tardigrada', 'Xenoturbellida', 'Bryophyta', 'Chlorophyta', 'Lycopodiophyta', 'Pinophyta', 'Pteridophyta', 'Rhodophyta');
+        // $phylums = array('Brachiopoda', 'Bryozoa', 'Chaetognatha', 'Cnidaria', 'Cycliophora', '', 'Gnathostomulida', 'Hemichordata', 'Nematoda', 'Nemertea');
+        $phylums = array('Mollusca');
 
         foreach($phylums as $phylum) {
-            
-            /* breakdown when caching:
-            $k++;
-            $cont = false;
-            // if($k >=  1    && $k < $m) $cont = true;
-            // if($k >=  $m   && $k < $m*2) $cont = true;
-            // if($k >=  $m*2 && $k < $m*3) $cont = true;
-            // if($k >=  $m*3 && $k < $m*4) $cont = true;
-            if($k >=  $m*4 && $k < $m*5) $cont = true;
-            if(!$cont) continue;
-            */
-            
-
-
             echo "\n$phylum ";
             $temp_file = Functions::save_remote_file_to_local($this->service['phylum'].$phylum, $download_options);
             $reader = new \XMLReader();
@@ -108,6 +73,61 @@ class BOLDSNewAPI
     private function process_record($taxid)
     {
         /*
+        Array
+                (
+                    [taxid] => 23
+                    [taxon] => Mollusca
+                    [tax_rank] => phylum
+                    [tax_division] => Animals
+                    [parentid] => 1
+                    [taxonrep] => Mollusca
+                    [stats] => Array
+                        (
+                            [publicspecies] => 11115
+                            [publicbins] => 15448
+                            [publicmarkersequences] => Array
+                                (
+                                    [COI-3P] => 338
+                                    [COI-5P] => 113573
+                                    [28S-D9-D10] => 2
+                                    [CYTB] => 287
+                                    [atp6] => 28
+                                    [12S] => 534
+                                    [ND1] => 260
+                                    [ND3] => 259
+                                    [ND2] => 260
+                                    [ND4] => 260
+                                    [16S] => 739
+                                    [ND5-0] => 259
+                                    [ITS2] => 216
+                                    [ITS1] => 60
+                                    [18S] => 46
+                                    [28S] => 1392
+                                    [COII] => 277
+                                    [H3] => 1
+                                    [COXIII] => 280
+                                    [ND4L] => 258
+                                    [COI-LIKE] => 3
+                                    [ND6] => 260
+                                )
+
+                            [publicrecords] => 117712
+                            [publicsubspecies] => 320
+                            [specimenrecords] => 159082
+                            [sequencedspecimens] => 143785
+                            [barcodespecimens] => 124800
+                            [species] => 14891
+                            [barcodespecies] => 13237
+                        )
+        
+        *only non-family ranks will have TraitData:
+        publicrecords
+        http://eol.org/schema/terms/NumberPublicRecordsInBOLD (numeric)
+        specimenrecords:
+        http://eol.org/schema/terms/NumberRecordsInBOLD (numeric)
+        http://eol.org/schema/terms/RecordInBOLD (Yes/No)
+        
+        
         [sitemap] => http://www.boldsystems.org/index.php/TaxBrowser_Maps_CollectionSites?taxid=2
         [images] => Array
                        (
@@ -137,7 +157,7 @@ class BOLDSNewAPI
         if($json = Functions::lookup_with_cache($this->service['taxId'].$taxid, $this->download_options))
         {
             $a = json_decode($json, true);
-            // print_r($a);
+            print_r($a); exit;
             
         }
         // exit("\n");
