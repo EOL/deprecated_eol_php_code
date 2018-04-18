@@ -10,6 +10,26 @@ $timestart = time_elapsed();
 
 /* used generic_services.eol.org for now. So just to bring it to V3. Might need to update connector to get latest data.
 81	Sunday 2018-03-18 11:51:40 AM	{"agent.tab":2,"media_resource.tab":126506,"taxon.tab":47943}
+----------------------------[stats]----------------------------
+http://eol.org/schema/agent/agent
+--- Total = 2
+http://eol.org/schema/media/document
+Total by type
+------ http://purl.org/dc/dcmitype/Text = 87224
+------ http://purl.org/dc/dcmitype/StillImage = 39282
+Total by license
+------ http://creativecommons.org/licenses/by/3.0/ = 126506
+Total by subject
+------ http://rs.tdwg.org/ontology/voc/SPMInfoItems#MolecularBiology = 87224
+Total by format
+------ text/html = 87224
+------ image/png = 39282
+--- Total = 126506
+Total by subtype
+------ map = 39282
+http://rs.tdwg.org/dwc/terms/taxon
+--- Total = 47943
+--------------------------------------------------------------- Back to main
 */
 return;
 

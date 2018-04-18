@@ -12,6 +12,25 @@ $timestart = time_elapsed();
 
 /* used generic_services.eol.org for now. So just to bring it to V3. Might need to update connector to get latest data.
 329	Sunday 2018-03-18 09:31:35 PM	{"agent.tab":55,"media_resource.tab":90564,"taxon.tab":9190}
+----------------------------[stats]----------------------------
+http://eol.org/schema/agent/agent
+--- Total = 55
+http://eol.org/schema/media/document
+Total by type
+------ http://purl.org/dc/dcmitype/StillImage = 90564
+Total by license
+------ http://creativecommons.org/licenses/by-nc-sa/3.0/ = 85950
+------ http://creativecommons.org/licenses/by/3.0/ = 3652
+------ http://creativecommons.org/licenses/by-nc/3.0/ = 867
+------ http://creativecommons.org/licenses/by-sa/3.0/ = 95
+Total by language
+------ en = 90564
+Total by format
+------ image/jpeg = 90564
+--- Total = 90564
+http://rs.tdwg.org/dwc/terms/taxon
+--- Total = 9190
+--------------------------------------------------------------- Back to main
 */
 return;
 

@@ -11,6 +11,25 @@ http://purl.org/dc/dcmitype/StillImage: 90982
 546	Monday 2018-03-19 12:14:22 AM	{"agent.tab":119,"media_resource.tab":90982,"taxon.tab":99728} - MacMini
 
 546.php works OK locally. Will run in Archive once there is enough harddisk space.
+----------------------------[stats]----------------------------
+http://rs.tdwg.org/dwc/terms/taxon
+--- Total = 99728
+http://eol.org/schema/agent/agent
+--- Total = 119
+http://eol.org/schema/media/document
+Total by type
+------ http://purl.org/dc/dcmitype/StillImage = 90982
+Total by license
+------ http://creativecommons.org/licenses/by-nc-sa/3.0/ = 81272
+------ http://creativecommons.org/licenses/by/3.0/ = 9106
+------ http://creativecommons.org/licenses/by-sa/3.0/ = 275
+------ http://creativecommons.org/licenses/by-nc/3.0/ = 329
+Total by language
+------ en = 90982
+Total by format
+------ image/jpeg = 90982
+--- Total = 90982
+--------------------------------------------------------------- Back to main
 */
 return;
 
