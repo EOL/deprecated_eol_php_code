@@ -22,6 +22,7 @@ class BOLDSNewAPI
     function start()
     {
         $taxon_ids = self::get_all_taxon_ids();
+        $this->archive_builder->finalize(true);
     }
     private function get_all_taxon_ids()
     {
@@ -34,14 +35,15 @@ class BOLDSNewAPI
         // $phylums = array('Pyrrophycophyta', 'Heterokontophyta'); done
         // $phylums = array('Onychophora', 'Platyhelminthes', 'Porifera', 'Priapulida', 'Rotifera', 'Sipuncula'); done
         // $phylums = array('Basidiomycota', 'Chytridiomycota', 'Glomeromycota', 'Myxomycota', 'Zygomycota', 'Chlorarachniophyta', 'Ciliophora'); done
+        // $phylums = array('Brachiopoda', 'Bryozoa', 'Chaetognatha', 'Cnidaria', 'Cycliophora', '', 'Gnathostomulida', 'Hemichordata', 'Nematoda', 'Nemertea'); done
         //-------------------------
         // $phylums = array('Arthropoda', 'Ascomycota');
         // $phylums = array('Magnoliophyta');
         // $phylums = array('Acanthocephala', 'Annelida');
-        // $phylums = array('Chordata', 'Echinodermata');
+        // $phylums = array('Chordata');
         // $phylums = array('Tardigrada', 'Xenoturbellida', 'Bryophyta', 'Chlorophyta', 'Lycopodiophyta', 'Pinophyta', 'Pteridophyta', 'Rhodophyta');
-        // $phylums = array('Brachiopoda', 'Bryozoa', 'Chaetognatha', 'Cnidaria', 'Cycliophora', '', 'Gnathostomulida', 'Hemichordata', 'Nematoda', 'Nemertea');
-        $phylums = array('Mollusca');
+        // $phylums = array('Echinodermata');
+        // $phylums = array('Mollusca');
 
         foreach($phylums as $phylum) {
             echo "\n$phylum ";
@@ -66,9 +68,9 @@ class BOLDSNewAPI
                 }
             }
             unlink($temp_file);
-            // break; //debug
+            break; //debug
         }
-        print_r($final);
+        // print_r($final);
     }
     private function process_record($taxid)
     {
@@ -93,24 +95,7 @@ class BOLDSNewAPI
                                     [CYTB] => 287
                                     [atp6] => 28
                                     [12S] => 534
-                                    [ND1] => 260
-                                    [ND3] => 259
-                                    [ND2] => 260
-                                    [ND4] => 260
-                                    [16S] => 739
-                                    [ND5-0] => 259
-                                    [ITS2] => 216
-                                    [ITS1] => 60
-                                    [18S] => 46
-                                    [28S] => 1392
-                                    [COII] => 277
-                                    [H3] => 1
-                                    [COXIII] => 280
-                                    [ND4L] => 258
-                                    [COI-LIKE] => 3
-                                    [ND6] => 260
                                 )
-
                             [publicrecords] => 117712
                             [publicsubspecies] => 320
                             [specimenrecords] => 159082
@@ -122,10 +107,10 @@ class BOLDSNewAPI
         
         *only non-family ranks will have TraitData:
         publicrecords
-        http://eol.org/schema/terms/NumberPublicRecordsInBOLD (numeric)
+            http://eol.org/schema/terms/NumberPublicRecordsInBOLD (numeric)
         specimenrecords:
-        http://eol.org/schema/terms/NumberRecordsInBOLD (numeric)
-        http://eol.org/schema/terms/RecordInBOLD (Yes/No)
+            http://eol.org/schema/terms/NumberRecordsInBOLD (numeric)
+            http://eol.org/schema/terms/RecordInBOLD (Yes/No)
         
         
         [sitemap] => http://www.boldsystems.org/index.php/TaxBrowser_Maps_CollectionSites?taxid=2
@@ -157,10 +142,38 @@ class BOLDSNewAPI
         if($json = Functions::lookup_with_cache($this->service['taxId'].$taxid, $this->download_options))
         {
             $a = json_decode($json, true);
-            print_r($a); exit;
+            $a = $a[$taxid];
+            // print_r($a); echo "\n[$taxid]\n"; //exit;
+            if(@$a['taxon']) {
+                self::create_taxon_archive($a);
+            }
             
         }
         // exit("\n");
+    }
+    private function create_taxon_archive($a)
+    {   /* 
+        [taxid] => 23
+        [taxon] => Mollusca
+        [tax_rank] => phylum
+        [tax_division] => Animals
+        [parentid] => 1
+        */
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID             = $a['taxid'];
+        $taxon->scientificName      = $a['taxon'];
+        $taxon->taxonRank           = $a['tax_rank'];
+        $taxon->parentNameUsageID   = $a['parentid'];
+        if($taxon->parentNameUsageID == 1) {
+            $taxon->parentNameUsageID .= "_".$a['tax_division'];
+        }
+        /* no data for:
+        $taxon->taxonomicStatus          = '';
+        $taxon->acceptedNameUsageID      = '';
+        */
+        if(isset($this->taxon_ids[$taxon->taxonID])) return;
+        $this->taxon_ids[$taxon->taxonID] = '';
+        $this->archive_builder->write_object_to_file($taxon);
     }
     private function get_all_phylums()
     {
