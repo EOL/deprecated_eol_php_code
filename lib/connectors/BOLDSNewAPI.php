@@ -39,11 +39,11 @@ class BOLDSNewAPI
         //-------------------------
         // $phylums = array('Arthropoda', 'Ascomycota');
         // $phylums = array('Magnoliophyta');
-        // $phylums = array('Acanthocephala', 'Annelida');
+        // $phylums = array('Acanthocephala', 'Annelida'); //done
         // $phylums = array('Chordata');
         // $phylums = array('Tardigrada', 'Xenoturbellida', 'Bryophyta', 'Chlorophyta', 'Lycopodiophyta', 'Pinophyta', 'Pteridophyta', 'Rhodophyta');
-        // $phylums = array('Echinodermata');
-        // $phylums = array('Mollusca');
+        // $phylums = array('Echinodermata'); done
+        $phylums = array('Mollusca');
 
         foreach($phylums as $phylum) {
             echo "\n$phylum ";
@@ -68,7 +68,7 @@ class BOLDSNewAPI
                 }
             }
             unlink($temp_file);
-            break; //debug
+            // break; //debug
         }
         // print_r($final);
     }
@@ -142,10 +142,11 @@ class BOLDSNewAPI
         if($json = Functions::lookup_with_cache($this->service['taxId'].$taxid, $this->download_options))
         {
             $a = json_decode($json, true);
-            $a = $a[$taxid];
+            $a = @$a[$taxid];
             // print_r($a); echo "\n[$taxid]\n"; //exit;
             if(@$a['taxon']) {
                 self::create_taxon_archive($a);
+                // self::create_media_archive($a);
             }
             
         }
