@@ -11,7 +11,7 @@ $timestart = time_elapsed();
 $resource_id = 1;
 $func = new BOLDSNewAPI($resource_id);
 
-$func->get_all_taxa();
+$func->start();
 // Functions::finalize_dwca_resource($resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
