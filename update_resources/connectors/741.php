@@ -32,7 +32,7 @@ $func = new IrmngAPI($resource_id, $zip_path);
 // $func->get_taxa_without_status_but_with_eol_page(); //utility
 $func->get_all_taxa();
 
-Functions::finalize_dwca_resource($resource_id, true);
+Functions::finalize_dwca_resource($resource_id, true, true);
 
 
 $elapsed_time_sec = time_elapsed() - $timestart;
