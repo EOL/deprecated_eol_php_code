@@ -18,7 +18,7 @@ $resource_id = 1;
 $func = new BOLDSNewAPI($resource_id);
 
 $func->start();
-Functions::finalize_dwca_resource($resource_id, false, true);
+Functions::finalize_dwca_resource($resource_id, false);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

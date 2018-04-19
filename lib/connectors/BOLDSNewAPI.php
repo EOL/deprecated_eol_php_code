@@ -39,7 +39,7 @@ class BOLDSNewAPI
         // $phylums = array('Onychophora', 'Platyhelminthes', 'Porifera', 'Priapulida', 'Rotifera', 'Sipuncula'); done
         // $phylums = array('Basidiomycota', 'Chytridiomycota', 'Glomeromycota', 'Myxomycota', 'Zygomycota', 'Chlorarachniophyta', 'Ciliophora'); done
         // $phylums = array('Brachiopoda', 'Bryozoa', 'Chaetognatha', 'Cnidaria', 'Cycliophora', '', 'Gnathostomulida', 'Hemichordata', 'Nematoda', 'Nemertea'); done
-        $phylums = array('Annelida', 'Acanthocephala'); //done
+        // $phylums = array('Annelida', 'Acanthocephala'); //done
         //-------------------------
         // $phylums = array('Arthropoda');
         // $phylums = array('Magnoliophyta');
@@ -296,9 +296,7 @@ class BOLDSNewAPI
     {
         $license = strtolower(trim($license));
         if(in_array($license, array('creativecommons - attribution no derivatives'))) return false;
-        
         if(stripos($license, "(by-nc)") !== false) return "http://creativecommons.org/licenses/by-nc/3.0/"; //string is found
-        
         $arr["creativecommons - attribution non-commercial share-alike"] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $arr["creativecommons - attribution"]                            = "http://creativecommons.org/licenses/by/3.0/";
         $arr["creativecommons - attribution non-commercial"]             = "http://creativecommons.org/licenses/by-nc/3.0/";
@@ -358,14 +356,44 @@ class BOLDSNewAPI
             http://eol.org/schema/terms/NumberRecordsInBOLD (numeric)
             http://eol.org/schema/terms/RecordInBOLD (Yes/No)
         */
-        if($val = $a['stats']['publicrecords'])
-        {
+        if($val = @$a['stats']['publicrecords']) {
             $rec = array();
             $rec["taxon_id"]            = $a['taxid'];
             $rec["catnum"]              = self::generate_id_from_array_record($a);
             $rec['measurementOfTaxon']  = "true";
             $rec['measurementType']     = "http://eol.org/schema/terms/NumberPublicRecordsInBOLD";
             $rec['measurementValue']    = $val;
+            $rec["source"]              = $this->page['sourceURL'].$a['taxid'];
+            self::add_string_types($rec);
+        }
+        if($specimenrecords = @$a['stats']['specimenrecords']) {
+            $rec = array();
+            $rec["taxon_id"]            = $a['taxid'];
+            $rec["catnum"]              = self::generate_id_from_array_record($a);
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = "http://eol.org/schema/terms/NumberRecordsInBOLD";
+            $rec['measurementValue']    = $specimenrecords;
+            $rec["source"]              = $this->page['sourceURL'].$a['taxid'];
+            self::add_string_types($rec);
+            
+            if($specimenrecords > 0) {
+                $rec = array();
+                $rec["taxon_id"]            = $a['taxid'];
+                $rec["catnum"]              = self::generate_id_from_array_record($a);
+                $rec['measurementOfTaxon']  = "true";
+                $rec['measurementType']     = "http://eol.org/schema/terms/RecordInBOLD";
+                $rec['measurementValue']    = 'http://eol.org/schema/terms/yes';
+                $rec["source"]              = $this->page['sourceURL'].$a['taxid'];
+                self::add_string_types($rec);
+            }
+        }
+        else {
+            $rec = array();
+            $rec["taxon_id"]            = $a['taxid'];
+            $rec["catnum"]              = self::generate_id_from_array_record($a);
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = "http://eol.org/schema/terms/RecordInBOLD";
+            $rec['measurementValue']    = 'http://eol.org/schema/terms/no';
             $rec["source"]              = $this->page['sourceURL'].$a['taxid'];
             self::add_string_types($rec);
         }
@@ -389,7 +417,6 @@ class BOLDSNewAPI
     private function add_occurrence($taxon_id, $catnum, $rec)
     {
         $occurrence_id = $catnum;
-
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         if($val = @$rec['lifestage']) $o->lifeStage = $val;
