@@ -8,6 +8,8 @@ class BOLDSNewAPI
     {
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        
+        $this->resource_agent_ids = array();
 
         $this->max_images_per_taxon = 10;
         $this->page['home'] = "http://www.boldsystems.org/index.php/TaxBrowser_Home";
@@ -123,7 +125,6 @@ class BOLDSNewAPI
             http://eol.org/schema/terms/NumberRecordsInBOLD (numeric)
             http://eol.org/schema/terms/RecordInBOLD (Yes/No)
         
-        
         [sitemap] => http://www.boldsystems.org/index.php/TaxBrowser_Maps_CollectionSites?taxid=2
         */
         if($json = Functions::lookup_with_cache($this->service['taxId'].$taxid, $this->download_options)) {
@@ -138,10 +139,8 @@ class BOLDSNewAPI
         // exit("\n");
     }
     private function create_media_archive($a)
-    {   /* [images] => Array
-                   (
-                       [0] => Array
-                           (
+    {   /* [images] => Array(
+                       [0] => Array(
                                [copyright_institution] => Centre for Biodiversity Genomics
                                [copyright] => 
                                [copyright_license] => CreativeCommons - Attribution Non-Commercial Share-Alike
@@ -164,6 +163,8 @@ class BOLDSNewAPI
                                [external] => 
                            )
         */
+        
+        /*
         if($images = @$a['images']) {
             print_r($images);
             foreach($images as $img) {
@@ -189,6 +190,28 @@ class BOLDSNewAPI
                         $this->object_ids[$mr->identifier] = '';
                     }
                 }
+            }
+        }
+        */
+        
+        //[sitemap] => http://www.boldsystems.org/index.php/TaxBrowser_Maps_CollectionSites?taxid=2
+        if($map_url = $a['sitemap']) {
+            $mr = new \eol_schema\MediaResource();
+            $mr->taxonID                = $a['taxid'];
+            $mr->identifier             = "map_".$a['taxid'];
+            $mr->type                   = "http://purl.org/dc/dcmitype/StillImage";
+            $mr->format                 = 'image/png';
+            $mr->furtherInformationURL  = $this->page['sourceURL'].$a['taxid'];
+            $mr->description            = '';
+            $mr->UsageTerms             = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
+            $mr->Owner                  = '';
+            $mr->rights                 = '';
+            $mr->accessURI              = $map_url;
+            $mr->subtype                = 'Map';
+            $mr->Rating                 = '';
+            if(!isset($this->object_ids[$mr->identifier])) {
+                $this->archive_builder->write_object_to_file($mr);
+                $this->object_ids[$mr->identifier] = '';
             }
         }
         
