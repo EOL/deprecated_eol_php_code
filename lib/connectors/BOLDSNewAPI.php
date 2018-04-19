@@ -6,6 +6,7 @@ class BOLDSNewAPI
 {
     function __construct($folder = false)
     {
+        $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         
@@ -50,6 +51,7 @@ class BOLDSNewAPI
 
         foreach($phylums as $phylum) {
             echo "\n$phylum ";
+            $final = array();
             $temp_file = Functions::save_remote_file_to_local($this->service['phylum'].$phylum, $download_options);
             $reader = new \XMLReader();
             $reader->open($temp_file);
@@ -72,7 +74,6 @@ class BOLDSNewAPI
             self::process_ids_for_this_phylum(array_keys($final), $phylum);
             break; //debug
         }
-        // print_r($final);
     }
     private function process_ids_for_this_phylum($taxids, $phylum)
     {
@@ -88,42 +89,13 @@ class BOLDSNewAPI
     private function process_record($taxid)
     {
         /*
-        Array
-                (
+        Array (
                     [taxid] => 23
                     [taxon] => Mollusca
                     [tax_rank] => phylum
                     [tax_division] => Animals
                     [parentid] => 1
                     [taxonrep] => Mollusca
-                    [stats] => Array
-                        (
-                            [publicspecies] => 11115
-                            [publicbins] => 15448
-                            [publicmarkersequences] => Array
-                                (
-                                    [COI-3P] => 338
-                                    [COI-5P] => 113573
-                                    [28S-D9-D10] => 2
-                                    [CYTB] => 287
-                                    [atp6] => 28
-                                    [12S] => 534
-                                )
-                            [publicrecords] => 117712
-                            [publicsubspecies] => 320
-                            [specimenrecords] => 159082
-                            [sequencedspecimens] => 143785
-                            [barcodespecimens] => 124800
-                            [species] => 14891
-                            [barcodespecies] => 13237
-                        )
-        
-        *only non-family ranks will have TraitData:
-        publicrecords
-            http://eol.org/schema/terms/NumberPublicRecordsInBOLD (numeric)
-        specimenrecords:
-            http://eol.org/schema/terms/NumberRecordsInBOLD (numeric)
-            http://eol.org/schema/terms/RecordInBOLD (Yes/No)
         
         [sitemap] => http://www.boldsystems.org/index.php/TaxBrowser_Maps_CollectionSites?taxid=2
         */
@@ -134,6 +106,7 @@ class BOLDSNewAPI
             if(@$a['taxon']) {
                 self::create_taxon_archive($a);
                 self::create_media_archive($a);
+                self::create_trait_archive($a);
             }
         }
         // exit("\n");
@@ -164,9 +137,9 @@ class BOLDSNewAPI
                            )
         */
         
-        /*
+        // /* un-comment in real operation
         if($images = @$a['images']) {
-            print_r($images);
+            // print_r($images);
             foreach($images as $img) {
                 if($img['image']) {
                     $mr = new \eol_schema\MediaResource();
@@ -192,7 +165,7 @@ class BOLDSNewAPI
                 }
             }
         }
-        */
+        // */
         
         //[sitemap] => http://www.boldsystems.org/index.php/TaxBrowser_Maps_CollectionSites?taxid=2
         if($map_url = $a['sitemap']) {
@@ -217,11 +190,7 @@ class BOLDSNewAPI
         
     }
     private function create_taxon_archive($a)
-    {   /*                      todo: create these 4 taxon entries
-                                animals (Animalia),                         1_Animals
-                                plants (Plantae),                           1_Plants
-                                fungi (Fungi),                              1_Fungi
-                                protozoa and eucaryotic algae (Protista)    1_Protists
+    {   /*                      
         [taxid] => 23
         [taxon] => Mollusca
         [tax_rank] => phylum
@@ -243,6 +212,26 @@ class BOLDSNewAPI
         if(isset($this->taxon_ids[$taxon->taxonID])) return;
         $this->taxon_ids[$taxon->taxonID] = '';
         $this->archive_builder->write_object_to_file($taxon);
+        
+        /* create these 4 taxon entries
+            animals (Animalia),                         1_Animals
+            plants (Plantae),                           1_Plants
+            fungi (Fungi),                              1_Fungi
+            protozoa and eucaryotic algae (Protista)    1_Protists
+        */
+        $add['1_Animals'] = 'Animalia';
+        $add['1_Plants'] = 'Plantae';
+        $add['1_Fungi'] = 'Fungi';
+        $add['1_Protists'] = 'Protista';
+        foreach($add as $taxid => $sciname) {
+            $taxon = new \eol_schema\Taxon();
+            $taxon->taxonID             = $taxid;
+            $taxon->scientificName      = $sciname;
+            $taxon->taxonRank           = 'kingdom';
+            if(isset($this->taxon_ids[$taxon->taxonID])) continue;
+            $this->taxon_ids[$taxon->taxonID] = '';
+            $this->archive_builder->write_object_to_file($taxon);
+        }
     }
     private function get_all_phylums()
     {
@@ -339,6 +328,84 @@ class BOLDSNewAPI
             }
         }
         return $agent_ids;
+    }
+    private function create_trait_archive($a)
+    {
+        /*             [stats] => Array(
+                            [publicspecies] => 11115
+                            [publicbins] => 15448
+                            [publicmarkersequences] => Array(
+                                    [COI-3P] => 338
+                                    [COI-5P] => 113573
+                                    [28S-D9-D10] => 2
+                                    [CYTB] => 287
+                                    [atp6] => 28
+                                    [12S] => 534
+                                )
+                            [publicrecords] => 117712
+                            [publicsubspecies] => 320
+                            [specimenrecords] => 159082
+                            [sequencedspecimens] => 143785
+                            [barcodespecimens] => 124800
+                            [species] => 14891
+                            [barcodespecies] => 13237
+                        )
+        
+        *only non-family ranks will have TraitData:
+        publicrecords
+            http://eol.org/schema/terms/NumberPublicRecordsInBOLD (numeric)
+        specimenrecords:
+            http://eol.org/schema/terms/NumberRecordsInBOLD (numeric)
+            http://eol.org/schema/terms/RecordInBOLD (Yes/No)
+        */
+        if($val = $a['stats']['publicrecords'])
+        {
+            $rec = array();
+            $rec["taxon_id"]            = $a['taxid'];
+            $rec["catnum"]              = self::generate_id_from_array_record($a);
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = "http://eol.org/schema/terms/NumberPublicRecordsInBOLD";
+            $rec['measurementValue']    = $val;
+            $rec["source"]              = $this->page['sourceURL'].$a['taxid'];
+            self::add_string_types($rec);
+        }
+    }
+    private function add_string_types($rec, $a = false) //$a is only for debugging
+    {
+        $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"], $rec);
+        unset($rec['catnum']);
+        unset($rec['taxon_id']);
+        
+        $m = new \eol_schema\MeasurementOrFact();
+        $m->occurrenceID = $occurrence_id;
+        foreach($rec as $key => $value) $m->$key = $value;
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        if(!isset($this->measurement_ids[$m->measurementID])) {
+            $this->archive_builder->write_object_to_file($m);
+            $this->measurement_ids[$m->measurementID] = '';
+        }
+    }
+
+    private function add_occurrence($taxon_id, $catnum, $rec)
+    {
+        $occurrence_id = $catnum;
+
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = $occurrence_id;
+        if($val = @$rec['lifestage']) $o->lifeStage = $val;
+        $o->taxonID = $taxon_id;
+
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        
+        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
+    }
+    private function generate_id_from_array_record($arr)
+    {
+        $json = json_encode($arr);
+        return md5($json);
     }
 }
 ?>
