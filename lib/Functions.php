@@ -498,7 +498,7 @@ class Functions
         // check the measurement_or_fact.tab
         // $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/measurement_or_fact.tab"; //replaced by one above
         if(!file_exists($url)) {
-            echo "\nFile does not exist: [$url]\n";
+            echo "\n No measurements: [$url]\n";
             return $undefined_uris;
         }
         $i = 0;
