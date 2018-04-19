@@ -16,7 +16,7 @@ class BOLDSNewAPI
         
         $this->service["taxId"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=all&includeTree=true&taxId=";
         
-        $this->download_options = array('cache' => 1, 'resource_id' => 'BOLDS', 'expire_seconds' => 60*60*24*30*9, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1); //9 months to expire
+        $this->download_options = array('cache' => 1, 'resource_id' => 'BOLDS', 'expire_seconds' => 60*60*24*30*9, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1); //9 months to expire
     }
 
     function start()
@@ -36,15 +36,15 @@ class BOLDSNewAPI
         // $phylums = array('Onychophora', 'Platyhelminthes', 'Porifera', 'Priapulida', 'Rotifera', 'Sipuncula'); done
         // $phylums = array('Basidiomycota', 'Chytridiomycota', 'Glomeromycota', 'Myxomycota', 'Zygomycota', 'Chlorarachniophyta', 'Ciliophora'); done
         // $phylums = array('Brachiopoda', 'Bryozoa', 'Chaetognatha', 'Cnidaria', 'Cycliophora', '', 'Gnathostomulida', 'Hemichordata', 'Nematoda', 'Nemertea'); done
-        $phylums = array('Acanthocephala', 'Annelida'); //done
+        // $phylums = array('Annelida', 'Acanthocephala'); //done
         //-------------------------
-        // $phylums = array('Arthropoda');
+        $phylums = array('Arthropoda');
         // $phylums = array('Magnoliophyta');
-        // $phylums = array('Ascomycota');
+        // $phylums = array('Ascomycota'); done
         // $phylums = array('Chordata');
-        // $phylums = array('Tardigrada', 'Xenoturbellida', 'Bryophyta', 'Chlorophyta', 'Lycopodiophyta', 'Pinophyta', 'Pteridophyta', 'Rhodophyta');
+        // $phylums = array('Tardigrada', 'Xenoturbellida', 'Bryophyta', 'Chlorophyta', 'Lycopodiophyta', 'Pinophyta', 'Pteridophyta', 'Rhodophyta'); done
         // $phylums = array('Echinodermata'); done
-        // $phylums = array('Mollusca');
+        // $phylums = array('Mollusca'); done
 
         foreach($phylums as $phylum) {
             echo "\n$phylum ";
@@ -56,22 +56,31 @@ class BOLDSNewAPI
                     $string = $reader->readOuterXML();
                     if($xml = simplexml_load_string($string)) {
                         // print_r($xml);
-                        // if(($i % 10000) == 0) echo "\n".number_format($i)." ";
                         $ranks = array('phylum', 'class', 'order', 'family', 'genus', 'species');
                         foreach($ranks as $rank) {
-                            echo "\n - $phylum ".@$xml->taxonomy->$rank->taxon->taxid."\n";
+                            // echo "\n - $phylum ".@$xml->taxonomy->$rank->taxon->taxid."\n";
                             if($taxid = (string) @$xml->taxonomy->$rank->taxon->taxid) {
                                 $final[$taxid] = '';
-                                self::process_record($taxid);
                             }
                         }
                     }
                 }
             }
             unlink($temp_file);
+            self::process_ids_for_this_phylum(array_keys($final), $phylum);
             // break; //debug
         }
         // print_r($final);
+    }
+    private function process_ids_for_this_phylum($taxids, $phylum)
+    {
+        // print_r($taxids); exit;
+        $total = number_format(count($taxids)); $i = 0;
+        foreach($taxids as $taxid) {
+            $i++;
+            if(($i % 1000) == 0) echo "\n".number_format($i)." of $total - $phylum ";
+            self::process_record($taxid);
+        }
     }
     private function process_record($taxid)
     {
@@ -143,18 +152,20 @@ class BOLDSNewAPI
         if($json = Functions::lookup_with_cache($this->service['taxId'].$taxid, $this->download_options)) {
             $a = json_decode($json, true);
             // print_r($a); echo "\n[$taxid]\n"; //exit;
-
             $a = @$a[$taxid]; //needed
             if(@$a['taxon']) {
                 self::create_taxon_archive($a);
                 // self::create_media_archive($a);
             }
-            
         }
         // exit("\n");
     }
     private function create_taxon_archive($a)
-    {   /* 
+    {   /*                      todo: create these 4 taxon entries
+                                animals (Animalia),                         1_Animals
+                                plants (Plantae),                           1_Plants
+                                fungi (Fungi),                              1_Fungi
+                                protozoa and eucaryotic algae (Protista)    1_Protists
         [taxid] => 23
         [taxon] => Mollusca
         [tax_rank] => phylum

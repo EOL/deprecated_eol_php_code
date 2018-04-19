@@ -6,6 +6,7 @@ estimated execution time:
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+// $GLOBALS['ENV_DEBUG'] = false;
 require_library('connectors/BOLDSNewAPI');
 
 // $json = Functions::lookup_with_cache("http://www.boldsystems.org/index.php/API_Tax/TaxonData?taxId=205794&dataTypes=all");
@@ -13,11 +14,11 @@ require_library('connectors/BOLDSNewAPI');
 // exit;
 
 $timestart = time_elapsed();
-$resource_id = "a";
+$resource_id = 1;
 $func = new BOLDSNewAPI($resource_id);
 
 $func->start();
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, true);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
