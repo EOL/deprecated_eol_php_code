@@ -48,6 +48,10 @@ $resource_id = 71; //Wikimedia Commons is EOL resource = 71 //historical commons
 /* $func = new WikiDataAPI($resource_id, "en", "taxonomy"); //3rd param is boolean taxonomy; true means will generate hierarchy resource. [wikidata-hierarchy] */
 $func = new WikiDataAPI($resource_id, "en", "wikimedia"); //Used for Commons - total taxa = 2,208,086
 
+/* if you want to debug or test something...
+$func->test(); exit;
+*/
+
 if(@$params['task'] == "create_all_taxon_dump") {
     $func->create_all_taxon_dump();     //step 1 (ran 1 connector)
 }

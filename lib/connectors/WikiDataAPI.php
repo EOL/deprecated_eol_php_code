@@ -113,6 +113,13 @@ class WikiDataAPI
         }
         return true;
     }
+    function test()
+    {
+        $arr = self::process_file("Aix sponsa dis.PNG"); //File:Przewalski 26-9-2004-2.jpg //Virgin's bower (Clematis terniflora).jpg
+        print_r($arr);
+        exit("\n-Finished testing-\n");
+        /* Note: then search for 'good debug' below. Two options: coming from API or dump. Then continue to investigate... */
+    }
     function generate_resource($task = false, $range_from = false, $range_to = false, $actual_task = false)
     {
         /* VERY IMPORTANT - everytime we get a fresh new wikidata dump. The raw dump has all categories not just taxa.
@@ -130,7 +137,7 @@ class WikiDataAPI
         //         [File:] => Aix_sponsa_dis1.PNG Aix sponsa dis1.PNG | Alnus acuminata 4.jpg
         //         [File:] => 
         //     )
-        $arr = self::process_file("Virgin's bower (Clematis terniflora).jpg");
+        $arr = self::process_file("Przewalski 26-9-2004-2.jpg"); //File:Przewalski 26-9-2004-2.jpg //Virgin's bower (Clematis terniflora).jpg
         print_r($arr);
         exit("\n-Finished testing-\n");
         */
@@ -1366,7 +1373,7 @@ class WikiDataAPI
             else $rek['title'] = self::format_wiki_substr($arr['title']);
             
             /*
-            if($rek['pageid'] == "2317457") { //good debug api
+            if($rek['pageid'] == "76662") { //good debug api
                 echo "\n=======investigate api data =========== start\n";
                 print_r($arr); exit("\nelix\n");
                 echo "\n=======investigate api data =========== end\n";
