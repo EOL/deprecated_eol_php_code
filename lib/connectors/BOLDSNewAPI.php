@@ -16,7 +16,7 @@ class BOLDSNewAPI
         
         $this->service["taxId"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=all&includeTree=true&taxId=";
         
-        $this->download_options = array('cache' => 1, 'resource_id' => 'BOLDS', 'expire_seconds' => 60*60*24*30*9, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1); //9 months to expire
+        $this->download_options = array('cache' => 1, 'resource_id' => 'BOLDS', 'expire_seconds' => 60*60*24*30*6, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
     }
 
     function start()
@@ -36,9 +36,9 @@ class BOLDSNewAPI
         // $phylums = array('Onychophora', 'Platyhelminthes', 'Porifera', 'Priapulida', 'Rotifera', 'Sipuncula'); done
         // $phylums = array('Basidiomycota', 'Chytridiomycota', 'Glomeromycota', 'Myxomycota', 'Zygomycota', 'Chlorarachniophyta', 'Ciliophora'); done
         // $phylums = array('Brachiopoda', 'Bryozoa', 'Chaetognatha', 'Cnidaria', 'Cycliophora', '', 'Gnathostomulida', 'Hemichordata', 'Nematoda', 'Nemertea'); done
-        // $phylums = array('Annelida', 'Acanthocephala'); //done
+        $phylums = array('Annelida', 'Acanthocephala'); //done
         //-------------------------
-        $phylums = array('Arthropoda');
+        // $phylums = array('Arthropoda');
         // $phylums = array('Magnoliophyta');
         // $phylums = array('Ascomycota'); done
         // $phylums = array('Chordata');
@@ -68,7 +68,7 @@ class BOLDSNewAPI
             }
             unlink($temp_file);
             self::process_ids_for_this_phylum(array_keys($final), $phylum);
-            // break; //debug
+            break; //debug
         }
         // print_r($final);
     }
@@ -80,6 +80,7 @@ class BOLDSNewAPI
             $i++;
             if(($i % 1000) == 0) echo "\n".number_format($i)." of $total - $phylum ";
             self::process_record($taxid);
+            if($i >= 20) break; //debug
         }
     }
     private function process_record($taxid)
@@ -124,30 +125,6 @@ class BOLDSNewAPI
         
         
         [sitemap] => http://www.boldsystems.org/index.php/TaxBrowser_Maps_CollectionSites?taxid=2
-        [images] => Array
-                       (
-                           [0] => Array
-                               (
-                                   [copyright_institution] => Centre for Biodiversity Genomics
-                                   [specimenid] => 968120
-                                   [copyright] => 
-                                   [imagequality] => 5
-                                   [photographer] => Nick Jeffery
-                                   [image] => ANCN/IMG_6772+1228833566.JPG
-                                   [fieldnum] => L#08PUK-055
-                                   [sampleid] => 08BBANN-009
-                                   [mam_uri] => bold.org/323285
-                                   [copyright_license] => CreativeCommons - Attribution Non-Commercial Share-Alike
-                                   [meta] => Lateral
-                                   [copyright_holder] => CBG Photography Group
-                                   [catalognum] => 08BBANN-009
-                                   [copyright_contact] => ccdbcol@uoguelph.ca
-                                   [copyright_year] => 2008
-                                   [taxonrep] => Clitellata
-                                   [aspectratio] => 1.499
-                                   [original] => 1
-                                   [external] => 
-                               )
         */
         if($json = Functions::lookup_with_cache($this->service['taxId'].$taxid, $this->download_options)) {
             $a = json_decode($json, true);
@@ -155,10 +132,66 @@ class BOLDSNewAPI
             $a = @$a[$taxid]; //needed
             if(@$a['taxon']) {
                 self::create_taxon_archive($a);
-                // self::create_media_archive($a);
+                self::create_media_archive($a);
             }
         }
         // exit("\n");
+    }
+    private function create_media_archive($a)
+    {   /* [images] => Array
+                   (
+                       [0] => Array
+                           (
+                               [copyright_institution] => Centre for Biodiversity Genomics
+                               [copyright] => 
+                               [copyright_license] => CreativeCommons - Attribution Non-Commercial Share-Alike
+                               [copyright_holder] => CBG Photography Group
+                               [copyright_contact] => ccdbcol@uoguelph.ca
+                               [copyright_year] => 2008
+                               
+                               [specimenid] => 968120
+                               [imagequality] => 5
+                               [photographer] => Nick Jeffery
+                               [image] => ANCN/IMG_6772+1228833566.JPG
+                               [fieldnum] => L#08PUK-055
+                               [sampleid] => 08BBANN-009
+                               [mam_uri] => bold.org/323285
+                               [meta] => Lateral
+                               [catalognum] => 08BBANN-009
+                               [taxonrep] => Clitellata
+                               [aspectratio] => 1.499
+                               [original] => 1
+                               [external] => 
+                           )
+        */
+        if($images = @$a['images']) {
+            print_r($images);
+            foreach($images as $img) {
+                if($img['image']) {
+                    $mr = new \eol_schema\MediaResource();
+                    // if($reference_ids) $mr->referenceID = implode("; ", $reference_ids);
+                    if($agent_ids = self::format_agents($img)) $mr->agentID = implode("; ", $agent_ids);
+                    $mr->taxonID                = $a['taxid'];
+                    $mr->identifier             = $img['image'];
+                    $mr->type                   = "http://purl.org/dc/dcmitype/StillImage";
+                    // $mr->language               = 'en';
+                    $mr->format                 = Functions::get_mimetype($img['image']);
+                    $mr->furtherInformationURL  = $this->page['sourceURL'].$a['taxid'];
+                    $mr->description            = self::format_description($img);
+                    $mr->UsageTerms             = self::format_license($img['copyright_license']);
+                    if(!$mr->UsageTerms) continue; //invalid license
+                    $mr->Owner                  = self::format_rightsHolder($img);
+                    $mr->rights                 = '';
+                    $mr->accessURI              = "http://www.boldsystems.org/pics/".$img['image'];
+                    $mr->Rating                 = $img['imagequality']; //will need to check what values they have here...
+                    if(!isset($this->object_ids[$mr->identifier])) {
+                        $this->archive_builder->write_object_to_file($mr);
+                        $this->object_ids[$mr->identifier] = '';
+                    }
+                }
+            }
+        }
+        
     }
     private function create_taxon_archive($a)
     {   /*                      todo: create these 4 taxon entries
@@ -202,6 +235,87 @@ class BOLDSNewAPI
         // print_r(array_keys($final)); exit;
         return $final;
     }
-
+    private function format_description($img)
+    {
+        /*
+        [specimenid] => 968120
+        [imagequality] => 5
+        [photographer] => Nick Jeffery
+        [image] => ANCN/IMG_6772+1228833566.JPG
+        [fieldnum] => L#08PUK-055
+        [sampleid] => 08BBANN-009
+        [mam_uri] => bold.org/323285
+        [meta] => Lateral
+        [catalognum] => 08BBANN-009
+        [taxonrep] => Clitellata
+        [aspectratio] => 1.499
+        [original] => 1
+        [external] => 
+        */
+        $final = "";
+        if($val = @$img['meta'])            $final .= "$val. ";
+        if($val = @$img['catalognum'])      $final .= "Catalog no.: $val. ";
+        if($val = @$img['specimenid'])      $final .= "Specimen ID: $val. ";
+        if($val = @$img['fieldnum'])        $final .= "Field no.: $val. ";
+        if($val = @$img['taxonrep'])        $final .= "Taxon rep.: $val. ";
+        if($val = @$img['imagequality'])    $final .= "Image quality: $val. ";
+        if($val = @$img['aspectratio'])     $final .= "Aspect ratio: $val. ";
+        return trim($final);
+    }
+    private function format_rightsHolder($img)
+    {
+        /*
+        [copyright_institution] => Centre for Biodiversity Genomics
+        [copyright] => 
+        [copyright_license] => CreativeCommons - Attribution Non-Commercial Share-Alike
+        [copyright_holder] => CBG Photography Group
+        [copyright_contact] => ccdbcol@uoguelph.ca
+        [copyright_year] => 2008
+        */
+        $final = "";
+        if($val = @$img['copyright']) $final .= "$val. ";
+        if($val = @$img['copyright_institution']) $final .= "$val. ";
+        if($val = @$img['copyright_holder']) $final .= "$val. ";
+        if($val = @$img['copyright_year']) $final .= "Year: $val. ";
+        if($val = @$img['copyright_contact']) $final .= "Contact: $val. ";
+        return trim($final);
+    }
+    private function format_license($license)
+    {
+        $license = strtolower(trim($license));
+        if(in_array($license, array('creativecommons - attribution no derivatives'))) return false;
+        
+        if(stripos($license, "(by-nc)") !== false) return "http://creativecommons.org/licenses/by-nc/3.0/"; //string is found
+        
+        $arr["creativecommons - attribution non-commercial share-alike"] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+        $arr["creativecommons - attribution"]                            = "http://creativecommons.org/licenses/by/3.0/";
+        $arr["creativecommons - attribution non-commercial"]             = "http://creativecommons.org/licenses/by-nc/3.0/";
+        $arr["creativecommons - attribution share-alike"]                = "http://creativecommons.org/licenses/by-sa/3.0/";
+        $arr["creative commons by nc sa"]                                = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+        $arr["creative commons-by-nc-sa"]                                = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+        $arr["no rights reserved"]                                       = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+        $arr["creativecommons"]                                          = "http://creativecommons.org/licenses/by/3.0/";
+        if($val = $arr[$license]) return $val;
+        else {
+            exit("\nInvalid license [$license]\n");
+        }
+    }
+    private function format_agents($img)
+    {   // [photographer] => Nick Jeffery
+        $agent_ids = array();
+        if($agent = trim(@$img['photographer'])) {
+            $r = new \eol_schema\Agent();
+            $r->term_name = $agent;
+            $r->identifier = md5("$agent|photographer");
+            $r->agentRole = "photographer";
+            $r->term_homepage = "";
+            $agent_ids[] = $r->identifier;
+            if(!in_array($r->identifier, $this->resource_agent_ids)) {
+               $this->resource_agent_ids[] = $r->identifier;
+               $this->archive_builder->write_object_to_file($r);
+            }
+        }
+        return $agent_ids;
+    }
 }
 ?>
