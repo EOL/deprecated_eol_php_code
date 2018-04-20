@@ -10,8 +10,6 @@ habitat	associated_specimens	associated_taxa	extrainfo	notes	lat	lon	coord_sourc
 sector	exactsite	
 image_ids	image_urls	media_descriptors	captions	copyright_holders	copyright_years	copyright_licenses	copyright_institutions	photographers	
 sequenceID	markercode	genbank_accession	nucleotides	trace_ids	trace_names	trace_links	run_dates	sequencing_centers	directions	seq_primers	marker_codes
-
-
 */
 class BOLDS_DumpsServiceAPI
 {
@@ -33,6 +31,11 @@ class BOLDS_DumpsServiceAPI
         $this->dump['Annelida'] = "http://localhost/cp/BOLDS_new/bold_Annelida.txt.zip";
         
         $this->download_options = array('cache' => 1, 'resource_id' => 'BOLDS', 'expire_seconds' => 60*60*24*30*6, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
+        
+        $this->kingdom['Animalia'] = array("Acanthocephala", "Annelida", "Arthropoda", "Brachiopoda", "Bryozoa", "Chaetognatha", "Chordata", "Cnidaria", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Mollusca", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
+        $this->kingdom['Plantae'] = array("Bryophyta", "Chlorophyta", "Lycopodiophyta", "Magnoliophyta", "Pinophyta", "Pteridophyta", "Rhodophyta");
+        $this->kingdom['Fungi'] = array("Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Myxomycota", "Zygomycota");
+        $this->kingdom['Protista'] = array("Chlorarachniophyta", "Ciliophora", "Heterokontophyta", "Pyrrophycophyta");
     }
 
     function start_using_dump()
@@ -40,6 +43,7 @@ class BOLDS_DumpsServiceAPI
         $phylums = array('Chordata','Annelida');
         $phylums = array('Annelida');
         foreach($phylums as $phylum) {
+            $this->current_kingdom = self::get_kingdom_given_phylum($phylum);
             $this->tax_ids = array(); //initialize images per phylum
             self::process_dump($phylum, "get_images_from_dump_rec");
             echo "\n"; print_r($this->tax_ids);
@@ -173,11 +177,19 @@ class BOLDS_DumpsServiceAPI
         // $download_options['cache'] = 0; // 0 only when developing //debug - comment in real operation
         $temp_path = Functions::save_remote_file_to_local($file, $download_options);
         echo "\nunzipping this file [$temp_path]... \n";
-        shell_exec("unzip " . $temp_path . " -d " . DOC_ROOT."tmp/"); //worked OK
+        shell_exec("unzip " . $temp_path . " -o -d " . DOC_ROOT."tmp/"); //worked OK
         unlink($temp_path);
         if(is_dir(DOC_ROOT."tmp/"."__MACOSX")) recursive_rmdir(DOC_ROOT."tmp/"."__MACOSX");
     }
-    
+    private function get_kingdom_given_phylum($phylum)
+    {
+        if(in_array($phylum, $this->kingdom['Animalia'])) return "Animalia";
+        if(in_array($phylum, $this->kingdom['Plantae'])) return "Plantae";
+        if(in_array($phylum, $this->kingdom['Fungi'])) return "Fungi";
+        if(in_array($phylum, $this->kingdom['Protista'])) return "Protista";
+        exit("\nUndefined phylum [$phylum]\n");
+    }
+    //==================================================================================================================
     function start_using_api()
     {
         $taxon_ids = self::get_all_taxon_ids();
