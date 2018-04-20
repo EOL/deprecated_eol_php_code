@@ -29,7 +29,7 @@ class BOLDS_DumpsServiceAPI
         $this->service['phylum'] = "http://v2.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=";
         $this->service["taxId"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=all&includeTree=true&taxId=";
         
-        $this->dump['Chordata'] = "http://localhost/cp/BOLDS_new/bold_chordata.txt.zip";
+        $this->dump['Chordata'] = "http://localhost/cp/BOLDS_new/bold_Chordata.txt.zip";
         
         $this->download_options = array('cache' => 1, 'resource_id' => 'BOLDS', 'expire_seconds' => 60*60*24*30*6, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
     }
@@ -40,15 +40,17 @@ class BOLDS_DumpsServiceAPI
         foreach($phylums as $phylum) {
             self::process_dump($phylum);
         }
+        // echo "\n"; print_r($this->tax_ids);
     }
     private function process_dump($phylum)
     {
         self::download_and_extract_remote_file($this->dump[$phylum], true);
-        $txt_file = DOC_ROOT."tmp/bold_".strtolower($phylum).".txt";
+        $txt_file = DOC_ROOT."tmp/bold_".$phylum.".txt";
         $i = 0;
         foreach(new FileIterator($txt_file) as $line_number => $line) {
             $i++;
             $row = explode("\t", $line);
+            // print_r($row);
             if($i == 1) {
                 $fields = $row;
             }
@@ -59,39 +61,120 @@ class BOLDS_DumpsServiceAPI
                     $k++;
                     $rec[$field] = $row[$k];
                 }
+                if($sci = self::valid_rec($rec)) {
+                    self::process_dump_record($rec, $sci);
+                }
+                
                 /* for debug only
-                if(!@$rec['species_name']) {
-                    print_r($rec);
-                    exit("\nNo species above\n");
+                if(@$rec['image_ids']) {
+                    print_r($rec); exit("\nRecord found\n");
                 }
                 */
                 /* for debug only
                 if(@$rec['subspecies_name'] && @$rec['image_ids']) {
-                    print_r($rec);
-                    exit("\nWith subspecies above\n");
+                    print_r($rec); exit("\nRecord found\n");
                 }
                 */
-                
                 /* for debug only
                 if(!@$rec['subspecies_name'] && @$rec['species_name'] == "Scopelogadus mizolepis" && @$rec['image_ids']) {
-                    print_r($rec);
-                    exit("\nWith subspecies above\n");
+                    print_r($rec); exit("\nRecord found\n");
                 }
                 */
-                
+                /*
                 if(stripos($rec['image_ids'], "IMG_1141") !== false) { //string is found
-                    print_r($rec);
-                    exit("\nRecord found\n");
+                    print_r($rec); exit("\nRecord found\n");
                 }
                 if(stripos($rec['image_urls'], "IMG_1141") !== false) { //string is found
-                    print_r($rec);
-                    exit("\nRecord found\n");
+                    print_r($rec); exit("\nRecord found\n");
                 }
-                
+                */
                 if(($i % 1000) == 0) echo "\n".number_format($i)." $phylum ";
             }
+            if($i >= 10000) break; //debug only
         }
         unlink($txt_file);
+    }
+    private function process_dump_record($rec, $sci)
+    {
+        // [image_ids] => 
+        // [image_urls] => 
+        // [media_descriptors] => 
+        // [captions] => 
+        // [copyright_holders] => 
+        // [copyright_years] => 
+        // [copyright_licenses] => 
+        // [copyright_institutions] => 
+        // [photographers] => 
+        if($val = $rec['image_ids']) {
+            $tmp = explode("|", $rec['image_ids']);
+            $no_of_images = count($tmp);
+            // echo "\n[$no_of_images] [$val]\n";
+
+            $final = array();
+            for ($x = 0; $x <= $no_of_images-1; $x++) {
+                $fields = array('processid', 'image_ids', 'image_urls', 'media_descriptors', 'captions', 'copyright_holders', 'copyright_years', 'copyright_licenses', 'copyright_institutions', 'photographers');
+                foreach($fields as $fld) {
+                    $a = explode("|", $rec[$fld]);
+                    if($fld == 'processid') $value = $rec['processid'];
+                    else                    $value = $a[$x];
+                    $final[$x][$fld] = $value;
+                }
+            }
+            // echo "\n".$rec['processid']."\n";
+            // print_r($final);
+            
+            if(!isset($this->tax_ids[$sci['taxID']])) $this->tax_ids[$sci['taxID']] = array();
+            $this->tax_ids[$sci['taxID']] = array_merge($this->tax_ids[$sci['taxID']], $final);
+        }
+    }
+    
+    private function valid_rec($rec)
+    {
+        $taxName = false;
+        if($val = $rec['phylum_name']) {
+            $taxID = $rec['phylum_taxID'];
+            $taxName = $val;
+            $taxRank = 'phylum';
+        }
+        if($val = $rec['class_name']) {
+            $taxID = $rec['class_taxID'];
+            $taxName = $val;
+            $taxRank = 'class';
+        }
+        if($val = $rec['order_name']) {
+            $taxID = $rec['order_taxID'];
+            $taxName = $val;
+            $taxRank = 'order';
+        }
+        if($val = $rec['family_name']) {
+            $taxID = $rec['family_taxID'];
+            $taxName = $val;
+            $taxRank = 'family';
+        }
+        if($val = $rec['subfamily_name']) {
+            $taxID = $rec['subfamily_taxID'];
+            $taxName = $val;
+            $taxRank = 'subfamily';
+        }
+        if($val = $rec['genus_name']) {
+            $taxID = $rec['genus_taxID'];
+            $taxName = $val;
+            $taxRank = 'genus';
+        }
+        if($val = $rec['species_name']) {
+            $taxID = $rec['species_taxID'];
+            $taxName = $val;
+            $taxRank = 'species';
+        }
+        if($val = $rec['subspecies_name']) {
+            $taxID = $rec['subspecies_taxID'];
+            $taxName = $val;
+            $taxRank = 'subspecies';
+        }
+        if($taxName) {
+            return array('taxID' => $taxID, 'taxName' => $taxName, 'taxRank' => $taxRank);
+        }
+        return false;
     }
     private function download_and_extract_remote_file($file = false, $use_cache = false)
     {
