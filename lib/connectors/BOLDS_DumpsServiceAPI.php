@@ -38,9 +38,10 @@ class BOLDS_DumpsServiceAPI
     {
         $phylums = array('Chordata');
         foreach($phylums as $phylum) {
+            $this->tax_ids = array() //initialize images per phylum
             self::process_dump($phylum);
+            echo "\n"; print_r($this->tax_ids);
         }
-        // echo "\n"; print_r($this->tax_ids);
     }
     private function process_dump($phylum)
     {
@@ -64,27 +65,8 @@ class BOLDS_DumpsServiceAPI
                 if($sci = self::valid_rec($rec)) {
                     self::process_dump_record($rec, $sci);
                 }
-                
                 /* for debug only
                 if(@$rec['image_ids']) {
-                    print_r($rec); exit("\nRecord found\n");
-                }
-                */
-                /* for debug only
-                if(@$rec['subspecies_name'] && @$rec['image_ids']) {
-                    print_r($rec); exit("\nRecord found\n");
-                }
-                */
-                /* for debug only
-                if(!@$rec['subspecies_name'] && @$rec['species_name'] == "Scopelogadus mizolepis" && @$rec['image_ids']) {
-                    print_r($rec); exit("\nRecord found\n");
-                }
-                */
-                /*
-                if(stripos($rec['image_ids'], "IMG_1141") !== false) { //string is found
-                    print_r($rec); exit("\nRecord found\n");
-                }
-                if(stripos($rec['image_urls'], "IMG_1141") !== false) { //string is found
                     print_r($rec); exit("\nRecord found\n");
                 }
                 */
