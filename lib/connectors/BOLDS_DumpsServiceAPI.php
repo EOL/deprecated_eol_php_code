@@ -30,20 +30,23 @@ class BOLDS_DumpsServiceAPI
         $this->service["taxId"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=all&includeTree=true&taxId=";
         
         $this->dump['Chordata'] = "http://localhost/cp/BOLDS_new/bold_Chordata.txt.zip";
+        $this->dump['Annelida'] = "http://localhost/cp/BOLDS_new/bold_Annelida.txt.zip";
         
         $this->download_options = array('cache' => 1, 'resource_id' => 'BOLDS', 'expire_seconds' => 60*60*24*30*6, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
     }
 
     function start_using_dump()
     {
-        $phylums = array('Chordata');
+        $phylums = array('Chordata','Annelida');
+        $phylums = array('Annelida');
         foreach($phylums as $phylum) {
-            $this->tax_ids = array() //initialize images per phylum
-            self::process_dump($phylum);
+            $this->tax_ids = array(); //initialize images per phylum
+            self::process_dump($phylum, "get_images_from_dump_rec");
             echo "\n"; print_r($this->tax_ids);
+            self::process_dump($phylum, "write_taxon_archive");
         }
     }
-    private function process_dump($phylum)
+    private function process_dump($phylum, $what)
     {
         self::download_and_extract_remote_file($this->dump[$phylum], true);
         $txt_file = DOC_ROOT."tmp/bold_".$phylum.".txt";
@@ -63,7 +66,9 @@ class BOLDS_DumpsServiceAPI
                     $rec[$field] = $row[$k];
                 }
                 if($sci = self::valid_rec($rec)) {
-                    self::process_dump_record($rec, $sci);
+                    print_r($rec); exit;
+                    if    ($what == "get_images_from_dump_rec") self::get_images_from_dump_rec($rec, $sci);
+                    elseif($what == "write_taxon_archive")      self::write_taxon_archive($rec, $sci);
                 }
                 /* for debug only
                 if(@$rec['image_ids']) {
@@ -76,7 +81,7 @@ class BOLDS_DumpsServiceAPI
         }
         unlink($txt_file);
     }
-    private function process_dump_record($rec, $sci)
+    private function get_images_from_dump_rec($rec, $sci)
     {
         // [image_ids] => 
         // [image_urls] => 
