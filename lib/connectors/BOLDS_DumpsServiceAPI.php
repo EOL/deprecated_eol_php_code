@@ -22,13 +22,13 @@ class BOLDS_DumpsServiceAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         
         $this->resource_agent_ids = array();
-
         $this->max_images_per_taxon = 10;
+        
         $this->page['home'] = "http://www.boldsystems.org/index.php/TaxBrowser_Home";
         $this->page['sourceURL'] = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
         $this->service['phylum'] = "http://v2.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=";
         $this->service["taxId"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=all&includeTree=true&taxId=";
-
+        
         $this->dump['Chordata'] = "http://localhost/cp/BOLDS_new/bold_chordata.txt.zip";
         
         $this->download_options = array('cache' => 1, 'resource_id' => 'BOLDS', 'expire_seconds' => 60*60*24*30*6, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
@@ -45,9 +45,51 @@ class BOLDS_DumpsServiceAPI
     {
         self::download_and_extract_remote_file($this->dump[$phylum], true);
         $txt_file = DOC_ROOT."tmp/bold_".strtolower($phylum).".txt";
+        $i = 0;
         foreach(new FileIterator($txt_file) as $line_number => $line) {
-            echo "\n$line\n";
-            break;
+            $i++;
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+            }
+            else {
+                $k = -1;
+                $rec = array();
+                foreach($fields as $field) {
+                    $k++;
+                    $rec[$field] = $row[$k];
+                }
+                /* for debug only
+                if(!@$rec['species_name']) {
+                    print_r($rec);
+                    exit("\nNo species above\n");
+                }
+                */
+                /* for debug only
+                if(@$rec['subspecies_name'] && @$rec['image_ids']) {
+                    print_r($rec);
+                    exit("\nWith subspecies above\n");
+                }
+                */
+                
+                /* for debug only
+                if(!@$rec['subspecies_name'] && @$rec['species_name'] == "Scopelogadus mizolepis" && @$rec['image_ids']) {
+                    print_r($rec);
+                    exit("\nWith subspecies above\n");
+                }
+                */
+                
+                if(stripos($rec['image_ids'], "IMG_1141") !== false) { //string is found
+                    print_r($rec);
+                    exit("\nRecord found\n");
+                }
+                if(stripos($rec['image_urls'], "IMG_1141") !== false) { //string is found
+                    print_r($rec);
+                    exit("\nRecord found\n");
+                }
+                
+                if(($i % 1000) == 0) echo "\n".number_format($i)." $phylum ";
+            }
         }
         unlink($txt_file);
     }
@@ -62,10 +104,8 @@ class BOLDS_DumpsServiceAPI
         $temp_path = Functions::save_remote_file_to_local($file, $download_options);
         echo "\nunzipping this file [$temp_path]... \n";
         shell_exec("unzip " . $temp_path . " -d " . DOC_ROOT."tmp/"); //worked OK
-        // return str_ireplace(".txt.zip", ".txt", $temp_path);
         unlink($temp_path);
         if(is_dir(DOC_ROOT."tmp/"."__MACOSX")) recursive_rmdir(DOC_ROOT."tmp/"."__MACOSX");
-        // return $temp_path;
     }
     
     function start_using_api()
