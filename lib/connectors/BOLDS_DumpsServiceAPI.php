@@ -1,23 +1,19 @@
 <?php
 namespace php_active_record;
 /* connector: [bolds.php]
+
 processid	sampleid	recordID	catalognum	fieldnum	institution_storing	collection_code	bin_uri	
 phylum_taxID	phylum_name	class_taxID	class_name	order_taxID	order_name	family_taxID	family_name	subfamily_taxID	subfamily_name	genus_taxID	genus_name	
-species_taxID	species_name	subspecies_taxID	subspecies_name	identification_provided_by	identification_method	identification_reference	tax_note	voucher_status	tissue_type	collection_event_id	
-collectors	collectiondate_start	collectiondate_end	collectiontime	collection_note	site_code	sampling_protocol	lifestage	sex	reproduction	habitat	associated_specimens	
-associated_taxa	extrainfo	notes	lat	lon	coord_source	coord_accuracy	elev	depth	elev_accuracy	depth_accuracy	country	province_state	region	sector	exactsite	
+species_taxID	species_name	subspecies_taxID	subspecies_name	identification_provided_by	identification_method	identification_reference	tax_note	voucher_status	
+tissue_type	collection_event_id	collectors	collectiondate_start	collectiondate_end	collectiontime	collection_note	site_code	sampling_protocol	lifestage	sex	reproduction	
+habitat	associated_specimens	associated_taxa	extrainfo	notes	lat	lon	coord_source	coord_accuracy	elev	depth	elev_accuracy	depth_accuracy	country	province_state	region	
+sector	exactsite	
+image_ids	image_urls	media_descriptors	captions	copyright_holders	copyright_years	copyright_licenses	copyright_institutions	photographers	
+sequenceID	markercode	genbank_accession	nucleotides	trace_ids	trace_names	trace_links	run_dates	sequencing_centers	directions	seq_primers	marker_codes
 
-image_ids	image_urls	media_descriptors	captions	copyright_holders	copyright_years	copyright_licenses	copyright_institutions	photographers
-
-
-id	occurrenceID	catalogNumber	fieldNumber	identificationRemarks	basisOfRecord	institutionCode	
-phylum	class	order	family	genus	scientificName	
-identifiedBy	associatedOccurrences	associatedTaxa	collectionCode	eventID	locationRemarks	eventTime	habitat	samplingProtocol	locationID	eventDate	recordedBy	country	stateProvince	locality	
-decimalLatitude	decimalLongitude	coordinatePrecision	georeferenceSources	maximumDepthInMeters	minimumDepthInMeters	maximumElevationInMeters	minimumElevationInMeters	eventRemarks	
-lifestage	sex	preparations	rightsHolder	rights	language
 
 */
-class BOLDSNewAPI
+class BOLDS_DumpsServiceAPI
 {
     function __construct($folder = false)
     {
@@ -31,13 +27,48 @@ class BOLDSNewAPI
         $this->page['home'] = "http://www.boldsystems.org/index.php/TaxBrowser_Home";
         $this->page['sourceURL'] = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
         $this->service['phylum'] = "http://v2.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=";
-        
         $this->service["taxId"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=all&includeTree=true&taxId=";
+
+        $this->dump['Chordata'] = "http://localhost/cp/BOLDS_new/bold_chordata.txt.zip";
         
         $this->download_options = array('cache' => 1, 'resource_id' => 'BOLDS', 'expire_seconds' => 60*60*24*30*6, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
     }
 
-    function start()
+    function start_using_dump()
+    {
+        $phylums = array('Chordata');
+        foreach($phylums as $phylum) {
+            self::process_dump($phylum);
+        }
+    }
+    private function process_dump($phylum)
+    {
+        self::download_and_extract_remote_file($this->dump[$phylum], true);
+        $txt_file = DOC_ROOT."tmp/bold_".strtolower($phylum).".txt";
+        foreach(new FileIterator($txt_file) as $line_number => $line) {
+            echo "\n$line\n";
+            break;
+        }
+        unlink($txt_file);
+    }
+    private function download_and_extract_remote_file($file = false, $use_cache = false)
+    {
+        if(!$file) $file = $this->data_dump_url; // used when this function is called elsewhere
+        $download_options = $this->download_options;
+        $download_options['timeout'] = 172800;
+        $download_options['file_extension'] = 'txt.zip';
+        if($use_cache) $download_options['cache'] = 1; // this pertains to the generation of higher-level-taxa list
+        // $download_options['cache'] = 0; // 0 only when developing //debug - comment in real operation
+        $temp_path = Functions::save_remote_file_to_local($file, $download_options);
+        echo "\nunzipping this file [$temp_path]... \n";
+        shell_exec("unzip " . $temp_path . " -d " . DOC_ROOT."tmp/"); //worked OK
+        // return str_ireplace(".txt.zip", ".txt", $temp_path);
+        unlink($temp_path);
+        if(is_dir(DOC_ROOT."tmp/"."__MACOSX")) recursive_rmdir(DOC_ROOT."tmp/"."__MACOSX");
+        // return $temp_path;
+    }
+    
+    function start_using_api()
     {
         $taxon_ids = self::get_all_taxon_ids();
         $this->archive_builder->finalize(true);
