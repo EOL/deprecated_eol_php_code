@@ -8,7 +8,7 @@ estimated execution time:
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = false;
 $timestart = time_elapsed();
-$resource_id = 1;
+$resource_id = "a";
 
 /* tests...
 

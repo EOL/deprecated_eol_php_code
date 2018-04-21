@@ -44,7 +44,7 @@ class BOLDS_DumpsServiceAPI
         self::create_kingdom_taxa();
         
         $phylums = array('Chordata','Annelida');
-        $phylums = array('Annelida');
+        // $phylums = array('Annelida');
         foreach($phylums as $phylum) {
             $this->current_kingdom = self::get_kingdom_given_phylum($phylum);
             $this->tax_ids = array(); //initialize images per phylum
@@ -81,11 +81,11 @@ class BOLDS_DumpsServiceAPI
                 else 
                 {
                     self::create_taxon_higher_level_archive($rec);
-                    // /* for debug only
+                    /* for debug only
                     if(@$rec['image_ids']) {
                         print_r($rec); exit("\nRecord found\n");
                     }
-                    // */
+                    */
                     
                 }
                 
@@ -202,22 +202,14 @@ class BOLDS_DumpsServiceAPI
     private function compute_parent_id($rec, $taxRank)
     {  
         /* 
-        [phylum_taxID] => 2
-        [phylum_name] => Annelida
-        [class_taxID] => 95135
-        [class_name] => Clitellata
-        [order_taxID] => 25446
-        [order_name] => Rhynchobdellida
-        [family_taxID] => 
-        [family_name] => 
-        [subfamily_taxID] => 
-        [subfamily_name] => 
-        [genus_taxID] => 
-        [genus_name] => 
-        [species_taxID] => 
-        [species_name] => 
-        [subspecies_taxID] => 
-        [subspecies_name] => 
+        [phylum_taxID] => 2         [phylum_name] => Annelida
+        [class_taxID] => 95135      [class_name] => Clitellata
+        [order_taxID] => 25446      [order_name] => Rhynchobdellida
+        [family_taxID] =>           [family_name] => 
+        [subfamily_taxID] =>        [subfamily_name] => 
+        [genus_taxID] =>            [genus_name] => 
+        [species_taxID] =>          [species_name] => 
+        [subspecies_taxID] =>       [subspecies_name] => 
         */
         if($taxRank == "phylum") return "1"; //return "1_".self::get_taxdiv_given_kingdom();
         else {
@@ -236,7 +228,7 @@ class BOLDS_DumpsServiceAPI
             }
         }
         //last resort:
-        return "1_".self::get_taxdiv_given_kingdom();
+        return "1"; //"1_".self::get_taxdiv_given_kingdom();
     }
     private function get_kingdom_given_phylum($phylum)
     {
