@@ -40,6 +40,7 @@ class BOLDS_DumpsServiceAPI
 
     function start_using_dump()
     {
+        // self::start_using_api();
         self::create_kingdom_taxa();
         
         $phylums = array('Chordata','Annelida');
@@ -70,12 +71,16 @@ class BOLDS_DumpsServiceAPI
                 $rec = array();
                 foreach($fields as $field) {
                     $k++;
-                    $rec[$field] = $row[$k];
+                    $rec[$field] = @$row[$k];
                 }
                 if($sci = self::valid_rec($rec)) {
                     // print_r($rec); exit;
                     if    ($what == "get_images_from_dump_rec") self::get_images_from_dump_rec($rec, $sci);
-                    elseif($what == "write_taxon_archive")      self::create_taxon_archive($sci);
+                    elseif($what == "write_taxon_archive")
+                    {
+                        self::create_taxon_higher_level_archive();
+                        self::create_taxon_archive($sci);
+                    }
                 }
                 /* for debug only
                 if(@$rec['image_ids']) {
@@ -84,7 +89,7 @@ class BOLDS_DumpsServiceAPI
                 */
                 if(($i % 1000) == 0) echo "\n".number_format($i)." $phylum ";
             }
-            if($i >= 10000) break; //debug only
+            // if($i >= 10000) break; //debug only
         }
         unlink($txt_file);
     }
@@ -204,7 +209,7 @@ class BOLDS_DumpsServiceAPI
         [subspecies_taxID] => 
         [subspecies_name] => 
         */
-        if($taxRank == "phylum") return "1_".self::get_taxdiv_given_kingdom();
+        if($taxRank == "phylum") return "1"; //return "1_".self::get_taxdiv_given_kingdom();
         else {
             $index['subspecies'] = 0;
             $index['species'] = 1;
@@ -223,6 +228,14 @@ class BOLDS_DumpsServiceAPI
         //last resort:
         return "1_".self::get_taxdiv_given_kingdom();
     }
+    private function get_kingdom_given_phylum($phylum)
+    {
+        if(in_array($phylum, $this->kingdom['Animalia'])) return "Animalia";
+        if(in_array($phylum, $this->kingdom['Plantae'])) return "Plantae";
+        if(in_array($phylum, $this->kingdom['Fungi'])) return "Fungi";
+        if(in_array($phylum, $this->kingdom['Protista'])) return "Protista";
+        exit("\nUndefined phylum [$phylum]\n");
+    }
     private function download_and_extract_remote_file($file = false, $use_cache = false)
     {
         if(!$file) $file = $this->data_dump_url; // used when this function is called elsewhere
@@ -237,19 +250,11 @@ class BOLDS_DumpsServiceAPI
         unlink($temp_path);
         if(is_dir(DOC_ROOT."tmp/"."__MACOSX")) recursive_rmdir(DOC_ROOT."tmp/"."__MACOSX");
     }
-    private function get_kingdom_given_phylum($phylum)
-    {
-        if(in_array($phylum, $this->kingdom['Animalia'])) return "Animalia";
-        if(in_array($phylum, $this->kingdom['Plantae'])) return "Plantae";
-        if(in_array($phylum, $this->kingdom['Fungi'])) return "Fungi";
-        if(in_array($phylum, $this->kingdom['Protista'])) return "Protista";
-        exit("\nUndefined phylum [$phylum]\n");
-    }
     //==================================================================================================================
     function start_using_api()
     {
         $taxon_ids = self::get_all_taxon_ids();
-        $this->archive_builder->finalize(true);
+        // $this->archive_builder->finalize(true);
         print_r($this->debug);
     }
     private function get_all_taxon_ids()
@@ -275,7 +280,8 @@ class BOLDS_DumpsServiceAPI
         //------------------------- the 3 big ones:
         // $phylums = array('Arthropoda');
         // $phylums = array('Magnoliophyta');
-        $phylums = array('Chordata');
+        // $phylums = array('Chordata');
+        $phylums = array('Annelida');
 
         $download_options = $this->download_options;
         $download_options['expire_seconds'] = false;
@@ -292,6 +298,7 @@ class BOLDS_DumpsServiceAPI
                     if($xml = simplexml_load_string($string)) {
                         // print_r($xml);
                         $ranks = array('phylum', 'class', 'order', 'family', 'genus', 'species');
+                        $ranks = array('phylum', 'class', 'order', 'family', 'genus');
                         foreach($ranks as $rank) {
                             // echo "\n - $phylum ".@$xml->taxonomy->$rank->taxon->taxid."\n";
                             if($taxid = (string) @$xml->taxonomy->$rank->taxon->taxid) {
@@ -337,7 +344,7 @@ class BOLDS_DumpsServiceAPI
             if(@$a['taxon']) {
                 self::create_taxon_archive($a);
                 self::create_media_archive($a);
-                self::create_trait_archive($a);
+                // self::create_trait_archive($a);
             }
         }
         // exit("\n");
