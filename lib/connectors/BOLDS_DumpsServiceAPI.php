@@ -40,15 +40,18 @@ class BOLDS_DumpsServiceAPI
 
     function start_using_dump()
     {
+        self::create_kingdom_taxa();
+        
         $phylums = array('Chordata','Annelida');
         $phylums = array('Annelida');
         foreach($phylums as $phylum) {
             $this->current_kingdom = self::get_kingdom_given_phylum($phylum);
             $this->tax_ids = array(); //initialize images per phylum
             self::process_dump($phylum, "get_images_from_dump_rec");
-            echo "\n"; print_r($this->tax_ids);
+            // echo "\n"; print_r($this->tax_ids);
             self::process_dump($phylum, "write_taxon_archive");
         }
+        $this->archive_builder->finalize(true);
     }
     private function process_dump($phylum, $what)
     {
@@ -70,9 +73,9 @@ class BOLDS_DumpsServiceAPI
                     $rec[$field] = $row[$k];
                 }
                 if($sci = self::valid_rec($rec)) {
-                    print_r($rec); exit;
+                    // print_r($rec); exit;
                     if    ($what == "get_images_from_dump_rec") self::get_images_from_dump_rec($rec, $sci);
-                    elseif($what == "write_taxon_archive")      self::write_taxon_archive($rec, $sci);
+                    elseif($what == "write_taxon_archive")      self::create_taxon_archive($sci);
                 }
                 /* for debug only
                 if(@$rec['image_ids']) {
@@ -114,11 +117,10 @@ class BOLDS_DumpsServiceAPI
             // echo "\n".$rec['processid']."\n";
             // print_r($final);
             
-            if(!isset($this->tax_ids[$sci['taxID']])) $this->tax_ids[$sci['taxID']] = array();
-            $this->tax_ids[$sci['taxID']] = array_merge($this->tax_ids[$sci['taxID']], $final);
+            if(!isset($this->tax_ids[$sci['taxid']])) $this->tax_ids[$sci['taxid']] = array();
+            $this->tax_ids[$sci['taxid']] = array_merge($this->tax_ids[$sci['taxid']], $final);
         }
     }
-    
     private function valid_rec($rec)
     {
         $taxName = false;
@@ -126,46 +128,100 @@ class BOLDS_DumpsServiceAPI
             $taxID = $rec['phylum_taxID'];
             $taxName = $val;
             $taxRank = 'phylum';
+            $taxParent = self::compute_parent_id($rec, $taxRank);
         }
         if($val = $rec['class_name']) {
             $taxID = $rec['class_taxID'];
             $taxName = $val;
             $taxRank = 'class';
+            $taxParent = self::compute_parent_id($rec, $taxRank);
         }
         if($val = $rec['order_name']) {
             $taxID = $rec['order_taxID'];
             $taxName = $val;
             $taxRank = 'order';
+            $taxParent = self::compute_parent_id($rec, $taxRank);
         }
         if($val = $rec['family_name']) {
             $taxID = $rec['family_taxID'];
             $taxName = $val;
             $taxRank = 'family';
+            $taxParent = self::compute_parent_id($rec, $taxRank);
         }
         if($val = $rec['subfamily_name']) {
             $taxID = $rec['subfamily_taxID'];
             $taxName = $val;
             $taxRank = 'subfamily';
+            $taxParent = self::compute_parent_id($rec, $taxRank);
         }
         if($val = $rec['genus_name']) {
             $taxID = $rec['genus_taxID'];
             $taxName = $val;
             $taxRank = 'genus';
+            $taxParent = self::compute_parent_id($rec, $taxRank);
         }
         if($val = $rec['species_name']) {
             $taxID = $rec['species_taxID'];
             $taxName = $val;
             $taxRank = 'species';
+            $taxParent = self::compute_parent_id($rec, $taxRank);
         }
         if($val = $rec['subspecies_name']) {
             $taxID = $rec['subspecies_taxID'];
             $taxName = $val;
             $taxRank = 'subspecies';
+            $taxParent = self::compute_parent_id($rec, $taxRank);
         }
         if($taxName) {
-            return array('taxID' => $taxID, 'taxName' => $taxName, 'taxRank' => $taxRank);
+            return array('taxid' => $taxID, 'taxon' => $taxName, 'tax_rank' => $taxRank, 'parentid' => $taxParent, 'tax_division' => self::get_taxdiv_given_kingdom());
         }
         return false;
+    }
+    private function get_taxdiv_given_kingdom()
+    {
+        if($this->current_kingdom == "Animalia") return "Animals";
+        if($this->current_kingdom == "Plantae") return "Plants";
+        if($this->current_kingdom == "Fungi") return "Fungi";
+        if($this->current_kingdom == "Protista") return "Protists";
+    }
+    private function compute_parent_id($rec, $taxRank)
+    {  
+        /* 
+        [phylum_taxID] => 2
+        [phylum_name] => Annelida
+        [class_taxID] => 95135
+        [class_name] => Clitellata
+        [order_taxID] => 25446
+        [order_name] => Rhynchobdellida
+        [family_taxID] => 
+        [family_name] => 
+        [subfamily_taxID] => 
+        [subfamily_name] => 
+        [genus_taxID] => 
+        [genus_name] => 
+        [species_taxID] => 
+        [species_name] => 
+        [subspecies_taxID] => 
+        [subspecies_name] => 
+        */
+        if($taxRank == "phylum") return "1_".self::get_taxdiv_given_kingdom();
+        else {
+            $index['subspecies'] = 0;
+            $index['species'] = 1;
+            $index['genus'] = 2;
+            $index['subfamily'] = 3;
+            $index['family'] = 4;
+            $index['order'] = 5;
+            $index['class'] = 6;
+            $ranks = array("subspecies", "species", "genus", "subfamily", "family", "order", "class", "phylum");
+            foreach($ranks as $key => $rank) {
+                if($key > $index[$taxRank]) {
+                    if($val = $rec[$rank."_taxID"]) return $val;
+                }
+            }
+        }
+        //last resort:
+        return "1_".self::get_taxdiv_given_kingdom();
     }
     private function download_and_extract_remote_file($file = false, $use_cache = false)
     {
@@ -177,7 +233,7 @@ class BOLDS_DumpsServiceAPI
         // $download_options['cache'] = 0; // 0 only when developing //debug - comment in real operation
         $temp_path = Functions::save_remote_file_to_local($file, $download_options);
         echo "\nunzipping this file [$temp_path]... \n";
-        shell_exec("unzip " . $temp_path . " -o -d " . DOC_ROOT."tmp/"); //worked OK
+        shell_exec("unzip " . $temp_path . " -d " . DOC_ROOT."tmp/"); //worked OK
         unlink($temp_path);
         if(is_dir(DOC_ROOT."tmp/"."__MACOSX")) recursive_rmdir(DOC_ROOT."tmp/"."__MACOSX");
     }
@@ -380,6 +436,8 @@ class BOLDS_DumpsServiceAPI
         if($taxon->parentNameUsageID == 1) {
             $taxon->parentNameUsageID .= "_".$a['tax_division'];
         }
+
+
         /* no data for:
         $taxon->taxonomicStatus          = '';
         $taxon->acceptedNameUsageID      = '';
@@ -388,11 +446,14 @@ class BOLDS_DumpsServiceAPI
         $this->taxon_ids[$taxon->taxonID] = '';
         $this->archive_builder->write_object_to_file($taxon);
         
+    }
+    private function create_kingdom_taxa()
+    {
         /* create these 4 taxon entries
-            animals (Animalia),                         1_Animals
-            plants (Plantae),                           1_Plants
+            animals (Animalia),                         1_Animalia
+            plants (Plantae),                           1_Plantae
             fungi (Fungi),                              1_Fungi
-            protozoa and eucaryotic algae (Protista)    1_Protists
+            protozoa and eucaryotic algae (Protista)    1_Protista
         */
         $add['1_Animals'] = 'Animalia';
         $add['1_Plants'] = 'Plantae';

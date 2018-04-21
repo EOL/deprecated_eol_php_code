@@ -10,9 +10,30 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 $resource_id = 1;
 
+/* tests...
+
+$taxRank = "family";
+$index['subspecies'] = 0;
+$index['species'] = 1;
+$index['genus'] = 2;
+$index['subfamily'] = 3;
+$index['family'] = 4;
+$index['order'] = 5;
+$index['class'] = 6;
+
+$ranks = array("subspecies", "species", "genus", "subfamily", "family", "order", "class", "phylum");
+
+foreach($ranks as $key => $rank) {
+    if($key > $index[$taxRank]) {
+        echo "\n $key - $rank";
+        
+    }
+}
+
 // $json = Functions::lookup_with_cache("http://www.boldsystems.org/index.php/API_Tax/TaxonData?taxId=30367&dataTypes=all");
 // print_r(json_decode($json, true));
-// exit;
+exit("\n");
+*/
 
 /* using API
 require_library('connectors/BOLDS_APIServiceAPI');
