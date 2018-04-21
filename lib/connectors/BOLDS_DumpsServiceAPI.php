@@ -76,12 +76,19 @@ class BOLDS_DumpsServiceAPI
                 if($sci = self::valid_rec($rec)) {
                     // print_r($rec); exit;
                     if    ($what == "get_images_from_dump_rec") self::get_images_from_dump_rec($rec, $sci);
-                    elseif($what == "write_taxon_archive")
-                    {
-                        self::create_taxon_higher_level_archive();
-                        self::create_taxon_archive($sci);
-                    }
+                    elseif($what == "write_taxon_archive")      self::create_taxon_archive($sci);
                 }
+                else 
+                {
+                    self::create_taxon_higher_level_archive($rec);
+                    // /* for debug only
+                    if(@$rec['image_ids']) {
+                        print_r($rec); exit("\nRecord found\n");
+                    }
+                    // */
+                    
+                }
+                
                 /* for debug only
                 if(@$rec['image_ids']) {
                     print_r($rec); exit("\nRecord found\n");
@@ -126,54 +133,57 @@ class BOLDS_DumpsServiceAPI
             $this->tax_ids[$sci['taxid']] = array_merge($this->tax_ids[$sci['taxid']], $final);
         }
     }
+    private function create_taxon_higher_level_archive($rec) //create taxon using API
+    {
+        // /*
+        if($taxName = $rec['phylum_name']) {
+            $taxID = $rec['phylum_taxID'];
+            // $taxRank = 'phylum';
+            // $taxParent = self::compute_parent_id($rec, $taxRank);
+            self::process_record($taxID);
+        }
+        if($taxName = $rec['class_name']) {
+            $taxID = $rec['class_taxID'];
+            // $taxRank = 'class';
+            // $taxParent = self::compute_parent_id($rec, $taxRank);
+            self::process_record($taxID);
+        }
+        if($taxName = $rec['order_name']) {
+            $taxID = $rec['order_taxID'];
+            // $taxRank = 'order';
+            // $taxParent = self::compute_parent_id($rec, $taxRank);
+            self::process_record($taxID);
+        }
+        if($taxName = $rec['family_name']) {
+            $taxID = $rec['family_taxID'];
+            // $taxRank = 'family';
+            // $taxParent = self::compute_parent_id($rec, $taxRank);
+            self::process_record($taxID);
+        }
+        if($taxName = $rec['subfamily_name']) {
+            $taxID = $rec['subfamily_taxID'];
+            // $taxRank = 'subfamily';
+            // $taxParent = self::compute_parent_id($rec, $taxRank);
+            self::process_record($taxID);
+        }
+        if($taxName = $rec['genus_name']) {
+            $taxID = $rec['genus_taxID'];
+            // $taxRank = 'genus';
+            // $taxParent = self::compute_parent_id($rec, $taxRank);
+            self::process_record($taxID);
+        }
+        // */
+    }
     private function valid_rec($rec)
     {
         $taxName = false;
-        if($val = $rec['phylum_name']) {
-            $taxID = $rec['phylum_taxID'];
-            $taxName = $val;
-            $taxRank = 'phylum';
-            $taxParent = self::compute_parent_id($rec, $taxRank);
-        }
-        if($val = $rec['class_name']) {
-            $taxID = $rec['class_taxID'];
-            $taxName = $val;
-            $taxRank = 'class';
-            $taxParent = self::compute_parent_id($rec, $taxRank);
-        }
-        if($val = $rec['order_name']) {
-            $taxID = $rec['order_taxID'];
-            $taxName = $val;
-            $taxRank = 'order';
-            $taxParent = self::compute_parent_id($rec, $taxRank);
-        }
-        if($val = $rec['family_name']) {
-            $taxID = $rec['family_taxID'];
-            $taxName = $val;
-            $taxRank = 'family';
-            $taxParent = self::compute_parent_id($rec, $taxRank);
-        }
-        if($val = $rec['subfamily_name']) {
-            $taxID = $rec['subfamily_taxID'];
-            $taxName = $val;
-            $taxRank = 'subfamily';
-            $taxParent = self::compute_parent_id($rec, $taxRank);
-        }
-        if($val = $rec['genus_name']) {
-            $taxID = $rec['genus_taxID'];
-            $taxName = $val;
-            $taxRank = 'genus';
-            $taxParent = self::compute_parent_id($rec, $taxRank);
-        }
-        if($val = $rec['species_name']) {
+        if($taxName = $rec['species_name']) {
             $taxID = $rec['species_taxID'];
-            $taxName = $val;
             $taxRank = 'species';
             $taxParent = self::compute_parent_id($rec, $taxRank);
         }
-        if($val = $rec['subspecies_name']) {
+        if($taxName = $rec['subspecies_name']) {
             $taxID = $rec['subspecies_taxID'];
-            $taxName = $val;
             $taxRank = 'subspecies';
             $taxParent = self::compute_parent_id($rec, $taxRank);
         }
