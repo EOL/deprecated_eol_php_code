@@ -41,25 +41,14 @@ class BOLDS_DumpsServiceAPI
         // self::start_using_api();
         self::create_kingdom_taxa();
 
-        $phylums = array('Pyrrophycophyta', 'Heterokontophyta', 'Onychophora', 'Platyhelminthes');
+        // $phylums = array("Acanthocephala", "Brachiopoda", "Bryozoa", "Chaetognatha", "Chordata", "Cnidaria", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Mollusca", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
+        // $phylums = array("Bryophyta", "Chlorophyta", "Lycopodiophyta", "Magnoliophyta", "Pinophyta", "Pteridophyta", "Rhodophyta");
+        // $phylums = array("Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Myxomycota", "Zygomycota");
+        $phylums = array("Chlorarachniophyta", "Ciliophora", "Heterokontophyta", "Pyrrophycophyta");
         
-        $phylums = array('Porifera', 'Priapulida', 'Rotifera', 'Sipuncula', 'Basidiomycota', 'Chytridiomycota', 
-        'Glomeromycota', 'Myxomycota', 'Zygomycota', 'Chlorarachniophyta', 'Ciliophora', 'Brachiopoda', 'Bryozoa', 'Chaetognatha', 'Cnidaria', 'Cycliophora', 'Gnathostomulida');
-
-        // currently Porifera...
-
-        // $phylums = array('Hemichordata', 'Nematoda', 'Nemertea', 'Annelida', 'Acanthocephala', 'Ascomycota', 'Tardigrada', 'Xenoturbellida', 'Bryophyta', 'Chlorophyta');
-        // $phylums = array('Lycopodiophyta', 'Pinophyta', 'Pteridophyta', 'Rhodophyta', 'Echinodermata', 'Mollusca');
-        
-        
-        // exit("\n".count(array_unique($phylums))."\n");
 
         //------------------------- the 3 big ones:
-        // $phylums = array('Arthropoda');
-        // $phylums = array('Magnoliophyta');
-        // $phylums = array('Chordata');
-
-        
+        // $phylums = array('Arthropoda'); can't download this
         // $phylums = array('Chordata','Annelida');
         $phylums = array('Annelida');
         // $phylums = array('Chordata');
@@ -87,9 +76,21 @@ class BOLDS_DumpsServiceAPI
         if($undefined = $func->check_if_all_parents_have_entries($this->resource_id."_working", true, $url, $suggested_fields)) { //2nd param True means write to text file
             $arr['parents without entries during process'] = $undefined;
             echo "\n"; print_r($arr);
-            foreach($arr['parents without entries during process'] as $taxid) self::process_record($taxid);
+            foreach($arr['parents without entries during process'] as $taxid) {
+                if(self::process_record($taxid)) {}
+                else {
+                    $taxon_info = self::get_info_from_page($taxid);
+                    // self::add_taxon_from_page_scrape();
+                }
+            }
         }
         else echo "\nAll parents have entries OK - during process\n";
+    }
+    private function get_info_from_page($taxid)
+    {
+        if($html = Functions::lookup_with_cache($this->page['sourceURL'].$taxid, $this->download_options)) {
+            
+        }
     }
     private function process_dump($phylum, $what)
     {
@@ -374,7 +375,9 @@ class BOLDS_DumpsServiceAPI
                 self::create_media_archive($a);
                 // self::create_trait_archive($a);
             }
+            return true;
         }
+        else return false;
         // exit("\n");
     }
     private function create_media_archive($a)
