@@ -8,7 +8,7 @@ estimated execution time:
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = false;
 $timestart = time_elapsed();
-$resource_id = "a";
+$resource_id = "b";
 
 /* tests...
 
@@ -36,8 +36,9 @@ exit("\n");
 */
 
 /* using API
-require_library('connectors/BOLDS_APIServiceAPI');
-$func = new BOLDS_APIServiceAPI($resource_id);
+// require_library('connectors/BOLDS_APIServiceAPI');
+require_library('connectors/BOLDS_DumpsServiceAPI');
+$func = new BOLDS_DumpsServiceAPI($resource_id);
 $func->start_using_api();
 */
 

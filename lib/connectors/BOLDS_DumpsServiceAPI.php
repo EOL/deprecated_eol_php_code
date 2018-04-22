@@ -27,8 +27,6 @@ class BOLDS_DumpsServiceAPI
         $this->service['phylum'] = "http://v2.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=";
         $this->service["taxId"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=all&includeTree=true&taxId=";
         
-        $this->dump['Chordata'] = "http://localhost/cp/BOLDS_new/bold_Chordata.txt.zip";
-        $this->dump['Annelida'] = "http://localhost/cp/BOLDS_new/bold_Annelida.txt.zip";
         
         $this->download_options = array('cache' => 1, 'resource_id' => 'BOLDS', 'expire_seconds' => 60*60*24*30*6, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
         
@@ -42,9 +40,26 @@ class BOLDS_DumpsServiceAPI
     {
         // self::start_using_api();
         self::create_kingdom_taxa();
+
+        $phylums = array('Pyrrophycophyta', 'Heterokontophyta', 'Onychophora', 'Platyhelminthes', 'Porifera', 'Priapulida', 'Rotifera', 'Sipuncula', 'Basidiomycota', 'Chytridiomycota', 
+        'Glomeromycota', 'Myxomycota', 'Zygomycota', 'Chlorarachniophyta', 'Ciliophora', 'Brachiopoda', 'Bryozoa', 'Chaetognatha', 'Cnidaria', 'Cycliophora', 'Gnathostomulida', 
+        'Hemichordata', 'Nematoda', 'Nemertea', 'Annelida', 'Acanthocephala', 'Ascomycota', 'Tardigrada', 'Xenoturbellida', 'Bryophyta', 'Chlorophyta', 'Lycopodiophyta', 'Pinophyta', 
+        'Pteridophyta', 'Rhodophyta', 'Echinodermata', 'Mollusca');
+        exit("\n".count(array_unique($phylums))."\n");
+        //------------------------- the 3 big ones:
+        // $phylums = array('Arthropoda');
+        // $phylums = array('Magnoliophyta');
+        // $phylums = array('Chordata');
+
         
-        $phylums = array('Chordata','Annelida');
+        // $phylums = array('Chordata','Annelida');
         // $phylums = array('Annelida');
+        // $phylums = array('Chordata');
+        // $phylums = array('Magnoliophyta');
+        
+        foreach($phylums as $phylum) $this->dump[$phylum] = "http://localhost/cp/BOLDS_new/bold_".$phylum.".txt.zip";
+        
+        
         foreach($phylums as $phylum) {
             $this->current_kingdom = self::get_kingdom_given_phylum($phylum);
             $this->tax_ids = array(); //initialize images per phylum
@@ -102,14 +117,10 @@ class BOLDS_DumpsServiceAPI
     }
     private function get_images_from_dump_rec($rec, $sci)
     {
-        // [image_ids] => 
-        // [image_urls] => 
-        // [media_descriptors] => 
-        // [captions] => 
-        // [copyright_holders] => 
-        // [copyright_years] => 
-        // [copyright_licenses] => 
-        // [copyright_institutions] => 
+        // [image_ids] =>          [image_urls] => 
+        // [media_descriptors] =>  [captions] => 
+        // [copyright_holders] =>  [copyright_years] => 
+        // [copyright_licenses] => [copyright_institutions] => 
         // [photographers] => 
         if($val = $rec['image_ids']) {
             $tmp = explode("|", $rec['image_ids']);
@@ -283,7 +294,7 @@ class BOLDS_DumpsServiceAPI
         // $phylums = array('Arthropoda');
         // $phylums = array('Magnoliophyta');
         // $phylums = array('Chordata');
-        $phylums = array('Annelida');
+        // $phylums = array('Annelida');
 
         $download_options = $this->download_options;
         $download_options['expire_seconds'] = false;
