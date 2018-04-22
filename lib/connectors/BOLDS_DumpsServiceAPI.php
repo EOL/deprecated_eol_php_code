@@ -41,11 +41,19 @@ class BOLDS_DumpsServiceAPI
         // self::start_using_api();
         self::create_kingdom_taxa();
 
-        $phylums = array('Pyrrophycophyta', 'Heterokontophyta', 'Onychophora', 'Platyhelminthes', 'Porifera', 'Priapulida', 'Rotifera', 'Sipuncula', 'Basidiomycota', 'Chytridiomycota', 
-        'Glomeromycota', 'Myxomycota', 'Zygomycota', 'Chlorarachniophyta', 'Ciliophora', 'Brachiopoda', 'Bryozoa', 'Chaetognatha', 'Cnidaria', 'Cycliophora', 'Gnathostomulida', 
-        'Hemichordata', 'Nematoda', 'Nemertea', 'Annelida', 'Acanthocephala', 'Ascomycota', 'Tardigrada', 'Xenoturbellida', 'Bryophyta', 'Chlorophyta', 'Lycopodiophyta', 'Pinophyta', 
-        'Pteridophyta', 'Rhodophyta', 'Echinodermata', 'Mollusca');
-        exit("\n".count(array_unique($phylums))."\n");
+        $phylums = array('Pyrrophycophyta', 'Heterokontophyta', 'Onychophora', 'Platyhelminthes');
+        
+        $phylums = array('Porifera', 'Priapulida', 'Rotifera', 'Sipuncula', 'Basidiomycota', 'Chytridiomycota', 
+        'Glomeromycota', 'Myxomycota', 'Zygomycota', 'Chlorarachniophyta', 'Ciliophora', 'Brachiopoda', 'Bryozoa', 'Chaetognatha', 'Cnidaria', 'Cycliophora', 'Gnathostomulida');
+
+        // currently Porifera...
+
+        // $phylums = array('Hemichordata', 'Nematoda', 'Nemertea', 'Annelida', 'Acanthocephala', 'Ascomycota', 'Tardigrada', 'Xenoturbellida', 'Bryophyta', 'Chlorophyta');
+        // $phylums = array('Lycopodiophyta', 'Pinophyta', 'Pteridophyta', 'Rhodophyta', 'Echinodermata', 'Mollusca');
+        
+        
+        // exit("\n".count(array_unique($phylums))."\n");
+
         //------------------------- the 3 big ones:
         // $phylums = array('Arthropoda');
         // $phylums = array('Magnoliophyta');
@@ -53,21 +61,35 @@ class BOLDS_DumpsServiceAPI
 
         
         // $phylums = array('Chordata','Annelida');
-        // $phylums = array('Annelida');
+        $phylums = array('Annelida');
         // $phylums = array('Chordata');
         // $phylums = array('Magnoliophyta');
         
-        foreach($phylums as $phylum) $this->dump[$phylum] = "http://localhost/cp/BOLDS_new/bold_".$phylum.".txt.zip";
+        foreach($phylums as $phylum) $this->dump[$phylum] = "http://localhost/cp/BOLDS_new/bold_".$phylum.".txt.zip"; //assign respective source .txt.zip file
         
         
         foreach($phylums as $phylum) {
             $this->current_kingdom = self::get_kingdom_given_phylum($phylum);
             $this->tax_ids = array(); //initialize images per phylum
             self::process_dump($phylum, "get_images_from_dump_rec");
-            // echo "\n"; print_r($this->tax_ids);
+            // echo "\n"; print_r($this->tax_ids); exit;
             self::process_dump($phylum, "write_taxon_archive");
         }
+        self::add_needed_parent_entries();
         $this->archive_builder->finalize(true);
+    }
+    private function add_needed_parent_entries()
+    {
+        require_library('connectors/DWCADiagnoseAPI');
+        $func = new DWCADiagnoseAPI();
+        $url = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id."_working" . "/taxon_working.tab";
+        $suggested_fields = explode("\t", "taxonID	scientificName	taxonRank	parentNameUsageID");
+        if($undefined = $func->check_if_all_parents_have_entries($this->resource_id."_working", true, $url, $suggested_fields)) { //2nd param True means write to text file
+            $arr['parents without entries during process'] = $undefined;
+            echo "\n"; print_r($arr);
+            foreach($arr['parents without entries during process'] as $taxid) self::process_record($taxid);
+        }
+        else echo "\nAll parents have entries OK - during process\n";
     }
     private function process_dump($phylum, $what)
     {
@@ -89,20 +111,13 @@ class BOLDS_DumpsServiceAPI
                     $rec[$field] = @$row[$k];
                 }
                 if($sci = self::valid_rec($rec)) {
-                    // print_r($rec); exit;
+
+                    // if($rec['species_name'] == "Metaphire magna") print_r($rec); //debug only
+                    
                     if    ($what == "get_images_from_dump_rec") self::get_images_from_dump_rec($rec, $sci);
                     elseif($what == "write_taxon_archive")      self::create_taxon_archive($sci);
                 }
-                else 
-                {
-                    self::create_taxon_higher_level_archive($rec);
-                    /* for debug only
-                    if(@$rec['image_ids']) {
-                        print_r($rec); exit("\nRecord found\n");
-                    }
-                    */
-                    
-                }
+                if($what == "write_taxon_archive") self::create_taxon_higher_level_archive($rec);
                 
                 /* for debug only
                 if(@$rec['image_ids']) {
@@ -111,7 +126,7 @@ class BOLDS_DumpsServiceAPI
                 */
                 if(($i % 1000) == 0) echo "\n".number_format($i)." $phylum ";
             }
-            // if($i >= 10000) break; //debug only
+            // if($i >= 1000) break; //debug only
         }
         unlink($txt_file);
     }
@@ -188,14 +203,14 @@ class BOLDS_DumpsServiceAPI
     private function valid_rec($rec)
     {
         $taxName = false;
-        if($taxName = $rec['species_name']) {
-            $taxID = $rec['species_taxID'];
-            $taxRank = 'species';
-            $taxParent = self::compute_parent_id($rec, $taxRank);
-        }
         if($taxName = $rec['subspecies_name']) {
             $taxID = $rec['subspecies_taxID'];
             $taxRank = 'subspecies';
+            $taxParent = self::compute_parent_id($rec, $taxRank);
+        }
+        elseif($taxName = $rec['species_name']) {
+            $taxID = $rec['species_taxID'];
+            $taxRank = 'species';
             $taxParent = self::compute_parent_id($rec, $taxRank);
         }
         if($taxName) {
@@ -387,6 +402,31 @@ class BOLDS_DumpsServiceAPI
                                [external] => 
                            )
         */
+        
+        /* from dump
+        Array
+        (
+            [377871] => Array
+                (
+                    [0] => Array
+                        (
+                            [processid] => CHONE194-11
+                            [image_ids] => 1077290
+                            [image_urls] => http://www.boldsystems.org/pics/CHONE/IMG_8623+1301084466.jpg
+                            [media_descriptors] => Dorsal
+                            [captions] => 
+                            [copyright_holders] => CBG Photography Group
+                            [copyright_years] => 2011
+                            [copyright_licenses] => CreativeCommons - Attribution Non-Commercial Share-Alike
+                            [copyright_institutions] => Centre for Biodiversity Genomics
+                            [photographers] => Spencer Walker
+                        )
+
+                )
+
+        )
+        */
+        
         
         // /* un-comment in real operation
         if($images = @$a['images']) {

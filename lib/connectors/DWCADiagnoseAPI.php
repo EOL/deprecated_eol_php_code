@@ -126,11 +126,11 @@ class DWCADiagnoseAPI
     }
 
     //============================================================
-    function check_if_all_parents_have_entries($resource_id, $write_2text_file = false, $url = false)
+    function check_if_all_parents_have_entries($resource_id, $write_2text_file = false, $url = false, $suggested_fields = false)
     {
         if($write_2text_file) $WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_undefined_parent_ids.txt", "w");
         
-        $var = self::get_fields_from_tab_file($resource_id, array("taxonID", "parentNameUsageID"), $url); //$url if to the tool genHigherClass
+        $var = self::get_fields_from_tab_file($resource_id, array("taxonID", "parentNameUsageID"), $url, $suggested_fields); //$url if to the tool genHigherClass | $suggested_fields from BOLDS_DumpsServiceAPI.php
         $taxon_ids = array_keys($var['taxonID']);
         $parent_ids = array_keys($var['parentNameUsageID']);
         unset($var);
@@ -159,7 +159,7 @@ class DWCADiagnoseAPI
         return $undefined;
     }
     
-    function get_fields_from_tab_file($resource_id, $cols, $url = false)
+    function get_fields_from_tab_file($resource_id, $cols, $url = false, $suggested_fields = false)
     {
         if(!$url) $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/taxon.tab";
         if(!file_exists($url))
@@ -173,14 +173,29 @@ class DWCADiagnoseAPI
         {
             $temp = explode("\t", $temp);
             $i++;
-            if($i == 1) $fields = $temp;
+            if($i == 1) {
+                $fields = $temp;
+                //-------------------------------------new
+                if($suggested_fields) { //suggested_fields from BOLDS_DumpsServiceAPI.php
+                    $fields = $suggested_fields;
+                    //process even line 1 coz there is no field headers and actual values start from line 1
+                    $rec = array();
+                    $k = 0;
+                    if(!$temp) continue;
+                    foreach($temp as $t) {
+                        $rec[$fields[$k]] = $t;
+                        $k++;
+                    }
+                    foreach($cols as $col) $var[$col][@$rec[$col]] = '';
+                }
+                //-------------------------------------new
+            }
             else
             {
                 $rec = array();
                 $k = 0;
                 if(!$temp) continue;
-                foreach($temp as $t)
-                {
+                foreach($temp as $t) {
                     $rec[$fields[$k]] = $t;
                     $k++;
                 }
