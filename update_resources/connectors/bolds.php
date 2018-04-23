@@ -8,7 +8,7 @@ estimated execution time:
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = false;
 $timestart = time_elapsed();
-$resource_id = "Arthropoda";
+$resource_id = "Annelida";
 
 /* tests...
 // $json = Functions::lookup_with_cache("http://www.boldsystems.org/index.php/API_Tax/TaxonData?taxId=30367&dataTypes=all");
@@ -25,8 +25,9 @@ $resource_id = "Arthropoda";
 
 require_library('connectors/BOLDS_DumpsServiceAPI');
 $func = new BOLDS_DumpsServiceAPI($resource_id);
-$func->get_info_from_page(276866);
-
+if($info = $func->get_info_from_page(170890)) {
+    print_r($info);
+}
 exit("\n");
 */
 

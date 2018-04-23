@@ -34,6 +34,7 @@ class BOLDS_DumpsServiceAPI
         $this->kingdom['Plantae'] = array("Bryophyta", "Chlorophyta", "Lycopodiophyta", "Magnoliophyta", "Pinophyta", "Pteridophyta", "Rhodophyta");
         $this->kingdom['Fungi'] = array("Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Myxomycota", "Zygomycota");
         $this->kingdom['Protista'] = array("Chlorarachniophyta", "Ciliophora", "Heterokontophyta", "Pyrrophycophyta");
+        $this->debug = array();
     }
 
     function start_using_dump()
@@ -41,25 +42,27 @@ class BOLDS_DumpsServiceAPI
         // self::start_using_api();
         self::create_kingdom_taxa();
 
+
         // $this->kingdom['Animalia'] OK
-        // $phylums = array("Acanthocephala", "Brachiopoda", "Bryozoa", "Chaetognatha", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
-        
+        // $phylums = array("Acanthocephala", "Annelida", "Arthropoda", "Brachiopoda", "Bryozoa", "Chaetognatha", "Chordata", "Cnidaria", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Mollusca", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
+
         // $this->kingdom['Plantae'] OK
-        // $phylums = array("Bryophyta", "Chlorophyta", "Lycopodiophyta", "Pinophyta", "Pteridophyta", "Rhodophyta");
+        // $phylums = array("Bryophyta", "Chlorophyta", "Lycopodiophyta", "Magnoliophyta", "Pinophyta", "Pteridophyta", "Rhodophyta");
         
         // $this->kingdom['Fungi'] OK
         // $phylums = array("Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Myxomycota", "Zygomycota");
         
         // $this->kingdom['Protista'] OK
         // $phylums = array("Chlorarachniophyta", "Ciliophora", "Heterokontophyta", "Pyrrophycophyta");
+
         
 
         //------------------------- the 3 big ones:
-        $phylums = array('Arthropoda');
+        // $phylums = array('Arthropoda');
         // $phylums = array('Chordata'); //OK
         // $phylums = array('Magnoliophyta'); //OK
 
-        // $phylums = array('Annelida'); //ok
+        $phylums = array('Annelida'); //ok
         // $phylums = array('Mollusca'); //ok
         // $phylums = array('Cnidaria'); //ok
         
@@ -71,7 +74,7 @@ class BOLDS_DumpsServiceAPI
             $this->tax_ids = array(); //initialize images per phylum
             
             self::download_and_extract_remote_file($this->dump[$phylum], true);
-            self::process_dump($phylum, "get_images_from_dump_rec");
+                        self::process_dump($phylum, "get_images_from_dump_rec");
             $txt_file = self::process_dump($phylum, "write_taxon_archive");
             self::create_media_archive_from_dump();
             
@@ -79,6 +82,7 @@ class BOLDS_DumpsServiceAPI
         }
         self::add_needed_parent_entries(1);
         $this->archive_builder->finalize(true);
+        print_r($this->debug);
     }
     private function create_media_archive_from_dump()
     {
@@ -169,10 +173,14 @@ class BOLDS_DumpsServiceAPI
                     $info['tax_rank'] = trim($a[1]);
                 }
             }
-            if($info['taxon'] && $info['tax_rank'])
-            {
-                echo "\nSalvaged by scraping: $taxid";
+            if($info['taxon'] && $info['tax_rank']) {
+                echo "\nSalvaged by scraping: [$taxid]";
                 return $info;
+            }
+            elseif(stripos($html, "This taxon cannot be located") !== false) { //string is found
+                $this->debug['Page cannot be located'][$taxid] = '';
+                echo "\nPage cannot be located: [$taxid]";
+                return false;
             }
             else exit("\nInvestigate taxid [$taxid] cannnot scrape properly.\n");
         }
