@@ -8,7 +8,7 @@ estimated execution time:
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = false;
 $timestart = time_elapsed();
-$resource_id = "Animalia";
+$resource_id = "Arthropoda";
 
 /* tests...
 // $json = Functions::lookup_with_cache("http://www.boldsystems.org/index.php/API_Tax/TaxonData?taxId=30367&dataTypes=all");
@@ -22,6 +22,10 @@ $resource_id = "Animalia";
 //     echo "\n taxid is [$taxid]";
 //     print_r($images);
 // }
+
+require_library('connectors/BOLDS_DumpsServiceAPI');
+$func = new BOLDS_DumpsServiceAPI($resource_id);
+$func->get_info_from_page(276866);
 
 exit("\n");
 */

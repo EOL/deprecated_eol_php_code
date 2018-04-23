@@ -41,27 +41,27 @@ class BOLDS_DumpsServiceAPI
         // self::start_using_api();
         self::create_kingdom_taxa();
 
-        // $this->kingdom['Animalia'] 
-        $phylums = array("Acanthocephala", "Brachiopoda", "Bryozoa", "Chaetognatha", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
+        // $this->kingdom['Animalia'] OK
+        // $phylums = array("Acanthocephala", "Brachiopoda", "Bryozoa", "Chaetognatha", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
         
-        // $this->kingdom['Plantae'] 
+        // $this->kingdom['Plantae'] OK
         // $phylums = array("Bryophyta", "Chlorophyta", "Lycopodiophyta", "Pinophyta", "Pteridophyta", "Rhodophyta");
         
-        // $this->kingdom['Fungi'] 
+        // $this->kingdom['Fungi'] OK
         // $phylums = array("Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Myxomycota", "Zygomycota");
         
-        // $this->kingdom['Protista'] 
+        // $this->kingdom['Protista'] OK
         // $phylums = array("Chlorarachniophyta", "Ciliophora", "Heterokontophyta", "Pyrrophycophyta");
         
 
         //------------------------- the 3 big ones:
-        // $phylums = array('Arthropoda');
-        // $phylums = array('Chordata');
-        // $phylums = array('Magnoliophyta');
+        $phylums = array('Arthropoda');
+        // $phylums = array('Chordata'); //OK
+        // $phylums = array('Magnoliophyta'); //OK
 
-        // $phylums = array('Annelida');
-        // $phylums = array('Mollusca');
-        // $phylums = array('Cnidaria');
+        // $phylums = array('Annelida'); //ok
+        // $phylums = array('Mollusca'); //ok
+        // $phylums = array('Cnidaria'); //ok
         
         foreach($phylums as $phylum) $this->dump[$phylum] = "http://localhost/cp/BOLDS_new/bold_".$phylum.".txt.zip"; //assign respective source .txt.zip file
         
@@ -77,7 +77,7 @@ class BOLDS_DumpsServiceAPI
             
             unlink($txt_file);
         }
-        self::add_needed_parent_entries();
+        self::add_needed_parent_entries(1);
         $this->archive_builder->finalize(true);
     }
     private function create_media_archive_from_dump()
@@ -129,7 +129,7 @@ class BOLDS_DumpsServiceAPI
             }
         }
     }
-    private function add_needed_parent_entries()
+    private function add_needed_parent_entries($trials)
     {
         require_library('connectors/DWCADiagnoseAPI');
         $func = new DWCADiagnoseAPI();
@@ -137,7 +137,7 @@ class BOLDS_DumpsServiceAPI
         $suggested_fields = explode("\t", "taxonID	scientificName	taxonRank	parentNameUsageID");
         if($undefined = $func->check_if_all_parents_have_entries($this->resource_id."_working", true, $url, $suggested_fields)) { //2nd param True means write to text file
             $arr['parents without entries during process'] = $undefined;
-            echo "\n"; print_r($arr);
+            echo "\ntrials:[$trials]"; print_r($arr);
             foreach($arr['parents without entries during process'] as $taxid) {
                 if(self::process_record($taxid)) {}
                 else {
@@ -147,12 +147,15 @@ class BOLDS_DumpsServiceAPI
         }
         else echo "\nAll parents have entries OK - during process\n";
     }
-    private function get_info_from_page($taxid)
+    public function get_info_from_page($taxid)
     {
         if($html = Functions::lookup_with_cache($this->page['sourceURL'].$taxid, $this->download_options)) {
             /*
             <h3>TAXONOMY BROWSER: Bryophyta</h3>
             <p>Phylum : Bryophyta</p>
+
+            <h3>TAXONOMY BROWSER: Triviinae</h3>
+            <p>Subfamily : Triviinae</p>
             */
             $info['taxid'] = $taxid;
             $info['tax_division'] = self::get_taxdiv_given_kingdom();
@@ -212,7 +215,12 @@ class BOLDS_DumpsServiceAPI
             // if($i >= 5000) break; //debug only
         }
         if($what == "write_taxon_archive") {
-            foreach(array_keys($higher_level_ids) as $taxid) self::process_record($taxid);
+            foreach(array_keys($higher_level_ids) as $taxid) {
+                if(self::process_record($taxid)) {}
+                else {
+                    if($taxon_info = self::get_info_from_page($taxid)) self::create_taxon_archive($taxon_info);
+                }
+            }
         }
         return $txt_file;
     }
