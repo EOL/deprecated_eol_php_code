@@ -44,7 +44,7 @@ class BOLDS_DumpsServiceAPI
         // $phylums = array("Acanthocephala", "Brachiopoda", "Bryozoa", "Chaetognatha", "Chordata", "Cnidaria", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Mollusca", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
         // $phylums = array("Bryophyta", "Chlorophyta", "Lycopodiophyta", "Magnoliophyta", "Pinophyta", "Pteridophyta", "Rhodophyta");
         // $phylums = array("Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Myxomycota", "Zygomycota");
-        $phylums = array("Chlorarachniophyta", "Ciliophora", "Heterokontophyta", "Pyrrophycophyta");
+        // $phylums = array("Chlorarachniophyta", "Ciliophora", "Heterokontophyta", "Pyrrophycophyta");
         
 
         //------------------------- the 3 big ones:
@@ -65,7 +65,56 @@ class BOLDS_DumpsServiceAPI
             self::process_dump($phylum, "write_taxon_archive");
         }
         self::add_needed_parent_entries();
+        self::create_media_archive_from_dump();
         $this->archive_builder->finalize(true);
+    }
+    private function create_media_archive_from_dump()
+    {
+        /* from dump:
+        Array(
+            [377871] => Array(
+                    [0] => Array(
+                            [processid] => CHONE194-11
+                            [image_ids] => 1077290
+                            [image_urls] => http://www.boldsystems.org/pics/CHONE/IMG_8623+1301084466.jpg
+                            [media_descriptors] => Dorsal
+                            [captions] => 
+                            [copyright_holders] => CBG Photography Group
+                            [copyright_years] => 2011
+                            [copyright_licenses] => CreativeCommons - Attribution Non-Commercial Share-Alike
+                            [copyright_institutions] => Centre for Biodiversity Genomics
+                            [photographers] => Spencer Walker
+                        )
+                )
+        )
+        */
+        foreach($this->tax_ids as $taxid => $images) {
+            foreach($images as $image) {
+                /*
+                [image_ids] => 1077290  --- did not use
+                [image_urls] => http://www.boldsystems.org/pics/CHONE/IMG_8623+1301084466.jpg --- did not directly use
+                */
+                
+                //pattern the fields like that of the API results so we can only use one script for creating media archive
+                $img = array();
+                $img['copyright_institution']   = $image['copyright_institutions'];
+                $img['copyright']               = '';
+                $img['copyright_license']       = $image['copyright_licenses'];
+                $img['copyright_holder']        = $image['copyright_holders'];
+                $img['copyright_contact']       = '';
+                $img['copyright_year']          = $image['copyright_years'];
+                $img['image']                   = str_ireplace("http://www.boldsystems.org/pics/", $image['image_urls']);
+                if(substr($img['image'],0,4) == "http") {
+                    print_r($image);
+                    exit("\nInvestigate: image URL\n");
+                }
+                $img['photographer']            = $image['photographers'];
+                $img['meta']                    = $image['media_descriptors'].".";
+                if($val = $image['captions']) $img['meta']." Caption: ".$val.".";
+                $img['imagequality']            = '';
+                self::write_image_record($img, $taxid);
+            }
+        }
     }
     private function add_needed_parent_entries()
     {
@@ -127,7 +176,7 @@ class BOLDS_DumpsServiceAPI
                 */
                 if(($i % 1000) == 0) echo "\n".number_format($i)." $phylum ";
             }
-            // if($i >= 1000) break; //debug only
+            if($i >= 1000) break; //debug only
         }
         unlink($txt_file);
     }
@@ -406,56 +455,12 @@ class BOLDS_DumpsServiceAPI
                            )
         */
         
-        /* from dump
-        Array
-        (
-            [377871] => Array
-                (
-                    [0] => Array
-                        (
-                            [processid] => CHONE194-11
-                            [image_ids] => 1077290
-                            [image_urls] => http://www.boldsystems.org/pics/CHONE/IMG_8623+1301084466.jpg
-                            [media_descriptors] => Dorsal
-                            [captions] => 
-                            [copyright_holders] => CBG Photography Group
-                            [copyright_years] => 2011
-                            [copyright_licenses] => CreativeCommons - Attribution Non-Commercial Share-Alike
-                            [copyright_institutions] => Centre for Biodiversity Genomics
-                            [photographers] => Spencer Walker
-                        )
-
-                )
-
-        )
-        */
-        
-        
         // /* un-comment in real operation
         if($images = @$a['images']) {
             // print_r($images);
             foreach($images as $img) {
                 if($img['image']) {
-                    $mr = new \eol_schema\MediaResource();
-                    // if($reference_ids) $mr->referenceID = implode("; ", $reference_ids);
-                    if($agent_ids = self::format_agents($img)) $mr->agentID = implode("; ", $agent_ids);
-                    $mr->taxonID                = $a['taxid'];
-                    $mr->identifier             = $img['image'];
-                    $mr->type                   = "http://purl.org/dc/dcmitype/StillImage";
-                    // $mr->language               = 'en';
-                    $mr->format                 = Functions::get_mimetype($img['image']);
-                    $mr->furtherInformationURL  = $this->page['sourceURL'].$a['taxid'];
-                    $mr->description            = self::format_description($img);
-                    $mr->UsageTerms             = self::format_license($img['copyright_license']);
-                    if(!$mr->UsageTerms) continue; //invalid license
-                    $mr->Owner                  = self::format_rightsHolder($img);
-                    $mr->rights                 = '';
-                    $mr->accessURI              = "http://www.boldsystems.org/pics/".$img['image'];
-                    $mr->Rating                 = $img['imagequality']; //will need to check what values they have here...
-                    if(!isset($this->object_ids[$mr->identifier])) {
-                        $this->archive_builder->write_object_to_file($mr);
-                        $this->object_ids[$mr->identifier] = '';
-                    }
+                    self::write_image_record($img, $a['taxid']);
                 }
             }
         }
@@ -482,6 +487,29 @@ class BOLDS_DumpsServiceAPI
             }
         }
         
+    }
+    private function write_image_record($img, $taxid)
+    {
+        $mr = new \eol_schema\MediaResource();
+        // if($reference_ids) $mr->referenceID = implode("; ", $reference_ids);
+        if($agent_ids = self::format_agents($img)) $mr->agentID = implode("; ", $agent_ids);
+        $mr->taxonID                = $taxid;
+        $mr->identifier             = $img['image'];
+        $mr->type                   = "http://purl.org/dc/dcmitype/StillImage";
+        // $mr->language               = 'en';
+        $mr->format                 = Functions::get_mimetype($img['image']);
+        $mr->furtherInformationURL  = $this->page['sourceURL'].$taxid;
+        $mr->description            = self::format_description($img);
+        $mr->UsageTerms             = self::format_license($img['copyright_license']);
+        if(!$mr->UsageTerms) return; //invalid license
+        $mr->Owner                  = self::format_rightsHolder($img);
+        $mr->rights                 = '';
+        $mr->accessURI              = "http://www.boldsystems.org/pics/".$img['image'];
+        $mr->Rating                 = $img['imagequality']; //will need to check what values they have here...
+        if(!isset($this->object_ids[$mr->identifier])) {
+            $this->archive_builder->write_object_to_file($mr);
+            $this->object_ids[$mr->identifier] = '';
+        }
     }
     private function create_taxon_archive($a)
     {   /*                      
