@@ -41,18 +41,28 @@ class BOLDS_DumpsServiceAPI
         // self::start_using_api();
         self::create_kingdom_taxa();
 
-        // $phylums = array("Acanthocephala", "Brachiopoda", "Bryozoa", "Chaetognatha", "Chordata", "Cnidaria", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Mollusca", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
-        // $phylums = array("Bryophyta", "Chlorophyta", "Lycopodiophyta", "Magnoliophyta", "Pinophyta", "Pteridophyta", "Rhodophyta");
+        // $this->kingdom['Animalia'] 
+        // $phylums = array("Acanthocephala", "Brachiopoda", "Bryozoa", "Chaetognatha", "Cnidaria", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Mollusca", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
+        
+        // $this->kingdom['Plantae'] 
+        // $phylums = array("Bryophyta", "Chlorophyta", "Lycopodiophyta", "Pinophyta", "Pteridophyta", "Rhodophyta");
+        
+        // $this->kingdom['Fungi'] 
         // $phylums = array("Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Myxomycota", "Zygomycota");
+        
+        // $this->kingdom['Protista'] 
         // $phylums = array("Chlorarachniophyta", "Ciliophora", "Heterokontophyta", "Pyrrophycophyta");
         
 
         //------------------------- the 3 big ones:
-        // $phylums = array('Arthropoda'); can't download this
-        // $phylums = array('Chordata','Annelida');
-        $phylums = array('Annelida');
+        // $phylums = array('Arthropoda');
         // $phylums = array('Chordata');
         // $phylums = array('Magnoliophyta');
+
+
+        // $phylums = array('Annelida');
+        $phylums = array('Mollusca');
+
         
         foreach($phylums as $phylum) $this->dump[$phylum] = "http://localhost/cp/BOLDS_new/bold_".$phylum.".txt.zip"; //assign respective source .txt.zip file
         
@@ -60,9 +70,12 @@ class BOLDS_DumpsServiceAPI
         foreach($phylums as $phylum) {
             $this->current_kingdom = self::get_kingdom_given_phylum($phylum);
             $this->tax_ids = array(); //initialize images per phylum
+            
+            self::download_and_extract_remote_file($this->dump[$phylum], true);
             self::process_dump($phylum, "get_images_from_dump_rec");
             // echo "\n"; print_r($this->tax_ids); exit;
-            self::process_dump($phylum, "write_taxon_archive");
+            $txt_file = self::process_dump($phylum, "write_taxon_archive");
+            unlink($txt_file);
         }
         self::add_needed_parent_entries();
         self::create_media_archive_from_dump();
@@ -88,8 +101,9 @@ class BOLDS_DumpsServiceAPI
                 )
         )
         */
-        foreach($this->tax_ids as $taxid => $images) {
-            foreach($images as $image) {
+        foreach($this->tax_ids as $taxid => $block) {
+            if(!@$block['images']) continue;
+            foreach($block['images'] as $image) {
                 /*
                 [image_ids] => 1077290  --- did not use
                 [image_urls] => http://www.boldsystems.org/pics/CHONE/IMG_8623+1301084466.jpg --- did not directly use
@@ -103,7 +117,7 @@ class BOLDS_DumpsServiceAPI
                 $img['copyright_holder']        = $image['copyright_holders'];
                 $img['copyright_contact']       = '';
                 $img['copyright_year']          = $image['copyright_years'];
-                $img['image']                   = str_ireplace("http://www.boldsystems.org/pics/", $image['image_urls']);
+                $img['image']                   = str_ireplace("http://www.boldsystems.org/pics/", "", $image['image_urls']);
                 if(substr($img['image'],0,4) == "http") {
                     print_r($image);
                     exit("\nInvestigate: image URL\n");
@@ -128,8 +142,7 @@ class BOLDS_DumpsServiceAPI
             foreach($arr['parents without entries during process'] as $taxid) {
                 if(self::process_record($taxid)) {}
                 else {
-                    $taxon_info = self::get_info_from_page($taxid);
-                    // self::add_taxon_from_page_scrape();
+                    if($taxon_info = self::get_info_from_page($taxid)) self::create_taxon_archive($taxon_info);
                 }
             }
         }
@@ -138,14 +151,32 @@ class BOLDS_DumpsServiceAPI
     private function get_info_from_page($taxid)
     {
         if($html = Functions::lookup_with_cache($this->page['sourceURL'].$taxid, $this->download_options)) {
-            
+            /*
+            <h3>TAXONOMY BROWSER: Bryophyta</h3>
+            <p>Phylum : Bryophyta</p>
+            */
+            $info['taxid'] = $taxid;
+            $info['tax_division'] = self::get_taxdiv_given_kingdom();
+            $info['parentid'] = $this->tax_ids[$taxid]['p'];
+            if(preg_match("/<h3>TAXONOMY BROWSER\:(.*?)<\/h3>/ims", $html, $a)) {
+                $info['taxon'] = trim($a[1]);
+            }
+            if(preg_match("/<h3>TAXONOMY BROWSER\:(.*?)<\/p>/ims", $html, $a)) {
+                $temp = trim($a[1]);
+                if(preg_match("/<p>(.*?)\:/ims", $temp, $a)) {
+                    $info['tax_rank'] = trim($a[1]);
+                }
+            }
+            if($info['taxon'] && $info['tax_rank']) return $info;
+            else exit("\nInvestigate taxid [$taxid] cannnot scrape properly.\n");
         }
+        return false;
     }
     private function process_dump($phylum, $what)
     {
-        self::download_and_extract_remote_file($this->dump[$phylum], true);
         $txt_file = DOC_ROOT."tmp/bold_".$phylum.".txt";
         $i = 0;
+        $higher_level_ids = array();
         foreach(new FileIterator($txt_file) as $line_number => $line) {
             $i++;
             $row = explode("\t", $line);
@@ -161,13 +192,12 @@ class BOLDS_DumpsServiceAPI
                     $rec[$field] = @$row[$k];
                 }
                 if($sci = self::valid_rec($rec)) {
-
                     // if($rec['species_name'] == "Metaphire magna") print_r($rec); //debug only
-                    
                     if    ($what == "get_images_from_dump_rec") self::get_images_from_dump_rec($rec, $sci);
                     elseif($what == "write_taxon_archive")      self::create_taxon_archive($sci);
                 }
-                if($what == "write_taxon_archive") self::create_taxon_higher_level_archive($rec);
+                // if($what == "write_taxon_archive") self::create_taxon_higher_level_archive($rec);
+                if($what == "write_taxon_archive") $higher_level_ids = self::get_higher_level_ids($rec, $higher_level_ids);
                 
                 /* for debug only
                 if(@$rec['image_ids']) {
@@ -176,9 +206,12 @@ class BOLDS_DumpsServiceAPI
                 */
                 if(($i % 1000) == 0) echo "\n".number_format($i)." $phylum ";
             }
-            if($i >= 1000) break; //debug only
+            // if($i >= 5000) break; //debug only
         }
-        unlink($txt_file);
+        if($what == "write_taxon_archive") {
+            foreach(array_keys($higher_level_ids) as $taxid) self::process_record($taxid);
+        }
+        return $txt_file;
     }
     private function get_images_from_dump_rec($rec, $sci)
     {
@@ -205,50 +238,90 @@ class BOLDS_DumpsServiceAPI
             // echo "\n".$rec['processid']."\n";
             // print_r($final);
             
-            if(!isset($this->tax_ids[$sci['taxid']])) $this->tax_ids[$sci['taxid']] = array();
-            $this->tax_ids[$sci['taxid']] = array_merge($this->tax_ids[$sci['taxid']], $final);
+            if(!isset($this->tax_ids[$sci['taxid']]['images'])) $this->tax_ids[$sci['taxid']]['images'] = array();
+            $this->tax_ids[$sci['taxid']]['images'] = array_merge($this->tax_ids[$sci['taxid']]['images'], $final);
         }
+    }
+    private function get_higher_level_ids($rec, $higher_level_ids)
+    {
+        if($taxName = $rec['phylum_name']) {
+            $taxID = $rec['phylum_taxID'];
+            $taxRank = 'phylum';
+            $this->tax_ids[$taxID]['p'] = self::compute_parent_id($rec, $taxRank);
+            $higher_level_ids[$taxID] = '';
+        }
+        if($taxName = $rec['class_name']) {
+            $taxID = $rec['class_taxID'];
+            $taxRank = 'class';
+            $this->tax_ids[$taxID]['p'] = self::compute_parent_id($rec, $taxRank);
+            $higher_level_ids[$taxID] = '';
+        }
+        if($taxName = $rec['order_name']) {
+            $taxID = $rec['order_taxID'];
+            $taxRank = 'order';
+            $this->tax_ids[$taxID]['p'] = self::compute_parent_id($rec, $taxRank);
+            $higher_level_ids[$taxID] = '';
+        }
+        if($taxName = $rec['family_name']) {
+            $taxID = $rec['family_taxID'];
+            $taxRank = 'family';
+            $this->tax_ids[$taxID]['p'] = self::compute_parent_id($rec, $taxRank);
+            $higher_level_ids[$taxID] = '';
+        }
+        if($taxName = $rec['subfamily_name']) {
+            $taxID = $rec['subfamily_taxID'];
+            $taxRank = 'subfamily';
+            $this->tax_ids[$taxID]['p'] = self::compute_parent_id($rec, $taxRank);
+            $higher_level_ids[$taxID] = '';
+        }
+        if($taxName = $rec['genus_name']) {
+            $taxID = $rec['genus_taxID'];
+            $taxRank = 'genus';
+            $this->tax_ids[$taxID]['p'] = self::compute_parent_id($rec, $taxRank);
+            $higher_level_ids[$taxID] = '';
+        }
+        return $higher_level_ids;
     }
     private function create_taxon_higher_level_archive($rec) //create taxon using API
     {
-        // /*
+        /*
         if($taxName = $rec['phylum_name']) {
             $taxID = $rec['phylum_taxID'];
             // $taxRank = 'phylum';
-            // $taxParent = self::compute_parent_id($rec, $taxRank);
+            $this->tax_ids[$taxID]['p'] = self::compute_parent_id($rec, $taxRank);
             self::process_record($taxID);
         }
         if($taxName = $rec['class_name']) {
             $taxID = $rec['class_taxID'];
             // $taxRank = 'class';
-            // $taxParent = self::compute_parent_id($rec, $taxRank);
+            $this->tax_ids[$taxID]['p'] = self::compute_parent_id($rec, $taxRank);
             self::process_record($taxID);
         }
         if($taxName = $rec['order_name']) {
             $taxID = $rec['order_taxID'];
             // $taxRank = 'order';
-            // $taxParent = self::compute_parent_id($rec, $taxRank);
+            $this->tax_ids[$taxID]['p'] = self::compute_parent_id($rec, $taxRank);
             self::process_record($taxID);
         }
         if($taxName = $rec['family_name']) {
             $taxID = $rec['family_taxID'];
             // $taxRank = 'family';
-            // $taxParent = self::compute_parent_id($rec, $taxRank);
+            $this->tax_ids[$taxID]['p'] = self::compute_parent_id($rec, $taxRank);
             self::process_record($taxID);
         }
         if($taxName = $rec['subfamily_name']) {
             $taxID = $rec['subfamily_taxID'];
             // $taxRank = 'subfamily';
-            // $taxParent = self::compute_parent_id($rec, $taxRank);
+            $this->tax_ids[$taxID]['p'] = self::compute_parent_id($rec, $taxRank);
             self::process_record($taxID);
         }
         if($taxName = $rec['genus_name']) {
             $taxID = $rec['genus_taxID'];
             // $taxRank = 'genus';
-            // $taxParent = self::compute_parent_id($rec, $taxRank);
+            $this->tax_ids[$taxID]['p'] = self::compute_parent_id($rec, $taxRank);
             self::process_record($taxID);
         }
-        // */
+        */
     }
     private function valid_rec($rec)
     {

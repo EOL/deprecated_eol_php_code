@@ -8,11 +8,21 @@ estimated execution time:
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = false;
 $timestart = time_elapsed();
-$resource_id = "1";
+$resource_id = "Mollusca";
 
 /* tests...
 // $json = Functions::lookup_with_cache("http://www.boldsystems.org/index.php/API_Tax/TaxonData?taxId=30367&dataTypes=all");
 // print_r(json_decode($json, true));
+
+// $taxids[1]['images'] = array("a",'b','c');
+// $taxids[2]['images'] = array("e",'f','g');
+// $taxids[1]['parentID'] = "parent of 1";
+// $taxids[2]['parentID'] = "parent of 2";
+// foreach($taxids as $taxid => $images) {
+//     echo "\n taxid is [$taxid]";
+//     print_r($images);
+// }
+
 exit("\n");
 */
 
