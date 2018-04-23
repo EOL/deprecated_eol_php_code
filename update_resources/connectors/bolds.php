@@ -8,7 +8,7 @@ estimated execution time:
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = false;
 $timestart = time_elapsed();
-$resource_id = "Mollusca";
+$resource_id = "Animalia";
 
 /* tests...
 // $json = Functions::lookup_with_cache("http://www.boldsystems.org/index.php/API_Tax/TaxonData?taxId=30367&dataTypes=all");

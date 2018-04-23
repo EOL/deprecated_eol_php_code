@@ -42,7 +42,7 @@ class BOLDS_DumpsServiceAPI
         self::create_kingdom_taxa();
 
         // $this->kingdom['Animalia'] 
-        // $phylums = array("Acanthocephala", "Brachiopoda", "Bryozoa", "Chaetognatha", "Cnidaria", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Mollusca", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
+        $phylums = array("Acanthocephala", "Brachiopoda", "Bryozoa", "Chaetognatha", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
         
         // $this->kingdom['Plantae'] 
         // $phylums = array("Bryophyta", "Chlorophyta", "Lycopodiophyta", "Pinophyta", "Pteridophyta", "Rhodophyta");
@@ -59,10 +59,9 @@ class BOLDS_DumpsServiceAPI
         // $phylums = array('Chordata');
         // $phylums = array('Magnoliophyta');
 
-
         // $phylums = array('Annelida');
-        $phylums = array('Mollusca');
-
+        // $phylums = array('Mollusca');
+        // $phylums = array('Cnidaria');
         
         foreach($phylums as $phylum) $this->dump[$phylum] = "http://localhost/cp/BOLDS_new/bold_".$phylum.".txt.zip"; //assign respective source .txt.zip file
         
@@ -73,12 +72,12 @@ class BOLDS_DumpsServiceAPI
             
             self::download_and_extract_remote_file($this->dump[$phylum], true);
             self::process_dump($phylum, "get_images_from_dump_rec");
-            // echo "\n"; print_r($this->tax_ids); exit;
             $txt_file = self::process_dump($phylum, "write_taxon_archive");
+            self::create_media_archive_from_dump();
+            
             unlink($txt_file);
         }
         self::add_needed_parent_entries();
-        self::create_media_archive_from_dump();
         $this->archive_builder->finalize(true);
     }
     private function create_media_archive_from_dump()
@@ -167,7 +166,11 @@ class BOLDS_DumpsServiceAPI
                     $info['tax_rank'] = trim($a[1]);
                 }
             }
-            if($info['taxon'] && $info['tax_rank']) return $info;
+            if($info['taxon'] && $info['tax_rank'])
+            {
+                echo "\nSalvaged by scraping: $taxid";
+                return $info;
+            }
             else exit("\nInvestigate taxid [$taxid] cannnot scrape properly.\n");
         }
         return false;
