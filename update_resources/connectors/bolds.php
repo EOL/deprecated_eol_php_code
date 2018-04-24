@@ -10,11 +10,11 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 
 
-// $resource_id = "Annelida"; //Animals
+$resource_id = "Annelida"; //Animals
 // $resource_id = "Rhodophyta"; //Plants
 // $resource_id = "Basidiomycota"; //Fungi
 // $resource_id = "Protista";
-$resource_id = '81';
+// $resource_id = '81';
 
 
 /* tests...
@@ -36,13 +36,6 @@ if($info = $func->get_info_from_page(170890)) {
     print_r($info);
 }
 exit("\n");
-*/
-
-/* using API
-// require_library('connectors/BOLDS_APIServiceAPI');
-require_library('connectors/BOLDS_DumpsServiceAPI');
-$func = new BOLDS_DumpsServiceAPI($resource_id);
-$func->start_using_api();
 */
 
 // /* using Dumps

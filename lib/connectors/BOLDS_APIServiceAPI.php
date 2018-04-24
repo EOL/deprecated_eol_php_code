@@ -49,6 +49,7 @@ class BOLDS_APIServiceAPI
 
     function start()
     {
+        exit("\nThis did not get used.\n");
         $taxon_ids = self::get_all_taxon_ids();
         $this->archive_builder->finalize(true);
         print_r($this->debug);
