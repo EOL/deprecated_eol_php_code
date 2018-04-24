@@ -42,32 +42,30 @@ class BOLDS_DumpsServiceAPI
         // self::start_using_api();
         self::create_kingdom_taxa();
 
+        $phylums_Animalia = array("Acanthocephala", "Annelida", "Arthropoda", "Brachiopoda", "Bryozoa", "Chaetognatha", "Chordata", "Cnidaria", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Mollusca", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
+        $phylums_Plantae = array("Bryophyta", "Chlorophyta", "Lycopodiophyta", "Magnoliophyta", "Pinophyta", "Pteridophyta", "Rhodophyta");
+        $phylums_Fungi = array("Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Myxomycota", "Zygomycota");
+        $phylums_Protista = array("Chlorarachniophyta", "Ciliophora", "Heterokontophyta", "Pyrrophycophyta");
 
-        // $this->kingdom['Animalia'] OK
-        // $phylums = array("Acanthocephala", "Annelida", "Arthropoda", "Brachiopoda", "Bryozoa", "Chaetognatha", "Chordata", "Cnidaria", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Mollusca", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
-
-        // $this->kingdom['Plantae'] OK
-        // $phylums = array("Bryophyta", "Chlorophyta", "Lycopodiophyta", "Magnoliophyta", "Pinophyta", "Pteridophyta", "Rhodophyta");
-        
-        // $this->kingdom['Fungi'] OK
-        // $phylums = array("Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Myxomycota", "Zygomycota");
-        
-        // $this->kingdom['Protista'] OK
-        // $phylums = array("Chlorarachniophyta", "Ciliophora", "Heterokontophyta", "Pyrrophycophyta");
-
-        
+        $phylums = array_merge($phylums_Animalia, $phylums_Plantae, $phylums_Fungi, $phylums_Protista);
+        // exit("\n".count($phylums)."\n");
 
         //------------------------- the 3 big ones:
         // $phylums = array('Arthropoda');
         // $phylums = array('Chordata'); //OK
         // $phylums = array('Magnoliophyta'); //OK
 
-        $phylums = array('Annelida'); //ok
-        // $phylums = array('Mollusca'); //ok
-        // $phylums = array('Cnidaria'); //ok
+        /*
+        // for review, first crack:
+        $phylums = array('Annelida'); //Animals
+        $phylums = array('Rhodophyta'); //Plants
+        $phylums = array('Basidiomycota'); //Fungi
+        $phylums = $phylums_Protista;
+        */
+
+        // $phylums = array('Annelida', 'Rhodophyta', 'Basidiomycota', 'Heterokontophyta');
         
         foreach($phylums as $phylum) $this->dump[$phylum] = "http://localhost/cp/BOLDS_new/bold_".$phylum.".txt.zip"; //assign respective source .txt.zip file
-        
         
         foreach($phylums as $phylum) {
             $this->current_kingdom = self::get_kingdom_given_phylum($phylum);
@@ -77,12 +75,34 @@ class BOLDS_DumpsServiceAPI
                         self::process_dump($phylum, "get_images_from_dump_rec");
             $txt_file = self::process_dump($phylum, "write_taxon_archive");
             self::create_media_archive_from_dump();
-            
             unlink($txt_file);
         }
         self::add_needed_parent_entries(1);
         $this->archive_builder->finalize(true);
-        print_r($this->debug);
+        self::start_print_debug();
+        // print_r($this->debug);
+    }
+    private function start_print_debug()
+    {
+        $defined_uris = Functions::get_eol_defined_uris(false, true);
+        $file = CONTENT_RESOURCE_LOCAL_PATH . "bolds_debug.txt";
+        $WRITE = Functions::file_open($file, "w");
+        foreach($this->debug as $topic => $arr) {
+            fwrite($WRITE, "============================================================="."\n");
+            fwrite($WRITE, $topic."\n");
+            foreach($arr as $subtopic => $arr2) {
+                fwrite($WRITE, "----- ".$subtopic." ----- \n");
+                $arr2 = array_keys($arr2);
+                asort($arr2);
+                foreach($arr2 as $item) {
+                    if($item) {
+                        if(!isset($defined_uris[$item])) fwrite($WRITE, $item."\n");
+                        else echo "\ndefined trait already";
+                    }
+                }
+            }
+        }
+        fclose($WRITE);
     }
     private function create_media_archive_from_dump()
     {
@@ -194,7 +214,6 @@ class BOLDS_DumpsServiceAPI
         foreach(new FileIterator($txt_file) as $line_number => $line) {
             $i++;
             $row = explode("\t", $line);
-            // print_r($row);
             if($i == 1) {
                 $fields = $row;
             }
@@ -205,23 +224,34 @@ class BOLDS_DumpsServiceAPI
                     $k++;
                     $rec[$field] = @$row[$k];
                 }
+
+                // /* un-comment in normal operation
                 if($sci = self::valid_rec($rec)) {
                     // if($rec['species_name'] == "Metaphire magna") print_r($rec); //debug only
                     if    ($what == "get_images_from_dump_rec") self::get_images_from_dump_rec($rec, $sci);
                     elseif($what == "write_taxon_archive")      self::create_taxon_archive($sci);
                 }
-                // if($what == "write_taxon_archive") self::create_taxon_higher_level_archive($rec);
+                // if($what == "write_taxon_archive") self::create_taxon_higher_level_archive($rec); //obsolete
                 if($what == "write_taxon_archive") $higher_level_ids = self::get_higher_level_ids($rec, $higher_level_ids);
+                // */
                 
                 /* for debug only
                 if(@$rec['image_ids']) {
-                    print_r($rec); exit("\nRecord found\n");
+                    print_r($rec); //exit("\nRecord found\n");
                 }
                 */
-                if(($i % 1000) == 0) echo "\n".number_format($i)." $phylum ";
+                
+                //for stats
+                $this->debug[$this->current_kingdom]['lifestage'][$rec['lifestage']]        = '';
+                $this->debug[$this->current_kingdom]['sex'][$rec['sex']]                    = '';
+                $this->debug[$this->current_kingdom]['reproduction'][$rec['reproduction']]  = '';
+                $this->debug[$this->current_kingdom]['habitat'][$rec['habitat']]            = '';
+                
+                if(($i % 5000) == 0) echo "\n".number_format($i)." $phylum ";
             }
             // if($i >= 5000) break; //debug only
         }
+        // /* un-comment in normal operation
         if($what == "write_taxon_archive") {
             foreach(array_keys($higher_level_ids) as $taxid) {
                 if(self::process_record($taxid)) {}
@@ -230,6 +260,7 @@ class BOLDS_DumpsServiceAPI
                 }
             }
         }
+        // */
         return $txt_file;
     }
     private function get_images_from_dump_rec($rec, $sci)
@@ -514,7 +545,7 @@ class BOLDS_DumpsServiceAPI
             if(@$a['taxon']) {
                 self::create_taxon_archive($a);
                 self::create_media_archive($a);
-                // self::create_trait_archive($a);
+                self::create_trait_archive($a);
             }
             return true;
         }

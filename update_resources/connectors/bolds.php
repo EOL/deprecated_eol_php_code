@@ -8,7 +8,14 @@ estimated execution time:
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = false;
 $timestart = time_elapsed();
-$resource_id = "Annelida";
+
+
+// $resource_id = "Annelida"; //Animals
+// $resource_id = "Rhodophyta"; //Plants
+// $resource_id = "Basidiomycota"; //Fungi
+// $resource_id = "Protista";
+$resource_id = 81;
+
 
 /* tests...
 // $json = Functions::lookup_with_cache("http://www.boldsystems.org/index.php/API_Tax/TaxonData?taxId=30367&dataTypes=all");
@@ -42,6 +49,7 @@ $func->start_using_api();
 require_library('connectors/BOLDS_DumpsServiceAPI');
 $func = new BOLDS_DumpsServiceAPI($resource_id);
 $func->start_using_dump();
+exit("\nJust stats. exit now...\n");
 // */
 
 Functions::finalize_dwca_resource($resource_id, false);
