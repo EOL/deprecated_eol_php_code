@@ -11,8 +11,8 @@ $timestart = time_elapsed();
 
 $resource_id = 'col_trait_text';
 require_library('connectors/COL_traits_textAPI');
-$func = new BOLDS_DumpsServiceAPI($resource_id);
-$func->start_using_dump();
+$func = new COL_traits_textAPI($resource_id);
+$func->start();
 
 Functions::finalize_dwca_resource($resource_id, false);
 
