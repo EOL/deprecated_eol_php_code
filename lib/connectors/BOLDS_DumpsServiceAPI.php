@@ -26,8 +26,6 @@ class BOLDS_DumpsServiceAPI
         $this->page['sourceURL'] = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
         $this->service['phylum'] = "http://v2.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=";
         $this->service["taxId"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=all&includeTree=true&taxId=";
-        
-        
         $this->download_options = array('cache' => 1, 'resource_id' => 'BOLDS', 'expire_seconds' => 60*60*24*30*6, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
         
         $this->kingdom['Animalia'] = array("Acanthocephala", "Annelida", "Arthropoda", "Brachiopoda", "Bryozoa", "Chaetognatha", "Chordata", "Cnidaria", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Mollusca", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
@@ -39,15 +37,8 @@ class BOLDS_DumpsServiceAPI
 
     function start_using_dump()
     {
-        // self::start_using_api();
-        self::create_kingdom_taxa();
-
-        $phylums_Animalia = array("Acanthocephala", "Annelida", "Arthropoda", "Brachiopoda", "Bryozoa", "Chaetognatha", "Chordata", "Cnidaria", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Mollusca", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
-        $phylums_Plantae = array("Bryophyta", "Chlorophyta", "Lycopodiophyta", "Magnoliophyta", "Pinophyta", "Pteridophyta", "Rhodophyta");
-        $phylums_Fungi = array("Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Myxomycota", "Zygomycota");
-        $phylums_Protista = array("Chlorarachniophyta", "Ciliophora", "Heterokontophyta", "Pyrrophycophyta");
-
-        $phylums = array_merge($phylums_Animalia, $phylums_Plantae, $phylums_Fungi, $phylums_Protista);
+        self::create_kingdom_taxa(); //create taxon entry for the 4 kingdoms
+        $phylums = array_merge($this->kingdom['Animalia'], $this->kingdom['Plantae'], $this->kingdom['Fungi'], $this->kingdom['Protista']);
         // exit("\n".count($phylums)."\n");
 
         //------------------------- the 3 big ones:
@@ -80,7 +71,6 @@ class BOLDS_DumpsServiceAPI
         self::add_needed_parent_entries(1);
         $this->archive_builder->finalize(true);
         self::start_print_debug();
-        // print_r($this->debug);
     }
     private function start_print_debug()
     {
