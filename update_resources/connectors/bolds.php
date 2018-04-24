@@ -14,7 +14,7 @@ $timestart = time_elapsed();
 // $resource_id = "Rhodophyta"; //Plants
 // $resource_id = "Basidiomycota"; //Fungi
 // $resource_id = "Protista";
-$resource_id = 81;
+$resource_id = '2';
 
 
 /* tests...
@@ -49,7 +49,7 @@ $func->start_using_api();
 require_library('connectors/BOLDS_DumpsServiceAPI');
 $func = new BOLDS_DumpsServiceAPI($resource_id);
 $func->start_using_dump();
-exit("\nJust stats. exit now...\n");
+// exit("\nJust stats. exit now...\n");
 // */
 
 Functions::finalize_dwca_resource($resource_id, false);
@@ -60,8 +60,6 @@ if($undefined = $func->check_if_all_parents_have_entries($resource_id, true)) { 
     print_r($arr);
 }
 else echo "\nAll parents have entries OK\n";
-
-
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
