@@ -28,8 +28,8 @@ class BOLDS_DumpsServiceAPI
         $this->service["taxId"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=all&includeTree=true&taxId=";
         $this->download_options = array('cache' => 1, 'resource_id' => 'BOLDS', 'expire_seconds' => 60*60*24*30*6, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
         
-        // Arthropoda
-        $this->kingdom['Animalia'] = array("Acanthocephala", "Annelida", false, "Brachiopoda", "Bryozoa", "Chaetognatha", "Chordata", "Cnidaria", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Mollusca", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
+        //
+        $this->kingdom['Animalia'] = array("Acanthocephala", "Annelida", 'Arthropoda', "Brachiopoda", "Bryozoa", "Chaetognatha", "Chordata", "Cnidaria", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Mollusca", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
         $this->kingdom['Plantae'] = array("Bryophyta", "Chlorophyta", "Lycopodiophyta", "Magnoliophyta", "Pinophyta", "Pteridophyta", "Rhodophyta");
         $this->kingdom['Fungi'] = array("Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Myxomycota", "Zygomycota");
         $this->kingdom['Protista'] = array("Chlorarachniophyta", "Ciliophora", "Heterokontophyta", "Pyrrophycophyta");
@@ -40,7 +40,7 @@ class BOLDS_DumpsServiceAPI
     {
         self::create_kingdom_taxa(); //create taxon entry for the 4 kingdoms
         $phylums = array_merge($this->kingdom['Animalia'], $this->kingdom['Plantae'], $this->kingdom['Fungi'], $this->kingdom['Protista']);
-        // exit("\n".count($phylums)."\n");
+        echo("\n Total phylums: ".count($phylums)."\n");
 
         //------------------------- the 3 big ones:
         // $phylums = array('Arthropoda');
@@ -49,15 +49,14 @@ class BOLDS_DumpsServiceAPI
 
         /*
         // for review, first crack:
-        $phylums = array('Annelida'); //Animals
-        $phylums = array('Rhodophyta'); //Plants
-        $phylums = array('Basidiomycota'); //Fungi
-        $phylums = $phylums_Protista;
+        // $phylums = array('Annelida'); //Animals
+        // $phylums = array('Rhodophyta'); //Plants
+        // $phylums = array('Basidiomycota'); //Fungi
+        $phylums = $this->kingdom['Protista'];
         */
 
-        $phylums = array('Rhodophyta', 'Basidiomycota', 'Heterokontophyta');
+        // $phylums = array('Rhodophyta', 'Basidiomycota', 'Heterokontophyta');
         // $phylums = array('Annelida');
-        
         
         foreach($phylums as $phylum) $this->dump[$phylum] = "http://localhost/cp/BOLDS_new/bold_".$phylum.".txt.zip"; //assign respective source .txt.zip file
         
@@ -342,7 +341,7 @@ class BOLDS_DumpsServiceAPI
             $taxRank = 'species';
             $taxParent = self::compute_parent_id($rec, $taxRank);
         }
-        // /*
+        // /* uncomment to get more images from dump
         elseif($taxName = $rec['genus_name']) {
             $taxID = $rec['genus_taxID'];
             $taxRank = 'genus';

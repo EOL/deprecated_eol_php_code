@@ -14,7 +14,7 @@ $timestart = time_elapsed();
 // $resource_id = "Rhodophyta"; //Plants
 // $resource_id = "Basidiomycota"; //Fungi
 // $resource_id = "Protista";
-$resource_id = '2';
+$resource_id = '81';
 
 
 /* tests...
