@@ -152,7 +152,7 @@ class BOLDS_DumpsServiceAPI
         $func = new DWCADiagnoseAPI();
         $url = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id."_working" . "/taxon_working.tab";
         $suggested_fields = explode("\t", "taxonID	scientificName	taxonRank	parentNameUsageID");
-        if($undefined = $func->check_if_all_parents_have_entries($this->resource_id."_working", true, $url, $suggested_fields)) { //2nd param True means write to text file
+        if($undefined = $func->check_if_all_parents_have_entries($this->resource_id."", true, $url, $suggested_fields)) { //2nd param True means write to text file
             $arr['parents without entries during process'] = $undefined;
             echo "\ntrials:[$trials]"; print_r($arr);
             foreach($arr['parents without entries during process'] as $taxid) {
