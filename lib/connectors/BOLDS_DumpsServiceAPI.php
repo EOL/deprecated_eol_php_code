@@ -749,7 +749,22 @@ class BOLDS_DumpsServiceAPI
     }
     private function format_license($license)
     {
+        /*
+        [undefined license] => Array
+                (
+                    [creativecommons â attribution (max weber & ron eytan)] => 
+                    [creativecommons â attribution] => 
+                    [creativecommons  attribution (bruce a. bennett)] => 
+                    [creativecommons  attribution] => 
+                    [creativecommons â attribution (bruce a. bennett)] => 
+                )
+        */
+        
         $license = strtolower(trim($license));
+        $license = utf8_encode($license);
+        $license = str_ireplace(array("â", ""), "", $license);
+        $license = Functions::remove_whitespace($license);
+        
         if(stripos($license, "no derivatives") !== false)   return false; //string is found
         if(stripos($license, "by-nc-nd") !== false)         return false; //string is found
         
@@ -758,9 +773,9 @@ class BOLDS_DumpsServiceAPI
         if(stripos($license, "non-commercial share-alike") !== false)   return "http://creativecommons.org/licenses/by-nc-sa/3.0/"; //string is found
         if(stripos($license, "noncommercial sharealike") !== false)     return "http://creativecommons.org/licenses/by-nc-sa/3.0/"; //string is found
         if(stripos($license, "attribution (by)") !== false)             return "http://creativecommons.org/licenses/by/3.0/"; //string is found
-        if(stripos($license, "? attribution (") !== false)              return "http://creativecommons.org/licenses/by/3.0/"; //string is found
-        
+        if(stripos($license, "commons attribution (") !== false)        return "http://creativecommons.org/licenses/by/3.0/"; //string is found
         if(stripos($license, "non-commercial only") !== false)          return "http://creativecommons.org/licenses/by-nc/3.0/"; //string is found
+        if(stripos($license, " attribution-noncommercial ") !== false)  return "http://creativecommons.org/licenses/by-nc/3.0/"; //string is found
         
         $arr["creativecommons - attribution non-commercial share-alike"] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $arr["creativecommons - attribution"]                            = "http://creativecommons.org/licenses/by/3.0/";
@@ -768,21 +783,16 @@ class BOLDS_DumpsServiceAPI
         $arr["creativecommons - attribution share-alike"]                = "http://creativecommons.org/licenses/by-sa/3.0/";
         $arr["creative commons by nc sa"]                                = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $arr["creative commons-by-nc-sa"]                                = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-
         $arr["no rights reserved"]                                       = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $arr["no rights reserved (nrr)"]                                 = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-        
-
         $arr["creativecommons"]                                          = "http://creativecommons.org/licenses/by/3.0/";
         $arr["creative commons"]                                         = "http://creativecommons.org/licenses/by/3.0/";
         $arr["creativecom"]                                              = "http://creativecommons.org/licenses/by/3.0/";
         $arr["creativecommons (by)"]                                     = "http://creativecommons.org/licenses/by/3.0/";
         $arr["creative commons attribution 2.0 generic"]                 = "http://creativecommons.org/licenses/by/3.0/";
-        
-        
+        $arr["creativecommons attribution"]                              = "http://creativecommons.org/licenses/by/3.0/";
         $arr["creativecommons  attribution noncommercial share alike"]   = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $arr["creativecommons attribution non-commercial share-alike"]   = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-        
         $arr["creativecommons (by-nc-sa)"]  = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $arr["creativecommons-by-nc-sa"]    = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $arr["creative commoms-by-nc-sa"]   = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
