@@ -577,6 +577,7 @@ class BOLDS_DumpsServiceAPI
         }
         // */
         
+        /* working OK but maps are excluded now
         //[sitemap] => http://www.boldsystems.org/index.php/TaxBrowser_Maps_CollectionSites?taxid=2
         if($map_url = $a['sitemap']) {
             $mr = new \eol_schema\MediaResource();
@@ -597,6 +598,7 @@ class BOLDS_DumpsServiceAPI
                 $this->object_ids[$mr->identifier] = '';
             }
         }
+        */
         
     }
     private function write_image_record($img, $taxid)
@@ -823,6 +825,7 @@ class BOLDS_DumpsServiceAPI
             $rec["source"]              = $this->page['sourceURL'].$a['taxid'];
             self::add_string_types($rec);
         }
+        /* working OK but excluded per Jen: https://eol-jira.bibalex.org/browse/TRAM-737?focusedCommentId=62468&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62468
         if($specimenrecords = @$a['stats']['specimenrecords']) {
             $rec = array();
             $rec["taxon_id"]            = $a['taxid'];
@@ -832,7 +835,6 @@ class BOLDS_DumpsServiceAPI
             $rec['measurementValue']    = $specimenrecords;
             $rec["source"]              = $this->page['sourceURL'].$a['taxid'];
             self::add_string_types($rec);
-            
             if($specimenrecords > 0) {
                 $rec = array();
                 $rec["taxon_id"]            = $a['taxid'];
@@ -854,6 +856,7 @@ class BOLDS_DumpsServiceAPI
             $rec["source"]              = $this->page['sourceURL'].$a['taxid'];
             self::add_string_types($rec);
         }
+        */
     }
     private function add_string_types($rec, $a = false) //$a is only for debugging
     {
