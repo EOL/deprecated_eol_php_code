@@ -4,32 +4,20 @@ namespace php_active_record;
 */
 class COL_traits_textAPI
 {
-    function __construct($folder = NULL, $dwca_file = NULL)
+    function __construct($folder = NULL)
     {
         if($folder) {
             $this->resource_id = $folder;
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         }
-        $this->dwca_file = $dwca_file;
         $this->debug = array();
-        
-        /* Please take note of some Meta XML entries have upper and lower case differences */
-        $this->extensions = array("http://rs.gbif.org/terms/1.0/vernacularname"     => "vernacular",
-                                  "http://rs.tdwg.org/dwc/terms/occurrence"         => "occurrence",
-                                  "http://rs.tdwg.org/dwc/terms/measurementorfact"  => "measurementorfact",
-                                  "http://rs.tdwg.org/dwc/terms/taxon"              => "taxon",
-                                  "http://eol.org/schema/media/document"            => "document",
-                                  "http://rs.gbif.org/terms/1.0/reference"          => "reference",
-                                  "http://eol.org/schema/agent/agent"               => "agent",
-
-                                  //start of other row_types: check for NOTICES or WARNINGS, add here those undefined URIs
-                                  "http://rs.gbif.org/terms/1.0/description"        => "document",
-                                  "http://rs.gbif.org/terms/1.0/multimedia"         => "document",
-                                  "http://eol.org/schema/reference/reference"       => "reference",
-                                  "http://rs.tdwg.org/dwc/terms/Taxon"              => "taxon",
-                                  "http://eol.org/schema/media/Document"            => "document"
-                                  );
+        $this->extensions = array("http://rs.tdwg.org/dwc/terms/Taxon"          => 'taxa',
+                                  "http://rs.gbif.org/terms/1.0/Distribution"   => 'distribution',
+                                  "http://rs.gbif.org/terms/1.0/Description"    => 'description',
+                                  "http://rs.gbif.org/terms/1.0/Reference"      => 'reference',
+                                  "http://rs.gbif.org/terms/1.0/SpeciesProfile" => 'speciesprofile',
+                                  "http://rs.gbif.org/terms/1.0/VernacularName" => 'vernacular');
     }
 
     function convert_archive()
@@ -41,11 +29,6 @@ class COL_traits_textAPI
         $index = $info['index'];
 
         echo "\nConverting COL archive to EOL DwCA...\n";
-        
-
-        // $tables = array_diff($tables, array("http://rs.tdwg.org/dwc/terms/measurementorfact")); //exclude measurementorfact
-        // $tables = array_diff($tables, array("http://rs.gbif.org/terms/1.0/vernacularname")); //exclude vernacular name
-        // $tables = array_diff($tables, array("http://eol.org/schema/association")); //exclude association name
 
         /*
         taxa.txt - names & hierarchy, extinct/extant measurements
@@ -54,15 +37,6 @@ class COL_traits_textAPI
         speciesprofile.txt - TraitBank habitat data
         distribution.txt - TraitBank distribution data
         description.txt - text objects (distribution notes)
-        Array
-        (
-            [0] => http://rs.tdwg.org/dwc/terms/taxon
-            [1] => http://rs.gbif.org/terms/1.0/distribution
-            [2] => http://rs.gbif.org/terms/1.0/description
-            [3] => http://rs.gbif.org/terms/1.0/reference
-            [4] => http://rs.gbif.org/terms/1.0/speciesprofile
-            [5] => http://rs.gbif.org/terms/1.0/vernacularname
-        )
         */
         
         /* this is memory-intensive
@@ -77,10 +51,9 @@ class COL_traits_textAPI
         }
         */
 
-        
         foreach($tables as $key => $values) {
             $tbl = $values[0];
-            echo "\n".$tbl->row_type . " -- " . $tbl->file_uri;
+            $items[$tbl->row_type] = $tbl->file_uri;
             /*
             if($class = @$this->extensions[$tbl->row_type]) //process only defined row_types
             {
@@ -90,7 +63,19 @@ class COL_traits_textAPI
             else exit("\nInvalid row_type [$tbl->row_type]\n");
             */
         }
-        
+        print_r($items);
+        /*
+        Array(
+            [http://rs.tdwg.org/dwc/terms/Taxon] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//taxa.txt
+            [http://rs.gbif.org/terms/1.0/Distribution] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//distribution.txt
+            [http://rs.gbif.org/terms/1.0/Description] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//description.txt
+            [http://rs.gbif.org/terms/1.0/Reference] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//reference.txt
+            [http://rs.gbif.org/terms/1.0/SpeciesProfile] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//speciesprofile.txt
+            [http://rs.gbif.org/terms/1.0/VernacularName] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//vernacular.txt
+        )
+        */
+        // self::process_taxa($items[$this->extensions['taxa']])
+        foreach($items as $row_type => $file_uri) self::process_file($file_uri, $this->extensions[$row_type]);
         // $this->archive_builder->finalize(TRUE);
         
         // remove temp dir
@@ -98,7 +83,121 @@ class COL_traits_textAPI
         echo ("\n temporary directory removed: " . $temp_dir);
         if($this->debug) print_r($this->debug);
     }
+    private function process_file($txt_file, $extension)
+    {
+        $i = 0; echo "\nProcessing $extension...\n";
+        foreach(new FileIterator($txt_file) as $line_number => $line) {
+            $i++;
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+            }
+            else {
+                $k = -1;
+                $rec = array();
+                foreach($fields as $field) {
+                    $k++;
+                    $rec[$field] = @$row[$k];
+                }
+                $rec = array_map('trim', $rec);
+                print_r($rec);
+                if($extension == "taxa")                process_taxon($rec);
+                // elseif($extension == "destribution")    process_distribution($rec);
+                // elseif($extension == "description")     process_description($rec);
+                // elseif($extension == "reference")       process_reference($rec);
+                // elseif($extension == "speciesprofile")  process_speciesprofile($rec);
+                // elseif($extension == "vernacular")      process_vernacular($rec);
+                if($i >= 10) break; //debug
+            }
+        }
+    }
+    private function process_taxon($rec)
+    {
+        /* Processing taxa...
+        Array(
+            [﻿taxonID] => 316502
+            [identifier] => 
+            [datasetID] => 26
+            [datasetName] => ScaleNet in Species 2000 & ITIS Catalogue of Life: 28th March 2018
+            [acceptedNameUsageID] => 316423
+            [parentNameUsageID] => 
+            [taxonomicStatus] => synonym
+            [taxonRank] => species
+            [verbatimTaxonRank] => 
+            [scientificName] => Canceraspis brasiliensis Hempel, 1934
+            [kingdom] => Animalia
+            [phylum] => 
+            [class] => 
+            [order] => 
+            [superfamily] => 
+            [family] => 
+            [genericName] => Canceraspis
+            [genus] => Limacoccus
+            [subgenus] => 
+            [specificEpithet] => brasiliensis
+            [infraspecificEpithet] => 
+            [scientificNameAuthorship] => Hempel, 1934
+            [source] => 
+            [namePublishedIn] => 
+            [nameAccordingTo] => 
+            [modified] => 
+            [description] => 
+            [taxonConceptID] => 
+            [scientificNameID] => Coc-100-7
+            [references] => http://www.catalogueoflife.org/annual-checklist/2015/details/species/id/6a3ba2fef8659ce9708106356d875285/synonym/3eb3b75ad13a5d0fbd1b22fa1074adc0
+            [isExtinct] => 
+        )*/
+        
+        
+    }
+    /*
+    Processing distribution...
+    Array
+    (
+        [﻿taxonID] => 316424
+        [locationID] => TDWG:GER-OO
+        [locality] => Germany
+        [occurrenceStatus] => 
+        [establishmentMeans] => 
+    )
 
+    Processing description...
+    Array
+    (
+        [﻿taxonID] => 316423
+        [description] => Brazil
+    )
+
+    Processing reference...
+    Array
+    (
+        [﻿taxonID] => 316423
+        [creator] => Lepage, H.S.
+        [date] => 1938
+        [title] => [Catalog of coccids from Brazil.] Catálogo dos coccídeos do Brasil.
+        [description] => Revista do Museu Paulista. São Paulo
+        [identifier] => 
+        [type] => taxon
+    )
+
+    Processing speciesprofile...
+    Array
+    (
+        [﻿taxonID] => 9237970
+        [habitat] => terrestrial
+    )
+
+    Processing vernacular...
+    Array
+    (
+        [﻿taxonID] => 316443
+        [vernacularName] => Chile eriococcin
+        [language] => English
+        [countryCode] => 
+        [locality] => 
+        [transliteration] => 
+    )
+    */
     private function compute_for_dwca_file()
     {
         return "http://localhost/cp/COL/2018-03-28-archive-complete.zip";
