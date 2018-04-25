@@ -13,12 +13,12 @@ class COL_traits_textAPI
         }
         $this->taxa_ref_ids = array();
         $this->debug = array();
-        $this->extensions = array("http://rs.tdwg.org/dwc/terms/Taxon"          => 'taxa',
-                                  "http://rs.gbif.org/terms/1.0/Distribution"   => 'distribution',
-                                  "http://rs.gbif.org/terms/1.0/Description"    => 'description',
-                                  "http://rs.gbif.org/terms/1.0/Reference"      => 'reference',
-                                  "http://rs.gbif.org/terms/1.0/SpeciesProfile" => 'speciesprofile',
-                                  "http://rs.gbif.org/terms/1.0/VernacularName" => 'vernacular');
+        $this->extensions = array('taxa'            => "http://rs.tdwg.org/dwc/terms/Taxon",
+                                  'distribution'    => "http://rs.gbif.org/terms/1.0/Distribution",
+                                  'description'     => "http://rs.gbif.org/terms/1.0/Description",
+                                  'reference'       => "http://rs.gbif.org/terms/1.0/Reference",
+                                  'speciesprofile'  => "http://rs.gbif.org/terms/1.0/SpeciesProfile",
+                                  'vernacular'      => "http://rs.gbif.org/terms/1.0/VernacularName");
     }
     function convert_archive()
     {
@@ -27,18 +27,7 @@ class COL_traits_textAPI
         $harvester = $info['harvester'];
         $tables = $info['tables'];
         $index = $info['index'];
-
         echo "\nConverting COL archive to EOL DwCA...\n";
-
-        /*
-        taxa.txt - names & hierarchy, extinct/extant measurements
-        vernacular.txt - common names
-        reference.txt - taxon references
-        speciesprofile.txt - TraitBank habitat data
-        distribution.txt - TraitBank distribution data
-        description.txt - text objects (distribution notes)
-        */
-        
         /* this is memory-intensive
         foreach($tables as $table) {
             $records = $harvester->process_row_type($table);
@@ -50,31 +39,21 @@ class COL_traits_textAPI
             $records = null;
         }
         */
-
         foreach($tables as $key => $values) {
             $tbl = $values[0];
             $items[$tbl->row_type] = $tbl->file_uri;
-            /*
-            if($class = @$this->extensions[$tbl->row_type]) //process only defined row_types
-            {
-                echo "\n -- Processing [$class]...\n";
-                self::process_extension($tbl->file_uri, $class, $tbl);
-            }
-            else exit("\nInvalid row_type [$tbl->row_type]\n");
-            */
         }
         print_r($items);
-        /*
-        Array(
+        /* Array(
             [http://rs.tdwg.org/dwc/terms/Taxon] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//taxa.txt
             [http://rs.gbif.org/terms/1.0/Distribution] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//distribution.txt
             [http://rs.gbif.org/terms/1.0/Description] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//description.txt
             [http://rs.gbif.org/terms/1.0/Reference] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//reference.txt
             [http://rs.gbif.org/terms/1.0/SpeciesProfile] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//speciesprofile.txt
             [http://rs.gbif.org/terms/1.0/VernacularName] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//vernacular.txt
-        )
-        */
-        foreach($items as $row_type => $file_uri) self::process_file($file_uri, $this->extensions[$row_type]); //sample 2nd param value is 'taxa'.
+        )*/
+        self::process_file($items[$this->extensions['reference']], 'reference');
+        self::process_file($items[$this->extensions['taxa']], 'taxa');
         $this->archive_builder->finalize(TRUE);
         
         // remove temp dir
@@ -86,7 +65,8 @@ class COL_traits_textAPI
     {
         $i = 0; echo "\nProcessing $extension...\n";
         foreach(new FileIterator($txt_file) as $line_number => $line) {
-            $i++;
+            $line = Functions::remove_utf8_bom($line);
+            $i++; if(($i % 10000) == 0) echo "\n".number_format($i)." $extension ";
             $row = explode("\t", $line);
             if($i == 1) {
                 $fields = $row;
@@ -99,21 +79,65 @@ class COL_traits_textAPI
                     $rec[$field] = @$row[$k];
                 }
                 $rec = array_map('trim', $rec);
-                print_r($rec);
-                if($extension == "taxa")                process_taxon($rec);
-                // elseif($extension == "destribution")    process_distribution($rec);
-                // elseif($extension == "description")     process_description($rec);
-                // elseif($extension == "reference")       process_reference($rec);
-                // elseif($extension == "speciesprofile")  process_speciesprofile($rec);
-                // elseif($extension == "vernacular")      process_vernacular($rec);
-                if($i >= 10) break; //debug
+                // print_r($rec);
+                if($extension == "taxa") self::process_taxon($rec);
+                // elseif($extension == "destribution")    self::process_distribution($rec);
+                // elseif($extension == "description")     self::process_description($rec);
+                elseif($extension == "reference")       self::process_reference($rec);
+                // elseif($extension == "speciesprofile")  self::process_speciesprofile($rec);
+                // elseif($extension == "vernacular")      self::process_vernacular($rec);
+                // if($i >= 10) break; //debug
             }
         }
+    }
+    private function process_reference($a)
+    {
+        /*
+        -	references	http://purl.org/dc/terms/identifier
+        http://purl.org/dc/terms/creator	references	http://eol.org/schema/reference/full_reference
+        http://purl.org/dc/terms/date	references	http://eol.org/schema/reference/full_reference
+        http://purl.org/dc/terms/title	references	http://eol.org/schema/reference/full_reference
+        http://purl.org/dc/terms/source	references	http://eol.org/schema/reference/full_reference
+        Processing reference...
+        Array(
+            [﻿taxonID] => 316423
+            [creator] => Lepage, H.S.
+            [date] => 1938
+            [title] => [Catalog of coccids from Brazil.] Catálogo dos coccídeos do Brasil.
+            [description] => Revista do Museu Paulista. São Paulo
+            [identifier] => 
+            [type] => taxon
+        )
+        Give each reference a unique ID and link these IDs to relevant taxa through the referenceID field in the taxa file.
+        Concatenate creator, date, title, and source (description) into the full-reference field.
+        */
+        $r = new \eol_schema\Reference();
+        $r->full_reference = self::format_full_ref($a);
+        $r->identifier = md5($r->full_reference);
+        // $r->uri = ''
+        
+        $this->taxon_reference_ids[$a['taxonID']][$r->identifier] = ''; //it has to be here. Coz a sigle reference maybe assigned to multiple taxa.
+        
+        if(!isset($this->reference_ids[$r->identifier]))
+        {
+            $this->reference_ids[$r->identifier] = ''; 
+            $this->archive_builder->write_object_to_file($r);
+        }
+    }
+    private function format_full_ref($a)
+    {
+        $final = "";
+        if($val = $a['creator'])     $final .= "$val. ";
+        if($val = $a['date'])        $final .= "$val. ";
+        if($val = $a['title'])       $final .= "$val. ";
+        if($val = $a['description']) $final .= "$val. ";
+        return trim($final);
     }
     private function process_taxon($a)
     {
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID             = $a['taxonID'];
+        //  [﻿taxonID] => 316502
         $taxon->datasetID           = $a['datasetID'];
         $taxon->datasetName         = $a['datasetName'];
         $taxon->acceptedNameUsageID = $a['acceptedNameUsageID'];
@@ -125,9 +149,9 @@ class COL_traits_textAPI
         $taxon->phylum              = $a['phylum'];
         $taxon->class               = $a['class'];
         $taxon->order               = $a['order'];
-        $taxon->superfamily         = $a['superfamily'];
+        // $taxon->superfamily         = $a['superfamily'];
         $taxon->family              = $a['family'];
-        $taxon->genericName         = $a['genericName'];
+        // $taxon->genericName         = $a['genericName'];
         $taxon->genus               = $a['genus'];
         $taxon->subgenus            = $a['subgenus'];
         $taxon->specificEpithet     = $a['specificEpithet'];
@@ -138,7 +162,7 @@ class COL_traits_textAPI
         $taxon->taxonRemarks        = self::format_taxonRemarks($a);
         $taxon->scientificNameID    = $a['scientificNameID'];
         $taxon->furtherInformationURL   = $a['references'];
-        if($reference_ids = @$this->taxa_ref_ids[$a['taxonID']]) $taxon->referenceID = implode("; ", $reference_ids);
+        if($reference_ids = @$this->taxon_reference_ids[$a['taxonID']]) $taxon->referenceID = implode("; ", array_keys($reference_ids));
         /*
         if(isset($this->taxon_ids[$taxon->taxonID])) return;
         $this->taxon_ids[$taxon->taxonID] = '';
@@ -178,7 +202,7 @@ class COL_traits_textAPI
             [isExtinct] => 
         )*/
     }
-    private function verbatimTaxonRank($a)
+    private function format_taxonRank($a)
     {
         /* if there is a value for verbatimTaxonRank, this should take precedence over the CoL taxonRank value, except in cases where verbatimTaxonRank=aberration.
         For aberrations keep the CoL TaxonRank value. */
@@ -191,7 +215,7 @@ class COL_traits_textAPI
     {
         /* Omit remarks if datasetID is one of the following: 15,21,45,50,134,174,190,199; These are not really taxonomic remarks. */
         $datasetIDs_2omit = array(15,21,45,50,134,174,190,199);
-        if(!in_array($a['datasetID'], $datasetIDs_2omit)) return $['description'];
+        if(!in_array($a['datasetID'], $datasetIDs_2omit)) return $a['description'];
     }
     /*
     Processing distribution...
@@ -209,18 +233,6 @@ class COL_traits_textAPI
     (
         [﻿taxonID] => 316423
         [description] => Brazil
-    )
-
-    Processing reference...
-    Array
-    (
-        [﻿taxonID] => 316423
-        [creator] => Lepage, H.S.
-        [date] => 1938
-        [title] => [Catalog of coccids from Brazil.] Catálogo dos coccídeos do Brasil.
-        [description] => Revista do Museu Paulista. São Paulo
-        [identifier] => 
-        [type] => taxon
     )
 
     Processing speciesprofile...

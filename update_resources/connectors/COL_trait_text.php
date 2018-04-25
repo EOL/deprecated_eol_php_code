@@ -6,6 +6,15 @@ estimated execution time:
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+
+/* testing...
+$a['eli']['josh'] = '';
+$a['eli']['isaiah'] = '';
+$a['eli']['aaron'] = '';
+print_r(array_keys($a['eli'])); exit;
+*/
+
+
 // $GLOBALS['ENV_DEBUG'] = false;
 // ini_set('memory_limit','7096M');
 $timestart = time_elapsed();
