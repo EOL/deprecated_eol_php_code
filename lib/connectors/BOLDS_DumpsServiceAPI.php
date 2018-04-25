@@ -63,7 +63,7 @@ class BOLDS_DumpsServiceAPI
         foreach($phylums as $phylum) {
             if(!$phylum) continue;
             $this->current_kingdom = self::get_kingdom_given_phylum($phylum);
-            $this->tax_ids = array(); //initialize images per phylum
+            $this->tax_ids = array(); //initialize images per phylum and parentID
             
             self::download_and_extract_remote_file($this->dump[$phylum], true);
                         self::process_dump($phylum, "get_images_from_dump_rec");
@@ -234,11 +234,13 @@ class BOLDS_DumpsServiceAPI
                 }
                 */
                 
-                //for stats
+                /*
+                //for stats only to get unique values of these fields - working OK
                 $this->debug[$this->current_kingdom]['lifestage'][$rec['lifestage']]        = '';
                 $this->debug[$this->current_kingdom]['sex'][$rec['sex']]                    = '';
                 $this->debug[$this->current_kingdom]['reproduction'][$rec['reproduction']]  = '';
                 $this->debug[$this->current_kingdom]['habitat'][$rec['habitat']]            = '';
+                */
                 
                 if(($i % 5000) == 0) echo "\n".number_format($i)." $phylum ";
             }
