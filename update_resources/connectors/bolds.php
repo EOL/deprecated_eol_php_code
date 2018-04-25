@@ -14,7 +14,10 @@ $resource_id = "Annelida"; //Animals
 // $resource_id = "Rhodophyta"; //Plants
 // $resource_id = "Basidiomycota"; //Fungi
 // $resource_id = "Protista";
-// $resource_id = '81';
+$resource_id = '81';
+// $resource_id = "Arthropoda"; //Animals
+$resource_id = '1';
+
 
 
 /* tests...

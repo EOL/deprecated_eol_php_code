@@ -28,8 +28,8 @@ class BOLDS_DumpsServiceAPI
         $this->service["taxId"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=all&includeTree=true&taxId=";
         $this->download_options = array('cache' => 1, 'resource_id' => 'BOLDS', 'expire_seconds' => 60*60*24*30*6, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
         
-        //
-        $this->kingdom['Animalia'] = array("Acanthocephala", "Annelida", 'Arthropoda', "Brachiopoda", "Bryozoa", "Chaetognatha", "Chordata", "Cnidaria", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Mollusca", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
+        //Arthropoda
+        $this->kingdom['Animalia'] = array("Acanthocephala", "Annelida", false, "Brachiopoda", "Bryozoa", "Chaetognatha", "Chordata", "Cnidaria", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Mollusca", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
         $this->kingdom['Plantae'] = array("Bryophyta", "Chlorophyta", "Lycopodiophyta", "Magnoliophyta", "Pinophyta", "Pteridophyta", "Rhodophyta");
         $this->kingdom['Fungi'] = array("Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Myxomycota", "Zygomycota");
         $this->kingdom['Protista'] = array("Chlorarachniophyta", "Ciliophora", "Heterokontophyta", "Pyrrophycophyta");
@@ -43,7 +43,7 @@ class BOLDS_DumpsServiceAPI
         echo("\n Total phylums: ".count($phylums)."\n");
 
         //------------------------- the 3 big ones:
-        // $phylums = array('Arthropoda');
+        // $phylums = array('Arthropoda', 'Rhodophyta');
         // $phylums = array('Chordata'); //OK
         // $phylums = array('Magnoliophyta'); //OK
 
@@ -55,23 +55,29 @@ class BOLDS_DumpsServiceAPI
         $phylums = $this->kingdom['Protista'];
         */
 
-        // $phylums = array('Rhodophyta', 'Basidiomycota', 'Heterokontophyta');
+        // $phylums = array('Annelida', 'Chordata', 'Rhodophyta', 'Basidiomycota', 'Heterokontophyta');
         // $phylums = array('Annelida');
         
         foreach($phylums as $phylum) $this->dump[$phylum] = "http://localhost/cp/BOLDS_new/bold_".$phylum.".txt.zip"; //assign respective source .txt.zip file
-        
+
         foreach($phylums as $phylum) {
             if(!$phylum) continue;
             $this->current_kingdom = self::get_kingdom_given_phylum($phylum);
-            $this->tax_ids = array(); //initialize images per phylum and parentID
-            
+            $this->tax_ids = array(); //initialize parentID
+            $this->img_tax_ids = array(); //initialize images per phylum
             self::download_and_extract_remote_file($this->dump[$phylum], true);
-                        self::process_dump($phylum, "get_images_from_dump_rec");
-            $txt_file = self::process_dump($phylum, "write_taxon_archive");
+
+            //for images:
+            self::process_dump($phylum, "get_images_from_dump_rec");
             self::create_media_archive_from_dump();
+            $this->img_tax_ids = array(); //initialize images per phylum
+
+            //for taxon
+            $txt_file = self::process_dump($phylum, "write_taxon_archive");
             unlink($txt_file);
         }
         self::add_needed_parent_entries(1);
+        
         $this->archive_builder->finalize(true);
         self::start_print_debug();
     }
@@ -85,17 +91,21 @@ class BOLDS_DumpsServiceAPI
             fwrite($WRITE, $topic."\n");
             foreach($arr as $subtopic => $arr2) {
                 fwrite($WRITE, "----- ".$subtopic." ----- \n");
-                $arr2 = array_keys($arr2);
-                asort($arr2);
-                foreach($arr2 as $item) {
-                    if($item) {
-                        if(!isset($defined_uris[$item])) fwrite($WRITE, $item."\n");
-                        // else echo "\ndefined trait already";
+                if(is_array($arr2)) {
+                    $arr2 = array_keys($arr2);
+                    asort($arr2);
+                    foreach($arr2 as $item) {
+                        if($item) {
+                            if(!isset($defined_uris[$item])) fwrite($WRITE, $item."\n");
+                            // else echo "\ndefined trait already";
+                        }
                     }
                 }
+                else fwrite($WRITE, $arr2."\n");
             }
         }
         fclose($WRITE);
+        print_r($this->debug);
     }
     private function create_media_archive_from_dump()
     {
@@ -117,7 +127,7 @@ class BOLDS_DumpsServiceAPI
                 )
         )
         */
-        foreach($this->tax_ids as $taxid => $block) {
+        foreach($this->img_tax_ids as $taxid => $block) {
             if(!@$block['images']) continue;
             foreach($block['images'] as $image) {
                 /*
@@ -148,6 +158,7 @@ class BOLDS_DumpsServiceAPI
     }
     private function add_needed_parent_entries($trials)
     {
+        echo "\nstart add_needed_parent_entries...\n";
         require_library('connectors/DWCADiagnoseAPI');
         $func = new DWCADiagnoseAPI();
         $url = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id."_working" . "/taxon_working.tab";
@@ -158,7 +169,10 @@ class BOLDS_DumpsServiceAPI
             foreach($arr['parents without entries during process'] as $taxid) {
                 if(self::process_record($taxid)) {}
                 else {
-                    if($taxon_info = self::get_info_from_page($taxid)) self::create_taxon_archive($taxon_info);
+                    if($taxon_info = self::get_info_from_page($taxid)) {
+                        echo "\Scraped taxon info [$taxid] but may not get parentID here.\n";
+                        self::create_taxon_archive($taxon_info);
+                    }
                 }
             }
         }
@@ -233,7 +247,6 @@ class BOLDS_DumpsServiceAPI
                     print_r($rec); //exit("\nRecord found\n");
                 }
                 */
-                
                 /*
                 //for stats only to get unique values of these fields - working OK
                 $this->debug[$this->current_kingdom]['lifestage'][$rec['lifestage']]        = '';
@@ -242,7 +255,7 @@ class BOLDS_DumpsServiceAPI
                 $this->debug[$this->current_kingdom]['habitat'][$rec['habitat']]            = '';
                 */
                 
-                if(($i % 5000) == 0) echo "\n".number_format($i)." $phylum ";
+                if(($i % 5000) == 0) echo "\n".number_format($i)." $phylum $what";
             }
             // if($i >= 5000) break; //debug only
         }
@@ -283,8 +296,8 @@ class BOLDS_DumpsServiceAPI
             // echo "\n".$rec['processid']."\n";
             // print_r($final);
             
-            if(!isset($this->tax_ids[$sci['taxid']]['images'])) $this->tax_ids[$sci['taxid']]['images'] = array();
-            $this->tax_ids[$sci['taxid']]['images'] = array_merge($this->tax_ids[$sci['taxid']]['images'], $final);
+            if(!isset($this->img_tax_ids[$sci['taxid']]['images'])) $this->img_tax_ids[$sci['taxid']]['images'] = array();
+            $this->img_tax_ids[$sci['taxid']]['images'] = array_merge($this->img_tax_ids[$sci['taxid']]['images'], $final);
         }
     }
     private function get_higher_level_ids($rec, $higher_level_ids)
@@ -737,7 +750,6 @@ class BOLDS_DumpsServiceAPI
     private function format_license($license)
     {
         $license = strtolower(trim($license));
-        
         if(stripos($license, "no derivatives") !== false)   return false; //string is found
         if(stripos($license, "by-nc-nd") !== false)         return false; //string is found
         
@@ -746,6 +758,8 @@ class BOLDS_DumpsServiceAPI
         if(stripos($license, "non-commercial share-alike") !== false)   return "http://creativecommons.org/licenses/by-nc-sa/3.0/"; //string is found
         if(stripos($license, "noncommercial sharealike") !== false)     return "http://creativecommons.org/licenses/by-nc-sa/3.0/"; //string is found
         if(stripos($license, "attribution (by)") !== false)             return "http://creativecommons.org/licenses/by/3.0/"; //string is found
+        if(stripos($license, "? attribution (") !== false)              return "http://creativecommons.org/licenses/by/3.0/"; //string is found
+        
         if(stripos($license, "non-commercial only") !== false)          return "http://creativecommons.org/licenses/by-nc/3.0/"; //string is found
         
         $arr["creativecommons - attribution non-commercial share-alike"] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
@@ -754,10 +768,18 @@ class BOLDS_DumpsServiceAPI
         $arr["creativecommons - attribution share-alike"]                = "http://creativecommons.org/licenses/by-sa/3.0/";
         $arr["creative commons by nc sa"]                                = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $arr["creative commons-by-nc-sa"]                                = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+
         $arr["no rights reserved"]                                       = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+        $arr["no rights reserved (nrr)"]                                 = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+        
+
         $arr["creativecommons"]                                          = "http://creativecommons.org/licenses/by/3.0/";
         $arr["creative commons"]                                         = "http://creativecommons.org/licenses/by/3.0/";
         $arr["creativecom"]                                              = "http://creativecommons.org/licenses/by/3.0/";
+        $arr["creativecommons (by)"]                                     = "http://creativecommons.org/licenses/by/3.0/";
+        $arr["creative commons attribution 2.0 generic"]                 = "http://creativecommons.org/licenses/by/3.0/";
+        
+        
         $arr["creativecommons  attribution noncommercial share alike"]   = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $arr["creativecommons attribution non-commercial share-alike"]   = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         
