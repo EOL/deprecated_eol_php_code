@@ -11,6 +11,7 @@ class COL_traits_textAPI
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         }
+        $this->taxa_ref_ids = array();
         $this->debug = array();
         $this->extensions = array("http://rs.tdwg.org/dwc/terms/Taxon"          => 'taxa',
                                   "http://rs.gbif.org/terms/1.0/Distribution"   => 'distribution',
@@ -19,7 +20,6 @@ class COL_traits_textAPI
                                   "http://rs.gbif.org/terms/1.0/SpeciesProfile" => 'speciesprofile',
                                   "http://rs.gbif.org/terms/1.0/VernacularName" => 'vernacular');
     }
-
     function convert_archive()
     {
         if(!($info = self::prepare_dwca())) return;
@@ -74,9 +74,8 @@ class COL_traits_textAPI
             [http://rs.gbif.org/terms/1.0/VernacularName] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//vernacular.txt
         )
         */
-        // self::process_taxa($items[$this->extensions['taxa']])
-        foreach($items as $row_type => $file_uri) self::process_file($file_uri, $this->extensions[$row_type]);
-        // $this->archive_builder->finalize(TRUE);
+        foreach($items as $row_type => $file_uri) self::process_file($file_uri, $this->extensions[$row_type]); //sample 2nd param value is 'taxa'.
+        $this->archive_builder->finalize(TRUE);
         
         // remove temp dir
         recursive_rmdir($temp_dir);
@@ -111,11 +110,42 @@ class COL_traits_textAPI
             }
         }
     }
-    private function process_taxon($rec)
+    private function process_taxon($a)
     {
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID             = $a['taxonID'];
+        $taxon->datasetID           = $a['datasetID'];
+        $taxon->datasetName         = $a['datasetName'];
+        $taxon->acceptedNameUsageID = $a['acceptedNameUsageID'];
+        $taxon->parentNameUsageID   = $a['parentNameUsageID'];
+        $taxon->taxonomicStatus     = $a['taxonomicStatus'];
+        $taxon->taxonRank           = self::format_taxonRank($a);
+        $taxon->scientificName      = $a['scientificName'];
+        $taxon->kingdom             = $a['kingdom'];
+        $taxon->phylum              = $a['phylum'];
+        $taxon->class               = $a['class'];
+        $taxon->order               = $a['order'];
+        $taxon->superfamily         = $a['superfamily'];
+        $taxon->family              = $a['family'];
+        $taxon->genericName         = $a['genericName'];
+        $taxon->genus               = $a['genus'];
+        $taxon->subgenus            = $a['subgenus'];
+        $taxon->specificEpithet     = $a['specificEpithet'];
+        $taxon->infraspecificEpithet        = $a['infraspecificEpithet'];
+        $taxon->scientificNameAuthorship    = $a['scientificNameAuthorship'];
+        $taxon->nameAccordingTo     = $a['nameAccordingTo'];
+        $taxon->modified            = $a['modified'];
+        $taxon->taxonRemarks        = self::format_taxonRemarks($a);
+        $taxon->scientificNameID    = $a['scientificNameID'];
+        $taxon->furtherInformationURL   = $a['references'];
+        if($reference_ids = @$this->taxa_ref_ids[$a['taxonID']]) $taxon->referenceID = implode("; ", $reference_ids);
+        /*
+        if(isset($this->taxon_ids[$taxon->taxonID])) return;
+        $this->taxon_ids[$taxon->taxonID] = '';
+        */
+        $this->archive_builder->write_object_to_file($taxon);
         /* Processing taxa...
         Array(
-            [﻿taxonID] => 316502
             [identifier] => 
             [datasetID] => 26
             [datasetName] => ScaleNet in Species 2000 & ITIS Catalogue of Life: 28th March 2018
@@ -147,8 +177,21 @@ class COL_traits_textAPI
             [references] => http://www.catalogueoflife.org/annual-checklist/2015/details/species/id/6a3ba2fef8659ce9708106356d875285/synonym/3eb3b75ad13a5d0fbd1b22fa1074adc0
             [isExtinct] => 
         )*/
-        
-        
+    }
+    private function verbatimTaxonRank($a)
+    {
+        /* if there is a value for verbatimTaxonRank, this should take precedence over the CoL taxonRank value, except in cases where verbatimTaxonRank=aberration.
+        For aberrations keep the CoL TaxonRank value. */
+        if($val = $a['verbatimTaxonRank']) {
+            if($val != 'aberration' && $val) return $val;
+        }
+        return $a['taxonRank'];
+    }
+    private function format_taxonRemarks($a)
+    {
+        /* Omit remarks if datasetID is one of the following: 15,21,45,50,134,174,190,199; These are not really taxonomic remarks. */
+        $datasetIDs_2omit = array(15,21,45,50,134,174,190,199);
+        if(!in_array($a['datasetID'], $datasetIDs_2omit)) return $['description'];
     }
     /*
     Processing distribution...
