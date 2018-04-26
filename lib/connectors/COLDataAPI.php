@@ -69,7 +69,9 @@ class COLDataAPI
         
         $this->taxon_info = ''; //release memory
         
+        $this->languages = self::get_languages();
         self::process_file($items[$this->extensions['vernacular']], 'vernacular');
+        $this->languages = '';
         
         $this->archive_builder->finalize(TRUE);
         
@@ -98,20 +100,48 @@ class COLDataAPI
                     $rec[$field] = @$row[$k];
                 }
                 $rec = array_map('trim', $rec);
-                // print_r($rec);
                 if($extension == "taxa") {
                     self::process_taxon($rec);
                     // if($rec['datasetID'] == "29") break; //debug
                 }
-                // elseif($extension == "distribution")    self::process_distribution($rec);
-                // elseif($extension == "description")     $taxa_desc_list = self::process_description($rec, $taxa_desc_list);
-                // elseif($extension == "reference")       self::process_reference($rec);
-                // elseif($extension == "speciesprofile")  self::process_speciesprofile($rec);
+                elseif($extension == "distribution")    self::process_distribution($rec);
+                elseif($extension == "description")     $taxa_desc_list = self::process_description($rec, $taxa_desc_list);
+                elseif($extension == "reference")       self::process_reference($rec);
+                elseif($extension == "speciesprofile")  self::process_speciesprofile($rec);
                 elseif($extension == "vernacular")      self::process_vernacular($rec);
-                if($i >= 500) break; //debug
+                if($i >= 5000) break; //debug
             }
         }
         if($extension == "description") return $taxa_desc_list;
+    }
+    private function process_vernacular($a)
+    {   /*
+        http://rs.tdwg.org/dwc/terms/vernacularName	vernacular	http://rs.tdwg.org/dwc/terms/vernacularName
+        http://purl.org/dc/terms/language	vernacular	http://purl.org/dc/terms/language
+        http://rs.tdwg.org/dwc/terms/locality	vernacular	http://rs.tdwg.org/dwc/terms/locality
+        
+        Array(
+            [﻿taxonID] => 316443
+            [vernacularName] => Chile eriococcin
+            [language] => English
+            [countryCode] => 
+            [locality] => 
+            [transliteration] => 
+        )*/
+        if($val = $a['vernacularName']) {
+            $v = new \eol_schema\VernacularName();
+            $v->taxonID         = $a['taxonID'];
+            $v->vernacularName  = $val;
+            $v->language        = @$this->languages[$a['language']];
+            $v->locality        = $a['locality'];
+            $this->archive_builder->write_object_to_file($v);
+        }
+        //for stats
+        if($language = $a['language'])
+        {
+            if(!@$this->languages[$language]) $this->debug['und lang'][$language] = '';
+        }
+        
     }
     private function process_description($a, $final)
     {   /*
@@ -482,18 +512,6 @@ class COLDataAPI
         $datasetIDs_2omit = array(15,21,45,50,134,174,190,199);
         if(!in_array($a['datasetID'], $datasetIDs_2omit)) return $a['description'];
     }
-    /*
-    Processing vernacular...
-    Array
-    (
-        [﻿taxonID] => 316443
-        [vernacularName] => Chile eriococcin
-        [language] => English
-        [countryCode] => 
-        [locality] => 
-        [transliteration] => 
-    )
-    */
     private function compute_for_dwca_file()
     {
         return "http://localhost/cp/COL/2018-03-28-archive-complete.zip";
@@ -520,7 +538,7 @@ class COLDataAPI
     private function process_extension($csv_file, $class, $tbl)
     {
     }
-    private function get_google_sheet() //sheet found here: https://eol-jira.bibalex.org/browse/DATA-1744
+    private function get_languages() //sheet found here: https://eol-jira.bibalex.org/browse/DATA-1744
     {
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
