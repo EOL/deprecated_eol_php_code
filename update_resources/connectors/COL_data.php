@@ -21,7 +21,7 @@ require_library('connectors/COLDataAPI');
 $func = new COLDataAPI($resource_id);
 $func->convert_archive();
 unset($func);
-Functions::finalize_dwca_resource($resource_id, false);
+Functions::finalize_dwca_resource($resource_id, false, true);
 
 /*
 $func = new DWCADiagnoseAPI();
