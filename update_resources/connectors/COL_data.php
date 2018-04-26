@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* 
+/* https://eol-jira.bibalex.org/browse/DATA-1744
 Connector for Catalogue of Life hierarchy, data, descriptions
 estimated execution time:
 */
@@ -12,9 +12,8 @@ $uris = Functions::get_eol_defined_uris(false, true);
 print_r($uris); exit;
 */
 
-
 // $GLOBALS['ENV_DEBUG'] = false;
-// ini_set('memory_limit','7096M');
+ini_set('memory_limit','7096M');
 $timestart = time_elapsed();
 
 $resource_id = 'col';

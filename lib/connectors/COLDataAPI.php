@@ -12,6 +12,8 @@ class COLDataAPI
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         }
         $this->taxa_ref_ids = array();
+        $this->page['download_page'] = "http://www.catalogueoflife.org/DCA_Export/archive.php";
+        $this->download_options = array('resource_id' => 'CoL', 'expire_seconds' => 60*60*24*10, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1);
         $this->debug = array();
         $this->extensions = array('taxa'            => "http://rs.tdwg.org/dwc/terms/Taxon",
                                   'distribution'    => "http://rs.gbif.org/terms/1.0/Distribution",
@@ -55,30 +57,30 @@ class COLDataAPI
         
         self::process_file($items[$this->extensions['reference']], 'reference');
         self::process_file($items[$this->extensions['taxa']], 'taxa');
-        $this->taxon_reference_ids = ''; //release memory
+        unset($this->taxon_reference_ids); //release memory
         
         $this->uris = Functions::get_eol_defined_uris(false, true);
         self::process_file($items[$this->extensions['distribution']], 'distribution');
-        $this->uris = ''; //release memory
+        unset($this->uris); //release memory
         
         self::process_file($items[$this->extensions['speciesprofile']], 'speciesprofile');
         
         $taxa_desc_list = self::process_file($items[$this->extensions['description']], 'description');
         self::create_media_archive($taxa_desc_list);
-        $taxa_desc_list = ''; //release memory
+        unset($taxa_desc_list); //release memory
         
-        $this->taxon_info = ''; //release memory
+        unset($this->taxon_info); //release memory
         
         $this->languages = self::get_languages();
         self::process_file($items[$this->extensions['vernacular']], 'vernacular');
-        $this->languages = '';
+        unset($this->languages);
         
         $this->archive_builder->finalize(TRUE);
         
         // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
-        if($this->debug) print_r($this->debug);
+        if($this->debug) self::start_print_debug();
     }
     private function process_file($txt_file, $extension)
     {
@@ -109,7 +111,7 @@ class COLDataAPI
                 elseif($extension == "reference")       self::process_reference($rec);
                 elseif($extension == "speciesprofile")  self::process_speciesprofile($rec);
                 elseif($extension == "vernacular")      self::process_vernacular($rec);
-                if($i >= 5000) break; //debug
+                // if($i >= 1000) break; //debug
             }
         }
         if($extension == "description") return $taxa_desc_list;
@@ -136,12 +138,10 @@ class COLDataAPI
             $v->locality        = $a['locality'];
             $this->archive_builder->write_object_to_file($v);
         }
-        //for stats
-        if($language = $a['language'])
-        {
+        //for stats only
+        if($language = $a['language']) {
             if(!@$this->languages[$language]) $this->debug['und lang'][$language] = '';
         }
-        
     }
     private function process_description($a, $final)
     {   /*
@@ -515,6 +515,16 @@ class COLDataAPI
     private function compute_for_dwca_file()
     {
         return "http://localhost/cp/COL/2018-03-28-archive-complete.zip";
+        if($html = Functions::lookup_with_cache($this->page['download_page'], $this->download_options)) {
+            if(preg_match("/Monthly editions(.*?)<\/ul>/ims", $html, $a)) {
+                if(preg_match("/href=\"(.*?)\"/ims", $a[1], $a2)) {
+                    $final = "http://www.catalogueoflife.org/DCA_Export/".$a2[1];
+                    echo "\nDownloading [$final] ...\n";
+                    return $final;
+                }
+            }
+        }
+        // return "http://www.catalogueoflife.org/DCA_Export/zip-fixed/2018-03-28-archive-complete.zip";
     }
     private function prepare_dwca()
     {
@@ -527,16 +537,11 @@ class COLDataAPI
         $harvester = new ContentArchiveReader(NULL, $archive_path);
         $tables = $harvester->tables;
         $index = array_keys($tables);
-        if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) // take note the index key is all lower case
-        {
+        if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) { // take note the index key is all lower case
             debug("Invalid archive file. Program will terminate.");
             return false;
         }
         return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
-    }
-
-    private function process_extension($csv_file, $class, $tbl)
-    {
     }
     private function get_languages() //sheet found here: https://eol-jira.bibalex.org/browse/DATA-1744
     {
@@ -548,6 +553,31 @@ class COLDataAPI
         //start massage array
         foreach($arr as $item) $final[$item[0]] = $item[1];
         return $final;
+    }
+    private function start_print_debug()
+    {
+        $file = CONTENT_RESOURCE_LOCAL_PATH . "col_debug.txt";
+        $WRITE = Functions::file_open($file, "w");
+        foreach($this->debug as $topic => $arr) {
+            fwrite($WRITE, "============================================================="."\n");
+            fwrite($WRITE, $topic."\n");
+            if(is_array($arr)) {
+                foreach($arr as $subtopic => $arr2) {
+                    fwrite($WRITE, "----- ".$subtopic." ----- \n");
+                    if(is_array($arr2)) {
+                        $arr2 = array_keys($arr2);
+                        asort($arr2);
+                        foreach($arr2 as $item) {
+                            if($item) fwrite($WRITE, $item."\n");
+                        }
+                    }
+                    else fwrite($WRITE, $arr2."\n");
+                }
+            }
+            else fwrite($WRITE, $arr."\n");
+        }
+        fclose($WRITE);
+        print_r($this->debug);
     }
     
 }

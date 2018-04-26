@@ -89,20 +89,23 @@ class BOLDS_DumpsServiceAPI
         foreach($this->debug as $topic => $arr) {
             fwrite($WRITE, "============================================================="."\n");
             fwrite($WRITE, $topic."\n");
-            foreach($arr as $subtopic => $arr2) {
-                fwrite($WRITE, "----- ".$subtopic." ----- \n");
-                if(is_array($arr2)) {
-                    $arr2 = array_keys($arr2);
-                    asort($arr2);
-                    foreach($arr2 as $item) {
-                        if($item) {
-                            if(!isset($defined_uris[$item])) fwrite($WRITE, $item."\n");
-                            // else echo "\ndefined trait already";
+            if(is_array($arr)) {
+                foreach($arr as $subtopic => $arr2) {
+                    fwrite($WRITE, "----- ".$subtopic." ----- \n");
+                    if(is_array($arr2)) {
+                        $arr2 = array_keys($arr2);
+                        asort($arr2);
+                        foreach($arr2 as $item) {
+                            if($item) {
+                                if(!isset($defined_uris[$item])) fwrite($WRITE, $item."\n");
+                                // else echo "\ndefined trait already";
+                            }
                         }
                     }
+                    else fwrite($WRITE, $arr2."\n");
                 }
-                else fwrite($WRITE, $arr2."\n");
             }
+            else fwrite($WRITE, $arr."\n");
         }
         fclose($WRITE);
         print_r($this->debug);
