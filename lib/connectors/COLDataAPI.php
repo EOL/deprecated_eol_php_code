@@ -62,11 +62,15 @@ class COLDataAPI
         $this->uris = ''; //release memory
         
         self::process_file($items[$this->extensions['speciesprofile']], 'speciesprofile');
+        
         $taxa_desc_list = self::process_file($items[$this->extensions['description']], 'description');
-        self::create_media_archive($taxa_desc_list)
+        self::create_media_archive($taxa_desc_list);
         $taxa_desc_list = ''; //release memory
         
         $this->taxon_info = ''; //release memory
+        
+        self::process_file($items[$this->extensions['vernacular']], 'vernacular');
+        
         $this->archive_builder->finalize(TRUE);
         
         // remove temp dir
@@ -76,7 +80,7 @@ class COLDataAPI
     }
     private function process_file($txt_file, $extension)
     {
-        if($extension == "description") $taxa_desc_list array();
+        if($extension == "description") $taxa_desc_list = array();
         
         $i = 0; echo "\nProcessing $extension...\n";
         foreach(new FileIterator($txt_file) as $line_number => $line) {
@@ -100,10 +104,10 @@ class COLDataAPI
                     // if($rec['datasetID'] == "29") break; //debug
                 }
                 // elseif($extension == "distribution")    self::process_distribution($rec);
-                elseif($extension == "description")     $taxa_desc_list = self::process_description($rec, $taxa_desc_list);
+                // elseif($extension == "description")     $taxa_desc_list = self::process_description($rec, $taxa_desc_list);
                 // elseif($extension == "reference")       self::process_reference($rec);
                 // elseif($extension == "speciesprofile")  self::process_speciesprofile($rec);
-                // elseif($extension == "vernacular")      self::process_vernacular($rec);
+                elseif($extension == "vernacular")      self::process_vernacular($rec);
                 if($i >= 500) break; //debug
             }
         }
@@ -138,6 +142,7 @@ class COLDataAPI
     {
         foreach($taxa_desc_list as $taxonID => $descriptions) {
             $desc = array_keys($descriptions);
+            asort($desc);
             $desc = implode("; ", $desc);
             $mr = new \eol_schema\MediaResource();
             $mr->taxonID        = $taxonID;
