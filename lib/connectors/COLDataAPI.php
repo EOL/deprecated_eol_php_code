@@ -13,7 +13,8 @@ class COLDataAPI
         }
         $this->taxa_ref_ids = array();
         $this->page['download_page'] = "http://www.catalogueoflife.org/DCA_Export/archive.php";
-        $this->download_options = array('resource_id' => 'CoL', 'expire_seconds' => 60*60*24*25, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1);
+        $this->download_options = array('resource_id' => 'CoL', 'expire_seconds' => 60*60*24, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1); //expires in 1 day
+        /* you can delete old cache dump files in /cache/CoL/ folder -- one used in extract_archive_file below. That is to free up space */
         $this->debug = array();
         $this->extensions = array('taxa'            => "http://rs.tdwg.org/dwc/terms/Taxon",
                                   'distribution'    => "http://rs.gbif.org/terms/1.0/Distribution",
@@ -30,22 +31,15 @@ class COLDataAPI
         $tables = $info['tables'];
         $index = $info['index'];
         echo "\nConverting COL archive to EOL DwCA...\n";
-        /* this is memory-intensive
+        /* this is memory-intensive: $harvester->process_row_type($table);
         foreach($tables as $table) {
             $records = $harvester->process_row_type($table);
-            // self::process_fields($records, pathinfo($table, PATHINFO_BASENAME));
-            foreach($records as $rec) {
-                echo "\n[$table]\n";
-                print_r($rec); break;
-            }
-            $records = null;
-        }
-        */
+        }*/
         foreach($tables as $key => $values) {
             $tbl = $values[0];
             $items[$tbl->row_type] = $tbl->file_uri;
         }
-        // print_r($items);
+        print_r($items);
         self::process_file($items[$this->extensions['reference']], 'reference');
         self::process_file($items[$this->extensions['taxa']], 'taxa');
         unset($this->taxon_reference_ids); //release memory
@@ -102,7 +96,7 @@ class COLDataAPI
                 elseif($extension == "reference")       self::process_reference($rec);
                 elseif($extension == "speciesprofile")  self::process_speciesprofile($rec);
                 elseif($extension == "vernacular")      self::process_vernacular($rec);
-                if($i >= 5000) break; //debug
+                // if($i >= 5000) break; //debug
             }
         }
         if($extension == "description") return $taxa_desc_list;
@@ -112,7 +106,6 @@ class COLDataAPI
         http://rs.tdwg.org/dwc/terms/vernacularName	vernacular	http://rs.tdwg.org/dwc/terms/vernacularName
         http://purl.org/dc/terms/language	vernacular	http://purl.org/dc/terms/language
         http://rs.tdwg.org/dwc/terms/locality	vernacular	http://rs.tdwg.org/dwc/terms/locality
-        
         Array(
             [﻿taxonID] => 316443
             [vernacularName] => Chile eriococcin
@@ -134,30 +127,13 @@ class COLDataAPI
         if($language = $a['language']) {
             if(!@$this->languages[$language]) $this->debug['und lang'][$language] = '';
         }
-        else $this->debug['und lang']['blank'] = '';
+        else $this->debug['blank lang'][$v->vernacularName] = '';
     }
     private function process_description($a, $final)
-    {   /*
-        description.txt	http://purl.org/dc/terms/description	http://purl.org/dc/terms/description		verbatim	
-            If there are multiple descriptions for the same taxon, concatenate the descriptions into a single text object, separating individual descriptions with a semicolon.
-        description.txt	http://purl.org/dc/terms/language	http://purl.org/dc/terms/language		eng	
-        -	-	http://purl.org/dc/terms/type		http://purl.org/dc/dcmitype/Text	
-        -	-	http://purl.org/dc/terms/format		text/html	
-        -	-	http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm		http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution	
-        taxa.txt	http://purl.org/dc/terms/references	http://rs.tdwg.org/ac/terms/furtherInformationURL		verbatim	
-            For each media object, fetch the url from the references field of the relevant taxon.
-        -	-	http://purl.org/dc/terms/audience		Everyone	
-        -	-	http://ns.adobe.com/xap/1.0/rights/UsageTerms		No known copyright restrictions	
-        taxa.txt	http://rs.tdwg.org/dwc/terms/datasetName	http://purl.org/dc/terms/contributor		verbatim
-    
-        Processing description...
-        Array
-        (
+    {   /*Array(
             [﻿taxonID] => 316423
             [description] => Brazil
-        )
-        */
-        
+        )*/
         if($val = $a['description']) $final[$a['taxonID']][$val] = '';
         return $final;
     }
@@ -339,7 +315,7 @@ class COLDataAPI
         if($val = $a['date'])        $final .= "$val. ";
         if($val = $a['title'])       $final .= "$val. ";
         if($val = $a['description']) $final .= "$val. ";
-        $final .= " --- $a[taxonID] "; //debug only - will comment in normal operation
+        // $final .= " --- $a[taxonID] "; //debug only - will comment in normal operation
         return trim($final);
     }
     private function process_taxon($a)
@@ -414,7 +390,6 @@ class COLDataAPI
             [isExtinct] => 
         )*/
         
-        /* un-comment in real operation
         if($isExtinct = $a['isExtinct']) {
             $rec = array();
             $rec["taxon_id"]            = $a['taxonID'];
@@ -426,7 +401,6 @@ class COLDataAPI
             if($isExtinct == "false" || $isExtinct === false) $rec['measurementValue'] = 'http://eol.org/schema/terms/extant';
             self::add_string_types($rec);
         }
-        */
         if($a['datasetID'] == "29") {
             $rec = array();
             $rec["taxon_id"]            = $a['taxonID'];
@@ -436,7 +410,7 @@ class COLDataAPI
             $rec["source"]              = $a['references'];
             $rec['measurementValue']    = 'https://www.wikidata.org/wiki/Q3570011';
             self::add_string_types($rec);
-            
+            //child measurement:
             if($val = $a['taxonConceptID']) {
                 $rec = array();
                 $rec["taxon_id"]            = $a['taxonID'];
@@ -448,18 +422,8 @@ class COLDataAPI
                 self::add_string_types($rec);
             }
         }
-        /*
-        http://rs.gbif.org/terms/1.0/isExtinct		http://rs.tdwg.org/dwc/terms/measurementType	http://eol.org/schema/terms/ExtinctionStatus	http://eol.org/schema/terms/extinct
-            if CoL value is true
-        http://rs.gbif.org/terms/1.0/isExtinct		http://rs.tdwg.org/dwc/terms/measurementType	http://eol.org/schema/terms/ExtinctionStatus	http://eol.org/schema/terms/extant
-            if CoL value is false
-        -	http://rs.tdwg.org/dwc/terms/measurementType	http://eol.org/schema/terms/TaxonIdProvider	https://www.wikidata.org/wiki/Q3570011
-            Add TaxonIdProvider measurements only if datasetID=29
-        http://rs.tdwg.org/dwc/terms/taxonConceptID	http://rs.tdwg.org/dwc/terms/measurementType	http://purl.org/dc/terms/identifier	verbatim
-            This should be a child measurement of TaxonIdProvider, so we'll have it only if datasetID=29.
-        */
     }
-    private function add_string_types($rec, $a = false) //$a is only for debugging
+    private function add_string_types($rec)
     {
         $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"], $rec);
         unset($rec['catnum']);
@@ -527,7 +491,7 @@ class COLDataAPI
         $dwca = self::compute_for_dwca_file();
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($dwca, "meta.xml", array('timeout' => 172800, 'expire_seconds' => 60*60*24*25)); //expires in 25 days
+        $paths = $func->extract_archive_file($dwca, "meta.xml", array('timeout' => 172800, 'expire_seconds' => false, 'cache' => 1)); //does not expire bec. these are dump files already - won't change
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         $harvester = new ContentArchiveReader(NULL, $archive_path);
@@ -577,7 +541,8 @@ class COLDataAPI
             }
         }
         fclose($WRITE);
-        print_r($this->debug);
+        echo "\nCheck debug file: [$file]\n";
+        // print_r($this->debug);
     }
     
 }
