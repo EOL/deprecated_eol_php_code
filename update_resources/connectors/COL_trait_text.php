@@ -19,7 +19,7 @@ print_r(array_keys($a['eli'])); exit;
 // ini_set('memory_limit','7096M');
 $timestart = time_elapsed();
 
-$resource_id = 'col_trait_text';
+$resource_id = 'col';
 require_library('connectors/COL_traits_textAPI');
 $func = new COL_traits_textAPI($resource_id);
 $func->convert_archive();

@@ -86,7 +86,7 @@ class COL_traits_textAPI
                 elseif($extension == "reference")       self::process_reference($rec);
                 // elseif($extension == "speciesprofile")  self::process_speciesprofile($rec);
                 // elseif($extension == "vernacular")      self::process_vernacular($rec);
-                // if($i >= 10) break; //debug
+                if($i >= 500) break; //debug
             }
         }
     }
@@ -118,8 +118,7 @@ class COL_traits_textAPI
         
         $this->taxon_reference_ids[$a['taxonID']][$r->identifier] = ''; //it has to be here. Coz a sigle reference maybe assigned to multiple taxa.
         
-        if(!isset($this->reference_ids[$r->identifier]))
-        {
+        if(!isset($this->reference_ids[$r->identifier])) {
             $this->reference_ids[$r->identifier] = ''; 
             $this->archive_builder->write_object_to_file($r);
         }
@@ -131,13 +130,13 @@ class COL_traits_textAPI
         if($val = $a['date'])        $final .= "$val. ";
         if($val = $a['title'])       $final .= "$val. ";
         if($val = $a['description']) $final .= "$val. ";
+        $final .= " --- $a[taxonID] "; //debug only - will comment in normal operation
         return trim($final);
     }
     private function process_taxon($a)
     {
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID             = $a['taxonID'];
-        //  [﻿taxonID] => 316502
         $taxon->datasetID           = $a['datasetID'];
         $taxon->datasetName         = $a['datasetName'];
         $taxon->acceptedNameUsageID = $a['acceptedNameUsageID'];
@@ -170,6 +169,7 @@ class COL_traits_textAPI
         $this->archive_builder->write_object_to_file($taxon);
         /* Processing taxa...
         Array(
+            [﻿taxonID] => 316502
             [identifier] => 
             [datasetID] => 26
             [datasetName] => ScaleNet in Species 2000 & ITIS Catalogue of Life: 28th March 2018
@@ -201,7 +201,82 @@ class COL_traits_textAPI
             [references] => http://www.catalogueoflife.org/annual-checklist/2015/details/species/id/6a3ba2fef8659ce9708106356d875285/synonym/3eb3b75ad13a5d0fbd1b22fa1074adc0
             [isExtinct] => 
         )*/
+        
+        if($isExtinct = $a['isExtinct']) {
+            $rec = array();
+            $rec["taxon_id"]            = $a['taxonID'];
+            $rec["catnum"]              = $a['taxonID'];
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = "http://eol.org/schema/terms/ExtinctionStatus";
+            $rec["source"]              = $a['references'];
+            if($isExtinct == "true" || $isExtinct === true) $rec['measurementValue'] = 'http://eol.org/schema/terms/extinct';
+            if($isExtinct == "false" || $isExtinct === false) $rec['measurementValue'] = 'http://eol.org/schema/terms/extant';
+            self::add_string_types($rec);
+        }
+        if($a['datasetID'] == "29") {
+            $rec = array();
+            $rec["taxon_id"]            = $a['taxonID'];
+            $rec["catnum"]              = $a['taxonID']."TaxonIdProvider";
+            $rec['measurementOfTaxon']  = "true";
+            $rec['measurementType']     = "http://eol.org/schema/terms/TaxonIdProvider";
+            $rec["source"]              = $a['references'];
+            $rec['measurementValue']    = 'https://www.wikidata.org/wiki/Q3570011';
+            self::add_string_types($rec);
+            
+            if($val = $a['taxonConceptID']) {
+                $rec = array();
+                $rec["taxon_id"]            = $a['taxonID'];
+                $rec["catnum"]              = $a['taxonID']."TaxonIdProvider";
+                $rec['measurementOfTaxon']  = "false";
+                $rec['measurementType']     = "http://purl.org/dc/terms/identifier";
+                // $rec["source"]              = $a['references'];
+                $rec['measurementValue']    = $val;
+                self::add_string_types($rec);
+            }
+        }
+        /*
+        http://rs.gbif.org/terms/1.0/isExtinct		http://rs.tdwg.org/dwc/terms/measurementType	http://eol.org/schema/terms/ExtinctionStatus	http://eol.org/schema/terms/extinct
+            if CoL value is true
+        http://rs.gbif.org/terms/1.0/isExtinct		http://rs.tdwg.org/dwc/terms/measurementType	http://eol.org/schema/terms/ExtinctionStatus	http://eol.org/schema/terms/extant
+            if CoL value is false
+        -	measurements	http://rs.tdwg.org/dwc/terms/measurementType	http://eol.org/schema/terms/TaxonIdProvider	https://www.wikidata.org/wiki/Q3570011
+            Add TaxonIdProvider measurements only if datasetID=29
+        http://rs.tdwg.org/dwc/terms/taxonConceptID	measurements	http://rs.tdwg.org/dwc/terms/measurementType	http://purl.org/dc/terms/identifier	verbatim
+            This should be a child measurement of TaxonIdProvider, so we'll have it only if datasetID=29.
+        */
     }
+    private function add_string_types($rec, $a = false) //$a is only for debugging
+    {
+        $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"], $rec);
+        unset($rec['catnum']);
+        unset($rec['taxon_id']);
+        
+        $m = new \eol_schema\MeasurementOrFact();
+        $m->occurrenceID = $occurrence_id;
+        foreach($rec as $key => $value) $m->$key = $value;
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        if(!isset($this->measurement_ids[$m->measurementID])) {
+            $this->archive_builder->write_object_to_file($m);
+            $this->measurement_ids[$m->measurementID] = '';
+        }
+    }
+
+    private function add_occurrence($taxon_id, $catnum, $rec)
+    {
+        $occurrence_id = $catnum;
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = $occurrence_id;
+        // if($val = @$rec['lifestage']) $o->lifeStage = $val; -- nothing from COL, just copied from another resource
+        $o->taxonID = $taxon_id;
+
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        
+        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
+    }
+
     private function format_taxonRank($a)
     {
         /* if there is a value for verbatimTaxonRank, this should take precedence over the CoL taxonRank value, except in cases where verbatimTaxonRank=aberration.
@@ -290,7 +365,6 @@ class COL_traits_textAPI
         foreach($arr as $item) $final[$item[0]] = $item[1];
         return $final;
     }
-    
     
 }
 ?>
