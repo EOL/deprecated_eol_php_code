@@ -43,7 +43,7 @@ class COL_traits_textAPI
             $tbl = $values[0];
             $items[$tbl->row_type] = $tbl->file_uri;
         }
-        print_r($items);
+        // print_r($items);
         /* Array(
             [http://rs.tdwg.org/dwc/terms/Taxon] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//taxa.txt
             [http://rs.gbif.org/terms/1.0/Distribution] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//distribution.txt
@@ -52,8 +52,14 @@ class COL_traits_textAPI
             [http://rs.gbif.org/terms/1.0/SpeciesProfile] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//speciesprofile.txt
             [http://rs.gbif.org/terms/1.0/VernacularName] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//vernacular.txt
         )*/
-        self::process_file($items[$this->extensions['reference']], 'reference');
+        // self::process_file($items[$this->extensions['reference']], 'reference');
         self::process_file($items[$this->extensions['taxa']], 'taxa');
+        
+        $this->uris = Functions::get_eol_defined_uris(false, true);
+        self::process_file($items[$this->extensions['distribution']], 'distribution');
+        
+        
+        $this->uris = '';
         $this->archive_builder->finalize(TRUE);
         
         // remove temp dir
@@ -80,15 +86,103 @@ class COL_traits_textAPI
                 }
                 $rec = array_map('trim', $rec);
                 // print_r($rec);
-                if($extension == "taxa") self::process_taxon($rec);
-                // elseif($extension == "destribution")    self::process_distribution($rec);
+                if($extension == "taxa") {
+                    self::process_taxon($rec);
+                    // if($rec['datasetID'] == "29") break; //debug
+                }
+                elseif($extension == "distribution")    self::process_distribution($rec);
                 // elseif($extension == "description")     self::process_description($rec);
-                elseif($extension == "reference")       self::process_reference($rec);
+                // elseif($extension == "reference")       self::process_reference($rec);
                 // elseif($extension == "speciesprofile")  self::process_speciesprofile($rec);
                 // elseif($extension == "vernacular")      self::process_vernacular($rec);
                 if($i >= 500) break; //debug
             }
         }
+    }
+    private function process_distribution($a)
+    {
+        /* Array (
+            [﻿taxonID] => 316424
+            [locationID] => TDWG:GER-OO
+            [locality] => Germany
+            [occurrenceStatus] => 
+            [establishmentMeans] => 
+        )
+        http://rs.tdwg.org/dwc/terms/locality	http://rs.tdwg.org/dwc/terms/measurementType	http://eol.org/schema/terms/Present
+            We should translate their place names into URIs. Most of the countries & economic zones should be represented in the known uris (http://beta-repo.eol.org/terms/).  
+            Let me know if there are any missing.	Use Present if establishmentMeans is empty
+        http://rs.tdwg.org/dwc/terms/locality	http://rs.tdwg.org/dwc/terms/measurementType	http://eol.org/schema/terms/NativeRange
+            Use NativeRange if establishmentMeans is native
+        http://rs.tdwg.org/dwc/terms/locality	http://rs.tdwg.org/dwc/terms/measurementType	http://eol.org/schema/terms/IntroducedRange
+            Use IntroducedRange if establishmentMeans is alien
+        http://rs.tdwg.org/dwc/terms/locationID	http://rs.tdwg.org/dwc/terms/measurementType	http://rs.tdwg.org/dwc/terms/locationID	verbatim
+            The locationID measurements should be child records of the Present /NativeRange/IntroducedRange measurements. Most of these are TDWG codes, 
+            but there are also some others. I don't think they are widely used anymore, but we may as well expose them.
+        */
+        if($locality = $a['locality']) {
+            if($locality_uri = @$this->uris[$locality]) {
+                $locationID = $a['locationID'];
+                if(!$a['establishmentMeans']) {
+                    $rec = array();
+                    $rec["taxon_id"]            = $a['taxonID'];
+                    $rec["catnum"]              = $a['taxonID']."Present";
+                    $rec['measurementOfTaxon']  = "true";
+                    $rec['measurementType']     = "http://eol.org/schema/terms/Present";
+                    // $rec["source"]              = $a['references'];
+                    $rec['measurementValue']    = $locality_uri;
+                    self::add_string_types($rec);
+                    if($locationID) {
+                        $rec = array();
+                        $rec["taxon_id"]            = $a['taxonID'];
+                        $rec["catnum"]              = $a['taxonID']."Present";
+                        $rec['measurementOfTaxon']  = "false";
+                        $rec['measurementType']     = "http://rs.tdwg.org/dwc/terms/locationID";
+                        $rec['measurementValue']    = $locationID;
+                        self::add_string_types($rec);
+                    }
+                }
+                elseif($a['establishmentMeans'] == "native") {
+                    $rec = array();
+                    $rec["taxon_id"]            = $a['taxonID'];
+                    $rec["catnum"]              = $a['taxonID']."NativeRange";
+                    $rec['measurementOfTaxon']  = "true";
+                    $rec['measurementType']     = "http://eol.org/schema/terms/NativeRange";
+                    // $rec["source"]              = $a['references'];
+                    $rec['measurementValue']    = $locality_uri;
+                    self::add_string_types($rec);
+                    if($locationID) {
+                        $rec = array();
+                        $rec["taxon_id"]            = $a['taxonID'];
+                        $rec["catnum"]              = $a['taxonID']."NativeRange";
+                        $rec['measurementOfTaxon']  = "false";
+                        $rec['measurementType']     = "http://rs.tdwg.org/dwc/terms/locationID";
+                        $rec['measurementValue']    = $locationID;
+                        self::add_string_types($rec);
+                    }
+                }
+                elseif($a['establishmentMeans'] == "alien") {
+                    $rec = array();
+                    $rec["taxon_id"]            = $a['taxonID'];
+                    $rec["catnum"]              = $a['taxonID']."IntroducedRange";
+                    $rec['measurementOfTaxon']  = "true";
+                    $rec['measurementType']     = "http://eol.org/schema/terms/IntroducedRange";
+                    // $rec["source"]              = $a['references'];
+                    $rec['measurementValue']    = $locality_uri;
+                    self::add_string_types($rec);
+                    if($locationID) {
+                        $rec = array();
+                        $rec["taxon_id"]            = $a['taxonID'];
+                        $rec["catnum"]              = $a['taxonID']."IntroducedRange";
+                        $rec['measurementOfTaxon']  = "false";
+                        $rec['measurementType']     = "http://rs.tdwg.org/dwc/terms/locationID";
+                        $rec['measurementValue']    = $locationID;
+                        self::add_string_types($rec);
+                    }
+                }
+            }
+            else $this->debug['undef locality'][$locality] = '';
+        }
+        
     }
     private function process_reference($a)
     {
@@ -98,7 +192,6 @@ class COL_traits_textAPI
         http://purl.org/dc/terms/date	references	http://eol.org/schema/reference/full_reference
         http://purl.org/dc/terms/title	references	http://eol.org/schema/reference/full_reference
         http://purl.org/dc/terms/source	references	http://eol.org/schema/reference/full_reference
-        Processing reference...
         Array(
             [﻿taxonID] => 316423
             [creator] => Lepage, H.S.
@@ -202,10 +295,11 @@ class COL_traits_textAPI
             [isExtinct] => 
         )*/
         
+        /* un-comment in real operation
         if($isExtinct = $a['isExtinct']) {
             $rec = array();
             $rec["taxon_id"]            = $a['taxonID'];
-            $rec["catnum"]              = $a['taxonID'];
+            $rec["catnum"]              = $a['taxonID']."ExtinctionStatus";
             $rec['measurementOfTaxon']  = "true";
             $rec['measurementType']     = "http://eol.org/schema/terms/ExtinctionStatus";
             $rec["source"]              = $a['references'];
@@ -213,6 +307,7 @@ class COL_traits_textAPI
             if($isExtinct == "false" || $isExtinct === false) $rec['measurementValue'] = 'http://eol.org/schema/terms/extant';
             self::add_string_types($rec);
         }
+        */
         if($a['datasetID'] == "29") {
             $rec = array();
             $rec["taxon_id"]            = $a['taxonID'];
@@ -239,9 +334,9 @@ class COL_traits_textAPI
             if CoL value is true
         http://rs.gbif.org/terms/1.0/isExtinct		http://rs.tdwg.org/dwc/terms/measurementType	http://eol.org/schema/terms/ExtinctionStatus	http://eol.org/schema/terms/extant
             if CoL value is false
-        -	measurements	http://rs.tdwg.org/dwc/terms/measurementType	http://eol.org/schema/terms/TaxonIdProvider	https://www.wikidata.org/wiki/Q3570011
+        -	http://rs.tdwg.org/dwc/terms/measurementType	http://eol.org/schema/terms/TaxonIdProvider	https://www.wikidata.org/wiki/Q3570011
             Add TaxonIdProvider measurements only if datasetID=29
-        http://rs.tdwg.org/dwc/terms/taxonConceptID	measurements	http://rs.tdwg.org/dwc/terms/measurementType	http://purl.org/dc/terms/identifier	verbatim
+        http://rs.tdwg.org/dwc/terms/taxonConceptID	http://rs.tdwg.org/dwc/terms/measurementType	http://purl.org/dc/terms/identifier	verbatim
             This should be a child measurement of TaxonIdProvider, so we'll have it only if datasetID=29.
         */
     }
@@ -293,16 +388,6 @@ class COL_traits_textAPI
         if(!in_array($a['datasetID'], $datasetIDs_2omit)) return $a['description'];
     }
     /*
-    Processing distribution...
-    Array
-    (
-        [﻿taxonID] => 316424
-        [locationID] => TDWG:GER-OO
-        [locality] => Germany
-        [occurrenceStatus] => 
-        [establishmentMeans] => 
-    )
-
     Processing description...
     Array
     (

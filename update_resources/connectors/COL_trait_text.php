@@ -8,10 +8,8 @@ estimated execution time:
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 /* testing...
-$a['eli']['josh'] = '';
-$a['eli']['isaiah'] = '';
-$a['eli']['aaron'] = '';
-print_r(array_keys($a['eli'])); exit;
+$uris = Functions::get_eol_defined_uris(false, true);
+print_r($uris); exit;
 */
 
 
