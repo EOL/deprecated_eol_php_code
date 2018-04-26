@@ -13,7 +13,7 @@ class COLDataAPI
         }
         $this->taxa_ref_ids = array();
         $this->page['download_page'] = "http://www.catalogueoflife.org/DCA_Export/archive.php";
-        $this->download_options = array('resource_id' => 'CoL', 'expire_seconds' => 60*60*24*10, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1);
+        $this->download_options = array('resource_id' => 'CoL', 'expire_seconds' => 60*60*24*25, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1);
         $this->debug = array();
         $this->extensions = array('taxa'            => "http://rs.tdwg.org/dwc/terms/Taxon",
                                   'distribution'    => "http://rs.gbif.org/terms/1.0/Distribution",
@@ -46,15 +46,6 @@ class COLDataAPI
             $items[$tbl->row_type] = $tbl->file_uri;
         }
         // print_r($items);
-        /* Array(
-            [http://rs.tdwg.org/dwc/terms/Taxon] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//taxa.txt
-            [http://rs.gbif.org/terms/1.0/Distribution] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//distribution.txt
-            [http://rs.gbif.org/terms/1.0/Description] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//description.txt
-            [http://rs.gbif.org/terms/1.0/Reference] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//reference.txt
-            [http://rs.gbif.org/terms/1.0/SpeciesProfile] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//speciesprofile.txt
-            [http://rs.gbif.org/terms/1.0/VernacularName] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//vernacular.txt
-        )*/
-        
         self::process_file($items[$this->extensions['reference']], 'reference');
         self::process_file($items[$this->extensions['taxa']], 'taxa');
         unset($this->taxon_reference_ids); //release memory
@@ -111,7 +102,7 @@ class COLDataAPI
                 elseif($extension == "reference")       self::process_reference($rec);
                 elseif($extension == "speciesprofile")  self::process_speciesprofile($rec);
                 elseif($extension == "vernacular")      self::process_vernacular($rec);
-                // if($i >= 1000) break; //debug
+                if($i >= 5000) break; //debug
             }
         }
         if($extension == "description") return $taxa_desc_list;
@@ -135,6 +126,7 @@ class COLDataAPI
             $v->taxonID         = $a['taxonID'];
             $v->vernacularName  = $val;
             $v->language        = @$this->languages[$a['language']];
+            if($v->language == "omit vernacular record") return;
             $v->locality        = $a['locality'];
             $this->archive_builder->write_object_to_file($v);
         }
@@ -142,6 +134,7 @@ class COLDataAPI
         if($language = $a['language']) {
             if(!@$this->languages[$language]) $this->debug['und lang'][$language] = '';
         }
+        else $this->debug['und lang']['blank'] = '';
     }
     private function process_description($a, $final)
     {   /*
@@ -243,6 +236,7 @@ class COLDataAPI
         */
         if($locality = $a['locality']) {
             if($locality_uri = @$this->uris[$locality]) {
+                // echo "\n found URI [$locality][$locality_uri]";
                 $locationID = $a['locationID'];
                 if(!$a['establishmentMeans']) {
                     $rec = array();
@@ -514,16 +508,18 @@ class COLDataAPI
     }
     private function compute_for_dwca_file()
     {
-        return "http://localhost/cp/COL/2018-03-28-archive-complete.zip";
-        if($html = Functions::lookup_with_cache($this->page['download_page'], $this->download_options)) {
-            if(preg_match("/Monthly editions(.*?)<\/ul>/ims", $html, $a)) {
-                if(preg_match("/href=\"(.*?)\"/ims", $a[1], $a2)) {
-                    $final = "http://www.catalogueoflife.org/DCA_Export/".$a2[1];
-                    echo "\nDownloading [$final] ...\n";
-                    return $final;
+        if(Functions::is_production()) {
+            if($html = Functions::lookup_with_cache($this->page['download_page'], $this->download_options)) {
+                if(preg_match("/Monthly editions(.*?)<\/ul>/ims", $html, $a)) {
+                    if(preg_match("/href=\"(.*?)\"/ims", $a[1], $a2)) {
+                        $final = "http://www.catalogueoflife.org/DCA_Export/".$a2[1];
+                        echo "\nDownloading [$final] ...\n";
+                        return $final;
+                    }
                 }
             }
         }
+        else return "http://localhost/cp/COL/2018-03-28-archive-complete.zip";
         // return "http://www.catalogueoflife.org/DCA_Export/zip-fixed/2018-03-28-archive-complete.zip";
     }
     private function prepare_dwca()
@@ -563,7 +559,7 @@ class COLDataAPI
             fwrite($WRITE, $topic."\n");
             if(is_array($arr)) {
                 foreach($arr as $subtopic => $arr2) {
-                    fwrite($WRITE, "----- ".$subtopic." ----- \n");
+                    fwrite($WRITE, "----- ".$subtopic."\n");
                     if(is_array($arr2)) {
                         $arr2 = array_keys($arr2);
                         asort($arr2);
@@ -571,10 +567,14 @@ class COLDataAPI
                             if($item) fwrite($WRITE, $item."\n");
                         }
                     }
-                    else fwrite($WRITE, $arr2."\n");
+                    else {
+                        if($arr2) fwrite($WRITE, $arr2."\n");
+                    }
                 }
             }
-            else fwrite($WRITE, $arr."\n");
+            else {
+                if($arr) fwrite($WRITE, $arr."\n");
+            }
         }
         fclose($WRITE);
         print_r($this->debug);
