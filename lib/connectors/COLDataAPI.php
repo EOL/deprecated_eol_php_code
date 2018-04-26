@@ -52,14 +52,18 @@ class COLDataAPI
             [http://rs.gbif.org/terms/1.0/SpeciesProfile] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//speciesprofile.txt
             [http://rs.gbif.org/terms/1.0/VernacularName] => /Library/WebServer/Documents/eol_php_code/tmp/dir_49996//vernacular.txt
         )*/
-        // self::process_file($items[$this->extensions['reference']], 'reference');
+        
+        self::process_file($items[$this->extensions['reference']], 'reference');
         self::process_file($items[$this->extensions['taxa']], 'taxa');
+        $this->taxon_reference_ids = ''; //release memory
         
         $this->uris = Functions::get_eol_defined_uris(false, true);
         self::process_file($items[$this->extensions['distribution']], 'distribution');
+        $this->uris = ''; //release memory
         
         
-        $this->uris = '';
+        
+        $this->taxon_url = ''; //release memory
         $this->archive_builder->finalize(TRUE);
         
         // remove temp dir
@@ -90,12 +94,40 @@ class COLDataAPI
                     self::process_taxon($rec);
                     // if($rec['datasetID'] == "29") break; //debug
                 }
-                elseif($extension == "distribution")    self::process_distribution($rec);
+                // elseif($extension == "distribution")    self::process_distribution($rec);
                 // elseif($extension == "description")     self::process_description($rec);
                 // elseif($extension == "reference")       self::process_reference($rec);
-                // elseif($extension == "speciesprofile")  self::process_speciesprofile($rec);
+                elseif($extension == "speciesprofile")  self::process_speciesprofile($rec);
                 // elseif($extension == "vernacular")      self::process_vernacular($rec);
                 if($i >= 500) break; //debug
+            }
+        }
+    }
+    private function process_speciesprofile($a)
+    {   /*
+        http://rs.tdwg.org/dwc/terms/measurementType	http://eol.org/schema/terms/Habitat	if CoL value is terrestrial
+        http://rs.tdwg.org/dwc/terms/measurementType	http://eol.org/schema/terms/Habitat	if CoL value is freshwater
+        http://rs.tdwg.org/dwc/terms/measurementType	http://eol.org/schema/terms/Habitat	if CoL value is brackish
+        http://rs.tdwg.org/dwc/terms/measurementType	http://eol.org/schema/terms/Habitat	if CoL value is marine
+        Array(
+            [﻿taxonID] => 9237970
+            [habitat] => terrestrial
+        )
+        */
+        if($habitat = $a['habitat']) {
+            $arr['terrestrial'] = "http://purl.obolibrary.org/obo/ENVO_00002009";
+            $arr['freshwater']  = "http://purl.obolibrary.org/obo/ENVO_00002037";
+            $arr['brackish']    = "http://purl.obolibrary.org/obo/ENVO_00000570";
+            $arr['marine']      = "http://purl.obolibrary.org/obo/ENVO_00000569";
+            if($val = @$arr[$habitat]) {
+                $rec = array();
+                $rec["taxon_id"]            = $a['taxonID'];
+                $rec["catnum"]              = $a['taxonID']."Habitat";
+                $rec['measurementOfTaxon']  = "true";
+                $rec['measurementType']     = "http://eol.org/schema/terms/Habitat";
+                $rec["source"]              = @$this->taxon_url[$a['taxonID']];
+                $rec['measurementValue']    = $val;
+                self::add_string_types($rec);
             }
         }
     }
@@ -128,7 +160,7 @@ class COLDataAPI
                     $rec["catnum"]              = $a['taxonID']."Present";
                     $rec['measurementOfTaxon']  = "true";
                     $rec['measurementType']     = "http://eol.org/schema/terms/Present";
-                    // $rec["source"]              = $a['references'];
+                    $rec["source"]              = @$this->taxon_url[$a['taxonID']];
                     $rec['measurementValue']    = $locality_uri;
                     self::add_string_types($rec);
                     if($locationID) {
@@ -147,7 +179,7 @@ class COLDataAPI
                     $rec["catnum"]              = $a['taxonID']."NativeRange";
                     $rec['measurementOfTaxon']  = "true";
                     $rec['measurementType']     = "http://eol.org/schema/terms/NativeRange";
-                    // $rec["source"]              = $a['references'];
+                    $rec["source"]              = @$this->taxon_url[$a['taxonID']];
                     $rec['measurementValue']    = $locality_uri;
                     self::add_string_types($rec);
                     if($locationID) {
@@ -166,7 +198,7 @@ class COLDataAPI
                     $rec["catnum"]              = $a['taxonID']."IntroducedRange";
                     $rec['measurementOfTaxon']  = "true";
                     $rec['measurementType']     = "http://eol.org/schema/terms/IntroducedRange";
-                    // $rec["source"]              = $a['references'];
+                    $rec["source"]              = @$this->taxon_url[$a['taxonID']];
                     $rec['measurementValue']    = $locality_uri;
                     self::add_string_types($rec);
                     if($locationID) {
@@ -228,6 +260,7 @@ class COLDataAPI
     }
     private function process_taxon($a)
     {
+        $this->taxon_url[$a['taxonID']] = $a['references'];
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID             = $a['taxonID'];
         $taxon->datasetID           = $a['datasetID'];
@@ -394,14 +427,6 @@ class COLDataAPI
         [﻿taxonID] => 316423
         [description] => Brazil
     )
-
-    Processing speciesprofile...
-    Array
-    (
-        [﻿taxonID] => 9237970
-        [habitat] => terrestrial
-    )
-
     Processing vernacular...
     Array
     (
