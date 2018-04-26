@@ -61,9 +61,12 @@ class COLDataAPI
         self::process_file($items[$this->extensions['distribution']], 'distribution');
         $this->uris = ''; //release memory
         
+        self::process_file($items[$this->extensions['speciesprofile']], 'speciesprofile');
+        $taxa_desc_list = self::process_file($items[$this->extensions['description']], 'description');
+        self::create_media_archive($taxa_desc_list)
+        $taxa_desc_list = ''; //release memory
         
-        
-        $this->taxon_url = ''; //release memory
+        $this->taxon_info = ''; //release memory
         $this->archive_builder->finalize(TRUE);
         
         // remove temp dir
@@ -73,10 +76,12 @@ class COLDataAPI
     }
     private function process_file($txt_file, $extension)
     {
+        if($extension == "description") $taxa_desc_list array();
+        
         $i = 0; echo "\nProcessing $extension...\n";
         foreach(new FileIterator($txt_file) as $line_number => $line) {
             $line = Functions::remove_utf8_bom($line);
-            $i++; if(($i % 10000) == 0) echo "\n".number_format($i)." $extension ";
+            $i++; if(($i % 50000) == 0) echo "\n".number_format($i)." $extension ";
             $row = explode("\t", $line);
             if($i == 1) {
                 $fields = $row;
@@ -95,12 +100,62 @@ class COLDataAPI
                     // if($rec['datasetID'] == "29") break; //debug
                 }
                 // elseif($extension == "distribution")    self::process_distribution($rec);
-                // elseif($extension == "description")     self::process_description($rec);
+                elseif($extension == "description")     $taxa_desc_list = self::process_description($rec, $taxa_desc_list);
                 // elseif($extension == "reference")       self::process_reference($rec);
-                elseif($extension == "speciesprofile")  self::process_speciesprofile($rec);
+                // elseif($extension == "speciesprofile")  self::process_speciesprofile($rec);
                 // elseif($extension == "vernacular")      self::process_vernacular($rec);
                 if($i >= 500) break; //debug
             }
+        }
+        if($extension == "description") return $taxa_desc_list;
+    }
+    private function process_description($a, $final)
+    {   /*
+        description.txt	http://purl.org/dc/terms/description	http://purl.org/dc/terms/description		verbatim	
+            If there are multiple descriptions for the same taxon, concatenate the descriptions into a single text object, separating individual descriptions with a semicolon.
+        description.txt	http://purl.org/dc/terms/language	http://purl.org/dc/terms/language		eng	
+        -	-	http://purl.org/dc/terms/type		http://purl.org/dc/dcmitype/Text	
+        -	-	http://purl.org/dc/terms/format		text/html	
+        -	-	http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm		http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution	
+        taxa.txt	http://purl.org/dc/terms/references	http://rs.tdwg.org/ac/terms/furtherInformationURL		verbatim	
+            For each media object, fetch the url from the references field of the relevant taxon.
+        -	-	http://purl.org/dc/terms/audience		Everyone	
+        -	-	http://ns.adobe.com/xap/1.0/rights/UsageTerms		No known copyright restrictions	
+        taxa.txt	http://rs.tdwg.org/dwc/terms/datasetName	http://purl.org/dc/terms/contributor		verbatim
+    
+        Processing description...
+        Array
+        (
+            [﻿taxonID] => 316423
+            [description] => Brazil
+        )
+        */
+        
+        if($val = $a['description']) $final[$a['taxonID']][$val] = '';
+        return $final;
+    }
+    private function create_media_archive($taxa_desc_list)
+    {
+        foreach($taxa_desc_list as $taxonID => $descriptions) {
+            $desc = array_keys($descriptions);
+            $desc = implode("; ", $desc);
+            $mr = new \eol_schema\MediaResource();
+            $mr->taxonID        = $taxonID;
+            $mr->identifier     = md5($taxonID.$desc);
+            $mr->description    = $desc;
+            $mr->language       = 'eng';
+            $mr->type           = 'http://purl.org/dc/dcmitype/Text';
+            $mr->format         = 'text/html';
+            $mr->CVterm         = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution';
+            $mr->furtherInformationURL = @$this->taxon_info[$taxonID]['url'];
+            $mr->audience       = 'Everyone';
+            $mr->UsageTerms     = 'No known copyright restrictions';
+            $mr->contributor    = @$this->taxon_info[$taxonID]['dsN'];
+            // if(!isset($this->object_ids[$mr->identifier])) {
+            //     $this->archive_builder->write_object_to_file($mr);
+            //     $this->object_ids[$mr->identifier] = '';
+            // }
+            $this->archive_builder->write_object_to_file($mr);
         }
     }
     private function process_speciesprofile($a)
@@ -125,7 +180,7 @@ class COLDataAPI
                 $rec["catnum"]              = $a['taxonID']."Habitat";
                 $rec['measurementOfTaxon']  = "true";
                 $rec['measurementType']     = "http://eol.org/schema/terms/Habitat";
-                $rec["source"]              = @$this->taxon_url[$a['taxonID']];
+                $rec["source"]              = @$this->taxon_info[$a['taxonID']]['url'];
                 $rec['measurementValue']    = $val;
                 self::add_string_types($rec);
             }
@@ -160,7 +215,7 @@ class COLDataAPI
                     $rec["catnum"]              = $a['taxonID']."Present";
                     $rec['measurementOfTaxon']  = "true";
                     $rec['measurementType']     = "http://eol.org/schema/terms/Present";
-                    $rec["source"]              = @$this->taxon_url[$a['taxonID']];
+                    $rec["source"]              = @$this->taxon_info[$a['taxonID']]['url'];
                     $rec['measurementValue']    = $locality_uri;
                     self::add_string_types($rec);
                     if($locationID) {
@@ -179,7 +234,7 @@ class COLDataAPI
                     $rec["catnum"]              = $a['taxonID']."NativeRange";
                     $rec['measurementOfTaxon']  = "true";
                     $rec['measurementType']     = "http://eol.org/schema/terms/NativeRange";
-                    $rec["source"]              = @$this->taxon_url[$a['taxonID']];
+                    $rec["source"]              = @$this->taxon_info[$a['taxonID']]['url'];
                     $rec['measurementValue']    = $locality_uri;
                     self::add_string_types($rec);
                     if($locationID) {
@@ -198,7 +253,7 @@ class COLDataAPI
                     $rec["catnum"]              = $a['taxonID']."IntroducedRange";
                     $rec['measurementOfTaxon']  = "true";
                     $rec['measurementType']     = "http://eol.org/schema/terms/IntroducedRange";
-                    $rec["source"]              = @$this->taxon_url[$a['taxonID']];
+                    $rec["source"]              = @$this->taxon_info[$a['taxonID']]['url'];
                     $rec['measurementValue']    = $locality_uri;
                     self::add_string_types($rec);
                     if($locationID) {
@@ -260,7 +315,9 @@ class COLDataAPI
     }
     private function process_taxon($a)
     {
-        $this->taxon_url[$a['taxonID']] = $a['references'];
+        $this->taxon_info[$a['taxonID']]['url'] = $a['references'];
+        $this->taxon_info[$a['taxonID']]['dsN'] = $a['datasetName'];
+        
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID             = $a['taxonID'];
         $taxon->datasetID           = $a['datasetID'];
@@ -421,12 +478,6 @@ class COLDataAPI
         if(!in_array($a['datasetID'], $datasetIDs_2omit)) return $a['description'];
     }
     /*
-    Processing description...
-    Array
-    (
-        [﻿taxonID] => 316423
-        [description] => Brazil
-    )
     Processing vernacular...
     Array
     (
