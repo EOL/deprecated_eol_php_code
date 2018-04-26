@@ -18,8 +18,8 @@ print_r($uris); exit;
 $timestart = time_elapsed();
 
 $resource_id = 'col';
-require_library('connectors/COL_traits_textAPI');
-$func = new COL_traits_textAPI($resource_id);
+require_library('connectors/COLDataAPI');
+$func = new COLDataAPI($resource_id);
 $func->convert_archive();
 
 Functions::finalize_dwca_resource($resource_id, false);

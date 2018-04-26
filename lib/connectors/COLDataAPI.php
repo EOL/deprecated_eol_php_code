@@ -2,7 +2,7 @@
 namespace php_active_record;
 /* connector: [COL_trait_text.php]
 */
-class COL_traits_textAPI
+class COLDataAPI
 {
     function __construct($folder = NULL)
     {
