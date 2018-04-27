@@ -41,16 +41,28 @@ class COLDataAPI
         }
         print_r($items);
         self::process_file($items[$this->extensions['reference']], 'reference');
-        self::process_file($items[$this->extensions['taxa']], 'taxa');
+        self::process_file($items[$this->extensions['taxa']], 'taxa'); //taxa and measurements
         unset($this->taxon_reference_ids); //release memory
+
+        //ends all measurements
+        unset($this->occurrence_ids);
+        unset($this->measurement_ids);
         
         $this->uris = Functions::get_eol_defined_uris(false, true);
-        self::process_file($items[$this->extensions['distribution']], 'distribution');
+        self::process_file($items[$this->extensions['distribution']], 'distribution'); //measurements
         unset($this->uris); //release memory
+
+        //ends all measurements
+        unset($this->occurrence_ids);
+        unset($this->measurement_ids);
         
-        self::process_file($items[$this->extensions['speciesprofile']], 'speciesprofile');
+        self::process_file($items[$this->extensions['speciesprofile']], 'speciesprofile'); //measurements
         
-        $taxa_desc_list = self::process_file($items[$this->extensions['description']], 'description');
+        //ends all measurements
+        unset($this->occurrence_ids);
+        unset($this->measurement_ids);
+        
+        $taxa_desc_list = self::process_file($items[$this->extensions['description']], 'description'); //media
         self::create_media_archive($taxa_desc_list);
         unset($taxa_desc_list); //release memory
         
