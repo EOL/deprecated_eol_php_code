@@ -19,7 +19,7 @@ $resource_id = 750;
 $func = new FEISDataConnector($resource_id);
 $func->generate_FEIS_data();
 
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, true);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

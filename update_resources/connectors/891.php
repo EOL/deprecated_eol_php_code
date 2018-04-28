@@ -79,7 +79,7 @@ print_r($params); //exit;
 
 $func->start($params); //renamed, it was $func->export_gbif_to_eol() before
 $func = null;
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, true);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";

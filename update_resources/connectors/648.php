@@ -17,7 +17,7 @@ $resource_id = "648";
 $func = new FeaturedCreaturesAPI($resource_id);
 $func->get_all_taxa(false); // 'true' if to generate text articles, 'false' for outlinks
 
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, true);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n elapsed time = " . $elapsed_time_sec . " seconds";

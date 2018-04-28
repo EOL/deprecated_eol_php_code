@@ -14,7 +14,7 @@ $resource_id = 90;
 $func = new ConservationBiologyTurtlesAPI($resource_id);
 $func->get_all_taxa();
 
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, true);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";

@@ -19,7 +19,7 @@ $func = new WikipediaRegionalAPI($resource_id, 'de');
 
 
 $func->generate_archive();
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, true);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

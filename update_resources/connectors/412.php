@@ -40,7 +40,7 @@ $params["resource_id"]  = 1;
 $resource_id = $params["resource_id"];
 $func = new ConvertEOLtoDWCaAPI($resource_id);
 $func->export_xml_to_archive($params);
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, true);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

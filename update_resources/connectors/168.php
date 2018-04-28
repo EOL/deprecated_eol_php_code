@@ -12,7 +12,7 @@ require_library('connectors/BioImagesAPI');
 
 $timestart = time_elapsed();
 $resource_id = 168;
-$func = new BioImagesAPI($resource_id);
+$func = new BioImagesAPI($resource_id, false, true);
 $func->get_all_taxa();
 
 Functions::finalize_dwca_resource($resource_id, false, true); //2nd param False - not a big file | 3rd param True - can delete working folder
