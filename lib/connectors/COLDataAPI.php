@@ -62,9 +62,19 @@ class COLDataAPI
         unset($this->occurrence_ids);
         unset($this->measurement_ids);
         
+        /* v1
         $taxa_desc_list = self::process_file($items[$this->extensions['description']], 'description'); //media
         self::create_media_archive($taxa_desc_list);
         unset($taxa_desc_list); //release memory
+        */
+        
+        // /* v2
+        $id_list = self::process_file($items[$this->extensions['description']], 'description_v2'); //media
+        self::create_media_archive_v2($id_list);
+        unset($id_list); //release memory
+        $temp_path = CONTENT_RESOURCE_LOCAL_PATH . "COL_temp/";
+        if(is_dir($temp_path)) recursive_rmdir($temp_path);
+        // */
         
         unset($this->taxon_info); //release memory
         
@@ -82,6 +92,12 @@ class COLDataAPI
     private function process_file($txt_file, $extension)
     {
         if($extension == "description") $taxa_desc_list = array();
+        if($extension == "description_v2") {
+            $temp_path = CONTENT_RESOURCE_LOCAL_PATH . "COL_temp/";
+            if(is_dir($temp_path)) recursive_rmdir($temp_path);
+            mkdir($temp_path);
+            $id_list = array();
+        }
         
         $i = 0; echo "\nProcessing $extension...\n";
         foreach(new FileIterator($txt_file) as $line_number => $line) {
@@ -105,6 +121,7 @@ class COLDataAPI
                 }
                 elseif($extension == "distribution")    self::process_distribution($rec);
                 elseif($extension == "description")     $taxa_desc_list = self::process_description($rec, $taxa_desc_list);
+                elseif($extension == "description_v2")  $id_list = self::process_description_v2($rec, $temp_path, $id_list);
                 elseif($extension == "reference")       self::process_reference($rec);
                 elseif($extension == "speciesprofile")  self::process_speciesprofile($rec);
                 elseif($extension == "vernacular")      self::process_vernacular($rec);
@@ -112,6 +129,7 @@ class COLDataAPI
             }
         }
         if($extension == "description") return $taxa_desc_list;
+        if($extension == "description_v2") return $id_list;
     }
     private function process_vernacular($a)
     {   /*
@@ -148,6 +166,58 @@ class COLDataAPI
         )*/
         if($val = $a['description']) $final[$a['taxonID']][$val] = '';
         return $final;
+    }
+    private function process_description_v2($a, $temp_path, $id_list)
+    {
+        if($taxonID = $a['taxonID']) {
+            $folder = substr($taxonID, -2); //But if taxonID is less than 2 characters, $folder will be empty...seems
+            if(!$folder) exit("\nsomething wrong with taxonID [$taxonID] - ".$a['taxonID']."\n");
+            $curr_folder = $temp_path.$folder;
+            if(!is_dir($curr_folder)) mkdir($curr_folder);
+            $file = $curr_folder."/".$taxonID.".txt";
+            $WRITE = Functions::file_open($file, "a");
+            fwrite($WRITE, $a['description']."\n");
+            fclose($WRITE);
+            $id_list[$taxonID] = '';
+        }
+        return $id_list;
+        
+    }
+    private function create_media_archive_v2($id_list)
+    {
+        $temp_path = CONTENT_RESOURCE_LOCAL_PATH . "COL_temp/";
+        foreach(array_keys($id_list) as $taxonID) {
+            $folder = substr($taxonID, -2);
+            $curr_folder = $temp_path.$folder;
+            $file = $curr_folder."/".$taxonID.".txt";
+            $contents = file_get_contents($file);
+            $arr = explode("\n", $contents);
+            $arr = array_map('trim', $arr);
+            
+            $final = array();
+            foreach($arr as $country) {
+                if($val = trim($country)) $final[$val] = '';
+            }
+            $desc = implode("; ", array_keys($final));
+            //start exactly same as below:
+            $mr = new \eol_schema\MediaResource();
+            $mr->taxonID        = $taxonID;
+            $mr->identifier     = md5($taxonID.$desc);
+            $mr->description    = $desc;
+            $mr->language       = 'eng';
+            $mr->type           = 'http://purl.org/dc/dcmitype/Text';
+            $mr->format         = 'text/html';
+            $mr->CVterm         = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution';
+            $mr->furtherInformationURL = @$this->taxon_info[$taxonID]['url'];
+            $mr->audience       = 'Everyone';
+            $mr->UsageTerms     = 'No known copyright restrictions';
+            $mr->contributor    = @$this->taxon_info[$taxonID]['dsN'];
+            // if(!isset($this->object_ids[$mr->identifier])) {
+            //     $this->archive_builder->write_object_to_file($mr);
+            //     $this->object_ids[$mr->identifier] = '';
+            // }
+            $this->archive_builder->write_object_to_file($mr);
+        }
     }
     private function create_media_archive($taxa_desc_list)
     {
