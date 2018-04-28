@@ -16,7 +16,7 @@ $resource_id = "copepods";
 $func = new MarineCopepodsAPI($resource_id);
 $func->start();
 unset($func);
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, true);
 // */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
