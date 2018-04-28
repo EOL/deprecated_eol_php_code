@@ -80,7 +80,7 @@ if(in_array($language, array("en"))) {
         echo "\n".$params['actual']." -- finished\n";
         if($status_arr[1]) {
             echo "\n---Can now proceed - finalize dwca...---\n\n";
-            Functions::finalize_dwca_resource($resource_id, true); //true means big file
+            Functions::finalize_dwca_resource($resource_id, true, true); //2nd param true means big file; 3rd param true means will delete working folder
         }
         else echo "\nCannot finalize dwca yet.\n";
     }
@@ -88,7 +88,7 @@ if(in_array($language, array("en"))) {
 }
 else { //orig - just one connector
     $func->generate_resource();
-    Functions::finalize_dwca_resource($resource_id);
+    Functions::finalize_dwca_resource($resource_id, false, true);
 }
 // ----------end main operation */
 
