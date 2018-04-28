@@ -59,6 +59,8 @@ if($undefined = $func->check_if_all_parents_have_entries($resource_id, true)) { 
 else echo "\nAll parents have entries OK (2nd try)\n";
 // */
 
+recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id); //to remove temp folder /368/
+
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
