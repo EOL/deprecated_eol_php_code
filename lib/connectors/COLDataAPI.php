@@ -170,11 +170,22 @@ class COLDataAPI
     private function process_description_v2($a, $temp_path, $id_list)
     {
         if($taxonID = $a['taxonID']) {
+            /* ver.1
             $folder = substr($taxonID, -2); //But if taxonID is less than 2 characters, $folder will be empty...seems
             if(!$folder) exit("\nsomething wrong with taxonID [$taxonID] - ".$a['taxonID']."\n");
             $curr_folder = $temp_path.$folder;
             if(!is_dir($curr_folder)) mkdir($curr_folder);
             $file = $curr_folder."/".$taxonID.".txt";
+            */
+            // /* ver.2
+            $md5 = md5($taxonID);
+            $cache1 = substr($md5, 0, 2);
+            $cache2 = substr($md5, 2, 2);
+            if(!file_exists($temp_path . $cache1))           mkdir($temp_path . $cache1);
+            if(!file_exists($temp_path . "$cache1/$cache2")) mkdir($temp_path . "$cache1/$cache2");
+            $file = $temp_path . "$cache1/$cache2/".$taxonID.".txt";
+            // */
+            
             $WRITE = Functions::file_open($file, "a");
             fwrite($WRITE, $a['description']."\n");
             fclose($WRITE);
@@ -187,9 +198,17 @@ class COLDataAPI
     {
         $temp_path = CONTENT_RESOURCE_LOCAL_PATH . "COL_temp/";
         foreach(array_keys($id_list) as $taxonID) {
+            /* ver.1
             $folder = substr($taxonID, -2);
             $curr_folder = $temp_path.$folder;
             $file = $curr_folder."/".$taxonID.".txt";
+            */
+            // /* ver.2
+            $md5 = md5($taxonID);
+            $cache1 = substr($md5, 0, 2);
+            $cache2 = substr($md5, 2, 2);
+            $file = $temp_path . "$cache1/$cache2/".$taxonID.".txt";
+            // */
             $contents = file_get_contents($file);
             $arr = explode("\n", $contents);
             $arr = array_map('trim', $arr);
