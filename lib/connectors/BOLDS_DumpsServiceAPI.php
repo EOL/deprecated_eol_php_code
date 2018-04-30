@@ -77,9 +77,66 @@ class BOLDS_DumpsServiceAPI
             unlink($txt_file);
         }
         self::add_needed_parent_entries(1);
+        $this->tax_ids = array();       //release memory
+        $this->img_tax_ids = array();   //release memory
         
         $this->archive_builder->finalize(true);
         self::start_print_debug();
+    }
+    private function process_dump($phylum, $what)
+    {
+        $txt_file = DOC_ROOT."tmp/bold_".$phylum.".txt";
+        $i = 0; $higher_level_ids = array();
+        foreach(new FileIterator($txt_file) as $line_number => $line) {
+            $i++;
+            $row = explode("\t", $line);
+            if($i == 1) $fields = $row;
+            else {
+                $k = -1;
+                $rec = array();
+                foreach($fields as $field) {
+                    $k++;
+                    $rec[$field] = @$row[$k];
+                }
+                $rec = array_map('trim', $rec);
+                // /* un-comment in normal operation
+                if($sci = self::valid_rec($rec)) {
+                    // if($rec['species_name'] == "Metaphire magna") print_r($rec); //debug only
+                    if    ($what == "get_images_from_dump_rec") self::get_images_from_dump_rec($rec, $sci);
+                    elseif($what == "write_taxon_archive")      self::create_taxon_archive($sci);
+                }
+                // if($what == "write_taxon_archive") self::create_taxon_higher_level_archive($rec); //obsolete
+                if($what == "write_taxon_archive") $higher_level_ids = self::get_higher_level_ids($rec, $higher_level_ids);
+                // */
+                
+                /* for debug only
+                if(@$rec['image_ids']) {
+                    print_r($rec); //exit("\nRecord found\n");
+                }
+                */
+                /*
+                //for stats only to get unique values of these fields - working OK
+                $this->debug[$this->current_kingdom]['lifestage'][$rec['lifestage']]        = '';
+                $this->debug[$this->current_kingdom]['sex'][$rec['sex']]                    = '';
+                $this->debug[$this->current_kingdom]['reproduction'][$rec['reproduction']]  = '';
+                $this->debug[$this->current_kingdom]['habitat'][$rec['habitat']]            = '';
+                */
+                
+                if(($i % 1000) == 0) echo "\n".number_format($i)." $phylum $what";
+            }
+            if($i >= 5000) break; //debug only
+        }
+        // /* un-comment in normal operation
+        if($what == "write_taxon_archive") {
+            foreach(array_keys($higher_level_ids) as $taxid) {
+                if(self::process_record($taxid)) {}
+                else {
+                    if($taxon_info = self::get_info_from_page($taxid)) self::create_taxon_archive($taxon_info);
+                }
+            }
+        }
+        // */
+        return $txt_file;
     }
     private function create_media_archive_from_dump()
     {
@@ -187,64 +244,6 @@ class BOLDS_DumpsServiceAPI
         }
         return false;
     }
-    private function process_dump($phylum, $what)
-    {
-        $txt_file = DOC_ROOT."tmp/bold_".$phylum.".txt";
-        $i = 0;
-        $higher_level_ids = array();
-        foreach(new FileIterator($txt_file) as $line_number => $line) {
-            $i++;
-            $row = explode("\t", $line);
-            if($i == 1) {
-                $fields = $row;
-            }
-            else {
-                $k = -1;
-                $rec = array();
-                foreach($fields as $field) {
-                    $k++;
-                    $rec[$field] = @$row[$k];
-                }
-                $rec = array_map('trim', $rec);
-                // /* un-comment in normal operation
-                if($sci = self::valid_rec($rec)) {
-                    // if($rec['species_name'] == "Metaphire magna") print_r($rec); //debug only
-                    if    ($what == "get_images_from_dump_rec") self::get_images_from_dump_rec($rec, $sci);
-                    elseif($what == "write_taxon_archive")      self::create_taxon_archive($sci);
-                }
-                // if($what == "write_taxon_archive") self::create_taxon_higher_level_archive($rec); //obsolete
-                if($what == "write_taxon_archive") $higher_level_ids = self::get_higher_level_ids($rec, $higher_level_ids);
-                // */
-                
-                /* for debug only
-                if(@$rec['image_ids']) {
-                    print_r($rec); //exit("\nRecord found\n");
-                }
-                */
-                /*
-                //for stats only to get unique values of these fields - working OK
-                $this->debug[$this->current_kingdom]['lifestage'][$rec['lifestage']]        = '';
-                $this->debug[$this->current_kingdom]['sex'][$rec['sex']]                    = '';
-                $this->debug[$this->current_kingdom]['reproduction'][$rec['reproduction']]  = '';
-                $this->debug[$this->current_kingdom]['habitat'][$rec['habitat']]            = '';
-                */
-                
-                if(($i % 5000) == 0) echo "\n".number_format($i)." $phylum $what";
-            }
-            // if($i >= 5000) break; //debug only
-        }
-        // /* un-comment in normal operation
-        if($what == "write_taxon_archive") {
-            foreach(array_keys($higher_level_ids) as $taxid) {
-                if(self::process_record($taxid)) {}
-                else {
-                    if($taxon_info = self::get_info_from_page($taxid)) self::create_taxon_archive($taxon_info);
-                }
-            }
-        }
-        // */
-        return $txt_file;
-    }
     private function get_images_from_dump_rec($rec, $sci)
     {
         // [image_ids] =>          [image_urls] => 
@@ -270,8 +269,8 @@ class BOLDS_DumpsServiceAPI
             // echo "\n".$rec['processid']."\n";
             // print_r($final);
             
-            if(!isset($this->img_tax_ids[$sci['taxid']]['images'])) $this->img_tax_ids[$sci['taxid']]['images'] = array();
-            $this->img_tax_ids[$sci['taxid']]['images'] = array_merge($this->img_tax_ids[$sci['taxid']]['images'], $final);
+            if(!isset($this->img_tax_ids[$sci['taxid']]['images']))             $this->img_tax_ids[$sci['taxid']]['images'] = array();
+                      $this->img_tax_ids[$sci['taxid']]['images'] = array_merge($this->img_tax_ids[$sci['taxid']]['images'], $final);
         }
     }
     private function get_higher_level_ids($rec, $higher_level_ids)
