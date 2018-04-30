@@ -29,12 +29,13 @@ class BOLDS_DumpsServiceAPI
         $this->download_options = array('cache' => 1, 'resource_id' => 'BOLDS', 'expire_seconds' => 60*60*24*30*6, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
         
         //Arthropoda
-        $this->kingdom['Animalia'] = array("Acanthocephala", "Annelida", false, "Brachiopoda", "Bryozoa", "Chaetognatha", "Chordata", "Cnidaria", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Mollusca", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
+        $this->kingdom['Animalia'] = array("Acanthocephala", "Annelida", "Arthropoda", "Brachiopoda", "Bryozoa", "Chaetognatha", "Chordata", "Cnidaria", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Mollusca", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
         $this->kingdom['Plantae'] = array("Bryophyta", "Chlorophyta", "Lycopodiophyta", "Magnoliophyta", "Pinophyta", "Pteridophyta", "Rhodophyta");
         $this->kingdom['Fungi'] = array("Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Myxomycota", "Zygomycota");
         $this->kingdom['Protista'] = array("Chlorarachniophyta", "Ciliophora", "Heterokontophyta", "Pyrrophycophyta");
         $this->debug = array();
         $this->temp_path = CONTENT_RESOURCE_LOCAL_PATH . "BOLDS_temp/";
+        $this->cnt = 0;
     }
 
     function start_using_dump()
@@ -44,13 +45,13 @@ class BOLDS_DumpsServiceAPI
         echo("\n Total phylums: ".count($phylums)."\n");
 
         //------------------------- the 3 big ones:
-        // $phylums = array('Arthropoda', 'Rhodophyta');
+        // $phylums = array('Arthropoda');
         // $phylums = array('Chordata'); //OK
         // $phylums = array('Magnoliophyta'); //OK
 
         // /*
         // for review, first crack:
-        $phylums = array('Annelida'); //Animals
+        // $phylums = array('Annelida'); //Animals
         // $phylums = array('Rhodophyta'); //Plants
         // $phylums = array('Basidiomycota'); //Fungi
         // $phylums = $this->kingdom['Protista'];
@@ -88,6 +89,7 @@ class BOLDS_DumpsServiceAPI
         
         $this->archive_builder->finalize(true);
         self::start_print_debug();
+        echo "\ncnt = $this->cnt \n";
     }
     private function process_dump($phylum, $what)
     {
@@ -128,9 +130,9 @@ class BOLDS_DumpsServiceAPI
                 $this->debug[$this->current_kingdom]['habitat'][$rec['habitat']]            = '';
                 */
                 
-                if(($i % 1000) == 0) echo "\n".number_format($i)." $phylum $what";
+                if(($i % 5000) == 0) echo "\n".number_format($i)." $phylum $what";
             }
-            // if($i >= 5000) break; //debug only
+            // if($i >= 1000) break; //debug only
         }
         // /* un-comment in normal operation
         if($what == "write_taxon_archive") {
@@ -199,12 +201,12 @@ class BOLDS_DumpsServiceAPI
             $cache1 = substr($md5, 0, 2);
             $cache2 = substr($md5, 2, 2);
             $file = $this->temp_path . "$cache1/$cache2/".$taxonID.".txt";
-            $contents = file_get_contents($file);
-            $arr = explode("\n", $contents);
-            foreach($arr as $json)
-            {
-                $image = json_decode($json, true);
+            
+            foreach(new FileIterator($file) as $line_number => $line) {
+                // echo "\n$line";
+                $image = json_decode($line, true);
                 // print_r($image); echo "\n-=-=-=-=-=-=\n";
+                
                 //below is exactly same as commented above...
                 //pattern the fields like that of the API results so we can only use one script for creating media archive
                 $img = array();
@@ -313,6 +315,7 @@ class BOLDS_DumpsServiceAPI
             /* ver.1
             if(!isset($this->img_tax_ids[$sci['taxid']]['images']))             $this->img_tax_ids[$sci['taxid']]['images'] = array();
                       $this->img_tax_ids[$sci['taxid']]['images'] = array_merge($this->img_tax_ids[$sci['taxid']]['images'], $final);
+            $this->cnt += count($final);
             */
             // /* ver.2
             if($final) {
@@ -325,7 +328,11 @@ class BOLDS_DumpsServiceAPI
                 $file = $this->temp_path . "$cache1/$cache2/".$taxonID.".txt";
 
                 $WRITE = Functions::file_open($file, "a");
-                foreach($final as $f) fwrite($WRITE, json_encode($f)."\n");
+                foreach($final as $f)
+                {
+                    fwrite($WRITE, json_encode($f)."\n");
+                    $this->cnt++;
+                }
                 fclose($WRITE);
                 $this->img_tax_ids[$taxonID] = '';
             }

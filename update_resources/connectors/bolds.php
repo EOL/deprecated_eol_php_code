@@ -10,13 +10,13 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 
 
-$resource_id = "Annelida"; //Animals
-// $resource_id = "Rhodophyta"; //Plants
-// $resource_id = "Basidiomycota"; //Fungi
-// $resource_id = "Protista";
+// $resource_id = "Annelida_new"; //Animals
+// $resource_id = "Rhodophyta_new"; //Plants
+// $resource_id = "Basidiomycota_new"; //Fungi
+// $resource_id = "Protista_new";
 $resource_id = '81';
 // $resource_id = "Arthropoda"; //Animals
-$resource_id = '1';
+// $resource_id = '1';
 
 
 
