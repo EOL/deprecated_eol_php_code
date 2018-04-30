@@ -34,6 +34,7 @@ class BOLDS_DumpsServiceAPI
         $this->kingdom['Fungi'] = array("Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Myxomycota", "Zygomycota");
         $this->kingdom['Protista'] = array("Chlorarachniophyta", "Ciliophora", "Heterokontophyta", "Pyrrophycophyta");
         $this->debug = array();
+        $this->temp_path = CONTENT_RESOURCE_LOCAL_PATH . "BOLDS_temp/";
     }
 
     function start_using_dump()
@@ -66,10 +67,16 @@ class BOLDS_DumpsServiceAPI
             $this->img_tax_ids = array(); //initialize images per phylum
             self::download_and_extract_remote_file($this->dump[$phylum], true);
 
-            //for images:
+            //for images start -------------------------------------------------
+            if(is_dir($this->temp_path)) recursive_rmdir($this->temp_path);
+            mkdir($this->temp_path);
+            
             self::process_dump($phylum, "get_images_from_dump_rec");
             self::create_media_archive_from_dump();
             $this->img_tax_ids = array(); //initialize images per phylum
+
+            recursive_rmdir($this->temp_path);
+            //for images end -------------------------------------------------
 
             //for taxon
             $txt_file = self::process_dump($phylum, "write_taxon_archive");
@@ -157,13 +164,12 @@ class BOLDS_DumpsServiceAPI
                 )
         )
         */
-        foreach($this->img_tax_ids as $taxid => $block) {
+        /* ver.1
+        foreach($this->img_tax_ids as $taxonID => $block) {
             if(!@$block['images']) continue;
             foreach($block['images'] as $image) {
-                /*
-                [image_ids] => 1077290  --- did not use
-                [image_urls] => http://www.boldsystems.org/pics/CHONE/IMG_8623+1301084466.jpg --- did not directly use
-                */
+                // [image_ids] => 1077290  --- did not use
+                // [image_urls] => http://www.boldsystems.org/pics/CHONE/IMG_8623+1301084466.jpg --- did not directly use
                 
                 //pattern the fields like that of the API results so we can only use one script for creating media archive
                 $img = array();
@@ -182,9 +188,45 @@ class BOLDS_DumpsServiceAPI
                 $img['meta']                    = $image['media_descriptors'].".";
                 if($val = $image['captions']) $img['meta']." Caption: ".$val.".";
                 $img['imagequality']            = '';
-                self::write_image_record($img, $taxid);
+                self::write_image_record($img, $taxonID);
             }
         }
+        */
+        // /* ver.2
+        $tax_ids = array_keys($this->img_tax_ids);
+        foreach($tax_ids as $taxonID) {
+            $md5 = md5($taxonID);
+            $cache1 = substr($md5, 0, 2);
+            $cache2 = substr($md5, 2, 2);
+            $file = $this->temp_path . "$cache1/$cache2/".$taxonID.".txt";
+            $contents = file_get_contents($file);
+            $arr = explode("\n", $contents);
+            foreach($arr as $json)
+            {
+                $image = json_decode($json, true);
+                // print_r($image); echo "\n-=-=-=-=-=-=\n";
+                //below is exactly same as commented above...
+                //pattern the fields like that of the API results so we can only use one script for creating media archive
+                $img = array();
+                $img['copyright_institution']   = $image['copyright_institutions'];
+                $img['copyright']               = '';
+                $img['copyright_license']       = $image['copyright_licenses'];
+                $img['copyright_holder']        = $image['copyright_holders'];
+                $img['copyright_contact']       = '';
+                $img['copyright_year']          = $image['copyright_years'];
+                $img['image']                   = str_ireplace("http://www.boldsystems.org/pics/", "", $image['image_urls']);
+                if(substr($img['image'],0,4) == "http") {
+                    print_r($image);
+                    exit("\nInvestigate: image URL\n");
+                }
+                $img['photographer']            = $image['photographers'];
+                $img['meta']                    = $image['media_descriptors'].".";
+                if($val = $image['captions']) $img['meta']." Caption: ".$val.".";
+                $img['imagequality']            = '';
+                self::write_image_record($img, $taxonID);
+            }
+        }
+        // */
     }
     private function add_needed_parent_entries($trials)
     {
@@ -267,9 +309,28 @@ class BOLDS_DumpsServiceAPI
             }
             // echo "\n".$rec['processid']."\n";
             // print_r($final);
-            
+
+            /* ver.1
             if(!isset($this->img_tax_ids[$sci['taxid']]['images']))             $this->img_tax_ids[$sci['taxid']]['images'] = array();
                       $this->img_tax_ids[$sci['taxid']]['images'] = array_merge($this->img_tax_ids[$sci['taxid']]['images'], $final);
+            */
+            // /* ver.2
+            if($final) {
+                $taxonID = $sci['taxid'];
+                $md5 = md5($taxonID);
+                $cache1 = substr($md5, 0, 2);
+                $cache2 = substr($md5, 2, 2);
+                if(!file_exists($this->temp_path . $cache1))           mkdir($this->temp_path . $cache1);
+                if(!file_exists($this->temp_path . "$cache1/$cache2")) mkdir($this->temp_path . "$cache1/$cache2");
+                $file = $this->temp_path . "$cache1/$cache2/".$taxonID.".txt";
+
+                $WRITE = Functions::file_open($file, "a");
+                foreach($final as $f) fwrite($WRITE, json_encode($f)."\n");
+                fclose($WRITE);
+                $this->img_tax_ids[$taxonID] = '';
+            }
+            // */
+
         }
     }
     private function get_higher_level_ids($rec, $higher_level_ids)
@@ -784,7 +845,7 @@ class BOLDS_DumpsServiceAPI
             $r->term_name = $agent;
             $r->identifier = md5("$agent|photographer");
             $r->agentRole = "photographer";
-            $r->term_homepage = "";
+            // $r->term_homepage = "";
             $agent_ids[] = $r->identifier;
             if(!in_array($r->identifier, $this->resource_agent_ids)) {
                $this->resource_agent_ids[] = $r->identifier;
