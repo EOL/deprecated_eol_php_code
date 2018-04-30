@@ -56,7 +56,7 @@ class BOLDS_DumpsServiceAPI
         */
 
         // $phylums = array('Annelida', 'Chordata', 'Rhodophyta', 'Basidiomycota', 'Heterokontophyta');
-        // $phylums = array('Annelida');
+        $phylums = array('Annelida');
         
         foreach($phylums as $phylum) $this->dump[$phylum] = "http://localhost/cp/BOLDS_new/bold_".$phylum.".txt.zip"; //assign respective source .txt.zip file
 
@@ -80,35 +80,6 @@ class BOLDS_DumpsServiceAPI
         
         $this->archive_builder->finalize(true);
         self::start_print_debug();
-    }
-    private function start_print_debug()
-    {
-        $defined_uris = Functions::get_eol_defined_uris(false, true);
-        $file = CONTENT_RESOURCE_LOCAL_PATH . "bolds_debug.txt";
-        $WRITE = Functions::file_open($file, "w");
-        foreach($this->debug as $topic => $arr) {
-            fwrite($WRITE, "============================================================="."\n");
-            fwrite($WRITE, $topic."\n");
-            if(is_array($arr)) {
-                foreach($arr as $subtopic => $arr2) {
-                    fwrite($WRITE, "----- ".$subtopic." ----- \n");
-                    if(is_array($arr2)) {
-                        $arr2 = array_keys($arr2);
-                        asort($arr2);
-                        foreach($arr2 as $item) {
-                            if($item) {
-                                if(!isset($defined_uris[$item])) fwrite($WRITE, $item."\n");
-                                // else echo "\ndefined trait already";
-                            }
-                        }
-                    }
-                    else fwrite($WRITE, $arr2."\n");
-                }
-            }
-            else fwrite($WRITE, $arr."\n");
-        }
-        fclose($WRITE);
-        print_r($this->debug);
     }
     private function create_media_archive_from_dump()
     {
@@ -931,6 +902,35 @@ class BOLDS_DumpsServiceAPI
     {
         $json = json_encode($arr);
         return md5($json);
+    }
+    private function start_print_debug()
+    {
+        $defined_uris = Functions::get_eol_defined_uris(false, true);
+        $file = CONTENT_RESOURCE_LOCAL_PATH . "bolds_debug.txt";
+        $WRITE = Functions::file_open($file, "w");
+        foreach($this->debug as $topic => $arr) {
+            fwrite($WRITE, "============================================================="."\n");
+            fwrite($WRITE, $topic."\n");
+            if(is_array($arr)) {
+                foreach($arr as $subtopic => $arr2) {
+                    fwrite($WRITE, "----- ".$subtopic." ----- \n");
+                    if(is_array($arr2)) {
+                        $arr2 = array_keys($arr2);
+                        asort($arr2);
+                        foreach($arr2 as $item) {
+                            if($item) {
+                                if(!isset($defined_uris[$item])) fwrite($WRITE, $item."\n");
+                                // else echo "\ndefined trait already";
+                            }
+                        }
+                    }
+                    else fwrite($WRITE, $arr2."\n");
+                }
+            }
+            else fwrite($WRITE, $arr."\n");
+        }
+        fclose($WRITE);
+        print_r($this->debug);
     }
 }
 ?>
