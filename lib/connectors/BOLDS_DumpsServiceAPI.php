@@ -47,16 +47,15 @@ class BOLDS_DumpsServiceAPI
         // $phylums = array('Chordata'); //OK
         // $phylums = array('Magnoliophyta'); //OK
 
-        /*
+        // /*
         // for review, first crack:
-        // $phylums = array('Annelida'); //Animals
+        $phylums = array('Annelida'); //Animals
         // $phylums = array('Rhodophyta'); //Plants
         // $phylums = array('Basidiomycota'); //Fungi
-        $phylums = $this->kingdom['Protista'];
-        */
+        // $phylums = $this->kingdom['Protista'];
+        // */
 
         // $phylums = array('Annelida', 'Chordata', 'Rhodophyta', 'Basidiomycota', 'Heterokontophyta');
-        $phylums = array('Annelida');
         
         foreach($phylums as $phylum) $this->dump[$phylum] = "http://localhost/cp/BOLDS_new/bold_".$phylum.".txt.zip"; //assign respective source .txt.zip file
 
@@ -124,7 +123,7 @@ class BOLDS_DumpsServiceAPI
                 
                 if(($i % 1000) == 0) echo "\n".number_format($i)." $phylum $what";
             }
-            if($i >= 5000) break; //debug only
+            // if($i >= 5000) break; //debug only
         }
         // /* un-comment in normal operation
         if($what == "write_taxon_archive") {
