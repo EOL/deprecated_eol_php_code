@@ -21,8 +21,12 @@ $cmdline_params['jenkins_or_cron']                  = @$argv[1]; //irrelevant he
 $cmdline_params['resource_id']                      = @$argv[2]; //useful here
 
 
+
+// https://eol-jira.bibalex.org/browse/TRAM-706 - BioAcoustica: Wildlife Sound Database (809)
+$resources[809] = array('dwca' => "http://bio.acousti.ca/dwca.zip", 'bigfileYN' => false);
+
 //https://eol-jira.bibalex.org/browse/TRAM-704 - Milichiidae online
-$resources[131] = array('dwca' => "http://milichiidae.info/eol-dwca.zip", 'bigfileYN' => false); //Milichiidae online
+$resources[131] = array('dwca' => "http://milichiidae.info/eol-dwca.zip", 'bigfileYN' => false);
 
 
 // /*
