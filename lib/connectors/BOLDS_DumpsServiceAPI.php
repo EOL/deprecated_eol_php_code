@@ -49,13 +49,11 @@ class BOLDS_DumpsServiceAPI
         // $phylums = array('Chordata'); //OK
         // $phylums = array('Magnoliophyta'); //OK
 
-        // /*
         // for review, first crack:
         // $phylums = array('Annelida'); //Animals
         // $phylums = array('Rhodophyta'); //Plants
         // $phylums = array('Basidiomycota'); //Fungi
         // $phylums = $this->kingdom['Protista'];
-        // */
 
         // $phylums = array('Annelida', 'Chordata', 'Rhodophyta', 'Basidiomycota', 'Heterokontophyta');
         
@@ -130,7 +128,7 @@ class BOLDS_DumpsServiceAPI
                 $this->debug[$this->current_kingdom]['habitat'][$rec['habitat']]            = '';
                 */
                 
-                if(($i % 5000) == 0) echo "\n".number_format($i)." $phylum $what";
+                if(($i % 10000) == 0) echo "\n".number_format($i)." $phylum $what";
             }
             // if($i >= 1000) break; //debug only
         }
@@ -167,6 +165,7 @@ class BOLDS_DumpsServiceAPI
         )
         */
         /* ver.1
+        echo "\ntotal taxon IDs with img: ".count($this->img_tax_ids)."\n";
         foreach($this->img_tax_ids as $taxonID => $block) {
             if(!@$block['images']) continue;
             foreach($block['images'] as $image) {
@@ -196,6 +195,7 @@ class BOLDS_DumpsServiceAPI
         */
         // /* ver.2
         $tax_ids = array_keys($this->img_tax_ids);
+        echo "\ntotal taxon IDs with img: ".count($tax_ids)."\n";
         foreach($tax_ids as $taxonID) {
             $md5 = md5($taxonID);
             $cache1 = substr($md5, 0, 2);
@@ -330,7 +330,13 @@ class BOLDS_DumpsServiceAPI
                 $WRITE = Functions::file_open($file, "a");
                 foreach($final as $f)
                 {
-                    fwrite($WRITE, json_encode($f)."\n");
+                    $json = json_encode($f);
+                    /* didn't actually help
+                    $json = str_ireplace(array("\n", "\t"), " ", $json);
+                    $json = Functions::remove_utf8_bom($json);
+                    */
+                    $json = trim($json);
+                    fwrite($WRITE, $json."\n");
                     $this->cnt++;
                 }
                 fclose($WRITE);
@@ -570,15 +576,12 @@ class BOLDS_DumpsServiceAPI
     }
     private function process_record($taxid)
     {
-        /*
-        Array (
-                    [taxid] => 23
+        /*Array (   [taxid] => 23
                     [taxon] => Mollusca
                     [tax_rank] => phylum
                     [tax_division] => Animals
                     [parentid] => 1
                     [taxonrep] => Mollusca
-        
         [sitemap] => http://www.boldsystems.org/index.php/TaxBrowser_Maps_CollectionSites?taxid=2
         */
         if($json = Functions::lookup_with_cache($this->service['taxId'].$taxid, $this->download_options)) {
