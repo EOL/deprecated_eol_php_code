@@ -9,6 +9,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = false;
 $timestart = time_elapsed();
 
+exit;
 
 // $resource_id = "Annelida_new"; //Animals
 // $resource_id = "Rhodophyta_new"; //Plants
@@ -17,8 +18,6 @@ $timestart = time_elapsed();
 $resource_id = '81';
 // $resource_id = "Arthropoda"; //Animals
 // $resource_id = '1';
-
-
 
 /* tests...
 // $json = Functions::lookup_with_cache("http://www.boldsystems.org/index.php/API_Tax/TaxonData?taxId=30367&dataTypes=all");

@@ -67,6 +67,7 @@ class BOLDS_DumpsServiceAPI
             self::download_and_extract_remote_file($this->dump[$phylum], true);
 
             //for images start -------------------------------------------------
+            // /*
             if(is_dir($this->temp_path)) recursive_rmdir($this->temp_path);
             mkdir($this->temp_path);
             
@@ -75,6 +76,7 @@ class BOLDS_DumpsServiceAPI
             $this->img_tax_ids = array(); //initialize images per phylum
 
             recursive_rmdir($this->temp_path);
+            // */
             //for images end -------------------------------------------------
 
             //for taxon
@@ -135,6 +137,7 @@ class BOLDS_DumpsServiceAPI
         // /* un-comment in normal operation
         if($what == "write_taxon_archive") {
             foreach(array_keys($higher_level_ids) as $taxid) {
+                if(isset($this->taxon_ids[$taxid])) continue; //meaning this taxon has already been added to dwca
                 if(self::process_record($taxid)) {}
                 else {
                     if($taxon_info = self::get_info_from_page($taxid)) self::create_taxon_archive($taxon_info);
