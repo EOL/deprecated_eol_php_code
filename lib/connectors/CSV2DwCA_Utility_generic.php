@@ -81,7 +81,7 @@ class CSV2DwCA_Utility_generic
                 echo "\n process row_type: $tbl->row_type -- ";
                 if($class = @$this->extensions[$tbl->row_type]) //process only defined row_types
                 {
-                    echo "\n -- Processing [$class]...\n";
+                    echo "\n -- Processing [$tbl->file_uri] [$class]...\n";
                     self::process_extension($tbl->file_uri, $class, $tbl);
                 }
                 else {
@@ -127,6 +127,58 @@ class CSV2DwCA_Utility_generic
             $count = count($fields);
         } 
         
+        
+        // start customization
+        if($this->resource_id == 809 && $tbl->row_type == "http://rs.gbif.org/terms/1.0/Image") {
+            $fields[0] = 'identifier';
+            $fields[1] = 'taxonID';
+            $fields[2] = 'accessURI';
+            $fields[3] = 'format';
+            $fields[4] = 'UsageTerms';
+            $fields[5] = "";
+            $fields[6] = "";
+            $fields[7] = "type";
+            $fields[8] = "";
+            $fields[9] = "";
+            $fields[10] = "furtherInformationURL";
+            $count = count($fields);
+            // print_r($tbl->fields); exit;
+            $tbl->fields = array();
+            $tbl->fields[0] = array('term' => 'http://purl.org/dc/terms/identifier', 'type' => '',  'default' => '');
+            $tbl->fields[1] = array('term' => 'http://rs.tdwg.org/dwc/terms/taxonID', 'default' => '');
+            $tbl->fields[2] = array('term' => 'http://rs.tdwg.org/ac/terms/accessURI', 'default' => '');
+            $tbl->fields[3] = array('term' => 'http://purl.org/dc/terms/format', 'type' => '', 'default' => ''); 
+            $tbl->fields[4] = array('term' => 'http://ns.adobe.com/xap/1.0/rights/UsageTerms', 'type' => '', 'default' => ''); 
+            $tbl->fields[5] = array('term' => '', 'type' => '', 'default' => ''); 
+            $tbl->fields[6] = array('term' => '', 'type' => '', 'default' => ''); 
+            $tbl->fields[7] = array('term' => 'http://purl.org/dc/terms/type', 'type' => '', 'default' => ''); 
+            $tbl->fields[8] = array('term' => '', 'type' => '', 'default' => ''); 
+            $tbl->fields[8] = array('term' => '', 'type' => '', 'default' => ''); 
+            $tbl->fields[9] = array('term' => 'http://rs.tdwg.org/ac/terms/furtherInformationURL', 'type' => '', 'default' => ''); 
+            /*  [0] => taxonID
+                [1] => identifier
+                [2] => format
+                [3] => license
+                [4] => title
+                [5] => source
+                [6] => rights
+            Array(
+                [0] => ffefde5f-a826-4713-a140-71ceb4b26af1
+                [1] => 8f3c7612-6eaa-4682-a65b-f1c2af28f1ec
+                [2] => http://bio.acousti.ca/sites/bio.acousti.ca/files/1646.WAV
+                [3] => audio/x-wav
+                [4] => //creativecommons.org/licenses/by-nc-sa/3.0/
+                [5] => 1646.WAV
+                [6] => ac2a0544-7322-4cf7-8eb9-c6e88479669e
+                [7] => http://purl.org/dc/dcmitype/Sound
+                [8] => http://sounds.myspecies.info/file/25089
+                [9] =>  
+                [10] => http://bio.acousti.ca/content/italy-e-schluderns-lab-recording-2471990-25%C2%B0c-60-w-bulb-heat-kenwood-kx880hx-akg-d202-tape
+            )*/
+        }
+        // end customization
+        
+        
         $do_ids = array(); //for validation, prevent duplicate identifiers
         $i = 0;
         $file = Functions::file_open($csv_file, "r");
@@ -165,6 +217,15 @@ class CSV2DwCA_Utility_generic
                     // echo("\nWrong CSV format for this row.\n");
                     $this->debug['wrong csv'][$class]['identifier'][@$rec['identifier']] = '';
                     $this->debug['wrong csv 2'][$class][$csv_file][$count][count($values)] = '';
+                    
+                    /* good debug - when you want to get actual record values
+                    if($tbl->row_type == "http://rs.gbif.org/terms/1.0/Image") 
+                    {
+                        echo "\nwill cont. [$tbl->row_type][$count][".count($values)."]";
+                        print_r($fields); print_r($values);
+                    }
+                    */
+                    
                     continue;
                 }
 
