@@ -27,7 +27,7 @@ class BOLDS_DumpsServiceAPI
         $this->service['phylum'] = "http://v2.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=";
         $this->service["taxId"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=all&includeTree=true&taxId=";
         $this->download_options = array('cache' => 1, 'resource_id' => 'BOLDS', 'expire_seconds' => 60*60*24*30*6, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
-        
+        $this->download_options['expire_seconds'] = false;
         //Arthropoda
         $this->kingdom['Animalia'] = array("Acanthocephala", "Annelida", "Arthropoda", "Brachiopoda", "Bryozoa", "Chaetognatha", "Chordata", "Cnidaria", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Mollusca", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
         $this->kingdom['Plantae'] = array("Bryophyta", "Chlorophyta", "Lycopodiophyta", "Magnoliophyta", "Pinophyta", "Pteridophyta", "Rhodophyta");
@@ -50,7 +50,7 @@ class BOLDS_DumpsServiceAPI
         // $phylums = array('Magnoliophyta'); //OK
 
         // for review, first crack:
-        $phylums = array('Annelida'); //Animals
+        // $phylums = array('Annelida'); //Animals
         // $phylums = array('Rhodophyta'); //Plants
         // $phylums = array('Basidiomycota'); //Fungi
         // $phylums = $this->kingdom['Protista'];
@@ -135,7 +135,7 @@ class BOLDS_DumpsServiceAPI
                 
                 if(($i % 10000) == 0) echo "\n".number_format($i)." $phylum $what";
             }
-            if($i >= 5000) break; //debug only
+            // if($i >= 1000) break; //debug only
         }
         /* we no longer provide the parentNameUsageID
         if($what == "write_taxon_archive") {
@@ -193,8 +193,6 @@ class BOLDS_DumpsServiceAPI
             }
         }
         */
-        
-        
     }
     private function create_media_archive_from_dump()
     {
