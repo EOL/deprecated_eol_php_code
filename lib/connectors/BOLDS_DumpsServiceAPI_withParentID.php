@@ -34,7 +34,7 @@ class BOLDS_DumpsServiceAPI
         $this->kingdom['Fungi'] = array("Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Myxomycota", "Zygomycota");
         $this->kingdom['Protista'] = array("Chlorarachniophyta", "Ciliophora", "Heterokontophyta", "Pyrrophycophyta");
         $this->debug = array();
-        $this->temp_path = CONTENT_RESOURCE_LOCAL_PATH . "BOLDS_temp5/";
+        $this->temp_path = CONTENT_RESOURCE_LOCAL_PATH . "BOLDS_temp/";
         $this->cnt = 0;
     }
 
@@ -50,7 +50,7 @@ class BOLDS_DumpsServiceAPI
         // $phylums = array('Magnoliophyta'); //OK
 
         // for review, first crack:
-        $phylums = array('Annelida'); //Animals
+        // $phylums = array('Annelida'); //Animals
         // $phylums = array('Rhodophyta'); //Plants
         // $phylums = array('Basidiomycota'); //Fungi
         // $phylums = $this->kingdom['Protista'];
@@ -83,9 +83,7 @@ class BOLDS_DumpsServiceAPI
             $txt_file = self::process_dump($phylum, "write_taxon_archive");
             unlink($txt_file);
         }
-        /* we no longer provide the parentNameUsageID since it is not scalable when doing thousands of API calls. Doable but not scalable
         self::add_needed_parent_entries(1);
-        */
         $this->tax_ids = array();       //release memory
         $this->img_tax_ids = array();   //release memory
         
@@ -109,12 +107,11 @@ class BOLDS_DumpsServiceAPI
                     $rec[$field] = @$row[$k];
                 }
                 $rec = array_map('trim', $rec);
-                // print_r($rec);
                 // /* un-comment in normal operation
                 if($sci = self::valid_rec($rec)) {
                     // if($rec['species_name'] == "Metaphire magna") print_r($rec); //debug only
                     if    ($what == "get_images_from_dump_rec") self::get_images_from_dump_rec($rec, $sci);
-                    elseif($what == "write_taxon_archive")      self::create_taxon_archive_from_dump($sci);
+                    elseif($what == "write_taxon_archive")      self::create_taxon_archive($sci);
                 }
                 // if($what == "write_taxon_archive") self::create_taxon_higher_level_archive($rec); //obsolete
                 if($what == "write_taxon_archive") $higher_level_ids = self::get_higher_level_ids($rec, $higher_level_ids);
@@ -135,9 +132,9 @@ class BOLDS_DumpsServiceAPI
                 
                 if(($i % 10000) == 0) echo "\n".number_format($i)." $phylum $what";
             }
-            if($i >= 5000) break; //debug only
+            // if($i >= 1000) break; //debug only
         }
-        /* we no longer provide the parentNameUsageID
+        // /* un-comment in normal operation
         if($what == "write_taxon_archive") {
             foreach(array_keys($higher_level_ids) as $taxid) {
                 if(isset($this->taxon_ids[$taxid])) continue; //meaning this taxon has already been added to dwca
@@ -147,54 +144,8 @@ class BOLDS_DumpsServiceAPI
                 }
             }
         }
-        */
+        // */
         return $txt_file;
-    }
-    private function create_taxon_archive_from_dump($a)
-    {
-        /* Array(
-            [taxid] => 256937
-            [taxon] => Allolobophora chlorotica L1
-            [tax_rank] => species
-            [ancestry] => Array(
-                    [kingdom] => Animalia
-                    [phylum] => Annelida
-                    [class] => Clitellata
-                    [order] => Haplotaxida
-                    [family] => Lumbricidae
-                    [genus] => Allolobophora
-                )
-            [parentid] => 101071
-            [tax_division] => Animals
-        )*/
-        $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID             = $a['taxid'];
-        $taxon->scientificName      = $a['taxon'];
-        $taxon->taxonRank           = $a['tax_rank'];
-        
-        $ranks = array("kingdom", "phylum", "class", "order", "family", "genus");
-        foreach($ranks as $rank) $taxon->$rank = @$a['ancestry'][$rank];
-        
-        /* no data for:
-        $taxon->taxonomicStatus          = '';
-        $taxon->acceptedNameUsageID      = '';
-        */
-        if(isset($this->taxon_ids[$taxon->taxonID])) return;
-        $this->taxon_ids[$taxon->taxonID] = '';
-        $this->archive_builder->write_object_to_file($taxon);
-        
-        /* commented since it still triggers API calls that are not scalable
-        //create trait
-        if($json = Functions::lookup_with_cache($this->service['taxId'].$a['taxid'], $this->download_options)) {
-            $rec = json_decode($json, true);
-            $rec = @$rec[$taxid]; //needed
-            if(@$rec['taxon']) {
-                self::create_trait_archive($rec);
-            }
-        }
-        */
-        
-        
     }
     private function create_media_archive_from_dump()
     {
@@ -439,7 +390,8 @@ class BOLDS_DumpsServiceAPI
         return $higher_level_ids;
     }
     private function create_taxon_higher_level_archive($rec) //create taxon using API
-    {}
+    {
+    }
     private function valid_rec($rec)
     {
         $taxName = false;
@@ -447,54 +399,47 @@ class BOLDS_DumpsServiceAPI
             $taxID = $rec['subspecies_taxID'];
             $taxRank = 'subspecies';
             $taxParent = self::compute_parent_id($rec, $taxRank);
-            $ancestry = self::compute_ancestry($rec, $taxRank);
         }
         elseif($taxName = $rec['species_name']) {
             $taxID = $rec['species_taxID'];
             $taxRank = 'species';
             $taxParent = self::compute_parent_id($rec, $taxRank);
-            $ancestry = self::compute_ancestry($rec, $taxRank);
         }
         // /* uncomment to get more images from dump
         elseif($taxName = $rec['genus_name']) {
             $taxID = $rec['genus_taxID'];
             $taxRank = 'genus';
             $taxParent = self::compute_parent_id($rec, $taxRank);
-            $ancestry = self::compute_ancestry($rec, $taxRank);
         }
         elseif($taxName = $rec['subfamily_name']) {
             $taxID = $rec['subfamily_taxID'];
             $taxRank = 'subfamily';
             $taxParent = self::compute_parent_id($rec, $taxRank);
-            $ancestry = self::compute_ancestry($rec, $taxRank);
         }
         elseif($taxName = $rec['family_name']) {
             $taxID = $rec['family_taxID'];
             $taxRank = 'family';
             $taxParent = self::compute_parent_id($rec, $taxRank);
-            $ancestry = self::compute_ancestry($rec, $taxRank);
         }
         elseif($taxName = $rec['order_name']) {
             $taxID = $rec['order_taxID'];
             $taxRank = 'order';
             $taxParent = self::compute_parent_id($rec, $taxRank);
-            $ancestry = self::compute_ancestry($rec, $taxRank);
         }
         elseif($taxName = $rec['class_name']) {
             $taxID = $rec['class_taxID'];
             $taxRank = 'class';
             $taxParent = self::compute_parent_id($rec, $taxRank);
-            $ancestry = self::compute_ancestry($rec, $taxRank);
         }
         elseif($taxName = $rec['phylum_name']) {
             $taxID = $rec['phylum_taxID'];
             $taxRank = 'phylum';
             $taxParent = self::compute_parent_id($rec, $taxRank);
-            $ancestry = self::compute_ancestry($rec, $taxRank);
         }
         // */
+        
         if($taxName) {
-            return array('taxid' => $taxID, 'taxon' => $taxName, 'tax_rank' => $taxRank, 'ancestry' => $ancestry, 'parentid' => $taxParent, 'tax_division' => self::get_taxdiv_given_kingdom());
+            return array('taxid' => $taxID, 'taxon' => $taxName, 'tax_rank' => $taxRank, 'parentid' => $taxParent, 'tax_division' => self::get_taxdiv_given_kingdom());
         }
         return false;
     }
@@ -504,24 +449,6 @@ class BOLDS_DumpsServiceAPI
         if($this->current_kingdom == "Plantae") return "Plants";
         if($this->current_kingdom == "Fungi") return "Fungi";
         if($this->current_kingdom == "Protista") return "Protists";
-    }
-    private function compute_ancestry($rec, $taxRank)
-    {
-        $kingdom = self::get_kingdom_given_phylum($rec['phylum_name']);
-        if    ($taxRank == "subspecies") $ranks = array("kingdom", "phylum", "class", "order", "family", "genus");
-        elseif($taxRank == "species")    $ranks = array("kingdom", "phylum", "class", "order", "family", "genus");
-        elseif($taxRank == "genus")      $ranks = array("kingdom", "phylum", "class", "order", "family");
-        elseif($taxRank == "subfamily")  $ranks = array("kingdom", "phylum", "class", "order", "family");
-        elseif($taxRank == "family")     $ranks = array("kingdom", "phylum", "class", "order");
-        elseif($taxRank == "order")      $ranks = array("kingdom", "phylum", "class");
-        elseif($taxRank == "class")      $ranks = array("kingdom", "phylum");
-        elseif($taxRank == "phylum")     $ranks = array("kingdom");
-        $final = array();
-        foreach($ranks as $rank) {
-            if($rank == "kingdom") $final[$rank] = $kingdom;
-            else                   $final[$rank] = $rec[$rank."_name"];
-        }
-        return $final;
     }
     private function compute_parent_id($rec, $taxRank)
     {  
