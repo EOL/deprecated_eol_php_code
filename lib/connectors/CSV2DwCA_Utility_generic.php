@@ -128,34 +128,48 @@ class CSV2DwCA_Utility_generic
         } 
         
         
-        // start customization
-        if($this->resource_id == 809 && $tbl->row_type == "http://rs.gbif.org/terms/1.0/Image") {
+        // start customization ----------------------------------------------------------------------------------
+        if($this->resource_id == 809 && $tbl->row_type == "http://rs.gbif.org/terms/1.0/Image" && $tbl->location == "image.txt") {
+            $fields = array();
             $fields[0] = 'identifier';
             $fields[1] = 'taxonID';
             $fields[2] = 'accessURI';
             $fields[3] = 'format';
             $fields[4] = 'UsageTerms';
-            $fields[5] = "";
-            $fields[6] = "";
+            $fields[5] = "title";
+            $fields[6] = "agentID";
             $fields[7] = "type";
             $fields[8] = "";
             $fields[9] = "";
             $fields[10] = "furtherInformationURL";
             $count = count($fields);
-            // print_r($tbl->fields); exit;
+            // print_r($tbl); exit;
             $tbl->fields = array();
             $tbl->fields[0] = array('term' => 'http://purl.org/dc/terms/identifier', 'type' => '',  'default' => '');
             $tbl->fields[1] = array('term' => 'http://rs.tdwg.org/dwc/terms/taxonID', 'default' => '');
             $tbl->fields[2] = array('term' => 'http://rs.tdwg.org/ac/terms/accessURI', 'default' => '');
             $tbl->fields[3] = array('term' => 'http://purl.org/dc/terms/format', 'type' => '', 'default' => ''); 
             $tbl->fields[4] = array('term' => 'http://ns.adobe.com/xap/1.0/rights/UsageTerms', 'type' => '', 'default' => ''); 
-            $tbl->fields[5] = array('term' => '', 'type' => '', 'default' => ''); 
-            $tbl->fields[6] = array('term' => '', 'type' => '', 'default' => ''); 
+            $tbl->fields[5] = array('term' => 'http://purl.org/dc/terms/title', 'type' => '', 'default' => ''); 
+            $tbl->fields[6] = array('term' => 'http://eol.org/schema/agent/agentID', 'type' => '', 'default' => ''); 
             $tbl->fields[7] = array('term' => 'http://purl.org/dc/terms/type', 'type' => '', 'default' => ''); 
             $tbl->fields[8] = array('term' => '', 'type' => '', 'default' => ''); 
-            $tbl->fields[8] = array('term' => '', 'type' => '', 'default' => ''); 
-            $tbl->fields[9] = array('term' => 'http://rs.tdwg.org/ac/terms/furtherInformationURL', 'type' => '', 'default' => ''); 
-            /*  [0] => taxonID
+            $tbl->fields[9] = array('term' => '', 'type' => '', 'default' => ''); 
+            $tbl->fields[10] = array('term' => 'http://rs.tdwg.org/ac/terms/furtherInformationURL', 'type' => '', 'default' => ''); 
+            /*
+            <coreid index="1" />
+            <field index="0" term="http://purl.org/dc/terms/identifier" />
+            <field index="1" term="http://rs.tdwg.org/dwc/terms/taxonID" />
+            <field index="2" term="http://rs.tdwg.org/ac/terms/accessURI" />
+            <field index="3" term="http://purl.org/dc/terms/format" />
+            <field index="4" term="http://ns.adobe.com/xap/1.0/rights/UsageTerms" />
+            <field index="5" term="http://purl.org/dc/terms/title" />
+            <field index="6" term="http://eol.org/schema/agent/agentID" />
+            <field index="7" term="http://purl.org/dc/terms/type" />
+            <field index="8" term="http://rs.tdwg.org/ac/terms/furtherInformationURL" />
+            */
+            /*  in meta XML but erroneous!
+                [0] => taxonID
                 [1] => identifier
                 [2] => format
                 [3] => license
@@ -176,7 +190,70 @@ class CSV2DwCA_Utility_generic
                 [10] => http://bio.acousti.ca/content/italy-e-schluderns-lab-recording-2471990-25%C2%B0c-60-w-bulb-heat-kenwood-kx880hx-akg-d202-tape
             )*/
         }
-        // end customization
+        
+        if($this->resource_id == 809 && $tbl->row_type == "http://eol.org/schema/media/Document" && $tbl->location == "description.txt") {
+            /* Array( in meta XML but erroneous!
+                [0] => taxonID
+                [1] => description
+                [2] => furtherInformationURL
+                [3] => Owner
+                [4] => language
+                [5] => CVterm
+                [6] => format
+                [7] => type
+                [8] => agentID
+                [9] => UsageTerms
+                [10] => identifier
+            )
+            [0] => ff67df9f-4607-4728-82b7-1aeaf243ed95
+            [1] => behaviour
+            [2] => <p>The <a href="/glossary/song" title="In bioacoustics this term is used in two main sense: in the broadest sense it is applied to the deliberate acoustic output of animals (or a group of animals) in general, and in a more restricted sense it is applied to the acoustic output of a particular species or individual. [bib]17157[/bib]" class="lexicon-term">song</a> is produced at dusk and in the night. It is audible from about 1m and consists of 'tsp'-sounds, which are grouped into a series of one to four. Three to five such series in turm form a <a href="/glossary/phrase" title="See Echeme<br/>" class="lexicon-term">phrase</a> which has a total duration of 2-3 sec. and is seperatedf by a longer interval from the next one. Such a phrase can ber represented in the following way: 'tsptsp-tsptsptsp-tsptsp-tsp'. <a href="#ref1" title="Bellman H. A Field Guide to the Grasshoppers and Crickets of Britain and Northern Europe. William Collins & Sons; 1988.">[1]</a></p><br/><br/><br/><hr /><h3>References</h3><div class="references"><ol><li id="reference1"><a name="ref1" id="ref1"><span class="biblio-authors"><a href="/biblio?f[author]=625" rel="nofollow">Bellman H</a></span>. </a><a href="/content/field-guide-grasshoppers-and-crickets-britain-and-northern-europe"><span class="biblio-title" style="font-style: italic;">A Field Guide to the Grasshoppers and Crickets of Britain and Northern Europe</span></a>. William Collins & Sons; 1988.<span class="Z3988" title="ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&rft.title=A+Field+Guide+to+the+Grasshoppers+and+Crickets+of+Britain+and+Northern+Europe&rft.issn=0-00-219852-5&rft.date=1988&rft.aulast=Bellman&rft.aufirst=Heiko&rft.pub=William+Collins+%26amp%3B+Sons"></span> </li><br/><br/></ol></div>
+            [3] => 
+            [4] => http://bio.acousti.ca/content/barbitistes-serricauda-1
+            [5] => 
+            [6] => BioAcoustica: Wildlife Sounds Database
+            [7] => eng
+            [8] => http://rs.tdwg.org/ontology/voc/SPMInfoItems#Behaviour
+            [9] => text/html
+            [10] => http://purl.org/dc/dcmitype/Text
+            [11] => ac2a0544-7322-4cf7-8eb9-c6e88479669e
+            [12] => //creativecommons.org/licenses/by-nc-sa/3.0/
+            [13] => ac7e9359-8107-4b57-a5c2-8d0d0d5bc319#behaviour
+            */
+            $fields = array();
+            $fields[0] = 'taxonID';
+            $fields[1] = '';
+            $fields[2] = 'description';
+            $fields[3] = '';
+            $fields[4] = 'furtherInformationURL';
+            $fields[5] = "";
+            $fields[6] = "Owner";
+            $fields[7] = "language";
+            $fields[8] = "CVterm";
+            $fields[9] = "format";
+            $fields[10] = "type";
+            $fields[11] = "agentID";
+            $fields[12] = "UsageTerms";
+            $fields[13] = "identifier";
+            $count = count($fields);
+            // print_r($tbl); exit;
+            $tbl->fields = array();
+            $tbl->fields[0] = array('term' => 'http://rs.tdwg.org/dwc/terms/taxonID', 'default' => '');
+            $tbl->fields[1] = array('term' => '', 'type' => '', 'default' => ''); 
+            $tbl->fields[2] = array('term' => '	http://purl.org/dc/terms/description', 'type' => '', 'default' => ''); 
+            $tbl->fields[3] = array('term' => '', 'type' => '', 'default' => ''); 
+            $tbl->fields[4] = array('term' => 'http://rs.tdwg.org/ac/terms/furtherInformationURL', 'type' => '', 'default' => ''); 
+            $tbl->fields[5] = array('term' => '', 'type' => '', 'default' => ''); 
+            $tbl->fields[6] = array('term' => '	http://ns.adobe.com/xap/1.0/rights/Owner', 'type' => '', 'default' => ''); 
+            $tbl->fields[7] = array('term' => '	http://purl.org/dc/terms/language', 'type' => '', 'default' => ''); 
+            $tbl->fields[8] = array('term' => 'http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm', 'type' => '', 'default' => ''); 
+            $tbl->fields[9] = array('term' => 'http://purl.org/dc/terms/format', 'type' => '', 'default' => ''); 
+            $tbl->fields[10] = array('term' => 'http://purl.org/dc/terms/type', 'type' => '', 'default' => ''); 
+            $tbl->fields[11] = array('term' => 'http://eol.org/schema/agent/agentID', 'type' => '', 'default' => ''); 
+            $tbl->fields[12] = array('term' => 'http://ns.adobe.com/xap/1.0/rights/UsageTerms', 'type' => '', 'default' => ''); 
+            $tbl->fields[13] = array('term' => 'http://purl.org/dc/terms/identifier', 'type' => '',  'default' => '');
+        }
+        // end customization ----------------------------------------------------------------------------------
         
         
         $do_ids = array(); //for validation, prevent duplicate identifiers
@@ -218,13 +295,13 @@ class CSV2DwCA_Utility_generic
                     $this->debug['wrong csv'][$class]['identifier'][@$rec['identifier']] = '';
                     $this->debug['wrong csv 2'][$class][$csv_file][$count][count($values)] = '';
                     
-                    /* good debug - when you want to get actual record values
-                    if($tbl->row_type == "http://rs.gbif.org/terms/1.0/Image") 
+                    // /* good debug - when you want to get actual record values
+                    if($tbl->row_type == "http://eol.org/schema/media/Document") 
                     {
                         echo "\nwill cont. [$tbl->row_type][$count][".count($values)."]";
                         print_r($fields); print_r($values);
                     }
-                    */
+                    // */
                     
                     continue;
                 }
