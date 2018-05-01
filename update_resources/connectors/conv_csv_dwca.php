@@ -16,6 +16,15 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/CSV2DwCA_Utility_generic');
 $timestart = time_elapsed();
 
+// print_r($argv);
+$cmdline_params['jenkins_or_cron']                  = @$argv[1]; //irrelevant here
+$cmdline_params['resource_id']                      = @$argv[2]; //useful here
+
+
+//https://eol-jira.bibalex.org/browse/TRAM-704 - Milichiidae online
+$resources[131] = array('dwca' => "http://milichiidae.info/eol-dwca.zip", 'bigfileYN' => false); //Milichiidae online
+
+
 // /*
 $resources[220] = array('dwca' => "http://diptera.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Scratchpad export - Diptera taxon pages
 $resources[268] = array('dwca' => "http://britishbryozoans.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Bryozoa of the British Isles
@@ -84,6 +93,12 @@ $resources[215] = array('dwca' => "http://terrslugs.myspecies.info/eol-dwca.zip"
 $resources[105] = array('dwca' => "http://tunicata.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Tunicata
 $resources[410] = array('dwca' => "http://urbanfloranyc.myspecies.info/eol-dwca.zip", 'bigfileYN' => false); //Urban Flora of NYC
 // */
+
+if($resource_id = @$cmdline_params['resource_id']) {
+    $temp = $resources[$resource_id];
+    $resources = array();
+    $resources[$resource_id] = $temp;
+}
 
 $debug = array();
 foreach($resources as $resource_id => $info) {
