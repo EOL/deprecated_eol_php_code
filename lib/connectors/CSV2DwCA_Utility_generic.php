@@ -270,6 +270,12 @@ class CSV2DwCA_Utility_generic
             else exit("\nUndefined class [$class]\n");
 
             $row = fgetcsv($file);
+
+            /* good debug
+            if($tbl->row_type == "http://eol.org/schema/media/Document" && $tbl->location == "description.txt") {
+                print_r($fields); print_r($row); //good debug
+            }
+            */
             
             if($row) {
                 // print_r($row);
@@ -295,13 +301,12 @@ class CSV2DwCA_Utility_generic
                     $this->debug['wrong csv'][$class]['identifier'][@$rec['identifier']] = '';
                     $this->debug['wrong csv 2'][$class][$csv_file][$count][count($values)] = '';
                     
-                    // /* good debug - when you want to get actual record values
-                    if($tbl->row_type == "http://eol.org/schema/media/Document") 
-                    {
+                    /* good debug - when you want to get actual record values
+                    if($tbl->row_type == "http://eol.org/schema/media/Document" && $tbl->location == "description.txt") {
                         echo "\nwill cont. [$tbl->row_type][$count][".count($values)."]";
                         print_r($fields); print_r($values);
                     }
-                    // */
+                    */
                     
                     continue;
                 }
