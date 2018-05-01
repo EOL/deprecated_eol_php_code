@@ -79,6 +79,11 @@ class CSV2DwCA_Utility_generic
             foreach($values as $tbl) {
                 // print_r($tbl); exit;
                 echo "\n process row_type: $tbl->row_type -- ";
+                
+                //start customized -- limit/exclude extensions -------------------------------------------------
+                if($this->resource_id == 809 && $tbl->row_type == "http://eol.org/schema/media/Document" && $tbl->location == "description.txt") continue;
+                //end customized -------------------------------------------------
+                
                 if($class = @$this->extensions[$tbl->row_type]) //process only defined row_types
                 {
                     echo "\n -- Processing [$tbl->file_uri] [$class]...\n";
@@ -190,9 +195,10 @@ class CSV2DwCA_Utility_generic
                 [10] => http://bio.acousti.ca/content/italy-e-schluderns-lab-recording-2471990-25%C2%B0c-60-w-bulb-heat-kenwood-kx880hx-akg-d202-tape
             )*/
         }
-        
-        if($this->resource_id == 809 && $tbl->row_type == "http://eol.org/schema/media/Document" && $tbl->location == "description.txt") {
-            /* Array( in meta XML but erroneous!
+
+        /*
+        if($this->resource_id == 809 && $tbl->row_type == "http://eol.org/schema/media/Document" && $tbl->location == "description.txt") { //this is eventually not used at all
+            Array( in meta XML but erroneous!
                 [0] => taxonID
                 [1] => description
                 [2] => furtherInformationURL
@@ -219,7 +225,7 @@ class CSV2DwCA_Utility_generic
             [11] => ac2a0544-7322-4cf7-8eb9-c6e88479669e
             [12] => //creativecommons.org/licenses/by-nc-sa/3.0/
             [13] => ac7e9359-8107-4b57-a5c2-8d0d0d5bc319#behaviour
-            */
+            
             $fields = array();
             $fields[0] = 'taxonID';
             $fields[1] = '';
@@ -253,8 +259,8 @@ class CSV2DwCA_Utility_generic
             $tbl->fields[12] = array('term' => 'http://ns.adobe.com/xap/1.0/rights/UsageTerms', 'type' => '', 'default' => ''); 
             $tbl->fields[13] = array('term' => 'http://purl.org/dc/terms/identifier', 'type' => '',  'default' => '');
         }
+        */
         // end customization ----------------------------------------------------------------------------------
-        
         
         $do_ids = array(); //for validation, prevent duplicate identifiers
         $i = 0;
@@ -330,6 +336,12 @@ class CSV2DwCA_Utility_generic
                         elseif($field == "UsageTerms" && !$rec[$field]) $rec[$field] = "http://creativecommons.org/licences/by-nc/3.0/";
 
                         // accessURI
+                        
+                        /* working OK but not used at all
+                        if($this->resource_id == 809 && $tbl->row_type == "http://eol.org/schema/media/Document" && $tbl->location == "description.txt") {
+                            if($field == 'description') $rec[$field] = str_ireplace('href="/', 'href="http://bio.acousti.ca/', $rec[$field]);
+                        }
+                        */
                         //================================================================== end customization ==================================================================
                         
                     }
