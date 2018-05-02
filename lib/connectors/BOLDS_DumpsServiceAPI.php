@@ -34,8 +34,9 @@ class BOLDS_DumpsServiceAPI
         $this->kingdom['Fungi'] = array("Ascomycota", "Basidiomycota", "Chytridiomycota", "Glomeromycota", "Myxomycota", "Zygomycota");
         $this->kingdom['Protista'] = array("Chlorarachniophyta", "Ciliophora", "Heterokontophyta", "Pyrrophycophyta");
         $this->debug = array();
-        $this->temp_path = CONTENT_RESOURCE_LOCAL_PATH . "BOLDS_temp5/";
+        $this->temp_path = CONTENT_RESOURCE_LOCAL_PATH . "BOLDS_temp/";
         $this->cnt = 0;
+        $this->with_parent_id = true; //true - will make it a point that every taxon has a parentNameUsageID
     }
 
     function start_using_dump()
@@ -83,9 +84,9 @@ class BOLDS_DumpsServiceAPI
             $txt_file = self::process_dump($phylum, "write_taxon_archive");
             unlink($txt_file);
         }
-        /* we no longer provide the parentNameUsageID since it is not scalable when doing thousands of API calls. Doable but not scalable
-        self::add_needed_parent_entries(1);
-        */
+        // /* we no longer provide the parentNameUsageID since it is not scalable when doing thousands of API calls. Doable but not scalable
+        if($this->with_parent_id) self::add_needed_parent_entries(1);
+        // */
         $this->tax_ids = array();       //release memory
         $this->img_tax_ids = array();   //release memory
         
@@ -114,7 +115,11 @@ class BOLDS_DumpsServiceAPI
                 if($sci = self::valid_rec($rec)) {
                     // if($rec['species_name'] == "Metaphire magna") print_r($rec); //debug only
                     if    ($what == "get_images_from_dump_rec") self::get_images_from_dump_rec($rec, $sci);
-                    elseif($what == "write_taxon_archive")      self::create_taxon_archive_from_dump($sci);
+                    elseif($what == "write_taxon_archive")
+                    {
+                        if($this->with_parent_id) self::create_taxon_archive($sci);
+                        else                      self::create_taxon_archive_from_dump($sci);
+                    }
                 }
                 // if($what == "write_taxon_archive") self::create_taxon_higher_level_archive($rec); //obsolete
                 if($what == "write_taxon_archive") $higher_level_ids = self::get_higher_level_ids($rec, $higher_level_ids);
@@ -137,17 +142,19 @@ class BOLDS_DumpsServiceAPI
             }
             // if($i >= 1000) break; //debug only
         }
-        /* we no longer provide the parentNameUsageID
-        if($what == "write_taxon_archive") {
-            foreach(array_keys($higher_level_ids) as $taxid) {
-                if(isset($this->taxon_ids[$taxid])) continue; //meaning this taxon has already been added to dwca
-                if(self::process_record($taxid)) {}
-                else {
-                    if($taxon_info = self::get_info_from_page($taxid)) self::create_taxon_archive($taxon_info);
+        // /* we no longer provide the parentNameUsageID
+        if($this->with_parent_id) {
+            if($what == "write_taxon_archive") {
+                foreach(array_keys($higher_level_ids) as $taxid) {
+                    if(isset($this->taxon_ids[$taxid])) continue; //meaning this taxon has already been added to dwca
+                    if(self::process_record($taxid)) {}
+                    else {
+                        if($taxon_info = self::get_info_from_page($taxid)) self::create_taxon_archive($taxon_info);
+                    }
                 }
             }
         }
-        */
+        // */
         return $txt_file;
     }
     private function create_taxon_archive_from_dump($a)
