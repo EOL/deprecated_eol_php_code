@@ -891,6 +891,7 @@ class BOLDS_DumpsServiceAPI
         if(stripos($license, "noncommercial sharealike") !== false)     return "http://creativecommons.org/licenses/by-nc-sa/3.0/"; //string is found
         if(stripos($license, "noncommercial share alike") !== false)    return "http://creativecommons.org/licenses/by-nc-sa/3.0/"; //string is found
         if(stripos($license, "attribution (by)") !== false)             return "http://creativecommons.org/licenses/by/3.0/"; //string is found
+        if(stripos($license, "commons - attribution by ") !== false)    return "http://creativecommons.org/licenses/by/3.0/"; //string is found
         if(stripos($license, "commons attribution (") !== false)        return "http://creativecommons.org/licenses/by/3.0/"; //string is found
         if(stripos($license, "non-commercial only") !== false)          return "http://creativecommons.org/licenses/by-nc/3.0/"; //string is found
         if(stripos($license, " attribution-noncommercial ") !== false)  return "http://creativecommons.org/licenses/by-nc/3.0/"; //string is found
@@ -900,9 +901,14 @@ class BOLDS_DumpsServiceAPI
         $arr["creativecommons - attribution non-commercial"]             = "http://creativecommons.org/licenses/by-nc/3.0/";
         $arr["creativecommons - attribution share-alike"]                = "http://creativecommons.org/licenses/by-sa/3.0/";
         $arr["creative commons by nc sa"]                                = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+
         $arr["creative commons-by-nc-sa"]                                = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-        $arr["no rights reserved"]                                       = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-        $arr["no rights reserved (nrr)"]                                 = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+        $arr["creativecommons-attribution non-commervial share-alike"]   = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+
+        $arr["no rights reserved"]                                       = "No known copyright restrictions";
+        $arr["no rights reserved (nrr)"]                                 = "No known copyright restrictions";
+        $arr["no right's reserved (nrr)"]                                = "No known copyright restrictions";
+
         $arr["creativecommons"]                                          = "http://creativecommons.org/licenses/by/3.0/";
         $arr["creative commons"]                                         = "http://creativecommons.org/licenses/by/3.0/";
         $arr["creativecom"]                                              = "http://creativecommons.org/licenses/by/3.0/";
