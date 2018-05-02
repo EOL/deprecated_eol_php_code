@@ -12,10 +12,12 @@ require_library('connectors/NatureServeAPI');
 @unlink(DOC_ROOT . "/temp/dwc_archive_test/media_resource_working.tab");
 @unlink(DOC_ROOT . "/temp/dwc_archive_test/reference.tab");
 rmdir(DOC_ROOT . "/temp/dwc_archive_test/");
+
+$resource_id = 263;
 $naturserveAPI = new NatureServeAPI();
 $naturserveAPI->get_all_taxa();
 
-if(!($resource_file = Functins::file_open(CONTENT_RESOURCE_LOCAL_PATH . "263_temp.xml", "w+"))) return;
+if(!($resource_file = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . $resource_id ."_temp.xml", "w+"))) return;
 
 // start the resource file with the XML header
 fwrite($resource_file, \SchemaDocument::xml_header());
@@ -26,7 +28,7 @@ $GLOBALS['data_objects'] = array();
 $GLOBALS['taxon_id_media'] = array();
 $GLOBALS['all_references'] = array();
 
-print_r($archive->tables);
+// print_r($archive->tables);
 
 $archive->process_row_type("http://eol.org/schema/reference/Reference", "php_active_record\\lookup_references");
 $archive->process_row_type("http://eol.org/schema/media/Document", "php_active_record\\lookup_data_objects");
@@ -37,13 +39,26 @@ fwrite($resource_file, \SchemaDocument::xml_footer());
 fclose($resource_file);
 
 // cache the previous version and make this new version the current version
-@unlink(CONTENT_RESOURCE_LOCAL_PATH . "263_previous.xml");
-Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . "263.xml", CONTENT_RESOURCE_LOCAL_PATH . "263_previous.xml");
-Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . "263_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . "263.xml");
+@unlink(CONTENT_RESOURCE_LOCAL_PATH . $resource_id ."_previous.xml");
+Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous.xml");
+Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");
 
-if(filesize(CONTENT_RESOURCE_LOCAL_PATH . "263.xml") > 200000) {
-    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Harvest Requested')->id." WHERE id=263");
+/* obsolete
+if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml") > 200000) {
+    $GLOBALS['db_connection']->update("UPDATE resources SET resource_status_id=".ResourceStatus::find_or_create_by_translated_label('Harvest Requested')->id." WHERE id=$resource_id");
 }
+*/
+// start convert XML to DwCA:
+require_library('connectors/ConvertEOLtoDWCaAPI');
+$params["eol_xml_file"] = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
+$params["filename"]     = "";
+$params["dataset"]      = "";
+$params["resource_id"]  = $resource_id;
+$func = new ConvertEOLtoDWCaAPI($resource_id);
+$func->export_xml_to_archive($params, true, 0); // false => means it is NOT an XML file, BUT an archive file OR a zip file. IMPORTANT: Expires now = 0.
+
+$deleteYN = false; //true means delete the DwCA folder in /resources/
+Functions::finalize_dwca_resource($resource_id, false, $deleteYN);
 
 function lookup_taxa($taxon, $parameters)
 {
