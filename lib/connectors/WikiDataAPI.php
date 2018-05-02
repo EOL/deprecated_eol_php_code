@@ -675,6 +675,7 @@ class WikiDataAPI
         }
         
         $agent_ids = array();
+        if(!@$artists) return array();
         foreach($artists as $a) {
             if(!$a['name']) continue;
             $r = new \eol_schema\Agent();
