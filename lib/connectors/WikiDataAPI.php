@@ -429,7 +429,10 @@ class WikiDataAPI
                      else $j++;
                      // */
                 }
-                else exit("\n --not ok-- \n");
+                else {
+                    echo "\n[$row]\n";
+                    echo("\n --Investigate not ok-- \n"); //previously this is exit()
+                }
                 
                 // break; //debug get first taxon wiki only
                 // if($k > 5000) break; //10000
