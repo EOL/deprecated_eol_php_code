@@ -6,8 +6,7 @@ class NatureServeAPI
     // https://services.natureserve.org/idd/rest/ns/v1.1/globalSpecies/comprehensive?NSAccessKeyId=72ddf45a-c751-44c7-9bca-8db3b4513347&uid=ELEMENT_GLOBAL.2.104386
     const API_PREFIX = "https://services.natureserve.org/idd/rest/ns/v1.1/globalSpecies/comprehensive?NSAccessKeyId=72ddf45a-c751-44c7-9bca-8db3b4513347&uid=";
     const SPECIES_LIST_URL = "https://tranxfer.natureserve.org/download/longterm/EOL/gname_uid_crosswalk.xml";
-    // const SPECIES_LIST_URL = "https://dl.dropboxusercontent.com/u/7597512/NatureServe/gname_uid_crosswalk.xml";
-    const SPECIES_LIST_URL = "http://localhost/cp_new/NatureServe/gname_uid_crosswalk.xml";
+    // const SPECIES_LIST_URL = "http://localhost/cp_new/NatureServe/gname_uid_crosswalk.xml";
     const IMAGE_API_PREFIX = "https://services.natureserve.org/idd/rest/ns/v1/globalSpecies/images?uid=";
     
     public function __construct()
@@ -17,8 +16,8 @@ class NatureServeAPI
         $this->national_status_code_labels();
         $this->national_status_qualifiers();
         
-        $this->download_options = array("cache" => 1, "download_wait_time" => 2000000, "timeout" => 3600, "download_attempts" => 1); //"delay_in_minutes" => 1
-        $this->download_options['expire_seconds'] = false; //preferably monthly
+        // $this->download_options = array("cache" => 1, "download_wait_time" => 500000, "timeout" => 3600, "download_attempts" => 1); //"delay_in_minutes" => 1
+        // $this->download_options['expire_seconds'] = 60*60*24*30; //preferably monthly
     }
     
     public function get_all_taxa()
@@ -33,14 +32,16 @@ class NatureServeAPI
         
         $reader = new \XMLReader();
         $reader->open($species_list_path);
-        $records = array();
+        $records = array(); $i = 0;
         while(@$reader->read())
         {
             if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "DATA_RECORD")
             {
+                $i++;
                 $record = simplexml_load_string($reader->readOuterXML(), null, LIBXML_NOCDATA);
                 $records[] = (string) $record->EGT_UID;
             }
+            // if($i >= 20) break; //debug only
         }
         echo "Total Records: ". count($records) ."\n";
         
@@ -88,7 +89,7 @@ class NatureServeAPI
     private function lookup_multiple_ids($ids)
     {
         $url = self::API_PREFIX . implode(",", $ids);
-        $details_xml = Functions::lookup_with_cache($url, array('validation_regex' => '<\/globalSpeciesList>'));
+        $details_xml = Functions::lookup_with_cache($url, array('validation_regex' => '<\/globalSpeciesList>')); //default expires in 25 days
         $xml = simplexml_load_string($details_xml);
         foreach($xml->globalSpecies as $species_record)
         {
@@ -624,7 +625,7 @@ class NatureServeAPI
     private function get_images($id)
     {
         $url = self::IMAGE_API_PREFIX . $id;
-        $details_xml = Functions::lookup_with_cache($url, array('validation_regex' => '<\/images>'));
+        $details_xml = Functions::lookup_with_cache($url, array('validation_regex' => '<\/images>')); //default expires in 25 days
         $xml = simplexml_load_string($details_xml);
         foreach($xml->image as $image)
         {
