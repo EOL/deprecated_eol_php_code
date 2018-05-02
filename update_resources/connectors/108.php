@@ -19,7 +19,7 @@ $func->export_xml_to_archive($params, false, 0); // false => means it is NOT an 
 
 $deleteYN = true; //true means delete the DwCA folder in /resources/
 Functions::finalize_dwca_resource($resource_id, false, $deleteYN);
-Functions::set_resource_status_to_harvest_requested($resource_id);
+// Functions::set_resource_status_to_harvest_requested($resource_id); //obsolete
 
 // Functions::delete_if_exists($params["eol_xml_file"]);
 
