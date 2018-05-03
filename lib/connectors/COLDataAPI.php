@@ -128,6 +128,7 @@ class COLDataAPI
                 // if($i >= 5000) break; //debug
             }
         }
+        echo "\ntotal records $extension: $i\n";
         if($extension == "description") return $taxa_desc_list;
         if($extension == "description_v2") return $id_list;
     }
