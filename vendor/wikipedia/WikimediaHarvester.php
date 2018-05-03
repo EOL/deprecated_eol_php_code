@@ -26,12 +26,18 @@ class WikimediaHarvester
         // Category:Uploaded_with_Open_Access_Media_Importer_and_needing_category_review
         $this->total_pages_in_dump = 0;
         $this->queue_of_pages_to_process = array();
-
+        
+        /* //Eli added these two lines this when trying to revive this connector
+        if(!isset($this->resource->id)) $this->resource->id = 80;
+        if(!isset($this->resource->accesspoint_url)) $this->resource->accesspoint_url = "http://dumps.wikimedia.org/enwiki/latest/enwiki-latest-pages-articles.xml.bz2";
+        */
+        
         $this->resource_file_path = CONTENT_RESOURCE_LOCAL_PATH . $this->resource->id . "_temp.xml";
     }
 
     public function begin_wikimedia_harvest($files_subdir, $download=true)
     {
+        exit("\nNot being used anymore\n\n");
         $base_directory_path = DOC_ROOT . $files_subdir . DIRECTORY_SEPARATOR;
         $part_files = array('base' => $base_directory_path, 'subdir' => 'wikimedia', 'prefix' => 'part_');
         $part_path = implode(DIRECTORY_SEPARATOR, $part_files);
@@ -47,7 +53,7 @@ class WikimediaHarvester
         if ($download)
         {
             // delete then re-download the huge wikimedia commons dump files
-            $this->cleanup_dump($base_directory_path, $part_path);
+            $this->cleanup_dump($base_directory_path, $part_path); //Eli commented this when trying to revive this connector
             $this->download_dump($base_directory_path, $part_path);
         }
 
@@ -81,7 +87,7 @@ class WikimediaHarvester
     {
         // download latest Wikimedia Commons export
         echo "Downloading ".$this->resource->accesspoint_url." ...\n";
-        shell_exec("curl ".escapeshellarg($this->resource->accesspoint_url)." -o ". escapeshellarg($dir . "wikimedia.xml.bz2"));
+        shell_exec("curl ".escapeshellarg($this->resource->accesspoint_url)." -o ". escapeshellarg($dir . "wikimedia.xml.bz2")); //Eli commented this when trying to revive this connector
         // unzip the download
         echo "... unpacking downloaded file ...\n";
         shell_exec("bunzip2 --force ". escapeshellarg($dir . "wikimedia.xml.bz2"));
