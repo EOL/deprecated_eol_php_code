@@ -1,6 +1,8 @@
 <?php
 namespace php_active_record;
-/* connector: [263] */
+/* connector: [263] 
+This needs an estimate of 80K API calls. Doable but maybe not scalable for frequent harvest. Cache expires by default in 25 days from Functions::lookup_with_cache()
+*/
 class NatureServeAPI
 {
     // https://services.natureserve.org/idd/rest/ns/v1.1/globalSpecies/comprehensive?NSAccessKeyId=72ddf45a-c751-44c7-9bca-8db3b4513347&uid=ELEMENT_GLOBAL.2.104386
@@ -32,7 +34,7 @@ class NatureServeAPI
         
         $reader = new \XMLReader();
         $reader->open($species_list_path);
-        $records = array(); $i = 0; $m = 80871/6;
+        $records = array(); $i = 0; $m = 80871/6; //as of May 3, 2018 -- Total Records: 80871
         while(@$reader->read()) {
             if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "DATA_RECORD") {
                 $i++;
@@ -47,8 +49,8 @@ class NatureServeAPI
                 // if($i >=  $m*4 && $i < $m*5) $cont = true;
                 // if($i >=  $m*5 && $i < $m*6) $cont = true;
 
-                if($i >=  ($m*5)-2000 && $i < $m*5) $cont = true;
-                // if($i >=  ($m*6)-2000 && $i < $m*6) $cont = true;
+                // if($i >=  ($m*5)-3000 && $i < $m*5) $cont = true;
+                if($i >=  ($m*6)-3000 && $i < $m*6) $cont = true;
 
                 if(!$cont) continue;
                 */
