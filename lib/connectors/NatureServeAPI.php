@@ -32,12 +32,24 @@ class NatureServeAPI
         
         $reader = new \XMLReader();
         $reader->open($species_list_path);
-        $records = array(); $i = 0;
+        $records = array(); $i = 0; $m = 5000;
         while(@$reader->read())
         {
             if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "DATA_RECORD")
             {
                 $i++;
+                if(($i % 1000) == 0) echo " ".number_format($i)." ";
+                
+                /* breakdown when caching:
+                $cont = false;
+                // if($i >=  1    && $i < $m) $cont = true;
+                // if($i >=  $m   && $i < $m*2) $cont = true;
+                // if($i >=  $m*2 && $i < $m*3) $cont = true;
+                // if($i >=  $m*3 && $i < $m*4) $cont = true;
+                if($i >=  $m*4 && $i < $m*5) $cont = true;
+                if(!$cont) continue;
+                */
+                
                 $record = simplexml_load_string($reader->readOuterXML(), null, LIBXML_NOCDATA);
                 $records[] = (string) $record->EGT_UID;
             }
@@ -91,9 +103,13 @@ class NatureServeAPI
         $url = self::API_PREFIX . implode(",", $ids);
         $details_xml = Functions::lookup_with_cache($url, array('validation_regex' => '<\/globalSpeciesList>')); //default expires in 25 days
         $xml = simplexml_load_string($details_xml);
-        foreach($xml->globalSpecies as $species_record)
-        {
-            $this->process_species_xml($species_record);
+        if($val = @$xml->globalSpecies) {
+            $i = 0;
+            foreach($val as $species_record) {
+                $i++;
+                if($i % 1000 == 0) echo "\n$i.";
+                $this->process_species_xml($species_record);
+            }
         }
     }
     
@@ -102,7 +118,7 @@ class NatureServeAPI
         $this->current_details_xml = $details_xml;
         $scientific_name = $this->current_details_xml->classification->names->scientificName->unformattedName;
         if(preg_match("/(sp|pop)\. [0-9]/", $scientific_name)) return;
-        echo "$scientific_name\n";
+        // echo "$scientific_name\n";
         
         $identifier = (string) $this->current_details_xml['uid'];
         $this->get_images($identifier);
