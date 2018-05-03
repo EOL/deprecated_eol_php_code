@@ -33,10 +33,8 @@ class NatureServeAPI
         $reader = new \XMLReader();
         $reader->open($species_list_path);
         $records = array(); $i = 0; $m = 80871/6;
-        while(@$reader->read())
-        {
-            if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "DATA_RECORD")
-            {
+        while(@$reader->read()) {
+            if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "DATA_RECORD") {
                 $i++;
                 if(($i % 1000) == 0) echo " ".number_format($i)." ";
                 
@@ -50,7 +48,6 @@ class NatureServeAPI
                 // if($i >=  $m*5 && $i < $m*6) $cont = true;
 
                 if($i >=  ($m*5)-2000 && $i < $m*5) $cont = true;
-
                 // if($i >=  ($m*6)-2000 && $i < $m*6) $cont = true;
 
                 if(!$cont) continue;
@@ -62,16 +59,11 @@ class NatureServeAPI
             // if($i >= 20) break; //debug only
         }
         echo "Total Records: ". count($records) ."\n";
-        
+
         $chunk_size = 1;
+
         // shuffle($records);
-        
-        
-        
         // array_unshift($records, 'ELEMENT_GLOBAL.2.104470'); // Bald eagle
-        
-        
-        
         array_unshift($records, 'ELEMENT_GLOBAL.2.102211'); // Polar bear
         // array_unshift($records, 'ELEMENT_GLOBAL.2.106470'); // bobcat - Lynx rufus
         // array_unshift($records, 'ELEMENT_GLOBAL.2.104731'); // striped bass - Morone saxatilis
@@ -79,19 +71,16 @@ class NatureServeAPI
         array_unshift($records, 'ELEMENT_GLOBAL.2.104777'); // White tailed deer
         array_unshift($records, 'ELEMENT_GLOBAL.2.100925'); // golden eagle
         
-        
         $records = array_unique($records);
         $chunks = array_chunk($records, $chunk_size);
         $i = 0;
         $start_time = time_elapsed();
-        foreach($chunks as $chunk)
-        {
+        foreach($chunks as $chunk) {
             $this->lookup_multiple_ids($chunk);
             // if($i % 500 == 0) print_r($this->archive_builder->file_columns);
             
             $i += $chunk_size;
-            if($i % 1000 == 0)
-            {
+            if($i % 1000 == 0) {
                 $estimated_total_time = (((time_elapsed() - $start_time) / $i) * count($records));
                 echo "Time spent ($i records) ". time_elapsed() ."\n";
                 echo "Estimated total seconds : $estimated_total_time\n";
@@ -100,7 +89,6 @@ class NatureServeAPI
             }
             // if($i >= 100) break;
         }
-        
         $this->archive_builder->finalize();
     }
     
@@ -135,7 +123,6 @@ class NatureServeAPI
         $text = "";
         $this->append_description($text, @$this->current_details_xml->classification->taxonomy->formalTaxonomy->taxonomicComments, 'Comments');
         $this->write_text_description("", "taxonomic_comments", "http://www.eol.org/voc/table_of_contents#Taxonomy", $text);
-        
         
         $this->write_natureserve_status();
         $this->national_statuses();
@@ -196,14 +183,13 @@ class NatureServeAPI
         if(!$status) return;
         $text = "";
         
-        if($rounded_rank_code = (string) @$status->roundedRank->code)
-        {
+        if($rounded_rank_code = (string) @$status->roundedRank->code) {
             $text = "<p><strong>Rounded Global Status Rank</strong>: ";
             if($rank_description = (string) @$status->roundedRank->description) $text .= "<a href=\"http://www.natureserve.org/explorer/ranking.htm#globalstatus\">". $rounded_rank_code ."</a> - $rank_description";
             elseif($value = $this->get_global_status_code_from_label((string) $rounded_rank_code)) $text .= $value;
             $text .= "</p>";
-        }elseif($rank_code = (string) @$status->rank->code)
-        {
+        }
+        elseif($rank_code = (string) @$status->rank->code) {
             $text .= "<p><strong>Global Status Rank</strong>:";
             if($rank_description = (string) @$status->roundedRank->description) $text .= "<a href=\"http://www.natureserve.org/explorer/ranking.htm#globalstatus\">". $rank_code ."</a> - $rank_description";
             elseif($value = $this->get_global_status_code_from_label((string) $rounded_rank_code)) $text .= $value;
@@ -232,11 +218,9 @@ class NatureServeAPI
         $descriptions = array();
         if($statuses = @$this->current_details_xml->conservationStatus->natureServeStatus->globalStatus->nationalStatuses)
         {
-            foreach($statuses->nationalStatus as $status)
-            {
+            foreach($statuses->nationalStatus as $status) {
                 $description = "<h5>". $status['nationName'] ."</h5>";
-                if($rounded_rank_code = (string) @$status->roundedRank->code)
-                {
+                if($rounded_rank_code = (string) @$status->roundedRank->code) {
                     $description .= "<p><strong>Rounded National Status Rank</strong>: ";
                     if($rank_description = (string) @$status->roundedRank->description) $description .= "<a href=\"http://www.natureserve.org/explorer/ranking.htm#natsub\">$rounded_rank_code</a> - $rank_description";
                     elseif($value = $this->get_national_status_code_from_label((string) $rounded_rank_code)) $description .= $value;
@@ -253,8 +237,7 @@ class NatureServeAPI
             }
         }
         $descriptions = array_filter($descriptions);
-        if($descriptions)
-        {
+        if($descriptions) {
             $this->write_text_description("National NatureServe Conservation Status", "national_conservation_status",
               "http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus",
               implode("", $descriptions),
@@ -273,8 +256,7 @@ class NatureServeAPI
         static $occurrence_codes = array('Z' => '0 occurrences', 'A' => '1-5 occurrences', 'B' => '6-20 occurrences',
             'C' => '21-80 occurrences', 'D' => '81-300 occurrences', 'E' => '>300 occurrences', 'U' => 'Unknown');
         $text = $this->get_code_description_comment( @$this->current_details_xml->conservationStatus->natureServeStatus->globalStatus->conservationStatusFactors->estimatedNumberOfOccurrences, 'Estimated Number of Occurrences', $occurrence_codes);
-        if($text)
-        {
+        if($text) {
             $text = "<p>Note: For many non-migratory species, occurrences are roughly equivalent to populations.</p>" . $text;
             $this->write_text_description("Number of Occurrences", "occurrences", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#PopulationBiology", $text);
         }
@@ -331,16 +313,14 @@ class NatureServeAPI
     
     private function global_range()
     {
-        if($distribution = @$this->current_details_xml->distribution)
-        {
+        if($distribution = @$this->current_details_xml->distribution) {
             $text = "";
             $range = (string) @$distribution->globalRange->description;
             $comments = (string) @$distribution->globalRange->comments;
             if($range && $comments) $text = "($range) $comments";
             elseif($range) $text = $range;
             elseif($comments) $text = $comments;
-            if($text)
-            {
+            if($text) {
                 $this->write_text_description("", "global_range", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution",
                     "<p><strong>Global Range</strong>: $text", array("rating" => 2));
             }
@@ -349,25 +329,21 @@ class NatureServeAPI
     
     private function national_range()
     {
-        if($nations = @$this->current_details_xml->distribution->nations)
-        {
+        if($nations = @$this->current_details_xml->distribution->nations) {
             $descriptions = array();
-            foreach($nations->nation as $nation)
-            {
+            foreach($nations->nation as $nation) {
                 $text = "";
                 $this->append_description($text, @$nation->nationalDistributions->nationalDistribution->origin, 'Origin');
                 $this->append_description($text, @$nation->nationalDistributions->nationalDistribution->regularity, 'Regularity');
                 $this->append_description($text, @$nation->nationalDistributions->nationalDistribution->currentPresenceAbsence, 'Currently');
                 $this->append_description($text, @$nation->nationalDistributions->nationalDistribution->distributionConfidence, 'Confidence');
                 $this->append_description($text, @$nation->nationalDistributions->nationalDistribution->population, 'Type of Residency');
-                if($text)
-                {
+                if($text) {
                     $descriptions[] = "<h5>". $nation['nationName'] ."</h5>" . $text;
                 }
             }
             $descriptions = array_filter($descriptions);
-            if($descriptions)
-            {
+            if($descriptions) {
                 $this->write_text_description("National Distribution", "national_distributions",
                   "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution", implode("", $descriptions), array("rating" => 2));
             }
@@ -376,14 +352,12 @@ class NatureServeAPI
     
     private function endemism()
     {
-        if($endemism = @$this->current_details_xml->distribution->endemism)
-        {
+        if($endemism = @$this->current_details_xml->distribution->endemism) {
             static $endemism_codes = array('S' => 'state|province endemic', 'N' => 'national endemic', 'M' => 'multinational distribution',
                 'MSB' => 'occurs in multiple nations, breeds in only one subnation',
                 'MNB' => 'occurs in multiple nations, breeds in multiple state|provinces of only one nation',
                 'NSB' => 'occurs in multiple subnations of only one nation, breeds in only one state|province');
-            if($text = $this->get_code_description_comment($endemism, '', $endemism_codes))
-            {
+            if($text = $this->get_code_description_comment($endemism, '', $endemism_codes)) {
                 $this->write_text_description("", "endemism", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution", $text);
             }
         }
@@ -391,18 +365,15 @@ class NatureServeAPI
     
     private function economic_uses()
     {
-        if($econ = @$this->current_details_xml->economicAttributes)
-        {
+        if($econ = @$this->current_details_xml->economicAttributes) {
             $text = "";
-            if($uses = @$econ->economicUses)
-            {
+            if($uses = @$econ->economicUses) {
                 $all_uses = array();
                 foreach(@$uses->economicUse as $use) $all_uses[] = (string) $use;
                 if($all_uses) $text .= "<p><strong>Uses</strong>: ". implode($all_uses, ", ")."</p>";
             }
             $all_methods = array();
-            if($uses = @$econ->productionMethods)
-            {
+            if($uses = @$econ->productionMethods) {
                 foreach(@$uses->productionMethod as $method) $all_methods[] = (string) $method;
                 if($all_methods) $text .= "<p><strong>Production Methods</strong>: ". implode($all_methods, ", ")."</p>";
             }
@@ -413,8 +384,7 @@ class NatureServeAPI
     
     private function management_summary()
     {
-        if($management = @$this->current_details_xml->managementSummary)
-        {
+        if($management = @$this->current_details_xml->managementSummary) {
             $text = "";
             $this->append_description($text, @$management->stewardshipOverview, 'Stewardship Overview');
             $this->append_description($text, @$management->speciesImpact, 'Species Impact');
@@ -428,8 +398,7 @@ class NatureServeAPI
     private function global_protection()
     {
         $text = "";
-        if($protection = @$this->current_details_xml->conservationStatus->natureServeStatus->globalStatus->conservationStatusFactors->globalProtection)
-        {
+        if($protection = @$this->current_details_xml->conservationStatus->natureServeStatus->globalStatus->conservationStatusFactors->globalProtection) {
             static $protection_codes = array(
                 'A' => 'No occurrences appropriately protected and managed',
                 'B' => 'Few (1-3) occurrences appropriately protected and managed',
@@ -445,8 +414,7 @@ class NatureServeAPI
     
     private function management()
     {
-        if($management = @$this->current_details_xml->managementSummary)
-        {
+        if($management = @$this->current_details_xml->managementSummary) {
             $text = "";
             $this->append_description($text, @$management->restorationPotential, 'Restoration Potential');
             $this->append_description($text, @$management->preserveSelectionAndDesignConsiderations, 'Preserve Selection and Design Considerations');
@@ -480,8 +448,7 @@ class NatureServeAPI
     
     private function diagnostic_description()
     {
-        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
-        {
+        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory) {
             $text = "";
             $this->append_description($text, @$ecology->diagnosticCharacteristics);
             $this->write_text_description("", "diagnostic_description", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription", $text,
@@ -492,12 +459,10 @@ class NatureServeAPI
     
     private function life_cycle()
     {
-        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
-        {
+        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory) {
             $text = "";
             $all_durations = array();
-            if($durations = @$ecology->durations)
-            {
+            if($durations = @$ecology->durations) {
                 foreach(@$durations->duration as $duration) $all_durations[] = (string) $duration;
                 if($all_durations) $text .= "<p><strong>Persistence</strong>: ". implode($all_durations, ", ")."</p>";
             }
@@ -509,8 +474,7 @@ class NatureServeAPI
     
     private function reproduction()
     {
-        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
-        {
+        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory) {
             $text = "";
             $this->append_description($text, @$ecology->reproductionComments);
             $this->write_text_description("", "reproduction", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Reproduction", $text,
@@ -521,8 +485,7 @@ class NatureServeAPI
     
     private function associations()
     {
-        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
-        {
+        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory) {
             $text = "";
             $this->append_description($text, @$ecology->knownPests, 'Known Pests');
             $this->write_text_description("", "reproduction", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations", $text,
@@ -533,8 +496,7 @@ class NatureServeAPI
     
     private function ecology()
     {
-        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
-        {
+        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory) {
             $text = "";
             $this->append_description($text, @$ecology->ecologyComments);
             $this->write_text_description("", "ecology_comments", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Ecology", $text,
@@ -545,8 +507,7 @@ class NatureServeAPI
     
     private function migration()
     {
-        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
-        {
+        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory) {
             $text = "";
             $this->append_description($text, @$ecology->migration->nonMigrant, 'Non-Migrant');
             $this->append_description($text, @$ecology->migration->locallyMigrant, 'Locally Migrant');
@@ -569,8 +530,7 @@ class NatureServeAPI
     private function habitat()
     {
         $text = "";
-        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
-        {
+        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory) {
             static $habitat_codes = array('M' => 'Marine', 'F' => 'Freshwater', 'T' => 'Terrestrial');
             $text = $this->get_code_description_comment(@$ecology->habitatType, 'Habitat Type', $habitat_codes);
             $this->append_description($text, @$ecology->habitats->habitatComments, 'Comments');
@@ -583,8 +543,7 @@ class NatureServeAPI
     private function trophic_strategy()
     {
         $text = "";
-        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
-        {
+        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory) {
             $this->append_description($text, @$ecology->foodHabits->foodComments, 'Comments');
             $this->write_text_description("", "food_habits", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#TrophicStrategy", $text,
                 array(  'creator' => @trim((string) $ecology->ecologyAndLifeHistoryAuthors['displayValue']),
@@ -595,8 +554,7 @@ class NatureServeAPI
     private function cyclicity()
     {
         $text = "";
-        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
-        {
+        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory) {
             $this->append_description($text, @$ecology->phenologies->phenologyComments, 'Comments');
             $this->write_text_description("", "cyclicity", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Cyclicity", $text,
                 array(  'creator' => @trim((string) $ecology->ecologyAndLifeHistoryAuthors['displayValue']),
@@ -607,8 +565,7 @@ class NatureServeAPI
     private function size()
     {
         $text = "";
-        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory)
-        {
+        if($ecology = @$this->current_details_xml->ecologyAndLifeHistory) {
             $this->append_description($text, @$ecology->length, 'Length');
             $this->append_description($text, @$ecology->weight, 'Weight');
             $this->write_text_description("", "size", "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size", $text,
@@ -620,17 +577,14 @@ class NatureServeAPI
     private function references()
     {
         $references = array();
-        if($r = (string) @$this->current_details_xml->classification->names->scientificName->conceptReference->formattedFullCitation)
-        {
+        if($r = (string) @$this->current_details_xml->classification->names->scientificName->conceptReference->formattedFullCitation) {
             $ref_string = trim((string) $r);
             while(preg_match("/^(.*)&lt;br&gt;$/", $ref_string, $arr)) $ref_string = $arr[1];
             while(preg_match("/^(.*)<br>$/", $ref_string, $arr)) $ref_string = $arr[1];
             $references[$ref_string] = 1;
         }
-        if(isset($this->current_details_xml->references))
-        {
-            foreach($this->current_details_xml->references->citation as $reference)
-            {
+        if(isset($this->current_details_xml->references)) {
+            foreach($this->current_details_xml->references->citation as $reference) {
                 $ref_string = trim((string) $reference);
                 while(preg_match("/^(.*)&lt;br&gt;$/", $ref_string, $arr)) $ref_string = $arr[1];
                 while(preg_match("/^(.*)<br>$/", $ref_string, $arr)) $ref_string = $arr[1];
@@ -649,8 +603,7 @@ class NatureServeAPI
         $url = self::IMAGE_API_PREFIX . $id;
         $details_xml = Functions::lookup_with_cache($url, array('validation_regex' => '<\/images>')); //default expires in 25 days
         $xml = simplexml_load_string($details_xml);
-        foreach($xml->image as $image)
-        {
+        foreach($xml->image as $image) {
             // User Warning: Undefined property `mediaResourceID` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /Library/WebServer/Documents/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
             // User Warning: Undefined property `mimeType` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /Library/WebServer/Documents/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
             // User Warning: Undefined property `locality` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /Library/WebServer/Documents/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
@@ -679,11 +632,9 @@ class NatureServeAPI
             $mr->license = 'http://creativecommons.org/licenses/publicdomain/';
             if($mr->Owner == 'Public Domain') $mr->Owner = '';
              
-            if(@$dc->identifier && preg_match("/&RES=([0-9]+)X/", $dc->identifier, $arr))
-            {
+            if(@$dc->identifier && preg_match("/&RES=([0-9]+)X/", $dc->identifier, $arr)) {
                 $width = $arr[1];
-                if(@$dc->isVersionOf && preg_match("/&RES=([0-9]+)X/", $dc->isVersionOf, $arr))
-                {
+                if(@$dc->isVersionOf && preg_match("/&RES=([0-9]+)X/", $dc->isVersionOf, $arr)) {
                     $other_width = $arr[1];
                     if($width < $other_width) continue;
                 }
@@ -691,16 +642,6 @@ class NatureServeAPI
             $this->archive_builder->write_object_to_file($mr);
         }
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     private function write_text_description($title, $id_suffix, $subject, $description, $options = array())
     {
         if(!$description) return;
@@ -748,8 +689,7 @@ class NatureServeAPI
     {
         if(!$references) return;
         $reference_ids = array();
-        foreach($references as $ref => $junk)
-        {
+        foreach($references as $ref => $junk) {
             $r = new \eol_schema\Reference();
             $r->full_reference = $ref;
             $r->identifier = md5($ref);
@@ -795,14 +735,12 @@ class NatureServeAPI
         if(!$node) return null;
         $node_text = (string) @$node->description;
         $comments = (string) @$node->comments;
-        if(!$node_text && $code = (string) @$node->code)
-        {
+        if(!$node_text && $code = (string) @$node->code) {
             $node_text = $code;
             if($value = @$codes[$code]) $node_text .= " : $value";
         }
         
-        if($node_text)
-        {
+        if($node_text) {
             if($title) $node_text = "<strong>$title</strong>: " . $node_text;
             $node_text = "<p>$node_text</p>";
             if($comments) $node_text .= "<p><strong>Comments</strong>: $comments</p>";
@@ -839,21 +777,16 @@ class NatureServeAPI
     {
         $complete_labels = array();
         $labels = explode(",", $original_label);
-        foreach($labels as $label)
-        {
+        foreach($labels as $label) {
             $label = trim($label);
-            if(preg_match_all("/([GT][0-9]|GX|GH|GU|GNR|GNA)([\?QC]{0,3})/", $label, $complete_codes, PREG_SET_ORDER))
-            {
+            if(preg_match_all("/([GT][0-9]|GX|GH|GU|GNR|GNA)([\?QC]{0,3})/", $label, $complete_codes, PREG_SET_ORDER)) {
                 // print_r($complete_codes);
-                foreach($complete_codes as $complete_code)
-                {
+                foreach($complete_codes as $complete_code) {
                     $code = $complete_code[1];
                     $qualifiers = str_split($complete_code[2]);
-                    if($complete_label = @$this->global_status_code_labels[$code])
-                    {
+                    if($complete_label = @$this->global_status_code_labels[$code]) {
                         $complete_qualifiers = array();
-                        foreach($qualifiers as $qualifier)
-                        {
+                        foreach($qualifiers as $qualifier) {
                             if($v = @$this->global_status_qualifiers[$qualifier]) $complete_qualifiers[] = $v;
                         }
                         $complete_labels[] = array('label' => $complete_label, 'qualifier' => implode(", ", $complete_qualifiers), 
@@ -863,17 +796,14 @@ class NatureServeAPI
             }
         }
         if(!$complete_labels) return $original_label;
-        if(count($complete_labels) > 1)
-        {
-            foreach($complete_labels as $k => $v)
-            {
+        if(count($complete_labels) > 1) {
+            foreach($complete_labels as $k => $v) {
                 $complete_labels[$k] = $v['code'] .": ". $v['label'];
                 if($v['qualifier']) $complete_labels[$k] .= " - ".$v['qualifier'];
             }
             return "<a href=\"http://www.natureserve.org/explorer/ranking.htm#globalstatus\">" . $original_label . "</a> : " . 
                 implode(", ", $complete_labels);
-        }else
-        {
+        }else {
             return "<a href=\"http://www.natureserve.org/explorer/ranking.htm#globalstatus\">" . $original_label . "</a> - " . $complete_labels[0]['label'];
         }
         return implode(", ", $complete_labels);
@@ -916,22 +846,17 @@ class NatureServeAPI
         $complete_labels = array();
         
         $labels = explode(",", $original_label);
-        foreach($labels as $label)
-        {
+        foreach($labels as $label) {
             $label = trim($label);
-            if(preg_match_all("/([NS]([0-9]|X|H|U|NR|NA))(N$|[\?BM]{0,3})/", $label, $complete_codes, PREG_SET_ORDER))
-            {
+            if(preg_match_all("/([NS]([0-9]|X|H|U|NR|NA))(N$|[\?BM]{0,3})/", $label, $complete_codes, PREG_SET_ORDER)) {
                 // print_r($complete_codes);
-                foreach($complete_codes as $complete_code)
-                {
+                foreach($complete_codes as $complete_code) {
                     $abbreviation = $complete_code[0];
                     $code = $complete_code[1];
                     $qualifiers = str_split($complete_code[3]);
-                    if($complete_label = @$this->national_status_code_labels[$code])
-                    {
+                    if($complete_label = @$this->national_status_code_labels[$code]) {
                         $complete_qualifiers = array();
-                        foreach($qualifiers as $qualifier)
-                        {
+                        foreach($qualifiers as $qualifier) {
                             if($v = @$this->national_status_qualifiers[$qualifier]) $complete_qualifiers[] = $v;
                         }
                         $complete_labels[] = array('label' => $complete_label, 'qualifier' => implode(", ", $complete_qualifiers), 
@@ -942,17 +867,14 @@ class NatureServeAPI
         }
         
         if(!$complete_labels) return $original_label;
-        if(count($complete_labels) > 1)
-        {
-            foreach($complete_labels as $k => $v)
-            {
+        if(count($complete_labels) > 1) {
+            foreach($complete_labels as $k => $v) {
                 $complete_labels[$k] = $v['code'] .": ". $v['label'];
                 if($v['qualifier']) $complete_labels[$k] .= " - ".$v['qualifier'];
             }
             return "<a href=\"http://www.natureserve.org/explorer/ranking.htm#natsub\">" . $original_label . "</a> : " . 
                 implode(", ", $complete_labels);
-        }else
-        {
+        }else {
             return "<a href=\"http://www.natureserve.org/explorer/ranking.htm#natsub\">" . $original_label . "</a> - " . $complete_labels[0]['label'];
         }
         return implode(", ", $complete_labels);
@@ -996,6 +918,4 @@ class NatureServeAPI
         return $this->national_status_qualifiers;
     }
 }
-
 ?>
-
