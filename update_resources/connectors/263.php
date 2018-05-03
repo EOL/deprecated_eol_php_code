@@ -126,8 +126,8 @@ function lookup_data_objects($media)
     if($v = $media['http://purl.org/dc/terms/title']) $object_parameters['title'] = $v;
     if($v = $media['http://purl.org/dc/terms/language']) $object_parameters['language'] = $v;
     if($v = $media['http://ns.adobe.com/xap/1.0/rights/UsageTerms']) $object_parameters['license'] = $v;
-    if($object_parameters['license'] == 'http://creativecommons.org/licenses/publicdomain') {
-        $object_parameters['license'] = 'http://creativecommons.org/licenses/publicdomain/';
+    if(@$object_parameters['license'] == 'http://creativecommons.org/licenses/publicdomain') {
+         $object_parameters['license'] = 'http://creativecommons.org/licenses/publicdomain/';
     }
     if($v = $media['http://ns.adobe.com/xap/1.0/rights/Owner']) $object_parameters['rightsHolder'] = $v;
     if($v = $media['http://rs.tdwg.org/ac/terms/furtherInformationURL']) $object_parameters['source'] = $v;

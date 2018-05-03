@@ -32,7 +32,7 @@ class NatureServeAPI
         
         $reader = new \XMLReader();
         $reader->open($species_list_path);
-        $records = array(); $i = 0; $m = 5000;
+        $records = array(); $i = 0; $m = 80871/6;
         while(@$reader->read())
         {
             if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "DATA_RECORD")
@@ -46,7 +46,13 @@ class NatureServeAPI
                 // if($i >=  $m   && $i < $m*2) $cont = true;
                 // if($i >=  $m*2 && $i < $m*3) $cont = true;
                 // if($i >=  $m*3 && $i < $m*4) $cont = true;
-                if($i >=  $m*4 && $i < $m*5) $cont = true;
+                // if($i >=  $m*4 && $i < $m*5) $cont = true;
+                // if($i >=  $m*5 && $i < $m*6) $cont = true;
+
+                if($i >=  ($m*5)-2000 && $i < $m*5) $cont = true;
+
+                // if($i >=  ($m*6)-2000 && $i < $m*6) $cont = true;
+
                 if(!$cont) continue;
                 */
                 
