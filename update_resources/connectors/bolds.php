@@ -6,10 +6,9 @@ estimated execution time:
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+ini_set('memory_limit','7096M');
 // $GLOBALS['ENV_DEBUG'] = false;
 $timestart = time_elapsed();
-
-exit;
 
 // $resource_id = "Annelida_new"; //Animals
 // $resource_id = "Rhodophyta_new"; //Plants
@@ -17,7 +16,6 @@ exit;
 // $resource_id = "Protista_new";
 $resource_id = '81';
 // $resource_id = "Arthropoda"; //Animals
-// $resource_id = '1';
 
 /* tests...
 // $json = Functions::lookup_with_cache("http://www.boldsystems.org/index.php/API_Tax/TaxonData?taxId=30367&dataTypes=all");
@@ -44,17 +42,19 @@ exit("\n");
 require_library('connectors/BOLDS_DumpsServiceAPI');
 $func = new BOLDS_DumpsServiceAPI($resource_id);
 $func->start_using_dump();
-// exit("\nJust stats. exit now...\n");
+unset($func);
+Functions::finalize_dwca_resource($resource_id, false);
 // */
 
-Functions::finalize_dwca_resource($resource_id, false);
-
+require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
 if($undefined = $func->check_if_all_parents_have_entries($resource_id, true)) { //2nd param True means write to text file
     $arr['parents without entries'] = $undefined;
     print_r($arr);
 }
 else echo "\nAll parents have entries OK\n";
+
+recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH.$resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
