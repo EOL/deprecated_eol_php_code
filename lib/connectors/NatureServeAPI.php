@@ -5,8 +5,8 @@ class NatureServeAPI
 {
     // https://services.natureserve.org/idd/rest/ns/v1.1/globalSpecies/comprehensive?NSAccessKeyId=72ddf45a-c751-44c7-9bca-8db3b4513347&uid=ELEMENT_GLOBAL.2.104386
     const API_PREFIX = "https://services.natureserve.org/idd/rest/ns/v1.1/globalSpecies/comprehensive?NSAccessKeyId=72ddf45a-c751-44c7-9bca-8db3b4513347&uid=";
-    const SPECIES_LIST_URL = "https://tranxfer.natureserve.org/download/longterm/EOL/gname_uid_crosswalk.xml";
-    // const SPECIES_LIST_URL = "http://localhost/cp_new/NatureServe/gname_uid_crosswalk.xml";
+    // const SPECIES_LIST_URL = "https://tranxfer.natureserve.org/download/longterm/EOL/gname_uid_crosswalk.xml";
+    const SPECIES_LIST_URL = "http://localhost/cp_new/NatureServe/gname_uid_crosswalk.xml";
     const IMAGE_API_PREFIX = "https://services.natureserve.org/idd/rest/ns/v1/globalSpecies/images?uid=";
     
     public function __construct()
@@ -84,7 +84,7 @@ class NatureServeAPI
             // if($i % 500 == 0) print_r($this->archive_builder->file_columns);
             
             $i += $chunk_size;
-            if($i % 100 == 0)
+            if($i % 1000 == 0)
             {
                 $estimated_total_time = (((time_elapsed() - $start_time) / $i) * count($records));
                 echo "Time spent ($i records) ". time_elapsed() ."\n";
@@ -645,23 +645,33 @@ class NatureServeAPI
         $xml = simplexml_load_string($details_xml);
         foreach($xml->image as $image)
         {
+            // User Warning: Undefined property `mediaResourceID` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /Library/WebServer/Documents/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
+            // User Warning: Undefined property `mimeType` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /Library/WebServer/Documents/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
+            // User Warning: Undefined property `locality` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /Library/WebServer/Documents/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
+            // User Warning: Undefined property `additionalInformationURL` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /Library/WebServer/Documents/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
+            // User Warning: Undefined property `fileURL` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /Library/WebServer/Documents/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
+            // User Warning: Undefined property `rightsHolder` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /Library/WebServer/Documents/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
+            
             $dc = $image->children("http://purl.org/dc/terms/");
             if($dc->rights != 'Public Domain') continue;
+            
+            // print_r($dc); exit;
+            
             $mr = new \eol_schema\MediaResource();
             $mr->taxonID = $id;
-            $mr->mediaResourceID = $id . "_image_" . $image->id;
+            $mr->identifier = $id . "_image_" . $image->id; //mediaResourceID
             $mr->title = $dc->title;
             $mr->type = 'http://purl.org/dc/dcmitype/StillImage';
             $mr->language = 'en';
-            $mr->mimeType = @$mr->mimeType ?: $dc->format;
+            $mr->format = @$mr->mimeType ?: $dc->format; //mimeType
             $mr->description = trim($dc->description);
-            $mr->locality = $dc->coverage;
-            $mr->additionalInformationURL = $image->natureServeExplorerURI;
-            $mr->fileURL = $dc->identifier;
+            $mr->LocationCreated = $dc->coverage; //locality
+            $mr->furtherInformationURL = $image->natureServeExplorerURI; //additionalInformationURL
+            $mr->accessURI = $dc->identifier; //fileURL
             $mr->creator = $dc->creator;
-            $mr->rightsHolder = @$mr->rightsHolder ?: $dc->rightsHolder;
+            $mr->Owner = @$mr->rightsHolder ?: $dc->rightsHolder; //rightsHolder
             $mr->license = 'http://creativecommons.org/licenses/publicdomain/';
-            if($mr->rightsHolder == 'Public Domain') $mr->rightsHolder = '';
+            if($mr->Owner == 'Public Domain') $mr->Owner = '';
              
             if(@$dc->identifier && preg_match("/&RES=([0-9]+)X/", $dc->identifier, $arr))
             {
