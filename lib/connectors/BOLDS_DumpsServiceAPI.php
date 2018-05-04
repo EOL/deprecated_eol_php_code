@@ -254,6 +254,8 @@ class BOLDS_DumpsServiceAPI
         $tax_ids = array_keys($this->img_tax_ids);
         echo "\ntotal taxon IDs with img: ".count($tax_ids)."\n";
         foreach($tax_ids as $taxonID) {
+            $this->image_cap = array(); //initialize
+            
             $md5 = md5($taxonID);
             $cache1 = substr($md5, 0, 2);
             $cache2 = substr($md5, 2, 2);
@@ -261,6 +263,9 @@ class BOLDS_DumpsServiceAPI
             
             foreach(new FileIterator($file) as $line_number => $line) {
                 // echo "\n$line";
+                
+                if(@$this->image_cap[$taxonID] >= 10) continue;
+                
                 $image = json_decode($line, true);
                 // print_r($image); echo "\n-=-=-=-=-=-=\n";
                 
@@ -296,7 +301,9 @@ class BOLDS_DumpsServiceAPI
         $suggested_fields = explode("\t", "taxonID	scientificName	taxonRank	parentNameUsageID");
         if($undefined = $func->check_if_all_parents_have_entries($this->resource_id."", true, $url, $suggested_fields)) { //2nd param True means write to text file
             $arr['parents without entries during process'] = $undefined;
-            echo "\ntrials:[$trials]"; print_r($arr);
+            echo "\ntrials:[$trials]";
+            echo "\nparents without entries during process: ".count($undefined);
+            // print_r($arr);
             foreach($arr['parents without entries during process'] as $taxid) {
                 if(self::process_record($taxid)) {}
                 else {
@@ -761,6 +768,9 @@ class BOLDS_DumpsServiceAPI
         if(!isset($this->object_ids[$mr->identifier])) {
             $this->archive_builder->write_object_to_file($mr);
             $this->object_ids[$mr->identifier] = '';
+            
+            if(!isset($this->image_cap[$mr->taxonID])) $this->image_cap[$mr->taxonID] = 1;
+            else                                       $this->image_cap[$mr->taxonID]++;
         }
     }
     private function create_taxon_archive($a)

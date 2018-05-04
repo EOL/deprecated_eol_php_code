@@ -13,6 +13,7 @@ require_library('connectors/NatureServeAPI');
 @unlink(DOC_ROOT . "/temp/dwc_archive_test/reference.tab");
 rmdir(DOC_ROOT . "/temp/dwc_archive_test/");
 
+ini_set('memory_limit','7096M');
 $resource_id = 263;
 $naturserveAPI = new NatureServeAPI();
 $naturserveAPI->get_all_taxa();
