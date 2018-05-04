@@ -153,12 +153,13 @@ class COLDataAPI
             if($v->language == "omit vernacular record") return;
             $v->locality        = $a['locality'];
             $this->archive_builder->write_object_to_file($v);
+            
+            //for stats only
+            if($language = $a['language']) {
+                if(!@$this->languages[$language]) $this->debug['und lang'][$language] = '';
+            }
+            else $this->debug['blank lang'][$v->vernacularName] = '';
         }
-        //for stats only
-        if($language = $a['language']) {
-            if(!@$this->languages[$language]) $this->debug['und lang'][$language] = '';
-        }
-        else $this->debug['blank lang'][$v->vernacularName] = '';
     }
     private function process_description($a, $final)
     {   /*Array(

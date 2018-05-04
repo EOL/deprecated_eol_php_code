@@ -13,7 +13,7 @@ print_r($uris); exit;
 */
 
 // $GLOBALS['ENV_DEBUG'] = false;
-ini_set('memory_limit','7096M');
+ini_set('memory_limit','15096M');
 $timestart = time_elapsed();
 
 $resource_id = 'col';
