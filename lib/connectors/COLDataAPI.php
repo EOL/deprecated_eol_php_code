@@ -401,6 +401,7 @@ class COLDataAPI
         */
         $r = new \eol_schema\Reference();
         $r->full_reference = self::format_full_ref($a);
+        if(!$r->full_reference) return; //discovered there is a record with blank 'creator', 'date', 'title', 'description'.
         $r->identifier = md5($r->full_reference);
         // $r->uri = ''
         
@@ -423,6 +424,9 @@ class COLDataAPI
     }
     private function process_taxon($a)
     {
+        if(!@$a['taxonID']) return;
+        if(!@$a['scientificName']) return;
+        
         $this->taxon_info[$a['taxonID']]['url'] = $a['references'];
         $this->taxon_info[$a['taxonID']]['dsN'] = $a['datasetName'];
         
