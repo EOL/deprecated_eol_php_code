@@ -153,6 +153,7 @@ class ConvertEOLtoDWCaAPI
             if($this->resource_id == 346) {
                 if($rec['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') $rec['rating'] = 2;
                 if(@$rec['mimeType'] == "image/x-adobe-dng") continue; // remove_data_object_of_certain_element_value("mimeType", "image/x-adobe-dng", $xml);
+                if(@$rec['dataType'] == "http://purl.org/dc/dcmitype/Text") continue; //no text objects for resource 346
             }
             
             if($this->resource_id == 367) { //DC Birds Video - https://eol-jira.bibalex.org/browse/DATA-1721
