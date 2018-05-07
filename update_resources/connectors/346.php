@@ -8,7 +8,8 @@ Connector reads the XML provided by partner and
 
 346	Monday 2017-12-04 12:38:00 AM	{"agent.tab":106,"media_resource.tab":510761,"reference.tab":71767,"taxon.tab":109583} - Mac Mini
 346	Monday 2017-12-04 01:01:00 AM	{"agent.tab":96, "media_resource.tab":494622,"reference.tab":70199,"taxon.tab":107355} - eol-archive
-346	Sunday 2018-04-08 10:58:36 AM	{"agent.tab":106,"media_resource.tab":419057,"reference.tab":71767,"taxon.tab":109583} - Mac Mini
+346	Sunday 2018-04-08 11:17:19 AM	{"agent.tab":40,"media_resource.tab":36359,"reference.tab":1930,"taxon.tab":11966} eol-archive, no more text objects
+346	Monday 2018-05-07 03:10:22 AM	{"agent.tab":33,"media_resource.tab":35867,                     "taxon.tab":11869} eol-archive, no more references for text objects
 
 
 IMPORTANT: since 346 has a big resource (nmnh-botany-response.xml.gz) it can't be processed similarly like 120, 176, 341, 342, 343, 344.
