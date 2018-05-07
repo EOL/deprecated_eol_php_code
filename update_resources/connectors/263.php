@@ -58,7 +58,7 @@ $params["resource_id"]  = $resource_id;
 $func = new ConvertEOLtoDWCaAPI($resource_id);
 $func->export_xml_to_archive($params, true, 0); // false => means it is NOT an XML file, BUT an archive file OR a zip file. IMPORTANT: Expires now = 0.
 
-$deleteYN = false; //true means delete the DwCA folder in /resources/
+$deleteYN = true; //true means delete the DwCA folder in /resources/
 Functions::finalize_dwca_resource($resource_id, false, $deleteYN);
 
 function lookup_taxa($taxon, $parameters)

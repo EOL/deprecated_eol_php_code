@@ -631,7 +631,7 @@ class NatureServeAPI
             $mr->accessURI = $dc->identifier; //fileURL
             $mr->creator = $dc->creator;
             $mr->Owner = @$mr->rightsHolder ?: $dc->rightsHolder; //rightsHolder
-            $mr->license = 'http://creativecommons.org/licenses/publicdomain/';
+            $mr->UsageTerms = 'http://creativecommons.org/licenses/publicdomain/';
             if($mr->Owner == 'Public Domain') $mr->Owner = '';
              
             if(@$dc->identifier && preg_match("/&RES=([0-9]+)X/", $dc->identifier, $arr)) {
