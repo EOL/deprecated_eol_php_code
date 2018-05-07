@@ -45,7 +45,7 @@ $params["resource_id"]  = $resource_id;
 $func = new ConvertEOLtoDWCaAPI($resource_id);
 $func->export_xml_to_archive($params, $params['xmlYN'], 60*60*24*25); // true => means it is an XML file, not an archive file nor a zip file. IMPORTANT: Expires now = 0. Currently expires after 25 days
 
-$deleteYN = false; //can't afford to delete NMNH departmental folders bec. we need it in processing media extension from type speciemen resource 891.
+$deleteYN = true; //before was false, coz we can't afford to delete NMNH departmental folders bec. we need it in processing media extension from type speciemen resource 891.
 Functions::finalize_dwca_resource($resource_id, false, $deleteYN);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
