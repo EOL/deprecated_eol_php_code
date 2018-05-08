@@ -107,6 +107,8 @@ vendor/eol_content_schema_v2/extension_cache/*
 vendor/google_api/config.php
 vendor/geoPHP/
 applications/genHigherClass/sample/
+applications/genHigherClass_jenkins/temp
+
 .DS_Store
 
 rake_tasks/e
