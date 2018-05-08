@@ -108,6 +108,7 @@ vendor/google_api/config.php
 vendor/geoPHP/
 applications/genHigherClass/sample/
 applications/genHigherClass_jenkins/temp/
+applications/genHigherClass_jenkins/temp
 
 .DS_Store
 
