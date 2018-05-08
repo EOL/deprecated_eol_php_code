@@ -117,6 +117,7 @@ class DiscoverLifeAPIv2
 
     function with_eol_page($name)
     {
+        /* orig - working OK I suppose... but uses the database. Will use the API below instead.
         $taxon = array();
         $sql = "SELECT DISTINCT(tcn.taxon_concept_id) FROM canonical_forms cf 
         JOIN names n ON (cf.id=n.canonical_form_id) 
@@ -124,10 +125,8 @@ class DiscoverLifeAPIv2
         JOIN taxon_concepts tc ON (tcn.taxon_concept_id=tc.id) 
         LEFT JOIN taxon_concept_metrics tcm ON (tc.id=tcm.taxon_concept_id)
         WHERE cf.string='$name' AND tc.published=1 ORDER BY tcm.richness_score DESC";
-        
         $result = $GLOBALS['db_connection']->select($sql);
-        if($result && $row=$result->fetch_assoc())
-        {
+        if($result && $row=$result->fetch_assoc()) {
             $taxon_concept_id = $row['taxon_concept_id'];
             $taxon = array( 'orig_sciname' => $name,
                             'tc_id' => $taxon_concept_id,
@@ -135,6 +134,21 @@ class DiscoverLifeAPIv2
                             'call_back' => 'taxon_concept_id'
                 );
         } 
+        return $taxon;
+        */
+
+        $taxon = array();
+        $this->eol_api["search"] = "http://eol.org/api/search/1.0.json?page=1&exact=true&filter_by_taxon_concept_id=&filter_by_hierarchy_entry_id=&filter_by_string=&cache_ttl=&q=";
+        $this->download_options = array('resource_id' => "eol_api", 'expire_seconds' => false, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1);
+        if($json = Functions::lookup_with_cache($this->eol_api["search"].$name, $this->download_options)) {
+            $arr = json_decode($json, true);
+            if($arr['totalResults'] >= 1) {
+                $taxon = array( 'orig_sciname'  => $name,
+                                'tc_id'         => $arr['results'][0]['id'],
+                                'map'           => 1,
+                                'call_back'     => 'taxon_concept_id');
+            }
+        }
         return $taxon;
     }
 

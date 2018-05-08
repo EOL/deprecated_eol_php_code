@@ -14,9 +14,11 @@ class DiscoverLife_KeysAPI
     const API_URL           = "http://eol.org/api/search/";
     const TEXT_FILE_FOR_DL  = "/update_resources/connectors/files/DiscoverLife/names_without_pages_in_eol"; //report back to DiscoverLife
     const TEMP_FILE_PATH    = "/update_resources/connectors/files/DiscoverLife/";
-
-    // const ID_KEYS_FILE = "http://localhost/cp/DiscoverLife/ID keys spreadsheet 30March2011_small.txt";
-    const ID_KEYS_FILE = "http://opendata.eol.org/dataset/d029964c-6948-4d4c-8f59-a8d3142cbdff/resource/92bdf53e-701a-4db9-a671-32ca7547b456/download/id-keys-spreadsheet-30march2011.txt";
+    /*
+    const ID_KEYS_FILE = "http://localhost/cp_new/DiscoverLife/ID keys spreadsheet 30March2011_small.txt"; //working OK
+    const ID_KEYS_FILE = "http://localhost/cp_new/DiscoverLife/ID keys spreadsheet 30March2011.txt"; //improper text file, \n is somewhat corrupted. Thus will use .xlsx instead.
+    */
+    const ID_KEYS_FILE_xlsx = "http://localhost/cp_new/DiscoverLife/ID keys spreadsheet 30March2011.xlsx";
 
     public function get_all_taxa_keys($resource_id)
     {
@@ -38,15 +40,14 @@ class DiscoverLife_KeysAPI
             //filter names. Process only those who already have a page in EOL. Report back to DiscoverLife names not found in EOL
             if(!$taxon = $func->with_eol_page($name))
             {
-                print "\n $i - no EOL page ($name)";
+                // print "\n $i - no EOL page ($name)"; //good debug
                 $no_eol_page++;
                 self::store_name_to_text_file($name, "ID_Keys");
                 continue;
             }
             $taxon["keys"] = array();
             foreach($fields as $field) $taxon["keys"][] = $field;
-            print "\n $i -- " . $taxon['orig_sciname'];
-
+            if(($i % 1000) == 0) echo "\n $i -- " . $taxon['orig_sciname'];
             //================================
             $arr = self::get_discoverlife_taxa($taxon, $used_collection_ids);
             $page_taxa              = $arr[0];
@@ -57,11 +58,7 @@ class DiscoverLife_KeysAPI
 
         $xml = \SchemaDocument::get_taxon_xml($all_taxa);
         $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-        if(!($OUT = fopen($resource_path, "w")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $resource_path);
-          return;
-        }
+        if(!($OUT = Functions::file_open($resource_path, "w"))) return;
         fwrite($OUT, $xml);
         fclose($OUT);
                 
@@ -71,11 +68,11 @@ class DiscoverLife_KeysAPI
 
     private function process_keys_spreadsheet()
     {
+        /* orig - but for some reason the text file is not being read properly. Will read from the .xlsx instead
         $taxa_objects = array();
         $filename = Functions::save_remote_file_to_local(self::ID_KEYS_FILE, array('timeout' => 4800, 'download_attempts' => 5));
         print "\n[$filename]\n";
-        foreach(new FileIterator($filename, true) as $line_number => $line) // 'true' will auto delete temp_filepath
-        {
+        foreach(new FileIterator($filename, true) as $line_number => $line) { // 'true' will auto delete temp_filepath 
             $line = trim($line);
             $fields = explode("\t", $line);
             $name = trim($fields[0]);
@@ -84,11 +81,47 @@ class DiscoverLife_KeysAPI
             if($id_key2 = trim(@$fields[2])) $taxa_objects[$name][] = $id_key2;
             if($id_key3 = trim(@$fields[3])) $taxa_objects[$name][] = $id_key3;
         }
-        if(count($taxa_objects) <= 1)
-        {
+        if(count($taxa_objects) <= 1) {
             echo "\n\nInvalid text file. Program will terminate.\n";
             return;
         }
+        return $taxa_objects;
+        */
+
+        $taxa_objects = array();
+        if($local_xls = Functions::save_remote_file_to_local(self::ID_KEYS_FILE_xlsx, array('cache' => 1, 'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'file_extension' => 'xlsx', 'expire_seconds' => false)))
+        {
+            require_library('XLSParser');
+            $parser = new XLSParser();
+            debug("\n reading: " . $local_xls . "\n");
+            $temp = $parser->convert_sheet_to_array($local_xls);
+            print_r(array_keys($temp));
+            /*  [0] => SPECIES
+                [1] => ID KEY 1
+                [2] => ID KEY 2
+                [3] => ID KEY 3
+            )*/
+            $i = -1; $m = 6728/6;
+            foreach($temp['SPECIES'] as $name) {
+                $i++;
+                
+                /* breakdown when caching:
+                $cont = false;
+                // if($i >=  1    && $i < $m) $cont = true;
+                // if($i >=  $m   && $i < $m*2) $cont = true;
+                // if($i >=  $m*2 && $i < $m*3) $cont = true;
+                // if($i >=  $m*3 && $i < $m*4) $cont = true;
+                // if($i >=  $m*4 && $i < $m*5) $cont = true;
+                if($i >=  $m*5 && $i < $m*6) $cont = true;
+                if(!$cont) continue;
+                */
+                
+                if($id_key1 = trim(@$temp['ID KEY 1'][$i])) $taxa_objects[$name][] = $id_key1;
+                if($id_key2 = trim(@$temp['ID KEY 2'][$i])) $taxa_objects[$name][] = $id_key2;
+                if($id_key3 = trim(@$temp['ID KEY 3'][$i])) $taxa_objects[$name][] = $id_key3;
+            }
+        }
+        unlink($local_xls);
         return $taxa_objects;
     }
 
