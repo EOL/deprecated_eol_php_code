@@ -6,6 +6,9 @@ estimated execution time: 4.27 hours
 Note: 
 - before updating the broken connector for EOL V3, we used http://services.eol.org/resources/252.xml (converted to DwCA) as temporary resource.
 - now connector is revived, available for V3.
+
+252	Tuesday 2018-05-08 10:29:38 AM	{"agent.tab":1,"media_resource.tab":6231,"taxon.tab":6231} - MacMini
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
