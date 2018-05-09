@@ -152,18 +152,22 @@ class NaturalHistoryServicesAPI
     {
         require_library('XLSParser');
         $parser = new XLSParser();
-        $arr = $parser->convert_sheet_to_array(DOC_ROOT . "update_resources/connectors/files/NaturalHistoryServices/Acknowledgments.xls");
+
+        // $spreadsheet = "http://localhost/cp_new/NaturalHistoryServices/Acknowledgments.xls";
+        $spreadsheet = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/NaturalHistoryServices/Acknowledgments.xls";
+        $temp = Functions::save_remote_file_to_local($spreadsheet, array('cache' => 1, 'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'file_extension' => 'xls', 'expire_seconds' => false));
+        $arr = $parser->convert_sheet_to_array($temp);
+        
         $acknowledgement = array();
         $k = 0;
-        foreach($arr["sciname"] as $sciname)
-        {            
+        foreach($arr["sciname"] as $sciname) {
             $sci = trim(str_ireplace(".mp4", "", $sciname));
-            for ($i = 1; $i <= 3; $i++)
-            {
+            for ($i = 1; $i <= 3; $i++) {
                 if(@$arr["person" . $i][$k])$acknowledgement[$sci][] = @$arr["person" . $i][$k];
             }
             $k++;
         }
+        unlink($temp);
         return $acknowledgement;
     }
 
