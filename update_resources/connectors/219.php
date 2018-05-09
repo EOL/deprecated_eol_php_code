@@ -5,6 +5,9 @@ estimated execution time: 10 mins
 Connector accesses the OWL (XML) files from remote server for most of the data and uses a spreadsheet for taxonomy info.
 */
 
+echo "\nService no longer supported. See https://eol-jira.bibalex.org/browse/TRAM-719 \n";
+return;
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/SpireAPI');
 $timestart = time_elapsed();
