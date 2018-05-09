@@ -146,7 +146,11 @@ class CollectionsScrapeAPI
         if(!is_dir($this->lifedesk_images_path.$folder)) mkdir($this->lifedesk_images_path.$folder);
 
         $destination = $this->lifedesk_images_path.$folder.$filename;
-
+        
+        /* only when developing
+        return $this->media_path.$folder.$filename; //this is media_url for the data_object;
+        */
+        
         // /* uncomment in real operation. This is just to stop downloading of images.
         if(!file_exists($destination)) {
             $local = Functions::save_remote_file_to_local($url, $options);
