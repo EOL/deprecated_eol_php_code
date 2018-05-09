@@ -62,8 +62,12 @@ $info['191'] = array('id' => 297, 'data_types' => array('images'), 'xml_path' =>
 //start new items above -------------------------------------------------------------- 03 reported Wed Feb 21
 //has static xml, offline image and videos, has collection
 $info['106'] = array('id' => 236, 'data_types' => array('video'), 'xml_path' => 'http://services.eol.org/resources/106.xml', 'prefix' => "EOL_"); //The Biodiversity of Tamborine Mountain: images & videos
-//static xml, offline media, has collection
+
+// /* moved to collections_generic.php
+//static xml, offline media, has collection -- http://services.eol.org/resources/145.xml
 $info['145'] = array('id' => 264, 'data_types' => array('video'), 'xml_path' => 'http://services.eol.org/resources/145.xml', 'prefix' => "EOL_"); //Natural History Services Resource
+// */
+
 //has edited lifedesk xml, offline media, has collection
 $info['avesamericanas'] = array('id' => 12040, 'data_types' => array('images'), 'xml_path' => 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/LD2Scratchpad_EOL/avesamericanas/eol-partnership.xml.gz', 'prefix' => "EOL_");
 $info['378'] = array('id' => 31582, 'data_types' => array('images'), 'xml_path' => 'http://services.eol.org/resources/378.xml', 'prefix' => "EOL_"); //Sailinsteve

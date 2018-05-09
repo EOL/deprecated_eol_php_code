@@ -356,7 +356,7 @@ class DwCA_Utility
                     }
                 }
                 
-                // /* used for resource 145 in lifedesk_combine.php --- taxonID in taxa extension cannot be blank
+                /* used for resource 145 in lifedesk_combine.php --- taxonID in taxa extension cannot be blank
                 if(stripos($this->resource_id, "145") !== false) { //string is found
                     if($class == "taxon") {
                         if($field == "taxonID" && !@$rec[$key]) { //meaning taxonID is blank or null, then compute for taxonID
@@ -367,7 +367,7 @@ class DwCA_Utility
                         }
                     }
                 }
-                // */
+                */
                 
                 
                 /* Need to have unique agent ids. It is confined to a pre-defined list of resources bec. it is memory intensive and most resources have already unique ref ids.
