@@ -264,6 +264,9 @@ class CollectionsScrapeAPI
         //   ================================================ FOR TAXON  ================================================
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = $o['identifier'];
+        
+        if(!$taxon->taxonID) $taxon->taxonID = str_replace(" ", "_", $o['scientificName']); //needed for one taxon (Carterocephalus palaemon) in resource 145.
+        
         /* Used md5(sciname) here so we can combine taxon.tab with LifeDesk text resource (e.g. LD_afrotropicalbirds.tar.gz). See ConvertEOLtoDWCaAPI.php */
         $taxon->scientificName  = $o['scientificName'];
         
