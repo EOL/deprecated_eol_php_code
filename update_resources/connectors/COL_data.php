@@ -3,6 +3,9 @@ namespace php_active_record;
 /* https://eol-jira.bibalex.org/browse/DATA-1744
 Connector for Catalogue of Life hierarchy, data, descriptions
 estimated execution time:
+
+col	Thursday 2018-05-10 09:34:05 AM	{"measurement_or_fact.tab":3961387,"media_resource.tab":1150989,"occurrence.tab":2982057,"reference.tab":579322,"taxon.tab":3765285,"vernacular_name.tab":429242}
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -21,7 +24,7 @@ require_library('connectors/COLDataAPI');
 $func = new COLDataAPI($resource_id);
 $func->convert_archive();
 unset($func);
-Functions::finalize_dwca_resource($resource_id, false, true);
+Functions::finalize_dwca_resource($resource_id, true, true); //2nd param true means a big big file
 
 /*
 $func = new DWCADiagnoseAPI();
