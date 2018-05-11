@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [COL_trait_text.php]
+/* connector: [COL_data.php]
 */
 class COLDataAPI
 {
@@ -25,6 +25,9 @@ class COLDataAPI
     }
     function convert_archive()
     {
+        $file = CONTENT_RESOURCE_LOCAL_PATH . "col_debug.txt";
+        if(file_exists($file)) unlink($file);
+        
         if(!($info = self::prepare_dwca())) return;
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
@@ -48,7 +51,10 @@ class COLDataAPI
         unset($this->occurrence_ids);
         unset($this->measurement_ids);
         
-        $this->uris = Functions::get_eol_defined_uris(false, true);
+        $this->uris = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        echo "\nTotal registry URIs: ".count($this->uris);
+        self::add_additional_mappings(); //add more mappings specific only to this resource
+        echo "\nTotal registry URIs (added URIs specific for this resource - values not exact string match with registry values)".count($this->uris)."\n";
         self::process_file($items[$this->extensions['distribution']], 'distribution'); //measurements
         unset($this->uris); //release memory
 
@@ -158,7 +164,7 @@ class COLDataAPI
             if($language = $a['language']) {
                 if(!@$this->languages[$language]) $this->debug['und lang'][$language] = '';
             }
-            else $this->debug['blank lang'][$v->vernacularName] = '';
+            // else $this->debug['blank lang'][$v->vernacularName] = ''; No need to monitor this since partner didn't actually put any language values for these comnames
         }
     }
     private function process_description($a, $final)
@@ -620,6 +626,25 @@ class COLDataAPI
         //start massage array
         foreach($arr as $item) $final[$item[0]] = $item[1];
         return $final;
+    }
+    private function add_additional_mappings()
+    {
+        $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/CatalogueOfLife/CoLMissingGeoTerms.txt";
+        $options = $this->download_options;
+        $options['cache'] = 1;
+        $options['expire_seconds'] = 60*60*24;
+        $local = Functions::save_remote_file_to_local($url, $options);
+        $handle = fopen($local, "r");
+        if ($handle) {
+            while (($line = fgets($handle)) !== false) {
+                $line = str_replace("\n", "", $line);
+                $a = explode("\t", $line); $a = array_map('trim', $a);
+                $this->uris[$a[1]] = $a[0];
+            }
+            fclose($handle);
+        } 
+        else echo "\nCannot read!\n";
+        unlink($local);
     }
     private function start_print_debug()
     {
