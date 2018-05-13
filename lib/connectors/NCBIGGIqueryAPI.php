@@ -31,7 +31,7 @@ class NCBIGGIqueryAPI
             $this->occurrence_ids = array();
             $this->measurement_ids = array();
         }
-        $this->download_options = array('resource_id' => 723, 'expire_seconds' => 60*60*24*30*9, 'download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1); //9 months to expire
+        $this->download_options = array('resource_id' => 723, 'expire_seconds' => 60*60*24*30*3, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1); //3 months to expire
         // $this->download_options['expire_seconds'] = false; //debug - false -> wont expire; 0 -> expires now
 
         /* obsolete, no longer used
@@ -124,7 +124,7 @@ class NCBIGGIqueryAPI
             */
 
             // /* working, a round-robin option of server load - per 100 calls each server
-            $k = 0; $m = 9646/5;
+            $k = 0; $m = 9646/6;
             $calls = 10; //orig is 100
             for ($i = $k; $i <= count($families)+$calls; $i=$i+$calls) { //orig value of i is 0
                 echo "\n[$i] - ";
@@ -134,7 +134,8 @@ class NCBIGGIqueryAPI
                 // if($i >= $m   && $i < $m*2)  $cont = true;
                 // if($i >= $m*2 && $i < $m*3)  $cont = true;
                 // if($i >= $m*3 && $i < $m*4)  $cont = true;
-                if($i >= $m*4 && $i < $m*5)  $cont = true;
+                // if($i >= $m*4 && $i < $m*5)  $cont = true;
+                // if($i >= $m*5 && $i < $m*6)  $cont = true;
                 if(!$cont) continue;
                 */
                 
@@ -481,7 +482,7 @@ class NCBIGGIqueryAPI
                                 echo "\n bolds id: " . $arr[1] . "\n";
                                 if($json = Functions::lookup_with_cache($this->bolds["TaxonData"] . $arr[1], $this->download_options_BOLDS)) {
                                     if($arr = json_decode($json)) {
-                                        $canonical = trim($arr->taxon);
+                                        $canonical = trim(@$arr->taxon);
                                         echo "\n Got from bolds.org: [" . $canonical . "]\n";
                                     }
                                 }
