@@ -6,6 +6,7 @@ estimated execution time: ~3 days
 
 723	Wednesday 2018-03-28 10:17:55 PM	{"measurement_or_fact.tab":116434,"occurrence.tab":116434,"taxon.tab":9913} - MacMini
 723	Wednesday 2018-03-28 10:54:54 PM	{"measurement_or_fact.tab":116434,"occurrence.tab":116434,"taxon.tab":9913}
+723	Sunday 2018-05-13 03:44:33 PM	    {"measurement_or_fact.tab":116456,"occurrence.tab":116360,"taxon.tab":9917}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/NCBIGGIqueryAPI');
@@ -14,7 +15,7 @@ $resource_id = 723;
 $func = new NCBIGGIqueryAPI($resource_id);
 
 $func->get_all_taxa();
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, true); //false here means not a big file, true means delete working folder.
 
 /* not yet implemented
 sleep(60);
