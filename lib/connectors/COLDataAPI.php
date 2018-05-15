@@ -75,9 +75,9 @@ class COLDataAPI
         */
         
         // /* v2
-        $id_list = self::process_file($items[$this->extensions['description']], 'description_v2'); //media
-        self::create_media_archive_v2($id_list);
-        unset($id_list); //release memory
+        self::process_file($items[$this->extensions['description']], 'description_v2'); //media
+        self::create_media_archive_v2();
+        unset($this->id_list); //release memory
         $temp_path = CONTENT_RESOURCE_LOCAL_PATH . "COL_temp/";
         if(is_dir($temp_path)) recursive_rmdir($temp_path);
         // */
@@ -102,7 +102,7 @@ class COLDataAPI
             $temp_path = CONTENT_RESOURCE_LOCAL_PATH . "COL_temp/";
             if(is_dir($temp_path)) recursive_rmdir($temp_path);
             mkdir($temp_path);
-            $id_list = array();
+            $this->id_list = array();
         }
         
         $i = 0; echo "\nProcessing $extension...\n";
@@ -127,7 +127,7 @@ class COLDataAPI
                 }
                 elseif($extension == "distribution")    self::process_distribution($rec);
                 elseif($extension == "description")     $taxa_desc_list = self::process_description($rec, $taxa_desc_list);
-                elseif($extension == "description_v2")  $id_list = self::process_description_v2($rec, $temp_path, $id_list);
+                elseif($extension == "description_v2")  self::process_description_v2($rec, $temp_path);
                 elseif($extension == "reference")       self::process_reference($rec);
                 elseif($extension == "speciesprofile")  self::process_speciesprofile($rec);
                 elseif($extension == "vernacular")      self::process_vernacular($rec);
@@ -136,7 +136,7 @@ class COLDataAPI
         }
         echo "\ntotal records $extension: $i\n";
         if($extension == "description") return $taxa_desc_list;
-        if($extension == "description_v2") return $id_list;
+        // if($extension == "description_v2") return $id_list; --- obsolete
     }
     private function process_vernacular($a)
     {   /*
@@ -175,7 +175,7 @@ class COLDataAPI
         if($val = $a['description']) $final[$a['taxonID']][$val] = '';
         return $final;
     }
-    private function process_description_v2($a, $temp_path, $id_list)
+    private function process_description_v2($a, $temp_path)
     {
         if($taxonID = $a['taxonID']) {
             /* ver.1
@@ -197,15 +197,13 @@ class COLDataAPI
             $WRITE = Functions::file_open($file, "a");
             fwrite($WRITE, $a['description']."\n");
             fclose($WRITE);
-            $id_list[$taxonID] = '';
+            $this->id_list[$taxonID] = '';
         }
-        return $id_list;
-        
     }
-    private function create_media_archive_v2($id_list)
+    private function create_media_archive_v2()
     {
         $temp_path = CONTENT_RESOURCE_LOCAL_PATH . "COL_temp/";
-        foreach(array_keys($id_list) as $taxonID) {
+        foreach(array_keys($this->id_list) as $taxonID) {
             /* ver.1
             $folder = substr($taxonID, -2);
             $curr_folder = $temp_path.$folder;
