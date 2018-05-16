@@ -114,7 +114,11 @@ class NCBIGGIqueryAPI
         $families = self::get_families(); use to read a plain text file
         $families = self::get_families_with_missing_data_xlsx(); - utility
         */
-        if($families = self::get_families_xlsx()) {
+
+        $families = self::get_families_xlsx(); //normal operation for resource 723
+        /* $families = self::get_families_from_JonCoddington(); //working OK... for Jonathan Coddington - from email May 15-16, 2018 */
+
+        if($families)
             /* working but not round-robin, rather each database is processed one after the other.
             foreach($this->ggi_databases as $database) {
                 self::create_instances_from_taxon_object($families, false, $database);
@@ -124,7 +128,7 @@ class NCBIGGIqueryAPI
             */
 
             // /* working, a round-robin option of server load - per 100 calls each server
-            $k = 0; $m = 9646/6;
+            $k = 0; $m = count($families)/6; // before 9646/6
             $calls = 10; //orig is 100
             for ($i = $k; $i <= count($families)+$calls; $i=$i+$calls) { //orig value of i is 0
                 echo "\n[$i] - ";
@@ -135,7 +139,7 @@ class NCBIGGIqueryAPI
                 // if($i >= $m*2 && $i < $m*3)  $cont = true;
                 // if($i >= $m*3 && $i < $m*4)  $cont = true;
                 // if($i >= $m*4 && $i < $m*5)  $cont = true;
-                // if($i >= $m*5 && $i < $m*6)  $cont = true;
+                if($i >= $m*5 && $i < $m*6)  $cont = true;
                 if(!$cont) continue;
                 */
                 
@@ -898,6 +902,23 @@ class NCBIGGIqueryAPI
         */
     }
 
+    private function get_families_from_JonCoddington()
+    {
+        require_library('XLSParser');
+        $parser = new XLSParser();
+        $families = array();
+        $excel = "http://localhost/cp/GGI/FamNamesForEli.xlsx";
+        echo "\n processing [$excel]...\n";
+        if($path = Functions::save_remote_file_to_local($excel, array("timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2, 'cache' => 1))) {
+            $arr = $parser->convert_sheet_to_array($path);
+            foreach($arr['Name'] as $family) {
+                if($family) $families[$family] = '';
+            }
+            unlink($path);
+        }
+        else echo "\n [$excel] unavailable! \n";
+        return array_keys($families);
+    }
     private function get_families_xlsx()
     {
         require_library('XLSParser');
