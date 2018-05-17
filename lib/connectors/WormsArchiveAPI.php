@@ -36,7 +36,6 @@ class WormsArchiveAPI
         $this->object_ids = array();
         // $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";                            //local - when developing only
         // $this->dwca_file = "http://localhost/cp/WORMS/Archive.zip";                              //local subset copy
-        // $this->dwca_file = "https://dl.dropboxusercontent.com/u/7597512/WORMS/WoRMS2EoL.zip";    //dropbox copy
         $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";              //WORMS online copy
         $this->occurrence_ids = array();
         $this->taxon_page = "http://www.marinespecies.org/aphia.php?p=taxdetails&id=";
@@ -50,6 +49,9 @@ class WormsArchiveAPI
         $this->debug = array();
         
         $this->gnsparser = "http://parser.globalnames.org/api?q=";
+        $this->smasher_download_options = array(
+            'cache_path'         => '/Volumes/AKiTiO4/eol_cache_smasher/',
+            'download_wait_time' => 500000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
     }
 
     private function get_valid_parent_id($id)
@@ -199,7 +201,7 @@ class WormsArchiveAPI
     {
         $this->synonyms_without_children = self::get_synonyms_without_children(); //used so script will no longer lookup if this syn is known to have no children.
         //=====================================
-        // /* commented when building up the file 26_children_of_synonyms.txt. 6 connectors running during build-up
+        // /* commented when building up the file 26_children_of_synonyms.txt. 6 connectors running during build-up ----- COMMENT DURING BUILD-UP WITH 6 CONNECTORS, BUT UN-COMMENT IN REAL OPERATION ----- 
         $filename = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_children_of_synonyms.txt";
         if(file_exists($filename))
         {
@@ -249,7 +251,7 @@ class WormsArchiveAPI
         }
         fclose($WRITE);
 
-        // /* //to make unique rows -> call the same function -> uncomment in real operation
+        // /* //to make unique rows -> call the same function -> uncomment in real operation --- COMMENT DURING BUILD-UP WITH 6 CONNECTORS, BUT UN-COMMENT IN REAL OPERATION
         $AphiaIDs = self::get_all_children_of_synonyms();
         //save to text file
         $WRITE = fopen($filename, "w"); //will overwrite existing
@@ -408,7 +410,7 @@ class WormsArchiveAPI
         if(in_array($taxon_id, $this->synonyms_without_children)) return array();
         $final = array();
         $options = $this->download_options;
-        $options['download_wait_time'] = 1000000; //500000 -> half a second; 1 million is 1 second
+        $options['download_wait_time'] = 500000; //500000 -> half a second; 1 million is 1 second
         $options['delay_in_minutes'] = 0;
         $options['download_attempts'] = 1;
 
@@ -456,7 +458,7 @@ class WormsArchiveAPI
             $txt = file_get_contents($filename);
             $AphiaIDs = explode("\n", $txt);
             $AphiaIDs = array_filter($AphiaIDs);
-            // print_r($AphiaIDs); exit("\n 222 \n");
+            $AphiaIDs = array_unique($AphiaIDs);
             return $AphiaIDs;
         }
         return array();
@@ -574,7 +576,7 @@ class WormsArchiveAPI
                 $this->taxon_ids[$taxon->taxonID] = '';
                 $this->archive_builder->write_object_to_file($taxon);
                 
-                Functions::lookup_with_cache($this->gnsparser.self::format_sciname($taxon->scientificName));
+                Functions::lookup_with_cache($this->gnsparser.self::format_sciname($taxon->scientificName), $this->smasher_download_options);
             }
 
             /* not used:
@@ -1154,6 +1156,23 @@ class WormsArchiveAPI
         }
         return $parent_id;
     }
+    private function trim_text_files()
+    {
+        $files = array("_synonyms_without_children.txt", "_children_of_synonyms.txt");
+        foreach($files as $file) {
+            $filename = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . $file;
+            if(file_exists($filename)) {
+                $txt = file_get_contents($filename);
+                $AphiaIDs = explode("\n", $txt);
+                $AphiaIDs = array_filter($AphiaIDs);
+                $AphiaIDs = array_unique($AphiaIDs);
+                
+                
+            }
+        }
+    }
+    
+    
     // */
     // ===================================================================================
     // END dynamic hierarchy ===========================================================
