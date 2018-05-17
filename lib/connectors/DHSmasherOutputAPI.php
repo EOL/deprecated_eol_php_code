@@ -28,6 +28,7 @@ class DHSmasherOutputAPI
         */
 
         //WORMS services
+        $this->AphiaRecordByAphiaID_download_options = array('download_wait_time' => 1000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 26, 'expire_seconds' = false);
         $this->webservice['AphiaRecordByAphiaID'] = "http://www.marinespecies.org/rest/AphiaRecordByAphiaID/";
         
         //services
@@ -1074,7 +1075,7 @@ class DHSmasherOutputAPI
         [acceptedNameUsageID] => urn:lsid:marinespecies.org:taxname:769244
         */
         $f = array();
-        if($json = Functions::lookup_with_cache($this->webservice['AphiaRecordByAphiaID'].$AphiaID, $this->download_options)) {
+        if($json = Functions::lookup_with_cache($this->webservice['AphiaRecordByAphiaID'].$AphiaID, $this->AphiaRecordByAphiaID_download_options)) {
             $w = json_decode($json, true);
             print_r($w);
 
