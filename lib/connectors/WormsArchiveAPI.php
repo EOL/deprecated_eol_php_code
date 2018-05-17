@@ -575,8 +575,7 @@ class WormsArchiveAPI
             {
                 $this->taxon_ids[$taxon->taxonID] = '';
                 $this->archive_builder->write_object_to_file($taxon);
-                
-                Functions::lookup_with_cache($this->gnsparser.self::format_sciname($taxon->scientificName), $this->smasher_download_options);
+                // Functions::lookup_with_cache($this->gnsparser.self::format_sciname($taxon->scientificName), $this->smasher_download_options);
             }
 
             /* not used:
@@ -1156,7 +1155,7 @@ class WormsArchiveAPI
         }
         return $parent_id;
     }
-    private function trim_text_files()
+    public function trim_text_files() //a utility to make the text files ID entries unique. Advised to run this utility once the 6 connectors finished during build-up
     {
         $files = array("_synonyms_without_children.txt", "_children_of_synonyms.txt");
         foreach($files as $file) {
@@ -1166,13 +1165,13 @@ class WormsArchiveAPI
                 $AphiaIDs = explode("\n", $txt);
                 $AphiaIDs = array_filter($AphiaIDs);
                 $AphiaIDs = array_unique($AphiaIDs);
-                
-                
+                //write to file - overwrite, now with unique IDs
+                $fn = Functions::file_open($filename, "w");
+                fwrite($fn, implode("\n", $AphiaIDs));
+                fclose($fn);
             }
         }
     }
-    
-    
     // */
     // ===================================================================================
     // END dynamic hierarchy ===========================================================
