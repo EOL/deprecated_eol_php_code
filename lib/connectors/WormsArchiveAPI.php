@@ -45,9 +45,11 @@ class WormsArchiveAPI
         $this->webservice['AphiaRecordByAphiaID']         = "http://www.marinespecies.org/rest/AphiaRecordByAphiaID/";
         $this->webservice['AphiaChildrenByAphiaID']       = "http://www.marinespecies.org/rest/AphiaChildrenByAphiaID/";
         
-        $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 26);
+        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 26);
         $this->download_options["expire_seconds"] = false; //debug - false means it will use cache
         $this->debug = array();
+        
+        $this->gnsparser = "http://parser.globalnames.org/api?q=";
     }
 
     private function get_valid_parent_id($id)
@@ -71,7 +73,6 @@ class WormsArchiveAPI
                 *Cristellaria foliata Stache, 1864 (worms#903431)
                 *Cristellaria vestuta d'Orbigny, 1850 (worms#924530)
                 *Cristellaria obtusa (worms#925572)
-        
                 *Corbiculina Dall, 1903 (worms#818186)
                 *Cyrenobatissa Suzuki & Oyama, 1943 (worms#818201)            
         */
@@ -216,7 +217,7 @@ class WormsArchiveAPI
         
         $AphiaIDs = array();
         $i = 0; //for debug
-        $k = 0; $m = 100000; //only for breakdown when caching
+        $k = 0; $m = count($records)/6; //100000; //only for breakdown when caching
         foreach($records as $rec)
         {
             $k++; echo " ".number_format($k)." ";
@@ -226,7 +227,7 @@ class WormsArchiveAPI
             // if($k >=  $m   && $k < $m*2) $cont = true;   //100,000 - 200,000
             // if($k >=  $m*2 && $k < $m*3) $cont = true;   //200,000 - 300,000
             // if($k >=  $m*3 && $k < $m*4) $cont = true;   //300,000 - 400,000
-            // if($k >=  $m*4 && $k < $m*6) $cont = true;   //400,000 - 500,000
+            // if($k >=  $m*4 && $k < $m*5) $cont = true;   //400,000 - 500,000
             // if($k >=  $m*5 && $k < $m*6) $cont = true;   //500,000 - 600,000
             if(!$cont) continue;
             */
@@ -572,6 +573,8 @@ class WormsArchiveAPI
             {
                 $this->taxon_ids[$taxon->taxonID] = '';
                 $this->archive_builder->write_object_to_file($taxon);
+                
+                Functions::lookup_with_cache($this->gnsparser.self::format_sciname($taxon->scientificName));
             }
 
             /* not used:
@@ -580,7 +583,12 @@ class WormsArchiveAPI
             */
         }
     }
-
+    private function format_sciname($str)
+    {   //http://parser.globalnames.org/doc/api
+        $str = str_replace("&", "%26", $str);
+        $str = str_replace(" ", "+", $str);
+        return $str;
+    }
     private function if_accepted_taxon($taxon_id)
     {
         if($status = @$this->taxa_rank[$taxon_id]['s'])

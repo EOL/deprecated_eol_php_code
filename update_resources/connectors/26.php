@@ -45,20 +45,24 @@ Historical:
 exec time: ~30 minutes
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+
+/* e.g. php 26.php jenkins taxonomy */
+$cmdline_params['jenkins_or_cron']  = @$argv[1]; //irrelevant here
+$cmdline_params['what']             = @$argv[2]; //useful here
+
 require_library('connectors/WormsArchiveAPI');
 $timestart = time_elapsed();
 ini_set('memory_limit','7096M'); //required
 
-$resource_id = 26;
-// $resource_id = "26_taxonomy";
+if($cmdline_params['what'] == "taxonomy") $resource_id = "26_taxonomy";     //'taxonomy' -> used for DWH
+else {                                                                      //'media_objects' is for original resource = 26
+    $resource_id = 26;
+    $cmdline_params['what'] = "media_objects";
+}
 
 // /* //main operation
 $func = new WormsArchiveAPI($resource_id);
-
-//only one of these 2 will run at any given time
-$func->get_all_taxa("media_objects"); //'media_objects' is for original resource = 26
-// $func->get_all_taxa("taxonomy");      //'taxonomy' not sure when was used
-
+$func->get_all_taxa($cmdline_params['what']); 
 Functions::finalize_dwca_resource($resource_id, false, false); //3rd param should be false so it doesn't remove the /26/ folder which will be used below when diagnosing...
 // */
 
