@@ -34,9 +34,11 @@ class WormsArchiveAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         $this->object_ids = array();
-        // $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";                            //local - when developing only
-        // $this->dwca_file = "http://localhost/cp/WORMS/Archive.zip";                              //local subset copy
-        $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";              //WORMS online copy
+        
+        if(Functions::is_production())  $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";              //WORMS online copy
+        else                            $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";                            //local - when developing only
+        //                              $this->dwca_file = "http://localhost/cp/WORMS/Archive.zip";                              //local subset copy
+        
         $this->occurrence_ids = array();
         $this->taxon_page = "http://www.marinespecies.org/aphia.php?p=taxdetails&id=";
         
@@ -223,6 +225,7 @@ class WormsArchiveAPI
         foreach($records as $rec)
         {
             $k++; echo " ".number_format($k)." ";
+            if(($k % 1000) == 0) echo " ".number_format($k)." ";
             /* breakdown when caching: total ~565,280
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true;     //1 -   100,000
@@ -436,8 +439,13 @@ class WormsArchiveAPI
         }
         else
         {
-            echo "\nsave_2text_synonyms_without_children\n";
-            self::save_2text_synonyms_without_children($taxon_id);
+            $error_no = Functions::fake_user_agent_http_get($this->webservice['AphiaChildrenByAphiaID'].$taxon_id, array("return_error_no" => true));
+            if($error_no == 0) {
+                echo "\nAccess OK\n";
+                echo "\nsave_2text_synonyms_without_children\n";
+                self::save_2text_synonyms_without_children($taxon_id);
+            }
+            else echo "\nError access, will NOT save\n";
         }
         return $final;
     }
@@ -586,9 +594,10 @@ class WormsArchiveAPI
     }
     private function format_sciname($str)
     {   //http://parser.globalnames.org/doc/api
-        $str = str_replace("&", "%26", $str);
-        $str = str_replace(" ", "+", $str);
-        return $str;
+
+        // $str = str_replace("&", "%26", $str);
+        // $str = str_replace(" ", "+", $str);
+        return urlencode($str);
     }
     private function if_accepted_taxon($taxon_id)
     {
@@ -1155,16 +1164,19 @@ class WormsArchiveAPI
         }
         return $parent_id;
     }
-    public function trim_text_files() //a utility to make the text files ID entries unique. Advised to run this utility once the 6 connectors finished during build-up
+    public function trim_text_files() //a utility to make the text files ID [in folder /26_files/] entries unique. Advised to run this utility once the 6 connectors finished during build-up
     {
-        $files = array("_synonyms_without_children.txt", "_children_of_synonyms.txt");
+        $files = array("26_taxonomy_synonyms_without_children.txt", "26_taxonomy_children_of_synonyms.txt");
         foreach($files as $file) {
-            $filename = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . $file;
+            $filename = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $file;
+            echo "\nProcessing ($filename)...\n";
             if(file_exists($filename)) {
                 $txt = file_get_contents($filename);
                 $AphiaIDs = explode("\n", $txt);
+                echo "\nOrig count: ".count($AphiaIDs)."\n";
                 $AphiaIDs = array_filter($AphiaIDs);
                 $AphiaIDs = array_unique($AphiaIDs);
+                echo "\nUnique ID count: ".count($AphiaIDs)."\n";
                 //write to file - overwrite, now with unique IDs
                 $fn = Functions::file_open($filename, "w");
                 fwrite($fn, implode("\n", $AphiaIDs));
