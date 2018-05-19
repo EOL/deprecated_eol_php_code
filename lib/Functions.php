@@ -718,6 +718,8 @@ class Functions
         debug("Sending get request to $url : only attempt");
         $result = curl_exec($ch);
 
+        if(@$options['return_error_no']) return curl_errno($ch);
+
         if(0 == curl_errno($ch))
         {
             curl_close($ch);
