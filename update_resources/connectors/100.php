@@ -10,9 +10,21 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 
 /* just test
-$WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "eli.txt", "a");
-fwrite($WRITE, date('l jS \of F Y h:i:s A') . "\n");
-fclose($WRITE);
+// $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "eli.txt", "a");
+// fwrite($WRITE, date('l jS \of F Y h:i:s A') . "\n");
+// fclose($WRITE);
+
+$url = "http://parser.globalnames.org/api?q=";
+$str = "Fratiidae Ho, Conradi & López-González, 1998";
+$str = urlencode($str);
+
+// $str = "Palicus Philippi & Eli, 1838";
+// $str = urlencode($str);
+echo "\n[$str]\n";
+$json = Functions::lookup_with_cache($url.$str);
+print_r(json_decode($json, true));
+
+
 exit("\n-ends here\n");
 */
 
