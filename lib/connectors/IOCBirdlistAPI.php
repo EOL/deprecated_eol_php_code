@@ -43,7 +43,7 @@ class IOCBirdlistAPI
         if(preg_match("/>version (.*?)<\//ims", $html, $a)) $version = $a[1];
         else                                                $version = "7.1";
         // $this->bibliographic_citation = "Gill F & D Donsker (Eds). 2017. IOC World Bird List (v 7.1). http://dx.doi.org/10.14344/IOC.ML.7.1";
-        $this->bibliographic_citation    = "Gill F & D Donsker (Eds). 2017. IOC World Bird List (v $version). http://dx.doi.org/10.14344/IOC.ML.".$version;
+        $this->bibliographic_citation    = "Gill F & D Donsker (Eds). 2018. IOC World Bird List (v $version). http://dx.doi.org/10.14344/IOC.ML.".$version;
         echo "\n$this->bibliographic_citation\n";
     }
     
@@ -362,8 +362,7 @@ class IOCBirdlistAPI
         
         //3 non-rank taxa
         $taxa = array("Paleognathae", "Neognathae", "Neoaves");
-        foreach($taxa as $sciname)
-        {
+        foreach($taxa as $sciname) {
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID             = md5($sciname);
             $taxon->scientificName      = $sciname;
@@ -382,8 +381,7 @@ class IOCBirdlistAPI
         $this->add_occurrence($taxon_id, $occurrence_id, $rec);
         $m->occurrenceID       = $occurrence_id;
         $m->measurementOfTaxon = $measurementOfTaxon;
-        if($measurementOfTaxon == "true")
-        {
+        if($measurementOfTaxon == "true") {
             $m->source      = @$rec["source"];
             $m->contributor = @$rec["contributor"];
             if($referenceID = @$rec["referenceID"]) $m->referenceID = $referenceID;
