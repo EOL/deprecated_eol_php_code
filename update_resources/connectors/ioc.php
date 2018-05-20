@@ -7,12 +7,16 @@ taxon:          33750   33750   33507       33505
 vernaculars:    11068   11068   11092       11090
 occurrence      31172           42992
 measurements    31172   43214   42992       42992
+
+ioc-birdlist	Sunday 2018-05-20 12:51:02 PM	{"measurement_or_fact.tab":42989,"occurrence.tab":42989,"taxon.tab":33520,"vernacular_name.tab":11104}
+ioc-birdlist	Sunday 2018-05-20 12:52:41 PM	{"measurement_or_fact.tab":42989,"occurrence.tab":42989,"taxon.tab":33520,"vernacular_name.tab":11104}
+ioc	Sunday 2018-05-20 01:19:14 PM	{"measurement_or_fact.tab":42989,"occurrence.tab":42989,"taxon.tab":33520,"vernacular_name.tab":11104}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/IOCBirdlistAPI');
 $timestart = time_elapsed();
-$resource_id = "ioc-birdlist";
+$resource_id = "ioc"; //"ioc-birdlist";
 $fishbase = new IOCBirdlistAPI(false, $resource_id);
 $fishbase->get_all_taxa($resource_id);
 Functions::finalize_dwca_resource($resource_id);

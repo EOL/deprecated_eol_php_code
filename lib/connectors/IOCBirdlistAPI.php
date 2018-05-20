@@ -6,6 +6,7 @@ class IOCBirdlistAPI
 {
     public function __construct($test_run = false, $folder)
     {
+        $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxa_ids             = array();
@@ -376,9 +377,14 @@ class IOCBirdlistAPI
     {
         $taxon_id = $rec["taxon_id"];
         $catnum   = $rec["catnum"];
-        $occurrence_id = $taxon_id . "_" . $catnum;
         $m = new \eol_schema\MeasurementOrFact();
+
+        /* old ways
+        $occurrence_id = $taxon_id . "_" . $catnum;
         $this->add_occurrence($taxon_id, $occurrence_id, $rec);
+        */
+        $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
+        
         $m->occurrenceID       = $occurrence_id;
         $m->measurementOfTaxon = $measurementOfTaxon;
         if($measurementOfTaxon == "true") {
@@ -393,19 +399,29 @@ class IOCBirdlistAPI
         if($val = @$rec['measurementMethod'])   $m->measurementMethod = $val;
         if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
         if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
     }
 
-    private function add_occurrence($taxon_id, $occurrence_id, $rec)
+    private function add_occurrence($taxon_id, $catnum, $rec)
     {
-        if(isset($this->occurrence_ids[$occurrence_id])) return;
+        $occurrence_id = $taxon_id . '_' . $catnum;
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
         if($val = @$rec['sex']) $o->sex = $val;
+
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
+
+        /* old ways
         $this->archive_builder->write_object_to_file($o);
         $this->occurrence_ids[$occurrence_id] = '';
         return;
+        */
     }
     
     //===================================================================================================================================================
