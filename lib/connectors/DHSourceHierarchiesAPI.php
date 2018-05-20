@@ -18,7 +18,7 @@ class DHSourceHierarchiesAPI
         $this->gnsparser = "http://parser.globalnames.org/api?q=";
         $this->smasher_download_options = array(
             'cache_path'         => '/Volumes/AKiTiO4/eol_cache_smasher/',
-            'download_wait_time' => 500000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
+            'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
         
         $this->debug = array();
         
@@ -26,11 +26,12 @@ class DHSourceHierarchiesAPI
         $this->sh['WoRMS']['source']      = $this->main_path."/worms_v5/WoRMS2EoL/";
         $this->sh['WoRMS']['destination'] = $this->main_path."/worms_v5/";
         
+        
+        $this->sh['amphibia']['source']      = $this->main_path."/amphibia_v2/";
+        $this->sh['amphibia']['destination'] = $this->main_path."/amphibia_v2/";
+        
         $this->sh['spiders']['source']      = $this->main_path."/spiders_v2/";
         $this->sh['spiders']['destination'] = $this->main_path."/spiders_v2/";
-        
-        
-        
     }
     
     public function start($what)
@@ -74,7 +75,7 @@ class DHSourceHierarchiesAPI
             $i++;
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             $tmp = explode("\t", $row);
-            echo "\n".count($tmp)."\n";
+            // echo "\n".count($tmp)."\n";
             // print_r($tmp); exit;
             
             $rec = array(); $k = 0;
@@ -82,7 +83,11 @@ class DHSourceHierarchiesAPI
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
-            print_r($rec); exit;
+            // print_r($rec); exit; //use to test if field - value is OK
+            if(($i % 10) == 0) echo "\n".number_format($i)."\n";
+            Functions::lookup_with_cache($this->gnsparser.urlencode($rec['scientificName']), $this->smasher_download_options);
+            
+            
         }
     }
 
