@@ -26,6 +26,9 @@ class DHSourceHierarchiesAPI
         $this->sh['WoRMS']['destination'] = $this->main_path."/worms_v5/";
         
         
+        $this->sh['ioc-birdlist']['source']      = $this->main_path."/ioc-birdlist_v3/";
+        $this->sh['ioc-birdlist']['destination'] = $this->main_path."/ioc-birdlist_v3/";
+        
         $this->sh['trunk']['source']      = $this->main_path."/trunk_20170614/";
         $this->sh['trunk']['destination'] = $this->main_path."/trunk_20170614/";
         
@@ -38,10 +41,37 @@ class DHSourceHierarchiesAPI
     
     public function start($what)
     {
-        $meta = self::analyze_meta_xml($this->sh[$what]['source']."meta.xml");
+        $meta_xml_path = $this->sh[$what]['source']."meta.xml";
+        $meta = self::analyze_meta_xml($meta_xml_path);
+        if($meta == "No core entry in meta.xml") $meta = self::analyze_eol_meta_xml($meta_xml_path);
         $meta['what'] = $what;
-        print_r($meta); //exit;
+        // print_r($meta); exit;
         self::process_taxon_file($meta);
+    }
+    private function analyze_eol_meta_xml($meta_xml_path)
+    {
+        if(file_exists($meta_xml_path)) {
+            $xml_string = file_get_contents($meta_xml_path);
+            $xml = simplexml_load_string($xml_string);
+            foreach($xml->table as $tbl) {
+                if($tbl['rowType'] == "http://rs.tdwg.org/dwc/terms/Taxon") {
+                    if(in_array($tbl['ignoreHeaderLines'], array(1, true))) $ignoreHeaderLines = true;
+                    else                                                    $ignoreHeaderLines = false;
+                    $fields = array();
+                    foreach($tbl->field as $f) {
+                        $term = (string) $f['term'][0];
+                        $uris[] = $term;
+                        $fields[] = pathinfo($term, PATHINFO_FILENAME);
+                    }
+                    $file = (string) $tbl->files->location;
+                    return array('fields' => $fields, 'taxon_file' => $file, 'ignoreHeaderLines' => $ignoreHeaderLines);
+                }
+            }
+        }
+        else {
+            echo "\nNo meta.xml present. Will use first-row header from taxon file\n";
+        }
+        exit("\nInvestigate 02.\n");
     }
     private function analyze_meta_xml($meta_xml_path)
     {
@@ -49,7 +79,10 @@ class DHSourceHierarchiesAPI
             $xml_string = file_get_contents($meta_xml_path);
             $xml = simplexml_load_string($xml_string);
             // print_r($xml->core);
-            if(!isset($xml->core)) exit("\nNo core entry in meta.xml\n");
+            if(!isset($xml->core)) {
+                echo "\nNo core entry in meta.xml\n";
+                return "No core entry in meta.xml";
+            }
             
             if(in_array($xml->core['ignoreHeaderLines'], array(1, true))) $ignoreHeaderLines = true;
             else                                                          $ignoreHeaderLines = false;
@@ -85,9 +118,9 @@ class DHSourceHierarchiesAPI
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
-            print_r($rec); exit; //use to test if field - value is OK
-            if(($i % 10) == 0) echo "\n".number_format($i)."\n";
-            Functions::lookup_with_cache($this->gnsparser.urlencode($rec['scientificName']), $this->smasher_download_options);
+            print_r($rec); //exit; //use to test if field - value is OK
+            // if(($i % 10) == 0) echo "\n".number_format($i)."\n";
+            // Functions::lookup_with_cache($this->gnsparser.urlencode($rec['scientificName']), $this->smasher_download_options);
             
             
         }
