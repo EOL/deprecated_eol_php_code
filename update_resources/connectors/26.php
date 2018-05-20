@@ -46,6 +46,23 @@ exec time: ~30 minutes
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
+/* testing...
+$id = 1;
+$id = 607688;
+
+// $json = Functions::lookup_with_cache("http://www.marinespecies.org/rest/AphiaChildrenByAphiaID/$id");
+// echo "\n[$json]\n";
+
+// if(Functions::url_already_cached("http://www.marinespecies.org/rest/AphiaChildrenByAphiaID/$id")) echo "\nalready cached\n";
+// else echo "\nnot yet cached\n";
+
+$error_no = Functions::fake_user_agent_http_get("http://www.marinespecies.org/rest/AphiaChildrenByAphiaID/$id", array("return_error_no" => true));
+echo "\n[$error_no]\n";
+if($error_no == 0) echo "\nAccess OK\n";
+else echo "Error access";
+exit;
+*/
+
 /* e.g. php 26.php jenkins taxonomy */
 $cmdline_params['jenkins_or_cron']  = @$argv[1]; //irrelevant here
 $cmdline_params['what']             = @$argv[2]; //useful here
@@ -65,6 +82,13 @@ $func = new WormsArchiveAPI($resource_id);
 $func->get_all_taxa($cmdline_params['what']); 
 Functions::finalize_dwca_resource($resource_id, false, false); //3rd param should be false so it doesn't remove the /26/ folder which will be used below when diagnosing...
 // */
+
+/* utility - run this after 6 connectors during build-up
+$func = new WormsArchiveAPI($resource_id);
+$func->trim_text_files();
+exit("\n");
+*/
+
 
 // /* utility ==========================
 require_library('connectors/DWCADiagnoseAPI');

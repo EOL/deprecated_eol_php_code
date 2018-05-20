@@ -65,6 +65,10 @@ class WormsArchiveAPI
 
     function get_all_taxa($what)
     {
+        /* tests
+        $ids = self::get_branch_ids_to_prune(); print_r($ids); exit;
+        */
+        
         $temp = CONTENT_RESOURCE_LOCAL_PATH . "26_files";
         if(!file_exists($temp)) mkdir($temp);
         $this->what = $what; //either 'taxonomy' or 'media_objects'
@@ -714,8 +718,15 @@ class WormsArchiveAPI
     
     private function get_branch_ids_to_prune()
     {
-        //to do: access google sheets online: https://docs.google.com/spreadsheets/d/11jQ-6CUJIbZiNwZrHqhR_4rqw10mamdA17iaNELWCBQ/edit#gid=0
-        return array(12, 598929, 22718, 10, 503066, 234484, 596326, 886300, 147480, 742162, 1836, 178701, 1278, 1300, 719042, 741333, 393257, 598621, 719043, 719950, 164710, 167282, 510103, 719044, 719045, 719046, 397356, 724635, 719047, 719048, 719049, 598607, 719050, 549666, 709139);
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
+        $params['spreadsheetID'] = '11jQ-6CUJIbZiNwZrHqhR_4rqw10mamdA17iaNELWCBQ';
+        $params['range']         = 'Sheet1!A2:A2000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $arr = $func->access_google_sheet($params);
+        //start massage array
+        foreach($arr as $item) $final[$item[0]] = '';
+        $final = array_keys($final);
+        return $final;
     }
     
     private function get_all_ids_to_prune()
