@@ -339,7 +339,7 @@ class WormsArchiveAPI
                                                     //start 13th loop -> process children of children of children
                                                     foreach($temp12 as $id)
                                                     {
-                                                        print("\nreaches 13th loop\n");
+                                                        // print("\nreaches 13th loop\n");
                                                         $temp13 = self::get_children_of_synonym($id);
                                                         $taxo_tmp = array_merge($taxo_tmp, $temp13);
                                                         //start 14th loop -> process children of children of children

@@ -21,10 +21,11 @@ class DHSourceHierarchiesAPI
             'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
         
         $this->debug = array();
+        $this->taxonomy_header = array("uid", "parent_uid", "name", "rank", "sourceinfo"); //('uid	|	parent_uid	|	name	|	rank	|	sourceinfo	|	' + '\n')
+        $this->synonym_header = array("uid", "name", "type", "rank");                      //('uid	|	name	|	type	|	rank	|	' + '\n')
         $this->main_path = "/Volumes/AKiTiO4/d_w_h/dynamic_working_hierarchy-master/";
         $this->sh['WoRMS']['source']      = $this->main_path."/worms_v5/WoRMS2EoL/";
         $this->sh['WoRMS']['destination'] = $this->main_path."/worms_v5/";
-        
         
         $this->sh['ioc-birdlist']['source']      = $this->main_path."/ioc-birdlist_v3/";
         $this->sh['ioc-birdlist']['destination'] = $this->main_path."/ioc-birdlist_v3/";
@@ -48,6 +49,27 @@ class DHSourceHierarchiesAPI
         // print_r($meta); exit;
         self::process_taxon_file($meta);
     }
+    private function process_taxon_file($meta)
+    {
+        $i = 0; $what = $meta['what'];
+        foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
+            $i++;
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            if(!$row) continue;
+            $tmp = explode("\t", $row);
+            echo "\n".count($tmp)."\n";
+            // print_r($tmp);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            print_r($rec); //exit; //use to test if field - value is OK
+            if(($i % 5000) == 0) echo "\n".number_format($i)."\n";
+            // Functions::lookup_with_cache($this->gnsparser.urlencode($rec['scientificName']), $this->smasher_download_options);
+        }
+    }
+    
     private function analyze_eol_meta_xml($meta_xml_path)
     {
         if(file_exists($meta_xml_path)) {
@@ -83,10 +105,8 @@ class DHSourceHierarchiesAPI
                 echo "\nNo core entry in meta.xml\n";
                 return "No core entry in meta.xml";
             }
-            
             if(in_array($xml->core['ignoreHeaderLines'], array(1, true))) $ignoreHeaderLines = true;
             else                                                          $ignoreHeaderLines = false;
-
             $fields = array();
             if($xml->core['index'] == 0) $fields[] = "index";
             if($xml->core->field[0]['index'] == 0) $fields = array(); //this will ignore <id index="0" />
@@ -103,28 +123,5 @@ class DHSourceHierarchiesAPI
         }
         exit("\nInvestigate 01.\n");
     }
-    private function process_taxon_file($meta)
-    {
-        $i = 0; $what = $meta['what'];
-        foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
-            $i++;
-            if($meta['ignoreHeaderLines'] && $i == 1) continue;
-            $tmp = explode("\t", $row);
-            // echo "\n".count($tmp)."\n";
-            // print_r($tmp); exit;
-            
-            $rec = array(); $k = 0;
-            foreach($meta['fields'] as $field) {
-                $rec[$field] = $tmp[$k];
-                $k++;
-            }
-            print_r($rec); //exit; //use to test if field - value is OK
-            // if(($i % 10) == 0) echo "\n".number_format($i)."\n";
-            // Functions::lookup_with_cache($this->gnsparser.urlencode($rec['scientificName']), $this->smasher_download_options);
-            
-            
-        }
-    }
-
 }
 ?>
