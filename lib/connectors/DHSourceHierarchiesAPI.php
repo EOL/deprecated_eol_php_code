@@ -19,25 +19,18 @@ class DHSourceHierarchiesAPI
         $this->smasher_download_options = array(
             'cache_path'         => '/Volumes/AKiTiO4/eol_cache_smasher/',
             'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
+        /* Functions::lookup_with_cache($this->gnsparser.urlencode($rec['scientificName']), $this->smasher_download_options); */
         
         $this->debug = array();
         $this->taxonomy_header = array("uid", "parent_uid", "name", "rank", "sourceinfo"); //('uid	|	parent_uid	|	name	|	rank	|	sourceinfo	|	' + '\n')
         $this->synonym_header = array("uid", "name", "type", "rank");                      //('uid	|	name	|	type	|	rank	|	' + '\n')
         $this->main_path = "/Volumes/AKiTiO4/d_w_h/dynamic_working_hierarchy-master/";
-        $this->sh['WoRMS']['source']      = $this->main_path."/worms_v5/WoRMS2EoL/";
-        $this->sh['WoRMS']['destination'] = $this->main_path."/worms_v5/";
         
-        $this->sh['ioc-birdlist']['source']      = $this->main_path."/ioc-birdlist_v3/";
-        $this->sh['ioc-birdlist']['destination'] = $this->main_path."/ioc-birdlist_v3/";
-        
-        $this->sh['trunk']['source']      = $this->main_path."/trunk_20170614/";
-        $this->sh['trunk']['destination'] = $this->main_path."/trunk_20170614/";
-        
-        $this->sh['amphibia']['source']      = $this->main_path."/amphibia_v2/";
-        $this->sh['amphibia']['destination'] = $this->main_path."/amphibia_v2/";
-        
+        $this->sh['WoRMS']['source']        = $this->main_path."/worms_v5/";
+        $this->sh['ioc-birdlist']['source'] = $this->main_path."/ioc-birdlist_v3/";
+        $this->sh['trunk']['source']        = $this->main_path."/trunk_20180521/";
+        $this->sh['amphibia']['source']     = $this->main_path."/amphibia_v2/";
         $this->sh['spiders']['source']      = $this->main_path."/spiders_v2/";
-        $this->sh['spiders']['destination'] = $this->main_path."/spiders_v2/";
     }
     
     public function start($what)
@@ -51,23 +44,67 @@ class DHSourceHierarchiesAPI
     }
     private function process_taxon_file($meta)
     {
-        $i = 0; $what = $meta['what'];
+        $what = $meta['what'];
+        $fn_tax = fopen($this->sh[$what]['source']."taxonomy.tsv", "w"); //will overwrite existing
+        $fn_syn = fopen($this->sh[$what]['source']."synonym.tsv", "w"); //will overwrite existing
+        $i = 0;
         foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
             $i++;
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $tmp = explode("\t", $row);
-            echo "\n".count($tmp)."\n";
-            // print_r($tmp);
+            // echo "\n".count($tmp)."\n"; print_r($tmp);
             $rec = array(); $k = 0;
             foreach($meta['fields'] as $field) {
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
-            print_r($rec); //exit; //use to test if field - value is OK
+            // print_r($rec); exit; //use to test if field - value is OK
             if(($i % 5000) == 0) echo "\n".number_format($i)."\n";
-            // Functions::lookup_with_cache($this->gnsparser.urlencode($rec['scientificName']), $this->smasher_download_options);
+            //start ----------------------------------
+            if(in_array($what, array('trunk'))) {
+                /*
+                    [index] => 1
+                    [taxonomicStatus] => accepted
+                    [taxonRank] => superfamily
+                    [datasetID] => dd18e3cf-04ba-4b0d-8349-1dd4b7ac5000
+                    [parentNameUsageID] => 324b4a02-700b-4ae2-9dbd-65570f42f83c
+                    [scientificNameAuthorship] => 
+                    [higherClassification] => life,cellular organisms,Eukaryota,Opisthokonta,Metazoa,Bilateria,Protostomia,Ecdysozoa,Panarthropoda,Arthropoda,Chelicerata,Arachnida,Acari,Acariformes,Trombidiformes,Prostigmata,Anystina,Parasitengona
+                    [acceptedNameUsageID] => 00016d53-eae4-494c-8f79-3e9ddcd5e634
+                    [scientificName] => Arrenuroidea
+                    [taxonID] => 00016d53-eae4-494c-8f79-3e9ddcd5e634
+                    (
+                        [0] => 1
+                        [1] => accepted
+                        [2] => superfamily
+                        [3] => dd18e3cf-04ba-4b0d-8349-1dd4b7ac5000
+                        [4] => 324b4a02-700b-4ae2-9dbd-65570f42f83c
+                        [5] => 
+                        [6] => life,cellular organisms,Eukaryota,Opisthokonta,Metazoa,Bilateria,Protostomia,Ecdysozoa,Panarthropoda,Arthropoda,Chelicerata,Arachnida,Acari,Acariformes,Trombidiformes,Prostigmata,Anystina,Parasitengona
+                        [7] => 00016d53-eae4-494c-8f79-3e9ddcd5e634
+                        [8] => Arrenuroidea
+                        [9] => 00016d53-eae4-494c-8f79-3e9ddcd5e634
+                    )
+                    if accepted_id != taxon_id:
+                        print('synonym found')
+                        out_file_s.write(accepted_id + '\t|\t' + name + '\t|\t' + 'synonym' + '\t|\t' + '\t|\t' + '\n')
+                    else:
+                        out_file_t.write(taxon_id + '\t|\t' + parent_id + '\t|\t' + name + '\t|\t' + rank + '\t|\t' + source + '\t|\t' + '\n')
+                */
+                $parent_id = $rec['parentNameUsageID'];     //row[4]
+                $name = $rec['scientificName'];             //row[8]
+                $taxon_id = $rec['taxonID'];                //row[9]
+                $accepted_id = $rec['acceptedNameUsageID']; //row[7]
+                $rank = $rec['taxonRank'];                  //row[2]
+                $source = '';
+                if($accepted_id != $taxon_id) fwrite($fn_syn, $accepted_id . '\t|\t' . $name . '\t|\t' . 'synonym' . '\t|\t' . '\t|\t' . '\n');
+                else                          fwrite($fn_tax, $taxon_id . '\t|\t' . $parent_id . '\t|\t' . $name . '\t|\t' . $rank . '\t|\t' . $source . '\t|\t' . '\n');
+            }
+            //end ------------------------------------
         }
+        fclose($fn_tax);
+        fclose($fn_syn);
     }
     
     private function analyze_eol_meta_xml($meta_xml_path)
