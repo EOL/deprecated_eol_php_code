@@ -102,13 +102,10 @@ class DHSourceHierarchiesAPI
                 $t['rank'] = $rec['taxonRank'];                  //row[2]
                 $t['source'] = '';
                 if($t['accepted_id'] != $t['taxon_id']) {
-                    self::write2file("syn", $fn_syn, $t)
+                    self::write2file("syn", $fn_syn, $t);
                     $has_synonym = true;
                 }
-                else self::write2file("tax", $fn_tax, $t)
-                if($same <= 20) {
-                    if(self::gnsparse_canonical($name) == $name) $same++;
-                }
+                else self::write2file("tax", $fn_tax, $t);
             }
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             if(in_array($what, array('ioc-birdlist'))) { //headers changed from version: ioc-birdlist_v2 to ioc-birdlist_v3
@@ -131,14 +128,21 @@ class DHSourceHierarchiesAPI
                     [scientificNameAuthorship] => Hellmayr, 1906
                     out_file_t.write(taxon_id + '\t|\t' + parent_id + '\t|\t' + name + '\t|\t' + rank + '\t|\t' + source + '\t|\t' + '\n')
                 */
-                $parent_id = $rec['parentNameUsageID'];
-                $name = $rec['scientificName'];
-                $taxon_id = $rec['taxonID'];
-                $rank = $rec['taxonRank'];
-                $source = '';
-                
+                $t['parent_id'] = $rec['parentNameUsageID'];
+                $t['name'] = $rec['scientificName'];
+                $t['taxon_id'] = $rec['taxonID'];
+                $t['rank'] = $rec['taxonRank'];
+                $t['source'] = '';
+                self::write2file("tax", $fn_tax, $t);
             }
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            if($same <= 20) {
+                if(self::gnsparse_canonical($t['name']) == $t['name']) $same++;
+            }
         }
         fclose($fn_tax);
         fclose($fn_syn);
