@@ -15,11 +15,11 @@ class DHSourceHierarchiesAPI
         $this->AphiaRecordByAphiaID_download_options = array('download_wait_time' => 1000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 26, 'expire_seconds' => false);
         $this->webservice['AphiaRecordByAphiaID'] = "http://www.marinespecies.org/rest/AphiaRecordByAphiaID/";
 
-        $this->gnsparser = "http://parser.globalnames.org/api?q=";
+        $this->gnparser = "http://parser.globalnames.org/api?q=";
         $this->smasher_download_options = array(
             'cache_path'         => '/Volumes/AKiTiO4/eol_cache_smasher/',
             'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
-        /* Functions::lookup_with_cache($this->gnsparser.urlencode($rec['scientificName']), $this->smasher_download_options); */
+        /* Functions::lookup_with_cache($this->gnparser.urlencode($rec['scientificName']), $this->smasher_download_options); */
         
         $this->debug = array();
         $this->taxonomy_header = array("uid", "parent_uid", "name", "rank", "sourceinfo"); //('uid	|	parent_uid	|	name	|	rank	|	sourceinfo	|	' + '\n')
@@ -47,25 +47,35 @@ class DHSourceHierarchiesAPI
         $what = $meta['what']; $has_synonym = false;
         $fn_tax = fopen($this->sh[$what]['source']."taxonomy.tsv", "w"); //will overwrite existing
         $fn_syn = fopen($this->sh[$what]['source']."synonym.tsv", "w"); //will overwrite existing
-        fwrite($fn_tax, implode("\t|\t", $this->taxonomy_header)."\n");
-        fwrite($fn_syn, implode("\t|\t", $this->synonym_header)."\n");
-        $i = 0; $same = 0;
+        fwrite($fn_tax, implode("\t|\t", $this->taxonomy_header)."\t|\t"."\n");
+        fwrite($fn_syn, implode("\t|\t", $this->synonym_header)."\t|\t"."\n");
+        $i = 0; $run_gnparser = false;
         foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
             $i++;
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $tmp = explode("\t", $row);
-            echo "\n".count($tmp)."\n"; print_r($tmp);
+            // echo "\n".count($tmp)."\n"; print_r($tmp);
             $rec = array(); $k = 0;
             foreach($meta['fields'] as $field) {
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
-            print_r($rec); //exit; //use to test if field - value is OK
+            // print_r($rec); //exit; //use to test if field - value is OK
             if(($i % 5000) == 0) echo "\n".number_format($i)."\n";
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             if(in_array($what, array('trunk'))) {
                 /*
+                    [0] => 1
+                    [1] => accepted
+                    [2] => superfamily
+                    [3] => dd18e3cf-04ba-4b0d-8349-1dd4b7ac5000
+                    [4] => 324b4a02-700b-4ae2-9dbd-65570f42f83c
+                    [5] => 
+                    [6] => life,cellular organisms,Eukaryota,Opisthokonta,Metazoa,Bilateria,Protostomia,Ecdysozoa,Panarthropoda,Arthropoda,Chelicerata,Arachnida,Acari,Acariformes,Trombidiformes,Prostigmata,Anystina,Parasitengona
+                    [7] => 00016d53-eae4-494c-8f79-3e9ddcd5e634
+                    [8] => Arrenuroidea
+                    [9] => 00016d53-eae4-494c-8f79-3e9ddcd5e634
                     [index] => 1
                     [taxonomicStatus] => accepted
                     [taxonRank] => superfamily
@@ -76,18 +86,6 @@ class DHSourceHierarchiesAPI
                     [acceptedNameUsageID] => 00016d53-eae4-494c-8f79-3e9ddcd5e634
                     [scientificName] => Arrenuroidea
                     [taxonID] => 00016d53-eae4-494c-8f79-3e9ddcd5e634
-                    (
-                        [0] => 1
-                        [1] => accepted
-                        [2] => superfamily
-                        [3] => dd18e3cf-04ba-4b0d-8349-1dd4b7ac5000
-                        [4] => 324b4a02-700b-4ae2-9dbd-65570f42f83c
-                        [5] => 
-                        [6] => life,cellular organisms,Eukaryota,Opisthokonta,Metazoa,Bilateria,Protostomia,Ecdysozoa,Panarthropoda,Arthropoda,Chelicerata,Arachnida,Acari,Acariformes,Trombidiformes,Prostigmata,Anystina,Parasitengona
-                        [7] => 00016d53-eae4-494c-8f79-3e9ddcd5e634
-                        [8] => Arrenuroidea
-                        [9] => 00016d53-eae4-494c-8f79-3e9ddcd5e634
-                    )
                     if accepted_id != taxon_id:
                         print('synonym found')
                         out_file_s.write(accepted_id + '\t|\t' + name + '\t|\t' + 'synonym' + '\t|\t' + '\t|\t' + '\n')
@@ -95,12 +93,12 @@ class DHSourceHierarchiesAPI
                         out_file_t.write(taxon_id + '\t|\t' + parent_id + '\t|\t' + name + '\t|\t' + rank + '\t|\t' + source + '\t|\t' + '\n')
                 */
                 $t = array();
-                $t['parent_id'] = $rec['parentNameUsageID'];     //row[4]
-                $t['name'] = $rec['scientificName'];             //row[8]
-                $t['taxon_id'] = $rec['taxonID'];                //row[9]
-                $t['accepted_id'] = $rec['acceptedNameUsageID']; //row[7]
-                $t['rank'] = $rec['taxonRank'];                  //row[2]
-                $t['source'] = '';
+                $t['parent_id']     = $rec['parentNameUsageID'];    //row[4]
+                $t['name']          = $rec['scientificName'];       //row[8]
+                $t['taxon_id']      = $rec['taxonID'];              //row[9]
+                $t['accepted_id']   = $rec['acceptedNameUsageID'];  //row[7]
+                $t['rank']          = ($val = @$rec['taxonRank']) ? $val: "no rank"; //row[2]
+                $t['source']        = '';
                 if($t['accepted_id'] != $t['taxon_id']) {
                     self::write2file("syn", $fn_syn, $t);
                     $has_synonym = true;
@@ -128,11 +126,12 @@ class DHSourceHierarchiesAPI
                     [scientificNameAuthorship] => Hellmayr, 1906
                     out_file_t.write(taxon_id + '\t|\t' + parent_id + '\t|\t' + name + '\t|\t' + rank + '\t|\t' + source + '\t|\t' + '\n')
                 */
+                $t = array();
                 $t['parent_id'] = $rec['parentNameUsageID'];
-                $t['name'] = $rec['scientificName'];
-                $t['taxon_id'] = $rec['taxonID'];
-                $t['rank'] = $rec['taxonRank'];
-                $t['source'] = '';
+                $t['name']      = $rec['scientificName'];
+                $t['taxon_id']  = $rec['taxonID'];
+                $t['rank']      = ($val = @$rec['taxonRank']) ? $val: "no rank";
+                $t['source']    = '';
                 self::write2file("tax", $fn_tax, $t);
             }
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -140,15 +139,16 @@ class DHSourceHierarchiesAPI
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if($same <= 20) {
-                if(self::gnsparse_canonical($t['name']) == $t['name']) $same++;
+            if(!$run_gnparser) {
+                if(self::gnsparse_canonical($t['name']) != $t['name']) $run_gnparser = true;
             }
         }
         fclose($fn_tax);
         fclose($fn_syn);
         if(!$has_synonym) unlink($this->sh[$what]['source']."synonym.tsv");
-        if($same >= 20) echo "\nNo need to run gnsparser().\n";
-        else            echo "\nWill need to run gnsparser().\n";
+        if($run_gnparser) echo "\nWill need to run gnparser()\n";
+        else              echo "\nNo need to run gnparser()\n";
+        self::parent_id_check();
     }
     private function write2file($ext, $fn, $t)
     {
@@ -157,9 +157,8 @@ class DHSourceHierarchiesAPI
     }
     private function gnsparse_canonical($sciname)
     {
-        $json = Functions::lookup_with_cache($this->gnsparser.urlencode($sciname), $this->smasher_download_options);
-        $obj = json_decode($json);
-        return $obj->namesJson[0]->canonical_name->value;
+        $json = Functions::lookup_with_cache($this->gnparser.urlencode($sciname), $this->smasher_download_options);
+        if($obj = json_decode($json)) return @$obj->namesJson[0]->canonical_name->value;
     }
     private function analyze_eol_meta_xml($meta_xml_path)
     {
