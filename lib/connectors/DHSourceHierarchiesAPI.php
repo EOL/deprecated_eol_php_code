@@ -44,24 +44,26 @@ class DHSourceHierarchiesAPI
     }
     private function process_taxon_file($meta)
     {
-        $what = $meta['what'];
+        $what = $meta['what']; $has_synonym = false;
         $fn_tax = fopen($this->sh[$what]['source']."taxonomy.tsv", "w"); //will overwrite existing
         $fn_syn = fopen($this->sh[$what]['source']."synonym.tsv", "w"); //will overwrite existing
-        $i = 0;
+        fwrite($fn_tax, implode("\t|\t", $this->taxonomy_header)."\n");
+        fwrite($fn_syn, implode("\t|\t", $this->synonym_header)."\n");
+        $i = 0; $same = 0;
         foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
             $i++;
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $tmp = explode("\t", $row);
-            // echo "\n".count($tmp)."\n"; print_r($tmp);
+            echo "\n".count($tmp)."\n"; print_r($tmp);
             $rec = array(); $k = 0;
             foreach($meta['fields'] as $field) {
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
-            // print_r($rec); exit; //use to test if field - value is OK
+            print_r($rec); //exit; //use to test if field - value is OK
             if(($i % 5000) == 0) echo "\n".number_format($i)."\n";
-            //start ----------------------------------
+            //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             if(in_array($what, array('trunk'))) {
                 /*
                     [index] => 1
@@ -92,21 +94,69 @@ class DHSourceHierarchiesAPI
                     else:
                         out_file_t.write(taxon_id + '\t|\t' + parent_id + '\t|\t' + name + '\t|\t' + rank + '\t|\t' + source + '\t|\t' + '\n')
                 */
-                $parent_id = $rec['parentNameUsageID'];     //row[4]
-                $name = $rec['scientificName'];             //row[8]
-                $taxon_id = $rec['taxonID'];                //row[9]
-                $accepted_id = $rec['acceptedNameUsageID']; //row[7]
-                $rank = $rec['taxonRank'];                  //row[2]
-                $source = '';
-                if($accepted_id != $taxon_id) fwrite($fn_syn, $accepted_id . '\t|\t' . $name . '\t|\t' . 'synonym' . '\t|\t' . '\t|\t' . '\n');
-                else                          fwrite($fn_tax, $taxon_id . '\t|\t' . $parent_id . '\t|\t' . $name . '\t|\t' . $rank . '\t|\t' . $source . '\t|\t' . '\n');
+                $t = array();
+                $t['parent_id'] = $rec['parentNameUsageID'];     //row[4]
+                $t['name'] = $rec['scientificName'];             //row[8]
+                $t['taxon_id'] = $rec['taxonID'];                //row[9]
+                $t['accepted_id'] = $rec['acceptedNameUsageID']; //row[7]
+                $t['rank'] = $rec['taxonRank'];                  //row[2]
+                $t['source'] = '';
+                if($t['accepted_id'] != $t['taxon_id']) {
+                    self::write2file("syn", $fn_syn, $t)
+                    $has_synonym = true;
+                }
+                else self::write2file("tax", $fn_tax, $t)
+                if($same <= 20) {
+                    if(self::gnsparse_canonical($name) == $name) $same++;
+                }
             }
-            //end ------------------------------------
+            //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            if(in_array($what, array('ioc-birdlist'))) { //headers changed from version: ioc-birdlist_v2 to ioc-birdlist_v3
+                /*
+                    [0] => 09af091e166bfa45493c6242ebf16a7c
+                    [1] => Celeus elegans leotaudi Hellmayr, 1906
+                    [2] => subspecies
+                    [3] => d6edba5dd4d993cbab690c2df8fc937f
+                    [4] => 
+                    [5] => Celeus elegans leotaudi
+                    [6] => http://www.worldbirdnames.org/bow/woodpeckers/
+                    [7] => Hellmayr, 1906
+                    [taxonID] => 09af091e166bfa45493c6242ebf16a7c
+                    [scientificName] => Celeus elegans leotaudi Hellmayr, 1906
+                    [taxonRank] => subspecies
+                    [parentNameUsageID] => d6edba5dd4d993cbab690c2df8fc937f
+                    [taxonRemarks] => 
+                    [canonicalName] => Celeus elegans leotaudi
+                    [source] => http://www.worldbirdnames.org/bow/woodpeckers/
+                    [scientificNameAuthorship] => Hellmayr, 1906
+                    out_file_t.write(taxon_id + '\t|\t' + parent_id + '\t|\t' + name + '\t|\t' + rank + '\t|\t' + source + '\t|\t' + '\n')
+                */
+                $parent_id = $rec['parentNameUsageID'];
+                $name = $rec['scientificName'];
+                $taxon_id = $rec['taxonID'];
+                $rank = $rec['taxonRank'];
+                $source = '';
+                
+            }
+            //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         }
         fclose($fn_tax);
         fclose($fn_syn);
+        if(!$has_synonym) unlink($this->sh[$what]['source']."synonym.tsv");
+        if($same >= 20) echo "\nNo need to run gnsparser().\n";
+        else            echo "\nWill need to run gnsparser().\n";
     }
-    
+    private function write2file($ext, $fn, $t)
+    {
+        if($ext == "syn")     fwrite($fn, $t['accepted_id'] . "\t|\t" . $t['name'] . "\t|\t" . 'synonym' . "\t|\t" . "\t|\t" . "\n");
+        elseif($ext == "tax") fwrite($fn, $t['taxon_id'] . "\t|\t" . $t['parent_id'] . "\t|\t" . $t['name'] . "\t|\t" . $t['rank'] . "\t|\t" . $t['source'] . "\t|\t" . "\n");
+    }
+    private function gnsparse_canonical($sciname)
+    {
+        $json = Functions::lookup_with_cache($this->gnsparser.urlencode($sciname), $this->smasher_download_options);
+        $obj = json_decode($json);
+        return $obj->namesJson[0]->canonical_name->value;
+    }
     private function analyze_eol_meta_xml($meta_xml_path)
     {
         if(file_exists($meta_xml_path)) {
