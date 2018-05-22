@@ -26,11 +26,13 @@ class DHSourceHierarchiesAPI
         $this->synonym_header = array("uid", "name", "type", "rank");                      //('uid	|	name	|	type	|	rank	|	' + '\n')
         $this->main_path = "/Volumes/AKiTiO4/d_w_h/dynamic_working_hierarchy-master/";
         
-        $this->sh['WoRMS']['source']        = $this->main_path."/worms_v5/";
+        $this->sh['worms']['source']        = $this->main_path."/worms_v5/";
         $this->sh['ioc-birdlist']['source'] = $this->main_path."/ioc-birdlist_v3/";
         $this->sh['trunk']['source']        = $this->main_path."/trunk_20180521/";
         $this->sh['amphibia']['source']     = $this->main_path."/amphibia_v2/";
         $this->sh['spiders']['source']      = $this->main_path."/spiders_v2/";
+        $this->sh['col']['source']          = $this->main_path."/col_v1/";
+        
     }
     
     public function start($what)
@@ -50,6 +52,7 @@ class DHSourceHierarchiesAPI
         fwrite($fn_tax, implode("\t|\t", $this->taxonomy_header)."\t|\t"."\n");
         fwrite($fn_syn, implode("\t|\t", $this->synonym_header)."\t|\t"."\n");
         $i = 0; $run_gnparser = false;
+        $m = 3765285/10; //for CoL
         foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
             $i++;
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
@@ -63,6 +66,7 @@ class DHSourceHierarchiesAPI
             }
             // print_r($rec); //exit; //use to test if field - value is OK
             if(($i % 5000) == 0) echo "\n".number_format($i)."\n";
+            // echo "\n".number_format($i)."\n";
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             if(in_array($what, array('trunk'))) {
                 /*
@@ -135,21 +139,113 @@ class DHSourceHierarchiesAPI
                 self::write2file("tax", $fn_tax, $t);
             }
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            if(in_array($what, array('worms'))) {
+                $json = self::get_json_with_cache($rec['scientificName']);
+                echo "\n$i. [$json]\n";
+            }
+            if(in_array($what, array('col'))) {
+                // /* breakdown when caching:
+                $cont = false;
+                // if($k >=  1    && $k < $m) $cont = true;
+                // if($k >=  $m   && $k < $m*2) $cont = true;
+                // if($k >=  $m*2 && $k < $m*3) $cont = true;
+                if($k >=  $m*3 && $k < $m*4) $cont = true;
+                // if($k >=  $m*4 && $k < $m*5) $cont = true;
+                // if($k >=  $m*5 && $k < $m*6) $cont = true;
+                // if($k >=  $m*6 && $k < $m*7) $cont = true;
+                // if($k >=  $m*7 && $k < $m*8) $cont = true;
+                // if($k >=  $m*8 && $k < $m*9) $cont = true;
+                // if($k >=  $m*9 && $k < $m*10) $cont = true;
+                if(!$cont) continue;
+                // */
+                $json = self::get_json_with_cache($rec['scientificName']);
+                echo "\n$i. [$json]\n";
+            }
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            /* uncomment in real operation
             if(!$run_gnparser) {
                 if(self::gnsparse_canonical($t['name']) != $t['name']) $run_gnparser = true;
             }
+            */
         }
         fclose($fn_tax);
         fclose($fn_syn);
         if(!$has_synonym) unlink($this->sh[$what]['source']."synonym.tsv");
-        if($run_gnparser) echo "\nWill need to run gnparser()\n";
+        if($run_gnparser) self::replace_sciname_with_gnparser_canonical($what);
         else              echo "\nNo need to run gnparser()\n";
-        self::parent_id_check();
+        self::parent_id_check($what);
     }
+    private function parent_id_check($what)
+    {
+    }
+    /*
+    private function run_file_with_gnparser($what) //working OK but not used
+    {
+        echo "\nRunning gnparser...\n";
+        $WRITE = fopen($this->sh[$what]['source']."name_only.txt", "w"); //will overwrite existing
+        foreach(new FileIterator($this->sh[$what]['source'].'taxonomy.tsv') as $line => $row) {
+            $tmp = explode("\t|\t", $row);
+            // print_r($tmp); exit;
+            if($val = @$tmp[2]) fwrite($WRITE, $val."\n");
+        }
+        fclose($WRITE);
+        //convert entire file (names) to gnparser version
+        $cmd = "gnparser file --input ".$this->sh[$what]['source']."name_only.txt --output ".$this->sh[$what]['source']."name_only_gnparsed.txt";
+        $out = shell_exec($cmd);
+        echo "\n$out\n";
+    }
+    */
+    private function replace_sciname_with_gnparser_canonical($what)
+    {
+        Functions::file_rename($this->sh[$what]['source'].'taxonomy.tsv', $this->sh[$what]['source'].'taxonomy_tmp.tsv');
+        $WRITE = fopen($this->sh[$what]['source']."taxonomy.tsv", "w"); $i = 0;
+        foreach(new FileIterator($this->sh[$what]['source'].'taxonomy_tmp.tsv') as $line => $row) {
+            $i++; if($i == 1) continue;
+            $tmp = explode("\t|\t", $row);
+            // print_r($tmp); exit;
+            if($name = @$tmp[2]) {
+                $json = self::get_json_with_cache($name);
+                echo "\n$i. [$json]\n";
+            }
+        }
+    }
+    
+    private function get_json_with_cache($name, $options = array()) //json generated by gnparser
+    {
+        // default expire time is 30 days
+        if(!isset($options['expire_seconds'])) $options['expire_seconds'] = false;
+        if(!isset($options['cache_path'])) $options['cache_path'] = $this->smasher_download_options['cache_path'];
+        $md5 = md5($name);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        if(!file_exists($options['cache_path'] . $cache1)) mkdir($options['cache_path'] . $cache1);
+        if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
+        $cache_path = $options['cache_path'] . "$cache1/$cache2/$md5.json";
+        if(file_exists($cache_path)) {
+            echo "\nRetrieving cache ($name)...\n";
+            $file_contents = file_get_contents($cache_path);
+            $cache_is_valid = true;
+            if(($file_contents && $cache_is_valid) || (strval($file_contents) == "0" && $cache_is_valid)) {
+                $file_age_in_seconds = time() - filemtime($cache_path);
+                if($file_age_in_seconds < $options['expire_seconds']) return $file_contents;
+                if($options['expire_seconds'] === false) return $file_contents;
+            }
+            @unlink($cache_path);
+        }
+        //generate json
+        echo "\nGenerating cache json for the first time ($name)...\n";
+        $cmd = 'gnparser name "'.$name.'"';
+        $json = shell_exec($cmd);
+        if($FILE = Functions::file_open($cache_path, 'w+')) {
+            fwrite($FILE, $json);
+            fclose($FILE);
+        }
+        return $json;
+    }
+    
     private function write2file($ext, $fn, $t)
     {
         if($ext == "syn")     fwrite($fn, $t['accepted_id'] . "\t|\t" . $t['name'] . "\t|\t" . 'synonym' . "\t|\t" . "\t|\t" . "\n");
