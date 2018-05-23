@@ -52,9 +52,34 @@ class DHSourceHierarchiesAPI
         if($meta == "No core entry in meta.xml") $meta = self::analyze_eol_meta_xml($meta_xml_path);
         $meta['what'] = $what;
         // print_r($meta); exit;
-        self::process_taxon_file($meta);
+        
+        $with_authorship = false;
+        if(self::need_2run_gnparser_YN($meta)) {
+            $with_authorship = true;
+            self::run_file_with_gnparser($what);
+            self::save_2local_gnparsed_file($what);
+        }
+        self::process_taxon_file($meta, $with_authorship);
     }
-    private function process_taxon_file($meta)
+    private function need_2run_gnparser_YN($meta)
+    {
+        foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
+            $i++;
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            if(!$row) continue;
+            $tmp = explode("\t", $row);
+            // echo "\n".count($tmp)."\n"; print_r($tmp);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); //exit; //use to test if field - value is OK
+            if(self::gnsparse_canonical($rec['scientificName']) != $rec['scientificName']) return true;
+        }
+        return false;
+    }
+    private function process_taxon_file($meta, $with_authorship)
     {
         $what = $meta['what']; $has_synonym = false;
         $fn_tax = fopen($this->sh[$what]['source']."taxonomy.tsv", "w"); //will overwrite existing
@@ -108,7 +133,8 @@ class DHSourceHierarchiesAPI
                 */
                 $t = array();
                 $t['parent_id']     = $rec['parentNameUsageID'];    //row[4]
-                $t['name']          = $rec['scientificName'];       //row[8]
+                if($with_authorship) $t['name'] = self::get_json_with_cache($rec['scientificName']); //row[8]
+                else                 $t['name'] = $rec['scientificName'];
                 $t['taxon_id']      = $rec['taxonID'];              //row[9]
                 $t['accepted_id']   = $rec['acceptedNameUsageID'];  //row[7]
                 $t['rank']          = ($val = @$rec['taxonRank']) ? $val: "no rank"; //row[2]
@@ -142,7 +168,8 @@ class DHSourceHierarchiesAPI
                 */
                 $t = array();
                 $t['parent_id'] = $rec['parentNameUsageID'];
-                $t['name']      = $rec['scientificName'];
+                if($with_authorship) $t['name'] = self::get_json_with_cache($rec['scientificName']); //row[8]
+                else                 $t['name'] = $rec['scientificName'];
                 $t['taxon_id']  = $rec['taxonID'];
                 $t['rank']      = ($val = @$rec['taxonRank']) ? $val: "no rank";
                 $t['source']    = '';
@@ -150,15 +177,6 @@ class DHSourceHierarchiesAPI
             }
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             if(in_array($what, array('worms'))) {
-                // $json = self::get_json_with_cache($rec['scientificName']);
-                // echo "\n$i. [$json]\n";
-                $t = array();
-                $t['parent_id'] = $rec['parentNameUsageID'];
-                $t['name']      = $rec['scientificName'];
-                $t['taxon_id']  = $rec['taxonID'];
-                $t['rank']      = ($val = @$rec['taxonRank']) ? $val: "no rank";
-                $t['source']    = '';
-                self::write2file("tax", $fn_tax, $t);
             }
             if(in_array($what, array('col'))) {
                 /* breakdown when caching:
@@ -175,37 +193,29 @@ class DHSourceHierarchiesAPI
                 // if($i >=  $m*9 && $i < $m*10) $cont = true;
                 if(!$cont) continue;
                 */
-                /*
-                $json = self::get_json_with_cache($rec['scientificName']);
-                echo "\n$i. [$json]\n";
-                */
-                $t = array();
-                $t['parent_id'] = $rec['parentNameUsageID'];
-                $t['name']      = $rec['scientificName'];
-                $t['taxon_id']  = $rec['taxonID'];
-                $t['rank']      = ($val = @$rec['taxonRank']) ? $val: "no rank";
-                $t['source']    = '';
-                self::write2file("tax", $fn_tax, $t);
             }
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            // /* uncomment in real operation
+            /* no longer used
             if(!$run_gnparser) {
                 if(self::gnsparse_canonical($t['name']) != $t['name']) $run_gnparser = true;
             }
-            // */
+            */
         }
         fclose($fn_tax);
         fclose($fn_syn);
         if(!$has_synonym) unlink($this->sh[$what]['source']."synonym.tsv");
-        if($run_gnparser) 
-        {
+
+        /* no longer used
+        if($run_gnparser) {
             self::run_file_with_gnparser($what);
             self::save_2local_gnparsed_file($what);
         }
         else              echo "\nNo need to run gnparser()\n";
+        */
+        
         self::parent_id_check($what);
     }
     private function parent_id_check($what)
@@ -215,10 +225,19 @@ class DHSourceHierarchiesAPI
     {
         echo "\nRunning gnparser...\n";
         $WRITE = fopen($this->sh[$what]['source']."name_only.txt", "w"); //will overwrite existing
-        foreach(new FileIterator($this->sh[$what]['source'].'taxonomy.tsv') as $line => $row) {
-            $tmp = explode("\t|\t", $row);
-            // print_r($tmp); exit;
-            if($val = @$tmp[2]) fwrite($WRITE, $val."\n");
+        foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
+            $i++;
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            if(!$row) continue;
+            $tmp = explode("\t", $row);
+            // echo "\n".count($tmp)."\n"; print_r($tmp);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); //exit; //use to test if field - value is OK
+            if($val = @$rec['scientificName']) fwrite($WRITE, $val."\n");
         }
         fclose($WRITE);
         //convert entire file (names) to gnparser version
