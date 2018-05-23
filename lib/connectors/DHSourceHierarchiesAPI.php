@@ -140,48 +140,64 @@ class DHSourceHierarchiesAPI
             }
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             if(in_array($what, array('worms'))) {
-                $json = self::get_json_with_cache($rec['scientificName']);
-                echo "\n$i. [$json]\n";
+                // $json = self::get_json_with_cache($rec['scientificName']);
+                // echo "\n$i. [$json]\n";
+                $t = array();
+                $t['parent_id'] = $rec['parentNameUsageID'];
+                $t['name']      = $rec['scientificName'];
+                $t['taxon_id']  = $rec['taxonID'];
+                $t['rank']      = ($val = @$rec['taxonRank']) ? $val: "no rank";
+                $t['source']    = '';
+                self::write2file("tax", $fn_tax, $t);
             }
             if(in_array($what, array('col'))) {
-                // /* breakdown when caching:
+                /* breakdown when caching:
                 $cont = false;
-                // if($k >=  1    && $k < $m) $cont = true;
-                // if($k >=  $m   && $k < $m*2) $cont = true;
-                // if($k >=  $m*2 && $k < $m*3) $cont = true;
-                if($k >=  $m*3 && $k < $m*4) $cont = true;
-                // if($k >=  $m*4 && $k < $m*5) $cont = true;
-                // if($k >=  $m*5 && $k < $m*6) $cont = true;
-                // if($k >=  $m*6 && $k < $m*7) $cont = true;
-                // if($k >=  $m*7 && $k < $m*8) $cont = true;
-                // if($k >=  $m*8 && $k < $m*9) $cont = true;
-                // if($k >=  $m*9 && $k < $m*10) $cont = true;
+                // if($i >=  1    && $i < $m) $cont = true;
+                // if($i >=  $m   && $i < $m*2) $cont = true;
+                // if($i >=  $m*2 && $i < $m*3) $cont = true;
+                // if($i >=  $m*3 && $i < $m*4) $cont = true;
+                // if($i >=  $m*4 && $i < $m*5) $cont = true;
+                // if($i >=  $m*5 && $i < $m*6) $cont = true;
+                if($i >=  $m*6 && $i < $m*7) $cont = true;
+                // if($i >=  $m*7 && $i < $m*8) $cont = true;
+                // if($i >=  $m*8 && $i < $m*9) $cont = true;
+                // if($i >=  $m*9 && $i < $m*10) $cont = true;
                 if(!$cont) continue;
-                // */
+                */
+                /*
                 $json = self::get_json_with_cache($rec['scientificName']);
                 echo "\n$i. [$json]\n";
+                */
+                $t = array();
+                $t['parent_id'] = $rec['parentNameUsageID'];
+                $t['name']      = $rec['scientificName'];
+                $t['taxon_id']  = $rec['taxonID'];
+                $t['rank']      = ($val = @$rec['taxonRank']) ? $val: "no rank";
+                $t['source']    = '';
+                self::write2file("tax", $fn_tax, $t);
             }
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            /* uncomment in real operation
+            // /* uncomment in real operation
             if(!$run_gnparser) {
                 if(self::gnsparse_canonical($t['name']) != $t['name']) $run_gnparser = true;
             }
-            */
+            // */
         }
         fclose($fn_tax);
         fclose($fn_syn);
         if(!$has_synonym) unlink($this->sh[$what]['source']."synonym.tsv");
-        if($run_gnparser) self::replace_sciname_with_gnparser_canonical($what);
+        if($run_gnparser) self::run_file_with_gnparser($what); //self::replace_sciname_with_gnparser_canonical($what);
         else              echo "\nNo need to run gnparser()\n";
         self::parent_id_check($what);
     }
     private function parent_id_check($what)
     {
     }
-    /*
+    // /*
     private function run_file_with_gnparser($what) //working OK but not used
     {
         echo "\nRunning gnparser...\n";
@@ -197,7 +213,8 @@ class DHSourceHierarchiesAPI
         $out = shell_exec($cmd);
         echo "\n$out\n";
     }
-    */
+    // */
+    /*
     private function replace_sciname_with_gnparser_canonical($what)
     {
         Functions::file_rename($this->sh[$what]['source'].'taxonomy.tsv', $this->sh[$what]['source'].'taxonomy_tmp.tsv');
@@ -212,10 +229,10 @@ class DHSourceHierarchiesAPI
             }
         }
     }
-    
+    */
     private function get_json_with_cache($name, $options = array()) //json generated by gnparser
     {
-        // default expire time is 30 days
+        // download_wait_time
         if(!isset($options['expire_seconds'])) $options['expire_seconds'] = false;
         if(!isset($options['cache_path'])) $options['cache_path'] = $this->smasher_download_options['cache_path'];
         $md5 = md5($name);
