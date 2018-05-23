@@ -71,12 +71,12 @@ class DHSourceHierarchiesAPI
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $tmp = explode("\t", $row);
-            // echo "\n".count($tmp)."\n"; print_r($tmp);
             $rec = array(); $k = 0;
             foreach($meta['fields'] as $field) {
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
+            // echo "\n".count($tmp)."\n"; print_r($tmp);
             // print_r($rec); //exit; //use to test if field - value is OK
             if(self::gnsparse_canonical($rec['scientificName'], "api") != $rec['scientificName']) return true;
         }
@@ -96,12 +96,12 @@ class DHSourceHierarchiesAPI
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $tmp = explode("\t", $row);
-            // echo "\n".count($tmp)."\n"; print_r($tmp);
             $rec = array(); $k = 0;
             foreach($meta['fields'] as $field) {
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
+            // echo "\n".count($tmp)."\n"; print_r($tmp);
             // print_r($rec); //exit; //use to test if field - value is OK
             if(($i % 5000) == 0) echo "\n".number_format($i)."\n";
             // echo "\n".number_format($i)."\n";
@@ -209,7 +209,7 @@ class DHSourceHierarchiesAPI
     private function parent_id_check($what)
     {
     }
-    private function run_file_with_gnparser($meta) //working OK but not used
+    private function run_file_with_gnparser($meta) //creates name_only.txt and converts it to name_only_gnparsed.txt using gnparser. gnparser converts entire file
     {
         $what = $meta['what']; $i = 0;
         if(file_exists($this->sh[$what]['source'].'name_only_gnparsed_DONE.txt')) {
@@ -223,12 +223,12 @@ class DHSourceHierarchiesAPI
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $tmp = explode("\t", $row);
-            // echo "\n".count($tmp)."\n"; print_r($tmp);
             $rec = array(); $k = 0;
             foreach($meta['fields'] as $field) {
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
+            // echo "\n".count($tmp)."\n"; print_r($tmp);
             // print_r($rec); //exit; //use to test if field - value is OK
             if($val = @$rec['scientificName']) fwrite($WRITE, $val."\n");
         }
