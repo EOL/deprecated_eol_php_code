@@ -37,6 +37,16 @@ class DHSourceHierarchiesAPI
     
     public function start($what)
     {
+        /*
+        $cmd = 'gnparser name "Gadus morhua Eli & Cha, 1972"';
+        $json = shell_exec($cmd);
+        print_r(json_decode($json, true));
+        exit;
+        */
+        
+        self::save_2local_gnparsed_file($what);
+        exit;
+        
         $meta_xml_path = $this->sh[$what]['source']."meta.xml";
         $meta = self::analyze_meta_xml($meta_xml_path);
         if($meta == "No core entry in meta.xml") $meta = self::analyze_eol_meta_xml($meta_xml_path);
@@ -190,14 +200,17 @@ class DHSourceHierarchiesAPI
         fclose($fn_tax);
         fclose($fn_syn);
         if(!$has_synonym) unlink($this->sh[$what]['source']."synonym.tsv");
-        if($run_gnparser) self::run_file_with_gnparser($what); //self::replace_sciname_with_gnparser_canonical($what);
+        if($run_gnparser) 
+        {
+            self::run_file_with_gnparser($what);
+            self::save_2local_gnparsed_file($what);
+        }
         else              echo "\nNo need to run gnparser()\n";
         self::parent_id_check($what);
     }
     private function parent_id_check($what)
     {
     }
-    // /*
     private function run_file_with_gnparser($what) //working OK but not used
     {
         echo "\nRunning gnparser...\n";
@@ -213,7 +226,35 @@ class DHSourceHierarchiesAPI
         $out = shell_exec($cmd);
         echo "\n$out\n";
     }
-    // */
+    private function save_2local_gnparsed_file($what)
+    {
+        $i = 0;
+        foreach(new FileIterator($this->sh[$what]['source'].'name_only_gnparsed.txt') as $line => $json) {
+            $i++; if($i == 1) continue;
+            // echo "\n$json\n";
+            $arr = json_decode($json, true);
+            // print_r($arr); exit;
+            $name = $arr['verbatim'];
+            echo "\n$i. $name";
+            
+            //now check if json already cached. Ignore if it does and save/cache it if it doesn't
+            $options['cache_path'] = $this->smasher_download_options['cache_path'];
+            $md5 = md5($name);
+            $cache1 = substr($md5, 0, 2);
+            $cache2 = substr($md5, 2, 2);
+            if(!file_exists($options['cache_path'] . $cache1)) mkdir($options['cache_path'] . $cache1);
+            if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
+            $cache_path = $options['cache_path'] . "$cache1/$cache2/$md5.json";
+            if(!file_exists($cache_path)) {
+                echo " - saving...";
+                if($FILE = Functions::file_open($cache_path, 'w')) {
+                    fwrite($FILE, $json);
+                    fclose($FILE);
+                }
+            }
+            else echo " - already saved/cached";
+        }
+    }
     /*
     private function replace_sciname_with_gnparser_canonical($what)
     {
