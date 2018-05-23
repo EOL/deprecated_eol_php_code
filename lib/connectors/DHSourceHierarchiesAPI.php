@@ -47,6 +47,8 @@ class DHSourceHierarchiesAPI
         self::save_2local_gnparsed_file($what);
         exit;
         */
+        // self::parent_id_check($what);
+        // exit;
         
         $meta_xml_path = $this->sh[$what]['source']."meta.xml";
         $meta = self::analyze_meta_xml($meta_xml_path);
@@ -208,6 +210,24 @@ class DHSourceHierarchiesAPI
     }
     private function parent_id_check($what)
     {
+        echo "\nStarts parent_id check...\n";
+        $i = 0;
+        foreach(new FileIterator($this->sh[$what]['source'].'taxonomy.tsv') as $line => $row) {
+            $i++; if($i == 1) continue;
+            $rec = explode("\t|\t", $row);
+            $uids[$rec[0]] = '';
+        }
+        echo "\nuids: ".count($uids)."\n";
+        $i = 0; $undefined_parents = array();
+        foreach(new FileIterator($this->sh[$what]['source'].'taxonomy.tsv') as $line => $row) {
+            $i++; if($i == 1) continue;
+            $rec = explode("\t|\t", $row);
+            if($parent_uid = @$rec[1]) {
+                // echo " [$parent_uid]";
+                if(!isset($uids[$parent_uid])) $undefined_parents[$parent_uid] = '';
+            }
+        }
+        echo "\nUndefined parents: ".count($undefined_parents)."\n";
     }
     private function run_file_with_gnparser($meta) //creates name_only.txt and converts it to name_only_gnparsed.txt using gnparser. gnparser converts entire file
     {
