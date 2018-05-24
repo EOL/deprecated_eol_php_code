@@ -11,6 +11,16 @@ class DHSourceHierarchiesAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         if(Functions::is_production()) {}
+        
+gnparser file --input xaa.txt --output xaa_gnparsed.txt
+gnparser file --input xab.txt --output xab_gnparsed.txt
+gnparser file --input xac.txt --output xac_gnparsed.txt
+gnparser file --input xad.txt --output xad_gnparsed.txt
+gnparser file --input xae.txt --output xae_gnparsed.txt
+gnparser file --input xaf.txt --output xaf_gnparsed.txt
+gnparser file --input xag.txt --output xag_gnparsed.txt
+gnparser file --input xah.txt --output xah_gnparsed.txt
+        
         */
         $this->AphiaRecordByAphiaID_download_options = array('download_wait_time' => 1000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 26, 'expire_seconds' => false);
         $this->webservice['AphiaRecordByAphiaID'] = "http://www.marinespecies.org/rest/AphiaRecordByAphiaID/";
@@ -25,13 +35,18 @@ class DHSourceHierarchiesAPI
         $this->taxonomy_header = array("uid", "parent_uid", "name", "rank", "sourceinfo"); //('uid	|	parent_uid	|	name	|	rank	|	sourceinfo	|	' + '\n')
         $this->synonym_header = array("uid", "name", "type", "rank");                      //('uid	|	name	|	type	|	rank	|	' + '\n')
         $this->main_path = "/Volumes/AKiTiO4/d_w_h/dynamic_working_hierarchy-master/";
+        $this->main_path = "/Volumes/AKiTiO4/d_w_h/eli_dwh/";
         
         $this->sh['worms']['source']        = $this->main_path."/worms_v5/";
         $this->sh['ioc-birdlist']['source'] = $this->main_path."/ioc-birdlist_v3/";
         $this->sh['trunk']['source']        = $this->main_path."/trunk_20180521/";
-        $this->sh['amphibia']['source']     = $this->main_path."/amphibia_v2/";
-        $this->sh['spiders']['source']      = $this->main_path."/spiders_v2/";
         $this->sh['col']['source']          = $this->main_path."/col_v1/";
+        $this->sh['ictv']['source']         = $this->main_path."/ictv_v3/";
+        $this->sh['ictv']['run_gnparse']    = false;
+        $this->sh['odonata']['source']         = $this->main_path."/odonata_v2/";
+        $this->sh['onychophora']['source']         = $this->main_path."/onychophora_v3/";
+        $this->sh['earthworms']['source']         = $this->main_path."/earthworms_v3/";
+        $this->sh['pbdb']['source']         = $this->main_path."/pbdb_v1/";
         
     }
     
@@ -42,9 +57,26 @@ class DHSourceHierarchiesAPI
         $json = shell_exec($cmd);
         print_r(json_decode($json, true));
         exit;
+        
+        gnparser file --input xaa.txt --output xaa_gnparsed.txt
+        gnparser file --input xab.txt --output xab_gnparsed.txt
+        gnparser file --input xac.txt --output xac_gnparsed.txt
+        gnparser file --input xad.txt --output xad_gnparsed.txt
+        gnparser file --input xae.txt --output xae_gnparsed.txt
+        gnparser file --input xaf.txt --output xaf_gnparsed.txt
+        gnparser file --input xag.txt --output xag_gnparsed.txt
+        gnparser file --input xah.txt --output xah_gnparsed.txt
+        ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/
         */
         /*
-        self::save_2local_gnparsed_file($what);
+        // self::save_2local_gnparsed_file($what, "xaa_gnparsed.txt");
+        // self::save_2local_gnparsed_file($what, "xab_gnparsed.txt");
+        // self::save_2local_gnparsed_file($what, "xac_gnparsed.txt");
+        // self::save_2local_gnparsed_file($what, "xad_gnparsed.txt");
+        // self::save_2local_gnparsed_file($what, "xae_gnparsed.txt");
+        // self::save_2local_gnparsed_file($what, "xaf_gnparsed.txt");
+        self::save_2local_gnparsed_file($what, "xag_gnparsed.txt");
+        self::save_2local_gnparsed_file($what, "xah_gnparsed.txt");
         exit;
         */
         // self::parent_id_check($what);
@@ -57,10 +89,13 @@ class DHSourceHierarchiesAPI
         // print_r($meta); exit;
         
         $with_authorship = false;
-        if(self::need_2run_gnparser_YN($meta)) {
-            $with_authorship = true;
-            self::run_file_with_gnparser($meta);
-            self::save_2local_gnparsed_file($what);
+        if(@$this->sh[$what]['run_gnparse'] === false) {}
+        else { //normal
+            if(self::need_2run_gnparser_YN($meta)) {
+                $with_authorship = true;
+                self::run_file_with_gnparser($meta);
+                self::save_2local_gnparsed_file($what);
+            }
         }
         self::process_taxon_file($meta, $with_authorship);
         self::parent_id_check($what);
@@ -81,6 +116,7 @@ class DHSourceHierarchiesAPI
             // echo "\n".count($tmp)."\n"; print_r($tmp);
             // print_r($rec); //exit; //use to test if field - value is OK
             if(self::gnsparse_canonical($rec['scientificName'], "api") != $rec['scientificName']) return true;
+            if($i >= 15) break;
         }
         return false;
     }
@@ -108,7 +144,7 @@ class DHSourceHierarchiesAPI
             if(($i % 5000) == 0) echo "\n".number_format($i)."\n";
             // echo "\n".number_format($i)."\n";
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if(in_array($what, array('trunk'))) {
+            if(in_array($what, array('trunk', 'odonata', 'onychophora'))) {
                 /*
                     [0] => 1
                     [1] => accepted
@@ -144,14 +180,14 @@ class DHSourceHierarchiesAPI
                 $t['accepted_id']   = $rec['acceptedNameUsageID'];  //row[7]
                 $t['rank']          = ($val = @$rec['taxonRank']) ? $val: "no rank"; //row[2]
                 $t['source']        = '';
-                if($t['accepted_id'] != $t['taxon_id']) {
+                if(($t['accepted_id'] != $t['taxon_id']) && $t['accepted_id'] != "") {
                     self::write2file("syn", $fn_syn, $t);
                     $has_synonym = true;
                 }
-                else self::write2file("tax", $fn_tax, $t);
+                elseif(($t['accepted_id'] == $t['taxon_id']) || $t['accepted_id'] == "") self::write2file("tax", $fn_tax, $t);
             }
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if(in_array($what, array('ioc-birdlist'))) { //headers changed from version: ioc-birdlist_v2 to ioc-birdlist_v3
+            if(in_array($what, array('ioc-birdlist', 'ictv', 'earthworms'))) { //headers changed from version: ioc-birdlist_v2 to ioc-birdlist_v3
                 /*
                     [0] => 09af091e166bfa45493c6242ebf16a7c
                     [1] => Celeus elegans leotaudi Hellmayr, 1906
@@ -171,9 +207,15 @@ class DHSourceHierarchiesAPI
                     [scientificNameAuthorship] => Hellmayr, 1906
                     out_file_t.write(taxon_id + '\t|\t' + parent_id + '\t|\t' + name + '\t|\t' + rank + '\t|\t' + source + '\t|\t' + '\n')
                 */
+                
+                // status = row[6]
+                // parent_id = row[3]
+                // accepted_id = row[2]
+                // 
+                
                 $t = array();
                 $t['parent_id'] = $rec['parentNameUsageID'];
-                if($with_authorship) $t['name'] = self::gnsparse_canonical($rec['scientificName'], 'cache'); //row[8]
+                if($with_authorship) $t['name'] = self::gnsparse_canonical($rec['scientificName'], 'cache');
                 else                 $t['name'] = $rec['scientificName'];
                 $t['taxon_id']  = $rec['taxonID'];
                 $t['rank']      = ($val = @$rec['taxonRank']) ? $val: "no rank";
@@ -181,8 +223,33 @@ class DHSourceHierarchiesAPI
                 self::write2file("tax", $fn_tax, $t);
             }
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if(in_array($what, array('worms'))) {
+            if(in_array($what, array('ictv'))) {
+                /*
+                parent_id = row[2]
+                name = row[3]
+                taxon_id = row[0]
+                rank = row[5].lower()
+                source = ''
+                out_file.write(taxon_id + '\t|\t' + parent_id + '\t|\t' + name + '\t|\t' + rank + '\t|\t' + source + '\t|\t' + '\n')
+                    [0] => ICTV:Sobemovirus
+                    [1] => 
+                    [2] => ICTV:unplaced Viruses
+                    [3] => Sobemovirus
+                    [4] => Viruses|unplaced
+                    [5] => genus
+
+                    [taxonID] => ICTV:Sobemovirus
+                    [source] => 
+                    [parentNameUsageID] => ICTV:unplaced Viruses
+                    [scientificName] => Sobemovirus
+                    [higherClassification] => Viruses|unplaced
+                    [taxonRank] => genus
+                */
             }
+            
+            //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            if(in_array($what, array('worms'))) {}
+            //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             if(in_array($what, array('col'))) {
                 /* breakdown when caching:
                 $cont = false;
@@ -199,7 +266,6 @@ class DHSourceHierarchiesAPI
                 if(!$cont) continue;
                 */
             }
-            //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -258,14 +324,15 @@ class DHSourceHierarchiesAPI
         $out = shell_exec($cmd);
         echo "\n$out\n";
     }
-    private function save_2local_gnparsed_file($what)
+    private function save_2local_gnparsed_file($what, $filename = false)
     {
         if(file_exists($this->sh[$what]['source'].'name_only_gnparsed_DONE.txt')) {
             echo "\nAll names for [$what] has already been cached.\n";
             return;
         }
         $i = 0;
-        foreach(new FileIterator($this->sh[$what]['source'].'name_only_gnparsed.txt') as $line => $json) {
+        if(!$filename) $filename = "name_only_gnparsed.txt";
+        foreach(new FileIterator($this->sh[$what]['source'].$filename) as $line => $json) {
             $i++; if($i == 1) continue;
             // echo "\n$json\n";
             $arr = json_decode($json, true);
@@ -334,7 +401,7 @@ class DHSourceHierarchiesAPI
         if($method == "api")       $json = Functions::lookup_with_cache($this->gnparser.urlencode($sciname), $this->smasher_download_options);
         elseif($method == "cache") $json = self::get_json_from_cache($sciname);
         if($obj = json_decode($json)) return @$obj->namesJson[0]->canonical_name->value;
-        exit("\nInvestigate cannot identify name [$sciname][$method]\n");
+        exit("\nInvestigate cannot get canonical name [$sciname][$method]\n");
     }
     private function analyze_eol_meta_xml($meta_xml_path)
     {
