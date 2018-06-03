@@ -24,9 +24,10 @@ class NatureServeAPI
     
     public function get_all_taxa()
     {
+        if(!file_exists(DOC_ROOT . 'tmp/dwc_archive_test')) mkdir(DOC_ROOT . 'tmp/dwc_archive_test');
         if(!file_exists(DOC_ROOT . 'tmp/natureserve')) mkdir(DOC_ROOT . 'tmp/natureserve');
         if(!file_exists(DOC_ROOT . 'tmp/natureserve/images')) mkdir(DOC_ROOT . 'tmp/natureserve/images');
-        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => DOC_ROOT . "/temp/dwc_archive_test/"));
+        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => DOC_ROOT . "/tmp/dwc_archive_test/"));
         
         $species_list_path = DOC_ROOT . "update_resources/connectors/files/natureserve_species_list.xml";
         shell_exec("rm -f $species_list_path");

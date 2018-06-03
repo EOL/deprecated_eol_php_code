@@ -5,6 +5,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli = $GLOBALS['db_connection'];
 
 require_library('connectors/NatureServeAPI');
+/* replaced by single line below
 @unlink(DOC_ROOT . "/temp/dwc_archive_test/meta.xml");
 @unlink(DOC_ROOT . "/temp/dwc_archive_test/taxon.tab");
 @unlink(DOC_ROOT . "/temp/dwc_archive_test/taxon_working.tab");
@@ -12,6 +13,8 @@ require_library('connectors/NatureServeAPI');
 @unlink(DOC_ROOT . "/temp/dwc_archive_test/media_resource_working.tab");
 @unlink(DOC_ROOT . "/temp/dwc_archive_test/reference.tab");
 rmdir(DOC_ROOT . "/temp/dwc_archive_test/");
+*/
+if(file_exists(DOC_ROOT . 'tmp/dwc_archive_test'))  recursive_rmdir(DOC_ROOT . 'tmp/dwc_archive_test');
 
 ini_set('memory_limit','7096M');
 $resource_id = 263;
@@ -23,7 +26,7 @@ if(!($resource_file = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . $resour
 // start the resource file with the XML header
 fwrite($resource_file, \SchemaDocument::xml_header());
 
-$archive = new ContentArchiveReader(null, DOC_ROOT . "/temp/dwc_archive_test/");
+$archive = new ContentArchiveReader(null, DOC_ROOT . "/tmp/dwc_archive_test/");
 
 $GLOBALS['data_objects'] = array();
 $GLOBALS['taxon_id_media'] = array();
@@ -60,6 +63,11 @@ $func->export_xml_to_archive($params, true, 0); // false => means it is NOT an X
 
 $deleteYN = true; //true means delete the DwCA folder in /resources/
 Functions::finalize_dwca_resource($resource_id, false, $deleteYN);
+
+//added June 2, 2018
+if(file_exists(DOC_ROOT . 'tmp/dwc_archive_test'))  recursive_rmdir(DOC_ROOT . 'tmp/dwc_archive_test');
+if(file_exists(DOC_ROOT . 'tmp/natureserve'))       recursive_rmdir(DOC_ROOT . 'tmp/natureserve');
+
 
 function lookup_taxa($taxon, $parameters)
 {
