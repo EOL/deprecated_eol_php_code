@@ -42,11 +42,12 @@ gnparser file --input xah.txt --output xah_gnparsed.txt
         $this->sh['trunk']['source']        = $this->main_path."/trunk_20180521/";
         $this->sh['col']['source']          = $this->main_path."/col_v1/";
         $this->sh['ictv']['source']         = $this->main_path."/ictv_v3/";
-        $this->sh['ictv']['run_gnparse']    = false;
-        $this->sh['odonata']['source']         = $this->main_path."/odonata_v2/";
-        $this->sh['onychophora']['source']         = $this->main_path."/onychophora_v3/";
-        $this->sh['earthworms']['source']         = $this->main_path."/earthworms_v3/";
+        $this->sh['ictv']['run_gnparse']    = false; //
+        $this->sh['odonata']['source']      = $this->main_path."/odonata_v2/";
+        $this->sh['onychophora']['source']  = $this->main_path."/onychophora_v3/";
+        $this->sh['earthworms']['source']   = $this->main_path."/earthworms_v3/";
         $this->sh['pbdb']['source']         = $this->main_path."/pbdb_v1/";
+        $this->sh['pbdb']['run_gnparse']    = false; //has separate field for 'scientificNameAuthorship'
         
     }
     
@@ -68,17 +69,17 @@ gnparser file --input xah.txt --output xah_gnparsed.txt
         gnparser file --input xah.txt --output xah_gnparsed.txt
         ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/
         */
-        /*
+        // /* CoL divided into smaller chunks
         // self::save_2local_gnparsed_file($what, "xaa_gnparsed.txt");
         // self::save_2local_gnparsed_file($what, "xab_gnparsed.txt");
         // self::save_2local_gnparsed_file($what, "xac_gnparsed.txt");
         // self::save_2local_gnparsed_file($what, "xad_gnparsed.txt");
         // self::save_2local_gnparsed_file($what, "xae_gnparsed.txt");
         // self::save_2local_gnparsed_file($what, "xaf_gnparsed.txt");
-        self::save_2local_gnparsed_file($what, "xag_gnparsed.txt");
-        self::save_2local_gnparsed_file($what, "xah_gnparsed.txt");
-        exit;
-        */
+        // self::save_2local_gnparsed_file($what, "xag_gnparsed.txt");
+        // self::save_2local_gnparsed_file($what, "xah_gnparsed.txt");
+        // exit;
+        // */
         // self::parent_id_check($what);
         // exit;
         
@@ -114,7 +115,7 @@ gnparser file --input xah.txt --output xah_gnparsed.txt
                 $k++;
             }
             // echo "\n".count($tmp)."\n"; print_r($tmp);
-            // print_r($rec); //exit; //use to test if field - value is OK
+            // print_r($rec); exit; //use to test if field - value is OK
             if(self::gnsparse_canonical($rec['scientificName'], "api") != $rec['scientificName']) return true;
             if($i >= 15) break;
         }
@@ -140,11 +141,11 @@ gnparser file --input xah.txt --output xah_gnparsed.txt
                 $k++;
             }
             // echo "\n".count($tmp)."\n"; print_r($tmp);
-            // print_r($rec); //exit; //use to test if field - value is OK
+            // print_r($rec); exit; //use to test if field - value is OK
             if(($i % 5000) == 0) echo "\n".number_format($i)."\n";
             // echo "\n".number_format($i)."\n";
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if(in_array($what, array('trunk', 'odonata', 'onychophora'))) {
+            if(in_array($what, array('trunk', 'odonata', 'onychophora', 'pbdb'))) {
                 /*
                     [0] => 1
                     [1] => accepted
