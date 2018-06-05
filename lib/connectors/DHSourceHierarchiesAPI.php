@@ -48,6 +48,12 @@ gnparser file --input xah.txt --output xah_gnparsed.txt
         $this->sh['earthworms']['source']   = $this->main_path."/earthworms_v3/";
         $this->sh['pbdb']['source']         = $this->main_path."/pbdb_v1/";
         $this->sh['pbdb']['run_gnparse']    = false; //has separate field for 'scientificNameAuthorship'
+
+        //row_terminator was instroduced for ncbi
+        //this was just Eli's initiative. May wait for Katja's instructions here...
+        $this->sh['ncbi']['source']         = $this->main_path."/ncbi_v1/";
+        $this->sh['ncbi']['run_gnparse']    = false; //has specific field for just canonical name
+        $this->sh['ncbi']['iterator_options'] = array('row_terminator' => "\t|\n");
         
     }
     
@@ -130,11 +136,15 @@ gnparser file --input xah.txt --output xah_gnparsed.txt
         fwrite($fn_syn, implode("\t|\t", $this->synonym_header)."\t|\t"."\n");
         $i = 0;
         $m = 3765285/10; //for CoL
-        foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
+        
+        foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file'], false, true, @$this->sh[$what]['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++;
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
-            $tmp = explode("\t", $row);
+            
+            if($what == 'ncbi') $tmp = explode("\t|\t", $row);
+            else                $tmp = explode("\t", $row);
+            
             $rec = array(); $k = 0;
             foreach($meta['fields'] as $field) {
                 $rec[$field] = $tmp[$k];
@@ -250,6 +260,29 @@ gnparser file --input xah.txt --output xah_gnparsed.txt
             
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             if(in_array($what, array('worms'))) {}
+            if(in_array($what, array('ncbi'))) {
+                /* Array(
+                    [taxonID] => 3830
+                    [scientificName] => Crotalaria pallida
+                    [xxx] => 
+                    [taxonomicStatus] => scientific name OR synonym
+                )
+                */
+                $t = array();
+                $t['parent_id']     = '';
+                if($with_authorship) $t['name'] = self::gnsparse_canonical($rec['scientificName'], 'cache');
+                else                 $t['name'] = $rec['scientificName'];
+                $t['taxon_id']      = $rec['taxonID'];
+                $t['accepted_id']   = '';
+                $t['rank']          = ($val = @$rec['taxonRank']) ? $val: "no rank";
+                $t['source']        = '';
+                if($rec['taxonomicStatus'] == "synonym") {
+                    self::write2file("syn", $fn_syn, $t);
+                    $has_synonym = true;
+                }
+                elseif($rec['taxonomicStatus'] == "scientific name") self::write2file("tax", $fn_tax, $t);
+            }
+            
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             if(in_array($what, array('col'))) {
                 /* breakdown when caching:
