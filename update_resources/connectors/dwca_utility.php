@@ -42,7 +42,7 @@ if(($val = $cmdline_params['resource_id']) && ($cmdline_params['resource_id'] !=
     */
     elseif($resource_id == "whatever") $dwca_file = "";
     else // e.g. what goes here: $ php dwca_utility.php _ ioc-birdlist Y 
-    {
+    {    // OR                         dwca_utility.php _ ICTV-virus_taxonomy Y
         if(is_dir(CONTENT_RESOURCE_LOCAL_PATH.$resource_id)) {
             $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.$resource_id.".tar.gz";
             $resource_id = get_base_filename($dwca_file, $cmdline_params['generate_higherClassification_YN']);
