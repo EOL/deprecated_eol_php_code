@@ -10,11 +10,12 @@ class FileIterator implements \Iterator
     protected $remove_file_on_destruct;
     protected $trim_newlines;
     
-    public function __construct($file_path, $remove_file_on_destruct = false, $trim_newlines = true)
+    public function __construct($file_path, $remove_file_on_destruct = false, $trim_newlines = true, $options = array())
     {
         $this->file_path = $file_path;
         $this->remove_file_on_destruct = $remove_file_on_destruct;
         $this->trim_newlines = $trim_newlines;
+        $this->options = $options;
         // file must exist and be readable
         if(is_readable($file_path))
         {
@@ -72,12 +73,19 @@ class FileIterator implements \Iterator
     {
         if(isset($this->FILE) && !feof($this->FILE))
         {
-            if ($this->trim_newlines) {
-                // // possibly faster but doesn't recognize both \n and \r
-                // $this->current_line = stream_get_line($this->FILE, 65535, "\n");
-                $this->current_line = rtrim(fgets($this->FILE), "\r\n");
-            } else {
-                $this->current_line = fgets($this->FILE);
+            if($row_terminator = @$this->options['row_terminator']) { //added by Eli
+                $this->current_line = stream_get_line($this->FILE, 65535, $row_terminator);
+            }
+            else { 
+                //original sole process for get_next_line() ----------------------------------
+                if ($this->trim_newlines) {
+                    // // possibly faster but doesn't recognize both \n and \r
+                    // $this->current_line = stream_get_line($this->FILE, 65535, "\n");
+                    $this->current_line = rtrim(fgets($this->FILE), "\r\n");
+                } else {
+                    $this->current_line = fgets($this->FILE);
+                }
+                //end of original block ----------------------------------
             }
             
             $this->line_number += 1;
