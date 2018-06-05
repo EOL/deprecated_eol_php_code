@@ -401,7 +401,9 @@ gnparser file --input xah.txt --output xah_gnparsed.txt
     {
         if($method == "api")       $json = Functions::lookup_with_cache($this->gnparser.urlencode($sciname), $this->smasher_download_options);
         elseif($method == "cache") $json = self::get_json_from_cache($sciname);
-        if($obj = json_decode($json)) return @$obj->namesJson[0]->canonical_name->value;
+        if($obj = json_decode($json)) {
+            if($ret = @$obj->namesJson[0]->canonical_name->value) return $ret;
+        }
         exit("\nInvestigate cannot get canonical name [$sciname][$method]\n");
     }
     private function analyze_eol_meta_xml($meta_xml_path)
