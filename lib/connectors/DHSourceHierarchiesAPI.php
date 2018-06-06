@@ -69,6 +69,31 @@ gnparser file --input xah.txt --output xah_gnparsed.txt
     public function start($what)
     {
         /*
+        $json = Functions::lookup_with_cache($this->gnparser.urlencode('Notoscolex wellingtonensis (Spencer, 1895)'), $this->smasher_download_options);
+        exit("\n".$json."\n");
+        */
+        
+        /*
+        $sciname = "Gadus morhua Eli 1972";
+        $canonical = self::gnsparse_canonical($sciname, 'api');
+        // print_r(json_decode($json, true));
+        echo "\n[$canonical]\n";
+        $canonical = self::gnsparse_canonical($sciname, 'cache');
+        // print_r(json_decode($json, true));
+        echo "\n[$canonical]\n";
+        exit("\nstopx\n");
+        */
+
+        /*
+        $sciname = "Gadus morhua Eli 1972";
+        $json = Functions::lookup_with_cache($this->gnparser.urlencode($sciname), $this->smasher_download_options);
+        print_r(json_decode($json, true));
+        $json = self::get_json_from_cache($sciname);
+        print_r(json_decode($json, true));
+        exit;
+        */
+        
+        /*
         $cmd = 'gnparser name "Gadus morhua Eli & Cha, 1972"';
         $json = shell_exec($cmd);
         print_r(json_decode($json, true));
@@ -441,12 +466,19 @@ gnparser file --input xah.txt --output xah_gnparsed.txt
     }
     private function gnsparse_canonical($sciname, $method)
     {
-        if($method == "api")       $json = Functions::lookup_with_cache($this->gnparser.urlencode($sciname), $this->smasher_download_options);
-        elseif($method == "cache") $json = self::get_json_from_cache($sciname);
-        if($obj = json_decode($json)) {
-            if($ret = @$obj->namesJson[0]->canonical_name->value) return $ret;
+        if($method == "api") {
+            $json = Functions::lookup_with_cache($this->gnparser.urlencode($sciname), $this->smasher_download_options);
+            if($obj = json_decode($json)) {
+                if($ret = @$obj->namesJson[0]->canonical_name->value) return $ret;
+            }
         }
-        exit("\nInvestigate cannot get canonical name [$sciname][$method]\n");
+        elseif($method == "cache") {
+            $json = self::get_json_from_cache($sciname);
+            if($obj = json_decode($json)) {
+                if($ret = @$obj->canonical_name->value) return $ret;
+            }
+        }
+        echo("\nInvestigate cannot get canonical name [$sciname][$method]\n[$json]\n");
     }
     private function analyze_eol_meta_xml($meta_xml_path)
     {
