@@ -415,7 +415,7 @@ gnparser file --input xah.txt --output xah_gnparsed.txt
             if(!file_exists($options['cache_path'] . $cache1)) mkdir($options['cache_path'] . $cache1);
             if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
             $cache_path = $options['cache_path'] . "$cache1/$cache2/$md5.json";
-            if(!file_exists($cache_path)) {
+            if(!file_exists($cache_path) || filesize($cache_path) == 0) {
                 if(($i % 1000) == 0) echo " - saving...";
                 if($FILE = Functions::file_open($cache_path, 'w')) {
                     fwrite($FILE, $json);
@@ -452,9 +452,11 @@ gnparser file --input xah.txt --output xah_gnparsed.txt
         echo "\nGenerating cache json for the first time ($name)...\n";
         $cmd = 'gnparser name "'.$name.'"';
         $json = shell_exec($cmd);
-        if($FILE = Functions::file_open($cache_path, 'w+')) {
-            fwrite($FILE, $json);
-            fclose($FILE);
+        if($json) {
+            if($FILE = Functions::file_open($cache_path, 'w+')) {
+                fwrite($FILE, $json);
+                fclose($FILE);
+            }
         }
         return $json;
     }
