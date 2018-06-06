@@ -26,16 +26,25 @@ gnparser file --input xah.txt --output xah_gnparsed.txt
         $this->webservice['AphiaRecordByAphiaID'] = "http://www.marinespecies.org/rest/AphiaRecordByAphiaID/";
 
         $this->gnparser = "http://parser.globalnames.org/api?q=";
-        $this->smasher_download_options = array(
-            'cache_path'         => '/Volumes/AKiTiO4/eol_cache_smasher/',
-            'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
+        
+        if(Functions::is_production()) {
+            $this->smasher_download_options = array(
+                'cache_path'         => '/extra/eol_cache_smasher/',
+                'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
+            $this->main_path = "/extra/eli_dwh/";
+        }
+        else {
+            $this->smasher_download_options = array(
+                'cache_path'         => '/Volumes/AKiTiO4/eol_cache_smasher/',
+                'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
+            $this->main_path = "/Volumes/AKiTiO4/d_w_h/dynamic_working_hierarchy-master/";
+            $this->main_path = "/Volumes/AKiTiO4/d_w_h/eli_dwh/";
+        }
         /* Functions::lookup_with_cache($this->gnparser.urlencode($rec['scientificName']), $this->smasher_download_options); */
         
         $this->debug = array();
         $this->taxonomy_header = array("uid", "parent_uid", "name", "rank", "sourceinfo"); //('uid	|	parent_uid	|	name	|	rank	|	sourceinfo	|	' + '\n')
         $this->synonym_header = array("uid", "name", "type", "rank");                      //('uid	|	name	|	type	|	rank	|	' + '\n')
-        $this->main_path = "/Volumes/AKiTiO4/d_w_h/dynamic_working_hierarchy-master/";
-        $this->main_path = "/Volumes/AKiTiO4/d_w_h/eli_dwh/";
         
         $this->sh['worms']['source']        = $this->main_path."/worms_v5/";
         $this->sh['ioc-birdlist']['source'] = $this->main_path."/ioc-birdlist_v3/";
