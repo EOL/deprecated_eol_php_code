@@ -447,6 +447,8 @@ class DHSourceHierarchiesAPI
                 fwrite($FILE, $json);
                 fclose($FILE);
             }
+            //just to check if you can now get the canonical
+            echo " ---> ".self::gnsparse_canonical($name, 'cache');
         }
         return $json;
     }
