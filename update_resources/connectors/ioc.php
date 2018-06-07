@@ -16,7 +16,7 @@ ioc	Sunday 2018-05-20 01:19:14 PM	{"measurement_or_fact.tab":42989,"occurrence.t
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/IOCBirdlistAPI');
 $timestart = time_elapsed();
-$resource_id = "ioc"; //"ioc-birdlist";
+$resource_id = "ioc-birdlist";
 $fishbase = new IOCBirdlistAPI(false, $resource_id);
 $fishbase->get_all_taxa($resource_id);
 Functions::finalize_dwca_resource($resource_id);
