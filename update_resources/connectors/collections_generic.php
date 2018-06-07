@@ -77,7 +77,7 @@ $info[18] = array('id' => 179, 'data_types' => array('text'), 'xml_path' => '');
 $info[79] = array('id' => 214, 'data_types' => array('images'), 'xml_path' => ''); //Public Health Image Library Resource
 
 //has connector, new site, must re-create connector, so will backup media for now.
-$info[185] = array('id' => 293, 'data_types' => array('images'), 'xml_path' => ''); //Turbellarian Taxonomic Database resource
+$info[185] = array('id' => 293, 'data_types' => array('images', 'text'), 'xml_path' => ''); //Turbellarian Taxonomic Database resource
 
 //no xml nor dwca, has collection
 $info[367] = array('id' => 24776, 'data_types' => array('video'), 'xml_path' => ''); //DCbirds video
