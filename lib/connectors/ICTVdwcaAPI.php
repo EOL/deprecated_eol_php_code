@@ -17,11 +17,13 @@ class ICTVdwcaAPI
         $this->single_reference_for_all = false;
         $this->levels = array("kingdom" => 1, "phylum" => 2, "class" => 3, "order" => 4, "family" => 5, "genus" => 6, "species" => 7, "subspecies" => 8);
         $this->download_options = array('expire_seconds' => 60*60*60*24*25, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1); //expires in 1 year
+        // $this->download_options['expire_seconds'] = true;
     }
 
     function get_all_taxa($data_dump_url = false)
     {
         $this->data_dump_url = self::get_dump_url();
+        echo("\n[$this->data_dump_url]\n");
         // $this->data_dump_url = "http://localhost/cp/ICTV/ICTV Master Species List 2016 v1.3.xlsx"; //debug
 
         $records = self::parse_xls();
