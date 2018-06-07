@@ -22,7 +22,7 @@ class ICTVdwcaAPI
     function get_all_taxa($data_dump_url = false)
     {
         $this->data_dump_url = self::get_dump_url();
-        // $this->data_dump_url = "http://localhost/cp/ICTV/ICTV Master Species List 2016 v1.1.xlsx"; //debug
+        // $this->data_dump_url = "http://localhost/cp/ICTV/ICTV Master Species List 2016 v1.3.xlsx"; //debug
 
         $records = self::parse_xls();
         // print_r($records);
@@ -64,7 +64,8 @@ class ICTVdwcaAPI
             debug("\n reading: " . $this->data_dump_url . "\n");
             $temp = $parser->convert_sheet_to_array($this->data_dump_url, 2);
             $records = $parser->prepare_data($temp, "single", "Taxon History URL", "Order", "Family", "Subfamily", "Genus", "Species", "Type Species?", "Exemplar Accession Number", "Exemplar Isolate", "Genome Composition", "Last Change", "MSL of Last Change", "Proposal", "Taxon History URL");
-            // print_r($records); echo count($records);
+            // print_r($records); //good debug
+            echo "\nTotal records: ".count($records)."\n"; //exit;
             $records = self::add_nodes_for_order_family_genus($records);
             return $records;
         }
