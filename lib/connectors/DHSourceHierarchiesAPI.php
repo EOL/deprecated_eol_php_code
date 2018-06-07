@@ -11,16 +11,6 @@ class DHSourceHierarchiesAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         if(Functions::is_production()) {}
-        
-gnparser file --input xaa.txt --output xaa_gnparsed.txt
-gnparser file --input xab.txt --output xab_gnparsed.txt
-gnparser file --input xac.txt --output xac_gnparsed.txt
-gnparser file --input xad.txt --output xad_gnparsed.txt
-gnparser file --input xae.txt --output xae_gnparsed.txt
-gnparser file --input xaf.txt --output xaf_gnparsed.txt
-gnparser file --input xag.txt --output xag_gnparsed.txt
-gnparser file --input xah.txt --output xah_gnparsed.txt
-        
         */
         $this->AphiaRecordByAphiaID_download_options = array('download_wait_time' => 1000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 26, 'expire_seconds' => false);
         $this->webservice['AphiaRecordByAphiaID'] = "http://www.marinespecies.org/rest/AphiaRecordByAphiaID/";
