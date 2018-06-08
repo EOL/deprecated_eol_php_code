@@ -24,18 +24,25 @@ class TurbellarianAPI_v2
 
         $this->page['main'] = "http://turbellaria.umaine.edu/turbella.php";
         $this->page['action_1'] = "http://turbellaria.umaine.edu/turb3.php?action=1&code=";
+        $this->page['action_2'] = "http://turbellaria.umaine.edu/turb3.php?action=2&code=";
     }
 
     function start()
     {
-        /* main operation
+        
+        // $all_ids = self::get_all_ids();
+        
+        
+        // /* main operation
         $all_ids = self::get_all_ids();
+        
         foreach($all_ids as $code) {
+            echo " $code";
             self::process_page($code);
         }
-        */
-
-        self::process_page(3511); //3158 3191
+        // */
+        exit;
+        self::process_page(5654); //3158 3191 3511
         exit;
     }
     private function format_html($html)
@@ -61,46 +68,63 @@ class TurbellarianAPI_v2
     {
         if(stripos($str, 'action=2&') !== false) {//string is found
             echo "\nwith direct image\n";
+            //<a href="/turb3.php?action=2&code=3511&smk=1">
+            if(preg_match("/action=2&code=".$id."(.*?)\"/ims", $str, $arr)) {
+                $url = $this->page['action_2'].$id.$arr[1];
+                echo "\n$url\n"; //e.g. http://turbellaria.umaine.edu/turb3.php?action=2&code=5654&smk=0
+                if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+                    $html = self::get_string_starting_from('table of thumbnail images', $html);
+                    if(preg_match_all("/<img src=\"(.*?)\"/ims", $html, $arr)) {
+                        print_r($arr[1]);
+                        return $arr[1];
+                    }
+                }
+            }
+            echo "\n[$str]\n";
         }
+        return false;
     }
     private function get_all_ids()
     {
         $stack = array();
         $main_ids = self::get_main_ids(); //get main IDs from home page
         // print_r($main_ids); exit;
+        
+        // $main_ids = array(4014);
+        
         foreach($main_ids as $id1) {
             $ids1 = self::get_valid_ids($id1); $stack = array_merge($stack, $ids1);
-            foreach(array_keys($ids1) as $id2) {
+            foreach($ids1 as $id2) {
                 $ids2 = self::get_valid_ids($id2); $stack = array_merge($stack, $ids2);
-                foreach(array_keys($ids2) as $id3) {
+                foreach($ids2 as $id3) {
                     $ids3 = self::get_valid_ids($id3); $stack = array_merge($stack, $ids3);
-                    foreach(array_keys($ids3) as $id4) {
+                    foreach($ids3 as $id4) {
                         $ids4 = self::get_valid_ids($id4); $stack = array_merge($stack, $ids4);
-                        foreach(array_keys($ids4) as $id5) {
+                        foreach($ids4 as $id5) {
                             $ids5 = self::get_valid_ids($id5); $stack = array_merge($stack, $ids5);
-                            foreach(array_keys($ids5) as $id6) {
+                            foreach($ids5 as $id6) {
                                 $ids6 = self::get_valid_ids($id6); $stack = array_merge($stack, $ids6);
-                                foreach(array_keys($ids6) as $id7) {
+                                foreach($ids6 as $id7) {
                                     $ids7 = self::get_valid_ids($id7); $stack = array_merge($stack, $ids7);
-                                    foreach(array_keys($ids7) as $id8) { 
+                                    foreach($ids7 as $id8) { 
                                         $ids8 = self::get_valid_ids($id8); $stack = array_merge($stack, $ids8);
-                                        foreach(array_keys($ids8) as $id9) { //exit("\nlevel 8\n");
+                                        foreach($ids8 as $id9) { //exit("\nlevel 8\n");
                                             $ids9 = self::get_valid_ids($id9); $stack = array_merge($stack, $ids9);
-                                            foreach(array_keys($ids9) as $id10) { //exit("\nlevel 9\n");
+                                            foreach($ids9 as $id10) { //exit("\nlevel 9\n");
                                                 $ids10 = self::get_valid_ids($id10); $stack = array_merge($stack, $ids10);
-                                                foreach(array_keys($ids10) as $id11) { //exit("\nlevel 10\n");
+                                                foreach($ids10 as $id11) { //exit("\nlevel 10\n");
                                                     $ids11 = self::get_valid_ids($id11); $stack = array_merge($stack, $ids11);
-                                                    foreach(array_keys($ids11) as $id12) { //exit("\nlevel 11\n");
+                                                    foreach($ids11 as $id12) { //exit("\nlevel 11\n");
                                                         $ids12 = self::get_valid_ids($id12); $stack = array_merge($stack, $ids12);
-                                                        foreach(array_keys($ids12) as $id13) { //exit("\nlevel 12\n");
+                                                        foreach($ids12 as $id13) { //exit("\nlevel 12\n");
                                                             $ids13 = self::get_valid_ids($id13); $stack = array_merge($stack, $ids13);
-                                                            foreach(array_keys($ids13) as $id14) { //exit("\nlevel 13\n");
+                                                            foreach($ids13 as $id14) { //exit("\nlevel 13\n");
                                                                 $ids14 = self::get_valid_ids($id14); $stack = array_merge($stack, $ids14);
-                                                                foreach(array_keys($ids14) as $id15) { exit("\nlevel 14\n");
+                                                                foreach($ids14 as $id15) { exit("\nlevel 14\n");
                                                                     $ids15 = self::get_valid_ids($id15); $stack = array_merge($stack, $ids15);
-                                                                    foreach(array_keys($ids15) as $id16) { exit("\nlevel 15\n");
+                                                                    foreach($ids15 as $id16) { exit("\nlevel 15\n");
                                                                         $ids16 = self::get_valid_ids($id16); $stack = array_merge($stack, $ids16);
-                                                                        foreach(array_keys($ids16) as $id17) { exit("\nlevel 16\n");
+                                                                        foreach($ids16 as $id17) { exit("\nlevel 16\n");
                                                                             $ids17 = self::get_valid_ids($id17); $stack = array_merge($stack, $ids17);
                                                                         }
                                                                     }
@@ -119,25 +143,30 @@ class TurbellarianAPI_v2
                 }
             }
         }
-        print_r($stack);
+        echo "\n--------------------------\n";
+        // print_r($stack);
         echo "\n".count($stack)."\n";
-        exit("\n-stopx-\n");
-        return array_keys($stack);
+        $stack = array_unique($stack);
+        echo "\n".count($stack)."\n";
+        // exit("\n-stopx-\n");
+        return $stack;
     }
     private function get_valid_ids($id)
     {
+        // if(in_array($id, array(0,1))) return array();
         $valid = array();
         $html = Functions::lookup_with_cache($this->page['action_1'].$id, $this->download_options);
         $html = self::get_string_starting_from('table of subtaxa', $html);
         if(preg_match_all("/action=1&code=(.*?)<\/td>/ims", $html, $arr)) {
-            print_r($arr[1]);
+            // print_r($arr[1]);
             foreach($arr[1] as $row) {
                 if(stripos($row, '<font color="red">') !== false) continue; //string is found
                 if(stripos($row, '<font color="00cc00">') !== false) continue; //string is found
-                echo "\n[$row]";
-                if(preg_match("/elix173(.*?)\"/ims", 'elix173'.$row, $arr2)) $valid[$arr2[1]] = '';
+                // echo "\n[$row]";
+                if(preg_match("/elix173(.*?)\"/ims", 'elix173'.$row, $arr2)) $valid[] = $arr2[1];
             }
         }
+        // print_r($valid);
         return $valid;
     }
     private function get_string_starting_from($str, $html)

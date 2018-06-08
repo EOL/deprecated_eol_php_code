@@ -9,11 +9,14 @@ This is now the new connector: https://eol-jira.bibalex.org/browse/TRAM-709 (Jun
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 /*
-$a['eli'] = '';
-$a['boy'] = '';
-$b['cha'] = '';
-$b['girl'] = '';
+$a["900x"] = "";
+$a["200x"] = "";
+$b[(string)"1000"] = "";
+$b["173"] = "";
 $c = array_merge($a, $b);
+$d["123"] = "";
+$c = array_merge($c, $d, array());
+
 print_r($c); exit;
 */
 
