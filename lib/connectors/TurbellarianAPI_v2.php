@@ -20,7 +20,7 @@ class TurbellarianAPI_v2
         $this->EOL = 'http://www.eol.org/voc/table_of_contents';
 
         $this->TEMP_DIR = create_temp_dir() . "/";
-        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 9600, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'expire_seconds' => 60*60*24*25);
+        $this->download_options = array('download_wait_time' => 500000, 'timeout' => 9600, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'expire_seconds' => 60*60*24*25);
 
         $this->page['main'] = "http://turbellaria.umaine.edu/turbella.php";
         $this->page['action_1'] = "http://turbellaria.umaine.edu/turb3.php?action=1&code=";
@@ -28,8 +28,46 @@ class TurbellarianAPI_v2
 
     function start()
     {
+        /* main operation
+        $all_ids = self::get_all_ids();
+        foreach($all_ids as $code) {
+            self::process_page($code);
+        }
+        */
+
+        self::process_page(3511); //3158 3191
+        exit;
+    }
+    private function format_html($html)
+    {
+        $html = str_ireplace("<td >", "<td>", $html);
+        $html = str_ireplace("<th >", "<th>", $html);
+        $html = str_ireplace("<td>&nbsp;</td>", "", $html);
+        return $html;
+    }
+    private function process_page($id)
+    {
+        $html = Functions::lookup_with_cache($this->page['action_1'].$id, $this->download_options);
+        $html = self::format_html($html);
+        $html = self::get_string_starting_from('table of subtaxa', $html);
+        if(preg_match("/<tr>(.*?)<\/tr>/ims", $html, $arr)) {
+            $str = $arr[1];
+            $direct_images = self::get_direct_images($str, $id);        //action=2
+            // $downline_images = self::get_downline_images($str, $id);    //action=23
+            // $synonyms = self::get_synonyms($str, $id);                  //action=6
+        }
+    }
+    private function get_direct_images($str, $id) //action=2
+    {
+        if(stripos($str, 'action=2&') !== false) {//string is found
+            echo "\nwith direct image\n";
+        }
+    }
+    private function get_all_ids()
+    {
         $stack = array();
-        $main_ids = self::get_main_ids();
+        $main_ids = self::get_main_ids(); //get main IDs from home page
+        // print_r($main_ids); exit;
         foreach($main_ids as $id1) {
             $ids1 = self::get_valid_ids($id1); $stack = array_merge($stack, $ids1);
             foreach(array_keys($ids1) as $id2) {
@@ -58,10 +96,13 @@ class TurbellarianAPI_v2
                                                             $ids13 = self::get_valid_ids($id13); $stack = array_merge($stack, $ids13);
                                                             foreach(array_keys($ids13) as $id14) { //exit("\nlevel 13\n");
                                                                 $ids14 = self::get_valid_ids($id14); $stack = array_merge($stack, $ids14);
-                                                                foreach(array_keys($ids14) as $id15) { //exit("\nlevel 14\n");
+                                                                foreach(array_keys($ids14) as $id15) { exit("\nlevel 14\n");
                                                                     $ids15 = self::get_valid_ids($id15); $stack = array_merge($stack, $ids15);
                                                                     foreach(array_keys($ids15) as $id16) { exit("\nlevel 15\n");
                                                                         $ids16 = self::get_valid_ids($id16); $stack = array_merge($stack, $ids16);
+                                                                        foreach(array_keys($ids16) as $id17) { exit("\nlevel 16\n");
+                                                                            $ids17 = self::get_valid_ids($id17); $stack = array_merge($stack, $ids17);
+                                                                        }
                                                                     }
                                                                 }
                                                             }
@@ -78,12 +119,10 @@ class TurbellarianAPI_v2
                 }
             }
         }
-        
-        echo "\n".count($stack)."\n";
-        // self::get_valid_ids(123); //123
-        // self::get_valid_ids(550); //123
         print_r($stack);
-        exit;
+        echo "\n".count($stack)."\n";
+        exit("\n-stopx-\n");
+        return array_keys($stack);
     }
     private function get_valid_ids($id)
     {
@@ -95,6 +134,7 @@ class TurbellarianAPI_v2
             foreach($arr[1] as $row) {
                 if(stripos($row, '<font color="red">') !== false) continue; //string is found
                 if(stripos($row, '<font color="00cc00">') !== false) continue; //string is found
+                echo "\n[$row]";
                 if(preg_match("/elix173(.*?)\"/ims", 'elix173'.$row, $arr2)) $valid[$arr2[1]] = '';
             }
         }
@@ -102,18 +142,13 @@ class TurbellarianAPI_v2
     }
     private function get_string_starting_from($str, $html)
     {
-        if(preg_match("/".$str."(.*?)elix173/ims", $html."elix173", $arr))
-        {
-            return $arr[1];
-        }
-        
+        if(preg_match("/".$str."(.*?)elix173/ims", $html."elix173", $arr)) return $arr[1];
     }
-    private function get_main_ids()
+    private function get_main_ids() //get main IDs from home page
     {
         $html = Functions::lookup_with_cache($this->page['main'], $this->download_options);
         if(preg_match_all("/action=1&code=(.*?)\"/ims", $html, $arr)) return $arr[1];
     }
-    
 
     private function xxx()
     {
