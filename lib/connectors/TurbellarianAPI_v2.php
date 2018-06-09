@@ -23,26 +23,21 @@ class TurbellarianAPI_v2
         $this->download_options = array('download_wait_time' => 500000, 'timeout' => 9600, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'expire_seconds' => 60*60*24*25);
 
         $this->page['main'] = "http://turbellaria.umaine.edu/turbella.php";
-        $this->page['action_1'] = "http://turbellaria.umaine.edu/turb3.php?action=1&code=";
-        $this->page['action_2'] = "http://turbellaria.umaine.edu/turb3.php?action=2&code=";
+        $this->page['action_1']  = "http://turbellaria.umaine.edu/turb3.php?action=1&code=";
+        $this->page['action_2']  = "http://turbellaria.umaine.edu/turb3.php?action=2&code=";
+        $this->page['action_23'] = "http://turbellaria.umaine.edu/turb3.php?action=23&code=";
     }
 
     function start()
     {
-        
-        // $all_ids = self::get_all_ids();
-        
-        
-        // /* main operation
+        /* main operation
         $all_ids = self::get_all_ids();
-        
         foreach($all_ids as $code) {
             echo " $code";
             self::process_page($code);
         }
-        // */
-        exit;
-        self::process_page(5654); //3158 3191 3511
+        */
+        self::process_page(3191); //3158 3191 4901 3511 5654 1223
         exit;
     }
     private function format_html($html)
@@ -59,15 +54,67 @@ class TurbellarianAPI_v2
         $html = self::get_string_starting_from('table of subtaxa', $html);
         if(preg_match("/<tr>(.*?)<\/tr>/ims", $html, $arr)) {
             $str = $arr[1];
-            $direct_images = self::get_direct_images($str, $id);        //action=2
-            // $downline_images = self::get_downline_images($str, $id);    //action=23
+            // echo "\n[$str]\n";
+            // <th>Allostoma</th>
+            // <td>Beneden, 1861</td>
+            if(preg_match("/<th>(.*?)<\/th>/ims", $str, $arr)) $main_sci['name'] = $arr[1];
+            if(preg_match("/<td>(.*?)<\/td>/ims", $str, $arr)) $main_sci['author'] = $arr[1];
+            print_r($main_sci);
+            
+            
+            // $direct_images = self::get_direct_images($str, $id);        //action=2
+            $downline_images = self::get_downline_images($str, $id, self::get_invalid_names($html));    //action=23
             // $synonyms = self::get_synonyms($str, $id);                  //action=6
         }
+    }
+    private function get_invalid_names($html) //get Red and Green highlighted taxa
+    {
+        $html = self::get_string_starting_from('table of taxa', $html);
+        // <font color="red">graffi</font>
+        // <font color="00cc00">calyx</font>
+        $invalid_names = array();
+        if(preg_match_all("/<font color=\"red\">(.*?)<\/font>/ims", $html, $arr))    $invalid_names = array_merge($invalid_names, $arr[1]);
+        if(preg_match_all("/<font color=\"00cc00\">(.*?)<\/font>/ims", $html, $arr)) $invalid_names = array_merge($invalid_names, $arr[1]);
+        print_r($invalid_names);
+        return $invalid_names;
+    }
+    private function get_downline_images($str, $id, $exclude) //action=23
+    {
+        if(stripos($str, 'action=23&') !== false) {//string is found
+            echo "\nwith downline image(s)\n";
+            if(preg_match("/action=23&code=".$id."(.*?)\"/ims", $str, $arr)) {
+                $url = $this->page['action_23'].$id.$arr[1];
+                echo "\n$url\n"; //e.g. http://turbellaria.umaine.edu/turb3.php?action=2&code=5654&smk=0
+                if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+                    $html = self::get_string_starting_from('table of images of species', $html);
+                    $html = self::format_html($html);
+                    if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $html, $arr)) {
+                        foreach($arr[1] as $tr) {
+                            if(stripos($tr, '[no figure]') !== false) continue; //string is found
+                            
+                            if(preg_match_all("/<td>(.*?)<\/td>/ims", $tr, $arr2)) {
+                                $img_tbl_row = $arr2[1];
+                                /* Array (e.g. $img_tbl_row
+                                    [0] => calyx
+                                    [1] => Graff, 1911
+                                    [2] => <a href="/turb3.php?action=7&code=3197&ltr=a&eltr=&img=3197a.gif"><img src="media/thb3/3197a_thb.gif" width="90" alt="fig Allostoma calyx"></a>
+                                ) */
+                                if(in_array($img_tbl_row[0], $exclude)) continue;
+                                print_r($img_tbl_row)
+                            }
+                            
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+        
     }
     private function get_direct_images($str, $id) //action=2
     {
         if(stripos($str, 'action=2&') !== false) {//string is found
-            echo "\nwith direct image\n";
+            echo "\nwith direct image(s)\n";
             //<a href="/turb3.php?action=2&code=3511&smk=1">
             if(preg_match("/action=2&code=".$id."(.*?)\"/ims", $str, $arr)) {
                 $url = $this->page['action_2'].$id.$arr[1];
@@ -80,7 +127,6 @@ class TurbellarianAPI_v2
                     }
                 }
             }
-            echo "\n[$str]\n";
         }
         return false;
     }
@@ -145,9 +191,9 @@ class TurbellarianAPI_v2
         }
         echo "\n--------------------------\n";
         // print_r($stack);
-        echo "\n".count($stack)."\n";
+        echo "\nNot unique: ".count($stack)."\n";
         $stack = array_unique($stack);
-        echo "\n".count($stack)."\n";
+        echo "\nUnique: ".count($stack)."\n";
         // exit("\n-stopx-\n");
         return $stack;
     }
