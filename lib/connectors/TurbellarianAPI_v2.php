@@ -91,6 +91,7 @@ class TurbellarianAPI_v2
                     if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $html, $arr)) {
                         foreach($arr[1] as $tr) {
                             if(stripos($tr, '[no figure]') !== false) continue; //string is found
+
                             
                             if(preg_match_all("/<td>(.*?)<\/td>/ims", $tr, $arr2)) {
                                 $img_tbl_row = $arr2[1];
@@ -100,9 +101,18 @@ class TurbellarianAPI_v2
                                     [2] => <a href="/turb3.php?action=7&code=3197&ltr=a&eltr=&img=3197a.gif"><img src="media/thb3/3197a_thb.gif" width="90" alt="fig Allostoma calyx"></a>
                                 ) */
                                 if(in_array($img_tbl_row[0], $exclude)) continue;
-                                print_r($img_tbl_row)
+                                // print_r($img_tbl_row);
+                                
+                                $downline = array();
+                                
+                                if(preg_match("/&code=(.*?)&/ims", $img_tbl_row[2], $arr3)) $code = $arr3[1];
+                                else exit("\nInvestigate 001 [$id]\n");
+                                
+                                $downline[$code]['name'] = strip_tags($img_tbl_row[0]);
+                                $downline[$code]['author'] = $img_tbl_row[1];
+                                if(preg_match_all("/<img src=\"(.*?)\"/ims", $img_tbl_row[2], $arr4)) $downline[$code]['images'] = $arr4[1];
+                                print_r($downline);
                             }
-                            
                         }
                     }
                 }
