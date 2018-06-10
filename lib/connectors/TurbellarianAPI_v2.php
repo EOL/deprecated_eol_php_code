@@ -21,23 +21,26 @@ class TurbellarianAPI_v2
 
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->download_options = array('download_wait_time' => 500000, 'timeout' => 9600, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'expire_seconds' => 60*60*24*25);
-
+        $this->download_options['expire_seconds'] = false;
+        
         $this->page['main'] = "http://turbellaria.umaine.edu/turbella.php";
         $this->page['action_1']  = "http://turbellaria.umaine.edu/turb3.php?action=1&code=";
         $this->page['action_2']  = "http://turbellaria.umaine.edu/turb3.php?action=2&code=";
         $this->page['action_23'] = "http://turbellaria.umaine.edu/turb3.php?action=23&code=";
+        $this->page['action_16']  = "http://turbellaria.umaine.edu/turb3.php?action=16&code=";
     }
 
     function start()
     {
-        /* main operation
+        // /* main operation
         $all_ids = self::get_all_ids();
         foreach($all_ids as $code) {
             echo " $code";
             self::process_page($code);
         }
-        */
-        self::process_page(3191); //3158 3191 4901 3511 5654 1223
+        // */
+        // self::process_page(3159); //3158 3191 4901 3511 5654 1223
+        // self::get_valid_ids(3159);
         exit;
     }
     private function format_html($html)
@@ -61,12 +64,66 @@ class TurbellarianAPI_v2
             if(preg_match("/<td>(.*?)<\/td>/ims", $str, $arr)) $main_sci['author'] = $arr[1];
             print_r($main_sci);
             
-            
-            $direct_images = self::get_direct_images($str, $id);        //action=2
-            $downline_images = self::get_downline_images($str, $id, self::get_invalid_names($html));    //action=23
-            // $synonyms = self::get_synonyms($str, $id);                  //action=6
+            // $direct_images = self::get_direct_images($str, $id);                        //action=2
+            $invalid_names = self::get_invalid_names($html);
+            // $downline_images = self::get_downline_images($str, $id, $invalid_names);    //action=23
+            $distribution = self::parse_TableOfTaxa($html, $id, $invalid_names, 'distribution');          //action=16
+            // $synonyms = self::parse_TableOfTaxa($html, $id, $invalid_names, 'synonyms');          //action=6
         }
     }
+    private function parse_TableOfTaxa($html, $id, $invalid_names, $what)
+    {
+        $html = self::get_string_starting_from('table of taxa', $html);
+        if(preg_match_all("/<tr(.*?)<\/tr>/ims", $html, $arr)) {
+            foreach($arr[1] as $row) {
+                if(stripos($row, '<font color="red">') !== false) continue; //string is found
+                if(stripos($row, '<font color="00cc00">') !== false) continue; //string is found
+                
+                //start compute for $code
+                /*
+                [2] => <a href="/turb3.php?action=6&code=3190">synonyms</a>
+                [3] => <a href="/turb3.php?action=13&code=3190"><img src="/icons/small/image.png" alt="card avail."></a>
+                [4] => <a href="/turb3.php?action=11&code=3190&syn=2">literature</a>
+                [5] => <a href="/turb3.php?action=16&code=3190&valid=0">dist'n</a>
+                */
+                if    (preg_match("/action=6&code=(.*?)\">synonyms<\/a>/ims", $row, $arr3))                         $code = $arr3[1];
+                elseif(preg_match("/action=13&code=(.*?)\"><img src=\"\/icons\/small\/image.png\"/ims", $row, $arr3))  $code = $arr3[1];
+                elseif(preg_match("/action=11&code=(.*?)&syn=2\">literature<\/a>/ims", $row, $arr3))                $code = $arr3[1];
+                elseif(preg_match("/action=16&code=(.*?)&valid=0\">/ims", $row, $arr3))                             $code = $arr3[1];
+                else exit("\nInvestigate cannot get id [$id]\n");
+                echo "\ncode [$code]\n";
+                //end compute for $code
+                
+                if($what == 'distribution') {
+                    self::get_distribution($row, $code);
+                }
+                
+                if(preg_match_all("/<td>(.*?)<\/td>/ims", $row, $arr2)) {
+                    print_r($arr2[1]);
+                }
+            }
+        }
+    }
+    private function get_distribution($str, $id) //action=16
+    {
+        if(stripos($str, 'action=16&') !== false) {//string is found
+            echo "\nwith dist'n --> ";
+            // <a href="/turb3.php?action=16&code=3190&valid=0">dist'n</a>
+            if(preg_match("/action=16&code=".$id."(.*?)\"/ims", $str, $arr)) {
+                $url = $this->page['action_16'].$id.$arr[1];
+                echo "$url\n"; //e.g. http://turbellaria.umaine.edu/turb3.php?action=16&code=13396&valid=0
+                if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+                    // $html = self::get_string_starting_from('table of thumbnail images', $html);
+                    // if(preg_match_all("/<img src=\"(.*?)\"/ims", $html, $arr)) {
+                    //     print_r($arr[1]);
+                    //     return $arr[1];
+                    // }
+                }
+            }
+        }
+        return false;
+    }
+    
     private function get_invalid_names($html) //get Red and Green highlighted taxa
     {
         $html = self::get_string_starting_from('table of taxa', $html);
@@ -108,10 +165,11 @@ class TurbellarianAPI_v2
                                 $downline[$code]['name'] = strip_tags($img_tbl_row[0]);
                                 $downline[$code]['author'] = $img_tbl_row[1];
                                 if(preg_match_all("/<img src=\"(.*?)\"/ims", $img_tbl_row[2], $arr4)) $downline[$code]['images'] = $arr4[1];
-                                print_r($downline);
+                                // print_r($downline);
                                 if($downline) $final[] = $downline;
                             }
                         }
+                        print_r($final);
                         return $final;
                     }
                 }
@@ -212,7 +270,7 @@ class TurbellarianAPI_v2
         $html = Functions::lookup_with_cache($this->page['action_1'].$id, $this->download_options);
         $html = self::get_string_starting_from('table of subtaxa', $html);
         if(preg_match_all("/action=1&code=(.*?)<\/td>/ims", $html, $arr)) {
-            // print_r($arr[1]);
+            // print_r($arr[1]); exit;
             foreach($arr[1] as $row) {
                 if(stripos($row, '<font color="red">') !== false) continue; //string is found
                 if(stripos($row, '<font color="00cc00">') !== false) continue; //string is found
