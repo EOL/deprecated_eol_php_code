@@ -30,14 +30,14 @@ class TurbellarianAPI_v2
 
     function start()
     {
-        // /* main operation
+        /* main operation
         $all_ids = self::get_all_ids();
         foreach($all_ids as $code) {
             echo " $code";
             self::process_page($code);
         }
-        // */
-        self::process_page(2762); //3158 3191 4901 3511 5654 1223
+        */
+        self::process_page(3191); //3158 3191 4901 3511 5654 1223
         exit;
     }
     private function format_html($html)
@@ -89,9 +89,9 @@ class TurbellarianAPI_v2
                     $html = self::get_string_starting_from('table of images of species', $html);
                     $html = self::format_html($html);
                     if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $html, $arr)) {
+                        $final = array();
                         foreach($arr[1] as $tr) {
                             if(stripos($tr, '[no figure]') !== false) continue; //string is found
-
                             if(preg_match_all("/<td>(.*?)<\/td>/ims", $tr, $arr2)) {
                                 $img_tbl_row = $arr2[1];
                                 /* Array (e.g. $img_tbl_row
@@ -109,14 +109,15 @@ class TurbellarianAPI_v2
                                 $downline[$code]['author'] = $img_tbl_row[1];
                                 if(preg_match_all("/<img src=\"(.*?)\"/ims", $img_tbl_row[2], $arr4)) $downline[$code]['images'] = $arr4[1];
                                 print_r($downline);
+                                if($downline) $final[] = $downline;
                             }
                         }
+                        return $final;
                     }
                 }
             }
         }
         return false;
-        
     }
     private function get_direct_images($str, $id) //action=2
     {
