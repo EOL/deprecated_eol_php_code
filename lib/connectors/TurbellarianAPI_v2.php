@@ -30,14 +30,14 @@ class TurbellarianAPI_v2
 
     function start()
     {
-        /* main operation
+        // /* main operation
         $all_ids = self::get_all_ids();
         foreach($all_ids as $code) {
             echo " $code";
             self::process_page($code);
         }
-        */
-        self::process_page(3191); //3158 3191 4901 3511 5654 1223
+        // */
+        self::process_page(2762); //3158 3191 4901 3511 5654 1223
         exit;
     }
     private function format_html($html)
@@ -62,7 +62,7 @@ class TurbellarianAPI_v2
             print_r($main_sci);
             
             
-            // $direct_images = self::get_direct_images($str, $id);        //action=2
+            $direct_images = self::get_direct_images($str, $id);        //action=2
             $downline_images = self::get_downline_images($str, $id, self::get_invalid_names($html));    //action=23
             // $synonyms = self::get_synonyms($str, $id);                  //action=6
         }
@@ -92,7 +92,6 @@ class TurbellarianAPI_v2
                         foreach($arr[1] as $tr) {
                             if(stripos($tr, '[no figure]') !== false) continue; //string is found
 
-                            
                             if(preg_match_all("/<td>(.*?)<\/td>/ims", $tr, $arr2)) {
                                 $img_tbl_row = $arr2[1];
                                 /* Array (e.g. $img_tbl_row
@@ -104,10 +103,8 @@ class TurbellarianAPI_v2
                                 // print_r($img_tbl_row);
                                 
                                 $downline = array();
-                                
                                 if(preg_match("/&code=(.*?)&/ims", $img_tbl_row[2], $arr3)) $code = $arr3[1];
                                 else exit("\nInvestigate 001 [$id]\n");
-                                
                                 $downline[$code]['name'] = strip_tags($img_tbl_row[0]);
                                 $downline[$code]['author'] = $img_tbl_row[1];
                                 if(preg_match_all("/<img src=\"(.*?)\"/ims", $img_tbl_row[2], $arr4)) $downline[$code]['images'] = $arr4[1];
