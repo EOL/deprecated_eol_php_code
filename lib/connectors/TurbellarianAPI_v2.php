@@ -43,14 +43,14 @@ class TurbellarianAPI_v2
 
     function start()
     {
-        /* main operation
+        // /* main operation
         $all_ids = self::get_all_ids();
         foreach($all_ids as $code) {
             echo " $code";
             self::process_page($code);
         }
-        */
-        self::process_page(3749); //3158 3191 4901 3511 5654 1223
+        // */
+        // self::process_page(3749); //3158 3191 4901 3511 5654 1223
         // self::get_valid_ids(3159);
         exit;
     }
@@ -75,12 +75,12 @@ class TurbellarianAPI_v2
             if(preg_match("/<td>(.*?)<\/td>/ims", $str, $arr)) $main_sci['author'] = $arr[1];
             print_r($main_sci);
             
-            $direct_images = self::get_direct_images($str, $id);                                    //action=2
+            // $direct_images = self::get_direct_images($str, $id);                                    //action=2
             $invalid_names = self::get_invalid_names($html);
-            $downline_images = self::get_downline_images($str, $id, $invalid_names);                //action=23
+            // $downline_images = self::get_downline_images($str, $id, $invalid_names);                //action=23
             $distribution = self::parse_TableOfTaxa($html, $id, $invalid_names, 'distribution');    //action=16
-            $diagnosis = self::parse_TableOfTaxa($html, $id, $invalid_names, 'diagnosis');          //action=15
-            $synonyms = self::parse_TableOfTaxa($html, $id, $invalid_names, 'synonyms');            //action=6
+            // $diagnosis = self::parse_TableOfTaxa($html, $id, $invalid_names, 'diagnosis');          //action=15
+            // $synonyms = self::parse_TableOfTaxa($html, $id, $invalid_names, 'synonyms');            //action=6
         }
     }
     private function parse_TableOfTaxa($html, $id, $invalid_names, $what)
@@ -109,30 +109,115 @@ class TurbellarianAPI_v2
                 echo "\ncode [$code]\n";
                 //end compute for $code
                 
-                if    ($what == 'distribution') self::get_text_object($row, $code, $this->action[$what]);
-                elseif($what == 'diagnosis')    self::get_text_object($row, $code, $this->action[$what]);
-                elseif($what == 'synonyms')     self::get_text_object($row, $code, $this->action[$what]);
+                if    ($what == 'distribution') self::get_text_object($row, $code, $this->action[$what], $what);
+                elseif($what == 'diagnosis')    self::get_text_object($row, $code, $this->action[$what], $what);
+                elseif($what == 'synonyms')     self::get_text_object($row, $code, $this->action[$what], $what);
                 
                 if(preg_match_all("/<td>(.*?)<\/td>/ims", $row, $arr2)) {
-                    print_r($arr2[1]);
+                    // print_r($arr2[1]); //good debug
                 }
             }
         }
     }
-    private function get_text_object($str, $id, $action) //action=16
+    private function get_text_object($str, $id, $action, $what) //action=16
     {
         if(stripos($str, "action=".$action."&") !== false) {//string is found
-            echo "\nwith action [$action] --> ";
+            echo "\nwith [$what] --> ";
             // <a href="/turb3.php?action=16&code=3190&valid=0">dist'n</a>
             if(preg_match("/action=".$action."&code=".$id."(.*?)\"/ims", $str, $arr)) {
                 if($val = (string) trim($arr[1])) $url = $this->page["action_".$action].$id.$val;
                 else                              $url = $this->page["action_".$action].$id;
                 echo "$url\n"; //e.g. http://turbellaria.umaine.edu/turb3.php?action=16&code=13396&valid=0
                 if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+                    if($what == 'distribution') $distributions = self::parse_distribution($html);
                 }
             }
         }
         return false;
+    }
+    private function parse_distribution($html)
+    {
+        $html = str_replace("<td>", "<td >", $html);
+        $final = array();
+        if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $html, $arr)) { // print_r($arr[1]);
+            foreach($arr[1] as $row) {
+                $rec = array();
+                $row = str_replace('&nbsp;', "", $row); // echo "\n[$row]\n";
+                if(preg_match_all("/<td >(.*?)<\/td>/ims", $row, $arr2)) { 
+                    $cols = $arr2[1];
+                    if(!@$cols[1]) continue;
+                    print_r($cols);
+                    // 1 site   2 map   3 site # (info)     4 collection date   5 kind  6 depth     7 substrate     8 salin     9 comments  10 reference
+                    /*
+                    [0] => A
+                    [1] => Kors Fjord (Korsfjorden, Korsfjord, Krossfjorden), Fjord, near Bergen, Norway
+                    [2] => <a href="/turb3.php?action=24&code=3751&srec=1554&dN=60.159721&dE=5.122778&srec=1554&output=json&oe=utf8&sensor=false">map</a>
+                    [3] => <a href="/turb3.php?action=18&srec=1554&code=3751">1554</a>
+                    [4] => summer 1951
+                    [5] => default type
+                    [6] => 600-700 m
+                    [7] => mud
+                    [8] => 
+                    [9] => (St. 79/1951).
+                    [10] => <a href="/turb3.php?action=10&litrec=7144&code=3749">Westblad E (1952)</a>: 9                    */
+                    $i['site'] = 1;
+                    $i['collection date'] = 4;
+                    $i['kind'] = 5;
+                    $i['depth'] = 6;
+                    $i['substrate'] = 7;
+                    $i['salin'] = 7;
+                    $i['comments'] = 9;
+                    $i['reference'] = 10;
+
+                    $dist = $cols[$i['site']];
+                    if($val = $cols[$i['collection date']]) $dist .= "<br>Collection date: " . $val;
+                    if($val = $cols[$i['kind']]) $dist .= "<br>Kind: " . $val;
+                    if($val = $cols[$i['depth']]) $dist .= "<br>Depth: " . $val;
+                    if($val = $cols[$i['substrate']]) $dist .= "<br>Substrate: " . $val;
+                    if($val = $cols[$i['salin']]) $dist .= "<br>Salin: " . $val;
+                    if($val = $cols[$i['comments']]) $dist .= "<br>Comments: " . $val;
+                    $rec['dist'] = $dist;
+                    $rec['ref'] = self::parse_ref($cols[$i['reference']]);
+                }
+                if($rec) $final[] = $rec;
+            }
+        }
+        print_r($final);
+        // exit;
+        return $final;
+    }
+    private function parse_ref($str)
+    {   //e.g. "<a href="/turb3.php?action=10&litrec=7144&code=3749">Westblad E (1952)</a>: 9"
+        // echo "\n$str\n";
+        // echo "\n".strip_tags($str)."\n";
+        
+        if(preg_match("/action=10&(.*?)\"/ims", $str, $arr)) {
+            $url = "http://turbellaria.umaine.edu/turb3.php?action=10&".$arr[1];
+            echo "\nref url: [$url]\n"; //e.g. http://turbellaria.umaine.edu/turb3.php?action=10&litrec=7144&code=3749
+            //start parsing html
+            if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+                $html = str_replace("<td>", "<td >", $html);
+                if(preg_match_all("/<td >(.*?)<\/td>/ims", $html, $arr2)) { 
+                    $cols = $arr2[1];
+                    // print_r($cols);
+                    /* Array
+                    (
+                        [0] => Westblad E
+                        [1] => 1952
+                        [2] => <a href="/turb3.php?action=21&litrec=7144&code=3749"><img src="/icons/small/image.png" alt="index card avail."></a><br />&nbsp;
+                        [3] => Some new &quot;Alloeocoels&quot; (Turbellaria) from the Scandinavian west coast.
+                        [4] => Univ Bergen Abrok, Naturvet rekke 7: 1-27
+                    )
+                    */
+                    $cols[2] = null;
+                    $cols = array_filter($cols);
+                    // print_r($cols);
+                    $final = implode(". ", $cols);
+                    return str_replace("..", ".", $final);
+                }
+            }
+        }
+        exit("\nInvestigate there should be ref here.\n");
     }
     
     private function get_invalid_names($html) //get Red and Green highlighted taxa
