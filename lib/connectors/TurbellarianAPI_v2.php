@@ -20,7 +20,7 @@ class TurbellarianAPI_v2
         $this->EOL = 'http://www.eol.org/voc/table_of_contents';
 
         $this->TEMP_DIR = create_temp_dir() . "/";
-        $this->download_options = array('download_wait_time' => 500000, 'timeout' => 9600, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'expire_seconds' => 60*60*24*25);
+        $this->download_options = array('download_wait_time' => 500000, 'timeout' => 9600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => 60*60*24*25);
         $this->download_options['expire_seconds'] = false;
         
         $this->page['main'] = "http://turbellaria.umaine.edu/turbella.php";
@@ -28,18 +28,29 @@ class TurbellarianAPI_v2
         $this->page['action_2']  = "http://turbellaria.umaine.edu/turb3.php?action=2&code=";
         $this->page['action_23'] = "http://turbellaria.umaine.edu/turb3.php?action=23&code=";
         $this->page['action_16']  = "http://turbellaria.umaine.edu/turb3.php?action=16&code=";
+        $this->page['action_15']  = "http://turbellaria.umaine.edu/turb3.php?action=15&code=";
+        $this->page['action_6']   = "http://turbellaria.umaine.edu/turb3.php?action=6&code=";
+        
+        $this->action['direct_images'] = 2;
+        $this->action['downline_images'] = 23;
+        $this->action['distribution'] = 16;
+        $this->action['diagnosis'] = 15;
+        $this->action['synonyms'] = 6;
+
+        // 14676 - Xenacoelomorpha
+        // 14686 - Nephrozoa
     }
 
     function start()
     {
-        // /* main operation
+        /* main operation
         $all_ids = self::get_all_ids();
         foreach($all_ids as $code) {
             echo " $code";
             self::process_page($code);
         }
-        // */
-        // self::process_page(3159); //3158 3191 4901 3511 5654 1223
+        */
+        self::process_page(3749); //3158 3191 4901 3511 5654 1223
         // self::get_valid_ids(3159);
         exit;
     }
@@ -64,11 +75,12 @@ class TurbellarianAPI_v2
             if(preg_match("/<td>(.*?)<\/td>/ims", $str, $arr)) $main_sci['author'] = $arr[1];
             print_r($main_sci);
             
-            // $direct_images = self::get_direct_images($str, $id);                        //action=2
+            $direct_images = self::get_direct_images($str, $id);                                    //action=2
             $invalid_names = self::get_invalid_names($html);
-            // $downline_images = self::get_downline_images($str, $id, $invalid_names);    //action=23
-            $distribution = self::parse_TableOfTaxa($html, $id, $invalid_names, 'distribution');          //action=16
-            // $synonyms = self::parse_TableOfTaxa($html, $id, $invalid_names, 'synonyms');          //action=6
+            $downline_images = self::get_downline_images($str, $id, $invalid_names);                //action=23
+            $distribution = self::parse_TableOfTaxa($html, $id, $invalid_names, 'distribution');    //action=16
+            $diagnosis = self::parse_TableOfTaxa($html, $id, $invalid_names, 'diagnosis');          //action=15
+            $synonyms = self::parse_TableOfTaxa($html, $id, $invalid_names, 'synonyms');            //action=6
         }
     }
     private function parse_TableOfTaxa($html, $id, $invalid_names, $what)
@@ -85,18 +97,21 @@ class TurbellarianAPI_v2
                 [3] => <a href="/turb3.php?action=13&code=3190"><img src="/icons/small/image.png" alt="card avail."></a>
                 [4] => <a href="/turb3.php?action=11&code=3190&syn=2">literature</a>
                 [5] => <a href="/turb3.php?action=16&code=3190&valid=0">dist'n</a>
+                       <a href="/turb3.php?action=15&code=439">diagnosis</a></td>
                 */
                 if    (preg_match("/action=6&code=(.*?)\">synonyms<\/a>/ims", $row, $arr3))                         $code = $arr3[1];
-                elseif(preg_match("/action=13&code=(.*?)\"><img src=\"\/icons\/small\/image.png\"/ims", $row, $arr3))  $code = $arr3[1];
+                elseif(preg_match("/action=13&code=(.*?)\"><img src=\"\/icons\/small\/image.png\"/ims", $row, $arr3)) $code = $arr3[1];
                 elseif(preg_match("/action=11&code=(.*?)&syn=2\">literature<\/a>/ims", $row, $arr3))                $code = $arr3[1];
+                elseif(preg_match("/action=11&code=(.*?)&syn=0\">literature<\/a>/ims", $row, $arr3))                $code = $arr3[1];
                 elseif(preg_match("/action=16&code=(.*?)&valid=0\">/ims", $row, $arr3))                             $code = $arr3[1];
+                elseif(preg_match("/action=15&code=(.*?)\">diagnosis<\/a>/ims", $row, $arr3))                       $code = $arr3[1];
                 else exit("\nInvestigate cannot get id [$id]\n");
                 echo "\ncode [$code]\n";
                 //end compute for $code
                 
-                if($what == 'distribution') {
-                    self::get_distribution($row, $code);
-                }
+                if    ($what == 'distribution') self::get_text_object($row, $code, $this->action[$what]);
+                elseif($what == 'diagnosis')    self::get_text_object($row, $code, $this->action[$what]);
+                elseif($what == 'synonyms')     self::get_text_object($row, $code, $this->action[$what]);
                 
                 if(preg_match_all("/<td>(.*?)<\/td>/ims", $row, $arr2)) {
                     print_r($arr2[1]);
@@ -104,20 +119,16 @@ class TurbellarianAPI_v2
             }
         }
     }
-    private function get_distribution($str, $id) //action=16
+    private function get_text_object($str, $id, $action) //action=16
     {
-        if(stripos($str, 'action=16&') !== false) {//string is found
-            echo "\nwith dist'n --> ";
+        if(stripos($str, "action=".$action."&") !== false) {//string is found
+            echo "\nwith action [$action] --> ";
             // <a href="/turb3.php?action=16&code=3190&valid=0">dist'n</a>
-            if(preg_match("/action=16&code=".$id."(.*?)\"/ims", $str, $arr)) {
-                $url = $this->page['action_16'].$id.$arr[1];
+            if(preg_match("/action=".$action."&code=".$id."(.*?)\"/ims", $str, $arr)) {
+                if($val = (string) trim($arr[1])) $url = $this->page["action_".$action].$id.$val;
+                else                              $url = $this->page["action_".$action].$id;
                 echo "$url\n"; //e.g. http://turbellaria.umaine.edu/turb3.php?action=16&code=13396&valid=0
                 if($html = Functions::lookup_with_cache($url, $this->download_options)) {
-                    // $html = self::get_string_starting_from('table of thumbnail images', $html);
-                    // if(preg_match_all("/<img src=\"(.*?)\"/ims", $html, $arr)) {
-                    //     print_r($arr[1]);
-                    //     return $arr[1];
-                    // }
                 }
             }
         }
@@ -132,7 +143,7 @@ class TurbellarianAPI_v2
         $invalid_names = array();
         if(preg_match_all("/<font color=\"red\">(.*?)<\/font>/ims", $html, $arr))    $invalid_names = array_merge($invalid_names, $arr[1]);
         if(preg_match_all("/<font color=\"00cc00\">(.*?)<\/font>/ims", $html, $arr)) $invalid_names = array_merge($invalid_names, $arr[1]);
-        print_r($invalid_names);
+        // print_r($invalid_names);
         return $invalid_names;
     }
     private function get_downline_images($str, $id, $exclude) //action=23
@@ -200,9 +211,10 @@ class TurbellarianAPI_v2
     {
         $stack = array();
         $main_ids = self::get_main_ids(); //get main IDs from home page
-        // print_r($main_ids); exit;
+        $main_ids[] = 14676; // - Xenacoelomorpha
+        $main_ids[] = 14686; // - Nephrozoa
         
-        // $main_ids = array(4014);
+        // $main_ids = array(12823); //14686 12856 12278
         
         foreach($main_ids as $id1) {
             $ids1 = self::get_valid_ids($id1); $stack = array_merge($stack, $ids1);
@@ -232,9 +244,9 @@ class TurbellarianAPI_v2
                                                             $ids13 = self::get_valid_ids($id13); $stack = array_merge($stack, $ids13);
                                                             foreach($ids13 as $id14) { //exit("\nlevel 13\n");
                                                                 $ids14 = self::get_valid_ids($id14); $stack = array_merge($stack, $ids14);
-                                                                foreach($ids14 as $id15) { exit("\nlevel 14\n");
+                                                                foreach($ids14 as $id15) { //exit("\nlevel 14\n");
                                                                     $ids15 = self::get_valid_ids($id15); $stack = array_merge($stack, $ids15);
-                                                                    foreach($ids15 as $id16) { exit("\nlevel 15\n");
+                                                                    foreach($ids15 as $id16) { //exit("\nlevel 15\n");
                                                                         $ids16 = self::get_valid_ids($id16); $stack = array_merge($stack, $ids16);
                                                                         foreach($ids16 as $id17) { exit("\nlevel 16\n");
                                                                             $ids17 = self::get_valid_ids($id17); $stack = array_merge($stack, $ids17);
