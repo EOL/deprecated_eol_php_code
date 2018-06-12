@@ -45,14 +45,14 @@ class TurbellarianAPI_v2
     {
         $this->agent_ids = self::get_object_agents($this->agents);
         
-        // /* main operation
+        /* main operation
         $all_ids = self::get_all_ids();
         foreach($all_ids as $code) {
             // echo " $code";
             self::process_page($code);
         }
-        // */
-        // self::process_page(5654); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749
+        */
+        self::process_page(6788); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749
         // self::process_page(8216);
         // self::get_valid_ids(3159);
         // exit;
@@ -81,15 +81,17 @@ class TurbellarianAPI_v2
             if(preg_match("/<td>(.*?)<\/td>/ims", $str, $arr)) $main_sci['author'] = $arr[1];
             // print_r($main_sci);
             
-            $direct_images = self::get_direct_images($str, $id);                                    //action=2
+            // $direct_images = self::get_direct_images($str, $id);                                    //action=2
             $invalid_names = self::get_invalid_names($html);
-            $downline_images = self::get_downline_images($str, $id, $invalid_names);                //action=23
+            // $downline_images = self::get_downline_images($str, $id, $invalid_names);                //action=23
             // $distribution = self::parse_TableOfTaxa($html, $id, $invalid_names, 'distribution');    //action=16
             // $diagnosis = self::parse_TableOfTaxa($html, $id, $invalid_names, 'diagnosis');          //action=15
-            // $synonyms = self::parse_TableOfTaxa($html, $id, $invalid_names, 'synonyms');            //action=6
+            $synonyms = self::parse_TableOfTaxa($html, $id, $invalid_names, 'synonyms');            //action=6
 
+            /*
             if($val = $direct_images) $main_sci['direct_images'] = $val;
             if($val = $downline_images) $main_sci['downline_images'] = $val;
+            */
             
             if($main_sci['name']) self::write_to_archive($main_sci);
         }
