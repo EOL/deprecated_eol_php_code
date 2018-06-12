@@ -25,7 +25,7 @@ $timestart = time_elapsed();
 $resource_id = 185;
 $func = new TurbellarianAPI_v2($resource_id);
 $func->start();
-// Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";

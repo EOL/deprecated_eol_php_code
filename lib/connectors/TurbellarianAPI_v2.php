@@ -43,16 +43,20 @@ class TurbellarianAPI_v2
 
     function start()
     {
-        // /* main operation
+        $this->agent_ids = self::get_object_agents($this->agents);
+        
+        /* main operation
         $all_ids = self::get_all_ids();
         foreach($all_ids as $code) {
             echo " $code";
             self::process_page($code);
         }
-        // */
-        // self::process_page(3749); //3158 3191 4901 3511 5654 1223
+        */
+        self::process_page(2741); //3158 3191 4901 3511 5654 1223 3749
         // self::get_valid_ids(3159);
-        exit;
+        // exit;
+        $this->archive_builder->finalize(TRUE);
+        
     }
     private function format_html($html)
     {
@@ -71,16 +75,100 @@ class TurbellarianAPI_v2
             // echo "\n[$str]\n";
             // <th>Allostoma</th>
             // <td>Beneden, 1861</td>
+            $main_sci['code'] = $id;
             if(preg_match("/<th>(.*?)<\/th>/ims", $str, $arr)) $main_sci['name'] = $arr[1];
             if(preg_match("/<td>(.*?)<\/td>/ims", $str, $arr)) $main_sci['author'] = $arr[1];
-            print_r($main_sci);
+            // print_r($main_sci);
             
-            // $direct_images = self::get_direct_images($str, $id);                                    //action=2
+            $direct_images = self::get_direct_images($str, $id);                                    //action=2
             $invalid_names = self::get_invalid_names($html);
-            // $downline_images = self::get_downline_images($str, $id, $invalid_names);                //action=23
-            $distribution = self::parse_TableOfTaxa($html, $id, $invalid_names, 'distribution');    //action=16
+            $downline_images = self::get_downline_images($str, $id, $invalid_names);                //action=23
+            // $distribution = self::parse_TableOfTaxa($html, $id, $invalid_names, 'distribution');    //action=16
             // $diagnosis = self::parse_TableOfTaxa($html, $id, $invalid_names, 'diagnosis');          //action=15
             // $synonyms = self::parse_TableOfTaxa($html, $id, $invalid_names, 'synonyms');            //action=6
+
+            if($val = $direct_images) $main_sci['direct_images'] = $val;
+            if($val = $downline_images) $main_sci['downline_images'] = $val;
+            
+            if($main_sci['name']) self::write_to_archive($main_sci);
+        }
+    }
+    private function write_to_archive($rec)
+    {
+        print_r($rec);
+        self::write_taxon($rec);
+        if($val = $rec['downline_images']) self::write_downline_images($val, $rec['name']);
+    }
+    private function write_downline_images($dl_images, $main_name)
+    {
+        foreach($dl_images as $code => $img) {
+            // print_r($img); exit;
+            foreach($img as $code => $value) {
+                $taxon['code']   = $code;
+                if(self::starts_with_small_letter($value['name'])) $taxon['name'] = $main_name." ".$value['name'];
+                else exit("\nInvestigate does not start with small letter [$code] \n");
+                $taxon['author'] = $value['author'];
+                self::write_taxon($taxon);
+                foreach($value['images'] as $img_path) {
+                    $rec['path'] = $img_path;
+                    $rec['code'] = $code;
+                    self::write_image($rec);
+                }
+            }
+        }
+    }
+    private function format_image_path($rec)
+    {   /*
+        [path] => media/thb2/2639a_thb.jpg
+        [code] => 2639
+        http://turbellaria.umaine.edu/media/img2/2639a.jpg
+        */
+        $old = "/thb".substr($rec['code'],0,1)."/";
+        $new = "/img".substr($rec['code'],0,1)."/";
+        $path = str_replace($old, $new, $rec['path']);
+        $path = $this->domain."/".str_replace("_thb", "", $path);
+        // exit("\n[$path]\n");
+        return $path; //this is mediaURL
+    }
+    private function write_image($rec)
+    {
+        // [path] => media/thb2/2639a_thb.jpg
+        // [code] => 2639
+        // http://turbellaria.umaine.edu/media/img2/2639a.jpg
+        
+        $mediaURL = self::format_image_path($rec);
+        // print_r($rec); //exit;
+
+        $mr = new \eol_schema\MediaResource();
+        if($this->agent_ids)      $mr->agentID = implode("; ", $this->agent_ids);
+        $mr->taxonID        = $rec["code"];
+        $mr->identifier     = $mediaURL;
+        $mr->type           = "http://purl.org/dc/dcmitype/StillImage";
+        // $mr->language       = 'en';
+        $mr->format         = Functions::get_mimetype($mediaURL);
+        // $mr->title          = "";
+        // $mr->CreateDate     = "";
+        $mr->Owner          = $this->rights_holder;
+        // $mr->rights         = "";
+        $mr->UsageTerms     = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+        // $mr->audience       = 'Everyone';
+        // $mr->description    = "";
+        $mr->accessURI      = $mediaURL;
+        if(!isset($this->object_ids[$mr->identifier])) {
+           $this->object_ids[$mr->identifier] = '';
+           $this->archive_builder->write_object_to_file($mr);
+        }
+    }
+    private function write_taxon($t)
+    {
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID                     = $t['code'];
+        $taxon->scientificName              = $t['name'];
+        $taxon->scientificNameAuthorship    = $t['author'];
+        $taxon->furtherInformationURL       = $this->page['action_1'].$t['code'];
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->taxon_ids[$taxon->taxonID] = '';
+            $this->archive_builder->write_object_to_file($taxon);
         }
     }
     private function parse_TableOfTaxa($html, $id, $invalid_names, $what)
@@ -393,6 +481,37 @@ class TurbellarianAPI_v2
     {
         $html = Functions::lookup_with_cache($this->page['main'], $this->download_options);
         if(preg_match_all("/action=1&code=(.*?)\"/ims", $html, $arr)) return $arr[1];
+    }
+    private function starts_with_small_letter($orig_string)
+    {
+        $orig_string = trim($orig_string);
+        $string = $orig_string;
+        $first_char = substr($string, 0, 1);
+        if($first_char == "(") $first_char = substr($string, 1, 1);
+        if(!ctype_alpha($first_char)) return true;
+        if(ctype_lower($first_char))
+        {
+            if($orig_string != "incertae sedis") return true;
+        }
+        return false;
+    }
+    private function get_object_agents($agents)
+    {
+        $agent_ids = array();
+        foreach($agents as $agent)
+        {
+            $r = new \eol_schema\Agent();
+            $r->term_name = $agent["name"];
+            $r->identifier = md5($agent["name"]."|".$agent["role"]);
+            $r->term_homepage = $agent["homepage"];
+            $r->agentRole = $agent["role"];
+            $agent_ids[] = $r->identifier;
+            if(!isset($this->resource_agent_ids[$r->identifier])) {
+               $this->resource_agent_ids[$r->identifier] = '';
+               $this->archive_builder->write_object_to_file($r);
+            }
+        }
+        return $agent_ids;
     }
 
     private function xxx()
