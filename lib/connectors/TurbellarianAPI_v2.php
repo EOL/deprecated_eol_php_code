@@ -117,7 +117,12 @@ class TurbellarianAPI_v2
             foreach($img as $code => $value) {
                 $taxon['code']   = $code;
                 if(self::starts_with_small_letter($value['name'])) $taxon['name'] = $main_name." ".$value['name'];
-                else exit("\nInvestigate does not start with small letter [$code] \n");
+                else 
+                {
+                    // [6940] => [name] => St.Naumi
+                    if(in_array($code, array(6940))) {}
+                    else exit("\nInvestigate does not start with small letter [$code] \n");
+                }
                 $taxon['author'] = $value['author'];
                 self::write_taxon($taxon);
                 foreach($value['images'] as $img_path) {
