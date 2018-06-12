@@ -194,6 +194,13 @@ class TurbellarianAPI_v2
         if(preg_match("/action=10&(.*?)\"/ims", $str, $arr)) {
             $url = "http://turbellaria.umaine.edu/turb3.php?action=10&".$arr[1];
             echo "\nref url: [$url]\n"; //e.g. http://turbellaria.umaine.edu/turb3.php?action=10&litrec=7144&code=3749
+                                            // http://turbellaria.umaine.edu/turb3.php?action=10&litrec=21896&code=3749
+
+            if(preg_match("/elix(.*?)&code=/ims", "elix".$url, $arr)) $url = $arr[1];
+            
+            echo "\nref url: [$url]\n"; 
+            // exit;
+            
             //start parsing html
             if($html = Functions::lookup_with_cache($url, $this->download_options)) {
                 $html = str_replace("<td>", "<td >", $html);
@@ -213,7 +220,7 @@ class TurbellarianAPI_v2
                     $cols = array_filter($cols);
                     // print_r($cols);
                     $final = implode(". ", $cols);
-                    return str_replace("..", ".", $final);
+                    return array('ref' => str_replace("..", ".", $final), 'url' => $url);
                 }
             }
         }
