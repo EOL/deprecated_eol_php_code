@@ -45,14 +45,15 @@ class TurbellarianAPI_v2
     {
         $this->agent_ids = self::get_object_agents($this->agents);
         
-        /* main operation
+        // /* main operation
         $all_ids = self::get_all_ids();
         foreach($all_ids as $code) {
-            echo " $code";
+            // echo " $code";
             self::process_page($code);
         }
-        */
-        self::process_page(2744); //3158 3191 4901 3511 5654 1223 3749
+        // */
+        // self::process_page(5654); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749
+        // self::process_page(8216);
         // self::get_valid_ids(3159);
         // exit;
         $this->archive_builder->finalize(TRUE);
@@ -96,8 +97,18 @@ class TurbellarianAPI_v2
     private function write_to_archive($rec)
     {
         print_r($rec);
+        // exit;
         self::write_taxon($rec);
-        if($val = $rec['downline_images']) self::write_downline_images($val, $rec['name']);
+        if($val = @$rec['downline_images']) self::write_downline_images($val, $rec['name']);
+        if($val = @$rec['direct_images']) self::write_direct_images($val, $rec);
+    }
+    private function write_direct_images($direct_images, $rec)
+    {
+        foreach($direct_images as $img_path) {
+            $rec['path'] = $img_path;
+            $rec['code'] = $rec['code'];
+            self::write_image($rec);
+        }
     }
     private function write_downline_images($dl_images, $main_name)
     {
@@ -144,10 +155,12 @@ class TurbellarianAPI_v2
         $mediaURL = self::format_image_path($rec);
         // print_r($rec); //exit;
 
+        // print_r(pathinfo($mediaURL)); exit;
+
         $mr = new \eol_schema\MediaResource();
         if($this->agent_ids)      $mr->agentID = implode("; ", $this->agent_ids);
         $mr->taxonID        = $rec["code"];
-        $mr->identifier     = $mediaURL;
+        $mr->identifier     = pathinfo($mediaURL, PATHINFO_BASENAME);
         $mr->type           = "http://purl.org/dc/dcmitype/StillImage";
         // $mr->language       = 'en';
         $mr->format         = Functions::get_mimetype($mediaURL);
@@ -365,7 +378,7 @@ class TurbellarianAPI_v2
                                 if($downline) $final[] = $downline;
                             }
                         }
-                        print_r($final);
+                        // print_r($final);
                         return $final;
                     }
                 }
@@ -384,7 +397,7 @@ class TurbellarianAPI_v2
                 if($html = Functions::lookup_with_cache($url, $this->download_options)) {
                     $html = self::get_string_starting_from('table of thumbnail images', $html);
                     if(preg_match_all("/<img src=\"(.*?)\"/ims", $html, $arr)) {
-                        print_r($arr[1]);
+                        // print_r($arr[1]);
                         return $arr[1];
                     }
                 }
