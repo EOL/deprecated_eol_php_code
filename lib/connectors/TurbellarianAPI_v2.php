@@ -86,7 +86,7 @@ class TurbellarianAPI_v2
             // $downline_images = self::get_downline_images($str, $id, $invalid_names);                //action=23
             // $distribution = self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'distribution');    //action=16
             // $diagnosis = self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'diagnosis');          //action=15
-            $downline_synonyms = self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'downline_synonyms');            //action=6
+            self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'downline_synonyms');            //action=6
 
             /*
             if($val = $direct_images) $main_sci['direct_images'] = $val;
@@ -189,6 +189,12 @@ class TurbellarianAPI_v2
         $taxon->scientificName              = $t['name'];
         $taxon->scientificNameAuthorship    = $t['author'];
         $taxon->furtherInformationURL       = $this->page['action_1'].$t['code'];
+        
+        if($val = @$t['acceptedNameUsageID']) {
+            $taxon->acceptedNameUsageID = $val;
+            $taxon->taxonomicStatus = 'synonym';
+        }
+        
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->taxon_ids[$taxon->taxonID] = '';
             $this->archive_builder->write_object_to_file($taxon);
@@ -218,24 +224,37 @@ class TurbellarianAPI_v2
                 elseif(preg_match("/action=16&code=(.*?)&valid=0\">/ims", $row, $arr3))                             $code = $arr3[1];
                 elseif(preg_match("/action=15&code=(.*?)\">diagnosis<\/a>/ims", $row, $arr3))                       $code = $arr3[1];
                 else exit("\nInvestigate cannot get id [$id]\n");
-                echo "\ncode [$code]\n";
+                // echo "\ncode [$code]\n";
                 //end compute for $code
 
                 if(preg_match_all("/<td>(.*?)<\/td>/ims", $row, $arr2)) {
                     $tr_cols = $arr2[1];
-                    print_r($tr_cols); //good debug
+                    // print_r($tr_cols); //good debug
+                    $row_rec = array();
+                    $row_rec['code'] = $code;
+                    $row_rec['name'] = $main_sci['name']." ".$tr_cols[0];
+                    $row_rec['author'] = $tr_cols[1];
                 }
                 
                 if    ($what == 'distribution') self::get_text_object($row, $code, $this->action[$what], $what);
                 elseif($what == 'diagnosis')    self::get_text_object($row, $code, $this->action[$what], $what);
-                elseif($what == 'downline_synonyms')
-                {
-                    $syn = self::get_text_object($row, $code, $this->action[$what], $what);
-                    print_r($syn);
+                elseif($what == 'downline_synonyms') {
+                    // print_r($main_sci);
+                    if($syns = self::get_text_object($row, $code, $this->action[$what], $what)) {
+                        $row_rec['synonyms'] = $syns;
+                        print_r($row_rec);
+                        
+                        self::write_taxon($row_rec);
+                        foreach($syns as $syn) {
+                            $syn['acceptedNameUsageID'] = $row_rec['code'];
+                            self::write_taxon($syn);
+                        }
+                    }
                 }
                 
                 
-            }
+                
+            } //end foreach()
         }
     }
     private function get_text_object($str, $id, $action, $what) //action=16
