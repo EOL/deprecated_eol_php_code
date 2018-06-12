@@ -35,7 +35,7 @@ class TurbellarianAPI_v2
         $this->action['downline_images'] = 23;
         $this->action['distribution'] = 16;
         $this->action['diagnosis'] = 15;
-        $this->action['synonyms'] = 6;
+        $this->action['downline_synonyms'] = 6;
 
         // 14676 - Xenacoelomorpha
         // 14686 - Nephrozoa
@@ -84,14 +84,15 @@ class TurbellarianAPI_v2
             // $direct_images = self::get_direct_images($str, $id);                                    //action=2
             $invalid_names = self::get_invalid_names($html);
             // $downline_images = self::get_downline_images($str, $id, $invalid_names);                //action=23
-            // $distribution = self::parse_TableOfTaxa($html, $id, $invalid_names, 'distribution');    //action=16
-            // $diagnosis = self::parse_TableOfTaxa($html, $id, $invalid_names, 'diagnosis');          //action=15
-            $synonyms = self::parse_TableOfTaxa($html, $id, $invalid_names, 'synonyms');            //action=6
+            // $distribution = self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'distribution');    //action=16
+            // $diagnosis = self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'diagnosis');          //action=15
+            $downline_synonyms = self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'downline_synonyms');            //action=6
 
             /*
             if($val = $direct_images) $main_sci['direct_images'] = $val;
             if($val = $downline_images) $main_sci['downline_images'] = $val;
             */
+            
             
             if($main_sci['name']) self::write_to_archive($main_sci);
         }
@@ -119,8 +120,7 @@ class TurbellarianAPI_v2
             foreach($img as $code => $value) {
                 $taxon['code']   = $code;
                 if(self::starts_with_small_letter($value['name'])) $taxon['name'] = $main_name." ".$value['name'];
-                else 
-                {
+                else {
                     // [6940] => [name] => St.Naumi
                     if(in_array($code, array(6940))) {}
                     else exit("\nInvestigate does not start with small letter [$code] \n");
@@ -162,8 +162,6 @@ class TurbellarianAPI_v2
         $mediaURL = self::format_image_path($rec);
         // print_r($rec); //exit;
 
-        // print_r(pathinfo($mediaURL)); exit;
-
         $mr = new \eol_schema\MediaResource();
         if($this->agent_ids)      $mr->agentID = implode("; ", $this->agent_ids);
         $mr->taxonID        = $rec["code"];
@@ -196,8 +194,9 @@ class TurbellarianAPI_v2
             $this->archive_builder->write_object_to_file($taxon);
         }
     }
-    private function parse_TableOfTaxa($html, $id, $invalid_names, $what)
+    private function parse_TableOfTaxa($html, $main_sci, $invalid_names, $what)
     {
+        $id = $main_sci['code'];
         $html = self::get_string_starting_from('table of taxa', $html);
         if(preg_match_all("/<tr(.*?)<\/tr>/ims", $html, $arr)) {
             foreach($arr[1] as $row) {
@@ -221,14 +220,21 @@ class TurbellarianAPI_v2
                 else exit("\nInvestigate cannot get id [$id]\n");
                 echo "\ncode [$code]\n";
                 //end compute for $code
+
+                if(preg_match_all("/<td>(.*?)<\/td>/ims", $row, $arr2)) {
+                    $tr_cols = $arr2[1];
+                    print_r($tr_cols); //good debug
+                }
                 
                 if    ($what == 'distribution') self::get_text_object($row, $code, $this->action[$what], $what);
                 elseif($what == 'diagnosis')    self::get_text_object($row, $code, $this->action[$what], $what);
-                elseif($what == 'synonyms')     self::get_text_object($row, $code, $this->action[$what], $what);
-                
-                if(preg_match_all("/<td>(.*?)<\/td>/ims", $row, $arr2)) {
-                    // print_r($arr2[1]); //good debug
+                elseif($what == 'downline_synonyms')
+                {
+                    $syn = self::get_text_object($row, $code, $this->action[$what], $what);
+                    print_r($syn);
                 }
+                
+                
             }
         }
     }
@@ -242,11 +248,38 @@ class TurbellarianAPI_v2
                 else                              $url = $this->page["action_".$action].$id;
                 echo "$url\n"; //e.g. http://turbellaria.umaine.edu/turb3.php?action=16&code=13396&valid=0
                 if($html = Functions::lookup_with_cache($url, $this->download_options)) {
-                    if($what == 'distribution') $distributions = self::parse_distribution($html);
+                    if    ($what == 'distribution') $distributions = self::parse_distribution($html);
+                    elseif($what == 'downline_synonyms') {
+                        return self::parse_synonyms($html, $id);
+                    }
                 }
             }
         }
         return false;
+    }
+    private function parse_synonyms($html, $id) //$id here is only for investigation if needed
+    {
+        $final = array();
+        $html = self::get_string_starting_from('table of synonyms', $html);
+        if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $html, $arr)) { //print_r($arr[1]);
+            foreach($arr[1] as $row) {
+                $row = str_replace("<td >&nbsp;</td>", "", $row);
+                if(preg_match_all("/<td >(.*?)<\/td>/ims", $row, $arr2)) { 
+                    // print_r($arr2[1]);
+                    $temp = $arr2[1];
+                    if(preg_match("/&code=(.*?)\"/ims", $temp[0], $arr3)) $code = $arr3[1];
+                    else exit("\nInvestigate no code in synonym [$id]\n"); 
+                    $rec = array();
+                    $rec['code'] = $code;
+                    $rec['name'] = Functions::remove_whitespace(strip_tags($temp[0]));
+                    $rec['author'] = $temp[1];
+                    $final[] = $rec;
+                }
+            }
+        }
+        // print_r($final);
+        // exit;
+        return $final;
     }
     private function parse_distribution($html)
     {
@@ -258,8 +291,9 @@ class TurbellarianAPI_v2
                 $row = str_replace('&nbsp;', "", $row); // echo "\n[$row]\n";
                 if(preg_match_all("/<td >(.*?)<\/td>/ims", $row, $arr2)) { 
                     $cols = $arr2[1];
+                    if(count($cols) != 11) exit("\nNeed to review connector, no. of columns for distribution changed.\n");
                     if(!@$cols[1]) continue;
-                    print_r($cols);
+                    // print_r($cols);
                     // 1 site   2 map   3 site # (info)     4 collection date   5 kind  6 depth     7 substrate     8 salin     9 comments  10 reference
                     /*
                     [0] => A
@@ -295,7 +329,7 @@ class TurbellarianAPI_v2
                 if($rec) $final[] = $rec;
             }
         }
-        print_r($final);
+        // print_r($final);
         // exit;
         return $final;
     }
@@ -306,12 +340,10 @@ class TurbellarianAPI_v2
         
         if(preg_match("/action=10&(.*?)\"/ims", $str, $arr)) {
             $url = "http://turbellaria.umaine.edu/turb3.php?action=10&".$arr[1];
-            echo "\nref url: [$url]\n"; //e.g. http://turbellaria.umaine.edu/turb3.php?action=10&litrec=7144&code=3749
-                                            // http://turbellaria.umaine.edu/turb3.php?action=10&litrec=21896&code=3749
-
+            // echo "\nref url: [$url]\n"; //e.g. http://turbellaria.umaine.edu/turb3.php?action=10&litrec=7144&code=3749
+                                        //e.g. http://turbellaria.umaine.edu/turb3.php?action=10&litrec=21896&code=3749
             if(preg_match("/elix(.*?)&code=/ims", "elix".$url, $arr)) $url = $arr[1];
-            
-            echo "\nref url: [$url]\n"; 
+            // echo "\nref url: [$url]\n"; 
             // exit;
             
             //start parsing html
