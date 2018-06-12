@@ -52,7 +52,7 @@ class TurbellarianAPI_v2
             self::process_page($code);
         }
         */
-        self::process_page(2741); //3158 3191 4901 3511 5654 1223 3749
+        self::process_page(2744); //3158 3191 4901 3511 5654 1223 3749
         // self::get_valid_ids(3159);
         // exit;
         $this->archive_builder->finalize(TRUE);
@@ -121,10 +121,15 @@ class TurbellarianAPI_v2
     {   /*
         [path] => media/thb2/2639a_thb.jpg
         [code] => 2639
+                  12980
         http://turbellaria.umaine.edu/media/img2/2639a.jpg
         */
-        $old = "/thb".substr($rec['code'],0,1)."/";
-        $new = "/img".substr($rec['code'],0,1)."/";
+        if(strlen($rec['code']) <= 4) $width = 1;
+        elseif(strlen($rec['code']) == 5) $width = 2;
+        else exit("\nInitialize code length for image writing...\n");
+        
+        $old = "/thb".substr($rec['code'],0,$width)."/";
+        $new = "/img".substr($rec['code'],0,$width)."/";
         $path = str_replace($old, $new, $rec['path']);
         $path = $this->domain."/".str_replace("_thb", "", $path);
         // exit("\n[$path]\n");
