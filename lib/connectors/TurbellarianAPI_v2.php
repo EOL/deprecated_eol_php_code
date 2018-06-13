@@ -41,36 +41,21 @@ class TurbellarianAPI_v2
         // 14686 - Nephrozoa
     }
 
-    private function add_additional_mappings()
+    private function additional_mappings()
     {
-        $url = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/Tropicos/countries with added URIs.txt";
-        $options = $this->download_options;
-        $options['cache'] = 1;
-        $options['expire_seconds'] = 60*60*24;
-        $local = Functions::save_remote_file_to_local($url, $options);
-        $handle = fopen($local, "r");
-        if ($handle) {
-            while (($line = fgets($handle)) !== false) {
-                $line = str_replace("\n", "", $line);
-                $a = explode("\t", $line); $a = array_map('trim', $a);
-                $this->uri_values[$a[0]] = $a[1];
-                /* not needed anymore
-                $this->ctrys_with_diff_name[] = $a[0]; //what goes here is e.g. 'Burma Rep.', if orig ctry name is 'Burma' and Tropicos calls it differently e.g. 'Burma Rep.'.
-                */
-            }
-            fclose($handle);
-        } 
-        else echo "\nCannot read!\n";
-        unlink($local);
+        require_library('connectors/TropicosArchiveAPI');
+        $func = new TropicosArchiveAPI(NULL);
+        $uri_values = $func->add_additional_mappings(true);
+        $this->uri_values = array_merge($this->uri_values, $uri_values);
     }
 
     function start()
     {
         $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         echo "\n".count($this->uri_values)."\n";
-        self::add_additional_mappings(); //add more mappings specific only to this resource
+        self::additional_mappings(); //add more mappings specific only to this resource
         echo "\n".count($this->uri_values)."\n";
-        
+        exit;
         
         $this->agent_ids = self::get_object_agents($this->agents);
         
