@@ -195,6 +195,7 @@ class TurbellarianAPI_v2
             $taxon->acceptedNameUsageID = $val;
             $taxon->taxonomicStatus = 'synonym';
         }
+        if($val = @$t['taxon_remarks']) $taxon->taxonRemarks = $val;
         
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->taxon_ids[$taxon->taxonID] = '';
@@ -301,6 +302,7 @@ class TurbellarianAPI_v2
                     if($temp[0] != "&nbsp;") $rec['name'] = Functions::remove_whitespace(strip_tags($temp[0]." ".$temp[1]));
                     else                     $rec['name'] = Functions::remove_whitespace(strip_tags($temp[1]));
                     $rec['author'] = strip_tags($temp[2]);
+                    if($temp[3] != "&nbsp;") $rec['taxon_remarks'] = Functions::remove_whitespace(strip_tags($temp[3]));
                     $final[] = $rec;
                 }
             }
