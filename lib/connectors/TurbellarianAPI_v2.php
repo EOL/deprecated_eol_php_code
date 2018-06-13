@@ -41,22 +41,59 @@ class TurbellarianAPI_v2
         // 14686 - Nephrozoa
     }
 
+    private function add_additional_mappings()
+    {
+        $url = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/Tropicos/countries with added URIs.txt";
+        $options = $this->download_options;
+        $options['cache'] = 1;
+        $options['expire_seconds'] = 60*60*24;
+        $local = Functions::save_remote_file_to_local($url, $options);
+        $handle = fopen($local, "r");
+        if ($handle) {
+            while (($line = fgets($handle)) !== false) {
+                $line = str_replace("\n", "", $line);
+                $a = explode("\t", $line); $a = array_map('trim', $a);
+                $this->uri_values[$a[0]] = $a[1];
+                /* not needed anymore
+                $this->ctrys_with_diff_name[] = $a[0]; //what goes here is e.g. 'Burma Rep.', if orig ctry name is 'Burma' and Tropicos calls it differently e.g. 'Burma Rep.'.
+                */
+            }
+            fclose($handle);
+        } 
+        else echo "\nCannot read!\n";
+        unlink($local);
+    }
+
     function start()
     {
+        $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        echo "\n".count($this->uri_values)."\n";
+        self::add_additional_mappings(); //add more mappings specific only to this resource
+        echo "\n".count($this->uri_values)."\n";
+        
+        
         $this->agent_ids = self::get_object_agents($this->agents);
         
-        /* main operation
+        // /* main operation
         $all_ids = self::get_all_ids();
         foreach($all_ids as $code) {
             // echo " $code";
             self::process_page($code);
         }
-        */
-        self::process_page(2777); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
+        // */
+        // self::process_page(2777); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
         // self::process_page(8216);
         // self::get_valid_ids(3159);
         // exit;
         $this->archive_builder->finalize(TRUE);
+        
+        
+        //start stats for un-mapped countries
+        $OUT = Functions::file_open(DOC_ROOT."/tmp/unmapped_countries.txt", "w");
+        $countries = array_keys($this->countries);
+        sort($countries);
+        foreach($countries as $c) fwrite($OUT, $c."\n");
+        fclose($OUT);
         
     }
     private function format_html($html)
@@ -85,9 +122,9 @@ class TurbellarianAPI_v2
             // $direct_images = self::get_direct_images($str, $id);                                    //action=2
             $invalid_names = self::get_invalid_names($html);
             // $downline_images = self::get_downline_images($str, $id, $invalid_names);                //action=23
-            // $distribution = self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'distribution');    //action=16
+            $distribution = self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'distribution');    //action=16
             // $diagnosis = self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'diagnosis');          //action=15
-            self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'downline_synonyms');            //action=6
+            // self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'downline_synonyms');            //action=6
 
             /*
             if($val = $direct_images) $main_sci['direct_images'] = $val;
@@ -273,7 +310,7 @@ class TurbellarianAPI_v2
             if(preg_match("/action=".$action."&code=".$id."(.*?)\"/ims", $str, $arr)) {
                 if($val = (string) trim($arr[1])) $url = $this->page["action_".$action].$id.$val;
                 else                              $url = $this->page["action_".$action].$id;
-                echo "$url\n"; //e.g. http://turbellaria.umaine.edu/turb3.php?action=16&code=13396&valid=0
+                echo "[$url]\n"; //e.g. http://turbellaria.umaine.edu/turb3.php?action=16&code=13396&valid=0
                 if($html = Functions::lookup_with_cache($url, $this->download_options)) {
                     if    ($what == 'distribution') $distributions = self::parse_distribution($html);
                     elseif($what == 'downline_synonyms') {
@@ -321,8 +358,10 @@ class TurbellarianAPI_v2
                 $row = str_replace('&nbsp;', "", $row); // echo "\n[$row]\n";
                 if(preg_match_all("/<td >(.*?)<\/td>/ims", $row, $arr2)) { 
                     $cols = $arr2[1];
+                    // print_r($cols); echo "\n".count($cols)."\n";
+                    if(!@$cols[1]) continue; //first row is header area
                     if(count($cols) != 11) exit("\nNeed to review connector, no. of columns for distribution changed.\n");
-                    if(!@$cols[1]) continue;
+
                     // print_r($cols);
                     // 1 site   2 map   3 site # (info)     4 collection date   5 kind  6 depth     7 substrate     8 salin     9 comments  10 reference
                     /*
@@ -346,6 +385,21 @@ class TurbellarianAPI_v2
                     $i['comments'] = 9;
                     $i['reference'] = 10;
 
+                    $ctry = self::get_country_string($cols[$i['site']], $cols);
+                    if($val = @$this->uri_values[$ctry]) {//echo "\nctry mapped OK";
+                        } //$mappedOK[$ctry] = '';
+                    else {
+                        $this->countries[$ctry] = '';
+                        // if($ctry == "Sri Lanka Janarajaya)") {
+                        if($ctry == ")Croatia") {
+                            print_r($cols); exit;
+                        }
+                        // if(in_array($ctry, array("Sylt", "small beach on the shore", "southwest exposted beach", "Il'myenskoye"))) {
+                        //     print_r($cols); //exit;
+                        // }
+                        
+                    }
+
                     $dist = $cols[$i['site']];
                     if($val = $cols[$i['collection date']]) $dist .= "<br>Collection date: " . $val;
                     if($val = $cols[$i['kind']]) $dist .= "<br>Kind: " . $val;
@@ -357,11 +411,57 @@ class TurbellarianAPI_v2
                     $rec['ref'] = self::parse_ref($cols[$i['reference']]);
                 }
                 if($rec) $final[] = $rec;
-            }
+            }//end foreach
         }
         // print_r($final);
         // exit;
         return $final;
+    }
+    private function get_country_string($str, $cols)
+    {
+        if(stripos($str, 'Ecuador') !== false) return 'Ecuador'; //string is found
+        if(stripos($str, "Il'myenskoye (?)") !== false) return $str; //string is found
+        if(substr($str,0,6) == "Italy,") return "Italy";
+        if(substr($str,0,6) == "Italy:") return "Italy";
+        
+        $orig_str = $str;
+        $str = trim(preg_replace('/\s*\([^)]*\)/', '', $str)); //remove parenthesis
+        if(!$str) $str = $orig_str;
+        
+        // echo "\n[$str]\n";
+        $a = explode(",", $str);
+        $a = array_map('trim', $a);
+        $final = array_pop($a);
+        if(in_array($final, self::country_sub_strings())) return $orig_str;
+        
+        return $final;
+        // exit("\n[$ctry]\n");
+    }
+    private function country_sub_strings()
+    {
+        return array(")Croatia", "36km S of Buffalo", "Al Ghardaqa", "Aquarium", "Australioa", "Australis", "Baraoos", "Belize Barrier Reef", "Benajarafe", "Blyth", "Cap Canaille", 
+        "Cape Colony", "Castiglione della Pescaia", "Ceylon", "Channel", "Charaki", "Costa Paradiso", "Eastern Alps", "Eastern North America", "Emerald Isle", 
+        "European Artic and Atlantic coasts", "Firth of Forth", "Fondamente del Ponte Piccolo", "Former Galizia", "Formosa Strait", "Foroe Islands", "Foroyar Islands", "Fyrisån", 
+        "Gabonese Republic", "Giglio Island", "Golfe du Lion", "Guadaloupe Archipelago", "Guinea-Strom", "Gulf of Siam", "High Tatra Mountains", "Il Cavaliere", "Ile Grosse", 
+        "Ilse of Man", "Ingolf experimental station 28", "Isla Grandi", "Islas Los Frailes", "Isle of Man", "Isles of Shoals", "Jan Mayen Ridge", "Khalij as Suways", 
+        "Kingdom of Lesotho", "Klockarudden", "Kominato beach", "La Ciaccia;", "Laing Island eastern Papua New Guinea.", "Lake Baikal", "Lake Tiberas", "Latvija", "Lebenon", 
+        "Lemon Tree Gut", "Lietuva", "M. Sars experimental station 76", "Mala", "Mallorca", "Marbella", "Melville Bay", "Moseley 1877 ocean trawl site", "N of Jeddah", 
+        "NW of Panggong Tso", "Netherland Antilles", "North Northeast of the navigation buoy C", "North Northwest of navigation buoy C", "North Sea site", 
+        "Novi Pazarn road towards Osoje", "Ocean Drilling Program Drill Hole in the North Pacific Ocean", "Orzola", 
+        "Plankton-Expedition der Humbolt-Stiftung sample site (Journalnummer der Plankton-Expedition 201", 
+        "Plankton-Expedition der Humbolt-Stiftung sample site (Journalnummer der Plankton-Expedition 41", "Poland-Slovak border", "Popradské Pleso", "Porto Pozzo", 
+        "Prefegitura ya  Rwanda", "Provincia de Huelva Spain: Salinas de San Rafael", "Pyidaungzu Myanma Naingngandaw", "Queensland Australia", "Ramfjord", "Rothen Meeres", 
+        "Sacco San Biagio", "Saint Barthelemy", "Salter Path", "Sardinia", "Savoy region", "Schleswig-Holstein", "Seljonyi", "Solomon Islands", "South Abyssinia", 
+        "South Georgia Island", "South Georgia and South Sandwich", "South Orkney Islands", "South West Abyssinia", "Southern Ural, Il'myenskoye (?)", "Southern Urals", "Sptizbergen", 
+        "St. Helena South", "State of Malta", "Station 223", "Station 229", "Station 230", "Station 234", "Station 241", "Station 245", "Station 248", "Station 258", 
+        "Station 271", "Station 277", "Station 284", "Station 291", "Station 312", "Strait of Dover", "Sumiainen", "Sylt", "Sylt Island", "Tasmanian Sea", "Tatra mountains", 
+        "Thor experimental station 166", "Tjalfe experimental station 337", "Togolese Republic", "Transilvania", "Valentia Harbor", "Wreck Beach", "Yalta", 
+        "beach S of Institute of Marine Sciences", "between Ascension Island and the Equator", "between Miass and Urazbaeva?", "coast of Wales", 
+        "in front of Laboratoire Arago: L'Herbier", "in front of Laboratoire Arago: La Peleteuse", "just behind the Institute of Marine Sciences", 
+        "lake areas north eastern Norway and far north western Russia", "main beach", "milieu hypothelminorhéique of St. Helena", "near Ascension Island", "near Chebarkul", 
+        "near Fondamento del Ponte del Piccolo", "near Les Aloès", "near Miass?", "near Stylida", "near Turgoyak", "near Urazbaeva?", "next to the vaporetto stop “Giardini”", 
+        "nonspecific", "north-east from Ile Grosse", "one of the most outer islands in the archipel", "scraped from ship during Deutschen Südpolar-Expedition 1901-1903.", 
+        "western beach", "western part of Sylt Island", "Îles Marquises or Archipel des Marquises or Marquises");
     }
     private function parse_ref($str)
     {   //e.g. "<a href="/turb3.php?action=10&litrec=7144&code=3749">Westblad E (1952)</a>: 9"
