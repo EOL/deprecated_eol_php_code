@@ -74,14 +74,14 @@ class TurbellarianAPI_v2
         
         $this->agent_ids = self::get_object_agents($this->agents);
         
-        // /* main operation
+        /* main operation
         $all_ids = self::get_all_ids();
         foreach($all_ids as $code) {
             // echo " $code";
             self::process_page($code);
         }
-        // */
-        // self::process_page(2777); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
+        */
+        self::process_page(3159); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
         // self::process_page(8216);
         // self::get_valid_ids(3159);
         // exit;
@@ -89,8 +89,8 @@ class TurbellarianAPI_v2
         
         
         //start stats for un-mapped countries
-        $OUT = Functions::file_open(DOC_ROOT."/tmp/unmapped_countries.txt", "w");
-        $countries = array_keys($this->countries);
+        $OUT = Functions::file_open(DOC_ROOT."/tmp/185_unmapped_countries.txt", "w");
+        $countries = array_keys($this->unmapped_countries);
         sort($countries);
         foreach($countries as $c) fwrite($OUT, $c."\n");
         fclose($OUT);
@@ -358,12 +358,10 @@ class TurbellarianAPI_v2
                 $row = str_replace('&nbsp;', "", $row); // echo "\n[$row]\n";
                 if(preg_match_all("/<td >(.*?)<\/td>/ims", $row, $arr2)) { 
                     $cols = $arr2[1];
-                    // print_r($cols); echo "\n".count($cols)."\n";
                     if(!@$cols[1]) continue; //first row is header area
                     if(count($cols) != 11) exit("\nNeed to review connector, no. of columns for distribution changed.\n");
 
-                    // print_r($cols);
-                    // 1 site   2 map   3 site # (info)     4 collection date   5 kind  6 depth     7 substrate     8 salin     9 comments  10 reference
+                    // print_r($cols); echo "\n".count($cols)."\n";
                     /*
                     [0] => A
                     [1] => Kors Fjord (Korsfjorden, Korsfjord, Krossfjorden), Fjord, near Bergen, Norway
@@ -375,7 +373,8 @@ class TurbellarianAPI_v2
                     [7] => mud
                     [8] => 
                     [9] => (St. 79/1951).
-                    [10] => <a href="/turb3.php?action=10&litrec=7144&code=3749">Westblad E (1952)</a>: 9                    */
+                    [10] => <a href="/turb3.php?action=10&litrec=7144&code=3749">Westblad E (1952)</a>: 9
+                    */
                     $i['site'] = 1;
                     $i['collection date'] = 4;
                     $i['kind'] = 5;
@@ -386,20 +385,18 @@ class TurbellarianAPI_v2
                     $i['reference'] = 10;
 
                     $ctry = self::get_country_string($cols[$i['site']], $cols);
-                    if($val = @$this->uri_values[$ctry]) {//echo "\nctry mapped OK";
-                        } //$mappedOK[$ctry] = '';
+                    if($country_uri = self::get_country_uri($ctry)) {} //mapped OK
                     else {
-                        $this->countries[$ctry] = '';
-                        // if($ctry == "Sri Lanka Janarajaya)") {
+                        $this->unmapped_countries[$ctry] = ''; //for stats only
+                        continue; //will wait for Jen's mapping so we get all country strings its respective country URI
+                        /* debug only
                         if($ctry == ")Croatia") {
                             print_r($cols); exit;
                         }
-                        // if(in_array($ctry, array("Sylt", "small beach on the shore", "southwest exposted beach", "Il'myenskoye"))) {
-                        //     print_r($cols); //exit;
-                        // }
-                        
+                        */
                     }
-
+                    exit("\n[$ctry] [$country_uri]\n");
+                    /* working but not used. Used as TraitBank rather than text object
                     $dist = $cols[$i['site']];
                     if($val = $cols[$i['collection date']]) $dist .= "<br>Collection date: " . $val;
                     if($val = $cols[$i['kind']]) $dist .= "<br>Kind: " . $val;
@@ -408,6 +405,7 @@ class TurbellarianAPI_v2
                     if($val = $cols[$i['salin']]) $dist .= "<br>Salin: " . $val;
                     if($val = $cols[$i['comments']]) $dist .= "<br>Comments: " . $val;
                     $rec['dist'] = $dist;
+                    */
                     $rec['ref'] = self::parse_ref($cols[$i['reference']]);
                 }
                 if($rec) $final[] = $rec;
@@ -417,12 +415,25 @@ class TurbellarianAPI_v2
         // exit;
         return $final;
     }
+    private function get_country_uri($country)
+    {
+        if($val = @$this->uri_values[$country]) return $val;
+        else {
+            /* working OK but too hard-coded, better to read the mapping from external file
+            switch ($country) {
+                case "United States of America":return "http://www.wikidata.org/entity/Q30";
+                case "Myanmar":                 return "http://www.wikidata.org/entity/Q836";
+            }
+            */
+        }
+    }
     private function get_country_string($str, $cols)
     {
         if(stripos($str, 'Ecuador') !== false) return 'Ecuador'; //string is found
         if(stripos($str, "Il'myenskoye (?)") !== false) return $str; //string is found
         if(substr($str,0,6) == "Italy,") return "Italy";
         if(substr($str,0,6) == "Italy:") return "Italy";
+        if(substr($str,-6) == ", Sylt") return "Germany";
         
         $orig_str = $str;
         $str = trim(preg_replace('/\s*\([^)]*\)/', '', $str)); //remove parenthesis
