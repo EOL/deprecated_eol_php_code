@@ -52,7 +52,7 @@ class TurbellarianAPI_v2
             self::process_page($code);
         }
         */
-        self::process_page(6788); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749
+        self::process_page(2777); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
         // self::process_page(8216);
         // self::get_valid_ids(3159);
         // exit;
@@ -61,6 +61,7 @@ class TurbellarianAPI_v2
     }
     private function format_html($html)
     {
+        $html = str_ireplace('<td  title="1">', "<td>", $html);
         $html = str_ireplace("<td >", "<td>", $html);
         $html = str_ireplace("<th >", "<th>", $html);
         $html = str_ireplace("<td>&nbsp;</td>", "", $html);
@@ -229,6 +230,12 @@ class TurbellarianAPI_v2
 
                 if(preg_match_all("/<td>(.*?)<\/td>/ims", $row, $arr2)) {
                     $tr_cols = $arr2[1];
+                    $tr_cols[0] = strip_tags($tr_cols[0]);
+                    
+                    if(in_array($what, array('downline_synonyms'))) {
+                        if(!self::starts_with_small_letter($tr_cols[0])) continue;
+                    }
+                    
                     // print_r($tr_cols); //good debug
                     $row_rec = array();
                     $row_rec['code'] = $code;
@@ -287,6 +294,7 @@ class TurbellarianAPI_v2
                     // print_r($arr2[1]);
                     $temp = $arr2[1];
                     if(preg_match("/&code=(.*?)\"/ims", $temp[0], $arr3)) $code = $arr3[1];
+                    elseif(preg_match("/&code=(.*?)\"/ims", $temp[1], $arr3)) $code = $arr3[1];
                     else exit("\nInvestigate no code in synonym [$id]\n"); 
                     $rec = array();
                     $rec['code'] = $code;
