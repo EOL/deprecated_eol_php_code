@@ -289,17 +289,18 @@ class TurbellarianAPI_v2
         $html = self::get_string_starting_from('table of synonyms', $html);
         if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $html, $arr)) { //print_r($arr[1]);
             foreach($arr[1] as $row) {
-                $row = str_replace("<td >&nbsp;</td>", "", $row);
+                // $row = str_replace("<td >&nbsp;</td>", "", $row);
                 if(preg_match_all("/<td >(.*?)<\/td>/ims", $row, $arr2)) { 
-                    // print_r($arr2[1]);
                     $temp = $arr2[1];
-                    if(preg_match("/&code=(.*?)\"/ims", $temp[0], $arr3)) $code = $arr3[1];
-                    elseif(preg_match("/&code=(.*?)\"/ims", $temp[1], $arr3)) $code = $arr3[1];
+                    // print_r($temp);
+                    if(preg_match("/&code=(.*?)\"/ims", $temp[1], $arr3)) $code = $arr3[1];
+                    elseif(preg_match("/&code=(.*?)\"/ims", $temp[2], $arr3)) $code = $arr3[1];
                     else exit("\nInvestigate no code in synonym [$id]\n"); 
                     $rec = array();
                     $rec['code'] = $code;
-                    $rec['name'] = Functions::remove_whitespace(strip_tags($temp[0]));
-                    $rec['author'] = $temp[1];
+                    if($temp[0] != "&nbsp;") $rec['name'] = Functions::remove_whitespace(strip_tags($temp[0]." ".$temp[1]));
+                    else                     $rec['name'] = Functions::remove_whitespace(strip_tags($temp[1]));
+                    $rec['author'] = strip_tags($temp[2]);
                     $final[] = $rec;
                 }
             }
