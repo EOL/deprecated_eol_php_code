@@ -52,10 +52,9 @@ class TurbellarianAPI_v2
     function start()
     {
         $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
-        echo "\n".count($this->uri_values)."\n";
+        echo "\n".count($this->uri_values);
         self::additional_mappings(); //add more mappings specific only to this resource
         echo "\n".count($this->uri_values)."\n";
-        exit;
         
         $this->agent_ids = self::get_object_agents($this->agents);
         
@@ -79,7 +78,6 @@ class TurbellarianAPI_v2
         sort($countries);
         foreach($countries as $c) fwrite($OUT, $c."\n");
         fclose($OUT);
-        
     }
     private function format_html($html)
     {
@@ -266,7 +264,13 @@ class TurbellarianAPI_v2
                     $row_rec['author'] = $tr_cols[1];
                 }
                 
-                if    ($what == 'distribution') self::get_text_object($row, $code, $this->action[$what], $what);
+                if($what == 'distribution') {
+                    if($recs = self::get_text_object($row, $code, $this->action[$what], $what)) {
+                        $row_rec['distributions'] = $recs;
+                        print_r($row_rec);
+                    }
+                    
+                }
                 elseif($what == 'diagnosis')    self::get_text_object($row, $code, $this->action[$what], $what);
                 elseif($what == 'downline_synonyms') {
                     // print_r($main_sci);
@@ -297,14 +301,78 @@ class TurbellarianAPI_v2
                 else                              $url = $this->page["action_".$action].$id;
                 echo "[$url]\n"; //e.g. http://turbellaria.umaine.edu/turb3.php?action=16&code=13396&valid=0
                 if($html = Functions::lookup_with_cache($url, $this->download_options)) {
-                    if    ($what == 'distribution') $distributions = self::parse_distribution($html);
-                    elseif($what == 'downline_synonyms') {
-                        return self::parse_synonyms($html, $id);
+                    if($what == 'distribution') {
+                        $ret = array();
+                        $temp = self::parse_distribution($html);
+                        $ret['records'] = self::normalize_dist_records($temp);
+                        $ret['source_url'] = $url;
+                        return $ret;
                     }
+                    elseif($what == 'downline_synonyms') return self::parse_synonyms($html, $id);
                 }
             }
         }
         return false;
+    }
+    private function normalize_dist_records($recs)
+    {
+        // print_r($recs); //exit;
+        if($recs) {
+            foreach($recs as $rec) {
+                $final[$rec['country_uri']]['country_value']  = $rec['country_value'];
+                $final[$rec['country_uri']]['orig_country'][] = $rec['orig_country'];
+                $final[$rec['country_uri']]['ref'][$rec['ref']['ref']] = $rec['ref']['url'];
+            }
+            return $final;
+        }
+    /*              Array(
+                        [0] => Array(
+                                [country_uri] => http://www.geonames.org/298795
+                                [country_value] => Turkey
+                                [orig_country] => Prinzeninsel Kinali, Kinali Ada (Proti, Kinali Island), Sea of Marmara (Marmara Meer), Turkey
+                                [ref] => Array(
+                                        [ref] => Ax P. 1959. Zur Systematik, Ökologie und Tiergeographie der Turbellarienfauna in den ponto-kaspischen Brackwassergebieten. Zool Jahrb Abt Syst Oekol Geogr Tiere 87:43-184
+                                        [url] => http://turbellaria.umaine.edu/turb3.php?action=10&litrec=8004
+                                    )
+                            )
+                        [1] => Array(
+                                [country_uri] => http://www.geonames.org/3469034
+                                [country_value] => Brazil
+                                [orig_country] => Island of São Sebastião (Ilha de Sebastiao), Brazil
+                                [ref] => Array(
+                                        [ref] => Marcus Er. 1951. Turbellaria Brasileiros (9). [Mecynostomum, Microstomum, Vejdovskia, Kalyla, Daelja, Brinkmaniella, Lenopharynx, Rhinolasius, Harsa, Cylindrostoma, Thallagus, Urastoma, Minona, Pistrix, Tuilica,  Plagiostomum]. Bol Fac Fil Ci Letr U Sao Paulo Zool 16:1-217,i-xl
+                                        [url] => http://turbellaria.umaine.edu/turb3.php?action=10&litrec=1630
+                                    )
+                            )
+                        [2] => Array(
+                                [country_uri] => http://www.geonames.org/3573345
+                                [country_value] => Bermuda
+                                [orig_country] => St. George's West, Biological Station swimming place, Bermuda Islands, Bermuda
+                                [ref] => Array(
+                                        [ref] => Karling TG. 1978. Anatomy and systematics of marine Turbellaria from Bermuda. Zool Scr 7:225-248.
+                                        [url] => http://turbellaria.umaine.edu/turb3.php?action=10&litrec=1825
+                                    )
+                            )
+                        [3] => Array(
+                                [country_uri] => http://www.geonames.org/2635167
+                                [country_value] => United Kingdom
+                                [orig_country] => Wembury Bay, United Kingdom
+                                [ref] => Array(
+                                        [ref] => Westblad E. 1955. Marine &quot;Alloeocoels&quot; (Turbellaria) from North Atlantic and Mediterranean coasts. I. Ark Zool 7: 491-526
+                                        [url] => http://turbellaria.umaine.edu/turb3.php?action=10&litrec=7072
+                                    )
+                            )
+                        [4] => Array(
+                                [country_uri] => http://www.geonames.org/2635167
+                                [country_value] => United Kingdom
+                                [orig_country] => Salcombe Harbour, United Kingdom
+                                [ref] => Array(
+                                        [ref] => Westblad E. 1955. Marine &quot;Alloeocoels&quot; (Turbellaria) from North Atlantic and Mediterranean coasts. I. Ark Zool 7: 491-526
+                                        [url] => http://turbellaria.umaine.edu/turb3.php?action=10&litrec=7072
+                                    )
+                            )
+                    )
+        */
     }
     private function parse_synonyms($html, $id) //$id here is only for investigation if needed
     {
@@ -369,7 +437,7 @@ class TurbellarianAPI_v2
                     $i['comments'] = 9;
                     $i['reference'] = 10;
 
-                    $ctry = self::get_country_string($cols[$i['site']], $cols);
+                    $ctry = self::get_country_string($cols[$i['site']]);
                     if($country_uri = self::get_country_uri($ctry)) {} //mapped OK
                     else {
                         $this->unmapped_countries[$ctry] = ''; //for stats only
@@ -380,7 +448,7 @@ class TurbellarianAPI_v2
                         }
                         */
                     }
-                    exit("\n[$ctry] [$country_uri]\n");
+                    // exit("\n[$ctry] [$country_uri]\n");
                     /* working but not used. Used as TraitBank rather than text object
                     $dist = $cols[$i['site']];
                     if($val = $cols[$i['collection date']]) $dist .= "<br>Collection date: " . $val;
@@ -391,6 +459,9 @@ class TurbellarianAPI_v2
                     if($val = $cols[$i['comments']]) $dist .= "<br>Comments: " . $val;
                     $rec['dist'] = $dist;
                     */
+                    $rec['country_uri'] = $country_uri;
+                    $rec['country_value'] = $ctry;
+                    $rec['orig_country'] = $cols[$i['site']];
                     $rec['ref'] = self::parse_ref($cols[$i['reference']]);
                 }
                 if($rec) $final[] = $rec;
@@ -412,7 +483,7 @@ class TurbellarianAPI_v2
             */
         }
     }
-    private function get_country_string($str, $cols)
+    private function get_country_string($str)
     {
         $orig_str = $str;
         if(stripos($str, 'Ecuador') !== false) return 'Ecuador'; //string is found
@@ -465,7 +536,7 @@ class TurbellarianAPI_v2
         if(preg_match("/action=10&(.*?)\"/ims", $str, $arr)) {
             $url = "http://turbellaria.umaine.edu/turb3.php?action=10&".$arr[1];
             // echo "\nref url: [$url]\n"; //e.g. http://turbellaria.umaine.edu/turb3.php?action=10&litrec=7144&code=3749
-                                        //e.g. http://turbellaria.umaine.edu/turb3.php?action=10&litrec=21896&code=3749
+                                           //e.g. http://turbellaria.umaine.edu/turb3.php?action=10&litrec=21896&code=3749
             if(preg_match("/elix(.*?)&code=/ims", "elix".$url, $arr)) $url = $arr[1];
             // echo "\nref url: [$url]\n"; 
             // exit;
@@ -475,20 +546,24 @@ class TurbellarianAPI_v2
                 $html = str_replace("<td>", "<td >", $html);
                 if(preg_match_all("/<td >(.*?)<\/td>/ims", $html, $arr2)) { 
                     $cols = $arr2[1];
+                    if(count($cols) != 5) exit("\nInvestigate, may need to review connector. No. of colums for reference changed. [$url]\n");
                     // print_r($cols);
-                    /* Array
-                    (
+                    /* Array(
                         [0] => Westblad E
                         [1] => 1952
                         [2] => <a href="/turb3.php?action=21&litrec=7144&code=3749"><img src="/icons/small/image.png" alt="index card avail."></a><br />&nbsp;
                         [3] => Some new &quot;Alloeocoels&quot; (Turbellaria) from the Scandinavian west coast.
                         [4] => Univ Bergen Abrok, Naturvet rekke 7: 1-27
                     )*/
+                    
+                    if(preg_match("/litrec=(.*?)elix/ims", $url.'elix', $arr3)) $refno = $arr3[1];
+                    else exit("\nCannot get refno [$url]\n");
+                    
                     $cols[2] = null;
                     $cols = array_filter($cols);
                     // print_r($cols);
                     $final = implode(". ", $cols);
-                    return array('ref' => str_replace("..", ".", $final), 'url' => $url);
+                    return array('ref' => str_replace("..", ".", $final), 'url' => $url, 'refno' => $refno);
                 }
             }
         }
