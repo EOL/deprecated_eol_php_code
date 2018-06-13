@@ -763,12 +763,12 @@ class TropicosArchiveAPI
         }
     }
     
-    private function add_additional_mappings()
+    public function add_additional_mappings($return_d_value = false) //this param ($return_d_value) is used when this func() is called outside this library. e.g. TurbellarianAPI_v2.php
     {
         $url = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/Tropicos/countries with added URIs.txt";
         $options = $this->download_options;
         $options['cache'] = 1;
-        $options['expire_seconds'] = 60*60*24;
+        $options['expire_seconds'] = 60*60*24*25; //25 days
         $local = Functions::save_remote_file_to_local($url, $options);
         $handle = fopen($local, "r");
         if ($handle) {
@@ -784,6 +784,7 @@ class TropicosArchiveAPI
         } 
         else echo "\nCannot read!\n";
         unlink($local);
+        if($return_d_value) return $this->uri_values;
     }
 }
 ?>
