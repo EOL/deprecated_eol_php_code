@@ -429,13 +429,13 @@ class TurbellarianAPI_v2
     }
     private function get_country_string($str, $cols)
     {
+        $orig_str = $str;
         if(stripos($str, 'Ecuador') !== false) return 'Ecuador'; //string is found
         if(stripos($str, "Il'myenskoye (?)") !== false) return $str; //string is found
         if(substr($str,0,6) == "Italy,") return "Italy";
         if(substr($str,0,6) == "Italy:") return "Italy";
         if(substr($str,-6) == ", Sylt") return "Germany";
         
-        $orig_str = $str;
         $str = trim(preg_replace('/\s*\([^)]*\)/', '', $str)); //remove parenthesis
         if(!$str) $str = $orig_str;
         
@@ -444,11 +444,9 @@ class TurbellarianAPI_v2
         $a = array_map('trim', $a);
         $final = array_pop($a);
         if(in_array($final, self::country_sub_strings())) return $orig_str;
-        
         return $final;
-        // exit("\n[$ctry]\n");
     }
-    private function country_sub_strings()
+    private function country_sub_strings() //if substr is this then return entire original string
     {
         return array(")Croatia", "36km S of Buffalo", "Al Ghardaqa", "Aquarium", "Australioa", "Australis", "Baraoos", "Belize Barrier Reef", "Benajarafe", "Blyth", "Cap Canaille", 
         "Cape Colony", "Castiglione della Pescaia", "Ceylon", "Channel", "Charaki", "Costa Paradiso", "Eastern Alps", "Eastern North America", "Emerald Isle", 
@@ -500,8 +498,7 @@ class TurbellarianAPI_v2
                         [2] => <a href="/turb3.php?action=21&litrec=7144&code=3749"><img src="/icons/small/image.png" alt="index card avail."></a><br />&nbsp;
                         [3] => Some new &quot;Alloeocoels&quot; (Turbellaria) from the Scandinavian west coast.
                         [4] => Univ Bergen Abrok, Naturvet rekke 7: 1-27
-                    )
-                    */
+                    )*/
                     $cols[2] = null;
                     $cols = array_filter($cols);
                     // print_r($cols);
@@ -512,7 +509,6 @@ class TurbellarianAPI_v2
         }
         exit("\nInvestigate there should be ref here.\n");
     }
-    
     private function get_invalid_names($html) //get Red and Green highlighted taxa
     {
         $html = self::get_string_starting_from('table of taxa', $html);
@@ -591,9 +587,7 @@ class TurbellarianAPI_v2
         $main_ids = self::get_main_ids(); //get main IDs from home page
         $main_ids[] = 14676; // - Xenacoelomorpha
         $main_ids[] = 14686; // - Nephrozoa
-        
         // $main_ids = array(12823); //14686 12856 12278
-        
         foreach($main_ids as $id1) {
             $ids1 = self::get_valid_ids($id1); $stack = array_merge($stack, $ids1);
             foreach($ids1 as $id2) {
@@ -687,8 +681,7 @@ class TurbellarianAPI_v2
         $first_char = substr($string, 0, 1);
         if($first_char == "(") $first_char = substr($string, 1, 1);
         if(!ctype_alpha($first_char)) return true;
-        if(ctype_lower($first_char))
-        {
+        if(ctype_lower($first_char)) {
             if($orig_string != "incertae sedis") return true;
         }
         return false;
@@ -696,8 +689,7 @@ class TurbellarianAPI_v2
     private function get_object_agents($agents)
     {
         $agent_ids = array();
-        foreach($agents as $agent)
-        {
+        foreach($agents as $agent) {
             $r = new \eol_schema\Agent();
             $r->term_name = $agent["name"];
             $r->identifier = md5($agent["name"]."|".$agent["role"]);
@@ -711,7 +703,6 @@ class TurbellarianAPI_v2
         }
         return $agent_ids;
     }
-
     private function xxx()
     {
         /* manually adding Bilateria */
