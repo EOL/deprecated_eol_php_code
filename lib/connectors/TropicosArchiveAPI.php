@@ -762,10 +762,14 @@ class TropicosArchiveAPI
             else $this->archive_builder_final->write_object_to_file($c); //for measurementorfact
         }
     }
-    
-    public function add_additional_mappings($return_d_value = false) //this param ($return_d_value) is used when this func() is called outside this library. e.g. TurbellarianAPI_v2.php
+
+    /*
+    these params ($return_d_value and $url_path_2mappings) are used when this func() is called outside this library. e.g. TurbellarianAPI_v2.php
+    */
+    public function add_additional_mappings($return_d_value = false, $url_path_2mappings = false)
     {
-        $url = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/Tropicos/countries with added URIs.txt";
+        if($url_path_2mappings) $url = $url_path_2mappings;
+        else $url = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/Tropicos/countries with added URIs.txt";
         $options = $this->download_options;
         $options['cache'] = 1;
         $options['expire_seconds'] = 60*60*24*25; //25 days

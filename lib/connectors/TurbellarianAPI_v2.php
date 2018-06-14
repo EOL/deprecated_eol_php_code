@@ -45,7 +45,12 @@ class TurbellarianAPI_v2
     {
         require_library('connectors/TropicosArchiveAPI');
         $func = new TropicosArchiveAPI(NULL);
-        $uri_values = $func->add_additional_mappings(true);
+        $uri_values = $func->add_additional_mappings(true); //add country mappings used in Tropicos
+        $this->uri_values = array_merge($this->uri_values, $uri_values);
+        
+        //add mappings specific to this resource: Turbellaria 185
+        $mappings_specific_to_this_resource = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/Turbellaria/unmapped_countries%202%202.txt";
+        $uri_values = $func->add_additional_mappings(true, $mappings_specific_to_this_resource);
         $this->uri_values = array_merge($this->uri_values, $uri_values);
     }
 
@@ -58,20 +63,19 @@ class TurbellarianAPI_v2
         
         $this->agent_ids = self::get_object_agents($this->agents);
         
-        /* main operation
+        // /* main operation
         $all_ids = self::get_all_ids();
         foreach($all_ids as $code) {
             // echo " $code";
             self::process_page($code);
         }
-        */
-        self::process_page(3159); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
+        // */
+        // self::process_page(3159); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
         // self::process_page(8216);
         // self::get_valid_ids(3159);
         // exit;
         $this->archive_builder->finalize(TRUE);
-        
-        
+
         //start stats for un-mapped countries
         $OUT = Functions::file_open(DOC_ROOT."/tmp/185_unmapped_countries.txt", "w");
         $countries = array_keys($this->unmapped_countries);
@@ -269,7 +273,6 @@ class TurbellarianAPI_v2
                         $row_rec['distributions'] = $recs;
                         print_r($row_rec);
                     }
-                    
                 }
                 elseif($what == 'diagnosis')    self::get_text_object($row, $code, $this->action[$what], $what);
                 elseif($what == 'downline_synonyms') {
@@ -285,9 +288,6 @@ class TurbellarianAPI_v2
                         }
                     }
                 }
-                
-                
-                
             } //end foreach()
         }
     }
