@@ -64,19 +64,14 @@ class TurbellarianAPI_v2
         
         $this->agent_ids = self::get_object_agents($this->agents);
         
-        /* main operation
+        // /* main operation
         $all_ids = self::get_all_ids();
-        foreach($all_ids as $code) {
-            // echo " $code";
-            self::process_page($code);
-        }
-        */
+        foreach($all_ids as $code) self::process_page($code);
+        // */
         // self::process_page(3159); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
-        self::process_page(8216);
-        // self::get_valid_ids(3159);
-        // exit;
+        // self::process_page(8216);
+        // self::get_valid_ids(3159); // exit;
         $this->archive_builder->finalize(TRUE);
-
         //start stats for un-mapped countries
         if(isset($this->unmapped_countries)) {
             $OUT = Functions::file_open(DOC_ROOT."/tmp/185_unmapped_countries.txt", "w");
@@ -109,26 +104,22 @@ class TurbellarianAPI_v2
             if(preg_match("/<td>(.*?)<\/td>/ims", $str, $arr)) $main_sci['author'] = $arr[1];
             // print_r($main_sci);
             
-            // $direct_images = self::get_direct_images($str, $id);                                    //action=2
+            $direct_images = self::get_direct_images($str, $id);                                        //action=2
             $invalid_names = self::get_invalid_names($html);
-            // $downline_images = self::get_downline_images($str, $id, $invalid_names);                //action=23
-            $distribution = self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'distribution');    //action=16
-            // $diagnosis = self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'diagnosis');          //action=15
-            // self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'downline_synonyms');            //action=6
-
-            /*
+            $downline_images = self::get_downline_images($str, $id, $invalid_names);                    //action=23
+            $distribution = self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'distribution');  //action=16
+            // $diagnosis = self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'diagnosis');        //action=15
+            self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'downline_synonyms');             //action=6
+            // /*
             if($val = $direct_images) $main_sci['direct_images'] = $val;
             if($val = $downline_images) $main_sci['downline_images'] = $val;
-            */
-            
-            
+            // */
             if($main_sci['name']) self::write_to_archive($main_sci);
         }
     }
     private function write_to_archive($rec)
     {
-        print_r($rec);
-        // exit;
+        // print_r($rec);
         self::write_taxon($rec);
         if($val = @$rec['downline_images']) self::write_downline_images($val, $rec['name']);
         if($val = @$rec['direct_images']) self::write_direct_images($val, $rec);
@@ -268,13 +259,13 @@ class TurbellarianAPI_v2
                     $row_rec = array();
                     $row_rec['code'] = $code;
                     $row_rec['name'] = $main_sci['name']." ".$tr_cols[0];
-                    $row_rec['author'] = $tr_cols[1];
+                    $row_rec['author'] = @$tr_cols[1];
                 }
                 
                 if($what == 'distribution') {
                     if($recs = self::get_text_object($row, $code, $this->action[$what], $what)) {
                         $row_rec['distributions'] = $recs;
-                        print_r($row_rec);
+                        // print_r($row_rec);
                         self::write_taxon($row_rec);
                         self::write_distribution_trait($row_rec);
                     }
@@ -284,7 +275,7 @@ class TurbellarianAPI_v2
                     // print_r($main_sci);
                     if($syns = self::get_text_object($row, $code, $this->action[$what], $what)) {
                         $row_rec['synonyms'] = $syns;
-                        print_r($row_rec);
+                        // print_r($row_rec);
                         
                         self::write_taxon($row_rec);
                         foreach($syns as $syn) {
@@ -299,12 +290,12 @@ class TurbellarianAPI_v2
     private function get_text_object($str, $id, $action, $what) //action=16
     {
         if(stripos($str, "action=".$action."&") !== false) {//string is found
-            echo "\nwith [$what] --> ";
+            // echo "\nwith [$what] --> ";
             // <a href="/turb3.php?action=16&code=3190&valid=0">dist'n</a>
             if(preg_match("/action=".$action."&code=".$id."(.*?)\"/ims", $str, $arr)) {
                 if($val = (string) trim($arr[1])) $url = $this->page["action_".$action].$id.$val;
                 else                              $url = $this->page["action_".$action].$id;
-                echo "[$url]\n"; //e.g. http://turbellaria.umaine.edu/turb3.php?action=16&code=13396&valid=0
+                // echo "[$url]\n"; //e.g. http://turbellaria.umaine.edu/turb3.php?action=16&code=13396&valid=0
                 if($html = Functions::lookup_with_cache($url, $this->download_options)) {
                     if($what == 'distribution') {
                         $ret = array();
@@ -339,7 +330,6 @@ class TurbellarianAPI_v2
                 // $row = str_replace("<td >&nbsp;</td>", "", $row);
                 if(preg_match_all("/<td >(.*?)<\/td>/ims", $row, $arr2)) { 
                     $temp = $arr2[1];
-                    // print_r($temp);
                     if(preg_match("/&code=(.*?)\"/ims", $temp[1], $arr3)) $code = $arr3[1];
                     elseif(preg_match("/&code=(.*?)\"/ims", $temp[2], $arr3)) $code = $arr3[1];
                     else exit("\nInvestigate no code in synonym [$id]\n"); 
@@ -353,8 +343,6 @@ class TurbellarianAPI_v2
                 }
             }
         }
-        // print_r($final);
-        // exit;
         return $final;
     }
     private function write_distribution_trait($row_rec)
@@ -395,10 +383,7 @@ class TurbellarianAPI_v2
         }
     }
     private function write_references($refs)
-    {
-        /*
-        Array
-            (
+    {   /*Array(
                 [Ax P. 1952. Eine Brackwasser-Lebensgemeinschaft an Holzpfaehlen des Nord-Ostsee-Kanals. Kieler Meeresforschungen 8:229-242,2 tab] => http://turbellaria.umaine.edu/turb3.php?action=10&litrec=9700
                 [Ax P. 1959. Zur Systematik, Ökologie und Tiergeographie der Turbellarienfauna in den ponto-kaspischen Brackwassergebieten. Zool Jahrb Abt Syst Oekol Geogr Tiere 87:43-184] => http://turbellaria.umaine.edu/turb3.php?action=10&litrec=8004
             )
@@ -444,7 +429,6 @@ class TurbellarianAPI_v2
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
-
         $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
         if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
         $this->archive_builder->write_object_to_file($o);
