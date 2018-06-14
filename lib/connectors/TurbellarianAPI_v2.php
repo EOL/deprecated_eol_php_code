@@ -47,19 +47,21 @@ class TurbellarianAPI_v2
         $func = new TropicosArchiveAPI(NULL);
         $uri_values = $func->add_additional_mappings(true); //add country mappings used in Tropicos
         $this->uri_values = array_merge($this->uri_values, $uri_values);
+        echo "\n".count($this->uri_values)." - URIs were added from Tropicos. \n";
         
         //add mappings specific to this resource: Turbellaria 185
         $mappings_specific_to_this_resource = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/Turbellaria/unmapped_countries%202%202.txt";
         $uri_values = $func->add_additional_mappings(true, $mappings_specific_to_this_resource);
         $this->uri_values = array_merge($this->uri_values, $uri_values);
+        echo "\n".count($this->uri_values)." - URIs were added from Turbellarian. \n";
+        
     }
 
     function start()
     {
         $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
-        echo "\n".count($this->uri_values);
+        echo "\n".count($this->uri_values). " - default URIs from EOL registry.";
         self::additional_mappings(); //add more mappings specific only to this resource
-        echo "\n".count($this->uri_values)."\n";
         
         $this->agent_ids = self::get_object_agents($this->agents);
         
@@ -472,20 +474,19 @@ class TurbellarianAPI_v2
                     $i['comments'] = 9;
                     $i['reference'] = 10;
 
-                    $ctry = self::get_country_string($cols[$i['site']]);
+                    $site = trim($cols[$i['site']]);
+                    if(substr($site, -1) == ",") $site = substr($site,0,strlen($site)-1);
+                    $ctry = self::get_country_string($site);
+                    if(!$ctry) exit("\nInvestigate blank ctry [".$site."]\n");
                     if($country_uri = self::get_country_uri($ctry)) {} //mapped OK
                     else {
                         $this->unmapped_countries[$ctry] = ''; //for stats only
+                        // echo "\n{$site}"; //good debug
                         continue; //will wait for Jen's mapping so we get all country strings its respective country URI
-                        /* debug only
-                        if($ctry == ")Croatia") {
-                            print_r($cols); exit;
-                        }
-                        */
                     }
                     // exit("\n[$ctry] [$country_uri]\n");
                     /* working but not used. Used as TraitBank rather than text object
-                    $dist = $cols[$i['site']];
+                    $dist = $site;
                     if($val = $cols[$i['collection date']]) $dist .= "<br>Collection date: " . $val;
                     if($val = $cols[$i['kind']]) $dist .= "<br>Kind: " . $val;
                     if($val = $cols[$i['depth']]) $dist .= "<br>Depth: " . $val;
@@ -496,7 +497,7 @@ class TurbellarianAPI_v2
                     */
                     $rec['country_uri'] = $country_uri;
                     $rec['country_value'] = $ctry;
-                    $rec['orig_country'] = $cols[$i['site']];
+                    $rec['orig_country'] = $site;
                     $rec['ref'] = self::parse_ref($cols[$i['reference']]);
                 }
                 if($rec) $final[] = $rec;
@@ -512,7 +513,7 @@ class TurbellarianAPI_v2
         else {
             // /* working OK but too hard-coded, better to read the mapping from external file
             switch ($country) {
-                case "Brazil": return "http://www.geonames.org/3469034";
+                case "Brazil	 	 ": return "http://www.geonames.org/3469034";
             }
             // */
         }
