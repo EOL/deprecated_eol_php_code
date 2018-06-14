@@ -20,7 +20,6 @@ class TurbellarianAPI_v2
         $this->SPM = "http://rs.tdwg.org/ontology/voc/SPMInfoItems";
         $this->EOL = 'http://www.eol.org/voc/table_of_contents';
 
-        $this->TEMP_DIR = create_temp_dir() . "/";
         $this->download_options = array('download_wait_time' => 500000, 'timeout' => 9600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => 60*60*24*25);
         $this->download_options['expire_seconds'] = false;
         
@@ -374,12 +373,14 @@ class TurbellarianAPI_v2
         */
         $taxon_id = $row_rec['code'];
         $catnum = md5($row_rec['distributions']['source_url']); //decided to use source_url as catnum, not seem a bad idea.
-        foreach($row_rec['distributions']['records'] as $country_uri => $rek) {
-            $orig_countries = array_unique($rek['orig_country']);
-            $orig_countries = implode("<br>", $orig_countries);
-            $mremarks = $orig_countries;
-            $ref_ids = self::write_references($rek['ref']);
-            self::add_string_types($taxon_id, $catnum, $country_uri, "http://eol.org/schema/terms/Present", true, $mremarks, $ref_ids);
+        if($val = $row_rec['distributions']['records']) {
+            foreach($val as $country_uri => $rek) {
+                $orig_countries = array_unique($rek['orig_country']);
+                $orig_countries = implode("<br>", $orig_countries);
+                $mremarks = $orig_countries;
+                $ref_ids = self::write_references($rek['ref']);
+                self::add_string_types($taxon_id, $catnum, $country_uri, "http://eol.org/schema/terms/Present", true, $mremarks, $ref_ids);
+            }
         }
     }
     private function write_references($refs)
@@ -617,10 +618,10 @@ class TurbellarianAPI_v2
     private function get_downline_images($str, $id, $exclude) //action=23
     {
         if(stripos($str, 'action=23&') !== false) {//string is found
-            echo "\nwith downline image(s)\n";
+            // echo "\nwith downline image(s)\n";
             if(preg_match("/action=23&code=".$id."(.*?)\"/ims", $str, $arr)) {
                 $url = $this->page['action_23'].$id.$arr[1];
-                echo "\n$url\n"; //e.g. http://turbellaria.umaine.edu/turb3.php?action=2&code=5654&smk=0
+                // echo "\n$url\n"; //e.g. http://turbellaria.umaine.edu/turb3.php?action=2&code=5654&smk=0
                 if($html = Functions::lookup_with_cache($url, $this->download_options)) {
                     $html = self::get_string_starting_from('table of images of species', $html);
                     $html = self::format_html($html);
@@ -659,11 +660,11 @@ class TurbellarianAPI_v2
     private function get_direct_images($str, $id) //action=2
     {
         if(stripos($str, 'action=2&') !== false) {//string is found
-            echo "\nwith direct image(s)\n";
+            // echo "\nwith direct image(s)\n";
             //<a href="/turb3.php?action=2&code=3511&smk=1">
             if(preg_match("/action=2&code=".$id."(.*?)\"/ims", $str, $arr)) {
                 $url = $this->page['action_2'].$id.$arr[1];
-                echo "\n$url\n"; //e.g. http://turbellaria.umaine.edu/turb3.php?action=2&code=5654&smk=0
+                // echo "\n$url\n"; //e.g. http://turbellaria.umaine.edu/turb3.php?action=2&code=5654&smk=0
                 if($html = Functions::lookup_with_cache($url, $this->download_options)) {
                     $html = self::get_string_starting_from('table of thumbnail images', $html);
                     if(preg_match_all("/<img src=\"(.*?)\"/ims", $html, $arr)) {
