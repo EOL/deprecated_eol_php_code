@@ -36,8 +36,6 @@ class TropicosArchiveAPI
         $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
         $this->occurrence_ids = array();
         $this->taxon_ids = array();
-        $this->TEMP_DIR = create_temp_dir() . "/";
-        $this->tropicos_ids_list_file = $this->TEMP_DIR . "tropicos_ids.txt";
         $this->download_options = array('resource_id' => 218, 'cache_path' => '/Volumes/AKiTiO4/eol_cache_tropicos/', 'expire_seconds' => false, 
         'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1); //timeout is 60 secs. * 3 = 3 mins.
                                                                                        //download_wait_time = 1000000 = 1 second; 300000 => .3 seconds
@@ -88,6 +86,9 @@ class TropicosArchiveAPI
     }
     function get_all_taxa($resource_id)
     {
+        $this->TEMP_DIR = create_temp_dir() . "/";
+        $this->tropicos_ids_list_file = $this->TEMP_DIR . "tropicos_ids.txt";
+        
         $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         // echo "\n".count($this->uri_values)."\n";
         self::add_additional_mappings(); //add more mappings specific only to this resource

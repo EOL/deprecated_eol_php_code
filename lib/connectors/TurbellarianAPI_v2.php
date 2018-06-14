@@ -5,6 +5,7 @@ class TurbellarianAPI_v2
 {
     function __construct($folder)
     {
+        $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
 
@@ -63,25 +64,27 @@ class TurbellarianAPI_v2
         
         $this->agent_ids = self::get_object_agents($this->agents);
         
-        // /* main operation
+        /* main operation
         $all_ids = self::get_all_ids();
         foreach($all_ids as $code) {
             // echo " $code";
             self::process_page($code);
         }
-        // */
+        */
         // self::process_page(3159); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
-        // self::process_page(8216);
+        self::process_page(8216);
         // self::get_valid_ids(3159);
         // exit;
         $this->archive_builder->finalize(TRUE);
 
         //start stats for un-mapped countries
-        $OUT = Functions::file_open(DOC_ROOT."/tmp/185_unmapped_countries.txt", "w");
-        $countries = array_keys($this->unmapped_countries);
-        sort($countries);
-        foreach($countries as $c) fwrite($OUT, $c."\n");
-        fclose($OUT);
+        if(isset($this->unmapped_countries)) {
+            $OUT = Functions::file_open(DOC_ROOT."/tmp/185_unmapped_countries.txt", "w");
+            $countries = array_keys($this->unmapped_countries);
+            sort($countries);
+            foreach($countries as $c) fwrite($OUT, $c."\n");
+            fclose($OUT);
+        }
     }
     private function format_html($html)
     {
@@ -272,6 +275,8 @@ class TurbellarianAPI_v2
                     if($recs = self::get_text_object($row, $code, $this->action[$what], $what)) {
                         $row_rec['distributions'] = $recs;
                         print_r($row_rec);
+                        self::write_taxon($row_rec);
+                        self::write_distribution_trait($row_rec);
                     }
                 }
                 elseif($what == 'diagnosis')    self::get_text_object($row, $code, $this->action[$what], $what);
@@ -322,6 +327,14 @@ class TurbellarianAPI_v2
                 $final[$rec['country_uri']]['country_value']  = $rec['country_value'];
                 $final[$rec['country_uri']]['orig_country'][] = $rec['orig_country'];
                 $final[$rec['country_uri']]['ref'][$rec['ref']['ref']] = $rec['ref']['url'];
+
+
+                // $final[$rec['country_uri']]['orig_country'][] = $rec['orig_country'];
+                // $final[$rec['country_uri']]['ref'][]          = $rec['ref'];
+                
+                // $final[$rec['country_uri']]['orig_country'] = array_unique($final[$rec['country_uri']]['orig_country']);
+                // $final[$rec['country_uri']]['ref']          = array_unique($final[$rec['country_uri']]['ref']);
+                
             }
             return $final;
         }
@@ -401,6 +414,115 @@ class TurbellarianAPI_v2
         // exit;
         return $final;
     }
+    private function write_distribution_trait($row_rec)
+    {
+        /*Array(
+            [code] => 8217
+            [name] => Pentacoelum fucoideum
+            [author] => Westblad, 1935
+            [distributions] => Array
+                (
+                    [records] => Array
+                        (
+                            [http://www.geonames.org/2921044] => Array
+                                (
+                                    [country_value] => Germany
+                                    [orig_country] => Array
+                                        (
+                                            [0] => Nord-Ostsee-Kanal (Nord-Ostseekanal, Kaiser Wilhelm Kanal, Kieler Kanal, Kiel Canal), Schleswig-Holstein, Germany
+                                            [1] => Nord-Ostsee-Kanal (Nord-Ostseekanal, Kaiser Wilhelm Kanal, Kieler Kanal, Kiel Canal), Schleswig-Holstein, Germany
+                                        )
+                                    [ref] => Array
+                                        (
+                                            [Ax P. 1952. Eine Brackwasser-Lebensgemeinschaft an Holzpfaehlen des Nord-Ostsee-Kanals. Kieler Meeresforschungen 8:229-242,2 tab] => http://turbellaria.umaine.edu/turb3.php?action=10&litrec=9700
+                                            [Ax P. 1959. Zur Systematik, Ökologie und Tiergeographie der Turbellarienfauna in den ponto-kaspischen Brackwassergebieten. Zool Jahrb Abt Syst Oekol Geogr Tiere 87:43-184] => http://turbellaria.umaine.edu/turb3.php?action=10&litrec=8004
+                                        )
+                                )
+                    [source_url] => http://turbellaria.umaine.edu/turb3.php?action=16&code=8217&valid=0
+                    
+        */
+        $taxon_id = $row_rec['code'];
+        $catnum = md5($row_rec['distributions']['source_url']); //decided to use source_url as catnum, not seem a bad idea.
+        foreach($row_rec['distributions']['records'] as $country_uri => $rek) {
+            $orig_countries = array_unique($rek['orig_country']);
+            $orig_countries = implode("<br>", $orig_countries);
+            $mremarks = $orig_countries;
+            $ref_ids = self::write_references($rek['ref']);
+            self::add_string_types($taxon_id, $catnum, $country_uri, "http://eol.org/schema/terms/Present", true, $mremarks, $ref_ids);
+        }
+    }
+    private function write_references($refs)
+    {
+        /*
+        Array
+            (
+                [Ax P. 1952. Eine Brackwasser-Lebensgemeinschaft an Holzpfaehlen des Nord-Ostsee-Kanals. Kieler Meeresforschungen 8:229-242,2 tab] => http://turbellaria.umaine.edu/turb3.php?action=10&litrec=9700
+                [Ax P. 1959. Zur Systematik, Ökologie und Tiergeographie der Turbellarienfauna in den ponto-kaspischen Brackwassergebieten. Zool Jahrb Abt Syst Oekol Geogr Tiere 87:43-184] => http://turbellaria.umaine.edu/turb3.php?action=10&litrec=8004
+            )
+        */
+        foreach($refs as $full_ref => $ref_url)
+        {
+            if(preg_match("/action=10&litrec=(.*?)elix/ims", $ref_url.'elix', $arr)) $ref_id = $arr[1];
+            else exit("\nInvestigate no refno [$source_url]\n");
+            $r = new \eol_schema\Reference();
+            $r->full_reference = (string) $full_ref;
+            $r->identifier = $ref_id;
+            $ref_ids[$ref_id] = '';
+            $r->uri = $ref_url;
+            if(!isset($this->resource_reference_ids[$r->identifier])) {
+               $this->resource_reference_ids[$r->identifier] = '';
+               $this->archive_builder->write_object_to_file($r);
+            }
+        }
+        return array_keys($ref_ids);
+    }
+    private function add_string_types($taxon_id, $catnum, $value, $mtype, $mtaxon = false, $mremarks = '', $ref_ids)
+    {
+        if(!trim($value)) return;
+        $m = new \eol_schema\MeasurementOrFact();
+        $occurrence_id = $this->add_occurrence($taxon_id, $catnum);
+        $m->occurrenceID = $occurrence_id;
+        if($mtaxon) {
+            $m->measurementOfTaxon = 'true';
+            $m->source = TROPICOS_DOMAIN . "/Name/" . $taxon_id . "?tab=distribution";
+            /* temporarily excluded to reduce size of measurement tab
+            $m->measurementRemarks = "Note: This information is based on publications available through <a href='http://tropicos.org/'>Tropicos</a> and may not represent the entire distribution. Tropicos does not categorize distributions as native or non-native.";
+            */
+            $m->measurementRemarks = $mremarks;
+        }
+        $m->measurementType = $mtype;
+        $m->measurementValue = (string) $value;
+        if($val = $ref_ids) $m->referenceID = implode("; ", $val);
+        
+        // $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue'));
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        
+        if(!isset($this->measurement_ids[$m->measurementID])) {
+            $this->measurement_ids[$m->measurementID] = '';
+            $this->archive_builder->write_object_to_file($m);
+        }
+    }
+
+    private function add_occurrence($taxon_id, $catnum)
+    {
+        $occurrence_id = $taxon_id . '_' . $catnum;
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = $occurrence_id;
+        $o->taxonID = $taxon_id;
+
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
+
+        /* old ways
+        $this->occurrence_ids[$occurrence_id] = '';
+        return $occurrence_id;
+        */
+    }
+
+
     private function parse_distribution($html)
     {
         $html = str_replace("<td>", "<td >", $html);
