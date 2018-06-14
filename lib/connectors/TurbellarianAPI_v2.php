@@ -321,71 +321,14 @@ class TurbellarianAPI_v2
     }
     private function normalize_dist_records($recs)
     {
-        // print_r($recs); //exit;
-        if($recs) {
+        if($recs) { //do print_r($recs); to check values - script.
             foreach($recs as $rec) {
                 $final[$rec['country_uri']]['country_value']  = $rec['country_value'];
                 $final[$rec['country_uri']]['orig_country'][] = $rec['orig_country'];
                 $final[$rec['country_uri']]['ref'][$rec['ref']['ref']] = $rec['ref']['url'];
-
-
-                // $final[$rec['country_uri']]['orig_country'][] = $rec['orig_country'];
-                // $final[$rec['country_uri']]['ref'][]          = $rec['ref'];
-                
-                // $final[$rec['country_uri']]['orig_country'] = array_unique($final[$rec['country_uri']]['orig_country']);
-                // $final[$rec['country_uri']]['ref']          = array_unique($final[$rec['country_uri']]['ref']);
-                
             }
             return $final;
         }
-    /*              Array(
-                        [0] => Array(
-                                [country_uri] => http://www.geonames.org/298795
-                                [country_value] => Turkey
-                                [orig_country] => Prinzeninsel Kinali, Kinali Ada (Proti, Kinali Island), Sea of Marmara (Marmara Meer), Turkey
-                                [ref] => Array(
-                                        [ref] => Ax P. 1959. Zur Systematik, Ökologie und Tiergeographie der Turbellarienfauna in den ponto-kaspischen Brackwassergebieten. Zool Jahrb Abt Syst Oekol Geogr Tiere 87:43-184
-                                        [url] => http://turbellaria.umaine.edu/turb3.php?action=10&litrec=8004
-                                    )
-                            )
-                        [1] => Array(
-                                [country_uri] => http://www.geonames.org/3469034
-                                [country_value] => Brazil
-                                [orig_country] => Island of São Sebastião (Ilha de Sebastiao), Brazil
-                                [ref] => Array(
-                                        [ref] => Marcus Er. 1951. Turbellaria Brasileiros (9). [Mecynostomum, Microstomum, Vejdovskia, Kalyla, Daelja, Brinkmaniella, Lenopharynx, Rhinolasius, Harsa, Cylindrostoma, Thallagus, Urastoma, Minona, Pistrix, Tuilica,  Plagiostomum]. Bol Fac Fil Ci Letr U Sao Paulo Zool 16:1-217,i-xl
-                                        [url] => http://turbellaria.umaine.edu/turb3.php?action=10&litrec=1630
-                                    )
-                            )
-                        [2] => Array(
-                                [country_uri] => http://www.geonames.org/3573345
-                                [country_value] => Bermuda
-                                [orig_country] => St. George's West, Biological Station swimming place, Bermuda Islands, Bermuda
-                                [ref] => Array(
-                                        [ref] => Karling TG. 1978. Anatomy and systematics of marine Turbellaria from Bermuda. Zool Scr 7:225-248.
-                                        [url] => http://turbellaria.umaine.edu/turb3.php?action=10&litrec=1825
-                                    )
-                            )
-                        [3] => Array(
-                                [country_uri] => http://www.geonames.org/2635167
-                                [country_value] => United Kingdom
-                                [orig_country] => Wembury Bay, United Kingdom
-                                [ref] => Array(
-                                        [ref] => Westblad E. 1955. Marine &quot;Alloeocoels&quot; (Turbellaria) from North Atlantic and Mediterranean coasts. I. Ark Zool 7: 491-526
-                                        [url] => http://turbellaria.umaine.edu/turb3.php?action=10&litrec=7072
-                                    )
-                            )
-                        [4] => Array(
-                                [country_uri] => http://www.geonames.org/2635167
-                                [country_value] => United Kingdom
-                                [orig_country] => Salcombe Harbour, United Kingdom
-                                [ref] => Array(
-                                        [ref] => Westblad E. 1955. Marine &quot;Alloeocoels&quot; (Turbellaria) from North Atlantic and Mediterranean coasts. I. Ark Zool 7: 491-526
-                                        [url] => http://turbellaria.umaine.edu/turb3.php?action=10&litrec=7072
-                                    )
-                            )
-                    )
-        */
     }
     private function parse_synonyms($html, $id) //$id here is only for investigation if needed
     {
@@ -460,8 +403,7 @@ class TurbellarianAPI_v2
                 [Ax P. 1959. Zur Systematik, Ökologie und Tiergeographie der Turbellarienfauna in den ponto-kaspischen Brackwassergebieten. Zool Jahrb Abt Syst Oekol Geogr Tiere 87:43-184] => http://turbellaria.umaine.edu/turb3.php?action=10&litrec=8004
             )
         */
-        foreach($refs as $full_ref => $ref_url)
-        {
+        foreach($refs as $full_ref => $ref_url) {
             if(preg_match("/action=10&litrec=(.*?)elix/ims", $ref_url.'elix', $arr)) $ref_id = $arr[1];
             else exit("\nInvestigate no refno [$source_url]\n");
             $r = new \eol_schema\Reference();
@@ -485,24 +427,17 @@ class TurbellarianAPI_v2
         if($mtaxon) {
             $m->measurementOfTaxon = 'true';
             $m->source = TROPICOS_DOMAIN . "/Name/" . $taxon_id . "?tab=distribution";
-            /* temporarily excluded to reduce size of measurement tab
-            $m->measurementRemarks = "Note: This information is based on publications available through <a href='http://tropicos.org/'>Tropicos</a> and may not represent the entire distribution. Tropicos does not categorize distributions as native or non-native.";
-            */
             $m->measurementRemarks = $mremarks;
         }
         $m->measurementType = $mtype;
         $m->measurementValue = (string) $value;
         if($val = $ref_ids) $m->referenceID = implode("; ", $val);
-        
-        // $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue'));
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
-        
         if(!isset($this->measurement_ids[$m->measurementID])) {
             $this->measurement_ids[$m->measurementID] = '';
             $this->archive_builder->write_object_to_file($m);
         }
     }
-
     private function add_occurrence($taxon_id, $catnum)
     {
         $occurrence_id = $taxon_id . '_' . $catnum;
@@ -515,14 +450,7 @@ class TurbellarianAPI_v2
         $this->archive_builder->write_object_to_file($o);
         $this->occurrence_ids[$o->occurrenceID] = '';
         return $o->occurrenceID;
-
-        /* old ways
-        $this->occurrence_ids[$occurrence_id] = '';
-        return $occurrence_id;
-        */
     }
-
-
     private function parse_distribution($html)
     {
         $html = str_replace("<td>", "<td >", $html);
