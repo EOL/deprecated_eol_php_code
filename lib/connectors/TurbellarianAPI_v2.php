@@ -510,12 +510,11 @@ class TurbellarianAPI_v2
     {
         if($val = @$this->uri_values[$country]) return $val;
         else {
-            /* working OK but too hard-coded, better to read the mapping from external file
+            // /* working OK but too hard-coded, better to read the mapping from external file
             switch ($country) {
-                case "United States of America":return "http://www.wikidata.org/entity/Q30";
-                case "Myanmar":                 return "http://www.wikidata.org/entity/Q836";
+                case "Brazil": return "http://www.geonames.org/3469034";
             }
-            */
+            // */
         }
     }
     private function get_country_string($str)
