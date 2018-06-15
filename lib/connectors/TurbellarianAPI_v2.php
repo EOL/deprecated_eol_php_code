@@ -41,7 +41,7 @@ class TurbellarianAPI_v2
         // 14686 - Nephrozoa
     }
 
-    private function additional_mappings()
+    private function additional_mappings() //specific for this resource and one from Tropicos
     {
         require_library('connectors/TropicosArchiveAPI');
         $func = new TropicosArchiveAPI(NULL);
@@ -54,22 +54,29 @@ class TurbellarianAPI_v2
         $uri_values = $func->add_additional_mappings(true, $mappings_specific_to_this_resource);
         $this->uri_values = array_merge($this->uri_values, $uri_values);
         echo "\n".count($this->uri_values)." - URIs were added from Turbellarian. \n";
+    }
+    private function get_biblio_citation()
+    {
+        if($html = Functions::lookup_with_cache($this->domain, $this->download_options)) {
+            if(preg_match("/<tr>(.*?)<\/tr>/ims", $html, $arr)) {
+            }
+        }
         
     }
-
     function start()
     {
         $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         echo "\n".count($this->uri_values). " - default URIs from EOL registry.";
-        self::additional_mappings(); //add more mappings specific only to this resource
+        self::additional_mappings(); //add more mappings specific only to this resource and one from Tropicos
         
         $this->agent_ids = self::get_object_agents($this->agents);
+        $this->biblio_citation = self::get_biblio_citation()
         
-        // /* main operation
+        /* main operation
         $all_ids = self::get_all_ids();
         foreach($all_ids as $code) self::process_page($code);
-        // */
-        // self::process_page(3159); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
+        */
+        self::process_page(3159); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
         // self::process_page(8216);
         // self::get_valid_ids(3159); // exit;
         $this->archive_builder->finalize(TRUE);
@@ -371,17 +378,17 @@ class TurbellarianAPI_v2
                                         )
                                 )
                     [source_url] => http://turbellaria.umaine.edu/turb3.php?action=16&code=8217&valid=0
-                    
         */
         $taxon_id = $row_rec['code'];
-        $catnum = md5($row_rec['distributions']['source_url']); //decided to use source_url as catnum, not seem a bad idea.
+        $source_url = $row_rec['distributions']['source_url'];
+        $catnum     = md5($source_url); //decided to use source_url as catnum, not seem a bad idea.
         if($val = $row_rec['distributions']['records']) {
             foreach($val as $country_uri => $rek) {
                 $orig_countries = array_unique($rek['orig_country']);
                 $orig_countries = implode("<br>", $orig_countries);
                 $mremarks = $orig_countries;
                 $ref_ids = self::write_references($rek['ref']);
-                self::add_string_types($taxon_id, $catnum, $country_uri, "http://eol.org/schema/terms/Present", true, $mremarks, $ref_ids);
+                self::add_string_types($taxon_id, $catnum, $country_uri, "http://eol.org/schema/terms/Present", true, $mremarks, $ref_ids, $source_url);
             }
         }
     }
@@ -406,7 +413,7 @@ class TurbellarianAPI_v2
         }
         return array_keys($ref_ids);
     }
-    private function add_string_types($taxon_id, $catnum, $value, $mtype, $mtaxon = false, $mremarks = '', $ref_ids)
+    private function add_string_types($taxon_id, $catnum, $value, $mtype, $mtaxon = false, $mremarks = '', $ref_ids, $source_url)
     {
         if(!trim($value)) return;
         $m = new \eol_schema\MeasurementOrFact();
@@ -414,8 +421,9 @@ class TurbellarianAPI_v2
         $m->occurrenceID = $occurrence_id;
         if($mtaxon) {
             $m->measurementOfTaxon = 'true';
-            $m->source = TROPICOS_DOMAIN . "/Name/" . $taxon_id . "?tab=distribution";
+            $m->source = $source_url;
             $m->measurementRemarks = $mremarks;
+            $m->bibliographicCitation = $this->biblio_citation;
         }
         $m->measurementType = $mtype;
         $m->measurementValue = (string) $value;
