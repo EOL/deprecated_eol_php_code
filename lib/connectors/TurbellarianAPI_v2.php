@@ -55,14 +55,6 @@ class TurbellarianAPI_v2
         $this->uri_values = array_merge($this->uri_values, $uri_values);
         echo "\n".count($this->uri_values)." - URIs were added from Turbellarian. \n";
     }
-    private function get_biblio_citation()
-    {
-        if($html = Functions::lookup_with_cache($this->domain, $this->download_options)) {
-            if(preg_match("/<tr>(.*?)<\/tr>/ims", $html, $arr)) {
-            }
-        }
-        
-    }
     function start()
     {
         $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
@@ -70,7 +62,7 @@ class TurbellarianAPI_v2
         self::additional_mappings(); //add more mappings specific only to this resource and one from Tropicos
         
         $this->agent_ids = self::get_object_agents($this->agents);
-        $this->biblio_citation = self::get_biblio_citation()
+        $this->biblio_citation = self::get_biblio_citation();
         
         /* main operation
         $all_ids = self::get_all_ids();
@@ -805,6 +797,16 @@ class TurbellarianAPI_v2
             }
         }
         return $agent_ids;
+    }
+    private function get_biblio_citation()
+    {
+        if($html = Functions::lookup_with_cache($this->domain, $this->download_options)) {
+            if(preg_match_all("/Cite as(.*?)<\/p>/ims", $html, $arr)) {
+                $recs = $arr[1];
+                $rec = array_pop($recs); //get last record
+                if(preg_match("/\"(.*?)\"/ims", $rec, $arr2)) return str_replace("\n", " ", $arr2[1]);
+            }
+        }
     }
     private function xxx()
     {
