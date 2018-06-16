@@ -68,7 +68,7 @@ class TurbellarianAPI_v2
         $all_ids = self::get_all_ids();
         foreach($all_ids as $code) self::process_page($code);
         */
-        self::process_page(3159); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
+        self::process_page(4976); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
         // self::process_page(8216);
         // self::get_valid_ids(3159); // exit;
         $this->archive_builder->finalize(TRUE);
@@ -80,14 +80,6 @@ class TurbellarianAPI_v2
             foreach($countries as $c) fwrite($OUT, $c."\n");
             fclose($OUT);
         }
-    }
-    private function format_html($html)
-    {
-        $html = str_ireplace('<td  title="1">', "<td>", $html);
-        $html = str_ireplace("<td >", "<td>", $html);
-        $html = str_ireplace("<th >", "<th>", $html);
-        $html = str_ireplace("<td>&nbsp;</td>", "", $html);
-        return $html;
     }
     private function process_page($id)
     {
@@ -103,17 +95,18 @@ class TurbellarianAPI_v2
             if(preg_match("/<th>(.*?)<\/th>/ims", $str, $arr)) $main_sci['name'] = $arr[1];
             if(preg_match("/<td>(.*?)<\/td>/ims", $str, $arr)) $main_sci['author'] = $arr[1];
             // print_r($main_sci);
-            
-            $direct_images = self::get_direct_images($str, $id);                                        //action=2
+
+            // $direct_images = self::get_direct_images($str, $id);                                        //action=2
             $invalid_names = self::get_invalid_names($html);
-            $downline_images = self::get_downline_images($str, $id, $invalid_names);                    //action=23
+            // $downline_images = self::get_downline_images($str, $id, $invalid_names);                    //action=23
             $distribution = self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'distribution');  //action=16
             // $diagnosis = self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'diagnosis');        //action=15
-            self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'downline_synonyms');             //action=6
-            // /*
+            // self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'downline_synonyms');             //action=6
+
+            /*
             if($val = $direct_images) $main_sci['direct_images'] = $val;
             if($val = $downline_images) $main_sci['downline_images'] = $val;
-            // */
+            */
             if($main_sci['name']) self::write_to_archive($main_sci);
         }
     }
@@ -206,6 +199,7 @@ class TurbellarianAPI_v2
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                     = $t['code'];
         $taxon->scientificName              = $t['name'];
+        // $taxon->parentNameUsageID
         $taxon->scientificNameAuthorship    = $t['author'];
         $taxon->furtherInformationURL       = $this->page['action_1'].$t['code'];
         
@@ -371,6 +365,7 @@ class TurbellarianAPI_v2
                                 )
                     [source_url] => http://turbellaria.umaine.edu/turb3.php?action=16&code=8217&valid=0
         */
+        print_r($row_rec); exit;
         $taxon_id = $row_rec['code'];
         $source_url = $row_rec['distributions']['source_url'];
         $catnum     = md5($source_url); //decided to use source_url as catnum, not seem a bad idea.
@@ -807,6 +802,14 @@ class TurbellarianAPI_v2
                 if(preg_match("/\"(.*?)\"/ims", $rec, $arr2)) return str_replace("\n", " ", $arr2[1]);
             }
         }
+    }
+    private function format_html($html)
+    {
+        $html = str_ireplace('<td  title="1">', "<td>", $html);
+        $html = str_ireplace("<td >", "<td>", $html);
+        $html = str_ireplace("<th >", "<th>", $html);
+        $html = str_ireplace("<td>&nbsp;</td>", "", $html);
+        return $html;
     }
     private function xxx()
     {
