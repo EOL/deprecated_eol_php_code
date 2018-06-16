@@ -34,9 +34,10 @@ $func = new DWCADiagnoseAPI();
 $undefined_parents = $func->check_if_all_parents_have_entries($resource_id, false); //true means output will write to text file
 echo "\nTotal undefined parents:" . count($undefined_parents)."\n"; unset($undefined_parents);
 
-$without = $func->get_all_taxa_without_parent($resource_id, false); //true means output will write to text file
-echo "\nTotal taxa without parents:" . count($without)."\n";
-print_r($without);
+// working but may not be useful since there are synonyms and these normally don't have parents
+// $without = $func->get_all_taxa_without_parent($resource_id, false); //true means output will write to text file
+// echo "\nTotal taxa without parents:" . count($without)."\n";
+// print_r($without);
 // =====================================*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;

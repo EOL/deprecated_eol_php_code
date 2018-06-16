@@ -245,14 +245,14 @@ class TurbellarianAPI_v2
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                     = $t['code'];
         $taxon->scientificName              = $t['name'];
-        $taxon->scientificNameAuthorship    = $t['author'];
+        $taxon->scientificNameAuthorship    = @$t['author'];
         $taxon->furtherInformationURL       = $this->page['action_1'].$t['code'];
         
         if($val = @$t['acceptedNameUsageID']) {
             $taxon->acceptedNameUsageID = $val;
             $taxon->taxonomicStatus = 'synonym';
         }
-        else $taxon->parentNameUsageID = $t['parent_id']; //parent is only for non-synonym
+        else $taxon->parentNameUsageID = @$t['parent_id']; //parent is only for non-synonym
         if($val = @$t['taxon_remarks']) $taxon->taxonRemarks = $val;
         
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
