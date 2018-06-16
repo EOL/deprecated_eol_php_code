@@ -207,41 +207,34 @@ class DWCADiagnoseAPI
     //============================================================
     function get_all_taxa_without_parent($resource_id, $write_2text_file = false)
     {
-        if($write_2text_file) 
-        {
+        if($write_2text_file) {
             $WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_taxa_without_parent.txt", "w");
             fwrite($WRITE, 'taxonID' . "\t" . 'scientificName' . "\t" . 'taxonRank' . "\t" . 'source' . "\n");
         }
         //start loop =======================
         $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/taxon.tab";
-        if(!file_exists($url))
-        {
+        if(!file_exists($url)) {
             echo "\nFile does not exist: [$url]\n";
             return;
         }
         $i = 0;
-        foreach(new FileIterator($url) as $line_number => $temp)
-        {
+        foreach(new FileIterator($url) as $line_number => $temp) {
             $temp = explode("\t", $temp);
             $i++;
             if($i == 1) $fields = $temp;
-            else
-            {
+            else {
                 $rec = array();
                 $k = 0;
                 if(!$temp) continue;
-                foreach($temp as $t)
-                {
+                foreach($temp as $t) {
                     $rec[$fields[$k]] = $t;
                     $k++;
                 }
-                if(!@$rec['parentNameUsageID'])
-                {
+                if(!@$rec['parentNameUsageID']) {
                     $no_parent[$rec['taxonID']] = '';
                     $row = $rec['taxonID'] . " -- " . @$rec['scientificName'] . " -- " . @$rec['taxonRank'] . " -- " . @$rec['source'];
                     // echo "\n". $row; //use to display rows
-                    if($write_2text_file)
-                    {
+                    if($write_2text_file) {
                         $row = str_ireplace(" -- ", "\t", $row);
                         fwrite($WRITE, $row . "\n");
                     }
@@ -249,7 +242,7 @@ class DWCADiagnoseAPI
             }
         }
         //end loop =========================
-        fclose($WRITE);
+        if($write_2text_file) fclose($WRITE);
         return array_keys($no_parent);
     }
     
