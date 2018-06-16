@@ -63,12 +63,13 @@ class TurbellarianAPI_v2
         
         $this->agent_ids = self::get_object_agents($this->agents);
         $this->biblio_citation = self::get_biblio_citation();
+        self::write_taxon(array('name' => 'Bilateria', 'code' => 'bilateria'));
         
         /* main operation
         $all_ids = self::get_all_ids();
         foreach($all_ids as $code) self::process_page($code);
         */
-        self::process_page(4976); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
+        self::process_page(12044); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
         // self::process_page(8216);
         // self::get_valid_ids(3159); // exit;
         $this->archive_builder->finalize(TRUE);
@@ -81,10 +82,52 @@ class TurbellarianAPI_v2
             fclose($OUT);
         }
     }
+    private function process_indented_names($html)
+    {
+        if(preg_match("/<div class=\"listindent\">(.*?)<\/div>/ims", $html, $arr)) {
+            $temp = $arr[1];
+            $temp = explode('<div class="listindent">', $temp);
+            $temp = array_map('trim', $temp);
+            // print_r($temp);
+            /*Array( e.g. $temp
+                [0] => <a href="/turb3.php?action=1&code=14686">Nephrozoa </a>&nbsp; &nbsp; &nbsp; Jondelius, Ruiz-Trillo, Baguna, & Riutort, 2002
+                [1] => <a href="/turb3.php?action=1&code=12856">Platyhelminthes </a>&nbsp; &nbsp; &nbsp; Minot, 1876
+                [2] => <a href="/turb3.php?action=1&code=12276">Rhabditophora </a>&nbsp; &nbsp; &nbsp; Ehlers, 1985
+                [3] => <a href="/turb3.php?action=1&code=13985">Trepaxonemata </a>&nbsp; &nbsp; &nbsp; Ehlers, 1984
+                [4] => <a href="/turb3.php?action=1&code=12823">Neoophora </a>&nbsp; &nbsp; &nbsp; Westblad, 1948
+                [5] => <a href="/turb3.php?action=1&code=12278">Eulecithophora </a>&nbsp; &nbsp; &nbsp; de Beauchamp, 1961
+                [6] => <a href="/turb3.php?action=1&code=4793">Rhabdocoela </a>&nbsp; &nbsp; &nbsp; Ehrenberg, 1831
+                [7] => <a href="/turb3.php?action=1&code=14173">Dalytyphloplanida </a>&nbsp; &nbsp; &nbsp; Willems, Wallberg, Jondelius, Littlewood, Backeljau, Schockaert, Artoi
+                [8] => <a href="/turb3.php?action=1&code=11963">Luridae </a>&nbsp; &nbsp; &nbsp; Sterrer & Rieger, 1990
+                [9] => Luriculus &nbsp; &nbsp; &nbsp; Faubel, Rohde, & Watson, 1994
+            )*/
+            $recs = array();
+            foreach($temp as $str) {
+                $rec = array();
+                if(preg_match("/code=(.*?)\"/ims", $str, $arr)) $rec['code'] = $arr[1];
+                if(preg_match("/>(.*?)<\/a>/ims", $str, $arr)) $rec['name'] = $arr[1];
+                if(preg_match("/>&nbsp; &nbsp; &nbsp;(.*?)elix/ims", $str.'elix', $arr)) $rec['author'] = $arr[1];
+                $rec = array_map('trim', $rec);
+                if(@$rec['name']) $recs[] = $rec;
+            }
+            // print_r($recs);
+            foreach($recs as $index => $rec) {
+                // echo "\n$index\n"; print_r($rec);
+                if($index === 0) $recs[$index]['parent_id'] = 'bilateria';
+                else             $recs[$index]['parent_id'] = $recs[$index-1]['code'];
+            }
+            // print_r($recs);
+            foreach($recs as $rec) self::write_taxon($rec);
+            return array_pop($recs); //this ret value will be the parent of the main_sci
+        }
+    }
     private function process_page($id)
     {
         $html = Functions::lookup_with_cache($this->page['action_1'].$id, $this->download_options);
         $html = self::format_html($html);
+        
+        $parent_of_main_sci = self::process_indented_names($html);
+        
         $html = self::get_string_starting_from('table of subtaxa', $html);
         if(preg_match("/<tr>(.*?)<\/tr>/ims", $html, $arr)) {
             $str = $arr[1];
@@ -92,6 +135,8 @@ class TurbellarianAPI_v2
             // <th>Allostoma</th>
             // <td>Beneden, 1861</td>
             $main_sci['code'] = $id;
+            $main_sci['parent_id'] = $parent_of_main_sci['code'];
+            
             if(preg_match("/<th>(.*?)<\/th>/ims", $str, $arr)) $main_sci['name'] = $arr[1];
             if(preg_match("/<td>(.*?)<\/td>/ims", $str, $arr)) $main_sci['author'] = $arr[1];
             // print_r($main_sci);
@@ -99,22 +144,22 @@ class TurbellarianAPI_v2
             // $direct_images = self::get_direct_images($str, $id);                                        //action=2
             $invalid_names = self::get_invalid_names($html);
             // $downline_images = self::get_downline_images($str, $id, $invalid_names);                    //action=23
-            $distribution = self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'distribution');  //action=16
+            // $distribution = self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'distribution');  //action=16
             // $diagnosis = self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'diagnosis');        //action=15
-            // self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'downline_synonyms');             //action=6
+            self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'downline_synonyms');             //action=6
 
-            /*
+            // /*
             if($val = $direct_images) $main_sci['direct_images'] = $val;
             if($val = $downline_images) $main_sci['downline_images'] = $val;
-            */
+            // */
             if($main_sci['name']) self::write_to_archive($main_sci);
         }
     }
     private function write_to_archive($rec)
     {
-        // print_r($rec);
+        // print_r($rec); exit;
         self::write_taxon($rec);
-        if($val = @$rec['downline_images']) self::write_downline_images($val, $rec['name']);
+        if($val = @$rec['downline_images']) self::write_downline_images($val, $rec['name'], $rec['code']);
         if($val = @$rec['direct_images']) self::write_direct_images($val, $rec);
     }
     private function write_direct_images($direct_images, $rec)
@@ -125,7 +170,7 @@ class TurbellarianAPI_v2
             self::write_image($rec);
         }
     }
-    private function write_downline_images($dl_images, $main_name)
+    private function write_downline_images($dl_images, $main_name, $main_code)
     {
         foreach($dl_images as $code => $img) {
             // print_r($img); exit;
@@ -137,6 +182,7 @@ class TurbellarianAPI_v2
                     if(in_array($code, array(6940))) {}
                     else exit("\nInvestigate does not start with small letter [$code] \n");
                 }
+                $taxon['parent_id'] = $main_code;
                 $taxon['author'] = $value['author'];
                 self::write_taxon($taxon);
                 foreach($value['images'] as $img_path) {
@@ -199,7 +245,6 @@ class TurbellarianAPI_v2
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                     = $t['code'];
         $taxon->scientificName              = $t['name'];
-        // $taxon->parentNameUsageID
         $taxon->scientificNameAuthorship    = $t['author'];
         $taxon->furtherInformationURL       = $this->page['action_1'].$t['code'];
         
@@ -207,6 +252,7 @@ class TurbellarianAPI_v2
             $taxon->acceptedNameUsageID = $val;
             $taxon->taxonomicStatus = 'synonym';
         }
+        else $taxon->parentNameUsageID = $t['parent_id']; //parent is only for non-synonym
         if($val = @$t['taxon_remarks']) $taxon->taxonRemarks = $val;
         
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
@@ -254,6 +300,7 @@ class TurbellarianAPI_v2
                     $row_rec['code'] = $code;
                     $row_rec['name'] = $main_sci['name']." ".$tr_cols[0];
                     $row_rec['author'] = @$tr_cols[1];
+                    $row_rec['parent_id'] = $main_sci['code'];
                 }
                 
                 if($what == 'distribution') {
@@ -365,7 +412,7 @@ class TurbellarianAPI_v2
                                 )
                     [source_url] => http://turbellaria.umaine.edu/turb3.php?action=16&code=8217&valid=0
         */
-        print_r($row_rec); exit;
+        // print_r($row_rec); exit;
         $taxon_id = $row_rec['code'];
         $source_url = $row_rec['distributions']['source_url'];
         $catnum     = md5($source_url); //decided to use source_url as catnum, not seem a bad idea.
