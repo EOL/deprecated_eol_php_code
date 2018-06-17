@@ -65,11 +65,11 @@ class TurbellarianAPI_v2
         $this->biblio_citation = self::get_biblio_citation();
         self::write_taxon(array('name' => 'Bilateria', 'code' => 'bilateria'));
         
-        /* main operation
+        // /* main operation
         $all_ids = self::get_all_ids();
         foreach($all_ids as $code) self::process_page($code);
-        */
-        self::process_page(12044); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
+        // */
+        // self::process_page(12044); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
         // self::process_page(8216);
         // self::get_valid_ids(3159); // exit;
         $this->archive_builder->finalize(TRUE);
@@ -141,10 +141,10 @@ class TurbellarianAPI_v2
             if(preg_match("/<td>(.*?)<\/td>/ims", $str, $arr)) $main_sci['author'] = $arr[1];
             // print_r($main_sci);
 
-            // $direct_images = self::get_direct_images($str, $id);                                        //action=2
+            $direct_images = self::get_direct_images($str, $id);                                        //action=2
             $invalid_names = self::get_invalid_names($html);
-            // $downline_images = self::get_downline_images($str, $id, $invalid_names);                    //action=23
-            // $distribution = self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'distribution');  //action=16
+            $downline_images = self::get_downline_images($str, $id, $invalid_names);                    //action=23
+            $distribution = self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'distribution');  //action=16
             // $diagnosis = self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'diagnosis');        //action=15
             self::parse_TableOfTaxa($html, $main_sci, $invalid_names, 'downline_synonyms');             //action=6
 
@@ -208,33 +208,33 @@ class TurbellarianAPI_v2
         $new = "/img".substr($rec['code'],0,$width)."/";
         $path = str_replace($old, $new, $rec['path']);
         $path = $this->domain."/".str_replace("_thb", "", $path);
-        // exit("\n[$path]\n");
         return $path; //this is mediaURL
     }
     private function write_image($rec)
     {
-        // [path] => media/thb2/2639a_thb.jpg
-        // [code] => 2639
-        // http://turbellaria.umaine.edu/media/img2/2639a.jpg
-        
+        /*
+        [path] => media/thb2/2639a_thb.jpg
+        [code] => 2639
+        http://turbellaria.umaine.edu/media/img2/2639a.jpg
+        */
         $mediaURL = self::format_image_path($rec);
-        // print_r($rec); //exit;
-
         $mr = new \eol_schema\MediaResource();
         if($this->agent_ids)      $mr->agentID = implode("; ", $this->agent_ids);
         $mr->taxonID        = $rec["code"];
         $mr->identifier     = pathinfo($mediaURL, PATHINFO_BASENAME);
         $mr->type           = "http://purl.org/dc/dcmitype/StillImage";
-        // $mr->language       = 'en';
         $mr->format         = Functions::get_mimetype($mediaURL);
-        // $mr->title          = "";
-        // $mr->CreateDate     = "";
         $mr->Owner          = $this->rights_holder;
-        // $mr->rights         = "";
         $mr->UsageTerms     = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-        // $mr->audience       = 'Everyone';
-        // $mr->description    = "";
         $mr->accessURI      = $mediaURL;
+        /* not used for now
+        $mr->language       = 'en';
+        $mr->title          = "";
+        $mr->CreateDate     = "";
+        $mr->rights         = "";
+        $mr->audience       = 'Everyone';
+        $mr->description    = "";
+        */
         if(!isset($this->object_ids[$mr->identifier])) {
            $this->object_ids[$mr->identifier] = '';
            $this->archive_builder->write_object_to_file($mr);
