@@ -245,13 +245,19 @@ class TurbellarianAPI_v2
     private function compute_rank($sciname)
     {
         $sciname = trim($sciname);
-        if(stripos($sciname, 'sp.') !== false) {} //string is found
-        elseif(stripos($sciname, '.') !== false) return; //string is found
+        if(stripos($sciname, ' sp.') !== false) return "species"; //string is found
+        if(stripos($sciname, ' spec.') !== false) return "species"; //string is found
+        if(stripos($sciname, ' species ') !== false) return "species"; //string is found
+        
+        if(stripos($sciname, '.') !== false) return; //string is found
         elseif(stripos($sciname, ',') !== false) return; //string is found
         
         $arr = explode(" ", $sciname);
         if(count($arr) == 2) return 'species';
-        if(count($arr) == 3) return 'subspecies';
+        if(count($arr) == 3) {
+            if(substr($arr[2],0,1) == "(") return;
+            if(self::starts_with_small_letter($arr[1]) && self::starts_with_small_letter($arr[2])) return 'subspecies';
+        }
     }
     private function write_taxon($t)
     {
