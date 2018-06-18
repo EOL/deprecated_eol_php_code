@@ -69,7 +69,7 @@ class TurbellarianAPI_v2
         $all_ids = self::get_all_ids();
         foreach($all_ids as $code) self::process_page($code);
         // */
-        // self::process_page(12044); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
+        // self::process_page(2645); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
         // self::process_page(8216);
         // self::get_valid_ids(3159); // exit;
         $this->archive_builder->finalize(TRUE);
@@ -240,12 +240,24 @@ class TurbellarianAPI_v2
            $this->archive_builder->write_object_to_file($mr);
         }
     }
+    private function compute_rank($sciname)
+    {
+        $sciname = trim($sciname);
+        if(stripos($sciname, 'sp.') !== false) {} //string is found
+        elseif(stripos($sciname, '.') !== false) return; //string is found
+        elseif(stripos($sciname, ',') !== false) return; //string is found
+        
+        $arr = explode(" ", $sciname);
+        if(count($arr) == 2) return 'species';
+        if(count($arr) == 3) return 'subspecies';
+    }
     private function write_taxon($t)
     {
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                     = $t['code'];
         $taxon->scientificName              = $t['name'];
         $taxon->scientificNameAuthorship    = @$t['author'];
+        $taxon->taxonRank                   = self::compute_rank($t['name']);
         $taxon->furtherInformationURL       = $this->page['action_1'].$t['code'];
         
         if($val = @$t['acceptedNameUsageID']) {
@@ -378,6 +390,22 @@ class TurbellarianAPI_v2
                     $rec['code'] = $code;
                     if($temp[0] != "&nbsp;") $rec['name'] = Functions::remove_whitespace(strip_tags($temp[0]." ".$temp[1]));
                     else                     $rec['name'] = Functions::remove_whitespace(strip_tags($temp[1]));
+
+                    /* prob 101
+                    Stenostomidae Stenostomum agile -- IS NOT OK
+                    Stenostomum unicolor constrictum -- IS OK
+                    */
+                    //fix prob 101
+                    $words = explode(" ", $rec['name']);
+                    if(count($words) >= 3) {
+                        if(!self::starts_with_small_letter($words[1])) { //if 2nd word starts with capital letter
+                            array_shift($words);                         //then remove that word
+                            // print_r($words); exit;
+                            $rec['name'] = implode(" ", $words);
+                        }
+                    }
+                    //end fix prob 101
+                    
                     $rec['author'] = strip_tags($temp[2]);
                     if($temp[3] != "&nbsp;") $rec['taxon_remarks'] = Functions::remove_whitespace(strip_tags($temp[3]));
                     $final[] = $rec;
@@ -853,6 +881,7 @@ class TurbellarianAPI_v2
     private function format_html($html)
     {
         $html = str_ireplace('<td  title="1">', "<td>", $html);
+        $html = str_ireplace('<td  title="2">', "<td>", $html);
         $html = str_ireplace("<td >", "<td>", $html);
         $html = str_ireplace("<th >", "<th>", $html);
         $html = str_ireplace("<td>&nbsp;</td>", "", $html);
