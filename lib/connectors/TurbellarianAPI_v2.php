@@ -70,7 +70,7 @@ class TurbellarianAPI_v2
         foreach($all_ids as $code) self::process_page($code);
         // */
         //2645
-        // self::process_page(55); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
+        // self::process_page(2546); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
         // self::process_page(8216);
         // self::get_valid_ids(3159); // exit;
         $this->archive_builder->finalize(TRUE);
@@ -896,9 +896,13 @@ class TurbellarianAPI_v2
     }
     private function format_html($html)
     {
+        for ($x = 0; $x <= 13; $x++) $html = str_ireplace('<td  title="'.$x.'">', "<td>", $html);
+        /*
         $html = str_ireplace('<td  title="0">', "<td>", $html);
         $html = str_ireplace('<td  title="1">', "<td>", $html);
         $html = str_ireplace('<td  title="2">', "<td>", $html);
+        $html = str_ireplace('<td  title="3">', "<td>", $html);
+        */
         $html = str_ireplace("<td >", "<td>", $html);
         $html = str_ireplace("<th >", "<th>", $html);
         $html = str_ireplace("<td>&nbsp;</td>", "", $html);
