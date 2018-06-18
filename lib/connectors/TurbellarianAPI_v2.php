@@ -69,8 +69,8 @@ class TurbellarianAPI_v2
         $all_ids = self::get_all_ids();
         foreach($all_ids as $code) self::process_page($code);
         // */
-        //2645
-        // self::process_page(2546); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
+        //2645 2571 9350
+        // self::process_page(2571); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
         // self::process_page(8216);
         // self::get_valid_ids(3159); // exit;
         $this->archive_builder->finalize(TRUE);
@@ -140,6 +140,7 @@ class TurbellarianAPI_v2
             
             if(preg_match("/<th>(.*?)<\/th>/ims", $str, $arr)) $main_sci['name'] = $arr[1];
             if(preg_match("/<td>(.*?)<\/td>/ims", $str, $arr)) $main_sci['author'] = $arr[1];
+            if($main_sci['name'] == "incertae sedis") $main_sci['author'] = "";
             // print_r($main_sci);
 
             $direct_images = self::get_direct_images($str, $id);                                        //action=2
@@ -896,7 +897,7 @@ class TurbellarianAPI_v2
     }
     private function format_html($html)
     {
-        for ($x = 0; $x <= 13; $x++) $html = str_ireplace('<td  title="'.$x.'">', "<td>", $html);
+        for ($x = 0; $x <= 300; $x++) $html = str_ireplace('<td  title="'.$x.'">', "<td>", $html);
         /*
         $html = str_ireplace('<td  title="0">', "<td>", $html);
         $html = str_ireplace('<td  title="1">', "<td>", $html);
