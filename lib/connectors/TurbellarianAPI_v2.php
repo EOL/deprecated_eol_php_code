@@ -69,7 +69,8 @@ class TurbellarianAPI_v2
         $all_ids = self::get_all_ids();
         foreach($all_ids as $code) self::process_page($code);
         // */
-        // self::process_page(2645); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
+        //2645
+        // self::process_page(55); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
         // self::process_page(8216);
         // self::get_valid_ids(3159); // exit;
         $this->archive_builder->finalize(TRUE);
@@ -357,7 +358,16 @@ class TurbellarianAPI_v2
                         $ret['source_url'] = $url;
                         return $ret;
                     }
-                    elseif($what == 'downline_synonyms') return self::parse_synonyms($html, $id);
+                    elseif($what == 'downline_synonyms') {
+                        // echo "\n[$url]";
+                        /* good for debugging
+                        if($url == "http://turbellaria.umaine.edu/turb3.php?action=6&code=56") $debug = true;
+                        else                                                                   $debug = false;
+                        */
+                        $debug = false;
+                        return self::parse_synonyms($html, $id, $debug);
+                        
+                    }
                 }
             }
         }
@@ -374,15 +384,21 @@ class TurbellarianAPI_v2
             return $final;
         }
     }
-    private function parse_synonyms($html, $id) //$id here is only for investigation if needed
+    private function parse_synonyms($html, $id, $debug) //$id here is only for investigation if needed
     {
         $final = array();
         $html = self::get_string_starting_from('table of synonyms', $html);
         if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $html, $arr)) { //print_r($arr[1]);
+
+            if($debug) print_r($arr[1]);
+            
             foreach($arr[1] as $row) {
                 // $row = str_replace("<td >&nbsp;</td>", "", $row);
                 if(preg_match_all("/<td >(.*?)<\/td>/ims", $row, $arr2)) { 
                     $temp = $arr2[1];
+                    
+                    if($debug) print_r($temp);
+                    
                     if(preg_match("/&code=(.*?)\"/ims", $temp[1], $arr3)) $code = $arr3[1];
                     elseif(preg_match("/&code=(.*?)\"/ims", $temp[2], $arr3)) $code = $arr3[1];
                     else exit("\nInvestigate no code in synonym [$id]\n"); 
@@ -880,6 +896,7 @@ class TurbellarianAPI_v2
     }
     private function format_html($html)
     {
+        $html = str_ireplace('<td  title="0">', "<td>", $html);
         $html = str_ireplace('<td  title="1">', "<td>", $html);
         $html = str_ireplace('<td  title="2">', "<td>", $html);
         $html = str_ireplace("<td >", "<td>", $html);
