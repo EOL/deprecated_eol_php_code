@@ -850,6 +850,11 @@ class FishBaseArchiveAPI
         $fields["value"]    = "value_uri"; //a generic spreadsheet
         $params["fields"]   = $fields;
         $params["dataset"]  = "FishBase";
+        
+        $spreadsheet_options = array('resource_id' => 'gbif', 'cache' => 1, 'timeout' => 3600, 'file_extension' => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2); //set 'cache' to 0 if you don't want to cache spreadsheet
+        $spreadsheet_options['expire_seconds'] = 60*60; //expires after 1 hour
+        $params['spreadsheet_options'] = $spreadsheet_options;
+        
         /* you can specify spreadsheet_options here, if not it will use default spreadsheet options in GBIFCountryTypeRecordAPI */
         require_library('connectors/GBIFCountryTypeRecordAPI');
         $func = new GBIFCountryTypeRecordAPI("x");
