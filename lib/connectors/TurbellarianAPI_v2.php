@@ -65,12 +65,13 @@ class TurbellarianAPI_v2
         $this->biblio_citation = self::get_biblio_citation();
         self::write_taxon(array('name' => 'Bilateria', 'code' => 'bilateria'));
         
-        // /* main operation
+        /* main operation
         $all_ids = self::get_all_ids();
         foreach($all_ids as $code) self::process_page($code);
-        // */
+        */
+
         //2645 2571 9350
-        // self::process_page(2571); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
+        self::process_page(5475); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
         // self::process_page(8216);
         // self::get_valid_ids(3159); // exit;
         $this->archive_builder->finalize(TRUE);
@@ -139,6 +140,9 @@ class TurbellarianAPI_v2
             $main_sci['parent_id'] = $parent_of_main_sci['code'];
             
             if(preg_match("/<th>(.*?)<\/th>/ims", $str, $arr)) $main_sci['name'] = $arr[1];
+            
+            if(self::starts_with_small_letter($main_sci['name'])) $main_sci['name'] = $parent_of_main_sci['name']." ".$main_sci['name']; //meaning it is a subspecies
+            
             if(preg_match("/<td>(.*?)<\/td>/ims", $str, $arr)) $main_sci['author'] = $arr[1];
             if($main_sci['name'] == "incertae sedis") $main_sci['author'] = "";
             // print_r($main_sci);
@@ -261,6 +265,13 @@ class TurbellarianAPI_v2
     }
     private function write_taxon($t)
     {
+        if(self::starts_with_small_letter($t['name'])) {
+            print_r($t);
+            if(!@$t['acceptedNameUsageID']) { //if synonym no need to investigate
+                exit("\nInvestigate, small letter sciname\n");
+            }
+        }
+        
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                     = $t['code'];
         $taxon->scientificName              = $t['name'];
@@ -775,7 +786,11 @@ class TurbellarianAPI_v2
         $main_ids = self::get_main_ids(); //get main IDs from home page
         $main_ids[] = 14676; // - Xenacoelomorpha
         $main_ids[] = 14686; // - Nephrozoa
-        // $main_ids = array(12823); //14686 12856 12278
+        
+        /* comment in real operation ? 8804
+        $main_ids = array(8804); //14686 12856 12278 11569 11996 --- //force here
+        */
+        
         foreach($main_ids as $id1) {
             $ids1 = self::get_valid_ids($id1); $stack = array_merge($stack, $ids1);
             foreach($ids1 as $id2) {
