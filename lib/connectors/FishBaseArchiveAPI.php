@@ -88,17 +88,14 @@ class FishBaseArchiveAPI
         $temp = explode(".", $str);
         $temp = array_map('trim', $temp);
         $final = array();
-        foreach($temp as $t)
-        {
+        foreach($temp as $t) {
             if(strpos($t, ":") !== false) $final[] = str_ireplace("Ref*", "Ref.", $t);
         }
         
         $new_distribution_texts = array();
-        foreach($final as $t)
-        {
+        foreach($final as $t) {
             $reference_ids = array();
-            if($ref_ids = self::get_ref_id_from_string($t))
-            {
+            if($ref_ids = self::get_ref_id_from_string($t)) {
                 foreach($ref_ids as $ref_id) self::get_ref_details_from_fishbase_and_create_ref($ref_id);
             }
             $new_distribution_texts[] = array("desc" => $t, "reference_ids" => $ref_ids);
@@ -109,10 +106,8 @@ class FishBaseArchiveAPI
     private function get_ref_details_from_fishbase_and_create_ref($ref_id)
     {
         $url = 'http://www.fishbase.org/references/FBRefSummary.php?ID=' . $ref_id;
-        if($html = Functions::lookup_with_cache($url, $this->download_options))
-        {
-            if(preg_match("/Citation<\/td>(.*?)<\/td>/ims", $html, $arr))
-            {
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            if(preg_match("/Citation<\/td>(.*?)<\/td>/ims", $html, $arr)) {
                 $fb_full_ref = self::clean_html(strip_tags($arr[1]));
                 
                 $reference_ids = array();
@@ -122,8 +117,7 @@ class FishBaseArchiveAPI
                 $r->full_reference = $fb_full_ref;
                 $r->identifier = $ref_id;
                 $r->uri = $url;
-                if(!isset($this->reference_ids[$ref_id]))
-                {
+                if(!isset($this->reference_ids[$ref_id])) {
                     $this->reference_ids[$ref_id] = md5($fb_full_ref);
                     $this->archive_builder->write_object_to_file($r);
                     return md5($fb_full_ref);
@@ -134,8 +128,7 @@ class FishBaseArchiveAPI
     
     private function get_ref_id_from_string($str)
     {
-        if(preg_match_all("/\(Ref\.(.*?)\)/ims", $str, $arr))
-        {
+        if(preg_match_all("/\(Ref\.(.*?)\)/ims", $str, $arr)) {
             $str = trim(implode(",", $arr[1]));
             $str = str_ireplace("Ref.", "", $str);
             $arr = explode(",", $str);
@@ -143,8 +136,7 @@ class FishBaseArchiveAPI
             $arr = array_unique($arr); //make unique
             $arr = array_values($arr); //reindex key
             $final = array();
-            foreach($arr as $a)
-            {
+            foreach($arr as $a) {
                 if(is_numeric($a)) $final[] = $a;
             }
             return $final;
@@ -154,10 +146,8 @@ class FishBaseArchiveAPI
     
     private function get_fishbase_remote_citation()
     {
-        if($html = Functions::lookup_with_cache('http://www.fishbase.org/summary/citation.php', $this->download_options))
-        {
-            if(preg_match("/Cite FishBase itself as(.*?)<p /ims", $html, $arr))
-            {
+        if($html = Functions::lookup_with_cache('http://www.fishbase.org/summary/citation.php', $this->download_options)) {
+            if(preg_match("/Cite FishBase itself as(.*?)<p /ims", $html, $arr)) {
                 $temp = $arr[1];
                 $temp = str_ireplace(".<br>", ". ", $temp);
                 return trim(strip_tags($temp));
@@ -170,16 +160,14 @@ class FishBaseArchiveAPI
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
         $download_options = $this->download_options;
         $download_options['expire_seconds'] = 60*60*24*45; // expire_seconds = every 45 days in normal operation
-        if($file_contents = Functions::lookup_with_cache($this->fishbase_data, $download_options))
-        {
+        if($file_contents = Functions::lookup_with_cache($this->fishbase_data, $download_options)) {
             $temp_file_path = $this->TEMP_FILE_PATH . "/fishbase.zip";
             if(!($TMP = Functions::file_open($temp_file_path, "w"))) return;
             fwrite($TMP, $file_contents);
             fclose($TMP);
             $output = shell_exec("unzip $temp_file_path -d $this->TEMP_FILE_PATH");
 
-            if(!file_exists($this->TEMP_FILE_PATH . "/taxon.txt")) 
-            {
+            if(!file_exists($this->TEMP_FILE_PATH . "/taxon.txt")) {
                 $this->TEMP_FILE_PATH = str_ireplace(".zip", "", $temp_file_path);
                 if(!file_exists($this->TEMP_FILE_PATH . "/taxon.txt")) return;
             }
@@ -193,8 +181,7 @@ class FishBaseArchiveAPI
             $this->text_path['TAXON_SYNONYMS_PATH']              = $this->TEMP_FILE_PATH . "/taxon_synonyms.txt";
             return true;
         }
-        else
-        {
+        else {
             echo("\n\n Connector terminated. Remote files are not ready.\n\n");
             return false;
         }
@@ -245,12 +232,10 @@ class FishBaseArchiveAPI
         */
         $fields = array("synonym", "author", "relationship", "int_id", "timestamp", "autoctr");
         $taxon_synonyms = self::make_array($this->text_path['TAXON_SYNONYMS_PATH'], $fields, "int_id", array(1,4,5));
-        foreach($taxon_synonyms as $taxon_id => $synonyms)
-        {
+        foreach($taxon_synonyms as $taxon_id => $synonyms) {
             $taxon_id = str_replace("\N", "", $taxon_id);
             if(!$taxon_id = trim($taxon_id)) continue;
-            foreach($synonyms as $s)
-            {
+            foreach($synonyms as $s) {
                 foreach($s as $key => $value) $s[$key] = str_replace("\N", "", $value);
                 $taxon = new \eol_schema\Taxon();
                 $taxon->taxonID             = md5($s['synonym']);
@@ -259,8 +244,7 @@ class FishBaseArchiveAPI
                 else continue;
                 if($s['relationship'] == 'valid name') $s['relationship'] = 'synonym';
                 if(strtolower($s['relationship']) != 'xxx') $taxon->taxonomicStatus = $s['relationship'];
-                if(!isset($this->synonym_ids[$taxon->taxonID]))
-                {
+                if(!isset($this->synonym_ids[$taxon->taxonID])) {
                     $this->synonym_ids[$taxon->taxonID] = '';
                     $this->archive_builder->write_object_to_file($taxon);
                 }
@@ -284,11 +268,9 @@ class FishBaseArchiveAPI
         $fields = array("agent", "homepage", "logoURL", "role", "int_do_id", "timestamp");
         $taxon_dataobject_agent = self::make_array($this->text_path['TAXON_DATAOBJECT_AGENT_PATH'], $fields, "int_do_id", array(5));
 
-        foreach($taxon_dataobject_agent as $do_id => $agents) //do_id is int_do_id in FB text file
-        {
+        foreach($taxon_dataobject_agent as $do_id => $agents) { //do_id is int_do_id in FB text file
             $agent_ids = array();
-            foreach($agents as $a)
-            {
+            foreach($agents as $a) {
                 if(!$a['agent']) continue;
                 $r = new \eol_schema\Agent();
                 $r->term_name       = $a['agent'];
@@ -296,8 +278,7 @@ class FishBaseArchiveAPI
                 $r->identifier      = md5("$r->term_name|$r->agentRole");
                 $r->term_homepage   = $a['homepage'];
                 $agent_ids[] = $r->identifier;
-                if(!isset($this->agent_ids[$r->identifier]))
-                {
+                if(!isset($this->agent_ids[$r->identifier])) {
                    $this->agent_ids[$r->identifier] = $r->term_name;
                    $this->archive_builder->write_object_to_file($r);
                 }
@@ -320,8 +301,7 @@ class FishBaseArchiveAPI
                          [url] => http://www.fishbase.org/references/FBRefSummary.php?id=57073
                      )
         */
-        foreach($taxon_dataobject_reference as $do_id => $refs) //do_id is int_do_id in FB text file
-        {
+        foreach($taxon_dataobject_reference as $do_id => $refs) { //do_id is int_do_id in FB text file
             $reference_ids = self::create_references($refs);
             $this->object_reference_ids[$do_id] = $reference_ids;
         }
@@ -330,8 +310,7 @@ class FishBaseArchiveAPI
     private function create_references($refs)
     {
         $reference_ids = array();
-        foreach($refs as $ref)
-        {
+        foreach($refs as $ref) {
             foreach($ref as $key => $value) $ref[$key] = str_replace("\N", "", $value);
             if(!Functions::is_utf8($ref['reference'])) $ref['reference'] = utf8_encode($ref['reference']);
             $r = new \eol_schema\Reference();
@@ -343,14 +322,12 @@ class FishBaseArchiveAPI
             //get ref_id
             if(preg_match("/id=(.*?)&/ims", $ref['url'], $arr)) $ref_id = trim($arr[1]);
             elseif(preg_match("/id=(.*?)xxx/ims", $ref['url']."xxx", $arr)) $ref_id = trim($arr[1]);
-            else
-            {
+            else {
                 echo "\nno ref id; investigate: " . $ref["url"];
                 $ref_id = '';
             }
             
-            if(!isset($this->reference_ids[$ref_id]))
-            {
+            if(!isset($this->reference_ids[$ref_id])) {
                 $this->reference_ids[$ref_id] = $r->identifier; //normally the value should be just '', but $this->reference_ids will be used in - convert_FBrefID_with_archiveID()
                 $this->archive_builder->write_object_to_file($r);
             }
@@ -387,11 +364,9 @@ class FishBaseArchiveAPI
         $debug["method"] = array();
         $k = 0;
         
-        foreach($taxa_objects as $taxon_id => $objects) //taxon_id is int_id in FB text file
-        {
+        foreach($taxa_objects as $taxon_id => $objects) { //taxon_id is int_id in FB text file
             $k++;
-            foreach($objects as $o)
-            {
+            foreach($objects as $o) {
                 foreach($o as $key => $value) $o[$key] = str_replace("\N", "", $value);
                 if($val = @$this->taxa_ids[$taxon_id]) $taxonID = $val;
                 else continue;
@@ -406,10 +381,8 @@ class FishBaseArchiveAPI
                 if($reference_ids = @$this->object_reference_ids[$o['int_do_id']]) $rec["referenceID"] = implode("; ", $reference_ids);
                 if($agent_ids = @$this->object_agent_ids[$o['int_do_id']])         $rec["contributor"] = self::convert_agent_ids_with_names($agent_ids);
                 
-                if($o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size" || $o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat")
-                {
-                    if($o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size")
-                    {
+                if($o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size" || $o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat") {
+                    if($o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size") {
                         $str = str_ireplace("unsexed;", "unsexed", $description);
                         $parts = self::get_description_parts($str, false);
                         $items = self::process_size_data($parts);
@@ -419,16 +392,14 @@ class FishBaseArchiveAPI
                         $debug["unit"][@$part["unit"]] = '';
                         $debug["method"][@$part["method"]] = ''; */
                     }
-                    elseif($o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat")
-                    {
+                    elseif($o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat") {
                         $parts = self::get_description_parts($description, false); 
                         $items = self::process_habitat_data($parts);
                         /* for stats only -- will work when looping $parts not $items
                         $debug["title"]["h"][@$part["title"]] = '';
                         $debug["unit"]["h"][@$part["unit"]] = ''; */
                     }
-                    foreach($items as $item)
-                    {
+                    foreach($items as $item) {
                         $rec["catnum"] = '';
                         $rec["referenceID"] = '';
                         $rec["measurementMethod"] = '';
@@ -451,8 +422,7 @@ class FishBaseArchiveAPI
                         if($val = @$item['range_value']) $rec["catnum"] = $orig_catnum . "_" . md5($item['measurement'].$val);
                         else                             $rec["catnum"] = $orig_catnum . "_" . md5($item['measurement'].$item['value'].@$item['mRemarks']); //specifically used for TraitBank; mRemarks is added to differentiate e.g. freshwater and catadromous.
                         
-                        if($val = @$item['ref_id'])
-                        {
+                        if($val = @$item['ref_id']) {
                             if($ref_ids = self::convert_FBrefID_with_archiveID($val)) $rec["referenceID"] = implode("; ", $ref_ids);
                             // else print_r($items);
                         }
@@ -464,8 +434,7 @@ class FishBaseArchiveAPI
                         self::add_string_types($rec, $item['value'], $item['measurement'], "true");
                     }
                 }
-                elseif($o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution")
-                {
+                elseif($o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution") {
                     // self::add_string_types($rec, $description, "http://eol.org/schema/terms/Present", "true"); => changed to what is below, per DATA-1630
                     $texts = self::process_distribution_text($description);
                     /*
@@ -476,19 +445,16 @@ class FishBaseArchiveAPI
                                 )
                         )
                     */
-                    foreach($texts as $text)
-                    {
+                    foreach($texts as $text) {
                         $rec["referenceID"] = '';
-                        if($val = @$text['reference_ids'])
-                        {
+                        if($val = @$text['reference_ids']) {
                             if($ref_ids = self::convert_FBrefID_with_archiveID($val)) $rec["referenceID"] = implode("; ", $ref_ids);
                         }
                         self::add_string_types($rec, $text['desc'], "http://eol.org/schema/terms/Present", "true");
                     }
                     
                 }
-                else // regular data objects
-                {
+                else { // regular data objects
                     $mr = new \eol_schema\MediaResource();
                     $mr->taxonID        = $taxonID;
                     $mr->identifier     = $o['dc_identifier'];
@@ -540,8 +506,7 @@ class FishBaseArchiveAPI
         foreach($taxon_comnames as $taxon_id => $names) //taxon_id is int_id in FB text file
         {
             if(!$taxon_id = trim($taxon_id)) continue;
-            foreach($names as $name)
-            {
+            foreach($names as $name) {
                 foreach($name as $key => $value) $name[$key] = str_replace("\N", "", $value);
                 if(!Functions::is_utf8($name['commonName'])) continue;
                 $v = new \eol_schema\VernacularName();
@@ -581,8 +546,7 @@ class FishBaseArchiveAPI
         [dwc_ScientificName] => Barbatula bergamensis Erk&#39;Akan, Nalbant & ?zeren, 2007
         [int_id] => 10 ---> this is the id that binds FB text files
         */
-        foreach($taxa as $t)
-        {
+        foreach($taxa as $t) {
             /* debug - used in preview mode only - comment in normal operation
             $include = array("FB-2", "FB-3", "FB-4", "FB-5", "FB-6", "FB-7", "FB-9", "FB-10", "FB-12", "FB-14", "FB-15");
             if(!in_array($t['dc_identifier'], $include)) continue;
@@ -612,10 +576,8 @@ class FishBaseArchiveAPI
         */
         $data = array();
         $included_fields = array();
-        foreach(new FileIterator($filename) as $line_number => $line)
-        {
-            if($line)
-            {
+        foreach(new FileIterator($filename) as $line_number => $line) {
+            if($line) {
                 $line = str_ireplace("\	", "", $line); //manual adjustment
                 $line = trim($line);
                 $values = explode($separator, $line);
@@ -623,12 +585,10 @@ class FishBaseArchiveAPI
                 $temp = array();
                 $continue_save = false;
                 if(!$fields) $fields = array_map('trim', $values);
-                foreach($fields as $field)
-                {
+                foreach($fields as $field) {
                     if(is_int(@$excluded_fields[0])) $compare = $i;
                     else                             $compare = $field;
-                    if(!in_array($compare, $excluded_fields))
-                    {
+                    if(!in_array($compare, $excluded_fields)) {
                         $temp[$field] = trim(@$values[$i]);
                         $included_fields[$field] = 1;
                         if($temp[$field] != "") $continue_save = true; // as long as there is a single field with value then the row will be saved
@@ -639,8 +599,7 @@ class FishBaseArchiveAPI
             }
         }
         $included_fields = array_keys($included_fields);
-        if($index_key)
-        {
+        if($index_key) {
             $included_fields = array_unique($included_fields);
             return self::assign_key_to_table($data, $index_key, $included_fields);
         }
@@ -651,8 +610,7 @@ class FishBaseArchiveAPI
     {
         $data = array();
         $included_fields = array_diff($included_fields, array($index_key));
-        foreach($table as $record)
-        {
+        foreach($table as $record) {
             $index_value = $record["$index_key"];
             $temp = array();
             foreach($included_fields as $field) $temp[$field] = $record[$field];
@@ -678,8 +636,7 @@ class FishBaseArchiveAPI
     private function process_size_data($parts)
     {
         $records = array();
-        foreach($parts as $part)
-        {
+        foreach($parts as $part) {
             $rec = array();
             if(stripos($part, ":") !== false) //found a colon ':'
             {   //max. reported age: 33 years (Ref. 93630)
@@ -690,8 +647,7 @@ class FishBaseArchiveAPI
                 $rec["value"] = $arr[0];
                 $rec["unit"] = $arr[1];
             }
-            else
-            {   //33.7 cm SL (male/unsexed (Ref. 93606))
+            else {   //33.7 cm SL (male/unsexed (Ref. 93606))
                 if($val = self::get_sex_from_size_str($part)) $rec["sex"] = $val;
                 $rec["title"] = "max. size";
                 $arr = explode(" ", $part);
@@ -705,16 +661,13 @@ class FishBaseArchiveAPI
         //start creating Traitbank record
         $final = array();
         $valid_lengths = array("SL", "TL", "FL", "WD");
-        foreach($records as $rec)
-        {
+        foreach($records as $rec) {
             $r = array();
-            if($rec['title'] == "max. size")
-            {
+            if($rec['title'] == "max. size") {
                 if(!in_array($rec['method'], $valid_lengths)) continue;
                 if($measurement = $rec['method']) $r['measurement'] = $this->uris[$measurement];
             }
-            else
-            {
+            else {
                 $r['measurement'] = $this->uris[$rec['title']];
                 $measurement = $rec['title'];
             }
@@ -747,16 +700,13 @@ class FishBaseArchiveAPI
     private function process_habitat_data($parts)
     {
         $records = array();
-        foreach($parts as $part)
-        {
+        foreach($parts as $part) {
             $rec = array();
-            if(self::is_habitat_a_range($part))
-            {
+            if(self::is_habitat_a_range($part)) {
                 $arr = explode(" range", $part);
                 $rec["title"] = $arr[0] . " range";
                 
-                if(@$arr[1])
-                {
+                if(@$arr[1]) {
                     $arr2 = explode(", usually", $arr[1]);
                     $arr2 = array_map('trim', $arr2);
                 }
@@ -771,8 +721,7 @@ class FishBaseArchiveAPI
                 $rec["value"] = trim(str_replace(array(":"), "", $arr2[0]));
                 $rec["value"] = trim(preg_replace('/\s*\([^)]*\)/', '', $rec["value"])); //remove parenthesis
                 
-                if($val = self::get_range_unit($rec["value"]))
-                {
+                if($val = self::get_range_unit($rec["value"])) {
                     $rec["unit"] = $val;
                     $rec["value"] = str_ireplace(" $val", "", $rec["value"]);
                 }
@@ -786,27 +735,22 @@ class FishBaseArchiveAPI
                 if($val = @$arr2[1]) $rec["remarks"] = "usually " . $val;
                 if($val = self::get_ref_id($part)) $rec["ref_id"] = $val;
             }
-            else
-            {
+            else {
                 $rec["value"] = trim(preg_replace('/\s*\([^)]*\)/', '', $part)); //remove parenthesis
                 if($val = self::get_ref_id($part)) $rec["ref_id"] = $val;
             }
             if($rec) $records[] = $rec;
-            
         }
         
         // print_r($records);
         //start creating Traitbank record
         $final = array();
-        foreach($records as $rec)
-        {
+        foreach($records as $rec) {
             if(@$rec['title'] == "dH range") continue;
             
-            if(!@$rec['title']) // meaning habitat valuese e.g. demersal, freshwater, non-migratory*
-            {
+            if(!@$rec['title']) { // meaning habitat valuese e.g. demersal, freshwater, non-migratory*
                 $two_values = array("catadromous", "anadromous", "diadromous", "amphidromous", "oceano-estuarine");
-                if(!in_array($rec['value'], $two_values))
-                {
+                if(!in_array($rec['value'], $two_values)) {
                     $r = array();
                     if($rec['value'] == "non-migratory")    $r['measurement'] = "http://www.owl-ontologies.com/unnamed.owl#MigratoryStatus";
                     else                                    $r['measurement'] = $this->uris['habitat'];
@@ -819,15 +763,13 @@ class FishBaseArchiveAPI
                     if($val = @$this->uris["$measurement (mRemarks)"]) $r['mRemarks'] = $val;
                     if($r) $final[] = $r;
                 }
-                else //two values
-                {
+                else { //two values
                     $r = array();
                     $r['measurement'] = $this->uris['habitat'];
                     $measurement = $rec['value'];
                     $temp = explode(",", $this->uris[$measurement]);
                     $temp = array_map('trim', $temp);
-                    foreach($temp as $t) //enter each of the multiple values
-                    {
+                    foreach($temp as $t) { //enter each of the multiple values
                         $r['value'] = $t;
                         if($val = @$rec['ref_id']) $r['ref_id'] = $val;
                         if($val = @$this->uris["$measurement (mRemarks)"]) $r['mRemarks'] = $val;
@@ -835,8 +777,7 @@ class FishBaseArchiveAPI
                     }
                 }
             }
-            else // "pH range" OR "depth range"
-            {
+            else { // "pH range" OR "depth range"
                 $r = array();
                 $r['range_value'] = $rec['value'];
                 if($rec['title'] == "depth range")  $measurement = "mindepth";
@@ -845,13 +786,11 @@ class FishBaseArchiveAPI
                 $r['value'] = $rec['min'];
                 if($val = @$rec['unit'])    $r['unit']      = $this->uris[$val];
                 if($val = @$rec['ref_id'])  $r['ref_id']    = $val;
-                if($rec['max'])
-                {
+                if($rec['max']) {
                     if($val = @$this->uris["$measurement (sMethod)"])  $r['sMethod'] = $val;
                 }
                 if($r) $final[] = $r;
-                if($rec['max'])
-                {
+                if($rec['max']) {
                     $r = array();
                     $r['range_value'] = $rec['value'];
                     if($rec['title'] == "depth range")  $measurement = "maxdepth";
@@ -879,8 +818,7 @@ class FishBaseArchiveAPI
     private function is_habitat_a_range($habitat)
     {
         $ranges = array("depth range", "dH range", "pH range", "usually ");
-        foreach($ranges as $range)
-        {
+        foreach($ranges as $range) {
             if(stripos($habitat, $range) !== false) return true;
         }
         return false;
@@ -889,14 +827,11 @@ class FishBaseArchiveAPI
     private function convert_FBrefID_with_archiveID($FB_ref_ids)
     {
         $final = array();
-        foreach($FB_ref_ids as $id)
-        {
+        foreach($FB_ref_ids as $id) {
             if($val = @$this->reference_ids[$id]) $final[] = $val;
-            else
-            {
+            else {
                 echo "\nundefined ref_id: [$id] ";
-                if($val = self::get_ref_details_from_fishbase_and_create_ref($id))
-                {
+                if($val = self::get_ref_details_from_fishbase_and_create_ref($id)) {
                     echo " -- FOUND: Salvaged ref_id"; //last run didn't find anything here.
                     $final[] = $val;
                 }
@@ -924,8 +859,7 @@ class FishBaseArchiveAPI
     private function convert_agent_ids_with_names($agent_ids)
     {
         $arr = array();
-        foreach($agent_ids as $agent_id)
-        {
+        foreach($agent_ids as $agent_id) {
             if($val = @$this->agent_ids[$agent_id]) $arr[$val] = '';
         }
         $arr = array_keys($arr);
@@ -962,8 +896,7 @@ class FishBaseArchiveAPI
         $occurrence_id = $this->add_occurrence($taxon_id, $occurrence_id, $rec);
         $m->occurrenceID       = $occurrence_id;
         $m->measurementOfTaxon = $measurementOfTaxon;
-        if($measurementOfTaxon == "true")
-        {
+        if($measurementOfTaxon == "true") {
             $m->source      = @$rec["source"];
             $m->contributor = @$rec["contributor"];
             if($referenceID = @$rec["referenceID"]) $m->referenceID = $referenceID;
