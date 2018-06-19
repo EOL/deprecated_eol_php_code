@@ -31,8 +31,8 @@ class FishBaseArchiveAPI
         $this->object_agent_ids     = array();
         $this->reference_ids        = array();
         $this->agent_ids            = array();
-        $this->uri_mappings_spreadsheet = "http://localhost/cp/FishBase/fishbase mappings.xlsx";
-        $this->uri_mappings_spreadsheet = "http://editors.eol.org/other_files/FishBase/fishbase mappings.xlsx";
+        // $this->uri_mappings_spreadsheet = "http://localhost/cp_new/FishBase/fishbase mappings.xlsx";
+        $this->uri_mappings_spreadsheet = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/FishBase/fishbase%20mappings.xlsx";
         $this->download_options = array('resource_id' => 42, 'timeout' => 172800, 'expire_seconds' => 60*60*24*45, 'download_wait_time' => 2000000); // expire_seconds = every 45 days in normal operation
         // $this->download_options['expire_seconds'] = false; //doesn't expire - debug
     }
