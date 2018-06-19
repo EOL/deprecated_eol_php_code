@@ -537,7 +537,7 @@ class Functions
     public static function get_eol_defined_uris($download_options = false, $directionOpposite = false)
     {
         $url = "http://beta-repo.eol.org/terms?per_page=1000&page=";
-        if(!$download_options) $download_options = array('resource_id' => 'URIs', 'download_wait_time' => 1000000, 'timeout' => 900, 'expire_seconds' => 60*60*24, 'download_attempts' => 1);
+        if(!$download_options) $download_options = array('resource_id' => 'URIs', 'download_wait_time' => 500000, 'timeout' => 900, 'expire_seconds' => 60*60*24*7, 'download_attempts' => 1);
         /*
         <span class="last">
         <a href="/terms?page=8&amp;per_page=1000">Last &raquo;</a>
