@@ -16,8 +16,8 @@ class FishBaseArchiveAPI
         // $this->fishbase_data = "http://localhost/cp/FishBase/fishbase_in_folder.zip";
         // $this->fishbase_data = "http://localhost/cp/FishBase/fishbase_not_in_folder.zip";
         // $this->fishbase_data = "http://localhost/cp/FishBase/fishbase.zip";
-        // $this->fishbase_data = "http://www.fishbase.org/FB_data_for_EOL/fishbase.zip"; //temporarily not available, until further notice by FishBase
-        $this->fishbase_data = "http://editors.eol.org/other_files/FishBase/fishbase.zip"; //given directly by FishBase staff and since they don't have hosting ability atm, we're hosting it.
+        $this->fishbase_data = "http://www.fishbase.us/FB_data_for_EOL/fishbase.zip"; //temporarily not available, until further notice by FishBase
+        // $this->fishbase_data = "http://editors.eol.org/other_files/FishBase/fishbase.zip"; //given directly by FishBase staff and since they don't have hosting ability atm, we're hosting it.
         if($this->test_run) $this->fishbase_data = "http://dl.dropbox.com/u/7597512/FishBase/fishbase_not_in_folder.zip";
         $this->text_path = array();
         $this->TEMP_FILE_PATH = "";
