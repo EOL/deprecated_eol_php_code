@@ -22,6 +22,7 @@ measurements                            173768      175317  176490  176490
 42	Wednesday 2018-03-07 08:55:05 AM{"agent.tab":146,"measurement_or_fact.tab":177254,"media_resource.tab":135702,"occurrence.tab":158463,"reference.tab":32237,"taxon.tab":95593,"vernacular_name.tab":248126}
 42	Wednesday 2018-03-07 07:02:59 PM{"agent.tab":146,"measurement_or_fact.tab":177254,"media_resource.tab":135702,"occurrence.tab":158463,"reference.tab":32237,"taxon.tab":95593,"vernacular_name.tab":248126} all-hash measurementID
 42	Thursday 2018-03-08 08:05:55 PM	{"agent.tab":146,"measurement_or_fact.tab":177254,"media_resource.tab":135702,"occurrence.tab":158463,"reference.tab":32237,"taxon.tab":95593,"vernacular_name.tab":248126}
+42	Wednesday 2018-06-13 04:15:40 PM{"agent.tab":146,"measurement_or_fact.tab":177254,"media_resource.tab":135702,"occurrence.tab":158463,"reference.tab":32237,"taxon.tab":95593,"vernacular_name.tab":248126}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
