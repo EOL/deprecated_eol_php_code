@@ -71,7 +71,7 @@ class TurbellarianAPI_v2
         // */
 
         //2645 2571 9350
-        // self::process_page(5475); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
+        // self::process_page(226); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
         // self::process_page(8216);            //just tests
         // self::get_valid_ids(3159); exit;     //just tests
         $this->archive_builder->finalize(TRUE);
@@ -206,14 +206,22 @@ class TurbellarianAPI_v2
                   12980
         http://turbellaria.umaine.edu/media/img2/2639a.jpg
         */
-        if(strlen($rec['code']) <= 4) $width = 1;
+        // echo "\n[$rec[path]]";
+        $old = "/thb";
+        $new = "/img";
+        $path = str_replace($old, $new, $rec['path']);
+        $path = $this->domain."/".str_replace("_thb", "", $path);
+        // echo "\n[$path]";
+
+        /* 1st version doesn't work for e.g. [media/thb0/233a_thb.gif]
+        if    (strlen($rec['code']) <= 4) $width = 1;
         elseif(strlen($rec['code']) == 5) $width = 2;
         else exit("\nInitialize code length for image writing...\n");
-        
         $old = "/thb".substr($rec['code'],0,$width)."/";
         $new = "/img".substr($rec['code'],0,$width)."/";
         $path = str_replace($old, $new, $rec['path']);
         $path = $this->domain."/".str_replace("_thb", "", $path);
+        */
         return $path; //this is mediaURL
     }
     private function write_image($rec)
