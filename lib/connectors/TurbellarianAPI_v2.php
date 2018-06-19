@@ -65,15 +65,15 @@ class TurbellarianAPI_v2
         $this->biblio_citation = self::get_biblio_citation();
         self::write_taxon(array('name' => 'Bilateria', 'code' => 'bilateria'));
         
-        /* main operation
+        // /* main operation
         $all_ids = self::get_all_ids();
         foreach($all_ids as $code) self::process_page($code);
-        */
+        // */
 
         //2645 2571 9350
-        self::process_page(5475); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
-        // self::process_page(8216);
-        // self::get_valid_ids(3159); // exit;
+        // self::process_page(5475); //3158 3191 4901 3511 [5654 - has direct and downline images]  1223 3749 [6788 with downline syn]
+        // self::process_page(8216);            //just tests
+        // self::get_valid_ids(3159); exit;     //just tests
         $this->archive_builder->finalize(TRUE);
         //start stats for un-mapped countries
         if(isset($this->unmapped_countries)) {
@@ -346,11 +346,27 @@ class TurbellarianAPI_v2
                 elseif($what == 'downline_synonyms') {
                     // print_r($main_sci);
                     if($syns = self::get_text_object($row, $code, $this->action[$what], $what)) {
-                        $row_rec['synonyms'] = $syns;
+
+                        /* good debug
+                        if($row_rec['code'] == 14057) {
+                            print_r($syns);
+                            print_r($row_rec); exit;
+                        }
+                        */
+                        
+                        $row_rec['synonyms'] = $syns; //this may not be needed at all
                         // print_r($row_rec);
                         
                         self::write_taxon($row_rec);
                         foreach($syns as $syn) {
+                            
+                            // first check if name starts with small letter, if so add genus part of row_rec['name']
+                            if(self::starts_with_small_letter($syn['name']) && substr($syn['name'],0,14) != "incertae sedis") {
+                                $temp = explode(" ", $row_rec['name']);
+                                $syn['name'] = $temp[0]." ".$syn['name'];
+                            }
+                            
+                            
                             $syn['acceptedNameUsageID'] = $row_rec['code'];
                             self::write_taxon($syn);
                         }
@@ -384,7 +400,6 @@ class TurbellarianAPI_v2
                         */
                         $debug = false;
                         return self::parse_synonyms($html, $id, $debug);
-                        
                     }
                 }
             }
@@ -422,14 +437,17 @@ class TurbellarianAPI_v2
                     else exit("\nInvestigate no code in synonym [$id]\n"); 
                     $rec = array();
                     $rec['code'] = $code;
-                    if($temp[0] != "&nbsp;") $rec['name'] = Functions::remove_whitespace(strip_tags($temp[0]." ".$temp[1]));
-                    else                     $rec['name'] = Functions::remove_whitespace(strip_tags($temp[1]));
+                    if($temp[0] != "&nbsp;") {
+                        if($temp[0] == "incertae sedis") $rec['name'] = Functions::remove_whitespace(strip_tags($temp[1]));
+                        else                             $rec['name'] = Functions::remove_whitespace(strip_tags($temp[0]." ".$temp[1]));
+                    }
+                    else                                 $rec['name'] = Functions::remove_whitespace(strip_tags($temp[1]));
 
                     /* prob 101
                     Stenostomidae Stenostomum agile -- IS NOT OK
                     Stenostomum unicolor constrictum -- IS OK
                     */
-                    //fix prob 101
+                    //fix prob 101 -------------------------------------------------------
                     $words = explode(" ", $rec['name']);
                     if(count($words) >= 3) {
                         if(!self::starts_with_small_letter($words[1])) { //if 2nd word starts with capital letter
@@ -438,7 +456,7 @@ class TurbellarianAPI_v2
                             $rec['name'] = implode(" ", $words);
                         }
                     }
-                    //end fix prob 101
+                    //end fix prob 101 -------------------------------------------------------
                     
                     $rec['author'] = strip_tags($temp[2]);
                     if($temp[3] != "&nbsp;") $rec['taxon_remarks'] = Functions::remove_whitespace(strip_tags($temp[3]));
