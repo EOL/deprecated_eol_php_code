@@ -16,12 +16,6 @@ class EolAPI_Traits
             'expire_seconds'     => false,                                  //another option is 1 year to expire
             'download_wait_time' => 3000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0);
 
-        $this->download_options2 = array(
-            'cache_path'         => '/Volumes/Thunderbolt4/eol_cache/',     //used in Functions.php for all general cache
-            'resource_id'        => 'eol_api',                              //resource_id here is just a folder name in cache
-            'expire_seconds'     => false,                                  //another option is 1 year to expire
-            'download_wait_time' => 3000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-
         $this->trait_api = "http://eol.org/api/traits/";
         $this->data_search_url = "http://eol.org/data_search?attribute=";
 
