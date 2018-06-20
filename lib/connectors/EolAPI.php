@@ -7,6 +7,8 @@ Can be used for OpenData's customized subsets.
 
 class EolAPI
 {
+    const DL_MAP_SPECIES_LIST   = "http://www.discoverlife.org/export/species_map.txt";
+    
     function __construct($folder = null, $query = null)
     {
         /* add: 'resource_id' => "eol_api" ;if you want to add the cache inside a folder [eol_api] inside [eol_cache] */
@@ -118,7 +120,7 @@ class EolAPI
         */
         
         // self::process_all_eol_taxa(); return;                    //make use of tab-delimited text file from JRice
-        // self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
+        self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
         // self::process_DL_taxon_list(); return;                   //make use of taxon list from DiscoverLife
         
         // self::process_tsv_file($this->opendata['tsv']['data_objects'], $this->opendata['headers']['data_objects']);
@@ -131,7 +133,7 @@ class EolAPI
         $scinames["baby Isaiah"] = 1;
         // $scinames["Chanos chanos"] = 224731;
         // $scinames["Gadus morhua"] = 206692;
-        foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($taxon_concept_id);
+        foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
         */
         
         /* API result:
@@ -404,7 +406,7 @@ class EolAPI
                 // if($i >=  8,656,898  && $i < 9000000)    $cont = true;   //9 mil
                 // if($i >=  9,613,213  && $i < $m*3)       $cont = true;   //9 750 000
                 // if($i >=  11,330,257 && $i < 12000000)   $cont = true;    //12000000
-                if($i >=  12,067,033 && $i < $m*4)       $cont = true;     //13,000,000
+                if($i >=  12067033 && $i < $m*4)       $cont = true;     //13,000,000
 
                 if(!$cont) continue;
                 // */
@@ -487,7 +489,7 @@ class EolAPI
             if(true) //all taxa
             {
                 //==================
-                // /*
+                /*
                 $m = 75000;
                 $cont = false;
                 // if($i >=  1    && $i < $m)    $cont = true; done
@@ -496,7 +498,7 @@ class EolAPI
                 if($i >=  374847 && $i < 375000)  $cont = true;
 
                 if(!$cont) continue;
-                // */
+                */
                 //==================
                 
                 echo "\n".number_format($i).". [$sciname][tc_id = $taxon_concept_id]";
@@ -825,7 +827,7 @@ class EolAPI
         return false;
     }
 
-    private function main_loop($taxon_concept_id)
+    private function main_loop($sciname, $taxon_concept_id = null)
     {
         self::api_using_tc_id($taxon_concept_id);
     }
@@ -847,6 +849,7 @@ class EolAPI
         if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2)))
         {
             $arr = $parser->convert_sheet_to_array($path);
+            // print_r($arr); exit;
             $i = -1;
             foreach($arr['Animals'] as $sciname)
             {
@@ -882,6 +885,7 @@ class EolAPI
 
     private function process_DL_taxon_list()
     {
+        exit("\nThis will query name not taxon_concept_id. Program will stop now.\n");
         $temp_filepath = Functions::save_remote_file_to_local(self::DL_MAP_SPECIES_LIST, array('timeout' => 4800, 'download_attempts' => 5));
         if(!$temp_filepath)
         {
@@ -894,6 +898,7 @@ class EolAPI
             $i++;
             if($line)
             {
+                /*
                 $m = 10000;
                 $cont = false;
                 if($i >=  1    && $i < $m)    $cont = true;
@@ -902,7 +907,7 @@ class EolAPI
                 // if($i >=  $m*3 && $i < $m*4)  $cont = true;
                 // if($i >=  $m*4 && $i < $m*5)  $cont = true;
                 if(!$cont) continue;
-                
+                */
                 $arr = explode("\t", $line);
                 $sciname = trim($arr[0]);
                 echo "\n[$sciname]\n";
