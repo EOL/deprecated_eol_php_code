@@ -20,8 +20,8 @@ class EolAPI
 
         $this->api['Pages'] = "http://eol.org/api/pages/1.0.json?batch=false&images_per_page=75&images_page=1&videos_per_page=75&videos_page=1&sounds_per_page=75&sounds_page=1&maps_per_page=75&maps_page=1&texts_per_page=75&texts_page=1&iucn=false&subjects=overview&licenses=all&details=true&common_names=true&synonyms=true&references=true&taxonomy=true&vetted=0&cache_ttl=&language=en&id=";
         $this->api['DataObjects'][0] = "http://eol.org/api/data_objects/1.0/";
-        $this->api['DataObjects'][1] = ".json?taxonomy=true&cache_ttl=&language=en";
-        // e.g. http://eol.org/api/data_objects/1.0/19173106.json?taxonomy=true&cache_ttl=&language=en
+        $this->api['DataObjects'][1] = ".json?taxonomy=true&cache_ttl=";
+        // e.g. http://eol.org/api/data_objects/1.0/19173106.json?taxonomy=true&cache_ttl=
         // max of 7 simultaneous api calls, still works OK
         //=============================
         $this->path  = '/Volumes/Thunderbolt4/OpenData/eol_data-2016-12-08/';
@@ -120,13 +120,13 @@ class EolAPI
         */
         
         // self::process_all_eol_taxa(); return;                    //make use of tab-delimited text file from JRice
-        // self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
+        self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
         // self::process_DL_taxon_list(); return;                   //make use of taxon list from DiscoverLife
         
         // self::process_tsv_file($this->opendata['tsv']['data_objects'], $this->opendata['headers']['data_objects']);
         // self::process_tsv_file($this->opendata['tsv']['data_objects_taxon_concepts'], $this->opendata['headers']['data_objects_taxon_concepts']);
         // self::process_tsv_file($this->opendata['tsv']['data_objects_additional_attribution'], $this->opendata['headers']['data_objects_additional_attribution']);
-        self::process_tsv_file($this->opendata['tsv']['hierarchy_entries'], $this->opendata['headers']['hierarchy_entries']);
+        // self::process_tsv_file($this->opendata['tsv']['hierarchy_entries'], $this->opendata['headers']['hierarchy_entries']);
 
         /*
         $scinames = array();                                        //make use of manual taxon list
@@ -478,8 +478,7 @@ class EolAPI
             $line = explode("\t", $line);
             $taxon_concept_id = $line[0];
             $sciname          = Functions::canonical_form($line[1]);
-            if($listOnly)
-            {
+            if($listOnly) {
                 $list[$sciname] = $taxon_concept_id;
                 continue;
             }
@@ -489,7 +488,7 @@ class EolAPI
             if(true) //all taxa
             {
                 //==================
-                // /*
+                /*
                 $m = 75000;
                 $cont = false;
                 // if($i >=  1    && $i < $m)    $cont = true; done
@@ -498,7 +497,7 @@ class EolAPI
                 if($i >=  374847 && $i < 520000)  $cont = true;
 
                 if(!$cont) continue;
-                // */
+                */
                 //==================
                 
                 echo "\n".number_format($i).". [$sciname][tc_id = $taxon_concept_id]";
@@ -512,15 +511,12 @@ class EolAPI
     
     private function api_using_tc_id($taxon_concept_id)
     {
-        if($json = Functions::lookup_with_cache($this->api['Pages'].$taxon_concept_id, $this->download_options))
-        {
+        if($json = Functions::lookup_with_cache($this->api['Pages'].$taxon_concept_id, $this->download_options)) {
             $arr = json_decode($json, true);
             $objects = $arr['dataObjects'];
             echo " - " . count($objects);
-            
             return; //debug
-            foreach($objects as $o)
-            {
+            foreach($objects as $o) {
                 echo "\n" . $o['dataObjectVersionID'];
                 if($o['dataType'] == "http://purl.org/dc/dcmitype/Text" && strlen($o['description']) >= 199) //cache if desc is long since in tsv descs are substring of 200 chars only
                 {
@@ -844,20 +840,16 @@ class EolAPI
         $parser = new XLSParser();
         $families = array();
         $doc = "http://localhost/eol_php_code/public/tmp/spreadsheets/SPG Hotlist Official Version.xlsx";
-        // $doc = "http://localhost/~eolit/eli/eol_php_code/public/tmp/spreadsheets/SPG Hotlist Official Version.xlsx"; //for MacBook
         echo "\n processing [$doc]...\n";
-        if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2)))
-        {
+        if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2))) {
             $arr = $parser->convert_sheet_to_array($path);
             // print_r($arr); exit;
             $i = -1;
-            foreach($arr['Animals'] as $sciname)
-            {
+            foreach($arr['Animals'] as $sciname) {
                 $i++;
                 $sciname = trim(Functions::canonical_form($sciname));
                 // if(stripos($sciname, " ") !== false) //process only species-level taxa
-                if(true)
-                {
+                if(true) {
                     $taxon_concept_id = $arr['1'][$i];
                     echo "\n$i. [$sciname][$taxon_concept_id]";
                     //==================
