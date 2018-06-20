@@ -120,7 +120,7 @@ class EolAPI
         */
         
         // self::process_all_eol_taxa(); return;                    //make use of tab-delimited text file from JRice
-        self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
+        // self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
         // self::process_DL_taxon_list(); return;                   //make use of taxon list from DiscoverLife
         
         // self::process_tsv_file($this->opendata['tsv']['data_objects'], $this->opendata['headers']['data_objects']);
@@ -489,16 +489,16 @@ class EolAPI
             if(true) //all taxa
             {
                 //==================
-                /*
+                // /*
                 $m = 75000;
                 $cont = false;
                 // if($i >=  1    && $i < $m)    $cont = true; done
                 // if($i >=  $m   && $i < $m*2)  $cont = true; done
                 
-                if($i >=  374847 && $i < 375000)  $cont = true;
+                if($i >=  374847 && $i < 520000)  $cont = true;
 
                 if(!$cont) continue;
-                */
+                // */
                 //==================
                 
                 echo "\n".number_format($i).". [$sciname][tc_id = $taxon_concept_id]";
