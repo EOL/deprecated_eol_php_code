@@ -21,12 +21,10 @@ class SciELOAPI
 
     private function parse_xml()
     {
-        // $scielo_xml = file_get_contents($this->data_dump_url);
         $scielo_xml = Functions::lookup_with_cache($this->data_dump_url);
         if($xml = @simplexml_load_string($scielo_xml)) return $xml;
         else exit("\n Problem with the XML file: $this->data_dump_url");
     }
-
     private function parse_record_element($record, $parent = null)
     {
         $sciname = $record->Name . " " . $record->Author;
@@ -43,12 +41,10 @@ class SciELOAPI
         if($habitat = self::get_habitat_all($record)) self::get_texts($habitat, $record, '', $this->SPM . '#Habitat', 'habitat', $ref_ids, $agent_ids);
         // if($voucher = self::get_voucher($record)) self::get_texts($voucher, $record->ID, 'Voucher', $this->EOL . '#TypeInformation');
     }
-
     function get_all_taxa()
     {
         $xml = self::parse_xml();
-        foreach($xml->row as $rec)
-        {
+        foreach($xml->row as $rec) {
             // print "\n" . $rec->Name;
             self::parse_record_element($rec);
         }
@@ -60,8 +56,7 @@ class SciELOAPI
         if(!$obj->Vernacular_Names) return;
         // print "\n Vernacular_Names: " . $obj->Vernacular_Names;
         $vernaculars = explode(";", $obj->Vernacular_Names);
-        foreach($vernaculars as $name)
-        {
+        foreach($vernaculars as $name) {
             $items = explode(",", $name);
             $items = array_map('trim', $items); //trims all array values in the array
             $common_name = @$items[0];
@@ -75,8 +70,7 @@ class SciELOAPI
             $vernacular->language = $language;
             $vernacular_id = md5("$vernacular->taxonID|$vernacular->vernacularName|$vernacular->language");
             if(!$vernacular->vernacularName) continue;
-            if(!isset($this->vernacular_name_ids[$vernacular_id]))
-            {
+            if(!isset($this->vernacular_name_ids[$vernacular_id])) {
                 $this->archive_builder->write_object_to_file($vernacular);
                 $this->vernacular_name_ids[$vernacular_id] = 1;
             }
@@ -88,16 +82,14 @@ class SciELOAPI
         if(!$obj->Synonyms) return;
         // print "\n Synonyms: " . $obj->Synonyms;
         $synonyms = explode(",", $obj->Synonyms);
-        foreach($synonyms as $name)
-        {
+        foreach($synonyms as $name) {
             $synonym = new \eol_schema\Taxon();
             $synonym->scientificName = (string) trim($name);
             $synonym->acceptedNameUsageID = $obj->ID;
             $synonym->taxonomicStatus = 'synonym';
             $synonym->taxonID = md5("$obj->ID|$synonym->scientificName|$synonym->taxonomicStatus");
             if(!$synonym->scientificName) continue;
-            if(!isset($this->taxon_ids[$synonym->taxonID]))
-            {
+            if(!isset($this->taxon_ids[$synonym->taxonID])) {
                 $this->archive_builder->write_object_to_file($synonym);
                 $this->taxon_ids[$synonym->taxonID] = 1;
             }
@@ -144,8 +136,7 @@ class SciELOAPI
     {
         $agent_ids = array();
         $agents_array = explode(";", $obj->Authors);
-        foreach($agents_array as $agent)
-        {
+        foreach($agents_array as $agent) {
             $agent = (string)trim($agent);
             if(!$agent) continue;
             $r = new \eol_schema\Agent();
@@ -153,8 +144,7 @@ class SciELOAPI
             $r->identifier = md5("$agent|author");
             $r->agentRole = "author";
             $agent_ids[] = $r->identifier;
-            if(!in_array($r->identifier, $this->resource_agent_ids)) 
-            {
+            if(!in_array($r->identifier, $this->resource_agent_ids)) {
                $this->resource_agent_ids[] = $r->identifier;
                $this->archive_builder->write_object_to_file($r);
             }
@@ -164,16 +154,14 @@ class SciELOAPI
 
     private function loop_references($references_array, $reference_ids)
     {
-        foreach($references_array as $ref)
-        {
+        foreach($references_array as $ref) {
             $ref = (string)trim($ref);
             if(!$ref) continue;
             $r = new \eol_schema\Reference();
             $r->full_reference = $ref;
             $r->identifier = md5($ref);
             $reference_ids[] = $r->identifier;
-            if(!in_array($r->identifier, $this->resource_reference_ids)) 
-            {
+            if(!in_array($r->identifier, $this->resource_reference_ids)) {
                $this->resource_reference_ids[] = $r->identifier;
                $this->archive_builder->write_object_to_file($r);
             }
@@ -186,8 +174,7 @@ class SciELOAPI
         $description = '';
         if(!$obj->Voucher) return;
         $vouchers = explode(";", $obj->Voucher);
-        foreach($vouchers as $voucher)
-        {
+        foreach($vouchers as $voucher) {
             $description .= $voucher != '' ? "" . $voucher . "<br>" : '';
         }
         return $description;
@@ -196,8 +183,7 @@ class SciELOAPI
     private function get_origin($obj)
     {
         $origin = "";
-        switch(trim($obj->Origin)) 
-        {
+        switch(trim($obj->Origin)) {
             case 'Nativa':
                 $origin = "Nativa do Brasil";
                 break;
@@ -214,8 +200,7 @@ class SciELOAPI
     private function get_endemic($obj)
     {
         $endemic = "";
-        switch(trim($obj->Endemic)) 
-        {
+        switch(trim($obj->Endemic)) {
             case 'desconhecido':
                 $endemic = "Desconhecido se endêmica do Brasil";
                 break;
@@ -267,8 +252,7 @@ class SciELOAPI
 
     private function get_distribution($obj)
     {
-        if($obj->Regional_Distribution != '' || $obj->State_Distribution != '')
-        {
+        if($obj->Regional_Distribution != '' || $obj->State_Distribution != '') {
             return "Distribuição geográfica: $obj->Regional_Distribution ($obj->State_Distribution)";
         }
     }
@@ -337,8 +321,7 @@ class SciELOAPI
         $scielo_rank["VARIEDADE"] = 'variety';
 
         $rank = trim($taxon_object->Rank);
-        if($rank == "ESPECIE")
-        {
+        if($rank == "ESPECIE") {
             $temp = explode(" ", trim($taxon_object->Name));
             $genus = trim($temp[0]);
         }
@@ -369,13 +352,9 @@ class SciELOAPI
         $taxon->taxonRemarks                = (string) $taxonRemarks;
         $this->taxa[$taxon_id] = $taxon;
     }
-
     function create_archive()
     {
-        foreach($this->taxa as $t)
-        {
-            $this->archive_builder->write_object_to_file($t);
-        }
+        foreach($this->taxa as $t) $this->archive_builder->write_object_to_file($t);
         $this->archive_builder->finalize(true);
     }
 
