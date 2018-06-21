@@ -57,11 +57,15 @@ class SINAMapsAPI
                         foreach($this->additional_maps[$id] as $url) $urls[] = $url;
                     }
                     foreach($urls as $url) {
+                        if($url == "http://entnemdept.ufl.edu/walker/buzz/636m.htm") $url = "http://entnemdept.ufl.edu/walker/buzz/636dm.htm"; //special
                         if($rec = self::get_map_data($url)) {
                             $parts = pathinfo(@$rec["map"]);
                             $rec["taxon_id"] = intval($parts["filename"]);
                             if(!$rec["taxon_id"]) {
                                 echo "\n investigate blank taxon_id [$url]\n";
+                                // print_r($parts); 
+                                // print_r($rec);
+                                // exit;
                                 continue;
                             }
                             $rec["source_url"] = $this->sina_domain . Functions::format_number_with_leading_zeros($rec["taxon_id"], 3) . "a.htm";
@@ -147,7 +151,7 @@ class SINAMapsAPI
             }
             else {
                 // e.g. http://entnemdept.ufl.edu/walker/buzz/401m.htm
-                echo "\n investigate no <div> [$url]\n";
+                // echo "\n investigate no <div> [$url]\n";
                 if($map_image = self::get_map_image_retry($html)) {
                     $rec["map"] = $this->sina_domain . $map_image;
                     if(preg_match("/<p>(.*?)\./ims", $html, $arr)) {
