@@ -25,10 +25,10 @@ if($undefined) {
 else echo "\nAll parents have entries.\n";
 // */
 
-/*
+// /* this will delete the working dir
 $dir = CONTENT_RESOURCE_LOCAL_PATH."/".$resource_id;
 if(is_dir($dir)) recursive_rmdir($dir);
-*/
+// */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n elapsed time = " . $elapsed_time_sec . " seconds";

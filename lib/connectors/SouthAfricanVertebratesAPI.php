@@ -10,14 +10,14 @@ class SouthAfricanVertebratesAPI
     {
         $this->rank_order = array_reverse(array("Kingdom", "Phylum", "Sub Phylum", "Class", "Infraclass", "Super Cohort", "Cohort", "Super Order", "Order", "Suborder", "Infraorder", "Superfamily", "Family", "Subfamily", "Tribe", "Genus", "Species", "Infraspecies"));
         $this->taxa_all = array();
-        // /* local
+        /* local
         $this->vernacular_path = "http://localhost/cp_new/SouthAfricanVertebrates/common names.txt";
         $this->taxa_path = "http://localhost/cp_new/SouthAfricanVertebrates/taxa.txt";
-        // */
-        /* remote
+        */
+        // /* remote
         $this->taxa_path = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/SouthAfricanVertebrates/taxa.txt";
         $this->vernacular_path = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/SouthAfricanVertebrates/common names.txt";
-        */
+        // */
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -57,18 +57,6 @@ class SouthAfricanVertebratesAPI
                         if(!isset($taxa[$sciname])) $taxa[$sciname] = $rows;
                     }
                     else $taxa[$canonical] = $rows;
-                    
-                    
-                    /*
-                        [Identifier] => 10049
-                        [canonical] => Heleophryne rosei
-                        [ScientificName] => Heleophryne rosei Hewitt, 1925
-                        [TaxonRank] => Species
-                        [TaxonomicStatus] => 
-                    */
-                    
-                    
-                    
                 }
             }
         }
