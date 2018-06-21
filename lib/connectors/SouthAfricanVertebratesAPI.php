@@ -78,7 +78,10 @@ class SouthAfricanVertebratesAPI
     private function complete_missing_taxa($taxa) // this will complete/add those missing taxa from the taxa list.
     {
         $rank_order = $this->rank_order;
+        print_r($rank_order);
         $rank_order = array_diff($rank_order, array('Infraspecies', 'Species'));
+        print_r($rank_order); //exit;
+
         foreach($taxa as $taxon) {
             if(@$taxon['TaxonomicStatus'] == "synonym") continue;
             foreach($rank_order as $rank) {
