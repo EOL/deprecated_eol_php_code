@@ -10,27 +10,32 @@ class SouthAfricanVertebratesAPI
     {
         $this->rank_order = array_reverse(array("Kingdom", "Phylum", "Sub Phylum", "Class", "Infraclass", "Super Cohort", "Cohort", "Super Order", "Order", "Suborder", "Infraorder", "Superfamily", "Family", "Subfamily", "Tribe", "Genus", "Species", "Infraspecies"));
         $this->taxa_all = array();
+
         // /* local
         $this->vernacular_path = "http://localhost/cp_new/SouthAfricanVertebrates/common names.txt";
         $this->taxa_path = "http://localhost/cp_new/SouthAfricanVertebrates/taxa.txt";
         // */
+        
         /* remote
         $this->taxa_path = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/SouthAfricanVertebrates/taxa.txt";
         $this->vernacular_path = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/SouthAfricanVertebrates/common names.txt";
         */
+        
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->vernacular_name_ids = array();
         $this->taxon_ids = array();
     }
+
     function get_all_taxa()
     {
         debug("\n Processing... \n");
         $taxa = array();
         $i = 0;
         $temp_filepath = Functions::save_remote_file_to_local($this->taxa_path, array('timeout' => 4800, 'download_attempts' => 5, 'cache' => 1));
-        foreach(new FileIterator($temp_filepath, true) as $line_number => $line) { // 'true' will auto delete temp_filepath
+        foreach(new FileIterator($temp_filepath, true) as $line_number => $line) // 'true' will auto delete temp_filepath
+        {
             $i++;
             if($line) {
                 $fields = explode("\t", trim($line));
@@ -46,29 +51,9 @@ class SouthAfricanVertebratesAPI
                         $rows[$labels[$j]] = utf8_encode($fields[$j]); 
                         $j++;
                     }
-                    // if($canonical == "Acontias percivali occidentalis") print_r($rows);
-                    $this->debug['ranks'][$rows['TaxonRank']] = '';
-                    
-                    if(@$rows['TaxonomicStatus'] == "synonym")
-                    {   /* this will prevent overwriting where valid -> 'Acontias percivali occidentalis Fitzsimmons, 1941'
-                           will be overwritten by synonym            -> 'Acontias percivali occidentalis'
-                           The synonym will then just be ignored, excluded from processing.
-                        */
-                        if(!isset($taxa[$sciname])) $taxa[$sciname] = $rows;
-                    }
-                    else $taxa[$canonical] = $rows;
-                    
-                    
-                    /*
-                        [Identifier] => 10049
-                        [canonical] => Heleophryne rosei
-                        [ScientificName] => Heleophryne rosei Hewitt, 1925
-                        [TaxonRank] => Species
-                        [TaxonomicStatus] => 
-                    */
-                    
-                    
-                    
+                    print_r($rows);
+                    if(@$rows['TaxonomicStatus'] != "synonym") $taxa[$canonical] = $rows;
+                    else $taxa[$sciname] = $rows;
                 }
             }
         }
@@ -90,66 +75,23 @@ class SouthAfricanVertebratesAPI
         $this->create_archive();
     }
 
-    private function complete_missing_taxa($taxa) // this will add those taxa from the ancestry tree found per row that doesn't have its own taxon entry in taxa.txt
+    private function complete_missing_taxa($taxa) // this will complete/add those missing taxa from the taxa list.
     {
-        /* recently it added these:
-        will add [Arthroleptidae]
-        will add [Hyperoliidae]
-        will add [Microhylidae]
-        will add [Hydrophiidae]
-        will add [Sarothrura]
-        will add [Rallidae]
-        will add [Graphirurs]
-        will add [Mormopterus]
-        will add [Panthera]
-        */
         $rank_order = $this->rank_order;
+        print_r($rank_order);
         $rank_order = array_diff($rank_order, array('Infraspecies', 'Species'));
+        print_r($rank_order); //exit;
+
         foreach($taxa as $taxon) {
-            // print_r($taxon);
             if(@$taxon['TaxonomicStatus'] == "synonym") continue;
             foreach($rank_order as $rank) {
                 if($name = trim($taxon[$rank])) {
                     if(!isset($this->taxa_all[$name])) {
-                        echo "\n will add [$name][$rank]";
                         $this->taxa_all[$name]['Identifier'] = $name . "_id";
                         $this->taxa_all[$name]['ScientificName'] = $name;
                         $this->taxa_all[$name]['Parent TaxonID'] = "";
                         $this->taxa_all[$name]['TaxonRank'] = $rank;
                         $this->taxa_all[$name]['added'] = true;
-                        
-                        // print_r($taxon); exit;
-                        if($rank == "Genus") {
-                            $this->taxa_all[$name]['Kingdom']       = $taxon['Kingdom'];
-                            $this->taxa_all[$name]['Phylum']        = $taxon['Phylum'];
-                            $this->taxa_all[$name]['Sub Phylum']    = $taxon['Sub Phylum'];
-                            $this->taxa_all[$name]['Class']         = $taxon['Class'];
-                            $this->taxa_all[$name]['Infraclass']    = $taxon['Infraclass'];
-                            $this->taxa_all[$name]['Super Cohort']  = $taxon['Super Cohort'];
-                            $this->taxa_all[$name]['Cohort']        = $taxon['Cohort'];
-                            $this->taxa_all[$name]['Super Order']   = $taxon['Super Order'];
-                            $this->taxa_all[$name]['Order']         = $taxon['Order'];
-                            $this->taxa_all[$name]['Suborder']      = $taxon['Suborder'];
-                            $this->taxa_all[$name]['Infraorder']    = $taxon['Infraorder'];
-                            $this->taxa_all[$name]['Superfamily']   = $taxon['Superfamily'];
-                            $this->taxa_all[$name]['Family']        = $taxon['Family'];
-                            $this->taxa_all[$name]['Subfamily']     = $taxon['Subfamily'];
-                            $this->taxa_all[$name]['Tribe']         = $taxon['Tribe'];
-                        }
-                        if($rank == "Family") {
-                            $this->taxa_all[$name]['Kingdom']       = $taxon['Kingdom'];
-                            $this->taxa_all[$name]['Phylum']        = $taxon['Phylum'];
-                            $this->taxa_all[$name]['Sub Phylum']    = $taxon['Sub Phylum'];
-                            $this->taxa_all[$name]['Class']         = $taxon['Class'];
-                            $this->taxa_all[$name]['Infraclass']    = $taxon['Infraclass'];
-                            $this->taxa_all[$name]['Super Cohort']  = $taxon['Super Cohort'];
-                            $this->taxa_all[$name]['Cohort']        = $taxon['Cohort'];
-                            $this->taxa_all[$name]['Super Order']   = $taxon['Super Order'];
-                            $this->taxa_all[$name]['Order']         = $taxon['Order'];
-                            $this->taxa_all[$name]['Suborder']      = $taxon['Suborder'];
-                            $this->taxa_all[$name]['Infraorder']    = $taxon['Infraorder'];
-                            $this->taxa_all[$name]['Superfamily']   = $taxon['Superfamily'];
-                        }
                     }
                 }
             }
@@ -165,7 +107,7 @@ class SouthAfricanVertebratesAPI
         return $taxa;
     }
 
-    private function get_parent_id($taxon, $canonical) //working OK
+    private function get_parent_id($taxon, $canonical)
     {
         $start = false;
         $rank = $taxon['TaxonRank'];
@@ -179,28 +121,16 @@ class SouthAfricanVertebratesAPI
                 {
                     $sciname = trim($taxon['Genus']) . " " . trim($taxon['Species']); // if Species then get the Genus...
                     if(isset($this->taxa_all[$sciname])) return $this->taxa_all[$sciname]['Identifier'];
-                    else {
-                        // debug("\n Warning: [$sciname][main $rank][searching $rangk] not yet in all_taxa.\n"); // no worries, will cont. searching for the parent id on the next higher rank
-                        // print_r($taxon);
-                    }
+                    else debug("\n Warning: [$sciname] not yet in all_taxa.\n"); // will cont. searching for the parent id on the next higher rank
                 }
                 else {
                     if($taxon_name = trim(@$taxon[$rangk])) {
                         if(isset($this->taxa_all[$taxon_name]['Identifier'])) return $this->taxa_all[$taxon_name]['Identifier'];
-                        else {
-                            debug("\n Warning2: [$sciname] not yet in all_taxa.\n"); // no worries, will cont. searching for the parent id on the next higher rank
-                        }
+                        else debug("\n Warning2: [$sciname] not yet in all_taxa.\n"); // will cont. searching for the parent id on the next higher rank
                     }
                 }
             }
         }
-        
-        // /* good addition, made every taxon to have a parent_id
-        if($canonical != 'Animalia') {
-            print_r($taxon);
-            exit("\nDidn't get parent_id [$canonical]...\n");
-        }
-        // */
     }
 
     private function parse_record_element($rec)
