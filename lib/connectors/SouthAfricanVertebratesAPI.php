@@ -11,15 +11,15 @@ class SouthAfricanVertebratesAPI
         $this->rank_order = array_reverse(array("Kingdom", "Phylum", "Sub Phylum", "Class", "Infraclass", "Super Cohort", "Cohort", "Super Order", "Order", "Suborder", "Infraorder", "Superfamily", "Family", "Subfamily", "Tribe", "Genus", "Species", "Infraspecies"));
         $this->taxa_all = array();
 
-        /* local
+        // /* local
         $this->vernacular_path = "http://localhost/cp_new/SouthAfricanVertebrates/common names.txt";
         $this->taxa_path = "http://localhost/cp_new/SouthAfricanVertebrates/taxa.txt";
-        */
+        // */
         
-        // /* remote
+        /* remote
         $this->taxa_path = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/SouthAfricanVertebrates/taxa.txt";
         $this->vernacular_path = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/SouthAfricanVertebrates/common names.txt";
-        // */
+        */
         
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
@@ -33,7 +33,7 @@ class SouthAfricanVertebratesAPI
         debug("\n Processing... \n");
         $taxa = array();
         $i = 0;
-        $temp_filepath = Functions::save_remote_file_to_local($this->taxa_path, array('timeout' => 4800, 'download_attempts' => 5));
+        $temp_filepath = Functions::save_remote_file_to_local($this->taxa_path, array('timeout' => 4800, 'download_attempts' => 5, 'cache' => 1));
         foreach(new FileIterator($temp_filepath, true) as $line_number => $line) // 'true' will auto delete temp_filepath
         {
             $i++;
@@ -51,6 +51,7 @@ class SouthAfricanVertebratesAPI
                         $rows[$labels[$j]] = utf8_encode($fields[$j]); 
                         $j++;
                     }
+                    print_r($rows);
                     if(@$rows['TaxonomicStatus'] != "synonym") $taxa[$canonical] = $rows;
                     else $taxa[$sciname] = $rows;
                 }
@@ -162,7 +163,7 @@ class SouthAfricanVertebratesAPI
             }
         }
     }
-
+    
     private function get_synonyms()
     {
         foreach($this->taxa_all as $canonical => $taxon) {
@@ -208,7 +209,29 @@ class SouthAfricanVertebratesAPI
         $taxon->scientificName              = (string) $rec['ScientificName'];
         $taxon->scientificNameAuthorship    = "";
         $taxon->vernacularName              = "";
-        $taxon->parentNameUsageID           = (string) @$rec['Parent TaxonID'];
+        
+        
+        $parent_id = (string) @$rec['Parent TaxonID'];
+        
+        // Acontias percivali occidentalis is not a synonym
+        
+        /*
+        50524, 50658, 50229 are parents but also synonyms. Synonyms can't be parents.
+        50524	Afrixalus spinifrons	10066
+        50658	Acontias percivali	20303
+        50229	Cercopithecus pygerythrus	40890
+        */
+        
+        /*
+        $fix[50524] = 10066;
+        $fix[50658] = 20303;
+        $fix[50229] = 40890;
+        if(in_array($parent_id, array_keys($fix))) $taxon->parentNameUsageID = $fix[$parent_id];
+        else                                       $taxon->parentNameUsageID = $parent_id;
+        */
+        
+        $taxon->parentNameUsageID = $parent_id;
+        
         $taxon->kingdom                     = (string) @$rec['Kingdom'];
         $taxon->phylum                      = (string) @$rec['Phylum'];
         $taxon->class                       = (string) @$rec['Class'];
