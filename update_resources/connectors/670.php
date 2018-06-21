@@ -18,7 +18,7 @@ $resource_id = 670;
 $func = new SINAMapsAPI($resource_id);
 
 $func->get_all_taxa();
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, true); //2nd param false means not a big file; 3rd param true means can delete resource folder in resources directory.
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
