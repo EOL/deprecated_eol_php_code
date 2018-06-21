@@ -5,8 +5,9 @@ class SciELOAPI
 {
     function __construct($folder)
     {
-        // $this->data_dump_url = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/SciELO/Anacardiaceae%20XML%20v5%20correcao.xml";
-        $this->data_dump_url = "http://localhost/~eolit/eol_php_code/update_resources/connectors/files/SciELO/Anacardiaceae%20V6-parentID.xml";
+        // $this->data_dump_url = "http://localhost/cp_new/SciELO/Anacardiaceae XML v5 correcao.xml";
+        $this->data_dump_url =                                            "http://localhost/cp_new/SciELO/Anacardiaceae V6-parentID.xml";
+        $this->data_dump_url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/SciELO/Anacardiaceae V6-parentID.xml";
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -20,7 +21,8 @@ class SciELOAPI
 
     private function parse_xml()
     {
-        $scielo_xml = file_get_contents($this->data_dump_url);
+        // $scielo_xml = file_get_contents($this->data_dump_url);
+        $scielo_xml = Functions::lookup_with_cache($this->data_dump_url);
         if($xml = @simplexml_load_string($scielo_xml)) return $xml;
         else exit("\n Problem with the XML file: $this->data_dump_url");
     }
@@ -28,7 +30,7 @@ class SciELOAPI
     private function parse_record_element($record, $parent = null)
     {
         $sciname = $record->Name . " " . $record->Author;
-        print "\n" . " - " . $sciname . " - " . $record->ID;
+        // print "\n" . " - " . $sciname . " - " . $record->ID;
         $reference_ids = self::get_taxon_references($record);
         $ref_ids = self::get_object_references($record);
         // $agent_ids = self::get_object_agents($record);
@@ -47,7 +49,7 @@ class SciELOAPI
         $xml = self::parse_xml();
         foreach($xml->row as $rec)
         {
-            print "\n" . $rec->Name;
+            // print "\n" . $rec->Name;
             self::parse_record_element($rec);
         }
         $this->create_archive();
@@ -56,7 +58,7 @@ class SciELOAPI
     private function get_vernacular_names($obj)
     {
         if(!$obj->Vernacular_Names) return;
-        print "\n Vernacular_Names: " . $obj->Vernacular_Names;
+        // print "\n Vernacular_Names: " . $obj->Vernacular_Names;
         $vernaculars = explode(";", $obj->Vernacular_Names);
         foreach($vernaculars as $name)
         {
@@ -84,7 +86,7 @@ class SciELOAPI
     private function get_synonyms($obj)
     {
         if(!$obj->Synonyms) return;
-        print "\n Synonyms: " . $obj->Synonyms;
+        // print "\n Synonyms: " . $obj->Synonyms;
         $synonyms = explode(",", $obj->Synonyms);
         foreach($synonyms as $name)
         {
@@ -120,7 +122,7 @@ class SciELOAPI
     private function get_taxon_references($obj)
     {
         if(!$obj->References) return;
-        print "\n ref: " . $obj->References;
+        // print "\n ref: " . $obj->References;
         $reference_ids = array();
         $references_array = explode(";", $obj->References);
         $reference_ids = self::loop_references($references_array, $reference_ids);
