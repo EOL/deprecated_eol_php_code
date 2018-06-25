@@ -15,18 +15,18 @@ class FeaturedCreaturesAPI
         $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
         $this->EOL = 'http://www.eol.org/voc/table_of_contents';
         $this->text_count = 0;
+        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 1200, 'download_attempts' => 2, 'expire_seconds' => false, 'resource_id' => $folder);
+        $this->debug = array();
     }
 
     function get_all_taxa($articles = true)
     {
-        if($records = self::parse_html())
-        {
+        if($records = self::parse_html()) {
             if($articles) self::initialize_subjects();
             print_r($records);
             echo "\n count: " . count($records);
             $i = 0; $total = count($records);
-            foreach($records as $rec)
-            {
+            foreach($records as $rec) {
                 $i++;
                 echo "\n $i of $total: " . $rec["sciname"];
                 if($articles) self::prepare_articles($rec);
@@ -36,6 +36,7 @@ class FeaturedCreaturesAPI
             $this->create_archive();
         }
         echo "\n\n total texts: " . $this->text_count . "\n";
+        if($this->debug) print_r($this->debug);
     }
 
     private function prepare_outlinks($rec)
@@ -58,7 +59,7 @@ class FeaturedCreaturesAPI
         $mr->CVterm         = $this->EOL . "#EducationResources";
         $mr->title          = (string) $title;
         $mr->UsageTerms     = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-        $mr->description    = (string) $description;
+        $mr->description    = (string) Functions::remove_whitespace(str_replace("&nbsp;", " ", $description));
         $this->archive_builder->write_object_to_file($mr);
         $this->create_instances_from_taxon_object($rec, array());
     }
@@ -68,29 +69,25 @@ class FeaturedCreaturesAPI
         $descriptions = array();
         $match = false;
         /* 2 possible start hyperlinks (topic) */
-        if(preg_match("/<a href=\"#intro\">(.*?)<\/h3>/ims", $html, $arr) || preg_match("/<a href=#intro>(.*?)<\/h3>/ims", $html, $arr))
-        {
+        if(preg_match("/<a href=\"#intro\">(.*?)<\/h3>/ims", $html, $arr) || preg_match("/<a href=#intro>(.*?)<\/h3>/ims", $html, $arr)) {
             $match = $arr[1];
             $term = "intro";
         }
-        elseif(preg_match("/<a href=\"#dist\">(.*?)<\/h3>/ims", $html, $arr) || preg_match("/<a href=\#dist\>(.*?)<\/h3>/ims", $html, $arr))
-        {
+        elseif(preg_match("/<a href=\"#dist\">(.*?)<\/h3>/ims", $html, $arr) || preg_match("/<a href=\#dist\>(.*?)<\/h3>/ims", $html, $arr)) {
             $match = $arr[1];
             $term = "dist";
         }
         else echo "\n alert: investigate 30: -- $rec[url]\n";
-        if($match)
-        {
+        if($match) {
             $string = '<a href="#' . $term . '">' . $match;
             // echo "\n" . $string . "\n";
             $items = explode("-", $string);
             $items = array_filter(array_map('trim', $items)); // will trim all values of the array
-            print_r($items);
+            // print_r($items);
             
             // remove language links
             $i = 0;
-            foreach($items as $item)
-            {
+            foreach($items as $item) {
                 if(is_numeric(stripos($item, "Versi&oacute;n en Espa&ntilde;ol"))) $items[$i] = NULL;
                 elseif(is_numeric(stripos($item, "Version en Espa&ntilde;ol"))) $items[$i] = NULL;
                 elseif(is_numeric(stripos($item, "en Espa&ntilde;ol"))) $items[$i] = NULL;
@@ -103,20 +100,18 @@ class FeaturedCreaturesAPI
 
             // strip tags
             $i = 0;
-            foreach($items as $item)
-            {
+            foreach($items as $item) {
                 $items[$i] = strip_tags($item, "<a>");
                 $i++;
             }
             $items = array_values(array_filter($items));
-            print_r($items);
+            // print_r($items);
             
             // manual adjustment
             $items = self::topic_order_adjustment($items, $rec["url"]);
 
             $connections = array();
-            foreach($items as $item)
-            {
+            foreach($items as $item) {
                 if(preg_match("/<a href=\"#(.*?)\"/ims", $item, $arr) || preg_match("/<a href=#(.*?)>/ims", $item, $arr)) $name = $arr[1];
                 else echo "\n alert: investigate 02: [$item] -- $rec[url]\n";
                 if(preg_match("/>(.*?)</ims", $item, $arr)) $title = $arr[1];
@@ -126,12 +121,10 @@ class FeaturedCreaturesAPI
             echo "\n connections:\n";
             $i = 0;
             $count = count($connections);
-            foreach($connections as $conn)
-            {
+            foreach($connections as $conn) {
                 $name = $conn["name"];
                 if($i+1 == $count) $href2 = "</ul>";
-                else 
-                {
+                else {
                     $name2 = $connections[$i+1]["name"];
                     $href2 = '<a name="' . $name2 . '"';
                     $href2_noquote = '<a name=' . $name2 . '';
@@ -155,29 +148,26 @@ class FeaturedCreaturesAPI
             $this->text_count += count($connections);
             echo "\n article count per taxon: " . count($connections);
             $reference_ids = self::prepare_object_refs($connections);
-            foreach($connections as $conn)
-            {
+            foreach($connections as $conn) {
                 $title = trim($conn["title"]);
                 if(is_numeric(stripos($title, "References"))) continue;
-                $description = $conn["desc"];
+
+                if($val = @$conn["desc"]) $description = $val;
+                else continue;
+
                 $description = str_ireplace('<a href="#top" class="backtop">(Back to Top)</a>', '', $description);
                 $description = strip_tags($description, "<p><br><i><ul><li><table><tr><td><a><img>");
                 $path_parts = pathinfo($rec["url"]);
                 $description = str_ireplace('<img src="', '<img src="' . $path_parts["dirname"] . '/', $description);
                 $description = str_ireplace('<a href="../../', '<a href="http://entnemdept.ufl.edu/creatures/', $description);
-                if(!$subject = @$this->subject[$title]) 
-                {
-                    if(!$subject = self::other_subject_assignment($title))
-                    {
-                        if(in_array($rec["url"], array("http://entnemdept.ufl.edu/creatures/misc/gastro/snail_eating_snails.htm")))
-                        {
-                            if($title == Functions::canonical_form($rec["sciname"]))
-                            {
+                if(!$subject = @$this->subject[$title])  {
+                    if(!$subject = self::other_subject_assignment($title)) {
+                        if(in_array($rec["url"], array("http://entnemdept.ufl.edu/creatures/misc/gastro/snail_eating_snails.htm"))) {
+                            if($title == Functions::canonical_form($rec["sciname"])) {
                                 echo "\n [$title] EXACT taxon for the page \n";
                                 $subject = $this->SPM . "#Morphology"; // hasn't divided the diff topics yet
                             }
-                            else
-                            {
+                            else {
                                 echo "\n [$title] not exact taxon for the page \n";
                                 echo "\n undefined subject 01: [$title][$description]\n";
                                 continue;
@@ -185,21 +175,18 @@ class FeaturedCreaturesAPI
                         }
                         elseif(in_array($rec["url"], array("http://entnemdept.ufl.edu/creatures/misc/jumping_spiders.htm")))
                         {
-                            if($title == Functions::canonical_form($rec["sciname"]))
-                            {
+                            if($title == Functions::canonical_form($rec["sciname"])) {
                                 echo "\n [$title] EXACT taxon for the page \n";
                                 $subject = $this->SPM . "#Description";
                                 if(is_numeric(stripos($description, "Synonym"))) $subject = $this->EOL . "#Taxonomy";
                             }
-                            else
-                            {
+                            else {
                                 echo "\n [$title] not exact taxon for the page \n";
                                 echo "\n undefined subject 02: [$title][$description]\n";
                                 continue;
                             }
                         }
-                        else
-                        {
+                        else {
                             echo " --- will continue...[$title][$subject]"; 
                             continue;
                         }
@@ -230,7 +217,7 @@ class FeaturedCreaturesAPI
                 $mr->Owner          = "";
                 $mr->title          = (string) $title;
                 $mr->UsageTerms     = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-                $mr->description    = (string) $description;
+                $mr->description    = (string) Functions::remove_whitespace(str_replace("&nbsp;", " ", $description));
                 $this->archive_builder->write_object_to_file($mr);
             }
         }
@@ -239,33 +226,27 @@ class FeaturedCreaturesAPI
     
     private function topic_order_adjustment($items, $url)
     {
-        if($url == "http://entnemdept.ufl.edu/creatures/fruit/tropical/caribbean_fruit_fly.htm") // inter-change values
-        {
+        if($url == "http://entnemdept.ufl.edu/creatures/fruit/tropical/caribbean_fruit_fly.htm") { // inter-change values
             $items[6] = '<a href="#dam">Damage</a>';
             $items[7] = '<a href="#management">Management</a>';
         }
-        elseif($url == "http://entnemdept.ufl.edu/creatures/fruit/tropical/queensland_fruit_fly.htm") // inter-change values
-        {
+        elseif($url == "http://entnemdept.ufl.edu/creatures/fruit/tropical/queensland_fruit_fly.htm") { // inter-change values
             $items[3] = '<a href="#life">Life History</a>';
             $items[4] = '<a href="#ident">Description</a>';
         }
-        elseif($url == "http://entnemdept.ufl.edu/creatures/nematode/red_ring_nematode.htm") // inter-change values
-        {
+        elseif($url == "http://entnemdept.ufl.edu/creatures/nematode/red_ring_nematode.htm") { // inter-change values
             $items[3] = '<a href="#symptoms">Symptoms and Effects</a>';
             $items[4] = '<a href="#life">Life Cycle and Biology</a>';
         }
-        elseif($url == "http://entnemdept.ufl.edu/creatures/misc/tiger/tbeetle3.htm") // delete an item
-        {
+        elseif($url == "http://entnemdept.ufl.edu/creatures/misc/tiger/tbeetle3.htm") { // delete an item
             $items[4] = NULL;
             $items = array_values(array_filter($items));
         }
-        elseif($url == "http://entnemdept.ufl.edu/creatures/field/lesser_cornstalk_borer.htm") // inter-change values
-        {
+        elseif($url == "http://entnemdept.ufl.edu/creatures/field/lesser_cornstalk_borer.htm") { // inter-change values
             $items[3] = '<a href="#weather">Weather</a>';
             $items[4] = '<a href="#host">Host Plants</a>';
         }
-        elseif($url == "http://entnemdept.ufl.edu/creatures/beneficial/bca_parasitoid.htm") // inter-change values
-        {
+        elseif($url == "http://entnemdept.ufl.edu/creatures/beneficial/bca_parasitoid.htm") { // inter-change values
             $items[0] = '<a href="#intro">Introduction</a>';
             $items[1] = '<a href="#classical">Classical Biological Control</a>';
             $items[2] = '<a href="#bio">Aphidiidae Biology</a>';
@@ -282,8 +263,7 @@ class FeaturedCreaturesAPI
             $items[13] = '<a href="#pesticide">Pesticide Selectivity</a>';
             $items[14] = '<a href="#ref">Selected References</a>';
         }
-        elseif($url == "http://entnemdept.ufl.edu/creatures/urban/roaches/oriental_cockroach.htm") // inter-change values
-        {
+        elseif($url == "http://entnemdept.ufl.edu/creatures/urban/roaches/oriental_cockroach.htm") { // inter-change values
             $items[0] = '<a href="#intro">Introduction</a>';
             $items[1] = '<a href="#desc">Description</a>';
             $items[2] = '<a href="#life">Life Cycle</a>';
@@ -293,13 +273,11 @@ class FeaturedCreaturesAPI
             $items[6] = '<a href="#management">Management</a>';
             $items[7] = '<a href="#ref">Selected References</a>';
         }
-        elseif($url == "http://entnemdept.ufl.edu/creatures/bfly/bfly2/cloudless_sulphur.htm") // inter-change values
-        {
+        elseif($url == "http://entnemdept.ufl.edu/creatures/bfly/bfly2/cloudless_sulphur.htm") { // inter-change values
             $items[5] = '<a href=#hosts>Hosts</a>';
             $items[6] = '<a href=#eco>Economic Importance</a>';
         }
-        elseif($url == "http://entnemdept.ufl.edu/creatures/fruit/olive_shootworm.htm")
-        {
+        elseif($url == "http://entnemdept.ufl.edu/creatures/fruit/olive_shootworm.htm") {
             $items = array();
             $items[0] = '<a href="#intro">Introduction</a>';
             $items[1] = '<a href="#dist">Distribution</a>';
@@ -317,23 +295,20 @@ class FeaturedCreaturesAPI
     {
         $reference_ids = array();
         $string = "";
-        foreach($connections as $conn)
-        {
+        foreach($connections as $conn) {
             if($conn["title"] == "Selected References") $string = $conn["desc"];
         }
         if(preg_match_all("/<li>(.*?)<\/li>/ims", $string, $arr)) 
         {
             $refs = $arr[1];
-            foreach($refs as $ref)
-            {
+            foreach($refs as $ref) {
                 $ref = (string) trim($ref);
                 if(!$ref) continue;
                 $r = new \eol_schema\Reference();
                 $r->full_reference = $ref;
                 $r->identifier = md5($ref);
                 $reference_ids[] = $r->identifier;
-                if(!in_array($r->identifier, $this->resource_reference_ids)) 
-                {
+                if(!in_array($r->identifier, $this->resource_reference_ids)) {
                    $this->resource_reference_ids[] = $r->identifier;
                    $this->archive_builder->write_object_to_file($r);
                 }
@@ -349,8 +324,7 @@ class FeaturedCreaturesAPI
         $ref_ids = array();
         $agent_ids = array();
         echo "\n\n" . " - " . $rec['sciname'] . " - " . $rec['vernacular'] . " - " . $rec['url'] . "\n";
-        if($html = Functions::get_remote_file($rec['url'], array('download_wait_time' => 3000000, 'timeout' => 240, 'download_attempts' => 5)))
-        {
+        if($html = Functions::lookup_with_cache($rec['url'], $this->download_options)) {
             $html = str_ireplace(array("\n", "\r", "\t", "\o", "    "), "", $html);
             // manual adjustment
             $html = str_ireplace("Descripton", "Description", $html);
@@ -362,8 +336,7 @@ class FeaturedCreaturesAPI
             $html = str_ireplace("Indentification", "Identification", $html);
             $html = str_ireplace("Synonomy", "Synonymy", $html);
             $html = str_ireplace("Plexippus  paykulli", "Plexippus paykulli", $html);
-            if($rec["url"] == "http://entnemdept.ufl.edu/creatures/misc/jumping_spiders.htm") 
-            {
+            if($rec["url"] == "http://entnemdept.ufl.edu/creatures/misc/jumping_spiders.htm") {
                 $html = str_ireplace('<a href="#desc">Description</a>', '<a href="#desc">Menemerus bivittatus</a> <a href="#desc">Description</a>', $html);
                 $html = str_ireplace('<a href="#desc2">Description</a>', '<a href="#desc2">Plexippus paykulli</a> <a href="#desc2">Description</a>', $html);
             }
@@ -386,20 +359,17 @@ class FeaturedCreaturesAPI
 
     private function parse_html()
     {
-        if($html = Functions::get_remote_file($this->taxa_list_url, array('timeout' => 1200, 'download_attempts' => 5)))
-        {
+        if($html = Functions::lookup_with_cache($this->taxa_list_url, $this->download_options)) {
             // manual adjustment
             $html = str_ireplace('<a href="../aquatic/Culiseta_melanura.htm">, black-tailed mosquito </a>', ', black-tailed mosquito', $html);
             $html = str_ireplace('Odonata - dragonflies and damselflies', 'Odonata, dragonflies and damselflies', $html);
             $html = str_ireplace('Aleurocanthus</i> Ashby', 'Aleurocanthus</i>, Ashby', $html);
             $html = substr($html, stripos($html, "<h1>Search by Scientific Name"), strlen($html));
-            if(preg_match_all("/<a href=\"..\/(.*?)<br/ims", $html, $matches))
-            {
+            if(preg_match_all("/<a href=\"..\/(.*?)<br/ims", $html, $matches)) {
                 $records = $matches[1];
-                print_r($records);
+                // print_r($records);
                 $taxa = array();
-                foreach($records as $rec)
-                {
+                foreach($records as $rec) {
                     $rec = str_ireplace(' target="_blank"', "", $rec);
                     $parts = explode('">', $rec);
                     $url = trim($parts[0]);
@@ -409,13 +379,11 @@ class FeaturedCreaturesAPI
                     $names_arr = explode(",", $names);
                     $names_arr = array_map('trim', $names_arr);
                     $comma_count = substr_count($names, ",");
-                    if($comma_count == 1)
-                    {
+                    if($comma_count == 1) {
                         $sciname = $names_arr[0];
                         $vernacular = $names_arr[1];
                     }
-                    elseif($comma_count == 2)
-                    {
+                    elseif($comma_count == 2) {
                         $sciname = $names_arr[1] . " " . trim($names_arr[0]);
                         $vernacular = $names_arr[2];
                     }
@@ -424,19 +392,16 @@ class FeaturedCreaturesAPI
                         $sciname = $names_arr[1] . " " . trim($names_arr[0]) . " " . trim($names_arr[2]);
                         $vernacular = $names_arr[3];
                     }
-                    elseif($comma_count == 4)
-                    {
+                    elseif($comma_count == 4) {
                         $sciname = $names_arr[1] . " " . trim($names_arr[0]) . " " . trim($names_arr[2]);
                         $vernacular = $names_arr[3];
                     }
-                    elseif($comma_count == 0)
-                    {
+                    elseif($comma_count == 0) {
                         echo "\n zero comma count: [$rec]";
                         $sciname = $names_arr[0];
                         $vernacular = "";
                     }
-                    else
-                    {
+                    else {
                         echo "\n\n alert: [$comma_count] [$rec]";
                         return array();
                     }
@@ -446,14 +411,17 @@ class FeaturedCreaturesAPI
                     // manual adjustment
                     if($sciname == "Leptoglossus zonatus") $vernacular = "western leaffooted bug";
                     if($sciname == "spp. Tritoma") $sciname = "Tritoma spp.";
+                    
+                    $sciname = Functions::remove_whitespace(str_replace("&nbsp;", " ", $sciname));
+                    $vernacular = Functions::remove_whitespace(str_replace("&nbsp;", " ", $vernacular));
+                    
                     echo "\n sciname: [$sciname] [$vernacular]";
                     if($sciname) $taxa[$sciname] = array("taxon_id" => str_ireplace(" ", "_", $sciname), "sciname" => $sciname, "vernacular" => $vernacular, "url" => $this->domain . $url);
                 }
                 return $taxa;
             }
         }
-        else
-        {
+        else {
             echo ("\n Problem with the remote file: $this->taxa_list_url");
             return false;
         }
@@ -466,17 +434,22 @@ class FeaturedCreaturesAPI
         $taxon->taxonID = $rec["taxon_id"];
         $taxonRemarks = "";
         $taxon->scientificName              = (string) $rec["sciname"];
-        $taxon->vernacularName              = (string) $rec['vernacular'];
+        // $taxon->vernacularName              = (string) $rec['vernacular'];
         $taxon->furtherInformationURL       = (string) $rec['url'];
         $this->taxa[$rec["taxon_id"]] = $taxon;
+        
+        if($comname = @$rec['vernacular']) {
+            $v = new \eol_schema\VernacularName();
+            $v->taxonID         = $rec["taxon_id"];
+            $v->vernacularName  = trim($comname);
+            $v->language        = 'en';
+            $this->archive_builder->write_object_to_file($v);
+        }
     }
 
     function create_archive()
     {
-        foreach($this->taxa as $t)
-        {
-            $this->archive_builder->write_object_to_file($t);
-        }
+        foreach($this->taxa as $t) $this->archive_builder->write_object_to_file($t);
         $this->archive_builder->finalize(true);
     }
 
@@ -679,6 +652,31 @@ class FeaturedCreaturesAPI
         elseif(is_numeric(stripos($title, "Spread"))) $subject = $this->SPM . "#Dispersal";
         elseif(is_numeric(stripos($title, "Key"))) $subject = $this->SPM . "#Key";
         elseif(is_numeric(stripos($title, "Treatment"))) $subject = $this->SPM . "#RiskStatement";
+        elseif(is_numeric(stripos($title, "Medicinal Uses"))) $subject = $this->SPM . "#Uses";
+        elseif(is_numeric(stripos($title, "Viral Symbiosis"))) $subject = $this->SPM . "#Associations";
+        elseif(is_numeric(stripos($title, "Role as Pollinators"))) $subject = $this->SPM . "#Dispersal";
+        elseif(is_numeric(stripos($title, "Ecosystem Effects"))) $subject = $this->SPM . "#Threats";
+        elseif(is_numeric(stripos($title, "Nomenclature"))) $subject = $this->EOL . "#Taxonomy";
+        elseif(is_numeric(stripos($title, "Other Squash Bugs"))) $subject = $this->SPM . "#Associations";
+        elseif(is_numeric(stripos($title, "Targeted Aquatic Plants"))) $subject = $this->SPM . "#Associations";
+        elseif(is_numeric(stripos($title, "Cultural Entomology"))) $subject = $this->SPM . "#Uses";
+        elseif(is_numeric(stripos($title, "Other Widow Species"))) $subject = $this->SPM . "#Associations";
+        elseif(is_numeric(stripos($title, "Plant Consumption"))) $subject = $this->SPM . "#Uses";
+        elseif(is_numeric(stripos($title, "Reporting"))) $subject = $this->SPM . "#Management";
+        elseif(is_numeric(stripos($title, "Threatened Status"))) $subject = $this->SPM . "#Conservation";
+        elseif(is_numeric(stripos($title, "Detection and Density Estimation"))) $subject = $this->SPM . "#Management";
+        elseif(is_numeric(stripos($title, "Stocking Rates"))) $subject = $this->SPM . "#Management";
+        elseif(is_numeric(stripos($title, "Malaria"))) $subject = $this->SPM . "#Threats";
+        elseif(is_numeric(stripos($title, "List of Social Species in Florida"))) $subject = $this->SPM . "#Associations";
+        elseif(is_numeric(stripos($title, "Other Species"))) $subject = $this->SPM . "#Associations";
+        elseif(is_numeric(stripos($title, "Annotated List of Species"))) $subject = $this->SPM . "#Associations";
+        elseif(is_numeric(stripos($title, "Florida Species"))) $subject = $this->SPM . "#Associations";
+        elseif(is_numeric(stripos($title, "Annotated List  of Florida Oedemeridae"))) $subject = $this->SPM . "#Associations";
+        else {
+            // echo "\n Investigate, cannot get subject for [$title]\n";
+            $this->debug['undefined subject'][$title] = '';
+            $subject = false;
+        }
         return $subject;
     }
 
