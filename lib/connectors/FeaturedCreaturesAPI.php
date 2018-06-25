@@ -31,7 +31,7 @@ class FeaturedCreaturesAPI
                 echo "\n $i of $total: " . $rec["sciname"];
                 if($articles) self::prepare_articles($rec);
                 else self::prepare_outlinks($rec);
-                // if($i == 95){} // debug
+                // if($i == 5) break; // debug
             }
             $this->create_archive();
         }
@@ -82,7 +82,7 @@ class FeaturedCreaturesAPI
         if($match)
         {
             $string = '<a href="#' . $term . '">' . $match;
-            echo "\n" . $string . "\n";
+            // echo "\n" . $string . "\n";
             $items = explode("-", $string);
             $items = array_filter(array_map('trim', $items)); // will trim all values of the array
             print_r($items);
@@ -138,7 +138,7 @@ class FeaturedCreaturesAPI
                 }
                 $href1 = '<a name="' . $name . '"';
                 $href1_noquote = '<a name=' . $name . '';
-                echo "\n $href1 -- $href2 \n";
+                // echo "\n $href1 -- $href2 \n";
                 $href1 = str_ireplace("/", "\/", $href1);
                 $href2 = str_ireplace("/", "\/", $href2);
                 $href1 = str_ireplace("(", "\(", $href1);
@@ -211,7 +211,7 @@ class FeaturedCreaturesAPI
                 $pos = stripos($description, "<p>");
                 if(is_numeric($pos) && $pos < 100) $description = trim(substr($description, $pos+3, strlen($description)));
 
-                echo "\n $title: [$description] \n";
+                // echo "\n $title: [$description] \n";
 
                 $identifier = (string) $rec["taxon_id"] . "_" . str_replace(" ", "_", $title);
                 if(in_array($identifier, $this->do_ids) || !$description) continue;
