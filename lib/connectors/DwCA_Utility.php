@@ -598,7 +598,7 @@ class DwCA_Utility
         foreach($records as $rec) {
             $i++;
             $taxon_id = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
-            $taxon_status = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
+            $taxon_status = (string) @$rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
             if(!in_array($taxon_id, $taxon_ids_with_objects) && !in_array($taxon_status, array('synonym'))) $records[$i] = null;
         }
         $records = array_filter($records); //remove null arrays
