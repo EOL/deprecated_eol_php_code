@@ -11,11 +11,19 @@ http://purl.org/dc/dcmitype/StillImage:      19103
 http://rs.tdwg.org/dwc/terms/taxon:          20654
 http://rs.gbif.org/terms/1.0/vernacularname: 4879
 
-544	Saturday 2017-10-07 09:33:30 PM	{"agent.tab":1,"media_resource.tab":19103,"taxon.tab":20654,"vernacular_name.tab":4879}
 544	Thursday 2017-10-19 10:49:56 PM	{              "media_resource.tab":13654,"taxon.tab":12554,"vernacular_name.tab":2610}
 544	Thursday 2017-11-23 06:23:13 AM	{              "media_resource.tab":13654,"taxon.tab":8119,"vernacular_name.tab":2610}  - MacMini
-544	Thursday 2017-11-23 07:49:49 AM	{              "media_resource.tab":19088,"taxon.tab":11393,"vernacular_name.tab":4878} - eol-archive
 544	Thursday 2017-11-23 11:34:12 AM	{              "media_resource.tab":13654,"taxon.tab":8119,"vernacular_name.tab":2610} - MacMini
+
+544	Saturday 2017-10-07 09:33:30 PM	{"agent.tab":1,  "media_resource.tab":19103,"taxon.tab":20654,"vernacular_name.tab":4879}
+544	Thursday 2017-11-23 07:49:49 AM	{                "media_resource.tab":19088,"taxon.tab":11393,"vernacular_name.tab":4878} - eol-archive
+544	Thursday 2018-04-05 05:35:40 AM	{"agent.tab":334,"media_resource.tab":19189,"taxon.tab":20646,"vernacular_name.tab":4950}
+
+544	Saturday 2018-05-05 06:01:01 AM	{"agent.tab":339,"media_resource.tab":19258,"taxon.tab":20696,"vernacular_name.tab":5008}
+544	Saturday 2018-05-05 06:01:26 AM	{"agent.tab":339,"media_resource.tab":19258,"taxon.tab":11458,"vernacular_name.tab":5008}
+
+544	Tuesday 2018-06-05 05:53:26 AM	{"agent.tab":323,"media_resource.tab":17612,"taxon.tab":19785,"vernacular_name.tab":4224}
+544	Tuesday 2018-06-05 05:53:51 AM	{"agent.tab":323,"media_resource.tab":17612,"taxon.tab":10823,"vernacular_name.tab":4224}
 */
 
 ini_set('error_reporting', E_ALL);

@@ -31,6 +31,7 @@ Total by format
 --- Total = 90982
 --------------------------------------------------------------- Back to main
 */
+echo "\nThis is now obsolete. There is now juat a single BOLDS resource.\n";
 return;
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
