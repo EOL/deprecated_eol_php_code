@@ -5,6 +5,7 @@ class HymenopteraAPI
 {
     function __construct($folder)
     {
+        $this->resource_id = $folder;
         $this->taxon_ids = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -13,15 +14,34 @@ class HymenopteraAPI
         $this->vernacular_name_ids = array();
         $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
         $this->text_path = array();
-        $this->zip_path = "https://dl.dropboxusercontent.com/u/7597512/Hymenoptera/Hymenoptera_6_Mar_2003.zip";
-        // $this->zip_path = "http://localhost/~eolit/cp/Hymenoptera/Hymenoptera_6_Mar_2003.zip";
-        // $this->zip_path = "http://localhost/~eolit/cp/Hymenoptera/Hymenoptera_small.zip";
+        // $this->zip_path = "https://dl.dropboxusercontent.com/u/7597512/Hymenoptera/Hymenoptera_6_Mar_2003.zip";
+        $this->zip_path = "http://localhost/cp/Hymenoptera/Hymenoptera_6_Mar_2003.zip";
+        // $this->zip_path = "http://localhost/cp/Hymenoptera/Hymenoptera_small.zip";
         $this->occurrence_ids = array();
         $this->list_of_taxa = array();
+    }
+    private function additional_mappings() //specific for this resource and one from Tropicos
+    {
+        require_library('connectors/TropicosArchiveAPI');
+        $func = new TropicosArchiveAPI(NULL);
+        $uri_values = $func->add_additional_mappings(true); //add country mappings used in Tropicos
+        $this->uri_values = array_merge($this->uri_values, $uri_values);
+        echo "\n".count($this->uri_values)." - URIs were added from Tropicos. \n";
+        
+        //add mappings specific to this resource: Turbellaria 185
+        $mappings_specific_to_this_resource = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/Turbellaria/unmapped_countries%202%202.txt";
+        $uri_values = $func->add_additional_mappings(true, $mappings_specific_to_this_resource);
+        $this->uri_values = array_merge($this->uri_values, $uri_values);
+        echo "\n".count($this->uri_values)." - URIs were added from Turbellarian. \n";
     }
 
     function get_all_taxa()
     {
+        $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        echo "\n".count($this->uri_values). " - default URIs from EOL registry.";
+        self::additional_mappings(); //add more mappings specific only to this resource and one from Tropicos
+        
+        
         if(self::process_text_files())
         {
             $this->create_archive();
@@ -30,6 +50,15 @@ class HymenopteraAPI
             recursive_rmdir($parts["dirname"]);
             debug("\n temporary directory removed: " . $parts["dirname"]);
         }
+        //start stats for un-mapped countries
+        if(isset($this->unmapped_countries)) {
+            $OUT = Functions::file_open(DOC_ROOT."/tmp/664_unmapped_countries.txt", "w");
+            $countries = array_keys($this->unmapped_countries);
+            sort($countries);
+            foreach($countries as $c) fwrite($OUT, $c."\n");
+            fclose($OUT);
+        }
+        
     }
 
     private function process_text_files()
@@ -77,10 +106,14 @@ class HymenopteraAPI
         echo "\n link: " . count($link) . "\n";
 
         $free_text          = self::process_free_text($func, $link);
-        $geo_data           = self::process_geo_data($link);
+        $geo_data           = self::process_geo_data($link); //working but only a handful of trait data for measurementType 'present'
         $ecology            = self::process_ecology($func, $link);
+        
+        /* working but commented. Un-finished task see: https://eol-jira.bibalex.org/browse/DATA-1275?focusedCommentId=57769&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-57769
         $pollen_visitation  = self::process_pollen_visitation($func, $link);
         $predation          = self::process_predation($func, $link);
+        */
+        
         return true;
 
         /* Waiting from SPG on items below this line */
@@ -167,19 +200,38 @@ class HymenopteraAPI
                 
                 if($desc = trim($desc))
                 {
+                    /* commented. Decided to just use text media object as distribution and no longer trait data 'present'
                     if($taxon_id = @$link[$idnum])
                     {
-                        self::add_string_types($taxon_id, "Distribution", $desc);
-                        $with_data = true;
-                        // echo "\n geodata: [$desc]";
-                        // $k++; if($k >= 50) break; // debug to limit during preview phase
+                        if($country_uri = self::get_country_uri($desc)) {
+                            self::add_string_types($taxon_id, "Distribution", $country_uri, $desc); //previously value is $desc, now it is USA - http://www.geonames.org/6252001
+                            $with_data = true;
+                            // $k++; if($k >= 50) break; // debug to limit during preview phase
+                        } //mapped OK
+                        else {
+                            $this->unmapped_countries[$desc] = ''; //for stats only
+                            continue; //will wait for Jen's mapping so we get all country strings its respective country URI
+                        }
                     }
                     else
                     {
                         $investigate++;
                         echo("\n investigate: distribution: {$taxon_id}[$desc] -- IDNUM = " . $idnum . "\n");
                     }
+                    */
                 }
+                
+                
+                if($desc = trim($desc))
+                {
+                    if($taxon_id = @$link[$idnum]) self::get_texts($desc, $taxon_id, '', '#Distribution', $idnum."_dist", $ref_ids, $agent_ids);
+                    else
+                    {
+                        $investigate++;
+                        echo("\n investigate: distribution: {$taxon_id}[$desc] -- IDNUM = " . $idnum . "\n");
+                    }
+                }
+                
             }
         }
         echo "\n investigate: $investigate \n";
@@ -367,16 +419,16 @@ class HymenopteraAPI
         foreach($names as $taxon_name)
         {
             $taxon_name_id = str_ireplace(" ", "_", Functions::canonical_form($taxon_name));
-            $occurrence = $this->add_occurrence($taxon_id, $taxon_name_id . "_$type");
+            $occurrence_id = $this->add_occurrence($taxon_id, $taxon_name_id . "_$type");
             $related_taxon = $this->add_taxon($taxon_name);
-            $related_occurrence = $this->add_occurrence($related_taxon->taxonID, $taxon_id . "_$type");
+            $related_occurrence_id = $this->add_occurrence($related_taxon->taxonID, $taxon_id . "_$type");
             $a = new \eol_schema\Association();
-            $a->occurrenceID = $occurrence->occurrenceID;
+            $a->occurrenceID = $occurrence_id;
             if($type == "Predator") $a->associationType = "http://eol.org/schema/terms/HasPredator";
             if($type == "Prey")     $a->associationType = "http://eol.org/schema/terms/preysUpon";
             if($type == "Visits")   $a->associationType = "http://eol.org/schema/terms/FlowersVisitedBy";
             if($type == "Pollen")   $a->associationType = "http://eol.org/schema/terms/FlowersVisitedBy";
-            $a->targetOccurrenceID = $related_occurrence->occurrenceID;
+            $a->targetOccurrenceID = $related_occurrence_id;
             $this->archive_builder->write_object_to_file($a);
         }
     }
@@ -683,30 +735,51 @@ class HymenopteraAPI
         return explode(";", $string);
     }
 
-    private function add_string_types($taxon_id, $label, $value)
+    private function add_string_types($taxon_id, $label, $value, $mremarks = null)
     {
         $m = new \eol_schema\MeasurementOrFact();
-        $occurrence = $this->add_occurrence($taxon_id, $label);
-        $m->occurrenceID = $occurrence->occurrenceID;
+        $occurrence_id = $this->add_occurrence($taxon_id, $label);
+        $m->occurrenceID = $occurrence_id;
         if(in_array($label, array("Prey", "Predator", "Pollen", "Visits", "Distribution"))) $m->measurementOfTaxon = 'true';
         if($label == "Occurrence ID")    $m->measurementType = "http://rs.tdwg.org/dwc/terms/occurrenceID";
         elseif($label == "Distribution") $m->measurementType = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution";
-        else $m->measurementType = "http://hymenoptera.org/". SparqlClient::to_underscore($label);
         $m->measurementValue = $value;
+        $m->measurementRemarks = $mremarks;
         $m->contributor = 'Catalog of Hymenoptera in America North of Mexico';
-        $this->archive_builder->write_object_to_file($m);
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        if(!isset($this->measurement_ids[$m->measurementID]))
+        {
+            $this->archive_builder->write_object_to_file($m);
+            $this->measurement_ids[$m->measurementID] = '';
+        }
     }
 
     private function add_occurrence($taxon_id, $label)
     {
         $occurrence_id = md5($taxon_id . "_" . str_replace(" ", "_", $label));
-        if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
-        $this->archive_builder->write_object_to_file($o);
-        $this->occurrence_ids[$occurrence_id] = $o;
-        return $o;
+
+        if(isset($this->occurrence_ids[$occurrence_id])) return $occurrence_id;
+        else
+        {
+            $this->archive_builder->write_object_to_file($o);
+            $this->occurrence_ids[$occurrence_id] = '';
+            return $occurrence_id;
+        }
+
+    }
+    private function get_country_uri($country)
+    {
+        if($val = @$this->uri_values[$country]) return $val;
+        else {
+            // /* working OK but too hard-coded, better to read the mapping from external file
+            switch ($country) {
+                case "Brazil	 	 ": return "http://www.geonames.org/3469034";
+            }
+            // */
+        }
     }
 
     function create_instances_from_taxon_object($rec, $link)
