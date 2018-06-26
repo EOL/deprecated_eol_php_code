@@ -11,86 +11,66 @@ class MycoBankAPI
         $this->synonym_ids = array();
         $this->name_id = array();
         $this->invalid_statuses = array("Orthographic variant", "Invalid", "Illegitimate", "Uncertain", "Unavailable", "Deleted");
-        $this->download_options = array('resource_id' => 671, 'download_wait_time' => 5000000, 'timeout' => 7200, 'delay_in_minutes' => 3, 'expire_seconds' => 60*60*24*30*2); // 2 months expire_seconds
+        $this->service_search["startswith_legitimate"] = 'http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&limit=0&filter=NameStatus_="Legitimate" AND Name STARTSWITH ';
+        $this->service_search["startswith"] = 'http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&limit=0&filter=Name STARTSWITH ';
+        $this->service_search["exact"]      = 'http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&limit=0&filter=Name=';
+        $this->download_options = array('download_wait_time' => 5000000, 'expire_seconds' => 5184000, 'timeout' => 7200, 'delay_in_minutes' => 3); // 2 months expire_seconds
+		$this->download_options['expire_seconds'] = false;
+        // $this->download_options['cache_path'] = "/Volumes/Eli blue/eol_cache/"; -- no longer used
+        // /*
+        $this->mycobank_taxa_list              = "http://localhost/cp/MycoBank/mycobank_taxon.tab";
+        $this->not_found_from_previous_harvest = "http://localhost/cp/MycoBank/not_found_from_previous_harvest.txt"; // alias names_not_yet_entered.txt
+        // */
+        // $this->mycobank_taxa_list              = "https://dl.dropboxusercontent.com/u/7597512/MycoBank/mycobank_taxon.tab";
+        // $this->not_found_from_previous_harvest = "https://dl.dropboxusercontent.com/u/7597512/MycoBank/not_found_from_previous_harvest.txt";
 
-        $this->zip_path = "http://localhost/cp/MycoBank/latest/MBList.zip"; //spreadsheet .xlsx in zip
-        $this->api['_id'] = "http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&filter=_id=";
+        $this->dont_search_more_than_5h = array("Phoma ", "Uredo ", "Entoloma ", "Lichen ", "Patellaria ", "Hygrophorus ", "Mollisia ", "Omphalia ", "Cordyceps ", 
+        "Gloeosporium ", "Collema ", "Pholiota ", "Sticta ", "Placodium ", "Biatora ", "Thelephora ", "Lycoperdon ", "Thelotrema ", "Peltigera ", "Hydnum ", "Passalora ", 
+        "Pestalotia ", "Trametes ", "Pluteus ", "Peniophora ", "Candida ", "Valsa ", "Coprinus ", "Psilocybe ", "Diaporthe ", "Uromyces ", "Puccinia ", "Agaricus ",
+        "Metasphaeria ", "Aspicilia ", "Poria ", "Pyrenula ", "Pleurotus ", "Acarospora ", "Catillaria ", "Alternaria ", "Sphaeropsis ", "Coniothyrium ", 
+        "Helminthosporium ", "Cetraria ", "Calicium ", "Cytospora ", "Phyllosticta ", "Macrophoma ", "Hymenoscyphus ", "Aspergillus ", "Colletotrichum ", "Rhodophyllus ", 
+        "Mucor ", "Peronospora ", "Porina ", "Cladosporium ", "Stereocaulon ", "Stereum ", "Rhizocarpon ", "Rhabdospora ", "Laboulbenia ", "Lentinus ", "Naucoria ", 
+        "Xanthoparmelia ", "Xylaria ", "Crepidotus ", "Dasyscyphus ", "Hebeloma ", "Dicaeoma ", "Fomes ", "Arthopyrenia ", "Ramaria ", "Hygrocybe ", "Graphina ",
+        "Saccharomyces ", "Physarum ", "Merulius ", "Tremella ", "Dothidea ", "Camarosporium ", "Cercospora ", "Fusarium ", "Sphaerella ", "Parmelia ", "Lecanora ",  
+        "Verrucaria ", "Lecidea ", "Sphaeria ", "Ascochyta ", "Hendersonia ", "Physcia ", "Helotium ", "Boletus ", "Buellia ", "Diplodia ", "Peziza ", "Nectria ", 
+        "Lepiota ", "Asterina ", "Collybia ", "Leptosphaeria ", "Pleospora ", "Erysiphe ", "Arthonia ", "Hypoxylon ", "Clitocybe ", "Graphis ", "Opegrapha ", 
+        "Rinodina ", "Mycosphaerella ", "Phomopsis ", "Phyllachora ", "Pseudocercospora ", "Marasmius ", "Usnea ", "Ustilago ", "Clavaria ", "Bacidia ", "Polystictus ", 
+        "Aecidium ", "Psathyrella ", "Ramularia ", "Corticium ", "Polyporus ", "Ramalina ", "Amanita ", "Tricholoma ", "Lactarius ", "Penicillium ", "Septoria ", 
+        "Russula ", "Cladonia ", "Inocybe ", "Meliola ", "Caloplaca ", "Cortinarius ", "Agaricus p", "Agaricus c", "Camarosporium p", "Pertusaria ", "Sphaeronaema ", 
+        "Parmelia c", "Parmelia p", "Parmelia s", "Lecanora c", "Lecanora s", "Puccinia a", "Puccinia c", "Puccinia p", "Agaricus a", "Agaricus m", "Lecidea a", 
+        "Lecidea c", "Lecidea p", "Lecidea s", "Sphaeria c", "Oidium ", "Stagonospora ", "Didymosphaeria ", "Diplodina ", "Didymella ", "Mycena ", "Agaricus s", 
+        "Montagnellaceae ", "Cantharellus ", "Conocybe ", "Lachnum ", "Allantoporthe ", "Eccilia ", "Phaeangium ", "Hypochnus ", "Hypocline ", "Hypocopra ", 
+        "Melaspilea ", "Pseudomicrocera ", "Pseudonectria ", "Hypocrea ", "Asteridiella ", "Fungus ", "Cortinarius c", "Cortinarius p", "Cortinarius s");
+        
+        $this->dont_search_these_strings_as_well = array("");
+        $this->dump_no = 0;
+        $this->dump_no2 = 1;
+
+        //for stats
+        $this->TEMP_DIR = create_temp_dir() . "/";
+        // $this->TEMP_DIR = DOC_ROOT . '/public/tmp/mycobank/'; //debug
+        $this->dump_file                        = $this->TEMP_DIR . "mycobank_dump.txt";
+        $this->names_with_error_dump_file       = $this->TEMP_DIR . "names_with_error.txt"; // stores names when API timesout or has errors
+        $this->more_than_1k                     = $this->TEMP_DIR . "more_than_1k.txt";
+        $this->more_than_5h                     = $this->TEMP_DIR . "more_than_5h.txt";
+        $this->taxa_dump_file                   = $this->TEMP_DIR . "dump_taxa.txt";
+        $this->names_not_yet_entered    = array();
+        $this->no_entry_parent          = array();
+        $this->no_entry_current         = array();
+        $this->no_entry_synonym         = array();
+        $this->names_not_yet_entered_dump_file  = $this->TEMP_DIR . "names_not_yet_entered.txt"; // stores names that are missing, not yet searched, not yet cached
+        $this->no_entry_parent_dump_file        = $this->TEMP_DIR . "no_entry_parent.txt";
+        $this->no_entry_current_dump_file       = $this->TEMP_DIR . "no_entry_current.txt";
+        $this->no_entry_synonym_dump_file       = $this->TEMP_DIR . "no_entry_synonym.txt";
         $this->debug = array();
-        /*
-        http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&filter=mycobanknr_="283905"
-        http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&filter=_id="58917"
+        /*  as of Apr 28 2014
+            type:
+                [Basionym] => 239143
+                [Combination] => 122550
+                [Nomen novum] => 4203
+            status:
+                [Legitimate] => 365896
         */
-    }
-    function start()
-    {
-        if(!self::load_zip_contents()) return FALSE;
-        self::parse_spreadsheet();
-        recursive_rmdir($this->TEMP_FILE_PATH);
-        exit("\n-stopx-\n");
-    }
-    private function parse_spreadsheet()
-    {
-        require_library('XLSParser');
-        $parser = new XLSParser();
-        debug("\n reading: " . $this->TEMP_FILE_PATH . "/Export.xlsx" . "...\n");
-        $arr = $parser->convert_sheet_to_array($this->TEMP_FILE_PATH . "/Export.xlsx", 0);
-        // print_r($arr);
-        $fields = array_keys($arr);
-        /* cols for sheet 0 [0 - 494461 records]
-        Array(
-            [0] => ID
-            [1] => Taxon_name
-            [2] => Authors
-            [3] => Year_of_publication
-            [4] => MycoBank__
-            [5] => Current name.Taxon_name
-            [6] => Website
-        )
-        */
-        /*
-        foreach($fields as $field) {
-            echo "\n[$field]";
-            for($i = 0; $i <= 20; $i++) {
-                echo "\n".$arr[$field][$i];
-            }
-        }
-        */
-        $k = 0;
-        $m = count($arr['ID'])/5;
-        foreach($arr['ID'] as $id) {
-            // /* breakdown when caching:
-            $cont = false; $k++; echo "\n[$k.] ";
-            if($k >=  1    && $k < $m) $cont = true;
-            // if($k >=  $m   && $k < $m*2) $cont = true;
-            // if($k >=  $m*2 && $k < $m*3) $cont = true;
-            // if($k >=  $m*3 && $k < $m*4) $cont = true;
-            // if($k >=  $m*4 && $k < $m*5) $cont = true;
-            if(!$cont) continue;
-            // */
-            
-            Functions::lookup_with_cache($this->api['_id'].'"'.$id.'"', $this->download_options);
-        }
-        
-        
-    }
-    private function load_zip_contents()
-    {
-        $this->TEMP_FILE_PATH = create_temp_dir() . "/";
-        echo "\nTemp. dir: [$this->TEMP_FILE_PATH]\n";
-        if($file_contents = Functions::lookup_with_cache($this->zip_path, $this->download_options)) {
-            $parts = pathinfo($this->zip_path);
-            $temp_file_path = $this->TEMP_FILE_PATH . "/" . $parts["basename"];
-            if(!($TMP = Functions::file_open($temp_file_path, "w"))) return;
-            fwrite($TMP, $file_contents);
-            fclose($TMP);
-            $output = shell_exec("unzip $temp_file_path -d $this->TEMP_FILE_PATH");
-            if(file_exists($this->TEMP_FILE_PATH . "/Export.xlsx")) return TRUE;
-            else return FALSE;
-        }
-        else {
-            debug("\n\n Connector terminated. Remote files are not ready.\n\n");
-            return FALSE;
-        }
     }
 
     function get_all_taxa()
