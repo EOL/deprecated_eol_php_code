@@ -11,7 +11,7 @@ class MycoBankAPI
         $this->synonym_ids = array();
         $this->name_id = array();
         $this->invalid_statuses = array("Orthographic variant", "Invalid", "Illegitimate", "Uncertain", "Unavailable", "Deleted");
-        $this->download_options = array('resource_id' => 671, 'download_wait_time' => 5000000, 'timeout' => 7200, 'delay_in_minutes' => 3, 'expire_seconds' => 60*60*24*30*2); // 2 months expire_seconds
+        $this->download_options = array('resource_id' => 671, 'download_wait_time' => 1000000, 'timeout' => 7200, 'delay_in_minutes' => 3, 'expire_seconds' => 60*60*24*30*2); // 2 months expire_seconds
 
         $this->zip_path = "http://localhost/cp/MycoBank/latest/MBList.zip"; //spreadsheet .xlsx in zip
         $this->api['_id'] = "http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&filter=_id=";
@@ -20,19 +20,74 @@ class MycoBankAPI
         http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&filter=mycobanknr_="283905"
         http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&filter=_id="58917"
         */
+        $this->cannot_access_ids_file = DOC_ROOT."/tmp/671_cannot_access_ids.txt";
+    }
+    
+    function saving_ids_2text() // utility only, run only once
+    {
+        if(!self::load_zip_contents()) return FALSE;
+        require_library('XLSParser');
+        $parser = new XLSParser();
+        debug("\n reading: " . $this->TEMP_FILE_PATH . "/Export.xlsx" . " ...\n");
+        $arr = $parser->convert_sheet_to_array($this->TEMP_FILE_PATH . "/Export.xlsx", 0);
+        $OUT = Functions::file_open(DOC_ROOT."/tmp/671_ids_list.txt", "w");
+        foreach($arr['ID'] as $id) fwrite($OUT, $id."\n");
+        fclose($OUT);
+        recursive_rmdir($this->TEMP_FILE_PATH);
+        exit("\n-utility saving_ids_2text() done-\n");
+    }
+    function access_text_for_caching() //utility only, for caching
+    {
+        $filename = DOC_ROOT."/tmp/671_ids_list.txt";
+        $m = 494461/5; $k = 0;
+        foreach(new FileIterator($filename) as $line_number => $id) {
+            // /* breakdown when caching:
+            $cont = false; $k++; echo "\n[$k.] ";
+            // if($k >=  1    && $k < $m) $cont = true;
+            // if($k >=  $m   && $k < $m*2) $cont = true;
+            // if($k >=  $m*2 && $k < $m*3) $cont = true;
+            // if($k >=  $m*3 && $k < $m*4) $cont = true;
+            if($k >=  $m*4 && $k < $m*5) $cont = true;
+            if(!$cont) continue;
+            // */
+            Functions::lookup_with_cache($this->api['_id'].'"'.$id.'"', $this->download_options);
+        }
+        exit("\n-utility access_text_for_caching() done-\n");
     }
     function start()
     {
+        // /* testing...
+        self::process_id(1);
+        
+        exit;
+        // */
+        
         if(!self::load_zip_contents()) return FALSE;
         self::parse_spreadsheet();
         recursive_rmdir($this->TEMP_FILE_PATH);
         exit("\n-stopx-\n");
     }
+    private function process_id($id)
+    {
+        $xmlstr = Functions::lookup_with_cache($this->api['_id'].'"'.$id.'"', $this->download_options);
+        if($response = simplexml_load_string($xmlstr)) {
+            if(isset($response->ErrorMessage)) {
+                echo "\n investigate error id [$id]: " . $response->ErrorMessage . "\n";
+                self::save_to_dump($param, $this->cannot_access_ids_file);
+                continue;
+            }
+
+            $no_of_results = count($response->Taxon);
+            if($no_of_results > 0) {
+                print_r($response);
+            }
+        }
+    }
     private function parse_spreadsheet()
     {
         require_library('XLSParser');
         $parser = new XLSParser();
-        debug("\n reading: " . $this->TEMP_FILE_PATH . "/Export.xlsx" . "...\n");
+        debug("\n reading: " . $this->TEMP_FILE_PATH . "/Export.xlsx" . " ...\n");
         $arr = $parser->convert_sheet_to_array($this->TEMP_FILE_PATH . "/Export.xlsx", 0);
         // print_r($arr);
         $fields = array_keys($arr);
@@ -47,7 +102,7 @@ class MycoBankAPI
             [6] => Website
         )
         */
-        /*
+        /* display first 20 values for each field.
         foreach($fields as $field) {
             echo "\n[$field]";
             for($i = 0; $i <= 20; $i++) {
@@ -57,21 +112,6 @@ class MycoBankAPI
         */
         $k = 0;
         $m = count($arr['ID'])/5;
-        foreach($arr['ID'] as $id) {
-            // /* breakdown when caching:
-            $cont = false; $k++; echo "\n[$k.] ";
-            if($k >=  1    && $k < $m) $cont = true;
-            // if($k >=  $m   && $k < $m*2) $cont = true;
-            // if($k >=  $m*2 && $k < $m*3) $cont = true;
-            // if($k >=  $m*3 && $k < $m*4) $cont = true;
-            // if($k >=  $m*4 && $k < $m*5) $cont = true;
-            if(!$cont) continue;
-            // */
-            
-            Functions::lookup_with_cache($this->api['_id'].'"'.$id.'"', $this->download_options);
-        }
-        
-        
     }
     private function load_zip_contents()
     {
@@ -92,7 +132,19 @@ class MycoBankAPI
             return FALSE;
         }
     }
-
+    private function save_to_dump($data, $filename)
+    {
+        if(!($WRITE = Functions::file_open($filename, "a"))) return;
+        if($data && is_array($data)) fwrite($WRITE, json_encode($data, true) . "\n");
+        else                         fwrite($WRITE, $data . "\n");
+        fclose($WRITE);
+    }
+    private function initialize_dump_file()
+    {
+        if(!($WRITE = Functions::file_open($this->dump_file, "w"))) return;
+        fclose($WRITE);
+    }
+    //#########################################################################################################################################################
     function get_all_taxa()
     {
         // not found from last harvest
@@ -874,29 +926,6 @@ class MycoBankAPI
         // }
         $this->archive_builder->finalize(TRUE);
     }
-
-    private function save_to_dump($data, $filename)
-    {
-        if(!($WRITE = fopen($filename, "a")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
-          return;
-        }
-        if($data && is_array($data)) fwrite($WRITE, json_encode($data, true) . "\n");
-        else                         fwrite($WRITE, $data . "\n");
-        fclose($WRITE);
-    }
-
-    private function initialize_dump_file()
-    {
-        if(!($WRITE = fopen($this->dump_file, "w")))
-        {
-          debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $this->dump_file);
-          return;
-        }
-        fclose($WRITE);
-    }
-
     private function append_space_in_string($names)
     {
         $list = array();

@@ -10,7 +10,14 @@ require_library('connectors/MycoBankAPI');
 $timestart = time_elapsed();
 $resource_id = 671;
 $func = new MycoBankAPI($resource_id);
-$func->start();
+
+// /* utilities only, comment in real operation
+// $func->saving_ids_2text(); exit; // utility only, run only once
+$func->access_text_for_caching(); exit; //utility only, for caching
+// */
+
+// $func->start();
+
 Functions::finalize_dwca_resource($resource_id);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
