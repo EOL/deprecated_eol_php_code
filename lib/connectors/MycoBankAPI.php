@@ -11,14 +11,15 @@ class MycoBankAPI
         $this->synonym_ids = array();
         $this->name_id = array();
         $this->invalid_statuses = array("Orthographic variant", "Invalid", "Illegitimate", "Uncertain", "Unavailable", "Deleted");
-        $this->download_options = array('resource_id' => 671, 'download_wait_time' => 1000000, 'timeout' => 7200, 'delay_in_minutes' => 3, 'expire_seconds' => 60*60*24*30*2); // 2 months expire_seconds
+        $this->download_options = array('resource_id' => 671, 'download_wait_time' => 1000000, 'timeout' => 7200, 'delay_in_minutes' => 1, 'expire_seconds' => 60*60*24*30*2); // 2 months expire_seconds
 
         $this->zip_path = "http://localhost/cp/MycoBank/latest/MBList.zip"; //spreadsheet .xlsx in zip
         $this->api['_id'] = "http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&filter=_id=";
         $this->debug = array();
         /*
-        http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&filter=mycobanknr_="283905"
-        http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&filter=_id="58917"
+        http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&filter=_id="59827"
+        http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&filter=mycobanknr_="81043"
+        http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&filter=name CONTAINS "Selenia perforans"
         */
         $this->cannot_access_ids_file = DOC_ROOT."/tmp/671_cannot_access_ids.txt";
     }
@@ -43,22 +44,21 @@ class MycoBankAPI
         foreach(new FileIterator($filename) as $line_number => $id) {
             // /* breakdown when caching:
             $cont = false; $k++; echo "\n[$k.] ";
-            // if($k >=  1    && $k < $m) $cont = true;
+            if($k >=  1    && $k < $m) $cont = true;
             // if($k >=  $m   && $k < $m*2) $cont = true;
             // if($k >=  $m*2 && $k < $m*3) $cont = true;
             // if($k >=  $m*3 && $k < $m*4) $cont = true;
             // if($k >=  $m*4 && $k < $m*5) $cont = true;
-            if($k >=  $m*5 && $k < $m*6) $cont = true;
+            // if($k >=  $m*5 && $k < $m*6) $cont = true;
             if(!$cont) continue;
             // */
-            // Functions::lookup_with_cache($this->api['_id'].'"'.$id.'"', $this->download_options);
             self::process_id($id);
         }
-        exit("\n-utility access_text_for_caching() done-\n");
+        exit("\n-caching done-\n");
     }
     function start()
     {
-        // /* testing
+        /* testing
         $ret = self::process_id(449153);
         if($ret['parent_id'] == 56879) echo "\ntest 1 passed OK\n";
         $ret = self::process_id(319124);
@@ -66,10 +66,10 @@ class MycoBankAPI
         $ret = self::process_id(119112);
         if(!$ret) echo "\ntest 3 passed OK\n";
         exit;
-        // */
+        */
         
         // /* testing...
-        $basic = self::process_id(59827); //319124 449153   119112 ignored
+        $basic = self::process_id(59827); //319124  449153  119112 ignored
         print_r($basic);
         exit("\n-end testing-\n");
         // */
@@ -79,13 +79,23 @@ class MycoBankAPI
         recursive_rmdir($this->TEMP_FILE_PATH);
         exit("\n-stopx-\n");
     }
+    private function write_taxon($basic)
+    {
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID                     = $taxon_id;
+        $taxon->scientificName              = $sciname;
+        $taxon->scientificNameAuthorship    = @$rec["a"];
+        $taxon->taxonRank                   = $rank;
+        $taxon->acceptedNameUsageID         = "";
+        
+    }
     private function without_error($url)
     {
         $xmlstr = Functions::lookup_with_cache($url, $this->download_options);
         if($response = simplexml_load_string($xmlstr)) {
             if(isset($response->ErrorMessage)) {
                 echo "\n investigate error url [$url]: " . $response->ErrorMessage . "\n";
-                self::save_to_dump($param, $this->cannot_access_ids_file);
+                self::save_to_dump($url, $this->cannot_access_ids_file);
                 return false;
             }
             else return $response;

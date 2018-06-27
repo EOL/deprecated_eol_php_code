@@ -722,6 +722,7 @@ class MycoBankAPI
             case "subsect.": return "subsection";
             case "subfam.":  return "subfamily";
             case "subtr.":   return "subtribe";
+            case "regn.":    return "kingdom";
             // below this line are unrecognized ranks
             case "trF.":     return "trF.";
             case "subdivF.": return "subdivF.";
@@ -730,7 +731,6 @@ class MycoBankAPI
             case "*":        return "";
             case "stirps":   return "stirps";
             case "f.sp.":    return "f.sp.";
-            case "regn.":    return "regn.";
             default:
                 if($rank) echo "\n investigate: rank for [$sciname] not yet initialized [$rank]\n";
                 return "";
