@@ -48,8 +48,8 @@ class MycoBankAPI
             // if($k >=  $m   && $k < $m*2) $cont = true;
             // if($k >=  $m*2 && $k < $m*3) $cont = true;
             // if($k >=  $m*3 && $k < $m*4) $cont = true;
-            // if($k >=  $m*4 && $k < $m*5) $cont = true;
-            if($k >=  $m*5 && $k < $m*6) $cont = true;
+            if($k >=  $m*4 && $k < $m*5) $cont = true;
+            // if($k >=  $m*5 && $k < $m*6) $cont = true;
             if(!$cont) continue;
             // */
             self::process_id($id);
@@ -138,11 +138,9 @@ class MycoBankAPI
             }
         }
         
-        if(!isset($this->taxa[$taxon->taxonID]))
-        {
+        if(!isset($this->taxa[$taxon->taxonID])) {
             $this->taxa[$taxon->taxonID] = '';
-            if($taxon->acceptedNameUsageID == $taxon->taxonID)
-            {
+            if($taxon->acceptedNameUsageID == $taxon->taxonID) {
                 $taxon->acceptedNameUsageID = "";
                 $taxon->taxonomicStatus = "";
                 exit("\n should not go here 001 \n");
