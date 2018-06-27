@@ -75,7 +75,8 @@ class MycoBankAPI
             if($basic = self::process_id($id)) {
                 print_r($basic);
                 self::write_taxon($basic);
-                // this will add taxon entry for each of the ancestry
+                
+                // this will add taxon entry for each of the ancestry  ===================================
                 if($recs = $basic['ancestry']) {
                     foreach($recs as $rec) {
                         $id = $rec['Id'];
@@ -92,12 +93,13 @@ class MycoBankAPI
                                         self::write_taxon($basic3);
                                     }
                                 }
-                            }                            
+                            }
                             
                         }
                     }
                 } // ===========================================================================
-                // this will add taxon entry for the parent_id
+                
+                // this will add taxon entry for the parent_id ===================================
                 if($parent_id = $basic['parent_id']) {
                     if($basic = self::process_id($parent_id)) {
                         // print_r($basic);
