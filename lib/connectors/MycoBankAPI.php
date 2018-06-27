@@ -39,17 +39,18 @@ class MycoBankAPI
     function access_text_for_caching() //utility only, for caching
     {
         $filename = DOC_ROOT."/tmp/671_ids_list.txt";
-        $m = 494461/5; $k = 0;
+        $m = 494461/6; $k = 0;
         foreach(new FileIterator($filename) as $line_number => $id) {
-            /* breakdown when caching:
+            // /* breakdown when caching:
             $cont = false; $k++; echo "\n[$k.] ";
             // if($k >=  1    && $k < $m) $cont = true;
             // if($k >=  $m   && $k < $m*2) $cont = true;
             // if($k >=  $m*2 && $k < $m*3) $cont = true;
             // if($k >=  $m*3 && $k < $m*4) $cont = true;
-            if($k >=  $m*4 && $k < $m*5) $cont = true;
+            // if($k >=  $m*4 && $k < $m*5) $cont = true;
+            if($k >=  $m*5 && $k < $m*6) $cont = true;
             if(!$cont) continue;
-            */
+            // */
             // Functions::lookup_with_cache($this->api['_id'].'"'.$id.'"', $this->download_options);
             self::process_id($id);
         }
@@ -58,7 +59,7 @@ class MycoBankAPI
     function start()
     {
         // /* testing...
-        self::process_id(319124); //319124 449153
+        self::process_id(119112); //319124 449153   119112 ignored
         exit("\n-end testing-\n");
         // */
         
@@ -87,13 +88,29 @@ class MycoBankAPI
             $no_of_results = count($response->Taxon);
             if($no_of_results > 0 && $t = $response->Taxon) {
                 // print_r($t);
-                $ancestry = self::get_ancestry($t);
-                $parent_id = self::get_parent_id($ancestry);
                 $basic = self::get_basic_info($id);
+                $ancestry = self::get_ancestry($t);
+
+                /* if sciname != current_name and current_name not blank - then if sciname's parent is Illegitimate - ignore sciname */
+                // e.g. Selenia perforans will be ignored since the genus Selenia is Illegitimate and current_name anyway exists Montagnula perforans
+                if($basic['Name'] != @$basic['CurrentName']['Name'] && @$basic['CurrentName']['Name']) {
+                    $immediate_parent_status = self::get_immediate_parent_status($ancestry);
+                    if($immediate_parent_status != 'Legitimate') return false; //ignore taxon
+                } //=====================================================================================================
+                
+                $parent_id = self::get_parent_id($ancestry);
+                $basic['ancestry'] = $ancestry;
                 $basic['parent_id'] = $parent_id;
+                return $basic;
             }
         }
-        print_r($basic);
+        // print_r($basic);
+    }
+    private function get_immediate_parent_status($ancestry)
+    {
+        $ancestry = array_reverse($ancestry);
+        // print_r($ancestry); exit;
+        return @$ancestry[0]['NameStatus'];
     }
     private function get_parent_id($ancestry)
     {
@@ -111,7 +128,7 @@ class MycoBankAPI
     private function is_this_name_valid($id)
     {
         $rec = self::get_basic_info($id);
-        print_r($rec);
+        // print_r($rec);
         if($rec['NameStatus'] == 'Legitimate') return true;
         return false;
     }
@@ -134,7 +151,7 @@ class MycoBankAPI
         $url = $this->api['_id'].'"'.$id.'"';
         if($response = self::without_error($url)) {
             if(count($response->Taxon) > 0 && $rec = $response->Taxon) {
-                print_r($rec);
+                // print_r($rec);
                 $basic['Id'] = $id;
                 $basic['Name'] = (string) $rec->name;
                 $basic['CurrentName'] = self::tags_to_array((string) $rec->currentname_pt_);
