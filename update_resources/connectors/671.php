@@ -13,7 +13,7 @@ $func = new MycoBankAPI($resource_id);
 
 // /* utilities only, comment in real operation
 // $func->saving_ids_2text(); exit; // utility only, run only once
-// $func->access_text_for_caching(); exit; //utility only, for caching
+$func->access_text_for_caching(); exit; //utility only, for caching
 // */
 
 $func->start();

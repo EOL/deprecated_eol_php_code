@@ -578,7 +578,7 @@ class MycoBankAPI
             {
                 /* 
                 e.g. species "Chamaeceras brasiliensis" (449153) has a parent = "Chamaeceras" which is invalid, so we got the current_name of "Chamaeceras" which is "Marasmius" (56879)
-                e.g. species "Sphaerella tini" has a parent = "Sphaerella" but is invalid and there is no current_name. So we move to the next parent which is "Mycosphaerellaceae"
+                e.g. species "Sphaerella tini" (319124) has a parent = "Sphaerella" but is invalid and there is no current_name. So we move to the next parent which is "Mycosphaerellaceae" (92960)
                 */
                 foreach($this->invalid_statuses as $invalid_status)
                 {

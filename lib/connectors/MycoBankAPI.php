@@ -41,7 +41,7 @@ class MycoBankAPI
         $filename = DOC_ROOT."/tmp/671_ids_list.txt";
         $m = 494461/5; $k = 0;
         foreach(new FileIterator($filename) as $line_number => $id) {
-            // /* breakdown when caching:
+            /* breakdown when caching:
             $cont = false; $k++; echo "\n[$k.] ";
             // if($k >=  1    && $k < $m) $cont = true;
             // if($k >=  $m   && $k < $m*2) $cont = true;
@@ -49,16 +49,16 @@ class MycoBankAPI
             // if($k >=  $m*3 && $k < $m*4) $cont = true;
             if($k >=  $m*4 && $k < $m*5) $cont = true;
             if(!$cont) continue;
-            // */
-            Functions::lookup_with_cache($this->api['_id'].'"'.$id.'"', $this->download_options);
+            */
+            // Functions::lookup_with_cache($this->api['_id'].'"'.$id.'"', $this->download_options);
+            self::process_id($id);
         }
         exit("\n-utility access_text_for_caching() done-\n");
     }
     function start()
     {
         // /* testing...
-        self::process_id(449153);
-        
+        self::process_id(319124); //319124 449153
         exit("\n-end testing-\n");
         // */
         
