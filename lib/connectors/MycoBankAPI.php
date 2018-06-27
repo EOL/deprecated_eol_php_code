@@ -44,12 +44,12 @@ class MycoBankAPI
         foreach(new FileIterator($filename) as $line_number => $id) {
             // /* breakdown when caching:
             $cont = false; $k++; echo "\n[$k.] ";
-            if($k >=  1    && $k < $m) $cont = true;
+            // if($k >=  1    && $k < $m) $cont = true;
             // if($k >=  $m   && $k < $m*2) $cont = true;
             // if($k >=  $m*2 && $k < $m*3) $cont = true;
             // if($k >=  $m*3 && $k < $m*4) $cont = true;
             // if($k >=  $m*4 && $k < $m*5) $cont = true;
-            // if($k >=  $m*5 && $k < $m*6) $cont = true;
+            if($k >=  $m*5 && $k < $m*6) $cont = true;
             if(!$cont) continue;
             // */
             self::process_id($id);
@@ -69,25 +69,136 @@ class MycoBankAPI
         */
         
         // /* testing...
-        $basic = self::process_id(59827); //319124  449153  119112 ignored
-        print_r($basic);
-        exit("\n-end testing-\n");
+        $ids = array(59827, 319124, 449153, 119112, 1, 2);
+        // $ids = array(1,2); // 59827   319124   449153
+        foreach($ids as $id) {
+            if($basic = self::process_id($id)) {
+                print_r($basic);
+                self::write_taxon($basic);
+                // this will add taxon entry for each of the ancestry
+                if($recs = $basic['ancestry']) {
+                    foreach($recs as $rec) {
+                        $id = $rec['Id'];
+                        if($basic2 = self::process_id($id)) {
+                            // print_r($basic2);
+                            self::write_taxon($basic2);
+
+                            //2nd level of ancestry
+                            if($recs2 = $basic2['ancestry']) {
+                                foreach($recs2 as $rec) {
+                                    $id = $rec['Id'];
+                                    if($basic3 = self::process_id($id)) {
+                                        // print_r($basic3);
+                                        self::write_taxon($basic3);
+                                    }
+                                }
+                            }                            
+                            
+                        }
+                    }
+                } // ===========================================================================
+                // this will add taxon entry for the parent_id
+                if($parent_id = $basic['parent_id']) {
+                    if($basic = self::process_id($parent_id)) {
+                        // print_r($basic);
+                        self::write_taxon($basic);
+                    }
+                } // ===========================================================================
+            }
+        }
+        $this->archive_builder->finalize(TRUE);
+        // exit("\n-end testing-\n");
         // */
         
+        /* un-comment in normal operation
         if(!self::load_zip_contents()) return FALSE;
         self::parse_spreadsheet();
         recursive_rmdir($this->TEMP_FILE_PATH);
-        exit("\n-stopx-\n");
+        */
+        // exit("\n-stopx-\n");
     }
     private function write_taxon($basic)
     {
         $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID                     = $taxon_id;
-        $taxon->scientificName              = $sciname;
-        $taxon->scientificNameAuthorship    = @$rec["a"];
-        $taxon->taxonRank                   = $rank;
+        $taxon->taxonID                     = $basic['Id'];
+        $taxon->scientificName              = $basic['Name'];
+        $taxon->scientificNameAuthorship    = $basic['Authors'];
+        $taxon->taxonRank                   = self::format_rank($basic['Rank']['Name'], $basic['Rank']['Id'], $basic['Id']);
+        $taxon->parentNameUsageID           = $basic['parent_id'];
         $taxon->acceptedNameUsageID         = "";
+        $taxon->taxonomicStatus             = self::get_taxonomic_status($basic['NameStatus']);
+        if($taxon->taxonomicStatus != 'valid') return; //this may prevent from creating many synonyms. But it is ok since it was able to create Id = 2 as 'synonym'.
         
+        if($current_name_id = @$basic['CurrentName']['Id']) { //will create a synonym
+            if($current_name_id != $basic['Id']) {
+                $taxon->acceptedNameUsageID = $current_name_id;
+                $taxon->taxonomicStatus = "synonym";
+            }
+        }
+        
+        if(!isset($this->taxa[$taxon->taxonID]))
+        {
+            $this->taxa[$taxon->taxonID] = '';
+            if($taxon->acceptedNameUsageID == $taxon->taxonID)
+            {
+                $taxon->acceptedNameUsageID = "";
+                $taxon->taxonomicStatus = "";
+                exit("\n should not go here 001 \n");
+            }
+            $this->archive_builder->write_object_to_file($taxon);
+        }
+        
+    }
+    private function get_taxonomic_status($status) // only Legitimate should pass through here
+    {
+        if($status == "Legitimate") return "valid";
+        elseif(!in_array($status, array('Illegitimate', 'Invalid'))) exit("\n investigate: status undefined [$status]\n");
+        // $this->invalid_statuses = array    ("Orthographic variant", "Uncertain", "Unavailable", "Deleted");
+        else return false;
+    }
+    private function format_rank($rank, $rank_id, $taxon_id)
+    {
+        switch ($rank) {
+            case "gen.":    return "genus";
+            case "sp.":     return "species";
+            case "var.":    return "varietas";
+            case "subsp.":  return "subspecies";
+            case "sect.":   return "section";
+            case "f.":      return "forma";
+            case "ser.":    return "series";
+            case "subser.": return "subseries";
+            case "subg.":   return "subgenus";
+            case "subgen.": return "subgenus";
+            case "subsp.":  return "subspecies";
+            case "subvar.": return "subvariety";
+            case "ssp.":    return "subspecies";
+            case "subf.":   return "subform";
+            case "ordo":    return "order";
+            case "subordo": return "suborder";
+            case "fam.":    return "family";
+            case "subdiv.": return "subdivision";
+            case "div.":    return "division";
+            case "cl.":     return "class";
+            case "subcl.":  return "subclass";
+            case "tr.":     return "tribe";
+            case "subsect.": return "subsection";
+            case "subfam.":  return "subfamily";
+            case "subtr.":   return "subtribe";
+            case "regn.":    return "kingdom";
+            case "subregn.": return "subkingdom";
+            // below this line are unrecognized ranks
+            /*
+            case "trF.":     return "trF.";
+            case "subdivF.": return "subdivF.";
+            case "race":     return "race";
+            case "*":        return "";
+            case "stirps":   return "stirps";
+            case "f.sp.":    return "f.sp.";
+            */
+            default:
+                exit("\n investigate: rank for rank_id [$rank_id] for taxon_id [$taxon_id] not yet initialized [$rank]\n");
+                return "";
+        }
     }
     private function without_error($url)
     {
@@ -691,13 +802,6 @@ class MycoBankAPI
             }
         }
     }
-    
-    private function get_taxonomic_status($status) // only Legitimate should pass through here
-    {
-        if($status == "Legitimate") return "valid";
-        else echo "\n investigate: status undefined [$status]\n";
-    }
-    
     private function get_parent_info($rec)
     {
         $hierarchy = $rec["h"];
@@ -864,89 +968,6 @@ class MycoBankAPI
         if($val = $rec["e4"]) $rem .= "<br>" . $val . "<br>";
         return $rem;
     }
-    
-    private function get_rank($rank, $sciname = null)
-    {
-        $rank = self::get_pt_value($rank, "Name");
-        switch ($rank) 
-        {
-            case "gen.":    return "genus";
-            case "sp.":     return "species";
-            case "var.":    return "varietas";
-            case "subsp.":  return "subspecies";
-            case "sect.":   return "section";
-            case "f.":      return "forma";
-            case "ser.":    return "series";
-            case "subser.": return "subseries";
-            case "subg.":   return "subgenus";
-            case "subgen.": return "subgenus";
-            case "subsp.":  return "subspecies";
-            case "subvar.": return "subvariety";
-            case "ssp.":    return "subspecies";
-            case "subf.":   return "subform";
-            case "ordo":    return "order";
-            case "subordo": return "suborder";
-            case "fam.":    return "family";
-            case "subdiv.": return "subdivision";
-            case "div.":    return "division";
-            case "cl.":     return "class";
-            case "subcl.":  return "subclass";
-            case "tr.":     return "tribe";
-            case "subsect.": return "subsection";
-            case "subfam.":  return "subfamily";
-            case "subtr.":   return "subtribe";
-            // below this line are unrecognized ranks
-            case "trF.":     return "trF.";
-            case "subdivF.": return "subdivF.";
-            case "race":     return "race";
-            case "subregn.": return "subregn.";
-            case "*":        return "";
-            case "stirps":   return "stirps";
-            case "f.sp.":    return "f.sp.";
-            case "regn.":    return "regn.";
-            default:
-                if($rank) echo "\n investigate: rank for [$sciname] not yet initialized [$rank]\n";
-                return "";
-        }
-    }
-    
-    private function get_params_for_webservice()
-    {
-        $params = array();
-        $letters = "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z";
-        $letters1 = explode(",", $letters);
-        $letters2 = explode(",", $letters);
-        $letters3 = explode(",", $letters);
-        foreach($letters1 as $L1)
-        {
-            foreach($letters2 as $L2)
-            {
-                foreach($letters3 as $L3)
-                {
-                    $params[] = ucfirst(strtolower("$L1$L2$L3"));
-                }
-            }
-        }
-        return $params;
-    }
-    
-    private function retrieve_names_searched($dump_file = false) // a utility, may not be needed anymore
-    {
-        $names = array();
-        if(!$dump_file) $dump_file = $this->dump_file;
-        foreach(new FileIterator($dump_file) as $line_number => $line)
-        {
-            if($line)
-            {
-                $line = trim($line);
-                $records = json_decode($line, true);
-                if(!$records) continue;
-                foreach($records as $key => $recs) $names[$key] = ""; // $key is the string param used in the search
-            }
-        }
-        return array_keys($names);
-    }
-    
     private function get_parent_from_hierarchy($hierarchy)
     {
         $hierarchy = explode(",", $hierarchy);
