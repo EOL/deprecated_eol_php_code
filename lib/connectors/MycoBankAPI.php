@@ -57,9 +57,9 @@ class MycoBankAPI
     function start()
     {
         // /* testing...
-        self::process_id(1);
+        self::process_id(449153);
         
-        exit;
+        exit("\n-end testing-\n");
         // */
         
         if(!self::load_zip_contents()) return FALSE;
@@ -67,21 +67,96 @@ class MycoBankAPI
         recursive_rmdir($this->TEMP_FILE_PATH);
         exit("\n-stopx-\n");
     }
-    private function process_id($id)
+    private function without_error($url)
     {
-        $xmlstr = Functions::lookup_with_cache($this->api['_id'].'"'.$id.'"', $this->download_options);
+        $xmlstr = Functions::lookup_with_cache($url, $this->download_options);
         if($response = simplexml_load_string($xmlstr)) {
             if(isset($response->ErrorMessage)) {
                 echo "\n investigate error id [$id]: " . $response->ErrorMessage . "\n";
                 self::save_to_dump($param, $this->cannot_access_ids_file);
-                continue;
+                return false;
             }
-
+            else return $response;
+        }
+        else return false;
+    }
+    private function process_id($id)
+    {
+        $url = $this->api['_id'].'"'.$id.'"';
+        if($response = self::without_error($url)) {
             $no_of_results = count($response->Taxon);
-            if($no_of_results > 0) {
-                print_r($response);
+            if($no_of_results > 0 && $t = $response->Taxon) {
+                // print_r($t);
+                $ancestry = self::get_ancestry($t);
+                $parent_id = self::get_parent_id($ancestry);
+                $basic = self::get_basic_info($id);
+                $basic['parent_id'] = $parent_id;
             }
         }
+        print_r($basic);
+    }
+    private function get_parent_id($ancestry)
+    {
+        $ancestry = array_reverse($ancestry);
+        foreach($ancestry as $an) {
+            // print_r($an);
+            if($an['NameStatus'] == "Legitimate") return $an['Id'];
+            else {
+                if($an['Id'] != $an['CurrentName']['Id']) {
+                    if(self::is_this_name_valid($an['CurrentName']['Id'])) return $an['CurrentName']['Id'];
+                }
+            }
+        }
+    }
+    private function is_this_name_valid($id)
+    {
+        $rec = self::get_basic_info($id);
+        print_r($rec);
+        if($rec['NameStatus'] == 'Legitimate') return true;
+        return false;
+    }
+    private function get_ancestry($t)
+    {
+        $ancestry = array();
+        $str = $t->classification_;
+        if(preg_match_all("/<Id>(.*?)<\/Id>/ims", $str, $arr)) {
+            foreach($arr[1] as $id) {
+                if($id == 0) continue;
+                $ancestry[] = self::get_basic_info($id);
+            }
+        }
+        return $ancestry;
+        // exit("\n-end ancestry-\n");
+    }
+    private function get_basic_info($id)
+    {
+        $basic = array();
+        $url = $this->api['_id'].'"'.$id.'"';
+        if($response = self::without_error($url)) {
+            if(count($response->Taxon) > 0 && $rec = $response->Taxon) {
+                print_r($rec);
+                $basic['Id'] = $id;
+                $basic['Name'] = (string) $rec->name;
+                $basic['CurrentName'] = self::tags_to_array((string) $rec->currentname_pt_);
+                $basic['Rank'] = self::tags_to_array((string) $rec->rank_pt_);
+                $basic['NameType'] = (string) $rec->nametype_;
+                $basic['NameStatus'] = (string) $rec->namestatus_;
+                $basic['Authors'] = (string) $rec->authors_;
+                $basic['MycoBankNR'] = (string) $rec->mycobanknr_;
+                // print_r($basic); exit;
+                return $basic;
+            }
+        }
+    }
+    private function tags_to_array($str)
+    {
+        /* possible $str:
+        <TargetRecord><Id>455206</Id><Name>Fungi</Name></TargetRecord>
+        */
+        $final = array();
+        if(preg_match("/<Id>(.*?)<\/Id>/ims", $str, $arr)) $final['Id'] = $arr[1];
+        if(preg_match("/<Name>(.*?)<\/Name>/ims", $str, $arr)) $final['Name'] = $arr[1];
+        return $final;
     }
     private function parse_spreadsheet()
     {
@@ -201,11 +276,9 @@ class MycoBankAPI
         recursive_rmdir($this->TEMP_DIR); // debug uncomment in real operation
         echo ("\n temporary directory removed: " . $this->TEMP_DIR);
     }
-
     private function get_names_from_dump($fname)
     {
-        if($filename = Functions::save_remote_file_to_local($fname, $this->download_options))
-        {
+        if($filename = Functions::save_remote_file_to_local($fname, $this->download_options)) {
             if(!($READ = Functions::file_open($filename, "r"))) return;
             $contents = fread($READ, filesize($filename));
             $contents = utf8_encode($contents);
@@ -216,7 +289,6 @@ class MycoBankAPI
         }
         return false;
     }
-    
     private function save_data_to_text($params = false, $search_service = false, $searches_per_dump = 1000)
     {
         $this->dump_no++;
@@ -226,13 +298,11 @@ class MycoBankAPI
         if(!$params) $params = self::get_params_for_webservice();
         $total_params = count($params);
         $i = 0;
-        foreach($params as $param)
-        {
+        foreach($params as $param) {
             $param = trim(ucfirst($param));
             print "\n searching:[$param]";
             $i++;
-            if(($i % $searches_per_dump) == 0)
-            {
+            if(($i % $searches_per_dump) == 0) {
                 $this->dump_no++;
                 $partial_dump = str_replace("mycobank_dump.txt", "partial", $this->dump_file);
                 $partial_dump .= "_" . Functions::format_number_with_leading_zeros($this->dump_no, 3) . ".txt"; 
@@ -246,13 +316,11 @@ class MycoBankAPI
             if(!$cont) continue;
             */
             
-            if(in_array($param, $this->dont_search_more_than_5h))
-            {
+            if(in_array($param, $this->dont_search_more_than_5h)) {
                 print "\n [$param] must not be searched... \n";
                 continue;
             }
-            elseif(in_array($param, $this->dont_search_these_strings_as_well))
-            {
+            elseif(in_array($param, $this->dont_search_these_strings_as_well)) {
                 print "\n [$param] must not be searched... \n";
                 continue;
             }
@@ -261,12 +329,9 @@ class MycoBankAPI
             if($val = $search_service) $url = $val . '"' . $param . '"';
             else                       $url = $this->service_search["startswith"] . '"' . $param . '"';
             echo "\n[$param] $i of $total_params \n";
-            if($contents = Functions::lookup_with_cache($url, $this->download_options))
-            {
-                if($response = simplexml_load_string($contents))
-                {
-                    if(isset($response->ErrorMessage))
-                    {
+            if($contents = Functions::lookup_with_cache($url, $this->download_options)) {
+                if($response = simplexml_load_string($contents)) {
+                    if(isset($response->ErrorMessage)) {
                         echo "\n investigate error [$param]: " . $response->ErrorMessage . "\n";
                         sleep(120); // 2mins
                         echo "\n access failed [$param] ... \n";
@@ -275,20 +340,17 @@ class MycoBankAPI
                     }
 
                     $no_of_results = count($response);
-                    if($no_of_results > 0)
-                    {
+                    if($no_of_results > 0) {
                         echo " - count: $no_of_results";
                         if($no_of_results >= 500 && $no_of_results < 900) self::save_to_dump($param . "\t" . $no_of_results, $this->more_than_5h);
                         if($no_of_results >= 900)                         self::save_to_dump($param . "\t" . $no_of_results, $this->more_than_1k);
 
                         $records = array();
-                        foreach($response as $rec)
-                        {
+                        foreach($response as $rec) {
                             $hierarchy = "";
                             $source_url = "";
                             $parent = "";
-                            if(preg_match("/title\='(.*?)'/ims", $rec->Classification_, $arr))
-                            {
+                            if(preg_match("/title\='(.*?)'/ims", $rec->Classification_, $arr)) {
                                 $hierarchy = $arr[1];
                                 $parent = self::get_parent_from_hierarchy($hierarchy);
                             }
@@ -317,8 +379,7 @@ class MycoBankAPI
                         $temp[$param] = $records;
                         self::save_to_dump($temp, $partial_dump);
                     }
-                    else
-                    {
+                    else {
                         echo "\n no result for: [$param]\n";
                         /* decided not to save params with zero records anymore - 14Jul2014
                         // save even with no records, so it won't be searched again...
@@ -329,8 +390,7 @@ class MycoBankAPI
                     }
                 }
             }
-            else
-            {
+            else {
                 echo "\n access failed [$param] ... \n";
                 self::save_to_dump($param, $this->names_with_error_dump_file);
             }
@@ -383,24 +443,20 @@ class MycoBankAPI
     private function retrieve_data_and_save_to_array($dump_file = false)
     {
         if(!$dump_file) $dump_file = $this->dump_file;
-        foreach(new FileIterator($dump_file) as $line_number => $line)
-        {
-            if($line)
-            {
+        foreach(new FileIterator($dump_file) as $line_number => $line) {
+            if($line) {
                 $line = trim($line);
                 $records = json_decode($line, true);
                 if(!$records) continue;
                 foreach($records as $key => $recs) // $key is the string param used in the search
                 {
-                    foreach($recs as $rec)
-                    {
+                    foreach($recs as $rec) {
                         $rec = array_map('trim', $rec);
                         $name = (string) $rec["n"];
                         $status = $rec["ns"];
                         if(!$name) continue;
                         if(!isset($this->name_id[$name][$status])) self::assign_record_to_array($rec);
-                        else
-                        {
+                        else {
                             if($rec["y"] > $this->name_id[$name][$status]["y"] || in_array($this->name_id[$name][$status]["p"], array("-", "?", ""))) self::assign_record_to_array($rec);
                         }
                     }
