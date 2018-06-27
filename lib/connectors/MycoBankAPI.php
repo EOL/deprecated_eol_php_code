@@ -58,6 +58,16 @@ class MycoBankAPI
     }
     function start()
     {
+        /* testing
+        $ret = self::process_id(449153);
+        if($ret['parent_id'] == 56879) echo "\ntest 1 passed OK\n";
+        $ret = self::process_id(319124);
+        if($ret['parent_id'] == 92960) echo "\ntest 2 passed OK\n";
+        $ret = self::process_id(119112);
+        if(!$ret) echo "\ntest 3 passed OK\n";
+        exit;
+        */
+        
         // /* testing...
         self::process_id(119112); //319124 449153   119112 ignored
         exit("\n-end testing-\n");
@@ -119,6 +129,10 @@ class MycoBankAPI
             // print_r($an);
             if($an['NameStatus'] == "Legitimate") return $an['Id'];
             else {
+                /* 
+                e.g. species "Chamaeceras brasiliensis" (449153) has a parent = "Chamaeceras" which is invalid, so we got the current_name of "Chamaeceras" which is "Marasmius" (56879)
+                e.g. species "Sphaerella tini" (319124)          has a parent = "Sphaerella"  which is invalid and there is no current_name. So we move to the next parent which is "Mycosphaerellaceae" (92960)
+                */
                 if($an['Id'] != $an['CurrentName']['Id']) {
                     if(self::is_this_name_valid($an['CurrentName']['Id'])) return $an['CurrentName']['Id'];
                 }
