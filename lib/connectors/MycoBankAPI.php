@@ -58,7 +58,7 @@ class MycoBankAPI
     }
     function start()
     {
-        /* testing
+        // /* testing
         $ret = self::process_id(449153);
         if($ret['parent_id'] == 56879) echo "\ntest 1 passed OK\n";
         $ret = self::process_id(319124);
@@ -66,10 +66,11 @@ class MycoBankAPI
         $ret = self::process_id(119112);
         if(!$ret) echo "\ntest 3 passed OK\n";
         exit;
-        */
+        // */
         
         // /* testing...
-        self::process_id(119112); //319124 449153   119112 ignored
+        $basic = self::process_id(59827); //319124 449153   119112 ignored
+        print_r($basic);
         exit("\n-end testing-\n");
         // */
         
@@ -83,7 +84,7 @@ class MycoBankAPI
         $xmlstr = Functions::lookup_with_cache($url, $this->download_options);
         if($response = simplexml_load_string($xmlstr)) {
             if(isset($response->ErrorMessage)) {
-                echo "\n investigate error id [$id]: " . $response->ErrorMessage . "\n";
+                echo "\n investigate error url [$url]: " . $response->ErrorMessage . "\n";
                 self::save_to_dump($param, $this->cannot_access_ids_file);
                 return false;
             }
@@ -105,7 +106,10 @@ class MycoBankAPI
                 // e.g. Selenia perforans will be ignored since the genus Selenia is Illegitimate and current_name anyway exists Montagnula perforans
                 if($basic['Name'] != @$basic['CurrentName']['Name'] && @$basic['CurrentName']['Name']) {
                     $immediate_parent_status = self::get_immediate_parent_status($ancestry);
-                    if($immediate_parent_status != 'Legitimate') return false; //ignore taxon
+                    if($immediate_parent_status != 'Legitimate') { //ignore taxon
+                        echo "\n Selenia perforans case, will ignore... \n";
+                        return false;
+                    }
                 } //=====================================================================================================
                 
                 $parent_id = self::get_parent_id($ancestry);
@@ -114,7 +118,6 @@ class MycoBankAPI
                 return $basic;
             }
         }
-        // print_r($basic);
     }
     private function get_immediate_parent_status($ancestry)
     {
@@ -133,8 +136,8 @@ class MycoBankAPI
                 e.g. species "Chamaeceras brasiliensis" (449153) has a parent = "Chamaeceras" which is invalid, so we got the current_name of "Chamaeceras" which is "Marasmius" (56879)
                 e.g. species "Sphaerella tini" (319124)          has a parent = "Sphaerella"  which is invalid and there is no current_name. So we move to the next parent which is "Mycosphaerellaceae" (92960)
                 */
-                if($an['Id'] != $an['CurrentName']['Id']) {
-                    if(self::is_this_name_valid($an['CurrentName']['Id'])) return $an['CurrentName']['Id'];
+                if($an['Id'] != @$an['CurrentName']['Id']) {
+                    if(self::is_this_name_valid(@$an['CurrentName']['Id'])) return @$an['CurrentName']['Id'];
                 }
             }
         }
@@ -161,6 +164,7 @@ class MycoBankAPI
     }
     private function get_basic_info($id)
     {
+        if(!$id) return;
         $basic = array();
         $url = $this->api['_id'].'"'.$id.'"';
         if($response = self::without_error($url)) {
