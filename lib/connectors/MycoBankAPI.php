@@ -49,14 +49,14 @@ class MycoBankAPI
             }
         }
 
-        // $this->download_options['expire_seconds'] = 0;                           PAIR 1 OF 2
+        // $this->download_options['expire_seconds'] = 0;                           //PAIR 1 OF 2
         $ids = array_keys($ids); $i = 0;
         $total = count($ids); //exit;
         foreach($ids as $id) {
             $i++; echo "\n$i of $total\n";
 
             // $url = $this->api['_id'].'"'.$id.'"';
-            // Functions::lookup_with_cache($url, $this->download_options);         PAIR 2 OF 2
+            // Functions::lookup_with_cache($url, $this->download_options);         //PAIR 2 OF 2
             
             self::process_id($id);
         }
@@ -74,9 +74,16 @@ class MycoBankAPI
             // if($k >=  $m   && $k < $m*2) $cont = true;
             // if($k >=  $m*2 && $k < $m*3) $cont = true;
             // if($k >=  $m*3 && $k < $m*4) $cont = true;
-            if($k >=  $m*4 && $k < $m*5) $cont = true;
+            // if($k >=  $m*4 && $k < $m*5) $cont = true;
             // if($k >=  $m*5 && $k < $m*6) $cont = true;
-            // if($k >= 23247 && $k < $m*6) $cont = true;
+
+            // if($k >=  41758    && $k < $m) $cont = true;
+            // if($k >=  121117   && $k < $m*2) $cont = true;
+            // if($k >=  184780 && $k < $m*3) $cont = true;
+            // if($k >=  268993 && $k < $m*4) $cont = true;
+            // if($k >=  350233 && $k < $m*5) $cont = true;
+            if($k >=  422924 && $k < $m*6) $cont = true;
+
             if(!$cont) continue;
             // */
             // self::process_id($id);
@@ -217,8 +224,8 @@ class MycoBankAPI
     private function get_taxonomic_status($status) // only Legitimate should pass through here
     {
         if($status == "Legitimate") return "valid";
-        elseif(!in_array($status, array('Illegitimate', 'Invalid', 'Orthographic variant', 'Unavailable', 'Uncertain'))) exit("\n investigate: status undefined [$status]\n");
-        // $this->invalid_statuses = array    ("", "", "", "Deleted");
+        elseif(!in_array($status, array('Illegitimate', 'Invalid', 'Orthographic variant', 'Unavailable', 'Uncertain', 'Deleted'))) exit("\n investigate: status undefined [$status]\n");
+        // $this->invalid_statuses = array    ("", "", "", "");
         else return false;
     }
     private function format_rank($rank, $rank_id, $taxon_id)
@@ -252,14 +259,14 @@ class MycoBankAPI
             case "regn.":    return "kingdom";
             case "subregn.": return "subkingdom";
             case "f.sp.":    return "special form";
+            case "race":     return "race";
+            case "stirps":   return "stirps";
+            case "*":        return "";
             case "":         return "";
             // below this line are unrecognized ranks
             /*
             case "trF.":     return "trF.";
             case "subdivF.": return "subdivF.";
-            case "race":     return "race";
-            case "*":        return "";
-            case "stirps":   return "stirps";
             */
             default:
                 exit("\n investigate: rank for rank_id [$rank_id] for taxon_id [$taxon_id] not yet initialized [$rank]\n");
