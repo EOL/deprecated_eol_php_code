@@ -22,6 +22,8 @@ class MycoBankAPI
         http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&filter=name CONTAINS "Selenia perforans"
         */
         $this->cannot_access_ids_file = DOC_ROOT."/tmp/671_cannot_access_ids.txt";
+        $this->cannot_access_ids_file2 = DOC_ROOT."/tmp/671_cannot_access_ids copy.txt";
+        
     }
     
     function saving_ids_2text() // utility only, run only once
@@ -37,6 +39,29 @@ class MycoBankAPI
         recursive_rmdir($this->TEMP_FILE_PATH);
         exit("\n-utility saving_ids_2text() done-\n");
     }
+    function try_again_cannot_access_ids_txtfile() //utility only
+    {
+        $ids = array();
+        foreach(new FileIterator($this->cannot_access_ids_file2) as $line_number => $line) {
+            if(!$line) continue;
+            if(preg_match("/id=\"(.*?)\"/ims", $line, $arr)) {
+                $ids[$arr[1]] = '';
+            }
+        }
+
+        // $this->download_options['expire_seconds'] = 0;                           PAIR 1 OF 2
+        $ids = array_keys($ids); $i = 0;
+        $total = count($ids); //exit;
+        foreach($ids as $id) {
+            $i++; echo "\n$i of $total\n";
+
+            // $url = $this->api['_id'].'"'.$id.'"';
+            // Functions::lookup_with_cache($url, $this->download_options);         PAIR 2 OF 2
+            
+            self::process_id($id);
+        }
+        
+    }
     function access_text_for_caching() //utility only, for caching
     {
         $filename = DOC_ROOT."/tmp/671_ids_list.txt";
@@ -49,9 +74,9 @@ class MycoBankAPI
             // if($k >=  $m   && $k < $m*2) $cont = true;
             // if($k >=  $m*2 && $k < $m*3) $cont = true;
             // if($k >=  $m*3 && $k < $m*4) $cont = true;
-            // if($k >=  $m*4 && $k < $m*5) $cont = true;
+            if($k >=  $m*4 && $k < $m*5) $cont = true;
             // if($k >=  $m*5 && $k < $m*6) $cont = true;
-            if($k >= 5687 && $k < $m*6) $cont = true;
+            // if($k >= 23247 && $k < $m*6) $cont = true;
             if(!$cont) continue;
             // */
             // self::process_id($id);
