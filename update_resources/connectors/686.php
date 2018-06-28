@@ -9,14 +9,16 @@ require_library('connectors/PlaziArchiveAPI');
 $timestart = time_elapsed();
 
 $resource_id = 686;
-// $resource_path = "http://localhost/~eolit/cp/Plazi/plazi.zip";
-$resource_path = "http://plazi.cs.umb.edu/GgServer/eol/plazi.zip";
+$resource_path = "http://localhost/cp/Plazi/plazi.zip";
+// $resource_path = "http://plazi.cs.umb.edu/GgServer/eol/plazi.zip";
 
+/*
 // get resource path from database
 $result = $GLOBALS['db_connection']->select("SELECT accesspoint_url FROM resources WHERE id=$resource_id");
 $row = $result->fetch_row();
 $new_resource_path = @$row[0];
 if($resource_path != $new_resource_path && $new_resource_path) $resource_path = $new_resource_path;
+*/
 echo "\n processing resource:\n $resource_path \n\n";
 
 $func = new PlaziArchiveAPI();

@@ -12,11 +12,13 @@ $resource_id = 687;
 // $resource_path = "http://localhost/~eolit/cp/Plazi/zootaxa.zip";
 $resource_path = "http://plazi.cs.umb.edu/GgServer/eol/zootaxa.zip";
 
+/*
 // get resource path from database
 $result = $GLOBALS['db_connection']->select("SELECT accesspoint_url FROM resources WHERE id=$resource_id");
 $row = $result->fetch_row();
 $new_resource_path = @$row[0];
 if($resource_path != $new_resource_path && $new_resource_path) $resource_path = $new_resource_path;
+*/
 echo "\n processing resource:\n $resource_path \n\n";
 
 $func = new PlaziArchiveAPI();
