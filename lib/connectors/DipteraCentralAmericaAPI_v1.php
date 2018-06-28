@@ -12,54 +12,9 @@ class DipteraCentralAmericaAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->resource_reference_ids = array();
         $this->do_ids = array();
-        $this->download_options = array('resource_id' => 683, 'download_wait_time' => 500000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 2, 'expire_seconds' => 60*60*24*25);
-        // $this->download_options['expire_seconds'] = 0;
+        $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 2);
     }
 
-    function start()
-    {
-        exit("\nCannot be scraped anymore. HTML is hidden from connector scripts.\n");
-        
-        echo "\n[$this->taxa_list_url]\n";
-        if($html = Functions::lookup_with_cache($this->taxa_list_url, $this->download_options)) {
-            $exclude = array('../books/books_index.html', 'further_reading.html', 'javascript:;', '../index.html');
-            
-            // ><a href="nematocerous/ptychopteridae/ptychopteridae.html"
-            if(preg_match_all("/><a href=\"(.*?)\"/ims", $html, $arr)) {
-                $paths = array_diff($arr[1], $exclude);
-                $paths = array_map('trim', $paths);
-                // print_r($paths);
-                
-                $options = $this->download_options;
-                $options['expire_seconds'] = 0;
-
-                foreach($paths as $path) {
-                    $url = $this->domain.$path;
-                    if($html = Functions::get_remote_file_fake_browser($url, $options)) {
-                        $rec = self::parse_image_info($html);
-                    }
-                }
-            }
-            else echo "\n-none-\n";
-        }
-        exit("\n-stopx-\n");
-    }
-    private function parse_image_info($html)
-    {
-        /*
-        <div class="DipteraImage">
-        <img src="milichiidae_image.jpg" width="400" height="472" alt="Pholeomyia politifacies"/>
-        <p class="PhotoLabels"><em>Pholeomyia politifacies</em> Sabrosky 1959, Costa Rica:<br/>
-        La Selva Biological Station</p>
-        </div>
-        */
-        echo "\n$html\n";
-        if(preg_match_all("/<div class=\"DipteraImage\">(.*?)<\/div>/ims", $html, $arr)) {
-            print_r($arr[1]);
-        }
-        exit("\nparsing\n");
-    }
-    //####################################################################################
     function get_all_taxa()
     {
         if($records = self::parse_html())

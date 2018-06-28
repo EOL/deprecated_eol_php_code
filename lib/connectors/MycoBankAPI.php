@@ -42,17 +42,57 @@ class MycoBankAPI
         $filename = DOC_ROOT."/tmp/671_ids_list.txt";
         $m = 494461/6; $k = 0;
         foreach(new FileIterator($filename) as $line_number => $id) {
+            $k++; echo "\n[$k.] ";
             // /* breakdown when caching:
-            $cont = false; $k++; echo "\n[$k.] ";
+            $cont = false;
             // if($k >=  1    && $k < $m) $cont = true;
             // if($k >=  $m   && $k < $m*2) $cont = true;
             // if($k >=  $m*2 && $k < $m*3) $cont = true;
             // if($k >=  $m*3 && $k < $m*4) $cont = true;
-            if($k >=  $m*4 && $k < $m*5) $cont = true;
+            // if($k >=  $m*4 && $k < $m*5) $cont = true;
             // if($k >=  $m*5 && $k < $m*6) $cont = true;
+            if($k >= 5687 && $k < $m*6) $cont = true;
             if(!$cont) continue;
             // */
-            self::process_id($id);
+            // self::process_id($id);
+            //========================
+            if($basic = self::process_id($id)) {
+                // print_r($basic);
+                self::write_taxon($basic);
+                
+                // this will add taxon entry for each of the ancestry  ===================================
+                if($recs = $basic['ancestry']) {
+                    foreach($recs as $rec) {
+                        $id = $rec['Id'];
+                        if($basic2 = self::process_id($id)) {
+                            // print_r($basic2);
+                            self::write_taxon($basic2);
+
+                            //2nd level of ancestry
+                            if($recs2 = $basic2['ancestry']) {
+                                foreach($recs2 as $rec) {
+                                    $id = $rec['Id'];
+                                    if($basic3 = self::process_id($id)) {
+                                        // print_r($basic3);
+                                        self::write_taxon($basic3);
+                                    }
+                                }
+                            }
+                            
+                        }
+                    }
+                } // ===========================================================================
+                
+                // this will add taxon entry for the parent_id ===================================
+                if($parent_id = $basic['parent_id']) {
+                    if($basic = self::process_id($parent_id)) {
+                        // print_r($basic);
+                        self::write_taxon($basic);
+                    }
+                } // ===========================================================================
+            }
+            
+            //========================
         }
         exit("\n-caching done-\n");
     }
@@ -125,7 +165,7 @@ class MycoBankAPI
         $taxon->taxonID                     = $basic['Id'];
         $taxon->scientificName              = $basic['Name'];
         $taxon->scientificNameAuthorship    = $basic['Authors'];
-        $taxon->taxonRank                   = self::format_rank($basic['Rank']['Name'], $basic['Rank']['Id'], $basic['Id']);
+        $taxon->taxonRank                   = self::format_rank(@$basic['Rank']['Name'], @$basic['Rank']['Id'], $basic['Id']);
         $taxon->parentNameUsageID           = $basic['parent_id'];
         $taxon->acceptedNameUsageID         = "";
         $taxon->taxonomicStatus             = self::get_taxonomic_status($basic['NameStatus']);
@@ -152,8 +192,8 @@ class MycoBankAPI
     private function get_taxonomic_status($status) // only Legitimate should pass through here
     {
         if($status == "Legitimate") return "valid";
-        elseif(!in_array($status, array('Illegitimate', 'Invalid'))) exit("\n investigate: status undefined [$status]\n");
-        // $this->invalid_statuses = array    ("Orthographic variant", "Uncertain", "Unavailable", "Deleted");
+        elseif(!in_array($status, array('Illegitimate', 'Invalid', 'Orthographic variant', 'Unavailable', 'Uncertain'))) exit("\n investigate: status undefined [$status]\n");
+        // $this->invalid_statuses = array    ("", "", "", "Deleted");
         else return false;
     }
     private function format_rank($rank, $rank_id, $taxon_id)
@@ -186,6 +226,8 @@ class MycoBankAPI
             case "subtr.":   return "subtribe";
             case "regn.":    return "kingdom";
             case "subregn.": return "subkingdom";
+            case "f.sp.":    return "special form";
+            case "":         return "";
             // below this line are unrecognized ranks
             /*
             case "trF.":     return "trF.";
@@ -193,7 +235,6 @@ class MycoBankAPI
             case "race":     return "race";
             case "*":        return "";
             case "stirps":   return "stirps";
-            case "f.sp.":    return "f.sp.";
             */
             default:
                 exit("\n investigate: rank for rank_id [$rank_id] for taxon_id [$taxon_id] not yet initialized [$rank]\n");
@@ -215,6 +256,7 @@ class MycoBankAPI
     }
     private function process_id($id)
     {
+        if(!$id) return false;
         $url = $this->api['_id'].'"'.$id.'"';
         if($response = self::without_error($url)) {
             $no_of_results = count($response->Taxon);

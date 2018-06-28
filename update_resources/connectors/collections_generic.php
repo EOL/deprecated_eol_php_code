@@ -49,6 +49,8 @@ $info[res_id]['xml_path'] = ""; $info[res_id]['data_types'] = array('datatype');
 $info[res_id] = array('id' => col_id, 'data_types' => array('dtype'), 'xml_path' => ''); //resource_name
 */
 
+$info[683] = array('id' => 111553, 'data_types' => array('images'), 'xml_path' => ''); //Diptera of Central America (683)
+
 //static xml, offline media, has collection -- http://services.eol.org/resources/145.xml
 $info[145] = array('id' => 264, 'data_types' => array('video'), 'xml_path' => ''); //Natural History Services Resource
 
