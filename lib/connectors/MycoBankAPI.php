@@ -77,12 +77,12 @@ class MycoBankAPI
             // if($k >=  $m*4 && $k < $m*5) $cont = true;
             // if($k >=  $m*5 && $k < $m*6) $cont = true;
 
-            // if($k >=  41758    && $k < $m) $cont = true;
-            // if($k >=  121117   && $k < $m*2) $cont = true;
+            // if($k >=  42123    && $k < $m) $cont = true;
+            // if($k >=  121616   && $k < $m*2) $cont = true;
             // if($k >=  184780 && $k < $m*3) $cont = true;
             // if($k >=  268993 && $k < $m*4) $cont = true;
-            // if($k >=  350233 && $k < $m*5) $cont = true;
-            if($k >=  422924 && $k < $m*6) $cont = true;
+            if($k >=  350574 && $k < $m*5) $cont = true;
+            // if($k >=  428445 && $k < $m*6) $cont = true;
 
             if(!$cont) continue;
             // */
@@ -261,12 +261,12 @@ class MycoBankAPI
             case "f.sp.":    return "special form";
             case "race":     return "race";
             case "stirps":   return "stirps";
+            case "subdivF.": return "subdiv. sensu Fries";
             case "*":        return "";
             case "":         return "";
             // below this line are unrecognized ranks
             /*
             case "trF.":     return "trF.";
-            case "subdivF.": return "subdivF.";
             */
             default:
                 exit("\n investigate: rank for rank_id [$rank_id] for taxon_id [$taxon_id] not yet initialized [$rank]\n");
