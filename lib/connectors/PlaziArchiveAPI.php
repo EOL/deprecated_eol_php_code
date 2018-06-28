@@ -14,6 +14,7 @@ class PlaziArchiveAPI
                 $contents = str_ireplace('<a title=""', '<a title="', $contents);
                 $contents = str_ireplace('"" href=""', '" href="', $contents);
                 $contents = str_ireplace('"">', '">', $contents);
+                $contents = str_ireplace("No known copyright restrictions apply. See Agosti, D., Egloff, W., 2009. Taxonomic information exchange and copyright: the Plazi approach. BMC Research Notes 2009, 2:53 for further explanation.", 'No known copyright restrictions', $contents);
                 
                 //saving new media.txt
                 if(!($WRITE = Functions::file_open($paths['archive_path'] . "media.txt", "w"))) return;

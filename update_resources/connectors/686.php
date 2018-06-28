@@ -9,8 +9,9 @@ require_library('connectors/PlaziArchiveAPI');
 $timestart = time_elapsed();
 
 $resource_id = 686;
-$resource_path = "http://localhost/cp/Plazi/plazi.zip";
-// $resource_path = "http://plazi.cs.umb.edu/GgServer/eol/plazi.zip";
+// $resource_path = "http://localhost/cp/Plazi/plazi.zip"; //works OK locally
+// $resource_path = "http://plazi.cs.umb.edu/GgServer/eol/plazi.zip"; //no longer being hosted by partner
+$resource_path = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Plazi/plazi.zip";
 
 /*
 // get resource path from database
