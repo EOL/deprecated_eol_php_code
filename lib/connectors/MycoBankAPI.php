@@ -12,7 +12,8 @@ class MycoBankAPI
         $this->name_id = array();
         $this->invalid_statuses = array("Orthographic variant", "Invalid", "Illegitimate", "Uncertain", "Unavailable", "Deleted");
         $this->download_options = array('resource_id' => 671, 'download_wait_time' => 1000000, 'timeout' => 7200, 'delay_in_minutes' => 1, 'expire_seconds' => 60*60*24*30*2); // 2 months expire_seconds
-
+        // $this->download_options['expire_seconds'] = 0;
+        
         $this->zip_path = "http://localhost/cp/MycoBank/latest/MBList.zip"; //spreadsheet .xlsx in zip
         $this->api['_id'] = "http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&filter=_id=";
         $this->debug = array();
@@ -20,10 +21,11 @@ class MycoBankAPI
         http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&filter=_id="59827"
         http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&filter=mycobanknr_="81043"
         http://www.mycobank.org/Services/Generic/SearchService.svc/rest/xml?layout=14682616000000161&filter=name CONTAINS "Selenia perforans"
+        for rank, using rank Id:
+        http://www.mycobank.org/BioloMICS.aspx?TableKey=14682616000000065&Rec=28&Fields=All
         */
         $this->cannot_access_ids_file = DOC_ROOT."/tmp/671_cannot_access_ids.txt";
         $this->cannot_access_ids_file2 = DOC_ROOT."/tmp/671_cannot_access_ids copy.txt";
-        
     }
     
     function saving_ids_2text() // utility only, run only once
@@ -58,7 +60,7 @@ class MycoBankAPI
             // $url = $this->api['_id'].'"'.$id.'"';
             // Functions::lookup_with_cache($url, $this->download_options);         //PAIR 2 OF 2
             
-            self::process_id($id);
+            self::process_id($id);                                               //PAIR 1 OF 1
         }
         
     }
@@ -70,19 +72,21 @@ class MycoBankAPI
             $k++; echo "\n[$k.] ";
             // /* breakdown when caching:
             $cont = false;
-            // if($k >=  1    && $k < $m) $cont = true;
+            if($k >=  1    && $k < $m) $cont = true;
             // if($k >=  $m   && $k < $m*2) $cont = true;
             // if($k >=  $m*2 && $k < $m*3) $cont = true;
             // if($k >=  $m*3 && $k < $m*4) $cont = true;
             // if($k >=  $m*4 && $k < $m*5) $cont = true;
             // if($k >=  $m*5 && $k < $m*6) $cont = true;
 
-            // if($k >=  42123    && $k < $m) $cont = true;
-            // if($k >=  121616   && $k < $m*2) $cont = true;
-            // if($k >=  184780 && $k < $m*3) $cont = true;
-            // if($k >=  268993 && $k < $m*4) $cont = true;
-            if($k >=  350574 && $k < $m*5) $cont = true;
-            // if($k >=  428445 && $k < $m*6) $cont = true;
+            // if($k >=  12878    && $k < $m) $cont = true;         //done
+            // if($k >=  150618   && $k < $m*2) $cont = true;
+            // if($k >=  231012 && $k < $m*3) $cont = true;
+            // if($k >=  313427 && $k < $m*4) $cont = true;
+            // if($k >=  378477 && $k < $m*5) $cont = true;
+            // if($k >=  457535 && $k < $m*6) $cont = true;
+
+            // if($k ==  313432) exit("\n$k $id\n"); //fix warning XML message
 
             if(!$cont) continue;
             // */
@@ -142,7 +146,7 @@ class MycoBankAPI
         
         // /* testing...
         $ids = array(59827, 319124, 449153, 119112, 1, 2);
-        // $ids = array(1,2); // 59827   319124   449153
+        $ids = array(36705); // 59827   319124   449153
         foreach($ids as $id) {
             if($basic = self::process_id($id)) {
                 print_r($basic);
@@ -284,7 +288,21 @@ class MycoBankAPI
             }
             else return $response;
         }
-        else return false;
+        else //try it again... originally just one line "return false;"
+        {
+            $options = $this->download_options;
+            $options['expire_seconds'] = 0;
+            $xmlstr = Functions::lookup_with_cache($url, $options);
+            if($response = simplexml_load_string($xmlstr)) {
+                if(isset($response->ErrorMessage)) {
+                    echo "\n investigate error url [$url]: " . $response->ErrorMessage . "\n";
+                    self::save_to_dump($url, $this->cannot_access_ids_file);
+                    return false;
+                }
+                else return $response;
+            }
+            else return false; //originally just this one line "return false;"
+        }
     }
     private function process_id($id)
     {
