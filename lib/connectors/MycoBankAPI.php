@@ -59,7 +59,7 @@ class MycoBankAPI
             $url = $this->api['_id'].'"'.$id.'"';
             Functions::lookup_with_cache($url, $this->download_options);         //PAIR 2 OF 2
         }
-        //try again this time with expire_seconds reset to orig value
+        //now try again this time with expire_seconds reset to orig value
         $i = 0;
         $this->download_options['expire_seconds'] = 60*60*24*30*2;
         foreach($ids as $id) {
@@ -74,7 +74,7 @@ class MycoBankAPI
         $m = 494461/6; $k = 0;
         foreach(new FileIterator($filename) as $line_number => $id) {
             $k++; echo "\n[$k.] ";
-            // /* breakdown when caching:
+            /* breakdown when caching:
             $cont = false;
             // if($k >=  1    && $k < $m) $cont = true;
             // if($k >=  $m   && $k < $m*2) $cont = true;
@@ -82,17 +82,8 @@ class MycoBankAPI
             // if($k >=  $m*3 && $k < $m*4) $cont = true;
             // if($k >=  $m*4 && $k < $m*5) $cont = true;
             // if($k >=  $m*5 && $k < $m*6) $cont = true;
-
-
-            // if($k >=  484118 && $k < 485000) $cont = true;
-            // if($k >=  485000 && $k < 486000) $cont = true;
-            // if($k >=  491483 && $k < 493000) $cont = true;            //494461.00000000000002
-            if($k >=  493000 && $k < $m*6) $cont = true;            //494461.00000000000002
-
-
             if(!$cont) continue;
-            // */
-            // self::process_id($id);
+            */
             //========================
             if($basic = self::process_id($id)) {
                 // print_r($basic);
@@ -148,10 +139,59 @@ class MycoBankAPI
         
         // /* testing...
         $ids = array(59827, 319124, 449153, 119112, 1, 2);
-        $ids = array(36705); // 59827   319124   449153
+        // $ids = array(36705); // 59827   319124   449153
         foreach($ids as $id) {
+            self::do_several_steps_for_an_id($id);
+        }
+        $this->archive_builder->finalize(TRUE);
+        // exit("\n-end testing-\n");
+        // */
+        
+        /* un-comment in normal operation
+        if(!self::load_zip_contents()) return FALSE;
+        self::parse_spreadsheet();
+        $this->archive_builder->finalize(TRUE);
+        recursive_rmdir($this->TEMP_FILE_PATH);
+        */
+    }
+    private function parse_spreadsheet()
+    {
+        require_library('XLSParser');
+        $parser = new XLSParser();
+        debug("\n reading: " . $this->TEMP_FILE_PATH . "/Export.xlsx" . " ...\n");
+        $arr = $parser->convert_sheet_to_array($this->TEMP_FILE_PATH . "/Export.xlsx", 0);
+        // print_r($arr);
+        $fields = array_keys($arr);
+        /* cols for sheet 0 [0 - 494461 records]
+        Array(
+            [0] => ID
+            [1] => Taxon_name
+            [2] => Authors
+            [3] => Year_of_publication
+            [4] => MycoBank__
+            [5] => Current name.Taxon_name
+            [6] => Website
+        )
+        */
+        /* display first 20 values for each field.
+        foreach($fields as $field) {
+            echo "\n[$field]";
+            for($i = 0; $i <= 20; $i++) {
+                echo "\n".$arr[$field][$i];
+            }
+        }
+        */
+        
+        //starts normal operation
+        
+        
+        
+    }
+    private function do_several_steps_for_an_id($id)
+    {
+        if(true) {
             if($basic = self::process_id($id)) {
-                print_r($basic);
+                // print_r($basic);
                 self::write_taxon($basic);
                 
                 // this will add taxon entry for each of the ancestry  ===================================
@@ -186,16 +226,6 @@ class MycoBankAPI
                 } // ===========================================================================
             }
         }
-        $this->archive_builder->finalize(TRUE);
-        // exit("\n-end testing-\n");
-        // */
-        
-        /* un-comment in normal operation
-        if(!self::load_zip_contents()) return FALSE;
-        self::parse_spreadsheet();
-        recursive_rmdir($this->TEMP_FILE_PATH);
-        */
-        // exit("\n-stopx-\n");
     }
     private function write_taxon($basic)
     {
@@ -407,36 +437,6 @@ class MycoBankAPI
         if(preg_match("/<Id>(.*?)<\/Id>/ims", $str, $arr)) $final['Id'] = $arr[1];
         if(preg_match("/<Name>(.*?)<\/Name>/ims", $str, $arr)) $final['Name'] = $arr[1];
         return $final;
-    }
-    private function parse_spreadsheet()
-    {
-        require_library('XLSParser');
-        $parser = new XLSParser();
-        debug("\n reading: " . $this->TEMP_FILE_PATH . "/Export.xlsx" . " ...\n");
-        $arr = $parser->convert_sheet_to_array($this->TEMP_FILE_PATH . "/Export.xlsx", 0);
-        // print_r($arr);
-        $fields = array_keys($arr);
-        /* cols for sheet 0 [0 - 494461 records]
-        Array(
-            [0] => ID
-            [1] => Taxon_name
-            [2] => Authors
-            [3] => Year_of_publication
-            [4] => MycoBank__
-            [5] => Current name.Taxon_name
-            [6] => Website
-        )
-        */
-        /* display first 20 values for each field.
-        foreach($fields as $field) {
-            echo "\n[$field]";
-            for($i = 0; $i <= 20; $i++) {
-                echo "\n".$arr[$field][$i];
-            }
-        }
-        */
-        $k = 0;
-        $m = count($arr['ID'])/5;
     }
     private function load_zip_contents()
     {

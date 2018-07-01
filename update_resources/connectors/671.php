@@ -8,19 +8,17 @@ http://www.eol.org/content_partners/614/resources/671
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/MycoBankAPI');
 $timestart = time_elapsed();
-$resource_id = 671;
+$resource_id = 1; //671;
 $func = new MycoBankAPI($resource_id);
 
 // /* utilities only, comment in real operation
 // $func->saving_ids_2text(); exit; // utility only, run only once
-$func->access_text_for_caching(); exit; //utility only, for caching
+// $func->access_text_for_caching(); exit; //utility only, for caching
 // $func->try_again_cannot_access_ids_txtfile(); exit;
 // */
 
 $func->start();
-
 Functions::finalize_dwca_resource($resource_id);
-
 
 // /* utility
 require_library('connectors/DWCADiagnoseAPI');
