@@ -147,12 +147,13 @@ class MycoBankAPI
         
         //starts normal operation
         $ids = $arr['ID'];
+        $total = count($ids);
         $arr = null;
         $i = 0;
         foreach($ids as $id) {
-            $i++; if(($i % 10000) == 0);
+            $i++; 
+            if(($i % 1000) == 0) echo "\n[$i of $total]";
             self::do_several_steps_for_an_id($id);
-            // if($i >= 100) break;
         }
     }
     private function do_several_steps_for_an_id($id)
