@@ -11,7 +11,10 @@ with syno   530110
 with vern   140782
 
 */
-// return;
+return;
+
+/* PESI was never published in V2. Will wait for specific instruction for V3 before working on PESI again. */
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/PesiAPI');
 $timestart = time_elapsed();
