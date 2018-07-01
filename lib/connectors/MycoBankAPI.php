@@ -84,44 +84,7 @@ class MycoBankAPI
             // if($k >=  $m*5 && $k < $m*6) $cont = true;
             if(!$cont) continue;
             */
-            //========================
-            if($basic = self::process_id($id)) {
-                // print_r($basic);
-                self::write_taxon($basic);
-                
-                // this will add taxon entry for each of the ancestry  ===================================
-                if($recs = $basic['ancestry']) {
-                    foreach($recs as $rec) {
-                        $id = $rec['Id'];
-                        if($basic2 = self::process_id($id)) {
-                            // print_r($basic2);
-                            self::write_taxon($basic2);
-
-                            //2nd level of ancestry
-                            if($recs2 = $basic2['ancestry']) {
-                                foreach($recs2 as $rec) {
-                                    $id = $rec['Id'];
-                                    if($basic3 = self::process_id($id)) {
-                                        // print_r($basic3);
-                                        self::write_taxon($basic3);
-                                    }
-                                }
-                            }
-                            
-                        }
-                    }
-                } // ===========================================================================
-                
-                // this will add taxon entry for the parent_id ===================================
-                if($parent_id = $basic['parent_id']) {
-                    if($basic = self::process_id($parent_id)) {
-                        // print_r($basic);
-                        self::write_taxon($basic);
-                    }
-                } // ===========================================================================
-            }
-            
-            //========================
+            self::do_several_steps_for_an_id($id);
         }
         exit("\n-caching done-\n");
     }
@@ -137,7 +100,7 @@ class MycoBankAPI
         exit;
         */
         
-        // /* testing...
+        /* testing...
         $ids = array(59827, 319124, 449153, 119112, 1, 2);
         // $ids = array(36705); // 59827   319124   449153
         foreach($ids as $id) {
@@ -145,14 +108,14 @@ class MycoBankAPI
         }
         $this->archive_builder->finalize(TRUE);
         // exit("\n-end testing-\n");
-        // */
+        */
         
-        /* un-comment in normal operation
+        // /* un-comment in normal operation
         if(!self::load_zip_contents()) return FALSE;
         self::parse_spreadsheet();
         $this->archive_builder->finalize(TRUE);
         recursive_rmdir($this->TEMP_FILE_PATH);
-        */
+        // */
     }
     private function parse_spreadsheet()
     {
@@ -183,9 +146,14 @@ class MycoBankAPI
         */
         
         //starts normal operation
-        
-        
-        
+        $ids = $arr['ID'];
+        $arr = null;
+        $i = 0;
+        foreach($ids as $id) {
+            $i++; if(($i % 10000) == 0);
+            self::do_several_steps_for_an_id($id);
+            // if($i >= 100) break;
+        }
     }
     private function do_several_steps_for_an_id($id)
     {
@@ -352,7 +320,7 @@ class MycoBankAPI
                 if($basic['Name'] != @$basic['CurrentName']['Name'] && @$basic['CurrentName']['Name']) {
                     $immediate_parent_status = self::get_immediate_parent_status($ancestry);
                     if($immediate_parent_status != 'Legitimate') { //ignore taxon
-                        echo "\n Selenia perforans case, will ignore... \n";
+                        // echo "\n Selenia perforans case, will ignore... \n";
                         return false;
                     }
                 } //=====================================================================================================
