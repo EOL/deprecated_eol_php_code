@@ -30,7 +30,8 @@ class PesiAPI
     function get_all_taxa()
     {
         /* tests:
-        self::get_parent_from_portal("urn:lsid:marinespecies.org:taxname:2847"); exit;
+        $rec = self::get_parent_from_portal("urn:lsid:marinespecies.org:taxname:2847");
+        print_r($rec); exit;
         */
 
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
