@@ -11,7 +11,7 @@ class MycoBankAPI
         $this->synonym_ids = array();
         $this->name_id = array();
         $this->invalid_statuses = array("Orthographic variant", "Invalid", "Illegitimate", "Uncertain", "Unavailable", "Deleted");
-        $this->download_options = array('resource_id' => 671, 'download_wait_time' => 1000000, 'timeout' => 7200, 'delay_in_minutes' => 1, 'expire_seconds' => 60*60*24*30*2); // 2 months expire_seconds
+        $this->download_options = array('resource_id' => 671, 'download_wait_time' => 1000000, 'timeout' => 60*2, 'delay_in_minutes' => 1, 'expire_seconds' => 60*60*24*30*2); // 2 months expire_seconds
         // $this->download_options['expire_seconds'] = 0;
         
         $this->zip_path = "http://localhost/cp/MycoBank/latest/MBList.zip"; //spreadsheet .xlsx in zip
@@ -51,15 +51,19 @@ class MycoBankAPI
             }
         }
 
-        // $this->download_options['expire_seconds'] = 0;                           //PAIR 1 OF 2
         $ids = array_keys($ids); $i = 0;
         $total = count($ids); //exit;
+        $this->download_options['expire_seconds'] = 0;                           //PAIR 1 OF 2
         foreach($ids as $id) {
             $i++; echo "\n$i of $total\n";
-
-            // $url = $this->api['_id'].'"'.$id.'"';
-            // Functions::lookup_with_cache($url, $this->download_options);         //PAIR 2 OF 2
-            
+            $url = $this->api['_id'].'"'.$id.'"';
+            Functions::lookup_with_cache($url, $this->download_options);         //PAIR 2 OF 2
+        }
+        //try again this time with expire_seconds reset to orig value
+        $i = 0;
+        $this->download_options['expire_seconds'] = 60*60*24*30*2;
+        foreach($ids as $id) {
+            $i++; echo "\n$i of $total\n";
             self::process_id($id);                                               //PAIR 1 OF 1
         }
         
@@ -72,21 +76,19 @@ class MycoBankAPI
             $k++; echo "\n[$k.] ";
             // /* breakdown when caching:
             $cont = false;
-            if($k >=  1    && $k < $m) $cont = true;
+            // if($k >=  1    && $k < $m) $cont = true;
             // if($k >=  $m   && $k < $m*2) $cont = true;
             // if($k >=  $m*2 && $k < $m*3) $cont = true;
             // if($k >=  $m*3 && $k < $m*4) $cont = true;
             // if($k >=  $m*4 && $k < $m*5) $cont = true;
             // if($k >=  $m*5 && $k < $m*6) $cont = true;
 
-            // if($k >=  12878    && $k < $m) $cont = true;         //done
-            // if($k >=  150618   && $k < $m*2) $cont = true;
-            // if($k >=  231012 && $k < $m*3) $cont = true;
-            // if($k >=  313427 && $k < $m*4) $cont = true;
-            // if($k >=  378477 && $k < $m*5) $cont = true;
-            // if($k >=  457535 && $k < $m*6) $cont = true;
 
-            // if($k ==  313432) exit("\n$k $id\n"); //fix warning XML message
+            // if($k >=  484118 && $k < 485000) $cont = true;
+            // if($k >=  485000 && $k < 486000) $cont = true;
+            // if($k >=  491483 && $k < 493000) $cont = true;            //494461.00000000000002
+            if($k >=  493000 && $k < $m*6) $cont = true;            //494461.00000000000002
+
 
             if(!$cont) continue;
             // */
