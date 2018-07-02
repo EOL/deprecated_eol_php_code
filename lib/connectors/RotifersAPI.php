@@ -96,8 +96,7 @@ class RotifersAPI
 
     private function prepare_higher_level_synonyms()
     {
-        foreach($this->higher_level_taxa as $t)
-        {
+        foreach($this->higher_level_taxa as $t) {
             if(!in_array($t["level"], array("f_", "g_"))) continue; // only for family and genus
             if($t["blnIsJunior"] != "TRUE") continue;               // junior must be TRUE
             
@@ -105,13 +104,11 @@ class RotifersAPI
             elseif($t["level"] == "g_") $rank = "genus";
             
             $senior = functions::canonical_form($t["lngSenior_ID"]);
-            if(!isset($this->id_names_list[$senior]))
-            {
+            if(!isset($this->id_names_list[$senior])) {
                 echo "\n investigate lngSenior_ID doesn't exist 1 [$senior] \n";
                 print_r($t);
             }
-            if($senior && $this->id_names_list[$senior])
-            {
+            if($senior && $this->id_names_list[$senior]) {
                 $remarks = self::get_taxon_remarks($t);
                 $rec = array();
                 $rec["taxonID"] = $t["id"];
@@ -131,12 +128,10 @@ class RotifersAPI
         $fields = array("lngSpecies_ID", "lngRank_ID", "bytValidity", "bytAvailability", "lngGenus_ID", "lngSubGenus_ID", "strSpecies", "lngInfraRank_ID", "strSubSpeciesInfra", "lngAuthor_ID", "intYear", "strParentheses", "strIUI", "strOrigSpell", "strOrigComb", "lngTaxStat_ID", "blnIsJunior", "lngSenior_ID");
         $records = $func->make_array($this->text_path["species"], $fields, "", array());
         array_shift($records);
-        foreach($records as $t)
-        {
+        foreach($records as $t) {
             if($t["blnIsJunior"] != "TRUE") continue; // junior must be TRUE
             $senior = functions::canonical_form($t["lngSenior_ID"]);
-            if(!isset($this->id_names_list[$senior]))
-            {
+            if(!isset($this->id_names_list[$senior])) {
                 if(is_numeric($senior) || $senior == "") continue; // no need to investigate
                 echo "\n investigate lngSenior_ID doesn't exist 2 [$senior] \n"; // when checked acceptable cases (n=6)
                 print_r($t);
@@ -145,8 +140,7 @@ class RotifersAPI
             $authorship = self::get_authorship($t);
             $rank = self::get_rank($t["lngRank_ID"]);
             $sciname = self::get_sciname($t);
-            if($senior && $this->id_names_list[$senior])
-            {
+            if($senior && $this->id_names_list[$senior]) {
                 $remarks = self::get_taxon_remarks($t);
                 $rec = array();
                 $rec["taxonID"] = $t["lngSpecies_ID"];
@@ -189,13 +183,11 @@ class RotifersAPI
         $synonym->acceptedNameUsageID           = $rec["acceptedNameUsageID"];
         $synonym->taxonomicStatus               = $rec["taxonomicStatus"];
         $synonym->taxonRemarks                  = $rec["taxonRemarks"];
-        if(!isset($this->taxon_ids[$synonym->taxonID]) && $synonym->scientificName)
-        {
+        if(!isset($this->taxon_ids[$synonym->taxonID]) && $synonym->scientificName) {
             $this->archive_builder->write_object_to_file($synonym);
             $this->taxon_ids[$synonym->taxonID] = 1;
         }
-        else
-        {
+        else {
             echo "\n investigate: synonym already entered";
             print_r($rec);
         }
@@ -205,8 +197,7 @@ class RotifersAPI
     {
         $taxa = array();
         $levels = array("class", "subclass", "superorder", "order", "family", "genus", "subgenus");
-        foreach($levels as $level)
-        {
+        foreach($levels as $level) {
             if($level == "class")          $fields = array("strClass", "c_", "lngClass_ID", "strClass",                                     "lngAuthor_ID", "intYear", "txtNotes");
             elseif($level == "subclass")   $fields = array("strSubClass", "sc_", "lngSubClass_ID", "lngClass_ID", "strSubClass",            "lngAuthor_ID", "intYear", "txtNotes");
             elseif($level == "superorder") $fields = array("strSuperOrder", "so_", "lngSuperOrder_ID", "lngSubClass_ID", "strSuperOrder",   "lngAuthor_ID", "intYear", "txtNotes");
@@ -224,12 +215,10 @@ class RotifersAPI
             $records = $func->make_array($this->text_path[$level], $fields, "", array());
             array_shift($records);
             
-            foreach($records as $rec)
-            {
+            foreach($records as $rec) {
                 if(!self::is_valid_string($rec[$taxon_field])) continue;
                 $authorship = "";
-                if(self::is_valid_string($rec["lngAuthor_ID"]))
-                {
+                if(self::is_valid_string($rec["lngAuthor_ID"])) {
                     $authorship = trim($rec["lngAuthor_ID"] . ", " . $rec["intYear"]);
                     $authorship = self::remove_quotes($authorship);
                 }
@@ -248,8 +237,7 @@ class RotifersAPI
                 $lngSenior_ID = "";
                 if(self::is_valid_string(@$rec["lngSenior_ID"])) $lngSenior_ID = trim($rec["lngSenior_ID"]);
 
-                if(in_array($level, array("family", "genus"))) // bec only family and genus have the bytValidity field
-                {
+                if(in_array($level, array("family", "genus"))) { // bec only family and genus have the bytValidity field
                     if($bytValidity != "valid") continue;
                 }
                 
@@ -274,8 +262,7 @@ class RotifersAPI
         $fields = array("lngSpecies_ID", "lngF1_Ref_ID", "lngF3_RefAuthor_ID", "intF4_Year", "txtF5_Title", "lngF7_Journal_ID", "strF10_Vol", "strF13_Pages");
         $texts = $func->make_array($this->text_path["references"], $fields);
         array_shift($texts);
-        foreach($texts as $rec)
-        {
+        foreach($texts as $rec) {
             if($rec["lngF1_Ref_ID"] == "lngF1_Ref_ID") continue;
             $ref = "";
             if(self::is_valid_string($rec["lngF3_RefAuthor_ID"]))   $ref .= $rec["lngF3_RefAuthor_ID"] . ". ";
@@ -290,8 +277,7 @@ class RotifersAPI
             $r = new \eol_schema\Reference();
             $r->full_reference = $ref;
             $r->identifier = $rec["lngF1_Ref_ID"];
-            if(!isset($this->resource_reference_ids[$r->identifier]))
-            {
+            if(!isset($this->resource_reference_ids[$r->identifier])) {
                $this->resource_reference_ids[$r->identifier] = $r->full_reference;
                $this->archive_builder->write_object_to_file($r);
             }
@@ -305,8 +291,7 @@ class RotifersAPI
         $fields = array("lngImage_ID", "lngSpecies_ID", "lngRef_ID", "strPages", "lngF3_RefAuthor_ID", "intF4_Year", "txtF5_Title", "lngF7_Journal_ID", "strF10_Vol");
         $texts = $func->make_array($this->text_path["image_references"], $fields);
         array_shift($texts);
-        foreach($texts as $rec)
-        {
+        foreach($texts as $rec) {
             if($rec["lngRef_ID"] == "lngRef_ID") continue;
             $ref = "";
             if(self::is_valid_string($rec["lngF3_RefAuthor_ID"]))   $ref .= $rec["lngF3_RefAuthor_ID"] . ". ";
@@ -321,8 +306,7 @@ class RotifersAPI
             $r = new \eol_schema\Reference();
             $r->full_reference = $ref;
             $r->identifier = $rec["lngRef_ID"];
-            if(!isset($this->resource_reference_ids[$r->identifier]))
-            {
+            if(!isset($this->resource_reference_ids[$r->identifier])) {
                $this->resource_reference_ids[$r->identifier] = $r->full_reference;
                $this->archive_builder->write_object_to_file($r);
             }
@@ -339,8 +323,7 @@ class RotifersAPI
         $ref_ids = array();
         $agent_ids = array();
         $investigate = 0;
-        foreach($texts as $rec)
-        {
+        foreach($texts as $rec) {
             if($rec["lngImage_ID"] == "lngImage_ID" || $rec["blnPermission"] == "FALSE") continue;
             $description = "";
             $rec["lngImage_ID"] = self::remove_quotes($rec["lngImage_ID"]);
@@ -348,16 +331,12 @@ class RotifersAPI
             if(!$media_url) continue;
             $rec["lngImage_ID"] = str_ireplace(" ", "_", $rec["lngImage_ID"]);
             $media_id = $rec["lngImage_ID"];
-            if($rec["lngImage_ID"])
-            {
+            if($rec["lngImage_ID"]) {
                 $rec["lngSpecies_ID"] = self::remove_quotes($rec["lngSpecies_ID"]);
-                if($rec["lngSpecies_ID"] = trim(Functions::canonical_form($rec["lngSpecies_ID"])))
-                {
+                if($rec["lngSpecies_ID"] = trim(Functions::canonical_form($rec["lngSpecies_ID"]))) {
                     if($taxon_id = @$link[$rec["lngSpecies_ID"]]) self::get_images($description, $taxon_id, $media_id, $media_url, $ref_ids, $agent_ids);
-                    else
-                    {
-                        if($taxon_id && $rec["lngSpecies_ID"] != "lngSpecies_ID" && !in_array($rec["lngSpecies_ID"], $this->invalid_taxa))
-                        {
+                    else {
+                        if($taxon_id && $rec["lngSpecies_ID"] != "lngSpecies_ID" && !in_array($rec["lngSpecies_ID"], $this->invalid_taxa)) {
                             $investigate++;
                             echo("\n investigate: species images: [$taxon_id] --- taxon = " . $rec["lngSpecies_ID"] . "\n");
                         }
@@ -377,8 +356,7 @@ class RotifersAPI
         $ref_ids = array();
         $agent_ids = array();
         $investigate = 0;
-        foreach($texts as $rec)
-        {
+        foreach($texts as $rec) {
             if(!$rec["lngImgType_ID"]) continue;
             if(!$rec["lngSpecies_ID"]) continue;
             if($rec["lngImage_ID"] == "lngImage_ID" || $rec["blnPermission"] == "FALSE") continue;
@@ -387,16 +365,12 @@ class RotifersAPI
             $media_url = self::get_image_path($rec["lngImage_ID"], $rec["lngImgType_ID"]);
             if(!$media_url) continue;
             $media_id = str_ireplace(" ", "_", $rec["lngImage_ID"]);
-            if($rec["lngImage_ID"])
-            {
+            if($rec["lngImage_ID"]) {
                 $rec["lngSpecies_ID"] = self::remove_quotes($rec["lngSpecies_ID"]);
-                if($rec["lngSpecies_ID"] = trim(Functions::canonical_form($rec["lngSpecies_ID"])))
-                {
+                if($rec["lngSpecies_ID"] = trim(Functions::canonical_form($rec["lngSpecies_ID"]))) {
                     if($taxon_id = @$link[$rec["lngSpecies_ID"]]) self::get_images($description, $taxon_id, $media_id, $media_url, $ref_ids, $agent_ids);
-                    else
-                    {
-                        if($taxon_id && $rec["lngSpecies_ID"] != "lngSpecies_ID" && !in_array($rec["lngSpecies_ID"], $this->invalid_taxa))
-                        {
+                    else {
+                        if($taxon_id && $rec["lngSpecies_ID"] != "lngSpecies_ID" && !in_array($rec["lngSpecies_ID"], $this->invalid_taxa)) {
                             $investigate++;
                             echo("\n investigate: specimen images: [$taxon_id] --- taxon = " . $rec["lngSpecies_ID"] . "\n");
                         }
@@ -412,8 +386,7 @@ class RotifersAPI
         $filename = trim($filename);
         $image_type = trim($image_type);
         if(in_array(trim($filename), array("Slide Preparation", "lngImage_ID"))) return false;
-        switch($image_type)
-        {
+        switch($image_type) {
             case "Additional Scan":
                  $folder = "addscan";
                  break;
@@ -456,8 +429,7 @@ class RotifersAPI
         if(in_array($media_id, $this->media_ids)) return;
         $this->media_ids[] = $media_id;
         $bibliographicCitation = false;
-        if($reference_ids = @$this->image_references[$media_id])
-        {
+        if($reference_ids = @$this->image_references[$media_id]) {
             $reference_ids = array_unique($reference_ids);
             $bibliographicCitation = self::get_citation($reference_ids);
         }
@@ -485,8 +457,7 @@ class RotifersAPI
     private function get_citation($reference_ids)
     {
         $citation = "";
-        foreach($reference_ids as $id)
-        {
+        foreach($reference_ids as $id) {
             if(@$this->resource_reference_ids[$id]) $citation .= trim($this->resource_reference_ids[$id]) . "<br><br>";
         }
         if($citation) return substr($citation, 0, strlen($citation) - 8); // to remove the last "<br><br>"
@@ -502,32 +473,24 @@ class RotifersAPI
         $agent_ids = array();
         $investigate = 0;
         $taxa = array();
-        foreach($texts as $rec)
-        {
+        foreach($texts as $rec) {
             $description = "";
-            if(self::is_valid_string($rec["lngBiogeo_ID"]))
-            {
+            if(self::is_valid_string($rec["lngBiogeo_ID"])) {
                 $description .= $rec["lngBiogeo_ID"];
                 if(self::is_valid_string($rec["txtComments"])) $description .= ", " . $rec["txtComments"];
             }
-            else
-            {
+            else {
                 if(self::is_valid_string($rec["txtComments"])) $description .= $rec["txtComments"];
             }
-            if($description)
-            {
+            if($description) {
                 $rec["lngSpeciesSenior_ID"] = self::remove_quotes($rec["lngSpeciesSenior_ID"]);
-                if($rec["lngSpeciesSenior_ID"] = trim(Functions::canonical_form($rec["lngSpeciesSenior_ID"])))
-                {
-                    if($taxon_id = @$link[$rec["lngSpeciesSenior_ID"]]) 
-                    {
+                if($rec["lngSpeciesSenior_ID"] = trim(Functions::canonical_form($rec["lngSpeciesSenior_ID"]))) {
+                    if($taxon_id = @$link[$rec["lngSpeciesSenior_ID"]])  {
                         $taxa[$taxon_id]["distribution"][] = $description;
                         $taxa[$taxon_id]["lngBiogeo_ID"] = $rec["lngBiogeo_ID"];
                     }
-                    else
-                    {
-                        if($taxon_id && $rec["lngSpeciesSenior_ID"] != "lngSpeciesSenior_ID" && !in_array($rec["lngSpeciesSenior_ID"], $this->invalid_taxa))
-                        {
+                    else {
+                        if($taxon_id && $rec["lngSpeciesSenior_ID"] != "lngSpeciesSenior_ID" && !in_array($rec["lngSpeciesSenior_ID"], $this->invalid_taxa)) {
                             $investigate++;
                             echo("\n investigate: distribution: [$taxon_id] --- taxon = " . $rec["lngSpeciesSenior_ID"] . "\n");
                         }
@@ -536,10 +499,8 @@ class RotifersAPI
             }
         }
         echo "\n investigate: $investigate \n";
-        foreach($taxa as $taxon_id => $rec)
-        {
-            if(@$rec["distribution"])
-            {
+        foreach($taxa as $taxon_id => $rec) {
+            if(@$rec["distribution"]) {
                 $rec["distribution"] = array_unique($rec["distribution"]);
                 $description = implode("<br>", $rec["distribution"]);
                 self::get_texts($description, $taxon_id, 'Biogeography', '#Distribution', $taxon_id."_dist", $ref_ids, $agent_ids);
@@ -570,16 +531,14 @@ class RotifersAPI
         $ref_ids = array();
         $agent_ids = array();
         $investigate = 0;
-        foreach($texts as $rec)
-        {
+        foreach($texts as $rec) {
             $description = $rec["strTypeStat"];
             if($description) $description .= " for " . $rec["taxon"];
             else $description = "Non-type voucher specimen for " . $rec["taxon"];
             if(self::is_valid_string($rec["strCatNr"])) $description .= "<br>Catalog number: " . $rec["strCatNr"];
             if(self::is_valid_string($rec["strRepName"])) $description .= "<br>Collection: " . $rec["strRepName"];
             $prepared_by = "";
-            if(self::is_valid_string($rec["lngPersPrep_ID"])) 
-            {
+            if(self::is_valid_string($rec["lngPersPrep_ID"])) {
                 $prepared_by .= "<br>Prepared by: " . $rec["lngPersPrep_ID"];
                 /* commented later on per advise by partner
                 if($rec["lngPersID2_ID"]) $prepared_by .= "; " . $rec["lngPersID2_ID"];
@@ -589,31 +548,25 @@ class RotifersAPI
             $description .= self::remove_quotes($prepared_by);
             if(self::is_valid_string($rec["lngPrep_ID"])) $description .= "<br>Sex/stage/structure: " . $rec["lngPrep_ID"];
             $preparation = "";
-            if(self::is_valid_string($rec["lngDocuTypeSpecimen"])) 
-            {
+            if(self::is_valid_string($rec["lngDocuTypeSpecimen"])) {
                 $preparation .= "<br>Preparation: " . $rec["lngDocuTypeSpecimen"];
                 if($rec["lngPrepMeth_ID"]) $preparation .= "; " . $rec["lngPrepMeth_ID"];
             }
             $description .= $preparation;
             if(self::is_valid_string($rec["bytCountPrep"])) $description .= "<br>Specimen Count: " . $rec["bytCountPrep"];
             $notes = "";
-            if(self::is_valid_string($rec["lngEcolNote_ID"]))
-            {
+            if(self::is_valid_string($rec["lngEcolNote_ID"])) {
                 $notes .= "<br>Notes: " . $rec["lngEcolNote_ID"];
                 if(self::is_valid_string($rec["txtPrepNotes"])) $notes .= "; " . $rec["txtPrepNotes"];
                 if(self::is_valid_string($rec["txtPersNotes"])) $notes .= "; " . $rec["txtPersNotes"];
             }
             $description .= $notes;
             $description = self::remove_quotes($description);
-            if($description)
-            {
-                if($rec["taxon"] = trim(Functions::canonical_form($rec["taxon"])))
-                {
+            if($description) {
+                if($rec["taxon"] = trim(Functions::canonical_form($rec["taxon"]))) {
                     if($taxon_id = @$link[$rec["taxon"]]) self::get_texts($description, $taxon_id, 'Collection specimen', '#TypeInformation', $rec["lngSpecimen_ID"], $ref_ids, $agent_ids);
-                    else
-                    {
-                        if($taxon_id && $rec["taxon"] != "taxon" && !in_array($rec["taxon"], $this->invalid_taxa))
-                        {
+                    else {
+                        if($taxon_id && $rec["taxon"] != "taxon" && !in_array($rec["taxon"], $this->invalid_taxa)) {
                             $investigate++;
                             echo("\n investigate: specimen: [$taxon_id] --- taxon = " . $rec["taxon"] . "\n");
                         }
@@ -626,12 +579,10 @@ class RotifersAPI
 
     function create_instances_from_taxon_object($rec, $link, $level_to_process)
     {
-        if($level_to_process == "species")
-        {
+        if($level_to_process == "species") {
             if($rec["lngInfraRank_ID"] != "" || $rec["strSubSpeciesInfra"] != "") return $link;
         }
-        if($level_to_process == "subspecies")
-        {
+        if($level_to_process == "subspecies") {
             if($rec["lngInfraRank_ID"] == "" && $rec["strSubSpeciesInfra"] == "") return $link;
         }
 
@@ -647,14 +598,12 @@ class RotifersAPI
         $sciname = self::get_sciname($rec);
 
         $species_level_parent_id = self::get_parent(array($rec["tblGenus.lngGenus_ID"], $rec["lngFamily_ID"], $rec["lngOrder_ID"], $rec["lngSuperOrder_ID"], $rec["lngSubClass_ID"], $rec["lngClass_ID"], self::CLASS_PARENT_ID));
-        if($rec["lngInfraRank_ID"] != "" || $rec["strSubSpeciesInfra"] != "") // meaning taxon is subspecies
-        {
+        if($rec["lngInfraRank_ID"] != "" || $rec["strSubSpeciesInfra"] != "") { // meaning taxon is subspecies
             /* $parent_id = self::add_species_for_subspecies_taxon($rec, $species_level_parent_id); 
             this adds the binomial for the subspecies, if binomial doesn't exist - not needed anymore */
             $parent_id = $species_level_parent_id;
         }
-        else // meaning taxon is species
-        {
+        else { // meaning taxon is species
             $species_name = trim($rec["tblSpecies.lngGenus_ID"] . " " . $rec["strSpecies"]);
             $this->species_level_names[$species_name] = $rec;
             $parent_id = $species_level_parent_id;
@@ -669,8 +618,7 @@ class RotifersAPI
         // fill-up taxon_names
         $this->id_names_list[$sciname]["id"] = $taxon_id;
 
-        if($rec["bytValidity"] != "valid" || $rec["blnIsJunior"] == "TRUE")
-        {
+        if($rec["bytValidity"] != "valid" || $rec["blnIsJunior"] == "TRUE") {
             $this->invalid_taxa[] = Functions::canonical_form($sciname); // for stats
             return $link;
         }
@@ -688,8 +636,7 @@ class RotifersAPI
         $taxon->taxonomicStatus             = $rec["bytValidity"];
         $remarks = self::get_taxon_remarks($rec);
         $taxon->taxonRemarks                = $remarks;
-        if(!isset($this->taxon_ids[$taxon->taxonID]) && $taxon->scientificName)
-        {
+        if(!isset($this->taxon_ids[$taxon->taxonID]) && $taxon->scientificName) {
             $this->taxa[$taxon->taxonID] = $taxon;
             $this->taxon_ids[$taxon->taxonID] = 1;
         }
@@ -717,28 +664,22 @@ class RotifersAPI
         $genus_parent_id      = self::get_parent(array($rec["lngFamily_ID"], $rec["lngOrder_ID"], $rec["lngSuperOrder_ID"], $rec["lngSubClass_ID"], $rec["lngClass_ID"], $class_parent_id));
         $names = array();
 
-        if(isset($this->higher_level_taxa[$rec["lngClass_ID"]]))
-        {
+        if(isset($this->higher_level_taxa[$rec["lngClass_ID"]])) {
             if(self::is_valid_string($rec["strClass"]))      $names[] = array("taxon" => $rec["strClass"],      "id" => $rec["lngClass_ID"],          "rank" => "class",      "parent_id" => $class_parent_id,      "authorship" => $this->higher_level_taxa[$rec["lngClass_ID"]]["authorship"]);
         }
-        if(isset($this->higher_level_taxa[$rec["lngSubClass_ID"]]))
-        {
+        if(isset($this->higher_level_taxa[$rec["lngSubClass_ID"]])) {
             if(self::is_valid_string($rec["strSubClass"]))   $names[] = array("taxon" => $rec["strSubClass"],   "id" => $rec["lngSubClass_ID"],       "rank" => "subclass",   "parent_id" => $subclass_parent_id,   "authorship" => $this->higher_level_taxa[$rec["lngSubClass_ID"]]["authorship"]);
         }
-        if(isset($this->higher_level_taxa[$rec["lngSuperOrder_ID"]]))
-        {
+        if(isset($this->higher_level_taxa[$rec["lngSuperOrder_ID"]])) {
             if(self::is_valid_string($rec["strSuperOrder"])) $names[] = array("taxon" => $rec["strSuperOrder"], "id" => $rec["lngSuperOrder_ID"],     "rank" => "superorder", "parent_id" => $superorder_parent_id, "authorship" => $this->higher_level_taxa[$rec["lngSuperOrder_ID"]]["authorship"]);
         }
-        if(isset($this->higher_level_taxa[$rec["lngOrder_ID"]]))
-        {
+        if(isset($this->higher_level_taxa[$rec["lngOrder_ID"]])) {
             if(self::is_valid_string($rec["strOrder"]))      $names[] = array("taxon" => $rec["strOrder"],      "id" => $rec["lngOrder_ID"],          "rank" => "order",      "parent_id" => $order_parent_id,      "authorship" => $this->higher_level_taxa[$rec["lngOrder_ID"]]["authorship"]);
         }
-        if(isset($this->higher_level_taxa[$rec["lngFamily_ID"]]))
-        {
+        if(isset($this->higher_level_taxa[$rec["lngFamily_ID"]])) {
             if(self::is_valid_string($rec["strFamily"]))     $names[] = array("taxon" => $rec["strFamily"],     "id" => $rec["lngFamily_ID"],         "rank" => "family",     "parent_id" => $family_parent_id,     "authorship" => $this->higher_level_taxa[$rec["lngFamily_ID"]]["authorship"]);
         }
-        if(isset($this->higher_level_taxa[$rec["tblGenus.lngGenus_ID"]]))
-        {
+        if(isset($this->higher_level_taxa[$rec["tblGenus.lngGenus_ID"]])) {
             if(self::is_valid_string($rec["strGenus"]))      $names[] = array("taxon" => $rec["strGenus"],      "id" => $rec["tblGenus.lngGenus_ID"], "rank" => "genus",      "parent_id" => $genus_parent_id,      "authorship" => $this->higher_level_taxa[$rec["tblGenus.lngGenus_ID"]]["authorship"]);
         }
         self::add_higher_taxa($names);
@@ -746,11 +687,9 @@ class RotifersAPI
     
     private function get_parent($parents)
     {
-        foreach($parents as $parent)
-        {
+        foreach($parents as $parent) {
             $parts = explode("_", $parent);
-            if(self::is_valid_string(@$parts[1]))
-            {
+            if(self::is_valid_string(@$parts[1])) {
                 if(isset($this->higher_level_taxa[$parent])) return $parent;
             }
         }
@@ -761,8 +700,7 @@ class RotifersAPI
     {
         $species_name = trim($rec["tblSpecies.lngGenus_ID"] . " " . $rec["strSpecies"]);
         if(isset($this->species_level_names[$species_name])) return $this->species_level_names[$species_name]["lngSpecies_ID"];
-        else
-        {
+        else {
             $names = array();
             if(self::is_valid_string($species_name)) $names[] = array("taxon" => $species_name, "id" => str_replace(" ", "_", $species_name), "rank" => "species", "parent_id" => $species_level_parent_id);
             self::add_higher_taxa($names);
@@ -772,16 +710,14 @@ class RotifersAPI
     
     private function add_higher_taxa($names)
     {
-        foreach($names as $name)
-        {
+        foreach($names as $name) {
             $taxon = new \eol_schema\Taxon();
             $taxon->scientificName      = (string) $name["taxon"];
             $taxon->taxonID             = (string) $name["id"];
             $taxon->taxonRank           = (string) $name["rank"];
             $taxon->parentNameUsageID   = (string) $name["parent_id"];
             $taxon->scientificNameAuthorship = (string) @$name["authorship"];
-            if(!isset($this->taxon_ids[$taxon->taxonID]) && $taxon->scientificName)
-            {
+            if(!isset($this->taxon_ids[$taxon->taxonID]) && $taxon->scientificName) {
                 $this->taxa[$taxon->taxonID] = $taxon;
                 $this->taxon_ids[$taxon->taxonID] = 1;
             }
@@ -824,8 +760,7 @@ class RotifersAPI
 
     function create_archive()
     {
-        foreach($this->taxa as $t)
-        {
+        foreach($this->taxa as $t) {
             $this->archive_builder->write_object_to_file($t);
         }
         $this->archive_builder->finalize(true);
@@ -834,16 +769,14 @@ class RotifersAPI
     function load_zip_contents()
     {
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
-        if($file_contents = Functions::get_remote_file($this->zip_path, array('timeout' => 172800, 'download_attempts' => 2)))
-        {
+        if($file_contents = Functions::get_remote_file($this->zip_path, array('timeout' => 172800, 'download_attempts' => 2))) {
             $parts = pathinfo($this->zip_path);
             $temp_file_path = $this->TEMP_FILE_PATH . "/" . $parts["basename"];
             if(!($TMP = Functions::file_open($temp_file_path, "w"))) return;
             fwrite($TMP, $file_contents);
             fclose($TMP);
             $output = shell_exec("unzip $temp_file_path -d $this->TEMP_FILE_PATH");
-            if(!file_exists($this->TEMP_FILE_PATH . "/species.txt")) 
-            {
+            if(!file_exists($this->TEMP_FILE_PATH . "/species.txt")) {
                 $this->TEMP_FILE_PATH = str_ireplace(".zip", "", $temp_file_path);
                 if(!file_exists($this->TEMP_FILE_PATH . "/species.txt")) return;
             }
@@ -864,8 +797,7 @@ class RotifersAPI
             $this->text_path["references"]       = $this->TEMP_FILE_PATH . "/references.txt";
             $this->text_path["image_references"] = $this->TEMP_FILE_PATH . "/image_references.txt";
         }
-        else
-        {
+        else {
             debug("\n\n Connector terminated. Remote files are not ready.\n\n");
             return;
         }
@@ -873,8 +805,7 @@ class RotifersAPI
 
     private function get_rank($string)
     {
-        switch($string)
-        {
+        switch($string) {
             case "CL":
                  return "class";
                  break;
@@ -918,18 +849,15 @@ class RotifersAPI
         $ref_ids = array();
         $agent_ids = array();
         $investigate = 0;
-        foreach($texts as $rec)
-        {
+        foreach($texts as $rec) {
             if($rec["lngImage_ID"] == "lngImage_ID") continue;
             if($rec["lngImage_ID"] == "lngImage_ID" || $rec["blnPermission"] == "FALSE") continue;
             $description = "";
-            if($rec["lngDocuTypeSpecimen"]) 
-            {
+            if($rec["lngDocuTypeSpecimen"]) {
                 $description .= $rec["lngDocuTypeSpecimen"];
                 if($rec["lngPrep_ID"]) $description .= ", " . $rec["lngPrep_ID"];
             }
-            else
-            {
+            else {
                 if($rec["lngPrep_ID"]) $description .= $rec["lngPrep_ID"];
             }
             $rec["lngImage_ID"] = self::remove_quotes($rec["lngImage_ID"]);
@@ -937,16 +865,12 @@ class RotifersAPI
             if(!$media_url) continue;
             $rec["lngImage_ID"] = str_ireplace(" ", "_", $rec["lngImage_ID"]);
             $media_id = $rec["lngImage_ID"];
-            if($rec["lngImage_ID"])
-            {
+            if($rec["lngImage_ID"]) {
                 $rec["lngSpecies_ID"] = self::remove_quotes($rec["lngSpecies_ID"]);
-                if($rec["lngSpecies_ID"] = trim(Functions::canonical_form($rec["lngSpecies_ID"])))
-                {
+                if($rec["lngSpecies_ID"] = trim(Functions::canonical_form($rec["lngSpecies_ID"]))) {
                     if($taxon_id = @$link[$rec["lngSpecies_ID"]]) self::get_images($description, $taxon_id, $media_id, $media_url, $ref_ids, $agent_ids);
-                    else
-                    {
-                        if($taxon_id && $rec["lngSpecies_ID"] != "lngSpecies_ID" && !in_array($rec["lngSpecies_ID"], $this->invalid_taxa))
-                        {
+                    else {
+                        if($taxon_id && $rec["lngSpecies_ID"] != "lngSpecies_ID" && !in_array($rec["lngSpecies_ID"], $this->invalid_taxa)) {
                             $investigate++;
                             echo("\n investigate: specimen images: [$taxon_id] --- taxon = " . $rec["lngSpecies_ID"] . "\n");
                         }
@@ -964,10 +888,7 @@ class RotifersAPI
         $fields = array("identifier", "full_reference");
         $path = DOC_ROOT . "applications/content_server/resources/660/reference.tab";
         $records = $func->make_array($path, $fields, "", array());
-        foreach($records as $rec)
-        {
-            print_r($rec);
-        }
+        foreach($records as $rec) print_r($rec);
     }
 
 }
