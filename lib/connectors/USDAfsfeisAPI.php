@@ -70,7 +70,7 @@ class USDAfsfeisAPI
         // sub-sub-sub-topics ==================================================================================
         $this->sub_sub_subtopics["Movements and home range"] = array("Daily activity", "Seasonal movements and migration", "Dispersal", "Home range");
         $this->sub_sub_subtopics["Life span and survival"] = array("Predators", "Diseases and parasites", "Malnutrition and weather", "Fawn survival", "Hunting", "Calf survival");
-        $this->download_options = array('resource_id' => 'FEIS', 'expire_seconds' => false, 'download_wait_time' => 1500000, 'timeout' => 10800, 'download_attempts' => 1, 
+        $this->download_options = array('resource_id' => 'FEIS', 'expire_seconds' => false, 'download_wait_time' => 1000000, 'timeout' => 60*2, 'download_attempts' => 1, 
         'delay_in_minutes' => 0.5);
     }
 
@@ -179,8 +179,10 @@ class USDAfsfeisAPI
         $records[] = array("taxonID" => "1s11", "url" => "http://www.fs.fed.us/database/feis/animals/bird/aisp/all.html", "sciname" => "Aphssel11oc3oma coerudlescens", "vernacular" => "a2sd11a1sas", "kingdom" => "Animalia");
         */
         $urls = array();
-        foreach($records as $record)
-        {
+        $total = count($records); $i = 0;
+        foreach($records as $record) {
+            $i++;
+            if(($i % 100) == 0) echo "\n$i of $total";
             /* for unique URLs
             if(!in_array($record["url"], $urls))
             {
