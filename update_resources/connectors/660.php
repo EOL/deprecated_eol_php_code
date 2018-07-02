@@ -18,11 +18,11 @@ require_library('connectors/RotifersAPI');
 $timestart = time_elapsed();
 $resource_id = 660;
 $func = new RotifersAPI($resource_id);
-// $func->some_stats(); exit;
+
+// $func->some_stats(); exit;   //utility some stats
+
 $func->get_all_taxa();
-
-Functions::finalize_dwca_resource($resource_id);
-
+Functions::finalize_dwca_resource($resource_id, false, true);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";

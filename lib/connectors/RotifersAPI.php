@@ -16,11 +16,15 @@ class RotifersAPI
         $this->media_ids = array();
         $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
         $this->EOL = 'http://www.eol.org/voc/table_of_contents';
-        /* $this->zip_path = "http://localhost/~eolit/cp/Rotifers/rotifers.zip"; */
-        $this->zip_path = "https://dl.dropboxusercontent.com/u/7597512/Rotifers/rotifers.zip";
         $this->text_path = array();
-        /* $this->image_path = "http://www.rotifera.hausdernatur.at/TestRWC/Rotifer_data/images"; */
-        $this->image_path = "http://89.26.108.66/Rotifer_data/images";
+
+        // $this->zip_path = "http://localhost/cp/Rotifers/rotifers.zip";
+        $this->zip_path = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Rotifers/rotifers.zip";
+        
+        // $this->image_path = "http://www.rotifera.hausdernatur.at/TestRWC/Rotifer_data/images";   // old
+        // $this->image_path = "http://89.26.108.66/Rotifer_data/images";                           // old
+        $this->image_path = "http://www.rotifera.hausdernatur.at/Rotifer_data/images";              // new, working as of July 1, 2018
+        
         $this->invalid_taxa = array(); // for stats
         $this->taxa_references = array();
         $this->image_references = array();
@@ -834,11 +838,7 @@ class RotifersAPI
         {
             $parts = pathinfo($this->zip_path);
             $temp_file_path = $this->TEMP_FILE_PATH . "/" . $parts["basename"];
-            if(!($TMP = fopen($temp_file_path, "w")))
-            {
-              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_file_path);
-              return;
-            }
+            if(!($TMP = Functions::file_open($temp_file_path, "w"))) return;
             fwrite($TMP, $file_contents);
             fclose($TMP);
             $output = shell_exec("unzip $temp_file_path -d $this->TEMP_FILE_PATH");
