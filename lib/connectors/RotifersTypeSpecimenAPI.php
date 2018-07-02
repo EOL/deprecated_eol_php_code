@@ -8,6 +8,7 @@ class RotifersTypeSpecimenAPI
 {
     function __construct($folder)
     {
+        $this->resource_id = $folder;
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -16,15 +17,15 @@ class RotifersTypeSpecimenAPI
         $this->occurrence_ids = array();
         $this->specimen_page_by_guid = "http://rotifera.hausdernatur.at/Specimen/Index/";
         $this->species_page_by_guid  = "http://rotifera.hausdernatur.at/Species/Index/";
-        $this->zip_path = "http://localhost/~eolit/cp/Rotifers/type_specimen.zip";
-        $this->zip_path = "https://dl.dropboxusercontent.com/u/7597512/Rotifers/type_specimen.zip";
+        $this->zip_path = "http://localhost/cp_new/Rotifers/type_specimen.zip";
+        $this->zip_path = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Rotifers/type_specimen.zip";
         $this->text_path = array();
         $this->identified_by = array();
         $this->habitats = array();
         $this->institution_codes = array();
-        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 900, 'download_attempts' => 2); // 15mins timeout
-        $this->institutions_xls = "http://localhost/~eolit/cp/Rotifers/World_Rotifer_institutionsURIS.xls";
-        $this->institutions_xls = "https://dl.dropboxusercontent.com/u/7597512/Rotifers/World_Rotifer_institutionsURIS.xls";
+        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 60*5, 'download_attempts' => 2); //5 mins timeout
+        $this->institutions_xls = "http://localhost/cp_new/Rotifers/World_Rotifer_institutionsURIS.xls";
+        $this->institutions_xls = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Rotifers/World_Rotifer_institutionsURIS.xls";
     }
 
     function get_all_taxa()
@@ -517,7 +518,11 @@ class RotifersTypeSpecimenAPI
         else            $m->measurementValue = $value;
         
         $m->measurementMethod = '';
-        $this->archive_builder->write_object_to_file($m);
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        if(!isset($this->measurement_ids[$m->measurementID])) {
+            $this->archive_builder->write_object_to_file($m);
+            $this->measurement_ids[$m->measurementID] = '';
+        }
     }
 
     private function format_type_data($type, $rec)
