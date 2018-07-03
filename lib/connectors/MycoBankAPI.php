@@ -102,12 +102,13 @@ class MycoBankAPI
         
         /* testing...
         $ids = array(59827, 319124, 449153, 119112, 1, 2);
-        // $ids = array(36705); // 59827   319124   449153
+        $ids = array(562686); // 59827   319124   449153
+        //   294091
         foreach($ids as $id) {
             self::do_several_steps_for_an_id($id);
         }
-        $this->archive_builder->finalize(TRUE);
-        // exit("\n-end testing-\n");
+        // $this->archive_builder->finalize(TRUE);
+        exit("\n-end testing-\n");
         */
         
         // /* un-comment in normal operation
@@ -194,6 +195,7 @@ class MycoBankAPI
                     }
                 } // ===========================================================================
             }
+            // else echo "\nCannot access $id\n"; //good debug, those taxa that is excluded by policy
         }
     }
     private function write_taxon($basic)
@@ -308,11 +310,14 @@ class MycoBankAPI
     private function process_id($id)
     {
         if(!$id) return false;
+        // else echo "\npass here 01\n";
         $url = $this->api['_id'].'"'.$id.'"';
         if($response = self::without_error($url)) {
+            // echo "\npass here 02\n";
             $no_of_results = count($response->Taxon);
             if($no_of_results > 0 && $t = $response->Taxon) {
                 // print_r($t);
+                // echo "\npass here 03\n";
                 $basic = self::get_basic_info($id);
                 $ancestry = self::get_ancestry($t);
 
@@ -344,7 +349,12 @@ class MycoBankAPI
         $ancestry = array_reverse($ancestry);
         foreach($ancestry as $an) {
             // print_r($an);
-            if($an['NameStatus'] == "Legitimate") return $an['Id'];
+            echo "\n". $an['Id']."\n";
+            if($an['NameStatus'] == "Legitimate") {
+                if(self::process_id($an['Id'])) { //added criteria. This will prohibit a parent like Selenia perforans
+                    return $an['Id'];
+                }
+            }
             else {
                 /* 
                 e.g. species "Chamaeceras brasiliensis" (449153) has a parent = "Chamaeceras" which is invalid, so we got the current_name of "Chamaeceras" which is "Marasmius" (56879)
