@@ -76,6 +76,10 @@ class USDAfsfeisAPI
         /* To fix: PHP curl error The requested URL returned error: 403 Forbidden.
            add 'user_agent' option in $this->download_options as seen below. */
         $this->download_options['user_agent'] = 'User-Agent: curl/7.39.0';
+        $this->csv_taxa_list['plants'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/FEIS_groups/plants.csv"; //see http://localhost/cp_new/FEIS_plants/readmeli.txt
+        $this->csv_taxa_list['animals'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/FEIS_groups/animals.csv"; //see http://localhost/cp_new/FEIS_plants/readmeli.txt
+        $this->csv_taxa_list['lichens'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/FEIS_groups/lichens.csv"; //see http://localhost/cp_new/FEIS_plants/readmeli.txt
+
     }
 
     private function find_spm_given_subject($subject)
@@ -96,6 +100,51 @@ class USDAfsfeisAPI
     }
 
     public function prepare_taxa_urls()
+    {
+        foreach($this->main_groups as $kingdom => $group) {
+            $i = 0;
+            $local_csv = Functions::save_remote_file_to_local($this->csv_taxa_list[$group], array('cache' => 1));
+            if(!$file = Functions::file_open($local_csv, "r")) {
+                exit("\nCannot access CSV file [$this->csv_taxa_list[$group]]\n");
+                return;
+            }
+            while(!feof($file)) {
+                $temp = fgetcsv($file);
+                if(!$temp) continue;
+                $i++;
+                if(($i % 500) == 0) echo "\n".number_format($i);
+                if($i == 1) continue;
+                elseif($i == 2) $fields = $temp;
+                else {
+                    $rec = array();
+                    $k = 0;
+                    foreach($temp as $t) {
+                        $rec[$fields[$k]] = $t;
+                        $k++;
+                    }
+                    if($rec) {
+                        /* Array(
+                            [Acronym] => ABIAMA
+                            [Link] => https://www.fs.fed.us/database/feis/plants/tree/abiama/all.html
+                            [Scientific Name] => Abies amabilis
+                            [Common Name] => Pacific silver fir
+                            [Review Date] => 1992
+                            [Fire Study Availability] => Not Available
+                            [Fire Regime Availability] => Available
+                        )*/
+                        // print_r($rec);
+                        $filenames[$rec['Acronym']] = array("taxonID" => $rec['Acronym'], "url" => $rec['Link'], "sciname" => $rec['Scientific Name'], "vernacular" => $rec['Common Name'], "kingdom" => $kingdom);
+                    }
+                    // if($i > 5) break;  //debug only
+                }
+            } // end while{}
+            fclose($file);
+            unlink($local_csv);
+        }//end foreach()
+        // exit("\n".count($filenames)."\n");
+        return array_values($filenames);
+    }
+    public function prepare_taxa_urls_v1() //obsolete
     {
         $taxonIDs = array();
         foreach($this->main_groups as $kingdom => $group) {
@@ -167,7 +216,7 @@ class USDAfsfeisAPI
         $records = self::prepare_taxa_urls();
         /* // debug
         $records = array();
-        $records[] = array("taxonID" => "apco", "url" => "http://www.fs.fed.us/database/feis/animals/bird/apco/all.html", "sciname" => "Aphelocoma coerulescens", "vernacular" => "a2s11a1sas", "kingdom" => "Animalia");
+        // $records[] = array("taxonID" => "apco", "url" => "http://www.fs.fed.us/database/feis/animals/bird/apco/all.html", "sciname" => "Aphelocoma coerulescens", "vernacular" => "a2s11a1sas", "kingdom" => "Animalia");
         $records[] = array("taxonID" => "aisp", "url" => "http://www.fs.fed.us/database/feis/animals/bird/aisp/all.html", "sciname" => "Aix sponsa", "vernacular" => "a2sd11a1sas", "kingdom" => "Animalia");
         */
         $urls = array();
@@ -183,7 +232,7 @@ class USDAfsfeisAPI
             }
             */
             self::prepare_data($record);
-            if($i >= 5) break; //debug only
+            // if($i >= 5) break; //debug only
         }
         $this->create_archive();
         
@@ -247,12 +296,12 @@ class USDAfsfeisAPI
             $orig_rec = $rec;
             if($rec = self::assemble_page_framework($rec, $html))
             {
-                echo "\npass here 01\n"; 
+                // echo "\npass here 01\n";
             }
             else
             {
                 $rec = self::get_descriptions_from_html($html, $orig_rec);
-                echo "\npass here 02\n";
+                // echo "\npass here 02\n";
             }
             self::get_texts($rec, $agent_ids);
         }

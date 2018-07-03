@@ -17,6 +17,9 @@ $timestart = time_elapsed();
 
 $resource_id = "505";
 $group["Plantae"] = "plants";
+$group["Fungi"] = "lichens";
+$group["Animalia"] = "animals";
+
 
 $func = new USDAfsfeisAPI($resource_id, $group);
 $func->get_all_taxa();

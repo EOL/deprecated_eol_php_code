@@ -9,6 +9,7 @@ taxon.tab]                  [1176]      1141
 
 750	Thursday 2018-03-08 10:24:33 AM	{"measurement_or_fact.tab":10308,"occurrence.tab":3434,"taxon.tab":1140} eol-archive - all-fileds hash measurementID
 750	Friday 2018-03-09 12:01:12 AM	{"measurement_or_fact.tab":10308,"occurrence.tab":3434,"taxon.tab":1140}
+750	Tuesday 2018-07-03 10:28:48 AM	{"measurement_or_fact.tab":10308,"occurrence.tab":3434,"taxon.tab":1140} - hard-coded source data, thus no change for now.
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
