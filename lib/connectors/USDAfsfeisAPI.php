@@ -22,6 +22,7 @@ class USDAfsfeisAPI
         $this->EOL = 'http://www.eol.org/voc/table_of_contents';
         $this->temp_page_reference_nos = array();
         $this->class_name['Reptile'] = "Reptilia";
+        $this->class_name['Chelonia'] = "Reptilia";
         $this->class_name['Amphibian'] = "Amphibia";
         $this->class_name['Insect'] = "Insecta";
         $this->class_name['Mammal'] = "Mammalia";
@@ -292,7 +293,7 @@ class USDAfsfeisAPI
             */
             
             $this->temp_page_reference_nos = array();
-            self::get_references_from_html($html);
+            $reference_ids = self::get_references_from_html($html);
             $orig_rec = $rec;
             if($rec = self::assemble_page_framework($rec, $html))
             {
@@ -1638,7 +1639,7 @@ class USDAfsfeisAPI
         if($with_breaks) $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\11", "\011", "	", ""), " ", trim($str));
         return trim($str);
     }
-
+    /* not being used
     private function loop_references($references_array, $reference_ids)
     {
         foreach($references_array as $ref) {
@@ -1655,7 +1656,7 @@ class USDAfsfeisAPI
         }
         return $reference_ids;
     }
-
+    */
     function create_instances_from_taxon_object($rec, $reference_ids)
     {
         $taxon = new \eol_schema\Taxon();
