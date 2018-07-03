@@ -72,6 +72,10 @@ class USDAfsfeisAPI
         $this->sub_sub_subtopics["Life span and survival"] = array("Predators", "Diseases and parasites", "Malnutrition and weather", "Fawn survival", "Hunting", "Calf survival");
         $this->download_options = array('resource_id' => 'FEIS', 'expire_seconds' => 60*60*24*25, 'download_wait_time' => 1000000, 'timeout' => 60*2, 'download_attempts' => 1, 
         'delay_in_minutes' => 0.5);
+        // $this->download_options['expire_seconds'] = false;
+        /* To fix: PHP curl error The requested URL returned error: 403 Forbidden.
+           add 'user_agent' option in $this->download_options as seen below. */
+        $this->download_options['user_agent'] = 'User-Agent: curl/7.39.0';
     }
 
     private function find_spm_given_subject($subject)
@@ -163,8 +167,8 @@ class USDAfsfeisAPI
         $records = self::prepare_taxa_urls();
         /* // debug
         $records = array();
-        $records[] = array("taxonID" => "111", "url" => "http://www.fs.fed.us/database/feis/animals/bird/apco/all.html", "sciname" => "Aphel11oc3oma coerulescens", "vernacular" => "a2s11a1sas", "kingdom" => "Animalia");
-        $records[] = array("taxonID" => "1s11", "url" => "http://www.fs.fed.us/database/feis/animals/bird/aisp/all.html", "sciname" => "Aphssel11oc3oma coerudlescens", "vernacular" => "a2sd11a1sas", "kingdom" => "Animalia");
+        $records[] = array("taxonID" => "apco", "url" => "http://www.fs.fed.us/database/feis/animals/bird/apco/all.html", "sciname" => "Aphelocoma coerulescens", "vernacular" => "a2s11a1sas", "kingdom" => "Animalia");
+        $records[] = array("taxonID" => "aisp", "url" => "http://www.fs.fed.us/database/feis/animals/bird/aisp/all.html", "sciname" => "Aix sponsa", "vernacular" => "a2sd11a1sas", "kingdom" => "Animalia");
         */
         $urls = array();
         $total = count($records); $i = 0;
@@ -179,6 +183,7 @@ class USDAfsfeisAPI
             }
             */
             self::prepare_data($record);
+            if($i >= 5) break; //debug only
         }
         $this->create_archive();
         
@@ -240,8 +245,15 @@ class USDAfsfeisAPI
             $this->temp_page_reference_nos = array();
             self::get_references_from_html($html);
             $orig_rec = $rec;
-            if($rec = self::assemble_page_framework($rec, $html)){}
-            else $rec = self::get_descriptions_from_html($html, $orig_rec);
+            if($rec = self::assemble_page_framework($rec, $html))
+            {
+                echo "\npass here 01\n"; 
+            }
+            else
+            {
+                $rec = self::get_descriptions_from_html($html, $orig_rec);
+                echo "\npass here 02\n";
+            }
             self::get_texts($rec, $agent_ids);
         }
         $this->create_instances_from_taxon_object($rec, $reference_ids);
