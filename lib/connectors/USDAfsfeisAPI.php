@@ -70,7 +70,7 @@ class USDAfsfeisAPI
         // sub-sub-sub-topics ==================================================================================
         $this->sub_sub_subtopics["Movements and home range"] = array("Daily activity", "Seasonal movements and migration", "Dispersal", "Home range");
         $this->sub_sub_subtopics["Life span and survival"] = array("Predators", "Diseases and parasites", "Malnutrition and weather", "Fawn survival", "Hunting", "Calf survival");
-        $this->download_options = array('resource_id' => 'FEIS', 'expire_seconds' => false, 'download_wait_time' => 1000000, 'timeout' => 60*2, 'download_attempts' => 1, 
+        $this->download_options = array('resource_id' => 'FEIS', 'expire_seconds' => 60*60*24*25, 'download_wait_time' => 1000000, 'timeout' => 60*2, 'download_attempts' => 1, 
         'delay_in_minutes' => 0.5);
     }
 
@@ -78,14 +78,11 @@ class USDAfsfeisAPI
     {
         $groups = array($this->topics, $this->subtopics, $this->sub_subtopics, $this->sub_sub_subtopics);
         $spm = false;
-        foreach($groups as $group)
-        {
+        foreach($groups as $group) {
             $topics = array_keys($group);
-            foreach($topics as $topic)
-            {
+            foreach($topics as $topic) {
                 if(isset($this->subject[$topic]['category'])) $spm = @$this->subject[$topic]['category'];
-                foreach($group[$topic] as $group_topic)
-                {
+                foreach($group[$topic] as $group_topic) {
                     if(isset($this->subject[$group_topic]['category'])) $spm = $this->subject[$group_topic]['category'];
                     if($subject == $group_topic) return $spm;
                 }
@@ -97,16 +94,13 @@ class USDAfsfeisAPI
     public function prepare_taxa_urls()
     {
         $taxonIDs = array();
-        foreach($this->main_groups as $kingdom => $group)
-        {
+        foreach($this->main_groups as $kingdom => $group) {
             // echo "\n Group: $group";
-            if($html = Functions::lookup_with_cache($this->fsfeis_domain . $group . "/index.html", $this->download_options))
-            {
+            if($html = Functions::lookup_with_cache($this->fsfeis_domain . $group . "/index.html", $this->download_options)) {
                 if(preg_match("/Choose one of the following(.*?)<\/ol>/ims", $html, $arr)) $html = trim($arr[1]);
                 else continue;
                 if(preg_match_all("/href=\"(.*?)\"/ims", $html, $arr)) $pages = $arr[1];
-                foreach($pages as $page)
-                {
+                foreach($pages as $page) {
                     if(stripos($page, "index.html") == "") $page .= "index.html";
                     $filename = $this->fsfeis_domain . $group . "/" . $page;
                     
@@ -131,26 +125,20 @@ class USDAfsfeisAPI
                     ))) continue;
                     */
                     
-                    if($html = Functions::lookup_with_cache($filename, $this->download_options))
-                    {
-                        if(preg_match("/Common Name(.*?)<\/table>/ims", $html, $arr))
-                        {
+                    if($html = Functions::lookup_with_cache($filename, $this->download_options)) {
+                        if(preg_match("/Common Name(.*?)<\/table>/ims", $html, $arr)) {
                            $html = trim($arr[1]);
-                           if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $html, $arr))
-                           {
+                           if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $html, $arr)) {
                                 $records = $arr[1];
-                                foreach($records as $record)
-                                {
-                                    if(preg_match_all("/<td>(.*?)<\/td>/ims", $record, $arr))
-                                    {
+                                foreach($records as $record) {
+                                    if(preg_match_all("/<td>(.*?)<\/td>/ims", $record, $arr)) {
                                         $pagex = $arr[1];
                                         if(preg_match("/href=\"(.*?)\"/ims", $pagex[0], $arr)) $part = trim($arr[1]);
                                         if(preg_match("/\">(.*?)<\/a>/ims", $pagex[0], $arr)) $taxonID = trim($arr[1]);
                                         // http://www.fs.fed.us/database/feis/plants/bryophyte/aulpal/all.html
                                         $url = str_ireplace("/index.html", "", $filename) . "/" . $part;
                                         // echo "\n --- $url \n";
-                                        if(!in_array($taxonID, $taxonIDs))
-                                        {
+                                        if(!in_array($taxonID, $taxonIDs)) {
                                             $taxonIDs[] = $taxonID;
                                             $filenames[] = array("taxonID" => $taxonID, "url" => $url, "sciname" => $pagex[1], "vernacular" => $pagex[2], "kingdom" => $kingdom);
                                         }
