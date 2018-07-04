@@ -18,14 +18,10 @@ $timestart = time_elapsed();
 $resource_id = "505";
 $group["Plantae"] = "plants";
 $group["Fungi"] = "lichens";
-$group["Animalia"] = "animals";
-
 
 $func = new USDAfsfeisAPI($resource_id, $group);
 $func->get_all_taxa();
-
 Functions::finalize_dwca_resource($resource_id);
-
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "\n elapsed time = $elapsed_time_sec seconds";

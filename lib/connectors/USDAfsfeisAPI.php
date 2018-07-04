@@ -293,7 +293,9 @@ class USDAfsfeisAPI
             */
             
             $this->temp_page_reference_nos = array();
+            /* working but creates many taxon references
             $reference_ids = self::get_references_from_html($html);
+            */
             $orig_rec = $rec;
             if($rec = self::assemble_page_framework($rec, $html))
             {
@@ -1675,6 +1677,13 @@ class USDAfsfeisAPI
         $taxon->class                       = (string) trim(@$rec["class"]) != "" ? $this->class_name[$rec["class"]]  : "";
         $taxon->order                       = (string) trim(@$rec["order"]) != "" ? $rec["order"] : "";
         $this->taxa[$taxon_id] = $taxon;
+        
+        //for common names:
+        $v = new \eol_schema\VernacularName();
+        $v->taxonID         = $taxon_id;
+        $v->vernacularName  = $taxon->vernacularName;
+        $v->language        = 'en';
+        $this->archive_builder->write_object_to_file($v);
     }
     
     function create_archive()
@@ -1685,6 +1694,7 @@ class USDAfsfeisAPI
 
     private function get_references_from_html($html)
     {
+        $reference_ids = array();
         $html = str_ireplace("<a name='REFERENCES'>", '<a name="REFERENCES">', $html);
         if(preg_match("/<a name\=\"REFERENCES\"(.*?)<script/ims", $html, $arr) || preg_match("/<a name\=\"REFERENCES\"(.*?)<\/body>/ims", $html, $arr) || preg_match("/<a name\=\"REFERENCES(.*?)<\/body>/ims", $html, $arr))
         {
@@ -1707,11 +1717,13 @@ class USDAfsfeisAPI
                         {
                            $this->resource_reference_ids[] = $r->identifier;
                            $this->archive_builder->write_object_to_file($r);
+                           $reference_ids[$r->identifier] = '';
                         }
                     }
                     else continue;
                 }
             }
+            return array_keys($reference_ids);
         }
         else echo "\n\n wasn't able to locate REFERENCES: ";
     }
