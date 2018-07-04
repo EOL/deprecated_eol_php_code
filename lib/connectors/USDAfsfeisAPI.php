@@ -293,9 +293,7 @@ class USDAfsfeisAPI
             */
             
             $this->temp_page_reference_nos = array();
-            /* working but creates many taxon references
-            $reference_ids = self::get_references_from_html($html);
-            */
+            self::get_references_from_html($html);
             $orig_rec = $rec;
             if($rec = self::assemble_page_framework($rec, $html))
             {
@@ -308,7 +306,7 @@ class USDAfsfeisAPI
             }
             self::get_texts($rec, $agent_ids);
         }
-        $this->create_instances_from_taxon_object($rec, $reference_ids);
+        $this->create_instances_from_taxon_object($rec, $reference_ids); //$reference_ids are deliberately NULL
     }
 
     private function clean_li_tags($text)
@@ -1694,7 +1692,6 @@ class USDAfsfeisAPI
 
     private function get_references_from_html($html)
     {
-        $reference_ids = array();
         $html = str_ireplace("<a name='REFERENCES'>", '<a name="REFERENCES">', $html);
         if(preg_match("/<a name\=\"REFERENCES\"(.*?)<script/ims", $html, $arr) || preg_match("/<a name\=\"REFERENCES\"(.*?)<\/body>/ims", $html, $arr) || preg_match("/<a name\=\"REFERENCES(.*?)<\/body>/ims", $html, $arr))
         {
@@ -1717,13 +1714,11 @@ class USDAfsfeisAPI
                         {
                            $this->resource_reference_ids[] = $r->identifier;
                            $this->archive_builder->write_object_to_file($r);
-                           $reference_ids[$r->identifier] = '';
                         }
                     }
                     else continue;
                 }
             }
-            return array_keys($reference_ids);
         }
         else echo "\n\n wasn't able to locate REFERENCES: ";
     }
