@@ -252,8 +252,7 @@ class USDAfsfeisAPI
         $agent_ids = array();
         $descriptions = array();
         // echo "\n\n" . " - " . $rec['sciname'] . " - " . $rec['taxonID'] . " - " . $rec['url'];
-        if($html = Functions::lookup_with_cache($rec['url'], $this->download_options))
-        {
+        if($html = Functions::lookup_with_cache($rec['url'], $this->download_options)) {
             $html = str_ireplace('href="all.html#', 'href="#', $html);
             $html = str_ireplace(array("<br />", "<br >", "<br/>"), "<br>", trim($html));
             $html = str_ireplace("<br> <br>", "<br><br>", trim($html));
@@ -272,8 +271,7 @@ class USDAfsfeisAPI
             $html = str_ireplace("Postfire regeneration strategy", "POSTFIRE REGENERATION STRATEGY", $html);
             $html = str_ireplace("Fire adaptations and plant response to fire", "FIRE ADAPTATIONS AND PLANT RESPONSE TO FIRE", $html);
             $html = str_ireplace("SITE CHARACTERISITICS AND PLANT COMMUNITIES", "SITE CHARACTERISTICS AND PLANT COMMUNITIES", $html);
-            if(in_array($rec["url"], array("http://www.fs.fed.us/database/feis/plants/graminoid/panrep/all.html", "http://www.fs.fed.us/database/feis/plants/graminoid/junbal/all.html", "http://www.fs.fed.us/database/feis/plants/forb/melspp/all.html", "http://www.fs.fed.us/database/feis/plants/shrub/ameuta/all.html", "http://www.fs.fed.us/database/feis/plants/forb/eupcyp/all.html", "http://www.fs.fed.us/database/feis/plants/graminoid/spocom/all.html")))
-            {
+            if(in_array($rec["url"], array("http://www.fs.fed.us/database/feis/plants/graminoid/panrep/all.html", "http://www.fs.fed.us/database/feis/plants/graminoid/junbal/all.html", "http://www.fs.fed.us/database/feis/plants/forb/melspp/all.html", "http://www.fs.fed.us/database/feis/plants/shrub/ameuta/all.html", "http://www.fs.fed.us/database/feis/plants/forb/eupcyp/all.html", "http://www.fs.fed.us/database/feis/plants/graminoid/spocom/all.html"))) {
                 $html = str_ireplace(array("\n", "\t"), "", $html);
                 $html = str_ireplace("BOTANICAL AND ECOLOGICAL       CHARACTERISTICS", "BOTANICAL AND ECOLOGICAL CHARACTERISTICS", $html);
                 $html = str_ireplace("DISCUSSION AND QUALIFICATION   OF FIRE EFFECT", "DISCUSSION AND QUALIFICATION OF FIRE EFFECT", $html);
@@ -295,12 +293,10 @@ class USDAfsfeisAPI
             $this->temp_page_reference_nos = array();
             self::get_references_from_html($html);
             $orig_rec = $rec;
-            if($rec = self::assemble_page_framework($rec, $html))
-            {
+            if($rec = self::assemble_page_framework($rec, $html)) {
                 // echo "\npass here 01\n";
             }
-            else
-            {
+            else {
                 $rec = self::get_descriptions_from_html($html, $orig_rec);
                 // echo "\npass here 02\n";
             }
@@ -1697,21 +1693,18 @@ class USDAfsfeisAPI
         {
             $html = $arr[1];
             $html = strip_tags($html, "<a><blockquote>"); // e.g. http://www.fs.fed.us/database/feis/plants/forb/tanvul/all.html
-            if(preg_match_all("/<blockquote>(.*?)<\/blockquote>/ims", $html, $arr) || preg_match_all("/<a name\=\"(.*?)\]/ims", $html, $arr))
-            {
-                foreach($arr[1] as $ref)
-                {
+            if(preg_match_all("/<blockquote>(.*?)<\/blockquote>/ims", $html, $arr) || preg_match_all("/<a name\=\"(.*?)\]/ims", $html, $arr)) {
+                foreach($arr[1] as $ref) {
                     if(substr($ref, 0, 7) == "<a name") $ref = (string) trim(utf8_encode($ref));
                     else                                $ref = (string) '<a name="' . trim(utf8_encode($ref)) . "]";
                     if(preg_match("/<a name\=\"(.*?)\"/ims", $ref, $arr2)) $page_ref_no = $arr2[1];
                     $ref = self::clean_str(strip_tags($ref), true);
-                    if($ref)
-                    {   $r = new \eol_schema\Reference();
+                    if($ref) {
+                        $r = new \eol_schema\Reference();
                         $r->full_reference = (string) trim($ref);
                         $r->identifier = md5($r->full_reference);
                         $this->temp_page_reference_nos[$page_ref_no] = $r->identifier;
-                        if(!in_array($r->identifier, $this->resource_reference_ids))
-                        {
+                        if(!in_array($r->identifier, $this->resource_reference_ids)) {
                            $this->resource_reference_ids[] = $r->identifier;
                            $this->archive_builder->write_object_to_file($r);
                         }
