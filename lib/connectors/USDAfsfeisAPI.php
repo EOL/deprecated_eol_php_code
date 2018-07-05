@@ -111,6 +111,7 @@ class USDAfsfeisAPI
             }
             while(!feof($file)) {
                 $temp = fgetcsv($file);
+                $temp = str_replace(array("\t"), " ", $temp);
                 if(!$temp) continue;
                 $i++;
                 if(($i % 500) == 0) echo "\n".number_format($i);
@@ -134,6 +135,7 @@ class USDAfsfeisAPI
                             [Fire Regime Availability] => Available
                         )*/
                         // print_r($rec);
+                        $rec = array_map('trim', $rec);
                         $filenames[$rec['Acronym']] = array("taxonID" => $rec['Acronym'], "url" => $rec['Link'], "sciname" => $rec['Scientific Name'], "vernacular" => $rec['Common Name'], "kingdom" => $kingdom);
                     }
                     // if($i > 5) break;  //debug only
@@ -290,7 +292,8 @@ class USDAfsfeisAPI
             if(stripos($html, "<img ") != "" && stripos($html, "photo by") != "") $this->debug_spg[$rec['url']] = 1;
             */
             
-            $this->temp_page_reference_nos = array();
+            $this->temp_page_reference_nos = array();   //this is good, deliberately must be initialized here... that is for every record.
+            $this->tentative_refs_4writing = array();   //this is good, deliberately must be initialized here... that is for every record.
             self::get_references_from_html($html);
             $orig_rec = $rec;
             if($rec = self::assemble_page_framework($rec, $html)) {
@@ -1603,12 +1606,26 @@ class USDAfsfeisAPI
                 if($page_ref_no == 77) echo "\n[" .              $this->temp_page_reference_nos[$page_ref_no] . "]";
                 if(is_numeric($page_ref_no)) $reference_ids[] = @$this->temp_page_reference_nos[$page_ref_no];
                 */
-                if($val = @$this->temp_page_reference_nos[$page_ref_no]) $reference_ids[] = $val;
+                if($val = @$this->temp_page_reference_nos[$page_ref_no]) {
+                    $reference_ids[] = $val;
+                    self::write_ref($val);
+                }
             }
         }
         return $reference_ids;
     }
-
+    private function write_ref($ref_id) // new Jul 3, 2018
+    {
+        if($rec = $this->tentative_refs_4writing[$ref_id]) {
+            $r = new \eol_schema\Reference();
+            $r->full_reference  = $rec['full_reference'];
+            $r->identifier      = $rec['identifier'];
+            if(!in_array($r->identifier, $this->resource_reference_ids)) {
+               $this->resource_reference_ids[] = $r->identifier;
+               $this->archive_builder->write_object_to_file($r);
+            }
+        }
+    }
     private function remove_first_part_of_string($chars_2be_removed, $string)
     {
         foreach($chars_2be_removed as $chars) {
@@ -1653,6 +1670,23 @@ class USDAfsfeisAPI
         return $reference_ids;
     }
     */
+    
+    private function format_sciname($sciname)
+    {
+        // "Polygonum spp.: Polygonum sachalinense; P. cuspidatum; P. × bohemicum"
+        if(stripos($sciname, " spp.:") !== false) { //string is found
+            $arr = explode(" spp.:", $sciname);
+            $final = $arr[0]. " spp.";
+            return $final;
+        }
+        elseif(stripos($sciname, " spp:") !== false) { //string is found
+            $arr = explode(" spp:", $sciname);
+            $final = $arr[0]. " spp";
+            return $final;
+        }
+        
+        return $sciname;
+    }
     function create_instances_from_taxon_object($rec, $reference_ids)
     {
         $taxon = new \eol_schema\Taxon();
@@ -1664,18 +1698,22 @@ class USDAfsfeisAPI
         if(!$scientificName) {
             echo "\n ALERT: blank scientificName [$scientificName]";
             return; //blank
-        } 
+        }
+        
+        $scientificName = self::format_sciname($scientificName);
+        
         $taxon->scientificName              = $scientificName;
-        $taxon->vernacularName              = (string) $rec['vernacular'];
+        // $taxon->vernacularName              = (string) $rec['vernacular'];
         $taxon->kingdom                     = (string) $rec["kingdom"];
         $taxon->class                       = (string) trim(@$rec["class"]) != "" ? $this->class_name[$rec["class"]]  : "";
         $taxon->order                       = (string) trim(@$rec["order"]) != "" ? $rec["order"] : "";
+        $taxon->furtherInformationURL       = $rec['url'];
         $this->taxa[$taxon_id] = $taxon;
         
         //for common names:
         $v = new \eol_schema\VernacularName();
         $v->taxonID         = $taxon_id;
-        $v->vernacularName  = $taxon->vernacularName;
+        $v->vernacularName  = (string) $rec['vernacular'];
         $v->language        = 'en';
         $this->archive_builder->write_object_to_file($v);
     }
@@ -1700,6 +1738,7 @@ class USDAfsfeisAPI
                     if(preg_match("/<a name\=\"(.*?)\"/ims", $ref, $arr2)) $page_ref_no = $arr2[1];
                     $ref = self::clean_str(strip_tags($ref), true);
                     if($ref) {
+                        /* cannot write refs here, coz it is making many refs in reference.tab than it is actually being assigned to objects.
                         $r = new \eol_schema\Reference();
                         $r->full_reference = (string) trim($ref);
                         $r->identifier = md5($r->full_reference);
@@ -1708,6 +1747,13 @@ class USDAfsfeisAPI
                            $this->resource_reference_ids[] = $r->identifier;
                            $this->archive_builder->write_object_to_file($r);
                         }
+                        */
+                        //new Jul 3, 2018
+                        $r = array();
+                        $r['full_reference'] = (string) trim($ref);
+                        $r['identifier'] = md5($r['full_reference']);
+                        $this->temp_page_reference_nos[$page_ref_no] = $r['identifier'];
+                        $this->tentative_refs_4writing[$r['identifier']] = $r;
                     }
                     else continue;
                 }
