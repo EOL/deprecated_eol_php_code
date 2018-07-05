@@ -100,14 +100,15 @@ class MycoBankAPI
         exit;
         */
         
+        // 347622		39875	Myriocarpa lonicerae	species	Fuckel	valid
         /* testing...
         $ids = array(59827, 319124, 449153, 119112, 1, 2);
-        $ids = array(562686); // 59827   319124   449153
+        $ids = array(347622); // 59827   319124   449153
         //   294091
         foreach($ids as $id) {
             self::do_several_steps_for_an_id($id);
         }
-        // $this->archive_builder->finalize(TRUE);
+        $this->archive_builder->finalize(TRUE);
         exit("\n-end testing-\n");
         */
         
@@ -189,6 +190,7 @@ class MycoBankAPI
                 
                 // this will add taxon entry for the parent_id ===================================
                 if($parent_id = $basic['parent_id']) {
+                    // echo "\nparent_id is $parent_id\n";
                     if($basic = self::process_id($parent_id)) {
                         // print_r($basic);
                         self::write_taxon($basic);
@@ -349,7 +351,7 @@ class MycoBankAPI
         $ancestry = array_reverse($ancestry);
         foreach($ancestry as $an) {
             // print_r($an);
-            echo "\n". $an['Id']."\n";
+            // echo "\n". $an['Id']."\n";
             if($an['NameStatus'] == "Legitimate") {
                 if(self::process_id($an['Id'])) { //added criteria. This will prohibit a parent like Selenia perforans
                     return $an['Id'];
@@ -361,7 +363,12 @@ class MycoBankAPI
                 e.g. species "Sphaerella tini" (319124)          has a parent = "Sphaerella"  which is invalid and there is no current_name. So we move to the next parent which is "Mycosphaerellaceae" (92960)
                 */
                 if($an['Id'] != @$an['CurrentName']['Id']) {
-                    if(self::is_this_name_valid(@$an['CurrentName']['Id'])) return @$an['CurrentName']['Id'];
+                    if(self::is_this_name_valid(@$an['CurrentName']['Id'])) {
+                        if(self::process_id(@$an['CurrentName']['Id'])) { //added criteria. This will prohibit a parent like Selenia perforans
+                            echo "\nwas chosen here ".@$an['CurrentName']['Id']."\n";
+                            return @$an['CurrentName']['Id'];
+                        }
+                    }
                 }
             }
         }
