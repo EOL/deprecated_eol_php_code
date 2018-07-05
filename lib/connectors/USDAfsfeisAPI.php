@@ -1703,7 +1703,6 @@ class USDAfsfeisAPI
         $scientificName = self::format_sciname($scientificName);
         
         $taxon->scientificName              = $scientificName;
-        // $taxon->vernacularName              = (string) $rec['vernacular'];
         $taxon->kingdom                     = (string) $rec["kingdom"];
         $taxon->class                       = (string) trim(@$rec["class"]) != "" ? $this->class_name[$rec["class"]]  : "";
         $taxon->order                       = (string) trim(@$rec["order"]) != "" ? $rec["order"] : "";
