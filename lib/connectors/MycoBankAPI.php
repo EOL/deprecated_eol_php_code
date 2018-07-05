@@ -28,7 +28,7 @@ class MycoBankAPI
         $this->cannot_access_ids_file2 = DOC_ROOT."/tmp/671_cannot_access_ids copy.txt";
     }
     
-    function saving_ids_2text() // utility only, run only once
+    function saving_ids_2text() // started as just utility but became an integral part of the entire process.
     {
         if(!self::load_zip_contents()) return FALSE;
         require_library('XLSParser');
@@ -39,7 +39,9 @@ class MycoBankAPI
         foreach($arr['ID'] as $id) fwrite($OUT, $id."\n");
         fclose($OUT);
         recursive_rmdir($this->TEMP_FILE_PATH);
+        /* un-comment if u want to just generate text file.
         exit("\n-utility saving_ids_2text() done-\n");
+        */
     }
     function try_again_cannot_access_ids_txtfile() //utility only
     {
@@ -112,12 +114,24 @@ class MycoBankAPI
         exit("\n-end testing-\n");
         */
         
-        // /* un-comment in normal operation
+        /* un-comment in normal operation --- started ok but used up a lot of memory. Used below instead.
         if(!self::load_zip_contents()) return FALSE;
         self::parse_spreadsheet();
         $this->archive_builder->finalize(TRUE);
         recursive_rmdir($this->TEMP_FILE_PATH);
-        // */
+        */
+        
+        // working OK
+        self::saving_ids_2text(); //saves all ids to text file, which will then be accessed to process each id.
+        $filename = DOC_ROOT."/tmp/671_ids_list.txt";
+        $i = 0;
+        foreach(new FileIterator($filename) as $line_number => $id) {
+            $i++;
+            if(($i % 1000) == 0) echo "\n$i\n";
+            self::do_several_steps_for_an_id($id);
+        }
+        $this->archive_builder->finalize(TRUE);
+        recursive_rmdir($this->TEMP_FILE_PATH);
     }
     private function parse_spreadsheet()
     {
