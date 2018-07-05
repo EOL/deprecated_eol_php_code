@@ -105,8 +105,7 @@ class MycoBankAPI
         // 347622		39875	Myriocarpa lonicerae	species	Fuckel	valid
         /* testing...
         $ids = array(59827, 319124, 449153, 119112, 1, 2);
-        $ids = array(347622); // 59827   319124   449153
-        //   294091
+        $ids = array(347622); // 59827   319124   449153    294091
         foreach($ids as $id) {
             self::do_several_steps_for_an_id($id);
         }
