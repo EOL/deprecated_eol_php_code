@@ -66,6 +66,9 @@ class WikiDataAPI
         $this->license['by-sa']           = "http://creativecommons.org/licenses/by-sa/3.0/";
         $this->license['by-nc-sa']        = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $this->license['no restrictions'] = "No known copyright restrictions";
+        
+        $this->['count']['greater_equal_2995'] = 0;
+        $this->['count']['less_than_2995'] = 0;
     }
 
     function save_all_media_filenames($task, $range_from, $range_to, $actual_task = false) //one of pre-requisite steps
@@ -212,9 +215,14 @@ class WikiDataAPI
         $index = array_keys($this->debug);
         foreach($index as $i) {
             fwrite($f, "\n$i ---"."\n");
-            foreach(array_keys($this->debug[$i]) as $row) fwrite($f, "$row"."\n");
+            if(is_array($this->debug[$i])) {
+                foreach(array_keys($this->debug[$i]) as $row) fwrite($f, "$row"."\n");
+            }
+            else fwrite($f, $this->debug[$i]."\n");
         }
         fclose($f);
+        
+        print_r($this->['count']); //just a debug print of values
         
         // if(($this->what == "wikimedia") || ($this->what == "wikipedia" && $this->language_code == "en")) return array(true, true);
         return array(true, true); //all that reaches this point will return true true
@@ -1197,7 +1205,11 @@ class WikiDataAPI
         $wiki = self::remove_portions_of_wiki($wiki);
         $count = strlen($wiki);
         debug("\ncount = [$count]\n");
-        if($count >= 2995) return false; //2995 //4054 //6783
+        if($count >= 2995) { //2995 //4054 //6783
+            $this->['count']['greater_equal_2995']++;
+            return false;
+        }
+        else $this->['count']['less_than_2995']++;
         
         $options = $this->download_options;
         $options['expire_seconds'] = false; //always false bec. you're just converting wiki to html

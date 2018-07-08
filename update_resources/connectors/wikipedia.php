@@ -137,6 +137,7 @@ wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.t
 80	            Tuesday 2018-04-24 09:48:55 AM	{"media_resource.tab":672059,"taxon.tab":356038}
 80              Tuesday 2018-04-24 09:48:55 AM	{"media_resource.tab":672059,"taxon.tab":356038}
 80	            Saturday 2018-06-09 07:47:28 AM	{"media_resource.tab":672074,"taxon.tab":356035}
+80	            Sunday 2018-07-08 08:56:53 AM	{"media_resource.tab":672072,"taxon.tab":356034}
 
 wikipedia-de	Saturday 2017-11-11 08:52:35 PM	{"media_resource.tab":87725,"taxon.tab":55915}
 957	            Monday 2017-12-04 05:20:51 AM	{"media_resource.tab":87940,"taxon.tab":56041}
