@@ -141,9 +141,7 @@ class WikiDataAPI
         //         [File:] => 
         //     )
         
-        // https://commons.wikimedia.org/wiki/File:Virgin%27s_bower_(Clematis_terniflora).jpg
-        
-        $arr = self::process_file("Virgin%27s_bower_(Clematis_terniflora).jpg"); //File:Przewalski 26-9-2004-2.jpg //Virgin's bower (Clematis terniflora).jpg
+        $arr = self::process_file("Haworthia_arachnoidea_-_cobweb_aloe.jpg"); //File:Przewalski 26-9-2004-2.jpg //Virgin's bower (Clematis terniflora).jpg
         print_r($arr);
         exit("\n-Finished testing-\n");
         */
@@ -2497,6 +2495,8 @@ class WikiDataAPI
             $pd = array();
             $pd[] = "PD-US";
             $pd[] = "PD-NASA";
+            $pd[] = "PD-NOAA";          //added Jul 9, 2018
+            $pd[] = "PD-ineligible";    //added Jul 9, 2018
             $pd[] = "RatEatingSunflowerseads.jpg";
             $pd[] = "under public domain term";
             $pd[] = "From U.S. Fish and Wildlife";
@@ -2544,6 +2544,12 @@ class WikiDataAPI
             }
 
             if(substr(strtolower($LicenseShortName),0,5) == "user:") return "invalid"; //starts with "User:"
+
+            //start: added Jul 9, 2018 ----------------------------------------------------------------------------------------
+            if($LicenseShortName == "I have contacted the author, who has agreed to release these pictures under CC-BY") return $this->license['by'];
+            if($LicenseShortName == "CC BY-SA 4.0") return $this->license['by-sa'];
+            if($LicenseShortName == "CC-BY") return $this->license['by'];
+            //end: added Jul 9, 2018 ----------------------------------------------------------------------------------------
 
             $this->debug['blank_license'][$LicenseShortName] = ''; //utility debug - important
             /* finally if LicenseShortName is still undefined it will be considered 'invalid' */
