@@ -160,6 +160,28 @@ class ConvertEOLtoDWCaAPI
                 $rec['obj_identifier'] = pathinfo($rec['mediaURL'], PATHINFO_BASENAME);
                 $rec['mediaURL'] = "https://editors.eol.org/other_files/DCBirds_video/".$rec['obj_identifier'];
             }
+            
+            if($this->resource_id == 200) { //Bioimages Vanderbilt XML - https://eol-jira.bibalex.org/browse/DATA-1656?focusedCommentId=62673&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62673
+                //1st get the agent(s), then save it in media tab as 'creator'. As in: http://eol.org/schema/media_extension.xml#creator
+                //and if there are no <agent>'s, put Malcolm Storey as 'creator'.
+                if($obj = @$o->agent) {
+                    if($agents = self::process_agent($obj, $params)) {
+                        /* Array(
+                            [0] => Array(
+                                    [term_name] => Steven J. Baskauf
+                                    [agentRole] => photographer
+                                    [agentID] => 42b508d6fda1e8199455c02a47d851fb
+                                    [term_homepage] => 
+                                )
+                        )*/
+                        $creator = array();
+                        foreach($agents as $tmp) $creator[] = $tmp['term_name'];
+                        $creator = implode("; ", $creator);
+                        $rec['creator'] = $creator;
+                    }
+                }
+                else $rec['creator'] = 'Malcolm Storey'; // print_r($obj); print_r($rec); print_r($o); //good debug
+            }
             // ================================================================end filters - for quality control ==================================================================
 
 
@@ -188,6 +210,16 @@ class ConvertEOLtoDWCaAPI
                     $rec["agentID"] = implode("; ", array_keys($agent_ids));
                 }
             }
+            
+            //start customize --------------------------------------------------------------------------------------//Bioimages Vanderbilt XML - https://eol-jira.bibalex.org/browse/DATA-1656?focusedCommentId=62673&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62673
+            if($this->resource_id == 200) { //for all records, add another agent - with role 'compiler' "Malcolm Storey"
+                $additional_agent = array('term_name' => 'Malcolm Storey', 'agentRole' => 'compiler', 'agentID' => md5('Malcolm Storey'), 'term_homepage' => '');
+                self::create_archive($additional_agent, "agent");
+                $agent_ids[$additional_agent["agentID"]] = '';
+                $rec["agentID"] = implode("; ", array_keys($agent_ids));
+            }
+            //end customize --------------------------------------------------------------------------------------
+            
 
             /* obsolete but good reference to history
             if(in_array($params["dataset"], array("EOL China", "EOL XML")))
