@@ -67,8 +67,8 @@ class WikiDataAPI
         $this->license['by-nc-sa']        = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $this->license['no restrictions'] = "No known copyright restrictions";
         
-        $this->['count']['greater_equal_2995'] = 0;
-        $this->['count']['less_than_2995'] = 0;
+        $this->count['greater_equal_2995'] = 0;
+        $this->count['less_than_2995'] = 0;
     }
 
     function save_all_media_filenames($task, $range_from, $range_to, $actual_task = false) //one of pre-requisite steps
@@ -140,7 +140,10 @@ class WikiDataAPI
         //         [File:] => Aix_sponsa_dis1.PNG Aix sponsa dis1.PNG | Alnus acuminata 4.jpg
         //         [File:] => 
         //     )
-        $arr = self::process_file("Przewalski 26-9-2004-2.jpg"); //File:Przewalski 26-9-2004-2.jpg //Virgin's bower (Clematis terniflora).jpg
+        
+        // https://commons.wikimedia.org/wiki/File:Virgin%27s_bower_(Clematis_terniflora).jpg
+        
+        $arr = self::process_file("Virgin%27s_bower_(Clematis_terniflora).jpg"); //File:Przewalski 26-9-2004-2.jpg //Virgin's bower (Clematis terniflora).jpg
         print_r($arr);
         exit("\n-Finished testing-\n");
         */
@@ -222,7 +225,7 @@ class WikiDataAPI
         }
         fclose($f);
         
-        print_r($this->['count']); //just a debug print of values
+        print_r($this->count); //just a debug print of values
         
         // if(($this->what == "wikimedia") || ($this->what == "wikipedia" && $this->language_code == "en")) return array(true, true);
         return array(true, true); //all that reaches this point will return true true
@@ -1206,10 +1209,10 @@ class WikiDataAPI
         $count = strlen($wiki);
         debug("\ncount = [$count]\n");
         if($count >= 2995) { //2995 //4054 //6783
-            $this->['count']['greater_equal_2995']++;
+            $this->count['greater_equal_2995']++;
             return false;
         }
-        else $this->['count']['less_than_2995']++;
+        else $this->count['less_than_2995']++;
         
         $options = $this->download_options;
         $options['expire_seconds'] = false; //always false bec. you're just converting wiki to html
