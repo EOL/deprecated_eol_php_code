@@ -104,8 +104,8 @@ class MycoBankAPI
         
         // 347622		39875	Myriocarpa lonicerae	species	Fuckel	valid
         /* testing...
-        $ids = array(59827, 319124, 449153, 119112, 1, 2);
-        $ids = array(347622); // 59827   319124   449153    294091
+        $ids = array(59827, 319124, 449153, 119112, 1, 2, 16449);
+        $ids = array(108246); // 59827   319124   449153    294091    (weird 16449)
         foreach($ids as $id) {
             self::do_several_steps_for_an_id($id);
         }
@@ -113,7 +113,7 @@ class MycoBankAPI
         exit("\n-end testing-\n");
         */
         
-        /* un-comment in normal operation --- started ok but used up a lot of memory. Used below instead.
+        /* main - started ok but used up a lot of memory. Used below instead.
         if(!self::load_zip_contents()) return FALSE;
         self::parse_spreadsheet();
         $this->archive_builder->finalize(TRUE);
@@ -121,7 +121,7 @@ class MycoBankAPI
         */
         
         // working OK
-        self::saving_ids_2text(); //saves all ids to text file, which will then be accessed to process each id.
+        // self::saving_ids_2text(); //saves all ids to text file, which will then be accessed to process each id.
         $filename = DOC_ROOT."/tmp/671_ids_list.txt";
         $i = 0;
         foreach(new FileIterator($filename) as $line_number => $id) {
@@ -132,86 +132,45 @@ class MycoBankAPI
         $this->archive_builder->finalize(TRUE);
         recursive_rmdir($this->TEMP_FILE_PATH);
     }
-    private function parse_spreadsheet()
-    {
-        require_library('XLSParser');
-        $parser = new XLSParser();
-        debug("\n reading: " . $this->TEMP_FILE_PATH . "/Export.xlsx" . " ...\n");
-        $arr = $parser->convert_sheet_to_array($this->TEMP_FILE_PATH . "/Export.xlsx", 0);
-        // print_r($arr);
-        $fields = array_keys($arr);
-        /* cols for sheet 0 [0 - 494461 records]
-        Array(
-            [0] => ID
-            [1] => Taxon_name
-            [2] => Authors
-            [3] => Year_of_publication
-            [4] => MycoBank__
-            [5] => Current name.Taxon_name
-            [6] => Website
-        )
-        */
-        /* display first 20 values for each field.
-        foreach($fields as $field) {
-            echo "\n[$field]";
-            for($i = 0; $i <= 20; $i++) {
-                echo "\n".$arr[$field][$i];
-            }
-        }
-        */
-        
-        //starts normal operation
-        $ids = $arr['ID'];
-        $total = count($ids);
-        $arr = null;
-        $i = 0;
-        foreach($ids as $id) {
-            $i++; 
-            if(($i % 1000) == 0) echo "\n[$i of $total]";
-            self::do_several_steps_for_an_id($id);
-        }
-    }
     private function do_several_steps_for_an_id($id)
     {
-        if(true) {
-            if($basic = self::process_id($id)) {
-                // print_r($basic);
-                self::write_taxon($basic);
-                
-                // this will add taxon entry for each of the ancestry  ===================================
-                if($recs = $basic['ancestry']) {
-                    foreach($recs as $rec) {
-                        $id = $rec['Id'];
-                        if($basic2 = self::process_id($id)) {
-                            // print_r($basic2);
-                            self::write_taxon($basic2);
+        if($basic = self::process_id($id)) {
+            // print_r($basic);
+            self::write_taxon($basic);
+            
+            // this will add taxon entry for each of the ancestry  ===================================
+            if($recs = $basic['ancestry']) {
+                foreach($recs as $rec) {
+                    $id = $rec['Id'];
+                    if($basic2 = self::process_id($id)) {
+                        // print_r($basic2);
+                        self::write_taxon($basic2);
 
-                            //2nd level of ancestry
-                            if($recs2 = $basic2['ancestry']) {
-                                foreach($recs2 as $rec) {
-                                    $id = $rec['Id'];
-                                    if($basic3 = self::process_id($id)) {
-                                        // print_r($basic3);
-                                        self::write_taxon($basic3);
-                                    }
+                        //2nd level of ancestry
+                        if($recs2 = $basic2['ancestry']) {
+                            foreach($recs2 as $rec) {
+                                $id = $rec['Id'];
+                                if($basic3 = self::process_id($id)) {
+                                    // print_r($basic3);
+                                    self::write_taxon($basic3);
                                 }
                             }
-                            
                         }
                     }
-                } // ===========================================================================
-                
-                // this will add taxon entry for the parent_id ===================================
-                if($parent_id = $basic['parent_id']) {
-                    // echo "\nparent_id is $parent_id\n";
-                    if($basic = self::process_id($parent_id)) {
-                        // print_r($basic);
-                        self::write_taxon($basic);
-                    }
-                } // ===========================================================================
-            }
-            // else echo "\nCannot access $id\n"; //good debug, those taxa that is excluded by policy
+                }
+            } // ===========================================================================
+            
+            // this will add taxon entry for the parent_id ===================================
+            if($parent_id = $basic['parent_id']) {
+                // echo "\nparent_id is $parent_id\n";
+                if($basic = self::process_id($parent_id)) {
+                    // print_r($basic);
+                    self::write_taxon($basic);
+                }
+            } // ===========================================================================
         }
+        // else echo "\nCannot access $id\n"; //good debug, those taxa that is excluded by policy
+        
     }
     private function write_taxon($basic)
     {
@@ -325,14 +284,11 @@ class MycoBankAPI
     private function process_id($id)
     {
         if(!$id) return false;
-        // else echo "\npass here 01\n";
         $url = $this->api['_id'].'"'.$id.'"';
         if($response = self::without_error($url)) {
-            // echo "\npass here 02\n";
             $no_of_results = count($response->Taxon);
             if($no_of_results > 0 && $t = $response->Taxon) {
                 // print_r($t);
-                // echo "\npass here 03\n";
                 $basic = self::get_basic_info($id);
                 $ancestry = self::get_ancestry($t);
 
@@ -346,7 +302,7 @@ class MycoBankAPI
                     }
                 } //=====================================================================================================
                 
-                $parent_id = self::get_parent_id($ancestry);
+                $parent_id = self::get_parent_id($ancestry, $id);
                 $basic['ancestry'] = $ancestry;
                 $basic['parent_id'] = $parent_id;
                 return $basic;
@@ -359,7 +315,7 @@ class MycoBankAPI
         // print_r($ancestry); exit;
         return @$ancestry[0]['NameStatus'];
     }
-    private function get_parent_id($ancestry)
+    private function get_parent_id($ancestry, $child_id)
     {
         $ancestry = array_reverse($ancestry);
         foreach($ancestry as $an) {
@@ -377,6 +333,8 @@ class MycoBankAPI
                 */
                 if($an['Id'] != @$an['CurrentName']['Id']) {
                     if(self::is_this_name_valid(@$an['CurrentName']['Id'])) {
+                        if($child_id == @$an['CurrentName']['Id']) continue; //this fixes case of id 16449
+                        
                         if(self::process_id(@$an['CurrentName']['Id'])) { //added criteria. This will prohibit a parent like Selenia perforans
                             // echo "\nwas chosen here ".@$an['CurrentName']['Id']."\n";
                             return @$an['CurrentName']['Id'];
@@ -468,6 +426,49 @@ class MycoBankAPI
         if(!($WRITE = Functions::file_open($this->dump_file, "w"))) return;
         fclose($WRITE);
     }
+    /*
+    private function parse_spreadsheet()
+    {
+        require_library('XLSParser');
+        $parser = new XLSParser();
+        debug("\n reading: " . $this->TEMP_FILE_PATH . "/Export.xlsx" . " ...\n");
+        $arr = $parser->convert_sheet_to_array($this->TEMP_FILE_PATH . "/Export.xlsx", 0);
+        // print_r($arr);
+        $fields = array_keys($arr);
+
+        // cols for sheet 0 [0 - 494461 records]
+        // Array(
+        //     [0] => ID
+        //     [1] => Taxon_name
+        //     [2] => Authors
+        //     [3] => Year_of_publication
+        //     [4] => MycoBank__
+        //     [5] => Current name.Taxon_name
+        //     [6] => Website
+        // )
+        
+
+        // display first 20 values for each field.
+        // foreach($fields as $field) {
+        //     echo "\n[$field]";
+        //     for($i = 0; $i <= 20; $i++) {
+        //         echo "\n".$arr[$field][$i];
+        //     }
+        // }
+        
+        
+        //starts normal operation
+        $ids = $arr['ID'];
+        $total = count($ids);
+        $arr = null;
+        $i = 0;
+        foreach($ids as $id) {
+            $i++; 
+            if(($i % 1000) == 0) echo "\n[$i of $total]";
+            self::do_several_steps_for_an_id($id);
+        }
+    }
+    */
     //#########################################################################################################################################################
     function get_all_taxa()
     {

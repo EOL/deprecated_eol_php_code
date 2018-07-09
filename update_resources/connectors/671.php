@@ -16,6 +16,7 @@ $func = new MycoBankAPI($resource_id);
 // $func->access_text_for_caching(); exit; //utility only, for caching
 // $func->try_again_cannot_access_ids_txtfile(); exit;
 // */
+$GLOBALS['ENV_DEBUG'] = true;
 
 $func->start();
 Functions::finalize_dwca_resource($resource_id);
