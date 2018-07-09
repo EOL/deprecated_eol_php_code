@@ -333,7 +333,7 @@ class MycoBankAPI
                 */
                 if($an['Id'] != @$an['CurrentName']['Id']) {
                     if(self::is_this_name_valid(@$an['CurrentName']['Id'])) {
-                        if($child_id == @$an['CurrentName']['Id']) continue; //this fixes case of id 16449
+                        if($child_id == @$an['CurrentName']['Id']) continue; //this fixes case of id 16449. the one that causes infinite loop
                         
                         if(self::process_id(@$an['CurrentName']['Id'])) { //added criteria. This will prohibit a parent like Selenia perforans
                             // echo "\nwas chosen here ".@$an['CurrentName']['Id']."\n";
