@@ -31,6 +31,7 @@ class ADUVirtualMuseumAPI
         [10] => spidermap
         [11] => vith
         */
+        $this->download_options = array('resource_id' => 716, 'download_wait_time' => 2000000, 'timeout' => 60*3, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'expire_seconds' => 60*60*24*25);
     }
 
     function get_all_taxa()
@@ -41,8 +42,7 @@ class ADUVirtualMuseumAPI
         // $databases = array("echinomap", "spidermap"); // debug
         $total = count($databases);
         $i = 0;
-        foreach($databases as $database) 
-        {
+        foreach($databases as $database) {
             $i++;
             self::process_database($database, "$i of $total");
         }
@@ -65,7 +65,7 @@ class ADUVirtualMuseumAPI
         {
             echo "\n $i of $loops [$database] [$remark] \n";
             $url = $path . $start . "&query_id=" . $details["query_id"];
-            if($html = Functions::get_remote_file($url, array('download_wait_time' => 3000000, 'timeout' => 9600, 'download_attempts' => 2, 'delay_in_minutes' => 5)))
+            if($html = Functions::lookup_with_cache($url, $this->download_options))
             {
                 self::process_html($html);
             }
@@ -76,7 +76,7 @@ class ADUVirtualMuseumAPI
 
     private function get_queryID_totalNum($url)
     {
-        if($html = Functions::get_remote_file($url, array('download_wait_time' => 3000000, 'timeout' => 9600, 'download_attempts' => 2, 'delay_in_minutes' => 5)))
+        if($html = Functions::lookup_with_cache($url, $this->download_options))
         {
             if(preg_match("/\&query_id\=(.*?)\&/ims", $html, $match)) $query_id = $match[1];
             if(preg_match("/\&numRows\=(.*?)\&/ims", $html, $match)) $numRows = $match[1];
@@ -175,7 +175,7 @@ class ADUVirtualMuseumAPI
     private function get_main_groups()
     {
         $groups = array();
-        if($html = Functions::get_remote_file($this->domain, array('timeout' => 9600, 'download_attempts' => 2, 'delay_in_minutes' => 5)))
+        if($html = Functions::lookup_with_cache($this->domain, $this->download_options))
         {
             if(preg_match_all("/href=\"vm_search\.php(.*?)\"/ims", $html, $match))
             {
