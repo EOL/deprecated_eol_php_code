@@ -54,21 +54,32 @@ class ADUVirtualMuseumAPI
     {
         $path = $this->domain . "/vm_view_db.php?database=" . $database . "&Records_per_page=" . $this->Records_per_page . "&start=";
         $url = $path . "0";
-        $details = self::get_queryID_totalNum($url);
+        $details = self::get_queryID_totalNum($url, $database);
         if(!$details) return;
 
         // /* Forcing to use specific query_id
         $details['query_id'] = 965935;
-        $details['query_id'] = ''; //best option so URL can be cached properly since the query_id is not changing.
+        // $details['query_id'] = ''; //best option so URL can be cached properly since the query_id is not changing.
         // */
         
         print_r($details); //exit;
         $loops = ceil($details["numRows"] / $this->Records_per_page);
         echo "\n loops: $loops \n";
-        
+        $m = $loops/3;
         $start = $this->Records_per_page;
         for($i = 2; $i <= $loops; $i++)
         {
+            
+            /* breakdown when caching:
+            $cont = false;
+            // if($i >=  1    && $i < $m) $cont = true;
+            if($i >=  $m   && $i < $m*2) $cont = true;
+            // if($i >=  $m*2 && $i < $m*3) $cont = true;
+            if(!$cont) continue;
+            */
+            
+            
+            
             echo "\n $i of $loops [$database] [$remark] \n";
             $url = $path . $start . "&query_id=" . $details["query_id"];
             if($html = Functions::lookup_with_cache($url, $this->download_options))
@@ -80,15 +91,14 @@ class ADUVirtualMuseumAPI
         }
     }
 
-    private function get_queryID_totalNum($url)
+    private function get_queryID_totalNum($url, $database)
     {
         if($html = Functions::lookup_with_cache($url, $this->download_options))
         {
             if(preg_match("/\&query_id\=(.*?)\&/ims", $html, $match)) $query_id = $match[1];
             if(preg_match("/\&numRows\=(.*?)\&/ims", $html, $match)) $numRows = $match[1];
-            if($query_id && $numRows)
-            {
-                self::process_html($html);
+            if($query_id && $numRows) {
+                self::process_html($html, $database);
                 return array("query_id" => $query_id, "numRows" => $numRows);
             }
             else echo "\n investigate: query_id or numRows not available\n";
@@ -102,24 +112,19 @@ class ADUVirtualMuseumAPI
         $records = array();
         $html = str_replace('<table width="700" border="1" cellspacing="5" cellpadding="0" align="center">', "xxxyyy", $html);
         $html = str_replace('<br /><table', "yyyzzz", $html);
-        if(preg_match("/xxxyyy(.*?)yyyzzz/ims", $html, $match))
-        {
+        if(preg_match("/xxxyyy(.*?)yyyzzz/ims", $html, $match)) {
             $html = str_replace('<table width="100%" border="0" cellspacing="0" cellpadding="0">', "<table>", $match[1]);
-            if(preg_match_all("/<table>(.*?)<\/table>/ims", $html, $match))
-            {
-                foreach($match[1] as $html)
-                {
+            if(preg_match_all("/<table>(.*?)<\/table>/ims", $html, $match)) {
+                foreach($match[1] as $html) {
                     $record = array();
                     $html = strip_tags($html, "<td><img><a>");
                     if(preg_match("/(.*?)identification pending/ims", $html, $match2)) continue;
-                    if(preg_match("/alt=\"(.*?)\"/ims", $html, $match2))
-                    {
+                    if(preg_match("/alt=\"(.*?)\"/ims", $html, $match2)) {
                         $record["image"] = $match2[1];
                         if(preg_match("/there are(.*?)photos/ims", $html, $match2)) $record["image_count"] = trim($match2[1]);
                         elseif(preg_match("/there is(.*?)photo/ims", $html, $match2)) $record["image_count"] = trim($match2[1]);
                     }
-                    if(preg_match("/Species\:(.*?)\\n/ims", $html, $match2))
-                    {
+                    if(preg_match("/Species\:(.*?)\\n/ims", $html, $match2)) {
                         $record["species"] = $match2[1];
                         $temp = explode("--", $record["species"]);
                         $record["taxon_id"] = trim($temp[0]);
@@ -131,13 +136,11 @@ class ADUVirtualMuseumAPI
                         (Theraphosidae) 
                                  Long Skimmer -- Dragonflies (Libellulidae) 
                     */
-                    if(preg_match("/\&nbsp\;\&nbsp\;(.*?)\\n/ims", $html, $match2))
-                    {
+                    if(preg_match("/\&nbsp\;\&nbsp\;(.*?)\\n/ims", $html, $match2)) {
                          $record["vernacular"] = trim(str_ireplace("&nbsp;", "", $match2[1]));
                          $record["vernacular"] = self::remove_parenthesis($record["vernacular"]);
                     }
-                    if(preg_match_all("/\((.*?)\)/ims", $html, $match2))
-                    {
+                    if(preg_match_all("/\((.*?)\)/ims", $html, $match2)) {
                         foreach($match2[1] as $match3) // to get the last parenthesis - which is the family
                         {
                              $record["family"] = trim($match3);
@@ -145,18 +148,15 @@ class ADUVirtualMuseumAPI
                         if($record["family"] == $record["species"]) $record["family"] = "";
                     }
                     
-                    if(preg_match("/Observer\:(.*?)\\n/ims", $html, $match2))
-                    {
+                    if(preg_match("/Observer\:(.*?)\\n/ims", $html, $match2)) {
                         $record["observer"] = $match2[1];
                         $temp = explode(";", $record["observer"]);
                         
-                        if(count($temp) == 2)
-                        {
+                        if(count($temp) == 2) {
                             $index2 = 1;
                             $record["observer"] = trim($temp[0]);
                         }
-                        elseif(count($temp) > 2) // multiple observers
-                        {
+                        elseif(count($temp) > 2) { // multiple observers
                             $index2 = count($temp) - 1;
                             $pos = strrpos($match2[1], ";");
                             $record["observer"] = trim(substr($match2[1], 0, $pos));
@@ -173,8 +173,12 @@ class ADUVirtualMuseumAPI
                     // e.g. http://vmus.adu.org.za//vm_view_record.php?database=vimma&Vm_number=41
                     $temp = $record['image'];
                     $temp = explode('VM Number', $temp);
+                    if(!$temp[1]) {
+                        print_r($records);
+                        exit("\nno vm no.\n");
+                    }
                     $record['VM Number'] = trim($temp[1]);
-                    $record['source_url'] = "http://vmus.adu.org.za//vm_view_record.php?database=$database&Vm_number=".$record['VM Number'];
+                    $record['source_url'] = "http://vmus.adu.org.za/vm_view_record.php?database=$database&Vm_number=".$record['VM Number'];
                     $record['accessURIs'] = self::get_media_urls($record, $database);
                     //end July 10, 2018 - adjustments ----------------------------------------------------------------------------
                     
@@ -189,25 +193,20 @@ class ADUVirtualMuseumAPI
     }
     private function get_media_urls($rec, $database)
     {
-        $str = Functions::format_number_with_leading_zeros($rec['VM Number'], 6);
-        //e.g. http://vmus.adu.org.za/vimma/004785-1.jpg
-        
-        for($i = 1; $i <= $rec['image_count']; $i++)
-        {
-            $uris[] = $this->domain.$database."/".$str."-".$i.".jpg";
+        $uris = array();
+        if(@$rec['image_count']) {
+            $str = Functions::format_number_with_leading_zeros($rec['VM Number'], 6);
+            //e.g. http://vmus.adu.org.za/vimma/004785-1.jpg
+            for($i = 1; $i <= $rec['image_count']; $i++) $uris[] = $this->domain.$database."/".$str."-".$i.".jpg";
         }
         return $uris;
-        
     }
     private function get_main_groups()
     {
         $groups = array();
-        if($html = Functions::lookup_with_cache($this->domain, $this->download_options))
-        {
-            if(preg_match_all("/href=\"vm_search\.php(.*?)\"/ims", $html, $match))
-            {
-                foreach($match[1] as $line)
-                {
+        if($html = Functions::lookup_with_cache($this->domain, $this->download_options)) {
+            if(preg_match_all("/href=\"vm_search\.php(.*?)\"/ims", $html, $match)) {
+                foreach($match[1] as $line) {
                     if(preg_match("/database\=(.*?)\&/ims", $line, $match2)) $groups[] = $match2[1];
                 }
             }
@@ -219,31 +218,45 @@ class ADUVirtualMuseumAPI
 
     function create_instances_from_taxon_object($records)
     {
-        foreach($records as $rec)
-        {
+        foreach($records as $rec) {
             if(!$rec["species"]) continue; // e.g. first record in echinomap
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID                     = (string) $rec["taxon_id"];
             $taxon->scientificName              = (string) $rec["species"];
             $taxon->family                      = (string) @$rec["family"];
-            if(!isset($this->taxon_ids[$taxon->taxonID]))
-            {
+            if(!isset($this->taxon_ids[$taxon->taxonID])) {
                 $this->taxa[$taxon->taxonID] = $taxon;
                 $this->taxon_ids[$taxon->taxonID] = 1;
                 if($rec["vernacular"]) self::create_vernacular($rec);
             }
             $description = self::generate_description($rec);
-            $source_url = $this->domain . $rec["source_url"];
+            $source_url = $rec["source_url"];
             if(!@$rec["image_count"]) continue; // means there is no image for this record
             if($rec["observer"]) $agent_ids = self::create_agent($rec["observer"]);
             else $agent_ids = array();
-            for($i = 1; $i <= $rec["image_count"]; $i++)
-            {
+            
+            /* old, not used anymore
+            for($i = 1; $i <= $rec["image_count"]; $i++) {
                 $media_id = str_replace("-1", "-$i", $rec["image"]);
                 $media_url = $this->domain . $media_id;
                 $media_id = str_ireplace(array(".jpg"), "", $media_id);
                 self::create_images($description, $rec["taxon_id"], $media_id, $media_url, array(), $agent_ids, $source_url);
             }
+            */
+            /*
+            [accessURIs] => Array
+                            (
+                                [0] => http://vmus.adu.org.za/vimma/000088-1.jpg
+                                [1] => http://vmus.adu.org.za/vimma/000088-2.jpg
+                            )
+            */
+            foreach($rec['accessURIs'] as $media_url) {
+                // print_r(pathinfo($media_url));
+                $media_id = pathinfo($media_url, PATHINFO_FILENAME);
+                self::create_images($description, $rec["taxon_id"], $media_id, $media_url, array(), $agent_ids, $source_url);
+            }
+            
+            
         }
     }
 
@@ -307,24 +320,20 @@ class ADUVirtualMuseumAPI
 
         $agent_ids = array();
         $agents = explode(";", $agent);
-        foreach($agents as $agentz)
-        {
+        foreach($agents as $agentz) {
             $comma_separated = explode(",", $agentz);
-            foreach($comma_separated as $agent)
-            {
+            foreach($comma_separated as $agent) {
                 $info = self::parse_agent($agent);
                 $agent = $info["agent"];
                 $role = $info["role"];
-                if($agent)
-                {
+                if($agent) {
                     $r = new \eol_schema\Agent();
                     $r->term_name = $agent;
                     $r->agentRole = $role;
                     $r->identifier = md5($r->term_name . "|" . $r->agentRole);
                     $r->term_homepage = "";
                     $agent_ids[] = $r->identifier;
-                    if(!in_array($r->identifier, $this->resource_agent_ids))
-                    {
+                    if(!in_array($r->identifier, $this->resource_agent_ids)) {
                        $this->resource_agent_ids[] = $r->identifier;
                        $this->archive_builder->write_object_to_file($r);
                     }
@@ -336,8 +345,7 @@ class ADUVirtualMuseumAPI
     
     private function parse_agent($agent)
     {
-        if(preg_match("/\(photo(.*?)\)/ims", $agent, $match))
-        {
+        if(preg_match("/\(photo(.*?)\)/ims", $agent, $match)) {
             $role = "photographer";
             $agent = self::remove_parenthesis($agent);
         }
@@ -362,34 +370,28 @@ class ADUVirtualMuseumAPI
     {
         if(!@$rec["vernacular"]) return;
         $vernaculars = explode(";", $rec["vernacular"]);
-        foreach($vernaculars as $common_name)
-        {
+        foreach($vernaculars as $common_name) {
             $v = new \eol_schema\VernacularName();
             $v->taxonID = $rec["taxon_id"];
             $v->vernacularName = trim($common_name);
             $v->language = "en";
             $vernacular_id = md5("$v->taxonID|$v->vernacularName|$v->language");
-            if(!in_array($vernacular_id, $this->vernacular_name_ids))
-            {
+            if(!in_array($vernacular_id, $this->vernacular_name_ids)) {
                $this->vernacular_name_ids[] = $vernacular_id;
                $this->archive_builder->write_object_to_file($v);
             }
         }
     }
-
-    function create_archive()
+    private function create_archive()
     {
-        foreach($this->taxa as $t)
-        {
+        foreach($this->taxa as $t) {
             $this->archive_builder->write_object_to_file($t);
         }
         $this->archive_builder->finalize(TRUE);
     }
-
     private function remove_parenthesis($string)
     {
         return trim(preg_replace('/\s*\([^)]*\)/', '', $string));
     }
-
 }
 ?>
