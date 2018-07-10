@@ -31,8 +31,7 @@ class ADUVirtualMuseumAPI
         [10] => spidermap
         [11] => vith
         */
-        $this->download_options = array('resource_id' => 716, 'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'expire_seconds' => 60*60*24*30*2); //2 months expire
-        // $this->download_options['expire_seconds'] = 0; // DO NOT DO THIS. The query_id will change value thus the URL will change as well.
+        $this->download_options = array('resource_id' => 716, 'download_wait_time' => 2000000, 'timeout' => 60*3, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'expire_seconds' => 60*60*24*25);
     }
 
     function get_all_taxa()
@@ -57,12 +56,7 @@ class ADUVirtualMuseumAPI
         $details = self::get_queryID_totalNum($url);
         if(!$details) return;
 
-        // /* Forcing to use specific query_id
-        $details['query_id'] = 965935;
-        $details['query_id'] = ''; //best option so URL can be cached properly since the query_id is not changing.
-        // */
-        
-        print_r($details); //exit;
+        print_r($details);
         $loops = ceil($details["numRows"] / $this->Records_per_page);
         echo "\n loops: $loops \n";
         
@@ -73,10 +67,10 @@ class ADUVirtualMuseumAPI
             $url = $path . $start . "&query_id=" . $details["query_id"];
             if($html = Functions::lookup_with_cache($url, $this->download_options))
             {
-                self::process_html($html, $database);
+                self::process_html($html);
             }
             $start += $this->Records_per_page;
-            if($i >= 1) break; // debug
+            // if($i >= 3) break; // debug
         }
     }
 
@@ -97,7 +91,7 @@ class ADUVirtualMuseumAPI
         return false;
     }
     
-    private function process_html($html, $database)
+    private function process_html($html)
     {
         $records = array();
         $html = str_replace('<table width="700" border="1" cellspacing="5" cellpadding="0" align="center">', "xxxyyy", $html);
@@ -168,16 +162,6 @@ class ADUVirtualMuseumAPI
                     }
                     if(preg_match("/Record status\:(.*?)\\n/ims", $html, $match2)) $record["record_status"] = $match2[1];
                     if(preg_match("/<a href=\"(.*?)\"/ims", $html, $match2)) $record["source_url"] = $match2[1];
-                    
-                    //start July 10, 2018 - adjustments ----------------------------------------------------------------------------
-                    // e.g. http://vmus.adu.org.za//vm_view_record.php?database=vimma&Vm_number=41
-                    $temp = $record['image'];
-                    $temp = explode('VM Number', $temp);
-                    $record['VM Number'] = trim($temp[1]);
-                    $record['source_url'] = "http://vmus.adu.org.za//vm_view_record.php?database=$database&Vm_number=".$record['VM Number'];
-                    $record['accessURIs'] = self::get_media_urls($record, $database);
-                    //end July 10, 2018 - adjustments ----------------------------------------------------------------------------
-                    
                     if($record) $records[] = $record;
                 }
             }
@@ -187,18 +171,7 @@ class ADUVirtualMuseumAPI
         print_r($records);
         self::create_instances_from_taxon_object($records);
     }
-    private function get_media_urls($rec, $database)
-    {
-        $str = Functions::format_number_with_leading_zeros($rec['VM Number'], 6);
-        //e.g. http://vmus.adu.org.za/vimma/004785-1.jpg
-        
-        for($i = 1; $i <= $rec['image_count']; $i++)
-        {
-            $uris[] = $this->domain.$database."/".$str."-".$i.".jpg";
-        }
-        return $uris;
-        
-    }
+    
     private function get_main_groups()
     {
         $groups = array();
