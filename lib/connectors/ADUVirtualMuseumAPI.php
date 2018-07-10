@@ -69,25 +69,29 @@ class ADUVirtualMuseumAPI
         $start = $this->Records_per_page;
         for($i = 2; $i <= $loops; $i++)
         {
+            echo "\n ss $i of $loops [$database] [$remark] \n";
+            $url = $path . $start . "&query_id=" . $details["query_id"];
+            $start += $this->Records_per_page;
             
-            /* breakdown when caching:
+            // /* breakdown when caching:
             $cont = false;
             // if($i >=  1    && $i < $m) $cont = true;
-            if($i >=  $m   && $i < $m*2) $cont = true;
+            // if($i >=  $m   && $i < $m*2) $cont = true;
             // if($i >=  $m*2 && $i < $m*3) $cont = true;
+
+            if($i >=  $m*2 && $i < 10000) $cont = true;
+            
+            // if($i >=  10000 && $i < 11560) $cont = true;
+            
             if(!$cont) continue;
-            */
+            // */
             
             
-            
-            echo "\n $i of $loops [$database] [$remark] \n";
-            $url = $path . $start . "&query_id=" . $details["query_id"];
-            if($html = Functions::lookup_with_cache($url, $this->download_options))
-            {
-                self::process_html($html, $database);
-            }
-            $start += $this->Records_per_page;
-            if($i >= 1) break; // debug
+
+            if($html = Functions::lookup_with_cache($url, $this->download_options)) self::process_html($html, $database);
+
+
+            // if($i >= 1) break; // debug
         }
     }
 
@@ -173,11 +177,17 @@ class ADUVirtualMuseumAPI
                     // e.g. http://vmus.adu.org.za//vm_view_record.php?database=vimma&Vm_number=41
                     $temp = $record['image'];
                     $temp = explode('VM Number', $temp);
-                    if(!$temp[1]) {
-                        print_r($records);
-                        exit("\nno vm no.\n");
+                    if($val = @$temp[1]) {
+                        $record['VM Number'] = trim($temp[1]);
                     }
-                    $record['VM Number'] = trim($temp[1]);
+                    else {
+                        if($record['VM Number'] = self::get_vm_number_from_old_source_url($record['source_url'])) {}
+                        else {
+                            echo "\n$html\n";
+                            print_r($record);
+                            exit("\nno vm no.\n");
+                        }
+                    }
                     $record['source_url'] = "http://vmus.adu.org.za/vm_view_record.php?database=$database&Vm_number=".$record['VM Number'];
                     $record['accessURIs'] = self::get_media_urls($record, $database);
                     //end July 10, 2018 - adjustments ----------------------------------------------------------------------------
@@ -188,8 +198,15 @@ class ADUVirtualMuseumAPI
             else echo "\n investigate 02 process_html() failed. \n";
         }
         else echo "\n investigate 01 process_html() failed. \n";
-        print_r($records);
+        // print_r($records);
         self::create_instances_from_taxon_object($records);
+    }
+    private function get_vm_number_from_old_source_url($url)
+    {
+        $url = str_replace("Vm_number=0&", "", $url);
+        echo "\n[$url]\n";
+        if(preg_match("/Vm_number\=(.*?)\&/ims", $url, $arr)) return $arr[1];
+        return false;
     }
     private function get_media_urls($rec, $database)
     {
