@@ -12,6 +12,10 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 
 when doing tests locally:
 php update_resources/connectors/wikidata.php _ generate_resource
+
+historical investigations:
+/01 EOL Projects ++/Wikimedia run status/2018 07 06 consoleText.txt
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
