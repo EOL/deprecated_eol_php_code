@@ -6,7 +6,8 @@ class DipteraCentralAmericaAPI
     function __construct($folder)
     {
         $this->domain = "http://www.phorid.net/diptera/";
-        $this->taxa_list_url = $this->domain . "diptera_index.html";
+        $this->taxa_list_url     = $this->domain . "diptera_index.html";
+        $this->phoridae_list_url = $this->domain . "lower_cyclorrhapha/phoridae/phoridae.html";
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -34,14 +35,11 @@ class DipteraCentralAmericaAPI
                 $paths = array_diff($arr[1], $exclude);
                 $paths = array_map('trim', $paths);
                 // print_r($paths);
-                
-                $options = $this->download_options;
-                // $options['expire_seconds'] = 0;
-
+                $options = $this->download_options; // $options['expire_seconds'] = 0;
                 foreach($paths as $path) {
                     $url = $this->domain.$path;
                     if($html = Functions::lookup_with_cache($url, $options)) {
-                        $recs = self::parse_image_info($html);
+                        $recs = self::parse_image_info($html, $url);
                     }
                 }
             }
@@ -49,7 +47,7 @@ class DipteraCentralAmericaAPI
         }
         // exit("\n-stopx-\n");
     }
-    private function parse_image_info($html)
+    private function parse_image_info($html, $url)
     {
         /*
         <div class="DipteraImage">
@@ -59,6 +57,7 @@ class DipteraCentralAmericaAPI
         </div>
         */
         // echo "\n$html\n";
+        // echo "\n".self::getCurrentURL()."\n";
         $recs = array();
         if(preg_match("/<div class=\"DipteraImage\">(.*?)<\/div>/ims", $html, $arr)) {
             // echo "\n".$arr[1]."\n";
@@ -66,15 +65,25 @@ class DipteraCentralAmericaAPI
                 // print_r($arr2[1]);
                 foreach($arr2[1] as $str) {
                     $rec = array();
-                    if(preg_match("/src=\"(.*?)\"/ims", $str, $arr3)) $rec['image'] = $arr3[1];
+                    // print_r(pathinfo($url));
+                    if(preg_match("/src=\"(.*?)\"/ims", $str, $arr3)) $rec['image'] = pathinfo($url, PATHINFO_DIRNAME)."/".$arr3[1];
                     if(preg_match("/alt=\"(.*?)\"/ims", $str, $arr3)) $rec['taxon'] = $arr3[1];
                     if($rec) $recs[] = $rec;
                 }
             }
         }
         print_r($recs);
-        return $recs;
         // exit("\nparsing\n");
+        return $recs;
+        
+    }
+    private function getCurrentURL()
+    {
+        $currentURL = (@$_SERVER["HTTPS"] == "on") ? "https://" : "http://";
+        $currentURL .= $_SERVER["SERVER_NAME"];
+        if($_SERVER["SERVER_PORT"] != "80" && $_SERVER["SERVER_PORT"] != "443") $currentURL .= ":".$_SERVER["SERVER_PORT"];
+        $currentURL .= $_SERVER["REQUEST_URI"];
+        return $currentURL;
     }
     //####################################################################################
     function get_all_taxa()
