@@ -12,16 +12,21 @@ class DipteraCentralAmericaAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->resource_reference_ids = array();
         $this->do_ids = array();
-        $this->download_options = array('resource_id' => 683, 'download_wait_time' => 500000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 2, 'expire_seconds' => 60*60*24*25);
+        $this->download_options = array('cache' => 1, 'resource_id' => 683, 'download_wait_time' => 500000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 2, 'expire_seconds' => 60*60*24*25);
         // $this->download_options['expire_seconds'] = 0;
+        // $this->download_options['user_agent'] = 'User-Agent: curl/7.39.0'; // did not work here, but worked OK in USDAfsfeisAPI.php
+        $this->download_options['user_agent'] = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)'; //worked OK!!!
     }
 
     function start()
     {
-        exit("\nCannot be scraped anymore. HTML is hidden from connector scripts.\n");
-        
-        echo "\n[$this->taxa_list_url]\n";
-        if($html = Functions::lookup_with_cache($this->taxa_list_url, $this->download_options)) {
+        self::process_diptera_main();
+    }
+    private function process_diptera_main()
+    {
+        // echo "\n[$this->taxa_list_url]\n";
+        if($html = Functions::lookup_with_cache($this->taxa_list_url, $this->download_options)) { //get_remote_file_fake_browser
+            // exit("\n$html\n");
             $exclude = array('../books/books_index.html', 'further_reading.html', 'javascript:;', '../index.html');
             
             // ><a href="nematocerous/ptychopteridae/ptychopteridae.html"
@@ -31,18 +36,18 @@ class DipteraCentralAmericaAPI
                 // print_r($paths);
                 
                 $options = $this->download_options;
-                $options['expire_seconds'] = 0;
+                // $options['expire_seconds'] = 0;
 
                 foreach($paths as $path) {
                     $url = $this->domain.$path;
-                    if($html = Functions::get_remote_file_fake_browser($url, $options)) {
-                        $rec = self::parse_image_info($html);
+                    if($html = Functions::lookup_with_cache($url, $options)) {
+                        $recs = self::parse_image_info($html);
                     }
                 }
             }
             else echo "\n-none-\n";
         }
-        exit("\n-stopx-\n");
+        // exit("\n-stopx-\n");
     }
     private function parse_image_info($html)
     {
@@ -53,11 +58,23 @@ class DipteraCentralAmericaAPI
         La Selva Biological Station</p>
         </div>
         */
-        echo "\n$html\n";
-        if(preg_match_all("/<div class=\"DipteraImage\">(.*?)<\/div>/ims", $html, $arr)) {
-            print_r($arr[1]);
+        // echo "\n$html\n";
+        $recs = array();
+        if(preg_match("/<div class=\"DipteraImage\">(.*?)<\/div>/ims", $html, $arr)) {
+            // echo "\n".$arr[1]."\n";
+            if(preg_match_all("/<img (.*?)>/ims", $arr[1], $arr2)) {
+                // print_r($arr2[1]);
+                foreach($arr2[1] as $str) {
+                    $rec = array();
+                    if(preg_match("/src=\"(.*?)\"/ims", $str, $arr3)) $rec['image'] = $arr3[1];
+                    if(preg_match("/alt=\"(.*?)\"/ims", $str, $arr3)) $rec['taxon'] = $arr3[1];
+                    if($rec) $recs[] = $rec;
+                }
+            }
         }
-        exit("\nparsing\n");
+        print_r($recs);
+        return $recs;
+        // exit("\nparsing\n");
     }
     //####################################################################################
     function get_all_taxa()
