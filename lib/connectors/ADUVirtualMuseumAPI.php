@@ -73,11 +73,9 @@ class ADUVirtualMuseumAPI
             if(($i % 1000) == 0) echo "\n $i of $loops [$database] [$remark] \n";
             echo "\n $i of $loops [$database] [$remark] \n"; //debug only
             $url = $path . $start . "&query_id=" . $details["query_id"];
-            
-            
             $start += $this->Records_per_page;
             
-            // /* breakdown when caching:
+            /* breakdown when caching:
             $cont = false;
             // if($i >=  1    && $i < $m) $cont = true;
             // if($i >=  $m   && $i < $m*2) $cont = true;
@@ -92,7 +90,7 @@ class ADUVirtualMuseumAPI
             if($i >= 400 && $i < $m*5) $cont = true;
             
             if(!$cont) continue;
-            // */
+            */
 
             echo "\n$url\n";
             if($html = Functions::lookup_with_cache($url, $this->download_options)) self::process_html($html, $database);
@@ -225,12 +223,12 @@ class ADUVirtualMuseumAPI
                 }
             }
             else {
-                print_r($rec);
-                echo "\n No image hosted by partner.";
+                // print_r($rec);
+                // echo "\n No image hosted by partner.";
             }
         }
         // print_r($rec);
-        print_r($uris); //exit;
+        // print_r($uris); //exit;
         
         /* this is not enough, since there is no way I'll know if image is hosted outside the partner's website. Sometimes a 3rd party hosts the image.
         if(@$rec['image_count']) {
