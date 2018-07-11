@@ -32,7 +32,7 @@ class ADUVirtualMuseumAPI
         [11] => vith
         */
         $this->download_options = array('resource_id' => 716, 'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 2, 'delay_in_minutes' => 1, 
-                                        'expire_seconds' => 60*60*24*30*6); //6 months expire bec. it is heavy API calling.
+                                        'expire_seconds' => 60*60*24*30*2); //2 months expire bec. it is heavy API calling.
         // $this->download_options['expire_seconds'] = 0; // DO NOT DO THIS. The query_id will change value thus the URL will change as well.
     }
 
@@ -60,7 +60,7 @@ class ADUVirtualMuseumAPI
 
         // /* Forcing to use specific query_id
         $details['query_id'] = 965935;
-        // $details['query_id'] = ''; //best option so URL can be cached properly since the query_id is not changing.
+        // $details['query_id'] = ''; //best option so URL can be cached properly since the query_id is not changing. ------ blank value didn't work
         // */
         
         print_r($details); //exit;
@@ -71,7 +71,6 @@ class ADUVirtualMuseumAPI
         $start = $this->Records_per_page;
         for($i = 1; $i <= $loops; $i++) {
             if(($i % 1000) == 0) echo "\n $i of $loops [$database] [$remark] \n";
-            echo "\n $i of $loops [$database] [$remark] \n"; //debug only
             $url = $path . $start . "&query_id=" . $details["query_id"];
             $start += $this->Records_per_page;
             
@@ -81,18 +80,10 @@ class ADUVirtualMuseumAPI
             // if($i >=  $m   && $i < $m*2) $cont = true;
             // if($i >=  $m*2 && $i < $m*3) $cont = true;
             // if($i >=  $m*3 && $i < $m*4) $cont = true;
-            // if($i >=  $m*4 && $i < $m*5) $cont = true;
-            
-            // if($i >= 1   && $i < 100) $cont = true;
-            // if($i >= 100 && $i < 200) $cont = true;
-            // if($i >= 200 && $i < 300) $cont = true;
-            // if($i >= 300 && $i < 400) $cont = true;
-            if($i >= 400 && $i < $m*5) $cont = true;
-            
+            if($i >=  $m*4 && $i < $m*5) $cont = true;
             if(!$cont) continue;
             */
 
-            echo "\n$url\n";
             if($html = Functions::lookup_with_cache($url, $this->download_options)) self::process_html($html, $database);
             // if($i >= 2) break; // debug
         }
@@ -229,14 +220,6 @@ class ADUVirtualMuseumAPI
         }
         // print_r($rec);
         // print_r($uris); //exit;
-        
-        /* this is not enough, since there is no way I'll know if image is hosted outside the partner's website. Sometimes a 3rd party hosts the image.
-        if(@$rec['image_count']) {
-            $str = Functions::format_number_with_leading_zeros($rec['VM Number'], 6);
-            //e.g. http://vmus.adu.org.za/vimma/004785-1.jpg
-            for($i = 1; $i <= $rec['image_count']; $i++) $uris[] = $this->domain.$database."/".$str."-".$i.".jpg";
-        }
-        */
         return $uris;
     }
     private function get_main_groups()
