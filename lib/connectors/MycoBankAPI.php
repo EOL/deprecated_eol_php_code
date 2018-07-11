@@ -105,11 +105,12 @@ class MycoBankAPI
         // 347622		39875	Myriocarpa lonicerae	species	Fuckel	valid
         /* testing...
         $ids = array(59827, 319124, 449153, 119112, 1, 2, 16449);
-        $ids = array(108246); // 59827   319124   449153    294091    (weird 16449)
+        $ids = array(94851); // 59827   319124   449153    294091    (weird 16449)  564999
         foreach($ids as $id) {
             self::do_several_steps_for_an_id($id);
         }
         $this->archive_builder->finalize(TRUE);
+        return;
         exit("\n-end testing-\n");
         */
         
@@ -121,7 +122,7 @@ class MycoBankAPI
         */
         
         // working OK
-        // self::saving_ids_2text(); //saves all ids to text file, which will then be accessed to process each id.
+        self::saving_ids_2text(); //saves all ids to text file, which will then be accessed to process each id.
         $filename = DOC_ROOT."/tmp/671_ids_list.txt";
         $i = 0;
         foreach(new FileIterator($filename) as $line_number => $id) {
