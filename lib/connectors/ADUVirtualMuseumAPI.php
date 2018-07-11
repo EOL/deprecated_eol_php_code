@@ -67,31 +67,21 @@ class ADUVirtualMuseumAPI
         echo "\n loops: $loops \n";
         $m = $loops/3;
         $start = $this->Records_per_page;
-        for($i = 2; $i <= $loops; $i++)
-        {
-            echo "\n ss $i of $loops [$database] [$remark] \n";
+        for($i = 1; $i <= $loops; $i++) {
+            if(($i % 1000) == 0) echo "\n $i of $loops [$database] [$remark] \n";
             $url = $path . $start . "&query_id=" . $details["query_id"];
             $start += $this->Records_per_page;
             
-            // /* breakdown when caching:
+            /* breakdown when caching:
             $cont = false;
             // if($i >=  1    && $i < $m) $cont = true;
             // if($i >=  $m   && $i < $m*2) $cont = true;
-            // if($i >=  $m*2 && $i < $m*3) $cont = true;
-
-            if($i >=  $m*2 && $i < 10000) $cont = true;
-            
-            // if($i >=  10000 && $i < 11560) $cont = true;
-            
+            if($i >=  $m*2 && $i < $m*3) $cont = true;
             if(!$cont) continue;
-            // */
-            
-            
+            */
 
             if($html = Functions::lookup_with_cache($url, $this->download_options)) self::process_html($html, $database);
-
-
-            // if($i >= 1) break; // debug
+            // if($i >= 3) break; // debug
         }
     }
 
@@ -195,7 +185,7 @@ class ADUVirtualMuseumAPI
                     if($record) $records[] = $record;
                 }
             }
-            else echo "\n investigate 02 process_html() failed. \n";
+            else echo "\n investigate 02 process_html() failed. strlen = ".strlen($html)." \n";
         }
         else echo "\n investigate 01 process_html() failed. \n";
         // print_r($records);
@@ -236,6 +226,7 @@ class ADUVirtualMuseumAPI
     function create_instances_from_taxon_object($records)
     {
         foreach($records as $rec) {
+            $rec = array_map('trim', $rec);
             if(!$rec["species"]) continue; // e.g. first record in echinomap
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID                     = (string) $rec["taxon_id"];
@@ -388,6 +379,7 @@ class ADUVirtualMuseumAPI
         if(!@$rec["vernacular"]) return;
         $vernaculars = explode(";", $rec["vernacular"]);
         foreach($vernaculars as $common_name) {
+            if(!trim($common_name)) continue;
             $v = new \eol_schema\VernacularName();
             $v->taxonID = $rec["taxon_id"];
             $v->vernacularName = trim($common_name);
