@@ -226,7 +226,6 @@ class ADUVirtualMuseumAPI
     function create_instances_from_taxon_object($records)
     {
         foreach($records as $rec) {
-            $rec = array_map('trim', $rec);
             if(!$rec["species"]) continue; // e.g. first record in echinomap
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID                     = (string) $rec["taxon_id"];
