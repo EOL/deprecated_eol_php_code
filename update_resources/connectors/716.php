@@ -1,16 +1,16 @@
 <?php
 namespace php_active_record;
 /* Animal Demography unit (ADU) Virtual Museum - MammalMAP (31 minutes execution time)
-estimated execution time for 12 databases: 59 hours if records_per_page = 20, just set it to 50.
+estimated execution time for 12 databases: 59 hours if records_per_page = 50.
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/ADUVirtualMuseumAPI');
 $timestart = time_elapsed();
 $resource_id = 716;
 
-$func = new ADUVirtualMuseumAPI($resource_id, "vimma");
+$func = new ADUVirtualMuseumAPI($resource_id, "vimma"); //worked well as of July 11, 2018
 $func->get_all_taxa();
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, true);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
