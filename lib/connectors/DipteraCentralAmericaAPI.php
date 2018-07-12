@@ -136,10 +136,7 @@ class DipteraCentralAmericaAPI
         </div>
         */
         // echo "\n$html\n";
-        // echo "\n".self::getCurrentURL()."\n";
-        
         $delimiter = self::get_delimiter($html, $url);
-        
         $recs = array();
         if(preg_match("/<div class=\"DipteraImage\">(.*?)<\/div>/ims", $html, $arr)) {
             // echo "\n".$arr[1]."\n";
@@ -153,22 +150,29 @@ class DipteraCentralAmericaAPI
                     $rec['source_url'] = $url;
                     print_r($rec);
                 }
-                // exit;
             }
         }
         // print_r($recs);
-        // exit("\nparsing\n");
         return $recs;
-        
     }
-    private function getCurrentURL()
+    function write_archive($rec)
     {
-        $currentURL = (@$_SERVER["HTTPS"] == "on") ? "https://" : "http://";
-        $currentURL .= $_SERVER["SERVER_NAME"];
-        if($_SERVER["SERVER_PORT"] != "80" && $_SERVER["SERVER_PORT"] != "443") $currentURL .= ":".$_SERVER["SERVER_PORT"];
-        $currentURL .= $_SERVER["REQUEST_URI"];
-        return $currentURL;
+        $taxon = new \eol_schema\Taxon();
+        // if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
+        // $taxon->family                  = (string) @$rec['family'];
+        // $taxon->taxonRank               = (string) $rec['rank'];
+
+        $taxon->taxonID                 = md5($rec["taxon"]);
+        $taxon->scientificName          = $rec['taxon'];
+        $taxon->furtherInformationURL   = $rec['url']
+        $taxon->order = 'Diptera';
+        $taxon->class = 'Insecta';
+        $taxon->kingdom = 'Animalia';
+        
+        $this->archive_builder->write_object_to_file($t);
+        $this->archive_builder->finalize(true);
     }
+    
     //####################################################################################
     function get_all_taxa()
     {
@@ -439,27 +443,5 @@ class DipteraCentralAmericaAPI
         return $records;
     }
     
-    function create_instances_from_taxon_object($sciname, $rec, $reference_ids)
-    {
-        $taxon = new \eol_schema\Taxon();
-        if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
-        $taxon->taxonID                 = $rec["taxon_id"];
-        $taxonRemarks                   = "";
-        $taxon->scientificName          = (string) $sciname;
-        $taxon->family                  = (string) @$rec['family'];
-        $taxon->taxonRank               = (string) $rec['rank'];
-        $taxon->furtherInformationURL   = (string) @$rec['url']; // e.g. some families are not hyperlinked
-        $this->taxa[$rec["taxon_id"]] = $taxon;
-    }
-
-    function create_archive()
-    {
-        foreach($this->taxa as $t)
-        {
-            $this->archive_builder->write_object_to_file($t);
-        }
-        $this->archive_builder->finalize(true);
-    }
-
 }
 ?>
