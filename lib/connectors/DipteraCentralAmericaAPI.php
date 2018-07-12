@@ -13,15 +13,80 @@ class DipteraCentralAmericaAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->resource_reference_ids = array();
         $this->do_ids = array();
-        $this->download_options = array('cache' => 1, 'resource_id' => 683, 'download_wait_time' => 500000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 2, 'expire_seconds' => 60*60*24*25);
-        // $this->download_options['expire_seconds'] = 0;
+        $this->download_options = array('cache' => 1, 'resource_id' => 683, 'download_wait_time' => 1000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 2, 'expire_seconds' => 60*60*24*25);
+        $this->download_options['expire_seconds'] = 0;
         // $this->download_options['user_agent'] = 'User-Agent: curl/7.39.0'; // did not work here, but worked OK in USDAfsfeisAPI.php
-        $this->download_options['user_agent'] = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)'; //worked OK!!!
+        // $this->download_options['user_agent'] = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)'; //worked OK!!!
+        /*  good one:
+                _analytics_scr.src = '/_Incapsula_Resource?
+            bad one:
+                
+        */
     }
 
     function start()
     {
         self::process_diptera_main();
+        // self::process_phoridae_list();
+    }
+    private function process_phoridae_list()
+    {
+        $path = pathinfo($this->phoridae_list_url, PATHINFO_DIRNAME);
+        if($html = Functions::lookup_with_cache($this->phoridae_list_url, $this->download_options)) {
+            echo "\n$html\n"; exit;
+            //onclick="MM_openBrWindow('phorid_genera/abaristophora.html','abaristophora','width=620,height=501')"><em>Abaristophora</em> Schmitz </a></p>
+            if(preg_match_all("/MM_openBrWindow\(\'(.*?)\'/ims", $html, $arr)) {
+                // print_r($arr[1]);
+                foreach($arr[1] as $str) {
+                    $url = "$path/$str";
+                    echo "\n$url\n";
+                    if($html = self::get_html($url)) {
+                        $html = str_ireplace('<p class="PhotoLabels">&nbsp;</p>', "", $html);
+                        // exit("\n$html\n");
+                        /*
+                        <div class="PhoridSpecies">
+                        <img src="../phoridae_images/abaristophora.jpg" width="600" height="471" alt="Abaristophora sp"/><span class="PhotoLabels"><em>Abaristophora</em> sp., male, Costa Rica: San Gerardo</span></div>
+                        OR
+                        <div class="PhoridSpecies">
+                        <img src="../phoridae_images/trineurocephalaM128348.jpg" width="492" height="600" alt="Trineurocephala sp., male"/>
+                        <p class="PhotoLabels"><em>Trineurocephala</em> sp., male, Costa Rica: San Luis</p>
+                        <p class="PhotoLabels">&nbsp;</p>
+                        <img src="../phoridae_images/trineurocephalaF046305.jpg" width="600" height="333" alt="Trineurocephala sp., female"/>
+                        <p class="PhotoLabels"><em>Trineurocephala</em> sp., female, Costa Rica: 7 km SW Bribri</p>
+                        </div>
+                        */
+
+                        if(stripos($html, '<span class="PhotoLabels">') !== false) $delimiter = "</span>"; //string is found
+                        elseif(stripos($html, '<p class="PhotoLabels">') !== false) $delimiter = "</p>"; //string is found
+                        else exit("\nCannot get delimiter [$url]\n");
+                        echo " - [$delimiter]";
+                        // exit;
+                        // if(preg_match_all("/<img (.*?)>/ims", $html, $arr2)) {
+                        //     print_r($arr2[1]);
+                        //     exit;
+                        // }
+                    }
+                }
+            }
+            
+            
+        }
+        exit("\nstop muna\n");
+    }
+    private function get_html($url)
+    {
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            if(stripos($html, "_Incapsula_Resource") !== false) //string is found
+            {
+                exit("\n_Incapsula_Resource\n$html\n");
+                $options = $this->download_options;
+                $options['expire_seconds'] = 0;
+                if($html = Functions::lookup_with_cache($url, $options)) return $html;
+                
+            }
+            else return $html;
+        }
+        else exit("\nProblem accessing [$url]\n");
     }
     private function process_diptera_main()
     {
@@ -39,6 +104,8 @@ class DipteraCentralAmericaAPI
                 foreach($paths as $path) {
                     $url = $this->domain.$path;
                     if($html = Functions::lookup_with_cache($url, $options)) {
+                        // exit("\n$html\n");
+                        
                         $recs = self::parse_image_info($html, $url);
                     }
                 }
