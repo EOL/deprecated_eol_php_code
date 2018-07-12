@@ -21,8 +21,9 @@ class DipteraCentralAmericaAPI
 
     function start()
     {
-        // self::process_diptera_main();
-        self::process_phoridae_list();
+        self::process_diptera_main();
+        exit;
+        // self::process_phoridae_list();
     }
     private function process_phoridae_list()
     {
@@ -51,15 +52,24 @@ class DipteraCentralAmericaAPI
                         </div>
                         */
 
-                        if(stripos($html, '<span class="PhotoLabels">') !== false) $delimiter = "</span>"; //string is found
-                        elseif(stripos($html, '<p class="PhotoLabels">') !== false) $delimiter = "</p>"; //string is found
-                        else exit("\nCannot get delimiter [$url]\n");
-                        echo " - [$delimiter]";
-                        // exit;
-                        // if(preg_match_all("/<img (.*?)>/ims", $html, $arr2)) {
-                        //     print_r($arr2[1]);
-                        //     exit;
-                        // }
+                        $delimiter = self::get_delimiter($html, $url);
+                        // echo "\n - [$delimiter]";
+
+                        if(preg_match_all("/<img (.*?)".$delimiter."/ims", $html, $arr2)) {
+                            print_r($arr2[1]);
+                            foreach($arr2[1] as $str) {
+                                $rec = array();
+                                if(preg_match("/src=\"(.*?)\"/ims", $str, $arr3)) {
+                                    $tmp = pathinfo($url, PATHINFO_DIRNAME)."/".$arr3[1];
+                                    $rec['image'] = str_replace("phorid_genera/../", "", $tmp);
+                                }
+                                if(preg_match("/alt=\"(.*?)\"/ims", $str, $arr3)) $rec['taxon'] = $arr3[1];
+                                if(preg_match("/class=\"PhotoLabels\">(.*?)elix/ims", $str."elix", $arr3)) $rec['caption'] = $arr3[1];
+                                $rec['source_url'] = $url;
+                                print_r($rec);
+                            }
+                            // exit;
+                        }
                     }
                 }
             }
@@ -69,16 +79,13 @@ class DipteraCentralAmericaAPI
         exit("\nstop muna\n");
     }
     private function get_html($url)
-    {   /*  good one:
-                _analytics_scr.src = '/_Incapsula_Resource?
-            bad one:
-                <script src="/_Incapsula_Resource?
+    {   /*  good one:   _analytics_scr.src = '/_Incapsula_Resource?
+            bad one:    <script src="/_Incapsula_Resource?
         */
         
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
             if(stripos($html, '<script src="/_Incapsula_Resource?') !== false) //string is found
             {
-                // exit("\n_Incapsula_Resource\n$html\n");
                 $options = $this->download_options;
                 $options['expire_seconds'] = 0;
                 if($html = Functions::lookup_with_cache($url, $options)) return $html;
@@ -99,10 +106,9 @@ class DipteraCentralAmericaAPI
                 $paths = array_diff($arr[1], $exclude);
                 $paths = array_map('trim', $paths);
                 // print_r($paths);
-                $options = $this->download_options; // $options['expire_seconds'] = 0;
                 foreach($paths as $path) {
                     $url = $this->domain.$path;
-                    if($html = Functions::lookup_with_cache($url, $options)) {
+                    if($html = self::get_html($url)) {
                         // exit("\n$html\n");
                         
                         $recs = self::parse_image_info($html, $url);
@@ -112,6 +118,13 @@ class DipteraCentralAmericaAPI
             else echo "\n-none-\n";
         }
         // exit("\n-stopx-\n");
+    }
+    private function get_delimiter($html, $url)
+    {
+        if(stripos($html, '<span class="PhotoLabels">') !== false) $delimiter = "<\/span>"; //string is found
+        elseif(stripos($html, '<p class="PhotoLabels">') !== false) $delimiter = "<\/p>"; //string is found
+        else exit("\nCannot get delimiter [$url]\n$html\n");
+        return $delimiter;
     }
     private function parse_image_info($html, $url)
     {
@@ -124,21 +137,26 @@ class DipteraCentralAmericaAPI
         */
         // echo "\n$html\n";
         // echo "\n".self::getCurrentURL()."\n";
+        
+        $delimiter = self::get_delimiter($html, $url);
+        
         $recs = array();
         if(preg_match("/<div class=\"DipteraImage\">(.*?)<\/div>/ims", $html, $arr)) {
             // echo "\n".$arr[1]."\n";
-            if(preg_match_all("/<img (.*?)>/ims", $arr[1], $arr2)) {
-                // print_r($arr2[1]);
+            if(preg_match_all("/<img (.*?)".$delimiter."/ims", $html, $arr2)) {
+                print_r($arr2[1]);
                 foreach($arr2[1] as $str) {
                     $rec = array();
-                    // print_r(pathinfo($url));
                     if(preg_match("/src=\"(.*?)\"/ims", $str, $arr3)) $rec['image'] = pathinfo($url, PATHINFO_DIRNAME)."/".$arr3[1];
                     if(preg_match("/alt=\"(.*?)\"/ims", $str, $arr3)) $rec['taxon'] = $arr3[1];
-                    if($rec) $recs[] = $rec;
+                    if(preg_match("/class=\"PhotoLabels\">(.*?)elix/ims", $str."elix", $arr3)) $rec['caption'] = $arr3[1];
+                    $rec['source_url'] = $url;
+                    print_r($rec);
                 }
+                // exit;
             }
         }
-        print_r($recs);
+        // print_r($recs);
         // exit("\nparsing\n");
         return $recs;
         
