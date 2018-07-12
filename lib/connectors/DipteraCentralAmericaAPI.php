@@ -14,26 +14,21 @@ class DipteraCentralAmericaAPI
         $this->resource_reference_ids = array();
         $this->do_ids = array();
         $this->download_options = array('cache' => 1, 'resource_id' => 683, 'download_wait_time' => 1000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 2, 'expire_seconds' => 60*60*24*25);
-        $this->download_options['expire_seconds'] = 0;
+        // $this->download_options['expire_seconds'] = 0;
         // $this->download_options['user_agent'] = 'User-Agent: curl/7.39.0'; // did not work here, but worked OK in USDAfsfeisAPI.php
-        // $this->download_options['user_agent'] = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)'; //worked OK!!!
-        /*  good one:
-                _analytics_scr.src = '/_Incapsula_Resource?
-            bad one:
-                
-        */
+        $this->download_options['user_agent'] = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)'; //worked OK!!!
     }
 
     function start()
     {
-        self::process_diptera_main();
-        // self::process_phoridae_list();
+        // self::process_diptera_main();
+        self::process_phoridae_list();
     }
     private function process_phoridae_list()
     {
         $path = pathinfo($this->phoridae_list_url, PATHINFO_DIRNAME);
         if($html = Functions::lookup_with_cache($this->phoridae_list_url, $this->download_options)) {
-            echo "\n$html\n"; exit;
+            // echo "\n$html\n"; exit;
             //onclick="MM_openBrWindow('phorid_genera/abaristophora.html','abaristophora','width=620,height=501')"><em>Abaristophora</em> Schmitz </a></p>
             if(preg_match_all("/MM_openBrWindow\(\'(.*?)\'/ims", $html, $arr)) {
                 // print_r($arr[1]);
@@ -74,15 +69,19 @@ class DipteraCentralAmericaAPI
         exit("\nstop muna\n");
     }
     private function get_html($url)
-    {
+    {   /*  good one:
+                _analytics_scr.src = '/_Incapsula_Resource?
+            bad one:
+                <script src="/_Incapsula_Resource?
+        */
+        
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
-            if(stripos($html, "_Incapsula_Resource") !== false) //string is found
+            if(stripos($html, '<script src="/_Incapsula_Resource?') !== false) //string is found
             {
-                exit("\n_Incapsula_Resource\n$html\n");
+                // exit("\n_Incapsula_Resource\n$html\n");
                 $options = $this->download_options;
                 $options['expire_seconds'] = 0;
                 if($html = Functions::lookup_with_cache($url, $options)) return $html;
-                
             }
             else return $html;
         }
