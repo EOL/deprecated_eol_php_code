@@ -21,9 +21,10 @@ class DipteraCentralAmericaAPI
 
     function start()
     {
+        self::write_agent();
         self::process_diptera_main();
-        exit;
-        // self::process_phoridae_list();
+        self::process_phoridae_list();
+        $this->archive_builder->finalize(true);
     }
     private function process_phoridae_list()
     {
@@ -35,7 +36,7 @@ class DipteraCentralAmericaAPI
                 // print_r($arr[1]);
                 foreach($arr[1] as $str) {
                     $url = "$path/$str";
-                    echo "\n$url\n";
+                    // echo "\n$url\n";
                     if($html = self::get_html($url)) {
                         $html = str_ireplace('<p class="PhotoLabels">&nbsp;</p>', "", $html);
                         // exit("\n$html\n");
@@ -56,7 +57,7 @@ class DipteraCentralAmericaAPI
                         // echo "\n - [$delimiter]";
 
                         if(preg_match_all("/<img (.*?)".$delimiter."/ims", $html, $arr2)) {
-                            print_r($arr2[1]);
+                            // print_r($arr2[1]);
                             foreach($arr2[1] as $str) {
                                 $rec = array();
                                 if(preg_match("/src=\"(.*?)\"/ims", $str, $arr3)) {
@@ -66,23 +67,19 @@ class DipteraCentralAmericaAPI
                                 if(preg_match("/alt=\"(.*?)\"/ims", $str, $arr3)) $rec['taxon'] = $arr3[1];
                                 if(preg_match("/class=\"PhotoLabels\">(.*?)elix/ims", $str."elix", $arr3)) $rec['caption'] = $arr3[1];
                                 $rec['source_url'] = $url;
-                                print_r($rec);
+                                // print_r($rec);
+                                self::write_archive($rec);
                             }
-                            // exit;
                         }
                     }
                 }
             }
-            
-            
         }
-        exit("\nstop muna\n");
     }
     private function get_html($url)
     {   /*  good one:   _analytics_scr.src = '/_Incapsula_Resource?
             bad one:    <script src="/_Incapsula_Resource?
         */
-        
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
             if(stripos($html, '<script src="/_Incapsula_Resource?') !== false) //string is found
             {
@@ -96,11 +93,9 @@ class DipteraCentralAmericaAPI
     }
     private function process_diptera_main()
     {
-        // echo "\n[$this->taxa_list_url]\n";
         if($html = Functions::lookup_with_cache($this->taxa_list_url, $this->download_options)) { //get_remote_file_fake_browser
             // exit("\n$html\n");
             $exclude = array('../books/books_index.html', 'further_reading.html', 'javascript:;', '../index.html');
-            
             // ><a href="nematocerous/ptychopteridae/ptychopteridae.html"
             if(preg_match_all("/><a href=\"(.*?)\"/ims", $html, $arr)) {
                 $paths = array_diff($arr[1], $exclude);
@@ -109,15 +104,12 @@ class DipteraCentralAmericaAPI
                 foreach($paths as $path) {
                     $url = $this->domain.$path;
                     if($html = self::get_html($url)) {
-                        // exit("\n$html\n");
-                        
-                        $recs = self::parse_image_info($html, $url);
+                        self::parse_image_info($html, $url);
                     }
                 }
             }
             else echo "\n-none-\n";
         }
-        // exit("\n-stopx-\n");
     }
     private function get_delimiter($html, $url)
     {
@@ -141,14 +133,15 @@ class DipteraCentralAmericaAPI
         if(preg_match("/<div class=\"DipteraImage\">(.*?)<\/div>/ims", $html, $arr)) {
             // echo "\n".$arr[1]."\n";
             if(preg_match_all("/<img (.*?)".$delimiter."/ims", $html, $arr2)) {
-                print_r($arr2[1]);
+                // print_r($arr2[1]);
                 foreach($arr2[1] as $str) {
                     $rec = array();
                     if(preg_match("/src=\"(.*?)\"/ims", $str, $arr3)) $rec['image'] = pathinfo($url, PATHINFO_DIRNAME)."/".$arr3[1];
                     if(preg_match("/alt=\"(.*?)\"/ims", $str, $arr3)) $rec['taxon'] = $arr3[1];
                     if(preg_match("/class=\"PhotoLabels\">(.*?)elix/ims", $str."elix", $arr3)) $rec['caption'] = $arr3[1];
                     $rec['source_url'] = $url;
-                    print_r($rec);
+                    // print_r($rec);
+                    self::write_archive($rec);
                 }
             }
         }
@@ -157,22 +150,73 @@ class DipteraCentralAmericaAPI
     }
     function write_archive($rec)
     {
+        // [image] => http://www.phorid.net/diptera/calyptratae/tachinidae/tachinidae_image3.jpg
+        // [taxon] => Cordyligaster sp.
+        // [caption] => <em>Cordyligaster</em> sp., Costa Rica: 1.8mi W Rincon
+        // [source_url] => http://www.phorid.net/diptera/calyptratae/tachinidae/tachinidae.html
+        
         $taxon = new \eol_schema\Taxon();
         // if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
         // $taxon->family                  = (string) @$rec['family'];
         // $taxon->taxonRank               = (string) $rec['rank'];
 
-        $taxon->taxonID                 = md5($rec["taxon"]);
+        $rec['taxon'] = self::clean_sciname($rec['taxon']);
+        $rec['taxon_id'] = md5($rec['taxon']);
+        $taxon->taxonID                 = $rec['taxon_id'];
         $taxon->scientificName          = $rec['taxon'];
-        $taxon->furtherInformationURL   = $rec['url']
+        $taxon->furtherInformationURL   = $rec['source_url'];
         $taxon->order = 'Diptera';
         $taxon->class = 'Insecta';
         $taxon->kingdom = 'Animalia';
-        
-        $this->archive_builder->write_object_to_file($t);
-        $this->archive_builder->finalize(true);
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->archive_builder->write_object_to_file($taxon);
+            $this->taxon_ids[$taxon->taxonID] = '';
+        }
+        self::write_image($rec);
     }
-    
+    private function clean_sciname($str)
+    {
+        $tmp = explode(",", $str);
+        $str = trim($tmp[0]);
+        
+        $exclude = array("sp. male", "sp. female", "sp male", "sp female", "undet. ", " sp.", " sp", "Brown male", " female");
+        $str = str_ireplace($exclude, "", $str);
+        $str = Functions::remove_whitespace($str);
+        return $str;
+    }
+    private function write_agent()
+    {
+        $r = new \eol_schema\Agent();
+        $r->term_name       = 'Diptera of Central America';
+        $r->agentRole       = 'publisher';
+        $r->identifier      = md5("$r->term_name|$r->agentRole");
+        $r->term_homepage   = 'http://www.phorid.net/diptera/diptera_index.html';
+        $this->archive_builder->write_object_to_file($r);
+        $this->agent_id = array($r->identifier);
+    }
+    private function write_image($rec)
+    {
+        $mr = new \eol_schema\MediaResource();
+        $mr->agentID                = implode("; ", $this->agent_id);
+        $mr->taxonID                = $rec["taxon_id"];
+        $mr->identifier             = md5($rec['image']);
+        $mr->type                   = "http://purl.org/dc/dcmitype/StillImage";
+        $mr->language               = 'en';
+        $mr->format                 = Functions::get_mimetype($rec['image']);
+        $mr->furtherInformationURL  = $rec['source_url'];
+        $mr->accessURI              = $rec['image'];
+        $mr->Owner                  = "";
+        $mr->UsageTerms             = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+        $mr->description            = @$rec["caption"];
+        // if(!$rec['caption'])
+        // {
+        //     print_r($rec); exit("\nno caption\n");
+        // }
+        if(!isset($this->obj_ids[$mr->identifier])) {
+            $this->archive_builder->write_object_to_file($mr);
+            $this->obj_ids[$mr->identifier] = '';
+        }
+    }
     //####################################################################################
     function get_all_taxa()
     {
@@ -219,38 +263,6 @@ class DipteraCentralAmericaAPI
             }
         }
         return $reference_ids;
-    }
-
-    private function prepare_images($taxon, $images)
-    {
-        $reference_ids = array();
-        $ref_ids = array();
-        $agent_ids = array();
-        foreach($images as $rec)
-        {
-            echo "\n - " . $taxon . " - " . $rec['url'];
-            $media_url = $rec["image"];
-            echo "\n media url: " . $media_url . "\n\n";
-            $path_parts = pathinfo($rec["image"]);
-            $identifier = (string) $rec["taxon_id"] . "_" . str_replace(" ", "_", $path_parts["basename"]);
-            if(in_array($identifier, $this->do_ids)) continue;
-            else $this->do_ids[] = $identifier;
-            $mr = new \eol_schema\MediaResource();
-            if($reference_ids)  $mr->referenceID = implode("; ", $reference_ids);
-            if($agent_ids)      $mr->agentID = implode("; ", $agent_ids);
-            $mr->taxonID                = (string) $rec["taxon_id"];
-            $mr->identifier             = $identifier;
-            $mr->type                   = "http://purl.org/dc/dcmitype/StillImage";
-            $mr->language               = 'en';
-            $mr->format                 = (string) Functions::get_mimetype($media_url);
-            $mr->furtherInformationURL  = (string) $rec['url'];
-            $mr->accessURI              = (string) $media_url;
-            $mr->Owner                  = "";
-            $mr->UsageTerms             = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-            $mr->description            = (string) $rec["caption"];
-            $this->archive_builder->write_object_to_file($mr);
-            $this->create_instances_from_taxon_object($taxon, $rec, $reference_ids);
-        }
     }
 
     private function parse_html()

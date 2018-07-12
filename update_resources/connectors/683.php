@@ -10,10 +10,10 @@ $timestart = time_elapsed();
 $resource_id = "683"; // formerly 661
 $func = new DipteraCentralAmericaAPI($resource_id);
 $func->start();
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, true);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n elapsed time = " . $elapsed_time_sec . " seconds";
 echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
-exit("\n Done processing.");
+echo "\n Done processing\n";
 ?>
