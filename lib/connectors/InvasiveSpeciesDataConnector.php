@@ -13,7 +13,7 @@ class InvasiveSpeciesDataConnector
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->occurrence_ids = array();
         $this->taxon_ids = array();
-        $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 10800, 'download_attempts' => 1); // 'expire_seconds' => 0
+        $this->download_options = array('resource_id' => $folder, 'download_wait_time' => 1000000, 'timeout' => 60*2, 'download_attempts' => 1); // 'expire_seconds' => 0
         // Global Invasive Species Database (GISD)
         $this->GISD_portal_by_letter    = "http://www.issg.org/database/species/search.asp?sts=sss&st=sss&fr=1&x=25&y=12&rn=&hci=-1&ei=-1&lang=EN&sn=";
         $this->GISD_taxa_list           = "http://www.issg.org/database/species/List.asp";
