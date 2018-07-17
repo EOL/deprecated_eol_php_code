@@ -8,14 +8,12 @@ class InvasiveSpeciesDataConnector
 {
     function __construct($folder, $partner)
     {
-        $this->partner = $partner;
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->occurrence_ids = array();
         $this->taxon_ids = array();
-        $this->download_options = array('resource_id' => $folder, 'download_wait_time' => 1000000, 'timeout' => 60*2, 'download_attempts' => 1, 'cache' => 1); // 'expire_seconds' => 0
-        /*
+        $this->download_options = array('resource_id' => $folder, 'download_wait_time' => 1000000, 'timeout' => 60*2, 'download_attempts' => 1); // 'expire_seconds' => 0
         // Global Invasive Species Database (GISD)
         $this->GISD_portal_by_letter    = "http://www.issg.org/database/species/search.asp?sts=sss&st=sss&fr=1&x=25&y=12&rn=&hci=-1&ei=-1&lang=EN&sn=";
         $this->GISD_taxa_list           = "http://www.issg.org/database/species/List.asp";
@@ -25,20 +23,16 @@ class InvasiveSpeciesDataConnector
         $this->CABI_taxon_distribution = "http://www.cabi.org/isc/DatasheetDetailsReports.aspx?&iSectionId=DD*0&sSystem=Product&iPageID=481&iCompendiumId=5&iDatasheetID=";
         $this->CABI_references = array();
         $this->CABI_ref_page = "http://www.cabi.org/isc/references.aspx?PAN=";
-        */
-        
-        // Global Invasive Species Database (GISD)
-        $this->taxa_list['GISD'] = "http://localhost/cp_new/GISD/export_gisd.csv";
-        $this->taxa_list['GISD'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GISD/export_gisd.csv";
-        $this->taxon_page['GISD'] = "http://www.iucngisd.org/gisd/speciesname/";
+        $this->partner = $partner;
     }
 
     function generate_invasiveness_data()
     {
-        if    ($this->partner == "GISD")     self::start_GISD();
+        if    ($this->partner == "GISD")     self::process_GISD();
         elseif($this->partner == "CABI ISC") self::process_CABI();
         $this->archive_builder->finalize(TRUE);
     }
+
     private function process_CABI()
     {
         $taxa = self::get_CABI_taxa();
@@ -192,42 +186,6 @@ class InvasiveSpeciesDataConnector
         }
     }
     
-    private function start_GISD()
-    {
-        $csv_file = Functions::save_remote_file_to_local($this->taxa_list['GISD'], $this->download_options);
-        $file = Functions::file_open($csv_file, "r");
-        $i = 0;
-        while(!feof($file)) {
-            $i++;
-            $row = fgetcsv($file);
-            $row = str_replace('"', "", $row[0]);
-            if($i == 1) {
-                $fields = explode(";", $row);
-            }
-            else {
-                $vals = explode(";", $row);
-                $k = -1; $rec = array();
-                foreach($fields as $field) {
-                    $k++;
-                    $rec[$field] = $vals[$k];
-                    
-                }
-                if($rec) {
-                    if($html = Functions::lookup_with_cache($this->taxon_page['GISD'].urlencode($rec['Species']), $this->download_options)) {
-                        if(preg_match("/pdf.php\?sc=(.*?)\"/ims", $html, $arr)) {
-                            $rec['id'] = $arr[1];
-                        }
-                        else exit("\nInvestigate ".$rec['Species']."\n");
-                        //d/pdf.php?sc=15">Ful
-                    }
-                }
-                print_r($rec); //break;
-                
-            }
-        }
-        unlink($csv_file);
-        exit;
-    }
     private function process_GISD()
     {
         $taxa = self::get_GISD_taxa();
