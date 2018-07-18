@@ -418,8 +418,7 @@ class InvasiveSpeciesDataConnector
         $m = new \eol_schema\MeasurementOrFact();
         $occurrence = $this->add_occurrence($taxon_id, $catnum, $rec);
         $m->occurrenceID = $occurrence->occurrenceID;
-        if($mtype)  $m->measurementType = $mtype;
-        else        $m->measurementType = "http://domain.org/". SparqlClient::to_underscore($label); // currently won't pass here
+        $m->measurementType = $mtype;
         $m->measurementValue = $value;
         if($val = $measurementOfTaxon) {
             $m->measurementOfTaxon = $val;
@@ -448,12 +447,10 @@ class InvasiveSpeciesDataConnector
     {
         if($val = @$this->uri_values[$string]) return $val;
         else {
-            switch ($string) {
-                case "freshwater_terrestrial":        return "http://eol.org/schema/terms/terrestrialAndFreshwater";
-                case "marine_terrestrial":            return "http://eol.org/schema/terms/terrestrialAndMarine";
+            switch ($string) { //others were added in https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/GISD/mapped_location_strings.txt
                 case "brackish":                      return "http://purl.obolibrary.org/obo/ENVO_00000570";
                 case "marine_freshwater_brackish":    return "http://purl.obolibrary.org/obo/ENVO_00002030"; //based here: https://eol-jira.bibalex.org/browse/TRAM-794?focusedCommentId=62690&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62690
-                case "terrestrial_freshwater_marine": return false; //based here: https://eol-jira.bibalex.org/browse/TRAM-794?focusedCommentId=62690&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62690
+                case "terrestrial_freshwater_marine": return false; //skip based here: https://eol-jira.bibalex.org/browse/TRAM-794?focusedCommentId=62690&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62690
             }
 
             $this->debug['un-mapped string'][$type][$string] = '';

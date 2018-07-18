@@ -2397,11 +2397,18 @@ class Functions
         $mappings = array_merge($mappings, $uri_values);
         echo "\n".count($mappings)." - URIs were added from Tropicos. \n";
         
-        //add mappings specific to this resource: Turbellaria 185
+        //add mappings specific to this resource: Turbellaria (185)
         $mappings_specific_to_this_resource = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/Turbellaria/unmapped_countries%202%202.txt";
         $uri_values = $func->add_additional_mappings(true, $mappings_specific_to_this_resource);
         $mappings = array_merge($mappings, $uri_values);
-        echo "\n".count($mappings)." - URIs were added from Turbellarian. \n";
+        echo "\n".count($mappings)." - URIs were added from Turbellarian (185). \n";
+        
+        //add mappings specific to this resource: GISD 751
+        $mappings_specific_to_this_resource = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/GISD/mapped_location_strings.txt";
+        $uri_values = $func->add_additional_mappings(true, $mappings_specific_to_this_resource);
+        $mappings = array_merge($mappings, $uri_values);
+        echo "\n".count($mappings)." - URIs were added from GISD (751). \n";
+        
         return $mappings;
     }
     public static function start_print_debug($this_debug, $resource_id)
