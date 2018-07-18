@@ -2398,16 +2398,22 @@ class Functions
         echo "\n".count($mappings)." - URIs were added from Tropicos. \n";
         
         //add mappings specific to this resource: Turbellaria (185)
-        $mappings_specific_to_this_resource = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/Turbellaria/unmapped_countries%202%202.txt";
-        $uri_values = $func->add_additional_mappings(true, $mappings_specific_to_this_resource);
+        $url = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/Turbellaria/unmapped_countries%202%202.txt";
+        $uri_values = $func->add_additional_mappings(true, $url);
         $mappings = array_merge($mappings, $uri_values);
         echo "\n".count($mappings)." - URIs were added from Turbellarian (185). \n";
         
         //add mappings specific to this resource: GISD 751
-        $mappings_specific_to_this_resource = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/GISD/mapped_location_strings.txt";
-        $uri_values = $func->add_additional_mappings(true, $mappings_specific_to_this_resource);
+        $url = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/GISD/mapped_location_strings.txt";
+        $uri_values = $func->add_additional_mappings(true, $url);
         $mappings = array_merge($mappings, $uri_values);
         echo "\n".count($mappings)." - URIs were added from GISD (751). \n";
+        
+        //from COLDataAPI.php
+        $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/CatalogueOfLife/CoLMissingGeoTerms.txt";
+        $uri_values = $func->add_additional_mappings(true, $url);
+        $mappings = array_merge($mappings, $uri_values);
+        echo "\n".count($mappings)." - URIs were added from COLDataAPI.php. \n";
         
         return $mappings;
     }

@@ -20,27 +20,12 @@ class HymenopteraAPI
         $this->occurrence_ids = array();
         $this->list_of_taxa = array();
     }
-    private function additional_mappings() //specific for this resource and one from Tropicos
-    {
-        require_library('connectors/TropicosArchiveAPI');
-        $func = new TropicosArchiveAPI(NULL);
-        $uri_values = $func->add_additional_mappings(true); //add country mappings used in Tropicos
-        $this->uri_values = array_merge($this->uri_values, $uri_values);
-        echo "\n".count($this->uri_values)." - URIs were added from Tropicos. \n";
-        
-        //add mappings specific to this resource: Turbellaria 185
-        $mappings_specific_to_this_resource = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/Turbellaria/unmapped_countries%202%202.txt";
-        $uri_values = $func->add_additional_mappings(true, $mappings_specific_to_this_resource);
-        $this->uri_values = array_merge($this->uri_values, $uri_values);
-        echo "\n".count($this->uri_values)." - URIs were added from Turbellarian. \n";
-    }
 
     function get_all_taxa()
     {
-        $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
-        echo "\n".count($this->uri_values). " - default URIs from EOL registry.";
-        self::additional_mappings(); //add more mappings specific only to this resource and one from Tropicos
-        
+        $mappings = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        echo "\n".count($mappings). " - default URIs from EOL registry.";
+        $this->uri_values = Functions::additional_mappings($mappings); //add more mappings used in the past
         
         if(self::process_text_files())
         {
