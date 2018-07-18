@@ -2389,5 +2389,21 @@ class Functions
         return false;
     }
 
+    public static function additional_mappings($mappings) //additional mappings from other resources, used in other connectors
+    {
+        require_library('connectors/TropicosArchiveAPI');
+        $func = new TropicosArchiveAPI(NULL);
+        $uri_values = $func->add_additional_mappings(true); //add country mappings used in Tropicos
+        $mappings = array_merge($mappings, $uri_values);
+        echo "\n".count($mappings)." - URIs were added from Tropicos. \n";
+        
+        //add mappings specific to this resource: Turbellaria 185
+        $mappings_specific_to_this_resource = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/Turbellaria/unmapped_countries%202%202.txt";
+        $uri_values = $func->add_additional_mappings(true, $mappings_specific_to_this_resource);
+        $mappings = array_merge($mappings, $uri_values);
+        echo "\n".count($mappings)." - URIs were added from Turbellarian. \n";
+        return $mappings;
+    }
+
 }
 ?>
