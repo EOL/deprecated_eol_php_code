@@ -28,6 +28,7 @@ class InvasiveSpeciesDataConnector
         $this->CABI_ref_page = "http://www.cabi.org/isc/references.aspx?PAN=";
         */
         
+        $this->debug = array();
         // Global Invasive Species Database (GISD)
         $this->taxa_list['GISD'] = "http://localhost/cp_new/GISD/export_gisd.csv";
         $this->taxa_list['GISD'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GISD/export_gisd.csv";
@@ -39,6 +40,15 @@ class InvasiveSpeciesDataConnector
         if    ($this->partner == "GISD")     self::start_GISD();
         elseif($this->partner == "CABI ISC") self::process_CABI();
         $this->archive_builder->finalize(TRUE);
+        if($this->debug) {
+            /* working but not needed, since debug is printed in /resources/xxx_debug.txt
+            $arr = array_keys($this->debug['un-mapped string']['location']); asort($arr); $arr = array_values($arr); print_r($arr);
+            $arr = array_keys($this->debug['un-mapped string']['habitat']); asort($arr); $arr = array_values($arr); print_r($arr);
+            */
+            echo "\nun-mapped string location: ".count($this->debug['un-mapped string']['location'])."\n";
+            echo "\nun-mapped string habitat: ".count($this->debug['un-mapped string']['habitat'])."\n";
+            Functions::start_print_debug($this->debug, $this->resource_id);
+        }
     }
     private function process_CABI()
     {
@@ -199,18 +209,21 @@ class InvasiveSpeciesDataConnector
         echo "\n".count($mappings). " - default URIs from EOL registry.";
         $this->uri_values = Functions::additional_mappings($mappings); //add more mappings used in the past
         // print_r($this->uri_values);
-        exit("\nstopx\n");
+        // exit("\nstopx\n");
         
         $csv_file = Functions::save_remote_file_to_local($this->taxa_list['GISD'], $this->download_options);
         $file = Functions::file_open($csv_file, "r");
         $i = 0;
         while(!feof($file)) {
             $i++;
+            if(($i % 100) == 0) echo "\n count:[$i] ";
+            
             $row = fgetcsv($file);
             $row = str_replace('"', "", $row[0]);
             if($i == 1) $fields = explode(";", $row);
             else {
                 $vals = explode(";", $row);
+                if(!$vals[0]) continue;
                 $k = -1; $rec = array();
                 foreach($fields as $field) {
                     $k++;
@@ -268,9 +281,12 @@ class InvasiveSpeciesDataConnector
     {
         $final = array();
         foreach($names as $name) {
-            $name = strtolower($name);
+            $name = str_replace(array("\n", "\t"), "", $name);
+            $name = trim(strtolower($name));
+            $name = Functions::remove_whitespace($name);
             $tmp = explode(" ", $name);
             $tmp = array_map('ucfirst', $tmp);
+            $tmp = array_map('trim', $tmp);
             $final[] = implode(" ", $tmp);
         }
         return $final;
@@ -365,22 +381,34 @@ class InvasiveSpeciesDataConnector
     }
     private function process_GISD_distribution($rec)
     {
+        // /*
         if($locations = @$rec["alien_range"]) {
             foreach($locations as $location) {
                 $rec["catnum"] = "alien_" . str_replace(" ", "_", $location);
-                self::add_string_types("true", $rec, "Alien Range", $location, "http://eol.org/schema/terms/IntroducedRange");
-                if($val = $rec["Species"]) self::add_string_types(null, $rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
-                if($val = $rec["bibliographicCitation"])         self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
+                self::add_string_types("true", $rec, "Alien Range", self::get_value_uri($location, 'location'), "http://eol.org/schema/terms/IntroducedRange");
+                // if($val = $rec["Species"])                  self::add_string_types(null, $rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
+                if($val = $rec["bibliographicCitation"])    self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
             }
         }
         if($locations = @$rec["native_range"]) {
             foreach($locations as $location) {
                 $rec["catnum"] = "native_" . str_replace(" ", "_", $location);
-                self::add_string_types("true", $rec, "Native Range", $location, "http://eol.org/schema/terms/NativeRange");
-                if($val = $rec["Species"]) self::add_string_types(null, $rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
-                if($val = $rec["bibliographicCitation"])         self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
+                self::add_string_types("true", $rec, "Native Range", self::get_value_uri($location, 'location'), "http://eol.org/schema/terms/NativeRange");
+                // if($val = $rec["Species"])                  self::add_string_types(null, $rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
+                if($val = $rec["bibliographicCitation"])    self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
             }
         }
+        // */
+        
+        if($habitat = strtolower(@$rec["System"])) {
+            $rec["catnum"] = str_replace(" ", "_", $habitat);
+            if($uri = self::get_value_uri($habitat, 'habitat')) {
+                self::add_string_types("true", $rec, "Habitat", $uri, "http://eol.org/schema/terms/Habitat");
+                if($val = $rec["bibliographicCitation"]) self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
+            }
+        }
+        
+        
     }
     
     private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype, $reference_ids = array())
@@ -416,6 +444,36 @@ class InvasiveSpeciesDataConnector
         $this->occurrence_ids[$occurrence_id] = $o;
         return $o;
     }
+    private function get_value_uri($string, $type)
+    {
+        if($val = @$this->uri_values[$string]) return $val;
+        else {
+            switch ($string) {
+                case "freshwater_terrestrial":        return "http://eol.org/schema/terms/terrestrialAndFreshwater";
+                case "marine_terrestrial":            return "http://eol.org/schema/terms/terrestrialAndMarine";
+                case "brackish":                      return "http://purl.obolibrary.org/obo/ENVO_00000570";
+                case "marine_freshwater_brackish":    return "http://purl.obolibrary.org/obo/ENVO_00002030"; //based here: https://eol-jira.bibalex.org/browse/TRAM-794?focusedCommentId=62690&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62690
+                case "terrestrial_freshwater_marine": return false; //based here: https://eol-jira.bibalex.org/browse/TRAM-794?focusedCommentId=62690&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62690
+            }
+
+            $this->debug['un-mapped string'][$type][$string] = '';
+            
+            if($type == 'habitat')      return false;
+            elseif($type == 'location') return $string;
+        }
+    }
+    /* not used, just for reference
+    private function format_habitat($desc)
+    {
+        $desc = trim(strtolower($desc));
+        elseif($desc == "marine/freshwater")        return "http://eol.org/schema/terms/freshwaterAndMarine";
+        elseif($desc == "ubiquitous")               return "http://eol.org/schema/terms/ubiquitous";
+        else {
+            echo "\n investigate undefined habitat [$desc]\n";
+            return $desc;
+        }
+    }
+    */
 
 }
 ?>
