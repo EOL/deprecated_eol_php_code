@@ -93,7 +93,7 @@ class COLDataAPI
         // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
-        if($this->debug) self::start_print_debug();
+        if($this->debug) Functions::start_print_debug($this->debug, $this->resource_id);
     }
     private function process_file($txt_file, $extension)
     {
@@ -644,36 +644,5 @@ class COLDataAPI
         else echo "\nCannot read!\n";
         unlink($local);
     }
-    private function start_print_debug()
-    {
-        $file = CONTENT_RESOURCE_LOCAL_PATH . "col_debug.txt";
-        $WRITE = Functions::file_open($file, "w");
-        foreach($this->debug as $topic => $arr) {
-            fwrite($WRITE, "============================================================="."\n");
-            fwrite($WRITE, $topic."\n");
-            if(is_array($arr)) {
-                foreach($arr as $subtopic => $arr2) {
-                    fwrite($WRITE, "----- ".$subtopic."\n");
-                    if(is_array($arr2)) {
-                        $arr2 = array_keys($arr2);
-                        asort($arr2);
-                        foreach($arr2 as $item) {
-                            if($item) fwrite($WRITE, $item."\n");
-                        }
-                    }
-                    else {
-                        if($arr2) fwrite($WRITE, $arr2."\n");
-                    }
-                }
-            }
-            else {
-                if($arr) fwrite($WRITE, $arr."\n");
-            }
-        }
-        fclose($WRITE);
-        echo "\nCheck debug file: [$file]\n";
-        // print_r($this->debug);
-    }
-    
 }
 ?>

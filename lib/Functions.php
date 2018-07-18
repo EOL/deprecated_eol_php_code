@@ -2404,6 +2404,36 @@ class Functions
         echo "\n".count($mappings)." - URIs were added from Turbellarian. \n";
         return $mappings;
     }
+    public static function start_print_debug($this_debug, $resource_id)
+    {
+        $file = CONTENT_RESOURCE_LOCAL_PATH . $resource_id."_debug.txt";
+        $WRITE = Functions::file_open($file, "w");
+        foreach($this_debug as $topic => $arr) {
+            fwrite($WRITE, "============================================================="."\n");
+            fwrite($WRITE, $topic."\n");
+            if(is_array($arr)) {
+                foreach($arr as $subtopic => $arr2) {
+                    fwrite($WRITE, "----- ".$subtopic."  total: ".count($arr2)."\n");
+                    if(is_array($arr2)) {
+                        $arr2 = array_keys($arr2);
+                        asort($arr2);
+                        foreach($arr2 as $item) {
+                            if($item) fwrite($WRITE, $item."\n");
+                        }
+                    }
+                    else {
+                        if($arr2) fwrite($WRITE, $arr2."\n");
+                    }
+                }
+            }
+            else {
+                if($arr) fwrite($WRITE, $arr."\n");
+            }
+        }
+        fclose($WRITE);
+        echo "\nCheck debug file: [$file]\n";
+        // print_r($this->debug);
+    }
 
 }
 ?>
