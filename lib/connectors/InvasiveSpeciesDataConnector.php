@@ -8,6 +8,7 @@ class InvasiveSpeciesDataConnector
 {
     function __construct($folder, $partner)
     {
+        $this->resource_id = $folder;
         $this->partner = $partner;
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
@@ -194,6 +195,12 @@ class InvasiveSpeciesDataConnector
     
     private function start_GISD()
     {
+        $mappings = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        echo "\n".count($mappings). " - default URIs from EOL registry.";
+        $this->uri_values = Functions::additional_mappings($mappings); //add more mappings used in the past
+        // print_r($this->uri_values);
+        exit("\nstopx\n");
+        
         $csv_file = Functions::save_remote_file_to_local($this->taxa_list['GISD'], $this->download_options);
         $file = Functions::file_open($csv_file, "r");
         $i = 0;
@@ -209,28 +216,35 @@ class InvasiveSpeciesDataConnector
                     $k++;
                     $rec[$field] = $vals[$k];
                 }
-                if($rec) {
+                if($rec['Species']) {
                     $url = $this->taxon_page['GISD'].urlencode($rec['Species']);
                     if($html = Functions::lookup_with_cache($url, $this->download_options)) {
                         if(preg_match("/pdf.php\?sc=(.*?)\"/ims", $html, $arr)) { // d/pdf.php?sc=15">Ful
-                            $rec['id'] = $arr[1];
+                            $rec['taxon_id'] = $arr[1];
                         }
-                        else exit("\nInvestigate ".$rec['Species']."\n");
+                        else exit("\nInvestigate 01 ".$rec['Species']."\n");
                         $rec['alien_range'] = self::get_alien_range($html);
                         $rec['native_range'] = self::get_native_range($html);
-                        $rec['source'] = $url;
-                        $rec = self::get_citation($html, $rec);
+                        $rec['source_url'] = $url;
+                        $rec = self::get_citation_and_others($html, $rec);
                     }
-                    print_r($rec); //break;
-                    // if(!$rec['alien_range']) exit("\nInvestigate no alien range ".$rec['Species']."\n");
-                    // if(!in_array($rec['id'], array(1343, 192, 1043, 1248))) {
-                    //     if(!$rec['native_range']) exit("\nInvestigate no native range ".$rec['Species']."\n");
-                    // }
+                    // print_r($rec);
+                    if($rec['Species'] && ($rec['alien_range'] || $rec['native_range'])) {
+                        $this->create_instances_from_taxon_object($rec);
+                        $this->process_GISD_distribution($rec);
+                    }
+                    // break; //debug only
+                    /* good debug
+                    if(!$rec['alien_range']) exit("\nInvestigate no alien range ".$rec['Species']."\n");
+                    if(!in_array($rec['id'], array(1343, 192, 1043, 1248))) {
+                        if(!$rec['native_range']) exit("\nInvestigate no native range ".$rec['Species']."\n");
+                    }
+                    */
                 }
             }
         }
         unlink($csv_file);
-        exit;
+        // exit;
     }
     private function get_alien_range($html)
     {
@@ -261,38 +275,36 @@ class InvasiveSpeciesDataConnector
         }
         return $final;
     }
-    private function get_citation($html, $rec)
+    private function get_citation_and_others($html, $rec)
     {
         // <p><strong>Recommended citation:</strong> Global Invasive Species Database (2018) Species profile: <i>Anopheles quadrimaculatus</i>. Downloaded from http://www.iucngisd.org/gisd/speciesname/Anopheles%20quadrimaculatus on 18-07-2018.</p>
         if(preg_match("/Recommended citation\:(.*?)<\/p>/ims", $html, $arr)) {
             $str = strip_tags($arr[1], "<i>");
             $rec['bibliographicCitation'] = trim($str);
         }
-        
         // <p><strong>Principal source:</strong> <a href=\"http://www.hear.org/pier/species/abelmoschus_moschatus.htm\"> PIER, 2003. (Pacific Island Ecosystems At Risk) <i>Abelmoschus moschatus</i></a></p>
         if(preg_match("/Principal source\:(.*?)<\/p>/ims", $html, $arr)) {
             $str = strip_tags($arr[1], "<i>");
-            $rec['source'] = trim($str);
+            $rec['Principal source'] = trim($str);
         }
-
         // <p><strong>Compiler:</strong> IUCN/SSC Invasive Species Specialist Group (ISSG)</p>
         if(preg_match("/Compiler\:(.*?)<\/p>/ims", $html, $arr)) {
             $str = strip_tags($arr[1], "<i>");
-            $rec['contributor'] = trim($str);
+            $rec['Compiler'] = trim($str);
         }
-        
-        
+        $rem = "";
+        if($val = $rec['Principal source']) $rem .= "Principal source: ".$val;
+        if($val = $rec['Compiler']) $rem .= "Compiler: ".$val;
+        $rec['measurementRemarks'] = $rem;
         return $rec;
     }
     private function process_GISD()
     {
         $taxa = self::get_GISD_taxa();
-        $total = count($taxa);
-        echo "\n taxa count: $total \n";
+        $total = count($taxa); echo "\n taxa count: $total \n";
         $i = 0;
         foreach($taxa as $taxon_id => $taxon) {
-            $i++;
-            echo "\n $i of $total ";
+            $i++; echo "\n $i of $total ";
             // if($i >= 100) return; //debug -- use during preview phase
             $url = $this->GISD_taxon_distribution . $taxon_id;
             if($html = Functions::lookup_with_cache($url, $this->download_options)) {
@@ -338,56 +350,62 @@ class InvasiveSpeciesDataConnector
     private function create_instances_from_taxon_object($rec)
     {
         $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID                 = $rec["schema_taxon_id"];
-        $taxon->scientificName = $rec["taxon"]["sciname"];
-        $taxon->furtherInformationURL   = $rec["source"];
-        echo "\n" . $taxon->scientificName . " [$taxon->taxonID]";
+        $taxon->taxonID         = $rec["taxon_id"];
+        $taxon->scientificName  = $rec["Species"];
+        $taxon->kingdom         = $rec['Kingdom'];
+        $taxon->phylum          = $rec['Phylum'];
+        $taxon->class           = $rec['Class'];
+        $taxon->order           = $rec['Order'];
+        $taxon->family          = $rec['Family'];
+        $taxon->furtherInformationURL = $rec["source_url"];
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);
-            $this->taxon_ids[$taxon->taxonID] = 1;
+            $this->taxon_ids[$taxon->taxonID] = '';
         }
     }
-
     private function process_GISD_distribution($rec)
     {
-        if(isset($rec["Alien Range"]["locations"])) {
-            foreach(@$rec["Alien Range"]["locations"] as $location) {
+        if($locations = @$rec["alien_range"]) {
+            foreach($locations as $location) {
                 $rec["catnum"] = "alien_" . str_replace(" ", "_", $location);
                 self::add_string_types("true", $rec, "Alien Range", $location, "http://eol.org/schema/terms/IntroducedRange");
-                if($val = $rec["taxon"]["sciname"]) self::add_string_types(null, $rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
-                if($val = $rec["citation"])         self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
+                if($val = $rec["Species"]) self::add_string_types(null, $rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
+                if($val = $rec["bibliographicCitation"])         self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
             }
         }
-        if(isset($rec["Native Range"]["locations"])) {
-            foreach(@$rec["Native Range"]["locations"] as $location) {
+        if($locations = @$rec["native_range"]) {
+            foreach($locations as $location) {
                 $rec["catnum"] = "native_" . str_replace(" ", "_", $location);
                 self::add_string_types("true", $rec, "Native Range", $location, "http://eol.org/schema/terms/NativeRange");
-                if($val = $rec["taxon"]["sciname"]) self::add_string_types(null, $rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
-                if($val = $rec["citation"])         self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
+                if($val = $rec["Species"]) self::add_string_types(null, $rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
+                if($val = $rec["bibliographicCitation"])         self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
             }
         }
     }
     
     private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype, $reference_ids = array())
     {
-        $taxon_id = $rec["schema_taxon_id"];
+        $taxon_id = $rec["taxon_id"];
         $catnum = $rec["catnum"];
         $m = new \eol_schema\MeasurementOrFact();
-        $occurrence = $this->add_occurrence($taxon_id, $catnum);
+        $occurrence = $this->add_occurrence($taxon_id, $catnum, $rec);
         $m->occurrenceID = $occurrence->occurrenceID;
         if($mtype)  $m->measurementType = $mtype;
         else        $m->measurementType = "http://domain.org/". SparqlClient::to_underscore($label); // currently won't pass here
         $m->measurementValue = $value;
         if($val = $measurementOfTaxon) {
             $m->measurementOfTaxon = $val;
-            $m->source = $rec["source"];
+            $m->source = $rec["source_url"];
             if($reference_ids) $m->referenceID = implode("; ", $reference_ids);
-            // $m->measurementRemarks = ''; $m->contributor = ''; $m->measurementMethod = '';
+            $m->bibliographicCitation = $rec['bibliographicCitation'];
+            $m->measurementRemarks = $rec['measurementRemarks'];
+            // $m->contributor = ''; $m->measurementMethod = '';
         }
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
     }
 
-    private function add_occurrence($taxon_id, $catnum)
+    private function add_occurrence($taxon_id, $catnum, $rec)
     {
         $occurrence_id = md5($taxon_id . '_' . $catnum);
         if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
