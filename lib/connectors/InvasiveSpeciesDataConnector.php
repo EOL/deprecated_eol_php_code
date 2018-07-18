@@ -201,32 +201,88 @@ class InvasiveSpeciesDataConnector
             $i++;
             $row = fgetcsv($file);
             $row = str_replace('"', "", $row[0]);
-            if($i == 1) {
-                $fields = explode(";", $row);
-            }
+            if($i == 1) $fields = explode(";", $row);
             else {
                 $vals = explode(";", $row);
                 $k = -1; $rec = array();
                 foreach($fields as $field) {
                     $k++;
                     $rec[$field] = $vals[$k];
-                    
                 }
                 if($rec) {
-                    if($html = Functions::lookup_with_cache($this->taxon_page['GISD'].urlencode($rec['Species']), $this->download_options)) {
-                        if(preg_match("/pdf.php\?sc=(.*?)\"/ims", $html, $arr)) {
+                    $url = $this->taxon_page['GISD'].urlencode($rec['Species']);
+                    if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+                        if(preg_match("/pdf.php\?sc=(.*?)\"/ims", $html, $arr)) { // d/pdf.php?sc=15">Ful
                             $rec['id'] = $arr[1];
                         }
                         else exit("\nInvestigate ".$rec['Species']."\n");
-                        //d/pdf.php?sc=15">Ful
+                        $rec['alien_range'] = self::get_alien_range($html);
+                        $rec['native_range'] = self::get_native_range($html);
+                        $rec['source'] = $url;
+                        $rec = self::get_citation($html, $rec);
                     }
+                    print_r($rec); //break;
+                    // if(!$rec['alien_range']) exit("\nInvestigate no alien range ".$rec['Species']."\n");
+                    // if(!in_array($rec['id'], array(1343, 192, 1043, 1248))) {
+                    //     if(!$rec['native_range']) exit("\nInvestigate no native range ".$rec['Species']."\n");
+                    // }
                 }
-                print_r($rec); //break;
-                
             }
         }
         unlink($csv_file);
         exit;
+    }
+    private function get_alien_range($html)
+    {
+        if(preg_match("/ALIEN RANGE<\/div>(.*?)<\/div>/ims", $html, $arr)) {
+            if(preg_match_all("/class=\"(.*?)\"/ims", $arr[1], $arr2)) {
+                $final = self::capitalize_first_letter_of_country_names($arr2[1]);
+                return $final;
+            }
+        }
+    }
+    private function get_native_range($html)
+    {
+        if(preg_match("/NATIVE RANGE<\/div>(.*?)<\/div>/ims", $html, $arr)) {
+            if(preg_match_all("/<li>(.*?)<\/li>/ims", $arr[1], $arr2)) {
+                $final = self::capitalize_first_letter_of_country_names($arr2[1]);
+                return $final;
+            }
+        }
+    }
+    private function capitalize_first_letter_of_country_names($names)
+    {
+        $final = array();
+        foreach($names as $name) {
+            $name = strtolower($name);
+            $tmp = explode(" ", $name);
+            $tmp = array_map('ucfirst', $tmp);
+            $final[] = implode(" ", $tmp);
+        }
+        return $final;
+    }
+    private function get_citation($html, $rec)
+    {
+        // <p><strong>Recommended citation:</strong> Global Invasive Species Database (2018) Species profile: <i>Anopheles quadrimaculatus</i>. Downloaded from http://www.iucngisd.org/gisd/speciesname/Anopheles%20quadrimaculatus on 18-07-2018.</p>
+        if(preg_match("/Recommended citation\:(.*?)<\/p>/ims", $html, $arr)) {
+            $str = strip_tags($arr[1], "<i>");
+            $rec['bibliographicCitation'] = trim($str);
+        }
+        
+        // <p><strong>Principal source:</strong> <a href=\"http://www.hear.org/pier/species/abelmoschus_moschatus.htm\"> PIER, 2003. (Pacific Island Ecosystems At Risk) <i>Abelmoschus moschatus</i></a></p>
+        if(preg_match("/Principal source\:(.*?)<\/p>/ims", $html, $arr)) {
+            $str = strip_tags($arr[1], "<i>");
+            $rec['source'] = trim($str);
+        }
+
+        // <p><strong>Compiler:</strong> IUCN/SSC Invasive Species Specialist Group (ISSG)</p>
+        if(preg_match("/Compiler\:(.*?)<\/p>/ims", $html, $arr)) {
+            $str = strip_tags($arr[1], "<i>");
+            $rec['contributor'] = trim($str);
+        }
+        
+        
+        return $rec;
     }
     private function process_GISD()
     {
