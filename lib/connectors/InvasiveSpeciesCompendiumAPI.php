@@ -214,6 +214,10 @@ class InvasiveSpeciesCompendiumAPI
             if($i == 1) $fields = $row;
             else {
                 $vals = $row;
+                if(count($fields) != count($vals)) {
+                    print_r($vals);
+                    exit("\nNot same count ".count($fields)." != ".count($vals)."\n");
+                }
                 if(!$vals[0]) continue;
                 $k = -1; $rec = array();
                 foreach($fields as $field) {
@@ -230,7 +234,6 @@ class InvasiveSpeciesCompendiumAPI
                     if($html = Functions::lookup_with_cache($url, $this->download_options)) {
                         $rec['taxon_ranges'] = self::get_native_introduced_invasive_ranges($html, $rec);
                         $rec['source_url'] = $url;
-                        // $rec = self::get_citation_and_others($html, $rec);
                     }
                     print_r($rec);
                     /*
@@ -248,6 +251,7 @@ class InvasiveSpeciesCompendiumAPI
     }
     private function get_native_introduced_invasive_ranges($html, $rec)
     {
+        $final = array();
         if(preg_match("/<div id=\'todistributionTable\'(.*?)<\/div>/ims", $html, $arr)) { //<div id='todistributionTable' class='Product_data-item'>xxx yyy</div>
             echo "\n".$arr[1];
             if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $arr[1], $arr2)) {
@@ -266,14 +270,64 @@ class InvasiveSpeciesCompendiumAPI
                             $rek[$fld] = $cols[$k];
                             $k++;
                         }
-                        print_r($rek);
+                        if($val = self::valid_rek($rek, $rec)) $final[] = $val;
                     }
                     $i++;
                 }
             }
             // exit("\n\n");
         }
-        else exit("\nInvestigate no Distribution Table ".$rec['Scientific name']."\n");
+        // else exit("\nInvestigate no Distribution Table ".$rec['Scientific name']."\n");
+        return $final;
+    }
+    private function valid_rek($rek, $rec)
+    {
+        $good = array();
+        print_r($rek);
+        /*
+        Array(
+            [region] => <a href="/isc/datasheet/108785">-Russian Far East</a>
+            [Distribution] => Present
+            [Last Reported] => 
+            [Origin] => Native
+            [First Reported] => 
+            [Invasive] => Invasive
+            [Reference] => <a href="#81FD72A0-4561-4289-9CC1-03CC152F019E">Reshetnikov,
+         1998</a>; <a href="#720991F8-F58F-4243-BD6B-7FC4EADDC706">Shed'ko,
+         2001</a>; <a href="#9CE8C4A4-6317-4B9A-BB5C-00C8EC2904E9">Kolpakov et al.,
+         2010</a>
+            [Notes] => Native in Amur drainage and Khanka Lake; introduced and invasive in the Artemovka River (Ussuri Bay, Sea of Japan / East Sea) and Razdolnaya River (Peter the Great Bay, Sea of Japan/East Sea)
+        )
+        */
+        if($val = $rek['Reference']) $refs = self::assemble_references($val, $rec);
+        if(in_array($rek['Origin'], array("Native", "Introduced"))) $good[] = array('region' => $rek['region'], 'range' => $rek['Origin'], "refs" => $refs);
+        if(in_array($rek['Invasive'], array("Invasive")))           $good[] = array('region' => $rek['region'], 'range' => $rek['Invasive'], "refs" => $refs);
+        return $good;
+    }
+    private function assemble_references($ref_str, $rec)
+    {
+        $final = array();
+        $html = Functions::lookup_with_cache($rec['URL'], $this->download_options);
+        print_r($rec);
+        if(preg_match_all("/<a href=\"(.*?)\"/ims", $ref_str, $arr)) { //<a href="#6F3C79AC-42E4-40E3-A84D-57017C5A9414">
+            print_r($arr[1]);
+            foreach($arr[1] as $anchor_id) {
+                $final[] = self::lookup_ref_using_anchor_id($anchor_id, $html);
+            }
+        }
+        return $final;
+        exit("\n$ref_str\n");
+    }
+    private function lookup_ref_using_anchor_id($anchor_id, $html)
+    {
+        $parts = array();
+        $anchor_id = str_replace("#", "", $anchor_id);
+        if(preg_match("/<p id=\"".$anchor_id."\" class=\"reference\">(.*?)<\/p>/ims", $html, $arr)) { //<p id="6F3C79AC-42E4-40E3-A84D-57017C5A9414" class="reference">
+            echo "\n$arr[1]\n";
+            if(preg_match("/<a href=\"(.*?)\"/ims", $arr[1], $arr2)) $parts['ref_url'] = $arr2[1];
+            $parts['full_ref'] = strip_tags($arr[1], "<i>");
+        }
+        return $parts;
     }
     private function get_values($block)
     {
