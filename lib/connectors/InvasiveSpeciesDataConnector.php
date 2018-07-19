@@ -1,7 +1,8 @@
 <?php
 namespace php_active_record;
-/* connector: [751] [760]
-DATA-1426 Scrape invasive species data from GISD & CABI ISC
+/* connector: [751] [760 now was moved to: InvasiveSpeciesCompendiumAPI.php]
+original: DATA-1426 Scrape invasive species data from GISD & CABI ISC
+latest ticket: https://eol-jira.bibalex.org/browse/TRAM-794
 */
 
 class InvasiveSpeciesDataConnector
@@ -17,10 +18,6 @@ class InvasiveSpeciesDataConnector
         $this->taxon_ids = array();
         $this->download_options = array('resource_id' => $folder, 'download_wait_time' => 1000000, 'timeout' => 60*2, 'download_attempts' => 1, 'cache' => 1); // 'expire_seconds' => 0
         /*
-        // Global Invasive Species Database (GISD)
-        $this->GISD_portal_by_letter    = "http://www.issg.org/database/species/search.asp?sts=sss&st=sss&fr=1&x=25&y=12&rn=&hci=-1&ei=-1&lang=EN&sn=";
-        $this->GISD_taxa_list           = "http://www.issg.org/database/species/List.asp";
-        $this->GISD_taxon_distribution  = "http://www.issg.org/database/species/distribution.asp?si=";
         // CABI ISC
         $this->CABI_taxa_list_per_page = "http://www.cabi.org/isc/Default.aspx?site=144&page=4066&sort=meta_released_sort+desc&fromab=&LoadModule=CABISearchResults&profile=38&tab=0&start=";
         $this->CABI_taxon_distribution = "http://www.cabi.org/isc/DatasheetDetailsReports.aspx?&iSectionId=DD*0&sSystem=Product&iPageID=481&iCompendiumId=5&iDatasheetID=";
