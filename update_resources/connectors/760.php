@@ -3,13 +3,12 @@ namespace php_active_record;
 /* execution time:  */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/InvasiveSpeciesDataConnector');
+require_library('connectors/InvasiveSpeciesCompendiumAPI');
 $timestart = time_elapsed();
 $resource_id = 760;
 
-$func = new InvasiveSpeciesDataConnector($resource_id, "CABI ISC");
+$func = new InvasiveSpeciesCompendiumAPI($resource_id);
 $func->generate_invasiveness_data();
-
 Functions::finalize_dwca_resource($resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
