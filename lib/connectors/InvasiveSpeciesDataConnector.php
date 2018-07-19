@@ -309,11 +309,12 @@ class InvasiveSpeciesDataConnector
             $rec['Compiler'] = trim($str);
         }
         $rem = "";
-        if($val = $rec['Principal source']) $rem .= "Principal source: ".$val;
-        if($val = $rec['Compiler']) $rem .= "Compiler: ".$val;
-        $rec['measurementRemarks'] = $rem;
+        if($val = $rec['Principal source']) $rem .= "Principal source: ".$val.". ";
+        if($val = $rec['Compiler']) $rem .= "Compiler: ".$val.". ";
+        $rec['measurementRemarks'] = Functions::remove_whitespace(trim($rem));
         return $rec;
     }
+    /* old
     private function process_GISD()
     {
         $taxa = self::get_GISD_taxa();
@@ -343,7 +344,6 @@ class InvasiveSpeciesDataConnector
             }
         }
     }
-
     private function get_GISD_taxa()
     {
         $taxa = array();
@@ -362,7 +362,7 @@ class InvasiveSpeciesDataConnector
         }
         return $taxa;
     }
-
+    */
     private function create_instances_from_taxon_object($rec)
     {
         $taxon = new \eol_schema\Taxon();
@@ -385,7 +385,7 @@ class InvasiveSpeciesDataConnector
         if($locations = @$rec["alien_range"]) {
             foreach($locations as $location) {
                 $rec["catnum"] = "alien_" . str_replace(" ", "_", $location);
-                self::add_string_types("true", $rec, "Alien Range", self::get_value_uri($location, 'location'), "http://eol.org/schema/terms/IntroducedRange");
+                self::add_string_types("true", $rec, "Alien Range", self::get_value_uri($location, 'location'), "http://eol.org/schema/terms/IntroducedRange", array(), $location);
                 // if($val = $rec["Species"])                  self::add_string_types(null, $rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
                 if($val = $rec["bibliographicCitation"])    self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
             }
@@ -393,7 +393,7 @@ class InvasiveSpeciesDataConnector
         if($locations = @$rec["native_range"]) {
             foreach($locations as $location) {
                 $rec["catnum"] = "native_" . str_replace(" ", "_", $location);
-                self::add_string_types("true", $rec, "Native Range", self::get_value_uri($location, 'location'), "http://eol.org/schema/terms/NativeRange");
+                self::add_string_types("true", $rec, "Native Range", self::get_value_uri($location, 'location'), "http://eol.org/schema/terms/NativeRange", array(), $location);
                 // if($val = $rec["Species"])                  self::add_string_types(null, $rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
                 if($val = $rec["bibliographicCitation"])    self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
             }
@@ -403,15 +403,14 @@ class InvasiveSpeciesDataConnector
         if($habitat = strtolower(@$rec["System"])) {
             $rec["catnum"] = str_replace(" ", "_", $habitat);
             if($uri = self::get_value_uri($habitat, 'habitat')) {
-                self::add_string_types("true", $rec, "Habitat", $uri, "http://eol.org/schema/terms/Habitat");
+                self::add_string_types("true", $rec, "Habitat", $uri, "http://eol.org/schema/terms/Habitat", array(), $habitat);
                 if($val = $rec["bibliographicCitation"]) self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
             }
         }
         
-        
     }
     
-    private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype, $reference_ids = array())
+    private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype, $reference_ids = array(), $orig_value = "")
     {
         $taxon_id = $rec["taxon_id"];
         $catnum = $rec["catnum"];
@@ -424,8 +423,12 @@ class InvasiveSpeciesDataConnector
             $m->measurementOfTaxon = $val;
             $m->source = $rec["source_url"];
             if($reference_ids) $m->referenceID = implode("; ", $reference_ids);
+            /* redundant since bibliographicCitation is entered with when measurementOfTaxon == null
             $m->bibliographicCitation = $rec['bibliographicCitation'];
-            $m->measurementRemarks = $rec['measurementRemarks'];
+            */
+            $m->measurementRemarks = "";
+            if($orig_value) $m->measurementRemarks = ucfirst($orig_value).". ";
+            $m->measurementRemarks .= $rec['measurementRemarks'];
             // $m->contributor = ''; $m->measurementMethod = '';
         }
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);

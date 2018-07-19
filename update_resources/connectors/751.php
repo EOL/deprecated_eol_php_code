@@ -9,8 +9,7 @@ $resource_id = 751;
 
 $func = new InvasiveSpeciesDataConnector($resource_id, "GISD");
 $func->generate_invasiveness_data();
-
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, true);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
