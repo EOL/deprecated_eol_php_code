@@ -116,19 +116,17 @@ class InvasiveSpeciesCompendiumAPI
                         $rec['taxon_ranges'] = self::get_native_introduced_invasive_ranges($html, $rec);
                         $rec['source_url'] = $url;
                     }
-                    print_r($rec);
-                    /*
-                    if($rec['Species'] && ($rec['alien_range'] || $rec['native_range'])) {
+                    // print_r($rec);
+                    if($rec['Scientific name'] && $rec['taxon_ranges']) {
                         $this->create_instances_from_taxon_object($rec);
                         $this->process_GISD_distribution($rec);
                     }
-                    */
                     if($i == 3) break; //debug only
                 }
             }
         }
         unlink($csv_file);
-        exit("\nstopx\n");
+        // exit("\nstopx\n");
     }
     private function get_native_introduced_invasive_ranges($html, $rec)
     {
@@ -278,69 +276,40 @@ class InvasiveSpeciesCompendiumAPI
         $rec['measurementRemarks'] = Functions::remove_whitespace(trim($rem));
         return $rec;
     }
-    /* old
-    private function process_GISD()
-    {
-        $taxa = self::get_GISD_taxa();
-        $total = count($taxa); echo "\n taxa count: $total \n";
-        $i = 0;
-        foreach($taxa as $taxon_id => $taxon) {
-            $i++; echo "\n $i of $total ";
-            // if($i >= 100) return; //debug -- use during preview phase
-            $url = $this->GISD_taxon_distribution . $taxon_id;
-            if($html = Functions::lookup_with_cache($url, $this->download_options)) {
-                $info = array();
-                if(preg_match("/<B>Alien Range<\/B>(.*?)<\/ul>/ims", $html, $arr)) {
-                    if(preg_match_all("/<span class=\'ListTitle\'>(.*?)<\/span>/ims", $arr[1], $arr2)) $info["Alien Range"]["locations"] = $arr2[1];
-                }
-                if(preg_match("/<B>Native Range<\/B>(.*?)<\/ul>/ims", $html, $arr)) {
-                    if(preg_match_all("/<span class=\'ListTitle\'>(.*?)<\/span>/ims", $arr[1], $arr2)) $info["Native Range"]["locations"] = $arr2[1];
-                }
-                if($info) {
-                    $info["taxon_id"] = $taxon_id;
-                    $info["schema_taxon_id"] = $taxon["schema_taxon_id"];
-                    $info["taxon"] = $taxon;
-                    $info["source"] = $url;
-                    $info["citation"] = "Global Invasive Species Database, " . date("Y") . ". " . $taxon["sciname"] . ". Available from: http://www.issg.org/database/species/ecology.asp?si=" . $taxon_id . "&fr=1&sts=sss [Accessed " . date("M-d-Y") . "].";
-                    $this->create_instances_from_taxon_object($info);
-                    $this->process_GISD_distribution($info);
-                }
-            }
-        }
-    }
-    private function get_GISD_taxa()
-    {
-        $taxa = array();
-        if($html = Functions::lookup_with_cache($this->GISD_taxa_list, $this->download_options)) {
-            if(preg_match_all("/<a href=\'ecology\.asp\?si=(.*?)<\/i>/ims", $html, $arr)) {
-                foreach($arr[1] as $temp) {
-                    $id = null; $sciname = null;
-                    if(preg_match("/(.*?)\&/ims", $temp, $arr2))             $id = $arr2[1];
-                    if(preg_match("/<i>(.*?)<\/i>/ims", $temp . "</i>", $arr2)) $sciname = $arr2[1];
-                    if($id && $sciname) {
-                        $taxa[$id]["schema_taxon_id"] = "gisd_" . $id;
-                        $taxa[$id]["sciname"] = $sciname;
-                    }
-                }
-            }
-        }
-        return $taxa;
-    }
-    */
     private function create_instances_from_taxon_object($rec)
     {
+        /*  [Scientific name] => Abbottina rivularis
+            [Common name] => Chinese false gudgeon
+            [Coverage] => Full
+            [URL] => https://www.cabi.org/isc/datasheet/110570/aqb
+            [taxon_id] => 110570
+        */
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = $rec["taxon_id"];
-        $taxon->scientificName  = $rec["Species"];
+        $taxon->scientificName  = $rec["Scientific name"];
+        /*
         $taxon->kingdom         = $rec['Kingdom'];
         $taxon->phylum          = $rec['Phylum'];
         $taxon->class           = $rec['Class'];
         $taxon->order           = $rec['Order'];
         $taxon->family          = $rec['Family'];
+        */
         $taxon->furtherInformationURL = $rec["source_url"];
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);
             $this->taxon_ids[$taxon->taxonID] = '';
+        }
+        
+        if($common_name = @$rec['Common name']) {
+            $v = new \eol_schema\VernacularName();
+            $v->taxonID = $rec["taxon_id"];
+            $v->vernacularName = trim($common_name);
+            $v->language = "en";
+            $vernacular_id = md5("$v->taxonID|$v->vernacularName|$v->language");
+            if(!isset($this->vernacular_ids[$vernacular_id])) {
+                $this->vernacular_ids[$vernacular_id] = '';
+                $this->archive_builder->write_object_to_file($v);
+            }
         }
     }
     private function process_GISD_distribution($rec)
@@ -363,7 +332,7 @@ class InvasiveSpeciesCompendiumAPI
             }
         }
         // */
-        
+        /*
         if($habitat = strtolower(@$rec["System"])) {
             $rec["catnum"] = str_replace(" ", "_", $habitat);
             if($uri = self::get_value_uri($habitat, 'habitat')) {
@@ -371,7 +340,7 @@ class InvasiveSpeciesCompendiumAPI
                 if($val = $rec["bibliographicCitation"]) self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
             }
         }
-        
+        */
     }
     
     private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype, $reference_ids = array(), $orig_value = "")
