@@ -37,7 +37,6 @@ class InvasiveSpeciesCompendiumAPI
         $this->archive_builder->finalize(TRUE);
         if($this->debug) {
             echo "\nun-mapped string location: ".count($this->debug['un-mapped string']['location'])."\n";
-            echo "\nun-mapped string habitat: ".count($this->debug['un-mapped string']['habitat'])."\n";
             Functions::start_print_debug($this->debug, $this->resource_id);
         }
     }
@@ -50,38 +49,13 @@ class InvasiveSpeciesCompendiumAPI
         $this->archive_builder->write_object_to_file($r);
         $this->CABI_references[$id] = 1;
     }
-    
-    private function process_origin_invasive_objects($type, $value, $country, $rec, $reference_ids)
-    {
-        $uri = false;
-        $value = strip_tags(trim($value));
-        switch($value) {
-            case "Introduced":      $uri = "http://eol.org/schema/terms/IntroducedRange"; break;
-            case "Invasive":        $uri = "http://eol.org/schema/terms/InvasiveRange"; break;
-            case "Native":          $uri = "http://eol.org/schema/terms/NativeRange"; break;
-            case "Not invasive":    $uri = "http://eol.org/schema/terms/NonInvasiveRange"; break;
-        }
-        if(strpos($value, "introduced") === false) {}
-        else $uri = "http://eol.org/schema/terms/IntroducedRange";
-        if($uri) {
-            $rec["catnum"] = $type . "_" . str_replace(" ", "_", $country);
-            self::add_string_types("true", $rec, "", $country, $uri, $reference_ids);
-            if($val = $rec["taxon"]["sciname"]) self::add_string_types(null, $rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
-            if($val = $rec["citation"])         self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
-        }
-        else {
-            echo "\n investigate no data\n";
-            print_r($rec);
-        }
-    }
-    
     private function start_ISC()
     {
-        /* un-comment in real operation
+        // /* un-comment in real operation
         $mappings = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         echo "\n".count($mappings). " - default URIs from EOL registry.";
         $this->uri_values = Functions::additional_mappings($mappings); //add more mappings used in the past
-        */
+        // */
         // print_r($this->uri_values);
         // exit("\nstopx\n");
         
@@ -110,8 +84,8 @@ class InvasiveSpeciesCompendiumAPI
                 if(preg_match("/\/datasheet\/(.*?)\//ims", $rec['URL'], $arr)) $rec['taxon_id'] = $arr[1]; // datasheet/121524/aqb
                 else exit("\nInvestigate 01 ".$rec['Scientific name']."\n");
                 
-                $rec["citation"] = "CABI International Invasive Species Compendium, " . date("Y") . ". " . $rec["Scientific name"] . ". Available from: " . $rec["URL"] . " [Accessed " . date("M-d-Y") . "].";
-                print_r($rec);
+                $rec["bibliographicCitation"] = "CABI International Invasive Species Compendium, " . date("Y") . ". " . $rec["Scientific name"] . ". Available from: " . $rec["URL"] . " [Accessed " . date("M-d-Y") . "].";
+                // print_r($rec);
                 
                 if($rec['Scientific name']) {
                     $url = $rec['URL'];
@@ -122,7 +96,7 @@ class InvasiveSpeciesCompendiumAPI
                     // print_r($rec);
                     if($rec['Scientific name'] && $rec['taxon_ranges']) {
                         $this->create_instances_from_taxon_object($rec);
-                        // $this->process_GISD_distribution($rec);
+                        $this->process_GISD_distribution($rec);
                     }
                     if($i == 3) break; //debug only
                 }
@@ -180,9 +154,16 @@ class InvasiveSpeciesCompendiumAPI
             [Notes] => Native in Amur drainage and Khanka Lake; introduced and invasive in the Artemovka River (Ussuri Bay, Sea of Japan / East Sea) and Razdolnaya River (Peter the Great Bay, Sea of Japan/East Sea)
         )
         */
+        
+        $rem = "";
+        if($val = $rek['Notes']) $rem .= $val.". ";
+        if($val = $rek['First Reported']) $rem .= "First reported: $val. ";
+        if($val = $rek['Last Reported']) $rem .= "Last reported: $val. ";
+        
+        
         if($val = $rek['Reference']) $refs = self::assemble_references($val, $rec);
-        if(in_array($rek['Origin'], array("Native", "Introduced"))) $good[] = array('region' => $rek['region'], 'range' => $rek['Origin'], "refs" => $refs);
-        if(in_array($rek['Invasive'], array("Invasive", "Not invasive")))           $good[] = array('region' => $rek['region'], 'range' => $rek['Invasive'], "refs" => $refs);
+        if(in_array($rek['Origin'], array("Native", "Introduced")))         $good[] = array('region' => $rek['region'], 'range' => $rek['Origin'], "refs" => $refs, 'measurementRemarks' => $rem);
+        if(in_array($rek['Invasive'], array("Invasive", "Not invasive")))   $good[] = array('region' => $rek['region'], 'range' => $rek['Invasive'], "refs" => $refs, 'measurementRemarks' => $rem);
         return $good;
     }
     private function assemble_references($ref_str, $rec)
@@ -292,9 +273,17 @@ class InvasiveSpeciesCompendiumAPI
             }
         }
     }
+    private function get_mtype_for_range($range)
+    {
+        switch($range) {
+            case "Introduced":      return "http://eol.org/schema/terms/IntroducedRange";
+            case "Invasive":        return "http://eol.org/schema/terms/InvasiveRange";
+            case "Native":          return "http://eol.org/schema/terms/NativeRange";
+            case "Not invasive":    return "http://eol.org/schema/terms/NonInvasiveRange";
+        }
+    }
     private function process_GISD_distribution($rec)
     {
-        // print_r($rec); exit;
         foreach($rec['taxon_ranges'] as $ranges) {
             foreach($ranges as $r) {
                 /* Array (
@@ -314,41 +303,18 @@ class InvasiveSpeciesCompendiumAPI
                         )
                 )
                 */
-                print_r($range);
-            }
-        }
-        
-        
-        if($locations = @$rec["alien_range"]) {
-            foreach($locations as $location) {
-                $rec["catnum"] = "alien_" . str_replace(" ", "_", $location);
-                self::add_string_types("true", $rec, "Alien Range", self::get_value_uri($location, 'location'), "http://eol.org/schema/terms/IntroducedRange", array(), $location);
+                // print_r($r); //exit;
+                $location = strip_tags($r['region']);
+                $location = str_replace("-", "", $location);
+                $rec["catnum"] = $r['range']."_" . str_replace(" ", "_", $location);
+                self::add_string_types("true", $rec, $r['range'], self::get_value_uri($location, 'location'), self::get_mtype_for_range($r['range']), array(), $location, $r);
                 // if($val = $rec["Species"])                  self::add_string_types(null, $rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
                 if($val = $rec["bibliographicCitation"])    self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
             }
         }
-        // /*
-        if($locations = @$rec["native_range"]) {
-            foreach($locations as $location) {
-                $rec["catnum"] = "native_" . str_replace(" ", "_", $location);
-                self::add_string_types("true", $rec, "Native Range", self::get_value_uri($location, 'location'), "http://eol.org/schema/terms/NativeRange", array(), $location);
-                // if($val = $rec["Species"])                  self::add_string_types(null, $rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
-                if($val = $rec["bibliographicCitation"])    self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
-            }
-        }
-        // */
-        /*
-        if($habitat = strtolower(@$rec["System"])) {
-            $rec["catnum"] = str_replace(" ", "_", $habitat);
-            if($uri = self::get_value_uri($habitat, 'habitat')) {
-                self::add_string_types("true", $rec, "Habitat", $uri, "http://eol.org/schema/terms/Habitat", array(), $habitat);
-                if($val = $rec["bibliographicCitation"]) self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
-            }
-        }
-        */
     }
     
-    private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype, $reference_ids = array(), $orig_value = "")
+    private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype, $reference_ids = array(), $orig_value = "", $r = array())
     {
         $taxon_id = $rec["taxon_id"];
         $catnum = $rec["catnum"];
@@ -366,7 +332,7 @@ class InvasiveSpeciesCompendiumAPI
             */
             $m->measurementRemarks = "";
             if($orig_value) $m->measurementRemarks = ucfirst($orig_value).". ";
-            $m->measurementRemarks .= $rec['measurementRemarks'];
+            $m->measurementRemarks .= $r['measurementRemarks'];
             // $m->contributor = ''; $m->measurementMethod = '';
         }
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
