@@ -41,125 +41,6 @@ class InvasiveSpeciesCompendiumAPI
             Functions::start_print_debug($this->debug, $this->resource_id);
         }
     }
-    private function process_CABI()
-    {
-        $taxa = self::get_CABI_taxa();
-        $total = count($taxa);
-        echo "\n taxa count: " . $total . "\n";
-        $i = 0;
-        foreach($taxa as $taxon) {
-            $i++;
-            echo "\n $i of $total ";
-            if($taxon) {
-                $info = array();
-                $info["taxon_id"] = $taxon["taxon_id"];
-                $info["schema_taxon_id"] = $taxon["schema_taxon_id"];
-                $info["taxon"]["sciname"] = (string) $taxon["sciname"];
-                $info["source"] = $taxon["source"];
-                $info["citation"] = "CABI International Invasive Species Compendium, " . date("Y") . ". " . $taxon["sciname"] . ". Available from: " . $taxon["source"] . " [Accessed " . date("M-d-Y") . "].";
-                if($this->process_CABI_distribution($info)) $this->create_instances_from_taxon_object($info); // only include names with Nativity or Invasiveness info
-            }
-        }
-    }
-
-    private function get_CABI_taxa()
-    {
-        $taxa = array();
-        $count = 0;
-        $total_count = false;
-        while(true) {
-            if($html = Functions::lookup_with_cache($this->CABI_taxa_list_per_page . $count, $this->download_options)) {
-                if(!$total_count) {
-                    if(preg_match("/Showing 1 \- 10 of (.*?)<\/div>/ims", $html, $arr)) $total_count = $arr[1];
-                    else {
-                        echo "\n investigate: cannot access total count...\n";
-                        return array();
-                    }
-                }
-                if(preg_match_all("/<td class=\"cabiSearchResultsText\">(.*?)<\/td>/ims", $html, $arr)) {
-                    foreach($arr[1] as $row) {
-                        $row = str_ireplace("&amp;", "&", $row);
-                        $rec = array();
-                        if(preg_match("/<a href=\"(.*?)\"/ims", $row, $arr2)) $rec["source"] = $arr2[1];
-                        if(preg_match("/dsid=(.*?)\&/ims", $row, $arr2)) $rec["taxon_id"] = $arr2[1];
-                        if(preg_match("/class=\"title\">(.*?)<\/a>/ims", $row, $arr2)) {
-                            $sciname = $arr2[1];
-                            if(preg_match("/\((.*?)\)/ims", $sciname, $arr3)) $rec["vernacular"] = $arr3[1];
-                            $rec["sciname"] = trim(preg_replace('/\s*\([^)]*\)/', '', $sciname)); //remove parenthesis
-                        }
-                        if($rec) {
-                            $rec["schema_taxon_id"] = "cabi_" . $rec["taxon_id"];
-                            
-                            // manual adjustments
-                            $rec["sciname"] = trim(str_ireplace(array("[ISC]", "race 2", "race 1", "of oysters", "small colony type", "/maurini of mussels", ")"), "", $rec["sciname"]));
-                            if(ctype_lower(substr($rec["sciname"],0,1))) continue;
-                            if(self::term_exists_then_exclude_from_list($rec["sciname"], array("honey", "virus", "fever", "Railways", "infections", " group", "Soil", "Hedges", "Digestion", "Clothing", "production", "Forestry", "Habitat", "plants", "complex", "viral", "disease", "large"))) continue;
-                            
-                            $taxa[] = $rec;
-                        }
-                    }
-                    if(count($taxa) >= $total_count) break;
-                }
-                else break; // assumed that connector has gone to all pages already, exits while()
-            }
-            $count = $count + 10;
-            // if($count >= 50) break;//debug - use using preview phase
-        }
-        return $taxa;
-    }
-
-    private function term_exists_then_exclude_from_list($string, $terms)
-    {
-        foreach($terms as $term) {
-            if(is_numeric(stripos($string, $term))) return true;
-        }
-        return false;
-    }
-    
-    private function process_CABI_distribution($rec)
-    {
-        $has_data = false;
-        if($html = Functions::lookup_with_cache($this->CABI_taxon_distribution . $rec["taxon_id"], $this->download_options)) {
-            if(preg_match_all("/Helvetica;padding\: 5px\'>(.*?)<\/tr>/ims", $html, $arr)) {
-                foreach($arr[1] as $row) {
-                    if(preg_match_all("/<td>(.*?)<\/td>/ims", $row, $arr)) {
-                        $row = $arr[1];
-                        $country = strip_tags(trim($row[0]));
-                        if(substr($country,0,1) != "-") {
-                            $reference_ids = self::parse_references(trim(@$row[6]));
-                            if(@$row[3]) {
-                                $has_data = true;
-                                self::process_origin_invasive_objects("origin"  , $row[3], $country, $rec, $reference_ids);
-                            }
-                            if(@$row[5]) {
-                                $has_data = true;
-                                self::process_origin_invasive_objects("invasive", $row[5], $country, $rec, $reference_ids);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return $has_data;
-    }
-
-    private function parse_references($ref)
-    {
-        $refs = array();
-        if(preg_match("/aspx\?PAN=(.*?)\'/ims", $ref, $arr)) {
-            $ref_ids = explode("|", $arr[1]);
-            foreach($ref_ids as $id) {
-                $refs[] = $id; // to be used in MeasurementOrFact
-                if(!isset($this->CABI_references[$id])) { // doesn't exist yet, scrape and save ref
-                    if($html = Functions::lookup_with_cache($this->CABI_ref_page . $id, $this->download_options)) {
-                        if(preg_match("/<div id=\"refText\" align=\"left\">(.*?)<\/div>/ims", $html, $arr)) self::add_reference($id, $arr[1], $this->CABI_ref_page . $id);
-                    }
-                }
-            }
-        }
-        return $refs;
-    }
-    
     private function add_reference($id, $full_reference, $uri)
     {
         $r = new \eol_schema\Reference();
@@ -253,18 +134,17 @@ class InvasiveSpeciesCompendiumAPI
     {
         $final = array();
         if(preg_match("/<div id=\'todistributionTable\'(.*?)<\/div>/ims", $html, $arr)) { //<div id='todistributionTable' class='Product_data-item'>xxx yyy</div>
-            echo "\n".$arr[1];
+            // echo "\n".$arr[1];
             if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $arr[1], $arr2)) {
-                print_r($arr2[1]);
+                // print_r($arr2[1]);
                 $i = 0;
                 foreach($arr2[1] as $block) {
                     if($i === 0) {
                         $fields = self::get_fields($block);
-                        print_r($fields);
+                        // print_r($fields);
                     }
                     else {
                         $cols = self::get_values($block);
-                        
                         $rek = array(); $k = 0;
                         foreach($fields as $fld) {
                             $rek[$fld] = $cols[$k];
@@ -283,7 +163,7 @@ class InvasiveSpeciesCompendiumAPI
     private function valid_rek($rek, $rec)
     {
         $good = array();
-        print_r($rek);
+        // print_r($rek);
         /*
         Array(
             [region] => <a href="/isc/datasheet/108785">-Russian Far East</a>
@@ -301,29 +181,29 @@ class InvasiveSpeciesCompendiumAPI
         */
         if($val = $rek['Reference']) $refs = self::assemble_references($val, $rec);
         if(in_array($rek['Origin'], array("Native", "Introduced"))) $good[] = array('region' => $rek['region'], 'range' => $rek['Origin'], "refs" => $refs);
-        if(in_array($rek['Invasive'], array("Invasive")))           $good[] = array('region' => $rek['region'], 'range' => $rek['Invasive'], "refs" => $refs);
+        if(in_array($rek['Invasive'], array("Invasive", "Not invasive")))           $good[] = array('region' => $rek['region'], 'range' => $rek['Invasive'], "refs" => $refs);
         return $good;
     }
     private function assemble_references($ref_str, $rec)
     {
         $final = array();
         $html = Functions::lookup_with_cache($rec['URL'], $this->download_options);
-        print_r($rec);
+        // print_r($rec);
         if(preg_match_all("/<a href=\"(.*?)\"/ims", $ref_str, $arr)) { //<a href="#6F3C79AC-42E4-40E3-A84D-57017C5A9414">
-            print_r($arr[1]);
+            // print_r($arr[1]);
             foreach($arr[1] as $anchor_id) {
                 $final[] = self::lookup_ref_using_anchor_id($anchor_id, $html);
             }
         }
         return $final;
-        exit("\n$ref_str\n");
+        // exit("\n$ref_str\n");
     }
     private function lookup_ref_using_anchor_id($anchor_id, $html)
     {
         $parts = array();
         $anchor_id = str_replace("#", "", $anchor_id);
         if(preg_match("/<p id=\"".$anchor_id."\" class=\"reference\">(.*?)<\/p>/ims", $html, $arr)) { //<p id="6F3C79AC-42E4-40E3-A84D-57017C5A9414" class="reference">
-            echo "\n$arr[1]\n";
+            // echo "\n$arr[1]\n";
             if(preg_match("/<a href=\"(.*?)\"/ims", $arr[1], $arr2)) $parts['ref_url'] = $arr2[1];
             $parts['full_ref'] = strip_tags($arr[1], "<i>");
         }
@@ -344,7 +224,6 @@ class InvasiveSpeciesCompendiumAPI
         $final = array();
         $cols = array_map('trim', $cols);
         foreach($cols as $col) {
-            // $col = str_replace(array("\n", "\t"), "-eli-", $col);
             $col = Functions::remove_whitespace($col);
             $final[] = $col;
         }
@@ -361,15 +240,6 @@ class InvasiveSpeciesCompendiumAPI
             else exit("\nHeaders changed...\n");
         }
         else exit("\nInvestigate no table headers\n");
-    }
-    private function get_native_range($html)
-    {
-        if(preg_match("/NATIVE RANGE<\/div>(.*?)<\/div>/ims", $html, $arr)) {
-            if(preg_match_all("/<li>(.*?)<\/li>/ims", $arr[1], $arr2)) {
-                $final = self::capitalize_first_letter_of_country_names($arr2[1]);
-                return $final;
-            }
-        }
     }
     private function capitalize_first_letter_of_country_names($names)
     {
