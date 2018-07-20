@@ -29,6 +29,7 @@ class InvasiveSpeciesCompendiumAPI
         $this->taxa_list['ISC'] = "http://localhost/cp_new/Invasive%20Species%20Compendium/ExportedRecords.csv";
         $this->taxa_list['ISC'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Invasive%20Species%20Compendium/ExportedRecords.csv";
         $this->taxon_page['ISC'] = "";
+        $this->domain['ISC'] = "https://www.cabi.org";
     }
 
     function generate_invasiveness_data()
@@ -39,15 +40,6 @@ class InvasiveSpeciesCompendiumAPI
             echo "\nun-mapped string location: ".count($this->debug['un-mapped string']['location'])."\n";
             Functions::start_print_debug($this->debug, $this->resource_id);
         }
-    }
-    private function add_reference($id, $full_reference, $uri)
-    {
-        $r = new \eol_schema\Reference();
-        $r->identifier = $id;
-        $r->full_reference = $full_reference;
-        $r->uri = $uri;
-        $this->archive_builder->write_object_to_file($r);
-        $this->CABI_references[$id] = 1;
     }
     private function start_ISC()
     {
@@ -303,19 +295,39 @@ class InvasiveSpeciesCompendiumAPI
                         )
                 )
                 */
-                // print_r($r); //exit;
                 $location = strip_tags($r['region']);
                 $location = str_replace("-", "", $location);
-                $rec["catnum"] = $r['range']."_" . str_replace(" ", "_", $location);
-                self::add_string_types("true", $rec, $r['range'], self::get_value_uri($location, 'location'), self::get_mtype_for_range($r['range']), array(), $location, $r);
+                $rec['catnum'] = $r['range']."_" . str_replace(" ", "_", $location);
+                
+                //start refs
+                $reference_ids = array();
+                foreach($r['refs'] as $ref) {
+                    $reference_ids[] = self::write_reference($ref);
+                }
+                //end refs
+                // print_r($r); exit;
+                
+                self::add_string_types("true", $rec, $r['range'], self::get_value_uri($location, 'location'), self::get_mtype_for_range($r['range']), $reference_ids, $location, $r);
                 // if($val = $rec["Species"])                  self::add_string_types(null, $rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
                 if($val = $rec["bibliographicCitation"])    self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
             }
         }
     }
-    
-    private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype, $reference_ids = array(), $orig_value = "", $r = array())
+    private function write_reference($ref)
     {
+        $re = new \eol_schema\Reference();
+        $re->identifier = md5($ref['full_ref']);
+        $re->full_reference = $ref['full_ref'];
+        if($path = @$ref['ref_url']) $re->uri = $this->domain['ISC'].$path; // e.g. https://www.cabi.org/isc/abstract/20000808896
+        if(!isset($this->reference_ids[$re->identifier])) {
+            $this->archive_builder->write_object_to_file($re);
+            $this->reference_ids[$re->identifier] = '';
+        }
+        return $re->identifier;
+    }
+    private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype, $reference_ids = array(), $orig_value = "", $range_rec = array())
+    {
+        // print_r($range_rec);
         $taxon_id = $rec["taxon_id"];
         $catnum = $rec["catnum"];
         $m = new \eol_schema\MeasurementOrFact();
@@ -332,7 +344,7 @@ class InvasiveSpeciesCompendiumAPI
             */
             $m->measurementRemarks = "";
             if($orig_value) $m->measurementRemarks = ucfirst($orig_value).". ";
-            $m->measurementRemarks .= $r['measurementRemarks'];
+            $m->measurementRemarks .= $range_rec['measurementRemarks'];
             // $m->contributor = ''; $m->measurementMethod = '';
         }
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
