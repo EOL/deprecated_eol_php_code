@@ -105,10 +105,13 @@ class InvasiveSpeciesCompendiumAPI
                     $k++;
                     $rec[$field] = $vals[$k];
                 }
-                // print_r($rec);
+                if(!ctype_upper(substr($rec['Scientific name'],0,1))) continue; //exclude likes of "abalone viral ganglioneuritis"
 
                 if(preg_match("/\/datasheet\/(.*?)\//ims", $rec['URL'], $arr)) $rec['taxon_id'] = $arr[1]; // datasheet/121524/aqb
                 else exit("\nInvestigate 01 ".$rec['Scientific name']."\n");
+                
+                $rec["citation"] = "CABI International Invasive Species Compendium, " . date("Y") . ". " . $rec["Scientific name"] . ". Available from: " . $rec["URL"] . " [Accessed " . date("M-d-Y") . "].";
+                print_r($rec);
                 
                 if($rec['Scientific name']) {
                     $url = $rec['URL'];
@@ -119,7 +122,7 @@ class InvasiveSpeciesCompendiumAPI
                     // print_r($rec);
                     if($rec['Scientific name'] && $rec['taxon_ranges']) {
                         $this->create_instances_from_taxon_object($rec);
-                        $this->process_GISD_distribution($rec);
+                        // $this->process_GISD_distribution($rec);
                     }
                     if($i == 3) break; //debug only
                 }
@@ -253,29 +256,6 @@ class InvasiveSpeciesCompendiumAPI
         }
         return $final;
     }
-    private function get_citation_and_others($html, $rec)
-    {
-        // <p><strong>Recommended citation:</strong> Global Invasive Species Database (2018) Species profile: <i>Anopheles quadrimaculatus</i>. Downloaded from http://www.iucngisd.org/gisd/speciesname/Anopheles%20quadrimaculatus on 18-07-2018.</p>
-        if(preg_match("/Recommended citation\:(.*?)<\/p>/ims", $html, $arr)) {
-            $str = strip_tags($arr[1], "<i>");
-            $rec['bibliographicCitation'] = trim($str);
-        }
-        // <p><strong>Principal source:</strong> <a href=\"http://www.hear.org/pier/species/abelmoschus_moschatus.htm\"> PIER, 2003. (Pacific Island Ecosystems At Risk) <i>Abelmoschus moschatus</i></a></p>
-        if(preg_match("/Principal source\:(.*?)<\/p>/ims", $html, $arr)) {
-            $str = strip_tags($arr[1], "<i>");
-            $rec['Principal source'] = trim($str);
-        }
-        // <p><strong>Compiler:</strong> IUCN/SSC Invasive Species Specialist Group (ISSG)</p>
-        if(preg_match("/Compiler\:(.*?)<\/p>/ims", $html, $arr)) {
-            $str = strip_tags($arr[1], "<i>");
-            $rec['Compiler'] = trim($str);
-        }
-        $rem = "";
-        if($val = $rec['Principal source']) $rem .= "Principal source: ".$val.". ";
-        if($val = $rec['Compiler']) $rem .= "Compiler: ".$val.". ";
-        $rec['measurementRemarks'] = Functions::remove_whitespace(trim($rem));
-        return $rec;
-    }
     private function create_instances_from_taxon_object($rec)
     {
         /*  [Scientific name] => Abbottina rivularis
@@ -314,7 +294,31 @@ class InvasiveSpeciesCompendiumAPI
     }
     private function process_GISD_distribution($rec)
     {
-        // /*
+        // print_r($rec); exit;
+        foreach($rec['taxon_ranges'] as $ranges) {
+            foreach($ranges as $r) {
+                /* Array (
+                    [region] => <a href="/isc/datasheet/108785">-Russian Far East</a>
+                    [range] => Native
+                    [refs] => Array (
+                            [0] => Array (
+                                    [full_ref] => Reshetnikov YuS, 1998. Annotated catalog of cyclostomes and fishes of continental waters of Russia. Moscow, Russia: Nauka, 220 pp.
+                                )
+                            [1] => Array (
+                                    [full_ref] => Shed'ko NE, 2001. List of cyclostomes and fishes of fresh waters of Primorye coast,. In: Chteniya pamyati Vladimira Yakovlevicha Levanidova. 220-249.
+                                )
+                            [2] => Array (
+                                    [ref_url] => /isc/abstract/20113034542
+                                    [full_ref] => Kolpakov NV; Barabanshchikov EI; Chepurnoi AYu, 2010. Species composition, distribution, and biological conditions of nonindigenous fishes in the estuary of the Razdol'naya River (Peter the Great Bay, Sea of Japan). Russian Journal of Biological Invasions, 1(2):87-94. http://www.maik.ru/abstract/bioinv/10/bioinv0087_abstract.pdf
+                                )
+                        )
+                )
+                */
+                print_r($range);
+            }
+        }
+        
+        
         if($locations = @$rec["alien_range"]) {
             foreach($locations as $location) {
                 $rec["catnum"] = "alien_" . str_replace(" ", "_", $location);
@@ -323,6 +327,7 @@ class InvasiveSpeciesCompendiumAPI
                 if($val = $rec["bibliographicCitation"])    self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
             }
         }
+        // /*
         if($locations = @$rec["native_range"]) {
             foreach($locations as $location) {
                 $rec["catnum"] = "native_" . str_replace(" ", "_", $location);
