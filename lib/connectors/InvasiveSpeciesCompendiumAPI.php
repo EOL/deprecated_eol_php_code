@@ -90,7 +90,7 @@ class InvasiveSpeciesCompendiumAPI
                         $this->create_instances_from_taxon_object($rec);
                         $this->process_GISD_distribution($rec);
                     }
-                    if($i == 3) break; //debug only
+                    // if($i == 3) break; //debug only
                 }
             }
         }
@@ -152,7 +152,7 @@ class InvasiveSpeciesCompendiumAPI
         if($val = $rek['First Reported']) $rem .= "First reported: $val. ";
         if($val = $rek['Last Reported']) $rem .= "Last reported: $val. ";
         
-        
+        $refs = array();
         if($val = $rek['Reference']) $refs = self::assemble_references($val, $rec);
         if(in_array($rek['Origin'], array("Native", "Introduced")))         $good[] = array('region' => $rek['region'], 'range' => $rek['Origin'], "refs" => $refs, 'measurementRemarks' => $rem);
         if(in_array($rek['Invasive'], array("Invasive", "Not invasive")))   $good[] = array('region' => $rek['region'], 'range' => $rek['Invasive'], "refs" => $refs, 'measurementRemarks' => $rem);
@@ -301,8 +301,10 @@ class InvasiveSpeciesCompendiumAPI
                 
                 //start refs
                 $reference_ids = array();
-                foreach($r['refs'] as $ref) {
-                    $reference_ids[] = self::write_reference($ref);
+                if(@$r['refs'][0]['full_ref']) {
+                    foreach($r['refs'] as $ref) {
+                        $reference_ids[] = self::write_reference($ref);
+                    }
                 }
                 //end refs
                 // print_r($r); exit;
