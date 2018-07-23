@@ -72,7 +72,12 @@ class InvasiveSpeciesCompendiumAPI
                     $k++;
                     $rec[$field] = $vals[$k];
                 }
+
+                $rec['Scientific name'] = str_ireplace(" infections", "", $rec['Scientific name']);
                 $rec['Scientific name'] = str_ireplace(" infection", "", $rec['Scientific name']);
+                if($rec['Scientific name'] == "Chytridiomycosis") continue; //name of a disease, exclude
+                
+                
                 if(!ctype_upper(substr($rec['Scientific name'],0,1))) continue; //exclude likes of "abalone viral ganglioneuritis"
 
                 if(preg_match("/\/datasheet\/(.*?)\//ims", $rec['URL'], $arr)) $rec['taxon_id'] = $arr[1]; // datasheet/121524/aqb
@@ -88,12 +93,12 @@ class InvasiveSpeciesCompendiumAPI
                         $rec['source_url'] = $url;
                         $rec['ancestry'] = self::get_ancestry($html, $rec);
                     }
-                    // print_r($rec);
+                    print_r($rec);
                     if($rec['Scientific name'] && $rec['taxon_ranges']) {
                         $this->create_instances_from_taxon_object($rec);
                         $this->process_GISD_distribution($rec);
                     }
-                    // if($i == 3) break; //debug only
+                    if($i == 13) break; //debug only
                 }
             }
         }
@@ -109,27 +114,28 @@ class InvasiveSpeciesCompendiumAPI
                <?xml version="1.0" encoding="utf-16"?><ul class="Product_data-item"><li>Domain: Eukaryota</li><li>    Kingdom: Plantae</li><li>        Phylum: Spermatophyta</li><li>            Subphylum: Angiospermae</li><li>                Class: Dicotyledonae</li><li>                    Order: Asterales</li><li>                        Family: Asteraceae</li><li>                            Species: Iva xanthiifolia</li></ul>
            </div>
         */
+        $final = array();
         if(preg_match("/<div id=\'totaxonomicTree\'(.*?)<\/div>/ims", $html, $arr)) {
             if(preg_match_all("/<li>(.*?)<\/li>/ims", $arr[1], $arr2)) {
                 foreach($arr2[1] as $str) {
                     $str = str_replace(" ", "", $str);
                     $tmp = explode(":", $str);
                     $tmp = array_map('trim', $tmp);
-                    $final[$tmp[0]] = "[".$tmp[1]."]";
+                    $final[strtolower($tmp[0])] = $tmp[1];
                 }
-                print_r($final);
+                // print_r($final); exit;
                 return $final;
             }
         }
         else {
-            if(in_array($rec['taxon_id'], array(95039, 95040, 78183, 108068, 107786, 92832, 107788))) return false; //these taxon_id's are for dieseases names e.g. 'African swine fever'
-            elseif(in_array($rec['taxon_id'], array(121671))) return $final; //acceptable to have no ancestry
+            if(in_array($rec['taxon_id'], array(95039, 95040, 78183, 108068, 107786, 92832, 107788, 90892, 90245, 108160, 87383, 108067, 106720, 102603, 108161))) {} //these taxon_id's are for dieseases names e.g. 'African swine fever' OR non-taxon names
+            elseif(in_array($rec['taxon_id'], array(121671, 120803, 120994, 109730))) {} //acceptable to have no ancestry e.g. 'Bothriocephalus acheilognathi infection' but with ranges
             else {
                 print_r($rec);
-                exit("\nInvestigate no ancestry\n");
+                echo("\nInvestigate no ancestry\n");
             }
         }
-        // exit;
+        return $final;
     }
     private function get_native_introduced_invasive_ranges($html, $rec)
     {
@@ -263,6 +269,13 @@ class InvasiveSpeciesCompendiumAPI
         }
         return $final;
     }
+    private function get_rank($ancestry, $sciname)
+    {
+        $ranks = array_keys($ancestry);
+        foreach($ranks as $rank) {
+            if($ancestry[$rank] == $sciname) return $rank;
+        }
+    }
     private function create_instances_from_taxon_object($rec)
     {
         /*  [Scientific name] => Abbottina rivularis
@@ -270,10 +283,30 @@ class InvasiveSpeciesCompendiumAPI
             [Coverage] => Full
             [URL] => https://www.cabi.org/isc/datasheet/110570/aqb
             [taxon_id] => 110570
+            [ancestry] => Array(
+                     [domain] => Eukaryota
+                     [kingdom] => Metazoa
+                     [phylum] => Chordata
+                     [subphylum] => Vertebrata
+                     [class] => Actinopterygii
+                     [order] => Cypriniformes
+                     [family] => Cyprinidae
+                     [genus] => Abbottina
+                     [species] => Abbottina rivularis
+                 )
         */
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = $rec["taxon_id"];
         $taxon->scientificName  = $rec["Scientific name"];
+        $taxon->taxonRank = self::get_rank($rec['ancestry'], $rec["Scientific name"]);
+        
+        foreach(array_keys($rec['ancestry']) as $rank) {
+            if($rank == $taxon->taxonRank) break;
+            if(in_array($rank, array('kingdom', 'phylum', 'class', 'order', 'family', 'genus'))) {
+                $taxon->$rank = $rec['ancestry'][$rank];
+            }
+        }
+        
         /*
         $taxon->kingdom         = $rec['Kingdom'];
         $taxon->phylum          = $rec['Phylum'];
