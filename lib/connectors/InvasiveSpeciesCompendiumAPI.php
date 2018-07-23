@@ -75,6 +75,8 @@ class InvasiveSpeciesCompendiumAPI
 
                 $rec['Scientific name'] = str_ireplace(" infections", "", $rec['Scientific name']);
                 $rec['Scientific name'] = str_ireplace(" infection", "", $rec['Scientific name']);
+                $rec['Scientific name'] = str_ireplace(" diseases", "", $rec['Scientific name']);
+                $rec['Scientific name'] = str_ireplace(" disease", "", $rec['Scientific name']);
                 if($rec['Scientific name'] == "Chytridiomycosis") continue; //name of a disease, exclude
                 
                 
@@ -93,12 +95,12 @@ class InvasiveSpeciesCompendiumAPI
                         $rec['source_url'] = $url;
                         $rec['ancestry'] = self::get_ancestry($html, $rec);
                     }
-                    print_r($rec);
+                    // print_r($rec);
                     if($rec['Scientific name'] && $rec['taxon_ranges']) {
                         $this->create_instances_from_taxon_object($rec);
                         $this->process_GISD_distribution($rec);
                     }
-                    if($i == 13) break; //debug only
+                    // if($i == 13) break; //debug only
                 }
             }
         }
@@ -127,13 +129,18 @@ class InvasiveSpeciesCompendiumAPI
                 return $final;
             }
         }
-        else {
+        else { //this else block is just for debug purposes
+            /*
             if(in_array($rec['taxon_id'], array(95039, 95040, 78183, 108068, 107786, 92832, 107788, 90892, 90245, 108160, 87383, 108067, 106720, 102603, 108161))) {} //these taxon_id's are for dieseases names e.g. 'African swine fever' OR non-taxon names
             elseif(in_array($rec['taxon_id'], array(121671, 120803, 120994, 109730))) {} //acceptable to have no ancestry e.g. 'Bothriocephalus acheilognathi infection' but with ranges
             else {
                 print_r($rec);
                 echo("\nInvestigate no ancestry\n");
             }
+            if($rec['taxon_ranges']) {
+                echo("\nInvestigate no ancestry. Ranges total: ".count($rec['taxon_ranges'])."\n");
+            }
+            */
         }
         return $final;
     }
@@ -273,7 +280,10 @@ class InvasiveSpeciesCompendiumAPI
     {
         $ranks = array_keys($ancestry);
         foreach($ranks as $rank) {
-            if($ancestry[$rank] == $sciname) return $rank;
+            if($ancestry[$rank] == $sciname) {
+                if($rank == "species" && substr_count($sciname," ") == 1) return $rank;
+                // else just ignore it, probably subspecies. Something CABI ISC doesn't specify correctly
+            }
         }
     }
     private function create_instances_from_taxon_object($rec)
