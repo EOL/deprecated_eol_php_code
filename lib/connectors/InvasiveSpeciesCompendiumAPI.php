@@ -77,9 +77,8 @@ class InvasiveSpeciesCompendiumAPI
                 $rec['Scientific name'] = str_ireplace(" infection", "", $rec['Scientific name']);
                 $rec['Scientific name'] = str_ireplace(" diseases", "", $rec['Scientific name']);
                 $rec['Scientific name'] = str_ireplace(" disease", "", $rec['Scientific name']);
+                $rec['Scientific name'] = str_ireplace(" [ISC]", "", $rec['Scientific name']);
                 if($rec['Scientific name'] == "Chytridiomycosis") continue; //name of a disease, exclude
-                
-                
                 if(!ctype_upper(substr($rec['Scientific name'],0,1))) continue; //exclude likes of "abalone viral ganglioneuritis"
 
                 if(preg_match("/\/datasheet\/(.*?)\//ims", $rec['URL'], $arr)) $rec['taxon_id'] = $arr[1]; // datasheet/121524/aqb
