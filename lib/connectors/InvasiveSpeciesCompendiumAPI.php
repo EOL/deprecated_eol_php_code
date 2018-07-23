@@ -421,9 +421,7 @@ class InvasiveSpeciesCompendiumAPI
             $m->measurementOfTaxon = $val;
             $m->source = $rec["source_url"];
             if($reference_ids) $m->referenceID = implode("; ", $reference_ids);
-            // /* redundant since bibliographicCitation is entered with when measurementOfTaxon == null
             $m->bibliographicCitation = $rec['bibliographicCitation']; //will be added to the main record per Jen: https://eol-jira.bibalex.org/browse/TRAM-794?focusedCommentId=62697&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62697
-            // */
             $m->measurementRemarks = "";
             if($orig_value) $m->measurementRemarks = ucfirst($orig_value).". ";
             $m->measurementRemarks .= $range_rec['measurementRemarks'];
