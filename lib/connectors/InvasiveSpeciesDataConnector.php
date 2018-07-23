@@ -35,7 +35,6 @@ class InvasiveSpeciesDataConnector
     function generate_invasiveness_data()
     {
         if    ($this->partner == "GISD")     self::start_GISD();
-        elseif($this->partner == "CABI ISC") self::process_CABI();
         $this->archive_builder->finalize(TRUE);
         if($this->debug) {
             /* working but not needed, since debug is printed in /resources/xxx_debug.txt
@@ -47,27 +46,6 @@ class InvasiveSpeciesDataConnector
             Functions::start_print_debug($this->debug, $this->resource_id);
         }
     }
-    private function process_CABI()
-    {
-        $taxa = self::get_CABI_taxa();
-        $total = count($taxa);
-        echo "\n taxa count: " . $total . "\n";
-        $i = 0;
-        foreach($taxa as $taxon) {
-            $i++;
-            echo "\n $i of $total ";
-            if($taxon) {
-                $info = array();
-                $info["taxon_id"] = $taxon["taxon_id"];
-                $info["schema_taxon_id"] = $taxon["schema_taxon_id"];
-                $info["taxon"]["sciname"] = (string) $taxon["sciname"];
-                $info["source"] = $taxon["source"];
-                $info["citation"] = "CABI International Invasive Species Compendium, " . date("Y") . ". " . $taxon["sciname"] . ". Available from: " . $taxon["source"] . " [Accessed " . date("M-d-Y") . "].";
-                if($this->process_CABI_distribution($info)) $this->create_instances_from_taxon_object($info); // only include names with Nativity or Invasiveness info
-            }
-        }
-    }
-
     private function get_CABI_taxa()
     {
         $taxa = array();
@@ -122,33 +100,6 @@ class InvasiveSpeciesDataConnector
         return false;
     }
     
-    private function process_CABI_distribution($rec)
-    {
-        $has_data = false;
-        if($html = Functions::lookup_with_cache($this->CABI_taxon_distribution . $rec["taxon_id"], $this->download_options)) {
-            if(preg_match_all("/Helvetica;padding\: 5px\'>(.*?)<\/tr>/ims", $html, $arr)) {
-                foreach($arr[1] as $row) {
-                    if(preg_match_all("/<td>(.*?)<\/td>/ims", $row, $arr)) {
-                        $row = $arr[1];
-                        $country = strip_tags(trim($row[0]));
-                        if(substr($country,0,1) != "-") {
-                            $reference_ids = self::parse_references(trim(@$row[6]));
-                            if(@$row[3]) {
-                                $has_data = true;
-                                self::process_origin_invasive_objects("origin"  , $row[3], $country, $rec, $reference_ids);
-                            }
-                            if(@$row[5]) {
-                                $has_data = true;
-                                self::process_origin_invasive_objects("invasive", $row[5], $country, $rec, $reference_ids);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return $has_data;
-    }
-
     private function parse_references($ref)
     {
         $refs = array();
@@ -174,30 +125,6 @@ class InvasiveSpeciesDataConnector
         $r->uri = $uri;
         $this->archive_builder->write_object_to_file($r);
         $this->CABI_references[$id] = 1;
-    }
-    
-    private function process_origin_invasive_objects($type, $value, $country, $rec, $reference_ids)
-    {
-        $uri = false;
-        $value = strip_tags(trim($value));
-        switch($value) {
-            case "Introduced":      $uri = "http://eol.org/schema/terms/IntroducedRange"; break;
-            case "Invasive":        $uri = "http://eol.org/schema/terms/InvasiveRange"; break;
-            case "Native":          $uri = "http://eol.org/schema/terms/NativeRange"; break;
-            case "Not invasive":    $uri = "http://eol.org/schema/terms/NonInvasiveRange"; break;
-        }
-        if(strpos($value, "introduced") === false) {}
-        else $uri = "http://eol.org/schema/terms/IntroducedRange";
-        if($uri) {
-            $rec["catnum"] = $type . "_" . str_replace(" ", "_", $country);
-            self::add_string_types("true", $rec, "", $country, $uri, $reference_ids);
-            if($val = $rec["taxon"]["sciname"]) self::add_string_types(null, $rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
-            if($val = $rec["citation"])         self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
-        }
-        else {
-            echo "\n investigate no data\n";
-            print_r($rec);
-        }
     }
     
     private function start_GISD()
@@ -384,7 +311,9 @@ class InvasiveSpeciesDataConnector
                 $rec["catnum"] = "alien_" . str_replace(" ", "_", $location);
                 self::add_string_types("true", $rec, "Alien Range", self::get_value_uri($location, 'location'), "http://eol.org/schema/terms/IntroducedRange", array(), $location);
                 // if($val = $rec["Species"])                  self::add_string_types(null, $rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
+                /* now moved to the main record
                 if($val = $rec["bibliographicCitation"])    self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
+                */
             }
         }
         if($locations = @$rec["native_range"]) {
@@ -392,7 +321,9 @@ class InvasiveSpeciesDataConnector
                 $rec["catnum"] = "native_" . str_replace(" ", "_", $location);
                 self::add_string_types("true", $rec, "Native Range", self::get_value_uri($location, 'location'), "http://eol.org/schema/terms/NativeRange", array(), $location);
                 // if($val = $rec["Species"])                  self::add_string_types(null, $rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
+                /* now moved to the main record
                 if($val = $rec["bibliographicCitation"])    self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
+                */
             }
         }
         // */
@@ -401,7 +332,9 @@ class InvasiveSpeciesDataConnector
             $rec["catnum"] = str_replace(" ", "_", $habitat);
             if($uri = self::get_value_uri($habitat, 'habitat')) {
                 self::add_string_types("true", $rec, "Habitat", $uri, "http://eol.org/schema/terms/Habitat", array(), $habitat);
+                /* now moved to the main record
                 if($val = $rec["bibliographicCitation"]) self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
+                */
             }
         }
         
@@ -420,9 +353,7 @@ class InvasiveSpeciesDataConnector
             $m->measurementOfTaxon = $val;
             $m->source = $rec["source_url"];
             if($reference_ids) $m->referenceID = implode("; ", $reference_ids);
-            /* redundant since bibliographicCitation is entered with when measurementOfTaxon == null
-            $m->bibliographicCitation = $rec['bibliographicCitation'];
-            */
+            $m->bibliographicCitation = $rec['bibliographicCitation']; //now added to the main record
             $m->measurementRemarks = "";
             if($orig_value) $m->measurementRemarks = ucfirst($orig_value).". ";
             $m->measurementRemarks .= $rec['measurementRemarks'];

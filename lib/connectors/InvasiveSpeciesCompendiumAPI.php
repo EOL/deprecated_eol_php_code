@@ -72,11 +72,12 @@ class InvasiveSpeciesCompendiumAPI
                     $k++;
                     $rec[$field] = $vals[$k];
                 }
-
+                /*
                 $rec['Scientific name'] = str_ireplace(" infections", "", $rec['Scientific name']);
                 $rec['Scientific name'] = str_ireplace(" infection", "", $rec['Scientific name']);
                 $rec['Scientific name'] = str_ireplace(" diseases", "", $rec['Scientific name']);
                 $rec['Scientific name'] = str_ireplace(" disease", "", $rec['Scientific name']);
+                */
                 $rec['Scientific name'] = str_ireplace(" [ISC]", "", $rec['Scientific name']);
                 if($rec['Scientific name'] == "Chytridiomycosis") continue; //name of a disease, exclude
                 if(!ctype_upper(substr($rec['Scientific name'],0,1))) continue; //exclude likes of "abalone viral ganglioneuritis"
@@ -387,7 +388,9 @@ class InvasiveSpeciesCompendiumAPI
                 
                 self::add_string_types("true", $rec, $r['range'], self::get_value_uri($location, 'location'), self::get_mtype_for_range($r['range']), $reference_ids, $location, $r);
                 // if($val = $rec["Species"])                  self::add_string_types(null, $rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
+                /* will now be added to the main record.
                 if($val = $rec["bibliographicCitation"])    self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
+                */
             }
         }
     }
@@ -418,9 +421,9 @@ class InvasiveSpeciesCompendiumAPI
             $m->measurementOfTaxon = $val;
             $m->source = $rec["source_url"];
             if($reference_ids) $m->referenceID = implode("; ", $reference_ids);
-            /* redundant since bibliographicCitation is entered with when measurementOfTaxon == null
-            $m->bibliographicCitation = $rec['bibliographicCitation'];
-            */
+            // /* redundant since bibliographicCitation is entered with when measurementOfTaxon == null
+            $m->bibliographicCitation = $rec['bibliographicCitation']; //will be added to the main record per Jen: https://eol-jira.bibalex.org/browse/TRAM-794?focusedCommentId=62697&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62697
+            // */
             $m->measurementRemarks = "";
             if($orig_value) $m->measurementRemarks = ucfirst($orig_value).". ";
             $m->measurementRemarks .= $range_rec['measurementRemarks'];
