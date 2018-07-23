@@ -72,6 +72,7 @@ class InvasiveSpeciesCompendiumAPI
                     $k++;
                     $rec[$field] = $vals[$k];
                 }
+                $rec['Scientific name'] = str_ireplace(" infection", "", $rec['Scientific name']);
                 if(!ctype_upper(substr($rec['Scientific name'],0,1))) continue; //exclude likes of "abalone viral ganglioneuritis"
 
                 if(preg_match("/\/datasheet\/(.*?)\//ims", $rec['URL'], $arr)) $rec['taxon_id'] = $arr[1]; // datasheet/121524/aqb
@@ -88,7 +89,7 @@ class InvasiveSpeciesCompendiumAPI
                         $rec['ancestry'] = self::get_ancestry($html, $rec);
                     }
                     // print_r($rec);
-                    if($rec['Scientific name'] && $rec['taxon_ranges'] && $rec['ancestry']) {
+                    if($rec['Scientific name'] && $rec['taxon_ranges']) {
                         $this->create_instances_from_taxon_object($rec);
                         $this->process_GISD_distribution($rec);
                     }
@@ -117,10 +118,12 @@ class InvasiveSpeciesCompendiumAPI
                     $final[$tmp[0]] = "[".$tmp[1]."]";
                 }
                 print_r($final);
+                return $final;
             }
         }
         else {
-            if(in_array($rec['taxon_id'], array(95039, 95040, 78183, 108068))) return false; //these taxon_id's are for dieseases names e.g. 'African swine fever'
+            if(in_array($rec['taxon_id'], array(95039, 95040, 78183, 108068, 107786, 92832, 107788))) return false; //these taxon_id's are for dieseases names e.g. 'African swine fever'
+            elseif(in_array($rec['taxon_id'], array(121671))) return $final; //acceptable to have no ancestry
             else {
                 print_r($rec);
                 exit("\nInvestigate no ancestry\n");
