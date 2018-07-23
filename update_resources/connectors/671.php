@@ -4,7 +4,7 @@ namespace php_active_record;
 estimated execution time: 
 http://www.eol.org/content_partners/614/resources/671
 */
-
+exit("\nRan already. Won't run periodically.\n");
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/MycoBankAPI');
 $timestart = time_elapsed();
@@ -26,8 +26,8 @@ require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
 $undefined = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
 if($undefined) {
-    echo "\nThere is undefined parent(s):\n";
-    print_r($undefined);
+    echo "\nThere is undefined parent(s): ".count($undefined)."\n";
+    // print_r($undefined);
 }
 else echo "\nAll parents have entries.\n";
 // */
