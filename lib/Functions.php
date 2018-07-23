@@ -2409,6 +2409,12 @@ class Functions
         $mappings = array_merge($mappings, $uri_values);
         echo "\n".count($mappings)." - URIs were added from GISD (751). \n";
         
+        //add mappings from CABI ISC (760)
+        $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Invasive%20Species%20Compendium/mapped_locations.txt";
+        $uri_values = $func->add_additional_mappings(true, $url);
+        $mappings = array_merge($mappings, $uri_values);
+        echo "\n".count($mappings)." - URIs were added from CABI ISC (760). \n";
+        
         //from COLDataAPI.php
         $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/CatalogueOfLife/CoLMissingGeoTerms.txt";
         $uri_values = $func->add_additional_mappings(true, $url);
