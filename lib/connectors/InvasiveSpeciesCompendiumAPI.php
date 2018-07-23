@@ -85,9 +85,10 @@ class InvasiveSpeciesCompendiumAPI
                     if($html = Functions::lookup_with_cache($url, $this->download_options)) {
                         $rec['taxon_ranges'] = self::get_native_introduced_invasive_ranges($html, $rec);
                         $rec['source_url'] = $url;
+                        $rec['ancestry'] = self::get_ancestry($html, $rec);
                     }
                     // print_r($rec);
-                    if($rec['Scientific name'] && $rec['taxon_ranges']) {
+                    if($rec['Scientific name'] && $rec['taxon_ranges'] && $rec['ancestry']) {
                         $this->create_instances_from_taxon_object($rec);
                         $this->process_GISD_distribution($rec);
                     }
@@ -97,6 +98,35 @@ class InvasiveSpeciesCompendiumAPI
         }
         unlink($csv_file);
         // exit("\nstopx\n");
+    }
+    private function get_ancestry($html, $rec) //$rec here is just for debug
+    {
+        /*
+        <div id='totaxonomicTree' class='Product_data-item'>
+               <h3>Taxonomic Tree</h3>
+               <a href='#top-page' class='Product_data-item-top'>Top of page</a>
+               <?xml version="1.0" encoding="utf-16"?><ul class="Product_data-item"><li>Domain: Eukaryota</li><li>    Kingdom: Plantae</li><li>        Phylum: Spermatophyta</li><li>            Subphylum: Angiospermae</li><li>                Class: Dicotyledonae</li><li>                    Order: Asterales</li><li>                        Family: Asteraceae</li><li>                            Species: Iva xanthiifolia</li></ul>
+           </div>
+        */
+        if(preg_match("/<div id=\'totaxonomicTree\'(.*?)<\/div>/ims", $html, $arr)) {
+            if(preg_match_all("/<li>(.*?)<\/li>/ims", $arr[1], $arr2)) {
+                foreach($arr2[1] as $str) {
+                    $str = str_replace(" ", "", $str);
+                    $tmp = explode(":", $str);
+                    $tmp = array_map('trim', $tmp);
+                    $final[$tmp[0]] = "[".$tmp[1]."]";
+                }
+                print_r($final);
+            }
+        }
+        else {
+            if(in_array($rec['taxon_id'], array(95039, 95040, 78183, 108068))) return false; //these taxon_id's are for dieseases names e.g. 'African swine fever'
+            else {
+                print_r($rec);
+                exit("\nInvestigate no ancestry\n");
+            }
+        }
+        // exit;
     }
     private function get_native_introduced_invasive_ranges($html, $rec)
     {
