@@ -63,7 +63,8 @@ class InvasiveSpeciesCompendiumAPI
                 $vals = $row;
                 if(count($fields) != count($vals)) {
                     print_r($vals);
-                    exit("\nNot same count ".count($fields)." != ".count($vals)."\n");
+                    echo("\nNot same count ".count($fields)." != ".count($vals)."\n");
+                    continue;
                 }
                 if(!$vals[0]) continue;
                 $k = -1; $rec = array();
@@ -303,7 +304,7 @@ class InvasiveSpeciesCompendiumAPI
                 $reference_ids = array();
                 if(@$r['refs'][0]['full_ref']) {
                     foreach($r['refs'] as $ref) {
-                        $reference_ids[] = self::write_reference($ref);
+                        if($val = self::write_reference($ref)) $reference_ids[] = $val;
                     }
                 }
                 //end refs
@@ -317,6 +318,7 @@ class InvasiveSpeciesCompendiumAPI
     }
     private function write_reference($ref)
     {
+        if(!@$ref['full_ref']) return false;
         $re = new \eol_schema\Reference();
         $re->identifier = md5($ref['full_ref']);
         $re->full_reference = $ref['full_ref'];
@@ -350,7 +352,10 @@ class InvasiveSpeciesCompendiumAPI
             // $m->contributor = ''; $m->measurementMethod = '';
         }
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
-        $this->archive_builder->write_object_to_file($m);
+        if(!isset($this->measurement_ids[$m->measurementID])) {
+            $this->archive_builder->write_object_to_file($m);
+            $this->measurement_ids[$m->measurementID] = '';
+        }
     }
 
     private function add_occurrence($taxon_id, $catnum, $rec)
