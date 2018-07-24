@@ -162,7 +162,12 @@ class InvasiveSpeciesDataConnector
                         else exit("\nInvestigate 01 ".$rec['Species']."\n");
                         $rec['alien_range'] = self::get_alien_range($html);
                         $rec['native_range'] = self::get_native_range($html);
-                        $rec['present'] = array_merge($rec['alien_range'], $rec['native_range']);
+                        
+                        $alien = array(); $native = array();
+                        if($val = $rec['alien_range']) $alien = $val;
+                        if($val = $rec['native_range']) $native = $val;
+                        $rec['present'] = array_merge($alien, $native);
+                        
                         $rec['present'] = array_unique($rec['present']);
                         $rec['source_url'] = $url;
                         $rec = self::get_citation_and_others($html, $rec);
