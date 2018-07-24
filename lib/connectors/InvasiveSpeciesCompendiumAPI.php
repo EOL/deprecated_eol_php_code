@@ -30,6 +30,10 @@ class InvasiveSpeciesCompendiumAPI
         $this->taxa_list['ISC'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Invasive%20Species%20Compendium/ExportedRecords.csv";
         $this->taxon_page['ISC'] = "";
         $this->domain['ISC'] = "https://www.cabi.org";
+        
+        $this->considered_as_Present = array("Present", "Localised", "Widespread", "Present only in captivity/cultivation", "Restricted distribution", 
+        "Reported present or known to be present", "Present only under cover/indoors", "Transient: actionable, under surveillance", "Indigenous, localized", "Introduced, not established", 
+        "Serological evidence and/or isolation of the agent", "Introduced, establishment uncertain", "Confined (quarantine)", "Introduced, established", "Indigenous");
     }
 
     function generate_invasiveness_data()
@@ -207,10 +211,7 @@ class InvasiveSpeciesCompendiumAPI
         if(in_array($rek['Invasive'], array("Invasive", "Not invasive")))                                 $good[] = array('region' => $rek['region'], 'range' => $rek['Invasive'], "refs" => $refs, 'measurementRemarks' => $rem);
         if(in_array($rek['Distribution'], array("Present, few occurrences", "Absent, formerly present", "Eradicated"))) $good[] = array('region' => $rek['region'], 'range' => $rek['Distribution'], "refs" => $refs, 'measurementRemarks' => $rem);
         if(!$good) { //only the time to add "http://eol.org/schema/terms/Present"
-            $considered_as_Present = array("Present", "Localised", "Widespread", "Present only in captivity/cultivation", "Restricted distribution", 
-            "Reported present or known to be present", "Present only under cover/indoors", "Transient: actionable, under surveillance", "Indigenous, localized", "Introduced, not established", 
-            "Serological evidence and/or isolation of the agent", "Introduced, establishment uncertain", "Confined (quarantine)", "Introduced, established", "Indigenous");
-            if(in_array($rek['Distribution'], $considered_as_Present)) $good[] = array('region' => $rek['region'], 'range' => $rek['Distribution'], "refs" => $refs, 'measurementRemarks' => $rem);
+            if(in_array($rek['Distribution'], $this->considered_as_Present)) $good[] = array('region' => $rek['region'], 'range' => $rek['Distribution'], "refs" => $refs, 'measurementRemarks' => $rem);
         }
         if($val = @$rek['Distribution']) $this->debug['Distribution'][$val] = ''; //just for stats
         return $good;
@@ -358,6 +359,7 @@ class InvasiveSpeciesCompendiumAPI
             case "Widespread":                  return "http://eol.org/schema/terms/Present";
             case "Present":                     return "http://eol.org/schema/terms/Present";
         }
+        if(in_array($range, $this->considered_as_Present)) return "http://eol.org/schema/terms/Present";
     }
     private function process_GISD_distribution($rec)
     {
