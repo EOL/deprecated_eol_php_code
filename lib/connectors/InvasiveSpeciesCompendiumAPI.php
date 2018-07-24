@@ -72,6 +72,10 @@ class InvasiveSpeciesCompendiumAPI
                     $k++;
                     $rec[$field] = $vals[$k];
                 }
+                /* debug only - forced URL
+                $rec['URL'] = "https://www.cabi.org/isc/datasheet/120279/aqb";
+                */
+                
                 /*
                 $rec['Scientific name'] = str_ireplace(" infections", "", $rec['Scientific name']);
                 $rec['Scientific name'] = str_ireplace(" infection", "", $rec['Scientific name']);
@@ -100,7 +104,7 @@ class InvasiveSpeciesCompendiumAPI
                         $this->create_instances_from_taxon_object($rec);
                         $this->process_GISD_distribution($rec);
                     }
-                    // if($i == 13) break; //debug only
+                    // if($i == 3) break; //debug only
                 }
             }
         }
@@ -201,8 +205,10 @@ class InvasiveSpeciesCompendiumAPI
         
         $refs = array();
         if($val = $rek['Reference']) $refs = self::assemble_references($val, $rec);
-        if(in_array($rek['Origin'], array("Native", "Introduced")))         $good[] = array('region' => $rek['region'], 'range' => $rek['Origin'], "refs" => $refs, 'measurementRemarks' => $rem);
-        if(in_array($rek['Invasive'], array("Invasive", "Not invasive")))   $good[] = array('region' => $rek['region'], 'range' => $rek['Invasive'], "refs" => $refs, 'measurementRemarks' => $rem);
+        if(in_array($rek['Origin'], array("Native", "Introduced")))                                       $good[] = array('region' => $rek['region'], 'range' => $rek['Origin'], "refs" => $refs, 'measurementRemarks' => $rem);
+        if(in_array($rek['Invasive'], array("Invasive", "Not invasive")))                                 $good[] = array('region' => $rek['region'], 'range' => $rek['Invasive'], "refs" => $refs, 'measurementRemarks' => $rem);
+        if(in_array($rek['Distribution'], array("Present, few occurrences", "Absent, formerly present"))) $good[] = array('region' => $rek['region'], 'range' => $rek['Distribution'], "refs" => $refs, 'measurementRemarks' => $rem);
+        if(in_array($rek['Distribution'], array("Present", "Localised", "Widespread")))                   $good[] = array('region' => $rek['region'], 'range' => $rek['Distribution'], "refs" => $refs, 'measurementRemarks' => $rem);
         return $good;
     }
     private function assemble_references($ref_str, $rec)
@@ -316,14 +322,6 @@ class InvasiveSpeciesCompendiumAPI
                 $taxon->$rank = $rec['ancestry'][$rank];
             }
         }
-        
-        /*
-        $taxon->kingdom         = $rec['Kingdom'];
-        $taxon->phylum          = $rec['Phylum'];
-        $taxon->class           = $rec['Class'];
-        $taxon->order           = $rec['Order'];
-        $taxon->family          = $rec['Family'];
-        */
         $taxon->furtherInformationURL = $rec["source_url"];
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);
@@ -345,10 +343,15 @@ class InvasiveSpeciesCompendiumAPI
     private function get_mtype_for_range($range)
     {
         switch($range) {
-            case "Introduced":      return "http://eol.org/schema/terms/IntroducedRange";
-            case "Invasive":        return "http://eol.org/schema/terms/InvasiveRange";
-            case "Native":          return "http://eol.org/schema/terms/NativeRange";
-            case "Not invasive":    return "http://eol.org/schema/terms/NonInvasiveRange";
+            case "Introduced":                  return "http://eol.org/schema/terms/IntroducedRange";
+            case "Invasive":                    return "http://eol.org/schema/terms/InvasiveRange";
+            case "Native":                      return "http://eol.org/schema/terms/NativeRange";
+            case "Not invasive":                return "http://eol.org/schema/terms/NonInvasiveRange";
+            case "Present, few occurrences":    return "http://eol.org/schema/terms/presentAndRare";
+            case "Absent, formerly present":    return "http://eol.org/schema/terms/absentFormerlyPresent";
+            case "Localised":                   return "http://eol.org/schema/terms/Present";
+            case "Widespread":                  return "http://eol.org/schema/terms/Present";
+            case "Present":                     return "http://eol.org/schema/terms/Present";
         }
     }
     private function process_GISD_distribution($rec)
@@ -384,10 +387,11 @@ class InvasiveSpeciesCompendiumAPI
                     }
                 }
                 //end refs
-                // print_r($r); exit;
                 
                 self::add_string_types("true", $rec, $r['range'], self::get_value_uri($location, 'location'), self::get_mtype_for_range($r['range']), $reference_ids, $location, $r);
-                // if($val = $rec["Species"])                  self::add_string_types(null, $rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
+                /* deliberately excluded
+                if($val = $rec["Species"])                  self::add_string_types(null, $rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
+                */
                 /* will now be added to the main record.
                 if($val = $rec["bibliographicCitation"])    self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
                 */
