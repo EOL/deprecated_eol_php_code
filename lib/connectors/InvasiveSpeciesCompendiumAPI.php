@@ -180,8 +180,6 @@ class InvasiveSpeciesCompendiumAPI
     }
     private function valid_rek($rek, $rec)
     {
-        $good = array();
-        // print_r($rek);
         /*
         Array(
             [region] => <a href="/isc/datasheet/108785">-Russian Far East</a>
@@ -197,7 +195,7 @@ class InvasiveSpeciesCompendiumAPI
             [Notes] => Native in Amur drainage and Khanka Lake; introduced and invasive in the Artemovka River (Ussuri Bay, Sea of Japan / East Sea) and Razdolnaya River (Peter the Great Bay, Sea of Japan/East Sea)
         )
         */
-        
+        $good = array();
         $rem = "";
         if($val = $rek['Notes']) $rem .= $val.". ";
         if($val = $rek['First Reported']) $rem .= "First reported: $val. ";
@@ -208,7 +206,10 @@ class InvasiveSpeciesCompendiumAPI
         if(in_array($rek['Origin'], array("Native", "Introduced")))                                       $good[] = array('region' => $rek['region'], 'range' => $rek['Origin'], "refs" => $refs, 'measurementRemarks' => $rem);
         if(in_array($rek['Invasive'], array("Invasive", "Not invasive")))                                 $good[] = array('region' => $rek['region'], 'range' => $rek['Invasive'], "refs" => $refs, 'measurementRemarks' => $rem);
         if(in_array($rek['Distribution'], array("Present, few occurrences", "Absent, formerly present"))) $good[] = array('region' => $rek['region'], 'range' => $rek['Distribution'], "refs" => $refs, 'measurementRemarks' => $rem);
-        if(in_array($rek['Distribution'], array("Present", "Localised", "Widespread")))                   $good[] = array('region' => $rek['region'], 'range' => $rek['Distribution'], "refs" => $refs, 'measurementRemarks' => $rem);
+        if(!$good) { //only the time to add "http://eol.org/schema/terms/Present"
+            if(in_array($rek['Distribution'], array("Present", "Localised", "Widespread")))               $good[] = array('region' => $rek['region'], 'range' => $rek['Distribution'], "refs" => $refs, 'measurementRemarks' => $rem);
+        }
+        if($val = @$rek['Distribution']) $this->debug['Distribution'][$val] = ''; //just for stats
         return $good;
     }
     private function assemble_references($ref_str, $rec)
