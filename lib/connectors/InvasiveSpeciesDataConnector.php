@@ -167,8 +167,8 @@ class InvasiveSpeciesDataConnector
                         if($val = $rec['alien_range']) $alien = $val;
                         if($val = $rec['native_range']) $native = $val;
                         $rec['present'] = array_merge($alien, $native);
-                        
                         $rec['present'] = array_unique($rec['present']);
+                        
                         $rec['source_url'] = $url;
                         $rec = self::get_citation_and_others($html, $rec);
                     }
