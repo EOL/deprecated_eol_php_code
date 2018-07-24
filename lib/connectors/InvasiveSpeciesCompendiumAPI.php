@@ -205,9 +205,12 @@ class InvasiveSpeciesCompendiumAPI
         if($val = $rek['Reference']) $refs = self::assemble_references($val, $rec);
         if(in_array($rek['Origin'], array("Native", "Introduced")))                                       $good[] = array('region' => $rek['region'], 'range' => $rek['Origin'], "refs" => $refs, 'measurementRemarks' => $rem);
         if(in_array($rek['Invasive'], array("Invasive", "Not invasive")))                                 $good[] = array('region' => $rek['region'], 'range' => $rek['Invasive'], "refs" => $refs, 'measurementRemarks' => $rem);
-        if(in_array($rek['Distribution'], array("Present, few occurrences", "Absent, formerly present"))) $good[] = array('region' => $rek['region'], 'range' => $rek['Distribution'], "refs" => $refs, 'measurementRemarks' => $rem);
+        if(in_array($rek['Distribution'], array("Present, few occurrences", "Absent, formerly present", "Eradicated"))) $good[] = array('region' => $rek['region'], 'range' => $rek['Distribution'], "refs" => $refs, 'measurementRemarks' => $rem);
         if(!$good) { //only the time to add "http://eol.org/schema/terms/Present"
-            if(in_array($rek['Distribution'], array("Present", "Localised", "Widespread")))               $good[] = array('region' => $rek['region'], 'range' => $rek['Distribution'], "refs" => $refs, 'measurementRemarks' => $rem);
+            $considered_as_Present = array("Present", "Localised", "Widespread", "Present only in captivity/cultivation", "Restricted distribution", 
+            "Reported present or known to be present", "Present only under cover/indoors", "Transient: actionable, under surveillance", "Indigenous, localized", "Introduced, not established", 
+            "Serological evidence and/or isolation of the agent", "Introduced, establishment uncertain", "Confined (quarantine)", "Introduced, established", "Indigenous");
+            if(in_array($rek['Distribution'], $considered_as_Present)) $good[] = array('region' => $rek['region'], 'range' => $rek['Distribution'], "refs" => $refs, 'measurementRemarks' => $rem);
         }
         if($val = @$rek['Distribution']) $this->debug['Distribution'][$val] = ''; //just for stats
         return $good;
@@ -350,6 +353,7 @@ class InvasiveSpeciesCompendiumAPI
             case "Not invasive":                return "http://eol.org/schema/terms/NonInvasiveRange";
             case "Present, few occurrences":    return "http://eol.org/schema/terms/presentAndRare";
             case "Absent, formerly present":    return "http://eol.org/schema/terms/absentFormerlyPresent";
+            case "Eradicated":                  return "http://eol.org/schema/terms/absentFormerlyPresent";
             case "Localised":                   return "http://eol.org/schema/terms/Present";
             case "Widespread":                  return "http://eol.org/schema/terms/Present";
             case "Present":                     return "http://eol.org/schema/terms/Present";

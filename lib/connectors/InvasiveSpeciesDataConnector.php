@@ -166,9 +166,10 @@ class InvasiveSpeciesDataConnector
                         $alien = array(); $native = array();
                         if($val = $rec['alien_range']) $alien = $val;
                         if($val = $rec['native_range']) $native = $val;
+                        /* working but excluded
                         $rec['present'] = array_merge($alien, $native);
                         $rec['present'] = array_unique($rec['present']);
-                        
+                        */
                         $rec['source_url'] = $url;
                         $rec = self::get_citation_and_others($html, $rec);
                     }
@@ -335,6 +336,7 @@ class InvasiveSpeciesDataConnector
         }
         // */
 
+        /* working but excluded
         //newly added July 24, 2018
         if($locations = @$rec["present"]) {
             foreach($locations as $location) {
@@ -342,6 +344,7 @@ class InvasiveSpeciesDataConnector
                 self::add_string_types("true", $rec, "Presence", self::get_value_uri($location, 'location'), "http://eol.org/schema/terms/Present", array(), $location);
             }
         }
+        */
         
         if($habitat = strtolower(@$rec["System"])) {
             $rec["catnum"] = str_replace(" ", "_", $habitat);
