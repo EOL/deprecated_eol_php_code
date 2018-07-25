@@ -146,7 +146,8 @@ class DWH_NCBI_API
             
             /* b. Remove all taxa of rank species where the scientific name includes one of the following strings: sp.|aff.|cf.|nr.
             This will get rid of a lot of the samples that haven’t been identified to species. */
-            if($taxID_info[$rec['tax_id']]['r'] == 'species') {
+            $rank = $taxID_info[$rec['tax_id']]['r'];
+            if(in_array($rank, array('species', 'no rank'))) {
                 if(stripos($rec['name_txt'], " sp.") !== false) continue; //string is found
                 elseif(stripos($rec['name_txt'], " aff.") !== false) continue; //string is found
                 elseif(stripos($rec['name_txt'], " cf.") !== false) continue; //string is found
@@ -164,10 +165,8 @@ class DWH_NCBI_API
                     // echo "\nid with an ancestry that is included among removed branches [".$rec['tax_id']."]";
                     continue;
                 }
-                if($old_id != $rec['tax_id']) {
-                    $this->ctr = 1;
-                }
-                else $this->ctr++;
+                if($old_id != $rec['tax_id']) $this->ctr = 1;
+                else                          $this->ctr++;
                 $old_id = $rec['tax_id'];
                 
                 self::write_taxon($rec, $ancestry, $taxID_info[$rec['tax_id']]);
@@ -196,14 +195,15 @@ class DWH_NCBI_API
                 )
         )*/
         if(!in_array($rec['name_class'], array("common name", "genbank common name"))) {
-            $tax_id = $rec['tax_id'];
+            $computer_ids = self::format_tax_id($rec);
             $taxon = new \eol_schema\Taxon();
-            $taxon->taxonID = $tax_id;
+            $taxon->taxonID = $computer_ids['tax_id'];
             $taxon->parentNameUsageID = $taxid_info['pID'];
             $taxon->taxonRank = $taxid_info['r'];
             $taxon->scientificName = $rec['name_txt'];
             $taxon->taxonomicStatus = self::format_status($rec['name_class']);
-            $taxon->furtherInformationURL = "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=".$tax_id;
+            $taxon->acceptedNameUsageID = $computer_ids['acceptedNameUsageID'];
+            $taxon->furtherInformationURL = "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=".$rec['tax_id'];
             if(!isset($this->taxon_ids[$taxon->taxonID])) {
                 $this->archive_builder->write_object_to_file($taxon);
                 $this->taxon_ids[$taxon->taxonID] = '';
@@ -223,9 +223,14 @@ class DWH_NCBI_API
             }
         }
     }
+    private function format_tax_id($rec)
+    {
+        if($rec['name_class'] == "scientific name") return array('tax_id' => $rec['tax_id']                 , 'acceptedNameUsageID' => '');
+        else                                        return array('tax_id' => $rec['tax_id']."_".$this->ctr  , 'acceptedNameUsageID' => $rec['tax_id']);
+    }
     private function format_status($name_class)
     {
-        $verbatim = array("equivalent name", "in-part", "misspelling", "genbank synonym", "misnomer", "anamorph", "genbank anamorph", "teleomorph", "authority")
+        $verbatim = array("equivalent name", "in-part", "misspelling", "genbank synonym", "misnomer", "anamorph", "genbank anamorph", "teleomorph", "authority");
         if($name_class == "scientific name") return "accepted";
         elseif($name_class == "synonym") return "synonym";
         elseif(in_array($name_class, $verbatim)) return $name_class;
