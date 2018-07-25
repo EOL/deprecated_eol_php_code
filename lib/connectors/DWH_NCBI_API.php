@@ -9,7 +9,6 @@ class DWH_NCBI_API
     function __construct($folder)
     {
         $this->resource_id = $folder;
-        $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
@@ -26,12 +25,12 @@ class DWH_NCBI_API
 
     function start()
     {
-        // /* test
+        /* test
         $taxID_info = self::get_taxID_nodes_info();
-        $ancestry = self::get_ancestry_of_taxID(2250524, $taxID_info); print_r($ancestry);
-        $ancestry = self::get_ancestry_of_taxID(1817875, $taxID_info); print_r($ancestry);
+        $ancestry = self::get_ancestry_of_taxID(1817870, $taxID_info); print_r($ancestry);
+        $ancestry = self::get_ancestry_of_taxID(2005724, $taxID_info); print_r($ancestry);
         exit("\n-end tests-\n");
-        // */
+        */
         /* test
         $removed_branches = self::get_removed_branches_from_spreadsheet(); print_r($removed_branches);
         exit("\n-end tests-\n");
@@ -164,13 +163,29 @@ class DWH_NCBI_API
                 }
             }
             // Total rows: 2687427      Processed rows: 1648267
-            
+
+            self::write_taxon($rec);
             $processed++;
         }
         fclose($file);
         echo "\nTotal rows: $i";
         echo "\nProcessed rows: $processed";
     }
+    private function write_taxon($rec)
+    {
+        $taxon = new \eol_schema\Taxon();
+        /*
+        $taxon->taxonID         = $rec["taxon_id"];
+        $taxon->scientificName  = $rec["Scientific name"];
+        $taxon->taxonRank = 
+        $taxon->furtherInformationURL = $rec["source_url"];
+        */
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->archive_builder->write_object_to_file($taxon);
+            $this->taxon_ids[$taxon->taxonID] = '';
+        }
+    }
+    
     private function an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)
     {
         foreach($ancestry as $id) {
@@ -213,24 +228,6 @@ class DWH_NCBI_API
     {
         if(in_array($rek['Invasive'], array("Invasive", "Not invasive"))) $good[] = array('region' => $rek['region'], 'range' => $rek['Invasive'], "refs" => $refs, 'measurementRemarks' => $rem);
         return $good;
-    }
-    private function create_instances_from_taxon_object($rec)
-    {
-        $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID         = $rec["taxon_id"];
-        $taxon->scientificName  = $rec["Scientific name"];
-        $taxon->taxonRank = self::get_rank($rec['ancestry'], $rec["Scientific name"]);
-        foreach(array_keys($rec['ancestry']) as $rank) {
-            if($rank == $taxon->taxonRank) break;
-            if(in_array($rank, array('kingdom', 'phylum', 'class', 'order', 'family', 'genus'))) {
-                $taxon->$rank = $rec['ancestry'][$rank];
-            }
-        }
-        $taxon->furtherInformationURL = $rec["source_url"];
-        if(!isset($this->taxon_ids[$taxon->taxonID])) {
-            $this->archive_builder->write_object_to_file($taxon);
-            $this->taxon_ids[$taxon->taxonID] = '';
-        }
     }
     private function get_mtype_for_range($range)
     {
