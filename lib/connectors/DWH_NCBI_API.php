@@ -161,21 +161,36 @@ class DWH_NCBI_API
                     echo "\nid with an ancestry that is included among removed branches [".$rec['tax_id']."]";
                     continue;
                 }
+                self::write_taxon($rec, $ancestry, $taxID_info[$rec['tax_id']]);
             }
             // Total rows: 2687427      Processed rows: 1648267
 
-            self::write_taxon($rec);
             $processed++;
         }
         fclose($file);
         echo "\nTotal rows: $i";
         echo "\nProcessed rows: $processed";
     }
-    private function write_taxon($rec)
+    private function write_taxon($rec, $ancestry, $taxid_info)
     {
+        /* Array(
+            [tax_id] => 1
+            [name_txt] => all
+            [unique_name] => 
+            [name_class] => synonym
+        )
+        Array(
+            [1] => Array(
+                    [pID] => 1
+                    [r] => no rank
+                    [dID] => 8
+                )
+        )*/
+        
         $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID = $rec['tax_id'];
+        
         /*
-        $taxon->taxonID         = $rec["taxon_id"];
         $taxon->scientificName  = $rec["Scientific name"];
         $taxon->taxonRank = 
         $taxon->furtherInformationURL = $rec["source_url"];
