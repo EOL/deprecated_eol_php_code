@@ -27,8 +27,8 @@ class DWH_NCBI_API
     {
         /* test
         $taxID_info = self::get_taxID_nodes_info();
-        $ancestry = self::get_ancestry_of_taxID(415666, $taxID_info); print_r($ancestry);
-        $ancestry = self::get_ancestry_of_taxID(503548, $taxID_info); print_r($ancestry);
+        $ancestry = self::get_ancestry_of_taxID(1967060, $taxID_info); print_r($ancestry);
+        // $ancestry = self::get_ancestry_of_taxID(503548, $taxID_info); print_r($ancestry);
         exit("\n-end tests-\n");
         */
         /* test
@@ -165,7 +165,7 @@ class DWH_NCBI_API
                     // echo "\nid with an ancestry that is included among removed branches [".$rec['tax_id']."]";
                     continue;
                 }
-                if($old_id != $rec['tax_id']) $this->ctr = 1;
+                if($old_id != $rec['tax_id']) $this->ctr = 0;
                 else                          $this->ctr++;
                 $old_id = $rec['tax_id'];
                 
