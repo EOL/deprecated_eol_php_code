@@ -20,7 +20,7 @@ class DWH_NCBI_API
         $this->file['names.dmp']['fields'] = array("tax_id", "name_txt", "unique_name", "name_class");
 
         $this->file['nodes.dmp']['path'] = "/Volumes/AKiTiO4/d_w_h/TRAM-795/taxdump/nodes.dmp";
-        $this->file['nodes.dmp']['fields'] = array("tax_id", "parent tax_id", "rank", "embl code", "division id", "inherited div flag", "genetic code id", "inherited GC flag", 
+        $this->file['nodes.dmp']['fields'] = array("tax_id", "parent_tax_id", "rank", "embl_code", "division_id", "inherited div flag", "genetic code id", "inherited GC flag", 
         "mitochondrial genetic code id", "inherited MGC flag", "GenBank hidden flag", "hidden subtree root flag", "comments");
     }
 
@@ -32,8 +32,39 @@ class DWH_NCBI_API
             Functions::start_print_debug($this->debug, $this->resource_id);
         }
     }
+    private function get_taxID_divID_list()
+    {
+        $final = array();
+        $fields = $this->file['nodes.dmp']['fields'];
+        $file = Functions::file_open($this->file['nodes.dmp']['path'], "r");
+        $i = 0;
+        if(!$file) exit("\nFile not found!\n");
+        while (($row = fgets($file)) !== false) {
+            $i++;
+            $row = explode("\t|", $row);
+            array_pop($row);
+            $row = array_map('trim', $row);
+            if(($i % 50000) == 0) echo "\n count:[$i] ";
+            $vals = $row;
+            if(count($fields) != count($vals)) {
+                print_r($vals); exit("\nNot same count ".count($fields)." != ".count($vals)."\n"); continue;
+            }
+            if(!$vals[0]) continue;
+            $k = -1; $rec = array();
+            foreach($fields as $field) {
+                $k++;
+                $rec[$field] = $vals[$k];
+            }
+            // print_r($rec); exit;
+            $final[$rec['tax_id']] = array("p_id" => $rec['parent_tax_id'], 'r' => $rec['rank'], 'd_id' => $rec['division_id']);
+        }
+        fclose($file);
+        return $final;
+        exit("\nstopx\n");
+    }
     private function main()
     {
+        $taxID_divID_list = self::get_taxID_divID_list();
         $fields = $this->file['names.dmp']['fields'];
         $file = Functions::file_open($this->file['names.dmp']['path'], "r");
         $i = 0;
@@ -46,9 +77,7 @@ class DWH_NCBI_API
             if(($i % 50000) == 0) echo "\n count:[$i] ";
             $vals = $row;
             if(count($fields) != count($vals)) {
-                print_r($vals);
-                echo("\nNot same count ".count($fields)." != ".count($vals)."\n");
-                continue;
+                print_r($vals); exit("\nNot same count ".count($fields)." != ".count($vals)."\n"); continue;
             }
             if(!$vals[0]) continue;
             $k = -1; $rec = array();
