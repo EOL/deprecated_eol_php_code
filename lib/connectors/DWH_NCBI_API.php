@@ -189,10 +189,12 @@ class DWH_NCBI_API
         
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID = $rec['tax_id'];
+        $tax_id = $rec['tax_id'];
+        $taxon->parentNameUsageID = $taxid_info[$tax_id]['pID'];
+        $taxon->taxonRank = $taxid_info[$tax_id]['r'];
         
         /*
         $taxon->scientificName  = $rec["Scientific name"];
-        $taxon->taxonRank = 
         $taxon->furtherInformationURL = $rec["source_url"];
         */
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
