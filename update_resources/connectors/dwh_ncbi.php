@@ -9,6 +9,7 @@ require_library('connectors/DWH_NCBI_API');
 // ini_set('memory_limit','5096M');
 $timestart = time_elapsed();
 $resource_id = "dwca_ncbi";
+$resource_id = 1;
 $func = new DWH_NCBI_API($resource_id);
 
 $GLOBALS['ENV_DEBUG'] = true;
@@ -16,7 +17,7 @@ $GLOBALS['ENV_DEBUG'] = true;
 $func->start();
 Functions::finalize_dwca_resource($resource_id);
 
-/* utility
+// /* utility
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
 $undefined = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
@@ -25,7 +26,7 @@ if($undefined) {
     // print_r($undefined);
 }
 else echo "\nAll parents have entries.\n";
-*/
+// */
 
 /* this will delete the working dir
 $dir = CONTENT_RESOURCE_LOCAL_PATH."/".$resource_id;

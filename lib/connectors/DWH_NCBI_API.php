@@ -27,8 +27,8 @@ class DWH_NCBI_API
     {
         /* test
         $taxID_info = self::get_taxID_nodes_info();
-        $ancestry = self::get_ancestry_of_taxID(1817870, $taxID_info); print_r($ancestry);
-        $ancestry = self::get_ancestry_of_taxID(2005724, $taxID_info); print_r($ancestry);
+        $ancestry = self::get_ancestry_of_taxID(415666, $taxID_info); print_r($ancestry);
+        $ancestry = self::get_ancestry_of_taxID(503548, $taxID_info); print_r($ancestry);
         exit("\n-end tests-\n");
         */
         /* test
@@ -36,7 +36,7 @@ class DWH_NCBI_API
         exit("\n-end tests-\n");
         */
         
-        self::main(); exit("\nstop muna\n");
+        self::main(); //exit("\nstop muna\n");
         $this->archive_builder->finalize(TRUE);
         if($this->debug) {
             Functions::start_print_debug($this->debug, $this->resource_id);
@@ -153,12 +153,14 @@ class DWH_NCBI_API
             }
             // Total rows: 2687427      Processed rows: 1686211
             
+            if(in_array($rec['name_class'], array("blast name", "type material", "includes", "acronym", "genbank acronym"))) continue; //ignore these names
+            
             /* 3. Remove branches */
-            if($rec['name_class'] == "scientific name") {
+            if(in_array($rec['name_class'], array("scientific name", "common name", "genbank common name"))) {
                 $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
                 if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
                     $this->debug['id with an ancestry that is included among removed branches'][$rec['tax_id']] = '';
-                    echo "\nid with an ancestry that is included among removed branches [".$rec['tax_id']."]";
+                    // echo "\nid with an ancestry that is included among removed branches [".$rec['tax_id']."]";
                     continue;
                 }
                 self::write_taxon($rec, $ancestry, $taxID_info[$rec['tax_id']]);
@@ -186,23 +188,34 @@ class DWH_NCBI_API
                     [dID] => 8
                 )
         )*/
-        
-        $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID = $rec['tax_id'];
-        $tax_id = $rec['tax_id'];
-        $taxon->parentNameUsageID = $taxid_info[$tax_id]['pID'];
-        $taxon->taxonRank = $taxid_info[$tax_id]['r'];
-        
-        /*
-        $taxon->scientificName  = $rec["Scientific name"];
-        $taxon->furtherInformationURL = $rec["source_url"];
-        */
-        if(!isset($this->taxon_ids[$taxon->taxonID])) {
-            $this->archive_builder->write_object_to_file($taxon);
-            $this->taxon_ids[$taxon->taxonID] = '';
+        if(in_array($rec['name_class'], array("scientific name"))) {
+            $tax_id = $rec['tax_id'];
+            $taxon = new \eol_schema\Taxon();
+            $taxon->taxonID = $tax_id;
+            $taxon->parentNameUsageID = $taxid_info['pID'];
+            $taxon->taxonRank = $taxid_info['r'];
+            $taxon->scientificName = $rec['name_txt'];
+            $taxon->taxonomicStatus = "accepted";
+            $taxon->furtherInformationURL = "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=".$tax_id;
+            if(!isset($this->taxon_ids[$taxon->taxonID])) {
+                $this->archive_builder->write_object_to_file($taxon);
+                $this->taxon_ids[$taxon->taxonID] = '';
+            }
+        }
+        if(in_array($rec['name_class'], array("common name", "genbank common name"))) {
+            if($common_name = @$rec['name_txt']) {
+                $v = new \eol_schema\VernacularName();
+                $v->taxonID = $rec["tax_id"];
+                $v->vernacularName = trim($common_name);
+                $v->language = "en";
+                $vernacular_id = md5("$v->taxonID|$v->vernacularName|$v->language");
+                if(!isset($this->vernacular_ids[$vernacular_id])) {
+                    $this->vernacular_ids[$vernacular_id] = '';
+                    $this->archive_builder->write_object_to_file($v);
+                }
+            }
         }
     }
-    
     private function an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)
     {
         foreach($ancestry as $id) {
