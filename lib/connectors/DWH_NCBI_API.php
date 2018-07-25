@@ -111,6 +111,7 @@ class DWH_NCBI_API
         $file = Functions::file_open($this->file['names.dmp']['path'], "r");
         $i = 0; $processed = 0;
         if(!$file) exit("\nFile not found!\n");
+        $this->ctr = 1; $old_id = "elix";
         while (($row = fgets($file)) !== false) {
             $i++;
             $row = explode("\t|", $row); array_pop($row); $row = array_map('trim', $row);
@@ -156,15 +157,21 @@ class DWH_NCBI_API
             if(in_array($rec['name_class'], array("blast name", "type material", "includes", "acronym", "genbank acronym"))) continue; //ignore these names
             
             /* 3. Remove branches */
-            if(in_array($rec['name_class'], array("scientific name", "common name", "genbank common name"))) {
+            // if(in_array($rec['name_class'], array("scientific name", "common name", "genbank common name"))) {
                 $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
                 if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
                     $this->debug['id with an ancestry that is included among removed branches'][$rec['tax_id']] = '';
                     // echo "\nid with an ancestry that is included among removed branches [".$rec['tax_id']."]";
                     continue;
                 }
+                if($old_id != $rec['tax_id']) {
+                    $this->ctr = 1;
+                }
+                else $this->ctr++;
+                $old_id = $rec['tax_id'];
+                
                 self::write_taxon($rec, $ancestry, $taxID_info[$rec['tax_id']]);
-            }
+            // }
             // Total rows: 2687427      Processed rows: 1648267
 
             $processed++;
@@ -188,14 +195,14 @@ class DWH_NCBI_API
                     [dID] => 8
                 )
         )*/
-        if(in_array($rec['name_class'], array("scientific name"))) {
+        if(!in_array($rec['name_class'], array("common name", "genbank common name"))) {
             $tax_id = $rec['tax_id'];
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID = $tax_id;
             $taxon->parentNameUsageID = $taxid_info['pID'];
             $taxon->taxonRank = $taxid_info['r'];
             $taxon->scientificName = $rec['name_txt'];
-            $taxon->taxonomicStatus = "accepted";
+            $taxon->taxonomicStatus = self::format_status($rec['name_class']);
             $taxon->furtherInformationURL = "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=".$tax_id;
             if(!isset($this->taxon_ids[$taxon->taxonID])) {
                 $this->archive_builder->write_object_to_file($taxon);
@@ -215,6 +222,14 @@ class DWH_NCBI_API
                 }
             }
         }
+    }
+    private function format_status($name_class)
+    {
+        $verbatim = array("equivalent name", "in-part", "misspelling", "genbank synonym", "misnomer", "anamorph", "genbank anamorph", "teleomorph", "authority")
+        if($name_class == "scientific name") return "accepted";
+        elseif($name_class == "synonym") return "synonym";
+        elseif(in_array($name_class, $verbatim)) return $name_class;
+        exit("\nUndefined name_class [$name_class]\n");
     }
     private function an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)
     {
