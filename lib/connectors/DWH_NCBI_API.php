@@ -26,14 +26,15 @@ class DWH_NCBI_API
 
     function start()
     {
-        self::main();
+        self::main(); exit("\nstop muna\n");
         $this->archive_builder->finalize(TRUE);
         if($this->debug) {
             Functions::start_print_debug($this->debug, $this->resource_id);
         }
     }
-    private function get_taxID_divID_list()
+    private function get_taxID_nodes_info()
     {
+        echo "\nGenerating taxID_info...";
         $final = array();
         $fields = $this->file['nodes.dmp']['fields'];
         $file = Functions::file_open($this->file['nodes.dmp']['path'], "r");
@@ -56,24 +57,28 @@ class DWH_NCBI_API
                 $rec[$field] = $vals[$k];
             }
             // print_r($rec); exit;
-            $final[$rec['tax_id']] = array("p_id" => $rec['parent_tax_id'], 'r' => $rec['rank'], 'd_id' => $rec['division_id']);
+            if(isset($final[$rec['tax_id']])) exit("\nInvestigate not unique tax_id in nodes.dmp\n");
+            $final[$rec['tax_id']] = array("pID" => $rec['parent_tax_id'], 'r' => $rec['rank'], 'dID' => $rec['division_id']);
+            
+            // print_r($final); exit;
         }
         fclose($file);
         return $final;
-        exit("\nstopx\n");
+        // exit("\nstopx\n");
     }
     private function main()
     {
-        $taxID_divID_list = self::get_taxID_divID_list();
+        $taxID_info['xxx'] = array("pID" => '', 'r' => '', 'dID' => '');
+        $taxID_info = self::get_taxID_nodes_info();
+
+        echo "\nMain processing...";
         $fields = $this->file['names.dmp']['fields'];
         $file = Functions::file_open($this->file['names.dmp']['path'], "r");
-        $i = 0;
+        $i = 0; $processed = 0;
         if(!$file) exit("\nFile not found!\n");
         while (($row = fgets($file)) !== false) {
             $i++;
-            $row = explode("\t|", $row);
-            array_pop($row);
-            $row = array_map('trim', $row);
+            $row = explode("\t|", $row); array_pop($row); $row = array_map('trim', $row);
             if(($i % 50000) == 0) echo "\n count:[$i] ";
             $vals = $row;
             if(count($fields) != count($vals)) {
@@ -85,9 +90,25 @@ class DWH_NCBI_API
                 $k++;
                 $rec[$field] = $vals[$k];
             }
-            // print_r($rec);
+            // print_r($rec); exit;
+            /* Array(
+                [tax_id] => 1
+                [name_txt] => all
+                [unique_name] => 
+                [name_class] => synonym
+            )*/
+          
+            //start filtering
+            /* 1. Filter by division_id: Remove taxa where division_id in nodes.dmp is 7 (environmental samples) or 11 (synthetic and chimeric taxa) */
+            if(in_array($taxID_info[$rec['tax_id']]['dID'], array(7,11))) continue;
+            
+            
+            
+            $processed++;
         }
         fclose($file);
+        echo "\nTotal rows: $i";
+        echo "\nProcessed rows: $processed";
     }
     /*
     private function valid_rek($rek, $rec)
