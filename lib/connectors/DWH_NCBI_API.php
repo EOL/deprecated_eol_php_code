@@ -26,12 +26,12 @@ class DWH_NCBI_API
 
     function start()
     {
-        /* test
+        // /* test
         $taxID_info = self::get_taxID_nodes_info();
-        $ancestry = self::get_ancestry_of_taxID(47143, $taxID_info); print_r($ancestry);
-        $ancestry = self::get_ancestry_of_taxID(12908, $taxID_info); print_r($ancestry);
+        $ancestry = self::get_ancestry_of_taxID(2250524, $taxID_info); print_r($ancestry);
+        $ancestry = self::get_ancestry_of_taxID(1817875, $taxID_info); print_r($ancestry);
         exit("\n-end tests-\n");
-        */
+        // */
         /* test
         $removed_branches = self::get_removed_branches_from_spreadsheet(); print_r($removed_branches);
         exit("\n-end tests-\n");
@@ -154,20 +154,29 @@ class DWH_NCBI_API
             }
             // Total rows: 2687427      Processed rows: 1686211
             
+            /* 3. Remove branches */
             if($rec['name_class'] == "scientific name") {
                 $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
-                if(self::an_id_from_ancestry_part_of_a_removed_branch($ancestry, $removed_branches)) {
-                    $this->debug['id with an ancestry that is included among removed branches'][$rec['tax_id']];
+                if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
+                    $this->debug['id with an ancestry that is included among removed branches'][$rec['tax_id']] = '';
                     echo "\nid with an ancestry that is included among removed branches [".$rec['tax_id']."]";
                     continue;
                 }
             }
+            // Total rows: 2687427      Processed rows: 1648267
             
             $processed++;
         }
         fclose($file);
         echo "\nTotal rows: $i";
         echo "\nProcessed rows: $processed";
+    }
+    private function an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)
+    {
+        foreach($ancestry as $id) {
+            if(in_array($id, $removed_branches)) return true;
+        }
+        return false;
     }
     private function get_removed_branches_from_spreadsheet()
     {
