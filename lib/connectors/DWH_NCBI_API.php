@@ -26,11 +26,46 @@ class DWH_NCBI_API
 
     function start()
     {
+        /* test
+        $taxID_info = self::get_taxID_nodes_info();
+        $ancestry = self::get_ancestry_of_taxID(47143, $taxID_info); print_r($ancestry);
+        $ancestry = self::get_ancestry_of_taxID(12908, $taxID_info); print_r($ancestry);
+        exit("\n-end tests-\n");
+        */
+        /* test
+        $removed_branches = self::get_removed_branches_from_spreadsheet(); print_r($removed_branches);
+        exit("\n-end tests-\n");
+        */
+        
         self::main(); exit("\nstop muna\n");
         $this->archive_builder->finalize(TRUE);
         if($this->debug) {
             Functions::start_print_debug($this->debug, $this->resource_id);
         }
+    }
+    private function get_ancestry_of_taxID($tax_id, $taxID_info)
+    {
+        /* Array(
+            [1] => Array(
+                    [pID] => 1
+                    [r] => no rank
+                    [dID] => 8
+                )
+        )*/
+        $final = array();
+        $final[] = $tax_id;
+        while($parent_id = @$taxID_info[$tax_id]['pID']) {
+            if(!in_array($parent_id, $final)) $final[] = $parent_id;
+            else {
+                if($parent_id == 1) return $final;
+                else {
+                    print_r($final);
+                    exit("\nInvestigate $parent_id already in array.\n");
+                }
+            }
+            $tax_id = $parent_id;
+        }
+        return $final;
     }
     private function get_taxID_nodes_info()
     {
@@ -70,6 +105,7 @@ class DWH_NCBI_API
     {
         $taxID_info['xxx'] = array("pID" => '', 'r' => '', 'dID' => '');
         $taxID_info = self::get_taxID_nodes_info();
+        $removed_branches = self::get_removed_branches_from_spreadsheet();
 
         echo "\nMain processing...";
         $fields = $this->file['names.dmp']['fields'];
@@ -118,12 +154,50 @@ class DWH_NCBI_API
             }
             // Total rows: 2687427      Processed rows: 1686211
             
+            if($rec['name_class'] == "scientific name") {
+                $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
+                if(self::an_id_from_ancestry_part_of_a_removed_branch($ancestry, $removed_branches)) {
+                    $this->debug['id with an ancestry that is included among removed branches'][$rec['tax_id']];
+                    echo "\nid with an ancestry that is included among removed branches [".$rec['tax_id']."]";
+                    continue;
+                }
+            }
             
             $processed++;
         }
         fclose($file);
         echo "\nTotal rows: $i";
         echo "\nProcessed rows: $processed";
+    }
+    private function get_removed_branches_from_spreadsheet()
+    {
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
+        $params['spreadsheetID'] = '1eWXWK514ivl072FLm7dF2MpL9W29bs6XYDbPjHtWlxE';
+        $params['range']         = 'Sheet1!A2:A16'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $arr = $func->access_google_sheet($params);
+        //start massage array
+        foreach($arr as $item) $final[$item[0]] = '';
+        $final = array_keys($final);
+        return $final;
+        /* if google spreadsheet suddenly becomes offline, use this:
+        Array(
+            [0] => 12908
+            [1] => 28384
+            [2] => 2323
+            [3] => 1035835
+            [4] => 1145094
+            [5] => 119167
+            [6] => 590738
+            [7] => 1407750
+            [8] => 272150
+            [9] => 1899546
+            [10] => 328343
+            [11] => 463707
+            [12] => 410859
+            [13] => 341675
+            [14] => 56059
+        )*/
     }
     /*
     private function valid_rek($rek, $rec)

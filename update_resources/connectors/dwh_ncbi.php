@@ -6,6 +6,7 @@ http://www.eol.org/content_partners/614/resources/671
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DWH_NCBI_API');
+// ini_set('memory_limit','5096M');
 $timestart = time_elapsed();
 $resource_id = "dwca_ncbi";
 $func = new DWH_NCBI_API($resource_id);
