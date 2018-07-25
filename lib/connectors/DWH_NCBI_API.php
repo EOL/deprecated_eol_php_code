@@ -116,6 +116,7 @@ class DWH_NCBI_API
                 elseif(stripos($rec['name_txt'], " cf.") !== false) continue; //string is found
                 elseif(stripos($rec['name_txt'], " nr.") !== false) continue; //string is found
             }
+            // Total rows: 2687427      Processed rows: 1686211
             
             
             $processed++;
