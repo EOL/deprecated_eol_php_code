@@ -21,6 +21,9 @@ class DWH_NCBI_API
         $this->file['nodes.dmp']['path'] = "/Volumes/AKiTiO4/d_w_h/TRAM-795/taxdump/nodes.dmp";
         $this->file['nodes.dmp']['fields'] = array("tax_id", "parent_tax_id", "rank", "embl_code", "division_id", "inherited div flag", "genetic code id", "inherited GC flag", 
         "mitochondrial genetic code id", "inherited MGC flag", "GenBank hidden flag", "hidden subtree root flag", "comments");
+
+        $this->file['citations.dmp']['path'] = "/Volumes/AKiTiO4/d_w_h/TRAM-795/taxdump/citations.dmp";
+        $this->file['citations.dmp']['fields'] = array("cit_id", "cit_key", "pubmed_id", "medline_id", "url", "text", "taxid_list");
     }
 
     function start()
@@ -35,6 +38,10 @@ class DWH_NCBI_API
         $removed_branches = self::get_removed_branches_from_spreadsheet(); print_r($removed_branches);
         exit("\n-end tests-\n");
         */
+        // /*
+        
+        exit("\n-end tests-\n");
+        // */
         
         self::main(); //exit("\nstop muna\n");
         $this->archive_builder->finalize(TRUE);
@@ -181,75 +188,9 @@ class DWH_NCBI_API
             $processed++;
         }
         fclose($file);
-        
-        echo "\nMain processing 2...";
-        $filtered = array_keys($filtered);
-        $filtered2 = array_keys($filtered2);
-
-        print("\nfiltered: ".count($filtered)."\n");
-        print("\nfiltered2: ".count($filtered2)."\n");
-        
-        $filtered = array_merge($filtered, $filtered2);
-        $filtered = array_unique($filtered);
-        
-        print("\nfiltered: ".count($filtered)."\n");
-        
-        // this is result of a previous run: undefined parents n=35
-        $filtered2 = array(762615, 67596, 162087, 564289, 1358437, 633875, 333830, 335436, 336085, 1088862, 398350, 635109, 712414, 1155007, 944171, 1267497, 168172, 1176743, 1200662, 
-        1263508, 1266589, 1167, 1385656, 1346514, 298136, 1076755, 1527667, 1550063, 1586255, 1778398, 1867947, 1886822, 1967055, 1967057, 1967059);
-        print("\nfiltered2: ".count($filtered2)."\n");
-        // exit;
-        $processed_already = array();
-
-        /*
-        //start main loop ================================
-        $file = Functions::file_open($this->file['names.dmp']['path'], "r");
-        $i = 0; $processed = 0;
-        $this->ctr = 1; $old_id = "elix";
-        while (($row = fgets($file)) !== false) {
-            $i++;
-            $row = explode("\t|", $row); array_pop($row); $row = array_map('trim', $row);
-            if(($i % 300000) == 0) echo "\n count:[$i] ";
-            $vals = $row;
-            if(!$vals[0]) continue;
-            $k = -1; $rec = array();
-            foreach($fields as $field) {
-                $k++;
-                $rec[$field] = $vals[$k];
-            }
-            // Array(
-            //     [tax_id] => 1
-            //     [name_txt] => all
-            //     [unique_name] => 
-            //     [name_class] => synonym
-            // )
-            if(in_array($rec['name_class'], array("blast name", "type material", "includes", "acronym", "genbank acronym"))) continue; //ignore these names
-            
-            if(!in_array($rec['tax_id'], $filtered)) {
-                
-                if($val = @$processed_already[$rec['tax_id']]['contYN']) {
-                    if($val == 't') continue;
-                    else {} //will proceed write_taxon()
-                }
-                else {
-                    $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
-                    if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $filtered2)) {
-                        $this->debug['id with an ancestry that is included among removed branches 2'][$rec['tax_id']] = '';
-                        $processed_already[$rec['tax_id']]['contYN'] = 't';
-                        continue;
-                    }
-                    else $processed_already[$rec['tax_id']]['contYN'] = 'f'; //will proceed write_taxon()
-                }
-                
-                if($old_id != $rec['tax_id']) $this->ctr = 1;
-                else                          $this->ctr++;
-                $old_id = $rec['tax_id'];
-                self::write_taxon($rec, $ancestry, $taxID_info[$rec['tax_id']]);
-            }
-            $processed++;
-        }
-        fclose($file);
-        //end main loop ==================================
+        /* worked OK, without undefined parents
+        Total rows: 2687427
+        Processed rows: 1514305
         */
         echo "\nTotal rows: $i";
         echo "\nProcessed rows: $processed";
