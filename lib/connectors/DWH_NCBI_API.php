@@ -104,8 +104,14 @@ class DWH_NCBI_API
     {
         $taxID_info['xxx'] = array("pID" => '', 'r' => '', 'dID' => '');
         $taxID_info = self::get_taxID_nodes_info();
+        
         $removed_branches = self::get_removed_branches_from_spreadsheet();
-        $filtered = array();
+        $add = array(762615, 67596, 162087, 564289, 1358437, 633875, 333830, 335436, 336085, 1088862, 398350, 635109, 712414, 1155007, 944171, 1267497, 168172, 1176743, 1200662, 
+        1263508, 1266589, 1167, 1385656, 1346514, 298136, 1076755, 1527667, 1550063, 1586255, 1778398, 1867947, 1886822, 1967055, 1967057, 1967059);
+        $removed_branches = array_merge($removed_branches, $add);
+        $removed_branches = array_unique($removed_branches);
+        
+        $filtered = array(); $filtered2 = array();
 
         echo "\nMain processing...";
         $fields = $this->file['names.dmp']['fields'];
@@ -149,10 +155,10 @@ class DWH_NCBI_API
             This will get rid of a lot of the samples that haven’t been identified to species. */
             $rank = $taxID_info[$rec['tax_id']]['r'];
             if(in_array($rank, array('species', 'no rank'))) {
-                if(stripos($rec['name_txt'], " sp.") !== false)      {$filtered[$rec['tax_id']] = ''; continue;} //string is found
-                elseif(stripos($rec['name_txt'], " aff.") !== false) {$filtered[$rec['tax_id']] = ''; continue;} //string is found
-                elseif(stripos($rec['name_txt'], " cf.") !== false)  {$filtered[$rec['tax_id']] = ''; continue;} //string is found
-                elseif(stripos($rec['name_txt'], " nr.") !== false)  {$filtered[$rec['tax_id']] = ''; continue;} //string is found
+                if(stripos($rec['name_txt'], " sp.") !== false)      {$filtered2[$rec['tax_id']] = ''; continue;} //string is found
+                elseif(stripos($rec['name_txt'], " aff.") !== false) {$filtered2[$rec['tax_id']] = ''; continue;} //string is found
+                elseif(stripos($rec['name_txt'], " cf.") !== false)  {$filtered2[$rec['tax_id']] = ''; continue;} //string is found
+                elseif(stripos($rec['name_txt'], " nr.") !== false)  {$filtered2[$rec['tax_id']] = ''; continue;} //string is found
             }
             // Total rows: 2687427      Processed rows: 1686211
             
@@ -169,7 +175,7 @@ class DWH_NCBI_API
                 else                          $this->ctr++;
                 $old_id = $rec['tax_id'];
                 
-                /* self::write_taxon($rec, $ancestry, $taxID_info[$rec['tax_id']]); */
+                self::write_taxon($rec, $ancestry, $taxID_info[$rec['tax_id']]);
             // }
             // Total rows: 2687427      Processed rows: 1648267
             $processed++;
@@ -178,9 +184,24 @@ class DWH_NCBI_API
         
         echo "\nMain processing 2...";
         $filtered = array_keys($filtered);
-        // print_r($filtered); exit("\n".count($filtered)."\n");
+        $filtered2 = array_keys($filtered2);
+
+        print("\nfiltered: ".count($filtered)."\n");
+        print("\nfiltered2: ".count($filtered2)."\n");
+        
+        $filtered = array_merge($filtered, $filtered2);
+        $filtered = array_unique($filtered);
+        
+        print("\nfiltered: ".count($filtered)."\n");
+        
+        // this is result of a previous run: undefined parents n=35
+        $filtered2 = array(762615, 67596, 162087, 564289, 1358437, 633875, 333830, 335436, 336085, 1088862, 398350, 635109, 712414, 1155007, 944171, 1267497, 168172, 1176743, 1200662, 
+        1263508, 1266589, 1167, 1385656, 1346514, 298136, 1076755, 1527667, 1550063, 1586255, 1778398, 1867947, 1886822, 1967055, 1967057, 1967059);
+        print("\nfiltered2: ".count($filtered2)."\n");
+        // exit;
         $processed_already = array();
 
+        /*
         //start main loop ================================
         $file = Functions::file_open($this->file['names.dmp']['path'], "r");
         $i = 0; $processed = 0;
@@ -196,12 +217,12 @@ class DWH_NCBI_API
                 $k++;
                 $rec[$field] = $vals[$k];
             }
-            /* Array(
-                [tax_id] => 1
-                [name_txt] => all
-                [unique_name] => 
-                [name_class] => synonym
-            )*/
+            // Array(
+            //     [tax_id] => 1
+            //     [name_txt] => all
+            //     [unique_name] => 
+            //     [name_class] => synonym
+            // )
             if(in_array($rec['name_class'], array("blast name", "type material", "includes", "acronym", "genbank acronym"))) continue; //ignore these names
             
             if(!in_array($rec['tax_id'], $filtered)) {
@@ -212,7 +233,7 @@ class DWH_NCBI_API
                 }
                 else {
                     $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
-                    if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $filtered)) {
+                    if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $filtered2)) {
                         $this->debug['id with an ancestry that is included among removed branches 2'][$rec['tax_id']] = '';
                         $processed_already[$rec['tax_id']]['contYN'] = 't';
                         continue;
@@ -229,7 +250,7 @@ class DWH_NCBI_API
         }
         fclose($file);
         //end main loop ==================================
-        
+        */
         echo "\nTotal rows: $i";
         echo "\nProcessed rows: $processed";
     }
