@@ -105,6 +105,7 @@ class DWH_NCBI_API
         $taxID_info['xxx'] = array("pID" => '', 'r' => '', 'dID' => '');
         $taxID_info = self::get_taxID_nodes_info();
         $removed_branches = self::get_removed_branches_from_spreadsheet();
+        $filtered = array();
 
         echo "\nMain processing...";
         $fields = $this->file['names.dmp']['fields'];
@@ -136,22 +137,22 @@ class DWH_NCBI_API
           
             /* start filtering: 
             1. Filter by division_id: Remove taxa where division_id in nodes.dmp is 7 (environmental samples) or 11 (synthetic and chimeric taxa) */
-            if(in_array($taxID_info[$rec['tax_id']]['dID'], array(7,11))) continue;
+            if(in_array($taxID_info[$rec['tax_id']]['dID'], array(7,11))) {$filtered[$rec['tax_id']] = ''; continue;}
             // Total rows: 2687427      Processed rows: 2609534
 
             /* 2. Filter by text string
             a. Remove taxa that have the string “environmental sample” in their scientific name. This will get rid of those environmental samples that don’t have the environmental samples division for some reason. */
-            if(stripos($rec['name_txt'], "environmental sample") !== false) continue; //string is found
+            if(stripos($rec['name_txt'], "environmental sample") !== false) {$filtered[$rec['tax_id']] = ''; continue;} //string is found
             // Total rows: 2687427      Processed rows: 2609488
             
             /* b. Remove all taxa of rank species where the scientific name includes one of the following strings: sp.|aff.|cf.|nr.
             This will get rid of a lot of the samples that haven’t been identified to species. */
             $rank = $taxID_info[$rec['tax_id']]['r'];
             if(in_array($rank, array('species', 'no rank'))) {
-                if(stripos($rec['name_txt'], " sp.") !== false) continue; //string is found
-                elseif(stripos($rec['name_txt'], " aff.") !== false) continue; //string is found
-                elseif(stripos($rec['name_txt'], " cf.") !== false) continue; //string is found
-                elseif(stripos($rec['name_txt'], " nr.") !== false) continue; //string is found
+                if(stripos($rec['name_txt'], " sp.") !== false)      {$filtered[$rec['tax_id']] = ''; continue;} //string is found
+                elseif(stripos($rec['name_txt'], " aff.") !== false) {$filtered[$rec['tax_id']] = ''; continue;} //string is found
+                elseif(stripos($rec['name_txt'], " cf.") !== false)  {$filtered[$rec['tax_id']] = ''; continue;} //string is found
+                elseif(stripos($rec['name_txt'], " nr.") !== false)  {$filtered[$rec['tax_id']] = ''; continue;} //string is found
             }
             // Total rows: 2687427      Processed rows: 1686211
             
@@ -162,20 +163,62 @@ class DWH_NCBI_API
                 $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
                 if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
                     $this->debug['id with an ancestry that is included among removed branches'][$rec['tax_id']] = '';
-                    // echo "\nid with an ancestry that is included among removed branches [".$rec['tax_id']."]";
-                    continue;
+                    $filtered[$rec['tax_id']] = ''; continue;
                 }
-                if($old_id != $rec['tax_id']) $this->ctr = 0;
+                if($old_id != $rec['tax_id']) $this->ctr = 1;
                 else                          $this->ctr++;
                 $old_id = $rec['tax_id'];
                 
                 self::write_taxon($rec, $ancestry, $taxID_info[$rec['tax_id']]);
             // }
             // Total rows: 2687427      Processed rows: 1648267
-
             $processed++;
         }
         fclose($file);
+        
+        echo "\nMain processing 2...";
+        $filtered = array_keys($filtered);
+        //start main loop ================================
+        $file = Functions::file_open($this->file['names.dmp']['path'], "r");
+        $i = 0; $processed = 0;
+        $this->ctr = 1; $old_id = "elix";
+        while (($row = fgets($file)) !== false) {
+            $i++;
+            $row = explode("\t|", $row); array_pop($row); $row = array_map('trim', $row);
+            if(($i % 300000) == 0) echo "\n count:[$i] ";
+            $vals = $row;
+            if(!$vals[0]) continue;
+            $k = -1; $rec = array();
+            foreach($fields as $field) {
+                $k++;
+                $rec[$field] = $vals[$k];
+            }
+            /* Array(
+                [tax_id] => 1
+                [name_txt] => all
+                [unique_name] => 
+                [name_class] => synonym
+            )*/
+          
+            if(in_array($rec['name_class'], array("blast name", "type material", "includes", "acronym", "genbank acronym"))) continue; //ignore these names
+            
+            if(!in_array($rec['tax_id'], $filtered)) {
+                $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
+                if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $filtered)) {
+                    $this->debug['id with an ancestry that is included among removed branches 2'][$rec['tax_id']] = '';
+                    // $filtered[$rec['tax_id']] = ''; 
+                    continue;
+                }
+                if($old_id != $rec['tax_id']) $this->ctr = 1;
+                else                          $this->ctr++;
+                $old_id = $rec['tax_id'];
+                self::write_taxon($rec, $ancestry, $taxID_info[$rec['tax_id']]);
+            }
+            $processed++;
+        }
+        fclose($file);
+        //end main loop ==================================
+        
         echo "\nTotal rows: $i";
         echo "\nProcessed rows: $processed";
     }
