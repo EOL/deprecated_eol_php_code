@@ -113,6 +113,7 @@ class DWH_NCBI_API
         $taxID_info = self::get_taxID_nodes_info();
         
         $removed_branches = self::get_removed_branches_from_spreadsheet();
+        /* $add is taken from undefined_parents report after 1st connector run */
         $add = array(762615, 67596, 162087, 564289, 1358437, 633875, 333830, 335436, 336085, 1088862, 398350, 635109, 712414, 1155007, 944171, 1267497, 168172, 1176743, 1200662, 
         1263508, 1266589, 1167, 1385656, 1346514, 298136, 1076755, 1527667, 1550063, 1586255, 1778398, 1867947, 1886822, 1967055, 1967057, 1967059);
         $removed_branches = array_merge($removed_branches, $add);
@@ -173,7 +174,7 @@ class DWH_NCBI_API
             // if(in_array($rec['name_class'], array("scientific name", "common name", "genbank common name"))) {
                 $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
                 if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
-                    $this->debug['id with an ancestry that is included among removed branches'][$rec['tax_id']] = '';
+                    $this->debug['taxon where an id in its ancestry is included among removed branches'][$rec['tax_id']] = '';
                     continue;
                 }
                 if($old_id != $rec['tax_id']) $this->ctr = 1;
