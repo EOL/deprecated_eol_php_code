@@ -38,10 +38,10 @@ class DWH_NCBI_API
         $removed_branches = self::get_removed_branches_from_spreadsheet(); print_r($removed_branches);
         exit("\n-end tests-\n");
         */
-        // /*
-        
+        /*
+        self::browse_citations();
         exit("\n-end tests-\n");
-        // */
+        */
         
         self::main(); //exit("\nstop muna\n");
         $this->archive_builder->finalize(TRUE);
@@ -109,6 +109,8 @@ class DWH_NCBI_API
     }
     private function main()
     {
+        $taxon_refs = self::browse_citations();
+        
         $taxID_info['xxx'] = array("pID" => '', 'r' => '', 'dID' => '');
         $taxID_info = self::get_taxID_nodes_info();
         
@@ -181,7 +183,10 @@ class DWH_NCBI_API
                 else                          $this->ctr++;
                 $old_id = $rec['tax_id'];
                 
-                self::write_taxon($rec, $ancestry, $taxID_info[$rec['tax_id']]);
+                if($val = @$taxon_refs[$rec['tax_id']]) $reference_ids = array_keys($val);
+                else                                    $reference_ids = array();
+                
+                self::write_taxon($rec, $ancestry, $taxID_info[$rec['tax_id']], $reference_ids);
             // }
             // Total rows: 2687427      Processed rows: 1648267
             $processed++;
@@ -194,7 +199,7 @@ class DWH_NCBI_API
         echo "\nTotal rows: $i";
         echo "\nProcessed rows: $processed";
     }
-    private function write_taxon($rec, $ancestry, $taxid_info)
+    private function write_taxon($rec, $ancestry, $taxid_info, $reference_ids)
     {
         /* Array(
             [tax_id] => 1
@@ -219,6 +224,7 @@ class DWH_NCBI_API
             $taxon->taxonomicStatus = self::format_status($rec['name_class']);
             $taxon->acceptedNameUsageID = $computer_ids['acceptedNameUsageID'];
             $taxon->furtherInformationURL = "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=".$rec['tax_id'];
+            if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
             if(!isset($this->taxon_ids[$taxon->taxonID])) {
                 $this->archive_builder->write_object_to_file($taxon);
                 $this->taxon_ids[$taxon->taxonID] = '';
@@ -288,12 +294,69 @@ class DWH_NCBI_API
             [14] => 56059
         )*/
     }
-    /*
-    private function valid_rek($rek, $rec)
+    private function browse_citations()
     {
-        if(in_array($rek['Invasive'], array("Invasive", "Not invasive"))) $good[] = array('region' => $rek['region'], 'range' => $rek['Invasive'], "refs" => $refs, 'measurementRemarks' => $rem);
-        return $good;
+        $this->debug['citation wrong cols'] = 0;
+        echo "\nCitations...";
+        $final = array();
+        $fields = $this->file['citations.dmp']['fields'];
+        $file = Functions::file_open($this->file['citations.dmp']['path'], "r");
+        $i = 0;
+        if(!$file) exit("\nFile not found!\n");
+        while (($row = fgets($file)) !== false) {
+            $i++;
+            $row = explode("\t|", $row);
+            array_pop($row);
+            $row = array_map('trim', $row);
+            if(($i % 10000) == 0) echo "\n count:[$i] ";
+            $vals = $row;
+            if(count($fields) != count($vals)) {
+                // print_r($vals); exit("\nNot same count ".count($fields)." != ".count($vals)."\n"); 
+                /* there is just 1 or 2 erroneous records, just ignore */
+                $this->debug['citation wrong cols']++;
+                continue;
+            }
+            if(!$vals[0]) continue;
+            $k = -1; $rec = array();
+            foreach($fields as $field) {
+                $k++;
+                $rec[$field] = $vals[$k];
+            }
+            /*Array(
+                [cit_id] => 24654
+                [cit_key] => Catalan P et al. 2009
+                [pubmed_id] => 0
+                [medline_id] => 0
+                [url] => 
+                [text] => Catalan P, Soreng RJ, Peterson PM and Peterson P. 2009. Festuca aloha and Festuca molokaiensis (Poaceae: Loliinae), two new species from Hawaii. Journal of the Botanical Research Institute of Texas 3(1): 51-58.
+                [taxid_list] => 650148 650149
+            )*/
+            // print_r($rec); //exit;
+            $taxids = explode(" ", $rec['taxid_list']);
+            foreach($taxids as $tax_id) {
+                $final[$tax_id][$rec['cit_id']] = '';
+                self::write_reference($rec);
+            }
+        }
+        // print_r($final);
+        // print_r(array_keys($final[1352138])); exit;
+        // print_r($this->debug); exit;
+        fclose($file);
+        return $final;
     }
+    private function write_reference($ref)
+    {
+        if(!@$ref['text']) return false;
+        $re = new \eol_schema\Reference();
+        $re->identifier     = $ref['cit_id'];
+        $re->full_reference = $ref['text'];
+        $re->uri            =  $ref['url']; 
+        if(!isset($this->reference_ids[$re->identifier])) {
+            $this->archive_builder->write_object_to_file($re);
+            $this->reference_ids[$re->identifier] = '';
+        }
+    }
+    /*
     private function get_mtype_for_range($range)
     {
         switch($range) {
@@ -310,20 +373,6 @@ class DWH_NCBI_API
         }
         if(in_array($range, $this->considered_as_Present)) return "http://eol.org/schema/terms/Present";
     }
-    private function write_reference($ref)
-    {
-        if(!@$ref['full_ref']) return false;
-        $re = new \eol_schema\Reference();
-        $re->identifier = md5($ref['full_ref']);
-        $re->full_reference = $ref['full_ref'];
-        if($path = @$ref['ref_url']) $re->uri = $this->domain['ISC'].$path; // e.g. https://www.cabi.org/isc/abstract/20000808896
-        if(!isset($this->reference_ids[$re->identifier])) {
-            $this->archive_builder->write_object_to_file($re);
-            $this->reference_ids[$re->identifier] = '';
-        }
-        return $re->identifier;
-    }
     */
-
 }
 ?>

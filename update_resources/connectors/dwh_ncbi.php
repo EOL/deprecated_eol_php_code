@@ -1,15 +1,14 @@
 <?php
 namespace php_active_record;
-/* MycoBank Classification - new spreadsheet download (TRAM-788)
-estimated execution time: 
-http://www.eol.org/content_partners/614/resources/671
+/* NCBI Taxonomy Harvest - https://eol-jira.bibalex.org/browse/TRAM-795
+estimated execution time: 1.4913670666667 hours 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DWH_NCBI_API');
 // ini_set('memory_limit','5096M');
 $timestart = time_elapsed();
-$resource_id = "dwca_ncbi";
-$resource_id = 1;
+$resource_id = "NCBI_Taxonomy_Harvest"; //orig
+$resource_id = "1e";
 $func = new DWH_NCBI_API($resource_id);
 
 $GLOBALS['ENV_DEBUG'] = true;
@@ -17,7 +16,7 @@ $GLOBALS['ENV_DEBUG'] = true;
 $func->start();
 Functions::finalize_dwca_resource($resource_id);
 
-// /* utility
+/* utility - takes time for this resource but very helpful to catch if all parents have entries.
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
 $undefined = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
@@ -26,7 +25,7 @@ if($undefined) {
     // print_r($undefined);
 }
 else echo "\nAll parents have entries.\n";
-// */
+*/
 
 /* this will delete the working dir
 $dir = CONTENT_RESOURCE_LOCAL_PATH."/".$resource_id;
