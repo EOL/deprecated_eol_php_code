@@ -169,7 +169,7 @@ class DWH_NCBI_API
                 else                          $this->ctr++;
                 $old_id = $rec['tax_id'];
                 
-                self::write_taxon($rec, $ancestry, $taxID_info[$rec['tax_id']]);
+                /* self::write_taxon($rec, $ancestry, $taxID_info[$rec['tax_id']]); */
             // }
             // Total rows: 2687427      Processed rows: 1648267
             $processed++;
@@ -178,6 +178,9 @@ class DWH_NCBI_API
         
         echo "\nMain processing 2...";
         $filtered = array_keys($filtered);
+        // print_r($filtered); exit("\n".count($filtered)."\n");
+        $processed_already = array();
+
         //start main loop ================================
         $file = Functions::file_open($this->file['names.dmp']['path'], "r");
         $i = 0; $processed = 0;
@@ -199,16 +202,24 @@ class DWH_NCBI_API
                 [unique_name] => 
                 [name_class] => synonym
             )*/
-          
             if(in_array($rec['name_class'], array("blast name", "type material", "includes", "acronym", "genbank acronym"))) continue; //ignore these names
             
             if(!in_array($rec['tax_id'], $filtered)) {
-                $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
-                if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $filtered)) {
-                    $this->debug['id with an ancestry that is included among removed branches 2'][$rec['tax_id']] = '';
-                    // $filtered[$rec['tax_id']] = ''; 
-                    continue;
+                
+                if($val = @$processed_already[$rec['tax_id']]['contYN']) {
+                    if($val == 't') continue;
+                    else {} //will proceed write_taxon()
                 }
+                else {
+                    $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
+                    if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $filtered)) {
+                        $this->debug['id with an ancestry that is included among removed branches 2'][$rec['tax_id']] = '';
+                        $processed_already[$rec['tax_id']]['contYN'] = 't';
+                        continue;
+                    }
+                    else $processed_already[$rec['tax_id']]['contYN'] = 'f'; //will proceed write_taxon()
+                }
+                
                 if($old_id != $rec['tax_id']) $this->ctr = 1;
                 else                          $this->ctr++;
                 $old_id = $rec['tax_id'];
