@@ -1,7 +1,8 @@
 <?php
 namespace php_active_record;
 /* NCBI Taxonomy Harvest - https://eol-jira.bibalex.org/browse/TRAM-795
-estimated execution time: 1.4913670666667 hours 
+estimated execution time: 1.4913670666667 hours
+                          1.1065693763889 hours with references
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DWH_NCBI_API');
