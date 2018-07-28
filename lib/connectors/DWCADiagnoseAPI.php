@@ -126,13 +126,29 @@ class DWCADiagnoseAPI
     }
 
     //============================================================
-    function check_if_all_parents_have_entries($resource_id, $write_2text_file = false, $url = false, $suggested_fields = false)
-    {
-        if($write_2text_file) $WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_undefined_parent_ids.txt", "w");
+    function check_if_all_parents_have_entries($resource_id, $write_2text_file = false, $url = false, $suggested_fields = false, $sought_field = false)
+    {   /* $suggested_fields -> if taxon.tab is BIG and there are alot of fields, you might want to limit the no. of fields e.g. suggested_fields from BOLDS_DumpsServiceAPI.php
+        */
+        if(!$sought_field) {
+            $what['field'] = "parentNameUsageID";
+            $what['filename'] = "_undefined_parent_ids.txt";
+        }
+        else {
+            if($sought_field == "acceptedNameUsageID") {
+                $what['field'] = "acceptedNameUsageID";
+                $what['filename'] = "_undefined_acceptedName_ids.txt";
+            }
+            else exit("\nsought_field ($sought_field) undefined. Will terminate.\n");
+        }
+        echo "\nChecking if all ".$what['field']." have entries in taxon.tab \n";
         
-        $var = self::get_fields_from_tab_file($resource_id, array("taxonID", "parentNameUsageID"), $url, $suggested_fields); //$url if to the tool genHigherClass | $suggested_fields from BOLDS_DumpsServiceAPI.php
+        if($write_2text_file) $WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . $what['filename'], "w");
+        
+        $var = self::get_fields_from_tab_file($resource_id, array("taxonID", $what['field']), $url, $suggested_fields); //$url if to the tool genHigherClass | $suggested_fields from BOLDS_DumpsServiceAPI.php
         $taxon_ids = array_keys($var['taxonID']);
-        $parent_ids = array_keys($var['parentNameUsageID']);
+        $parent_ids = array_keys($var[$what['field']]);
+        $taxon_ids = array_map('trim', $taxon_ids);
+        $parent_ids = array_map('trim', $parent_ids);
         unset($var);
         $undefined = array();
         foreach($parent_ids as $parent_id)
@@ -153,7 +169,7 @@ class DWCADiagnoseAPI
         $undefined = array_keys($undefined);
         if(!$undefined)
         {
-            $file = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_undefined_parent_ids.txt";
+            $file = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . $what['filename'];
             if(file_exists($file)) unlink($file);
         }
         return $undefined;
@@ -167,6 +183,7 @@ class DWCADiagnoseAPI
             echo "\nFile does not exist: [$url]\n";
             return;
         }
+        else echo "\nProcessing file ($url)\n";
         $i = 0;
         $var = array();
         foreach(new FileIterator($url) as $line_number => $temp)
@@ -199,6 +216,11 @@ class DWCADiagnoseAPI
                     $rec[$fields[$k]] = $t;
                     $k++;
                 }
+                /* debug only
+                if($rec['taxonID'] == 197230) {
+                    print_r($rec); print_r($cols); exit;
+                }
+                */
                 foreach($cols as $col) $var[$col][@$rec[$col]] = '';
             }
         }
