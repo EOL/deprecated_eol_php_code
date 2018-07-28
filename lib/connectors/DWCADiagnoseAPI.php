@@ -151,24 +151,20 @@ class DWCADiagnoseAPI
         $parent_ids = array_map('trim', $parent_ids);
         unset($var);
         $undefined = array();
-        foreach($parent_ids as $parent_id)
-        {
-            if(!in_array($parent_id, $taxon_ids))
-            {
+        foreach($parent_ids as $parent_id) {
+            if(!in_array($parent_id, $taxon_ids)) {
                 // echo "\n not defined parent [$parent_id]";
                 $undefined[$parent_id] = '';
             }
         }
         // echo "\n total undefined parent_id: " . count($undefined) . "\n";
 
-        if($write_2text_file)
-        {
+        if($write_2text_file) {
             foreach(array_keys($undefined) as $id) fwrite($WRITE, $id . "\n");
             fclose($WRITE);
         }
         $undefined = array_keys($undefined);
-        if(!$undefined)
-        {
+        if(!$undefined) {
             $file = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . $what['filename'];
             if(file_exists($file)) unlink($file);
         }
@@ -178,16 +174,14 @@ class DWCADiagnoseAPI
     function get_fields_from_tab_file($resource_id, $cols, $url = false, $suggested_fields = false)
     {
         if(!$url) $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/taxon.tab";
-        if(!file_exists($url))
-        {
+        if(!file_exists($url)) {
             echo "\nFile does not exist: [$url]\n";
             return;
         }
         else echo "\nProcessing file ($url)\n";
         $i = 0;
         $var = array();
-        foreach(new FileIterator($url) as $line_number => $temp)
-        {
+        foreach(new FileIterator($url) as $line_number => $temp) {
             $temp = explode("\t", $temp);
             $i++;
             if(($i % 300000) == 0) echo "\n count:[$i] ";
@@ -208,8 +202,7 @@ class DWCADiagnoseAPI
                 }
                 //-------------------------------------new
             }
-            else
-            {
+            else {
                 $rec = array();
                 $k = 0;
                 if(!$temp) continue;
