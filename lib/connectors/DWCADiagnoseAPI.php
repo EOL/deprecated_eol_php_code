@@ -190,6 +190,7 @@ class DWCADiagnoseAPI
         {
             $temp = explode("\t", $temp);
             $i++;
+            if(($i % 300000) == 0) echo "\n count:[$i] ";
             if($i == 1) {
                 $fields = $temp;
                 //-------------------------------------new
