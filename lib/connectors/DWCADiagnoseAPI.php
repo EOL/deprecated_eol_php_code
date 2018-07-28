@@ -127,8 +127,7 @@ class DWCADiagnoseAPI
 
     //============================================================
     function check_if_all_parents_have_entries($resource_id, $write_2text_file = false, $url = false, $suggested_fields = false, $sought_field = false)
-    {   /* $suggested_fields -> if taxon.tab is BIG and there are alot of fields, you might want to limit the no. of fields e.g. suggested_fields from BOLDS_DumpsServiceAPI.php
-        */
+    {   /* $suggested_fields -> if taxon.tab is BIG and there are alot of fields, you might want to limit the no. of fields e.g. suggested_fields from BOLDS_DumpsServiceAPI.php */
         if(!$sought_field) {
             $what['field'] = "parentNameUsageID";
             $what['filename'] = "_undefined_parent_ids.txt";
