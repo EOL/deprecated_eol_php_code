@@ -8,38 +8,31 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DWH_NCBI_API');
 // ini_set('memory_limit','5096M');
 $timestart = time_elapsed();
-$resource_id = "NCBI_Taxonomy_Harvest"; //orig
-// $resource_id = "1e";
+// $resource_id = "NCBI_Taxonomy_Harvest"; //orig
+$resource_id = "1";
 $func = new DWH_NCBI_API($resource_id);
 $GLOBALS['ENV_DEBUG'] = true;
 
-/* un-comment in normal operation
+// /* un-comment in normal operation
 $func->start();
 Functions::finalize_dwca_resource($resource_id);
-*/
+// */
 
 // /* utility - takes time for this resource but very helpful to catch if all parents have entries.
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
 
-// $undefined = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
-// if($undefined) {
-//     echo "\nThere is undefined parent(s): ".count($undefined)."\n";
-// }
-// else echo "\nAll parents in taxon.tab have entries.\n";
+$undefined = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
+if($undefined) echo "\nThere is undefined parent(s): ".count($undefined)."\n";
+else           echo "\nAll parents in taxon.tab have entries.\n";
 
-// $undefined = $func->check_if_all_parents_have_entries($resource_id, true, false, array(), "acceptedNameUsageID"); //true means output will write to text file
-// if($undefined) {
-//     echo "\nThere is undefined acceptedNameUsageID(s): ".count($undefined)."\n";
-// }
-// else echo "\nAll acceptedNameUsageID have entries.\n";
+$undefined = $func->check_if_all_parents_have_entries($resource_id, true, false, array(), "acceptedNameUsageID"); //true means output will write to text file
+if($undefined) echo "\nThere is undefined acceptedNameUsageID(s): ".count($undefined)."\n";
+else           echo "\nAll acceptedNameUsageID have entries.\n";
 
 $undefined = $func->check_if_all_vernaculars_have_entries($resource_id, true); //true means output will write to text file
-if($undefined) {
-    echo "\nThere is undefined taxonID(s) in vernacular_name.tab: ".count($undefined)."\n";
-}
-else echo "\nAll taxonID(s) in vernacular_name.tab have entries.\n";
-
+if($undefined) echo "\nThere is undefined taxonID(s) in vernacular_name.tab: ".count($undefined)."\n";
+else           echo "\nAll taxonID(s) in vernacular_name.tab have entries.\n";
 
 // */
 
