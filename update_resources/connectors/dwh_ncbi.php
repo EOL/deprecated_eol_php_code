@@ -9,24 +9,34 @@ require_library('connectors/DWH_NCBI_API');
 // ini_set('memory_limit','5096M');
 $timestart = time_elapsed();
 $resource_id = "NCBI_Taxonomy_Harvest"; //orig
-$resource_id = "1e";
+// $resource_id = "1e";
 $func = new DWH_NCBI_API($resource_id);
-
 $GLOBALS['ENV_DEBUG'] = true;
 
+/* un-comment in normal operation
 $func->start();
 Functions::finalize_dwca_resource($resource_id);
+*/
 
-/* utility - takes time for this resource but very helpful to catch if all parents have entries.
+// /* utility - takes time for this resource but very helpful to catch if all parents have entries.
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
+
 $undefined = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
 if($undefined) {
     echo "\nThere is undefined parent(s): ".count($undefined)."\n";
-    // print_r($undefined);
 }
 else echo "\nAll parents have entries.\n";
-*/
+
+// $undefined = $func->check_if_all_parents_have_entries($resource_id, true, false, array(), "acceptedNameUsageID"); //true means output will write to text file
+// if($undefined) {
+//     echo "\nThere is undefined acceptedNameUsageID(s): ".count($undefined)."\n";
+// }
+// else echo "\nAll acceptedNameUsageID have entries.\n";
+
+
+
+// */
 
 /* this will delete the working dir
 $dir = CONTENT_RESOURCE_LOCAL_PATH."/".$resource_id;
