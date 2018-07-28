@@ -125,7 +125,42 @@ class DWCADiagnoseAPI
         echo "\nTotal objects: " . count($objects) . "\n";
     }
 
-    //============================================================
+    //============================================================ work in progress...
+    function check_if_all_vernaculars_have_entries($resource_id, $write_2text_file = false, $url = false, $suggested_fields = false, $sought_field = false)
+    {   /* $suggested_fields -> not so much used here... */
+
+        $what['field'] = "taxonID";
+        $what['filename'] = "_undefined_vernaculars.txt"; //vernaculars that have missing taxon in taxon.tab
+        echo "\nChecking if all ".$what['field']." from vernacular_name.tab have entries in taxon.tab \n";
+
+        if($write_2text_file) $WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . $what['filename'], "w");
+        
+        $var = self::get_fields_from_tab_file($resource_id, array("taxonID", $what['field']), $url, $suggested_fields, "taxon.tab");
+        $taxon_ids = array_keys($var['taxonID']);
+        $taxon_ids = array_map('trim', $taxon_ids);
+        unset($var);
+
+        $var = self::get_fields_from_tab_file($resource_id, array("taxonID", $what['field']), $url, $suggested_fields, "vernacular_name.tab");
+        $parent_ids = array_keys($var[$what['field']]);
+        $parent_ids = array_map('trim', $parent_ids);
+        unset($var);
+
+        $undefined = array();
+        foreach($parent_ids as $parent_id) {
+            if(!in_array($parent_id, $taxon_ids)) $undefined[$parent_id] = '';
+        }
+        if($write_2text_file) {
+            foreach(array_keys($undefined) as $id) fwrite($WRITE, $id . "\n");
+            fclose($WRITE);
+        }
+        $undefined = array_keys($undefined);
+        if(!$undefined) {
+            $file = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . $what['filename'];
+            if(file_exists($file)) unlink($file);
+        }
+        return $undefined;
+    }
+    
     function check_if_all_parents_have_entries($resource_id, $write_2text_file = false, $url = false, $suggested_fields = false, $sought_field = false)
     {   /* $suggested_fields -> if taxon.tab is BIG and there are alot of fields, you might want to limit the no. of fields e.g. suggested_fields from BOLDS_DumpsServiceAPI.php */
         if(!$sought_field) {
@@ -143,7 +178,7 @@ class DWCADiagnoseAPI
         
         if($write_2text_file) $WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . $what['filename'], "w");
         
-        $var = self::get_fields_from_tab_file($resource_id, array("taxonID", $what['field']), $url, $suggested_fields); //$url if to the tool genHigherClass | $suggested_fields from BOLDS_DumpsServiceAPI.php
+        $var = self::get_fields_from_tab_file($resource_id, array("taxonID", $what['field']), $url, $suggested_fields, "taxon.tab"); //$url if to the tool genHigherClass | $suggested_fields from BOLDS_DumpsServiceAPI.php
         $taxon_ids = array_keys($var['taxonID']);
         $parent_ids = array_keys($var[$what['field']]);
         $taxon_ids = array_map('trim', $taxon_ids);
@@ -151,13 +186,8 @@ class DWCADiagnoseAPI
         unset($var);
         $undefined = array();
         foreach($parent_ids as $parent_id) {
-            if(!in_array($parent_id, $taxon_ids)) {
-                // echo "\n not defined parent [$parent_id]";
-                $undefined[$parent_id] = '';
-            }
+            if(!in_array($parent_id, $taxon_ids)) $undefined[$parent_id] = '';
         }
-        // echo "\n total undefined parent_id: " . count($undefined) . "\n";
-
         if($write_2text_file) {
             foreach(array_keys($undefined) as $id) fwrite($WRITE, $id . "\n");
             fclose($WRITE);
@@ -169,10 +199,9 @@ class DWCADiagnoseAPI
         }
         return $undefined;
     }
-    
-    function get_fields_from_tab_file($resource_id, $cols, $url = false, $suggested_fields = false)
+    function get_fields_from_tab_file($resource_id, $cols, $url = false, $suggested_fields = false, $tab_file) //$tab_file e.g. 'taxon.tab'
     {
-        if(!$url) $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/taxon.tab";
+        if(!$url) $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/".$tab_file;
         if(!file_exists($url)) {
             echo "\nFile does not exist: [$url]\n";
             return;
