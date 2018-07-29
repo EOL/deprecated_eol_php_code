@@ -136,8 +136,12 @@ class DWCADiagnoseAPI
         if($write_2text_file) $WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . $what['filename'], "w");
         
         $var = self::get_fields_from_tab_file($resource_id, array("taxonID", $what['field']), $url, $suggested_fields, "taxon.tab");
+        /* old
         $taxon_ids = array_keys($var['taxonID']);
         $taxon_ids = array_map('trim', $taxon_ids);
+        */
+        // new
+        $taxon_ids = $var['taxonID'];
         unset($var);
 
         $var = self::get_fields_from_tab_file($resource_id, array("taxonID", $what['field']), $url, $suggested_fields, "vernacular_name.tab");
@@ -147,7 +151,8 @@ class DWCADiagnoseAPI
 
         $undefined = array();
         foreach($parent_ids as $parent_id) {
-            if(!in_array($parent_id, $taxon_ids)) $undefined[$parent_id] = '';
+            // if(!in_array($parent_id, $taxon_ids)) $undefined[$parent_id] = ''; changed to isset()
+            if(!isset($taxon_ids[$parent_id])) $undefined[$parent_id] = '';
         }
         if($write_2text_file) {
             foreach(array_keys($undefined) as $id) fwrite($WRITE, $id . "\n");
@@ -179,14 +184,21 @@ class DWCADiagnoseAPI
         if($write_2text_file) $WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . $what['filename'], "w");
         
         $var = self::get_fields_from_tab_file($resource_id, array("taxonID", $what['field']), $url, $suggested_fields, "taxon.tab"); //$url if to the tool genHigherClass | $suggested_fields from BOLDS_DumpsServiceAPI.php
-        $taxon_ids = array_keys($var['taxonID']);
+
         $parent_ids = array_keys($var[$what['field']]);
-        $taxon_ids = array_map('trim', $taxon_ids);
         $parent_ids = array_map('trim', $parent_ids);
+        /* old
+        $taxon_ids = array_keys($var['taxonID']);
+        $taxon_ids = array_map('trim', $taxon_ids);
+        */
+        // new
+        $taxon_ids = $var['taxonID'];
         unset($var);
+
         $undefined = array();
         foreach($parent_ids as $parent_id) {
-            if(!in_array($parent_id, $taxon_ids)) $undefined[$parent_id] = '';
+            // if(!in_array($parent_id, $taxon_ids)) $undefined[$parent_id] = ''; changed to isset
+            if(!isset($taxon_ids[$parent_id])) $undefined[$parent_id] = '';
         }
         if($write_2text_file) {
             foreach(array_keys($undefined) as $id) fwrite($WRITE, $id . "\n");
@@ -226,6 +238,7 @@ class DWCADiagnoseAPI
                         $rec[$fields[$k]] = $t;
                         $k++;
                     }
+                    $rec = array_map('trim', $rec);
                     foreach($cols as $col) $var[$col][@$rec[$col]] = '';
                 }
                 //-------------------------------------new
@@ -243,6 +256,7 @@ class DWCADiagnoseAPI
                     print_r($rec); print_r($cols); exit;
                 }
                 */
+                $rec = array_map('trim', $rec);
                 foreach($cols as $col) $var[$col][@$rec[$col]] = '';
             }
         }
