@@ -125,6 +125,11 @@ class DWH_NCBI_API
         $removed_branches = array_merge($removed_branches, $add);
         $removed_branches = array_unique($removed_branches);
         */
+        /*
+        1296341
+        993557
+        1391733
+        */
         
         echo "\nMain processing...";
         $fields = $this->file['names.dmp']['fields'];
