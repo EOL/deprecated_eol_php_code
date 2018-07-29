@@ -116,13 +116,13 @@ class DWH_NCBI_API
         $taxID_info = self::get_taxID_nodes_info();
         
         $removed_branches = self::get_removed_branches_from_spreadsheet();
-        /* $add is taken from undefined_parents report after each connector run */
-        $add = array(762615, 67596, 162087, 564289, 1358437, 633875, 333830, 335436, 336085, 1088862, 398350, 635109, 712414, 1155007, 944171, 1267497, 168172, 1176743, 1200662, 
-        1263508, 1266589, 1167, 1385656, 1346514, 298136, 1076755, 1527667, 1550063, 1586255, 1778398, 1867947, 1886822, 1967055, 1967057, 1967059);
+        /* $add is taken from undefined_parents report after each connector run
+        $add = array(762615, 67596, 162087, 564289, 1358437, 633875, 333830, 335436, 336085, 1088862, 398350, 635109, 712414, 1155007, 944171, 1267497, 168172, 1176743, 1200662, 1263508, 1266589, 1167, 1385656, 1346514, 298136, 1076755, 1527667, 1550063, 1586255, 1778398, 1867947, 1886822, 1967055, 1967057, 1967059);
         $removed_branches = array_merge($removed_branches, $add);
         $add = array(1181,1188,56615,59765,169066,242159,252598,797742,1776082);
         $removed_branches = array_merge($removed_branches, $add);
         $removed_branches = array_unique($removed_branches);
+        */
         
         echo "\nMain processing...";
         $fields = $this->file['names.dmp']['fields'];
@@ -145,14 +145,13 @@ class DWH_NCBI_API
                 $rec[$field] = $vals[$k];
             }
             
-            // /* good debug
+            /* good debug --------------------------------------------------------------------------------------------
             if($rec['tax_id'] == 85262) { //1844527
                 print_r($rec); print_r($taxID_info[$rec['tax_id']]); 
                 
                 if(isset($filtered_ids[$rec['tax_id']])) exit("\ntax_id is part of filtered\n");
                 $parent_id = $taxID_info[$rec['tax_id']]['pID'];
                 if(isset($filtered_ids[$parent_id])) exit("\nparent id is part of filtered\n");
-                
                 
                 $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
                 print_r($ancestry);
@@ -162,7 +161,7 @@ class DWH_NCBI_API
                 else echo "\nNot part of removed branch\n";
                 exit("\ncha 01\n");
             }
-            // */
+            -------------------------------------------------------------------------------------------- */
             
             // print_r($rec); exit;
             /* Array(
@@ -207,12 +206,14 @@ class DWH_NCBI_API
             85262	|	Streptocarpus ionanthus (H.Wendl.) Christenh.	|		|	authority	|
             */
             
-            $rank = $taxID_info[$rec['tax_id']]['r'];
-            if(in_array($rank, array('species', 'no rank'))) {
-                if(stripos($rec['name_txt'], " sp.") !== false)      {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
-                elseif(stripos($rec['name_txt'], " aff.") !== false) {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
-                elseif(stripos($rec['name_txt'], " cf.") !== false)  {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
-                elseif(stripos($rec['name_txt'], " nr.") !== false)  {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
+            if($rec['name_class'] == "scientific name") {
+                $rank = $taxID_info[$rec['tax_id']]['r'];
+                if(in_array($rank, array('species', 'no rank'))) {
+                    if(stripos($rec['name_txt'], " sp.") !== false)      {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
+                    elseif(stripos($rec['name_txt'], " aff.") !== false) {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
+                    elseif(stripos($rec['name_txt'], " cf.") !== false)  {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
+                    elseif(stripos($rec['name_txt'], " nr.") !== false)  {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
+                }
             }
             // Total rows: 2687427      Processed rows: 1686211
             
