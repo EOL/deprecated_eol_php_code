@@ -24,6 +24,8 @@ class DWH_NCBI_API
 
         $this->file['citations.dmp']['path'] = "/Volumes/AKiTiO4/d_w_h/TRAM-795/taxdump/citations.dmp";
         $this->file['citations.dmp']['fields'] = array("cit_id", "cit_key", "pubmed_id", "medline_id", "url", "text", "taxid_list");
+        
+        $this->alternative_names = array("synonym", "equivalent name", "in-part", "misspelling", "genbank synonym", "misnomer", "anamorph", "genbank anamorph", "teleomorph", "authority");
     }
 
     function start()
@@ -215,6 +217,14 @@ class DWH_NCBI_API
                     elseif(stripos($rec['name_txt'], " nr.") !== false)  {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
                 }
             }
+            elseif(in_array($rec['name_class'], $this->alternative_names)) {
+                if(stripos($rec['name_txt'], " sp.") !== false)      {continue;} //string is found
+                elseif(stripos($rec['name_txt'], " aff.") !== false) {continue;} //string is found
+                elseif(stripos($rec['name_txt'], " cf.") !== false)  {continue;} //string is found
+                elseif(stripos($rec['name_txt'], " nr.") !== false)  {continue;} //string is found
+            }
+            
+            
             // Total rows: 2687427      Processed rows: 1686211
             
             if(in_array($rec['name_class'], array("blast name", "type material", "includes", "acronym", "genbank acronym"))) continue; //ignore these names
@@ -352,9 +362,8 @@ class DWH_NCBI_API
         So in this specific case, we want acceptedNameUsageID's only if name class IS scientific name. Sorry, I realize I didn't make this clear in my initial instructions. 
         I have added a note about it now. */
         
-        $alternative_names = array("synonym", "equivalent name", "in-part", "misspelling", "genbank synonym", "misnomer", "anamorph", "genbank anamorph", "teleomorph", "authority");
-        if($rec['name_class'] == "scientific name")              return array('tax_id' => $rec['tax_id']                 , 'acceptedNameUsageID' => '');
-        elseif(in_array($rec['name_class'], $alternative_names)) return array('tax_id' => $rec['tax_id']."_".$this->ctr  , 'acceptedNameUsageID' => $rec['tax_id']);
+        if($rec['name_class'] == "scientific name")                    return array('tax_id' => $rec['tax_id']                 , 'acceptedNameUsageID' => '');
+        elseif(in_array($rec['name_class'], $this->alternative_names)) return array('tax_id' => $rec['tax_id']."_".$this->ctr  , 'acceptedNameUsageID' => $rec['tax_id']);
         else {
             print_r($rec);
             exit("\nInvestigate cha001\n");
