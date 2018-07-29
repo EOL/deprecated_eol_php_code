@@ -144,6 +144,26 @@ class DWH_NCBI_API
                 $k++;
                 $rec[$field] = $vals[$k];
             }
+            
+            // /* good debug
+            if($rec['tax_id'] == 85262) { //1844527
+                print_r($rec); print_r($taxID_info[$rec['tax_id']]); 
+                
+                if(isset($filtered_ids[$rec['tax_id']])) exit("\ntax_id is part of filtered\n");
+                $parent_id = $taxID_info[$rec['tax_id']]['pID'];
+                if(isset($filtered_ids[$parent_id])) exit("\nparent id is part of filtered\n");
+                
+                
+                $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
+                print_r($ancestry);
+                if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
+                    echo "\ntaxon where an id in its ancestry is included among removed branches\n";
+                }
+                else echo "\nNot part of removed branch\n";
+                exit("\ncha 01\n");
+            }
+            // */
+            
             // print_r($rec); exit;
             /* Array(
                 [tax_id] => 1
@@ -164,6 +184,29 @@ class DWH_NCBI_API
             
             /* b. Remove all taxa of rank species where the scientific name includes one of the following strings: sp.|aff.|cf.|nr.
             This will get rid of a lot of the samples that haven’t been identified to species. */
+
+            /*
+            85262	|	African violet	|		|	common name	|
+            85262	|	Saintpaulia ionantha	|		|	synonym	|
+            85262	|	Saintpaulia ionantha H.Wendl.	|		|	authority	|
+            85262	|	Saintpaulia sp. 'Sigi Falls'	|		|	includes	|
+            85262	|	Streptocarpus ionanthus	|		|	scientific name	|
+            85262	|	Streptocarpus ionanthus (H.Wendl.) Christenh.	|		|	authority	|
+            85262	|	Streptocarpus sp. 'Sigi Falls'	|		|	includes	|
+            
+            Irregardless of the other filter rules. Let us look at this single rule:
+            "Remove all taxa of rank species where the scientific name includes one of the following strings: sp.|aff.|cf.|nr."
+            
+            Assuming 85262 is rank 'species'.
+            Is "Streptocarpus ionanthus" with name class = "scientific name" be excluded since the alternative names has ' sp.'.
+            Or the rule for removing taxa with ' sp.' only affects where name class is "scientific name".
+            So in this case "Streptocarpus ionanthus" will be included since it doesn't have ' sp.'
+            And alternatives will only be:
+            85262	|	Saintpaulia ionantha	|		|	synonym	|
+            85262	|	Saintpaulia ionantha H.Wendl.	|		|	authority	|
+            85262	|	Streptocarpus ionanthus (H.Wendl.) Christenh.	|		|	authority	|
+            */
+            
             $rank = $taxID_info[$rec['tax_id']]['r'];
             if(in_array($rank, array('species', 'no rank'))) {
                 if(stripos($rec['name_txt'], " sp.") !== false)      {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
@@ -198,7 +241,6 @@ class DWH_NCBI_API
         fclose($file);
         
         // =================================================start 2
-        $filtered_ids = array_keys($filtered_ids);
         echo "\nMain processing 2...";
         $fields = $this->file['names.dmp']['fields'];
         $file = Functions::file_open($this->file['names.dmp']['path'], "r");
@@ -227,9 +269,9 @@ class DWH_NCBI_API
             )*/
 
             if(in_array($rec['name_class'], array("blast name", "type material", "includes", "acronym", "genbank acronym"))) continue; //ignore these names
-            if(in_array($rec['tax_id'], $filtered_ids)) continue;
+            if(isset($filtered_ids[$rec['tax_id']])) continue;
             $parent_id = $taxID_info[$rec['tax_id']]['pID'];
-            if(in_array($parent_id, $filtered_ids)) continue;
+            if(isset($filtered_ids[$parent_id])) continue;
             
             /* 3. Remove branches */
             $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
