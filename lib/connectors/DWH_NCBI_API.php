@@ -30,9 +30,10 @@ class DWH_NCBI_API
 
     function start()
     {
+        // 19   https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=19      18  Pelobacter carbinolicus species accepted    2912; 5381
         /* test
         $taxID_info = self::get_taxID_nodes_info();
-        $ancestry = self::get_ancestry_of_taxID(1967060, $taxID_info); print_r($ancestry);
+        $ancestry = self::get_ancestry_of_taxID(936556, $taxID_info); print_r($ancestry);
         // $ancestry = self::get_ancestry_of_taxID(503548, $taxID_info); print_r($ancestry);
         exit("\n-end tests-\n");
         */
@@ -257,6 +258,13 @@ class DWH_NCBI_API
         }
         fclose($file);
         
+        /* erroneous strategy
+        echo "\n filtered_ids     : ".count($filtered_ids)."\n";
+        echo "\n removed_branches : ".count($removed_branches)."\n";
+        $removed_branches = array_merge($filtered_ids, $removed_branches);
+        echo "\n new removed_branches : ".count($removed_branches)."\n";
+        */
+        
         // =================================================start 2
         echo "\nMain processing 2...";
         $fields = $this->file['names.dmp']['fields'];
@@ -304,11 +312,11 @@ class DWH_NCBI_API
             else                                    $reference_ids = array();
 
             if($this->old_id != $rec['tax_id']) $this->ctr = 1;
-            else {
-            }
+            else {}
             $this->old_id = $rec['tax_id'];
-
+            
             self::write_taxon($rec, $ancestry, $taxID_info[$rec['tax_id']], $reference_ids);
+            
             if($this->old_id != $rec['tax_id']) {}
             else {
                 if(in_array($rec['name_class'], $this->alternative_names)) $this->ctr++;
@@ -399,7 +407,10 @@ class DWH_NCBI_API
     private function an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)
     {
         foreach($ancestry as $id) {
+            /* use isset() instead
             if(in_array($id, $removed_branches)) return true;
+            */
+            if(isset($removed_branches[$id])) return true;
         }
         return false;
     }
@@ -412,7 +423,7 @@ class DWH_NCBI_API
         $arr = $func->access_google_sheet($params);
         //start massage array
         foreach($arr as $item) $final[$item[0]] = '';
-        $final = array_keys($final);
+        /* $final = array_keys($final); */ //commented so we can use isset() instead of in_array()
         return $final;
         /* if google spreadsheet suddenly becomes offline, use this:
         Array(
