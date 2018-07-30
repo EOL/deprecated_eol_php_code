@@ -263,7 +263,7 @@ class DWH_NCBI_API
         $file = Functions::file_open($this->file['names.dmp']['path'], "r");
         $i = 0; $processed = 0;
         if(!$file) exit("\nFile not found!\n");
-        $this->ctr = 1; $old_id = "elix";
+        $this->ctr = 1; $this->old_id = "elix";
         while (($row = fgets($file)) !== false) {
             $i++;
             $row = explode("\t|", $row); array_pop($row); $row = array_map('trim', $row);
@@ -299,14 +299,21 @@ class DWH_NCBI_API
                 $this->debug['taxon where an id in its ancestry is included among removed branches'][$rec['tax_id']] = '';
                 continue;
             }
-            if($old_id != $rec['tax_id']) $this->ctr = 1;
-            else                          $this->ctr++;
-            $old_id = $rec['tax_id'];
             
             if($val = @$taxon_refs[$rec['tax_id']]) $reference_ids = array_keys($val);
             else                                    $reference_ids = array();
-            
+
+            if($this->old_id != $rec['tax_id']) $this->ctr = 1;
+            else {
+            }
+            $this->old_id = $rec['tax_id'];
+
             self::write_taxon($rec, $ancestry, $taxID_info[$rec['tax_id']], $reference_ids);
+            if($this->old_id != $rec['tax_id']) {}
+            else {
+                if(in_array($rec['name_class'], $this->alternative_names)) $this->ctr++;
+            }
+            
             $processed++;
         }
         fclose($file);
@@ -372,7 +379,10 @@ class DWH_NCBI_API
         I have added a note about it now. */
         
         if($rec['name_class'] == "scientific name")                    return array('tax_id' => $rec['tax_id']                 , 'acceptedNameUsageID' => '');
-        elseif(in_array($rec['name_class'], $this->alternative_names)) return array('tax_id' => $rec['tax_id']."_".$this->ctr  , 'acceptedNameUsageID' => $rec['tax_id']);
+        elseif(in_array($rec['name_class'], $this->alternative_names)) 
+        {
+            return array('tax_id' => $rec['tax_id']."_".$this->ctr  , 'acceptedNameUsageID' => $rec['tax_id']);
+        }
         else {
             print_r($rec);
             exit("\nInvestigate cha001\n");
