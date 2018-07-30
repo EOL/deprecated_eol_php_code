@@ -89,6 +89,7 @@ class DWH_NCBI_API
             array_pop($row);
             $row = array_map('trim', $row);
             if(($i % 300000) == 0) echo "\n count:[$i] ";
+            $row = array_map('trim', $row);
             $vals = $row;
             if(count($fields) != count($vals)) {
                 print_r($vals); exit("\nNot same count ".count($fields)." != ".count($vals)."\n"); continue;
@@ -99,6 +100,7 @@ class DWH_NCBI_API
                 $k++;
                 $rec[$field] = $vals[$k];
             }
+            $rec = array_map('trim', $rec);
             // print_r($rec); exit;
             if(isset($final[$rec['tax_id']])) exit("\nInvestigate not unique tax_id in nodes.dmp\n");
             $final[$rec['tax_id']] = array("pID" => $rec['parent_tax_id'], 'r' => $rec['rank'], 'dID' => $rec['division_id']);
@@ -125,11 +127,9 @@ class DWH_NCBI_API
         $removed_branches = array_merge($removed_branches, $add);
         $removed_branches = array_unique($removed_branches);
         */
-        /*
-        1296341
-        993557
-        1391733
-        */
+        $add = array(1296341,993557,1391733);
+        $removed_branches = array_merge($removed_branches, $add);
+        $removed_branches = array_unique($removed_branches);
         
         echo "\nMain processing...";
         $fields = $this->file['names.dmp']['fields'];
@@ -141,6 +141,7 @@ class DWH_NCBI_API
             $i++;
             $row = explode("\t|", $row); array_pop($row); $row = array_map('trim', $row);
             if(($i % 300000) == 0) echo "\n count:[$i] ";
+            $row = array_map('trim', $row);
             $vals = $row;
             if(count($fields) != count($vals)) {
                 print_r($vals); exit("\nNot same count ".count($fields)." != ".count($vals)."\n"); continue;
@@ -151,9 +152,9 @@ class DWH_NCBI_API
                 $k++;
                 $rec[$field] = $vals[$k];
             }
-            
+            $rec = array_map('trim', $rec);
             /* good debug --------------------------------------------------------------------------------------------
-            if($rec['tax_id'] == 85262) { //1844527
+            if($rec['tax_id'] == 1391733) { //1844527
                 print_r($rec); print_r($taxID_info[$rec['tax_id']]); 
                 
                 if(isset($filtered_ids[$rec['tax_id']])) exit("\ntax_id is part of filtered\n");
@@ -267,6 +268,7 @@ class DWH_NCBI_API
             $i++;
             $row = explode("\t|", $row); array_pop($row); $row = array_map('trim', $row);
             if(($i % 300000) == 0) echo "\n count:[$i] ";
+            $row = array_map('trim', $row);
             $vals = $row;
             if(count($fields) != count($vals)) {
                 print_r($vals); exit("\nNot same count ".count($fields)." != ".count($vals)."\n"); continue;
@@ -277,6 +279,7 @@ class DWH_NCBI_API
                 $k++;
                 $rec[$field] = $vals[$k];
             }
+            $rec = array_map('trim', $rec);
             /* Array(
                 [tax_id] => 1
                 [name_txt] => all
@@ -287,6 +290,7 @@ class DWH_NCBI_API
             if(in_array($rec['name_class'], array("blast name", "type material", "includes", "acronym", "genbank acronym"))) continue; //ignore these names
             if(isset($filtered_ids[$rec['tax_id']])) continue;
             $parent_id = $taxID_info[$rec['tax_id']]['pID'];
+            $parent_id = trim($parent_id);
             if(isset($filtered_ids[$parent_id])) continue;
             
             /* 3. Remove branches */

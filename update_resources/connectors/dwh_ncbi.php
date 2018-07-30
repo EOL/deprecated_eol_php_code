@@ -8,10 +8,10 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DWH_NCBI_API');
 // ini_set('memory_limit','5096M');
 $timestart = time_elapsed();
-// $resource_id = "NCBI_Taxonomy_Harvest"; //orig
-$resource_id = "2";
+$resource_id = "NCBI_Taxonomy_Harvest"; //orig
+// $resource_id = "4"; //for testing
 $func = new DWH_NCBI_API($resource_id);
-$GLOBALS['ENV_DEBUG'] = true;
+// $GLOBALS['ENV_DEBUG'] = true;
 
 // /* un-comment in normal operation
 $func->start();
@@ -33,10 +33,9 @@ else           echo "\nAll acceptedNameUsageID have entries.\n";
 $undefined = $func->check_if_all_vernaculars_have_entries($resource_id, true); //true means output will write to text file
 if($undefined) echo "\nThere is undefined taxonID(s) in vernacular_name.tab: ".count($undefined)."\n";
 else           echo "\nAll taxonID(s) in vernacular_name.tab have entries.\n";
-
 // */
 
-/* this will delete the working dir
+/* this will delete the working dir --- never used here...
 $dir = CONTENT_RESOURCE_LOCAL_PATH."/".$resource_id;
 if(is_dir($dir)) recursive_rmdir($dir);
 */
