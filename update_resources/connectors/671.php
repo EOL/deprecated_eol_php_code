@@ -4,7 +4,13 @@ namespace php_active_record;
 estimated execution time: 
 http://www.eol.org/content_partners/614/resources/671
 */
+
+todo: 
+remove parentNameUsageID if there is acceptedNameUsageID.
+only valid/accepted name has parentNameUsageID
+
 exit("\nRan already. Won't run periodically.\n");
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/MycoBankAPI');
 $timestart = time_elapsed();
