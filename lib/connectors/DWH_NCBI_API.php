@@ -37,24 +37,77 @@ class DWH_NCBI_API
     }
     function tram_796_start() //pruning further
     {
+        $taxID_info = self::get_taxID_nodes_info();
+        
         $meta = self::get_meta_info();
-        $i = 0;
+        $i = 0; $filtered_ids = array();
+        echo "\nStart main process...\n";
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++;
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
-            
             $tmp = explode("\t", $row);
-            
             $rec = array(); $k = 0;
             foreach($meta['fields'] as $field) {
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
-            print_r($rec);
-            exit("\n");
+            //start filter
+            /*Array(
+                [taxonID] => 1_1
+                [furtherInformationURL] => https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=1
+                [acceptedNameUsageID] => 1
+                [parentNameUsageID] => 
+                [scientificName] => all
+                [taxonRank] => no rank
+                [taxonomicStatus] => synonym
+                [referenceID] => 
+            )*/
+            /* 1. Remove ALL taxa (and their children, grandchildren, etc.) that have one of the following strings in their scientific name: uncultured|unidentified */
+            if($rec['taxonomicStatus'] == "accepted") {
+                if(stripos($rec['scientificName'], "uncultured") !== false)   {$filtered_ids[$rec['taxonID']] = ''; continue;} //string is found
+                if(stripos($rec['scientificName'], "unidentified") !== false) {$filtered_ids[$rec['taxonID']] = ''; continue;} //string is found
+            }
+            /* 2. ONLY for taxa where division_id in nodes.dmp IS 0 (bacteria & archaea), we want to remove all taxa that have the string “unclassified” in their scientific name. */
+            if($rec['taxonomicStatus'] == "accepted") {
+                if(in_array($taxID_info[$rec['taxonID']]['dID'], array(0))) {
+                    if(stripos($rec['scientificName'], "unclassified") !== false) {$filtered_ids[$rec['taxonID']] = ''; 
+                        // print_r($rec); print_r($taxID_info[$rec['taxonID']]); exit("\nrule 2\n"); //good debug
+                        continue;} //string is found
+                }
+            }
+            /* 3. ONLY for taxa where division_id in nodes.dmp IS NOT 0 (things that are not bacteria or archaea), we want to remove all taxa of RANK species that have consecutive 
+            capital letters not separated by a white space in their scientific name, e.g., things like “endophyte SE2/SE4” or “Phytophthora citricola IV” or “Hyperolius nasutus A JK-2009” or 
+            “Cryptococcus neoformans AD hybrid” */
+            if($rec['taxonomicStatus'] == "accepted") {
+                if($taxID_info[$rec['taxonID']]['dID'] != 0) {
+                    $rank = $taxID_info[$rec['taxonID']]['r'];
+                    if($rank == "species") {
+                        if(self::with_consecutive_capital_letters($rec['scientificName'])) {
+                            print_r($rec); print_r($taxID_info[$rec['taxonID']]); exit("\nrule 3\n"); //good debug
+                        }
+                    }
+                }
+            }
+            
         }
+
+        echo "\nStart main process 2...\n";
         exit("\nstop muna\n");
+    }
+    private function with_consecutive_capital_letters($str)
+    {
+        echo "\n$str\n";
+        $words = explode(" ", $str);
+        print_r($words);
+        foreach($words as $word) {
+            echo "\n -- $word\n";
+            for ($i = 0; $i <= strlen($word)-1; $i++) {
+                echo " ".$word[$i];
+                if(!ctype_upper($word[$i])) return false;
+            }
+        }
+        if(strlen($str)) return true;
     }
     // ----------------------------------------------------------------- end TRAM-796
     function start()
