@@ -37,15 +37,15 @@ class DWH_NCBI_API
     }
     function tram_796_start() //pruning further
     {
-        /* test
+        // /* test
         $arr = array("endophyte SE2/SE4", "Phytophthora citricola IV", "Hyperolius nasutus A JK-2009",  "Cryptococcus neoformans AD hybrid", "Gadus morhua");
-        $arr = array("Hyperolius nasutus AB");
+        $arr = array("Vibrio phage 2.096.O._10N.286.48.B5");
         foreach($arr as $sci) {
             if(self::with_consecutive_capital_letters($sci)) echo "\nYES ($sci)\n";
             else echo "\nNO ($sci)\n";
         }
         exit;
-        */
+        // */
         
         $taxID_info = self::get_taxID_nodes_info();
         $meta = self::get_meta_info();
@@ -97,7 +97,9 @@ class DWH_NCBI_API
                     $rank = $taxID_info[$rec['taxonID']]['r'];
                     if($rank == "species") {
                         if(self::with_consecutive_capital_letters($rec['scientificName'])) {
-                            print_r($rec); print_r($taxID_info[$rec['taxonID']]); exit("\nrule 3\n"); //good debug
+                            $filtered_ids[$rec['taxonID']] = '';
+                            print_r($rec); print_r($taxID_info[$rec['taxonID']]); //exit("\nrule 3\n"); //good debug
+                            continue;
                         }
                     }
                 }
@@ -114,7 +116,7 @@ class DWH_NCBI_API
         $words = explode(" ", $str);
         print_r($words);
         foreach($words as $word) {
-            echo "\n word -- $word\n";
+            // echo "\n word -- $word\n";
             $word = preg_replace("/[^a-zA-Z]/", "", $word); //get only a-z A-Z
             echo "\n new word -- $word\n";
             $with_small = false;
