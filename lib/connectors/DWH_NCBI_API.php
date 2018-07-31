@@ -14,17 +14,12 @@ class DWH_NCBI_API
         $this->taxon_ids = array();
         $this->download_options = array('resource_id' => $folder, 'download_wait_time' => 1000000, 'timeout' => 60*2, 'download_attempts' => 1, 'cache' => 1); // 'expire_seconds' => 0
         $this->debug = array();
-        
         $this->file['names.dmp']['path'] = "/Volumes/AKiTiO4/d_w_h/TRAM-795/taxdump/names.dmp";
         $this->file['names.dmp']['fields'] = array("tax_id", "name_txt", "unique_name", "name_class");
-
         $this->file['nodes.dmp']['path'] = "/Volumes/AKiTiO4/d_w_h/TRAM-795/taxdump/nodes.dmp";
-        $this->file['nodes.dmp']['fields'] = array("tax_id", "parent_tax_id", "rank", "embl_code", "division_id", "inherited div flag", "genetic code id", "inherited GC flag", 
-        "mitochondrial genetic code id", "inherited MGC flag", "GenBank hidden flag", "hidden subtree root flag", "comments");
-
+        $this->file['nodes.dmp']['fields'] = array("tax_id", "parent_tax_id", "rank", "embl_code", "division_id", "inherited div flag", "genetic code id", "inherited GC flag", "mitochondrial genetic code id", "inherited MGC flag", "GenBank hidden flag", "hidden subtree root flag", "comments");
         $this->file['citations.dmp']['path'] = "/Volumes/AKiTiO4/d_w_h/TRAM-795/taxdump/citations.dmp";
         $this->file['citations.dmp']['fields'] = array("cit_id", "cit_key", "pubmed_id", "medline_id", "url", "text", "taxid_list");
-        
         $this->alternative_names = array("synonym", "equivalent name", "in-part", "misspelling", "genbank synonym", "misnomer", "anamorph", "genbank anamorph", "teleomorph", "authority");
     }
 
@@ -45,7 +40,6 @@ class DWH_NCBI_API
         self::browse_citations();
         exit("\n-end tests-\n");
         */
-        
         self::main(); //exit("\nstop muna\n");
         $this->archive_builder->finalize(TRUE);
         if($this->debug) {
@@ -53,8 +47,7 @@ class DWH_NCBI_API
         }
     }
     private function get_ancestry_of_taxID($tax_id, $taxID_info)
-    {
-        /* Array(
+    {   /* Array(
             [1] => Array(
                     [pID] => 1
                     [r] => no rank
@@ -105,12 +98,10 @@ class DWH_NCBI_API
             // print_r($rec); exit;
             if(isset($final[$rec['tax_id']])) exit("\nInvestigate not unique tax_id in nodes.dmp\n");
             $final[$rec['tax_id']] = array("pID" => $rec['parent_tax_id'], 'r' => $rec['rank'], 'dID' => $rec['division_id']);
-            
             // print_r($final); exit;
         }
         fclose($file);
         return $final;
-        // exit("\nstopx\n");
     }
     private function main()
     {
