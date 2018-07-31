@@ -474,7 +474,7 @@ class DHSourceHierarchiesAPI
         }
         echo("\nInvestigate cannot get canonical name [$sciname][$method]\n[$json]\n");
     }
-    private function analyze_eol_meta_xml($meta_xml_path)
+    public function analyze_eol_meta_xml($meta_xml_path)
     {
         if(file_exists($meta_xml_path)) {
             $xml_string = file_get_contents($meta_xml_path);

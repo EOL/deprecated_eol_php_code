@@ -23,12 +23,40 @@ class DWH_NCBI_API
         $this->alternative_names = array("synonym", "equivalent name", "in-part", "misspelling", "genbank synonym", "misnomer", "anamorph", "genbank anamorph", "teleomorph", "authority");
         //start TRAM-796 -----------------------------------------------------------
         $this->prune_further = array(10239, 12884, 3193, 4751, 33208);
+        $this->extension_path = CONTENT_RESOURCE_LOCAL_PATH . "NCBI_Taxonomy_Harvest/";
+        $this->dwca['iterator_options'] = array('row_terminator' => "\n");
     }
-
+    // ----------------------------------------------------------------- start TRAM-796
+    private function get_meta_info()
+    {
+        require_library('connectors/DHSourceHierarchiesAPI');
+        $func = new DHSourceHierarchiesAPI();
+        $meta = $func->analyze_eol_meta_xml($this->extension_path."meta.xml");
+        print_r($meta);
+        return $meta;
+    }
     function tram_796_start() //pruning further
     {
-        
+        $meta = self::get_meta_info();
+        $i = 0;
+        foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
+            $i++;
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            if(!$row) continue;
+            
+            $tmp = explode("\t", $row);
+            
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            print_r($rec);
+            exit("\n");
+        }
+        exit("\nstop muna\n");
     }
+    // ----------------------------------------------------------------- end TRAM-796
     function start()
     {
         // 19   https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=19      18  Pelobacter carbinolicus species accepted    2912; 5381

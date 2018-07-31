@@ -1,19 +1,19 @@
 <?php
 namespace php_active_record;
-/* NCBI Taxonomy Harvest - https://eol-jira.bibalex.org/browse/TRAM-795
-estimated execution time: 20 - 27 mins. with references
+/* NCBI Taxonomy Extract for Dynamic Hierarchy - https://eol-jira.bibalex.org/browse/TRAM-796
+estimated execution time: 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DWH_NCBI_API');
 // ini_set('memory_limit','5096M');
 $timestart = time_elapsed();
-$resource_id = "NCBI_Taxonomy_Harvest"; //orig
+$resource_id = "NCBI_Taxonomy_Harvest_DH"; //orig
 $resource_id = "1"; //for testing
 $func = new DWH_NCBI_API($resource_id);
 // $GLOBALS['ENV_DEBUG'] = true;
 
 // /* un-comment in normal operation
-$func->start();
+$func->tram_796_start();
 Functions::finalize_dwca_resource($resource_id);
 // */
 
