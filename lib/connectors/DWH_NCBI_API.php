@@ -112,17 +112,10 @@ class DWH_NCBI_API
         $taxID_info = self::get_taxID_nodes_info();
         
         $removed_branches = self::get_removed_branches_from_spreadsheet();
-        /* $add is taken from undefined_parents report after each connector run
-        $add = array(762615, 67596, 162087, 564289, 1358437, 633875, 333830, 335436, 336085, 1088862, 398350, 635109, 712414, 1155007, 944171, 1267497, 168172, 1176743, 1200662, 1263508, 1266589, 1167, 1385656, 1346514, 298136, 1076755, 1527667, 1550063, 1586255, 1778398, 1867947, 1886822, 1967055, 1967057, 1967059);
-        $removed_branches = array_merge($removed_branches, $add);
-        $add = array(1181,1188,56615,59765,169066,242159,252598,797742,1776082);
-        $removed_branches = array_merge($removed_branches, $add);
-        $removed_branches = array_unique($removed_branches);
-        */
+        /* additional IDs are taken from undefined_parents report after each connector run */
         $removed_branches[1296341] = '';
         $removed_branches[993557] = '';
         $removed_branches[1391733] = '';
-        
         /* no need to add this, same result anyway
         $removed_branches[1181] = '';
         $removed_branches[1188] = '';
@@ -134,7 +127,6 @@ class DWH_NCBI_API
         $removed_branches[797742] = '';
         $removed_branches[1776082] = '';
         */
-        
         echo "\nMain processing...";
         $fields = $this->file['names.dmp']['fields'];
         $file = Functions::file_open($this->file['names.dmp']['path'], "r");
@@ -174,7 +166,6 @@ class DWH_NCBI_API
                 exit("\ncha 01\n");
             }
             -------------------------------------------------------------------------------------------- */
-            
             // print_r($rec); exit;
             /* Array(
                 [tax_id] => 1
@@ -182,7 +173,6 @@ class DWH_NCBI_API
                 [unique_name] => 
                 [name_class] => synonym
             )*/
-          
             /* start filtering: 
             1. Filter by division_id: Remove taxa where division_id in nodes.dmp is 7 (environmental samples) or 11 (synthetic and chimeric taxa) */
             if(in_array($taxID_info[$rec['tax_id']]['dID'], array(7,11))) {$filtered_ids[$rec['tax_id']] = ''; continue;}
