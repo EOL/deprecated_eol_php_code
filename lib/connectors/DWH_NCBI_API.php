@@ -223,9 +223,7 @@ class DWH_NCBI_API
                 elseif(stripos($rec['name_txt'], " cf.") !== false)  {continue;} //string is found
                 elseif(stripos($rec['name_txt'], " nr.") !== false)  {continue;} //string is found
             }
-            
-            
-            // Total rows: 2687427      Processed rows: 1686211
+            // Total rows: xxx      Processed rows: xxx
             
             if(in_array($rec['name_class'], array("blast name", "type material", "includes", "acronym", "genbank acronym"))) continue; //ignore these names
             
@@ -250,13 +248,6 @@ class DWH_NCBI_API
             $processed++;
         }
         fclose($file);
-        
-        /* erroneous strategy
-        echo "\n filtered_ids     : ".count($filtered_ids)."\n";
-        echo "\n removed_branches : ".count($removed_branches)."\n";
-        $removed_branches = array_merge($filtered_ids, $removed_branches);
-        echo "\n new removed_branches : ".count($removed_branches)."\n";
-        */
         
         // =================================================start 2
         echo "\nMain processing 2...";
@@ -319,12 +310,12 @@ class DWH_NCBI_API
         }
         fclose($file);
         // =================================================end 2
+        // Total rows: 2687427 Processed rows: 1508421 ------ looks OK finally
         echo "\nTotal rows: $i";
         echo "\nProcessed rows: $processed";
     }
     private function write_taxon($rec, $ancestry, $taxid_info, $reference_ids)
-    {
-        /* Array(
+    {   /* Array(
             [tax_id] => 1
             [name_txt] => all
             [unique_name] => 
@@ -374,16 +365,12 @@ class DWH_NCBI_API
         }
     }
     private function format_tax_id($rec)
-    {
-        /* One more thing: synonyms and other alternative names should not have parentNameUsageIDs. In general, if a taxon has an acceptedNameUsageID it should not also have a parentNameUsageID. 
+    {   /* One more thing: synonyms and other alternative names should not have parentNameUsageIDs. In general, if a taxon has an acceptedNameUsageID it should not also have a parentNameUsageID. 
         So in this specific case, we want acceptedNameUsageID's only if name class IS scientific name. Sorry, I realize I didn't make this clear in my initial instructions. 
         I have added a note about it now. */
         
         if($rec['name_class'] == "scientific name")                    return array('tax_id' => $rec['tax_id']                 , 'acceptedNameUsageID' => '');
-        elseif(in_array($rec['name_class'], $this->alternative_names)) 
-        {
-            return array('tax_id' => $rec['tax_id']."_".$this->ctr  , 'acceptedNameUsageID' => $rec['tax_id']);
-        }
+        elseif(in_array($rec['name_class'], $this->alternative_names)) return array('tax_id' => $rec['tax_id']."_".$this->ctr  , 'acceptedNameUsageID' => $rec['tax_id']);
         else {
             print_r($rec);
             exit("\nInvestigate cha001\n");
@@ -506,13 +493,6 @@ class DWH_NCBI_API
             case "Introduced":                  return "http://eol.org/schema/terms/IntroducedRange";
             case "Invasive":                    return "http://eol.org/schema/terms/InvasiveRange";
             case "Native":                      return "http://eol.org/schema/terms/NativeRange";
-            case "Not invasive":                return "http://eol.org/schema/terms/NonInvasiveRange";
-            case "Present, few occurrences":    return "http://eol.org/schema/terms/presentAndRare";
-            case "Absent, formerly present":    return "http://eol.org/schema/terms/absentFormerlyPresent";
-            case "Eradicated":                  return "http://eol.org/schema/terms/absentFormerlyPresent";
-            case "Localised":                   return "http://eol.org/schema/terms/Present";
-            case "Widespread":                  return "http://eol.org/schema/terms/Present";
-            case "Present":                     return "http://eol.org/schema/terms/Present";
         }
         if(in_array($range, $this->considered_as_Present)) return "http://eol.org/schema/terms/Present";
     }
