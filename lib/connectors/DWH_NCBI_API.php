@@ -21,8 +21,14 @@ class DWH_NCBI_API
         $this->file['citations.dmp']['path'] = "/Volumes/AKiTiO4/d_w_h/TRAM-795/taxdump/citations.dmp";
         $this->file['citations.dmp']['fields'] = array("cit_id", "cit_key", "pubmed_id", "medline_id", "url", "text", "taxid_list");
         $this->alternative_names = array("synonym", "equivalent name", "in-part", "misspelling", "genbank synonym", "misnomer", "anamorph", "genbank anamorph", "teleomorph", "authority");
+        //start TRAM-796 -----------------------------------------------------------
+        $this->prune_further = array(10239, 12884, 3193, 4751, 33208);
     }
 
+    function tram_796_start() //pruning further
+    {
+        
+    }
     function start()
     {
         // 19   https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=19      18  Pelobacter carbinolicus species accepted    2912; 5381
