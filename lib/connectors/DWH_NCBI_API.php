@@ -37,8 +37,17 @@ class DWH_NCBI_API
     }
     function tram_796_start() //pruning further
     {
-        $taxID_info = self::get_taxID_nodes_info();
+        /* test
+        $arr = array("endophyte SE2/SE4", "Phytophthora citricola IV", "Hyperolius nasutus A JK-2009",  "Cryptococcus neoformans AD hybrid", "Gadus morhua");
+        $arr = array("Hyperolius nasutus AB");
+        foreach($arr as $sci) {
+            if(self::with_consecutive_capital_letters($sci)) echo "\nYES ($sci)\n";
+            else echo "\nNO ($sci)\n";
+        }
+        exit;
+        */
         
+        $taxID_info = self::get_taxID_nodes_info();
         $meta = self::get_meta_info();
         $i = 0; $filtered_ids = array();
         echo "\nStart main process...\n";
@@ -64,11 +73,14 @@ class DWH_NCBI_API
                 [referenceID] => 
             )*/
             /* 1. Remove ALL taxa (and their children, grandchildren, etc.) that have one of the following strings in their scientific name: uncultured|unidentified */
+            // /*
             if($rec['taxonomicStatus'] == "accepted") {
                 if(stripos($rec['scientificName'], "uncultured") !== false)   {$filtered_ids[$rec['taxonID']] = ''; continue;} //string is found
                 if(stripos($rec['scientificName'], "unidentified") !== false) {$filtered_ids[$rec['taxonID']] = ''; continue;} //string is found
             }
+            // */
             /* 2. ONLY for taxa where division_id in nodes.dmp IS 0 (bacteria & archaea), we want to remove all taxa that have the string “unclassified” in their scientific name. */
+            // /*
             if($rec['taxonomicStatus'] == "accepted") {
                 if(in_array($taxID_info[$rec['taxonID']]['dID'], array(0))) {
                     if(stripos($rec['scientificName'], "unclassified") !== false) {$filtered_ids[$rec['taxonID']] = ''; 
@@ -76,6 +88,7 @@ class DWH_NCBI_API
                         continue;} //string is found
                 }
             }
+            // */
             /* 3. ONLY for taxa where division_id in nodes.dmp IS NOT 0 (things that are not bacteria or archaea), we want to remove all taxa of RANK species that have consecutive 
             capital letters not separated by a white space in their scientific name, e.g., things like “endophyte SE2/SE4” or “Phytophthora citricola IV” or “Hyperolius nasutus A JK-2009” or 
             “Cryptococcus neoformans AD hybrid” */
@@ -101,13 +114,18 @@ class DWH_NCBI_API
         $words = explode(" ", $str);
         print_r($words);
         foreach($words as $word) {
-            echo "\n -- $word\n";
+            echo "\n word -- $word\n";
+            $word = preg_replace("/[^a-zA-Z]/", "", $word); //get only a-z A-Z
+            echo "\n new word -- $word\n";
+            $with_small = false;
             for ($i = 0; $i <= strlen($word)-1; $i++) {
+                if(is_numeric($word[$i])) continue;
                 echo " ".$word[$i];
-                if(!ctype_upper($word[$i])) return false;
+                if(!ctype_upper($word[$i])) $with_small = true;
             }
+            if(!$with_small && strlen($word) > 1) return true;
         }
-        if(strlen($str)) return true;
+        return false;
     }
     // ----------------------------------------------------------------- end TRAM-796
     function start()
