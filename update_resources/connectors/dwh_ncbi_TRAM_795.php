@@ -8,7 +8,7 @@ require_library('connectors/DWH_NCBI_API');
 // ini_set('memory_limit','5096M');
 $timestart = time_elapsed();
 $resource_id = "NCBI_Taxonomy_Harvest"; //orig
-$resource_id = "1"; //for testing
+// $resource_id = "1"; //for testing
 $func = new DWH_NCBI_API($resource_id);
 // $GLOBALS['ENV_DEBUG'] = true;
 
