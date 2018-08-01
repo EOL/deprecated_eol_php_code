@@ -20,7 +20,6 @@ class InvasiveSpeciesCompendiumAPI
         
         $this->taxa_list['ISC'] = "http://localhost/cp_new/Invasive%20Species%20Compendium/ExportedRecords.csv";
         $this->taxa_list['ISC'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Invasive%20Species%20Compendium/ExportedRecords.csv";
-        $this->taxon_page['ISC'] = "";
         $this->domain['ISC'] = "https://www.cabi.org";
         
         $this->considered_as_Present = array("Present", "Localised", "Widespread", "Present only in captivity/cultivation", "Restricted distribution", 
