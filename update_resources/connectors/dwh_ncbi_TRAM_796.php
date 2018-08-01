@@ -8,7 +8,7 @@ require_library('connectors/DWH_NCBI_API');
 // ini_set('memory_limit','5096M');
 $timestart = time_elapsed();
 $resource_id = "NCBI_Taxonomy_Harvest_DH"; //orig
-// $resource_id = "1"; //for testing
+// $resource_id = "2"; //for testing
 $func = new DWH_NCBI_API($resource_id);
 // $GLOBALS['ENV_DEBUG'] = true;
 
@@ -35,9 +35,9 @@ if($undefined) {
 }
 else           echo "\nOK: All acceptedNameUsageID have entries.\n";
 
-// $undefined = $func->check_if_all_vernaculars_have_entries($resource_id, true); //true means output will write to text file
-// if($undefined) echo "\nERROR: There is undefined taxonID(s) in vernacular_name.tab: ".count($undefined)."\n";
-// else           echo "\nOK: All taxonID(s) in vernacular_name.tab have entries.\n";
+$undefined = $func->check_if_all_vernaculars_have_entries($resource_id, true); //true means output will write to text file
+if($undefined) echo "\nERROR: There is undefined taxonID(s) in vernacular_name.tab: ".count($undefined)."\n";
+else           echo "\nOK: All taxonID(s) in vernacular_name.tab have entries.\n";
 // */
 
 /* this will delete the working dir --- never used here...
