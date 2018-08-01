@@ -16,16 +16,8 @@ class InvasiveSpeciesCompendiumAPI
         $this->occurrence_ids = array();
         $this->taxon_ids = array();
         $this->download_options = array('resource_id' => $folder, 'download_wait_time' => 1000000, 'timeout' => 60*2, 'download_attempts' => 1, 'cache' => 1); // 'expire_seconds' => 0
-        // /*
-        // CABI ISC
-        $this->CABI_taxa_list_per_page = "http://www.cabi.org/isc/Default.aspx?site=144&page=4066&sort=meta_released_sort+desc&fromab=&LoadModule=CABISearchResults&profile=38&tab=0&start=";
-        $this->CABI_taxon_distribution = "http://www.cabi.org/isc/DatasheetDetailsReports.aspx?&iSectionId=DD*0&sSystem=Product&iPageID=481&iCompendiumId=5&iDatasheetID=";
-        $this->CABI_references = array();
-        $this->CABI_ref_page = "http://www.cabi.org/isc/references.aspx?PAN=";
-        // */
-        
         $this->debug = array();
-        https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/Invasive%20Species%20Compendium/ExportedRecords.csv
+        
         $this->taxa_list['ISC'] = "http://localhost/cp_new/Invasive%20Species%20Compendium/ExportedRecords.csv";
         $this->taxa_list['ISC'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Invasive%20Species%20Compendium/ExportedRecords.csv";
         $this->taxon_page['ISC'] = "";
