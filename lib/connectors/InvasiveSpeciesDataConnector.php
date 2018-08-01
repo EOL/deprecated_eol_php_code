@@ -335,9 +335,7 @@ class InvasiveSpeciesDataConnector
                 case "marine_freshwater_brackish":    return "http://purl.obolibrary.org/obo/ENVO_00002030"; //based here: https://eol-jira.bibalex.org/browse/TRAM-794?focusedCommentId=62690&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62690
                 case "terrestrial_freshwater_marine": return false; //skip based here: https://eol-jira.bibalex.org/browse/TRAM-794?focusedCommentId=62690&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62690
             }
-
             $this->debug['un-mapped string'][$type][$string] = '';
-            
             if($type == 'habitat')      return false;
             elseif($type == 'location') return $string;
         }
@@ -352,7 +350,6 @@ class InvasiveSpeciesDataConnector
             echo "\n investigate undefined habitat [$desc]\n";
             return $desc;
         }
-    }
-    */
+    }*/
 }
 ?>
