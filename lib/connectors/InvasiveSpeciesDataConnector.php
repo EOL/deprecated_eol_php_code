@@ -17,21 +17,12 @@ class InvasiveSpeciesDataConnector
         $this->occurrence_ids = array();
         $this->taxon_ids = array();
         $this->download_options = array('resource_id' => $folder, 'download_wait_time' => 1000000, 'timeout' => 60*2, 'download_attempts' => 1, 'cache' => 1); // 'expire_seconds' => 0
-        /*
-        // CABI ISC
-        $this->CABI_taxa_list_per_page = "http://www.cabi.org/isc/Default.aspx?site=144&page=4066&sort=meta_released_sort+desc&fromab=&LoadModule=CABISearchResults&profile=38&tab=0&start=";
-        $this->CABI_taxon_distribution = "http://www.cabi.org/isc/DatasheetDetailsReports.aspx?&iSectionId=DD*0&sSystem=Product&iPageID=481&iCompendiumId=5&iDatasheetID=";
-        $this->CABI_references = array();
-        $this->CABI_ref_page = "http://www.cabi.org/isc/references.aspx?PAN=";
-        */
-        
         $this->debug = array();
         // Global Invasive Species Database (GISD)
         $this->taxa_list['GISD'] = "http://localhost/cp_new/GISD/export_gisd.csv";
         $this->taxa_list['GISD'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GISD/export_gisd.csv";
         $this->taxon_page['GISD'] = "http://www.iucngisd.org/gisd/speciesname/";
     }
-
     function generate_invasiveness_data()
     {
         if    ($this->partner == "GISD")     self::start_GISD();
@@ -48,9 +39,7 @@ class InvasiveSpeciesDataConnector
     }
     private function get_CABI_taxa()
     {
-        $taxa = array();
-        $count = 0;
-        $total_count = false;
+        $taxa = array(); $count = 0; $total_count = false;
         while(true) {
             if($html = Functions::lookup_with_cache($this->CABI_taxa_list_per_page . $count, $this->download_options)) {
                 if(!$total_count) {
@@ -91,7 +80,6 @@ class InvasiveSpeciesDataConnector
         }
         return $taxa;
     }
-
     private function term_exists_then_exclude_from_list($string, $terms)
     {
         foreach($terms as $term) {
@@ -99,7 +87,6 @@ class InvasiveSpeciesDataConnector
         }
         return false;
     }
-    
     private function parse_references($ref)
     {
         $refs = array();
@@ -116,7 +103,6 @@ class InvasiveSpeciesDataConnector
         }
         return $refs;
     }
-    
     private function add_reference($id, $full_reference, $uri)
     {
         $r = new \eol_schema\Reference();
@@ -126,7 +112,6 @@ class InvasiveSpeciesDataConnector
         $this->archive_builder->write_object_to_file($r);
         $this->CABI_references[$id] = 1;
     }
-    
     private function start_GISD()
     {
         $mappings = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
@@ -246,55 +231,6 @@ class InvasiveSpeciesDataConnector
         $rec['measurementRemarks'] = Functions::remove_whitespace(trim($rem));
         return $rec;
     }
-    /* old
-    private function process_GISD()
-    {
-        $taxa = self::get_GISD_taxa();
-        $total = count($taxa); echo "\n taxa count: $total \n";
-        $i = 0;
-        foreach($taxa as $taxon_id => $taxon) {
-            $i++; echo "\n $i of $total ";
-            // if($i >= 100) return; //debug -- use during preview phase
-            $url = $this->GISD_taxon_distribution . $taxon_id;
-            if($html = Functions::lookup_with_cache($url, $this->download_options)) {
-                $info = array();
-                if(preg_match("/<B>Alien Range<\/B>(.*?)<\/ul>/ims", $html, $arr)) {
-                    if(preg_match_all("/<span class=\'ListTitle\'>(.*?)<\/span>/ims", $arr[1], $arr2)) $info["Alien Range"]["locations"] = $arr2[1];
-                }
-                if(preg_match("/<B>Native Range<\/B>(.*?)<\/ul>/ims", $html, $arr)) {
-                    if(preg_match_all("/<span class=\'ListTitle\'>(.*?)<\/span>/ims", $arr[1], $arr2)) $info["Native Range"]["locations"] = $arr2[1];
-                }
-                if($info) {
-                    $info["taxon_id"] = $taxon_id;
-                    $info["schema_taxon_id"] = $taxon["schema_taxon_id"];
-                    $info["taxon"] = $taxon;
-                    $info["source"] = $url;
-                    $info["citation"] = "Global Invasive Species Database, " . date("Y") . ". " . $taxon["sciname"] . ". Available from: http://www.issg.org/database/species/ecology.asp?si=" . $taxon_id . "&fr=1&sts=sss [Accessed " . date("M-d-Y") . "].";
-                    $this->create_instances_from_taxon_object($info);
-                    $this->process_GISD_distribution($info);
-                }
-            }
-        }
-    }
-    private function get_GISD_taxa()
-    {
-        $taxa = array();
-        if($html = Functions::lookup_with_cache($this->GISD_taxa_list, $this->download_options)) {
-            if(preg_match_all("/<a href=\'ecology\.asp\?si=(.*?)<\/i>/ims", $html, $arr)) {
-                foreach($arr[1] as $temp) {
-                    $id = null; $sciname = null;
-                    if(preg_match("/(.*?)\&/ims", $temp, $arr2))             $id = $arr2[1];
-                    if(preg_match("/<i>(.*?)<\/i>/ims", $temp . "</i>", $arr2)) $sciname = $arr2[1];
-                    if($id && $sciname) {
-                        $taxa[$id]["schema_taxon_id"] = "gisd_" . $id;
-                        $taxa[$id]["sciname"] = $sciname;
-                    }
-                }
-            }
-        }
-        return $taxa;
-    }
-    */
     private function create_instances_from_taxon_object($rec)
     {
         $taxon = new \eol_schema\Taxon();
@@ -357,7 +293,6 @@ class InvasiveSpeciesDataConnector
         }
         
     }
-    
     private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype, $reference_ids = array(), $orig_value = "")
     {
         $taxon_id = $rec["taxon_id"];
@@ -380,7 +315,6 @@ class InvasiveSpeciesDataConnector
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
     }
-
     private function add_occurrence($taxon_id, $catnum, $rec)
     {
         $occurrence_id = md5($taxon_id . '_' . $catnum);
@@ -420,6 +354,5 @@ class InvasiveSpeciesDataConnector
         }
     }
     */
-
 }
 ?>
