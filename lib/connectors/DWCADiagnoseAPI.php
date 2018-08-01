@@ -239,7 +239,9 @@ class DWCADiagnoseAPI
                         $k++;
                     }
                     $rec = array_map('trim', $rec);
-                    foreach($cols as $col) $var[$col][@$rec[$col]] = '';
+                    foreach($cols as $col) {
+                        if(@$rec[$col]) $var[$col][@$rec[$col]] = '';
+                    }
                 }
                 //-------------------------------------new
             }
@@ -257,7 +259,9 @@ class DWCADiagnoseAPI
                 }
                 */
                 $rec = array_map('trim', $rec);
-                foreach($cols as $col) $var[$col][@$rec[$col]] = '';
+                foreach($cols as $col) {
+                    if(@$rec[$col]) $var[$col][@$rec[$col]] = '';
+                }
             }
         }
         return $var;

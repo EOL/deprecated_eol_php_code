@@ -48,11 +48,27 @@ class DWH_NCBI_API
         */
         self::main_tram_796(); //exit("\nstop muna\n");
         self::browse_citations($this->reference_ids_2write); //no need for return value here
+        self::write_vernaculars_DH();
         exit("\nstopx\n");
         $this->archive_builder->finalize(TRUE);
         if($this->debug) {
             Functions::start_print_debug($this->debug, $this->resource_id);
         }
+    }
+    private function write_vernaculars_DH()
+    {
+        $tax_ids = self::get_tax_ids_from_taxon_tab_working();
+        print_r($tax_ids); exit;
+    }
+    private function get_tax_ids_from_taxon_tab_working()
+    {
+        echo "\n get taxonIDs from taxon_working.tab\n";
+        require_library('connectors/DWCADiagnoseAPI');
+        $func = new DWCADiagnoseAPI();
+        $url = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id."_working" . "/taxon_working.tab";
+        $suggested_fields = explode("\t", "taxonID	furtherInformationURL	referenceID	acceptedNameUsageID	parentNameUsageID	scientificName	taxonRank	taxonomicStatus"); //taxonID is what is important here.
+        $var = $func->get_fields_from_tab_file($this->resource_id, array("taxonID"), $url, $suggested_fields, false); //since there is $url, the last/5th param is no longer needed, set to false.
+        return $var['taxonID'];
     }
     private function main_tram_796() //pruning further
     {
