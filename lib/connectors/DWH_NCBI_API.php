@@ -47,6 +47,8 @@ class DWH_NCBI_API
         exit;
         */
         self::main_tram_796(); //exit("\nstop muna\n");
+        self::browse_citations($this->reference_ids_2write); //no need for return value here
+        exit("\nstopx\n");
         $this->archive_builder->finalize(TRUE);
         if($this->debug) {
             Functions::start_print_debug($this->debug, $this->resource_id);
@@ -179,6 +181,10 @@ class DWH_NCBI_API
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);
             $this->taxon_ids[$taxon->taxonID] = '';
+        }
+        if($val = $rec['referenceID']) {
+            $ids = explode("; ", $val);
+            foreach($ids as $id) $this->reference_ids_2write[$id] = '';
         }
     }
     private function with_consecutive_capital_letters($str)
@@ -630,7 +636,7 @@ class DWH_NCBI_API
             [14] => 56059
         )*/
     }
-    private function browse_citations()
+    private function browse_citations($pre_defined_list_of_refIDs_2write = array())
     {
         $this->debug['citation wrong cols'] = 0;
         echo "\nCitations...";
@@ -668,10 +674,15 @@ class DWH_NCBI_API
                 [taxid_list] => 650148 650149
             )*/
             // print_r($rec); //exit;
-            $taxids = explode(" ", $rec['taxid_list']);
-            foreach($taxids as $tax_id) {
-                $final[$tax_id][$rec['cit_id']] = '';
-                self::write_reference($rec);
+            if(!$pre_defined_list_of_refIDs_2write) {
+                $taxids = explode(" ", $rec['taxid_list']);
+                foreach($taxids as $tax_id) {
+                    $final[$tax_id][$rec['cit_id']] = '';
+                    self::write_reference($rec);
+                }
+            }
+            else {
+                if(isset($pre_defined_list_of_refIDs_2write[$rec['cit_id']])) self::write_reference($rec);
             }
         }
         // print_r($final);
