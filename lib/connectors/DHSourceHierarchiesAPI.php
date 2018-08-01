@@ -474,13 +474,14 @@ class DHSourceHierarchiesAPI
         }
         echo("\nInvestigate cannot get canonical name [$sciname][$method]\n[$json]\n");
     }
-    public function analyze_eol_meta_xml($meta_xml_path)
+    public function analyze_eol_meta_xml($meta_xml_path, $row_type = false)
     {
+        if(!$row_type) $row_type = "http://rs.tdwg.org/dwc/terms/Taxon";
         if(file_exists($meta_xml_path)) {
             $xml_string = file_get_contents($meta_xml_path);
             $xml = simplexml_load_string($xml_string);
             foreach($xml->table as $tbl) {
-                if($tbl['rowType'] == "http://rs.tdwg.org/dwc/terms/Taxon") {
+                if($tbl['rowType'] == $row_type) {
                     if(in_array($tbl['ignoreHeaderLines'], array(1, true))) $ignoreHeaderLines = true;
                     else                                                    $ignoreHeaderLines = false;
                     $fields = array();
@@ -490,7 +491,7 @@ class DHSourceHierarchiesAPI
                         $fields[] = pathinfo($term, PATHINFO_FILENAME);
                     }
                     $file = (string) $tbl->files->location;
-                    return array('fields' => $fields, 'taxon_file' => $file, 'ignoreHeaderLines' => $ignoreHeaderLines);
+                    return array('fields' => $fields, 'taxon_file' => $file, 'file' => $file, 'ignoreHeaderLines' => $ignoreHeaderLines);
                 }
             }
         }

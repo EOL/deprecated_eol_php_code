@@ -23,14 +23,13 @@ class DWH_NCBI_API
         $this->alternative_names = array("synonym", "equivalent name", "in-part", "misspelling", "genbank synonym", "misnomer", "anamorph", "genbank anamorph", "teleomorph", "authority");
         //start TRAM-796 -----------------------------------------------------------
         $this->prune_further = array(10239, 12884, 3193, 4751, 33208);
-        $this->extension_path = CONTENT_RESOURCE_LOCAL_PATH . "NCBI_Taxonomy_Harvest/";
+        $this->extension_path = CONTENT_RESOURCE_LOCAL_PATH . "NCBI_Taxonomy_Harvest/"; //this folder is from TRAM-795
         $this->dwca['iterator_options'] = array('row_terminator' => "\n");
     }
     // ----------------------------------------------------------------- start TRAM-796 -----------------------------------------------------------------
     private function get_meta_info()
     {
-        require_library('connectors/DHSourceHierarchiesAPI');
-        $func = new DHSourceHierarchiesAPI();
+        require_library('connectors/DHSourceHierarchiesAPI'); $func = new DHSourceHierarchiesAPI();
         $meta = $func->analyze_eol_meta_xml($this->extension_path."meta.xml");
         print_r($meta);
         return $meta;
@@ -48,8 +47,7 @@ class DWH_NCBI_API
         */
         self::main_tram_796(); //exit("\nstop muna\n");
         self::browse_citations($this->reference_ids_2write); //no need for return value here
-        self::write_vernaculars_DH();
-        exit("\nstopx\n");
+        self::write_vernaculars_DH(); //exit("\nstopx\n");
         $this->archive_builder->finalize(TRUE);
         if($this->debug) {
             Functions::start_print_debug($this->debug, $this->resource_id);
@@ -58,7 +56,39 @@ class DWH_NCBI_API
     private function write_vernaculars_DH()
     {
         $tax_ids = self::get_tax_ids_from_taxon_tab_working();
-        print_r($tax_ids); exit;
+        //now start looping vernacular_name.tab from TRAMS-795 and write vernacular where taxonID is found in $tax_ids
+        require_library('connectors/DHSourceHierarchiesAPI'); $func = new DHSourceHierarchiesAPI();
+        $meta = $func->analyze_eol_meta_xml($this->extension_path."meta.xml", "http://rs.gbif.org/terms/1.0/VernacularName"); //2nd param is rowType in meta.xml
+        $i = 0;
+        foreach(new FileIterator($this->extension_path.$meta['file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
+            $i++; if(($i % 100000) == 0) echo "\n count:[$i] ";
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            if(!$row) continue;
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            /* $rec e.g. = Array(
+                [vernacularName] => eubacteria
+                [language] => en
+                [taxonID] => 2
+            )*/
+            if(isset($tax_ids[$rec['taxonID']])) {
+                if($common_name = @$rec['vernacularName']) {
+                    $v = new \eol_schema\VernacularName();
+                    $v->taxonID = $rec["taxonID"];
+                    $v->vernacularName = trim($common_name);
+                    $v->language = $rec['language'];
+                    $vernacular_id = md5("$v->taxonID|$v->vernacularName|$v->language");
+                    if(!isset($this->vernacular_ids[$vernacular_id])) {
+                        $this->vernacular_ids[$vernacular_id] = '';
+                        $this->archive_builder->write_object_to_file($v);
+                    }
+                }
+            }
+        }
     }
     private function get_tax_ids_from_taxon_tab_working()
     {
