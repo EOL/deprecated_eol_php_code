@@ -22,17 +22,11 @@ require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
 
 $undefined = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
-if($undefined) {
-    echo "\nERROR: There is undefined parent(s): ".count($undefined)."\n";
-    print_r($undefined);
-}
+if($undefined) echo "\nERROR: There is undefined parent(s): ".count($undefined)."\n";
 else           echo "\nOK: All parents in taxon.tab have entries.\n";
 
 $undefined = $func->check_if_all_parents_have_entries($resource_id, true, false, array(), "acceptedNameUsageID"); //true means output will write to text file
-if($undefined) {
-    echo "\nERROR: There is undefined acceptedNameUsageID(s): ".count($undefined)."\n";
-    print_r($undefined);
-}
+if($undefined) echo "\nERROR: There is undefined acceptedNameUsageID(s): ".count($undefined)."\n";
 else           echo "\nOK: All acceptedNameUsageID have entries.\n";
 
 $undefined = $func->check_if_all_vernaculars_have_entries($resource_id, true); //true means output will write to text file

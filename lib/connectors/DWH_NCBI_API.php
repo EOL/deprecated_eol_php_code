@@ -27,10 +27,10 @@ class DWH_NCBI_API
         $this->dwca['iterator_options'] = array('row_terminator' => "\n");
     }
     // ----------------------------------------------------------------- start TRAM-796 -----------------------------------------------------------------
-    private function get_meta_info()
+    private function get_meta_info($row_type = false)
     {
         require_library('connectors/DHSourceHierarchiesAPI'); $func = new DHSourceHierarchiesAPI();
-        $meta = $func->analyze_eol_meta_xml($this->extension_path."meta.xml");
+        $meta = $func->analyze_eol_meta_xml($this->extension_path."meta.xml", $row_type); //2nd param $row_type is rowType in meta.xml
         print_r($meta);
         return $meta;
     }
@@ -57,8 +57,7 @@ class DWH_NCBI_API
     {
         $tax_ids = self::get_tax_ids_from_taxon_tab_working();
         //now start looping vernacular_name.tab from TRAMS-795 and write vernacular where taxonID is found in $tax_ids
-        require_library('connectors/DHSourceHierarchiesAPI'); $func = new DHSourceHierarchiesAPI();
-        $meta = $func->analyze_eol_meta_xml($this->extension_path."meta.xml", "http://rs.gbif.org/terms/1.0/VernacularName"); //2nd param is rowType in meta.xml
+        $meta = self::get_meta_info("http://rs.gbif.org/terms/1.0/VernacularName");
         $i = 0;
         foreach(new FileIterator($this->extension_path.$meta['file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++; if(($i % 100000) == 0) echo "\n count:[$i] ";
