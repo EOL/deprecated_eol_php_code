@@ -36,9 +36,13 @@ class TropicosArchiveAPI
         $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
         $this->occurrence_ids = array();
         $this->taxon_ids = array();
-        $this->download_options = array('resource_id' => 218, 'cache_path' => '/Volumes/AKiTiO4/eol_cache_tropicos/', 'expire_seconds' => false, 
+        $this->download_options = array('resource_id' => 218, 'expire_seconds' => false, 
         'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1); //timeout is 60 secs. * 3 = 3 mins.
                                                                                        //download_wait_time = 1000000 = 1 second; 300000 => .3 seconds
+
+       if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_cache_tropicos/";
+       else                           $this->download_options['cache_path'] = "/Volumes/AKiTiO4/eol_cache_tropicos/";
+        
         //, 'delay_in_minutes' => 1
         $this->preview_mode = false; //false is orig value
     }
