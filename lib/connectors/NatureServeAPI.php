@@ -19,8 +19,10 @@ class NatureServeAPI
         $this->national_status_code_labels();
         $this->national_status_qualifiers();
         
-        // $this->download_options = array("cache" => 1, "download_wait_time" => 500000, "timeout" => 3600, "download_attempts" => 1); //"delay_in_minutes" => 1
-        // $this->download_options['expire_seconds'] = 60*60*24*30; //preferably monthly
+        $this->download_options = array("cache" => 1, "download_wait_time" => 500000, "timeout" => 3600, "download_attempts" => 1); //"delay_in_minutes" => 1
+        $this->download_options['expire_seconds'] = false; //60*60*24*30; //preferably monthly
+        
+        if(Functions::is_production()) $this->download_options['resource_id'] = 263;
     }
     
     public function get_all_taxa()
@@ -99,7 +101,9 @@ class NatureServeAPI
     private function lookup_multiple_ids($ids)
     {
         $url = self::API_PREFIX . implode(",", $ids);
-        $details_xml = Functions::lookup_with_cache($url, array('validation_regex' => '<\/globalSpeciesList>')); //default expires in 25 days
+        $options = $this->download_options;
+        $options['validation_regex'] = '<\/globalSpeciesList>';
+        $details_xml = Functions::lookup_with_cache($url, $options); //default expires in 25 days
         $xml = simplexml_load_string($details_xml);
         if($val = @$xml->globalSpecies) {
             $i = 0;
@@ -605,7 +609,10 @@ class NatureServeAPI
     private function get_images($id)
     {
         $url = self::IMAGE_API_PREFIX . $id;
-        $details_xml = Functions::lookup_with_cache($url, array('validation_regex' => '<\/images>')); //default expires in 25 days
+        $options = $this->download_options;
+        $options['validation_regex'] = '<\/images>';
+        
+        $details_xml = Functions::lookup_with_cache($url, $options); //default expires in 25 days
         $xml = simplexml_load_string($details_xml);
         foreach($xml->image as $image) {
             // User Warning: Undefined property `mediaResourceID` on eol_schema\MediaResource as defined by `http://editors.eol.org/other_files/ontology/media_extension.xml` in /Library/WebServer/Documents/eol_php_code/vendor/eol_content_schema_v2/DarwinCoreExtensionBase.php on line 190
