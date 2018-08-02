@@ -119,7 +119,7 @@ class NCBIGGIqueryAPI
         $families = self::get_families_xlsx(); //normal operation for resource 723
         /* $families = self::get_families_from_JonCoddington(); //working OK... for Jonathan Coddington - from email May 15-16, 2018 */
 
-        if($families)
+        if($families) {
             /* working but not round-robin, rather each database is processed one after the other.
             foreach($this->ggi_databases as $database) {
                 self::create_instances_from_taxon_object($families, false, $database);
