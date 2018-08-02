@@ -54,10 +54,11 @@ if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
 else
 {
     /* this will zip the uploaded file then delete the uploaded file then unzip it. This is so that Jenkins will own the file to be processed */
-
+    /*
     echo "\n current working dir: ".getcwd()."\n";
     echo "\n".dirname(__FILE__)."\n";
     echo "\n".__DIR__."\n";
+    */
     // $file = getcwd()."/".$file;
 
     // if(file_exists($file)) echo "\nOK: $file\n";
@@ -67,22 +68,18 @@ else
     // 
     // $file = "/html/eol_php_code/applications/genHigherClass_jenkins/" . $file;
     // if(file_exists($file)) echo "\nOK: $file\n";
-    
-    // exit("\nstopx\n");
 
     // $file = dirname(__FILE__)."/".$file;
     
     if(file_exists($file)) {
         echo "\nOK: File exists: $file\n";
-        echo "\n[zip $file.zip $file]\n";
         shell_exec("zip $file.zip $file");
-        echo "\n[$file]\n";
         if(unlink($file)) echo "\nFile deleted ($file)\n";
         else echo "\nCannot unlink ($file)\n";
         shell_exec("unzip $file.zip");
         unlink("$file.zip");
     }
-    else echo "\nERROR: File does not exist: $file\n";
+    else exit "\nERROR: File does not exist: $file\n";
 }
 
 require_library('connectors/DwCA_Utility_cmd');
