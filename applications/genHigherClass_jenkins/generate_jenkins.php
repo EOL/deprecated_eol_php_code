@@ -56,7 +56,18 @@ else
     /* this will zip the uploaded file then delete the uploaded file then unzip it. This is so that Jenkins will own the file to be processed */
     // echo "\n current working dir: ".getcwd()."\n";
     // $file = getcwd()."/".$file;
-    sleep(5);
+
+    if(file_exists($file)) echo "\nOK: $file\n";
+
+
+    $file = "/var/www/html/eol_php_code/applications/genHigherClass_jenkins/" . $file;
+    if(file_exists($file)) echo "\nOK: $file\n";
+    
+    $file = "/html/eol_php_code/applications/genHigherClass_jenkins/" . $file;
+    if(file_exists($file)) echo "\nOK: $file\n";
+    
+    exit("\nstopx\n");
+
     if(file_exists($file)) {
         echo "\nOK: File exists: $file\n";
         echo "\n[zip $file.zip $file]\n";
