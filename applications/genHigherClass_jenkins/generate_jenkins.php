@@ -70,7 +70,9 @@ else
     
     // exit("\nstopx\n");
 
-    // if(file_exists($file)) {
+    $file = "/".$file;
+    
+    if(file_exists($file)) {
         // echo "\nOK: File exists: $file\n";
         echo "\n[zip $file.zip $file]\n";
         shell_exec("zip $file.zip $file");
@@ -79,8 +81,8 @@ else
         else echo "\nCannot unlink ($file)\n";
         shell_exec("unzip $file.zip");
         unlink("$file.zip");
-    // }
-    // else echo "\nERROR: File does not exist: $file\n";
+    }
+    else echo "\nERROR: File does not exist: $file\n";
 }
 
 require_library('connectors/DwCA_Utility_cmd');
