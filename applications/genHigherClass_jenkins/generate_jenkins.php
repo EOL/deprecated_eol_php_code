@@ -54,6 +54,7 @@ if(pathinfo($file, PATHINFO_EXTENSION) == "zip")
 else
 {
     /* this will zip the uploaded file then delete the uploaded file then unzip it. This is so that Jenkins will own the file to be processed */
+    echo "\n current working dir: ".getcwd()."\n";
     if(file_exists($file)) {
         echo "\nOK: File exists: $file\n";
         echo "\n[zip $file.zip $file]\n";
