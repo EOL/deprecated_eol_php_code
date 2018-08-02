@@ -8,7 +8,8 @@ class NatureServeAPI
     // https://services.natureserve.org/idd/rest/ns/v1.1/globalSpecies/comprehensive?NSAccessKeyId=72ddf45a-c751-44c7-9bca-8db3b4513347&uid=ELEMENT_GLOBAL.2.104386
     const API_PREFIX = "https://services.natureserve.org/idd/rest/ns/v1.1/globalSpecies/comprehensive?NSAccessKeyId=72ddf45a-c751-44c7-9bca-8db3b4513347&uid=";
     // const SPECIES_LIST_URL = "https://tranxfer.natureserve.org/download/longterm/EOL/gname_uid_crosswalk.xml";
-    const SPECIES_LIST_URL = "http://localhost/cp_new/NatureServe/gname_uid_crosswalk.xml";
+    // const SPECIES_LIST_URL = "http://localhost/cp_new/NatureServe/gname_uid_crosswalk.xml";
+    const SPECIES_LIST_URL  = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/NatureServe/gname_uid_crosswalk.xml";
     const IMAGE_API_PREFIX = "https://services.natureserve.org/idd/rest/ns/v1/globalSpecies/images?uid=";
     
     public function __construct()
