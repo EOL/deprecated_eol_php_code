@@ -20,8 +20,7 @@ class NatureServeAPI
         $this->national_status_qualifiers();
         
         $this->download_options = array("cache" => 1, "download_wait_time" => 500000, "timeout" => 3600, "download_attempts" => 1); //"delay_in_minutes" => 1
-        $this->download_options['expire_seconds'] = 60*60*24*10; //preferably monthly
-        
+        $this->download_options['expire_seconds'] = 60*60*24*25; //preferably monthly
         if(Functions::is_production()) $this->download_options['resource_id'] = 263;
     }
     
