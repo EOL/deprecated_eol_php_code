@@ -70,7 +70,7 @@ else
     
     // exit("\nstopx\n");
 
-    $file = dirname(__FILE__)."/".$file;
+    // $file = dirname(__FILE__)."/".$file;
     
     if(file_exists($file)) {
         echo "\nOK: File exists: $file\n";
