@@ -4,6 +4,8 @@ namespace php_active_record;
 estimated execution time: 11 minutes for 500 taxa
 Partner provides a list of URL's for its individual species XML.
 The connector loops to this list and compiles each XML to 1 final XML for EOL ingestion.
+
+100	Thursday 2018-08-02 09:24:17 AM	{"agent.tab":302,"media_resource.tab":21881,"reference.tab":12695,"taxon.tab":4082,"vernacular_name.tab":5341}  eol-archive
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

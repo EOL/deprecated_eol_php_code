@@ -3,6 +3,7 @@ namespace php_active_record;
 /* Diptera of Central America
 estimated execution time: 9 minutes 
 Connector scrapes the partner's website
+683	Thursday 2018-08-02 09:09:58 AM	{"agent.tab":1,"media_resource.tab":200,"taxon.tab":171} eol-archive
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DipteraCentralAmericaAPI');
