@@ -9,7 +9,7 @@ class NatureServeAPI
     const API_PREFIX = "https://services.natureserve.org/idd/rest/ns/v1.1/globalSpecies/comprehensive?NSAccessKeyId=72ddf45a-c751-44c7-9bca-8db3b4513347&uid=";
     // const SPECIES_LIST_URL = "https://tranxfer.natureserve.org/download/longterm/EOL/gname_uid_crosswalk.xml";
     // const SPECIES_LIST_URL = "http://localhost/cp_new/NatureServe/gname_uid_crosswalk.xml";
-    const SPECIES_LIST_URL  = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/NatureServe/gname_uid_crosswalk.xml";
+    const SPECIES_LIST_URL  = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/NatureServe/gname_uid_crosswalk.xml";
     const IMAGE_API_PREFIX = "https://services.natureserve.org/idd/rest/ns/v1/globalSpecies/images?uid=";
     
     public function __construct()
@@ -33,7 +33,8 @@ class NatureServeAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => DOC_ROOT . "/tmp/dwc_archive_test/"));
         
         $species_list_path = DOC_ROOT . "update_resources/connectors/files/natureserve_species_list.xml";
-        shell_exec("rm -f $species_list_path");
+        $cmd = shell_exec("rm -f $species_list_path");
+        echo "\n$cmd\n";
         shell_exec("curl ". self::SPECIES_LIST_URL ." -o $species_list_path");
         
         $reader = new \XMLReader();
