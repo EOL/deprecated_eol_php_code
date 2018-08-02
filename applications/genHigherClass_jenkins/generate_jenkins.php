@@ -55,7 +55,9 @@ else
 {
     /* this will zip the uploaded file then delete the uploaded file then unzip it. This is so that Jenkins will own the file to be processed */
 
-    // echo "\n current working dir: ".getcwd()."\n";
+    echo "\n current working dir: ".getcwd()."\n";
+    echo "\n".dirname(__FILE__)."\n";
+    echo "\n".__DIR__."\n";
     // $file = getcwd()."/".$file;
 
     // if(file_exists($file)) echo "\nOK: $file\n";
@@ -69,7 +71,7 @@ else
     // exit("\nstopx\n");
 
     // if(file_exists($file)) {
-        echo "\nOK: File exists: $file\n";
+        // echo "\nOK: File exists: $file\n";
         echo "\n[zip $file.zip $file]\n";
         shell_exec("zip $file.zip $file");
         echo "\n[$file]\n";
