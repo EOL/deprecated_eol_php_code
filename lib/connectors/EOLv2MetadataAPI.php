@@ -1700,8 +1700,19 @@ class EOLv2MetadataAPI
         echo "\n";
         */
         $possible = array(".xml", ".xml.gz", ".tar.gz", ".zip");
-        $wget_path = '/opt/local/bin/wget';
-        $target_folder = '/Library/WebServer/Documents/cp_new/services.eol.org_xml/';
+
+        if(Functions::is_production()) {
+            $wget_path = '/usr/bin/wget';
+            $target_folder = '/extra/other_files/services.eol.org_xml/';
+            $target_folder2 = '/extra/other_files/services.eol.org_dwca/';
+        }
+        else {
+            $wget_path = '/opt/local/bin/wget';
+            $target_folder = '/Library/WebServer/Documents/cp_new/services.eol.org_xml/';
+            $target_folder2 = '/Library/WebServer/Documents/cp_new/services.eol.org_dwca/';
+        }
+
+
         $services_url = 'http://services.eol.org/resources/';
         $ids = self::get_resource_ids();
         // $ids = array(36, 43); //43
@@ -1712,7 +1723,7 @@ class EOLv2MetadataAPI
             $i++; echo "\n $i of $total - [$id] ";
             $p = array();
             // /opt/local/bin/wget --tries=1 -O /Library/WebServer/Documents/cp_new/services.eol.org_xml/eli.xml "http://services.eol.org/resources/eli.xml" 2>&1
-            /* working OK, temporarily commented
+            // /* working OK, temporarily commented
             foreach($possible as $extension) {
                 $filename = $id.$extension;
                 $p['destination'] = $target_folder.$filename;
@@ -1727,7 +1738,7 @@ class EOLv2MetadataAPI
                 }
                 if(!filesize($p['destination'])) unlink($p['destination']); //final for cleaning zero size files
             }
-            */
+            // */
             // /*
             //start DATA-1719
             if(Functions::url_exists("https://editors.eol.org/eol_php_code/applications/content_server/resources/".$id.".tar.gz")) {
@@ -1751,7 +1762,6 @@ class EOLv2MetadataAPI
                 if(preg_match_all("/<location>(.*?)<\/location>/ims", $xml, $arr)) {
                     $arr[1][] = "meta.xml";
                     print_r($arr[1]);
-                    $target_folder2 = '/Library/WebServer/Documents/cp_new/services.eol.org_dwca/';
                     $dwca_folder = "$target_folder2/$id";
                     if(!file_exists($dwca_folder)) mkdir($dwca_folder);
                     else {
