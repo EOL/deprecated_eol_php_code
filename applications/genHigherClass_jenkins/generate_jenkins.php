@@ -70,10 +70,10 @@ else
     
     // exit("\nstopx\n");
 
-    $file = "/".$file;
+    $file = dirname(__FILE__)."/".$file;
     
     if(file_exists($file)) {
-        // echo "\nOK: File exists: $file\n";
+        echo "\nOK: File exists: $file\n";
         echo "\n[zip $file.zip $file]\n";
         shell_exec("zip $file.zip $file");
         echo "\n[$file]\n";
