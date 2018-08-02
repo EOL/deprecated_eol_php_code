@@ -20,7 +20,7 @@ class NatureServeAPI
         $this->national_status_qualifiers();
         
         $this->download_options = array("cache" => 1, "download_wait_time" => 500000, "timeout" => 3600, "download_attempts" => 1); //"delay_in_minutes" => 1
-        $this->download_options['expire_seconds'] = false; //60*60*24*30; //preferably monthly
+        $this->download_options['expire_seconds'] = 60*60*24*10; //preferably monthly
         
         if(Functions::is_production()) $this->download_options['resource_id'] = 263;
     }
@@ -611,7 +611,6 @@ class NatureServeAPI
         $url = self::IMAGE_API_PREFIX . $id;
         $options = $this->download_options;
         $options['validation_regex'] = '<\/images>';
-        
         $details_xml = Functions::lookup_with_cache($url, $options); //default expires in 25 days
         $xml = simplexml_load_string($details_xml);
         foreach($xml->image as $image) {

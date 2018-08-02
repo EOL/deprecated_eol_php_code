@@ -21,7 +21,8 @@ class TurbellarianAPI_v2
         $this->EOL = 'http://www.eol.org/voc/table_of_contents';
 
         $this->download_options = array('download_wait_time' => 500000, 'timeout' => 9600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => 60*60*24*25);
-        $this->download_options['expire_seconds'] = false;
+        // $this->download_options['expire_seconds'] = false;
+        if(Functions::is_production()) $this->download_options['resource_id'] = $this->resource_id;
         
         $this->page['main'] = "http://turbellaria.umaine.edu/turbella.php";
         $this->page['action_1']  = "http://turbellaria.umaine.edu/turb3.php?action=1&code=";
