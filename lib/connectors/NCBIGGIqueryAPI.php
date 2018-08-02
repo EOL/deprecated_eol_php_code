@@ -55,7 +55,8 @@ class NCBIGGIqueryAPI
         $this->gbif_record_count = "http://api.gbif.org/v1/occurrence/count?taxonKey=";
         $this->gbif_download_options = $this->download_options;
         $this->gbif_download_options['resource_id'] = "";
-        $this->gbif_download_options['cache_path'] = '/Volumes/Thunderbolt4/eol_cache_gbif/';
+        if(Functions::is_production()) $this->gbif_download_options['cache_path'] = "/extra/eol_cache_gbif/";
+        else                           $this->gbif_download_options['cache_path'] = '/Volumes/Thunderbolt4/eol_cache_gbif/';
 
         // BHL services
         $this->bhl_taxon_page = "http://www.biodiversitylibrary.org/name/";
