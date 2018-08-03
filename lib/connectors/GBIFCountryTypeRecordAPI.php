@@ -16,6 +16,15 @@ php update_resources/connectors/892.php
 php update_resources/connectors/893.php
 php update_resources/connectors/894.php
 php update_resources/connectors/885.php
+
+all from eol-archive:
+872	Thursday 2018-08-02 08:54:52 PM	{"measurement_or_fact.tab":639195,"occurrence.tab":167662,"taxon.tab":80072}
+886	Thursday 2018-08-02 10:48:13 PM	{"measurement_or_fact.tab":837637,"occurrence.tab":212745,"taxon.tab":95622}
+887	Thursday 2018-08-02 10:57:39 PM	{"measurement_or_fact.tab":533798,"occurrence.tab":139483,"taxon.tab":52758}
+892	Thursday 2018-08-02 10:58:59 PM	{"measurement_or_fact.tab":49469,"occurrence.tab":12433,"taxon.tab":5953}
+893	Thursday 2018-08-02 11:04:27 PM	{"measurement_or_fact.tab":341938,"occurrence.tab":87627,"taxon.tab":50393}
+894	Thursday 2018-08-02 11:12:17 PM	{"measurement_or_fact.tab":499598,"occurrence.tab":135121,"taxon.tab":81241}
+
 */
 
 class GBIFCountryTypeRecordAPI
@@ -52,6 +61,7 @@ class GBIFCountryTypeRecordAPI
         if(!is_dir($this->download_options['cache_path']))  mkdir($this->download_options['cache_path']);
         
         $this->uris = self::get_uris($params, $params["uri_file"]);
+        echo "\nURIs total: ".count($this->uris)."\n";
         $params["uri_type"] = "citation";
         if($file = @$params["citation_file"]) $this->citations = self::get_uris($params, $file);
         

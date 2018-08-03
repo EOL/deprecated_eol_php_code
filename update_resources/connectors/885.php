@@ -33,15 +33,15 @@ return;
 require_library('connectors/GBIFCountryTypeRecordAPI');
 $timestart = time_elapsed();
 
-// /*
+/*
 //local
 $params["dwca_file"]    = "http://localhost/cp/iDigBio/iDigBioTypes.zip";
 $params["uri_file"]     = "http://localhost/cp/iDigBio/idigbio mappings.xlsx";
-// */
+*/
 
 // /*
 //remote
-// $params["dwca_file"]    = ""; //will move to Archive once it gets more hardisk space
+$params["dwca_file"]    = "https://editors.eol.org/eol_connector_data_files/iDigBio/iDigBioTypes.zip";
 $params["uri_file"]     = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/iDigBio/idigbio mappings.xlsx";
 // */
 

@@ -4,6 +4,8 @@ namespace php_active_record;
 estimated execution time:
 
 This is now the new connector: https://eol-jira.bibalex.org/browse/TRAM-709 (June 2018)
+185	Thursday 2018-08-02 09:23:38 PM	{"agent.tab":4,"measurement_or_fact.tab":9419,"media_resource.tab":3187,"occurrence.tab":4955,"reference.tab":2283,"taxon.tab":11308} eol-archive
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
