@@ -17,8 +17,9 @@ class DiscoverLife_KeysAPI
     /*
     const ID_KEYS_FILE = "http://localhost/cp_new/DiscoverLife/ID keys spreadsheet 30March2011_small.txt"; //working OK
     const ID_KEYS_FILE = "http://localhost/cp_new/DiscoverLife/ID keys spreadsheet 30March2011.txt"; //improper text file, \n is somewhat corrupted. Thus will use .xlsx instead.
-    */
     const ID_KEYS_FILE_xlsx = "http://localhost/cp_new/DiscoverLife/ID keys spreadsheet 30March2011.xlsx";
+    */
+    const ID_KEYS_FILE_xlsx = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/DiscoverLife/ID keys spreadsheet 30March2011.xlsx";
 
     public function get_all_taxa_keys($resource_id)
     {
@@ -36,7 +37,7 @@ class DiscoverLife_KeysAPI
         $no_eol_page = 0;
         foreach($taxa_objects as $name => $fields)
         {
-            $i++;
+            $i++; if(($i % 500) == 0) echo "\n" . number_format($i);
             //filter names. Process only those who already have a page in EOL. Report back to DiscoverLife names not found in EOL
             if(!$taxon = $func->with_eol_page($name))
             {

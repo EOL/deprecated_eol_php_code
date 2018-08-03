@@ -139,7 +139,7 @@ class DiscoverLifeAPIv2
 
         $taxon = array();
         $this->eol_api["search"] = "http://eol.org/api/search/1.0.json?page=1&exact=true&filter_by_taxon_concept_id=&filter_by_hierarchy_entry_id=&filter_by_string=&cache_ttl=&q=";
-        $this->download_options = array('resource_id' => "eol_api", 'expire_seconds' => false, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1);
+        $this->download_options = array('resource_id' => "eol_api", 'expire_seconds' => false, 'download_wait_time' => 500000, 'timeout' => 60*3, 'download_attempts' => 1);
         if($json = Functions::lookup_with_cache($this->eol_api["search"].$name, $this->download_options)) {
             $arr = json_decode($json, true);
             if($arr['totalResults'] >= 1) {

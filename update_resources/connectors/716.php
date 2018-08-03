@@ -2,6 +2,8 @@
 namespace php_active_record;
 /* Animal Demography unit (ADU) Virtual Museum - MammalMAP (31 minutes execution time)
 estimated execution time for 12 databases: 59 hours if records_per_page = 50.
+
+716	Friday 2018-08-03 04:15:27 AM	{"agent.tab":932,"media_resource.tab":19245,"taxon.tab":689,"vernacular_name.tab":676}  eol-archive
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/ADUVirtualMuseumAPI');
