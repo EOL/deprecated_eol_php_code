@@ -16,6 +16,9 @@ class FeaturedCreaturesAPI
         $this->EOL = 'http://www.eol.org/voc/table_of_contents';
         $this->text_count = 0;
         $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 1200, 'download_attempts' => 2, 'expire_seconds' => false, 'resource_id' => $folder);
+
+        if(Functions::is_production()) $this->download_options['resource_id'] = $folder; //$folder is resource_id 648 or 649
+        
         $this->debug = array();
     }
 
@@ -23,14 +26,13 @@ class FeaturedCreaturesAPI
     {
         if($records = self::parse_html()) {
             if($articles) self::initialize_subjects();
-            print_r($records);
+            // print_r($records);
             echo "\n count: " . count($records);
             $i = 0; $total = count($records);
             foreach($records as $rec) {
-                $i++;
-                echo "\n $i of $total: " . $rec["sciname"];
+                $i++; if(($i % 10) == 0) echo "\n $i of $total: " . $rec["sciname"];
                 if($articles) self::prepare_articles($rec);
-                else self::prepare_outlinks($rec);
+                else          self::prepare_outlinks($rec);
                 // if($i == 5) break; // debug
             }
             $this->create_archive();
@@ -113,12 +115,12 @@ class FeaturedCreaturesAPI
             $connections = array();
             foreach($items as $item) {
                 if(preg_match("/<a href=\"#(.*?)\"/ims", $item, $arr) || preg_match("/<a href=#(.*?)>/ims", $item, $arr)) $name = $arr[1];
-                else echo "\n alert: investigate 02: [$item] -- $rec[url]\n";
+                else debug("\n alert: investigate 02: [$item] -- $rec[url]\n");
                 if(preg_match("/>(.*?)</ims", $item, $arr)) $title = $arr[1];
                 else echo "\n alert: investigate 03: [$item] -- $rec[url]\n";
                 $connections[] = array("name" => $name, "title" => $title);
             }
-            echo "\n connections:\n";
+            debug("\n connections:\n"); //exit;
             $i = 0;
             $count = count($connections);
             foreach($connections as $conn) {
@@ -142,11 +144,11 @@ class FeaturedCreaturesAPI
                 elseif(preg_match("/$href1_noquote(.*?)$href2_noquote/ims", $html, $arr)) $connections[$i]["desc"] = $href1 . $arr[1];
                 elseif(preg_match("/$href1(.*?)$href2_noquote/ims", $html, $arr)) $connections[$i]["desc"] = $href1 . $arr[1];
                 elseif(preg_match("/$href1_noquote(.*?)$href2/ims", $html, $arr)) $connections[$i]["desc"] = $href1 . $arr[1];
-                else echo "\n alert: investigate 04: [$href1][$href2]\n";
+                else debug("\n alert: investigate 04: [$href1][$href2]\n");
                 $i++;
             }
             $this->text_count += count($connections);
-            echo "\n article count per taxon: " . count($connections);
+            debug("\n article count per taxon: " . count($connections));
             $reference_ids = self::prepare_object_refs($connections);
             foreach($connections as $conn) {
                 $title = trim($conn["title"]);
@@ -164,34 +166,34 @@ class FeaturedCreaturesAPI
                     if(!$subject = self::other_subject_assignment($title)) {
                         if(in_array($rec["url"], array("http://entnemdept.ufl.edu/creatures/misc/gastro/snail_eating_snails.htm"))) {
                             if($title == Functions::canonical_form($rec["sciname"])) {
-                                echo "\n [$title] EXACT taxon for the page \n";
+                                debug("\n [$title] EXACT taxon for the page \n");
                                 $subject = $this->SPM . "#Morphology"; // hasn't divided the diff topics yet
                             }
                             else {
-                                echo "\n [$title] not exact taxon for the page \n";
-                                echo "\n undefined subject 01: [$title][$description]\n";
+                                debug("\n [$title] not exact taxon for the page \n");
+                                debug("\n undefined subject 01: [$title][$description]\n");
                                 continue;
                             }
                         }
                         elseif(in_array($rec["url"], array("http://entnemdept.ufl.edu/creatures/misc/jumping_spiders.htm")))
                         {
                             if($title == Functions::canonical_form($rec["sciname"])) {
-                                echo "\n [$title] EXACT taxon for the page \n";
+                                debug("\n [$title] EXACT taxon for the page \n");
                                 $subject = $this->SPM . "#Description";
                                 if(is_numeric(stripos($description, "Synonym"))) $subject = $this->EOL . "#Taxonomy";
                             }
                             else {
-                                echo "\n [$title] not exact taxon for the page \n";
-                                echo "\n undefined subject 02: [$title][$description]\n";
+                                debug("\n [$title] not exact taxon for the page \n");
+                                debug("\n undefined subject 02: [$title][$description]\n");
                                 continue;
                             }
                         }
                         else {
-                            echo " --- will continue...[$title][$subject]"; 
+                            debug(" --- will continue...[$title][$subject]"); 
                             continue;
                         }
                     }
-                    echo "\n final subject: [$title][$subject]\n";
+                    // echo "\n final subject: [$title][$subject]\n";
                 }
 
                 // remove row before <p>
@@ -296,7 +298,7 @@ class FeaturedCreaturesAPI
         $reference_ids = array();
         $string = "";
         foreach($connections as $conn) {
-            if($conn["title"] == "Selected References") $string = $conn["desc"];
+            if($conn["title"] == "Selected References") $string = @$conn["desc"];
         }
         if(preg_match_all("/<li>(.*?)<\/li>/ims", $string, $arr)) 
         {
@@ -323,7 +325,7 @@ class FeaturedCreaturesAPI
         $reference_ids = array();
         $ref_ids = array();
         $agent_ids = array();
-        echo "\n\n" . " - " . $rec['sciname'] . " - " . $rec['vernacular'] . " - " . $rec['url'] . "\n";
+        debug("\n\n" . " - " . $rec['sciname'] . " - " . $rec['vernacular'] . " - " . $rec['url'] . "\n");
         if($html = Functions::lookup_with_cache($rec['url'], $this->download_options)) {
             $html = str_ireplace(array("\n", "\r", "\t", "\o", "    "), "", $html);
             // manual adjustment
@@ -373,7 +375,10 @@ class FeaturedCreaturesAPI
                     $rec = str_ireplace(' target="_blank"', "", $rec);
                     $parts = explode('">', $rec);
                     $url = trim($parts[0]);
-                    $names = trim(strip_tags($parts[1]));
+                    
+                    $names = trim(strip_tags(@$parts[1]));
+                    if(!$names) continue;
+                    
                     $names = str_ireplace(array("\n", "\t"), "", $names);
                     $names = preg_replace("/\([^)]+\)/", "", $names); //remove parenthesis
                     $names_arr = explode(",", $names);
@@ -397,7 +402,7 @@ class FeaturedCreaturesAPI
                         $vernacular = $names_arr[3];
                     }
                     elseif($comma_count == 0) {
-                        echo "\n zero comma count: [$rec]";
+                        debug("\n zero comma count: [$rec]");
                         $sciname = $names_arr[0];
                         $vernacular = "";
                     }
@@ -415,7 +420,7 @@ class FeaturedCreaturesAPI
                     $sciname = Functions::remove_whitespace(str_replace("&nbsp;", " ", $sciname));
                     $vernacular = Functions::remove_whitespace(str_replace("&nbsp;", " ", $vernacular));
                     
-                    echo "\n sciname: [$sciname] [$vernacular]";
+                    debug("\n sciname: [$sciname] [$vernacular]");
                     if($sciname) $taxa[$sciname] = array("taxon_id" => str_ireplace(" ", "_", $sciname), "sciname" => $sciname, "vernacular" => $vernacular, "url" => $this->domain . $url);
                 }
                 return $taxa;
