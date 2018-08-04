@@ -8,7 +8,7 @@ require_library('connectors/FeaturedCreaturesAPI');
 
 $timestart = time_elapsed();
 $resource_id = "649";
-
+// $GLOBALS['ENV_DEBUG'] = false;
 $func = new FeaturedCreaturesAPI($resource_id);
 $func->get_all_taxa(true); // 'true' if to generate text articles, 'false' for outlinks
 

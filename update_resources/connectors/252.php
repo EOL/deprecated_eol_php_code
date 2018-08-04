@@ -8,7 +8,7 @@ Note:
 - now connector is revived, available for V3.
 
 252	Tuesday 2018-05-08 10:29:38 AM	{"agent.tab":1,"media_resource.tab":6231,"taxon.tab":6231} - MacMini
-
+252	Friday 2018-08-03 12:39:28 PM	{"agent.tab":1,"media_resource.tab":6231,"taxon.tab":6231} - eol-archive
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

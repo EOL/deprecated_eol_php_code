@@ -7,6 +7,7 @@ estimated execution time: ~3 days
 723	Wednesday 2018-03-28 10:17:55 PM	{"measurement_or_fact.tab":116434,"occurrence.tab":116434,"taxon.tab":9913} - MacMini
 723	Wednesday 2018-03-28 10:54:54 PM	{"measurement_or_fact.tab":116434,"occurrence.tab":116434,"taxon.tab":9913}
 723	Sunday 2018-05-13 03:44:33 PM	    {"measurement_or_fact.tab":116456,"occurrence.tab":116360,"taxon.tab":9917}
+723	Saturday 2018-08-04 07:40:23 AM	    {"measurement_or_fact.tab":116390,"occurrence.tab":116390,"taxon.tab":9904} - eol-archive
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/NCBIGGIqueryAPI');

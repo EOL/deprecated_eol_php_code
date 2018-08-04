@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
-/* connector: [dwh_ncbi.php]
-https://eol-jira.bibalex.org/browse/TRAM-795
+/* connector: [dwh_ncbi_TRAM_795.php] - https://eol-jira.bibalex.org/browse/TRAM-795
+              [dwh_ncbi_TRAM_796.php] - https://eol-jira.bibalex.org/browse/TRAM-796
 */
 
 class DWH_NCBI_API
