@@ -341,7 +341,7 @@ class BOLDS_DumpsServiceAPI
                     $info['tax_rank'] = trim($a[1]);
                 }
             }
-            if($info['taxon'] && $info['tax_rank']) {
+            if(@$info['taxon'] && $info['tax_rank']) {
                 echo "\nSalvaged by scraping: [$taxid]";
                 return $info;
             }
