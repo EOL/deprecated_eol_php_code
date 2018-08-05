@@ -15,9 +15,7 @@ $timestart = time_elapsed();
 $resource_id = 895;
 $func = new TrekNatureAPI($resource_id);
 $func->get_all_taxa();
-
-Functions::finalize_dwca_resource($resource_id);
-
+Functions::finalize_dwca_resource($resource_id, false, true);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
