@@ -3,6 +3,8 @@ namespace php_active_record;
 /* http://eol.org/content_partners/22/resources/829 - DATA-1622
 This is a generic script that will convert EOL XML to EOL DWC-A
 DATA-1702
+
+829	Saturday 2018-08-04 11:07:08 PM	{"agent.tab":954,"media_resource.tab":11233,"reference.tab":406,"taxon.tab":3431}   eol-archive
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
