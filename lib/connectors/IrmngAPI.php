@@ -358,7 +358,7 @@ class IrmngAPI
             if(!($TMP = Functions::file_open($temp_file_path, "w"))) return;
             fwrite($TMP, $file_contents);
             fclose($TMP);
-            $output = shell_exec("unzip $temp_file_path -d $this->TEMP_FILE_PATH");
+            $output = shell_exec("unzip -o $temp_file_path -d $this->TEMP_FILE_PATH");
             if(!file_exists($this->TEMP_FILE_PATH . "/IRMNG_DWC_20140131.csv")) 
             {
                 $this->TEMP_FILE_PATH = str_ireplace(".zip", "", $temp_file_path);

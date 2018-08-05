@@ -582,14 +582,10 @@ class RotifersTypeSpecimenAPI
         {
             $parts = pathinfo($this->zip_path);
             $temp_file_path = $this->TEMP_FILE_PATH . "/" . $parts["basename"];
-            if(!($TMP = fopen($temp_file_path, "w")))
-            {
-              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_file_path);
-              return;
-            }
+            if(!($TMP = Functions::file_open($temp_file_path, "w"))) return;
             fwrite($TMP, $file_contents);
             fclose($TMP);
-            $output = shell_exec("unzip $temp_file_path -d $this->TEMP_FILE_PATH");
+            $output = shell_exec("unzip -o $temp_file_path -d $this->TEMP_FILE_PATH");
             if(!file_exists($this->TEMP_FILE_PATH . "/sd_specimen.txt")) 
             {
                 $this->TEMP_FILE_PATH = str_ireplace(".zip", "", $temp_file_path);

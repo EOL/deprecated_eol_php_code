@@ -271,7 +271,7 @@ class FEISDataConnector
             if(!($TMP = Functions::file_open($temp_file_path, "w"))) return;
             fwrite($TMP, $file_contents);
             fclose($TMP);
-            $output = shell_exec("unzip $temp_file_path -d $temp_path");
+            $output = shell_exec("unzip -o $temp_file_path -d $temp_path");
             if(file_exists($temp_path . "/" . $files[0] . $extension))
             {
                 foreach($files as $file) $text_path[$file] = $temp_path . "/" . $file . $extension;

@@ -29,7 +29,7 @@ class Spreadsheet2DwCA
             $zipYN = true;
             $test_temp_dir = create_temp_dir();
             $local = Functions::save_remote_file_to_local($url);
-            $output = shell_exec("unzip $local -d $test_temp_dir");
+            $output = shell_exec("unzip -o $local -d $test_temp_dir");
             echo "<hr> [$output] <hr>";
             /* $ext = self::get_real_extension_of_zip_file($url); --- not used anymore */
             $ext = "xls";

@@ -499,7 +499,7 @@ class BOLDS_DumpsServiceAPI
         // $download_options['cache'] = 0; // 0 only when developing //debug - comment in real operation
         $temp_path = Functions::save_remote_file_to_local($file, $download_options);
         echo "\nunzipping this file [$temp_path]... \n";
-        shell_exec("unzip " . $temp_path . " -d " . DOC_ROOT."tmp/"); //worked OK
+        shell_exec("unzip -o " . $temp_path . " -d " . DOC_ROOT."tmp/"); //worked OK
         unlink($temp_path);
         if(is_dir(DOC_ROOT."tmp/"."__MACOSX")) recursive_rmdir(DOC_ROOT."tmp/"."__MACOSX");
     }

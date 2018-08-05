@@ -110,7 +110,7 @@ class FishBaseAPI
             }
             fwrite($TMP, $file_contents);
             fclose($TMP);
-            $output = shell_exec("unzip $temp_file_path -d $this->TEMP_FILE_PATH");
+            $output = shell_exec("unzip -o $temp_file_path -d $this->TEMP_FILE_PATH");
 
             if(!file_exists($this->TEMP_FILE_PATH . "/taxon.txt")) 
             {
