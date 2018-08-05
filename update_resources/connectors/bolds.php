@@ -16,6 +16,7 @@ $timestart = time_elapsed();
 // $resource_id = "Protista_new";
 $resource_id = '81';
 // $resource_id = "Arthropoda"; //Animals
+// $resource_id = 'Priapulida'; //smallest phylum
 
 /* tests...
 // $json = Functions::lookup_with_cache("http://www.boldsystems.org/index.php/API_Tax/TaxonData?taxId=30367&dataTypes=all");

@@ -37,6 +37,9 @@ class BOLDS_DumpsServiceAPI
         $this->temp_path = CONTENT_RESOURCE_LOCAL_PATH . "BOLDS_temp/";
         $this->cnt = 0;
         $this->with_parent_id = true; //true - will make it a point that every taxon has a parentNameUsageID
+        if(Functions::is_production()) $this->BOLDS_new_path = "https://editors.eol.org/eol_connector_data_files/BOLDS_new/";
+        else                           $this->BOLDS_new_path = "http://localhost/cp/BOLDS_new/";
+        
     }
 
     function start_using_dump()
@@ -58,7 +61,7 @@ class BOLDS_DumpsServiceAPI
 
         // $phylums = array('Annelida', 'Chordata', 'Rhodophyta', 'Basidiomycota', 'Heterokontophyta');
         
-        foreach($phylums as $phylum) $this->dump[$phylum] = "http://localhost/cp/BOLDS_new/bold_".$phylum.".txt.zip"; //assign respective source .txt.zip file
+        foreach($phylums as $phylum) $this->dump[$phylum] = $this->BOLDS_new_path."bold_".$phylum.".txt.zip"; //assign respective source .txt.zip file
 
         foreach($phylums as $phylum) {
             if(!$phylum) continue;
