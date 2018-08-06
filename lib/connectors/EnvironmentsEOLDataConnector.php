@@ -11,10 +11,8 @@ class EnvironmentsEOLDataConnector
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->occurrence_ids = array();
 
-        $this->species_list_export = "http://localhost/cp/Environments/eol_env_annotations_noParentTerms.tar.gz"; //local
-        // $this->species_list_export = "http://localhost/cp/Environments/eol_env_annotations_noParentTerms_02.tar.gz"; //local
-
-        // $this->species_list_export = "http://download.jensenlab.org/EOL/eol_env_annotations_noParentTerms.tar.gz";
+        $this->species_list_export = "http://localhost/cp/Environments/eol_env_annotations_noParentTerms.tar.gz";   //local
+        $this->species_list_export = "http://download.jensenlab.org/EOL/eol_env_annotations_noParentTerms.tar.gz";  //still works Aug 6, 2018
         
         /* add: 'resource_id' => "eol_api" ;if you want to add the cache inside a folder [eol_api] inside [eol_cache] */
         $this->download_options = array(
