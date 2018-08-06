@@ -2,6 +2,9 @@
 namespace php_active_record;
 /* connector: [dwh_ncbi_TRAM_795.php] - https://eol-jira.bibalex.org/browse/TRAM-795
               [dwh_ncbi_TRAM_796.php] - https://eol-jira.bibalex.org/browse/TRAM-796
+
+NCBI_Taxonomy_Harvest	    Monday 2018-08-06 02:20:41 AM	{"reference.tab":47083,"taxon.tab":1465751,"vernacular_name.tab":42670}
+NCBI_Taxonomy_Harvest_DH	Monday 2018-08-06 04:47:09 AM	{"reference.tab":23592,"taxon.tab":178807,"vernacular_name.tab":167}
 */
 
 class DWH_NCBI_API
