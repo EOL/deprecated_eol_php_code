@@ -14,8 +14,8 @@ occurrence                      940,408
 708	Tuesday 2018-04-10 01:13:22 AM	{"measurement_or_fact.tab":1153984,"occurrence.tab":936636,"reference.tab":215125,"taxon.tab":226794} - after changes here: https://eol-jira.bibalex.org/browse/DATA-1739?focusedCommentId=62373&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62373
 
 NOTE: this is still run only on local, since addt'l harddisks in Archive aren't installed yet.
+    : started running this eol-archive in Aug 6, 2018
 */
-return;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/EnvironmentsEOLDataConnector');
 ini_set('memory_limit','7096M'); //required for checking uniqueness of measurementID
