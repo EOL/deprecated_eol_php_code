@@ -16,14 +16,9 @@ class CoralReefFishAPI
         $this->family_list_page = $this->domain . "larvae.html";
         $this->gobiidae_page = $this->domain . "gobiidae.html";
         $this->download_options = array("download_wait_time" => 1000000, "timeout" => 1800, "delay_in_minutes" => 1); // "expire_seconds" => 0
-        
         if(Functions::is_production()) $this->download_options['resource_id'] = "765";
-        
-        
-        
         $this->records = array();
     }
-
     function get_all_taxa()
     {
         $families = self::get_family_list_urls();
@@ -33,8 +28,7 @@ class CoralReefFishAPI
         $families[] = "http://www.coralreeffish.com/gobiidae3.html";
         $families[] = "http://www.coralreeffish.com/gobiidae4.html";
         $families[] = "http://www.coralreeffish.com/gobiidae5.html";
-        foreach($families as $name => $url)
-        {
+        foreach($families as $name => $url) {
             $name = self::clean_string($name);
             echo "\n $name $url\n";
             self::process_family($name, $url);
@@ -43,13 +37,10 @@ class CoralReefFishAPI
         self::process_gobiidae_structured_data();
         $this->create_archive();
     }
-
     private function process_records()
     {
-        foreach($this->records as $record)
-        {
-            foreach($record as $taxon => $rec)
-            {
+        foreach($this->records as $record) {
+            foreach($record as $taxon => $rec) {
                 if($taxon == "Hypleurochilus pseudaequipinnus =Hypleurochilus aequipinnus") $taxon = "Hypleurochilus pseudaequipinnus";
                 if(in_array($taxon, array("Starksia sluiteri complex S. sluiteri S. fasciata S. langi S. greenfieldi S. y-lineata S. smithvanizi", "Starksia lepicoelia complex S. lepicoelia S. robertsoni S. weigti S. williamsi", "Starksia ocellata complex S. ocellata S. occidentalis S. culebrae S. guttata S. variabilis &nbsp;", "Starksia atlantica complex S. atlantica S. springeri S. sangreyae &nbsp;"))) $taxon = "Starksia";
                 if($taxon == "Ocyurus chrysurus (Lutjanus chrysurus)") $taxon = "Ocyurus chrysurus";
@@ -69,15 +60,12 @@ class CoralReefFishAPI
             }
         }
     }
-
     private function prepare_text_objects($rec)
     {
         $articles = array();
-        if(@$rec["texts"])
-        {
+        if(@$rec["texts"]) {
             foreach($rec["texts"] as $type => $r) $articles[$type] = implode("<p>", $r);
-            foreach($articles as $type => $description)
-            {
+            foreach($articles as $type => $description) {
                 $description = trim($description);
                 if(in_array($description, array("Diagnosis: Modal fin-ray counts of", "A", "Analogues: Content goes here", 
                     "Early juvenile markings: New recruits (10-15 mm SL) of <i>S. partitus</i> have<p>Later juveniles (over 20 mm SL) are characterized by", 
@@ -97,15 +85,11 @@ class CoralReefFishAPI
             }
         }
     }
-
     private function prepare_image_objects($rec)
     {
-        if($imagez = @$rec["images"])
-        {
-            foreach($imagez as $image)
-            {
-                if($taxon_from_image = self::get_taxon_from_image($image))
-                {
+        if($imagez = @$rec["images"]) {
+            foreach($imagez as $image) {
+                if($taxon_from_image = self::get_taxon_from_image($image)) {
                     // echo " - image from scrape: {" . $rec["sciname"] . "}";
                     $r = array();
                     $r["sciname"] = $taxon_from_image;
@@ -118,7 +102,6 @@ class CoralReefFishAPI
             }
         }
     }
-    
     private function save_image_object($image, $rec)
     {
         $obj = array();
@@ -131,13 +114,10 @@ class CoralReefFishAPI
         $obj["accessURI"]   = $this->domain . $image["src"];
         self::get_objects($obj);
     }
-    
     private function get_taxon_from_image($image)
     {
-        if($val = @$image["alt"])
-        {
+        if($val = @$image["alt"]) {
             $sciname = ucfirst(Functions::canonical_form($val));
-            
             //manual adjustment
             $sciname = trim(str_ireplace(array("larval"), "", $sciname));
             if($sciname == "goby")              $sciname = "goby fish";
@@ -155,32 +135,27 @@ class CoralReefFishAPI
             else return false;
         }
     }
-    
     private function name_exists_in_eol($name)
     {
         $eol_api = "http://eol.org/api/search/1.0.json?exact=true&q=";
         $options = $this->download_options;
         $options['expire_seconds'] = false;
         
-        if($json = Functions::lookup_with_cache($eol_api . $name, $options))
-        {
+        if($json = Functions::lookup_with_cache($eol_api . $name, $options)) {
             $taxon = json_decode($json, true);
             if(intval($taxon["totalResults"]) > 0) return Functions::canonical_form($taxon["results"][0]["title"]);
             else                                   return false;
         }
     }
-
     private function get_objects($rec)
     {
         $mr = new \eol_schema\MediaResource();
-        if($rec["type"] == "text")
-        {
+        if($rec["type"] == "text") {
             $mr->type               = 'http://purl.org/dc/dcmitype/Text';
             $mr->format             = 'text/html';
             $mr->CVterm             = $rec["subject"];
         }
-        elseif($rec["type"] == "image")
-        {
+        elseif($rec["type"] == "image") {
             $mr->type               = 'http://purl.org/dc/dcmitype/StillImage';
             $mr->format             = 'image/jpeg';
             $mr->accessURI          = $rec["accessURI"];
@@ -193,7 +168,6 @@ class CoralReefFishAPI
         $mr->description            = $rec["description"];
         $mr->UsageTerms             = 'http://creativecommons.org/licenses/by/3.0/';
         $mr->Owner                  = 'www.coralreeffish.com by Benjamin Victor';
-
         /*
         $mr->title                  = '';
         $mr->creator                = '';
@@ -203,18 +177,14 @@ class CoralReefFishAPI
         $mr->audience               = 'Everyone';
         $mr->bibliographicCitation  = '';
         */
-        
-        if(!isset($this->object_ids[$mr->identifier]))
-        {
+        if(!isset($this->object_ids[$mr->identifier])) {
             $this->object_ids[$mr->identifier] = 1;
             $this->archive_builder->write_object_to_file($mr);
         }
     }
-
     private function get_subject($type)
     {
-        switch($type)
-        {
+        switch($type) {
             case "Diagnosis":   return $this->SPM . "#DiagnosticDescription";
             case "Ecology":     return $this->SPM . "#Ecology";
             case "Analogues":   return $this->SPM . "#LookAlikes";
@@ -223,12 +193,10 @@ class CoralReefFishAPI
             default: echo "\n investigate undefined subject for [$type]\n";
         }
     }
-
     private function process_gobiidae_structured_data()
     {
         $records = self::parse_gobiidae_structured_data();
-        foreach($records as $sciname => $record)
-        {
+        foreach($records as $sciname => $record) {
             // start taxon entry
             $r = array();
             $r["sciname"] = $sciname;
@@ -240,25 +208,21 @@ class CoralReefFishAPI
             $rec["taxon_id"] = $r["taxon_id"];
             $rec["source"] = $this->gobiidae_page;
             // - pelvic fins
-            if($info = self::format_pelvic_fin_form($record["Pelvic fins"]))
-            {
+            if($info = self::format_pelvic_fin_form($record["Pelvic fins"])) {
                 $rec["catnum"] = $info["basename"];
                 $pelvic_fin_form = $info["uri"];
                 self::add_string_types("true", $rec, "Pelvic fins", $pelvic_fin_form, "http://eol.org/schema/terms/PelvicFinForm");
                 self::add_string_types("false", $rec, "life stage", "http://purl.obolibrary.org/obo/PATO_0001185", "http://rs.tdwg.org/dwc/terms/lifeStage");
             }
             // - anal-fin elements
-            if($val = $record["anal-fin elements"])
-            {
+            if($val = $record["anal-fin elements"]) {
                 $arr = explode("-", $val);
-                if(count($arr) == 1)
-                {
+                if(count($arr) == 1) {
                     $rec["catnum"] = "AnalFinElements";
                     self::add_string_types("true", $rec, "anal-fin elements", $val, "http://eol.org/schema/terms/NumberOfAnalFinElements");
                     self::add_string_types("false", $rec, "life stage", "http://purl.obolibrary.org/obo/PATO_0001185", "http://rs.tdwg.org/dwc/terms/lifeStage");
                 }
-                else
-                {
+                else {
                     $rec["catnum"] = "AnalFinElements_min";
                     $rec["statistical_method"] = "http://semanticscience.org/resource/SIO_001113";
                     self::add_string_types("true", $rec, "anal-fin elements", $arr[0], "http://eol.org/schema/terms/NumberOfAnalFinElements");
@@ -270,8 +234,7 @@ class CoralReefFishAPI
                 }
             }
             // - 1st dorsal spines
-            if($val = $record["1st dorsal spines"])
-            {
+            if($val = $record["1st dorsal spines"]) {
                 $rec["statistical_method"] = "";
                 $rec["catnum"] = "NumberOfSpinesFirstDorsalFin";
                 self::add_string_types("true", $rec, "1st dorsal spines", $val, "http://eol.org/schema/terms/NumberOfSpinesFirstDorsalFin");
@@ -279,7 +242,6 @@ class CoralReefFishAPI
             }
         }
     }
-
     private function format_pelvic_fin_form($form)
     {
         if(!$form) return false;
@@ -288,45 +250,36 @@ class CoralReefFishAPI
         elseif($form == "partial")                          $uri = "http://eol.org/schema/terms/partiallyDivided";
         elseif(in_array($form, array("fused", "fused*")))   $uri = "http://eol.org/schema/terms/fusedPelvicFin";
         else echo "\n investigate pelvic fin form [$form] \n";
-        if($uri)
-        {
+        if($uri) {
             $info = pathinfo($uri);
             return array("uri" => $uri, "basename" => $info["filename"]);
         }
         return false;
     }
-
     private function parse_gobiidae_structured_data()
     {
         $records = array();
         $fields = array("Pelvic fins", "anal-fin elements", "1st dorsal spines", "anal fewer than dorsal", "equal", "anal more than dorsal");
-        if($html = Functions::lookup_with_cache($this->gobiidae_page, $this->download_options))
-        {
+        if($html = Functions::lookup_with_cache($this->gobiidae_page, $this->download_options)) {
             $html = str_ireplace('<TD CLASS="leftbodytext" WIDTH="32%">', '<TD WIDTH="32%">', $html);
-            if(preg_match("/NAME=\"gobies\" BORDERCOLOR=\"#999999\">(.*?)<\/table>/ims", $html, $arr))
-            {
-                if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $arr[1], $arr3))
-                {
+            if(preg_match("/NAME=\"gobies\" BORDERCOLOR=\"#999999\">(.*?)<\/table>/ims", $html, $arr)) {
+                if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $arr[1], $arr3)) {
                     array_shift($arr3[1]);
-                    foreach($arr3[1] as $block)
-                    {
+                    foreach($arr3[1] as $block) {
                         $sciname = "";
                         if(preg_match("/<i>(.*?)<\/i>/ims", $block, $arr2)) $sciname = trim($arr2[1]);
                         elseif(preg_match("/WIDTH=\"32%\">(.*?)<\/td>/ims", $block, $arr2)) $sciname = trim(strip_tags($arr2[1]));
                         $sciname = self::clean_str($sciname);
                         $sciname = trim(str_ireplace(array("family","1","2"), "", $sciname));
-                        if(preg_match_all("/<TD CLASS=\"leftbodytext\"(.*?)<\/td>/ims", $block, $arr2))
-                        {
-                            if(count($arr2[1]) != 6)
-                            {
+                        if(preg_match_all("/<TD CLASS=\"leftbodytext\"(.*?)<\/td>/ims", $block, $arr2)) {
+                            if(count($arr2[1]) != 6) {
                                 echo "\n investigate";
                                 continue;
                             }
                             $i = 0;
                             $values = array();
                             echo "\n [$sciname] ";
-                            foreach($arr2[1] as $temp)
-                            {
+                            foreach($arr2[1] as $temp) {
                                 if(preg_match("/>(.*?)<\/td>/ims", $temp . "</td>", $arr3)) $values[$fields[$i]] = self::clean_str($arr3[1]);
                                 $i++;
                             }
@@ -339,7 +292,6 @@ class CoralReefFishAPI
         }
         return $records;
     }
-
     private function clean_str($str)
     {
         $str = trim($str);
@@ -347,7 +299,6 @@ class CoralReefFishAPI
         $str = Functions::remove_whitespace($str);
         return $str;
     }
-    
     private function process_family($name, $url)
     {
         /*
@@ -355,22 +306,18 @@ class CoralReefFishAPI
         else                                       $options = $this->download_options2; // will not use cache
         */
         $options = $this->download_options;
-        if($html = Functions::lookup_with_cache($url, $options))
-        {
+        if($html = Functions::lookup_with_cache($url, $options)) {
             if($url == "http://www.coralreeffish.com/microdesmidae.html") $html = str_ireplace('<span class="speciesheading">Cerdale floridana</span>', '<td height="1" bgcolor="#373B4A"></td><span class="speciesheading">Cerdale floridana</span>', $html);
             $html = str_ireplace('<td height="1" bgcolor="#373B4A"> </td>', '<td height="1" bgcolor="#373B4A"></td>', $html);
             $html = str_ireplace('<td height="1" bgcolor="#373B4A"></td>', strtolower('<td height="1" bgcolor="#373B4A"></td>'), $html);
             $blocks = explode('<td height="1" bgcolor="#373b4a"></td>', $html); // take note of lower case '#373b4a'
-            foreach($blocks as $block)
-            {
+            foreach($blocks as $block) {
                 $record = array();
                 // echo "\n==============================================\n";
                 $block = str_ireplace(array(' height=""', ' height="20"', '  height="30"', ' height="30"', ' height="17"', ' COLSPAN="2"', ' height="85"', ' height="20px"', ' width="67%"', ' align="center"'), '', $block);
                 $taxa = array();
-                if(preg_match_all("/<TD CLASS\=\"groupheading\">(.*?)<\/td>/ims", $block, $arr))
-                {
-                    foreach($arr[1] as $taxon)
-                    {
+                if(preg_match_all("/<TD CLASS\=\"groupheading\">(.*?)<\/td>/ims", $block, $arr)) {
+                    foreach($arr[1] as $taxon) {
                         $name = self::clean_string($taxon, "name");
                         // manual adjustments start
                         if(in_array($name, array("Starksia species list"))) continue;
@@ -381,21 +328,16 @@ class CoralReefFishAPI
                     }
                 }
                 
-                if(preg_match_all("/<SPAN CLASS\=\"speciesheading\">(.*?)<\/SPAN>/ims", $block, $arr))
-                {
+                if(preg_match_all("/<SPAN CLASS\=\"speciesheading\">(.*?)<\/SPAN>/ims", $block, $arr)) {
                     foreach($arr[1] as $taxon) $taxa["speciesheading"][] = self::clean_string($taxon, "name");
                 }
-                if(preg_match_all("/<td CLASS\=\"speciesheading\">(.*?)<\/td>/ims", $block, $arr))
-                {
+                if(preg_match_all("/<td CLASS\=\"speciesheading\">(.*?)<\/td>/ims", $block, $arr)) {
                     foreach($arr[1] as $taxon) $taxa["speciesheading"][] = self::clean_string($taxon, "name");
                 }
 
-                if($url == "http://www.coralreeffish.com/misc.html")
-                {
-                    if(preg_match_all("/<td class\=\"bodyitalictext\">(.*?)<\/td>/ims", $block, $arr))
-                    {
-                        foreach($arr[1] as $taxon)
-                        {
+                if($url == "http://www.coralreeffish.com/misc.html") {
+                    if(preg_match_all("/<td class\=\"bodyitalictext\">(.*?)<\/td>/ims", $block, $arr)) {
+                        foreach($arr[1] as $taxon) {
                             $name = self::clean_string($taxon, "name");
                             if(in_array($name, array("Scorpaena sp. transitional larva,", "Scorpaena sp. early transitional larva,"))) $name = "Scorpaena sp.";
                             $taxa["speciesheading"][] = $name;
@@ -407,11 +349,9 @@ class CoralReefFishAPI
                 if(isset($taxa["speciesheading"]))  $taxa["speciesheading"] = array_unique($taxa["speciesheading"]);
                 
                 $texts = array();
-                if(preg_match_all("/CLASS=\"bodytext\">(.*?)<\/TD>/ims", $block, $arr))
-                {
+                if(preg_match_all("/CLASS=\"bodytext\">(.*?)<\/TD>/ims", $block, $arr)) {
                     $arr[1] = array_map('trim', $arr[1]);
-                    foreach($arr[1] as $t)
-                    {
+                    foreach($arr[1] as $t) {
                         $t = self::clean_string($t);
                         $t = trim(strip_tags($t, "<i>"));
 
@@ -450,18 +390,14 @@ class CoralReefFishAPI
                     }
                 }
                 
-                if($url == "http://www.coralreeffish.com/misc.html")
-                {
+                if($url == "http://www.coralreeffish.com/misc.html") {
                     if(isset($texts["Description"])) $texts = array();
                 }
                 
                 $images = array();
-                if(preg_match_all("/<img (.*?)>/ims", $block, $arr))
-                {
-                    foreach($arr[1] as $image)
-                    {
-                        if(strpos($image, "images/") === false)
-                        {
+                if(preg_match_all("/<img (.*?)>/ims", $block, $arr)) {
+                    foreach($arr[1] as $image) {
+                        if(strpos($image, "images/") === false) {
                             $src = false; $alt = ""; $title = "";
                             if(preg_match("/src\=\"(.*?)\"/ims", $image, $arr2)) $src = $arr2[1];
                             if(preg_match("/alt\=\"(.*?)\"/ims", $image, $arr2)) $alt = $arr2[1];
@@ -474,11 +410,9 @@ class CoralReefFishAPI
                 $taxon = false;
                 if($taxon = self::get_taxon(@$taxa["speciesheading"], "speciesheading", $url)) {}
                 elseif($taxon = self::get_taxon(@$taxa["groupheading"], "groupheading", $url)) {}
-                else
-                {
+                else {
                     // manual adjustments start
-                    if(@$taxa["speciesheading"][0] == "Pseudogramma gregoryi" && @$taxa["speciesheading"][1] == "Gramma loreto")
-                    {
+                    if(@$taxa["speciesheading"][0] == "Pseudogramma gregoryi" && @$taxa["speciesheading"][1] == "Gramma loreto") {
                         $record[$taxa["speciesheading"][0]]["texts"] = $texts;
                         $record[$taxa["speciesheading"][0]]["source"] = $url;
                         $record[$taxa["speciesheading"][1]]["images"] = $images;
@@ -486,8 +420,7 @@ class CoralReefFishAPI
                         $this->records[] = $record;
                         continue;
                     }
-                    if($url != "http://www.coralreeffish.com/misc.html")
-                    {
+                    if($url != "http://www.coralreeffish.com/misc.html") {
                         $parts = pathinfo($url);
                         $family_name = ucfirst($parts["filename"]);
                         $record[$family_name]["texts"] = $texts;
@@ -498,8 +431,7 @@ class CoralReefFishAPI
                     }
                     // manual adjustments end
                     
-                    if($taxa || $texts || $images)
-                    {
+                    if($taxa || $texts || $images) {
                         echo "\n\n investigate no taxa: [$url]\n\n";
                         print_r($taxa);
                         print_r($texts);
@@ -513,8 +445,7 @@ class CoralReefFishAPI
                 if(in_array($taxon, array("GOBIES OF THE CARIBBEAN"))) continue;
                 // manual adjustment end
                 
-                if($taxon)
-                {
+                if($taxon) {
                     $record[$taxon]["texts"] = $texts;
                     $record[$taxon]["images"] = $images;
                     $record[$taxon]["source"] = $url;
@@ -523,11 +454,9 @@ class CoralReefFishAPI
             }
         }
     }
-    
     private function get_taxon($arr, $type, $url)
     {
-        if(count($arr) > 1)
-        {
+        if(count($arr) > 1) {
             if($arr[0] == "Pseudogramma gregoryi" && $arr[1] == "Gramma loreto") return false;
             if($arr[0] == "Subfamily Pseudogrammatinae" && $arr[1] == "FAMILY GRAMMATIDAE") return false;
             echo "\n\n investigate more than 1 taxon ($type): [$url]\n\n";
@@ -536,26 +465,20 @@ class CoralReefFishAPI
         }
         else return $arr[0];
     }
-    
     private function clean_string($string, $type = false)
     {
         $string = str_ireplace(array("\r\n", "\n", "\r", "\t", "\0", "\x0B", "\t"), '', $string);
         if($type == "name") $string = strip_tags($string);
         return trim(Functions::remove_whitespace($string));
     }
-    
     private function get_family_list_urls()
     {
         $families = array();
-        if($html = Functions::lookup_with_cache($this->family_list_page, $this->download_options))
-        {
-            if(preg_match_all("/<A HREF\=(.*?)<\/A>/ims", $html, $arr))
-            {
-                foreach($arr[1] as $str)
-                {
+        if($html = Functions::lookup_with_cache($this->family_list_page, $this->download_options)) {
+            if(preg_match_all("/<A HREF\=(.*?)<\/A>/ims", $html, $arr)) {
+                foreach($arr[1] as $str) {
                     if(stripos($str, 'CLASS="familylink"') === false) {}
-                    else
-                    {
+                    else {
                         $family_name = false;
                         if(preg_match("/\>(.*?)xxx/ims", $str."xxx", $arr)) $family_name = trim($arr[1]);
                         if(preg_match("/\"(.*?)\"/ims", $str, $arr)) $url = $arr[1];
@@ -566,26 +489,22 @@ class CoralReefFishAPI
         }
         return $families;
     }
-
     private function create_instances_from_taxon_object($rec)
     {
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                     = $rec["taxon_id"];
         $taxon->scientificName              = $rec["sciname"];
         $taxon->furtherInformationURL       = $rec["source"];
-        if(!isset($this->taxon_ids[$taxon->taxonID]))
-        {
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->taxa[$taxon->taxonID] = $taxon;
             $this->taxon_ids[$taxon->taxonID] = 1;
         }
     }
-
     private function create_archive()
     {
         foreach($this->taxa as $t) $this->archive_builder->write_object_to_file($t);
         $this->archive_builder->finalize(TRUE);
     }
-
     private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype)
     {
         $taxon_id = $rec["taxon_id"];
@@ -599,13 +518,8 @@ class CoralReefFishAPI
         // $m->contributor = 'coralreeffish.com';
         $m->measurementType = $mtype;
         $m->measurementValue = $value;
-        
-        if($val = @$rec["statistical_method"])
-        {
-            $m->statisticalMethod = $val;
-        }
+        if($val = @$rec["statistical_method"]) $m->statisticalMethod = $val;
         // $m->measurementMethod = '';
-        
         $this->archive_builder->write_object_to_file($m);
     }
     private function add_occurrence($taxon_id, $catnum)
@@ -619,6 +533,5 @@ class CoralReefFishAPI
         $this->occurrence_ids[$occurrence_id] = $o;
         return $o;
     }
-
 }
 ?>
