@@ -314,6 +314,7 @@ class BOLDS_DumpsServiceAPI
                         echo "\Scraped taxon info [$taxid] but may not get parentID here.\n";
                         self::create_taxon_archive($taxon_info);
                     }
+                    else echo "\nCannot salvage this parent id ($taxid)";
                 }
             }
         }
