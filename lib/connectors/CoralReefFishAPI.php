@@ -15,7 +15,12 @@ class CoralReefFishAPI
         $this->domain = "http://www.coralreeffish.com/";
         $this->family_list_page = $this->domain . "larvae.html";
         $this->gobiidae_page = $this->domain . "gobiidae.html";
-        $this->download_options = array("download_wait_time" => 2000000, "timeout" => 1800, "delay_in_minutes" => 2); // "expire_seconds" => 0
+        $this->download_options = array("download_wait_time" => 1000000, "timeout" => 1800, "delay_in_minutes" => 1); // "expire_seconds" => 0
+        
+        if(Functions::is_production()) $this->download_options['resource_id'] = "765";
+        
+        
+        
         $this->records = array();
     }
 
@@ -154,7 +159,10 @@ class CoralReefFishAPI
     private function name_exists_in_eol($name)
     {
         $eol_api = "http://eol.org/api/search/1.0.json?exact=true&q=";
-        if($json = Functions::lookup_with_cache($eol_api . $name, $this->download_options))
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        
+        if($json = Functions::lookup_with_cache($eol_api . $name, $options))
         {
             $taxon = json_decode($json, true);
             if(intval($taxon["totalResults"]) > 0) return Functions::canonical_form($taxon["results"][0]["title"]);
