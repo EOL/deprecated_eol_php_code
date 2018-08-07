@@ -2,7 +2,9 @@
 namespace php_active_record;
 /* https://eol-jira.bibalex.org/browse/TRAM-737
 BOLDS connector for new API service
-estimated execution time:
+estimated execution time: 1 day, 6 hours in eol-archive
+
+81	Monday 2018-08-06 04:35:48 PM	{"agent.tab":1952,"measurement_or_fact.tab":54992,"media_resource.tab":503633,"occurrence.tab":54992,"taxon.tab":392567} eol-archive
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
