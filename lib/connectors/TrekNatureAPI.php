@@ -15,60 +15,49 @@ class TrekNatureAPI
         $this->image_list_page = "http://www.treknature.com/members/fragman/photos/";
         $this->image_summary_page = "http://www.treknature.com/viewphotos.php";
     }
-
     function get_all_taxa()
     {
         self::scrape_image_info();
         $this->archive_builder->finalize(TRUE);
     }
-
     private function scrape_image_info()
     {
         // as of 30Dec2014 there are 1-187 pages. e.g. http://www.treknature.com/members/fragman/photos/page2.htm
         $page = 1; //debug original value is 1;
-        while(true)
-        {
+        while(true) {
             $url = $this->image_list_page . "page" . $page . ".htm";
-            if($html = Functions::lookup_with_cache($url, $this->download_options))
-            {
+            if($html = Functions::lookup_with_cache($url, $this->download_options)) {
                 echo "\n[$url]";
                 // <a href="/viewphotos.php?l=3&p=300942">
-                if(preg_match_all("/viewphotos.php(.*?)\"/ims", $html, $arr))
-                {
+                if(preg_match_all("/viewphotos.php(.*?)\"/ims", $html, $arr)) {
                     if($val = $arr[1]) {} //print_r($val);
                     else echo "\ninvestigate no images [$url]\n";
                     
-                    foreach($arr[1] as $param)
-                    {
+                    foreach($arr[1] as $param) {
                         $rec = array();
                         $image_url = $this->image_summary_page . $param;
-                        if($html2 = Functions::lookup_with_cache($image_url, $this->download_options))
-                        {
+                        if($html2 = Functions::lookup_with_cache($image_url, $this->download_options)) {
                             $rec["page"] = $url;
                             $rec["source"] = $image_url;
                             $temp = explode("p=", $rec["source"]);
                             $rec["image_id"] = $temp[1];
                             
                             // Genre: <a href="/photos.php?filter=LA">Landscapes</a></td>
-                            if(preg_match("/Genre:(.*?)<\/td>/ims", $html2, $arr2))
-                            {
+                            if(preg_match("/Genre:(.*?)<\/td>/ims", $html2, $arr2)) {
                                 if($rec["image_id"] == "20786") $rec["sciname"] = "Alnus glutinosa";
                                 elseif(is_numeric(stripos($arr2[1], "Landscapes"))) continue;
                             }
                             
-                            if(!@$rec["sciname"])
-                            {
+                            if(!@$rec["sciname"]) {
                                 if(preg_match("/<h1>(.*?)<\/h1>/ims", $html2, $arr2)) $rec["sciname"] = $arr2[1];
                             }
                             
                             if(preg_match("/Photographer's Note<\/span><\/td><\/tr>(.*?)<\/td>/ims", $html2, $arr2)) $rec["caption"] = trim(strip_tags($arr2[1]));
                             // <h1>Capparis decidua</h1><br><img src="http://i1.treknature.com/photos/1990/capparis_decidua1.jpg" WIDTH="750" HEIGHT="500" border="1" alt="Capparis decidua"></td>
-                            if(preg_match("/<\/h1>(.*?)<\/td>/ims", $html2, $arr2))
-                            {
+                            if(preg_match("/<\/h1>(.*?)<\/td>/ims", $html2, $arr2)) {
                                 if(preg_match("/src=\"(.*?)\"/ims", $arr2[1], $arr2)) $rec["src"] = $arr2[1];
                             }
-                            if(preg_match("/<h2>Photos:(.*?)<\/div>/ims", $html2, $arr2))
-                            {
+                            if(preg_match("/<h2>Photos:(.*?)<\/div>/ims", $html2, $arr2)) {
                                 $temp = array_map('trim', explode(" >> ", $arr2[1]));
                                 $temp = array_map('strip_tags', $temp);
                                 // print_r($temp);
@@ -81,8 +70,7 @@ class TrekNatureAPI
                         else echo "\ninvestigate no image details [$image_url]\n";
                         
                         //additional records
-                        if(in_array($rec["image_id"], array("258161","238990","213710","212647","212559","120397","48044", "231718")))
-                        {
+                        if(in_array($rec["image_id"], array("258161","238990","213710","212647","212559","120397","48044", "231718"))) {
                             if    ($rec["image_id"] == "258161") $rec["sciname"] = "Cistus creticus";
                             elseif($rec["image_id"] == "238990") $rec["sciname"] = "Euphorbia antilibanotica";
                             elseif($rec["image_id"] == "213710") $rec["sciname"] = "Ziziphora clinopodioides";
@@ -104,26 +92,22 @@ class TrekNatureAPI
             $page++;
         }
     }
-
     private function process_record($rec)
     {
         $rec["sciname"] = self::valid_sciname($rec);
-        if($rec["sciname"])
-        {
+        if($rec["sciname"]) {
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID                     = str_replace(" ", "_", $rec["sciname"]);
             $taxon->scientificName              = $rec["sciname"];
             $taxon->furtherInformationURL       = $rec["page"];
-            if(!isset($this->taxa[$taxon->taxonID]))
-            {
+            if(!isset($this->taxa[$taxon->taxonID])) {
                 $this->taxa[$taxon->taxonID] = '';
                 $this->archive_builder->write_object_to_file($taxon);
             }
         }
         else return;
 
-        if($rec["src"])
-        {
+        if($rec["src"]) {
             $agent_ids = self::process_agent();
             $mr = new \eol_schema\MediaResource();
             // if($reference_ids) $mr->referenceID = implode("; ", $reference_ids); //not used at the moment...
@@ -153,14 +137,12 @@ class TrekNatureAPI
             $mr->title                  = '';
             $mr->spatial                = $rec["location"];
             
-            if(!isset($this->object_ids[$mr->identifier]))
-            {
+            if(!isset($this->object_ids[$mr->identifier])) {
                 $this->object_ids[$mr->identifier] = '';
                 $this->archive_builder->write_object_to_file($mr);
             }
         }
     }
-
     private function valid_sciname($rec)
     {
         if($rec["image_id"] == "254976")     return "Ranunculus asiaticus";
@@ -303,36 +285,30 @@ class TrekNatureAPI
         elseif(is_numeric(stripos($sciname, "fungi"))) return "Fungi";
 
         $exclude_exact_match = array("alpine blooming", "eggs", "desert bloom", "saline", "Indian Forest", "spring", "Red Sea in winter", "caterpillar on caper", "spring in West Australia", "Hamamat Main", "Lake Towada", "desert snow", "succulent", "Mt Hermon Fritillary");
-        foreach($exclude_exact_match as $str)
-        {
+        foreach($exclude_exact_match as $str) {
             if($sciname == $str) return false;
         }
         
-        if(substr($sciname, -7) == " desert")
-        {
+        if(substr($sciname, -7) == " desert") {
             echo "\nexcluded 7 [$sciname][$rec[source]]";
             return false;
         }
 
         $exclude = array("wonderful", "glacier", "peacock", "river", "fruit", "flower", "lake", "saline", " land", "garlic", "Semidesert", "please");
-        foreach($exclude as $str)
-        {
-            if(is_numeric(stripos($sciname, $str)))
-            {
+        foreach($exclude as $str) {
+            if(is_numeric(stripos($sciname, $str))) {
                 echo "\nexcluded 1 [$sciname][$rec[source]]";
                 return false;
             }
         }
         
-        if(ctype_lower(substr($sciname,0,1)))
-        {
+        if(ctype_lower(substr($sciname,0,1))) {
             echo "\nexcluded 2 [$sciname][$rec[source]]";
             return false;
         }
         
         $temp = explode(" ", $sciname);
-        if(ctype_upper(substr(@$temp[1],0,1)))
-        {
+        if(ctype_upper(substr(@$temp[1],0,1))) {
             echo "\nexcluded 3 [$sciname][$rec[source]]";
             return false;
         }
@@ -347,7 +323,6 @@ class TrekNatureAPI
         
         return $sciname;
     }
-    
     private function process_agent()
     {
         $agent_ids = array();
@@ -357,14 +332,12 @@ class TrekNatureAPI
         $r->agentRole       = "creator";
         $r->term_homepage   = "http://www.treknature.com/members/fragman/";
         $agent_ids[] = $r->identifier;
-        if(!isset($this->resource_agent_ids[$r->identifier]))
-        {
+        if(!isset($this->resource_agent_ids[$r->identifier])) {
            $this->resource_agent_ids[$r->identifier] = '';
            $this->archive_builder->write_object_to_file($r);
         }
         return $agent_ids;
     }
-    
     private function clean_str($str)
     {
         $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\11", "\011", "	", ""), " ", trim($str));
@@ -373,6 +346,5 @@ class TrekNatureAPI
         $str = str_ireplace(array("  "), " ", trim($str));
         return $str;
     }
-
 }
 ?>
