@@ -26,8 +26,8 @@ class BOLDS_DumpsServiceAPI
         $this->page['sourceURL'] = "http://www.boldsystems.org/index.php/Taxbrowser_Taxonpage?taxid=";
         $this->service['phylum'] = "http://v2.boldsystems.org/connect/REST/getSpeciesBarcodeStatus.php?phylum=";
         $this->service["taxId"] = "http://www.boldsystems.org/index.php/API_Tax/TaxonData?dataTypes=all&includeTree=true&taxId=";
-        $this->download_options = array('cache' => 1, 'resource_id' => 'BOLDS', 'expire_seconds' => 60*60*24*30*6, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
-        $this->download_options['expire_seconds'] = false;
+        $this->download_options = array('cache' => 1, 'resource_id' => 'BOLDS', 'expire_seconds' => 60*60*24*30, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1); //6 months to expire
+        // $this->download_options['expire_seconds'] = false;
         //Arthropoda
         $this->kingdom['Animalia'] = array("Acanthocephala", "Annelida", "Arthropoda", "Brachiopoda", "Bryozoa", "Chaetognatha", "Chordata", "Cnidaria", "Cycliophora", "Echinodermata", "Gnathostomulida", "Hemichordata", "Mollusca", "Nematoda", "Nemertea", "Onychophora", "Platyhelminthes", "Porifera", "Priapulida", "Rotifera", "Sipuncula", "Tardigrada", "Xenoturbellida");
         $this->kingdom['Plantae'] = array("Bryophyta", "Chlorophyta", "Lycopodiophyta", "Magnoliophyta", "Pinophyta", "Pteridophyta", "Rhodophyta");
@@ -331,7 +331,7 @@ class BOLDS_DumpsServiceAPI
             */
             $info['taxid'] = $taxid;
             $info['tax_division'] = self::get_taxdiv_given_kingdom();
-            $info['parentid'] = $this->tax_ids[$taxid]['p'];
+            $info['parentid'] = @$this->tax_ids[$taxid]['p'];
             if(preg_match("/<h3>TAXONOMY BROWSER\:(.*?)<\/h3>/ims", $html, $a)) {
                 $info['taxon'] = trim($a[1]);
             }
@@ -592,6 +592,7 @@ class BOLDS_DumpsServiceAPI
         if(is_dir(DOC_ROOT."tmp/"."__MACOSX")) recursive_rmdir(DOC_ROOT."tmp/"."__MACOSX");
     }
     //==================================================================================================================
+    /* not being used as of Aug 6, 2018
     function start_using_api()
     {
         $taxon_ids = self::get_all_taxon_ids();
@@ -665,6 +666,8 @@ class BOLDS_DumpsServiceAPI
             // if($i >= 20) break; //debug
         }
     }
+    */
+
     private function process_record($taxid)
     {
         /*Array (   [taxid] => 23
@@ -885,10 +888,8 @@ class BOLDS_DumpsServiceAPI
         return trim($final);
     }
     private function format_license($license)
-    {
-        /*
-        [undefined license] => Array
-                (
+    {   /*
+        [undefined license] => Array(
                     [creativecommons â attribution (max weber & ron eytan)] => 
                     [creativecommons â attribution] => 
                     [creativecommons  attribution (bruce a. bennett)] => 
@@ -896,39 +897,48 @@ class BOLDS_DumpsServiceAPI
                     [creativecommons â attribution (bruce a. bennett)] => 
                 )
         */
+        /* as of Aug 6, 2018 result:
+        [undefined license] => Array(
+                   [creativecommons �� attribution] => 
+                   [creativecommons �� attribution (max weber & ron eytan)] => 
+                   [creativecommons �� attribution (bruce a. bennett)] => 
+               )
+        */
         
         $license = strtolower(trim($license));
         $license = utf8_encode($license);
-        $license = str_ireplace(array("â", ""), "", $license);
+        $license = str_ireplace(array("â", "", "�"), "", $license);
         $license = Functions::remove_whitespace($license);
-        
-        if(stripos($license, "no derivatives") !== false)   return false; //string is found
-        if(stripos($license, "by-nc-nd") !== false)         return false; //string is found
-        
-        if(stripos($license, "attribution share-alike") !== false)      return "http://creativecommons.org/licenses/by-sa/3.0/"; //string is found
-        if(stripos($license, "(by-nc)") !== false)                      return "http://creativecommons.org/licenses/by-nc/3.0/"; //string is found
+
+        if(stripos($license, "attribution non-commercial sharealike") !== false)    return "http://creativecommons.org/licenses/by-nc-sa/3.0/"; //string is found
         if(stripos($license, "non-commercial share-alike") !== false)   return "http://creativecommons.org/licenses/by-nc-sa/3.0/"; //string is found
         if(stripos($license, "noncommercial sharealike") !== false)     return "http://creativecommons.org/licenses/by-nc-sa/3.0/"; //string is found
         if(stripos($license, "noncommercial share alike") !== false)    return "http://creativecommons.org/licenses/by-nc-sa/3.0/"; //string is found
+        if(stripos($license, "no derivatives") !== false)               return false; //string is found
+        if(stripos($license, "by-nc-nd") !== false)                     return false; //string is found
+        if(stripos($license, "(by-nc)") !== false)                      return "http://creativecommons.org/licenses/by-nc/3.0/"; //string is found
+        if(stripos($license, "attribution share-alike") !== false)      return "http://creativecommons.org/licenses/by-sa/3.0/"; //string is found
+        if(stripos($license, "(by-nc)") !== false)                      return "http://creativecommons.org/licenses/by-nc/3.0/"; //string is found
         if(stripos($license, "attribution (by)") !== false)             return "http://creativecommons.org/licenses/by/3.0/"; //string is found
-        if(stripos($license, "commons - attribution by ") !== false)    return "http://creativecommons.org/licenses/by/3.0/"; //string is found
-        if(stripos($license, "commons attribution (") !== false)        return "http://creativecommons.org/licenses/by/3.0/"; //string is found
         if(stripos($license, "non-commercial only") !== false)          return "http://creativecommons.org/licenses/by-nc/3.0/"; //string is found
         if(stripos($license, " attribution-noncommercial ") !== false)  return "http://creativecommons.org/licenses/by-nc/3.0/"; //string is found
+        if(stripos($license, "attribution non-commercial") !== false)   return "http://creativecommons.org/licenses/by-nc/3.0/"; //string is found
+        if(stripos($license, "commons - attribution by ") !== false)    return "http://creativecommons.org/licenses/by/3.0/"; //string is found
+        if(stripos($license, "commons attribution (") !== false)        return "http://creativecommons.org/licenses/by/3.0/"; //string is found
         
+        $arr["creativecommons - attribution non-commerical share-alike"] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $arr["creativecommons - attribution non-commercial share-alike"] = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $arr["creativecommons - attribution"]                            = "http://creativecommons.org/licenses/by/3.0/";
         $arr["creativecommons - attribution non-commercial"]             = "http://creativecommons.org/licenses/by-nc/3.0/";
+        $arr["creativecommons -atribution non-commercial"]               = "http://creativecommons.org/licenses/by-nc/3.0/";
         $arr["creativecommons - attribution share-alike"]                = "http://creativecommons.org/licenses/by-sa/3.0/";
         $arr["creative commons by nc sa"]                                = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-
+        $arr["creativecommons by-nc-sa"]                                 = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $arr["creative commons-by-nc-sa"]                                = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $arr["creativecommons-attribution non-commervial share-alike"]   = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-
         $arr["no rights reserved"]                                       = "No known copyright restrictions";
         $arr["no rights reserved (nrr)"]                                 = "No known copyright restrictions";
         $arr["no right's reserved (nrr)"]                                = "No known copyright restrictions";
-
         $arr["creativecommons"]                                          = "http://creativecommons.org/licenses/by/3.0/";
         $arr["creative commons"]                                         = "http://creativecommons.org/licenses/by/3.0/";
         $arr["creativecom"]                                              = "http://creativecommons.org/licenses/by/3.0/";
