@@ -1,12 +1,15 @@
 <?php
 namespace php_active_record;
-/* https://jira.eol.org/browse/DATA-1549 iDigBio Portal 
+/* execution time: 3 days, 11 hours in eol-archive
+https://jira.eol.org/browse/DATA-1549 iDigBio Portal 
                 5k                  4Feb
 measurement     6748    1385056     3191194
 occurrence      2250    461686      461686
 taxon           2157    224065      224065
 reference							189866
 885	Monday 2018-03-12 02:12:34 PM	{"measurement_or_fact.tab":3263772,"occurrence.tab":475706,"reference.tab":195897,"taxon.tab":215141}
+885	Monday 2018-08-06 12:37:07 PM	{"measurement_or_fact.tab":3263859,"occurrence.tab":475729,"reference.tab":195897,"taxon.tab":215138} eol-archive
+
 Undefined:
 [institution] => Array
        (
