@@ -91,7 +91,7 @@ class EnvironmentsEOLDataConnector
         foreach(new FileIterator($tsv_file) as $line_number => $line) {
             $temp = explode("\t", $line);
             $i++;
-            if(($i % 100) == 0) echo "\n".number_format($i)." - ";
+            if(($i % 10000) == 0) echo "\n".number_format($i)." - ";
             
             /* breakdown when caching
             $cont = false;
