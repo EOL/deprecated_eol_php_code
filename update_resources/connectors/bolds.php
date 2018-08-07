@@ -6,6 +6,7 @@ estimated execution time: 1 day, 6 hours in eol-archive
 
 81	Monday 2018-08-06 04:35:48 PM	{"agent.tab":1952,"measurement_or_fact.tab":54992,"media_resource.tab":503633,"occurrence.tab":54992,"taxon.tab":392567} eol-archive
 81	Monday 2018-08-06 11:44:49 PM	{"agent.tab":1952,"measurement_or_fact.tab":54996,"media_resource.tab":503701,"occurrence.tab":54996,"taxon.tab":392567} eol-archive
+81	Monday 2018-08-06 11:44:49 PM	{"agent.tab":1952,"measurement_or_fact.tab":54996,"media_resource.tab":503701,"occurrence.tab":54996,"taxon.tab":392567} eol-archive
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
