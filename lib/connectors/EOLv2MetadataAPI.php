@@ -325,6 +325,130 @@ class EOLv2MetadataAPI
         }
         fclose($FILE);
     }
+
+    public function start_images_selected_as_exemplar() //DATA-1746: user activity: images selected as exemplar https://eol-jira.bibalex.org/browse/DATA-1746
+    {                                                   // n = 18642
+                                                        // this func is copied from start_user_object_curation()
+        $sql = "SELECT cal.created_at as vdate, cal.user_id, cal.taxon_concept_id, cal.activity_id, cal.target_id as data_object_id ,cot.ch_object_type ,t.name as activity
+        ,concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' ', if(u.username is not null, concat('(',u.username,')'), '')) as user_name
+        ,d.guid, d.description, d.object_url, d.data_type_id
+        from eol_logging_production.curator_activity_logs cal 
+        LEFT JOIN eol_development.changeable_object_types cot on (cal.changeable_object_type_id = cot.id)
+        LEFT JOIN users u ON (cal.user_id = u.id)
+        LEFT JOIN eol_logging_production.translated_activities t ON (cal.activity_id = t.activity_id)
+        LEFT JOIN eol_development.data_objects_curation d on (cal.target_id = d.id)
+        where 1=1 and cal.activity_id in(60) and cot.ch_object_type != 'comment' and cot.ch_object_type != 'data_point_uri' and t.language_id = 152
+        -- and cot.ch_object_type = 'users_submitted_text'
+        order by cal.taxon_concept_id, cal.created_at desc";
+        $result = $this->mysqli->query($sql);
+        echo "\n". $result->num_rows . "\n"; //exit;
+        $recs = array();
+        $FILE = Functions::file_open($filename = CONTENT_RESOURCE_LOCAL_PATH ."images_selected_as_exemplar.txt", "w");
+        $headers_printed_already = false;
+        $m = 153370/5; $i = 0; //30674
+        while($result && $row=$result->fetch_assoc()) {
+            $i++;
+            if(($i % 100) == 0) echo "\n".number_format($i)." - ";
+
+            /* breakdown when caching
+            $cont = false;
+            // if($i >= 1    && $i < $m)    $cont = true;
+            // if($i >= $m   && $i < $m*2)  $cont = true;
+            // if($i >= $m*2 && $i < $m*3)  $cont = true; //61348 - 92022
+            // if($i >= $m*3 && $i < $m*4)  $cont = true;
+            // if($i >= $m*4 && $i < $m*5)  $cont = true;
+            if(!$cont) continue;
+            */
+            
+            $no_tc_id = false;
+            $tc_id = false;
+            if($tc_id = $row['taxon_concept_id']) {} //echo "\n With tc_id \n";
+            else {
+                // echo "\n NO tc_id \n";
+                if($tc_id = self::get_tc_id_using_do_id($row['data_object_id'])) {}
+                elseif($tc_id = self::get_tc_id_using_dotc($row['data_object_id'])) {} //dotc - data_objects_taxon_concepts
+                elseif($row['ch_object_type'] == "users_submitted_text") {
+                    $a = self::get_tc_id_from_udo($row['data_object_id']); //udo - users_data_objects
+                    $tc_id = @$a['taxon_concept_id'];
+                }
+                else {
+                    echo("\n\nNo taxon_concept_id found for ".$row['data_object_id']."\n");
+                    // print_r($row); //exit;
+                    $no_tc_id = true;
+                }
+            }
+            $info = false;
+            if($tc_id) {
+                $info = self::get_taxon_info($tc_id);
+                // print_r($info); exit;
+            }
+            $rec = array();
+            $rec['date'] = $row['vdate'];
+            $rec['user_id'] = $row['user_id'];
+            $rec['user_name'] = $row['user_name'];
+            $rec['activity'] = $row['activity'];
+            $rec['ch_object_type'] = $row['ch_object_type'];
+            $rec['target_id'] = $row['data_object_id'];
+            $rec['guid'] = $row['guid'];
+            $rec['type'] = self::lookup_data_type($row['data_type_id']);
+            $rec['description'] = $row['description'];
+            $rec['object_url'] = self::lookup_object_url($row, $rec['type']);
+            
+            $rec['taxon_concept_id'] = $tc_id;
+            $rec['sciname'] = @$info['taxon_name'];
+            $rec['rank'] = @$info['rank'];
+            $rec['ancestry'] = self::generate_ancestry_as_json($info);
+            
+            $row['obj_url'] = $rec['object_url']; //used in lookup_resource_info()
+            $resource_info = self::lookup_resource_info($row, 'data_objects_harvest_events_curation');
+            $rec['resource_id'] = @$resource_info['resource_id'];
+            $rec['resource_name'] = $resource_info['resource_name'];
+            $rec['partner_id'] = @$resource_info['cp_id'];
+            $rec['partner_name'] = @$resource_info['cp_name'];
+            $rec['collection_id'] = @$resource_info['coll_id'];
+            
+            // if($rec['description'] && $rec['resource_id'] && $rec['type'] == 'Image' && $rec['taxon_concept_id'] && $rec['resource_name']) {
+            //     print_r($rec);
+            //     exit;
+            // }
+
+            // /* good debug
+            // if($rec['resource_id']) {
+                // print_r($rec); exit;
+            // }
+            // */
+            
+            /* good debug
+            if($no_tc_id) {
+                print_r($rec); exit;
+            }
+            */
+            
+            
+            /*   [user_id] => 35779
+                 [user_name] => Barna Páll-Gergely (Alopia)
+                 [activity] => trusted
+                 [ch_object_type] => data_object
+                 [target_id] => 1495237
+                 [taxon_concept_id] => 2366
+                 [sciname] => Gastropoda
+                 [rank] => class
+                 [ancestry] => {"phylum":{"name":"Mollusca","taxon_concept_id":"2195"},"kingdom":{"name":"Animalia","taxon_concept_id":"1"}}
+                 [resource_id] => 15
+                 [resource_name] => EOL Group on Flickr
+                 [cp_id] => 18
+                 [cp_name] => Flickr: Encyclopedia of Life Images
+                 [coll_id] => 176
+            */
+            //start writing
+            if(!$headers_printed_already) {
+                fwrite($FILE, implode("\t", array_keys($rec))."\n");
+                $headers_printed_already = true;
+            }
+            fwrite($FILE, implode("\t", $rec)."\n");
+        }
+        fclose($FILE);
+    }
     
     public function start_user_object_curation() //total 155,763 --> 153,370 without data_point_uri
     {
