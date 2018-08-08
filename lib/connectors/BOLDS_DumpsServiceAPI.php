@@ -584,6 +584,7 @@ class BOLDS_DumpsServiceAPI
         $download_options = $this->download_options;
         $download_options['timeout'] = 172800;
         $download_options['file_extension'] = 'txt.zip';
+        $download_options['expire_seconds'] = 60*60*24*30;
         if($use_cache) $download_options['cache'] = 1;
         // $download_options['cache'] = 0; // 0 only when developing //debug - comment in real operation
         $temp_path = Functions::save_remote_file_to_local($file, $download_options);
