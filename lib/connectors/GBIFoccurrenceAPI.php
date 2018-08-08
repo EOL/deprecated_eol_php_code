@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [gbif_gereference.php]
+/* connector: [gbif_georeference.php]
 This script searches GBIF API occurrence data via taxon (taxon_key)
 
 1. search via GBIF API
@@ -28,11 +28,12 @@ class GBIFoccurrenceAPI
     {
         /* add: 'resource_id' => "gbif" ;if you want to add cache inside a folder [gbif] inside [eol_cache_gbif] */
         $this->download_options = array(
-            'cache_path'         => '/Volumes/Thunderbolt4/eol_cache_gbif/',  //used in MacBook - generating map data using GBIF API
-            // 'cache_path'         => '/Volumes/Eli white/eol_cache/',        //used in Functions for all general cache
-            'expire_seconds'     => 5184000, //2 months to expire
-            'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-        $this->download_options['expire_seconds'] = false; //debug | true -- expires now
+            'expire_seconds'     => 60*60*24*30*4, //4 months to expire
+            'download_wait_time' => 1000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        // $this->download_options['expire_seconds'] = false; //debug | true -- expires now
+
+        if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_cache_gbif/";
+        else                           $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache_gbif/";
 
         //GBIF services
         $this->gbif_taxon_info      = "http://api.gbif.org/v1/species/match?name="; //http://api.gbif.org/v1/species/match?name=felidae&kingdom=Animalia
@@ -46,15 +47,17 @@ class GBIFoccurrenceAPI
         // it seems no longer used
         // $this->save_path['cluster']     = DOC_ROOT . "public/tmp/google_maps/cluster/";
         // $this->save_path['cluster_v2']  = DOC_ROOT . "public/tmp/google_maps/cluster_v2/";
-        $this->save_path['map_data'] = DOC_ROOT . "public/tmp/google_maps/map_data/";
         */
         
         // /* for macbook
         // it seems no longer used
         // $this->save_path['cluster']     = "/Volumes/Thunderbolt4/cluster_cache/cluster/";
         // $this->save_path['cluster_v2']  = "/Volumes/Thunderbolt4/cluster_cache/cluster_v2/";
-        $this->save_path['map_data'] = "/Volumes/Thunderbolt4/map_data_new/";
         // */
+
+        $this->save_path['map_data'] = "/Volumes/AKiTiO4/map_data_new/";
+        $this->save_path['map_data'] = "/Volumes/AKiTiO4/map_data_2018/";
+        
 
         // not being used anymore
         // $this->save_path['fusion']      = DOC_ROOT . "public/tmp/google_maps/fusion/";
@@ -90,7 +93,11 @@ class GBIFoccurrenceAPI
         // self::get_center_latlon_using_taxonID(206692); return;   //computes the center lat long
         
         //OKAY to use
-        self::process_all_eol_taxa(); return;                    //make use of tab-delimited text file from JRice
+        //---------------------------------------------------------------------------------------------------------------------------------------------
+        if(Functions::is_production()) $path = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
+        else                           $path = "/Volumes/AKiTiO4/z backup/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
+        self::process_all_eol_taxa($path, false); return;           //make use of tab-delimited text file from JRice
+        //---------------------------------------------------------------------------------------------------------------------------------------------
         
         // self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
         // self::process_DL_taxon_list(); return;                   //make use of taxon list from DiscoverLife
@@ -264,8 +271,7 @@ class GBIFoccurrenceAPI
             $row[36] => recordedby
             */
             
-            if($row[16] && $row[17])
-            {
+            if($row[16] && $row[17]) {
                 $fhandle = Functions::file_open($path2 . $taxonkey . ".csv", "a");
                 fwrite($fhandle, implode("\t", $rek) . "\n");
                 fclose($fhandle);
@@ -275,7 +281,7 @@ class GBIFoccurrenceAPI
     
     private function generate_map_data_using_GBIF_csv_files()
     {
-        $eol_taxon_id_list = self::process_all_eol_taxa(true); //listOnly = true
+        $eol_taxon_id_list = self::process_all_eol_taxa($path, true); //listOnly = true
         // print_r($eol_taxon_id_list); echo "\n" . count($eol_taxon_id_list) . "\n"; return; //[Triticum aestivum virus] => 540152
         
         // $eol_taxon_id_list["Gadus morhua"] = 206692;
@@ -357,7 +363,7 @@ class GBIFoccurrenceAPI
         foreach($paths as $path) {
             $csv = $path . $usageKey . ".csv";
             if(file_exists($csv)) {
-                echo "\n[$usageKey] found in [$path]";
+                echo "\nusageKey = [$usageKey] found in [$path]";
                 $file_array = file($csv);
                 $gbif_ids = array();
                 foreach($file_array as $line) {
@@ -407,10 +413,9 @@ class GBIFoccurrenceAPI
     //==========================
     // end GBIF methods
     //==========================
-    private function process_all_eol_taxa($listOnly = false)
+    private function process_all_eol_taxa($path, $listOnly = false)
     {
         if($listOnly) $list = array();
-        $path = DOC_ROOT . "/public/tmp/google_maps/taxon_concept_names.tab";
         $i = 0;
         foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
             $line = explode("\t", $line);
@@ -455,6 +460,7 @@ class GBIFoccurrenceAPI
                 self::main_loop($sciname, $taxon_concept_id); //uncomment in real operation...
                 if($usageKey = self::get_usage_key($sciname)) echo " - OK [$usageKey]"; //used to cache all usageKey requests...
                 else                                          echo " - usageKey not found!";
+                exit("\n--stopx--\n");
             }
             // else echo "\n[$sciname] will pass higher-level taxa at this time...\n";
         }//end loop
@@ -639,7 +645,7 @@ class GBIFoccurrenceAPI
         $to_be_saved['records'] = array_values($to_be_saved['records']); //reindex key
         return $to_be_saved;
     }
-    function save_ids_to_text_from_many_folders()
+    function save_ids_to_text_from_many_folders() //a utility
     {   /*
         $dir_to_process = "/Volumes/MacMini_HD2/batch_parts/map_data_batch2/";
         $text_file      = "/Volumes/MacMini_HD2/batch_parts/taxon_concept_IDS.txt";
@@ -943,11 +949,9 @@ class GBIFoccurrenceAPI
     
     private function get_initial_data($sciname)
     {
-        if($usageKey = self::get_usage_key($sciname))
-        {
+        if($usageKey = self::get_usage_key($sciname)) {
             $count = Functions::lookup_with_cache($this->gbif_record_count . $usageKey, $this->download_options);
-            if($count > 0)
-            {
+            if($count > 0) {
                 echo "\nTotal:[$count]"; //total records; with or without lat long
                 $rec['usageKey'] = $usageKey;
                 $rec["count"] = $count;
