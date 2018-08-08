@@ -123,12 +123,18 @@ class EolAPI
         */
         
         //---------------------------------------------------------------------------------------------------------------------------------------------
+        // /*
         if(Functions::is_production()) $path = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
         else                           $path = "/Volumes/AKiTiO4/z backup/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
         self::process_all_eol_taxa($path); return;                    //make use of tab-delimited text file from JRice
+        // */
+        //---------------------------------------------------------------------------------------------------------------------------------------------
+        /* has not run yet in eol-archive Jenkins
+        $doc = "http://localhost/eol_php_code/public/tmp/spreadsheets/SPG Hotlist Official Version.xlsx";
+        self::process_hotlist_spreadsheet($doc); return;             //make use of hot list spreadsheet from SPG
+        */
         //---------------------------------------------------------------------------------------------------------------------------------------------
 
-        // self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
         // self::process_DL_taxon_list(); return;                   //make use of taxon list from DiscoverLife
         
         // self::process_tsv_file($this->opendata['tsv']['data_objects'], $this->opendata['headers']['data_objects']);
@@ -841,12 +847,11 @@ class EolAPI
         return $r->scientificName;
     }
 
-    private function process_hotlist_spreadsheet()
+    private function process_hotlist_spreadsheet($doc)
     {
         require_library('XLSParser');
         $parser = new XLSParser();
         $families = array();
-        $doc = "http://localhost/eol_php_code/public/tmp/spreadsheets/SPG Hotlist Official Version.xlsx";
         echo "\n processing [$doc]...\n";
         if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2))) {
             $arr = $parser->convert_sheet_to_array($path);
