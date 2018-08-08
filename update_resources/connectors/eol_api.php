@@ -16,7 +16,7 @@ finalize_archive($resource_id, true);
 /* post DWC-A analysis =========================================
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
-// $func->check_unique_ids($resource_id);
+$func->check_unique_ids($resource_id);
 $func->check_if_all_parents_have_entries($resource_id);
 ================================================================*/
 
@@ -28,18 +28,15 @@ echo "\n Done processing.\n";
 
 function finalize_archive($resource_id, $big_file = false)
 {
-    if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 10)
-    {
-        if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))
-        {
+    if(filesize(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working/taxon.tab") > 10) {
+        if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id)) {
             recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
             Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
         }
         Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working", CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
         Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
         Functions::count_resource_tab_files($resource_id);
-        if(!$big_file)
-        {
+        if(!$big_file) {
             if($undefined_uris = Functions::get_undefined_uris_from_resource($resource_id)) print_r($undefined_uris);
             echo "\nUndefined URIs: " . count($undefined_uris) . "\n";
             require_library('connectors/DWCADiagnoseAPI');
