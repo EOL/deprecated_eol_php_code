@@ -165,26 +165,21 @@ class GBIFoccurrenceAPI
         $i = 0;
         $not42 = 0;
         $noTaxonkey = 0;
-        foreach(new FileIterator($path) as $line_number => $line) // 'true' will auto delete temp_filepath
-        {
+        foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
             $i++; echo "$i ";
             if($i == 1) continue;
             $row = explode("\t", $line);
-            if(count($row) != 42)
-            {
+            if(count($row) != 42) {
                 echo "\n" . count($row) . "\n";
                 $not42++;
             }
-            if(!@$row[26])
-            {
+            if(!@$row[26]) {
                 $noTaxonkey++;
                 continue;
             }
-            
             /*
             $taxonkey = $row[26];
-            if($taxonkey == 2415835)
-            {
+            if($taxonkey == 2415835) {
                 if($row[16] && $row[17]) $k++;
             }
             */
@@ -193,7 +188,6 @@ class GBIFoccurrenceAPI
         echo "\nNot 42: [$not42]\n";
         echo "\nNo taxonkey: [$noTaxonkey]\n";
     }
-    
     private function breakdown_GBIF_csv_file() //working as of Mar 3 Thursday
     {
         return;
@@ -306,8 +300,7 @@ class GBIFoccurrenceAPI
         $paths = $this->csv_paths;
         
         $i = 0;
-        foreach($eol_taxon_id_list as $sciname => $taxon_concept_id)
-        {
+        foreach($eol_taxon_id_list as $sciname => $taxon_concept_id) {
             $i++;
             // ==============================
             /*
@@ -323,21 +316,17 @@ class GBIFoccurrenceAPI
             */
             // ==============================
             echo "\n$i. [$sciname][$taxon_concept_id]";
-            if($usageKey = self::get_usage_key($sciname))
-            {
+            if($usageKey = self::get_usage_key($sciname)) {
                 echo "\nOK GBIF key [$usageKey]\n";
                 if(self::map_data_file_already_been_generated($taxon_concept_id)) continue;
                 
-                if($final = self::prepare_csv_data($usageKey, $paths))
-                {
+                if($final = self::prepare_csv_data($usageKey, $paths)) {
                     echo "\n" . $final['count'] . "\n";
-                    if($final['count'] > 20000)
-                    {
+                    if($final['count'] > 20000) {
                         echo "\n > 20K\n";
                         self::process_revised_cluster($final, $taxon_concept_id); //done after main demo using screenshots
                     }
-                    elseif($final['count'] <= 20000)
-                    {
+                    elseif($final['count'] <= 20000) {
                         echo "\n <= 20K\n";
                         $final['actual'] = $final['count'];
                         // if(!($this->file = Functions::file_open($this->save_path['cluster'].$taxon_concept_id.".json", "w"))) return;
@@ -365,16 +354,13 @@ class GBIFoccurrenceAPI
     private function prepare_csv_data($usageKey, $paths)
     {
         $final = array();
-        foreach($paths as $path)
-        {
+        foreach($paths as $path) {
             $csv = $path . $usageKey . ".csv";
-            if(file_exists($csv))
-            {
+            if(file_exists($csv)) {
                 echo "\n[$usageKey] found in [$path]";
                 $file_array = file($csv);
                 $gbif_ids = array();
-                foreach($file_array as $line)
-                {
+                foreach($file_array as $line) {
                     $row = explode("\t", $line);
                     
                     //make record unique
@@ -426,13 +412,11 @@ class GBIFoccurrenceAPI
         if($listOnly) $list = array();
         $path = DOC_ROOT . "/public/tmp/google_maps/taxon_concept_names.tab";
         $i = 0;
-        foreach(new FileIterator($path) as $line_number => $line) // 'true' will auto delete temp_filepath
-        {
+        foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
             $line = explode("\t", $line);
             $taxon_concept_id = $line[0];
             $sciname          = Functions::canonical_form($line[1]);
-            if($listOnly)
-            {
+            if($listOnly) {
                 $list[$sciname] = $taxon_concept_id;
                 continue;
             }
@@ -443,8 +427,7 @@ class GBIFoccurrenceAPI
 
             if($taxon_concept_id == 1) continue;
             // if(stripos($sciname, " ") !== false) //only species-level taxa
-            if(true)
-            {
+            if(true) {
                 echo "\n$i. [$sciname][tc_id = $taxon_concept_id]";
                 //==================
                 /*
@@ -474,21 +457,16 @@ class GBIFoccurrenceAPI
                 else                                          echo " - usageKey not found!";
             }
             // else echo "\n[$sciname] will pass higher-level taxa at this time...\n";
-            
         }//end loop
-        
         if($listOnly) return $list;
     }
-
     private function map_data_file_already_been_generated($basename)
     {
         // return false; //debug
         /* working but procedure changed to use subdirectories for map data storage
         $filenames = array($this->save_path['cluster'].$basename.".json", $this->save_path['cluster_v2'].$basename.".json");
-        foreach($filenames as $filename)
-        {
-            if(file_exists($filename))
-            {
+        foreach($filenames as $filename) {
+            if(file_exists($filename)) {
                 echo "\n[$basename] already generated OK";
                 return true;
             }
@@ -497,14 +475,12 @@ class GBIFoccurrenceAPI
         */
         
         $filename = self::get_map_data_path($basename).$basename.".json";
-        if(file_exists($filename))
-        {
+        if(file_exists($filename)) {
             echo "\n[$basename] already generated OK";
             return true;
         }
         else return false;
     }
-
     private function main_loop($sciname, $taxon_concept_id = false)
     {
         $sciname = Functions::canonical_form($sciname); echo "\n[$sciname]\n";
@@ -525,18 +501,14 @@ class GBIFoccurrenceAPI
         /* fwrite($this->file2, str_replace(", ", "\t", $headers) . "\n"); */
 
         $final_count = false;
-        if($rec = self::get_initial_data($sciname))
-        {
+        if($rec = self::get_initial_data($sciname)) {
             // first is check the csv front
-            if($final = self::prepare_csv_data($rec['usageKey'], $this->csv_paths))
-            {
-                if($final['count'] > $this->rec_limit)
-                {
+            if($final = self::prepare_csv_data($rec['usageKey'], $this->csv_paths)) {
+                if($final['count'] > $this->rec_limit) {
                     echo "\n -- will just use CSV source instead -- " . $final['count'] . " > " . $this->rec_limit . " \n"; //exit;
                     return; //if count > from csv then use csv later instead using - generate_map_data_using_GBIF_csv_files()
                 }
-                else
-                {
+                else {
                     echo "\n -- will use API as source 01 -- " . $final['count'] . " < " . $this->rec_limit . " \n";
                 }
             }
@@ -567,8 +539,7 @@ class GBIFoccurrenceAPI
         */
         // fclose($this->file4); //kml
         
-        if(!$final_count)
-        {
+        if(!$final_count) {
             $filename = self::get_map_data_path($basename).$basename.".json";
             if(file_exists($filename)) unlink($filename); //delete cluster map data
             /*
@@ -576,23 +547,20 @@ class GBIFoccurrenceAPI
             unlink($this->save_path['fusion2'].$basename.".json");
             */
         }
-        else //delete respective file
-        {
+        else { //delete respective file
             if($final_count < 20000) {
                 /*
                 unlink($this->save_path['fusion'].$basename.".txt");   //delete Fusion data
                 unlink($this->save_path['fusion2'].$basename.".json"); //delete Fusion data (centerLatLon, tableID, publishers)
                 */
             }
-            else
-            {
+            else {
                 echo "\nfinal_count is [$final_count]\n";
                 $filename = self::get_map_data_path($basename).$basename.".json";
                 if(file_exists($filename)) unlink($filename); //delete cluster map data
             }
         }
     }
-
     private function process_revised_cluster($final, $basename)
     {
         // if(!($this->file5 = Functions::file_open($this->save_path['cluster_v2'].$basename.".json", "w"))) return;
@@ -602,10 +570,8 @@ class GBIFoccurrenceAPI
         $unique = array();
         
         $decimal_places = 6;
-        while(true)
-        {
-            foreach($final['records'] as $r)
-            {
+        while(true) {
+            foreach($final['records'] as $r) {
                 $lat = number_format($r['h'], $decimal_places);
                 $lon = number_format($r['i'], $decimal_places);
                 if(isset($unique["$lat,$lon"])) continue;
@@ -618,8 +584,7 @@ class GBIFoccurrenceAPI
             if($basename == 281) $limit_to_break = 35000; //Plantae 34131
 
             if(count($to_be_saved['records']) < $limit_to_break || $decimal_places == 0) break; //orig value is 0, not 1
-            else
-            {   //initialize vars
+            else {   //initialize vars
                 $decimal_places--;
                 $to_be_saved = array();
                 $to_be_saved['records'] = array();
@@ -628,8 +593,7 @@ class GBIFoccurrenceAPI
         }
         
         //flag if after revised cluster is still unsuccessful
-        if(count($unique) > $limit_to_break)
-        {
+        if(count($unique) > $limit_to_break) {
             echo "\ntaxon_concept_ID [$basename] revised cluster unsuccessful\n";
             if(!($fhandle = Functions::file_open(DOC_ROOT . "public/tmp/google_maps/alert.txt", "a"))) return;
             fwrite($fhandle, "$basename" . "\t" . count($unique) . "\n");
@@ -648,8 +612,7 @@ class GBIFoccurrenceAPI
             fclose($this->file5);
             return $to_be_saved['count']; //the smaller value; the bigger one is $to_be_saved['actual']
         }
-        else
-        {
+        else {
             echo "\n Final total [$decimal_places]: " . count($unique) . "\n";
             $to_be_saved['count'] = count($to_be_saved['records']);
             $to_be_saved['actual'] = $final['count'];
@@ -665,12 +628,10 @@ class GBIFoccurrenceAPI
         }
         
     }
-
     function reduce_records($to_be_saved)
     {
         $i = -1;
-        foreach($to_be_saved['records'] as $r)
-        {
+        foreach($to_be_saved['records'] as $r) {
             $i++;
             if($i > 20000) $to_be_saved['records'][$i] = '';
         }
@@ -678,7 +639,6 @@ class GBIFoccurrenceAPI
         $to_be_saved['records'] = array_values($to_be_saved['records']); //reindex key
         return $to_be_saved;
     }
-    
     function save_ids_to_text_from_many_folders()
     {   /*
         $dir_to_process = "/Volumes/MacMini_HD2/batch_parts/map_data_batch2/";
@@ -689,16 +649,12 @@ class GBIFoccurrenceAPI
         
         $i = 0;
         if(!($fhandle = Functions::file_open($text_file, "w"))) return;
-        if($dir = opendir($dir_to_process))
-        {
-            while(false !== ($subdir = readdir($dir)))
-            {
-                if(!in_array($subdir, array(".","..")))
-                {
+        if($dir = opendir($dir_to_process)) {
+            while(false !== ($subdir = readdir($dir))) {
+                if(!in_array($subdir, array(".",".."))) {
                     echo "\n[$subdir]";
                     $files = $dir_to_process.$subdir."/*.json";
-                    foreach (glob($files) as $filename)
-                    {
+                    foreach (glob($files) as $filename) {
                         echo "\n[$filename] - " . pathinfo($filename, PATHINFO_FILENAME);
                         fwrite($fhandle, pathinfo($filename, PATHINFO_FILENAME) . "\n");
                         $i++;
@@ -709,7 +665,6 @@ class GBIFoccurrenceAPI
         fclose($fhandle);
         echo "\n--end taxon_concept_IDs total: [$i]--\n";
     }
-
     private function prepare_data($taxon_concept_id)
     {
         $txtFile = DOC_ROOT . "/public/tmp/google_maps/fusion/" . $taxon_concept_id . ".txt";
@@ -717,7 +672,6 @@ class GBIFoccurrenceAPI
         unset($file_array[0]); //remove first line, the headers
         return $file_array;
     }
-
     private function get_georeference_data($taxonKey, $basename)
     {
         $offset = 0;
@@ -725,13 +679,11 @@ class GBIFoccurrenceAPI
         $continue = true;
         $final = array();
         $final['records'] = array();
-        while($continue)
-        {
+        while($continue) {
             if($offset > $this->rec_limit) break; //working... uncomment if u want to limit to 100,000
             $url = $this->gbif_occurrence_data . $taxonKey . "&limit=$limit";
             if($offset) $url .= "&offset=$offset";
-            if($json = Functions::lookup_with_cache($url, $this->download_options))
-            {
+            if($json = Functions::lookup_with_cache($url, $this->download_options)) {
                 $j = json_decode($json);
                 // print_r($j);
                 $recs = self::write_to_file($j);
@@ -761,7 +713,6 @@ class GBIFoccurrenceAPI
         
         return $final;
     }
-
     private function get_center_latlon_using_taxonID($taxon_concept_id)
     {
         $rows = self::prepare_data($taxon_concept_id);
