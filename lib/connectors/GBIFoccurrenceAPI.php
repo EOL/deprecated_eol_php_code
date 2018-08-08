@@ -954,6 +954,9 @@ class GBIFoccurrenceAPI
                 return $rec;
             }
         }
+        else {
+            exit("\nCannot get usage_key for ($sciname)\n");
+        }
     }
 
     private function get_usage_key($sciname)
