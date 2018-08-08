@@ -507,7 +507,7 @@ class EolAPI
                 */
                 //==================
                 
-                echo "\n".number_format($i).". [$sciname][tc_id = $taxon_concept_id]";
+                if(($i % 100) == 0) echo "\n".number_format($i).". [$sciname][tc_id = $taxon_concept_id]";
                 self::api_using_tc_id($taxon_concept_id);
                 
             }
