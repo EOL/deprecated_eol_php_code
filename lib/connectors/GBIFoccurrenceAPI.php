@@ -427,12 +427,9 @@ class GBIFoccurrenceAPI
             }
             $i++;
 
-            // if(true)                             //all taxa
-            // if(stripos($sciname, " ") !== false) //only species-level taxa
-
             if($taxon_concept_id == 1) continue;
             // if(stripos($sciname, " ") !== false) //only species-level taxa
-            if(true) {
+            if(true) { //all taxa
                 echo "\n$i. [$sciname][tc_id = $taxon_concept_id]";
                 //==================
                 /*
@@ -457,10 +454,10 @@ class GBIFoccurrenceAPI
                 if(!$cont) continue;
                 */
                 //==================
-                self::main_loop($sciname, $taxon_concept_id); //uncomment in real operation...
+                // self::main_loop($sciname, $taxon_concept_id); //uncomment in real operation...
                 if($usageKey = self::get_usage_key($sciname)) echo " - OK [$usageKey]"; //used to cache all usageKey requests...
                 else                                          echo " - usageKey not found!";
-                exit("\n--stopx--\n");
+                // exit("\n--stopx--\n");
             }
             // else echo "\n[$sciname] will pass higher-level taxa at this time...\n";
         }//end loop
