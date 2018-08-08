@@ -13,10 +13,13 @@ class EolAPI
     {
         /* add: 'resource_id' => "eol_api" ;if you want to add the cache inside a folder [eol_api] inside [eol_cache] */
         $this->download_options = array(
-            'cache_path'         => '/Volumes/Thunderbolt4/eol_cache/',     //used in Functions.php for all general cache
-            'resource_id'        => 'eol_api',                              //resource_id here is just a folder name in cache
-            'expire_seconds'     => false,                                  //another option is 1 year to expire
-            'download_wait_time' => 3000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+            'resource_id'        => 'eol_api',  //resource_id here is just a folder name in cache
+            'expire_seconds'     => false,      //always false since EOL V2 won't change anymore
+            'download_wait_time' => 500000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
+
+        if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_php_cache/";
+        else                           $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache/";      //used in Functions.php for all general cache
+
 
         $this->api['Pages'] = "http://eol.org/api/pages/1.0.json?batch=false&images_per_page=75&images_page=1&videos_per_page=75&videos_page=1&sounds_per_page=75&sounds_page=1&maps_per_page=75&maps_page=1&texts_per_page=75&texts_page=1&iucn=false&subjects=overview&licenses=all&details=true&common_names=true&synonyms=true&references=true&taxonomy=true&vetted=0&cache_ttl=&language=en&id=";
         $this->api['DataObjects'][0] = "http://eol.org/api/data_objects/1.0/";
@@ -119,8 +122,13 @@ class EolAPI
         print_r($rec); exit;
         */
         
-        // self::process_all_eol_taxa(); return;                    //make use of tab-delimited text file from JRice
-        self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
+        //---------------------------------------------------------------------------------------------------------------------------------------------
+        if(Functions::is_production()) $path = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
+        else                           $path = "/Volumes/AKiTiO4/z backup/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
+        self::process_all_eol_taxa($path); return;                    //make use of tab-delimited text file from JRice
+        //---------------------------------------------------------------------------------------------------------------------------------------------
+
+        // self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
         // self::process_DL_taxon_list(); return;                   //make use of taxon list from DiscoverLife
         
         // self::process_tsv_file($this->opendata['tsv']['data_objects'], $this->opendata['headers']['data_objects']);
@@ -468,10 +476,9 @@ class EolAPI
         */
     }
     
-    private function process_all_eol_taxa($listOnly = false)
+    private function process_all_eol_taxa($path, $listOnly = false)
     {
         if($listOnly) $list = array();
-        $path = DOC_ROOT . "/public/tmp/google_maps/taxon_concept_names.tab";
         $i = 0;
         foreach(new FileIterator($path) as $line_number => $line) // 'true' will auto delete temp_filepath
         {
