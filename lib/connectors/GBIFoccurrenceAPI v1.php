@@ -85,7 +85,7 @@ class GBIFoccurrenceAPI
         /* 237020 - /map_data_from_api/ */
         // start GBIF
         // self::breakdown_GBIF_csv_file_v2(); return;
-        self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
+        // self::breakdown_GBIF_csv_file(); return;
         // self::generate_map_data_using_GBIF_csv_files(); return;
         // end GBIF
         
@@ -94,11 +94,9 @@ class GBIFoccurrenceAPI
         
         //OKAY to use
         //---------------------------------------------------------------------------------------------------------------------------------------------
-        /*
         if(Functions::is_production()) $path = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
         else                           $path = "/Volumes/AKiTiO4/z backup/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
         self::process_all_eol_taxa($path, false); return;           //make use of tab-delimited text file from JRice
-        */
         //---------------------------------------------------------------------------------------------------------------------------------------------
         
         // self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
@@ -142,8 +140,7 @@ class GBIFoccurrenceAPI
         $scinames = array();
         // $scinames["Pterostichus tarsalis"] = 312743;
         // $scinames["Hyperiidae"] = 1180;
-        // $scinames["Decapoda"] = 1183; //then will try CSV source to see if we're getting more data from CSV or API 
-        $scinames["Gadus morhua"] = 206692;
+        $scinames["Decapoda"] = 1183; //then will try CSV source to see if we're getting more data from CSV or API 
         
         /*
         will test this as well: 
@@ -200,59 +197,53 @@ class GBIFoccurrenceAPI
     }
     private function breakdown_GBIF_csv_file() //working as of Mar 3 Thursday
     {
-        // return;
+        return;
         /* ran it with all taxon levels [finished in 4.79 hours]
-        $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_csv/Incertae sedis/incertae sedis.csv";
-        $path2 = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_incertae/";
+        $path = DOC_ROOT . "/public/tmp/google_maps/GBIF_csv/Incertae sedis/incertae sedis.csv";
+        $path2 = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_incertae/";
+
+        $path  = "/Volumes/Thunderbolt4/eol_cache_gbif/pub_tmp_google_maps/GBIF_csv/Incertae sedis/incertae sedis.csv";
+        $path2 = "/Volumes/Thunderbolt4/eol_cache_gbif/pub_tmp_google_maps/GBIF_taxa_csv_incertae/";
         */
         
-        /* ran it with all taxon levels; total records in cmd finished: 361,245,321 
-        $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_csv/Animalia/animalia.csv";
-        $path2 = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_animalia/";
-        */
+        // /* ran it with all taxon levels; total records in cmd finished: 361,245,321 
+        $path = DOC_ROOT . "/public/tmp/google_maps/GBIF_csv/Animalia/animalia.csv";
+        $path2 = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_animalia/";
+        
+        $path  = "/Volumes/Thunderbolt4/eol_cache_gbif/pub_tmp_google_maps/GBIF_csv/Animalia/animalia.csv";
+        $path2 = "/Volumes/Thunderbolt4/eol_cache_gbif/pub_tmp_google_maps/GBIF_taxa_csv_animalia/";
+        // */
         
         /* total records in cmd finished: 151,838,119
            // Mar 14 2:05 AM - run it with just species-level taxa
            // Apr 27         - run it with just higher-level taxa
-        $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_csv/Others/others.csv";
-        $path2 = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_others/";
+        $path = DOC_ROOT . "/public/tmp/google_maps/GBIF_csv/Others/others.csv";
+        $path2 = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_others/";
+
+        $path  = "/Volumes/Thunderbolt4/eol_cache_gbif/pub_tmp_google_maps/GBIF_csv/Others/others.csv";
+        $path2 = "/Volumes/Thunderbolt4/eol_cache_gbif/pub_tmp_google_maps/GBIF_taxa_csv_others/";
         */
-        
-        $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_csv/Gadus morhua.csv";
-        $path2 = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv/";
-        
 
         $i = 0;
         foreach(new FileIterator($path) as $line_number => $line) // 'true' will auto delete temp_filepath
         {
             $i++;
-            if(($i % 5000) == 0) echo number_format($i) . " ";
+            // if(($i % 5000) == 0) echo number_format($i) . " ";
+            echo number_format($i) . " ";
             // if($i < 66445000) continue; //bec of machine shutdown - for 'others.csv'
             // if($i < 167133238) continue; //bec of machine shutdown - for 'animalia.csv'
-
+            
+            if($i == 1) continue;
             $row = explode("\t", $line);
-            if($i == 1) {
-                $fields = $row;
-                continue;
-            }
-            else {
-                if(!@$row[1]) continue;
-                $k = 0; $rec = array();
-                foreach($fields as $fld) {
-                    $rec[$fld] = $row[$k];
-                    $k++;
-                }
-            }
-            // print_r($rec); exit;
-            if(!@$rec['taxonkey']) continue;
+            if(!@$row[26]) continue;
             
             //start exclude higher-level taxa ========================================= used 1st batch of Plantae group
-            /*
+            // /*
             $sciname = Functions::canonical_form($row[12]);
             if(stripos($sciname, " ") !== false) $cont = true; //there is space, meaning a species-level taxon
             else                                 $cont = false;
             if(!$cont) continue;
-            */
+            // */
             //end exclude higher-level taxa ===========================================
 
             //start exclude species-level taxa ========================================= used for 2nd batch of Plantae group
@@ -264,9 +255,8 @@ class GBIFoccurrenceAPI
             */
             //end exclude species-level taxa ===========================================
             
-            $taxonkey = $rec['taxonkey'];
-            $rek = array($rec['gbifid'], $rec['datasetkey'], $rec['scientificname'], $rec['publishingorgkey'], $rec['decimallatitude'], $rec['decimallongitude'], $rec['eventdate'], 
-                         $rec['institutioncode'], $rec['catalognumber'], $rec['identifiedby'], $rec['recordedby']);
+            $taxonkey = $row[26];
+            $rek = array($row[0], $row[1], $row[12], $row[15], $row[16], $row[17], $row[22], $row[29], $row[31], $row[33], $row[36]);
             /* be sure to save this list of headers... will use it when accessing these generated text files
             $row[0] => gbifid
             $row[1] => datasetkey
@@ -281,16 +271,8 @@ class GBIFoccurrenceAPI
             $row[36] => recordedby
             */
             
-            if($rec['decimallatitude'] && $rec['decimallongitude']) {
-                $csv_file = $path2 . $taxonkey . ".csv";
-                if(!file_exists($csv_file)) {
-                    //order of fields here is IMPORTANT
-                    $str = 'gbifid,datasetkey,scientificname,publishingorgkey,decimallatitude,decimallongitude,eventdate,institutioncode,catalognumber,identifiedby,recordedby';
-                    $fhandle = Functions::file_open($csv_file, "a");
-                    fwrite($fhandle, implode("\t", explode(",", $str)) . "\n");
-                    fclose($fhandle);
-                }
-                $fhandle = Functions::file_open($csv_file, "a");
+            if($row[16] && $row[17]) {
+                $fhandle = Functions::file_open($path2 . $taxonkey . ".csv", "a");
                 fwrite($fhandle, implode("\t", $rek) . "\n");
                 fclose($fhandle);
             }
@@ -375,9 +357,6 @@ class GBIFoccurrenceAPI
         return $path;
     }
     
-    
-    
-    
     private function prepare_csv_data($usageKey, $paths)
     {
         $final = array();
@@ -423,14 +402,6 @@ class GBIFoccurrenceAPI
                     $row[33] => identifiedby        9
                     $row[36] => recordedby          10
                     */
-
-                    /*
-                    old csv:
-                    gbifid	datasetkey	occurrenceid	kingdom	phylum	class	order	family	genus	species	infraspecificepithet	taxonrank	scientificname	countrycode	locality	publishingorgkey	decimallatitude	decimallongitude	                                                    elevation	elevationaccuracy	depth	depthaccuracy	eventdate	day	month	year	taxonkey	specieskey	basisofrecord	institutioncode	collectioncode	catalognumber	recordnumber	identifiedby	rights	rightsholder	recordedby	typestatus	establishmentmeans	lastinterpreted	mediatype	issue
-                    new csv:
-                    gbifid	datasetkey	occurrenceid	kingdom	phylum	class	order	family	genus	species	infraspecificepithet	taxonrank	scientificname	countrycode	locality	publishingorgkey	decimallatitude	decimallongitude	coordinateuncertaintyinmeters	coordinateprecision	elevation	elevationaccuracy	depth	depthaccuracy	eventdate	day	month	year	taxonkey	specieskey	basisofrecord	institutioncode	collectioncode	catalognumber	recordnumber	identifiedby	license	rightsholder	recordedby	typestatus	establishmentmeans	lastinterpreted	mediatype	issue
-                    */
-                    
                     $final['records'][] = $rec;
                 }
                 $final['count'] = count($final['records']);
@@ -525,18 +496,24 @@ class GBIFoccurrenceAPI
         if(!($this->file2 = Functions::file_open($this->save_path['fusion'].$basename.".txt", "w"))) return;
         if(!($this->file3 = Functions::file_open($this->save_path['fusion2'].$basename.".json", "w"))) return;
         */
+        // if(!($this->file4 = Functions::file_open($this->save_path['kml'].$basename.".kml", "w"))) return;
+        
+        $headers = "catalogNumber, sciname, publisher, publisher_id, dataset, dataset_id, gbifID, latitude, longitude, recordedBy, identifiedBy, pic_url";
+        $headers = "catalogNumber, sciname, publisher, publisher_id, dataset, dataset_id, gbifID,                      recordedBy, identifiedBy, pic_url, location";
+        
+        /* fwrite($this->file2, str_replace(", ", "\t", $headers) . "\n"); */
 
         $final_count = false;
         if($rec = self::get_initial_data($sciname)) {
-            print_r($rec);
             // first is check the csv front
             if($final = self::prepare_csv_data($rec['usageKey'], $this->csv_paths)) {
-                print_r($final);
                 if($final['count'] > $this->rec_limit) {
                     echo "\n -- will just use CSV source instead -- " . $final['count'] . " > " . $this->rec_limit . " \n"; //exit;
                     return; //if count > from csv then use csv later instead using - generate_map_data_using_GBIF_csv_files()
                 }
-                else echo "\n -- will use API as source 01 -- " . $final['count'] . " < " . $this->rec_limit . " \n";
+                else {
+                    echo "\n -- will use API as source 01 -- " . $final['count'] . " < " . $this->rec_limit . " \n";
+                }
             }
             else echo "\n -- will use API as source 02 -- No CSV data \n"; //exit;
             // end
