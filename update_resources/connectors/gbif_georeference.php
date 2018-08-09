@@ -17,8 +17,11 @@ exit;
 
 
 $func = new GBIFoccurrenceAPI($resource_id);
+// $func->start(); //normal operation
 
-$func->start(); //normal operation
+// /* utilities
+$func->divide_Passeriformes(); //utility
+// */
 
 // $func->save_ids_to_text_from_many_folders(); //utility
 
