@@ -58,7 +58,6 @@ class GBIFoccurrenceAPI
         $this->csv_paths[] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv/";
         $this->limit_20k = 20000; //20000;
     }
-
     function start()
     {
         /* steps in order accordingly
@@ -149,7 +148,6 @@ class GBIFoccurrenceAPI
         [results]       => Array
         */
     }
-    
     //==========================
     // start GBIF methods
     //==========================
@@ -349,7 +347,6 @@ class GBIFoccurrenceAPI
             else echo "\n usageKey not found! [$sciname]\n";
         } //end main foreach()
     }
-    
     private function get_map_data_path($taxon_concept_id)
     {
         $folder = $taxon_concept_id % 100;
@@ -357,10 +354,6 @@ class GBIFoccurrenceAPI
         if(!is_dir($path)) mkdir($path);
         return $path;
     }
-    
-    
-    
-    
     private function prepare_csv_data($usageKey, $paths)
     {
         $final = array();
@@ -696,8 +689,7 @@ class GBIFoccurrenceAPI
             if($offset) $url .= "&offset=$offset";
             if($json = Functions::lookup_with_cache($url, $this->download_options)) {
                 $j = json_decode($json);
-                if(!is_object($j))
-                {
+                if(!is_object($j)) {
                     $offset += $limit;
                     continue;
                 }
@@ -713,7 +705,6 @@ class GBIFoccurrenceAPI
             else break; //just try again next time...
             $offset += $limit;
         }
-        
         $final['count'] = count($final['records']);
         $final['actual'] = count($final['records']);
         
@@ -726,7 +717,6 @@ class GBIFoccurrenceAPI
         fclose($this->file);
         
         /* self::write_to_supplementary_fusion_text($final); */
-        
         return $final;
     }
     private function get_center_latlon_using_taxonID($taxon_concept_id)
@@ -734,11 +724,9 @@ class GBIFoccurrenceAPI
         $rows = self::prepare_data($taxon_concept_id);
         echo "\n" . count($rows) . "\n";
         $minlat = false; $minlng = false; $maxlat = false; $maxlng = false;
-        foreach($rows as $row) //$row is String not array
-        {
+        foreach($rows as $row) { //$row is String not array
             $cols = explode("\t", $row);
             // print_r($cols);
-            
             /*
             if(count($cols) != 11) continue; //exclude row if total no. of cols is not 11, just to be sure that the col 10 is the "lat,long" column.
             $temp = explode(",", $cols[10]); //col 10 is the latlon column.
@@ -747,7 +735,6 @@ class GBIFoccurrenceAPI
             */
             $lat = $cols[7];
             $lon = $cols[8];
-            
             if ($lat && $lon) {
                 if ($minlat === false) { $minlat = $lat; } else { $minlat = ($lat < $minlat) ? $lat : $minlat; }
                 if ($maxlat === false) { $maxlat = $lat; } else { $maxlat = ($lat > $maxlat) ? $lat : $maxlat; }
@@ -762,12 +749,10 @@ class GBIFoccurrenceAPI
         }
         /* computation based on: http://stackoverflow.com/questions/6671183/calculate-the-center-point-of-multiple-latitude-longitude-coordinate-pairs */
     }
-
     private function get_center_latlon_using_coordinates($records)
     {
         $minlat = false; $minlng = false; $maxlat = false; $maxlng = false;
-        foreach($records as $r)
-        {
+        foreach($records as $r) {
             $lat = $r['h'];
             $lon = $r['i'];
             if ($lat && $lon) {
@@ -782,13 +767,11 @@ class GBIFoccurrenceAPI
         }
         /* computation based on: http://stackoverflow.com/questions/6671183/calculate-the-center-point-of-multiple-latitude-longitude-coordinate-pairs */
     }
-
     private function write_to_supplementary_fusion_text($final)
     {
         //get publishers:
         $publishers = array();
-        foreach($final['records'] as $r)
-        {
+        foreach($final['records'] as $r) {
             if($r['h'] && $r['i']) $publishers[$r['c']] = '';
         }
         $publishers = array_keys($publishers);
@@ -799,8 +782,7 @@ class GBIFoccurrenceAPI
         $center_lat = $temp['center_lat'];
         $center_lon = $temp['center_lon'];
         
-        if($center_lat && $center_lon && $publishers)
-        {
+        if($center_lat && $center_lon && $publishers) {
             $arr = array("tableID" => "", "total" => count($final['records']), "center_lat" => $center_lat, "center_lon" => $center_lon, "publishers" => $publishers);
             echo "\n" . json_encode($arr) . "\n";
             fwrite($this->file3, "var data = ".json_encode($arr));
@@ -809,12 +791,10 @@ class GBIFoccurrenceAPI
         /*
         var data = {"center_lat": 33.83253, "center_lon": -118.4745, "tableID": "1TspfLoWk5Vee6PHP78g09vwYtmNoeMIBgvt6Keiq", 
         "publishers" : ["Cornell Lab of Ornithology (CLO)", "Museum of Comparative Zoology, Harvard University (MCZ)"] };
-        
+
         [count] => 619
-        [records] => Array
-                (
-                    [0] => Array
-                        (
+        [records] => Array (
+                    [0] => Array (
                             [catalogNumber] => 1272385
                             [sciname] => Chanos chanos (Forsskål, 1775)
                             [publisher] => iNaturalist.org (iNaturalist)
@@ -828,9 +808,7 @@ class GBIFoccurrenceAPI
                             [identifiedBy] => 
                             [pic_url] => http://static.inaturalist.org/photos/1596294/original.jpg?1444769372
                         )
-
-                    [1] => Array
-                        (
+                    [1] => Array (
                             [catalogNumber] => 2014-0501
                             [sciname] => Chanos chanos (Forsskål, 1775)
                             [publisher] => MNHN - Museum national d'Histoire naturelle (MNHN)
@@ -846,17 +824,14 @@ class GBIFoccurrenceAPI
                         )
         */
     }
-
     private function write_to_file($j) //for cluster map
     {
         $recs = array();
         $i = 0;
-        foreach($j->results as $r)
-        {
+        foreach($j->results as $r) {
             // if($i > 2) break; //debug
             $i++;
-            if(@$r->decimalLongitude && @$r->decimalLatitude)
-            {
+            if(@$r->decimalLongitude && @$r->decimalLatitude) {
                 $rec = array();
                 $rec['a']   = (string) @$r->catalogNumber;
                 $rec['b']   = self::get_sciname($r);
@@ -907,7 +882,6 @@ class GBIFoccurrenceAPI
         }
         return $recs;
     }
-    
     private function write_to_fusion_table($rec)
     {   /*
         [catalogNumber] => 1272385
@@ -937,13 +911,11 @@ class GBIFoccurrenceAPI
         //end kml
         */
     }
-    
     private function get_sciname($r)
     {
         // if($r->taxonRank == "SPECIES") return $r->species;
         return $r->scientificName;
     }
-    
     private function get_org_name($org, $id)
     {
         $id = trim($id);
@@ -951,12 +923,10 @@ class GBIFoccurrenceAPI
         $options = $this->download_options;
         $options['delay_in_minutes'] = 0;
         $options['expire_seconds'] = false; //debug
-        
         if($html = Functions::lookup_with_cache($this->html[$org] . $id, $options)) {
             if(preg_match("/Full title<\/h3>(.*?)<\/p>/ims", $html, $arr)) return strip_tags(trim($arr[1]));
         }
     }
-    
     private function get_initial_data($sciname)
     {
         if($usageKey = self::get_usage_key($sciname)) {
@@ -972,15 +942,12 @@ class GBIFoccurrenceAPI
             exit("\nCannot get usage_key for ($sciname)\n");
         }
     }
-
     private function get_usage_key($sciname)
     {
-        if($json = Functions::lookup_with_cache($this->gbif_taxon_info . $sciname, $this->download_options))
-        {
+        if($json = Functions::lookup_with_cache($this->gbif_taxon_info . $sciname, $this->download_options)) {
             $json = json_decode($json);
             $usageKey = false;
-            if(!isset($json->usageKey))
-            {
+            if(!isset($json->usageKey)) {
                 if(isset($json->note)) $usageKey = self::get_usage_key_again($sciname);
                 else {} // e.g. Fervidicoccaceae
             }
@@ -989,25 +956,20 @@ class GBIFoccurrenceAPI
         }
         return false;
     }
-
     private function get_usage_key_again($sciname)
     {
-        if($json = Functions::lookup_with_cache($this->gbif_taxon_info . $sciname . "&verbose=true", $this->download_options))
-        {
+        if($json = Functions::lookup_with_cache($this->gbif_taxon_info . $sciname . "&verbose=true", $this->download_options)) {
             $usagekeys = array();
             $options = array();
             $json = json_decode($json);
             if(!isset($json->alternatives)) return false;
-            foreach($json->alternatives as $rec)
-            {
-                if($rec->canonicalName == $sciname)
-                {
+            foreach($json->alternatives as $rec) {
+                if($rec->canonicalName == $sciname) {
                     $options[$rec->rank][] = $rec->usageKey;
                     $usagekeys[] = $rec->usageKey;
                 }
             }
-            if($options)
-            {
+            if($options) {
                 /* from NCBIGGIqueryAPI.php connector
                 if(isset($options["FAMILY"])) return min($options["FAMILY"]);
                 else return min($usagekeys);
@@ -1017,7 +979,6 @@ class GBIFoccurrenceAPI
         }
         return false;
     }
-    
     private function process_hotlist_spreadsheet()
     {
         require_library('XLSParser');
@@ -1026,17 +987,14 @@ class GBIFoccurrenceAPI
         $doc = "http://localhost/eol_php_code/public/tmp/spreadsheets/SPG Hotlist Official Version.xlsx";
         // $doc = "http://localhost/~eolit/eli/eol_php_code/public/tmp/spreadsheets/SPG Hotlist Official Version.xlsx"; //for MacBook
         echo "\n processing [$doc]...\n";
-        if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2)))
-        {
+        if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2))) {
             $arr = $parser->convert_sheet_to_array($path);
             $i = -1;
-            foreach($arr['Animals'] as $sciname)
-            {
+            foreach($arr['Animals'] as $sciname) {
                 $i++;
                 $sciname = trim(Functions::canonical_form($sciname));
                 // if(stripos($sciname, " ") !== false) //process only species-level taxa
-                if(true)
-                {
+                if(true) {
                     $taxon_concept_id = $arr['1'][$i];
                     echo "\n$i. [$sciname][$taxon_concept_id]";
                     //==================
@@ -1061,21 +1019,17 @@ class GBIFoccurrenceAPI
         }
         else echo "\n [$doc] unavailable! \n";
     }
-
     private function process_DL_taxon_list()
     {
         $temp_filepath = Functions::save_remote_file_to_local(self::DL_MAP_SPECIES_LIST, array('timeout' => 4800, 'download_attempts' => 5));
-        if(!$temp_filepath)
-        {
+        if(!$temp_filepath) {
             echo "\n\nExternal file not available. Program will terminate.\n";
             return;
         }
         $i = 0;
-        foreach(new FileIterator($temp_filepath, true) as $line_number => $line) // 'true' will auto delete temp_filepath
-        {
+        foreach(new FileIterator($temp_filepath, true) as $line_number => $line) { // 'true' will auto delete temp_filepath
             $i++;
-            if($line)
-            {
+            if($line) {
                 $m = 10000;
                 $cont = false;
                 if($i >=  1    && $i < $m)    $cont = true;
@@ -1083,9 +1037,7 @@ class GBIFoccurrenceAPI
                 // if($i >=  $m*2 && $i < $m*3)  $cont = true;
                 // if($i >=  $m*3 && $i < $m*4)  $cont = true;
                 // if($i >=  $m*4 && $i < $m*5)  $cont = true;
-                
                 if(!$cont) continue;
-                
                 $arr = explode("\t", $line);
                 $sciname = trim($arr[0]);
                 echo "\n[$sciname]\n";
