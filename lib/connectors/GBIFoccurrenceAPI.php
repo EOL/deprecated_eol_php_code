@@ -40,30 +40,13 @@ class GBIFoccurrenceAPI
         $this->gbif_record_count    = "http://api.gbif.org/v1/occurrence/count?taxonKey=";
         $this->gbif_occurrence_data = "http://api.gbif.org/v1/occurrence/search?taxonKey=";
         
+        
         $this->html['publisher']    = "http://www.gbif.org/publisher/";
         $this->html['dataset']      = "http://www.gbif.org/dataset/";
         
-        /* for mac mini
-        // it seems no longer used
-        // $this->save_path['cluster']     = DOC_ROOT . "public/tmp/google_maps/cluster/";
-        // $this->save_path['cluster_v2']  = DOC_ROOT . "public/tmp/google_maps/cluster_v2/";
-        */
-        
-        // /* for macbook
-        // it seems no longer used
-        // $this->save_path['cluster']     = "/Volumes/Thunderbolt4/cluster_cache/cluster/";
-        // $this->save_path['cluster_v2']  = "/Volumes/Thunderbolt4/cluster_cache/cluster_v2/";
-        // */
+        $this->save_path['map_data'] = "/Volumes/AKiTiO4/map_data_new/";    //old
+        $this->save_path['map_data'] = "/Volumes/AKiTiO4/map_data_2018/";   //new
 
-        $this->save_path['map_data'] = "/Volumes/AKiTiO4/map_data_new/";
-        $this->save_path['map_data'] = "/Volumes/AKiTiO4/map_data_2018/";
-        
-
-        // not being used anymore
-        // $this->save_path['fusion']      = DOC_ROOT . "public/tmp/google_maps/fusion/";
-        // $this->save_path['fusion2']     = DOC_ROOT . "public/tmp/google_maps/fusion2/";
-        // $this->save_path['kml']         = DOC_ROOT . "public/tmp/google_maps/kml/";
-        
         $this->rec_limit = 100000; //50000;
         
         $this->csv_paths = array();
@@ -494,17 +477,6 @@ class GBIFoccurrenceAPI
     private function map_data_file_already_been_generated($basename)
     {
         // return false; //debug
-        /* working but procedure changed to use subdirectories for map data storage
-        $filenames = array($this->save_path['cluster'].$basename.".json", $this->save_path['cluster_v2'].$basename.".json");
-        foreach($filenames as $filename) {
-            if(file_exists($filename)) {
-                echo "\n[$basename] already generated OK";
-                return true;
-            }
-        }
-        return false;
-        */
-        
         $filename = self::get_map_data_path($basename).$basename.".json";
         if(file_exists($filename)) {
             echo "\n[$basename] already generated OK";
@@ -530,7 +502,7 @@ class GBIFoccurrenceAPI
             print_r($rec);
             // first is check the csv front
             if($final = self::prepare_csv_data($rec['usageKey'], $this->csv_paths)) {
-                print_r($final);
+                // print_r($final);
                 if($final['count'] > $this->rec_limit) {
                     echo "\n -- will just use CSV source instead -- " . $final['count'] . " > " . $this->rec_limit . " \n"; //exit;
                     return; //if count > from csv then use csv later instead using - generate_map_data_using_GBIF_csv_files()
@@ -582,13 +554,15 @@ class GBIFoccurrenceAPI
             else {
                 echo "\nfinal_count is [$final_count]\n";
                 $filename = self::get_map_data_path($basename).$basename.".json";
-                if(file_exists($filename)) unlink($filename); //delete cluster map data
+                if(file_exists($filename)) {
+                    unlink($filename); //delete cluster map data
+                    exit("\nInvestigate: file deleted ($filename)\n");
+                }
             }
         }
     }
     private function process_revised_cluster($final, $basename)
     {
-        // if(!($this->file5 = Functions::file_open($this->save_path['cluster_v2'].$basename.".json", "w"))) return;
         if(!($this->file5 = Functions::file_open(self::get_map_data_path($basename).$basename.".json", "w"))) return;
         $to_be_saved = array();
         $to_be_saved['records'] = array();
@@ -619,7 +593,7 @@ class GBIFoccurrenceAPI
         
         //flag if after revised cluster is still unsuccessful
         if(count($unique) > $limit_to_break) {
-            echo "\ntaxon_concept_ID [$basename] revised cluster unsuccessful\n";
+            exit("\ntaxon_concept_ID [$basename] revised cluster unsuccessful\n");
             if(!($fhandle = Functions::file_open(DOC_ROOT . "public/tmp/google_maps/alert.txt", "a"))) return;
             fwrite($fhandle, "$basename" . "\t" . count($unique) . "\n");
             fclose($fhandle);
@@ -645,11 +619,6 @@ class GBIFoccurrenceAPI
             fwrite($this->file5, "var data = ".$json);
             fclose($this->file5);
             return $to_be_saved['count']; //the smaller value; the bigger one is $to_be_saved['actual']
-            
-            //unlink the original cluster
-            // fclose($this->file);
-            // unlink($this->save_path['cluster'].$basename.".json");
-            // $this->file = false;
         }
         
     }
@@ -710,6 +679,11 @@ class GBIFoccurrenceAPI
             if($offset) $url .= "&offset=$offset";
             if($json = Functions::lookup_with_cache($url, $this->download_options)) {
                 $j = json_decode($json);
+                if(!is_object($j))
+                {
+                    $offset += $limit;
+                    continue;
+                }
                 // print_r($j);
                 $recs = self::write_to_file($j);
                 $final['records'] = array_merge($final['records'], $recs);
