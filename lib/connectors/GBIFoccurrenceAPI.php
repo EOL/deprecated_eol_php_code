@@ -97,11 +97,11 @@ class GBIFoccurrenceAPI
         
         //OKAY to use
         //---------------------------------------------------------------------------------------------------------------------------------------------
-        // /*
+        /*
         if(Functions::is_production()) $path = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
         else                           $path = "/Volumes/AKiTiO4/z backup/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
         self::process_all_eol_taxa($path, false); return;           //make use of tab-delimited text file from JRice
-        // */
+        */
         //---------------------------------------------------------------------------------------------------------------------------------------------
         
         // self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
@@ -370,30 +370,45 @@ class GBIFoccurrenceAPI
             if(file_exists($csv)) {
                 echo "\nusageKey = [$usageKey] found in [$path]";
                 $file_array = file($csv);
-                $gbif_ids = array();
+                $gbif_ids = array(); $i = 0;
                 foreach($file_array as $line) {
+                    $i++;
                     $row = explode("\t", $line);
+                    if($i == 1) {
+                        $fields = $row;
+                        continue;
+                    }
+                    else {
+                        if(!@$row[1]) continue;
+                        $k = 0; $rek = array();
+                        foreach($fields as $fld) {
+                            $rek[$fld] = $row[$k];
+                            $k++;
+                        }
+                        $rek = array_map('trim', $rek);
+                        // print_r($rek); exit;
+                    }
                     
                     //make record unique
-                    $gbifid = $row[0];
+                    $gbifid = $rek['gbifid'];
                     if(isset($gbif_ids[$gbifid])) continue;
                     else $gbif_ids[$gbifid] = '';
                     
                     $rec = array();
-                    $rec['a']   = $row[8];
-                    $rec['b']   = $row[2];
-                    $rec['c']   = self::get_org_name('publisher', @$row[3]);
-                    $rec['d']   = @$row[3];
-                    if($val = @$row[7]) $rec['c'] .= " ($val)";
-                    $rec['e']   = self::get_org_name('dataset', @$row[1]);
-                    $rec['f']   = @$row[1];
-                    $rec['g']   = $row[0];
-                    $rec['h']   = $row[4];
-                    $rec['i']   = $row[5];
-                    $rec['j']   = @$row[10];
-                    $rec['k']   = @$row[9];
+                    $rec['a']   = $rek['catalognumber'];
+                    $rec['b']   = $rek['scientificname'];
+                    $rec['c']   = self::get_org_name('publisher', @$rek['publishingorgkey']);
+                    $rec['d']   = @$rek['publishingorgkey'];
+                    if($val = @$rek['institutioncode']) $rec['c'] .= " ($val)";
+                    $rec['e']   = self::get_org_name('dataset', @$rek['datasetkey']);
+                    $rec['f']   = @$rek['datasetkey'];
+                    $rec['g']   = $rek['gbifid'];
+                    $rec['h']   = $rek['decimallatitude'];
+                    $rec['i']   = $rek['decimallongitude'];
+                    $rec['j']   = @$rek['recordedby'];
+                    $rec['k']   = @$rek['identifiedby'];
                     $rec['l']   = '';
-                    $rec['m']   = @$row[6];
+                    $rec['m']   = @$rek['eventdate'];
                     /*
                     $row[0] => gbifid               0
                     $row[1] => datasetkey           1
@@ -940,6 +955,7 @@ class GBIFoccurrenceAPI
     
     private function get_org_name($org, $id)
     {
+        $id = trim($id);
         if(!$id) return "";
         $options = $this->download_options;
         $options['delay_in_minutes'] = 0;
