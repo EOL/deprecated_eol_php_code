@@ -45,7 +45,7 @@ class GBIFoccurrenceAPI
         $this->html['dataset']      = "http://www.gbif.org/dataset/";
         
         $this->save_path['map_data'] = "/Volumes/AKiTiO4/map_data_new/";    //old
-        $this->save_path['map_data'] = "/Volumes/AKiTiO4/map_data_2018/";   //new
+        $this->save_path['map_data'] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/map_data_2018/";   //new
 
         $this->rec_limit = 100000; //50000;
         
@@ -56,6 +56,7 @@ class GBIFoccurrenceAPI
         $this->csv_paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_others/";
         */
         $this->csv_paths[] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv/";
+        $this->limit_20k = 20000; //20000;
     }
 
     function start()
@@ -72,7 +73,7 @@ class GBIFoccurrenceAPI
         // start GBIF
         // self::breakdown_GBIF_csv_file_v2(); return;
         // self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
-        // self::generate_map_data_using_GBIF_csv_files(); return;
+        self::generate_map_data_using_GBIF_csv_files(); return;
         // end GBIF
         
         // self::start_clustering(); return;                        //distance clustering sample
@@ -204,9 +205,12 @@ class GBIFoccurrenceAPI
         $path2 = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_others/";
         */
         
+        // start 2018
         $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_csv/Gadus morhua.csv";
         $path2 = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv/";
-        
+
+        // $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_csv/Fungi.csv";
+        // $path2 = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv/";
 
         $i = 0;
         foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
@@ -249,7 +253,8 @@ class GBIFoccurrenceAPI
             $taxonkey = $rec['taxonkey'];
             $rek = array($rec['gbifid'], $rec['datasetkey'], $rec['scientificname'], $rec['publishingorgkey'], $rec['decimallatitude'], $rec['decimallongitude'], $rec['eventdate'], $rec['institutioncode'], $rec['catalognumber'], $rec['identifiedby'], $rec['recordedby']);
             if($rec['decimallatitude'] && $rec['decimallongitude']) {
-                $csv_file = $path2 . $taxonkey . ".csv";
+                $path3 = self::get_md5_path($path2, $taxonkey);
+                $csv_file = $path3 . $taxonkey . ".csv";
                 if(!file_exists($csv_file)) {
                     //order of fields here is IMPORTANT: will use it when accessing these generated individual taxon csv files
                     $str = 'gbifid,datasetkey,scientificname,publishingorgkey,decimallatitude,decimallongitude,eventdate,institutioncode,catalognumber,identifiedby,recordedby';
@@ -263,10 +268,20 @@ class GBIFoccurrenceAPI
             }
         }
     }
-    
+    private function get_md5_path($path, $taxonkey)
+    {
+        $md5 = md5($taxonkey);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        if(!file_exists($path . $cache1)) mkdir($path . $cache1);
+        if(!file_exists($path . "$cache1/$cache2")) mkdir($path . "$cache1/$cache2");
+        return $path . "$cache1/$cache2/";
+    }
     private function generate_map_data_using_GBIF_csv_files()
     {
+        /* uncomment in real operation
         $eol_taxon_id_list = self::process_all_eol_taxa($path, true); //listOnly = true
+        */
         // print_r($eol_taxon_id_list); echo "\n" . count($eol_taxon_id_list) . "\n"; return; //[Triticum aestivum virus] => 540152
         
         // $eol_taxon_id_list["Gadus morhua"] = 206692;
@@ -282,11 +297,12 @@ class GBIFoccurrenceAPI
         // $eol_taxon_id_list["Chaetoceros"] = 12010;
         // $eol_taxon_id_list["Chenonetta"] = 104248;
         
-        /* for testing 1 taxon
+        // /* for testing 1 taxon
         $eol_taxon_id_list = array();
+        $eol_taxon_id_list["Gadus morhua"] = 206692;
         // $eol_taxon_id_list["Hyperiidae"] = 1180;
-        $eol_taxon_id_list["Decapoda"] = 1183;
-        */
+        // $eol_taxon_id_list["Decapoda"] = 1183;
+        // */
 
         $paths = $this->csv_paths;
         
@@ -313,11 +329,11 @@ class GBIFoccurrenceAPI
                 
                 if($final = self::prepare_csv_data($usageKey, $paths)) {
                     echo "\n" . $final['count'] . "\n";
-                    if($final['count'] > 20000) {
+                    if($final['count'] > $this->limit_20k) {
                         echo "\n > 20K\n";
                         self::process_revised_cluster($final, $taxon_concept_id); //done after main demo using screenshots
                     }
-                    elseif($final['count'] <= 20000) {
+                    elseif($final['count'] <= $this->limit_20k) {
                         echo "\n <= 20K\n";
                         $final['actual'] = $final['count'];
                         // if(!($this->file = Functions::file_open($this->save_path['cluster'].$taxon_concept_id.".json", "w"))) return;
@@ -349,7 +365,8 @@ class GBIFoccurrenceAPI
     {
         $final = array();
         foreach($paths as $path) {
-            $csv = $path . $usageKey . ".csv";
+            $final_path = self::get_md5_path($path, $usageKey);
+            $csv = $final_path . $usageKey . ".csv";
             if(file_exists($csv)) {
                 echo "\nusageKey = [$usageKey] found in [$path]";
                 $file_array = file($csv);
@@ -516,7 +533,7 @@ class GBIFoccurrenceAPI
             // {
                 $final = self::get_georeference_data($rec['usageKey'], $basename);
                 $final_count = $final['count'];
-                if($final_count > 20000)
+                if($final_count > $this->limit_20k)
                 {
                     $final_count = self::process_revised_cluster($final, $basename); //done after main demo using screenshots
                 }
@@ -545,7 +562,7 @@ class GBIFoccurrenceAPI
             */
         }
         else { //delete respective file
-            if($final_count < 20000) {
+            if($final_count < $this->limit_20k) {
                 /*
                 unlink($this->save_path['fusion'].$basename.".txt");   //delete Fusion data
                 unlink($this->save_path['fusion2'].$basename.".json"); //delete Fusion data (centerLatLon, tableID, publishers)
@@ -579,7 +596,7 @@ class GBIFoccurrenceAPI
             }
             echo "\n New total [$decimal_places]: " . count($unique) . "\n";
             
-            $limit_to_break = 20000;
+            $limit_to_break = $this->limit_20k;
             if($basename == 281) $limit_to_break = 35000; //Plantae 34131
 
             if(count($to_be_saved['records']) < $limit_to_break || $decimal_places == 0) break; //orig value is 0, not 1
@@ -600,9 +617,9 @@ class GBIFoccurrenceAPI
             // exit("\neli exits here...\n");
             
             //start force-get only the first 20k records
-            $to_be_saved = self::reduce_records($to_be_saved);
+            $to_be_saved = self::force_reduce_records($to_be_saved);
 
-            echo "\n Final total after reduce_records() [$decimal_places]: " . count($to_be_saved['records']) . "\n";
+            echo "\n Final total after force_reduce_records() [$decimal_places]: " . count($to_be_saved['records']) . "\n";
 
             $to_be_saved['count'] = count($to_be_saved['records']);
             $to_be_saved['actual'] = $final['count'];
@@ -622,12 +639,12 @@ class GBIFoccurrenceAPI
         }
         
     }
-    function reduce_records($to_be_saved)
+    function force_reduce_records($to_be_saved)
     {
         $i = -1;
         foreach($to_be_saved['records'] as $r) {
             $i++;
-            if($i > 20000) $to_be_saved['records'][$i] = '';
+            if($i > $this->limit_20k) $to_be_saved['records'][$i] = '';
         }
         $to_be_saved['records'] = array_filter($to_be_saved['records']); //remove null arrays
         $to_be_saved['records'] = array_values($to_be_saved['records']); //reindex key
