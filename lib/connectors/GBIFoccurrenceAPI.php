@@ -67,9 +67,12 @@ class GBIFoccurrenceAPI
         $this->rec_limit = 100000; //50000;
         
         $this->csv_paths = array();
+        /* obsolete
         $this->csv_paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_animalia/";
         $this->csv_paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_incertae/";
         $this->csv_paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_others/";
+        */
+        $this->csv_paths[] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv/";
     }
 
     function start()
@@ -85,7 +88,7 @@ class GBIFoccurrenceAPI
         /* 237020 - /map_data_from_api/ */
         // start GBIF
         // self::breakdown_GBIF_csv_file_v2(); return;
-        self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
+        // self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
         // self::generate_map_data_using_GBIF_csv_files(); return;
         // end GBIF
         
@@ -94,11 +97,11 @@ class GBIFoccurrenceAPI
         
         //OKAY to use
         //---------------------------------------------------------------------------------------------------------------------------------------------
-        /*
+        // /*
         if(Functions::is_production()) $path = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
         else                           $path = "/Volumes/AKiTiO4/z backup/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
         self::process_all_eol_taxa($path, false); return;           //make use of tab-delimited text file from JRice
-        */
+        // */
         //---------------------------------------------------------------------------------------------------------------------------------------------
         
         // self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
@@ -223,8 +226,7 @@ class GBIFoccurrenceAPI
         
 
         $i = 0;
-        foreach(new FileIterator($path) as $line_number => $line) // 'true' will auto delete temp_filepath
-        {
+        foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
             $i++;
             if(($i % 5000) == 0) echo number_format($i) . " ";
             // if($i < 66445000) continue; //bec of machine shutdown - for 'others.csv'
@@ -243,9 +245,7 @@ class GBIFoccurrenceAPI
                     $k++;
                 }
             }
-            // print_r($rec); exit;
             if(!@$rec['taxonkey']) continue;
-            
             //start exclude higher-level taxa ========================================= used 1st batch of Plantae group
             /*
             $sciname = Functions::canonical_form($row[12]);
@@ -254,7 +254,6 @@ class GBIFoccurrenceAPI
             if(!$cont) continue;
             */
             //end exclude higher-level taxa ===========================================
-
             //start exclude species-level taxa ========================================= used for 2nd batch of Plantae group
             /*
             $sciname = Functions::canonical_form($row[12]);
@@ -265,26 +264,11 @@ class GBIFoccurrenceAPI
             //end exclude species-level taxa ===========================================
             
             $taxonkey = $rec['taxonkey'];
-            $rek = array($rec['gbifid'], $rec['datasetkey'], $rec['scientificname'], $rec['publishingorgkey'], $rec['decimallatitude'], $rec['decimallongitude'], $rec['eventdate'], 
-                         $rec['institutioncode'], $rec['catalognumber'], $rec['identifiedby'], $rec['recordedby']);
-            /* be sure to save this list of headers... will use it when accessing these generated text files
-            $row[0] => gbifid
-            $row[1] => datasetkey
-            $row[12] => scientificname
-            $row[15] => publishingorgkey
-            $row[16] => decimallatitude
-            $row[17] => decimallongitude
-            $row[22] => eventdate
-            $row[29] => institutioncode
-            $row[31] => catalognumber
-            $row[33] => identifiedby
-            $row[36] => recordedby
-            */
-            
+            $rek = array($rec['gbifid'], $rec['datasetkey'], $rec['scientificname'], $rec['publishingorgkey'], $rec['decimallatitude'], $rec['decimallongitude'], $rec['eventdate'], $rec['institutioncode'], $rec['catalognumber'], $rec['identifiedby'], $rec['recordedby']);
             if($rec['decimallatitude'] && $rec['decimallongitude']) {
                 $csv_file = $path2 . $taxonkey . ".csv";
                 if(!file_exists($csv_file)) {
-                    //order of fields here is IMPORTANT
+                    //order of fields here is IMPORTANT: will use it when accessing these generated individual taxon csv files
                     $str = 'gbifid,datasetkey,scientificname,publishingorgkey,decimallatitude,decimallongitude,eventdate,institutioncode,catalognumber,identifiedby,recordedby';
                     $fhandle = Functions::file_open($csv_file, "a");
                     fwrite($fhandle, implode("\t", explode(",", $str)) . "\n");
@@ -483,10 +467,10 @@ class GBIFoccurrenceAPI
                 if(!$cont) continue;
                 */
                 //==================
-                // self::main_loop($sciname, $taxon_concept_id); //uncomment in real operation...
+                self::main_loop($sciname, $taxon_concept_id); //uncomment in real operation...
                 if($usageKey = self::get_usage_key($sciname)) echo " - OK [$usageKey]"; //used to cache all usageKey requests...
                 else                                          echo " - usageKey not found!";
-                // exit("\n--stopx--\n");
+                exit("\n--stopx--\n");
             }
             // else echo "\n[$sciname] will pass higher-level taxa at this time...\n";
         }//end loop
@@ -961,8 +945,7 @@ class GBIFoccurrenceAPI
         $options['delay_in_minutes'] = 0;
         $options['expire_seconds'] = false; //debug
         
-        if($html = Functions::lookup_with_cache($this->html[$org] . $id, $options))
-        {
+        if($html = Functions::lookup_with_cache($this->html[$org] . $id, $options)) {
             if(preg_match("/Full title<\/h3>(.*?)<\/p>/ims", $html, $arr)) return strip_tags(trim($arr[1]));
         }
     }
