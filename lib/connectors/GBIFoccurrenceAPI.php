@@ -57,6 +57,7 @@ class GBIFoccurrenceAPI
         */
         $this->csv_paths[] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv/";
         $this->limit_20k = 20000; //20000;
+        $this->utility_download_rec_limit = 50000000;
     }
     function start()
     {
@@ -1071,19 +1072,19 @@ Eopsaltridae 1; Unknown_family 19,605";
             $parts = explode(" ", $tmp);
             $final[] = array('name' => $parts[0], 'count' => $parts[1], 'usageKey' => self::get_usage_key($parts[0]));
         }
-        print_r($final); 
+        // print_r($final); 
         echo "\n".count($final)."\n";
         //group per 50 million
         $sum = 0; $groups = array(); $i = 0;
         foreach($final as $f) {
             $sum += $f['count'];
-            if($sum >= 50000000) {
+            if($sum >= $this->utility_download_rec_limit) {
                 $i++;
                 $sum = 0; //reset to 0
             }
             $groups[$i][] = $f;
         }
-        print_r($groups);
+        // print_r($groups);
         echo "\nHow many groups: ".count($groups)."\n";
         foreach($groups as $group) {
             /* e.g. https://www.gbif.org/occurrence/search?taxon_key=4&taxon_key=3&taxon_key=7&taxon_key=0&taxon_key=2&taxon_key=8 */
@@ -1096,7 +1097,7 @@ Eopsaltridae 1; Unknown_family 19,605";
                                 )
                 */
                 echo " ".$member['name'];
-                $var .= "&taxon_key=".$member['usageKey'];
+                if($val = @$member['usageKey']) $var .= "&taxon_key=".$val;
             }
             $var = trim(substr($var,1,strlen($var)));
             echo "\n [https://www.gbif.org/occurrence/search?$var] \n\n";
