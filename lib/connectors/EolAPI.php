@@ -501,16 +501,16 @@ class EolAPI
             if(true) //all taxa
             {
                 //==================
-                /*
+                // /*
                 $m = 75000;
                 $cont = false;
                 // if($i >=  1    && $i < $m)    $cont = true; done
                 // if($i >=  $m   && $i < $m*2)  $cont = true; done
                 
-                if($i >=  374847 && $i < 520000)  $cont = true;
+                if($i >=  400000 && $i < 520000)  $cont = true;
 
                 if(!$cont) continue;
-                */
+                // */
                 //==================
                 
                 if(($i % 100) == 0) echo "\n".number_format($i).". [$sciname][tc_id = $taxon_concept_id]";
