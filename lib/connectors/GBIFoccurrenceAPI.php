@@ -64,16 +64,17 @@ class GBIFoccurrenceAPI
         /* steps in order accordingly
         1. Delete all .json files
         First try using the API
-        2. self::process_all_eol_taxa(); return;
+        2. (optional) process_current_hotlist_spreadsheet() - Use API occurrence for the species-level taxa in SPG hotlist
+        3. self::process_all_eol_taxa(); return;
         then use the CSV as 2nd option
-        3. self::generate_map_data_using_GBIF_csv_files(); return;
+        4. self::generate_map_data_using_GBIF_csv_files(); return;
         */
         
         /* 237020 - /map_data_from_api/ */
         // start GBIF
         // self::breakdown_GBIF_csv_file_v2(); return;
         // self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
-        // self::generate_map_data_using_GBIF_csv_files(); return;
+        self::generate_map_data_using_GBIF_csv_files(); return;
         // end GBIF
         
         // self::start_clustering(); return;                        //distance clustering sample
@@ -89,6 +90,8 @@ class GBIFoccurrenceAPI
         //---------------------------------------------------------------------------------------------------------------------------------------------
         
         // self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
+        self::process_current_hotlist_spreadsheet(); return         //Use API occurrence for the species-level taxa in SPG hotlist
+        
         // self::process_DL_taxon_list(); return;                   //make use of taxon list from DiscoverLife
         
         $scinames = array();                                        //make use of manual taxon list
@@ -473,7 +476,7 @@ class GBIFoccurrenceAPI
         // return false; //debug
         $filename = self::get_map_data_path($basename).$basename.".json";
         if(file_exists($filename)) {
-            echo "\n[$basename] already generated OK";
+            echo "\n[$basename] map data (.json) already generated OK [$filename]";
             return true;
         }
         else return false;
@@ -672,7 +675,7 @@ class GBIFoccurrenceAPI
                 $recs = self::write_to_file($j);
                 $final['records'] = array_merge($final['records'], $recs);
 
-                echo "\n incremental count: " . count($recs) . "\n";
+                // echo "\n incremental count: " . count($recs) . "\n";
 
                 if($j->endOfRecords)                            $continue = false;
                 if(count($final['records']) > $this->rec_limit) $continue = false; //limit no. of markers in Google maps is 100K //working... uncomment if u want to limit to 100,000
@@ -954,6 +957,45 @@ class GBIFoccurrenceAPI
             }
         }
         return false;
+    }
+    private function process_current_hotlist_spreadsheet() //if we want to use the API for species-level taxa.
+    {
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
+        $params['spreadsheetID'] = '1124WNU1r1-X1lGrtg8aFLg72IoMUlHpDoNK5QS_mb9E';
+        $params['range']         = 'Sheet 1!A1:B73054'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $arr = $func->access_google_sheet($params);
+        // print_r($arr); exit("\n");
+        /* [73052] => Array(
+                [0] => Clostridium
+                [1] => 83389
+            )
+        [73053] => Array(
+                [0] => Banasa dimiata
+                [1] => 609110
+            )
+        */
+        $species_level = 0; $m = 72311/3; $i = 0;
+        foreach($arr as $rec) { $i++;
+            $sciname = $rec[0];
+            $taxon_concept_id = $rec[1];
+            $sciname = trim(Functions::canonical_form($sciname));
+            echo "\n$i. [$sciname][$taxon_concept_id]";
+            if(stripos($sciname, " ") !== false) { //process only species-level taxa
+                $species_level++;
+                echo " [$sciname]";
+                // /*
+                $cont = false;
+                if($i >=  1    && $i < $m)    $cont = true;
+                // if($i >=  $m   && $i < $m*2)  $cont = true;
+                // if($i >=  $m*2 && $i < $m*3)  $cont = true;
+                if(!$cont) continue;
+                // */
+                self::main_loop($sciname, $taxon_concept_id);
+                exit;
+            }
+        }
+        echo "\nspecies-level taxa count: $species_level\n";
     }
     private function process_hotlist_spreadsheet()
     {
