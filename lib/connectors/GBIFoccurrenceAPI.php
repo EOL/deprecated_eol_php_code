@@ -465,7 +465,7 @@ class GBIFoccurrenceAPI
                 [4676] found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_others/]
                  -- will use API as source 01 -- 411 > 50000 
                 */
-                /*
+                // /*
                 $m = 100000;
                 $cont = false;
                 // if($i >=  1    && $i < $m)    $cont = true;
@@ -474,13 +474,16 @@ class GBIFoccurrenceAPI
                 // if($i >=  $m*3 && $i < $m*4)  $cont = true;
                 // if($i >=  $m*4 && $i < $m*5)  $cont = true;
                 // if($i >=  $m*5 && $i < $m*6)  $cont = true;
+
+                if($i >=  $m*4 && $i < $m*6)  $cont = true;
+
                 if(!$cont) continue;
-                */
+                // */
                 //==================
-                self::main_loop($sciname, $taxon_concept_id); //uncomment in real operation...
+                // self::main_loop($sciname, $taxon_concept_id); //uncomment in real operation...
                 if($usageKey = self::get_usage_key($sciname)) echo " - OK [$usageKey]"; //used to cache all usageKey requests...
                 else                                          echo " - usageKey not found!";
-                exit("\n--stopx--\n");
+                // exit("\n--stopx--\n");
             }
             // else echo "\n[$sciname] will pass higher-level taxa at this time...\n";
         }//end loop
