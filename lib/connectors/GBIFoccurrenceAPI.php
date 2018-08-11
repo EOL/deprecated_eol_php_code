@@ -73,7 +73,7 @@ class GBIFoccurrenceAPI
         // start GBIF
         // self::breakdown_GBIF_csv_file_v2(); return;
         // self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
-        self::generate_map_data_using_GBIF_csv_files(); return;
+        // self::generate_map_data_using_GBIF_csv_files(); return;
         // end GBIF
         
         // self::start_clustering(); return;                        //distance clustering sample
@@ -81,11 +81,11 @@ class GBIFoccurrenceAPI
         
         //OKAY to use
         //---------------------------------------------------------------------------------------------------------------------------------------------
-        // /*
+        /*
         if(Functions::is_production()) $path = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
         else                           $path = "/Volumes/AKiTiO4/z backup/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
         self::process_all_eol_taxa($path, false); return;           //make use of tab-delimited text file from JRice
-        // */
+        */
         //---------------------------------------------------------------------------------------------------------------------------------------------
         
         // self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
@@ -328,7 +328,7 @@ class GBIFoccurrenceAPI
                 if(self::map_data_file_already_been_generated($taxon_concept_id)) continue;
                 
                 if($final = self::prepare_csv_data($usageKey, $paths)) {
-                    echo "\n" . $final['count'] . "\n";
+                    echo "\n Records from CSV: " . $final['count'] . "\n";
                     if($final['count'] > $this->limit_20k) {
                         echo "\n > 20K\n";
                         self::process_revised_cluster($final, $taxon_concept_id); //done after main demo using screenshots
@@ -404,27 +404,6 @@ class GBIFoccurrenceAPI
                     $rec['k']   = @$rek['identifiedby'];
                     $rec['l']   = '';
                     $rec['m']   = @$rek['eventdate'];
-                    /*
-                    $row[0] => gbifid               0
-                    $row[1] => datasetkey           1
-                    $row[12] => scientificname      2
-                    $row[15] => publishingorgkey    3
-                    $row[16] => decimallatitude     4
-                    $row[17] => decimallongitude    5
-                    $row[22] => eventdate           6
-                    $row[29] => institutioncode     7
-                    $row[31] => catalognumber       8
-                    $row[33] => identifiedby        9
-                    $row[36] => recordedby          10
-                    */
-
-                    /*
-                    old csv:
-                    gbifid	datasetkey	occurrenceid	kingdom	phylum	class	order	family	genus	species	infraspecificepithet	taxonrank	scientificname	countrycode	locality	publishingorgkey	decimallatitude	decimallongitude	                                                    elevation	elevationaccuracy	depth	depthaccuracy	eventdate	day	month	year	taxonkey	specieskey	basisofrecord	institutioncode	collectioncode	catalognumber	recordnumber	identifiedby	rights	rightsholder	recordedby	typestatus	establishmentmeans	lastinterpreted	mediatype	issue
-                    new csv:
-                    gbifid	datasetkey	occurrenceid	kingdom	phylum	class	order	family	genus	species	infraspecificepithet	taxonrank	scientificname	countrycode	locality	publishingorgkey	decimallatitude	decimallongitude	coordinateuncertaintyinmeters	coordinateprecision	elevation	elevationaccuracy	depth	depthaccuracy	eventdate	day	month	year	taxonkey	specieskey	basisofrecord	institutioncode	collectioncode	catalognumber	recordnumber	identifiedby	license	rightsholder	recordedby	typestatus	establishmentmeans	lastinterpreted	mediatype	issue
-                    */
-                    
                     $final['records'][] = $rec;
                 }
                 $final['count'] = count($final['records']);
@@ -522,14 +501,14 @@ class GBIFoccurrenceAPI
                     echo "\n -- will just use CSV source instead -- " . $final['count'] . " > " . $this->rec_limit . " \n"; //exit;
                     return; //if count > from csv then use csv later instead using - generate_map_data_using_GBIF_csv_files()
                 }
-                else echo "\n -- will use API as source 01 -- " . $final['count'] . " < " . $this->rec_limit . " \n";
+                else echo "\n -- will use API as source 01 -- Records from CSV: " . $final['count'] . " < " . $this->rec_limit . " \n";
             }
             else echo "\n -- will use API as source 02 -- No CSV data \n"; //exit;
             // end
             
             // if($rec['count'] < $this->rec_limit) //only process taxa with < 100K georeference records
             // {
-                $final = self::get_georeference_data($rec['usageKey'], $basename);
+                $final = self::get_georeference_data_via_api($rec['usageKey'], $basename);
                 $final_count = $final['count'];
                 if($final_count > $this->limit_20k)
                 {
@@ -539,7 +518,7 @@ class GBIFoccurrenceAPI
             // else //e.g. 102569. [Chenonetta][104248]
             // {
             //     echo "\nIGNORED:[$sciname][tc_id=$basename][" . $rec['count'] . "]\n";
-            //     $final = self::get_georeference_data($rec['usageKey'], $basename);
+            //     $final = self::get_georeference_data_via_api($rec['usageKey'], $basename);
             //     $final_count = $final['count'];
             //     $final_count = self::process_revised_cluster($final, $basename);
             // }
@@ -554,18 +533,9 @@ class GBIFoccurrenceAPI
         if(!$final_count) {
             $filename = self::get_map_data_path($basename).$basename.".json";
             if(file_exists($filename)) unlink($filename); //delete cluster map data
-            /*
-            unlink($this->save_path['fusion'].$basename.".txt");
-            unlink($this->save_path['fusion2'].$basename.".json");
-            */
         }
         else { //delete respective file
-            if($final_count < $this->limit_20k) {
-                /*
-                unlink($this->save_path['fusion'].$basename.".txt");   //delete Fusion data
-                unlink($this->save_path['fusion2'].$basename.".json"); //delete Fusion data (centerLatLon, tableID, publishers)
-                */
-            }
+            if($final_count < $this->limit_20k) {}
             else {
                 echo "\nfinal_count is [$final_count]\n";
                 $filename = self::get_map_data_path($basename).$basename.".json";
@@ -681,7 +651,7 @@ class GBIFoccurrenceAPI
         unset($file_array[0]); //remove first line, the headers
         return $file_array;
     }
-    private function get_georeference_data($taxonKey, $basename)
+    private function get_georeference_data_via_api($taxonKey, $basename)
     {
         $offset = 0;
         $limit = 300;
