@@ -73,7 +73,7 @@ class GBIFoccurrenceAPI
         // start GBIF
         // self::breakdown_GBIF_csv_file_v2(); return;
         // self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
-        // self::generate_map_data_using_GBIF_csv_files(); return;
+        self::generate_map_data_using_GBIF_csv_files(); return;
         // end GBIF
         
         // self::start_clustering(); return;                        //distance clustering sample
@@ -465,7 +465,7 @@ class GBIFoccurrenceAPI
                 [4676] found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_others/]
                  -- will use API as source 01 -- 411 > 50000 
                 */
-                // /*
+                /*
                 $m = 100000;
                 $cont = false;
                 // if($i >=  1    && $i < $m)    $cont = true;
@@ -478,12 +478,12 @@ class GBIFoccurrenceAPI
                 if($i >=  $m*4 && $i < $m*6)  $cont = true;
 
                 if(!$cont) continue;
-                // */
+                */
                 //==================
-                // self::main_loop($sciname, $taxon_concept_id); //uncomment in real operation...
+                self::main_loop($sciname, $taxon_concept_id); //uncomment in real operation...
                 if($usageKey = self::get_usage_key($sciname)) echo " - OK [$usageKey]"; //used to cache all usageKey requests...
                 else                                          echo " - usageKey not found!";
-                // exit("\n--stopx--\n");
+                exit("\n--stopx--\n");
             }
             // else echo "\n[$sciname] will pass higher-level taxa at this time...\n";
         }//end loop
