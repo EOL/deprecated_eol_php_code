@@ -1048,6 +1048,7 @@ class GBIFoccurrenceAPI
             // if($i >= 5) break; //debug
         }
     }
+    /*
     function divide_Passeriformes($pass_str = false, $limit = false) //utility - did not use anymore since eol-archive (Jenkins) was able to download BIG files from GBIF.
     {
         $str = "Emberizidae 47,974,189; Corvidae 26,810,696; Fringillidae 26,790,215; Muscicapidae 23,524,613; Paridae 21,411,352; Parulidae 19,862,826; Hirundinidae 13,326,097; Tyrannidae 11,681,875; Sturnidae 10,296,016; 
@@ -1079,16 +1080,17 @@ class GBIFoccurrenceAPI
         echo "\n".count($final)."\n";
         //group per 50 million
         $sum = 0; $groups = array(); $i = 0;
-        /* orig
-        foreach($final as $f) {
-            $sum += $f['count'];
-            if($sum >= $this->utility_download_rec_limit) {
-                $i++;
-                $sum = 0; //reset to 0
-            }
-            $groups[$i][] = $f;
-        }
-        */
+
+        // orig start -----------
+        // foreach($final as $f) {
+        //     $sum += $f['count'];
+        //     if($sum >= $this->utility_download_rec_limit) {
+        //         $i++;
+        //         $sum = 0; //reset to 0
+        //     }
+        //     $groups[$i][] = $f;
+        // } orig end -----------
+        
         foreach($final as $f) {
             if($f['count'] >= $this->utility_download_rec_limit) {
                 $i++;
@@ -1110,15 +1112,14 @@ class GBIFoccurrenceAPI
         // print_r($groups);
         echo "\nHow many groups: ".count($groups)."\n";
         foreach($groups as $group) {
-            /* e.g. https://www.gbif.org/occurrence/search?taxon_key=4&taxon_key=3&taxon_key=7&taxon_key=0&taxon_key=2&taxon_key=8 */
+            // e.g. https://www.gbif.org/occurrence/search?taxon_key=4&taxon_key=3&taxon_key=7&taxon_key=0&taxon_key=2&taxon_key=8
             $var = "";
             foreach($group as $member) {
-                /* [102] => Array (
-                                    [name] => Unknown_family
-                                    [count] => 19605
-                                    [usageKey] => 
-                                )
-                */
+                // [102] => Array (
+                //                     [name] => Unknown_family
+                //                     [count] => 19605
+                //                     [usageKey] => 
+                //                 )
                 echo " ".$member['name'];
                 if($val = @$member['usageKey']) $var .= "&taxon_key=".$val;
             }
@@ -1126,6 +1127,7 @@ class GBIFoccurrenceAPI
             echo "\n [https://www.gbif.org/occurrence/search?$var] \n\n";
         }
     }
+    */
     //========================================================
     // start of Clustering code: (http://www.appelsiini.net/2008/introduction-to-marker-clustering-with-google-maps)
     //========================================================
