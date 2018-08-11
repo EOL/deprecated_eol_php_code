@@ -1048,7 +1048,7 @@ class GBIFoccurrenceAPI
             // if($i >= 5) break; //debug
         }
     }
-    function divide_Passeriformes($pass_str = false) //utility
+    function divide_Passeriformes($pass_str = false, $limit = false) //utility - did not use anymore since eol-archive (Jenkins) was able to download BIG files from GBIF.
     {
         $str = "Emberizidae 47,974,189; Corvidae 26,810,696; Fringillidae 26,790,215; Muscicapidae 23,524,613; Paridae 21,411,352; Parulidae 19,862,826; Hirundinidae 13,326,097; Tyrannidae 11,681,875; Sturnidae 10,296,016; 
         Troglodytidae 8,482,647; Passeridae 7,908,627; Sittidae 5,986,857; Motacillidae 5,824,783; Mimidae 5,322,296; Turdidae 5,295,616; Icteridae 5,114,154; Meliphagidae 4,783,774; Regulidae 4,642,834; 
@@ -1065,7 +1065,9 @@ class GBIFoccurrenceAPI
         Erythrocercidae 1,117; Eupetidae 965; Tityridae 957; Hypocoliidae 875; Passerellidae 838; Cnemophilidae 710; Arcanatoridae 520; Sapayoaidae 494; Pityriaseidae 457; Elachuridae 295; Picathartidae 258; Grallinidae 217; 
         Mohoidae 185; Hylocitreidae 105; Urocynchramidae 87; Callaeidae 18; Colluricinclidae 13; Drepanididae 12; Tersinidae 8; Cettidae 4; Falcunculidae 3; Ptiliogonatidae 3; Oxyruncidae 2; Pityriasidae 2; Ephthianuridae 1; 
         Eopsaltridae 1; Unknown_family 19,605";
-        if($pass_str) $str = $pass_str;
+        if($pass_str)   $str = $pass_str;
+        if($limit)      $this->utility_download_rec_limit = $limit;
+        
         $str = str_replace(",", "", $str);
         $arr = explode(";", $str);
         $arr = array_map('trim', $arr);
@@ -1077,6 +1079,7 @@ class GBIFoccurrenceAPI
         echo "\n".count($final)."\n";
         //group per 50 million
         $sum = 0; $groups = array(); $i = 0;
+        /* orig
         foreach($final as $f) {
             $sum += $f['count'];
             if($sum >= $this->utility_download_rec_limit) {
@@ -1085,6 +1088,25 @@ class GBIFoccurrenceAPI
             }
             $groups[$i][] = $f;
         }
+        */
+        foreach($final as $f) {
+            if($f['count'] >= $this->utility_download_rec_limit) {
+                $i++;
+                $groups[$i][] = $f;
+                $sum = 0; //reset to 0
+                $i++;
+            }
+            else {
+                $sum += $f['count'];
+                if($sum >= $this->utility_download_rec_limit) {
+                    $groups[$i][] = $f;
+                    $i++;
+                    $sum = 0; //reset to 0
+                }
+                else $groups[$i][] = $f;
+            }
+        }
+
         // print_r($groups);
         echo "\nHow many groups: ".count($groups)."\n";
         foreach($groups as $group) {
@@ -1104,9 +1126,6 @@ class GBIFoccurrenceAPI
             echo "\n [https://www.gbif.org/occurrence/search?$var] \n\n";
         }
     }
-    
-    
-    
     //========================================================
     // start of Clustering code: (http://www.appelsiini.net/2008/introduction-to-marker-clustering-with-google-maps)
     //========================================================
