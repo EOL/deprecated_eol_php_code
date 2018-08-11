@@ -73,7 +73,7 @@ class GBIFoccurrenceAPI
         // start GBIF
         // self::breakdown_GBIF_csv_file_v2(); return;
         // self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
-        self::generate_map_data_using_GBIF_csv_files(); return;
+        // self::generate_map_data_using_GBIF_csv_files(); return;
         // end GBIF
         
         // self::start_clustering(); return;                        //distance clustering sample
@@ -81,11 +81,11 @@ class GBIFoccurrenceAPI
         
         //OKAY to use
         //---------------------------------------------------------------------------------------------------------------------------------------------
-        /*
+        // /*
         if(Functions::is_production()) $path = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
         else                           $path = "/Volumes/AKiTiO4/z backup/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
         self::process_all_eol_taxa($path, false); return;           //make use of tab-delimited text file from JRice
-        */
+        // */
         //---------------------------------------------------------------------------------------------------------------------------------------------
         
         // self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
@@ -281,6 +281,7 @@ class GBIFoccurrenceAPI
         /* uncomment in real operation
         $eol_taxon_id_list = self::process_all_eol_taxa($path, true); //listOnly = true
         */
+        
         // print_r($eol_taxon_id_list); echo "\n" . count($eol_taxon_id_list) . "\n"; return; //[Triticum aestivum virus] => 540152
         
         // $eol_taxon_id_list["Gadus morhua"] = 206692;
