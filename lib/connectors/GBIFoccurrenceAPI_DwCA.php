@@ -101,13 +101,14 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                     $k++;
                 }
             }
-            // print_r($rec); exit("\nstopx\n");
+            print_r($rec); exit("\nstopx\n");
             
             if(!@$rec['taxonkey']) continue;
             
             $taxonkey = $rec['taxonkey'];
             
-            $rec['publishingorgkey'] = $rec['namepublishedinid'];
+            $rec['publishingorgkey'] = $rec['publisher'];
+            echo " $rec[publisher]";
             
             $rek = array($rec['gbifid'], $rec['datasetkey'], $rec['scientificname'], $rec['publishingorgkey'], $rec['decimallatitude'], $rec['decimallongitude'], $rec['eventdate'], 
             $rec['institutioncode'], $rec['catalognumber'], $rec['identifiedby'], $rec['recordedby']);
