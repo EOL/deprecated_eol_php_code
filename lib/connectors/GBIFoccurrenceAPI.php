@@ -928,13 +928,13 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
             exit("\nCannot get usage_key for ($sciname)\n");
         }
     }
-    private function get_usage_key($sciname)
+    private function get_usage_key($sciname, $single_value = true)
     {
         if($json = Functions::lookup_with_cache($this->gbif_taxon_info . $sciname, $this->download_options)) {
             $json = json_decode($json);
             $usageKey = false;
             if(!isset($json->usageKey)) {
-                if(isset($json->note)) $usageKey = self::get_usage_key_again($sciname);
+                if(isset($json->note)) $usageKey = self::get_usage_key_again($sciname, $single_value);
                 else {} // e.g. Fervidicoccaceae
             }
             else $usageKey = trim((string) $json->usageKey);
@@ -942,7 +942,7 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
         }
         return false;
     }
-    private function get_usage_key_again($sciname)
+    private function get_usage_key_again($sciname, $single_value)
     {
         echo "\n2nd try to get usageKey ($sciname)\n";
         if($json = Functions::lookup_with_cache($this->gbif_taxon_info . $sciname . "&verbose=true", $this->download_options)) {
@@ -956,11 +956,18 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
                     $usagekeys[] = $rec->usageKey;
                 }
             }
+            
             if($options) {
                 /* from NCBIGGIqueryAPI.php connector
                 if(isset($options["FAMILY"])) return min($options["FAMILY"]);
                 else return min($usagekeys);
                 */
+                
+                if(!$single_value) {
+                    print_r($usagekeys);
+                    return $usagekeys;
+                }
+                else echo " -- ".min($usagekeys);
                 return min($usagekeys);
             }
         }
@@ -1073,6 +1080,37 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
         }
     }
     // /*
+    function generate_url_with_usageKey($str, $label)
+    {
+        $str = str_replace(",", "", $str);
+        $arr = explode(";", $str);
+        $arr = array_map('trim', $arr);
+        foreach($arr as $tmp) {
+            $parts = explode(" ", $tmp);
+            
+            $key_or_keys = self::get_usage_key($parts[0], false); //2nd param false means usageKey can be array
+            if(is_array($key_or_keys)) {
+                foreach($key_or_keys as $key) $final[] = array('name' => $parts[0], 'count' => $parts[1], 'usageKey' => $key);
+            }
+            else $final[] = array('name' => $parts[0], 'count' => $parts[1], 'usageKey' => $key_or_keys);
+        }
+        // print_r($final); exit;
+        echo "\n".count($final)."\n";
+        // e.g. https://www.gbif.org/occurrence/search?taxon_key=4&taxon_key=3&taxon_key=7&taxon_key=0&taxon_key=2&taxon_key=8
+        $var = "";
+        foreach($final as $member) {
+            // [102] => Array (
+            //                     [name] => Unknown_family
+            //                     [count] => 19605
+            //                     [usageKey] => 
+            //                 )
+            echo " ".$member['name'];
+            if($val = @$member['usageKey']) $var .= "&taxon_key=".$val;
+        }
+        $var = trim(substr($var,1,strlen($var)));
+        echo "\n\n $label:\n [https://www.gbif.org/occurrence/search?$var] \n\n";
+    }
+    
     function divide_Passeriformes($pass_str = false, $limit = false) //utility - did not use anymore since eol-archive (Jenkins) was able to download BIG files from GBIF.
     {
         if($pass_str)   $str = $pass_str;
@@ -1085,7 +1123,7 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
             $parts = explode(" ", $tmp);
             $final[] = array('name' => $parts[0], 'count' => $parts[1], 'usageKey' => self::get_usage_key($parts[0]));
         }
-        // print_r($final); 
+        // print_r($final); exit;
         echo "\n".count($final)."\n";
         //group per 50 million
         $sum = 0; $groups = array(); $i = 0;

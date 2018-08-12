@@ -46,6 +46,11 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     function start()
     {
+        echo "\n\n -------------------------\n\n ";
+        echo "\nThis was promising but did not push through since there is NO publishingorgkey in the DwCA downloads\n";
+        echo "\n\n -------------------------\n\n "; exit;
+        
+        
         /* Steps (August 2018) using the DwCA occurrence downloads from GBIF
         1. Delete all .json files
         3. self::breakdown_GBIF_DwCA_file(); echo "\nDONE: breakdown_GBIF_DwCA_file()\n"; return;
