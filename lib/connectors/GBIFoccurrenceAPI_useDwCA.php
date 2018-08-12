@@ -1,25 +1,21 @@
 <?php
 namespace php_active_record;
-/* connector: [gbif_georeference.php]
+/* connector: [gbif_georeference_dwca.php]
 This script searches GBIF API occurrence data via taxon (taxon_key)
 
-1. search via GBIF API
-1.1 get taxonkey using scientific name
-1.2 use taxonkey to get occurrence data
+1. process the big GBIF occurrence file (DwCA)
+1.1. loop through the verbatim.txt -> this has media/image information
+1.2. save individual CSV file for each taxon (to be used in 3.3)
 
-2. use the SPG hot list as list of taxa
+2. use taxa list (2-column text file - taxon_concept_id & scientific name) from EoL
+2.1. loop through the taxa list
+2.2. get taxonkey using scientific name
+2.3. use taxonkey to get the occurrence in CSV file (CSV created in 4.2)
 
-3. use taxa list (2-column text file - taxon_concept_id & scientific name) from EoL
-3.1. loop through the taxa list
-3.2. get taxonkey using scientific name
-3.3. use taxonkey to get the occurrence in CSV file (CSV created in 4.2)
 
-4. process the big GBIF occurrence file (CSV file)
-4.1. loop through the list
-4.2. save individual CSV file for each taxon (to be used in 3.3)
 */
 
-class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
+class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downloads
 {
     // const DL_MAP_SPECIES_LIST   = "http://www.discoverlife.org/export/species_map.txt";
     const DL_MAP_SPECIES_LIST   = "http://localhost/cp/DiscoverLife/species_map.txt";
