@@ -1,25 +1,22 @@
 <?php
 namespace php_active_record;
 /* connector: [gbif_georeference_dwca.php]
-This script searches GBIF API occurrence data via taxon (taxon_key)
+This script parses the GBIF DwCA occurrence downloads, then creates the individual CSV file per taxon, then generates the map data (.json) using the taxonKey 
+that is mapped to EOL's (sciname, taxonConceptID)
 
 1. process the big GBIF occurrence file (DwCA)
 1.1. loop through the verbatim.txt -> this has media/image information
-1.2. save individual CSV file for each taxon (to be used in 3.3)
+1.2. save individual CSV file for each taxon (to be used in 2.3)
 
 2. use taxa list (2-column text file - taxon_concept_id & scientific name) from EoL
 2.1. loop through the taxa list
 2.2. get taxonkey using scientific name
 2.3. use taxonkey to get the occurrence in CSV file (CSV created in 4.2)
 
-
 */
 
 class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downloads
 {
-    // const DL_MAP_SPECIES_LIST   = "http://www.discoverlife.org/export/species_map.txt";
-    const DL_MAP_SPECIES_LIST   = "http://localhost/cp/DiscoverLife/species_map.txt";
-    
     function __construct($folder = null, $query = null)
     {
         /* add: 'resource_id' => "gbif" ;if you want to add cache inside a folder [gbif] inside [eol_cache_gbif] */
@@ -36,55 +33,29 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $this->gbif_record_count    = "http://api.gbif.org/v1/occurrence/count?taxonKey=";
         $this->gbif_occurrence_data = "http://api.gbif.org/v1/occurrence/search?taxonKey=";
         
-        
         $this->html['publisher']    = "http://www.gbif.org/publisher/";
         $this->html['dataset']      = "http://www.gbif.org/dataset/";
         
-        $this->save_path['map_data'] = "/Volumes/AKiTiO4/map_data_new/";    //old
-        $this->save_path['map_data'] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/map_data_2018/";   //new
+        $this->save_path['map_data'] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/map_data_dwca/";   //new
 
         $this->rec_limit = 100000; //50000;
         
         $this->csv_paths = array();
-        /* obsolete
-        $this->csv_paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_animalia/";
-        $this->csv_paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_incertae/";
-        $this->csv_paths[] = DOC_ROOT . "/public/tmp/google_maps/GBIF_taxa_csv_others/";
-        */
-        $this->csv_paths[] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv/";
+        $this->csv_paths[] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_dwca/";
         $this->limit_20k = 20000; //20000;
-        $this->utility_download_rec_limit = 50000000;
     }
     function start()
     {
-        /* New steps (August 2018) if we ever go back to using the CSV instead of the DwCA occurrence downloads from GBIF
+        /* Steps (August 2018) using the DwCA occurrence downloads from GBIF
         1. Delete all .json files
-        2. self::process_current_hotlist_spreadsheet(); return         //Use API occurrence for the species-level taxa in SPG hotlist. This way u can have media image as well.
-        3. self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
+        3. self::breakdown_GBIF_DwCA_file(); echo "\nDONE: breakdown_GBIF_DwCA_file()\n"; return;
         4. self::generate_map_data_using_GBIF_csv_files(); return;
         5. pick if there are taxa still without map data (.json), if yes, use API to get map data.
         */
         
-        /* steps in order accordingly
-        1. Delete all .json files
-        First try using the API
-        2. (optional) process_current_hotlist_spreadsheet() - Use API occurrence for the species-level taxa in SPG hotlist
-        3. self::process_all_eol_taxa(); return;
-        then use the CSV as 2nd option
-        4. self::generate_map_data_using_GBIF_csv_files(); return;
-        */
+        self::breakdown_GBIF_DwCA_file();               echo "\nDONE: breakdown_GBIF_DwCA_file()\n";                 //return;
+        self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n";   return;
         
-        /* 237020 - /map_data_from_api/ */
-        // start GBIF
-        // self::breakdown_GBIF_csv_file_v2(); return;
-        // self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
-        self::generate_map_data_using_GBIF_csv_files(); return;
-        // end GBIF
-        
-        // self::start_clustering(); return;                        //distance clustering sample
-        // self::get_center_latlon_using_taxonID(206692); return;   //computes the center lat long
-        
-        //OKAY to use
         //---------------------------------------------------------------------------------------------------------------------------------------------
         /*
         if(Functions::is_production()) $path = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
@@ -92,131 +63,20 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         self::process_all_eol_taxa($path, false); return;           //make use of tab-delimited text file from JRice
         */
         //---------------------------------------------------------------------------------------------------------------------------------------------
-        
-        // self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
-        self::process_current_hotlist_spreadsheet(); return         //Use API occurrence for the species-level taxa in SPG hotlist
-        
-        // self::process_DL_taxon_list(); return;                   //make use of taxon list from DiscoverLife
-        
-        $scinames = array();                                        //make use of manual taxon list
-        $scinames["Phalacrocorax penicillatus"] = 1048643;
-        $scinames["Chanos chanos"] = 224731;
+
+        /* testing...
+        $scinames = array(); //make use of manual taxon list
         $scinames["Gadus morhua"] = 206692;
-        $scinames["Atractoscion aequidens"] = 203945;
-        $scinames["Veronica beccabunga"] = 578492;
-        $scinames["Tragopogon pratensis"] = 503271;
-        $scinames["Chelidonium majus"] = 488380;
-        $scinames["Veronica hederifolia"] = 578497;
-        $scinames["Saxicola torquatus"] = 284202;
-        $scinames["Chorthippus parallelus"] = 495478;
-        $scinames["Micarea lignaria"] = 197344;
         $scinames["Gadidae"] = 5503;
         $scinames["Animalia"] = 1;
-        $scinames['Dermaptera'] = 405;
-        $scinames["Soleidae"] = 5169;
-        $scinames["Caridinophilidae"] = 50;
-        $scinames["Chenonetta"] = 104248;
-        $scinames["Coniocybaceae"] = 6217;
-        $scinames["Oenanthe"] = 49118;
-        $scinames["Plantae"] = 281;
-        $scinames["Chaetoceros"] = 12010;
-        $scinames["Fragaria vesca auct. nonn. fl. as. med."] = 229665;
-        $scinames["Achillea millefolium"] = 467225;
-        $scinames["Gadus morhua"] = 206692;
-        $scinames["Achillea millefolium L."] = 45850244;
-        $scinames["Francolinus levaillantoides"] = 1; //5227890
-        $scinames["Phylloscopus trochilus"] = 2; //2493052
-        $scinames["Aichi virus"] = 540501;
-        $scinames["Anthriscus sylvestris (L.) Hoffm."] = 584996; //from Plantae group
-        $scinames["Xenidae"] = 8965;
-        $scinames["Gadidae"] = 5503;
-        $scinames["Soleidae"] = 5169;
-        $scinames["Chenonetta"] = 104248;
-        
-        $scinames = array();
-        // $scinames["Pterostichus tarsalis"] = 312743;
-        // $scinames["Hyperiidae"] = 1180;
-        // $scinames["Decapoda"] = 1183; //then will try CSV source to see if we're getting more data from CSV or API 
-        $scinames["Gadus morhua"] = 206692;
-        
-        /*
-        will test this as well: 
-        [Moehringia trinervia][tc_id = 482255]
-        $scinames["Moehringia trinervia"] = 482255; //then will try CSV source to see if we're getting more data from CSV or API 
-        */
-        
-        
         foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
-        
-        /* API result:
-        [offset]        => 0
-        [limit]         => 20
-        [endOfRecords]  => 
-        [count]         => 78842
-        [results]       => Array
         */
     }
-    //==========================
-    // start GBIF methods
-    //==========================
-    private function breakdown_GBIF_csv_file_v2() // a test for Gadus morhua (2415835), to check if there are about 70K plus records, test pass OK
+    //##################################### start DwCA process ###########################################################################################################################
+    private function breakdown_GBIF_DwCA_file()
     {
-        // return;
-        $path = DOC_ROOT . "/public/tmp/google_maps/GBIF_csv/Animalia/animalia.csv";
-        $path = "/Volumes/Thunderbolt4/eol_cache_gbif/pub_tmp_google_maps/GBIF_csv/Animalia/animalia.csv";
-        $k = 0;
-        $i = 0;
-        $not42 = 0;
-        $noTaxonkey = 0;
-        foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
-            $i++; echo "$i ";
-            if($i == 1) continue;
-            $row = explode("\t", $line);
-            if(count($row) != 42) {
-                echo "\n" . count($row) . "\n";
-                $not42++;
-            }
-            if(!@$row[26]) {
-                $noTaxonkey++;
-                continue;
-            }
-            /*
-            $taxonkey = $row[26];
-            if($taxonkey == 2415835) {
-                if($row[16] && $row[17]) $k++;
-            }
-            */
-        }
-        // echo "\ntotal for gadus morhua: [$k]\n";
-        echo "\nNot 42: [$not42]\n";
-        echo "\nNo taxonkey: [$noTaxonkey]\n";
-    }
-    private function breakdown_GBIF_csv_file() //working as of Mar 3 Thursday
-    {
-        // return;
-        /* ran it with all taxon levels [finished in 4.79 hours]
-        $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_csv/Incertae sedis/incertae sedis.csv";
-        $path2 = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_incertae/";
-        */
-        
-        /* ran it with all taxon levels; total records in cmd finished: 361,245,321 
-        $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_csv/Animalia/animalia.csv";
-        $path2 = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_animalia/";
-        */
-        
-        /* total records in cmd finished: 151,838,119
-           // Mar 14 2:05 AM - run it with just species-level taxa
-           // Apr 27         - run it with just higher-level taxa
-        $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_csv/Others/others.csv";
-        $path2 = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_others/";
-        */
-        
-        // start 2018
-        $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_csv/Gadus morhua.csv";
-        $path2 = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv/";
-
-        // $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_csv/Fungi.csv";
-        // $path2 = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv/";
+        $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Gadus morhua/occurrence.txt";
+        $path2 = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_dwca/";
 
         $i = 0;
         foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
@@ -225,39 +85,32 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             // if($i < 66445000) continue; //bec of machine shutdown - for 'others.csv'
             // if($i < 167133238) continue; //bec of machine shutdown - for 'animalia.csv'
 
+            if($i == 1) $line = strtolower($line);
             $row = explode("\t", $line);
+            // print_r($row); exit("\nstopx\n");
+            
             if($i == 1) {
                 $fields = $row;
                 continue;
             }
             else {
-                if(!@$row[1]) continue;
+                if(!@$row[0]) continue; //$row[0] is gbifID
                 $k = 0; $rec = array();
                 foreach($fields as $fld) {
                     $rec[$fld] = $row[$k];
                     $k++;
                 }
             }
+            // print_r($rec); exit("\nstopx\n");
+            
             if(!@$rec['taxonkey']) continue;
-            //start exclude higher-level taxa ========================================= used 1st batch of Plantae group
-            /*
-            $sciname = Functions::canonical_form($row[12]);
-            if(stripos($sciname, " ") !== false) $cont = true; //there is space, meaning a species-level taxon
-            else                                 $cont = false;
-            if(!$cont) continue;
-            */
-            //end exclude higher-level taxa ===========================================
-            //start exclude species-level taxa ========================================= used for 2nd batch of Plantae group
-            /*
-            $sciname = Functions::canonical_form($row[12]);
-            if(stripos($sciname, " ") !== false) $cont = false; //there is space, meaning a species-level taxon
-            else                                 $cont = true;
-            if(!$cont) continue;
-            */
-            //end exclude species-level taxa ===========================================
             
             $taxonkey = $rec['taxonkey'];
-            $rek = array($rec['gbifid'], $rec['datasetkey'], $rec['scientificname'], $rec['publishingorgkey'], $rec['decimallatitude'], $rec['decimallongitude'], $rec['eventdate'], $rec['institutioncode'], $rec['catalognumber'], $rec['identifiedby'], $rec['recordedby']);
+            
+            $rec['publishingorgkey'] = $rec['namepublishedinid'];
+            
+            $rek = array($rec['gbifid'], $rec['datasetkey'], $rec['scientificname'], $rec['publishingorgkey'], $rec['decimallatitude'], $rec['decimallongitude'], $rec['eventdate'], 
+            $rec['institutioncode'], $rec['catalognumber'], $rec['identifiedby'], $rec['recordedby']);
             if($rec['decimallatitude'] && $rec['decimallongitude']) {
                 $path3 = self::get_md5_path($path2, $taxonkey);
                 $csv_file = $path3 . $taxonkey . ".csv";
@@ -274,6 +127,11 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             }
         }
     }
+
+    //##################################### end DwCA process #############################################################################################################################
+    //==========================
+    // start GBIF methods
+    //==========================
     private function get_md5_path($path, $taxonkey)
     {
         $md5 = md5($taxonkey);
@@ -1068,86 +926,6 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             // if($i >= 5) break; //debug
         }
     }
-    /*
-    function divide_Passeriformes($pass_str = false, $limit = false) //utility - did not use anymore since eol-archive (Jenkins) was able to download BIG files from GBIF.
-    {
-        $str = "Emberizidae 47,974,189; Corvidae 26,810,696; Fringillidae 26,790,215; Muscicapidae 23,524,613; Paridae 21,411,352; Parulidae 19,862,826; Hirundinidae 13,326,097; Tyrannidae 11,681,875; Sturnidae 10,296,016; 
-        Troglodytidae 8,482,647; Passeridae 7,908,627; Sittidae 5,986,857; Motacillidae 5,824,783; Mimidae 5,322,296; Turdidae 5,295,616; Icteridae 5,114,154; Meliphagidae 4,783,774; Regulidae 4,642,834; 
-        Phylloscopidae 4,628,110; Sylviidae 4,412,725; Vireonidae 4,225,714; Cardinalidae 3,254,863; Acrocephalidae 3,168,676; Alaudidae 2,407,476; Bombycillidae 2,401,638; Thraupidae 2,095,446; Cracticidae 2,018,782; 
-        Acanthizidae 2,008,252; Laniidae 1,894,795; Ploceidae 1,551,590; Estrildidae 1,459,220; Polioptilidae 1,456,911; Aegithalidae 1,443,686; Certhiidae 1,438,771; Cisticolidae 1,425,057; Rhipiduridae 1,335,859; 
-        Monarchidae 1,228,359; Prunellidae 1,183,662; Pachycephalidae 1,168,217; Pycnonotidae 1,111,132; Furnariidae 907,014; Maluridae 899,084; Zosteropidae 887,133; Campephagidae 802,259; Nectariniidae 802,164; 
-        Petroicidae 784,399; Pardalotidae 672,523; Calcariidae 556,862; Malaconotidae 552,610; Locustellidae 551,371; Oriolidae 548,871; Thamnophilidae 535,263; Dicruridae 503,299; Cettiidae 393,329; Artamidae 391,443; 
-        Cinclidae 381,550; Climacteridae 362,350; Remizidae 347,682; Cotingidae 327,210; Leiothrichidae 304,148; Dicaeidae 281,594; Corcoracidae 205,414; Ptilonorhynchidae 195,209; Psophodidae 192,301; Panuridae 184,435; 
-        Pipridae 176,394; Pomatostomidae 175,360; Ptilogonatidae 170,596; Coerebidae 154,959; Timaliidae 147,177; Viduidae 145,689; Platysteiridae 128,407; Macrosphenidae 105,338; Pellorneidae 96,782; Rhinocryptidae 70,779; 
-        Menuridae 70,299; Neosittidae 69,981; Grallariidae 65,785; Oreoicidae 57,805; Aegithinidae 43,345; Buphagidae 39,308; Paradisaeidae 38,828; Stenostiridae 38,624; Formicariidae 37,774; Pittidae 36,417; 
-        Chloropseidae 30,051; Tephrodornithidae 28,863; Prionopidae 26,999; Promeropidae 26,462; Eurylaimidae 21,384; Peucedramidae 17,675; Tichodromidae 15,889; Orthonychidae 15,317; Irenidae 14,816; Vangidae 13,258; 
-        Conopophagidae 10,769; Donacobiidae 10,757; Nicatoridae 8,073; Machaerirhynchidae 7,253; Pnoepygidae 6,516; Acanthisittidae 5,877; Melanocharitidae 5,506; Dulidae 4,872; Bernieridae 4,771; Dendrocolaptidae 4,474; 
-        Atrichornithidae 3,137; Melanopareiidae 2,999; Callaeatidae 2,941; Chaetopidae 2,361; Scotocercidae 1,572; Philepittidae 1,551; Paradoxornithidae 1,512; Notiomystidae 1,410; Hyliotidae 1,262; Paramythiidae 1,211; 
-        Erythrocercidae 1,117; Eupetidae 965; Tityridae 957; Hypocoliidae 875; Passerellidae 838; Cnemophilidae 710; Arcanatoridae 520; Sapayoaidae 494; Pityriaseidae 457; Elachuridae 295; Picathartidae 258; Grallinidae 217; 
-        Mohoidae 185; Hylocitreidae 105; Urocynchramidae 87; Callaeidae 18; Colluricinclidae 13; Drepanididae 12; Tersinidae 8; Cettidae 4; Falcunculidae 3; Ptiliogonatidae 3; Oxyruncidae 2; Pityriasidae 2; Ephthianuridae 1; 
-        Eopsaltridae 1; Unknown_family 19,605";
-        if($pass_str)   $str = $pass_str;
-        if($limit)      $this->utility_download_rec_limit = $limit;
-        
-        $str = str_replace(",", "", $str);
-        $arr = explode(";", $str);
-        $arr = array_map('trim', $arr);
-        foreach($arr as $tmp) {
-            $parts = explode(" ", $tmp);
-            $final[] = array('name' => $parts[0], 'count' => $parts[1], 'usageKey' => self::get_usage_key($parts[0]));
-        }
-        // print_r($final); 
-        echo "\n".count($final)."\n";
-        //group per 50 million
-        $sum = 0; $groups = array(); $i = 0;
-
-        // orig start -----------
-        // foreach($final as $f) {
-        //     $sum += $f['count'];
-        //     if($sum >= $this->utility_download_rec_limit) {
-        //         $i++;
-        //         $sum = 0; //reset to 0
-        //     }
-        //     $groups[$i][] = $f;
-        // } orig end -----------
-        
-        foreach($final as $f) {
-            if($f['count'] >= $this->utility_download_rec_limit) {
-                $i++;
-                $groups[$i][] = $f;
-                $sum = 0; //reset to 0
-                $i++;
-            }
-            else {
-                $sum += $f['count'];
-                if($sum >= $this->utility_download_rec_limit) {
-                    $groups[$i][] = $f;
-                    $i++;
-                    $sum = 0; //reset to 0
-                }
-                else $groups[$i][] = $f;
-            }
-        }
-
-        // print_r($groups);
-        echo "\nHow many groups: ".count($groups)."\n";
-        foreach($groups as $group) {
-            // e.g. https://www.gbif.org/occurrence/search?taxon_key=4&taxon_key=3&taxon_key=7&taxon_key=0&taxon_key=2&taxon_key=8
-            $var = "";
-            foreach($group as $member) {
-                // [102] => Array (
-                //                     [name] => Unknown_family
-                //                     [count] => 19605
-                //                     [usageKey] => 
-                //                 )
-                echo " ".$member['name'];
-                if($val = @$member['usageKey']) $var .= "&taxon_key=".$val;
-            }
-            $var = trim(substr($var,1,strlen($var)));
-            echo "\n [https://www.gbif.org/occurrence/search?$var] \n\n";
-        }
-    }
-    */
     //========================================================
     // start of Clustering code: (http://www.appelsiini.net/2008/introduction-to-marker-clustering-with-google-maps)
     //========================================================
