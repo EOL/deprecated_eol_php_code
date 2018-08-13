@@ -31,12 +31,6 @@ class DWH_COL_API
     function start_tram_797()
     {
         /* test
-        $arr = array("endophyte SE2/SE4", "Phytophthora citricola IV", "Hyperolius nasutus A JK-2009",  "Cryptococcus neoformans AD hybrid", "Gadus morhua");
-        $arr = array("Vibrio phage 2.096.O._10N.286.48.B5");
-        foreach($arr as $sci) {
-            if(self::with_consecutive_capital_letters($sci)) echo "\nYES ($sci)\n";
-            else echo "\nNO ($sci)\n";
-        }
         exit;
         */
         self::main_tram_797(); //exit("\nstop muna\n");
@@ -105,21 +99,6 @@ class DWH_COL_API
                 }
             }
             // */
-            /* 3. ONLY for taxa where division_id in nodes.dmp IS NOT 0 (things that are not bacteria or archaea), we want to remove all taxa of RANK species that have consecutive 
-            capital letters not separated by a white space in their scientific name, e.g., things like “endophyte SE2/SE4” or “Phytophthora citricola IV” or “Hyperolius nasutus A JK-2009” or 
-            “Cryptococcus neoformans AD hybrid” */
-            if($rec['taxonomicStatus'] == "accepted") {
-                if($taxID_info[$rec['taxonID']]['dID'] != 0) {
-                    $rank = $taxID_info[$rec['taxonID']]['r'];
-                    if($rank == "species") {
-                        if(self::with_consecutive_capital_letters($rec['scientificName'])) {
-                            $filtered_ids[$rec['taxonID']] = '';
-                            // print_r($rec); print_r($taxID_info[$rec['taxonID']]); exit("\nrule 3\n"); //good debug
-                            continue;
-                        }
-                    }
-                }
-            }
             
             if($rec['taxonomicStatus'] == "accepted") {
                 /* Remove branches */
@@ -187,25 +166,6 @@ class DWH_COL_API
             $ids = explode("; ", $val);
             foreach($ids as $id) $this->reference_ids_2write[$id] = '';
         }
-    }
-    private function with_consecutive_capital_letters($str)
-    {
-        // echo "\n$str\n";
-        $words = explode(" ", $str);
-        // print_r($words);
-        foreach($words as $word) {
-            // echo "\n word -- $word\n";
-            $word = preg_replace("/[^a-zA-Z]/", "", $word); //get only a-z A-Z
-            // echo "\n new word -- $word\n";
-            $with_small = false;
-            for ($i = 0; $i <= strlen($word)-1; $i++) {
-                if(is_numeric($word[$i])) continue;
-                // echo " ".$word[$i];
-                if(!ctype_upper($word[$i])) $with_small = true;
-            }
-            if(!$with_small && strlen($word) > 1) return true;
-        }
-        return false;
     }
     private function more_ids_to_remove()
     {
