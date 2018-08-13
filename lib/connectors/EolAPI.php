@@ -490,6 +490,7 @@ class EolAPI
         {
             $line = explode("\t", $line);
             $taxon_concept_id = $line[0];
+            if(!$line[1]) continue;
             $sciname          = Functions::canonical_form($line[1]);
             if($listOnly) {
                 $list[$sciname] = $taxon_concept_id;
@@ -501,16 +502,13 @@ class EolAPI
             if(true) //all taxa
             {
                 //==================
-                // /*
+                /*
                 $m = 75000;
                 $cont = false;
                 // if($i >=  1    && $i < $m)    $cont = true; done
                 // if($i >=  $m   && $i < $m*2)  $cont = true; done
-                
-                if($i >=  400000 && $i < 520000)  $cont = true;
-
                 if(!$cont) continue;
-                // */
+                */
                 //==================
                 
                 if(($i % 100) == 0) echo "\n".number_format($i).". [$sciname][tc_id = $taxon_concept_id]";
