@@ -63,7 +63,7 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
     {
         /* New steps (August 2018) if we ever go back to using the CSV instead of the DwCA occurrence downloads from GBIF
         1. Delete all .json files
-        2. self::process_current_hotlist_spreadsheet(); return         //Use API occurrence for the species-level taxa in SPG hotlist. This way u can have media image as well.
+        2. self::process_current_hotlist_spreadsheet(); return; //Use API occurrence for the species-level taxa in SPG hotlist. This way u can have media image as well.
         3. self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
         4. self::generate_map_data_using_GBIF_csv_files(); return;
         5. pick if there are taxa still without map data (.json), if yes, use API to get map data.
