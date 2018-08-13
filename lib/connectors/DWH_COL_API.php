@@ -31,12 +31,24 @@ class DWH_COL_API
     function start_tram_797()
     {
         /* test
-        $removed = self::get_removed_branches_from_spreadsheet(); 
-        $a = array_keys($removed);
+        $removed_branches = self::get_removed_branches_from_spreadsheet();
+        $a = array_keys($removed_branches);
         echo "\n".$a[0]."\n";
         echo "\n".$a[1]."\n";
         exit("\n-end tests-\n");
         */
+        
+        /* test
+        // 10145857 Amphileptus hirsutus Dumas, 1930
+        // 10147309 Aspidisca binucleata Kahl
+        $taxID_info = self::get_taxID_nodes_info();
+        $ancestry = self::get_ancestry_of_taxID(10145857, $taxID_info); print_r($ancestry);
+        $ancestry = self::get_ancestry_of_taxID(10147309, $taxID_info); print_r($ancestry);
+        exit("\n-end tests-\n");
+        */
+        
+        
+        
         
         self::main_tram_797(); //exit("\nstop muna\n");
         $this->archive_builder->finalize(TRUE);
@@ -57,10 +69,14 @@ class DWH_COL_API
     private function main_tram_797() //pruning further
     {
         $taxID_info = self::get_taxID_nodes_info(); //exit;
+        $removed_branches = self::get_removed_branches_from_spreadsheet();
+        echo "\nremoved_branches total: ".count($removed_branches)."\n";
+        /* if to add more brances to be removed:
         $removed_branches = array();
         foreach($this->prune_further as $id) $removed_branches[$id] = '';
         $add = self::more_ids_to_remove();
         foreach($add as $id) $removed_branches[$id] = '';
+        */
         
         $meta = self::get_meta_info();
         $i = 0; $filtered_ids = array();
@@ -76,8 +92,9 @@ class DWH_COL_API
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
+            $rec = array_map('trim', $rec);
             //start filter
-            if($rec['taxonomicStatus'] == "accepted") {
+            if($rec['taxonomicStatus'] == "accepted name") {
                 /* Remove branches */
                 $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
                 if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
@@ -99,21 +116,38 @@ class DWH_COL_API
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
+            $rec = array_map('trim', $rec);
             /*Array(
-                [taxonID] => 1_1
-                [furtherInformationURL] => https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=1
-                [acceptedNameUsageID] => 1
-                [parentNameUsageID] => 
-                [scientificName] => all
-                [taxonRank] => no rank
-                [taxonomicStatus] => synonym
+                [taxonID] => 10145857
+                [furtherInformationURL] => http://www.catalogueoflife.org/annual-checklist/2015/details/species/id/ce9e04c173abb9b9bc76357e069c4026
+                [scientificNameID] => Cil-CILI00024223
+                [acceptedNameUsageID] => 
+                [parentNameUsageID] => 42998474
+                [scientificName] => Amphileptus hirsutus Dumas, 1930
+                [nameAccordingTo] => 
+                [kingdom] => Chromista
+                [phylum] => Ciliophora
+                [class] => Gymnostomatea
+                [order] => Pleurostomatida
+                [family] => Amphileptidae
+                [genus] => Amphileptus
+                [subgenus] => 
+                [specificEpithet] => hirsutus
+                [infraspecificEpithet] => 
+                [taxonRank] => species
+                [scientificNameAuthorship] => Dumas, 1930
+                [taxonomicStatus] => accepted name
+                [taxonRemarks] => 
+                [modified] => 
+                [datasetID] => 113
+                [datasetName] => CilCat in Species 2000 & ITIS Catalogue of Life: 28th March 2018
                 [referenceID] => 
             )*/
             if(isset($filtered_ids[$rec['taxonID']])) continue;
             if(isset($filtered_ids[$rec['acceptedNameUsageID']])) continue;
             if(isset($filtered_ids[$rec['parentNameUsageID']])) continue;
             
-            if($rec['taxonomicStatus'] == "accepted") {
+            if($rec['taxonomicStatus'] == "accepted name") {
                 /* Remove branches */
                 $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
                 if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
@@ -141,9 +175,14 @@ class DWH_COL_API
             }
             $rec = array_map('trim', $rec);
             if($rec['taxonomicStatus'] == "accepted name") $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank']);
-            $temp[$rec['taxonomicStatus']] = '';
+            // $temp[$rec['taxonomicStatus']] = ''; //debug
+            /* debug
+            if($rec['taxonID'] == "10145857") {
+                print_r($rec); exit;
+            }
+            */
         }
-        // print_r($temp); exit;
+        // print_r($temp); exit; //debug
         return $final;
     }
     private function get_ancestry_of_taxID($tax_id, $taxID_info)
@@ -179,15 +218,33 @@ class DWH_COL_API
         $taxon->taxonomicStatus         = $rec['taxonomicStatus'];
         $taxon->acceptedNameUsageID     = $rec['acceptedNameUsageID'];
         $taxon->furtherInformationURL   = $rec['furtherInformationURL'];
-        $taxon->referenceID             = $rec['referenceID'];
+        // $taxon->referenceID             = $rec['referenceID'];
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);
             $this->taxon_ids[$taxon->taxonID] = '';
         }
-        if($val = $rec['referenceID']) {
-            $ids = explode("; ", $val);
-            foreach($ids as $id) $this->reference_ids_2write[$id] = '';
+        
+        
+    }
+    private function an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)
+    {
+        foreach($ancestry as $id) {
+            /* use isset() instead
+            if(in_array($id, $removed_branches)) return true;
+            */
+            if(isset($removed_branches[$id])) return true;
         }
+        return false;
+    }
+    private function get_removed_branches_from_spreadsheet()
+    {
+        $params['spreadsheetID'] = '1c44ymPowJA2V3NdDNBiqNjvQ2PdCJ4Zgsa34KJmkbVA';
+        $params['range']         = 'Sheet1!A2:A6217'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $arr = Functions::get_google_sheet_using_GoogleClientAPI($params);
+        //start massage array
+        foreach($arr as $item) $final[$item[0]] = '';
+        return $final;
+        /* if google spreadsheet suddenly becomes offline, use this: Array() */
     }
     private function more_ids_to_remove()
     {
@@ -200,12 +257,6 @@ class DWH_COL_API
     function start()
     {
         // 19   https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=19      18  Pelobacter carbinolicus species accepted    2912; 5381
-        /* test
-        $taxID_info = self::get_taxID_nodes_info();
-        $ancestry = self::get_ancestry_of_taxID(936556, $taxID_info); print_r($ancestry);
-        // $ancestry = self::get_ancestry_of_taxID(503548, $taxID_info); print_r($ancestry);
-        exit("\n-end tests-\n");
-        */
         /*
         self::browse_citations();
         exit("\n-end tests-\n");
@@ -496,28 +547,6 @@ class DWH_COL_API
         elseif($name_class == "synonym") return "synonym";
         elseif(in_array($name_class, $verbatim)) return $name_class;
         exit("\nUndefined name_class [$name_class]\n");
-    }
-    private function an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)
-    {
-        foreach($ancestry as $id) {
-            /* use isset() instead
-            if(in_array($id, $removed_branches)) return true;
-            */
-            if(isset($removed_branches[$id])) return true;
-        }
-        return false;
-    }
-    private function get_removed_branches_from_spreadsheet()
-    {
-        $params['spreadsheetID'] = '1c44ymPowJA2V3NdDNBiqNjvQ2PdCJ4Zgsa34KJmkbVA';
-        $params['range']         = 'Sheet1!A2:A6217'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
-        $arr = Functions::get_google_sheet_using_GoogleClientAPI($params);
-        //start massage array
-        foreach($arr as $item) $final[$item[0]] = '';
-        return $final;
-        /* if google spreadsheet suddenly becomes offline, use this:
-        Array()
-        */
     }
     private function write_reference($ref)
     {
