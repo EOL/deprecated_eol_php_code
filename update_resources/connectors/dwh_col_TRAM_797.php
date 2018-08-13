@@ -5,8 +5,8 @@ estimated execution time:
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DWH_COL_API');
-// ini_set('memory_limit','15096M');
-ini_set('memory_limit','6096M');
+ini_set('memory_limit','15096M');
+// ini_set('memory_limit','6096M');
 
 // $GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();

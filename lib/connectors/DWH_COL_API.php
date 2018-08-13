@@ -218,7 +218,26 @@ class DWH_COL_API
         $taxon->taxonomicStatus         = $rec['taxonomicStatus'];
         $taxon->acceptedNameUsageID     = $rec['acceptedNameUsageID'];
         $taxon->furtherInformationURL   = $rec['furtherInformationURL'];
-        // $taxon->referenceID             = $rec['referenceID'];
+
+        /* optional, I guess
+        $taxon->scientificNameID    = $rec['scientificNameID'];
+        $taxon->nameAccordingTo     = $rec['nameAccordingTo'];
+        $taxon->kingdom             = $rec['kingdom'];
+        $taxon->phylum              = $rec['phylum'];
+        $taxon->class               = $rec['class'];
+        $taxon->order               = $rec['order'];
+        $taxon->family              = $rec['family'];
+        $taxon->genus               = $rec['genus'];
+        $taxon->subgenus            = $rec['subgenus'];
+        $taxon->specificEpithet     = $rec['specificEpithet'];
+        $taxon->infraspecificEpithet        = $rec['infraspecificEpithet'];
+        $taxon->scientificNameAuthorship    = $rec['scientificNameAuthorship'];
+        $taxon->taxonRemarks        = $rec['taxonRemarks'];
+        $taxon->modified            = $rec['modified'];
+        $taxon->datasetID           = $rec['datasetID'];
+        $taxon->datasetName         = $rec['datasetName'];
+        */
+
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);
             $this->taxon_ids[$taxon->taxonID] = '';
