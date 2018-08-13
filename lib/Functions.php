@@ -2388,7 +2388,15 @@ class Functions
         }
         return false;
     }
-
+    public static function get_google_sheet_using_GoogleClientAPI($params)
+    {
+        if(!$params['spreadsheetID']) return false;
+        if(!$params['range']) return false;
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
+        $arr = $func->access_google_sheet($params);
+        return $arr;
+    }
     public static function additional_mappings($mappings) //additional mappings from other resources, used in other connectors
     {
         require_library('connectors/TropicosArchiveAPI');

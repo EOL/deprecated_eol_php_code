@@ -31,8 +31,13 @@ class DWH_COL_API
     function start_tram_797()
     {
         /* test
-        exit;
+        $removed = self::get_removed_branches_from_spreadsheet(); 
+        $a = array_keys($removed);
+        echo "\n".$a[0]."\n";
+        echo "\n".$a[1]."\n";
+        exit("\n-end tests-\n");
         */
+        
         self::main_tram_797(); //exit("\nstop muna\n");
         $this->archive_builder->finalize(TRUE);
         if($this->debug) {
@@ -51,8 +56,8 @@ class DWH_COL_API
     }
     private function main_tram_797() //pruning further
     {
-        $taxID_info = self::get_taxID_nodes_info();
-        $removed_branches = array(); $i = 0;
+        $taxID_info = self::get_taxID_nodes_info(); //exit;
+        $removed_branches = array();
         foreach($this->prune_further as $id) $removed_branches[$id] = '';
         $add = self::more_ids_to_remove();
         foreach($add as $id) $removed_branches[$id] = '';
@@ -62,7 +67,7 @@ class DWH_COL_API
         echo "\nStart main process...\n";
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++;
-            if(($i % 300000) == 0) echo "\n count:[$i] ";
+            if(($i % 500000) == 0) echo "\n count:[$i] ";
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $tmp = explode("\t", $row);
@@ -72,34 +77,6 @@ class DWH_COL_API
                 $k++;
             }
             //start filter
-            /*Array(
-                [taxonID] => 1_1
-                [furtherInformationURL] => https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=1
-                [acceptedNameUsageID] => 1
-                [parentNameUsageID] => 
-                [scientificName] => all
-                [taxonRank] => no rank
-                [taxonomicStatus] => synonym
-                [referenceID] => 
-            )*/
-            /* 1. Remove ALL taxa (and their children, grandchildren, etc.) that have one of the following strings in their scientific name: uncultured|unidentified */
-            // /*
-            if($rec['taxonomicStatus'] == "accepted") {
-                if(stripos($rec['scientificName'], "uncultured") !== false)   {$filtered_ids[$rec['taxonID']] = ''; continue;} //string is found
-                if(stripos($rec['scientificName'], "unidentified") !== false) {$filtered_ids[$rec['taxonID']] = ''; continue;} //string is found
-            }
-            // */
-            /* 2. ONLY for taxa where division_id in nodes.dmp IS 0 (bacteria & archaea), we want to remove all taxa that have the string “unclassified” in their scientific name. */
-            // /*
-            if($rec['taxonomicStatus'] == "accepted") {
-                if(in_array($taxID_info[$rec['taxonID']]['dID'], array(0))) {
-                    if(stripos($rec['scientificName'], "unclassified") !== false) {$filtered_ids[$rec['taxonID']] = ''; 
-                        // print_r($rec); print_r($taxID_info[$rec['taxonID']]); exit("\nrule 2\n"); //good debug
-                        continue;} //string is found
-                }
-            }
-            // */
-            
             if($rec['taxonomicStatus'] == "accepted") {
                 /* Remove branches */
                 $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
@@ -147,6 +124,51 @@ class DWH_COL_API
             self::write_taxon_DH($rec);
         } //end loop
     }
+    private function get_taxID_nodes_info()
+    {
+        echo "\nGenerating taxID_info...";
+        $final = array(); $i = 0;
+        $meta = self::get_meta_info();
+        foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
+            $i++; if(($i % 500000) == 0) echo "\n count:[$i] ";
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            if(!$row) continue;
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            $rec = array_map('trim', $rec);
+            if($rec['taxonomicStatus'] == "accepted name") $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank']);
+            $temp[$rec['taxonomicStatus']] = '';
+        }
+        // print_r($temp); exit;
+        return $final;
+    }
+    private function get_ancestry_of_taxID($tax_id, $taxID_info)
+    {   /* Array(
+            [1] => Array(
+                    [pID] => 1
+                    [r] => no rank
+                    [dID] => 8
+                )
+        )*/
+        $final = array();
+        $final[] = $tax_id;
+        while($parent_id = @$taxID_info[$tax_id]['pID']) {
+            if(!in_array($parent_id, $final)) $final[] = $parent_id;
+            else {
+                if($parent_id == 1) return $final;
+                else {
+                    print_r($final);
+                    exit("\nInvestigate $parent_id already in array.\n");
+                }
+            }
+            $tax_id = $parent_id;
+        }
+        return $final;
+    }
     private function write_taxon_DH($rec)
     {
         $taxon = new \eol_schema\Taxon();
@@ -184,10 +206,6 @@ class DWH_COL_API
         // $ancestry = self::get_ancestry_of_taxID(503548, $taxID_info); print_r($ancestry);
         exit("\n-end tests-\n");
         */
-        /* test
-        $removed_branches = self::get_removed_branches_from_spreadsheet(); print_r($removed_branches);
-        exit("\n-end tests-\n");
-        */
         /*
         self::browse_citations();
         exit("\n-end tests-\n");
@@ -197,63 +215,6 @@ class DWH_COL_API
         if($this->debug) {
             Functions::start_print_debug($this->debug, $this->resource_id);
         }
-    }
-    private function get_ancestry_of_taxID($tax_id, $taxID_info)
-    {   /* Array(
-            [1] => Array(
-                    [pID] => 1
-                    [r] => no rank
-                    [dID] => 8
-                )
-        )*/
-        $final = array();
-        $final[] = $tax_id;
-        while($parent_id = @$taxID_info[$tax_id]['pID']) {
-            if(!in_array($parent_id, $final)) $final[] = $parent_id;
-            else {
-                if($parent_id == 1) return $final;
-                else {
-                    print_r($final);
-                    exit("\nInvestigate $parent_id already in array.\n");
-                }
-            }
-            $tax_id = $parent_id;
-        }
-        return $final;
-    }
-    private function get_taxID_nodes_info()
-    {
-        echo "\nGenerating taxID_info...";
-        $final = array();
-        $fields = $this->file['nodes.dmp']['fields'];
-        $file = Functions::file_open($this->file['nodes.dmp']['path'], "r");
-        $i = 0;
-        if(!$file) exit("\nFile not found!\n");
-        while (($row = fgets($file)) !== false) {
-            $i++;
-            $row = explode("\t|", $row);
-            array_pop($row);
-            $row = array_map('trim', $row);
-            if(($i % 300000) == 0) echo "\n count:[$i] ";
-            $row = array_map('trim', $row);
-            $vals = $row;
-            if(count($fields) != count($vals)) {
-                print_r($vals); exit("\nNot same count ".count($fields)." != ".count($vals)."\n"); continue;
-            }
-            if(!$vals[0]) continue;
-            $k = -1; $rec = array();
-            foreach($fields as $field) {
-                $k++;
-                $rec[$field] = $vals[$k];
-            }
-            $rec = array_map('trim', $rec);
-            // print_r($rec); exit;
-            if(isset($final[$rec['tax_id']])) exit("\nInvestigate not unique tax_id in nodes.dmp\n");
-            $final[$rec['tax_id']] = array("pID" => $rec['parent_tax_id'], 'r' => $rec['rank'], 'dID' => $rec['division_id']);
-            // print_r($final); exit;
-        }
-        fclose($file);
-        return $final;
     }
     private function main()
     {
@@ -548,14 +509,11 @@ class DWH_COL_API
     }
     private function get_removed_branches_from_spreadsheet()
     {
-        require_library('connectors/GoogleClientAPI');
-        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
-        $params['spreadsheetID'] = '1eWXWK514ivl072FLm7dF2MpL9W29bs6XYDbPjHtWlxE';
-        $params['range']         = 'Sheet1!A2:A16'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
-        $arr = $func->access_google_sheet($params);
+        $params['spreadsheetID'] = '1c44ymPowJA2V3NdDNBiqNjvQ2PdCJ4Zgsa34KJmkbVA';
+        $params['range']         = 'Sheet1!A2:A6217'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $arr = Functions::get_google_sheet_using_GoogleClientAPI($params);
         //start massage array
         foreach($arr as $item) $final[$item[0]] = '';
-        /* $final = array_keys($final); */ //commented so we can use isset() instead of in_array()
         return $final;
         /* if google spreadsheet suddenly becomes offline, use this:
         Array()
