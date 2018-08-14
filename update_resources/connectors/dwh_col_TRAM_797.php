@@ -12,7 +12,7 @@ $timestart = time_elapsed();
 
 
 $resource_id = "Catalogue_of_Life_DH"; //orig
-$resource_id = 2;
+// $resource_id = 2;
 $func = new DWH_COL_API($resource_id);
 // /* un-comment in normal operation
 $func->start_tram_797();

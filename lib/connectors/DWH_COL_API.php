@@ -21,22 +21,19 @@ class DWH_COL_API
         $this->dwca['iterator_options'] = array('row_terminator' => "\n");
     }
     // ----------------------------------------------------------------- start TRAM-797 -----------------------------------------------------------------
-    private function get_meta_info($row_type = false)
-    {
-        require_library('connectors/DHSourceHierarchiesAPI'); $func = new DHSourceHierarchiesAPI();
-        $meta = $func->analyze_eol_meta_xml($this->extension_path."meta.xml", $row_type); //2nd param $row_type is rowType in meta.xml
-        print_r($meta);
-        return $meta;
-    }
     function start_CoLProtists()
     {
+        $this->extension_path = CONTENT_RESOURCE_LOCAL_PATH . "Catalogue_of_Life_DH/"; //this folder is from main CoL DH
         self::main_CoLProtists();
         $this->archive_builder->finalize(TRUE);
         if($this->debug) {
             Functions::start_print_debug($this->debug, $this->resource_id);
         }
     }
-
+    private function main_CoLProtists()
+    {
+        
+    }
     function start_tram_797()
     {
         /* test
@@ -344,6 +341,13 @@ class DWH_COL_API
         $b = array();
         $c = array_merge($a, $b);
         return array_unique($c);
+    }
+    private function get_meta_info($row_type = false)
+    {
+        require_library('connectors/DHSourceHierarchiesAPI'); $func = new DHSourceHierarchiesAPI();
+        $meta = $func->analyze_eol_meta_xml($this->extension_path."meta.xml", $row_type); //2nd param $row_type is rowType in meta.xml
+        print_r($meta);
+        return $meta;
     }
     // ----------------------------------------------------------------- end TRAM-797 -----------------------------------------------------------------
     /*
