@@ -46,17 +46,20 @@ class DWH_COL_API
         $ancestry = self::get_ancestry_of_taxID(10147309, $taxID_info); print_r($ancestry);
         exit("\n-end tests-\n");
         */
-        // /*
+        /*
         $taxID_info = self::get_taxID_nodes_info();
-        $ids = array(42987761,42987761,42987788,42987780,42987793,42987792,42987781,42987798,42987775,42987777,40160866,40212453);
+        $parts = self::get_removed_branches_from_spreadsheet();
+        $removed_branches = $parts['removed_brances'];
+        $one_word_names = $parts['one_word_names'];
+        $ids = array(42987761,42987788,42987780,42987793,42987792,42987781,42987798,42987775,42987777,40160866,40212453);
         foreach($ids as $id) {
             $ancestry = self::get_ancestry_of_taxID($id, $taxID_info);
             echo "\n ancestry of [$id]:"; print_r($ancestry);
             if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) echo "\n[$id] removed\n";
             else                                                                                    echo "\n[$id] NOT removed\n";
         }
-
-        // */
+        exit("\n-end tests-\n");
+        */
         
         self::main_tram_797(); //exit("\nstop muna\n");
         $this->archive_builder->finalize(TRUE);
@@ -105,32 +108,31 @@ class DWH_COL_API
                     $filtered_ids[$rec['taxonID']] = '';
                     $removed_branches[$rec['taxonID']] = '';
                     $vcont = false;
-                    // /* debug
+                    /* debug
                     if($rec['taxonID'] == 42987761) {
                         print_r($rec); exit("\n stopped 100 \n");
                     }
-                    // */
+                    */
                 }
             }
             if(!$vcont) continue; //next taxon
             // eli added end ----------------------------------------------------------------------------
             
-            
-            if($rec['taxonomicStatus'] == "accepted name") {
+            // if($rec['taxonomicStatus'] == "accepted name") {
                 /* Remove branches */
                 $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
                 if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
                     $this->debug['taxon where an id in its ancestry is included among removed branches'][$rec['taxonID']] = '';
                     $filtered_ids[$rec['taxonID']] = '';
                     $removed_branches[$rec['taxonID']] = '';
-                    // /* debug
+                    /* debug
                     if($rec['taxonID'] == 42987761) {
                         print_r($rec); exit("\n stopped 200 \n");
                     }
-                    // */
+                    */
                     continue;
                 }
-            }
+            // }
         } //end loop
 
         echo "\nStart main process 2...\n"; $i = 0;
@@ -182,20 +184,19 @@ class DWH_COL_API
             if(isset($removed_branches[$rec['acceptedNameUsageID']])) continue;
             if(isset($removed_branches[$rec['parentNameUsageID']])) continue;
             
-            
-            if($rec['taxonomicStatus'] == "accepted name") {
+            // if($rec['taxonomicStatus'] == "accepted name") {
                 /* Remove branches */
                 $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
                 if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
                     $this->debug['taxon where an id in its ancestry is included among removed branches'][$rec['taxonID']] = '';
-                    // /* debug
+                    /* debug
                     if($rec['taxonID'] == 42987761) {
                         print_r($rec); exit("\n stopped 300 \n");
                     }
-                    // */
+                    */
                     continue;
                 }
-            }
+            // }
             self::write_taxon_DH($rec);
         } //end loop
     }
@@ -224,13 +225,15 @@ class DWH_COL_API
             $rec = array_map('trim', $rec);
             // print_r($rec); exit;
             
-            if($rec['taxonomicStatus'] == "accepted name") $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank']);
+            // if($rec['taxonomicStatus'] == "accepted name") 
+            $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank']);
+            
             // $temp[$rec['taxonomicStatus']] = ''; //debug
-            // /* debug
-            if($rec['taxonID'] == "42987777") {
+            /* debug
+            if($rec['taxonID'] == "42987761") {
                 print_r($rec); exit;
             }
-            // */
+            */
         }
         // print_r($temp); exit; //debug
         return $final;
@@ -259,7 +262,12 @@ class DWH_COL_API
         return $final;
     }
     private function write_taxon_DH($rec)
-    {
+    {   //from NCBI ticket:
+        /* One more thing: synonyms and other alternative names should not have parentNameUsageIDs. In general, if a taxon has an acceptedNameUsageID it should not also have a parentNameUsageID. 
+        So in this specific case, we want acceptedNameUsageID's only if name class IS scientific name. */
+
+        if($rec['acceptedNameUsageID']) $rec['parentNameUsageID'] = '';
+        
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                 = $rec['taxonID'];
         $taxon->parentNameUsageID       = $rec['parentNameUsageID'];
@@ -292,8 +300,6 @@ class DWH_COL_API
             $this->archive_builder->write_object_to_file($taxon);
             $this->taxon_ids[$taxon->taxonID] = '';
         }
-        
-        
     }
     private function an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)
     {
@@ -567,98 +573,5 @@ class DWH_COL_API
         echo "\nTotal rows: $i";
         echo "\nProcessed rows: $processed";
     }
-    private function write_taxon($rec, $ancestry, $taxid_info, $reference_ids)
-    {   /* Array(
-            [tax_id] => 1
-            [name_txt] => all
-            [unique_name] => 
-            [name_class] => synonym
-        )
-        Array(
-            [1] => Array(
-                    [pID] => 1
-                    [r] => no rank
-                    [dID] => 8
-                )
-        )*/
-        /* One more thing: synonyms and other alternative names should not have parentNameUsageIDs. In general, if a taxon has an acceptedNameUsageID it should not also have a parentNameUsageID. 
-        So in this specific case, we want acceptedNameUsageID's only if name class IS scientific name. Sorry, I realize I didn't make this clear in my initial instructions. 
-        I have added a note about it now. */
-        if(!in_array($rec['name_class'], array("common name", "genbank common name"))) {
-            $computed_ids = self::format_tax_id($rec);
-            $taxon = new \eol_schema\Taxon();
-            $taxon->taxonID = $computed_ids['tax_id'];
-            
-            if($rec['name_class'] == "scientific name") $taxon->parentNameUsageID = $taxid_info['pID'];
-            else                                        $taxon->parentNameUsageID = "";
-            
-            $taxon->taxonRank = $taxid_info['r'];
-            $taxon->scientificName = $rec['name_txt'];
-            $taxon->taxonomicStatus = self::format_status($rec['name_class']);
-            $taxon->acceptedNameUsageID = $computed_ids['acceptedNameUsageID'];
-            $taxon->furtherInformationURL = "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=".$rec['tax_id'];
-            if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
-            if(!isset($this->taxon_ids[$taxon->taxonID])) {
-                $this->archive_builder->write_object_to_file($taxon);
-                $this->taxon_ids[$taxon->taxonID] = '';
-            }
-        }
-        if(in_array($rec['name_class'], array("common name", "genbank common name"))) {
-            if($common_name = @$rec['name_txt']) {
-                $v = new \eol_schema\VernacularName();
-                $v->taxonID = $rec["tax_id"];
-                $v->vernacularName = trim($common_name);
-                $v->language = "en";
-                $vernacular_id = md5("$v->taxonID|$v->vernacularName|$v->language");
-                if(!isset($this->vernacular_ids[$vernacular_id])) {
-                    $this->vernacular_ids[$vernacular_id] = '';
-                    $this->archive_builder->write_object_to_file($v);
-                }
-            }
-        }
-    }
-    private function format_tax_id($rec)
-    {   /* One more thing: synonyms and other alternative names should not have parentNameUsageIDs. In general, if a taxon has an acceptedNameUsageID it should not also have a parentNameUsageID. 
-        So in this specific case, we want acceptedNameUsageID's only if name class IS scientific name. Sorry, I realize I didn't make this clear in my initial instructions. 
-        I have added a note about it now. */
-        
-        if($rec['name_class'] == "scientific name")                    return array('tax_id' => $rec['tax_id']                 , 'acceptedNameUsageID' => '');
-        elseif(in_array($rec['name_class'], $this->alternative_names)) return array('tax_id' => $rec['tax_id']."_".$this->ctr  , 'acceptedNameUsageID' => $rec['tax_id']);
-        else {
-            print_r($rec);
-            exit("\nInvestigate cha001\n");
-        }
-    }
-    private function format_status($name_class)
-    {
-        $verbatim = array("equivalent name", "in-part", "misspelling", "genbank synonym", "misnomer", "anamorph", "genbank anamorph", "teleomorph", "authority");
-        if($name_class == "scientific name") return "accepted";
-        elseif($name_class == "synonym") return "synonym";
-        elseif(in_array($name_class, $verbatim)) return $name_class;
-        exit("\nUndefined name_class [$name_class]\n");
-    }
-    private function write_reference($ref)
-    {
-        if(!@$ref['text']) return false;
-        $re = new \eol_schema\Reference();
-        $re->identifier     = $ref['cit_id'];
-        $re->full_reference = $ref['text'];
-        $re->uri            =  $ref['url']; 
-        if(!isset($this->reference_ids[$re->identifier])) {
-            $this->archive_builder->write_object_to_file($re);
-            $this->reference_ids[$re->identifier] = '';
-        }
-    }
-    /*
-    private function get_mtype_for_range($range)
-    {
-        switch($range) {
-            case "Introduced":                  return "http://eol.org/schema/terms/IntroducedRange";
-            case "Invasive":                    return "http://eol.org/schema/terms/InvasiveRange";
-            case "Native":                      return "http://eol.org/schema/terms/NativeRange";
-        }
-        if(in_array($range, $this->considered_as_Present)) return "http://eol.org/schema/terms/Present";
-    }
-    */
 }
 ?>
