@@ -82,7 +82,7 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
         // start GBIF
         // self::breakdown_GBIF_csv_file_v2(); return;
         // self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
-        self::generate_map_data_using_GBIF_csv_files(); return;
+        // self::generate_map_data_using_GBIF_csv_files(); return;
         // end GBIF
         
         // self::start_clustering(); return;                        //distance clustering sample
@@ -90,11 +90,11 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
         
         //OKAY to use
         //---------------------------------------------------------------------------------------------------------------------------------------------
-        /*
+        // /*
         if(Functions::is_production()) $path = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
         else                           $path = "/Volumes/AKiTiO4/z backup/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
         self::process_all_eol_taxa($path, false); return;           //make use of tab-delimited text file from JRice
-        */
+        // */
         //---------------------------------------------------------------------------------------------------------------------------------------------
         
         // self::process_hotlist_spreadsheet(); return;             //make use of hot list spreadsheet from SPG
@@ -333,6 +333,7 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
             if(!$cont) continue;
             */
             // ==============================
+            if(!$sciname) continue;
             echo "\n$i. [$sciname][$taxon_concept_id]";
             if($usageKey = self::get_usage_key($sciname)) {
                 echo "\nOK GBIF key [$usageKey]\n";
@@ -357,7 +358,7 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
                 }
                 else echo "\nmap data not yet available [$sciname]\n";
             }
-            else echo "\n usageKey not found! [$sciname]\n";
+            else echo "\n usageKey not found! 02 [$sciname]\n";
         } //end main foreach()
     }
     private function get_map_data_path($taxon_concept_id)
@@ -470,10 +471,12 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
                 if(!$cont) continue;
                 */
                 //==================
-                self::main_loop($sciname, $taxon_concept_id); //uncomment in real operation...
-                if($usageKey = self::get_usage_key($sciname)) echo " - OK [$usageKey]"; //used to cache all usageKey requests...
-                else                                          echo " - usageKey not found!";
-                exit("\n--stopx--\n");
+                // self::main_loop($sciname, $taxon_concept_id); //uncomment in real operation...
+                if($sciname) {
+                    if($usageKey = self::get_usage_key($sciname)) echo " - OK [$usageKey]"; //used to cache all usageKey requests...
+                    else                                          echo " - usageKey not found! 01 [$sciname]";
+                }
+                // exit("\n--stopx--\n");
             }
             // else echo "\n[$sciname] will pass higher-level taxa at this time...\n";
         }//end loop
