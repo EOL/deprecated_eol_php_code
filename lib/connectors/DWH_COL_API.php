@@ -46,6 +46,17 @@ class DWH_COL_API
         $ancestry = self::get_ancestry_of_taxID(10147309, $taxID_info); print_r($ancestry);
         exit("\n-end tests-\n");
         */
+        // /*
+        $taxID_info = self::get_taxID_nodes_info();
+        $ids = array(42987761,42987761,42987788,42987780,42987793,42987792,42987781,42987798,42987775,42987777,40160866,40212453);
+        foreach($ids as $id) {
+            $ancestry = self::get_ancestry_of_taxID($id, $taxID_info);
+            echo "\n ancestry of [$id]:"; print_r($ancestry);
+            if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) echo "\n[$id] removed\n";
+            else                                                                                    echo "\n[$id] NOT removed\n";
+        }
+
+        // */
         
         self::main_tram_797(); //exit("\nstop muna\n");
         $this->archive_builder->finalize(TRUE);
@@ -94,6 +105,11 @@ class DWH_COL_API
                     $filtered_ids[$rec['taxonID']] = '';
                     $removed_branches[$rec['taxonID']] = '';
                     $vcont = false;
+                    // /* debug
+                    if($rec['taxonID'] == 42987761) {
+                        print_r($rec); exit("\n stopped 100 \n");
+                    }
+                    // */
                 }
             }
             if(!$vcont) continue; //next taxon
@@ -107,6 +123,11 @@ class DWH_COL_API
                     $this->debug['taxon where an id in its ancestry is included among removed branches'][$rec['taxonID']] = '';
                     $filtered_ids[$rec['taxonID']] = '';
                     $removed_branches[$rec['taxonID']] = '';
+                    // /* debug
+                    if($rec['taxonID'] == 42987761) {
+                        print_r($rec); exit("\n stopped 200 \n");
+                    }
+                    // */
                     continue;
                 }
             }
@@ -167,6 +188,11 @@ class DWH_COL_API
                 $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
                 if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
                     $this->debug['taxon where an id in its ancestry is included among removed branches'][$rec['taxonID']] = '';
+                    // /* debug
+                    if($rec['taxonID'] == 42987761) {
+                        print_r($rec); exit("\n stopped 300 \n");
+                    }
+                    // */
                     continue;
                 }
             }
@@ -200,11 +226,11 @@ class DWH_COL_API
             
             if($rec['taxonomicStatus'] == "accepted name") $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank']);
             // $temp[$rec['taxonomicStatus']] = ''; //debug
-            /* debug
-            if($rec['taxonID'] == "10145857") {
+            // /* debug
+            if($rec['taxonID'] == "42987777") {
                 print_r($rec); exit;
             }
-            */
+            // */
         }
         // print_r($temp); exit; //debug
         return $final;
@@ -286,10 +312,12 @@ class DWH_COL_API
         $rows = Functions::get_google_sheet_using_GoogleClientAPI($params);
         //start massage array
         foreach($rows as $item) {
-            $final[$item[0]] = '';
+            if($val = $item[0]) $final[$val] = '';
             $canonical = trim(Functions::canonical_form($item[1]));
             if(stripos($canonical, " ") !== false) continue; //string is found
-            else $final2[$canonical] = '';
+            else {
+                if($canonical) $final2[$canonical] = '';
+            }
         }
         // print_r($final2); exit;
         return array('removed_brances' => $final, 'one_word_names' => $final2);
