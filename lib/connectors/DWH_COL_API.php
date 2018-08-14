@@ -22,7 +22,6 @@ class DWH_COL_API
     // ----------------------------------------------------------------- start TRAM-797 -----------------------------------------------------------------
     function start_CoLProtists()
     {
-        $this->extension_path = CONTENT_RESOURCE_LOCAL_PATH . "Catalogue_of_Life_DH/"; //this folder is from main CoL DH
         self::main_CoLProtists();
         $this->archive_builder->finalize(TRUE);
         if($this->debug) {
@@ -31,6 +30,88 @@ class DWH_COL_API
     }
     private function main_CoLProtists()
     {
+        $params['spreadsheetID'] = '19FFBXYIisaiHJ02aSYRjy8K66D7iOcfS2EHrqwkf_Bs';
+        $params['range']         = 'Sheet1!A2:B142'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $parts = self::get_removed_branches_from_spreadsheet($params);
+        $removed_branches = $parts['removed_brances'];
+        $one_word_names = $parts['one_word_names']; //this is null anyway
+        
+        
+        $taxID_info = self::get_taxID_nodes_info();
+        $include[42984770] = "Ciliophora";
+        $include[42990646] = "Oomycota";
+        $include[42981251] = "Polycystina";
+        $include[42985937] = "Eccrinida";
+        $include[42985691] = "Microsporidia";
+        $include[42983291] = "Mycetozoa";
+        $include[42993626] = "Chaetocerotaceae";
+        $include[42993677] = "Naviculaceae";
+        
+        $meta = self::get_meta_info();
+        $i = 0; $filtered_ids = array();
+        echo "\nStart main process...\n";
+        foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
+            $i++;
+            if(($i % 500000) == 0) echo "\n count:[$i] ";
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            if(!$row) continue;
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            $rec = array_map('trim', $rec);
+            
+            if(isset($include[$rec['taxonID']])) print_r($rec);
+            
+            // print_r($rec); exit;
+            /*Array(
+                [taxonID] => 10145857
+                [scientificNameID] => Cil-CILI00024223
+                [acceptedNameUsageID] => 
+                [parentNameUsageID] => 42998474
+                [scientificName] => Amphileptus hirsutus Dumas, 1930
+                [kingdom] => Chromista
+                [phylum] => Ciliophora
+                [class] => Gymnostomatea
+                [order] => Pleurostomatida
+                [family] => Amphileptidae
+                [genus] => Amphileptus
+                [taxonRank] => species
+                [scientificNameAuthorship] => Dumas, 1930
+                [taxonomicStatus] => accepted name
+                [taxonRemarks] => 
+            )*/
+            $will_cont = false;
+            
+            $ranks2check = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
+            foreach($ranks2check as $rank2check) {
+                $sciname = $rec[$rank2check];
+                if(in_array($sciname, $include)) $will_cont = true;
+            }
+            
+            $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
+            if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $include)) $will_cont = true; //this will actually include what is in the branch
+            
+            //==============================================================================
+            if($will_cont) {
+                if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
+                    $filtered_ids[$rec['taxonID']] = '';
+                    $removed_branches[$rec['taxonID']] = '';
+                    continue;
+                }
+                else $id[$rec['taxonID']] = '';
+            }
+            //==============================================================================
+            
+        } //end loop
+        echo "\ntotal ids: ".count($id)."\n";
+        
+        
+        //start 2nd loop
+        
+        
         
     }
     function start_tram_797()
@@ -74,7 +155,7 @@ class DWH_COL_API
     }
     private function main_tram_797()
     {
-        $taxID_info = self::get_taxID_nodes_info(); //exit;
+        $taxID_info = self::get_taxID_nodes_info();
         $parts = self::get_removed_branches_from_spreadsheet();
         $removed_branches = $parts['removed_brances'];
         $one_word_names = $parts['one_word_names'];
@@ -127,7 +208,7 @@ class DWH_COL_API
                 /* Remove branches */
                 $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
                 if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
-                    $this->debug['taxon where an id in its ancestry is included among removed branches'][$rec['taxonID']] = '';
+                    // $this->debug['taxon where an id in its ancestry is included among removed branches'][$rec['taxonID']] = ''; //not usefule anymore
                     $filtered_ids[$rec['taxonID']] = '';
                     $removed_branches[$rec['taxonID']] = '';
                     /* debug
@@ -316,10 +397,13 @@ class DWH_COL_API
         }
         return false;
     }
-    private function get_removed_branches_from_spreadsheet()
+    private function get_removed_branches_from_spreadsheet($params = false)
     {
-        $params['spreadsheetID'] = '1c44ymPowJA2V3NdDNBiqNjvQ2PdCJ4Zgsa34KJmkbVA';
-        $params['range']         = 'Sheet1!A2:B6217'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $final = array(); $final2 = array();
+        if(!$params) {
+            $params['spreadsheetID'] = '1c44ymPowJA2V3NdDNBiqNjvQ2PdCJ4Zgsa34KJmkbVA';
+            $params['range']         = 'Sheet1!A2:B6217'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        }
         $rows = Functions::get_google_sheet_using_GoogleClientAPI($params);
         //start massage array
         foreach($rows as $item) {
