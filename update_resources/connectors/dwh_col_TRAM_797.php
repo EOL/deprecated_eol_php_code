@@ -32,7 +32,7 @@ $undefined = $func->check_if_all_parents_have_entries($resource_id, true, false,
 if($undefined) echo "\nERROR: There is undefined acceptedNameUsageID(s): ".count($undefined)."\n";
 else           echo "\nOK: All acceptedNameUsageID have entries.\n";
 // */
-
+exit("\n-End for now-\n");
 //############################################################ start CoL Protists
 $resource_id = "Catalogue_of_Life_Protists_DH"; //orig
 $func = new DWH_COL_API($resource_id);
