@@ -53,20 +53,9 @@ class DWH_COL_API
             Functions::start_print_debug($this->debug, $this->resource_id);
         }
     }
-    private function get_tax_ids_from_taxon_tab_working()
-    {
-        echo "\n get taxonIDs from taxon_working.tab\n";
-        require_library('connectors/DWCADiagnoseAPI');
-        $func = new DWCADiagnoseAPI();
-        $url = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id."_working" . "/taxon_working.tab";
-        $suggested_fields = explode("\t", "taxonID	furtherInformationURL	referenceID	acceptedNameUsageID	parentNameUsageID	scientificName	taxonRank	taxonomicStatus"); //taxonID is what is important here.
-        $var = $func->get_fields_from_tab_file($this->resource_id, array("taxonID"), $url, $suggested_fields, false); //since there is $url, the last/5th param is no longer needed, set to false.
-        return $var['taxonID'];
-    }
     private function main_tram_797() //pruning further
     {
         $taxID_info = self::get_taxID_nodes_info(); //exit;
-        $parts = self::get_removed_branches_from_spreadsheet();
         $parts = self::get_removed_branches_from_spreadsheet();
         $removed_branches = $parts['removed_brances'];
         $one_word_names = $parts['one_word_names'];
@@ -314,6 +303,18 @@ class DWH_COL_API
         return array_unique($c);
     }
     // ----------------------------------------------------------------- end TRAM-797 -----------------------------------------------------------------
+    /*
+    private function get_tax_ids_from_taxon_tab_working()
+    {
+        echo "\n get taxonIDs from taxon_working.tab\n";
+        require_library('connectors/DWCADiagnoseAPI');
+        $func = new DWCADiagnoseAPI();
+        $url = CONTENT_RESOURCE_LOCAL_PATH . $this->resource_id."_working" . "/taxon_working.tab";
+        $suggested_fields = explode("\t", "taxonID	furtherInformationURL	referenceID	acceptedNameUsageID	parentNameUsageID	scientificName	taxonRank	taxonomicStatus"); //taxonID is what is important here.
+        $var = $func->get_fields_from_tab_file($this->resource_id, array("taxonID"), $url, $suggested_fields, false); //since there is $url, the last/5th param is no longer needed, set to false.
+        return $var['taxonID'];
+    }
+    */
     function start()
     {
         // 19   https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=19      18  Pelobacter carbinolicus species accepted    2912; 5381
