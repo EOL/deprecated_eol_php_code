@@ -35,8 +35,7 @@ class DWH_COL_API
         $parts = self::get_removed_branches_from_spreadsheet($params);
         $removed_branches = $parts['removed_brances'];
         $one_word_names = $parts['one_word_names']; //this is null anyway
-        
-        
+
         $taxID_info = self::get_taxID_nodes_info();
         $include[42984770] = "Ciliophora";
         $include[42990646] = "Oomycota";
@@ -62,10 +61,10 @@ class DWH_COL_API
                 $k++;
             }
             $rec = array_map('trim', $rec);
-            
-            if(isset($include[$rec['taxonID']])) print_r($rec);
-            
             // print_r($rec); exit;
+            /* good debug
+            if(isset($include[$rec['taxonID']])) print_r($rec);
+            */
             /*Array(
                 [taxonID] => 10145857
                 [scientificNameID] => Cil-CILI00024223
@@ -101,18 +100,42 @@ class DWH_COL_API
                     $removed_branches[$rec['taxonID']] = '';
                     continue;
                 }
-                else $id[$rec['taxonID']] = '';
+                else $inclusive_taxon_ids[$rec['taxonID']] = '';
             }
             //==============================================================================
-            
         } //end loop
-        echo "\ntotal ids: ".count($id)."\n";
+        echo "\ntotal ids: ".count($inclusive_taxon_ids)."\n";
         
         
         //start 2nd loop
-        
-        
-        
+        echo "\nStart main process...\n";
+        foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
+            $i++;
+            if(($i % 500000) == 0) echo "\n count:[$i] ";
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            if(!$row) continue;
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            $rec = array_map('trim', $rec);
+            if(isset($inclusive_taxon_ids[$rec['taxonID']])) {
+                if(isset($filtered_ids[$rec['taxonID']])) continue;
+                if(isset($filtered_ids[$rec['acceptedNameUsageID']])) continue;
+                if(isset($filtered_ids[$rec['parentNameUsageID']])) continue;
+                if(isset($removed_branches[$rec['taxonID']])) continue;
+                if(isset($removed_branches[$rec['acceptedNameUsageID']])) continue;
+                if(isset($removed_branches[$rec['parentNameUsageID']])) continue;
+                
+                $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
+                if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
+                    continue;
+                }
+                self::write_taxon_DH($rec);
+            }
+        }
     }
     function start_tram_797()
     {
