@@ -11,11 +11,12 @@ ini_set('memory_limit','15096M');
 // $GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
 $resource_id = "Catalogue_of_Life_DH"; //orig
+$resource_id = 1;
 $func = new DWH_COL_API($resource_id);
 // /* un-comment in normal operation
 $func->start_tram_797();
 $func = null;
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, true);
 // */
 
 // /* utility - takes time for this resource but very helpful to catch if all parents have entries.
