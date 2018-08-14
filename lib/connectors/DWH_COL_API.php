@@ -28,6 +28,15 @@ class DWH_COL_API
         print_r($meta);
         return $meta;
     }
+    function start_CoLProtists()
+    {
+        self::main_CoLProtists();
+        $this->archive_builder->finalize(TRUE);
+        if($this->debug) {
+            Functions::start_print_debug($this->debug, $this->resource_id);
+        }
+    }
+
     function start_tram_797()
     {
         /* test
@@ -67,7 +76,7 @@ class DWH_COL_API
             Functions::start_print_debug($this->debug, $this->resource_id);
         }
     }
-    private function main_tram_797() //pruning further
+    private function main_tram_797()
     {
         $taxID_info = self::get_taxID_nodes_info(); //exit;
         $parts = self::get_removed_branches_from_spreadsheet();
@@ -349,229 +358,5 @@ class DWH_COL_API
         return $var['taxonID'];
     }
     */
-    function start()
-    {
-        // 19   https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=19      18  Pelobacter carbinolicus species accepted    2912; 5381
-        /*
-        self::browse_citations();
-        exit("\n-end tests-\n");
-        */
-        self::main(); //exit("\nstop muna\n");
-        $this->archive_builder->finalize(TRUE);
-        if($this->debug) {
-            Functions::start_print_debug($this->debug, $this->resource_id);
-        }
-    }
-    private function main()
-    {
-        $filtered_ids = array();
-        $taxon_refs = self::browse_citations();
-        
-        $taxID_info['xxx'] = array("pID" => '', 'r' => '', 'dID' => '');
-        $taxID_info = self::get_taxID_nodes_info();
-        
-        $removed_branches = self::get_removed_branches_from_spreadsheet();
-        /* additional IDs are taken from undefined_parents report after each connector run */
-        $removed_branches[1296341] = '';
-        $removed_branches[993557] = '';
-        $removed_branches[1391733] = '';
-        /* no need to add this, same result anyway
-        $removed_branches[1181] = '';
-        $removed_branches[1188] = '';
-        $removed_branches[56615] = '';
-        $removed_branches[59765] = '';
-        $removed_branches[169066] = '';
-        $removed_branches[242159] = '';
-        $removed_branches[252598] = '';
-        $removed_branches[797742] = '';
-        $removed_branches[1776082] = '';
-        */
-        echo "\nMain processing...";
-        $fields = $this->file['names.dmp']['fields'];
-        $file = Functions::file_open($this->file['names.dmp']['path'], "r");
-        $i = 0; $processed = 0;
-        if(!$file) exit("\nFile not found!\n");
-        $this->ctr = 1; $old_id = "elix";
-        while (($row = fgets($file)) !== false) {
-            $i++;
-            $row = explode("\t|", $row); array_pop($row); $row = array_map('trim', $row);
-            if(($i % 300000) == 0) echo "\n count:[$i] ";
-            $row = array_map('trim', $row);
-            $vals = $row;
-            if(count($fields) != count($vals)) {
-                print_r($vals); exit("\nNot same count ".count($fields)." != ".count($vals)."\n"); continue;
-            }
-            if(!$vals[0]) continue;
-            $k = -1; $rec = array();
-            foreach($fields as $field) {
-                $k++;
-                $rec[$field] = $vals[$k];
-            }
-            $rec = array_map('trim', $rec);
-            /* good debug --------------------------------------------------------------------------------------------
-            if($rec['tax_id'] == 1391733) { //1844527
-                print_r($rec); print_r($taxID_info[$rec['tax_id']]); 
-                
-                if(isset($filtered_ids[$rec['tax_id']])) exit("\ntax_id is part of filtered\n");
-                $parent_id = $taxID_info[$rec['tax_id']]['pID'];
-                if(isset($filtered_ids[$parent_id])) exit("\nparent id is part of filtered\n");
-                
-                $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
-                print_r($ancestry);
-                if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
-                    echo "\ntaxon where an id in its ancestry is included among removed branches\n";
-                }
-                else echo "\nNot part of removed branch\n";
-                exit("\ncha 01\n");
-            }
-            -------------------------------------------------------------------------------------------- */
-            // print_r($rec); exit;
-            /* Array(
-                [tax_id] => 1
-                [name_txt] => all
-                [unique_name] => 
-                [name_class] => synonym
-            )*/
-            /* start filtering: 
-            1. Filter by division_id: Remove taxa where division_id in nodes.dmp is 7 (environmental samples) or 11 (synthetic and chimeric taxa) */
-            if(in_array($taxID_info[$rec['tax_id']]['dID'], array(7,11))) {$filtered_ids[$rec['tax_id']] = ''; continue;}
-            // Total rows: 2687427      Processed rows: 2609534
-
-            /* 2. Filter by text string
-            a. Remove taxa that have the string “environmental sample” in their scientific name. This will get rid of those environmental samples that don’t have the environmental samples division for some reason. */
-            if(stripos($rec['name_txt'], "environmental sample") !== false) {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
-            // Total rows: 2687427      Processed rows: 2609488
-            
-            /* b. Remove all taxa of rank species where the scientific name includes one of the following strings: sp.|aff.|cf.|nr.
-            This will get rid of a lot of the samples that haven’t been identified to species. */
-
-            /*
-            85262	|	African violet	|		|	common name	|
-            85262	|	Saintpaulia ionantha	|		|	synonym	|
-            85262	|	Saintpaulia ionantha H.Wendl.	|		|	authority	|
-            85262	|	Saintpaulia sp. 'Sigi Falls'	|		|	includes	|
-            85262	|	Streptocarpus ionanthus	|		|	scientific name	|
-            85262	|	Streptocarpus ionanthus (H.Wendl.) Christenh.	|		|	authority	|
-            85262	|	Streptocarpus sp. 'Sigi Falls'	|		|	includes	|
-            
-            Irregardless of the other filter rules. Let us look at this single rule:
-            "Remove all taxa of rank species where the scientific name includes one of the following strings: sp.|aff.|cf.|nr."
-            
-            Assuming 85262 is rank 'species'.
-            Is "Streptocarpus ionanthus" with name class = "scientific name" be excluded since the alternative names has ' sp.'.
-            Or the rule for removing taxa with ' sp.' only affects where name class is "scientific name".
-            So in this case "Streptocarpus ionanthus" will be included since it doesn't have ' sp.'
-            And alternatives will only be:
-            85262	|	Saintpaulia ionantha	|		|	synonym	|
-            85262	|	Saintpaulia ionantha H.Wendl.	|		|	authority	|
-            85262	|	Streptocarpus ionanthus (H.Wendl.) Christenh.	|		|	authority	|
-            */
-            
-            if($rec['name_class'] == "scientific name") {
-                $rank = $taxID_info[$rec['tax_id']]['r'];
-                if(in_array($rank, array('species', 'no rank'))) {
-                    if(stripos($rec['name_txt'], " sp.") !== false)      {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
-                    elseif(stripos($rec['name_txt'], " aff.") !== false) {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
-                    elseif(stripos($rec['name_txt'], " cf.") !== false)  {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
-                    elseif(stripos($rec['name_txt'], " nr.") !== false)  {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
-                }
-            }
-            elseif(in_array($rec['name_class'], $this->alternative_names)) {
-                if(stripos($rec['name_txt'], " sp.") !== false)      {continue;} //string is found
-                elseif(stripos($rec['name_txt'], " aff.") !== false) {continue;} //string is found
-                elseif(stripos($rec['name_txt'], " cf.") !== false)  {continue;} //string is found
-                elseif(stripos($rec['name_txt'], " nr.") !== false)  {continue;} //string is found
-            }
-            // Total rows: xxx      Processed rows: xxx
-            
-            if(in_array($rec['name_class'], array("blast name", "type material", "includes", "acronym", "genbank acronym"))) continue; //ignore these names
-            
-            /* 3. Remove branches 
-            // if(in_array($rec['name_class'], array("scientific name", "common name", "genbank common name"))) {
-                $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
-                if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
-                    $this->debug['taxon where an id in its ancestry is included among removed branches'][$rec['tax_id']] = '';
-                    continue;
-                }
-                if($old_id != $rec['tax_id']) $this->ctr = 1;
-                else                          $this->ctr++;
-                $old_id = $rec['tax_id'];
-                
-                if($val = @$taxon_refs[$rec['tax_id']]) $reference_ids = array_keys($val);
-                else                                    $reference_ids = array();
-                
-                self::write_taxon($rec, $ancestry, $taxID_info[$rec['tax_id']], $reference_ids);
-            // }
-            */
-            // Total rows: 2687427      Processed rows: 1648267
-            $processed++;
-        }
-        fclose($file);
-        
-        // =================================================start 2
-        echo "\nMain processing 2...";
-        $fields = $this->file['names.dmp']['fields'];
-        $file = Functions::file_open($this->file['names.dmp']['path'], "r");
-        $i = 0; $processed = 0;
-        if(!$file) exit("\nFile not found!\n");
-        $this->ctr = 1; $this->old_id = "elix";
-        while (($row = fgets($file)) !== false) {
-            $i++;
-            $row = explode("\t|", $row); array_pop($row); $row = array_map('trim', $row);
-            if(($i % 300000) == 0) echo "\n count:[$i] ";
-            $row = array_map('trim', $row);
-            $vals = $row;
-            if(count($fields) != count($vals)) {
-                print_r($vals); exit("\nNot same count ".count($fields)." != ".count($vals)."\n"); continue;
-            }
-            if(!$vals[0]) continue;
-            $k = -1; $rec = array();
-            foreach($fields as $field) {
-                $k++;
-                $rec[$field] = $vals[$k];
-            }
-            $rec = array_map('trim', $rec);
-            /* Array(
-                [tax_id] => 1
-                [name_txt] => all
-                [unique_name] => 
-                [name_class] => synonym
-            )*/
-
-            if(in_array($rec['name_class'], array("blast name", "type material", "includes", "acronym", "genbank acronym"))) continue; //ignore these names
-            if(isset($filtered_ids[$rec['tax_id']])) continue;
-            $parent_id = $taxID_info[$rec['tax_id']]['pID'];
-            $parent_id = trim($parent_id);
-            if(isset($filtered_ids[$parent_id])) continue;
-            
-            /* 3. Remove branches */
-            $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
-            if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
-                $this->debug['taxon where an id in its ancestry is included among removed branches'][$rec['tax_id']] = '';
-                continue;
-            }
-            
-            if($val = @$taxon_refs[$rec['tax_id']]) $reference_ids = array_keys($val);
-            else                                    $reference_ids = array();
-
-            if($this->old_id != $rec['tax_id']) $this->ctr = 1;
-            else {}
-            $this->old_id = $rec['tax_id'];
-            
-            self::write_taxon($rec, $ancestry, $taxID_info[$rec['tax_id']], $reference_ids);
-            
-            if($this->old_id != $rec['tax_id']) {}
-            else {
-                if(in_array($rec['name_class'], $this->alternative_names)) $this->ctr++;
-            }
-            
-            $processed++;
-        }
-        fclose($file);
-        // =================================================end 2
-        // Total rows: 2687427 Processed rows: 1508421 ------ looks OK finally
-        echo "\nTotal rows: $i";
-        echo "\nProcessed rows: $processed";
-    }
 }
 ?>
