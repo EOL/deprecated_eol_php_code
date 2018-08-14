@@ -28,6 +28,7 @@ unset($func);
 Functions::finalize_dwca_resource($resource_id, true, false); //2nd param true means a big big file
 
 // /*
+require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
 if($undefined = $func->check_if_all_parents_have_entries($resource_id, true)) { //2nd param True means write to text file
     $arr['parents without entries total count'] = count($undefined);
