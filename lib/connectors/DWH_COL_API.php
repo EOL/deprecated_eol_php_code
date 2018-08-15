@@ -18,10 +18,12 @@ class DWH_COL_API
         $this->prune_further = array();
         $this->extension_path = CONTENT_RESOURCE_LOCAL_PATH . "col/"; //this folder is from DATA-1755
         $this->dwca['iterator_options'] = array('row_terminator' => "\n");
+        $this->run = '';
     }
     // ----------------------------------------------------------------- start TRAM-797 -----------------------------------------------------------------
     function start_CoLProtists()
     {
+        $this->run = "Col Protists";
         self::main_CoLProtists();
         $this->archive_builder->finalize(TRUE);
         if($this->debug) {
@@ -45,6 +47,7 @@ class DWH_COL_API
         $include[42983291] = "Mycetozoa";
         $include[42993626] = "Chaetocerotaceae";
         $include[42993677] = "Naviculaceae";
+        $this->include = $include;
         
         $meta = self::get_meta_info();
         $i = 0; $filtered_ids = array();
@@ -84,11 +87,13 @@ class DWH_COL_API
             )*/
             $will_cont = false;
             
+            /* This is commented because: there is Ciliophora that is genus, must be excluded. The Phylum Ciliophora is the one to be included. So name comparison was commented out.
             $ranks2check = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
             foreach($ranks2check as $rank2check) {
                 $sciname = $rec[$rank2check];
                 if(in_array($sciname, $include)) $will_cont = true;
             }
+            */
             
             $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
             if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $include)) $will_cont = true; //this will actually include what is in the branch
@@ -108,7 +113,7 @@ class DWH_COL_API
         
         
         //start 2nd loop
-        echo "\nStart main process...\n";
+        $i = 0; echo "\nStart main process...\n";
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++;
             if(($i % 500000) == 0) echo "\n count:[$i] ";
@@ -283,8 +288,6 @@ class DWH_COL_API
                 [referenceID] => 
             )*/
             
-            if($rec['scientificName'] == "Not assigned") $rec['scientificName'] = self::replace_NotAssigned_name($rec);
-            
             if(isset($filtered_ids[$rec['taxonID']])) continue;
             if(isset($filtered_ids[$rec['acceptedNameUsageID']])) continue;
             if(isset($filtered_ids[$rec['parentNameUsageID']])) continue;
@@ -371,11 +374,12 @@ class DWH_COL_API
         return $final;
     }
     private function write_taxon_DH($rec)
-    {   //from NCBI ticket:
+    {   //from NCBI ticket: a general rule
         /* One more thing: synonyms and other alternative names should not have parentNameUsageIDs. In general, if a taxon has an acceptedNameUsageID it should not also have a parentNameUsageID. 
         So in this specific case, we want acceptedNameUsageID's only if name class IS scientific name. */
-
         if($rec['acceptedNameUsageID']) $rec['parentNameUsageID'] = '';
+        
+        if($rec['scientificName'] == "Not assigned") $rec['scientificName'] = self::replace_NotAssigned_name($rec);
         
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                 = $rec['taxonID'];
@@ -385,7 +389,13 @@ class DWH_COL_API
         $taxon->taxonomicStatus         = $rec['taxonomicStatus'];
         $taxon->acceptedNameUsageID     = $rec['acceptedNameUsageID'];
         $taxon->furtherInformationURL   = $rec['furtherInformationURL'];
-
+        
+        if($this->run == "Col Protists") { //Col Protists will be a separate resource file with 8 independent root taxa. 
+            if(isset($this->include[$rec['taxonID']])) $taxon->parentNameUsageID = '';
+        }
+        
+        $this->debug['acceptedNameUsageID'][$rec['acceptedNameUsageID']] = '';
+        
         /* optional, I guess
         $taxon->scientificNameID    = $rec['scientificNameID'];
         $taxon->nameAccordingTo     = $rec['nameAccordingTo'];
