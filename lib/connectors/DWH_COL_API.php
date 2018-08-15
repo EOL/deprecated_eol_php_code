@@ -462,7 +462,7 @@ class DWH_COL_API
     {
         require_library('connectors/DHSourceHierarchiesAPI'); $func = new DHSourceHierarchiesAPI();
         $meta = $func->analyze_eol_meta_xml($this->extension_path."meta.xml", $row_type); //2nd param $row_type is rowType in meta.xml
-        print_r($meta);
+        if($GLOBALS['ENV_DEBUG']) print_r($meta);
         return $meta;
     }
     // ----------------------------------------------------------------- end TRAM-797 -----------------------------------------------------------------
