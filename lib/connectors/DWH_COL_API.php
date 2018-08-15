@@ -51,7 +51,7 @@ class DWH_COL_API
         
         $meta = self::get_meta_info();
         $i = 0; $filtered_ids = array();
-        echo "\nStart main process...\n";
+        echo "\nStart main process...Col Protists...\n";
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++;
             if(($i % 500000) == 0) echo "\n count:[$i] ";
@@ -113,7 +113,7 @@ class DWH_COL_API
         
         
         //start 2nd loop
-        $i = 0; echo "\nStart main process...\n";
+        $i = 0; echo "\nStart main process 2...CoL Protists...\n";
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++;
             if(($i % 500000) == 0) echo "\n count:[$i] ";
@@ -198,7 +198,7 @@ class DWH_COL_API
         
         $meta = self::get_meta_info();
         $i = 0; $filtered_ids = array();
-        echo "\nStart main process...\n";
+        echo "\nStart main process...main CoL DH...\n";
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++;
             if(($i % 500000) == 0) echo "\n count:[$i] ";
@@ -249,7 +249,7 @@ class DWH_COL_API
             // }
         } //end loop
 
-        echo "\nStart main process 2...\n"; $i = 0;
+        echo "\nStart main process 2...main CoL DH...\n"; $i = 0;
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++; if(($i % 500000) == 0) echo "\n count:[$i] ";
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
