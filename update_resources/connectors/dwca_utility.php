@@ -20,7 +20,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DwCA_Utility');
 $timestart = time_elapsed();
 ini_set("memory_limit","4000M"); // trying for the dwh_try3.zip, didn't work yet
-$GLOBALS['ENV_DEBUG'] = true;
+// $GLOBALS['ENV_DEBUG'] = true;
 //===========================================================================================new - start -- handles cmdline params
 // print_r($argv);
 $cmdline_params['jenkins_or_cron']                  = @$argv[1]; //irrelevant here
