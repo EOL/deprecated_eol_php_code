@@ -11,7 +11,7 @@ class GoogleClientAPI
 {
     function __construct()
     {
-        define('APPLICATION_NAME', 'Google Sheets API PHP Quickstart');
+        if(!defined('APPLICATION_NAME')) define('APPLICATION_NAME', 'Google Sheets API PHP Quickstart');
         /* moved to autoload.php above by Eli
         define('CREDENTIALS_PATH',    '../../vendor/google_client_library/json/sheets.googleapis.com-php-quickstart.json');
         define('CLIENT_SECRET_PATH',  '../../vendor/google_client_library/json/client_secret.json');
@@ -19,7 +19,7 @@ class GoogleClientAPI
         // If modifying these scopes, delete your previously saved credentials
         // at ~/.credentials/sheets.googleapis.com-php-quickstart.json
 
-        define('SCOPES', implode(' ', array(\Google_Service_Sheets::SPREADSHEETS_READONLY)));
+        if(!defined('SCOPES')) define('SCOPES', implode(' ', array(\Google_Service_Sheets::SPREADSHEETS_READONLY)));
         if (php_sapi_name() != 'cli') {throw new Exception('This application must be run on the command line.');}
     }
 
