@@ -2,6 +2,12 @@
 namespace php_active_record;
 /* Catalogue of Life Extracts for Dynamic Hierarchy - https://eol-jira.bibalex.org/browse/TRAM-797
 estimated execution time: 
+
+eol-archive using the old col.tar.gz
+Catalogue_of_Life_DH        	Wednesday 2018-08-15 04:04:35 AM	{"taxon.tab":3620207}
+Catalogue_of_Life_Protists_DH	Wednesday 2018-08-15 04:10:21 AM	{"taxon.tab":20245}
+
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DWH_COL_API');
