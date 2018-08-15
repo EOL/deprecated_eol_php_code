@@ -17,6 +17,9 @@ This script searches GBIF API occurrence data via taxon (taxon_key)
 4. process the big GBIF occurrence file (CSV file)
 4.1. loop through the list
 4.2. save individual CSV file for each taxon (to be used in 3.3)
+
+https://editors.eol.org/other_files/GBIF_occurrence/DwCA_Animalia/multimedia.txt.zip
+
 */
 
 class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
@@ -81,8 +84,8 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
         /* 237020 - /map_data_from_api/ */
         // start GBIF
         // self::breakdown_GBIF_csv_file_v2(); return;
-        // self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
-        // self::generate_map_data_using_GBIF_csv_files(); return;
+        // self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; //return;
+        self::generate_map_data_using_GBIF_csv_files(); return;
         // end GBIF
         
         // self::start_clustering(); return;                        //distance clustering sample

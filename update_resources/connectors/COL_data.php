@@ -8,6 +8,7 @@ estimated execution time: 5 days 16 hr (eol-archive) - this was before there is 
 log in eol-archive:
 col	    Thursday 2018-05-10 09:34:05 AM	{"measurement_or_fact.tab":3961387,"media_resource.tab":1150989,"occurrence.tab":2982057,"reference.tab":579322,"taxon.tab":3765285,"vernacular_name.tab":429242}
 col_v2	Tuesday 2018-08-14 12:20:46 AM	{"measurement_or_fact.tab":4346654,"media_resource.tab":1162859,"occurrence.tab":3093260,"reference.tab":578811,"taxon.tab":3815897,"vernacular_name.tab":429748}
+col	    Wednesday 2018-08-15 05:27:33 AM{"measurement_or_fact.tab":4346654,"media_resource.tab":1162859,"occurrence.tab":3093260,"reference.tab":578811,"taxon.tab":3815897,"vernacular_name.tab":429748}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
