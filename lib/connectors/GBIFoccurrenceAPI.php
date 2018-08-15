@@ -84,8 +84,8 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
         /* 237020 - /map_data_from_api/ */
         // start GBIF
         // self::breakdown_GBIF_csv_file_v2(); return;
-        // self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; //return;
-        self::generate_map_data_using_GBIF_csv_files(); return;
+        self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
+        // self::generate_map_data_using_GBIF_csv_files(); return;
         // end GBIF
         
         // self::start_clustering(); return;                        //distance clustering sample
@@ -168,7 +168,6 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
     //==========================
     private function breakdown_GBIF_csv_file_v2() // a test for Gadus morhua (2415835), to check if there are about 70K plus records, test pass OK
     {
-        // return;
         $path = DOC_ROOT . "/public/tmp/google_maps/GBIF_csv/Animalia/animalia.csv";
         $path = "/Volumes/Thunderbolt4/eol_cache_gbif/pub_tmp_google_maps/GBIF_csv/Animalia/animalia.csv";
         $k = 0;
@@ -200,35 +199,22 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
     }
     private function breakdown_GBIF_csv_file() //working as of Mar 3 Thursday
     {
-        // return;
-        /* ran it with all taxon levels [finished in 4.79 hours]
-        $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_csv/Incertae sedis/incertae sedis.csv";
-        $path2 = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_incertae/";
-        */
-        
-        /* ran it with all taxon levels; total records in cmd finished: 361,245,321 
-        $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_csv/Animalia/animalia.csv";
-        $path2 = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_animalia/";
-        */
-        
-        /* total records in cmd finished: 151,838,119
-           // Mar 14 2:05 AM - run it with just species-level taxa
-           // Apr 27         - run it with just higher-level taxa
-        $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_csv/Others/others.csv";
-        $path2 = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_others/";
-        */
-        
         // start 2018
-        $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_csv/Gadus morhua.csv";
-        $path2 = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv/";
-
-        // $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_csv/Fungi.csv";
-        // $path2 = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv/";
+        if(Functions::is_production()) {
+            $path = "/extra/other_files/GBIF_occurrence/0005362-180730143533302.csv"; //Other7Groups
+            // $path = "/extra/other_files/GBIF_occurrence/0004897-180730143533302.csv"; //Plantae
+            // $path = "/extra/other_files/GBIF_occurrence/0004893-180730143533302.csv"; //Animalia
+            $path2 = "/extra/other_files/GBIF_occurrence/GBIF_taxa_csv/";
+        }
+        else {
+            $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/Gadus morhua.csv";
+            $path2 = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv/";
+        }
 
         $i = 0;
         foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
             $i++;
-            if(($i % 5000) == 0) echo number_format($i) . " ";
+            if(($i % 10000) == 0) echo number_format($i) . " ";
             // if($i < 66445000) continue; //bec of machine shutdown - for 'others.csv'
             // if($i < 167133238) continue; //bec of machine shutdown - for 'animalia.csv'
 
