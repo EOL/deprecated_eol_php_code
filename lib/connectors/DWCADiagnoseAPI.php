@@ -185,7 +185,8 @@ class DWCADiagnoseAPI
         
         $var = self::get_fields_from_tab_file($resource_id, array("taxonID", $what['field']), $url, $suggested_fields, "taxon.tab"); //$url if to the tool genHigherClass | $suggested_fields from BOLDS_DumpsServiceAPI.php
 
-        $parent_ids = array_keys($var[$what['field']]);
+        if($arr = @$var[$what['field']]) $parent_ids = array_keys($arr);
+        else                             $parent_ids = array();
         $parent_ids = array_map('trim', $parent_ids);
         /* old
         $taxon_ids = array_keys($var['taxonID']);
