@@ -14,7 +14,6 @@ that is mapped to EOL's (sciname, taxonConceptID)
 2.3. use taxonkey to get the occurrence in CSV file (CSV created in 4.2)
 
 */
-
 class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downloads
 {
     function __construct($folder = null, $query = null)
@@ -43,14 +42,23 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $this->csv_paths = array();
         $this->csv_paths[] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_dwca/";
         $this->limit_20k = 20000; //20000;
+        $this->api['dataset'] = "http://api.gbif.org/v1/dataset/";
     }
     function start()
     {
-        echo "\n\n -------------------------\n\n ";
-        echo "\nThis was promising but did not push through since there is NO publishingorgkey in the DwCA downloads\n";
-        echo "\n\n -------------------------\n\n "; exit;
+        // /* tests
+
+        $datasetKey = "0e7bd6f7-7fc6-4150-a531-2209f7156a91";
+        $str = self::get_org_name('dataset', $datasetKey);
+        echo "\ndataset: [$str]\n";
+        $orgKey = self::get_dataset_field($datasetKey, 'publishingOrganizationKey');
+        $dataset_name = self::get_dataset_field($datasetKey, 'title');
         
+        echo "\norg key: [$orgKey]\n";
+        echo "\ndataset name: [$dataset_name]\n";
         
+        exit("\n-end tests-\n");
+        // */
         /* Steps (August 2018) using the DwCA occurrence downloads from GBIF
         1. Delete all .json files
         3. self::breakdown_GBIF_DwCA_file(); echo "\nDONE: breakdown_GBIF_DwCA_file()\n"; return;
@@ -106,14 +114,13 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                     $k++;
                 }
             }
-            print_r($rec); exit("\nstopx\n");
+            // print_r($rec); exit("\nstopx\n");
             
             if(!@$rec['taxonkey']) continue;
             
             $taxonkey = $rec['taxonkey'];
             
-            $rec['publishingorgkey'] = $rec['publisher'];
-            echo " $rec[publisher]";
+            $rec['publishingorgkey'] = self::get_dataset_field($rec['datasetkey'], 'publishingOrganizationKey');
             
             $rek = array($rec['gbifid'], $rec['datasetkey'], $rec['scientificname'], $rec['publishingorgkey'], $rec['decimallatitude'], $rec['decimallongitude'], $rec['eventdate'], 
             $rec['institutioncode'], $rec['catalognumber'], $rec['identifiedby'], $rec['recordedby']);
@@ -133,7 +140,14 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             }
         }
     }
-
+    private function get_dataset_field($datasetKey, $return_field)
+    {
+        if($json = Functions::lookup_with_cache($this->api['dataset'].$datasetKey, $this->download_options)) {
+            $obj = json_decode($json);
+            // print_r($obj); exit;
+            return $obj->$return_field;
+        }
+    }
     //##################################### end DwCA process #############################################################################################################################
     //==========================
     // start GBIF methods
