@@ -86,7 +86,7 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
         /* 237020 - /map_data_from_api/ */
         // start GBIF
         // self::breakdown_GBIF_csv_file_v2(); return;
-        // self::breakdown_GBIF_csv_file();                echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
+        self::breakdown_GBIF_csv_file();                echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
         self::breakdown_multimedia_to_gbifID_files();   echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n"; return;
         // self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n"; return;
         // end GBIF
@@ -206,9 +206,9 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
     {
         // start 2018
         if(Functions::is_production()) {
-            // $path = "/extra/other_files/GBIF_occurrence/0005362-180730143533302.csv"; //Other7Groups - took 15 mins in eol-archive
-            $path = "/extra/other_files/GBIF_occurrence/0004897-180730143533302.csv"; //Plantae
-            // $path = "/extra/other_files/GBIF_occurrence/0004893-180730143533302.csv"; //Animalia
+            // $path = "/extra/other_files/GBIF_occurrence/0005362-180730143533302.csv"; //Other7Groups - took 15 mins in eol-archive (24 million)
+            // $path = "/extra/other_files/GBIF_occurrence/0004897-180730143533302.csv"; //Plantae      - took 3 hr 34 min (183 million)
+            $path = "/extra/other_files/GBIF_occurrence/0004893-180730143533302.csv"; //Animalia     - (717 million)
             $path2 = "/extra/other_files/GBIF_occurrence/GBIF_taxa_csv/";
         }
         else {
