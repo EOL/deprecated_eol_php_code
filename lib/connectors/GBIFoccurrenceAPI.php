@@ -66,10 +66,11 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
     {
         /* New steps (August 2018) if we ever go back to using the CSV instead of the DwCA occurrence downloads from GBIF
         1. Delete all .json files
-        2. self::process_current_hotlist_spreadsheet(); return; //Use API occurrence for the species-level taxa in SPG hotlist. This way u can have media image as well.
-        3. self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
-        4. breakdown_multimedia_to_gbifID_files(); echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n"; return;
-        5. self::generate_map_data_using_GBIF_csv_files(); return;
+        2. self::process_current_hotlist_spreadsheet();     //Use API occurrence for the species-level taxa in SPG hotlist. This way u can have media image as well.
+                                                            //This'll no longer be needed since we're now processing DwCA multimedia.txt: breakdown_multimedia_to_gbifID_files()
+        3. self::breakdown_GBIF_csv_file();                 
+        4. self::breakdown_multimedia_to_gbifID_files();    
+        5. self::generate_map_data_using_GBIF_csv_files();  
         6. pick if there are taxa still without map data (.json), if yes, use API to get map data.
         */
         
@@ -85,12 +86,15 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
         /* 237020 - /map_data_from_api/ */
         // start GBIF
         // self::breakdown_GBIF_csv_file_v2(); return;
-        // self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
-        self::generate_map_data_using_GBIF_csv_files(); return;
+        // self::breakdown_GBIF_csv_file();                echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
+        self::breakdown_multimedia_to_gbifID_files();   echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n"; return;
+        // self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n"; return;
         // end GBIF
         
+        /* on another matter altogether:
         // self::start_clustering(); return;                        //distance clustering sample
         // self::get_center_latlon_using_taxonID(206692); return;   //computes the center lat long
+        */
         
         //OKAY to use
         //---------------------------------------------------------------------------------------------------------------------------------------------
