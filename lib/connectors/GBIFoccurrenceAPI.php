@@ -85,7 +85,7 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
         // start GBIF
         // self::breakdown_GBIF_csv_file_v2(); return;
         self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
-        // self::generate_map_data_using_GBIF_csv_files(); return;
+        self::generate_map_data_using_GBIF_csv_files(); return;
         // end GBIF
         
         // self::start_clustering(); return;                        //distance clustering sample
@@ -201,8 +201,8 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
     {
         // start 2018
         if(Functions::is_production()) {
-            $path = "/extra/other_files/GBIF_occurrence/0005362-180730143533302.csv"; //Other7Groups
-            // $path = "/extra/other_files/GBIF_occurrence/0004897-180730143533302.csv"; //Plantae
+            // $path = "/extra/other_files/GBIF_occurrence/0005362-180730143533302.csv"; //Other7Groups - took 15 mins in eol-archive
+            $path = "/extra/other_files/GBIF_occurrence/0004897-180730143533302.csv"; //Plantae
             // $path = "/extra/other_files/GBIF_occurrence/0004893-180730143533302.csv"; //Animalia
             $path2 = "/extra/other_files/GBIF_occurrence/GBIF_taxa_csv/";
         }
