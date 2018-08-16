@@ -49,6 +49,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         // /* tests
 
         $datasetKey = "0e7bd6f7-7fc6-4150-a531-2209f7156a91";
+        $datasetKey = "492d63a8-4978-4bc7-acd8-7d0e3ac0e744";
         $str = self::get_org_name('dataset', $datasetKey);
         echo "\ndataset: [$str]\n";
         $orgKey = self::get_dataset_field($datasetKey, 'publishingOrganizationKey');
@@ -119,6 +120,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             if(!@$rec['taxonkey']) continue;
             
             $taxonkey = $rec['taxonkey'];
+            echo "\n".$rec['datasetkey']."\n";
             
             $rec['publishingorgkey'] = self::get_dataset_field($rec['datasetkey'], 'publishingOrganizationKey');
             
@@ -144,9 +146,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     {
         if($json = Functions::lookup_with_cache($this->api['dataset'].$datasetKey, $this->download_options)) {
             $obj = json_decode($json);
-            // print_r($obj); exit;
             return $obj->$return_field;
         }
+        else return self::get_org_name('dataset', $datasetKey);
     }
     //##################################### end DwCA process #############################################################################################################################
     //==========================
@@ -280,7 +282,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                     $rec['c']   = self::get_org_name('publisher', @$rek['publishingorgkey']);
                     $rec['d']   = @$rek['publishingorgkey'];
                     if($val = @$rek['institutioncode']) $rec['c'] .= " ($val)";
-                    $rec['e']   = self::get_org_name('dataset', @$rek['datasetkey']);
+                    $rec['e']   = self::get_dataset_field(@$rek['datasetkey'], 'title'); //self::get_org_name('dataset', @$rek['datasetkey']);
                     $rec['f']   = @$rek['datasetkey'];
                     $rec['g']   = $rek['gbifid'];
                     $rec['h']   = $rek['decimallatitude'];
@@ -698,7 +700,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 $rec['c']   = self::get_org_name('publisher', @$r->publishingOrgKey);
                 $rec['d']   = @$r->publishingOrgKey;
                 if($val = @$r->institutionCode) $rec['c'] .= " ($val)";
-                $rec['e']   = self::get_org_name('dataset', @$r->datasetKey);
+                $rec['e']   = self::get_dataset_field(@$rek['datasetkey'], 'title'); //self::get_org_name('dataset', @$r->datasetKey);
                 $rec['f']   = @$r->datasetKey;
                 $rec['g']   = $r->gbifID;
                 $rec['h']   = $r->decimalLatitude;

@@ -170,6 +170,12 @@ class DarwinCoreExtensionBase
         
         //per https://eol-jira.bibalex.org/browse/TRAM-499?focusedCommentId=61534&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61534
         $this->accepted_properties_by_name['canonicalName'] = array('name' => 'canonicalName', 'namespace' => 'http://rs.gbif.org/terms', 'uri' => 'http://rs.gbif.org/terms/1.0/canonicalName');
+
+        //per TRY database resource:
+        $this->accepted_properties_by_name['meanlog10'] = array('name' => 'meanlog10', 'namespace' => 'http://eol.org/schema/terms', 'uri' => 'http://eol.org/schema/terms/meanlog10');
+        $this->accepted_properties_by_name['SDlog10'] = array('name' => 'SDlog10', 'namespace' => 'http://eol.org/schema/terms', 'uri' => 'http://eol.org/schema/terms/SDlog10');
+        $this->accepted_properties_by_name['SampleSize'] = array('name' => 'SampleSize', 'namespace' => 'http://eol.org/schema/terms', 'uri' => 'http://eol.org/schema/terms/SampleSize');
+
         
         if($name == "extension_row_type")
         {

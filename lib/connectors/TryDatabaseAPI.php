@@ -14,25 +14,7 @@ class TryDatabaseAPI
         }
         $this->dwca_file = $dwca_file;
         $this->debug = array();
-        
-        /* Please take note of some Meta XML entries have upper and lower case differences */
-        $this->extensions = array("http://rs.gbif.org/terms/1.0/vernacularname"     => "vernacular",
-                                  "http://rs.tdwg.org/dwc/terms/occurrence"         => "occurrence",
-                                  "http://rs.tdwg.org/dwc/terms/measurementorfact"  => "measurementorfact",
-                                  "http://rs.tdwg.org/dwc/terms/taxon"              => "taxon",
-                                  "http://eol.org/schema/media/document"            => "document",
-                                  "http://rs.gbif.org/terms/1.0/reference"          => "reference",
-                                  "http://eol.org/schema/agent/agent"               => "agent",
-
-                                  //start of other row_types: check for NOTICES or WARNINGS, add here those undefined URIs
-                                  "http://rs.gbif.org/terms/1.0/description"        => "document",
-                                  "http://rs.gbif.org/terms/1.0/multimedia"         => "document",
-                                  "http://eol.org/schema/reference/reference"       => "reference",
-                                  "http://rs.tdwg.org/dwc/terms/Taxon"              => "taxon",
-                                  "http://eol.org/schema/media/Document"            => "document"
-                                  );
     }
-
     private function start()
     {
         require_library('connectors/INBioAPI');
@@ -48,7 +30,6 @@ class TryDatabaseAPI
         $tables['occurrence']   = 'TRY-occurrences.csv';
         return array("temp_dir" => $temp_dir, "tables" => $tables);
     }
-
     function convert_archive()
     {
         // if(!($info = self::start())) return;         uncomment in real operation
@@ -66,6 +47,7 @@ class TryDatabaseAPI
                             "measurements"  => "TRY_measurements.csv",
                             "taxa"          => "TRY_taxa.csv",
                             "occurrence"    => "TRY-occurrences.csv"
+                            // "references"    => "TRY_references.csv",
                         )
         );
         print_r($info);
@@ -98,16 +80,16 @@ class TryDatabaseAPI
         $i = 0;
         $file = Functions::file_open($csv_file, "r");
         while(!feof($file)) {
-            if(    $class == "reference")   $c = new \eol_schema\Reference();
-            elseif($class == "taxa")        $c = new \eol_schema\Taxon();
-            elseif($class == "occurrence")  $c = new \eol_schema\Occurrence();
-            elseif($class == "measurements")   $c = new \eol_schema\MeasurementOrFact();
+            if(    $class == "references")      $c = new \eol_schema\Reference();
+            elseif($class == "taxa")            $c = new \eol_schema\Taxon();
+            elseif($class == "occurrence")      $c = new \eol_schema\Occurrence();
+            elseif($class == "measurements")    $c = new \eol_schema\MeasurementOrFact();
             $row = fgetcsv($file);
             // print_r($row); exit;
             // $row = self::clean_html($row); may not need this anymore...
             // print_r($row);
             
-            $i++; if(($i % 2000) == 0) echo "\n $i ";
+            $i++; if(($i % 20000) == 0) echo "\n $i ";
             // if($i > 2000) break; //debug only - process a subset first 2k
             
             if($i == 1) {
@@ -149,6 +131,7 @@ class TryDatabaseAPI
                 */
                 
                 $array2 = array('meanlog10', 'SDlog10', 'SampleSize'); //for measurements
+                $array2 = array();
                 $tfields = array_diff($fields, $array2);
                 
                 // print_r($tbl); exit;
@@ -177,11 +160,15 @@ class TryDatabaseAPI
                     if(isset($ids[$rec['occurrenceID']])) continue;
                     else $ids[$rec['occurrenceID']] = '';
                 }
-
-
+                elseif($class == 'references') {
+                    if(isset($ids[$rec['identifier']])) continue;
+                    else $ids[$rec['identifier']] = '';
+                }
                 // print_r($rec); exit;
-                
             } //main records
+            
+            // 'meanlog10', 'SDlog10', 'SampleSize'
+            
             $this->archive_builder->write_object_to_file($c);
             
             // if($i > 100000) break; //debug
