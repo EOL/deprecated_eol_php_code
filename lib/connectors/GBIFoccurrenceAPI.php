@@ -68,8 +68,9 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
         1. Delete all .json files
         2. self::process_current_hotlist_spreadsheet(); return; //Use API occurrence for the species-level taxa in SPG hotlist. This way u can have media image as well.
         3. self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
-        4. self::generate_map_data_using_GBIF_csv_files(); return;
-        5. pick if there are taxa still without map data (.json), if yes, use API to get map data.
+        4. breakdown_multimedia_to_gbifID_files(); echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n"; return;
+        5. self::generate_map_data_using_GBIF_csv_files(); return;
+        6. pick if there are taxa still without map data (.json), if yes, use API to get map data.
         */
         
         /* steps in order accordingly
@@ -84,7 +85,7 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
         /* 237020 - /map_data_from_api/ */
         // start GBIF
         // self::breakdown_GBIF_csv_file_v2(); return;
-        self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
+        // self::breakdown_GBIF_csv_file(); echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
         self::generate_map_data_using_GBIF_csv_files(); return;
         // end GBIF
         
@@ -331,13 +332,12 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
                 if($final = self::prepare_csv_data($usageKey, $paths)) {
                     echo "\n Records from CSV: " . $final['count'] . "\n";
                     if($final['count'] > $this->limit_20k) {
-                        echo "\n > 20K\n";
+                        echo "\n > 20K -- will use revised_cluster\n";
                         self::process_revised_cluster($final, $taxon_concept_id); //done after main demo using screenshots
                     }
                     elseif($final['count'] <= $this->limit_20k) {
                         echo "\n <= 20K\n";
                         $final['actual'] = $final['count'];
-                        // if(!($this->file = Functions::file_open($this->save_path['cluster'].$taxon_concept_id.".json", "w"))) return;
                         if(!($this->file = Functions::file_open(self::get_map_data_path($taxon_concept_id).$taxon_concept_id.".json", "w"))) return;
                         $json = json_encode($final);
                         fwrite($this->file, "var data = ".$json);
@@ -689,7 +689,6 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
         echo "\nFinal count: " . $final['count'] . "\n";
         $json = json_encode($final);
         
-        // if(!($this->file = Functions::file_open($this->save_path['cluster'].$basename.".json", "w"))) return;
         if(!($this->file = Functions::file_open(self::get_map_data_path($basename).$basename.".json", "w"))) return;
         fwrite($this->file, "var data = ".$json);
         fclose($this->file);
