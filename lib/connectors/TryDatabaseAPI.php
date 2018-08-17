@@ -19,7 +19,7 @@ class TryDatabaseAPI
     {
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($this->dwca_file, "TRY_references.csv", array('timeout' => 60*10, 'expire_seconds' => 60*60*24*25)); //expires in 25 days
+        $paths = $func->extract_archive_file($this->dwca_file, "TRY_taxa.csv", array('timeout' => 60*10, 'expire_seconds' => 60*60*24*25)); //expires in 25 days
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         /* Please take note of the weird filename format. 3 different word separator: space, underscore and dash  */
@@ -33,23 +33,26 @@ class TryDatabaseAPI
     function convert_archive()
     {
         // if(!($info = self::start())) return;         uncomment in real operation
-        // $info = Array("temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_69427/",
-        //               "tables"   => Array(
-        //                     "reference"     => "TRY reference map.csv",
-        //                     "measurements"  => "TRY_measurements.csv",
-        //                     "references"    => "TRY_references.csv",
-        //                     "taxa"          => "TRY_taxa.csv",
-        //                     "occurrence"    => "TRY-occurrences.csv"
-        //                 )
-        // );
+        $info = Array("temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_69427/",
+                      "tables"   => Array(
+                            "process_reference" => "TRY reference map.csv", //the one needs massaging...
+                            "measurements"      => "TRY_measurements.csv",
+                            "references"        => "TRY_references.csv",
+                            "taxa"              => "TRY_taxa.csv",
+                            "occurrence"        => "TRY-occurrences.csv"
+                        )
+        );
+        
+        /* minimal during development
         $info = Array("temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_55451/",
                       "tables"   => Array(
                             "measurements"  => "TRY_measurements.csv",
                             "taxa"          => "TRY_taxa.csv",
                             "occurrence"    => "TRY-occurrences.csv"
-                            // "references"    => "TRY_references.csv",
+                            "references"    => "TRY_references.csv",
                         )
         );
+        */
         print_r($info);
         $temp_dir = $info['temp_dir'];
         $tables = $info['tables'];
