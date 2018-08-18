@@ -136,6 +136,14 @@ class TryDatabaseAPI
                     }
                 }
                 */
+
+                if($class == 'taxa') {
+                    $rec['scientificName'] = utf8_encode($rec['scientificName']);
+                }
+                elseif($class == 'measurements') {
+                    if(!$rec['measurementType']) continue;
+                    if(!$rec['measurementValue']) continue;
+                }
                 
                 /* Now added as its own columns in measurements, thus this line is now commented.
                 $array2 = array('meanlog10', 'SDlog10', 'SampleSize'); //for measurements
@@ -150,9 +158,9 @@ class TryDatabaseAPI
                     if($parts[0]) $field = $parts[0];
                     if(@$parts[1]) $field = $parts[1];
                     if($class != "process_reference") $c->$field = $rec[$field];
-                    if($class == "measurements") {
-                        $c->measurementID = Functions::generate_measurementID($c, "try");
-                    }
+                }
+                if($class == "measurements") {
+                    $c->measurementID = Functions::generate_measurementID($c, "try");
                 }
                 //end process record =============================================================================================
 
