@@ -124,10 +124,12 @@ class dwc_validator_controller extends ControllerBase
                             /* echo "<br>$index = ".json_encode($value); */ //orig just display json
                             // 8 = {"file":"taxon.tab","line":230142,"uri":"http:\/\/rs.tdwg.org\/dwc\/terms\/taxonRank","value":"nothomorph","message":"Unrecognized taxon rank"}
                             // print_r($value);
-                            $json = json_encode($value);
-                            $json_a = json_decode($json, true);
-                            foreach($json_a as $ind => $val) {
-                                echo "<br>-- $ind => ".json_encode($val);
+                            if($json = json_encode($value)) {
+                                if($json_a = json_decode($json, true)) {
+                                    foreach($json_a as $ind => $val) {
+                                        echo "<br>-- $ind => ".json_encode($val);
+                                    }
+                                }
                             }
                             echo "<br>";
                         }
