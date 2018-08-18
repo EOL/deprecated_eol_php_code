@@ -5,14 +5,14 @@ This can be a generic connector for CSV DwCA resources.
 */
 class TryDatabaseAPI
 {
-    function __construct($folder = NULL, $dwca_file = NULL)
+    function __construct($folder = NULL)
     {
         if($folder) {
             $this->resource_id = $folder;
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         }
-        $this->dwca_file = $dwca_file;
+        $this->dwca_file = "http://localhost/cp/TRY/tryv.aug15.zip";
         $this->debug = array();
     }
     private function start()
@@ -32,7 +32,8 @@ class TryDatabaseAPI
     }
     function convert_archive()
     {
-        // if(!($info = self::start())) return;         uncomment in real operation
+        if(!($info = self::start())) return;    //uncomment in real operation
+        /* only during development
         $info = Array("temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_55451/",
                       "tables"   => Array(
                             "process_reference" => "TRY reference map.csv", //the one needs massaging...
@@ -42,17 +43,8 @@ class TryDatabaseAPI
                             "occurrence"        => "TRY-occurrences.csv"
                         )
         );
-        
-        /* minimal during development
-        $info = Array("temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_55451/",
-                      "tables"   => Array(
-                            "measurements"  => "TRY_measurements.csv",
-                            "taxa"          => "TRY_taxa.csv",
-                            "occurrence"    => "TRY-occurrences.csv"
-                            "references"    => "TRY_references.csv",
-                        )
-        );
         */
+        
         print_r($info);
         $temp_dir = $info['temp_dir'];
         $tables = $info['tables'];
@@ -62,8 +54,8 @@ class TryDatabaseAPI
         }
         $this->archive_builder->finalize(TRUE);
         // remove temp dir
-        // recursive_rmdir($temp_dir);
-        // echo ("\n temporary directory removed: " . $temp_dir);
+        recursive_rmdir($temp_dir);
+        echo ("\n temporary directory removed: " . $temp_dir);
         if($this->debug) print_r($this->debug);
     }
     private function clean_html($arr)
@@ -86,14 +78,14 @@ class TryDatabaseAPI
             if(    $class == "references")      $c = new \eol_schema\Reference();
             elseif($class == "taxa")            $c = new \eol_schema\Taxon();
             elseif($class == "occurrence")      $c = new \eol_schema\Occurrence();
-            elseif($class == "measurements")    $c = new \eol_schema\MeasurementOrFact();
+            elseif($class == "measurements")    $c = new \eol_schema\MeasurementOrFact_specific(); //NOTE: used a new class MeasurementOrFact_specific()
             $row = fgetcsv($file);
             // print_r($row); exit;
             // $row = self::clean_html($row); may not need this anymore...
             // print_r($row);
             
             $i++; if(($i % 20000) == 0) echo "\n $i ";
-            if($i > 2000) break; //debug only - process a subset first 2k
+            // if($i > 2000) break; //debug only - process a subset first 2k
             
             if($i == 1) {
                 $fields = self::format_fields($row);

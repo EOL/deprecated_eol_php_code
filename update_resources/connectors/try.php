@@ -1,18 +1,14 @@
 <?php
 namespace php_active_record;
-/* This can be a generic connector for CSV DwCA resources - without meta.xml.
-
-*/
+/* This can be a generic connector for CSV DwCA resources - without meta.xml. */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/TryDatabaseAPI');
 $timestart = time_elapsed();
 
-$dwca_file = "http://localhost/cp/TRY/tryv.aug15.zip";
-
 $resource_id = "try_dbase";
-// $resource_id = 1;
-$func = new TryDatabaseAPI($resource_id, $dwca_file);
+$resource_id = 1;
+$func = new TryDatabaseAPI($resource_id);
 $func->convert_archive();
 Functions::finalize_dwca_resource($resource_id);
 $elapsed_time_sec = time_elapsed() - $timestart;

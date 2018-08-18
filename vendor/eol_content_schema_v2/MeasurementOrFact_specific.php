@@ -1,7 +1,12 @@
 <?php
 namespace eol_schema;
+/* This class was added for those resources with non-standard columns e.g. MeasurementOrFact extension of TRY database. 
+   This is basically a copied .php file from eol_php_code/vendor/eol_content_schema_v2/MeasurementOrFact.php.
+   The only difference is the value of the constant EXTENSION_URL:
 
-class MeasurementOrFact extends DarwinCoreExtensionBase
+    const EXTENSION_URL = "http://localhost/cp/TRY/measurement_extension.xml";
+*/
+class MeasurementOrFact_specific extends DarwinCoreExtensionBase
 {
     // const EXTENSION_URL = "https://dl.dropboxusercontent.com/u/1355101/ontology/measurement_extension.xml";
     // const EXTENSION_URL = "http://editors.eol.org/other_files/ontology/measurement_extension.xml";
