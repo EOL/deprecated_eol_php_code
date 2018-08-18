@@ -33,7 +33,7 @@ class TryDatabaseAPI
     function convert_archive()
     {
         if(!($info = self::start())) return;    //uncomment in real operation
-        /* only during development
+        /* only during development so to skip the zip-extracting portion.
         $info = Array("temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_55451/",
                       "tables"   => Array(
                             "process_reference" => "TRY reference map.csv", //the one needs massaging...
