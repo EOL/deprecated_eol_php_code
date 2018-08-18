@@ -208,7 +208,7 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
         if(Functions::is_production()) {
             // $path = "/extra/other_files/GBIF_occurrence/0005362-180730143533302.csv"; //Other7Groups - took 15 mins in eol-archive (24 million)
             // $path = "/extra/other_files/GBIF_occurrence/0004897-180730143533302.csv"; //Plantae      - took 3 hr 34 min (183 million)
-            $path = "/extra/other_files/GBIF_occurrence/0004893-180730143533302.csv"; //Animalia     - (717 million)
+            $path = "/extra/other_files/GBIF_occurrence/0004893-180730143533302.csv"; //Animalia     - took 14 hrs (717 million)
             $path2 = "/extra/other_files/GBIF_occurrence/GBIF_taxa_csv/";
         }
         else {
