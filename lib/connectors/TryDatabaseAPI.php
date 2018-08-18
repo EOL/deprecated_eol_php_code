@@ -23,17 +23,17 @@ class TryDatabaseAPI
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         /* Please take note of the weird filename format. 3 different word separator: space, underscore and dash  */
-        $tables['reference']    = 'TRY reference map.csv';
-        $tables['measurements'] = 'TRY_measurements.csv';
-        $tables['references']   = 'TRY_references.csv';
-        $tables['taxa']         = 'TRY_taxa.csv';
-        $tables['occurrence']   = 'TRY-occurrences.csv';
+        $tables['process_reference'] = 'TRY reference map.csv';
+        $tables['measurements']      = 'TRY_measurements.csv';
+        $tables['references']        = 'TRY_references.csv';
+        $tables['taxa']              = 'TRY_taxa.csv';
+        $tables['occurrence']        = 'TRY-occurrences.csv';
         return array("temp_dir" => $temp_dir, "tables" => $tables);
     }
     function convert_archive()
     {
         // if(!($info = self::start())) return;         uncomment in real operation
-        $info = Array("temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_69427/",
+        $info = Array("temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_55451/",
                       "tables"   => Array(
                             "process_reference" => "TRY reference map.csv", //the one needs massaging...
                             "measurements"      => "TRY_measurements.csv",
@@ -93,7 +93,7 @@ class TryDatabaseAPI
             // print_r($row);
             
             $i++; if(($i % 20000) == 0) echo "\n $i ";
-            // if($i > 2000) break; //debug only - process a subset first 2k
+            if($i > 2000) break; //debug only - process a subset first 2k
             
             if($i == 1) {
                 $fields = self::format_fields($row);
@@ -116,6 +116,18 @@ class TryDatabaseAPI
                 }
                 // print_r($fields); print_r($rec); exit;
                 
+                //start process_reference massaging -----------------------------------------
+                if($class == "process_reference") {
+                    /*
+                    Array(
+                        [measurementType] => http://top-thesaurus.org/annotationInfo?viz=1&&trait=Stem_specific_density
+                        [occurrenceID] => TRY30_Tilia cordata
+                        [RefID] => 290
+                    )*/
+                    $this->ref_list[md5($rec['measurementType'].$rec['occurrenceID'])][] = $rec['RefID'];
+                }
+                //end process_reference massaging -----------------------------------------
+                
                 //start process record =============================================================================================
                 /* not needed
                 if($class == 'document') {
@@ -133,7 +145,9 @@ class TryDatabaseAPI
                 }
                 */
                 
+                /* Now added as its own columns in measurements, thus this line is now commented.
                 $array2 = array('meanlog10', 'SDlog10', 'SampleSize'); //for measurements
+                */
                 $array2 = array();
                 $tfields = array_diff($fields, $array2);
                 
@@ -143,7 +157,7 @@ class TryDatabaseAPI
                     $parts = explode("#", $field);
                     if($parts[0]) $field = $parts[0];
                     if(@$parts[1]) $field = $parts[1];
-                    $c->$field = $rec[$field];
+                    if($class != "process_reference") $c->$field = $rec[$field];
                     if($class == "measurements") {
                         $c->measurementID = Functions::generate_measurementID($c, "try");
                     }
@@ -158,6 +172,12 @@ class TryDatabaseAPI
                 elseif($class == 'measurements') {
                     if(isset($ids[$c->measurementID])) continue;
                     else $ids[$c->measurementID] = '';
+                    
+                    //start assigning of referenceID from massaged data
+                    $md5 = md5($rec['measurementType'].$rec['occurrenceID']);
+                    if($val = @$this->ref_list[$md5]) $rec['referenceID'] = implode("; ", $val);
+                    //end
+                    
                 }
                 elseif($class == 'occurrence') {
                     if(isset($ids[$rec['occurrenceID']])) continue;
@@ -172,7 +192,7 @@ class TryDatabaseAPI
             
             // 'meanlog10', 'SDlog10', 'SampleSize'
             
-            $this->archive_builder->write_object_to_file($c);
+            if(isset($c)) $this->archive_builder->write_object_to_file($c); //needs if(isset()) here because 'process_reference' is data massaging not archive writing.
             
             // if($i > 100000) break; //debug
             

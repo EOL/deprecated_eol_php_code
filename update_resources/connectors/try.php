@@ -11,6 +11,7 @@ $timestart = time_elapsed();
 $dwca_file = "http://localhost/cp/TRY/tryv.aug15.zip";
 
 $resource_id = "try_dbase";
+// $resource_id = 1;
 $func = new TryDatabaseAPI($resource_id, $dwca_file);
 $func->convert_archive();
 Functions::finalize_dwca_resource($resource_id);
