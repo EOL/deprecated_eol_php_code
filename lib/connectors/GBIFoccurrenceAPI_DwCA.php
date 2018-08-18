@@ -35,31 +35,30 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $this->html['publisher']    = "http://www.gbif.org/publisher/";
         $this->html['dataset']      = "http://www.gbif.org/dataset/";
         
-        $this->save_path['map_data'] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/map_data_dwca/";   //new
+        $this->save_path['map_data']          = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/map_data_dwca/";   //new
+        $this->save_path['multimedia_gbifID'] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/multimedia_gbifID/";
+        $this->csv_paths = array();
+        $this->csv_paths[]                    = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_dwca/";
+        
 
         $this->rec_limit = 100000; //50000;
         
-        $this->csv_paths = array();
-        $this->csv_paths[] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_dwca/";
         $this->limit_20k = 20000; //20000;
         $this->api['dataset'] = "http://api.gbif.org/v1/dataset/";
     }
     function start()
     {
-        // /* tests
-
+        /* tests
         $datasetKey = "0e7bd6f7-7fc6-4150-a531-2209f7156a91";
         $datasetKey = "492d63a8-4978-4bc7-acd8-7d0e3ac0e744";
         $str = self::get_org_name('dataset', $datasetKey);
         echo "\ndataset: [$str]\n";
         $orgKey = self::get_dataset_field($datasetKey, 'publishingOrganizationKey');
         $dataset_name = self::get_dataset_field($datasetKey, 'title');
-        
         echo "\norg key: [$orgKey]\n";
         echo "\ndataset name: [$dataset_name]\n";
-        
         exit("\n-end tests-\n");
-        // */
+        */
         /* Steps (August 2018) using the DwCA occurrence downloads from GBIF
         1. Delete all .json files
         3. self::breakdown_GBIF_DwCA_file(); echo "\nDONE: breakdown_GBIF_DwCA_file()\n"; return;
@@ -67,8 +66,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         5. pick if there are taxa still without map data (.json), if yes, use API to get map data.
         */
         
-        self::breakdown_GBIF_DwCA_file();               echo "\nDONE: breakdown_GBIF_DwCA_file()\n";                 //return;
-        self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n";   return;
+        // self::breakdown_GBIF_DwCA_file();               echo "\nDONE: breakdown_GBIF_DwCA_file()\n";                 //return;
+        self::breakdown_multimedia_to_gbifID_files();   echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n"; return;
+        // self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n";   return;
         
         //---------------------------------------------------------------------------------------------------------------------------------------------
         /*
@@ -87,22 +87,68 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         */
     }
     //##################################### start DwCA process ###########################################################################################################################
+    private function breakdown_multimedia_to_gbifID_files()
+    {
+        $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Gadus morhua/multimedia.txt";
+        $i = 0;
+        foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
+            $i++;
+            if(($i % 100) == 0) echo number_format($i) . " ";
+            if($i == 1) $line = strtolower($line);
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue; //$row[0] is gbifID
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = $row[$k];
+                    $k++;
+                }
+            }
+            // print_r($rec); exit("\nstopx\n");
+            /* Array(
+                [gbifid] => 1883941229
+                [type] => StillImage
+                [format] => image/jpeg
+                [identifier] => https://static.inaturalist.org/photos/21812110/original.jpeg?1532308417
+                [references] => https://www.inaturalist.org/photos/21812110
+                [title] => 
+                [description] => 
+                [created] => 2018-07-21T20:30Z
+                [creator] => mkkennedy
+                [contributor] => 
+                [publisher] => iNaturalist
+                [audience] => 
+                [source] => 
+                [license] => http://creativecommons.org/licenses/by-nc/4.0/
+                [rightsholder] => mkkennedy
+            )*/
+            $gbifid = $rec['gbifid'];
+            if($rec['type'] == "StillImage" && $rec['format'] != "image/tiff" && $rec['identifier']) {
+                $path3 = self::get_md5_path($path2, $gbifid);
+                $txt_file = $path3 . $gbifid . ".txt";
+                if(!file_exists($txt_file)) {
+                    $fhandle = Functions::file_open($txt_file, "w");
+                    fwrite($fhandle, $rec['identifier'] . "\n");
+                    fclose($fhandle);
+                }
+            }
+            
+        }
+    }
     private function breakdown_GBIF_DwCA_file()
     {
         $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Gadus morhua/occurrence.txt";
         $path2 = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_dwca/";
-
         $i = 0;
         foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
             $i++;
             if(($i % 5000) == 0) echo number_format($i) . " ";
-            // if($i < 66445000) continue; //bec of machine shutdown - for 'others.csv'
-            // if($i < 167133238) continue; //bec of machine shutdown - for 'animalia.csv'
-
             if($i == 1) $line = strtolower($line);
             $row = explode("\t", $line);
-            // print_r($row); exit("\nstopx\n");
-            
             if($i == 1) {
                 $fields = $row;
                 continue;
@@ -120,7 +166,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             if(!@$rec['taxonkey']) continue;
             
             $taxonkey = $rec['taxonkey'];
-            echo "\n".$rec['datasetkey']."\n";
+            // echo "\n".$rec['datasetkey']."\n";
             
             $rec['publishingorgkey'] = self::get_dataset_field($rec['datasetkey'], 'publishingOrganizationKey');
             
