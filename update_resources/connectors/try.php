@@ -7,7 +7,7 @@ require_library('connectors/TryDatabaseAPI');
 $timestart = time_elapsed();
 
 $resource_id = "try_dbase";
-$resource_id = 1;
+// $resource_id = 1;
 $func = new TryDatabaseAPI($resource_id);
 $func->convert_archive();
 Functions::finalize_dwca_resource($resource_id);
