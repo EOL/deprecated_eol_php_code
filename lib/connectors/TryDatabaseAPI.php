@@ -149,10 +149,15 @@ class TryDatabaseAPI
                     $md5 = md5($rec['measurementType'].$rec['occurrenceID']);
                     if($val = @$this->ref_list[$md5]) {
                         $rec['referenceID'] = implode("; ", array_unique($val));
+                        foreach($val as $ref_id_2write) $this->ref_id_2write[$ref_id_2write] = ''; //select only those refs to write to archive
                         echo "\nref hit in measurements [".$rec['referenceID']."]\n";
                     }
                     //end
                 }
+                elseif($class == 'references') {
+                    if(!isset($this->ref_id_2write[$rec['identifier']])) continue;
+                }
+                
                 
                 /* Now added as its own columns in measurements, thus this line is now commented.
                 $array2 = array('meanlog10', 'SDlog10', 'SampleSize'); //for measurements
