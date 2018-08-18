@@ -80,6 +80,7 @@ class TryDatabaseAPI
             elseif($class == "occurrence")      $c = new \eol_schema\Occurrence();
             elseif($class == "measurements")    $c = new \eol_schema\MeasurementOrFact_specific(); //NOTE: used a new class MeasurementOrFact_specific()
             $row = fgetcsv($file);
+            $row = array_map('trim', $row);
             // print_r($row); exit;
             // $row = self::clean_html($row); may not need this anymore...
             // print_r($row);
@@ -143,6 +144,14 @@ class TryDatabaseAPI
                 elseif($class == 'measurements') {
                     if(!$rec['measurementType']) continue;
                     if(!$rec['measurementValue']) continue;
+                    
+                    //start assigning of referenceID from massaged data
+                    $md5 = md5($rec['measurementType'].$rec['occurrenceID']);
+                    if($val = @$this->ref_list[$md5]) {
+                        $rec['referenceID'] = implode("; ", array_unique($val));
+                        echo "\nref hit in measurements [".$rec['referenceID']."]\n";
+                    }
+                    //end
                 }
                 
                 /* Now added as its own columns in measurements, thus this line is now commented.
@@ -172,12 +181,6 @@ class TryDatabaseAPI
                 elseif($class == 'measurements') {
                     if(isset($ids[$c->measurementID])) continue;
                     else $ids[$c->measurementID] = '';
-                    
-                    //start assigning of referenceID from massaged data
-                    $md5 = md5($rec['measurementType'].$rec['occurrenceID']);
-                    if($val = @$this->ref_list[$md5]) $rec['referenceID'] = implode("; ", $val);
-                    //end
-                    
                 }
                 elseif($class == 'occurrence') {
                     if(isset($ids[$rec['occurrenceID']])) continue;
