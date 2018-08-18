@@ -35,10 +35,11 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $this->html['publisher']    = "http://www.gbif.org/publisher/";
         $this->html['dataset']      = "http://www.gbif.org/dataset/";
         
+        $this->save_path['taxa_csv_path']     = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_dwca/";
         $this->save_path['map_data']          = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/map_data_dwca/";   //new
         $this->save_path['multimedia_gbifID'] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/multimedia_gbifID/";
         $this->csv_paths = array();
-        $this->csv_paths[]                    = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_dwca/";
+        $this->csv_paths[]                    = $this->save_path['taxa_csv_path'];
         
 
         $this->rec_limit = 100000; //50000;
@@ -90,6 +91,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     private function breakdown_multimedia_to_gbifID_files()
     {
         $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Gadus morhua/multimedia.txt";
+        $path2 = $this->save_path['multimedia_gbifID'];
         $i = 0;
         foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
             $i++;
@@ -136,13 +138,12 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                     fclose($fhandle);
                 }
             }
-            
         }
     }
     private function breakdown_GBIF_DwCA_file()
     {
         $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Gadus morhua/occurrence.txt";
-        $path2 = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_dwca/";
+        $path2 = $this->save_path['taxa_csv_path'];
         $i = 0;
         foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
             $i++;
