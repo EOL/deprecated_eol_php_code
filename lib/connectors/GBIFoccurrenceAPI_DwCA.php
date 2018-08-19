@@ -46,7 +46,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $this->save_path['map_data']          = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/map_data_dwca/";
         }
         $this->csv_paths = array();
-        $this->csv_paths[]                    = $this->save_path['taxa_csv_path'];
+        $this->csv_paths[] = $this->save_path['taxa_csv_path'];
         
 
         $this->rec_limit = 100000; //50000;
@@ -74,9 +74,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         5. pick if there are taxa still without map data (.json), if yes, use API to get map data.
         */
         
-        // self::breakdown_GBIF_DwCA_file();               echo "\nDONE: breakdown_GBIF_DwCA_file()\n";                 return;
-        self::breakdown_multimedia_to_gbifID_files();   echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n"; return;
-        // self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n";   return;
+        self::breakdown_GBIF_DwCA_file();               echo "\nDONE: breakdown_GBIF_DwCA_file()\n";                return;
+        // self::breakdown_multimedia_to_gbifID_files();   echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n";    return;
+        // self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n";  return;
         
         //---------------------------------------------------------------------------------------------------------------------------------------------
         /*
@@ -155,52 +155,57 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     private function breakdown_GBIF_DwCA_file()
     {
-        $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Gadus morhua/occurrence.txt";
         $path2 = $this->save_path['taxa_csv_path'];
-        $i = 0;
-        foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
-            $i++;
-            if(($i % 5000) == 0) echo number_format($i) . " ";
-            if($i == 1) $line = strtolower($line);
-            $row = explode("\t", $line);
-            if($i == 1) {
-                $fields = $row;
-                continue;
-            }
-            else {
-                if(!@$row[0]) continue; //$row[0] is gbifID
-                $k = 0; $rec = array();
-                foreach($fields as $fld) {
-                    $rec[$fld] = $row[$k];
-                    $k++;
+        if(Functions::is_production()) {
+            $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Animalia/occurrence.txt";
+            $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Plantae/occurrence.txt";
+            $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Other7Groups/occurrence.txt";
+        }
+        else {
+            $paths[]  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Gadus morhua/occurrence.txt";
+        }
+        foreach($paths as $path) {
+            $i = 0;
+            foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
+                $i++;
+                if(($i % 5000) == 0) echo number_format($i) . " ";
+                if($i == 1) $line = strtolower($line);
+                $row = explode("\t", $line);
+                if($i == 1) {
+                    $fields = $row; continue;
                 }
-            }
-            // print_r($rec); exit("\nstopx\n");
-            
-            if(!@$rec['taxonkey']) continue;
-            
-            $taxonkey = $rec['taxonkey'];
-            // echo "\n".$rec['datasetkey']."\n";
-            
-            $rec['publishingorgkey'] = self::get_dataset_field($rec['datasetkey'], 'publishingOrganizationKey');
-            
-            $rek = array($rec['gbifid'], $rec['datasetkey'], $rec['scientificname'], $rec['publishingorgkey'], $rec['decimallatitude'], $rec['decimallongitude'], $rec['eventdate'], 
-            $rec['institutioncode'], $rec['catalognumber'], $rec['identifiedby'], $rec['recordedby']);
-            if($rec['decimallatitude'] && $rec['decimallongitude']) {
-                $path3 = self::get_md5_path($path2, $taxonkey);
-                $csv_file = $path3 . $taxonkey . ".csv";
-                if(!file_exists($csv_file)) {
-                    //order of fields here is IMPORTANT: will use it when accessing these generated individual taxon csv files
-                    $str = 'gbifid,datasetkey,scientificname,publishingorgkey,decimallatitude,decimallongitude,eventdate,institutioncode,catalognumber,identifiedby,recordedby';
+                else {
+                    if(!@$row[0]) continue; //$row[0] is gbifID
+                    $k = 0; $rec = array();
+                    foreach($fields as $fld) {
+                        $rec[$fld] = $row[$k];
+                        $k++;
+                    }
+                }
+                // print_r($rec); exit("\nstopx\n");
+                if(!@$rec['taxonkey']) continue;
+                $taxonkey = $rec['taxonkey'];
+                // echo "\n".$rec['datasetkey']."\n";
+                $rec['publishingorgkey'] = self::get_dataset_field($rec['datasetkey'], 'publishingOrganizationKey');
+
+                $rek = array($rec['gbifid'], $rec['datasetkey'], $rec['scientificname'], $rec['publishingorgkey'], $rec['decimallatitude'], $rec['decimallongitude'], $rec['eventdate'], 
+                $rec['institutioncode'], $rec['catalognumber'], $rec['identifiedby'], $rec['recordedby']);
+                if($rec['decimallatitude'] && $rec['decimallongitude']) {
+                    $path3 = self::get_md5_path($path2, $taxonkey);
+                    $csv_file = $path3 . $taxonkey . ".csv";
+                    if(!file_exists($csv_file)) {
+                        //order of fields here is IMPORTANT: will use it when accessing these generated individual taxon csv files
+                        $str = 'gbifid,datasetkey,scientificname,publishingorgkey,decimallatitude,decimallongitude,eventdate,institutioncode,catalognumber,identifiedby,recordedby';
+                        $fhandle = Functions::file_open($csv_file, "a");
+                        fwrite($fhandle, implode("\t", explode(",", $str)) . "\n");
+                        fclose($fhandle);
+                    }
                     $fhandle = Functions::file_open($csv_file, "a");
-                    fwrite($fhandle, implode("\t", explode(",", $str)) . "\n");
+                    fwrite($fhandle, implode("\t", $rek) . "\n");
                     fclose($fhandle);
                 }
-                $fhandle = Functions::file_open($csv_file, "a");
-                fwrite($fhandle, implode("\t", $rek) . "\n");
-                fclose($fhandle);
-            }
-        }
+            } //end foreach()
+        } //end loop paths
     }
     private function get_dataset_field($datasetKey, $return_field)
     {
@@ -582,10 +587,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         return $to_be_saved;
     }
     function save_ids_to_text_from_many_folders() //a utility
-    {   /*
-        $dir_to_process = "/Volumes/MacMini_HD2/batch_parts/map_data_batch2/";
-        $text_file      = "/Volumes/MacMini_HD2/batch_parts/taxon_concept_IDS.txt";
-        */
+    {   
         $dir_to_process = $this->save_path['map_data'];
         $text_file = "/Volumes/Thunderbolt4/map_data_zip/final_taxon_concept_IDS.txt";
         

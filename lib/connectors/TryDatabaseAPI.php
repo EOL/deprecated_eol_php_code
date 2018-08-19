@@ -148,7 +148,7 @@ class TryDatabaseAPI
                     //start assigning of referenceID from massaged data
                     $md5 = md5($rec['measurementType'].$rec['occurrenceID']);
                     if($val = @$this->ref_list[$md5]) {
-                        $rec['referenceID'] = implode("; ", array_unique($val));
+                        $rec['referenceID'] = implode("; ", sort(array_unique($val)));
                         foreach($val as $ref_id_2write) $this->ref_id_2write[$ref_id_2write] = ''; //select only those refs to write to archive
                         echo "\nref hit in measurements [".$rec['referenceID']."]\n";
                     }
