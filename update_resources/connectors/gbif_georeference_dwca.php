@@ -5,11 +5,10 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/GBIFoccurrenceAPI_DwCA');
 $timestart = time_elapsed();
 $resource_id = 1;
-
+$GLOBALS['ENV_DEBUG'] = true;
 
 $func = new GBIFoccurrenceAPI_DwCA($resource_id);
 $func->start(); //normal operation
-
 
 // $func->save_ids_to_text_from_many_folders(); //utility, important as last step
 

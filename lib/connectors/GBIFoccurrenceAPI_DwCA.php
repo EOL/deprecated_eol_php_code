@@ -36,7 +36,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $this->html['dataset']      = "http://www.gbif.org/dataset/";
         
         if(Functions::is_production()) {
-            $this->save_path['taxa_csv_path']     = "/extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/";
+            // $this->save_path['taxa_csv_path']     = "/extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/"; -- will use this next harvest
+            $this->save_path['taxa_csv_path']     = "/extra/other_files/GBIF_occurrence/GBIF_taxa_csv/";
             $this->save_path['multimedia_gbifID'] = "/extra/other_files/GBIF_occurrence/multimedia_gbifID/";
             $this->save_path['map_data']          = "/extra/map_data_dwca/";
         }
@@ -74,9 +75,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         5. pick if there are taxa still without map data (.json), if yes, use API to get map data.
         */
         
-        // self::breakdown_GBIF_DwCA_file();               echo "\nDONE: breakdown_GBIF_DwCA_file()\n";                //return; //IMPORTANT: this can only be run once every harvest
-        self::breakdown_multimedia_to_gbifID_files();   echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n";    return;
-        // self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n";  return;
+        // self::breakdown_GBIF_DwCA_file();               echo "\nDONE: breakdown_GBIF_DwCA_file()\n";                return; //IMPORTANT: this can only be run once every harvest
+        // self::breakdown_multimedia_to_gbifID_files();   echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n";    return; //took 18 mins in eol-archive
+        self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n";  return;
         
         //---------------------------------------------------------------------------------------------------------------------------------------------
         /*
@@ -244,7 +245,6 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         // $eol_taxon_id_list["Aichi virus"] = 540501;
         // $eol_taxon_id_list["Anthriscus sylvestris (L.) Hoffm."] = 584996; //from Plantae group
         // $eol_taxon_id_list["Xenidae"] = 8965;
-        // $eol_taxon_id_list["Gadidae"] = 5503;
         // $eol_taxon_id_list["Soleidae"] = 5169;
         // $eol_taxon_id_list["Plantae"] = 281;
         // $eol_taxon_id_list["Chaetoceros"] = 12010;
@@ -253,6 +253,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         // /* for testing 1 taxon
         $eol_taxon_id_list = array();
         $eol_taxon_id_list["Gadus morhua"] = 206692;
+        $eol_taxon_id_list["Gadidae"] = 5503;
         // $eol_taxon_id_list["Hyperiidae"] = 1180;
         // $eol_taxon_id_list["Decapoda"] = 1183;
         // */
