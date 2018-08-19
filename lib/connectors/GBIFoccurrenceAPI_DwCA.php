@@ -99,16 +99,15 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     {
         $path2 = $this->save_path['multimedia_gbifID'];
         if(Functions::is_production()) {
-            $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Animalia/multimedia.txt";
-            $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Plantae/multimedia.txt";
             $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Other7Groups/multimedia.txt";
+            $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Plantae/multimedia.txt";
+            $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Animalia/multimedia.txt";
         }
         else $paths[] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Gadus morhua/multimedia.txt";
-        
         foreach($paths as $path) {
             $i = 0;
             foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
-                $i++; if(($i % 10000) == 0) echo number_format($i) . " ";
+                $i++; if(($i % 10000) == 0) echo "\n [$path] ".number_format($i) . " ";
                 if($i == 1) $line = strtolower($line);
                 $row = explode("\t", $line);
                 if($i == 1) {
@@ -292,7 +291,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                         $final['actual'] = $final['count'];
                         // if(!($this->file = Functions::file_open($this->save_path['cluster'].$taxon_concept_id.".json", "w"))) return;
                         if(!($this->file = Functions::file_open(self::get_map_data_path($taxon_concept_id).$taxon_concept_id.".json", "w"))) return;
-                        $json = json_encode($final);
+                        $json = json_encode($final, JSON_UNESCAPED_SLASHES);
                         fwrite($this->file, "var data = ".$json);
                         fclose($this->file);
                     }
