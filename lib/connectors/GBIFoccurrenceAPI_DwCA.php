@@ -338,9 +338,10 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                     $rec['k']   = @$rek['identifiedby'];
                     $rec['l']   = self::get_media_by_gbifid($gbifid);
                     $rec['m']   = @$rek['eventdate'];
-                    // if($rec['l']) {
-                        $final['records'][] = $rec;
-                    // }
+                    /* to have map data with only those with media
+                    if($rec['l']) $final['records'][] = $rec;
+                    */
+                    $final['records'][] = $rec;
                 }
                 $final['count'] = count($final['records']);
             }
