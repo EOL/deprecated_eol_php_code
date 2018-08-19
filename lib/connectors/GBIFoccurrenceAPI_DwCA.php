@@ -36,8 +36,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $this->html['dataset']      = "http://www.gbif.org/dataset/";
         
         if(Functions::is_production()) {
-            // $this->save_path['taxa_csv_path']     = "/extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/"; -- will use this next harvest
-            $this->save_path['taxa_csv_path']     = "/extra/other_files/GBIF_occurrence/GBIF_taxa_csv/";
+            $this->save_path['taxa_csv_path']     = "/extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/";
             $this->save_path['multimedia_gbifID'] = "/extra/other_files/GBIF_occurrence/multimedia_gbifID/";
             $this->save_path['map_data']          = "/extra/map_data_dwca/";
         }
@@ -75,9 +74,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         5. pick if there are taxa still without map data (.json), if yes, use API to get map data.
         */
         
-        // self::breakdown_GBIF_DwCA_file();               echo "\nDONE: breakdown_GBIF_DwCA_file()\n";                return; //IMPORTANT: this can only be run once every harvest
+        self::breakdown_GBIF_DwCA_file();               echo "\nDONE: breakdown_GBIF_DwCA_file()\n";                return; //IMPORTANT: this can only be run once every harvest
         // self::breakdown_multimedia_to_gbifID_files();   echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n";    return; //took 18 mins in eol-archive
-        self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n";  return;
+        // self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n";  return;
         
         //---------------------------------------------------------------------------------------------------------------------------------------------
         /*
@@ -158,8 +157,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $path2 = $this->save_path['taxa_csv_path'];
         if(Functions::is_production()) {
             $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Animalia/occurrence.txt";
-            $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Plantae/occurrence.txt";
-            $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Other7Groups/occurrence.txt";
+            // $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Plantae/occurrence.txt";
+            // $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Other7Groups/occurrence.txt";
         }
         else {
             $paths[]  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Gadus morhua/occurrence.txt";
