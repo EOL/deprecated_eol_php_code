@@ -74,8 +74,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         5. pick if there are taxa still without map data (.json), if yes, use API to get map data.
         */
         
-        self::breakdown_GBIF_DwCA_file();               echo "\nDONE: breakdown_GBIF_DwCA_file()\n";                return;
-        // self::breakdown_multimedia_to_gbifID_files();   echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n";    return;
+        // self::breakdown_GBIF_DwCA_file();               echo "\nDONE: breakdown_GBIF_DwCA_file()\n";                //return; //IMPORTANT: this can only be run once every harvest
+        self::breakdown_multimedia_to_gbifID_files();   echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n";    return;
         // self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n";  return;
         
         //---------------------------------------------------------------------------------------------------------------------------------------------
@@ -145,7 +145,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 if($rec['type'] == "StillImage" && $rec['format'] != "image/tiff" && $rec['identifier']) {
                     $path3 = self::get_md5_path($path2, $gbifid);
                     $txt_file = $path3 . $gbifid . ".txt";
-                    if(!file_exists($txt_file)) {
+                    if(!file_exists($txt_file)) { //take note: only one image is saved per gbifID
                         $fhandle = Functions::file_open($txt_file, "w");
                         fwrite($fhandle, $rec['identifier'] . "\n"); fclose($fhandle);
                     }
@@ -168,7 +168,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $i = 0;
             foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
                 $i++;
-                if(($i % 5000) == 0) echo number_format($i) . " ";
+                if(($i % 50000) == 0) echo number_format($i) . " ";
                 if($i == 1) $line = strtolower($line);
                 $row = explode("\t", $line);
                 if($i == 1) {
@@ -376,7 +376,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $txt_file = $final_path . $gbifid . ".txt";
         if(file_exists($txt_file)) {
             // echo "\nmedia found [$gbifid]\n";
-            return file_get_contents($txt_file);
+            $str = file_get_contents($txt_file);
+            return str_ireplace("\n", "", $str); //remove line separator
         }
         return '';
     }

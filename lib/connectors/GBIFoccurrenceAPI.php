@@ -86,9 +86,9 @@ class GBIFoccurrenceAPI //this makes use of the GBIF CSV occurrence downloads
         /* 237020 - /map_data_from_api/ */
         // start GBIF
         // self::breakdown_GBIF_csv_file_v2(); return;
-        // self::breakdown_GBIF_csv_file();                echo "\nDONE: breakdown_GBIF_csv_file()\n"; return;
+        self::breakdown_GBIF_csv_file();                echo "\nDONE: breakdown_GBIF_csv_file()\n"; return; //IMPORTANT: this can only be run once every harvest
         // self::breakdown_multimedia_to_gbifID_files();   echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n"; return;
-        self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n"; return;
+        // self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n"; return;
         // end GBIF
         
         /* on another matter altogether:
