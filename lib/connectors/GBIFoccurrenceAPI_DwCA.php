@@ -67,9 +67,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         5. pick if there are taxa still without map data (.json), if yes, use API to get map data.
         */
         
-        // self::breakdown_GBIF_DwCA_file();               echo "\nDONE: breakdown_GBIF_DwCA_file()\n";                 //return;
-        self::breakdown_multimedia_to_gbifID_files();   echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n"; return;
-        // self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n";   return;
+        // self::breakdown_GBIF_DwCA_file();               echo "\nDONE: breakdown_GBIF_DwCA_file()\n";                 return;
+        // self::breakdown_multimedia_to_gbifID_files();   echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n"; return;
+        self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n";   return;
         
         //---------------------------------------------------------------------------------------------------------------------------------------------
         /*
@@ -336,15 +336,28 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                     $rec['i']   = $rek['decimallongitude'];
                     $rec['j']   = @$rek['recordedby'];
                     $rec['k']   = @$rek['identifiedby'];
-                    $rec['l']   = '';
+                    $rec['l']   = self::get_media_by_gbifid($gbifid);
                     $rec['m']   = @$rek['eventdate'];
-                    $final['records'][] = $rec;
+                    // if($rec['l']) {
+                        $final['records'][] = $rec;
+                    // }
                 }
                 $final['count'] = count($final['records']);
             }
             else echo "\n[$usageKey] NOT found in [$path]";
         }
         return $final;
+    }
+    private function get_media_by_gbifid($gbifid)
+    {
+        $path = $this->save_path['multimedia_gbifID'];
+        $final_path = self::get_md5_path($path, $gbifid);
+        $txt_file = $final_path . $gbifid . ".txt";
+        if(file_exists($txt_file)) {
+            echo "\nmedia found [$gbifid]\n";
+            return file_get_contents($txt_file);
+        }
+        return '';
     }
     //==========================
     // end GBIF methods
