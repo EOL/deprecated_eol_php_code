@@ -68,8 +68,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         */
         
         // self::breakdown_GBIF_DwCA_file();               echo "\nDONE: breakdown_GBIF_DwCA_file()\n";                 return;
-        // self::breakdown_multimedia_to_gbifID_files();   echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n"; return;
-        self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n";   return;
+        self::breakdown_multimedia_to_gbifID_files();   echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n"; return;
+        // self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n";   return;
         
         //---------------------------------------------------------------------------------------------------------------------------------------------
         /*
@@ -90,55 +90,61 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     //##################################### start DwCA process ###########################################################################################################################
     private function breakdown_multimedia_to_gbifID_files()
     {
-        $path  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Gadus morhua/multimedia.txt";
         $path2 = $this->save_path['multimedia_gbifID'];
-        $i = 0;
-        foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
-            $i++;
-            if(($i % 100) == 0) echo number_format($i) . " ";
-            if($i == 1) $line = strtolower($line);
-            $row = explode("\t", $line);
-            if($i == 1) {
-                $fields = $row;
-                continue;
-            }
-            else {
-                if(!@$row[0]) continue; //$row[0] is gbifID
-                $k = 0; $rec = array();
-                foreach($fields as $fld) {
-                    $rec[$fld] = $row[$k];
-                    $k++;
-                }
-            }
-            // print_r($rec); exit("\nstopx\n");
-            /* Array(
-                [gbifid] => 1883941229
-                [type] => StillImage
-                [format] => image/jpeg
-                [identifier] => https://static.inaturalist.org/photos/21812110/original.jpeg?1532308417
-                [references] => https://www.inaturalist.org/photos/21812110
-                [title] => 
-                [description] => 
-                [created] => 2018-07-21T20:30Z
-                [creator] => mkkennedy
-                [contributor] => 
-                [publisher] => iNaturalist
-                [audience] => 
-                [source] => 
-                [license] => http://creativecommons.org/licenses/by-nc/4.0/
-                [rightsholder] => mkkennedy
-            )*/
-            $gbifid = $rec['gbifid'];
-            if($rec['type'] == "StillImage" && $rec['format'] != "image/tiff" && $rec['identifier']) {
-                $path3 = self::get_md5_path($path2, $gbifid);
-                $txt_file = $path3 . $gbifid . ".txt";
-                if(!file_exists($txt_file)) {
-                    $fhandle = Functions::file_open($txt_file, "w");
-                    fwrite($fhandle, $rec['identifier'] . "\n");
-                    fclose($fhandle);
-                }
-            }
+        if(Functions::is_production()) {
+            $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Animalia/multimedia.txt";
+            $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Plantae/multimedia.txt";
+            $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Other7Groups/multimedia.txt";
         }
+        else $paths[] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Gadus morhua/multimedia.txt";
+        
+        foreach($paths as $path) {
+            $i = 0;
+            foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
+                $i++; if(($i % 10000) == 0) echo number_format($i) . " ";
+                if($i == 1) $line = strtolower($line);
+                $row = explode("\t", $line);
+                if($i == 1) {
+                    $fields = $row;
+                    continue;
+                }
+                else {
+                    if(!@$row[0]) continue; //$row[0] is gbifID
+                    $k = 0; $rec = array();
+                    foreach($fields as $fld) {
+                        $rec[$fld] = $row[$k];
+                        $k++;
+                    }
+                }
+                // print_r($rec); exit("\nstopx\n");
+                /* Array(
+                    [gbifid] => 1883941229
+                    [type] => StillImage
+                    [format] => image/jpeg
+                    [identifier] => https://static.inaturalist.org/photos/21812110/original.jpeg?1532308417
+                    [references] => https://www.inaturalist.org/photos/21812110
+                    [title] => 
+                    [description] => 
+                    [created] => 2018-07-21T20:30Z
+                    [creator] => mkkennedy
+                    [contributor] => 
+                    [publisher] => iNaturalist
+                    [audience] => 
+                    [source] => 
+                    [license] => http://creativecommons.org/licenses/by-nc/4.0/
+                    [rightsholder] => mkkennedy
+                )*/
+                $gbifid = $rec['gbifid'];
+                if($rec['type'] == "StillImage" && $rec['format'] != "image/tiff" && $rec['identifier']) {
+                    $path3 = self::get_md5_path($path2, $gbifid);
+                    $txt_file = $path3 . $gbifid . ".txt";
+                    if(!file_exists($txt_file)) {
+                        $fhandle = Functions::file_open($txt_file, "w");
+                        fwrite($fhandle, $rec['identifier'] . "\n"); fclose($fhandle);
+                    }
+                }
+            }//end loop text file
+        }//end foreach($paths)
     }
     private function breakdown_GBIF_DwCA_file()
     {
@@ -191,7 +197,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     private function get_dataset_field($datasetKey, $return_field)
     {
-        if($json = Functions::lookup_with_cache($this->api['dataset'].$datasetKey, $this->download_options)) {
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        if($json = Functions::lookup_with_cache($this->api['dataset'].$datasetKey, $options)) {
             $obj = json_decode($json);
             return $obj->$return_field;
         }
@@ -355,7 +363,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $final_path = self::get_md5_path($path, $gbifid);
         $txt_file = $final_path . $gbifid . ".txt";
         if(file_exists($txt_file)) {
-            echo "\nmedia found [$gbifid]\n";
+            // echo "\nmedia found [$gbifid]\n";
             return file_get_contents($txt_file);
         }
         return '';
@@ -845,7 +853,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         if(!$id) return "";
         $options = $this->download_options;
         $options['delay_in_minutes'] = 0;
-        $options['expire_seconds'] = false; //debug
+        $options['expire_seconds'] = false;
         if($html = Functions::lookup_with_cache($this->html[$org] . $id, $options)) {
             if(preg_match("/Full title<\/h3>(.*?)<\/p>/ims", $html, $arr)) return strip_tags(trim($arr[1]));
         }
@@ -867,7 +875,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     private function get_usage_key($sciname)
     {
-        if($json = Functions::lookup_with_cache($this->gbif_taxon_info . $sciname, $this->download_options)) {
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        if($json = Functions::lookup_with_cache($this->gbif_taxon_info . $sciname, $options)) {
             $json = json_decode($json);
             $usageKey = false;
             if(!isset($json->usageKey)) {
@@ -881,8 +891,10 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     private function get_usage_key_again($sciname)
     {
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
         echo "\n2nd try to get usageKey ($sciname)\n";
-        if($json = Functions::lookup_with_cache($this->gbif_taxon_info . $sciname . "&verbose=true", $this->download_options)) {
+        if($json = Functions::lookup_with_cache($this->gbif_taxon_info . $sciname . "&verbose=true", $options)) {
             $usagekeys = array();
             $options = array();
             $json = json_decode($json);
