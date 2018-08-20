@@ -38,6 +38,8 @@ class DWH_COL_API
         $removed_branches = $parts['removed_brances'];
         $one_word_names = $parts['one_word_names']; //this is null anyway
 
+        echo "\nremoved_branches total: ".count($removed_branches)."\n";
+
         $taxID_info = self::get_taxID_nodes_info();
         $include[42984770] = "Ciliophora";
         $include[42990646] = "Oomycota";
