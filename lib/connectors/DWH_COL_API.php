@@ -33,7 +33,7 @@ class DWH_COL_API
     private function main_CoLProtists()
     {
         $params['spreadsheetID'] = '19FFBXYIisaiHJ02aSYRjy8K66D7iOcfS2EHrqwkf_Bs';
-        $params['range']         = 'Sheet1!A2:B142'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $params['range']         = 'Sheet1!A2:B167'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
         $parts = self::get_removed_branches_from_spreadsheet($params);
         $removed_branches = $parts['removed_brances'];
         $one_word_names = $parts['one_word_names']; //this is null anyway
@@ -435,7 +435,7 @@ class DWH_COL_API
         $final = array(); $final2 = array();
         if(!$params) {
             $params['spreadsheetID'] = '1c44ymPowJA2V3NdDNBiqNjvQ2PdCJ4Zgsa34KJmkbVA';
-            $params['range']         = 'Sheet1!A2:B6217'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+            $params['range']         = 'Sheet1!A2:B6264'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
         }
         $rows = Functions::get_google_sheet_using_GoogleClientAPI($params);
         //start massage array
