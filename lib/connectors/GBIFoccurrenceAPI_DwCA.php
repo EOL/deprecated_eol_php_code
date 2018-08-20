@@ -158,7 +158,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         if(Functions::is_production()) {
             $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Animalia/occurrence.txt";
             // $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Plantae/occurrence.txt";
-            // $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Other7Groups/occurrence.txt";
+            // $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Other7Groups/occurrence.txt";    //~25 million - Took 5 hr 10 min (when API calls are not yet cached)
         }
         else {
             $paths[]  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Gadus morhua/occurrence.txt";
@@ -167,7 +167,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $i = 0;
             foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
                 $i++;
-                if(($i % 50000) == 0) echo number_format($i) . " ";
+                if(($i % 50000) == 0) echo number_format($i) . "[$path] ";
                 if($i == 1) $line = strtolower($line);
                 $row = explode("\t", $line);
                 if($i == 1) {
