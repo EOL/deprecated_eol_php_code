@@ -16,7 +16,7 @@ class DWH_COL_API
 
         //start TRAM-797 -----------------------------------------------------------
         $this->prune_further = array();
-        $this->extension_path = CONTENT_RESOURCE_LOCAL_PATH . "col/"; //this folder is from DATA-1755
+        $this->extension_path = CONTENT_RESOURCE_LOCAL_PATH . "col/"; //this folder is from DATA-1744
         $this->dwca['iterator_options'] = array('row_terminator' => "\n");
         $this->run = '';
     }
