@@ -25,6 +25,12 @@ class COLDataAPI
     }
     function convert_archive()
     {
+        /* tests
+        $dwca = self::compute_for_dwca_file();
+        echo "\n[$dwca]\n";
+        exit("\n-end tests-\n");
+        */
+        
         $file = CONTENT_RESOURCE_LOCAL_PATH . "col_debug.txt";
         if(file_exists($file)) unlink($file);
         
