@@ -6,6 +6,14 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/TryDatabaseAPI');
 $timestart = time_elapsed();
 
+/* test
+$val = array(1,5,2,3,1,5,100,50,5,2);
+$val = array_unique($val);
+sort($val);
+print_r($val);
+exit("-test end-");
+*/
+
 $resource_id = "try_dbase";
 // $resource_id = 1;
 $func = new TryDatabaseAPI($resource_id);
