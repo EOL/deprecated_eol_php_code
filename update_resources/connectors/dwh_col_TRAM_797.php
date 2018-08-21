@@ -4,10 +4,22 @@ namespace php_active_record;
 estimated execution time: 
 
 eol-archive using the old col.tar.gz
-Catalogue_of_Life_DH        	Wednesday 2018-08-15 04:04:35 AM	{"taxon.tab":3620207}
+Catalogue_of_Life_DH    Wednesday 2018-08-15 04:04:35 AM{"taxon.tab":3620207}
+Catalogue_of_Life_DH	Monday 2018-08-20 08:47:19 AM	{"taxon.tab":3676813}   //after a re-harvest of DATA-1744
+Catalogue_of_Life_DH	Monday 2018-08-20 09:39:23 AM	{"taxon.tab":3676702}
+
+
 Catalogue_of_Life_Protists_DH	Wednesday 2018-08-15 04:10:21 AM	{"taxon.tab":20245}
+Catalogue_of_Life_Protists_DH	Monday 2018-08-20 08:53:24 AM	    {"taxon.tab":8}     //after a re-harvest of DATA-1744
+Catalogue_of_Life_Protists_DH	Monday 2018-08-20 09:45:36 AM	    {"taxon.tab":8}
 
+eol-archive without re-harvest of DATA-1744:
+Catalogue_of_Life_DH	        Tuesday 2018-08-21 01:04:27 PM	{"taxon.tab":3620094}
+Catalogue_of_Life_Protists_DH	Tuesday 2018-08-21 01:10:36 PM	{"taxon.tab":20220}
 
+local Mac Mini: without re-harvest of DATA-1744:
+Catalogue_of_Life_DH	        Tuesday 2018-08-21 11:51:45 AM	{"taxon.tab":3620094}
+Catalogue_of_Life_Protists_DH	Tuesday 2018-08-21 12:07:15 PM	{"taxon.tab":20220}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DWH_COL_API');
