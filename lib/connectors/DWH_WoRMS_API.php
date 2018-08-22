@@ -32,12 +32,12 @@ class DWH_WoRMS_API
     }
     function start_WoRMS()
     {
-        // if(!($info = self::start())) return; //uncomment in real operation
+        if(!($info = self::start())) return; //uncomment in real operation
         
-        // /* development only
+        /* development only
         $info = Array('temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_26984/',
                       'tables' => Array('taxa' => "taxon.txt"));
-        // */
+        */
         
         // print_r($info);
         $this->extension_path = $info['temp_dir'];
@@ -50,8 +50,8 @@ class DWH_WoRMS_API
         }
         
         // remove temp dir
-        // recursive_rmdir($info['temp_dir']);
-        // echo ("\n temporary directory removed: " . $info['temp_dir']);
+        recursive_rmdir($info['temp_dir']);
+        echo ("\n temporary directory removed: " . $info['temp_dir']);
     }
     private function format_ids($rec)
     {
