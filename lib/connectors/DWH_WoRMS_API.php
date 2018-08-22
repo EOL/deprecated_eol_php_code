@@ -71,32 +71,32 @@ class DWH_WoRMS_API
         echo "\ntaxID_info total: ".count($taxID_info)."\n";
         // exit("\n-end-\n");
 
-        $include[123081] = "Crinoidea"; 
-        $include[6] = "Bacteria"; 
-        $include[599656] = "Glaucophyta"; 
-        $include[852] = "Rhodophyta"; 
-        $include[17638] = "Cryptophyta"; 
-        $include[369190] = "Haptophyta"; 
-        $include[341275] = "Centrohelida"; 
-        $include[536209] = "Alveolata"; 
-        $include[368898] = "Heterokonta"; 
-        $include[582420] = "Rhizaria"; 
-        $include[582161] = "Euglenozoa"; 
-        $include[582180] = "Malawimonadea"; 
-        $include[582179] = "Jakobea"; 
-        $include[582221] = "Oxymonadida"; 
-        $include[582175] = "Parabasalia"; 
-        $include[562616] = "Hexamitidae"; 
-        $include[562613] = "Enteromonadidae"; 
-        $include[451649] = "Heterolobosea"; 
-        $include[582189] = "Discosea"; 
-        $include[582188] = "Tubulinea"; 
-        $include[103424] = "Apusomonadidae"; 
-        $include[707610] = "Rozellidae"; 
-        $include[582263] = "Nucleariida"; 
-        $include[582261] = "Ministeriida"; 
-        $include[580116] = "Choanoflagellatea"; 
-        $include[391862] = "Ichthyosporea";
+        $include['urn:lsid:marinespecies.org:taxname:123081'] = "Crinoidea"; 
+        $include['urn:lsid:marinespecies.org:taxname:6'] = "Bacteria"; 
+        $include['urn:lsid:marinespecies.org:taxname:599656'] = "Glaucophyta"; 
+        $include['urn:lsid:marinespecies.org:taxname:852'] = "Rhodophyta"; 
+        $include['urn:lsid:marinespecies.org:taxname:17638'] = "Cryptophyta"; 
+        $include['urn:lsid:marinespecies.org:taxname:369190'] = "Haptophyta"; 
+        $include['urn:lsid:marinespecies.org:taxname:341275'] = "Centrohelida"; 
+        $include['urn:lsid:marinespecies.org:taxname:536209'] = "Alveolata"; 
+        $include['urn:lsid:marinespecies.org:taxname:368898'] = "Heterokonta"; 
+        $include['urn:lsid:marinespecies.org:taxname:582420'] = "Rhizaria"; 
+        $include['urn:lsid:marinespecies.org:taxname:582161'] = "Euglenozoa"; 
+        $include['urn:lsid:marinespecies.org:taxname:582180'] = "Malawimonadea"; 
+        $include['urn:lsid:marinespecies.org:taxname:582179'] = "Jakobea"; 
+        $include['urn:lsid:marinespecies.org:taxname:582221'] = "Oxymonadida"; 
+        $include['urn:lsid:marinespecies.org:taxname:582175'] = "Parabasalia"; 
+        $include['urn:lsid:marinespecies.org:taxname:562616'] = "Hexamitidae"; 
+        $include['urn:lsid:marinespecies.org:taxname:562613'] = "Enteromonadidae"; 
+        $include['urn:lsid:marinespecies.org:taxname:451649'] = "Heterolobosea"; 
+        $include['urn:lsid:marinespecies.org:taxname:582189'] = "Discosea"; 
+        $include['urn:lsid:marinespecies.org:taxname:582188'] = "Tubulinea"; 
+        $include['urn:lsid:marinespecies.org:taxname:103424'] = "Apusomonadidae"; 
+        $include['urn:lsid:marinespecies.org:taxname:707610'] = "Rozellidae"; 
+        $include['urn:lsid:marinespecies.org:taxname:582263'] = "Nucleariida"; 
+        $include['urn:lsid:marinespecies.org:taxname:582261'] = "Ministeriida"; 
+        $include['urn:lsid:marinespecies.org:taxname:580116'] = "Choanoflagellatea"; 
+        $include['urn:lsid:marinespecies.org:taxname:391862'] = "Ichthyosporea";
         $this->include = $include;
         
         $meta = self::get_meta_info();
@@ -141,25 +141,34 @@ class DWH_WoRMS_API
             )*/
             $will_cont = false;
             
+            //start filter -----------------------------------------------------------------------------------------------------------------------------
             // 2. Remove taxa that have a blank entry for taxonomicStatus.
-            if($rec['taxonomicStatus'] == '') continue;
+            if($rec['taxonomicStatus'] == '') {
+                $filtered_ids[$rec['taxonID']] = '';
+                $removed_branches[$rec['taxonID']] = '';
+                continue;
+            }
 
             // 1. Remove taxa whose parentNameUsageID points to a taxon that has taxonomicStatus:synonym 
             if($parent_id = $rec['parentNameUsageID']) {
-                if($rek = $taxID_info[$parent_id]) {
+                if($parent_rek = @$taxID_info[$parent_id]) {
                     /* e.g. $taxID_info[$parent_id]
-                    [urn:lsid:marinespecies.org:taxname:535899] => Array
-                            (
+                    [urn:lsid:marinespecies.org:taxname:535899] => Array(
                                 [pID] => urn:lsid:marinespecies.org:taxname:535589
                                 [r] => species
                                 [s] => accepted
                             )
                     */
-                    if($rek['s'] == 'synonym') continue;
+                    if($parent_rek['s'] == 'synonym') {
+                        $filtered_ids[$rec['taxonID']] = '';
+                        $removed_branches[$rec['taxonID']] = '';
+                        continue;
+                    }
                 }
-                else exit("\nInvestigate this id [$parent_id] has no record in taxID_info.\n");
+                // else continue;
+                // else exit("\nInvestigate this id [$parent_id] has no record in taxID_info.\n");
             }
-            
+            //end filter -----------------------------------------------------------------------------------------------------------------------------
             
             $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
             if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $include)) $will_cont = true; //this will actually include what is in the branch
@@ -208,8 +217,6 @@ class DWH_WoRMS_API
             }
         }
     }
-    function start_tram_797(){}
-    private function main_tram_797(){}
     private function replace_NotAssigned_name($rec)
     {   /*42981143 -- Not assigned -- order
         We would want to change the scientificName value to “Order not assigned” */
@@ -271,7 +278,7 @@ class DWH_WoRMS_API
         So in this specific case, we want acceptedNameUsageID's only if name class IS scientific name. */
         if($rec['acceptedNameUsageID']) $rec['parentNameUsageID'] = '';
         
-        if($rec['scientificName'] == "Not assigned") $rec['scientificName'] = self::replace_NotAssigned_name($rec);
+        // if($rec['scientificName'] == "Not assigned") $rec['scientificName'] = self::replace_NotAssigned_name($rec); not instructed to use in this resource
         
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                 = $rec['taxonID'];
