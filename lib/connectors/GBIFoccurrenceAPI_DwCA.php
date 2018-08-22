@@ -157,7 +157,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $path2 = $this->save_path['taxa_csv_path'];
         if(Functions::is_production()) {
             $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Animalia/occurrence.txt";
-            // $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Plantae/occurrence.txt";
+            // $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Plantae/occurrence.txt";         //~183 million - Took 1 day 19 hr (when API calls are not yet cached)
             // $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Other7Groups/occurrence.txt";    //~25 million - Took 5 hr 10 min (when API calls are not yet cached)
         }
         else {
