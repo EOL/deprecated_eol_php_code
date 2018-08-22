@@ -76,7 +76,7 @@ class DWH_WoRMS_API
             */
             if($rec['taxonID'] != $rec['acceptedNameUsageID'] && $rec['acceptedNameUsageID']) {
                 $rec['taxonomicStatus'] = 'synonym';
-                
+                // $rec['parentNameUsageID'] = ''; //will investigate if won't mess things up -> this actually lessens the no. of taxa
             }
         }
 
@@ -209,11 +209,11 @@ class DWH_WoRMS_API
                         continue;
                     }
                 }
-                else continue;
+                else { //there is a parent but there is no record for the parent -> just set the parent to blank
+                    $rec['parentNameUsageID'] = ''; //OK to do
+                }
                 // else exit("\nInvestigate this id [$parent_id] has no record in taxID_info.\n");
             }
-            
-            
             
             
             //end filter -----------------------------------------------------------------------------------------------------------------------------
