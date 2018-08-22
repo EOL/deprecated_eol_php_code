@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [dwh_col_TRAM_797.php] - https://eol-jira.bibalex.org/browse/TRAM-797
+/* connector: [dwh_worms_TRAM_798.php] - https://eol-jira.bibalex.org/browse/TRAM-798 
 */
 class DWH_WoRMS_API
 {
@@ -11,35 +11,67 @@ class DWH_WoRMS_API
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         $this->debug = array();
-        $this->alternative_names = array("synonym", "equivalent name", "in-part", "misspelling", "genbank synonym", "misnomer", "anamorph", "genbank anamorph", "teleomorph", "authority");
 
         //start TRAM-797 -----------------------------------------------------------
         $this->prune_further = array();
-        $this->extension_path = CONTENT_RESOURCE_LOCAL_PATH . "col/"; //this folder is from DATA-1744
         $this->dwca['iterator_options'] = array('row_terminator' => "\n");
-        $this->run = '';
+        
+        if(Functions::is_production())  $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";
+        else                            $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";
     }
     // ----------------------------------------------------------------- start TRAM-797 -----------------------------------------------------------------
+    private function start()
+    {
+        require_library('connectors/INBioAPI');
+        $func = new INBioAPI();
+        $paths = $func->extract_archive_file($this->dwca_file, "taxon.txt", array('timeout' => 60*10, 'expire_seconds' => 60*60*24*25)); //expires in 25 days
+        $archive_path = $paths['archive_path'];
+        $temp_dir = $paths['temp_dir'];
+        $tables['taxa'] = 'taxon.txt';
+        return array("temp_dir" => $temp_dir, "tables" => $tables);
+    }
     function start_WoRMS()
     {
-        $this->run = "Col Protists";
-        self::main_CoLProtists();
+        // if(!($info = self::start())) return; //uncomment in real operation
+        
+        // /* development only
+        $info = Array('temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_26984/',
+                      'tables' => Array('taxa' => "taxon.txt"));
+        // */
+        print_r($info);
+        $this->extension_path = $info['temp_dir'];
+        
+        // exit("\nstopx\n");
+        
+        self::main_WoRMS();
         $this->archive_builder->finalize(TRUE);
         if($this->debug) {
             Functions::start_print_debug($this->debug, $this->resource_id);
         }
+        
+        // remove temp dir
+        // recursive_rmdir($info['temp_dir']);
+        // echo ("\n temporary directory removed: " . $info['temp_dir']);
     }
-    private function main_CoLProtists()
+    private function main_WoRMS()
     {
-        $params['spreadsheetID'] = '19FFBXYIisaiHJ02aSYRjy8K66D7iOcfS2EHrqwkf_Bs';
-        $params['range']         = 'Sheet1!A2:B167'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        /* un-comment in real operation
+        $params['spreadsheetID'] = '11jQ-6CUJIbZiNwZrHqhR_4rqw10mamdA17iaNELWCBQ';
+        $params['range']         = 'Sheet1!A2:B1030'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
         $parts = self::get_removed_branches_from_spreadsheet($params);
         $removed_branches = $parts['removed_brances'];
-        $one_word_names = $parts['one_word_names']; //this is null anyway
-
+        // $one_word_names = $parts['one_word_names'];
+        print_r($removed_branches);
         echo "\nremoved_branches total: ".count($removed_branches)."\n";
-
+        // echo "\none_word_names total: ".count($one_word_names)."\n";
+        // exit("\n-end-\n");
+        */
+        
         $taxID_info = self::get_taxID_nodes_info();
+        echo "\ntaxID_info total: ".count($taxID_info)."\n";
+        
+        exit("\n-end-\n");
+
         $include[42984770] = "Ciliophora";
         $include[42990646] = "Oomycota";
         $include[42981251] = "Polycystina";
@@ -223,30 +255,7 @@ class DWH_WoRMS_API
         $taxon->acceptedNameUsageID     = $rec['acceptedNameUsageID'];
         $taxon->furtherInformationURL   = $rec['furtherInformationURL'];
         
-        if($this->run == "Col Protists") { //Col Protists will be a separate resource file with 8 independent root taxa. 
-            if(isset($this->include[$rec['taxonID']])) $taxon->parentNameUsageID = '';
-        }
-        
         $this->debug['acceptedNameUsageID'][$rec['acceptedNameUsageID']] = '';
-        
-        /* optional, I guess
-        $taxon->scientificNameID    = $rec['scientificNameID'];
-        $taxon->nameAccordingTo     = $rec['nameAccordingTo'];
-        $taxon->kingdom             = $rec['kingdom'];
-        $taxon->phylum              = $rec['phylum'];
-        $taxon->class               = $rec['class'];
-        $taxon->order               = $rec['order'];
-        $taxon->family              = $rec['family'];
-        $taxon->genus               = $rec['genus'];
-        $taxon->subgenus            = $rec['subgenus'];
-        $taxon->specificEpithet     = $rec['specificEpithet'];
-        $taxon->infraspecificEpithet        = $rec['infraspecificEpithet'];
-        $taxon->scientificNameAuthorship    = $rec['scientificNameAuthorship'];
-        $taxon->taxonRemarks        = $rec['taxonRemarks'];
-        $taxon->modified            = $rec['modified'];
-        $taxon->datasetID           = $rec['datasetID'];
-        $taxon->datasetName         = $rec['datasetName'];
-        */
 
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);

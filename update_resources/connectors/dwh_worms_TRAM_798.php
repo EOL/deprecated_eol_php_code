@@ -32,9 +32,9 @@ else           echo "\nOK: All acceptedNameUsageID have entries.\n";
 */
 //############################################################ end main CoL DH
 //############################################################ start CoL Protists
-$resource_id = "Catalogue_of_Life_Protists_DH"; //orig
+$resource_id = "WoRMS_DH"; //orig
 $func = new DWH_WoRMS_API($resource_id);
-$func->start_ColProtists();
+$func->start_WoRMS();
 $func = null;
 Functions::finalize_dwca_resource($resource_id, true);
 // /* utility - takes time for this resource but very helpful to catch if all parents have entries.
