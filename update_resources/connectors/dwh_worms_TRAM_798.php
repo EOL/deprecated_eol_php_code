@@ -10,7 +10,7 @@ require_library('connectors/DWH_WoRMS_API');
 // $GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
 
-//############################################################ start main CoL DH
+//############################################################ start WoRMS
 /*
 $resource_id = "Catalogue_of_Life_DH"; //orig
 $func = new DWH_WoRMS_API($resource_id);
@@ -30,13 +30,14 @@ if($undefined) echo "\nERROR: There is undefined acceptedNameUsageID(s): ".count
 else           echo "\nOK: All acceptedNameUsageID have entries.\n";
 // exit("\n-End for now-\n");
 */
-//############################################################ end main CoL DH
-//############################################################ start CoL Protists
+//############################################################ end WoRMS
+//############################################################ start WoRMS
 $resource_id = "WoRMS_DH"; //orig
+// $resource_id = 1;
 $func = new DWH_WoRMS_API($resource_id);
 $func->start_WoRMS();
 $func = null;
-Functions::finalize_dwca_resource($resource_id, true);
+Functions::finalize_dwca_resource($resource_id, false);
 // /* utility - takes time for this resource but very helpful to catch if all parents have entries.
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
@@ -49,7 +50,7 @@ $undefined = $func->check_if_all_parents_have_entries($resource_id, true, false,
 if($undefined) echo "\nERROR: There is undefined acceptedNameUsageID(s): ".count($undefined)."\n";
 else           echo "\nOK: All acceptedNameUsageID have entries.\n";
 // */
-//############################################################ end CoL Protists
+//############################################################ end WoRMS
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

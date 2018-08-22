@@ -32,15 +32,15 @@ class DWH_WoRMS_API
     }
     function start_WoRMS()
     {
-        // if(!($info = self::start())) return; //uncomment in real operation
+        if(!($info = self::start())) return; //uncomment in real operation
         
-        // /* development only
+        /* development only
         $info = Array('temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_26984/',
                       'tables' => Array('taxa' => "taxon.txt"));
-        // */
-        print_r($info);
-        $this->extension_path = $info['temp_dir'];
+        */
         
+        // print_r($info);
+        $this->extension_path = $info['temp_dir'];
         // exit("\nstopx\n");
         
         self::main_WoRMS();
@@ -50,13 +50,73 @@ class DWH_WoRMS_API
         }
         
         // remove temp dir
-        // recursive_rmdir($info['temp_dir']);
-        // echo ("\n temporary directory removed: " . $info['temp_dir']);
+        recursive_rmdir($info['temp_dir']);
+        echo ("\n temporary directory removed: " . $info['temp_dir']);
+    }
+    private function format_ids($rec)
+    {
+        $fields = array("taxonID", "parentNameUsageID", "acceptedNameUsageID");
+        foreach($fields as $fld) $rec[$fld] = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $rec[$fld]);
+
+        if($rec['taxonID'] == $rec['acceptedNameUsageID']) $rec['acceptedNameUsageID'] = '';
+        
+        //root nodes in the includes should not have parents
+        if(isset($this->include[$rec['taxonID']])) $rec['parentNameUsageID'] = '';
+        
+        //
+        if(stripos($rec['taxonRemarks'], "REMAP_ON_EOL") !== false) { //string is found
+            /*
+            [taxonID] => 163137
+            [scientificName] => Chaetoceros throndsenii (Marino, Montresor & Zingone) Marino, Montresor & Zingone, 1991
+            [parentNameUsageID] => 148985
+            [taxonRank] => species
+            [taxonomicStatus] => accepted
+            [taxonRemarks] => [REMAP_ON_EOL]
+            [acceptedNameUsageID] => 163143
+            */
+            if($rec['taxonID'] != $rec['acceptedNameUsageID'] && $rec['acceptedNameUsageID']) $rec['taxonomicStatus'] = 'synonym';
+        }
+
+        // if(in_array($rec['taxonID'], array(700052,146143,1026180,681756,100983,427861))) {
+        // if(in_array($rec['taxonID'], array(818201))) {
+        //     print_r($rec); exit;
+        // }
+
+        
+        return $rec;
     }
     private function main_WoRMS()
     {
+        $include['123081'] = "Crinoidea"; 
+        $include['6'] = "Bacteria"; 
+        $include['599656'] = "Glaucophyta"; 
+        $include['852'] = "Rhodophyta"; 
+        $include['17638'] = "Cryptophyta"; 
+        $include['369190'] = "Haptophyta"; 
+        $include['341275'] = "Centrohelida"; 
+        $include['536209'] = "Alveolata"; 
+        $include['368898'] = "Heterokonta"; 
+        $include['582420'] = "Rhizaria"; 
+        $include['582161'] = "Euglenozoa"; 
+        $include['582180'] = "Malawimonadea"; 
+        $include['582179'] = "Jakobea"; 
+        $include['582221'] = "Oxymonadida"; 
+        $include['582175'] = "Parabasalia"; 
+        $include['562616'] = "Hexamitidae"; 
+        $include['562613'] = "Enteromonadidae"; 
+        $include['451649'] = "Heterolobosea"; 
+        $include['582189'] = "Discosea"; 
+        $include['582188'] = "Tubulinea"; 
+        $include['103424'] = "Apusomonadidae"; 
+        $include['707610'] = "Rozellidae"; 
+        $include['582263'] = "Nucleariida"; 
+        $include['582261'] = "Ministeriida"; 
+        $include['580116'] = "Choanoflagellatea"; 
+        $include['391862'] = "Ichthyosporea";
+        $this->include = $include;
+        
         $removed_branches = array();
-        /* un-comment in real operation
+        // /* un-comment in real operation
         $params['spreadsheetID'] = '11jQ-6CUJIbZiNwZrHqhR_4rqw10mamdA17iaNELWCBQ';
         $params['range']         = 'Sheet1!A2:B1030'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
         $parts = self::get_removed_branches_from_spreadsheet($params);
@@ -64,41 +124,21 @@ class DWH_WoRMS_API
         // $one_word_names = $parts['one_word_names']; may not be needed anymore...
         echo "\nremoved_branches total: ".count($removed_branches)."\n";
         // exit("\n-end-\n");
-        */
+        // */
+        
+        // /*
+        //ids from WoRMS_DH_undefined_acceptedName_ids.txt
+        $ids_2remove = array(146143, 681756, 179477, 179847, 103815, 143816, 851581, 427887, 175895, 559169, 1026180, 744813, 115400, 176036, 603470, 744962, 744966, 744967, 135564, 100983, 427861, 864183, 427860, 528235, 1005667, 700047, 700051, 700052);
+        foreach($ids_2remove as $id) $removed_branches[$id] = '';
+        // */
+        
         
         $taxID_info = self::get_taxID_nodes_info();
+        // exit("\nexit muna\n");
         // print_r($taxID_info);
         echo "\ntaxID_info total: ".count($taxID_info)."\n";
         // exit("\n-end-\n");
 
-        $include['urn:lsid:marinespecies.org:taxname:123081'] = "Crinoidea"; 
-        $include['urn:lsid:marinespecies.org:taxname:6'] = "Bacteria"; 
-        $include['urn:lsid:marinespecies.org:taxname:599656'] = "Glaucophyta"; 
-        $include['urn:lsid:marinespecies.org:taxname:852'] = "Rhodophyta"; 
-        $include['urn:lsid:marinespecies.org:taxname:17638'] = "Cryptophyta"; 
-        $include['urn:lsid:marinespecies.org:taxname:369190'] = "Haptophyta"; 
-        $include['urn:lsid:marinespecies.org:taxname:341275'] = "Centrohelida"; 
-        $include['urn:lsid:marinespecies.org:taxname:536209'] = "Alveolata"; 
-        $include['urn:lsid:marinespecies.org:taxname:368898'] = "Heterokonta"; 
-        $include['urn:lsid:marinespecies.org:taxname:582420'] = "Rhizaria"; 
-        $include['urn:lsid:marinespecies.org:taxname:582161'] = "Euglenozoa"; 
-        $include['urn:lsid:marinespecies.org:taxname:582180'] = "Malawimonadea"; 
-        $include['urn:lsid:marinespecies.org:taxname:582179'] = "Jakobea"; 
-        $include['urn:lsid:marinespecies.org:taxname:582221'] = "Oxymonadida"; 
-        $include['urn:lsid:marinespecies.org:taxname:582175'] = "Parabasalia"; 
-        $include['urn:lsid:marinespecies.org:taxname:562616'] = "Hexamitidae"; 
-        $include['urn:lsid:marinespecies.org:taxname:562613'] = "Enteromonadidae"; 
-        $include['urn:lsid:marinespecies.org:taxname:451649'] = "Heterolobosea"; 
-        $include['urn:lsid:marinespecies.org:taxname:582189'] = "Discosea"; 
-        $include['urn:lsid:marinespecies.org:taxname:582188'] = "Tubulinea"; 
-        $include['urn:lsid:marinespecies.org:taxname:103424'] = "Apusomonadidae"; 
-        $include['urn:lsid:marinespecies.org:taxname:707610'] = "Rozellidae"; 
-        $include['urn:lsid:marinespecies.org:taxname:582263'] = "Nucleariida"; 
-        $include['urn:lsid:marinespecies.org:taxname:582261'] = "Ministeriida"; 
-        $include['urn:lsid:marinespecies.org:taxname:580116'] = "Choanoflagellatea"; 
-        $include['urn:lsid:marinespecies.org:taxname:391862'] = "Ichthyosporea";
-        $this->include = $include;
-        
         $meta = self::get_meta_info();
         $i = 0; $filtered_ids = array();
         echo "\nStart main process...Col WoRMS...\n";
@@ -114,12 +154,13 @@ class DWH_WoRMS_API
                 $k++;
             }
             $rec = array_map('trim', $rec);
-            // print_r($rec); exit;
+            $rec = self::format_ids($rec);
+            // print_r($rec); //exit;
             /* good debug
             if(isset($include[$rec['taxonID']])) print_r($rec);
             */
             /*Array(
-                [taxonID] => urn:lsid:marinespecies.org:taxname:1
+                [taxonID] => 1
                 [scientificName] => Biota
                 [parentNameUsageID] => 
                 [kingdom] => 
@@ -134,7 +175,7 @@ class DWH_WoRMS_API
                 [taxonRemarks] => 
                 [namePublishedIn] => 
                 [referenceID] => WoRMS:citation:1
-                [acceptedNameUsageID] => urn:lsid:marinespecies.org:taxname:1
+                [acceptedNameUsageID] => 1
                 [rights] => 
                 [rightsHolder] => 
                 [datasetName] => 
@@ -153,8 +194,8 @@ class DWH_WoRMS_API
             if($parent_id = $rec['parentNameUsageID']) {
                 if($parent_rek = @$taxID_info[$parent_id]) {
                     /* e.g. $taxID_info[$parent_id]
-                    [urn:lsid:marinespecies.org:taxname:535899] => Array(
-                                [pID] => urn:lsid:marinespecies.org:taxname:535589
+                    [535899] => Array(
+                                [pID] => 535589
                                 [r] => species
                                 [s] => accepted
                             )
@@ -180,7 +221,21 @@ class DWH_WoRMS_API
                     $removed_branches[$rec['taxonID']] = '';
                     continue;
                 }
-                else $inclusive_taxon_ids[$rec['taxonID']] = '';
+
+                //now check the acceptedNameUsageID:
+                if($accepted_id = $rec['acceptedNameUsageID']) {
+                    $ancestry = self::get_ancestry_of_taxID($accepted_id, $taxID_info);
+                    if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
+                        $filtered_ids[$rec['taxonID']] = '';
+                        $removed_branches[$rec['taxonID']] = '';
+                        continue;
+                    }
+                    if(!isset($taxID_info[$accepted_id])) {
+                        continue;
+                    }
+                }
+                
+                $inclusive_taxon_ids[$rec['taxonID']] = '';
             }
             //==============================================================================
         } //end loop
@@ -189,6 +244,7 @@ class DWH_WoRMS_API
         
         //start 2nd loop
         $i = 0; echo "\nStart main process 2...CoL WoRMS...\n";
+        echo "\nremoved_branches total: ".count($removed_branches)."\n";
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++;
             if(($i % 200000) == 0) echo "\n count:[$i] ";
@@ -201,6 +257,8 @@ class DWH_WoRMS_API
                 $k++;
             }
             $rec = array_map('trim', $rec);
+            $rec = self::format_ids($rec);
+            
             if(isset($inclusive_taxon_ids[$rec['taxonID']])) {
                 if(isset($filtered_ids[$rec['taxonID']])) continue;
                 if(isset($filtered_ids[$rec['acceptedNameUsageID']])) continue;
@@ -210,9 +268,9 @@ class DWH_WoRMS_API
                 if(isset($removed_branches[$rec['parentNameUsageID']])) continue;
                 
                 $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
-                if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
-                    continue;
-                }
+                if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) continue;
+                if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $filtered_ids)) continue;
+                
                 self::write_taxon_DH($rec);
             }
         }
@@ -239,6 +297,8 @@ class DWH_WoRMS_API
                 $k++;
             }
             $rec = array_map('trim', $rec);
+            $rec = self::format_ids($rec);
+            
             // print_r($rec); exit;
             $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank'], 's' => $rec['taxonomicStatus']);
             /* debug
@@ -284,13 +344,14 @@ class DWH_WoRMS_API
         $taxon->taxonID                 = $rec['taxonID'];
         $taxon->parentNameUsageID       = $rec['parentNameUsageID'];
         $taxon->taxonRank               = $rec['taxonRank'];
+        
+        $rec['scientificName'] = self::format_incertae_sedis($rec['scientificName']);
+        
         $taxon->scientificName          = $rec['scientificName'];
         $taxon->taxonomicStatus         = $rec['taxonomicStatus'];
         $taxon->acceptedNameUsageID     = $rec['acceptedNameUsageID'];
         $taxon->furtherInformationURL   = $rec['furtherInformationURL'];
         
-        $this->debug['acceptedNameUsageID'][$rec['acceptedNameUsageID']] = '';
-
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);
             $this->taxon_ids[$taxon->taxonID] = '';
@@ -340,6 +401,34 @@ class DWH_WoRMS_API
         $meta = $func->analyze_eol_meta_xml($this->extension_path."meta.xml", $row_type); //2nd param $row_type is rowType in meta.xml
         if($GLOBALS['ENV_DEBUG']) print_r($meta);
         return $meta;
+    }
+    private function format_incertae_sedis($str)
+    {
+        /*
+        case 1: [One-word-name] incertae sedis
+            Example: Bivalvia incertae sedis
+            To: unplaced [One-word-name]
+        
+        case 2: [One-word-name] incertae sedis [other words]
+        Example: Lyssacinosida incertae sedis Tabachnick, 2002
+        To: unplaced [One-word-name]
+
+        case 3: [more than 1 word-name] incertae sedis
+        :: leave it alone for now
+        Examples: Ascorhynchoidea family incertae sedis
+        */
+        $str = Functions::remove_whitespace($str);
+        $str = trim($str);
+        if(is_numeric(stripos($str, " incertae sedis"))) {
+            $str = str_ireplace("incertae sedis", "incertae sedis", $str); //this will capture Incertae sedis
+            $arr = explode(" incertae sedis", $str);
+            if($val = @$arr[0]) {
+                $space_count = substr_count($val, " ");
+                if($space_count == 0) return "unplaced " . trim($val);
+                else return $str;
+            }
+        }
+        else return $str;
     }
     // ----------------------------------------------------------------- end TRAM-797 -----------------------------------------------------------------
     /*

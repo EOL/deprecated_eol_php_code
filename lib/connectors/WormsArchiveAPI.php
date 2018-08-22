@@ -46,7 +46,7 @@ class WormsArchiveAPI
         $this->webservice['AphiaRecordByAphiaID']         = "http://www.marinespecies.org/rest/AphiaRecordByAphiaID/";
         $this->webservice['AphiaChildrenByAphiaID']       = "http://www.marinespecies.org/rest/AphiaChildrenByAphiaID/";
         
-        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 26);
+        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'resource_id' => 26);
         $this->download_options["expire_seconds"] = false; //debug - false means it will use cache
         $this->debug = array();
         
