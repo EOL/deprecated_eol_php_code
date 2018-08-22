@@ -67,6 +67,7 @@ class DWH_WoRMS_API
         */
         
         $taxID_info = self::get_taxID_nodes_info();
+        // print_r($taxID_info);
         echo "\ntaxID_info total: ".count($taxID_info)."\n";
         // exit("\n-end-\n");
 
@@ -144,7 +145,20 @@ class DWH_WoRMS_API
             if($rec['taxonomicStatus'] == '') continue;
 
             // 1. Remove taxa whose parentNameUsageID points to a taxon that has taxonomicStatus:synonym 
-            if(self::parent_points_to_a_taxon_where_status_is_synonym($rec)) continue;
+            if($parent_id = $rec['parentNameUsageID']) {
+                if($rek = $taxID_info[$parent_id]) {
+                    /* e.g. $taxID_info[$parent_id]
+                    [urn:lsid:marinespecies.org:taxname:535899] => Array
+                            (
+                                [pID] => urn:lsid:marinespecies.org:taxname:535589
+                                [r] => species
+                                [s] => accepted
+                            )
+                    */
+                    if($rek['s'] == 'synonym') continue;
+                }
+                else exit("\nInvestigate this id [$parent_id] has no record in taxID_info.\n");
+            }
             
             
             $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
