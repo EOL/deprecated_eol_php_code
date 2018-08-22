@@ -1,9 +1,8 @@
 <?php
 namespace php_active_record;
 /* connector: [dwh_col_TRAM_797.php] - https://eol-jira.bibalex.org/browse/TRAM-797
-
 */
-class DWH_COL_API
+class DWH_WoRMS_API
 {
     function __construct($folder)
     {
@@ -21,7 +20,7 @@ class DWH_COL_API
         $this->run = '';
     }
     // ----------------------------------------------------------------- start TRAM-797 -----------------------------------------------------------------
-    function start_CoLProtists()
+    function start_WoRMS()
     {
         $this->run = "Col Protists";
         self::main_CoLProtists();
@@ -144,176 +143,8 @@ class DWH_COL_API
             }
         }
     }
-    function start_tram_797()
-    {
-        /* test
-        $parts = self::get_removed_branches_from_spreadsheet();
-        $removed_branches = $parts['removed_brances'];
-        $one_word_names = $parts['one_word_names'];
-        print_r($removed_branches);
-        print_r($one_word_names);
-        exit("\n-end tests-\n");
-        */
-        /* test
-        // 10145857 Amphileptus hirsutus Dumas, 1930
-        // 10147309 Aspidisca binucleata Kahl
-        $taxID_info = self::get_taxID_nodes_info();
-        $ancestry = self::get_ancestry_of_taxID(10145857, $taxID_info); print_r($ancestry);
-        $ancestry = self::get_ancestry_of_taxID(10147309, $taxID_info); print_r($ancestry);
-        exit("\n-end tests-\n");
-        */
-        /*
-        $taxID_info = self::get_taxID_nodes_info();
-        $parts = self::get_removed_branches_from_spreadsheet();
-        $removed_branches = $parts['removed_brances'];
-        $one_word_names = $parts['one_word_names'];
-        $ids = array(42987761,42987788,42987780,42987793,42987792,42987781,42987798,42987775,42987777,40160866,40212453);
-        foreach($ids as $id) {
-            $ancestry = self::get_ancestry_of_taxID($id, $taxID_info);
-            echo "\n ancestry of [$id]:"; print_r($ancestry);
-            if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) echo "\n[$id] removed\n";
-            else                                                                                    echo "\n[$id] NOT removed\n";
-        }
-        exit("\n-end tests-\n");
-        */
-        
-        self::main_tram_797(); //exit("\nstop muna\n");
-        $this->archive_builder->finalize(TRUE);
-        if($this->debug) {
-            Functions::start_print_debug($this->debug, $this->resource_id);
-        }
-    }
-    private function main_tram_797()
-    {
-        $taxID_info = self::get_taxID_nodes_info();
-        $parts = self::get_removed_branches_from_spreadsheet();
-        $removed_branches = $parts['removed_brances'];
-        $one_word_names = $parts['one_word_names'];
-        
-        echo "\nremoved_branches total: ".count($removed_branches)."\n";
-        /* if to add more brances to be removed:
-        $removed_branches = array();
-        foreach($this->prune_further as $id) $removed_branches[$id] = '';
-        $add = self::more_ids_to_remove();
-        foreach($add as $id) $removed_branches[$id] = '';
-        */
-        
-        $meta = self::get_meta_info();
-        $i = 0; $filtered_ids = array();
-        echo "\nStart main process...main CoL DH...\n";
-        foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
-            $i++;
-            if(($i % 500000) == 0) echo "\n count:[$i] ";
-            if($meta['ignoreHeaderLines'] && $i == 1) continue;
-            if(!$row) continue;
-            $tmp = explode("\t", $row);
-            $rec = array(); $k = 0;
-            foreach($meta['fields'] as $field) {
-                $rec[$field] = $tmp[$k];
-                $k++;
-            }
-            $rec = array_map('trim', $rec);
-            //start filter
-            
-            // eli added start ----------------------------------------------------------------------------
-            $ranks2check = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
-            $vcont = true;
-            foreach($ranks2check as $rank2check) {
-                $sciname = $rec[$rank2check];
-                if(isset($one_word_names[$sciname])) {
-                    $filtered_ids[$rec['taxonID']] = '';
-                    $removed_branches[$rec['taxonID']] = '';
-                    $vcont = false;
-                    /* debug
-                    if($rec['taxonID'] == 42987761) {
-                        print_r($rec); exit("\n stopped 100 \n");
-                    }
-                    */
-                }
-            }
-            if(!$vcont) continue; //next taxon
-            // eli added end ----------------------------------------------------------------------------
-            
-            // if($rec['taxonomicStatus'] == "accepted name") {
-                /* Remove branches */
-                $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
-                if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
-                    // $this->debug['taxon where an id in its ancestry is included among removed branches'][$rec['taxonID']] = ''; //not usefule anymore
-                    $filtered_ids[$rec['taxonID']] = '';
-                    $removed_branches[$rec['taxonID']] = '';
-                    /* debug
-                    if($rec['taxonID'] == 42987761) {
-                        print_r($rec); exit("\n stopped 200 \n");
-                    }
-                    */
-                    continue;
-                }
-            // }
-        } //end loop
-
-        echo "\nStart main process 2...main CoL DH...\n"; $i = 0;
-        foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
-            $i++; if(($i % 500000) == 0) echo "\n count:[$i] ";
-            if($meta['ignoreHeaderLines'] && $i == 1) continue;
-            if(!$row) continue;
-            $tmp = explode("\t", $row);
-            $rec = array(); $k = 0;
-            foreach($meta['fields'] as $field) {
-                $rec[$field] = $tmp[$k];
-                $k++;
-            }
-            $rec = array_map('trim', $rec);
-            /*Array(
-                [taxonID] => 10145857
-                [furtherInformationURL] => http://www.catalogueoflife.org/annual-checklist/2015/details/species/id/ce9e04c173abb9b9bc76357e069c4026
-                [scientificNameID] => Cil-CILI00024223
-                [acceptedNameUsageID] => 
-                [parentNameUsageID] => 42998474
-                [scientificName] => Amphileptus hirsutus Dumas, 1930
-                [nameAccordingTo] => 
-                [kingdom] => Chromista
-                [phylum] => Ciliophora
-                [class] => Gymnostomatea
-                [order] => Pleurostomatida
-                [family] => Amphileptidae
-                [genus] => Amphileptus
-                [subgenus] => 
-                [specificEpithet] => hirsutus
-                [infraspecificEpithet] => 
-                [taxonRank] => species
-                [scientificNameAuthorship] => Dumas, 1930
-                [taxonomicStatus] => accepted name
-                [taxonRemarks] => 
-                [modified] => 
-                [datasetID] => 113
-                [datasetName] => CilCat in Species 2000 & ITIS Catalogue of Life: 28th March 2018
-                [referenceID] => 
-            )*/
-            
-            if(isset($filtered_ids[$rec['taxonID']])) continue;
-            if(isset($filtered_ids[$rec['acceptedNameUsageID']])) continue;
-            if(isset($filtered_ids[$rec['parentNameUsageID']])) continue;
-
-            if(isset($removed_branches[$rec['taxonID']])) continue;
-            if(isset($removed_branches[$rec['acceptedNameUsageID']])) continue;
-            if(isset($removed_branches[$rec['parentNameUsageID']])) continue;
-            
-            // if($rec['taxonomicStatus'] == "accepted name") {
-                /* Remove branches */
-                $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
-                if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
-                    $this->debug['taxon where an id in its ancestry is included among removed branches'][$rec['taxonID']] = '';
-                    /* debug
-                    if($rec['taxonID'] == 42987761) {
-                        print_r($rec); exit("\n stopped 300 \n");
-                    }
-                    */
-                    continue;
-                }
-            // }
-            self::write_taxon_DH($rec);
-        } //end loop
-    }
+    function start_tram_797(){}
+    private function main_tram_797(){}
     private function replace_NotAssigned_name($rec)
     {   /*42981143 -- Not assigned -- order
         We would want to change the scientificName value to “Order not assigned” */
