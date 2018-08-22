@@ -76,16 +76,15 @@ class DWH_WoRMS_API
             */
             if($rec['taxonID'] != $rec['acceptedNameUsageID'] && $rec['acceptedNameUsageID']) {
                 $rec['taxonomicStatus'] = 'synonym';
-                // $rec['parentNameUsageID'] = ''; //will investigate if won't mess things up -> this actually lessens the no. of taxa
+                $rec['parentNameUsageID'] = ''; //will investigate if won't mess things up -> this actually lessens the no. of taxa
             }
         }
 
         // if(in_array($rec['taxonID'], array(700052,146143,1026180,681756,100983,427861))) {
-        // if(in_array($rec['taxonID'], array(818201))) {
+        // if(in_array($rec['taxonID'], array(744813))) {
         //     print_r($rec); exit;
         // }
 
-        
         return $rec;
     }
     private function main_WoRMS()
@@ -129,11 +128,11 @@ class DWH_WoRMS_API
         // exit("\n-end-\n");
         // */
         
-        // /*
+        /*
         //ids from WoRMS_DH_undefined_acceptedName_ids.txt
         $ids_2remove = array(146143, 681756, 179477, 179847, 103815, 143816, 851581, 427887, 175895, 559169, 1026180, 744813, 115400, 176036, 603470, 744962, 744966, 744967, 135564, 100983, 427861, 864183, 427860, 528235, 1005667, 700047, 700051, 700052);
         foreach($ids_2remove as $id) $removed_branches[$id] = '';
-        // */
+        */
         
         
         $taxID_info = self::get_taxID_nodes_info();
@@ -193,7 +192,7 @@ class DWH_WoRMS_API
                 continue;
             }
 
-            // 1. Remove taxa whose parentNameUsageID points to a taxon that has taxonomicStatus:synonym 
+            // 1. Remove taxa whose parentNameUsageID points to a taxon that has taxonomicStatus:synonym or not accepted
             if($parent_id = $rec['parentNameUsageID']) {
                 if($parent_rek = @$taxID_info[$parent_id]) {
                     /* e.g. $taxID_info[$parent_id]
@@ -212,10 +211,30 @@ class DWH_WoRMS_API
                 else { //there is a parent but there is no record for the parent -> just set the parent to blank
                     $rec['parentNameUsageID'] = ''; //OK to do
                 }
-                // else exit("\nInvestigate this id [$parent_id] has no record in taxID_info.\n");
             }
             
-            
+            // Do the same for taxa those acceptedNameUsageID points to a taxon that has taxonomicStatus:synonym or not 'accepted'
+            if($accepted_id = $rec['acceptedNameUsageID']) {
+                if($accepted_rek = @$taxID_info[$accepted_id]) {
+                    /* e.g. $taxID_info[$accepted_id]
+                    [535899] => Array(
+                                [pID] => 535589
+                                [r] => species
+                                [s] => accepted
+                            )
+                    */
+                    if($accepted_rek['s'] != 'accepted') {
+                        $filtered_ids[$rec['taxonID']] = '';
+                        $removed_branches[$rec['taxonID']] = '';
+                        continue;
+                    }
+                }
+                else { //there is an acceptedNameUsageID but there is no record in taxon.txt
+                    $filtered_ids[$rec['taxonID']] = '';
+                    $removed_branches[$rec['taxonID']] = '';
+                    continue;
+                }
+            }
             //end filter -----------------------------------------------------------------------------------------------------------------------------
             
             $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
@@ -237,6 +256,7 @@ class DWH_WoRMS_API
                         $removed_branches[$rec['taxonID']] = '';
                         continue;
                     }
+                    //another filter:
                     if(!isset($taxID_info[$accepted_id])) {
                         continue;
                     }
