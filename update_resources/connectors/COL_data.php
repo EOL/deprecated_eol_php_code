@@ -23,8 +23,8 @@ ini_set('memory_limit','15096M'); //15096M
 $timestart = time_elapsed();
 
 $resource_id = 'col';
-require_library('connectors/COLDataAPI');
-$func = new COLDataAPI($resource_id);
+require_library('connectors/CoLDataAPI');
+$func = new CoLDataAPI($resource_id);
 $func->convert_archive();
 unset($func);
 Functions::finalize_dwca_resource($resource_id, true, false); //2nd param true means a big big file

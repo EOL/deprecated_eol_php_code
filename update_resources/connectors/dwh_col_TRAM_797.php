@@ -22,7 +22,7 @@ Catalogue_of_Life_DH	        Tuesday 2018-08-21 11:51:45 AM	{"taxon.tab":3620094
 Catalogue_of_Life_Protists_DH	Tuesday 2018-08-21 12:07:15 PM	{"taxon.tab":20220}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/DWH_COL_API');
+require_library('connectors/DWH_CoL_API');
 ini_set('memory_limit','15096M');
 // ini_set('memory_limit','6096M');
 // $GLOBALS['ENV_DEBUG'] = true;
@@ -31,7 +31,7 @@ $timestart = time_elapsed();
 //############################################################ start main CoL DH
 // /*
 $resource_id = "Catalogue_of_Life_DH"; //orig
-$func = new DWH_COL_API($resource_id);
+$func = new DWH_CoL_API($resource_id);
 $func->start_tram_797();
 $func = null;
 Functions::finalize_dwca_resource($resource_id, true);
@@ -51,7 +51,7 @@ else           echo "\nOK: All acceptedNameUsageID have entries.\n";
 //############################################################ end main CoL DH
 //############################################################ start CoL Protists
 $resource_id = "Catalogue_of_Life_Protists_DH"; //orig
-$func = new DWH_COL_API($resource_id);
+$func = new DWH_CoL_API($resource_id);
 $func->start_ColProtists();
 $func = null;
 Functions::finalize_dwca_resource($resource_id, true);
