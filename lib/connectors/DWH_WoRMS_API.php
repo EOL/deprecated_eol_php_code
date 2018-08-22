@@ -55,39 +55,55 @@ class DWH_WoRMS_API
     }
     private function main_WoRMS()
     {
+        $removed_branches = array();
         /* un-comment in real operation
         $params['spreadsheetID'] = '11jQ-6CUJIbZiNwZrHqhR_4rqw10mamdA17iaNELWCBQ';
         $params['range']         = 'Sheet1!A2:B1030'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
         $parts = self::get_removed_branches_from_spreadsheet($params);
         $removed_branches = $parts['removed_brances'];
-        // $one_word_names = $parts['one_word_names'];
-        print_r($removed_branches);
+        // $one_word_names = $parts['one_word_names']; may not be needed anymore...
         echo "\nremoved_branches total: ".count($removed_branches)."\n";
-        // echo "\none_word_names total: ".count($one_word_names)."\n";
         // exit("\n-end-\n");
         */
         
         $taxID_info = self::get_taxID_nodes_info();
         echo "\ntaxID_info total: ".count($taxID_info)."\n";
-        
-        exit("\n-end-\n");
+        // exit("\n-end-\n");
 
-        $include[42984770] = "Ciliophora";
-        $include[42990646] = "Oomycota";
-        $include[42981251] = "Polycystina";
-        $include[42985937] = "Eccrinida";
-        $include[42985691] = "Microsporidia";
-        $include[42983291] = "Mycetozoa";
-        $include[42993626] = "Chaetocerotaceae";
-        $include[42993677] = "Naviculaceae";
+        $include[123081] = "Crinoidea"; 
+        $include[6] = "Bacteria"; 
+        $include[599656] = "Glaucophyta"; 
+        $include[852] = "Rhodophyta"; 
+        $include[17638] = "Cryptophyta"; 
+        $include[369190] = "Haptophyta"; 
+        $include[341275] = "Centrohelida"; 
+        $include[536209] = "Alveolata"; 
+        $include[368898] = "Heterokonta"; 
+        $include[582420] = "Rhizaria"; 
+        $include[582161] = "Euglenozoa"; 
+        $include[582180] = "Malawimonadea"; 
+        $include[582179] = "Jakobea"; 
+        $include[582221] = "Oxymonadida"; 
+        $include[582175] = "Parabasalia"; 
+        $include[562616] = "Hexamitidae"; 
+        $include[562613] = "Enteromonadidae"; 
+        $include[451649] = "Heterolobosea"; 
+        $include[582189] = "Discosea"; 
+        $include[582188] = "Tubulinea"; 
+        $include[103424] = "Apusomonadidae"; 
+        $include[707610] = "Rozellidae"; 
+        $include[582263] = "Nucleariida"; 
+        $include[582261] = "Ministeriida"; 
+        $include[580116] = "Choanoflagellatea"; 
+        $include[391862] = "Ichthyosporea";
         $this->include = $include;
         
         $meta = self::get_meta_info();
         $i = 0; $filtered_ids = array();
-        echo "\nStart main process...Col Protists...\n";
+        echo "\nStart main process...Col WoRMS...\n";
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++;
-            if(($i % 500000) == 0) echo "\n count:[$i] ";
+            if(($i % 200000) == 0) echo "\n count:[$i] ";
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $tmp = explode("\t", $row);
@@ -102,31 +118,34 @@ class DWH_WoRMS_API
             if(isset($include[$rec['taxonID']])) print_r($rec);
             */
             /*Array(
-                [taxonID] => 10145857
-                [scientificNameID] => Cil-CILI00024223
-                [acceptedNameUsageID] => 
-                [parentNameUsageID] => 42998474
-                [scientificName] => Amphileptus hirsutus Dumas, 1930
-                [kingdom] => Chromista
-                [phylum] => Ciliophora
-                [class] => Gymnostomatea
-                [order] => Pleurostomatida
-                [family] => Amphileptidae
-                [genus] => Amphileptus
-                [taxonRank] => species
-                [scientificNameAuthorship] => Dumas, 1930
-                [taxonomicStatus] => accepted name
+                [taxonID] => urn:lsid:marinespecies.org:taxname:1
+                [scientificName] => Biota
+                [parentNameUsageID] => 
+                [kingdom] => 
+                [phylum] => 
+                [class] => 
+                [order] => 
+                [family] => 
+                [genus] => 
+                [taxonRank] => kingdom
+                [furtherInformationURL] => http://www.marinespecies.org/aphia.php?p=taxdetails&id=1
+                [taxonomicStatus] => accepted
                 [taxonRemarks] => 
+                [namePublishedIn] => 
+                [referenceID] => WoRMS:citation:1
+                [acceptedNameUsageID] => urn:lsid:marinespecies.org:taxname:1
+                [rights] => 
+                [rightsHolder] => 
+                [datasetName] => 
             )*/
             $will_cont = false;
             
-            /* This is commented because: there is Ciliophora that is genus, must be excluded. The Phylum Ciliophora is the one to be included. So name comparison was commented out.
-            $ranks2check = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
-            foreach($ranks2check as $rank2check) {
-                $sciname = $rec[$rank2check];
-                if(in_array($sciname, $include)) $will_cont = true;
-            }
-            */
+            // 2. Remove taxa that have a blank entry for taxonomicStatus.
+            if($rec['taxonomicStatus'] == '') continue;
+
+            // 1. Remove taxa whose parentNameUsageID points to a taxon that has taxonomicStatus:synonym 
+            if(self::parent_points_to_a_taxon_where_status_is_synonym($rec)) continue;
+            
             
             $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
             if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $include)) $will_cont = true; //this will actually include what is in the branch
@@ -146,10 +165,10 @@ class DWH_WoRMS_API
         
         
         //start 2nd loop
-        $i = 0; echo "\nStart main process 2...CoL Protists...\n";
+        $i = 0; echo "\nStart main process 2...CoL WoRMS...\n";
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++;
-            if(($i % 500000) == 0) echo "\n count:[$i] ";
+            if(($i % 200000) == 0) echo "\n count:[$i] ";
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $tmp = explode("\t", $row);
@@ -186,8 +205,7 @@ class DWH_WoRMS_API
     }
     private function get_taxID_nodes_info()
     {
-        echo "\nGenerating taxID_info...";
-        $final = array(); $i = 0;
+        echo "\nGenerating taxID_info..."; $final = array(); $i = 0;
         $meta = self::get_meta_info();
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++; if(($i % 500000) == 0) echo "\n count:[$i] ";
@@ -201,18 +219,13 @@ class DWH_WoRMS_API
             }
             $rec = array_map('trim', $rec);
             // print_r($rec); exit;
-            
-            // if($rec['taxonomicStatus'] == "accepted name") 
-            $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank']);
-            
-            // $temp[$rec['taxonomicStatus']] = ''; //debug
+            $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank'], 's' => $rec['taxonomicStatus']);
             /* debug
             if($rec['taxonID'] == "42987761") {
                 print_r($rec); exit;
             }
             */
         }
-        // print_r($temp); exit; //debug
         return $final;
     }
     private function get_ancestry_of_taxID($tax_id, $taxID_info)
