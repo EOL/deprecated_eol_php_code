@@ -480,7 +480,13 @@ class DHSourceHierarchiesAPI
         if(file_exists($meta_xml_path)) {
             $xml_string = file_get_contents($meta_xml_path);
             $xml = simplexml_load_string($xml_string);
-            foreach($xml->table as $tbl) {
+            
+            if(!isset($xml->table)) {
+                if(isset($xml->core)) $xml_table = $xml->core; //e.g. meta.xml from WoRMS http://www.marinespecies.org/export/eol/WoRMS2EoL.zip
+            }
+            else                      $xml_table = $xml->table;
+            
+            foreach($xml_table as $tbl) {
                 if($tbl['rowType'] == $row_type) {
                     if(in_array($tbl['ignoreHeaderLines'], array(1, true))) $ignoreHeaderLines = true;
                     else                                                    $ignoreHeaderLines = false;
@@ -493,6 +499,7 @@ class DHSourceHierarchiesAPI
                     $file = (string) $tbl->files->location;
                     return array('fields' => $fields, 'taxon_file' => $file, 'file' => $file, 'ignoreHeaderLines' => $ignoreHeaderLines);
                 }
+                else exit("\nInvestigate undefined row_type [$row_type]\n");
             }
         }
         else {
