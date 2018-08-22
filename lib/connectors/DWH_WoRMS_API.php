@@ -32,12 +32,12 @@ class DWH_WoRMS_API
     }
     function start_WoRMS()
     {
-        if(!($info = self::start())) return; //uncomment in real operation
+        // if(!($info = self::start())) return; //uncomment in real operation
         
-        /* development only
+        // /* development only
         $info = Array('temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_26984/',
                       'tables' => Array('taxa' => "taxon.txt"));
-        */
+        // */
         
         // print_r($info);
         $this->extension_path = $info['temp_dir'];
@@ -50,8 +50,8 @@ class DWH_WoRMS_API
         }
         
         // remove temp dir
-        recursive_rmdir($info['temp_dir']);
-        echo ("\n temporary directory removed: " . $info['temp_dir']);
+        // recursive_rmdir($info['temp_dir']);
+        // echo ("\n temporary directory removed: " . $info['temp_dir']);
     }
     private function format_ids($rec)
     {
@@ -74,7 +74,10 @@ class DWH_WoRMS_API
             [taxonRemarks] => [REMAP_ON_EOL]
             [acceptedNameUsageID] => 163143
             */
-            if($rec['taxonID'] != $rec['acceptedNameUsageID'] && $rec['acceptedNameUsageID']) $rec['taxonomicStatus'] = 'synonym';
+            if($rec['taxonID'] != $rec['acceptedNameUsageID'] && $rec['acceptedNameUsageID']) {
+                $rec['taxonomicStatus'] = 'synonym';
+                
+            }
         }
 
         // if(in_array($rec['taxonID'], array(700052,146143,1026180,681756,100983,427861))) {
@@ -200,15 +203,19 @@ class DWH_WoRMS_API
                                 [s] => accepted
                             )
                     */
-                    if($parent_rek['s'] == 'synonym') {
+                    if($parent_rek['s'] != 'accepted') {
                         $filtered_ids[$rec['taxonID']] = '';
                         $removed_branches[$rec['taxonID']] = '';
                         continue;
                     }
                 }
-                // else continue;
+                else continue;
                 // else exit("\nInvestigate this id [$parent_id] has no record in taxID_info.\n");
             }
+            
+            
+            
+            
             //end filter -----------------------------------------------------------------------------------------------------------------------------
             
             $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
@@ -271,6 +278,8 @@ class DWH_WoRMS_API
                 if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) continue;
                 if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $filtered_ids)) continue;
                 
+                
+                
                 self::write_taxon_DH($rec);
             }
         }
@@ -312,9 +321,9 @@ class DWH_WoRMS_API
     private function get_ancestry_of_taxID($tax_id, $taxID_info)
     {   /* Array(
             [1] => Array(
-                    [pID] => 1
-                    [r] => no rank
-                    [dID] => 8
+                    [pID] => 123
+                    [r] => species
+                    [s] => accepted
                 )
         )*/
         $final = array();
