@@ -32,26 +32,27 @@ class DWH_WoRMS_API
     }
     function start_WoRMS()
     {
-        if(!($info = self::start())) return; //uncomment in real operation
-        
-        /* development only
-        $info = Array('temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_26984/',
-                      'tables' => Array('taxa' => "taxon.txt"));
-        */
-        
-        // print_r($info);
-        $this->extension_path = $info['temp_dir'];
-        // exit("\nstopx\n");
-        
-        self::main_WoRMS();
-        $this->archive_builder->finalize(TRUE);
-        if($this->debug) {
-            Functions::start_print_debug($this->debug, $this->resource_id);
+        if(Functions::is_production()) {
+            if(!($info = self::start())) return; //uncomment in real operation
+            $this->extension_path = $info['temp_dir'];
+            self::main_WoRMS();
+            $this->archive_builder->finalize(TRUE);
+            if($this->debug) Functions::start_print_debug($this->debug, $this->resource_id);
+            // remove temp dir
+            recursive_rmdir($info['temp_dir']);
+            echo ("\n temporary directory removed: " . $info['temp_dir']);
         }
-        
-        // remove temp dir
-        recursive_rmdir($info['temp_dir']);
-        echo ("\n temporary directory removed: " . $info['temp_dir']);
+        else { //local development only
+            $info = Array('temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_26984/',
+                          'tables' => Array('taxa' => "taxon.txt"));
+            $this->extension_path = $info['temp_dir'];
+            self::main_WoRMS();
+            $this->archive_builder->finalize(TRUE);
+            if($this->debug) Functions::start_print_debug($this->debug, $this->resource_id);
+            // remove temp dir
+            // recursive_rmdir($info['temp_dir']);
+            // echo ("\n temporary directory removed: " . $info['temp_dir']);
+        }
     }
     private function format_ids($rec)
     {
