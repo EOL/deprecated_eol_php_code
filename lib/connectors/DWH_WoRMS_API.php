@@ -150,7 +150,7 @@ class DWH_WoRMS_API
 
         $meta = self::get_meta_info();
         $i = 0; $filtered_ids = array();
-        echo "\nStart main process...Col WoRMS...\n";
+        echo "\nStart main process...WoRMS...\n";
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++;
             if(($i % 200000) == 0) echo "\n count:[$i] ";
@@ -279,7 +279,7 @@ class DWH_WoRMS_API
         
         
         //start 2nd loop
-        $i = 0; echo "\nStart main process 2...CoL WoRMS...\n";
+        $i = 0; echo "\nStart main process 2...WoRMS...\n";
         echo "\nremoved_branches total: ".count($removed_branches)."\n";
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++;
