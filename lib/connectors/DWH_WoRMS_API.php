@@ -59,22 +59,21 @@ class DWH_WoRMS_API
         $fields = array("taxonID", "parentNameUsageID", "acceptedNameUsageID");
         foreach($fields as $fld) $rec[$fld] = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $rec[$fld]);
 
-        if($rec['taxonID'] == $rec['acceptedNameUsageID']) $rec['acceptedNameUsageID'] = '';
+        if($rec['taxonID'] == $rec['acceptedNameUsageID']) $rec['acceptedNameUsageID'] = ''; //OK
         
         //root nodes in the includes should not have parents
-        if(isset($this->include[$rec['taxonID']])) $rec['parentNameUsageID'] = '';
-        
-        //
+        if(isset($this->include[$rec['taxonID']])) $rec['parentNameUsageID'] = ''; //OK
+
+        /*
+        [taxonID] => 163137
+        [scientificName] => Chaetoceros throndsenii (Marino, Montresor & Zingone) Marino, Montresor & Zingone, 1991
+        [parentNameUsageID] => 148985
+        [taxonRank] => species
+        [taxonomicStatus] => accepted
+        [taxonRemarks] => [REMAP_ON_EOL]
+        [acceptedNameUsageID] => 163143
+        */
         if(stripos($rec['taxonRemarks'], "REMAP_ON_EOL") !== false) { //string is found
-            /*
-            [taxonID] => 163137
-            [scientificName] => Chaetoceros throndsenii (Marino, Montresor & Zingone) Marino, Montresor & Zingone, 1991
-            [parentNameUsageID] => 148985
-            [taxonRank] => species
-            [taxonomicStatus] => accepted
-            [taxonRemarks] => [REMAP_ON_EOL]
-            [acceptedNameUsageID] => 163143
-            */
             if($rec['taxonID'] != $rec['acceptedNameUsageID'] && $rec['acceptedNameUsageID']) {
                 $rec['taxonomicStatus'] = 'synonym';
                 $rec['parentNameUsageID'] = ''; //will investigate if won't mess things up -> this actually lessens the no. of taxa
@@ -121,26 +120,21 @@ class DWH_WoRMS_API
         $removed_branches = array();
         // /* un-comment in real operation
         $params['spreadsheetID'] = '11jQ-6CUJIbZiNwZrHqhR_4rqw10mamdA17iaNELWCBQ';
-        $params['range']         = 'Sheet1!A2:B1030'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $params['range']         = 'Sheet1!A2:B2000'; //actual range is up to B1030 only as of Aug 23, 2018. I set B2000 to put allowance for possible increase.
         $parts = self::get_removed_branches_from_spreadsheet($params);
         $removed_branches = $parts['removed_brances'];
         // $one_word_names = $parts['one_word_names']; may not be needed anymore...
         echo "\nremoved_branches total: ".count($removed_branches)."\n";
-        // exit("\n-end-\n");
         // */
         
         // /*
-        //ids from WoRMS_DH_undefined_acceptedName_ids.txt
+        //IDs from WoRMS_DH_undefined_acceptedName_ids.txt
         $ids_2remove = array(146143, 179477, 179847, 103815, 143816, 851581, 427887, 559169, 1026180, 744813, 115400, 176036, 603470, 744962, 744966, 744967, 135564, 100983, 427861, 864183, 427860, 1005667);
         foreach($ids_2remove as $id) $removed_branches[$id] = '';
         // */
         
-        
         $taxID_info = self::get_taxID_nodes_info();
-        // exit("\nexit muna\n");
-        // print_r($taxID_info);
-        echo "\ntaxID_info total: ".count($taxID_info)."\n";
-        // exit("\n-end-\n");
+        echo "\ntaxID_info (taxons.txt) total rows: ".count($taxID_info)."\n";
 
         $meta = self::get_meta_info();
         $i = 0; $filtered_ids = array();
