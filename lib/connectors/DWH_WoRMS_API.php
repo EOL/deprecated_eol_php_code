@@ -275,7 +275,7 @@ class DWH_WoRMS_API
             }
             //==============================================================================
         } //end loop
-        echo "\ntotal ids: ".count($inclusive_taxon_ids)."\n";
+        echo "\ntotal inclusive_taxon_ids: ".count($inclusive_taxon_ids)."\n";
         
         
         //start 2nd loop
