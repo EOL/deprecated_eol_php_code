@@ -177,7 +177,6 @@ class DWH_WoRMS_API
                 [rightsHolder] => 
                 [datasetName] => 
             )*/
-            $will_cont = false;
             
             //start filter -----------------------------------------------------------------------------------------------------------------------------
             // 2. Remove taxa that have a blank entry for taxonomicStatus.
@@ -187,7 +186,7 @@ class DWH_WoRMS_API
                 continue;
             }
 
-            // 1. Remove taxa whose parentNameUsageID points to a taxon that has taxonomicStatus:synonym or not accepted
+            // 1. Remove taxa whose parentNameUsageID points to a taxon that has taxonomicStatus:synonym or not 'accepted'
             if($parent_id = $rec['parentNameUsageID']) {
                 if($parent_rek = @$taxID_info[$parent_id]) {
                     /* e.g. $taxID_info[$parent_id]
@@ -204,7 +203,8 @@ class DWH_WoRMS_API
                     }
                 }
                 else { //there is a parent but there is no record for the parent -> just set the parent to blank
-                    $rec['parentNameUsageID'] = ''; //OK to do
+                    $rec['parentNameUsageID'] = ''; //OK to do this.
+                    $this->debug['parent that is not in taxon.txt'][$parent_id] = '';
                 }
             }
             
@@ -232,6 +232,7 @@ class DWH_WoRMS_API
             }
             //end filter -----------------------------------------------------------------------------------------------------------------------------
             
+            $will_cont = false;
             $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
             if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $include)) $will_cont = true; //this will actually include what is in the branch
             
