@@ -18,6 +18,11 @@ class DWH_WoRMS_API
         
         if(Functions::is_production())  $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";
         else                            $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";
+        
+        $this->webservice['AphiaRecordByAphiaID'] = "http://www.marinespecies.org/rest/AphiaRecordByAphiaID/";
+        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'resource_id' => 26);
+        $this->download_options["expire_seconds"] = false; //debug - false means it will use cache
+        
     }
     // ----------------------------------------------------------------- start TRAM-797 -----------------------------------------------------------------
     private function start()
@@ -56,10 +61,13 @@ class DWH_WoRMS_API
     }
     private function format_ids($rec)
     {
+        $this->debug['taxonomicStatus values'][$rec['taxonomicStatus']] = '';
+        
         $fields = array("taxonID", "parentNameUsageID", "acceptedNameUsageID");
         foreach($fields as $fld) $rec[$fld] = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $rec[$fld]);
 
-        if($rec['taxonID'] == $rec['acceptedNameUsageID']) $rec['acceptedNameUsageID'] = ''; //OK
+        if($rec['taxonID'] == $rec['acceptedNameUsageID']) $rec['acceptedNameUsageID'] = ''; //OK, valid adjustment
+        if($rec['taxonID'] == $rec['parentNameUsageID']) $rec['parentNameUsageID'] = ''; //just put it here, but may not be needed
         
         //root nodes in the includes should not have parents
         if(isset($this->include[$rec['taxonID']])) $rec['parentNameUsageID'] = ''; //OK
@@ -80,9 +88,13 @@ class DWH_WoRMS_API
             }
         }
 
+        /* One more thing: synonyms and other alternative names should not have parentNameUsageIDs. In general, if a taxon has an acceptedNameUsageID it should not also have a parentNameUsageID. 
+        So in this specific case, we want acceptedNameUsageID's only if name class IS scientific name. */
+        if($rec['taxonomicStatus'] && $rec['taxonomicStatus'] != 'accepted' && $rec['acceptedNameUsageID']) $rec['parentNameUsageID'] = ''; //newly added
+        
         // if(in_array($rec['taxonID'], array(700052,146143,1026180,681756,100983,427861))) {
-        // if(in_array($rec['taxonID'], array(744813))) {
-        //     print_r($rec); exit;
+        // if(in_array($rec['taxonID'], array(169693, 170666, 208739, 216130, 233336, 251753))) {
+        //     print_r($rec); //exit;
         // }
 
         return $rec;
@@ -127,11 +139,11 @@ class DWH_WoRMS_API
         echo "\nremoved_branches total: ".count($removed_branches)."\n";
         // */
         
-        // /*
+        /*
         //IDs from WoRMS_DH_undefined_acceptedName_ids.txt
         $ids_2remove = array(146143, 179477, 179847, 103815, 143816, 851581, 427887, 559169, 1026180, 744813, 115400, 176036, 603470, 744962, 744966, 744967, 135564, 100983, 427861, 864183, 427860, 1005667);
         foreach($ids_2remove as $id) $removed_branches[$id] = '';
-        // */
+        */
         
         $taxID_info = self::get_taxID_nodes_info();
         echo "\ntaxID_info (taxons.txt) total rows: ".count($taxID_info)."\n";
@@ -204,7 +216,7 @@ class DWH_WoRMS_API
                 }
                 else { //there is a parent but there is no record for the parent -> just set the parent to blank
                     $rec['parentNameUsageID'] = ''; //OK to do this.
-                    $this->debug['parent that is not in taxon.txt'][$parent_id] = '';
+                    // $this->debug['parent_id that is not in taxon.txt'][$parent_id] = '';
                 }
             }
             
@@ -227,6 +239,7 @@ class DWH_WoRMS_API
                 else { //there is an acceptedNameUsageID but there is no record in taxon.txt
                     $filtered_ids[$rec['taxonID']] = '';
                     $removed_branches[$rec['taxonID']] = '';
+                    // $this->debug['accepted_id that is not in taxon.txt'][$accepted_id] = '';
                     continue;
                 }
             }
@@ -294,10 +307,30 @@ class DWH_WoRMS_API
                 if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) continue;
                 if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $filtered_ids)) continue;
                 
-                
+                if($rec['taxonomicStatus'] == 'accepted' && $rec['acceptedNameUsageID']) {
+                    echo "\ngoes here...\n";
+                    if($accepted_rek = @$taxID_info[$rec['acceptedNameUsageID']]) {
+                        if($accepted_rek['s'] == 'accepted') { //it didn't go here anyway...
+                            $status_from_api = self::status_from_api($rec['taxonID']);
+                            if($status_from_api != 'accepted') {
+                                $rec['taxonomicStatus'] = $status_from_api;
+                                $rec['parentNameUsageID'] = '';
+                            }
+                            else $this->debug['accepted but with acceptedNameUsageID'][$rec['taxonID']] = '';
+                        }
+                    }
+                }
                 
                 self::write_taxon_DH($rec);
             }
+        }
+    }
+    private function status_from_api($taxon_id)
+    {
+        if($json = Functions::lookup_with_cache($this->webservice['AphiaRecordByAphiaID'].$taxon_id, $this->download_options)) {
+            $arr = json_decode($json, true);
+            // print_r($arr);
+            return $arr['status'];
         }
     }
     private function replace_NotAssigned_name($rec)
@@ -361,9 +394,11 @@ class DWH_WoRMS_API
     {   //from NCBI ticket: a general rule
         /* One more thing: synonyms and other alternative names should not have parentNameUsageIDs. In general, if a taxon has an acceptedNameUsageID it should not also have a parentNameUsageID. 
         So in this specific case, we want acceptedNameUsageID's only if name class IS scientific name. */
-        if($rec['acceptedNameUsageID']) $rec['parentNameUsageID'] = '';
+        // if($rec['acceptedNameUsageID']) $rec['parentNameUsageID'] = ''; moved....
         
         // if($rec['scientificName'] == "Not assigned") $rec['scientificName'] = self::replace_NotAssigned_name($rec); not instructed to use in this resource
+        
+        
         
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                 = $rec['taxonID'];
@@ -376,6 +411,7 @@ class DWH_WoRMS_API
         $taxon->taxonomicStatus         = $rec['taxonomicStatus'];
         $taxon->acceptedNameUsageID     = $rec['acceptedNameUsageID'];
         $taxon->furtherInformationURL   = $rec['furtherInformationURL'];
+        $taxon->taxonRemarks            = $rec['taxonRemarks'];
         
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);
