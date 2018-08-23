@@ -307,10 +307,10 @@ class DWH_WoRMS_API
                 if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) continue;
                 if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $filtered_ids)) continue;
                 
-                if($rec['taxonomicStatus'] == 'accepted' && $rec['acceptedNameUsageID']) {
-                    echo "\ngoes here...\n";
+                if($rec['taxonomicStatus'] == 'accepted' && $rec['acceptedNameUsageID']) { //it didn't go here anyway...
+                    echo "\n it never went here... \n";
                     if($accepted_rek = @$taxID_info[$rec['acceptedNameUsageID']]) {
-                        if($accepted_rek['s'] == 'accepted') { //it didn't go here anyway...
+                        if($accepted_rek['s'] == 'accepted') {
                             $status_from_api = self::status_from_api($rec['taxonID']);
                             if($status_from_api != 'accepted') {
                                 $rec['taxonomicStatus'] = $status_from_api;
