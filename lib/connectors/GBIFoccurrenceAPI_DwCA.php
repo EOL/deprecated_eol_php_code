@@ -154,9 +154,10 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     private function breakdown_GBIF_DwCA_file()
     {
+        exit("\nFinished running Aug 23, 2018\n");
         $path2 = $this->save_path['taxa_csv_path'];
         if(Functions::is_production()) {
-            $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Animalia/occurrence.txt";
+            // $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Animalia/occurrence.txt";        //~717 million - Took 3 days 15 hr (when API calls are not yet cached)
             // $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Plantae/occurrence.txt";         //~183 million - Took 1 day 19 hr (when API calls are not yet cached)
             // $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Other7Groups/occurrence.txt";    //~25 million - Took 5 hr 10 min (when API calls are not yet cached)
         }
@@ -252,7 +253,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         // /* for testing 1 taxon
         $eol_taxon_id_list = array();
         $eol_taxon_id_list["Gadus morhua"] = 206692;
-        $eol_taxon_id_list["Gadidae"] = 5503;
+        // $eol_taxon_id_list["Gadidae"] = 5503;
         // $eol_taxon_id_list["Hyperiidae"] = 1180;
         // $eol_taxon_id_list["Decapoda"] = 1183;
         // */
