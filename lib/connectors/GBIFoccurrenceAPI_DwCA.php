@@ -39,11 +39,13 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $this->save_path['taxa_csv_path']     = "/extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/";
             $this->save_path['multimedia_gbifID'] = "/extra/other_files/GBIF_occurrence/multimedia_gbifID/";
             $this->save_path['map_data']          = "/extra/map_data_dwca/";
+            $this->eol_taxon_concept_names_tab    = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
         }
         else {
             $this->save_path['taxa_csv_path']     = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_dwca/";
             $this->save_path['multimedia_gbifID'] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/multimedia_gbifID/";
             $this->save_path['map_data']          = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/map_data_dwca/";
+            $this->eol_taxon_concept_names_tab    = "/Volumes/AKiTiO4/z backup/eol_php_code_public_tmp/google_maps old/taxon_concept_names.tab";
         }
         $this->csv_paths = array();
         $this->csv_paths[] = $this->save_path['taxa_csv_path'];
@@ -53,6 +55,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         
         $this->limit_20k = 20000; //20000;
         $this->api['dataset'] = "http://api.gbif.org/v1/dataset/";
+        $this->debug = array();
     }
     function start()
     {
@@ -76,7 +79,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         
         // self::breakdown_GBIF_DwCA_file();               echo "\nDONE: breakdown_GBIF_DwCA_file()\n";                //return; //IMPORTANT: this can only be run once every harvest
         // self::breakdown_multimedia_to_gbifID_files();   echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n";    return; //took 18 mins in eol-archive
-        self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n";  return;
+        self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n";
+        if($this->debug) Functions::start_print_debug($this->debug, "gen_map_data_via_gbif_csv");
+        return;
         
         //---------------------------------------------------------------------------------------------------------------------------------------------
         /*
@@ -232,9 +237,12 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     private function generate_map_data_using_GBIF_csv_files()
     {
-        /* uncomment in real operation
+        // /* uncomment in real operation
+        $path = false;
         $eol_taxon_id_list = self::process_all_eol_taxa($path, true); //listOnly = true
-        */
+        echo "\n eol_taxon_id_list total: ".count($eol_taxon_id_list)."\n";
+        // exit("\nstopx\n");
+        // */
         
         // print_r($eol_taxon_id_list); echo "\n" . count($eol_taxon_id_list) . "\n"; return; //[Triticum aestivum virus] => 540152
         
@@ -250,13 +258,13 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         // $eol_taxon_id_list["Chaetoceros"] = 12010;
         // $eol_taxon_id_list["Chenonetta"] = 104248;
         
-        // /* for testing 1 taxon
+        /* for testing 1 taxon
         $eol_taxon_id_list = array();
         $eol_taxon_id_list["Gadus morhua"] = 206692;
         // $eol_taxon_id_list["Gadidae"] = 5503;
         // $eol_taxon_id_list["Hyperiidae"] = 1180;
         // $eol_taxon_id_list["Decapoda"] = 1183;
-        // */
+        */
 
         $paths = $this->csv_paths;
         
@@ -264,8 +272,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         foreach($eol_taxon_id_list as $sciname => $taxon_concept_id) {
             $i++;
             // ==============================
-            /*
+            // /*
             $m = 100000;
+            $m = count($eol_taxon_id_list)/6;
             $cont = false;
             // if($i >=  1    && $i < $m)    $cont = true;
             // if($i >=  $m   && $i < $m*2)  $cont = true;
@@ -273,8 +282,10 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             // if($i >=  $m*3 && $i < $m*4)  $cont = true;
             // if($i >=  $m*4 && $i < $m*5)  $cont = true;
             // if($i >=  $m*5 && $i < $m*6)  $cont = true;
+
+            if($i >=  1 && $i < 3) $cont = true;
             if(!$cont) continue;
-            */
+            // */
             // ==============================
             echo "\n$i. [$sciname][$taxon_concept_id]";
             if($usageKey = self::get_usage_key($sciname)) {
@@ -296,11 +307,18 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                         fwrite($this->file, "var data = ".$json);
                         fclose($this->file);
                     }
-                    else exit("\nShould not go here 001 [$sciname]\n");
+                    else exit("\nShould not go here 001 [$sciname][$taxon_concept_id]\n");
                 }
-                else echo "\nmap data not yet available [$sciname]\n";
+                else {
+                    echo "\nmap data not yet available [$sciname][$taxon_concept_id]\n";
+                    $this->debug['map data not yet available']["[$sciname][$taxon_concept_id]"] = '';
+                }
             }
-            else echo "\n usageKey not found! [$sciname]\n";
+            else 
+            {
+                echo "\n usageKey not found! [$sciname][$taxon_concept_id]\n";
+                $this->debug['usageKey not found']["[$sciname][$taxon_concept_id]"] = '';
+            }
         } //end main foreach()
     }
     private function get_map_data_path($taxon_concept_id)
@@ -384,16 +402,17 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     //==========================
     // end GBIF methods
     //==========================
-    private function process_all_eol_taxa($path, $listOnly = false)
+    private function process_all_eol_taxa($path = false, $listOnly = false)
     {
+        if(!$path) $path = $this->eol_taxon_concept_names_tab;
         if($listOnly) $list = array();
         $i = 0;
         foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
             $line = explode("\t", $line);
             $taxon_concept_id = $line[0];
-            $sciname          = Functions::canonical_form($line[1]);
+            $sciname          = Functions::canonical_form(@$line[1]);
             if($listOnly) {
-                $list[$sciname] = $taxon_concept_id;
+                if($taxon_concept_id) $list[$sciname] = $taxon_concept_id;
                 continue;
             }
             $i++;
