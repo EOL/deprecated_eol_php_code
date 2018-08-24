@@ -492,8 +492,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             // {
                 $final = self::get_georeference_data_via_api($rec['usageKey'], $basename);
                 $final_count = $final['count'];
-                if($final_count > $this->limit_20k)
-                {
+                if($final_count > $this->limit_20k) {
                     $final_count = self::process_revised_cluster($final, $basename); //done after main demo using screenshots
                 }
             // }
