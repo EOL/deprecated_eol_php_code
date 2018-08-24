@@ -290,7 +290,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 if(self::map_data_file_already_been_generated($taxon_concept_id)) continue;
                 
                 if($final = self::prepare_csv_data($usageKey, $paths)) {
-                    echo "\n Records from CSV: " . $final['count'] . "\n";
+                    echo "\n Records from CSV: " . $final['count'] . "";
                     if($final['count'] > $this->limit_20k) {
                         echo " --- > 20K\n";
                         self::process_revised_cluster($final, $taxon_concept_id); //done after main demo using screenshots
