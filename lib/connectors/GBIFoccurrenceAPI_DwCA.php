@@ -49,10 +49,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         }
         $this->csv_paths = array();
         $this->csv_paths[] = $this->save_path['taxa_csv_path'];
-        
 
         $this->rec_limit = 100000; //50000;
-        
         $this->limit_20k = 20000; //20000;
         $this->api['dataset'] = "http://api.gbif.org/v1/dataset/";
         $this->debug = array();
@@ -79,7 +77,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         // Step 4. 
             self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n";
             if($this->debug) Functions::start_print_debug($this->debug, "gen_map_data_via_gbif_csv");                   return;
-        // Step 5. pick if there are taxa still without map data (.json), if yes, use API to get map data.
+            /*This step includes using API if DwCA (csv file) for taxon is not available */
         
         //---------------------------------------------------------------------------------------------------------------------------------------------
         /*
@@ -237,11 +235,10 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     private function generate_map_data_using_GBIF_csv_files()
     {
-        /* uncomment in real operation
+        // /* uncomment in real operation
         $eol_taxon_id_list = self::process_all_eol_taxa(false, true); //listOnly = true
         echo "\n eol_taxon_id_list total: ".count($eol_taxon_id_list)."\n";
-        // exit("\nstopx\n");
-        */
+        // */
         
         // print_r($eol_taxon_id_list); echo "\n" . count($eol_taxon_id_list) . "\n"; return; //[Triticum aestivum virus] => 540152
         
@@ -256,7 +253,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         // $eol_taxon_id_list["Chaetoceros"] = 12010;
         // $eol_taxon_id_list["Chenonetta"] = 104248;
         
-        // /* for testing 1 taxon
+        /* for testing 1 taxon
         $eol_taxon_id_list = array();
         $eol_taxon_id_list["Gadus morhua"] = 206692;
         // $eol_taxon_id_list["Gadidae"] = 5503;
@@ -264,7 +261,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         // $eol_taxon_id_list["Decapoda"] = 1183;
         // $eol_taxon_id_list["Proterebia keymaea"] = 137680; //csv map data not available from DwCA download
         // $eol_taxon_id_list["Aichi virus"] = 540501;
-        // */
+        */
 
         $paths = $this->csv_paths;
         
@@ -272,17 +269,14 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         foreach($eol_taxon_id_list as $sciname => $taxon_concept_id) {
             $i++;
             // ==============================
-            /*
-            $m = 100000;
+            // /*
             $m = count($eol_taxon_id_list)/3;
             $cont = false;
-            // if($i >=  1    && $i < $m)    $cont = true;
+            if($i >=  1    && $i < $m)    $cont = true;
             // if($i >=  $m   && $i < $m*2)  $cont = true;
             // if($i >=  $m*2 && $i < $m*3)  $cont = true;
-
-            // if($i >=  1 && $i < 5) $cont = true;
             if(!$cont) continue;
-            */
+            // */
             // ==============================
             echo "\n$i. [$sciname][$taxon_concept_id]";
             if($usageKey = self::get_usage_key($sciname)) {
