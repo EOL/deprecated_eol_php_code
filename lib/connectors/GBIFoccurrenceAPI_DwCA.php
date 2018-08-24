@@ -258,9 +258,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         
         // /* for testing 1 taxon
         $eol_taxon_id_list = array();
-        // $eol_taxon_id_list["Gadus morhua"] = 206692;
+        $eol_taxon_id_list["Gadus morhua"] = 206692;
         // $eol_taxon_id_list["Gadidae"] = 5503;
-        $eol_taxon_id_list["Hyperiidae"] = 1180;
+        // $eol_taxon_id_list["Hyperiidae"] = 1180;
         // $eol_taxon_id_list["Decapoda"] = 1183;
         // $eol_taxon_id_list["Proterebia keymaea"] = 137680; //csv map data not available from DwCA download
         // $eol_taxon_id_list["Aichi virus"] = 540501;
@@ -326,6 +326,44 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         if($rec = self::get_initial_data($sciname)) {
             print_r($rec);
             self::get_georeference_data_via_api($rec['usageKey'], $taxon_concept_id);
+        }
+    }
+    private function get_georeference_data_via_api($taxonKey, $basename) //updated from original version
+    {
+        $offset = 0; $limit = 300; $continue = true; $final = array(); echo "\n";
+        $final['records'] = array();
+        while($continue) {
+            if($offset > $this->rec_limit) break; //working... uncomment if u want to limit to 100,000
+            $url = $this->gbif_occurrence_data . $taxonKey . "&limit=$limit";
+            if($offset) $url .= "&offset=$offset";
+            if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+                $j = json_decode($json);
+                if(!is_object($j)) {
+                    $offset += $limit;
+                    continue;
+                }
+                $recs = self::write_to_file($j);
+                $final['records'] = array_merge($final['records'], $recs);
+                echo " increments: " . count($recs) . "";
+                if($j->endOfRecords)                            $continue = false;
+                if(count($final['records']) > $this->rec_limit) $continue = false; //limit no. of markers in Google maps is 100K //working... uncomment if u want to limit to 100,000
+            }
+            else break; //just try again next time...
+            $offset += $limit;
+        }
+        $final['count']  = count($final['records']);
+        $final['actual'] = count($final['records']);
+        $final_count = $final['count'];
+        echo "\nFinal count: " . $final_count . "\n";
+
+        if($final_count > $this->limit_20k) {
+            $final_count = self::process_revised_cluster($final, $basename); //done after main demo using screenshots
+        }
+        else {
+            $json = json_encode($final, JSON_UNESCAPED_SLASHES);
+            if(!($this->file = Functions::file_open(self::get_map_data_path($basename).$basename.".json", "w"))) return;
+            fwrite($this->file, "var data = ".$json);
+            fclose($this->file);
         }
     }
     private function get_map_data_path($taxon_concept_id)
@@ -468,8 +506,14 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         // return false; //debug
         $filename = self::get_map_data_path($basename).$basename.".json";
         if(file_exists($filename)) {
-            echo "\n[$basename] map data (.json) already generated OK [$filename]";
-            return true;
+            if(filesize($filename) > 0) {
+                echo "[$basename] map data (.json) already generated OK [$filename]";
+                return true;
+            }
+            else {
+                $this->debug['json exists but zero length'][$basename] = '';
+                unlink($filename);
+            }
         }
         else return false;
     }
@@ -478,18 +522,11 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $sciname = Functions::canonical_form($sciname); echo "\n[$sciname]\n";
         $basename = $sciname;
         if($val = $taxon_concept_id) $basename = $val;
-        
         if(self::map_data_file_already_been_generated($basename)) return;
-
-        /*
-        if(!($this->file2 = Functions::file_open($this->save_path['fusion'].$basename.".txt", "w"))) return;
-        if(!($this->file3 = Functions::file_open($this->save_path['fusion2'].$basename.".json", "w"))) return;
-        */
-
         $final_count = false;
         if($rec = self::get_initial_data($sciname)) {
             print_r($rec);
-            // first is check the csv front
+            // first is check the csv front ------------------------------------------------------------------------------------------
             if($final = self::prepare_csv_data($rec['usageKey'], $this->csv_paths)) {
                 // print_r($final);
                 if($final['count'] > $this->rec_limit) {
@@ -499,13 +536,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 else echo "\n -- will use API as source 01 -- Records from CSV: " . $final['count'] . " < " . $this->rec_limit . " \n";
             }
             else echo "\n -- will use API as source 02 -- No CSV data \n"; //exit;
-            // end
+            // end ------------------------------------------------------------------------------------------
             
-            $final = self::get_georeference_data_via_api($rec['usageKey'], $basename);
-            $final_count = $final['count'];
-            if($final_count > $this->limit_20k) {
-                $final_count = self::process_revised_cluster($final, $basename); //done after main demo using screenshots
-            }
+            self::get_georeference_data_via_api($rec['usageKey'], $basename);
         }
         if(!$final_count) {
             $filename = self::get_map_data_path($basename).$basename.".json";
@@ -529,7 +562,6 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $to_be_saved = array();
         $to_be_saved['records'] = array();
         $unique = array();
-        
         $decimal_places = 6;
         while(true) {
             foreach($final['records'] as $r) {
@@ -624,44 +656,6 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $file_array = file($txtFile);
         unset($file_array[0]); //remove first line, the headers
         return $file_array;
-    }
-    private function get_georeference_data_via_api($taxonKey, $basename) //updated from original version
-    {
-        $offset = 0; $limit = 300; $continue = true; $final = array();
-        $final['records'] = array();
-        while($continue) {
-            if($offset > $this->rec_limit) break; //working... uncomment if u want to limit to 100,000
-            $url = $this->gbif_occurrence_data . $taxonKey . "&limit=$limit";
-            if($offset) $url .= "&offset=$offset";
-            if($json = Functions::lookup_with_cache($url, $this->download_options)) {
-                $j = json_decode($json);
-                if(!is_object($j)) {
-                    $offset += $limit;
-                    continue;
-                }
-                $recs = self::write_to_file($j);
-                $final['records'] = array_merge($final['records'], $recs);
-                echo "\n incremental count: " . count($recs) . "\n";
-                if($j->endOfRecords)                            $continue = false;
-                if(count($final['records']) > $this->rec_limit) $continue = false; //limit no. of markers in Google maps is 100K //working... uncomment if u want to limit to 100,000
-            }
-            else break; //just try again next time...
-            $offset += $limit;
-        }
-        $final['count']  = count($final['records']);
-        $final['actual'] = count($final['records']);
-        echo "\nFinal count: " . $final['count'] . "\n";
-
-        $final_count = $final['count'];
-        if($final_count > $this->limit_20k) {
-            $final_count = self::process_revised_cluster($final, $basename); //done after main demo using screenshots
-        }
-        else {
-            $json = json_encode($final, JSON_UNESCAPED_SLASHES);
-            if(!($this->file = Functions::file_open(self::get_map_data_path($basename).$basename.".json", "w"))) return;
-            fwrite($this->file, "var data = ".$json);
-            fclose($this->file);
-        }
     }
     private function get_center_latlon_using_taxonID($taxon_concept_id)
     {
