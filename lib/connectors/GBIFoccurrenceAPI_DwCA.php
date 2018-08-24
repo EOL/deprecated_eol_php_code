@@ -273,8 +273,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $m = 100000;
             $m = count($eol_taxon_id_list)/6;
             $cont = false;
-            if($i >=  1    && $i < $m)    $cont = true;
-            // if($i >=  $m   && $i < $m*2)  $cont = true;
+            // if($i >=  1    && $i < $m)    $cont = true;
+            if($i >=  $m   && $i < $m*2)  $cont = true;
             // if($i >=  $m*2 && $i < $m*3)  $cont = true;
             // if($i >=  $m*3 && $i < $m*4)  $cont = true;
             // if($i >=  $m*4 && $i < $m*5)  $cont = true;
