@@ -212,8 +212,12 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     {
         $options = $this->download_options;
         $options['expire_seconds'] = false;
-        if($json = Functions::lookup_with_cache($this->api['dataset'].$datasetKey, $options)) {
+        if($datasetKey && $json = Functions::lookup_with_cache($this->api['dataset'].$datasetKey, $options)) {
             $obj = json_decode($json);
+            if(!isset($obj->$return_field)) { //debug only
+                print_r($obj);
+                exit("\n[$datasetKey]: ".$this->api['dataset'].$datasetKey."\n");
+            }
             return $obj->$return_field;
         }
         else return self::get_org_name('dataset', $datasetKey);
@@ -233,11 +237,11 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     private function generate_map_data_using_GBIF_csv_files()
     {
-        // /* uncomment in real operation
+        /* uncomment in real operation
         $eol_taxon_id_list = self::process_all_eol_taxa(false, true); //listOnly = true
         echo "\n eol_taxon_id_list total: ".count($eol_taxon_id_list)."\n";
         // exit("\nstopx\n");
-        // */
+        */
         
         // print_r($eol_taxon_id_list); echo "\n" . count($eol_taxon_id_list) . "\n"; return; //[Triticum aestivum virus] => 540152
         
@@ -245,7 +249,6 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         // $eol_taxon_id_list["Achillea millefolium L."] = 45850244;
         // $eol_taxon_id_list["Francolinus levaillantoides"] = 1; //5227890
         // $eol_taxon_id_list["Phylloscopus trochilus"] = 2; //2493052
-        // $eol_taxon_id_list["Aichi virus"] = 540501;
         // $eol_taxon_id_list["Anthriscus sylvestris (L.) Hoffm."] = 584996; //from Plantae group
         // $eol_taxon_id_list["Xenidae"] = 8965;
         // $eol_taxon_id_list["Soleidae"] = 5169;
@@ -253,13 +256,15 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         // $eol_taxon_id_list["Chaetoceros"] = 12010;
         // $eol_taxon_id_list["Chenonetta"] = 104248;
         
-        /* for testing 1 taxon
+        // /* for testing 1 taxon
         $eol_taxon_id_list = array();
-        $eol_taxon_id_list["Gadus morhua"] = 206692;
+        // $eol_taxon_id_list["Gadus morhua"] = 206692;
         // $eol_taxon_id_list["Gadidae"] = 5503;
-        // $eol_taxon_id_list["Hyperiidae"] = 1180;
+        $eol_taxon_id_list["Hyperiidae"] = 1180;
         // $eol_taxon_id_list["Decapoda"] = 1183;
-        */
+        // $eol_taxon_id_list["Proterebia keymaea"] = 137680; //csv map data not available from DwCA download
+        // $eol_taxon_id_list["Aichi virus"] = 540501;
+        // */
 
         $paths = $this->csv_paths;
         
@@ -267,7 +272,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         foreach($eol_taxon_id_list as $sciname => $taxon_concept_id) {
             $i++;
             // ==============================
-            // /*
+            /*
             $m = 100000;
             $m = count($eol_taxon_id_list)/6;
             $cont = false;
@@ -280,7 +285,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
 
             // if($i >=  1 && $i < 5) $cont = true;
             if(!$cont) continue;
-            // */
+            */
             // ==============================
             echo "\n$i. [$sciname][$taxon_concept_id]";
             if($usageKey = self::get_usage_key($sciname)) {
@@ -296,7 +301,6 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                     elseif($final['count'] <= $this->limit_20k) {
                         echo " --- <= 20K\n";
                         $final['actual'] = $final['count'];
-                        // if(!($this->file = Functions::file_open($this->save_path['cluster'].$taxon_concept_id.".json", "w"))) return;
                         if(!($this->file = Functions::file_open(self::get_map_data_path($taxon_concept_id).$taxon_concept_id.".json", "w"))) return;
                         $json = json_encode($final, JSON_UNESCAPED_SLASHES);
                         fwrite($this->file, "var data = ".$json);
@@ -305,8 +309,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                     else exit("\nShould not go here 001 [$sciname][$taxon_concept_id]\n");
                 }
                 else {
-                    echo "\nmap data not yet available [$sciname][$taxon_concept_id]\n";
-                    $this->debug['map data not yet available']["[$sciname][$taxon_concept_id]"] = '';
+                    echo "\nCSV map data not available [$sciname][$taxon_concept_id]\n";
+                    $this->debug['CSV map data not available']["[$sciname][$taxon_concept_id]"] = '';
+                    self::gen_map_data_using_api($sciname, $taxon_concept_id);
                 }
             }
             else {
@@ -314,6 +319,14 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 $this->debug['usageKey not found']["[$sciname][$taxon_concept_id]"] = '';
             }
         } //end main foreach()
+    }
+    private function gen_map_data_using_api($sciname, $taxon_concept_id) //NEW Aug 24, 2018
+    {
+        echo "\nWill try to use API...\n";
+        if($rec = self::get_initial_data($sciname)) {
+            print_r($rec);
+            self::get_georeference_data_via_api($rec['usageKey'], $taxon_concept_id);
+        }
     }
     private function get_map_data_path($taxon_concept_id)
     {
@@ -488,29 +501,12 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             else echo "\n -- will use API as source 02 -- No CSV data \n"; //exit;
             // end
             
-            // if($rec['count'] < $this->rec_limit) //only process taxa with < 100K georeference records
-            // {
-                $final = self::get_georeference_data_via_api($rec['usageKey'], $basename);
-                $final_count = $final['count'];
-                if($final_count > $this->limit_20k) {
-                    $final_count = self::process_revised_cluster($final, $basename); //done after main demo using screenshots
-                }
-            // }
-            // else //e.g. 102569. [Chenonetta][104248]
-            // {
-            //     echo "\nIGNORED:[$sciname][tc_id=$basename][" . $rec['count'] . "]\n";
-            //     $final = self::get_georeference_data_via_api($rec['usageKey'], $basename);
-            //     $final_count = $final['count'];
-            //     $final_count = self::process_revised_cluster($final, $basename);
-            // }
+            $final = self::get_georeference_data_via_api($rec['usageKey'], $basename);
+            $final_count = $final['count'];
+            if($final_count > $this->limit_20k) {
+                $final_count = self::process_revised_cluster($final, $basename); //done after main demo using screenshots
+            }
         }
-        
-        /*
-        fclose($this->file2);
-        fclose($this->file3);
-        */
-        // fclose($this->file4); //kml
-        
         if(!$final_count) {
             $filename = self::get_map_data_path($basename).$basename.".json";
             if(file_exists($filename)) unlink($filename); //delete cluster map data
@@ -629,12 +625,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         unset($file_array[0]); //remove first line, the headers
         return $file_array;
     }
-    private function get_georeference_data_via_api($taxonKey, $basename)
+    private function get_georeference_data_via_api($taxonKey, $basename) //updated from original version
     {
-        $offset = 0;
-        $limit = 300;
-        $continue = true;
-        $final = array();
+        $offset = 0; $limit = 300; $continue = true; $final = array();
         $final['records'] = array();
         while($continue) {
             if($offset > $this->rec_limit) break; //working... uncomment if u want to limit to 100,000
@@ -646,31 +639,29 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                     $offset += $limit;
                     continue;
                 }
-                // print_r($j);
                 $recs = self::write_to_file($j);
                 $final['records'] = array_merge($final['records'], $recs);
-
-                // echo "\n incremental count: " . count($recs) . "\n";
-
+                echo "\n incremental count: " . count($recs) . "\n";
                 if($j->endOfRecords)                            $continue = false;
                 if(count($final['records']) > $this->rec_limit) $continue = false; //limit no. of markers in Google maps is 100K //working... uncomment if u want to limit to 100,000
             }
             else break; //just try again next time...
             $offset += $limit;
         }
-        $final['count'] = count($final['records']);
+        $final['count']  = count($final['records']);
         $final['actual'] = count($final['records']);
-        
         echo "\nFinal count: " . $final['count'] . "\n";
-        $json = json_encode($final);
-        
-        // if(!($this->file = Functions::file_open($this->save_path['cluster'].$basename.".json", "w"))) return;
-        if(!($this->file = Functions::file_open(self::get_map_data_path($basename).$basename.".json", "w"))) return;
-        fwrite($this->file, "var data = ".$json);
-        fclose($this->file);
-        
-        /* self::write_to_supplementary_fusion_text($final); */
-        return $final;
+
+        $final_count = $final['count'];
+        if($final_count > $this->limit_20k) {
+            $final_count = self::process_revised_cluster($final, $basename); //done after main demo using screenshots
+        }
+        else {
+            $json = json_encode($final, JSON_UNESCAPED_SLASHES);
+            if(!($this->file = Functions::file_open(self::get_map_data_path($basename).$basename.".json", "w"))) return;
+            fwrite($this->file, "var data = ".$json);
+            fclose($this->file);
+        }
     }
     private function get_center_latlon_using_taxonID($taxon_concept_id)
     {
@@ -890,6 +881,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 $rec["count"] = $count;
                 return $rec;
             }
+            else echo("\nNo occurrence\n");
         }
         else {
             exit("\nCannot get usage_key for ($sciname)\n");
