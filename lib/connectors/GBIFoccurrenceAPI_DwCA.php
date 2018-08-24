@@ -274,8 +274,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $m = count($eol_taxon_id_list)/6;
             $cont = false;
             // if($i >=  1    && $i < $m)    $cont = true;
-            if($i >=  $m   && $i < $m*2)  $cont = true;
-            // if($i >=  $m*2 && $i < $m*3)  $cont = true;
+            // if($i >=  $m   && $i < $m*2)  $cont = true;
+            if($i >=  $m*2 && $i < $m*3)  $cont = true;
             // if($i >=  $m*3 && $i < $m*4)  $cont = true;
             // if($i >=  $m*4 && $i < $m*5)  $cont = true;
             // if($i >=  $m*5 && $i < $m*6)  $cont = true;
@@ -292,11 +292,11 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 if($final = self::prepare_csv_data($usageKey, $paths)) {
                     echo "\n Records from CSV: " . $final['count'] . "\n";
                     if($final['count'] > $this->limit_20k) {
-                        echo "\n > 20K\n";
+                        echo " --- > 20K\n";
                         self::process_revised_cluster($final, $taxon_concept_id); //done after main demo using screenshots
                     }
                     elseif($final['count'] <= $this->limit_20k) {
-                        echo "\n <= 20K\n";
+                        echo " --- <= 20K\n";
                         $final['actual'] = $final['count'];
                         // if(!($this->file = Functions::file_open($this->save_path['cluster'].$taxon_concept_id.".json", "w"))) return;
                         if(!($this->file = Functions::file_open(self::get_map_data_path($taxon_concept_id).$taxon_concept_id.".json", "w"))) return;
