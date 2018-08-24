@@ -85,9 +85,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         
         //---------------------------------------------------------------------------------------------------------------------------------------------
         /*
-        if(Functions::is_production()) $path = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
-        else                           $path = "/Volumes/AKiTiO4/z backup/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
-        self::process_all_eol_taxa($path, false); return;           //make use of tab-delimited text file from JRice
+        self::process_all_eol_taxa(false, false); return;           //make use of tab-delimited text file from JRice
         */
         //---------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -238,8 +236,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     private function generate_map_data_using_GBIF_csv_files()
     {
         // /* uncomment in real operation
-        $path = false;
-        $eol_taxon_id_list = self::process_all_eol_taxa($path, true); //listOnly = true
+        $eol_taxon_id_list = self::process_all_eol_taxa(false, true); //listOnly = true
         echo "\n eol_taxon_id_list total: ".count($eol_taxon_id_list)."\n";
         // exit("\nstopx\n");
         // */
@@ -283,7 +280,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             // if($i >=  $m*4 && $i < $m*5)  $cont = true;
             // if($i >=  $m*5 && $i < $m*6)  $cont = true;
 
-            if($i >=  1 && $i < 3) $cont = true;
+            if($i >=  1 && $i < 5) $cont = true;
             if(!$cont) continue;
             // */
             // ==============================
@@ -314,8 +311,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                     $this->debug['map data not yet available']["[$sciname][$taxon_concept_id]"] = '';
                 }
             }
-            else 
-            {
+            else {
                 echo "\n usageKey not found! [$sciname][$taxon_concept_id]\n";
                 $this->debug['usageKey not found']["[$sciname][$taxon_concept_id]"] = '';
             }
