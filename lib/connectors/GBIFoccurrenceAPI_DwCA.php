@@ -260,7 +260,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $eol_taxon_id_list = array();
         $eol_taxon_id_list["Gadus morhua"] = 206692;
         // $eol_taxon_id_list["Gadidae"] = 5503;
-        // $eol_taxon_id_list["Hyperiidae"] = 1180;
+        $eol_taxon_id_list["Hyperiidae"] = 1180;
         // $eol_taxon_id_list["Decapoda"] = 1183;
         // $eol_taxon_id_list["Proterebia keymaea"] = 137680; //csv map data not available from DwCA download
         // $eol_taxon_id_list["Aichi virus"] = 540501;
@@ -274,14 +274,11 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             // ==============================
             /*
             $m = 100000;
-            $m = count($eol_taxon_id_list)/6;
+            $m = count($eol_taxon_id_list)/3;
             $cont = false;
             // if($i >=  1    && $i < $m)    $cont = true;
             // if($i >=  $m   && $i < $m*2)  $cont = true;
-            if($i >=  $m*2 && $i < $m*3)  $cont = true;
-            // if($i >=  $m*3 && $i < $m*4)  $cont = true;
-            // if($i >=  $m*4 && $i < $m*5)  $cont = true;
-            // if($i >=  $m*5 && $i < $m*6)  $cont = true;
+            // if($i >=  $m*2 && $i < $m*3)  $cont = true;
 
             // if($i >=  1 && $i < 5) $cont = true;
             if(!$cont) continue;
@@ -309,7 +306,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                     else exit("\nShould not go here 001 [$sciname][$taxon_concept_id]\n");
                 }
                 else {
-                    echo "\nCSV map data not available [$sciname][$taxon_concept_id]\n";
+                    echo "\nCSV map data not available [$sciname][$taxon_concept_id]... will use API instead...\n";
                     $this->debug['CSV map data not available']["[$sciname][$taxon_concept_id]"] = '';
                     self::gen_map_data_using_api($sciname, $taxon_concept_id);
                 }
@@ -364,6 +361,65 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             if(!($this->file = Functions::file_open(self::get_map_data_path($basename).$basename.".json", "w"))) return;
             fwrite($this->file, "var data = ".$json);
             fclose($this->file);
+        }
+    }
+    private function process_revised_cluster($final, $basename)
+    {
+        echo "\nStart with revised cluster";
+        if(!($this->file5 = Functions::file_open(self::get_map_data_path($basename).$basename.".json", "w"))) return;
+        $to_be_saved = array();
+        $to_be_saved['records'] = array();
+        $unique = array();
+        $decimal_places = 6;
+        while(true) {
+            foreach($final['records'] as $r) {
+                $lat = number_format($r['h'], $decimal_places);
+                $lon = number_format($r['i'], $decimal_places);
+                if(isset($unique["$lat,$lon"])) continue;
+                else $unique["$lat,$lon"] = '';
+                $to_be_saved['records'][] = $r;
+            }
+            echo "\n New total [$decimal_places]: " . count($unique) . "";
+            $limit_to_break = $this->limit_20k;
+            if($basename == 281) $limit_to_break = 35000; //Plantae 34131
+
+            if(count($to_be_saved['records']) < $limit_to_break || $decimal_places == 0) break; //orig value is 0, not 1
+            else {   //initialize vars
+                $decimal_places--;
+                $to_be_saved = array();
+                $to_be_saved['records'] = array();
+                $unique = array();
+            }
+        }
+        
+        //flag if after revised cluster is still unsuccessful
+        if(count($unique) > $limit_to_break) {
+            exit("\ntaxon_concept_ID [$basename] revised cluster unsuccessful\n");
+            if(!($fhandle = Functions::file_open(DOC_ROOT . "public/tmp/google_maps/alert.txt", "a"))) return;
+            fwrite($fhandle, "$basename" . "\t" . count($unique) . "\n");
+            fclose($fhandle);
+            // exit("\neli exits here...\n");
+            
+            //start force-get only the first 20k records
+            $to_be_saved = self::force_reduce_records($to_be_saved);
+
+            echo "\n Final total after force_reduce_records() [$decimal_places]: " . count($to_be_saved['records']) . "\n";
+
+            $to_be_saved['count'] = count($to_be_saved['records']);
+            $to_be_saved['actual'] = $final['count'];
+            $json = json_encode($to_be_saved, JSON_UNESCAPED_SLASHES);
+            fwrite($this->file5, "var data = ".$json);
+            fclose($this->file5);
+            return $to_be_saved['count']; //the smaller value; the bigger one is $to_be_saved['actual']
+        }
+        else {
+            echo "\n Final total [$decimal_places]: " . count($unique) . "\n";
+            $to_be_saved['count'] = count($to_be_saved['records']);
+            $to_be_saved['actual'] = $final['count'];
+            $json = json_encode($to_be_saved, JSON_UNESCAPED_SLASHES);
+            fwrite($this->file5, "var data = ".$json);
+            fclose($this->file5);
+            return $to_be_saved['count']; //the smaller value; the bigger one is $to_be_saved['actual']
         }
     }
     private function get_map_data_path($taxon_concept_id)
@@ -511,7 +567,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 return true;
             }
             else {
-                $this->debug['json exists but zero length'][$basename] = '';
+                $this->debug['json exists but zero length, will delete file'][$filename] = '';
                 unlink($filename);
             }
         }
@@ -556,66 +612,6 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             }
         }
     }
-    private function process_revised_cluster($final, $basename)
-    {
-        if(!($this->file5 = Functions::file_open(self::get_map_data_path($basename).$basename.".json", "w"))) return;
-        $to_be_saved = array();
-        $to_be_saved['records'] = array();
-        $unique = array();
-        $decimal_places = 6;
-        while(true) {
-            foreach($final['records'] as $r) {
-                $lat = number_format($r['h'], $decimal_places);
-                $lon = number_format($r['i'], $decimal_places);
-                if(isset($unique["$lat,$lon"])) continue;
-                else $unique["$lat,$lon"] = '';
-                $to_be_saved['records'][] = $r;
-            }
-            echo "\n New total [$decimal_places]: " . count($unique) . "\n";
-            
-            $limit_to_break = $this->limit_20k;
-            if($basename == 281) $limit_to_break = 35000; //Plantae 34131
-
-            if(count($to_be_saved['records']) < $limit_to_break || $decimal_places == 0) break; //orig value is 0, not 1
-            else {   //initialize vars
-                $decimal_places--;
-                $to_be_saved = array();
-                $to_be_saved['records'] = array();
-                $unique = array();
-            }
-        }
-        
-        //flag if after revised cluster is still unsuccessful
-        if(count($unique) > $limit_to_break) {
-            exit("\ntaxon_concept_ID [$basename] revised cluster unsuccessful\n");
-            if(!($fhandle = Functions::file_open(DOC_ROOT . "public/tmp/google_maps/alert.txt", "a"))) return;
-            fwrite($fhandle, "$basename" . "\t" . count($unique) . "\n");
-            fclose($fhandle);
-            // exit("\neli exits here...\n");
-            
-            //start force-get only the first 20k records
-            $to_be_saved = self::force_reduce_records($to_be_saved);
-
-            echo "\n Final total after force_reduce_records() [$decimal_places]: " . count($to_be_saved['records']) . "\n";
-
-            $to_be_saved['count'] = count($to_be_saved['records']);
-            $to_be_saved['actual'] = $final['count'];
-            $json = json_encode($to_be_saved, JSON_UNESCAPED_SLASHES);
-            fwrite($this->file5, "var data = ".$json);
-            fclose($this->file5);
-            return $to_be_saved['count']; //the smaller value; the bigger one is $to_be_saved['actual']
-        }
-        else {
-            echo "\n Final total [$decimal_places]: " . count($unique) . "\n";
-            $to_be_saved['count'] = count($to_be_saved['records']);
-            $to_be_saved['actual'] = $final['count'];
-            $json = json_encode($to_be_saved, JSON_UNESCAPED_SLASHES);
-            fwrite($this->file5, "var data = ".$json);
-            fclose($this->file5);
-            return $to_be_saved['count']; //the smaller value; the bigger one is $to_be_saved['actual']
-        }
-        
-    }
     function force_reduce_records($to_be_saved)
     {
         $i = -1;
@@ -628,7 +624,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         return $to_be_saved;
     }
     function save_ids_to_text_from_many_folders() //a utility
-    {   
+    {
         $dir_to_process = $this->save_path['map_data'];
         $text_file = "/Volumes/Thunderbolt4/map_data_zip/final_taxon_concept_IDS.txt";
         
