@@ -70,22 +70,20 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         echo "\ndataset name: [$dataset_name]\n";
         exit("\n-end tests-\n");
         */
-        /* Steps (August 2018) using the DwCA occurrence downloads from GBIF
-        1. Delete all .json files
-        3. self::breakdown_GBIF_DwCA_file(); echo "\nDONE: breakdown_GBIF_DwCA_file()\n"; return;
-        4. self::generate_map_data_using_GBIF_csv_files(); return;
-        5. pick if there are taxa still without map data (.json), if yes, use API to get map data.
-        */
-        
-        // self::breakdown_GBIF_DwCA_file();               echo "\nDONE: breakdown_GBIF_DwCA_file()\n";                //return; //IMPORTANT: this can only be run once every harvest
-        // self::breakdown_multimedia_to_gbifID_files();   echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n";    return; //took 18 mins in eol-archive
-        self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n";
-        if($this->debug) Functions::start_print_debug($this->debug, "gen_map_data_via_gbif_csv");
-        return;
+        /* Steps (August 2018) using the DwCA occurrence downloads from GBIF */
+        // Step 1. Delete all .json files
+        // Step 2. 
+            // self::breakdown_GBIF_DwCA_file(); echo "\nDONE: breakdown_GBIF_DwCA_file()\n";                              return; //IMPORTANT: this can only be run once every harvest
+        // Step 3. 
+            // self::breakdown_multimedia_to_gbifID_files();   echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n";    return; //took 18 mins in eol-archive
+        // Step 4. 
+            self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n";
+            if($this->debug) Functions::start_print_debug($this->debug, "gen_map_data_via_gbif_csv");                   return;
+        // Step 5. pick if there are taxa still without map data (.json), if yes, use API to get map data.
         
         //---------------------------------------------------------------------------------------------------------------------------------------------
         /*
-        self::process_all_eol_taxa(false, false); return;           //make use of tab-delimited text file from JRice
+        self::process_all_eol_taxa(false, false); return;   //make use of tab-delimited text file from JRice
         */
         //---------------------------------------------------------------------------------------------------------------------------------------------
 
