@@ -12,7 +12,8 @@ class CephBaseAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->download_options = array('resource_id' => 'cephbase', 'timeout' => 60*3, 'expire_seconds' => false, 'download_wait_time' => 1000000);
 
-        $this->main_text = "http://localhost/cp/CephBase/taxa2_html.txt";
+        $this->main_text = "http://localhost/cp/CephBase/taxa_html.txt";
+        $this->main_text = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/CephBase/taxa_html.txt";
         $this->page['Photos & Videos'] = "http://cephbase.eol.org/gallery?f[0]=tid%3A1";
         $this->page['page_range'] = "http://cephbase.eol.org/gallery?page=page_no&f[0]=tid:1"; //replace 'page_no' with actual page no.
         $this->page['image_page'] = "http://cephbase.eol.org/file-colorboxed/";                //add the file OR image no.
