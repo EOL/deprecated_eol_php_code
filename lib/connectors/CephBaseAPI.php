@@ -21,8 +21,8 @@ class CephBaseAPI
     }
     function start()
     {
-        self::parse_classification(); exit("\nstop classification\n");
-        // self::parse_images(); exit("\nstop images\n");
+        // self::parse_classification(); exit("\nstop classification\n");
+        self::parse_images(); exit("\nstop images\n");
     }
     private function parse_classification()
     {
@@ -41,9 +41,51 @@ class CephBaseAPI
                 }
             }
         }
-        print_r($rec);
+        // print_r($rec);
+        foreach($rec as $taxon_id => $sciname) {
+            echo "\n[$sciname] [$taxon_id]";
+            $taxon = self::parse_taxon_info($taxon_id);
+        }
     }
-    
+    private function parse_taxon_info($taxon_id)
+    {
+        if($html = Functions::lookup_with_cache($this->page['taxon_page'].$taxon_id, $this->download_options)) {
+            /*<div class="field-label">Subspecies:</div>
+               <div class="field-items">
+                 <div class="field-item" style="padding-left:3px;">
+                 <em>Nautilus</em> <em>pompilius</em> <em>pompilius</em> Linnaeus 1758        </div>
+            */
+            if(preg_match("/<div class=\"field-label\">(.*?):<\/div>/ims", $html, $arr)) $rec['rank'] = $arr[1];
+            if(preg_match("/<div class=\"field-item\"(.*?)<\/div>/ims", $html, $arr)) $rec['sciname'] = strip_tags("<div ".$arr[1]);
+            $rec = array_map('trim', $rec);
+            $rec['ancestry'] = self::get_ancestry($html);
+            print_r($rec);
+            // exit("\n");
+            return $rec;
+        }
+    }
+    private function get_ancestry($html)
+    {
+        $final = array();
+        /*
+        <span class="field-content"><strong>Genus:</strong> <a href="/taxonomy/term/60" title="<em>Nautilus</em>"><em>Nautilus</em></a></span>  </div> 
+        */
+        if(preg_match_all("/<span class=\"field-content\"><strong>(.*?)<\/span>/ims", $html, $arr)) {
+            foreach($arr[1] as $str) {
+                /*Array(
+                    [0] => Family:</strong> <a href="/taxonomy/term/12" title="Sepiadariidae">Sepiadariidae</a>
+                    [1] => Genus:</strong> <a href="/taxonomy/term/65" title="<em>Sepiadarium</em>"><em>Sepiadarium</em></a>
+                )
+                */
+                $rec = array();
+                if(preg_match("/xxx(.*?):/ims", "xxx".$str, $arr)) $rec['rank'] = $arr[1];
+                if(preg_match("/title=\"(.*?)\"/ims", "xxx".$str, $arr)) $rec['sciname'] = strip_tags($arr[1]);
+                if(preg_match("/term\/(.*?)\"/ims", "xxx".$str, $arr)) $rec['id'] = $arr[1];
+                $final[] = $rec;
+            }
+        }
+        return $final;
+    }
     private function parse_images()
     {
         if($html = Functions::lookup_with_cache($this->page['Photos & Videos'], $this->download_options)) {
