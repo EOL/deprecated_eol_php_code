@@ -17,18 +17,41 @@ class CephBaseAPI
         $this->page['Photos & Videos'] = "http://cephbase.eol.org/gallery?f[0]=tid%3A1";
         $this->page['page_range'] = "http://cephbase.eol.org/gallery?page=page_no&f[0]=tid:1"; //replace 'page_no' with actual page no.
         $this->page['image_page'] = "http://cephbase.eol.org/file-colorboxed/";                //add the file OR image no.
+        $this->page['taxon_page'] = "http://cephbase.eol.org/taxonomy/term/";
     }
     function start()
     {
-        // self::parse_classification(); exit("\nstop classification\n");
-        self::parse_images(); exit("\nstop images\n");
+        self::parse_classification(); exit("\nstop classification\n");
+        // self::parse_images(); exit("\nstop images\n");
     }
+    private function parse_classification()
+    {
+        if($html = Functions::lookup_with_cache($this->main_text, $this->download_options)) {
+            //<a href="/taxonomy/term/437" ><em>Sepiadarium</em> <em>auritum</em></a>
+            if(preg_match("/<h2 class=\"title\">CephBase Classification<\/h2>(.*?)<div class=\"region-inner region-content-inner\">/ims", $html, $arr)) {
+                if(preg_match_all("/<a href=\"\/taxonomy\/term\/(.*?)<\/a>/ims", $arr[1], $arr2)) {
+                    foreach($arr2[1] as $str) {
+                        $str = Functions::remove_whitespace(strip_tags($str));
+                        // echo "\n[$str]";
+                        //[8" >Cephalopoda]
+                        if(preg_match("/xxx(.*?)\"/ims", "xxx".$str, $arr)) $id = $arr[1];
+                        if(preg_match("/>(.*?)xxx/ims", $str."xxx", $arr)) $sciname = $arr[1];
+                        $rec[$id] = $sciname;
+                    }
+                }
+            }
+        }
+        print_r($rec);
+    }
+    
     private function parse_images()
     {
         if($html = Functions::lookup_with_cache($this->page['Photos & Videos'], $this->download_options)) {
             $last_page = self::get_last_page_for_image($html);
             echo "\npage range is from: 0 to $last_page\n";
-            for ($page_no = 0; $page_no <= $last_page; $page_no++) {
+            $start = 0; //orig
+            // $start = 2; //debug only
+            for ($page_no = $start; $page_no <= $last_page; $page_no++) {
                 self::parse_page_no($page_no);
             }
         }
@@ -51,35 +74,64 @@ class CephBaseAPI
             if(preg_match_all("/<a href\=\"\/file\/(.*?)\"/ims", $html, $arr)) {
                 foreach($arr[1] as $file_no) {
                     $url =  $this->page['image_page'].$file_no;
-                    echo "\n[$url]";
-                    if($html = Functions::lookup_with_cache($url, $this->download_options)) {}
+                    self::parse_image_info($url);
                 }
             }
         }
+    }
+    private function parse_image_info($url)
+    {
+        $final = array();
+        echo "\n[$url]";
+        // <div class="field field-name-field-taxonomic-name field-type-taxonomy-term-reference field-label-above">
+        // <div class="field field-name-field-description field-type-text-long field-label-none">
+        // <div class="field field-name-field-imaging-technique field-type-taxonomy-term-reference field-label-above">
+        // <div class="field field-name-field-cc-licence field-type-creative-commons field-label-above">
+        // <div class="field field-name-field-creator field-type-text field-label-above">
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            // if(preg_match("/<div class=\"field field-name-field-taxonomic-name field-type-taxonomy-term-reference field-label-above\">(.*?)<div class=\"field field-name-field/ims", $html, $arr)) {
+            if(preg_match("/<div class=\"field field-name-field-taxonomic-name field-type-taxonomy-term-reference field-label-above\">(.*?)Download the original/ims", $html, $arr)) {
+                $str = $arr[1];
+                if(preg_match("/<div class=\"field-item even\">(.*?)<\/div>/ims", $str, $arr)) {
+                    $str = trim($arr[1]);
+                    $final['sciname'] = $str;
+                }
+            }
+            if(preg_match("/<div class=\"field field-name-field-description field-type-text-long field-label-none\">(.*?)Download the original/ims", $html, $arr)) {
+                $str = $arr[1];
+                if(preg_match("/<div class=\"field-item even\">(.*?)<\/div>/ims", $str, $arr)) {
+                    $str = trim($arr[1]);
+                    $final['description'] = $str;
+                }
+            }
+            if(preg_match("/<div class=\"field field-name-field-imaging-technique field-type-taxonomy-term-reference field-label-above\">(.*?)Download the original/ims", $html, $arr)) {
+                $str = $arr[1];
+                if(preg_match("/<div class=\"field-item even\">(.*?)<\/div>/ims", $str, $arr)) {
+                    $str = trim($arr[1]);
+                    $final['imaging technique'] = $str;
+                }
+            }
+            if(preg_match("/<div class=\"field field-name-field-cc-licence field-type-creative-commons field-label-above\">(.*?)Download the original/ims", $html, $arr)) {
+                $str = $arr[1];
+                if(preg_match("/<div class=\"field-item even\">(.*?)<\/div>/ims", $str, $arr)) {
+                    $str = trim($arr[1]);
+                    if(preg_match("/href=\"(.*?)\"/ims", $str, $arr)) $final['license'] = $arr[1];
+                }
+            }
+            if(preg_match("/<div class=\"field field-name-field-creator field-type-text field-label-above\">(.*?)Download the original/ims", $html, $arr)) {
+                $str = $arr[1];
+                if(preg_match("/<div class=\"field-item even\">(.*?)<\/div>/ims", $str, $arr)) {
+                    $str = trim($arr[1]);
+                    $final['creator'] = $str;
+                }
+            }
+        }
+        print_r($final); //exit;
+        return $final;
     }
     private function get_last_page_for_image($html)
     {   //<a title="Go to last page" href="/gallery?page=29&amp;f[0]=tid%3A1">last »</a>
         if(preg_match("/<a title=\"Go to last page\" href=\"\/gallery\?page\=(.*?)&amp;/ims", $html, $arr)) return $arr[1];
-    }
-    private function parse_classification()
-    {
-        if($html = Functions::lookup_with_cache($this->main_text, $this->download_options)) {
-            //<a href="/taxonomy/term/437" ><em>Sepiadarium</em> <em>auritum</em></a>
-            
-            if(preg_match("/<h2 class=\"title\">CephBase Classification<\/h2>(.*?)<div class=\"region-inner region-content-inner\">/ims", $html, $arr)) {
-                if(preg_match_all("/<a href=\"\/taxonomy\/term\/(.*?)<\/a>/ims", $arr[1], $arr2)) {
-                    foreach($arr2[1] as $str) {
-                        $str = Functions::remove_whitespace(strip_tags($str));
-                        // echo "\n[$str]";
-                        //[8" >Cephalopoda]
-                        if(preg_match("/xxx(.*?)\"/ims", "xxx".$str, $arr)) $id = $arr[1];
-                        if(preg_match("/>(.*?)xxx/ims", $str."xxx", $arr)) $sciname = $arr[1];
-                        $rec[$id] = $sciname;
-                    }
-                }
-            }
-        }
-        print_r($rec);
     }
     
     /*
