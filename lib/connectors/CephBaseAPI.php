@@ -10,7 +10,7 @@ class CephBaseAPI
         $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        $this->download_options = array('resource_id' => 'cephbase', 'timeout' => 60*3, 'expire_seconds' => false, 'download_wait_time' => 1000000);
+        $this->download_options = array('resource_id' => 'cephbase', 'timeout' => 60*5, 'expire_seconds' => false, 'download_wait_time' => 1000000);
 
         $this->main_text = "http://localhost/cp/CephBase/taxa_html.txt";
         $this->main_text = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/CephBase/taxa_html.txt";
