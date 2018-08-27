@@ -36,7 +36,7 @@ class CephBaseAPI
                         // echo "\n[$str]";
                         //[8" >Cephalopoda]
                         if(preg_match("/xxx(.*?)\"/ims", "xxx".$str, $arr)) $id = $arr[1];
-                        if(preg_match("/>(.*?)xxx/ims", $str."xxx", $arr)) $sciname = utf8_encode($arr[1]);
+                        if(preg_match("/>(.*?)xxx/ims", $str."xxx", $arr)) $sciname = $arr[1];
                         $rec[$id] = $sciname;
                     }
                 }
@@ -57,7 +57,7 @@ class CephBaseAPI
                  <em>Nautilus</em> <em>pompilius</em> <em>pompilius</em> Linnaeus 1758        </div>
             */
             if(preg_match("/<div class=\"field-label\">(.*?):<\/div>/ims", $html, $arr)) $rec['rank'] = $arr[1];
-            if(preg_match("/<div class=\"field-item\"(.*?)<\/div>/ims", $html, $arr)) $rec['sciname'] = utf8_encode(strip_tags("<div ".$arr[1]));
+            if(preg_match("/<div class=\"field-item\"(.*?)<\/div>/ims", $html, $arr)) $rec['sciname'] = strip_tags("<div ".$arr[1]);
             $rec = array_map('trim', $rec);
             $rec['ancestry'] = self::get_ancestry($html);
             print_r($rec);
@@ -80,7 +80,7 @@ class CephBaseAPI
                 */
                 $rec = array();
                 if(preg_match("/xxx(.*?):/ims", "xxx".$str, $arr)) $rec['rank'] = $arr[1];
-                if(preg_match("/title=\"(.*?)\"/ims", "xxx".$str, $arr)) $rec['sciname'] = utf8_encode(strip_tags($arr[1]));
+                if(preg_match("/title=\"(.*?)\"/ims", "xxx".$str, $arr)) $rec['sciname'] = strip_tags($arr[1]);
                 if(preg_match("/term\/(.*?)\"/ims", "xxx".$str, $arr)) $rec['id'] = $arr[1];
                 $final[] = $rec;
             }
@@ -137,7 +137,7 @@ class CephBaseAPI
                 $str = $arr[1];
                 if(preg_match("/<div class=\"field-item even\">(.*?)<\/div>/ims", $str, $arr)) {
                     $str = trim($arr[1]);
-                    $final['sciname'] = utf8_encode($str);
+                    $final['sciname'] = $str;
                 }
             }
             if(preg_match("/<div class=\"field field-name-field-description field-type-text-long field-label-none\">(.*?)Download the original/ims", $html, $arr)) {
