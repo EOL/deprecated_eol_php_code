@@ -80,10 +80,11 @@ class CephBaseAPI
             }
         }
         // print_r($rec); exit;
-        foreach($rec as $taxon_id => $sciname) {
+        $total = count($rec); $i = 0;
+        foreach($rec as $taxon_id => $sciname) { $i++;
             // $taxon_id = 466; //debug - accepted
             // $taxon_id = 1228; //debug - not accepted
-            echo "\n[$sciname] [$taxon_id]";
+            echo "\n$i of $total: [$sciname] [$taxon_id]";
             $taxon = self::parse_taxon_info($taxon_id);
             // exit("\nelix\n");
         }
