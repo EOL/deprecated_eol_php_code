@@ -21,8 +21,9 @@ class CephBaseAPI
     }
     function start()
     {
-        // self::parse_classification(); exit("\nstop classification\n");
-        self::parse_images(); exit("\nstop images\n");
+        self::parse_classification();   //exit("\nstop classification\n");
+        self::parse_images();           //exit("\nstop images\n");
+        exit();
     }
     private function parse_classification()
     {
