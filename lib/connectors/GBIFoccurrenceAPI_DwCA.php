@@ -345,7 +345,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $final['count']  = count($final['records']);
         $final['actual'] = count($final['records']);
         $final_count = $final['count'];
-        echo "\nFinal count: " . $final_count . "\n";
+        echo "\n: " . $final_count . " -- ";
 
         if($final_count > $this->limit_20k) {
             $final_count = self::process_revised_cluster($final, $basename); //done after main demo using screenshots
@@ -354,7 +354,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $json = json_encode($final, JSON_UNESCAPED_SLASHES);
             if(!($this->file = Functions::file_open(self::get_map_data_path($basename).$basename.".json", "w"))) return;
             fwrite($this->file, "var data = ".$json);
-            fclose($this->file);
+            fclose($this->file); echo " .json saved 01 ";
         }
     }
     private function process_revised_cluster($final, $basename)
@@ -412,7 +412,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $to_be_saved['actual'] = $final['count'];
             $json = json_encode($to_be_saved, JSON_UNESCAPED_SLASHES);
             fwrite($this->file5, "var data = ".$json);
-            fclose($this->file5);
+            fclose($this->file5); echo " .json saved 02 ";
             return $to_be_saved['count']; //the smaller value; the bigger one is $to_be_saved['actual']
         }
     }
