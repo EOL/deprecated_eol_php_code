@@ -36,7 +36,7 @@ class CephBaseAPI
                         // echo "\n[$str]";
                         //[8" >Cephalopoda]
                         if(preg_match("/xxx(.*?)\"/ims", "xxx".$str, $arr)) $id = $arr[1];
-                        if(preg_match("/>(.*?)xxx/ims", $str."xxx", $arr)) $sciname = $arr[1];
+                        if(preg_match("/>(.*?)xxx/ims", $str."xxx", $arr)) $sciname = utf8_encode($arr[1]);
                         $rec[$id] = $sciname;
                     }
                 }
