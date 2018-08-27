@@ -35,6 +35,11 @@ class CephBaseAPI
     {   //<h2 class="element-invisible"><a href="http://cephbase.eol.org/sites/cephbase.eol.org/files/cb0563.jpg">cb0563.jpg</a></h2>
         $url = str_replace('page_no', $page_no, $this->page['page_range']);
         echo "\n[$page_no] - [$url]";
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            if(preg_match_all("/<h2 class=\"element-invisible\"><a(.*?)<\/h2>/ims", $html, $arr)) {
+                print_r($arr[1]);
+            }
+        }
         
     }
     private function get_last_page_for_image($html)
