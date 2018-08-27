@@ -68,6 +68,30 @@ class CephBaseAPI
         $url = $this->page['taxon_refs'].$taxon_id;
         $url = str_replace("page_no", $page_no, $url);
         echo "\n$url\n";
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            if(preg_match("/<table class=\"biblio sticky-enabled\">(.*?)<\/table>/ims", $html, $arr)) {
+                // echo "\n".$arr[1]."\n";
+                if(preg_match_all("/<tr class=(.*?)<\/tr>/ims", $arr[1], $arr2)) {
+                    // print_r($arr2[1]);
+                    foreach($arr2[1] as $str) {
+                        $non_html = strip_tags($str);
+                        if(preg_match_all("/<td>(.*?)<\/td>/ims", $str, $arr3)) {
+                            $a = $arr3[1];
+                            /*Array(
+                                [0] => <a href="/biblio?page=0&amp;f[0]=im_field_taxonomic_name%3A275&amp;f[author]=7443" rel="nofollow" class="active">Voight, JR</a>
+                                [1] => 2009
+                                [2] => <a href="/node/16906">Differences in Spermatophore Availability among Octopodid Species (Cephalopoda: Octopoda)</a>
+                            )
+                            */
+                            $rec = array();
+                            if(preg_match("/<a href=\"\/node\/(.*?)\"/ims", $a[2], $arr4)) $rec['ref_no'] = $arr4[1];
+                            $rec['full_ref'] = strip_tags($a[0]).". ".strip_tags($a[1]).". ".strip_tags($a[2]);
+                            print_r($rec);
+                        }
+                    }
+                }
+            }
+        }
     }
     private function parse_classification()
     {
