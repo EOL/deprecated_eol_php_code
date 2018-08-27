@@ -14,7 +14,8 @@ class CephBaseAPI
 
         $this->main_text = "http://localhost/cp/CephBase/taxa2_html.txt";
         $this->page['Photos & Videos'] = "http://cephbase.eol.org/gallery?f[0]=tid%3A1";
-        $this->page['page_range'] = "http://cephbase.eol.org/gallery?page=page_no&f[0]=tid:1";
+        $this->page['page_range'] = "http://cephbase.eol.org/gallery?page=page_no&f[0]=tid:1"; //replace 'page_no' with actual page no.
+        $this->page['image_page'] = "http://cephbase.eol.org/file-colorboxed/";                //add the file OR image no.
     }
     function start()
     {
@@ -36,11 +37,24 @@ class CephBaseAPI
         $url = str_replace('page_no', $page_no, $this->page['page_range']);
         echo "\n[$page_no] - [$url]";
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            /* working but insufficient
             if(preg_match_all("/<h2 class=\"element-invisible\"><a(.*?)<\/h2>/ims", $html, $arr)) {
                 print_r($arr[1]);
             }
+            */
+            
+            /*
+            http://cephbase.eol.org/file-colorboxed/4
+            <a href="/file/4"><img typeof="foaf:Image"
+            */
+            if(preg_match_all("/<a href\=\"\/file\/(.*?)\"/ims", $html, $arr)) {
+                foreach($arr[1] as $file_no) {
+                    $url =  $this->page['image_page'].$file_no;
+                    echo "\n[$url]";
+                    if($html = Functions::lookup_with_cache($url, $this->download_options)) {}
+                }
+            }
         }
-        
     }
     private function get_last_page_for_image($html)
     {   //<a title="Go to last page" href="/gallery?page=29&amp;f[0]=tid%3A1">last »</a>
