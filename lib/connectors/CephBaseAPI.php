@@ -10,24 +10,39 @@ class CephBaseAPI
         $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        $this->download_options = array('resource_id' => 'cephbase', 'timeout' => 60*5, 'expire_seconds' => false, 'download_wait_time' => 1000000);
+        $this->download_options = array('resource_id' => 'cephbase', 'timeout' => 60*5, 'expire_seconds' => false, 'download_wait_time' => 2000000);
 
-        $this->main_text = "http://localhost/cp/CephBase/taxa_html.txt";
-        $this->main_text = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/CephBase/taxa_html.txt";
+        $this->main_text_ver1 = "http://localhost/cp/CephBase/taxa_html.txt";
+        $this->main_text_ver1 = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/CephBase/taxa_html.txt";
+        $this->main_text_ver2 = "http://localhost/cp/CephBase/html/CephBase Classification | CephBase.html";
         $this->page['Photos & Videos'] = "http://cephbase.eol.org/gallery?f[0]=tid%3A1";
         $this->page['page_range'] = "http://cephbase.eol.org/gallery?page=page_no&f[0]=tid:1"; //replace 'page_no' with actual page no.
         $this->page['image_page'] = "http://cephbase.eol.org/file-colorboxed/";                //add the file OR image no.
         $this->page['taxon_page'] = "http://cephbase.eol.org/taxonomy/term/";
+        $this->page['taxa_refs'] = "http://localhost/cp/CephBase/html/Literature References | CephBase.html";
     }
     function start()
     {
         self::parse_classification();   //exit("\nstop classification\n");
-        self::parse_images();           //exit("\nstop images\n");
+        // self::parse_images();           //exit("\nstop images\n");
+        // self::parse_references(); exit("\nstop references\n");
         exit();
+    }
+    private function parse_references()
+    {
+        /*
+        <a href="http://cephbase.eol.org/biblio/?f[0]=im_field_taxonomic_name%3A602" rel="nofollow" class="facetapi-inactive">Watasenia scintillans (25)<span class="element-invisible">Apply Watasenia scintillans filter</span></a>
+        */
+        if($html = Functions::lookup_with_cache($this->page['taxa_refs'], $this->download_options)) {
+            if(preg_match_all("/<a href=\"\/taxonomy\/term\/(.*?)<\/a>/ims", $html, $arr)) {
+            }
+        }
+        
     }
     private function parse_classification()
     {
-        if($html = Functions::lookup_with_cache($this->main_text, $this->download_options)) {
+        /* working version 1
+        if($html = Functions::lookup_with_cache($this->main_text_ver1, $this->download_options)) {
             //<a href="/taxonomy/term/437" ><em>Sepiadarium</em> <em>auritum</em></a>
             if(preg_match("/<h2 class=\"title\">CephBase Classification<\/h2>(.*?)<div class=\"region-inner region-content-inner\">/ims", $html, $arr)) {
                 if(preg_match_all("/<a href=\"\/taxonomy\/term\/(.*?)<\/a>/ims", $arr[1], $arr2)) {
@@ -42,10 +57,32 @@ class CephBaseAPI
                 }
             }
         }
-        // print_r($rec);
+        echo "\n count 1: ".count($rec)."\n";
+        */
+        if($html = Functions::lookup_with_cache($this->main_text_ver2, $this->download_options)) {
+            if(preg_match("/<h2 class=\"block-title\">CephBase Classification<\/h2>(.*?)<div class=\"region-inner region-content-inner\">/ims", $html, $arr)) {
+                // <a href="http://cephbase.eol.org/taxonomy/term/438" class=""><em>Sepiadarium</em> <em>austrinum</em></a>
+                if(preg_match_all("/<a href=\"http\:\/\/cephbase.eol.org\/taxonomy\/term\/(.*?)<\/a>/ims", $arr[1], $arr2)) {
+                    // print_r($arr2[1]); exit;
+                    // echo "\n".count($arr2[1])."\n";
+                    //[1620] => 280" class=""><em>Nautilus</em> <em>pompilius</em> <em>pompilius</em>
+                    foreach($arr2[1] as $str) {
+                        $str = Functions::remove_whitespace(strip_tags($str));
+                        if(preg_match("/xxx(.*?)\"/ims", "xxx".$str, $arr)) $id = $arr[1];
+                        if(preg_match("/>(.*?)xxx/ims", $str."xxx", $arr)) $sciname = $arr[1];
+                        $rec[$id] = $sciname;
+                    }
+                    echo "\n count 2: ".count($rec)."\n";
+                }
+            }
+        }
+        // print_r($rec); exit;
         foreach($rec as $taxon_id => $sciname) {
+            $taxon_id = 466; //debug - accepted
+            $taxon_id = 1228; //debug - not accepted
             echo "\n[$sciname] [$taxon_id]";
             $taxon = self::parse_taxon_info($taxon_id);
+            exit("\nelix\n");
         }
     }
     private function parse_taxon_info($taxon_id)
@@ -59,11 +96,39 @@ class CephBaseAPI
             if(preg_match("/<div class=\"field-label\">(.*?):<\/div>/ims", $html, $arr)) $rec['rank'] = $arr[1];
             if(preg_match("/<div class=\"field-item\"(.*?)<\/div>/ims", $html, $arr)) $rec['sciname'] = strip_tags("<div ".$arr[1]);
             $rec = array_map('trim', $rec);
+            $rec['usage'] = self::get_usage($html);
             $rec['ancestry'] = self::get_ancestry($html);
+            $rec['refs'] = self::get_references($taxon_id);
             print_r($rec);
             // exit("\n");
             return $rec;
         }
+    }
+    private function get_usage($html)
+    {
+        /*
+        <div class="field field-name-field-usage field-type-list-text field-label-inline clearfix">
+            <div class="field-label">Usage:&nbsp;</div>
+            <div class="field-items">
+                <div class="field-item even">not accepted</div>
+            </div>
+        </div>
+        
+        <div class="field field-name-field-unacceptability-reason field-type-list-text field-label-inline clearfix">
+            <div class="field-label">Unacceptability Reason:&nbsp;</div>
+            <div class="field-items">
+                <div class="field-item even">synonym</div>
+            </div>
+        </div>
+        */
+        if(preg_match("/<div class\=\"field\-label\">Usage\:\&nbsp\;<\/div>(.*?)<\/div>/ims", $html, $arr)) $rec['Usage'] = strip_tags($arr[1]);
+        if(preg_match("/<div class=\"field-label\">Unacceptability Reason:&nbsp;<\/div>(.*?)<\/div>/ims", $html, $arr)) $rec['Unacceptability Reason'] = strip_tags($arr[1]);
+        // print_r($rec); exit;
+        return $rec;
+    }
+    private function get_references($taxon_id)
+    {
+        
     }
     private function get_ancestry($html)
     {
