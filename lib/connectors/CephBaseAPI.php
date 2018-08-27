@@ -14,7 +14,10 @@ class CephBaseAPI
 
         $this->main_text_ver1 = "http://localhost/cp/CephBase/taxa_html.txt";
         $this->main_text_ver1 = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/CephBase/taxa_html.txt";
+        
         $this->main_text_ver2 = "http://localhost/cp/CephBase/html/CephBase Classification | CephBase.html";
+        $this->main_text_ver2 = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/CephBase/CephBase Classification | CephBase.html";
+        
         $this->page['Photos & Videos'] = "http://cephbase.eol.org/gallery?f[0]=tid%3A1";
         $this->page['page_range'] = "http://cephbase.eol.org/gallery?page=page_no&f[0]=tid:1"; //replace 'page_no' with actual page no.
         $this->page['image_page'] = "http://cephbase.eol.org/file-colorboxed/";                //add the file OR image no.
@@ -24,7 +27,7 @@ class CephBaseAPI
     function start()
     {
         self::parse_classification();   //exit("\nstop classification\n");
-        // self::parse_images();           //exit("\nstop images\n");
+        self::parse_images();           //exit("\nstop images\n");
         // self::parse_references(); exit("\nstop references\n");
         exit();
     }
@@ -78,11 +81,11 @@ class CephBaseAPI
         }
         // print_r($rec); exit;
         foreach($rec as $taxon_id => $sciname) {
-            $taxon_id = 466; //debug - accepted
-            $taxon_id = 1228; //debug - not accepted
+            // $taxon_id = 466; //debug - accepted
+            // $taxon_id = 1228; //debug - not accepted
             echo "\n[$sciname] [$taxon_id]";
             $taxon = self::parse_taxon_info($taxon_id);
-            exit("\nelix\n");
+            // exit("\nelix\n");
         }
     }
     private function parse_taxon_info($taxon_id)
@@ -99,7 +102,7 @@ class CephBaseAPI
             $rec['usage'] = self::get_usage($html);
             $rec['ancestry'] = self::get_ancestry($html);
             $rec['refs'] = self::get_references($taxon_id);
-            print_r($rec);
+            // print_r($rec);
             // exit("\n");
             return $rec;
         }
@@ -121,9 +124,10 @@ class CephBaseAPI
             </div>
         </div>
         */
+        $rec = array();
         if(preg_match("/<div class\=\"field\-label\">Usage\:\&nbsp\;<\/div>(.*?)<\/div>/ims", $html, $arr)) $rec['Usage'] = strip_tags($arr[1]);
         if(preg_match("/<div class=\"field-label\">Unacceptability Reason:&nbsp;<\/div>(.*?)<\/div>/ims", $html, $arr)) $rec['Unacceptability Reason'] = strip_tags($arr[1]);
-        // print_r($rec); exit;
+        // print_r($rec); //exit;
         return $rec;
     }
     private function get_references($taxon_id)
