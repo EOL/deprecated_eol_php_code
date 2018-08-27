@@ -23,12 +23,14 @@ class CephBaseAPI
         $this->page['image_page'] = "http://cephbase.eol.org/file-colorboxed/";                //add the file OR image no.
         $this->page['taxon_page'] = "http://cephbase.eol.org/taxonomy/term/";
         $this->page['taxa_refs'] = "http://localhost/cp/CephBase/html/Literature References | CephBase.html";
+        
+        $this->page['taxon_refs'] = "http://cephbase.eol.org/biblio?page=page_no&f[0]=im_field_taxonomic_name:"; //replace 'page_no' with actual page no. and add taxon_id
     }
     function start()
     {
-        self::parse_classification();   //exit("\nstop classification\n");
-        self::parse_images();           //exit("\nstop images\n");
-        // self::parse_references(); exit("\nstop references\n");
+        // self::parse_classification();   //exit("\nstop classification\n");
+        // self::parse_images();           //exit("\nstop images\n");
+        self::parse_references(); exit("\nstop references\n");
         exit();
     }
     private function parse_references()
@@ -37,10 +39,35 @@ class CephBaseAPI
         <a href="http://cephbase.eol.org/biblio/?f[0]=im_field_taxonomic_name%3A602" rel="nofollow" class="facetapi-inactive">Watasenia scintillans (25)<span class="element-invisible">Apply Watasenia scintillans filter</span></a>
         */
         if($html = Functions::lookup_with_cache($this->page['taxa_refs'], $this->download_options)) {
-            if(preg_match_all("/<a href=\"\/taxonomy\/term\/(.*?)<\/a>/ims", $html, $arr)) {
+            if(preg_match_all("/im_field_taxonomic_name%3A(.*?)\"/ims", $html, $arr)) {
+                // print_r($arr[1]);
+                foreach($arr[1] as $taxon_id) {
+                    $refs = self::get_taxon_refs($taxon_id);
+                }
             }
         }
-        
+    }
+    private function get_taxon_refs($taxon_id)
+    {
+        // $taxon_id = 28; //debug
+        $url = $this->page['taxon_refs'].$taxon_id;
+        $url = str_replace("page_no", "0", $url);
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            $last_page = self::get_last_page_for_image($html, "reference");
+            echo "\npage range is from: 0 to $last_page\n";
+            $start = 0; //orig
+            // $start = 2; //debug only
+            for ($page_no = $start; $page_no <= $last_page; $page_no++) {
+                self::scan_taxon_references($page_no, $taxon_id);
+            }
+        }
+        exit;
+    }
+    private function scan_taxon_references($page_no, $taxon_id)
+    {
+        $url = $this->page['taxon_refs'].$taxon_id;
+        $url = str_replace("page_no", $page_no, $url);
+        echo "\n$url\n";
     }
     private function parse_classification()
     {
@@ -242,9 +269,15 @@ class CephBaseAPI
         print_r($final); //exit;
         return $final;
     }
-    private function get_last_page_for_image($html)
+    private function get_last_page_for_image($html, $type = 'image')
     {   //<a title="Go to last page" href="/gallery?page=29&amp;f[0]=tid%3A1">last »</a>
-        if(preg_match("/<a title=\"Go to last page\" href=\"\/gallery\?page\=(.*?)&amp;/ims", $html, $arr)) return $arr[1];
+        if($type == 'image') {
+            if(preg_match("/<a title=\"Go to last page\" href=\"\/gallery\?page\=(.*?)&amp;/ims", $html, $arr)) return $arr[1];
+        }
+        elseif($type == 'reference') {
+            if(preg_match("/<a title=\"Go to last page\" href=\"\/biblio\?page\=(.*?)&amp;/ims", $html, $arr)) return $arr[1];
+        }
+        return 0;
     }
     
     /*
