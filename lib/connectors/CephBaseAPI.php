@@ -25,6 +25,7 @@ class CephBaseAPI
         $this->page['taxa_refs'] = "http://localhost/cp/CephBase/html/Literature References | CephBase.html";
         
         $this->page['taxon_refs'] = "http://cephbase.eol.org/biblio?page=page_no&f[0]=im_field_taxonomic_name:"; //replace 'page_no' with actual page no. and add taxon_id
+        $this->page['reference_page'] = "http://cephbase.eol.org/node/"; //add the ref_no
     }
     function start()
     {
@@ -43,13 +44,15 @@ class CephBaseAPI
                 // print_r($arr[1]);
                 foreach($arr[1] as $taxon_id) {
                     $refs = self::get_taxon_refs($taxon_id);
+                    
                 }
             }
         }
     }
     private function get_taxon_refs($taxon_id)
     {
-        // $taxon_id = 28; //debug
+        $final = array();
+        $taxon_id = 28; //debug
         $url = $this->page['taxon_refs'].$taxon_id;
         $url = str_replace("page_no", "0", $url);
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
@@ -58,13 +61,24 @@ class CephBaseAPI
             $start = 0; //orig
             // $start = 2; //debug only
             for ($page_no = $start; $page_no <= $last_page; $page_no++) {
-                self::scan_taxon_references($page_no, $taxon_id);
+                $refs = self::scan_taxon_references($page_no, $taxon_id);
+                if($refs) $final = array_merge($final, $refs);
             }
         }
-        exit;
+        exit("\n".count($final)."\n");
+        return $final;
+
+        /*
+        "aa1250ec-5c56-4653-89d2-f7dd86077143","bb18aa9d-88c3-4814-8db2-ce8181c861a6","16587","","","","A. E.  Verrill, “The cephalopods of the north-eastern coast of America. Part I. The gigantic squids (Architeuthis) and their allies; 
+        with observations on similar large species from foreign localities”, Transactions of the Connecticut Academy of Sciences, vol. 5, pp. 177-257, 1879.","The cephalopods of the north-eastern coast of America. Part I. 
+        The gigantic squids (Architeuthis) and their allies; with observations on similar large species from foreign localities","A.E. Verrill","http://cephbase.eol.org/node/16587","<p>TY  - JOUR1879-1880 dates for this volume. 
+        Plates XIII-XXV in back, with an explanation of the figures on pp. 254-257RP  - IN FILE fromcephbk</p>","eng","original","1879///","2013-12-18T11:47:59-05:00","2013-12-18T11:47:59-05:00","Journal Article","",""
+        */
+        
     }
     private function scan_taxon_references($page_no, $taxon_id)
     {
+        $final = array();
         $url = $this->page['taxon_refs'].$taxon_id;
         $url = str_replace("page_no", $page_no, $url);
         echo "\n$url\n";
@@ -84,12 +98,45 @@ class CephBaseAPI
                             )
                             */
                             $rec = array();
-                            if(preg_match("/<a href=\"\/node\/(.*?)\"/ims", $a[2], $arr4)) $rec['ref_no'] = $arr4[1];
-                            $rec['full_ref'] = strip_tags($a[0]).". ".strip_tags($a[1]).". ".strip_tags($a[2]);
-                            print_r($rec);
+                            $rec['year'] = $a[1];
+                            if(preg_match("/<a href=\"\/node\/(.*?)\"/ims", $a[2], $arr4)) {
+                                $rec['ref_no'] = $arr4[1];
+                                $rec['full_ref'] = strip_tags($a[0]);
+                                if($year = @$rec['year']) $rec['full_ref'] .= ", $year";
+                                $rec['full_ref'] .= ". ".strip_tags($a[2]);
+                                $rec['details'] = self::parse_reference_page($rec['ref_no']);
+                                print_r($rec);
+                                $final[] = $rec;
+                                
+                                
+                                // Kuiter, R.H. and T. Tonozuka, 2001. Pictorial guide to Indonesian reef fishes. Part 1. Eels- Snappers, Muraenidae - Lutjanidae. Zoonetics, Australia. 1-302. 
+                                
+                            }
                         }
                     }
                 }
+            }
+        }
+        return $final;
+    }
+    private function parse_reference_page($ref_no)
+    {    /*
+        <tbody>
+         <tr class="odd"><td class="biblio-row-title">Publication Type:</td><td>Journal Article</td> </tr>
+         <tr class="even"><td class="biblio-row-title">Year of Publication:</td><td>1879</td> </tr>
+         <tr class="odd"><td class="biblio-row-title">Authors:</td><td><a href="/biblio?f[author]=7808" rel="nofollow">Verrill, AE</a></td> </tr>
+         <tr class="even"><td class="biblio-row-title">Journal:</td><td>Transactions of the Connecticut Academy of Sciences</td> </tr>
+         <tr class="odd"><td class="biblio-row-title">Volume:</td><td>5</td> </tr>
+         <tr class="even"><td class="biblio-row-title">Pagination:</td><td>177-257</td> </tr>
+         <tr class="odd"><td class="biblio-row-title">Date Published:</td><td>1879///</td> </tr>
+         <tr class="even"><td class="biblio-row-title">Keywords:</td><td><a href="/biblio?f[keyword]=1053" rel="nofollow">architeuthis</a>, <a href="/biblio?f[keyword]=108" rel="nofollow">Cephalopods</a>, <a href="/biblio?f[keyword]=16" rel="nofollow">squid</a></td> </tr>
+         <tr class="odd"><td class="biblio-row-title">Alternate Journal:</td><td>Trans.Conn.Acad.Sci.</td> </tr>
+        </tbody>
+        */
+        $url = $this->page['reference_page'].$ref_no;
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            if(preg_match_all("/<tr class=\"(.*?)<\/tr>/ims", $html, $arr)) {
+                print_r($arr[1]); exit;
             }
         }
     }
