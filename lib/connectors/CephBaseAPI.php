@@ -382,10 +382,15 @@ class CephBaseAPI
             if(preg_match_all("/<a href\=\"\/file\/(.*?)\"/ims", $html, $arr)) {
                 foreach($arr[1] as $file_no) {
                     $url =  $this->page['image_page'].$file_no;
-                    self::parse_image_info($url);
+                    $image_info = self::parse_image_info($url);
+                    self::write_image($image_info);
                 }
             }
         }
+    }
+    private function write_image($image_info)
+    {
+        print_r($image_info);
     }
     private function parse_image_info($url)
     {
@@ -445,7 +450,7 @@ class CephBaseAPI
         
         }
         
-        print_r($final); exit;
+        // print_r($final); exit;
         return $final;
     }
     private function get_last_page_for_image($html, $type = 'image')
