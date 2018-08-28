@@ -105,6 +105,7 @@ class CephBaseAPI
                                 if($year = @$rec['year']) $rec['full_ref'] .= ", $year";
                                 $rec['full_ref'] .= ". ".strip_tags($a[2]);
                                 $rec['details'] = self::parse_reference_page($rec['ref_no']);
+                                $rec['full_ref_final'] = self::add_items_on_full_ref($rec['details'], $rec['full_ref']);
                                 print_r($rec);
                                 $final[] = $rec;
                                 
@@ -118,6 +119,20 @@ class CephBaseAPI
             }
         }
         return $final;
+    }
+    private function add_items_on_full_ref($add, $full_ref)
+    {   /*Array(
+            [Publication Type:] => Journal Article
+            [Year of Publication:] => Submitted
+            [Journal:] => Proceedings of the Malacological Society of London
+            [Volume:] => 27
+            [Pagination:] => 131-136
+            [Keywords:] => <a href="/biblio?f[keyword]=54" rel="nofollow">Cephalopoda</a>
+        )*/
+        if($val = $add['Journal:']) $full_ref .= " $val";
+        if($val = $add['Volume:']) $full_ref .= ". Vol. $val";
+        if($val = $add['Pagination:']) $full_ref .= ". $val.";
+        return Functions::remove_whitespace($full_ref);
     }
     private function parse_reference_page($ref_no)
     {    /*
@@ -133,6 +148,7 @@ class CephBaseAPI
          <tr class="odd"><td class="biblio-row-title">Alternate Journal:</td><td>Trans.Conn.Acad.Sci.</td> </tr>
         </tbody>
         */
+        $ref_no = 7728; //debug
         $final = array();
         $url = $this->page['reference_page'].$ref_no;
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
