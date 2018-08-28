@@ -30,9 +30,10 @@ class CephBaseAPI
     }
     function start()
     {
-        // self::parse_classification();   //exit("\nstop classification\n");
-        // self::parse_images();           //exit("\nstop images\n");
-        self::parse_references(); exit("\nstop references\n");
+        // self::parse_images();            //exit("\nstop images\n");
+        // self::parse_references();           //exit("\nstop references\n");
+        self::parse_classification();    exit("\nstop classification\n");
+        $this->archive_builder->finalize(TRUE);
     }
     private function parse_references()
     {   // <a href="http://cephbase.eol.org/biblio/?f[0]=im_field_taxonomic_name%3A602" rel="nofollow" class="facetapi-inactive">Watasenia scintillans (25)<span class="element-invisible">Apply Watasenia scintillans filter</span></a>
@@ -78,6 +79,7 @@ class CephBaseAPI
             $r->publicationType = @$ref['details']['Publication Type:'];
             $r->pages           = @$ref['details']['Pagination:'];
             $r->volume          = @$ref['details']['Volume:'];
+            $r->authorList      = @$ref['details']['Authors:'];
             $r->uri             = $this->page['reference_page'].$ref_no;
             if(!isset($this->reference_ids[$ref_no])) {
                 $this->reference_ids[$ref_no] = '';
@@ -229,7 +231,8 @@ class CephBaseAPI
             // $taxon_id = 1228; //debug - not accepted
             echo "\n$i of $total: [$sciname] [$taxon_id]";
             $taxon = self::parse_taxon_info($taxon_id);
-            // exit("\nelix\n");
+            print_r($taxon);
+            if($i >= 3) break; //debug only
         }
     }
     private function parse_taxon_info($taxon_id)
