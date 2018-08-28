@@ -52,7 +52,7 @@ class CephBaseAPI
     private function get_taxon_refs($taxon_id)
     {
         $final = array();
-        $taxon_id = 28; //debug
+        // $taxon_id = 28; //debug
         $url = $this->page['taxon_refs'].$taxon_id;
         $url = str_replace("page_no", "0", $url);
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
@@ -148,7 +148,7 @@ class CephBaseAPI
          <tr class="odd"><td class="biblio-row-title">Alternate Journal:</td><td>Trans.Conn.Acad.Sci.</td> </tr>
         </tbody>
         */
-        $ref_no = 7728; //debug
+        // $ref_no = 7728; //debug
         $final = array();
         $url = $this->page['reference_page'].$ref_no;
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
