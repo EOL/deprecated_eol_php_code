@@ -22,7 +22,9 @@ class CephBaseAPI
         $this->page['page_range'] = "http://cephbase.eol.org/gallery?page=page_no&f[0]=tid:1"; //replace 'page_no' with actual page no.
         $this->page['image_page'] = "http://cephbase.eol.org/file-colorboxed/";                //add the file OR image no.
         $this->page['taxon_page'] = "http://cephbase.eol.org/taxonomy/term/";
+        
         $this->page['taxa_refs'] = "http://localhost/cp/CephBase/html/Literature References | CephBase.html";
+        $this->page['taxa_refs'] = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/CephBase/Literature References | CephBase.html";
         
         $this->page['taxon_refs'] = "http://cephbase.eol.org/biblio?page=page_no&f[0]=im_field_taxonomic_name:"; //replace 'page_no' with actual page no. and add taxon_id
         $this->page['reference_page'] = "http://cephbase.eol.org/node/"; //add the ref_no
