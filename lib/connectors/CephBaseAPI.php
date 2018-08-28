@@ -1,7 +1,6 @@
 <?php
 namespace php_active_record;
-/* 
-
+/* [cephbase.php]
 */
 class CephBaseAPI
 {
@@ -34,7 +33,6 @@ class CephBaseAPI
         // self::parse_classification();   //exit("\nstop classification\n");
         // self::parse_images();           //exit("\nstop images\n");
         self::parse_references(); exit("\nstop references\n");
-        exit();
     }
     private function parse_references()
     {
@@ -48,7 +46,6 @@ class CephBaseAPI
                 foreach($arr[1] as $taxon_id) {
                     $i++; echo "\n$i of $total\n";
                     $refs = self::get_taxon_refs($taxon_id);
-                    
                 }
             }
         }
@@ -71,14 +68,12 @@ class CephBaseAPI
         }
         // exit("\n".count($final)."\n");
         return $final;
-
         /*
         "aa1250ec-5c56-4653-89d2-f7dd86077143","bb18aa9d-88c3-4814-8db2-ce8181c861a6","16587","","","","A. E.  Verrill, “The cephalopods of the north-eastern coast of America. Part I. The gigantic squids (Architeuthis) and their allies; 
         with observations on similar large species from foreign localities”, Transactions of the Connecticut Academy of Sciences, vol. 5, pp. 177-257, 1879.","The cephalopods of the north-eastern coast of America. Part I. 
         The gigantic squids (Architeuthis) and their allies; with observations on similar large species from foreign localities","A.E. Verrill","http://cephbase.eol.org/node/16587","<p>TY  - JOUR1879-1880 dates for this volume. 
         Plates XIII-XXV in back, with an explanation of the figures on pp. 254-257RP  - IN FILE fromcephbk</p>","eng","original","1879///","2013-12-18T11:47:59-05:00","2013-12-18T11:47:59-05:00","Journal Article","",""
         */
-        
     }
     private function scan_taxon_references($page_no, $taxon_id)
     {
@@ -110,12 +105,9 @@ class CephBaseAPI
                                 $rec['full_ref'] .= ". ".strip_tags($a[2]);
                                 $rec['details'] = self::parse_reference_page($rec['ref_no']);
                                 $rec['full_ref_final'] = self::add_items_on_full_ref($rec['details'], $rec['full_ref']);
-                                // print_r($rec); good debug
+                                print_r($rec); //good debug
                                 $final[] = $rec;
-                                
-                                
                                 // Kuiter, R.H. and T. Tonozuka, 2001. Pictorial guide to Indonesian reef fishes. Part 1. Eels- Snappers, Muraenidae - Lutjanidae. Zoonetics, Australia. 1-302. 
-                                
                             }
                         }
                     }
