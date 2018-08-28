@@ -46,6 +46,7 @@ class CephBaseAPI
                 foreach($arr[1] as $taxon_id) {
                     $i++; echo "\n$i of $total\n";
                     $refs = self::get_taxon_refs($taxon_id);
+                    if($i == 1) break; //debug only
                 }
             }
         }
@@ -66,14 +67,7 @@ class CephBaseAPI
                 if($refs) $final = array_merge($final, $refs);
             }
         }
-        // exit("\n".count($final)."\n");
         return $final;
-        /*
-        "aa1250ec-5c56-4653-89d2-f7dd86077143","bb18aa9d-88c3-4814-8db2-ce8181c861a6","16587","","","","A. E.  Verrill, “The cephalopods of the north-eastern coast of America. Part I. The gigantic squids (Architeuthis) and their allies; 
-        with observations on similar large species from foreign localities”, Transactions of the Connecticut Academy of Sciences, vol. 5, pp. 177-257, 1879.","The cephalopods of the north-eastern coast of America. Part I. 
-        The gigantic squids (Architeuthis) and their allies; with observations on similar large species from foreign localities","A.E. Verrill","http://cephbase.eol.org/node/16587","<p>TY  - JOUR1879-1880 dates for this volume. 
-        Plates XIII-XXV in back, with an explanation of the figures on pp. 254-257RP  - IN FILE fromcephbk</p>","eng","original","1879///","2013-12-18T11:47:59-05:00","2013-12-18T11:47:59-05:00","Journal Article","",""
-        */
     }
     private function scan_taxon_references($page_no, $taxon_id)
     {
@@ -83,9 +77,7 @@ class CephBaseAPI
         echo "\n$url\n";
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
             if(preg_match("/<table class=\"biblio sticky-enabled\">(.*?)<\/table>/ims", $html, $arr)) {
-                // echo "\n".$arr[1]."\n";
                 if(preg_match_all("/<tr class=(.*?)<\/tr>/ims", $arr[1], $arr2)) {
-                    // print_r($arr2[1]);
                     foreach($arr2[1] as $str) {
                         $non_html = strip_tags($str);
                         if(preg_match_all("/<td>(.*?)<\/td>/ims", $str, $arr3)) {
@@ -94,8 +86,7 @@ class CephBaseAPI
                                 [0] => <a href="/biblio?page=0&amp;f[0]=im_field_taxonomic_name%3A275&amp;f[author]=7443" rel="nofollow" class="active">Voight, JR</a>
                                 [1] => 2009
                                 [2] => <a href="/node/16906">Differences in Spermatophore Availability among Octopodid Species (Cephalopoda: Octopoda)</a>
-                            )
-                            */
+                            )*/
                             $rec = array();
                             $rec['year'] = $a[1];
                             if(preg_match("/<a href=\"\/node\/(.*?)\"/ims", $a[2], $arr4)) {
@@ -128,6 +119,7 @@ class CephBaseAPI
         if($val = @$add['Journal:']) $full_ref .= ". $val";
         if($val = @$add['Volume:']) $full_ref .= ". Vol. $val";
         if($val = @$add['Pagination:']) $full_ref .= ". $val.";
+        $full_ref = str_replace("..", ".", $full_ref);
         return Functions::remove_whitespace($full_ref);
     }
     private function parse_reference_page($ref_no)
@@ -149,7 +141,6 @@ class CephBaseAPI
         $url = $this->page['reference_page'].$ref_no;
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
             if(preg_match_all("/<tr class=\"(.*?)<\/tr>/ims", $html, $arr)) {
-                // print_r($arr[1]); exit;
                 foreach($arr[1] as $str) {
                     $rec = array();
                     if(preg_match("/<td class=\"biblio-row-title\">(.*?)<\/td>/ims", $str, $arr2)) $field = $arr2[1];
