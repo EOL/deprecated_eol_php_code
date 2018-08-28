@@ -133,12 +133,20 @@ class CephBaseAPI
          <tr class="odd"><td class="biblio-row-title">Alternate Journal:</td><td>Trans.Conn.Acad.Sci.</td> </tr>
         </tbody>
         */
+        $final = array();
         $url = $this->page['reference_page'].$ref_no;
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
             if(preg_match_all("/<tr class=\"(.*?)<\/tr>/ims", $html, $arr)) {
-                print_r($arr[1]); exit;
+                // print_r($arr[1]); exit;
+                foreach($arr[1] as $str) {
+                    $rec = array();
+                    if(preg_match("/<td class=\"biblio-row-title\">(.*?)<\/td>/ims", $str, $arr2)) $field = $arr2[1];
+                    if(preg_match("/<td>(.*?)<\/td>/ims", $str, $arr2)) $value = $arr2[1];
+                    if($field && $value) $final[$field] = $value;
+                }
             }
         }
+        return $final;
     }
     private function parse_classification()
     {
