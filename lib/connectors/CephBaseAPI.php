@@ -133,9 +133,9 @@ class CephBaseAPI
             [Pagination:] => 131-136
             [Keywords:] => <a href="/biblio?f[keyword]=54" rel="nofollow">Cephalopoda</a>
         )*/
-        if($val = $add['Journal:']) $full_ref .= " $val";
-        if($val = $add['Volume:']) $full_ref .= ". Vol. $val";
-        if($val = $add['Pagination:']) $full_ref .= ". $val.";
+        if($val = @$add['Journal:']) $full_ref .= ". $val";
+        if($val = @$add['Volume:']) $full_ref .= ". Vol. $val";
+        if($val = @$add['Pagination:']) $full_ref .= ". $val.";
         return Functions::remove_whitespace($full_ref);
     }
     private function parse_reference_page($ref_no)
