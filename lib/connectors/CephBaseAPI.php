@@ -35,21 +35,33 @@ class CephBaseAPI
         self::parse_references(); exit("\nstop references\n");
     }
     private function parse_references()
-    {
-        /*
-        <a href="http://cephbase.eol.org/biblio/?f[0]=im_field_taxonomic_name%3A602" rel="nofollow" class="facetapi-inactive">Watasenia scintillans (25)<span class="element-invisible">Apply Watasenia scintillans filter</span></a>
-        */
+    {   // <a href="http://cephbase.eol.org/biblio/?f[0]=im_field_taxonomic_name%3A602" rel="nofollow" class="facetapi-inactive">Watasenia scintillans (25)<span class="element-invisible">Apply Watasenia scintillans filter</span></a>
         if($html = Functions::lookup_with_cache($this->page['taxa_refs'], $this->download_options)) {
             if(preg_match_all("/im_field_taxonomic_name%3A(.*?)\"/ims", $html, $arr)) {
-                // print_r($arr[1]);
                 $total = count($arr[1]); $i = 0;
+                // print_r($arr[1]); exit;
                 foreach($arr[1] as $taxon_id) {
-                    $i++; echo "\n$i of $total\n";
-                    $refs = self::get_taxon_refs($taxon_id);
+                    $i++; echo "\ntaxon [$taxon_id]: $i of $total\n";
+                    $taxon_refs = self::get_taxon_refs($taxon_id);
+                    self::write_taxon_refs($taxon_refs, $taxon_id);
+                    // print_r($refs); exit("\nstopx 100\n");
                     if($i == 1) break; //debug only
                 }
             }
         }
+    }
+    private function write_taxon_refs($taxon_refs, $taxon_id)
+    {
+        $r = new \eol_schema\Reference();
+        $r->full_reference = $fb_full_ref;
+        $r->identifier = $ref_id;
+        $r->uri = $url;
+        if(!isset($this->reference_ids[$ref_id])) {
+            $this->reference_ids[$ref_id] = md5($fb_full_ref);
+            $this->archive_builder->write_object_to_file($r);
+            return md5($fb_full_ref);
+        }
+        
     }
     private function get_taxon_refs($taxon_id)
     {
@@ -96,7 +108,7 @@ class CephBaseAPI
                                 $rec['full_ref'] .= ". ".strip_tags($a[2]);
                                 $rec['details'] = self::parse_reference_page($rec['ref_no']);
                                 $rec['full_ref_final'] = self::add_items_on_full_ref($rec['details'], $rec['full_ref']);
-                                print_r($rec); //good debug
+                                // print_r($rec); //good debug
                                 $final[] = $rec;
                                 // Kuiter, R.H. and T. Tonozuka, 2001. Pictorial guide to Indonesian reef fishes. Part 1. Eels- Snappers, Muraenidae - Lutjanidae. Zoonetics, Australia. 1-302. 
                             }
