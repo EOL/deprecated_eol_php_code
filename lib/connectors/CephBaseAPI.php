@@ -52,16 +52,38 @@ class CephBaseAPI
     }
     private function write_taxon_refs($taxon_refs, $taxon_id)
     {
-        $r = new \eol_schema\Reference();
-        $r->full_reference = $fb_full_ref;
-        $r->identifier = $ref_id;
-        $r->uri = $url;
-        if(!isset($this->reference_ids[$ref_id])) {
-            $this->reference_ids[$ref_id] = md5($fb_full_ref);
-            $this->archive_builder->write_object_to_file($r);
-            return md5($fb_full_ref);
+        foreach($taxon_refs as $ref) {
+            $ref_no = $ref['ref_no'];
+            $this->taxon_refs[$taxon_id][$ref_no] = ''; //ref_no assignment to taxon. For writing to taxon.tab reference_id's
+            /*Array(
+                [year] => 1962
+                [ref_no] => 15145
+                [full_ref] => Young, JZ, 1962. Courtship and mating by a coral reef octopus (Octopus horridus)
+                [details] => Array(
+                        [Publication Type:] => Journal Article
+                        [Year of Publication:] => 1962
+                        [Authors:] => <a href="/biblio?f[author]=199" rel="nofollow">Young, JZ</a>
+                        [Journal:] => Proceedings of the Zoological Society of London
+                        [Volume:] => 138
+                        [Pagination:] => 157-162
+                        [Date Published:] => 1962///
+                        [Keywords:] => <a href="/biblio?f[keyword]=13" rel="nofollow">behavior</a>, <a href="/biblio?f[keyword]=6" rel="nofollow">Cephalopod</a>, <a href="/biblio?f[keyword]=82" rel="nofollow">chromatophore patterns</a>, <a href="/biblio?f[keyword]=235" rel="nofollow">mating</a>, <a href="/biblio?f[keyword]=7" rel="nofollow">Octopus</a>, <a href="/biblio?f[keyword]=1486" rel="nofollow">Octopus horridus</a>, <a href="/biblio?f[keyword]=81" rel="nofollow">Octopuses</a>, <a href="/biblio?f[keyword]=253" rel="nofollow">reef</a>, <a href="/biblio?f[keyword]=100" rel="nofollow">reproduction</a>
+                        [Alternate Journal:] => Proc.Zool.Soc., Lond.
+                    )
+                [full_ref_final] => Young, JZ, 1962. Courtship and mating by a coral reef octopus (Octopus horridus). Proceedings of the Zoological Society of London. Vol. 138. 157-162.
+            )*/
+            $r = new \eol_schema\Reference();
+            $r->identifier      = $ref_no;
+            $r->full_reference  = $ref['full_ref_final'];
+            $r->publicationType = @$ref['details']['Publication Type:'];
+            $r->pages           = @$ref['details']['Pagination:'];
+            $r->volume          = @$ref['details']['Volume:'];
+            $r->uri             = $this->page['reference_page'].$ref_no;
+            if(!isset($this->reference_ids[$ref_no])) {
+                $this->reference_ids[$ref_no] = '';
+                $this->archive_builder->write_object_to_file($r);
+            }
         }
-        
     }
     private function get_taxon_refs($taxon_id)
     {
