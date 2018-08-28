@@ -110,7 +110,7 @@ class CephBaseAPI
                                 $rec['full_ref'] .= ". ".strip_tags($a[2]);
                                 $rec['details'] = self::parse_reference_page($rec['ref_no']);
                                 $rec['full_ref_final'] = self::add_items_on_full_ref($rec['details'], $rec['full_ref']);
-                                print_r($rec);
+                                // print_r($rec); good debug
                                 $final[] = $rec;
                                 
                                 
