@@ -32,7 +32,13 @@ class CephBaseAPI
     {
         // self::parse_images();            //exit("\nstop images\n");
         // self::parse_references();           //exit("\nstop references\n");
-        self::parse_classification();    exit("\nstop classification\n");
+        
+        $this->taxon_refs[8][5] = '';
+        $this->taxon_refs[8][10] = '';
+        $this->taxon_refs[8][15] = '';
+        
+        
+        self::parse_classification();    //exit("\nstop classification\n");
         $this->archive_builder->finalize(TRUE);
     }
     private function parse_references()
@@ -231,8 +237,56 @@ class CephBaseAPI
             // $taxon_id = 1228; //debug - not accepted
             echo "\n$i of $total: [$sciname] [$taxon_id]";
             $taxon = self::parse_taxon_info($taxon_id);
-            print_r($taxon);
-            if($i >= 3) break; //debug only
+            self::write_taxon($taxon);
+            if($i >= 10) break; //debug only
+        }
+    }
+    private function write_taxon($rec)
+    {   /*
+        [taxon_id] => 437
+        [rank] => unranked
+        [sciname] => Nautilus umbilicatus Lamarck 1822
+        [usage] => Array(
+                [Usage] => not accepted
+                [Unacceptability Reason] => synonym
+            )
+        [ancestry] => Array(
+                [0] => Array(
+                        [rank] => family
+                        [sciname] => Sepiadariidae
+                        [id] => 12
+                    )
+                [1] => Array(
+                        [rank] => genus
+                        [sciname] => Sepiadarium
+                        [id] => 65
+                    )
+        )*/
+        // print_r($taxon);
+        $taxon_id = $rec['taxon_id'];
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID             = $taxon_id;
+        $taxon->scientificName      = $rec['sciname'];
+        $taxon->taxonRank           = $rec['rank'];
+        if($val = @$rec['usage']['Unacceptability Reason']) $taxon->taxonomicStatus = $val;
+        else                                                $taxon->taxonomicStatus = 'accepted';
+        
+        $ranks = array("kingdom", "phylum", "class", "order", "family", "genus");
+        if($val = @$rec['ancestry']) {
+            foreach($val as $a) {
+                if(in_array($a['rank'], $ranks)) $taxon->$a['rank'] = $a['sciname'];
+            }
+        }
+        
+        if($arr = @$this->taxon_refs[$taxon_id]) {
+            if($reference_ids = array_keys($arr)) $taxon->referenceID = implode("; ", $reference_ids);
+        }
+        
+        $taxon->furtherInformationURL = $this->page['taxon_page'].$taxon_id;
+        
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->archive_builder->write_object_to_file($taxon);
+            $this->taxon_ids[$taxon->taxonID] = '';
         }
     }
     private function parse_taxon_info($taxon_id)
@@ -243,14 +297,12 @@ class CephBaseAPI
                  <div class="field-item" style="padding-left:3px;">
                  <em>Nautilus</em> <em>pompilius</em> <em>pompilius</em> Linnaeus 1758        </div>
             */
-            if(preg_match("/<div class=\"field-label\">(.*?):<\/div>/ims", $html, $arr)) $rec['rank'] = $arr[1];
+            $rec['taxon_id'] = $taxon_id;
+            if(preg_match("/<div class=\"field-label\">(.*?):<\/div>/ims", $html, $arr)) $rec['rank'] = strtolower($arr[1]);
             if(preg_match("/<div class=\"field-item\"(.*?)<\/div>/ims", $html, $arr)) $rec['sciname'] = strip_tags("<div ".$arr[1]);
             $rec = array_map('trim', $rec);
             $rec['usage'] = self::get_usage($html);
             $rec['ancestry'] = self::get_ancestry($html);
-            $rec['refs'] = self::get_references($taxon_id);
-            // print_r($rec);
-            // exit("\n");
             return $rec;
         }
     }
@@ -277,10 +329,6 @@ class CephBaseAPI
         // print_r($rec); //exit;
         return $rec;
     }
-    private function get_references($taxon_id)
-    {
-        
-    }
     private function get_ancestry($html)
     {
         $final = array();
@@ -295,7 +343,7 @@ class CephBaseAPI
                 )
                 */
                 $rec = array();
-                if(preg_match("/xxx(.*?):/ims", "xxx".$str, $arr)) $rec['rank'] = $arr[1];
+                if(preg_match("/xxx(.*?):/ims", "xxx".$str, $arr)) $rec['rank'] = strtolower($arr[1]);
                 if(preg_match("/title=\"(.*?)\"/ims", "xxx".$str, $arr)) $rec['sciname'] = strip_tags($arr[1]);
                 if(preg_match("/term\/(.*?)\"/ims", "xxx".$str, $arr)) $rec['id'] = $arr[1];
                 $final[] = $rec;
@@ -791,13 +839,6 @@ class CephBaseAPI
             $data[$index_value][] = $temp;
         }
         return $data;
-    }
-
-    function get_references($references)
-    {
-        // might need or not need this...
-        $ref = utf8_encode($reference['reference']);
-        if(Functions::is_utf8($ref)) $refs[] = array("url" => $reference['url'], "fullReference" => Functions::import_decode($ref));
     }
 
     function get_common_names($names)
