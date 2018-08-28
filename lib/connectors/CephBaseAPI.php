@@ -30,15 +30,16 @@ class CephBaseAPI
     }
     function start()
     {
-        // self::parse_images();            //exit("\nstop images\n");
+        self::parse_images();            exit("\nstop images\n");
         // self::parse_references();           //exit("\nstop references\n");
+
+        // test data
+        // $this->taxon_refs[8][5] = '';
+        // $this->taxon_refs[8][10] = '';
+        // $this->taxon_refs[8][15] = '';
         
-        $this->taxon_refs[8][5] = '';
-        $this->taxon_refs[8][10] = '';
-        $this->taxon_refs[8][15] = '';
         
-        
-        self::parse_classification();    //exit("\nstop classification\n");
+        // self::parse_classification();    //exit("\nstop classification\n");
         $this->archive_builder->finalize(TRUE);
     }
     private function parse_references()
@@ -389,7 +390,7 @@ class CephBaseAPI
     private function parse_image_info($url)
     {
         $final = array();
-        echo "\n[$url]";
+        $final['source_url'] = $url;
         // <div class="field field-name-field-taxonomic-name field-type-taxonomy-term-reference field-label-above">
         // <div class="field field-name-field-description field-type-text-long field-label-none">
         // <div class="field field-name-field-imaging-technique field-type-taxonomy-term-reference field-label-above">
@@ -422,7 +423,11 @@ class CephBaseAPI
                 $str = $arr[1];
                 if(preg_match("/<div class=\"field-item even\">(.*?)<\/div>/ims", $str, $arr)) {
                     $str = trim($arr[1]);
-                    if(preg_match("/href=\"(.*?)\"/ims", $str, $arr)) $final['license'] = $arr[1];
+                    if(preg_match("/href=\"(.*?)\"/ims", $str, $arr)) {
+                        $license = $arr[1];
+                        if(substr($license,0,2) == "//") $final['license'] = "https:".$license;
+                        else                             $final['license'] = $license;
+                    }
                 }
             }
             if(preg_match("/<div class=\"field field-name-field-creator field-type-text field-label-above\">(.*?)Download the original/ims", $html, $arr)) {
@@ -432,8 +437,15 @@ class CephBaseAPI
                     $final['creator'] = $str;
                 }
             }
+        
+            //<h2 class="element-invisible"><a href="http://cephbase.eol.org/sites/cephbase.eol.org/files/cb0001.jpg">cb0001.jpg</a></h2>
+            if(preg_match("/<h2 class=\"element-invisible\">(.*?)<\/h2>/ims", $html, $arr)) {
+                if(preg_match("/href=\"(.*?)\"/ims", $arr[1], $arr2)) $final['media_url'] = $arr2[1];
+            }
+        
         }
-        print_r($final); //exit;
+        
+        print_r($final); exit;
         return $final;
     }
     private function get_last_page_for_image($html, $type = 'image')
