@@ -42,7 +42,9 @@ class CephBaseAPI
         if($html = Functions::lookup_with_cache($this->page['taxa_refs'], $this->download_options)) {
             if(preg_match_all("/im_field_taxonomic_name%3A(.*?)\"/ims", $html, $arr)) {
                 // print_r($arr[1]);
+                $total = count($arr[1]); $i = 0;
                 foreach($arr[1] as $taxon_id) {
+                    $i++; echo "\n$i of $total\n";
                     $refs = self::get_taxon_refs($taxon_id);
                     
                 }
@@ -65,7 +67,7 @@ class CephBaseAPI
                 if($refs) $final = array_merge($final, $refs);
             }
         }
-        exit("\n".count($final)."\n");
+        // exit("\n".count($final)."\n");
         return $final;
 
         /*
