@@ -32,15 +32,14 @@ class CephBaseAPI
     function start()
     {
         self::parse_references();           //exit("\nstop references\n");
-
-        // test data
-        // $this->taxon_refs[8][5] = '';
-        // $this->taxon_refs[8][10] = '';
-        // $this->taxon_refs[8][15] = '';
-        
+        /*
+        test data
+        $this->taxon_refs[8][5] = '';
+        $this->taxon_refs[8][10] = '';
+        $this->taxon_refs[8][15] = '';
+        */
         self::parse_classification();    //exit("\nstop classification\n");
         self::parse_images();            //exit("\nstop images\n");
-
         $this->archive_builder->finalize(TRUE);
         if($this->debug) Functions::start_print_debug($this->debug, $this->resource_id);
     }
@@ -296,6 +295,7 @@ class CephBaseAPI
     }
     private function parse_taxon_info($taxon_id)
     {
+        // $taxon_id = 856; //debug only
         if($html = Functions::lookup_with_cache($this->page['taxon_page'].$taxon_id, $this->download_options)) {
             /*<div class="field-label">Subspecies:</div>
                <div class="field-items">
@@ -313,7 +313,7 @@ class CephBaseAPI
             if(preg_match("/<h1 class\=\"title\" id\=\"page-title\">(.*?)<\/h1>/ims", $html, $arr)) {
                 $str = $arr[1];
                 // echo "\n[$str]\n"; exit;
-                if(preg_match("/xxx(.*?)<span>/ims", "xxx".$str, $arr2)) $rec['canonical'] = trim($arr2[1]);
+                if(preg_match("/xxx(.*?)<span>/ims", "xxx".$str, $arr2)) $rec['canonical'] = Functions::remove_whitespace(strip_tags($arr2[1]));
                 if(preg_match("/<span>(.*?)<\/span>/ims", $str, $arr2)) $rec['authorship'] = trim($arr2[1]);
             }
             else exit("\nInvestigate: cannot get into <h1> [$taxon_id]\n");
