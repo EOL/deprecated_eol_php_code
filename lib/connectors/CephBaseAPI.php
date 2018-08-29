@@ -247,20 +247,79 @@ class CephBaseAPI
         foreach($rec as $taxon_id => $sciname) { $i++;
             // $taxon_id = 466; //debug - accepted
             // $taxon_id = 1228; //debug - not accepted
-            $taxon_id = 326; //multiple text object - associations
+            // $taxon_id = 326; //multiple text object - associations
             echo "\n$i of $total: [$sciname] [$taxon_id]";
             $taxon = self::parse_taxon_info($taxon_id);
             self::write_taxon($taxon);
             self::write_text_object($taxon);
             // if($i >= 10) break; //debug only
+            // break; //debug only - one record to process...
         }
     }
     private function write_text_object($rec)
     {
         if($rec['rank'] == "species" || $rec['rank'] == "subspecies") {
             if($data = self::parse_text_object($rec['taxon_id'])) {
-                print_r($data); exit;
+                // print_r($data);
+                foreach($data as $association => $info) {
+                    $write = array();
+                    $write['taxon_id'] = $rec['taxon_id'];
+                    $write['text'] = "$association: ".implode("<br>", $info['items']);
+                    foreach($info['refs_final'] as $ref) {
+                        /* Array(
+                                [ref_no] => 46
+                                [full_ref] => Boletzky, Sv. &amp; Hanlon, R.T., 1983. A Review of the Laboratory Maintenance, Rearing and Culture of Cephalopod Molluscs. Memoirs of the National Museum of Victoria: Proceedings of the Workshop on the Biology and Resource Potential of Cephalopods, Melbourne, Australia, 9-13 March, 1981, 44, pp.147-187.
+                            )
+                        */
+                        $ref_no = $ref['ref_no'];
+                        $write['ref_ids'][] = $ref_no;
+                        $r = new \eol_schema\Reference();
+                        $r->identifier      = $ref_no;
+                        $r->full_reference  = $ref['full_ref'];
+                        $r->uri             = $this->page['reference_page'].$ref_no;
+                        // $r->publicationType = @$ref['details']['Publication Type:'];
+                        // $r->pages           = @$ref['details']['Pagination:'];
+                        // $r->volume          = @$ref['details']['Volume:'];
+                        // $r->authorList      = @$ref['details']['Authors:'];
+                        if(!isset($this->reference_ids[$ref_no])) {
+                            $this->reference_ids[$ref_no] = '';
+                            $this->archive_builder->write_object_to_file($r);
+                        }
+                    }
+                    if($write['taxon_id'] && $write['text']) self::write_text_2archive($write);
+                }
             }
+        }
+    }
+    private function write_text_2archive($write)
+    {
+        /*Array(
+            [taxon_id] => 326
+            [text] => Predators: <i>Nautilus pompilius pompilius</i>, Nautilus<br><i>Octopus sp.</i>, Octopus
+            [ref_ids] => Array(
+                    [0] => 108
+                    [1] => 63
+                )
+        )
+        */
+        $mr = new \eol_schema\MediaResource();
+        $taxonID = $write['taxon_id'];
+        $mr->taxonID        = $taxonID;
+        $mr->identifier     = md5($taxonID.$write['text']);
+        $mr->format         = "http://purl.org/dc/dcmitype/Text";
+        $mr->type           = "text/html";
+        $mr->language       = 'en';
+        $mr->furtherInformationURL = str_replace('taxon_id', $taxonID, $this->page['text_object_page']);
+        $mr->CVterm         = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations";
+        // $mr->Owner          = '';
+        // $mr->rights         = '';
+        // $mr->title          = '';
+        $mr->UsageTerms     = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+        $mr->description    = $write['text'];
+        if($reference_ids = @$write['ref_ids'])  $mr->referenceID = implode("; ", $reference_ids);
+        if(!isset($this->object_ids[$mr->identifier])) {
+            $this->archive_builder->write_object_to_file($mr);
+            $this->object_ids[$mr->identifier] = '';
         }
     }
     private function parse_text_object($taxon_id)
@@ -299,14 +358,31 @@ class CephBaseAPI
                 $fields = array('items', 'refs');
                 foreach($fields as $field) {
                     $str = $value[$field];
-                    echo "\n[$key][$field]:";
+                    // echo "\n[$key][$field]:";
                     if(preg_match_all("/<li>(.*?)<\/li>/ims", $str, $arr)) $final2[$key][$field] = $arr[1];
                     // echo "\n$str \n ========================================== \n";
                 }
             }
             // print_r($final2); exit;
-            return $final2;
+            
+            //further massaging:
+            foreach($final2 as $key => $value) {
+                if($refs = $final2[$key]['refs']) $final2[$key]['refs_final'] = self::adjust_refs($refs);
+            }
+            return $final2; //final output
         }
+    }
+    private function adjust_refs($refs)
+    {
+        $final = array();
+        foreach($refs as $str) {
+            $rec = array();
+            // href="/node/108">
+            if(preg_match("/href=\"\/node\/(.*?)\"/ims", $str, $arr)) $rec['ref_no'] = $arr[1];
+            $rec['full_ref'] = strip_tags($str);
+            $final[] = $rec;
+        }
+        return $final;
     }
     private function write_taxon($rec)
     {   /*

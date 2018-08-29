@@ -13,7 +13,7 @@ print_r(pathinfo($url, PATHINFO_BASENAME)); exit;
 
 $timestart = time_elapsed();
 $resource_id = 'cephbase';
-$resource_id = 'cephbase_caching';
+// $resource_id = 'cephbase_caching';
 
 $func = new CephBaseAPI($resource_id);
 $func->start();
