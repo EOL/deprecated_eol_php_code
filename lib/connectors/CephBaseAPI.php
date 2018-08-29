@@ -72,16 +72,16 @@ class CephBaseAPI
             }
         }
         print_r($final2);
-        
     }
     function start()
     {
-        // /* tests
+        /* tests
         $taxon_id = 784;
         $taxon_id = 326; //multiple text objects
+        // $taxon_id = 327;
         self::parse_text_object($taxon_id);
         exit("\nend tests\n");
-        // */
+        */
         
         self::parse_references();           //exit("\nstop references\n");
         /*
