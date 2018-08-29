@@ -374,7 +374,6 @@ class CephBaseAPI
                 print_r($arr[1]);
             }
             */
-            
             /*
             http://cephbase.eol.org/file-colorboxed/4
             <a href="/file/4"><img typeof="foaf:Image"
@@ -442,15 +441,11 @@ class CephBaseAPI
                     $final['creator'] = $str;
                 }
             }
-        
             //<h2 class="element-invisible"><a href="http://cephbase.eol.org/sites/cephbase.eol.org/files/cb0001.jpg">cb0001.jpg</a></h2>
             if(preg_match("/<h2 class=\"element-invisible\">(.*?)<\/h2>/ims", $html, $arr)) {
                 if(preg_match("/href=\"(.*?)\"/ims", $arr[1], $arr2)) $final['media_url'] = $arr2[1];
             }
-        
         }
-        
-        // print_r($final); exit;
         return $final;
     }
     private function get_last_page_for_image($html, $type = 'image')
