@@ -527,7 +527,7 @@ class CephBaseAPI
                     else $final['license'] = $str;
                 }
                 if($final['license'] == "All rights reserved.") $final['license'] = "all rights reserved";
-                $final['license'] = "http://creativecommons.org/licenses/by-nc-sa/3.0/"; //debug force
+                // $final['license'] = "http://creativecommons.org/licenses/by-nc-sa/3.0/"; //debug force
             }
             if(preg_match("/<div class=\"field field-name-field-creator field-type-text field-label-above\">(.*?)Download the original/ims", $html, $arr)) {
                 $str = $arr[1];
