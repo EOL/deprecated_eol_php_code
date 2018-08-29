@@ -31,51 +31,6 @@ class CephBaseAPI
         $this->debug = array();
     }
     
-    private function parse_text_object($taxon_id)
-    {
-        $final = array();
-        $url = str_replace('taxon_id', $taxon_id, $this->page['text_object_page']);
-        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
-            if(preg_match("/<div class=\"field-label\">Associations:&nbsp;<\/div>(.*?)<footer/ims", $html, $arr)) {
-                $str = $arr[1];
-                if(preg_match_all("/<h4>(.*?)<\/h4>/ims", $str, $arr)) {
-                    // print_r($arr[1]);
-                    $assocs = $arr[1];
-                    foreach($assocs as $assoc) {
-                        // echo "\n[$assoc]:";
-                        if(preg_match("/<h4>$assoc<\/h4>(.*?)<\/ul>/ims", $str, $arr)) {
-                            $final[$assoc]['items'] = $arr[1];
-                            // print_r($arr[1]);
-                        }
-                    }
-                }
-                
-                $i = 0;
-                if(preg_match_all("/<h5>References<\/h5>(.*?)<\/ul>/ims", $str, $arr)) {
-                    foreach($arr[1] as $ref) {
-                        $final[$assocs[$i]]['refs'] = $ref;
-                        $i++;
-                    }
-                }
-            }
-        }
-        // print_r($final);
-        /* massage $final */
-        if($final) {
-            foreach($final as $key => $value)
-            {
-                // print_r($value);
-                $fields = array('items', 'refs');
-                foreach($fields as $field) {
-                    $str = $value[$field];
-                    echo "\n[$key][$field]:";
-                    if(preg_match_all("/<li>(.*?)<\/li>/ims", $str, $arr)) $final2[$key][$field] = $arr[1];
-                    // echo "\n$str \n ========================================== \n";
-                }
-            }
-            print_r($final2);
-        }
-    }
     function start()
     {
         /* tests
@@ -292,10 +247,65 @@ class CephBaseAPI
         foreach($rec as $taxon_id => $sciname) { $i++;
             // $taxon_id = 466; //debug - accepted
             // $taxon_id = 1228; //debug - not accepted
+            $taxon_id = 326; //multiple text object - associations
             echo "\n$i of $total: [$sciname] [$taxon_id]";
             $taxon = self::parse_taxon_info($taxon_id);
             self::write_taxon($taxon);
+            self::write_text_object($taxon);
             // if($i >= 10) break; //debug only
+        }
+    }
+    private function write_text_object($rec)
+    {
+        if($rec['rank'] == "species" || $rec['rank'] == "subspecies") {
+            if($data = self::parse_text_object($rec['taxon_id'])) {
+                print_r($data); exit;
+            }
+        }
+    }
+    private function parse_text_object($taxon_id)
+    {
+        $final = array();
+        $url = str_replace('taxon_id', $taxon_id, $this->page['text_object_page']);
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            if(preg_match("/<div class=\"field-label\">Associations:&nbsp;<\/div>(.*?)<footer/ims", $html, $arr)) {
+                $str = $arr[1];
+                if(preg_match_all("/<h4>(.*?)<\/h4>/ims", $str, $arr)) {
+                    // print_r($arr[1]);
+                    $assocs = $arr[1];
+                    foreach($assocs as $assoc) {
+                        // echo "\n[$assoc]:";
+                        if(preg_match("/<h4>$assoc<\/h4>(.*?)<\/ul>/ims", $str, $arr)) {
+                            $final[$assoc]['items'] = $arr[1];
+                            // print_r($arr[1]);
+                        }
+                    }
+                }
+                
+                $i = 0;
+                if(preg_match_all("/<h5>References<\/h5>(.*?)<\/ul>/ims", $str, $arr)) {
+                    foreach($arr[1] as $ref) {
+                        $final[$assocs[$i]]['refs'] = $ref;
+                        $i++;
+                    }
+                }
+            }
+        }
+        // print_r($final);
+        /* massage $final */
+        if($final) {
+            foreach($final as $key => $value) {
+                // print_r($value);
+                $fields = array('items', 'refs');
+                foreach($fields as $field) {
+                    $str = $value[$field];
+                    echo "\n[$key][$field]:";
+                    if(preg_match_all("/<li>(.*?)<\/li>/ims", $str, $arr)) $final2[$key][$field] = $arr[1];
+                    // echo "\n$str \n ========================================== \n";
+                }
+            }
+            // print_r($final2); exit;
+            return $final2;
         }
     }
     private function write_taxon($rec)
@@ -321,11 +331,6 @@ class CephBaseAPI
                         [id] => 65
                     )
         )*/
-        
-        // /* only for caching
-        if($rec['rank'] == "species" || $rec['rank'] == "subspecies") self::parse_text_object($rec['taxon_id']);
-        return;
-        // */
         
         // print_r($rec); exit;
         $taxon_id = $rec['taxon_id'];
