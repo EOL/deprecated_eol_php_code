@@ -438,7 +438,7 @@ class CephBaseAPI
         $mr->taxonID        = $taxonID;
         $mr->identifier     = pathinfo($m['media_url'], PATHINFO_BASENAME);
         $mr->format         = Functions::get_mimetype($m['media_url']);
-        $mr->type           = Functions::get_datatype_given_mimetype($mr->type);
+        $mr->type           = Functions::get_datatype_given_mimetype($mr->format);
         $mr->language       = 'en';
         $mr->furtherInformationURL = $m['source_url'];
         $mr->accessURI      = $m['media_url'];
