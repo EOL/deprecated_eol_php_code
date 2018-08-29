@@ -27,10 +27,62 @@ class CephBaseAPI
         
         $this->page['taxon_refs'] = "http://cephbase.eol.org/biblio?page=page_no&f[0]=im_field_taxonomic_name:"; //replace 'page_no' with actual page no. and add taxon_id
         $this->page['reference_page'] = "http://cephbase.eol.org/node/"; //add the ref_no
+        $this->page['text_object_page'] = "http://cephbase.eol.org/taxonomy/term/taxon_id/descriptions"; //replace 'taxon_id' with actual value
         $this->debug = array();
+    }
+    
+    private function parse_text_object($taxon_id)
+    {
+        $url = str_replace('taxon_id', $taxon_id, $this->page['text_object_page']);
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            if(preg_match("/<div class=\"field-label\">Associations:&nbsp;<\/div>(.*?)<footer/ims", $html, $arr)) {
+                $str = $arr[1];
+                if(preg_match_all("/<h4>(.*?)<\/h4>/ims", $str, $arr)) {
+                    // print_r($arr[1]);
+                    $assocs = $arr[1];
+                    foreach($assocs as $assoc) {
+                        // echo "\n[$assoc]:";
+                        if(preg_match("/<h4>$assoc<\/h4>(.*?)<\/ul>/ims", $str, $arr)) {
+                            $final[$assoc]['items'] = $arr[1];
+                            // print_r($arr[1]);
+                        }
+                    }
+                }
+                
+                $i = 0;
+                if(preg_match_all("/<h5>References<\/h5>(.*?)<\/ul>/ims", $str, $arr)) {
+                    foreach($arr[1] as $ref) {
+                        $final[$assocs[$i]]['refs'] = $ref;
+                        $i++;
+                    }
+                }
+            }
+        }
+        // print_r($final);
+        /* massage $final */
+        foreach($final as $key => $value)
+        {
+            // print_r($value);
+            $fields = array('items', 'refs');
+            foreach($fields as $field) {
+                $str = $value[$field];
+                echo "\n[$key][$field]:";
+                if(preg_match_all("/<li>(.*?)<\/li>/ims", $str, $arr)) $final2[$key][$field] = $arr[1];
+                // echo "\n$str \n ========================================== \n";
+            }
+        }
+        print_r($final2);
+        
     }
     function start()
     {
+        // /* tests
+        $taxon_id = 784;
+        $taxon_id = 326; //multiple text objects
+        self::parse_text_object($taxon_id);
+        exit("\nend tests\n");
+        // */
+        
         self::parse_references();           //exit("\nstop references\n");
         /*
         test data
