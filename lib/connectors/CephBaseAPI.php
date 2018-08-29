@@ -31,7 +31,6 @@ class CephBaseAPI
     }
     function start()
     {
-        self::parse_images();            exit("\nstop images\n");
         // self::parse_references();           //exit("\nstop references\n");
 
         // test data
@@ -39,8 +38,9 @@ class CephBaseAPI
         // $this->taxon_refs[8][10] = '';
         // $this->taxon_refs[8][15] = '';
         
-        
-        // self::parse_classification();    //exit("\nstop classification\n");
+        self::parse_classification();    //exit("\nstop classification\n");
+        // self::parse_images();            //exit("\nstop images\n");
+
         $this->archive_builder->finalize(TRUE);
         if($this->debug) Functions::start_print_debug($this->debug, $this->resource_id);
     }
@@ -55,7 +55,7 @@ class CephBaseAPI
                     $taxon_refs = self::get_taxon_refs($taxon_id);
                     self::write_taxon_refs($taxon_refs, $taxon_id);
                     // print_r($refs); exit("\nstopx 100\n");
-                    if($i == 1) break; //debug only
+                    // if($i == 1) break; //debug only
                 }
             }
         }
@@ -99,7 +99,7 @@ class CephBaseAPI
     private function get_taxon_refs($taxon_id)
     {
         $final = array();
-        // $taxon_id = 28; //debug
+        // $taxon_id = 28; //debug only
         $url = $this->page['taxon_refs'].$taxon_id;
         $url = str_replace("page_no", "0", $url);
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
@@ -181,7 +181,7 @@ class CephBaseAPI
          <tr class="odd"><td class="biblio-row-title">Alternate Journal:</td><td>Trans.Conn.Acad.Sci.</td> </tr>
         </tbody>
         */
-        // $ref_no = 7728; //debug
+        // $ref_no = 7728; //debug only
         $final = array();
         $url = $this->page['reference_page'].$ref_no;
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
@@ -241,7 +241,7 @@ class CephBaseAPI
             echo "\n$i of $total: [$sciname] [$taxon_id]";
             $taxon = self::parse_taxon_info($taxon_id);
             self::write_taxon($taxon);
-            if($i >= 10) break; //debug only
+            // if($i >= 10) break; //debug only
         }
     }
     private function write_taxon($rec)
@@ -267,6 +267,8 @@ class CephBaseAPI
         )*/
         // print_r($taxon);
         $taxon_id = $rec['taxon_id'];
+        $this->taxon_scinames[$rec['canonical']] = $taxon_id; //used in media extension
+        
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID             = $taxon_id;
         $taxon->scientificName      = $rec['sciname'];
@@ -303,9 +305,27 @@ class CephBaseAPI
             $rec['taxon_id'] = $taxon_id;
             if(preg_match("/<div class=\"field-label\">(.*?):<\/div>/ims", $html, $arr)) $rec['rank'] = strtolower($arr[1]);
             if(preg_match("/<div class=\"field-item\"(.*?)<\/div>/ims", $html, $arr)) $rec['sciname'] = strip_tags("<div ".$arr[1]);
+            
+            /* get canonical and authorship:
+            <h1 class="title" id="page-title">
+               Cephalopoda    <span>Cuvier 1797 </span>    </h1>
+            */
+            if(preg_match("/<h1 class\=\"title\" id\=\"page-title\">(.*?)<\/h1>/ims", $html, $arr)) {
+                $str = $arr[1];
+                // echo "\n[$str]\n"; exit;
+                if(preg_match("/xxx(.*?)<span>/ims", "xxx".$str, $arr2)) $rec['canonical'] = trim($arr2[1]);
+                if(preg_match("/<span>(.*?)<\/span>/ims", $str, $arr2)) $rec['authorship'] = trim($arr2[1]);
+            }
+            else exit("\nInvestigate: cannot get into <h1> [$taxon_id]\n");
+            
+            if(!@$rec['canonical']) {
+                $this->debug['cannot get canonical'][$taxon_id] = '';
+            }
+            
             $rec = array_map('trim', $rec);
             $rec['usage'] = self::get_usage($html);
             $rec['ancestry'] = self::get_ancestry($html);
+            // print_r($rec); exit;
             return $rec;
         }
     }
@@ -363,6 +383,7 @@ class CephBaseAPI
             // $start = 2; //debug only
             for ($page_no = $start; $page_no <= $last_page; $page_no++) {
                 self::parse_page_no($page_no);
+                // if($page_no >= 1) break; //debug only
             }
         }
     }
@@ -402,8 +423,20 @@ class CephBaseAPI
         )*/
         $mr = new \eol_schema\MediaResource();
         
+        if(!$m['sciname']) {
+            print_r($m);
+            // exit;
+            
+            $m['sciname'] = "Cephalopoda";
+            $taxonID = 8;
+            
+        }
+        
+        $taxonID = '';
         if(isset($this->taxon_scinames[$m['sciname']])) $taxonID = $this->taxon_scinames[$m['sciname']];
-        else $this->debug['undefined sciname'][$m['sciname']] = '';
+        else {
+            $this->debug['undefined sciname'][$m['sciname']] = '';
+        }
         
         $mr->taxonID        = $taxonID;
         $mr->identifier     = pathinfo($m['media_url'], PATHINFO_BASENAME);
@@ -449,7 +482,7 @@ class CephBaseAPI
     }
     private function parse_image_info($url)
     {
-        $url = "http://cephbase.eol.org/file-colorboxed/24"; //debug only
+        // $url = "http://cephbase.eol.org/file-colorboxed/24"; //debug only
         $final = array();
         $final['source_url'] = $url;
         // <div class="field field-name-field-taxonomic-name field-type-taxonomy-term-reference field-label-above">
