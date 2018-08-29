@@ -306,8 +306,8 @@ class CephBaseAPI
         $taxonID = $write['taxon_id'];
         $mr->taxonID        = $taxonID;
         $mr->identifier     = md5($taxonID.$write['text']);
-        $mr->format         = "http://purl.org/dc/dcmitype/Text";
-        $mr->type           = "text/html";
+        $mr->type           = "http://purl.org/dc/dcmitype/Text";
+        $mr->format         = "text/html";
         $mr->language       = 'en';
         $mr->furtherInformationURL = str_replace('taxon_id', $taxonID, $this->page['text_object_page']);
         $mr->CVterm         = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations";
