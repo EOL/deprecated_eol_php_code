@@ -304,6 +304,7 @@ class CephBaseAPI
             */
             $rec['taxon_id'] = $taxon_id;
             if(preg_match("/<div class=\"field-label\">(.*?):<\/div>/ims", $html, $arr)) $rec['rank'] = strtolower($arr[1]);
+            if($rec['rank'] == "unranked") $rec['rank'] = "";
             if(preg_match("/<div class=\"field-item\"(.*?)<\/div>/ims", $html, $arr)) $rec['sciname'] = strip_tags("<div ".$arr[1]);
             
             /* get canonical and authorship:
