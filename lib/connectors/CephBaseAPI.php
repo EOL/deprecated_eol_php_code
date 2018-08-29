@@ -83,7 +83,7 @@ class CephBaseAPI
         exit("\nend tests\n");
         */
         
-        self::parse_references();           //exit("\nstop references\n");
+        // self::parse_references();           //exit("\nstop references\n");
         /*
         test data
         $this->taxon_refs[8][5] = '';
@@ -91,7 +91,7 @@ class CephBaseAPI
         $this->taxon_refs[8][15] = '';
         */
         self::parse_classification();    //exit("\nstop classification\n");
-        self::parse_images();            //exit("\nstop images\n");
+        // self::parse_images();            //exit("\nstop images\n");
         $this->archive_builder->finalize(TRUE);
         if($this->debug) Functions::start_print_debug($this->debug, $this->resource_id);
     }
@@ -318,6 +318,12 @@ class CephBaseAPI
                         [id] => 65
                     )
         )*/
+        
+        // /* only for caching
+        if($rec['rank'] == "species" || $rec['rank'] == "subspecies") self::parse_text_object($rec['taxon_id']);
+        return;
+        // */
+        
         // print_r($rec); exit;
         $taxon_id = $rec['taxon_id'];
         $this->taxon_scinames[$rec['canonical']] = $taxon_id; //used in media extension
