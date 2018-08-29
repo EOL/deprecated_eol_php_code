@@ -423,13 +423,10 @@ class CephBaseAPI
         )*/
         $mr = new \eol_schema\MediaResource();
         
-        if(!$m['sciname']) {
-            print_r($m);
-            // exit;
-            
+        if(!@$m['sciname']) {
+            // print_r($m);
             $m['sciname'] = "Cephalopoda";
             $taxonID = 8;
-            
         }
         
         $taxonID = '';
@@ -454,7 +451,7 @@ class CephBaseAPI
         // $mr->LocationCreated = $o['location'];
         // $mr->bibliographicCitation = $o['dcterms_bibliographicCitation'];
         // if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
-        if($agent_ids = self::create_agent($m['creator'])) $mr->agentID = implode("; ", $agent_ids);
+        if($agent_ids = self::create_agent(@$m['creator'])) $mr->agentID = implode("; ", $agent_ids);
         if(!isset($this->object_ids[$mr->identifier])) {
             $this->archive_builder->write_object_to_file($mr);
             $this->object_ids[$mr->identifier] = '';
@@ -462,7 +459,7 @@ class CephBaseAPI
     }
     private function concatenate_desc($m)
     {
-        $final = $m['description'];
+        $final = @$m['description'];
         if($val = @$m['imaging technique']) $final .= " Imaging technique: $val";
     }
     private function create_agent($creator_name)
