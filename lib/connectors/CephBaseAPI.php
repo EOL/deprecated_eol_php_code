@@ -33,6 +33,7 @@ class CephBaseAPI
     
     private function parse_text_object($taxon_id)
     {
+        $final = array();
         $url = str_replace('taxon_id', $taxon_id, $this->page['text_object_page']);
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
             if(preg_match("/<div class=\"field-label\">Associations:&nbsp;<\/div>(.*?)<footer/ims", $html, $arr)) {
@@ -60,18 +61,20 @@ class CephBaseAPI
         }
         // print_r($final);
         /* massage $final */
-        foreach($final as $key => $value)
-        {
-            // print_r($value);
-            $fields = array('items', 'refs');
-            foreach($fields as $field) {
-                $str = $value[$field];
-                echo "\n[$key][$field]:";
-                if(preg_match_all("/<li>(.*?)<\/li>/ims", $str, $arr)) $final2[$key][$field] = $arr[1];
-                // echo "\n$str \n ========================================== \n";
+        if($final) {
+            foreach($final as $key => $value)
+            {
+                // print_r($value);
+                $fields = array('items', 'refs');
+                foreach($fields as $field) {
+                    $str = $value[$field];
+                    echo "\n[$key][$field]:";
+                    if(preg_match_all("/<li>(.*?)<\/li>/ims", $str, $arr)) $final2[$key][$field] = $arr[1];
+                    // echo "\n$str \n ========================================== \n";
+                }
             }
+            print_r($final2);
         }
-        print_r($final2);
     }
     function start()
     {
