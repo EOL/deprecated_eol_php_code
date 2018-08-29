@@ -437,13 +437,13 @@ class CephBaseAPI
         
         $mr->taxonID        = $taxonID;
         $mr->identifier     = pathinfo($m['media_url'], PATHINFO_BASENAME);
-        $mr->type           = Functions::get_mimetype($m['media_url']);
+        $mr->format         = Functions::get_mimetype($m['media_url']);
+        $mr->type           = Functions::get_datatype_given_mimetype($mr->type);
         $mr->language       = 'en';
-        $mr->format         = Functions::get_datatype_given_mimetype($mr->type);
         $mr->furtherInformationURL = $m['source_url'];
         $mr->accessURI      = $m['media_url'];
         // $mr->CVterm         = $o['subject'];
-        // $mr->Owner          = $o['dc_rightsHolder'];
+        $mr->Owner          = @$m['creator'];
         // $mr->rights         = $o['dc_rights'];
         // $mr->title          = $o['dc_title'];
         $mr->UsageTerms     = $m['license'];
@@ -456,6 +456,7 @@ class CephBaseAPI
             $this->archive_builder->write_object_to_file($mr);
             $this->object_ids[$mr->identifier] = '';
         }
+        // print_r($mr); exit;
     }
     private function concatenate_desc($m)
     {
@@ -521,6 +522,7 @@ class CephBaseAPI
                     }
                     else $final['license'] = $str;
                 }
+                if($final['license'] == "All rights reserved.") $final['license'] = "all rights reserved";
             }
             if(preg_match("/<div class=\"field field-name-field-creator field-type-text field-label-above\">(.*?)Download the original/ims", $html, $arr)) {
                 $str = $arr[1];
