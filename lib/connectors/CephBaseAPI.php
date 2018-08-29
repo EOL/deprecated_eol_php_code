@@ -31,7 +31,7 @@ class CephBaseAPI
     }
     function start()
     {
-        // self::parse_references();           //exit("\nstop references\n");
+        self::parse_references();           //exit("\nstop references\n");
 
         // test data
         // $this->taxon_refs[8][5] = '';
@@ -39,7 +39,7 @@ class CephBaseAPI
         // $this->taxon_refs[8][15] = '';
         
         self::parse_classification();    //exit("\nstop classification\n");
-        // self::parse_images();            //exit("\nstop images\n");
+        self::parse_images();            //exit("\nstop images\n");
 
         $this->archive_builder->finalize(TRUE);
         if($this->debug) Functions::start_print_debug($this->debug, $this->resource_id);
