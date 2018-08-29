@@ -27,6 +27,7 @@ class CephBaseAPI
         
         $this->page['taxon_refs'] = "http://cephbase.eol.org/biblio?page=page_no&f[0]=im_field_taxonomic_name:"; //replace 'page_no' with actual page no. and add taxon_id
         $this->page['reference_page'] = "http://cephbase.eol.org/node/"; //add the ref_no
+        $this->debug = array();
     }
     function start()
     {
@@ -41,6 +42,7 @@ class CephBaseAPI
         
         // self::parse_classification();    //exit("\nstop classification\n");
         $this->archive_builder->finalize(TRUE);
+        if($this->debug) Functions::start_print_debug($this->debug, $this->resource_id);
     }
     private function parse_references()
     {   // <a href="http://cephbase.eol.org/biblio/?f[0]=im_field_taxonomic_name%3A602" rel="nofollow" class="facetapi-inactive">Watasenia scintillans (25)<span class="element-invisible">Apply Watasenia scintillans filter</span></a>
@@ -387,12 +389,67 @@ class CephBaseAPI
             }
         }
     }
-    private function write_image($image_info)
+    private function write_image($m)
+    {   /*Array(
+            [source_url] => http://cephbase.eol.org/file-colorboxed/23
+            [sciname] => Octopus micropyrsus
+            [description] => <p>Hatchling and probable adult together showing how small the adults of this tiny species can be.</p>
+        <p>Maturity: Hatchling; Lab or Wild: Wild; Field Location: Channel islands, california</p>
+            [imaging technique] => Photograph
+            [license] => https://creativecommons.org/licences/by-nc-nd/3.0/
+            [creator] => John Forsythe
+            [media_url] => http://cephbase.eol.org/sites/cephbase.eol.org/files/cb0020.jpg
+        )*/
+        $mr = new \eol_schema\MediaResource();
+        
+        if(isset($this->taxon_scinames[$m['sciname']])) $taxonID = $this->taxon_scinames[$m['sciname']];
+        else $this->debug['undefined sciname'][$m['sciname']] = '';
+        
+        $mr->taxonID        = $taxonID;
+        $mr->identifier     = pathinfo($m['media_url'], PATHINFO_BASENAME);
+        $mr->type           = Functions::get_mimetype($m['media_url']);
+        $mr->language       = 'en';
+        $mr->format         = Functions::get_datatype_given_mimetype($mr->type);
+        $mr->furtherInformationURL = $m['source_url'];
+        $mr->accessURI      = $m['media_url'];
+        // $mr->CVterm         = $o['subject'];
+        // $mr->Owner          = $o['dc_rightsHolder'];
+        // $mr->rights         = $o['dc_rights'];
+        // $mr->title          = $o['dc_title'];
+        $mr->UsageTerms     = $m['license'];
+        $mr->description    = self::concatenate_desc($m);
+        // $mr->LocationCreated = $o['location'];
+        // $mr->bibliographicCitation = $o['dcterms_bibliographicCitation'];
+        // if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
+        if($agent_ids = self::create_agent($m['creator'])) $mr->agentID = implode("; ", $agent_ids);
+        if(!isset($this->object_ids[$mr->identifier])) {
+            $this->archive_builder->write_object_to_file($mr);
+            $this->object_ids[$mr->identifier] = '';
+        }
+    }
+    private function concatenate_desc($m)
     {
-        print_r($image_info);
+        $final = $m['description'];
+        if($val = @$m['imaging technique']) $final .= " Imaging technique: $val";
+    }
+    private function create_agent($creator_name)
+    {
+        if(!$creator_name) return false;
+        $r = new \eol_schema\Agent();
+        $r->term_name       = $creator_name;
+        $r->agentRole       = 'creator';
+        $r->identifier      = md5("$r->term_name|$r->agentRole");
+        // $r->term_homepage   = $a['homepage'];
+        $agent_ids[] = $r->identifier;
+        if(!isset($this->agent_ids[$r->identifier])) {
+           $this->agent_ids[$r->identifier] = '';
+           $this->archive_builder->write_object_to_file($r);
+        }
+        return $agent_ids;
     }
     private function parse_image_info($url)
     {
+        $url = "http://cephbase.eol.org/file-colorboxed/24"; //debug only
         $final = array();
         $final['source_url'] = $url;
         // <div class="field field-name-field-taxonomic-name field-type-taxonomy-term-reference field-label-above">
@@ -432,6 +489,7 @@ class CephBaseAPI
                         if(substr($license,0,2) == "//") $final['license'] = "https:".$license;
                         else                             $final['license'] = $license;
                     }
+                    else $final['license'] = $str;
                 }
             }
             if(preg_match("/<div class=\"field field-name-field-creator field-type-text field-label-above\">(.*?)Download the original/ims", $html, $arr)) {
@@ -446,6 +504,7 @@ class CephBaseAPI
                 if(preg_match("/href=\"(.*?)\"/ims", $arr[1], $arr2)) $final['media_url'] = $arr2[1];
             }
         }
+        // print_r($final); exit;
         return $final;
     }
     private function get_last_page_for_image($html, $type = 'image')

@@ -4,6 +4,12 @@ namespace php_active_record;
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/CephBaseAPI');
+
+/* //tests
+$url = "http://cephbase.eol.org/sites/cephbase.eol.org/files/cb0001.jpg";
+print_r(pathinfo($url, PATHINFO_BASENAME)); exit;
+*/
+
 $timestart = time_elapsed();
 $resource_id = 'cephbase';
 $func = new CephBaseAPI($resource_id);
