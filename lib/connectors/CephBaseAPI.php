@@ -245,9 +245,11 @@ class CephBaseAPI
     }
     private function write_taxon($rec)
     {   /*
-        [taxon_id] => 437
-        [rank] => unranked
-        [sciname] => Nautilus umbilicatus Lamarck 1822
+        [taxon_id] => 8
+        [rank] => class
+        [sciname] => Cephalopoda Cuvier 1797
+        [canonical] => Cephalopoda
+        [authorship] => Cuvier 1797
         [usage] => Array(
                 [Usage] => not accepted
                 [Unacceptability Reason] => synonym
@@ -264,13 +266,14 @@ class CephBaseAPI
                         [id] => 65
                     )
         )*/
-        // print_r($taxon);
+        // print_r($rec); exit;
         $taxon_id = $rec['taxon_id'];
         $this->taxon_scinames[$rec['canonical']] = $taxon_id; //used in media extension
         
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID             = $taxon_id;
-        $taxon->scientificName      = $rec['sciname'];
+        $taxon->scientificName      = $rec['canonical'];
+        $taxon->scientificNameAuthorship = $rec['authorship'];
         $taxon->taxonRank           = $rec['rank'];
         if($val = @$rec['usage']['Unacceptability Reason']) $taxon->taxonomicStatus = $val;
         else                                                $taxon->taxonomicStatus = 'accepted';
@@ -518,12 +521,13 @@ class CephBaseAPI
                     $str = trim($arr[1]);
                     if(preg_match("/href=\"(.*?)\"/ims", $str, $arr)) {
                         $license = $arr[1];
-                        if(substr($license,0,2) == "//") $final['license'] = "https:".$license;
+                        if(substr($license,0,2) == "//") $final['license'] = "http:".$license;
                         else                             $final['license'] = $license;
                     }
                     else $final['license'] = $str;
                 }
                 if($final['license'] == "All rights reserved.") $final['license'] = "all rights reserved";
+                $final['license'] = "http://creativecommons.org/licenses/by-nc-sa/3.0/"; //debug force
             }
             if(preg_match("/<div class=\"field field-name-field-creator field-type-text field-label-above\">(.*?)Download the original/ims", $html, $arr)) {
                 $str = $arr[1];
