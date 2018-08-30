@@ -259,11 +259,14 @@ class CephBaseAPI
     private function write_text_object($rec)
     {
         if($rec['rank'] == "species" || $rec['rank'] == "subspecies") {
-            if($data = self::parse_text_object($rec['taxon_id'])) {
+            if($output = self::parse_text_object($rec['taxon_id'])) {
+                $data = $output['data'];
                 // print_r($data);
                 foreach($data as $association => $info) {
                     $write = array();
                     $write['taxon_id'] = $rec['taxon_id'];
+                    $write['agent'] = @$output['author'];
+                    // echo "\n[$association]\n------------\n";
                     $write['text'] = "$association: ".implode("<br>", $info['items']);
                     foreach($info['refs_final'] as $ref) {
                         /* Array(
@@ -292,16 +295,19 @@ class CephBaseAPI
         }
     }
     private function write_text_2archive($write)
-    {
-        /*Array(
+    {   /*Array(
             [taxon_id] => 326
+            [agent] => Array(
+                    [homepage] => http://cephbase.eol.org/user/1
+                    [name] => Scratchpad Team
+                )
             [text] => Predators: <i>Nautilus pompilius pompilius</i>, Nautilus<br><i>Octopus sp.</i>, Octopus
             [ref_ids] => Array(
                     [0] => 108
                     [1] => 63
                 )
-        )
-        */
+        )*/
+        // print_r($write); exit;
         $mr = new \eol_schema\MediaResource();
         $taxonID = $write['taxon_id'];
         $mr->taxonID        = $taxonID;
@@ -317,10 +323,16 @@ class CephBaseAPI
         $mr->UsageTerms     = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $mr->description    = $write['text'];
         if($reference_ids = @$write['ref_ids'])  $mr->referenceID = implode("; ", $reference_ids);
+        
+        if($agent = @$write['agent']) {
+            if($agent_ids = self::create_agent($agent['name'], $agent['homepage'], "author")) $mr->agentID = implode("; ", $agent_ids);
+        }
+        
         if(!isset($this->object_ids[$mr->identifier])) {
             $this->archive_builder->write_object_to_file($mr);
             $this->object_ids[$mr->identifier] = '';
         }
+        
     }
     private function parse_text_object($taxon_id)
     {
@@ -369,8 +381,26 @@ class CephBaseAPI
             foreach($final2 as $key => $value) {
                 if($refs = $final2[$key]['refs']) $final2[$key]['refs_final'] = self::adjust_refs($refs);
             }
-            return $final2; //final output
+            
+            $output['author'] = self::get_text_author($html);
+            $output['data'] = $final2;
+            return $output; //final output
         }
+    }
+    private function get_text_author($html)
+    {
+        $agent = array();
+        if(preg_match("/<footer class=\"submitted\">(.*?)<\/footer>/ims", $html, $arr)) {
+            // echo "\n".$arr[1]."\n";
+            if(preg_match("/<a href=\"\/user\/(.*?)\"/ims", $arr[1], $arr2)) {
+                $agent['homepage'] = "http://cephbase.eol.org/user/".$arr2[1];
+            }
+            if(preg_match("/<a(.*?)<\/a>/ims", $arr[1], $arr2)) {
+                $agent['name'] = strip_tags("<a".$arr2[1]);
+            }
+            // print_r($agent);
+        }
+        return $agent;
     }
     private function adjust_refs($refs)
     {
@@ -609,14 +639,15 @@ class CephBaseAPI
         $final = @$m['description'];
         if($val = @$m['imaging technique']) $final .= " Imaging technique: $val";
     }
-    private function create_agent($creator_name)
+    private function create_agent($creator_name, $home_page = "", $role = "")
     {
         if(!$creator_name) return false;
         $r = new \eol_schema\Agent();
         $r->term_name       = $creator_name;
-        $r->agentRole       = 'creator';
-        $r->identifier      = md5("$r->term_name|$r->agentRole");
-        // $r->term_homepage   = $a['homepage'];
+        if($role) $r->agentRole = $role;
+        else      $r->agentRole = 'creator';
+        $r->identifier = md5("$r->term_name|$r->agentRole");
+        if($home_page) $r->term_homepage = $home_page;
         $agent_ids[] = $r->identifier;
         if(!isset($this->agent_ids[$r->identifier])) {
            $this->agent_ids[$r->identifier] = '';
