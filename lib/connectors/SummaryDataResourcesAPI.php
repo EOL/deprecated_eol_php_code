@@ -23,19 +23,188 @@ class SummaryDataResourcesAPI
         $this->file['preferred synonym'] = "http://localhost/cp/summary data resources/preferredsynonym-aug-16-1-2.csv";
         
         $this->dwca_file = "http://localhost/cp/summary data resources/carnivora_sample.tgz";
+        
+        $this->report_file = CONTENT_RESOURCE_LOCAL_PATH . '/sample.txt';
+        
     }
     function start()
     {
+        self::working_dir();
+        $this->child_parent_list = self::generate_child_parent_list();
         // /* tests...
         $predicate = "http://reeffish.org/occursIn";
-        // $predicate = "http://eol.org/schema/terms/Present";
-        // $similar_terms = self::given_predicate_get_similar_terms($predicate);
-        // print_r($similar_terms);
+        $predicate = "http://eol.org/schema/terms/Present";
+        $similar_terms = self::given_predicate_get_similar_terms($predicate);
+        // print_r($similar_terms); exit;
+        
+        self::print_taxon_and_ancestry($similar_terms);
+        
         self::given_predicates_get_values_from_traits_csv($similar_terms);
 
-        if($this->debug) Functions::start_print_debug($this->debug, $this->resource_id);
         exit("\n-end tests-\n");
         // */
+        if($this->debug) Functions::start_print_debug($this->debug, $this->resource_id);
+        // remove temp dir
+        /* un-comment in real operation
+        recursive_rmdir($this->main_paths['temp_dir']);
+        echo ("\n temporary directory removed: " . $this->main_paths['temp_dir']);
+        */
+    }
+    private function generate_child_parent_list()
+    {
+        $file = fopen($this->main_paths['archive_path'].'/parents.csv', 'r');
+        $i = 0;
+        while(($line = fgetcsv($file)) !== FALSE) {
+            $i++;
+            if($i == 1) {
+                $fields = $line;
+                // print_r($fields); //exit;
+            }
+            else {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k];
+                    $k++;
+                }
+                // print_r($rec); exit;
+                /* Array(
+                    [child] => 47054812
+                    [parent] => 7662
+                )*/
+                $final[$rec['child']] = $rec['parent'];
+            }
+        }
+        fclose($file);
+        // print_r($final); exit;
+        return $final;
+    }
+    private function print_taxon_and_ancestry($preds)
+    {
+        $WRITE = fopen($this->report_file, 'a');
+        fwrite($WRITE, "Taxa (with ancestry) having data for those similar terms above: \n\n");
+        fwrite($WRITE, implode("\t", array("page_id", "scientific_name", "ancestry"))."\n");
+        
+        
+        $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r');
+        $i = 0;
+        while(($line = fgetcsv($file)) !== FALSE) {
+            $i++;
+            if($i == 1) {
+                $fields = $line;
+                // print_r($fields); //exit;
+            }
+            else {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k];
+                    $k++;
+                }
+                /*Array(
+                    [eol_pk] => R96-PK42815719
+                    [page_id] => 328076
+                    [scientific_name] => <i>Tremarctos ornatus</i>
+                    [resource_pk] => M_00329828
+                    [predicate] => http://eol.org/schema/terms/Present
+                    [sex] => 
+                    [lifestage] => 
+                    [statistical_method] => 
+                    [source] => http://www.worldwildlife.org/publications/wildfinder-database
+                    [object_page_id] => 
+                    [target_scientific_name] => 
+                    [value_uri] => http://eol.org/schema/terms/Cordillera_de_Merida_paramo
+                    [literal] => http://eol.org/schema/terms/Cordillera_de_Merida_paramo
+                    [measurement] => 
+                    [units] => 
+                    [normal_measurement] => 
+                    [normal_units_uri] => 
+                    [resource_id] => 20
+                )*/
+                if(in_array($rec['predicate'], $preds)) {
+                    // echo "\n".self::get_value($rec);
+                    // print_r($rec); //exit;
+                    $ancestry = self::get_ancestry_using_page_id($rec['page_id']);
+                    // print_r($ancestry);
+                    if(!isset($printed_already[$rec['page_id']])) {
+                        fwrite($WRITE, implode("\t", array($rec['page_id'], $rec['scientific_name'], implode("|", $ancestry)))."\n");
+                        $printed_already[$rec['page_id']] = '';
+                    }
+                }
+            }
+        }
+        fclose($file);
+        fwrite($WRITE, "======================================================\n");
+        fclose($WRITE);
+        // exit("\nelix 100\n");
+    }
+
+    private function given_predicates_get_values_from_traits_csv($preds)
+    {
+        $WRITE = fopen($this->report_file, 'a');
+        fwrite($WRITE, "Taxa having data for predicate and similar terms: \n\n");
+        fwrite($WRITE, implode("\t", array("page_id", "scientific_name", "predicate", "value_uri OR literal"))."\n");
+        
+        
+        $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r');
+        $i = 0;
+        while(($line = fgetcsv($file)) !== FALSE) {
+            $i++;
+            if($i == 1) {
+                $fields = $line;
+                print_r($fields); //exit;
+            }
+            else {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k];
+                    $k++;
+                }
+                /*Array(
+                    [eol_pk] => R96-PK42815719
+                    [page_id] => 328076
+                    [scientific_name] => <i>Tremarctos ornatus</i>
+                    [resource_pk] => M_00329828
+                    [predicate] => http://eol.org/schema/terms/Present
+                    [sex] => 
+                    [lifestage] => 
+                    [statistical_method] => 
+                    [source] => http://www.worldwildlife.org/publications/wildfinder-database
+                    [object_page_id] => 
+                    [target_scientific_name] => 
+                    [value_uri] => http://eol.org/schema/terms/Cordillera_de_Merida_paramo
+                    [literal] => http://eol.org/schema/terms/Cordillera_de_Merida_paramo
+                    [measurement] => 
+                    [units] => 
+                    [normal_measurement] => 
+                    [normal_units_uri] => 
+                    [resource_id] => 20
+                )*/
+                if(in_array($rec['predicate'], $preds)) {
+                    // echo "\n".self::get_value($rec);
+                    // print_r($rec); //exit;
+                    
+                    fwrite($WRITE, implode("\t", array($rec['page_id'], $rec['scientific_name'], $rec['predicate'], self::get_value($rec)))."\n");
+                }
+            }
+        }
+        fclose($file);
+    }
+    private function get_ancestry_using_page_id($page_id)
+    {
+        $final = array();
+        $temp_id = $page_id;
+        while(true) {
+            if($parent_id = @$this->child_parent_list[$temp_id]) {
+                $final[] = $parent_id;
+                $temp_id = $parent_id;
+            }
+            else break;
+        }
+        return $final;
+    }
+    private function get_value($rec)
+    {
+        if($val = @$rec['value_uri']) return $val;
+        if($val = @$rec['literal']) return $val;
     }
     private function setup_working_dir()
     {
@@ -44,23 +213,16 @@ class SummaryDataResourcesAPI
         $paths = $func->extract_archive_file($this->dwca_file, "traits.csv", array('timeout' => 60*10, 'expire_seconds' => 60*60*24*25)); //expires in 25 days
         return $paths;
     }
-    private function given_predicates_get_values_from_traits_csv($preds)
+    private function working_dir()
     {
-        // if(true) {
         if(Functions::is_production()) {
             if(!($info = self::setup_working_dir())) return;
             $this->main_paths = $info;
-            // remove temp dir
-            recursive_rmdir($info['temp_dir']);
-            echo ("\n temporary directory removed: " . $info['temp_dir']);
         }
         else { //local development only
             $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/carnivora_sample',
                           'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/');
             $this->main_paths = $info;
-            // remove temp dir
-            // recursive_rmdir($info['temp_dir']);
-            // echo ("\n temporary directory removed: " . $info['temp_dir']);
         }
     }
     private function given_predicate_get_similar_terms($pred)
@@ -83,7 +245,18 @@ class SummaryDataResourcesAPI
           if($line[1] == $pred) $final[$line[0]] = '';
         }
         fclose($file); unlink($temp_file);
-        return array_keys($final);
+        $final = array_keys($final);
+        
+        //start write
+        $WRITE = fopen($this->report_file, 'w');
+        fwrite($WRITE, "REPORT FOR PREDICATE: $pred\n\n");
+        fwrite($WRITE, "Similar terms from [terms relationship files]:\n\n");
+        foreach($final as $url) fwrite($WRITE, $url . "\n");
+        fwrite($WRITE, "======================================================\n");
+        fclose($WRITE);
+        //end write
+        
+        return $final;
     }
     
     /*
