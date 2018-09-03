@@ -42,34 +42,27 @@ class SummaryDataResourcesAPI
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->dwca_file, "traits.csv", array('timeout' => 60*10, 'expire_seconds' => 60*60*24*25)); //expires in 25 days
-        $archive_path = $paths['archive_path'];
-        $temp_dir = $paths['temp_dir'];
-        $tables['taxa'] = 'taxon.txt';
-        return array("temp_dir" => $temp_dir, "tables" => $tables);
+        return $paths;
     }
     private function given_predicates_get_values_from_traits_csv($preds)
     {
-        // if(Functions::is_production()) {
-        if(true) {
-            if(!($info = self::setup_working_dir())) return; //uncomment in real operation
-            $this->extension_path = $info['temp_dir'];
-            print_r($info);
+        // if(true) {
+        if(Functions::is_production()) {
+            if(!($info = self::setup_working_dir())) return;
+            $this->main_paths = $info;
             // remove temp dir
-            // recursive_rmdir($info['temp_dir']);
-            // echo ("\n temporary directory removed: " . $info['temp_dir']);
+            recursive_rmdir($info['temp_dir']);
+            echo ("\n temporary directory removed: " . $info['temp_dir']);
         }
         else { //local development only
-            $info = Array('temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_26984/',
-                          'tables' => Array('taxa' => "taxon.txt"));
-            $this->extension_path = $info['temp_dir'];
+            $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/carnivora_sample',
+                          'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/');
+            $this->main_paths = $info;
             // remove temp dir
             // recursive_rmdir($info['temp_dir']);
             // echo ("\n temporary directory removed: " . $info['temp_dir']);
         }
     }
-    
-    
-    
     private function given_predicate_get_similar_terms($pred)
     {
         $final = array();
