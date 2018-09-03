@@ -16,32 +16,60 @@ class SummaryDataResourcesAPI
         /* Terms relationships -> https://opendata.eol.org/dataset/terms-relationships */
         $this->file['parent child']['path'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/f8036c30-f4ab-4796-8705-f3ccd20eb7e9/download/parent-child-aug-16-2.csv";
         $this->file['parent child']['fields'] = array('parent_term_URI', 'subclass_term_URI');
-        
         $this->file['preferred synonym']['path'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/41f7fed1-3dc1-44d7-bbe5-6104156d1c1e/download/preferredsynonym-aug-16-1-2.csv";
         $this->file['preferred synonym']['fields'] = array('preferred_term_URI', 'deprecated_term_URI');
         
         $this->file['parent child'] = "http://localhost/cp/summary data resources/parent-child-aug-16-2.csv";
         $this->file['preferred synonym'] = "http://localhost/cp/summary data resources/preferredsynonym-aug-16-1-2.csv";
         
-        
-        
+        $this->dwca_file = "http://localhost/cp/summary data resources/carnivora_sample.tgz";
     }
     function start()
     {
         // /* tests...
         $predicate = "http://reeffish.org/occursIn";
         // $predicate = "http://eol.org/schema/terms/Present";
-        $similar_terms = self::given_predicate_get_similar_terms($predicate);
-        print_r($similar_terms);
+        // $similar_terms = self::given_predicate_get_similar_terms($predicate);
+        // print_r($similar_terms);
         self::given_predicates_get_values_from_traits_csv($similar_terms);
+
+        if($this->debug) Functions::start_print_debug($this->debug, $this->resource_id);
         exit("\n-end tests-\n");
         // */
     }
+    private function setup_working_dir()
+    {
+        require_library('connectors/INBioAPI');
+        $func = new INBioAPI();
+        $paths = $func->extract_archive_file($this->dwca_file, "traits.csv", array('timeout' => 60*10, 'expire_seconds' => 60*60*24*25)); //expires in 25 days
+        $archive_path = $paths['archive_path'];
+        $temp_dir = $paths['temp_dir'];
+        $tables['taxa'] = 'taxon.txt';
+        return array("temp_dir" => $temp_dir, "tables" => $tables);
+    }
     private function given_predicates_get_values_from_traits_csv($preds)
     {
-        iterate
-        
+        // if(Functions::is_production()) {
+        if(true) {
+            if(!($info = self::setup_working_dir())) return; //uncomment in real operation
+            $this->extension_path = $info['temp_dir'];
+            print_r($info);
+            // remove temp dir
+            // recursive_rmdir($info['temp_dir']);
+            // echo ("\n temporary directory removed: " . $info['temp_dir']);
+        }
+        else { //local development only
+            $info = Array('temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_26984/',
+                          'tables' => Array('taxa' => "taxon.txt"));
+            $this->extension_path = $info['temp_dir'];
+            // remove temp dir
+            // recursive_rmdir($info['temp_dir']);
+            // echo ("\n temporary directory removed: " . $info['temp_dir']);
+        }
     }
+    
+    
+    
     private function given_predicate_get_similar_terms($pred)
     {
         $final = array();

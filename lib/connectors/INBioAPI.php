@@ -87,6 +87,7 @@ class INBioAPI
                     shell_exec("tar -zxvf $temp_file_path");
                     chdir($cur_dir);
                     $archive_path = str_ireplace(".tar.gz", "", $temp_file_path);
+                    $archive_path = str_ireplace(".tgz", "", $temp_file_path);
                 }
                 elseif(preg_match("/^(.*)\.(gz|gzip)$/", $dwca_file, $arr)) {
                     shell_exec("gunzip -f $temp_file_path");
@@ -115,9 +116,9 @@ class INBioAPI
         elseif(file_exists($temp_dir ."dwca/". $check_file_or_folder_name))   return array('archive_path' => $temp_dir."dwca/", 'temp_dir' => $temp_dir); //for http://britishbryozoans.myspecies.info/eol-dwca.zip where it extracts to /dwca/ folder instead of usual /eol-dwca/.
         else
         {
-            echo "\n".$temp_dir . $check_file_or_folder_name."\n";
-            echo "\n".$archive_path . "/" . $check_file_or_folder_name."\n";
-            echo "\n".$temp_dir ."dwca/". $check_file_or_folder_name."\n";
+            echo "\n1. ".$temp_dir . $check_file_or_folder_name."\n";
+            echo "\n2. ".$archive_path . "/" . $check_file_or_folder_name."\n";
+            echo "\n3. ".$temp_dir ."dwca/". $check_file_or_folder_name."\n";
             debug("Can't find check_file_or_folder_name [$check_file_or_folder_name].");
             recursive_rmdir($temp_dir);
             return false;
