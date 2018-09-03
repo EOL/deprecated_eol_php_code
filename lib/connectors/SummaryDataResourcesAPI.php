@@ -81,9 +81,8 @@ class SummaryDataResourcesAPI
     private function print_taxon_and_ancestry($preds)
     {
         $WRITE = fopen($this->report_file, 'a');
-        fwrite($WRITE, "Taxa (with ancestry) having data for those similar terms above: \n\n");
+        fwrite($WRITE, "Taxa (with ancestry) having data for predicate in question and similar terms: \n\n");
         fwrite($WRITE, implode("\t", array("page_id", "scientific_name", "ancestry"))."\n");
-        
         
         $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r');
         $i = 0;
@@ -132,7 +131,7 @@ class SummaryDataResourcesAPI
             }
         }
         fclose($file);
-        fwrite($WRITE, "======================================================\n");
+        fwrite($WRITE, "==================================================================================================================================================================\n");
         fclose($WRITE);
         // exit("\nelix 100\n");
     }
@@ -140,7 +139,7 @@ class SummaryDataResourcesAPI
     private function given_predicates_get_values_from_traits_csv($preds)
     {
         $WRITE = fopen($this->report_file, 'a');
-        fwrite($WRITE, "Taxa having data for predicate and similar terms: \n\n");
+        fwrite($WRITE, "Taxa having data for predicate in question and similar terms: \n\n");
         fwrite($WRITE, implode("\t", array("page_id", "scientific_name", "predicate", "value_uri OR literal"))."\n");
         
         
@@ -250,9 +249,10 @@ class SummaryDataResourcesAPI
         //start write
         $WRITE = fopen($this->report_file, 'w');
         fwrite($WRITE, "REPORT FOR PREDICATE: $pred\n\n");
+        fwrite($WRITE, "==================================================================================================================================================================\n");
         fwrite($WRITE, "Similar terms from [terms relationship files]:\n\n");
         foreach($final as $url) fwrite($WRITE, $url . "\n");
-        fwrite($WRITE, "======================================================\n");
+        fwrite($WRITE, "==================================================================================================================================================================\n");
         fclose($WRITE);
         //end write
         
