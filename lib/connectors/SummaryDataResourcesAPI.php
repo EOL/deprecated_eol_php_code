@@ -139,7 +139,7 @@ class SummaryDataResourcesAPI
     private function given_predicates_get_values_from_traits_csv($preds)
     {
         $WRITE = fopen($this->report_file, 'a');
-        fwrite($WRITE, "Taxa having data for predicate in question and similar terms: \n\n");
+        fwrite($WRITE, "Records from traits.csv having data for predicate in question and similar terms: \n\n");
         fwrite($WRITE, implode("\t", array("page_id", "scientific_name", "predicate", "value_uri OR literal"))."\n");
         
         
