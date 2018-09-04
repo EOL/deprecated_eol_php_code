@@ -86,20 +86,17 @@ class SummaryDataResourcesAPI
         self::working_dir();
         self::generate_terms_values_child_parent_list();
         self::generate_preferred_child_parent_list();
-        
-        
         $uris = self::given_value_uri();
         self::get_ancestor_ranking_from_set_of_uris($uris);
-        // exit("\n-end ranking-\n");
         
 
-        // $term = "http://www.marineregions.org/gazetteer.php?p=details&id=australia";
-        $term = "http://www.marineregions.org/gazetteer.php?p=details&id=4366";
-        $term = "http://www.marineregions.org/gazetteer.php?p=details&id=4364";
-        $term = "http://www.geonames.org/2186224";
-        $term = "http://www.geonames.org/3370751";
-        // $term = "http://www.marineregions.org/gazetteer.php?p=details&id=1914";
-        // $term = "http://www.marineregions.org/gazetteer.php?p=details&id=1904";
+        $term = "http://www.marineregions.org/gazetteer.php?p=details&id=australia";
+        // $term = "http://www.marineregions.org/gazetteer.php?p=details&id=4366";
+        // $term = "http://www.marineregions.org/gazetteer.php?p=details&id=4364";
+        // $term = "http://www.geonames.org/2186224";
+        // $term = "http://www.geonames.org/3370751";                               //error
+        // $term = "http://www.marineregions.org/gazetteer.php?p=details&id=1914";  //error    
+        // $term = "http://www.marineregions.org/gazetteer.php?p=details&id=1904";  //error
         // $term = "http://www.marineregions.org/gazetteer.php?p=details&id=1910";
         // $term = "http://www.marineregions.org/gazetteer.php?p=details&id=4276";
         // $term = "http://www.marineregions.org/gazetteer.php?p=details&id=4365";
@@ -107,17 +104,17 @@ class SummaryDataResourcesAPI
         // $term = "http://www.marineregions.org/mrgid/1914";
         
         echo "\n-------------------------------------\nterm in question: [$term]:\n";
-        /*
+        // /*
         if($parents = @$this->parents_of[$term]) {
             echo "\nParents:\n"; print_r($parents);
         }
         else echo "\nNO PARENT\n";
-        */
+        // */
+        
         if($preferred_terms = @$this->preferred_names_of[$term]) {
             echo "\nThere are preferred term(s):\n";
             print_r($preferred_terms);
             foreach($preferred_terms as $term) {
-                
                 echo "\nparent(s) of $term:";
                 if($parents = @$this->parents_of[$term]) {
                     print_r($parents);
@@ -130,6 +127,7 @@ class SummaryDataResourcesAPI
                 else echo " -- NO parent";
             }
             echo "\n---------------------------------------------\n";
+            /* seems not needed
             foreach($preferred_terms as $term) {
                 echo "\nprefered name of $term:";
                 if($names = @$this->prefered_name_of[$term]) {
@@ -137,6 +135,7 @@ class SummaryDataResourcesAPI
                 }
                 else echo " -- NO preferred name";
             }
+            */
         }
         else {
             echo "\nThere is NO preferred term\n";
