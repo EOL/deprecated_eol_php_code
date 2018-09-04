@@ -19,15 +19,46 @@ class SummaryDataResourcesAPI
         $this->file['preferred synonym']['path'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/41f7fed1-3dc1-44d7-bbe5-6104156d1c1e/download/preferredsynonym-aug-16-1-2.csv";
         $this->file['preferred synonym']['fields'] = array('preferred_term_URI', 'deprecated_term_URI');
         
-        $this->file['parent child'] = "http://localhost/cp/summary data resources/parent-child-aug-16-2.csv";
-        $this->file['preferred synonym'] = "http://localhost/cp/summary data resources/preferredsynonym-aug-16-1-2.csv";
+        $this->file['parent child']['path'] = "http://localhost/cp/summary data resources/parent-child-aug-16-2.csv";
+        $this->file['preferred synonym']['path'] = "http://localhost/cp/summary data resources/preferredsynonym-aug-16-1-2.csv";
         
         $this->dwca_file = "http://localhost/cp/summary data resources/carnivora_sample.tgz";
-        
         $this->report_file = CONTENT_RESOURCE_LOCAL_PATH . '/sample.txt';
-        
     }
     function start()
+    {
+        self::working_dir();
+        $this->terms_values_child_parent_list = self::generate_terms_values_child_parent_list();
+        exit("\nend 01\n");
+    }
+    private function generate_terms_values_child_parent_list()
+    {
+        $temp_file = Functions::save_remote_file_to_local($this->file['parent child']['path'], $this->download_options);
+        exit("\n[$temp_file]\n");
+        $file = fopen($temp_file, 'r');
+        $i = 0;
+        $fields = $this->file['parent child']['fields'];
+        while(($line = fgetcsv($file)) !== FALSE) {
+            $i++;
+            if($line) {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k];
+                    $k++;
+                }
+                print_r($rec); exit;
+                /* Array(
+                    [child] => 47054812
+                    [parent] => 7662
+                )*/
+                $final[$rec['child']] = $rec['parent'];
+            }
+        }
+        fclose($file); unlink($temp_file);
+        return $final;
+    }
+    
+    function start_v1()
     {
         self::working_dir();
         $this->child_parent_list = self::generate_child_parent_list();
@@ -56,10 +87,7 @@ class SummaryDataResourcesAPI
         $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) {
             $i++;
-            if($i == 1) {
-                $fields = $line;
-                // print_r($fields); //exit;
-            }
+            if($i == 1) $fields = $line;
             else {
                 $rec = array(); $k = 0;
                 foreach($fields as $fld) {
@@ -75,7 +103,6 @@ class SummaryDataResourcesAPI
             }
         }
         fclose($file);
-        // print_r($final); exit;
         return $final;
     }
     private function print_taxon_and_ancestry($preds)
@@ -83,15 +110,11 @@ class SummaryDataResourcesAPI
         $WRITE = fopen($this->report_file, 'a');
         fwrite($WRITE, "Taxa (with ancestry) having data for predicate in question and similar terms: \n\n");
         fwrite($WRITE, implode("\t", array("page_id", "scientific_name", "ancestry"))."\n");
-        
         $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r');
         $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) {
             $i++;
-            if($i == 1) {
-                $fields = $line;
-                // print_r($fields); //exit;
-            }
+            if($i == 1) $fields = $line;
             else {
                 $rec = array(); $k = 0;
                 foreach($fields as $fld) {
@@ -141,8 +164,6 @@ class SummaryDataResourcesAPI
         $WRITE = fopen($this->report_file, 'a');
         fwrite($WRITE, "Records from traits.csv having data for predicate in question and similar terms: \n\n");
         fwrite($WRITE, implode("\t", array("page_id", "scientific_name", "predicate", "value_uri OR literal"))."\n");
-        
-        
         $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r');
         $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) {
