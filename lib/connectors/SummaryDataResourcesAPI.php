@@ -15,12 +15,15 @@ class SummaryDataResourcesAPI
         
         /* Terms relationships -> https://opendata.eol.org/dataset/terms-relationships */
         $this->file['parent child']['path'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/f8036c30-f4ab-4796-8705-f3ccd20eb7e9/download/parent-child-aug-16-2.csv";
-        $this->file['parent child']['fields'] = array('parent_term_URI', 'subclass_term_URI');
-        $this->file['preferred synonym']['path'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/41f7fed1-3dc1-44d7-bbe5-6104156d1c1e/download/preferredsynonym-aug-16-1-2.csv";
-        $this->file['preferred synonym']['fields'] = array('preferred_term_URI', 'deprecated_term_URI');
+        // $this->file['parent child']['fields'] = array('parent_term_URI', 'subclass_term_URI');
+        $this->file['parent child']['fields'] = array('parent', 'child'); //used more simple words
         
-        $this->file['parent child']['path'] = "http://localhost/cp/summary data resources/parent-child-aug-16-2.csv";
-        $this->file['preferred synonym']['path'] = "http://localhost/cp/summary data resources/preferredsynonym-aug-16-1-2.csv";
+        $this->file['preferred synonym']['path'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/41f7fed1-3dc1-44d7-bbe5-6104156d1c1e/download/preferredsynonym-aug-16-1-2.csv";
+        // $this->file['preferred synonym']['fields'] = array('preferred_term_URI', 'deprecated_term_URI');
+        $this->file['preferred synonym']['fields'] = array('preferred', 'deprecated');
+
+        $this->file['parent child']['path'] = "http://localhost/cp/summary data resources/parent-child-aug-16-2a.csv";
+        $this->file['preferred synonym']['path'] = "http://localhost/cp/summary data resources/preferredsynonym-aug-16-1-2a.csv";
         
         $this->dwca_file = "http://localhost/cp/summary data resources/carnivora_sample.tgz";
         $this->report_file = CONTENT_RESOURCE_LOCAL_PATH . '/sample.txt';
@@ -28,13 +31,125 @@ class SummaryDataResourcesAPI
     function start()
     {
         self::working_dir();
-        $this->terms_values_child_parent_list = self::generate_terms_values_child_parent_list();
+        self::generate_terms_values_child_parent_list();
+        self::generate_preferred_child_parent_list();
+
+        $term = "http://www.geonames.org/3370751";
+        $term = "http://www.marineregions.org/gazetteer.php?p=details&id=1914";
+        $term = "http://www.geonames.org/2186224";
+        $term = "http://www.marineregions.org/mrgid/1914";
+        $term = "http://www.marineregions.org/gazetteer.php?p=details&id=australia";
+        if($preferred_terms = @$this->preferred_names_of[$term]) {
+            echo "\nThere are preferred term(s):\n";
+            print_r($preferred_terms);
+            foreach($preferred_terms as $term) {
+                echo "\nparent(s) of $term:";
+                if($parents = @$this->parents_of[$term]) {
+                    print_r($parents);
+                }
+                else echo " -- NO parent";
+            }
+        }
+        else {
+            echo "\nThere is NO preferred term\n";
+            // $ancestry = self::get_ancestry_of_term($term);
+            // print_r($ancestry);
+            if($immediate_parents = $this->parents_of[$term]) {
+                echo "\nThere are immediate parent(s):\n";
+                print_r($immediate_parents);
+                foreach($immediate_parents as $immediate) {
+                    echo "\nparent(s) of $immediate:";
+                    if($parents = @$this->parents_of[$immediate]) {
+                        print_r($parents);
+                    }
+                    else echo " -- NO parent";
+                }
+            }
+        }
+        
+        // preferred
+        // http://www.marineregions.org/mrgid/australia,   http://www.marineregions.org/gazetteer.php?p=details&id=australia
+        // http://www.geonames.org/2077456,                http://www.marineregions.org/gazetteer.php?p=details&id=australia
+        // 
+        // $term = "http://www.marineregions.org/mrgid/australia";
+        // $ancestry[$term] = self::get_ancestry_of_term($term);
+        // // print_r($ancestry[$term]);
+        // 
+        // $term = "http://www.geonames.org/2077456";
+        // $ancestry[$term] = self::get_ancestry_of_term($term);
+        // print_r($ancestry);
         exit("\nend 01\n");
+    }
+    private function generate_preferred_child_parent_list()
+    {
+        $temp_file = Functions::save_remote_file_to_local($this->file['preferred synonym']['path'], $this->download_options);
+        $file = fopen($temp_file, 'r'); $i = 0;
+        $fields = $this->file['preferred synonym']['fields'];
+        while(($line = fgetcsv($file)) !== FALSE) {
+            $i++;
+            if($line) {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k];
+                    $k++;
+                }
+                // print_r($rec); exit;
+                /* Array(
+                    [preferred] => http://marineregions.org/mrgid/19161
+                    [deprecated] => http://marineregions.org/gazetteer.php?p=details&id=19161
+                )*/
+                $this->preferred_names_of[$rec['deprecated']][] = $rec['preferred'];
+            }
+        }
+        fclose($file); unlink($temp_file);
+    }
+    private function get_ancestry_of_term($page_id)
+    {
+        $final = array(); $final2 = array();
+        if($parent_ids = @$this->terms_values_child_parent_list[$page_id]) {
+            foreach($parent_ids as $temp_id) {
+                while(true) {
+                    if($parent_ids2 = @$this->terms_values_child_parent_list[$temp_id]) {
+                        foreach($parent_ids2 as $temp_id2) {
+                            while(true) {
+                                if($parent_ids3 = @$this->terms_values_child_parent_list[$temp_id2]) {
+                                    foreach($parent_ids3 as $temp_id3) {
+                                        $final['L3'][] = $temp_id3;
+                                        $final2[$temp_id3] = '';
+                                        $temp_id2 = $temp_id3;
+                                    }
+                                }
+                                else break;
+                            }
+                            $final['L2'][] = $temp_id2;
+                            $final2[$temp_id2] = '';
+                            $temp_id = $temp_id2;
+                        }
+                    }
+                    else break;
+                }
+                $final['L1'][] = $temp_id;
+                $final2[$temp_id] = '';
+                $page_id = $temp_id;
+            }
+        }
+        return array($final, array_keys($final2));
+        /*
+        $final = array();
+        $temp_id = $page_id;
+        while(true) {
+            if($parent_id = @$this->terms_values_child_parent_list[$temp_id]) {
+                $final[] = $parent_id;
+                $temp_id = $parent_id;
+            }
+            else break;
+        }
+        return $final;
+        */
     }
     private function generate_terms_values_child_parent_list()
     {
         $temp_file = Functions::save_remote_file_to_local($this->file['parent child']['path'], $this->download_options);
-        exit("\n[$temp_file]\n");
         $file = fopen($temp_file, 'r');
         $i = 0;
         $fields = $this->file['parent child']['fields'];
@@ -46,16 +161,16 @@ class SummaryDataResourcesAPI
                     $rec[$fld] = $line[$k];
                     $k++;
                 }
-                print_r($rec); exit;
+                // print_r($rec); exit;
                 /* Array(
-                    [child] => 47054812
-                    [parent] => 7662
+                    [parent] => ﻿http://purl.obolibrary.org/obo/ENVO_00000111
+                    [child] => http://purl.obolibrary.org/obo/ENVO_01000196
                 )*/
-                $final[$rec['child']] = $rec['parent'];
+                $this->parent_of[$rec['child']][] = $rec['parent'];
+                $this->children_of[$rec['parent']][] = $rec['child'];
             }
         }
         fclose($file); unlink($temp_file);
-        return $final;
     }
     
     function start_v1()
