@@ -38,40 +38,7 @@ class SummaryDataResourcesAPI
         "http://www.marineregions.org/gazetteer.php?p=details&id=4365", "http://www.geonames.org/953987");
     }
     private function get_ancestor_ranking_from_set_of_uris($uris)
-    {   /*
-Hi Jen, we are now just down to 1 discrepancy. But I think (hopefully) the last one is just something you've missed doing it manually.
-But more importantly, let me share my algorithm how I chose the parent. Please review closely and suggest improvement or even revise if needed.
-I came up with this using our case scenario for page_id 46559197 and your explanations why you chose your parents.
-Like what I said it came down to now just 1 discrepancy.
-
-I process each of the 12 terms, one by one.
-    http://www.marineregions.org/gazetteer.php?p=details&id=australia
-    http://www.marineregions.org/gazetteer.php?p=details&id=4366
-    http://www.marineregions.org/gazetteer.php?p=details&id=4364
-    http://www.geonames.org/2186224
-    http://www.geonames.org/3370751
-    http://www.marineregions.org/gazetteer.php?p=details&id=1914
-    http://www.marineregions.org/gazetteer.php?p=details&id=1904
-    http://www.marineregions.org/gazetteer.php?p=details&id=1910
-    http://www.marineregions.org/gazetteer.php?p=details&id=4276
-    http://www.marineregions.org/gazetteer.php?p=details&id=4365
-    http://www.geonames.org/953987
-    http://www.marineregions.org/mrgid/1914
-
-        
-1.  First I get the preferred term(s) of the term in question. 
-    Case A: If there are any: e.g. (pref1, pref2) Mostly only 1 preferred term.
-        I get the immediate parent(s) each of the preferred terms. 
-        e.g. pref1_parent1, pref1_parent2, pref1_parent3
-        
-
-    Case B: If there are NO preferred term(s)
-        I get the immediate parent(s) of the term in question.
-        e.g. term_parent1, term_parent2
-
-2.  Then whatever the Case be, I sent the collected items to the ranking selection.
-    
-        */
+    {
         $final = array();
         foreach($uris as $term) {
             if($preferred_terms = @$this->preferred_names_of[$term]) {
@@ -147,15 +114,11 @@ I process each of the 12 terms, one by one.
                 }
             }
             
-            if(count($preferred_terms) == 1 && in_array($preferred_terms[0], $this->ancestor_ranking) 
-                                            && in_array($preferred_terms[0], $this->ancestor_ranking_preferred))
-            {
+            if(count($preferred_terms) == 1 && in_array($preferred_terms[0], $this->ancestor_ranking) && in_array($preferred_terms[0], $this->ancestor_ranking_preferred)) {
                 // $WRITE = fopen($this->temp_file, 'a'); fwrite($WRITE, $preferred_terms[0]."\n"); fclose($WRITE);
                 // exit("\nelix [".$preferred_terms[0]."]\n");
                 // return $preferred_terms[0];
             }
-            
-            
             
         }
         
@@ -566,355 +529,37 @@ I process each of the 12 terms, one by one.
         
         return $final;
     }
-    
-    /*
-    function start()
-    {
-        self::parse_references();           //exit("\nstop references\n");
-        self::parse_classification();    //exit("\nstop classification\n");
-        self::parse_images();            //exit("\nstop images\n");
-        $this->archive_builder->finalize(TRUE);
-        if($this->debug) Functions::start_print_debug($this->debug, $this->resource_id);
-    }
-    private function parse_classification()
-    {
-        if($html = Functions::lookup_with_cache($this->main_text_ver2, $this->download_options)) {
-            if(preg_match("/<h2 class=\"block-title\">CephBase Classification<\/h2>(.*?)<div class=\"region-inner region-content-inner\">/ims", $html, $arr)) {
-                // <a href="http://cephbase.eol.org/taxonomy/term/438" class=""><em>Sepiadarium</em> <em>austrinum</em></a>
-                if(preg_match_all("/<a href=\"http\:\/\/cephbase.eol.org\/taxonomy\/term\/(.*?)<\/a>/ims", $arr[1], $arr2)) {
-                    // print_r($arr2[1]); exit;
-                    // echo "\n".count($arr2[1])."\n";
-                    //[1620] => 280" class=""><em>Nautilus</em> <em>pompilius</em> <em>pompilius</em>
-                    foreach($arr2[1] as $str) {
-                        $str = Functions::remove_whitespace(strip_tags($str));
-                        if(preg_match("/xxx(.*?)\"/ims", "xxx".$str, $arr)) $id = $arr[1];
-                        if(preg_match("/>(.*?)xxx/ims", $str."xxx", $arr)) $sciname = $arr[1];
-                        $rec[$id] = $sciname;
-                    }
-                    echo "\n count 2: ".count($rec)."\n";
-                }
-            }
-        }
-        // print_r($rec); exit;
-        $total = count($rec); $i = 0;
-        foreach($rec as $taxon_id => $sciname) { $i++;
-            // $taxon_id = 466; //debug - accepted
-            // $taxon_id = 1228; //debug - not accepted
-            // $taxon_id = 326; //multiple text object - associations
-            echo "\n$i of $total: [$sciname] [$taxon_id]";
-            $taxon = self::parse_taxon_info($taxon_id);
-            self::write_taxon($taxon);
-            self::write_text_object($taxon);
-            // if($i >= 10) break; //debug only
-            // break; //debug only - one record to process...
-        }
-    }
-    private function write_text_object($rec)
-    {
-        if($rec['rank'] == "species" || $rec['rank'] == "subspecies") {
-            if($output = self::parse_text_object($rec['taxon_id'])) {
-                $data = $output['data'];
-                // print_r($data);
-                foreach($data as $association => $info) {
-                    $write = array();
-                    $write['taxon_id'] = $rec['taxon_id'];
-                    $write['agent'] = @$output['author'];
-                    // echo "\n[$association]\n------------\n";
-                    $write['text'] = "$association: ".implode("<br>", $info['items']);
-                    foreach($info['refs_final'] as $ref) {
-                        $ref_no = $ref['ref_no'];
-                        $write['ref_ids'][] = $ref_no;
-                        $r = new \eol_schema\Reference();
-                        $r->identifier      = $ref_no;
-                        $r->full_reference  = $ref['full_ref'];
-                        $r->uri             = $this->page['reference_page'].$ref_no;
-                        // $r->publicationType = @$ref['details']['Publication Type:'];
-                        // $r->pages           = @$ref['details']['Pagination:'];
-                        // $r->volume          = @$ref['details']['Volume:'];
-                        // $r->authorList      = @$ref['details']['Authors:'];
-                        if(!isset($this->reference_ids[$ref_no])) {
-                            $this->reference_ids[$ref_no] = '';
-                            $this->archive_builder->write_object_to_file($r);
-                        }
-                    }
-                    if($write['taxon_id'] && $write['text']) self::write_text_2archive($write);
-                }
-            }
-        }
-    }
-    private function write_text_2archive($write)
-    {   
-        // print_r($write); exit;
-        $mr = new \eol_schema\MediaResource();
-        $taxonID = $write['taxon_id'];
-        $mr->taxonID        = $taxonID;
-        $mr->identifier     = md5($taxonID.$write['text']);
-        $mr->type           = "http://purl.org/dc/dcmitype/Text";
-        $mr->format         = "text/html";
-        $mr->language       = 'en';
-        $mr->furtherInformationURL = str_replace('taxon_id', $taxonID, $this->page['text_object_page']);
-        $mr->CVterm         = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Associations";
-        // $mr->Owner          = '';
-        // $mr->rights         = '';
-        // $mr->title          = '';
-        $mr->UsageTerms     = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-        $mr->description    = $write['text'];
-        if($reference_ids = @$write['ref_ids'])  $mr->referenceID = implode("; ", $reference_ids);
-        
-        if($agent = @$write['agent']) {
-            if($agent_ids = self::create_agent($agent['name'], $agent['homepage'], "author")) $mr->agentID = implode("; ", $agent_ids);
-        }
-        
-        if(!isset($this->object_ids[$mr->identifier])) {
-            $this->archive_builder->write_object_to_file($mr);
-            $this->object_ids[$mr->identifier] = '';
-        }
-        
-    }
-    private function parse_text_object($taxon_id)
-    {
-        $final = array();
-        $url = str_replace('taxon_id', $taxon_id, $this->page['text_object_page']);
-        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
-            if(preg_match("/<div class=\"field-label\">Associations:&nbsp;<\/div>(.*?)<footer/ims", $html, $arr)) {
-                $str = $arr[1];
-                if(preg_match_all("/<h4>(.*?)<\/h4>/ims", $str, $arr)) {
-                    // print_r($arr[1]);
-                    $assocs = $arr[1];
-                    foreach($assocs as $assoc) {
-                        // echo "\n[$assoc]:";
-                        if(preg_match("/<h4>$assoc<\/h4>(.*?)<\/ul>/ims", $str, $arr)) {
-                            $final[$assoc]['items'] = $arr[1];
-                            // print_r($arr[1]);
-                        }
-                    }
-                }
-                
-                $i = 0;
-                if(preg_match_all("/<h5>References<\/h5>(.*?)<\/ul>/ims", $str, $arr)) {
-                    foreach($arr[1] as $ref) {
-                        $final[$assocs[$i]]['refs'] = $ref;
-                        $i++;
-                    }
-                }
-            }
-        }
-        // print_r($final);
-        // massage $final
-        if($final) {
-            foreach($final as $key => $value) {
-                // print_r($value);
-                $fields = array('items', 'refs');
-                foreach($fields as $field) {
-                    $str = $value[$field];
-                    // echo "\n[$key][$field]:";
-                    if(preg_match_all("/<li>(.*?)<\/li>/ims", $str, $arr)) $final2[$key][$field] = $arr[1];
-                    // echo "\n$str \n ========================================== \n";
-                }
-            }
-            // print_r($final2); exit;
-            
-            //further massaging:
-            foreach($final2 as $key => $value) {
-                if($refs = $final2[$key]['refs']) $final2[$key]['refs_final'] = self::adjust_refs($refs);
-            }
-            
-            $output['author'] = self::get_text_author($html);
-            $output['data'] = $final2;
-            return $output; //final output
-        }
-    }
-    private function get_text_author($html)
-    {
-        $agent = array();
-        if(preg_match("/<footer class=\"submitted\">(.*?)<\/footer>/ims", $html, $arr)) {
-            // echo "\n".$arr[1]."\n";
-            if(preg_match("/<a href=\"\/user\/(.*?)\"/ims", $arr[1], $arr2)) {
-                $agent['homepage'] = "http://cephbase.eol.org/user/".$arr2[1];
-            }
-            if(preg_match("/<a(.*?)<\/a>/ims", $arr[1], $arr2)) {
-                $agent['name'] = strip_tags("<a".$arr2[1]);
-            }
-            // print_r($agent);
-        }
-        return $agent;
-    }
-    private function adjust_refs($refs)
-    {
-        $final = array();
-        foreach($refs as $str) {
-            $rec = array();
-            // href="/node/108">
-            if(preg_match("/href=\"\/node\/(.*?)\"/ims", $str, $arr)) $rec['ref_no'] = $arr[1];
-            $rec['full_ref'] = strip_tags($str);
-            $final[] = $rec;
-        }
-        return $final;
-    }
-    private function write_taxon($rec)
-    {   
-        // print_r($rec); exit;
-        $taxon_id = $rec['taxon_id'];
-        $this->taxon_scinames[$rec['canonical']] = $taxon_id; //used in media extension
-        
-        $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID             = $taxon_id;
-        $taxon->scientificName      = $rec['canonical'];
-        $taxon->scientificNameAuthorship = $rec['authorship'];
-        $taxon->taxonRank           = $rec['rank'];
-        if($val = @$rec['usage']['Unacceptability Reason']) $taxon->taxonomicStatus = $val;
-        else                                                $taxon->taxonomicStatus = 'accepted';
-        
-        $ranks = array("kingdom", "phylum", "class", "order", "family", "genus");
-        if($val = @$rec['ancestry']) {
-            foreach($val as $a) {
-                if(in_array($a['rank'], $ranks)) $taxon->$a['rank'] = $a['sciname'];
-            }
-        }
-        
-        if($arr = @$this->taxon_refs[$taxon_id]) {
-            if($reference_ids = array_keys($arr)) $taxon->referenceID = implode("; ", $reference_ids);
-        }
-        
-        $taxon->furtherInformationURL = $this->page['taxon_page'].$taxon_id;
-        
-        if(!isset($this->taxon_ids[$taxon->taxonID])) {
-            $this->archive_builder->write_object_to_file($taxon);
-            $this->taxon_ids[$taxon->taxonID] = '';
-        }
-    }
-    private function write_image($m)
-    {   
-        $mr = new \eol_schema\MediaResource();
-        
-        if(!@$m['sciname']) {
-            // print_r($m);
-            $m['sciname'] = "Cephalopoda";
-            $taxonID = 8;
-        }
-        
-        $taxonID = '';
-        if(isset($this->taxon_scinames[$m['sciname']])) $taxonID = $this->taxon_scinames[$m['sciname']];
-        else {
-            $this->debug['undefined sciname'][$m['sciname']] = '';
-        }
-        
-        $mr->taxonID        = $taxonID;
-        $mr->identifier     = pathinfo($m['media_url'], PATHINFO_BASENAME);
-        $mr->format         = Functions::get_mimetype($m['media_url']);
-        $mr->type           = Functions::get_datatype_given_mimetype($mr->format);
-        $mr->language       = 'en';
-        $mr->furtherInformationURL = $m['source_url'];
-        $mr->accessURI      = $m['media_url'];
-        // $mr->CVterm         = $o['subject'];
-        $mr->Owner          = @$m['creator'];
-        // $mr->rights         = $o['dc_rights'];
-        // $mr->title          = $o['dc_title'];
-        $mr->UsageTerms     = $m['license'];
-        $mr->description    = self::concatenate_desc($m);
-        // $mr->LocationCreated = $o['location'];
-        // $mr->bibliographicCitation = $o['dcterms_bibliographicCitation'];
-        // if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
-        if($agent_ids = self::create_agent(@$m['creator'])) $mr->agentID = implode("; ", $agent_ids);
-        if(!isset($this->object_ids[$mr->identifier])) {
-            $this->archive_builder->write_object_to_file($mr);
-            $this->object_ids[$mr->identifier] = '';
-        }
-        // print_r($mr); exit;
-    }
-    private function concatenate_desc($m)
-    {
-        $final = @$m['description'];
-        if($val = @$m['imaging technique']) $final .= " Imaging technique: $val";
-    }
-    private function create_agent($creator_name, $home_page = "", $role = "")
-    {
-        if(!$creator_name) return false;
-        $r = new \eol_schema\Agent();
-        $r->term_name       = $creator_name;
-        if($role) $r->agentRole = $role;
-        else      $r->agentRole = 'creator';
-        $r->identifier = md5("$r->term_name|$r->agentRole");
-        if($home_page) $r->term_homepage = $home_page;
-        $agent_ids[] = $r->identifier;
-        if(!isset($this->agent_ids[$r->identifier])) {
-           $this->agent_ids[$r->identifier] = '';
-           $this->archive_builder->write_object_to_file($r);
-        }
-        return $agent_ids;
-    }
-    private function parse_image_info($url)
-    {
-        // $url = "http://cephbase.eol.org/file-colorboxed/24"; //debug only
-        $final = array();
-        $final['source_url'] = $url;
-        // <div class="field field-name-field-taxonomic-name field-type-taxonomy-term-reference field-label-above">
-        // <div class="field field-name-field-description field-type-text-long field-label-none">
-        // <div class="field field-name-field-imaging-technique field-type-taxonomy-term-reference field-label-above">
-        // <div class="field field-name-field-cc-licence field-type-creative-commons field-label-above">
-        // <div class="field field-name-field-creator field-type-text field-label-above">
-        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
-            // if(preg_match("/<div class=\"field field-name-field-taxonomic-name field-type-taxonomy-term-reference field-label-above\">(.*?)<div class=\"field field-name-field/ims", $html, $arr)) {
-            if(preg_match("/<div class=\"field field-name-field-taxonomic-name field-type-taxonomy-term-reference field-label-above\">(.*?)Download the original/ims", $html, $arr)) {
-                $str = $arr[1];
-                if(preg_match("/<div class=\"field-item even\">(.*?)<\/div>/ims", $str, $arr)) {
-                    $str = trim($arr[1]);
-                    $final['sciname'] = $str;
-                }
-            }
-            if(preg_match("/<div class=\"field field-name-field-description field-type-text-long field-label-none\">(.*?)Download the original/ims", $html, $arr)) {
-                $str = $arr[1];
-                if(preg_match("/<div class=\"field-item even\">(.*?)<\/div>/ims", $str, $arr)) {
-                    $str = trim($arr[1]);
-                    $final['description'] = $str;
-                }
-            }
-            if(preg_match("/<div class=\"field field-name-field-imaging-technique field-type-taxonomy-term-reference field-label-above\">(.*?)Download the original/ims", $html, $arr)) {
-                $str = $arr[1];
-                if(preg_match("/<div class=\"field-item even\">(.*?)<\/div>/ims", $str, $arr)) {
-                    $str = trim($arr[1]);
-                    $final['imaging technique'] = $str;
-                }
-            }
-            if(preg_match("/<div class=\"field field-name-field-cc-licence field-type-creative-commons field-label-above\">(.*?)Download the original/ims", $html, $arr)) {
-                $str = $arr[1];
-                if(preg_match("/<div class=\"field-item even\">(.*?)<\/div>/ims", $str, $arr)) {
-                    $str = trim($arr[1]);
-                    if(preg_match("/href=\"(.*?)\"/ims", $str, $arr)) {
-                        $license = $arr[1];
-                        if(substr($license,0,2) == "//") $final['license'] = "http:".$license;
-                        else                             $final['license'] = $license;
-                    }
-                    else $final['license'] = $str;
-                }
-                if($final['license'] == "All rights reserved.") $final['license'] = "all rights reserved";
-                // $final['license'] = "http://creativecommons.org/licenses/by-nc-sa/3.0/"; //debug force
-            }
-            if(preg_match("/<div class=\"field field-name-field-creator field-type-text field-label-above\">(.*?)Download the original/ims", $html, $arr)) {
-                $str = $arr[1];
-                if(preg_match("/<div class=\"field-item even\">(.*?)<\/div>/ims", $str, $arr)) {
-                    $str = trim($arr[1]);
-                    $final['creator'] = $str;
-                }
-            }
-            //<h2 class="element-invisible"><a href="http://cephbase.eol.org/sites/cephbase.eol.org/files/cb0001.jpg">cb0001.jpg</a></h2>
-            if(preg_match("/<h2 class=\"element-invisible\">(.*?)<\/h2>/ims", $html, $arr)) {
-                if(preg_match("/href=\"(.*?)\"/ims", $arr[1], $arr2)) $final['media_url'] = $arr2[1];
-            }
-        }
-        // print_r($final); exit;
-        return $final;
-    }
-    private function get_last_page_for_image($html, $type = 'image')
-    {   //<a title="Go to last page" href="/gallery?page=29&amp;f[0]=tid%3A1">last »</a>
-        if($type == 'image') {
-            if(preg_match("/<a title=\"Go to last page\" href=\"\/gallery\?page\=(.*?)&amp;/ims", $html, $arr)) return $arr[1];
-        }
-        elseif($type == 'reference') {
-            if(preg_match("/<a title=\"Go to last page\" href=\"\/biblio\?page\=(.*?)&amp;/ims", $html, $arr)) return $arr[1];
-        }
-        return 0;
-    }
-    */
+
+        /*
+    Hi Jen, we are now just down to 1 discrepancy. But I think (hopefully) the last one is just something you've missed doing it manually.
+    But more importantly, let me share my algorithm how I chose the parent. Please review closely and suggest improvement or even revise if needed.
+    I came up with this using our case scenario for page_id 46559197 and your explanations why you chose your parents.
+    Like what I said it came down to now just 1 discrepancy.
+
+    I process each of the 12 terms, one by one.
+        http://www.marineregions.org/gazetteer.php?p=details&id=australia
+        http://www.marineregions.org/gazetteer.php?p=details&id=4366
+        http://www.marineregions.org/gazetteer.php?p=details&id=4364
+        http://www.geonames.org/2186224
+        http://www.geonames.org/3370751
+        http://www.marineregions.org/gazetteer.php?p=details&id=1914
+        http://www.marineregions.org/gazetteer.php?p=details&id=1904
+        http://www.marineregions.org/gazetteer.php?p=details&id=1910
+        http://www.marineregions.org/gazetteer.php?p=details&id=4276
+        http://www.marineregions.org/gazetteer.php?p=details&id=4365
+        http://www.geonames.org/953987
+        http://www.marineregions.org/mrgid/1914
+
+    1.  First I get the preferred term(s) of the term in question. 
+        Case A: If there are any: e.g. (pref1, pref2) Mostly only 1 preferred term.
+            I get the immediate parent(s) each of the preferred terms. 
+            e.g. pref1_parent1, pref1_parent2, pref1_parent3
+
+        Case B: If there are NO preferred term(s)
+            I get the immediate parent(s) of the term in question.
+            e.g. term_parent1, term_parent2
+
+    2.  Then whatever the Case be, I sent the collected items to the ranking selection.
+            */
 }
 ?>
