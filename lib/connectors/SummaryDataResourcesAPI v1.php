@@ -27,7 +27,6 @@ class SummaryDataResourcesAPI
         
         $this->dwca_file = "http://localhost/cp/summary data resources/carnivora_sample.tgz";
         $this->report_file = CONTENT_RESOURCE_LOCAL_PATH . '/sample.txt';
-        $this->temp_file = CONTENT_RESOURCE_LOCAL_PATH . '/temp.txt';
     }
     private function given_value_uri()
     {
@@ -45,10 +44,6 @@ class SummaryDataResourcesAPI
                 // echo "\nThere are preferred term(s):\n";
                 // print_r($preferred_terms);
                 foreach($preferred_terms as $pterm) {
-                    @$final[$pterm]++;
-                    @$final[$pterm]++;
-                    @$final[$pterm]++;
-                    @$final[$pterm]++;
                     // echo "\nparent(s) of $pterm:";
                     if($parents = @$this->parents_of[$pterm]) {
                         // print_r($parents);
@@ -62,7 +57,6 @@ class SummaryDataResourcesAPI
                 if($parents = @$this->parents_of[$term]) {
                     foreach($parents as $parent) @$final[$parent]++;
                 }
-                else exit("\n\nHmmm no preferred and no immediate parent for term: [$term]\n\n");
             }
         }//end main
         /*
@@ -78,17 +72,13 @@ class SummaryDataResourcesAPI
         print_r($final);
         $this->ancestor_ranking = $final;
     }
-    private function get_rank_most_parent($parents, $preferred_terms = array())
+    private function get_rank_most_parent($parents)
     {
-        $inclusive = array_merge($parents, $preferred_terms);
         foreach($this->ancestor_ranking as $parent) {
-            if(in_array($parent, $inclusive)) {
-                $WRITE = fopen($this->temp_file, 'a'); fwrite($WRITE, $parent."\n"); fclose($WRITE);
-                return $parent;
-            }
+            if(in_array($parent, $parents)) return $parent;
         }
         echo "\nInvestigate parents not included in ranking... weird...\n";
-        print_r($inclusive);
+        print_r($parents);
         exit("\n===============\n");
     }
     function start()
@@ -98,6 +88,7 @@ class SummaryDataResourcesAPI
         self::generate_preferred_child_parent_list();
         $uris = self::given_value_uri();
         self::get_ancestor_ranking_from_set_of_uris($uris);
+        
 
         $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=australia";
         $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4366";
@@ -106,17 +97,16 @@ class SummaryDataResourcesAPI
         $terms[] = "http://www.geonames.org/3370751";                               //error
         $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=1914";  //error
         $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=1904";  //error
-        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=1910";
-        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4276";
-        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4365";
-        $terms[] = "http://www.geonames.org/953987";
-        $terms[] = "http://www.marineregions.org/mrgid/1914";
-
-        $WRITE = fopen($this->temp_file, 'w'); fclose($WRITE);
-        foreach($terms as $term) {
+        // $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=1910";
+        // $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4276";
+        // $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4365";
+        // $terms[] = "http://www.geonames.org/953987";
+        // $terms[] = "http://www.marineregions.org/mrgid/1914";
+        
+        foreach($terms as $term)
+        {
             self::get_parent_of_term($term);
         }
-        
         exit("\nend 01\n");
     }
     private function get_parent_of_term($term)
@@ -137,7 +127,7 @@ class SummaryDataResourcesAPI
                 echo "\nparent(s) of $term:\n";
                 if($parents = @$this->parents_of[$term]) {
                     print_r($parents);
-                    echo "\nCHOSEN PARENT: ".self::get_rank_most_parent($parents, $preferred_terms)."\n";
+                    echo "\nCHOSEN PARENT: ".self::get_rank_most_parent($parents)."\n";
                     // foreach($parents as $parent) {
                     //     echo "\n[$parent]:\n";
                     //     print_r($this->children_of[$parent]);

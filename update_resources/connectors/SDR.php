@@ -6,6 +6,10 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/SummaryDataResourcesAPI');
 
 /* //tests
+@$var['eli']++;
+@$var['eli']++;
+print_r($var);
+exit("\n-end tests'\n");
 */
 
 $timestart = time_elapsed();
