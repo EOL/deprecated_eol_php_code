@@ -38,7 +38,40 @@ class SummaryDataResourcesAPI
         "http://www.marineregions.org/gazetteer.php?p=details&id=4365", "http://www.geonames.org/953987");
     }
     private function get_ancestor_ranking_from_set_of_uris($uris)
-    {
+    {   /*
+Hi Jen, we are now just down to 1 discrepancy. But I think (hopefully) the last one is just something you've missed doing it manually.
+But more importantly, let me share my algorithm how I chose the parent. Please review closely and suggest improvement or even revise if needed.
+I came up with this using our case scenario for page_id 46559197 and your explanations why you chose your parents.
+Like what I said it came down to now just 1 discrepancy.
+
+I process each of the 12 terms, one by one.
+    http://www.marineregions.org/gazetteer.php?p=details&id=australia
+    http://www.marineregions.org/gazetteer.php?p=details&id=4366
+    http://www.marineregions.org/gazetteer.php?p=details&id=4364
+    http://www.geonames.org/2186224
+    http://www.geonames.org/3370751
+    http://www.marineregions.org/gazetteer.php?p=details&id=1914
+    http://www.marineregions.org/gazetteer.php?p=details&id=1904
+    http://www.marineregions.org/gazetteer.php?p=details&id=1910
+    http://www.marineregions.org/gazetteer.php?p=details&id=4276
+    http://www.marineregions.org/gazetteer.php?p=details&id=4365
+    http://www.geonames.org/953987
+    http://www.marineregions.org/mrgid/1914
+
+        
+1.  First I get the preferred term(s) of the term in question. 
+    Case A: If there are any: e.g. (pref1, pref2, pref3)
+        I get the immediate parent(s) each of the preferred terms. 
+        e.g. pref1_parent1, pref1_parent2, pref1, parent2
+        e.g. pref2_parent1, pref2_parent2
+
+    Case B: If there are NO preferred term(s)
+        I get the immediate parent(s) of the term in question.
+        e.g. term_parent1, term_parent2
+
+2.  Then whatever the Case be, I sent the collected items to the ranking selection.
+    
+        */
         $final = array();
         foreach($uris as $term) {
             if($preferred_terms = @$this->preferred_names_of[$term]) {
@@ -47,8 +80,8 @@ class SummaryDataResourcesAPI
                 foreach($preferred_terms as $pterm) {
                     @$final[$pterm]++;
                     @$final[$pterm]++;
-                    @$final[$pterm]++;
-                    @$final[$pterm]++;
+                    // @$final[$pterm]++;
+                    // @$final[$pterm]++;
                     // echo "\nparent(s) of $pterm:";
                     if($parents = @$this->parents_of[$pterm]) {
                         // print_r($parents);

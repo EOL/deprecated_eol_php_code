@@ -6,9 +6,10 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/SummaryDataResourcesAPI');
 
 /* //tests
-@$var['eli']++;
-@$var['eli']++;
-print_r($var);
+$parents = array(1,2,3);
+$preferred_terms = array(4,5);
+$inclusive = array_merge($parents, $preferred_terms);
+print_r($inclusive);
 exit("\n-end tests'\n");
 */
 
