@@ -60,10 +60,10 @@ I process each of the 12 terms, one by one.
 
         
 1.  First I get the preferred term(s) of the term in question. 
-    Case A: If there are any: e.g. (pref1, pref2, pref3)
+    Case A: If there are any: e.g. (pref1, pref2) Mostly only 1 preferred term.
         I get the immediate parent(s) each of the preferred terms. 
-        e.g. pref1_parent1, pref1_parent2, pref1, parent2
-        e.g. pref2_parent1, pref2_parent2
+        e.g. pref1_parent1, pref1_parent2, pref1_parent3
+        
 
     Case B: If there are NO preferred term(s)
         I get the immediate parent(s) of the term in question.
@@ -78,8 +78,8 @@ I process each of the 12 terms, one by one.
                 // echo "\nThere are preferred term(s):\n";
                 // print_r($preferred_terms);
                 foreach($preferred_terms as $pterm) {
-                    @$final[$pterm]++;
-                    @$final[$pterm]++;
+                    @$final_preferred[$pterm]++;
+                    // @$final[$pterm]++;
                     // @$final[$pterm]++;
                     // @$final[$pterm]++;
                     // echo "\nparent(s) of $pterm:";
@@ -89,7 +89,6 @@ I process each of the 12 terms, one by one.
                     }
                     // else echo " -- NO parent";
                 }
-                // echo "\n---------------------------------------------\n";
             }
             else { //no preferred term
                 if($parents = @$this->parents_of[$term]) {
@@ -108,11 +107,59 @@ I process each of the 12 terms, one by one.
         arsort($final);
         print_r($final);
         $final = array_keys($final);
-        print_r($final);
+        // print_r($final);
         $this->ancestor_ranking = $final;
+
+        arsort($final_preferred);
+        print_r($final_preferred);
+        $final_preferred = array_keys($final_preferred);
+        // print_r($final_preferred);
+        $this->ancestor_ranking_preferred = $final_preferred;
+        
     }
     private function get_rank_most_parent($parents, $preferred_terms = array())
     {
+        if(!$preferred_terms) {
+            //1st option: if any is a preferred name then choose that
+            foreach($this->ancestor_ranking_preferred as $parent) {
+                if(in_array($parent, $parents)) {
+                    $WRITE = fopen($this->temp_file, 'a'); fwrite($WRITE, $parent."\n"); fclose($WRITE);
+                    return $parent;
+                }
+            }
+        }
+        else {
+
+            // don't do THIS if preferred + parents are all inside $this->ancestor_ranking
+            $all_inside = true;
+            $temp = array_merge($parents, $preferred_terms);
+            foreach($temp as $id) {
+                if(!in_array($id, $this->ancestor_ranking)) $all_inside = false;
+            }
+            
+            if(!$all_inside) {
+                //THIS:
+                foreach($this->ancestor_ranking as $parent) {
+                    if(in_array($parent, $preferred_terms)) {
+                        $WRITE = fopen($this->temp_file, 'a'); fwrite($WRITE, $parent."\n"); fclose($WRITE);
+                        return $parent;
+                    }
+                }
+            }
+            
+            if(count($preferred_terms) == 1 && in_array($preferred_terms[0], $this->ancestor_ranking) 
+                                            && in_array($preferred_terms[0], $this->ancestor_ranking_preferred))
+            {
+                // $WRITE = fopen($this->temp_file, 'a'); fwrite($WRITE, $preferred_terms[0]."\n"); fclose($WRITE);
+                // exit("\nelix [".$preferred_terms[0]."]\n");
+                // return $preferred_terms[0];
+            }
+            
+            
+            
+        }
+        
+        //2nd option
         $inclusive = array_merge($parents, $preferred_terms);
         foreach($this->ancestor_ranking as $parent) {
             if(in_array($parent, $inclusive)) {
@@ -120,6 +167,7 @@ I process each of the 12 terms, one by one.
                 return $parent;
             }
         }
+        
         echo "\nInvestigate parents not included in ranking... weird...\n";
         print_r($inclusive);
         exit("\n===============\n");
