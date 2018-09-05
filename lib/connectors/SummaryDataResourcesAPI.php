@@ -68,17 +68,59 @@ class SummaryDataResourcesAPI
     {
         self::initialize();
         $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
-        $uris = self::process_page_id_text_file($page_id, $predicate);
+        $recs = self::process_page_id_text_file($page_id, $predicate);
+        $uris = self::get_value_uris_from_recs($recs);
         self::get_ancestor_ranking_from_set_of_uris($uris);
-        $list = self::get_parent_uri_list($uris);
+        $list = self::get_parent_uri_list($recs);
+        print_r($list);
+        $new_list = self::add_new_nodes_for_NotRootParents($list);
+        
+        //for jen:
+        foreach($list as $a) echo "\n".$a[0]."\t".$a[1];
+        echo "\nnew nodes:\n";
+        foreach($new_list as $a) echo "\n".$a[0]."\t".$a[1];
+        
+        
         exit("\nelix\n");
     }
-    private function get_parent_uri_list($uris)
+    private function add_new_nodes_for_NotRootParents($list)
+    {   //1st step: get unique parents
+        foreach($list as $rec) {
+            // print_r($rec); exit;
+            /*Array(
+                [0] => http://www.geonames.org/6255151
+                [1] => http://www.marineregions.org/gazetteer.php?p=details&id=australia
+            )*/
+            $unique[$rec[0]] = '';
+        }
+        //2nd step: check if parent is not root, if yes: get parent and add the new node:
+        foreach(array_keys($unique) as $child) {
+            echo "\n$child: ";
+            if($arr = @$this->parents_of[$child]) {
+                echo " - not root ".count($arr);
+                foreach($arr as $new_parent) {
+                    $recs[] = array($new_parent, $child);
+                }
+            }
+            else echo " - already root";
+        }
+        // print_r($recs);
+        return $recs;
+    }
+    private function get_value_uris_from_recs($recs)
+    {
+        foreach($recs as $rec) $uris[] = $rec['value_uri'];
+        return $uris;
+    }
+    private function get_parent_uri_list($recs)
     {
         $WRITE = fopen($this->temp_file, 'w'); fclose($WRITE);
-        foreach($uris as $term) {
-            self::get_parent_of_term($term);
+        foreach($recs as $rec) {
+            $term = $rec['value_uri'];
+            $parent = self::get_parent_of_term($term);
+            $final[] = array($parent, $term);
         }
+        return $final;
     }
     function start_ok()
     {
