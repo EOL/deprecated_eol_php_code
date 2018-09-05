@@ -28,7 +28,39 @@ class SummaryDataResourcesAPI
         $this->dwca_file = "http://localhost/cp/summary data resources/carnivora_sample.tgz";
         $this->report_file = CONTENT_RESOURCE_LOCAL_PATH . '/sample.txt';
         $this->temp_file = CONTENT_RESOURCE_LOCAL_PATH . '/temp.txt';
+        
+        if(Functions::is_production())  $this->working_dir = "/extra/summary data resources/page_ids/";
+        else                            $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
     }
+    function start()
+    {
+        self::working_dir();
+        self::generate_terms_values_child_parent_list();
+        self::generate_preferred_child_parent_list();
+        $uris = self::given_value_uri();
+        self::get_ancestor_ranking_from_set_of_uris($uris);
+
+        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=australia";
+        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4366";
+        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4364";
+        $terms[] = "http://www.geonames.org/2186224";
+        $terms[] = "http://www.geonames.org/3370751";                               //error
+        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=1914";  //error
+        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=1904";  //error
+        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=1910";
+        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4276";
+        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4365";
+        $terms[] = "http://www.geonames.org/953987";
+        $terms[] = "http://www.marineregions.org/mrgid/1914";
+
+        $WRITE = fopen($this->temp_file, 'w'); fclose($WRITE);
+        foreach($terms as $term) {
+            self::get_parent_of_term($term);
+        }
+        
+        exit("\nend 01\n");
+    }
+    
     private function given_value_uri()
     {
         return array("http://www.marineregions.org/gazetteer.php?p=details&id=australia", "http://www.marineregions.org/gazetteer.php?p=details&id=4366", 
@@ -96,14 +128,12 @@ class SummaryDataResourcesAPI
             }
         }
         else {
-
             // don't do THIS if preferred + parents are all inside $this->ancestor_ranking
             $all_inside = true;
             $temp = array_merge($parents, $preferred_terms);
             foreach($temp as $id) {
                 if(!in_array($id, $this->ancestor_ranking)) $all_inside = false;
             }
-            
             if(!$all_inside) {
                 //THIS:
                 foreach($this->ancestor_ranking as $parent) {
@@ -115,11 +145,9 @@ class SummaryDataResourcesAPI
             }
             
             if(count($preferred_terms) == 1 && in_array($preferred_terms[0], $this->ancestor_ranking) && in_array($preferred_terms[0], $this->ancestor_ranking_preferred)) {
-                // $WRITE = fopen($this->temp_file, 'a'); fwrite($WRITE, $preferred_terms[0]."\n"); fclose($WRITE);
-                // exit("\nelix [".$preferred_terms[0]."]\n");
-                // return $preferred_terms[0];
+                $WRITE = fopen($this->temp_file, 'a'); fwrite($WRITE, $preferred_terms[0]."\n"); fclose($WRITE);
+                return $preferred_terms[0];
             }
-            
         }
         
         //2nd option
@@ -134,34 +162,6 @@ class SummaryDataResourcesAPI
         echo "\nInvestigate parents not included in ranking... weird...\n";
         print_r($inclusive);
         exit("\n===============\n");
-    }
-    function start()
-    {
-        self::working_dir();
-        self::generate_terms_values_child_parent_list();
-        self::generate_preferred_child_parent_list();
-        $uris = self::given_value_uri();
-        self::get_ancestor_ranking_from_set_of_uris($uris);
-
-        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=australia";
-        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4366";
-        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4364";
-        $terms[] = "http://www.geonames.org/2186224";
-        $terms[] = "http://www.geonames.org/3370751";                               //error
-        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=1914";  //error
-        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=1904";  //error
-        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=1910";
-        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4276";
-        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4365";
-        $terms[] = "http://www.geonames.org/953987";
-        $terms[] = "http://www.marineregions.org/mrgid/1914";
-
-        $WRITE = fopen($this->temp_file, 'w'); fclose($WRITE);
-        foreach($terms as $term) {
-            self::get_parent_of_term($term);
-        }
-        
-        exit("\nend 01\n");
     }
     private function get_parent_of_term($term)
     {
