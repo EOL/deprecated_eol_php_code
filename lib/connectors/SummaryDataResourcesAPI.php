@@ -90,35 +90,44 @@ class SummaryDataResourcesAPI
         self::get_ancestor_ranking_from_set_of_uris($uris);
         
 
-        $term = "http://www.marineregions.org/gazetteer.php?p=details&id=australia";
-        // $term = "http://www.marineregions.org/gazetteer.php?p=details&id=4366";
-        // $term = "http://www.marineregions.org/gazetteer.php?p=details&id=4364";
-        // $term = "http://www.geonames.org/2186224";
-        // $term = "http://www.geonames.org/3370751";                               //error
-        // $term = "http://www.marineregions.org/gazetteer.php?p=details&id=1914";  //error    
-        // $term = "http://www.marineregions.org/gazetteer.php?p=details&id=1904";  //error
-        // $term = "http://www.marineregions.org/gazetteer.php?p=details&id=1910";
-        // $term = "http://www.marineregions.org/gazetteer.php?p=details&id=4276";
-        // $term = "http://www.marineregions.org/gazetteer.php?p=details&id=4365";
-        // $term = "http://www.geonames.org/953987";
-        // $term = "http://www.marineregions.org/mrgid/1914";
+        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=australia";
+        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4366";
+        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4364";
+        $terms[] = "http://www.geonames.org/2186224";
+        $terms[] = "http://www.geonames.org/3370751";                               //error
+        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=1914";  //error
+        $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=1904";  //error
+        // $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=1910";
+        // $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4276";
+        // $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4365";
+        // $terms[] = "http://www.geonames.org/953987";
+        // $terms[] = "http://www.marineregions.org/mrgid/1914";
         
-        echo "\n-------------------------------------\nterm in question: [$term]:\n";
-        // /*
+        foreach($terms as $term)
+        {
+            self::get_parent_of_term($term);
+        }
+        exit("\nend 01\n");
+    }
+    private function get_parent_of_term($term)
+    {
+        echo "\n--------------------------------------------------------------------------------------------------------------------------------------- \n";
+        echo "term in question: [$term]:\n";
+        /*
         if($parents = @$this->parents_of[$term]) {
             echo "\nParents:\n"; print_r($parents);
         }
         else echo "\nNO PARENT\n";
-        // */
+        */
         
         if($preferred_terms = @$this->preferred_names_of[$term]) {
             echo "\nThere are preferred term(s):\n";
             print_r($preferred_terms);
             foreach($preferred_terms as $term) {
-                echo "\nparent(s) of $term:";
+                echo "\nparent(s) of $term:\n";
                 if($parents = @$this->parents_of[$term]) {
                     print_r($parents);
-                    echo "\nRANK NOW: ".self::get_rank_most_parent($parents)."\n";
+                    echo "\nCHOSEN PARENT: ".self::get_rank_most_parent($parents)."\n";
                     // foreach($parents as $parent) {
                     //     echo "\n[$parent]:\n";
                     //     print_r($this->children_of[$parent]);
@@ -126,7 +135,6 @@ class SummaryDataResourcesAPI
                 }
                 else echo " -- NO parent";
             }
-            echo "\n---------------------------------------------\n";
             /* seems not needed
             foreach($preferred_terms as $term) {
                 echo "\nprefered name of $term:";
@@ -140,9 +148,9 @@ class SummaryDataResourcesAPI
         else {
             echo "\nThere is NO preferred term\n";
             if($immediate_parents = $this->parents_of[$term]) {
-                echo "\nThere are immediate parent(s):\n";
+                echo "\nThere are immediate parent(s) for term in question:\n";
                 print_r($immediate_parents);
-                echo "\nRANK NOW: ".self::get_rank_most_parent($immediate_parents)."\n";
+                echo "\nCHOSEN PARENT*: ".self::get_rank_most_parent($immediate_parents)."\n";
                 // foreach($immediate_parents as $immediate) {
                 //     echo "\nparent(s) of $immediate:";
                 //     if($parents = @$this->parents_of[$immediate]) {
@@ -152,19 +160,6 @@ class SummaryDataResourcesAPI
                 // }
             }
         }
-        
-        // preferred
-        // http://www.marineregions.org/mrgid/australia,   http://www.marineregions.org/gazetteer.php?p=details&id=australia
-        // http://www.geonames.org/2077456,                http://www.marineregions.org/gazetteer.php?p=details&id=australia
-        // 
-        // $term = "http://www.marineregions.org/mrgid/australia";
-        // $ancestry[$term] = self::get_ancestry_of_term($term);
-        // // print_r($ancestry[$term]);
-        // 
-        // $term = "http://www.geonames.org/2077456";
-        // $ancestry[$term] = self::get_ancestry_of_term($term);
-        // print_r($ancestry);
-        exit("\nend 01\n");
     }
     private function generate_preferred_child_parent_list()
     {
