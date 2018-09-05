@@ -32,14 +32,59 @@ class SummaryDataResourcesAPI
         if(Functions::is_production())  $this->working_dir = "/extra/summary data resources/page_ids/";
         else                            $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
     }
-    function start()
+    private function process_page_id_text_file($page_id, $predicate)
+    {
+        $i = 0;
+        foreach(new FileIterator($this->working_dir.'/'.$page_id.'.txt') as $line_number => $line) {
+            $line = explode("\t", $line);
+            $i++;
+            if($i == 1) $fields = $line;
+            else {
+                if(!$line[0]) break;
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k];
+                    $k++;
+                }
+                // print_r($rec); exit;
+                /* Array(
+                    [page_id] => 46559197
+                    [scientific_name] => <i>Arctocephalus tropicalis</i>
+                    [predicate] => http://eol.org/schema/terms/Present
+                    [value_uri] => http://www.marineregions.org/gazetteer.php?p=details&id=australia
+                )*/
+                if($predicate == $rec['predicate']) $recs[] = $rec;
+            }
+        }
+        return $recs;
+    }
+    private function initialize()
     {
         self::working_dir();
         self::generate_terms_values_child_parent_list();
         self::generate_preferred_child_parent_list();
+    }
+    function start()
+    {
+        self::initialize();
+        $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
+        $uris = self::process_page_id_text_file($page_id, $predicate);
+        self::get_ancestor_ranking_from_set_of_uris($uris);
+        $list = self::get_parent_uri_list($uris);
+        exit("\nelix\n");
+    }
+    private function get_parent_uri_list($uris)
+    {
+        $WRITE = fopen($this->temp_file, 'w'); fclose($WRITE);
+        foreach($uris as $term) {
+            self::get_parent_of_term($term);
+        }
+    }
+    function start_ok()
+    {
+        self::initialize();
         $uris = self::given_value_uri();
         self::get_ancestor_ranking_from_set_of_uris($uris);
-
         $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=australia";
         $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4366";
         $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4364";
@@ -181,11 +226,9 @@ class SummaryDataResourcesAPI
                 echo "\nparent(s) of $term:\n";
                 if($parents = @$this->parents_of[$term]) {
                     print_r($parents);
-                    echo "\nCHOSEN PARENT: ".self::get_rank_most_parent($parents, $preferred_terms)."\n";
-                    // foreach($parents as $parent) {
-                    //     echo "\n[$parent]:\n";
-                    //     print_r($this->children_of[$parent]);
-                    // }
+                    $chosen = self::get_rank_most_parent($parents, $preferred_terms);
+                    echo "\nCHOSEN PARENT: ".$chosen."\n";
+                    return $chosen;
                 }
                 else echo " -- NO parent";
             }
@@ -204,7 +247,9 @@ class SummaryDataResourcesAPI
             if($immediate_parents = $this->parents_of[$term]) {
                 echo "\nThere are immediate parent(s) for term in question:\n";
                 print_r($immediate_parents);
-                echo "\nCHOSEN PARENT*: ".self::get_rank_most_parent($immediate_parents)."\n";
+                $chosen = self::get_rank_most_parent($immediate_parents);
+                echo "\nCHOSEN PARENT*: ".$chosen."\n";
+                return $chosen;
                 // foreach($immediate_parents as $immediate) {
                 //     echo "\nparent(s) of $immediate:";
                 //     if($parents = @$this->parents_of[$immediate]) {
