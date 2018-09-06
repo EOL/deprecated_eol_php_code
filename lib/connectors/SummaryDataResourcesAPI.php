@@ -32,19 +32,36 @@ class SummaryDataResourcesAPI
         if(Functions::is_production())  $this->working_dir = "/extra/summary data resources/page_ids/";
         else                            $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
     }
-    private function process_page_id_text_file($page_id, $predicate)
+    function start()
+    {
+        self::initialize();
+        $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
+        $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
+        $uris = self::get_value_uris_from_recs($recs);
+        self::set_ancestor_ranking_from_set_of_uris($uris);
+        $list = self::get_parent_uri_list($recs);
+        print_r($list);
+        $new_list = self::add_new_nodes_for_NotRootParents($list);
+        
+        //for jen: 
+        foreach($list as $a) echo "\n".$a[0]."\t".$a[1];
+        echo "\nnew nodes:\n";
+        foreach($new_list as $a) echo "\n".$a[0]."\t".$a[1];
+        
+        
+        exit("\nelix\n");
+    }
+    private function assemble_recs_for_page_id_from_text_file($page_id, $predicate)
     {
         $i = 0;
         foreach(new FileIterator($this->working_dir.'/'.$page_id.'.txt') as $line_number => $line) {
-            $line = explode("\t", $line);
-            $i++;
+            $line = explode("\t", $line); $i++;
             if($i == 1) $fields = $line;
             else {
                 if(!$line[0]) break;
                 $rec = array(); $k = 0;
                 foreach($fields as $fld) {
-                    $rec[$fld] = $line[$k];
-                    $k++;
+                    $rec[$fld] = $line[$k]; $k++;
                 }
                 // print_r($rec); exit;
                 /* Array(
@@ -63,25 +80,6 @@ class SummaryDataResourcesAPI
         self::working_dir();
         self::generate_terms_values_child_parent_list();
         self::generate_preferred_child_parent_list();
-    }
-    function start()
-    {
-        self::initialize();
-        $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
-        $recs = self::process_page_id_text_file($page_id, $predicate);
-        $uris = self::get_value_uris_from_recs($recs);
-        self::get_ancestor_ranking_from_set_of_uris($uris);
-        $list = self::get_parent_uri_list($recs);
-        print_r($list);
-        $new_list = self::add_new_nodes_for_NotRootParents($list);
-        
-        //for jen:
-        foreach($list as $a) echo "\n".$a[0]."\t".$a[1];
-        echo "\nnew nodes:\n";
-        foreach($new_list as $a) echo "\n".$a[0]."\t".$a[1];
-        
-        
-        exit("\nelix\n");
     }
     private function add_new_nodes_for_NotRootParents($list)
     {   //1st step: get unique parents
@@ -126,7 +124,7 @@ class SummaryDataResourcesAPI
     {
         self::initialize();
         $uris = self::given_value_uri();
-        self::get_ancestor_ranking_from_set_of_uris($uris);
+        self::set_ancestor_ranking_from_set_of_uris($uris);
         $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=australia";
         $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4366";
         $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4364";
@@ -156,7 +154,7 @@ class SummaryDataResourcesAPI
         "http://www.marineregions.org/gazetteer.php?p=details&id=1910", "http://www.marineregions.org/gazetteer.php?p=details&id=4276", 
         "http://www.marineregions.org/gazetteer.php?p=details&id=4365", "http://www.geonames.org/953987");
     }
-    private function get_ancestor_ranking_from_set_of_uris($uris)
+    private function set_ancestor_ranking_from_set_of_uris($uris)
     {
         $final = array();
         foreach($uris as $term) {
@@ -165,9 +163,6 @@ class SummaryDataResourcesAPI
                 // print_r($preferred_terms);
                 foreach($preferred_terms as $pterm) {
                     @$final_preferred[$pterm]++;
-                    // @$final[$pterm]++;
-                    // @$final[$pterm]++;
-                    // @$final[$pterm]++;
                     // echo "\nparent(s) of $pterm:";
                     if($parents = @$this->parents_of[$pterm]) {
                         // print_r($parents);
@@ -201,7 +196,6 @@ class SummaryDataResourcesAPI
         $final_preferred = array_keys($final_preferred);
         // print_r($final_preferred);
         $this->ancestor_ranking_preferred = $final_preferred;
-        
     }
     private function get_rank_most_parent($parents, $preferred_terms = array())
     {
