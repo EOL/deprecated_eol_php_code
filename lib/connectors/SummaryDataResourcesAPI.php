@@ -101,7 +101,7 @@ class SummaryDataResourcesAPI
         
         self::initialize();
         $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
-        // $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
+        $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
         echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         if(!$recs) {
@@ -118,6 +118,7 @@ class SummaryDataResourcesAPI
         
         // /*
         //for jen: 
+        echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
         echo "\n\ninitial shared values ancestry tree:\n";
         foreach($ISVAT as $a) echo "\n".$a[0]."\t".$a[1];
         echo "\n\nnew nodes:\n";
@@ -298,13 +299,13 @@ class SummaryDataResourcesAPI
         }//end main
         */
         arsort($final);
-        print_r($final);
+        // print_r($final);
         $final = array_keys($final);
         // print_r($final);
         $this->ancestor_ranking = $final;
 
         arsort($final_preferred);
-        print_r($final_preferred);
+        // print_r($final_preferred);
         $final_preferred = array_keys($final_preferred);
         // print_r($final_preferred);
         $this->ancestor_ranking_preferred = $final_preferred;
@@ -392,7 +393,7 @@ class SummaryDataResourcesAPI
         }
         else {
             echo "\nThere is NO preferred term\n";
-            if($immediate_parents = $this->parents_of[$term]) {
+            if($immediate_parents = @$this->parents_of[$term]) {
                 echo "\nThere are immediate parent(s) for term in question:\n";
                 print_r($immediate_parents);
                 $chosen = self::get_rank_most_parent($immediate_parents);
