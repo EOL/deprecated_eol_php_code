@@ -39,14 +39,20 @@ class SummaryDataResourcesAPI
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         $uris = self::get_value_uris_from_recs($recs);
         self::set_ancestor_ranking_from_set_of_uris($uris);
-        $list = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree"
-        print_r($list); exit;
-        $new_list = self::add_new_nodes_for_NotRootParents($list);
+        $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree"
+        // print_r($list); exit;
+        $info = self::add_new_nodes_for_NotRootParents($ISVAT);
+        $new_nodes = $info['new_nodes'];
         
+        // /*
         //for jen: 
-        foreach($list as $a) echo "\n".$a[0]."\t".$a[1];
-        echo "\nnew nodes:\n";
-        foreach($new_list as $a) echo "\n".$a[0]."\t".$a[1];
+        echo "\n\ninitial shared values ancestry tree:\n";
+        foreach($ISVAT as $a) echo "\n".$a[0]."\t".$a[1];
+        echo "\n\nnew nodes:\n";
+        foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
+        echo "\n\nRoots:\n";
+        print_r($info['roots']);
+        // */
         
         
         exit("\nelix\n");
@@ -93,16 +99,13 @@ class SummaryDataResourcesAPI
         }
         //2nd step: check if parent is not root, if yes: get parent and add the new node:
         foreach(array_keys($unique) as $child) {
-            echo "\n$child: ";
-            if($arr = @$this->parents_of[$child]) {
-                echo " - not root ".count($arr);
-                foreach($arr as $new_parent) {
-                    $recs[] = array($new_parent, $child);
-                }
+            // echo "\n$child: ";
+            if($arr = @$this->parents_of[$child]) { // echo " - not root ".count($arr);
+                foreach($arr as $new_parent) $recs[] = array($new_parent, $child);
             }
-            else echo " - already root";
+            else $roots[] = $child; // echo " - already root";
         }
-        return $recs;
+        return array('roots' => $roots, 'new_nodes' => $recs);
     }
     private function get_value_uris_from_recs($recs)
     {
@@ -140,7 +143,6 @@ class SummaryDataResourcesAPI
         foreach($terms as $term) self::get_parent_of_term($term);
         exit("\nend 01\n");
     }
-    
     private function given_value_uri()
     {
         return array("http://www.marineregions.org/gazetteer.php?p=details&id=australia", "http://www.marineregions.org/gazetteer.php?p=details&id=4366", 
