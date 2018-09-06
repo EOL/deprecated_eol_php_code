@@ -39,8 +39,8 @@ class SummaryDataResourcesAPI
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         $uris = self::get_value_uris_from_recs($recs);
         self::set_ancestor_ranking_from_set_of_uris($uris);
-        $list = self::get_parent_uri_list($recs);
-        print_r($list);
+        $list = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree"
+        print_r($list); exit;
         $new_list = self::add_new_nodes_for_NotRootParents($list);
         
         //for jen: 
@@ -102,7 +102,6 @@ class SummaryDataResourcesAPI
             }
             else echo " - already root";
         }
-        // print_r($recs);
         return $recs;
     }
     private function get_value_uris_from_recs($recs)
@@ -110,7 +109,7 @@ class SummaryDataResourcesAPI
         foreach($recs as $rec) $uris[] = $rec['value_uri'];
         return $uris;
     }
-    private function get_parent_uri_list($recs)
+    private function get_initial_shared_values_ancestry_tree($recs)
     {
         $WRITE = fopen($this->temp_file, 'w'); fclose($WRITE);
         foreach($recs as $rec) {
@@ -123,7 +122,7 @@ class SummaryDataResourcesAPI
     function start_ok()
     {
         self::initialize();
-        $uris = self::given_value_uri();
+        $uris = self::given_value_uri(); //just during development
         self::set_ancestor_ranking_from_set_of_uris($uris);
         $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=australia";
         $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4366";
@@ -137,12 +136,8 @@ class SummaryDataResourcesAPI
         $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4365";
         $terms[] = "http://www.geonames.org/953987";
         $terms[] = "http://www.marineregions.org/mrgid/1914";
-
         $WRITE = fopen($this->temp_file, 'w'); fclose($WRITE);
-        foreach($terms as $term) {
-            self::get_parent_of_term($term);
-        }
-        
+        foreach($terms as $term) self::get_parent_of_term($term);
         exit("\nend 01\n");
     }
     
