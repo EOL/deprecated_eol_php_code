@@ -32,6 +32,62 @@ class SummaryDataResourcesAPI
         if(Functions::is_production())  $this->working_dir = "/extra/summary data resources/page_ids/";
         else                            $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
     }
+    function start()
+    {
+        /* working OK
+        self::working_dir(); self::generate_page_id_txt_files(); exit("\n\nText file generation DONE.\n\n");
+        */
+        
+        self::initialize();
+        
+        $uris = array("http://www.geonames.org/6255151", "https://www.wikidata.org/entity/Q41228", "http://www.marineregions.org/gazetteer.php?p=details&id=1904");
+        foreach($uris as $uri)
+        {
+            echo "\n\nprocessing $uri:\n";
+            if($arr = @$this->children_of[$uri]) print_r($arr);
+            else echo " -- no children";
+        }
+        
+        exit("\n");
+        
+        $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
+        $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
+        // $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
+        echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
+        $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
+        if(!$recs) {
+            echo "\nNo records for [$page_id] [$predicate].\n";
+            return;
+        }
+        $uris = self::get_value_uris_from_recs($recs);
+        self::set_ancestor_ranking_from_set_of_uris($uris);
+        $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree"
+        // print_r($list); exit;
+        $info = self::add_new_nodes_for_NotRootParents($ISVAT);
+        $new_nodes = $info['new_nodes'];
+        $roots     = $info['roots'];
+        
+        // /*
+        //for jen: 
+        echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
+        echo "\n\ninitial shared values ancestry tree:\n";
+        foreach($ISVAT as $a) echo "\n".$a[0]."\t".$a[1];
+        echo "\n\nnew nodes:\n";
+        foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
+        echo "\n\nRoots:\n";
+        print_r($roots);
+        // */
+        
+        $joined = array_merge($ISVAT, $new_nodes);
+        if(count($joined) <= 5 ) {}
+        else { // > 5
+            $set_1 = self::get_set_1($joined, $roots); //all uri where parent is root
+            echo "\nSet 1:\n";
+            foreach($set_1 as $a) echo "\n".$a;
+        }
+        
+        exit("\nelix\n");
+    }
     private function generate_page_id_txt_files()
     {
         $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r');
@@ -91,52 +147,6 @@ class SummaryDataResourcesAPI
         if(!file_exists($path . $cache1)) mkdir($path . $cache1);
         if(!file_exists($path . "$cache1/$cache2")) mkdir($path . "$cache1/$cache2");
         return $path . "$cache1/$cache2/";
-    }
-    
-    function start()
-    {
-        /* working OK
-        self::working_dir(); self::generate_page_id_txt_files(); exit("\n\nText file generation DONE.\n\n");
-        */
-        
-        self::initialize();
-        $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
-        $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
-        echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
-        $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
-        if(!$recs) {
-            echo "\nNo records for [$page_id] [$predicate].\n";
-            return;
-        }
-        $uris = self::get_value_uris_from_recs($recs);
-        self::set_ancestor_ranking_from_set_of_uris($uris);
-        $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree"
-        // print_r($list); exit;
-        $info = self::add_new_nodes_for_NotRootParents($ISVAT);
-        $new_nodes = $info['new_nodes'];
-        $roots     = $info['roots'];
-        
-        // /*
-        //for jen: 
-        echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
-        echo "\n\ninitial shared values ancestry tree:\n";
-        foreach($ISVAT as $a) echo "\n".$a[0]."\t".$a[1];
-        echo "\n\nnew nodes:\n";
-        foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
-        echo "\n\nRoots:\n";
-        print_r($roots);
-        // */
-        
-        $joined = array_merge($ISVAT, $new_nodes);
-        if(count($joined) <= 5 ) {}
-        else { // > 5
-            $set_1 = self::get_set_1($joined, $roots); //all uri where parent is root
-            echo "\nSet 1:\n";
-            foreach($set_1 as $a) echo "\n".$a;
-        }
-        
-        
-        exit("\nelix\n");
     }
     private function get_set_1($joined, $roots)
     {
