@@ -32,11 +32,82 @@ class SummaryDataResourcesAPI
         if(Functions::is_production())  $this->working_dir = "/extra/summary data resources/page_ids/";
         else                            $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
     }
+    private function generate_page_id_txt_files()
+    {
+        $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r');
+        $i = 0;
+        while(($line = fgetcsv($file)) !== FALSE) {
+            $i++; echo " $i";
+            if($i == 1) $fields = $line;
+            else {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); //exit;
+                /*Array(
+                    [eol_pk] => R96-PK42724728
+                    [page_id] => 328673
+                    [scientific_name] => <i>Panthera pardus</i>
+                    [resource_pk] => M_00238837
+                    [predicate] => http://eol.org/schema/terms/Present
+                    [sex] => 
+                    [lifestage] => 
+                    [statistical_method] => 
+                    [source] => http://www.worldwildlife.org/publications/wildfinder-database
+                    [object_page_id] => 
+                    [target_scientific_name] => 
+                    [value_uri] => http://eol.org/schema/terms/Southern_Zanzibar-Inhambane_coastal_forest_mosaic
+                    [literal] => http://eol.org/schema/terms/Southern_Zanzibar-Inhambane_coastal_forest_mosaic
+                    [measurement] => 
+                    [units] => 
+                    [normal_measurement] => 
+                    [normal_units_uri] => 
+                    [resource_id] => 20
+                )*/
+
+                $path = self::get_md5_path($this->working_dir, $rec['page_id']);
+                $txt_file = $path . $rec['page_id'] . ".txt";
+                if(file_exists($txt_file)) {
+                    $WRITE = fopen($txt_file, 'a');
+                    fwrite($WRITE, implode("\t", $line)."\n");
+                    fclose($WRITE);
+                }
+                else {
+                    $WRITE = fopen($txt_file, 'w');
+                    fwrite($WRITE, implode("\t", $fields)."\n");
+                    fwrite($WRITE, implode("\t", $line)."\n");
+                    fclose($WRITE);
+                }
+            }
+        }
+        fclose($file);
+    }
+    private function get_md5_path($path, $taxonkey)
+    {
+        $md5 = md5($taxonkey);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        if(!file_exists($path . $cache1)) mkdir($path . $cache1);
+        if(!file_exists($path . "$cache1/$cache2")) mkdir($path . "$cache1/$cache2");
+        return $path . "$cache1/$cache2/";
+    }
+    
     function start()
     {
+        /* working OK
+        self::working_dir(); self::generate_page_id_txt_files(); exit("\n\nText file generation DONE.\n\n");
+        */
+        
         self::initialize();
         $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
+        // $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
+        echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
+        if(!$recs) {
+            echo "\nNo records for [$page_id] [$predicate].\n";
+            return;
+        }
         $uris = self::get_value_uris_from_recs($recs);
         self::set_ancestor_ranking_from_set_of_uris($uris);
         $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree"
@@ -60,7 +131,7 @@ class SummaryDataResourcesAPI
         else { // > 5
             $set_1 = self::get_set_1($joined, $roots); //all uri where parent is root
             echo "\nSet 1:\n";
-            foreach($set_1 as $a) echo "\n".$a[0]."\t".$a[1];
+            foreach($set_1 as $a) echo "\n".$a;
         }
         
         
@@ -70,14 +141,18 @@ class SummaryDataResourcesAPI
     {
         $final = array();
         foreach($joined as $rec) {
-            if(in_array($rec[0], $roots)) $final[] = $rec;
+            if(in_array($rec[0], $roots)) $final[] = $rec[1];
         }
         return $final;
     }
     private function assemble_recs_for_page_id_from_text_file($page_id, $predicate)
     {
+        $recs = array();
+        $path = self::get_md5_path($this->working_dir, $page_id);
+        $txt_file = $path . $page_id . ".txt";
+        echo "\n$txt_file\n";
         $i = 0;
-        foreach(new FileIterator($this->working_dir.'/'.$page_id.'.txt') as $line_number => $line) {
+        foreach(new FileIterator($txt_file) as $line_number => $line) {
             $line = explode("\t", $line); $i++;
             if($i == 1) $fields = $line;
             else {
@@ -87,13 +162,33 @@ class SummaryDataResourcesAPI
                     $rec[$fld] = $line[$k]; $k++;
                 }
                 // print_r($rec); exit;
-                /* Array(
+                /* Array( old during development with Jen
                     [page_id] => 46559197
                     [scientific_name] => <i>Arctocephalus tropicalis</i>
                     [predicate] => http://eol.org/schema/terms/Present
                     [value_uri] => http://www.marineregions.org/gazetteer.php?p=details&id=australia
                 )*/
-                if($predicate == $rec['predicate']) $recs[] = $rec;
+                /*Array(
+                    [eol_pk] => R143-PK39533505
+                    [page_id] => 46559197
+                    [scientific_name] => <i>Arctocephalus tropicalis</i>
+                    [resource_pk] => 17255
+                    [predicate] => http://eol.org/schema/terms/WeaningAge
+                    [sex] => 
+                    [lifestage] => 
+                    [statistical_method] => 
+                    [source] => http://genomics.senescence.info/species/entry.php?species=Arctocephalus_tropicalis
+                    [object_page_id] => 
+                    [target_scientific_name] => 
+                    [value_uri] => 
+                    [literal] => 
+                    [measurement] => 239
+                    [units] => http://purl.obolibrary.org/obo/UO_0000033
+                    [normal_measurement] => 0.6543597746702533
+                    [normal_units_uri] => http://purl.obolibrary.org/obo/UO_0000036
+                    [resource_id] => 50
+                )*/
+                if($predicate == $rec['predicate'] && $rec['value_uri']) $recs[] = $rec;
             }
         }
         return $recs;
@@ -126,11 +221,13 @@ class SummaryDataResourcesAPI
     }
     private function get_value_uris_from_recs($recs)
     {
+        $uris = array();
         foreach($recs as $rec) $uris[] = $rec['value_uri'];
         return $uris;
     }
     private function get_initial_shared_values_ancestry_tree($recs)
     {
+        $final = array();
         $WRITE = fopen($this->temp_file, 'w'); fclose($WRITE);
         foreach($recs as $rec) {
             $term = $rec['value_uri'];
@@ -170,8 +267,9 @@ class SummaryDataResourcesAPI
     }
     private function set_ancestor_ranking_from_set_of_uris($uris)
     {
-        $final = array();
+        $final = array(); $final_preferred = array();
         foreach($uris as $term) {
+            if(!$term) continue;
             if($preferred_terms = @$this->preferred_names_of[$term]) {
                 // echo "\nThere are preferred term(s):\n";
                 // print_r($preferred_terms);
@@ -189,7 +287,7 @@ class SummaryDataResourcesAPI
                 if($parents = @$this->parents_of[$term]) {
                     foreach($parents as $parent) @$final[$parent]++;
                 }
-                else exit("\n\nHmmm no preferred and no immediate parent for term: [$term]\n\n");
+                // else exit("\n\nHmmm no preferred and no immediate parent for term: [$term]\n\n"); //seems acceptable
             }
         }//end main
         /*
