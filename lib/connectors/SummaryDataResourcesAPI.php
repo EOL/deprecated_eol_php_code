@@ -43,6 +43,7 @@ class SummaryDataResourcesAPI
         // print_r($list); exit;
         $info = self::add_new_nodes_for_NotRootParents($ISVAT);
         $new_nodes = $info['new_nodes'];
+        $roots     = $info['roots'];
         
         // /*
         //for jen: 
@@ -51,11 +52,27 @@ class SummaryDataResourcesAPI
         echo "\n\nnew nodes:\n";
         foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
         echo "\n\nRoots:\n";
-        print_r($info['roots']);
+        print_r($roots);
         // */
+        
+        $joined = array_merge($ISVAT, $new_nodes);
+        if(count($joined) <= 5 ) {}
+        else { // > 5
+            $set_1 = self::get_set_1($joined, $roots); //all uri where parent is root
+            echo "\nSet 1:\n";
+            foreach($set_1 as $a) echo "\n".$a[0]."\t".$a[1];
+        }
         
         
         exit("\nelix\n");
+    }
+    private function get_set_1($joined, $roots)
+    {
+        $final = array();
+        foreach($joined as $rec) {
+            if(in_array($rec[0], $roots)) $final[] = $rec;
+        }
+        return $final;
     }
     private function assemble_recs_for_page_id_from_text_file($page_id, $predicate)
     {
