@@ -36,6 +36,8 @@ class SummaryDataResourcesAPI
     function start()
     {
         // self::utility_compare();
+        // self::utility_compare2("/Volumes/AKiTiO4/web/cp/summary data resources/2018 09 08/jen_raw_step1.txt");
+        
         /* Important Step: working OK - commented for now.
         self::working_dir(); self::generate_page_id_txt_files(); exit("\n\nText file generation DONE.\n\n");
         */
@@ -62,7 +64,7 @@ class SummaryDataResourcesAPI
         */
         self::initialize();
         $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
-        $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
+        // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
         echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
@@ -99,27 +101,82 @@ class SummaryDataResourcesAPI
         foreach($ISVAT as $a) echo "\n".$a[0]."\t".$a[1];
         echo "\n\nnew nodes 2:\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
         echo "\n\nRoots 2:\n"; print_r($roots);
-        exit("\n");
+        // exit("\n");
         // */
         
+        //for step 1: So, first you must identify the tips- any values that don't appear in the left column. The parents, for step one, will be the values to the left of the tip values.
+        if(count($ISVAT) <= 5 ) {}
+        else { // > 5
+            $step_1 = self::get_step_1($ISVAT, $roots);
+            echo "\nStep 1:".count($step_1)."\n";
+            foreach($step_1 as $a) echo "\n".$a;
+        }
+        
+        /*
         $joined = array_merge($ISVAT, $new_nodes);
         if(count($joined) <= 5 ) {}
         else { // > 5
-            $set_1 = self::get_set_1($joined, $roots); //all uri where parent is root
+            $set_1 = self::get_step_1($joined, $roots); //all uri where parent is root
             echo "\nSet 1:\n";
             foreach($set_1 as $a) echo "\n".$a;
         }
+        */
         exit("\nelix\n");
     }
+    /*
+    private function get_step_1($isvat)
+    {
+        $final = array();
+        foreach($isvat as $a) {
+            $left[] = $a[0]; $right[] = $a[1];
+            $parent_of_right[$a[1]] = $a[0];
+        }
+        foreach($right as $r) {
+            if(!in_array($r, $left)) $tips[$r] = '';
+        }
+        $tips = array_keys($tips);
+        foreach($tips as $tip) {
+            $parent = @$parent_of_right[$tip];
+            $final[$parent] = '';
+        }
+        
+        $final = array_keys($final);
+        asort($final);
+        
+        return $final;
+        exit;
+    }
+    */
+    // /*
+    private function get_step_1($isvat, $roots)
+    {
+        $final = array();
+        foreach($isvat as $rec) {
+            if(in_array($rec[0], $roots)) $final[] = $rec[1];
+        }
+        $final = array_unique($final);
+        asort($final);
+        return $final;
+    }
+    // */
     private function utility_compare()
     {
         foreach(new FileIterator($this->jen_isvat) as $line_number => $line) {
             $arr[] = explode("\t", $line);
         }
-        asort($arr);
-        foreach($arr as $a) echo "\n".$a[0]."\t".$a[1];
+        asort($arr); foreach($arr as $a) echo "\n".$a[0]."\t".$a[1];
         exit("\njen_isvat.txt\n");
     }
+    private function utility_compare2($file)
+    {
+        foreach(new FileIterator($file) as $line_number => $line) {
+            $arr[$line] = '';
+        }
+        $arr = array_keys($arr);
+        asort($arr); foreach($arr as $a) echo "\n".$a;
+        exit("\n[$file]\n");
+    }
+    
     private function merge_nodes($info, $ISVAT)
     {
         $new_nodes = $info['new_nodes'];
@@ -225,14 +282,6 @@ class SummaryDataResourcesAPI
         if(!file_exists($path . $cache1)) mkdir($path . $cache1);
         if(!file_exists($path . "$cache1/$cache2")) mkdir($path . "$cache1/$cache2");
         return $path . "$cache1/$cache2/";
-    }
-    private function get_set_1($joined, $roots)
-    {
-        $final = array();
-        foreach($joined as $rec) {
-            if(in_array($rec[0], $roots)) $final[] = $rec[1];
-        }
-        return $final;
     }
     private function assemble_recs_for_page_id_from_text_file($page_id, $predicate)
     {
