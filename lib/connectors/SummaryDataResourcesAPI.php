@@ -75,11 +75,15 @@ class SummaryDataResourcesAPI
         $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree"
         $ISVAT = self::sort_ISVAT($ISVAT);
         $info = self::add_new_nodes_for_NotRootParents($ISVAT);
-        $new_nodes = $info['new_nodes'];    //foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1]; exit;
+        $new_nodes = $info['new_nodes'];    
+        echo "\n\nnew nodes 0:\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
+        
         
         $info['new_nodes'] = self::sort_ISVAT($new_nodes);
         $new_nodes = $info['new_nodes'];
         $roots     = $info['roots'];
+        echo "\n\nnew nodes 1:\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
+        echo "\n\nRoots 1:\n"; print_r($roots);
         
         // /* merged...
         $info = self::merge_nodes($info, $ISVAT);
@@ -93,10 +97,8 @@ class SummaryDataResourcesAPI
         echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
         echo "\n\ninitial shared values ancestry tree:\n";
         foreach($ISVAT as $a) echo "\n".$a[0]."\t".$a[1];
-        echo "\n\nnew nodes:\n";
-        foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
-        echo "\n\nRoots:\n";
-        print_r($roots);
+        echo "\n\nnew nodes 2:\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
+        echo "\n\nRoots 2:\n"; print_r($roots);
         exit("\n");
         // */
         
@@ -300,7 +302,9 @@ class SummaryDataResourcesAPI
         foreach(array_keys($unique) as $child) {
             // echo "\n$child: ";
             if($arr = @$this->parents_of[$child]) { // echo " - not root, has parents ".count($arr);
-                foreach($arr as $new_parent) $recs[] = array($new_parent, $child);
+                foreach($arr as $new_parent) {
+                    if($new_parent) $recs[] = array($new_parent, $child);
+                }
             }
             else $roots[] = $child; // echo " - already root";
         }
