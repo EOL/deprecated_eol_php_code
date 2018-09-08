@@ -34,32 +34,39 @@ class SummaryDataResourcesAPI
     }
     function start()
     {
-        /* working OK
+        /* Important Step: working OK - commented for now.
         self::working_dir(); self::generate_page_id_txt_files(); exit("\n\nText file generation DONE.\n\n");
         */
-        
+        // /* another test...
         self::initialize();
-        
         $uris = array("http://www.geonames.org/6255151", "https://www.wikidata.org/entity/Q41228", "http://www.marineregions.org/gazetteer.php?p=details&id=1904");
-        foreach($uris as $uri)
-        {
+        $uris = array("http://purl.obolibrary.org/obo/ENVO_00000856");
+        foreach($uris as $uri) {
             echo "\n\nprocessing $uri:\n";
-            if($arr = @$this->children_of[$uri]) print_r($arr);
+            if($arr = @$this->children_of[$uri]) {
+                echo " -- has children:";
+                print_r($arr);
+            }
             else echo " -- no children";
+            if($arr = @$this->parents_of[$uri]) {
+                echo "\n -- has parents:";
+                print_r($arr);
+            }
+            else echo " -- no parents";
+            
         }
-        
         exit("\n");
-        
+        // */
         $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
         $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
-        // $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
+        $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
         echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         if(!$recs) {
             echo "\nNo records for [$page_id] [$predicate].\n";
             return;
         }
-        $uris = self::get_value_uris_from_recs($recs);
+        $uris = self::get_valueUris_from_recs($recs);
         self::set_ancestor_ranking_from_set_of_uris($uris);
         $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree"
         // print_r($list); exit;
@@ -220,17 +227,17 @@ class SummaryDataResourcesAPI
             )*/
             $unique[$rec[0]] = '';
         }
-        //2nd step: check if parent is not root, if yes: get parent and add the new node:
+        //2nd step: check if parent is not root (meaning has parents), if yes: get parent and add the new node:
         foreach(array_keys($unique) as $child) {
             // echo "\n$child: ";
-            if($arr = @$this->parents_of[$child]) { // echo " - not root ".count($arr);
+            if($arr = @$this->parents_of[$child]) { // echo " - not root, has parents ".count($arr);
                 foreach($arr as $new_parent) $recs[] = array($new_parent, $child);
             }
             else $roots[] = $child; // echo " - already root";
         }
         return array('roots' => $roots, 'new_nodes' => $recs);
     }
-    private function get_value_uris_from_recs($recs)
+    private function get_valueUris_from_recs($recs)
     {
         $uris = array();
         foreach($recs as $rec) $uris[] = $rec['value_uri'];
