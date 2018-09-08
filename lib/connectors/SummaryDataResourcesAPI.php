@@ -31,9 +31,11 @@ class SummaryDataResourcesAPI
         
         if(Functions::is_production())  $this->working_dir = "/extra/summary data resources/page_ids/";
         else                            $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
+        $this->jen_isvat = "/Volumes/AKiTiO4/web/cp/summary data resources/2018 09 08/jen_isvat.txt";
     }
     function start()
     {
+        // self::utility_compare();
         /* Important Step: working OK - commented for now.
         self::working_dir(); self::generate_page_id_txt_files(); exit("\n\nText file generation DONE.\n\n");
         */
@@ -73,6 +75,9 @@ class SummaryDataResourcesAPI
         $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree"
         $ISVAT = self::sort_ISVAT($ISVAT);
         $info = self::add_new_nodes_for_NotRootParents($ISVAT);
+        $new_nodes = $info['new_nodes'];    //foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1]; exit;
+        
+        $info['new_nodes'] = self::sort_ISVAT($new_nodes);
         $new_nodes = $info['new_nodes'];
         $roots     = $info['roots'];
         
@@ -104,9 +109,14 @@ class SummaryDataResourcesAPI
         }
         exit("\nelix\n");
     }
-    private utility_compare()
+    private function utility_compare()
     {
-        
+        foreach(new FileIterator($this->jen_isvat) as $line_number => $line) {
+            $arr[] = explode("\t", $line);
+        }
+        asort($arr);
+        foreach($arr as $a) echo "\n".$a[0]."\t".$a[1];
+        exit("\njen_isvat.txt\n");
     }
     private function merge_nodes($info, $ISVAT)
     {
@@ -135,7 +145,7 @@ class SummaryDataResourcesAPI
         foreach($temp as $key => $value) $totals[$key] = count($value);
         // print_r($totals);
 
-        $discard_parents = array();
+        $discard_parents = array(); echo "\n--------------------\n";
         foreach($totals as $key => $total_children) {
             if($total_children == 1) {
                 echo "\n $key: ";
