@@ -72,10 +72,16 @@ class SummaryDataResourcesAPI
         self::set_ancestor_ranking_from_set_of_uris($uris);
         $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree"
         $ISVAT = self::sort_ISVAT($ISVAT);
-        // print_r($list); exit;
         $info = self::add_new_nodes_for_NotRootParents($ISVAT);
         $new_nodes = $info['new_nodes'];
         $roots     = $info['roots'];
+        
+        // /* merged...
+        $info = self::merge_nodes($info, $ISVAT);
+        $ISVAT = $info['new_isvat'];
+        $roots     = $info['new_roots'];
+        $new_nodes = array();
+        // */
         
         // /*
         //for jen: 
@@ -86,6 +92,7 @@ class SummaryDataResourcesAPI
         foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
         echo "\n\nRoots:\n";
         print_r($roots);
+        exit("\n");
         // */
         
         $joined = array_merge($ISVAT, $new_nodes);
@@ -97,28 +104,55 @@ class SummaryDataResourcesAPI
         }
         exit("\nelix\n");
     }
-    private function sort_ISVAT($arr)
+    private utility_compare()
+    {
+        
+    }
+    private function merge_nodes($info, $ISVAT)
+    {
+        $new_nodes = $info['new_nodes'];
+        $roots     = $info['roots'];
+        
+        $new_isvat = array_merge($ISVAT, $new_nodes);
+        $new_isvat = self::sort_ISVAT($new_isvat);
+        
+        $new_roots = $roots;
+        foreach($new_isvat as $a) {
+            if(!$a[0]) $new_roots[] = $a[1];
+        }
+        
+        return array('new_roots' => $new_roots, 'new_isvat' => $new_isvat);
+    }
+    private function sort_ISVAT($arr) //also remove parent nodes where there is only one child. Make child an orphan.
     {
         rsort($arr);
-        // foreach($arr as $a) echo "\n".$a[0]."\t".$a[1];
         foreach($arr as $a) {
             @$temp[$a[0]][$a[1]] = '';
             $right_cols[$a[1]] = '';
         }
         asort($temp);
-        print_r($temp);
+        // print_r($temp);
         foreach($temp as $key => $value) $totals[$key] = count($value);
-        print_r($totals);
-        
+        // print_r($totals);
+
+        $discard_parents = array();
         foreach($totals as $key => $total_children) {
             if($total_children == 1) {
-                echo "\n$key";
+                echo "\n $key: ";
                 if(isset($right_cols[$key])) echo " -- also a child in the orig tree";
-                
+                else $discard_parents[] = $key;
             }
         }
+        // print_r($discard_parents);
         
-        exit("\n");
+        $final = array();
+        foreach($arr as $a) {
+            if(in_array($a[0], $discard_parents)) $final[] = array("", $a[1]);
+            else                                  $final[] = array($a[0], $a[1]);
+        }
+        asort($final);
+        $final = array_unique($final, SORT_REGULAR);
+        return $final;
     }
     private function generate_page_id_txt_files()
     {
