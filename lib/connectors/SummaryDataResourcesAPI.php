@@ -37,10 +37,11 @@ class SummaryDataResourcesAPI
         /* Important Step: working OK - commented for now.
         self::working_dir(); self::generate_page_id_txt_files(); exit("\n\nText file generation DONE.\n\n");
         */
-        // /* another test...
+        /* another test...
         self::initialize();
         $uris = array("http://www.geonames.org/6255151", "https://www.wikidata.org/entity/Q41228", "http://www.marineregions.org/gazetteer.php?p=details&id=1904");
         $uris = array("http://purl.obolibrary.org/obo/ENVO_00000856");
+        $uris = array("http://purl.obolibrary.org/obo/ENVO_00000873");
         foreach($uris as $uri) {
             echo "\n\nprocessing $uri:\n";
             if($arr = @$this->children_of[$uri]) {
@@ -56,7 +57,8 @@ class SummaryDataResourcesAPI
             
         }
         exit("\n");
-        // */
+        */
+        self::initialize();
         $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
         $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
@@ -69,6 +71,7 @@ class SummaryDataResourcesAPI
         $uris = self::get_valueUris_from_recs($recs);
         self::set_ancestor_ranking_from_set_of_uris($uris);
         $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree"
+        $ISVAT = self::sort_ISVAT($ISVAT);
         // print_r($list); exit;
         $info = self::add_new_nodes_for_NotRootParents($ISVAT);
         $new_nodes = $info['new_nodes'];
@@ -92,8 +95,30 @@ class SummaryDataResourcesAPI
             echo "\nSet 1:\n";
             foreach($set_1 as $a) echo "\n".$a;
         }
-        
         exit("\nelix\n");
+    }
+    private function sort_ISVAT($arr)
+    {
+        rsort($arr);
+        // foreach($arr as $a) echo "\n".$a[0]."\t".$a[1];
+        foreach($arr as $a) {
+            @$temp[$a[0]][$a[1]] = '';
+            $right_cols[$a[1]] = '';
+        }
+        asort($temp);
+        print_r($temp);
+        foreach($temp as $key => $value) $totals[$key] = count($value);
+        print_r($totals);
+        
+        foreach($totals as $key => $total_children) {
+            if($total_children == 1) {
+                echo "\n$key";
+                if(isset($right_cols[$key])) echo " -- also a child in the orig tree";
+                
+            }
+        }
+        
+        exit("\n");
     }
     private function generate_page_id_txt_files()
     {
