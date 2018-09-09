@@ -184,6 +184,7 @@ class SummaryDataResourcesAPI
         
         $new_isvat = array_merge($ISVAT, $new_nodes);
         $new_isvat = self::sort_ISVAT($new_isvat);
+        $new_isvat = self::remove_orphans_that_exist_elsewhere($new_isvat);
         
         $new_roots = $roots;
         foreach($new_isvat as $a) {
@@ -192,35 +193,57 @@ class SummaryDataResourcesAPI
         
         return array('new_roots' => $new_roots, 'new_isvat' => $new_isvat);
     }
+    private function remove_orphans_that_exist_elsewhere($isvat) //that is remove the orphan row
+    {
+        //first get all non-orphan rows
+        foreach($isvat as $a) {
+            if($a[0]) {
+                $left[$a[0]] = '';
+                $right[$a[1]] = '';
+            }
+        }
+        //if orphan $a[1] exists elsewhere then remove that orphan row
+        foreach($isvat as $a) {
+            if(!$a[0] && (
+                            isset($left[$a[1]]) || isset($right[$a[1]])
+                         )
+            ){
+                echo "\n === $a[0] --- $a[1] === remove orphan coz it exists elsewhere \n"; //the orphan row ENVO_00000446 was removed here...
+            }
+            else $final[] = $a;
+        }
+        return $final;
+    }
     private function sort_ISVAT($arr) //also remove parent nodes where there is only one child. Make child an orphan.
     {
         rsort($arr);
         foreach($arr as $a) {
-            @$temp[$a[0]][$a[1]] = '';
+            @$temp[$a[0]][$a[1]] = ''; //to be used in $totals
             $right_cols[$a[1]] = '';
             $temp2[$a[0]] = $a[1];
+            $left_cols[$a[0]] = '';
         }
         asort($temp);
-        // print_r($temp);
         foreach($temp as $key => $value) $totals[$key] = count($value);
-        // print_r($totals);
+        print_r($totals);
 
         $discard_parents = array(); echo "\n--------------------\n";
         foreach($totals as $key => $total_children) {
             if($total_children == 1) {
-                echo "\n $key: ";
-                if(isset($right_cols[$key])) echo " -- also a child in the orig tree";
-                
-                // echo "\nelix elix\n";
-                // print_r($temp[$key]); exit("\ncha cha\n");
+                echo "\n $key: with 1 child ";
+                if(isset($right_cols[$key])) echo " -- appears in a relationship pair (right)";
+                // elseif(isset($left_cols[$key])) echo " -- appears in a relationship pair (left)"; //The way I was thinking of documenting, it wouldn't need to be listed as an orphan if 
+                                                                                                  //it also appears in any relationship pair.
                 elseif(isset($this->original_nodes[$temp2[$key]])) {
-                    echo "\nxxx".@$temp2[$key]."\n";
-                    /* "Ancestors can be removed if they are parents of only one node BUT that node must not be an original node" */
+                    echo "\nxxx $key --- ".@$temp2[$key]." parent of just 1 node BUT an original node\n";
+                    /* "Ancestors can be removed if they are parents of only one node BUT that node must NOT be an original node" */
                 }
                 else $discard_parents[] = $key;
             }
         }
-        // print_r($discard_parents);
+        echo "\n discarded_parents:";
+        print_r($discard_parents);
+        echo "\n-----\n";
         
         $final = array();
         foreach($arr as $a) {
