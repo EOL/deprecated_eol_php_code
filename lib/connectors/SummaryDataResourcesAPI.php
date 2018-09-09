@@ -198,6 +198,7 @@ class SummaryDataResourcesAPI
         foreach($arr as $a) {
             @$temp[$a[0]][$a[1]] = '';
             $right_cols[$a[1]] = '';
+            $temp2[$a[0]] = $a[1];
         }
         asort($temp);
         // print_r($temp);
@@ -209,6 +210,13 @@ class SummaryDataResourcesAPI
             if($total_children == 1) {
                 echo "\n $key: ";
                 if(isset($right_cols[$key])) echo " -- also a child in the orig tree";
+                
+                // echo "\nelix elix\n";
+                // print_r($temp[$key]); exit("\ncha cha\n");
+                elseif(isset($this->original_nodes[$temp2[$key]])) {
+                    echo "\nxxx".@$temp2[$key]."\n";
+                    /* "Ancestors can be removed if they are parents of only one node BUT that node must not be an original node" */
+                }
                 else $discard_parents[] = $key;
             }
         }
@@ -327,6 +335,7 @@ class SummaryDataResourcesAPI
                     [resource_id] => 50
                 )*/
                 if($predicate == $rec['predicate'] && $rec['value_uri']) $recs[] = $rec;
+                $this->original_nodes[$rec['value_uri']] = '';
             }
         }
         return $recs;
