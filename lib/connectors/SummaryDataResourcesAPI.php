@@ -53,7 +53,7 @@ class SummaryDataResourcesAPI
         $uris = array("http://www.geonames.org/6255151", "https://www.wikidata.org/entity/Q41228", "http://www.marineregions.org/gazetteer.php?p=details&id=1904");
         $uris = array("http://purl.obolibrary.org/obo/ENVO_00000856");
         $uris = array("http://purl.obolibrary.org/obo/ENVO_00000873");
-        $uris = array("http://purl.obolibrary.org/obo/ENVO_01001305");
+        // $uris = array("http://purl.obolibrary.org/obo/ENVO_01001305");
         foreach($uris as $uri) {
             echo "\n\nprocessing $uri:\n";
             if($arr = @$this->children_of[$uri]) {
@@ -107,7 +107,7 @@ class SummaryDataResourcesAPI
         // /*
         //for jen: 
         echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
-        echo "\n\ninitial shared values ancestry tree:\n";
+        echo "\n\ninitial shared values ancestry tree: ".count($ISVAT)."\n";
         foreach($ISVAT as $a) echo "\n".$a[0]."\t".$a[1];
         echo "\n\nnew nodes 2:\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
         echo "\n\nRoots 2:\n"; print_r($roots);
@@ -116,27 +116,18 @@ class SummaryDataResourcesAPI
         
         //for step 1: So, first you must identify the tips- any values that don't appear in the left column. The parents, for step one, will be the values to the left of the tip values.
         $tips = self::get_tips($ISVAT);
-        echo "\n tips:";
+        echo "\n tips: ".count($tips);
         foreach($tips as $tip) echo "\n$tip";
         echo "\n-end tips-\n"; //exit;
 
         if(count($tips) <= 5 ) {}
         else { // > 5
-            $step_1 = self::get_step_1($ISVAT, $roots);
+            $step_1 = self::get_step_1($ISVAT, $roots, $tips);
             echo "\nStep 1:".count($step_1)."\n";
             foreach($step_1 as $a) echo "\n".$a;
             echo "\n-end Step 1-\n"; //exit;
         }
         
-        /* obsolete, i think....
-        $joined = array_merge($ISVAT, $new_nodes);
-        if(count($joined) <= 5 ) {}
-        else { // > 5
-            $set_1 = self::get_step_1($joined, $roots); //all uri where parent is root
-            echo "\nSet 1:\n";
-            foreach($set_1 as $a) echo "\n".$a;
-        }
-        */
         exit("\nelix\n");
     }
     private function get_tips($isvat)
@@ -153,28 +144,32 @@ class SummaryDataResourcesAPI
         asort($final);
         return $final;
     }
-    private function get_step_1($isvat, $roots)
+
+    private function get_step_1($isvat, $roots, $tips)
     {
+        // /*
         foreach($isvat as $a) {
             if(in_array($a[0], $roots)) $final[] = $a[1];
         }
         $final = array_unique($final);
         asort($final);
         return $final;
-
+        // */
+        
         /* parent of tips
         $final = array();
         foreach($isvat as $a) $parent_of_right[$a[1]] = $a[0];
         foreach($tips as $tip)
         {
-            $parent = $parent_of_right[$tip];
-            $final[$parent] = '';
+            if($parent = $parent_of_right[$tip]) $final[$parent] = '';
         }
         $final = array_keys($final);
         asort($final);
         return $final;
         */
     }
+
+
     private function utility_compare()
     {
         foreach(new FileIterator($this->jen_isvat) as $line_number => $line) {
