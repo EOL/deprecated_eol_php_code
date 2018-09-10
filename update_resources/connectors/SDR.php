@@ -43,13 +43,24 @@ http://purl.obolibrary.org/obo/ENVO_01000020, http://purl.obolibrary.org/obo/ENV
 http://purl.obolibrary.org/obo/ENVO_00000447, http://purl.obolibrary.org/obo/ENVO_00000873, http://purl.obolibrary.org/obo/ENVO_01000174, 
 http://purl.obolibrary.org/obo/ENVO_01000253";
 
+//Jen's set 2
+
+$str = "http://purl.obolibrary.org/obo/ENVO_00000144, http://purl.obolibrary.org/obo/ENVO_00000463, http://purl.obolibrary.org/obo/ENVO_00000856, 
+http://purl.obolibrary.org/obo/ENVO_00002009, http://purl.obolibrary.org/obo/ENVO_00002033, http://purl.obolibrary.org/obo/ENVO_01000204, 
+http://purl.obolibrary.org/obo/ENVO_01000206, http://purl.obolibrary.org/obo/ENVO_00000097, http://purl.obolibrary.org/obo/ENVO_00000106, 
+http://purl.obolibrary.org/obo/ENVO_00000112, http://purl.obolibrary.org/obo/ENVO_00000170, http://purl.obolibrary.org/obo/ENVO_00000222, 
+http://purl.obolibrary.org/obo/ENVO_00000261, http://purl.obolibrary.org/obo/ENVO_00000303, http://purl.obolibrary.org/obo/ENVO_01000177, 
+http://purl.obolibrary.org/obo/ENVO_01000179, http://purl.obolibrary.org/obo/ENVO_00002010, http://purl.obolibrary.org/obo/ENVO_00002019, 
+http://purl.obolibrary.org/obo/ENVO_01000020, http://purl.obolibrary.org/obo/ENVO_00000043, http://purl.obolibrary.org/obo/ENVO_00000300, 
+http://purl.obolibrary.org/obo/ENVO_00000447, http://purl.obolibrary.org/obo/ENVO_00000873, http://purl.obolibrary.org/obo/ENVO_01000174, 
+http://purl.obolibrary.org/obo/ENVO_00000873";
+
 $arr = explode(",", $str);
 $arr = array_map('trim', $arr);
 asort($arr); print_r($arr); 
 
 echo "\n rows: ".count($arr);
 foreach($arr as $tip) echo "\n$tip";
-
 
 exit("\ntotal: ".count($arr)."\n");
 */

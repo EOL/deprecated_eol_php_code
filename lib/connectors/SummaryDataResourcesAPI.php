@@ -127,6 +127,21 @@ class SummaryDataResourcesAPI
             foreach($step_1 as $a) echo "\n".$a;
             echo "\n-end Step 1-\n"; //exit;
         }
+
+        $step_2 = self::get_step_1($ISVAT, $roots, $step_1);
+        echo "\nStep 2:".count($step_2)."\n";
+        foreach($step_2 as $a) echo "\n".$a;
+        echo "\n-end Step 2-\n"; //exit;
+
+        $step_3 = self::get_step_1($ISVAT, $roots, $step_2);
+        echo "\nStep 3:".count($step_3)."\n";
+        foreach($step_3 as $a) echo "\n".$a;
+        echo "\n-end Step 3-\n"; //exit;
+        
+        if($step_2 == $step_3) echo "\nSteps 2 and 3 are identical.\n";
+        else                   echo "\nStep 2 and Step 3 are different.\n";
+        
+        
         
         exit("\nelix\n");
     }
@@ -147,29 +162,30 @@ class SummaryDataResourcesAPI
 
     private function get_step_1($isvat, $roots, $tips)
     {
-        // /*
+        /* 
+        - find all tips
+        - find all nodes that are parents of tips
+        - in each case, check whether either the tip or the parent is a root
+            -- if either the tip or the parent is a root, put the tip in set 1
+            -- if neither the tip nor the parent is a root, put the parent in set 1
+        - (deduplicate set 1)
+        */
         foreach($isvat as $a) {
-            if(in_array($a[0], $roots)) $final[] = $a[1];
+            $parent_of_right[$a[1]] = $a[0];
         }
-        $final = array_unique($final);
-        asort($final);
-        return $final;
-        // */
-        
-        /* parent of tips
-        $final = array();
-        foreach($isvat as $a) $parent_of_right[$a[1]] = $a[0];
-        foreach($tips as $tip)
-        {
-            if($parent = $parent_of_right[$tip]) $final[$parent] = '';
+        foreach($tips as $tip) {
+            if($parent = $parent_of_right[$tip]) {
+                if(in_array($tip, $roots) || in_array($parent, $roots)) $final[$tip] = '';
+                if(!in_array($tip, $roots) && !in_array($parent, $roots)) $final[$parent] = '';
+            }
+            else {
+                if(in_array($tip, $roots)) $final[$tip] = '';
+            }
         }
         $final = array_keys($final);
         asort($final);
         return $final;
-        */
     }
-
-
     private function utility_compare()
     {
         foreach(new FileIterator($this->jen_isvat) as $line_number => $line) {
