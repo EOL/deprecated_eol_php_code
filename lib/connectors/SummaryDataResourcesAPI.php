@@ -126,23 +126,58 @@ class SummaryDataResourcesAPI
             echo "\nStep 1:".count($step_1)."\n";
             foreach($step_1 as $a) echo "\n".$a;
             echo "\n-end Step 1-\n"; //exit;
+
+            if(count($step_1) <= 4) {} //select set 1
+            else {
+                $step_2 = self::get_step_1($ISVAT, $roots, $step_1);
+                echo "\nStep 2:".count($step_2)."\n";
+                foreach($step_2 as $a) echo "\n".$a;
+                echo "\n-end Step 2-\n"; //exit;
+                
+                if(count($step_2) <= 4) {} //select set 2
+                else {
+                    $step_3 = self::get_step_1($ISVAT, $roots, $step_2);
+                    echo "\nStep 3:".count($step_3)."\n";
+                    foreach($step_3 as $a) echo "\n".$a;
+                    echo "\n-end Step 3-\n"; //exit;
+
+                    if($step_2 == $step_3) {
+                        echo "\nSteps 2 and 3 are identical.\n";
+                        if(count($step_3) <= 4) {} //select set 3
+                        else {
+                            echo "\nSelect root ancestors\n"; //label PRM and REP if one record, REP if >1
+                            if(count($roots) == 1) echo "\n----- label as: PRM and REP\n";
+                            elseif(count($roots) > 1) echo "\n----- label as: REP\n";
+                        }
+                    }
+                    else {
+                        echo "\nStep 2 and Step 3 are different.\n";
+                    }
+                }
+            }
         }
+        /*
+        if tips <= 5 SELECT ALL TIPS 
+        else
+            GET SET_1
+            if SET_1 <= 4 SELECT SET_1
+            else 
+                GET SET_2
+                if SET_2 <= 4 SELECT SET_2
+                else
+                    GET SET_3
+                    if SET_2 == SET_3
+                        if SET_3 <= 4 SELECT SET_3
+                        else SELECT ROOT_ANCESTORS
+                    else CONTINUE PROCESS UNTIL all parents of the values in the set are roots, THEN IF <= 4 SELECT THAT SET else SELECT ROOT_ANCESTORS.
 
-        $step_2 = self::get_step_1($ISVAT, $roots, $step_1);
-        echo "\nStep 2:".count($step_2)."\n";
-        foreach($step_2 as $a) echo "\n".$a;
-        echo "\n-end Step 2-\n"; //exit;
 
-        $step_3 = self::get_step_1($ISVAT, $roots, $step_2);
-        echo "\nStep 3:".count($step_3)."\n";
-        foreach($step_3 as $a) echo "\n".$a;
-        echo "\n-end Step 3-\n"; //exit;
-        
-        if($step_2 == $step_3) echo "\nSteps 2 and 3 are identical.\n";
-        else                   echo "\nStep 2 and Step 3 are different.\n";
-        
-        
-        
+        if(WHAT IS SELECTED == 1) label as: "PRM and REP"
+        elseif(WHAT IS SELECTED > 1) label as: "REP"
+
+        So in our case: page_id: 7662 | predicate: [http://eol.org/schema/terms/Habitat]
+        I will be creating new rocords based on 'ROOT_ANCESTORS'.
+        */
         exit("\nelix\n");
     }
     private function get_tips($isvat)
