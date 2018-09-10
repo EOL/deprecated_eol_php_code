@@ -99,7 +99,7 @@ class SummaryDataResourcesAPI
         
         // /* merged...
         $info = self::merge_nodes($info, $ISVAT);
-        $ISVAT = $info['new_isvat'];
+        $ISVAT     = $info['new_isvat'];
         $roots     = $info['new_roots'];
         $new_nodes = array();
         // */
@@ -207,6 +207,17 @@ class SummaryDataResourcesAPI
             if(!$a[0]) $new_roots[] = $a[1];
         }
         asort($new_roots);
+        
+        //scan new isvat for new roots
+        foreach($new_isvat as $a) {
+            if(!$a[0]) continue;
+            if(@$this->parents_of[$a[0]]) {} // echo " - not root, has parents ".count($arr);
+            else $new_roots[] = $a[0];
+        }
+        $new_roots = array_unique($new_roots);
+        $new_roots = array_filter($new_roots); //remove null values
+        asort($new_roots);
+        
         return array('new_roots' => $new_roots, 'new_isvat' => $new_isvat);
     }
     private function remove_orphans_that_exist_elsewhere($isvat) //that is remove the orphan row
