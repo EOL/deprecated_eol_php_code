@@ -22,7 +22,12 @@ class SummaryDataResourcesAPI
         // $this->file['preferred synonym']['fields'] = array('preferred_term_URI', 'deprecated_term_URI');
         $this->file['preferred synonym']['fields'] = array('preferred', 'deprecated');
 
-        $this->file['parent child']['path'] = "http://localhost/cp/summary data resources/parent-child-aug-16-2a.csv";
+        // $this->file['parent child']['path'] = "http://localhost/cp/summary data resources/parent-child-aug-16-2a.csv";
+        
+        $this->file['parent child']['path_habitat'] = "http://localhost/cp/summary data resources/habitat-parent-child.csv";
+        $this->file['parent child']['path_geoterms'] = "http://localhost/cp/summary data resources/geoterms-parent-child.csv";
+        
+        
         $this->file['preferred synonym']['path'] = "http://localhost/cp/summary data resources/preferredsynonym-aug-16-1-2a.csv";
         
         $this->dwca_file = "http://localhost/cp/summary data resources/carnivora_sample.tgz";
@@ -62,6 +67,9 @@ class SummaryDataResourcesAPI
         }
         exit("\n");
         */
+        $this->term_type = 'path_habitat';
+        // $this->term_type = 'path_geoterms';
+        
         self::initialize();
         $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
         // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
@@ -203,6 +211,7 @@ class SummaryDataResourcesAPI
             }
         }
         //if orphan $a[1] exists elsewhere then remove that orphan row
+        //The way I was thinking of documenting, it wouldn't need to be listed as an orphan if it also appears in any relationship pair.
         foreach($isvat as $a) {
             if(!$a[0] && (
                             isset($left[$a[1]]) || isset($right[$a[1]])
@@ -232,12 +241,19 @@ class SummaryDataResourcesAPI
             if($total_children == 1) {
                 echo "\n $key: with 1 child ";
                 if(isset($right_cols[$key])) echo " -- appears in a relationship pair (right)";
-                // elseif(isset($left_cols[$key])) echo " -- appears in a relationship pair (left)"; //The way I was thinking of documenting, it wouldn't need to be listed as an orphan if 
-                                                                                                  //it also appears in any relationship pair.
+                /* "Ancestors can be removed if they are parents of only one node BUT that node must NOT be an original node" THIS IS WRONG RULE!!!
                 elseif(isset($this->original_nodes[$temp2[$key]])) {
                     echo "\nxxx $key --- ".@$temp2[$key]." parent of just 1 node BUT an original node\n";
-                    /* "Ancestors can be removed if they are parents of only one node BUT that node must NOT be an original node" */
                 }
+                */
+
+                // /* THIS IS THE CORRECT RULE
+                elseif(isset($this->original_nodes[$key])) {
+                    echo "\nxxx $key --- parent of just 1 node BUT ancestor is an original node\n";
+                }
+                // */
+
+
                 else $discard_parents[] = $key;
             }
         }
@@ -647,9 +663,11 @@ class SummaryDataResourcesAPI
         return $final;
         */
     }
-    private function generate_terms_values_child_parent_list()
+    private function generate_terms_values_child_parent_list($file = false)
     {
-        $temp_file = Functions::save_remote_file_to_local($this->file['parent child']['path'], $this->download_options);
+        $file = $this->file['parent child'][$this->term_type];
+        //old $this->file['parent child']['path']
+        $temp_file = Functions::save_remote_file_to_local($file, $this->download_options);
         $file = fopen($temp_file, 'r');
         $i = 0;
         $fields = $this->file['parent child']['fields'];
