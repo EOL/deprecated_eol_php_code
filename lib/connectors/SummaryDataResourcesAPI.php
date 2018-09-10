@@ -47,10 +47,13 @@ class SummaryDataResourcesAPI
         self::working_dir(); self::generate_page_id_txt_files(); exit("\n\nText file generation DONE.\n\n");
         */
         /* another test...
+        $this->term_type = 'path_habitat';
+        // $this->term_type = 'path_geoterms';
         self::initialize();
         $uris = array("http://www.geonames.org/6255151", "https://www.wikidata.org/entity/Q41228", "http://www.marineregions.org/gazetteer.php?p=details&id=1904");
         $uris = array("http://purl.obolibrary.org/obo/ENVO_00000856");
         $uris = array("http://purl.obolibrary.org/obo/ENVO_00000873");
+        $uris = array("http://purl.obolibrary.org/obo/ENVO_01001305");
         foreach($uris as $uri) {
             echo "\n\nprocessing $uri:\n";
             if($arr = @$this->children_of[$uri]) {
@@ -62,10 +65,9 @@ class SummaryDataResourcesAPI
                 echo "\n -- has parents:";
                 print_r($arr);
             }
-            else echo " -- no parents";
-            
+            else echo " -- no parents, meaning a ROOT";
         }
-        exit("\n");
+        exit("\n-end test-\n");
         */
         $this->term_type = 'path_habitat';
         // $this->term_type = 'path_geoterms';
@@ -113,14 +115,20 @@ class SummaryDataResourcesAPI
         // */
         
         //for step 1: So, first you must identify the tips- any values that don't appear in the left column. The parents, for step one, will be the values to the left of the tip values.
-        if(count($ISVAT) <= 5 ) {}
+        $tips = self::get_tips($ISVAT);
+        echo "\n tips:";
+        foreach($tips as $tip) echo "\n$tip";
+        echo "\n-end tips-\n"; //exit;
+
+        if(count($tips) <= 5 ) {}
         else { // > 5
             $step_1 = self::get_step_1($ISVAT, $roots);
             echo "\nStep 1:".count($step_1)."\n";
             foreach($step_1 as $a) echo "\n".$a;
+            echo "\n-end Step 1-\n"; //exit;
         }
         
-        /*
+        /* obsolete, i think....
         $joined = array_merge($ISVAT, $new_nodes);
         if(count($joined) <= 5 ) {}
         else { // > 5
@@ -131,42 +139,42 @@ class SummaryDataResourcesAPI
         */
         exit("\nelix\n");
     }
-    /*
-    private function get_step_1($isvat)
+    private function get_tips($isvat)
     {
-        $final = array();
         foreach($isvat as $a) {
-            $left[] = $a[0]; $right[] = $a[1];
-            $parent_of_right[$a[1]] = $a[0];
+            $left[$a[0]] = '';
+            $right[$a[1]] = '';
         }
-        foreach($right as $r) {
-            if(!in_array($r, $left)) $tips[$r] = '';
+        $right = array_keys($right);
+        foreach($right as $node) {
+            if(!isset($left[$node])) $final[$node] = '';
         }
-        $tips = array_keys($tips);
-        foreach($tips as $tip) {
-            $parent = @$parent_of_right[$tip];
-            $final[$parent] = '';
-        }
-        
         $final = array_keys($final);
         asort($final);
-        
         return $final;
-        exit;
     }
-    */
-    // /*
     private function get_step_1($isvat, $roots)
     {
-        $final = array();
-        foreach($isvat as $rec) {
-            if(in_array($rec[0], $roots)) $final[] = $rec[1];
+        foreach($isvat as $a) {
+            if(in_array($a[0], $roots)) $final[] = $a[1];
         }
         $final = array_unique($final);
         asort($final);
         return $final;
+
+        /* parent of tips
+        $final = array();
+        foreach($isvat as $a) $parent_of_right[$a[1]] = $a[0];
+        foreach($tips as $tip)
+        {
+            $parent = $parent_of_right[$tip];
+            $final[$parent] = '';
+        }
+        $final = array_keys($final);
+        asort($final);
+        return $final;
+        */
     }
-    // */
     private function utility_compare()
     {
         foreach(new FileIterator($this->jen_isvat) as $line_number => $line) {
@@ -198,7 +206,7 @@ class SummaryDataResourcesAPI
         foreach($new_isvat as $a) {
             if(!$a[0]) $new_roots[] = $a[1];
         }
-        
+        asort($new_roots);
         return array('new_roots' => $new_roots, 'new_isvat' => $new_isvat);
     }
     private function remove_orphans_that_exist_elsewhere($isvat) //that is remove the orphan row
@@ -246,20 +254,15 @@ class SummaryDataResourcesAPI
                     echo "\nxxx $key --- ".@$temp2[$key]." parent of just 1 node BUT an original node\n";
                 }
                 */
-
                 // /* THIS IS THE CORRECT RULE
                 elseif(isset($this->original_nodes[$key])) {
                     echo "\nxxx $key --- parent of just 1 node BUT ancestor is an original node\n";
                 }
                 // */
-
-
                 else $discard_parents[] = $key;
             }
         }
-        echo "\n discarded_parents:";
-        print_r($discard_parents);
-        echo "\n-----\n";
+        echo "\n discarded_parents:"; print_r($discard_parents); echo "\n-----\n";
         
         $final = array();
         foreach($arr as $a) {
