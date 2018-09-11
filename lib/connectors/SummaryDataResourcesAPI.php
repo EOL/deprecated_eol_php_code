@@ -559,7 +559,6 @@ class SummaryDataResourcesAPI
     private function initialize()
     {
         self::working_dir();
-        
         self::generate_terms_values_child_parent_list($this->file['parent child'][$this->term_type]);
         self::generate_preferred_child_parent_list();
     }
