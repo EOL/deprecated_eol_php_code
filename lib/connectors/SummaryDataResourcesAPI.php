@@ -10,7 +10,7 @@ class SummaryDataResourcesAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         */
-        $this->download_options = array('resource_id' => 'SDR', 'timeout' => 60*5, 'expire_seconds' => false, 'cache' => 1, 'download_wait_time' => 1000000);
+        $this->download_options = array('resource_id' => 'SDR', 'timeout' => 60*5, 'expire_seconds' => 60*60*24, 'cache' => 1, 'download_wait_time' => 1000000);
         $this->debug = array();
         
         /* Terms relationships -> https://opendata.eol.org/dataset/terms-relationships */
@@ -28,7 +28,7 @@ class SummaryDataResourcesAPI
         $this->file['parent child']['path_geoterms'] = "http://localhost/cp/summary data resources/geoterms-parent-child.csv";
         
         
-        $this->file['preferred synonym']['path'] = "http://localhost/cp/summary data resources/preferredsynonym-aug-16-1-2a.csv";
+        $this->file['preferred synonym']['path'] = "http://localhost/cp/summary data resources/preferredsynonym-aug-16-1-2-3.csv";
         
         $this->dwca_file = "http://localhost/cp/summary data resources/carnivora_sample.tgz";
         $this->report_file = CONTENT_RESOURCE_LOCAL_PATH . '/sample.txt';
@@ -40,17 +40,27 @@ class SummaryDataResourcesAPI
     }
     function start()
     {
-        // self::main_basal_values(); //works OK
-        self::main_lifestage_statMeth();
+        self::main_basal_values(); //works OK
+        // self::main_lifestage_statMeth();
+        // $this->term_type = 'path_habitat';
+        
+        // self::initialize();
+        
     }
     private function main_lifestage_statMeth()
     {
-        
+        $path = self::get_txt_path_by_page_id(347436);
+        echo "\n$path\n";
+        exit("\n-- main_lifestage_statMeth ends --\n");
+    }
+    private function get_txt_path_by_page_id($page_id)
+    {
+        $path = self::get_md5_path($this->working_dir, $page_id);
+        return $path . $page_id . ".txt";
     }
     private function main_basal_values() //for basal values
     {
         // self::utility_compare();
-        
         /* Important Step: working OK - commented for now.
         self::working_dir(); self::generate_page_id_txt_files(); exit("\n\nText file generation DONE.\n\n");
         */
@@ -102,8 +112,10 @@ class SummaryDataResourcesAPI
         $info['new_nodes'] = self::sort_ISVAT($new_nodes);
         $new_nodes = $info['new_nodes'];
         $roots     = $info['roots'];
+        /* good debug
         echo "\n\nnew nodes 1:\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
-        echo "\n\nRoots 1:\n"; print_r($roots);
+        echo "\n\nRoots 1: ".count($roots)."\n"; print_r($roots);
+        */
         
         // /* merged...
         $info = self::merge_nodes($info, $ISVAT);
@@ -118,7 +130,7 @@ class SummaryDataResourcesAPI
         echo "\n\ninitial shared values ancestry tree: ".count($ISVAT)."\n";
         foreach($ISVAT as $a) echo "\n".$a[0]."\t".$a[1];
         echo "\n\nnew nodes 2:\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
-        echo "\n\nRoots 2:\n"; print_r($roots);
+        echo "\n\nRoots 2: ".count($roots)."\n"; print_r($roots);
         // exit("\n");
         // */
         
@@ -436,7 +448,8 @@ class SummaryDataResourcesAPI
     private function initialize()
     {
         self::working_dir();
-        self::generate_terms_values_child_parent_list();
+        
+        self::generate_terms_values_child_parent_list($this->file['parent child'][$this->term_type]);
         self::generate_preferred_child_parent_list();
     }
     private function add_new_nodes_for_NotRootParents($list)
@@ -719,8 +732,7 @@ class SummaryDataResourcesAPI
     }
     private function generate_terms_values_child_parent_list($file = false)
     {
-        $file = $this->file['parent child'][$this->term_type];
-        //old $this->file['parent child']['path']
+        if(!$file) exit("\nUndefined file: [$file]\n");
         $temp_file = Functions::save_remote_file_to_local($file, $this->download_options);
         $file = fopen($temp_file, 'r');
         $i = 0;
