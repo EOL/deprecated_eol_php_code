@@ -38,7 +38,7 @@ class SummaryDataResourcesAPI
     }
     function start()
     {
-        /*
+        // /*
         $this->term_type = 'path_habitat';
         self::initialize();
         // $this->term_type = 'path_geoterms';
@@ -46,11 +46,11 @@ class SummaryDataResourcesAPI
         // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
         self::main_basal_values($page_id, $predicate); //works OK
-        */
+        exit("\n-- end basal values --\n");
+        // */
 
         // /*
         $this->term_type = 'path_habitat';
-        
         self::initialize();
         $page_id = 347436; $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
         // $page_id = 347438;
@@ -297,7 +297,6 @@ class SummaryDataResourcesAPI
         So in our case: page_id: 7662 | predicate: [http://eol.org/schema/terms/Habitat]
         I will be creating new rocords based on 'ROOT_ANCESTORS'.
         */
-        exit("\n-- end basal values --\n");
     }
     private function get_tips($isvat)
     {
@@ -502,8 +501,11 @@ class SummaryDataResourcesAPI
     private function assemble_recs_for_page_id_from_text_file($page_id, $predicate, $required_fields = array())
     {
         $recs = array();
+        /*
         $path = self::get_md5_path($this->working_dir, $page_id);
         $txt_file = $path . $page_id . ".txt";
+        */
+        $txt_file = self::get_txt_path_by_page_id($page_id);
         echo "\n$txt_file\n";
         $i = 0;
         foreach(new FileIterator($txt_file) as $line_number => $line) {
@@ -545,12 +547,12 @@ class SummaryDataResourcesAPI
                 if($predicate == $rec['predicate']) {
                     if($required_fields) {
                         foreach($required_fields as $required_fld) {
-                            if(!$rec[$required_fld]) continue; //value_uri
+                            if(!$rec[$required_fld]) continue; //e.g. value_uri
+                            else $recs[] = $rec;
                         }
                     }
                     else $recs[] = $rec;
                 }
-                
                 $this->original_nodes[$rec['value_uri']] = '';
             }
         }
@@ -604,7 +606,7 @@ class SummaryDataResourcesAPI
     function start_ok()
     {
         self::initialize();
-        $uris = self::given_value_uri(); //just during development
+        $uris = array(); //just during development --- assign uris here...
         self::set_ancestor_ranking_from_set_of_uris($uris);
         $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=australia";
         $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=4366";
@@ -621,14 +623,6 @@ class SummaryDataResourcesAPI
         $WRITE = fopen($this->temp_file, 'w'); fclose($WRITE);
         foreach($terms as $term) self::get_parent_of_term($term);
         exit("\nend 01\n");
-    }
-    private function given_value_uri()
-    {
-        return array("http://www.marineregions.org/gazetteer.php?p=details&id=australia", "http://www.marineregions.org/gazetteer.php?p=details&id=4366", 
-        "http://www.marineregions.org/gazetteer.php?p=details&id=4364", "http://www.geonames.org/2186224", "http://www.geonames.org/3370751", 
-        "http://www.marineregions.org/gazetteer.php?p=details&id=1914", "http://www.marineregions.org/gazetteer.php?p=details&id=1904", 
-        "http://www.marineregions.org/gazetteer.php?p=details&id=1910", "http://www.marineregions.org/gazetteer.php?p=details&id=4276", 
-        "http://www.marineregions.org/gazetteer.php?p=details&id=4365", "http://www.geonames.org/953987");
     }
     private function set_ancestor_ranking_from_set_of_uris($uris)
     {
@@ -745,15 +739,6 @@ class SummaryDataResourcesAPI
                 }
                 else echo " -- NO parent";
             }
-            /* seems not needed
-            foreach($preferred_terms as $term) {
-                echo "\nprefered name of $term:";
-                if($names = @$this->prefered_name_of[$term]) {
-                    print_r($names);
-                }
-                else echo " -- NO preferred name";
-            }
-            */
         }
         else {
             echo "\nThere is NO preferred term\n";
