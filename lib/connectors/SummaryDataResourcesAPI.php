@@ -40,6 +40,10 @@ class SummaryDataResourcesAPI
     }
     function start()
     {
+        
+    }
+    function main_basal_values() //for basal values
+    {
         // self::utility_compare();
         // self::utility_compare2("/Volumes/AKiTiO4/web/cp/summary data resources/2018 09 08/jen_raw_step1.txt");
         
@@ -125,22 +129,19 @@ class SummaryDataResourcesAPI
             $step_1 = self::get_step_1($ISVAT, $roots, $tips);
             echo "\nStep 1:".count($step_1)."\n";
             foreach($step_1 as $a) echo "\n".$a;
-            echo "\n-end Step 1-\n"; //exit;
-
+            echo "\n-end Step 1-\n";
             if(count($step_1) <= 4) {} //select set 1
             else {
                 $step_2 = self::get_step_1($ISVAT, $roots, $step_1);
                 echo "\nStep 2:".count($step_2)."\n";
                 foreach($step_2 as $a) echo "\n".$a;
-                echo "\n-end Step 2-\n"; //exit;
-                
+                echo "\n-end Step 2-\n";
                 if(count($step_2) <= 4) {} //select set 2
                 else {
                     $step_3 = self::get_step_1($ISVAT, $roots, $step_2);
                     echo "\nStep 3:".count($step_3)."\n";
                     foreach($step_3 as $a) echo "\n".$a;
-                    echo "\n-end Step 3-\n"; //exit;
-
+                    echo "\n-end Step 3-\n";
                     if($step_2 == $step_3) {
                         echo "\nSteps 2 and 3 are identical.\n";
                         if(count($step_3) <= 4) {} //select set 3
@@ -170,7 +171,6 @@ class SummaryDataResourcesAPI
                         if SET_3 <= 4 SELECT SET_3
                         else SELECT ROOT_ANCESTORS
                     else CONTINUE PROCESS UNTIL all parents of the values in the set are roots, THEN IF <= 4 SELECT THAT SET else SELECT ROOT_ANCESTORS.
-
 
         if(WHAT IS SELECTED == 1) label as: "PRM and REP"
         elseif(WHAT IS SELECTED > 1) label as: "REP"
