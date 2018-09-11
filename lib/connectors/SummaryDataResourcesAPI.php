@@ -40,15 +40,20 @@ class SummaryDataResourcesAPI
     }
     function start()
     {
-        self::main_basal_values(); //works OK
+        $this->term_type = 'path_habitat';
+        self::initialize();
+        // $this->term_type = 'path_geoterms';
+        $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
+        // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
+        $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
+        self::main_basal_values($page_id, $predicate); //works OK
+        
         // self::main_lifestage_statMeth();
-        // $this->term_type = 'path_habitat';
-        
-        // self::initialize();
-        
     }
     private function main_lifestage_statMeth()
     {
+        http://purl.obolibrary.org/obo/VT_0001259
+        
         $path = self::get_txt_path_by_page_id(347436);
         echo "\n$path\n";
         exit("\n-- main_lifestage_statMeth ends --\n");
@@ -58,7 +63,7 @@ class SummaryDataResourcesAPI
         $path = self::get_md5_path($this->working_dir, $page_id);
         return $path . $page_id . ".txt";
     }
-    private function main_basal_values() //for basal values
+    private function test() //basal values tests...
     {
         // self::utility_compare();
         /* Important Step: working OK - commented for now.
@@ -87,13 +92,9 @@ class SummaryDataResourcesAPI
         }
         exit("\n-end test-\n");
         */
-        $this->term_type = 'path_habitat';
-        // $this->term_type = 'path_geoterms';
-        
-        self::initialize();
-        $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
-        // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
-        $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
+    }
+    private function main_basal_values($page_id, $predicate) //for basal values
+    {
         echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         if(!$recs) {
@@ -108,7 +109,6 @@ class SummaryDataResourcesAPI
         $new_nodes = $info['new_nodes'];    
         echo "\n\nnew nodes 0:\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
         
-        
         $info['new_nodes'] = self::sort_ISVAT($new_nodes);
         $new_nodes = $info['new_nodes'];
         $roots     = $info['roots'];
@@ -117,7 +117,7 @@ class SummaryDataResourcesAPI
         echo "\n\nRoots 1: ".count($roots)."\n"; print_r($roots);
         */
         
-        // /* merged...
+        // /* merge
         $info = self::merge_nodes($info, $ISVAT);
         $ISVAT     = $info['new_isvat'];
         $roots     = $info['new_roots'];
@@ -194,7 +194,7 @@ class SummaryDataResourcesAPI
         So in our case: page_id: 7662 | predicate: [http://eol.org/schema/terms/Habitat]
         I will be creating new rocords based on 'ROOT_ANCESTORS'.
         */
-        exit("\nelix\n");
+        exit("\n-- end basal values --\n");
     }
     private function get_tips($isvat)
     {
