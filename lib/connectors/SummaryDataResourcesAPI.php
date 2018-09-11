@@ -81,6 +81,7 @@ class SummaryDataResourcesAPI
     }
     private function lifestage_statMeth_Step1($recs)
     {
+        $possible_adult_lifestage = array("http://www.ebi.ac.uk/efo/EFO_0001272", "http://purl.obolibrary.org/obo/PATO_0001701", "http://eol.org/schema/terms/parasiticAdult", "http://eol.org/schema/terms/freelivingAdult", "http://eol.org/schema/terms/ovigerous", "http://purl.obolibrary.org/obo/UBERON_0007222", "http://eol.org/schema/terms/youngAdult");
         $final = array();
         foreach($recs as $rec) {
             /*
@@ -105,7 +106,6 @@ class SummaryDataResourcesAPI
                 [resource_id] => 50
             )
             */
-            $possible_adult_lifestage = array("http://www.ebi.ac.uk/efo/EFO_0001272", "http://purl.obolibrary.org/obo/PATO_0001701", "http://eol.org/schema/terms/parasiticAdult", "http://eol.org/schema/terms/freelivingAdult", "http://eol.org/schema/terms/ovigerous", "http://purl.obolibrary.org/obo/UBERON_0007222", "http://eol.org/schema/terms/youngAdult");
             if(in_array($rec['lifestage'], $possible_adult_lifestage)) {
                 $statMethods = array("http://semanticscience.org/resource/SIO_001109", "http://semanticscience.org/resource/SIO_001110", "http://semanticscience.org/resource/SIO_001111");
                 if(in_array($rec['statistical_method'], $statMethods)) $final[] = $rec;
@@ -120,12 +120,15 @@ class SummaryDataResourcesAPI
     private function lifestage_statMeth_Step23456789($recs) //steps 2,3,4,5 & 6 7 8 & 9
     {
         /* Step 2,3,4,5 */
+        $possible_adult_lifestage = array("http://www.ebi.ac.uk/efo/EFO_0001272", "http://purl.obolibrary.org/obo/PATO_0001701", "http://eol.org/schema/terms/parasiticAdult", "http://eol.org/schema/terms/freelivingAdult", "http://eol.org/schema/terms/ovigerous", "http://purl.obolibrary.org/obo/UBERON_0007222", "http://eol.org/schema/terms/youngAdult");
         $statMethods = array("http://eol.org/schema/terms/average", "http://semanticscience.org/resource/SIO_001114", "http://www.ebi.ac.uk/efo/EFO_0001444", ""); //in specific order
         $step = 1;
         foreach($statMethods as $method) { $step++;
             $final = array();
             foreach($recs as $rec) {
-                if($rec['statistical_method'] == $method) $final[] = $rec;
+                if(in_array($rec['lifestage'], $possible_adult_lifestage)) {
+                    if($rec['statistical_method'] == $method) $final[] = $rec;
+                }
             }
             if($final) {
                 if    (count($final) == 1) return array('label' => 'PRM and REP', 'recs' => $final, 'step' => $step);
