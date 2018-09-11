@@ -14,21 +14,19 @@ class SummaryDataResourcesAPI
         $this->debug = array();
         
         /* Terms relationships -> https://opendata.eol.org/dataset/terms-relationships */
+        /* not used at the moment:
         $this->file['parent child']['path'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/f8036c30-f4ab-4796-8705-f3ccd20eb7e9/download/parent-child-aug-16-2.csv";
-        // $this->file['parent child']['fields'] = array('parent_term_URI', 'subclass_term_URI');
-        $this->file['parent child']['fields'] = array('parent', 'child'); //used more simple words
+        $this->file['parent child']['path'] = "http://localhost/cp/summary data resources/parent-child-aug-16-2.csv";
+        */
+        $this->file['parent child']['fields'] = array('parent', 'child'); //used more simple words instead of: array('parent_term_URI', 'subclass_term_URI');
         
         $this->file['preferred synonym']['path'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/41f7fed1-3dc1-44d7-bbe5-6104156d1c1e/download/preferredsynonym-aug-16-1-2.csv";
-        // $this->file['preferred synonym']['fields'] = array('preferred_term_URI', 'deprecated_term_URI');
-        $this->file['preferred synonym']['fields'] = array('preferred', 'deprecated');
+        $this->file['preferred synonym']['path'] = "http://localhost/cp/summary data resources/preferredsynonym-aug-16-1-2-3.csv";
 
-        // $this->file['parent child']['path'] = "http://localhost/cp/summary data resources/parent-child-aug-16-2a.csv";
-        
+        $this->file['preferred synonym']['fields'] = array('preferred', 'deprecated'); //used simple words instead of: array('preferred_term_URI', 'deprecated_term_URI');
+
         $this->file['parent child']['path_habitat'] = "http://localhost/cp/summary data resources/habitat-parent-child.csv";
         $this->file['parent child']['path_geoterms'] = "http://localhost/cp/summary data resources/geoterms-parent-child.csv";
-        
-        
-        $this->file['preferred synonym']['path'] = "http://localhost/cp/summary data resources/preferredsynonym-aug-16-1-2-3.csv";
         
         $this->dwca_file = "http://localhost/cp/summary data resources/carnivora_sample.tgz";
         $this->report_file = CONTENT_RESOURCE_LOCAL_PATH . '/sample.txt';
@@ -43,7 +41,7 @@ class SummaryDataResourcesAPI
         $this->term_type = 'path_habitat';
         self::initialize();
         // $this->term_type = 'path_geoterms';
-        $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
+        // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
         // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
         self::main_basal_values($page_id, $predicate); //works OK
