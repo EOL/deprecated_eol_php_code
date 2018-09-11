@@ -40,12 +40,16 @@ class SummaryDataResourcesAPI
     }
     function start()
     {
+        // self::main_basal_values(); //works OK
+        self::main_lifestage_statMeth();
+    }
+    private function main_lifestage_statMeth()
+    {
         
     }
-    function main_basal_values() //for basal values
+    private function main_basal_values() //for basal values
     {
         // self::utility_compare();
-        // self::utility_compare2("/Volumes/AKiTiO4/web/cp/summary data resources/2018 09 08/jen_raw_step1.txt");
         
         /* Important Step: working OK - commented for now.
         self::working_dir(); self::generate_page_id_txt_files(); exit("\n\nText file generation DONE.\n\n");
@@ -229,16 +233,6 @@ class SummaryDataResourcesAPI
         asort($arr); foreach($arr as $a) echo "\n".$a[0]."\t".$a[1];
         exit("\njen_isvat.txt\n");
     }
-    private function utility_compare2($file)
-    {
-        foreach(new FileIterator($file) as $line_number => $line) {
-            $arr[$line] = '';
-        }
-        $arr = array_keys($arr);
-        asort($arr); foreach($arr as $a) echo "\n".$a;
-        exit("\n[$file]\n");
-    }
-    
     private function merge_nodes($info, $ISVAT)
     {
         $new_nodes = $info['new_nodes'];
