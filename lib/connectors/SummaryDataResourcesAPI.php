@@ -53,7 +53,7 @@ class SummaryDataResourcesAPI
         
         self::initialize();
         $page_id = 347436; $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
-        $page_id = 347438;
+        // $page_id = 347438;
         $page_id = 46559130;
         self::main_lifestage_statMeth($page_id, $predicate);
         // */
@@ -64,11 +64,11 @@ class SummaryDataResourcesAPI
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
         echo "\nrecs: ".count($recs)."\n";
-        print_r($recs);
+        // print_r($recs);
         if    ($ret = self::lifestage_statMeth_Step0($recs)) {}
         elseif($ret = self::lifestage_statMeth_Step1($recs)) {}
-        elseif($ret = self::lifestage_statMeth_Step2345($recs)) {}
-        
+        elseif($ret = self::lifestage_statMeth_Step2345678($recs)) {}
+        else exit("\nsingle simple answer (PRM) if still needed: put REP records in order of value and select one from the middle (arbitrary tie breaks OK)\n");
         exit("\n-- main_lifestage_statMeth ends --\n");
     }
     private function lifestage_statMeth_Step0($recs)
@@ -114,10 +114,10 @@ class SummaryDataResourcesAPI
             elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final);
         }
     }
-    private function lifestage_statMeth_Step2345($recs) //steps 2,3,4,5 & 6
+    private function lifestage_statMeth_Step2345678($recs) //steps 2,3,4,5 & 6 7 8
     {
         /* Step 2,3,4,5 */
-        $statMethods = array("http://eol.org/schema/terms/average", "http://semanticscience.org/resource/SIO_001114", "http://www.ebi.ac.uk/efo/EFO_0001444", "");
+        $statMethods = array("http://eol.org/schema/terms/average", "http://semanticscience.org/resource/SIO_001114", "http://www.ebi.ac.uk/efo/EFO_0001444", ""); //in specific order
         foreach($statMethods as $method) {
             $final = array();
             foreach($recs as $rec) {
@@ -128,8 +128,8 @@ class SummaryDataResourcesAPI
                 elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final);
             }
         }
-        /* Step 6 & 7 */
-        $stages = array("http://purl.obolibrary.org/obo/PO_0007134", "");
+        /* Step 6 & 7 & 8 */
+        $stages = array("http://purl.obolibrary.org/obo/PO_0007134", "", "subadult", "http://eol.org/schema/terms/subadult"); //in specific order
         foreach($stages as $stage) {
             $final = array();
             foreach($recs as $rec) {
@@ -140,7 +140,20 @@ class SummaryDataResourcesAPI
                 elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final);
             }
         }
-
+        /* Step 9 */
+        $final = array();
+        foreach($recs as $rec) {
+            $possible_adult_lifestage = array("http://www.ebi.ac.uk/efo/EFO_0001272", "http://purl.obolibrary.org/obo/PATO_0001701", "http://eol.org/schema/terms/parasiticAdult", "http://eol.org/schema/terms/freelivingAdult", "http://eol.org/schema/terms/ovigerous", "http://purl.obolibrary.org/obo/UBERON_0007222", "http://eol.org/schema/terms/youngAdult", "adult");
+            if(in_array($rec['lifestage'], $possible_adult_lifestage)) {
+                $statMethods = array("http://semanticscience.org/resource/SIO_001113");
+                if(in_array($rec['statistical_method'], $statMethods)) $final[] = $rec;
+            }
+        }
+        if(!$final) return false;
+        else {
+            if    (count($final) == 1) return array('label' => 'PRM and REP', 'recs' => $final);
+            elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final);
+        }
         
         
         return false;
