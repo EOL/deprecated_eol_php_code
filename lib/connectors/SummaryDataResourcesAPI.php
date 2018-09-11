@@ -314,15 +314,13 @@ class SummaryDataResourcesAPI
     }
 
     private function get_step_1($isvat, $roots, $tips)
-    {
-        /* 
+    {   /* 
         - find all tips
         - find all nodes that are parents of tips
         - in each case, check whether either the tip or the parent is a root
             -- if either the tip or the parent is a root, put the tip in set 1
             -- if neither the tip nor the parent is a root, put the parent in set 1
-        - (deduplicate set 1)
-        */
+        - (deduplicate set 1) */
         foreach($isvat as $a) {
             $parent_of_right[$a[1]] = $a[0];
         }
