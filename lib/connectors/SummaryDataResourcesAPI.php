@@ -54,8 +54,9 @@ class SummaryDataResourcesAPI
         self::initialize();
         $page_id = 347436; $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
         // $page_id = 347438;
-        $page_id = 46559130;
-        self::main_lifestage_statMeth($page_id, $predicate);
+        // $page_id = 46559130;
+        $ret = self::main_lifestage_statMeth($page_id, $predicate);
+        print_r($ret);
         exit("\n-- main_lifestage_statMeth ends --\n");
         // */
     }
@@ -70,10 +71,12 @@ class SummaryDataResourcesAPI
         elseif($ret = self::lifestage_statMeth_Step1($recs)) {}
         elseif($ret = self::lifestage_statMeth_Step23456789($recs)) {}
         else exit("\nsingle simple answer (PRM) if still needed: put REP records in order of value and select one from the middle (arbitrary tie breaks OK)\n");
+        if($val = @$ret['recs']) $ret['recs_total'] = count($val);
+        return $ret;
     }
     private function lifestage_statMeth_Step0($recs)
     {
-        if(count($recs) == 1) return array('label' => 'REP and PRM', 'recs' => $recs);
+        if(count($recs) == 1) return array('label' => 'REP and PRM', 'recs' => $recs, 'step' => 0);
         else return false;
     }
     private function lifestage_statMeth_Step1($recs)
@@ -110,34 +113,36 @@ class SummaryDataResourcesAPI
         }
         if(!$final) return false;
         else {
-            if    (count($final) == 1) return array('label' => 'PRM and REP', 'recs' => $final);
-            elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final);
+            if    (count($final) == 1) return array('label' => 'PRM and REP', 'recs' => $final, 'step' => 1);
+            elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final, 'step' => 1);
         }
     }
     private function lifestage_statMeth_Step23456789($recs) //steps 2,3,4,5 & 6 7 8 & 9
     {
         /* Step 2,3,4,5 */
         $statMethods = array("http://eol.org/schema/terms/average", "http://semanticscience.org/resource/SIO_001114", "http://www.ebi.ac.uk/efo/EFO_0001444", ""); //in specific order
-        foreach($statMethods as $method) {
+        $step = 1;
+        foreach($statMethods as $method) { $step++;
             $final = array();
             foreach($recs as $rec) {
                 if($rec['statistical_method'] == $method) $final[] = $rec;
             }
             if($final) {
-                if    (count($final) == 1) return array('label' => 'PRM and REP', 'recs' => $final);
-                elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final);
+                if    (count($final) == 1) return array('label' => 'PRM and REP', 'recs' => $final, 'step' => $step);
+                elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final, 'step' => $step);
             }
         }
         /* Step 6 & 7 & 8 */
-        $stages = array("http://purl.obolibrary.org/obo/PO_0007134", "", "subadult", "http://eol.org/schema/terms/subadult"); //in specific order
-        foreach($stages as $stage) {
+        $stages = array("http://purl.obolibrary.org/obo/PO_0007134", "", "http://eol.org/schema/terms/subadult"); //in specific order
+        $step = 5;
+        foreach($stages as $stage) { $step++;
             $final = array();
             foreach($recs as $rec) {
                 if($rec['lifestage'] == $stage) $final[] = $rec;
             }
             if($final) {
-                if    (count($final) == 1) return array('label' => 'PRM and REP', 'recs' => $final);
-                elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final);
+                if    (count($final) == 1) return array('label' => 'PRM and REP', 'recs' => $final, 'step' => $step);
+                elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final, 'step' => $step);
             }
         }
         /* Step 9 */
@@ -151,8 +156,8 @@ class SummaryDataResourcesAPI
         }
         if(!$final) return false;
         else {
-            if    (count($final) == 1) return array('label' => 'PRM and REP', 'recs' => $final);
-            elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final);
+            if    (count($final) == 1) return array('label' => 'PRM and REP', 'recs' => $final, 'step' => 9);
+            elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final, 'step' => 9);
         }
         return false;
     }
