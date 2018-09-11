@@ -56,6 +56,7 @@ class SummaryDataResourcesAPI
         // $page_id = 347438;
         $page_id = 46559130;
         self::main_lifestage_statMeth($page_id, $predicate);
+        exit("\n-- main_lifestage_statMeth ends --\n");
         // */
     }
     private function main_lifestage_statMeth($page_id, $predicate)
@@ -67,9 +68,8 @@ class SummaryDataResourcesAPI
         // print_r($recs);
         if    ($ret = self::lifestage_statMeth_Step0($recs)) {}
         elseif($ret = self::lifestage_statMeth_Step1($recs)) {}
-        elseif($ret = self::lifestage_statMeth_Step2345678($recs)) {}
+        elseif($ret = self::lifestage_statMeth_Step23456789($recs)) {}
         else exit("\nsingle simple answer (PRM) if still needed: put REP records in order of value and select one from the middle (arbitrary tie breaks OK)\n");
-        exit("\n-- main_lifestage_statMeth ends --\n");
     }
     private function lifestage_statMeth_Step0($recs)
     {
@@ -114,7 +114,7 @@ class SummaryDataResourcesAPI
             elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final);
         }
     }
-    private function lifestage_statMeth_Step2345678($recs) //steps 2,3,4,5 & 6 7 8
+    private function lifestage_statMeth_Step23456789($recs) //steps 2,3,4,5 & 6 7 8 & 9
     {
         /* Step 2,3,4,5 */
         $statMethods = array("http://eol.org/schema/terms/average", "http://semanticscience.org/resource/SIO_001114", "http://www.ebi.ac.uk/efo/EFO_0001444", ""); //in specific order
@@ -154,8 +154,6 @@ class SummaryDataResourcesAPI
             if    (count($final) == 1) return array('label' => 'PRM and REP', 'recs' => $final);
             elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final);
         }
-        
-        
         return false;
     }
     private function get_txt_path_by_page_id($page_id)
