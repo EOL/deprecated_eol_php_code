@@ -38,7 +38,7 @@ class SummaryDataResourcesAPI
     }
     function start()
     {
-        // /*
+        /*
         $this->term_type = 'path_habitat';
         self::initialize();
         // $this->term_type = 'path_geoterms';
@@ -47,14 +47,14 @@ class SummaryDataResourcesAPI
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
         self::main_basal_values($page_id, $predicate); //works OK
         exit("\n-- end basal values --\n");
-        // */
+        */
 
         // /*
         $this->term_type = 'path_habitat';
         self::initialize();
         $page_id = 347436; $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
-        // $page_id = 347438;
-        // $page_id = 46559130;
+        $page_id = 347438;
+        $page_id = 46559130;
         $ret = self::main_lifestage_statMeth($page_id, $predicate);
         print_r($ret);
         exit("\n-- main_lifestage_statMeth ends --\n");
