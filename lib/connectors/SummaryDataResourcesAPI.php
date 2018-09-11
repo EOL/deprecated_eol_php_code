@@ -47,17 +47,103 @@ class SummaryDataResourcesAPI
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
         self::main_basal_values($page_id, $predicate); //works OK
         */
+
+        // /*
+        $this->term_type = 'path_habitat';
         
-        self::main_lifestage_statMeth();
-    }
-    private function main_lifestage_statMeth()
-    {
         self::initialize();
         $page_id = 347436; $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
-        
+        $page_id = 347438;
+        $page_id = 46559130;
+        self::main_lifestage_statMeth($page_id, $predicate);
+        // */
+    }
+    private function main_lifestage_statMeth($page_id, $predicate)
+    {
         $path = self::get_txt_path_by_page_id($page_id);
-        echo "\n$path\n";
+        $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
+        if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
+        echo "\nrecs: ".count($recs)."\n";
+        print_r($recs);
+        if    ($ret = self::lifestage_statMeth_Step0($recs)) {}
+        elseif($ret = self::lifestage_statMeth_Step1($recs)) {}
+        elseif($ret = self::lifestage_statMeth_Step2345($recs)) {}
+        
         exit("\n-- main_lifestage_statMeth ends --\n");
+    }
+    private function lifestage_statMeth_Step0($recs)
+    {
+        if(count($recs) == 1) return array('label' => 'REP and PRM', 'recs' => $recs);
+        else return false;
+    }
+    private function lifestage_statMeth_Step1($recs)
+    {
+        $final = array();
+        foreach($recs as $rec) {
+            /*
+            Array(
+                [eol_pk] => R143-PK39533097
+                [page_id] => 46559130
+                [scientific_name] => <i>Enhydra lutris</i>
+                [resource_pk] => 16788
+                [predicate] => http://purl.obolibrary.org/obo/VT_0001259
+                [sex] => 
+                [lifestage] => 
+                [statistical_method] => 
+                [source] => http://genomics.senescence.info/species/entry.php?species=Enhydra_lutris
+                [object_page_id] => 
+                [target_scientific_name] => 
+                [value_uri] => 
+                [literal] => 
+                [measurement] => 26832.8
+                [units] => http://purl.obolibrary.org/obo/UO_0000021
+                [normal_measurement] => 26832.8
+                [normal_units_uri] => http://purl.obolibrary.org/obo/UO_0000021
+                [resource_id] => 50
+            )
+            */
+            $possible_adult_lifestage = array("http://www.ebi.ac.uk/efo/EFO_0001272", "http://purl.obolibrary.org/obo/PATO_0001701", "http://eol.org/schema/terms/parasiticAdult", "http://eol.org/schema/terms/freelivingAdult", "http://eol.org/schema/terms/ovigerous", "http://purl.obolibrary.org/obo/UBERON_0007222", "http://eol.org/schema/terms/youngAdult");
+            if(in_array($rec['lifestage'], $possible_adult_lifestage)) {
+                $statMethods = array("http://semanticscience.org/resource/SIO_001109", "http://semanticscience.org/resource/SIO_001110", "http://semanticscience.org/resource/SIO_001111");
+                if(in_array($rec['statistical_method'], $statMethods)) $final[] = $rec;
+            }
+        }
+        if(!$final) return false;
+        else {
+            if    (count($final) == 1) return array('label' => 'PRM and REP', 'recs' => $final);
+            elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final);
+        }
+    }
+    private function lifestage_statMeth_Step2345($recs) //steps 2,3,4,5 & 6
+    {
+        /* Step 2,3,4,5 */
+        $statMethods = array("http://eol.org/schema/terms/average", "http://semanticscience.org/resource/SIO_001114", "http://www.ebi.ac.uk/efo/EFO_0001444", "");
+        foreach($statMethods as $method) {
+            $final = array();
+            foreach($recs as $rec) {
+                if($rec['statistical_method'] == $method) $final[] = $rec;
+            }
+            if($final) {
+                if    (count($final) == 1) return array('label' => 'PRM and REP', 'recs' => $final);
+                elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final);
+            }
+        }
+        /* Step 6 & 7 */
+        $stages = array("http://purl.obolibrary.org/obo/PO_0007134", "");
+        foreach($stages as $stage) {
+            $final = array();
+            foreach($recs as $rec) {
+                if($rec['lifestage'] == $stage) $final[] = $rec;
+            }
+            if($final) {
+                if    (count($final) == 1) return array('label' => 'PRM and REP', 'recs' => $final);
+                elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final);
+            }
+        }
+
+        
+        
+        return false;
     }
     private function get_txt_path_by_page_id($page_id)
     {
@@ -97,7 +183,7 @@ class SummaryDataResourcesAPI
     private function main_basal_values($page_id, $predicate) //for basal values
     {
         echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
-        $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
+        $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate, array('value_uri')); //3rd param array is required_fields
         if(!$recs) {
             echo "\nNo records for [$page_id] [$predicate].\n";
             return;
@@ -397,7 +483,7 @@ class SummaryDataResourcesAPI
         if(!file_exists($path . "$cache1/$cache2")) mkdir($path . "$cache1/$cache2");
         return $path . "$cache1/$cache2/";
     }
-    private function assemble_recs_for_page_id_from_text_file($page_id, $predicate)
+    private function assemble_recs_for_page_id_from_text_file($page_id, $predicate, $required_fields = array())
     {
         $recs = array();
         $path = self::get_md5_path($this->working_dir, $page_id);
@@ -440,7 +526,15 @@ class SummaryDataResourcesAPI
                     [normal_units_uri] => http://purl.obolibrary.org/obo/UO_0000036
                     [resource_id] => 50
                 )*/
-                if($predicate == $rec['predicate'] && $rec['value_uri']) $recs[] = $rec;
+                if($predicate == $rec['predicate']) {
+                    if($required_fields) {
+                        foreach($required_fields as $required_fld) {
+                            if(!$rec[$required_fld]) continue; //value_uri
+                        }
+                    }
+                    else $recs[] = $rec;
+                }
+                
                 $this->original_nodes[$rec['value_uri']] = '';
             }
         }
