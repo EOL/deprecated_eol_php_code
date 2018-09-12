@@ -35,16 +35,93 @@ class SummaryDataResourcesAPI
         if(Functions::is_production())  $this->working_dir = "/extra/summary data resources/page_ids/";
         else                            $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
         $this->jen_isvat = "/Volumes/AKiTiO4/web/cp/summary data resources/2018 09 08/jen_isvat.txt";
+        
+        //for taxon summary
+        if(Functions::is_production())  $this->EOL_DH = "https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/b534cd22-d904-45e4-b0e2-aaf06cc0e2d6/download/eoldynamichierarchyv1revised.zip";
+        else                            $this->EOL_DH = "http://localhost/cp/summary%20data%20resources/eoldynamichierarchyv1.zip";
     }
+    private function investigate_traits_csv()
+    {
+        $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r');
+        $i = 0;
+        while(($line = fgetcsv($file)) !== FALSE) {
+            $i++; 
+            // echo " $i";
+            if($i == 1) $fields = $line;
+            else {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); //exit;
+                /*Array(
+                    [eol_pk] => R96-PK42724728
+                    [page_id] => 328673
+                    [scientific_name] => <i>Panthera pardus</i>
+                    [resource_pk] => M_00238837
+                    [predicate] => http://eol.org/schema/terms/Present
+                    [sex] => 
+                    [lifestage] => 
+                    [statistical_method] => 
+                    [source] => http://www.worldwildlife.org/publications/wildfinder-database
+                    [object_page_id] => 
+                    [target_scientific_name] => 
+                    [value_uri] => http://eol.org/schema/terms/Southern_Zanzibar-Inhambane_coastal_forest_mosaic
+                    [literal] => http://eol.org/schema/terms/Southern_Zanzibar-Inhambane_coastal_forest_mosaic
+                    [measurement] => 
+                    [units] => 
+                    [normal_measurement] => 
+                    [normal_units_uri] => 
+                    [resource_id] => 20
+                )*/
+                if($rec['target_scientific_name']) print_r($rec);
+                // if($rec['lifestage']) print_r($rec);
+            }
+        }
+    }
+    private function extract_DH()
+    {
+        require_library('connectors/INBioAPI');
+        $func = new INBioAPI();
+        $paths = $func->extract_archive_file($this->EOL_DH, "taxa.txt", array('timeout' => 60*10, 'expire_seconds' => 60*60*24*25)); //expires in 25 days
+        $tables['taxa'] = 'taxa.txt';
+        $paths['tables'] = $tables;
+        return $paths;
+    }
+    private function parse_DH()
+    {
+        if(Functions::is_production()) {
+            if(!($info = self::extract_DH())) return;
+            print_r($info);
+            $this->info_path = $info;
+        }
+        else { //local development only
+            $info = Array(['archive_path'] => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/EOL_dynamic_hierarchy/',
+                          ['temp_dir'] => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/',
+                          ['tables'] => Array(['taxa'] => 'taxa.txt'));
+            print_r($info);
+            $this->info_path = $info;
+        }
+        iterator
+        
+        // remove temp dir
+        // recursive_rmdir($info['temp_dir']);
+        // echo ("\n temporary directory removed: " . $info['temp_dir']);
+    }
+
     function start()
     {
         // /*
-        self::initialize_basal_values();
-        // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
-        // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
-        $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
-        self::main_basal_values($page_id, $predicate); //works OK
-        exit("\n-- end basal values --\n");
+        self::parse_DH(); exit;
+        
+        self::initialize();
+        // self::investigate_traits_csv(); exit;
+        
+        $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470";
+        $page_id = 7666;
+        $ret = self::main_taxon_summary($page_id, $predicate);
+        print_r($ret);
+        exit("\n-- main_taxon_summary ends --\n");
         // */
 
         /*
@@ -56,6 +133,23 @@ class SummaryDataResourcesAPI
         print_r($ret);
         exit("\n-- main_lifestage_statMeth ends --\n");
         */
+        
+        /*
+        self::initialize_basal_values();
+        // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
+        // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
+        $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
+        self::main_basal_values($page_id, $predicate); //works OK
+        exit("\n-- end basal values --\n");
+        */
+    }
+    private function main_taxon_summary($page_id, $predicate)
+    {
+        $path = self::get_txt_path_by_page_id($page_id);
+        $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
+        if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
+        echo "\nrecs: ".count($recs)."\n";
+        print_r($recs);
     }
     private function main_lifestage_statMeth($page_id, $predicate)
     {

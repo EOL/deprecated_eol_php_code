@@ -110,10 +110,11 @@ class INBioAPI
             debug("Connector terminated. Remote files are not ready.");
             return;
         }
-
+        //TODO: make it automatic to detect .... the likes of dwca/ and EOL_dynamic_hierarchy/
         if    (file_exists($temp_dir . $check_file_or_folder_name))           return array('archive_path' => $temp_dir,     'temp_dir' => $temp_dir);
         elseif(file_exists($archive_path . "/" . $check_file_or_folder_name)) return array('archive_path' => $archive_path, 'temp_dir' => $temp_dir);
         elseif(file_exists($temp_dir ."dwca/". $check_file_or_folder_name))   return array('archive_path' => $temp_dir."dwca/", 'temp_dir' => $temp_dir); //for http://britishbryozoans.myspecies.info/eol-dwca.zip where it extracts to /dwca/ folder instead of usual /eol-dwca/.
+        elseif(file_exists($temp_dir ."EOL_dynamic_hierarchy/". $check_file_or_folder_name)) return array('archive_path' => $temp_dir."EOL_dynamic_hierarchy/", 'temp_dir' => $temp_dir); //for https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/b534cd22-d904-45e4-b0e2-aaf06cc0e2d6/download/eoldynamichierarchyv1revised.zip
         else
         {
             echo "\n1. ".$temp_dir . $check_file_or_folder_name."\n";
