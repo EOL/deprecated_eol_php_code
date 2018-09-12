@@ -38,18 +38,19 @@ class SummaryDataResourcesAPI
     }
     function start()
     {
-        /*
+        // /*
         $this->term_type = 'path_habitat';
         self::initialize();
         // $this->term_type = 'path_geoterms';
         // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
         // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
+        $this->term_type = self::choose_term_type($predicate);
         self::main_basal_values($page_id, $predicate); //works OK
         exit("\n-- end basal values --\n");
-        */
+        // */
 
-        // /*
+        /*
         $this->term_type = 'path_habitat';
         self::initialize();
         $page_id = 347436; $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
@@ -58,7 +59,7 @@ class SummaryDataResourcesAPI
         $ret = self::main_lifestage_statMeth($page_id, $predicate);
         print_r($ret);
         exit("\n-- main_lifestage_statMeth ends --\n");
-        // */
+        */
     }
     private function main_lifestage_statMeth($page_id, $predicate)
     {
@@ -135,7 +136,7 @@ class SummaryDataResourcesAPI
                 elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final, 'step' => $step);
             }
         }
-        /* Step 6 & 7 & 8 */
+        /* Step 6 , 7 , 8 */
         $stages = array("http://purl.obolibrary.org/obo/PO_0007134", "", "http://eol.org/schema/terms/subadult"); //in specific order
         $step = 5;
         foreach($stages as $stage) { $step++;
@@ -198,6 +199,17 @@ class SummaryDataResourcesAPI
         }
         exit("\n-end test-\n");
         */
+    }
+    private function choose_term_type($predicate)
+    {
+        switch ($predicate) {
+            case "http://eol.org/schema/terms/Habitat":
+                return 'path_habitat'; //break;
+            case "http://eol.org/schema/terms/Present":
+                return 'path_geoterms'; //break;
+            default:
+                exit("\nPredicate [$predicate] not yet assigned to what term_type.\n");
+        }
     }
     private function main_basal_values($page_id, $predicate) //for basal values
     {
