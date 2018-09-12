@@ -96,23 +96,102 @@ class SummaryDataResourcesAPI
             $this->info_path = $info;
         }
         else { //local development only
-            $info = Array(['archive_path'] => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/EOL_dynamic_hierarchy/',
-                          ['temp_dir'] => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/',
-                          ['tables'] => Array(['taxa'] => 'taxa.txt'));
+            $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/EOL_dynamic_hierarchy/',
+                          'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/',
+                          'tables' => Array('taxa' => 'taxa.txt'));
             print_r($info);
             $this->info_path = $info;
         }
-        iterator
         
+        $i = 0;
+        foreach(new FileIterator($info['archive_path'].$info['tables']['taxa']) as $line_number => $line) {
+            $line = explode("\t", $line); $i++;
+            if($i == 1) $fields = $line;
+            else {
+                if(!$line[0]) break;
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); exit;
+                /*Array(
+                    [taxonID] => -1662713
+                    [acceptedNameUsageID] => -1662713
+                    [parentNameUsageID] => -1411041
+                    [scientificName] => Aaaba Bellamy, 2002
+                    [taxonRank] => genus
+                    [source] => gbif:3260806
+                    [taxonomicStatus] => accepted
+                    [canonicalName] => Aaaba
+                    [scientificNameAuthorship] => Bellamy, 2002
+                    [scientificNameID] => 
+                    [taxonRemarks] => 
+                    [namePublishedIn] => 
+                    [furtherInformationURL] => https://www.gbif-uat.org/species/3260806
+                    [datasetID] => 0938172b-2086-439c-a1dd-c21cb0109ed5
+                    [EOLid] => 3221232
+                    [EOLidAnnotations] => 
+                )
+                Array(
+                    [taxonID] => 93302
+                    [acceptedNameUsageID] => 93302
+                    [parentNameUsageID] => 805080
+                    [scientificName] => Cellular Organisms
+                    [taxonRank] => clade
+                    [source] => trunk:b72c3e8e-100e-4e47-82f6-76c3fd4d9d5f
+                    [taxonomicStatus] => accepted
+                    [canonicalName] => 
+                    [scientificNameAuthorship] => 
+                    [scientificNameID] => 
+                    [taxonRemarks] => 
+                    [namePublishedIn] => 
+                    [furtherInformationURL] => 
+                    [datasetID] => trunk
+                    [EOLid] => 
+                    [EOLidAnnotations] => 
+                )*/
+                // if($rec['EOLid'] == 7666) {print_r($rec); exit;}
+                // if($rec['taxonID'] == 93302) {print_r($rec); exit;}
+                
+                $this->EOL_2_DH[$rec['EOLid']] = $rec['taxonID'];
+                $this->DH_2_EOL[$rec['taxonID']] = $rec['EOLid'];
+                $this->parent_of_taxonID[$rec['taxonID']] = $rec['parentNameUsageID'];
+            }
+        }
         // remove temp dir
         // recursive_rmdir($info['temp_dir']);
         // echo ("\n temporary directory removed: " . $info['temp_dir']);
     }
 
+    private function get_ancestry_via_DH($page_id)
+    {
+        $taxonID = $this->EOL_2_DH[$page_id];
+        while(true) {
+            if($parent = @$this->parent_of_taxonID[$taxonID]) $final[] = $parent;
+            else break;
+            $taxonID = $parent;
+        }
+        $i = 0;
+        foreach($final as $taxonID) {
+            echo "\n$i. [$taxonID] => ";
+            if($EOLid = @$this->DH_2_EOL[$taxonID]) {
+                $final2[] = $EOLid;
+                echo " $EOLid";
+            }
+            else echo " none";
+            $i++;
+        }
+        print_r($final);
+        return $final2;
+    }
     function start()
     {
         // /*
-        self::parse_DH(); exit;
+        self::parse_DH(); //exit;
+        $page_id = 7666;
+        $page_id = 7662;
+        $ancestry = self::get_ancestry_via_DH($page_id);
+        print_r($ancestry); exit;
         
         self::initialize();
         // self::investigate_traits_csv(); exit;
