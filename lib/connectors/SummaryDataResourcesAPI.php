@@ -39,11 +39,10 @@ class SummaryDataResourcesAPI
     function start()
     {
         // /*
-        self::initialize();
+        self::initialize_basal_values();
         // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
         // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
-        $this->term_type = self::choose_term_type($predicate);
         self::main_basal_values($page_id, $predicate); //works OK
         exit("\n-- end basal values --\n");
         // */
@@ -173,17 +172,6 @@ class SummaryDataResourcesAPI
         /* IMPORTANT STEP: working OK - commented for now.
         self::working_dir(); self::generate_page_id_txt_files(); exit("\n\nText file generation DONE.\n\n");
         */
-    }
-    private function choose_term_type($predicate)
-    {
-        switch ($predicate) {
-            case "http://eol.org/schema/terms/Habitat":
-                return 'path_habitat'; //break;
-            case "http://eol.org/schema/terms/Present":
-                return 'path_geoterms'; //break;
-            default:
-                exit("\nPredicate [$predicate] not yet assigned to what term_type.\n");
-        }
     }
     private function main_basal_values($page_id, $predicate) //for basal values
     {
@@ -548,10 +536,13 @@ class SummaryDataResourcesAPI
     private function initialize()
     {
         self::working_dir();
-        if(isset($this->term_type)) { //for basal values
-            self::generate_terms_values_child_parent_list($this->file['parent child'][$this->term_type]);
-            self::generate_preferred_child_parent_list();
-        }
+    }
+    private function initialize_basal_values()
+    {
+        self::working_dir();
+        self::generate_terms_values_child_parent_list($this->file['parent child']['path_habitat']);
+        self::generate_terms_values_child_parent_list($this->file['parent child']['path_geoterms']);
+        self::generate_preferred_child_parent_list();
     }
     private function add_new_nodes_for_NotRootParents($list)
     {   //1st step: get unique parents
@@ -1062,6 +1053,19 @@ class SummaryDataResourcesAPI
         
         return $final;
     }
+    /* not used at the moment
+    private function choose_term_type($predicate)
+    {
+        switch ($predicate) {
+            case "http://eol.org/schema/terms/Habitat":
+                return 'path_habitat'; //break;
+            case "http://eol.org/schema/terms/Present":
+                return 'path_geoterms'; //break;
+            default:
+                exit("\nPredicate [$predicate] not yet assigned to what term_type.\n");
+        }
+    }
+    */
 
         /*
     Hi Jen, we are now just down to 1 discrepancy. But I think (hopefully) the last one is just something you've missed doing it manually.
