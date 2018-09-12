@@ -39,9 +39,7 @@ class SummaryDataResourcesAPI
     function start()
     {
         // /*
-        $this->term_type = 'path_habitat';
         self::initialize();
-        // $this->term_type = 'path_geoterms';
         // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
         // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
@@ -51,7 +49,6 @@ class SummaryDataResourcesAPI
         // */
 
         /*
-        $this->term_type = 'path_habitat';
         self::initialize();
         $page_id = 347436; $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
         $page_id = 347438;
@@ -173,31 +170,8 @@ class SummaryDataResourcesAPI
     private function test() //basal values tests...
     {
         // self::utility_compare();
-        /* Important Step: working OK - commented for now.
+        /* IMPORTANT STEP: working OK - commented for now.
         self::working_dir(); self::generate_page_id_txt_files(); exit("\n\nText file generation DONE.\n\n");
-        */
-        /* another test...
-        $this->term_type = 'path_habitat';
-        // $this->term_type = 'path_geoterms';
-        self::initialize();
-        $uris = array("http://www.geonames.org/6255151", "https://www.wikidata.org/entity/Q41228", "http://www.marineregions.org/gazetteer.php?p=details&id=1904");
-        $uris = array("http://purl.obolibrary.org/obo/ENVO_00000856");
-        $uris = array("http://purl.obolibrary.org/obo/ENVO_00000873");
-        // $uris = array("http://purl.obolibrary.org/obo/ENVO_01001305");
-        foreach($uris as $uri) {
-            echo "\n\nprocessing $uri:\n";
-            if($arr = @$this->children_of[$uri]) {
-                echo " -- has children:";
-                print_r($arr);
-            }
-            else echo " -- no children";
-            if($arr = @$this->parents_of[$uri]) {
-                echo "\n -- has parents:";
-                print_r($arr);
-            }
-            else echo " -- no parents, meaning a ROOT";
-        }
-        exit("\n-end test-\n");
         */
     }
     private function choose_term_type($predicate)
@@ -574,8 +548,10 @@ class SummaryDataResourcesAPI
     private function initialize()
     {
         self::working_dir();
-        self::generate_terms_values_child_parent_list($this->file['parent child'][$this->term_type]);
-        self::generate_preferred_child_parent_list();
+        if(isset($this->term_type)) { //for basal values
+            self::generate_terms_values_child_parent_list($this->file['parent child'][$this->term_type]);
+            self::generate_preferred_child_parent_list();
+        }
     }
     private function add_new_nodes_for_NotRootParents($list)
     {   //1st step: get unique parents
