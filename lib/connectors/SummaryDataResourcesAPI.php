@@ -114,50 +114,53 @@ class SummaryDataResourcesAPI
                     $rec[$fld] = $line[$k]; $k++;
                 }
                 // print_r($rec); exit;
-                /*Array(
-                    [taxonID] => -1662713
-                    [acceptedNameUsageID] => -1662713
-                    [parentNameUsageID] => -1411041
-                    [scientificName] => Aaaba Bellamy, 2002
-                    [taxonRank] => genus
-                    [source] => gbif:3260806
-                    [taxonomicStatus] => accepted
-                    [canonicalName] => Aaaba
-                    [scientificNameAuthorship] => Bellamy, 2002
-                    [scientificNameID] => 
-                    [taxonRemarks] => 
-                    [namePublishedIn] => 
-                    [furtherInformationURL] => https://www.gbif-uat.org/species/3260806
-                    [datasetID] => 0938172b-2086-439c-a1dd-c21cb0109ed5
-                    [EOLid] => 3221232
-                    [EOLidAnnotations] => 
+                /*Array([taxonID] => -1662713
+                        [acceptedNameUsageID] => -1662713
+                        [parentNameUsageID] => -1411041
+                        [scientificName] => Aaaba Bellamy, 2002
+                        [taxonRank] => genus
+                        [source] => gbif:3260806
+                        [taxonomicStatus] => accepted
+                        [canonicalName] => Aaaba
+                        [scientificNameAuthorship] => Bellamy, 2002
+                        [scientificNameID] => 
+                        [taxonRemarks] => 
+                        [namePublishedIn] => 
+                        [furtherInformationURL] => https://www.gbif-uat.org/species/3260806
+                        [datasetID] => 0938172b-2086-439c-a1dd-c21cb0109ed5
+                        [EOLid] => 3221232
+                        [EOLidAnnotations] => 
                 )
-                Array(
-                    [taxonID] => 93302
-                    [acceptedNameUsageID] => 93302
-                    [parentNameUsageID] => 805080
-                    [scientificName] => Cellular Organisms
-                    [taxonRank] => clade
-                    [source] => trunk:b72c3e8e-100e-4e47-82f6-76c3fd4d9d5f
-                    [taxonomicStatus] => accepted
-                    [canonicalName] => 
-                    [scientificNameAuthorship] => 
-                    [scientificNameID] => 
-                    [taxonRemarks] => 
-                    [namePublishedIn] => 
-                    [furtherInformationURL] => 
-                    [datasetID] => trunk
-                    [EOLid] => 
-                    [EOLidAnnotations] => 
+                Array(  [taxonID] => 93302
+                        [acceptedNameUsageID] => 93302
+                        [parentNameUsageID] => 805080
+                        [scientificName] => Cellular Organisms
+                        [taxonRank] => clade
+                        [source] => trunk:b72c3e8e-100e-4e47-82f6-76c3fd4d9d5f
+                        [taxonomicStatus] => accepted
+                        [canonicalName] => 
+                        [scientificNameAuthorship] => 
+                        [scientificNameID] => 
+                        [taxonRemarks] => 
+                        [namePublishedIn] => 
+                        [furtherInformationURL] => 
+                        [datasetID] => trunk
+                        [EOLid] => 
+                        [EOLidAnnotations] => 
                 )*/
+                /* debugging
                 // if($rec['EOLid'] == 7666) {print_r($rec); exit;}
                 // if($rec['taxonID'] == 93302) {print_r($rec); exit;}
-                
+                */
                 $this->EOL_2_DH[$rec['EOLid']] = $rec['taxonID'];
                 $this->DH_2_EOL[$rec['taxonID']] = $rec['EOLid'];
                 $this->parent_of_taxonID[$rec['taxonID']] = $rec['parentNameUsageID'];
             }
         }
+        /* may not want to force assign this:
+        $this->DH_2_EOL[93302] = 6061725; //Biota - Cellular Organisms
+        */
+        
         // remove temp dir
         // recursive_rmdir($info['temp_dir']);
         // echo ("\n temporary directory removed: " . $info['temp_dir']);
@@ -173,15 +176,15 @@ class SummaryDataResourcesAPI
         }
         $i = 0;
         foreach($final as $taxonID) {
-            echo "\n$i. [$taxonID] => ";
+            // echo "\n$i. [$taxonID] => ";
             if($EOLid = @$this->DH_2_EOL[$taxonID]) {
                 $final2[] = $EOLid;
-                echo " $EOLid";
+                // echo " $EOLid";
             }
-            else echo " none";
+            // else echo " none";
             $i++;
         }
-        print_r($final);
+        // print_r($final);
         return $final2;
     }
     function start()
@@ -190,14 +193,19 @@ class SummaryDataResourcesAPI
         self::parse_DH(); //exit;
         $page_id = 7666;
         $page_id = 7662;
+        $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
+        $page_id = 46559118; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on
+        $page_id = 46559118; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
+        
+        // $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by (zero records)
+
         $ancestry = self::get_ancestry_via_DH($page_id);
-        print_r($ancestry); exit;
+        echo "\nAncestry [$page_id]: ";
+        print_r($ancestry); //exit;
         
         self::initialize();
         // self::investigate_traits_csv(); exit;
         
-        $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470";
-        $page_id = 7666;
         $ret = self::main_taxon_summary($page_id, $predicate);
         print_r($ret);
         exit("\n-- main_taxon_summary ends --\n");
@@ -224,11 +232,13 @@ class SummaryDataResourcesAPI
     }
     private function main_taxon_summary($page_id, $predicate)
     {
+        echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
         $path = self::get_txt_path_by_page_id($page_id);
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
         echo "\nrecs: ".count($recs)."\n";
         print_r($recs);
+        // foreach($recs as $rec) {}
     }
     private function main_lifestage_statMeth($page_id, $predicate)
     {
