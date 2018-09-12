@@ -195,7 +195,7 @@ class SummaryDataResourcesAPI
         $page_id = 7662;
         $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         $page_id = 46559118; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on
-        $page_id = 46559118; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
+        // $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
         
         // $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by (zero records)
 
