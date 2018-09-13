@@ -819,9 +819,7 @@ class SummaryDataResourcesAPI
         }//end main
         */
         arsort($final);
-        // print_r($final);
         $final = array_keys($final);
-        // print_r($final);
         $this->ancestor_ranking = $final;
 
         arsort($final_preferred);
@@ -857,7 +855,6 @@ class SummaryDataResourcesAPI
                     }
                 }
             }
-            
             if(count($preferred_terms) == 1 && in_array($preferred_terms[0], $this->ancestor_ranking) && in_array($preferred_terms[0], $this->ancestor_ranking_preferred)) {
                 $WRITE = fopen($this->temp_file, 'a'); fwrite($WRITE, $preferred_terms[0]."\n"); fclose($WRITE);
                 return $preferred_terms[0];
@@ -879,8 +876,7 @@ class SummaryDataResourcesAPI
     }
     private function get_parent_of_term($term)
     {
-        echo "\n--------------------------------------------------------------------------------------------------------------------------------------- \n";
-        echo "term in question: [$term]:\n";
+        echo "\n--------------------------------------------------------------------------------------------------------------------------------------- \n"."term in question: [$term]:\n";
         /*
         if($parents = @$this->parents_of[$term]) {
             echo "\nParents:\n"; print_r($parents);
