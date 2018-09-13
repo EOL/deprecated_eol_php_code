@@ -40,13 +40,52 @@ class SummaryDataResourcesAPI
         if(Functions::is_production())  $this->EOL_DH = "https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/b534cd22-d904-45e4-b0e2-aaf06cc0e2d6/download/eoldynamichierarchyv1revised.zip";
         else                            $this->EOL_DH = "http://localhost/cp/summary%20data%20resources/eoldynamichierarchyv1.zip";
     }
+    function start()
+    {
+        /*
+        self::initialize();
+        self::investigate_traits_csv(); exit;
+        */
+        // /*
+        self::parse_DH();
+        $page_id = 7666; $page_id = 7662;
+        $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
+        $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
+        $page_id = 46559118; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on
+
+        $ancestry = self::get_ancestry_via_DH($page_id);
+        echo "\nAncestry [$page_id]: ";
+        print_r($ancestry);
+
+        self::initialize();
+        $ret = self::main_taxon_summary($page_id, $predicate);
+        exit("\n-- main_taxon_summary ends --\n");
+        // */
+
+        /* METHOD: lifestage+statMeth ============================================================================================================
+        self::initialize();
+        $page_id = 347436; $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
+        $page_id = 347438;
+        $page_id = 46559130;
+        $ret = self::main_lifestage_statMeth($page_id, $predicate);
+        print_r($ret);
+        exit("\n-- main_lifestage_statMeth ends --\n");
+        */
+        /* METHOD: basal values  ============================================================================================================
+        self::initialize_basal_values();
+        // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
+        // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
+        $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
+        self::main_basal_values($page_id, $predicate); //works OK
+        exit("\n-- end basal values --\n");
+        */
+    }
     private function investigate_traits_csv()
     {
         $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r');
         $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) {
             $i++; 
-            // echo " $i";
             if($i == 1) $fields = $line;
             else {
                 $rec = array(); $k = 0;
@@ -103,7 +142,6 @@ class SummaryDataResourcesAPI
             print_r($info);
             $this->info_path = $info;
         }
-        
         $i = 0;
         foreach(new FileIterator($info['archive_path'].$info['tables']['taxa']) as $line_number => $line) {
             $line = explode("\t", $line); $i++;
@@ -166,7 +204,6 @@ class SummaryDataResourcesAPI
         // recursive_rmdir($info['temp_dir']);
         // echo ("\n temporary directory removed: " . $info['temp_dir']);
     }
-
     private function get_ancestry_via_DH($page_id)
     {
         $final = array(); $final2 = array();
@@ -193,133 +230,6 @@ class SummaryDataResourcesAPI
         // print_r($final);
         return $final2;
     }
-    function start()
-    {
-        /*
-        self::initialize();
-        self::investigate_traits_csv(); exit;
-        */
-        
-        /* report for Jen
-        self::parse_DH();
-        
-        $WRITE = fopen($this->report_file, 'w');
-        $i = 0;
-        foreach(new FileIterator($this->info_path['archive_path'].$this->info_path['tables']['taxa']) as $line_number => $line) {
-            $line = explode("\t", $line); $i++;
-            if($i == 1) $fields = $line;
-            else {
-                if(!$line[0]) break;
-                $rec = array(); $k = 0;
-                foreach($fields as $fld) {
-                    $rec[$fld] = $line[$k]; $k++;
-                }
-                // print_r($rec); exit;
-                if($page_id = $rec['EOLid']) {
-                    $ancestry = self::get_ancestry_via_DH($page_id);
-                    // echo "\nAncestry [$page_id]: ";
-                    // print_r($ancestry);
-                    fwrite($WRITE, $page_id . "\t" . implode(" | ", $ancestry) . "\n");
-                }
-                // if($i >= 10) exit();
-            }
-        }
-        fclose($WRITE); exit();
-        */
-        
-        /*
-        self::initialize();
-        $i = 0;
-        $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r');
-        while(($line = fgetcsv($file)) !== FALSE) {
-            $i++; 
-            // echo " $i";
-            if($i == 1) $fields = $line;
-            else {
-                $rec = array(); $k = 0;
-                foreach($fields as $fld) {
-                    $rec[$fld] = $line[$k]; $k++;
-                }
-                // print_r($rec); exit;
-                if($page_id = @$rec['object_page_id'])  $final[$page_id] = '';
-                if($page_id = @$rec['page_id'])         $final[$page_id] = '';
-            }
-        }
-       
-        
-        $WRITE = fopen($this->report_file, 'w');
-        $final = array_keys($final);
-        foreach($final as $page_id) {
-            $ancestry = self::get_ancestry_via_DH($page_id);
-            fwrite($WRITE, $page_id . "\t" . implode(" | ", $ancestry) . "\n");
-        }
-        fclose($WRITE);
-        */
-        // exit("\n-end report-\n");
-        
-        // /*
-        self::parse_DH(); //exit;
-        $page_id = 7666;
-        $page_id = 7662;
-        $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-        $page_id = 46559118; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on
-        // $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
-        // $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by (zero records)
-
-        $ancestry = self::get_ancestry_via_DH($page_id);
-        echo "\nAncestry [$page_id]: ";
-        print_r($ancestry);
-
-        /*
-        foreach($ancestry as $id) {
-            $anc = self::get_ancestry_via_DH($id);
-            echo "\nAncestry [$id]: ";
-            print_r($anc);
-        }
-        */
-        
-        
-        self::initialize();
-        
-        $ret = self::main_taxon_summary($page_id, $predicate);
-        
-        foreach($ret as $rec) {
-            if($page_id = @$rec['object_page_id']) {
-                $anc = self::get_ancestry_via_DH($page_id);
-                echo "\nAncestry [$page_id]: ";
-                print_r($anc);
-            }
-        }
-        
-        
-        
-        // print_r($ret);
-        
-        
-        
-        
-        exit("\n-- main_taxon_summary ends --\n");
-        // */
-
-        /*
-        self::initialize();
-        $page_id = 347436; $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
-        $page_id = 347438;
-        $page_id = 46559130;
-        $ret = self::main_lifestage_statMeth($page_id, $predicate);
-        print_r($ret);
-        exit("\n-- main_lifestage_statMeth ends --\n");
-        */
-        
-        /*
-        self::initialize_basal_values();
-        // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
-        // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
-        $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
-        self::main_basal_values($page_id, $predicate); //works OK
-        exit("\n-- end basal values --\n");
-        */
-    }
     private function main_taxon_summary($page_id, $predicate)
     {
         echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
@@ -328,7 +238,27 @@ class SummaryDataResourcesAPI
         if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
         echo "\nrecs: ".count($recs)."\n";
         // print_r($recs);
-        return $recs;
+        
+        foreach($ret as $rec) {
+            if($page_id = @$rec['object_page_id']) {
+                $anc = self::get_ancestry_via_DH($page_id);
+                /* echo "\nAncestry [$page_id]: "; print_r($anc); */ //initial report for Jen
+                //start store counts:
+                foreach($anc as $id) $counts[$id]++;
+            }
+        }
+        print_r($counts); exit;
+        foreach($ret as $rec) {
+            if($page_id = @$rec['object_page_id']) {
+                $anc = self::get_ancestry_via_DH($page_id);
+                foreach($anc as $id) {
+                    
+                }
+            }
+        }
+        
+        
+        return array('recs' => $recs);
         // foreach($recs as $rec) {}
     }
     private function main_lifestage_statMeth($page_id, $predicate)
@@ -1339,6 +1269,53 @@ class SummaryDataResourcesAPI
                 exit("\nPredicate [$predicate] not yet assigned to what term_type.\n");
         }
     }
+    */
+
+    /* report for Jen
+    self::parse_DH();
+    $WRITE = fopen($this->report_file, 'w');
+    $i = 0;
+    foreach(new FileIterator($this->info_path['archive_path'].$this->info_path['tables']['taxa']) as $line_number => $line) {
+        $line = explode("\t", $line); $i++;
+        if($i == 1) $fields = $line;
+        else {
+            if(!$line[0]) break;
+            $rec = array(); $k = 0;
+            foreach($fields as $fld) {
+                $rec[$fld] = $line[$k]; $k++;
+            }
+            // print_r($rec); exit;
+            if($page_id = $rec['EOLid']) {
+                $ancestry = self::get_ancestry_via_DH($page_id);
+                fwrite($WRITE, $page_id . "\t" . implode(" | ", $ancestry) . "\n");
+            }
+        }
+    }
+    fclose($WRITE); exit(); exit("\n-end report-\n");
+    */
+    /* another report for Jen
+    self::initialize();
+    $i = 0;
+    $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r');
+    while(($line = fgetcsv($file)) !== FALSE) {
+        $i++; if($i == 1) $fields = $line;
+        else {
+            $rec = array(); $k = 0;
+            foreach($fields as $fld) {
+                $rec[$fld] = $line[$k]; $k++;
+            }
+            // print_r($rec); exit;
+            if($page_id = @$rec['object_page_id'])  $final[$page_id] = '';
+            if($page_id = @$rec['page_id'])         $final[$page_id] = '';
+        }
+    }
+    $WRITE = fopen($this->report_file, 'w');
+    $final = array_keys($final);
+    foreach($final as $page_id) {
+        $ancestry = self::get_ancestry_via_DH($page_id);
+        fwrite($WRITE, $page_id . "\t" . implode(" | ", $ancestry) . "\n");
+    }
+    fclose($WRITE); exit("\n-end report-\n");
     */
 
         /*
