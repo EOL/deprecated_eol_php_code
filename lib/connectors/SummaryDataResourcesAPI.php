@@ -887,7 +887,6 @@ class SummaryDataResourcesAPI
         }
         else echo "\nNO PARENT\n";
         */
-        
         if($preferred_terms = @$this->preferred_names_of[$term]) {
             echo "\nThere are preferred term(s):\n";
             print_r($preferred_terms);
@@ -1013,7 +1012,6 @@ class SummaryDataResourcesAPI
         }
         fclose($file); unlink($temp_file);
     }
-    
     function start_v1()
     {
         self::working_dir();
@@ -1025,9 +1023,7 @@ class SummaryDataResourcesAPI
         // print_r($similar_terms); exit;
         
         self::print_taxon_and_ancestry($similar_terms);
-        
         self::given_predicates_get_values_from_traits_csv($similar_terms);
-
         exit("\n-end tests-\n");
         // */
         if($this->debug) Functions::start_print_debug($this->debug, $this->resource_id);
@@ -1098,10 +1094,7 @@ class SummaryDataResourcesAPI
                     [resource_id] => 20
                 )*/
                 if(in_array($rec['predicate'], $preds)) {
-                    // echo "\n".self::get_value($rec);
-                    // print_r($rec); //exit;
                     $ancestry = self::get_ancestry_using_page_id($rec['page_id']);
-                    // print_r($ancestry);
                     if(!isset($printed_already[$rec['page_id']])) {
                         fwrite($WRITE, implode("\t", array($rec['page_id'], $rec['scientific_name'], implode("|", $ancestry)))."\n");
                         $printed_already[$rec['page_id']] = '';
@@ -1112,9 +1105,7 @@ class SummaryDataResourcesAPI
         fclose($file);
         fwrite($WRITE, "==================================================================================================================================================================\n");
         fclose($WRITE);
-        // exit("\nelix 100\n");
     }
-
     private function given_predicates_get_values_from_traits_csv($preds)
     {
         $WRITE = fopen($this->report_file, 'a');
@@ -1157,7 +1148,6 @@ class SummaryDataResourcesAPI
                 if(in_array($rec['predicate'], $preds)) {
                     // echo "\n".self::get_value($rec);
                     // print_r($rec); //exit;
-                    
                     fwrite($WRITE, implode("\t", array($rec['page_id'], $rec['scientific_name'], $rec['predicate'], self::get_value($rec)))."\n");
                 }
             }
@@ -1166,8 +1156,7 @@ class SummaryDataResourcesAPI
     }
     private function get_ancestry_using_page_id($page_id)
     {
-        $final = array();
-        $temp_id = $page_id;
+        $final = array(); $temp_id = $page_id;
         while(true) {
             if($parent_id = @$this->child_parent_list[$temp_id]) {
                 $final[] = $parent_id;
@@ -1201,11 +1190,10 @@ class SummaryDataResourcesAPI
             $this->main_paths = $info;
         }
     }
-    private function given_predicate_get_similar_terms($pred)
+    private function given_predicate_get_similar_terms($pred) //used during initial report to Jen
     {
         $final = array();
         $final[$pred] = ''; //processed predicate is included
-        
         //from 'parent child':
         $temp_file = Functions::save_remote_file_to_local($this->file['parent child'], $this->download_options);
         $file = fopen($temp_file, 'r');
@@ -1213,7 +1201,6 @@ class SummaryDataResourcesAPI
           if($line[0] == $pred) $final[$line[1]] = '';
         }
         fclose($file); unlink($temp_file);
-        
         //from 'preferred synonym':
         $temp_file = Functions::save_remote_file_to_local($this->file['preferred synonym'], $this->download_options);
         $file = fopen($temp_file, 'r');
@@ -1222,7 +1209,6 @@ class SummaryDataResourcesAPI
         }
         fclose($file); unlink($temp_file);
         $final = array_keys($final);
-        
         //start write
         $WRITE = fopen($this->report_file, 'w');
         fwrite($WRITE, "REPORT FOR PREDICATE: $pred\n\n");
