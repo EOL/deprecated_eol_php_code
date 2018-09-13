@@ -80,45 +80,6 @@ class SummaryDataResourcesAPI
         exit("\n-- end basal values --\n");
         */
     }
-    private function investigate_traits_csv()
-    {
-        $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r');
-        $i = 0;
-        while(($line = fgetcsv($file)) !== FALSE) {
-            $i++; 
-            if($i == 1) $fields = $line;
-            else {
-                $rec = array(); $k = 0;
-                foreach($fields as $fld) {
-                    $rec[$fld] = $line[$k]; $k++;
-                }
-                // print_r($rec); //exit;
-                /*Array(
-                    [eol_pk] => R96-PK42724728
-                    [page_id] => 328673
-                    [scientific_name] => <i>Panthera pardus</i>
-                    [resource_pk] => M_00238837
-                    [predicate] => http://eol.org/schema/terms/Present
-                    [sex] => 
-                    [lifestage] => 
-                    [statistical_method] => 
-                    [source] => http://www.worldwildlife.org/publications/wildfinder-database
-                    [object_page_id] => 
-                    [target_scientific_name] => 
-                    [value_uri] => http://eol.org/schema/terms/Southern_Zanzibar-Inhambane_coastal_forest_mosaic
-                    [literal] => http://eol.org/schema/terms/Southern_Zanzibar-Inhambane_coastal_forest_mosaic
-                    [measurement] => 
-                    [units] => 
-                    [normal_measurement] => 
-                    [normal_units_uri] => 
-                    [resource_id] => 20
-                )*/
-                // if($rec['target_scientific_name']) print_r($rec);
-                // if($rec['lifestage']) print_r($rec);
-                if($rec['object_page_id']) print_r($rec);
-            }
-        }
-    }
     private function extract_DH()
     {
         require_library('connectors/INBioAPI');
@@ -139,7 +100,6 @@ class SummaryDataResourcesAPI
             $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/EOL_dynamic_hierarchy/',
                           'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/',
                           'tables' => Array('taxa' => 'taxa.txt'));
-            print_r($info);
             $this->info_path = $info;
         }
         $i = 0;
@@ -265,7 +225,7 @@ class SummaryDataResourcesAPI
                         if($count >= 2) { //meaning it exists in other recs
                             if($arr = @$child_of[$id]) {
                                 $arr = array_unique($arr);
-                                if(count($arr) > 1) $final[$page_id][] = $id;
+                                if(count($arr) > 1) $final[$page_id][] = $id; //meaning child is not the same for all recs
                             }
                         }
                     }
@@ -273,9 +233,7 @@ class SummaryDataResourcesAPI
             }
         }
         print_r($final); exit;
-        
-        return array('recs' => $recs);
-        // foreach($recs as $rec) {}
+        return array('recs' => $recs, 'tree' => $final);
     }
     private function main_lifestage_statMeth($page_id, $predicate)
     {
@@ -1270,9 +1228,49 @@ class SummaryDataResourcesAPI
         fwrite($WRITE, "==================================================================================================================================================================\n");
         fclose($WRITE);
         //end write
-        
         return $final;
     }
+    private function investigate_traits_csv()
+    {
+        $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r');
+        $i = 0;
+        while(($line = fgetcsv($file)) !== FALSE) {
+            $i++; 
+            if($i == 1) $fields = $line;
+            else {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); //exit;
+                /*Array(
+                    [eol_pk] => R96-PK42724728
+                    [page_id] => 328673
+                    [scientific_name] => <i>Panthera pardus</i>
+                    [resource_pk] => M_00238837
+                    [predicate] => http://eol.org/schema/terms/Present
+                    [sex] => 
+                    [lifestage] => 
+                    [statistical_method] => 
+                    [source] => http://www.worldwildlife.org/publications/wildfinder-database
+                    [object_page_id] => 
+                    [target_scientific_name] => 
+                    [value_uri] => http://eol.org/schema/terms/Southern_Zanzibar-Inhambane_coastal_forest_mosaic
+                    [literal] => http://eol.org/schema/terms/Southern_Zanzibar-Inhambane_coastal_forest_mosaic
+                    [measurement] => 
+                    [units] => 
+                    [normal_measurement] => 
+                    [normal_units_uri] => 
+                    [resource_id] => 20
+                )*/
+                // if($rec['target_scientific_name']) print_r($rec);
+                // if($rec['lifestage']) print_r($rec);
+                if($rec['object_page_id']) print_r($rec);
+            }
+        }
+    }
+    
+    
     /* not used at the moment
     private function choose_term_type($predicate)
     {
