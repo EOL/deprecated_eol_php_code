@@ -42,11 +42,17 @@ class SummaryDataResourcesAPI
     }
     function start()
     {
+        /* WORKING
+        $ret = self::get_summ_process_type_given_pred(); 
+        print_r($ret); exit("\n".count($ret)."\n");
+        */
+        
         /*
         self::initialize();
         self::investigate_traits_csv(); exit;
         */
-        // /*
+
+        // /* METHOD: taxon summary ============================================================================================================
         self::parse_DH();
         $page_id = 7666; $page_id = 7662;
         $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
@@ -1226,6 +1232,19 @@ class SummaryDataResourcesAPI
         fwrite($WRITE, "==================================================================================================================================================================\n");
         fclose($WRITE);
         //end write
+        return $final;
+    }
+    private function get_summ_process_type_given_pred() //sheet found here: https://docs.google.com/spreadsheets/u/1/d/1Er57xyxT_-EZud3mNkTBn0fZ9yZi_01qtbwwdDkEsA0/edit?usp=sharing
+    {
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
+        $params['spreadsheetID'] = '1Er57xyxT_-EZud3mNkTBn0fZ9yZi_01qtbwwdDkEsA0';
+        $params['range']         = 'predicates!A2:F1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $arr = $func->access_google_sheet($params);
+        //start massage array
+        foreach($arr as $item) {
+            if($val = $item[0]) $final[$item[0]] = $item[5];
+        }
         return $final;
     }
     private function investigate_traits_csv()
