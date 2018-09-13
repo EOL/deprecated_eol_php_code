@@ -74,8 +74,9 @@ class SummaryDataResourcesAPI
                     [normal_units_uri] => 
                     [resource_id] => 20
                 )*/
-                if($rec['target_scientific_name']) print_r($rec);
+                // if($rec['target_scientific_name']) print_r($rec);
                 // if($rec['lifestage']) print_r($rec);
+                if($rec['object_page_id']) print_r($rec);
             }
         }
     }
@@ -168,7 +169,12 @@ class SummaryDataResourcesAPI
 
     private function get_ancestry_via_DH($page_id)
     {
-        $taxonID = $this->EOL_2_DH[$page_id];
+        $final = array(); $final2 = array();
+        $taxonID = @$this->EOL_2_DH[$page_id];
+        if(!$taxonID) {
+            echo "\nThis page_id [$page_id] is not found in DH.\n";
+            return array();
+        }
         while(true) {
             if($parent = @$this->parent_of_taxonID[$taxonID]) $final[] = $parent;
             else break;
@@ -189,6 +195,68 @@ class SummaryDataResourcesAPI
     }
     function start()
     {
+        /*
+        self::initialize();
+        self::investigate_traits_csv(); exit;
+        */
+        
+        /* report for Jen
+        self::parse_DH();
+        
+        $WRITE = fopen($this->report_file, 'w');
+        $i = 0;
+        foreach(new FileIterator($this->info_path['archive_path'].$this->info_path['tables']['taxa']) as $line_number => $line) {
+            $line = explode("\t", $line); $i++;
+            if($i == 1) $fields = $line;
+            else {
+                if(!$line[0]) break;
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); exit;
+                if($page_id = $rec['EOLid']) {
+                    $ancestry = self::get_ancestry_via_DH($page_id);
+                    // echo "\nAncestry [$page_id]: ";
+                    // print_r($ancestry);
+                    fwrite($WRITE, $page_id . "\t" . implode(" | ", $ancestry) . "\n");
+                }
+                // if($i >= 10) exit();
+            }
+        }
+        fclose($WRITE); exit();
+        */
+        
+        /*
+        self::initialize();
+        $i = 0;
+        $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r');
+        while(($line = fgetcsv($file)) !== FALSE) {
+            $i++; 
+            // echo " $i";
+            if($i == 1) $fields = $line;
+            else {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); exit;
+                if($page_id = @$rec['object_page_id'])  $final[$page_id] = '';
+                if($page_id = @$rec['page_id'])         $final[$page_id] = '';
+            }
+        }
+       
+        
+        $WRITE = fopen($this->report_file, 'w');
+        $final = array_keys($final);
+        foreach($final as $page_id) {
+            $ancestry = self::get_ancestry_via_DH($page_id);
+            fwrite($WRITE, $page_id . "\t" . implode(" | ", $ancestry) . "\n");
+        }
+        fclose($WRITE);
+        */
+        // exit("\n-end report-\n");
+        
         // /*
         self::parse_DH(); //exit;
         $page_id = 7666;
@@ -196,18 +264,40 @@ class SummaryDataResourcesAPI
         $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         $page_id = 46559118; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on
         // $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
-        
         // $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by (zero records)
 
         $ancestry = self::get_ancestry_via_DH($page_id);
         echo "\nAncestry [$page_id]: ";
-        print_r($ancestry); //exit;
+        print_r($ancestry);
+
+        /*
+        foreach($ancestry as $id) {
+            $anc = self::get_ancestry_via_DH($id);
+            echo "\nAncestry [$id]: ";
+            print_r($anc);
+        }
+        */
+        
         
         self::initialize();
-        // self::investigate_traits_csv(); exit;
         
         $ret = self::main_taxon_summary($page_id, $predicate);
-        print_r($ret);
+        
+        foreach($ret as $rec) {
+            if($page_id = @$rec['object_page_id']) {
+                $anc = self::get_ancestry_via_DH($page_id);
+                echo "\nAncestry [$page_id]: ";
+                print_r($anc);
+            }
+        }
+        
+        
+        
+        // print_r($ret);
+        
+        
+        
+        
         exit("\n-- main_taxon_summary ends --\n");
         // */
 
@@ -237,7 +327,8 @@ class SummaryDataResourcesAPI
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
         echo "\nrecs: ".count($recs)."\n";
-        print_r($recs);
+        // print_r($recs);
+        return $recs;
         // foreach($recs as $rec) {}
     }
     private function main_lifestage_statMeth($page_id, $predicate)
