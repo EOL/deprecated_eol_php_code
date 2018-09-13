@@ -54,8 +54,7 @@ class SummaryDataResourcesAPI
         $page_id = 46559118; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on
 
         $ancestry = self::get_ancestry_via_DH($page_id);
-        echo "\nAncestry [$page_id]: ";
-        print_r($ancestry);
+        echo "\nAncestry [$page_id]: "; print_r($ancestry);
 
         self::initialize();
         $ret = self::main_taxon_summary($page_id, $predicate);
@@ -65,8 +64,7 @@ class SummaryDataResourcesAPI
         /* METHOD: lifestage+statMeth ============================================================================================================
         self::initialize();
         $page_id = 347436; $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
-        $page_id = 347438;
-        $page_id = 46559130;
+        $page_id = 347438; $page_id = 46559130;
         $ret = self::main_lifestage_statMeth($page_id, $predicate);
         print_r($ret);
         exit("\n-- main_lifestage_statMeth ends --\n");
