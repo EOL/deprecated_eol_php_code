@@ -239,24 +239,40 @@ class SummaryDataResourcesAPI
         echo "\nrecs: ".count($recs)."\n";
         // print_r($recs);
         
-        foreach($ret as $rec) {
+        foreach($recs as $rec) {
             if($page_id = @$rec['object_page_id']) {
                 $anc = self::get_ancestry_via_DH($page_id);
                 /* echo "\nAncestry [$page_id]: "; print_r($anc); */ //initial report for Jen
                 //start store counts:
-                foreach($anc as $id) $counts[$id]++;
-            }
-        }
-        print_r($counts); exit;
-        foreach($ret as $rec) {
-            if($page_id = @$rec['object_page_id']) {
-                $anc = self::get_ancestry_via_DH($page_id);
+                $k = 0;
                 foreach($anc as $id) {
-                    
+                    @$counts[$id]++;
+                    if($k > 0) {
+                        $child_of[$id][] = $anc[$k-1];
+                    }
+                    $k++;
                 }
             }
         }
-        
+        print_r($counts); //exit;
+        print_r($child_of);
+        $final = array();
+        foreach($recs as $rec) {
+            if($page_id = @$rec['object_page_id']) {
+                $anc = self::get_ancestry_via_DH($page_id);
+                foreach($anc as $id) {
+                    if($count = @$counts[$id]) {
+                        if($count >= 2) { //meaning it exists in other recs
+                            if($arr = @$child_of[$id]) {
+                                $arr = array_unique($arr);
+                                if(count($arr) > 1) $final[$page_id][] = $id;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        print_r($final); exit;
         
         return array('recs' => $recs);
         // foreach($recs as $rec) {}
