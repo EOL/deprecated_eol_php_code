@@ -215,14 +215,15 @@ class SummaryDataResourcesAPI
                 foreach($anc as $id) {
                     @$counts[$id]++;
                     if($k > 0) {
-                        $child_of[$id][] = $anc[$k-1];
+                        $children_of[$id][] = $anc[$k-1];
                     }
                     $k++;
                 }
             }
         }
+        
         /* good debug
-        print_r($counts); print_r($child_of);
+        print_r($counts); print_r($children_of);
         */
         $final = array();
         foreach($recs as $rec) {
@@ -231,7 +232,7 @@ class SummaryDataResourcesAPI
                 foreach($anc as $id) {
                     if($count = @$counts[$id]) {
                         if($count >= 2) { //meaning it exists in other recs
-                            if($arr = @$child_of[$id]) {
+                            if($arr = @$children_of[$id]) {
                                 $arr = array_unique($arr);
                                 if(count($arr) > 1) $final[$page_id][] = $id; //meaning child is not the same for all recs
                             }
@@ -240,9 +241,20 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        print_r($final); exit;
+        print_r($final); 
+        $tips = array_keys($final); //next step is get all tips from $final;
+        echo "\n tips: ".count($tips)." - "; print_r($tips);
+        
+        /* if the else section */
+        if(count($tips) <= 5) return $tips
+        else {
+            $step1 = self::get_step1_taxonSummary($final, $tips)
+        }
+        
+        exit;
         return array('recs' => $recs, 'tree' => $final);
     }
+    
     private function main_lifestage_statMeth($page_id, $predicate)
     {
         $path = self::get_txt_path_by_page_id($page_id);
