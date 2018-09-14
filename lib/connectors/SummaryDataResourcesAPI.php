@@ -205,6 +205,14 @@ class SummaryDataResourcesAPI
         if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
         echo "\nrecs: ".count($recs)."\n";
         // print_r($recs);
+        /* Jen's verbatim instruction: to get the reduced 'tree'
+        For each ancestor, find all recs in which it appears (recs set 1)
+        If the parent of that ancestor is the same in all the recs in rec set 1, remove the parent
+
+        Eli's interpretation: which gets the same results:
+        - get all ancestors that exist also in other recs.
+        - among these ancestors, select those where it has > 1 children. Don't include those with the same child in its occurrence in other recs.
+        */
         
         foreach($recs as $rec) {
             if($page_id = @$rec['object_page_id']) {
@@ -214,9 +222,7 @@ class SummaryDataResourcesAPI
                 $k = 0;
                 foreach($anc as $id) {
                     @$counts[$id]++;
-                    if($k > 0) {
-                        $children_of[$id][] = $anc[$k-1];
-                    }
+                    if($k > 0) $children_of[$id][] = $anc[$k-1];
                     $k++;
                 }
             }
@@ -231,7 +237,7 @@ class SummaryDataResourcesAPI
                 $anc = self::get_ancestry_via_DH($page_id);
                 foreach($anc as $id) {
                     if($count = @$counts[$id]) {
-                        if($count >= 2) { //meaning it exists in other recs
+                        if($count >= 2) { //meaning this ancestor exists in other recs
                             if($arr = @$children_of[$id]) {
                                 $arr = array_unique($arr);
                                 if(count($arr) > 1) $final[$page_id][] = $id; //meaning child is not the same for all recs
