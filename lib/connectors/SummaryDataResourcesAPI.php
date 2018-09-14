@@ -271,9 +271,7 @@ class SummaryDataResourcesAPI
         echo "\n root: "; print_r($root_ancestor);
         echo "\n immediate_children_of_root: "; print_r($immediate_children_of_root);
         
-        
-        exit;
-        // return array('recs' => $recs, 'tree' => $final);
+        return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP');
     }
     
     private function main_lifestage_statMeth($page_id, $predicate)
