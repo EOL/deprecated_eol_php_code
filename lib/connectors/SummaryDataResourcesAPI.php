@@ -54,11 +54,14 @@ class SummaryDataResourcesAPI
 
         // /* METHOD: taxon summary ============================================================================================================
         self::parse_DH();
+        // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         $page_id = 7666; $page_id = 7662;
         $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
         $page_id = 46559118; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on
-
+        // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
+        
+        
         $ancestry = self::get_ancestry_via_DH($page_id);
         echo "\nAncestry [$page_id]: "; print_r($ancestry);
 
@@ -206,7 +209,7 @@ class SummaryDataResourcesAPI
         foreach($recs as $rec) {
             if($page_id = @$rec['object_page_id']) {
                 $anc = self::get_ancestry_via_DH($page_id);
-                /* echo "\nAncestry [$page_id]: "; print_r($anc); */ //initial report for Jen
+                echo "\nAncestry [$page_id]: "; print_r($anc); //initial report for Jen
                 //start store counts:
                 $k = 0;
                 foreach($anc as $id) {
@@ -218,8 +221,9 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        print_r($counts); //exit;
-        print_r($child_of);
+        /* good debug
+        print_r($counts); print_r($child_of);
+        */
         $final = array();
         foreach($recs as $rec) {
             if($page_id = @$rec['object_page_id']) {
