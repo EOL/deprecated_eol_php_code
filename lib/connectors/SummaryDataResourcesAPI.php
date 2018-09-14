@@ -59,7 +59,7 @@ class SummaryDataResourcesAPI
         $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
         $page_id = 46559118; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on
-        // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
+        $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         
         
         $ancestry = self::get_ancestry_via_DH($page_id);
@@ -247,18 +247,33 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        print_r($final); 
-        $tips = array_keys($final); //next step is get all tips from $final;
+        echo "\n==========================================\nTips on left. Ancestors on right.\n";
+        print_r($final);
+        /* may not need this anymore: get tips
+        $tips = array_keys($final); //next step is get all tips from $final; 
         echo "\n tips: ".count($tips)." - "; print_r($tips);
-        
-        /* if the else section */
-        if(count($tips) <= 5) return $tips
-        else {
-            $step1 = self::get_step1_taxonSummary($final, $tips)
+        */
+
+        /* from Jen: After the tree is constructed:
+        - Select all immediate children of the root and label REP.
+        - Label the root PRM
+        */
+        foreach($final as $tip => $ancestors) {
+            $root_ancestor[] = end($ancestors);
+            $no_of_rows = count($ancestors);
+            if($no_of_rows > 1) $immediate_children_of_root[$ancestors[$no_of_rows-2]] = ''; // rows should be > 1 bec if only 1 then there is no child for that root.
+            if($no_of_rows == 1) $immediate_children_of_root[$tip] = '';
         }
         
+        $root_ancestor = array_unique($root_ancestor);
+        $immediate_children_of_root = array_keys($immediate_children_of_root);
+        
+        echo "\n root: "; print_r($root_ancestor);
+        echo "\n immediate_children_of_root: "; print_r($immediate_children_of_root);
+        
+        
         exit;
-        return array('recs' => $recs, 'tree' => $final);
+        // return array('recs' => $recs, 'tree' => $final);
     }
     
     private function main_lifestage_statMeth($page_id, $predicate)
