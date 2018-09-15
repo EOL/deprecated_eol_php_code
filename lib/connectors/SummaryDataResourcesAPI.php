@@ -37,14 +37,21 @@ class SummaryDataResourcesAPI
         $this->jen_isvat = "/Volumes/AKiTiO4/web/cp/summary data resources/2018 09 08/jen_isvat.txt";
         
         //for taxon summary
+        /*
         if(Functions::is_production())  $this->EOL_DH = "https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/b534cd22-d904-45e4-b0e2-aaf06cc0e2d6/download/eoldynamichierarchyv1revised.zip";
-        else                            $this->EOL_DH = "http://localhost/cp/summary%20data%20resources/eoldynamichierarchyv1.zip";
+        else                            $this->EOL_DH = "http://localhost/cp/summary data resources/eoldynamichierarchyv1.zip";
+        */
+        if(Functions::is_production())  $this->EOL_DH = "https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/bac4e11c-28ab-4038-9947-02d9f1b0329f/download/eoldynamichierarchywithlandmarks.zip";
+        else                            $this->EOL_DH = "http://localhost/cp/summary%20data%20resources/DH/eoldynamichierarchywithlandmarks.zip";
+        
+        $this->EOL_DH = "http://localhost/cp/summary%20data%20resources/DH/eoldynamichierarchywithlandmarks.zip";
     }
+    /* for 'parents' method:
     repeat basal values process on REP records aggregated from descendant taxa, to create a summary set of REP records (no PRM record). 
     MeasurementMethod= "summary of records available in EOL". 
     SampleSize = "[number of] descendant taxa with records". 
     Do not aggregate attribution data, but create source link to EOL, eg: https://beta.eol.org/terms/search_results?utf8=%E2%9C%93&clade_name=Ursidae&term_query%5Bclade_id%5D=7664&pred_name=geographic+distribution+includes&term_query%5Bfilters_attributes%5D%5B0%5D%5Bpred_uri%5D=http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPresent&term_query%5Bfilters_attributes%5D%5B0%5D%5Bop%5D=is_any&term_query%5Bresult_type%5D=record&commit=Search
-    
+    */
     function start()
     {
         /* WORKING
@@ -57,7 +64,7 @@ class SummaryDataResourcesAPI
         self::investigate_traits_csv(); exit;
         */
 
-        /* METHOD: taxon summary ============================================================================================================
+        // /* METHOD: taxon summary ============================================================================================================
         self::parse_DH();
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         $page_id = 7666; $page_id = 7662;
@@ -68,7 +75,7 @@ class SummaryDataResourcesAPI
         self::initialize();
         $ret = self::main_taxon_summary($page_id, $predicate);
         exit("\n-- main_taxon_summary ends --\n");
-        */
+        // */
 
         /* METHOD: lifestage+statMeth ============================================================================================================
         self::initialize();
@@ -104,8 +111,11 @@ class SummaryDataResourcesAPI
             $this->info_path = $info;
         }
         else { //local development only
-            $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/EOL_dynamic_hierarchy/',
+            $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/EOL_dynamic_hierarchy/',   //for eoldynamichierarchyv1.zip
                           'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/',
+                          'tables' => Array('taxa' => 'taxa.txt'));
+            $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',                         //for eoldynamichierarchywithlandmarks.zip
+                          'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
                           'tables' => Array('taxa' => 'taxa.txt'));
             $this->info_path = $info;
         }
