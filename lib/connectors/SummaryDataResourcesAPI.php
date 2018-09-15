@@ -71,7 +71,7 @@ class SummaryDataResourcesAPI
         $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
         $page_id = 46559118; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on
-        $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
+        // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         self::initialize();
         $ret = self::main_taxon_summary($page_id, $predicate);
         exit("\n-- main_taxon_summary ends --\n");
@@ -111,9 +111,10 @@ class SummaryDataResourcesAPI
             $this->info_path = $info;
         }
         else { //local development only
+            /*
             $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/EOL_dynamic_hierarchy/',   //for eoldynamichierarchyv1.zip
                           'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/',
-                          'tables' => Array('taxa' => 'taxa.txt'));
+                          'tables' => Array('taxa' => 'taxa.txt')); */
             $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',                         //for eoldynamichierarchywithlandmarks.zip
                           'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
                           'tables' => Array('taxa' => 'taxa.txt'));
@@ -130,47 +131,55 @@ class SummaryDataResourcesAPI
                     $rec[$fld] = $line[$k]; $k++;
                 }
                 // print_r($rec); exit;
-                /*Array([taxonID] => -1662713
-                        [acceptedNameUsageID] => -1662713
-                        [parentNameUsageID] => -1411041
-                        [scientificName] => Aaaba Bellamy, 2002
-                        [taxonRank] => genus
-                        [source] => gbif:3260806
-                        [taxonomicStatus] => accepted
-                        [canonicalName] => Aaaba
-                        [scientificNameAuthorship] => Bellamy, 2002
-                        [scientificNameID] => 
-                        [taxonRemarks] => 
-                        [namePublishedIn] => 
-                        [furtherInformationURL] => https://www.gbif-uat.org/species/3260806
-                        [datasetID] => 0938172b-2086-439c-a1dd-c21cb0109ed5
-                        [EOLid] => 3221232
-                        [EOLidAnnotations] => 
+                /*Array(
+                    [taxonID] => -168611
+                    [acceptedNameUsageID] => -168611
+                    [parentNameUsageID] => -105852
+                    [scientificName] => Torpediniformes
+                    [taxonRank] => order
+                    [source] => trunk:59edf7f2-b792-4351-9f37-562dd522eeca,WOR:10215,gbif:881
+                    [taxonomicStatus] => accepted
+                    [canonicalName] => 
+                    [scientificNameAuthorship] => 
+                    [scientificNameID] => 
+                    [taxonRemarks] => 
+                    [namePublishedIn] => 
+                    [furtherInformationURL] => 
+                    [datasetID] => trunk
+                    [EOLid] => 8898
+                    [EOLidAnnotations] => multiple;
+                    [Landmark] => 1
                 )
-                Array(  [taxonID] => 93302
-                        [acceptedNameUsageID] => 93302
-                        [parentNameUsageID] => 805080
-                        [scientificName] => Cellular Organisms
-                        [taxonRank] => clade
-                        [source] => trunk:b72c3e8e-100e-4e47-82f6-76c3fd4d9d5f
-                        [taxonomicStatus] => accepted
-                        [canonicalName] => 
-                        [scientificNameAuthorship] => 
-                        [scientificNameID] => 
-                        [taxonRemarks] => 
-                        [namePublishedIn] => 
-                        [furtherInformationURL] => 
-                        [datasetID] => trunk
-                        [EOLid] => 
-                        [EOLidAnnotations] => 
-                )*/
-                /* debugging
-                // if($rec['EOLid'] == 7666) {print_r($rec); exit;}
-                // if($rec['taxonID'] == 93302) {print_r($rec); exit;}
+                Array(
+                    [taxonID] => 93302
+                    [acceptedNameUsageID] => 93302
+                    [parentNameUsageID] => -1
+                    [scientificName] => Cellular Organisms
+                    [taxonRank] => clade
+                    [source] => trunk:b72c3e8e-100e-4e47-82f6-76c3fd4d9d5f
+                    [taxonomicStatus] => accepted
+                    [canonicalName] => 
+                    [scientificNameAuthorship] => 
+                    [scientificNameID] => 
+                    [taxonRemarks] => 
+                    [namePublishedIn] => 
+                    [furtherInformationURL] => 
+                    [datasetID] => trunk
+                    [EOLid] => 6061725
+                    [EOLidAnnotations] => manual;
+                    [Landmark] => 
+                )
                 */
+                // /* debugging
+                // if($rec['EOLid'] == 3014446) {print_r($rec); exit;}
+                // if($rec['taxonID'] == 93302) {print_r($rec); exit;}
+                // if($rec['Landmark']) print_r($rec);
+                if(in_array($rec['EOLid'], Array(7687,3014522,42399419,32005829,3014446,2908256))) print_r($rec);
+                // */
                 $this->EOL_2_DH[$rec['EOLid']] = $rec['taxonID'];
                 $this->DH_2_EOL[$rec['taxonID']] = $rec['EOLid'];
                 $this->parent_of_taxonID[$rec['taxonID']] = $rec['parentNameUsageID'];
+                $this->landmark_of[$rec['EOLid']] = $rec['Landmark'];
             }
         }
         /* may not want to force assign this:
@@ -263,6 +272,9 @@ class SummaryDataResourcesAPI
         }
         echo "\n==========================================\nTips on left. Ancestors on right.\n";
         print_r($final);
+        
+        
+        
         /* may not need this anymore: get tips
         $tips = array_keys($final); //next step is get all tips from $final; 
         echo "\n tips: ".count($tips)." - "; print_r($tips);
