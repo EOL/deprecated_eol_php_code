@@ -71,7 +71,7 @@ class SummaryDataResourcesAPI
         $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
         $page_id = 46559118; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on
-        // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
+        $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         self::initialize();
         $ret = self::main_taxon_summary($page_id, $predicate);
         exit("\n-- main_taxon_summary ends --\n");
@@ -170,16 +170,16 @@ class SummaryDataResourcesAPI
                     [Landmark] => 
                 )
                 */
-                // /* debugging
+                /* debugging
                 // if($rec['EOLid'] == 3014446) {print_r($rec); exit;}
                 // if($rec['taxonID'] == 93302) {print_r($rec); exit;}
                 // if($rec['Landmark']) print_r($rec);
                 if(in_array($rec['EOLid'], Array(7687,3014522,42399419,32005829,3014446,2908256))) print_r($rec);
-                // */
+                */
                 $this->EOL_2_DH[$rec['EOLid']] = $rec['taxonID'];
                 $this->DH_2_EOL[$rec['taxonID']] = $rec['EOLid'];
                 $this->parent_of_taxonID[$rec['taxonID']] = $rec['parentNameUsageID'];
-                $this->landmark_of[$rec['EOLid']] = $rec['Landmark'];
+                $this->landmark_value_of[$rec['EOLid']] = $rec['Landmark'];
             }
         }
         /* may not want to force assign this:
@@ -218,10 +218,11 @@ class SummaryDataResourcesAPI
     }
     private function main_taxon_summary($page_id, $predicate)
     {
-        /* working but seems not needed. Just bring it back when requested.
+        // /* working but seems not needed. Just bring it back when requested.
         $ancestry = self::get_ancestry_via_DH($page_id);
-        echo "\nAncestry [$page_id]: "; print_r($ancestry);
-        */
+        echo "\n$page_id: (ancestors below, with {Landmark value} in curly brackets)";
+        foreach($ancestry as $anc_id) echo "\n --- $anc_id {".$this->landmark_value_of[$anc_id]."}";
+        // */
         echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
         $path = self::get_txt_path_by_page_id($page_id);
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
@@ -240,7 +241,13 @@ class SummaryDataResourcesAPI
         foreach($recs as $rec) {
             if($page_id = @$rec['object_page_id']) {
                 $anc = self::get_ancestry_via_DH($page_id);
-                echo "\nAncestry [$page_id]: "; print_r($anc); //initial report for Jen
+                
+                // /* initial report for Jen
+                // echo "\nAncestry [$page_id]: "; print_r($anc); //orig initial report
+                echo "\n$page_id: (ancestors below, with {Landmark value} in curly brackets)";
+                foreach($anc as $anc_id) echo "\n --- $anc_id {".$this->landmark_value_of[$anc_id]."}";
+                // */
+                
                 //start store counts:
                 $k = 0;
                 foreach($anc as $id) {
@@ -270,10 +277,14 @@ class SummaryDataResourcesAPI
                 }
             }
         }
+        
         echo "\n==========================================\nTips on left. Ancestors on right.\n";
-        print_r($final);
-        
-        
+        // print_r($final);
+        foreach($final as $tip => $ancestors) {
+            echo "\n$tip: (reduced ancestors below, with {Landmark value} in curly brackets)";
+            foreach($ancestors as $anc_id) echo "\n --- $anc_id {".$this->landmark_value_of[$anc_id]."}";
+        }
+        echo "\n";
         
         /* may not need this anymore: get tips
         $tips = array_keys($final); //next step is get all tips from $final; 
