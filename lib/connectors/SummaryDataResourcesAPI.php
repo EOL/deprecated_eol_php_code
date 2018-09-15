@@ -71,10 +71,10 @@ class SummaryDataResourcesAPI
         $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
         $page_id = 46559118; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on
-        $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
+        // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         self::initialize();
         $ret = self::main_taxon_summary($page_id, $predicate);
-        exit("\n-- main_taxon_summary ends --\n");
+        exit("\n-- method: 'taxon summary' ends --\n");
         // */
 
         /* METHOD: lifestage+statMeth ============================================================================================================
@@ -207,7 +207,12 @@ class SummaryDataResourcesAPI
         foreach($final as $taxonID) {
             // echo "\n$i. [$taxonID] => ";
             if($EOLid = @$this->DH_2_EOL[$taxonID]) {
+                /* orig strategy
                 $final2[] = $EOLid;
+                */
+                // /* new strategy: using Landmark value
+                if($this->landmark_value_of[$EOLid]) $final2[] = $EOLid;
+                // */
                 // echo " $EOLid";
             }
             // else echo " none";
