@@ -49,8 +49,9 @@ class SummaryDataResourcesAPI
     /* for 'parents' method:
     repeat basal values process on REP records aggregated from descendant taxa, to create a summary set of REP records (no PRM record). 
     MeasurementMethod= "summary of records available in EOL". 
-    SampleSize = "[number of] descendant taxa with records". 
-    Do not aggregate attribution data, but create source link to EOL, eg: https://beta.eol.org/terms/search_results?utf8=%E2%9C%93&clade_name=Ursidae&term_query%5Bclade_id%5D=7664&pred_name=geographic+distribution+includes&term_query%5Bfilters_attributes%5D%5B0%5D%5Bpred_uri%5D=http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPresent&term_query%5Bfilters_attributes%5D%5B0%5D%5Bop%5D=is_any&term_query%5Bresult_type%5D=record&commit=Search
+    SampleSize = "[number of] descendant taxa with records". Do not aggregate attribution data, but create source link to EOL, 
+    eg: https://beta.eol.org/terms/search_results?utf8=%E2%9C%93&clade_name=Ursidae&term_query%5Bclade_id%5D=7664&pred_name=geographic+distribution+includes&term_query%5Bfilters_attributes%5D%5B0%5D%5Bpred_uri%5D=http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPresent&term_query%5Bfilters_attributes%5D%5B0%5D%5Bop%5D=is_any&term_query%5Bresult_type%5D=record&commit=Search
+
     */
     function start()
     {
@@ -64,7 +65,7 @@ class SummaryDataResourcesAPI
         self::investigate_traits_csv(); exit;
         */
 
-        // /* METHOD: taxon summary ============================================================================================================
+        /* METHOD: taxon summary ============================================================================================================
         self::parse_DH();
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         $page_id = 7666; $page_id = 7662;
@@ -75,16 +76,18 @@ class SummaryDataResourcesAPI
         self::initialize();
         $ret = self::main_taxon_summary($page_id, $predicate);
         exit("\n-- method: 'taxon summary' ends --\n");
-        // */
+        */
 
-        /* METHOD: lifestage+statMeth ============================================================================================================
+
+        // /* METHOD: lifestage+statMeth ============================================================================================================
         self::initialize();
         $page_id = 347436; $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
-        $page_id = 347438; $page_id = 46559130;
+        // $page_id = 347438; 
+        // $page_id = 46559130;
         $ret = self::main_lifestage_statMeth($page_id, $predicate);
         print_r($ret);
         exit("\n-- main_lifestage_statMeth ends --\n");
-        */
+        // */
         /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
         // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
@@ -491,7 +494,7 @@ class SummaryDataResourcesAPI
         echo "\n\ninitial shared values ancestry tree: ".count($ISVAT)."\n";
         foreach($ISVAT as $a) echo "\n".$a[0]."\t".$a[1];
         echo "\n\nnew nodes 2:\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
-        echo "\n\nRoots 2: ".count($roots)."\n"; print_r($roots);
+        echo "\n\nRoots : ".count($roots)."\n"; print_r($roots);
         // exit("\n");
         // */
         
