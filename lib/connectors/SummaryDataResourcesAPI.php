@@ -249,8 +249,10 @@ class SummaryDataResourcesAPI
                 
                 // /* initial report for Jen
                 // echo "\nAncestry [$page_id]: "; print_r($anc); //orig initial report
-                echo "\n$page_id: (ancestors below, with {Landmark value} in curly brackets)";
-                foreach($anc as $anc_id) echo "\n --- $anc_id {".$this->landmark_value_of[$anc_id]."}";
+                if($anc) {
+                    echo "\n$page_id: (ancestors below, with {Landmark value} in curly brackets)";
+                    foreach($anc as $anc_id) echo "\n --- $anc_id {".$this->landmark_value_of[$anc_id]."}";
+                }
                 // */
                 
                 //start store counts:
@@ -303,17 +305,37 @@ class SummaryDataResourcesAPI
         foreach($final as $tip => $ancestors) {
             $root_ancestor[] = end($ancestors);
             $no_of_rows = count($ancestors);
-            if($no_of_rows > 1) $immediate_children_of_root[$ancestors[$no_of_rows-2]] = ''; // rows should be > 1 bec if only 1 then there is no child for that root.
-            if($no_of_rows == 1) $immediate_children_of_root[$tip] = '';
+            if($no_of_rows > 1) $idx = $ancestors[$no_of_rows-2]; // rows should be > 1 bec if only 1 then there is no child for that root.
+            elseif($no_of_rows == 1) $idx = $tip; 
+            else exit("\nInvestigate: won't go here...\n");
+            $immediate_children_of_root[$idx] = '';
+            @$immediate_children_of_root_count[$idx]++;
         }
-        
+
+        echo "\nchildren => no. of records it existed:";
+        print_r($immediate_children_of_root_count); echo "\n";
+        /* ver. 1 strategy
         $root_ancestor = array_unique($root_ancestor);
+        */
+        // /* ver. 2 strategy
+        $root_ancestor = self::get_key_of_arr_with_biggest_value($immediate_children_of_root_count);
+        // */
+        
         $immediate_children_of_root = array_keys($immediate_children_of_root);
         
         echo "\n root: "; print_r($root_ancestor);
         echo "\n immediate_children_of_root: "; print_r($immediate_children_of_root);
         
         return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP');
+    }
+    private function get_key_of_arr_with_biggest_value($arr)
+    {
+        $val = 0;
+        foreach($arr as $key => $value) {
+            if($value > $val) $ret = $key;
+            $val = $value;
+        }
+        return $ret;
     }
     
     private function main_lifestage_statMeth($page_id, $predicate)
