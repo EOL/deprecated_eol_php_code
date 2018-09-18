@@ -65,7 +65,7 @@ class SummaryDataResourcesAPI
         self::investigate_traits_csv(); exit;
         */
 
-        // /* METHOD: taxon summary ============================================================================================================
+        /* METHOD: taxon summary ============================================================================================================
         self::parse_DH();
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         $page_id = 7666; $page_id = 7662;
@@ -83,7 +83,7 @@ class SummaryDataResourcesAPI
         self::initialize();
         $ret = self::main_taxon_summary($page_id, $predicate);
         exit("\n-- end method: 'taxon summary' --\n");
-        // */
+        */
 
         /* METHOD: lifestage+statMeth ============================================================================================================
         self::initialize();
@@ -96,23 +96,23 @@ class SummaryDataResourcesAPI
         */
         
 
-        /* METHOD: basal values  ============================================================================================================
+        // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
         // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
         // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
-        // $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //first test case
+        $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //first test case
      
-        $page_id = 328109; $predicate = "http://eol.org/schema/terms/Habitat"; //not found in traits.csv
-        $page_id = 328607; $predicate = "http://eol.org/schema/terms/Habitat";
-        $page_id = 328682; $predicate = "http://eol.org/schema/terms/Habitat";
+        // $page_id = 328109; $predicate = "http://eol.org/schema/terms/Habitat"; //not found in traits.csv
+        // $page_id = 328607; $predicate = "http://eol.org/schema/terms/Habitat";
+        // $page_id = 328682; $predicate = "http://eol.org/schema/terms/Habitat";
         
-        $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Habitat";
-        $page_id = 328609; $predicate = "http://eol.org/schema/terms/Habitat";
-        $page_id = 328598; $predicate = "http://eol.org/schema/terms/Habitat";
+        // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Habitat";
+        // $page_id = 328609; $predicate = "http://eol.org/schema/terms/Habitat";
+        // $page_id = 328598; $predicate = "http://eol.org/schema/terms/Habitat";
 
         self::main_basal_values($page_id, $predicate); //works OK
         exit("\n-- end method: basal values --\n");
-        */
+        // */
     }
     private function extract_DH()
     {
@@ -510,8 +510,8 @@ class SummaryDataResourcesAPI
         echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
         echo "\n\ninitial shared values ancestry tree: ".count($ISVAT)."\n";
         foreach($ISVAT as $a) echo "\n".$a[0]."\t".$a[1];
-        echo "\n\nnew nodes 2:\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
-        echo "\n\nRoots : ".count($roots)."\n"; print_r($roots);
+        // echo "\n\nnew nodes: ".count($new_nodes)."\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1]; //good debug
+        echo "\n\nRoots: ".count($roots)."\n"; print_r($roots);
         // exit("\n");
         // */
         
@@ -521,39 +521,48 @@ class SummaryDataResourcesAPI
         foreach($tips as $tip) echo "\n$tip";
         echo "\n-end tips-\n"; //exit;
 
-        if(count($tips) <= 5 ) {}
+        if(count($tips) <= 5 ) $selected = $tips;
         else { // > 5
-            $step_1 = self::get_step_1($ISVAT, $roots, $tips);
-            echo "\nStep 1:".count($step_1)."\n";
-            foreach($step_1 as $a) echo "\n".$a;
-            echo "\n-end Step 1-\n";
-            if(count($step_1) <= 4) {} //select set 1
+            $step_1 = self::get_step_1($ISVAT, $roots, $tips, 1);
+            if(count($step_1) <= 4) $selected = $step_1; //select set 1
             else {
-                $step_2 = self::get_step_1($ISVAT, $roots, $step_1);
-                echo "\nStep 2:".count($step_2)."\n";
-                foreach($step_2 as $a) echo "\n".$a;
-                echo "\n-end Step 2-\n";
-                if(count($step_2) <= 4) {} //select set 2
+                $step_2 = self::get_step_1($ISVAT, $roots, $step_1, 2);
+                if(count($step_2) <= 4) $selected = $step_2; //select set 2
                 else {
-                    $step_3 = self::get_step_1($ISVAT, $roots, $step_2);
-                    echo "\nStep 3:".count($step_3)."\n";
-                    foreach($step_3 as $a) echo "\n".$a;
-                    echo "\n-end Step 3-\n";
+                    $step_3 = self::get_step_1($ISVAT, $roots, $step_2, 3);
                     if($step_2 == $step_3) {
                         echo "\nSteps 2 and 3 are identical.\n";
-                        if(count($step_3) <= 4) {} //select set 3
+                        if(count($step_3) <= 4) $selected = $step_3; //select set 3
                         else {
-                            echo "\nSelect root ancestors\n"; //label PRM and REP if one record, REP if >1
-                            if(count($roots) == 1) echo "\n----- label as: PRM and REP\n";
-                            elseif(count($roots) > 1) echo "\n----- label as: REP\n";
+                            echo "\nSelect root ancestors\n";
+                            $selected = $roots;
                         }
                     }
                     else {
-                        echo "\nStep 2 and Step 3 are different.\n";
+                        echo "\nStep 2 and Step 3 are different. Proceed with Step 4\n";
+                        $step_4 = self::get_step_1($ISVAT, $roots, $step_3, 4);
+                        if($step_3 == $step_4) {
+                            echo "\nSteps 3 and 4 are identical.\n";
+                            if(count($step_4) <= 4) $selected = $step_4; //select set 4
+                            else {
+                                echo "\nSelect root ancestors\n";
+                                $selected = $roots;
+                            }
+                        }
+                        else {
+                            echo "\nStep 3 and Step 4 are different. Proceed with Step 5\n";
+                            exit("\nConstruct Step 5\n");
+                        }
                     }
                 }
             }
         }
+
+        //label PRM and REP if one record, REP if > 1
+        if    (count($selected) == 1) $label = "PRM and REP";
+        elseif(count($selected) > 1)  $label = "REP";
+        echo "\n----- label as: [$label]\n";
+        return array('selected' => $selected, 'label' => $label);
         /*
         if tips <= 5 SELECT ALL TIPS 
         else
@@ -591,7 +600,7 @@ class SummaryDataResourcesAPI
         return $final;
     }
 
-    private function get_step_1($isvat, $roots, $tips)
+    private function get_step_1($isvat, $roots, $tips, $step_no)
     {   /* 
         - find all tips
         - find all nodes that are parents of tips
@@ -613,6 +622,12 @@ class SummaryDataResourcesAPI
         }
         $final = array_keys($final);
         asort($final);
+        
+        //optional display
+        echo "\nStep $step_no:".count($final)."\n";
+        foreach($final as $a) echo "\n".$a;
+        echo "\n-end Step $step_no-\n";
+        
         return $final;
     }
     private function utility_compare()
