@@ -65,7 +65,7 @@ class SummaryDataResourcesAPI
         self::investigate_traits_csv(); exit;
         */
 
-        /* METHOD: taxon summary ============================================================================================================
+        // /* METHOD: taxon summary ============================================================================================================
         self::parse_DH();
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         $page_id = 7666; $page_id = 7662;
@@ -73,10 +73,17 @@ class SummaryDataResourcesAPI
         $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
         $page_id = 46559118; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
+
+        $page_id = 46559162; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
+
+        $page_id = 46559217; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
+        $page_id = 328609; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
+        $page_id = 328598; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
+        
         self::initialize();
         $ret = self::main_taxon_summary($page_id, $predicate);
-        exit("\n-- end method: 'taxon summary' ends --\n");
-        */
+        exit("\n-- end method: 'taxon summary' --\n");
+        // */
 
         /* METHOD: lifestage+statMeth ============================================================================================================
         self::initialize();
@@ -85,14 +92,24 @@ class SummaryDataResourcesAPI
         // $page_id = 46559130;
         $ret = self::main_lifestage_statMeth($page_id, $predicate);
         print_r($ret);
-        exit("\n-- end method: lifestage_statMeth ends --\n");
+        exit("\n-- end method: lifestage_statMeth --\n");
         */
         
+
         /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
         // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
         // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
-        $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat";
+        // $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //first test case
+     
+        $page_id = 328109; $predicate = "http://eol.org/schema/terms/Habitat"; //not found in traits.csv
+        $page_id = 328607; $predicate = "http://eol.org/schema/terms/Habitat";
+        $page_id = 328682; $predicate = "http://eol.org/schema/terms/Habitat";
+        
+        $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Habitat";
+        $page_id = 328609; $predicate = "http://eol.org/schema/terms/Habitat";
+        $page_id = 328598; $predicate = "http://eol.org/schema/terms/Habitat";
+
         self::main_basal_values($page_id, $predicate); //works OK
         exit("\n-- end method: basal values --\n");
         */
@@ -586,7 +603,7 @@ class SummaryDataResourcesAPI
             $parent_of_right[$a[1]] = $a[0];
         }
         foreach($tips as $tip) {
-            if($parent = $parent_of_right[$tip]) {
+            if($parent = @$parent_of_right[$tip]) {
                 if(in_array($tip, $roots) || in_array($parent, $roots)) $final[$tip] = '';
                 if(!in_array($tip, $roots) && !in_array($parent, $roots)) $final[$parent] = '';
             }
