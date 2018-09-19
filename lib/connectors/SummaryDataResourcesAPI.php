@@ -140,6 +140,7 @@ class SummaryDataResourcesAPI
             if($val = @$rec['Selected']) $page_ids = array_merge($page_ids, $val);
         }
         $page_ids = array_unique($page_ids);
+        $page_ids = array_values($page_ids); //reindexes key
         echo "\n==========================================================\ncombined values from the original records (all REC records of children), deduplicated:";
         print_r($page_ids);
         
@@ -173,6 +174,7 @@ class SummaryDataResourcesAPI
         // /* NEW STEP: If the common root of the dataset is anything else, you can leave it. Only remove it if it is 2913056 
         $hierarchies_of_taxon_values = self::adjust_2913056($hierarchies_of_taxon_values);
         // */
+        print_r($hierarchies_of_taxon_values);
         
         //start store counts 2:
         foreach($hierarchies_of_taxon_values as $page_id => $anc) {
