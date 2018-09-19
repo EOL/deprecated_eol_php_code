@@ -140,10 +140,11 @@ class SummaryDataResourcesAPI
             if($val = @$rec['Selected']) $page_ids = array_merge($page_ids, $val);
         }
         $page_ids = array_unique($page_ids);
+        echo "\n==========================================================\ncombined values from the original records (all REC records of children), deduplicated:";
         print_r($page_ids);
         
         //now get similar report from 'taxon summary'
-        echo "\nHierarchies of taxon values:";
+        echo "\n==========================================================\nHierarchies of taxon values:";
         foreach($page_ids as $page_id) {
             $anc = self::get_ancestry_via_DH($page_id);
             array_pop($anc); //new step
@@ -183,7 +184,7 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        echo "\nReduced hierarchies:"; print_r($final);
+        echo "\n==========================================================\nReduced hierarchies:"; print_r($final);
 
         exit("\nexit muna\n");
     }
