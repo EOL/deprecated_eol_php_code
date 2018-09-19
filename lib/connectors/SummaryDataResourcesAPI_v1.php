@@ -65,14 +65,7 @@ class SummaryDataResourcesAPI
         self::investigate_traits_csv(); exit;
         */
 
-        /* METHOD: parents
-        $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -> orig test case
-        $ret = self::main_parents($page_id, $predicate);
-        print_r($ret);
-        exit("\n-- end method: parents --\n");
-        */
-
-        // /* METHOD: taxon summary ============================================================================================================
+        /* METHOD: taxon summary ============================================================================================================
         self::parse_DH();
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         $page_id = 7666; $page_id = 7662;
@@ -84,14 +77,13 @@ class SummaryDataResourcesAPI
         $page_id = 46559162; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
 
         $page_id = 46559217; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-        // $page_id = 328609; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-        // $page_id = 328598; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-        $page_id = 328682; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -- additional test sample
+        $page_id = 328609; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
+        $page_id = 328598; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         
         self::initialize();
         $ret = self::main_taxon_summary($page_id, $predicate);
         exit("\n-- end method: 'taxon summary' --\n");
-        // */
+        */
 
         /* METHOD: lifestage+statMeth ============================================================================================================
         self::initialize();
@@ -102,8 +94,9 @@ class SummaryDataResourcesAPI
         print_r($ret);
         exit("\n-- end method: lifestage_statMeth --\n");
         */
+        
 
-        /* METHOD: basal values  ============================================================================================================
+        // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
         // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
         // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
@@ -119,19 +112,8 @@ class SummaryDataResourcesAPI
 
         self::main_basal_values($page_id, $predicate); //works OK
         exit("\n-- end method: basal values --\n");
-        */
+        // */
     }
-    //############################################################################################ start method = 'parents'
-    private function main_parents($page_id, $predicate)
-    {
-        $children = self::get_children_of_rank_species($page_id);
-        print_r($children);
-    }
-    private function get_children_of_rank_species($page_id) //TODO
-    {
-        return array(328598, 3288609, 46559217, 328682, 328607);
-    }
-    //############################################################################################ end method = 'parents'
     private function extract_DH()
     {
         require_library('connectors/INBioAPI');
@@ -340,8 +322,6 @@ class SummaryDataResourcesAPI
         - Select all immediate children of the root and label REP.
         - Label the root PRM
         */
-        echo "\n final array: ".count($final); print_r($final);
-        if(!$final) return false;
         foreach($final as $tip => $ancestors) {
             $root_ancestor[] = end($ancestors);
             $no_of_rows = count($ancestors);
@@ -360,6 +340,7 @@ class SummaryDataResourcesAPI
         // /* ver. 2 strategy
         $root_ancestor = self::get_key_of_arr_with_biggest_value($immediate_children_of_root_count);
         // */
+        
         $immediate_children_of_root = array_keys($immediate_children_of_root);
         
         echo "\n root: "; print_r($root_ancestor);
