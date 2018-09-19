@@ -65,14 +65,14 @@ class SummaryDataResourcesAPI
         self::investigate_traits_csv(); exit;
         */
 
-        /* METHOD: parents
+        // /* METHOD: parents
         $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -> orig test case
         $ret = self::main_parents($page_id, $predicate);
         print_r($ret);
         exit("\n-- end method: parents --\n");
-        */
+        // */
 
-        // /* METHOD: taxon summary ============================================================================================================
+        /* METHOD: taxon summary ============================================================================================================
         self::parse_DH();
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         $page_id = 7666; $page_id = 7662;
@@ -86,12 +86,12 @@ class SummaryDataResourcesAPI
         $page_id = 46559217; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 328609; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 328598; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-        $page_id = 328682; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -- additional test sample
+        $page_id = 328682; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -- additional test sample but no record
         
         self::initialize();
         $ret = self::main_taxon_summary($page_id, $predicate);
         exit("\n-- end method: 'taxon summary' --\n");
-        // */
+        */
 
         /* METHOD: lifestage+statMeth ============================================================================================================
         self::initialize();
@@ -124,8 +124,23 @@ class SummaryDataResourcesAPI
     //############################################################################################ start method = 'parents'
     private function main_parents($page_id, $predicate)
     {
+        self::parse_DH();
+        
+        /* 1. get all children of page_id with rank = species */
         $children = self::get_children_of_rank_species($page_id);
-        print_r($children);
+        /* 2. get all values for each child from method = 'taxon summary' */
+        foreach($children as $page_id) {
+            if($val = self::main_taxon_summary($page_id, $predicate)) $records[] = $val;
+        }
+        /* 3. get all selected values */
+        $page_ids = array();
+        foreach($records as $rec) {
+            if($val = @$rec['Selected']) $page_ids = array_merge($page_ids, $val);
+        }
+        $page_ids = array_unique($page_ids);
+        print_r($page_ids);
+        
+        exit("\nexit muna\n");
     }
     private function get_children_of_rank_species($page_id) //TODO
     {
@@ -364,7 +379,6 @@ class SummaryDataResourcesAPI
         
         echo "\n root: "; print_r($root_ancestor);
         echo "\n immediate_children_of_root: "; print_r($immediate_children_of_root);
-        
         return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP');
     }
     private function get_key_of_arr_with_biggest_value($arr)
