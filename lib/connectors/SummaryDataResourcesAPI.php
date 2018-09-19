@@ -65,12 +65,12 @@ class SummaryDataResourcesAPI
         self::investigate_traits_csv(); exit;
         */
 
-        /* METHOD: parents
+        // /* METHOD: parents
         $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -> orig test case
         $ret = self::main_parents($page_id, $predicate);
         print_r($ret);
         exit("\n-- end method: parents --\n");
-        */
+        // */
 
         // /* METHOD: taxon summary ============================================================================================================
         self::parse_DH();
@@ -86,7 +86,7 @@ class SummaryDataResourcesAPI
         // $page_id = 46559217; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 328609; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 328598; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-        $page_id = 328682; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -- additional test sample but no record for predicate 'eats'.
+        // $page_id = 328682; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -- additional test sample but no record for predicate 'eats'.
         
         self::initialize();
         $ret = self::main_taxon_summary($page_id, $predicate);
@@ -132,6 +132,7 @@ class SummaryDataResourcesAPI
         // $children = array(328609); //debug
         foreach($children as $page_id) {
             if($val = self::main_taxon_summary($page_id, $predicate)) $records[] = $val;
+            // print_r($val); exit;
         }
         /* 3. get all selected values */
         $page_ids = array();
@@ -141,12 +142,26 @@ class SummaryDataResourcesAPI
         $page_ids = array_unique($page_ids);
         print_r($page_ids);
         
+        //now get similar report from 'taxon summary'
+        foreach($page_ids as $page_id) {
+            $anc = self::get_ancestry_via_DH($page_id);
+            // /* initial report for Jen
+            if($anc) {
+                echo "\n$page_id: (ancestors below, with {Landmark value} in curly brackets)";
+                foreach($anc as $anc_id) {
+                    echo "\n --- $anc_id {".$this->landmark_value_of[$anc_id]."}";
+                }
+            }
+            // */
+        }
+        
+        
         exit("\nexit muna\n");
     }
     private function get_children_of_rank_species($page_id) //TODO
     {
         // return array(328598, 328609, 46559217, 328682, 328607);
-        return array(328598, 328609, 46559217, 328682, 328607, 46559162);
+        return array(328598, 328609, 46559217, 328607, 46559162);
     }
     //############################################################################################ end method = 'parents'
     private function extract_DH()
