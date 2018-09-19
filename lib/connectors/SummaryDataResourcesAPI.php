@@ -121,12 +121,13 @@ class SummaryDataResourcesAPI
         */
     }
     //############################################################################################ start method = 'parents'
-    private function main_parents($page_id, $predicate)
+    private function main_parents($main_page_id, $predicate)
     {
         self::parse_DH();
         
         /* 1. get all children of page_id with rank = species */
-        $children = self::get_children_of_rank_species($page_id);
+        $children = self::get_children_of_rank_species($main_page_id);
+        
         /* 2. get all values for each child from method = 'taxon summary' */
         // $children = array(328609); //debug
         foreach($children as $page_id) {
@@ -140,6 +141,10 @@ class SummaryDataResourcesAPI
         }
         $page_ids = array_unique($page_ids);
         $page_ids = array_values($page_ids); //reindexes key
+        
+        echo "\n==========================================================\nParent process for taxon ID $main_page_id, predicate $predicate\n";
+        echo "\nChildren used for computation: "; print_r($children);
+        
         echo "\n==========================================================\ncombined values from the original records (all REC records of children), deduplicated:";
         print_r($page_ids);
         
@@ -233,14 +238,14 @@ class SummaryDataResourcesAPI
         $ret = self::get_all_roots($final); //get all roots of 'Reduced hierarchies'
         $all_roots = $ret['roots'];
         $count_all_roots = count($all_roots);
-        print_r($ret);
+        // print_r($ret); //good debug
         if($count_all_roots == 1) {
             //from taxon summary:
             $ret = self::get_immediate_children_of_root_info($final);
             $immediate_children_of_root         = $ret['immediate_children_of_root'];
             $immediate_children_of_root_count   = $ret['immediate_children_of_root_count'];
 
-            echo "\nImmediate children of root => no. of records it existed:";
+            echo "\nImmediate children of root => and the no. of records it existed:";
             print_r($immediate_children_of_root_count); echo "\n";
             /* ver. 1 strategy
             $root_ancestor = array_unique($root_ancestor);
@@ -273,6 +278,21 @@ class SummaryDataResourcesAPI
     }
     private function adjust_2913056($hierarchies_of_taxon_values) //If the common root of the dataset is anything else, you can leave it. Only remove it if it is 2913056 
     {
+        /* Rules:
+        - If the root node is any of these five, and if it is common to all 'hierarchies_of_taxon_values', then I'll remove that root node from all hierarchies.
+        - If there are multiple root nodes, but all are included in the magic five -> remove all
+        - if there are multiple root nodes, some are outside of the magic five -> remove magic 5 roots, leave the others
+        */
+        $root_nodes_to_remove = array(46702381, 2910700, 6061725, 2908256, 2913056);
+        foreach($hierarchies_of_taxon_values as $page_id => $anc) {
+            $orig_anc = $anc;
+            $last = array_pop($anc);
+            if(in_array($last, $root_nodes_to_remove)) $final[$page_id] = $anc;
+            else                                       $final[$page_id] = $orig_anc;
+        }
+        return $final;
+        
+        /* version 1 obsolete
         $life = 2913056;
         $remove_last_rec = true;
         foreach($hierarchies_of_taxon_values as $page_id => $anc) {
@@ -292,6 +312,7 @@ class SummaryDataResourcesAPI
             return $final;
         }
         else return $hierarchies_of_taxon_values;
+        */
     }
     private function get_children_of_rank_species($page_id) //TODO
     {
