@@ -51,7 +51,6 @@ class SummaryDataResourcesAPI
     MeasurementMethod= "summary of records available in EOL". 
     SampleSize = "[number of] descendant taxa with records". Do not aggregate attribution data, but create source link to EOL, 
     eg: https://beta.eol.org/terms/search_results?utf8=%E2%9C%93&clade_name=Ursidae&term_query%5Bclade_id%5D=7664&pred_name=geographic+distribution+includes&term_query%5Bfilters_attributes%5D%5B0%5D%5Bpred_uri%5D=http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPresent&term_query%5Bfilters_attributes%5D%5B0%5D%5Bop%5D=is_any&term_query%5Bresult_type%5D=record&commit=Search
-
     */
     function start()
     {
@@ -186,9 +185,7 @@ class SummaryDataResourcesAPI
             }
         }
 
-        /* good debug
-        print_r($counts); //print_r($children_of);
-        */
+        // print_r($counts); //print_r($children_of); //good debug
         $final = array();
         foreach($hierarchies_of_taxon_values as $page_id => $anc) {
             foreach($anc as $id) {
@@ -204,7 +201,56 @@ class SummaryDataResourcesAPI
         }
         echo "\n==========================================================\nReduced hierarchies:"; print_r($final);
 
+        /*
+        "NEW STEP: IF there are multiple roots, discard those representing less than 15% of the original records",
+        */
+
+        /*
+        IF >1 roots remain:,
+        ,
+        All the remaining roots are REP records,
+        the one that appears in the most ancestries is the PRM,
+        ,
+        ,
+        IF one root remains:,
+        ,
+        All direct children of the remaining root are REP records,
+        the one that appears in the most ancestries is the PRM,
+        (i.e. same behavior as taxon summary),
+        ,
+        ,
+        "In this case, one root remains (taxon ID=1)",
+        ,
+        REP records:,
+        ,
+        2774383,
+        166,
+        10459935,
+        ,
+        PRM record:,
+        2774383,
+        */
+        $ret = self::get_all_roots($final); //get all roots of 'Reduced hierarchies'
+        $all_roots = $ret['roots'];
+        $count_all_roots = count($all_roots);
+        print_r($ret);
+        if($count_all_roots == 1) {
+            
+        }
+        elseif($count_all_roots > 1) {
+        }
+        
+        
         exit("\nexit muna\n");
+    }
+    private function get_all_roots($reduced_hierarchies)
+    {
+        foreach($reduced_hierarchies as $page_id => $anc) {
+            $last = array_pop($anc);
+            $final[$last] = '';
+            @$count_of_roots[$last]++;
+        }
+        return array('roots' => array_keys($final), 'count_of_roots' => $count_of_roots);
     }
     private function adjust_2913056($hierarchies_of_taxon_values) //If the common root of the dataset is anything else, you can leave it. Only remove it if it is 2913056 
     {
@@ -218,6 +264,7 @@ class SummaryDataResourcesAPI
             }
         }
         if($remove_last_rec) {
+            echo "\nNOTE: Common root of hierarchies of taxon values (n=".count($hierarchies_of_taxon_values).") is 'Life:2913056'. Will remove this common root.\n";
             $final = array();
             foreach($hierarchies_of_taxon_values as $page_id => $anc) {
                 array_pop($anc);
@@ -443,6 +490,7 @@ class SummaryDataResourcesAPI
         */
         echo "\n final array: ".count($final); print_r($final);
         if(!$final) return false;
+        /* WORKING WELL but was made into a function -> get_immediate_children_of_root_info($final)
         foreach($final as $tip => $ancestors) {
             $root_ancestor[] = end($ancestors);
             $no_of_rows = count($ancestors);
@@ -452,7 +500,12 @@ class SummaryDataResourcesAPI
             $immediate_children_of_root[$idx] = '';
             @$immediate_children_of_root_count[$idx]++;
         }
-
+        */
+        $ret = self::get_immediate_children_of_root_info($final);
+        $immediate_children_of_root         = $ret['immediate_children_of_root'];
+        $immediate_children_of_root_count   = $ret['immediate_children_of_root_count'];
+        
+        
         echo "\nchildren => no. of records it existed:";
         print_r($immediate_children_of_root_count); echo "\n";
         /* ver. 1 strategy
@@ -466,6 +519,19 @@ class SummaryDataResourcesAPI
         echo "\n root: "; print_r($root_ancestor);
         echo "\n immediate_children_of_root: "; print_r($immediate_children_of_root);
         return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP');
+    }
+    private function get_immediate_children_of_root_info($final)
+    {
+        foreach($final as $tip => $ancestors) {
+            $root_ancestor[] = end($ancestors);
+            $no_of_rows = count($ancestors);
+            if($no_of_rows > 1) $idx = $ancestors[$no_of_rows-2]; // rows should be > 1 bec if only 1 then there is no child for that root.
+            elseif($no_of_rows == 1) $idx = $tip; 
+            else exit("\nInvestigate: won't go here...\n");
+            $immediate_children_of_root[$idx] = '';
+            @$immediate_children_of_root_count[$idx]++;
+        }
+        return array('immediate_children_of_root' => $immediate_children_of_root, 'immediate_children_of_root_count' => $immediate_children_of_root_count);
     }
     private function get_key_of_arr_with_biggest_value($arr)
     {
