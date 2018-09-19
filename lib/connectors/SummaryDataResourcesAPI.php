@@ -143,8 +143,10 @@ class SummaryDataResourcesAPI
         print_r($page_ids);
         
         //now get similar report from 'taxon summary'
+        echo "\nHierarchies of taxon values:";
         foreach($page_ids as $page_id) {
             $anc = self::get_ancestry_via_DH($page_id);
+            array_pop($anc); //new step
             // /* initial report for Jen
             if($anc) {
                 echo "\n$page_id: (ancestors below, with {Landmark value} in curly brackets)";
@@ -153,9 +155,36 @@ class SummaryDataResourcesAPI
                 }
             }
             // */
+            
+            //start store counts 2:
+            $k = 0;
+            foreach($anc as $id) {
+                @$counts[$id]++;
+                if($k > 0) $children_of[$id][] = $anc[$k-1];
+                $k++;
+            }
         }
-        
-        
+
+        /* good debug
+        print_r($counts); //print_r($children_of);
+        */
+        $final = array();
+        foreach($page_ids as $page_id) {
+            $anc = self::get_ancestry_via_DH($page_id);
+            array_pop($anc); //new step
+            foreach($anc as $id) {
+                if($count = @$counts[$id]) {
+                    if($count >= 2) { //meaning this ancestor exists in other recs
+                        if($arr = @$children_of[$id]) {
+                            $arr = array_unique($arr);
+                            if(count($arr) > 1) $final[$page_id][] = $id; //meaning child is not the same for all recs
+                        }
+                    }
+                }
+            }
+        }
+        echo "\nReduced hierarchies:"; print_r($final);
+
         exit("\nexit muna\n");
     }
     private function get_children_of_rank_species($page_id) //TODO
@@ -325,7 +354,7 @@ class SummaryDataResourcesAPI
                 }
                 // */
                 
-                //start store counts:
+                //start store counts 1:
                 $k = 0;
                 foreach($anc as $id) {
                     @$counts[$id]++;
