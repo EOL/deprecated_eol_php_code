@@ -145,19 +145,37 @@ class SummaryDataResourcesAPI
         
         //now get similar report from 'taxon summary'
         echo "\n==========================================================\nHierarchies of taxon values:";
+        $hierarchies_of_taxon_values = array();
         foreach($page_ids as $page_id) {
             $anc = self::get_ancestry_via_DH($page_id);
-            array_pop($anc); //new step
-            // /* initial report for Jen
+            $hierarchies_of_taxon_values[$page_id] = $anc;
+            // array_pop($anc); //new step was moved outside this loop
+            /* initial report for Jen
             if($anc) {
                 echo "\n$page_id: (ancestors below, with {Landmark value} in curly brackets)";
                 foreach($anc as $anc_id) {
                     echo "\n --- $anc_id {".$this->landmark_value_of[$anc_id]."}";
                 }
             }
-            // */
+            */
             
-            //start store counts 2:
+            //start store counts 2: moved below, outside this loop
+            /*
+            $k = 0;
+            foreach($anc as $id) {
+                @$counts[$id]++;
+                if($k > 0) $children_of[$id][] = $anc[$k-1];
+                $k++;
+            }
+            */
+        }
+
+        // /* NEW STEP: If the common root of the dataset is anything else, you can leave it. Only remove it if it is 2913056 
+        $hierarchies_of_taxon_values = self::adjust_2913056($hierarchies_of_taxon_values);
+        // */
+        
+        //start store counts 2:
+        foreach($hierarchies_of_taxon_values as $page_id => $anc) {
             $k = 0;
             foreach($anc as $id) {
                 @$counts[$id]++;
@@ -170,9 +188,7 @@ class SummaryDataResourcesAPI
         print_r($counts); //print_r($children_of);
         */
         $final = array();
-        foreach($page_ids as $page_id) {
-            $anc = self::get_ancestry_via_DH($page_id);
-            array_pop($anc); //new step
+        foreach($hierarchies_of_taxon_values as $page_id => $anc) {
             foreach($anc as $id) {
                 if($count = @$counts[$id]) {
                     if($count >= 2) { //meaning this ancestor exists in other recs
@@ -187,6 +203,27 @@ class SummaryDataResourcesAPI
         echo "\n==========================================================\nReduced hierarchies:"; print_r($final);
 
         exit("\nexit muna\n");
+    }
+    private function adjust_2913056($hierarchies_of_taxon_values) //If the common root of the dataset is anything else, you can leave it. Only remove it if it is 2913056 
+    {
+        $life = 2913056;
+        $remove_last_rec = true;
+        foreach($hierarchies_of_taxon_values as $page_id => $anc) {
+            $last = array_pop($anc);
+            if($last != $life) {
+                $remove_last_rec = false; //if only if one is not $life then don't remove last rec.
+                break; //end loop
+            }
+        }
+        if($remove_last_rec) {
+            $final = array();
+            foreach($hierarchies_of_taxon_values as $page_id => $anc) {
+                array_pop($anc);
+                $final[$page_id] = $anc;
+            }
+            return $final;
+        }
+        else return $hierarchies_of_taxon_values;
     }
     private function get_children_of_rank_species($page_id) //TODO
     {

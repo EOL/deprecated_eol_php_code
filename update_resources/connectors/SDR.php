@@ -6,6 +6,13 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/SummaryDataResourcesAPI');
 
 /*
+$a = array(1,2,3,4); print_r($a);
+$last = array_pop($a); 
+print_r($a);
+echo "\nlast: [$last]\n"; exit;
+*/
+
+/*
 //Jen's roots:
 $str = "http://purl.obolibrary.org/obo/ENVO_00000144, http://purl.obolibrary.org/obo/ENVO_00000463, http://purl.obolibrary.org/obo/ENVO_00000856, 
 http://purl.obolibrary.org/obo/ENVO_00002009, http://purl.obolibrary.org/obo/ENVO_00002033, http://purl.obolibrary.org/obo/ENVO_01000204, 
