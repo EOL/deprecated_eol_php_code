@@ -235,10 +235,29 @@ class SummaryDataResourcesAPI
         $count_all_roots = count($all_roots);
         print_r($ret);
         if($count_all_roots == 1) {
+            //from taxon summary:
+            $ret = self::get_immediate_children_of_root_info($final);
+            $immediate_children_of_root         = $ret['immediate_children_of_root'];
+            $immediate_children_of_root_count   = $ret['immediate_children_of_root_count'];
+
+            echo "\nchildren => no. of records it existed:";
+            print_r($immediate_children_of_root_count); echo "\n";
+            /* ver. 1 strategy
+            $root_ancestor = array_unique($root_ancestor);
+            */
+            // /* ver. 2 strategy
+            $root_ancestor = self::get_key_of_arr_with_biggest_value($immediate_children_of_root_count);
+            // */
+            $immediate_children_of_root = array_keys($immediate_children_of_root);
+
+            echo "\n root: "; print_r($root_ancestor);
+            echo "\n immediate_children_of_root: "; print_r($immediate_children_of_root);
+            return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP');
             
-        }
+        } //end IF one root remains ------------------------------------------------------------
         elseif($count_all_roots > 1) {
-        }
+            
+        } //end if > 1 roots remain ------------------------------------------------------------
         
         
         exit("\nexit muna\n");
