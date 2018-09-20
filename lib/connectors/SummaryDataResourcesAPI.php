@@ -284,13 +284,37 @@ class SummaryDataResourcesAPI
         - if there are multiple root nodes, some are outside of the magic five -> remove magic 5 roots, leave the others
         */
         $root_nodes_to_remove = array(46702381, 2910700, 6061725, 2908256, 2913056);
+        $cont_for_more = false;
         foreach($hierarchies_of_taxon_values as $page_id => $anc) {
             $orig_anc = $anc;
             $last = array_pop($anc);
-            if(in_array($last, $root_nodes_to_remove)) $final[$page_id] = $anc;
-            else                                       $final[$page_id] = $orig_anc;
+            if(in_array($last, $root_nodes_to_remove)) {
+                $final[$page_id] = $anc;
+                $cont_for_more = true;
+            }
+            else $final[$page_id] = $orig_anc;
         }
-        return $final;
+        if($cont_for_more) {
+            while(true) {
+                $cont_for_more = false;
+                foreach($final as $page_id => $anc) {
+                    $orig_anc = $anc;
+                    $last = array_pop($anc);
+                    if(in_array($last, $root_nodes_to_remove)) {
+                        $final2[$page_id] = $anc;
+                        $cont_for_more = true;
+                    }
+                    else $final2[$page_id] = $orig_anc;
+                }
+                if($cont_for_more) {
+                    $final = $final2;
+                    $final2 = array();
+                }
+                else break; //break from while true
+            }
+            return $final2;
+        }
+        else return $final;
         
         /* version 1 obsolete
         $life = 2913056;
