@@ -123,7 +123,6 @@ class SummaryDataResourcesAPI
     private function main_parents($main_page_id, $predicate)
     {
         self::parse_DH();
-        
         /* 1. get all children of page_id with rank = species */
         $children = self::get_children_of_rank_species($main_page_id);
         
@@ -138,13 +137,17 @@ class SummaryDataResourcesAPI
         foreach($records as $rec) {
             if($val = @$rec['Selected']) $page_ids = array_merge($page_ids, $val);
         }
+        $still_with_duplicates = $page_ids;
         $page_ids = array_unique($page_ids);
         $page_ids = array_values($page_ids); //reindexes key
         
         echo "\n==========================================================\nParent process for taxon ID $main_page_id, predicate $predicate\n";
         echo "\nChildren used for computation: "; print_r($children);
+
+        echo "\n==========================================================\nCombined values from the original records (all REC records of children), raw:";
+        print_r($still_with_duplicates);
         
-        echo "\n==========================================================\ncombined values from the original records (all REC records of children), deduplicated:";
+        echo "\n==========================================================\nCombined values from the original records (all REC records of children), deduplicated:";
         print_r($page_ids);
         
         //now get similar report from 'taxon summary'
@@ -262,8 +265,6 @@ class SummaryDataResourcesAPI
         elseif($count_all_roots > 1) {
             
         } //end if > 1 roots remain ------------------------------------------------------------
-        
-        
         exit("\nexit muna\n");
     }
     private function get_all_roots($reduced_hierarchies)
