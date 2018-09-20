@@ -74,18 +74,17 @@ class SummaryDataResourcesAPI
         // /* METHOD: taxon summary ============================================================================================================
         self::parse_DH();
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
+        // $page_id = 328682; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -- additional test sample but no record for predicate 'eats'.
+        
         $page_id = 7666; $page_id = 7662;
         $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
         $page_id = 46559118; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on
-        // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-
+        $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         $page_id = 46559162; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-
-        // $page_id = 46559217; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-        // $page_id = 328609; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-        // $page_id = 328598; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-        // $page_id = 328682; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -- additional test sample but no record for predicate 'eats'.
+        $page_id = 46559217; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
+        $page_id = 328609; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
+        $page_id = 328598; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         
         self::initialize();
         $ret = self::main_taxon_summary($page_id, $predicate);
@@ -255,8 +254,8 @@ class SummaryDataResourcesAPI
             // */
             $immediate_children_of_root = array_keys($immediate_children_of_root);
 
-            echo "\n PRM record: $root_ancestor (the one that appears in the most ancestries)";
-            echo "\n REP records: "; print_r($immediate_children_of_root);
+            echo "\nPRM record: $root_ancestor (the one that appears in the most ancestries)";
+            echo "\nREP records: "; print_r($immediate_children_of_root);
             // return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP');
             
         } //end IF one root remains ------------------------------------------------------------
