@@ -190,6 +190,14 @@ class SummaryDataResourcesAPI
 
         /*
         "NEW STEP: IF there are multiple roots, discard those representing less than 15% of the original records",
+
+        discard: yes, *in this step* discard means that whole hierarchy
+
+        "original records" is a set just upstream of your second section in your result file: 
+        "combined values from the original records (all REC records of children), deduplicated:Array". 
+        The list I want is before deduplication, 
+        i.e. if 207661 was a value for more than one of the child taxa, it should count more than once in the 15% calculation.
+        
         */
 
         /*
@@ -238,10 +246,9 @@ class SummaryDataResourcesAPI
         } //end IF one root remains ------------------------------------------------------------
         elseif($count_all_roots > 1) { //has not met this criteria yet in our test cases.
             /* IF >1 roots remain:,
-            All the remaining roots are REP records,
-            the one that appears in the most ancestries is the PRM,
-            e.g.
-            List of roots and the the no. of records it existed:
+            - All the remaining roots are REP records,
+            - the one that appears in the most ancestries is the PRM,
+            e.g. List of roots and the the no. of records it existed:
             $ret_roots = Array(
                 [roots] => Array(
                         [0] => 1
