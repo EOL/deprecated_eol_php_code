@@ -67,7 +67,6 @@ class SummaryDataResourcesAPI
         // /* METHOD: parents
         $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -> orig test case
         $ret = self::main_parents($page_id, $predicate);
-        print_r($ret);
         exit("\n-- end method: parents --\n");
         // */
 
@@ -156,28 +155,9 @@ class SummaryDataResourcesAPI
         foreach($page_ids as $page_id) {
             $anc = self::get_ancestry_via_DH($page_id);
             $hierarchies_of_taxon_values[$page_id] = $anc;
-            // array_pop($anc); //new step was moved outside this loop
-            /* initial report for Jen
-            if($anc) {
-                echo "\n$page_id: (ancestors below, with {Landmark value} in curly brackets)";
-                foreach($anc as $anc_id) {
-                    echo "\n --- $anc_id {".$this->landmark_value_of[$anc_id]."}";
-                }
-            }
-            */
-            
-            //start store counts 2: moved below, outside this loop
-            /*
-            $k = 0;
-            foreach($anc as $id) {
-                @$counts[$id]++;
-                if($k > 0) $children_of[$id][] = $anc[$k-1];
-                $k++;
-            }
-            */
         }
 
-        // /* NEW STEP: If the common root of the dataset is anything else, you can leave it. Only remove it if it is 2913056 
+        // /* NEW STEP: If the common root of the dataset is anything else, you can leave it. Only remove it if it is in the magic 5 of deletable taxa.
         $hierarchies_of_taxon_values = self::adjust_2913056($hierarchies_of_taxon_values);
         // */
         print_r($hierarchies_of_taxon_values);
@@ -214,22 +194,16 @@ class SummaryDataResourcesAPI
 
         /*
         IF >1 roots remain:,
-        ,
         All the remaining roots are REP records,
         the one that appears in the most ancestries is the PRM,
         ,
-        ,
         IF one root remains:,
-        ,
         All direct children of the remaining root are REP records,
         the one that appears in the most ancestries is the PRM,
         (i.e. same behavior as taxon summary),
         ,
-        ,
         "In this case, one root remains (taxon ID=1)",
-        ,
         REP records:,
-        ,
         2774383,
         166,
         10459935,
@@ -259,13 +233,29 @@ class SummaryDataResourcesAPI
 
             echo "\nPRM record: $root_ancestor (the one that appears in the most ancestries)";
             echo "\nREP records: "; print_r($immediate_children_of_root);
-            // return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP');
+            return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP');
             
         } //end IF one root remains ------------------------------------------------------------
         elseif($count_all_roots > 1) { //TODO
             /* IF >1 roots remain:,
             All the remaining roots are REP records,
             the one that appears in the most ancestries is the PRM,
+            e.g.
+            List of roots and the the no. of records it existed:Array
+            (   [roots] => Array(
+                        [0] => 1
+                        [1] => 173 
+                        [2] => 143
+                    )
+                [count_of_roots] => Array(
+                        [1] => 7
+                        [173] => 2
+                        [143] = 1
+                    )
+            )
+            
+            
+            
             */
             
             
