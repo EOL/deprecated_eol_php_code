@@ -236,13 +236,14 @@ class SummaryDataResourcesAPI
             return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP');
             
         } //end IF one root remains ------------------------------------------------------------
-        elseif($count_all_roots > 1) { //TODO
+        elseif($count_all_roots > 1) {
             /* IF >1 roots remain:,
             All the remaining roots are REP records,
             the one that appears in the most ancestries is the PRM,
             e.g.
-            List of roots and the the no. of records it existed:Array
-            (   [roots] => Array(
+            List of roots and the the no. of records it existed:
+            $ret_roots = Array(
+                [roots] => Array(
                         [0] => 1
                         [1] => 173 
                         [2] => 143
@@ -252,13 +253,11 @@ class SummaryDataResourcesAPI
                         [173] => 2
                         [143] = 1
                     )
-            )
-            
-            
-            
-            */
-            
-            
+            )*/
+            $root_ancestor = self::get_key_of_arr_with_biggest_value($ret_roots['count_of_roots']);
+            echo "\nPRM record: $root_ancestor (the one that appears in the most ancestries)";
+            echo "\nREP records: "; print_r($ret_roots['roots']);
+            return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $ret_roots['roots'], 'Selected label' => 'REP');
         } //end if > 1 roots remain ------------------------------------------------------------
         exit("\nexit muna\n");
     }
