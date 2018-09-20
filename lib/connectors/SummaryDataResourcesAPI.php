@@ -236,7 +236,7 @@ class SummaryDataResourcesAPI
             return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP');
             
         } //end IF one root remains ------------------------------------------------------------
-        elseif($count_all_roots > 1) {
+        elseif($count_all_roots > 1) { //has not met this criteria yet in our test cases.
             /* IF >1 roots remain:,
             All the remaining roots are REP records,
             the one that appears in the most ancestries is the PRM,
