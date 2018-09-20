@@ -237,10 +237,10 @@ class SummaryDataResourcesAPI
         PRM record:,
         2774383,
         */
-        $ret = self::get_all_roots($final); //get all roots of 'Reduced hierarchies'
-        $all_roots = $ret['roots'];
+        $ret_roots = self::get_all_roots($final); //get all roots of 'Reduced hierarchies'
+        $all_roots = $ret_roots['roots'];
         $count_all_roots = count($all_roots);
-        // print_r($ret); //good debug
+        echo "\nList of roots and the the no. of records it existed:"; print_r($ret_roots); //good debug
         if($count_all_roots == 1) {
             //from taxon summary:
             $ret = self::get_immediate_children_of_root_info($final);
@@ -262,7 +262,12 @@ class SummaryDataResourcesAPI
             // return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP');
             
         } //end IF one root remains ------------------------------------------------------------
-        elseif($count_all_roots > 1) {
+        elseif($count_all_roots > 1) { //TODO
+            /* IF >1 roots remain:,
+            All the remaining roots are REP records,
+            the one that appears in the most ancestries is the PRM,
+            */
+            
             
         } //end if > 1 roots remain ------------------------------------------------------------
         exit("\nexit muna\n");
