@@ -132,9 +132,13 @@ class SummaryDataResourcesAPI
             // print_r($val); exit;
         }
         /* 3. get all selected values */
-        $page_ids = array();
+        $page_ids = array(); $increment = array();
         foreach($records as $rec) {
-            if($val = @$rec['Selected']) $page_ids = array_merge($page_ids, $val);
+            if($val = @$rec['Selected'])
+            {
+                $page_ids = array_merge($page_ids, $val);
+                $increment[] = $val;
+            }
         }
         $original_records = $page_ids;
         $page_ids = array_unique($page_ids);
@@ -149,6 +153,8 @@ class SummaryDataResourcesAPI
         
         echo "\n==========================================================\nCombined values from the original records (all REC records of children), deduplicated:";
         print_r($page_ids);
+        
+        print_r($increment); exit;
         
         //now get similar report from 'taxon summary'
         echo "\n==========================================================\nHierarchies of taxon values:";
@@ -347,8 +353,8 @@ class SummaryDataResourcesAPI
     }
     private function get_children_of_rank_species($page_id) //TODO
     {
-        // return array(328598, 328609, 46559217, 328682, 328607);
-        return array(328598, 328609, 46559217, 328607, 46559162);
+        // return array(328598, 328609, 46559217, 328682, 328607); wrong list
+           return array(328598, 46559162, 328607, 46559217, 328609);
     }
     //############################################################################################ end method = 'parents'
     private function extract_DH()
