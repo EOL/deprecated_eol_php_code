@@ -145,6 +145,7 @@ class SummaryDataResourcesAPI
 
         echo "\n==========================================================\nCombined values from the original records (all REC records of children), raw:";
         print_r($still_with_duplicates);
+        asort($still_with_duplicates); print_r($still_with_duplicates);
         
         echo "\n==========================================================\nCombined values from the original records (all REC records of children), deduplicated:";
         print_r($page_ids);
@@ -186,7 +187,12 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        echo "\n==========================================================\nReduced hierarchies:"; print_r($final);
+        echo "\n==========================================================\nReduced hierarchies:"; //print_r($final);
+        foreach($page_ids as $page_id) {
+            echo "\n[$page_id] -> ";
+            if($val = @$final[$page_id]) print_r($val);
+            else echo "no more ancestry";
+        }
 
         /*
         "NEW STEP: IF there are multiple roots, discard those representing less than 15% of the original records",
