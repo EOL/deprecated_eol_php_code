@@ -136,7 +136,7 @@ class SummaryDataResourcesAPI
         foreach($records as $rec) {
             if($val = @$rec['Selected']) $page_ids = array_merge($page_ids, $val);
         }
-        $still_with_duplicates = $page_ids;
+        $original_records = $page_ids;
         $page_ids = array_unique($page_ids);
         $page_ids = array_values($page_ids); //reindexes key
         
@@ -144,8 +144,8 @@ class SummaryDataResourcesAPI
         echo "\nChildren used for computation: "; print_r($children);
 
         echo "\n==========================================================\nCombined values from the original records (all REC records of children), raw:";
-        print_r($still_with_duplicates);
-        asort($still_with_duplicates); print_r($still_with_duplicates);
+        print_r($original_records);
+        asort($original_records); print_r($original_records);
         
         echo "\n==========================================================\nCombined values from the original records (all REC records of children), deduplicated:";
         print_r($page_ids);
@@ -194,7 +194,7 @@ class SummaryDataResourcesAPI
             else echo "no more ancestry";
         }
 
-        /*
+        /* ---------------------------------------------------------------------------------------------------------------------------------------
         "NEW STEP: IF there are multiple roots, discard those representing less than 15% of the original records",
 
         discard: yes, *in this step* discard means that whole hierarchy
@@ -206,7 +206,7 @@ class SummaryDataResourcesAPI
         
         */
 
-        /*
+        /* ---------------------------------------------------------------------------------------------------------------------------------------
         IF >1 roots remain:,
         All the remaining roots are REP records,
         the one that appears in the most ancestries is the PRM,
