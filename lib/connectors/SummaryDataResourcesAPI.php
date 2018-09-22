@@ -212,18 +212,25 @@ class SummaryDataResourcesAPI
         echo "\n==========================================================\nHierarchies after removal of the 5 deletable taxa:"; print_r($hierarchies_of_taxon_values);
         $final = $hierarchies_of_taxon_values; //needed assignment
 
-        echo "\n==========================================================\n15% removal step:";
+        echo "\n==========================================================\nroots < 15% removal step:";
         /* ---------------------------------------------------------------------------------------------------------------------------------------
         "NEW STEP: IF there are multiple roots, discard those representing less than 15% of the original records",
-
         discard: yes, *in this step* discard means that whole hierarchy
-
         "original records" is a set just upstream of your second section in your result file: 
         "combined values from the original records (all REC records of children), deduplicated:Array". 
         The list I want is before deduplication, 
         i.e. if 207661 was a value for more than one of the child taxa, it should count more than once in the 15% calculation.
-        
         */
+        $ret_roots = self::get_all_roots($final); //get all roots of 'Reduced hierarchies'
+        $all_roots = $ret_roots['roots'];
+        $count_all_roots = count($all_roots);
+        echo "\nList of roots and the the no. of records it existed:"; print_r($ret_roots); //good debug
+        if($count_all_roots > 1) {
+            
+        }
+        else echo "\nNo multiple roots. Will skip this step.\n";
+        
+
 
         echo "\n==========================================================\nFinal step:";
         /* ---------------------------------------------------------------------------------------------------------------------------------------
