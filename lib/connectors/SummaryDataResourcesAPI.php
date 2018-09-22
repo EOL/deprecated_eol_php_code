@@ -154,7 +154,7 @@ class SummaryDataResourcesAPI
         echo "\n==========================================================\nCombined values from the original records (all REC records of children), deduplicated:";
         print_r($page_ids);
         
-        print_r($increment); exit;
+        // print_r($increment); exit;
         
         //now get similar report from 'taxon summary'
         echo "\n==========================================================\nHierarchies of taxon values:";
@@ -164,8 +164,8 @@ class SummaryDataResourcesAPI
             $hierarchies_of_taxon_values[$page_id] = $anc;
         }
 
-        // /* NEW STEP: If the common root of the dataset is anything else, you can leave it. Only remove it if it is in the magic 5 of deletable taxa.
-        $hierarchies_of_taxon_values = self::adjust_2913056($hierarchies_of_taxon_values);
+        // /* NEW STEP: If the common root of the dataset is anything else, you can leave it. Only remove it if it is in the magic 5 of deletable taxa. 
+        // $hierarchies_of_taxon_values = self::adjust_2913056($hierarchies_of_taxon_values); MOVED BELOW...
         // */
         print_r($hierarchies_of_taxon_values);
         
@@ -193,13 +193,26 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        echo "\n==========================================================\nReduced hierarchies:"; //print_r($final);
+        echo "\n==========================================================\nReduced hierarchies:";
+        $hierarchies_of_taxon_values = array(); //to be used
         foreach($page_ids as $page_id) {
             echo "\n[$page_id] -> ";
-            if($val = @$final[$page_id]) print_r($val);
+            $hierarchies_of_taxon_values[$page_id] = '';
+            if($val = @$final[$page_id]) {
+                print_r($val);
+                $hierarchies_of_taxon_values[$page_id] = $val;
+            }
             else echo "no more ancestry";
         }
 
+
+        // /* NEW STEP: If the common root of the dataset is anything else, you can leave it. Only remove it if it is in the magic 5 of deletable taxa. 
+        $hierarchies_of_taxon_values = self::adjust_2913056($hierarchies_of_taxon_values);
+        // */
+        echo "\n==========================================================\nHierarchies after removal of the 5 deletable taxa:"; print_r($hierarchies_of_taxon_values);
+        $final = $hierarchies_of_taxon_values; //needed assignment
+
+        echo "\n==========================================================\n15% removal step:";
         /* ---------------------------------------------------------------------------------------------------------------------------------------
         "NEW STEP: IF there are multiple roots, discard those representing less than 15% of the original records",
 
@@ -212,6 +225,7 @@ class SummaryDataResourcesAPI
         
         */
 
+        echo "\n==========================================================\nFinal step:";
         /* ---------------------------------------------------------------------------------------------------------------------------------------
         IF >1 roots remain:,
         All the remaining roots are REP records,
@@ -283,9 +297,11 @@ class SummaryDataResourcesAPI
     private function get_all_roots($reduced_hierarchies)
     {
         foreach($reduced_hierarchies as $page_id => $anc) {
-            $last = array_pop($anc);
-            $final[$last] = '';
-            @$count_of_roots[$last]++;
+            if($anc) {
+                $last = array_pop($anc);
+                $final[$last] = '';
+                @$count_of_roots[$last]++;
+            }
         }
         return array('roots' => array_keys($final), 'count_of_roots' => $count_of_roots);
     }
@@ -599,13 +615,15 @@ class SummaryDataResourcesAPI
     private function get_immediate_children_of_root_info($final)
     {
         foreach($final as $tip => $ancestors) {
-            $root_ancestor[] = end($ancestors);
-            $no_of_rows = count($ancestors);
-            if($no_of_rows > 1) $idx = $ancestors[$no_of_rows-2]; // rows should be > 1 bec if only 1 then there is no child for that root.
-            elseif($no_of_rows == 1) $idx = $tip; 
-            else exit("\nInvestigate: won't go here...\n");
-            $immediate_children_of_root[$idx] = '';
-            @$immediate_children_of_root_count[$idx]++;
+            if($ancestors) {
+                $root_ancestor[] = end($ancestors);
+                $no_of_rows = count($ancestors);
+                if($no_of_rows > 1) $idx = $ancestors[$no_of_rows-2]; // rows should be > 1 bec if only 1 then there is no child for that root.
+                elseif($no_of_rows == 1) $idx = $tip; 
+                else exit("\nInvestigate: won't go here...\n");
+                $immediate_children_of_root[$idx] = '';
+                @$immediate_children_of_root_count[$idx]++;
+            }
         }
         return array('immediate_children_of_root' => $immediate_children_of_root, 'immediate_children_of_root_count' => $immediate_children_of_root_count);
     }
