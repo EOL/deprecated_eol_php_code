@@ -224,13 +224,11 @@ class SummaryDataResourcesAPI
         $ret_roots = self::get_all_roots($final); //get all roots of 'Reduced hierarchies'
         $all_roots = $ret_roots['roots'];
         $count_all_roots = count($all_roots);
-        echo "\nList of roots and the the no. of records it existed:"; print_r($ret_roots); //good debug
+        // echo "\nList of roots and the the no. of records it existed:"; print_r($ret_roots); //good debug
         if($count_all_roots > 1) {
             
         }
         else echo "\nNo multiple roots. Will skip this step.\n";
-        
-
 
         echo "\n==========================================================\nFinal step:";
         /* ---------------------------------------------------------------------------------------------------------------------------------------
@@ -255,8 +253,9 @@ class SummaryDataResourcesAPI
         $ret_roots = self::get_all_roots($final); //get all roots of 'Reduced hierarchies'
         $all_roots = $ret_roots['roots'];
         $count_all_roots = count($all_roots);
-        echo "\nList of roots and the the no. of records it existed:"; print_r($ret_roots); //good debug
+        echo "\nList of root(s) and the corresponding no. of records it existed:"; print_r($ret_roots); //good debug
         if($count_all_roots == 1) {
+            echo "\nAll direct children of the remaining root are REP records, the one that appears in the most ancestries is the PRM.\n";
             //from taxon summary:
             $ret = self::get_immediate_children_of_root_info($final);
             $immediate_children_of_root         = $ret['immediate_children_of_root'];
@@ -278,10 +277,11 @@ class SummaryDataResourcesAPI
             
         } //end IF one root remains ------------------------------------------------------------
         elseif($count_all_roots > 1) { //has not met this criteria yet in our test cases.
+            echo "\nMore than 1 root remain. All the remaining roots are REP records, the one that appears in the most ancestries is the PRM.\n";
             /* IF >1 roots remain:,
             - All the remaining roots are REP records,
             - the one that appears in the most ancestries is the PRM,
-            e.g. List of roots and the the no. of records it existed:
+            e.g. List of roots and the corresponding no. of records it existed:
             $ret_roots = Array(
                 [roots] => Array(
                         [0] => 1
