@@ -203,7 +203,6 @@ class SummaryDataResourcesAPI
             else echo "no more ancestry";
         }
 
-
         // /* NEW STEP: If the common root of the dataset is anything else, you can leave it. Only remove it if it is in the magic 5 of deletable taxa. 
         $hierarchies_of_taxon_values = self::adjust_2913056($hierarchies_of_taxon_values);
         // */
@@ -223,9 +222,10 @@ class SummaryDataResourcesAPI
         $all_roots = $ret_roots['roots'];
         $count_all_roots = count($all_roots);
 
-        $all_roots = array(1, 42430800); //test force assignment
-        // if($count_all_roots > 1) {
-        if(true) {
+        // $all_roots = array(1, 42430800); //test force assignment -- debug only
+        // if(true) {
+
+        if($count_all_roots > 1) {
             $temp_final = self::roots_lessthan_15percent_removal_step($original_records, $all_roots, $final);
             if($temp_final != $final) {
                 $final = $temp_final;
