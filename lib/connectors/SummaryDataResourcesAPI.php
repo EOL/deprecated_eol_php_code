@@ -65,6 +65,7 @@ class SummaryDataResourcesAPI
         */
 
         // /* METHOD: parents
+        self::parse_DH();
         $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -> orig test case
         $ret = self::main_parents($page_id, $predicate);
         exit("\n-- end method: parents --\n");
@@ -121,7 +122,6 @@ class SummaryDataResourcesAPI
     //############################################################################################ start method = 'parents'
     private function main_parents($main_page_id, $predicate)
     {
-        self::parse_DH();
         /* 1. get all children of page_id with rank = species */
         $children = self::get_children_of_rank_species($main_page_id);
         
