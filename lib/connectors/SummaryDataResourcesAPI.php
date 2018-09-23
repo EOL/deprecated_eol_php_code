@@ -149,12 +149,10 @@ class SummaryDataResourcesAPI
 
         echo "\n==========================================================\nCombined values from the original records (all REC records of children), raw:";
         print_r($original_records);
-        asort($original_records); print_r($original_records);
+        // asort($original_records); print_r($original_records);
         
         echo "\n==========================================================\nCombined values from the original records (all REC records of children), deduplicated:";
         print_r($page_ids);
-        
-        // print_r($increment); exit;
         
         //now get similar report from 'taxon summary'
         echo "\n==========================================================\nHierarchies of taxon values:";
@@ -224,9 +222,17 @@ class SummaryDataResourcesAPI
         $ret_roots = self::get_all_roots($final); //get all roots of 'Reduced hierarchies'
         $all_roots = $ret_roots['roots'];
         $count_all_roots = count($all_roots);
-        // echo "\nList of roots and the the no. of records it existed:"; print_r($ret_roots); //good debug
-        if($count_all_roots > 1) {
-            
+
+        $all_roots = array(1, 42430800); //test force assignment
+        // if($count_all_roots > 1) {
+        if(true) {
+            $temp_final = self::roots_lessthan_15percent_removal_step($original_records, $all_roots, $final);
+            if($temp_final != $final)
+            {
+                $final = $temp_final;
+                
+            }
+            unset($temp_final);
         }
         else echo "\nNo multiple roots. Will skip this step.\n";
 
@@ -300,6 +306,39 @@ class SummaryDataResourcesAPI
             return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $ret_roots['roots'], 'Selected label' => 'REP');
         } //end if > 1 roots remain ------------------------------------------------------------
         exit("\nexit muna\n");
+    }
+    private function roots_lessthan_15percent_removal_step($original_records, $all_roots, $final_from_main)
+    {
+        /* compute how many records from the original_records does the root exists */
+        foreach($original_records as $page_id) {
+            $ancestries[] = self::get_ancestry_via_DH($page_id);
+        }
+        foreach($all_roots as $root) {
+            foreach($ancestries as $anc) {
+                if(in_array($root, $anc)) @$final[$root]++;
+            }
+        }
+        // print_r($final); //good debug
+        
+        /* get those that are < 15% */
+        $remove = array();
+        foreach($final as $root => $count) {
+            $percentage = ($count/count($original_records))*100;
+            $final2['roots % in original records'][$root] = $percentage;
+            if($percentage < 15) $remove[] = $root;
+        }
+        print_r($final2);
+        
+        if($remove) {
+            /* remove from $final_from_main those with roots that are < 15% coverage in $original_records */
+            foreach($final_from_main as $page_id => $ancestry) {
+                $root = array_pop($ancestry); //the last rec from an array
+                if(in_array($root, $remove)) {}
+                else $final3[$page_id] = $ancestry;
+            }
+            return $final3;
+        }
+        else return $final_from_main;
     }
     private function get_all_roots($reduced_hierarchies)
     {
