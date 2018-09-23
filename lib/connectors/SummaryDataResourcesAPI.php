@@ -221,19 +221,22 @@ class SummaryDataResourcesAPI
         $ret_roots = self::get_all_roots($final); //get all roots of 'Reduced hierarchies'
         $all_roots = $ret_roots['roots'];
         $count_all_roots = count($all_roots);
+        // echo "\nRoots info: "; print_r($ret_roots); //debug only
 
         // $all_roots = array(1, 42430800); //test force assignment -- debug only
         // if(true) {
 
         if($count_all_roots > 1) {
+            echo "\nMultiple roots: "; print_r($all_roots);
             $temp_final = self::roots_lessthan_15percent_removal_step($original_records, $all_roots, $final);
             if($temp_final != $final) {
                 $final = $temp_final;
                 echo "\nHierarchies after discarding those representing less than 15% of the original records: "; print_r($final);
             }
+            // else echo "\nfinal and temp_final are equal\n"; //just debug
             unset($temp_final);
         }
-        else echo "\nNo multiple roots. Will skip this step.\n";
+        else echo "\nJust one root ($all_roots[0]). Will skip this step.\n";
 
         echo "\n==========================================================\nFinal step:\n";
         /* ---------------------------------------------------------------------------------------------------------------------------------------
@@ -313,6 +316,7 @@ class SummaryDataResourcesAPI
             $ancestries[] = self::get_ancestry_via_DH($page_id);
         }
         foreach($all_roots as $root) {
+            if(!isset($final[$root])) $final[$root] = 0;
             foreach($ancestries as $anc) {
                 if(in_array($root, $anc)) @$final[$root]++;
             }
@@ -327,17 +331,25 @@ class SummaryDataResourcesAPI
             if($percentage < 15) $remove[] = $root;
         }
         print_r($final2);
+        // echo "\nremove: "; print_r($remove);
         
         if($remove) {
             /* remove from $final_from_main those with roots that are < 15% coverage in $original_records */
             foreach($final_from_main as $page_id => $ancestry) {
-                $root = array_pop($ancestry); //the last rec from an array
-                if(in_array($root, $remove)) {}
-                else $final3[$page_id] = $ancestry;
+                if($ancestry) {
+                    $orig_ancestry = $ancestry;
+                    $root = array_pop($ancestry); //the last rec from an array
+                    if(in_array($root, $remove)) {}
+                    else $final3[$page_id] = $orig_ancestry;
+                }
             }
+            // echo "\nwent here 01\n";
             return $final3;
         }
-        else return $final_from_main;
+        else  {
+            // echo "\nwent here 02\n";
+            return $final_from_main;
+        }
     }
     private function get_all_roots($reduced_hierarchies)
     {
@@ -346,6 +358,10 @@ class SummaryDataResourcesAPI
                 $last = array_pop($anc);
                 $final[$last] = '';
                 @$count_of_roots[$last]++;
+            }
+            else { //case where both a root and a tip.
+                $final[$page_id] = '';
+                @$count_of_roots[$page_id]++;
             }
         }
         return array('roots' => array_keys($final), 'count_of_roots' => $count_of_roots);
