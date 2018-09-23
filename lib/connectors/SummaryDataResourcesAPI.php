@@ -191,7 +191,7 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        echo "\n==========================================================\nReduced hierarchies:";
+        echo "\n==========================================================\nReduced hierarchies: \n";
         $hierarchies_of_taxon_values = array(); //to be used
         foreach($page_ids as $page_id) {
             echo "\n[$page_id] -> ";
@@ -210,7 +210,7 @@ class SummaryDataResourcesAPI
         echo "\n==========================================================\nHierarchies after removal of the 5 deletable taxa:"; print_r($hierarchies_of_taxon_values);
         $final = $hierarchies_of_taxon_values; //needed assignment
 
-        echo "\n==========================================================\nroots < 15% removal step:";
+        echo "\n==========================================================\nroots < 15% removal step:\n";
         /* ---------------------------------------------------------------------------------------------------------------------------------------
         "NEW STEP: IF there are multiple roots, discard those representing less than 15% of the original records",
         discard: yes, *in this step* discard means that whole hierarchy
@@ -227,16 +227,15 @@ class SummaryDataResourcesAPI
         // if($count_all_roots > 1) {
         if(true) {
             $temp_final = self::roots_lessthan_15percent_removal_step($original_records, $all_roots, $final);
-            if($temp_final != $final)
-            {
+            if($temp_final != $final) {
                 $final = $temp_final;
-                
+                echo "\nHierarchies after discarding those representing less than 15% of the original records: "; print_r($final);
             }
             unset($temp_final);
         }
         else echo "\nNo multiple roots. Will skip this step.\n";
 
-        echo "\n==========================================================\nFinal step:";
+        echo "\n==========================================================\nFinal step:\n";
         /* ---------------------------------------------------------------------------------------------------------------------------------------
         IF >1 roots remain:,
         All the remaining roots are REP records,
