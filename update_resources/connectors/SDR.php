@@ -12,6 +12,7 @@ print_r($a);
 echo "\nlast: [$last]\n"; exit;
 */
 
+
 /*
 //Jen's roots:
 $str = "http://purl.obolibrary.org/obo/ENVO_00000144, http://purl.obolibrary.org/obo/ENVO_00000463, http://purl.obolibrary.org/obo/ENVO_00000856, 
@@ -61,6 +62,18 @@ http://purl.obolibrary.org/obo/ENVO_01000179, http://purl.obolibrary.org/obo/ENV
 http://purl.obolibrary.org/obo/ENVO_01000020, http://purl.obolibrary.org/obo/ENVO_00000043, http://purl.obolibrary.org/obo/ENVO_00000300, 
 http://purl.obolibrary.org/obo/ENVO_00000447, http://purl.obolibrary.org/obo/ENVO_00000873, http://purl.obolibrary.org/obo/ENVO_01000174, 
 http://purl.obolibrary.org/obo/ENVO_00000873";
+
+$str = "http://purl.obolibrary.org/obo/ENVO_00000020, http://purl.obolibrary.org/obo/ENVO_00000043, http://purl.obolibrary.org/obo/ENVO_00000065, 
+http://purl.obolibrary.org/obo/ENVO_00000067, http://purl.obolibrary.org/obo/ENVO_00000081, http://purl.obolibrary.org/obo/ENVO_00000086, 
+http://purl.obolibrary.org/obo/ENVO_00000220, http://purl.obolibrary.org/obo/ENVO_00000264, http://purl.obolibrary.org/obo/ENVO_00000360, 
+http://purl.obolibrary.org/obo/ENVO_00000446, http://purl.obolibrary.org/obo/ENVO_00001995, http://purl.obolibrary.org/obo/ENVO_00002000, 
+http://purl.obolibrary.org/obo/ENVO_00002033, http://purl.obolibrary.org/obo/ENVO_01000206, http://purl.obolibrary.org/obo/ENVO_01001305, 
+http://purl.obolibrary.org/obo/ENVO_00000078, http://purl.obolibrary.org/obo/ENVO_00000113, http://purl.obolibrary.org/obo/ENVO_00000144, 
+http://purl.obolibrary.org/obo/ENVO_00000261, http://purl.obolibrary.org/obo/ENVO_00000316, http://purl.obolibrary.org/obo/ENVO_00000320, 
+http://purl.obolibrary.org/obo/ENVO_00000358, http://purl.obolibrary.org/obo/ENVO_00000486, http://purl.obolibrary.org/obo/ENVO_00000572, 
+http://purl.obolibrary.org/obo/ENVO_00000856, http://purl.obolibrary.org/obo/ENVO_00002030, http://purl.obolibrary.org/obo/ENVO_00002040, 
+http://purl.obolibrary.org/obo/ENVO_01000204, http://purl.obolibrary.org/obo/ENVO_00000002, http://purl.obolibrary.org/obo/ENVO_00000016, 
+http://eol.org/schema/terms/temperate_grasslands_savannas_and_shrublands, http://purl.obolibrary.org/obo/ENVO_01001125";
 
 $arr = explode(",", $str);
 $arr = array_map('trim', $arr);
