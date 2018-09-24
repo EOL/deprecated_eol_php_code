@@ -145,14 +145,27 @@ class SummaryDataResourcesAPI
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         foreach($info['Selected'] as $id) {
             foreach($recs as $rec) {
-                if($rec['value_uri'] == $id) $eol_pks[$rec['eol_pk']] = ''; //echo "\n".$page_id." --- ".$rec['eol_pk']." --- ".$id. " --- " . $info['label'];
+                if($rec['value_uri'] == $id)
+                {
+                    $eol_pks[$rec['eol_pk']] = ''; //echo "\n".$page_id." --- ".$rec['eol_pk']." --- ".$id. " --- " . $info['label'];
+                    $found[] = $id;
+                }
             }
         }
-        $eol_pks = array_keys($eol_pks);
-        print_r($eol_pks);
-        $refs = self::get_refs_from_metadata_csv($eol_pks);
-        print_r($refs);
+        if($diff = array_diff($info['Selected'], $found)) {
+            echo "\nNot found in traits.csv. Create new record."; print_r($diff);
+            self::write_dwca();
+        }
+        
+        $eol_pks = array_keys($eol_pks); //print_r($eol_pks);
+        $refs = self::get_refs_from_metadata_csv($eol_pks); //print_r($refs);
         exit("\nstop 01\n");
+    }
+    private function 
+    {
+        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
+        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        
     }
     private function get_refs_from_metadata_csv($eol_pks)
     {
