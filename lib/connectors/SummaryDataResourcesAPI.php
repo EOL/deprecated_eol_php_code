@@ -87,7 +87,6 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: basal values --\n");
         // */
 
-
         /* METHOD: parents: taxon summary
         self::parse_DH();
         $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -> orig test case
@@ -142,41 +141,52 @@ class SummaryDataResourcesAPI
         MeasurementMethod= "summary of records available in EOL". Construct a source link to EOL, eg: https://beta.eol.org/pages/46559143/data
         */
         $page_id = $info['page_id']; $predicate = $info['predicate'];
+        /*step 1: get all eol_pks */
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
-        
-        // echo "\n"."Page ID --- eol_pk --- Selected value_uri --- Label";
         foreach($info['Selected'] as $id) {
             foreach($recs as $rec) {
-                // print_r($rec); exit;
-                /*Array(
-                    [eol_pk] => R96-PK42940159
-                    [page_id] => 46559217
-                    [scientific_name] => <i>Vulpes lagopus</i>
-                    [resource_pk] => M_00454268
-                    [predicate] => http://eol.org/schema/terms/Habitat
-                    [sex] => 
-                    [lifestage] => 
-                    [statistical_method] => 
-                    [source] => http://www.worldwildlife.org/publications/wildfinder-database
-                    [object_page_id] => 
-                    [target_scientific_name] => 
-                    [value_uri] => http://eol.org/schema/terms/boreal_forests_taiga
-                    [literal] => http://eol.org/schema/terms/boreal_forests_taiga
-                    [measurement] => 
-                    [units] => 
-                    [normal_measurement] => 
-                    [normal_units_uri] => 
-                    [resource_id] => 20
-                )*/
                 if($rec['value_uri'] == $id) $eol_pks[$rec['eol_pk']] = ''; //echo "\n".$page_id." --- ".$rec['eol_pk']." --- ".$id. " --- " . $info['label'];
             }
         }
-        
         $eol_pks = array_keys($eol_pks);
         print_r($eol_pks);
+        $refs = self::get_refs_from_metadata_csv($eol_pks);
+        print_r($refs);
         exit("\nstop 01\n");
     }
-    
+    private function get_refs_from_metadata_csv($eol_pks)
+    {
+        $file = fopen($this->main_paths['archive_path'].'/metadata.csv', 'r'); $i = 0;
+        while(($line = fgetcsv($file)) !== FALSE) {
+            $i++;
+            if($i == 1) $fields = $line;
+            else {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); exit;
+                /*Array(
+                    [eol_pk] => MetaTrait-19117935
+                    [trait_eol_pk] => R261-PK22081478
+                    [predicate] => http://rs.tdwg.org/dwc/terms/measurementMethod
+                    [literal] => Activity cycle of each species measured for non-captive populations; adult or age unspecified individuals, male, female, or sex unspecified individuals; primary, secondary, or extrapolated sources; all measures of central tendency; in all localities. Species were defined as (1) nocturnal only, (2) nocturnal/crepuscular, cathemeral, crepuscular or diurnal/crepuscular and (3) diurnal only.  Based on information from primary and secondary literature sources.  See source for details. 
+                    [measurement] => 
+                    [value_uri] => 
+                    [units] => 
+                    [sex] => 
+                    [lifestage] => 
+                    [statistical_method] => 
+                    [source] => 
+                )*/
+                if(in_array($rec['trait_eol_pk'], $eol_pks) && count($fields) == count($line) && $rec['predicate'] == "http://eol.org/schema/reference/referenceID")
+                {
+                    $refs[strip_tags($rec['literal'])] = '';
+                }
+            }
+        }
+        return array_keys($refs);
+    }
     //############################################################################################ start method = 'parents basal values'
     private function main_parents_basal_values($main_page_id, $predicate)
     {
