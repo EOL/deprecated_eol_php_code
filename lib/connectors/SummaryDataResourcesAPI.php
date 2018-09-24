@@ -64,14 +64,42 @@ class SummaryDataResourcesAPI
         self::investigate_traits_csv(); exit;
         */
 
-        // /* METHOD: parents
+        // /* METHOD: parents: basal values
+        // self::parse_DH();
+        self::initialize_basal_values();
+        $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //habitat includes -> orig test case
+        $ret = self::main_parents_basal_values($page_id, $predicate);
+        exit("\n-- end method: parents: basal values --\n");
+        // */
+
+        // /* METHOD: basal values  ============================================================================================================
+        self::initialize_basal_values();
+        // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
+        // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
+        // $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //first test case
+     
+        // $page_id = 328109; $predicate = "http://eol.org/schema/terms/Habitat"; //not found in traits.csv
+
+        // $page_id = 328607; $predicate = "http://eol.org/schema/terms/Habitat";
+        // $page_id = 328682; $predicate = "http://eol.org/schema/terms/Habitat";
+        // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Habitat";
+        $page_id = 328609; $predicate = "http://eol.org/schema/terms/Habitat";
+        // $page_id = 328598; $predicate = "http://eol.org/schema/terms/Habitat";
+
+        $ret = self::main_basal_values($page_id, $predicate); //works OK
+        print_r($ret);
+        exit("\n-- end method: basal values --\n");
+        // */
+
+
+        /* METHOD: parents: taxon summary
         self::parse_DH();
         $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -> orig test case
         $ret = self::main_parents_taxon_summary($page_id, $predicate);
-        exit("\n-- end method: parents --\n");
-        // */
+        exit("\n-- end method: parents: taxon summary --\n");
+        */
 
-        // /* METHOD: taxon summary ============================================================================================================
+        /* METHOD: taxon summary ============================================================================================================
         self::parse_DH();
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         // $page_id = 328682; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -- additional test sample but no record for predicate 'eats'.
@@ -89,7 +117,7 @@ class SummaryDataResourcesAPI
         self::initialize();
         $ret = self::main_taxon_summary($page_id, $predicate);
         exit("\n-- end method: 'taxon summary' --\n");
-        // */
+        */
 
         /* METHOD: lifestage+statMeth ============================================================================================================
         self::initialize();
@@ -101,25 +129,44 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: lifestage_statMeth --\n");
         */
 
-        /* METHOD: basal values  ============================================================================================================
-        self::initialize_basal_values();
-        // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
-        // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
-        $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //first test case
-     
-        // $page_id = 328109; $predicate = "http://eol.org/schema/terms/Habitat"; //not found in traits.csv
-        // $page_id = 328607; $predicate = "http://eol.org/schema/terms/Habitat";
-        // $page_id = 328682; $predicate = "http://eol.org/schema/terms/Habitat";
-        
-        // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Habitat";
-        // $page_id = 328609; $predicate = "http://eol.org/schema/terms/Habitat";
-        // $page_id = 328598; $predicate = "http://eol.org/schema/terms/Habitat";
-
-        self::main_basal_values($page_id, $predicate); //works OK
-        exit("\n-- end method: basal values --\n");
-        */
     }
-    //############################################################################################ start method = 'parents'
+    
+    //############################################################################################ start method = 'parents basal values'
+    private function main_parents_basal_values($main_page_id, $predicate)
+    {
+        /* 1. get all children of page_id with rank = species */
+        $children = self::get_children_of_rank_species($main_page_id); //orig
+        $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
+        
+        /* 2. get all values for each child from method = 'basal values' */
+        foreach($children as $page_id) {
+            if($val = self::main_basal_values($page_id, $predicate)) $records[] = $val;
+            // print_r($val); exit;
+        }
+        /* 3. get all selected values */
+        $page_ids = array();
+        foreach($records as $rec) {
+            if($val = @$rec['Selected']) $page_ids = array_merge($page_ids, $val);
+        }
+        $original_records = $page_ids;
+        asort($original_records); $original_records = array_values($original_records); //reindexes key
+        
+        
+        $page_ids = array_unique($page_ids);
+        asort($page_ids);
+        $page_ids = array_values($page_ids); //reindexes key
+        
+        echo "\n==========================================================\nParent process for taxon ID $main_page_id, predicate $predicate\n";
+        echo "\nChildren used for computation: "; print_r($children);
+
+        echo "\n==========================================================\nCombined values from the original records (all REC records of children), raw:";
+        print_r($original_records);
+
+        echo "\n==========================================================\nDeduplicated:";
+        print_r($page_ids);
+        
+    }
+    //############################################################################################ start method = 'parents taxon summary'
     private function main_parents_taxon_summary($main_page_id, $predicate)
     {
         /* 1. get all children of page_id with rank = species */
@@ -132,13 +179,9 @@ class SummaryDataResourcesAPI
             // print_r($val); exit;
         }
         /* 3. get all selected values */
-        $page_ids = array(); $increment = array();
+        $page_ids = array();
         foreach($records as $rec) {
-            if($val = @$rec['Selected'])
-            {
-                $page_ids = array_merge($page_ids, $val);
-                $increment[] = $val;
-            }
+            if($val = @$rec['Selected']) $page_ids = array_merge($page_ids, $val);
         }
         $original_records = $page_ids;
         $page_ids = array_unique($page_ids);
@@ -904,7 +947,8 @@ class SummaryDataResourcesAPI
         if    (count($selected) == 1) $label = "PRM and REP";
         elseif(count($selected) > 1)  $label = "REP";
         echo "\n----- label as: [$label]\n";
-        return array('selected' => $selected, 'label' => $label);
+        $selected = array_values($selected); //reindex array
+        return array('Selected' => $selected, 'label' => $label);
         /*
         if tips <= 5 SELECT ALL TIPS 
         else
