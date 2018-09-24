@@ -64,15 +64,15 @@ class SummaryDataResourcesAPI
         self::investigate_traits_csv(); exit;
         */
 
-        // /* METHOD: parents: basal values
+        /* METHOD: parents: basal values
         // self::parse_DH();
         self::initialize_basal_values();
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //habitat includes -> orig test case
         $ret = self::main_parents_basal_values($page_id, $predicate);
         exit("\n-- end method: parents: basal values --\n");
-        // */
+        */
 
-        // /* METHOD: basal values  ============================================================================================================
+        /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
         // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
         // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
@@ -89,15 +89,15 @@ class SummaryDataResourcesAPI
         $ret = self::main_basal_values($page_id, $predicate); //works OK
         print_r($ret);
         exit("\n-- end method: basal values --\n");
-        // */
+        */
 
 
-        /* METHOD: parents: taxon summary
+        // /* METHOD: parents: taxon summary
         self::parse_DH();
         $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -> orig test case
         $ret = self::main_parents_taxon_summary($page_id, $predicate);
         exit("\n-- end method: parents: taxon summary --\n");
-        */
+        // */
 
         /* METHOD: taxon summary ============================================================================================================
         self::parse_DH();
