@@ -67,7 +67,7 @@ class SummaryDataResourcesAPI
         // /* METHOD: parents
         self::parse_DH();
         $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -> orig test case
-        $ret = self::main_parents($page_id, $predicate);
+        $ret = self::main_parents_taxon_summary($page_id, $predicate);
         exit("\n-- end method: parents --\n");
         // */
 
@@ -120,7 +120,7 @@ class SummaryDataResourcesAPI
         */
     }
     //############################################################################################ start method = 'parents'
-    private function main_parents($main_page_id, $predicate)
+    private function main_parents_taxon_summary($main_page_id, $predicate)
     {
         /* 1. get all children of page_id with rank = species */
         $children = self::get_children_of_rank_species($main_page_id);
@@ -520,6 +520,7 @@ class SummaryDataResourcesAPI
                 $this->DH_2_EOL[$rec['taxonID']] = $rec['EOLid'];
                 $this->parent_of_taxonID[$rec['taxonID']] = $rec['parentNameUsageID'];
                 $this->landmark_value_of[$rec['EOLid']] = $rec['Landmark'];
+                if($rec['taxonRank'] == 'family') $this->is_family[$rec['EOLid']] = '';
             }
         }
         /* may not want to force assign this:
@@ -550,15 +551,16 @@ class SummaryDataResourcesAPI
                 /* orig strategy
                 $final2[] = $EOLid;
                 */
-                // /* new strategy: using Landmark value
+                /* new strategy: using Landmark value   ver 1
                 if($this->landmark_value_of[$EOLid]) $final2[] = $EOLid;
+                */
+                // /* new strategy: using Landmark value   ver 2
+                if($this->landmark_value_of[$EOLid] || isset($this->is_family[$EOLid])) $final2[] = $EOLid;
                 // */
-                // echo " $EOLid";
             }
             // else echo " none";
             $i++;
         }
-        // print_r($final);
         return $final2;
     }
     private function main_taxon_summary($page_id, $predicate)
