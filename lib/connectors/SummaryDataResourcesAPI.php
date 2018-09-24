@@ -46,18 +46,12 @@ class SummaryDataResourcesAPI
         
         $this->EOL_DH = "http://localhost/cp/summary%20data%20resources/DH/eoldynamichierarchywithlandmarks.zip";
     }
-    /* for 'parents' method:
-    repeat basal values process on REP records aggregated from descendant taxa, to create a summary set of REP records (no PRM record). 
-    MeasurementMethod= "summary of records available in EOL". 
-    SampleSize = "[number of] descendant taxa with records". Do not aggregate attribution data, but create source link to EOL, 
-    eg: https://beta.eol.org/terms/search_results?utf8=%E2%9C%93&clade_name=Ursidae&term_query%5Bclade_id%5D=7664&pred_name=geographic+distribution+includes&term_query%5Bfilters_attributes%5D%5B0%5D%5Bpred_uri%5D=http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPresent&term_query%5Bfilters_attributes%5D%5B0%5D%5Bop%5D=is_any&term_query%5Bresult_type%5D=record&commit=Search
-    */
     function start()
     {
-        /* WORKING
+        // /* WORKING
         $ret = self::get_summ_process_type_given_pred(); 
         print_r($ret); exit("\n".count($ret)."\n");
-        */
+        // */
         
         /*
         self::initialize();
@@ -211,7 +205,6 @@ class SummaryDataResourcesAPI
 
         echo "\n==========================================================\nDeduplicated:";
         print_r($page_ids);
-        
     }
     //############################################################################################ start method = 'parents taxon summary'
     private function main_parents_taxon_summary($main_page_id, $predicate)
@@ -1794,7 +1787,7 @@ class SummaryDataResourcesAPI
         $arr = $func->access_google_sheet($params);
         //start massage array
         foreach($arr as $item) {
-            if($val = $item[0]) $final[$item[0]] = $item[5];
+            if($val = $item[0]) $final[$val] = @$item[5];
         }
         return $final;
     }
