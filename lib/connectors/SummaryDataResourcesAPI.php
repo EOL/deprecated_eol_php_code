@@ -1220,10 +1220,6 @@ class SummaryDataResourcesAPI
     private function assemble_recs_for_page_id_from_text_file($page_id, $predicate, $required_fields = array())
     {
         $recs = array();
-        /*
-        $path = self::get_md5_path($this->working_dir, $page_id);
-        $txt_file = $path . $page_id . ".txt";
-        */
         $txt_file = self::get_txt_path_by_page_id($page_id);
         echo "\n$txt_file\n";
         $i = 0;
