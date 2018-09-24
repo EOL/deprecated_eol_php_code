@@ -64,15 +64,15 @@ class SummaryDataResourcesAPI
         self::investigate_traits_csv(); exit;
         */
 
-        // /* METHOD: parents: basal values
+        /* METHOD: parents: basal values
         // self::parse_DH();
         self::initialize_basal_values();
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //habitat includes -> orig test case
         $ret = self::main_parents_basal_values($page_id, $predicate);
         exit("\n-- end method: parents: basal values --\n");
-        // */
+        */
 
-        // /* METHOD: basal values  ============================================================================================================
+        /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
         // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
         // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
@@ -87,19 +87,22 @@ class SummaryDataResourcesAPI
         // $page_id = 328598; $predicate = "http://eol.org/schema/terms/Habitat";
 
         $ret = self::main_basal_values($page_id, $predicate); //works OK
+        $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
         print_r($ret);
+        self::write_resource_file($ret);
         exit("\n-- end method: basal values --\n");
-        // */
+        */
 
 
         /* METHOD: parents: taxon summary
         self::parse_DH();
         $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -> orig test case
         $ret = self::main_parents_taxon_summary($page_id, $predicate);
+        print_r($ret);
         exit("\n-- end method: parents: taxon summary --\n");
         */
 
-        /* METHOD: taxon summary ============================================================================================================
+        // /* METHOD: taxon summary ============================================================================================================
         self::parse_DH();
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         // $page_id = 328682; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -- additional test sample but no record for predicate 'eats'.
@@ -116,8 +119,10 @@ class SummaryDataResourcesAPI
         
         self::initialize();
         $ret = self::main_taxon_summary($page_id, $predicate);
+        $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
+        echo "\n\nFinal result:"; print_r($ret);
         exit("\n-- end method: 'taxon summary' --\n");
-        */
+        // */
 
         /* METHOD: lifestage+statMeth ============================================================================================================
         self::initialize();
@@ -129,6 +134,48 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: lifestage_statMeth --\n");
         */
 
+    }
+    private function write_resource_file($info)
+    {
+        /*
+        when creating new records (non-tips), find and deduplicate all references and bibliographicCitations for each tip record below the node, and attach as references. 
+        MeasurementMethod= "summary of records available in EOL". Construct a source link to EOL, eg: https://beta.eol.org/pages/46559143/data
+        */
+        $page_id = $info['page_id']; $predicate = $info['predicate'];
+        $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
+        // print_r($recs);
+        print_r($info);
+        
+        echo "\n"."Page ID --- eol_pk --- Selected value_uri --- Label";
+        foreach($info['Selected'] as $id) {
+            foreach($recs as $rec) {
+                // print_r($rec); exit;
+                /*Array(
+                    [eol_pk] => R96-PK42940159
+                    [page_id] => 46559217
+                    [scientific_name] => <i>Vulpes lagopus</i>
+                    [resource_pk] => M_00454268
+                    [predicate] => http://eol.org/schema/terms/Habitat
+                    [sex] => 
+                    [lifestage] => 
+                    [statistical_method] => 
+                    [source] => http://www.worldwildlife.org/publications/wildfinder-database
+                    [object_page_id] => 
+                    [target_scientific_name] => 
+                    [value_uri] => http://eol.org/schema/terms/boreal_forests_taiga
+                    [literal] => http://eol.org/schema/terms/boreal_forests_taiga
+                    [measurement] => 
+                    [units] => 
+                    [normal_measurement] => 
+                    [normal_units_uri] => 
+                    [resource_id] => 20
+                )*/
+                if($rec['value_uri'] == $id) {
+                    echo "\n".$page_id." --- ".$rec['eol_pk']." --- ".$id. " --- " . $info['label'];
+                }
+            }
+        }
+        
     }
     
     //############################################################################################ start method = 'parents basal values'
@@ -716,7 +763,8 @@ class SummaryDataResourcesAPI
         
         echo "\n root: "; print_r($root_ancestor);
         echo "\n immediate_children_of_root: "; print_r($immediate_children_of_root);
-        return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP');
+        //'tree' => $final,
+        return array('root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP');
     }
     private function get_immediate_children_of_root_info($final)
     {
