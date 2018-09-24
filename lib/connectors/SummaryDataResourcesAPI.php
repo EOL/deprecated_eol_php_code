@@ -48,10 +48,10 @@ class SummaryDataResourcesAPI
     }
     function start()
     {
-        // /* WORKING
+        /* WORKING
         $ret = self::get_summ_process_type_given_pred(); 
         print_r($ret); exit("\n".count($ret)."\n");
-        // */
+        */
         
         /*
         self::initialize();
@@ -66,7 +66,7 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: parents: basal values --\n");
         */
 
-        /* METHOD: basal values  ============================================================================================================
+        // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
         // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
         // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
@@ -85,7 +85,7 @@ class SummaryDataResourcesAPI
         print_r($ret);
         self::write_resource_file($ret);
         exit("\n-- end method: basal values --\n");
-        */
+        // */
 
 
         /* METHOD: parents: taxon summary
@@ -129,6 +129,12 @@ class SummaryDataResourcesAPI
         */
 
     }
+    //############################################################################################ start write resource file - method = 'basal values'
+    private function get_sought_field($recs, $field)
+    {
+        foreach($recs as $rec) $final[$rec[$field]] = '';
+        return array_keys($final);
+    }
     private function write_resource_file($info)
     {
         /*
@@ -137,10 +143,8 @@ class SummaryDataResourcesAPI
         */
         $page_id = $info['page_id']; $predicate = $info['predicate'];
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
-        // print_r($recs);
-        print_r($info);
         
-        echo "\n"."Page ID --- eol_pk --- Selected value_uri --- Label";
+        // echo "\n"."Page ID --- eol_pk --- Selected value_uri --- Label";
         foreach($info['Selected'] as $id) {
             foreach($recs as $rec) {
                 // print_r($rec); exit;
@@ -164,12 +168,13 @@ class SummaryDataResourcesAPI
                     [normal_units_uri] => 
                     [resource_id] => 20
                 )*/
-                if($rec['value_uri'] == $id) {
-                    echo "\n".$page_id." --- ".$rec['eol_pk']." --- ".$id. " --- " . $info['label'];
-                }
+                if($rec['value_uri'] == $id) $eol_pks[$rec['eol_pk']] = ''; //echo "\n".$page_id." --- ".$rec['eol_pk']." --- ".$id. " --- " . $info['label'];
             }
         }
         
+        $eol_pks = array_keys($eol_pks);
+        print_r($eol_pks);
+        exit("\nstop 01\n");
     }
     
     //############################################################################################ start method = 'parents basal values'
