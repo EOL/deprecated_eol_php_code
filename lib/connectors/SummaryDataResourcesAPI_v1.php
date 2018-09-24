@@ -51,7 +51,6 @@ class SummaryDataResourcesAPI
     MeasurementMethod= "summary of records available in EOL". 
     SampleSize = "[number of] descendant taxa with records". Do not aggregate attribution data, but create source link to EOL, 
     eg: https://beta.eol.org/terms/search_results?utf8=%E2%9C%93&clade_name=Ursidae&term_query%5Bclade_id%5D=7664&pred_name=geographic+distribution+includes&term_query%5Bfilters_attributes%5D%5B0%5D%5Bpred_uri%5D=http%3A%2F%2Feol.org%2Fschema%2Fterms%2FPresent&term_query%5Bfilters_attributes%5D%5B0%5D%5Bop%5D=is_any&term_query%5Bresult_type%5D=record&commit=Search
-
     */
     function start()
     {
@@ -65,17 +64,52 @@ class SummaryDataResourcesAPI
         self::investigate_traits_csv(); exit;
         */
 
+        // /* METHOD: parents: basal values
+        // self::parse_DH();
+        self::initialize_basal_values();
+        $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //habitat includes -> orig test case
+        $ret = self::main_parents_basal_values($page_id, $predicate);
+        exit("\n-- end method: parents: basal values --\n");
+        // */
+
+        // /* METHOD: basal values  ============================================================================================================
+        self::initialize_basal_values();
+        // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
+        // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
+        // $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //first test case
+     
+        // $page_id = 328109; $predicate = "http://eol.org/schema/terms/Habitat"; //not found in traits.csv
+
+        // $page_id = 328607; $predicate = "http://eol.org/schema/terms/Habitat";
+        // $page_id = 328682; $predicate = "http://eol.org/schema/terms/Habitat";
+        $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Habitat";
+        // $page_id = 328609; $predicate = "http://eol.org/schema/terms/Habitat";
+        // $page_id = 328598; $predicate = "http://eol.org/schema/terms/Habitat";
+
+        $ret = self::main_basal_values($page_id, $predicate); //works OK
+        print_r($ret);
+        exit("\n-- end method: basal values --\n");
+        // */
+
+
+        /* METHOD: parents: taxon summary
+        self::parse_DH();
+        $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -> orig test case
+        $ret = self::main_parents_taxon_summary($page_id, $predicate);
+        exit("\n-- end method: parents: taxon summary --\n");
+        */
+
         /* METHOD: taxon summary ============================================================================================================
         self::parse_DH();
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
+        // $page_id = 328682; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -- additional test sample but no record for predicate 'eats'.
+        
         $page_id = 7666; $page_id = 7662;
         $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
         $page_id = 46559118; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on
-        // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-
+        $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         $page_id = 46559162; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-
         $page_id = 46559217; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         $page_id = 328609; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         $page_id = 328598; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
@@ -94,26 +128,355 @@ class SummaryDataResourcesAPI
         print_r($ret);
         exit("\n-- end method: lifestage_statMeth --\n");
         */
-        
 
-        // /* METHOD: basal values  ============================================================================================================
-        self::initialize_basal_values();
-        // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
-        // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
-        $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //first test case
-     
-        // $page_id = 328109; $predicate = "http://eol.org/schema/terms/Habitat"; //not found in traits.csv
-        // $page_id = 328607; $predicate = "http://eol.org/schema/terms/Habitat";
-        // $page_id = 328682; $predicate = "http://eol.org/schema/terms/Habitat";
-        
-        // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Habitat";
-        // $page_id = 328609; $predicate = "http://eol.org/schema/terms/Habitat";
-        // $page_id = 328598; $predicate = "http://eol.org/schema/terms/Habitat";
-
-        self::main_basal_values($page_id, $predicate); //works OK
-        exit("\n-- end method: basal values --\n");
-        // */
     }
+    
+    //############################################################################################ start method = 'parents basal values'
+    private function main_parents_basal_values($main_page_id, $predicate)
+    {
+        /* 1. get all children of page_id with rank = species */
+        $children = self::get_children_of_rank_species($main_page_id); //orig
+        $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
+        
+        /* 2. get all values for each child from method = 'basal values' */
+        foreach($children as $page_id) {
+            if($val = self::main_basal_values($page_id, $predicate)) $records[] = $val;
+            // print_r($val); exit;
+        }
+        /* 3. get all selected values */
+        $page_ids = array();
+        foreach($records as $rec) {
+            if($val = @$rec['Selected']) $page_ids = array_merge($page_ids, $val);
+        }
+        $original_records = $page_ids;
+        asort($original_records); $original_records = array_values($original_records); //reindexes key
+        
+        
+        $page_ids = array_unique($page_ids);
+        asort($page_ids);
+        $page_ids = array_values($page_ids); //reindexes key
+        
+        echo "\n==========================================================\nParent process for taxon ID $main_page_id, predicate $predicate\n";
+        echo "\nChildren used for computation: "; print_r($children);
+
+        echo "\n==========================================================\nCombined values from the original records (all REC records of children), raw:";
+        print_r($original_records);
+
+        echo "\n==========================================================\nDeduplicated:";
+        print_r($page_ids);
+        
+    }
+    //############################################################################################ start method = 'parents taxon summary'
+    private function main_parents_taxon_summary($main_page_id, $predicate)
+    {
+        /* 1. get all children of page_id with rank = species */
+        $children = self::get_children_of_rank_species($main_page_id);
+        
+        /* 2. get all values for each child from method = 'taxon summary' */
+        // $children = array(328609); //debug
+        foreach($children as $page_id) {
+            if($val = self::main_taxon_summary($page_id, $predicate)) $records[] = $val;
+            // print_r($val); exit;
+        }
+        /* 3. get all selected values */
+        $page_ids = array();
+        foreach($records as $rec) {
+            if($val = @$rec['Selected']) $page_ids = array_merge($page_ids, $val);
+        }
+        $original_records = $page_ids;
+        $page_ids = array_unique($page_ids);
+        $page_ids = array_values($page_ids); //reindexes key
+        
+        echo "\n==========================================================\nParent process for taxon ID $main_page_id, predicate $predicate\n";
+        echo "\nChildren used for computation: "; print_r($children);
+
+        echo "\n==========================================================\nCombined values from the original records (all REC records of children), raw:";
+        print_r($original_records);
+        // asort($original_records); print_r($original_records);
+        
+        echo "\n==========================================================\nCombined values from the original records (all REC records of children), deduplicated:";
+        print_r($page_ids);
+        
+        //now get similar report from 'taxon summary'
+        echo "\n==========================================================\nHierarchies of taxon values:";
+        $hierarchies_of_taxon_values = array();
+        foreach($page_ids as $page_id) {
+            $anc = self::get_ancestry_via_DH($page_id);
+            $hierarchies_of_taxon_values[$page_id] = $anc;
+        }
+
+        // /* NEW STEP: If the common root of the dataset is anything else, you can leave it. Only remove it if it is in the magic 5 of deletable taxa. 
+        // $hierarchies_of_taxon_values = self::adjust_2913056($hierarchies_of_taxon_values); MOVED BELOW...
+        // */
+        print_r($hierarchies_of_taxon_values);
+        
+        //start store counts 2:
+        foreach($hierarchies_of_taxon_values as $page_id => $anc) {
+            $k = 0;
+            foreach($anc as $id) {
+                @$counts[$id]++;
+                if($k > 0) $children_of[$id][] = $anc[$k-1];
+                $k++;
+            }
+        }
+
+        // print_r($counts); //print_r($children_of); //good debug
+        $final = array();
+        foreach($hierarchies_of_taxon_values as $page_id => $anc) {
+            foreach($anc as $id) {
+                if($count = @$counts[$id]) {
+                    if($count >= 2) { //meaning this ancestor exists in other recs
+                        if($arr = @$children_of[$id]) {
+                            $arr = array_unique($arr);
+                            if(count($arr) > 1) $final[$page_id][] = $id; //meaning child is not the same for all recs
+                        }
+                    }
+                }
+            }
+        }
+        echo "\n==========================================================\nReduced hierarchies: \n";
+        $hierarchies_of_taxon_values = array(); //to be used
+        foreach($page_ids as $page_id) {
+            echo "\n[$page_id] -> ";
+            $hierarchies_of_taxon_values[$page_id] = '';
+            if($val = @$final[$page_id]) {
+                print_r($val);
+                $hierarchies_of_taxon_values[$page_id] = $val;
+            }
+            else echo "no more ancestry";
+        }
+
+        // /* NEW STEP: If the common root of the dataset is anything else, you can leave it. Only remove it if it is in the magic 5 of deletable taxa. 
+        $hierarchies_of_taxon_values = self::adjust_2913056($hierarchies_of_taxon_values);
+        // */
+        echo "\n==========================================================\nHierarchies after removal of the 5 deletable taxa:"; print_r($hierarchies_of_taxon_values);
+        $final = $hierarchies_of_taxon_values; //needed assignment
+
+        echo "\n==========================================================\nroots < 15% removal step:\n";
+        /* ---------------------------------------------------------------------------------------------------------------------------------------
+        "NEW STEP: IF there are multiple roots, discard those representing less than 15% of the original records",
+        discard: yes, *in this step* discard means that whole hierarchy
+        "original records" is a set just upstream of your second section in your result file: 
+        "combined values from the original records (all REC records of children), deduplicated:Array". 
+        The list I want is before deduplication, 
+        i.e. if 207661 was a value for more than one of the child taxa, it should count more than once in the 15% calculation.
+        */
+        $ret_roots = self::get_all_roots($final); //get all roots of 'Reduced hierarchies'
+        $all_roots = $ret_roots['roots'];
+        $count_all_roots = count($all_roots);
+        // echo "\nRoots info: "; print_r($ret_roots); //debug only
+
+        // $all_roots = array(1, 42430800); //test force assignment -- debug only
+        // if(true) {
+
+        if($count_all_roots > 1) {
+            echo "\nMultiple roots: "; print_r($all_roots);
+            $temp_final = self::roots_lessthan_15percent_removal_step($original_records, $all_roots, $final);
+            if($temp_final != $final) {
+                $final = $temp_final;
+                echo "\nHierarchies after discarding those representing less than 15% of the original records: "; print_r($final);
+            }
+            // else echo "\nfinal and temp_final are equal\n"; //just debug
+            unset($temp_final);
+        }
+        else echo "\nJust one root ($all_roots[0]). Will skip this step.\n";
+
+        echo "\n==========================================================\nFinal step:\n";
+        /* ---------------------------------------------------------------------------------------------------------------------------------------
+        IF >1 roots remain:,
+        All the remaining roots are REP records,
+        the one that appears in the most ancestries is the PRM,
+        ,
+        IF one root remains:,
+        All direct children of the remaining root are REP records,
+        the one that appears in the most ancestries is the PRM,
+        (i.e. same behavior as taxon summary),
+        ,
+        "In this case, one root remains (taxon ID=1)",
+        REP records:,
+        2774383,
+        166,
+        10459935,
+        ,
+        PRM record:,
+        2774383,
+        */
+        $ret_roots = self::get_all_roots($final); //get all roots of 'Reduced hierarchies'
+        $all_roots = $ret_roots['roots'];
+        $count_all_roots = count($all_roots);
+        echo "\nList of root(s) and the corresponding no. of records it existed:"; print_r($ret_roots); //good debug
+        if($count_all_roots == 1) {
+            echo "\nAll direct children of the remaining root are REP records, the one that appears in the most ancestries is the PRM.\n";
+            //from taxon summary:
+            $ret = self::get_immediate_children_of_root_info($final);
+            $immediate_children_of_root         = $ret['immediate_children_of_root'];
+            $immediate_children_of_root_count   = $ret['immediate_children_of_root_count'];
+
+            echo "\nImmediate children of root => and the no. of records it existed:";
+            print_r($immediate_children_of_root_count); echo "\n";
+            /* ver. 1 strategy
+            $root_ancestor = array_unique($root_ancestor);
+            */
+            // /* ver. 2 strategy
+            $root_ancestor = self::get_key_of_arr_with_biggest_value($immediate_children_of_root_count);
+            // */
+            $immediate_children_of_root = array_keys($immediate_children_of_root);
+
+            echo "\nPRM record: $root_ancestor (the one that appears in the most ancestries)";
+            echo "\nREP records: "; print_r($immediate_children_of_root);
+            return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP');
+            
+        } //end IF one root remains ------------------------------------------------------------
+        elseif($count_all_roots > 1) { //has not met this criteria yet in our test cases.
+            echo "\nMore than 1 root remain. All the remaining roots are REP records, the one that appears in the most ancestries is the PRM.\n";
+            /* IF >1 roots remain:,
+            - All the remaining roots are REP records,
+            - the one that appears in the most ancestries is the PRM,
+            e.g. List of roots and the corresponding no. of records it existed:
+            $ret_roots = Array(
+                [roots] => Array(
+                        [0] => 1
+                        [1] => 173 
+                        [2] => 143
+                    )
+                [count_of_roots] => Array(
+                        [1] => 7
+                        [173] => 2
+                        [143] = 1
+                    )
+            )*/
+            $root_ancestor = self::get_key_of_arr_with_biggest_value($ret_roots['count_of_roots']);
+            echo "\nPRM record: $root_ancestor (the one that appears in the most ancestries)";
+            echo "\nREP records: "; print_r($ret_roots['roots']);
+            return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $ret_roots['roots'], 'Selected label' => 'REP');
+        } //end if > 1 roots remain ------------------------------------------------------------
+        exit("\nexit muna\n");
+    }
+    private function roots_lessthan_15percent_removal_step($original_records, $all_roots, $final_from_main)
+    {
+        /* compute how many records from the original_records does the root exists */
+        foreach($original_records as $page_id) {
+            $ancestries[] = self::get_ancestry_via_DH($page_id);
+        }
+        foreach($all_roots as $root) {
+            if(!isset($final[$root])) $final[$root] = 0;
+            foreach($ancestries as $anc) {
+                if(in_array($root, $anc)) @$final[$root]++;
+            }
+        }
+        // print_r($final); //good debug
+        
+        /* get those that are < 15% */
+        $remove = array();
+        foreach($final as $root => $count) {
+            $percentage = ($count/count($original_records))*100;
+            $final2['roots % in original records'][$root] = $percentage;
+            if($percentage < 15) $remove[] = $root;
+        }
+        print_r($final2);
+        // echo "\nremove: "; print_r($remove);
+        
+        if($remove) {
+            /* remove from $final_from_main those with roots that are < 15% coverage in $original_records */
+            foreach($final_from_main as $page_id => $ancestry) {
+                if($ancestry) {
+                    $orig_ancestry = $ancestry;
+                    $root = array_pop($ancestry); //the last rec from an array
+                    if(in_array($root, $remove)) {}
+                    else $final3[$page_id] = $orig_ancestry;
+                }
+            }
+            // echo "\nwent here 01\n";
+            return $final3;
+        }
+        else  {
+            // echo "\nwent here 02\n";
+            return $final_from_main;
+        }
+    }
+    private function get_all_roots($reduced_hierarchies)
+    {
+        foreach($reduced_hierarchies as $page_id => $anc) {
+            if($anc) {
+                $last = array_pop($anc);
+                $final[$last] = '';
+                @$count_of_roots[$last]++;
+            }
+            else { //case where both a root and a tip.
+                $final[$page_id] = '';
+                @$count_of_roots[$page_id]++;
+            }
+        }
+        return array('roots' => array_keys($final), 'count_of_roots' => $count_of_roots);
+    }
+    private function adjust_2913056($hierarchies_of_taxon_values) //If the common root of the dataset is anything else, you can leave it. Only remove it if it is 2913056 
+    {
+        /* Rules:
+        - If the root node is any of these five, and if it is common to all 'hierarchies_of_taxon_values', then I'll remove that root node from all hierarchies.
+        - If there are multiple root nodes, but all are included in the magic five -> remove all
+        - if there are multiple root nodes, some are outside of the magic five -> remove magic 5 roots, leave the others
+        */
+        $root_nodes_to_remove = array(46702381, 2910700, 6061725, 2908256, 2913056);
+        $cont_for_more = false;
+        foreach($hierarchies_of_taxon_values as $page_id => $anc) {
+            $orig_anc = $anc;
+            $last = array_pop($anc);
+            if(in_array($last, $root_nodes_to_remove)) {
+                $final[$page_id] = $anc;
+                $cont_for_more = true;
+            }
+            else $final[$page_id] = $orig_anc;
+        }
+        if($cont_for_more) {
+            while(true) {
+                $cont_for_more = false;
+                foreach($final as $page_id => $anc) {
+                    $orig_anc = $anc;
+                    $last = array_pop($anc);
+                    if(in_array($last, $root_nodes_to_remove)) {
+                        $final2[$page_id] = $anc;
+                        $cont_for_more = true;
+                    }
+                    else $final2[$page_id] = $orig_anc;
+                }
+                if($cont_for_more) {
+                    $final = $final2;
+                    $final2 = array();
+                }
+                else break; //break from while true
+            }
+            return $final2;
+        }
+        else return $final;
+        
+        /* version 1 obsolete
+        $life = 2913056;
+        $remove_last_rec = true;
+        foreach($hierarchies_of_taxon_values as $page_id => $anc) {
+            $last = array_pop($anc);
+            if($last != $life) {
+                $remove_last_rec = false; //if only if one is not $life then don't remove last rec.
+                break; //end loop
+            }
+        }
+        if($remove_last_rec) {
+            echo "\nNOTE: Common root of hierarchies of taxon values (n=".count($hierarchies_of_taxon_values).") is 'Life:2913056'. Will remove this common root.\n";
+            $final = array();
+            foreach($hierarchies_of_taxon_values as $page_id => $anc) {
+                array_pop($anc);
+                $final[$page_id] = $anc;
+            }
+            return $final;
+        }
+        else return $hierarchies_of_taxon_values;
+        */
+    }
+    private function get_children_of_rank_species($page_id) //TODO
+    {
+        // return array(328598, 328609, 46559217, 328682, 328607); wrong list
+           return array(328598, 46559162, 328607, 46559217, 328609);
+    }
+    //############################################################################################ end method = 'parents'
     private function extract_DH()
     {
         require_library('connectors/INBioAPI');
@@ -200,6 +563,7 @@ class SummaryDataResourcesAPI
                 $this->DH_2_EOL[$rec['taxonID']] = $rec['EOLid'];
                 $this->parent_of_taxonID[$rec['taxonID']] = $rec['parentNameUsageID'];
                 $this->landmark_value_of[$rec['EOLid']] = $rec['Landmark'];
+                if($rec['taxonRank'] == 'family') $this->is_family[$rec['EOLid']] = '';
             }
         }
         /* may not want to force assign this:
@@ -230,15 +594,16 @@ class SummaryDataResourcesAPI
                 /* orig strategy
                 $final2[] = $EOLid;
                 */
-                // /* new strategy: using Landmark value
+                /* new strategy: using Landmark value   ver 1
                 if($this->landmark_value_of[$EOLid]) $final2[] = $EOLid;
+                */
+                // /* new strategy: using Landmark value   ver 2
+                if($this->landmark_value_of[$EOLid] || isset($this->is_family[$EOLid])) $final2[] = $EOLid;
                 // */
-                // echo " $EOLid";
             }
             // else echo " none";
             $i++;
         }
-        // print_r($final);
         return $final2;
     }
     private function main_taxon_summary($page_id, $predicate)
@@ -275,7 +640,7 @@ class SummaryDataResourcesAPI
                 }
                 // */
                 
-                //start store counts:
+                //start store counts 1:
                 $k = 0;
                 foreach($anc as $id) {
                     @$counts[$id]++;
@@ -322,6 +687,9 @@ class SummaryDataResourcesAPI
         - Select all immediate children of the root and label REP.
         - Label the root PRM
         */
+        echo "\n final array: ".count($final); print_r($final);
+        if(!$final) return false;
+        /* WORKING WELL but was made into a function -> get_immediate_children_of_root_info($final)
         foreach($final as $tip => $ancestors) {
             $root_ancestor[] = end($ancestors);
             $no_of_rows = count($ancestors);
@@ -331,8 +699,12 @@ class SummaryDataResourcesAPI
             $immediate_children_of_root[$idx] = '';
             @$immediate_children_of_root_count[$idx]++;
         }
-
-        echo "\nchildren => no. of records it existed:";
+        */
+        $ret = self::get_immediate_children_of_root_info($final);
+        $immediate_children_of_root         = $ret['immediate_children_of_root'];
+        $immediate_children_of_root_count   = $ret['immediate_children_of_root_count'];
+        
+        echo "\nImmediate children of root => no. of records it existed:";
         print_r($immediate_children_of_root_count); echo "\n";
         /* ver. 1 strategy
         $root_ancestor = array_unique($root_ancestor);
@@ -340,13 +712,26 @@ class SummaryDataResourcesAPI
         // /* ver. 2 strategy
         $root_ancestor = self::get_key_of_arr_with_biggest_value($immediate_children_of_root_count);
         // */
-        
         $immediate_children_of_root = array_keys($immediate_children_of_root);
         
         echo "\n root: "; print_r($root_ancestor);
         echo "\n immediate_children_of_root: "; print_r($immediate_children_of_root);
-        
         return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP');
+    }
+    private function get_immediate_children_of_root_info($final)
+    {
+        foreach($final as $tip => $ancestors) {
+            if($ancestors) {
+                $root_ancestor[] = end($ancestors);
+                $no_of_rows = count($ancestors);
+                if($no_of_rows > 1) $idx = $ancestors[$no_of_rows-2]; // rows should be > 1 bec if only 1 then there is no child for that root.
+                elseif($no_of_rows == 1) $idx = $tip; 
+                else exit("\nInvestigate: won't go here...\n");
+                $immediate_children_of_root[$idx] = '';
+                @$immediate_children_of_root_count[$idx]++;
+            }
+        }
+        return array('immediate_children_of_root' => $immediate_children_of_root, 'immediate_children_of_root_count' => $immediate_children_of_root_count);
     }
     private function get_key_of_arr_with_biggest_value($arr)
     {
@@ -476,6 +861,7 @@ class SummaryDataResourcesAPI
     }
     private function main_basal_values($page_id, $predicate) //for basal values
     {
+        $this->original_nodes = array(); //IMPORTANT to initialize especially for multiple calls of this function main_basal_values()
         echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate, array('value_uri')); //3rd param array is required_fields
         if(!$recs) {
@@ -562,7 +948,8 @@ class SummaryDataResourcesAPI
         if    (count($selected) == 1) $label = "PRM and REP";
         elseif(count($selected) > 1)  $label = "REP";
         echo "\n----- label as: [$label]\n";
-        return array('selected' => $selected, 'label' => $label);
+        $selected = array_values($selected); //reindex array
+        return array('Selected' => $selected, 'label' => $label);
         /*
         if tips <= 5 SELECT ALL TIPS 
         else
