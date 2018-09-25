@@ -86,6 +86,7 @@ class SummaryDataResourcesAPI
         
         $predicate = "http://eol.org/schema/terms/Habitat";
         $page_ids = array(328598, 328609, 46559217);
+        $page_ids = array(46559217);
         foreach($page_ids as $page_id) {
             $ret = self::main_basal_values($page_id, $predicate); //works OK
             $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
@@ -161,12 +162,13 @@ class SummaryDataResourcesAPI
             self::create_archive($new_records, $refs, $info);
         }
     }
-    private function create_archive($records, $refs, $info)
+    private function create_archive($records, $refs, $info) //EXTENSION_URL: http://rs.tdwg.org/dwc/xsd/tdwg_dwcterms.xsd
     {
-        print_r($info); //exit;
+        // print_r($records); exit;
         foreach($records as $value_uri) { //e.g. http://purl.obolibrary.org/obo/ENVO_01001125
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID         = $info['page_id'];
+            $taxon->EOL_taxonID     = $info['page_id'];
             // $taxon->scientificName  = '';
             if(!isset($this->taxon_ids[$taxon->taxonID])) {
                 $this->taxon_ids[$taxon->taxonID] = '';
@@ -175,14 +177,38 @@ class SummaryDataResourcesAPI
             $predicate = $info['predicate'];
             //start structured data
             $rec['label'] = $info['label'];
-            $rec['source'] = "https://beta.eol.org/pages/$taxon->taxonID/data?predicate=$predicate"; //e.g. https://beta.eol.org/pages/46559217/data?predicate=http://eol.org/schema/terms/Habitat
             $rec['taxon_id'] = $taxon->taxonID;
             $rec['measurementType'] = $predicate;
             $rec['measurementValue'] = $value_uri;
+            if($reference_ids = self::create_references($refs)) {
+                $rec['referenceID'] = implode("; ", $reference_ids);
+                // print_r($refs);
+                // print_r($reference_ids);
+                // print_r($rec);
+                // exit();
+            }
             $rec['catnum'] = $taxon->taxonID . "_" . pathinfo($predicate, PATHINFO_BASENAME) . "_" . pathinfo($value_uri, PATHINFO_BASENAME);
+            $rec['source'] = "https://beta.eol.org/pages/$taxon->taxonID/data?predicate=$predicate"; //e.g. https://beta.eol.org/pages/46559217/data?predicate=http://eol.org/schema/terms/Habitat
             if($predicate == "http://eol.org/schema/terms/Habitat") self::add_string_types($rec);
             elseif($predicate == "xxx")                             self::add_string_types($rec);
         }
+    }
+    private function create_references($refs)
+    {
+        // print_r($refs); exit;
+        if(!$refs) return array();
+        $reference_ids = array();
+        foreach($refs as $ref_no => $full_ref) {
+            $r = new \eol_schema\Reference();
+            $r->identifier = $ref_no;
+            $r->full_reference = $full_ref;
+            $reference_ids[$r->identifier] = '';
+            if(!isset($this->reference_ids[$r->identifier])) {
+               $this->reference_ids[$r->identifier] = '';
+               $this->archive_builder->write_object_to_file($r);
+            }
+        }
+        return array_keys($reference_ids);
     }
     private function add_string_types($rec)
     {
@@ -199,6 +225,7 @@ class SummaryDataResourcesAPI
         $m->source              = $rec['source'];
         $m->measurementMethod   = 'summary of records available in EOL';
         $m->measurementDeterminedDate = date("Y-M-d");
+        $m->referenceID   = @$rec['referenceID']; //not all have refs
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
 
@@ -235,10 +262,10 @@ class SummaryDataResourcesAPI
                     [literal] => Activity cycle of each species measured for non-captive populations; adult or age unspecified individuals, male, female, or sex unspecified individuals; primary, secondary, or extrapolated sources; all measures of central tendency; in all localities. Species were defined as (1) nocturnal only, (2) nocturnal/crepuscular, cathemeral, crepuscular or diurnal/crepuscular and (3) diurnal only.  Based on information from primary and secondary literature sources.  See source for details. 
                     [measurement] => [value_uri] => [units] => [sex] => [lifestage] => [statistical_method] => [source] => 
                 )*/
-                if(in_array($rec['trait_eol_pk'], $eol_pks) && count($fields) == count($line) && $rec['predicate'] == "http://eol.org/schema/reference/referenceID") $refs[strip_tags($rec['literal'])] = '';
+                if(in_array($rec['trait_eol_pk'], $eol_pks) && count($fields) == count($line) && $rec['predicate'] == "http://eol.org/schema/reference/referenceID") $refs[$rec['eol_pk']] = strip_tags($rec['literal']);
             }
         }
-        return array_keys($refs);
+        return $refs;
     }
     private function get_sought_field($recs, $field)
     {

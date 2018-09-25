@@ -209,12 +209,20 @@ class Taxon extends DarwinCoreExtensionBase
             $this->accepted_properties = $GLOBALS['DarwinCoreExtensionProperties'][static::EXTENSION_URL]['accepted_properties'];
             $this->accepted_properties_by_name = $GLOBALS['DarwinCoreExtensionProperties'][static::EXTENSION_URL]['accepted_properties_by_name'];
             $this->accepted_properties_by_uri = $GLOBALS['DarwinCoreExtensionProperties'][static::EXTENSION_URL]['accepted_properties_by_uri'];
-            
         }else
         {
             $this->accepted_properties = array();
             $this->accepted_properties_by_name = array();
             $this->accepted_properties_by_uri = array();
+
+            // add eol:EOL_taxonID  -> Added by Eli, made-up namespace and uri. Used for 'summary data resources' task.
+            $property = array();
+            $property['name'] = 'EOL_taxonID';
+            $property['namespace'] = 'http://eol.org/schema/taxon';
+            $property['uri'] = "http://eol.org/schema/taxon/EOL_taxonID";
+            $this->accepted_properties[] = $property;
+            $this->accepted_properties_by_name[$property['name']] = $property;
+            $this->accepted_properties_by_uri[$property['uri']] = $property;
             
             // add dwc:taxonID
             $property = array();
