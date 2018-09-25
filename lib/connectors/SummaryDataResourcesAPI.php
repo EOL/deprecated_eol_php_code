@@ -51,8 +51,53 @@ class SummaryDataResourcesAPI
     }
     function start()
     {
+        // /* print resource files
+        //step 1: get all 'basal values' predicates:
+        $predicates = self::get_summ_process_type_given_pred('opposite');
+        $predicates = $predicates['basal values'];
+        print_r($predicates);
+        
+        self::working_dir();
+        $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
+
+        //--------initialize start
+        self::initialize_basal_values();
+        //write to DwCA
+        $this->resource_id = 'basal_values';
+        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id . '_working/';
+        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        
+        //write to file
+        if(!($WRITE = Functions::file_open($this->basal_values_resource_file, "w"))) return;
+        $row = array("Page ID", 'eol_pk', "http://purl.obolibrary.org/obo/IAO_0000009");
+        fwrite($WRITE, implode("\t", $row). "\n");
+        //--------initialize end
+        
+        foreach($predicates as $predicate) {
+            foreach($page_ids as $page_id => $taxon) {
+                // [328684] => Array(
+                //             [taxonRank] => species
+                //             [Landmark] => 
+                //         )
+                if($taxon['taxonRank'] == "species") {
+                    if($ret = self::main_basal_values($page_id, $predicate)) {
+                        $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
+                        // print_r($ret);
+                        self::write_resource_file($ret, $WRITE);
+                    }
+                }
+            }
+        }
+        
+        fclose($WRITE);
+        $this->archive_builder->finalize(TRUE);
+        Functions::finalize_dwca_resource($this->resource_id);
+        
+        exit("\n-end print resource files-\n");
+        // */
+        
         /* WORKING
-        $ret = self::get_summ_process_type_given_pred(); 
+        $ret = self::get_summ_process_type_given_pred('opposite');
         print_r($ret); exit("\n".count($ret)."\n");
         */
         
@@ -71,6 +116,7 @@ class SummaryDataResourcesAPI
 
         // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
+        //write to DwCA
         $this->resource_id = 'basal_values';
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -80,21 +126,25 @@ class SummaryDataResourcesAPI
         $row = array("Page ID", 'eol_pk', "http://purl.obolibrary.org/obo/IAO_0000009");
         fwrite($WRITE, implode("\t", $row). "\n");
         
-        $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Present");
-        $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Present");
-        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case
-        $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat");
+        // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Present");
+        // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Present");
+        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case
+        // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Habitat");
+        // $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Habitat");
+        // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat");
+        // $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");
+        // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
+
         $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
+        $input[] = array('page_id' => 173, 'predicate' => "http://eol.org/schema/terms/Habitat");
         
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
-            $ret = self::main_basal_values($page_id, $predicate); //works OK
-            $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-            // print_r($ret);
-            self::write_resource_file($ret, $WRITE);
+            if($ret = self::main_basal_values($page_id, $predicate)) {
+                $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
+                // print_r($ret);
+                self::write_resource_file($ret, $WRITE);
+            }
         }
 
         fclose($WRITE);
@@ -151,7 +201,6 @@ class SummaryDataResourcesAPI
         $page_id = $info['page_id']; $predicate = $info['predicate'];
         /*step 1: get all eol_pks */
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
-        
 
         foreach($info['Selected'] as $id) {
             foreach($recs as $rec) {
@@ -274,6 +323,69 @@ class SummaryDataResourcesAPI
     {
         foreach($recs as $rec) $final[$rec[$field]] = '';
         return array_keys($final);
+    }
+    private function get_page_ids_fromTraitsCSV_andInfo_fromDH()
+    {
+        //step 1: get all page_ids from traits.csv
+        $ret = self::get_fields_from_file(array('page_id'), 'traits.csv');
+        $page_ids = $ret['page_id']; $ret = ''; //unset
+        //step 2 get desired info from DH
+        $info = self::prep_DH();
+        $i = 0;
+        foreach(new FileIterator($info['archive_path'].$info['tables']['taxa']) as $line_number => $line) {
+            $line = explode("\t", $line); $i++;
+            if($i == 1) $fields = $line;
+            else {
+                if(!$line[0]) break;
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); exit;
+                /*Array(
+                    [taxonID] => -168611
+                    [acceptedNameUsageID] => -168611
+                    [parentNameUsageID] => -105852
+                    [scientificName] => Torpediniformes
+                    [taxonRank] => order
+                    [source] => trunk:59edf7f2-b792-4351-9f37-562dd522eeca,WOR:10215,gbif:881
+                    [taxonomicStatus] => accepted
+                    [canonicalName] => 
+                    [scientificNameAuthorship] => 
+                    [scientificNameID] => 
+                    [taxonRemarks] => 
+                    [namePublishedIn] => 
+                    [furtherInformationURL] => 
+                    [datasetID] => trunk
+                    [EOLid] => 8898
+                    [EOLidAnnotations] => multiple;
+                    [Landmark] => 1
+                )*/
+                if(isset($page_ids[$rec['EOLid']])) $page_ids[$rec['EOLid']] = array('taxonRank' => $rec['taxonRank'], 'Landmark' => $rec['Landmark']);
+            }
+        }
+        return $page_ids;
+    }
+    private function get_fields_from_file($headers, $filename)
+    {
+        $file = fopen($this->main_paths['archive_path'].'/'.$filename, 'r'); $i = 0;
+        while(($line = fgetcsv($file)) !== FALSE) {
+            $i++;
+            if($i == 1) $fields = $line;
+            else {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                foreach($headers as $head) $final[$head][$rec[$head]] = '';
+                /*Array(
+                    [eol_pk] => R96-PK42724728
+                    [page_id] => 328673
+                    [scientific_name] => <i>Panthera pardus</i>
+                )*/
+            }
+        }
+        return $final;
     }
     //############################################################################################ start method = 'parents basal values'
     private function main_parents_basal_values($main_page_id, $predicate)
@@ -629,12 +741,12 @@ class SummaryDataResourcesAPI
         $paths['tables'] = $tables;
         return $paths;
     }
-    private function parse_DH()
+    private function prep_DH()
     {
         if(Functions::is_production()) {
             if(!($info = self::extract_DH())) return;
             print_r($info);
-            $this->info_path = $info;
+            // $this->info_path = $info;
         }
         else { //local development only
             /*
@@ -644,8 +756,13 @@ class SummaryDataResourcesAPI
             $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',                         //for eoldynamichierarchywithlandmarks.zip
                           'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
                           'tables' => Array('taxa' => 'taxa.txt'));
-            $this->info_path = $info;
+            // $this->info_path = $info;
         }
+        return $info;
+    }
+    private function parse_DH()
+    {
+        $info = self::prep_DH();
         $i = 0;
         foreach(new FileIterator($info['archive_path'].$info['tables']['taxa']) as $line_number => $line) {
             $line = explode("\t", $line); $i++;
@@ -1010,7 +1127,7 @@ class SummaryDataResourcesAPI
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate, array('value_uri')); //3rd param array is required_fields
         if(!$recs) {
             echo "\nNo records for [$page_id] [$predicate].\n";
-            return;
+            return false;
         }
         $uris = self::get_valueUris_from_recs($recs);
         self::set_ancestor_ranking_from_set_of_uris($uris);
@@ -1325,6 +1442,10 @@ class SummaryDataResourcesAPI
         $recs = array();
         $txt_file = self::get_txt_path_by_page_id($page_id);
         echo "\n$txt_file\n";
+        if(!file_exists($txt_file)) {
+            echo "\nFile does not exist.\n";
+            return false;
+        }
         $i = 0;
         foreach(new FileIterator($txt_file) as $line_number => $line) {
             $line = explode("\t", $line); $i++;
@@ -1878,7 +1999,7 @@ class SummaryDataResourcesAPI
         //end write
         return $final;
     }
-    private function get_summ_process_type_given_pred() //sheet found here: https://docs.google.com/spreadsheets/u/1/d/1Er57xyxT_-EZud3mNkTBn0fZ9yZi_01qtbwwdDkEsA0/edit?usp=sharing
+    private function get_summ_process_type_given_pred($order = "normal") //sheet found here: https://docs.google.com/spreadsheets/u/1/d/1Er57xyxT_-EZud3mNkTBn0fZ9yZi_01qtbwwdDkEsA0/edit?usp=sharing
     {
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
@@ -1887,7 +2008,12 @@ class SummaryDataResourcesAPI
         $arr = $func->access_google_sheet($params);
         //start massage array
         foreach($arr as $item) {
-            if($val = $item[0]) $final[$val] = @$item[5];
+            if($uri = $item[0]) {
+                if($order == "normal") $final[$uri] = @$item[5];
+                elseif($order == "opposite") {
+                    if($item5 = @$item[5]) $final[$item5][] = $uri;
+                }
+            }
         }
         return $final;
     }
