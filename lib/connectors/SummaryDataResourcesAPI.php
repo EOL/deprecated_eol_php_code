@@ -68,6 +68,10 @@ class SummaryDataResourcesAPI
 
         // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
+        $this->resource_id = 'basal_values';
+        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id . '_working/';
+        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        
         // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
         // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
         // $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //first test case
@@ -95,7 +99,7 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: parents: taxon summary --\n");
         */
 
-        // /* METHOD: taxon summary ============================================================================================================
+        /* METHOD: taxon summary ============================================================================================================
         self::parse_DH();
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         // $page_id = 328682; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -- additional test sample but no record for predicate 'eats'.
@@ -115,7 +119,7 @@ class SummaryDataResourcesAPI
         $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
         echo "\n\nFinal result:"; print_r($ret);
         exit("\n-- end method: 'taxon summary' --\n");
-        // */
+        */
 
         /* METHOD: lifestage+statMeth ============================================================================================================
         self::initialize();
@@ -126,14 +130,8 @@ class SummaryDataResourcesAPI
         print_r($ret);
         exit("\n-- end method: lifestage_statMeth --\n");
         */
-
     }
     //############################################################################################ start write resource file - method = 'basal values'
-    private function get_sought_field($recs, $field)
-    {
-        foreach($recs as $rec) $final[$rec[$field]] = '';
-        return array_keys($final);
-    }
     private function write_resource_file($info)
     {   /*when creating new records (non-tips), find and deduplicate all references and bibliographicCitations for each tip record below the node, and attach as references. 
         MeasurementMethod= "summary of records available in EOL". Construct a source link to EOL, eg: https://beta.eol.org/pages/46559143/data */
@@ -148,49 +146,35 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        if($diff = array_diff($info['Selected'], $found)) {
-            echo "\nNot found in traits.csv. Create new record."; print_r($diff);
-            self::write_dwca();
-        }
-        
         $eol_pks = array_keys($eol_pks); //print_r($eol_pks);
-        $refs = self::get_refs_from_metadata_csv($eol_pks); //print_r($refs);
+        
+        if($new_records = array_diff($info['Selected'], $found)) {
+            echo "\nNot found in traits.csv. Create new record(s): "; print_r($new_records);
+            $refs = self::get_refs_from_metadata_csv($eol_pks); //get refs for new records, same refs for all new records
+            self::create_archive($new_records, $refs, $info);
+        }
         exit("\nstop 01\n");
     }
-    private function 
+    private function create_archive($records, $refs, $info)
     {
-        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
-        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        
-    }
-    private function create_archive($records, $region, $type)
-    {
-        foreach($records as $rec)
-        {
+        print_r($info); exit;
+        foreach($records as $value_uri) { //e.g. http://purl.obolibrary.org/obo/ENVO_01001125
             $taxon = new \eol_schema\Taxon();
-            $taxon->taxonID         = strtolower(str_replace(" ", "_", $rec['sciname']));
-            $taxon->scientificName  = $rec['sciname'];
-            $taxon->order           = $rec['order'];
-            $taxon->family          = $rec['family'];
-            
-            if($path = $rec['source']) $taxon->furtherInformationURL = "http://amphibiaweb.org" . $path;
-            else
-            {
-                print_r($rec); exit("\nno source\n");
-            }
-            
-            if(!isset($this->taxon_ids[$taxon->taxonID]))
-            {
+            $taxon->taxonID         = $info['page_id'];
+            // $taxon->scientificName  = '';
+            if(!isset($this->taxon_ids[$taxon->taxonID])) {
                 $this->taxon_ids[$taxon->taxonID] = '';
                 $this->archive_builder->write_object_to_file($taxon);
             }
-            
+            $predicate = $info['predicate'];
             //start structured data
-            $rec['source'] = $taxon->furtherInformationURL;
+            $rec['source'] = "https://beta.eol.org/pages/$taxon->taxonID/data?predicate=$predicate"; //e.g. https://beta.eol.org/pages/46559217/data?predicate=http://eol.org/schema/terms/Habitat
             $rec['taxon_id'] = $taxon->taxonID;
-            $rec['catnum'] = $taxon->taxonID . "_" . $type . "_" . $region;
-            if($type == "present")      self::add_string_types($rec, $region, "http://eol.org/schema/terms/Present");
-            elseif($type == "endemic")  self::add_string_types($rec, $region, "http://eol.org/terms/endemic");
+            $rec['measurementType'] = $predicate;
+            $rec['measurementValue'] = $value_uri;
+            $rec['catnum'] = $taxon->taxonID . "_" . pathinfo($predicate, PATHINFO_BASENAME) . "_" . $value_uri;
+            if($predicate == "http://eol.org/schema/terms/Habitat") self::add_string_types($rec);
+            elseif($predicate == "xxx")                             self::add_string_types($rec);
         }
     }
 
@@ -202,12 +186,12 @@ class SummaryDataResourcesAPI
         $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
         $m->occurrenceID = $occurrence_id;
         $m->measurementOfTaxon  = 'true';
-        $m->measurementType     = $mtype;
-        $m->measurementValue    = $value;
+        $m->measurementType     = $rec['measurementType'];
+        $m->measurementValue    = $rec['measurementValue'];
         $m->source              = $rec['source'];
         $m->bibliographicCitation = "AmphibiaWeb: Information on amphibian biology and conservation. [web application]. 2015. Berkeley, California: AmphibiaWeb. 
         Available: http://amphibiaweb.org/.";
-        // $m->measurementMethod   = '';
+        $m->measurementMethod   = 'summary of records available in EOL';
         // $m->measurementRemarks  = '';
         // $m->contributor         = '';
         // $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue'));
@@ -249,6 +233,11 @@ class SummaryDataResourcesAPI
             }
         }
         return array_keys($refs);
+    }
+    private function get_sought_field($recs, $field)
+    {
+        foreach($recs as $rec) $final[$rec[$field]] = '';
+        return array_keys($final);
     }
     //############################################################################################ start method = 'parents basal values'
     private function main_parents_basal_values($main_page_id, $predicate)
