@@ -45,6 +45,9 @@ class SummaryDataResourcesAPI
         else                            $this->EOL_DH = "http://localhost/cp/summary%20data%20resources/DH/eoldynamichierarchywithlandmarks.zip";
         
         $this->EOL_DH = "http://localhost/cp/summary%20data%20resources/DH/eoldynamichierarchywithlandmarks.zip";
+        $this->basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . '/basal_values_resource.txt';
+        
+        
     }
     function start()
     {
@@ -72,6 +75,12 @@ class SummaryDataResourcesAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         
+        //write to file
+        if(!($WRITE = Functions::file_open($this->basal_values_resource_file, "w"))) return;
+        $row = array("Page ID", 'eol_pk', "http://purl.obolibrary.org/obo/IAO_0000009");
+        fwrite($WRITE, implode("\t", $row). "\n");
+        
+        
         // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
         // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
         // $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //first test case
@@ -86,14 +95,15 @@ class SummaryDataResourcesAPI
         
         $predicate = "http://eol.org/schema/terms/Habitat";
         $page_ids = array(328598, 328609, 46559217);
-        $page_ids = array(46559217);
+        // $page_ids = array(46559217);
         foreach($page_ids as $page_id) {
             $ret = self::main_basal_values($page_id, $predicate); //works OK
             $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
             // print_r($ret);
-            self::write_resource_file($ret);
+            self::write_resource_file($ret, $WRITE);
         }
 
+        fclose($WRITE);
         $this->archive_builder->finalize(TRUE);
         Functions::finalize_dwca_resource($this->resource_id);
         
@@ -141,23 +151,28 @@ class SummaryDataResourcesAPI
         */
     }
     //############################################################################################ start write resource file - method = 'basal values'
-    private function write_resource_file($info)
+    private function write_resource_file($info, $WRITE)
     {   /*when creating new records (non-tips), find and deduplicate all references and bibliographicCitations for each tip record below the node, and attach as references. 
         MeasurementMethod= "summary of records available in EOL". Construct a source link to EOL, eg: https://beta.eol.org/pages/46559143/data */
         $page_id = $info['page_id']; $predicate = $info['predicate'];
         /*step 1: get all eol_pks */
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
+        
+
         foreach($info['Selected'] as $id) {
             foreach($recs as $rec) {
                 if($rec['value_uri'] == $id) {
                     $eol_pks[$rec['eol_pk']] = ''; //echo "\n".$page_id." --- ".$rec['eol_pk']." --- ".$id. " --- " . $info['label'];
                     $found[] = $id;
+                    //write to file
+                    $row = array($page_id, $rec['eol_pk'], $info['label']);
+                    fwrite($WRITE, implode("\t", $row). "\n");
                 }
             }
         }
-        $eol_pks = array_keys($eol_pks); //print_r($eol_pks);
+        $eol_pks = array_keys($eol_pks);
         if($new_records = array_diff($info['Selected'], $found)) {
-            echo "\nNot found in traits.csv. Create new record(s): "; print_r($new_records);
+            // echo "\nNot found in traits.csv. Create new record(s): "; print_r($new_records); //good debug
             $refs = self::get_refs_from_metadata_csv($eol_pks); //get refs for new records, same refs for all new records
             self::create_archive($new_records, $refs, $info);
         }
@@ -180,13 +195,7 @@ class SummaryDataResourcesAPI
             $rec['taxon_id'] = $taxon->taxonID;
             $rec['measurementType'] = $predicate;
             $rec['measurementValue'] = $value_uri;
-            if($reference_ids = self::create_references($refs)) {
-                $rec['referenceID'] = implode("; ", $reference_ids);
-                // print_r($refs);
-                // print_r($reference_ids);
-                // print_r($rec);
-                // exit();
-            }
+            if($reference_ids = self::create_references($refs)) $rec['referenceID'] = implode("; ", $reference_ids);
             $rec['catnum'] = $taxon->taxonID . "_" . pathinfo($predicate, PATHINFO_BASENAME) . "_" . pathinfo($value_uri, PATHINFO_BASENAME);
             $rec['source'] = "https://beta.eol.org/pages/$taxon->taxonID/data?predicate=$predicate"; //e.g. https://beta.eol.org/pages/46559217/data?predicate=http://eol.org/schema/terms/Habitat
             if($predicate == "http://eol.org/schema/terms/Habitat") self::add_string_types($rec);
