@@ -85,7 +85,7 @@ class SummaryDataResourcesAPI
         // $page_id = 328598; $predicate = "http://eol.org/schema/terms/Habitat";
         
         $predicate = "http://eol.org/schema/terms/Habitat";
-        $page_ids = array(46559217);
+        $page_ids = array(328598, 328609, 46559217);
         foreach($page_ids as $page_id) {
             $ret = self::main_basal_values($page_id, $predicate); //works OK
             $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
@@ -155,13 +155,11 @@ class SummaryDataResourcesAPI
             }
         }
         $eol_pks = array_keys($eol_pks); //print_r($eol_pks);
-        
         if($new_records = array_diff($info['Selected'], $found)) {
             echo "\nNot found in traits.csv. Create new record(s): "; print_r($new_records);
             $refs = self::get_refs_from_metadata_csv($eol_pks); //get refs for new records, same refs for all new records
             self::create_archive($new_records, $refs, $info);
         }
-        exit("\nstop 01\n");
     }
     private function create_archive($records, $refs, $info)
     {
@@ -176,6 +174,7 @@ class SummaryDataResourcesAPI
             }
             $predicate = $info['predicate'];
             //start structured data
+            $rec['label'] = $info['label'];
             $rec['source'] = "https://beta.eol.org/pages/$taxon->taxonID/data?predicate=$predicate"; //e.g. https://beta.eol.org/pages/46559217/data?predicate=http://eol.org/schema/terms/Habitat
             $rec['taxon_id'] = $taxon->taxonID;
             $rec['measurementType'] = $predicate;
@@ -189,8 +188,10 @@ class SummaryDataResourcesAPI
     {
         $taxon_id = $rec['taxon_id'];
         $catnum = $rec['catnum'];
-        $m = new \eol_schema\MeasurementOrFact();
+        $m = new \eol_schema\MeasurementOrFact_specific(); //NOTE: used a new class MeasurementOrFact_specific()
+        
         $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
+        $m->label = $rec['label'];
         $m->occurrenceID = $occurrence_id;
         $m->measurementOfTaxon  = 'true';
         $m->measurementType     = $rec['measurementType'];
