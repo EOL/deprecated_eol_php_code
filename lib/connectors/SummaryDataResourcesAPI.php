@@ -79,7 +79,8 @@ class SummaryDataResourcesAPI
                 //             [taxonRank] => species
                 //             [Landmark] => 
                 //         )
-                if($taxon['taxonRank'] == "species") {
+                if(!$page_id) continue;
+                if(@$taxon['taxonRank'] == "species") {
                     if($ret = self::main_basal_values($page_id, $predicate)) {
                         $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                         // print_r($ret);
@@ -91,8 +92,7 @@ class SummaryDataResourcesAPI
         
         fclose($WRITE);
         $this->archive_builder->finalize(TRUE);
-        Functions::finalize_dwca_resource($this->resource_id);
-        
+        if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
         exit("\n-end print resource files-\n");
         // */
         
@@ -135,21 +135,20 @@ class SummaryDataResourcesAPI
         // $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
 
-        $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        $input[] = array('page_id' => 173, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        
+        $input[] = array('page_id' => 4442159, 'predicate' => "http://eol.org/schema/terms/Habitat");
+
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
             if($ret = self::main_basal_values($page_id, $predicate)) {
                 $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-                // print_r($ret);
+                print_r($ret);
                 self::write_resource_file($ret, $WRITE);
             }
         }
 
         fclose($WRITE);
         $this->archive_builder->finalize(TRUE);
-        Functions::finalize_dwca_resource($this->resource_id);
+        if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
         
         exit("\n-- end method: basal values --\n");
         // */
@@ -219,6 +218,7 @@ class SummaryDataResourcesAPI
             $refs = self::get_refs_from_metadata_csv($eol_pks); //get refs for new records, same refs for all new records
             self::create_archive($new_records, $refs, $info);
         }
+        else echo "\nNo new records. Will not write to DwCA.\n";
     }
     private function create_archive($records, $refs, $info) //EXTENSION_URL: http://rs.tdwg.org/dwc/xsd/tdwg_dwcterms.xsd
     {
@@ -1350,6 +1350,7 @@ class SummaryDataResourcesAPI
     }
     private function sort_ISVAT($arr) //also remove parent nodes where there is only one child. Make child an orphan.
     {
+        if(!$arr) return array();
         rsort($arr);
         foreach($arr as $a) {
             @$temp[$a[0]][$a[1]] = ''; //to be used in $totals
@@ -1524,7 +1525,6 @@ class SummaryDataResourcesAPI
     private function add_new_nodes_for_NotRootParents($list)
     {   //1st step: get unique parents
         foreach($list as $rec) {
-            // print_r($rec); exit;
             /*Array(
                 [0] => http://www.geonames.org/6255151
                 [1] => http://www.marineregions.org/gazetteer.php?p=details&id=australia
@@ -1532,6 +1532,7 @@ class SummaryDataResourcesAPI
             $unique[$rec[0]] = '';
         }
         //2nd step: check if parent is not root (meaning has parents), if yes: get parent and add the new node:
+        $recs = array();
         foreach(array_keys($unique) as $child) {
             // echo "\n$child: ";
             if($arr = @$this->parents_of[$child]) { // echo " - not root, has parents ".count($arr);
