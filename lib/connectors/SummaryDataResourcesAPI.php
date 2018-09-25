@@ -1198,7 +1198,20 @@ class SummaryDataResourcesAPI
                         }
                         else {
                             echo "\nStep 3 and Step 4 are different. Proceed with Step 5\n";
-                            exit("\nConstruct Step 5\n");
+                            // exit("\nConstruct Step 5\n");
+                            $step_5 = self::get_step_1($ISVAT, $roots, $step_4, 5);
+                            if($step_4 == $step_5) {
+                                echo "\nSteps 4 and 5 are identical.\n";
+                                if(count($step_5) <= 4) $selected = $step_5; //select set 5
+                                else {
+                                    echo "\nSelect root ancestors\n";
+                                    $selected = $roots;
+                                }
+                            }
+                            else {
+                                echo "\nStep 4 and Step 5 are different. Proceed with Step 6\n";
+                                exit("\nConstruct Step 6\n");
+                            }
                         }
                     }
                 }
