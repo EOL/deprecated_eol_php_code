@@ -80,14 +80,22 @@ class SummaryDataResourcesAPI
 
         // $page_id = 328607; $predicate = "http://eol.org/schema/terms/Habitat";
         // $page_id = 328682; $predicate = "http://eol.org/schema/terms/Habitat";
-        $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Habitat";
+        // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Habitat";
         // $page_id = 328609; $predicate = "http://eol.org/schema/terms/Habitat";
         // $page_id = 328598; $predicate = "http://eol.org/schema/terms/Habitat";
+        
+        $predicate = "http://eol.org/schema/terms/Habitat";
+        $page_ids = array(46559217);
+        foreach($page_ids as $page_id) {
+            $ret = self::main_basal_values($page_id, $predicate); //works OK
+            $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
+            // print_r($ret);
+            self::write_resource_file($ret);
+        }
 
-        $ret = self::main_basal_values($page_id, $predicate); //works OK
-        $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-        print_r($ret);
-        self::write_resource_file($ret);
+        $this->archive_builder->finalize(TRUE);
+        Functions::finalize_dwca_resource($this->resource_id);
+        
         exit("\n-- end method: basal values --\n");
         // */
 
@@ -157,7 +165,7 @@ class SummaryDataResourcesAPI
     }
     private function create_archive($records, $refs, $info)
     {
-        print_r($info); exit;
+        print_r($info); //exit;
         foreach($records as $value_uri) { //e.g. http://purl.obolibrary.org/obo/ENVO_01001125
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID         = $info['page_id'];
@@ -172,13 +180,12 @@ class SummaryDataResourcesAPI
             $rec['taxon_id'] = $taxon->taxonID;
             $rec['measurementType'] = $predicate;
             $rec['measurementValue'] = $value_uri;
-            $rec['catnum'] = $taxon->taxonID . "_" . pathinfo($predicate, PATHINFO_BASENAME) . "_" . $value_uri;
+            $rec['catnum'] = $taxon->taxonID . "_" . pathinfo($predicate, PATHINFO_BASENAME) . "_" . pathinfo($value_uri, PATHINFO_BASENAME);
             if($predicate == "http://eol.org/schema/terms/Habitat") self::add_string_types($rec);
             elseif($predicate == "xxx")                             self::add_string_types($rec);
         }
     }
-
-    private function add_string_types($rec, $value, $mtype)
+    private function add_string_types($rec)
     {
         $taxon_id = $rec['taxon_id'];
         $catnum = $rec['catnum'];
@@ -189,9 +196,10 @@ class SummaryDataResourcesAPI
         $m->measurementType     = $rec['measurementType'];
         $m->measurementValue    = $rec['measurementValue'];
         $m->source              = $rec['source'];
-        $m->bibliographicCitation = "AmphibiaWeb: Information on amphibian biology and conservation. [web application]. 2015. Berkeley, California: AmphibiaWeb. 
-        Available: http://amphibiaweb.org/.";
+        // $m->bibliographicCitation = "AmphibiaWeb: Information on amphibian biology and conservation. [web application]. 2015. Berkeley, California: AmphibiaWeb. Available: http://amphibiaweb.org/.";
         $m->measurementMethod   = 'summary of records available in EOL';
+        $m->measurementDeterminedDate = date("Y-M-d");
+        
         // $m->measurementRemarks  = '';
         // $m->contributor         = '';
         // $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue'));
@@ -204,12 +212,9 @@ class SummaryDataResourcesAPI
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID      = $taxon_id;
-        
         $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
         if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
-        
         $this->archive_builder->write_object_to_file($o);
-
         $this->occurrence_ids[$o->occurrenceID] = '';
         return $o->occurrenceID;
     }
