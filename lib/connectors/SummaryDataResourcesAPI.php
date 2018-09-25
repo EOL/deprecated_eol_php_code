@@ -135,18 +135,14 @@ class SummaryDataResourcesAPI
         return array_keys($final);
     }
     private function write_resource_file($info)
-    {
-        /*
-        when creating new records (non-tips), find and deduplicate all references and bibliographicCitations for each tip record below the node, and attach as references. 
-        MeasurementMethod= "summary of records available in EOL". Construct a source link to EOL, eg: https://beta.eol.org/pages/46559143/data
-        */
+    {   /*when creating new records (non-tips), find and deduplicate all references and bibliographicCitations for each tip record below the node, and attach as references. 
+        MeasurementMethod= "summary of records available in EOL". Construct a source link to EOL, eg: https://beta.eol.org/pages/46559143/data */
         $page_id = $info['page_id']; $predicate = $info['predicate'];
         /*step 1: get all eol_pks */
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         foreach($info['Selected'] as $id) {
             foreach($recs as $rec) {
-                if($rec['value_uri'] == $id)
-                {
+                if($rec['value_uri'] == $id) {
                     $eol_pks[$rec['eol_pk']] = ''; //echo "\n".$page_id." --- ".$rec['eol_pk']." --- ".$id. " --- " . $info['label'];
                     $found[] = $id;
                 }
@@ -166,6 +162,72 @@ class SummaryDataResourcesAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         
+    }
+    private function create_archive($records, $region, $type)
+    {
+        foreach($records as $rec)
+        {
+            $taxon = new \eol_schema\Taxon();
+            $taxon->taxonID         = strtolower(str_replace(" ", "_", $rec['sciname']));
+            $taxon->scientificName  = $rec['sciname'];
+            $taxon->order           = $rec['order'];
+            $taxon->family          = $rec['family'];
+            
+            if($path = $rec['source']) $taxon->furtherInformationURL = "http://amphibiaweb.org" . $path;
+            else
+            {
+                print_r($rec); exit("\nno source\n");
+            }
+            
+            if(!isset($this->taxon_ids[$taxon->taxonID]))
+            {
+                $this->taxon_ids[$taxon->taxonID] = '';
+                $this->archive_builder->write_object_to_file($taxon);
+            }
+            
+            //start structured data
+            $rec['source'] = $taxon->furtherInformationURL;
+            $rec['taxon_id'] = $taxon->taxonID;
+            $rec['catnum'] = $taxon->taxonID . "_" . $type . "_" . $region;
+            if($type == "present")      self::add_string_types($rec, $region, "http://eol.org/schema/terms/Present");
+            elseif($type == "endemic")  self::add_string_types($rec, $region, "http://eol.org/terms/endemic");
+        }
+    }
+
+    private function add_string_types($rec, $value, $mtype)
+    {
+        $taxon_id = $rec['taxon_id'];
+        $catnum = $rec['catnum'];
+        $m = new \eol_schema\MeasurementOrFact();
+        $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
+        $m->occurrenceID = $occurrence_id;
+        $m->measurementOfTaxon  = 'true';
+        $m->measurementType     = $mtype;
+        $m->measurementValue    = $value;
+        $m->source              = $rec['source'];
+        $m->bibliographicCitation = "AmphibiaWeb: Information on amphibian biology and conservation. [web application]. 2015. Berkeley, California: AmphibiaWeb. 
+        Available: http://amphibiaweb.org/.";
+        // $m->measurementMethod   = '';
+        // $m->measurementRemarks  = '';
+        // $m->contributor         = '';
+        // $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue'));
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        $this->archive_builder->write_object_to_file($m);
+    }
+    private function add_occurrence($taxon_id, $catnum, $rec)
+    {
+        $occurrence_id = $catnum; //can be just this, no need to add taxon_id
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = $occurrence_id;
+        $o->taxonID      = $taxon_id;
+        
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
+        
+        $this->archive_builder->write_object_to_file($o);
+
+        $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
     }
     private function get_refs_from_metadata_csv($eol_pks)
     {
