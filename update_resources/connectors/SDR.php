@@ -5,6 +5,14 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/SummaryDataResourcesAPI');
 
+// echo "\n".date("Y-M-d")."\n";  exit;
+
+/*
+$url = "http://eol.org/schema/terms/Habitat";
+// $url = "http://biocol.org/urn:lsid:biocol.org:col:34613";
+print_r(pathinfo($url)); exit("\n".pathinfo($url, PATHINFO_BASENAME)."\n");
+*/
+
 /*
 $a = array(1,2,3,4); print_r($a);
 $last = array_pop($a); 
