@@ -51,7 +51,7 @@ class SummaryDataResourcesAPI
     }
     function start()
     {
-        // /* print resource files
+        /* print resource files
         //step 1: get all 'basal values' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite');
         $predicates = $predicates['basal values'];
@@ -94,7 +94,7 @@ class SummaryDataResourcesAPI
         $this->archive_builder->finalize(TRUE);
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
         exit("\n-end print resource files-\n");
-        // */
+        */
         
         /* WORKING
         $ret = self::get_summ_process_type_given_pred('opposite');
@@ -131,11 +131,10 @@ class SummaryDataResourcesAPI
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case
         // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat");
+        $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
-
-        $input[] = array('page_id' => 4442159, 'predicate' => "http://eol.org/schema/terms/Habitat");
+        // $input[] = array('page_id' => 4442159, 'predicate' => "http://eol.org/schema/terms/Habitat");
 
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
