@@ -80,23 +80,17 @@ class SummaryDataResourcesAPI
         $row = array("Page ID", 'eol_pk', "http://purl.obolibrary.org/obo/IAO_0000009");
         fwrite($WRITE, implode("\t", $row). "\n");
         
+        $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Present");
+        $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Present");
+        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case
+        $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Habitat");
+        $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Habitat");
+        $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat");
+        $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");
+        $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
         
-        // $page_id = 46559197; $predicate = "http://eol.org/schema/terms/Present";
-        // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Present";
-        // $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //first test case
-     
-        // $page_id = 328109; $predicate = "http://eol.org/schema/terms/Habitat"; //not found in traits.csv
-
-        // $page_id = 328607; $predicate = "http://eol.org/schema/terms/Habitat";
-        // $page_id = 328682; $predicate = "http://eol.org/schema/terms/Habitat";
-        // $page_id = 46559217; $predicate = "http://eol.org/schema/terms/Habitat";
-        // $page_id = 328609; $predicate = "http://eol.org/schema/terms/Habitat";
-        // $page_id = 328598; $predicate = "http://eol.org/schema/terms/Habitat";
-        
-        $predicate = "http://eol.org/schema/terms/Habitat";
-        $page_ids = array(328598, 328609, 46559217);
-        // $page_ids = array(46559217);
-        foreach($page_ids as $page_id) {
+        foreach($input as $i) {
+            $page_id = $i['page_id']; $predicate = $i['predicate'];
             $ret = self::main_basal_values($page_id, $predicate); //works OK
             $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
             // print_r($ret);
