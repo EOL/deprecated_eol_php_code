@@ -188,24 +188,24 @@ class SummaryDataResourcesAPI
     {
         $taxon_id = $rec['taxon_id'];
         $catnum = $rec['catnum'];
-        $m = new \eol_schema\MeasurementOrFact_specific(); //NOTE: used a new class MeasurementOrFact_specific()
-        
         $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
-        $m->label = $rec['label'];
-        $m->occurrenceID = $occurrence_id;
+
+        $m = new \eol_schema\MeasurementOrFact_specific(); //NOTE: used a new class MeasurementOrFact_specific() for non-standard fields like 'm->label'
+        $m->label               = $rec['label'];
+        $m->occurrenceID        = $occurrence_id;
         $m->measurementOfTaxon  = 'true';
         $m->measurementType     = $rec['measurementType'];
         $m->measurementValue    = $rec['measurementValue'];
         $m->source              = $rec['source'];
-        // $m->bibliographicCitation = "AmphibiaWeb: Information on amphibian biology and conservation. [web application]. 2015. Berkeley, California: AmphibiaWeb. Available: http://amphibiaweb.org/.";
         $m->measurementMethod   = 'summary of records available in EOL';
         $m->measurementDeterminedDate = date("Y-M-d");
-        
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        $this->archive_builder->write_object_to_file($m);
+
+        // $m->bibliographicCitation = "AmphibiaWeb: Information on amphibian biology and conservation. [web application]. 2015. Berkeley, California: AmphibiaWeb. Available: http://amphibiaweb.org/.";
         // $m->measurementRemarks  = '';
         // $m->contributor         = '';
         // $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue'));
-        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
-        $this->archive_builder->write_object_to_file($m);
     }
     private function add_occurrence($taxon_id, $catnum, $rec)
     {
