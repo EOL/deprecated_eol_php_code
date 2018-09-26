@@ -46,8 +46,6 @@ class SummaryDataResourcesAPI
         
         $this->EOL_DH = "http://localhost/cp/summary%20data%20resources/DH/eoldynamichierarchywithlandmarks.zip";
         $this->basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . '/basal_values_resource.txt';
-        
-        
     }
     function start()
     {
@@ -656,7 +654,6 @@ class SummaryDataResourcesAPI
             }
         }
         // print_r($final); //good debug
-        
         /* get those that are < 15% */
         $remove = array();
         foreach($final as $root => $count) {
@@ -888,16 +885,13 @@ class SummaryDataResourcesAPI
             // echo "\n$i. [$taxonID] => ";
             if($EOLid = @$this->DH_2_EOL[$taxonID]) {
                 /* orig strategy
-                $final2[] = $EOLid;
-                */
+                $final2[] = $EOLid; */
                 /* new strategy: using Landmark value   ver 1
-                if($this->landmark_value_of[$EOLid]) $final2[] = $EOLid;
-                */
+                if($this->landmark_value_of[$EOLid]) $final2[] = $EOLid; */
                 // /* new strategy: using Landmark value   ver 2
                 if($this->landmark_value_of[$EOLid] || isset($this->is_family[$EOLid])) $final2[] = $EOLid;
                 // */
             }
-            // else echo " none";
             $i++;
         }
         return $final2;
@@ -923,11 +917,9 @@ class SummaryDataResourcesAPI
         - get all ancestors that exist also in other recs.
         - among these ancestors, select those where it has > 1 children. Don't include those with the same child in its occurrence in other recs.
         */
-        
         foreach($recs as $rec) {
             if($page_id = @$rec['object_page_id']) {
                 $anc = self::get_ancestry_via_DH($page_id);
-                
                 // /* initial report for Jen
                 // echo "\nAncestry [$page_id]: "; print_r($anc); //orig initial report
                 if($anc) {
@@ -935,7 +927,6 @@ class SummaryDataResourcesAPI
                     foreach($anc as $anc_id) echo "\n --- $anc_id {".$this->landmark_value_of[$anc_id]."}";
                 }
                 // */
-                
                 //start store counts 1:
                 $k = 0;
                 foreach($anc as $id) {
@@ -945,10 +936,7 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        
-        /* good debug
-        print_r($counts); print_r($children_of);
-        */
+        // print_r($counts); print_r($children_of); //good debug
         $final = array();
         foreach($recs as $rec) {
             if($page_id = @$rec['object_page_id']) {
@@ -1064,27 +1052,12 @@ class SummaryDataResourcesAPI
         $possible_adult_lifestage = array("http://www.ebi.ac.uk/efo/EFO_0001272", "http://purl.obolibrary.org/obo/PATO_0001701", "http://eol.org/schema/terms/parasiticAdult", "http://eol.org/schema/terms/freelivingAdult", "http://eol.org/schema/terms/ovigerous", "http://purl.obolibrary.org/obo/UBERON_0007222", "http://eol.org/schema/terms/youngAdult");
         $final = array();
         foreach($recs as $rec) {
-            /*
+            /* print_r($rec); exit;
             Array(
                 [eol_pk] => R143-PK39533097
                 [page_id] => 46559130
                 [scientific_name] => <i>Enhydra lutris</i>
-                [resource_pk] => 16788
-                [predicate] => http://purl.obolibrary.org/obo/VT_0001259
-                [sex] => 
-                [lifestage] => 
-                [statistical_method] => 
-                [source] => http://genomics.senescence.info/species/entry.php?species=Enhydra_lutris
-                [object_page_id] => 
-                [target_scientific_name] => 
-                [value_uri] => 
-                [literal] => 
-                [measurement] => 26832.8
-                [units] => http://purl.obolibrary.org/obo/UO_0000021
-                [normal_measurement] => 26832.8
-                [normal_units_uri] => http://purl.obolibrary.org/obo/UO_0000021
-                [resource_id] => 50
-            )
+                ...more fields below
             */
             if(in_array($rec['lifestage'], $possible_adult_lifestage)) {
                 $statMethods = array("http://semanticscience.org/resource/SIO_001109", "http://semanticscience.org/resource/SIO_001110", "http://semanticscience.org/resource/SIO_001111");
