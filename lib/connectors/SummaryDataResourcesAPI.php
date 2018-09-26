@@ -116,38 +116,75 @@ class SummaryDataResourcesAPI
 
         // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
+        // /* orig write block
         //write to DwCA
         $this->resource_id = 'basal_values';
+        // $this->resource_id = '46559217_single';
+        $this->basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . "/".$this->resource_id."_resource.txt";
+        
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         
         //write to file
         if(!($WRITE = Functions::file_open($this->basal_values_resource_file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "http://purl.obolibrary.org/obo/IAO_0000009");
+        $row = array("Page ID", 'eol_pk', "http://purl.obolibrary.org/obo/IAO_0000009", "Value URI");
         fwrite($WRITE, implode("\t", $row). "\n");
+        // */
         
+        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present");
+        // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Present");
+        // $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Present");
+        // $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Present");
+        // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Present");
+        // $input[] = array('page_id' => 4442159, 'predicate' => "http://eol.org/schema/terms/Present");
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Present");
         // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Present");
+        
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case
         // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 4442159, 'predicate' => "http://eol.org/schema/terms/Habitat");
+        // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Habitat");
+        $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat");
 
         foreach($input as $i) {
+            /* temp block
+            $this->taxon_ids = array(); $this->reference_ids = array(); $this->occurrence_ids = array();
+            
+            //write to DwCA
+            $this->resource_id = $i['page_id']."_".pathinfo($i['predicate'], PATHINFO_BASENAME);
+            $this->basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . "/".$this->resource_id."_resource.txt";
+
+            $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id . '_working/';
+            $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+
+            //write to file
+            if(!($WRITE = Functions::file_open($this->basal_values_resource_file, "w"))) return;
+            $row = array("Page ID", 'eol_pk', "http://purl.obolibrary.org/obo/IAO_0000009", "Value URI");
+            fwrite($WRITE, implode("\t", $row). "\n");
+            */
+            
             $page_id = $i['page_id']; $predicate = $i['predicate'];
             if($ret = self::main_basal_values($page_id, $predicate)) {
                 $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                 print_r($ret);
                 self::write_resource_file($ret, $WRITE);
             }
+            
+            /* temp block
+            fclose($WRITE);
+            $this->archive_builder->finalize(TRUE);
+            if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
+            */
         }
 
+        // /* orig write block
         fclose($WRITE);
         $this->archive_builder->finalize(TRUE);
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
+        // */
         
         exit("\n-- end method: basal values --\n");
         // */
@@ -206,7 +243,7 @@ class SummaryDataResourcesAPI
                     $eol_pks[$rec['eol_pk']] = ''; //echo "\n".$page_id." --- ".$rec['eol_pk']." --- ".$id. " --- " . $info['label'];
                     $found[] = $id;
                     //write to file
-                    $row = array($page_id, $rec['eol_pk'], $info['label']);
+                    $row = array($page_id, $rec['eol_pk'], $info['label'], $id);
                     fwrite($WRITE, implode("\t", $row). "\n");
                 }
             }
