@@ -140,14 +140,14 @@ class SummaryDataResourcesAPI
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Present");
         // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Present");
         
-        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case
+        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case
         // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 4442159, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat");
+        // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat");
 
         foreach($input as $i) {
             /* temp block
@@ -1167,7 +1167,7 @@ class SummaryDataResourcesAPI
         }
         $uris = self::get_valueUris_from_recs($recs);
         self::set_ancestor_ranking_from_set_of_uris($uris);
-        $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree"
+        $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree" ---> parent left, term right
         $ISVAT = self::sort_ISVAT($ISVAT);
         $info = self::add_new_nodes_for_NotRootParents($ISVAT);
         $new_nodes = $info['new_nodes'];    
@@ -1203,9 +1203,17 @@ class SummaryDataResourcesAPI
         echo "\n tips: ".count($tips);
         foreach($tips as $tip) echo "\n$tip";
         echo "\n-end tips-\n"; //exit;
-
+        
         if(count($tips) <= 5 ) $selected = $tips;
         else { // > 5
+            
+            // /* Two new steps from Jen & Katja
+            $ret_from_2new_steps = self::two_new_steps($ISVAT, $roots, $tips);
+            $roots = $ret_from_2new_steps['roots'];
+            $tips = $ret_from_2new_steps['tips'];
+            $ISVAT = $ret_from_2new_steps['ISVAT'];
+            // */
+            
             $step_1 = self::get_step_1($ISVAT, $roots, $tips, 1);
             if(count($step_1) <= 4) $selected = $step_1; //select set 1
             else {
@@ -1281,6 +1289,75 @@ class SummaryDataResourcesAPI
         So in our case: page_id: 7662 | predicate: [http://eol.org/schema/terms/Habitat]
         I will be creating new rocords based on 'ROOT_ANCESTORS'.
         */
+    }
+    private function two_new_steps($ISVAT, $roots, $tips)
+    {
+        echo "\nroots: ".count($roots); print_r($roots);
+        /* DELETE ALONG WITH CHILDREN
+            look for these nodes in the list of roots
+            are there any other roots aside from the nodes in this list?
+                if not, do nothing
+                if so, delete all of these root nodes and all of their descendants- entire branches should be removed. 
+                I expect there may be weird cases, where a tip might be a child of one of these roots, and also of a root not on this list. 
+                So if this is cleaner: keep the nodes NOT on this list, and all their descendants. Discard everything else
+        */
+        $delete_list_1 = array('http://purl.obolibrary.org/obo/ENVO_00000094', 'http://purl.obolibrary.org/obo/ENVO_01000155', 'http://purl.obolibrary.org/obo/ENVO_00000002', 'http://purl.obolibrary.org/obo/ENVO_00000077');
+        if($roots_outside_the_list = self::are_there_any_other_roots_aside_from_the_nodes_in_this_list($roots, $delete_list_1)) {
+            echo "\nThere are root(s) outside from the 1st list: ".count($roots_outside_the_list); print_r($roots_outside_the_list);
+            // print_r($ISVAT);
+            echo "\norig isvat: ".count($ISVAT)."\n";
+            foreach($ISVAT as $a) {
+                if(              in_array($a[0], $roots_outside_the_list)) {}
+                elseif(!$a[0] && in_array($a[1], $roots_outside_the_list)) {}
+                else $new_isvat[] = $a;
+            }
+            print_r($new_isvat);
+            echo "\nnew isvat: ".count($new_isvat)."\n";
+        }
+        else {
+            echo "\nAll root(s) are found in the list. Do nothing.\n";
+            $new_isvat = $ISVAT;
+        }
+        
+        /*DELETE, BUT KEEP THE CHILDREN
+            look for these nodes in the list of roots
+            remove them. Their immediate children are now roots.
+            the list:
+        ....and then proceed with step 1 as before :)
+        (it's OK if occasionally this leaves you with no records.)
+        */
+        $delete_list_2 = array('http://purl.obolibrary.org/obo/ENVO_01001305', 'http://purl.obolibrary.org/obo/ENVO_00002030', 'http://purl.obolibrary.org/obo/ENVO_01000687');
+        if($roots_inside_the_list = self::get_roots_inside_the_list($roots, $delete_list_2)) {
+            echo "\nThere are root(s) inside the 2nd list: ".count($roots_inside_the_list); print_r($roots_inside_the_list);
+            foreach($new_isvat as $a) {
+                if(in_array($a[0], $roots_inside_the_list)) $new_isvat_2[] = array("", $a[0]);
+                else                                        $new_isvat_2[] = $a;
+            }
+            print_r($new_isvat_2);
+            echo "\nnew isvat 2: ".count($new_isvat_2)."\n";
+        }
+        else {
+            echo "\nNo roots inside the list. Do nothing.\n";
+            $new_isvat_2 = $new_isvat;
+        }
+        
+        exit("\nend temp\n");
+    }
+    private function are_there_any_other_roots_aside_from_the_nodes_in_this_list($roots, $list)
+    {
+        $roots_outside_the_list = array();
+        foreach($roots as $root) {
+            if(!in_array($root, $list)) $roots_outside_the_list[] = $root;
+        }
+        return $roots_outside_the_list;
+    }
+    private function get_roots_inside_the_list($roots, $list)
+    {
+        $roots_inside_the_list = array();
+        foreach($roots as $root) {
+            if(in_array($root, $list)) $roots_inside_the_list[] = $root;
+        }
+        return $roots_inside_the_list;
     }
     private function get_tips($isvat)
     {
