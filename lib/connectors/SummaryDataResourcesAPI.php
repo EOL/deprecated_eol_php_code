@@ -1868,22 +1868,7 @@ class SummaryDataResourcesAPI
                 /*Array(
                     [eol_pk] => R96-PK42815719
                     [page_id] => 328076
-                    [scientific_name] => <i>Tremarctos ornatus</i>
-                    [resource_pk] => M_00329828
-                    [predicate] => http://eol.org/schema/terms/Present
-                    [sex] => 
-                    [lifestage] => 
-                    [statistical_method] => 
-                    [source] => http://www.worldwildlife.org/publications/wildfinder-database
-                    [object_page_id] => 
-                    [target_scientific_name] => 
-                    [value_uri] => http://eol.org/schema/terms/Cordillera_de_Merida_paramo
-                    [literal] => http://eol.org/schema/terms/Cordillera_de_Merida_paramo
-                    [measurement] => 
-                    [units] => 
-                    [normal_measurement] => 
-                    [normal_units_uri] => 
-                    [resource_id] => 20
+                    ...more fields below
                 )*/
                 if(in_array($rec['predicate'], $preds)) {
                     $ancestry = self::get_ancestry_using_page_id($rec['page_id']);
@@ -1921,21 +1906,7 @@ class SummaryDataResourcesAPI
                     [eol_pk] => R96-PK42815719
                     [page_id] => 328076
                     [scientific_name] => <i>Tremarctos ornatus</i>
-                    [resource_pk] => M_00329828
-                    [predicate] => http://eol.org/schema/terms/Present
-                    [sex] => 
-                    [lifestage] => 
-                    [statistical_method] => 
-                    [source] => http://www.worldwildlife.org/publications/wildfinder-database
-                    [object_page_id] => 
-                    [target_scientific_name] => 
-                    [value_uri] => http://eol.org/schema/terms/Cordillera_de_Merida_paramo
-                    [literal] => http://eol.org/schema/terms/Cordillera_de_Merida_paramo
-                    [measurement] => 
-                    [units] => 
-                    [normal_measurement] => 
-                    [normal_units_uri] => 
-                    [resource_id] => 20
+                    ...more fields below
                 )*/
                 if(in_array($rec['predicate'], $preds)) {
                     // echo "\n".self::get_value($rec);
@@ -2047,21 +2018,7 @@ class SummaryDataResourcesAPI
                     [eol_pk] => R96-PK42724728
                     [page_id] => 328673
                     [scientific_name] => <i>Panthera pardus</i>
-                    [resource_pk] => M_00238837
-                    [predicate] => http://eol.org/schema/terms/Present
-                    [sex] => 
-                    [lifestage] => 
-                    [statistical_method] => 
-                    [source] => http://www.worldwildlife.org/publications/wildfinder-database
-                    [object_page_id] => 
-                    [target_scientific_name] => 
-                    [value_uri] => http://eol.org/schema/terms/Southern_Zanzibar-Inhambane_coastal_forest_mosaic
-                    [literal] => http://eol.org/schema/terms/Southern_Zanzibar-Inhambane_coastal_forest_mosaic
-                    [measurement] => 
-                    [units] => 
-                    [normal_measurement] => 
-                    [normal_units_uri] => 
-                    [resource_id] => 20
+                    ...more fields below
                 )*/
                 // if($rec['target_scientific_name']) print_r($rec);
                 // if($rec['lifestage']) print_r($rec);
