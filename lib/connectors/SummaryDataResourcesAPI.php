@@ -138,14 +138,14 @@ class SummaryDataResourcesAPI
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Present");
         // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Present");
         
-        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case
+        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case
         // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 4442159, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat");
+        $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat"); //test case for write resource
 
         foreach($input as $i) {
             /* temp block
@@ -229,8 +229,7 @@ class SummaryDataResourcesAPI
     }
     //############################################################################################ start write resource file - method = 'basal values'
     private function write_resource_file($info, $WRITE)
-    {   /*when creating new records (non-tips), find and deduplicate all references and bibliographicCitations for each tip record below the node, and attach as references. 
-        MeasurementMethod= "summary of records available in EOL". Construct a source link to EOL, eg: https://beta.eol.org/pages/46559143/data */
+    {   /*when creating new records (non-tips), find and deduplicate all references and bibliographicCitations for each tip record below the node, and attach as references. MeasurementMethod= "summary of records available in EOL". Construct a source link to EOL, eg: https://beta.eol.org/pages/46559143/data */
         $page_id = $info['page_id']; $predicate = $info['predicate'];
         /*step 1: get all eol_pks */
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
@@ -238,14 +237,18 @@ class SummaryDataResourcesAPI
         foreach($info['Selected'] as $id) {
             foreach($recs as $rec) {
                 if($rec['value_uri'] == $id) {
-                    $eol_pks[$rec['eol_pk']] = ''; //echo "\n".$page_id." --- ".$rec['eol_pk']." --- ".$id. " --- " . $info['label'];
+                    $eol_pks[$rec['eol_pk']] = '';
                     $found[] = $id;
-                    //write to file
-                    $row = array($page_id, $rec['eol_pk'], $info['label'], $id);
-                    fwrite($WRITE, implode("\t", $row). "\n");
+                    // /* write to file block
+                    $row = array($page_id, $rec['eol_pk'], $id, $info['label']); //, $rec
+                    // fwrite($WRITE, implode("\t", $row). "\n"); //moved below, since we need to adjust selected values available in multiple records -> adjust_if_needed_and_write_existing_records()
+                    $existing_records_for_writing[] = $row;
+                    // */
                 }
             }
         }
+        self::adjust_if_needed_and_write_existing_records($existing_records_for_writing);
+        
         $eol_pks = array_keys($eol_pks);
         if($new_records = array_diff($info['Selected'], $found)) {
             // echo "\nNot found in traits.csv. Create new record(s): "; print_r($new_records); //good debug
@@ -253,6 +256,79 @@ class SummaryDataResourcesAPI
             self::create_archive($new_records, $refs, $info);
         }
         else echo "\nNo new records. Will not write to DwCA.\n";
+    }
+    private function adjust_if_needed_and_write_existing_records($rows)
+    {   /*For selected values available in multiple records, let's do an order of precedence based on metadata, with an arbitrary tie-breaker (which you'll need in this case; sorry!). 
+          Please count the number of references attached to each candidate record, add 1 if there is a bibliographicCitation for the record, and choose the record with the highest number. 
+          In case of a tie, break it with any arbitrary method you like.
+        */
+        // /* forced test data
+        $rows[] = array(46559217, 'R96-PK42940163', 'http://eol.org/schema/terms/temperate_grasslands_savannas_and_shrublands', 'REP');
+        $rows[] = array(46559217, 'R512-PK24322763', 'http://purl.obolibrary.org/obo/ENVO_00000078', 'REP');
+        $rows[] = array(46559217, 'R512-PK24381251', 'http://purl.obolibrary.org/obo/ENVO_00000220', 'REP');
+        $rows[] = array(46559217, 'R512-PK24428398', 'http://purl.obolibrary.org/obo/ENVO_00000446', 'REP');
+        $rows[] = array(46559217, 'R512-PK24244192', 'http://purl.obolibrary.org/obo/ENVO_00000446', 'REP');
+        $rows[] = array(46559217, 'R512-PK23617608', 'http://purl.obolibrary.org/obo/ENVO_00000572', 'REP');
+        $rows[] = array(46559217, 'R512-PK24249316', 'http://purl.obolibrary.org/obo/ENVO_00002033', 'REP');
+        // */
+        print_r($rows); //exit;
+        
+        //step 1: get counts
+        foreach($rows as $row) {
+            @$counts[$row[2]]++;
+        }
+        echo "\ncounts: "; print_r($counts);
+        //step 2: get eol_pk if count > 1 -> meaning multiple records
+        foreach($rows as $row) {
+            $eol_pk = $row[1];
+            $value_uri = $row[2];
+            if($counts[$value_uri] > 1) @$study[$value_uri][] = $eol_pk;
+        }
+        //step 3: choose 1 among multiple eol_pks based on metadata and an arbitrary tie breaker if needed.
+        // print_r($study);
+        foreach($study as $value_uri => $eol_pks) {
+            //get refs for each eol_pk
+            foreach($eol_pks as $eol_pk) {
+                $refs_of_eol_pk[$eol_pk][] = self::get_refs_from_metadata_csv(array($eol_pk));
+            }
+        }
+        // echo "\n refs_of_eol_pk: "; print_r($refs_of_eol_pk);
+        echo "\n study: "; print_r($study);
+        foreach($study as $value_uri => $eol_pks) {
+            $ref_counts = array();
+            foreach($eol_pks as $eol_pk) {
+                $ref_counts[$eol_pk] = count($refs_of_eol_pk[$eol_pk]);
+            }
+            //compare counts and remove lesser, if equal just pick one
+            // echo "\nref_counts: "; print_r($ref_counts);
+            $remain[$value_uri][] = self::get_key_of_arr_with_biggest_value($ref_counts);
+        }
+        echo "\n remain: ";print_r($remain);
+        
+        foreach($study as $value_uri => $eol_pks) {
+            $remove[$value_uri] = array_diff($eol_pks, $remain[$value_uri]);
+        }
+        echo "\n remove: ";print_r($remove);
+        
+        foreach($rows as $row)
+        {   /*Array(
+            [0] => 46559217
+            [1] => R512-PK24467582
+            [2] => http://purl.obolibrary.org/obo/ENVO_00000447
+            [3] => REP
+            )*/
+            $value_uri = $row[2];
+            
+        }
+        
+        
+        exit;
+    }
+    private function pick_one($arr)
+    {
+        echo "\npick one: \n"; print_r($arr); //exit;
+        foreach($arr as $eol_pk) {
+        }
     }
     private function create_archive($records, $refs, $info) //EXTENSION_URL: http://rs.tdwg.org/dwc/xsd/tdwg_dwcterms.xsd
     {
@@ -349,8 +425,12 @@ class SummaryDataResourcesAPI
                     [measurement] => [value_uri] => [units] => [sex] => [lifestage] => [statistical_method] => [source] => 
                 )*/
                 if(in_array($rec['trait_eol_pk'], $eol_pks) && count($fields) == count($line) && $rec['predicate'] == "http://eol.org/schema/reference/referenceID") $refs[$rec['eol_pk']] = strip_tags($rec['literal']);
+                if(in_array($rec['trait_eol_pk'], $eol_pks) && count($fields) == count($line) && $rec['predicate'] == "http://purl.org/dc/terms/bibliographicCitation") $refs[$rec['eol_pk']] = strip_tags($rec['literal']);
+                // $debug[$rec['predicate']] = '';
             }
         }
+        // print_r($refs); print_r($biblios); exit;
+        // print_r($debug); exit;
         return $refs;
     }
     private function get_sought_field($recs, $field)
