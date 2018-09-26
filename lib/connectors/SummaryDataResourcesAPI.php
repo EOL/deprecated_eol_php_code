@@ -1212,6 +1212,8 @@ class SummaryDataResourcesAPI
             $roots = $ret_from_2new_steps['roots'];
             $tips = $ret_from_2new_steps['tips'];
             $ISVAT = $ret_from_2new_steps['ISVAT'];
+            echo "\nnew tips: ".count($tips); foreach($tips as $tip) echo "\n".$tip;
+            echo "\n";
             // */
             
             $step_1 = self::get_step_1($ISVAT, $roots, $tips, 1);
@@ -1313,7 +1315,7 @@ class SummaryDataResourcesAPI
             }
             echo "\nnew 'shared values ancestry tree': ".count($new_isvat); foreach($new_isvat as $a) echo "\n".$a[0]."\t".$a[1];
             $roots = array_diff($roots, $roots_outside_the_list);
-            echo "\nnew roots: ".count($roots)."\n"; print_r($roots);
+            echo "\n\nnew roots: ".count($roots)."\n"; print_r($roots);
         }
         else {
             echo "\nAll root(s) are found in the list. Do nothing.\n";
@@ -1338,7 +1340,7 @@ class SummaryDataResourcesAPI
             }
             echo "\nnew 'shared values ancestry tree' 2: ".count($new_isvat_2); foreach($new_isvat_2 as $a) echo "\n".$a[0]."\t".$a[1];
             $roots = array_diff($roots, $roots_inside_the_list);
-            echo "\nnew roots: ".count($roots)."\n"; print_r($roots);
+            echo "\n\nnew roots: ".count($roots)."\n"; print_r($roots);
         }
         else {
             echo "\nNo roots inside the list. Do nothing.\n";
