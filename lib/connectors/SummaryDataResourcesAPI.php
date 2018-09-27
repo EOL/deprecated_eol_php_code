@@ -138,10 +138,10 @@ class SummaryDataResourcesAPI
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Present");
         // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Present");
         
-        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case
-        $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Habitat");
+        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case     //test case with new 2nd deletion step
+        // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        // $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");
+        $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");                        //test case with new first deletion step
         // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 4442159, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Habitat");
@@ -1370,7 +1370,7 @@ class SummaryDataResourcesAPI
         $delete_list_1 = array('http://purl.obolibrary.org/obo/ENVO_00000094', 'http://purl.obolibrary.org/obo/ENVO_01000155', 'http://purl.obolibrary.org/obo/ENVO_00000002', 'http://purl.obolibrary.org/obo/ENVO_00000077');
         echo "\nList: "; print_r($delete_list_1);
         if($roots_inside_the_list = self::get_roots_inside_the_list($roots, $delete_list_1)) {
-            exit("\ntest sample here...\n");
+            // exit("\ntest sample here...\n");
             echo "\nThere are root(s) in the 1st list: ".count($roots_inside_the_list)." "; print_r($roots_inside_the_list);
             echo "\norig 'shared values ancestry tree': ".count($ISVAT)."\n";
             foreach($ISVAT as $a) {
