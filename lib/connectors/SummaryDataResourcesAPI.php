@@ -139,6 +139,7 @@ class SummaryDataResourcesAPI
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
             if($ret = self::main_taxon_summary($page_id, $predicate)) {
+                $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                 echo "\n\nFinal result:"; print_r($ret);
                 self::write_resource_file_TaxonSummary($ret);
             }
@@ -259,6 +260,8 @@ class SummaryDataResourcesAPI
         [predicate] => http://purl.obolibrary.org/obo/RO_0002470
         )*/
         $taxon_id = $ret['page_id'];
+        $this->add_taxon(array('page_id' => $taxon_id));
+        
         $type = pathinfo($ret['predicate'], PATHINFO_BASENAME);
         foreach($ret['Selected'] as $taxon_name_id) {
             $occurrence_id = $this->add_occurrence_assoc($taxon_id, $taxon_name_id . "_$type");
@@ -273,7 +276,7 @@ class SummaryDataResourcesAPI
     }
     private function add_occurrence_assoc($taxon_id, $label)
     {
-        $occurrence_id = md5($taxon_id . "_" . str_replace(" ", "_", $label));
+        $occurrence_id = $taxon_id . "_" . str_replace(" ", "_", $label);
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
