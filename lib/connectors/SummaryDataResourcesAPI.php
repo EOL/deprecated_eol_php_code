@@ -422,6 +422,7 @@ class SummaryDataResourcesAPI
     }
     private function get_refs_from_metadata_csv($eol_pks)
     {
+        if(!$eol_pks) return array();
         $refs = array();
         $file = fopen($this->main_paths['archive_path'].'/metadata.csv', 'r'); $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) { $i++; 
