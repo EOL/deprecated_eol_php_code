@@ -241,13 +241,13 @@ class SummaryDataResourcesAPI
                     $found[] = $id;
                     // /* write to file block
                     $row = array($page_id, $rec['eol_pk'], $id, $info['label']); //, $rec
-                    // fwrite($WRITE, implode("\t", $row). "\n"); //moved below, since we need to adjust selected values available in multiple records -> adjust_if_needed_and_write_existing_records()
+                    /* fwrite($WRITE, implode("\t", $row). "\n"); //moved below, since we need to adjust selected values available in multiple records -> adjust_if_needed_and_write_existing_records() */
                     $existing_records_for_writing[] = $row;
                     // */
                 }
             }
         }
-        self::adjust_if_needed_and_write_existing_records($existing_records_for_writing);
+        self::adjust_if_needed_and_write_existing_records($existing_records_for_writing, $WRITE);
         
         $eol_pks = array_keys($eol_pks);
         if($new_records = array_diff($info['Selected'], $found)) {
@@ -257,22 +257,23 @@ class SummaryDataResourcesAPI
         }
         else echo "\nNo new records. Will not write to DwCA.\n";
     }
-    private function adjust_if_needed_and_write_existing_records($rows)
+    private function adjust_if_needed_and_write_existing_records($rows, $WRITE)
     {   /*For selected values available in multiple records, let's do an order of precedence based on metadata, with an arbitrary tie-breaker (which you'll need in this case; sorry!). 
           Please count the number of references attached to each candidate record, add 1 if there is a bibliographicCitation for the record, and choose the record with the highest number. 
           In case of a tie, break it with any arbitrary method you like.
         */
-        // /* forced test data
+        /* forced test data
+        $rows = array();
         $rows[] = array(46559217, 'R96-PK42940163', 'http://eol.org/schema/terms/temperate_grasslands_savannas_and_shrublands', 'REP');
         $rows[] = array(46559217, 'R512-PK24322763', 'http://purl.obolibrary.org/obo/ENVO_00000078', 'REP');
         $rows[] = array(46559217, 'R512-PK24381251', 'http://purl.obolibrary.org/obo/ENVO_00000220', 'REP');
         $rows[] = array(46559217, 'R512-PK24428398', 'http://purl.obolibrary.org/obo/ENVO_00000446', 'REP');
-        $rows[] = array(46559217, 'R512-PK24244192', 'http://purl.obolibrary.org/obo/ENVO_00000446', 'REP');
-        $rows[] = array(46559217, 'R512-PK23617608', 'http://purl.obolibrary.org/obo/ENVO_00000572', 'REP');
-        $rows[] = array(46559217, 'R512-PK24249316', 'http://purl.obolibrary.org/obo/ENVO_00002033', 'REP');
-        // */
-        print_r($rows); //exit;
-        
+        // $rows[] = array(46559217, 'R512-PK24244192', 'http://purl.obolibrary.org/obo/ENVO_00000446', 'REP');
+        // $rows[] = array(46559217, 'R512-PK23617608', 'http://purl.obolibrary.org/obo/ENVO_00000572', 'REP');
+        // $rows[] = array(46559217, 'R512-PK24249316', 'http://purl.obolibrary.org/obo/ENVO_00002033', 'REP');
+        // $rows[] = array(46559217, 'R512-PK24569594', 'http://purl.obolibrary.org/obo/ENVO_00000446', 'REP');
+        */
+        // print_r($rows); //exit;
         //step 1: get counts
         foreach($rows as $row) {
             @$counts[$row[2]]++;
@@ -284,8 +285,11 @@ class SummaryDataResourcesAPI
             $value_uri = $row[2];
             if($counts[$value_uri] > 1) @$study[$value_uri][] = $eol_pk;
         }
-        //step 3: choose 1 among multiple eol_pks based on metadata and an arbitrary tie breaker if needed.
-        // print_r($study);
+        if(!isset($study)) { echo "\nNo selected values available in multiple records.\n";
+            foreach($rows as $row) fwrite($WRITE, implode("\t", $row). "\n");
+            return;
+        }
+        //step 3: choose 1 among multiple eol_pks based on metadata (references + biblio). If same count just picked one.
         foreach($study as $value_uri => $eol_pks) {
             //get refs for each eol_pk
             foreach($eol_pks as $eol_pk) {
@@ -293,7 +297,7 @@ class SummaryDataResourcesAPI
             }
         }
         // echo "\n refs_of_eol_pk: "; print_r($refs_of_eol_pk);
-        echo "\n study: "; print_r($study);
+        // echo "\n study: "; print_r($study);
         foreach($study as $value_uri => $eol_pks) {
             $ref_counts = array();
             foreach($eol_pks as $eol_pk) {
@@ -304,12 +308,14 @@ class SummaryDataResourcesAPI
             $remain[$value_uri][] = self::get_key_of_arr_with_biggest_value($ref_counts);
         }
         echo "\n remain: ";print_r($remain);
-        
         foreach($study as $value_uri => $eol_pks) {
             $remove[$value_uri] = array_diff($eol_pks, $remain[$value_uri]);
         }
         echo "\n remove: ";print_r($remove);
         
+        echo "\norig rows count: ".count($rows)."\n";
+        //step 4: remove duplicate records
+        $i = 0;
         foreach($rows as $row)
         {   /*Array(
             [0] => 46559217
@@ -317,12 +323,17 @@ class SummaryDataResourcesAPI
             [2] => http://purl.obolibrary.org/obo/ENVO_00000447
             [3] => REP
             )*/
-            $value_uri = $row[2];
-            
+            $eol_pk = $row[1]; $value_uri = $row[2];
+            if($eol_pk_2_remove = @$remove[$value_uri]) {
+                if(in_array($eol_pk, $eol_pk_2_remove)) $rows[$i] = null;
+            }
+            $i++;
         }
-        
-        
-        exit;
+        $rows = array_filter($rows);
+        echo "\nnew rows count: ".count($rows)."\n";
+        //step 5: finally writing the rows
+        foreach($rows as $row) fwrite($WRITE, implode("\t", $row). "\n");
+        return;
     }
     private function pick_one($arr)
     {
