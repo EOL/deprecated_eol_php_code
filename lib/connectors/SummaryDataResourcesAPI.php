@@ -421,6 +421,7 @@ class SummaryDataResourcesAPI
     }
     private function get_refs_from_metadata_csv($eol_pks)
     {
+        $refs = array();
         $file = fopen($this->main_paths['archive_path'].'/metadata.csv', 'r'); $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) { $i++; 
             if($i == 1) $fields = $line;
@@ -440,8 +441,7 @@ class SummaryDataResourcesAPI
                 // $debug[$rec['predicate']] = '';
             }
         }
-        // print_r($refs); print_r($biblios); exit;
-        // print_r($debug); exit;
+        // print_r($refs); print_r($debug); exit;
         return $refs;
     }
     private function get_sought_field($recs, $field)
@@ -1400,6 +1400,7 @@ class SummaryDataResourcesAPI
         if($roots_inside_the_list = self::get_roots_inside_the_list($roots, $delete_list_2)) {
             echo "\nThere are root(s) found in the list: ".count($roots_inside_the_list)." "; print_r($roots_inside_the_list);
             $all_left_of_tree = self::get_all_left_of_tree($new_isvat);
+            $add_2_roots = array();
             foreach($new_isvat as $a) {
                 if(in_array($a[0], $roots_inside_the_list)) {
                     if(!in_array($a[1], $all_left_of_tree)) {
@@ -1411,7 +1412,7 @@ class SummaryDataResourcesAPI
             }
             echo "\ntrimmed shared ancestry tree: ".count($new_isvat_2); foreach($new_isvat_2 as $a) echo "\n".$a[0]."\t".$a[1];
             $roots = array_diff($roots, $roots_inside_the_list);
-            $roots = array_merge($roots, array_keys($add_2_roots));
+            if($add_2_roots) $roots = array_merge($roots, array_keys($add_2_roots));
             echo "\n\nnew roots: ".count($roots)."\n"; print_r($roots);
         }
         else {
