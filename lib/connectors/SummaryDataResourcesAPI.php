@@ -49,7 +49,7 @@ class SummaryDataResourcesAPI
     }
     function start()
     {
-        // /* print resource files (Basal values)
+        /* print resource files (Basal values)
         //step 1: get all 'basal values' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite');
         $predicates = $predicates['basal values'];
@@ -92,7 +92,7 @@ class SummaryDataResourcesAPI
         $this->archive_builder->finalize(TRUE);
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
         exit("\n-end print resource files (Basal values)-\n");
-        // */
+        */
         
         /* WORKING
         $ret = self::get_summ_process_type_given_pred('opposite');
@@ -104,13 +104,13 @@ class SummaryDataResourcesAPI
         self::investigate_traits_csv(); exit;
         */
 
-        /* METHOD: parents: basal values
+        // /* METHOD: parents: basal values {still a work in progress. folder test case is [2018 09 28 basal values parent]}
         // self::parse_DH();
         self::initialize_basal_values();
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //habitat includes -> orig test case
         $ret = self::main_parents_basal_values($page_id, $predicate);
         exit("\n-- end method: parents: basal values --\n");
-        */
+        // */
 
         // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
@@ -195,7 +195,7 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: parents: taxon summary --\n");
         */
 
-        /* METHOD: taxon summary ============================================================================================================
+        // /* METHOD: taxon summary ============================================================================================================
         self::parse_DH();
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         // $page_id = 328682; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -- additional test sample but no record for predicate 'eats'.
@@ -215,7 +215,7 @@ class SummaryDataResourcesAPI
         $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
         echo "\n\nFinal result:"; print_r($ret);
         exit("\n-- end method: 'taxon summary' --\n");
-        */
+        // */
 
         /* METHOD: lifestage+statMeth ============================================================================================================
         self::initialize();
