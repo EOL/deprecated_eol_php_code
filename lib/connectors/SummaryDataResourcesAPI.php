@@ -1406,7 +1406,7 @@ class SummaryDataResourcesAPI
                         $add_2_roots[$a[1]] = '';
                     }
                 }
-                else                                        $new_isvat_2[] = $a;
+                else $new_isvat_2[] = $a;
             }
             echo "\ntrimmed shared ancestry tree: ".count($new_isvat_2); foreach($new_isvat_2 as $a) echo "\n".$a[0]."\t".$a[1];
             $roots = array_diff($roots, $roots_inside_the_list);
@@ -1426,14 +1426,6 @@ class SummaryDataResourcesAPI
         foreach($tree as $a) $final[$a[0]] = '';
         return array_keys($final);
     }
-    // private function are_there_roots_in_the_list($roots, $list)
-    // {
-    //     $roots_in_the_list = array();
-    //     foreach($roots as $root) {
-    //         if(!in_array($root, $list)) $roots_in_the_list[] = $root;
-    //     }
-    //     return $roots_in_the_list;
-    // }
     private function get_roots_inside_the_list($roots, $list)
     {
         $roots_inside_the_list = array();
