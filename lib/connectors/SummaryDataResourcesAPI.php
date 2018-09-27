@@ -82,7 +82,7 @@ class SummaryDataResourcesAPI
                     if($ret = self::main_basal_values($page_id, $predicate)) {
                         $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                         // print_r($ret);
-                        self::write_resource_file($ret, $WRITE);
+                        self::write_resource_file_BasalValues($ret, $WRITE);
                     }
                 }
             }
@@ -103,6 +103,37 @@ class SummaryDataResourcesAPI
         self::initialize();
         self::investigate_traits_csv(); exit;
         */
+
+        /* METHOD: parents: taxon summary ============================================================================================================
+        self::parse_DH();
+        $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -> orig test case
+        $ret = self::main_parents_taxon_summary($page_id, $predicate);
+        print_r($ret);
+        exit("\n-- end method: parents: taxon summary --\n");
+        */
+
+        // /* METHOD: taxon summary ============================================================================================================
+        self::parse_DH();
+        // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
+        // $page_id = 328682; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -- additional test sample but no record for predicate 'eats'.
+        
+        // $page_id = 7666; $page_id = 7662;
+        // $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
+        // $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
+        // $page_id = 46559118; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on
+        // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
+        // $page_id = 46559162; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
+        // $page_id = 46559217; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
+        // $page_id = 328609; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
+        $page_id = 328598; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
+        
+        self::initialize();
+        $ret = self::main_taxon_summary($page_id, $predicate);
+        $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
+        echo "\n\nFinal result:"; print_r($ret);
+        exit("\n-- end method: 'taxon summary' --\n");
+        // */
+
 
         // /* METHOD: parents: basal values {still a work in progress. folder test case is [2018 09 28 basal values parent]}
         // self::parse_DH();
@@ -168,7 +199,7 @@ class SummaryDataResourcesAPI
             if($ret = self::main_basal_values($page_id, $predicate)) {
                 $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                 print_r($ret);
-                self::write_resource_file($ret, $WRITE);
+                self::write_resource_file_BasalValues($ret, $WRITE);
             }
             
             /* temp block
@@ -187,35 +218,6 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: basal values --\n");
         // */
 
-        /* METHOD: parents: taxon summary
-        self::parse_DH();
-        $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -> orig test case
-        $ret = self::main_parents_taxon_summary($page_id, $predicate);
-        print_r($ret);
-        exit("\n-- end method: parents: taxon summary --\n");
-        */
-
-        // /* METHOD: taxon summary ============================================================================================================
-        self::parse_DH();
-        // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
-        // $page_id = 328682; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -- additional test sample but no record for predicate 'eats'.
-        
-        $page_id = 7666; $page_id = 7662;
-        $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-        $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
-        $page_id = 46559118; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on
-        $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-        $page_id = 46559162; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-        $page_id = 46559217; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-        $page_id = 328609; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-        $page_id = 328598; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-        
-        self::initialize();
-        $ret = self::main_taxon_summary($page_id, $predicate);
-        $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-        echo "\n\nFinal result:"; print_r($ret);
-        exit("\n-- end method: 'taxon summary' --\n");
-        // */
 
         /* METHOD: lifestage+statMeth ============================================================================================================
         self::initialize();
@@ -228,7 +230,7 @@ class SummaryDataResourcesAPI
         */
     }
     //############################################################################################ start write resource file - method = 'basal values'
-    private function write_resource_file($info, $WRITE)
+    private function write_resource_file_BasalValues($info, $WRITE)
     {   /*when creating new records (non-tips), find and deduplicate all references and bibliographicCitations for each tip record below the node, and attach as references. MeasurementMethod= "summary of records available in EOL". Construct a source link to EOL, eg: https://beta.eol.org/pages/46559143/data */
         $page_id = $info['page_id']; $predicate = $info['predicate'];
         /*step 1: get all eol_pks */
