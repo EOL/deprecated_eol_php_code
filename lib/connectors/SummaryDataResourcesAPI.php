@@ -234,6 +234,7 @@ class SummaryDataResourcesAPI
         /*step 1: get all eol_pks */
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
 
+        $found = array();
         foreach($info['Selected'] as $id) {
             foreach($recs as $rec) {
                 if($rec['value_uri'] == $id) {
