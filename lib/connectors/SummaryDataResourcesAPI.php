@@ -49,7 +49,7 @@ class SummaryDataResourcesAPI
     }
     function start()
     {
-        /* print resource files (Basal values)
+        // /* print resource files (Basal values)
         //step 1: get all 'basal values' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite');
         $predicates = $predicates['basal values'];
@@ -92,7 +92,7 @@ class SummaryDataResourcesAPI
         $this->archive_builder->finalize(TRUE);
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
         exit("\n-end print resource files (Basal values)-\n");
-        */
+        // */
         
         /* WORKING
         $ret = self::get_summ_process_type_given_pred('opposite');
@@ -114,6 +114,8 @@ class SummaryDataResourcesAPI
 
         // /* METHOD: taxon summary ============================================================================================================
         self::parse_DH();
+        self::initialize();
+
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         // $page_id = 328682; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -- additional test sample but no record for predicate 'eats'.
         
@@ -125,12 +127,17 @@ class SummaryDataResourcesAPI
         // $page_id = 46559162; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 46559217; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 328609; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-        $page_id = 328598; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         
-        self::initialize();
-        $ret = self::main_taxon_summary($page_id, $predicate);
-        $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-        echo "\n\nFinal result:"; print_r($ret);
+
+        $input[] = array('page_id' => 328598, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case when writing to DwCA
+        
+        foreach($input as $i) {
+            $page_id = $i['page_id']; $predicate = $i['predicate'];
+            if($ret = self::main_taxon_summary($page_id, $predicate)) {
+                echo "\n\nFinal result:"; print_r($ret);
+                self::write_resource_file_TaxonSummary($ret, $WRITE);
+            }
+        }
         exit("\n-- end method: 'taxon summary' --\n");
         // */
 
@@ -228,6 +235,21 @@ class SummaryDataResourcesAPI
         print_r($ret);
         exit("\n-- end method: lifestage_statMeth --\n");
         */
+    }
+    //############################################################################################ start write resource file - method = 'taxon summary'
+    private function write_resource_file_TaxonSummary($ret, $WRITE)
+    {   /*Array(
+        [root] => 46557930
+        [root label] => PRM
+        [Selected] => Array(
+                [0] => 46557930
+                [1] => 207661
+            )
+        [Selected label] => REP
+        [page_id] => 328598
+        [predicate] => http://purl.obolibrary.org/obo/RO_0002470
+        )*/
+        
     }
     //############################################################################################ start write resource file - method = 'basal values'
     private function write_resource_file_BasalValues($info, $WRITE)
@@ -344,18 +366,22 @@ class SummaryDataResourcesAPI
         foreach($arr as $eol_pk) {
         }
     }
+    private function add_taxon($info)
+    {
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID         = $info['page_id'];
+        $taxon->EOL_taxonID     = $info['page_id'];
+        // $taxon->scientificName  = '';
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->taxon_ids[$taxon->taxonID] = '';
+            $this->archive_builder->write_object_to_file($taxon);
+        }
+        return $taxon;
+    }
     private function create_archive($records, $refs, $info) //EXTENSION_URL: http://rs.tdwg.org/dwc/xsd/tdwg_dwcterms.xsd
     {
-        // print_r($records); exit;
+        $taxon = self::add_taxon($info);
         foreach($records as $value_uri) { //e.g. http://purl.obolibrary.org/obo/ENVO_01001125
-            $taxon = new \eol_schema\Taxon();
-            $taxon->taxonID         = $info['page_id'];
-            $taxon->EOL_taxonID     = $info['page_id'];
-            // $taxon->scientificName  = '';
-            if(!isset($this->taxon_ids[$taxon->taxonID])) {
-                $this->taxon_ids[$taxon->taxonID] = '';
-                $this->archive_builder->write_object_to_file($taxon);
-            }
             $predicate = $info['predicate'];
             //start structured data
             $rec['label'] = $info['label'];
@@ -365,8 +391,9 @@ class SummaryDataResourcesAPI
             if($reference_ids = self::create_references($refs)) $rec['referenceID'] = implode("; ", $reference_ids);
             $rec['catnum'] = $taxon->taxonID . "_" . pathinfo($predicate, PATHINFO_BASENAME) . "_" . pathinfo($value_uri, PATHINFO_BASENAME);
             $rec['source'] = "https://beta.eol.org/pages/$taxon->taxonID/data?predicate=$predicate"; //e.g. https://beta.eol.org/pages/46559217/data?predicate=http://eol.org/schema/terms/Habitat
-            if($predicate == "http://eol.org/schema/terms/Habitat") self::add_string_types($rec);
-            elseif($predicate == "xxx")                             self::add_string_types($rec);
+            // if($predicate == "http://eol.org/schema/terms/Habitat") self::add_string_types($rec);
+            // elseif($predicate == "xxx")                             self::add_string_types($rec);
+            self::add_string_types($rec);
         }
     }
     private function create_references($refs)
@@ -1755,9 +1782,9 @@ class SummaryDataResourcesAPI
         }
         return $final;
     }
+    /* may not be needed anymore...
     function start_ok()
-    {
-        self::initialize();
+    {   self::initialize();
         $uris = array(); //just during development --- assign uris here...
         self::set_ancestor_ranking_from_set_of_uris($uris);
         $terms[] = "http://www.marineregions.org/gazetteer.php?p=details&id=australia";
@@ -1775,7 +1802,7 @@ class SummaryDataResourcesAPI
         $WRITE = fopen($this->temp_file, 'w'); fclose($WRITE);
         foreach($terms as $term) self::get_parent_of_term($term);
         exit("\nend 01\n");
-    }
+    }*/
     private function set_ancestor_ranking_from_set_of_uris($uris)
     {
         $final = array(); $final_preferred = array();
