@@ -112,16 +112,14 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: parents: taxon summary --\n");
         */
 
-        // /* METHOD: taxon summary ============================================================================================================
+        /* METHOD: taxon summary ============================================================================================================ TODO - waiting for Jen's feedback on spreadsheet
         self::parse_DH();
         self::initialize();
 
-        // /* orig write block
-        //write to DwCA
+        // orig write block - write to DwCA
         $this->resource_id = 'taxon_summary';
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        // */
         
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         // $page_id = 328682; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -- additional test sample but no record for predicate 'eats'.
@@ -144,15 +142,14 @@ class SummaryDataResourcesAPI
                 self::write_resource_file_TaxonSummary($ret);
             }
         }
-        // /* orig write block
+        // orig write block
         $this->archive_builder->finalize(TRUE);
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
-        // */
         exit("\n-- end method: 'taxon summary' --\n");
-        // */
+        */
 
 
-        // /* METHOD: parents: basal values {still a work in progress. folder test case is [2018 09 28 basal values parent]}
+        // /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 09 28 basal values parent]}  ============================================================================================================
         // self::parse_DH();
         self::initialize_basal_values();
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //habitat includes -> orig test case
