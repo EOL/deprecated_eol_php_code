@@ -49,7 +49,7 @@ class SummaryDataResourcesAPI
     }
     function start()
     {
-        /* print resource files
+        // /* print resource files (Basal values)
         //step 1: get all 'basal values' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite');
         $predicates = $predicates['basal values'];
@@ -67,7 +67,7 @@ class SummaryDataResourcesAPI
         
         //write to file
         if(!($WRITE = Functions::file_open($this->basal_values_resource_file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "http://purl.obolibrary.org/obo/IAO_0000009");
+        $row = array("Page ID", 'eol_pk', "http://purl.obolibrary.org/obo/IAO_0000009", "Value URI");
         fwrite($WRITE, implode("\t", $row). "\n");
         //--------initialize end
         
@@ -91,8 +91,8 @@ class SummaryDataResourcesAPI
         fclose($WRITE);
         $this->archive_builder->finalize(TRUE);
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
-        exit("\n-end print resource files-\n");
-        */
+        exit("\n-end print resource files (Basal values)-\n");
+        // */
         
         /* WORKING
         $ret = self::get_summ_process_type_given_pred('opposite');
