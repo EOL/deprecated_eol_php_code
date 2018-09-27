@@ -49,7 +49,7 @@ class SummaryDataResourcesAPI
     }
     function start()
     {
-        // /* print resource files (Basal values)
+        /* print resource files (Basal values)
         //step 1: get all 'basal values' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite');
         $predicates = $predicates['basal values'];
@@ -92,7 +92,7 @@ class SummaryDataResourcesAPI
         $this->archive_builder->finalize(TRUE);
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
         exit("\n-end print resource files (Basal values)-\n");
-        // */
+        */
         
         /* WORKING
         $ret = self::get_summ_process_type_given_pred('opposite');
@@ -116,9 +116,15 @@ class SummaryDataResourcesAPI
         self::parse_DH();
         self::initialize();
 
+        // /* orig write block
+        //write to DwCA
+        $this->resource_id = 'taxon_summary';
+        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id . '_working/';
+        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        // */
+        
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         // $page_id = 328682; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -- additional test sample but no record for predicate 'eats'.
-        
         // $page_id = 7666; $page_id = 7662;
         // $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
@@ -127,7 +133,6 @@ class SummaryDataResourcesAPI
         // $page_id = 46559162; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 46559217; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 328609; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-        
 
         $input[] = array('page_id' => 328598, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case when writing to DwCA
         
@@ -135,9 +140,13 @@ class SummaryDataResourcesAPI
             $page_id = $i['page_id']; $predicate = $i['predicate'];
             if($ret = self::main_taxon_summary($page_id, $predicate)) {
                 echo "\n\nFinal result:"; print_r($ret);
-                self::write_resource_file_TaxonSummary($ret, $WRITE);
+                self::write_resource_file_TaxonSummary($ret);
             }
         }
+        // /* orig write block
+        $this->archive_builder->finalize(TRUE);
+        if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
+        // */
         exit("\n-- end method: 'taxon summary' --\n");
         // */
 
@@ -237,7 +246,7 @@ class SummaryDataResourcesAPI
         */
     }
     //############################################################################################ start write resource file - method = 'taxon summary'
-    private function write_resource_file_TaxonSummary($ret, $WRITE)
+    private function write_resource_file_TaxonSummary($ret)
     {   /*Array(
         [root] => 46557930
         [root label] => PRM
@@ -249,7 +258,31 @@ class SummaryDataResourcesAPI
         [page_id] => 328598
         [predicate] => http://purl.obolibrary.org/obo/RO_0002470
         )*/
-        
+        $taxon_id = $ret['page_id'];
+        $type = pathinfo($ret['predicate'], PATHINFO_BASENAME);
+        foreach($ret['Selected'] as $taxon_name_id) {
+            $occurrence_id = $this->add_occurrence_assoc($taxon_id, $taxon_name_id . "_$type");
+            $related_taxon = $this->add_taxon(array('page_id' => $taxon_name_id));
+            $related_occurrence_id = $this->add_occurrence_assoc($related_taxon->taxonID, $taxon_id . "_$type");
+            $a = new \eol_schema\Association();
+            $a->occurrenceID = $occurrence_id;
+            $a->associationType = $ret['predicate'];
+            $a->targetOccurrenceID = $related_occurrence_id;
+            $this->archive_builder->write_object_to_file($a);
+        }
+    }
+    private function add_occurrence_assoc($taxon_id, $label)
+    {
+        $occurrence_id = md5($taxon_id . "_" . str_replace(" ", "_", $label));
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = $occurrence_id;
+        $o->taxonID = $taxon_id;
+        if(isset($this->occurrence_ids[$occurrence_id])) return $occurrence_id;
+        else {
+            $this->archive_builder->write_object_to_file($o);
+            $this->occurrence_ids[$occurrence_id] = '';
+            return $occurrence_id;
+        }
     }
     //############################################################################################ start write resource file - method = 'basal values'
     private function write_resource_file_BasalValues($info, $WRITE)
@@ -371,7 +404,6 @@ class SummaryDataResourcesAPI
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = $info['page_id'];
         $taxon->EOL_taxonID     = $info['page_id'];
-        // $taxon->scientificName  = '';
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->taxon_ids[$taxon->taxonID] = '';
             $this->archive_builder->write_object_to_file($taxon);
