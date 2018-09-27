@@ -1397,7 +1397,7 @@ class SummaryDataResourcesAPI
         echo "\nList: "; print_r($delete_list_2);
         echo "\n\nroots: ".count($roots)."\n"; print_r($roots);
         if($roots_inside_the_list = self::get_roots_inside_the_list($roots, $delete_list_2)) {
-            echo "\nThere are root(s) found in the list: ".count($roots_inside_the_list)." "; print_r($roots_inside_the_list);
+            echo "\nThere are root(s) inside the 2nd list: ".count($roots_inside_the_list)." "; print_r($roots_inside_the_list);
             $all_left_of_tree = self::get_all_left_of_tree($new_isvat);
             foreach($new_isvat as $a) {
                 if(in_array($a[0], $roots_inside_the_list)) {
