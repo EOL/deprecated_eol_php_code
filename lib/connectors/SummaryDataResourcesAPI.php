@@ -138,14 +138,14 @@ class SummaryDataResourcesAPI
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Present");
         // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Present");
         
-        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case
+        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case
         // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 4442159, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat"); //test case for write resource
+        // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat"); //test case for write resource
 
         foreach($input as $i) {
             /* temp block
@@ -1363,65 +1363,77 @@ class SummaryDataResourcesAPI
             look for these nodes in the list of roots
             are there any other roots aside from the nodes in this list?
                 if not, do nothing
-                if so, delete all of these root nodes and all of their descendants- entire branches should be removed. 
-                I expect there may be weird cases, where a tip might be a child of one of these roots, and also of a root not on this list. 
-                So if this is cleaner: keep the nodes NOT on this list, and all their descendants. Discard everything else
+                if so, keep the root nodes that are NOT on this list, and all their descendants. Discard all other nodes 
+            the list:
         */
-        echo "\n--------------------------------------------DELETE ALONG WITH CHILDREN step: start\n";
+        echo "\n--------------------------------------------DELETE ALONG WITH CHILDREN step: -START-\n";
         $delete_list_1 = array('http://purl.obolibrary.org/obo/ENVO_00000094', 'http://purl.obolibrary.org/obo/ENVO_01000155', 'http://purl.obolibrary.org/obo/ENVO_00000002', 'http://purl.obolibrary.org/obo/ENVO_00000077');
-        if($roots_outside_the_list = self::are_there_any_other_roots_aside_from_the_nodes_in_this_list($roots, $delete_list_1)) {
-            echo "\nThere are root(s) outside from the 1st list: ".count($roots_outside_the_list)." "; print_r($roots_outside_the_list);
+        echo "\nList: "; print_r($delete_list_1);
+        if($roots_inside_the_list = self::get_roots_inside_the_list($roots, $delete_list_1)) {
+            echo "\nThere are root(s) in the 1st list: ".count($roots_inside_the_list)." "; print_r($roots_inside_the_list);
             echo "\norig 'shared values ancestry tree': ".count($ISVAT)."\n";
             foreach($ISVAT as $a) {
-                if(              in_array($a[0], $roots_outside_the_list)) {}
-                elseif(!$a[0] && in_array($a[1], $roots_outside_the_list)) {}
+                if(              in_array($a[0], $delete_list_1)) {}
+                elseif(!$a[0] && in_array($a[1], $delete_list_1)) {}
                 else $new_isvat[] = $a;
             }
-            echo "\nnew 'shared values ancestry tree': ".count($new_isvat); foreach($new_isvat as $a) echo "\n".$a[0]."\t".$a[1];
-            $roots = array_diff($roots, $roots_outside_the_list);
+            echo "\ntrimmed shared ancestry tree: ".count($new_isvat); foreach($new_isvat as $a) echo "\n".$a[0]."\t".$a[1];
+            $roots = array_diff($roots, $roots_inside_the_list);
             echo "\n\nnew roots: ".count($roots)."\n"; print_r($roots);
         }
         else {
-            echo "\nAll root(s) are found in the list. Do nothing.\n";
+            echo "\nAll root nodes are not on the list. Keeping all root nodes and all descendants. Do nothing.\n";
             $new_isvat = $ISVAT;
         }
-        echo "\n--------------------------------------------DELETE ALONG WITH CHILDREN step: end\n";
-        
+        echo "\n-------------------------------------------- -END-\n";
         /*DELETE, BUT KEEP THE CHILDREN
             look for these nodes in the list of roots
             remove them. Their immediate children are now roots.
             the list:
-        ....and then proceed with step 1 as before :)
         (it's OK if occasionally this leaves you with no records.)
         */
-        echo "\n--------------------------------------------DELETE, BUT KEEP THE CHILDREN step: start\n";
+        echo "\n--------------------------------------------DELETE, BUT KEEP THE CHILDREN step: -START-\n";
         $delete_list_2 = array('http://purl.obolibrary.org/obo/ENVO_01001305', 'http://purl.obolibrary.org/obo/ENVO_00002030', 'http://purl.obolibrary.org/obo/ENVO_01000687');
+        echo "\nList: "; print_r($delete_list_2);
+        echo "\n\nroots: ".count($roots)."\n"; print_r($roots);
         if($roots_inside_the_list = self::get_roots_inside_the_list($roots, $delete_list_2)) {
             echo "\nThere are root(s) inside the 2nd list: ".count($roots_inside_the_list)." "; print_r($roots_inside_the_list);
+            $all_left_of_tree = self::get_all_left_of_tree($new_isvat);
             foreach($new_isvat as $a) {
-                if(in_array($a[0], $roots_inside_the_list)) $new_isvat_2[] = array("", $a[0]);
+                if(in_array($a[0], $roots_inside_the_list)) {
+                    if(!in_array($a[1], $all_left_of_tree)) {
+                        $new_isvat_2[] = array("", $a[1]);
+                        $add_2_roots[$a[1]] = '';
+                    }
+                }
                 else                                        $new_isvat_2[] = $a;
             }
-            echo "\nnew 'shared values ancestry tree' 2: ".count($new_isvat_2); foreach($new_isvat_2 as $a) echo "\n".$a[0]."\t".$a[1];
+            echo "\ntrimmed shared ancestry tree: ".count($new_isvat_2); foreach($new_isvat_2 as $a) echo "\n".$a[0]."\t".$a[1];
             $roots = array_diff($roots, $roots_inside_the_list);
+            $roots = array_merge($roots, array_keys($add_2_roots));
             echo "\n\nnew roots: ".count($roots)."\n"; print_r($roots);
         }
         else {
             echo "\nNo roots inside the list. Do nothing.\n";
             $new_isvat_2 = $new_isvat;
         }
-        echo "\n--------------------------------------------DELETE, BUT KEEP THE CHILDREN step: end\n";
+        echo "\n-------------------------------------------- -END-\n";
         return array('roots' => $roots, 'tips' => self::get_tips($new_isvat_2), 'ISVAT' => $new_isvat_2);
         // exit("\nend temp\n");
     }
-    private function are_there_any_other_roots_aside_from_the_nodes_in_this_list($roots, $list)
+    private function get_all_left_of_tree($tree)
     {
-        $roots_outside_the_list = array();
-        foreach($roots as $root) {
-            if(!in_array($root, $list)) $roots_outside_the_list[] = $root;
-        }
-        return $roots_outside_the_list;
+        foreach($tree as $a) $final[$a[0]] = '';
+        return array_keys($final);
     }
+    // private function are_there_roots_in_the_list($roots, $list)
+    // {
+    //     $roots_in_the_list = array();
+    //     foreach($roots as $root) {
+    //         if(!in_array($root, $list)) $roots_in_the_list[] = $root;
+    //     }
+    //     return $roots_in_the_list;
+    // }
     private function get_roots_inside_the_list($roots, $list)
     {
         $roots_inside_the_list = array();
