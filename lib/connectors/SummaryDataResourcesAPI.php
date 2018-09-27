@@ -141,7 +141,7 @@ class SummaryDataResourcesAPI
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case     //test case with new 2nd deletion step
         // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");                        //test case with new first deletion step
+        $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");                        //test case with new first & second deletion steps
         // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 4442159, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Habitat");
@@ -1369,7 +1369,7 @@ class SummaryDataResourcesAPI
         */
         echo "\n--------------------------------------------DELETE ALONG WITH CHILDREN step: -START-\n";
         $delete_list_1 = array('http://purl.obolibrary.org/obo/ENVO_00000094', 'http://purl.obolibrary.org/obo/ENVO_01000155', 'http://purl.obolibrary.org/obo/ENVO_00000002', 'http://purl.obolibrary.org/obo/ENVO_00000077');
-        echo "\nList: "; print_r($delete_list_1);
+        echo "\nDelete List: "; print_r($delete_list_1);
         if($roots_inside_the_list = self::get_roots_inside_the_list($roots, $delete_list_1)) {
             // exit("\ntest sample here...\n");
             echo "\nThere are root(s) in the 1st list: ".count($roots_inside_the_list)." "; print_r($roots_inside_the_list);
@@ -1396,7 +1396,7 @@ class SummaryDataResourcesAPI
         */
         echo "\n--------------------------------------------DELETE, BUT KEEP THE CHILDREN step: -START-\n";
         $delete_list_2 = array('http://purl.obolibrary.org/obo/ENVO_01001305', 'http://purl.obolibrary.org/obo/ENVO_00002030', 'http://purl.obolibrary.org/obo/ENVO_01000687');
-        echo "\nList: "; print_r($delete_list_2);
+        echo "\nDelete List: "; print_r($delete_list_2);
         echo "\n\nroots: ".count($roots)."\n"; print_r($roots);
         if($roots_inside_the_list = self::get_roots_inside_the_list($roots, $delete_list_2)) {
             echo "\nThere are root(s) found in the list: ".count($roots_inside_the_list)." "; print_r($roots_inside_the_list);
