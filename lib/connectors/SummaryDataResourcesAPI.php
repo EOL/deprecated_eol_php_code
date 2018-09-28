@@ -112,7 +112,7 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: parents: taxon summary --\n");
         */
 
-        /* METHOD: taxon summary ============================================================================================================ TODO - waiting for Jen's feedback on spreadsheet
+        // /* METHOD: taxon summary ============================================================================================================ TODO - waiting for Jen's feedback on spreadsheet
         self::parse_DH();
         self::initialize();
 
@@ -146,16 +146,16 @@ class SummaryDataResourcesAPI
         $this->archive_builder->finalize(TRUE);
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
         exit("\n-- end method: 'taxon summary' --\n");
-        */
+        // */
 
 
-        // /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 09 28 basal values parent]}  ============================================================================================================
+        /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 09 28 basal values parent]}  ============================================================================================================
         // self::parse_DH();
         self::initialize_basal_values();
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //habitat includes -> orig test case
         $ret = self::main_parents_basal_values($page_id, $predicate);
         exit("\n-- end method: parents: basal values --\n");
-        // */
+        */
 
         // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
@@ -183,10 +183,10 @@ class SummaryDataResourcesAPI
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Present");
         // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Present");
         
-        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case     //test case with new 2nd deletion step
+        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case     //test case with new 2nd deletion step
         // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");                        //test case with new first & second deletion steps
+        // $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");                        //test case with new first & second deletion steps
         // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 4442159, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Habitat");
@@ -257,9 +257,10 @@ class SummaryDataResourcesAPI
         [predicate] => http://purl.obolibrary.org/obo/RO_0002470
         )*/
         $taxon_id = $ret['page_id'];
-        $this->add_taxon(array('page_id' => $taxon_id));
-        
+        $taxon = $this->add_taxon(array('page_id' => $taxon_id));
         $type = pathinfo($ret['predicate'], PATHINFO_BASENAME);
+        
+        // /*
         foreach($ret['Selected'] as $taxon_name_id) {
             $occurrence_id = $this->add_occurrence_assoc($taxon_id, $taxon_name_id . "_$type");
             $related_taxon = $this->add_taxon(array('page_id' => $taxon_name_id));
@@ -270,7 +271,33 @@ class SummaryDataResourcesAPI
             $a->targetOccurrenceID = $related_occurrence_id;
             $this->archive_builder->write_object_to_file($a);
         }
+        // */
+        
+        /* same result as above
+        foreach($ret['Selected'] as $taxon_name_id) {
+            $occurrence = $this->add_occurrence_assoc2($taxon, $taxon_name_id);
+            $related_taxon = $this->add_taxon(array('page_id' => $taxon_name_id));
+            $related_occurrence = $this->add_occurrence_assoc2($related_taxon, $taxon->taxonID);
+            $a = new \eol_schema\Association();
+            $a->occurrenceID = $occurrence->occurrenceID;
+            $a->associationType = "http://adw.org/hasPredator";
+            $a->targetOccurrenceID = $related_occurrence->occurrenceID;
+            $this->archive_builder->write_object_to_file($a);
+        }
+        */
     }
+    private function add_occurrence_assoc2($taxon, $identification_string)
+    {
+        $occurrence_id = md5($taxon->taxonID . 'occurrence' . $identification_string);
+        if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = $occurrence_id;
+        $o->taxonID = $taxon->taxonID;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$occurrence_id] = $o;
+        return $o;
+    }
+    
     private function add_occurrence_assoc($taxon_id, $label)
     {
         $occurrence_id = $taxon_id . "_" . str_replace(" ", "_", $label);
@@ -1476,6 +1503,7 @@ class SummaryDataResourcesAPI
             echo "\ntrimmed shared ancestry tree: ".count($new_isvat_2); foreach($new_isvat_2 as $a) echo "\n".$a[0]."\t".$a[1];
             $roots = array_diff($roots, $roots_inside_the_list);
             if($add_2_roots) $roots = array_merge($roots, array_keys($add_2_roots));
+            else echo "\nNo additional roots.\n";
             echo "\n\nnew roots: ".count($roots)."\n"; print_r($roots);
         }
         else {
