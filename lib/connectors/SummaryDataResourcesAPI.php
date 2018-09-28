@@ -1495,7 +1495,7 @@ class SummaryDataResourcesAPI
                 else $possible_root_or_deleted[$a[1]] = '';
             }
             $possible_root_or_deleted = array_keys($possible_root_or_deleted);
-            echo "\nnodes in question: "; print_r($possible_root_or_deleted);
+            echo "\n-----------Diagnostics -START- -----------\n*Nodes in question: "; print_r($possible_root_or_deleted);
             $all_left_of_tree = self::get_one_side_of_tree($temp_tree_deleted, 'left');
             $all_right_of_tree = self::get_one_side_of_tree($temp_tree_deleted, 'right');
             //2. decide which can be root and which can be removed.
@@ -1514,17 +1514,13 @@ class SummaryDataResourcesAPI
                 }
                 else $new_isvat_2[] = $a;
             }
-            /* obsolete, can be deleted.
-            foreach($new_isvat as $a) {
-                if(in_array($a[0], $roots_inside_the_list)) {
-                    if(!in_array($a[1], $all_right_of_tree)) {
-                        $new_isvat_2[] = array("", $a[1]);
-                        $add_2_roots[$a[1]] = '';
-                    }
-                }
-                else $new_isvat_2[] = $a;
-            }
-            */
+            
+            echo "*Will become orphan/single rows: "; print_r($orphans);
+            echo "*Will be added to roots: "; print_r(array_keys($add_2_roots));
+            echo "*Neither root nor tip: "; print_r($neither_root_nor_tip);
+            echo "\n-----------Diagnostics -END- -----------\n";
+            
+            
             echo "\ntrimmed shared ancestry tree: ".count($new_isvat_2); foreach($new_isvat_2 as $a) echo "\n".$a[0]."\t".$a[1];
             $roots = array_diff($roots, $roots_inside_the_list);
             if($add_2_roots) $roots = array_merge($roots, array_keys($add_2_roots));
