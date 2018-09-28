@@ -112,7 +112,7 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: parents: taxon summary --\n");
         */
 
-        // /* METHOD: taxon summary ============================================================================================================ TODO - waiting for Jen's feedback on spreadsheet
+        /* METHOD: taxon summary ============================================================================================================ TODO - waiting for Jen's feedback on spreadsheet
         self::parse_DH();
         self::initialize();
 
@@ -146,7 +146,7 @@ class SummaryDataResourcesAPI
         $this->archive_builder->finalize(TRUE);
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
         exit("\n-- end method: 'taxon summary' --\n");
-        // */
+        */
 
 
         /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 09 28 basal values parent]}  ============================================================================================================
