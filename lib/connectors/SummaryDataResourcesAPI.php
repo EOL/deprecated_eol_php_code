@@ -183,10 +183,10 @@ class SummaryDataResourcesAPI
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Present");
         // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Present");
         
-        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case     //test case with new 2nd deletion step
+        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case     //test case with new 2nd deletion step
         // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        // $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");                        //test case with new first & second deletion steps
+        $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");                        //test case with new first & second deletion steps
         // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 4442159, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Habitat");
@@ -1489,17 +1489,42 @@ class SummaryDataResourcesAPI
         echo "\n\nroots: ".count($roots)."\n"; print_r($roots);
         if($roots_inside_the_list = self::get_roots_inside_the_list($roots, $delete_list_2)) {
             echo "\nThere are root(s) found in the list: ".count($roots_inside_the_list)." "; print_r($roots_inside_the_list);
-            $all_left_of_tree = self::get_all_left_of_tree($new_isvat);
-            $add_2_roots = array();
+            //1. get $temp_tree_deleted, will use this in deciding which can be root, which can be removed.
+            foreach($new_isvat as $a) {
+                if(!in_array($a[0], $roots_inside_the_list)) $temp_tree_deleted[] = $a;
+                else $possible_root_or_deleted[$a[1]] = '';
+            }
+            $possible_root_or_deleted = array_keys($possible_root_or_deleted);
+            echo "\nnodes in question: "; print_r($possible_root_or_deleted);
+            $all_left_of_tree = self::get_one_side_of_tree($temp_tree_deleted, 'left');
+            $all_right_of_tree = self::get_one_side_of_tree($temp_tree_deleted, 'right');
+            //2. decide which can be root and which can be removed.
+            $orphans = array(); $add_2_roots = array(); //initialization
+            foreach($possible_root_or_deleted as $node) {
+                if(!in_array($node, $all_left_of_tree) && !in_array($node, $all_right_of_tree)) {
+                    $orphans[] = $node;
+                    $add_2_roots[$node] = '';
+                }
+                elseif(in_array($node, $all_left_of_tree) && in_array($node, $all_right_of_tree)) $neither_root_nor_tip[] = $node;
+                elseif(in_array($node, $all_left_of_tree) && !in_array($node, $all_right_of_tree)) $add_2_roots[$node] = '';
+            }
             foreach($new_isvat as $a) {
                 if(in_array($a[0], $roots_inside_the_list)) {
-                    if(!in_array($a[1], $all_left_of_tree)) {
+                    if(in_array($a[1], $orphans)) $new_isvat_2[] = array("", $a[1]);
+                }
+                else $new_isvat_2[] = $a;
+            }
+            /* obsolete, can be deleted.
+            foreach($new_isvat as $a) {
+                if(in_array($a[0], $roots_inside_the_list)) {
+                    if(!in_array($a[1], $all_right_of_tree)) {
                         $new_isvat_2[] = array("", $a[1]);
                         $add_2_roots[$a[1]] = '';
                     }
                 }
                 else $new_isvat_2[] = $a;
             }
+            */
             echo "\ntrimmed shared ancestry tree: ".count($new_isvat_2); foreach($new_isvat_2 as $a) echo "\n".$a[0]."\t".$a[1];
             $roots = array_diff($roots, $roots_inside_the_list);
             if($add_2_roots) $roots = array_merge($roots, array_keys($add_2_roots));
@@ -1514,9 +1539,12 @@ class SummaryDataResourcesAPI
         return array('roots' => $roots, 'tips' => self::get_tips($new_isvat_2), 'ISVAT' => $new_isvat_2);
         // exit("\nend temp\n");
     }
-    private function get_all_left_of_tree($tree)
+    private function get_one_side_of_tree($tree, $side)
     {
-        foreach($tree as $a) $final[$a[0]] = '';
+        foreach($tree as $a) {
+            if    ($side == 'left') $final[$a[0]] = '';
+            elseif($side == 'right') $final[$a[1]] = '';
+        }
         return array_keys($final);
     }
     private function get_roots_inside_the_list($roots, $list)
