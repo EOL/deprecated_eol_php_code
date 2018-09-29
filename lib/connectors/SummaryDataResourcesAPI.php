@@ -260,7 +260,7 @@ class SummaryDataResourcesAPI
         $type = pathinfo($ret['predicate'], PATHINFO_BASENAME);
         
         // /*
-        $occurrence_id = $this->add_occurrence_assoc($taxon_id, "_$type"); // used in 'Summary Data Resources' implementation. Not the strategy used in EOL Associations
+        $occurrence_id = $this->add_occurrence_assoc($taxon_id, "$type"); // used in 'Summary Data Resources' implementation. Not the strategy used in EOL Associations
         foreach($ret['Selected'] as $taxon_name_id) {
             /* $occurrence_id = $this->add_occurrence_assoc($taxon_id, $taxon_name_id . "_$type"); */ // used in orig EOL Associations implementation.
             $related_taxon = $this->add_taxon(array('page_id' => $taxon_name_id));
