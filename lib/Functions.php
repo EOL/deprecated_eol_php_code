@@ -1907,7 +1907,7 @@ class Functions
                 }
             }
         }
-        elseif(in_array($extension, array('occurrence', 'association')))
+        elseif(in_array($extension, array('occurrence', 'association'))) {
             if($properties) {
                 foreach($properties as $field) {
                     if($val = @$m->$field) $final .= $val."_";
