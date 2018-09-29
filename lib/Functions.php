@@ -1889,6 +1889,7 @@ class Functions
     {
         $url['measurement'] = "https://editors.eol.org/other_files/ontology/measurement_extension.xml";
         $url['occurrence'] = "https://editors.eol.org/other_files/ontology/occurrence_extension.xml"; //not used for now coz it will generate many many records both for occurrence and measurement extensions...
+        $url['association'] = "https://editors.eol.org/other_files/ontology/association_extension.xml";
         $final = '';
         if($extension == 'measurement') {
             if($properties) {
@@ -1906,7 +1907,7 @@ class Functions
                 }
             }
         }
-        elseif($extension == 'occurrence') {
+        elseif(in_array($extension, array('occurrence', 'association')))
             if($properties) {
                 foreach($properties as $field) {
                     if($val = @$m->$field) $final .= $val."_";
@@ -1921,7 +1922,7 @@ class Functions
                     }
                 }
             }
-            /* limited properties included just three here...
+            /* limited properties included just three here... for e.g. Occurrence
             else {
                 foreach(array('occurrenceID', 'sex', 'lifeStage') as $field) {
                     if($val = @$m->$field) $final .= $val."_";

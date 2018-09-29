@@ -112,7 +112,7 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: parents: taxon summary --\n");
         */
 
-        /* METHOD: taxon summary ============================================================================================================ TODO - waiting for Jen's feedback on spreadsheet
+        // /* METHOD: taxon summary ============================================================================================================ TODO - waiting for Jen's feedback on spreadsheet
         self::parse_DH();
         self::initialize();
 
@@ -131,7 +131,6 @@ class SummaryDataResourcesAPI
         // $page_id = 46559162; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 46559217; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 328609; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-
         $input[] = array('page_id' => 328598, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case when writing to DwCA
         
         foreach($input as $i) {
@@ -146,7 +145,7 @@ class SummaryDataResourcesAPI
         $this->archive_builder->finalize(TRUE);
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
         exit("\n-- end method: 'taxon summary' --\n");
-        */
+        // */
 
 
         /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 09 28 basal values parent]}  ============================================================================================================
@@ -261,43 +260,26 @@ class SummaryDataResourcesAPI
         $type = pathinfo($ret['predicate'], PATHINFO_BASENAME);
         
         // /*
+        $occurrence_id = $this->add_occurrence_assoc($taxon_id, "_$type"); // used in 'Summary Data Resources' implementation. Not the strategy used in EOL Associations
         foreach($ret['Selected'] as $taxon_name_id) {
-            $occurrence_id = $this->add_occurrence_assoc($taxon_id, $taxon_name_id . "_$type");
+            /* $occurrence_id = $this->add_occurrence_assoc($taxon_id, $taxon_name_id . "_$type"); */ // used in orig EOL Associations implementation.
             $related_taxon = $this->add_taxon(array('page_id' => $taxon_name_id));
             $related_occurrence_id = $this->add_occurrence_assoc($related_taxon->taxonID, $taxon_id . "_$type");
-            $a = new \eol_schema\Association();
+            $a = new \eol_schema\Association_specific(); //take note used with '_specific'
+            $a->label = self::get_assoc_label($ret, $taxon_name_id);
             $a->occurrenceID = $occurrence_id;
             $a->associationType = $ret['predicate'];
             $a->targetOccurrenceID = $related_occurrence_id;
+            $a->associationID = Functions::generate_measurementID($a, $this->resource_id, 'association');
             $this->archive_builder->write_object_to_file($a);
         }
         // */
-        
-        /* same result as above
-        foreach($ret['Selected'] as $taxon_name_id) {
-            $occurrence = $this->add_occurrence_assoc2($taxon, $taxon_name_id);
-            $related_taxon = $this->add_taxon(array('page_id' => $taxon_name_id));
-            $related_occurrence = $this->add_occurrence_assoc2($related_taxon, $taxon->taxonID);
-            $a = new \eol_schema\Association();
-            $a->occurrenceID = $occurrence->occurrenceID;
-            $a->associationType = "http://adw.org/hasPredator";
-            $a->targetOccurrenceID = $related_occurrence->occurrenceID;
-            $this->archive_builder->write_object_to_file($a);
-        }
-        */
     }
-    private function add_occurrence_assoc2($taxon, $identification_string)
+    private function get_assoc_label($ret, $taxon_name_id)
     {
-        $occurrence_id = md5($taxon->taxonID . 'occurrence' . $identification_string);
-        if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
-        $o = new \eol_schema\Occurrence();
-        $o->occurrenceID = $occurrence_id;
-        $o->taxonID = $taxon->taxonID;
-        $this->archive_builder->write_object_to_file($o);
-        $this->occurrence_ids[$occurrence_id] = $o;
-        return $o;
+        if($ret['root'] == $taxon_name_id) return $ret['root label'];
+        else                               return $ret['Selected label'];
     }
-    
     private function add_occurrence_assoc($taxon_id, $label)
     {
         $occurrence_id = $taxon_id . "_" . str_replace(" ", "_", $label);
